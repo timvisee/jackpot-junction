@@ -12,6 +12,7 @@ var rules: MatchRules
 var radius := 2.5
 ## 2.0 during Last Call.
 var payout_multiplier := 1.0
+var puppet := false
 
 ## Kart instance id to channel state: t, carry, total, start_coins, start_mult, start_value.
 var _channels: Dictionary[int, Dictionary] = {}
@@ -58,7 +59,7 @@ func _new_channel() -> Dictionary:
 
 
 func _physics_process(delta: float) -> void:
-	if rules == null:
+	if rules == null or puppet:
 		return
 	for id: int in _channels.keys():
 		var kart := instance_from_id(id) as Kart

@@ -40,7 +40,7 @@ func _ready() -> void:
 	_banner = _label(96, Control.PRESET_CENTER)
 	_banner.visible = false
 	for slot: PlayerSlot in match_node.slots:
-		if slot.is_human():
+		if slot.is_local_human():
 			add_block(slot)
 	_build_results()
 	Events.grazed.connect(_on_grazed)
@@ -60,7 +60,7 @@ func _rumble(slot: int, strength: float, seconds: float) -> void:
 	if not Game.settings.rumble or slot < 0 or slot >= match_node.slots.size():
 		return
 	var player := match_node.slots[slot]
-	if not player.is_human():
+	if not player.is_local_human():
 		return
 	var device := player.device()
 	var devices: Array[int] = []
@@ -422,6 +422,7 @@ func _build_results() -> void:
 	var rematch := Button.new()
 	rematch.text = "Rematch"
 	rematch.pressed.connect(func() -> void: match_node.rematch())
+	rematch.visible = not match_node.puppet
 	buttons.add_child(rematch)
 	var quit := Button.new()
 	quit.text = "Back to title"

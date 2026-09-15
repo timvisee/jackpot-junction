@@ -13,6 +13,10 @@ var duration := 300.0
 var target_score := 3000
 ## "first" for the first power-up set, "all" for every power-up.
 var item_set := "first"
+## "", "host" or "join".
+var online := ""
+var address := "127.0.0.1"
+var port := NetSession.DEFAULT_PORT
 
 
 func inputs() -> Array[KartInput]:

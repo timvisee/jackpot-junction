@@ -663,9 +663,10 @@ else can join. A player who leaves mid-match hands the kart back to a bot.
 ### 9.3 Online multiplayer
 
 The third release. Godot's high-level multiplayer over ENet with a
-host-authoritative listen server, joined by direct IP and port. Up to 4
-players, bots run on the host. Design details in 10.3. A join code needs a
-relay service and Steam integration needs GodotSteam; both are backlog items.
+host-authoritative listen server, joined by direct IP and port from the Play
+online screen. Up to 4 players, bots run on the host, and a joining client
+takes over a bot's kart. Design details in 10.3. A join code needs a relay
+service and Steam integration needs GodotSteam; both are backlog items.
 Joining mid-match follows the local rule in 9.2. Online matches cannot be
 paused.
 
@@ -753,15 +754,15 @@ Designed in from the start so that M6 is an addition, not a rewrite: all rules
 run in one place, the Match, and karts are driven by a KartInput interface.
 
 - ENetMultiplayerPeer, default port 7777. The host runs the server and plays.
-- MultiplayerSpawner for karts, bullets, pickups, turrets and decoys.
-  MultiplayerSynchronizer for kart transform and velocity at 30 Hz, clients
-  interpolate.
+- The host sends a state snapshot at 30 Hz: karts, bullets, pickups, turrets,
+  zones, slots and joker offers. Clients keep a puppet match that renders the
+  snapshots and dead-reckons bullets between them. Snapshots were chosen over
+  MultiplayerSpawner and MultiplayerSynchronizer because every gameplay node
+  is built in code.
 - Clients send their input state to the server every physics tick with an
   unreliable ordered RPC. The server simulates all karts.
 - Hits, pickups, banking and scoring are server-authoritative. The server seeds
-  all randomness.
-- Bullets spawn with their initial state and simulate locally on every peer,
-  the server decides hits.
+  all randomness and relays gameplay events so clients' HUD and audio react.
 - Client-side prediction and reconciliation for the local kart is a later step
   once latency is felt in tests.
 

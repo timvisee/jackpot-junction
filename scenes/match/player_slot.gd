@@ -29,7 +29,13 @@ func color() -> Color:
 	return Palette.player_color(color_index)
 
 
+## Humans are local players and remote players alike.
 func is_human() -> bool:
+	return input is PlayerInput or input is NetInput
+
+
+## A human playing on this machine, the only kind that gets a HUD block and rumble.
+func is_local_human() -> bool:
 	return input is PlayerInput
 
 

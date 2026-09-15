@@ -88,6 +88,31 @@ func poll(device: int) -> void:
 			cancel_replace()
 
 
+## Reads the one-tick fields of a polled input: number picks, cursor moves, item button confirms,
+## destroy button skips or cancels. Works for local players and remote players alike.
+func poll_input(input: KartInput) -> void:
+	if stage == Stage.DONE:
+		return
+	var options := choices.size() if stage == Stage.CHOOSING else _kart.jokers.count()
+	if options <= 0:
+		return
+	if input.joker_next_pressed:
+		selected = (selected + 1) % options
+	if input.joker_prev_pressed:
+		selected = posmod(selected - 1, options)
+	if input.joker_select >= 0 and input.joker_select < options:
+		_confirm(input.joker_select)
+		return
+	if input.use_item_pressed:
+		_confirm(selected)
+		return
+	if input.joker_destroy_pressed:
+		if stage == Stage.CHOOSING:
+			skip()
+		else:
+			cancel_replace()
+
+
 func _confirm(index: int) -> void:
 	if stage == Stage.CHOOSING:
 		take(index)

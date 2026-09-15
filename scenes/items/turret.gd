@@ -19,6 +19,7 @@ var bullet_system: BulletSystem
 var cannon_stats: CannonStats
 var color := Color.WHITE
 var alive := true
+var puppet := false
 
 var _fire_left := 0.5
 var _barrel: Node3D
@@ -62,7 +63,7 @@ func destroy() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if not alive:
+	if not alive or puppet:
 		return
 	lifetime -= delta
 	if lifetime <= 0.0:

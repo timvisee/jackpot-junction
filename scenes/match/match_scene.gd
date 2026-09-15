@@ -1,11 +1,16 @@
 extends Node3D
 ## The playable match: environment, a [Match] built from the pending [MatchConfig], and the
-## pause menu. Falls back to one human against three bots when started directly.
+## pause menu. Online, the host runs the match with a [NetSession] and clients run a puppet
+## match fed by snapshots. Falls back to one human against three bots when started directly.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const RETURN_DELAY := 2.5
 
 var match_node: Match
 var config: MatchConfig
+var session: NetSession
+
+var _status: Label
 
 
 func _ready() -> void:
@@ -19,16 +24,71 @@ func _ready() -> void:
 	match_node.bot_difficulty = load("res://data/ai/%s.tres" % config.difficulty)
 	match_node.power_ups = config.power_ups()
 	add_child(match_node)
-	match_node.start(config.inputs(), 0, config.colors())
+	match config.online:
+		"host":
+			match_node.start(config.inputs(), 0, config.colors())
+			_start_session()
+			var error := session.host(config.port)
+			if error != OK:
+				_fail("Could not host on port %d: %s" % [config.port, error_string(error)])
+		"join":
+			match_node.start_puppet()
+			_start_session()
+			session.local_input = PlayerInput.new()
+			session.connection_failed.connect(
+				func() -> void: _fail("Could not connect to %s:%d" % [config.address, config.port])
+			)
+			session.disconnected.connect(func() -> void: _fail("The host disconnected"))
+			session.slot_assigned.connect(func(_index: int) -> void: _status.visible = false)
+			var error := session.join(config.address, config.port)
+			if error != OK:
+				_fail("Could not connect: %s" % error_string(error))
+			else:
+				_show_status("Connecting to %s:%d..." % [config.address, config.port])
+		_:
+			match_node.start(config.inputs(), 0, config.colors())
 	var pause := PauseMenu.new()
 	pause.name = "PauseMenu"
+	pause.online = config.online != ""
 	add_child(pause)
+
+
+func _start_session() -> void:
+	session = NetSession.new()
+	session.name = "Session"
+	session.match_node = match_node
+	add_child(session)
 
 
 ## Pressing the join button on a device nobody plays with adds that player mid-match.
 func _unhandled_input(event: InputEvent) -> void:
-	if not event.is_action_pressed(InputActions.JOIN) or get_tree().paused:
+	if (
+		not event.is_action_pressed(InputActions.JOIN)
+		or get_tree().paused
+		or config.online == "join"
+	):
 		return
 	var device := DeviceInput.KEYBOARD if event is InputEventKey else event.device
 	if match_node.join_human(device) != null:
 		get_viewport().set_input_as_handled()
+
+
+func _show_status(text: String) -> void:
+	if _status == null:
+		var layer := CanvasLayer.new()
+		layer.layer = 30
+		add_child(layer)
+		_status = Label.new()
+		_status.add_theme_font_size_override("font_size", 40)
+		_status.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+		_status.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		_status.grow_vertical = Control.GROW_DIRECTION_BOTH
+		_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		layer.add_child(_status)
+	_status.text = text
+	_status.visible = true
+
+
+func _fail(message: String) -> void:
+	_show_status(message + "\nReturning to the title...")
+	get_tree().create_timer(RETURN_DELAY).timeout.connect(func() -> void: Game.go_to_title())

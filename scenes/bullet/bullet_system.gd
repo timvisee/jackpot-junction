@@ -4,6 +4,8 @@ extends Node3D
 ## this tick came closer than their combined radius both vanish. Runs after the bullets moved.
 
 var bullets: Array[Bullet] = []
+## On a client the system only holds puppets and never cancels them.
+var puppet := false
 
 
 func _ready() -> void:
@@ -31,6 +33,8 @@ func _on_bullet_expired(bullet: Bullet) -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	if puppet:
+		return
 	var doomed: Array[Bullet] = []
 	for i: int in bullets.size():
 		var a := bullets[i]

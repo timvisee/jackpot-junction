@@ -280,18 +280,25 @@ and handing a kart back to a bot. The four-device session is still open.
 
 ## M6: online multiplayer
 
-- [ ] Host and join screens with IP and port, ENet peer.
-- [ ] MultiplayerSpawner for karts, bullets, pickups, turrets and decoys;
-      MultiplayerSynchronizer on kart transform and velocity at 30 Hz with
-      interpolation.
-- [ ] `NetInput`: clients send input state per tick by unreliable ordered RPC;
+- [x] Host and join screens with IP and port, ENet peer.
+- [x] Replication by 30 Hz state snapshots instead of MultiplayerSpawner and
+      MultiplayerSynchronizer: the host serialises karts, bullets, pickups,
+      turrets, zones, slots and offers; clients render puppets and dead-reckon
+      bullets. Chosen because every gameplay node is built in code.
+- [x] `NetInput`: clients send input state per tick by unreliable ordered RPC;
       the host simulates, decides hits, pickups, banking and scoring, and
-      replicates the RNG seed.
-- [ ] Bots on the host, no pause, mid-match join by the local rule.
+      relays gameplay events for HUD and audio.
+- [x] Bots on the host, no pause, mid-match join by the local rule.
 - [ ] Prediction and reconciliation for the local kart if latency tests call
       for it.
 
 Verify: two machines on a LAN, then a WAN test over a direct IP.
+
+Status: built and checked in one process with two multiplayer instances: a
+client joins, takes over a bot, drives it on the host, sees the puppets follow,
+and the kart goes back to a bot when the client leaves. The LAN and WAN
+sessions are still open. Prediction is not implemented; the client feels its
+own latency.
 
 ## Working method
 

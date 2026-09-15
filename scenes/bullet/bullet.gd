@@ -24,11 +24,27 @@ var assist_turn_rate := 0.5
 ## Where this tick's movement started, for sweeps against other bullets.
 var previous_position := Vector3.ZERO
 
+## On a client: dead-reckons between snapshots, never collides.
+var puppet := false
+
 var _dead := false
 var _shape := SphereShape3D.new()
 var _shape_query := PhysicsShapeQueryParameters3D.new()
 ## Kart instance id to whether the bullet was inside that kart's graze distance last tick.
 var _graze_inside: Dictionary[int, bool] = {}
+
+
+## A client-side copy: looks like a bullet, moves by its last known velocity.
+func setup_puppet(
+	origin: Vector3, bullet_velocity: Vector3, bullet_radius: float, tint: Color
+) -> void:
+	puppet = true
+	position = Vector3(origin.x, HEIGHT, origin.z)
+	previous_position = position
+	velocity = bullet_velocity
+	radius = bullet_radius
+	color = tint
+	assist_enabled = false
 
 
 func setup(slot: int, origin: Vector3, direction: Vector3, stats: CannonStats, tint: Color) -> void:
@@ -69,6 +85,10 @@ func destroy() -> void:
 
 func _physics_process(delta: float) -> void:
 	if _dead:
+		return
+	if puppet:
+		global_position += velocity * delta
+		_orient()
 		return
 	lifetime_left -= delta
 	if lifetime_left <= 0.0:

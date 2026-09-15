@@ -25,6 +25,8 @@ var target_score := 3000
 var bot_count := 3
 var difficulty := "normal"
 var item_set := "first"
+var last_address := "127.0.0.1"
+var last_port := 7777
 
 var path := DEFAULT_PATH
 
@@ -52,6 +54,8 @@ func load_from_disk() -> void:
 	bot_count = file.get_value("lobby", "bot_count", bot_count)
 	difficulty = file.get_value("lobby", "difficulty", difficulty)
 	item_set = file.get_value("lobby", "item_set", item_set)
+	last_address = file.get_value("online", "address", last_address)
+	last_port = file.get_value("online", "port", last_port)
 
 
 func save_to_disk() -> Error:
@@ -73,6 +77,8 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "bot_count", bot_count)
 	file.set_value("lobby", "difficulty", difficulty)
 	file.set_value("lobby", "item_set", item_set)
+	file.set_value("online", "address", last_address)
+	file.set_value("online", "port", last_port)
 	return file.save(path)
 
 

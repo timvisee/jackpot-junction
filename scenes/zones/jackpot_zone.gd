@@ -15,6 +15,8 @@ var active := false
 var chips := 0.0
 ## 2.0 during Last Call.
 var accrual_multiplier := 1.0
+## On a client the zone only shows replicated state.
+var puppet := false
 
 var _inside: Array[Kart] = []
 var _t := 0.0
@@ -62,6 +64,13 @@ func whole_chips() -> int:
 	return floori(chips + 0.0001)
 
 
+## Replicated state from the host.
+func apply_puppet_state(is_active: bool, chip_count: float) -> void:
+	active = is_active
+	chips = chip_count
+	_refresh()
+
+
 func is_full() -> bool:
 	return rules != null and whole_chips() >= rules.jackpot_cap
 
@@ -96,7 +105,7 @@ func _collectors() -> Array[Kart]:
 
 
 func _physics_process(delta: float) -> void:
-	if rules == null:
+	if rules == null or puppet:
 		return
 	if active and chips < rules.jackpot_cap:
 		chips = minf(

@@ -8,6 +8,7 @@ const TITLE_SCENE := "res://scenes/ui/title.tscn"
 const LOBBY_SCENE := "res://scenes/ui/lobby.tscn"
 const SETTINGS_SCENE := "res://scenes/ui/settings_screen.tscn"
 const MATCH_SCENE := "res://scenes/match/match_scene.tscn"
+const ONLINE_SCENE := "res://scenes/ui/online.tscn"
 
 var settings := Settings.new()
 ## The configuration the next match scene starts with.
@@ -63,6 +64,10 @@ func go_to_title() -> void:
 
 func go_to_lobby() -> void:
 	get_tree().change_scene_to_file(LOBBY_SCENE)
+
+
+func go_to_online() -> void:
+	get_tree().change_scene_to_file(ONLINE_SCENE)
 
 
 func go_to_settings(return_to: String = TITLE_SCENE) -> void:

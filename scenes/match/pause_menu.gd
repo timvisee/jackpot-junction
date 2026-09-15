@@ -3,6 +3,9 @@ extends CanvasLayer
 ## Pausing freezes the whole match in single-player and local play, GAME.md 3.8. Resume,
 ## Settings, or back to the title.
 
+## Online matches cannot pause: the menu shows, the match keeps running.
+var online := false
+
 var _panel: CenterContainer
 var _resume: Button
 
@@ -39,12 +42,12 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(InputActions.PAUSE):
-		set_paused(not get_tree().paused)
+		set_paused(not _panel.visible)
 		get_viewport().set_input_as_handled()
 
 
 func set_paused(paused: bool) -> void:
-	get_tree().paused = paused
+	get_tree().paused = paused and not online
 	_panel.visible = paused
 	if paused:
 		_resume.grab_focus()

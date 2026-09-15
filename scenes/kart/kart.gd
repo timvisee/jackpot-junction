@@ -43,6 +43,8 @@ var jokers: JokerHolder
 var decoy_owner: Kart
 ## Seconds until a temporary kart such as a decoy expires; 0 means forever.
 var lifetime := 0.0
+## On a client: driven by snapshots from the host, never simulated.
+var puppet := false
 ## The shared resources the kart's own stat copies are rebuilt from when jokers change.
 var base_stats: KartStats
 var base_cannon_stats: CannonStats
@@ -119,7 +121,7 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if not alive or frozen:
+	if puppet or not alive or frozen:
 		return
 	if falling:
 		_step_fall(delta)
@@ -156,6 +158,43 @@ func _physics_process(delta: float) -> void:
 ## True while bullets may hit and aim assist may pick this kart.
 func is_targetable() -> bool:
 	return alive and not falling and protection_left <= 0.0
+
+
+## Turns the kart into a client-side puppet: no physics, no collisions, visuals from snapshots.
+func make_puppet() -> void:
+	puppet = true
+	collision_layer = 0
+	collision_mask = 0
+	remove_from_group(Bullet.TARGET_GROUP)
+
+
+## Applies one snapshot entry to a puppet: pose, life state and effect visuals.
+func apply_puppet_state(state: Dictionary, delta: float) -> void:
+	var heading_before := motor.heading
+	var target := Vector3(state["x"], 0.0, state["z"])
+	motor.velocity = (target - global_position) / maxf(delta, 0.001) if alive else Vector3.ZERO
+	global_position = target
+	motor.heading = state["h"]
+	rotation = Vector3(0.0, motor.heading, 0.0)
+	motor.drifting = state["drift"]
+	motor.forward_speed = motor.velocity.dot(motor.forward_vector())
+	var was_alive := alive
+	alive = state["alive"]
+	protection_left = 1.0 if state["prot"] else 0.0
+	_body.visible = (
+		alive
+		and (
+			protection_left <= 0.0
+			or fmod(Time.get_ticks_msec() * 0.001, BLINK_PERIOD) < BLINK_PERIOD * 0.5
+		)
+	)
+	_smoke.emitting = alive
+	set_shielded(state["shield"])
+	channel_progress = state["ring"]
+	_aim_arrow.visible = state["aim"]
+	if alive and was_alive:
+		_spin_wheels(delta)
+		_update_trails(delta, heading_before)
 
 
 func is_decoy() -> bool:
