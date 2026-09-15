@@ -14,7 +14,7 @@ change, change GAME.md first, then the code.
 | gdUnit4          | Not installed. Add to `addons/` in phase 0, pinned to a release that supports 4.7        |
 | gdtoolkit        | Not installed. `pipx install gdtoolkit` for `gdlint` and `gdformat`                       |
 | CI               | GitHub Actions, repo `timvisee/jackpot-junction`, branch `master`                         |
-| Display          | A local display is available, so the game can be launched and screenshotted for visual checks. Handling feel still needs a human |
+| Display          | A local display is available. Windowed runs from the agent sandbox render at about 1 frame per second, so screenshots use few frames: `tools/godot --path . --disable-vsync res://scenes/dev/playground.tscn ++ --screenshot=<png> --frames=8`. Handling feel still needs a human |
 
 Headless commands used throughout, with `godot47` standing for the Steam binary:
 
@@ -70,22 +70,22 @@ These refine GAME.md without changing its rules.
 Goal: a project that imports, lints, tests and runs headless with an empty
 scene, plus the repository basics.
 
-- [ ] `project.godot`: name "Jackpot Junction", main scene, 1920 by 1080
+- [x] `project.godot`: name "Jackpot Junction", main scene, 1920 by 1080
       window, MSAA 2x, physics interpolation on, 60 Hz physics, Jolt, layer
       names, `untyped_declaration` warning as error, autoloads `Game`, `Events`,
       `Audio`.
-- [ ] Input map: `steer_left`, `steer_right`, `throttle`, `brake`, `fire`,
+- [x] Input map: `steer_left`, `steer_right`, `throttle`, `brake`, `fire`,
       `handbrake`, `use_item`, `joker_menu`, `joker_prev`, `joker_next`,
       `joker_select_1` to `joker_select_5`, `joker_drop`, `joker_destroy`,
       `aim_x`, `aim_y`, `pause`, bound as in GAME.md 4.2.
-- [ ] Folder layout from GAME.md 10.2, autoload scripts with empty bodies.
-- [ ] `LICENSE` with GPL-3.0, `README.md` with a paragraph, how to run, and the
+- [x] Folder layout from GAME.md 10.2, autoload scripts with empty bodies.
+- [x] `LICENSE` with GPL-3.0, `README.md` with a paragraph, how to run, and the
       license split for code and assets.
-- [ ] gdUnit4 in `addons/`, row in `THIRD_PARTY.md`, one smoke test.
-- [ ] gdtoolkit installed, `.gdlintrc` with the project conventions.
-- [ ] `.github/workflows/ci.yml`: checkout, fetch Godot 4.7.2, import, lint,
+- [x] gdUnit4 in `addons/`, row in `THIRD_PARTY.md`, one smoke test.
+- [x] gdtoolkit installed, `.gdlintrc` with the project conventions.
+- [x] `.github/workflows/ci.yml`: checkout, fetch Godot 4.7.2, import, lint,
       format check, run tests.
-- [ ] Dev harness `scenes/dev/playground.tscn`: empty floor, camera, loads in
+- [x] Dev harness `scenes/dev/playground.tscn`: empty floor, camera, loads in
       one command.
 
 Verify: import, lint, tests and the smoke run all pass headless; CI is green
@@ -96,27 +96,27 @@ on the first push.
 Goal: drive a kart around Lucky Crossing and enjoy it. Everything here is a
 grey box.
 
-- [ ] `ArenaLayout` resource and parser: grid validation, element positions,
+- [x] `ArenaLayout` resource and parser: grid validation, element positions,
       wall segment merging, symmetry check. `data/maps/lucky_crossing.tres`.
-- [ ] `ArenaBuilder`: floor, merged wall segments as StaticBody3D with box
+- [x] `ArenaBuilder`: floor, merged wall segments as StaticBody3D with box
       shapes and meshes, placeholder pads and zones as flat coloured discs,
       spawn markers, pits as holes with a trigger, turbo pads with an arrow
       mesh and direction.
-- [ ] `KartStats` resource with every handling number from GAME.md 4.1;
+- [x] `KartStats` resource with every handling number from GAME.md 4.1;
       `data/kart/default.tres`.
-- [ ] `Kart` scene: CharacterBody3D, box collision, placeholder body and wheels
+- [x] `Kart` scene: CharacterBody3D, box collision, placeholder body and wheels
       tinted per slot, `KartMotor` implementing throttle, brake, reverse,
       speed-dependent yaw, grip model, drift entry and exit, exit boost, wall
       speed loss, kart bump response, turbo pad response.
-- [ ] `KartInput` base with fields for every action; `PlayerInput` reading the
+- [x] `KartInput` base with fields for every action; `PlayerInput` reading the
       input map for one device.
-- [ ] `CameraRig`: fit the arena bounds at 55° pitch and 35° FOV, pan and zoom
+- [x] `CameraRig`: fit the arena bounds at 55° pitch and 35° FOV, pan and zoom
       toward tracked karts within the limits in GAME.md 8.2, smoothing, a
       `shake(strength)` entry point.
-- [ ] Trails: tire mark ribbons per rear wheel with fade and a segment cap,
+- [x] Trails: tire mark ribbons per rear wheel with fade and a segment cap,
       exhaust smoke particles scaled by throttle with bursts on drift and boost.
-- [ ] Debug overlay on F3: speed, drift state, grip, arena crossing timer.
-- [ ] Optional tuning panel on F4 that edits the active `KartStats` live and
+- [x] Debug overlay on F3: speed, drift state, grip, arena crossing timer.
+- [x] Optional tuning panel on F4 that edits the active `KartStats` live and
       can write it back to the resource.
 
 Verify: tests for the layout parser, wall merging and the symmetry of the map;
@@ -125,6 +125,10 @@ Smoke run of the playground. Then a handling session with a gamepad and a
 keyboard: crossing time close to 3 s, drift feels controllable, exit boost
 noticeable. Expect two or three tuning rounds; write the final numbers into
 GAME.md.
+
+Status: built and checked headless (32 tests, smoke run, screenshot). The
+handling session is still open: run `make run`, F3 shows the readout, F4 the
+tuning panel, and Save writes the numbers back to `data/kart/default.tres`.
 
 ## M1: combat
 

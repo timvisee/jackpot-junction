@@ -1,0 +1,163 @@
+extends GdUnitTestSuite
+## The arcade handling model behaves as GAME.md 4.1 describes, at a 60 Hz tick.
+
+const DT := 1.0 / 60.0
+
+var _stats: KartStats
+var _motor: KartMotor
+var _input: KartInput
+
+
+func before_test() -> void:
+	_stats = load("res://data/kart/default.tres")
+	_motor = KartMotor.new(_stats)
+	_input = KartInput.new()
+
+
+func _run(seconds: float) -> void:
+	for i: int in int(round(seconds / DT)):
+		_motor.step(_input, DT)
+
+
+func test_full_throttle_reaches_top_speed_in_about_accel_time() -> void:
+	_input.throttle = 1.0
+	_run(_stats.accel_time * 0.5)
+	assert_float(_motor.speed()).is_between(_stats.top_speed * 0.4, _stats.top_speed * 0.6)
+	_run(_stats.accel_time)
+	assert_float(_motor.speed()).is_equal_approx(_stats.top_speed, 0.01)
+
+
+func test_braking_stops_then_reverses_up_to_reverse_top_speed() -> void:
+	_input.throttle = 1.0
+	_run(2.0)
+	_input.throttle = 0.0
+	_input.brake = 1.0
+	_run(1.0)
+	assert_float(_motor.forward_speed).is_less(0.0)
+	_run(2.0)
+	assert_float(_motor.forward_speed).is_equal_approx(-_stats.reverse_top_speed, 0.01)
+
+
+func test_coasting_slows_down_and_stops() -> void:
+	_input.throttle = 1.0
+	_run(2.0)
+	_input.throttle = 0.0
+	_run(1.0)
+	assert_float(_motor.speed()).is_between(_stats.top_speed - 5.0, _stats.top_speed - 3.0)
+	_run(4.0)
+	assert_float(_motor.speed()).is_equal_approx(0.0, 0.001)
+
+
+func test_yaw_rate_interpolates_from_low_to_high_speed() -> void:
+	assert_float(rad_to_deg(_motor.yaw_rate(0.0))).is_equal_approx(_stats.yaw_rate_low_deg, 0.01)
+	assert_float(rad_to_deg(_motor.yaw_rate(1.0))).is_equal_approx(_stats.yaw_rate_high_deg, 0.01)
+	assert_float(rad_to_deg(_motor.yaw_rate(0.5))).is_equal_approx(155.0, 0.01)
+
+
+func test_kart_does_not_steer_while_standing_still() -> void:
+	_input.steer = 1.0
+	_run(1.0)
+	assert_float(_motor.heading).is_equal(0.0)
+
+
+func test_steering_right_is_clockwise_and_reversing_flips_it() -> void:
+	_input.throttle = 1.0
+	_run(1.0)
+	_input.steer = 0.5
+	_run(0.5)
+	assert_float(_motor.heading).is_less(0.0)
+	_motor.heading = 0.0
+	_motor.velocity = Vector3.ZERO
+	_input.throttle = 0.0
+	_input.brake = 1.0
+	_input.steer = 0.0
+	_run(1.5)
+	_input.steer = 0.5
+	_run(0.5)
+	assert_float(_motor.heading).is_greater(0.0)
+
+
+func test_hard_turn_at_speed_drifts_and_a_long_drift_exit_boosts() -> void:
+	_input.throttle = 1.0
+	_run(2.0)
+	_input.steer = 1.0
+	_run(1.0)
+	assert_bool(_motor.drifting).is_true()
+	assert_float(_motor.drift_time).is_greater(_stats.drift_min_duration)
+	_input.steer = 0.0
+	_run(DT)
+	assert_bool(_motor.drifting).is_false()
+	assert_bool(_motor.boosting()).is_true()
+	assert_float(_motor.speed()).is_greater(_stats.top_speed)
+
+
+func test_a_short_drift_gives_no_boost() -> void:
+	_input.throttle = 1.0
+	_run(2.0)
+	_input.steer = 1.0
+	_run(0.3)
+	assert_bool(_motor.drifting).is_true()
+	_input.steer = 0.0
+	_run(DT)
+	assert_bool(_motor.drifting).is_false()
+	assert_bool(_motor.boosting()).is_false()
+
+
+func test_handbrake_drifts_at_lower_speed_than_a_hard_turn() -> void:
+	_input.throttle = 1.0
+	_run(0.7)
+	assert_float(_motor.speed_fraction()).is_between(0.45, 0.65)
+	_input.steer = 1.0
+	_run(DT)
+	assert_bool(_motor.drifting).is_false()
+	_input.handbrake = true
+	_run(DT)
+	assert_bool(_motor.drifting).is_true()
+
+
+func test_drift_grip_keeps_more_sideways_velocity() -> void:
+	var gripping := _sideways_speed_after_turn(false)
+	var sliding := _sideways_speed_after_turn(true)
+	assert_float(sliding).is_greater(gripping * 1.5)
+
+
+func _sideways_speed_after_turn(drifting: bool) -> float:
+	var motor := KartMotor.new(_stats)
+	motor.velocity = motor.forward_vector() * _stats.top_speed
+	motor.heading = 0.6
+	motor.drifting = drifting
+	var input := KartInput.new()
+	input.throttle = 1.0
+	input.handbrake = drifting
+	for i: int in 6:
+		motor.step(input, DT)
+	var forward := motor.forward_vector()
+	return (motor.velocity - forward * motor.velocity.dot(forward)).length()
+
+
+func test_turbo_snaps_the_nose_and_runs_at_turbo_speed_for_its_duration() -> void:
+	_motor.apply_turbo(Vector3(0.0, 0.0, 1.0))
+	assert_float(absf(_motor.heading)).is_equal_approx(PI, 0.001)
+	_run(_stats.turbo_duration * 0.5)
+	assert_float(_motor.speed()).is_equal_approx(
+		_stats.top_speed * _stats.turbo_speed_multiplier, 0.01
+	)
+	assert_bool(_motor.turboing()).is_true()
+	_run(_stats.turbo_duration)
+	assert_bool(_motor.turboing()).is_false()
+	assert_float(_motor.speed()).is_less(_stats.top_speed * _stats.turbo_speed_multiplier)
+
+
+func test_wall_hits_cost_speed_only_when_hard() -> void:
+	_motor.velocity = _motor.forward_vector() * 10.0
+	_motor.apply_wall_hit(2.0)
+	assert_float(_motor.speed()).is_equal_approx(10.0, 0.001)
+	_motor.apply_wall_hit(_stats.top_speed)
+	assert_float(_motor.speed()).is_equal_approx(10.0 * (1.0 - _stats.wall_hit_speed_loss), 0.001)
+
+
+func test_bump_pushes_along_the_normal_and_costs_speed() -> void:
+	_motor.velocity = Vector3(0.0, 0.0, -10.0)
+	_motor.apply_bump(Vector3(1.0, 0.0, 0.0))
+	assert_float(_motor.velocity.x).is_equal_approx(_stats.bump_push_speed, 0.001)
+	assert_float(_motor.velocity.z).is_equal_approx(-10.0 * (1.0 - _stats.bump_speed_loss), 0.001)

@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="KartStats" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/kart/kart_stats.gd" id="1_stats"]
+
+[resource]
+script = ExtResource("1_stats")
+top_speed = 13.0
+accel_time = 1.2
+brake_decel = 20.0
+reverse_top_speed = 5.0
+coast_decel = 4.0
+yaw_rate_low_deg = 200.0
+yaw_rate_high_deg = 110.0
+min_steer_speed = 0.5
+grip_normal = 8.0
+grip_drift = 2.5
+drift_steer_threshold = 0.8
+drift_speed_fraction = 0.7
+handbrake_speed_fraction = 0.4
+drift_exit_steer = 0.3
+drift_yaw_multiplier = 1.6
+drift_speed_decay = 0.05
+drift_min_duration = 0.6
+drift_exit_boost = 0.2
+drift_exit_boost_duration = 0.8
+turbo_speed_multiplier = 1.5
+turbo_duration = 1.0
+turbo_steer_multiplier = 0.5
+wall_hit_threshold = 0.5
+wall_hit_speed_loss = 0.3
+bump_push_speed = 6.0
+bump_speed_loss = 0.2
+length = 1.6
+width = 1.0
+height = 0.8

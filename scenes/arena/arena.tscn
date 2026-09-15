@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/arena/arena.gd" id="1_arena"]
+[ext_resource type="Resource" path="res://data/maps/lucky_crossing.tres" id="2_layout"]
+
+[node name="Arena" type="Node3D"]
+script = ExtResource("1_arena")
+layout = ExtResource("2_layout")
