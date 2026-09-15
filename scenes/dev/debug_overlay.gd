@@ -17,7 +17,10 @@ var _last_crossing := 0.0
 func _ready() -> void:
 	layer = 10
 	_label = Label.new()
-	_label.position = Vector2(12.0, 12.0)
+	_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+	_label.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_label.position = Vector2(12.0, 0.0)
+	_label.offset_bottom = -12.0
 	_label.add_theme_font_size_override("font_size", 18)
 	_label.add_theme_color_override("font_color", Color.WHITE)
 	_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.8))

@@ -27,6 +27,8 @@ var previous_position := Vector3.ZERO
 var _dead := false
 var _shape := SphereShape3D.new()
 var _shape_query := PhysicsShapeQueryParameters3D.new()
+## Kart instance id to whether the bullet was inside that kart's graze distance last tick.
+var _graze_inside: Dictionary[int, bool] = {}
 
 
 func setup(slot: int, origin: Vector3, direction: Vector3, stats: CannonStats, tint: Color) -> void:
@@ -75,6 +77,9 @@ func _physics_process(delta: float) -> void:
 	if assist_enabled and not bounced:
 		_steer(delta)
 	_move(delta)
+	if _dead:
+		return
+	_update_grazes()
 	_orient()
 
 
@@ -176,6 +181,22 @@ func _hit_overlapping_targets(space: PhysicsDirectSpaceState3D) -> void:
 		if collider.has_method("take_hit") and collider.call("take_hit", self):
 			destroy()
 			return
+
+
+## A kart is grazed when the bullet leaves its graze distance without having hit it.
+func _update_grazes() -> void:
+	for node: Node in get_tree().get_nodes_in_group(&"karts"):
+		var kart := node as Kart
+		if kart == null or kart.slot == owner_slot:
+			continue
+		var id := kart.get_instance_id()
+		var inside := (
+			kart.is_targetable()
+			and kart.distance_to_body(global_position) < kart.rules.graze_distance
+		)
+		if _graze_inside.get(id, false) and not inside:
+			kart.graze(owner_slot)
+		_graze_inside[id] = inside
 
 
 func _orient() -> void:

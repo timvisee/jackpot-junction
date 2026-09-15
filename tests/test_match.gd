@@ -22,7 +22,7 @@ func test_start_spawns_a_kart_per_input_facing_the_junction() -> void:
 	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new(), KartInput.new()]
 	match_node.start(inputs, 7)
 	assert_int(match_node.slots.size()).is_equal(3)
-	assert_int(match_node.state).is_equal(Match.State.PLAYING)
+	assert_int(match_node.state).is_equal(Match.State.COUNTDOWN)
 	for slot: PlayerSlot in match_node.slots:
 		assert_bool(slot.kart.alive).is_true()
 		var to_centre := (
@@ -34,17 +34,22 @@ func test_start_spawns_a_kart_per_input_facing_the_junction() -> void:
 
 func test_a_bullet_kills_the_kart_ahead_and_the_victim_respawns_protected() -> void:
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	rules.countdown = 0.1
+	match_node.rules = rules
+	match_node.with_hud = false
 	var runner := scene_runner(match_node)
 	var shooter_input := KartInput.new()
 	var inputs: Array[KartInput] = [shooter_input, KartInput.new()]
 	match_node.start(inputs, 7)
+	await runner.simulate_frames(12, 17)
 	var shooter := match_node.kart_of(0)
 	var victim := match_node.kart_of(1)
 	shooter.global_position = Vector3(6.0, 0.0, 6.0)
 	shooter.face(Vector3(-1.0, 0.0, 0.0))
 	victim.global_position = Vector3(1.0, 0.0, 6.0)
 	victim.face(Vector3(-1.0, 0.0, 0.0))
-	var killed := monitor_signals(Events)
+	var killed := monitor_signals(Events, false)
 	shooter_input.fire = true
 	await runner.simulate_frames(45, 17)
 	assert_bool(victim.alive).is_false()

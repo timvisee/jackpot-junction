@@ -10,7 +10,7 @@ import:
 	$(GODOT) --headless --path . --import
 
 test:
-	$(GODOT) --headless --path . -s addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests --ignoreHeadlessMode
+	$(GODOT) --headless --path . -s addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests -c --ignoreHeadlessMode
 
 lint:
 	$(GDLINT) $(GD_DIRS)

@@ -8,11 +8,15 @@ signal died(cause: StringName, killer_slot: int)
 signal respawned
 signal fired(bullets: Array[Bullet])
 signal turbo_taken(direction: Vector3)
+signal coins_collected(amount: int)
+signal mult_changed(amount: float, reason: StringName)
 
 const WHEEL_RADIUS := 0.24
 const FALL_SPEED := 2.5
 const FALL_SPIN := 7.0
 const BLINK_PERIOD := 0.25
+const RING_RADIUS_EMPTY := 0.6
+const RING_RADIUS_FULL := 1.4
 
 @export var stats: KartStats
 @export var cannon_stats: CannonStats
@@ -24,18 +28,27 @@ var input: KartInput = KartInput.new()
 var motor: KartMotor
 var cannon: Cannon
 var bullet_system: BulletSystem
+var pot := Pot.new()
 var alive := true
 var falling := false
+## Set by the match during the countdown and the results: no input, no movement.
+var frozen := false
 var protection_left := 0.0
+## Fraction of the pot still to bank while on the Junction, -1 when not banking.
+var channel_progress := -1.0
 ## Set by the Boost power-up: contact with another kart kills it.
 var ramming := false
 var last_bump_slot := -1
 var last_bump_time := -INF
 
 var _body: Node3D
+var _ring: MeshInstance3D
+var _pickup_area: Area3D
 var _tire_marks: TireMarks
 var _smoke: ExhaustSmoke
+var _pickup_shape: SphereShape3D
 var _fall_left := 0.0
+var _graze_cooldown_left := 0.0
 
 
 func _ready() -> void:
@@ -63,15 +76,17 @@ func _ready() -> void:
 	_smoke.name = "Smoke"
 	_smoke.position = Vector3(0.0, 0.35, stats.length * 0.5)
 	add_child(_smoke)
+	_build_pickup_area()
 
 
 func _physics_process(delta: float) -> void:
-	if not alive:
+	if not alive or frozen:
 		return
 	if falling:
 		_step_fall(delta)
 		return
 	_step_protection(delta)
+	_graze_cooldown_left = maxf(_graze_cooldown_left - delta, 0.0)
 	input.poll(delta)
 	cannon.step(delta)
 	if input.fire and protection_left <= 0.0 and cannon.can_fire() and bullet_system != null:
@@ -84,12 +99,59 @@ func _physics_process(delta: float) -> void:
 	motor.velocity = Vector3(velocity.x, 0.0, velocity.z)
 	position.y = 0.0
 	rotation = Vector3(0.0, motor.heading, 0.0)
+	_collect_overlapping_pickups()
 	_update_trails(delta, heading_before)
+
+
+func _process(_delta: float) -> void:
+	_ring.visible = channel_progress >= 0.0 and alive
+	if _ring.visible:
+		var radius := lerpf(RING_RADIUS_EMPTY, RING_RADIUS_FULL, channel_progress)
+		_ring.scale = Vector3(radius, 1.0, radius)
 
 
 ## True while bullets may hit and aim assist may pick this kart.
 func is_targetable() -> bool:
 	return alive and not falling and protection_left <= 0.0
+
+
+## Coins picked up from chips, crates or the Jackpot.
+func collect_coins(amount: int, _source: Pickup) -> void:
+	if amount <= 0:
+		return
+	pot.add_coins(amount)
+	coins_collected.emit(amount)
+	Events.coin_collected.emit(slot, amount)
+
+
+func gain_mult(amount: float, reason: StringName) -> void:
+	if amount == 0.0:
+		return
+	pot.add_mult(amount)
+	mult_changed.emit(amount, reason)
+	Events.mult_gained.emit(slot, amount, reason)
+
+
+## An enemy bullet passed close without hitting, GAME.md 3.3.
+func graze(_by_slot: int) -> void:
+	if not is_targetable() or _graze_cooldown_left > 0.0:
+		return
+	_graze_cooldown_left = rules.graze_cooldown
+	gain_mult(rules.graze_mult, &"graze")
+	Events.grazed.emit(slot)
+
+
+## Distance from a point on the floor plane to the kart's body rectangle, 0 when inside.
+func distance_to_body(point: Vector3) -> float:
+	var local := to_local(Vector3(point.x, global_position.y, point.z))
+	var half := Vector3(stats.width * 0.5, 0.0, stats.length * 0.5)
+	var clamped := Vector3(clampf(local.x, -half.x, half.x), 0.0, clampf(local.z, -half.z, half.z))
+	return Vector3(local.x, 0.0, local.z).distance_to(clamped)
+
+
+## Scales the pickup radius, for the Coin Magnet.
+func set_pickup_radius_multiplier(multiplier: float) -> void:
+	_pickup_shape.radius = rules.pickup_radius * multiplier
 
 
 ## A bullet reached the kart. Returns false when it passes through, for example during spawn
@@ -113,6 +175,7 @@ func die(cause: StringName, killer_slot: int) -> void:
 	velocity = Vector3.ZERO
 	_body.visible = false
 	_smoke.emitting = false
+	channel_progress = -1.0
 	died.emit(cause, killer_slot)
 
 
@@ -284,3 +347,39 @@ func _box(size: Vector3, material: StandardMaterial3D) -> MeshInstance3D:
 	instance.mesh = mesh
 	instance.material_override = material
 	return instance
+
+
+func _build_pickup_area() -> void:
+	_pickup_area = Area3D.new()
+	_pickup_area.name = "PickupArea"
+	_pickup_area.collision_layer = 0
+	_pickup_area.collision_mask = Layers.PICKUP
+	var shape := CollisionShape3D.new()
+	_pickup_shape = SphereShape3D.new()
+	_pickup_shape.radius = rules.pickup_radius
+	shape.shape = _pickup_shape
+	shape.position = Vector3(0.0, 0.4, 0.0)
+	_pickup_area.add_child(shape)
+	add_child(_pickup_area)
+	_ring = MeshInstance3D.new()
+	_ring.name = "Ring"
+	var torus := TorusMesh.new()
+	torus.inner_radius = 0.9
+	torus.outer_radius = 1.0
+	_ring.mesh = torus
+	var ring_material := StandardMaterial3D.new()
+	ring_material.albedo_color = Palette.NEON_CYAN
+	ring_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_ring.material_override = ring_material
+	_ring.position = Vector3(0.0, 0.06, 0.0)
+	_ring.visible = false
+	add_child(_ring)
+
+
+## Polled every tick rather than on entry, so a kart that unfreezes or spawns on top of a pickup
+## still takes it.
+func _collect_overlapping_pickups() -> void:
+	for area: Area3D in _pickup_area.get_overlapping_areas():
+		var pickup := area as Pickup
+		if pickup != null:
+			pickup.collect(self)

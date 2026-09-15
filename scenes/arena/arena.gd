@@ -16,11 +16,17 @@ var spawn_points: Array[Vector3] = []
 var turbo_pads: Array[TurboPad] = []
 var pits: Array[Pit] = []
 var crates: Array[Crate] = []
+var coin_pads: Array[CoinPad] = []
+var junction: JunctionPad
 var junction_position := Vector3.ZERO
 var junction_radius := 2.5
+var jackpot_zones: Array[JackpotZone] = []
 var jackpot_positions: Array[Vector3] = []
+var pickups: Node3D
 
 var _materials: Dictionary[Color, StandardMaterial3D] = {}
+var _rules: MatchRules
+var _rng: RandomNumberGenerator
 
 
 func _ready() -> void:
@@ -37,7 +43,12 @@ func build() -> void:
 	turbo_pads.clear()
 	pits.clear()
 	crates.clear()
+	coin_pads.clear()
+	jackpot_zones.clear()
 	jackpot_positions.clear()
+	pickups = Node3D.new()
+	pickups.name = "Pickups"
+	add_child(pickups)
 	_add_table()
 	_add_floor()
 	_add_walls()
@@ -49,6 +60,76 @@ func build() -> void:
 	_add_pits()
 	_add_junction()
 	_add_jackpots()
+
+
+## Brings the economy to life: coin pads start spawning, crates drop chips, the Junction and one
+## Jackpot zone start working. Called by the match once it has rules and a seeded generator.
+func start_economy(rules: MatchRules, rng: RandomNumberGenerator) -> void:
+	_rules = rules
+	_rng = rng
+	for pad: CoinPad in coin_pads:
+		pad.start(rules, rng, pickups)
+	for crate: Crate in crates:
+		if not crate.destroyed.is_connected(_on_crate_destroyed):
+			crate.destroyed.connect(_on_crate_destroyed.bind(crate))
+	junction.rules = rules
+	for zone: JackpotZone in jackpot_zones:
+		zone.rules = rules
+		if not zone.emptied.is_connected(_on_jackpot_emptied):
+			zone.emptied.connect(_on_jackpot_emptied)
+	if not jackpot_zones.is_empty():
+		activate_jackpot(rng.randi_range(0, jackpot_zones.size() - 1))
+
+
+func activate_jackpot(index: int) -> void:
+	for zone: JackpotZone in jackpot_zones:
+		if zone.index == index:
+			zone.activate()
+		else:
+			zone.deactivate()
+
+
+## Scatters chips around a point. Dropped chips vanish after [param lifetime] seconds; 0 keeps them.
+func spawn_chips(
+	origin: Vector3, count: int, lifetime: float, gold_chance: float = 0.0, dropped: bool = false
+) -> Array[Chip]:
+	var result: Array[Chip] = []
+	for i: int in count:
+		var chip := Chip.new()
+		chip.gold = _rng.randf() < gold_chance
+		chip.value = _rules.gold_chip_value if chip.gold else _rules.chip_value
+		chip.dropped = dropped
+		chip.lifetime = lifetime
+		var angle := _rng.randf_range(0.0, TAU)
+		var distance := _rng.randf_range(0.6, 1.6)
+		var offset := Vector3(cos(angle), 0.0, sin(angle)) * distance
+		chip.position = _clamp_to_floor(origin + offset)
+		pickups.add_child(chip)
+		result.append(chip)
+	return result
+
+
+func _clamp_to_floor(point: Vector3) -> Vector3:
+	var half := world_size() * 0.5 - Vector2.ONE * (grid.cell_size + 0.5)
+	return Vector3(clampf(point.x, -half.x, half.x), 0.0, clampf(point.z, -half.y, half.y))
+
+
+func _on_crate_destroyed(_by_slot: int, crate: Crate) -> void:
+	var count := _rng.randi_range(_rules.crate_drop_min, _rules.crate_drop_max)
+	spawn_chips(
+		Vector3(crate.global_position.x, 0.0, crate.global_position.z),
+		count,
+		0.0,
+		_rules.crate_gold_chance
+	)
+
+
+func _on_jackpot_emptied(zone: JackpotZone) -> void:
+	Events.jackpot_emptied.emit(zone.index)
+	if jackpot_zones.size() > 1:
+		activate_jackpot((zone.index + 1) % jackpot_zones.size())
+	else:
+		zone.activate()
 
 
 func world_size() -> Vector2:
@@ -120,10 +201,15 @@ func _add_coin_pads() -> void:
 	var pads := Node3D.new()
 	pads.name = "CoinPads"
 	add_child(pads)
-	for cell: Vector2i in grid.coin_pads:
+	for i: int in grid.coin_pads.size():
+		var pad := CoinPad.new()
+		pad.name = "CoinPad%d" % i
+		pad.position = grid.cell_center(grid.coin_pads[i])
 		var disc := _disc_mesh(0.45, Palette.MARKING_YELLOW)
-		disc.position = grid.cell_center(cell) + Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
-		pads.add_child(disc)
+		disc.position = Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
+		pad.add_child(disc)
+		pads.add_child(pad)
+		coin_pads.append(pad)
 
 
 func _add_power_pads() -> void:
@@ -212,10 +298,12 @@ func _add_junction() -> void:
 	var size2 := grid.rect_size(rect)
 	junction_position = grid.rect_center(rect)
 	junction_radius = minf(size2.x, size2.y) * 0.5
-	var pad := Node3D.new()
+	var pad := JunctionPad.new()
 	pad.name = "JunctionPad"
+	pad.radius = junction_radius
 	pad.position = junction_position
 	add_child(pad)
+	junction = pad
 	var base := _disc_mesh(junction_radius, JUNCTION_BASE_COLOR)
 	base.position = Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
 	pad.add_child(base)
@@ -238,13 +326,19 @@ func _add_jackpots() -> void:
 		var size2 := grid.rect_size(rect)
 		var position := grid.rect_center(rect)
 		jackpot_positions.append(position)
+		var zone := JackpotZone.new()
+		zone.name = "JackpotZone%d" % i
+		zone.index = i
+		zone.size = size2
+		zone.position = position
 		var tile := _box_mesh(Vector3(size2.x, PAD_HEIGHT, size2.y), Palette.ASPHALT)
-		tile.name = "JackpotZone%d" % i
-		tile.position = position + Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
-		zones.add_child(tile)
+		tile.position = Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
+		zone.add_child(tile)
 		var trim := _box_mesh(Vector3(size2.x * 0.8, PAD_HEIGHT, size2.y * 0.8), Palette.CHIP_GOLD)
-		trim.position = Vector3(0.0, PAD_HEIGHT * 0.6, 0.0)
-		tile.add_child(trim)
+		trim.position = Vector3(0.0, PAD_HEIGHT * 1.1, 0.0)
+		zone.add_child(trim)
+		zones.add_child(zone)
+		jackpot_zones.append(zone)
 
 
 func _material(color: Color) -> StandardMaterial3D:
