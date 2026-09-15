@@ -10,6 +10,8 @@ var throttle := 0.0
 ## 0 to 1. Brakes while moving forward, reverses once stopped.
 var brake := 0.0
 var handbrake := false
+## Free-aim direction on the floor plane from a stick, zero when idle.
+var aim := Vector2.ZERO
 var fire := false
 ## True only on the tick fire went down.
 var fire_pressed := false
@@ -33,6 +35,7 @@ func clear() -> void:
 	throttle = 0.0
 	brake = 0.0
 	handbrake = false
+	aim = Vector2.ZERO
 	fire = false
 	fire_pressed = false
 	use_item_pressed = false

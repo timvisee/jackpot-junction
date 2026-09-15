@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="SpreadCannonPowerUp" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/items/powerups/spread_cannon.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"spread_cannon"
+display_name = "Spread Cannon"
+description = "Next 6 shots fire three bullets in a fan."
+weight = 20.0
+color = Color(0.8863, 0.2392, 0.2392, 1)

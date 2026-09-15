@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DecoyKartPowerUp" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/items/powerups/decoy_kart.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"decoy_kart"
+display_name = "Decoy Kart"
+description = "A bot copy of you fights for 20 s. Its kills and coins are yours."
+weight = 15.0
+color = Color(0.9490, 0.4196, 0.7216, 1)

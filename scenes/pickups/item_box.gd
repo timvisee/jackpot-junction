@@ -11,7 +11,7 @@ var reveal_time := 0.5
 
 
 func can_collect(kart: Kart) -> bool:
-	return kart.held_item == null
+	return kart.held_item == null and not kart.is_decoy()
 
 
 func _build_visual(parent: Node3D) -> void:

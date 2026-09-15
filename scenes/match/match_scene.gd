@@ -17,6 +17,7 @@ func _ready() -> void:
 		match_node.rules if match_node.rules != null else load("res://data/match/default.tres")
 	)
 	match_node.bot_difficulty = load("res://data/ai/%s.tres" % config.difficulty)
+	match_node.power_ups = config.power_ups()
 	add_child(match_node)
 	match_node.start(config.inputs())
 	var pause := PauseMenu.new()

@@ -37,6 +37,10 @@ var cannon: Cannon
 var bullet_system: BulletSystem
 var pot := Pot.new()
 var jokers: JokerHolder
+## Set on decoys: the kart whose pot and credit this one feeds.
+var decoy_owner: Kart
+## Seconds until a temporary kart such as a decoy expires; 0 means forever.
+var lifetime := 0.0
 ## The shared resources the kart's own stat copies are rebuilt from when jokers change.
 var base_stats: KartStats
 var base_cannon_stats: CannonStats
@@ -72,6 +76,7 @@ var _tire_marks: TireMarks
 var _smoke: ExhaustSmoke
 var _pickup_shape: SphereShape3D
 var _shield_visual: MeshInstance3D
+var _aim_arrow: MeshInstance3D
 var _fall_left := 0.0
 var _graze_cooldown_left := 0.0
 
@@ -117,6 +122,11 @@ func _physics_process(delta: float) -> void:
 	if falling:
 		_step_fall(delta)
 		return
+	if lifetime > 0.0:
+		lifetime -= delta
+		if lifetime <= 0.0:
+			die(&"expired", -1)
+			return
 	_step_protection(delta)
 	_graze_cooldown_left = maxf(_graze_cooldown_left - delta, 0.0)
 	_step_effects(delta)
@@ -141,16 +151,28 @@ func _physics_process(delta: float) -> void:
 	_update_trails(delta, heading_before)
 
 
-func _process(_delta: float) -> void:
-	_ring.visible = channel_progress >= 0.0 and alive
-	if _ring.visible:
-		var radius := lerpf(RING_RADIUS_EMPTY, RING_RADIUS_FULL, channel_progress)
-		_ring.scale = Vector3(radius, 1.0, radius)
-
-
 ## True while bullets may hit and aim assist may pick this kart.
 func is_targetable() -> bool:
 	return alive and not falling and protection_left <= 0.0
+
+
+func is_decoy() -> bool:
+	return decoy_owner != null
+
+
+## Where the cannon points: forward, or the free-aim direction while a swivel cannon is active.
+func aim_direction() -> Vector3:
+	var forward := -global_basis.z
+	if not cannon.current_stats().free_aim:
+		return forward
+	if input.aim.length() > 0.3:
+		return Vector3(input.aim.x, 0.0, input.aim.y).normalized()
+	var mouse := _mouse_aim_direction()
+	return mouse if mouse != Vector3.ZERO else forward
+
+
+func set_aim_arrow_visible(on: bool) -> void:
+	_aim_arrow.visible = on
 
 
 ## Rebuilds the kart's own stat copies from the shared bases and the held jokers.
@@ -171,7 +193,12 @@ func rebuild_stats() -> void:
 
 
 ## Coins picked up from chips, crates or the Jackpot. Jokers may change what a chip is worth.
+## A decoy hands everything to its owner.
 func collect_coins(amount: int, source: Pickup) -> void:
+	if is_decoy():
+		if is_instance_valid(decoy_owner) and decoy_owner.alive:
+			decoy_owner.collect_coins(amount, source)
+		return
 	var chip := source as Chip
 	if chip != null:
 		for joker: Joker in jokers.jokers:
@@ -186,6 +213,10 @@ func collect_coins(amount: int, source: Pickup) -> void:
 
 
 func gain_mult(amount: float, reason: StringName) -> void:
+	if is_decoy():
+		if is_instance_valid(decoy_owner) and decoy_owner.alive:
+			decoy_owner.gain_mult(amount, reason)
+		return
 	for joker: Joker in jokers.jokers:
 		amount = joker.modify_mult_gain(self, amount, reason)
 	if amount == 0.0:
@@ -281,6 +312,35 @@ func _step_menu() -> void:
 	elif input.joker_destroy_pressed:
 		destroy_joker(menu_index)
 	menu_index = clampi(menu_index, 0, maxi(jokers.count() - 1, 0))
+
+
+## The floor point under the mouse, as a direction from the kart, for free aim on keyboard.
+func _mouse_aim_direction() -> Vector3:
+	var camera := get_viewport().get_camera_3d()
+	if camera == null:
+		return Vector3.ZERO
+	var mouse := get_viewport().get_mouse_position()
+	var from := camera.project_ray_origin(mouse)
+	var normal := camera.project_ray_normal(mouse)
+	if absf(normal.y) < 0.0001:
+		return Vector3.ZERO
+	var t := (Bullet.HEIGHT - from.y) / normal.y
+	if t < 0.0:
+		return Vector3.ZERO
+	var point := from + normal * t
+	var direction := Vector3(point.x - global_position.x, 0.0, point.z - global_position.z)
+	return direction.normalized() if direction.length() > 0.2 else Vector3.ZERO
+
+
+func _process(_delta: float) -> void:
+	_ring.visible = channel_progress >= 0.0 and alive
+	if _ring.visible:
+		var radius := lerpf(RING_RADIUS_EMPTY, RING_RADIUS_FULL, channel_progress)
+		_ring.scale = Vector3(radius, 1.0, radius)
+	if _aim_arrow.visible and alive:
+		var direction := aim_direction()
+		_aim_arrow.global_position = global_position + Vector3(0.0, 0.9, 0.0) + direction * 0.9
+		_aim_arrow.look_at(_aim_arrow.global_position + direction, Vector3.UP)
 
 
 func _step_effects(delta: float) -> void:
@@ -402,6 +462,8 @@ func die(cause: StringName, killer_slot: int) -> void:
 	_smoke.emitting = false
 	channel_progress = -1.0
 	died.emit(cause, killer_slot)
+	if is_decoy():
+		queue_free()
 
 
 ## Puts the kart back on the floor at [param point], facing [param direction], protected for
@@ -463,7 +525,7 @@ func apply_turbo(direction: Vector3) -> void:
 
 
 func _fire() -> void:
-	var direction := -global_basis.z
+	var direction := aim_direction()
 	var origin := global_position + direction * cannon_stats.muzzle_offset
 	var shots := cannon.fire(bullet_system, slot, origin, direction, Palette.player_color(slot))
 	fired.emit(shots)
@@ -655,6 +717,19 @@ func _build_pickup_area() -> void:
 	_shield_visual.visible = false
 	_shield_visual.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(_shield_visual)
+	_aim_arrow = MeshInstance3D.new()
+	_aim_arrow.name = "AimArrow"
+	var arrow := PrismMesh.new()
+	arrow.size = Vector3(0.35, 0.5, 0.08)
+	_aim_arrow.mesh = arrow
+	var arrow_material := StandardMaterial3D.new()
+	arrow_material.albedo_color = Palette.NEON_CYAN
+	arrow_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_aim_arrow.material_override = arrow_material
+	_aim_arrow.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
+	_aim_arrow.top_level = true
+	_aim_arrow.visible = false
+	add_child(_aim_arrow)
 
 
 ## Polled every tick rather than on entry, so a kart that unfreezes or spawns on top of a pickup

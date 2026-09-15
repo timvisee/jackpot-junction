@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="SwivelCannonPowerUp" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/items/powerups/swivel_cannon.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"swivel_cannon"
+display_name = "Swivel Cannon"
+description = "Aim freely with the stick or mouse for 12 s."
+weight = 15.0
+color = Color(0.2392, 0.8510, 0.8863, 1)

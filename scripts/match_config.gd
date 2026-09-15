@@ -9,6 +9,8 @@ var difficulty := "normal"
 var duration := 300.0
 ## 0 disables the early finish.
 var target_score := 3000
+## "first" for the first power-up set, "all" for every power-up.
+var item_set := "first"
 
 
 func inputs() -> Array[KartInput]:
@@ -27,10 +29,15 @@ func rules(base: MatchRules) -> MatchRules:
 	return copy
 
 
+func power_ups() -> PowerUpTable:
+	return load("res://data/powerups/%s.tres" % ("all" if item_set == "all" else "first_set"))
+
+
 static func from_settings(settings: Settings) -> MatchConfig:
 	var config := MatchConfig.new()
 	config.bot_count = settings.bot_count
 	config.difficulty = settings.difficulty
 	config.duration = settings.match_minutes * 60.0
 	config.target_score = settings.target_score
+	config.item_set = settings.item_set
 	return config

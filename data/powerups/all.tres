@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="PowerUpTable" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scenes/items/power_up_table.gd" id="1_table"]
+[ext_resource type="Resource" path="res://data/powerups/boost.tres" id="2_boost"]
+[ext_resource type="Resource" path="res://data/powerups/shield.tres" id="3_shield"]
+[ext_resource type="Resource" path="res://data/powerups/turret.tres" id="4_turret"]
+[ext_resource type="Resource" path="res://data/powerups/ricochet_cannon.tres" id="5_ricochet_cannon"]
+[ext_resource type="Resource" path="res://data/powerups/coin_magnet.tres" id="6_coin_magnet"]
+[ext_resource type="Resource" path="res://data/powerups/decoy_kart.tres" id="7_decoy_kart"]
+[ext_resource type="Resource" path="res://data/powerups/spread_cannon.tres" id="8_spread_cannon"]
+[ext_resource type="Resource" path="res://data/powerups/swivel_cannon.tres" id="9_swivel_cannon"]
+[ext_resource type="Resource" path="res://data/powerups/bullet_wipe.tres" id="10_bullet_wipe"]
+
+[resource]
+script = ExtResource("1_table")
+entries = Array[Resource]([ExtResource("2_boost"), ExtResource("3_shield"), ExtResource("4_turret"), ExtResource("5_ricochet_cannon"), ExtResource("6_coin_magnet"), ExtResource("7_decoy_kart"), ExtResource("8_spread_cannon"), ExtResource("9_swivel_cannon"), ExtResource("10_bullet_wipe")])

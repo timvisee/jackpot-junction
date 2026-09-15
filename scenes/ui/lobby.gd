@@ -6,11 +6,13 @@ const MINUTES: Array[int] = [3, 5, 8]
 const TARGETS: Array[int] = [0, 2000, 3000, 5000]
 const BOTS: Array[int] = [0, 1, 2, 3]
 const DIFFICULTIES: Array[String] = ["easy", "normal", "hard"]
+const ITEM_SETS: Array[String] = ["first", "all"]
 
 var minutes_option: OptionButton
 var target_option: OptionButton
 var bots_option: OptionButton
 var difficulty_option: OptionButton
+var items_option: OptionButton
 var start_button: Button
 
 
@@ -33,10 +35,12 @@ func _ready() -> void:
 	difficulty_option = MenuTheme.option(
 		["Easy", "Normal", "Hard"], DIFFICULTIES.find(settings.difficulty)
 	)
+	items_option = MenuTheme.option(["First set", "All items"], ITEM_SETS.find(settings.item_set))
 	column.add_child(MenuTheme.row("Match length", minutes_option))
 	column.add_child(MenuTheme.row("Target score", target_option))
 	column.add_child(MenuTheme.row("Bots", bots_option))
 	column.add_child(MenuTheme.row("Bot difficulty", difficulty_option))
+	column.add_child(MenuTheme.row("Items", items_option))
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0.0, 24.0)
 	column.add_child(spacer)
@@ -56,6 +60,7 @@ func config() -> MatchConfig:
 	result.target_score = TARGETS[target_option.selected]
 	result.bot_count = BOTS[bots_option.selected]
 	result.difficulty = DIFFICULTIES[difficulty_option.selected]
+	result.item_set = ITEM_SETS[items_option.selected]
 	return result
 
 
@@ -65,6 +70,7 @@ func _start() -> void:
 	settings.target_score = TARGETS[target_option.selected]
 	settings.bot_count = BOTS[bots_option.selected]
 	settings.difficulty = DIFFICULTIES[difficulty_option.selected]
+	settings.item_set = ITEM_SETS[items_option.selected]
 	settings.save_to_disk()
 	Game.start_match(config())
 

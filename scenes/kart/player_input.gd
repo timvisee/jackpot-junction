@@ -30,6 +30,16 @@ func poll(_delta: float) -> void:
 	throttle = DeviceInput.strength(InputActions.THROTTLE, device)
 	brake = DeviceInput.strength(InputActions.BRAKE, device)
 	handbrake = DeviceInput.pressed(InputActions.HANDBRAKE, device)
+	aim = Vector2(
+		(
+			DeviceInput.strength(InputActions.AIM_RIGHT, device)
+			- DeviceInput.strength(InputActions.AIM_LEFT, device)
+		),
+		(
+			DeviceInput.strength(InputActions.AIM_DOWN, device)
+			- DeviceInput.strength(InputActions.AIM_UP, device)
+		)
+	)
 	fire = DeviceInput.pressed(InputActions.FIRE, device)
 	fire_pressed = fire and not _fire_was_down
 	_fire_was_down = fire

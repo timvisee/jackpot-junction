@@ -237,9 +237,9 @@ func _pickup_value(pickup: Pickup) -> float:
 func _nearest_enemy() -> Kart:
 	var best: Kart = null
 	var best_distance := INF
-	for slot: PlayerSlot in match_node.slots:
-		var other := slot.kart
-		if other == kart or not other.is_targetable():
+	for node: Node in get_tree().get_nodes_in_group(&"karts"):
+		var other := node as Kart
+		if other == null or other.slot == kart.slot or not other.is_targetable():
 			continue
 		var distance := kart.global_position.distance_to(other.global_position)
 		if distance < best_distance:
@@ -251,9 +251,9 @@ func _nearest_enemy() -> Kart:
 func _nearest_boosting_enemy() -> Kart:
 	var best: Kart = null
 	var best_distance := INF
-	for slot: PlayerSlot in match_node.slots:
-		var other := slot.kart
-		if other == kart or not other.alive or not other.ramming:
+	for node: Node in get_tree().get_nodes_in_group(&"karts"):
+		var other := node as Kart
+		if other == null or other.slot == kart.slot or not other.alive or not other.ramming:
 			continue
 		var distance := kart.global_position.distance_to(other.global_position)
 		if distance < best_distance:

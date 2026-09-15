@@ -24,6 +24,7 @@ var match_minutes := 5
 var target_score := 3000
 var bot_count := 3
 var difficulty := "normal"
+var item_set := "first"
 
 var path := DEFAULT_PATH
 
@@ -50,6 +51,7 @@ func load_from_disk() -> void:
 	target_score = file.get_value("lobby", "target_score", target_score)
 	bot_count = file.get_value("lobby", "bot_count", bot_count)
 	difficulty = file.get_value("lobby", "difficulty", difficulty)
+	item_set = file.get_value("lobby", "item_set", item_set)
 
 
 func save_to_disk() -> Error:
@@ -70,6 +72,7 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "target_score", target_score)
 	file.set_value("lobby", "bot_count", bot_count)
 	file.set_value("lobby", "difficulty", difficulty)
+	file.set_value("lobby", "item_set", item_set)
 	return file.save(path)
 
 

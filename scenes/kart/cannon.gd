@@ -41,6 +41,11 @@ func set_override(override: CannonStats, shots: int) -> void:
 	_override_shots = shots
 
 
+func clear_override() -> void:
+	_override = null
+	_override_shots = 0
+
+
 func override_shots_left() -> int:
 	return _override_shots if _override != null else 0
 

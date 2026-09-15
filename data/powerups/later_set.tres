@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PowerUpTable" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scenes/items/power_up_table.gd" id="1_table"]
+[ext_resource type="Resource" path="res://data/powerups/decoy_kart.tres" id="2_decoy_kart"]
+[ext_resource type="Resource" path="res://data/powerups/spread_cannon.tres" id="3_spread_cannon"]
+[ext_resource type="Resource" path="res://data/powerups/swivel_cannon.tres" id="4_swivel_cannon"]
+[ext_resource type="Resource" path="res://data/powerups/bullet_wipe.tres" id="5_bullet_wipe"]
+
+[resource]
+script = ExtResource("1_table")
+entries = Array[Resource]([ExtResource("2_decoy_kart"), ExtResource("3_spread_cannon"), ExtResource("4_swivel_cannon"), ExtResource("5_bullet_wipe")])
