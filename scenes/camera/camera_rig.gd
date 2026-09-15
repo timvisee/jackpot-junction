@@ -58,6 +58,8 @@ func _refit() -> void:
 
 ## Kicks the camera; the offset decays on its own.
 func shake(strength: float) -> void:
+	if not Game.settings.screen_shake:
+		return
 	_shake = maxf(_shake, strength)
 
 

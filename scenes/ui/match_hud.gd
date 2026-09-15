@@ -42,15 +42,39 @@ func _ready() -> void:
 	for slot: PlayerSlot in match_node.slots:
 		if slot.is_human():
 			_blocks[slot.index] = _make_block(slot)
+			ControlHint.attach(slot.kart, slot.device())
 	_build_results()
 	Events.grazed.connect(_on_grazed)
 	Events.mult_gained.connect(_on_mult_gained)
 	Events.bank_completed.connect(_on_bank_completed)
 	Events.death_banked.connect(_on_death_banked)
 	Events.match_state_changed.connect(_on_state_changed)
+	Events.kart_killed.connect(_on_kart_killed)
+
+
+func _on_kart_killed(victim_slot: int, _killer_slot: int, _cause: StringName) -> void:
+	_rumble(victim_slot, 1.0, 0.4)
+
+
+## Vibrates the gamepad of a human slot, when rumble is on.
+func _rumble(slot: int, strength: float, seconds: float) -> void:
+	if not Game.settings.rumble or slot < 0 or slot >= match_node.slots.size():
+		return
+	var player := match_node.slots[slot]
+	if not player.is_human():
+		return
+	var device := player.device()
+	var devices: Array[int] = []
+	if device >= 0:
+		devices.append(device)
+	elif device == DeviceInput.ANY:
+		devices.assign(Input.get_connected_joypads())
+	for joypad: int in devices:
+		Input.start_joy_vibration(joypad, strength * 0.5, strength, seconds)
 
 
 func _exit_tree() -> void:
+	Events.kart_killed.disconnect(_on_kart_killed)
 	Events.grazed.disconnect(_on_grazed)
 	Events.mult_gained.disconnect(_on_mult_gained)
 	Events.bank_completed.disconnect(_on_bank_completed)
@@ -189,7 +213,9 @@ func _update_banner(delta: float) -> void:
 			_banner.visible = _go_left > 0.0
 			_banner.text = "GO"
 		Match.State.LAST_CALL:
-			var pulse := fmod(Time.get_ticks_msec() * 0.001, 1.0) < 0.5
+			var pulse := (
+				Game.settings.flash_reduction or fmod(Time.get_ticks_msec() * 0.001, 1.0) < 0.5
+			)
 			_banner.visible = (
 				match_node.time_left > match_node.rules.last_call_duration - 3.0 and pulse
 			)
@@ -244,6 +270,7 @@ func _on_bank_completed(slot: int, coins: int, mult: float, total: int) -> void:
 	)
 	if big:
 		match_node.camera_rig.shake(1.0)
+	_rumble(slot, 0.6 if big else 0.3, 0.35)
 
 
 func _on_death_banked(slot: int, amount: int) -> void:
@@ -375,8 +402,8 @@ func _build_results() -> void:
 	rematch.pressed.connect(func() -> void: match_node.rematch())
 	buttons.add_child(rematch)
 	var quit := Button.new()
-	quit.text = "Quit"
-	quit.pressed.connect(func() -> void: get_tree().quit())
+	quit.text = "Back to title"
+	quit.pressed.connect(func() -> void: Game.go_to_title())
 	buttons.add_child(quit)
 
 

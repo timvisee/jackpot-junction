@@ -6,8 +6,7 @@ extends Node3D
 ##   --players=2          keyboard drives slot 0 and the first gamepad slot 1
 ##   --bots=3             number of bot karts added after the humans (default 1)
 ##   --difficulty=hard    bot difficulty: easy, normal or hard
-##   --screenshot=<path>  save a PNG of the viewport after --frames=<n> frames (default 60) and
-##                        quit; needs a display
+## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 
@@ -16,14 +15,11 @@ var match_node: Match
 var _players := 1
 var _bots := 1
 var _difficulty := "normal"
-var _screenshot_path := ""
-var _screenshot_frames := 60
-var _frames := 0
 
 
 func _ready() -> void:
 	_parse_user_args()
-	_add_environment()
+	ArenaEnvironment.add_to(self)
 	match_node = MATCH_SCENE.instantiate()
 	match_node.name = "Match"
 	match_node.bot_difficulty = load("res://data/ai/%s.tres" % _difficulty)
@@ -49,51 +45,11 @@ func _ready() -> void:
 	add_child(tuning)
 
 
-func _process(_delta: float) -> void:
-	if _screenshot_path.is_empty():
-		return
-	_frames += 1
-	if _frames == _screenshot_frames:
-		_save_screenshot()
-
-
-func _add_environment() -> void:
-	var light := DirectionalLight3D.new()
-	light.name = "Sun"
-	light.rotation_degrees = Vector3(-55.0, 35.0, 0.0)
-	light.shadow_enabled = true
-	light.light_energy = 1.2
-	add_child(light)
-	var environment := Environment.new()
-	environment.background_mode = Environment.BG_COLOR
-	environment.background_color = Color("#2A1E16")
-	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color(0.9, 0.86, 0.8)
-	environment.ambient_light_energy = 0.55
-	environment.ssao_enabled = true
-	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	var world := WorldEnvironment.new()
-	world.name = "WorldEnvironment"
-	world.environment = environment
-	add_child(world)
-
-
 func _parse_user_args() -> void:
 	for arg: String in OS.get_cmdline_user_args():
-		if arg.begins_with("--screenshot="):
-			_screenshot_path = arg.get_slice("=", 1)
-		elif arg.begins_with("--frames="):
-			_screenshot_frames = int(arg.get_slice("=", 1))
-		elif arg.begins_with("--players="):
+		if arg.begins_with("--players="):
 			_players = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--bots="):
 			_bots = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--difficulty="):
 			_difficulty = arg.get_slice("=", 1)
-
-
-func _save_screenshot() -> void:
-	var image := get_viewport().get_texture().get_image()
-	var error := image.save_png(_screenshot_path)
-	print("screenshot %s: %s" % [_screenshot_path, error_string(error)])
-	get_tree().quit()

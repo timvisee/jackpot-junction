@@ -103,6 +103,7 @@ func _ready() -> void:
 	_smoke.position = Vector3(0.0, 0.35, stats.length * 0.5)
 	add_child(_smoke)
 	_build_pickup_area()
+	rebuild_stats()
 
 
 func _physics_process(delta: float) -> void:
@@ -153,6 +154,11 @@ func rebuild_stats() -> void:
 	for joker: Joker in jokers.jokers:
 		joker.modify_kart_stats(stats)
 		joker.modify_cannon_stats(cannon_stats)
+	if input is PlayerInput:
+		var strength := clampf(Game.settings.aim_assist, 0.0, 1.0)
+		cannon_stats.aim_assist_cone_deg *= strength
+		cannon_stats.aim_assist_turn_rate_deg *= strength
+		cannon_stats.aim_assist = cannon_stats.aim_assist and strength > 0.0
 	motor.stats = stats
 	cannon.stats = cannon_stats
 	refresh_pickup_radius()

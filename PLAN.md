@@ -231,11 +231,11 @@ still open.
 Goal: a complete single-player game against 3 bots, with menus, settings,
 audio and art, published as a GitHub Release.
 
-- [ ] Grid pathfinding with AStarGrid2D, updated when crates die and respawn.
-- [ ] `BotBrain`: utility goals from GAME.md 9.1, path following, bullet dodge
+- [x] Grid pathfinding with AStarGrid2D, updated when crates die and respawn.
+- [x] `BotBrain`: utility goals from GAME.md 9.1, path following, bullet dodge
       prediction, firing with lead, reaction delay and aim error, traits and
       difficulty resources, `BotInput`.
-- [ ] Title screen, lobby with options and colour picking, countdown, control
+- [x] Title screen, lobby with options and colour picking, countdown, control
       hints at match start, results with podium, settings with rebinding,
       audio, video and accessibility, persistence with ConfigFile.
 - [ ] `Audio` autoload with Master, Music and SFX buses; music loop and the
