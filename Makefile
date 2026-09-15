@@ -4,7 +4,7 @@ GDLINT ?= gdlint
 GDFORMAT ?= gdformat
 GD_DIRS := scenes scripts tests
 
-.PHONY: import test lint format format-check smoke run check
+.PHONY: import test lint format format-check smoke run check export
 
 import:
 	$(GODOT) --headless --path . --import
@@ -32,3 +32,9 @@ run:
 	$(GODOT) --path . res://scenes/dev/playground.tscn
 
 check: import lint format-check test smoke
+
+export:
+	mkdir -p build/linux build/windows build/macos
+	$(GODOT) --headless --path . --export-release "Linux" build/linux/jackpot-junction.x86_64
+	$(GODOT) --headless --path . --export-release "Windows" build/windows/jackpot-junction.exe
+	$(GODOT) --headless --path . --export-release "macOS" build/macos/jackpot-junction.zip

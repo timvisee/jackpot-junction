@@ -226,8 +226,9 @@ the lobby.
   the start of a match the drive and fire controls are shown next to each
   human player's kart, from the countdown until that player has both driven
   and fired, or for 10 s at most.
-- The lobby exposes match length, target score, bot count and one global bot
-  difficulty, with the values in this document as defaults.
+- The lobby exposes match length, target score, bot count, one global bot
+  difficulty and the item set (first set or all items), with the values in
+  this document as defaults.
 - Pausing in single-player and local play freezes the match for everyone.
   Online matches cannot be paused.
 
@@ -446,7 +447,7 @@ First set:
 | Ricochet Cannon | 20     | Next 8 shots bounce twice and fly 25% faster                                    |
 | Coin Magnet     | 15     | 8 s: pickup radius times 3, chips within it drift toward you at 6 m/s           |
 
-Later set, with the Decoy Kart last because it depends on a stable bot brain:
+Later set, off by default and switched on per match in the lobby:
 
 | Power-up        | Effect                                                                          |
 |-----------------|---------------------------------------------------------------------------------|

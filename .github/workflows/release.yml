@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+env:
+  GODOT_VERSION: 4.7.2
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Godot and export templates
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/godot
+            ~/.local/share/godot/export_templates
+          key: godot-${{ env.GODOT_VERSION }}-export
+
+      - name: Install Godot and export templates
+        run: |
+          set -e
+          if [ ! -x ~/godot/godot ]; then
+            mkdir -p ~/godot && cd ~/godot
+            curl -sSL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+            unzip -q godot.zip
+            mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+            chmod +x godot
+          fi
+          TEMPLATES="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          if [ ! -d "$TEMPLATES" ]; then
+            mkdir -p "$TEMPLATES" && cd /tmp
+            curl -sSL -o templates.tpz "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+            unzip -q templates.tpz
+            mv templates/* "$TEMPLATES"/
+          fi
+          echo "GODOT=$HOME/godot/godot" >> "$GITHUB_ENV"
+
+      - name: Import
+        run: make import
+
+      - name: Export
+        run: make export
+
+      - name: Package
+        run: |
+          set -e
+          cd build
+          zip -qr "../jackpot-junction-${GITHUB_REF_NAME}-linux.zip" linux
+          zip -qr "../jackpot-junction-${GITHUB_REF_NAME}-windows.zip" windows
+          cp macos/jackpot-junction.zip "../jackpot-junction-${GITHUB_REF_NAME}-macos.zip"
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: jackpot-junction-*.zip
+          generate_release_notes: true

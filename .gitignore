@@ -4,3 +4,6 @@
 
 # gdUnit4 reports
 /reports/
+
+# Export builds
+/build/

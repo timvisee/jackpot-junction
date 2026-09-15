@@ -10,7 +10,7 @@ change, change GAME.md first, then the code.
 | Item             | State                                                                                     |
 |------------------|-------------------------------------------------------------------------------------------|
 | Godot            | 4.7.2 stable via Steam: `~/.local/share/Steam/steamapps/common/Godot Engine/godot.x11.opt.tools.64`. Runs headless. `~/bin/godot` is 4.4.1 and must not touch this project |
-| Export templates | Only 4.4.1 installed. Install 4.7.2 templates before the first release build              |
+| Export templates | The Steam Godot ships its own under `editor_data/export_templates`, so `make export` works locally; the release workflow downloads the official 4.7.2 templates |
 | gdUnit4          | Not installed. Add to `addons/` in phase 0, pinned to a release that supports 4.7        |
 | gdtoolkit        | Not installed. `pipx install gdtoolkit` for `gdlint` and `gdformat`                       |
 | CI               | GitHub Actions, repo `timvisee/jackpot-junction`, branch `master`                         |
@@ -238,14 +238,14 @@ audio and art, published as a GitHub Release.
 - [x] Title screen, lobby with options and colour picking, countdown, control
       hints at match start, results with podium, settings with rebinding,
       audio, video and accessibility, persistence with ConfigFile.
-- [ ] `Audio` autoload with Master, Music and SFX buses; music loop and the
+- [x] `Audio` autoload with Master, Music and SFX buses; music loop and the
       sound set from GAME.md 8.4 from free sources, every file in
       `THIRD_PARTY.md`.
-- [ ] Art pass: kart model, blocks, chips, pad and zone visuals, palette,
+- [x] Art pass: kart model, blocks, chips, pad and zone visuals, palette,
       lighting, tally polish with flying chips and fanfare, camera shake.
-- [ ] Decoy Kart power-up once bots are stable, otherwise it slips to after
+- [x] Decoy Kart power-up once bots are stable, otherwise it slips to after
       the release.
-- [ ] `export_presets.cfg` for Linux, Windows and macOS, 4.7.2 templates
+- [x] `export_presets.cfg` for Linux, Windows and macOS, 4.7.2 templates
       installed, `.github/workflows/release.yml` building on tags and attaching
       the builds to a GitHub Release.
 - [ ] Tag `v0.1.0`.
@@ -254,6 +254,13 @@ Verify: bot tests for goal selection with fixed inputs and for dodge
 prediction; a full match against 3 bots on each difficulty; the performance
 budget from GAME.md 10.1 checked with the profiler; export builds start on a
 clean machine.
+
+Status: built and checked headless. Bots, menus, settings, audio, the Kenney
+kart model, the later power-up set and the export presets are in; `make
+export` produces the three builds locally and the release workflow builds
+them on a `v*` tag. Still open: the full match against bots on each
+difficulty as a play session, the profiler pass, a clean-machine start of the
+exports, and the `v0.1.0` tag itself, which is the user's call.
 
 ## M5: local multiplayer
 
