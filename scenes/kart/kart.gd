@@ -1,32 +1,60 @@
 class_name Kart
 extends CharacterBody3D
 ## A player's or bot's kart. Movement is planar, gravity-free and driven by a [KartMotor]; the
-## [KartInput] decides who is at the wheel.
+## [KartInput] decides who is at the wheel; the [Cannon] fires forward. Death, falling into pits
+## and spawn protection follow GAME.md 3.6.
 
+signal died(cause: StringName, killer_slot: int)
+signal respawned
+signal fired(bullets: Array[Bullet])
 signal turbo_taken(direction: Vector3)
 
 const WHEEL_RADIUS := 0.24
+const FALL_SPEED := 2.5
+const FALL_SPIN := 7.0
+const BLINK_PERIOD := 0.25
 
 @export var stats: KartStats
-## Player slot, 0 to 3, decides the colour.
+@export var cannon_stats: CannonStats
+@export var rules: MatchRules
+## Player slot, 0 to 3, decides the colour and who gets the credit.
 @export var slot := 0
 
 var input: KartInput = KartInput.new()
 var motor: KartMotor
+var cannon: Cannon
+var bullet_system: BulletSystem
+var alive := true
+var falling := false
+var protection_left := 0.0
+## Set by the Boost power-up: contact with another kart kills it.
+var ramming := false
+var last_bump_slot := -1
+var last_bump_time := -INF
 
+var _body: Node3D
 var _tire_marks: TireMarks
 var _smoke: ExhaustSmoke
-var _tint: StandardMaterial3D
+var _fall_left := 0.0
 
 
 func _ready() -> void:
 	if stats == null:
 		stats = load("res://data/kart/default.tres")
+	if cannon_stats == null:
+		cannon_stats = load("res://data/cannons/default.tres")
+	if rules == null:
+		rules = load("res://data/match/default.tres")
 	motion_mode = CharacterBody3D.MOTION_MODE_FLOATING
 	collision_layer = Layers.KART
-	collision_mask = Layers.WORLD | Layers.KART
+	collision_mask = Layers.WORLD | Layers.KART | Layers.PROTECTED
+	add_to_group(&"karts")
+	add_to_group(Bullet.TARGET_GROUP)
 	motor = KartMotor.new(stats)
 	motor.heading = rotation.y
+	cannon = Cannon.new(cannon_stats)
+	if bullet_system == null:
+		bullet_system = get_tree().get_first_node_in_group(&"bullet_system") as BulletSystem
 	_build_visuals()
 	_tire_marks = TireMarks.new()
 	_tire_marks.name = "TireMarks"
@@ -38,7 +66,16 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if not alive:
+		return
+	if falling:
+		_step_fall(delta)
+		return
+	_step_protection(delta)
 	input.poll(delta)
+	cannon.step(delta)
+	if input.fire and protection_left <= 0.0 and cannon.can_fire() and bullet_system != null:
+		_fire()
 	var heading_before := motor.heading
 	motor.step(input, delta)
 	velocity = motor.velocity
@@ -48,6 +85,69 @@ func _physics_process(delta: float) -> void:
 	position.y = 0.0
 	rotation = Vector3(0.0, motor.heading, 0.0)
 	_update_trails(delta, heading_before)
+
+
+## True while bullets may hit and aim assist may pick this kart.
+func is_targetable() -> bool:
+	return alive and not falling and protection_left <= 0.0
+
+
+## A bullet reached the kart. Returns false when it passes through, for example during spawn
+## protection.
+func take_hit(bullet: Bullet) -> bool:
+	if not is_targetable():
+		return false
+	die(&"bullet", bullet.owner_slot)
+	return true
+
+
+## Kills the kart. The match decides when and where it respawns.
+func die(cause: StringName, killer_slot: int) -> void:
+	if not alive:
+		return
+	alive = false
+	falling = false
+	collision_layer = 0
+	collision_mask = 0
+	motor.velocity = Vector3.ZERO
+	velocity = Vector3.ZERO
+	_body.visible = false
+	_smoke.emitting = false
+	died.emit(cause, killer_slot)
+
+
+## Puts the kart back on the floor at [param point], facing [param direction], protected for
+## [param protection] seconds.
+func respawn(point: Vector3, direction: Vector3, protection: float) -> void:
+	alive = true
+	falling = false
+	global_position = Vector3(point.x, 0.0, point.z)
+	scale = Vector3.ONE
+	face(direction)
+	motor.velocity = Vector3.ZERO
+	motor.drifting = false
+	motor.drift_time = 0.0
+	motor.boost_time_left = 0.0
+	motor.turbo_time_left = 0.0
+	velocity = Vector3.ZERO
+	cannon.cooldown_left = 0.0
+	protection_left = protection
+	collision_layer = Layers.PROTECTED if protection > 0.0 else Layers.KART
+	collision_mask = Layers.WORLD | Layers.KART | Layers.PROTECTED
+	_body.visible = true
+	_smoke.emitting = true
+	respawned.emit()
+
+
+## Called by a [Pit]: the kart drops out of control for a moment, then dies. The last kart that
+## bumped it recently gets the credit.
+func start_fall() -> void:
+	if not alive or falling:
+		return
+	falling = true
+	_fall_left = rules.pit_fall_time
+	collision_layer = 0
+	collision_mask = 0
 
 
 ## Sets the facing direction, for spawning.
@@ -63,8 +163,42 @@ func face(direction: Vector3) -> void:
 
 ## Called by a [TurboPad] when the kart drives over it.
 func apply_turbo(direction: Vector3) -> void:
+	if not alive or falling:
+		return
 	motor.apply_turbo(direction)
 	turbo_taken.emit(direction)
+
+
+func _fire() -> void:
+	var direction := -global_basis.z
+	var origin := global_position + direction * cannon_stats.muzzle_offset
+	var shots := cannon.fire(bullet_system, slot, origin, direction, Palette.player_color(slot))
+	fired.emit(shots)
+
+
+func _step_protection(delta: float) -> void:
+	if protection_left <= 0.0:
+		return
+	protection_left = maxf(protection_left - delta, 0.0)
+	if protection_left <= 0.0:
+		collision_layer = Layers.KART
+		_body.visible = true
+	else:
+		_body.visible = fmod(protection_left, BLINK_PERIOD) < BLINK_PERIOD * 0.5
+
+
+func _step_fall(delta: float) -> void:
+	_fall_left -= delta
+	position += motor.velocity * 0.3 * delta
+	position.y -= FALL_SPEED * delta
+	rotation.y += FALL_SPIN * delta
+	scale = Vector3.ONE * maxf(_fall_left / rules.pit_fall_time, 0.05)
+	if _fall_left <= 0.0:
+		var now := Time.get_ticks_msec() * 0.001
+		var pusher := (
+			last_bump_slot if now - last_bump_time <= rules.bump_attribution_window else -1
+		)
+		die(&"pit", pusher)
 
 
 func _resolve_collisions() -> void:
@@ -74,8 +208,12 @@ func _resolve_collisions() -> void:
 		var normal := collision.get_normal()
 		if absf(normal.y) > 0.7:
 			continue
-		var collider := collision.get_collider()
-		if collider is Kart:
+		var other := collision.get_collider() as Kart
+		if other != null:
+			last_bump_slot = other.slot
+			last_bump_time = Time.get_ticks_msec() * 0.001
+			if ramming and other.is_targetable():
+				other.die(&"ram", slot)
 			motor.apply_bump(normal)
 			velocity = motor.velocity
 		else:
@@ -107,25 +245,24 @@ func _update_trails(delta: float, heading_before: float) -> void:
 
 
 func _build_visuals() -> void:
-	var color := Palette.player_color(slot)
-	_tint = StandardMaterial3D.new()
-	_tint.albedo_color = color
+	var tint := StandardMaterial3D.new()
+	tint.albedo_color = Palette.player_color(slot)
 	var dark := StandardMaterial3D.new()
 	dark.albedo_color = Color(0.12, 0.12, 0.13)
-	var body := Node3D.new()
-	body.name = "Body"
-	add_child(body)
-	var chassis := _box(Vector3(stats.width * 0.8, 0.3, stats.length), _tint)
-	chassis.position = Vector3(0.0, 0.32, 0.0)
-	body.add_child(chassis)
-	var seat := _box(Vector3(stats.width * 0.5, 0.35, stats.length * 0.35), dark)
-	seat.position = Vector3(0.0, 0.62, stats.length * 0.1)
-	body.add_child(seat)
 	var white := StandardMaterial3D.new()
 	white.albedo_color = Palette.CHIP_WHITE
+	_body = Node3D.new()
+	_body.name = "Body"
+	add_child(_body)
+	var chassis := _box(Vector3(stats.width * 0.8, 0.3, stats.length), tint)
+	chassis.position = Vector3(0.0, 0.32, 0.0)
+	_body.add_child(chassis)
+	var seat := _box(Vector3(stats.width * 0.5, 0.35, stats.length * 0.35), dark)
+	seat.position = Vector3(0.0, 0.62, stats.length * 0.1)
+	_body.add_child(seat)
 	var nose := _box(Vector3(stats.width * 0.5, 0.12, 0.3), white)
 	nose.position = Vector3(0.0, 0.5, -stats.length * 0.45)
-	body.add_child(nose)
+	_body.add_child(nose)
 	for x: int in [-1, 1]:
 		for z: int in [-1, 1]:
 			var wheel := MeshInstance3D.new()
@@ -137,7 +274,7 @@ func _build_visuals() -> void:
 			wheel.material_override = dark
 			wheel.rotation_degrees = Vector3(0.0, 0.0, 90.0)
 			wheel.position = Vector3(x * stats.width * 0.5, WHEEL_RADIUS, z * stats.length * 0.32)
-			body.add_child(wheel)
+			_body.add_child(wheel)
 
 
 func _box(size: Vector3, material: StandardMaterial3D) -> MeshInstance3D:

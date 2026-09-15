@@ -15,6 +15,7 @@ var grid: ArenaGrid
 var spawn_points: Array[Vector3] = []
 var turbo_pads: Array[TurboPad] = []
 var pits: Array[Pit] = []
+var crates: Array[Crate] = []
 var junction_position := Vector3.ZERO
 var junction_radius := 2.5
 var jackpot_positions: Array[Vector3] = []
@@ -35,6 +36,7 @@ func build() -> void:
 	spawn_points.clear()
 	turbo_pads.clear()
 	pits.clear()
+	crates.clear()
 	jackpot_positions.clear()
 	_add_table()
 	_add_floor()
@@ -164,23 +166,22 @@ func _add_turbo_pads() -> void:
 
 
 func _add_crates() -> void:
-	var crates := Node3D.new()
-	crates.name = "Crates"
-	add_child(crates)
+	var container := Node3D.new()
+	container.name = "Crates"
+	add_child(container)
 	var size := Vector3(1.0, 1.0, 1.0)
 	for i: int in grid.crates.size():
-		var body := StaticBody3D.new()
-		body.name = "Crate%d" % i
-		body.collision_layer = Layers.WORLD
-		body.collision_mask = 0
-		body.position = grid.cell_center(grid.crates[i]) + Vector3(0.0, 0.5, 0.0)
+		var crate := Crate.new()
+		crate.name = "Crate%d" % i
+		crate.position = grid.cell_center(grid.crates[i]) + Vector3(0.0, 0.5, 0.0)
 		var shape := CollisionShape3D.new()
 		var box := BoxShape3D.new()
 		box.size = size
 		shape.shape = box
-		body.add_child(shape)
-		body.add_child(_box_mesh(size, Palette.BLOCK_EDGE))
-		crates.add_child(body)
+		crate.add_child(shape)
+		crate.add_child(_box_mesh(size, Palette.BLOCK_EDGE))
+		container.add_child(crate)
+		crates.append(crate)
 
 
 func _add_pits() -> void:

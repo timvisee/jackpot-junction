@@ -135,27 +135,32 @@ tuning panel, and Save writes the numbers back to `data/kart/default.tres`.
 Goal: two karts on one machine can kill each other, and every death has a
 clear cause.
 
-- [ ] `CannonStats` resource and `Cannon` component: cooldown, live bullet
+- [x] `CannonStats` resource and `Cannon` component: cooldown, live bullet
       count, muzzle offset, forward-only fire; `data/cannons/default.tres`.
-- [ ] `Bullet`: sphere-cast stepping, one bounce with reflection, lifetime,
+- [x] `Bullet`: sphere-cast stepping, one bounce with reflection, lifetime,
       owner slot, tint and trail, bullet against bullet cancel, aim assist
       steering inside the cone until the first bounce.
-- [ ] Kart death and respawn: `die(cause, killer_slot)`, 3 s delay, spawn point
+- [x] Kart death and respawn: `die(cause, killer_slot)`, 3 s delay, spawn point
       farthest from enemies, 2 s protection on the protected layer with firing
       disabled, own bullets deadly.
-- [ ] Crates: one hit destroys, respawn after 30 s, drops come in M2.
-- [ ] Pits: 0.4 s uncontrollable fall then death, last bump attribution within
+- [x] Crates: one hit destroys, respawn after 30 s, drops come in M2.
+- [x] Pits: 0.4 s uncontrollable fall then death, last bump attribution within
       2 s.
-- [ ] Kart bumps with the bump rule; a `ramming` flag on the kart for Boost to
+- [x] Kart bumps with the bump rule; a `ramming` flag on the kart for Boost to
       set in M3.
-- [ ] `Match` skeleton: slot list, spawns karts, Playing state only, emits
+- [x] `Match` skeleton: slot list, spawns karts, Playing state only, emits
       `kart_killed` and `kart_respawned`.
-- [ ] Minimal `InputRouter`: two devices, two slots, enough to test with two
+- [x] Minimal `InputRouter`: two devices, two slots, enough to test with two
       humans.
 
 Verify: tests for reflection, aim assist cone and turn limit, spawn selection,
 live bullet accounting. Smoke run with two karts driven by a scripted input
 that drives and fires. A two-player session on one machine.
+
+Status: built and checked headless, including an integration test in which a
+bullet kills the kart ahead and the victim respawns protected. The two-player
+session is still open: `tools/godot --path . res://scenes/dev/playground.tscn
+++ --players=2` puts the keyboard on slot 0 and the first gamepad on slot 1.
 
 ## M2: economy
 

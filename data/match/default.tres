@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MatchRules" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/match/match_rules.gd" id="1_rules"]
+
+[resource]
+script = ExtResource("1_rules")
+respawn_delay = 3.0
+spawn_protection = 2.0
+pit_fall_time = 0.4
+bump_attribution_window = 2.0
+max_players = 4

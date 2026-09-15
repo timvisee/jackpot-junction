@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="CannonStats" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/kart/cannon_stats.gd" id="1_stats"]
+
+[resource]
+script = ExtResource("1_stats")
+fire_cooldown = 0.4
+max_live_bullets = 3
+muzzle_offset = 1.0
+spread_count = 1
+spread_angle_deg = 0.0
+free_aim = false
+bullet_speed = 20.0
+bullet_radius = 0.15
+bounces = 1
+lifetime = 3.0
+aim_assist = true
+aim_assist_cone_deg = 12.0
+aim_assist_range = 15.0
+aim_assist_turn_rate_deg = 30.0

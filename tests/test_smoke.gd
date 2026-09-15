@@ -33,7 +33,13 @@ func test_playground_scene_builds() -> void:
 	var scene: PackedScene = load("res://scenes/dev/playground.tscn")
 	var playground: Node3D = auto_free(scene.instantiate())
 	add_child(playground)
-	assert_object(playground.get_node("Arena")).is_not_null()
-	assert_object(playground.get_node("CameraRig")).is_not_null()
-	assert_object(playground.get_node("Kart0")).is_not_null()
-	assert_object(playground.get_node("Kart1")).is_not_null()
+	assert_object(playground.get_node("Match/Arena")).is_not_null()
+	assert_object(playground.get_node("Match/CameraRig")).is_not_null()
+	assert_object(playground.get_node("Match/Bullets")).is_not_null()
+	assert_object(playground.get_node("Match/Kart0")).is_not_null()
+	assert_object(playground.get_node("Match/Kart1")).is_not_null()
+
+
+func test_autoloads_are_available_in_tests() -> void:
+	assert_object(get_tree().root.get_node_or_null("Events")).is_not_null()
+	assert_object(get_tree().root.get_node_or_null("Game")).is_not_null()

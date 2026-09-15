@@ -306,6 +306,7 @@ assigns physical devices to player slots, see 10.2.
 | Parameter                      | Starting value                                     |
 |--------------------------------|----------------------------------------------------|
 | Aim                            | Forward-only along the kart heading                |
+| Trigger                        | Holding fire shoots at the cooldown rate           |
 | Fire cooldown                  | 0.4 s                                              |
 | Max live bullets per kart      | 3                                                  |
 | Bullet speed                   | 20 m/s, about 1.5 times kart top speed             |

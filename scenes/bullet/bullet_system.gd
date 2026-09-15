@@ -1,0 +1,53 @@
+class_name BulletSystem
+extends Node3D
+## Owns every bullet in a match and resolves bullet against bullet: two bullets whose sweeps
+## this tick came closer than their combined radius both vanish. Runs after the bullets moved.
+
+var bullets: Array[Bullet] = []
+
+
+func _ready() -> void:
+	process_physics_priority = 10
+	add_to_group(&"bullet_system")
+
+
+func spawn(
+	owner_slot: int, origin: Vector3, direction: Vector3, stats: CannonStats, color: Color
+) -> Bullet:
+	var bullet := Bullet.new()
+	bullet.setup(owner_slot, origin, direction, stats, color)
+	bullet.expired.connect(_on_bullet_expired)
+	add_child(bullet)
+	bullets.append(bullet)
+	return bullet
+
+
+func live_count() -> int:
+	return bullets.size()
+
+
+func _on_bullet_expired(bullet: Bullet) -> void:
+	bullets.erase(bullet)
+
+
+func _physics_process(_delta: float) -> void:
+	var doomed: Array[Bullet] = []
+	for i: int in bullets.size():
+		var a := bullets[i]
+		for j: int in range(i + 1, bullets.size()):
+			var b := bullets[j]
+			if a in doomed or b in doomed:
+				continue
+			if sweeps_touch(a, b):
+				doomed.append(a)
+				doomed.append(b)
+	for bullet: Bullet in doomed:
+		bullet.destroy()
+
+
+## True when the movement segments of two bullets this tick passed within their combined radius.
+static func sweeps_touch(a: Bullet, b: Bullet) -> bool:
+	var points := Geometry3D.get_closest_points_between_segments(
+		a.previous_position, a.global_position, b.previous_position, b.global_position
+	)
+	return points[0].distance_to(points[1]) <= a.radius + b.radius

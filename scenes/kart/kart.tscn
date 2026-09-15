@@ -1,17 +1,21 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scenes/kart/kart.gd" id="1_kart"]
 [ext_resource type="Resource" path="res://data/kart/default.tres" id="2_stats"]
+[ext_resource type="Resource" path="res://data/cannons/default.tres" id="3_cannon"]
+[ext_resource type="Resource" path="res://data/match/default.tres" id="4_rules"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_body"]
 size = Vector3(1, 0.8, 1.6)
 
 [node name="Kart" type="CharacterBody3D"]
 collision_layer = 2
-collision_mask = 3
+collision_mask = 131
 motion_mode = 1
 script = ExtResource("1_kart")
 stats = ExtResource("2_stats")
+cannon_stats = ExtResource("3_cannon")
+rules = ExtResource("4_rules")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)

@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/match/match.gd" id="1_match"]
+[ext_resource type="Resource" path="res://data/match/default.tres" id="2_rules"]
+
+[node name="Match" type="Node3D"]
+script = ExtResource("1_match")
+rules = ExtResource("2_rules")

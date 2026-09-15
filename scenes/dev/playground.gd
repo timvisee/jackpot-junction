@@ -1,41 +1,45 @@
 extends Node3D
-## Development harness: Lucky Crossing, a player kart, a scripted dummy kart, the camera rig, the
-## debug overlay (F3) and the tuning panel (F4).
+## Development harness: a match on Lucky Crossing with a player kart and a scripted dummy, plus
+## the debug overlay (F3) and the tuning panel (F4).
 ##
-## User arguments after "++": --screenshot=<path> saves a PNG of the viewport after --frames=<n>
-## frames (default 60) and quits. Needs a display.
+## User arguments after "++":
+##   --players=2          keyboard drives slot 0 and the first gamepad slot 1, no dummy
+##   --screenshot=<path>  save a PNG of the viewport after --frames=<n> frames (default 60) and
+##                        quit; needs a display
 
-const ARENA_SCENE := preload("res://scenes/arena/arena.tscn")
-const KART_SCENE := preload("res://scenes/kart/kart.tscn")
-const CAMERA_SCENE := preload("res://scenes/camera/camera_rig.tscn")
+const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 
-var arena: Arena
-var camera_rig: CameraRig
-var karts: Array[Kart] = []
+var match_node: Match
 
+var _players := 1
 var _screenshot_path := ""
 var _screenshot_frames := 60
 var _frames := 0
 
 
 func _ready() -> void:
+	_parse_user_args()
 	_add_environment()
-	arena = ARENA_SCENE.instantiate()
-	add_child(arena)
-	camera_rig = CAMERA_SCENE.instantiate()
-	add_child(camera_rig)
-	camera_rig.frame_arena(arena.bounds())
-	var player := _spawn_kart(0, 0, PlayerInput.new())
-	var dummy := _spawn_kart(1, 3, ScriptedInput.new())
-	camera_rig.targets.assign([player, dummy])
+	match_node = MATCH_SCENE.instantiate()
+	match_node.name = "Match"
+	add_child(match_node)
+	var inputs: Array[KartInput] = []
+	if _players >= 2:
+		inputs.append(PlayerInput.new(DeviceInput.KEYBOARD))
+		for joypad: int in range(0, _players - 1):
+			inputs.append(PlayerInput.new(joypad))
+	else:
+		inputs.append(PlayerInput.new())
+		inputs.append(ScriptedInput.new())
+	match_node.start(inputs)
+	var player := match_node.kart_of(0)
 	var overlay := DebugOverlay.new()
 	overlay.kart = player
-	overlay.arena_width = arena.world_size().x
+	overlay.arena_width = match_node.arena.world_size().x
 	add_child(overlay)
 	var tuning := TuningPanel.new()
 	tuning.stats = player.stats
 	add_child(tuning)
-	_parse_user_args()
 
 
 func _process(_delta: float) -> void:
@@ -44,18 +48,6 @@ func _process(_delta: float) -> void:
 	_frames += 1
 	if _frames == _screenshot_frames:
 		_save_screenshot()
-
-
-func _spawn_kart(slot: int, spawn_index: int, input: KartInput) -> Kart:
-	var kart: Kart = KART_SCENE.instantiate()
-	kart.name = "Kart%d" % slot
-	kart.slot = slot
-	kart.input = input
-	kart.position = arena.spawn_points[spawn_index]
-	add_child(kart)
-	kart.face(arena.junction_position - kart.position)
-	karts.append(kart)
-	return kart
 
 
 func _add_environment() -> void:
@@ -85,6 +77,8 @@ func _parse_user_args() -> void:
 			_screenshot_path = arg.get_slice("=", 1)
 		elif arg.begins_with("--frames="):
 			_screenshot_frames = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--players="):
+			_players = int(arg.get_slice("=", 1))
 
 
 func _save_screenshot() -> void:

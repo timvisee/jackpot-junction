@@ -9,7 +9,7 @@ signal triggered(body: Node3D)
 
 func _ready() -> void:
 	collision_layer = Layers.TRIGGER
-	collision_mask = Layers.KART
+	collision_mask = Layers.KART | Layers.PROTECTED
 	body_entered.connect(_on_body_entered)
 
 
