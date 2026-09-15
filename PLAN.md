@@ -167,31 +167,36 @@ session is still open: `tools/godot --path . res://scenes/dev/playground.tscn
 Goal: a complete solo match with a score, the Junction, the Jackpot, HUD and
 tally.
 
-- [ ] `scoring.gd`: pure functions for pot value, death split, bank rate,
+- [x] `scoring.gd`: pure functions for pot value, death split, bank rate,
       amount banked over a time span in closed form, coins remaining after a
       drain, Jackpot collection over a span. Golden tests reproduce the tables
       in GAME.md 3.4 and 3.5.
-- [ ] `Pot` component: coins, mult, signals, reset.
-- [ ] Pickups: chip, gold chip, mult die, dropped chip with lifetime;
+- [x] `Pot` component: coins, mult, signals, reset.
+- [x] Pickups: chip, gold chip, mult die, dropped chip with lifetime;
       `PickupArea` on the kart with the 0.9 m radius.
-- [ ] Coin pads with the weighted spawn table and 5 s respawn; crate drops.
-- [ ] `GrazeArea`: enemy bullets entering and leaving without a hit award +0.5
+- [x] Coin pads with the weighted spawn table and 5 s respawn; crate drops.
+- [x] `GrazeArea`: enemy bullets entering and leaving without a hit award +0.5
       with the cooldown.
-- [ ] `JunctionPad`: per-kart channel, drain per tick from the closed form,
+- [x] `JunctionPad`: per-kart channel, drain per tick from the closed form,
       partial banking on leave, completion reset, Last Call doubling, progress
       ring.
-- [ ] `JackpotZone`: two zones, accrual and cap, single collector channel,
+- [x] `JackpotZone`: two zones, accrual and cap, single collector channel,
       contested pause, empty and switch, traffic light state.
-- [ ] Full death sequence from GAME.md 3.6 except item drops.
-- [ ] Match flow: countdown, timer, Last Call, target score, time out with
+- [x] Full death sequence from GAME.md 3.6 except item drops.
+- [x] Match flow: countdown, timer, Last Call, target score, time out with
       unbanked pots lost, basic results screen, rematch.
-- [ ] HUD: player block with banked score and pot line, timer, standings
+- [x] HUD: player block with banked score and pot line, timer, standings
       strip, floating graze text, `TallyPopup` first version.
 
 Verify: scoring tests including the timing tables, a drain simulation test
 that ticks at 60 Hz and matches the closed form within one tick, a Jackpot
 contested test. A 5 minute solo match end to end, headless smoke run of the
 match scene, and a play session.
+
+Status: built and checked headless. Scoring tests reproduce the GAME.md
+tables; integration tests cover the countdown to results flow, banking at the
+Junction, the death sequence, Jackpot collection and hand-over, coin pads and
+grazing. The play session is still open.
 
 ## M3: items and jokers
 

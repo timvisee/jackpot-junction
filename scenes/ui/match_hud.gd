@@ -14,7 +14,7 @@ const BLOCK_ANCHORS: Array[int] = [
 var match_node: Match
 
 var _timer: Label
-var _standings: Label
+var _standings: RichTextLabel
 var _banner: Label
 var _blocks: Dictionary[int, Dictionary] = {}
 var _results: PanelContainer
@@ -26,8 +26,17 @@ func _ready() -> void:
 	layer = 5
 	_timer = _label(40, Control.PRESET_CENTER_TOP)
 	_timer.offset_top = 10.0
-	_standings = _label(20, Control.PRESET_CENTER_TOP)
+	_standings = RichTextLabel.new()
+	_standings.bbcode_enabled = true
+	_standings.fit_content = true
+	_standings.scroll_active = false
+	_standings.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_standings.add_theme_font_size_override("normal_font_size", 20)
+	_standings.custom_minimum_size = Vector2(600.0, 0.0)
+	_standings.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	_standings.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_standings.offset_top = 62.0
+	add_child(_standings)
 	_banner = _label(96, Control.PRESET_CENTER)
 	_banner.visible = false
 	for slot: PlayerSlot in match_node.slots:
@@ -74,7 +83,7 @@ func _update_standings() -> void:
 				% [slot.color().to_html(false), slot.display_name(), slot.banked]
 			)
 		)
-	_standings.text = "   ".join(parts)
+	_standings.text = "[center]%s[/center]" % "     ".join(parts)
 
 
 func _update_blocks() -> void:
