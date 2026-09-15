@@ -102,6 +102,13 @@ func _update_blocks() -> void:
 		else:
 			pot.text = "respawning %.1f" % maxf(slot.respawn_left, 0.0)
 		stats.text = "K %d  D %d" % [slot.kills, slot.deaths]
+		var item: Label = block["item"]
+		if kart.held_item == null:
+			item.text = ""
+		elif kart.item_reveal_left > 0.0:
+			item.text = "? ? ?" if fmod(kart.item_reveal_left, 0.12) < 0.06 else "? ?"
+		else:
+			item.text = "Item: %s" % kart.held_item.display_name
 
 
 func _update_banner(delta: float) -> void:
@@ -228,7 +235,10 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 	pot.add_theme_font_size_override("font_size", 26)
 	var stats := Label.new()
 	stats.add_theme_font_size_override("font_size", 18)
-	for label: Label in [name_label, banked, pot, stats]:
+	var item := Label.new()
+	item.add_theme_font_size_override("font_size", 22)
+	item.add_theme_color_override("font_color", Palette.NEON_MAGENTA)
+	for label: Label in [name_label, banked, pot, stats, item]:
 		label.horizontal_alignment = (
 			HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
 		)
@@ -236,7 +246,7 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 		label.add_theme_constant_override("shadow_offset_x", 2)
 		label.add_theme_constant_override("shadow_offset_y", 2)
 		box.add_child(label)
-	return {"box": box, "banked": banked, "pot": pot, "stats": stats}
+	return {"box": box, "banked": banked, "pot": pot, "stats": stats, "item": item}
 
 
 func _build_results() -> void:

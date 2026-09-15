@@ -46,8 +46,13 @@ func _process(delta: float) -> void:
 			_visual.visible = fmod(_age, 0.3) < 0.2
 
 
+## Whether this kart may take the pickup right now.
+func can_collect(_kart: Kart) -> bool:
+	return true
+
+
 func collect(kart: Kart) -> void:
-	if _taken:
+	if _taken or not can_collect(kart):
 		return
 	_taken = true
 	_apply(kart)

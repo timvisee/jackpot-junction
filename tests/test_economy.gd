@@ -113,9 +113,8 @@ func test_coin_pads_spawn_pickups_that_karts_collect() -> void:
 	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
 	var match_node := _start_match(inputs, rules)
 	var runner := _runner
-	assert_int(match_node.arena.pickups.get_child_count()).is_equal(
-		match_node.arena.coin_pads.size()
-	)
+	var pads := match_node.arena.coin_pads.size() + match_node.arena.power_pads.size()
+	assert_int(match_node.arena.pickups.get_child_count()).is_equal(pads)
 	var pad := match_node.arena.coin_pads[0]
 	var expected_coins := 0
 	var chip := pad.current as Chip
@@ -143,9 +142,7 @@ func test_a_near_miss_grazes_for_half_a_mult() -> void:
 	target.face(Vector3(0.0, 0.0, -1.0))
 	var stats: CannonStats = load("res://data/cannons/default.tres").duplicate()
 	stats.aim_assist = false
-	match_node.bullets.spawn(
-		0, Vector3(0.9, 0.0, 9.5), Vector3(0.0, 0.0, -1.0), stats, Color.WHITE
-	)
+	match_node.bullets.spawn(0, Vector3(0.9, 0.0, 9.5), Vector3(0.0, 0.0, -1.0), stats, Color.WHITE)
 	await runner.simulate_frames(40, 17)
 	assert_bool(target.alive).is_true()
 	assert_float(target.pot.mult).is_equal(1.5)

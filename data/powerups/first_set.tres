@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="PowerUpTable" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scenes/items/power_up_table.gd" id="1_table"]
+[ext_resource type="Resource" path="res://data/powerups/boost.tres" id="2_boost"]
+[ext_resource type="Resource" path="res://data/powerups/shield.tres" id="3_shield"]
+[ext_resource type="Resource" path="res://data/powerups/turret.tres" id="4_turret"]
+[ext_resource type="Resource" path="res://data/powerups/ricochet_cannon.tres" id="5_ricochet_cannon"]
+[ext_resource type="Resource" path="res://data/powerups/coin_magnet.tres" id="6_coin_magnet"]
+
+[resource]
+script = ExtResource("1_table")
+entries = Array[Resource]([ExtResource("2_boost"), ExtResource("3_shield"), ExtResource("4_turret"), ExtResource("5_ricochet_cannon"), ExtResource("6_coin_magnet")])

@@ -17,6 +17,7 @@ var turbo_pads: Array[TurboPad] = []
 var pits: Array[Pit] = []
 var crates: Array[Crate] = []
 var coin_pads: Array[CoinPad] = []
+var power_pads: Array[PowerUpPad] = []
 var junction: JunctionPad
 var junction_position := Vector3.ZERO
 var junction_radius := 2.5
@@ -44,6 +45,7 @@ func build() -> void:
 	pits.clear()
 	crates.clear()
 	coin_pads.clear()
+	power_pads.clear()
 	jackpot_zones.clear()
 	jackpot_positions.clear()
 	pickups = Node3D.new()
@@ -64,11 +66,13 @@ func build() -> void:
 
 ## Brings the economy to life: coin pads start spawning, crates drop chips, the Junction and one
 ## Jackpot zone start working. Called by the match once it has rules and a seeded generator.
-func start_economy(rules: MatchRules, rng: RandomNumberGenerator) -> void:
+func start_economy(rules: MatchRules, rng: RandomNumberGenerator, items: PowerUpTable) -> void:
 	_rules = rules
 	_rng = rng
 	for pad: CoinPad in coin_pads:
 		pad.start(rules, rng, pickups)
+	for pad: PowerUpPad in power_pads:
+		pad.start(rules, rng, pickups, items)
 	for crate: Crate in crates:
 		if not crate.destroyed.is_connected(_on_crate_destroyed):
 			crate.destroyed.connect(_on_crate_destroyed.bind(crate))
@@ -107,6 +111,17 @@ func spawn_chips(
 		pickups.add_child(chip)
 		result.append(chip)
 	return result
+
+
+## Drops a fixed power-up on the floor, for example from a dead kart.
+func spawn_floor_item(origin: Vector3, item: PowerUp, lifetime: float) -> ItemBox:
+	var box := ItemBox.new()
+	box.fixed_item = item
+	box.lifetime = lifetime
+	var angle := _rng.randf_range(0.0, TAU)
+	box.position = _clamp_to_floor(origin + Vector3(cos(angle), 0.0, sin(angle)) * 1.2)
+	pickups.add_child(box)
+	return box
 
 
 func _clamp_to_floor(point: Vector3) -> Vector3:
@@ -216,10 +231,15 @@ func _add_power_pads() -> void:
 	var pads := Node3D.new()
 	pads.name = "PowerPads"
 	add_child(pads)
-	for cell: Vector2i in grid.power_pads:
+	for i: int in grid.power_pads.size():
+		var pad := PowerUpPad.new()
+		pad.name = "PowerUpPad%d" % i
+		pad.position = grid.cell_center(grid.power_pads[i])
 		var disc := _disc_mesh(0.6, Palette.NEON_MAGENTA)
-		disc.position = grid.cell_center(cell) + Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
-		pads.add_child(disc)
+		disc.position = Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
+		pad.add_child(disc)
+		pads.add_child(pad)
+		power_pads.append(pad)
 
 
 func _add_turbo_pads() -> void:

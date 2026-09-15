@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="RicochetCannonPowerUp" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/items/powerups/ricochet_cannon.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"ricochet_cannon"
+display_name = "Ricochet Cannon"
+description = "Next 8 shots bounce twice and fly faster."
+weight = 20.0
+color = Color(0.9490, 0.8235, 0.2392, 1)

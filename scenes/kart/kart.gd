@@ -10,6 +10,8 @@ signal fired(bullets: Array[Bullet])
 signal turbo_taken(direction: Vector3)
 signal coins_collected(amount: int)
 signal mult_changed(amount: float, reason: StringName)
+signal item_held(item: PowerUp)
+signal item_used(item: PowerUp)
 
 const WHEEL_RADIUS := 0.24
 const FALL_SPEED := 2.5
@@ -29,6 +31,8 @@ var motor: KartMotor
 var cannon: Cannon
 var bullet_system: BulletSystem
 var pot := Pot.new()
+## Set by the match so jokers and items can roll dice deterministically.
+var rng := RandomNumberGenerator.new()
 var alive := true
 var falling := false
 ## Set by the match during the countdown and the results: no input, no movement.
@@ -38,6 +42,13 @@ var protection_left := 0.0
 var channel_progress := -1.0
 ## Set by the Boost power-up: contact with another kart kills it.
 var ramming := false
+var shielded := false
+var held_item: PowerUp
+## Seconds until a freshly taken item is revealed and usable.
+var item_reveal_left := 0.0
+var effects: Array[KartEffect] = []
+## Multiplier on the pickup radius from the Coin Magnet.
+var pickup_radius_bonus := 1.0
 var last_bump_slot := -1
 var last_bump_time := -INF
 
@@ -47,6 +58,7 @@ var _pickup_area: Area3D
 var _tire_marks: TireMarks
 var _smoke: ExhaustSmoke
 var _pickup_shape: SphereShape3D
+var _shield_visual: MeshInstance3D
 var _fall_left := 0.0
 var _graze_cooldown_left := 0.0
 
@@ -60,7 +72,7 @@ func _ready() -> void:
 		rules = load("res://data/match/default.tres")
 	motion_mode = CharacterBody3D.MOTION_MODE_FLOATING
 	collision_layer = Layers.KART
-	collision_mask = Layers.WORLD | Layers.KART | Layers.PROTECTED
+	collision_mask = Layers.WORLD | Layers.KART | Layers.PROTECTED | Layers.TURRET
 	add_to_group(&"karts")
 	add_to_group(Bullet.TARGET_GROUP)
 	motor = KartMotor.new(stats)
@@ -87,10 +99,14 @@ func _physics_process(delta: float) -> void:
 		return
 	_step_protection(delta)
 	_graze_cooldown_left = maxf(_graze_cooldown_left - delta, 0.0)
+	_step_effects(delta)
 	input.poll(delta)
 	cannon.step(delta)
 	if input.fire and protection_left <= 0.0 and cannon.can_fire() and bullet_system != null:
 		_fire()
+	item_reveal_left = maxf(item_reveal_left - delta, 0.0)
+	if input.use_item_pressed and held_item != null and item_reveal_left <= 0.0:
+		use_item()
 	var heading_before := motor.heading
 	motor.step(input, delta)
 	velocity = motor.velocity
@@ -149,18 +165,100 @@ func distance_to_body(point: Vector3) -> float:
 	return Vector3(local.x, 0.0, local.z).distance_to(clamped)
 
 
-## Scales the pickup radius, for the Coin Magnet.
-func set_pickup_radius_multiplier(multiplier: float) -> void:
-	_pickup_shape.radius = rules.pickup_radius * multiplier
+func _step_effects(delta: float) -> void:
+	for effect: KartEffect in effects.duplicate():
+		effect.time_left -= delta
+		effect.step(self, delta)
+		if effect.finished or effect.time_left <= 0.0:
+			effect.end(self)
+			effects.erase(effect)
 
 
 ## A bullet reached the kart. Returns false when it passes through, for example during spawn
-## protection.
+## protection. A shield absorbs the hit and pops.
 func take_hit(bullet: Bullet) -> bool:
 	if not is_targetable():
 		return false
+	if shielded:
+		pop_shield()
+		return true
 	die(&"bullet", bullet.owner_slot)
 	return true
+
+
+## A ramming kart reached this one: the shield pops or the kart dies.
+func take_ram(rammer_slot: int) -> void:
+	if not is_targetable():
+		return
+	if shielded:
+		pop_shield()
+		return
+	die(&"ram", rammer_slot)
+
+
+## Starts a timed effect, replacing one with the same id.
+func add_effect(effect: KartEffect) -> void:
+	end_effect(effect.id)
+	effects.append(effect)
+	effect.start(self)
+
+
+## Ends an effect early, for example a shield that just popped. Silently ignores unknown ids.
+func end_effect(id: StringName) -> void:
+	for effect: KartEffect in effects.duplicate():
+		if effect.id == id:
+			effect.end(self)
+			effects.erase(effect)
+
+
+func has_effect(id: StringName) -> bool:
+	for effect: KartEffect in effects:
+		if effect.id == id:
+			return true
+	return false
+
+
+func set_shielded(on: bool) -> void:
+	shielded = on
+	_shield_visual.visible = on
+
+
+func pop_shield() -> void:
+	end_effect(&"shield")
+	set_shielded(false)
+
+
+## Takes a power-up from a pad or the floor. The item is unusable until it is revealed.
+func hold_item(item: PowerUp, reveal_time: float) -> void:
+	held_item = item
+	item_reveal_left = reveal_time
+	item_held.emit(item)
+	Events.item_picked.emit(slot, item.id)
+
+
+func use_item() -> void:
+	if held_item == null:
+		return
+	var item := held_item
+	held_item = null
+	item.activate(self)
+	item_used.emit(item)
+	Events.item_used.emit(slot, item.id)
+
+
+## Pickups currently inside the pickup radius.
+func overlapping_pickups() -> Array[Pickup]:
+	var result: Array[Pickup] = []
+	for area: Area3D in _pickup_area.get_overlapping_areas():
+		var pickup := area as Pickup
+		if pickup != null:
+			result.append(pickup)
+	return result
+
+
+## Recomputes the pickup radius from the rules and the active multipliers.
+func refresh_pickup_radius() -> void:
+	_pickup_shape.radius = rules.pickup_radius * pickup_radius_bonus
 
 
 ## Kills the kart. The match decides when and where it respawns.
@@ -173,6 +271,11 @@ func die(cause: StringName, killer_slot: int) -> void:
 	collision_mask = 0
 	motor.velocity = Vector3.ZERO
 	velocity = Vector3.ZERO
+	for effect: KartEffect in effects:
+		effect.end(self)
+	effects.clear()
+	set_shielded(false)
+	ramming = false
 	_body.visible = false
 	_smoke.emitting = false
 	channel_progress = -1.0
@@ -196,7 +299,7 @@ func respawn(point: Vector3, direction: Vector3, protection: float) -> void:
 	cannon.cooldown_left = 0.0
 	protection_left = protection
 	collision_layer = Layers.PROTECTED if protection > 0.0 else Layers.KART
-	collision_mask = Layers.WORLD | Layers.KART | Layers.PROTECTED
+	collision_mask = Layers.WORLD | Layers.KART | Layers.PROTECTED | Layers.TURRET
 	_body.visible = true
 	_smoke.emitting = true
 	respawned.emit()
@@ -271,14 +374,18 @@ func _resolve_collisions() -> void:
 		var normal := collision.get_normal()
 		if absf(normal.y) > 0.7:
 			continue
-		var other := collision.get_collider() as Kart
+		var collider := collision.get_collider()
+		var other := collider as Kart
+		var turret := collider as Turret
 		if other != null:
 			last_bump_slot = other.slot
 			last_bump_time = Time.get_ticks_msec() * 0.001
-			if ramming and other.is_targetable():
-				other.die(&"ram", slot)
+			if ramming:
+				other.take_ram(slot)
 			motor.apply_bump(normal)
 			velocity = motor.velocity
+		elif turret != null and ramming:
+			turret.destroy()
 		else:
 			motor.velocity = Vector3(velocity.x, 0.0, velocity.z)
 			motor.apply_wall_hit(-pre.dot(normal))
@@ -374,12 +481,25 @@ func _build_pickup_area() -> void:
 	_ring.position = Vector3(0.0, 0.06, 0.0)
 	_ring.visible = false
 	add_child(_ring)
+	_shield_visual = MeshInstance3D.new()
+	_shield_visual.name = "Shield"
+	var bubble := SphereMesh.new()
+	bubble.radius = 1.25
+	bubble.height = 2.5
+	_shield_visual.mesh = bubble
+	var bubble_material := StandardMaterial3D.new()
+	bubble_material.albedo_color = Color(0.2, 0.8, 1.0, 0.3)
+	bubble_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	bubble_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_shield_visual.material_override = bubble_material
+	_shield_visual.position = Vector3(0.0, 0.5, 0.0)
+	_shield_visual.visible = false
+	_shield_visual.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(_shield_visual)
 
 
 ## Polled every tick rather than on entry, so a kart that unfreezes or spawns on top of a pickup
 ## still takes it.
 func _collect_overlapping_pickups() -> void:
-	for area: Area3D in _pickup_area.get_overlapping_areas():
-		var pickup := area as Pickup
-		if pickup != null:
-			pickup.collect(self)
+	for pickup: Pickup in overlapping_pickups():
+		pickup.collect(self)

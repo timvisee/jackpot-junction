@@ -15,6 +15,10 @@ extends Resource
 @export var pickup_radius := 0.9
 @export var dropped_chip_lifetime := 15.0
 
+@export_group("Items")
+@export var power_pad_respawn := 15.0
+@export var item_reveal_time := 0.5
+
 @export_group("Mult")
 @export var kill_mult := 1.0
 @export var graze_mult := 0.5

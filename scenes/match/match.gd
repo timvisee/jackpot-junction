@@ -11,6 +11,7 @@ const KART_SCENE := preload("res://scenes/kart/kart.tscn")
 const CAMERA_SCENE := preload("res://scenes/camera/camera_rig.tscn")
 
 @export var rules: MatchRules
+@export var power_ups: PowerUpTable
 ## Whether the match builds its own HUD. Tests turn it off.
 @export var with_hud := true
 
@@ -32,6 +33,8 @@ var _seed := 0
 func _ready() -> void:
 	if rules == null:
 		rules = load("res://data/match/default.tres")
+	if power_ups == null:
+		power_ups = load("res://data/powerups/first_set.tres")
 
 
 ## Builds the arena, spawns one kart per input and starts the countdown. A zero seed picks a
@@ -43,7 +46,7 @@ func start(inputs: Array[KartInput], seed: int = 0) -> void:
 	arena = ARENA_SCENE.instantiate()
 	arena.name = "Arena"
 	add_child(arena)
-	arena.start_economy(rules, rng)
+	arena.start_economy(rules, rng, power_ups)
 	arena.junction.bank_started.connect(_on_bank_started)
 	arena.junction.bank_tick.connect(_on_bank_tick)
 	arena.junction.bank_completed.connect(_on_bank_completed)
@@ -130,6 +133,7 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 	kart.slot = slot.index
 	kart.input = slot.input
 	kart.rules = rules
+	kart.rng = rng
 	kart.bullet_system = bullets
 	kart.position = point
 	add_child(kart)
@@ -203,6 +207,10 @@ func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> voi
 	var drop := Scoring.death_drop(kart.pot.coins, rules.death_drop_fraction, rules.death_drop_max)
 	if drop > 0:
 		arena.spawn_chips(kart.global_position, drop, rules.dropped_chip_lifetime, 0.0, true)
+	if kart.held_item != null:
+		if rng.randf() < rules.death_item_drop_chance:
+			arena.spawn_floor_item(kart.global_position, kart.held_item, rules.floor_item_lifetime)
+		kart.held_item = null
 	if killer_slot >= 0 and killer_slot != slot.index and killer_slot < slots.size():
 		var killer := slots[killer_slot]
 		killer.kills += 1

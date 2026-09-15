@@ -45,9 +45,9 @@ func test_a_bullet_kills_the_kart_ahead_and_the_victim_respawns_protected() -> v
 	await runner.simulate_frames(12, 17)
 	var shooter := match_node.kart_of(0)
 	var victim := match_node.kart_of(1)
-	shooter.global_position = Vector3(6.0, 0.0, 6.0)
+	shooter.global_position = Vector3(6.0, 0.0, 8.0)
 	shooter.face(Vector3(-1.0, 0.0, 0.0))
-	victim.global_position = Vector3(1.0, 0.0, 6.0)
+	victim.global_position = Vector3(1.0, 0.0, 8.0)
 	victim.face(Vector3(-1.0, 0.0, 0.0))
 	var killed := monitor_signals(Events, false)
 	shooter_input.fire = true

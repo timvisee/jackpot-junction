@@ -18,6 +18,9 @@ var drifting := false
 var drift_time := 0.0
 var boost_time_left := 0.0
 var turbo_time_left := 0.0
+## Multipliers set by power-ups: Boost raises the speed bonus and lowers the steering.
+var speed_bonus := 1.0
+var steer_multiplier := 1.0
 
 
 func _init(kart_stats: KartStats) -> void:
@@ -58,8 +61,8 @@ func max_speed() -> float:
 	if turboing():
 		return stats.top_speed * stats.turbo_speed_multiplier
 	if boosting():
-		return stats.top_speed * (1.0 + stats.drift_exit_boost)
-	return stats.top_speed
+		return stats.top_speed * speed_bonus * (1.0 + stats.drift_exit_boost)
+	return stats.top_speed * speed_bonus
 
 
 func step(input: KartInput, delta: float) -> void:
@@ -135,6 +138,7 @@ func _step_steering(input: KartInput, delta: float) -> void:
 		rate *= stats.drift_yaw_multiplier
 	if turboing():
 		rate *= stats.turbo_steer_multiplier
+	rate *= steer_multiplier
 	# Steering right is clockwise seen from above, which is a negative rotation about +Y.
 	heading = wrapf(heading - input.steer * rate * signf(forward_speed) * delta, -PI, PI)
 

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ShieldPowerUp" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/items/powerups/shield.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"shield"
+display_name = "Shield"
+description = "Absorbs one bullet or ram."
+weight = 25.0
+color = Color(0.2078, 0.8157, 1.0000, 1)
