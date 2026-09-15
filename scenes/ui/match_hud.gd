@@ -263,10 +263,17 @@ func _on_bank_completed(slot: int, coins: int, mult: float, total: int) -> void:
 	var kart := _kart(slot)
 	if kart == null:
 		return
-	var text := "%d × %s = %d" % [coins, _format_mult(mult), total]
+	var prefix := "%d × %s = " % [coins, _format_mult(mult)]
 	var big := total >= 500
-	FloatingText.spawn(
-		match_node, kart.global_position, text, Palette.CHIP_GOLD, 96 if big else 72, 1.6
+	FloatingText.spawn_counting(
+		match_node, kart.global_position, prefix, total, Palette.CHIP_GOLD, 96 if big else 72, 1.8
+	)
+	ChipBurst.spawn(
+		match_node,
+		kart.global_position,
+		match_node.arena.junction_position,
+		mini(coins, 14),
+		Palette.CHIP_GOLD
 	)
 	if big:
 		match_node.camera_rig.shake(1.0)

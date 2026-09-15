@@ -21,3 +21,9 @@ signal item_used(slot: int, item: StringName)
 signal joker_offered(slot: int)
 signal joker_taken(slot: int, joker: StringName)
 signal match_state_changed(state: int)
+signal bullet_fired(slot: int)
+signal bullet_bounced
+signal kart_bumped(slot: int)
+signal turbo_taken(slot: int)
+signal crate_destroyed
+signal shield_popped(slot: int)

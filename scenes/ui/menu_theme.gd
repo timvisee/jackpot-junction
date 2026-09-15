@@ -34,6 +34,8 @@ static func button(text: String, size: int = 32) -> Button:
 	control.text = text
 	control.add_theme_font_size_override("font_size", size)
 	control.custom_minimum_size = Vector2(320.0, 56.0)
+	control.pressed.connect(func() -> void: Audio.play_sfx(&"ui_click", -6.0, 0.0))
+	control.focus_entered.connect(func() -> void: Audio.play_sfx(&"ui_move", -12.0, 0.0))
 	return control
 
 

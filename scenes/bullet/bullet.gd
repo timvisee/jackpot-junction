@@ -165,6 +165,7 @@ func _bounce(point: Vector3, normal: Vector3) -> void:
 		return
 	bounces_left -= 1
 	bounced = true
+	Events.bullet_bounced.emit()
 	var flat_normal := Vector3(normal.x, 0.0, normal.z).normalized()
 	if flat_normal.is_zero_approx():
 		flat_normal = -velocity.normalized()

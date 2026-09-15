@@ -29,6 +29,14 @@ func _ready() -> void:
 	var quit := MenuTheme.button("Quit")
 	quit.pressed.connect(func() -> void: get_tree().quit())
 	column.add_child(quit)
+	var credits := Label.new()
+	credits.text = "Music: Bossa Antigua by Kevin MacLeod (incompetech.com), CC BY 4.0   |   Models and sounds: Kenney (kenney.nl), CC0"
+	credits.add_theme_color_override("font_color", Color(0.6, 0.6, 0.65))
+	credits.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+	credits.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	credits.offset_left = 16.0
+	credits.offset_bottom = -12.0
+	add_child(credits)
 	var version := Label.new()
 	version.text = "v%s" % Game.version()
 	version.add_theme_color_override("font_color", Color(0.6, 0.6, 0.65))

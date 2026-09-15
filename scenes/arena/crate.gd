@@ -25,6 +25,7 @@ func hit(by_slot: int) -> void:
 	collision_layer = 0
 	_respawn_left = respawn_delay
 	destroyed.emit(by_slot)
+	Events.crate_destroyed.emit()
 
 
 func _physics_process(delta: float) -> void:

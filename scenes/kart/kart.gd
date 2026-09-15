@@ -15,6 +15,10 @@ signal item_used(item: PowerUp)
 signal joker_dropped(joker: Joker)
 
 const WHEEL_RADIUS := 0.24
+const KART_MODEL := preload("res://assets/models/car-kit/kart-oobi.glb")
+const MODEL_SCALE := 1.12
+const MODEL_LIFT := 0.235
+const MARKER_HEIGHT := 1.75
 const FALL_SPEED := 2.5
 const FALL_SPIN := 7.0
 const BLINK_PERIOD := 0.25
@@ -61,6 +65,7 @@ var last_bump_slot := -1
 var last_bump_time := -INF
 
 var _body: Node3D
+var _wheels: Array[MeshInstance3D] = []
 var _ring: MeshInstance3D
 var _pickup_area: Area3D
 var _tire_marks: TireMarks
@@ -132,6 +137,7 @@ func _physics_process(delta: float) -> void:
 	position.y = 0.0
 	rotation = Vector3(0.0, motor.heading, 0.0)
 	_collect_overlapping_pickups()
+	_spin_wheels(delta)
 	_update_trails(delta, heading_before)
 
 
@@ -338,6 +344,7 @@ func set_shielded(on: bool) -> void:
 func pop_shield() -> void:
 	end_effect(&"shield")
 	set_shielded(false)
+	Events.shield_popped.emit(slot)
 
 
 ## Takes a power-up from a pad or the floor. The item is unusable until it is revealed.
@@ -452,6 +459,7 @@ func apply_turbo(direction: Vector3) -> void:
 	for joker: Joker in jokers.jokers:
 		joker.on_turbo_pad(self)
 	turbo_taken.emit(direction)
+	Events.turbo_taken.emit(slot)
 
 
 func _fire() -> void:
@@ -459,6 +467,7 @@ func _fire() -> void:
 	var origin := global_position + direction * cannon_stats.muzzle_offset
 	var shots := cannon.fire(bullet_system, slot, origin, direction, Palette.player_color(slot))
 	fired.emit(shots)
+	Events.bullet_fired.emit(slot)
 
 
 func _step_protection(delta: float) -> void:
@@ -503,6 +512,8 @@ func _resolve_collisions() -> void:
 				other.take_ram(slot)
 			motor.apply_bump(normal)
 			velocity = motor.velocity
+			if pre.length() > 3.0:
+				Events.kart_bumped.emit(slot)
 		elif turret != null and ramming:
 			turret.destroy()
 		else:
@@ -534,45 +545,74 @@ func _update_trails(delta: float, heading_before: float) -> void:
 
 
 func _build_visuals() -> void:
-	var tint := StandardMaterial3D.new()
-	tint.albedo_color = Palette.player_color(slot)
-	var dark := StandardMaterial3D.new()
-	dark.albedo_color = Color(0.12, 0.12, 0.13)
-	var white := StandardMaterial3D.new()
-	white.albedo_color = Palette.CHIP_WHITE
 	_body = Node3D.new()
 	_body.name = "Body"
 	add_child(_body)
-	var chassis := _box(Vector3(stats.width * 0.8, 0.3, stats.length), tint)
-	chassis.position = Vector3(0.0, 0.32, 0.0)
-	_body.add_child(chassis)
-	var seat := _box(Vector3(stats.width * 0.5, 0.35, stats.length * 0.35), dark)
-	seat.position = Vector3(0.0, 0.62, stats.length * 0.1)
-	_body.add_child(seat)
-	var nose := _box(Vector3(stats.width * 0.5, 0.12, 0.3), white)
-	nose.position = Vector3(0.0, 0.5, -stats.length * 0.45)
-	_body.add_child(nose)
-	for x: int in [-1, 1]:
-		for z: int in [-1, 1]:
-			var wheel := MeshInstance3D.new()
-			var cylinder := CylinderMesh.new()
-			cylinder.top_radius = WHEEL_RADIUS
-			cylinder.bottom_radius = WHEEL_RADIUS
-			cylinder.height = 0.22
-			wheel.mesh = cylinder
-			wheel.material_override = dark
-			wheel.rotation_degrees = Vector3(0.0, 0.0, 90.0)
-			wheel.position = Vector3(x * stats.width * 0.5, WHEEL_RADIUS, z * stats.length * 0.32)
-			_body.add_child(wheel)
+	var model: Node3D = KART_MODEL.instantiate()
+	model.name = "Model"
+	# The model drives toward its +Z; Godot's forward is -Z.
+	model.rotation_degrees = Vector3(0.0, 180.0, 0.0)
+	model.scale = Vector3.ONE * MODEL_SCALE
+	model.position = Vector3(0.0, MODEL_LIFT, 0.0)
+	_body.add_child(model)
+	var tint := StandardMaterial3D.new()
+	tint.albedo_color = Palette.player_color(slot)
+	for node: Node in model.find_children("*", "MeshInstance3D", true, false):
+		var mesh := node as MeshInstance3D
+		var lower := mesh.name.to_lower()
+		if lower.begins_with("wheel"):
+			_wheels.append(mesh)
+		elif not lower.contains("character"):
+			mesh.material_override = tint
+	_body.add_child(_roof_marker())
 
 
-func _box(size: Vector3, material: StandardMaterial3D) -> MeshInstance3D:
-	var mesh := BoxMesh.new()
-	mesh.size = size
-	var instance := MeshInstance3D.new()
-	instance.mesh = mesh
-	instance.material_override = material
-	return instance
+## A distinct shape per slot above the driver, so colours are not the only way to tell karts apart.
+func _roof_marker() -> MeshInstance3D:
+	var marker := MeshInstance3D.new()
+	marker.name = "RoofMarker"
+	var shapes: Array[Mesh] = [
+		SphereMesh.new(),
+		BoxMesh.new(),
+		PrismMesh.new(),
+		TorusMesh.new(),
+		CylinderMesh.new(),
+		CapsuleMesh.new()
+	]
+	var mesh: Mesh = shapes[posmod(slot, shapes.size())]
+	if mesh is SphereMesh:
+		(mesh as SphereMesh).radius = 0.16
+		(mesh as SphereMesh).height = 0.32
+	elif mesh is BoxMesh:
+		(mesh as BoxMesh).size = Vector3.ONE * 0.28
+	elif mesh is PrismMesh:
+		(mesh as PrismMesh).size = Vector3(0.32, 0.3, 0.32)
+	elif mesh is TorusMesh:
+		(mesh as TorusMesh).inner_radius = 0.08
+		(mesh as TorusMesh).outer_radius = 0.18
+	elif mesh is CylinderMesh:
+		(mesh as CylinderMesh).top_radius = 0.14
+		(mesh as CylinderMesh).bottom_radius = 0.14
+		(mesh as CylinderMesh).height = 0.26
+	elif mesh is CapsuleMesh:
+		(mesh as CapsuleMesh).radius = 0.11
+		(mesh as CapsuleMesh).height = 0.36
+	marker.mesh = mesh
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Palette.player_color(slot)
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	marker.material_override = material
+	marker.position = Vector3(0.0, MARKER_HEIGHT, 0.0)
+	marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return marker
+
+
+func _spin_wheels(delta: float) -> void:
+	var turn := motor.forward_speed / WHEEL_RADIUS * delta
+	for wheel: MeshInstance3D in _wheels:
+		wheel.rotation.x += turn
+		if wheel.name.to_lower().contains("front"):
+			wheel.rotation.y = input.steer * 0.35
 
 
 func _build_pickup_area() -> void:
