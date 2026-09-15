@@ -277,7 +277,7 @@ assigns physical devices to player slots, see 10.2.
 | Handbrake, drift            | Left bumper         | Shift                     |
 | Use power-up                | A                   | E                         |
 | Joker menu, hold            | Y                   | Tab                       |
-| Joker menu: select          | D-pad               | 1 to 5                    |
+| Joker menu: select          | D-pad left / right cycles | 1 to 5              |
 | Joker menu: drop            | A                   | E                         |
 | Joker menu: destroy         | X                   | Q                         |
 | Free aim, Swivel Cannon only| Right stick         | Mouse position on the arena plane |
@@ -794,7 +794,8 @@ run in one place, the Match, and karts are driven by a KartInput interface.
 
 Milestones are built in order. M4 is the first release, a complete
 single-player game. M5 and M6 are the local and online releases. There is no
-deadline.
+deadline. The task-level plan with files and verification steps is in
+`PLAN.md`.
 
 | Milestone | Scope                                                                                   | Done when                                                                 |
 |-----------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
