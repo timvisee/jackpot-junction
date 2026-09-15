@@ -19,7 +19,16 @@ func _ready() -> void:
 	match_node.bot_difficulty = load("res://data/ai/%s.tres" % config.difficulty)
 	match_node.power_ups = config.power_ups()
 	add_child(match_node)
-	match_node.start(config.inputs())
+	match_node.start(config.inputs(), 0, config.colors())
 	var pause := PauseMenu.new()
 	pause.name = "PauseMenu"
 	add_child(pause)
+
+
+## Pressing the join button on a device nobody plays with adds that player mid-match.
+func _unhandled_input(event: InputEvent) -> void:
+	if not event.is_action_pressed(InputActions.JOIN) or get_tree().paused:
+		return
+	var device := DeviceInput.KEYBOARD if event is InputEventKey else event.device
+	if match_node.join_human(device) != null:
+		get_viewport().set_input_as_handled()

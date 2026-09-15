@@ -286,6 +286,7 @@ assigns physical devices to player slots, see 10.2.
 | Joker menu: destroy         | X                   | Q                         |
 | Free aim, Swivel Cannon only| Right stick         | Mouse position on the arena plane |
 | Pause                       | Start               | Esc                       |
+| Join, in lobby or mid-match | Start               | J                         |
 
 ### 4.3 Trails
 
@@ -648,8 +649,10 @@ bot:
 ### 9.2 Local multiplayer
 
 Shared screen, up to 4 players, gamepads plus one keyboard and mouse player.
-Players join in the lobby by pressing a button on their device and pick a
-colour. Bots fill empty slots if wanted. The second release.
+Players join in the lobby by pressing the join button on their device, Start
+on a gamepad or J on the keyboard, and pick a colour by steering left or
+right. The first join press claims that device for P1; until then P1 plays on
+any device. Bots fill empty slots if wanted. The second release.
 
 Joining mid-match is allowed: a press on an unused device during a match adds
 the player. If a bot kart exists, the joiner takes it over and inherits its

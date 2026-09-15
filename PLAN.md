@@ -264,14 +264,19 @@ exports, and the `v0.1.0` tag itself, which is the user's call.
 
 ## M5: local multiplayer
 
-- [ ] Full `InputRouter`: join in the lobby and mid-match by pressing a button
+- [x] Full `InputRouter`: join in the lobby and mid-match by pressing a button
       on an unused device, keyboard and mouse as one device, bot takeover on
       join, hand back on leave.
-- [ ] Four HUD blocks in the corners, joker pick inside the owner's block,
+- [x] Four HUD blocks in the corners, joker pick inside the owner's block,
       pause freezing the match for everyone.
-- [ ] Camera pan toward the centroid of all karts.
+- [x] Camera pan toward the centroid of all karts.
 
 Verify: four devices on one machine, join and leave during a match.
+
+Status: built and checked headless. Tests cover lobby joining and colour
+cycling, colours reaching karts, mid-match takeover of a bot with the
+any-device player settling on a device, fresh slots when no bot is free,
+and handing a kart back to a bot. The four-device session is still open.
 
 ## M6: online multiplayer
 

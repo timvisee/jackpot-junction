@@ -6,7 +6,8 @@ extends Node3D
 ##   --players=2          keyboard drives slot 0 and the first gamepad slot 1
 ##   --bots=3             number of bot karts added after the humans (default 1)
 ##   --difficulty=hard    bot difficulty: easy, normal or hard
-## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene.
+## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
+## on an unused device to join mid-match.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 

@@ -1,12 +1,15 @@
 extends Control
-## The lobby from GAME.md 3.8: match length, target score, bot count and difficulty, with the
-## document's values as defaults and the last choice remembered. Local joining arrives in M5.
+## The lobby from GAME.md 3.8 and 9.2: match options with the document's values as defaults and
+## the last choice remembered, and local joining. The first join press claims a device for P1;
+## further presses on other devices add players, and a second press on a joined device drops
+## that player again. Steering left or right on a device cycles that player's colour.
 
 const MINUTES: Array[int] = [3, 5, 8]
 const TARGETS: Array[int] = [0, 2000, 3000, 5000]
 const BOTS: Array[int] = [0, 1, 2, 3]
 const DIFFICULTIES: Array[String] = ["easy", "normal", "hard"]
 const ITEM_SETS: Array[String] = ["first", "all"]
+const MAX_HUMANS := 4
 
 var minutes_option: OptionButton
 var target_option: OptionButton
@@ -14,6 +17,12 @@ var bots_option: OptionButton
 var difficulty_option: OptionButton
 var items_option: OptionButton
 var start_button: Button
+## Devices of the joined players in slot order; the first entry may be ANY until claimed.
+var devices: Array[int] = [DeviceInput.ANY]
+var colors: Array[int] = [0]
+
+var _players_label: RichTextLabel
+var _steer_was_down: Dictionary[String, bool] = {}
 
 
 func _ready() -> void:
@@ -25,7 +34,13 @@ func _ready() -> void:
 	column.add_theme_constant_override("separation", 16)
 	centre.add_child(column)
 	column.add_child(MenuTheme.title("Lobby", 64))
-	column.add_child(MenuTheme.subtitle("P1: keyboard or any gamepad"))
+	_players_label = RichTextLabel.new()
+	_players_label.bbcode_enabled = true
+	_players_label.fit_content = true
+	_players_label.scroll_active = false
+	_players_label.custom_minimum_size = Vector2(700.0, 0.0)
+	_players_label.add_theme_font_size_override("normal_font_size", 22)
+	column.add_child(_players_label)
 	var settings := Game.settings
 	minutes_option = MenuTheme.option(
 		_labels(MINUTES, "%d min"), MINUTES.find(settings.match_minutes)
@@ -51,14 +66,67 @@ func _ready() -> void:
 	back.pressed.connect(func() -> void: Game.go_to_title())
 	column.add_child(back)
 	start_button.grab_focus()
+	_refresh_players()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not event.is_action_pressed(InputActions.JOIN):
+		return
+	var device := DeviceInput.KEYBOARD if event is InputEventKey else event.device
+	toggle_join(device)
+	get_viewport().set_input_as_handled()
+
+
+func _process(_delta: float) -> void:
+	for i: int in devices.size():
+		var device := devices[i]
+		if device == DeviceInput.ANY:
+			continue
+		if _just_pressed(InputActions.STEER_RIGHT, device):
+			cycle_color(i, 1)
+		elif _just_pressed(InputActions.STEER_LEFT, device):
+			cycle_color(i, -1)
+
+
+## Claims P1's device, adds a player, or drops a player who presses again. P1 never drops.
+func toggle_join(device: int) -> void:
+	var existing := devices.find(device)
+	if existing > 0:
+		devices.remove_at(existing)
+		colors.remove_at(existing)
+		Audio.play_sfx(&"ui_back", -6.0, 0.0)
+	elif existing == 0:
+		return
+	elif devices[0] == DeviceInput.ANY:
+		devices[0] = device
+		Audio.play_sfx(&"ui_click", -6.0, 0.0)
+	elif devices.size() < MAX_HUMANS:
+		devices.append(device)
+		colors.append(_free_color())
+		Audio.play_sfx(&"ui_click", -6.0, 0.0)
+	_refresh_players()
+
+
+## Moves a player's colour to the next one nobody else uses.
+func cycle_color(player: int, direction: int) -> void:
+	var candidate := colors[player]
+	for i: int in Palette.PLAYER_COLORS.size():
+		candidate = posmod(candidate + direction, Palette.PLAYER_COLORS.size())
+		if candidate not in colors:
+			colors[player] = candidate
+			break
+	Audio.play_sfx(&"ui_move", -10.0, 0.0)
+	_refresh_players()
 
 
 ## The configuration the current options describe.
 func config() -> MatchConfig:
 	var result := MatchConfig.new()
+	result.human_devices = devices.duplicate()
+	result.human_colors = colors.duplicate()
 	result.duration = MINUTES[minutes_option.selected] * 60.0
 	result.target_score = TARGETS[target_option.selected]
-	result.bot_count = BOTS[bots_option.selected]
+	result.bot_count = mini(BOTS[bots_option.selected], MAX_HUMANS - devices.size())
 	result.difficulty = DIFFICULTIES[difficulty_option.selected]
 	result.item_set = ITEM_SETS[items_option.selected]
 	return result
@@ -73,6 +141,48 @@ func _start() -> void:
 	settings.item_set = ITEM_SETS[items_option.selected]
 	settings.save_to_disk()
 	Game.start_match(config())
+
+
+func _refresh_players() -> void:
+	var lines: PackedStringArray = []
+	for i: int in devices.size():
+		var name := _device_name(devices[i])
+		var color := Palette.player_color(colors[i]).to_html(false)
+		lines.append("[color=#%s]■[/color]  P%d  %s" % [color, i + 1, name])
+	var hint := (
+		"Press %s or %s on another device to join. Steer left or right to change colour."
+		% [
+			InputActions.binding_text(InputActions.JOIN, true),
+			InputActions.binding_text(InputActions.JOIN, false)
+		]
+	)
+	_players_label.text = (
+		"[center]%s\n[color=#9a9aa0]%s[/color][/center]" % ["\n".join(lines), hint]
+	)
+
+
+func _device_name(device: int) -> String:
+	match device:
+		DeviceInput.ANY:
+			return "keyboard or any gamepad"
+		DeviceInput.KEYBOARD:
+			return "keyboard"
+	return "gamepad %d" % (device + 1)
+
+
+func _free_color() -> int:
+	var index := 0
+	while index in colors:
+		index += 1
+	return index
+
+
+func _just_pressed(action: StringName, device: int) -> bool:
+	var key := "%s:%d" % [action, device]
+	var down := DeviceInput.pressed(action, device)
+	var was: bool = _steer_was_down.get(key, false)
+	_steer_was_down[key] = down
+	return down and not was
 
 
 func _labels(values: Array[int], format: String) -> Array:

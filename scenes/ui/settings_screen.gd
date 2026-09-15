@@ -15,6 +15,7 @@ const REBINDABLE: Array[StringName] = [
 	InputActions.JOKER_NEXT,
 	InputActions.JOKER_DESTROY,
 	InputActions.PAUSE,
+	InputActions.JOIN,
 ]
 
 var tabs: TabContainer

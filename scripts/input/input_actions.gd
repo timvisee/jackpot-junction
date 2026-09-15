@@ -28,6 +28,8 @@ const AIM_RIGHT := &"aim_right"
 const AIM_UP := &"aim_up"
 const AIM_DOWN := &"aim_down"
 const PAUSE := &"pause"
+## Claims a device for a player in the lobby or joins a running match.
+const JOIN := &"join"
 
 const DEFAULT_DEADZONE := 0.2
 const STICK_DEADZONE := 0.15
@@ -57,6 +59,7 @@ const DEFAULTS: Dictionary[StringName, Array] = {
 	AIM_UP: [{"axis": JOY_AXIS_RIGHT_Y, "value": -1.0}],
 	AIM_DOWN: [{"axis": JOY_AXIS_RIGHT_Y, "value": 1.0}],
 	PAUSE: [{"key": KEY_ESCAPE}, {"button": JOY_BUTTON_START}],
+	JOIN: [{"key": KEY_J}, {"button": JOY_BUTTON_START}],
 }
 
 ## Actions driven by an analog stick get a smaller deadzone.

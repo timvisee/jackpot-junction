@@ -4,6 +4,8 @@ extends RefCounted
 ## and scores, never node paths.
 
 var index := 0
+## Which of the player colours this slot uses; defaults to the slot index.
+var color_index := 0
 var input: KartInput
 var kart: Kart
 var respawn_left := 0.0
@@ -17,13 +19,14 @@ var kills := 0
 var deaths := 0
 
 
-func _init(slot_index: int, kart_input: KartInput) -> void:
+func _init(slot_index: int, kart_input: KartInput, slot_color: int = -1) -> void:
 	index = slot_index
+	color_index = slot_color if slot_color >= 0 else slot_index
 	input = kart_input
 
 
 func color() -> Color:
-	return Palette.player_color(index)
+	return Palette.player_color(color_index)
 
 
 func is_human() -> bool:

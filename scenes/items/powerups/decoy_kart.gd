@@ -14,6 +14,7 @@ func activate(kart: Kart) -> void:
 	var decoy: Kart = Match.KART_SCENE.instantiate()
 	decoy.name = "Decoy%d_%d" % [kart.slot, Time.get_ticks_msec()]
 	decoy.slot = kart.slot
+	decoy.color_index = kart.color_index
 	decoy.rules = kart.rules
 	decoy.rng = kart.rng
 	decoy.bullet_system = kart.bullet_system

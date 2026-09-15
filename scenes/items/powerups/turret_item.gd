@@ -13,7 +13,7 @@ func activate(kart: Kart) -> void:
 	turret.lifetime = lifetime
 	turret.fire_interval = fire_interval
 	turret.bullet_system = kart.bullet_system
-	turret.color = Palette.player_color(kart.slot)
+	turret.color = Palette.player_color(kart.color_index)
 	var behind := kart.global_position + kart.global_basis.z * placement_distance
 	kart.bullet_system.get_parent().add_child(turret)
 	turret.global_position = Vector3(behind.x, 0.0, behind.z)

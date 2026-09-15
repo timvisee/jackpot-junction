@@ -32,6 +32,7 @@ var time_left := 0.0
 var rng := RandomNumberGenerator.new()
 
 var _inputs: Array[KartInput] = []
+var _colors: Array[int] = []
 var _seed := 0
 
 
@@ -49,9 +50,10 @@ func _ready() -> void:
 
 
 ## Builds the arena, spawns one kart per input and starts the countdown. A zero seed picks a
-## random one.
-func start(inputs: Array[KartInput], seed: int = 0) -> void:
+## random one; [param colors] gives each slot its colour index, slot order when empty.
+func start(inputs: Array[KartInput], seed: int = 0, colors: Array[int] = []) -> void:
 	_inputs = inputs
+	_colors = colors
 	_seed = seed if seed != 0 else randi()
 	rng.seed = _seed
 	arena = ARENA_SCENE.instantiate()
@@ -82,11 +84,13 @@ func start(inputs: Array[KartInput], seed: int = 0) -> void:
 	camera_rig.frame_arena(arena.bounds())
 	var karts: Array[Node3D] = []
 	for i: int in mini(inputs.size(), rules.max_players):
-		var slot := PlayerSlot.new(i, inputs[i])
+		var slot := PlayerSlot.new(i, inputs[i], colors[i] if i < colors.size() else -1)
 		slots.append(slot)
 		_spawn_kart(slot, arena.spawn_points[i % arena.spawn_points.size()])
 		karts.append(slot.kart)
 	camera_rig.targets = karts
+	if not Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
+		Input.joy_connection_changed.connect(_on_joy_connection_changed)
 	if with_hud:
 		hud = MatchHud.new()
 		hud.name = "Hud"
@@ -109,7 +113,106 @@ func rematch() -> void:
 	camera_rig = null
 	hud = null
 	nav = null
-	start(_inputs, 0)
+	start(_inputs, 0, _colors)
+
+
+func _exit_tree() -> void:
+	if Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
+		Input.joy_connection_changed.disconnect(_on_joy_connection_changed)
+
+
+## A human joins on [param device], GAME.md 9.2: they take over a bot kart with its score, pot,
+## jokers and item, or spawn fresh in a free slot. Returns null when nobody can join.
+func join_human(device: int) -> PlayerSlot:
+	for slot: PlayerSlot in slots:
+		if slot.is_human() and slot.device() == device:
+			return null
+	_resolve_any_device(device)
+	for slot: PlayerSlot in slots:
+		if not slot.is_human():
+			_make_human(slot, device)
+			return slot
+	if slots.size() >= rules.max_players or arena == null:
+		return null
+	var slot := PlayerSlot.new(slots.size(), PlayerInput.new(device), _free_color())
+	slots.append(slot)
+	var enemies: Array[Vector3] = []
+	for other: PlayerSlot in slots:
+		if other != slot and other.kart != null and other.kart.alive:
+			enemies.append(other.kart.global_position)
+	_spawn_kart(slot, pick_spawn(arena.spawn_points, enemies))
+	slot.kart.frozen = not is_running()
+	slot.kart.protection_left = rules.spawn_protection
+	slot.kart.collision_layer = Layers.PROTECTED
+	camera_rig.targets.append(slot.kart)
+	if hud != null:
+		hud.add_block(slot)
+	Events.player_joined.emit(slot.index)
+	return slot
+
+
+## A human leaves and a bot takes the wheel.
+func leave_human(slot: PlayerSlot) -> void:
+	if not slot.is_human():
+		return
+	slot.input = BotInput.new()
+	slot.kart.input = slot.input
+	slot.kart.rebuild_stats()
+	_attach_brain(slot)
+	if hud != null:
+		hud.remove_block(slot)
+	Events.player_left.emit(slot.index)
+
+
+## An any-device player settles on one device once someone else joins on another.
+func _resolve_any_device(joiner: int) -> void:
+	for slot: PlayerSlot in slots:
+		var player := slot.input as PlayerInput
+		if player == null or player.device != DeviceInput.ANY:
+			continue
+		var chosen := player.last_device
+		if chosen == DeviceInput.ANY or chosen == joiner:
+			chosen = DeviceInput.KEYBOARD if joiner >= 0 else 0
+		player.device = chosen
+
+
+func _make_human(slot: PlayerSlot, device: int) -> void:
+	var brain := slot.kart.get_node_or_null("Brain")
+	if brain != null:
+		brain.queue_free()
+	slot.input = PlayerInput.new(device)
+	slot.kart.input = slot.input
+	slot.bot_trait = null
+	slot.kart.rebuild_stats()
+	if hud != null:
+		hud.add_block(slot)
+	Events.player_joined.emit(slot.index)
+
+
+func _attach_brain(slot: PlayerSlot) -> void:
+	var brain := BotBrain.new()
+	brain.name = "Brain"
+	brain.setup(slot.kart, self, bot_traits.pick(rng), bot_difficulty, rng)
+	slot.kart.add_child(brain)
+	slot.bot_trait = brain.bot_trait
+
+
+func _free_color() -> int:
+	var taken: Array[int] = []
+	for slot: PlayerSlot in slots:
+		taken.append(slot.color_index)
+	var index := 0
+	while index in taken:
+		index += 1
+	return index
+
+
+func _on_joy_connection_changed(device: int, connected: bool) -> void:
+	if connected:
+		return
+	for slot: PlayerSlot in slots:
+		if slot.is_human() and slot.device() == device:
+			leave_human(slot)
 
 
 func kart_of(slot_index: int) -> Kart:
@@ -148,6 +251,7 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 	var kart: Kart = KART_SCENE.instantiate()
 	kart.name = "Kart%d" % slot.index
 	kart.slot = slot.index
+	kart.color_index = slot.color_index
 	kart.input = slot.input
 	kart.rules = rules
 	kart.rng = rng
@@ -159,11 +263,7 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 	kart.joker_dropped.connect(_on_joker_dropped.bind(slot))
 	slot.kart = kart
 	if slot.input is BotInput:
-		var brain := BotBrain.new()
-		brain.name = "Brain"
-		brain.setup(kart, self, bot_traits.pick(rng), bot_difficulty, rng)
-		kart.add_child(brain)
-		slot.bot_trait = brain.bot_trait
+		_attach_brain(slot)
 
 
 func _physics_process(delta: float) -> void:

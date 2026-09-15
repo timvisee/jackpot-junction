@@ -12,6 +12,8 @@ const SELECTS: Array[StringName] = [
 ]
 
 var device := DeviceInput.ANY
+## For an any-device player, the device that last produced input; ANY until something moved.
+var last_device := DeviceInput.ANY
 
 var _fire_was_down := false
 var _use_was_down := false
@@ -23,6 +25,8 @@ func _init(input_device: int = DeviceInput.ANY) -> void:
 
 
 func poll(_delta: float) -> void:
+	if device == DeviceInput.ANY:
+		_detect_device()
 	steer = (
 		DeviceInput.strength(InputActions.STEER_RIGHT, device)
 		- DeviceInput.strength(InputActions.STEER_LEFT, device)
@@ -55,6 +59,26 @@ func poll(_delta: float) -> void:
 	for i: int in SELECTS.size():
 		if _just_pressed(SELECTS[i]):
 			joker_select = i
+
+
+## Which device is active right now, checked on the driving and firing actions.
+func _detect_device() -> void:
+	var actions: Array[StringName] = [
+		InputActions.THROTTLE,
+		InputActions.BRAKE,
+		InputActions.STEER_LEFT,
+		InputActions.STEER_RIGHT,
+		InputActions.FIRE
+	]
+	for joypad: int in Input.get_connected_joypads():
+		for action: StringName in actions:
+			if DeviceInput.strength(action, joypad) > 0.2:
+				last_device = joypad
+				return
+	for action: StringName in actions:
+		if DeviceInput.strength(action, DeviceInput.KEYBOARD) > 0.2:
+			last_device = DeviceInput.KEYBOARD
+			return
 
 
 func _just_pressed(action: StringName) -> bool:

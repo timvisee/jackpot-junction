@@ -41,8 +41,7 @@ func _ready() -> void:
 	_banner.visible = false
 	for slot: PlayerSlot in match_node.slots:
 		if slot.is_human():
-			_blocks[slot.index] = _make_block(slot)
-			ControlHint.attach(slot.kart, slot.device())
+			add_block(slot)
 	_build_results()
 	Events.grazed.connect(_on_grazed)
 	Events.mult_gained.connect(_on_mult_gained)
@@ -80,6 +79,22 @@ func _exit_tree() -> void:
 	Events.bank_completed.disconnect(_on_bank_completed)
 	Events.death_banked.disconnect(_on_death_banked)
 	Events.match_state_changed.disconnect(_on_state_changed)
+
+
+## Shows a HUD block and the control hint for a human slot.
+func add_block(slot: PlayerSlot) -> void:
+	if _blocks.has(slot.index):
+		return
+	_blocks[slot.index] = _make_block(slot)
+	ControlHint.attach(slot.kart, slot.device())
+
+
+func remove_block(slot: PlayerSlot) -> void:
+	if not _blocks.has(slot.index):
+		return
+	var block: Dictionary = _blocks[slot.index]
+	(block["box"] as Control).queue_free()
+	_blocks.erase(slot.index)
 
 
 func _process(delta: float) -> void:

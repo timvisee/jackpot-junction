@@ -4,6 +4,8 @@ extends RefCounted
 
 ## Devices of the human players, see [DeviceInput]. One human on any device by default.
 var human_devices: Array[int] = [DeviceInput.ANY]
+## Colour index per human, in the same order; empty means slot order.
+var human_colors: Array[int] = []
 var bot_count := 3
 var difficulty := "normal"
 var duration := 300.0
@@ -19,6 +21,20 @@ func inputs() -> Array[KartInput]:
 		result.append(PlayerInput.new(device))
 	for i: int in bot_count:
 		result.append(BotInput.new())
+	return result
+
+
+## Colour indices for every slot: the humans' picks, then the first free colours for bots.
+func colors() -> Array[int]:
+	var result: Array[int] = []
+	for i: int in human_devices.size():
+		result.append(human_colors[i] if i < human_colors.size() else i)
+	var next := 0
+	for i: int in bot_count:
+		while next in result:
+			next += 1
+		result.append(next)
+		next += 1
 	return result
 
 

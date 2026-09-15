@@ -28,8 +28,10 @@ const RING_RADIUS_FULL := 1.4
 @export var stats: KartStats
 @export var cannon_stats: CannonStats
 @export var rules: MatchRules
-## Player slot, 0 to 3, decides the colour and who gets the credit.
+## Player slot, 0 to 3, decides who gets the credit.
 @export var slot := 0
+## Which player colour the kart and its bullets use.
+@export var color_index := 0
 
 var input: KartInput = KartInput.new()
 var motor: KartMotor
@@ -527,7 +529,9 @@ func apply_turbo(direction: Vector3) -> void:
 func _fire() -> void:
 	var direction := aim_direction()
 	var origin := global_position + direction * cannon_stats.muzzle_offset
-	var shots := cannon.fire(bullet_system, slot, origin, direction, Palette.player_color(slot))
+	var shots := cannon.fire(
+		bullet_system, slot, origin, direction, Palette.player_color(color_index)
+	)
 	fired.emit(shots)
 	Events.bullet_fired.emit(slot)
 
@@ -618,7 +622,7 @@ func _build_visuals() -> void:
 	model.position = Vector3(0.0, MODEL_LIFT, 0.0)
 	_body.add_child(model)
 	var tint := StandardMaterial3D.new()
-	tint.albedo_color = Palette.player_color(slot)
+	tint.albedo_color = Palette.player_color(color_index)
 	for node: Node in model.find_children("*", "MeshInstance3D", true, false):
 		var mesh := node as MeshInstance3D
 		var lower := mesh.name.to_lower()
@@ -661,7 +665,7 @@ func _roof_marker() -> MeshInstance3D:
 		(mesh as CapsuleMesh).height = 0.36
 	marker.mesh = mesh
 	var material := StandardMaterial3D.new()
-	material.albedo_color = Palette.player_color(slot)
+	material.albedo_color = Palette.player_color(color_index)
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	marker.material_override = material
 	marker.position = Vector3(0.0, MARKER_HEIGHT, 0.0)
