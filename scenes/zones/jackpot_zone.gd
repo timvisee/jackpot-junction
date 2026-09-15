@@ -78,6 +78,15 @@ func _on_body_exited(body: Node3D) -> void:
 		_inside.erase(kart)
 
 
+## Alive karts inside other than [param except].
+func occupant_count(except: Kart = null) -> int:
+	var count := 0
+	for kart: Kart in _collectors():
+		if kart != except:
+			count += 1
+	return count
+
+
 func _collectors() -> Array[Kart]:
 	var result: Array[Kart] = []
 	for kart: Kart in _inside:

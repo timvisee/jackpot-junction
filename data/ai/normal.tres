@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="BotDifficulty" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/bots/bot_difficulty.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"normal"
+display_name = "Normal"
+reaction_delay = 0.3
+aim_error_deg = 5.0
+dodge_chance = 0.65
+top_speed_fraction = 1.0

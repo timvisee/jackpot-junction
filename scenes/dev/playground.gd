@@ -3,7 +3,9 @@ extends Node3D
 ## the debug overlay (F3) and the tuning panel (F4).
 ##
 ## User arguments after "++":
-##   --players=2          keyboard drives slot 0 and the first gamepad slot 1, no dummy
+##   --players=2          keyboard drives slot 0 and the first gamepad slot 1
+##   --bots=3             number of bot karts added after the humans (default 1)
+##   --difficulty=hard    bot difficulty: easy, normal or hard
 ##   --screenshot=<path>  save a PNG of the viewport after --frames=<n> frames (default 60) and
 ##                        quit; needs a display
 
@@ -12,6 +14,8 @@ const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 var match_node: Match
 
 var _players := 1
+var _bots := 1
+var _difficulty := "normal"
 var _screenshot_path := ""
 var _screenshot_frames := 60
 var _frames := 0
@@ -22,6 +26,7 @@ func _ready() -> void:
 	_add_environment()
 	match_node = MATCH_SCENE.instantiate()
 	match_node.name = "Match"
+	match_node.bot_difficulty = load("res://data/ai/%s.tres" % _difficulty)
 	add_child(match_node)
 	var inputs: Array[KartInput] = []
 	if _players >= 2:
@@ -30,7 +35,8 @@ func _ready() -> void:
 			inputs.append(PlayerInput.new(joypad))
 	else:
 		inputs.append(PlayerInput.new())
-		inputs.append(ScriptedInput.new())
+	for i: int in _bots:
+		inputs.append(BotInput.new())
 	match_node.start(inputs)
 	var player := match_node.kart_of(0)
 	var overlay := DebugOverlay.new()
@@ -80,6 +86,10 @@ func _parse_user_args() -> void:
 			_screenshot_frames = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--players="):
 			_players = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--bots="):
+			_bots = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--difficulty="):
+			_difficulty = arg.get_slice("=", 1)
 
 
 func _save_screenshot() -> void:

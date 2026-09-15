@@ -14,6 +14,8 @@ const CAMERA_SCENE := preload("res://scenes/camera/camera_rig.tscn")
 @export var power_ups: PowerUpTable
 @export var joker_catalog: JokerCatalog
 @export var offer_size := 3
+@export var bot_traits: BotTraitTable
+@export var bot_difficulty: BotDifficulty
 ## Whether the match builds its own HUD. Tests turn it off.
 @export var with_hud := true
 
@@ -23,6 +25,7 @@ var arena: Arena
 var camera_rig: CameraRig
 var bullets: BulletSystem
 var hud: MatchHud
+var nav: ArenaNav
 var countdown_left := 0.0
 var time_left := 0.0
 ## The one source of randomness in a match, seeded at start so online play can replicate it.
@@ -39,6 +42,10 @@ func _ready() -> void:
 		power_ups = load("res://data/powerups/first_set.tres")
 	if joker_catalog == null:
 		joker_catalog = load("res://data/jokers/catalog.tres")
+	if bot_traits == null:
+		bot_traits = load("res://data/ai/traits.tres")
+	if bot_difficulty == null:
+		bot_difficulty = load("res://data/ai/normal.tres")
 
 
 ## Builds the arena, spawns one kart per input and starts the countdown. A zero seed picks a
@@ -51,6 +58,11 @@ func start(inputs: Array[KartInput], seed: int = 0) -> void:
 	arena.name = "Arena"
 	add_child(arena)
 	arena.start_economy(rules, rng, power_ups)
+	nav = ArenaNav.new(arena.grid)
+	for i: int in arena.crates.size():
+		var cell := arena.grid.crates[i]
+		arena.crates[i].destroyed.connect(func(_by: int) -> void: nav.set_cell_blocked(cell, false))
+		arena.crates[i].respawned.connect(func() -> void: nav.set_cell_blocked(cell, true))
 	arena.junction.bank_started.connect(_on_bank_started)
 	arena.junction.bank_tick.connect(_on_bank_tick)
 	arena.junction.bank_completed.connect(_on_bank_completed)
@@ -96,6 +108,7 @@ func rematch() -> void:
 	bullets = null
 	camera_rig = null
 	hud = null
+	nav = null
 	start(_inputs, 0)
 
 
@@ -145,6 +158,12 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 	kart.died.connect(_on_kart_died.bind(slot))
 	kart.joker_dropped.connect(_on_joker_dropped.bind(slot))
 	slot.kart = kart
+	if slot.input is BotInput:
+		var brain := BotBrain.new()
+		brain.name = "Brain"
+		brain.setup(kart, self, bot_traits.pick(rng), bot_difficulty, rng)
+		kart.add_child(brain)
+		slot.bot_trait = brain.bot_trait
 
 
 func _physics_process(delta: float) -> void:

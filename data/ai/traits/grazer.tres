@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="BotTrait" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/bots/bot_trait.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"grazer"
+display_name = "Grazer"
+weight = 5.0
+bank_threshold = 100
+last_call_bank_threshold = 1
+hunt_weight = 1.0
+collect_weight = 1.0
+jackpot_min_chips = 20
+dodge_multiplier = 0.5
+flee_distance = 6.0
+rams = false
+fire_chance = 1.0

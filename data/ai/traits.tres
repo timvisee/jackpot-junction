@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="BotTraitTable" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scenes/bots/bot_trait_table.gd" id="1_table"]
+[ext_resource type="Resource" path="res://data/ai/traits/balanced.tres" id="2_balanced"]
+[ext_resource type="Resource" path="res://data/ai/traits/greedy.tres" id="3_greedy"]
+[ext_resource type="Resource" path="res://data/ai/traits/cautious.tres" id="4_cautious"]
+[ext_resource type="Resource" path="res://data/ai/traits/hunter.tres" id="5_hunter"]
+[ext_resource type="Resource" path="res://data/ai/traits/bumper.tres" id="6_bumper"]
+[ext_resource type="Resource" path="res://data/ai/traits/grazer.tres" id="7_grazer"]
+
+[resource]
+script = ExtResource("1_table")
+entries = Array[Resource]([ExtResource("2_balanced"), ExtResource("3_greedy"), ExtResource("4_cautious"), ExtResource("5_hunter"), ExtResource("6_bumper"), ExtResource("7_grazer")])

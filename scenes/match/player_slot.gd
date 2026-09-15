@@ -9,6 +9,8 @@ var kart: Kart
 var respawn_left := 0.0
 ## The joker choice waiting while the kart is dead; null when none is pending.
 var offer: JokerOffer
+## The personality of a bot slot; null for humans.
+var bot_trait: BotTrait
 ## The only score that counts at the end of the match.
 var banked := 0
 var kills := 0
@@ -35,4 +37,6 @@ func device() -> int:
 
 
 func display_name() -> String:
+	if bot_trait != null:
+		return "P%d %s" % [index + 1, bot_trait.display_name]
 	return "P%d" % (index + 1)
