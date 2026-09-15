@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Runs the Godot 4.7 binary for this project. Set GODOT to point at a specific binary.
+set -euo pipefail
+
+candidates=(
+	"${GODOT:-}"
+	"$HOME/.local/share/Steam/steamapps/common/Godot Engine/godot.x11.opt.tools.64"
+	"$(command -v godot4 || true)"
+	"$(command -v godot || true)"
+)
+for candidate in "${candidates[@]}"; do
+	[[ -n "$candidate" && -x "$candidate" ]] || continue
+	if "$candidate" --version 2>/dev/null | grep -q '^4\.7\.'; then
+		exec "$candidate" "$@"
+	fi
+done
+echo "No Godot 4.7 binary found. Set GODOT=/path/to/godot" >&2
+exit 1

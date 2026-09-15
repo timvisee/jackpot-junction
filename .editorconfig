@@ -2,3 +2,9 @@ root = true
 
 [*]
 charset = utf-8
+
+[*.gd]
+indent_style = tab
+
+[Makefile]
+indent_style = tab

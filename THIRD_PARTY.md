@@ -7,4 +7,4 @@ text next to the files when the license requires it.
 
 | Asset or library | Author | Source | License | Files in repo | Modifications |
 |------------------|--------|--------|---------|---------------|---------------|
-| none yet         |        |        |         |               |               |
+| gdUnit4 6.2.1 | Mike Schulze | https://github.com/MikeSchulze/gdUnit4 | MIT | addons/gdUnit4/ | none |

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Runs a scene headless for a number of frames and fails on any script error in the output.
+# Usage: tools/smoke res://scenes/dev/playground.tscn [frames]
+set -uo pipefail
+scene="${1:?scene path required}"
+frames="${2:-120}"
+output=$(tools/godot --headless --path . "$scene" --quit-after "$frames" 2>&1)
+status=$?
+printf '%s\n' "$output"
+if [[ $status -ne 0 ]] || grep -qE 'SCRIPT ERROR|USER ERROR|Parse Error|^ERROR:' <<<"$output"; then
+	echo "smoke run of $scene failed" >&2
+	exit 1
+fi
+echo "smoke run of $scene ok ($frames frames)"
