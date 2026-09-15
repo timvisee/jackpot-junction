@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/vulture.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"vulture"
+display_name = "Vulture"
+description = "Chips dropped by other karts are worth 2 coins to you."
+rarity = 0
+kind = 1

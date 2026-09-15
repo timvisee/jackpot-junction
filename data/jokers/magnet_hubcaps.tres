@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/magnet_hubcaps.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"magnet_hubcaps"
+display_name = "Magnet Hubcaps"
+description = "Pickup radius times 2."
+rarity = 0
+kind = 0

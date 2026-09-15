@@ -15,6 +15,13 @@ var fire := false
 var fire_pressed := false
 ## True only on the tick the item button went down.
 var use_item_pressed := false
+## Joker menu: held open, cursor moves, direct slot picks (-1 for none), drop and destroy.
+var joker_menu := false
+var joker_prev_pressed := false
+var joker_next_pressed := false
+var joker_select := -1
+var joker_drop_pressed := false
+var joker_destroy_pressed := false
 
 
 func poll(_delta: float) -> void:
@@ -29,3 +36,9 @@ func clear() -> void:
 	fire = false
 	fire_pressed = false
 	use_item_pressed = false
+	joker_menu = false
+	joker_prev_pressed = false
+	joker_next_pressed = false
+	joker_select = -1
+	joker_drop_pressed = false
+	joker_destroy_pressed = false

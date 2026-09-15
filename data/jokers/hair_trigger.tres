@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/hair_trigger.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"hair_trigger"
+display_name = "Hair Trigger"
+description = "Fire cooldown -30%."
+rarity = 0
+kind = 0

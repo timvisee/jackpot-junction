@@ -12,6 +12,8 @@ const CAMERA_SCENE := preload("res://scenes/camera/camera_rig.tscn")
 
 @export var rules: MatchRules
 @export var power_ups: PowerUpTable
+@export var joker_catalog: JokerCatalog
+@export var offer_size := 3
 ## Whether the match builds its own HUD. Tests turn it off.
 @export var with_hud := true
 
@@ -35,6 +37,8 @@ func _ready() -> void:
 		rules = load("res://data/match/default.tres")
 	if power_ups == null:
 		power_ups = load("res://data/powerups/first_set.tres")
+	if joker_catalog == null:
+		joker_catalog = load("res://data/jokers/catalog.tres")
 
 
 ## Builds the arena, spawns one kart per input and starts the countdown. A zero seed picks a
@@ -139,6 +143,7 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 	add_child(kart)
 	kart.face(arena.junction_position - point)
 	kart.died.connect(_on_kart_died.bind(slot))
+	kart.joker_dropped.connect(_on_joker_dropped.bind(slot))
 	slot.kart = kart
 
 
@@ -182,10 +187,13 @@ func _finish() -> void:
 
 func _step_respawns(delta: float) -> void:
 	for slot: PlayerSlot in slots:
-		if slot.kart.alive or slot.respawn_left <= 0.0:
+		if slot.kart.alive:
 			continue
-		slot.respawn_left -= delta
-		if slot.respawn_left <= 0.0:
+		if slot.offer != null and not slot.offer.is_done() and slot.is_human():
+			slot.offer.poll(slot.device())
+		slot.respawn_left = maxf(slot.respawn_left - delta, 0.0)
+		if slot.respawn_left <= 0.0 and (slot.offer == null or slot.offer.is_done()):
+			slot.offer = null
 			_respawn(slot)
 
 
@@ -196,31 +204,67 @@ func _check_target() -> void:
 			return
 
 
-## The death sequence from GAME.md 3.6, in order: bank half, drop coins, credit the killer, reset
-## the pot, start the respawn timer.
+## The death sequence from GAME.md 3.6, bent by jokers: bank a share, drop coins and maybe a
+## joker or the item, credit the killer, reset the pot, offer jokers, start the respawn timer.
 func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> void:
 	var kart := slot.kart
-	var banked := Scoring.death_bank(kart.pot.coins, kart.pot.mult, rules.death_bank_fraction)
+	var death := DeathOutcome.from_rules(rules)
+	for joker: Joker in kart.jokers.jokers:
+		joker.modify_death(kart, death)
+		joker.on_death(kart)
+	var killer: PlayerSlot = null
+	if killer_slot >= 0 and killer_slot != slot.index and killer_slot < slots.size():
+		killer = slots[killer_slot]
+		for joker: Joker in killer.kart.jokers.jokers:
+			joker.on_victim_death(killer.kart, kart, death)
+	var banked := Scoring.death_bank(kart.pot.coins, kart.pot.mult, death.bank_fraction)
 	if banked > 0:
 		slot.banked += banked
 		Events.death_banked.emit(slot.index, banked)
-	var drop := Scoring.death_drop(kart.pot.coins, rules.death_drop_fraction, rules.death_drop_max)
+	var position := kart.global_position
+	var stolen := 0
+	if killer != null and death.steal_fraction > 0.0 and killer.kart.alive:
+		stolen = floori(kart.pot.coins * death.steal_fraction)
+		killer.kart.collect_coins(stolen, null)
+	var drop := Scoring.death_drop(kart.pot.coins - stolen, death.drop_fraction, death.drop_max)
 	if drop > 0:
-		arena.spawn_chips(kart.global_position, drop, rules.dropped_chip_lifetime, 0.0, true)
+		arena.spawn_chips(position, drop, rules.dropped_chip_lifetime, 0.0, true)
+	for i: int in death.joker_drop_count:
+		if kart.jokers.count() > 0 and rng.randf() < death.joker_drop_chance:
+			var dropped := kart.jokers.remove_at(rng.randi_range(0, kart.jokers.count() - 1))
+			arena.spawn_floor_joker(position, dropped, rules.floor_item_lifetime)
 	if kart.held_item != null:
-		if rng.randf() < rules.death_item_drop_chance:
-			arena.spawn_floor_item(kart.global_position, kart.held_item, rules.floor_item_lifetime)
+		if rng.randf() < death.item_drop_chance:
+			arena.spawn_floor_item(position, kart.held_item, rules.floor_item_lifetime)
 		kart.held_item = null
-	if killer_slot >= 0 and killer_slot != slot.index and killer_slot < slots.size():
-		var killer := slots[killer_slot]
+	if killer != null:
 		killer.kills += 1
 		if killer.kart.alive:
 			killer.kart.gain_mult(rules.kill_mult, &"kill")
 	kart.pot.reset()
 	slot.deaths += 1
 	slot.respawn_left = rules.respawn_delay
+	slot.offer = _make_offer(slot)
 	Events.kart_killed.emit(slot.index, killer_slot, cause)
 	_check_target()
+
+
+## Offers jokers for the respawn. Bots choose at once; humans steer the offer while dead.
+func _make_offer(slot: PlayerSlot) -> JokerOffer:
+	var kart := slot.kart
+	var choices := joker_catalog.offer(rng, kart.offer_count(offer_size), kart.jokers.ids())
+	var offer := JokerOffer.new(kart, choices)
+	if not offer.is_done():
+		Events.joker_offered.emit(slot.index)
+	if not slot.is_human() and not offer.is_done():
+		offer.take(rng.randi_range(0, choices.size() - 1))
+		if offer.stage == JokerOffer.Stage.REPLACING:
+			offer.replace(rng.randi_range(0, kart.jokers.count() - 1))
+	return offer
+
+
+func _on_joker_dropped(joker: Joker, slot: PlayerSlot) -> void:
+	arena.spawn_floor_joker(slot.kart.global_position, joker, rules.floor_item_lifetime)
 
 
 func _respawn(slot: PlayerSlot) -> void:
@@ -245,6 +289,16 @@ func _on_bank_tick(kart: Kart, points: int) -> void:
 
 func _on_bank_completed(kart: Kart, coins: int, mult: float, total: int) -> void:
 	Events.bank_completed.emit(kart.slot, coins, mult, total)
+	for other: PlayerSlot in slots:
+		if other.kart == kart:
+			continue
+		var bonus := 0
+		for joker: Joker in other.kart.jokers.jokers:
+			bonus += joker.on_other_bank_completed(other.kart, kart.slot, total)
+		if bonus > 0:
+			other.banked += bonus
+			Events.bank_tick.emit(other.index, bonus)
+	_check_target()
 
 
 ## The spawn point whose nearest enemy is farthest away. Ties go to the earliest point.

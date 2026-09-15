@@ -4,6 +4,8 @@ extends CanvasLayer
 ## shares the resource; Save writes them back to its .tres file so they survive a restart.
 
 var stats: KartStats
+## Called after every change, so karts can rebuild their own copies of the stats.
+var on_change: Callable
 
 var _panel: PanelContainer
 var _status: Label
@@ -63,7 +65,12 @@ func _make_row(property: String) -> HBoxContainer:
 	spinner.step = 0.01
 	spinner.value = current
 	spinner.custom_minimum_size = Vector2(130.0, 0.0)
-	spinner.value_changed.connect(func(value: float) -> void: stats.set(property, value))
+	spinner.value_changed.connect(
+		func(value: float) -> void:
+			stats.set(property, value)
+			if on_change.is_valid():
+				on_change.call()
+	)
 	row.add_child(spinner)
 	return row
 

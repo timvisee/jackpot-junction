@@ -7,6 +7,8 @@ var index := 0
 var input: KartInput
 var kart: Kart
 var respawn_left := 0.0
+## The joker choice waiting while the kart is dead; null when none is pending.
+var offer: JokerOffer
 ## The only score that counts at the end of the match.
 var banked := 0
 var kills := 0
@@ -24,6 +26,12 @@ func color() -> Color:
 
 func is_human() -> bool:
 	return input is PlayerInput
+
+
+## The device a human slot reads, or [constant DeviceInput.ANY].
+func device() -> int:
+	var player := input as PlayerInput
+	return player.device if player != null else DeviceInput.ANY
 
 
 func display_name() -> String:

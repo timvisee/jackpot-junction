@@ -124,6 +124,17 @@ func spawn_floor_item(origin: Vector3, item: PowerUp, lifetime: float) -> ItemBo
 	return box
 
 
+## Drops a joker on the floor, for example from a dead kart or the joker menu.
+func spawn_floor_joker(origin: Vector3, joker: Joker, lifetime: float) -> FloorJoker:
+	var card := FloorJoker.new()
+	card.joker = joker
+	card.lifetime = lifetime
+	var angle := _rng.randf_range(0.0, TAU)
+	card.position = _clamp_to_floor(origin + Vector3(cos(angle), 0.0, sin(angle)) * 1.4)
+	pickups.add_child(card)
+	return card
+
+
 func _clamp_to_floor(point: Vector3) -> Vector3:
 	var half := world_size() * 0.5 - Vector2.ONE * (grid.cell_size + 0.5)
 	return Vector3(clampf(point.x, -half.x, half.x), 0.0, clampf(point.z, -half.y, half.y))

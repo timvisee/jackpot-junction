@@ -78,12 +78,10 @@ func _step_channel(kart: Kart, channel: Dictionary, delta: float) -> void:
 		channel["start_value"] = kart.pot.exact_value()
 		bank_started.emit(kart)
 	var t: float = channel["t"]
-	var amount := Scoring.banked_between(
-		t, t + delta, rules.bank_rate_base, rules.bank_rate_doubling
-	)
+	var amount := Scoring.banked_between(t, t + delta, rules.bank_rate_base, kart.bank_doubling())
 	channel["t"] = t + delta
 	var taken := kart.pot.drain(amount)
-	var carry: float = channel["carry"] + taken * payout_multiplier
+	var carry: float = channel["carry"] + taken * payout_multiplier * kart.bank_payout()
 	var points := floori(carry)
 	channel["carry"] = carry - points
 	if points > 0:

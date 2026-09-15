@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="JokerCatalog" load_steps=22 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/joker_catalog.gd" id="1_catalog"]
+[ext_resource type="Resource" path="res://data/jokers/hair_trigger.tres" id="2_hair_trigger"]
+[ext_resource type="Resource" path="res://data/jokers/big_tank.tres" id="3_big_tank"]
+[ext_resource type="Resource" path="res://data/jokers/magnet_hubcaps.tres" id="4_magnet_hubcaps"]
+[ext_resource type="Resource" path="res://data/jokers/nitro_habit.tres" id="5_nitro_habit"]
+[ext_resource type="Resource" path="res://data/jokers/slipstream.tres" id="6_slipstream"]
+[ext_resource type="Resource" path="res://data/jokers/green_light.tres" id="7_green_light"]
+[ext_resource type="Resource" path="res://data/jokers/vulture.tres" id="8_vulture"]
+[ext_resource type="Resource" path="res://data/jokers/insurance_policy.tres" id="9_insurance_policy"]
+[ext_resource type="Resource" path="res://data/jokers/getaway_driver.tres" id="10_getaway_driver"]
+[ext_resource type="Resource" path="res://data/jokers/pickpocket.tres" id="11_pickpocket"]
+[ext_resource type="Resource" path="res://data/jokers/rubber_bumpers.tres" id="12_rubber_bumpers"]
+[ext_resource type="Resource" path="res://data/jokers/comeback.tres" id="13_comeback"]
+[ext_resource type="Resource" path="res://data/jokers/loaded_dice.tres" id="14_loaded_dice"]
+[ext_resource type="Resource" path="res://data/jokers/toll_booth.tres" id="15_toll_booth"]
+[ext_resource type="Resource" path="res://data/jokers/high_roller.tres" id="16_high_roller"]
+[ext_resource type="Resource" path="res://data/jokers/road_rage.tres" id="17_road_rage"]
+[ext_resource type="Resource" path="res://data/jokers/snake_eyes.tres" id="18_snake_eyes"]
+[ext_resource type="Resource" path="res://data/jokers/lucky_seven.tres" id="19_lucky_seven"]
+[ext_resource type="Resource" path="res://data/jokers/wild_card.tres" id="20_wild_card"]
+[ext_resource type="Resource" path="res://data/jokers/glass_jackpot.tres" id="21_glass_jackpot"]
+
+[resource]
+script = ExtResource("1_catalog")
+jokers = Array[Resource]([ExtResource("2_hair_trigger"), ExtResource("3_big_tank"), ExtResource("4_magnet_hubcaps"), ExtResource("5_nitro_habit"), ExtResource("6_slipstream"), ExtResource("7_green_light"), ExtResource("8_vulture"), ExtResource("9_insurance_policy"), ExtResource("10_getaway_driver"), ExtResource("11_pickpocket"), ExtResource("12_rubber_bumpers"), ExtResource("13_comeback"), ExtResource("14_loaded_dice"), ExtResource("15_toll_booth"), ExtResource("16_high_roller"), ExtResource("17_road_rage"), ExtResource("18_snake_eyes"), ExtResource("19_lucky_seven"), ExtResource("20_wild_card"), ExtResource("21_glass_jackpot")])

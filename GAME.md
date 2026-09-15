@@ -199,6 +199,9 @@ Jokers are passive rule modifiers held for the rest of the match.
 - The joker menu can be opened while driving; the kart stays fully
   controllable.
 - Bots pick jokers at random, weighted by rarity, and never skip.
+- Offer controls: number keys or D-pad pick, the item button takes, the
+  destroy button skips. With a full hand the same controls pick the joker to
+  destroy, and the destroy button goes back.
 - Offer weights by rarity: common 60%, uncommon 30%, rare 10%.
 
 The joker catalogue is in section 7.3.

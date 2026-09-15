@@ -38,7 +38,8 @@ func _ready() -> void:
 	overlay.arena_width = match_node.arena.world_size().x
 	add_child(overlay)
 	var tuning := TuningPanel.new()
-	tuning.stats = player.stats
+	tuning.stats = player.base_stats
+	tuning.on_change = player.rebuild_stats
 	add_child(tuning)
 
 

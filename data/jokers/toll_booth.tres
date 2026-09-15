@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/toll_booth.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"toll_booth"
+display_name = "Toll Booth"
+description = "Whenever another kart completes a cash-out, you bank 5% of it."
+rarity = 1
+kind = 1

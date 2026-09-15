@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/high_roller.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"high_roller"
+display_name = "High Roller"
+description = "All mult gains are doubled, but death banks 0%."
+rarity = 1
+kind = 2

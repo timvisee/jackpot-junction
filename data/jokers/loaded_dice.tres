@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/loaded_dice.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"loaded_dice"
+display_name = "Loaded Dice"
+description = "Every chip has a 10% chance to count as a gold chip."
+rarity = 1
+kind = 1

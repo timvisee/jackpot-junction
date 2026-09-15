@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/green_light.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"green_light"
+display_name = "Green Light"
+description = "Turbo pads give +0.5 mult."
+rarity = 0
+kind = 1

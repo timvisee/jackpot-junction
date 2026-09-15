@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/road_rage.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"road_rage"
+display_name = "Road Rage"
+description = "Ramming above 90% of top speed kills without Boost, but top speed is -10%."
+rarity = 1
+kind = 2

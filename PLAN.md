@@ -202,24 +202,29 @@ grazing. The play session is still open.
 
 Goal: power-ups and jokers work in a solo match, with drops and floor pickups.
 
-- [ ] `PowerUp` base resource, `ItemHolder` on the kart, power-up pads with the
+- [x] `PowerUp` base resource, `ItemHolder` on the kart, power-up pads with the
       weighted table, roulette flicker, hold one rule.
-- [ ] First set: Boost with ram kills, Shield, Turret scene with owner
+- [x] First set: Boost with ram kills, Shield, Turret scene with owner
       attribution and lifetime, Ricochet Cannon as a `CannonStats` override for
       8 shots, Coin Magnet with attraction.
-- [ ] `Joker` base resource with the hooks listed in GAME.md 10.2,
+- [x] `Joker` base resource with the hooks listed in GAME.md 10.2,
       `JokerHolder` with per-holder instances, hook dispatch from Pot, Cannon,
       KartMotor, JunctionPad and the death sequence.
-- [ ] Respawn offer: 3 weighted offers without duplicates, pick or skip,
+- [x] Respawn offer: 3 weighted offers without duplicates, pick or skip,
       respawn waits, swap when holding 5; `JokerPick` UI.
-- [ ] `JokerMenu` in the arena: cycle, drop to floor, destroy, kart stays
+- [x] `JokerMenu` in the arena: cycle, drop to floor, destroy, kart stays
       controllable.
-- [ ] Death drops of a joker and the held item, floor pickups with 15 s
+- [x] Death drops of a joker and the held item, floor pickups with 15 s
       lifetime.
-- [ ] The 20 jokers from GAME.md 7.3, one script and one `.tres` each.
+- [x] The 20 jokers from GAME.md 7.3, one script and one `.tres` each.
 
 Verify: a test per joker where the effect is numeric or rule based, offer
 weighting and no-duplicate tests, power-up table weights. Play session.
+
+Status: built and checked headless. Tests cover every power-up in the first
+set, stat rebuilding, all twenty jokers' effects, offers with take, skip,
+replace and the full-hand rule, floor drops and pickups. The play session is
+still open.
 
 ## M4: bots and flow, first release
 

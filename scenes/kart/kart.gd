@@ -12,6 +12,7 @@ signal coins_collected(amount: int)
 signal mult_changed(amount: float, reason: StringName)
 signal item_held(item: PowerUp)
 signal item_used(item: PowerUp)
+signal joker_dropped(joker: Joker)
 
 const WHEEL_RADIUS := 0.24
 const FALL_SPEED := 2.5
@@ -31,6 +32,13 @@ var motor: KartMotor
 var cannon: Cannon
 var bullet_system: BulletSystem
 var pot := Pot.new()
+var jokers: JokerHolder
+## The shared resources the kart's own stat copies are rebuilt from when jokers change.
+var base_stats: KartStats
+var base_cannon_stats: CannonStats
+## Whether the joker menu is held open, and which held joker the cursor is on.
+var menu_open := false
+var menu_index := 0
 ## Set by the match so jokers and items can roll dice deterministically.
 var rng := RandomNumberGenerator.new()
 var alive := true
@@ -70,6 +78,12 @@ func _ready() -> void:
 		cannon_stats = load("res://data/cannons/default.tres")
 	if rules == null:
 		rules = load("res://data/match/default.tres")
+	base_stats = stats
+	base_cannon_stats = cannon_stats
+	stats = base_stats.duplicate()
+	cannon_stats = base_cannon_stats.duplicate()
+	jokers = JokerHolder.new(self)
+	jokers.changed.connect(rebuild_stats)
 	motion_mode = CharacterBody3D.MOTION_MODE_FLOATING
 	collision_layer = Layers.KART
 	collision_mask = Layers.WORLD | Layers.KART | Layers.PROTECTED | Layers.TURRET
@@ -105,7 +119,8 @@ func _physics_process(delta: float) -> void:
 	if input.fire and protection_left <= 0.0 and cannon.can_fire() and bullet_system != null:
 		_fire()
 	item_reveal_left = maxf(item_reveal_left - delta, 0.0)
-	if input.use_item_pressed and held_item != null and item_reveal_left <= 0.0:
+	_step_menu()
+	if not menu_open and input.use_item_pressed and held_item != null and item_reveal_left <= 0.0:
 		use_item()
 	var heading_before := motor.heading
 	motor.step(input, delta)
@@ -131,16 +146,36 @@ func is_targetable() -> bool:
 	return alive and not falling and protection_left <= 0.0
 
 
-## Coins picked up from chips, crates or the Jackpot.
-func collect_coins(amount: int, _source: Pickup) -> void:
-	if amount <= 0:
-		return
-	pot.add_coins(amount)
-	coins_collected.emit(amount)
-	Events.coin_collected.emit(slot, amount)
+## Rebuilds the kart's own stat copies from the shared bases and the held jokers.
+func rebuild_stats() -> void:
+	stats = base_stats.duplicate()
+	cannon_stats = base_cannon_stats.duplicate()
+	for joker: Joker in jokers.jokers:
+		joker.modify_kart_stats(stats)
+		joker.modify_cannon_stats(cannon_stats)
+	motor.stats = stats
+	cannon.stats = cannon_stats
+	refresh_pickup_radius()
+
+
+## Coins picked up from chips, crates or the Jackpot. Jokers may change what a chip is worth.
+func collect_coins(amount: int, source: Pickup) -> void:
+	var chip := source as Chip
+	if chip != null:
+		for joker: Joker in jokers.jokers:
+			amount = joker.modify_coin_value(self, chip, amount)
+	if amount > 0:
+		pot.add_coins(amount)
+		coins_collected.emit(amount)
+		Events.coin_collected.emit(slot, amount)
+	if chip != null:
+		for joker: Joker in jokers.jokers:
+			joker.on_chip_collected(self, chip)
 
 
 func gain_mult(amount: float, reason: StringName) -> void:
+	for joker: Joker in jokers.jokers:
+		amount = joker.modify_mult_gain(self, amount, reason)
 	if amount == 0.0:
 		return
 	pot.add_mult(amount)
@@ -153,8 +188,59 @@ func graze(_by_slot: int) -> void:
 	if not is_targetable() or _graze_cooldown_left > 0.0:
 		return
 	_graze_cooldown_left = rules.graze_cooldown
-	gain_mult(rules.graze_mult, &"graze")
+	var amount := rules.graze_mult
+	for joker: Joker in jokers.jokers:
+		amount = joker.modify_graze_mult(self, amount)
+	if amount > 0.0:
+		gain_mult(amount, &"graze")
 	Events.grazed.emit(slot)
+
+
+## Seconds in which the Junction drain doubles for this kart.
+func bank_doubling() -> float:
+	var doubling := rules.bank_rate_doubling
+	for joker: Joker in jokers.jokers:
+		doubling = joker.modify_bank_doubling(self, doubling)
+	return doubling
+
+
+## Multiplier on this kart's Junction payouts from jokers.
+func bank_payout() -> float:
+	var multiplier := 1.0
+	for joker: Joker in jokers.jokers:
+		multiplier = joker.modify_bank_payout(self, multiplier)
+	return multiplier
+
+
+## Whether contact kills other karts right now: Boost, or a joker such as Road Rage.
+func ram_kills() -> bool:
+	if ramming:
+		return true
+	for joker: Joker in jokers.jokers:
+		if joker.ram_kills(self):
+			return true
+	return false
+
+
+## How many jokers a respawn offers this kart.
+func offer_count(base: int) -> int:
+	var count := base
+	for joker: Joker in jokers.jokers:
+		count = joker.modify_offer_count(count)
+	return count
+
+
+## Drops a held joker on the floor for anyone to take.
+func drop_joker(index: int) -> void:
+	if index < 0 or index >= jokers.count():
+		return
+	var joker := jokers.remove_at(index)
+	joker_dropped.emit(joker)
+
+
+func destroy_joker(index: int) -> void:
+	if index >= 0 and index < jokers.count():
+		jokers.remove_at(index)
 
 
 ## Distance from a point on the floor plane to the kart's body rectangle, 0 when inside.
@@ -163,6 +249,26 @@ func distance_to_body(point: Vector3) -> float:
 	var half := Vector3(stats.width * 0.5, 0.0, stats.length * 0.5)
 	var clamped := Vector3(clampf(local.x, -half.x, half.x), 0.0, clampf(local.z, -half.z, half.z))
 	return Vector3(local.x, 0.0, local.z).distance_to(clamped)
+
+
+## The joker menu, GAME.md 3.7: held open while driving; cycle, pick, drop or destroy.
+func _step_menu() -> void:
+	menu_open = input.joker_menu and jokers.count() > 0
+	if not menu_open:
+		menu_index = 0
+		return
+	var count := jokers.count()
+	if input.joker_next_pressed:
+		menu_index = (menu_index + 1) % count
+	if input.joker_prev_pressed:
+		menu_index = posmod(menu_index - 1, count)
+	if input.joker_select >= 0 and input.joker_select < count:
+		menu_index = input.joker_select
+	if input.joker_drop_pressed:
+		drop_joker(menu_index)
+	elif input.joker_destroy_pressed:
+		destroy_joker(menu_index)
+	menu_index = clampi(menu_index, 0, maxi(jokers.count() - 1, 0))
 
 
 func _step_effects(delta: float) -> void:
@@ -256,9 +362,12 @@ func overlapping_pickups() -> Array[Pickup]:
 	return result
 
 
-## Recomputes the pickup radius from the rules and the active multipliers.
+## Recomputes the pickup radius from the rules, the jokers and the Coin Magnet.
 func refresh_pickup_radius() -> void:
-	_pickup_shape.radius = rules.pickup_radius * pickup_radius_bonus
+	var radius := rules.pickup_radius
+	for joker: Joker in jokers.jokers:
+		radius = joker.modify_pickup_radius(radius)
+	_pickup_shape.radius = radius * pickup_radius_bonus
 
 
 ## Kills the kart. The match decides when and where it respawns.
@@ -302,6 +411,8 @@ func respawn(point: Vector3, direction: Vector3, protection: float) -> void:
 	collision_mask = Layers.WORLD | Layers.KART | Layers.PROTECTED | Layers.TURRET
 	_body.visible = true
 	_smoke.emitting = true
+	for joker: Joker in jokers.jokers:
+		joker.on_respawn(self)
 	respawned.emit()
 
 
@@ -332,6 +443,8 @@ func apply_turbo(direction: Vector3) -> void:
 	if not alive or falling:
 		return
 	motor.apply_turbo(direction)
+	for joker: Joker in jokers.jokers:
+		joker.on_turbo_pad(self)
 	turbo_taken.emit(direction)
 
 
@@ -380,7 +493,7 @@ func _resolve_collisions() -> void:
 		if other != null:
 			last_bump_slot = other.slot
 			last_bump_time = Time.get_ticks_msec() * 0.001
-			if ramming:
+			if ram_kills():
 				other.take_ram(slot)
 			motor.apply_bump(normal)
 			velocity = motor.velocity

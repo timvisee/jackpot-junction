@@ -109,6 +109,73 @@ func _update_blocks() -> void:
 			item.text = "? ? ?" if fmod(kart.item_reveal_left, 0.12) < 0.06 else "? ?"
 		else:
 			item.text = "Item: %s" % kart.held_item.display_name
+		var jokers: RichTextLabel = block["jokers"]
+		jokers.text = _joker_row(kart)
+		_update_offer(slot, block)
+
+
+func _joker_row(kart: Kart) -> String:
+	if kart.jokers.count() == 0:
+		return ""
+	var parts: PackedStringArray = []
+	for i: int in kart.jokers.count():
+		var joker := kart.jokers.jokers[i]
+		var text := "[color=%s]%s[/color]" % [_kind_color(joker), joker.initials()]
+		if kart.menu_open and i == kart.menu_index:
+			text = "[%s]" % text
+		parts.append(text)
+	var row := "  ".join(parts)
+	if kart.menu_open:
+		var current := kart.jokers.jokers[kart.menu_index]
+		row += (
+			"\n%s: %s\n[ ] cycle   E drop   Q destroy" % [current.display_name, current.description]
+		)
+	return row
+
+
+func _update_offer(slot: PlayerSlot, block: Dictionary) -> void:
+	var panel: PanelContainer = block["offer"]
+	var text: RichTextLabel = block["offer_text"]
+	var offer := slot.offer
+	if offer == null or offer.is_done():
+		panel.visible = false
+		return
+	panel.visible = true
+	var lines: PackedStringArray = []
+	if offer.stage == JokerOffer.Stage.CHOOSING:
+		lines.append("[b]Pick a joker[/b]")
+		for i: int in offer.choices.size():
+			var joker := offer.choices[i]
+			var marker := "> " if i == offer.selected else "   "
+			lines.append(
+				(
+					"%s%d. [color=%s]%s[/color]  %s"
+					% [marker, i + 1, _kind_color(joker), joker.display_name, joker.description]
+				)
+			)
+		lines.append("1-%d pick   E take   Q skip" % offer.choices.size())
+	else:
+		lines.append("[b]Destroy which joker for %s?[/b]" % offer.chosen.display_name)
+		var held := slot.kart.jokers.jokers
+		for i: int in held.size():
+			var marker := "> " if i == offer.selected else "   "
+			lines.append(
+				(
+					"%s%d. [color=%s]%s[/color]"
+					% [marker, i + 1, _kind_color(held[i]), held[i].display_name]
+				)
+			)
+		lines.append("1-5 pick   E confirm   Q back")
+	text.text = "\n".join(lines)
+
+
+func _kind_color(joker: Joker) -> String:
+	match joker.kind:
+		Joker.Kind.STAT:
+			return "#dddddd"
+		Joker.Kind.CURSED:
+			return "#ff6b6b"
+	return "#f2c14e"
 
 
 func _update_banner(delta: float) -> void:
@@ -238,6 +305,22 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 	var item := Label.new()
 	item.add_theme_font_size_override("font_size", 22)
 	item.add_theme_color_override("font_color", Palette.NEON_MAGENTA)
+	var jokers := RichTextLabel.new()
+	jokers.bbcode_enabled = true
+	jokers.fit_content = true
+	jokers.scroll_active = false
+	jokers.autowrap_mode = TextServer.AUTOWRAP_OFF
+	jokers.custom_minimum_size = Vector2(420.0, 0.0)
+	jokers.add_theme_font_size_override("normal_font_size", 20)
+	var offer := PanelContainer.new()
+	offer.visible = false
+	offer.custom_minimum_size = Vector2(560.0, 0.0)
+	var offer_text := RichTextLabel.new()
+	offer_text.bbcode_enabled = true
+	offer_text.fit_content = true
+	offer_text.scroll_active = false
+	offer_text.add_theme_font_size_override("normal_font_size", 20)
+	offer.add_child(offer_text)
 	for label: Label in [name_label, banked, pot, stats, item]:
 		label.horizontal_alignment = (
 			HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
@@ -246,7 +329,18 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 		label.add_theme_constant_override("shadow_offset_x", 2)
 		label.add_theme_constant_override("shadow_offset_y", 2)
 		box.add_child(label)
-	return {"box": box, "banked": banked, "pot": pot, "stats": stats, "item": item}
+	box.add_child(jokers)
+	box.add_child(offer)
+	return {
+		"box": box,
+		"banked": banked,
+		"pot": pot,
+		"stats": stats,
+		"item": item,
+		"jokers": jokers,
+		"offer": offer,
+		"offer_text": offer_text,
+	}
 
 
 func _build_results() -> void:

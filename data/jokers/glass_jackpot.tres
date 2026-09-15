@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/glass_jackpot.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"glass_jackpot"
+display_name = "Glass Jackpot"
+description = "Completed cash-outs pay 150%, but dying drops all your chips and 2 jokers."
+rarity = 2
+kind = 2

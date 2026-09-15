@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/wild_card.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"wild_card"
+display_name = "Wild Card"
+description = "Respawn offers 5 jokers instead of 3."
+rarity = 2
+kind = 1

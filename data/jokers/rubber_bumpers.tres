@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/rubber_bumpers.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"rubber_bumpers"
+display_name = "Rubber Bumpers"
+description = "Your bullets bounce one extra time."
+rarity = 1
+kind = 1
