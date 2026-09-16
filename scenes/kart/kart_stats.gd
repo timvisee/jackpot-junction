@@ -4,25 +4,37 @@ extends Resource
 ## result back into both the resource and GAME.md.
 
 @export_group("Speed")
-@export var top_speed := 13.0
-@export var accel_time := 1.2
+@export var top_speed := 10.5
+@export var accel_time := 1.5
 @export var brake_decel := 20.0
 @export var reverse_top_speed := 5.0
 @export var coast_decel := 4.0
 
 @export_group("Steering")
-@export var yaw_rate_low_deg := 200.0
-@export var yaw_rate_high_deg := 110.0
+@export var yaw_rate_low_deg := 160.0
+@export var yaw_rate_high_deg := 85.0
 @export var min_steer_speed := 0.5
+## Seconds for the applied steering to go from centre to full lock; 0 is instant.
+@export var steer_ramp_up := 0.12
+## Seconds for the applied steering to return to centre; 0 is instant.
+@export var steer_ramp_down := 0.08
+## Exponent on the stick deflection; 1 is linear, higher gives finer control near centre.
+@export var stick_curve := 1.5
+## Turning speed while standing still, to line up a shot; 0 disables it.
+@export var turn_in_place_rate_deg := 70.0
 
 @export_group("Grip and drift")
-@export var grip_normal := 8.0
-@export var grip_drift := 2.5
+@export var grip_normal := 16.0
+@export var grip_drift := 3.5
+## When on, only the handbrake starts a drift; steering alone never does.
+@export var handbrake_drift_only := true
+## Braking of the handbrake, reduced while drifting; 0 means it never brakes.
+@export var handbrake_decel := 12.0
 @export var drift_steer_threshold := 0.8
 @export var drift_speed_fraction := 0.7
 @export var handbrake_speed_fraction := 0.4
 @export var drift_exit_steer := 0.3
-@export var drift_yaw_multiplier := 1.6
+@export var drift_yaw_multiplier := 1.35
 @export var drift_speed_decay := 0.05
 @export var drift_min_duration := 0.6
 @export var drift_exit_boost := 0.2

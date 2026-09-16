@@ -104,7 +104,8 @@ func test_ricochet_cannon_overrides_the_next_shots_only() -> void:
 	ricochet.activate(kart)
 	assert_int(kart.cannon.override_shots_left()).is_equal(8)
 	assert_int(kart.cannon.current_stats().bounces).is_equal(2)
-	assert_float(kart.cannon.current_stats().bullet_speed).is_equal_approx(25.0, 0.001)
+	var faster := kart.base_cannon_stats.bullet_speed * 1.25
+	assert_float(kart.cannon.current_stats().bullet_speed).is_equal_approx(faster, 0.001)
 	for i: int in 8:
 		kart.cannon.cooldown_left = 0.0
 		var shots := kart.cannon.fire(

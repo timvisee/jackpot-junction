@@ -81,6 +81,7 @@ var _smoke: ExhaustSmoke
 var _pickup_shape: SphereShape3D
 var _shield_visual: MeshInstance3D
 var _aim_arrow: MeshInstance3D
+var _aim_guide: AimGuide
 var _fall_left := 0.0
 var _graze_cooldown_left := 0.0
 
@@ -382,6 +383,20 @@ func _process(_delta: float) -> void:
 		var direction := aim_direction()
 		_aim_arrow.global_position = global_position + Vector3(0.0, 0.9, 0.0) + direction * 0.9
 		_aim_arrow.look_at(_aim_arrow.global_position + direction, Vector3.UP)
+	_update_aim_guide()
+
+
+## The aim guide shows for local players when the setting is on.
+func _update_aim_guide() -> void:
+	var wanted := alive and not puppet and input is PlayerInput and Game.settings.aim_guide
+	if wanted and _aim_guide == null:
+		_aim_guide = AimGuide.attach(self, Palette.player_color(color_index))
+	if _aim_guide == null:
+		return
+	_aim_guide.visible = wanted
+	if wanted:
+		var direction := aim_direction()
+		_aim_guide.update_line(global_position + direction * cannon_stats.muzzle_offset, direction)
 
 
 func _step_effects(delta: float) -> void:
@@ -717,7 +732,7 @@ func _spin_wheels(delta: float) -> void:
 	for wheel: MeshInstance3D in _wheels:
 		wheel.rotation.x += turn
 		if wheel.name.to_lower().contains("front"):
-			wheel.rotation.y = input.steer * 0.35
+			wheel.rotation.y = motor.steer * 0.35
 
 
 func _build_pickup_area() -> void:

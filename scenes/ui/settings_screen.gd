@@ -286,6 +286,12 @@ func _accessibility_tab() -> Control:
 			"Rumble", _check(_settings.rumble, func(on: bool) -> void: _settings.rumble = on)
 		)
 	)
+	column.add_child(
+		MenuTheme.row(
+			"Aim guide",
+			_check(_settings.aim_guide, func(on: bool) -> void: _settings.aim_guide = on)
+		)
+	)
 	var assist := HSlider.new()
 	assist.min_value = 0.0
 	assist.max_value = 1.0

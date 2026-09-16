@@ -42,8 +42,16 @@ func _ready() -> void:
 	add_child(overlay)
 	var tuning := TuningPanel.new()
 	tuning.stats = player.base_stats
-	tuning.on_change = player.rebuild_stats
+	tuning.cannon_stats = player.base_cannon_stats
+	tuning.on_change = _rebuild_all_karts
 	add_child(tuning)
+
+
+## Live tuning edits the shared resources; every kart re-copies them.
+func _rebuild_all_karts() -> void:
+	for slot: PlayerSlot in match_node.slots:
+		if slot.kart != null and slot.kart.alive:
+			slot.kart.rebuild_stats()
 
 
 func _parse_user_args() -> void:

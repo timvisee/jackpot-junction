@@ -9,7 +9,7 @@ var _input: KartInput
 
 
 func before_test() -> void:
-	_stats = load("res://data/kart/default.tres")
+	_stats = load("res://data/kart/default.tres").duplicate()
 	_motor = KartMotor.new(_stats)
 	_input = KartInput.new()
 
@@ -51,13 +51,38 @@ func test_coasting_slows_down_and_stops() -> void:
 func test_yaw_rate_interpolates_from_low_to_high_speed() -> void:
 	assert_float(rad_to_deg(_motor.yaw_rate(0.0))).is_equal_approx(_stats.yaw_rate_low_deg, 0.01)
 	assert_float(rad_to_deg(_motor.yaw_rate(1.0))).is_equal_approx(_stats.yaw_rate_high_deg, 0.01)
-	assert_float(rad_to_deg(_motor.yaw_rate(0.5))).is_equal_approx(155.0, 0.01)
+	var middle := (_stats.yaw_rate_low_deg + _stats.yaw_rate_high_deg) * 0.5
+	assert_float(rad_to_deg(_motor.yaw_rate(0.5))).is_equal_approx(middle, 0.01)
 
 
-func test_kart_does_not_steer_while_standing_still() -> void:
+func test_standing_still_turns_in_place_only_when_enabled() -> void:
 	_input.steer = 1.0
+	_run(0.5)
+	assert_float(_motor.heading).is_less(0.0)
+	assert_float(_motor.speed()).is_equal(0.0)
+	_stats.turn_in_place_rate_deg = 0.0
+	_motor.heading = 0.0
 	_run(1.0)
 	assert_float(_motor.heading).is_equal(0.0)
+
+
+func test_steering_ramps_up_and_shapes_the_stick() -> void:
+	_input.throttle = 1.0
+	_run(1.0)
+	_input.steer = 1.0
+	_motor.step(_input, DT)
+	assert_float(_motor.steer).is_between(0.05, 0.3)
+	_run(0.2)
+	assert_float(_motor.steer).is_equal_approx(1.0, 0.001)
+	_input.steer = 0.5
+	_run(0.3)
+	assert_float(_motor.steer).is_equal_approx(pow(0.5, _stats.stick_curve), 0.01)
+	_stats.steer_ramp_up = 0.0
+	_stats.steer_ramp_down = 0.0
+	_stats.stick_curve = 1.0
+	_input.steer = -1.0
+	_motor.step(_input, DT)
+	assert_float(_motor.steer).is_equal(-1.0)
 
 
 func test_steering_right_is_clockwise_and_reversing_flips_it() -> void:
@@ -78,6 +103,7 @@ func test_steering_right_is_clockwise_and_reversing_flips_it() -> void:
 
 
 func test_hard_turn_at_speed_drifts_and_a_long_drift_exit_boosts() -> void:
+	_stats.handbrake_drift_only = false
 	_input.throttle = 1.0
 	_run(2.0)
 	_input.steer = 1.0
@@ -85,28 +111,52 @@ func test_hard_turn_at_speed_drifts_and_a_long_drift_exit_boosts() -> void:
 	assert_bool(_motor.drifting).is_true()
 	assert_float(_motor.drift_time).is_greater(_stats.drift_min_duration)
 	_input.steer = 0.0
-	_run(DT)
+	_run(0.2)
 	assert_bool(_motor.drifting).is_false()
 	assert_bool(_motor.boosting()).is_true()
 	assert_float(_motor.speed()).is_greater(_stats.top_speed)
 
 
 func test_a_short_drift_gives_no_boost() -> void:
+	_stats.handbrake_drift_only = false
 	_input.throttle = 1.0
 	_run(2.0)
 	_input.steer = 1.0
 	_run(0.3)
 	assert_bool(_motor.drifting).is_true()
 	_input.steer = 0.0
-	_run(DT)
+	_run(0.2)
 	assert_bool(_motor.drifting).is_false()
 	assert_bool(_motor.boosting()).is_false()
 
 
-func test_handbrake_drifts_at_lower_speed_than_a_hard_turn() -> void:
+func test_with_handbrake_only_drifting_steering_never_drifts_and_the_handbrake_brakes() -> void:
 	_input.throttle = 1.0
-	_run(0.7)
-	assert_float(_motor.speed_fraction()).is_between(0.45, 0.65)
+	_run(2.5)
+	_input.steer = 1.0
+	_run(1.0)
+	assert_bool(_motor.drifting).is_false()
+	var before := _motor.speed()
+	_input.steer = 0.0
+	_input.handbrake = true
+	_run(0.5)
+	assert_bool(_motor.drifting).is_true()
+	assert_float(_motor.speed()).is_less(before)
+	_input.handbrake = false
+	_run(DT)
+	assert_bool(_motor.drifting).is_false()
+	_input.throttle = 0.0
+	_motor.velocity = _motor.forward_vector() * 3.0
+	_input.handbrake = true
+	_run(0.5)
+	assert_float(_motor.speed()).is_equal_approx(0.0, 0.001)
+
+
+func test_handbrake_drifts_at_lower_speed_than_a_hard_turn() -> void:
+	_stats.handbrake_drift_only = false
+	_input.throttle = 1.0
+	_run(0.75)
+	assert_float(_motor.speed_fraction()).is_between(0.42, 0.68)
 	_input.steer = 1.0
 	_run(DT)
 	assert_bool(_motor.drifting).is_false()

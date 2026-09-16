@@ -11,13 +11,13 @@ extends Resource
 @export var free_aim := false
 
 @export_group("Bullet")
-@export var bullet_speed := 20.0
+@export var bullet_speed := 17.0
 @export var bullet_radius := 0.15
 @export var bounces := 1
 @export var lifetime := 3.0
 
 @export_group("Aim assist")
 @export var aim_assist := true
-@export var aim_assist_cone_deg := 12.0
+@export var aim_assist_cone_deg := 15.0
 @export var aim_assist_range := 15.0
-@export var aim_assist_turn_rate_deg := 30.0
+@export var aim_assist_turn_rate_deg := 50.0

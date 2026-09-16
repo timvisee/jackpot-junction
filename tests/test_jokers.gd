@@ -82,9 +82,10 @@ func test_road_rage_slows_the_kart_and_rams_at_speed() -> void:
 	var match_node := _start_match(_bots())
 	var kart := match_node.kart_of(0)
 	_attach(kart, "road_rage")
-	assert_float(kart.stats.top_speed).is_equal_approx(11.7, 0.001)
+	var expected := kart.base_stats.top_speed * 0.9
+	assert_float(kart.stats.top_speed).is_equal_approx(expected, 0.001)
 	assert_bool(kart.ram_kills()).is_false()
-	kart.motor.velocity = kart.motor.forward_vector() * 11.5
+	kart.motor.velocity = kart.motor.forward_vector() * expected * 0.95
 	assert_bool(kart.ram_kills()).is_true()
 
 

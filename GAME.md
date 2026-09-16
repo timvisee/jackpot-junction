@@ -265,6 +265,16 @@ the kart slides while its nose turns faster.
 Ramming only kills when the rammer has the Boost power-up active, see 7.1.
 Turbo pads do not enable ramming kills.
 
+Handling trial, under evaluation after the first play session: five changes
+are switchable on the F4 panel and currently on by default. 1: drifts start
+only with the handbrake, which also brakes at 12 m/s², 35% of that while
+drifting. 2: grip 16 normal and 3.5 in a drift, drift yaw multiplier 1.35.
+3: yaw 160 to 85°/s, steering eases to full lock in 0.12 s and back in
+0.08 s, stick response curve 1.5, turning in place at 70°/s when stopped.
+4: top speed 10.5 m/s, 0 to top in 1.5 s, bullets 17 m/s. 5: an aim guide of
+four dots ahead of the cannon, bullet bending cone 15° at 50°/s. The table
+above still lists the previous values until the decision is made.
+
 ### 4.2 Controls
 
 Steering is kart-relative: left and right turn the nose, throttle and brake

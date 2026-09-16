@@ -17,6 +17,8 @@ var flash_reduction := false
 ## 0 to 1 of the default aim assist, never more.
 var aim_assist := 1.0
 var rumble := true
+## Dots ahead of the cannon showing where shots go.
+var aim_guide := true
 var stick_deadzone := 0.15
 ## Action name to the descriptors that replace its defaults.
 var bindings: Dictionary = {}
@@ -47,6 +49,7 @@ func load_from_disk() -> void:
 		file.get_value("accessibility", "aim_assist", aim_assist), 0.0, AIM_ASSIST_MAX
 	)
 	rumble = file.get_value("accessibility", "rumble", rumble)
+	aim_guide = file.get_value("accessibility", "aim_guide", aim_guide)
 	stick_deadzone = file.get_value("controls", "stick_deadzone", stick_deadzone)
 	bindings = file.get_value("controls", "bindings", {})
 	match_minutes = file.get_value("lobby", "match_minutes", match_minutes)
@@ -70,6 +73,7 @@ func save_to_disk() -> Error:
 	file.set_value("accessibility", "flash_reduction", flash_reduction)
 	file.set_value("accessibility", "aim_assist", aim_assist)
 	file.set_value("accessibility", "rumble", rumble)
+	file.set_value("accessibility", "aim_guide", aim_guide)
 	file.set_value("controls", "stick_deadzone", stick_deadzone)
 	file.set_value("controls", "bindings", bindings)
 	file.set_value("lobby", "match_minutes", match_minutes)

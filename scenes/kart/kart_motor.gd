@@ -14,6 +14,8 @@ var heading := 0.0
 var velocity := Vector3.ZERO
 ## Signed speed along the heading, updated every step.
 var forward_speed := 0.0
+## The steering actually applied this tick: the input shaped by the stick curve and smoothed.
+var steer := 0.0
 var drifting := false
 var drift_time := 0.0
 var boost_time_left := 0.0
@@ -71,9 +73,10 @@ func step(input: KartInput, delta: float) -> void:
 	var forward := forward_vector()
 	forward_speed = velocity.dot(forward)
 	var lateral := velocity - forward * forward_speed
+	_step_steer_input(input, delta)
 	_step_longitudinal(input, delta)
 	_step_drift(input)
-	_step_steering(input, delta)
+	_step_steering(delta)
 	var grip := stats.grip_drift if drifting else stats.grip_normal
 	lateral *= exp(-grip * delta)
 	if drifting:
@@ -83,6 +86,21 @@ func step(input: KartInput, delta: float) -> void:
 	var limit := max_speed()
 	if velocity.length() > limit:
 		velocity = velocity.normalized() * limit
+
+
+## Shapes the raw steering by the stick curve and eases it toward the target, so a keyboard tap is
+## a small correction and a held key builds to full lock.
+func _step_steer_input(input: KartInput, delta: float) -> void:
+	var raw := clampf(input.steer, -1.0, 1.0)
+	var target := signf(raw) * pow(absf(raw), maxf(stats.stick_curve, 0.1))
+	var increasing := (
+		absf(target) > absf(steer) or (target != 0.0 and signf(target) != signf(steer))
+	)
+	var ramp := stats.steer_ramp_up if increasing else stats.steer_ramp_down
+	if ramp <= 0.0:
+		steer = target
+	else:
+		steer = move_toward(steer, target, delta / ramp)
 
 
 func _step_longitudinal(input: KartInput, delta: float) -> void:
@@ -100,22 +118,30 @@ func _step_longitudinal(input: KartInput, delta: float) -> void:
 			forward_speed = move_toward(forward_speed, target, accel * delta)
 	else:
 		forward_speed = move_toward(forward_speed, 0.0, stats.coast_decel * delta)
+	if input.handbrake and stats.handbrake_decel > 0.0:
+		# A drift scrubs speed gently; below drifting speed the handbrake is a real brake.
+		var decel := stats.handbrake_decel * (0.35 if drifting else 1.0)
+		forward_speed = move_toward(forward_speed, 0.0, decel * delta)
 
 
 func _step_drift(input: KartInput) -> void:
 	var fraction := absf(forward_speed) / stats.top_speed
 	if drifting:
-		var steering := absf(input.steer) >= stats.drift_exit_steer
 		var too_slow := fraction < stats.handbrake_speed_fraction * 0.75
+		if stats.handbrake_drift_only:
+			if too_slow or not input.handbrake:
+				_end_drift()
+			return
+		var steering := absf(steer) >= stats.drift_exit_steer
 		if too_slow or (not steering and not input.handbrake):
 			_end_drift()
 		return
 	if turboing() or forward_speed <= 0.0:
 		return
-	var hard_turn := absf(input.steer) >= stats.drift_steer_threshold
-	var fast := fraction >= stats.drift_speed_fraction
 	var handbrake := input.handbrake and fraction >= stats.handbrake_speed_fraction
-	if (hard_turn and fast) or handbrake:
+	var hard_turn := absf(steer) >= stats.drift_steer_threshold
+	var fast := fraction >= stats.drift_speed_fraction
+	if handbrake or (not stats.handbrake_drift_only and hard_turn and fast):
 		drifting = true
 		drift_time = 0.0
 
@@ -128,10 +154,14 @@ func _end_drift() -> void:
 	drift_time = 0.0
 
 
-func _step_steering(input: KartInput, delta: float) -> void:
+func _step_steering(delta: float) -> void:
 	if drifting:
 		drift_time += delta
 	if absf(forward_speed) <= stats.min_steer_speed:
+		# Standing still: turn in place to line up a shot, when enabled.
+		if stats.turn_in_place_rate_deg > 0.0 and steer != 0.0:
+			var in_place := deg_to_rad(stats.turn_in_place_rate_deg) * steer_multiplier
+			heading = wrapf(heading - steer * in_place * delta, -PI, PI)
 		return
 	var rate := yaw_rate(absf(forward_speed) / stats.top_speed)
 	if drifting:
@@ -140,7 +170,7 @@ func _step_steering(input: KartInput, delta: float) -> void:
 		rate *= stats.turbo_steer_multiplier
 	rate *= steer_multiplier
 	# Steering right is clockwise seen from above, which is a negative rotation about +Y.
-	heading = wrapf(heading - input.steer * rate * signf(forward_speed) * delta, -PI, PI)
+	heading = wrapf(heading - steer * rate * signf(forward_speed) * delta, -PI, PI)
 
 
 ## Launches the kart along a turbo pad's direction: the nose snaps to it and the kart runs at
