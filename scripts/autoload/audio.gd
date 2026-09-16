@@ -2,8 +2,8 @@ extends Node
 ## Sound and music, GAME.md 8.4. Autoloaded as `Audio`. Listens to gameplay events and plays
 ## short effects from a pooled set of players on the SFX bus. The music is one track in three
 ## intensities that stay in step: calm by default, tense for a while after a kill, and the full
-## mix from Last Call to the end, with one second crossfades. Every file is logged in
-## THIRD_PARTY.md.
+## mix from Last Call to the end. Switches crossfade over one second with the two players
+## summing to a constant level, so nothing dips. Every file is logged in THIRD_PARTY.md.
 
 const BUS_MASTER := &"Master"
 const BUS_MUSIC := &"Music"
@@ -18,7 +18,6 @@ const LAYER_FILES: Dictionary[StringName, String] = {
 	LAYER_CALM: "intensity_1.ogg", LAYER_TENSE: "intensity_2.ogg", LAYER_PEAK: "main.ogg"
 }
 const CROSSFADE_SECONDS := 1.0
-const SILENT_DB := -40.0
 const BANK_TICK_INTERVAL := 0.07
 
 ## Effect name to the files it picks from at random.
@@ -84,7 +83,7 @@ func _ready() -> void:
 	for i: int in 2:
 		var player := AudioStreamPlayer.new()
 		player.bus = BUS_MUSIC
-		player.volume_db = SILENT_DB
+		player.volume_linear = 0.0
 		add_child(player)
 		_music_players.append(player)
 	_connect_events()
@@ -151,7 +150,8 @@ func stop_music() -> void:
 		player.stop()
 
 
-## Crossfades to another intensity of the same track, continuing from the same position.
+## Crossfades to another intensity of the same track, continuing from the same position. The
+## fade is linear in amplitude: the layers are the same music, so their sum stays level.
 func set_layer(layer: StringName) -> void:
 	if layer == current_layer or not LAYER_FILES.has(layer):
 		return
@@ -164,16 +164,21 @@ func set_layer(layer: StringName) -> void:
 		return
 	var position := 0.0
 	if from.playing:
-		position = from.get_playback_position() + AudioServer.get_time_since_last_mix()
+		# Where the old player will be when the new one first mixes, so both stay in phase.
+		position = (
+			from.get_playback_position()
+			+ AudioServer.get_time_since_last_mix()
+			+ AudioServer.get_time_to_next_mix()
+		)
 		position = fmod(position, maxf(to.stream.get_length(), 0.001))
-	to.volume_db = SILENT_DB if from.playing else 0.0
+	to.volume_linear = 0.0 if from.playing else 1.0
 	if music_enabled and (from.playing or not Game.is_headless()):
 		to.play(position)
 	if _music_tween != null and _music_tween.is_valid():
 		_music_tween.kill()
-	_music_tween = create_tween().set_parallel(true)
-	_music_tween.tween_property(to, "volume_db", 0.0, CROSSFADE_SECONDS)
-	_music_tween.tween_property(from, "volume_db", SILENT_DB, CROSSFADE_SECONDS)
+	_music_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_LINEAR)
+	_music_tween.tween_property(to, "volume_linear", 1.0, CROSSFADE_SECONDS)
+	_music_tween.tween_property(from, "volume_linear", 0.0, CROSSFADE_SECONDS)
 	_music_tween.chain().tween_callback(from.stop)
 
 

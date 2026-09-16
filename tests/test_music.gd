@@ -26,6 +26,21 @@ func test_all_three_layers_exist_and_share_a_length() -> void:
 	assert_float(lengths[0]).is_equal_approx(lengths[2], 0.05)
 
 
+func test_a_crossfade_keeps_the_summed_level_constant() -> void:
+	Audio.set_layer(Audio.LAYER_TENSE)
+	var players: Array[AudioStreamPlayer] = Audio._music_players
+	var total := players[0].volume_linear + players[1].volume_linear
+	assert_float(total).is_equal_approx(1.0, 0.05)
+	await await_millis(400)
+	var active := players[Audio._active_player]
+	var other := players[1 - Audio._active_player]
+	if other.playing:
+		assert_float(active.volume_linear).is_between(0.2, 0.8)
+		assert_float(active.volume_linear + other.volume_linear).is_equal_approx(1.0, 0.05)
+	else:
+		assert_float(active.volume_linear).is_equal_approx(1.0, 0.001)
+
+
 func test_a_kill_makes_the_music_tense_then_it_calms_down() -> void:
 	Audio.mark_excitement()
 	assert_str(Audio.current_layer).is_equal("tense")

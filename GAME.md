@@ -602,11 +602,12 @@ every kart, so everyone sees when an opponent cashes out.
 ### 8.4 Audio
 
 - **Music**: "Deceased Rodent" by Ovani Sound, one track in three intensities
-  that all run in step and crossfade over 1 s at the same position. Intensity
-  1 plays by default and in the menus. A kill switches to intensity 2 for
-  12 s, extended by further kills. When every human player is dead the music
-  drops back to intensity 1 at once. Last Call switches to the full mix and
-  keeps it until the results.
+  that all run in step and crossfade over 1 s at the same position. The fade
+  is linear in amplitude so the level never dips. Intensity 1 plays by default
+  and in the menus. A kill switches to intensity 2 for 12 s, extended by
+  further kills. When every human player is dead the music drops back to
+  intensity 1 at once. Last Call switches to the full mix and keeps it until
+  the results.
 - **Chips**: clink on pickup, pitch rising with rapid pickups.
 - **Mult**: dice rattle on gain, a soft ping on graze.
 - **Cash-out**: slot-machine ticks while draining, a jackpot chime on
