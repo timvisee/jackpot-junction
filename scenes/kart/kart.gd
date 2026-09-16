@@ -649,8 +649,9 @@ func _update_trails(delta: float, heading_before: float) -> void:
 		return
 	var turning := absf(wrapf(motor.heading - heading_before, -PI, PI)) / maxf(delta, 0.0001)
 	var intensity := 0.15
-	if motor.drifting:
-		intensity = 1.0
+	var slip := absf(motor.slip_angle())
+	if motor.drifting or slip > 0.3:
+		intensity = clampf(slip / 0.7, 0.5, 1.0)
 	elif input.brake > 0.3 and motor.forward_speed > 1.0:
 		intensity = 0.6
 	elif turning > 1.5:

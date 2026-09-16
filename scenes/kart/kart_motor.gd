@@ -2,17 +2,18 @@ class_name KartMotor
 extends RefCounted
 ## The arcade handling model from GAME.md 4.1, free of scene nodes so it can be unit tested.
 ##
-## The kart has a heading and a velocity that are separate. Every tick the longitudinal speed
-## follows throttle and brake, the heading follows steering, and the part of the velocity that
-## is not along the heading decays at a grip rate. Drifting lowers the grip, so the kart slides
-## while its nose turns faster.
+## The kart has a heading and a direction of travel that are separate. Every tick the speed
+## follows throttle and brake, the heading follows steering, and the direction of travel turns
+## toward the heading at a grip rate. The steady slip angle is about the yaw rate divided by the
+## grip: a few degrees while driving, and in a drift, with low grip and quicker yaw, the nose
+## leads the travel direction by tens of degrees and the kart visibly goes sideways.
 
 var stats: KartStats
 ## Yaw in radians about +Y. Forward is -Z rotated by the heading, like a Node3D.
 var heading := 0.0
 ## World-space velocity on the XZ plane.
 var velocity := Vector3.ZERO
-## Signed speed along the heading, updated every step.
+## Signed speed: positive when travelling roughly nose first, negative in reverse.
 var forward_speed := 0.0
 ## The steering actually applied this tick: the input shaped by the stick curve and smoothed.
 var steer := 0.0
@@ -67,21 +68,39 @@ func max_speed() -> float:
 	return stats.top_speed * speed_bonus
 
 
+## Angle in radians between the nose and the direction of travel, positive when the nose points
+## left of the travel direction. Zero when standing still.
+func slip_angle() -> float:
+	if velocity.length() < 0.05:
+		return 0.0
+	var travel := velocity.normalized() * signf(forward_speed if forward_speed != 0.0 else 1.0)
+	return travel.signed_angle_to(forward_vector(), Vector3.UP)
+
+
 func step(input: KartInput, delta: float) -> void:
 	boost_time_left = maxf(boost_time_left - delta, 0.0)
 	turbo_time_left = maxf(turbo_time_left - delta, 0.0)
 	var forward := forward_vector()
-	forward_speed = velocity.dot(forward)
-	var lateral := velocity - forward * forward_speed
+	var along := velocity.dot(forward)
+	var was_moving := velocity.length() > 0.05
+	var was_reversing := was_moving and along < 0.0
+	forward_speed = velocity.length() * (-1.0 if along < 0.0 else 1.0)
 	_step_steer_input(input, delta)
 	_step_longitudinal(input, delta)
 	_step_drift(input)
 	_step_steering(delta)
+	var reversing := forward_speed < 0.0
+	var target := forward_vector() * (-1.0 if reversing else 1.0)
+	var travel := velocity.normalized() if was_moving else target
+	# Setting off, or braking through a stop into reverse: travel starts along the nose.
+	if not was_moving or reversing != was_reversing:
+		travel = target
 	var grip := stats.grip_drift if drifting else stats.grip_normal
-	lateral *= exp(-grip * delta)
+	var angle := travel.signed_angle_to(target, Vector3.UP)
+	travel = travel.rotated(Vector3.UP, angle * (1.0 - exp(-grip * delta)))
 	if drifting:
 		forward_speed *= 1.0 - stats.drift_speed_decay * delta
-	velocity = forward_vector() * forward_speed + lateral
+	velocity = travel * absf(forward_speed)
 	velocity.y = 0.0
 	var limit := max_speed()
 	if velocity.length() > limit:
@@ -144,6 +163,11 @@ func _step_drift(input: KartInput) -> void:
 	if handbrake or (not stats.handbrake_drift_only and hard_turn and fast):
 		drifting = true
 		drift_time = 0.0
+		# The rear swings out at once: the nose kicks into the turn.
+		if absf(steer) > 0.1:
+			heading = wrapf(
+				heading - signf(steer) * deg_to_rad(stats.drift_entry_kick_deg), -PI, PI
+			)
 
 
 func _end_drift() -> void:

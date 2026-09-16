@@ -12,7 +12,7 @@ const MIN_SAMPLE_DISTANCE := 0.12
 const HEIGHT := 0.015
 ## Opacity of a fresh mark at zero and full intensity; drifting reaches the top of the range.
 const MIN_ALPHA := 0.03
-const MAX_ALPHA := 0.28
+const MAX_ALPHA := 0.45
 
 ## Each entry: {"left": Vector3, "right": Vector3, "time": float, "intensity": float, "start": bool}
 var _wheels: Array[Array] = [[], []]

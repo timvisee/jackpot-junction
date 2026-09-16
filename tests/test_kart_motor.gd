@@ -174,6 +174,37 @@ func test_drift_grip_keeps_more_sideways_velocity() -> void:
 	assert_float(sliding).is_greater(gripping * 1.5)
 
 
+func test_a_handbrake_drift_goes_visibly_sideways_then_hooks_up_on_release() -> void:
+	_input.throttle = 1.0
+	_run(2.5)
+	_input.steer = 1.0
+	_run(0.5)
+	assert_float(rad_to_deg(absf(_motor.slip_angle()))).is_less(15.0)
+	_input.handbrake = true
+	_run(0.5)
+	assert_bool(_motor.drifting).is_true()
+	var slip := rad_to_deg(absf(_motor.slip_angle()))
+	assert_float(slip).is_between(25.0, 75.0)
+	assert_float(_motor.speed()).is_greater(3.0)
+	_input.handbrake = false
+	_input.steer = 0.0
+	_run(0.4)
+	assert_bool(_motor.drifting).is_false()
+	assert_float(rad_to_deg(absf(_motor.slip_angle()))).is_less(8.0)
+
+
+func test_drift_entry_kicks_the_nose_into_the_turn() -> void:
+	_input.throttle = 1.0
+	_run(2.5)
+	_input.steer = 1.0
+	_run(DT)
+	var before := _motor.heading
+	_input.handbrake = true
+	_motor.step(_input, DT)
+	var turned := rad_to_deg(wrapf(before - _motor.heading, -PI, PI))
+	assert_float(turned).is_greater(_stats.drift_entry_kick_deg * 0.9)
+
+
 func _sideways_speed_after_turn(drifting: bool) -> float:
 	var motor := KartMotor.new(_stats)
 	motor.velocity = motor.forward_vector() * _stats.top_speed

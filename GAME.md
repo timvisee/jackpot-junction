@@ -237,9 +237,12 @@ the lobby.
 ### 4.1 Handling
 
 The kart is a CharacterBody3D driven by a hand-rolled arcade car model. Its
-velocity is a separate vector from its heading. Each physics tick the velocity
-direction turns toward the heading at a grip rate. Drifting lowers the grip, so
-the kart slides while its nose turns faster.
+direction of travel is separate from its heading. Each physics tick the travel
+direction turns toward the heading at a grip rate, so the steady slip angle is
+about the yaw rate divided by the grip: a few degrees while driving. A drift
+lowers the grip and quickens the yaw, so the nose leads the travel direction by
+30 to 55 degrees and the kart visibly goes sideways with the rear swung out,
+then hooks up and launches when the handbrake is released.
 
 | Parameter                     | Starting value                                        |
 |-------------------------------|-------------------------------------------------------|
@@ -252,10 +255,11 @@ the kart slides while its nose turns faster.
 | Yaw rate at low speed         | 200°/s                                                |
 | Yaw rate at top speed         | 110°/s, interpolated linearly by speed                |
 | Minimum speed to steer        | 0.5 m/s; below it the kart turns in place at 70°/s to line up a shot |
-| Grip, normal                  | velocity turns toward heading at 16 rad/s, under evaluation against 8 |
-| Grip, drifting                | 3.5 rad/s, under evaluation against 2.5               |
+| Grip, normal                  | travel direction turns toward the nose at 16 rad/s, about 7° of slip at top speed |
+| Grip, drifting                | 4 rad/s, 30 to 55° of slip depending on speed         |
 | Drift entry                   | handbrake held and speed above 40% of top; steering alone never drifts |
-| Drift yaw multiplier          | 1.35, under evaluation against 1.6                    |
+| Drift yaw multiplier          | 1.35                                                  |
+| Drift entry kick              | the nose turns 15° into the turn when a drift starts while steering |
 | Drift speed decay             | 5% per second                                         |
 | Drift exit boost              | +20% top speed for 0.8 s if the drift lasted 0.6 s or longer |
 | Handbrake                     | brakes at 12 m/s², at 35% of that while drifting so a drift scrubs speed gently |
@@ -270,8 +274,10 @@ After the first play session the handling changed as follows. Drifts start only
 with the handbrake, which also brakes; steering alone keeps grip. A stopped
 kart turns in place. The kart and its bullets are slower. Shots are shown by an
 aim guide and bend a little more. Steering rates stay instant, 200 to 110°/s,
-after a smoothed variant felt worse. The planted grip numbers are still under
-evaluation and can be flipped on the F4 panel of the development scene.
+after a smoothed variant felt worse. A second session found drifts invisible,
+which traced to the travel direction snapping to the nose every tick; the model
+above replaced it, with the numbers exposed on the F4 panel of the
+development scene.
 
 ### 4.2 Controls
 
@@ -299,8 +305,8 @@ assigns physical devices to player slots, see 10.2.
 ### 4.3 Trails
 
 - **Tire marks**: a ribbon mesh per rear wheel, drawn while the kart moves,
-  darker and wider while drifting or braking, but always faint: a subtle detail
-  rather than a visible feature, at most about a quarter opaque in a drift.
+  darker and wider while drifting or braking. Straight driving leaves a barely
+  visible trace; a full drift leaves a clear skid at just under half opacity.
   Marks fade out over 20 s. Segments are capped per kart to bound the cost.
 - **Smoke**: a faint exhaust particle trail whose rate scales with throttle,
   with bursts on drift entry, drift exit boost, turbo pads and Boost.

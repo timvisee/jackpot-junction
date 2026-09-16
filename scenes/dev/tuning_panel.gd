@@ -5,13 +5,8 @@ extends CanvasLayer
 ## resources and the settings to disk.
 
 ## Each trial: a label and the properties it switches, as [old, new] pairs per resource.
-const TRIALS: Array[Dictionary] = [
-	{
-		"label": "Planted grip (still under evaluation)",
-		"kart":
-		{"grip_normal": [8.0, 16.0], "grip_drift": [2.5, 3.5], "drift_yaw_multiplier": [1.6, 1.35]},
-	},
-]
+## Groups of numbers that can be flipped between two candidates while driving; empty for now.
+const TRIALS: Array[Dictionary] = []
 
 var stats: KartStats
 var cannon_stats: CannonStats
@@ -52,9 +47,10 @@ func _rebuild() -> void:
 	_column = VBoxContainer.new()
 	_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(_column)
-	_add_title("Under evaluation (F4)")
-	for trial: Dictionary in TRIALS:
-		_column.add_child(_make_trial_row(trial))
+	if not TRIALS.is_empty():
+		_add_title("Under evaluation (F4)")
+		for trial: Dictionary in TRIALS:
+			_column.add_child(_make_trial_row(trial))
 	_add_title("Kart")
 	_add_resource_rows(stats)
 	_add_title("Cannon")

@@ -43,6 +43,7 @@ func _process(_delta: float) -> void:
 		return
 	var motor := kart.motor
 	var state := "drift %.2fs" % motor.drift_time if motor.drifting else "grip"
+	state += "  slip %.0f deg" % rad_to_deg(motor.slip_angle())
 	if motor.turboing():
 		state += " turbo"
 	if motor.boosting():
