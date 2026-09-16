@@ -82,8 +82,9 @@ extends Resource
 @export var lives := 2
 ## Top speed multiplier while a life is missing.
 @export var wounded_speed := 0.85
-## Seconds after losing a life during which the kart cannot be hit again.
-@export var hurt_protection := 0.5
+## Seconds after losing a life during which the kart cannot be hit again, so a burst of
+## bullets cannot take both lives in the same moment.
+@export var hurt_protection := 1.2
 
 @export_group("Match")
 ## Whether the match runs against a clock. The Garage in 9.4 turns it off: no timer, no Last

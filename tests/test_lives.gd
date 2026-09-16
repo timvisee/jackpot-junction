@@ -38,6 +38,14 @@ func _shoot(match_node: Match, shooter: Kart, at: Vector3) -> void:
 	await _runner.simulate_frames(30, 17)
 
 
+## Waits out the moment of immunity a wound grants, so the next shot actually lands.
+func _wait_out_immunity(kart: Kart) -> void:
+	for i: int in 20:
+		if kart.hurt_left <= 0.0:
+			return
+		await _runner.simulate_frames(10, 17)
+
+
 func test_the_first_hit_wounds_the_junction_heals_and_the_second_hit_kills() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)
@@ -62,12 +70,14 @@ func test_the_first_hit_wounds_the_junction_heals_and_the_second_hit_kills() -> 
 	assert_float(victim.stats.top_speed).is_equal_approx(base_speed, 0.001)
 	assert_object(victim._tint.albedo_color).is_equal(color)
 	await assert_signal(events).is_emitted("life_restored", [1])
+	await _wait_out_immunity(victim)
 	victim.global_position = LANE
 	victim.face(Vector3(1.0, 0.0, 0.0))
 	await _runner.simulate_frames(2, 17)
 	await _shoot(match_node, shooter, LANE)
 	assert_int(victim.lives).is_equal(1)
-	await _runner.simulate_frames(20, 17)
+	await _wait_out_immunity(victim)
+	victim.global_position = LANE
 	await _shoot(match_node, shooter, LANE)
 	assert_bool(victim.alive).is_false()
 	assert_int(match_node.slots[0].kills).is_equal(1)
@@ -86,7 +96,8 @@ func test_a_fresh_wound_cannot_be_hit_again_for_a_moment() -> void:
 	victim.global_position = LANE
 	await _shoot(match_node, shooter, LANE)
 	assert_int(victim.lives).is_equal(1)
-	victim.hurt_left = 0.4
+	# Straight after the wound the kart is untouchable for a moment and blinks.
+	assert_float(victim.hurt_left).is_greater(0.5)
 	assert_bool(victim.is_targetable()).is_false()
 	var bullet := match_node.bullets.spawn(
 		0, LANE + Vector3(-2.0, 0.0, 0.0), Vector3(1.0, 0.0, 0.0), shooter.cannon.stats, Color.WHITE
@@ -95,6 +106,9 @@ func test_a_fresh_wound_cannot_be_hit_again_for_a_moment() -> void:
 	assert_int(victim.lives).is_equal(1)
 	assert_bool(victim.alive).is_true()
 	bullet.destroy()
+	# It wears off and the kart can be finished after that.
+	victim.hurt_left = 0.0
+	assert_bool(victim.is_targetable()).is_true()
 
 
 ## GAME.md 8.3: a destroyed kart or crate leaves a burst of chunks; one lost down a pit does not.
@@ -110,7 +124,7 @@ func test_destroyed_things_leave_a_burst_of_chunks_but_pit_falls_do_not() -> voi
 	await _shoot(match_node, shooter, LANE)
 	assert_bool(victim.alive).is_true()
 	assert_int(tree.get_nodes_in_group(&"bursts").size()).is_equal(0)
-	await _runner.simulate_frames(40, 17)
+	await _wait_out_immunity(victim)
 	victim.global_position = LANE
 	await _shoot(match_node, shooter, LANE)
 	assert_bool(victim.alive).is_false()

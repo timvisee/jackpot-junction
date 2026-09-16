@@ -23,6 +23,8 @@ const PUPPET_SNAP_DISTANCE := 4.0
 const FALL_SPEED := 2.5
 const FALL_SPIN := 7.0
 const BLINK_PERIOD := 0.25
+## A quicker flicker for the moment of immunity after losing a life, so it reads as brief.
+const HURT_BLINK_PERIOD := 0.12
 const RING_RADIUS_EMPTY := 0.6
 const RING_RADIUS_FULL := 1.4
 
@@ -163,7 +165,6 @@ func _physics_process(delta: float) -> void:
 			die(&"expired", -1)
 			return
 	_step_protection(delta)
-	hurt_left = maxf(hurt_left - delta, 0.0)
 	_graze_cooldown_left = maxf(_graze_cooldown_left - delta, 0.0)
 	_step_effects(delta)
 	input.poll(delta)
@@ -778,15 +779,21 @@ func _auto_aimed(direction: Vector3) -> Vector3:
 	)
 
 
+## Both kinds of invulnerability, GAME.md 3.6: the spawn protection a kart comes back with,
+## and the moment after losing a life during which a second bullet cannot finish the job. Both
+## blink the body, the second one faster, so the player can see they are safe for a moment.
 func _step_protection(delta: float) -> void:
-	if protection_left <= 0.0:
-		return
+	var was_protected := protection_left > 0.0
 	protection_left = maxf(protection_left - delta, 0.0)
-	if protection_left <= 0.0:
+	hurt_left = maxf(hurt_left - delta, 0.0)
+	if was_protected and protection_left <= 0.0:
 		collision_layer = Layers.KART
-		_body.visible = true
-	else:
+	if protection_left > 0.0:
 		_body.visible = fmod(protection_left, BLINK_PERIOD) < BLINK_PERIOD * 0.5
+	elif hurt_left > 0.0:
+		_body.visible = fmod(hurt_left, HURT_BLINK_PERIOD) < HURT_BLINK_PERIOD * 0.6
+	else:
+		_body.visible = true
 
 
 func _step_fall(delta: float) -> void:

@@ -169,8 +169,8 @@ are plain chips and multiply with your mult like any other.
 
 A kart has two lives. A bullet hit, a bomb blast or a ram by a kart with an
 active Boost or burning nitro takes one. With a life to spare the kart limps
-on: darker, at 85% top speed and untouchable for 0.5 s so one volley cannot
-take both lives. Driving onto the Junction restores the lost life at once, see
+on: darker, at 85% top speed, blinking and untouchable for 1.2 s, so a burst of
+bullets cannot take both lives in the same moment. Driving onto the Junction restores the lost life at once, see
 3.4. Losing the last life is death. A kart that drives into a pit falls for
 0.4 s, uncontrollable, and dies whatever its lives. On death, in this order:
 
@@ -439,8 +439,8 @@ can permanently modify the cannon's stats.
 ### 5.4 Health
 
 Karts have two lives, see 3.6: the first hit wounds, the second kills. A
-wounded kart is darker, drives at 85% top speed and gets its life back on the
-Junction. The Shield power-up absorbs a hit without costing a life; spawn
+wounded kart is darker, drives at 85% top speed, is untouchable for 1.2 s while
+it blinks, and gets its life back on the Junction. The Shield power-up absorbs a hit without costing a life; spawn
 protection makes the kart untouchable.
 
 ## 6. Arena
