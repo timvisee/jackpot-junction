@@ -182,6 +182,30 @@ func test_aimbot_turns_the_shot_toward_the_nearest_enemy() -> void:
 	)
 
 
+## GAME.md 8.3: the count beside the hand says how many of the five slots are taken.
+func test_the_hand_shows_how_full_it_is() -> void:
+	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs, 0, 21, true)
+	var kart := match_node.kart_of(0)
+	await _runner.simulate_frames(12, 17)
+	var hand: JokerHand = match_node.hud._hands[0]
+	assert_bool(hand._count_label.visible).is_false()
+	_attach(kart, "hair_trigger")
+	_attach(kart, "big_tank")
+	await _runner.simulate_frames(4, 17)
+	assert_bool(hand._count_label.visible).is_true()
+	assert_str(hand._count_label.text).is_equal("2 / %d" % JokerHolder.MAX_JOKERS)
+	assert_object(hand._count_label.get_theme_color("font_color")).is_not_equal(Palette.CHIP_GOLD)
+	# A full hand says so in gold, because the next joker costs one of these.
+	for id: String in ["comeback", "toll_booth", "road_rage"]:
+		_attach(kart, id)
+	await _runner.simulate_frames(4, 17)
+	assert_str(hand._count_label.text).is_equal(
+		"%d / %d" % [JokerHolder.MAX_JOKERS, JokerHolder.MAX_JOKERS]
+	)
+	assert_object(hand._count_label.get_theme_color("font_color")).is_equal(Palette.CHIP_GOLD)
+
+
 ## GAME.md 8.3: a hand of three or more fans out, and the card picked in the menu straightens.
 func test_a_full_hand_fans_out_and_the_picked_card_straightens_up() -> void:
 	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]

@@ -11,7 +11,7 @@ extends Control
 ## Every card is positioned by its bottom centre, which is also its pivot, so the fan tilt and the
 ## per-player scale both turn about the point the hand is held at. A key cap to the left of the
 ## hand names the button that opens the joker menu, while cards are held and the control hints
-## setting is on.
+## setting is on, and a count on the other side says how many of the five slots are taken.
 
 ## Fraction of a card hidden by the next one.
 const OVERLAP := 0.35
@@ -38,6 +38,7 @@ var _detail: PanelContainer
 var _detail_text: RichTextLabel
 var _cap: PanelContainer
 var _cap_label: Label
+var _count_label: Label
 
 
 func _ready() -> void:
@@ -57,6 +58,7 @@ func _ready() -> void:
 	_detail.add_child(_detail_text)
 	add_child(_detail)
 	_build_cap()
+	_build_count()
 
 
 func card_count() -> int:
@@ -110,12 +112,40 @@ func _process(delta: float) -> void:
 		panel.modulate = panel.modulate.lerp(tint, blend)
 		panel.set_highlighted(lifted)
 	_place_cap(left, bottom, card)
+	_place_count(left + hand_width, bottom, card)
 	_detail.visible = picked >= 0
 	if picked >= 0:
 		_detail_text.text = _detail_bbcode(kart.jokers.jokers[picked])
 		var x := picked_anchor.x - _detail.size.x * 0.5
 		x = clampf(x, 8.0, maxf(size.x - _detail.size.x - 8.0, 8.0))
 		_detail.position = Vector2(x, picked_anchor.y - card.y - _detail.size.y - 10.0)
+
+
+## How full the hand is, in gold once there is no room left for another joker.
+func _build_count() -> void:
+	_count_label = Label.new()
+	_count_label.visible = false
+	_count_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_count_label.add_theme_font_size_override("font_size", 22)
+	_count_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.85))
+	_count_label.add_theme_constant_override("shadow_offset_x", 2)
+	_count_label.add_theme_constant_override("shadow_offset_y", 2)
+	add_child(_count_label)
+
+
+func _place_count(right: float, baseline: float, card: Vector2) -> void:
+	_count_label.visible = not _cards.is_empty()
+	if not _count_label.visible:
+		return
+	var held := _cards.size()
+	_count_label.text = "%d / %d" % [held, JokerHolder.MAX_JOKERS]
+	_count_label.add_theme_color_override(
+		"font_color",
+		Palette.CHIP_GOLD if held >= JokerHolder.MAX_JOKERS else Color(0.82, 0.82, 0.88)
+	)
+	var label_size := _count_label.get_combined_minimum_size()
+	_count_label.size = label_size
+	_count_label.position = Vector2(right + 12.0, baseline - card.y * 0.5 - label_size.y * 0.5)
 
 
 ## A key cap beside the hand, drawn the way a key is drawn in a manual.

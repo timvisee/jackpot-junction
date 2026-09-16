@@ -689,7 +689,8 @@ corners, in single-player and online only the local block is shown.
   middle riding higher and the ends tipping away, like a hand held in a fist.
   While the joker menu is open the selected card straightens up and lifts out of
   the fan with a bright frame, its name, description and the menu controls float
-  above it, and the other cards dim.
+  above it, and the other cards dim. A count beside the hand reads how many of
+  the five slots are taken, turning gold once the hand is full.
 - **Lives**: two pips in the player colour under the kill count; a lost life
   goes dark.
 - **Held power-up** icon. On pickup the item box arcs and shrinks into the kart
