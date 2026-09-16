@@ -259,7 +259,7 @@ then hooks up and launches when the handbrake is released.
 | Grip, drifting                | 4.8 rad/s, 35 to 55° of slip depending on speed       |
 | Drift entry                   | handbrake held and speed above 40% of top; steering alone never drifts |
 | Drift yaw multiplier          | 1.55, so a drift turns about 15% tighter than the same steering with grip |
-| Drift entry kick              | the nose turns 15° into the turn when a drift starts while steering |
+| Drift entry kick              | the nose turns an extra 15° into the turn over the first 0.15 s of a drift started while steering |
 | Drift speed decay             | 5% per second                                         |
 | Drift exit boost              | +20% top speed for 0.8 s if the drift lasted 0.6 s or longer |
 | Handbrake                     | brakes at 12 m/s², at 35% of that while drifting so a drift scrubs speed gently |

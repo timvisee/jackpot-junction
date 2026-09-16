@@ -25,6 +25,9 @@ var turbo_time_left := 0.0
 var speed_bonus := 1.0
 var steer_multiplier := 1.0
 
+## Radians of drift entry kick still to apply, signed like the steering that started it.
+var _kick_remaining := 0.0
+
 
 func _init(kart_stats: KartStats) -> void:
 	stats = kart_stats
@@ -163,15 +166,14 @@ func _step_drift(input: KartInput) -> void:
 	if handbrake or (not stats.handbrake_drift_only and hard_turn and fast):
 		drifting = true
 		drift_time = 0.0
-		# The rear swings out at once: the nose kicks into the turn.
-		if absf(steer) > 0.1:
-			heading = wrapf(
-				heading - signf(steer) * deg_to_rad(stats.drift_entry_kick_deg), -PI, PI
-			)
+		# The rear swings out: the nose kicks into the turn over the next fraction of a second.
+		var kick := deg_to_rad(stats.drift_entry_kick_deg)
+		_kick_remaining = signf(steer) * kick if absf(steer) > 0.1 else 0.0
 
 
 func _end_drift() -> void:
 	drifting = false
+	_kick_remaining = 0.0
 	if drift_time >= stats.drift_min_duration:
 		boost_time_left = stats.drift_exit_boost_duration
 		forward_speed *= 1.0 + stats.drift_exit_boost
@@ -181,6 +183,7 @@ func _end_drift() -> void:
 func _step_steering(delta: float) -> void:
 	if drifting:
 		drift_time += delta
+		_step_entry_kick(delta)
 	if absf(forward_speed) <= stats.min_steer_speed:
 		# Standing still: turn in place to line up a shot, when enabled.
 		if stats.turn_in_place_rate_deg > 0.0 and steer != 0.0:
@@ -195,6 +198,19 @@ func _step_steering(delta: float) -> void:
 	rate *= steer_multiplier
 	# Steering right is clockwise seen from above, which is a negative rotation about +Y.
 	heading = wrapf(heading - steer * rate * signf(forward_speed) * delta, -PI, PI)
+
+
+## Plays out the drift entry kick as an extra yaw over [member KartStats.drift_entry_kick_time].
+func _step_entry_kick(delta: float) -> void:
+	if _kick_remaining == 0.0:
+		return
+	var total := deg_to_rad(stats.drift_entry_kick_deg)
+	var rate := total / maxf(stats.drift_entry_kick_time, 0.001)
+	var step := minf(rate * delta, absf(_kick_remaining)) * signf(_kick_remaining)
+	heading = wrapf(heading - step, -PI, PI)
+	_kick_remaining -= step
+	if absf(_kick_remaining) < 0.0001:
+		_kick_remaining = 0.0
 
 
 ## Launches the kart along a turbo pad's direction: the nose snaps to it and the kart runs at

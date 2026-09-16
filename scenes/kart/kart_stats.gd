@@ -38,6 +38,8 @@ extends Resource
 @export var drift_yaw_multiplier := 1.55
 ## Degrees the nose kicks into the turn when a drift starts while steering.
 @export var drift_entry_kick_deg := 15.0
+## Seconds over which that kick plays out, so the rear swings rather than snaps.
+@export var drift_entry_kick_time := 0.15
 @export var drift_speed_decay := 0.05
 @export var drift_min_duration := 0.6
 @export var drift_exit_boost := 0.2

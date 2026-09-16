@@ -201,8 +201,16 @@ func test_drift_entry_kicks_the_nose_into_the_turn() -> void:
 	var before := _motor.heading
 	_input.handbrake = true
 	_motor.step(_input, DT)
+	var first_tick := rad_to_deg(wrapf(before - _motor.heading, -PI, PI))
+	var plain_turn := (
+		rad_to_deg(_motor.yaw_rate(_motor.speed_fraction())) * _stats.drift_yaw_multiplier * DT
+	)
+	assert_float(first_tick).is_less(_stats.drift_entry_kick_deg * 0.5)
+	assert_float(first_tick).is_greater(plain_turn)
+	_run(_stats.drift_entry_kick_time)
 	var turned := rad_to_deg(wrapf(before - _motor.heading, -PI, PI))
-	assert_float(turned).is_greater(_stats.drift_entry_kick_deg * 0.9)
+	var expected_plain := plain_turn * (_stats.drift_entry_kick_time / DT + 1.0)
+	assert_float(turned).is_greater(expected_plain + _stats.drift_entry_kick_deg * 0.9)
 
 
 func _sideways_speed_after_turn(drifting: bool) -> float:

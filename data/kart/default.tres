@@ -26,6 +26,7 @@ handbrake_speed_fraction = 0.4
 drift_exit_steer = 0.3
 drift_yaw_multiplier = 1.55
 drift_entry_kick_deg = 15.0
+drift_entry_kick_time = 0.15
 drift_speed_decay = 0.05
 drift_min_duration = 0.6
 drift_exit_boost = 0.2
