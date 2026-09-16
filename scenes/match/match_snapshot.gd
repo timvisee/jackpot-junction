@@ -221,6 +221,7 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 			Burst.spawn(match_node, crate.global_position, Palette.BLOCK, 0.9, 18)
 		crate.visible = crates[i]
 		crate.alive = crates[i]
+	match_node.arena.junction.hint = match_node.junction_hint()
 	var flush: Array = data.get("flush", [])
 	for i: int in mini(flush.size(), match_node.arena.flush_pads.size()):
 		match_node.arena.flush_pads[i].apply_puppet_state(

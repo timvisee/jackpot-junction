@@ -500,7 +500,14 @@ func _add_junction() -> void:
 	torus.inner_radius = junction_radius - 0.25
 	torus.outer_radius = junction_radius
 	ring.mesh = torus
-	ring.material_override = _material(Palette.NEON_MAGENTA)
+	# Its own material, not the shared one: the ring blinks and the magenta pads must not.
+	var ring_material := StandardMaterial3D.new()
+	ring_material.albedo_color = Palette.NEON_MAGENTA
+	ring_material.emission_enabled = true
+	ring_material.emission = Palette.NEON_MAGENTA
+	ring_material.emission_energy_multiplier = 0.0
+	ring.material_override = ring_material
+	pad.ring_material = ring_material
 	ring.position = Vector3(0.0, PAD_HEIGHT + 0.02, 0.0)
 	pad.add_child(ring)
 

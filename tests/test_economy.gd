@@ -128,6 +128,35 @@ func test_pickups_hover_clear_of_the_floor_while_they_bob() -> void:
 	assert_float((chip.get_node("Visual") as Node3D).position.y).is_between(0.3, 0.5)
 
 
+## GAME.md 3.4: the Junction ring blinks at a local player carrying a lot of unbanked value.
+func test_the_junction_blinks_when_a_local_player_carries_a_fortune() -> void:
+	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
+	var rules := _quick_rules()
+	rules.duration = 60.0
+	var match_node := _start_match(inputs, rules)
+	await _runner.simulate_frames(20, 17)
+	var junction := match_node.arena.junction
+	assert_float(match_node.junction_hint()).is_equal(0.0)
+	assert_float(junction.ring_material.emission_energy_multiplier).is_equal(0.0)
+	# A bot hoarding coins is nobody's business: only players on this screen make it blink.
+	match_node.kart_of(1).pot.add_coins(2000)
+	await _runner.simulate_frames(4, 17)
+	assert_float(junction.hint).is_equal(0.0)
+	var kart := match_node.kart_of(0)
+	kart.pot.add_coins(int(rules.junction_hint_start) + 10)
+	await _runner.simulate_frames(4, 17)
+	assert_float(junction.hint).is_between(0.001, 0.2)
+	kart.pot.add_coins(3000)
+	await _runner.simulate_frames(4, 17)
+	assert_float(junction.hint).is_equal(1.0)
+	var lit := junction.ring_material.emission_energy_multiplier
+	var changed := false
+	for i: int in 12:
+		await _runner.simulate_frames(2, 17)
+		changed = changed or absf(junction.ring_material.emission_energy_multiplier - lit) > 0.05
+	assert_bool(changed).override_failure_message("the ring never pulsed").is_true()
+
+
 func test_coin_pads_spawn_pickups_that_karts_collect() -> void:
 	var rules := _quick_rules()
 	rules.duration = 60.0

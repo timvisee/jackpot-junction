@@ -376,6 +376,19 @@ func _physics_process(delta: float) -> void:
 				return
 			_step_respawns(delta)
 			_step_stats(delta)
+			arena.junction.hint = junction_hint()
+
+
+## How loudly the Junction should blink: from the biggest pot a local player is carrying,
+## GAME.md 3.4. Bots and remote players never make it blink; it is a nudge for whoever is
+## watching this screen.
+func junction_hint() -> float:
+	var most := 0.0
+	for slot: PlayerSlot in slots:
+		if slot.is_local_human() and slot.kart != null and slot.kart.alive:
+			most = maxf(most, slot.kart.pot.exact_value())
+	var span := maxf(rules.junction_hint_full - rules.junction_hint_start, 1.0)
+	return clampf((most - rules.junction_hint_start) / span, 0.0, 1.0)
 
 
 func _begin_play() -> void:

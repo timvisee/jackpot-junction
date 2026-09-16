@@ -127,6 +127,9 @@ R0 = 40 points per second, D = 0.5 s
 - When the pot is empty: coins reset to 0, mult to 1, and the tally plays.
 - During Last Call every banked point counts double.
 - The Junction is always open. A pulsing variant is in the ideas backlog.
+- The neon ring blinks when a player on this screen is carrying an unbanked pot
+  worth 250 or more, brighter and quicker the bigger the pot, up to a fortune of
+  1200. It only nudges; the pad behaves the same either way.
 - Driving onto the Junction patches a wounded kart up to two lives at once,
   see 3.6, whether or not it has anything to bank.
 

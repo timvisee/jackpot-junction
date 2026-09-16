@@ -30,6 +30,10 @@ extends Resource
 @export var bank_rate_base := 40.0
 @export var bank_rate_doubling := 0.5
 @export var last_call_payout := 2.0
+## Pot value at which the Junction starts blinking at a local player, and where it blinks
+## hardest. Nothing but a nudge: the pad works the same either way.
+@export var junction_hint_start := 250.0
+@export var junction_hint_full := 1200.0
 
 @export_group("Jackpot")
 @export var jackpot_accrual := 1.0
