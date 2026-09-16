@@ -225,8 +225,18 @@ The joker catalogue is in section 7.3.
 | Tie-break       | Most kills, then fewest deaths                            |
 
 Flow: Title screen, Lobby, Countdown, Playing, Last Call, Results. Results show
-every player's banked score with a podium, then offer a rematch or a return to
-the lobby.
+every player's banked score and kills, ranked, then offer a rematch or a return
+to the lobby. Under each player up to three awards pick out what they did most
+compared with the others, leaders first, ranked by how far ahead of the others'
+average they are: Trigger Happy (shots fired), Butterfingers (coins lost),
+Vacuum Cleaner (coins picked up), Card Shark (jokers taken), Road Warrior
+(distance driven), Sideways Specialist (distance drifted), Close Shave
+(grazes), Regular Customer (cash-outs), Big Spender (biggest cash-out),
+Gadgeteer (items used), Nitro Junkie (nitro time), Pad Hopper (turbo pads),
+Multiplier Maniac (peak mult), Demolition Crew (crates), Pyrotechnician (bomb
+kills), Royal Flush (flushes), Comeback Kid (lives restored), Spelunker (pit
+falls), Own Goal (self kills) and Crash Test Dummy (deaths). Stats with a value
+of zero never earn an award.
 
 - The title screen offers Play, Settings and Quit. There is no tutorial. At
   the start of a match the drive and fire controls are shown next to each
@@ -784,7 +794,7 @@ res://
 │   ├── zones/         junction pad, jackpot zone
 │   ├── bots/          bot brain
 │   ├── ui/            player hud, tally, joker pick, joker menu, lobby, results
-│   └── match/         match state machine
+│   └── match/         match state machine, snapshots, player stats
 ├── scripts/           shared code: autoloads, scoring math, input router
 ├── tests/             gdUnit4 tests
 ├── GAME.md

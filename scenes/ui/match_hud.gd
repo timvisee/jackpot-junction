@@ -467,7 +467,7 @@ func _build_results() -> void:
 	_results.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	_results.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_results.grow_vertical = Control.GROW_DIRECTION_BOTH
-	_results.custom_minimum_size = Vector2(520.0, 0.0)
+	_results.custom_minimum_size = Vector2(900.0, 0.0)
 	_results.visible = false
 	add_child(_results)
 	var margin := MarginContainer.new()
@@ -564,9 +564,14 @@ func _update_lobby() -> void:
 	_lobby_rows.text = "[center]%s[/center]" % "\n".join(lines)
 
 
+## Score and kills for everyone, then up to three awards per player: the stats they stand out
+## in most, GAME.md 3.8.
 func _show_results() -> void:
 	for child: Node in _results_rows.get_children():
 		child.queue_free()
+	var everyone: Array[PlayerStats] = []
+	for slot: PlayerSlot in match_node.slots:
+		everyone.append(slot.stats)
 	var rank := 1
 	for slot: PlayerSlot in match_node.standings():
 		var row := Label.new()
@@ -577,5 +582,16 @@ func _show_results() -> void:
 		row.add_theme_font_size_override("font_size", 28)
 		row.add_theme_color_override("font_color", slot.color())
 		_results_rows.add_child(row)
+		var parts: PackedStringArray = []
+		for award: Array in PlayerStats.awards(slot.stats, everyone):
+			parts.append("%s: %s" % [award[0], award[1]])
+		if not parts.is_empty():
+			var awards := Label.new()
+			awards.text = "      " + "   ·   ".join(parts)
+			awards.add_theme_font_size_override("font_size", 17)
+			awards.add_theme_color_override("font_color", Color(0.72, 0.72, 0.76))
+			awards.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			awards.custom_minimum_size = Vector2(840.0, 0.0)
+			_results_rows.add_child(awards)
 		rank += 1
 	_results.visible = true

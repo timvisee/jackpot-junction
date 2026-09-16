@@ -36,16 +36,16 @@ var countdown_left := 0.0
 var time_left := 0.0
 ## The one source of randomness in a match, seeded at start so online play can replicate it.
 var rng := RandomNumberGenerator.new()
+## Puppet nodes by the host's instance ids, kept up to date by [MatchSnapshot].
+var puppet_karts: Dictionary[int, Kart] = {}
+var puppet_bullets: Dictionary[int, Bullet] = {}
+var puppet_pickups: Dictionary[int, Pickup] = {}
+var puppet_turrets: Dictionary[int, Turret] = {}
+var puppet_bombs: Dictionary[int, Bomb] = {}
 
 var _inputs: Array[KartInput] = []
 var _colors: Array[int] = []
 var _seed := 0
-var _puppet_karts: Dictionary[int, Kart] = {}
-var _puppet_bullets: Dictionary[int, Bullet] = {}
-var _puppet_pickups: Dictionary[int, Pickup] = {}
-var _puppet_turrets: Dictionary[int, Turret] = {}
-var _puppet_bombs: Dictionary[int, Bomb] = {}
-var _all_items: PowerUpTable
 
 
 func _ready() -> void:
@@ -83,6 +83,9 @@ func start(inputs: Array[KartInput], seed: int = 0, colors: Array[int] = []) -> 
 	arena.junction.bank_completed.connect(_on_bank_completed)
 	for pad: FlushPad in arena.flush_pads:
 		pad.claimed.connect(_on_pad_claimed)
+	arena.crate_broken.connect(_on_stat_crate)
+	Events.joker_taken.connect(_on_stat_joker)
+	Events.life_restored.connect(_on_stat_life)
 	for zone: JackpotZone in arena.jackpot_zones:
 		zone.filled.connect(
 			func(filled: JackpotZone) -> void: Events.jackpot_full.emit(filled.index)
@@ -132,6 +135,10 @@ func rematch() -> void:
 
 
 func _exit_tree() -> void:
+	if Events.joker_taken.is_connected(_on_stat_joker):
+		Events.joker_taken.disconnect(_on_stat_joker)
+	if Events.life_restored.is_connected(_on_stat_life):
+		Events.life_restored.disconnect(_on_stat_life)
 	if Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
 		Input.joy_connection_changed.disconnect(_on_joy_connection_changed)
 
@@ -288,435 +295,14 @@ func begin_from_lobby() -> void:
 	_set_state(State.COUNTDOWN)
 
 
-## Everything a client needs to render the match this tick.
+## The host's description of the whole match for online clients, see [MatchSnapshot].
 func build_snapshot() -> Dictionary:
-	var slot_data: Array = []
-	for slot: PlayerSlot in slots:
-		var kart := slot.kart
-		var entry := {
-			"banked": slot.banked,
-			"kills": slot.kills,
-			"deaths": slot.deaths,
-			"coins": kart.pot.coins,
-			"mult": kart.pot.mult,
-			"item": String(kart.held_item.id) if kart.held_item != null else "",
-			"reveal": kart.item_reveal_left,
-			"jokers": kart.jokers.ids(),
-			"human": slot.is_human(),
-			"trait": String(slot.bot_trait.id) if slot.bot_trait != null else "",
-			"color": slot.color_index,
-			"respawn": slot.respawn_left,
-			"menu": kart.menu_open,
-			"menu_index": kart.menu_index,
-			"nitro_charge": kart.nitro_charge,
-		}
-		if slot.offer != null and not slot.offer.is_done():
-			var ids: Array = []
-			for joker: Joker in slot.offer.choices:
-				ids.append(String(joker.id))
-			entry["offer"] = {
-				"stage": slot.offer.stage,
-				"selected": slot.offer.selected,
-				"choices": ids,
-				"chosen": String(slot.offer.chosen.id) if slot.offer.chosen != null else "",
-			}
-		slot_data.append(entry)
-	var karts: Array = []
-	for node: Node in get_children():
-		var kart := node as Kart
-		if kart == null:
-			continue
-		(
-			karts
-			. append(
-				{
-					"id": kart.get_instance_id(),
-					"slot": kart.slot,
-					"color": kart.color_index,
-					"x": kart.global_position.x,
-					"z": kart.global_position.z,
-					"h": kart.motor.heading,
-					"vx": kart.motor.velocity.x,
-					"vz": kart.motor.velocity.z,
-					"alive": kart.alive,
-					"prot": kart.protection_left > 0.0,
-					"shield": kart.shielded,
-					"ring": kart.channel_progress,
-					"drift": kart.motor.drifting,
-					"aim": kart._aim_arrow.visible,
-					"nitro": kart.nitro_active,
-					"lives": kart.lives,
-					"decoy": kart.is_decoy(),
-				}
-			)
-		)
-	var bullet_data: Array = []
-	for bullet: Bullet in bullets.bullets:
-		(
-			bullet_data
-			. append(
-				{
-					"id": bullet.get_instance_id(),
-					"x": bullet.global_position.x,
-					"z": bullet.global_position.z,
-					"vx": bullet.velocity.x,
-					"vz": bullet.velocity.z,
-					"r": bullet.radius,
-					"c": bullet.color,
-				}
-			)
-		)
-	var pickup_data: Array = []
-	for node: Node in arena.pickups.get_children():
-		var pickup := node as Pickup
-		if pickup == null or pickup.is_queued_for_deletion():
-			continue
-		var entry := {
-			"id": pickup.get_instance_id(),
-			"x": pickup.global_position.x,
-			"z": pickup.global_position.z
-		}
-		var chip := pickup as Chip
-		var die := pickup as MultDie
-		var box := pickup as ItemBox
-		var card := pickup as FloorJoker
-		if chip != null:
-			entry["kind"] = "chip"
-			entry["value"] = chip.value
-			entry["gold"] = chip.gold
-			entry["dropped"] = chip.dropped
-		elif die != null:
-			entry["kind"] = "die"
-		elif box != null:
-			entry["kind"] = "item"
-			entry["item"] = String(box.fixed_item.id) if box.fixed_item != null else ""
-		elif card != null:
-			entry["kind"] = "joker"
-			entry["joker"] = String(card.joker.id)
-		else:
-			continue
-		pickup_data.append(entry)
-	var turret_data: Array = []
-	for node: Node in get_tree().get_nodes_in_group(&"turrets"):
-		var turret := node as Turret
-		if turret != null and turret.alive:
-			turret_data.append(
-				{
-					"id": turret.get_instance_id(),
-					"x": turret.global_position.x,
-					"z": turret.global_position.z,
-					"h": turret.rotation.y,
-					"c": turret.color
-				}
-			)
-	var bomb_data: Array = []
-	for node: Node in get_tree().get_nodes_in_group(&"bombs"):
-		var bomb := node as Bomb
-		if bomb != null and bomb.alive:
-			(
-				bomb_data
-				. append(
-					{
-						"id": bomb.get_instance_id(),
-						"x": bomb.global_position.x,
-						"z": bomb.global_position.z,
-						"c": bomb.color,
-						"armed": bomb.armed,
-					}
-				)
-			)
-	var jackpots: Array = []
-	for zone: JackpotZone in arena.jackpot_zones:
-		jackpots.append({"active": zone.active, "chips": zone.chips})
-	var crates: Array = []
-	for crate: Crate in arena.crates:
-		crates.append(crate.alive)
-	var flush: Array = []
-	for pad: FlushPad in arena.flush_pads:
-		flush.append(
-			{"owner": pad.owner_slot, "color": pad.owner_color, "disabled": pad.disabled_left}
-		)
-	return {
-		"state": state,
-		"time": time_left,
-		"countdown": countdown_left,
-		"payout": arena.junction.payout_multiplier,
-		"slots": slot_data,
-		"karts": karts,
-		"bullets": bullet_data,
-		"pickups": pickup_data,
-		"turrets": turret_data,
-		"bombs": bomb_data,
-		"jackpots": jackpots,
-		"crates": crates,
-		"flush": flush,
-	}
+	return MatchSnapshot.build(self)
 
 
-## Renders a host snapshot on a puppet match.
+## Renders a host snapshot on a puppet match, see [MatchSnapshot].
 func apply_snapshot(data: Dictionary) -> void:
-	if not puppet or arena == null:
-		return
-	var previous_state := state
-	state = data["state"]
-	time_left = data["time"]
-	countdown_left = data["countdown"]
-	arena.junction.payout_multiplier = data["payout"]
-	if state != previous_state and hud != null:
-		hud.call("_on_state_changed", state)
-	_ensure_slots((data["slots"] as Array).size())
-	_apply_karts(data["karts"])
-	_apply_slots(data["slots"])
-	_apply_bullets(data["bullets"])
-	_apply_pickups(data["pickups"])
-	_apply_turrets(data["turrets"])
-	_apply_bombs(data.get("bombs", []))
-	var jackpots: Array = data["jackpots"]
-	for i: int in mini(jackpots.size(), arena.jackpot_zones.size()):
-		arena.jackpot_zones[i].apply_puppet_state(jackpots[i]["active"], jackpots[i]["chips"])
-	var crates: Array = data["crates"]
-	for i: int in mini(crates.size(), arena.crates.size()):
-		arena.crates[i].visible = crates[i]
-		arena.crates[i].alive = crates[i]
-	var flush: Array = data.get("flush", [])
-	for i: int in mini(flush.size(), arena.flush_pads.size()):
-		arena.flush_pads[i].apply_puppet_state(
-			flush[i]["owner"], flush[i]["color"], flush[i]["disabled"]
-		)
-
-
-func _ensure_slots(count: int) -> void:
-	while slots.size() < count:
-		var index := slots.size()
-		var input: KartInput = PlayerInput.new() if index == local_slot else KartInput.new()
-		slots.append(PlayerSlot.new(index, input))
-
-
-func _apply_slots(entries: Array) -> void:
-	for i: int in entries.size():
-		var entry: Dictionary = entries[i]
-		var slot := slots[i]
-		if i == local_slot and not slot.is_local_human():
-			slot.input = PlayerInput.new()
-		slot.banked = entry["banked"]
-		slot.kills = entry["kills"]
-		slot.deaths = entry["deaths"]
-		slot.color_index = entry["color"]
-		slot.respawn_left = entry["respawn"]
-		slot.bot_trait = (
-			bot_traits.by_id(StringName(entry["trait"])) if entry["trait"] != "" else null
-		)
-		if entry["human"] and not slot.is_human():
-			slot.input = NetInput.new()
-		elif not entry["human"] and slot.is_human() and i != local_slot:
-			slot.input = KartInput.new()
-		if slot.kart != null:
-			slot.kart.pot.coins = entry["coins"]
-			slot.kart.pot.mult = entry["mult"]
-			slot.kart.held_item = _item_by_id(entry["item"])
-			slot.kart.item_reveal_left = entry["reveal"]
-			slot.kart.menu_open = entry["menu"]
-			slot.kart.menu_index = entry["menu_index"]
-			slot.kart.nitro_charge = entry.get("nitro_charge", 1.0)
-			var jokers: Array[Joker] = []
-			for id: String in entry["jokers"]:
-				var joker := joker_catalog.by_id(StringName(id))
-				if joker != null:
-					jokers.append(joker)
-			slot.kart.jokers.jokers = jokers
-		if entry.has("offer"):
-			var offer_data: Dictionary = entry["offer"]
-			var choices: Array[Joker] = []
-			for id: String in offer_data["choices"]:
-				var joker := joker_catalog.by_id(StringName(id))
-				if joker != null:
-					choices.append(joker)
-			if slot.offer == null or slot.offer.is_done():
-				slot.offer = JokerOffer.new(slot.kart, choices)
-			slot.offer.choices = choices
-			slot.offer.stage = offer_data["stage"]
-			slot.offer.selected = offer_data["selected"]
-			slot.offer.chosen = (
-				joker_catalog.by_id(StringName(offer_data["chosen"]))
-				if offer_data["chosen"] != ""
-				else null
-			)
-		else:
-			slot.offer = null
-
-
-func _item_by_id(id: String) -> PowerUp:
-	if id == "":
-		return null
-	if _all_items == null:
-		_all_items = load("res://data/powerups/all.tres")
-	for item: PowerUp in _all_items.entries:
-		if item.id == StringName(id):
-			return item
-	return null
-
-
-func _apply_karts(entries: Array) -> void:
-	var seen: Dictionary[int, bool] = {}
-	var delta := float(NetSession.SNAPSHOT_EVERY_TICKS) / Engine.physics_ticks_per_second
-	for entry: Dictionary in entries:
-		var id: int = entry["id"]
-		seen[id] = true
-		var kart: Kart = _puppet_karts.get(id)
-		if kart == null:
-			kart = KART_SCENE.instantiate()
-			kart.name = "Puppet%d" % id
-			kart.slot = entry["slot"]
-			kart.color_index = entry["color"]
-			kart.rules = rules
-			if entry["decoy"]:
-				kart.decoy_owner = kart
-			add_child(kart)
-			kart.make_puppet()
-			kart.global_position = Vector3(entry["x"], 0.0, entry["z"])
-			_puppet_karts[id] = kart
-			if not entry["decoy"] and entry["slot"] < slots.size():
-				slots[entry["slot"]].kart = kart
-				camera_rig.targets.append(kart)
-				if hud != null and entry["slot"] == local_slot:
-					hud.add_block(slots[entry["slot"]])
-		kart.apply_puppet_state(entry, delta)
-	for id: int in _puppet_karts.keys():
-		if not seen.has(id):
-			var kart: Kart = _puppet_karts[id]
-			_puppet_karts.erase(id)
-			camera_rig.targets.erase(kart)
-			kart.queue_free()
-
-
-func _apply_bullets(entries: Array) -> void:
-	var seen: Dictionary[int, bool] = {}
-	for entry: Dictionary in entries:
-		var id: int = entry["id"]
-		seen[id] = true
-		var bullet: Bullet = _puppet_bullets.get(id)
-		var velocity := Vector3(entry["vx"], 0.0, entry["vz"])
-		if bullet == null:
-			bullet = Bullet.new()
-			bullet.setup_puppet(
-				Vector3(entry["x"], 0.0, entry["z"]), velocity, entry["r"], entry["c"]
-			)
-			bullets.add_child(bullet)
-			_puppet_bullets[id] = bullet
-		else:
-			bullet.correct_puppet(Vector3(entry["x"], 0.0, entry["z"]), velocity)
-	for id: int in _puppet_bullets.keys():
-		if not seen.has(id):
-			var bullet: Bullet = _puppet_bullets[id]
-			_puppet_bullets.erase(id)
-			bullet.queue_free()
-
-
-func _apply_pickups(entries: Array) -> void:
-	var seen: Dictionary[int, bool] = {}
-	for entry: Dictionary in entries:
-		var id: int = entry["id"]
-		seen[id] = true
-		if _puppet_pickups.has(id):
-			continue
-		var pickup: Pickup = null
-		match String(entry["kind"]):
-			"chip":
-				var chip := Chip.new()
-				chip.value = entry["value"]
-				chip.gold = entry["gold"]
-				chip.dropped = entry["dropped"]
-				pickup = chip
-			"die":
-				pickup = MultDie.new()
-			"item":
-				var box := ItemBox.new()
-				box.fixed_item = _item_by_id(entry["item"])
-				pickup = box
-			"joker":
-				var card := FloorJoker.new()
-				card.joker = joker_catalog.by_id(StringName(entry["joker"]))
-				pickup = card
-		if pickup == null:
-			continue
-		pickup.position = Vector3(entry["x"], 0.0, entry["z"])
-		pickup.monitorable = false
-		arena.pickups.add_child(pickup)
-		_puppet_pickups[id] = pickup
-	for id: int in _puppet_pickups.keys():
-		if not seen.has(id):
-			var pickup: Pickup = _puppet_pickups[id]
-			_puppet_pickups.erase(id)
-			var box := pickup as ItemBox
-			if box != null:
-				# The host does not say who took it; the kart on top of it did.
-				var taker := _nearest_puppet_kart(box.global_position, 2.5)
-				if taker != null:
-					var color := (
-						box.fixed_item.color if box.fixed_item != null else Palette.CHIP_GOLD
-					)
-					ItemFlight.spawn(arena.pickups, box.global_position, taker, color)
-			pickup.queue_free()
-
-
-func _nearest_puppet_kart(point: Vector3, max_distance: float) -> Kart:
-	var best: Kart = null
-	var best_distance := max_distance
-	for kart: Kart in _puppet_karts.values():
-		if not kart.alive:
-			continue
-		var distance := kart.global_position.distance_to(point)
-		if distance < best_distance:
-			best_distance = distance
-			best = kart
-	return best
-
-
-func _apply_turrets(entries: Array) -> void:
-	var seen: Dictionary[int, bool] = {}
-	for entry: Dictionary in entries:
-		var id: int = entry["id"]
-		seen[id] = true
-		var turret: Turret = _puppet_turrets.get(id)
-		if turret == null:
-			turret = Turret.new()
-			turret.puppet = true
-			turret.color = entry["c"]
-			add_child(turret)
-			turret.collision_layer = 0
-			_puppet_turrets[id] = turret
-		turret.global_position = Vector3(entry["x"], 0.0, entry["z"])
-		turret.rotation.y = entry["h"]
-	for id: int in _puppet_turrets.keys():
-		if not seen.has(id):
-			var turret: Turret = _puppet_turrets[id]
-			_puppet_turrets.erase(id)
-			turret.queue_free()
-
-
-## Puppet bombs mirror the host's; one that vanishes from the snapshot went off, so its blast
-## is shown here too.
-func _apply_bombs(entries: Array) -> void:
-	var seen: Dictionary[int, bool] = {}
-	for entry: Dictionary in entries:
-		var id: int = entry["id"]
-		seen[id] = true
-		var bomb: Bomb = _puppet_bombs.get(id)
-		if bomb == null:
-			bomb = Bomb.new()
-			bomb.puppet = true
-			bomb.color = entry["c"]
-			add_child(bomb)
-			bomb.collision_layer = 0
-			_puppet_bombs[id] = bomb
-		bomb.global_position = Vector3(entry["x"], 0.0, entry["z"])
-		bomb.armed = entry["armed"]
-	for id: int in _puppet_bombs.keys():
-		if not seen.has(id):
-			var bomb: Bomb = _puppet_bombs[id]
-			_puppet_bombs.erase(id)
-			if bomb.alive:
-				bomb.explode()
+	MatchSnapshot.apply(self, data)
 
 
 func is_running() -> bool:
@@ -761,6 +347,11 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 	kart.face(arena.junction_position - point)
 	kart.died.connect(_on_kart_died.bind(slot))
 	kart.joker_dropped.connect(_on_joker_dropped.bind(slot))
+	kart.fired.connect(func(shots: Array[Bullet]) -> void: slot.stats.add(&"bullets", shots.size()))
+	kart.coins_collected.connect(func(amount: int) -> void: slot.stats.add(&"coins", amount))
+	kart.item_used.connect(func(_item: PowerUp) -> void: slot.stats.add(&"items"))
+	kart.turbo_taken.connect(func(_direction: Vector3) -> void: slot.stats.add(&"turbo_pads"))
+	kart.mult_changed.connect(_on_stat_mult.bind(slot))
 	slot.kart = kart
 	if slot.input is BotInput:
 		_attach_brain(slot)
@@ -783,6 +374,7 @@ func _physics_process(delta: float) -> void:
 				_finish()
 				return
 			_step_respawns(delta)
+			_step_stats(delta)
 
 
 func _begin_play() -> void:
@@ -830,6 +422,12 @@ func _check_target() -> void:
 ## joker or the item, credit the killer, reset the pot, offer jokers, start the respawn timer.
 func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> void:
 	var kart := slot.kart
+	slot.stats.add(&"deaths")
+	slot.stats.add(&"coins_lost", kart.pot.coins)
+	if cause == &"pit":
+		slot.stats.add(&"pit_deaths")
+	if killer_slot == slot.index:
+		slot.stats.add(&"self_kills")
 	var death := DeathOutcome.from_rules(rules)
 	for joker: Joker in kart.jokers.jokers:
 		joker.modify_death(kart, death)
@@ -861,6 +459,8 @@ func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> voi
 		kart.held_item = null
 	if killer != null:
 		killer.kills += 1
+		if cause == &"bomb":
+			killer.stats.add(&"bomb_kills")
 		if killer.kart.alive:
 			killer.kart.gain_mult(rules.kill_mult, &"kill")
 			killer.kart.refill_nitro(killer.kart.stats.nitro_kill_refill)
@@ -883,9 +483,46 @@ func _on_pad_claimed(_pad: FlushPad, kart: Kart) -> void:
 		other.clear_and_disable(rules.flush_disable_time)
 	kart.gain_mult(rules.flush_mult, &"flush")
 	kart.refill_nitro(rules.flush_nitro_refill)
+	if kart.slot < slots.size():
+		slots[kart.slot].stats.add(&"flushes")
 	if camera_rig != null:
 		camera_rig.shake(0.4)
 	Events.flush_completed.emit(kart.slot)
+
+
+## Distance, drifting, nitro time and peak mult, counted every tick while the match runs.
+func _step_stats(delta: float) -> void:
+	for slot: PlayerSlot in slots:
+		var kart := slot.kart
+		if kart == null or not kart.alive or kart.frozen:
+			continue
+		var distance := kart.motor.speed() * delta
+		slot.stats.add(&"driven", distance)
+		if kart.motor.drifting:
+			slot.stats.add(&"drifted", distance)
+		if kart.nitro_active:
+			slot.stats.add(&"nitro", delta)
+		slot.stats.peak(&"max_mult", kart.pot.mult)
+
+
+func _on_stat_mult(_amount: float, reason: StringName, slot: PlayerSlot) -> void:
+	if reason == &"graze":
+		slot.stats.add(&"grazes")
+
+
+func _on_stat_crate(by_slot: int) -> void:
+	if by_slot >= 0 and by_slot < slots.size():
+		slots[by_slot].stats.add(&"crates")
+
+
+func _on_stat_joker(slot: int, _joker: StringName) -> void:
+	if not puppet and slot >= 0 and slot < slots.size():
+		slots[slot].stats.add(&"jokers")
+
+
+func _on_stat_life(slot: int) -> void:
+	if not puppet and slot >= 0 and slot < slots.size():
+		slots[slot].stats.add(&"lives_restored")
 
 
 ## Offers jokers for the respawn. Bots choose at once; humans steer the offer while dead.
@@ -927,6 +564,9 @@ func _on_bank_tick(kart: Kart, points: int) -> void:
 
 
 func _on_bank_completed(kart: Kart, coins: int, mult: float, total: int) -> void:
+	if kart.slot < slots.size():
+		slots[kart.slot].stats.add(&"banks")
+		slots[kart.slot].stats.peak(&"biggest_bank", total)
 	Events.bank_completed.emit(kart.slot, coins, mult, total)
 	for other: PlayerSlot in slots:
 		if other.kart == kart:

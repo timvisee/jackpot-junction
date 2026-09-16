@@ -3,6 +3,9 @@ extends Node3D
 ## Builds the arena from an [ArenaLayout]: table, floor, walls, pads, zones and spawn points.
 ## Everything is a grey box for now; the art pass replaces meshes and materials, not structure.
 
+## A crate broke; [param by_slot] gets the credit, -1 for nobody.
+signal crate_broken(by_slot: int)
+
 const FLOOR_THICKNESS := 0.2
 const TABLE_OVERHANG := 30.0
 const PAD_HEIGHT := 0.05
@@ -148,7 +151,8 @@ func clamp_to_floor(point: Vector3) -> Vector3:
 	return Vector3(clampf(point.x, -half.x, half.x), 0.0, clampf(point.z, -half.y, half.y))
 
 
-func _on_crate_destroyed(_by_slot: int, crate: Crate) -> void:
+func _on_crate_destroyed(by_slot: int, crate: Crate) -> void:
+	crate_broken.emit(by_slot)
 	var count := _rng.randi_range(_rules.crate_drop_min, _rules.crate_drop_max)
 	spawn_chips(
 		Vector3(crate.global_position.x, 0.0, crate.global_position.z),

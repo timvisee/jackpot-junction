@@ -17,6 +17,8 @@ var bot_trait: BotTrait
 var banked := 0
 var kills := 0
 var deaths := 0
+## Everything else the kart did, for the awards on the results screen.
+var stats := PlayerStats.new()
 
 
 func _init(slot_index: int, kart_input: KartInput, slot_color: int = -1) -> void:

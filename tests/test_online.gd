@@ -104,7 +104,7 @@ func test_client_joins_takes_over_a_bot_drives_it_and_hands_it_back_on_leaving()
 	assert_bool(host_match.slots[1].input is NetInput).is_true()
 	assert_bool(host_match.slots[1].is_human()).is_true()
 	var seen := await _wait_until(
-		func() -> bool: return client_match._puppet_karts.size() >= 2, 4000
+		func() -> bool: return client_match.puppet_karts.size() >= 2, 4000
 	)
 	assert_bool(seen).override_failure_message("client never saw the karts").is_true()
 	assert_int(client_match.slots.size()).is_equal(2)
