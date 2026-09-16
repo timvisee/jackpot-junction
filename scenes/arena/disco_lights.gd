@@ -17,8 +17,12 @@ extends Node3D
 ## straight off again. While some heads are still dark the lit run walks around the rig on its
 ## own, slowly at rest and quicker as things heat up, so the room keeps moving without brightening.
 ##
+## The lamps themselves are part of the room and stay where they are: a head that is not taking
+## its turn simply goes dark, with its beam gone and its lens unlit, rather than vanishing. Only
+## a room that wants no rig at all, such as the Garage, takes the posts away with it.
+##
 ## Purely decorative: the lights cast no shadows and nothing reads them. The accessibility
-## setting in GAME.md 8.5 switches them off entirely.
+## setting in GAME.md 8.5 leaves the lamps standing and stops them lighting.
 
 const COUNT := 6
 ## Where a head sits: this high on its post, this far outside the wall along the table's edge.
@@ -29,6 +33,9 @@ const SKY_RISE := 13.0
 ## The heat at which heads start tipping down toward the floor, and where they are fully down.
 const TIP_START := 0.12
 const TIP_FULL := 0.7
+## How brightly a lit head's lens shows, and the colour a dark one's takes instead.
+const LENS_GLOW := 2.0
+const LENS_DARK := Color(0.16, 0.16, 0.19)
 ## How far the light reaches. Comfortably past the far corner of the floor, so a beam thrown
 ## right across the table still lands.
 const LIGHT_RANGE := 40.0
@@ -79,7 +86,7 @@ func setup(floor_size: Vector2) -> void:
 func lit_count() -> int:
 	var lit := 0
 	for head: Dictionary in _heads:
-		if (head["light"] as SpotLight3D).visible:
+		if head["lit"]:
 			lit += 1
 	return lit
 
@@ -87,9 +94,16 @@ func lit_count() -> int:
 func _process(delta: float) -> void:
 	if _heads.is_empty():
 		return
-	if not enabled or not Game.settings.disco_lights:
+	if not enabled:
+		# A room that wants no rig at all: the posts go with the lights.
+		visible = false
 		for head: Dictionary in _heads:
-			(head["light"] as SpotLight3D).visible = false
+			head["lit"] = false
+		return
+	visible = true
+	if not Game.settings.disco_lights:
+		for head: Dictionary in _heads:
+			_darken(head)
 		return
 	_smooth = move_toward(_smooth, level, LEVEL_FOLLOW * delta)
 	_step_count(delta)
@@ -136,11 +150,15 @@ func is_lit(index: int) -> bool:
 
 
 func _step_head(head: Dictionary, on: bool, flash: float) -> void:
-	var light: SpotLight3D = head["light"]
-	light.visible = on
-	(head["post"] as MeshInstance3D).visible = on
+	head["lit"] = on
 	if not on:
+		_darken(head)
 		return
+	var light: SpotLight3D = head["light"]
+	(head["beam"] as MeshInstance3D).visible = true
+	var lens: StandardMaterial3D = head["lens"]
+	lens.albedo_color = head["color"]
+	lens.emission_energy_multiplier = LENS_GLOW
 	var target := _aim_point(head)
 	if absf(target.x - light.position.x) < 0.02 and absf(target.z - light.position.z) < 0.02:
 		target.x += 0.05
@@ -161,6 +179,17 @@ func _step_head(head: Dictionary, on: bool, flash: float) -> void:
 	# Beams from the edge cut across the camera rather than pointing away from it, so they are
 	# kept fainter than an overhead rig would need.
 	tint.albedo_color.a = (0.018 + 0.038 * _smooth) * pulse
+
+
+## A head that is not taking its turn: the lamp stays where it is, pointing where it last
+## pointed, with no beam and a dead lens.
+func _darken(head: Dictionary) -> void:
+	head["lit"] = false
+	(head["light"] as SpotLight3D).light_energy = 0.0
+	(head["beam"] as MeshInstance3D).visible = false
+	var lens: StandardMaterial3D = head["lens"]
+	lens.albedo_color = LENS_DARK
+	lens.emission_energy_multiplier = 0.0
 
 
 ## Where a head is pointing: into the air above itself while the room is quiet, swinging down onto
@@ -212,7 +241,13 @@ func _build_head(index: int) -> Dictionary:
 	# Aimed over the table to start with, never straight along an axis: looking_at cannot pick a
 	# roll from a target directly above or below.
 	light.look_at(Vector3(across * 0.5, MOUNT_HEIGHT + SKY_RISE, mount.z * 0.5), Vector3.UP)
-	light.add_child(_fixture(color, dark))
+	var lens := StandardMaterial3D.new()
+	lens.albedo_color = LENS_DARK
+	lens.emission_enabled = true
+	lens.emission = color
+	lens.emission_energy_multiplier = 0.0
+	lens.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	light.add_child(_fixture(dark, lens))
 	var beam_material := StandardMaterial3D.new()
 	beam_material.albedo_color = Color(color.r, color.g, color.b, 0.03)
 	beam_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -239,6 +274,9 @@ func _build_head(index: int) -> Dictionary:
 		"beam": beam,
 		"cone": cone,
 		"tint": beam_material,
+		"lens": lens,
+		"color": color,
+		"lit": false,
 		"inward": -side,
 		"reach": Vector2(_floor.x * 0.75, _floor.y * 0.75),
 		"rate_x": 0.31 + 0.07 * index,
@@ -249,7 +287,7 @@ func _build_head(index: int) -> Dictionary:
 
 ## The head itself: a dark housing with a lens the colour of its beam, so the rig reads as a row
 ## of lamps rather than as beams from nowhere. Parented to the light, so it swings with it.
-static func _fixture(color: Color, dark: StandardMaterial3D) -> Node3D:
+static func _fixture(dark: StandardMaterial3D, lens_material: StandardMaterial3D) -> Node3D:
 	var housing := MeshInstance3D.new()
 	housing.name = "Fixture"
 	var box := BoxMesh.new()
@@ -263,13 +301,7 @@ static func _fixture(color: Color, dark: StandardMaterial3D) -> Node3D:
 	disc.bottom_radius = 0.13
 	disc.height = 0.04
 	lens.mesh = disc
-	var glow := StandardMaterial3D.new()
-	glow.albedo_color = color
-	glow.emission_enabled = true
-	glow.emission = color
-	glow.emission_energy_multiplier = 2.0
-	glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	lens.material_override = glow
+	lens.material_override = lens_material
 	lens.rotation_degrees = Vector3(90.0, 0.0, 0.0)
 	lens.position = Vector3(0.0, 0.0, -0.24)
 	lens.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

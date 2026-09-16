@@ -649,7 +649,10 @@ Starting palette:
   the players rather than being switched on over them. Past that they sweep wider,
   faster and brighter. Last Call has all six at their widest, kept deliberately
   short of washing the table out: six heads blazing would cost more in readability
-  than they buy in atmosphere.
+  than they buy in atmosphere. A head that is not taking its turn goes dark where
+  it stands, beam gone and lens unlit, rather than vanishing: the lamps are part
+  of the room. Only a room that wants no rig at all, such as the Garage, takes the
+  posts away with it.
 - The rig lags the meter on purpose: it follows a copy of it that moves at 0.3 a
   second, a head only lights once the level has clearly earned it and only goes
   out once it has fallen 0.06 back below that mark, and either way the count then

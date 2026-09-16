@@ -20,9 +20,18 @@ func test_the_setting_switches_every_head_off() -> void:
 	Game.settings.disco_lights = false
 	lights._process(0.016)
 	assert_int(lights.lit_count()).is_equal(0)
+	# The lamps are still part of the room; they have simply stopped lighting.
+	assert_bool(lights.visible).is_true()
+	assert_bool((lights._heads[0]["light"] as SpotLight3D).visible).is_true()
+	assert_float((lights._heads[0]["light"] as SpotLight3D).light_energy).is_equal(0.0)
 	Game.settings.disco_lights = was
 	lights._process(0.016)
 	assert_int(lights.lit_count()).is_equal(DiscoLights.COUNT)
+	# A room that wants no rig takes the posts away with it.
+	lights.enabled = false
+	lights._process(0.016)
+	assert_int(lights.lit_count()).is_equal(0)
+	assert_bool(lights.visible).is_false()
 
 
 ## Runs the rig for [param seconds] of simulated time at the frame rate it would really see.
@@ -45,6 +54,35 @@ func test_more_heads_switch_on_as_the_meter_climbs() -> void:
 	lights.level = 0.0
 	_run(lights, 40.0)
 	assert_int(lights.lit_count()).is_equal(1)
+
+
+## A head that is not taking its turn goes dark where it stands: the lamp is part of the room,
+## the beam is not.
+func test_a_dark_head_keeps_its_lamp_and_loses_only_its_beam() -> void:
+	var lights := _lights()
+	lights.level = 0.0
+	_run(lights, 2.0)
+	assert_int(lights.lit_count()).is_equal(1)
+	for i: int in DiscoLights.COUNT:
+		var head: Dictionary = lights._heads[i]
+		var light: SpotLight3D = head["light"]
+		var beam: MeshInstance3D = head["beam"]
+		var lens: StandardMaterial3D = head["lens"]
+		(
+			assert_bool(light.visible)
+			. override_failure_message("head %d vanished instead of going dark" % i)
+			. is_true()
+		)
+		assert_bool((head["post"] as MeshInstance3D).visible).is_true()
+		if lights.is_lit(i):
+			assert_float(light.light_energy).is_greater(0.0)
+			assert_bool(beam.visible).is_true()
+			assert_float(lens.emission_energy_multiplier).is_greater(0.0)
+		else:
+			assert_float(light.light_energy).is_equal(0.0)
+			assert_bool(beam.visible).is_false()
+			assert_float(lens.emission_energy_multiplier).is_equal(0.0)
+			assert_object(lens.albedo_color).is_equal(DiscoLights.LENS_DARK)
 
 
 ## GAME.md 8.1: the rig stands around the table and looks up until the match gives it a reason
