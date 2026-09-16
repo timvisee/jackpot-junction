@@ -57,6 +57,15 @@ func _ready() -> void:
 	Events.match_state_changed.connect(_on_state_changed)
 	Events.kart_killed.connect(_on_kart_killed)
 	Events.nitro_gained.connect(_on_nitro_gained)
+	Events.flush_completed.connect(_on_flush_completed)
+
+
+func _on_flush_completed(slot: int) -> void:
+	var kart := _kart(slot)
+	if kart != null:
+		FloatingText.spawn(
+			match_node, kart.global_position, "ROYAL FLUSH", Palette.CHIP_GOLD, 64, 1.6
+		)
 
 
 func _on_nitro_gained(slot: int) -> void:
@@ -96,6 +105,7 @@ func _exit_tree() -> void:
 	Events.death_banked.disconnect(_on_death_banked)
 	Events.match_state_changed.disconnect(_on_state_changed)
 	Events.nitro_gained.disconnect(_on_nitro_gained)
+	Events.flush_completed.disconnect(_on_flush_completed)
 
 
 ## Shows a HUD block and the control hint for a human slot.

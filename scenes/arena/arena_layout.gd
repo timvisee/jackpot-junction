@@ -1,8 +1,9 @@
 class_name ArenaLayout
 extends Resource
 ## A map as an ASCII grid. The legend is in GAME.md section 6.3: # wall, . floor, S spawn,
-## C coin pad, P power-up pad, T turbo pad (^ v < > for an explicit direction), B crate, X pit,
-## J Junction pad, K Jackpot zone. Connected X, J and K cells form one rectangular area each.
+## C coin pad, P power-up pad, F Royal Flush pad, T turbo pad (^ v < > for an explicit
+## direction), B crate, X pit, J Junction pad, K Jackpot zone. Connected X, J and K cells form
+## one rectangular area each.
 
 @export_multiline var grid: String = ""
 @export var cell_size: float = 1.25
@@ -70,6 +71,8 @@ func _collect_elements(target: ArenaGrid) -> void:
 					target.coin_pads.append(cell)
 				ArenaGrid.POWER_PAD:
 					target.power_pads.append(cell)
+				ArenaGrid.FLUSH_PAD:
+					target.flush_pads.append(cell)
 				ArenaGrid.CRATE:
 					target.crates.append(cell)
 				_:

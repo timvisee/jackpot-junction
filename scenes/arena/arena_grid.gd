@@ -20,6 +20,7 @@ const CRATE := "B"
 const PIT := "X"
 const JUNCTION := "J"
 const JACKPOT := "K"
+const FLUSH_PAD := "F"
 
 const TURBO_GLYPHS: Array[String] = [TURBO_PAD, TURBO_UP, TURBO_DOWN, TURBO_LEFT, TURBO_RIGHT]
 const AREA_GLYPHS: Array[String] = [PIT, JUNCTION, JACKPOT]
@@ -38,6 +39,7 @@ const KNOWN_GLYPHS: Array[String] = [
 	PIT,
 	JUNCTION,
 	JACKPOT,
+	FLUSH_PAD,
 ]
 
 var width: int = 0
@@ -48,6 +50,7 @@ var walls: Array[Rect2i] = []
 var spawns: Array[Vector2i] = []
 var coin_pads: Array[Vector2i] = []
 var power_pads: Array[Vector2i] = []
+var flush_pads: Array[Vector2i] = []
 var turbo_pads: Array[Vector2i] = []
 var crates: Array[Vector2i] = []
 var pits: Array[Rect2i] = []

@@ -18,6 +18,7 @@ var pits: Array[Pit] = []
 var crates: Array[Crate] = []
 var coin_pads: Array[CoinPad] = []
 var power_pads: Array[PowerUpPad] = []
+var flush_pads: Array[FlushPad] = []
 var junction: JunctionPad
 var junction_position := Vector3.ZERO
 var junction_radius := 2.5
@@ -46,6 +47,7 @@ func build() -> void:
 	crates.clear()
 	coin_pads.clear()
 	power_pads.clear()
+	flush_pads.clear()
 	jackpot_zones.clear()
 	jackpot_positions.clear()
 	pickups = Node3D.new()
@@ -57,6 +59,7 @@ func build() -> void:
 	_add_spawns()
 	_add_coin_pads()
 	_add_power_pads()
+	_add_flush_pads()
 	_add_turbo_pads()
 	_add_crates()
 	_add_pits()
@@ -251,6 +254,21 @@ func _add_power_pads() -> void:
 		pad.add_child(disc)
 		pads.add_child(pad)
 		power_pads.append(pad)
+
+
+func _add_flush_pads() -> void:
+	var pads := Node3D.new()
+	pads.name = "FlushPads"
+	add_child(pads)
+	for i: int in grid.flush_pads.size():
+		var pad := FlushPad.new()
+		pad.name = "FlushPad%d" % i
+		pad.index = i
+		pad.letter = FlushPad.LETTERS[i % FlushPad.LETTERS.size()]
+		pad.size = grid.cell_size
+		pad.position = grid.cell_center(grid.flush_pads[i])
+		pads.add_child(pad)
+		flush_pads.append(pad)
 
 
 func _add_turbo_pads() -> void:

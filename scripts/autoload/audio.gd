@@ -57,6 +57,7 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"shield_pop": ["impactBell_heavy_000.ogg"],
 	&"turret_place": ["impactSoft_heavy_000.ogg"],
 	&"explosion": ["impactPunch_heavy_000.ogg"],
+	&"pad_claim": ["select_001.ogg"],
 	&"explosion_tail": ["impactSoft_heavy_001.ogg"],
 }
 
@@ -297,6 +298,8 @@ func _connect_events() -> void:
 	Events.crate_destroyed.connect(func() -> void: play_sfx(&"crate", -6.0))
 	Events.shield_popped.connect(func(_slot: int) -> void: play_sfx(&"shield_pop", -6.0))
 	Events.bomb_exploded.connect(func(_slot: int) -> void: _play_explosion())
+	Events.pad_claimed.connect(func(_slot: int) -> void: play_sfx(&"pad_claim", -8.0, 0.05))
+	Events.flush_completed.connect(_on_flush_completed)
 	Events.match_state_changed.connect(_on_state_changed)
 
 
@@ -324,6 +327,11 @@ func _on_bank_tick(_slot: int, _points: int) -> void:
 	player.volume_db = -8.0
 	player.pitch_scale = _bank_pitch
 	player.play()
+
+
+func _on_flush_completed(_slot: int) -> void:
+	play_sfx(&"fanfare", 0.0, 0.0)
+	play_sfx(&"chips_scatter", -2.0)
 
 
 ## A bomb blast: a slowed-down punch for the boom and a soft thud for the rumble underneath.

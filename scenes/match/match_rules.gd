@@ -39,6 +39,14 @@ extends Resource
 @export var jackpot_rate_doubling := 0.5
 @export var last_call_accrual := 2.0
 
+@export_group("Royal Flush")
+## Mult gained for holding all four flush pads at once.
+@export var flush_mult := 3.0
+## Fraction of the nitro tank a flush refills.
+@export var flush_nitro_refill := 1.0
+## Seconds the pads stay disabled after a flush.
+@export var flush_disable_time := 20.0
+
 @export_group("Death and respawn")
 @export var death_bank_fraction := 0.5
 @export var death_drop_fraction := 0.3

@@ -81,6 +81,8 @@ func start(inputs: Array[KartInput], seed: int = 0, colors: Array[int] = []) -> 
 	arena.junction.bank_started.connect(_on_bank_started)
 	arena.junction.bank_tick.connect(_on_bank_tick)
 	arena.junction.bank_completed.connect(_on_bank_completed)
+	for pad: FlushPad in arena.flush_pads:
+		pad.claimed.connect(_on_pad_claimed)
 	for zone: JackpotZone in arena.jackpot_zones:
 		zone.filled.connect(
 			func(filled: JackpotZone) -> void: Events.jackpot_full.emit(filled.index)
@@ -428,6 +430,11 @@ func build_snapshot() -> Dictionary:
 	var crates: Array = []
 	for crate: Crate in arena.crates:
 		crates.append(crate.alive)
+	var flush: Array = []
+	for pad: FlushPad in arena.flush_pads:
+		flush.append(
+			{"owner": pad.owner_slot, "color": pad.owner_color, "disabled": pad.disabled_left}
+		)
 	return {
 		"state": state,
 		"time": time_left,
@@ -441,6 +448,7 @@ func build_snapshot() -> Dictionary:
 		"bombs": bomb_data,
 		"jackpots": jackpots,
 		"crates": crates,
+		"flush": flush,
 	}
 
 
@@ -469,6 +477,11 @@ func apply_snapshot(data: Dictionary) -> void:
 	for i: int in mini(crates.size(), arena.crates.size()):
 		arena.crates[i].visible = crates[i]
 		arena.crates[i].alive = crates[i]
+	var flush: Array = data.get("flush", [])
+	for i: int in mini(flush.size(), arena.flush_pads.size()):
+		arena.flush_pads[i].apply_puppet_state(
+			flush[i]["owner"], flush[i]["color"], flush[i]["disabled"]
+		)
 
 
 func _ensure_slots(count: int) -> void:
@@ -834,6 +847,22 @@ func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> voi
 	slot.offer = _make_offer(slot)
 	Events.kart_killed.emit(slot.index, killer_slot, cause)
 	_check_target()
+
+
+## A flush pad changed hands. Holding all four at once is a Royal Flush, GAME.md 3.9: a mult
+## bonus and a full nitro tank, and the pads clear and rest for a while.
+func _on_pad_claimed(_pad: FlushPad, kart: Kart) -> void:
+	Events.pad_claimed.emit(kart.slot)
+	for other: FlushPad in arena.flush_pads:
+		if other.owner_slot != kart.slot:
+			return
+	for other: FlushPad in arena.flush_pads:
+		other.clear_and_disable(rules.flush_disable_time)
+	kart.gain_mult(rules.flush_mult, &"flush")
+	kart.refill_nitro(rules.flush_nitro_refill)
+	if camera_rig != null:
+		camera_rig.shake(0.4)
+	Events.flush_completed.emit(kart.slot)
 
 
 ## Offers jokers for the respawn. Bots choose at once; humans steer the offer while dead.

@@ -233,6 +233,19 @@ the lobby.
 - Pausing in single-player and local play freezes the match for everyone.
   Online matches cannot be paused.
 
+### 3.9 Royal Flush pads
+
+Four pads spread around the arena, marked A, K, Q and J. Driving over a pad
+paints its frame in your colour and takes it from whoever held it. Holding all
+four at once is a Royal Flush:
+
+- The bonus: +3 mult and a full nitro tank, announced to everyone with a
+  fanfare.
+- All four pads clear and stay disabled for 20 s, then come back neutral.
+- Pads keep their colour when their holder dies, so a flush can be finished
+  after a respawn, and stolen pads have to be won back.
+- Decoys cannot claim pads. Bots claim pads only by driving over them.
+
 ## 4. Kart
 
 ### 4.1 Handling
@@ -405,6 +418,7 @@ protection besides spawn protection.
 | Turbo pad      | Directional speed boost, see 4.1                                       |
 | Coin pad       | Spawns chips, gold chips and mult dice, see 3.2                        |
 | Power-up pad   | Spawns a held item, see 7.1                                            |
+| Flush pad      | Takes the colour of the last kart over it; all four in one colour score a Royal Flush, see 3.9 |
 | Junction pad   | Cash-out zone, circle of radius 2.5 m, see 3.4                         |
 | Jackpot zone   | Growing chip pile, 2.5 m square, see 3.5                               |
 | Spawn point    | 4 points near the corners                                              |
@@ -417,26 +431,26 @@ playtests.
 ```
 ################################
 #..............................#
-#.S....C................C....S.#
+#.S....C.....F..........C....S.#
 #.....####..B......B..####.....#
 #..P......T..........T......P..#
 #....C.........XX.........C....#
 #.......B....C.XX.C....B.......#
 #........#....JJJJ....#........#
-#...KK...#....JJJJ....#...KK...#
-#...KK...#....JJJJ....#...KK...#
+#...KK...#....JJJJ....#...KK.F.#
+#.F.KK...#....JJJJ....#...KK...#
 #........#....JJJJ....#........#
 #.......B....C.XX.C....B.......#
 #....C.........XX.........C....#
 #..P......T..........T......P..#
 #.....####..B......B..####.....#
-#.S....C................C....S.#
+#.S....C..........F.....C....S.#
 #..............................#
 ################################
 
 #  wall          S  spawn point      C  coin pad       P  power-up pad
 J  Junction pad  K  Jackpot zone     T  turbo pad      X  pit
-B  crate         .  floor
+B  crate         .  floor            F  Royal Flush pad
 ```
 
 - The four turbo pads point along the vertical lanes at columns 10 and 21,
@@ -447,6 +461,8 @@ B  crate         .  floor
 - The short vertical walls screen the Jackpot zones from the centre, so a kart
   collecting the Jackpot can only be shot from the top or bottom lane, or by a
   bouncing bullet.
+- The four Royal Flush pads sit on a ring: two on the top and bottom lanes and
+  two behind the Jackpot zones, so a flush is a lap of the arena.
 
 ## 7. Power-ups and jokers
 
@@ -595,6 +611,8 @@ corners, in single-player and online only the local block is shown.
 - In-world: a progress ring around the kart while banking or collecting the
   Jackpot, the chip count above the Jackpot zone, floating `+0.5` on grazes,
   and for local players an aim guide of four faint dots ahead of the cannon.
+  Royal Flush pad frames glow and pulse in their holder's colour; a flush shows
+  ROYAL FLUSH over the kart.
 
 The tally is the payoff moment and gets the polish budget. On a completed
 cash-out, chips fly from the kart into the pad while a counter above the kart
