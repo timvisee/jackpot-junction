@@ -632,9 +632,11 @@ corners, in single-player and online only the local block is shown.
 - **Pot** as `coins × mult = value`, updating live.
 - **Joker hand**: the held jokers as a row of overlapping cards along the bottom
   of the screen, one hand per local player, each card framed in its kind's
-  colour with the joker's initials and name. While the joker menu is open the
-  selected card lifts out of the hand with a bright frame, its name, description
-  and the menu controls float above it, and the other cards dim.
+  colour with the joker's initials and name. Three or more cards fan out, the
+  middle riding higher and the ends tipping away, like a hand held in a fist.
+  While the joker menu is open the selected card straightens up and lifts out of
+  the fan with a bright frame, its name, description and the menu controls float
+  above it, and the other cards dim.
 - **Lives**: two pips in the player colour under the kill count; a lost life
   goes dark.
 - **Held power-up** icon. On pickup the item box arcs and shrinks into the kart

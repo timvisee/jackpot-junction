@@ -182,6 +182,31 @@ func test_aimbot_turns_the_shot_toward_the_nearest_enemy() -> void:
 	)
 
 
+## GAME.md 8.3: a hand of three or more fans out, and the card picked in the menu straightens.
+func test_a_full_hand_fans_out_and_the_picked_card_straightens_up() -> void:
+	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs, 0, 21, true)
+	var kart := match_node.kart_of(0)
+	for id: String in ["hair_trigger", "big_tank", "curve_ball", "comeback", "toll_booth"]:
+		_attach(kart, id)
+	await _runner.simulate_frames(40, 17)
+	var hand: JokerHand = match_node.hud._hands[0]
+	assert_int(hand.card_count()).is_equal(5)
+	var cards := hand._cards
+	# The ends tip away from the middle, which itself stays upright and rides highest.
+	assert_float(cards[0].rotation).is_less(-0.01)
+	assert_float(cards[4].rotation).is_greater(0.01)
+	assert_float(absf(cards[2].rotation)).is_less(0.005)
+	assert_float(cards[2].position.y).is_less(cards[0].position.y)
+	assert_float(cards[2].position.y).is_less(cards[4].position.y)
+	Input.action_press(InputActions.JOKER_MENU)
+	await _runner.simulate_frames(40, 17)
+	Input.action_release(InputActions.JOKER_MENU)
+	assert_int(hand.selected()).is_equal(0)
+	assert_float(absf(cards[0].rotation)).is_less(0.01)
+	assert_float(cards[0].position.y).is_less(cards[2].position.y)
+
+
 func test_stat_jokers_rebuild_the_karts_own_stats_and_removal_restores_them() -> void:
 	var match_node := _start_match(_bots())
 	var kart := match_node.kart_of(0)
