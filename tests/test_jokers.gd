@@ -119,6 +119,27 @@ func test_the_hud_deals_the_jokers_as_cards_and_lifts_the_one_picked_in_the_menu
 	assert_int(hand.card_count()).is_equal(3)
 
 
+func test_steering_walks_the_joker_cursor_one_card_per_push() -> void:
+	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs, 0, 21, true)
+	var kart := match_node.kart_of(0)
+	for id: String in ["hair_trigger", "rubber_bumpers", "big_tank"]:
+		_attach(kart, id)
+	await _runner.simulate_frames(12, 17)
+	Input.action_press(InputActions.JOKER_MENU)
+	Input.action_press(InputActions.STEER_RIGHT)
+	# Held down, not tapped: the cursor moves once and then waits for a fresh push.
+	await _runner.simulate_frames(20, 17)
+	assert_int(kart.menu_index).is_equal(1)
+	Input.action_release(InputActions.STEER_RIGHT)
+	Input.action_press(InputActions.STEER_LEFT)
+	await _runner.simulate_frames(20, 17)
+	assert_int(kart.menu_index).is_equal(0)
+	Input.action_release(InputActions.STEER_LEFT)
+	Input.action_release(InputActions.JOKER_MENU)
+	await _runner.simulate_frames(3, 17)
+
+
 func test_curve_ball_bends_bullets_hard_and_after_a_bounce() -> void:
 	var match_node := _start_match(_bots())
 	var kart := match_node.kart_of(0)

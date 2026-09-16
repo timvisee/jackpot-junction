@@ -203,8 +203,8 @@ func _detail_bbcode(joker: Joker) -> String:
 	var hints := (
 		"%s / %s cycle    %s drop    %s destroy"
 		% [
-			InputActions.binding_text(InputActions.JOKER_PREV, keyboard),
-			InputActions.binding_text(InputActions.JOKER_NEXT, keyboard),
+			InputActions.short_binding_text(InputActions.STEER_LEFT, keyboard),
+			InputActions.short_binding_text(InputActions.STEER_RIGHT, keyboard),
 			InputActions.binding_text(InputActions.JOKER_DROP, keyboard),
 			InputActions.binding_text(InputActions.JOKER_DESTROY, keyboard),
 		]

@@ -212,6 +212,12 @@ Jokers are passive rule modifiers held for the rest of the match.
   running meanwhile.
 - The joker menu can be opened while driving; the kart stays fully
   controllable.
+- Menu controls: steer left and right, the bracket keys or the D-pad walk the
+  cursor, number keys pick directly, the drop button lays the card on the floor,
+  the destroy button burns it. Steering picks cards so that whatever the player
+  already drives with, arrow keys or stick, chooses a card too; the kart steers
+  along with it, and a held direction moves one card rather than racing through
+  the hand.
 - Bots pick jokers at random, weighted by rarity, and never skip.
 - The offer is a row of joker cards in the middle of the player's share of the
   screen, the card under the cursor lifted, lit and described underneath.
@@ -361,7 +367,7 @@ assigns physical devices to player slots, see 10.2.
 | Nitro                       | B                   | Ctrl                      |
 | Use power-up                | A                   | E                         |
 | Joker menu, hold            | Y                   | Tab                       |
-| Joker menu: select          | D-pad left / right cycles | 1 to 5              |
+| Joker menu: select          | Left stick or D-pad left / right | Arrows, A / D, brackets or 1 to 5 |
 | Joker menu: drop            | A                   | E                         |
 | Joker menu: destroy         | X                   | Q                         |
 | Free aim, Swivel Cannon only| Right stick         | Mouse position on the arena plane |

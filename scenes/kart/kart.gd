@@ -25,6 +25,8 @@ const FALL_SPIN := 7.0
 const BLINK_PERIOD := 0.25
 ## A quicker flicker for the moment of immunity after losing a life, so it reads as brief.
 const HURT_BLINK_PERIOD := 0.12
+## How far the steering has to be pushed to walk the joker cursor one card, GAME.md 3.7.
+const MENU_STEER_STEP := 0.6
 const RING_RADIUS_EMPTY := 0.6
 const RING_RADIUS_FULL := 1.4
 
@@ -102,6 +104,7 @@ var _puppet_has_target := false
 var _aim_guide: AimGuide
 var _fall_left := 0.0
 var _graze_cooldown_left := 0.0
+var _menu_steer := 0
 
 
 func _ready() -> void:
@@ -412,11 +415,13 @@ func _step_menu() -> void:
 	menu_open = input.joker_menu and jokers.count() > 0
 	if not menu_open:
 		menu_index = 0
+		_menu_steer = 0
 		return
 	var count := jokers.count()
-	if input.joker_next_pressed:
+	var steered := _menu_steer_step()
+	if input.joker_next_pressed or steered > 0:
 		menu_index = (menu_index + 1) % count
-	if input.joker_prev_pressed:
+	if input.joker_prev_pressed or steered < 0:
 		menu_index = posmod(menu_index - 1, count)
 	if input.joker_select >= 0 and input.joker_select < count:
 		menu_index = input.joker_select
@@ -425,6 +430,19 @@ func _step_menu() -> void:
 	elif input.joker_destroy_pressed:
 		destroy_joker(menu_index)
 	menu_index = clampi(menu_index, 0, maxi(jokers.count() - 1, 0))
+
+
+## Which way the steering wants to walk the cursor, one card per push. Whatever the player
+## steers with picks cards too, so the arrow keys work on a keyboard and the stick or the
+## D-pad works on a pad, with no second set of keys to learn. Holding a direction moves one
+## card and then waits, so a card is never skipped past while the wheel is held over.
+func _menu_steer_step() -> int:
+	var pushed := 0
+	if absf(input.steer) > MENU_STEER_STEP:
+		pushed = signi(roundi(input.steer))
+	var stepped := pushed if pushed != _menu_steer else 0
+	_menu_steer = pushed
+	return stepped
 
 
 ## The floor point under the mouse, as a direction from the kart, for free aim on keyboard.
