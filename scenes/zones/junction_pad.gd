@@ -86,9 +86,9 @@ func _physics_process(delta: float) -> void:
 		if kart == null:
 			_channels.erase(id)
 			continue
-		if kart.alive and not kart.falling and not kart.frozen and kart.is_wounded():
+		if kart.is_active() and kart.is_wounded():
 			kart.restore_life()
-		if not kart.alive or kart.falling or kart.frozen or kart.pot.is_empty():
+		if not kart.is_active() or kart.pot.is_empty():
 			kart.channel_progress = -1.0
 			continue
 		_step_channel(kart, _channels[id], delta)

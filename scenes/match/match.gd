@@ -485,6 +485,8 @@ func junction_hint() -> float:
 
 func _begin_play() -> void:
 	_set_frozen(false)
+	# A rematch in the same room takes the rig off the last winner and hands it back to the levels.
+	arena.disco.clear_focus()
 	_set_state(State.PLAYING)
 
 
@@ -495,13 +497,26 @@ func _enter_last_call() -> void:
 	_set_state(State.LAST_CALL)
 
 
-## Ends the match. Pots still unbanked are lost.
+## Ends the match. Pots still unbanked are lost. The karts are not stopped dead: every driver
+## lets go of the wheel at the whistle and rolls to a halt, and the rig swings onto the winner.
 func _finish() -> void:
 	if state == State.RESULTS:
 		return
-	_set_frozen(true)
+	for slot: PlayerSlot in slots:
+		if slot.kart != null:
+			slot.kart.coast()
 	bullets.process_mode = Node.PROCESS_MODE_DISABLED
 	_set_state(State.RESULTS)
+	_spotlight_winner()
+
+
+## GAME.md 8.1: at the whistle every head leaves its sweep and swings onto whoever won, so the
+## winner takes their lap of honour in the spotlight. A winner who is dead at the whistle has
+## nothing to light, so the rig is left as it is.
+func _spotlight_winner() -> void:
+	var winner := standings()[0]
+	if winner.kart != null and winner.kart.alive:
+		arena.disco.focus(winner.kart)
 
 
 func _step_respawns(delta: float) -> void:
@@ -614,7 +629,7 @@ func _on_pad_claimed(_pad: FlushPad, kart: Kart) -> void:
 func _step_stats(delta: float) -> void:
 	for slot: PlayerSlot in slots:
 		var kart := slot.kart
-		if kart == null or not kart.alive or kart.frozen:
+		if kart == null or not kart.is_active():
 			continue
 		var distance := kart.motor.speed() * delta
 		slot.stats.add(&"driven", distance)

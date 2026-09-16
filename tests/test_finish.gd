@@ -1,0 +1,83 @@
+extends GdUnitTestSuite
+## The whistle, GAME.md 2 and 8.1: the karts are let go of rather than stopped dead, and the
+## disco rig swings onto the winner.
+
+const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+
+var _runner: GdUnitSceneRunner
+
+
+func _start_match() -> Match:
+	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	rules.countdown = 0.1
+	rules.duration = 60.0
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
+	match_node.start(inputs, 5)
+	return match_node
+
+
+func test_the_karts_roll_to_a_halt_rather_than_stopping_dead() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	kart.global_position = Vector3(-8.0, 0.0, -6.0)
+	kart.motor.velocity = -kart.global_transform.basis.z * 12.0
+	kart.motor.forward_speed = 12.0
+	var from := kart.global_position
+	match_node._finish()
+	assert_bool(kart.coasting).is_true()
+	assert_bool(kart.frozen).is_false()
+	# Still rolling the moment after the whistle, and further on than it was.
+	await _runner.simulate_frames(10, 17)
+	assert_float(kart.motor.speed()).is_greater(1.0)
+	assert_float(kart.global_position.distance_to(from)).is_greater(0.5)
+	# And stopped on its own a few seconds later, with nobody having touched the controls.
+	await _runner.simulate_frames(300, 17)
+	assert_float(kart.motor.speed()).is_less(0.5)
+
+
+## Nothing may reach a kart that is only rolling out the end of the match: a late cash-out or a
+## pit would change a score the results screen has already shown.
+func test_a_coasting_kart_is_out_of_play() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	kart.pot.add_coins(50)
+	match_node._finish()
+	assert_bool(kart.is_active()).is_false()
+	assert_bool(kart.is_targetable()).is_false()
+	kart.start_fall()
+	assert_bool(kart.falling).is_false()
+	var banked := match_node.slots[0].banked
+	kart.global_position = match_node.arena.junction.global_position
+	await _runner.simulate_frames(120, 17)
+	assert_int(match_node.slots[0].banked).is_equal(banked)
+	assert_bool(kart.alive).is_true()
+
+
+func test_the_rig_swings_every_head_onto_the_winner() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(20, 17)
+	match_node.slots[1].banked = 500
+	match_node.kart_of(1).global_position = Vector3(9.0, 0.0, 4.0)
+	match_node._finish()
+	assert_int(match_node.standings()[0].index).is_equal(1)
+	var lights := match_node.arena.disco
+	await _runner.simulate_frames(240, 17)
+	assert_float(lights._swing).is_equal(1.0)
+	assert_int(lights.lit_count()).is_equal(DiscoLights.COUNT)
+	var winner := match_node.kart_of(1).global_position
+	for i: int in lights._heads.size():
+		var light: SpotLight3D = lights._heads[i]["light"]
+		var forward := -light.global_transform.basis.z
+		var toward := (winner - light.global_position).normalized()
+		(
+			assert_float(forward.normalized().dot(toward))
+			. override_failure_message("head %d is not looking at the winner" % i)
+			. is_greater(0.99)
+		)

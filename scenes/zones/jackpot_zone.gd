@@ -99,7 +99,7 @@ func occupant_count(except: Kart = null) -> int:
 func _collectors() -> Array[Kart]:
 	var result: Array[Kart] = []
 	for kart: Kart in _inside:
-		if is_instance_valid(kart) and kart.alive and not kart.falling and not kart.frozen:
+		if is_instance_valid(kart) and kart.is_active():
 			result.append(kart)
 	return result
 

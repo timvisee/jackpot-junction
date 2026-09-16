@@ -67,7 +67,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _can_claim(kart: Kart) -> bool:
-	return kart.alive and not kart.falling and not kart.frozen and not kart.is_decoy()
+	return kart.is_active() and not kart.is_decoy()
 
 
 ## Hands the pad to a slot, painting the frame in its colour.

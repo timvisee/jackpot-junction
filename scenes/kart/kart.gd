@@ -64,8 +64,11 @@ var lives := 2
 ## Seconds a freshly wounded kart cannot be hit again.
 var hurt_left := 0.0
 var falling := false
-## Set by the match during the countdown and the results: no input, no movement.
+## Set by the match during the countdown: no input, no movement.
 var frozen := false
+## Set by the match at the whistle: the driver lets go of the wheel. The kart still rolls, but
+## nobody steers it and nothing can touch it any more.
+var coasting := false
 var protection_left := 0.0
 ## Fraction of the pot still to bank while on the Junction, -1 when not banking.
 var channel_progress := -1.0
@@ -193,13 +196,32 @@ func _physics_process(delta: float) -> void:
 	_update_trails(delta, heading_before)
 
 
-## True while bullets may hit and aim assist may pick this kart.
+## Whether the kart is in play: alive, on the floor and with somebody at the wheel. Zones,
+## hazards and the stats all sit this one out, so nothing scores or trips a kart that is only
+## rolling out the end of the match or waiting for the countdown.
+func is_active() -> bool:
+	return alive and not falling and not frozen and not coasting
+
+
+## True while bullets may hit and aim assist may pick this kart. A kart on the line for the
+## countdown is still fair game once the flag drops; one rolling out the finish never is.
 func is_targetable() -> bool:
+	if coasting:
+		return false
 	return alive and not falling and protection_left <= 0.0 and hurt_left <= 0.0
 
 
 func is_wounded() -> bool:
 	return lives < rules.lives
+
+
+## The match is over, GAME.md 2. The kart is handed a blank set of controls rather than being
+## stopped dead, so it rolls out of whatever it was in the middle of and comes to a halt on its
+## own. Nobody can drive it, hurt it or drop it down a pit while it does.
+func coast() -> void:
+	coasting = true
+	input = KartInput.new()
+	menu_open = false
 
 
 ## Turns the kart into a client-side puppet: no physics, no collisions, visuals from snapshots.
@@ -730,7 +752,7 @@ func respawn(point: Vector3, direction: Vector3, protection: float) -> void:
 ## Called by a [Pit]: the kart drops out of control for a moment, then dies. The last kart that
 ## bumped it recently gets the credit.
 func start_fall() -> void:
-	if not alive or falling:
+	if not alive or falling or coasting:
 		return
 	falling = true
 	_fall_left = rules.pit_fall_time

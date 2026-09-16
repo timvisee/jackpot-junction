@@ -61,7 +61,7 @@ func _physics_process(delta: float) -> void:
 ## Whether this kart is in a state to be caught: alive, driving, and not still spinning from a
 ## stain it crossed a moment ago.
 func _catches(kart: Kart) -> bool:
-	if not kart.alive or kart.falling or kart.frozen or kart.motor.spinning():
+	if not kart.is_active() or kart.motor.spinning():
 		return false
 	if kart.global_position.distance_to(global_position) > RADIUS:
 		return false

@@ -40,7 +40,10 @@ func test_countdown_then_play_then_last_call_then_results() -> void:
 	assert_float(match_node.arena.junction.payout_multiplier).is_equal(rules.last_call_payout)
 	await runner.simulate_frames(110, 17)
 	assert_int(match_node.state).is_equal(Match.State.RESULTS)
-	assert_bool(match_node.kart_of(0).frozen).is_true()
+	# Not stopped dead: let go of, and out of play while it rolls out.
+	assert_bool(match_node.kart_of(0).frozen).is_false()
+	assert_bool(match_node.kart_of(0).coasting).is_true()
+	assert_bool(match_node.kart_of(0).is_active()).is_false()
 
 
 func test_standing_on_the_junction_banks_the_pot_and_resets_it() -> void:

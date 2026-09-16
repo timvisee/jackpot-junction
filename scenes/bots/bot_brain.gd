@@ -76,7 +76,7 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if kart == null or not kart.alive or kart.frozen or kart.falling or not match_node.is_running():
+	if kart == null or not kart.is_active() or not match_node.is_running():
 		input.clear()
 		return
 	_decision_left -= delta

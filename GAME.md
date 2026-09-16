@@ -244,9 +244,12 @@ The joker catalogue is in section 7.3.
 | Players         | 1 to 4 humans, bots fill the remaining slots to 4         |
 | Tie-break       | Most kills, then fewest deaths                            |
 
-Flow: Title screen, Lobby, Countdown, Playing, Last Call, Results. Results show
-every player's banked score and kills, ranked, then offer a rematch or a return
-to the lobby. Under each player up to three awards pick out what they did most compared with
+Flow: Title screen, Lobby, Countdown, Playing, Last Call, Results. At the
+whistle nobody is stopped dead: every driver lets go of the wheel and the karts
+roll to a halt on their own, out of anyone's control and out of reach of pits,
+hazards and the Junction alike, while the rig swings onto the winner. Results
+show every player's banked score and kills, ranked, then offer a rematch or a
+return to the lobby. Under each player up to three awards pick out what they did most compared with
 the others, leaders first, ranked by how far ahead of the others' average they
 are: Trigger Happy (shots fired), Butterfingers (coins lost), Vacuum Cleaner
 (coins picked up), Card Shark (jokers taken), Road Warrior (distance driven),
@@ -668,6 +671,10 @@ Starting palette:
   half a second. While any head is still dark the lit run walks around the rig by
   itself, every 7 s at rest down to every 2 s at the top, so the room keeps moving
   without getting brighter.
+- At the whistle the rig is handed the winner: every head leaves its sweep, swings
+  onto their kart over 1.6 s and follows it as it rolls out, drawing in to a narrow
+  11° as it goes so the table around them stays readable. A winner who is dead at
+  the whistle has nothing to light, so the rig is left as it is.
 - Each beam is cut to the distance it actually has to cross and widened to its
   own spot angle every frame, so however far across the table a head is
   pointing its cone ends in a lit pool on the floor rather than in mid-air.

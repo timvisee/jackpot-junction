@@ -17,6 +17,10 @@ extends Node3D
 ## than snapping. While some heads are still dark the lit run walks around the rig on its own,
 ## slowly at rest and quicker as things heat up, so the room keeps moving without brightening.
 ##
+## At the whistle the rig is handed the winner to point at: every head leaves its sweep, swings
+## onto their kart and follows it as it rolls out, narrowing as it goes so the table around them
+## stays readable.
+##
 ## The lamps themselves are part of the room and stay where they are: a head that is not taking
 ## its turn simply goes dark, with its beam gone and its lens unlit, rather than vanishing. Only
 ## a room that wants no rig at all, such as the Garage, takes the posts away with it.
@@ -54,6 +58,10 @@ const COLORS: Array[Color] = [
 const LEVEL_FOLLOW := 0.35
 ## The level from which the heads start flashing on the beat.
 const FLASH_FROM := 3
+## Seconds the heads take to swing onto the winner at the end of the match, and how narrow
+## they draw in once they are on them.
+const FOCUS_SWING := 1.6
+const FOCUS_ANGLE := 11.0
 ## Seconds between handing the lit run on to the next head, at rest and at full heat.
 const CYCLE_SLOW := 7.0
 const CYCLE_FAST := 2.0
@@ -73,6 +81,9 @@ var _smooth := 0.0
 ## Which head the lit run starts at.
 var _offset := 0
 var _cycle := 0.0
+## What every head is pointing at instead of its own sweep, and how far it has swung onto it.
+var _focus: Node3D
+var _swing := 0.0
 
 
 ## Builds the heads above an arena of [param floor_size] metres.
@@ -80,6 +91,18 @@ func setup(floor_size: Vector2) -> void:
 	_floor = floor_size * 0.5
 	for i: int in COUNT:
 		_heads.append(_build_head(i))
+
+
+## Points every head at [param target] and keeps them there, for the winner's lap of honour.
+func focus(target: Node3D) -> void:
+	_focus = target
+	_swing = 0.0
+
+
+## Hands the rig back to the excitement levels.
+func clear_focus() -> void:
+	_focus = null
+	_swing = 0.0
 
 
 func lit_count() -> int:
@@ -104,6 +127,8 @@ func _process(delta: float) -> void:
 		for head: Dictionary in _heads:
 			_darken(head)
 		return
+	if _focused():
+		_swing = minf(_swing + delta / FOCUS_SWING, 1.0)
 	_smooth = move_toward(_smooth, _climb(), LEVEL_FOLLOW * delta)
 	_step_cycle(delta)
 	# Everything moves at a crawl until the match gives it a reason not to.
@@ -118,8 +143,11 @@ func _process(delta: float) -> void:
 		_step_head(_heads[i], is_lit(i), flash)
 
 
-## How many heads the current level asks for: one per level, and never fewer than one.
+## How many heads the current level asks for: one per level, and never fewer than one. The
+## winner gets the whole rig whatever the match was running at.
 func lit_heads() -> int:
+	if _focused():
+		return COUNT
 	return clampi(level, 1, COUNT)
 
 
@@ -169,7 +197,7 @@ func _step_head(head: Dictionary, on: bool, flash: float) -> void:
 	# blazing would cost more in readability than it buys in atmosphere.
 	var pulse := 1.0 + (0.2 + 0.6 * _smooth) * flash
 	light.light_energy = (0.8 + 1.5 * _smooth) * pulse
-	light.spot_angle = lerpf(14.0, 24.0, _smooth)
+	light.spot_angle = lerpf(lerpf(14.0, 24.0, _smooth), FOCUS_ANGLE, _swing)
 	var tint: StandardMaterial3D = head["tint"]
 	# Beams from the edge cut across the camera rather than pointing away from it, so they are
 	# kept fainter than an overhead rig would need.
@@ -202,7 +230,14 @@ func _aim_point(head: Dictionary) -> Vector3:
 		clampf(cos(_time * head["rate_z"] + head["phase"]) * reach.y, -_floor.y, _floor.y)
 	)
 	var tipped := clampf((_smooth - TIP_START) / (TIP_FULL - TIP_START), 0.0, 1.0)
-	return sky.lerp(floor_point, tipped)
+	var aim := sky.lerp(floor_point, tipped)
+	if _focused():
+		aim = aim.lerp(to_local(_focus.global_position), _swing)
+	return aim
+
+
+func _focused() -> bool:
+	return _focus != null and is_instance_valid(_focus) and _focus.is_inside_tree()
 
 
 func _build_head(index: int) -> Dictionary:
