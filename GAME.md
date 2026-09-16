@@ -340,7 +340,7 @@ then hooks up and launches when the handbrake is released.
 | Coast deceleration            | 4 m/s² with no input                                  |
 | Yaw rate at low speed         | 200°/s                                                |
 | Yaw rate at top speed         | 110°/s, interpolated linearly by speed                |
-| Minimum speed to steer        | 0.5 m/s; below it the kart turns in place at 70°/s to line up a shot |
+| Minimum speed to steer        | 0.5 m/s; below it the kart turns in place at 85°/s to line up a shot |
 | Grip, normal                  | travel direction turns toward the nose at 16 rad/s, about 7° of slip at top speed |
 | Grip, drifting                | 4.8 rad/s, 35 to 55° of slip depending on speed       |
 | Drift entry                   | handbrake held while steering, at over 40% of top speed; steering alone never drifts, and straightening up mid-drift turns it into a stop |
