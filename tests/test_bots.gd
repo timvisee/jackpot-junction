@@ -231,6 +231,43 @@ func test_a_bot_turns_out_of_a_pit_it_is_headed_for() -> void:
 	assert_bool(fell).override_failure_message("the bot drove into the pit").is_false()
 
 
+## GAME.md 9.1: a bot at full tilt turns wider than the pad it is aiming for, so it used to sail
+## past and circle it forever. It eases off on the last stretch, and backs onto a goal behind it.
+func test_a_bot_lands_on_its_goal_instead_of_circling_it() -> void:
+	var match_node := _match()
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	var brain: BotBrain = kart.get_node("Brain")
+	# The Jackpot is the hard one: a bot has to stop on the spot rather than inside a wide pad.
+	var goal := match_node.arena.jackpot_zones[0].global_position
+	# Overshot: past the spot at speed, nose pointing away from it.
+	kart.global_position = goal + Vector3(2.5, 0.0, 0.0)
+	kart.face(Vector3(1.0, 0.0, 0.0))
+	kart.motor.forward_speed = kart.stats.top_speed
+	assert_bool(_drives_onto(brain, kart, goal)).is_true()
+	# And the ordinary case: coming in fast and off to one side.
+	kart.global_position = goal + Vector3(7.0, 0.0, 4.5)
+	kart.face(Vector3(-1.0, 0.0, 0.0))
+	kart.motor.forward_speed = kart.stats.top_speed
+	assert_bool(_drives_onto(brain, kart, goal)).is_true()
+
+
+## Drives the brain and the motor by hand for four seconds, and says whether the kart is sitting
+## on its goal at the end of it. Touching the pad in passing is what a circling bot does; what it
+## has to manage is still being there. Stepping the two directly keeps the run to the steering
+## under test.
+func _drives_onto(brain: BotBrain, kart: Kart, goal: Vector3) -> bool:
+	brain.goal = &"jackpot"
+	brain.target = goal
+	brain.target_node = null
+	brain._path = PackedVector3Array()
+	for i: int in 240:
+		brain._steer(1.0 / 60.0)
+		kart.motor.step(brain.input, 1.0 / 60.0)
+		kart.global_position += kart.motor.velocity * (1.0 / 60.0)
+	return kart.global_position.distance_to(goal) < 0.8
+
+
 func test_closest_approach_predicts_near_misses() -> void:
 	var head_on := BotBrain.closest_approach(Vector3(0.0, 0.0, -6.0), Vector3(0.0, 0.0, 20.0), 1.0)
 	assert_float(head_on).is_equal_approx(0.0, 0.001)

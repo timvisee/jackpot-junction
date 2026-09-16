@@ -887,6 +887,14 @@ NavigationAgent3D, plus reactive bullet dodging.
 | Grab item       | Holding nothing and a power-up pad is near                                    |
 | Flee            | A Boosting enemy is within 6 m                                                |
 
+**Arriving**: waypoints get a bot to the right part of the arena, but the last few
+metres are their own problem. Flat out, a kart turns in a wider circle than the pad
+it is aiming for, so it sails past and comes round again, forever. Inside 6 m of the
+goal itself a bot eases off, down to a quarter throttle at the goal, and stops
+drifting, which shrinks the circle to something that fits. With the goal behind it
+and under 4 m away it backs onto it instead, because no turning circle fits at that
+range. On the Junction and the Jackpot it then holds position as before.
+
 **Pits**: paths already go around them, but a pit stops nothing and blocks no
 raycast, so a bot cutting a corner, sliding out of a drift or chasing a kart
 across one would drive in regardless. A bot checks the ground a second and a bit

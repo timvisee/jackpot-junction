@@ -32,6 +32,15 @@ const REVERSE_TIME := 0.7
 const AIM_ERROR_INTERVAL := 0.5
 const ITEM_PATIENCE := 5.0
 const BULLET_HEIGHT := 0.5
+## Where the last stretch of a drive begins, and the least throttle it is taken on. Flat out,
+## a kart's turning circle is wider than the pad it is aiming for, so it sails past and comes
+## round again forever; easing off makes the circle small enough to land on.
+const APPROACH_RADIUS := 6.0
+const APPROACH_THROTTLE := 0.28
+## Past this angle, with the goal this close, the goal is behind the kart and reversing onto it
+## beats turning around: at these distances the turning circle simply does not fit.
+const REVERSE_ANGLE := 1.9
+const REVERSE_RADIUS := 4.0
 ## How far ahead of itself a bot checks for a pit, in seconds of travel, and the throttle it
 ## drops to when it sees one. A second is comfortably more than the half second it takes to
 ## stop from top speed, so there is room to turn out rather than only to stop.
@@ -408,12 +417,36 @@ func _steer(delta: float) -> void:
 	input.handbrake = (absf(angle) > mirror.drift_angle() and kart.motor.speed_fraction() > 0.6)
 	if absf(angle) > 1.7:
 		input.throttle = 0.35
+	_close_in(forward)
 	_avoid_pit()
 	if _should_hold_position():
 		input.throttle = 0.0
 		input.brake = 1.0 if kart.motor.forward_speed > 0.5 else 0.0
 		input.steer = 0.0
 	_step_stuck(delta)
+
+
+## The last stretch onto the goal itself, GAME.md 9.1. Waypoints get a bot to the right part of
+## the arena; what loses it the Jackpot is arriving at full tilt, turning wider than the pad and
+## going round and round it. Inside [constant APPROACH_RADIUS] it eases off, so the circle it
+## can turn in shrinks to something that fits, and it stops drifting. With the goal behind it
+## and close, it backs onto it instead: no turning circle fits at that range.
+func _close_in(forward: Vector3) -> void:
+	if _path_index < _path.size() - 1:
+		return
+	var to_goal := target - kart.global_position
+	to_goal.y = 0.0
+	var distance := to_goal.length()
+	if distance >= APPROACH_RADIUS or to_goal.is_zero_approx():
+		return
+	input.handbrake = false
+	input.throttle *= clampf(distance / APPROACH_RADIUS, APPROACH_THROTTLE, 1.0)
+	var angle := forward.signed_angle_to(to_goal, Vector3.UP)
+	if absf(angle) > REVERSE_ANGLE and distance < REVERSE_RADIUS:
+		input.throttle = 0.0
+		input.brake = 1.0
+		# Steering is mirrored in reverse, so the sign flips with it.
+		input.steer = clampf(angle * 2.0, -1.0, 1.0)
 
 
 ## The last word on steering, GAME.md 9.1: whatever a bot was doing, it does not drive into a
