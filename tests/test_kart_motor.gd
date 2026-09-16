@@ -241,17 +241,42 @@ func _sideways_speed_after_turn(drifting: bool) -> float:
 	return (motor.velocity - forward * motor.velocity.dot(forward)).length()
 
 
-func test_turbo_snaps_the_nose_and_runs_at_turbo_speed_for_its_duration() -> void:
-	_motor.apply_turbo(Vector3(0.0, 0.0, 1.0))
-	assert_float(absf(_motor.heading)).is_equal_approx(PI, 0.001)
+func test_turbo_pad_along_the_nose_pushes_for_the_duration_without_turning() -> void:
+	_motor.heading = 0.2
+	_motor.apply_turbo(Vector3(0.0, 0.0, -1.0))
+	assert_float(_motor.heading).is_equal_approx(0.2, 0.0001)
 	_run(_stats.turbo_duration * 0.5)
-	assert_float(_motor.speed()).is_equal_approx(
-		_stats.top_speed * _stats.turbo_speed_multiplier, 0.01
-	)
+	var turbo_speed := _stats.top_speed * _stats.turbo_speed_multiplier
+	assert_float(_motor.speed()).is_equal_approx(turbo_speed, 0.01)
+	assert_float(_motor.forward_speed).is_greater(0.0)
 	assert_bool(_motor.turboing()).is_true()
 	_run(_stats.turbo_duration)
 	assert_bool(_motor.turboing()).is_false()
-	assert_float(_motor.speed()).is_less(_stats.top_speed * _stats.turbo_speed_multiplier)
+	assert_float(_motor.speed()).is_less(turbo_speed)
+	assert_float(_motor.heading).is_equal_approx(0.2, 0.0001)
+
+
+func test_turbo_pad_against_the_nose_pushes_the_kart_backwards() -> void:
+	_motor.apply_turbo(Vector3(0.0, 0.0, 1.0))
+	assert_float(_motor.heading).is_equal_approx(0.0, 0.0001)
+	_run(_stats.turbo_duration * 0.5)
+	assert_float(_motor.forward_speed).is_less(0.0)
+	assert_float(_motor.speed()).is_equal_approx(
+		_stats.top_speed * _stats.turbo_speed_multiplier, 0.01
+	)
+	assert_float(_motor.velocity.z).is_greater(0.0)
+
+
+func test_turbo_pad_crossed_sideways_shoves_briefly_then_slides_to_a_near_stop() -> void:
+	_motor.apply_turbo(Vector3(1.0, 0.0, 0.0))
+	assert_float(_motor.heading).is_equal_approx(0.0, 0.0001)
+	assert_float(_motor.turbo_time_left).is_equal_approx(_stats.turbo_side_push_time, 0.0001)
+	_run(0.1)
+	assert_float(_motor.velocity.x).is_greater(10.0)
+	_run(1.6)
+	assert_bool(_motor.turboing()).is_false()
+	assert_float(_motor.speed()).is_less(2.0)
+	assert_float(_motor.heading).is_equal_approx(0.0, 0.0001)
 
 
 func test_wall_hits_cost_speed_only_when_hard() -> void:

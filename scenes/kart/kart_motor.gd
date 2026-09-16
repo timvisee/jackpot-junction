@@ -21,6 +21,8 @@ var drifting := false
 var drift_time := 0.0
 var boost_time_left := 0.0
 var turbo_time_left := 0.0
+## Direction a turbo pad pushes along while [method turboing].
+var turbo_direction := Vector3.ZERO
 ## Multipliers set by power-ups: Boost raises the speed bonus and lowers the steering.
 var speed_bonus := 1.0
 var steer_multiplier := 1.0
@@ -101,11 +103,25 @@ func step(input: KartInput, delta: float) -> void:
 	# Setting off, or braking through a stop into reverse: travel starts along the nose.
 	if not was_moving or reversing != was_reversing:
 		travel = target
-	var grip := stats.grip_drift if drifting else stats.grip_normal
+	if turboing():
+		# A pad shoves along its arrow whatever way the nose points; grip takes over afterwards.
+		velocity = turbo_direction * stats.top_speed * stats.turbo_speed_multiplier
+		forward_speed = velocity.length() * (-1.0 if velocity.dot(forward_vector()) < 0.0 else 1.0)
+		return
 	var angle := travel.signed_angle_to(target, Vector3.UP)
+	var grip := stats.grip_drift
+	if not drifting:
+		# Tires that have let go in a big slide keep sliding until the kart slows down.
+		var letting_go := clampf((absf(angle) - deg_to_rad(20.0)) / deg_to_rad(25.0), 0.0, 1.0)
+		grip = lerpf(stats.grip_normal, stats.grip_sliding, letting_go)
 	travel = travel.rotated(Vector3.UP, angle * (1.0 - exp(-grip * delta)))
 	if drifting:
 		forward_speed *= 1.0 - stats.drift_speed_decay * delta
+	else:
+		# Sliding sideways outside a controlled drift scrubs speed hard, down to a near standstill.
+		var slip := absf(travel.signed_angle_to(target, Vector3.UP))
+		var sideways := sin(maxf(slip - deg_to_rad(10.0), 0.0))
+		forward_speed = move_toward(forward_speed, 0.0, stats.slip_friction * sideways * delta)
 	velocity = travel * absf(forward_speed)
 	velocity.y = 0.0
 	var limit := max_speed()
@@ -218,18 +234,24 @@ func _step_entry_kick(delta: float) -> void:
 		_kick_remaining = 0.0
 
 
-## Launches the kart along a turbo pad's direction: the nose snaps to it and the kart runs at
-## turbo speed for the turbo duration with reduced steering.
+## A turbo pad shoves the kart along its arrow without turning it. Facing along the arrow, or
+## straight against it, the shove lasts the full duration and the kart simply runs faster,
+## forward or in reverse. Crossing the pad sideways gives only a short shove, after which the
+## kart slides on its slipping tires until it has nearly stopped.
 func apply_turbo(direction: Vector3) -> void:
 	var flat := Vector3(direction.x, 0.0, direction.z).normalized()
 	if flat.is_zero_approx():
 		return
-	heading = atan2(-flat.x, -flat.z)
-	turbo_time_left = stats.turbo_duration
+	var angle := absf(flat.signed_angle_to(forward_vector(), Vector3.UP))
+	var align := deg_to_rad(stats.turbo_align_angle_deg)
+	var aligned := angle <= align or angle >= PI - align
+	turbo_direction = flat
+	turbo_time_left = stats.turbo_duration if aligned else stats.turbo_side_push_time
 	drifting = false
 	drift_time = 0.0
+	_kick_remaining = 0.0
 	velocity = flat * stats.top_speed * stats.turbo_speed_multiplier
-	forward_speed = velocity.length()
+	forward_speed = velocity.length() * (-1.0 if flat.dot(forward_vector()) < 0.0 else 1.0)
 
 
 ## Wall contact: the velocity into the wall is gone already (the body slid); a hard hit also

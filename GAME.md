@@ -264,7 +264,8 @@ then hooks up and launches when the handbrake is released.
 | Drift exit boost              | +20% top speed for 0.8 s if the drift lasted 0.6 s or longer |
 | Handbrake                     | with steering above 30% it starts a drift and scrubs speed at 35% of 12 m/s²; without steering it is a straight stop at 12 m/s² that lays down skid marks |
 | Nitro                         | held button: 140% top speed with 1.5 times the acceleration, kills on contact; a full tank burns 2 s, refills in 12 s starting 0.6 s after letting go, cannot restart below 20% |
-| Turbo pad                     | 150% top speed for 1.0 s along the pad's arrow, steering halved while it lasts |
+| Turbo pad                     | shoves along the pad's arrow at 150% top speed without turning the kart. Facing within 45° of the arrow, or straight against it, the shove lasts 1.0 s and the kart simply runs faster, forward or in reverse; crossing sideways gives a 0.15 s shove after which the tires slip and the kart slides to a near standstill. Steering halved while the shove lasts |
+| Sideways slip friction        | outside a drift, sliding more than 10° sideways brakes at up to 14 m/s² at a right angle; past 20° of slip the grip fades to 1.5 rad/s so the kart keeps sliding until it has slowed |
 | Wall contact                  | velocity into the wall is cancelled; if that component exceeded 50% of top speed, total speed drops by 30% |
 | Kart to kart bump             | both karts pushed apart at 6 m/s along the contact normal and lose 20% speed |
 

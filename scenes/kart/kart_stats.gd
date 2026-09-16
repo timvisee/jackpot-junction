@@ -63,6 +63,15 @@ extends Resource
 @export var turbo_speed_multiplier := 1.5
 @export var turbo_duration := 1.0
 @export var turbo_steer_multiplier := 0.5
+## Within this angle of the pad's arrow, forward or backward, the pad pushes for the full duration.
+@export var turbo_align_angle_deg := 45.0
+## A kart crossing the pad sideways only gets a short shove, then slides.
+@export var turbo_side_push_time := 0.15
+## Braking from sliding sideways outside a drift, per second at a right angle of slip.
+@export var slip_friction := 14.0
+## Grip while the tires have let go in a big uncontrolled slide, so the kart keeps sliding
+## sideways instead of hooking up until it has slowed down.
+@export var grip_sliding := 1.5
 
 @export_group("Collisions")
 @export var wall_hit_threshold := 0.5
