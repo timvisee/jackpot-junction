@@ -370,7 +370,9 @@ assigns physical devices to player slots, see 10.2.
   with bursts on drift entry, drift exit boost, turbo pads and Boost.
 
 - **Nitro**: a flickering blue-white flame from the exhaust with a warm glow on the
-  floor, and a trail of tiny glowing sparks left behind that fade over a second.
+  floor, a trail of tiny glowing sparks left behind that fade over a second, and a
+  thick plume of smoke thrown backward that swells as it drifts, much heavier than
+  the faint exhaust trail of ordinary driving.
 
 ### 4.4 Customisation
 

@@ -1,7 +1,8 @@
 class_name NitroFlame
 extends Node3D
 ## The exhaust flame while nitro burns, GAME.md 4.3: a flickering two-tone cone pointing backward
-## along +Z, a warm glow and a trail of tiny glowing sparks left behind in the world.
+## along +Z, a warm glow, a trail of tiny glowing sparks, and a thick plume of smoke that
+## swells as it drifts, well beyond the faint trail the exhaust leaves the rest of the time.
 
 var active := false
 
@@ -9,6 +10,7 @@ var _outer: Node3D
 var _core: Node3D
 var _light: OmniLight3D
 var _sparks: GPUParticles3D
+var _smoke: GPUParticles3D
 var _time := 0.0
 var _rng := RandomNumberGenerator.new()
 
@@ -26,16 +28,19 @@ func _ready() -> void:
 	add_child(_light)
 	_sparks = _build_sparks()
 	add_child(_sparks)
+	_smoke = _build_smoke()
+	add_child(_smoke)
 	set_active(false)
 
 
-## Shows or hides the flame. Sparks already in the air keep drifting until they fade.
+## Shows or hides the flame. Sparks and smoke already in the air keep drifting until they fade.
 func set_active(on: bool) -> void:
 	active = on
 	_outer.visible = on
 	_core.visible = on
 	_light.visible = on
 	_sparks.emitting = on
+	_smoke.emitting = on
 
 
 func _process(delta: float) -> void:
@@ -74,6 +79,58 @@ func _cone(base_radius: float, length: float, color: Color, glow: float) -> Node
 	pivot.add_child(cone)
 	add_child(pivot)
 	return pivot
+
+
+## The plume behind a burning kart: far heavier than the exhaust's own trail, thrown backward
+## and growing as it goes, so a kart on nitro leaves a wake worth looking at.
+func _build_smoke() -> GPUParticles3D:
+	var particles := GPUParticles3D.new()
+	particles.name = "Smoke"
+	particles.amount = 110
+	particles.lifetime = 1.3
+	particles.local_coords = false
+	particles.emitting = false
+	var process := ParticleProcessMaterial.new()
+	process.direction = Vector3(0.0, 0.2, 1.0)
+	process.spread = 22.0
+	process.initial_velocity_min = 2.0
+	process.initial_velocity_max = 4.5
+	process.gravity = Vector3(0.0, 0.5, 0.0)
+	process.damping_min = 1.5
+	process.damping_max = 3.0
+	process.scale_min = 0.7
+	process.scale_max = 1.5
+	process.scale_curve = _growth_curve()
+	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	process.emission_sphere_radius = 0.18
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(0.72, 0.78, 0.9, 0.55))
+	gradient.set_color(1, Color(0.5, 0.55, 0.68, 0.0))
+	var ramp := GradientTexture1D.new()
+	ramp.gradient = gradient
+	process.color_ramp = ramp
+	particles.process_material = process
+	var mesh := SphereMesh.new()
+	mesh.radius = 0.22
+	mesh.height = 0.44
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.vertex_color_use_as_albedo = true
+	mesh.material = material
+	particles.draw_pass_1 = mesh
+	particles.position = Vector3(0.0, 0.05, 0.35)
+	return particles
+
+
+## Puffs start small and swell as they fall behind.
+static func _growth_curve() -> CurveTexture:
+	var curve := Curve.new()
+	curve.add_point(Vector2(0.0, 0.3))
+	curve.add_point(Vector2(1.0, 1.0))
+	var texture := CurveTexture.new()
+	texture.curve = curve
+	return texture
 
 
 func _build_sparks() -> GPUParticles3D:
