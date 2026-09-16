@@ -28,6 +28,8 @@ var coin_pads: Array[CoinPad] = []
 var power_pads: Array[PowerUpPad] = []
 var flush_pads: Array[FlushPad] = []
 var junction: JunctionPad
+## The moving-head lights over the table, driven by the match's excitement meter.
+var disco: DiscoLights
 var junction_position := Vector3.ZERO
 var junction_radius := 2.5
 var jackpot_zones: Array[JackpotZone] = []
@@ -73,6 +75,7 @@ func build() -> void:
 	_add_pits()
 	_add_junction()
 	_add_jackpots()
+	_add_disco()
 
 
 ## Brings the economy to life: coin pads start spawning, crates drop chips, the Junction and one
@@ -510,6 +513,13 @@ func _add_junction() -> void:
 	pad.ring_material = ring_material
 	ring.position = Vector3(0.0, PAD_HEIGHT + 0.02, 0.0)
 	pad.add_child(ring)
+
+
+func _add_disco() -> void:
+	disco = DiscoLights.new()
+	disco.name = "DiscoLights"
+	add_child(disco)
+	disco.setup(world_size())
 
 
 func _add_jackpots() -> void:

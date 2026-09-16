@@ -34,6 +34,10 @@ const HOT_GAIN_DB := 1.5
 ## How fast the filter follows the meter, per second, so it sweeps rather than snaps.
 const OPEN_FOLLOW := 0.8
 const BANK_TICK_INTERVAL := 0.07
+## The track's tempo. It is a steady four to the bar, so the beat can be read straight off
+## the playback position rather than analysed.
+const MUSIC_BPM := 120.0
+const BEATS_PER_BAR := 4
 
 ## Effect name to the files it picks from at random.
 const LIBRARY: Dictionary[StringName, Array] = {
@@ -158,6 +162,26 @@ func _step_music_effects(delta: float) -> void:
 func is_music_muted() -> bool:
 	var music := AudioServer.get_bus_index("Music")
 	return music >= 0 and AudioServer.is_bus_mute(music)
+
+
+## Where the music is within the current beat: 0 right on it, rising to 1 just before the next.
+func music_beat() -> float:
+	return fposmod(_beats(), 1.0)
+
+
+## Which beat of the bar the music is on, 0 for the downbeat.
+func music_beat_index() -> int:
+	return posmod(floori(_beats()), BEATS_PER_BAR)
+
+
+## Beats since the start of the track. With the music stopped, in the menus or headless, a
+## free-running clock keeps time so anything dancing to it carries on.
+func _beats() -> float:
+	var player := _music_players[_active_player]
+	var position := Time.get_ticks_msec() * 0.001
+	if player.playing:
+		position = player.get_playback_position() + AudioServer.get_time_since_last_mix()
+	return position * MUSIC_BPM / 60.0
 
 
 ## One line for the debug overlay: the layer, both players' levels and positions, and the mute.

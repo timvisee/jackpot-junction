@@ -222,6 +222,7 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 		crate.visible = crates[i]
 		crate.alive = crates[i]
 	match_node.arena.junction.hint = match_node.junction_hint()
+	match_node.arena.disco.level = match_node.intensity.value
 	var flush: Array = data.get("flush", [])
 	for i: int in mini(flush.size(), match_node.arena.flush_pads.size()):
 		match_node.arena.flush_pads[i].apply_puppet_state(

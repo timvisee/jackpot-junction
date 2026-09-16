@@ -608,7 +608,17 @@ Starting palette:
 | Table                | `#8A5A3C`                                     |
 | Chips                | `#F2C14E` gold, `#F7F3EA` and `#C4453C` stripes |
 | Junction neon        | `#FF4FA3` magenta, `#35D0FF` cyan             |
+| Disco heads          | magenta, cyan, gold, violet, green, coral     |
 | Player colours       | red `#E23D3D`, blue `#3D6FE2`, yellow `#F2D23D`, green `#43C463`, purple `#9B4FE2`, orange `#F28C3D`, cyan `#3DD9E2`, pink `#F26BB8` |
+
+- **Disco lights**: six moving-head spot lights hang over the table and follow the
+  excitement meter from 8.4. At rest a single head drifts slowly with a barely
+  visible beam; as the meter climbs more heads switch on, one for every fifth of
+  the way up, and they sweep wider, faster and brighter. Last Call has all six at
+  their widest. Every head flashes on the beat, harder on the first beat of the
+  bar, and the flash grows with the meter too. The track is a steady 120 BPM in
+  four, so the beat comes straight off the music's playback position. The lights
+  cast no shadows and change nothing about play.
 
 ### 8.2 Camera
 

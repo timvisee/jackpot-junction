@@ -14,6 +14,7 @@ extends Node3D
 ##   --burst=1            pop a destruction burst next to the player, for screenshots
 ##   --feed=1             put a few made-up kills in the kill feed, for screenshots
 ##   --offer=1            open the respawn joker pick, for screenshots
+##   --disco=0.8          hold the excitement meter here, for the lights and the music
 ##   --results=1          end the match at once with made-up stats, to see the results screen
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
 ## on an unused device to join mid-match; F6 deals the player a random joker.
@@ -33,6 +34,7 @@ var _oil := false
 var _burst := false
 var _feed := false
 var _offer := false
+var _disco := -1.0
 var _results := false
 
 
@@ -115,6 +117,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(_delta: float) -> void:
+	if _disco >= 0.0:
+		match_node.intensity.heat = _disco
+		match_node.intensity.value = _disco
+		match_node.arena.disco.level = _disco
 	if _flame:
 		match_node.kart_of(0)._flame.set_active(true)
 	if _menu < 0:
@@ -164,5 +170,7 @@ func _parse_user_args() -> void:
 			_feed = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--offer="):
 			_offer = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--disco="):
+			_disco = float(arg.get_slice("=", 1))
 		elif arg.begins_with("--results="):
 			_results = arg.get_slice("=", 1) == "1"

@@ -390,6 +390,7 @@ func _physics_process(delta: float) -> void:
 			_step_respawns(delta)
 			_step_stats(delta)
 			arena.junction.hint = junction_hint()
+			arena.disco.level = intensity.value
 			# Only the last stretch of the meter trembles the camera, and only a little.
 			camera_rig.tremble = maxf(intensity.value - 0.75, 0.0) * 4.0
 
