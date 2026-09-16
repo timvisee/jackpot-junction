@@ -1,6 +1,6 @@
 class_name Scoreboard
 extends VBoxContainer
-## The running order down the left-hand side, GAME.md 8.3. Every kart gets a row: its banked
+## The running order down the right-hand side, GAME.md 8.3. Every kart gets a row: its banked
 ## score, and next to it what it is still carrying around unbanked. Rows are ordered by the two
 ## added together, so a kart on a hot lap climbs the board before it reaches the Junction and
 ## drops back the moment it dies. The leader's row is the biggest and the last place the
@@ -19,9 +19,10 @@ var _rows: Dictionary[int, Dictionary] = {}
 
 
 func _ready() -> void:
-	set_anchors_and_offsets_preset(Control.PRESET_CENTER_LEFT)
+	set_anchors_and_offsets_preset(Control.PRESET_CENTER_RIGHT)
 	grow_vertical = Control.GROW_DIRECTION_BOTH
-	offset_left = 16.0
+	grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	offset_right = -16.0
 	add_theme_constant_override("separation", 4)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 

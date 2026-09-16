@@ -698,7 +698,7 @@ corners, in single-player and online only the local block is shown.
   shove, "P2 fell in" for a fall nobody caused and "P2 wrecked itself" for a
   self kill. Names are in the players' colours. Lines hold for 6 s and fade.
   The feed drops below a player block that owns that corner.
-- **Standings**: a ranked list down the left-hand side, one row per kart with
+- **Standings**: a ranked list down the right-hand side, one row per kart with
   its banked score and, in gold beside it, whatever it is still carrying around
   unbanked. Rows are ordered by the two added together, so a kart on a hot lap
   climbs before it reaches the Junction and drops back when it dies. The leader's
