@@ -331,7 +331,7 @@ func test_a_turbo_shove_can_be_steered_or_braked_out_of_at_once() -> void:
 	_input.steer = 1.0
 	_motor.step(_input, DT)
 	assert_bool(_motor.turboing()).is_false()
-	assert_float(_motor.speed()).is_greater(_stats.top_speed)
+	assert_float(_motor.speed()).is_greater_equal(_stats.top_speed)
 	# So does the brake, from a fresh shove.
 	_input.steer = 0.0
 	_motor.apply_turbo(Vector3(0.0, 0.0, -1.0))
@@ -346,7 +346,7 @@ func test_a_turbo_shove_can_be_steered_or_braked_out_of_at_once() -> void:
 	assert_bool(_motor.turboing()).is_false()
 
 
-func test_turbo_pad_crossed_sideways_shoves_briefly_then_slides_to_a_near_stop() -> void:
+func test_turbo_pad_crossed_sideways_shoves_briefly_then_slides_off_it() -> void:
 	_motor.apply_turbo(Vector3(1.0, 0.0, 0.0))
 	assert_float(_motor.heading).is_equal_approx(0.0, 0.0001)
 	assert_float(_motor.turbo_time_left).is_equal_approx(_stats.turbo_side_push_time, 0.0001)
@@ -354,7 +354,9 @@ func test_turbo_pad_crossed_sideways_shoves_briefly_then_slides_to_a_near_stop()
 	assert_float(_motor.velocity.x).is_greater(10.0)
 	_run(1.6)
 	assert_bool(_motor.turboing()).is_false()
-	assert_float(_motor.speed()).is_less(2.0)
+	# Most of the shove is scrubbed off, but the kart drives out of it rather than being left
+	# standing: sideways slip costs half what it used to.
+	assert_float(_motor.speed()).is_less(_stats.top_speed * 0.45)
 	assert_float(_motor.heading).is_equal_approx(0.0, 0.0001)
 
 

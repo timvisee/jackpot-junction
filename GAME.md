@@ -339,9 +339,9 @@ then hooks up and launches when the handbrake is released.
 | Reverse top speed             | 5 m/s                                                 |
 | Coast deceleration            | 4 m/s² with no input                                  |
 | Yaw rate at low speed         | 200°/s                                                |
-| Yaw rate at top speed         | 110°/s, interpolated linearly by speed                |
+| Yaw rate at top speed         | 128°/s, interpolated linearly by speed: 4.7 m of turning circle flat out, chosen between a 5.5 m one that would not place the kart and a 4.2 m one that turned in on itself |
 | Minimum speed to steer        | none: turning on the spot at 85°/s and turning on the wheels are one control, mixed by speed and fully on the wheels by 2.2 m/s. A kart shuffling about in a corner crosses that range over and over, and the old hard switch at 0.5 m/s stepped from 70 to 195°/s every time it did |
-| Grip, normal                  | travel direction turns toward the nose at 16 rad/s, about 7° of slip at top speed |
+| Grip, normal                  | travel direction turns toward the nose at 30 rad/s, so the kart goes where it is pointed within about 33 ms |
 | Grip, drifting                | 4.8 rad/s, 35 to 55° of slip depending on speed       |
 | Drift entry                   | handbrake held while steering, at over 40% of top speed; steering alone never drifts, and straightening up mid-drift turns it into a stop |
 | Drift yaw multiplier          | 1.55, so a drift turns about 15% tighter than the same steering with grip |
@@ -353,8 +353,8 @@ then hooks up and launches when the handbrake is released.
 | Wounded                       | one life left: top speed 85%, body tinted darker until a cash-out or a kill restores the life |
 | Spin-out                      | crossing an oil stain: the nose whips around at 420°/s for 1.1 s while grip drops to 0.8 rad/s, so the kart keeps its line and skids; steering and throttle do nothing and speed bleeds at 3 m/s² |
 | Wall glance                   | hitting a wall within 35° of it turns the nose 60% of the way along the wall, nudges the kart 1.2 m/s off it and costs at most 15% speed; steeper hits are stopped by the wall and cost 30% speed above half of top speed |
-| Turbo pad                     | fires once the kart's centre is on the pad, not when its bumper touches the edge; shoves along the pad's arrow at 150% top speed without turning the kart. Facing within 45° of the arrow, or straight against it, the shove lasts 1.0 s and the kart simply runs faster, forward or in reverse; crossing sideways gives a 0.15 s shove after which the tires slip and the kart slides to a near standstill. Steering halved while the shove lasts, and the shove ends the moment the driver asks for the kart back: braking, the handbrake or putting the wheel properly over hands it over at once with the speed still on it, so two pads pointing at each other are not a trap |
-| Sideways slip friction        | outside a drift, sliding more than 10° sideways brakes at up to 14 m/s² at a right angle; past 20° of slip the grip fades to 1.5 rad/s so the kart keeps sliding until it has slowed |
+| Turbo pad                     | fires once the kart's centre is on the pad, not when its bumper touches the edge; shoves along the pad's arrow at 150% top speed without turning the kart. Facing within 45° of the arrow, or straight against it, the shove lasts 1.0 s and the kart simply runs faster, forward or in reverse; crossing sideways gives a 0.15 s shove after which the tires slip and the kart slides most of it off, keeping enough to drive out of: the sideways slip friction that used to leave it standing was part of the kart fighting its driver. Steering halved while the shove lasts, and the shove ends the moment the driver asks for the kart back: braking, the handbrake or putting the wheel properly over hands it over at once with the speed still on it, so two pads pointing at each other are not a trap |
+| Sideways slip friction        | outside a drift, sliding more than 10° sideways brakes at up to 7 m/s² at a right angle; past 20° of slip the grip fades to 4 rad/s. Both were harsher, and both read as the kart fighting the driver rather than as weight |
 | Wall contact                  | velocity into the wall is cancelled; if that component exceeded 50% of top speed, total speed drops by 30% |
 | Kart to kart bump             | both karts pushed apart at 6 m/s along the contact normal and lose 20% speed |
 
