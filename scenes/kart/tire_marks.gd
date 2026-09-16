@@ -1,14 +1,18 @@
 class_name TireMarks
 extends MeshInstance3D
-## Fading ribbons drawn under the rear wheels. Lives in world space, so it is a top-level node.
-## Feed it wheel positions every physics tick with [method add_sample].
+## Faint fading ribbons drawn under the rear wheels: a subtle detail, barely there while driving
+## straight and a little darker in a drift. Lives in world space, so it is a top-level node. Feed it
+## wheel positions every physics tick with [method add_sample].
 
-const TRACK_WIDTH := 0.16
+const TRACK_WIDTH := 0.13
 const FADE_SECONDS := 20.0
 const MAX_SAMPLES_PER_WHEEL := 1500
 const BREAK_DISTANCE := 1.5
 const MIN_SAMPLE_DISTANCE := 0.12
 const HEIGHT := 0.015
+## Opacity of a fresh mark at zero and full intensity; drifting reaches the top of the range.
+const MIN_ALPHA := 0.03
+const MAX_ALPHA := 0.28
 
 ## Each entry: {"left": Vector3, "right": Vector3, "time": float, "intensity": float, "start": bool}
 var _wheels: Array[Array] = [[], []]
@@ -25,7 +29,7 @@ func _ready() -> void:
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.vertex_color_use_as_albedo = true
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	material.albedo_color = Color(0.08, 0.07, 0.07, 1.0)
+	material.albedo_color = Color(0.1, 0.09, 0.09, 1.0)
 	material_override = material
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
@@ -86,9 +90,10 @@ func _rebuild(now: float) -> void:
 			for sample: Dictionary in run:
 				var age: float = now - float(sample["time"])
 				var alpha := (
-					(1.0 - age / FADE_SECONDS) * lerpf(0.25, 0.9, float(sample["intensity"]))
+					(1.0 - age / FADE_SECONDS)
+					* lerpf(MIN_ALPHA, MAX_ALPHA, float(sample["intensity"]))
 				)
-				var color := Color(0.08, 0.07, 0.07, clampf(alpha, 0.0, 1.0))
+				var color := Color(0.1, 0.09, 0.09, clampf(alpha, 0.0, 1.0))
 				_mesh.surface_set_color(color)
 				_mesh.surface_set_normal(Vector3.UP)
 				_mesh.surface_add_vertex(sample["left"])

@@ -291,8 +291,9 @@ assigns physical devices to player slots, see 10.2.
 ### 4.3 Trails
 
 - **Tire marks**: a ribbon mesh per rear wheel, drawn while the kart moves,
-  darker and wider while drifting or braking. Marks fade out over 20 s. Segments
-  are capped per kart to bound the cost.
+  darker and wider while drifting or braking, but always faint: a subtle detail
+  rather than a visible feature, at most about a quarter opaque in a drift.
+  Marks fade out over 20 s. Segments are capped per kart to bound the cost.
 - **Smoke**: a faint exhaust particle trail whose rate scales with throttle,
   with bursts on drift entry, drift exit boost, turbo pads and Boost.
 
