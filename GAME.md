@@ -256,9 +256,9 @@ then hooks up and launches when the handbrake is released.
 | Yaw rate at top speed         | 110°/s, interpolated linearly by speed                |
 | Minimum speed to steer        | 0.5 m/s; below it the kart turns in place at 70°/s to line up a shot |
 | Grip, normal                  | travel direction turns toward the nose at 16 rad/s, about 7° of slip at top speed |
-| Grip, drifting                | 4 rad/s, 30 to 55° of slip depending on speed         |
+| Grip, drifting                | 4.8 rad/s, 35 to 55° of slip depending on speed       |
 | Drift entry                   | handbrake held and speed above 40% of top; steering alone never drifts |
-| Drift yaw multiplier          | 1.35                                                  |
+| Drift yaw multiplier          | 1.55, so a drift turns about 15% tighter than the same steering with grip |
 | Drift entry kick              | the nose turns 15° into the turn when a drift starts while steering |
 | Drift speed decay             | 5% per second                                         |
 | Drift exit boost              | +20% top speed for 0.8 s if the drift lasted 0.6 s or longer |

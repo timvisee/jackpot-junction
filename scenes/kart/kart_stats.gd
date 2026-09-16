@@ -26,7 +26,7 @@ extends Resource
 @export_group("Grip and drift")
 ## How fast the direction of travel turns toward the nose, per second. Slip is about yaw over grip.
 @export var grip_normal := 16.0
-@export var grip_drift := 4.0
+@export var grip_drift := 4.8
 ## When on, only the handbrake starts a drift; steering alone never does.
 @export var handbrake_drift_only := true
 ## Braking of the handbrake, reduced while drifting; 0 means it never brakes.
@@ -35,7 +35,7 @@ extends Resource
 @export var drift_speed_fraction := 0.7
 @export var handbrake_speed_fraction := 0.4
 @export var drift_exit_steer := 0.3
-@export var drift_yaw_multiplier := 1.35
+@export var drift_yaw_multiplier := 1.55
 ## Degrees the nose kicks into the turn when a drift starts while steering.
 @export var drift_entry_kick_deg := 15.0
 @export var drift_speed_decay := 0.05
