@@ -6,7 +6,8 @@ extends Node3D
 ## of the music, harder on the first beat of the bar, and the flash too is barely there until the
 ## match is hot.
 ##
-## Purely decorative: the lights cast no shadows and nothing reads them.
+## Purely decorative: the lights cast no shadows and nothing reads them. The accessibility
+## setting in GAME.md 8.5 switches them off entirely.
 
 const COUNT := 6
 const MOUNT_HEIGHT := 8.5
@@ -46,6 +47,10 @@ func lit_count() -> int:
 
 func _process(delta: float) -> void:
 	if _heads.is_empty():
+		return
+	if not Game.settings.disco_lights:
+		for head: Dictionary in _heads:
+			(head["light"] as SpotLight3D).visible = false
 		return
 	# Everything moves at a crawl until the match gives it a reason not to.
 	_time += delta * (0.3 + 1.4 * level)

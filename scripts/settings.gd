@@ -21,6 +21,8 @@ var aim_assist := 1.0
 var rumble := true
 ## Dots ahead of the cannon showing where shots go.
 var aim_guide := true
+## The moving-head lights over the arena, GAME.md 8.1.
+var disco_lights := true
 var stick_deadzone := 0.15
 ## Action name to the descriptors that replace its defaults.
 var bindings: Dictionary = {}
@@ -53,6 +55,7 @@ func load_from_disk() -> void:
 	)
 	rumble = file.get_value("accessibility", "rumble", rumble)
 	aim_guide = file.get_value("accessibility", "aim_guide", aim_guide)
+	disco_lights = file.get_value("accessibility", "disco_lights", disco_lights)
 	stick_deadzone = file.get_value("controls", "stick_deadzone", stick_deadzone)
 	bindings = file.get_value("controls", "bindings", {})
 	match_minutes = file.get_value("lobby", "match_minutes", match_minutes)
@@ -78,6 +81,7 @@ func save_to_disk() -> Error:
 	file.set_value("accessibility", "aim_assist", aim_assist)
 	file.set_value("accessibility", "rumble", rumble)
 	file.set_value("accessibility", "aim_guide", aim_guide)
+	file.set_value("accessibility", "disco_lights", disco_lights)
 	file.set_value("controls", "stick_deadzone", stick_deadzone)
 	file.set_value("controls", "bindings", bindings)
 	file.set_value("lobby", "match_minutes", match_minutes)

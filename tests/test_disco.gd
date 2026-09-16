@@ -10,6 +10,21 @@ func _lights() -> DiscoLights:
 	return lights
 
 
+## GAME.md 8.5: the accessibility setting puts every head out.
+func test_the_setting_switches_every_head_off() -> void:
+	var lights := _lights()
+	lights.level = 1.0
+	lights._process(0.016)
+	assert_int(lights.lit_count()).is_equal(DiscoLights.COUNT)
+	var was := Game.settings.disco_lights
+	Game.settings.disco_lights = false
+	lights._process(0.016)
+	assert_int(lights.lit_count()).is_equal(0)
+	Game.settings.disco_lights = was
+	lights._process(0.016)
+	assert_int(lights.lit_count()).is_equal(DiscoLights.COUNT)
+
+
 func test_more_heads_switch_on_as_the_meter_climbs() -> void:
 	var lights := _lights()
 	lights.level = 0.0
