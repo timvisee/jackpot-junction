@@ -37,6 +37,7 @@ func test_a_crossfade_keeps_the_summed_level_constant() -> void:
 		assert_float(active.volume_linear + other.volume_linear).is_equal_approx(1.0, 0.05)
 	else:
 		assert_float(active.volume_linear).is_equal_approx(1.0, 0.001)
+	assert_str(Audio.music_debug()).contains("music tense")
 
 
 func test_a_kill_makes_the_music_tense_then_it_calms_down() -> void:

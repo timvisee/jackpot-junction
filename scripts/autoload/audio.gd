@@ -112,6 +112,32 @@ func is_music_muted() -> bool:
 	return music >= 0 and AudioServer.is_bus_mute(music)
 
 
+## One line for the debug overlay: the layer, both players' levels and positions, and the mute.
+func music_debug() -> String:
+	var parts: PackedStringArray = ["music %s" % current_layer]
+	for i: int in _music_players.size():
+		var player := _music_players[i]
+		var file := "-"
+		for layer: StringName in LAYER_FILES:
+			if player.stream != null and player.stream.resource_path.ends_with(LAYER_FILES[layer]):
+				file = layer
+		var mark := "*" if i == _active_player else " "
+		if player.playing:
+			parts.append(
+				(
+					"%s%s %3.0f%% %5.1f s"
+					% [mark, file, player.volume_linear * 100.0, player.get_playback_position()]
+				)
+			)
+		else:
+			parts.append("%s%s off" % [mark, file])
+	if is_music_muted():
+		parts.append("MUTED")
+	elif not music_enabled:
+		parts.append("disabled")
+	return "  ".join(parts)
+
+
 func _process(delta: float) -> void:
 	_bank_tick_left = maxf(_bank_tick_left - delta, 0.0)
 	if _tense_left > 0.0:

@@ -608,7 +608,8 @@ every kart, so everyone sees when an opponent cashes out.
   loops without a gap. Intensity 1 plays by default and in the menus. A kill
   switches to intensity 2 for 12 s, extended by further kills. When every
   human player is dead the music drops back to intensity 1 at once. Last Call
-  switches to the full mix and keeps it until the results.
+  switches to the full mix and keeps it until the results. The F3 overlay
+  shows the layer, both players' levels and positions, and the mute state.
 - **Chips**: clink on pickup, pitch rising with rapid pickups.
 - **Mult**: dice rattle on gain, a soft ping on graze.
 - **Cash-out**: slot-machine ticks while draining, a jackpot chime on

@@ -1,7 +1,8 @@
 extends Node3D
-## The playable match: environment, a [Match] built from the pending [MatchConfig], and the
-## pause menu. Online, the host runs the match with a [NetSession] and clients run a puppet
-## match fed by snapshots. Falls back to one human against three bots when started directly.
+## The playable match: environment, a [Match] built from the pending [MatchConfig], the F3
+## debug overlay and the pause menu. Online, the host runs the match with a [NetSession] and
+## clients run a puppet match fed by snapshots. Falls back to one human against three bots when
+## started directly.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const RETURN_DELAY := 2.5
@@ -52,6 +53,11 @@ func _ready() -> void:
 				_show_status("Connecting to %s:%d..." % [config.address, config.port])
 		_:
 			match_node.start(config.inputs(), 0, config.colors())
+	var overlay := DebugOverlay.new()
+	overlay.name = "DebugOverlay"
+	overlay.match_node = match_node
+	overlay.visible = false
+	add_child(overlay)
 	var pause := PauseMenu.new()
 	pause.name = "PauseMenu"
 	pause.online = config.online != ""

@@ -1,11 +1,13 @@
 class_name DebugOverlay
 extends CanvasLayer
-## F3 toggles a readout of one kart: speed, drift, boost, heading, fps, and how long the last
-## crossing of the arena took, measured between two lines 3 m from each side wall.
+## F3 toggles a readout of one kart: speed, drift, boost, heading, fps, how long the last
+## crossing of the arena took, measured between two lines 3 m from each side wall, and the
+## music layers. Given a match instead of a kart it follows the first local human.
 
 const CROSSING_INSET := 3.0
 
 var kart: Kart
+var match_node: Match
 var arena_width := 40.0
 
 var _label: Label
@@ -36,7 +38,13 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 
 func _process(_delta: float) -> void:
+	if (kart == null or not is_instance_valid(kart)) and match_node != null:
+		_find_kart()
 	if kart == null or not is_instance_valid(kart):
+		if visible:
+			_label.text = (
+				"fps %d\n%s\n\nF3 overlay" % [Engine.get_frames_per_second(), Audio.music_debug()]
+			)
 		return
 	_track_crossing()
 	if not visible:
@@ -49,7 +57,7 @@ func _process(_delta: float) -> void:
 	if motor.boosting():
 		state += " boost %.2f" % motor.boost_time_left
 	var template := "fps %d\nspeed %.1f m/s (%.0f%%)\nforward %.1f\n%s\nheading %.0f deg\n"
-	template += "last crossing %.2f s\n\nF3 overlay  F4 tuning"
+	template += "last crossing %.2f s\n%s\n\nF3 overlay  F4 tuning"
 	_label.text = (
 		template
 		% [
@@ -60,8 +68,17 @@ func _process(_delta: float) -> void:
 			state,
 			rad_to_deg(motor.heading),
 			_last_crossing,
+			Audio.music_debug(),
 		]
 	)
+
+
+func _find_kart() -> void:
+	for slot: PlayerSlot in match_node.slots:
+		if slot.is_local_human() and slot.kart != null:
+			kart = slot.kart
+			arena_width = match_node.arena.world_size().x
+			return
 
 
 func _track_crossing() -> void:
