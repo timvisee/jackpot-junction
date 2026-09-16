@@ -31,6 +31,11 @@ func _ready() -> void:
 			var error := session.host(config.port)
 			if error != OK:
 				_fail("Could not host on port %d: %s" % [config.port, error_string(error)])
+			else:
+				match_node.lobby_hint = (
+					"Friends join on port %d at %s" % [config.port, ", ".join(_local_addresses())]
+				)
+				match_node.hold_in_lobby()
 		"join":
 			match_node.start_puppet()
 			_start_session()
@@ -51,6 +56,17 @@ func _ready() -> void:
 	pause.name = "PauseMenu"
 	pause.online = config.online != ""
 	add_child(pause)
+
+
+## IPv4 addresses of this machine other than loopback, for the lobby hint.
+func _local_addresses() -> PackedStringArray:
+	var result: PackedStringArray = []
+	for address: String in IP.get_local_addresses():
+		if address.contains(".") and not address.begins_with("127."):
+			result.append(address)
+	if result.is_empty():
+		result.append("127.0.0.1")
+	return result
 
 
 func _start_session() -> void:

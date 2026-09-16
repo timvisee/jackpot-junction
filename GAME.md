@@ -684,8 +684,10 @@ else can join. A player who leaves mid-match hands the kart back to a bot.
 
 The third release. Godot's high-level multiplayer over ENet with a
 host-authoritative listen server, joined by direct IP and port from the Play
-online screen. Up to 4 players, bots run on the host, and a joining client
-takes over a bot's kart. Design details in 10.3. A join code needs a relay
+online screen. The host waits in an online lobby that lists who is in and
+shows the address to join at, and presses Start when everyone is there;
+players may still join a running match. Up to 4 players, bots run on the
+host, and a joining client takes over a bot's kart. Design details in 10.3. A join code needs a relay
 service and Steam integration needs GodotSteam; both are backlog items.
 Joining mid-match follows the local rule in 9.2. Online matches cannot be
 paused.

@@ -23,6 +23,8 @@ var state := State.LOBBY
 var slots: Array[PlayerSlot] = []
 ## On a client: a puppet match that renders snapshots from the host.
 var puppet := false
+## Shown on the lobby panel, for example the host's address and port.
+var lobby_hint := ""
 ## The slot the local player controls in a puppet match, -1 until assigned.
 var local_slot := -1
 var arena: Arena
@@ -268,6 +270,20 @@ func set_local_slot(index: int) -> void:
 	local_slot = index
 
 
+## Parks a started match in the lobby, karts frozen and the clock stopped, until the host begins.
+func hold_in_lobby() -> void:
+	_set_frozen(true)
+	_set_state(State.LOBBY)
+
+
+## Leaves the lobby into the countdown.
+func begin_from_lobby() -> void:
+	if state != State.LOBBY or puppet:
+		return
+	countdown_left = rules.countdown
+	_set_state(State.COUNTDOWN)
+
+
 ## Everything a client needs to render the match this tick.
 func build_snapshot() -> Dictionary:
 	var slot_data: Array = []
@@ -454,6 +470,10 @@ func _apply_slots(entries: Array) -> void:
 		slot.bot_trait = (
 			bot_traits.by_id(StringName(entry["trait"])) if entry["trait"] != "" else null
 		)
+		if entry["human"] and not slot.is_human():
+			slot.input = NetInput.new()
+		elif not entry["human"] and slot.is_human() and i != local_slot:
+			slot.input = KartInput.new()
 		if slot.kart != null:
 			slot.kart.pot.coins = entry["coins"]
 			slot.kart.pot.mult = entry["mult"]

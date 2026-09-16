@@ -19,6 +19,10 @@ var _banner: Label
 var _blocks: Dictionary[int, Dictionary] = {}
 var _results: PanelContainer
 var _results_rows: VBoxContainer
+var _lobby: PanelContainer
+var _lobby_rows: RichTextLabel
+var _lobby_hint: Label
+var _lobby_start: Button
 var _go_left := 0.0
 
 
@@ -43,6 +47,7 @@ func _ready() -> void:
 		if slot.is_local_human():
 			add_block(slot)
 	_build_results()
+	_build_lobby()
 	Events.grazed.connect(_on_grazed)
 	Events.mult_gained.connect(_on_mult_gained)
 	Events.bank_completed.connect(_on_bank_completed)
@@ -102,6 +107,7 @@ func _process(delta: float) -> void:
 	_update_standings()
 	_update_blocks()
 	_update_banner(delta)
+	_update_lobby()
 
 
 func _update_timer() -> void:
@@ -440,6 +446,71 @@ func _build_results() -> void:
 	quit.text = "Back to title"
 	quit.pressed.connect(func() -> void: Game.go_to_title())
 	buttons.add_child(quit)
+
+
+## The online lobby, GAME.md 9.3: who is here, how to join, and the host's Start button.
+func _build_lobby() -> void:
+	_lobby = PanelContainer.new()
+	_lobby.name = "Lobby"
+	_lobby.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	_lobby.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_lobby.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_lobby.custom_minimum_size = Vector2(620.0, 0.0)
+	_lobby.visible = false
+	add_child(_lobby)
+	var margin := MarginContainer.new()
+	for side: String in ["left", "right", "top", "bottom"]:
+		margin.add_theme_constant_override("margin_%s" % side, 24)
+	_lobby.add_child(margin)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 12)
+	margin.add_child(column)
+	column.add_child(MenuTheme.title("Online lobby", 44))
+	_lobby_hint = Label.new()
+	_lobby_hint.add_theme_font_size_override("font_size", 20)
+	_lobby_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_lobby_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	column.add_child(_lobby_hint)
+	_lobby_rows = RichTextLabel.new()
+	_lobby_rows.bbcode_enabled = true
+	_lobby_rows.fit_content = true
+	_lobby_rows.scroll_active = false
+	_lobby_rows.add_theme_font_size_override("normal_font_size", 24)
+	column.add_child(_lobby_rows)
+	_lobby_start = MenuTheme.button("Start match")
+	_lobby_start.pressed.connect(func() -> void: match_node.begin_from_lobby())
+	_lobby_start.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	column.add_child(_lobby_start)
+	var leave := MenuTheme.button("Back to title", 24)
+	leave.pressed.connect(func() -> void: Game.go_to_title())
+	leave.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	column.add_child(leave)
+
+
+func _update_lobby() -> void:
+	var in_lobby := match_node.state == Match.State.LOBBY
+	if _lobby.visible != in_lobby:
+		_lobby.visible = in_lobby
+		if in_lobby and not match_node.puppet:
+			_lobby_start.grab_focus()
+	if not in_lobby:
+		return
+	_lobby_start.visible = not match_node.puppet
+	_lobby_hint.text = (
+		match_node.lobby_hint
+		if not match_node.puppet
+		else "Waiting for the host to start the match..."
+	)
+	var lines: PackedStringArray = []
+	for slot: PlayerSlot in match_node.slots:
+		var kind := "player" if slot.is_human() else "bot, free for a player to take"
+		lines.append(
+			(
+				"[color=#%s]■[/color]  %s  [color=#9a9aa0]%s[/color]"
+				% [slot.color().to_html(false), slot.display_name(), kind]
+			)
+		)
+	_lobby_rows.text = "[center]%s[/center]" % "\n".join(lines)
 
 
 func _show_results() -> void:

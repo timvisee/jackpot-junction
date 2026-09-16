@@ -121,3 +121,43 @@ func test_client_joins_takes_over_a_bot_drives_it_and_hands_it_back_on_leaving()
 	)
 	assert_bool(handed_back).is_true()
 	assert_object(host_match.slots[1].bot_trait).is_not_null()
+
+
+func test_the_host_holds_the_match_in_a_lobby_until_it_begins() -> void:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.rules = _quick_rules()
+	host_match.with_hud = true
+	host_match.offer_size = 0
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	host_match.lobby_hint = "port 7791"
+	host_match.hold_in_lobby()
+	assert_int(host_match.state).is_equal(Match.State.LOBBY)
+	assert_bool(host_match.kart_of(0).frozen).is_true()
+	await await_millis(80)
+	assert_bool(host_match.hud._lobby.visible).is_true()
+	assert_str(host_match.hud._lobby_rows.text).contains("P1")
+	var joined := host_match.join_network(NetInput.new())
+	assert_object(joined).is_not_null()
+	assert_bool(joined.kart.frozen).is_true()
+	var snapshot := host_match.build_snapshot()
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.rules = _quick_rules()
+	client_match.with_hud = true
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	client_match.set_local_slot(1)
+	client_match.apply_snapshot(snapshot)
+	assert_int(client_match.state).is_equal(Match.State.LOBBY)
+	assert_bool(client_match.slots[1].is_human()).is_true()
+	await await_millis(80)
+	assert_bool(client_match.hud._lobby.visible).is_true()
+	assert_bool(client_match.hud._lobby_start.visible).is_false()
+	client_match.begin_from_lobby()
+	assert_int(client_match.state).is_equal(Match.State.LOBBY)
+	host_match.begin_from_lobby()
+	assert_int(host_match.state).is_equal(Match.State.COUNTDOWN)
+	await await_millis(300)
+	assert_int(host_match.state).is_equal(Match.State.PLAYING)
+	assert_bool(host_match.kart_of(0).frozen).is_false()
