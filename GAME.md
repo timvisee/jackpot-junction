@@ -630,15 +630,23 @@ Starting palette:
 | Disco heads          | magenta, cyan, gold, violet, green, coral     |
 | Player colours       | red `#E23D3D`, blue `#3D6FE2`, yellow `#F2D23D`, green `#43C463`, purple `#9B4FE2`, orange `#F28C3D`, cyan `#3DD9E2`, pink `#F26BB8` |
 
-- **Disco lights**: six moving-head spot lights hang over the table and follow
-  the excitement meter from 8.4. They can be switched off in the accessibility
-  settings in 8.5. At rest a single head drifts slowly with a barely
-  visible beam; as the meter climbs more heads switch on, one for every fifth of
-  the way up, and they sweep wider, faster and brighter. Last Call has all six at
-  their widest. Every head flashes on the beat, harder on the first beat of the
-  bar, and the flash grows with the meter too. The track is a steady 120 BPM in
-  four, so the beat comes straight off the music's playback position. The lights
-  cast no shadows and change nothing about play.
+- **Disco lights**: six moving-head spot lights hang over the table, in magenta,
+  cyan, white, gold, violet and green, and follow the excitement meter from 8.4.
+  They can be switched off in the accessibility settings in 8.5. At rest a single
+  head drifts slowly with a barely visible beam; as the meter climbs more heads
+  switch on, one for every fifth of the way up, and they sweep wider, faster and
+  brighter. Last Call has all six at their widest.
+- The rig lags the meter on purpose: it follows a copy of it that moves at 0.3 a
+  second, a head only lights once the level has clearly earned it and only goes
+  out once it has fallen 0.06 back below that mark, and either way the count then
+  stands for 3 s. A flurry in the match cannot blink a head on and straight off
+  again. While any head is still dark the lit run walks around the rig by itself,
+  every 7 s at rest down to every 2 s at full heat, so the room keeps moving
+  without getting brighter.
+- Every head flashes on the beat, harder on the first beat of the bar, and the
+  flash grows with the meter too. The track is a steady 120 BPM in four, so the
+  beat comes straight off the music's playback position. The lights cast no
+  shadows and change nothing about play.
 
 ### 8.2 Camera
 
