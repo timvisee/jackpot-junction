@@ -15,6 +15,7 @@ crate_gold_chance = 0.1
 pickup_radius = 0.9
 dropped_chip_lifetime = 15.0
 power_pad_respawn = 15.0
+target_coins = 3
 item_reveal_time = 0.5
 kill_mult = 1.0
 graze_mult = 0.5

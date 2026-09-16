@@ -5,6 +5,8 @@ extends Node3D
 
 ## A crate broke; [param by_slot] gets the credit, -1 for nobody.
 signal crate_broken(by_slot: int)
+## A shooting target went down; the slot that shot it collects [param coins].
+signal target_struck(by_slot: int, coins: int)
 
 const FLOOR_THICKNESS := 0.2
 const TABLE_OVERHANG := 30.0
@@ -27,6 +29,8 @@ var crates: Array[Crate] = []
 var coin_pads: Array[CoinPad] = []
 var power_pads: Array[PowerUpPad] = []
 var flush_pads: Array[FlushPad] = []
+var targets: Array[Target] = []
+var joker_pads: Array[JokerPad] = []
 var junction: JunctionPad
 ## The moving-head lights over the table, driven by the match's excitement meter.
 var disco: DiscoLights
@@ -58,6 +62,8 @@ func build() -> void:
 	coin_pads.clear()
 	power_pads.clear()
 	flush_pads.clear()
+	targets.clear()
+	joker_pads.clear()
 	jackpot_zones.clear()
 	jackpot_positions.clear()
 	pickups = Node3D.new()
@@ -70,6 +76,8 @@ func build() -> void:
 	_add_coin_pads()
 	_add_power_pads()
 	_add_flush_pads()
+	_add_targets()
+	_add_joker_pads()
 	_add_turbo_pads()
 	_add_crates()
 	_add_pits()
@@ -80,9 +88,15 @@ func build() -> void:
 
 ## Brings the economy to life: coin pads start spawning, crates drop chips, the Junction and one
 ## Jackpot zone start working. Called by the match once it has rules and a seeded generator.
-func start_economy(rules: MatchRules, rng: RandomNumberGenerator, items: PowerUpTable) -> void:
+func start_economy(
+	rules: MatchRules, rng: RandomNumberGenerator, items: PowerUpTable, jokers: JokerCatalog = null
+) -> void:
 	_rules = rules
 	_rng = rng
+	for target: Target in targets:
+		target.coins = rules.target_coins
+	for pad: JokerPad in joker_pads:
+		pad.start(rules, rng, pickups, jokers)
 	for pad: CoinPad in coin_pads:
 		pad.start(rules, rng, pickups)
 	for pad: PowerUpPad in power_pads:
@@ -352,6 +366,35 @@ func _add_power_pads() -> void:
 		pad.add_child(disc)
 		pads.add_child(pad)
 		power_pads.append(pad)
+
+
+func _add_targets() -> void:
+	var holder := Node3D.new()
+	holder.name = "Targets"
+	add_child(holder)
+	for i: int in grid.targets.size():
+		var target := Target.new()
+		target.name = "Target%d" % i
+		target.position = grid.cell_center(grid.targets[i])
+		target.struck.connect(_on_target_struck)
+		holder.add_child(target)
+		targets.append(target)
+
+
+func _add_joker_pads() -> void:
+	var holder := Node3D.new()
+	holder.name = "JokerPads"
+	add_child(holder)
+	for i: int in grid.joker_pads.size():
+		var pad := JokerPad.new()
+		pad.name = "JokerPad%d" % i
+		pad.position = grid.cell_center(grid.joker_pads[i])
+		holder.add_child(pad)
+		joker_pads.append(pad)
+
+
+func _on_target_struck(target: Target, by_slot: int) -> void:
+	target_struck.emit(by_slot, target.coins)
 
 
 func _add_flush_pads() -> void:

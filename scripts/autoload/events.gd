@@ -35,6 +35,7 @@ signal bounty_called(slot: int)
 signal bounty_claimed(killer_slot: int, victim_slot: int, amount: int)
 signal bounty_lapsed(slot: int)
 signal crate_destroyed
+signal target_struck(slot: int, coins: int)
 signal shield_popped(slot: int)
 signal bomb_exploded(slot: int)
 signal oil_hit(slot: int)

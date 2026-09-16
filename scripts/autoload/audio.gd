@@ -77,6 +77,7 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"pad_claim": ["select_001.ogg"],
 	&"oil": ["impactSoft_heavy_001.ogg"],
 	&"bounty": ["question_001.ogg"],
+	&"target": ["select_002.ogg"],
 	&"wounded": ["impactPunch_heavy_000.ogg"],
 	&"patched": ["confirmation_002.ogg"],
 	&"explosion_tail": ["impactSoft_heavy_001.ogg"],
@@ -364,6 +365,9 @@ func _connect_events() -> void:
 	Events.turbo_taken.connect(func(_slot: int) -> void: play_sfx(&"turbo", -6.0))
 	Events.nitro_started.connect(func(_slot: int) -> void: play_sfx(&"turbo", -8.0, 0.1))
 	Events.crate_destroyed.connect(func() -> void: play_sfx(&"crate", -6.0))
+	Events.target_struck.connect(
+		func(_slot: int, _coins: int) -> void: play_sfx(&"target", -4.0, 0.12)
+	)
 	Events.shield_popped.connect(func(_slot: int) -> void: play_sfx(&"shield_pop", -6.0))
 	Events.bomb_exploded.connect(func(_slot: int) -> void: _play_explosion())
 	Events.pad_claimed.connect(func(_slot: int) -> void: play_sfx(&"pad_claim", -8.0, 0.05))

@@ -84,7 +84,7 @@ func start(inputs: Array[KartInput], seed: int = 0, colors: Array[int] = []) -> 
 	arena = ARENA_SCENE.instantiate()
 	arena.name = "Arena"
 	add_child(arena)
-	arena.start_economy(rules, rng, power_ups)
+	arena.start_economy(rules, rng, power_ups, joker_catalog)
 	nav = ArenaNav.new(arena.grid)
 	for i: int in arena.crates.size():
 		var cell := arena.grid.crates[i]
@@ -96,6 +96,7 @@ func start(inputs: Array[KartInput], seed: int = 0, colors: Array[int] = []) -> 
 	for pad: FlushPad in arena.flush_pads:
 		pad.claimed.connect(_on_pad_claimed)
 	arena.crate_broken.connect(_on_stat_crate)
+	arena.target_struck.connect(_on_target_struck)
 	Events.joker_taken.connect(_on_stat_joker)
 	Events.life_restored.connect(_on_stat_life)
 	for zone: JackpotZone in arena.jackpot_zones:
@@ -607,6 +608,16 @@ func _step_stats(delta: float) -> void:
 func _on_stat_mult(_amount: float, reason: StringName, slot: PlayerSlot) -> void:
 	if reason == &"graze":
 		slot.stats.add(&"grazes")
+
+
+## A shooting target pays the kart that knocked it down, GAME.md 6.2.
+func _on_target_struck(by_slot: int, coins: int) -> void:
+	if by_slot < 0 or by_slot >= slots.size():
+		return
+	var slot := slots[by_slot]
+	slot.stats.add(&"targets")
+	if slot.kart != null and slot.kart.alive:
+		slot.kart.collect_coins(coins, null)
 
 
 func _on_stat_crate(by_slot: int) -> void:

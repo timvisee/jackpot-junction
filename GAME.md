@@ -239,10 +239,10 @@ are: Trigger Happy (shots fired), Butterfingers (coins lost), Vacuum Cleaner
 Sideways Specialist (distance drifted), Close Shave (grazes), Regular Customer
 (cash-outs), Big Spender (biggest cash-out), Gadgeteer (items used), Nitro
 Junkie (nitro time), Pad Hopper (turbo pads), Multiplier Maniac (peak mult),
-Demolition Crew (crates), Pyrotechnician (bomb kills), Royal Flush (flushes),
-Bounty Hunter (bounties collected), Comeback Kid (lives restored), Spelunker
-(pit falls), Own Goal (self kills) and Crash Test Dummy (deaths). Stats with a
-value of zero never earn an award.
+Demolition Crew (crates), Sharpshooter (targets), Pyrotechnician (bomb kills),
+Royal Flush (flushes), Bounty Hunter (bounties collected), Comeback Kid (lives
+restored), Spelunker (pit falls), Own Goal (self kills) and Crash Test Dummy
+(deaths). Stats with a value of zero never earn an award.
 
 - The title screen offers Play, Settings and Quit. There is no tutorial. At
   the start of a match the drive and fire controls are shown next to each
@@ -470,6 +470,8 @@ protection makes the kart untouchable.
 | Coin pad       | Spawns chips, gold chips and mult dice, see 3.2                        |
 | Power-up pad   | Spawns a held item, see 7.1                                            |
 | Flush pad      | Takes the colour of the last kart over it; all four in one colour score a Royal Flush, see 3.9 |
+| Target         | A shooting-gallery plate at bullet height. A bullet knocks it down and pays the shooter 3 coins; it comes back after 4 s. Karts bump into the post |
+| Joker pad      | Keeps a joker lying on it, another one 6 s after it is taken. Used by the Garage in 9.4 |
 | Junction pad   | Cash-out zone, circle of radius 2.5 m, see 3.4                         |
 | Jackpot zone   | Growing chip pile, 2.5 m square, see 3.5                               |
 | Spawn point    | 4 points near the corners                                              |
@@ -501,6 +503,7 @@ playtests.
 
 #  wall          S  spawn point      C  coin pad       P  power-up pad
 J  Junction pad  K  Jackpot zone     T  turbo pad      X  pit
+R  target        D  joker pad
 B  crate         .  floor            F  Royal Flush pad
 ```
 

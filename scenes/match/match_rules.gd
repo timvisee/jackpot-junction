@@ -17,6 +17,8 @@ extends Resource
 
 @export_group("Items")
 @export var power_pad_respawn := 15.0
+## Coins a shooting target pays the kart that knocks it down.
+@export var target_coins := 3
 @export var item_reveal_time := 0.5
 
 @export_group("Mult")
