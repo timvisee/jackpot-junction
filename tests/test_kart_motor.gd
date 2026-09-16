@@ -38,6 +38,26 @@ func test_braking_stops_then_reverses_up_to_reverse_top_speed() -> void:
 	assert_float(_motor.forward_speed).is_equal_approx(-_stats.reverse_top_speed, 0.01)
 
 
+## GAME.md 4.1: the bottle is its own throttle, so nitro moves a kart that is not on the pedal.
+func test_nitro_pushes_the_kart_forward_without_the_throttle() -> void:
+	_motor.nitro_bonus = 1.9
+	_run(1.0)
+	assert_float(_motor.forward_speed).is_greater(_stats.top_speed)
+	# From a standstill going backwards, it turns the kart around rather than letting it drift on.
+	_motor.nitro_bonus = 1.0
+	_input.brake = 1.0
+	_run(2.0)
+	assert_float(_motor.forward_speed).is_less(0.0)
+	_input.brake = 0.0
+	_motor.nitro_bonus = 1.9
+	_run(1.0)
+	assert_float(_motor.forward_speed).is_greater(0.0)
+	# Braking still overrules it, so there is a way out of a burn.
+	_input.brake = 1.0
+	_run(0.5)
+	assert_float(_motor.forward_speed).is_less(_stats.top_speed)
+
+
 func test_coasting_slows_down_and_stops() -> void:
 	_input.throttle = 1.0
 	_run(2.0)

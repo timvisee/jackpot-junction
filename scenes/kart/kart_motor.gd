@@ -169,8 +169,14 @@ func _step_longitudinal(input: KartInput, delta: float) -> void:
 		forward_speed = max_speed()
 		return
 	var accel := stats.acceleration() * (1.5 if nitro_bonus > 1.0 else 1.0)
-	if input.throttle > 0.01 and (forward_speed >= 0.0 or input.brake <= 0.01):
-		forward_speed = move_toward(forward_speed, max_speed() * input.throttle, accel * delta)
+	# The bottle is its own throttle, GAME.md 4.2: nitro pushes whether or not the pedal is
+	# down, so a kart coasting or reversing is thrown forward by it. Braking still wins, so
+	# there is a way to burn nitro without being carried into a wall.
+	var throttle := input.throttle
+	if nitro_bonus > 1.0 and input.brake <= 0.01:
+		throttle = 1.0
+	if throttle > 0.01 and (forward_speed >= 0.0 or input.brake <= 0.01):
+		forward_speed = move_toward(forward_speed, max_speed() * throttle, accel * delta)
 	elif input.brake > 0.01:
 		if forward_speed > 0.05:
 			forward_speed = move_toward(forward_speed, 0.0, stats.brake_decel * input.brake * delta)
