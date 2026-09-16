@@ -887,6 +887,14 @@ NavigationAgent3D, plus reactive bullet dodging.
 | Grab item       | Holding nothing and a power-up pad is near                                    |
 | Flee            | A Boosting enemy is within 6 m                                                |
 
+**Pits**: paths already go around them, but a pit stops nothing and blocks no
+raycast, so a bot cutting a corner, sliding out of a drift or chasing a kart
+across one would drive in regardless. A bot checks the ground a second and a bit
+ahead of itself; if a hole is in the way it comes off the throttle, drops the
+nitro and steers along the edge of the hole rather than trying to turn round,
+and inside 6 m it brakes as well. Short cuts between waypoints are checked
+against the holes too.
+
 **Dodging**: for each enemy bullet within 8 m, predict the closest approach
 over the next second. If it is under 1.2 m, steer perpendicular to the bullet,
 with the difficulty's dodge chance.

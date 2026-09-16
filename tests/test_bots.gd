@@ -146,14 +146,8 @@ func test_a_wounded_bot_settles_for_a_smaller_pot() -> void:
 	)
 
 
-## Which piece of scenery the brain would shoot at, as an instance id, or 0 for none.
-func _picked(brain: BotBrain) -> int:
-	var mark := brain._scenery_mark()
-	return mark.get_instance_id() if mark != null else 0
-
-
-## GAME.md 9.1: with nobody worth shooting, a bot puts its shots into the scenery, which pays.
-func test_a_bot_with_nobody_to_shoot_picks_the_scenery_in_front_of_it() -> void:
+## A running match of two bots, for the tests that need a brain in a real arena.
+func _match() -> Match:
 	var rules: MatchRules = DEFAULT_RULES.duplicate()
 	rules.countdown = 0.1
 	rules.duration = 60.0
@@ -164,6 +158,18 @@ func test_a_bot_with_nobody_to_shoot_picks_the_scenery_in_front_of_it() -> void:
 	_runner = scene_runner(match_node)
 	var inputs: Array[KartInput] = [BotInput.new(), BotInput.new()]
 	match_node.start(inputs, 9)
+	return match_node
+
+
+## Which piece of scenery the brain would shoot at, as an instance id, or 0 for none.
+func _picked(brain: BotBrain) -> int:
+	var mark := brain._scenery_mark()
+	return mark.get_instance_id() if mark != null else 0
+
+
+## GAME.md 9.1: with nobody worth shooting, a bot puts its shots into the scenery, which pays.
+func test_a_bot_with_nobody_to_shoot_picks_the_scenery_in_front_of_it() -> void:
+	var match_node := _match()
 	await _runner.simulate_frames(12, 17)
 	var kart := match_node.kart_of(0)
 	var brain: BotBrain = kart.get_node("Brain")
@@ -182,6 +188,47 @@ func test_a_bot_with_nobody_to_shoot_picks_the_scenery_in_front_of_it() -> void:
 	crate.hit(1)
 	await _runner.simulate_frames(2, 17)
 	assert_int(_picked(brain)).is_not_equal(crate.get_instance_id())
+
+
+## GAME.md 9.1: paths go around a pit, but a pit stops nothing and blocks no raycast, so a bot
+## cutting a corner would drive straight over one. It checks where it is headed and turns out.
+func test_a_bot_turns_out_of_a_pit_it_is_headed_for() -> void:
+	var match_node := _match()
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	var brain: BotBrain = kart.get_node("Brain")
+	var nav := match_node.nav
+	var pit := match_node.arena.grid.rect_center(match_node.arena.grid.pits[0])
+	assert_bool(nav.is_pit_at(pit)).is_true()
+	assert_bool(nav.is_pit_at(match_node.arena.junction_position)).is_false()
+	# A line across the hole reads as crossing it; one well clear of it does not.
+	(
+		assert_bool(nav.crosses_pit(pit + Vector3(6.0, 0.0, 0.0), pit - Vector3(6.0, 0.0, 0.0)))
+		. is_true()
+	)
+	(
+		assert_bool(nav.crosses_pit(pit + Vector3(6.0, 0.0, 9.0), pit + Vector3(-6.0, 0.0, 9.0)))
+		. is_false()
+	)
+	# Driven flat out straight at the hole, with the goal on the far side of it.
+	kart.global_position = pit + Vector3(5.0, 0.0, 0.8)
+	kart.face(Vector3(-1.0, 0.0, 0.0))
+	kart.motor.forward_speed = kart.stats.top_speed
+	kart.motor.velocity = kart.motor.forward_vector() * kart.stats.top_speed
+	brain.target = pit - Vector3(5.0, 0.0, 0.0)
+	brain._path = PackedVector3Array()
+	brain.input.nitro = true
+	brain._steer(1.0 / 60.0)
+	assert_float(brain.input.throttle).is_less_equal(BotBrain.PIT_THROTTLE)
+	assert_bool(brain.input.nitro).is_false()
+	# A second of it, and the kart has gone around the hole rather than into it.
+	var fell := false
+	for i: int in 60:
+		brain._steer(1.0 / 60.0)
+		kart.motor.step(brain.input, 1.0 / 60.0)
+		kart.global_position += kart.motor.velocity * (1.0 / 60.0)
+		fell = fell or nav.is_pit_at(kart.global_position)
+	assert_bool(fell).override_failure_message("the bot drove into the pit").is_false()
 
 
 func test_closest_approach_predicts_near_misses() -> void:
