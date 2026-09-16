@@ -771,7 +771,8 @@ func _resolve_collisions() -> void:
 			turret.destroy()
 		else:
 			motor.velocity = Vector3(velocity.x, 0.0, velocity.z)
-			motor.apply_wall_hit(-pre.dot(normal))
+			if not motor.apply_wall_glance(normal, pre):
+				motor.apply_wall_hit(-pre.dot(normal))
 			velocity = motor.velocity
 
 

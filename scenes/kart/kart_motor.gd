@@ -258,6 +258,32 @@ func apply_turbo(direction: Vector3) -> void:
 	forward_speed = velocity.length() * (-1.0 if flat.dot(forward_vector()) < 0.0 else 1.0)
 
 
+## A shallow wall hit. Returns true when the kart glanced off: the nose turns most of the way
+## toward running along the wall and the kart is nudged away from it, so driving along walls
+## takes no fight. [param normal] points from the wall toward the kart; [param travel] is the
+## velocity before the body slid along the wall.
+func apply_wall_glance(normal: Vector3, travel: Vector3) -> bool:
+	var flat_normal := Vector3(normal.x, 0.0, normal.z).normalized()
+	var flat := Vector3(travel.x, 0.0, travel.z)
+	if flat_normal.is_zero_approx() or flat.length() < 1.0:
+		return false
+	var into := -flat.normalized().dot(flat_normal)
+	if into <= 0.0 or asin(minf(into, 1.0)) > deg_to_rad(stats.wall_glance_angle_deg):
+		return false
+	var along := flat - flat_normal * flat.dot(flat_normal)
+	if along.is_zero_approx():
+		return false
+	along = along.normalized()
+	var facing := forward_vector() * (-1.0 if forward_speed < 0.0 else 1.0)
+	var turn := facing.signed_angle_to(along, Vector3.UP) * stats.wall_glance_turn
+	heading = wrapf(heading + turn, -PI, PI)
+	var speed := flat.length() * (1.0 - stats.wall_glance_speed_loss * into)
+	velocity = along * speed + flat_normal * stats.wall_glance_bounce
+	velocity.y = 0.0
+	forward_speed = speed * (-1.0 if forward_speed < 0.0 else 1.0)
+	return true
+
+
 ## Wall contact: the velocity into the wall is gone already (the body slid); a hard hit also
 ## costs part of the remaining speed.
 func apply_wall_hit(into_speed: float) -> void:

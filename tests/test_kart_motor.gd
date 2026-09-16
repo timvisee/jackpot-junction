@@ -310,3 +310,21 @@ func test_nitro_is_faster_but_steers_and_grips_less() -> void:
 	_run(0.5)
 	var nitro_turn := absf(wrapf(_motor.heading - before, -PI, PI))
 	assert_float(nitro_turn).is_less(plain_turn * 0.75)
+
+
+func test_a_shallow_wall_hit_glances_off_and_turns_the_kart_along_the_wall() -> void:
+	_input.throttle = 1.0
+	_run(2.5)
+	# Heading 20 degrees left of -Z, into a wall on the left whose normal points +X.
+	_motor.heading = deg_to_rad(20.0)
+	_motor.velocity = _motor.forward_vector() * _motor.speed()
+	var glanced := _motor.apply_wall_glance(Vector3(1.0, 0.0, 0.0), _motor.velocity)
+	assert_bool(glanced).is_true()
+	assert_float(rad_to_deg(_motor.heading)).is_between(5.0, 12.0)
+	assert_float(_motor.velocity.x).is_greater(0.5)
+	assert_float(_motor.velocity.z).is_less(-5.0)
+	assert_float(_motor.speed()).is_greater(_stats.top_speed * 0.8)
+	# A steep hit is no glance and is left to the wall hit rules.
+	_motor.heading = deg_to_rad(60.0)
+	_motor.velocity = _motor.forward_vector() * 8.0
+	assert_bool(_motor.apply_wall_glance(Vector3(1.0, 0.0, 0.0), _motor.velocity)).is_false()

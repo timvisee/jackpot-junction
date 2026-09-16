@@ -85,6 +85,15 @@ extends Resource
 @export var wall_hit_speed_loss := 0.3
 @export var bump_push_speed := 6.0
 @export var bump_speed_loss := 0.2
+## A wall hit within this angle of the wall is a glance: the kart bounces off a little and turns
+## to run along the wall instead of grinding into it.
+@export var wall_glance_angle_deg := 35.0
+## Fraction of the angle to the wall the nose turns on a glance.
+@export var wall_glance_turn := 0.6
+## Speed pushed away from the wall on a glance.
+@export var wall_glance_bounce := 1.2
+## Fraction of speed lost on a glance straight into the wall; shallower glances lose less.
+@export var wall_glance_speed_loss := 0.15
 
 @export_group("Body")
 @export var length := 1.6
