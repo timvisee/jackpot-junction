@@ -102,6 +102,34 @@ func test_spread_cannon_fires_a_fan() -> void:
 		bullet.destroy()
 
 
+## The three bullets of a fan leave the same muzzle, so they must not cancel each other the way
+## two karts' shots meeting head-on do.
+func test_a_fan_survives_leaving_the_barrel() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(20, 17)
+	var input := KartInput.new()
+	var kart := match_node.kart_of(0)
+	kart.input = input
+	kart.global_position = Vector3(0.0, 0.0, -9.375)
+	kart.face(Vector3(1.0, 0.0, 0.0))
+	_item("spread_cannon").activate(kart)
+	await _runner.simulate_frames(2, 17)
+	input.fire = true
+	await _runner.simulate_frames(3, 17)
+	input.fire = false
+	assert_int(kart.cannon.override_shots_left()).is_equal(5)
+	assert_int(match_node.bullets.live_count()).is_equal(3)
+	# They keep flying, spreading apart rather than eating each other.
+	await _runner.simulate_frames(6, 17)
+	assert_int(match_node.bullets.live_count()).is_equal(3)
+	# And a fan counts as one shot, so the next pull is not refused by the live bullet limit.
+	input.fire = true
+	await _runner.simulate_frames(30, 17)
+	input.fire = false
+	assert_int(kart.cannon.override_shots_left()).is_less(5)
+	assert_int(match_node.bullets.live_count()).is_greater(3)
+
+
 func test_bullet_wipe_clears_nearby_bullets_only() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)

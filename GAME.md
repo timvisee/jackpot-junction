@@ -405,7 +405,7 @@ assigns physical devices to player slots, see 10.2.
 | Lifetime                       | 3 s                                                |
 | Muzzle                         | 1.0 m ahead of the kart centre                     |
 | Own bullets                    | Deadly to the owner                                |
-| Bullet vs bullet               | Both destroyed                                     |
+| Bullet vs bullet               | Both destroyed, unless they came from the same cannon, which lets a spread leave the barrel |
 | Bullet vs crate                | Both destroyed, crate drops its chips              |
 | Bullet vs spawn-protected kart | Passes through                                     |
 | Bullet vs shielded kart        | Shield pops, bullet destroyed                      |
@@ -558,7 +558,7 @@ Later set, off by default and switched on per match in the lobby:
 | Power-up        | Effect                                                                          |
 |-----------------|---------------------------------------------------------------------------------|
 | Decoy Kart      | Spawns a bot kart in your colour with a random trait, see 9.1. Lives 20 s or 1 hit. Its kills and coins credit you. Can hit you |
-| Spread Cannon   | Next 6 shots fire 3 bullets in a 20° fan                                        |
+| Spread Cannon   | Next 6 shots fire 3 bullets in a 20° fan. The live bullet allowance triples with the fan, so the fan counts as one shot |
 | Swivel Cannon   | 12 s of free aim with the right stick or mouse, no aim assist                   |
 | Bullet Wipe     | Erases every bullet within 8 m                                                  |
 

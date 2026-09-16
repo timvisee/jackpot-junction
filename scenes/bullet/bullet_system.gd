@@ -48,6 +48,10 @@ func _physics_process(_delta: float) -> void:
 			var b := bullets[j]
 			if a in doomed or b in doomed:
 				continue
+			# One cannon's own shots pass through each other. A Spread Cannon puts three of them
+			# on the same muzzle, and they would otherwise cancel before they had left it.
+			if a.owner_slot == b.owner_slot:
+				continue
 			if sweeps_touch(a, b):
 				doomed.append(a)
 				doomed.append(b)
