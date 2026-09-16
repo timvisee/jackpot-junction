@@ -119,7 +119,7 @@ static func build(match_node: Match) -> Dictionary:
 			continue
 		pickup_data.append(entry)
 	var turret_data: Array = []
-	for node: Node in match_node.get_tree().get_nodes_in_group(&"turrets"):
+	for node: Node in _own_nodes(match_node, &"turrets"):
 		var turret := node as Turret
 		if turret != null and turret.alive:
 			turret_data.append(
@@ -132,7 +132,7 @@ static func build(match_node: Match) -> Dictionary:
 				}
 			)
 	var bomb_data: Array = []
-	for node: Node in match_node.get_tree().get_nodes_in_group(&"bombs"):
+	for node: Node in _own_nodes(match_node, &"bombs"):
 		var bomb := node as Bomb
 		if bomb != null and bomb.alive:
 			(
@@ -144,6 +144,20 @@ static func build(match_node: Match) -> Dictionary:
 						"z": bomb.global_position.z,
 						"c": bomb.color,
 						"armed": bomb.armed,
+					}
+				)
+			)
+	var stain_data: Array = []
+	for node: Node in _own_nodes(match_node, &"oil_stains"):
+		var stain := node as OilStain
+		if stain != null and not stain.is_queued_for_deletion():
+			(
+				stain_data
+				. append(
+					{
+						"id": stain.get_instance_id(),
+						"x": stain.global_position.x,
+						"z": stain.global_position.z,
 					}
 				)
 			)
@@ -169,6 +183,7 @@ static func build(match_node: Match) -> Dictionary:
 		"pickups": pickup_data,
 		"turrets": turret_data,
 		"bombs": bomb_data,
+		"stains": stain_data,
 		"jackpots": jackpots,
 		"crates": crates,
 		"flush": flush,
@@ -193,6 +208,7 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 	_apply_pickups(match_node, data["pickups"])
 	_apply_turrets(match_node, data["turrets"])
 	_apply_bombs(match_node, data.get("bombs", []))
+	_apply_stains(match_node, data.get("stains", []))
 	var jackpots: Array = data["jackpots"]
 	for i: int in mini(jackpots.size(), match_node.arena.jackpot_zones.size()):
 		match_node.arena.jackpot_zones[i].apply_puppet_state(
@@ -207,6 +223,16 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 		match_node.arena.flush_pads[i].apply_puppet_state(
 			flush[i]["owner"], flush[i]["color"], flush[i]["disabled"]
 		)
+
+
+## Members of a group that belong to this match. A host and a puppet match can share a scene
+## tree, in tests and in a future split screen, and must never describe each other's nodes.
+static func _own_nodes(match_node: Match, group: StringName) -> Array[Node]:
+	var result: Array[Node] = []
+	for node: Node in match_node.get_tree().get_nodes_in_group(group):
+		if match_node.is_ancestor_of(node):
+			result.append(node)
+	return result
 
 
 static func _ensure_slots(match_node: Match, count: int) -> void:
@@ -426,6 +452,27 @@ static func _apply_turrets(match_node: Match, entries: Array) -> void:
 
 ## Puppet bombs mirror the host's; one that vanishes from the snapshot went off, so its blast
 ## is shown here too.
+## Puppet oil stains mirror the host's; they only ever appear and disappear.
+static func _apply_stains(match_node: Match, entries: Array) -> void:
+	var seen: Dictionary[int, bool] = {}
+	for entry: Dictionary in entries:
+		var id: int = entry["id"]
+		seen[id] = true
+		if match_node.puppet_stains.has(id):
+			continue
+		var stain := OilStain.new()
+		stain.puppet = true
+		match_node.add_child(stain)
+		stain.collision_layer = 0
+		stain.global_position = Vector3(entry["x"], 0.0, entry["z"])
+		match_node.puppet_stains[id] = stain
+	for id: int in match_node.puppet_stains.keys():
+		if not seen.has(id):
+			var stain: OilStain = match_node.puppet_stains[id]
+			match_node.puppet_stains.erase(id)
+			stain.queue_free()
+
+
 static func _apply_bombs(match_node: Match, entries: Array) -> void:
 	var seen: Dictionary[int, bool] = {}
 	for entry: Dictionary in entries:

@@ -32,7 +32,7 @@ func test_table_picks_by_weight() -> void:
 	for i: int in 400:
 		var picked := TABLE.pick(rng)
 		counts[picked.id] = counts.get(picked.id, 0) + 1
-	assert_int(counts.size()).is_equal(6)
+	assert_int(counts.size()).is_equal(7)
 	assert_int(counts[&"boost"]).is_greater(counts[&"turret"])
 
 

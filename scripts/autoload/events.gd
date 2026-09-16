@@ -34,5 +34,6 @@ signal flush_completed(slot: int)
 signal crate_destroyed
 signal shield_popped(slot: int)
 signal bomb_exploded(slot: int)
+signal oil_hit(slot: int)
 signal player_joined(slot: int)
 signal player_left(slot: int)

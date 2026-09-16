@@ -42,6 +42,7 @@ var puppet_bullets: Dictionary[int, Bullet] = {}
 var puppet_pickups: Dictionary[int, Pickup] = {}
 var puppet_turrets: Dictionary[int, Turret] = {}
 var puppet_bombs: Dictionary[int, Bomb] = {}
+var puppet_stains: Dictionary[int, OilStain] = {}
 
 var _inputs: Array[KartInput] = []
 var _colors: Array[int] = []

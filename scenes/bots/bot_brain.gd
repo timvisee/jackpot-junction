@@ -447,12 +447,10 @@ func _use_item(delta: float) -> void:
 			use = use or kart.pot.value() >= bot_trait.bank_threshold * 0.5 or _bullets_nearby(6.0)
 		&"turret":
 			use = use or enemy_distance <= 15.0
+		&"oil_stain":
+			use = use or goal == &"flee" or (enemy_distance <= 10.0 and _enemy_behind(enemy))
 		&"bomb":
-			var to_enemy := Vector3.ZERO
-			if enemy != null:
-				to_enemy = enemy.global_position - kart.global_position
-			var behind := to_enemy.dot(kart.motor.forward_vector()) < 0.0
-			use = use or goal == &"flee" or (behind and enemy_distance <= 8.0)
+			use = use or goal == &"flee" or (enemy_distance <= 8.0 and _enemy_behind(enemy))
 		&"ricochet_cannon":
 			use = use or goal == &"hunt"
 		&"coin_magnet":
@@ -474,6 +472,15 @@ func _burn_nitro() -> void:
 	input.nitro = (
 		ahead and to_enemy.length() < 9.0 and (kart.nitro_active or kart.nitro_charge > 0.5)
 	)
+
+
+## True when the enemy is somewhere behind the kart, where a dropped item lands.
+func _enemy_behind(enemy: Kart) -> bool:
+	if enemy == null:
+		return false
+	var to_enemy := enemy.global_position - kart.global_position
+	to_enemy.y = 0.0
+	return to_enemy.dot(kart.motor.forward_vector()) < 0.0
 
 
 func _bullets_nearby(radius: float) -> bool:

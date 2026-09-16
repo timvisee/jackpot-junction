@@ -702,6 +702,14 @@ func face(direction: Vector3) -> void:
 		motor.heading = heading
 
 
+## Called by an [OilStain] when the kart crosses it: the tires let go and the kart spins.
+func hit_oil(direction: float) -> void:
+	if not alive or falling or frozen or motor.spinning():
+		return
+	motor.apply_spin_out(direction)
+	Events.oil_hit.emit(slot)
+
+
 ## Called by a [TurboPad] when the kart drives over it.
 func apply_turbo(direction: Vector3) -> void:
 	if not alive or falling:
@@ -784,7 +792,9 @@ func _update_trails(delta: float, heading_before: float) -> void:
 	var turning := absf(wrapf(motor.heading - heading_before, -PI, PI)) / maxf(delta, 0.0001)
 	var intensity := 0.15
 	var slip := absf(motor.slip_angle())
-	if motor.drifting or slip > 0.3:
+	if motor.spinning():
+		intensity = 1.0
+	elif motor.drifting or slip > 0.3:
 		intensity = clampf(slip / 0.7, 0.5, 1.0)
 	elif input.handbrake and speed > 1.5:
 		# A straight handbrake stop lays down locked-wheel skid marks.

@@ -80,6 +80,16 @@ extends Resource
 ## sideways instead of hooking up until it has slowed down.
 @export var grip_sliding := 1.5
 
+@export_group("Spin-out")
+## Seconds the nose keeps whipping around after the tires let go on an oil stain.
+@export var spin_out_time := 1.1
+## Degrees per second the nose spins during it.
+@export var spin_out_rate_deg := 420.0
+## Grip while spinning: near zero, so the kart keeps sliding the way it was going.
+@export var spin_out_grip := 0.8
+## Speed scrubbed per second while spinning.
+@export var spin_out_decel := 3.0
+
 @export_group("Collisions")
 @export var wall_hit_threshold := 0.5
 @export var wall_hit_speed_loss := 0.3

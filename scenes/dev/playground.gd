@@ -10,6 +10,7 @@ extends Node3D
 ##   --menu=1             hold the player's joker menu open on this card, for screenshots
 ##   --explosion=0.2      a bomb blast next to the player, this many seconds in, for screenshots
 ##   --flame=1            show the player's nitro flame, for screenshots
+##   --oil=1              drop an oil stain next to the player, for screenshots
 ##   --results=1          end the match at once with made-up stats, to see the results screen
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
 ## on an unused device to join mid-match; F6 deals the player a random joker.
@@ -25,6 +26,7 @@ var _jokers := 0
 var _menu := -1
 var _explosion := -1.0
 var _flame := false
+var _oil := false
 var _results := false
 
 
@@ -48,6 +50,10 @@ func _ready() -> void:
 	var player := match_node.kart_of(0)
 	for i: int in _jokers:
 		_deal_joker(player)
+	if _oil:
+		var stain := OilStain.new()
+		match_node.add_child(stain)
+		stain.global_position = player.global_position + Vector3(2.5, 0.0, 1.5)
 	if _results:
 		var counter := 0
 		for slot: PlayerSlot in match_node.slots:
@@ -128,5 +134,7 @@ func _parse_user_args() -> void:
 			_explosion = float(arg.get_slice("=", 1))
 		elif arg.begins_with("--flame="):
 			_flame = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--oil="):
+			_oil = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--results="):
 			_results = arg.get_slice("=", 1) == "1"

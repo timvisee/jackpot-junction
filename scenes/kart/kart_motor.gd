@@ -23,6 +23,8 @@ var boost_time_left := 0.0
 var turbo_time_left := 0.0
 ## Direction a turbo pad pushes along while [method turboing].
 var turbo_direction := Vector3.ZERO
+## Seconds of spin-out left after the tires let go on an oil stain.
+var spin_time_left := 0.0
 ## Multipliers set by power-ups: Boost raises the speed bonus and lowers the steering.
 var speed_bonus := 1.0
 var steer_multiplier := 1.0
@@ -31,6 +33,8 @@ var nitro_bonus := 1.0
 
 ## Radians of drift entry kick still to apply, signed like the steering that started it.
 var _kick_remaining := 0.0
+## Which way the nose whips during a spin-out: +1 left, -1 right.
+var _spin_direction := 1.0
 
 
 func _init(kart_stats: KartStats) -> void:
@@ -56,6 +60,11 @@ func boosting() -> bool:
 
 func turboing() -> bool:
 	return turbo_time_left > 0.0
+
+
+## True while the kart is spinning out on oil: no steering, no throttle, barely any grip.
+func spinning() -> bool:
+	return spin_time_left > 0.0
 
 
 ## Yaw rate in radians per second for a fraction of top speed.
@@ -88,6 +97,7 @@ func slip_angle() -> float:
 func step(input: KartInput, delta: float) -> void:
 	boost_time_left = maxf(boost_time_left - delta, 0.0)
 	turbo_time_left = maxf(turbo_time_left - delta, 0.0)
+	spin_time_left = maxf(spin_time_left - delta, 0.0)
 	var forward := forward_vector()
 	var along := velocity.dot(forward)
 	var was_moving := velocity.length() > 0.05
@@ -100,8 +110,9 @@ func step(input: KartInput, delta: float) -> void:
 	var reversing := forward_speed < 0.0
 	var target := forward_vector() * (-1.0 if reversing else 1.0)
 	var travel := velocity.normalized() if was_moving else target
-	# Setting off, or braking through a stop into reverse: travel starts along the nose.
-	if not was_moving or reversing != was_reversing:
+	# Setting off, or braking through a stop into reverse: travel starts along the nose. A
+	# spinning kart keeps its line even as the whipping nose flips the sign of the speed.
+	if not was_moving or (reversing != was_reversing and not spinning()):
 		travel = target
 	if turboing():
 		# A pad shoves along its arrow whatever way the nose points; grip takes over afterwards.
@@ -116,8 +127,13 @@ func step(input: KartInput, delta: float) -> void:
 		grip = lerpf(stats.grip_normal, stats.grip_sliding, letting_go)
 	if nitro_bonus > 1.0:
 		grip *= stats.nitro_grip_multiplier
+	if spinning():
+		grip = stats.spin_out_grip
 	travel = travel.rotated(Vector3.UP, angle * (1.0 - exp(-grip * delta)))
-	if drifting:
+	if spinning():
+		# Oil does not grab: the kart slides on and bleeds speed slowly.
+		forward_speed = move_toward(forward_speed, 0.0, stats.spin_out_decel * delta)
+	elif drifting:
 		forward_speed *= 1.0 - stats.drift_speed_decay * delta
 	else:
 		# Sliding sideways outside a controlled drift scrubs speed hard, down to a near standstill.
@@ -147,6 +163,8 @@ func _step_steer_input(input: KartInput, delta: float) -> void:
 
 
 func _step_longitudinal(input: KartInput, delta: float) -> void:
+	if spinning():
+		return
 	if turboing():
 		forward_speed = max_speed()
 		return
@@ -180,7 +198,7 @@ func _step_drift(input: KartInput) -> void:
 		if too_slow or (not steering and not input.handbrake):
 			_end_drift()
 		return
-	if turboing() or forward_speed <= 0.0:
+	if turboing() or spinning() or forward_speed <= 0.0:
 		return
 	var steering := absf(steer) >= stats.handbrake_drift_steer
 	var handbrake := input.handbrake and steering and fraction >= stats.handbrake_speed_fraction
@@ -204,6 +222,11 @@ func _end_drift() -> void:
 
 
 func _step_steering(delta: float) -> void:
+	if spinning():
+		heading = wrapf(
+			heading + _spin_direction * deg_to_rad(stats.spin_out_rate_deg) * delta, -PI, PI
+		)
+		return
 	if drifting:
 		drift_time += delta
 		_step_entry_kick(delta)
@@ -236,6 +259,19 @@ func _step_entry_kick(delta: float) -> void:
 	_kick_remaining -= step
 	if absf(_kick_remaining) < 0.0001:
 		_kick_remaining = 0.0
+
+
+## An oil stain: the tires let go. The kart keeps the line it was on while the nose whips
+## around at [member KartStats.spin_out_rate_deg] for about a second, with steering and
+## throttle doing nothing. [param direction] is +1 to spin left, -1 to spin right.
+func apply_spin_out(direction: float) -> void:
+	spin_time_left = stats.spin_out_time
+	_spin_direction = 1.0 if direction >= 0.0 else -1.0
+	drifting = false
+	drift_time = 0.0
+	_kick_remaining = 0.0
+	turbo_time_left = 0.0
+	boost_time_left = 0.0
 
 
 ## A turbo pad shoves the kart along its arrow without turning it. Facing along the arrow, or

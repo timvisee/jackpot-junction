@@ -294,6 +294,7 @@ then hooks up and launches when the handbrake is released.
 | Handbrake                     | with steering above 30% it starts a drift and scrubs speed at 4.2 m/s²; without steering it is a straight stop at 22 m/s², about half a second from top speed, that lays down skid marks |
 | Nitro                         | held button: 190% top speed with 1.5 times the acceleration, steering at 60% and grip at 55%, so it is fast and a handful, kills on contact; a full tank burns 2 s and takes 90 s to refill from empty, starting 0.6 s after letting go; a kill refills half a tank; the tank is kept across deaths; cannot restart below 20% |
 | Wounded                       | one life left: top speed 85%, body tinted darker until the Junction restores the life |
+| Spin-out                      | crossing an oil stain: the nose whips around at 420°/s for 1.1 s while grip drops to 0.8 rad/s, so the kart keeps its line and skids; steering and throttle do nothing and speed bleeds at 3 m/s² |
 | Wall glance                   | hitting a wall within 35° of it turns the nose 60% of the way along the wall, nudges the kart 1.2 m/s off it and costs at most 15% speed; steeper hits are stopped by the wall and cost 30% speed above half of top speed |
 | Turbo pad                     | fires once the kart's centre is on the pad, not when its bumper touches the edge; shoves along the pad's arrow at 150% top speed without turning the kart. Facing within 45° of the arrow, or straight against it, the shove lasts 1.0 s and the kart simply runs faster, forward or in reverse; crossing sideways gives a 0.15 s shove after which the tires slip and the kart slides to a near standstill. Steering halved while the shove lasts |
 | Sideways slip friction        | outside a drift, sliding more than 10° sideways brakes at up to 14 m/s² at a right angle; past 20° of slip the grip fades to 1.5 rad/s so the kart keeps sliding until it has slowed |
@@ -511,6 +512,7 @@ First set:
 | Turret          | 15     | Deploys a turret at your position. Rotates at 180°/s toward the nearest enemy, fires 1 default bullet per second. Lives 20 s or 1 hit. Kills credit you. Can hit you |
 | Ricochet Cannon | 20     | Next 8 shots bounce off walls once more and fly 25% faster                      |
 | Coin Magnet     | 15     | 8 s: pickup radius times 3, chips within it drift toward you at 6 m/s           |
+| Oil Stain       | 20     | Leaves a slick 1.8 m behind you for 25 s. Any kart whose centre crosses it, you included, spins out. It never kills |
 | Bomb            | 20     | Drops a bomb 1.8 m behind you. It arms after 0.6 s and blows up when any kart, you included, drives over it, when a bullet hits it, or after 30 s. The 2.6 m blast kills karts, breaks crates and turrets and sets off other bombs. Kills credit you |
 
 Later set, off by default and switched on per match in the lobby:

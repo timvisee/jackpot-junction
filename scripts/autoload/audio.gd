@@ -58,6 +58,7 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"turret_place": ["impactSoft_heavy_000.ogg"],
 	&"explosion": ["impactPunch_heavy_000.ogg"],
 	&"pad_claim": ["select_001.ogg"],
+	&"oil": ["impactSoft_heavy_001.ogg"],
 	&"wounded": ["impactPunch_heavy_000.ogg"],
 	&"patched": ["confirmation_002.ogg"],
 	&"explosion_tail": ["impactSoft_heavy_001.ogg"],
@@ -301,6 +302,7 @@ func _connect_events() -> void:
 	Events.shield_popped.connect(func(_slot: int) -> void: play_sfx(&"shield_pop", -6.0))
 	Events.bomb_exploded.connect(func(_slot: int) -> void: _play_explosion())
 	Events.pad_claimed.connect(func(_slot: int) -> void: play_sfx(&"pad_claim", -8.0, 0.05))
+	Events.oil_hit.connect(func(_slot: int) -> void: play_sfx(&"oil", -4.0, 0.12))
 	Events.flush_completed.connect(_on_flush_completed)
 	Events.kart_wounded.connect(
 		func(_victim: int, _by: int, _cause: StringName) -> void: play_sfx(&"wounded", -4.0, 0.1)

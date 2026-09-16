@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="OilStainPowerUp" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/items/powerups/oil_stain_item.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"oil_stain"
+display_name = "Oil Stain"
+description = "Leaves a slick behind you. Anyone who drives over it spins out."
+weight = 20.0
+color = Color(0.2392, 0.2, 0.3098, 1)
+stain_lifetime = 25.0
+placement_distance = 1.8
