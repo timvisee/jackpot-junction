@@ -7,6 +7,11 @@ const FLOOR_THICKNESS := 0.2
 const TABLE_OVERHANG := 30.0
 const PAD_HEIGHT := 0.05
 const PIT_COLOR := Color("#0B0B0E")
+## How deep the pit shafts go below the floor, and the width of the dark rim around them.
+const PIT_DEPTH := 1.1
+const PIT_RIM := 0.09
+const PIT_WALL_TOP := Color(0.13, 0.17, 0.14)
+const PIT_RIM_COLOR := Color(0.1, 0.12, 0.11)
 const JUNCTION_BASE_COLOR := Color("#1E1E24")
 
 @export var layout: ArenaLayout
@@ -174,21 +179,107 @@ func bounds() -> AABB:
 
 
 func _add_table() -> void:
-	var size := world_size()
-	var table := _box_mesh(
-		Vector3(size.x + TABLE_OVERHANG, 0.5, size.y + TABLE_OVERHANG), Palette.TABLE
-	)
+	var half := (world_size() + Vector2.ONE * TABLE_OVERHANG) * 0.5
+	var table := _slab_with_holes(half, -FLOOR_THICKNESS, 0.5, _pit_rects(), Palette.TABLE)
 	table.name = "Table"
-	table.position = Vector3(0.0, -FLOOR_THICKNESS - 0.25, 0.0)
 	add_child(table)
 
 
+## The felt, with the pits cut out so the shafts below show through as real holes.
 func _add_floor() -> void:
-	var size := world_size()
-	var floor_mesh := _box_mesh(Vector3(size.x, FLOOR_THICKNESS, size.y), Palette.FELT)
+	var floor_mesh := _slab_with_holes(
+		world_size() * 0.5, 0.0, FLOOR_THICKNESS, _pit_rects(), Palette.FELT
+	)
 	floor_mesh.name = "Floor"
-	floor_mesh.position = Vector3(0.0, -FLOOR_THICKNESS * 0.5, 0.0)
 	add_child(floor_mesh)
+
+
+## World-space footprints of the pits on the XZ plane.
+func _pit_rects() -> Array[Rect2]:
+	var result: Array[Rect2] = []
+	for rect: Rect2i in grid.pits:
+		var centre := grid.rect_center(rect)
+		var size2 := grid.rect_size(rect)
+		result.append(Rect2(Vector2(centre.x, centre.z) - size2 * 0.5, size2))
+	return result
+
+
+## A slab centred on the origin whose top face at [param top] has [param holes] cut out, with
+## sides down to [param thickness] below and no bottom. The top is split along every hole edge
+## into cells; cells inside a hole are left out.
+func _slab_with_holes(
+	half: Vector2, top: float, thickness: float, holes: Array[Rect2], color: Color
+) -> MeshInstance3D:
+	var xs: Array[float] = [-half.x, half.x]
+	var zs: Array[float] = [-half.y, half.y]
+	for hole: Rect2 in holes:
+		xs.append_array([hole.position.x, hole.end.x])
+		zs.append_array([hole.position.y, hole.end.y])
+	xs.sort()
+	zs.sort()
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for i: int in xs.size() - 1:
+		for j: int in zs.size() - 1:
+			var x0 := xs[i]
+			var x1 := xs[i + 1]
+			var z0 := zs[j]
+			var z1 := zs[j + 1]
+			if x1 - x0 < 0.001 or z1 - z0 < 0.001:
+				continue
+			var centre := Vector2((x0 + x1) * 0.5, (z0 + z1) * 0.5)
+			var inside := false
+			for hole: Rect2 in holes:
+				if hole.has_point(centre):
+					inside = true
+					break
+			if inside:
+				continue
+			_quad(
+				st,
+				Vector3(x0, top, z0),
+				Vector3(x1, top, z0),
+				Vector3(x1, top, z1),
+				Vector3(x0, top, z1),
+				Vector3.UP
+			)
+	var bottom := top - thickness
+	var corners: Array[Vector3] = [
+		Vector3(-half.x, top, -half.y),
+		Vector3(half.x, top, -half.y),
+		Vector3(half.x, top, half.y),
+		Vector3(-half.x, top, half.y),
+	]
+	for i: int in 4:
+		var a := corners[i]
+		var b := corners[(i + 1) % 4]
+		var outward := Vector3(a.z - b.z, 0.0, b.x - a.x).normalized()
+		_quad(st, a, b, Vector3(b.x, bottom, b.z), Vector3(a.x, bottom, a.z), outward)
+	var instance := MeshInstance3D.new()
+	instance.mesh = st.commit()
+	var material := _material(color)
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	instance.material_override = material
+	return instance
+
+
+## Two triangles for the quad a, b, c, d with one normal; both faces render, so winding is free.
+func _quad(
+	st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3, normal: Vector3
+) -> void:
+	st.set_normal(normal)
+	for vertex: Vector3 in [a, b, c, a, c, d]:
+		st.add_vertex(vertex)
+
+
+## Two triangles for a quad with a colour per corner, for the shaded pit shafts.
+func _colored_quad(
+	st: SurfaceTool, corners: Array[Vector3], colors: Array[Color], normal: Vector3
+) -> void:
+	st.set_normal(normal)
+	for index: int in [0, 1, 2, 0, 2, 3]:
+		st.set_color(colors[index])
+		st.add_vertex(corners[index])
 
 
 func _add_walls() -> void:
@@ -336,11 +427,54 @@ func _add_pits() -> void:
 		shape.shape = box
 		shape.position = Vector3(0.0, 0.5, 0.0)
 		pit.add_child(shape)
-		var hole := _box_mesh(Vector3(size2.x, FLOOR_THICKNESS, size2.y), PIT_COLOR)
-		hole.position = Vector3(0.0, -FLOOR_THICKNESS * 0.5 + 0.01, 0.0)
-		pit.add_child(hole)
+		pit.add_child(_pit_shaft(size2))
 		holes.add_child(pit)
 		pits.append(pit)
+
+
+## The inside of a pit: four walls shading from the felt's edge into black, a black bottom well
+## below the floor, and a dark rim on the floor around the opening so the edge reads.
+func _pit_shaft(size2: Vector2) -> MeshInstance3D:
+	var hx := size2.x * 0.5
+	var hz := size2.y * 0.5
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var rim: Array[Vector3] = [
+		Vector3(-hx, 0.0, -hz), Vector3(hx, 0.0, -hz), Vector3(hx, 0.0, hz), Vector3(-hx, 0.0, hz)
+	]
+	var floor_colors: Array[Color] = [PIT_WALL_TOP, PIT_WALL_TOP, PIT_COLOR, PIT_COLOR]
+	for i: int in 4:
+		var a: Vector3 = rim[i]
+		var b: Vector3 = rim[(i + 1) % 4]
+		var inward := Vector3(b.z - a.z, 0.0, a.x - b.x).normalized()
+		var wall: Array[Vector3] = [
+			a, b, Vector3(b.x, -PIT_DEPTH, b.z), Vector3(a.x, -PIT_DEPTH, a.z)
+		]
+		_colored_quad(st, wall, floor_colors, inward)
+		var lip_a := a - inward * PIT_RIM
+		var lip_b := b - inward * PIT_RIM
+		var lip: Array[Vector3] = [
+			lip_a + Vector3.UP * 0.004,
+			lip_b + Vector3.UP * 0.004,
+			b + Vector3.UP * 0.004,
+			a + Vector3.UP * 0.004
+		]
+		var lip_colors: Array[Color] = [PIT_RIM_COLOR, PIT_RIM_COLOR, PIT_RIM_COLOR, PIT_RIM_COLOR]
+		_colored_quad(st, lip, lip_colors, Vector3.UP)
+	var bottom: Array[Vector3] = []
+	for corner: Vector3 in rim:
+		bottom.append(Vector3(corner.x, -PIT_DEPTH, corner.z))
+	var black: Array[Color] = [PIT_COLOR, PIT_COLOR, PIT_COLOR, PIT_COLOR]
+	_colored_quad(st, bottom, black, Vector3.UP)
+	var shaft := MeshInstance3D.new()
+	shaft.name = "Shaft"
+	shaft.mesh = st.commit()
+	var material := StandardMaterial3D.new()
+	material.vertex_color_use_as_albedo = true
+	material.roughness = 1.0
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	shaft.material_override = material
+	return shaft
 
 
 func _add_junction() -> void:

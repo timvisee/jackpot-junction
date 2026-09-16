@@ -427,7 +427,7 @@ protection makes the kart untouchable.
 |----------------|------------------------------------------------------------------------|
 | Wall           | Solid, bounces bullets, stops karts                                    |
 | Crate          | Destructible cover, see 3.2                                            |
-| Pit            | Karts that enter fall for 0.4 s and die, see 3.6. Bullets fly over it  |
+| Pit            | A real hole: a shaft cut through the felt and the table. Karts that enter fall for 0.4 s and die, see 3.6. Bullets fly over it |
 | Turbo pad      | Directional speed boost, see 4.1                                       |
 | Coin pad       | Spawns chips, gold chips and mult dice, see 3.2                        |
 | Power-up pad   | Spawns a held item, see 7.1                                            |
