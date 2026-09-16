@@ -101,6 +101,33 @@ func test_goal_choice_follows_the_design_priorities() -> void:
 	assert_str(BotBrain.choose_goal({"pot_value": 70}, cautious)).is_equal("bank")
 
 
+## GAME.md 3.9 and 9.1: the pads pay while they are held, so a bot goes and takes one when it is
+## worth the detour, and drops everything for the one that completes the set.
+func test_a_bot_goes_for_a_flush_pad_when_it_is_worth_the_detour() -> void:
+	var balanced := _trait("balanced")
+	var near := {"flush_distance": 6.0, "flush_value": BotBrain.PAD_VALUE}
+	assert_str(BotBrain.choose_goal(near, balanced)).is_equal("flush")
+	# A chip under its nose beats a pad across the arena.
+	var far := {
+		"flush_distance": 22.0,
+		"flush_value": BotBrain.PAD_VALUE,
+		"pickup_distance": 3.0,
+		"pickup_value": 1.0,
+	}
+	assert_str(BotBrain.choose_goal(far, balanced)).is_equal("collect")
+	# The one that completes the flush is worth crossing the arena for, chip or no chip.
+	var completing := {
+		"flush_distance": 22.0,
+		"flush_value": BotBrain.PAD_FLUSH_VALUE,
+		"pickup_distance": 3.0,
+		"pickup_value": 1.0,
+	}
+	assert_str(BotBrain.choose_goal(completing, balanced)).is_equal("flush")
+	# A fat pot still comes first: a flush is no use to a bot that is about to lose its pot.
+	var loaded := {"pot_value": 500, "flush_distance": 6.0, "flush_value": BotBrain.PAD_FLUSH_VALUE}
+	assert_str(BotBrain.choose_goal(loaded, balanced)).is_equal("bank")
+
+
 func test_closest_approach_predicts_near_misses() -> void:
 	var head_on := BotBrain.closest_approach(Vector3(0.0, 0.0, -6.0), Vector3(0.0, 0.0, 20.0), 1.0)
 	assert_float(head_on).is_equal_approx(0.0, 0.001)

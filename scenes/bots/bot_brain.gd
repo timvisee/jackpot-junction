@@ -12,6 +12,14 @@ const DECISION_INTERVAL := 0.1
 const REPLAN_INTERVAL := 0.3
 const WAYPOINT_REACHED := 1.3
 const HUNT_RANGE := 18.0
+## What a Royal Flush pad is worth to a bot: a pad on its own, then one that would complete
+## the set. A pad pays its holder for as long as they keep it, GAME.md 3.9, and the fourth
+## one is worth a detour across the arena.
+const PAD_VALUE := 4.0
+const PAD_FLUSH_VALUE := 24.0
+## A pad of the bot's own with less than this left on the clock is worth going back for.
+const PAD_RENEW_LEFT := 10.0
+const PAD_RENEW_VALUE := 2.5
 const FIRE_CONE := 0.14
 const DODGE_RANGE := 8.0
 const DODGE_HORIZON := 1.0
@@ -130,6 +138,16 @@ static func choose_goal(context: Dictionary, personality: BotTrait) -> StringNam
 	var item_distance := float(context.get("item_distance", INF))
 	if not bool(context.get("has_item", false)) and item_distance <= 12.0:
 		item = 0.8 * personality.collect_weight * float(context.get("item_appetite", 1.0))
+	var flush := 0.0
+	var flush_distance := float(context.get("flush_distance", INF))
+	if flush_distance < INF:
+		flush = (
+			personality.flush_weight
+			* float(context.get("flush_value", PAD_VALUE))
+			/ (flush_distance + 2.0)
+		)
+	if flush > 0.0 and flush >= hunt and flush >= collect and flush >= item:
+		return &"flush"
 	if hunt > 0.0 and hunt >= collect and hunt >= item:
 		return &"hunt"
 	if item > 0.0 and item > collect:
@@ -174,6 +192,9 @@ func _decide() -> void:
 			target = target_node.global_position
 		&"collect":
 			target_node = context["pickup"]
+			target = target_node.global_position
+		&"flush":
+			target_node = context["flush_pad"]
 			target = target_node.global_position
 		_:
 			target = _clamp_to_arena(
@@ -236,7 +257,44 @@ func _context() -> Dictionary:
 	if best_item != null:
 		context["item"] = best_item
 		context["item_distance"] = best_item_distance
+	_add_flush_context(context)
 	return context
+
+
+## The Royal Flush pad worth driving to, GAME.md 3.9. A pad somebody else holds, or nobody
+## does, is worth taking; the one that would complete the set is worth far more; and a pad of
+## the bot's own that is about to lapse is worth going back over to renew.
+func _add_flush_context(context: Dictionary) -> void:
+	var pads := match_node.arena.flush_pads
+	var held := 0
+	for pad: FlushPad in pads:
+		if pad.owner_slot == kart.slot and not pad.is_disabled():
+			held += 1
+	var best: FlushPad = null
+	var best_score := 0.0
+	var best_value := 0.0
+	for pad: FlushPad in pads:
+		if pad.is_disabled():
+			continue
+		var value := PAD_VALUE
+		if pad.owner_slot == kart.slot:
+			if pad.held_left > PAD_RENEW_LEFT:
+				continue
+			value = PAD_RENEW_VALUE
+		elif held >= pads.size() - 1:
+			# The last one of the set: taking it is the flush itself.
+			value = PAD_FLUSH_VALUE
+		var distance := kart.global_position.distance_to(pad.global_position)
+		var score := value / (distance + 2.0)
+		if score > best_score:
+			best_score = score
+			best = pad
+			best_value = value
+	if best == null:
+		return
+	context["flush_pad"] = best
+	context["flush_value"] = best_value
+	context["flush_distance"] = kart.global_position.distance_to(best.global_position)
 
 
 func _pickup_value(pickup: Pickup) -> float:

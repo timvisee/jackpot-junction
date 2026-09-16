@@ -882,6 +882,7 @@ NavigationAgent3D, plus reactive bullet dodging.
 | Hunt            | An enemy is within 18 m and can be brought in front of the cannon             |
 | Bank            | Pot value above the trait's threshold, or under 20 s left with a non-empty pot |
 | Jackpot         | The active Jackpot has 20 or more chips and nobody is inside                  |
+| Flush pad       | A Royal Flush pad is worth the detour: a pad held by nobody or by somebody else counts as 4 chips, the one that would complete the set as 24, and a pad of the bot's own with under 10 s left on its claim as 2.5, each divided by the distance to it |
 | Grab item       | Holding nothing and a power-up pad is near                                    |
 | Flee            | A Boosting enemy is within 6 m                                                |
 

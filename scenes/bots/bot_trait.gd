@@ -12,6 +12,8 @@ extends Resource
 @export var last_call_bank_threshold := 1
 @export var hunt_weight := 1.0
 @export var collect_weight := 1.0
+## How keen the bot is on the Royal Flush pads, which pay while they are held.
+@export var flush_weight := 1.0
 @export var jackpot_min_chips := 20
 @export var dodge_multiplier := 1.0
 ## Distance within which a Boosting enemy makes the bot flee.
