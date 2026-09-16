@@ -57,8 +57,10 @@ extends Resource
 @export var nitro_grip_multiplier := 0.55
 ## Seconds a full tank burns for.
 @export var nitro_capacity_seconds := 2.0
-## Seconds an empty tank takes to refill.
-@export var nitro_recharge_seconds := 12.0
+## Seconds an empty tank takes to refill: slow, so nitro is scarce and kills are the way to it.
+@export var nitro_recharge_seconds := 90.0
+## Fraction of the tank a kill hands the killer.
+@export var nitro_kill_refill := 0.5
 ## Seconds after letting go before the tank starts refilling.
 @export var nitro_recharge_delay := 0.6
 ## Fraction of the tank needed to start burning, so a near-empty tank cannot be tapped forever.

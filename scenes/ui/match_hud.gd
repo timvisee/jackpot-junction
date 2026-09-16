@@ -56,6 +56,15 @@ func _ready() -> void:
 	Events.death_banked.connect(_on_death_banked)
 	Events.match_state_changed.connect(_on_state_changed)
 	Events.kart_killed.connect(_on_kart_killed)
+	Events.nitro_gained.connect(_on_nitro_gained)
+
+
+func _on_nitro_gained(slot: int) -> void:
+	var kart := _kart(slot)
+	if kart != null:
+		FloatingText.spawn(
+			match_node, kart.global_position, "+NITRO", Color(1.0, 0.75, 0.3), 36, 0.9
+		)
 
 
 func _on_kart_killed(victim_slot: int, _killer_slot: int, _cause: StringName) -> void:
@@ -86,6 +95,7 @@ func _exit_tree() -> void:
 	Events.bank_completed.disconnect(_on_bank_completed)
 	Events.death_banked.disconnect(_on_death_banked)
 	Events.match_state_changed.disconnect(_on_state_changed)
+	Events.nitro_gained.disconnect(_on_nitro_gained)
 
 
 ## Shows a HUD block and the control hint for a human slot.

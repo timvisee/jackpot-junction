@@ -42,7 +42,7 @@ func test_nitro_burns_for_speed_then_empties_and_refills_after_a_pause() -> void
 	input.nitro = false
 	input.throttle = 0.0
 	await _runner.simulate_frames(90, 17)
-	assert_float(kart.nitro_charge).is_between(0.04, 0.16)
+	assert_float(kart.nitro_charge).is_between(0.005, 0.03)
 	input.nitro = true
 	await _runner.simulate_frames(6, 17)
 	assert_bool(kart.nitro_active).is_false()
@@ -63,3 +63,20 @@ func test_ramming_with_nitro_kills_the_other_kart() -> void:
 	await _runner.simulate_frames(60, 17)
 	assert_bool(victim.alive).is_false()
 	assert_int(match_node.slots[0].kills).is_equal(1)
+	assert_float(rammer.nitro_charge).is_greater(0.55)
+
+
+func test_a_kill_refills_half_a_tank_and_respawning_keeps_the_charge() -> void:
+	var match_node := _start_match([KartInput.new(), KartInput.new()])
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	kart.nitro_charge = 0.2
+	var gained := monitor_signals(Events, false)
+	kart.refill_nitro(kart.stats.nitro_kill_refill)
+	assert_float(kart.nitro_charge).is_equal_approx(0.7, 0.001)
+	await assert_signal(gained).is_emitted("nitro_gained", [0])
+	kart.refill_nitro(1.0)
+	assert_float(kart.nitro_charge).is_equal(1.0)
+	kart.nitro_charge = 0.3
+	kart.respawn(Vector3.ZERO, Vector3.FORWARD, 0.0)
+	assert_float(kart.nitro_charge).is_equal_approx(0.3, 0.001)

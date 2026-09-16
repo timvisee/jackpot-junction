@@ -432,8 +432,8 @@ func _update_aim_guide() -> void:
 		_aim_guide.update_line(global_position + direction * cannon_stats.muzzle_offset, direction)
 
 
-## Nitro, GAME.md 4.1: hold to burn a limited tank for extra speed and ramming kills; it refills
-## slowly after a short pause.
+## Nitro, GAME.md 4.1: hold to burn a limited tank for extra speed and ramming kills. It refills
+## very slowly after a short pause; kills top it up, respawning does not.
 func _step_nitro(delta: float) -> void:
 	var can_start := nitro_active or nitro_charge >= stats.nitro_min_start
 	if input.nitro and can_start and nitro_charge > 0.0 and not falling:
@@ -453,6 +453,14 @@ func _step_nitro(delta: float) -> void:
 	_nitro_recharge_wait = maxf(_nitro_recharge_wait - delta, 0.0)
 	if _nitro_recharge_wait <= 0.0:
 		nitro_charge = minf(nitro_charge + delta / stats.nitro_recharge_seconds, 1.0)
+
+
+## Adds a fraction of a tank, for example the half tank a kill hands out.
+func refill_nitro(fraction: float) -> void:
+	var before := nitro_charge
+	nitro_charge = minf(nitro_charge + fraction, 1.0)
+	if nitro_charge > before:
+		Events.nitro_gained.emit(slot)
 
 
 func _set_nitro_active(on: bool) -> void:
@@ -612,7 +620,6 @@ func respawn(point: Vector3, direction: Vector3, protection: float) -> void:
 	motor.turbo_time_left = 0.0
 	velocity = Vector3.ZERO
 	cannon.cooldown_left = 0.0
-	nitro_charge = 1.0
 	protection_left = protection
 	collision_layer = Layers.PROTECTED if protection > 0.0 else Layers.KART
 	collision_mask = Layers.WORLD | Layers.KART | Layers.PROTECTED | Layers.TURRET

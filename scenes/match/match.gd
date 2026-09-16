@@ -827,6 +827,7 @@ func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> voi
 		killer.kills += 1
 		if killer.kart.alive:
 			killer.kart.gain_mult(rules.kill_mult, &"kill")
+			killer.kart.refill_nitro(killer.kart.stats.nitro_kill_refill)
 	kart.pot.reset()
 	slot.deaths += 1
 	slot.respawn_left = rules.respawn_delay
