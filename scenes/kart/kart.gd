@@ -732,7 +732,8 @@ func _spin_wheels(delta: float) -> void:
 	for wheel: MeshInstance3D in _wheels:
 		wheel.rotation.x += turn
 		if wheel.name.to_lower().contains("front"):
-			wheel.rotation.y = motor.steer * 0.35
+			# Steering right is a clockwise turn seen from above, a negative rotation about +Y.
+			wheel.rotation.y = -motor.steer * 0.35
 
 
 func _build_pickup_area() -> void:
