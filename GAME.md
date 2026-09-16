@@ -651,12 +651,12 @@ Starting palette:
 | Table                | `#8A5A3C`                                     |
 | Chips                | `#F2C14E` gold, `#F7F3EA` and `#C4453C` stripes |
 | Junction neon        | `#FF4FA3` magenta, `#35D0FF` cyan             |
-| Disco heads          | magenta, cyan, gold, violet, green, coral     |
+| Disco heads          | magenta, cyan, white, gold, violet, green     |
 | Player colours       | red `#E23D3D`, blue `#3D6FE2`, yellow `#F2D23D`, green `#43C463`, purple `#9B4FE2`, orange `#F28C3D`, cyan `#3DD9E2`, pink `#F26BB8` |
 
 - **Disco lights**: six moving-head spot lights stand on posts along the long
-  edges of the table, in magenta, cyan, white, gold, violet and green, and follow
-  the excitement levels from 8.4, one head per level. They can be switched off in
+  edges of the table, working through magenta, cyan, white, gold, violet and
+  green, and follow the excitement levels from 8.4, one head per level. They can be switched off in
   the accessibility settings in 8.5 and stay off in the Garage. At level 1 a
   single head drifts slowly, pointing up and sweeping the air above the room with
   a barely visible beam. Every level brings another head on; the heads tip down
@@ -681,6 +681,16 @@ Starting palette:
 - Each beam is cut to the distance it actually has to cross and widened to its
   own spot angle every frame, so however far across the table a head is
   pointing its cone ends in a lit pool on the floor rather than in mid-air.
+- No head keeps one look. Each walks its own way through the six colours, holding
+  one for 9 s at rest down to 3.5 s at the top and fading over to the next in 0.8 s,
+  on its own staggered clock so the rig never changes colour all at once. Dark heads
+  walk on too, so a head coming back on is not still wearing the colour it went out
+  with. The colour changes are kept well away from the beat: a head that changed
+  colour on the beat would read as a strobe rather than as a rig working the room.
+- Each head also opens and closes its cone, 30% either side of the width its level
+  asks for, each on its own clock and quicker the hotter the match is, so the beams
+  keep working even while the level has been standing for a while. The winner's
+  spotlight overrides both the width and the breathing.
 - From level 3 every lit head flashes on the beat, harder on the first beat of
   the bar, faintly at first and hardest at level 6. The track is a steady 120 BPM
   in four, so the beat comes straight off the music's playback position. The

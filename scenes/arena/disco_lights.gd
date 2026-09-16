@@ -12,6 +12,11 @@ extends Node3D
 ## From level 3 the heads also flash on the beat of the music, harder on the first beat of the
 ## bar, faintly at first and hardest at level 6.
 ##
+## No head keeps one look. Each walks its own way through the palette, fading from one colour to
+## the next on its own clock, and each opens and closes its cone around the width its level asks
+## for. Both go quicker the hotter the match is, so the rig keeps changing even when the level
+## has been standing for a while.
+##
 ## The levels themselves hold for long enough that nothing here has to guard against flapping,
 ## so the rig only eases between them: a step up sweeps the beams open over a second or so rather
 ## than snapping. While some heads are still dark the lit run walks around the rig on its own,
@@ -44,7 +49,7 @@ const LENS_DARK := Color(0.16, 0.16, 0.19)
 ## How far the light reaches. Comfortably past the far corner of the floor, so a beam thrown
 ## right across the table still lands.
 const LIGHT_RANGE := 40.0
-## Colours the heads are painted in, in the order they switch on.
+## Colours the heads walk through, each starting on its own and stepping to the next in turn.
 const COLORS: Array[Color] = [
 	Color("#FF4FA3"),
 	Color("#35D0FF"),
@@ -58,6 +63,15 @@ const COLORS: Array[Color] = [
 const LEVEL_FOLLOW := 0.35
 ## The level from which the heads start flashing on the beat.
 const FLASH_FROM := 3
+## Seconds a head keeps a colour, at rest and at the top, and how long it takes to fade over to
+## the next one. Well apart from the beat: a light that changed colour on the beat would read as
+## a strobe rather than as a rig working the room.
+const COLOR_HOLD_SLOW := 9.0
+const COLOR_HOLD_FAST := 3.5
+const COLOR_FADE := 0.8
+## How far a cone opens and closes around the width its level asks for, and how fast.
+const BREATH_DEPTH := 0.3
+const BREATH_RATE := 0.37
 ## Seconds the heads take to swing onto the winner at the end of the match, and how narrow
 ## they draw in once they are on them.
 const FOCUS_SWING := 1.6
@@ -131,6 +145,8 @@ func _process(delta: float) -> void:
 		_swing = minf(_swing + delta / FOCUS_SWING, 1.0)
 	_smooth = move_toward(_smooth, _climb(), LEVEL_FOLLOW * delta)
 	_step_cycle(delta)
+	for head: Dictionary in _heads:
+		_step_color(head, delta)
 	# Everything moves at a crawl until the match gives it a reason not to.
 	_time += delta * (0.3 + 1.4 * _smooth)
 	var beat := Audio.music_beat()
@@ -156,6 +172,21 @@ func _climb() -> float:
 	return float(lit_heads() - 1) / float(COUNT - 1)
 
 
+## A head's own slow walk through the palette: it keeps a colour for a while, then fades over to
+## the next one in the list. Dark heads walk on too, so a head coming back on is not still
+## wearing the colour it went out with.
+func _step_color(head: Dictionary, delta: float) -> void:
+	head["color_left"] = head["color_left"] - delta
+	if head["color_left"] <= 0.0:
+		head["color_from"] = head["color"]
+		head["color_index"] = posmod(head["color_index"] + 1, COLORS.size())
+		head["color_to"] = COLORS[head["color_index"]]
+		head["color_fade"] = 0.0
+		head["color_left"] = lerpf(COLOR_HOLD_SLOW, COLOR_HOLD_FAST, _smooth)
+	head["color_fade"] = minf(head["color_fade"] + delta / COLOR_FADE, 1.0)
+	head["color"] = (head["color_from"] as Color).lerp(head["color_to"], head["color_fade"])
+
+
 ## While some heads are dark the lit run walks around the rig, so the room keeps changing without
 ## getting any brighter. With every head already lit there is nothing to hand on.
 func _step_cycle(delta: float) -> void:
@@ -179,9 +210,17 @@ func _step_head(head: Dictionary, on: bool, flash: float) -> void:
 		return
 	var light: SpotLight3D = head["light"]
 	(head["beam"] as MeshInstance3D).visible = true
+	var color: Color = head["color"]
+	light.light_color = color
 	var lens: StandardMaterial3D = head["lens"]
-	lens.albedo_color = head["color"]
+	lens.albedo_color = color
+	lens.emission = color
 	lens.emission_energy_multiplier = LENS_GLOW
+	# The cone breathes around the width its level asks for, each head on its own clock, so the
+	# beams keep working even while the level stands still. The winner's spotlight overrides it.
+	var width := lerpf(14.0, 24.0, _smooth)
+	width *= 1.0 + BREATH_DEPTH * sin(_time * BREATH_RATE + head["phase"])
+	light.spot_angle = lerpf(width, FOCUS_ANGLE, _swing)
 	var target := _aim_point(head)
 	if absf(target.x - light.position.x) < 0.02 and absf(target.z - light.position.z) < 0.02:
 		target.x += 0.05
@@ -197,11 +236,10 @@ func _step_head(head: Dictionary, on: bool, flash: float) -> void:
 	# blazing would cost more in readability than it buys in atmosphere.
 	var pulse := 1.0 + (0.2 + 0.6 * _smooth) * flash
 	light.light_energy = (0.8 + 1.5 * _smooth) * pulse
-	light.spot_angle = lerpf(lerpf(14.0, 24.0, _smooth), FOCUS_ANGLE, _swing)
 	var tint: StandardMaterial3D = head["tint"]
 	# Beams from the edge cut across the camera rather than pointing away from it, so they are
 	# kept fainter than an overhead rig would need.
-	tint.albedo_color.a = (0.018 + 0.038 * _smooth) * pulse
+	tint.albedo_color = Color(color, (0.018 + 0.038 * _smooth) * pulse)
 
 
 ## A head that is not taking its turn: the lamp stays where it is, pointing where it last
@@ -306,6 +344,12 @@ func _build_head(index: int) -> Dictionary:
 		"tint": beam_material,
 		"lens": lens,
 		"color": color,
+		"color_from": color,
+		"color_to": color,
+		"color_index": index % COLORS.size(),
+		"color_fade": 1.0,
+		# Staggered, so the rig never changes colour all at once.
+		"color_left": COLOR_HOLD_SLOW * (0.3 + 0.12 * float(index)),
 		"lit": false,
 		"inward": -side,
 		"reach": Vector2(_floor.x * 0.75, _floor.y * 0.75),

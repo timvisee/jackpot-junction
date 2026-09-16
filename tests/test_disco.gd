@@ -172,6 +172,55 @@ func test_a_hot_match_sweeps_wider_brighter_and_faster() -> void:
 	assert_float((lights._heads[0]["tint"] as StandardMaterial3D).albedo_color.a).is_less(0.2)
 
 
+## GAME.md 8.1: a head does not keep one colour, and the light, the lens and the beam all wear
+## whatever it has walked on to.
+func test_a_head_walks_through_the_palette_and_dresses_itself_in_the_new_colour() -> void:
+	var lights := _lights()
+	lights.level = DiscoLights.COUNT
+	_run(lights, 0.5)
+	var head: Dictionary = lights._heads[0]
+	var first: Color = head["color"]
+	assert_object((head["light"] as SpotLight3D).light_color).is_equal(first)
+	_run(lights, DiscoLights.COLOR_HOLD_SLOW + DiscoLights.COLOR_FADE + 1.0)
+	var later: Color = head["color"]
+	(
+		assert_bool(later.is_equal_approx(first))
+		. override_failure_message("the colour never moved")
+		. is_false()
+	)
+	var light: SpotLight3D = head["light"]
+	var lens: StandardMaterial3D = head["lens"]
+	var tint: StandardMaterial3D = head["tint"]
+	assert_object(light.light_color).is_equal(later)
+	assert_object(lens.albedo_color).is_equal(later)
+	assert_object(lens.emission).is_equal(later)
+	assert_float(tint.albedo_color.r).is_equal_approx(later.r, 0.001)
+	assert_float(tint.albedo_color.b).is_equal_approx(later.b, 0.001)
+	# The rig does not change colour all at once: the heads are on staggered clocks.
+	var lefts: Array[float] = []
+	for other: Dictionary in lights._heads:
+		lefts.append(other["color_left"])
+	assert_float(lefts.max() - lefts.min()).is_greater(0.5)
+
+
+## GAME.md 8.1: the cone opens and closes around the width its level asks for.
+func test_a_cone_opens_and_closes_around_its_levels_width() -> void:
+	var lights := _lights()
+	lights.level = DiscoLights.COUNT
+	_run(lights, 5.0)
+	var head: SpotLight3D = lights._heads[0]["light"]
+	var narrowest := head.spot_angle
+	var widest := head.spot_angle
+	for i: int in 900:
+		lights._process(1.0 / 60.0)
+		narrowest = minf(narrowest, head.spot_angle)
+		widest = maxf(widest, head.spot_angle)
+	# Around 24 degrees at the top level, opening and closing by about a third of that.
+	assert_float(widest - narrowest).is_greater(6.0)
+	assert_float(narrowest).is_greater(10.0)
+	assert_float(widest).is_less(36.0)
+
+
 func test_the_beat_comes_off_the_tempo_and_wraps_through_the_bar() -> void:
 	var beat := Audio.music_beat()
 	assert_float(beat).is_between(0.0, 1.0)
