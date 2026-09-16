@@ -652,8 +652,13 @@ corners, in single-player and online only the local block is shown.
   shove, "P2 fell in" for a fall nobody caused and "P2 wrecked itself" for a
   self kill. Names are in the players' colours. Lines hold for 6 s and fade.
   The feed drops below a player block that owns that corner.
-- **Standings**: a compact ranked list of every kart's banked score next to
-  the timer, shown in single-player and online where only one HUD block exists.
+- **Standings**: a ranked list down the left-hand side, one row per kart with
+  its banked score and, in gold beside it, whatever it is still carrying around
+  unbanked. Rows are ordered by the two added together, so a kart on a hot lap
+  climbs before it reaches the Junction and drops back when it dies. The leader's
+  row is the largest and last place the smallest, and the players on this screen
+  are boxed in their own colour. It stands down in three- and four-player
+  shared-screen games, where every player already has a corner block.
 - **Destruction**: a kart, turret or crate that is destroyed leaves a burst of
   tumbling chunks in its own colour with a brief flash. A kart lost down a pit
   shrinks away instead. The Bomb keeps the one real explosion, see 7.1.

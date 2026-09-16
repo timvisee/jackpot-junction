@@ -15,7 +15,7 @@ const BLOCK_ANCHORS: Array[int] = [
 var match_node: Match
 
 var _timer: Label
-var _standings: RichTextLabel
+var _scoreboard: Scoreboard
 var _banner: Label
 var _blocks: Dictionary[int, Dictionary] = {}
 var _hands: Dictionary[int, JokerHand] = {}
@@ -33,17 +33,10 @@ func _ready() -> void:
 	layer = 5
 	_timer = _label(40, Control.PRESET_CENTER_TOP)
 	_timer.offset_top = 10.0
-	_standings = RichTextLabel.new()
-	_standings.bbcode_enabled = true
-	_standings.fit_content = true
-	_standings.scroll_active = false
-	_standings.autowrap_mode = TextServer.AUTOWRAP_OFF
-	_standings.add_theme_font_size_override("normal_font_size", 20)
-	_standings.custom_minimum_size = Vector2(600.0, 0.0)
-	_standings.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
-	_standings.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	_standings.offset_top = 62.0
-	add_child(_standings)
+	_scoreboard = Scoreboard.new()
+	_scoreboard.name = "Scoreboard"
+	_scoreboard.match_node = match_node
+	add_child(_scoreboard)
 	_banner = _label(96, Control.PRESET_CENTER)
 	_banner.visible = false
 	for slot: PlayerSlot in match_node.slots:
@@ -177,7 +170,7 @@ func _layout_hands() -> void:
 
 func _process(delta: float) -> void:
 	_update_timer()
-	_update_standings()
+	_update_scoreboard()
 	_update_blocks()
 	_update_banner(delta)
 	_update_lobby()
@@ -192,16 +185,10 @@ func _update_timer() -> void:
 	)
 
 
-func _update_standings() -> void:
-	var parts: PackedStringArray = []
-	for slot: PlayerSlot in match_node.standings():
-		parts.append(
-			(
-				"[color=#%s]%s %d[/color]"
-				% [slot.color().to_html(false), slot.display_name(), slot.banked]
-			)
-		)
-	_standings.text = "[center]%s[/center]" % "     ".join(parts)
+## The running order is for the player watching this screen. In a four-corner shared-screen game
+## every player already has their own block and the corners are busy, so it stands down.
+func _update_scoreboard() -> void:
+	_scoreboard.visible = _blocks.size() <= 2
 
 
 func _update_blocks() -> void:
