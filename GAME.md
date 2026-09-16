@@ -284,6 +284,9 @@ paints its frame in your colour and takes it from whoever held it.
   hold it, so a single pad is worth taking and worth defending. A holder who is
   dead, falling or rolling out the end of the match earns nothing while they are;
   the pad keeps their colour and waits for them.
+- Every coin paid throws a ring of light off the pad in its holder's colour,
+  growing outward and fading over 0.7 s, so four pads ticking over read as four
+  pads ticking over from anywhere on the table.
 - Holding all four at once is a Royal Flush. The bonus is unchanged by the
   trickle: +3 mult and a full nitro tank, announced to everyone with a fanfare.
 - All four pads clear and stay disabled for 20 s, then come back neutral.

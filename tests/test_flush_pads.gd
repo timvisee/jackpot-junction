@@ -50,6 +50,35 @@ func test_a_held_pad_trickles_coins_into_its_holders_pot() -> void:
 	assert_int(pads[0].owner_slot).is_equal(0)
 
 
+## GAME.md 3.9: a paid coin throws a ring off the pad, in the holder's colour, so the trickle can
+## be seen from across the table.
+func test_every_paid_coin_throws_a_ring_off_the_pad() -> void:
+	var match_node := _start_match()
+	match_node.rules.flush_pad_income = 4.0
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	var pads := match_node.arena.flush_pads
+	assert_bool(pads[0]._halo.visible).is_false()
+	await _park(kart, pads[0])
+	kart.global_position = match_node.arena.spawn_points[0]
+	await _runner.simulate_frames(30, 17)
+	assert_bool(pads[0]._halo.visible).is_true()
+	assert_float(pads[0]._halo_material.albedo_color.a).is_greater(0.0)
+	# Lying flat on the table, not standing up on edge.
+	var box := pads[0]._halo.get_aabb()
+	assert_float(box.size.x).is_greater(box.size.y * 4.0)
+	assert_float(box.size.x).is_equal_approx(box.size.z, 0.01)
+	assert_object(pads[0]._halo_material.albedo_color.srgb_to_linear()).is_not_equal(Color.BLACK)
+	# The ring grows outward as it goes and takes itself off the table when it is spent.
+	var first := pads[0]._halo.scale.x
+	pads[0].pop_halo()
+	pads[0]._physics_process(FlushPad.HALO_TIME * 0.5)
+	assert_float(pads[0]._halo.scale.x).is_greater(first)
+	pads[0]._physics_process(FlushPad.HALO_TIME)
+	pads[0]._physics_process(0.016)
+	assert_bool(pads[0]._halo.visible).is_false()
+
+
 func test_driving_over_pads_claims_and_steals_them_and_all_four_score_a_flush() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)

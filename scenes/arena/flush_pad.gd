@@ -6,6 +6,9 @@ extends Area3D
 ## watches the claims as well, and holding all four at once scores the flush, after which every
 ## pad clears and sits disabled for a while. Each pad carries a card letter so players can talk
 ## about them.
+##
+## Every coin the pad pays out throws a ring of light off it, so the trickle can be seen from
+## across the table rather than only read off the score.
 
 signal claimed(pad: FlushPad, kart: Kart)
 
@@ -14,6 +17,11 @@ const PLATE_HEIGHT := 0.05
 const FRAME_HEIGHT := 0.1
 const NEUTRAL := Color(0.86, 0.86, 0.9)
 const DISABLED := Color(0.3, 0.3, 0.34)
+## The ring a paid coin throws off the pad: how long it lasts, how far out it grows and how
+## bright it starts.
+const HALO_TIME := 0.7
+const HALO_GROWTH := 1.9
+const HALO_ALPHA := 0.75
 
 var index := 0
 var letter := "A"
@@ -30,6 +38,10 @@ var change := 0.0
 var _frame_material: StandardMaterial3D
 var _label: Label3D
 var _pulse := 0.0
+var _halo: MeshInstance3D
+var _halo_material: StandardMaterial3D
+## How far through its life the last ring is, 1 the moment a coin lands and 0 once it is gone.
+var _halo_left := 0.0
 
 
 func _ready() -> void:
@@ -55,11 +67,19 @@ func take_income(rate: float, seconds: float) -> int:
 	change += rate * seconds
 	var coins := floori(change)
 	change -= float(coins)
+	if coins > 0:
+		pop_halo()
 	return coins
+
+
+## Throws a ring of light off the pad, for a coin landing in its holder's pot.
+func pop_halo() -> void:
+	_halo_left = 1.0
 
 
 func _physics_process(delta: float) -> void:
 	_pulse += delta
+	_step_halo(delta)
 	if owner_slot >= 0 and not is_disabled():
 		_frame_material.emission_energy_multiplier = 0.9 + 0.5 * sin(_pulse * 4.0)
 	if is_disabled():
@@ -77,6 +97,19 @@ func _physics_process(delta: float) -> void:
 		claim(kart.slot, Palette.player_color(kart.color_index))
 		claimed.emit(self, kart)
 		return
+
+
+## The last ring thrown off the pad: it grows outward and fades as it goes, in whatever colour
+## the pad is wearing, and takes itself off the table when it is spent.
+func _step_halo(delta: float) -> void:
+	if _halo_left <= 0.0:
+		_halo.visible = false
+		return
+	_halo_left = maxf(_halo_left - delta / HALO_TIME, 0.0)
+	var age := 1.0 - _halo_left
+	_halo.visible = true
+	_halo.scale = Vector3.ONE * lerpf(1.0, HALO_GROWTH, age)
+	_halo_material.albedo_color = Color(owner_color, HALO_ALPHA * _halo_left * _halo_left)
 
 
 func _can_claim(kart: Kart) -> bool:
@@ -155,3 +188,27 @@ func _build_visuals() -> void:
 	_label.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
 	_label.position = Vector3(0.0, PLATE_HEIGHT + 0.01, 0.0)
 	add_child(_label)
+	_build_halo()
+
+
+## The ring itself: a flat band lying just above the plate, wider than the pad so it reads as
+## something thrown off it rather than as part of it.
+func _build_halo() -> void:
+	_halo_material = StandardMaterial3D.new()
+	_halo_material.albedo_color = Color(NEUTRAL, 0.0)
+	_halo_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_halo_material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	_halo_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_halo_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	_halo = MeshInstance3D.new()
+	_halo.name = "Halo"
+	var ring := TorusMesh.new()
+	ring.inner_radius = size * 0.62
+	ring.outer_radius = size * 0.72
+	ring.rings = 4
+	_halo.mesh = ring
+	_halo.material_override = _halo_material
+	_halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_halo.position = Vector3(0.0, PLATE_HEIGHT + 0.02, 0.0)
+	_halo.visible = false
+	add_child(_halo)
