@@ -647,6 +647,11 @@ corners, in single-player and online only the local block is shown.
   flicker reveals the item.
 - **Nitro tank** as a thin bar, lit while burning.
 - **Match timer** at the top centre, turning red during Last Call.
+- **Kill feed** in the top right: the last five kills, newest first, reading as
+  "P1 shot P2", "P1 rammed P2", "P1 bombed P2", "P1 shoved P2 in" for a pit
+  shove, "P2 fell in" for a fall nobody caused and "P2 wrecked itself" for a
+  self kill. Names are in the players' colours. Lines hold for 6 s and fade.
+  The feed drops below a player block that owns that corner.
 - **Standings**: a compact ranked list of every kart's banked score next to
   the timer, shown in single-player and online where only one HUD block exists.
 - **Destruction**: a kart, turret or crate that is destroyed leaves a burst of

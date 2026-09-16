@@ -19,6 +19,7 @@ var _standings: RichTextLabel
 var _banner: Label
 var _blocks: Dictionary[int, Dictionary] = {}
 var _hands: Dictionary[int, JokerHand] = {}
+var _kill_feed: KillFeed
 var _results: PanelContainer
 var _results_rows: VBoxContainer
 var _lobby: PanelContainer
@@ -48,6 +49,9 @@ func _ready() -> void:
 	for slot: PlayerSlot in match_node.slots:
 		if slot.is_local_human():
 			add_block(slot)
+	_kill_feed = KillFeed.new()
+	_kill_feed.name = "KillFeed"
+	add_child(_kill_feed)
 	_build_results()
 	_build_lobby()
 	Events.grazed.connect(_on_grazed)
@@ -95,8 +99,14 @@ func _on_nitro_gained(slot: int) -> void:
 		)
 
 
-func _on_kart_killed(victim_slot: int, _killer_slot: int, _cause: StringName) -> void:
+func _on_kart_killed(victim_slot: int, killer_slot: int, cause: StringName) -> void:
 	_rumble(victim_slot, 1.0, 0.4)
+	var victim := _slot_name(victim_slot)
+	if victim.is_empty():
+		return
+	_kill_feed.add_kill(
+		victim, _slot_color(victim_slot), _slot_name(killer_slot), _slot_color(killer_slot), cause
+	)
 
 
 ## Vibrates the gamepad of a human slot, when rumble is on.
@@ -196,9 +206,16 @@ func _update_standings() -> void:
 
 func _update_blocks() -> void:
 	var bottom_blocks: Array[Rect2] = []
+	var feed_top := 16.0
 	for index: int in _blocks:
-		if index % BLOCK_ANCHORS.size() >= 2:
-			bottom_blocks.append((_blocks[index]["box"] as Control).get_global_rect())
+		var corner := index % BLOCK_ANCHORS.size()
+		var rect := (_blocks[index]["box"] as Control).get_global_rect()
+		if corner >= 2:
+			bottom_blocks.append(rect)
+		elif corner == 1:
+			# A player's block owns the top right corner; the feed lines up underneath it.
+			feed_top = maxf(feed_top, rect.end.y + 12.0)
+	_kill_feed.offset_top = feed_top
 	for index: int in _blocks:
 		var slot := match_node.slots[index]
 		var block := _blocks[index]
@@ -358,6 +375,18 @@ func _on_death_banked(slot: int, amount: int) -> void:
 		FloatingText.spawn(
 			match_node, kart.global_position, "½  %d" % amount, Color(0.75, 0.75, 0.75), 56, 1.4
 		)
+
+
+func _slot_name(slot: int) -> String:
+	if slot < 0 or slot >= match_node.slots.size():
+		return ""
+	return match_node.slots[slot].display_name()
+
+
+func _slot_color(slot: int) -> Color:
+	if slot < 0 or slot >= match_node.slots.size():
+		return KillFeed.NEUTRAL
+	return match_node.slots[slot].color()
 
 
 func _kart(slot: int) -> Kart:
