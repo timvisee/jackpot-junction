@@ -837,7 +837,8 @@ every kart, so everyone sees when an opponent cashes out.
   walks the room up on its own clock, one level every 2 s until it is at the top,
   so the finale arrives over about ten seconds as a build rather than as a switch;
   a room already halfway up gets there sooner. And every human player being dead
-  drops the room to level 1 at once.
+  drops the room to level 1 at once, except during Last Call, which is the finale
+  whoever happens to be lying in a pit for the last few seconds of it.
 - The music is not switched by Last Call either. It follows the levels like
   everything else, so the full mix arrives with level 6 partway through the climb.
 - **Winding up between levels**: the music bus carries a low-pass filter and a
