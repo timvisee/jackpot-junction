@@ -9,7 +9,7 @@ extends StaticBody3D
 
 signal struck(target: Target, by_slot: int)
 
-const FACE_HEIGHT := 0.55
+const FACE_HEIGHT := 0.75
 const RESPAWN_DELAY := 4.0
 ## Ring colours from the outside in.
 const RINGS: Array[Color] = [Palette.CHIP_WHITE, Palette.CHIP_RED, Palette.CHIP_GOLD]
@@ -28,7 +28,7 @@ func _ready() -> void:
 	add_to_group(&"targets")
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()
-	box.size = Vector3(0.9, 0.9, 0.3)
+	box.size = Vector3(1.1, 1.0, 0.4)
 	shape.shape = box
 	shape.position = Vector3(0.0, FACE_HEIGHT, 0.0)
 	add_child(shape)
@@ -72,16 +72,16 @@ func _build_visuals() -> void:
 	add_child(post)
 	_face = Node3D.new()
 	_face.name = "Face"
-	# Leaning back toward the camera, which looks down the arena from behind.
-	_face.rotation_degrees = Vector3(-35.0, 0.0, 0.0)
+	# Tipped back so the rings face the camera, which looks down the table from the +Z side.
+	_face.rotation_degrees = Vector3(40.0, 0.0, 0.0)
 	_face.position = Vector3(0.0, FACE_HEIGHT, 0.0)
 	add_child(_face)
 	for i: int in RINGS.size():
 		var ring := MeshInstance3D.new()
 		var disc := CylinderMesh.new()
-		disc.top_radius = 0.42 - 0.13 * i
+		disc.top_radius = 0.55 - 0.17 * i
 		disc.bottom_radius = disc.top_radius
-		disc.height = 0.06
+		disc.height = 0.06 if i == 0 else 0.03
 		ring.mesh = disc
 		var material := StandardMaterial3D.new()
 		material.albedo_color = RINGS[i]
@@ -89,7 +89,7 @@ func _build_visuals() -> void:
 		material.emission = RINGS[i]
 		material.emission_energy_multiplier = 0.25
 		ring.material_override = material
-		# The cylinder's axis is Y; lay it over so the rings face along the leaning node's -Z.
-		ring.rotation_degrees = Vector3(90.0, 0.0, 0.0)
-		ring.position = Vector3(0.0, 0.0, -0.03 * i)
+		# The cylinder's axis is Y, which the leaning face has already tipped toward the camera,
+		# so the rings stack along it straight out of the plate.
+		ring.position = Vector3(0.0, 0.03 * i, 0.0)
 		_face.add_child(ring)

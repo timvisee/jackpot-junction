@@ -69,6 +69,8 @@ func _step_head(head: Dictionary, on: bool, flash: float) -> void:
 		0.0,
 		clampf(cos(_time * head["rate_z"] + head["phase"]) * reach.y, -_floor.y, _floor.y)
 	)
+	if absf(target.x - light.position.x) < 0.02 and absf(target.z - light.position.z) < 0.02:
+		target.x += 0.05
 	light.look_at(target, Vector3.UP)
 	var pulse := 1.0 + (0.2 + 1.3 * level) * flash
 	light.light_energy = (0.9 + 3.2 * level) * pulse
@@ -92,7 +94,8 @@ func _build_head(index: int) -> Dictionary:
 	var along := (-1.0 if index < 3 else 1.0) * _floor.y * 0.72
 	light.position = Vector3(across, MOUNT_HEIGHT, along)
 	add_child(light)
-	light.look_at(Vector3(across, 0.0, along), Vector3.UP)
+	# Aimed short of straight down: looking_at cannot pick a roll from a target directly below.
+	light.look_at(Vector3(across * 0.5, 0.0, along * 0.5), Vector3.UP)
 	var beam_material := StandardMaterial3D.new()
 	beam_material.albedo_color = Color(color.r, color.g, color.b, 0.03)
 	beam_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA

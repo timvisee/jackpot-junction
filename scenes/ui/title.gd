@@ -1,5 +1,5 @@
 extends Control
-## The title screen from GAME.md 3.8: Play, Settings, Quit.
+## The title screen from GAME.md 3.8: Play, the Garage practice room, Settings, Quit.
 
 var play_button: Button
 
@@ -26,6 +26,9 @@ func _ready() -> void:
 	var online := MenuTheme.button("Play online")
 	online.pressed.connect(func() -> void: Game.go_to_online())
 	column.add_child(online)
+	var garage := MenuTheme.button("Garage")
+	garage.pressed.connect(func() -> void: Game.go_to_garage())
+	column.add_child(garage)
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(func() -> void: Game.go_to_settings(Game.TITLE_SCENE))
 	column.add_child(settings)

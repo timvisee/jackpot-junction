@@ -55,6 +55,7 @@ bounty_reward = 150
 lives = 2
 wounded_speed = 0.85
 hurt_protection = 0.5
+timed = true
 duration = 300.0
 target_score = 3000
 last_call_duration = 30.0

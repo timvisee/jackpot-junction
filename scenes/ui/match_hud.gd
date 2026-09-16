@@ -211,6 +211,10 @@ func _process(delta: float) -> void:
 
 
 func _update_timer() -> void:
+	if not match_node.rules.timed:
+		# A room with no clock, such as the Garage: nothing to count down to.
+		_timer.visible = false
+		return
 	var seconds := ceili(match_node.time_left)
 	_timer.text = "%d:%02d" % [seconds / 60, seconds % 60]
 	var last_call := match_node.state == Match.State.LAST_CALL

@@ -20,6 +20,8 @@ const BOUNTY_RETRY := 5.0
 @export var bot_difficulty: BotDifficulty
 ## Whether the match builds its own HUD. Tests turn it off.
 @export var with_hud := true
+## The map to build. The arena scene's own default is used when this is left empty.
+@export var arena_layout: ArenaLayout
 
 var state := State.LOBBY
 var slots: Array[PlayerSlot] = []
@@ -81,9 +83,7 @@ func start(inputs: Array[KartInput], seed: int = 0, colors: Array[int] = []) -> 
 	_colors = colors
 	_seed = seed if seed != 0 else randi()
 	rng.seed = _seed
-	arena = ARENA_SCENE.instantiate()
-	arena.name = "Arena"
-	add_child(arena)
+	arena = _build_arena()
 	arena.start_economy(rules, rng, power_ups, joker_catalog)
 	nav = ArenaNav.new(arena.grid)
 	for i: int in arena.crates.size():
@@ -265,6 +265,17 @@ func _add_intensity() -> void:
 	add_child(intensity)
 
 
+## Instantiates the arena on the chosen map. The layout has to be in place before the node
+## enters the tree, because that is when it builds itself.
+func _build_arena() -> Arena:
+	var built: Arena = ARENA_SCENE.instantiate()
+	built.name = "Arena"
+	if arena_layout != null:
+		built.layout = arena_layout
+	add_child(built)
+	return built
+
+
 func kart_of(slot_index: int) -> Kart:
 	return slots[slot_index].kart
 
@@ -278,9 +289,7 @@ func join_network(input: NetInput) -> PlayerSlot:
 ## bullets and pickups appear as snapshots arrive.
 func start_puppet() -> void:
 	puppet = true
-	arena = ARENA_SCENE.instantiate()
-	arena.name = "Arena"
-	add_child(arena)
+	arena = _build_arena()
 	for zone: JackpotZone in arena.jackpot_zones:
 		zone.rules = rules
 		zone.puppet = true
@@ -391,7 +400,8 @@ func _physics_process(delta: float) -> void:
 			if countdown_left <= 0.0:
 				_begin_play()
 		State.PLAYING, State.LAST_CALL:
-			time_left -= delta
+			if rules.timed:
+				time_left -= delta
 			if state == State.PLAYING and time_left <= rules.last_call_duration:
 				_enter_last_call()
 			if time_left <= 0.0:

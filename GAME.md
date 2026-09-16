@@ -850,6 +850,47 @@ service and Steam integration needs GodotSteam; both are backlog items.
 Joining mid-match follows the local rule in 9.2. Online matches cannot be
 paused.
 
+### 9.4 The Garage
+
+A practice room reached straight from the title screen, before anybody starts a
+real match. Nobody else is in it: no bots, no clock, no score to protect. It
+runs an ordinary match on its own map with the timer switched off, so nothing
+ever ends and the player can take as long as they like.
+
+```
+################################
+#....R.......R.......R.........#
+#.S............................#
+#..>........................<..#
+#..............................#
+#...BB..B..........B..B........#
+#.F............CC.........F....#
+#.............JJJJ.............#
+#....P........JJJJ........KK...#
+#....P........JJJJ........KK...#
+#.............JJJJ.............#
+#.F............CC.........F....#
+#...BB..B..........B..B........#
+#.......XX.........D...........#
+#.S.....XX.....................#
+#..............................#
+#..............................#
+################################
+```
+
+Everything the game does is somewhere on the floor, and a sign names each one:
+
+- A long clear straight along the top and the bottom to wind the kart out on,
+  with a turbo pad at either end of the top one pointing the other way.
+- Crates to slalom through and shoot, coin pads, and three shooting targets
+  along the top wall that pay coins, see 6.2.
+- The Junction in the middle, a Jackpot zone, a pit, four Royal Flush pads and
+  two item pads carrying the full item set rather than the first set.
+- A joker pad that keeps a joker lying on it, so jokers can be tried out, kept,
+  dropped and destroyed without dying for them.
+- Pressing join brings a second player in on another device, the same as in a
+  match, and pausing leads back to the title.
+
 ## 10. Technology
 
 ### 10.1 Engine and project settings
@@ -887,6 +928,7 @@ res://
 │   ├── bots/          bot brain
 │   ├── ui/            player hud, tally, joker pick, joker menu, lobby, results
 │   ├── fx/            destruction bursts and other world effects
+│   ├── garage/        the practice room from 9.4
 │   └── match/         match state machine, snapshots, player stats
 ├── scripts/           shared code: autoloads, scoring math, input router
 ├── tests/             gdUnit4 tests

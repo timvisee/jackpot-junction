@@ -86,6 +86,9 @@ extends Resource
 @export var hurt_protection := 0.5
 
 @export_group("Match")
+## Whether the match runs against a clock. The Garage in 9.4 turns it off: no timer, no Last
+## Call, no end.
+@export var timed := true
 @export var duration := 300.0
 @export var target_score := 3000
 @export var last_call_duration := 30.0
