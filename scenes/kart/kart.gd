@@ -88,7 +88,7 @@ var _smoke: ExhaustSmoke
 var _pickup_shape: SphereShape3D
 var _shield_visual: MeshInstance3D
 var _aim_arrow: MeshInstance3D
-var _flame: MeshInstance3D
+var _flame: NitroFlame
 var _nitro_recharge_wait := 0.0
 var _puppet_target := Vector3.ZERO
 var _puppet_heading := 0.0
@@ -209,7 +209,7 @@ func apply_puppet_state(state: Dictionary, _delta: float) -> void:
 	set_shielded(state["shield"])
 	channel_progress = state["ring"]
 	_aim_arrow.visible = state["aim"]
-	_flame.visible = state.get("nitro", false)
+	_flame.set_active(state.get("nitro", false))
 
 
 ## Glides a puppet toward its extrapolated snapshot target every physics tick, so movement stays
@@ -468,7 +468,7 @@ func _set_nitro_active(on: bool) -> void:
 		Events.nitro_started.emit(slot)
 	nitro_active = on
 	motor.nitro_bonus = stats.nitro_speed_multiplier if on else 1.0
-	_flame.visible = on
+	_flame.set_active(on)
 
 
 func _step_effects(delta: float) -> void:
@@ -878,26 +878,9 @@ func _build_pickup_area() -> void:
 	_aim_arrow.top_level = true
 	_aim_arrow.visible = false
 	add_child(_aim_arrow)
-	_flame = MeshInstance3D.new()
+	_flame = NitroFlame.new()
 	_flame.name = "Flame"
-	var flame_mesh := CylinderMesh.new()
-	flame_mesh.top_radius = 0.02
-	flame_mesh.bottom_radius = 0.22
-	flame_mesh.height = 1.1
-	_flame.mesh = flame_mesh
-	var flame_material := StandardMaterial3D.new()
-	flame_material.albedo_color = Color(0.4, 0.75, 1.0, 0.85)
-	flame_material.emission_enabled = true
-	flame_material.emission = Color(0.4, 0.75, 1.0)
-	flame_material.emission_energy_multiplier = 2.5
-	flame_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	flame_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	_flame.material_override = flame_material
-	# The cylinder's axis is Y; point the tip backward along +Z from the rear of the kart.
-	_flame.rotation_degrees = Vector3(90.0, 0.0, 0.0)
-	_flame.position = Vector3(0.0, 0.4, stats.length * 0.5 + 0.45)
-	_flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_flame.visible = false
+	_flame.position = Vector3(0.0, 0.4, stats.length * 0.5 - 0.05)
 	add_child(_flame)
 
 

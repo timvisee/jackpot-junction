@@ -31,12 +31,14 @@ func test_nitro_burns_for_speed_then_empties_and_refills_after_a_pause() -> void
 	input.nitro = true
 	await _runner.simulate_frames(30, 17)
 	assert_bool(kart.nitro_active).is_true()
+	assert_bool(kart._flame.active).is_true()
 	assert_float(kart.motor.max_speed()).is_equal_approx(
 		kart.stats.top_speed * kart.stats.nitro_speed_multiplier, 0.01
 	)
 	assert_float(kart.nitro_charge).is_less(1.0)
 	await _runner.simulate_frames(110, 17)
 	assert_bool(kart.nitro_active).is_false()
+	assert_bool(kart._flame.active).is_false()
 	assert_float(kart.nitro_charge).is_equal(0.0)
 	assert_float(kart.motor.max_speed()).is_equal_approx(kart.stats.top_speed, 0.01)
 	input.nitro = false

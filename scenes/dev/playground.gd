@@ -9,6 +9,7 @@ extends Node3D
 ##   --jokers=3           deal the player this many random jokers at the start
 ##   --menu=1             hold the player's joker menu open on this card, for screenshots
 ##   --explosion=0.2      a bomb blast next to the player, this many seconds in, for screenshots
+##   --flame=1            show the player's nitro flame, for screenshots
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
 ## on an unused device to join mid-match; F6 deals the player a random joker.
 
@@ -22,6 +23,7 @@ var _difficulty := "normal"
 var _jokers := 0
 var _menu := -1
 var _explosion := -1.0
+var _flame := false
 
 
 func _ready() -> void:
@@ -74,6 +76,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(_delta: float) -> void:
+	if _flame:
+		match_node.kart_of(0)._flame.set_active(true)
 	if _menu < 0:
 		return
 	var player := match_node.kart_of(0)
@@ -111,3 +115,5 @@ func _parse_user_args() -> void:
 			_menu = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--explosion="):
 			_explosion = float(arg.get_slice("=", 1))
+		elif arg.begins_with("--flame="):
+			_flame = arg.get_slice("=", 1) == "1"
