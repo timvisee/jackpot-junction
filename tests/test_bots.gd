@@ -268,6 +268,61 @@ func _drives_onto(brain: BotBrain, kart: Kart, goal: Vector3) -> bool:
 	return kart.global_position.distance_to(goal) < 0.8
 
 
+## GAME.md 9.1: a bot going nowhere with the throttle down backs out with the wheel over, and
+## does it promptly when it can feel a wall on its nose.
+func test_a_bot_nosed_against_a_wall_backs_out_of_it() -> void:
+	var match_node := _match()
+	await _runner.simulate_frames(30, 17)
+	var kart := match_node.kart_of(0)
+	var brain: BotBrain = kart.get_node("Brain")
+	# Parked up against a wall of the arena, pointing into it, going nowhere.
+	var wall := match_node.arena.grid.rect_center(match_node.arena.grid.walls[0])
+	var inward := (Vector3.ZERO - wall).normalized()
+	kart.global_position = wall + inward * 1.6
+	kart.face(-inward)
+	kart.motor.forward_speed = 0.0
+	kart.motor.velocity = Vector3.ZERO
+	assert_bool(brain._nose_on_a_wall()).is_true()
+	# Half a second of it is enough with a wall there, where open ground gets a second.
+	assert_bool(_gets_stuck(brain, 0.5)).is_true()
+	assert_float(brain.input.brake).is_equal(1.0)
+	assert_float(brain.input.throttle).is_equal(0.0)
+	assert_float(absf(brain.input.steer)).is_equal(1.0)
+	# The wheel stays where it was put for the whole manoeuvre rather than sawing at it.
+	var first_way := signf(brain.input.steer)
+	for i: int in 20:
+		brain._step_stuck(1.0 / 60.0)
+		assert_float(signf(brain.input.steer)).is_equal(first_way)
+	# Backed into the same corner again, it tries the other way out.
+	_run_out_reverse(brain)
+	assert_bool(_gets_stuck(brain, 0.5)).is_true()
+	assert_float(signf(brain.input.steer)).is_equal(-first_way)
+	# Out in the open a bot puts up with going nowhere for longer before giving up on it.
+	_run_out_reverse(brain)
+	kart.global_position = match_node.arena.junction_position
+	assert_bool(brain._nose_on_a_wall()).is_false()
+	assert_bool(_gets_stuck(brain, 0.5)).is_false()
+	assert_bool(_gets_stuck(brain, 1.0)).is_true()
+
+
+## Holds the throttle down on a kart that is going nowhere for [param seconds], and says whether
+## the bot gave up and started backing out.
+func _gets_stuck(brain: BotBrain, seconds: float) -> bool:
+	for i: int in int(seconds * 60.0):
+		brain.input.throttle = 1.0
+		brain._step_stuck(1.0 / 60.0)
+		if brain._reverse_left > 0.0:
+			return true
+	return false
+
+
+## Lets a reverse manoeuvre finish, with nobody on the throttle.
+func _run_out_reverse(brain: BotBrain) -> void:
+	for i: int in 60:
+		brain.input.throttle = 0.0
+		brain._step_stuck(1.0 / 60.0)
+
+
 func test_closest_approach_predicts_near_misses() -> void:
 	var head_on := BotBrain.closest_approach(Vector3(0.0, 0.0, -6.0), Vector3(0.0, 0.0, 20.0), 1.0)
 	assert_float(head_on).is_equal_approx(0.0, 0.001)

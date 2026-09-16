@@ -904,6 +904,14 @@ drifting, which shrinks the circle to something that fits. With the goal behind 
 and under 4 m away it backs onto it instead, because no turning circle fits at that
 range. On the Junction and the Jackpot it then holds position as before.
 
+**Getting unstuck**: driving at something solid pins a kart against it, and steering
+toward a target on the far side only holds it there harder. A bot that is going
+nowhere with the throttle down backs up for 0.7 s with the wheel over, which swings
+its nose clear. It puts up with that for a second before deciding, unless it can
+feel a wall right on its nose, which takes a third of a second. The turn is picked
+once and held for the whole manoeuvre, and alternates, so a bot that backs into the
+same corner twice tries the other way out rather than rocking on the spot.
+
 **Pits**: paths already go around them, but a pit stops nothing and blocks no
 raycast, so a bot cutting a corner, sliding out of a drift or chasing a kart
 across one would drive in regardless. A bot checks the ground a second and a bit

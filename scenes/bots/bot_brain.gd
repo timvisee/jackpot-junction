@@ -27,8 +27,15 @@ const DODGE_RANGE := 8.0
 const DODGE_HORIZON := 1.0
 const DODGE_DISTANCE := 1.2
 const DODGE_TIME := 0.35
+## How long a bot puts up with going nowhere before backing out of it, and how long it backs
+## out for. A nose flat against a wall needs no second of proof, so that case is quicker.
 const STUCK_TIME := 1.2
+const WALL_STUCK_TIME := 0.35
 const REVERSE_TIME := 0.7
+## Under this it counts as going nowhere.
+const STUCK_SPEED := 0.6
+## How far in front of itself a bot feels for a wall it is nosed up against.
+const WALL_PROBE := 1.3
 const AIM_ERROR_INTERVAL := 0.5
 const ITEM_PATIENCE := 5.0
 const BULLET_HEIGHT := 0.5
@@ -82,6 +89,8 @@ var _aim_error_left := 0.0
 var _willing_to_fire := true
 var _stuck_time := 0.0
 var _reverse_left := 0.0
+## Which way the wheel goes while backing out, held for the whole manoeuvre.
+var _reverse_steer := 1.0
 var _item_hold_time := 0.0
 ## Stands in for the match's reading when a brain is stepped on its own, in tests.
 var _fallback := BotMirror.new()
@@ -517,21 +526,41 @@ func _should_hold_position() -> bool:
 	return false
 
 
+## Getting a bot off a wall, GAME.md 9.1. Driving at something solid pins the kart there, and
+## steering toward a target on the far side of it only holds it harder, so a bot that is going
+## nowhere backs up with the wheel over and swings its nose clear. The turn is picked once and
+## held for the whole manoeuvre, and it alternates, so a bot that backs into the same corner
+## twice tries the other way out rather than rocking on the spot.
 func _step_stuck(delta: float) -> void:
 	if _reverse_left > 0.0:
 		_reverse_left -= delta
-		input.throttle = 0.0
-		input.brake = 1.0
-		input.steer = -input.steer
-		input.handbrake = false
+		_back_out()
 		return
-	if input.throttle > 0.0 and kart.motor.speed() < 0.5:
-		_stuck_time += delta
-		if _stuck_time >= STUCK_TIME:
-			_stuck_time = 0.0
-			_reverse_left = REVERSE_TIME
-	else:
+	if input.throttle <= 0.0 or kart.motor.speed() >= STUCK_SPEED:
 		_stuck_time = 0.0
+		return
+	_stuck_time += delta
+	if _stuck_time >= (WALL_STUCK_TIME if _nose_on_a_wall() else STUCK_TIME):
+		_stuck_time = 0.0
+		_reverse_left = REVERSE_TIME
+		_reverse_steer = -_reverse_steer
+		# On the same tick it decides, not the one after: the frame it waits is a frame it
+		# spends pushing at the wall.
+		_back_out()
+
+
+## Backing out: off the gas, on the brakes, wheel held over.
+func _back_out() -> void:
+	input.throttle = 0.0
+	input.brake = 1.0
+	input.steer = _reverse_steer
+	input.handbrake = false
+	input.nitro = false
+
+
+## Whether there is something solid right in front of the nose.
+func _nose_on_a_wall() -> bool:
+	return not _has_line_of_sight(kart.global_position + kart.motor.forward_vector() * WALL_PROBE)
 
 
 func _dodge(delta: float) -> void:
