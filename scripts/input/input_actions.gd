@@ -170,6 +170,11 @@ static func descriptors(action: StringName) -> Array:
 
 
 ## Human-readable bindings of an action for one device kind.
+## Just the first binding, for hints with no room for a list.
+static func short_binding_text(action: StringName, keyboard: bool) -> String:
+	return binding_text(action, keyboard).split(", ")[0]
+
+
 static func binding_text(action: StringName, keyboard: bool) -> String:
 	var parts: PackedStringArray = []
 	for event: InputEvent in InputMap.action_get_events(action):

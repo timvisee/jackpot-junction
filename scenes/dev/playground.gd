@@ -13,6 +13,7 @@ extends Node3D
 ##   --oil=1              drop an oil stain next to the player, for screenshots
 ##   --burst=1            pop a destruction burst next to the player, for screenshots
 ##   --feed=1             put a few made-up kills in the kill feed, for screenshots
+##   --offer=1            open the respawn joker pick, for screenshots
 ##   --results=1          end the match at once with made-up stats, to see the results screen
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
 ## on an unused device to join mid-match; F6 deals the player a random joker.
@@ -31,6 +32,7 @@ var _flame := false
 var _oil := false
 var _burst := false
 var _feed := false
+var _offer := false
 var _results := false
 
 
@@ -54,6 +56,11 @@ func _ready() -> void:
 	var player := match_node.kart_of(0)
 	for i: int in _jokers:
 		_deal_joker(player)
+	if _offer:
+		var slot := match_node.slots[0]
+		var choices := match_node.joker_catalog.offer(match_node.rng, 3, [])
+		slot.offer = JokerOffer.new(slot.kart, choices)
+		slot.offer.selected = 1
 	if _feed:
 		for pair: Array in [[1, 0, &"bullet"], [2, 1, &"ram"], [3, -1, &"pit"], [0, 3, &"bomb"]]:
 			Events.kart_killed.emit(pair[0], pair[1], pair[2])
@@ -155,5 +162,7 @@ func _parse_user_args() -> void:
 			_burst = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--feed="):
 			_feed = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--offer="):
+			_offer = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--results="):
 			_results = arg.get_slice("=", 1) == "1"

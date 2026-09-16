@@ -6,6 +6,9 @@ extends RefCounted
 
 enum Stage { CHOOSING, REPLACING, DONE }
 
+## How far a stick has to be pushed to count as a step to the next card.
+const STEER_STEP := 0.6
+
 var choices: Array[Joker] = []
 var stage := Stage.CHOOSING
 var selected := 0
@@ -14,6 +17,8 @@ var taken: Joker
 
 var _kart: Kart
 var _was_down: Dictionary[StringName, bool] = {}
+## Which way a remote player's stick was held last tick, so holding it only steps once.
+var _steer_was := 0
 
 
 func _init(kart: Kart, offered: Array[Joker]) -> void:
@@ -57,15 +62,15 @@ func cancel_replace() -> void:
 		selected = choices.find(chosen)
 
 
-## Reads the player's device: number keys pick directly, prev and next move the cursor, the item
-## button confirms, the destroy button skips or cancels.
+## Reads the player's device: steering or the bracket keys move the cursor, number keys pick
+## directly, the item button confirms, the destroy button skips or cancels.
 func poll(device: int) -> void:
 	if stage == Stage.DONE:
 		return
 	var options := choices.size() if stage == Stage.CHOOSING else _kart.jokers.count()
-	if _pressed(InputActions.JOKER_NEXT, device):
+	if _pressed(InputActions.JOKER_NEXT, device) or _pressed(InputActions.STEER_RIGHT, device):
 		selected = (selected + 1) % options
-	if _pressed(InputActions.JOKER_PREV, device):
+	if _pressed(InputActions.JOKER_PREV, device) or _pressed(InputActions.STEER_LEFT, device):
 		selected = posmod(selected - 1, options)
 	var selects: Array[StringName] = [
 		InputActions.JOKER_SELECT_1,
@@ -88,17 +93,23 @@ func poll(device: int) -> void:
 			cancel_replace()
 
 
-## Reads the one-tick fields of a polled input: number picks, cursor moves, item button confirms,
-## destroy button skips or cancels. Works for local players and remote players alike.
+## Reads the one-tick fields of a polled input: steering or the cursor keys move, numbers pick,
+## the item button confirms, the destroy button skips or cancels. Used for remote players,
+## whose steering arrives as an axis, so it is turned back into presses here.
 func poll_input(input: KartInput) -> void:
 	if stage == Stage.DONE:
 		return
 	var options := choices.size() if stage == Stage.CHOOSING else _kart.jokers.count()
 	if options <= 0:
 		return
-	if input.joker_next_pressed:
+	var steer := 0
+	if absf(input.steer) > STEER_STEP:
+		steer = signi(roundi(input.steer))
+	var stepped := steer != 0 and steer != _steer_was
+	_steer_was = steer
+	if input.joker_next_pressed or (stepped and steer > 0):
 		selected = (selected + 1) % options
-	if input.joker_prev_pressed:
+	if input.joker_prev_pressed or (stepped and steer < 0):
 		selected = posmod(selected - 1, options)
 	if input.joker_select >= 0 and input.joker_select < options:
 		_confirm(input.joker_select)

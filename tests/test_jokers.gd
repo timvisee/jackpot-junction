@@ -207,6 +207,77 @@ func test_a_full_hand_fans_out_and_the_picked_card_straightens_up() -> void:
 	assert_float(cards[0].position.y).is_less(cards[2].position.y)
 
 
+## Presses and releases one action, polling the offer through both, the way a held key would be
+## seen by the match over two frames.
+func _tap(offer: JokerOffer, action: StringName) -> void:
+	Input.action_press(action)
+	offer.poll(DeviceInput.ANY)
+	Input.action_release(action)
+	offer.poll(DeviceInput.ANY)
+
+
+## GAME.md 3.7: the respawn offer is a row of cards, and steering moves the cursor along it.
+func test_the_offer_is_a_row_of_cards_that_steering_walks_along() -> void:
+	var match_node := _start_match(_bots())
+	var kart := match_node.kart_of(0)
+	var choices := CATALOG.offer(match_node.rng, 3, [])
+	var offer := JokerOffer.new(kart, choices)
+	var picker: JokerPicker = auto_free(JokerPicker.new())
+	add_child(picker)
+	await await_idle_frame()
+	picker.show_offer(offer, kart)
+	assert_bool(picker.visible).is_true()
+	assert_int(picker.card_count()).is_equal(3)
+	var cards := picker._cards
+	assert_float(cards[0].scale.x).is_greater(cards[1].scale.x)
+	assert_str(picker._title.text).is_equal("Pick a joker")
+	assert_str(picker._detail_text.text).contains(choices[0].display_name)
+	# Steering right walks the cursor along, and holding it over does not keep walking.
+	_tap(offer, InputActions.STEER_RIGHT)
+	assert_int(offer.selected).is_equal(1)
+	picker.show_offer(offer, kart)
+	await await_idle_frame()
+	assert_float(cards[1].scale.x).is_greater(cards[0].scale.x)
+	assert_str(picker._detail_text.text).contains(choices[1].display_name)
+	Input.action_press(InputActions.STEER_RIGHT)
+	offer.poll(DeviceInput.ANY)
+	offer.poll(DeviceInput.ANY)
+	offer.poll(DeviceInput.ANY)
+	Input.action_release(InputActions.STEER_RIGHT)
+	offer.poll(DeviceInput.ANY)
+	assert_int(offer.selected).is_equal(2)
+	# Steering left walks back, and the row wraps around its ends.
+	_tap(offer, InputActions.STEER_RIGHT)
+	assert_int(offer.selected).is_equal(0)
+	_tap(offer, InputActions.STEER_LEFT)
+	assert_int(offer.selected).is_equal(choices.size() - 1)
+	offer.skip()
+	picker.show_offer(offer, kart)
+	assert_bool(picker.visible).is_false()
+	assert_int(picker.card_count()).is_equal(0)
+
+
+## A remote player's steering arrives as an axis, so the picker turns it back into single steps.
+func test_a_remote_players_stick_steps_the_cursor_once_per_push() -> void:
+	var match_node := _start_match(_bots())
+	var kart := match_node.kart_of(0)
+	var offer := JokerOffer.new(kart, CATALOG.offer(match_node.rng, 3, []))
+	var input := KartInput.new()
+	input.steer = 1.0
+	offer.poll_input(input)
+	assert_int(offer.selected).is_equal(1)
+	offer.poll_input(input)
+	assert_int(offer.selected).is_equal(1)
+	input.steer = 0.0
+	offer.poll_input(input)
+	input.steer = 1.0
+	offer.poll_input(input)
+	assert_int(offer.selected).is_equal(2)
+	input.steer = -1.0
+	offer.poll_input(input)
+	assert_int(offer.selected).is_equal(1)
+
+
 func test_stat_jokers_rebuild_the_karts_own_stats_and_removal_restores_them() -> void:
 	var match_node := _start_match(_bots())
 	var kart := match_node.kart_of(0)

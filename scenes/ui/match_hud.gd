@@ -19,6 +19,7 @@ var _scoreboard: Scoreboard
 var _banner: Label
 var _blocks: Dictionary[int, Dictionary] = {}
 var _hands: Dictionary[int, JokerHand] = {}
+var _pickers: Dictionary[int, JokerPicker] = {}
 var _kill_feed: KillFeed
 var _results: PanelContainer
 var _results_rows: VBoxContainer
@@ -143,6 +144,11 @@ func add_block(slot: PlayerSlot) -> void:
 	hand.keyboard = slot.device() in [DeviceInput.KEYBOARD, DeviceInput.ANY]
 	add_child(hand)
 	_hands[slot.index] = hand
+	var picker := JokerPicker.new()
+	picker.name = "Picker%d" % slot.index
+	picker.keyboard = hand.keyboard
+	add_child(picker)
+	_pickers[slot.index] = picker
 	_layout_hands()
 	ControlHint.attach(slot.kart, slot.device())
 
@@ -155,6 +161,8 @@ func remove_block(slot: PlayerSlot) -> void:
 	_blocks.erase(slot.index)
 	_hands[slot.index].queue_free()
 	_hands.erase(slot.index)
+	_pickers[slot.index].queue_free()
+	_pickers.erase(slot.index)
 	_layout_hands()
 
 
@@ -166,6 +174,9 @@ func _layout_hands() -> void:
 		var hand := _hands[indices[i]]
 		hand.column = i
 		hand.columns = indices.size()
+		var picker := _pickers[indices[i]]
+		picker.column = i
+		picker.columns = indices.size()
 
 
 func _process(delta: float) -> void:
@@ -235,47 +246,11 @@ func _update_blocks() -> void:
 		var hand := _hands[index]
 		hand.kart = kart
 		hand.avoid = bottom_blocks
-		_update_offer(slot, block)
-
-
-func _update_offer(slot: PlayerSlot, block: Dictionary) -> void:
-	var panel: PanelContainer = block["offer"]
-	var text: RichTextLabel = block["offer_text"]
-	var offer := slot.offer
-	if offer == null or offer.is_done():
-		panel.visible = false
-		return
-	panel.visible = true
-	var lines: PackedStringArray = []
-	if offer.stage == JokerOffer.Stage.CHOOSING:
-		lines.append("[b]Pick a joker[/b]")
-		for i: int in offer.choices.size():
-			var joker := offer.choices[i]
-			var marker := "> " if i == offer.selected else "   "
-			lines.append(
-				(
-					"%s%d. [color=%s]%s[/color]  %s"
-					% [marker, i + 1, _kind_color(joker), joker.display_name, joker.description]
-				)
-			)
-		lines.append("1-%d pick   E take   Q skip" % offer.choices.size())
-	else:
-		lines.append("[b]Destroy which joker for %s?[/b]" % offer.chosen.display_name)
-		var held := slot.kart.jokers.jokers
-		for i: int in held.size():
-			var marker := "> " if i == offer.selected else "   "
-			lines.append(
-				(
-					"%s%d. [color=%s]%s[/color]"
-					% [marker, i + 1, _kind_color(held[i]), held[i].display_name]
-				)
-			)
-		lines.append("1-5 pick   E confirm   Q back")
-	text.text = "\n".join(lines)
+		_pickers[index].show_offer(slot.offer, kart)
 
 
 func _kind_color(joker: Joker) -> String:
-	return "#" + JokerHand.kind_color(joker).to_html(false)
+	return "#" + JokerCard.kind_color(joker).to_html(false)
 
 
 func _update_banner(delta: float) -> void:
@@ -444,15 +419,6 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 	var item := Label.new()
 	item.add_theme_font_size_override("font_size", 22)
 	item.add_theme_color_override("font_color", Palette.NEON_MAGENTA)
-	var offer := PanelContainer.new()
-	offer.visible = false
-	offer.custom_minimum_size = Vector2(560.0, 0.0)
-	var offer_text := RichTextLabel.new()
-	offer_text.bbcode_enabled = true
-	offer_text.fit_content = true
-	offer_text.scroll_active = false
-	offer_text.add_theme_font_size_override("normal_font_size", 20)
-	offer.add_child(offer_text)
 	for label: Label in [name_label, banked, pot, stats, item]:
 		label.horizontal_alignment = (
 			HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
@@ -463,7 +429,6 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 		box.add_child(label)
 	box.add_child(lives)
 	box.add_child(nitro)
-	box.add_child(offer)
 	return {
 		"box": box,
 		"banked": banked,
@@ -472,8 +437,6 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 		"lives": pips,
 		"nitro": nitro,
 		"item": item,
-		"offer": offer,
-		"offer_text": offer_text,
 	}
 
 
