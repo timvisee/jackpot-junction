@@ -15,7 +15,7 @@ var _pulse := 0.0
 
 
 func can_collect(kart: Kart) -> bool:
-	return kart.held_item == null and not kart.is_decoy()
+	return super(kart) and kart.held_item == null and not kart.is_decoy()
 
 
 func _build_visual(parent: Node3D) -> void:

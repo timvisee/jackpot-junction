@@ -157,6 +157,35 @@ func test_the_junction_blinks_when_a_local_player_carries_a_fortune() -> void:
 	assert_bool(changed).override_failure_message("the ring never pulsed").is_true()
 
 
+## GAME.md 3.6: a wreck scatters its chips well clear of the spot, and anything that lands over
+## a hole drops into it instead of sitting there.
+func test_drops_scatter_wide_and_anything_over_a_pit_falls_in() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs, _quick_rules())
+	await _runner.simulate_frames(20, 17)
+	var arena := match_node.arena
+	var centre := Vector3(0.0, 0.0, 6.0)
+	var chips := arena.spawn_chips(centre, 12, 0.0, 0.0, true)
+	var furthest := 0.0
+	for chip: Chip in chips:
+		furthest = maxf(furthest, chip.global_position.distance_to(centre))
+	assert_float(furthest).is_greater(2.0)
+	# The hole in the floor swallows whatever lands on it.
+	var pit := arena.pits[0].global_position
+	assert_bool(arena.is_over_pit(pit)).is_true()
+	assert_bool(arena.is_over_pit(centre)).is_false()
+	var doomed := ItemBox.new()
+	doomed.fixed_item = load("res://data/powerups/boost.tres")
+	arena.place_drop(doomed, pit)
+	assert_bool(doomed.falling).is_true()
+	assert_bool(doomed.can_collect(match_node.kart_of(0))).is_false()
+	var height := doomed.position.y
+	await _runner.simulate_frames(6, 17)
+	assert_float(doomed.position.y).is_less(height)
+	await _runner.simulate_frames(60, 17)
+	assert_bool(is_instance_valid(doomed)).is_false()
+
+
 func test_coin_pads_spawn_pickups_that_karts_collect() -> void:
 	var rules := _quick_rules()
 	rules.duration = 60.0

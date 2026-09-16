@@ -133,10 +133,9 @@ func spawn_chips(
 		chip.dropped = dropped
 		chip.lifetime = lifetime
 		var angle := _rng.randf_range(0.0, TAU)
-		var distance := _rng.randf_range(0.6, 1.6)
+		var distance := _rng.randf_range(0.8, 3.2)
 		var offset := Vector3(cos(angle), 0.0, sin(angle)) * distance
-		chip.position = clamp_to_floor(origin + offset)
-		pickups.add_child(chip)
+		place_drop(chip, clamp_to_floor(origin + offset))
 		result.append(chip)
 	return result
 
@@ -147,8 +146,8 @@ func spawn_floor_item(origin: Vector3, item: PowerUp, lifetime: float) -> ItemBo
 	box.fixed_item = item
 	box.lifetime = lifetime
 	var angle := _rng.randf_range(0.0, TAU)
-	box.position = clamp_to_floor(origin + Vector3(cos(angle), 0.0, sin(angle)) * 1.2)
-	pickups.add_child(box)
+	var distance := _rng.randf_range(1.6, 2.8)
+	place_drop(box, clamp_to_floor(origin + Vector3(cos(angle), 0.0, sin(angle)) * distance))
 	return box
 
 
@@ -158,9 +157,27 @@ func spawn_floor_joker(origin: Vector3, joker: Joker, lifetime: float) -> FloorJ
 	card.joker = joker
 	card.lifetime = lifetime
 	var angle := _rng.randf_range(0.0, TAU)
-	card.position = clamp_to_floor(origin + Vector3(cos(angle), 0.0, sin(angle)) * 1.4)
-	pickups.add_child(card)
+	var distance := _rng.randf_range(1.8, 3.0)
+	place_drop(card, clamp_to_floor(origin + Vector3(cos(angle), 0.0, sin(angle)) * distance))
 	return card
+
+
+## True when a point on the floor is over one of the holes, so anything dropped there falls in.
+func is_over_pit(point: Vector3) -> bool:
+	for rect: Rect2i in grid.pits:
+		var centre := grid.rect_center(rect)
+		var half := grid.rect_size(rect) * 0.5
+		if absf(point.x - centre.x) <= half.x and absf(point.z - centre.z) <= half.y:
+			return true
+	return false
+
+
+## Puts a freshly dropped pickup down, sending it into the hole if that is where it landed.
+func place_drop(pickup: Pickup, at: Vector3) -> void:
+	pickup.position = at
+	pickups.add_child(pickup)
+	if is_over_pit(at):
+		pickup.fall_into_pit()
 
 
 func clamp_to_floor(point: Vector3) -> Vector3:

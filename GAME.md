@@ -175,15 +175,19 @@ bullets cannot take both lives in the same moment. Driving onto the Junction res
 0.4 s, uncontrollable, and dies whatever its lives. On death, in this order:
 
 1. **Bank half**: `floor(0.5 * coins * mult)` is added to banked score.
-2. **Drop coins**: `floor(0.3 * coins)` chips, at most 10, scatter around the
-   death spot and vanish after 15 s.
+2. **Drop coins**: `floor(0.3 * coins)` chips, at most 10, scatter up to 3.2 m
+   around the death spot and vanish after 15 s.
 3. **Drop items**: 20% chance that one random held joker drops. 50% chance
-   that the held power-up drops. Floor items vanish after 15 s.
-4. **Credit the killer**: +1 mult. Turret and decoy kills credit their owner.
+   that the held power-up drops, both a couple of metres clear of the wreck.
+   Floor items vanish after 15 s.
+4. **Mind the holes**: anything that lands over a pit, chips and items alike,
+   drops into it, shrinking as it goes, and is gone. It cannot be picked up on
+   the way down.
+5. **Credit the killer**: +1 mult. Turret and decoy kills credit their owner.
    Pit deaths credit the last kart that bumped the victim within 2 s. Self kills
    credit nobody.
-5. **Reset the pot**: coins 0, mult 1.
-6. **Respawn** after 3 s at the spawn point farthest from any enemy, with 2 s
+6. **Reset the pot**: coins 0, mult 1.
+7. **Respawn** after 3 s at the spawn point farthest from any enemy, with 2 s
    of spawn protection: invulnerable, cannot fire, bullets pass through. Picking
    up coins and items is allowed.
 
