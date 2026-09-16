@@ -47,6 +47,30 @@ func test_more_heads_switch_on_as_the_meter_climbs() -> void:
 	assert_int(lights.lit_count()).is_equal(1)
 
 
+## GAME.md 8.1: the rig stands around the table and looks up until the match gives it a reason
+## to look down.
+func test_the_heads_stand_at_the_edges_and_tip_down_as_the_heat_builds() -> void:
+	var lights := _lights()
+	for head: Dictionary in lights._heads:
+		var light: SpotLight3D = head["light"]
+		assert_float(light.position.y).is_equal_approx(DiscoLights.MOUNT_HEIGHT, 0.01)
+		# Just outside the long edges of a 40 by 22.5 m table, never over it.
+		assert_float(absf(light.position.z)).is_greater(11.2)
+		assert_float(absf(light.position.x)).is_less(20.0)
+		assert_object(head["post"]).is_not_null()
+	lights.level = 0.0
+	_run(lights, 2.0)
+	var first: Dictionary = lights._heads[0]
+	assert_float(lights._aim_point(first).y).is_greater(5.0)
+	lights.level = 1.0
+	_run(lights, 25.0)
+	assert_float(lights._aim_point(first).y).is_equal_approx(0.0, 0.01)
+	# Halfway up the meter they are already looking at the floor rather than the ceiling.
+	lights.level = DiscoLights.TIP_FULL
+	_run(lights, 20.0)
+	assert_float(lights._aim_point(first).y).is_less(1.0)
+
+
 ## The point of the slow follower, the dead band and the hold: a moment of excitement must not
 ## flick a head on and straight back off.
 func test_a_brief_spike_does_not_flicker_a_head() -> void:

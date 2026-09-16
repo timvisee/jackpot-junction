@@ -639,14 +639,17 @@ Starting palette:
 | Disco heads          | magenta, cyan, gold, violet, green, coral     |
 | Player colours       | red `#E23D3D`, blue `#3D6FE2`, yellow `#F2D23D`, green `#43C463`, purple `#9B4FE2`, orange `#F28C3D`, cyan `#3DD9E2`, pink `#F26BB8` |
 
-- **Disco lights**: six moving-head spot lights hang over the table, in magenta,
-  cyan, white, gold, violet and green, and follow the excitement meter from 8.4.
-  They can be switched off in the accessibility settings in 8.5. At rest a single
-  head drifts slowly with a barely visible beam; as the meter climbs more heads
-  switch on, one for every fifth of the way up, and they sweep wider, faster and
-  brighter. Last Call has all six at their widest, kept deliberately short of
-  washing the table out: six heads blazing would cost more in readability than
-  they buy in atmosphere.
+- **Disco lights**: six moving-head spot lights stand on posts along the long
+  edges of the table, in magenta, cyan, white, gold, violet and green, and follow
+  the excitement meter from 8.4. They can be switched off in the accessibility
+  settings in 8.5 and stay off in the Garage. At rest a single head drifts slowly,
+  pointing up and sweeping the air above the room with a barely visible beam. As
+  the meter climbs more heads switch on, one for every fifth of the way up, and
+  between 0.12 and 0.7 they tip down onto the floor, so the lights come down to
+  the players rather than being switched on over them. Past that they sweep wider,
+  faster and brighter. Last Call has all six at their widest, kept deliberately
+  short of washing the table out: six heads blazing would cost more in readability
+  than they buy in atmosphere.
 - The rig lags the meter on purpose: it follows a copy of it that moves at 0.3 a
   second, a head only lights once the level has clearly earned it and only goes
   out once it has fallen 0.06 back below that mark, and either way the count then

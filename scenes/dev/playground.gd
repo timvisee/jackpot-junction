@@ -138,7 +138,11 @@ func _process(_delta: float) -> void:
 	if _disco >= 0.0:
 		match_node.intensity.heat = _disco
 		match_node.intensity.value = _disco
-		match_node.arena.disco.level = _disco
+		var lights := match_node.arena.disco
+		lights.level = _disco
+		# Settled at once: a screenshot cannot wait out the rig's slow follower and its holds.
+		lights._smooth = _disco
+		lights._count = 1 + floori(_disco * (DiscoLights.COUNT - 1))
 	if _flame:
 		match_node.kart_of(0)._flame.set_active(true)
 	if _menu < 0:
