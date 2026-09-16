@@ -8,6 +8,8 @@ you.
 Made with Godot 4.7 and GDScript. `GAME.md` holds the design, `PLAN.md` the
 implementation plan with the status of every milestone.
 
+![Four karts on a felt-topped table arena under stage lights, with the joker hand open along the bottom of the screen](docs/screenshot.png)
+
 ## Playing
 
 - **Single-player**: Play, pick match length, target score, bots and

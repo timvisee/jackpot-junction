@@ -16,6 +16,7 @@ extends Node3D
 ##   --offer=1            open the respawn joker pick, for screenshots
 ##   --destroy=1          open the pick with a full hand, on the destroy step
 ##   --disco=4            hold the excitement level here, 1 to 6, for the lights and the music
+##   --clean=1            hide the debug overlay, for screenshots of the game itself
 ##   --bounty=1           put a bounty on the second slot, for screenshots
 ##   --results=1          end the match at once with made-up stats, to see the results screen
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
@@ -38,6 +39,7 @@ var _feed := false
 var _offer := false
 var _destroy := false
 var _disco := 0
+var _clean := false
 var _bounty := false
 var _results := false
 
@@ -118,6 +120,8 @@ func _ready() -> void:
 	overlay.kart = player
 	overlay.match_node = match_node
 	overlay.arena_width = match_node.arena.world_size().x
+	# Screenshots of the game want the game, not the instruments.
+	overlay.visible = not _clean
 	add_child(overlay)
 	var tuning := TuningPanel.new()
 	tuning.stats = player.base_stats
@@ -195,6 +199,8 @@ func _parse_user_args() -> void:
 			_offer = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--destroy="):
 			_destroy = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--clean="):
+			_clean = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--disco="):
 			_disco = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--bounty="):
