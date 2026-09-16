@@ -4,13 +4,11 @@ extends GdUnitTestSuite
 
 
 func before_test() -> void:
-	Audio._last_call = false
 	Audio.set_excitement(1, 0.0)
 	Audio.set_layer(Audio.LAYER_CALM)
 
 
 func after_test() -> void:
-	Audio._last_call = false
 	Audio.set_excitement(1, 0.0)
 	Audio.set_layer(Audio.LAYER_CALM)
 
@@ -56,14 +54,18 @@ func test_the_music_steps_up_with_the_excitement_level() -> void:
 	assert_str(Audio.current_layer).is_equal("calm")
 
 
-func test_last_call_brings_the_full_mix_until_the_results() -> void:
+## GAME.md 8.4: Last Call does not switch the mix by itself any more. The excitement climb
+## walks the room up to level 6 and the full track comes in with it, and the results take it
+## back to calm.
+func test_the_full_mix_comes_in_with_the_top_level_and_the_results_end_it() -> void:
 	Audio._on_state_changed(Match.State.LAST_CALL)
-	assert_str(Audio.current_layer).is_equal("peak")
+	assert_str(Audio.current_layer).is_equal("calm")
+	for level: int in [2, 3]:
+		Audio.set_excitement(level, 0.2 * float(level))
+		assert_str(Audio.current_layer).is_equal("calm")
+	Audio.set_excitement(4, 0.6)
+	assert_str(Audio.current_layer).is_equal("tense")
 	Audio.set_excitement(6, 1.0)
-	assert_str(Audio.current_layer).is_equal("peak")
-	Audio.set_excitement(1, 0.0)
-	assert_str(Audio.current_layer).is_equal("peak")
-	Audio.mark_all_players_down()
 	assert_str(Audio.current_layer).is_equal("peak")
 	Audio._on_state_changed(Match.State.RESULTS)
 	assert_str(Audio.current_layer).is_equal("calm")

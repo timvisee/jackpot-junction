@@ -114,18 +114,25 @@ func test_pressure_comes_from_a_fat_pot_a_duel_and_a_cash_out() -> void:
 	assert_float(meter.pressure).is_greater(with_pot + 0.15)
 
 
-## Last Call is the finale rather than a build-up, so it takes the room to the top at once.
-func test_last_call_goes_straight_to_the_top_level_and_everyone_down_drops_it() -> void:
+## GAME.md 8.4: Last Call walks the room up to the top rather than switching to it, a level
+## every couple of seconds, and the music comes with it.
+func test_last_call_climbs_to_the_top_level_and_everyone_down_drops_it() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)
 	await _settle(match_node)
 	var meter := match_node.intensity
 	assert_int(meter.level).is_equal(1)
 	match_node._enter_last_call()
+	# Not there yet: one step at a time, whatever the meter says.
 	await _runner.simulate_frames(6, 17)
+	assert_int(meter.level).is_equal(1)
+	await _runner.simulate_frames(int(MatchIntensity.LAST_CALL_STEP * 60.0) + 10, 17)
+	assert_int(meter.level).is_equal(2)
+	assert_str(Audio.current_layer).is_equal("calm")
+	# And all the way up within the ten seconds the climb is given.
+	await _runner.simulate_frames(int(MatchIntensity.LAST_CALL_CLIMB * 60.0), 17)
 	assert_int(meter.level).is_equal(MatchIntensity.LEVELS)
 	assert_float(meter.share()).is_equal(1.0)
-	await _runner.simulate_frames(60, 17)
 	assert_float(meter.value).is_equal_approx(1.0, 0.001)
 	assert_str(Audio.current_layer).is_equal("peak")
 	match_node._set_state(Match.State.RESULTS)

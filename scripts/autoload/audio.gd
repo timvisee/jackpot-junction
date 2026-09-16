@@ -103,7 +103,6 @@ var _excitement_age := 0.0
 var _open := 0.0
 var _filter: AudioEffectLowPassFilter
 var _amplify: AudioEffectAmplify
-var _last_call := false
 var _bank_tick_left := 0.0
 var _bank_pitch := 1.0
 var _rng := RandomNumberGenerator.new()
@@ -301,8 +300,6 @@ func set_excitement(level: int, share: float) -> void:
 	excitement = clampi(level, 1, PEAK_LEVEL)
 	excitement_share = clampf(share, 0.0, 1.0)
 	_excitement_age = 0.0
-	if _last_call:
-		return
 	if excitement >= PEAK_LEVEL:
 		set_layer(LAYER_PEAK)
 	elif excitement >= TENSE_LEVEL:
@@ -315,8 +312,7 @@ func set_excitement(level: int, share: float) -> void:
 func mark_all_players_down() -> void:
 	excitement = 1
 	excitement_share = 0.0
-	if not _last_call:
-		set_layer(LAYER_CALM)
+	set_layer(LAYER_CALM)
 
 
 func _music_stream(layer: StringName) -> AudioStream:
@@ -447,17 +443,15 @@ func _on_state_changed(state: int) -> void:
 	match state:
 		Match.State.COUNTDOWN:
 			play_sfx(&"countdown", -4.0, 0.0)
-			_last_call = false
 			set_layer(LAYER_CALM)
 		Match.State.PLAYING:
 			play_sfx(&"go", -2.0, 0.0)
 		Match.State.LAST_CALL:
+			# The mix is not switched here: the excitement climb of GAME.md 8.4 brings the full
+			# track in as it walks the room up to the top level.
 			play_sfx(&"last_call", -2.0, 0.0)
-			_last_call = true
-			set_layer(LAYER_PEAK)
 		Match.State.RESULTS:
 			play_sfx(&"results", -2.0, 0.0)
-			_last_call = false
 			excitement = 1
 			excitement_share = 0.0
 			set_layer(LAYER_CALM)

@@ -14,7 +14,8 @@ extends Node
 ## running before the room follows, it moves one level at a time, and whichever way it went it
 ## then stands for a good while. A flurry therefore cannot flick the room up and straight back
 ## down: the evening builds, and the little it loses it loses gradually. Last Call is the one
-## exception, going to the top level at once, because it is the finale rather than a build-up.
+## exception: it stops asking the meter and walks the room up to the top on its own clock,
+## a level every couple of seconds, so the finale arrives as a build rather than as a switch.
 ##
 ## A client keeps its own meter: the host relays the same events, and snapshots give it the same
 ## pots and positions, so both machines wind up together.
@@ -46,6 +47,10 @@ const BAND := 0.06
 const DWELL := 2.5
 ## Seconds a level stands once it has changed, whichever way it went.
 const HOLD := 6.0
+## Seconds Last Call takes to walk the room from the bottom to the top, and so the wait
+## between its levels. A room already halfway up gets there sooner.
+const LAST_CALL_CLIMB := 10.0
+const LAST_CALL_STEP := LAST_CALL_CLIMB / float(LEVELS - 1)
 
 var match_node: Match
 ## The level the room is running at, 1 to [constant LEVELS]. This is what the music, the lights
@@ -62,6 +67,8 @@ var pressure := 0.0
 ## stands for.
 var _dwell := 0.0
 var _hold := 0.0
+## Whether the Last Call climb is already under way.
+var _finale := false
 
 
 func _ready() -> void:
@@ -95,6 +102,7 @@ func add(amount: float) -> void:
 func reset() -> void:
 	heat = 0.0
 	value = 0.0
+	_finale = false
 	_set_level(1)
 
 
@@ -128,8 +136,9 @@ func _physics_process(delta: float) -> void:
 ## skips the queue and takes the room straight to the top.
 func _step_level(delta: float) -> void:
 	if _last_call():
-		_set_level(LEVELS)
+		_step_finale(delta)
 		return
+	_finale = false
 	_hold = maxf(_hold - delta, 0.0)
 	var wanted := _wanted_level()
 	if wanted == level:
@@ -139,6 +148,20 @@ func _step_level(delta: float) -> void:
 	if _hold > 0.0 or _dwell < DWELL:
 		return
 	_set_level(level + (1 if wanted > level else -1))
+
+
+## Last Call, GAME.md 8.4: the room stops listening to the meter and simply climbs, one level
+## every [constant LAST_CALL_STEP] until it is at the top. The usual hold does not apply; this
+## is the one climb nothing is allowed to slow down.
+func _step_finale(delta: float) -> void:
+	if not _finale:
+		_finale = true
+		_dwell = 0.0
+	if level >= LEVELS:
+		return
+	_dwell += delta
+	if _dwell >= LAST_CALL_STEP:
+		_set_level(level + 1)
 
 
 ## The level the meter is asking for. Holding on to a level takes a little less than reaching it

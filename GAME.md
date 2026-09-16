@@ -824,9 +824,13 @@ every kart, so everyone sees when an opponent cashes out.
   also takes the meter falling 0.06 below the mark that won it. So the evening
   builds rather than flickers: a flurry cannot flick the room up and straight
   back down, and a climb from 1 to 6 takes at least half a minute of sustained
-  action. Two things skip the queue: Last Call goes to level 6 at once, because
-  it is the finale rather than a build-up, and every human player being dead
+  action. Two things skip the queue. Last Call stops listening to the meter and
+  walks the room up on its own clock, one level every 2 s until it is at the top,
+  so the finale arrives over about ten seconds as a build rather than as a switch;
+  a room already halfway up gets there sooner. And every human player being dead
   drops the room to level 1 at once.
+- The music is not switched by Last Call either. It follows the levels like
+  everything else, so the full mix arrives with level 6 partway through the climb.
 - **Winding up between levels**: the music bus carries a low-pass filter and a
   gain stage that follow how far through the levels the room is, 0 at level 1 and
   1 at level 6, sweeping from a dulled 3.8 kHz up to fully open with 1.5 dB of
