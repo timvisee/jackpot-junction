@@ -644,7 +644,9 @@ Starting palette:
   They can be switched off in the accessibility settings in 8.5. At rest a single
   head drifts slowly with a barely visible beam; as the meter climbs more heads
   switch on, one for every fifth of the way up, and they sweep wider, faster and
-  brighter. Last Call has all six at their widest.
+  brighter. Last Call has all six at their widest, kept deliberately short of
+  washing the table out: six heads blazing would cost more in readability than
+  they buy in atmosphere.
 - The rig lags the meter on purpose: it follows a copy of it that moves at 0.3 a
   second, a head only lights once the level has clearly earned it and only goes
   out once it has fallen 0.06 back below that mark, and either way the count then

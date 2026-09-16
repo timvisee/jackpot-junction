@@ -103,8 +103,15 @@ func test_a_hot_match_sweeps_wider_brighter_and_faster() -> void:
 	var hot_time := lights._time
 	_run(lights, 2.0)
 	assert_float(lights._time - hot_time).is_greater(calm_time * 0.9)
-	assert_float(head.light_energy).is_greater(calm_energy * 2.0)
+	assert_float(head.light_energy).is_greater(calm_energy * 1.5)
 	assert_float(head.spot_angle).is_greater(calm_angle)
+	# Bright, but well short of washing the table out: six of these are on at once.
+	var peak := 0.0
+	for i: int in 240:
+		lights._process(1.0 / 60.0)
+		peak = maxf(peak, head.light_energy)
+	assert_float(peak).is_less(5.0)
+	assert_float((lights._heads[0]["tint"] as StandardMaterial3D).albedo_color.a).is_less(0.2)
 
 
 func test_the_beat_comes_off_the_tempo_and_wraps_through_the_bar() -> void:

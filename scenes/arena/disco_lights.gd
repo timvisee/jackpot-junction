@@ -144,11 +144,13 @@ func _step_head(head: Dictionary, on: bool, flash: float) -> void:
 	cone.height = throw
 	cone.top_radius = throw * tan(deg_to_rad(light.spot_angle))
 	(head["beam"] as MeshInstance3D).position.z = -throw * 0.5
-	var pulse := 1.0 + (0.2 + 1.3 * _smooth) * flash
-	light.light_energy = (0.9 + 3.2 * _smooth) * pulse
+	# Kept well short of washing the table out: at full heat every head is on, and six of them
+	# blazing would cost more in readability than it buys in atmosphere.
+	var pulse := 1.0 + (0.15 + 0.55 * _smooth) * flash
+	light.light_energy = (0.8 + 1.5 * _smooth) * pulse
 	light.spot_angle = lerpf(14.0, 24.0, _smooth)
 	var tint: StandardMaterial3D = head["tint"]
-	tint.albedo_color.a = (0.025 + 0.1 * _smooth) * pulse
+	tint.albedo_color.a = (0.02 + 0.05 * _smooth) * pulse
 
 
 func _build_head(index: int) -> Dictionary:
