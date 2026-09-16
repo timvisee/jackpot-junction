@@ -306,6 +306,12 @@ func _accessibility_tab() -> Control:
 			_check(_settings.disco_lights, func(on: bool) -> void: _settings.disco_lights = on)
 		)
 	)
+	column.add_child(
+		MenuTheme.row(
+			"Control hints",
+			_check(_settings.control_hints, func(on: bool) -> void: _settings.control_hints = on)
+		)
+	)
 	var assist := HSlider.new()
 	assist.min_value = 0.0
 	assist.max_value = 1.0

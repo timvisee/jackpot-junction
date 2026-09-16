@@ -9,7 +9,9 @@ extends Control
 ## edge, the strip of each card the next one leaves uncovered.
 ##
 ## Every card is positioned by its bottom centre, which is also its pivot, so the fan tilt and the
-## per-player scale both turn about the point the hand is held at.
+## per-player scale both turn about the point the hand is held at. A key cap to the left of the
+## hand names the button that opens the joker menu, while cards are held and the control hints
+## setting is on.
 
 ## Fraction of a card hidden by the next one.
 const OVERLAP := 0.35
@@ -34,6 +36,8 @@ var _cards: Array[JokerCard] = []
 var _ids: Array[StringName] = []
 var _detail: PanelContainer
 var _detail_text: RichTextLabel
+var _cap: PanelContainer
+var _cap_label: Label
 
 
 func _ready() -> void:
@@ -52,6 +56,7 @@ func _ready() -> void:
 	_detail_text.add_theme_font_size_override("bold_font_size", 22)
 	_detail.add_child(_detail_text)
 	add_child(_detail)
+	_build_cap()
 
 
 func card_count() -> int:
@@ -104,12 +109,47 @@ func _process(delta: float) -> void:
 		var tint := DIMMED if picked >= 0 and not lifted else Color.WHITE
 		panel.modulate = panel.modulate.lerp(tint, blend)
 		panel.set_highlighted(lifted)
+	_place_cap(left, bottom, card)
 	_detail.visible = picked >= 0
 	if picked >= 0:
 		_detail_text.text = _detail_bbcode(kart.jokers.jokers[picked])
 		var x := picked_anchor.x - _detail.size.x * 0.5
 		x = clampf(x, 8.0, maxf(size.x - _detail.size.x - 8.0, 8.0))
 		_detail.position = Vector2(x, picked_anchor.y - card.y - _detail.size.y - 10.0)
+
+
+## A key cap beside the hand, drawn the way a key is drawn in a manual.
+func _build_cap() -> void:
+	_cap = PanelContainer.new()
+	_cap.visible = false
+	_cap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.13, 0.13, 0.16, 0.92)
+	style.set_corner_radius_all(6)
+	style.set_border_width_all(2)
+	style.border_color = Color(0.72, 0.72, 0.8)
+	style.content_margin_left = 9.0
+	style.content_margin_right = 9.0
+	style.content_margin_top = 4.0
+	style.content_margin_bottom = 4.0
+	_cap.add_theme_stylebox_override("panel", style)
+	_cap_label = Label.new()
+	_cap_label.add_theme_font_size_override("font_size", 18)
+	_cap_label.add_theme_color_override("font_color", Palette.CHIP_WHITE)
+	_cap_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_cap.add_child(_cap_label)
+	add_child(_cap)
+
+
+## Puts the cap just left of the hand, named for the scheme the player is using.
+func _place_cap(left: float, baseline: float, card: Vector2) -> void:
+	_cap.visible = not _cards.is_empty() and Game.settings.control_hints
+	if not _cap.visible:
+		return
+	_cap_label.text = InputActions.short_binding_text(InputActions.JOKER_MENU, keyboard)
+	var cap_size := _cap.get_combined_minimum_size()
+	_cap.size = cap_size
+	_cap.position = Vector2(left - cap_size.x - 12.0, baseline - card.y * 0.5 - cap_size.y * 0.5)
 
 
 ## Deals a fresh set of cards, sliding in from below, whenever the held jokers change.

@@ -263,6 +263,7 @@ func _update_blocks() -> void:
 		var nitro: ProgressBar = block["nitro"]
 		nitro.value = kart.nitro_charge * 100.0
 		nitro.modulate = Color(1.0, 0.75, 0.3) if kart.nitro_active else Color(0.85, 0.85, 0.9)
+		_update_hints(block, kart, slot.device())
 		var item: Label = block["item"]
 		if kart.held_item == null:
 			item.text = ""
@@ -273,6 +274,8 @@ func _update_blocks() -> void:
 		var hand := _hands[index]
 		hand.kart = kart
 		hand.avoid = bottom_blocks
+		hand.keyboard = DeviceInput.uses_keyboard(slot.device())
+		_pickers[index].keyboard = hand.keyboard
 		_pickers[index].show_offer(slot.offer, kart)
 
 
@@ -366,6 +369,26 @@ func _on_death_banked(slot: int, amount: int) -> void:
 		)
 
 
+## The reminder row under a player's block, GAME.md 8.3: which button drifts, which burns
+## nitro and which plays the item they are holding. Each one only appears while it is worth
+## pressing, and they are named for whichever scheme that player last used.
+func _update_hints(block: Dictionary, kart: Kart, device: int) -> void:
+	var hints: Label = block["hints"]
+	if not Game.settings.control_hints or not kart.alive:
+		hints.visible = false
+		return
+	var keyboard := DeviceInput.uses_keyboard(device)
+	var parts: PackedStringArray = []
+	if kart.motor.speed_fraction() > 0.25:
+		parts.append("%s drift" % InputActions.short_binding_text(InputActions.HANDBRAKE, keyboard))
+	if kart.nitro_charge >= kart.stats.nitro_min_start:
+		parts.append("%s nitro" % InputActions.short_binding_text(InputActions.NITRO, keyboard))
+	if kart.held_item != null and kart.item_reveal_left <= 0.0:
+		parts.append("%s item" % InputActions.short_binding_text(InputActions.USE_ITEM, keyboard))
+	hints.visible = not parts.is_empty()
+	hints.text = "   ".join(parts)
+
+
 func _slot_name(slot: int) -> String:
 	if slot < 0 or slot >= match_node.slots.size():
 		return ""
@@ -436,6 +459,15 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 		pip.color = slot.color()
 		lives.add_child(pip)
 		pips.append(pip)
+	var hints := Label.new()
+	hints.add_theme_font_size_override("font_size", 17)
+	hints.add_theme_color_override("font_color", Color(0.82, 0.82, 0.88))
+	hints.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.8))
+	hints.add_theme_constant_override("shadow_offset_x", 1)
+	hints.add_theme_constant_override("shadow_offset_y", 1)
+	hints.horizontal_alignment = (
+		HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
+	)
 	var nitro := ProgressBar.new()
 	nitro.min_value = 0.0
 	nitro.max_value = 100.0
@@ -456,6 +488,7 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 		box.add_child(label)
 	box.add_child(lives)
 	box.add_child(nitro)
+	box.add_child(hints)
 	return {
 		"box": box,
 		"banked": banked,
@@ -464,6 +497,7 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 		"lives": pips,
 		"nitro": nitro,
 		"item": item,
+		"hints": hints,
 	}
 
 

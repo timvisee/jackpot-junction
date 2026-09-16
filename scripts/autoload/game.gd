@@ -12,6 +12,9 @@ const ONLINE_SCENE := "res://scenes/ui/online.tscn"
 const GARAGE_SCENE := "res://scenes/garage/garage.tscn"
 
 var settings := Settings.new()
+## Whether the last thing anybody touched was the keyboard rather than a gamepad. Control
+## hints for a player who is not pinned to one device follow this, GAME.md 8.3.
+var last_input_keyboard := true
 ## The configuration the next match scene starts with.
 var pending_config: MatchConfig
 ## Where the settings screen returns to.
@@ -34,6 +37,18 @@ func _init() -> void:
 
 func _ready() -> void:
 	settings.apply(get_tree())
+
+
+## Watches every event, without swallowing any, purely to know which scheme to draw hints in.
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey or event is InputEventMouseButton:
+		last_input_keyboard = true
+	elif event is InputEventJoypadButton:
+		last_input_keyboard = false
+	elif event is InputEventJoypadMotion:
+		# Sticks drift, so only a real push counts as picking the pad up.
+		if absf((event as InputEventJoypadMotion).axis_value) > 0.5:
+			last_input_keyboard = false
 
 
 ## Development aid: with `++ --screenshot=<png> [--frames=<n>]` on the command line, saves the

@@ -8,6 +8,16 @@ const ANY := -2
 const KEYBOARD := -1
 
 
+## Whether hints for this device should name keys or gamepad buttons. A player pinned to one
+## device gets that device's; one reading every device follows whatever was last touched.
+static func uses_keyboard(device: int) -> bool:
+	if device == KEYBOARD:
+		return true
+	if device == ANY:
+		return Game.last_input_keyboard
+	return false
+
+
 static func strength(action: StringName, device: int) -> float:
 	if device == ANY:
 		return Input.get_action_strength(action)
