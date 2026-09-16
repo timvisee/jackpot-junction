@@ -64,7 +64,9 @@ func test_every_paid_coin_throws_a_ring_off_the_pad() -> void:
 	await _runner.simulate_frames(30, 17)
 	assert_bool(pads[0]._halo.visible).is_true()
 	assert_float(pads[0]._halo_material.albedo_color.a).is_greater(0.0)
-	# Lying flat on the table, not standing up on edge.
+	# Lying flat on the table, not standing up on edge, and square with the pad rather than
+	# stood on a corner.
+	assert_float(pads[0]._halo.rotation_degrees.y).is_equal_approx(45.0, 0.01)
 	var box := pads[0]._halo.get_aabb()
 	assert_float(box.size.x).is_greater(box.size.y * 4.0)
 	assert_float(box.size.x).is_equal_approx(box.size.z, 0.01)

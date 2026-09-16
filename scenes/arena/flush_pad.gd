@@ -232,5 +232,8 @@ func _build_halo() -> void:
 	_halo.material_override = _halo_material
 	_halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_halo.position = Vector3(0.0, PLATE_HEIGHT + 0.02, 0.0)
+	# A four-sided ring is a diamond where the pad is a square, so it is turned an eighth of a
+	# turn to put its corners on the pad's.
+	_halo.rotation_degrees = Vector3(0.0, 45.0, 0.0)
 	_halo.visible = false
 	add_child(_halo)

@@ -286,7 +286,8 @@ paints its frame in your colour and takes it from whoever held it.
   the pad keeps their colour and waits for them.
 - Every coin paid throws a ring of light off the pad in its holder's colour,
   growing outward and fading over 0.7 s, so four pads ticking over read as four
-  pads ticking over from anywhere on the table.
+  pads ticking over from anywhere on the table. The ring is square like the pad
+  and lined up with it, not stood on a corner.
 - Holding all four at once is a Royal Flush. The bonus is unchanged by the
   trickle: +3 mult and a full nitro tank, announced to everyone with a fanfare.
 - A claim lapses on its own after 30 s, the frame dimming over the last 12 s of it,
