@@ -571,6 +571,9 @@ func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> voi
 		if killer.kart.alive:
 			killer.kart.gain_mult(rules.kill_mult, &"kill")
 			killer.kart.refill_nitro(killer.kart.stats.nitro_kill_refill)
+			# A kill patches the killer up, so a wounded kart can fight its way back rather than
+			# having to break off for the Junction.
+			killer.kart.restore_life()
 	kart.pot.reset()
 	slot.deaths += 1
 	slot.respawn_left = rules.respawn_delay

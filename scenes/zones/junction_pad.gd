@@ -3,7 +3,8 @@ extends Area3D
 ## The cash-out pad, GAME.md 3.4. A kart standing on it drains its pot into banked score at a
 ## rate that doubles every few tenths of a second. Leaving keeps what was banked and resets the
 ## ramp; emptying the pot resets coins and mult. The match listens for the ticks and totals.
-## Driving onto the pad also patches a wounded kart up to full lives, GAME.md 3.6.
+## Driving onto the pad also patches a wounded kart up to full lives, GAME.md 3.6, as does
+## taking somebody out.
 ##
 ## The neon ring blinks when a local player is riding around with a big unbanked pot, harder
 ## and faster the more is at stake, as a nudge to come and cash it in.

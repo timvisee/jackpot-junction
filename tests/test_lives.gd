@@ -88,6 +88,49 @@ func test_the_first_hit_wounds_the_junction_heals_and_the_second_hit_kills() -> 
 	assert_float(victim.stats.top_speed).is_equal_approx(base_speed, 0.001)
 
 
+## GAME.md 3.6: a kill patches the killer up, so a wounded kart can fight its way back instead
+## of having to break off for the Junction.
+func test_a_kill_gives_the_killer_a_life_back() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var shooter := match_node.kart_of(0)
+	var victim := match_node.kart_of(1)
+	# Wound the shooter first, so it has something to win back.
+	shooter.global_position = LANE
+	await _shoot(match_node, victim, LANE)
+	assert_int(shooter.lives).is_equal(1)
+	assert_bool(shooter.is_wounded()).is_true()
+	await _wait_out_immunity(shooter)
+	var events := monitor_signals(Events, false)
+	# Now take the other kart out twice over, which is what its two lives cost.
+	for i: int in 2:
+		victim.global_position = LANE
+		shooter.global_position = LANE + Vector3(-5.0, 0.0, 0.0)
+		await _shoot(match_node, shooter, LANE)
+		await _wait_out_immunity(victim)
+	assert_bool(victim.alive).is_false()
+	assert_int(match_node.slots[0].kills).is_equal(1)
+	assert_int(shooter.lives).is_equal(match_node.rules.lives)
+	assert_bool(shooter.is_wounded()).is_false()
+	await assert_signal(events).is_emitted("life_restored", [0])
+
+
+## Nobody gets a life back for driving into a hole by themselves.
+func test_a_death_with_nobody_to_credit_patches_nobody_up() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var shooter := match_node.kart_of(0)
+	var victim := match_node.kart_of(1)
+	shooter.global_position = LANE
+	await _shoot(match_node, victim, LANE)
+	assert_int(shooter.lives).is_equal(1)
+	await _wait_out_immunity(shooter)
+	victim.global_position = match_node.arena.pits[0].global_position
+	await _runner.simulate_frames(45, 17)
+	assert_bool(victim.alive).is_false()
+	assert_int(shooter.lives).is_equal(1)
+
+
 func test_a_fresh_wound_cannot_be_hit_again_for_a_moment() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)

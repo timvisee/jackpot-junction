@@ -563,7 +563,7 @@ func _take_lethal(cause: StringName, by_slot: int) -> void:
 	die(cause, by_slot)
 
 
-## Driving onto the Junction patches a wounded kart up to full lives.
+## Patches a wounded kart up to full lives: the Junction does it, and so does a kill.
 func restore_life() -> void:
 	if not alive or not is_wounded():
 		return
