@@ -112,7 +112,12 @@ static func choose_goal(context: Dictionary, personality: BotTrait) -> StringNam
 	var hunt := 0.0
 	var enemy_distance := float(context.get("enemy_distance", INF))
 	if enemy_distance <= HUNT_RANGE and bool(context.get("enemy_visible", false)):
-		hunt = personality.hunt_weight * (1.0 - enemy_distance / HUNT_RANGE)
+		# A bot that is behind goes looking for a fight; one that is ahead can sit on its lead.
+		hunt = (
+			personality.hunt_weight
+			* float(context.get("hunt_urgency", 1.0))
+			* (1.0 - enemy_distance / HUNT_RANGE)
+		)
 	var collect := 0.0
 	var pickup_distance := float(context.get("pickup_distance", INF))
 	if pickup_distance < INF:
@@ -185,6 +190,7 @@ func _context() -> Dictionary:
 	var context := {
 		"item_appetite": mirror.item_appetite(),
 		"bank_urgency": mirror.effort,
+		"hunt_urgency": mirror.hunt_urgency(),
 		"pot_value": kart.pot.value(),
 		"time_left": match_node.time_left,
 		"last_call": match_node.state == Match.State.LAST_CALL,

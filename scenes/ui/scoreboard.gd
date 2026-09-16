@@ -46,7 +46,7 @@ func order() -> Array[PlayerSlot]:
 
 ## Banked score plus whatever the kart is still driving around with.
 static func total_of(slot: PlayerSlot) -> int:
-	return slot.banked + (slot.kart.pot.value() if slot.kart != null else 0)
+	return slot.score()
 
 
 func _process(_delta: float) -> void:

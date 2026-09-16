@@ -4,10 +4,12 @@ extends RefCounted
 ##
 ## The bots copy the room they are in. A player who never touches an item leaves the bots sitting
 ## on theirs; a player who burns nitro every lap gets bots that burn it too; a player who never
-## drifts faces bots that drive tidily. On top of that the bots ease off while they are ahead on
-## banked score and sharpen up while they are behind, so a match stays close without the bots
-## ever turning unbeatable. Traits still apply over the top: a Bumper is a Bumper whatever the
-## players do, it just does its Bumper things at the players' pitch.
+## drifts faces bots that drive tidily. On top of that the bots ease off while they are ahead
+## on score and sharpen up while they are behind, so a match stays close without the bots ever
+## turning unbeatable. The score they chase is the live one, banked plus whatever is still in
+## the pot, so a player on a hot lap is treated as the leader they are about to become rather
+## than the one they were at their last cash-out. Traits still apply over the top: a Bumper is
+## a Bumper whatever the players do, it just does its Bumper things at the players' pitch.
 ##
 ## Everything is read from the stats the match already collects for the results screen, so
 ## nothing extra has to be tracked.
@@ -20,8 +22,8 @@ const DRIFT_SHARE := 0.25
 ## Early on there is not enough driving to judge by, so the first stretch is measured as if it
 ## lasted this long.
 const WARMUP := 45.0
-## Banked points of difference that move the effort by a full step, and how far it may move.
-const EFFORT_SPAN := 800.0
+## Points of difference that move the effort by a full step, and how far it may move.
+const EFFORT_SPAN := 600.0
 const EFFORT_MIN := 0.7
 const EFFORT_MAX := 1.3
 
@@ -45,14 +47,14 @@ func update(match_node: Match) -> void:
 	var best_bot := 0
 	for slot: PlayerSlot in match_node.slots:
 		if not slot.is_human():
-			best_bot = maxi(best_bot, slot.banked)
+			best_bot = maxi(best_bot, slot.score())
 			continue
 		humans += 1
 		used += slot.stats.value(&"items")
 		burned += slot.stats.value(&"nitro")
 		drifted += slot.stats.value(&"drifted")
 		driven += slot.stats.value(&"driven")
-		best_human = maxi(best_human, slot.banked)
+		best_human = maxi(best_human, slot.score())
 	if humans == 0:
 		return
 	var elapsed := maxf(match_node.rules.duration - match_node.time_left, WARMUP)
@@ -60,6 +62,11 @@ func update(match_node: Match) -> void:
 	nitro = clampf(burned / humans / elapsed / NITRO_SHARE, 0.0, 1.0)
 	drift = clampf(drifted / maxf(driven, 1.0) / DRIFT_SHARE, 0.0, 1.0)
 	effort = clampf(1.0 + float(best_human - best_bot) / EFFORT_SPAN, EFFORT_MIN, EFFORT_MAX)
+
+
+## How hard a bot should lean on whoever is in front of it. Trailing bots go hunting.
+func hunt_urgency() -> float:
+	return effort
 
 
 ## How much a bot should want to go out of its way for an item box.

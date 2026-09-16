@@ -27,6 +27,13 @@ func _init(slot_index: int, kart_input: KartInput, slot_color: int = -1) -> void
 	input = kart_input
 
 
+## What this player is worth right now: what they have banked plus what they are still driving
+## around with. Only [member banked] wins the match, but this is the number that says who is
+## really ahead at this moment, and the bots and the standings both read it.
+func score() -> int:
+	return banked + (kart.pot.value() if kart != null else 0)
+
+
 func color() -> Color:
 	return Palette.player_color(color_index)
 

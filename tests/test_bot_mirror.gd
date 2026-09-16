@@ -50,7 +50,7 @@ func test_a_quiet_player_leaves_the_bots_quiet_and_a_busy_one_wakes_them_up() ->
 	assert_float(mirror.drift_angle()).is_equal_approx(0.9, 0.01)
 
 
-func test_effort_leans_on_the_banked_gap_but_never_speeds_a_bot_up() -> void:
+func test_effort_leans_on_the_score_gap_but_never_speeds_a_bot_up() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)
 	var mirror := match_node.bot_mirror
@@ -69,6 +69,37 @@ func test_effort_leans_on_the_banked_gap_but_never_speeds_a_bot_up() -> void:
 	mirror.update(match_node)
 	await _runner.simulate_frames(20, 17)
 	assert_float(brain.input.throttle).is_equal_approx(1.0, 0.001)
+
+
+## The gap is measured on the live score, so a player on a hot lap counts as the leader they are
+## about to become rather than the one they were at their last cash-out.
+func test_coins_still_in_the_pot_count_toward_the_gap() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var mirror := match_node.bot_mirror
+	assert_float(mirror.effort).is_equal_approx(1.0, 0.001)
+	var kart := match_node.kart_of(0)
+	kart.pot.add_coins(400)
+	kart.gain_mult(3.0, &"test")
+	assert_int(match_node.slots[0].score()).is_greater(1000)
+	assert_int(match_node.slots[0].banked).is_equal(0)
+	mirror.update(match_node)
+	assert_float(mirror.effort).is_equal_approx(BotMirror.EFFORT_MAX, 0.001)
+
+
+## GAME.md 9.1: a bot that is behind goes looking for a fight instead of pottering about.
+func test_a_bot_behind_on_points_goes_hunting() -> void:
+	var context: Dictionary = {
+		"pot_value": 0,
+		"enemy_distance": 4.0,
+		"enemy_visible": true,
+		"pickup_distance": 3.0,
+		"pickup_value": 4.0,
+		"hunt_urgency": BotMirror.EFFORT_MIN,
+	}
+	assert_str(BotBrain.choose_goal(context, TRAIT)).is_equal("collect")
+	context["hunt_urgency"] = BotMirror.EFFORT_MAX
+	assert_str(BotBrain.choose_goal(context, TRAIT)).is_equal("hunt")
 
 
 func test_the_item_goal_follows_the_appetite_but_a_trait_still_counts() -> void:
