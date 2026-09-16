@@ -23,20 +23,21 @@ const G := 9.81
 ## see the next post coming.
 const CAMERA_DISTANCE := 26.0
 ## The handling to try, in the order Tab walks through them. The first is what the game ships
-## with today, so every other one is judged against it rather than against a memory of it.
+## with today, so every other one is judged against it rather than against a memory of it, and
+## each of the rest changes one thing, so a verdict on one of them says which thing.
 const PRESETS: Array[String] = [
+	"feel_shipped",
 	"default",
-	"feel_grip",
-	"feel_rally",
-	"feel_arcade",
-	"feel_heavy",
+	"feel_snap",
+	"feel_gripper",
+	"feel_sharp",
 ]
 const PRESET_NAMES: Array[String] = [
 	"as it ships",
-	"go-kart, grippy",
-	"rally, loose",
-	"arcade, forgiving",
-	"heavy",
+	"blended low speed",
+	"blended, sharper crawl",
+	"blended + follows its nose",
+	"blended + tighter at speed",
 ]
 
 var match_node: Match

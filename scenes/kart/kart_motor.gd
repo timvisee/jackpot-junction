@@ -411,22 +411,41 @@ func _step_steering(delta: float) -> void:
 	if drifting:
 		drift_time += delta
 		_step_entry_kick(delta)
-	if absf(forward_speed) <= stats.min_steer_speed:
-		# Standing still: turn in place to line up a shot, when enabled.
-		if stats.turn_in_place_rate_deg > 0.0 and steer != 0.0:
-			var in_place := deg_to_rad(stats.turn_in_place_rate_deg) * steer_multiplier
-			heading = wrapf(heading - steer * in_place * delta, -PI, PI)
+	var speed_now := absf(forward_speed)
+	var pivot := deg_to_rad(stats.turn_in_place_rate_deg) * steer_multiplier
+	if stats.pivot_blend_speed <= 0.0:
+		_step_steering_switched(speed_now, pivot, delta)
 		return
-	var rate := yaw_rate(absf(forward_speed) / stats.top_speed)
+	# Steering right is clockwise seen from above, which is a negative rotation about +Y.
+	# Turning on the spot and turning on the wheels are the same control, so they are mixed
+	# rather than switched between: a kart shuffling about in a corner crosses this range over
+	# and over, and a step in the turn rate is felt every single time.
+	var rolling := _rolling_rate(speed_now) * signf(forward_speed)
+	var blend := clampf(speed_now / stats.pivot_blend_speed, 0.0, 1.0)
+	heading = wrapf(heading - steer * lerpf(pivot, rolling, blend) * delta, -PI, PI)
+
+
+## The original hard switch at [member KartStats.min_steer_speed], kept so the blend can be
+## driven against it.
+func _step_steering_switched(speed_now: float, pivot: float, delta: float) -> void:
+	if speed_now <= stats.min_steer_speed:
+		if stats.turn_in_place_rate_deg > 0.0 and steer != 0.0:
+			heading = wrapf(heading - steer * pivot * delta, -PI, PI)
+		return
+	var rate := _rolling_rate(speed_now)
+	heading = wrapf(heading - steer * rate * signf(forward_speed) * delta, -PI, PI)
+
+
+## How fast the nose comes round on the wheels at this speed, with everything that scales it.
+func _rolling_rate(speed_now: float) -> float:
+	var rate := yaw_rate(speed_now / stats.top_speed)
 	if drifting:
 		rate *= stats.drift_yaw_multiplier
 	if turboing():
 		rate *= stats.turbo_steer_multiplier
 	if nitro_bonus > 1.0:
 		rate *= stats.nitro_steer_multiplier
-	rate *= steer_multiplier
-	# Steering right is clockwise seen from above, which is a negative rotation about +Y.
-	heading = wrapf(heading - steer * rate * signf(forward_speed) * delta, -PI, PI)
+	return rate * steer_multiplier
 
 
 ## Plays out the drift entry kick as an extra yaw over [member KartStats.drift_entry_kick_time].

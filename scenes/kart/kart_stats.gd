@@ -37,6 +37,10 @@ enum Model {
 @export var stick_curve := 1.0
 ## Turning speed while standing still, to line up a shot; 0 disables it.
 @export var turn_in_place_rate_deg := 70.0
+## Speed by which the turn on the spot has faded out entirely and the kart is turning on its
+## wheels alone. Manoeuvring in a corner crosses this range constantly, and a hard switch
+## between the two rates is felt every time; 0 keeps that switch, at [member min_steer_speed].
+@export var pivot_blend_speed := 2.2
 
 @export_group("Grip and drift")
 ## How fast the direction of travel turns toward the nose, per second. Slip is about yaw over grip.

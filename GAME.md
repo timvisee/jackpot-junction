@@ -340,7 +340,7 @@ then hooks up and launches when the handbrake is released.
 | Coast deceleration            | 4 m/s² with no input                                  |
 | Yaw rate at low speed         | 200°/s                                                |
 | Yaw rate at top speed         | 110°/s, interpolated linearly by speed                |
-| Minimum speed to steer        | 0.5 m/s; below it the kart turns in place at 85°/s to line up a shot |
+| Minimum speed to steer        | none: turning on the spot at 85°/s and turning on the wheels are one control, mixed by speed and fully on the wheels by 2.2 m/s. A kart shuffling about in a corner crosses that range over and over, and the old hard switch at 0.5 m/s stepped from 70 to 195°/s every time it did |
 | Grip, normal                  | travel direction turns toward the nose at 16 rad/s, about 7° of slip at top speed |
 | Grip, drifting                | 4.8 rad/s, 35 to 55° of slip depending on speed       |
 | Drift entry                   | handbrake held while steering, at over 40% of top speed; steering alone never drifts, and straightening up mid-drift turns it into a stop |
@@ -370,8 +370,18 @@ which traced to the travel direction snapping to the nose every tick; the model
 above replaced it, with the numbers exposed on the F4 panel of the
 development scene.
 
-**The tire model** is the experiment of the driving room, 9.5, and is not what the game ships
-with yet. The stick turns a front wheel rather than the kart: the wheel winds on at a rate and
+**The tire model** was an experiment of the driving room, 9.5, and was driven against the model
+above and rejected. It is kept for reference and is not what the game uses.
+
+It lost for a reason worth writing down. At 10.5 m/s on a table 60 m across, an honest tire
+model understeers everywhere unless the tires are given grip no vehicle has: holding a 5 m
+radius at that speed needs 2.2 g, and the lock that would ask for it needs more grip still. It
+also turned a kart crawling in a corner at 69°/s where the rate model turns it at 191, which
+reads as understeer even though it is the realistic answer. And winding a wheel on at a rate,
+however small, is lag on the one thing this game wants to be immediate. A rate model is not a
+shortcut at this speed and this scale; it is the right tool.
+
+What it is: The stick turns a front wheel rather than the kart: the wheel winds on at a rate and
 its lock comes off with speed, each axle gets a slip angle from where the kart is actually
 going against where it is pointing, and each pulls sideways in proportion to that slip up to a
 grip limit it cannot exceed. Yaw is what is left over when the two axles pull by different

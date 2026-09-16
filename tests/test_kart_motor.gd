@@ -86,6 +86,37 @@ func test_standing_still_turns_in_place_only_when_enabled() -> void:
 	assert_float(_motor.heading).is_equal(0.0)
 
 
+## GAME.md 4.1: turning on the spot and turning on the wheels are one control, mixed rather than
+## switched between, because a kart shuffling about in a corner crosses that range over and over.
+func test_the_turn_on_the_spot_blends_into_the_turn_on_the_wheels() -> void:
+	var rates: Array[float] = []
+	for speed: float in [0.0, 0.4, 0.8, 1.2, 1.6, 2.2]:
+		rates.append(_rate_at(_stats, speed))
+	# Rising the whole way, with no step in it: every gap is smaller than the whole range.
+	for i: int in range(1, rates.size()):
+		assert_float(rates[i]).is_greater(rates[i - 1])
+		assert_float(rates[i] - rates[i - 1]).is_less(rates[-1] - rates[0])
+	assert_float(rates[0]).is_equal_approx(_stats.turn_in_place_rate_deg, 1.0)
+	# Switched instead of blended, the old way still steps: standing still to rolling is a jump.
+	_stats.pivot_blend_speed = 0.0
+	var parked := _rate_at(_stats, 0.2)
+	var rolling := _rate_at(_stats, 0.8)
+	assert_float(rolling).is_greater(parked * 2.0)
+
+
+## Degrees a second the nose comes round at a given speed, with the wheel fully over.
+func _rate_at(stats: KartStats, speed: float) -> float:
+	var motor := KartMotor.new(stats)
+	var input := KartInput.new()
+	input.steer = 1.0
+	input.throttle = speed / stats.top_speed
+	motor.velocity = motor.forward_vector() * speed
+	motor.forward_speed = speed
+	var before := motor.heading
+	motor.step(input, DT)
+	return rad_to_deg(absf(wrapf(motor.heading - before, -PI, PI)) / DT)
+
+
 func test_steering_ramps_up_and_shapes_the_stick() -> void:
 	_stats.steer_ramp_up = 0.12
 	_stats.steer_ramp_down = 0.08
