@@ -2,6 +2,21 @@ class_name KartStats
 extends Resource
 ## Handling numbers from GAME.md section 4.1. Starting values: tune in playtests and write the
 ## result back into both the resource and GAME.md.
+##
+## Two handling models live here, picked by [member model]. The rate model is the original: the
+## stick sets a yaw rate and the direction of travel chases the nose. The tire model turns a
+## wheel instead and lets the tires decide what the kart does with it, which is what the Tire
+## model group below is for. Most of the numbers outside that group are shared.
+
+## Which handling model drives the kart, GAME.md 4.1.
+enum Model {
+	## The stick is a yaw rate and the travel direction chases the nose.
+	RATE,
+	## The stick is a steering wheel and tires with a grip limit decide the rest.
+	TIRES,
+}
+
+@export var model: Model = Model.RATE
 
 @export_group("Speed")
 @export var top_speed := 10.5
@@ -48,6 +63,39 @@ extends Resource
 @export var drift_min_duration := 0.6
 @export var drift_exit_boost := 0.2
 @export var drift_exit_boost_duration := 0.8
+
+@export_group("Tire model")
+## Wheelbase, and how far forward of the middle the weight sits. A kart with its weight back
+## rotates more easily and lets go at the rear first.
+@export var wheelbase := 1.15
+@export var weight_bias := 0.5
+## Full lock in degrees, at a standstill and at top speed. Winding the lock off with speed is
+## what keeps a fast kart from being twitchy without making a slow one feel numb.
+@export var steer_angle_low_deg := 34.0
+@export var steer_angle_high_deg := 17.0
+## Degrees a second the wheel turns toward where the stick is asking. This is the weight in
+## the steering, and the one number a keyboard player feels most.
+@export var steer_speed_deg := 320.0
+## How hard each axle bites per radian of slip, in m/s² per radian.
+@export var front_stiffness := 90.0
+@export var rear_stiffness := 110.0
+## The most each axle can pull sideways, in m/s². Under about 8 the kart understeers on the
+## way in; a rear below the front is a kart that wants to swap ends.
+@export var front_grip := 12.0
+@export var rear_grip := 13.0
+## What the handbrake leaves of the rear grip, so pulling it steps the back out.
+@export var handbrake_rear_grip := 0.25
+## How hard the kart resists being turned. Higher is heavier and slower to rotate.
+@export var rotational_inertia := 1.6
+## A whisker of extra yaw damping. The tires damp the kart themselves, since yaw shows up in
+## their slip angles, so this is only here to take the ring out of the numbers: turn it up and
+## it starts deciding the cornering instead of the grip.
+@export var yaw_damping := 0.25
+## Below this speed the tire model hands over to plain geometry, so a crawling kart does not
+## chatter on slip angles measured from almost no velocity.
+@export var creep_speed := 1.6
+## Physics sub-steps per tick. Tires are stiff, and one step of 60 Hz is not enough for them.
+@export var substeps := 4
 
 @export_group("Nitro")
 ## Speed multiplier while burning nitro.

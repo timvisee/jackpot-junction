@@ -5,6 +5,10 @@ extends Node3D
 ## with braking gates, a slalom of posts, a ring to hold a constant turn around, and a block of
 ## tight corridors for close quarters.
 ##
+## Tab cycles the handling presets under the kart without stopping it, so two of them can be
+## compared on the same corner half a second apart, which is the only honest way to tell them
+## apart. The kart keeps its speed and heading across the change.
+##
 ## The readout shows what the model is actually doing rather than what it looks like it is doing:
 ## speed, how far the wheel is turned, how far the kart is sideways, how fast the nose is coming
 ## round and how hard the tires are working. Numbers make "it feels off" into something that can
@@ -18,12 +22,29 @@ const G := 9.81
 ## How far back the camera sits. Close enough that the kart is worth watching, wide enough to
 ## see the next post coming.
 const CAMERA_DISTANCE := 26.0
+## The handling to try, in the order Tab walks through them. The first is what the game ships
+## with today, so every other one is judged against it rather than against a memory of it.
+const PRESETS: Array[String] = [
+	"default",
+	"feel_grip",
+	"feel_rally",
+	"feel_arcade",
+	"feel_heavy",
+]
+const PRESET_NAMES: Array[String] = [
+	"as it ships",
+	"go-kart, grippy",
+	"rally, loose",
+	"arcade, forgiving",
+	"heavy",
+]
 
 var match_node: Match
 
 var _readout: Label
 var _start := Vector3.ZERO
 var _peak_lateral := 0.0
+var _preset := 0
 var _last_velocity := Vector3.ZERO
 
 
@@ -42,6 +63,7 @@ func _ready() -> void:
 	match_node.arena.disco.enabled = false
 	match_node.camera_rig.follow_close(CAMERA_DISTANCE)
 	_start = _kart().global_position
+	_apply_preset()
 	_build_readout()
 	var pause := PauseMenu.new()
 	pause.name = "PauseMenu"
@@ -52,11 +74,18 @@ func _kart() -> Kart:
 	return match_node.kart_of(0)
 
 
-## R puts the kart back on the line, stopped and pointing down the straight, so a run can be
-## repeated without driving back.
+## Tab swaps the handling under the kart, R puts it back on the line: stopped, pointing down
+## the straight, so a run can be repeated without driving back.
 func _unhandled_key_input(event: InputEvent) -> void:
 	var key := event as InputEventKey
-	if key == null or not key.pressed or key.echo or key.physical_keycode != KEY_R:
+	if key == null or not key.pressed or key.echo:
+		return
+	if key.physical_keycode == KEY_TAB:
+		_preset = (_preset + 1) % PRESETS.size()
+		_apply_preset()
+		get_viewport().set_input_as_handled()
+		return
+	if key.physical_keycode != KEY_R:
 		return
 	var kart := _kart()
 	kart.global_position = _start
@@ -66,6 +95,15 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	kart.motor.steer = 0.0
 	_peak_lateral = 0.0
 	get_viewport().set_input_as_handled()
+
+
+## Puts the chosen handling under the kart mid-drive. Speed and heading are left alone: the
+## point is to feel one model take over from another on the same corner.
+func _apply_preset() -> void:
+	var kart := _kart()
+	kart.base_stats = load("res://data/kart/%s.tres" % PRESETS[_preset])
+	kart.rebuild_stats()
+	_peak_lateral = 0.0
 
 
 func _process(_delta: float) -> void:
@@ -84,7 +122,8 @@ func _process(_delta: float) -> void:
 			+ "yaw     %5.0f deg/s\n"
 			+ "lateral %5.2f g   peak %.2f g\n"
 			+ "%s\n\n"
-			+ "R reset    Esc pause"
+			+ "[%d/%d] %s\n"
+			+ "Tab handling    R reset    Esc pause"
 		)
 		% [
 			motor.speed(),
@@ -95,6 +134,9 @@ func _process(_delta: float) -> void:
 			lateral,
 			_peak_lateral,
 			"DRIFT" if motor.drifting else "",
+			_preset + 1,
+			PRESETS.size(),
+			PRESET_NAMES[_preset],
 		]
 	)
 

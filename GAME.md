@@ -370,6 +370,24 @@ which traced to the travel direction snapping to the nose every tick; the model
 above replaced it, with the numbers exposed on the F4 panel of the
 development scene.
 
+**The tire model** is the experiment of the driving room, 9.5, and is not what the game ships
+with yet. The stick turns a front wheel rather than the kart: the wheel winds on at a rate and
+its lock comes off with speed, each axle gets a slip angle from where the kart is actually
+going against where it is pointing, and each pulls sideways in proportion to that slip up to a
+grip limit it cannot exceed. Yaw is what is left over when the two axles pull by different
+amounts, so understeer, oversteer and drift are what the numbers do rather than states to be
+entered. The handbrake takes grip off the back axle, which is the same thing a real one does.
+Rubber spent holding a corner cannot also drive, so a corner taken at the limit costs speed.
+
+Two things about it matter more than the rest. The turn radius comes from the wheel instead of
+from the speed, so half the lock is about twice the circle whatever the kart is doing, and a
+crawling kart turns at a rate that comes from how fast it is rolling rather than whipping round
+at 191 deg/s while it travels a few centimetres. Below walking pace it hands over to plain
+geometry, and stopped it still pivots at 70 deg/s to line up a shot.
+
+Four sets of numbers for it sit in `data/kart/feel_*.tres`, cycled with Tab in the driving
+room: a grippy go-kart, a loose rally car, a forgiving arcade kart and a heavy one.
+
 ### 4.2 Controls
 
 Steering is kart-relative: left and right turn the nose, throttle and brake
