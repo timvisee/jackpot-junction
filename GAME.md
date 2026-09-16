@@ -696,6 +696,19 @@ corners, in single-player and online only the local block is shown.
   that took it over 0.4 s, so everyone sees who got it, before the roulette
   flicker reveals the item.
 - **Nitro tank** as a thin bar, lit while burning.
+- **Control hints**, on by default and switchable in 8.5: a line under each
+  player's block naming the button that drifts, the one that burns nitro and
+  the one that plays a held item. Each shows only while it is worth pressing, so
+  a parked kart with a full tank sees the nitro reminder alone and an item still
+  rolling in its roulette shows none. A key cap to the left of the joker hand
+  names the button that opens the joker menu, and shows only while cards are
+  held. Driving and firing are left out: they already have the hint beside the
+  kart at the start of a match.
+- Every hint is named for the scheme that player is using: their own device when
+  they are pinned to one, and otherwise whichever they last touched, which the
+  game tracks from the input events themselves. The joker hand, the respawn
+  picker and the start-of-match hint follow the same rule, so a player who picks
+  up a pad mid-match sees gamepad buttons everywhere.
 - **Match timer** at the top centre, turning red during Last Call.
 - **Kill feed** in the top right: the last five kills, newest first, reading as
   "P1 shot P2", "P1 rammed P2", "P1 bombed P2", "P1 shoved P2 in" for a pit
