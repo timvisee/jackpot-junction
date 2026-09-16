@@ -24,6 +24,8 @@ var turbo_time_left := 0.0
 ## Multipliers set by power-ups: Boost raises the speed bonus and lowers the steering.
 var speed_bonus := 1.0
 var steer_multiplier := 1.0
+## Speed multiplier while the kart burns nitro, 1 when it does not.
+var nitro_bonus := 1.0
 
 ## Radians of drift entry kick still to apply, signed like the steering that started it.
 var _kick_remaining := 0.0
@@ -66,9 +68,10 @@ func yaw_rate(fraction: float) -> float:
 func max_speed() -> float:
 	if turboing():
 		return stats.top_speed * stats.turbo_speed_multiplier
+	var bonus := maxf(speed_bonus, nitro_bonus)
 	if boosting():
-		return stats.top_speed * speed_bonus * (1.0 + stats.drift_exit_boost)
-	return stats.top_speed * speed_bonus
+		return stats.top_speed * bonus * (1.0 + stats.drift_exit_boost)
+	return stats.top_speed * bonus
 
 
 ## Angle in radians between the nose and the direction of travel, positive when the nose points
@@ -129,7 +132,7 @@ func _step_longitudinal(input: KartInput, delta: float) -> void:
 	if turboing():
 		forward_speed = max_speed()
 		return
-	var accel := stats.acceleration()
+	var accel := stats.acceleration() * (1.5 if nitro_bonus > 1.0 else 1.0)
 	if input.throttle > 0.01 and (forward_speed >= 0.0 or input.brake <= 0.01):
 		forward_speed = move_toward(forward_speed, max_speed() * input.throttle, accel * delta)
 	elif input.brake > 0.01:

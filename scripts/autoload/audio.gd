@@ -158,6 +158,7 @@ func _connect_events() -> void:
 	Events.bullet_bounced.connect(func() -> void: play_sfx(&"bounce", -12.0, 0.1))
 	Events.kart_bumped.connect(func(_slot: int) -> void: play_sfx(&"bump", -8.0))
 	Events.turbo_taken.connect(func(_slot: int) -> void: play_sfx(&"turbo", -6.0))
+	Events.nitro_started.connect(func(_slot: int) -> void: play_sfx(&"turbo", -8.0, 0.1))
 	Events.crate_destroyed.connect(func() -> void: play_sfx(&"crate", -6.0))
 	Events.shield_popped.connect(func(_slot: int) -> void: play_sfx(&"shield_pop", -6.0))
 	Events.match_state_changed.connect(_on_state_changed)

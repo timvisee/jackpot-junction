@@ -84,6 +84,7 @@ func _physics_process(delta: float) -> void:
 	_dodge(delta)
 	_shoot(delta)
 	_use_item(delta)
+	_burn_nitro()
 
 
 ## Picks a goal from the situation. Pure, so it can be tested with a plain dictionary.
@@ -451,6 +452,22 @@ func _use_item(delta: float) -> void:
 		&"coin_magnet":
 			use = use or goal == &"collect"
 	input.use_item_pressed = use
+
+
+## Nitro goes into a charge at a close enemy in front, or into escaping a Boosting kart.
+func _burn_nitro() -> void:
+	input.nitro = false
+	if goal == &"flee" and kart.nitro_charge > 0.3:
+		input.nitro = true
+		return
+	if goal != &"hunt" or target_node == null or not is_instance_valid(target_node):
+		return
+	var to_enemy := target_node.global_position - kart.global_position
+	to_enemy.y = 0.0
+	var ahead := absf(kart.motor.forward_vector().signed_angle_to(to_enemy, Vector3.UP)) < 0.4
+	input.nitro = (
+		ahead and to_enemy.length() < 9.0 and (kart.nitro_active or kart.nitro_charge > 0.5)
+	)
 
 
 func _bullets_nearby(radius: float) -> bool:

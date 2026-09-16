@@ -62,6 +62,9 @@ var protection_left := 0.0
 var channel_progress := -1.0
 ## Set by the Boost power-up: contact with another kart kills it.
 var ramming := false
+## Nitro tank from 0 to 1, and whether it is burning right now. Burning also kills on contact.
+var nitro_charge := 1.0
+var nitro_active := false
 var shielded := false
 var held_item: PowerUp
 ## Seconds until a freshly taken item is revealed and usable.
@@ -81,6 +84,8 @@ var _smoke: ExhaustSmoke
 var _pickup_shape: SphereShape3D
 var _shield_visual: MeshInstance3D
 var _aim_arrow: MeshInstance3D
+var _flame: MeshInstance3D
+var _nitro_recharge_wait := 0.0
 var _aim_guide: AimGuide
 var _fall_left := 0.0
 var _graze_cooldown_left := 0.0
@@ -136,6 +141,7 @@ func _physics_process(delta: float) -> void:
 	_graze_cooldown_left = maxf(_graze_cooldown_left - delta, 0.0)
 	_step_effects(delta)
 	input.poll(delta)
+	_step_nitro(delta)
 	cannon.step(delta)
 	if input.fire and protection_left <= 0.0 and cannon.can_fire() and bullet_system != null:
 		_fire()
@@ -193,6 +199,7 @@ func apply_puppet_state(state: Dictionary, delta: float) -> void:
 	set_shielded(state["shield"])
 	channel_progress = state["ring"]
 	_aim_arrow.visible = state["aim"]
+	_flame.visible = state.get("nitro", false)
 	if alive and was_alive:
 		_spin_wheels(delta)
 		_update_trails(delta, heading_before)
@@ -297,9 +304,9 @@ func bank_payout() -> float:
 	return multiplier
 
 
-## Whether contact kills other karts right now: Boost, or a joker such as Road Rage.
+## Whether contact kills other karts right now: Boost, nitro, or a joker such as Road Rage.
 func ram_kills() -> bool:
-	if ramming:
+	if ramming or nitro_active:
 		return true
 	for joker: Joker in jokers.jokers:
 		if joker.ram_kills(self):
@@ -397,6 +404,37 @@ func _update_aim_guide() -> void:
 	if wanted:
 		var direction := aim_direction()
 		_aim_guide.update_line(global_position + direction * cannon_stats.muzzle_offset, direction)
+
+
+## Nitro, GAME.md 4.1: hold to burn a limited tank for extra speed and ramming kills; it refills
+## slowly after a short pause.
+func _step_nitro(delta: float) -> void:
+	var can_start := nitro_active or nitro_charge >= stats.nitro_min_start
+	if input.nitro and can_start and nitro_charge > 0.0 and not falling:
+		if not nitro_active:
+			_set_nitro_active(true)
+		nitro_charge = maxf(nitro_charge - delta / stats.nitro_capacity_seconds, 0.0)
+		_nitro_recharge_wait = stats.nitro_recharge_delay
+		if nitro_charge <= 0.0:
+			_set_nitro_active(false)
+		return
+	if nitro_active:
+		_set_nitro_active(false)
+	if input.nitro:
+		# Holding the button on an empty tank does not refill it; let go first.
+		_nitro_recharge_wait = stats.nitro_recharge_delay
+		return
+	_nitro_recharge_wait = maxf(_nitro_recharge_wait - delta, 0.0)
+	if _nitro_recharge_wait <= 0.0:
+		nitro_charge = minf(nitro_charge + delta / stats.nitro_recharge_seconds, 1.0)
+
+
+func _set_nitro_active(on: bool) -> void:
+	if on and not nitro_active:
+		Events.nitro_started.emit(slot)
+	nitro_active = on
+	motor.nitro_bonus = stats.nitro_speed_multiplier if on else 1.0
+	_flame.visible = on
 
 
 func _step_effects(delta: float) -> void:
@@ -514,6 +552,7 @@ func die(cause: StringName, killer_slot: int) -> void:
 	effects.clear()
 	set_shielded(false)
 	ramming = false
+	_set_nitro_active(false)
 	_body.visible = false
 	_smoke.emitting = false
 	channel_progress = -1.0
@@ -537,6 +576,7 @@ func respawn(point: Vector3, direction: Vector3, protection: float) -> void:
 	motor.turbo_time_left = 0.0
 	velocity = Vector3.ZERO
 	cannon.cooldown_left = 0.0
+	nitro_charge = 1.0
 	protection_left = protection
 	collision_layer = Layers.PROTECTED if protection > 0.0 else Layers.KART
 	collision_mask = Layers.WORLD | Layers.KART | Layers.PROTECTED | Layers.TURRET
@@ -666,9 +706,8 @@ func _update_trails(delta: float, heading_before: float) -> void:
 	_tire_marks.add_sample(0, rear - side * half_track, side, intensity, now)
 	_tire_marks.add_sample(1, rear + side * half_track, side, intensity, now)
 	var skidding := input.handbrake and speed > 1.5
-	_smoke.update_state(
-		input.throttle, motor.drifting or skidding, motor.boosting() or motor.turboing()
-	)
+	var pushing := motor.boosting() or motor.turboing() or nitro_active
+	_smoke.update_state(input.throttle, motor.drifting or skidding, pushing)
 
 
 func _build_visuals() -> void:
@@ -796,6 +835,27 @@ func _build_pickup_area() -> void:
 	_aim_arrow.top_level = true
 	_aim_arrow.visible = false
 	add_child(_aim_arrow)
+	_flame = MeshInstance3D.new()
+	_flame.name = "Flame"
+	var flame_mesh := CylinderMesh.new()
+	flame_mesh.top_radius = 0.02
+	flame_mesh.bottom_radius = 0.22
+	flame_mesh.height = 1.1
+	_flame.mesh = flame_mesh
+	var flame_material := StandardMaterial3D.new()
+	flame_material.albedo_color = Color(0.4, 0.75, 1.0, 0.85)
+	flame_material.emission_enabled = true
+	flame_material.emission = Color(0.4, 0.75, 1.0)
+	flame_material.emission_energy_multiplier = 2.5
+	flame_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	flame_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_flame.material_override = flame_material
+	# The cylinder's axis is Y; point the tip backward along +Z from the rear of the kart.
+	_flame.rotation_degrees = Vector3(90.0, 0.0, 0.0)
+	_flame.position = Vector3(0.0, 0.4, stats.length * 0.5 + 0.45)
+	_flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_flame.visible = false
+	add_child(_flame)
 
 
 ## Polled every tick rather than on entry, so a kart that unfreezes or spawns on top of a pickup

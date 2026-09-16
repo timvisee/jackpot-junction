@@ -10,6 +10,8 @@ var throttle := 0.0
 ## 0 to 1. Brakes while moving forward, reverses once stopped.
 var brake := 0.0
 var handbrake := false
+## Held to burn nitro.
+var nitro := false
 ## Free-aim direction on the floor plane from a stick, zero when idle.
 var aim := Vector2.ZERO
 var fire := false
@@ -35,6 +37,7 @@ func clear() -> void:
 	throttle = 0.0
 	brake = 0.0
 	handbrake = false
+	nitro = false
 	aim = Vector2.ZERO
 	fire = false
 	fire_pressed = false

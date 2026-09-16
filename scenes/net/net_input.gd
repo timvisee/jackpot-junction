@@ -31,6 +31,7 @@ static func encode(source: KartInput) -> Array:
 		source.joker_drop_pressed,
 		source.joker_destroy_pressed,
 		source.aim,
+		source.nitro,
 	]
 
 
@@ -54,6 +55,8 @@ func receive(state: Array) -> void:
 	_pending_destroy = _pending_destroy or bool(state[12])
 	if state.size() > FIELDS:
 		aim = state[FIELDS]
+	if state.size() > FIELDS + 1:
+		nitro = bool(state[FIELDS + 1])
 
 
 ## Moves queued presses into the one-tick fields and clears the queue.

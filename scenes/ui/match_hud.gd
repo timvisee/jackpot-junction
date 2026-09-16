@@ -141,6 +141,9 @@ func _update_blocks() -> void:
 		else:
 			pot.text = "respawning %.1f" % maxf(slot.respawn_left, 0.0)
 		stats.text = "K %d  D %d" % [slot.kills, slot.deaths]
+		var nitro: ProgressBar = block["nitro"]
+		nitro.value = kart.nitro_charge * 100.0
+		nitro.modulate = Color(1.0, 0.75, 0.3) if kart.nitro_active else Color(0.85, 0.85, 0.9)
 		var item: Label = block["item"]
 		if kart.held_item == null:
 			item.text = ""
@@ -351,6 +354,13 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 	pot.add_theme_font_size_override("font_size", 26)
 	var stats := Label.new()
 	stats.add_theme_font_size_override("font_size", 18)
+	var nitro := ProgressBar.new()
+	nitro.min_value = 0.0
+	nitro.max_value = 100.0
+	nitro.value = 100.0
+	nitro.show_percentage = false
+	nitro.custom_minimum_size = Vector2(180.0, 10.0)
+	nitro.tooltip_text = "Nitro"
 	var item := Label.new()
 	item.add_theme_font_size_override("font_size", 22)
 	item.add_theme_color_override("font_color", Palette.NEON_MAGENTA)
@@ -378,6 +388,7 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 		label.add_theme_constant_override("shadow_offset_x", 2)
 		label.add_theme_constant_override("shadow_offset_y", 2)
 		box.add_child(label)
+	box.add_child(nitro)
 	box.add_child(jokers)
 	box.add_child(offer)
 	return {
@@ -385,6 +396,7 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 		"banked": banked,
 		"pot": pot,
 		"stats": stats,
+		"nitro": nitro,
 		"item": item,
 		"jokers": jokers,
 		"offer": offer,

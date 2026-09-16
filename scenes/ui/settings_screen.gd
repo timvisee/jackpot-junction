@@ -9,6 +9,7 @@ const REBINDABLE: Array[StringName] = [
 	InputActions.STEER_RIGHT,
 	InputActions.FIRE,
 	InputActions.HANDBRAKE,
+	InputActions.NITRO,
 	InputActions.USE_ITEM,
 	InputActions.JOKER_MENU,
 	InputActions.JOKER_PREV,

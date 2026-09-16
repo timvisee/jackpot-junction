@@ -47,6 +47,18 @@ extends Resource
 @export var drift_exit_boost := 0.2
 @export var drift_exit_boost_duration := 0.8
 
+@export_group("Nitro")
+## Speed multiplier while burning nitro.
+@export var nitro_speed_multiplier := 1.4
+## Seconds a full tank burns for.
+@export var nitro_capacity_seconds := 2.0
+## Seconds an empty tank takes to refill.
+@export var nitro_recharge_seconds := 12.0
+## Seconds after letting go before the tank starts refilling.
+@export var nitro_recharge_delay := 0.6
+## Fraction of the tank needed to start burning, so a near-empty tank cannot be tapped forever.
+@export var nitro_min_start := 0.2
+
 @export_group("Turbo pads")
 @export var turbo_speed_multiplier := 1.5
 @export var turbo_duration := 1.0

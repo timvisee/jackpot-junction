@@ -34,6 +34,7 @@ func poll(_delta: float) -> void:
 	throttle = DeviceInput.strength(InputActions.THROTTLE, device)
 	brake = DeviceInput.strength(InputActions.BRAKE, device)
 	handbrake = DeviceInput.pressed(InputActions.HANDBRAKE, device)
+	nitro = DeviceInput.pressed(InputActions.NITRO, device)
 	aim = Vector2(
 		(
 			DeviceInput.strength(InputActions.AIM_RIGHT, device)

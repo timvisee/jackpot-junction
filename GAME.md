@@ -163,7 +163,7 @@ are plain chips and multiply with your mult like any other.
 ### 3.6 Death
 
 A kart dies from one bullet hit, from falling into a pit, or from being rammed
-by a kart with an active Boost. A kart that drives into a pit falls for 0.4 s,
+by a kart with an active Boost or burning nitro. A kart that drives into a pit falls for 0.4 s,
 uncontrollable, before the death rules apply. On death, in this order:
 
 1. **Bank half**: `floor(0.5 * coins * mult)` is added to banked score.
@@ -263,12 +263,13 @@ then hooks up and launches when the handbrake is released.
 | Drift speed decay             | 5% per second                                         |
 | Drift exit boost              | +20% top speed for 0.8 s if the drift lasted 0.6 s or longer |
 | Handbrake                     | with steering above 30% it starts a drift and scrubs speed at 35% of 12 m/s²; without steering it is a straight stop at 12 m/s² that lays down skid marks |
+| Nitro                         | held button: 140% top speed with 1.5 times the acceleration, kills on contact; a full tank burns 2 s, refills in 12 s starting 0.6 s after letting go, cannot restart below 20% |
 | Turbo pad                     | 150% top speed for 1.0 s along the pad's arrow, steering halved while it lasts |
 | Wall contact                  | velocity into the wall is cancelled; if that component exceeded 50% of top speed, total speed drops by 30% |
 | Kart to kart bump             | both karts pushed apart at 6 m/s along the contact normal and lose 20% speed |
 
-Ramming only kills when the rammer has the Boost power-up active, see 7.1.
-Turbo pads do not enable ramming kills.
+Ramming only kills when the rammer has the Boost power-up active, see 7.1, or
+is burning nitro. Turbo pads do not enable ramming kills.
 
 After the first play session the handling changed as follows. Drifts start only
 with the handbrake, which also brakes; steering alone keeps grip. A stopped
@@ -293,6 +294,7 @@ assigns physical devices to player slots, see 10.2.
 | Brake, reverse              | Left trigger        | S, or Down                |
 | Fire                        | Right bumper        | Space                     |
 | Handbrake, drift            | Left bumper         | Shift                     |
+| Nitro                       | B                   | Ctrl                      |
 | Use power-up                | A                   | E                         |
 | Joker menu, hold            | Y                   | Tab                       |
 | Joker menu: select          | D-pad left / right cycles | 1 to 5              |
@@ -572,6 +574,7 @@ corners, in single-player and online only the local block is shown.
 - **Pot** as `coins × mult = value`, updating live.
 - **Joker slots**: 5 icons, empty slots outlined.
 - **Held power-up** icon.
+- **Nitro tank** as a thin bar, lit while burning.
 - **Match timer** at the top centre, turning red during Last Call.
 - **Standings**: a compact ranked list of every kart's banked score next to
   the timer, shown in single-player and online where only one HUD block exists.

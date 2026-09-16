@@ -288,6 +288,7 @@ func build_snapshot() -> Dictionary:
 			"respawn": slot.respawn_left,
 			"menu": kart.menu_open,
 			"menu_index": kart.menu_index,
+			"nitro_charge": kart.nitro_charge,
 		}
 		if slot.offer != null and not slot.offer.is_done():
 			var ids: Array = []
@@ -321,6 +322,7 @@ func build_snapshot() -> Dictionary:
 					"ring": kart.channel_progress,
 					"drift": kart.motor.drifting,
 					"aim": kart._aim_arrow.visible,
+					"nitro": kart.nitro_active,
 					"decoy": kart.is_decoy(),
 				}
 			)
@@ -459,6 +461,7 @@ func _apply_slots(entries: Array) -> void:
 			slot.kart.item_reveal_left = entry["reveal"]
 			slot.kart.menu_open = entry["menu"]
 			slot.kart.menu_index = entry["menu_index"]
+			slot.kart.nitro_charge = entry.get("nitro_charge", 1.0)
 			var jokers: Array[Joker] = []
 			for id: String in entry["jokers"]:
 				var joker := joker_catalog.by_id(StringName(id))

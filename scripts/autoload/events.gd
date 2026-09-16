@@ -25,6 +25,7 @@ signal bullet_fired(slot: int)
 signal bullet_bounced
 signal kart_bumped(slot: int)
 signal turbo_taken(slot: int)
+signal nitro_started(slot: int)
 signal crate_destroyed
 signal shield_popped(slot: int)
 signal player_joined(slot: int)
