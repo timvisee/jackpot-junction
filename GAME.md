@@ -530,6 +530,8 @@ subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
 - **Jackpot zone**: a vault floor tile with a chip pile that grows, and a
   traffic light for its state, see 3.5.
 - **Chips**: poker chips, gold for the gold chip, a die for the mult die.
+- **Item boxes**: gold crates with black bands, a big question mark and a beam of
+  light, glowing and pulsing so they read at a glance.
 - **Karts**: toy go-karts with a simple driver figure, body tinted in the
   player colour, a roof marker shape per colour.
 - **Bullets**: glowing spheres in the owner's colour with a short trail.
