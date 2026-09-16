@@ -2,7 +2,9 @@ class_name Bullet
 extends Node3D
 ## One bullet, GAME.md 5.1 and 5.2. Moves by ray each physics tick so it cannot tunnel, bounces
 ## off walls while it has bounces left, bends slightly toward targets until its first bounce,
-## and kills what it touches.
+## and kills what it touches. Its first step checks the way from the shooter's centre to the
+## muzzle, so a shot fired with the muzzle inside a wall or crate stops there instead of passing
+## through.
 ## Bullet against bullet is resolved by the [BulletSystem].
 
 signal expired(bullet: Bullet)
@@ -24,6 +26,8 @@ var assist_range := 15.0
 var assist_turn_rate := 0.5
 ## Where this tick's movement started, for sweeps against other bullets.
 var previous_position := Vector3.ZERO
+## The shooter's centre; anything solid between it and the muzzle stops the bullet at once.
+var spawn_from := Vector3.ZERO
 
 ## On a client: dead-reckons between snapshots, never collides.
 var puppet := false
@@ -31,6 +35,7 @@ var _puppet_target := Vector3.ZERO
 var _puppet_has_target := false
 
 var _dead := false
+var _spawn_checked := false
 var _shape := SphereShape3D.new()
 var _shape_query := PhysicsShapeQueryParameters3D.new()
 ## Kart instance id to whether the bullet was inside that kart's graze distance last tick.
@@ -58,10 +63,18 @@ func setup_puppet(
 	assist_enabled = false
 
 
-func setup(slot: int, origin: Vector3, direction: Vector3, stats: CannonStats, tint: Color) -> void:
+func setup(
+	slot: int,
+	origin: Vector3,
+	direction: Vector3,
+	stats: CannonStats,
+	tint: Color,
+	from: Vector3 = Vector3.INF
+) -> void:
 	owner_slot = slot
 	position = Vector3(origin.x, HEIGHT, origin.z)
 	previous_position = position
+	spawn_from = position if from == Vector3.INF else Vector3(from.x, HEIGHT, from.z)
 	velocity = Vector3(direction.x, 0.0, direction.z).normalized() * stats.bullet_speed
 	radius = stats.bullet_radius
 	bounces_left = stats.bounces
@@ -104,6 +117,11 @@ func _physics_process(delta: float) -> void:
 			global_position = global_position.lerp(_puppet_target, 0.35)
 		_orient()
 		return
+	if not _spawn_checked:
+		_spawn_checked = true
+		_check_spawn_path()
+		if _dead:
+			return
 	lifetime_left -= delta
 	if lifetime_left <= 0.0:
 		destroy()
@@ -191,6 +209,30 @@ func _move(delta: float) -> void:
 			global_position = to
 		return
 	_bounce(hit["position"], hit["normal"])
+
+
+## A kart or turret pressed against a wall or crate has its muzzle inside it. Cast from the
+## shooter's centre to the muzzle: a crate in the way breaks, a kart takes the hit, a wall
+## simply eats the bullet. Nothing bounces back into the shooter.
+func _check_spawn_path() -> void:
+	if spawn_from.is_equal_approx(global_position):
+		return
+	var space := get_world_3d().direct_space_state
+	var ray := PhysicsRayQueryParameters3D.create(
+		spawn_from, global_position, Layers.WORLD | Layers.KART | Layers.TURRET | Layers.BOMB
+	)
+	var hit := space.intersect_ray(ray)
+	if hit.is_empty():
+		return
+	var collider: Object = hit["collider"]
+	if collider is Crate:
+		(collider as Crate).hit(owner_slot)
+	elif collider.has_method("take_hit") and collider.get("slot") != owner_slot:
+		if not collider.call("take_hit", self):
+			return
+	elif collider.has_method("take_hit"):
+		return
+	destroy()
 
 
 func _bounce(point: Vector3, normal: Vector3) -> void:

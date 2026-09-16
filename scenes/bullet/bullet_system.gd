@@ -13,11 +13,17 @@ func _ready() -> void:
 	add_to_group(&"bullet_system")
 
 
+## [param from] is the shooter's centre; the bullet checks the way from there to the muzzle.
 func spawn(
-	owner_slot: int, origin: Vector3, direction: Vector3, stats: CannonStats, color: Color
+	owner_slot: int,
+	origin: Vector3,
+	direction: Vector3,
+	stats: CannonStats,
+	color: Color,
+	from: Vector3 = Vector3.INF
 ) -> Bullet:
 	var bullet := Bullet.new()
-	bullet.setup(owner_slot, origin, direction, stats, color)
+	bullet.setup(owner_slot, origin, direction, stats, color, from)
 	bullet.expired.connect(_on_bullet_expired)
 	add_child(bullet)
 	bullets.append(bullet)

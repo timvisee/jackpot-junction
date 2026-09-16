@@ -52,7 +52,12 @@ func override_shots_left() -> int:
 
 ## Spawns one shot's bullets from [param origin] along [param direction] and starts the cooldown.
 func fire(
-	system: BulletSystem, owner_slot: int, origin: Vector3, direction: Vector3, color: Color
+	system: BulletSystem,
+	owner_slot: int,
+	origin: Vector3,
+	direction: Vector3,
+	color: Color,
+	from: Vector3 = Vector3.INF
 ) -> Array[Bullet]:
 	var active := current_stats()
 	cooldown_left = active.fire_cooldown
@@ -64,7 +69,7 @@ func fire(
 			var half := deg_to_rad(active.spread_angle_deg) * 0.5
 			angle = lerpf(-half, half, float(i) / float(count - 1))
 		var bullet := system.spawn(
-			owner_slot, origin, direction.rotated(Vector3.UP, angle), active, color
+			owner_slot, origin, direction.rotated(Vector3.UP, angle), active, color, from
 		)
 		_live.append(bullet)
 		bullets.append(bullet)

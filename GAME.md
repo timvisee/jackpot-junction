@@ -373,6 +373,11 @@ tunnel through walls or karts at any speed. Every bullet knows its owner and is
 tinted in the owner's colour with a short trail. Cannon types and jokers may
 change any value in this table.
 
+A shot whose muzzle sits inside a wall or a crate, because the kart or turret
+is pressed against it, is checked from the shooter's centre: a crate in the
+way still breaks, a wall just eats the bullet, and nothing passes through or
+bounces back into the shooter.
+
 ### 5.2 Aim assist
 
 To make forward-only aiming forgiving, bullets bend slightly toward targets.

@@ -717,7 +717,7 @@ func _fire() -> void:
 	var direction := aim_direction()
 	var origin := global_position + direction * cannon_stats.muzzle_offset
 	var shots := cannon.fire(
-		bullet_system, slot, origin, direction, Palette.player_color(color_index)
+		bullet_system, slot, origin, direction, Palette.player_color(color_index), global_position
 	)
 	fired.emit(shots)
 	Events.bullet_fired.emit(slot)

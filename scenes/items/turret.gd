@@ -85,7 +85,12 @@ func _physics_process(delta: float) -> void:
 		_fire_left = fire_interval
 		var direction := -global_basis.z
 		bullet_system.spawn(
-			owner_slot, global_position + direction * 0.9, direction, cannon_stats, color
+			owner_slot,
+			global_position + direction * 0.9,
+			direction,
+			cannon_stats,
+			color,
+			global_position
 		)
 
 
