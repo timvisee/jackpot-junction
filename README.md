@@ -47,5 +47,6 @@ A tag `v*` makes the release workflow build and publish the three exports.
 
 The source code is licensed under the GPL-3.0, see `LICENSE`. Assets made for
 the game are licensed under CC-BY-4.0. Third-party assets and libraries keep
-their own licenses and are listed in `THIRD_PARTY.md`; the music is "Bossa
-Antigua" by Kevin MacLeod (incompetech.com), CC BY 4.0.
+their own licenses and are listed in `THIRD_PARTY.md`. The music is licensed
+from Ovani Sound to this game's developer and is not covered by either
+license.

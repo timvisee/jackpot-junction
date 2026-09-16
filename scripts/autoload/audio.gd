@@ -1,15 +1,24 @@
 extends Node
 ## Sound and music, GAME.md 8.4. Autoloaded as `Audio`. Listens to gameplay events and plays
-## short effects from a pooled set of players on the SFX bus; loops the music on the Music bus
-## and speeds it up during Last Call. Every file is logged in THIRD_PARTY.md.
+## short effects from a pooled set of players on the SFX bus. The music is one track in three
+## intensities that stay in step: calm by default, tense for a while after a kill, and the full
+## mix from Last Call to the end, with one second crossfades. Every file is logged in
+## THIRD_PARTY.md.
 
 const BUS_MASTER := &"Master"
 const BUS_MUSIC := &"Music"
 const BUS_SFX := &"SFX"
 const POOL_SIZE := 16
 const SFX_DIR := "res://assets/audio/sfx/"
-const MUSIC_PATH := "res://assets/audio/music/bossa_antigua.mp3"
-const LAST_CALL_PITCH := 1.08
+const MUSIC_DIR := "res://assets/audio/music/deceased_rodent/"
+const LAYER_CALM := &"calm"
+const LAYER_TENSE := &"tense"
+const LAYER_PEAK := &"peak"
+const LAYER_FILES: Dictionary[StringName, String] = {
+	LAYER_CALM: "intensity_1.ogg", LAYER_TENSE: "intensity_2.ogg", LAYER_PEAK: "main.ogg"
+}
+const CROSSFADE_SECONDS := 1.0
+const SILENT_DB := -40.0
 const BANK_TICK_INTERVAL := 0.07
 
 ## Effect name to the files it picks from at random.
@@ -49,10 +58,18 @@ const LIBRARY: Dictionary[StringName, Array] = {
 }
 
 var music_enabled := true
+## The intensity playing or fading in right now.
+var current_layer := LAYER_CALM
+## Seconds a kill keeps the music tense; another kill restarts the clock.
+var tense_seconds := 12.0
 
 var _streams: Dictionary[String, AudioStream] = {}
 var _pool: Array[AudioStreamPlayer] = []
-var _music: AudioStreamPlayer
+var _music_players: Array[AudioStreamPlayer] = []
+var _active_player := 0
+var _music_tween: Tween
+var _tense_left := 0.0
+var _last_call := false
 var _bank_tick_left := 0.0
 var _bank_pitch := 1.0
 var _rng := RandomNumberGenerator.new()
@@ -64,9 +81,12 @@ func _ready() -> void:
 		player.bus = BUS_SFX
 		add_child(player)
 		_pool.append(player)
-	_music = AudioStreamPlayer.new()
-	_music.bus = BUS_MUSIC
-	add_child(_music)
+	for i: int in 2:
+		var player := AudioStreamPlayer.new()
+		player.bus = BUS_MUSIC
+		player.volume_db = SILENT_DB
+		add_child(player)
+		_music_players.append(player)
 	_connect_events()
 	if not Game.is_headless():
 		play_music()
@@ -74,6 +94,10 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_bank_tick_left = maxf(_bank_tick_left - delta, 0.0)
+	if _tense_left > 0.0:
+		_tense_left -= delta
+		if _tense_left <= 0.0 and not _last_call and current_layer == LAYER_TENSE:
+			set_layer(LAYER_CALM)
 
 
 ## Plays a one-shot effect by library name, with a little random pitch.
@@ -92,25 +116,84 @@ func play_sfx(name: StringName, volume_db: float = 0.0, pitch_variation: float =
 	player.play()
 
 
+## Starts the calm layer from the top, unless music is already playing.
 func play_music() -> void:
-	if not music_enabled or _music.playing:
+	if not music_enabled or _music_players[_active_player].playing:
 		return
-	var stream := load(MUSIC_PATH) as AudioStream
-	if stream == null:
-		return
-	if stream is AudioStreamMP3:
-		(stream as AudioStreamMP3).loop = true
-	_music.stream = stream
-	_music.pitch_scale = 1.0
-	_music.play()
+	var player := _music_players[_active_player]
+	player.stream = _music_stream(current_layer)
+	player.volume_db = 0.0
+	if player.stream != null:
+		player.play()
 
 
 func stop_music() -> void:
-	_music.stop()
+	for player: AudioStreamPlayer in _music_players:
+		player.stop()
 
 
-func set_music_urgent(urgent: bool) -> void:
-	_music.pitch_scale = LAST_CALL_PITCH if urgent else 1.0
+## Crossfades to another intensity of the same track, continuing from the same position.
+func set_layer(layer: StringName) -> void:
+	if layer == current_layer or not LAYER_FILES.has(layer):
+		return
+	current_layer = layer
+	var from := _music_players[_active_player]
+	var to := _music_players[1 - _active_player]
+	_active_player = 1 - _active_player
+	to.stream = _music_stream(layer)
+	if to.stream == null:
+		return
+	var position := 0.0
+	if from.playing:
+		position = from.get_playback_position() + AudioServer.get_time_since_last_mix()
+		position = fmod(position, maxf(to.stream.get_length(), 0.001))
+	to.volume_db = SILENT_DB if from.playing else 0.0
+	if music_enabled and (from.playing or not Game.is_headless()):
+		to.play(position)
+	if _music_tween != null and _music_tween.is_valid():
+		_music_tween.kill()
+	_music_tween = create_tween().set_parallel(true)
+	_music_tween.tween_property(to, "volume_db", 0.0, CROSSFADE_SECONDS)
+	_music_tween.tween_property(from, "volume_db", SILENT_DB, CROSSFADE_SECONDS)
+	_music_tween.chain().tween_callback(from.stop)
+
+
+## A kill makes the music tense for a while, unless Last Call already has the full mix playing.
+func mark_excitement() -> void:
+	_tense_left = tense_seconds
+	if not _last_call:
+		set_layer(LAYER_TENSE)
+
+
+## Everyone who plays on this machine is dead: back to calm, even mid-excitement.
+func mark_all_players_down() -> void:
+	_tense_left = 0.0
+	if not _last_call:
+		set_layer(LAYER_CALM)
+
+
+func _music_stream(layer: StringName) -> AudioStream:
+	var path := MUSIC_DIR + LAYER_FILES[layer]
+	if not ResourceLoader.exists(path):
+		return null
+	var stream := load(path) as AudioStream
+	if stream is AudioStreamOggVorbis:
+		(stream as AudioStreamOggVorbis).loop = true
+	return stream
+
+
+## True when every human kart in the running match is dead.
+func _all_humans_dead() -> bool:
+	var match_node := get_tree().get_first_node_in_group(&"match") as Match
+	if match_node == null:
+		return false
+	var humans := 0
+	for slot: PlayerSlot in match_node.slots:
+		if slot.is_human():
+			humans += 1
+			if slot.kart != null and slot.kart.alive:
+				return false
+	return humans > 0
 
 
 func _stream(file: String) -> AudioStream:
@@ -134,9 +217,7 @@ func _connect_events() -> void:
 	)
 	Events.mult_gained.connect(_on_mult_gained)
 	Events.grazed.connect(func(_slot: int) -> void: play_sfx(&"graze", -4.0))
-	Events.kart_killed.connect(
-		func(_victim: int, _killer: int, _cause: StringName) -> void: play_sfx(&"death")
-	)
+	Events.kart_killed.connect(_on_kart_killed)
 	Events.death_banked.connect(
 		func(_slot: int, _amount: int) -> void: play_sfx(&"death_bank", -4.0)
 	)
@@ -162,6 +243,14 @@ func _connect_events() -> void:
 	Events.crate_destroyed.connect(func() -> void: play_sfx(&"crate", -6.0))
 	Events.shield_popped.connect(func(_slot: int) -> void: play_sfx(&"shield_pop", -6.0))
 	Events.match_state_changed.connect(_on_state_changed)
+
+
+func _on_kart_killed(_victim: int, killer: int, _cause: StringName) -> void:
+	play_sfx(&"death")
+	if _all_humans_dead():
+		mark_all_players_down()
+	elif killer >= 0:
+		mark_excitement()
 
 
 func _on_mult_gained(_slot: int, _amount: float, reason: StringName) -> void:
@@ -193,12 +282,16 @@ func _on_state_changed(state: int) -> void:
 	match state:
 		Match.State.COUNTDOWN:
 			play_sfx(&"countdown", -4.0, 0.0)
+			_last_call = false
+			set_layer(LAYER_CALM)
 		Match.State.PLAYING:
 			play_sfx(&"go", -2.0, 0.0)
-			set_music_urgent(false)
 		Match.State.LAST_CALL:
 			play_sfx(&"last_call", -2.0, 0.0)
-			set_music_urgent(true)
+			_last_call = true
+			set_layer(LAYER_PEAK)
 		Match.State.RESULTS:
 			play_sfx(&"results", -2.0, 0.0)
-			set_music_urgent(false)
+			_last_call = false
+			_tense_left = 0.0
+			set_layer(LAYER_CALM)

@@ -1,0 +1,10 @@
+"Electronic Vol8 Deceased Rodent" (Intensity 1, Intensity 2, Main) from Electronic Music Pack Vol. 8
+by Ovani Sound, https://ovanisound.com
+
+Licensed to the developer of Jackpot Junction under the Ovani Sound terms of service:
+https://ovanisound.com/policies/terms-of-service
+
+The tracks were transcoded from the original WAV files to OGG Vorbis at 160 kbit/s.
+Ovani Sound assets are licensed to the purchaser for use in their productions; they are
+not covered by this project's GPL-3.0 or CC-BY-4.0 terms and may not be reused outside
+this game.

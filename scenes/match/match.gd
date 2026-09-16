@@ -48,6 +48,7 @@ var _all_items: PowerUpTable
 
 
 func _ready() -> void:
+	add_to_group(&"match")
 	if rules == null:
 		rules = load("res://data/match/default.tres")
 	if power_ups == null:
