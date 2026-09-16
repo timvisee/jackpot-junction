@@ -182,6 +182,54 @@ func test_aimbot_turns_the_shot_toward_the_nearest_enemy() -> void:
 	)
 
 
+## GAME.md 3.7: the card about to be thrown away is crossed out, so it can never be read as the
+## one being claimed.
+func test_the_destroy_step_crosses_the_card_out() -> void:
+	var match_node := _start_match(_bots())
+	var kart := match_node.kart_of(0)
+	for id: String in ["hair_trigger", "big_tank", "comeback", "toll_booth", "road_rage"]:
+		_attach(kart, id)
+	assert_bool(kart.jokers.is_full()).is_true()
+	var offer := JokerOffer.new(kart, CATALOG.offer(match_node.rng, 3, kart.jokers.ids()))
+	var picker: JokerPicker = auto_free(JokerPicker.new())
+	add_child(picker)
+	await await_idle_frame()
+	# Choosing one to claim: gold, no cross.
+	picker.show_offer(offer, kart)
+	assert_int(picker.card_count()).is_equal(3)
+	assert_bool(picker._cross.visible).is_false()
+	# A full hand turns the same row into a choice of what to throw away.
+	offer.take(0)
+	assert_int(offer.stage).is_equal(JokerOffer.Stage.REPLACING)
+	picker.show_offer(offer, kart)
+	assert_int(picker.card_count()).is_equal(JokerHolder.MAX_JOKERS)
+	assert_bool(picker._cross.visible).is_true()
+	assert_str(picker._title.text).contains("Destroy")
+	# The cross sits exactly over the card under the cursor, whatever its scale.
+	var doomed := picker._cards[offer.selected]
+	assert_vector(picker._cross.position).is_equal(doomed.position)
+	assert_vector(picker._cross.scale).is_equal(doomed.scale)
+	# Backing out puts the claim colours back.
+	offer.cancel_replace()
+	picker.show_offer(offer, kart)
+	assert_bool(picker._cross.visible).is_false()
+
+
+## The row is only rebuilt when what it shows changes, not on every frame.
+func test_the_picker_keeps_its_cards_between_frames() -> void:
+	var match_node := _start_match(_bots())
+	var kart := match_node.kart_of(0)
+	var offer := JokerOffer.new(kart, CATALOG.offer(match_node.rng, 3, []))
+	var picker: JokerPicker = auto_free(JokerPicker.new())
+	add_child(picker)
+	await await_idle_frame()
+	picker.show_offer(offer, kart)
+	var first := picker._cards[0]
+	picker.show_offer(offer, kart)
+	picker.show_offer(offer, kart)
+	assert_object(picker._cards[0]).is_same(first)
+
+
 ## GAME.md 8.3: the count beside the hand says how many of the five slots are taken.
 func test_the_hand_shows_how_full_it_is() -> void:
 	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]

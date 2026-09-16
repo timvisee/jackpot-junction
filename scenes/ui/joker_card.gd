@@ -3,12 +3,15 @@ extends Panel
 ## One joker drawn as a playing card, GAME.md 8.3. The hand along the bottom of the screen and
 ## the pick-a-joker cards in the middle are both made of these, so a joker looks the same
 ## wherever it turns up: framed in its kind's colour, with its initials big and its name under
-## them. Highlighting swaps the frame for a bright gold one.
+## them. Highlighting swaps the frame for a bright gold one, or a red one when the card is the
+## one about to be destroyed.
 ##
 ## Cards are pivoted at their bottom centre, so a fan tilt or a scale turns about the point the
 ## hand is held at rather than about a corner.
 
 const SIZE := Vector2(120.0, 168.0)
+## The red that marks a card for destruction, on its frame and on the cross over it.
+const DOOMED := Color("#FF3B30")
 const KIND_NAMES: Dictionary[int, String] = {
 	Joker.Kind.STAT: "Stat", Joker.Kind.RULE: "Rule", Joker.Kind.CURSED: "Cursed"
 }
@@ -17,6 +20,7 @@ var joker: Joker
 
 var _normal: StyleBoxFlat
 var _chosen: StyleBoxFlat
+var _doomed: StyleBoxFlat
 
 
 static func create(for_joker: Joker) -> JokerCard:
@@ -40,8 +44,14 @@ static func kind_name(for_joker: Joker) -> String:
 	return KIND_NAMES[for_joker.kind]
 
 
-func set_highlighted(on: bool) -> void:
-	add_theme_stylebox_override("panel", _chosen if on else _normal)
+## Lights the card up as the one under the cursor. [param doomed] marks it as the one that is
+## about to be thrown away rather than taken, which is a different answer to a different
+## question and must not look the same.
+func set_highlighted(on: bool, doomed: bool = false) -> void:
+	if not on:
+		add_theme_stylebox_override("panel", _normal)
+		return
+	add_theme_stylebox_override("panel", _doomed if doomed else _chosen)
 
 
 func _build() -> void:
@@ -63,6 +73,13 @@ func _build() -> void:
 	_chosen.border_color = Palette.CHIP_WHITE
 	_chosen.shadow_color = Color(Palette.CHIP_GOLD, 0.75)
 	_chosen.shadow_size = 18
+	_doomed = StyleBoxFlat.new()
+	_doomed.bg_color = Color(0.26, 0.09, 0.09, 1.0)
+	_doomed.set_corner_radius_all(10)
+	_doomed.set_border_width_all(5)
+	_doomed.border_color = DOOMED
+	_doomed.shadow_color = Color(DOOMED, 0.75)
+	_doomed.shadow_size = 18
 	add_theme_stylebox_override("panel", _normal)
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

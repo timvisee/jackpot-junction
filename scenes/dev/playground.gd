@@ -14,6 +14,7 @@ extends Node3D
 ##   --burst=1            pop a destruction burst next to the player, for screenshots
 ##   --feed=1             put a few made-up kills in the kill feed, for screenshots
 ##   --offer=1            open the respawn joker pick, for screenshots
+##   --destroy=1          open the pick with a full hand, on the destroy step
 ##   --disco=0.8          hold the excitement meter here, for the lights and the music
 ##   --bounty=1           put a bounty on the second slot, for screenshots
 ##   --results=1          end the match at once with made-up stats, to see the results screen
@@ -35,6 +36,7 @@ var _oil := false
 var _burst := false
 var _feed := false
 var _offer := false
+var _destroy := false
 var _disco := -1.0
 var _bounty := false
 var _results := false
@@ -66,6 +68,14 @@ func _ready() -> void:
 		match_node.bounty_slot = 1
 		match_node.bounty_left = 999.0
 		match_node.kart_of(1).set_bounty(true)
+	if _destroy:
+		var full := match_node.slots[0]
+		for id: String in ["hair_trigger", "big_tank", "comeback", "toll_booth", "road_rage"]:
+			full.kart.jokers.add(load("res://data/jokers/%s.tres" % id))
+		var pick := match_node.joker_catalog.offer(match_node.rng, 3, [])
+		full.offer = JokerOffer.new(full.kart, pick)
+		full.offer.take(1)
+		full.offer.selected = 2
 	if _offer:
 		var slot := match_node.slots[0]
 		var choices := match_node.joker_catalog.offer(match_node.rng, 3, [])
@@ -178,6 +188,8 @@ func _parse_user_args() -> void:
 			_feed = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--offer="):
 			_offer = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--destroy="):
+			_destroy = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--disco="):
 			_disco = float(arg.get_slice("=", 1))
 		elif arg.begins_with("--bounty="):
