@@ -122,7 +122,7 @@ grey box.
 Verify: tests for the layout parser, wall merging and the symmetry of the map;
 tests for the motor's pure functions such as yaw rate by speed and drift entry.
 Smoke run of the playground. Then a handling session with a gamepad and a
-keyboard: crossing time close to 3 s, drift feels controllable, exit boost
+keyboard: crossing time close to 3.6 s, drift feels controllable, exit boost
 noticeable. Expect two or three tuning rounds; write the final numbers into
 GAME.md.
 

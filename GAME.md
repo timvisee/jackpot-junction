@@ -244,20 +244,21 @@ the kart slides while its nose turns faster.
 | Parameter                     | Starting value                                        |
 |-------------------------------|-------------------------------------------------------|
 | Kart size                     | 1.6 m long, 1.0 m wide, 0.8 m high                    |
-| Top speed                     | 13 m/s, crossing the arena takes about 3 s            |
-| 0 to top speed                | 1.2 s                                                 |
+| Top speed                     | 10.5 m/s, crossing the arena takes about 3.6 s        |
+| 0 to top speed                | 1.5 s                                                 |
 | Brake deceleration            | 20 m/s²                                               |
 | Reverse top speed             | 5 m/s                                                 |
 | Coast deceleration            | 4 m/s² with no input                                  |
 | Yaw rate at low speed         | 200°/s                                                |
 | Yaw rate at top speed         | 110°/s, interpolated linearly by speed                |
-| Minimum speed to steer        | 0.5 m/s                                               |
-| Grip, normal                  | velocity turns toward heading at 8 rad/s              |
-| Grip, drifting                | 2.5 rad/s                                             |
-| Drift entry                   | steer above 80% and speed above 70% of top, or handbrake held and speed above 40% of top |
-| Drift yaw multiplier          | 1.6                                                   |
+| Minimum speed to steer        | 0.5 m/s; below it the kart turns in place at 70°/s to line up a shot |
+| Grip, normal                  | velocity turns toward heading at 16 rad/s, under evaluation against 8 |
+| Grip, drifting                | 3.5 rad/s, under evaluation against 2.5               |
+| Drift entry                   | handbrake held and speed above 40% of top; steering alone never drifts |
+| Drift yaw multiplier          | 1.35, under evaluation against 1.6                    |
 | Drift speed decay             | 5% per second                                         |
 | Drift exit boost              | +20% top speed for 0.8 s if the drift lasted 0.6 s or longer |
+| Handbrake                     | brakes at 12 m/s², at 35% of that while drifting so a drift scrubs speed gently |
 | Turbo pad                     | 150% top speed for 1.0 s along the pad's arrow, steering halved while it lasts |
 | Wall contact                  | velocity into the wall is cancelled; if that component exceeded 50% of top speed, total speed drops by 30% |
 | Kart to kart bump             | both karts pushed apart at 6 m/s along the contact normal and lose 20% speed |
@@ -265,15 +266,12 @@ the kart slides while its nose turns faster.
 Ramming only kills when the rammer has the Boost power-up active, see 7.1.
 Turbo pads do not enable ramming kills.
 
-Handling trial, under evaluation after the first play session: five changes
-are switchable on the F4 panel and currently on by default. 1: drifts start
-only with the handbrake, which also brakes at 12 m/s², 35% of that while
-drifting. 2: grip 16 normal and 3.5 in a drift, drift yaw multiplier 1.35.
-3: yaw 160 to 85°/s, steering eases to full lock in 0.12 s and back in
-0.08 s, stick response curve 1.5, turning in place at 70°/s when stopped.
-4: top speed 10.5 m/s, 0 to top in 1.5 s, bullets 17 m/s. 5: an aim guide of
-four dots ahead of the cannon, bullet bending cone 15° at 50°/s. The table
-above still lists the previous values until the decision is made.
+After the first play session the handling changed as follows. Drifts start only
+with the handbrake, which also brakes; steering alone keeps grip. A stopped
+kart turns in place. The kart and its bullets are slower. Shots are shown by an
+aim guide and bend a little more. Steering rates stay instant, 200 to 110°/s,
+after a smoothed variant felt worse. The planted grip numbers are still under
+evaluation and can be flipped on the F4 panel of the development scene.
 
 ### 4.2 Controls
 
@@ -325,7 +323,7 @@ assigns physical devices to player slots, see 10.2.
 | Trigger                        | Holding fire shoots at the cooldown rate           |
 | Fire cooldown                  | 0.4 s                                              |
 | Max live bullets per kart      | 3                                                  |
-| Bullet speed                   | 20 m/s, about 1.5 times kart top speed             |
+| Bullet speed                   | 17 m/s, about 1.6 times kart top speed             |
 | Bullet radius                  | 0.15 m                                             |
 | Bounces                        | 1 off walls, destroyed on the second wall contact  |
 | Lifetime                       | 3 s                                                |
@@ -348,9 +346,9 @@ To make forward-only aiming forgiving, bullets bend slightly toward targets.
 
 | Parameter    | Starting value                                                  |
 |--------------|-----------------------------------------------------------------|
-| Cone         | Targets within 12° of the bullet heading                        |
+| Cone         | Targets within 15° of the bullet heading                        |
 | Range        | 15 m                                                            |
-| Turn rate    | At most 30°/s                                                   |
+| Turn rate    | At most 50°/s                                                   |
 | Active       | Until the first bounce                                          |
 | Targets      | Enemy karts, decoys and turrets. Never the owner, never spawn-protected karts |
 
@@ -572,7 +570,8 @@ corners, in single-player and online only the local block is shown.
 - **Standings**: a compact ranked list of every kart's banked score next to
   the timer, shown in single-player and online where only one HUD block exists.
 - In-world: a progress ring around the kart while banking or collecting the
-  Jackpot, the chip count above the Jackpot zone, floating `+0.5` on grazes.
+  Jackpot, the chip count above the Jackpot zone, floating `+0.5` on grazes,
+  and for local players an aim guide of four faint dots ahead of the cannon.
 
 The tally is the payoff moment and gets the polish budget. On a completed
 cash-out, chips fly from the kart into the pad while a counter above the kart
@@ -605,8 +604,8 @@ All settings are saved between sessions, see 10.2.
 - **Audio**: master, music and effects volume.
 - **Video**: window mode, vsync, render scale.
 - **Accessibility**: screen shake on or off, flash reduction, aim assist
-  strength from 0% to 100% of the default and never above it, per player.
-  Colour-blind roof markers are always on.
+  strength from 0% to 100% of the default and never above it, per player, and
+  the aim guide on or off. Colour-blind roof markers are always on.
 
 ## 9. Modes
 
@@ -819,7 +818,7 @@ deadline. The task-level plan with files and verification steps is in
 
 | Milestone | Scope                                                                                   | Done when                                                                 |
 |-----------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
-| M0 Grey-box  | Lucky Crossing blockout, camera, kart handling, drift, trails, turbo pads, walls     | The kart feels good on gamepad and keyboard, crossing takes about 3 s     |
+| M0 Grey-box  | Lucky Crossing blockout, camera, kart handling, drift, trails, turbo pads, walls     | The kart feels good on gamepad and keyboard, crossing takes about 3.6 s   |
 | M1 Combat    | Cannon, bullets, bounce and cancel, aim assist, death, respawn, spawn protection, crates, pits | Two local karts can fight, every death is attributable                 |
 | M2 Economy   | Chips, coin pads, mult, graze, Junction drain, Jackpot zones, death split, HUD, tally, timer, Last Call, results | A full 5 minute solo match plays end to end with a score |
 | M3 Items     | Power-up pads, first set power-ups, turret ownership, joker pick, hold, drop and destroy, floor drops, the joker catalogue | Items and jokers work in a solo match, scoring tests pass |

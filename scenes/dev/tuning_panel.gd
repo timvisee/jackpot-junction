@@ -1,41 +1,15 @@
 class_name TuningPanel
 extends CanvasLayer
-## F4 toggles live editing of the kart and cannon stats. The handling trial switches at the top
-## flip whole groups of numbers between the previous handling and a proposed change, so each idea
-## can be judged on its own while driving. Save writes the resources and the settings to disk.
+## F4 toggles live editing of the kart and cannon stats. A switch at the top flips a group of
+## numbers between two candidate handlings so the idea can be judged while driving. Save writes the
+## resources and the settings to disk.
 
 ## Each trial: a label and the properties it switches, as [old, new] pairs per resource.
 const TRIALS: Array[Dictionary] = [
 	{
-		"label": "1  Drift only on the handbrake, and it brakes",
-		"kart": {"handbrake_drift_only": [false, true], "handbrake_decel": [0.0, 12.0]},
-	},
-	{
-		"label": "2  Planted grip",
+		"label": "Planted grip (still under evaluation)",
 		"kart":
 		{"grip_normal": [8.0, 16.0], "grip_drift": [2.5, 3.5], "drift_yaw_multiplier": [1.6, 1.35]},
-	},
-	{
-		"label": "3  Calmer, smoother steering, turn in place",
-		"kart":
-		{
-			"yaw_rate_low_deg": [200.0, 160.0],
-			"yaw_rate_high_deg": [110.0, 85.0],
-			"steer_ramp_up": [0.0, 0.12],
-			"steer_ramp_down": [0.0, 0.08],
-			"stick_curve": [1.0, 1.5],
-			"turn_in_place_rate_deg": [0.0, 70.0],
-		},
-	},
-	{
-		"label": "4  Slower kart and bullets",
-		"kart": {"top_speed": [13.0, 10.5], "accel_time": [1.2, 1.5]},
-		"cannon": {"bullet_speed": [20.0, 17.0]},
-	},
-	{
-		"label": "5  Aim guide and stronger bullet bending",
-		"cannon": {"aim_assist_cone_deg": [12.0, 15.0], "aim_assist_turn_rate_deg": [30.0, 50.0]},
-		"settings": {"aim_guide": [false, true]},
 	},
 ]
 
@@ -78,7 +52,7 @@ func _rebuild() -> void:
 	_column = VBoxContainer.new()
 	_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(_column)
-	_add_title("Handling trial (F4)")
+	_add_title("Under evaluation (F4)")
 	for trial: Dictionary in TRIALS:
 		_column.add_child(_make_trial_row(trial))
 	_add_title("Kart")

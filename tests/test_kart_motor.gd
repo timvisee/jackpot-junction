@@ -67,6 +67,9 @@ func test_standing_still_turns_in_place_only_when_enabled() -> void:
 
 
 func test_steering_ramps_up_and_shapes_the_stick() -> void:
+	_stats.steer_ramp_up = 0.12
+	_stats.steer_ramp_down = 0.08
+	_stats.stick_curve = 1.5
 	_input.throttle = 1.0
 	_run(1.0)
 	_input.steer = 1.0
