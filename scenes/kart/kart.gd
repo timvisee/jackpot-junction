@@ -27,6 +27,8 @@ const BLINK_PERIOD := 0.25
 const HURT_BLINK_PERIOD := 0.12
 ## How far the steering has to be pushed to walk the joker cursor one card, GAME.md 3.7.
 const MENU_STEER_STEP := 0.6
+## Speed straight into a wall below which a scrape is not worth a sound.
+const CRASH_SPEED := 2.5
 const RING_RADIUS_EMPTY := 0.6
 const RING_RADIUS_FULL := 1.4
 
@@ -86,6 +88,8 @@ var effects: Array[KartEffect] = []
 var pickup_radius_bonus := 1.0
 var last_bump_slot := -1
 var last_bump_time := -INF
+## The engine and tire voices, only on karts somebody drives on this machine; null otherwise.
+var sound: KartSound
 
 var _body: Node3D
 var _tint: StandardMaterial3D
@@ -112,6 +116,8 @@ var _graze_cooldown_left := 0.0
 ## the moment one ends having earned it can be caught.
 var _was_drifting := false
 var _was_charged := false
+## Whether the kart was already up against a wall last tick, so leaning on one crashes once.
+var _touching_wall := false
 var _menu_steer := 0
 
 
@@ -166,10 +172,18 @@ func _physics_process(delta: float) -> void:
 	if puppet:
 		_step_puppet(delta)
 		return
-	if not alive or frozen:
+	if not alive:
+		_step_sound(delta)
+		return
+	if frozen:
+		# Waiting on the grid: nothing moves, but the engine is running and the throttle still
+		# revs it, GAME.md 8.4. Polling only fills the control state in; nothing acts on it.
+		input.poll(delta)
+		_step_sound(delta)
 		return
 	if falling:
 		_step_fall(delta)
+		_step_sound(delta)
 		return
 	if lifetime > 0.0:
 		lifetime -= delta
@@ -200,6 +214,7 @@ func _physics_process(delta: float) -> void:
 	_spin_wheels(delta)
 	_step_crown(delta)
 	_update_trails(delta, heading_before)
+	_step_sound(delta)
 
 
 ## Whether the kart is in play: alive, on the floor and with somebody at the wheel. Zones,
@@ -230,11 +245,33 @@ func coast() -> void:
 	menu_open = false
 
 
+## Gives the kart its own engine and tires, or takes them away again, GAME.md 8.4. Only karts
+## somebody is driving on this machine get them; everything else is heard through the one-shots
+## the [Audio] autoload plays for the whole room.
+func enable_sound(on: bool) -> void:
+	if on == (sound != null):
+		return
+	if not on:
+		sound.queue_free()
+		sound = null
+		return
+	sound = KartSound.new()
+	sound.name = "Sound"
+	sound.setup(self, load("res://data/kart/sound.tres"))
+	add_child(sound)
+
+
+func _step_sound(delta: float) -> void:
+	if sound != null:
+		sound.step(delta)
+
+
 ## Turns the kart into a client-side puppet: no physics, no collisions, visuals from snapshots.
 func make_puppet() -> void:
 	puppet = true
 	collision_layer = 0
 	collision_mask = 0
+	enable_sound(false)
 	remove_from_group(Bullet.TARGET_GROUP)
 
 
@@ -880,6 +917,7 @@ func _step_fall(delta: float) -> void:
 
 func _resolve_collisions() -> void:
 	var pre := motor.velocity
+	var touching_wall := false
 	for i: int in get_slide_collision_count():
 		var collision := get_slide_collision(i)
 		var normal := collision.get_normal()
@@ -901,9 +939,20 @@ func _resolve_collisions() -> void:
 			turret.destroy()
 		else:
 			motor.velocity = Vector3(velocity.x, 0.0, velocity.z)
+			# The speed the kart wanted to carry into the wall: move_and_slide has already
+			# taken it off the body, but the motor still holds what the driver asked for.
+			var into := -pre.dot(normal)
 			if not motor.apply_wall_glance(normal, pre):
-				motor.apply_wall_hit(-pre.dot(normal))
+				motor.apply_wall_hit(into)
+				if not touching_wall and not _touching_wall and into > CRASH_SPEED:
+					# Squarely into a wall rather than a graze along one, and the first frame
+					# of it: holding the throttle against a wall asks for this every tick.
+					Events.kart_crashed.emit(
+						slot, into > stats.wall_hit_threshold * stats.top_speed
+					)
+				touching_wall = true
 			velocity = motor.velocity
+	_touching_wall = touching_wall
 
 
 func _update_trails(delta: float, heading_before: float) -> void:

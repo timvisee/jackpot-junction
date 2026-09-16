@@ -122,6 +122,7 @@ func start(inputs: Array[KartInput], seed: int = 0, colors: Array[int] = []) -> 
 		_spawn_kart(slot, arena.spawn_points[i % arena.spawn_points.size()])
 		karts.append(slot.kart)
 	camera_rig.targets = karts
+	_refresh_listener()
 	if not Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
 		Input.joy_connection_changed.connect(_on_joy_connection_changed)
 	if with_hud:
@@ -187,6 +188,7 @@ func _join_with_input(input: KartInput) -> PlayerSlot:
 	slot.kart.protection_left = rules.spawn_protection
 	slot.kart.collision_layer = Layers.PROTECTED
 	camera_rig.targets.append(slot.kart)
+	_refresh_listener()
 	if hud != null:
 		hud.add_block(slot)
 	Events.player_joined.emit(slot.index)
@@ -200,7 +202,9 @@ func leave_human(slot: PlayerSlot) -> void:
 	slot.input = BotInput.new()
 	slot.kart.input = slot.input
 	slot.kart.rebuild_stats()
+	slot.kart.enable_sound(false)
 	_attach_brain(slot)
+	_refresh_listener()
 	if hud != null:
 		hud.remove_block(slot)
 	Events.player_left.emit(slot.index)
@@ -226,6 +230,8 @@ func _make_human(slot: PlayerSlot, input: KartInput) -> void:
 	slot.kart.input = slot.input
 	slot.bot_trait = null
 	slot.kart.rebuild_stats()
+	slot.kart.enable_sound(slot.is_local_human())
+	_refresh_listener()
 	if hud != null:
 		hud.add_block(slot)
 	Events.player_joined.emit(slot.index)
@@ -368,6 +374,17 @@ func _set_frozen(frozen: bool) -> void:
 		slot.kart.frozen = frozen
 
 
+## Points the ears at whoever is playing on this machine, GAME.md 8.4.
+func _refresh_listener() -> void:
+	if camera_rig == null:
+		return
+	var here: Array[Node3D] = []
+	for slot: PlayerSlot in slots:
+		if slot.is_local_human() and slot.kart != null:
+			here.append(slot.kart)
+	camera_rig.listener_targets = here
+
+
 func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 	var kart: Kart = KART_SCENE.instantiate()
 	kart.name = "Kart%d" % slot.index
@@ -388,6 +405,7 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 	kart.turbo_taken.connect(func(_direction: Vector3) -> void: slot.stats.add(&"turbo_pads"))
 	kart.mult_changed.connect(_on_stat_mult.bind(slot))
 	slot.kart = kart
+	kart.enable_sound(slot.is_local_human())
 	if slot.input is BotInput:
 		_attach_brain(slot)
 
@@ -397,7 +415,11 @@ func _physics_process(delta: float) -> void:
 		return
 	match state:
 		State.COUNTDOWN:
+			var before := ceili(countdown_left)
 			countdown_left -= delta
+			var now := ceili(countdown_left)
+			if now < before and now > 0:
+				Events.countdown_tick.emit(now)
 			if countdown_left <= 0.0:
 				_begin_play()
 		State.PLAYING, State.LAST_CALL:

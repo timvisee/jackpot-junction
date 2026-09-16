@@ -59,7 +59,7 @@ func _process(_delta: float) -> void:
 	if motor.boosting():
 		state += " boost %.2f" % motor.boost_time_left
 	var template := "fps %d\nspeed %.1f m/s (%.0f%%)\nforward %.1f\n%s\nheading %.0f deg\n"
-	template += "last crossing %.2f s\n%s\n%s\n\nF3 overlay  F4 tuning"
+	template += "last crossing %.2f s\n%s\n%s\n%s\n\nF3 overlay  F4 tuning"
 	_label.text = (
 		template
 		% [
@@ -72,6 +72,7 @@ func _process(_delta: float) -> void:
 			_last_crossing,
 			_intensity_text(),
 			Audio.music_debug(),
+			kart.sound.debug_text() if kart.sound != null else "engine -",
 		]
 	)
 

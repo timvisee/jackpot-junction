@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+"""Rebuilds assets/audio/kart/ from the Cascadia Games Racing Sound Pack.
+
+The pack ships stereo OGG files of about a second each. The game needs them mono, because the
+kart voices are positional, and the two engine and tire loops need a loop point: the pack's
+loops do not join to themselves, so the tail is folded under the head the same way the music
+in assets/audio/music is. One file is reversed to make the swell that leads into a nitro burn.
+
+Not part of `make check`: run it once when the pack changes. Needs ffmpeg, python3 and numpy.
+
+    tools/make_kart_audio ~/tmp/sounds-kart/RacingSoundPack
+"""
+import os
+import subprocess
+import sys
+
+import numpy as np
+
+SR = 44100
+PEAK = 0.9
+OUT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                       "assets", "audio", "kart")
+
+# out name -> (source in the pack, seam fold in ms or 0 for a one-shot, reversed)
+FILES = {
+    # The engine: one loop stretched over the whole rev range by the sound component.
+    "engine_loop.ogg": ("Kart/kart1_loop.ogg", 60, False),
+    # The tires: a bright squeal for a drift and a duller one for a slide and for locked wheels.
+    "tire_squeal.ogg": ("Misc/screech1.ogg", 30, False),
+    "tire_scrub.ogg": ("Misc/screech2.ogg", 30, False),
+    # One-shots.
+    "spin_out.ogg": ("Misc/spin_out.ogg", 0, False),
+    "turbo_pass.ogg": ("Kart/kart4_doppler.ogg", 0, False),
+    "nitro_swell.ogg": ("Misc/crash_end.ogg", 0, True),
+    "crash_1.ogg": ("Misc/crash1.ogg", 0, False),
+    "crash_2.ogg": ("Misc/crash2.ogg", 0, False),
+    "crash_3.ogg": ("Misc/crash3.ogg", 0, False),
+    "crash_heavy.ogg": ("Misc/crash_end.ogg", 0, False),
+    "start_tone_low.ogg": ("Misc/start_tone1a.ogg", 0, False),
+    "start_tone_high.ogg": ("Misc/start_tone1b.ogg", 0, False),
+}
+
+
+def decode(path):
+    done = subprocess.run(
+        ["ffmpeg", "-v", "error", "-i", path, "-f", "f32le", "-ac", "1", "-ar", str(SR), "-"],
+        capture_output=True, check=True,
+    )
+    return np.frombuffer(done.stdout, dtype=np.float32).astype(np.float64)
+
+
+def encode(path, samples):
+    raw = (np.clip(samples, -1.0, 1.0) * 32767).astype("<i2").tobytes()
+    subprocess.run(
+        ["ffmpeg", "-v", "error", "-y", "-f", "s16le", "-ar", str(SR), "-ac", "1", "-i", "-",
+         "-c:a", "libvorbis", "-q:a", "5", path],
+        input=raw, check=True,
+    )
+
+
+def fold(samples, fade_ms):
+    """Folds the tail under the head over a crossfade, so the sample joins to itself."""
+    k = int(SR * fade_ms / 1000)
+    if len(samples) < 4 * k:
+        return samples
+    ramp = np.linspace(0.0, 1.0, k)
+    head, body, tail = samples[:k], samples[k:-k], samples[-k:]
+    return np.concatenate([tail * (1.0 - ramp) + head * ramp, body])
+
+
+def main(pack):
+    os.makedirs(OUT_DIR, exist_ok=True)
+    print(f"{'file':<22}{'seconds':>9}{'rms':>8}{'was rms':>9}{'dB shift':>10}")
+    for name, (source, fade_ms, backwards) in sorted(FILES.items()):
+        path = os.path.join(pack, source)
+        if not os.path.exists(path):
+            sys.exit(f"missing {path}")
+        samples = decode(path)
+        if backwards:
+            samples = samples[::-1].copy()
+        if fade_ms:
+            samples = fold(samples, fade_ms)
+        before = float(np.sqrt((samples**2).mean()))
+        peak = float(np.abs(samples).max())
+        samples = samples * (PEAK / peak) if peak > 0 else samples
+        after = float(np.sqrt((samples**2).mean()))
+        encode(os.path.join(OUT_DIR, name), samples)
+        # What the levels in KartSoundStats and Audio.LIBRARY are relative to: the shift from
+        # the loudness the file had in the pack to the loudness it has here.
+        print(f"{name:<22}{len(samples) / SR:9.2f}{after:8.3f}{before:9.3f}"
+              f"{20 * np.log10(after / max(before, 1e-9)):+10.1f}")
+    print(f"\nwrote {len(FILES)} files to {OUT_DIR}")
+
+
+if __name__ == "__main__":
+    main(sys.argv[1] if len(sys.argv) > 1 else os.path.expanduser("~/tmp/sounds-kart/RacingSoundPack"))

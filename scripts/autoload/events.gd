@@ -23,9 +23,13 @@ signal item_used(slot: int, item: StringName)
 signal joker_offered(slot: int)
 signal joker_taken(slot: int, joker: StringName)
 signal match_state_changed(state: int)
+## One tick of the starting clock, counting down to the flag.
+signal countdown_tick(count: int)
 signal bullet_fired(slot: int)
 signal bullet_bounced
 signal kart_bumped(slot: int)
+## A kart into a wall. [code]hard[/code] separates a proper thump from a scrape along it.
+signal kart_crashed(slot: int, hard: bool)
 signal turbo_taken(slot: int)
 signal nitro_started(slot: int)
 signal nitro_gained(slot: int)

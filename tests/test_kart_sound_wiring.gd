@@ -1,0 +1,100 @@
+extends GdUnitTestSuite
+## The sound component reaches the kart it is attached to: a local player's kart gets one, a bot's
+## does not, and the engine follows the driving, GAME.md 8.4.
+
+const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const RULES: MatchRules = preload("res://data/match/default.tres")
+
+var _runner: GdUnitSceneRunner
+
+
+func _start_match(inputs: Array[KartInput]) -> Match:
+	var rules: MatchRules = RULES.duplicate()
+	rules.countdown = 0.1
+	rules.duration = 60.0
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	match_node.start(inputs, 31)
+	return match_node
+
+
+func test_only_a_local_player_kart_carries_the_voices() -> void:
+	var match_node := _start_match([PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()])
+	await _runner.simulate_frames(12, 17)
+	assert_object(match_node.kart_of(0).sound).is_not_null()
+	assert_object(match_node.kart_of(1).sound).is_null()
+
+
+func test_the_ears_follow_the_player_rather_than_the_camera() -> void:
+	var match_node := _start_match([PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()])
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	kart.global_position = Vector3(12.0, 0.0, -6.0)
+	await _runner.simulate_frames(4, 17)
+	var ears := match_node.camera_rig.listener.global_position
+	assert_float(ears.x).is_equal_approx(kart.global_position.x, 0.5)
+	assert_float(ears.z).is_equal_approx(kart.global_position.z, 0.5)
+	# Far from the camera, which frames the whole room from well outside it.
+	assert_float(ears.distance_to(match_node.camera_rig.camera.global_position)).is_greater(10.0)
+
+
+func test_the_engine_revs_with_the_throttle_and_settles_when_it_is_let_go() -> void:
+	# A bare input so the test holds the pedals itself, with the voices attached by hand: a
+	# PlayerInput would overwrite them from the input map on every poll.
+	var input := KartInput.new()
+	var match_node := _start_match([input, BotInput.new()])
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	kart.enable_sound(true)
+	await _runner.simulate_frames(2, 17)
+	var sound := kart.sound
+	var idling := sound.rev.rev
+	input.throttle = 1.0
+	await _runner.simulate_frames(40, 17)
+	var pulling := sound.rev.rev
+	var loud := sound.rev.volume_db()
+	assert_float(pulling).is_greater(idling + 0.3)
+	assert_float(sound.rev.load).is_greater(0.8)
+	input.throttle = 0.0
+	input.brake = 1.0
+	await _runner.simulate_frames(20, 17)
+	# Off the pedal the engine backs right off, even though the kart is still carrying speed.
+	assert_float(sound.rev.load).is_less(0.2)
+	assert_float(sound.rev.volume_db()).is_less(loud - 3.0)
+
+
+func test_driving_into_a_wall_crashes_once_rather_than_every_tick() -> void:
+	var input := KartInput.new()
+	var match_node := _start_match([input, BotInput.new()])
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	# An array, because a lambda captures a plain local by value and would count into its own copy.
+	var crashes: Array[int] = [0]
+	Events.kart_crashed.connect(func(_slot: int, _hard: bool) -> void: crashes[0] += 1)
+	var wall := match_node.arena.bounds()
+	kart.global_position = Vector3(wall.position.x + wall.size.x - 9.0, 0.0, 0.0)
+	kart.face(Vector3.RIGHT)
+	input.throttle = 1.0
+	# Long enough to get up to speed and bury the nose in it.
+	await _runner.simulate_frames(120, 17)
+	var on_impact: int = crashes[0]
+	assert_int(on_impact).is_greater(0)
+	# Still pinned against it at full throttle: it must not keep crashing.
+	await _runner.simulate_frames(60, 17)
+	assert_int(crashes[0]).is_equal(on_impact)
+
+
+func test_a_dead_kart_goes_quiet_and_comes_back_on_respawn() -> void:
+	var match_node := _start_match([PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()])
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	assert_float(kart.sound._alive_fade).is_equal_approx(1.0, 0.01)
+	kart.die(&"test", -1)
+	await _runner.simulate_frames(40, 17)
+	assert_float(kart.sound._alive_fade).is_equal(0.0)
+	kart.respawn(Vector3.ZERO, Vector3.FORWARD, 0.0)
+	await _runner.simulate_frames(40, 17)
+	assert_float(kart.sound._alive_fade).is_equal_approx(1.0, 0.01)

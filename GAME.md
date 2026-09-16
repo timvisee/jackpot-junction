@@ -897,8 +897,49 @@ every kart, so everyone sees when an opponent cashes out.
   completion, fanfare on big pots.
 - **Jackpot**: a soft tick per accrued chip when nearby, and a bell heard by
   everyone when the pile is full.
-- **Karts**: engine hum pitched by speed, tire squeal on drift, whoosh on
-  turbo and Boost.
+- **Karts**: every kart somebody drives on this machine carries its own engine
+  and tires, positional in the room. Everything else a kart does is a one-shot
+  the whole room hears. Sounds are from the Cascadia Games Racing Sound Pack.
+- **Rev counter**: the engine is not pitched off road speed. One engine loop is
+  stretched across the whole range by a needle that the road pulls on, running
+  from an idle at 0.13 to the limiter at 1 and on to 1.30 when the kart is shoved
+  past its top speed. There is no gearbox: one continuous pull. The needle
+  climbs at 7 a second and falls at 4.5, so it leads the kart rather than
+  tracking it.
+  - Off the line the clutch slips: below 20% of top speed the throttle revs the
+    engine against a kart that has not moved yet, up to 0.90, and the kart then
+    catches up to it. This is what pulling away sounds like, and it is why the
+    engine revs on the grid during the countdown while the kart is held still.
+  - Driven wheels slipping in a drift or on the handbrake add 0.16 at full
+    throttle, so a drift revs higher than the road alone would ask for.
+  - Reverse is one short gear of its own: it whines up to the limiter at the
+    reverse top speed and stays there.
+  - Nitro and turbo pads carry the needle past the limiter at 30% of the speed
+    over the top, capped at 1.30, so a burn screams rather than simply repeats.
+  - Spun out on oil the driver is off the pedal and it drops to a fast idle.
+  - The loop plays between 0.55 and 2.30 times its recorded speed. Off the
+    throttle the engine drops 6.5 dB without dropping its revs, following the
+    pedals at 9 a second down and 5 back up.
+- **Tires**: three squeals, one for each way of losing grip. A bright one
+  for a controlled drift, rising with the slip angle; a duller one for sliding
+  sideways with nobody asking, from 13 to 43 degrees of slip, and for a spin-out;
+  and that same duller one pitched well down for wheels locked under the
+  handbrake or under hard braking from speed. All three are silent below 0.8 m/s
+  and at full voice by 3, come in at 14 a second and die away at 7, and rise in
+  pitch with speed. A chirp of wheelspin fires when the throttle goes down at a
+  standstill.
+- **One-shots**: a rushing pass on a turbo pad; a swell that runs backwards into
+  its own kick when nitro lights, played from 0.18 s before the end of the file
+  so the kick lands just after the button; the pack's spin-out on oil; its
+  crashes for a kart into a wall, the heavier one on top of a square hit; and its
+  start tones for the countdown, one a second, with the higher one on the flag.
+- **Where the ears are**: the camera frames the whole room from well outside it,
+  so a listener up there would put every kart at the same distance. The ears sit
+  over the karts being driven here instead, two and a half metres up, facing the
+  way the camera does, so left on screen is left in the mix. The engine goes to
+  its own bus under SFX so it can be balanced against the one-shots.
+- The F3 overlay shows the needle, what it does to the loop, the load and the
+  three tire levels.
 - **Combat**: soft pop on fire, ricochet tick on bounce, thud and a short
   deflating sound on death.
 
@@ -1153,7 +1194,7 @@ res://
 ├── data/              Resource files: jokers, powerups, cannons, coins, ai_traits
 ├── scenes/
 │   ├── arena/         one scene per map plus shared arena elements
-│   ├── kart/          kart.tscn, motor, cannon, pot, holders, trails
+│   ├── kart/          kart.tscn, motor, cannon, pot, holders, trails, sound
 │   ├── bullet/
 │   ├── pickups/       chip, gold chip, mult die, item box, floor joker, floor item
 │   ├── zones/         junction pad, jackpot zone
