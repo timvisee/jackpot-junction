@@ -671,11 +671,22 @@ every kart, so everyone sees when an opponent cashes out.
   that all run in step and crossfade over 1 s at the same position. The fade
   is linear in amplitude so the level never dips. The files are cut to the
   track's 88 s loop with the decay tail folded under the start, so the music
-  loops without a gap. Intensity 1 plays by default and in the menus. A kill
-  switches to intensity 2 for 12 s, extended by further kills. When every
-  human player is dead the music drops back to intensity 1 at once. Last Call
-  switches to the full mix and keeps it until the results. The F3 overlay
-  shows the layer, both players' levels and positions, and the mute state.
+  loops without a gap. Intensity 1 plays by default and in the menus.
+- **Excitement**: a single meter from 0 to 1 drives the music, and later the
+  arena lights. Heat comes from things that just happened and fades over a few
+  seconds: a kill 0.30, a wound 0.14, a bomb 0.14, a cash-out 0.10, a Royal
+  Flush 0.22, a graze 0.06, all decaying at 0.30 a second. Pressure comes from
+  how the match stands and does not fade: up to 0.25 for the biggest unbanked
+  pot, up to 0.25 for how close the nearest two karts are within 10 m, 0.20
+  while anyone is cashing out and 0.12 for a nearly full Jackpot. The two add
+  up, capped at 1, and the reported value climbs at 3 a second and falls at 1.2. The music
+  steps up to intensity 2 above 0.50 and only falls back to intensity 1 below
+  0.30, so one kill on its own no longer swings the soundtrack: it takes a
+  kill on top of a duel, or a fat pot, or a flurry. When every human player is
+  dead the meter drops to zero and the music calms at once. Last Call pins the
+  meter at 1 and switches to the full mix until the results. The F3 overlay
+  shows the meter with its two parts, the layer, both players' levels and
+  positions, and the mute state.
 - **Chips**: clink on pickup, pitch rising with rapid pickups.
 - **Mult**: dice rattle on gain, a soft ping on graze.
 - **Cash-out**: slot-machine ticks while draining, a jackpot chime on

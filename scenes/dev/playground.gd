@@ -84,6 +84,7 @@ func _ready() -> void:
 		bomb.global_position = player.global_position + Vector3(3.0, 0.0, -1.5)
 	var overlay := DebugOverlay.new()
 	overlay.kart = player
+	overlay.match_node = match_node
 	overlay.arena_width = match_node.arena.world_size().x
 	add_child(overlay)
 	var tuning := TuningPanel.new()

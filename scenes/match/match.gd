@@ -31,6 +31,8 @@ var arena: Arena
 var camera_rig: CameraRig
 var bullets: BulletSystem
 var hud: MatchHud
+## How hot the match feels, read by the music, the arena lights and the camera.
+var intensity: MatchIntensity
 var nav: ArenaNav
 var countdown_left := 0.0
 var time_left := 0.0
@@ -97,6 +99,7 @@ func start(inputs: Array[KartInput], seed: int = 0, colors: Array[int] = []) -> 
 	bullets = BulletSystem.new()
 	bullets.name = "Bullets"
 	add_child(bullets)
+	_add_intensity()
 	camera_rig = CAMERA_SCENE.instantiate()
 	camera_rig.name = "CameraRig"
 	add_child(camera_rig)
@@ -242,6 +245,15 @@ func _on_joy_connection_changed(device: int, connected: bool) -> void:
 			leave_human(slot)
 
 
+## The excitement meter, on the host and on a client alike: both see the same events and the
+## same snapshot, so the music and the lights wind up together.
+func _add_intensity() -> void:
+	intensity = MatchIntensity.new()
+	intensity.name = "Intensity"
+	intensity.match_node = self
+	add_child(intensity)
+
+
 func kart_of(slot_index: int) -> Kart:
 	return slots[slot_index].kart
 
@@ -266,6 +278,7 @@ func start_puppet() -> void:
 	bullets.name = "Bullets"
 	bullets.puppet = true
 	add_child(bullets)
+	_add_intensity()
 	camera_rig = CAMERA_SCENE.instantiate()
 	camera_rig.name = "CameraRig"
 	add_child(camera_rig)

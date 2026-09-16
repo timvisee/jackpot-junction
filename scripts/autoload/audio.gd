@@ -1,11 +1,11 @@
 extends Node
 ## Sound and music, GAME.md 8.4. Autoloaded as `Audio`. Listens to gameplay events and plays
 ## short effects from a pooled set of players on the SFX bus. The music is one track in three
-## intensities that stay in step: calm by default, tense for a while after a kill, and the full
-## mix from Last Call to the end. Switches crossfade over one second with the two players
-## summing to a constant level, so nothing dips. The files are cut to the track's 88 s loop with
-## the decay tail folded under the start, so they loop without a gap. Every file is logged in
-## THIRD_PARTY.md.
+## intensities that stay in step: calm by default, tense once the match heats up, see
+## [MatchIntensity], and the full mix from Last Call to the end. Switches crossfade over one
+## second with the two players summing to a constant level, so nothing dips. The files are cut to
+## the track's 88 s loop with the decay tail folded under the start, so they loop without a gap.
+## Every file is logged in THIRD_PARTY.md.
 
 const BUS_MASTER := &"Master"
 const BUS_MUSIC := &"Music"
@@ -20,6 +20,12 @@ const LAYER_FILES: Dictionary[StringName, String] = {
 	LAYER_CALM: "intensity_1.ogg", LAYER_TENSE: "intensity_2.ogg", LAYER_PEAK: "main.ogg"
 }
 const CROSSFADE_SECONDS := 1.0
+## Intensity at which the music steps up, and the lower mark it has to fall back through
+## before it calms down again, so a value hovering around the line does not flap.
+const TENSE_ON := 0.5
+const TENSE_OFF := 0.3
+## Nothing has refreshed the intensity for this long: no match is running, so wind down.
+const INTENSITY_TIMEOUT := 0.5
 const BANK_TICK_INTERVAL := 0.07
 
 ## Effect name to the files it picks from at random.
@@ -67,15 +73,15 @@ const LIBRARY: Dictionary[StringName, Array] = {
 var music_enabled := true
 ## The intensity playing or fading in right now.
 var current_layer := LAYER_CALM
-## Seconds a kill keeps the music tense; another kill restarts the clock.
-var tense_seconds := 12.0
+## The match's excitement, 0 to 1, pushed in every tick by [MatchIntensity].
+var intensity := 0.0
 
 var _streams: Dictionary[String, AudioStream] = {}
 var _pool: Array[AudioStreamPlayer] = []
 var _music_players: Array[AudioStreamPlayer] = []
 var _active_player := 0
 var _music_tween: Tween
-var _tense_left := 0.0
+var _intensity_age := 0.0
 var _last_call := false
 var _bank_tick_left := 0.0
 var _bank_pitch := 1.0
@@ -120,7 +126,7 @@ func is_music_muted() -> bool:
 
 ## One line for the debug overlay: the layer, both players' levels and positions, and the mute.
 func music_debug() -> String:
-	var parts: PackedStringArray = ["music %s" % current_layer]
+	var parts: PackedStringArray = ["music %s %.2f" % [current_layer, intensity]]
 	for i: int in _music_players.size():
 		var player := _music_players[i]
 		var file := "-"
@@ -146,10 +152,10 @@ func music_debug() -> String:
 
 func _process(delta: float) -> void:
 	_bank_tick_left = maxf(_bank_tick_left - delta, 0.0)
-	if _tense_left > 0.0:
-		_tense_left -= delta
-		if _tense_left <= 0.0 and not _last_call and current_layer == LAYER_TENSE:
-			set_layer(LAYER_CALM)
+	_intensity_age += delta
+	if _intensity_age > INTENSITY_TIMEOUT and intensity > 0.0:
+		# The match is over or gone: let the music settle.
+		set_intensity(maxf(intensity - delta, 0.0))
 
 
 ## Plays a one-shot effect by library name, with a little random pitch.
@@ -205,6 +211,10 @@ func set_layer(layer: StringName) -> void:
 			+ AudioServer.get_time_to_next_mix()
 		)
 		position = fmod(position, maxf(to.stream.get_length(), 0.001))
+	if not from.playing:
+		# Nothing to fade out, in the menus or with the music off: hand the level straight over,
+		# so the two players always sum to one whatever happened before.
+		from.volume_linear = 0.0
 	to.volume_linear = 0.0 if from.playing else 1.0
 	if music_enabled and (from.playing or not Game.is_headless()):
 		to.play(position)
@@ -216,16 +226,22 @@ func set_layer(layer: StringName) -> void:
 	_music_tween.chain().tween_callback(from.stop)
 
 
-## A kill makes the music tense for a while, unless Last Call already has the full mix playing.
-func mark_excitement() -> void:
-	_tense_left = tense_seconds
-	if not _last_call:
+## The match's excitement, pushed in every tick. The music steps up past [constant TENSE_ON]
+## and only calms down again below [constant TENSE_OFF]. Last Call outranks both.
+func set_intensity(value: float) -> void:
+	intensity = clampf(value, 0.0, 1.0)
+	_intensity_age = 0.0
+	if _last_call:
+		return
+	if intensity >= TENSE_ON:
 		set_layer(LAYER_TENSE)
+	elif intensity <= TENSE_OFF:
+		set_layer(LAYER_CALM)
 
 
-## Everyone who plays on this machine is dead: back to calm, even mid-excitement.
+## Everyone who plays on this machine is dead: back to calm, whatever just happened.
 func mark_all_players_down() -> void:
-	_tense_left = 0.0
+	intensity = 0.0
 	if not _last_call:
 		set_layer(LAYER_CALM)
 
@@ -238,20 +254,6 @@ func _music_stream(layer: StringName) -> AudioStream:
 	if stream is AudioStreamOggVorbis:
 		(stream as AudioStreamOggVorbis).loop = true
 	return stream
-
-
-## True when every human kart in the running match is dead.
-func _all_humans_dead() -> bool:
-	var match_node := get_tree().get_first_node_in_group(&"match") as Match
-	if match_node == null:
-		return false
-	var humans := 0
-	for slot: PlayerSlot in match_node.slots:
-		if slot.is_human():
-			humans += 1
-			if slot.kart != null and slot.kart.alive:
-				return false
-	return humans > 0
 
 
 func _stream(file: String) -> AudioStream:
@@ -311,12 +313,8 @@ func _connect_events() -> void:
 	Events.match_state_changed.connect(_on_state_changed)
 
 
-func _on_kart_killed(_victim: int, killer: int, _cause: StringName) -> void:
+func _on_kart_killed(_victim: int, _killer: int, _cause: StringName) -> void:
 	play_sfx(&"death")
-	if _all_humans_dead():
-		mark_all_players_down()
-	elif killer >= 0:
-		mark_excitement()
 
 
 func _on_mult_gained(_slot: int, _amount: float, reason: StringName) -> void:
@@ -377,5 +375,5 @@ func _on_state_changed(state: int) -> void:
 		Match.State.RESULTS:
 			play_sfx(&"results", -2.0, 0.0)
 			_last_call = false
-			_tense_left = 0.0
+			intensity = 0.0
 			set_layer(LAYER_CALM)

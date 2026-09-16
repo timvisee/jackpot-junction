@@ -4,15 +4,14 @@ extends GdUnitTestSuite
 
 
 func before_test() -> void:
-	Audio.tense_seconds = 0.2
-	Audio.set_layer(Audio.LAYER_CALM)
 	Audio._last_call = false
-	Audio._tense_left = 0.0
+	Audio.set_intensity(0.0)
+	Audio.set_layer(Audio.LAYER_CALM)
 
 
 func after_test() -> void:
-	Audio.tense_seconds = 12.0
 	Audio._last_call = false
+	Audio.set_intensity(0.0)
 	Audio.set_layer(Audio.LAYER_CALM)
 
 
@@ -40,17 +39,25 @@ func test_a_crossfade_keeps_the_summed_level_constant() -> void:
 	assert_str(Audio.music_debug()).contains("music tense")
 
 
-func test_a_kill_makes_the_music_tense_then_it_calms_down() -> void:
-	Audio.mark_excitement()
+## The layer follows the excitement meter, with a gap between the two marks so a value sitting on
+## the line does not flap between layers.
+func test_the_music_steps_up_with_the_intensity_and_holds_until_it_drops_well_back() -> void:
+	Audio.set_intensity(0.45)
+	assert_str(Audio.current_layer).is_equal("calm")
+	Audio.set_intensity(0.55)
 	assert_str(Audio.current_layer).is_equal("tense")
-	await await_millis(450)
+	Audio.set_intensity(0.4)
+	assert_str(Audio.current_layer).is_equal("tense")
+	Audio.set_intensity(0.25)
 	assert_str(Audio.current_layer).is_equal("calm")
 
 
 func test_last_call_brings_the_full_mix_until_the_results() -> void:
 	Audio._on_state_changed(Match.State.LAST_CALL)
 	assert_str(Audio.current_layer).is_equal("peak")
-	Audio.mark_excitement()
+	Audio.set_intensity(1.0)
+	assert_str(Audio.current_layer).is_equal("peak")
+	Audio.set_intensity(0.0)
 	assert_str(Audio.current_layer).is_equal("peak")
 	Audio.mark_all_players_down()
 	assert_str(Audio.current_layer).is_equal("peak")
@@ -59,7 +66,8 @@ func test_last_call_brings_the_full_mix_until_the_results() -> void:
 
 
 func test_everyone_down_calms_the_music_at_once() -> void:
-	Audio.mark_excitement()
+	Audio.set_intensity(0.9)
+	assert_str(Audio.current_layer).is_equal("tense")
 	Audio.mark_all_players_down()
 	assert_str(Audio.current_layer).is_equal("calm")
 

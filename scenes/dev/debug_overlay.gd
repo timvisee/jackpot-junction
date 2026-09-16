@@ -2,7 +2,8 @@ class_name DebugOverlay
 extends CanvasLayer
 ## F3 toggles a readout of one kart: speed, drift, boost, heading, fps, how long the last
 ## crossing of the arena took, measured between two lines 3 m from each side wall, and the
-## music layers. Given a match instead of a kart it follows the first local human.
+## music layers and the excitement meter. Given a match instead of a kart it follows the first
+## local human.
 
 const CROSSING_INSET := 3.0
 
@@ -43,7 +44,8 @@ func _process(_delta: float) -> void:
 	if kart == null or not is_instance_valid(kart):
 		if visible:
 			_label.text = (
-				"fps %d\n%s\n\nF3 overlay" % [Engine.get_frames_per_second(), Audio.music_debug()]
+				"fps %d\n%s\n%s\n\nF3 overlay"
+				% [Engine.get_frames_per_second(), _intensity_text(), Audio.music_debug()]
 			)
 		return
 	_track_crossing()
@@ -57,7 +59,7 @@ func _process(_delta: float) -> void:
 	if motor.boosting():
 		state += " boost %.2f" % motor.boost_time_left
 	var template := "fps %d\nspeed %.1f m/s (%.0f%%)\nforward %.1f\n%s\nheading %.0f deg\n"
-	template += "last crossing %.2f s\n%s\n\nF3 overlay  F4 tuning"
+	template += "last crossing %.2f s\n%s\n%s\n\nF3 overlay  F4 tuning"
 	_label.text = (
 		template
 		% [
@@ -68,9 +70,16 @@ func _process(_delta: float) -> void:
 			state,
 			rad_to_deg(motor.heading),
 			_last_crossing,
+			_intensity_text(),
 			Audio.music_debug(),
 		]
 	)
+
+
+func _intensity_text() -> String:
+	if match_node == null or match_node.intensity == null:
+		return "intensity -"
+	return match_node.intensity.debug_text()
 
 
 func _find_kart() -> void:
