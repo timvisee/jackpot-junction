@@ -25,6 +25,31 @@ func _park(kart: Kart, pad: FlushPad) -> void:
 	await _runner.simulate_frames(3, 17)
 
 
+## GAME.md 3.9: a pad pays its holder while they hold it, and pays nothing to a holder who is
+## not in play or once it has been taken back off them.
+func test_a_held_pad_trickles_coins_into_its_holders_pot() -> void:
+	var match_node := _start_match()
+	match_node.rules.flush_pad_income = 4.0
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	var pads := match_node.arena.flush_pads
+	kart.pot.reset()
+	await _park(kart, pads[0])
+	assert_int(pads[0].owner_slot).is_equal(0)
+	# One pad held: coins arrive, in whole coins, without anyone driving anywhere.
+	kart.global_position = match_node.arena.spawn_points[0]
+	await _runner.simulate_frames(60, 17)
+	var one_pad := kart.pot.coins
+	assert_int(one_pad).is_greater(0)
+	# Unheld pads pay nobody, and a dead holder earns nothing while they are down.
+	var idle := match_node.kart_of(1).pot.coins
+	assert_int(idle).is_equal(0)
+	kart.die(&"test", -1)
+	await _runner.simulate_frames(30, 17)
+	assert_int(kart.pot.coins).is_equal(0)
+	assert_int(pads[0].owner_slot).is_equal(0)
+
+
 func test_driving_over_pads_claims_and_steals_them_and_all_four_score_a_flush() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)

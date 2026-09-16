@@ -1,9 +1,11 @@
 class_name FlushPad
 extends Area3D
 ## One of the four Royal Flush pads, GAME.md 3.9. A kart driving over it paints the frame in its
-## colour and takes the pad from whoever held it. The match watches the claims: holding all four
-## at once scores the flush, after which every pad clears and sits disabled for a while. Each pad
-## carries a card letter so players can talk about them.
+## colour and takes the pad from whoever held it. A held pad pays its holder a slow trickle of
+## coins for as long as they keep it, so taking one is worth something on its own; the match
+## watches the claims as well, and holding all four at once scores the flush, after which every
+## pad clears and sits disabled for a while. Each pad carries a card letter so players can talk
+## about them.
 
 signal claimed(pad: FlushPad, kart: Kart)
 
@@ -22,6 +24,8 @@ var owner_color := NEUTRAL
 ## Seconds the pad still ignores karts after a flush.
 var disabled_left := 0.0
 var puppet := false
+## Coins earned but not yet handed over, so a rate below a coin a second still pays out.
+var change := 0.0
 
 var _frame_material: StandardMaterial3D
 var _label: Label3D
@@ -43,6 +47,15 @@ func _ready() -> void:
 
 func is_disabled() -> bool:
 	return disabled_left > 0.0
+
+
+## Whole coins the pad owes its holder after [param seconds] of holding it at [param rate] a
+## second. The remainder is kept for the next tick.
+func take_income(rate: float, seconds: float) -> int:
+	change += rate * seconds
+	var coins := floori(change)
+	change -= float(coins)
+	return coins
 
 
 func _physics_process(delta: float) -> void:
@@ -73,6 +86,8 @@ func _can_claim(kart: Kart) -> bool:
 ## Hands the pad to a slot, painting the frame in its colour.
 func claim(slot: int, color: Color) -> void:
 	owner_slot = slot
+	# A new holder starts from nothing rather than inheriting the last one's change.
+	change = 0.0
 	owner_color = color if slot >= 0 else NEUTRAL
 	_refresh()
 
@@ -80,6 +95,7 @@ func claim(slot: int, color: Color) -> void:
 ## After a flush: nobody holds the pad and it ignores karts for a while.
 func clear_and_disable(seconds: float) -> void:
 	owner_slot = -1
+	change = 0.0
 	owner_color = NEUTRAL
 	disabled_left = seconds
 	_refresh()

@@ -412,6 +412,7 @@ func _physics_process(delta: float) -> void:
 			_step_stats(delta)
 			bot_mirror.update(self)
 			_step_bounty(delta)
+			_step_flush_income(delta)
 			arena.junction.hint = junction_hint()
 			arena.disco.level = intensity.level
 			camera_rig.tremble = _beat_tremble()
@@ -605,6 +606,21 @@ func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> voi
 		# A kill in a hot match hits harder than the first one of the round.
 		camera_rig.shake(0.2 + 0.5 * intensity.share())
 	_check_target()
+
+
+## GAME.md 3.9: every pad a kart is holding trickles coins into its pot, so the pads are worth
+## driving over even when a flush is out of reach. A holder who is dead, falling or rolling out
+## the end of the match earns nothing while they are; the pad simply waits for them.
+func _step_flush_income(delta: float) -> void:
+	for pad: FlushPad in arena.flush_pads:
+		if pad.owner_slot < 0 or pad.owner_slot >= slots.size() or pad.is_disabled():
+			continue
+		var kart := slots[pad.owner_slot].kart
+		if kart == null or not kart.is_active():
+			continue
+		var coins := pad.take_income(rules.flush_pad_income, delta)
+		if coins > 0:
+			kart.collect_coins(coins, null)
 
 
 ## A flush pad changed hands. Holding all four at once is a Royal Flush, GAME.md 3.9: a mult

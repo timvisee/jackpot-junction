@@ -275,11 +275,14 @@ restored), Spelunker (pit falls), Own Goal (self kills) and Crash Test Dummy
 ### 3.9 Royal Flush pads
 
 Four pads spread around the arena, marked A, K, Q and J. Driving over a pad
-paints its frame in your colour and takes it from whoever held it. Holding all
-four at once is a Royal Flush:
+paints its frame in your colour and takes it from whoever held it.
 
-- The bonus: +3 mult and a full nitro tank, announced to everyone with a
-  fanfare.
+- Every pad you hold pays you 1 coin a second into your pot, for as long as you
+  hold it, so a single pad is worth taking and worth defending. A holder who is
+  dead, falling or rolling out the end of the match earns nothing while they are;
+  the pad keeps their colour and waits for them.
+- Holding all four at once is a Royal Flush. The bonus is unchanged by the
+  trickle: +3 mult and a full nitro tank, announced to everyone with a fanfare.
 - All four pads clear and stay disabled for 20 s, then come back neutral.
 - Pads keep their colour when their holder dies, so a flush can be finished
   after a respawn, and stolen pads have to be won back.
