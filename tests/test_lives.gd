@@ -75,8 +75,14 @@ func test_the_first_hit_wounds_the_junction_heals_and_the_second_hit_kills() -> 
 	assert_float(victim.stats.top_speed).is_equal_approx(base_speed * 0.85, 0.001)
 	assert_float(victim._tint.albedo_color.v).is_less(color.v - 0.1)
 	await assert_signal(events).is_emitted("kart_wounded", [1, 0, &"bullet"])
+	# GAME.md 3.4: arriving is not enough, and nor is standing there with nothing to bank.
 	victim.global_position = match_node.arena.junction_position
-	await _runner.simulate_frames(3, 17)
+	await _runner.simulate_frames(20, 17)
+	assert_int(victim.lives).is_equal(1)
+	# The life comes with the last coin of a cash-out.
+	victim.pot.add_coins(20)
+	await _runner.simulate_frames(60, 17)
+	assert_bool(victim.pot.is_empty()).is_true()
 	assert_int(victim.lives).is_equal(2)
 	assert_float(victim.stats.top_speed).is_equal_approx(base_speed, 0.001)
 	assert_object(victim._tint.albedo_color).is_equal(color)

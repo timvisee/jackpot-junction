@@ -3,8 +3,9 @@ extends Area3D
 ## The cash-out pad, GAME.md 3.4. A kart standing on it drains its pot into banked score at a
 ## rate that doubles every few tenths of a second. Leaving keeps what was banked and resets the
 ## ramp; emptying the pot resets coins and mult. The match listens for the ticks and totals.
-## Driving onto the pad also patches a wounded kart up to full lives, GAME.md 3.6, as does
-## taking somebody out.
+## Banking a pot dry also patches a wounded kart up to full lives, GAME.md 3.6, as does taking
+## somebody out. The patch-up is the reward for finishing the cash-out, not for arriving: a
+## wounded kart has to stand there with everything it is carrying until the pot is empty.
 ##
 ## The neon ring blinks when a local player is riding around with a big unbanked pot, harder
 ## and faster the more is at stake, as a nudge to come and cash it in.
@@ -86,8 +87,6 @@ func _physics_process(delta: float) -> void:
 		if kart == null:
 			_channels.erase(id)
 			continue
-		if kart.is_active() and kart.is_wounded():
-			kart.restore_life()
 		if not kart.is_active() or kart.pot.is_empty():
 			kart.channel_progress = -1.0
 			continue
@@ -117,6 +116,9 @@ func _step_channel(kart: Kart, channel: Dictionary, delta: float) -> void:
 		if leftover > 0:
 			bank_tick.emit(kart, leftover)
 		bank_completed.emit(kart, channel["start_coins"], channel["start_mult"], total)
+		# The whole pot is in: GAME.md 3.6 pays for that with the lost life back.
+		if kart.is_wounded():
+			kart.restore_life()
 		kart.pot.reset()
 		kart.channel_progress = -1.0
 		_channels[kart.get_instance_id()] = _new_channel()

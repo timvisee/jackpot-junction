@@ -130,8 +130,11 @@ R0 = 40 points per second, D = 0.5 s
 - The neon ring blinks when a player on this screen is carrying an unbanked pot
   worth 250 or more, brighter and quicker the bigger the pot, up to a fortune of
   1200. It only nudges; the pad behaves the same either way.
-- Driving onto the Junction patches a wounded kart up to two lives at once,
-  see 3.6, whether or not it has anything to bank.
+- Banking a pot dry patches a wounded kart up to two lives, see 3.6. The life
+  comes with the last coin, not with arriving: a wounded kart has to stand on the
+  pad with everything it is carrying until the pot is empty, which is exactly when
+  it is most worth shooting. A kart that rolls on with nothing to bank gets
+  nothing.
 
 Time to fully bank a pot with the starting values:
 
@@ -170,8 +173,8 @@ are plain chips and multiply with your mult like any other.
 A kart has two lives. A bullet hit, a bomb blast or a ram by a kart with an
 active Boost or burning nitro takes one. With a life to spare the kart limps
 on: darker, at 85% top speed, blinking and untouchable for 1.2 s, so a burst of
-bullets cannot take both lives in the same moment. Driving onto the Junction
-restores the lost life at once, see 3.4, and so does taking somebody out.
+bullets cannot take both lives in the same moment. Banking a pot dry at the
+Junction restores the lost life, see 3.4, and so does taking somebody out.
 Losing the last life is death. A kart that drives into a pit falls for 0.4 s,
 uncontrollable, and dies whatever its lives. On death, in this order:
 
@@ -336,7 +339,7 @@ then hooks up and launches when the handbrake is released.
 | Drift exit boost              | +20% top speed for 0.8 s if the drift lasted 0.6 s or longer |
 | Handbrake                     | with steering above 30% it starts a drift and scrubs speed at 4.2 m/s²; without steering it is a straight stop at 22 m/s², about half a second from top speed, that lays down skid marks |
 | Nitro                         | held button: 190% top speed with 1.5 times the acceleration, steering at 60% and grip at 55%, so it is fast and a handful, kills on contact; a full tank burns 2 s and takes 90 s to refill from empty, starting 0.6 s after letting go; a kill refills half a tank; the tank is kept across deaths; cannot restart below 20% |
-| Wounded                       | one life left: top speed 85%, body tinted darker until the Junction restores the life |
+| Wounded                       | one life left: top speed 85%, body tinted darker until a cash-out or a kill restores the life |
 | Spin-out                      | crossing an oil stain: the nose whips around at 420°/s for 1.1 s while grip drops to 0.8 rad/s, so the kart keeps its line and skids; steering and throttle do nothing and speed bleeds at 3 m/s² |
 | Wall glance                   | hitting a wall within 35° of it turns the nose 60% of the way along the wall, nudges the kart 1.2 m/s off it and costs at most 15% speed; steeper hits are stopped by the wall and cost 30% speed above half of top speed |
 | Turbo pad                     | fires once the kart's centre is on the pad, not when its bumper touches the edge; shoves along the pad's arrow at 150% top speed without turning the kart. Facing within 45° of the arrow, or straight against it, the shove lasts 1.0 s and the kart simply runs faster, forward or in reverse; crossing sideways gives a 0.15 s shove after which the tires slip and the kart slides to a near standstill. Steering halved while the shove lasts |
