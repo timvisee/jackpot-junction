@@ -292,3 +292,21 @@ func test_bump_pushes_along_the_normal_and_costs_speed() -> void:
 	_motor.apply_bump(Vector3(1.0, 0.0, 0.0))
 	assert_float(_motor.velocity.x).is_equal_approx(_stats.bump_push_speed, 0.001)
 	assert_float(_motor.velocity.z).is_equal_approx(-10.0 * (1.0 - _stats.bump_speed_loss), 0.001)
+
+
+func test_nitro_is_faster_but_steers_and_grips_less() -> void:
+	_input.throttle = 1.0
+	_run(2.5)
+	_input.steer = 1.0
+	var before := _motor.heading
+	_run(0.5)
+	var plain_turn := absf(wrapf(_motor.heading - before, -PI, PI))
+	_input.steer = 0.0
+	_motor.nitro_bonus = _stats.nitro_speed_multiplier
+	_run(2.5)
+	assert_float(_motor.speed()).is_greater(_stats.top_speed * 1.5)
+	_input.steer = 1.0
+	before = _motor.heading
+	_run(0.5)
+	var nitro_turn := absf(wrapf(_motor.heading - before, -PI, PI))
+	assert_float(nitro_turn).is_less(plain_turn * 0.75)

@@ -51,7 +51,10 @@ extends Resource
 
 @export_group("Nitro")
 ## Speed multiplier while burning nitro.
-@export var nitro_speed_multiplier := 1.4
+@export var nitro_speed_multiplier := 1.9
+## Steering and grip multipliers while burning nitro, so the speed comes with a handful.
+@export var nitro_steer_multiplier := 0.6
+@export var nitro_grip_multiplier := 0.55
 ## Seconds a full tank burns for.
 @export var nitro_capacity_seconds := 2.0
 ## Seconds an empty tank takes to refill.

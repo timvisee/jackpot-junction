@@ -114,6 +114,8 @@ func step(input: KartInput, delta: float) -> void:
 		# Tires that have let go in a big slide keep sliding until the kart slows down.
 		var letting_go := clampf((absf(angle) - deg_to_rad(20.0)) / deg_to_rad(25.0), 0.0, 1.0)
 		grip = lerpf(stats.grip_normal, stats.grip_sliding, letting_go)
+	if nitro_bonus > 1.0:
+		grip *= stats.nitro_grip_multiplier
 	travel = travel.rotated(Vector3.UP, angle * (1.0 - exp(-grip * delta)))
 	if drifting:
 		forward_speed *= 1.0 - stats.drift_speed_decay * delta
@@ -216,6 +218,8 @@ func _step_steering(delta: float) -> void:
 		rate *= stats.drift_yaw_multiplier
 	if turboing():
 		rate *= stats.turbo_steer_multiplier
+	if nitro_bonus > 1.0:
+		rate *= stats.nitro_steer_multiplier
 	rate *= steer_multiplier
 	# Steering right is clockwise seen from above, which is a negative rotation about +Y.
 	heading = wrapf(heading - steer * rate * signf(forward_speed) * delta, -PI, PI)
