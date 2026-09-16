@@ -172,7 +172,7 @@ func _move(delta: float) -> void:
 	previous_position = from
 	var space := get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.create(
-		from, to, Layers.WORLD | Layers.KART | Layers.TURRET
+		from, to, Layers.WORLD | Layers.KART | Layers.TURRET | Layers.BOMB
 	)
 	var hit := space.intersect_ray(ray)
 	if hit.is_empty():

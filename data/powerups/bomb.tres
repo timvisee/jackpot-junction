@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="BombPowerUp" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/items/powerups/bomb_item.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"bomb"
+display_name = "Bomb"
+description = "Drops a bomb behind you. Blows up under any kart or when shot."
+weight = 20.0
+color = Color(0.9, 0.3, 0.2, 1)
+fuse = 30.0
+placement_distance = 1.8

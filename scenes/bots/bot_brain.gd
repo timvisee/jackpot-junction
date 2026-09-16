@@ -447,6 +447,12 @@ func _use_item(delta: float) -> void:
 			use = use or kart.pot.value() >= bot_trait.bank_threshold * 0.5 or _bullets_nearby(6.0)
 		&"turret":
 			use = use or enemy_distance <= 15.0
+		&"bomb":
+			var to_enemy := Vector3.ZERO
+			if enemy != null:
+				to_enemy = enemy.global_position - kart.global_position
+			var behind := to_enemy.dot(kart.motor.forward_vector()) < 0.0
+			use = use or goal == &"flee" or (behind and enemy_distance <= 8.0)
 		&"ricochet_cannon":
 			use = use or goal == &"hunt"
 		&"coin_magnet":

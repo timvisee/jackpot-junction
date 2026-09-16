@@ -44,6 +44,7 @@ window/stretch/aspect="expand"
 3d_physics/layer_6="graze"
 3d_physics/layer_7="turret"
 3d_physics/layer_8="protected"
+3d_physics/layer_9="bomb"
 
 [physics]
 

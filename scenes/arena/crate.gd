@@ -15,6 +15,7 @@ var _respawn_left := 0.0
 func _ready() -> void:
 	collision_layer = Layers.WORLD
 	collision_mask = 0
+	add_to_group(&"crates")
 
 
 func hit(by_slot: int) -> void:

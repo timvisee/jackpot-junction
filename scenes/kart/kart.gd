@@ -494,6 +494,16 @@ func take_ram(rammer_slot: int) -> void:
 	die(&"ram", rammer_slot)
 
 
+## A bomb went off within reach: the shield pops or the kart dies, credited to the bomb's owner.
+func take_blast(owner_slot: int) -> void:
+	if not is_targetable():
+		return
+	if shielded:
+		pop_shield()
+		return
+	die(&"bomb", owner_slot)
+
+
 ## Starts a timed effect, replacing one with the same id.
 func add_effect(effect: KartEffect) -> void:
 	end_effect(effect.id)

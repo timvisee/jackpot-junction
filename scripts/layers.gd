@@ -10,3 +10,5 @@ const TRIGGER := 1 << 4
 const GRAZE := 1 << 5
 const TURRET := 1 << 6
 const PROTECTED := 1 << 7
+## Bombs: bullets hit them, karts drive over them.
+const BOMB := 1 << 8

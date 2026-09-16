@@ -162,8 +162,8 @@ are plain chips and multiply with your mult like any other.
 
 ### 3.6 Death
 
-A kart dies from one bullet hit, from falling into a pit, or from being rammed
-by a kart with an active Boost or burning nitro. A kart that drives into a pit falls for 0.4 s,
+A kart dies from one bullet hit, from a bomb blast, from falling into a pit, or
+from being rammed by a kart with an active Boost or burning nitro. A kart that drives into a pit falls for 0.4 s,
 uncontrollable, before the death rules apply. On death, in this order:
 
 1. **Bank half**: `floor(0.5 * coins * mult)` is added to banked score.
@@ -468,6 +468,7 @@ First set:
 | Turret          | 15     | Deploys a turret at your position. Rotates at 180°/s toward the nearest enemy, fires 1 default bullet per second. Lives 20 s or 1 hit. Kills credit you. Can hit you |
 | Ricochet Cannon | 20     | Next 8 shots bounce off walls once more and fly 25% faster                      |
 | Coin Magnet     | 15     | 8 s: pickup radius times 3, chips within it drift toward you at 6 m/s           |
+| Bomb            | 20     | Drops a bomb 1.8 m behind you. It arms after 0.6 s and blows up when any kart, you included, drives over it, when a bullet hits it, or after 30 s. The 2.6 m blast kills karts, breaks crates and turrets and sets off other bombs. Kills credit you |
 
 Later set, off by default and switched on per match in the lobby:
 

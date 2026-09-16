@@ -107,7 +107,7 @@ func spawn_chips(
 		var angle := _rng.randf_range(0.0, TAU)
 		var distance := _rng.randf_range(0.6, 1.6)
 		var offset := Vector3(cos(angle), 0.0, sin(angle)) * distance
-		chip.position = _clamp_to_floor(origin + offset)
+		chip.position = clamp_to_floor(origin + offset)
 		pickups.add_child(chip)
 		result.append(chip)
 	return result
@@ -119,7 +119,7 @@ func spawn_floor_item(origin: Vector3, item: PowerUp, lifetime: float) -> ItemBo
 	box.fixed_item = item
 	box.lifetime = lifetime
 	var angle := _rng.randf_range(0.0, TAU)
-	box.position = _clamp_to_floor(origin + Vector3(cos(angle), 0.0, sin(angle)) * 1.2)
+	box.position = clamp_to_floor(origin + Vector3(cos(angle), 0.0, sin(angle)) * 1.2)
 	pickups.add_child(box)
 	return box
 
@@ -130,12 +130,12 @@ func spawn_floor_joker(origin: Vector3, joker: Joker, lifetime: float) -> FloorJ
 	card.joker = joker
 	card.lifetime = lifetime
 	var angle := _rng.randf_range(0.0, TAU)
-	card.position = _clamp_to_floor(origin + Vector3(cos(angle), 0.0, sin(angle)) * 1.4)
+	card.position = clamp_to_floor(origin + Vector3(cos(angle), 0.0, sin(angle)) * 1.4)
 	pickups.add_child(card)
 	return card
 
 
-func _clamp_to_floor(point: Vector3) -> Vector3:
+func clamp_to_floor(point: Vector3) -> Vector3:
 	var half := world_size() * 0.5 - Vector2.ONE * (grid.cell_size + 0.5)
 	return Vector3(clampf(point.x, -half.x, half.x), 0.0, clampf(point.z, -half.y, half.y))
 

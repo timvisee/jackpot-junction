@@ -56,6 +56,8 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"ui_back": ["back_001.ogg"],
 	&"shield_pop": ["impactBell_heavy_000.ogg"],
 	&"turret_place": ["impactSoft_heavy_000.ogg"],
+	&"explosion": ["impactPunch_heavy_000.ogg"],
+	&"explosion_tail": ["impactSoft_heavy_001.ogg"],
 }
 
 var music_enabled := true
@@ -294,6 +296,7 @@ func _connect_events() -> void:
 	Events.nitro_started.connect(func(_slot: int) -> void: play_sfx(&"turbo", -8.0, 0.1))
 	Events.crate_destroyed.connect(func() -> void: play_sfx(&"crate", -6.0))
 	Events.shield_popped.connect(func(_slot: int) -> void: play_sfx(&"shield_pop", -6.0))
+	Events.bomb_exploded.connect(func(_slot: int) -> void: _play_explosion())
 	Events.match_state_changed.connect(_on_state_changed)
 
 
@@ -321,6 +324,19 @@ func _on_bank_tick(_slot: int, _points: int) -> void:
 	player.volume_db = -8.0
 	player.pitch_scale = _bank_pitch
 	player.play()
+
+
+## A bomb blast: a slowed-down punch for the boom and a soft thud for the rumble underneath.
+func _play_explosion() -> void:
+	for pair: Array in [[&"explosion", 0.55, 2.0], [&"explosion_tail", 0.7, -2.0]]:
+		var files: Array = LIBRARY[pair[0]]
+		var player := _free_player()
+		player.stream = _stream(files[0])
+		if player.stream == null:
+			continue
+		player.volume_db = pair[2]
+		player.pitch_scale = pair[1]
+		player.play()
 
 
 func _on_bank_completed(_slot: int, _coins: int, _mult: float, total: int) -> void:

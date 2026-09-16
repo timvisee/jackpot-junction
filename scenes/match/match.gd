@@ -44,6 +44,7 @@ var _puppet_karts: Dictionary[int, Kart] = {}
 var _puppet_bullets: Dictionary[int, Bullet] = {}
 var _puppet_pickups: Dictionary[int, Pickup] = {}
 var _puppet_turrets: Dictionary[int, Turret] = {}
+var _puppet_bombs: Dictionary[int, Bomb] = {}
 var _all_items: PowerUpTable
 
 
@@ -405,6 +406,22 @@ func build_snapshot() -> Dictionary:
 					"c": turret.color
 				}
 			)
+	var bomb_data: Array = []
+	for node: Node in get_tree().get_nodes_in_group(&"bombs"):
+		var bomb := node as Bomb
+		if bomb != null and bomb.alive:
+			(
+				bomb_data
+				. append(
+					{
+						"id": bomb.get_instance_id(),
+						"x": bomb.global_position.x,
+						"z": bomb.global_position.z,
+						"c": bomb.color,
+						"armed": bomb.armed,
+					}
+				)
+			)
 	var jackpots: Array = []
 	for zone: JackpotZone in arena.jackpot_zones:
 		jackpots.append({"active": zone.active, "chips": zone.chips})
@@ -421,6 +438,7 @@ func build_snapshot() -> Dictionary:
 		"bullets": bullet_data,
 		"pickups": pickup_data,
 		"turrets": turret_data,
+		"bombs": bomb_data,
 		"jackpots": jackpots,
 		"crates": crates,
 	}
@@ -443,6 +461,7 @@ func apply_snapshot(data: Dictionary) -> void:
 	_apply_bullets(data["bullets"])
 	_apply_pickups(data["pickups"])
 	_apply_turrets(data["turrets"])
+	_apply_bombs(data.get("bombs", []))
 	var jackpots: Array = data["jackpots"]
 	for i: int in mini(jackpots.size(), arena.jackpot_zones.size()):
 		arena.jackpot_zones[i].apply_puppet_state(jackpots[i]["active"], jackpots[i]["chips"])
@@ -637,6 +656,31 @@ func _apply_turrets(entries: Array) -> void:
 			var turret: Turret = _puppet_turrets[id]
 			_puppet_turrets.erase(id)
 			turret.queue_free()
+
+
+## Puppet bombs mirror the host's; one that vanishes from the snapshot went off, so its blast
+## is shown here too.
+func _apply_bombs(entries: Array) -> void:
+	var seen: Dictionary[int, bool] = {}
+	for entry: Dictionary in entries:
+		var id: int = entry["id"]
+		seen[id] = true
+		var bomb: Bomb = _puppet_bombs.get(id)
+		if bomb == null:
+			bomb = Bomb.new()
+			bomb.puppet = true
+			bomb.color = entry["c"]
+			add_child(bomb)
+			bomb.collision_layer = 0
+			_puppet_bombs[id] = bomb
+		bomb.global_position = Vector3(entry["x"], 0.0, entry["z"])
+		bomb.armed = entry["armed"]
+	for id: int in _puppet_bombs.keys():
+		if not seen.has(id):
+			var bomb: Bomb = _puppet_bombs[id]
+			_puppet_bombs.erase(id)
+			if bomb.alive:
+				bomb.explode()
 
 
 func is_running() -> bool:

@@ -31,7 +31,7 @@ func test_table_picks_by_weight() -> void:
 	for i: int in 400:
 		var picked := TABLE.pick(rng)
 		counts[picked.id] = counts.get(picked.id, 0) + 1
-	assert_int(counts.size()).is_equal(5)
+	assert_int(counts.size()).is_equal(6)
 	assert_int(counts[&"boost"]).is_greater(counts[&"turret"])
 
 
@@ -163,3 +163,64 @@ func test_coin_magnet_widens_the_pickup_radius_and_pulls_chips() -> void:
 	assert_float(kart._pickup_shape.radius).is_equal_approx(2.7, 0.001)
 	await _runner.simulate_frames(40, 17)
 	assert_int(kart.pot.coins).is_equal(1)
+
+
+func test_a_bomb_arms_then_blows_up_under_a_kart_breaking_crates_and_credits_its_owner() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var owner := match_node.kart_of(0)
+	var victim := match_node.kart_of(1)
+	owner.global_position = Vector3(-4.0, 0.0, 3.0)
+	owner.face(Vector3(1.0, 0.0, 0.0))
+	var item: BombPowerUp = _item("bomb")
+	item.activate(owner)
+	var bombs := match_node.get_tree().get_nodes_in_group(&"bombs")
+	assert_int(bombs.size()).is_equal(1)
+	var bomb: Bomb = bombs[0]
+	assert_float(bomb.global_position.x).is_less(owner.global_position.x - 1.0)
+	var crate: Crate = match_node.arena.crates[0]
+	bomb.global_position = crate.global_position + Vector3(1.5, 0.0, 0.0)
+	owner.global_position = match_node.arena.spawn_points[0]
+	victim.global_position = bomb.global_position + Vector3(0.2, 0.0, 0.0)
+	await _runner.simulate_frames(3, 17)
+	assert_bool(victim.alive).override_failure_message("blew up before arming").is_true()
+	await _runner.simulate_frames(45, 17)
+	assert_bool(victim.alive).is_false()
+	assert_int(match_node.slots[0].kills).is_equal(1)
+	assert_bool(owner.alive).is_true()
+	assert_bool(crate.alive).is_false()
+	assert_bool(is_instance_valid(bomb) and bomb.alive).is_false()
+	assert_int(match_node.get_tree().get_nodes_in_group(&"explosions").size()).is_equal(1)
+
+
+func test_a_bullet_sets_off_a_bomb() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var shooter := match_node.kart_of(0)
+	var owner := match_node.kart_of(1)
+	owner.global_position = Vector3(1.8, 0.0, -9.375)
+	owner.face(Vector3(1.0, 0.0, 0.0))
+	var item: BombPowerUp = _item("bomb")
+	item.activate(owner)
+	var bomb: Bomb = match_node.get_tree().get_nodes_in_group(&"bombs")[0]
+	assert_vector(bomb.global_position).is_equal_approx(
+		Vector3(0.0, 0.0, -9.375), Vector3.ONE * 0.05
+	)
+	owner.global_position = Vector3(-16.0, 0.0, 6.0)
+	shooter.global_position = Vector3(-6.0, 0.0, -9.375)
+	shooter.face(Vector3(1.0, 0.0, 0.0))
+	shooter.cannon.stats.aim_assist = false
+	shooter.cannon.cooldown_left = 0.0
+	shooter.cannon.fire(
+		match_node.bullets,
+		0,
+		shooter.global_position + Vector3(1.0, 0.0, 0.0),
+		Vector3(1.0, 0.0, 0.0),
+		Color.WHITE
+	)
+	await _runner.simulate_frames(30, 17)
+	assert_bool(is_instance_valid(bomb) and bomb.alive).is_false()
+	assert_int(match_node.get_tree().get_nodes_in_group(&"explosions").size()).is_equal(1)
+	assert_int(match_node.bullets.live_count()).is_equal(0)

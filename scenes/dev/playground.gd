@@ -8,6 +8,7 @@ extends Node3D
 ##   --difficulty=hard    bot difficulty: easy, normal or hard
 ##   --jokers=3           deal the player this many random jokers at the start
 ##   --menu=1             hold the player's joker menu open on this card, for screenshots
+##   --explosion=0.2      a bomb blast next to the player, this many seconds in, for screenshots
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
 ## on an unused device to join mid-match; F6 deals the player a random joker.
 
@@ -20,6 +21,7 @@ var _bots := 1
 var _difficulty := "normal"
 var _jokers := 0
 var _menu := -1
+var _explosion := -1.0
 
 
 func _ready() -> void:
@@ -42,6 +44,16 @@ func _ready() -> void:
 	var player := match_node.kart_of(0)
 	for i: int in _jokers:
 		_deal_joker(player)
+	if _explosion >= 0.0:
+		var blast := Explosion.spawn(
+			match_node, player.global_position + Vector3(3.0, 0.0, 2.0), Bomb.RADIUS, Color.WHITE
+		)
+		blast._age = _explosion
+		blast.frozen = true
+		var bomb := Bomb.new()
+		bomb.color = Palette.player_color(0)
+		match_node.add_child(bomb)
+		bomb.global_position = player.global_position + Vector3(3.0, 0.0, -1.5)
 	var overlay := DebugOverlay.new()
 	overlay.kart = player
 	overlay.arena_width = match_node.arena.world_size().x
@@ -97,3 +109,5 @@ func _parse_user_args() -> void:
 			_jokers = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--menu="):
 			_menu = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--explosion="):
+			_explosion = float(arg.get_slice("=", 1))
