@@ -332,6 +332,8 @@ func build_snapshot() -> Dictionary:
 					"x": kart.global_position.x,
 					"z": kart.global_position.z,
 					"h": kart.motor.heading,
+					"vx": kart.motor.velocity.x,
+					"vz": kart.motor.velocity.z,
 					"alive": kart.alive,
 					"prot": kart.protection_left > 0.0,
 					"shield": kart.shielded,
@@ -568,8 +570,7 @@ func _apply_bullets(entries: Array) -> void:
 			bullets.add_child(bullet)
 			_puppet_bullets[id] = bullet
 		else:
-			bullet.global_position = Vector3(entry["x"], Bullet.HEIGHT, entry["z"])
-			bullet.velocity = velocity
+			bullet.correct_puppet(Vector3(entry["x"], 0.0, entry["z"]), velocity)
 	for id: int in _puppet_bullets.keys():
 		if not seen.has(id):
 			var bullet: Bullet = _puppet_bullets[id]

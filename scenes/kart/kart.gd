@@ -15,6 +15,10 @@ signal item_used(item: PowerUp)
 signal joker_dropped(joker: Joker)
 
 const WHEEL_RADIUS := 0.24
+## Smoothing rate for puppets, per second: how fast they close in on the latest snapshot.
+const PUPPET_SMOOTHING := 18.0
+## Beyond this distance a puppet snaps instead of gliding, for example after a respawn.
+const PUPPET_SNAP_DISTANCE := 4.0
 const KART_MODEL := preload("res://assets/models/car-kit/kart-oobi.glb")
 const MODEL_SCALE := 1.12
 const MODEL_LIFT := 0.235
@@ -86,6 +90,10 @@ var _shield_visual: MeshInstance3D
 var _aim_arrow: MeshInstance3D
 var _flame: MeshInstance3D
 var _nitro_recharge_wait := 0.0
+var _puppet_target := Vector3.ZERO
+var _puppet_heading := 0.0
+var _puppet_velocity := Vector3.ZERO
+var _puppet_has_target := false
 var _aim_guide: AimGuide
 var _fall_left := 0.0
 var _graze_cooldown_left := 0.0
@@ -127,7 +135,10 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if puppet or not alive or frozen:
+	if puppet:
+		_step_puppet(delta)
+		return
+	if not alive or frozen:
 		return
 	if falling:
 		_step_fall(delta)
@@ -175,34 +186,49 @@ func make_puppet() -> void:
 	remove_from_group(Bullet.TARGET_GROUP)
 
 
-## Applies one snapshot entry to a puppet: pose, life state and effect visuals.
-func apply_puppet_state(state: Dictionary, delta: float) -> void:
-	var heading_before := motor.heading
+## Records one snapshot entry for a puppet: the pose becomes a target the physics step glides
+## toward, while life state and effect visuals apply at once.
+func apply_puppet_state(state: Dictionary, _delta: float) -> void:
 	var target := Vector3(state["x"], 0.0, state["z"])
-	motor.velocity = (target - global_position) / maxf(delta, 0.001) if alive else Vector3.ZERO
-	global_position = target
-	motor.heading = state["h"]
-	rotation = Vector3(0.0, motor.heading, 0.0)
-	motor.drifting = state["drift"]
-	motor.forward_speed = motor.velocity.dot(motor.forward_vector())
 	var was_alive := alive
 	alive = state["alive"]
+	var far := global_position.distance_to(target) > PUPPET_SNAP_DISTANCE
+	if not _puppet_has_target or not alive or not was_alive or far:
+		global_position = target
+		motor.heading = state["h"]
+		rotation = Vector3(0.0, motor.heading, 0.0)
+	_puppet_target = target
+	_puppet_heading = state["h"]
+	_puppet_velocity = Vector3(state.get("vx", 0.0), 0.0, state.get("vz", 0.0))
+	_puppet_has_target = true
+	motor.drifting = state["drift"]
 	protection_left = 1.0 if state["prot"] else 0.0
-	_body.visible = (
-		alive
-		and (
-			protection_left <= 0.0
-			or fmod(Time.get_ticks_msec() * 0.001, BLINK_PERIOD) < BLINK_PERIOD * 0.5
-		)
-	)
+	var blink := fmod(Time.get_ticks_msec() * 0.001, BLINK_PERIOD) < BLINK_PERIOD * 0.5
+	_body.visible = alive and (protection_left <= 0.0 or blink)
 	_smoke.emitting = alive
 	set_shielded(state["shield"])
 	channel_progress = state["ring"]
 	_aim_arrow.visible = state["aim"]
 	_flame.visible = state.get("nitro", false)
-	if alive and was_alive:
-		_spin_wheels(delta)
-		_update_trails(delta, heading_before)
+
+
+## Glides a puppet toward its extrapolated snapshot target every physics tick, so movement stays
+## smooth between the host's 30 Hz snapshots and rendering interpolation has a steady source.
+func _step_puppet(delta: float) -> void:
+	if not _puppet_has_target or not alive:
+		motor.velocity = Vector3.ZERO
+		return
+	_puppet_target += _puppet_velocity * delta
+	var blend := 1.0 - exp(-PUPPET_SMOOTHING * delta)
+	var heading_before := motor.heading
+	var previous := global_position
+	global_position = previous.lerp(_puppet_target, blend)
+	motor.heading = lerp_angle(motor.heading, _puppet_heading, blend)
+	rotation = Vector3(0.0, motor.heading, 0.0)
+	motor.velocity = (global_position - previous) / maxf(delta, 0.0001)
+	motor.forward_speed = motor.velocity.dot(motor.forward_vector())
+	_spin_wheels(delta)
+	_update_trails(delta, heading_before)
 
 
 func is_decoy() -> bool:

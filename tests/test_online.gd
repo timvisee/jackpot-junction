@@ -161,3 +161,40 @@ func test_the_host_holds_the_match_in_a_lobby_until_it_begins() -> void:
 	await await_millis(300)
 	assert_int(host_match.state).is_equal(Match.State.PLAYING)
 	assert_bool(host_match.kart_of(0).frozen).is_false()
+
+
+func test_puppets_glide_toward_new_snapshot_positions_instead_of_jumping() -> void:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	host_match.offer_size = 0
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	host_match.start(inputs, 23)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	client_match.set_local_slot(0)
+	var kart := host_match.kart_of(0)
+	kart.global_position = Vector3(-4.5, 0.0, 1.0)
+	client_match.apply_snapshot(host_match.build_snapshot())
+	var puppet: Kart = client_match.slots[0].kart
+	assert_vector(puppet.global_position).is_equal_approx(
+		Vector3(-4.5, 0.0, 1.0), Vector3.ONE * 0.001
+	)
+	kart.global_position = Vector3(-2.5, 0.0, 1.0)
+	client_match.apply_snapshot(host_match.build_snapshot())
+	assert_vector(puppet.global_position).is_equal_approx(
+		Vector3(-4.5, 0.0, 1.0), Vector3.ONE * 0.001
+	)
+	await await_millis(40)
+	assert_float(puppet.global_position.x).is_between(-4.4, -2.6)
+	await await_millis(400)
+	assert_float(puppet.global_position.x).is_equal_approx(-2.5, 0.05)
+	kart.global_position = Vector3(10.0, 0.0, 1.0)
+	client_match.apply_snapshot(host_match.build_snapshot())
+	assert_vector(puppet.global_position).is_equal_approx(
+		Vector3(10.0, 0.0, 1.0), Vector3.ONE * 0.001
+	)

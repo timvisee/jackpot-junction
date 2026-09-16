@@ -26,12 +26,20 @@ var previous_position := Vector3.ZERO
 
 ## On a client: dead-reckons between snapshots, never collides.
 var puppet := false
+var _puppet_target := Vector3.ZERO
+var _puppet_has_target := false
 
 var _dead := false
 var _shape := SphereShape3D.new()
 var _shape_query := PhysicsShapeQueryParameters3D.new()
 ## Kart instance id to whether the bullet was inside that kart's graze distance last tick.
 var _graze_inside: Dictionary[int, bool] = {}
+
+
+## A later snapshot of a puppet: glide toward it rather than jump.
+func correct_puppet(target: Vector3, bullet_velocity: Vector3) -> void:
+	_puppet_target = Vector3(target.x, HEIGHT, target.z)
+	velocity = bullet_velocity
 
 
 ## A client-side copy: looks like a bullet, moves by its last known velocity.
@@ -41,6 +49,8 @@ func setup_puppet(
 	puppet = true
 	position = Vector3(origin.x, HEIGHT, origin.z)
 	previous_position = position
+	_puppet_target = position
+	_puppet_has_target = true
 	velocity = bullet_velocity
 	radius = bullet_radius
 	color = tint
@@ -88,6 +98,9 @@ func _physics_process(delta: float) -> void:
 		return
 	if puppet:
 		global_position += velocity * delta
+		if _puppet_has_target:
+			_puppet_target += velocity * delta
+			global_position = global_position.lerp(_puppet_target, 0.35)
 		_orient()
 		return
 	lifetime_left -= delta
