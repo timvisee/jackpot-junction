@@ -204,6 +204,8 @@ func apply_puppet_state(state: Dictionary, _delta: float) -> void:
 	var target := Vector3(state["x"], 0.0, state["z"])
 	var was_alive := alive
 	alive = state["alive"]
+	if was_alive and not alive:
+		Burst.spawn(get_parent(), global_position, Palette.player_color(color_index), 1.0, 20)
 	var far := global_position.distance_to(target) > PUPPET_SNAP_DISTANCE
 	if not _puppet_has_target or not alive or not was_alive or far:
 		global_position = target
@@ -649,6 +651,9 @@ func die(cause: StringName, killer_slot: int) -> void:
 	_body.visible = false
 	_smoke.emitting = false
 	channel_progress = -1.0
+	if cause != &"pit":
+		# A kart that falls down a pit shrinks away instead; everything else pops.
+		Burst.spawn(get_parent(), global_position, Palette.player_color(color_index), 1.0, 20)
 	died.emit(cause, killer_slot)
 	if is_decoy():
 		queue_free()

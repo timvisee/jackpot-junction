@@ -644,6 +644,9 @@ corners, in single-player and online only the local block is shown.
 - **Match timer** at the top centre, turning red during Last Call.
 - **Standings**: a compact ranked list of every kart's banked score next to
   the timer, shown in single-player and online where only one HUD block exists.
+- **Destruction**: a kart, turret or crate that is destroyed leaves a burst of
+  tumbling chunks in its own colour with a brief flash. A kart lost down a pit
+  shrinks away instead. The Bomb keeps the one real explosion, see 7.1.
 - In-world: a progress ring around the kart while banking or collecting the
   Jackpot, the chip count above the Jackpot zone, floating `+0.5` on grazes,
   and for local players an aim guide of four faint dots ahead of the cannon.
@@ -802,6 +805,7 @@ res://
 │   ├── zones/         junction pad, jackpot zone
 │   ├── bots/          bot brain
 │   ├── ui/            player hud, tally, joker pick, joker menu, lobby, results
+│   ├── fx/            destruction bursts and other world effects
 │   └── match/         match state machine, snapshots, player stats
 ├── scripts/           shared code: autoloads, scoring math, input router
 ├── tests/             gdUnit4 tests

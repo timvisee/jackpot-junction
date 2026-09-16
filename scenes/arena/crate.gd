@@ -23,6 +23,7 @@ func hit(by_slot: int) -> void:
 		return
 	alive = false
 	visible = false
+	Burst.spawn(get_parent(), global_position, Palette.BLOCK, 0.9, 18)
 	collision_layer = 0
 	_respawn_left = respawn_delay
 	destroyed.emit(by_slot)

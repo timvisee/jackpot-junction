@@ -11,6 +11,7 @@ extends Node3D
 ##   --explosion=0.2      a bomb blast next to the player, this many seconds in, for screenshots
 ##   --flame=1            show the player's nitro flame, for screenshots
 ##   --oil=1              drop an oil stain next to the player, for screenshots
+##   --burst=1            pop a destruction burst next to the player, for screenshots
 ##   --results=1          end the match at once with made-up stats, to see the results screen
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
 ## on an unused device to join mid-match; F6 deals the player a random joker.
@@ -27,6 +28,7 @@ var _menu := -1
 var _explosion := -1.0
 var _flame := false
 var _oil := false
+var _burst := false
 var _results := false
 
 
@@ -50,6 +52,13 @@ func _ready() -> void:
 	var player := match_node.kart_of(0)
 	for i: int in _jokers:
 		_deal_joker(player)
+	if _burst:
+		Burst.spawn(
+			match_node, player.global_position + Vector3(3.0, 0.0, 0.5), Palette.player_color(0)
+		)
+		Burst.spawn(
+			match_node, player.global_position + Vector3(6.0, 0.0, 2.5), Palette.BLOCK, 0.9, 18
+		)
 	if _oil:
 		var stain := OilStain.new()
 		match_node.add_child(stain)
@@ -136,5 +145,7 @@ func _parse_user_args() -> void:
 			_flame = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--oil="):
 			_oil = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--burst="):
+			_burst = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--results="):
 			_results = arg.get_slice("=", 1) == "1"

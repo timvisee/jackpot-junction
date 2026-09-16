@@ -216,8 +216,11 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 		)
 	var crates: Array = data["crates"]
 	for i: int in mini(crates.size(), match_node.arena.crates.size()):
-		match_node.arena.crates[i].visible = crates[i]
-		match_node.arena.crates[i].alive = crates[i]
+		var crate := match_node.arena.crates[i]
+		if crate.alive and not crates[i]:
+			Burst.spawn(match_node, crate.global_position, Palette.BLOCK, 0.9, 18)
+		crate.visible = crates[i]
+		crate.alive = crates[i]
 	var flush: Array = data.get("flush", [])
 	for i: int in mini(flush.size(), match_node.arena.flush_pads.size()):
 		match_node.arena.flush_pads[i].apply_puppet_state(
@@ -447,6 +450,7 @@ static func _apply_turrets(match_node: Match, entries: Array) -> void:
 		if not seen.has(id):
 			var turret: Turret = match_node.puppet_turrets[id]
 			match_node.puppet_turrets.erase(id)
+			Burst.spawn(match_node, turret.global_position, turret.color, 0.8, 14)
 			turret.queue_free()
 
 

@@ -97,6 +97,37 @@ func test_a_fresh_wound_cannot_be_hit_again_for_a_moment() -> void:
 	bullet.destroy()
 
 
+## GAME.md 8.3: a destroyed kart or crate leaves a burst of chunks; one lost down a pit does not.
+func test_destroyed_things_leave_a_burst_of_chunks_but_pit_falls_do_not() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var tree := match_node.get_tree()
+	var shooter := match_node.kart_of(0)
+	var victim := match_node.kart_of(1)
+	victim.global_position = LANE
+	assert_int(tree.get_nodes_in_group(&"bursts").size()).is_equal(0)
+	# A wound is not a destruction: the chunks wait for the last life.
+	await _shoot(match_node, shooter, LANE)
+	assert_bool(victim.alive).is_true()
+	assert_int(tree.get_nodes_in_group(&"bursts").size()).is_equal(0)
+	await _runner.simulate_frames(40, 17)
+	victim.global_position = LANE
+	await _shoot(match_node, shooter, LANE)
+	assert_bool(victim.alive).is_false()
+	assert_int(tree.get_nodes_in_group(&"bursts").size()).is_equal(1)
+	var crate: Crate = match_node.arena.crates[0]
+	crate.hit(0)
+	await _runner.simulate_frames(2, 17)
+	assert_int(tree.get_nodes_in_group(&"bursts").size()).is_equal(2)
+	for burst: Burst in tree.get_nodes_in_group(&"bursts"):
+		burst.queue_free()
+	await _runner.simulate_frames(2, 17)
+	shooter.global_position = match_node.arena.pits[0].global_position
+	await _runner.simulate_frames(45, 17)
+	assert_bool(shooter.alive).is_false()
+	assert_int(tree.get_nodes_in_group(&"bursts").size()).is_equal(0)
+
+
 func test_a_pit_kills_a_kart_whatever_its_lives() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)

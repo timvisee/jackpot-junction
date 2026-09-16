@@ -58,6 +58,7 @@ func destroy() -> void:
 	if not alive:
 		return
 	alive = false
+	Burst.spawn(get_parent(), global_position, color, 0.8, 14)
 	destroyed.emit(self)
 	queue_free()
 
