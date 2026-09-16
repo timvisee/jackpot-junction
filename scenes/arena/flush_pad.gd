@@ -9,6 +9,11 @@ extends Area3D
 ##
 ## Every coin the pad pays out throws a ring of light off it, so the trickle can be seen from
 ## across the table rather than only read off the score.
+##
+## A claim does not last: a pad lapses back to nobody after [member decay] seconds, dimming as
+## it runs down, and driving over it again renews it. A flush therefore has to be put together
+## inside that window and then kept up, rather than three pads being banked for the whole match
+## while their holder waits for a chance at the fourth.
 
 signal claimed(pad: FlushPad, kart: Kart)
 
@@ -29,6 +34,10 @@ var size := 1.25
 ## Slot holding the pad, -1 for nobody.
 var owner_slot := -1
 var owner_color := NEUTRAL
+## Seconds a fresh claim lasts, set by the match from the rules.
+var decay := 30.0
+## Seconds this claim still has to run.
+var held_left := 0.0
 ## Seconds the pad still ignores karts after a flush.
 var disabled_left := 0.0
 var puppet := false
@@ -81,7 +90,12 @@ func _physics_process(delta: float) -> void:
 	_pulse += delta
 	_step_halo(delta)
 	if owner_slot >= 0 and not is_disabled():
-		_frame_material.emission_energy_multiplier = 0.9 + 0.5 * sin(_pulse * 4.0)
+		held_left = maxf(held_left - delta, 0.0)
+		# Dimming over the last stretch of the claim, so a pad about to lapse looks like one.
+		var fade := clampf(held_left / maxf(decay * 0.4, 0.001), 0.0, 1.0)
+		_frame_material.emission_energy_multiplier = (0.9 + 0.5 * sin(_pulse * 4.0)) * fade
+		if held_left <= 0.0 and not puppet:
+			claim(-1, NEUTRAL)
 	if is_disabled():
 		disabled_left = maxf(disabled_left - delta, 0.0)
 		if not is_disabled():
@@ -92,7 +106,11 @@ func _physics_process(delta: float) -> void:
 	# Polled rather than on entry, so a kart parked on a pad that comes back takes it too.
 	for body: Node3D in get_overlapping_bodies():
 		var kart := body as Kart
-		if kart == null or kart.slot == owner_slot or not _can_claim(kart):
+		if kart == null or not _can_claim(kart):
+			continue
+		if kart.slot == owner_slot:
+			# Its holder came back around: the claim is renewed rather than taken again.
+			held_left = decay
 			continue
 		claim(kart.slot, Palette.player_color(kart.color_index))
 		claimed.emit(self, kart)
@@ -121,6 +139,7 @@ func claim(slot: int, color: Color) -> void:
 	owner_slot = slot
 	# A new holder starts from nothing rather than inheriting the last one's change.
 	change = 0.0
+	held_left = decay if slot >= 0 else 0.0
 	owner_color = color if slot >= 0 else NEUTRAL
 	_refresh()
 
@@ -129,6 +148,7 @@ func claim(slot: int, color: Color) -> void:
 func clear_and_disable(seconds: float) -> void:
 	owner_slot = -1
 	change = 0.0
+	held_left = 0.0
 	owner_color = NEUTRAL
 	disabled_left = seconds
 	_refresh()
@@ -137,6 +157,8 @@ func clear_and_disable(seconds: float) -> void:
 ## A host snapshot's view of this pad, on a client.
 func apply_puppet_state(slot: int, color: Color, disabled: float) -> void:
 	puppet = true
+	if slot != owner_slot:
+		held_left = decay if slot >= 0 else 0.0
 	owner_slot = slot
 	owner_color = color if slot >= 0 else NEUTRAL
 	disabled_left = disabled

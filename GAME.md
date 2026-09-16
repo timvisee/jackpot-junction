@@ -289,7 +289,12 @@ paints its frame in your colour and takes it from whoever held it.
   pads ticking over from anywhere on the table.
 - Holding all four at once is a Royal Flush. The bonus is unchanged by the
   trickle: +3 mult and a full nitro tank, announced to everyone with a fanfare.
-- All four pads clear and stay disabled for 20 s, then come back neutral.
+- A claim lapses on its own after 30 s, the frame dimming over the last 12 s of it,
+  and driving over your own pad again renews it for another 30 s. A flush has to be
+  put together inside that window and then kept up; three pads cannot be banked for
+  the whole match while their holder waits for a chance at the fourth.
+- All four pads clear and stay disabled for 20 s after a flush, then come back
+  neutral.
 - Pads keep their colour when their holder dies, so a flush can be finished
   after a respawn, and stolen pads have to be won back.
 - Decoys cannot claim pads. Bots claim pads only by driving over them.

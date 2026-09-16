@@ -94,6 +94,7 @@ func start(inputs: Array[KartInput], seed: int = 0, colors: Array[int] = []) -> 
 	arena.junction.bank_tick.connect(_on_bank_tick)
 	arena.junction.bank_completed.connect(_on_bank_completed)
 	for pad: FlushPad in arena.flush_pads:
+		pad.decay = rules.flush_pad_decay
 		pad.claimed.connect(_on_pad_claimed)
 	arena.crate_broken.connect(_on_stat_crate)
 	arena.target_struck.connect(_on_target_struck)

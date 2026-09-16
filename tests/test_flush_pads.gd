@@ -79,6 +79,31 @@ func test_every_paid_coin_throws_a_ring_off_the_pad() -> void:
 	assert_bool(pads[0]._halo.visible).is_false()
 
 
+## GAME.md 3.9: a claim lapses on its own, and driving over your own pad renews it.
+func test_a_claim_lapses_on_its_own_and_driving_over_it_again_renews_it() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	var pad := match_node.arena.flush_pads[0]
+	assert_float(pad.decay).is_equal_approx(match_node.rules.flush_pad_decay, 0.01)
+	pad.decay = 1.0
+	await _park(kart, pad)
+	assert_int(pad.owner_slot).is_equal(0)
+	assert_float(pad.held_left).is_greater(0.0)
+	# Sitting on it renews the claim every time round, so it never lapses under its holder.
+	await _runner.simulate_frames(120, 17)
+	assert_int(pad.owner_slot).is_equal(0)
+	# Driven away from, it lapses back to nobody and stops paying.
+	kart.global_position = match_node.arena.spawn_points[0]
+	await _runner.simulate_frames(120, 17)
+	assert_int(pad.owner_slot).is_equal(-1)
+	assert_object(pad.owner_color).is_equal(FlushPad.NEUTRAL)
+	assert_bool(pad.is_disabled()).is_false()
+	# And it can be taken again straight away.
+	await _park(kart, pad)
+	assert_int(pad.owner_slot).is_equal(0)
+
+
 func test_driving_over_pads_claims_and_steals_them_and_all_four_score_a_flush() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)

@@ -49,6 +49,9 @@ extends Resource
 ## Coins every held pad trickles into its holder's pot each second, so a pad is worth
 ## something on its own rather than only as a quarter of the flush.
 @export var flush_pad_income := 1.0
+## Seconds a pad stays claimed before it lapses back to nobody. Driving over it again renews
+## it, so a flush has to be put together inside this window and then kept up.
+@export var flush_pad_decay := 30.0
 ## Mult gained for holding all four flush pads at once.
 @export var flush_mult := 3.0
 ## Fraction of the nitro tank a flush refills.

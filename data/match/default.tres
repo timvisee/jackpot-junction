@@ -34,6 +34,7 @@ jackpot_rate_base = 2.0
 jackpot_rate_doubling = 0.5
 last_call_accrual = 2.0
 flush_pad_income = 1.0
+flush_pad_decay = 30.0
 flush_mult = 3.0
 flush_nitro_refill = 1.0
 flush_disable_time = 20.0
