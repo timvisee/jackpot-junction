@@ -2,6 +2,8 @@ extends GdUnitTestSuite
 ## Spawning, shooting, dying and respawning in a running match, GAME.md 3.6.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const CANNON: CannonStats = preload("res://data/cannons/default.tres")
+const RULES: MatchRules = preload("res://data/match/default.tres")
 
 
 func test_pick_spawn_prefers_the_point_farthest_from_every_enemy() -> void:
@@ -34,7 +36,7 @@ func test_start_spawns_a_kart_per_input_facing_the_junction() -> void:
 
 func test_a_bullet_kills_the_kart_ahead_and_the_victim_respawns_protected() -> void:
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
-	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
 	match_node.rules = rules
 	match_node.with_hud = false
@@ -61,3 +63,26 @@ func test_a_bullet_kills_the_kart_ahead_and_the_victim_respawns_protected() -> v
 	assert_bool(victim.alive).is_true()
 	assert_float(victim.protection_left).is_greater(0.0)
 	assert_bool(victim.is_targetable()).is_false()
+
+
+func test_two_bullets_meeting_head_on_destroy_each_other() -> void:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	var rules: MatchRules = RULES.duplicate()
+	rules.countdown = 0.1
+	match_node.rules = rules
+	match_node.with_hud = false
+	var runner := scene_runner(match_node)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	match_node.start(inputs, 7)
+	await runner.simulate_frames(12, 17)
+	var stats := CANNON
+	var left := match_node.bullets.spawn(
+		0, Vector3(-6.0, 0.0, 1.0), Vector3(1.0, 0.0, 0.0), stats, Color.WHITE
+	)
+	var right := match_node.bullets.spawn(
+		1, Vector3(-1.0, 0.0, 1.0), Vector3(-1.0, 0.0, 0.0), stats, Color.WHITE
+	)
+	await runner.simulate_frames(20, 17)
+	assert_bool(is_instance_valid(left) and not left.is_dead()).is_false()
+	assert_bool(is_instance_valid(right) and not right.is_dead()).is_false()
+	assert_int(match_node.bullets.live_count()).is_equal(0)
