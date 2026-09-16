@@ -33,6 +33,8 @@ var bullets: BulletSystem
 var hud: MatchHud
 ## How hot the match feels, read by the music, the arena lights and the camera.
 var intensity: MatchIntensity
+## What the bots copy from the players, and how hard they are trying.
+var bot_mirror := BotMirror.new()
 var nav: ArenaNav
 var countdown_left := 0.0
 var time_left := 0.0
@@ -389,6 +391,7 @@ func _physics_process(delta: float) -> void:
 				return
 			_step_respawns(delta)
 			_step_stats(delta)
+			bot_mirror.update(self)
 			arena.junction.hint = junction_hint()
 			arena.disco.level = intensity.value
 			# Only the last stretch of the meter trembles the camera, and only a little.

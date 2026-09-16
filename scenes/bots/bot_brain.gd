@@ -4,6 +4,9 @@ extends Node
 ## weights and the situation; every tick it follows a grid path toward the goal, dodges bullets
 ## it can see coming, fires when an enemy is in front of the cannon after its reaction delay, and
 ## uses its item when the moment fits. Writes into a [BotInput] the kart reads.
+##
+## How keenly it does any of that is set by the [BotMirror] on the match: the bots play at
+## the pitch the players set, with their own trait on top.
 
 const DECISION_INTERVAL := 0.1
 const REPLAN_INTERVAL := 0.3
@@ -45,6 +48,8 @@ var _willing_to_fire := true
 var _stuck_time := 0.0
 var _reverse_left := 0.0
 var _item_hold_time := 0.0
+## Stands in for the match's reading when a brain is stepped on its own, in tests.
+var _fallback := BotMirror.new()
 
 
 func setup(
@@ -92,7 +97,8 @@ static func choose_goal(context: Dictionary, personality: BotTrait) -> StringNam
 	if float(context.get("boost_enemy_distance", INF)) <= personality.flee_distance:
 		return &"flee"
 	var pot := int(context.get("pot_value", 0))
-	var threshold := personality.bank_threshold
+	# A bot that is behind settles for a smaller pot; one that is ahead can afford to hoard.
+	var threshold := roundi(personality.bank_threshold / float(context.get("bank_urgency", 1.0)))
 	if bool(context.get("last_call", false)):
 		threshold = personality.last_call_bank_threshold
 	if pot > 0 and (pot >= threshold or float(context.get("time_left", INF)) < 20.0):
@@ -118,7 +124,7 @@ static func choose_goal(context: Dictionary, personality: BotTrait) -> StringNam
 	var item := 0.0
 	var item_distance := float(context.get("item_distance", INF))
 	if not bool(context.get("has_item", false)) and item_distance <= 12.0:
-		item = 0.8 * personality.collect_weight
+		item = 0.8 * personality.collect_weight * float(context.get("item_appetite", 1.0))
 	if hunt > 0.0 and hunt >= collect and hunt >= item:
 		return &"hunt"
 	if item > 0.0 and item > collect:
@@ -175,7 +181,10 @@ func _decide() -> void:
 
 
 func _context() -> Dictionary:
+	var mirror := _mirror()
 	var context := {
+		"item_appetite": mirror.item_appetite(),
+		"bank_urgency": mirror.effort,
 		"pot_value": kart.pot.value(),
 		"time_left": match_node.time_left,
 		"last_call": match_node.state == Match.State.LAST_CALL,
@@ -296,10 +305,12 @@ func _steer(delta: float) -> void:
 		if not to_waypoint.is_zero_approx()
 		else 0.0
 	)
+	var mirror := _mirror()
 	input.steer = -clampf(angle * 2.0, -1.0, 1.0)
-	input.throttle = difficulty.top_speed_fraction
+	# Bots that are ahead lift off; being behind cannot push them past their own top speed.
+	input.throttle = difficulty.top_speed_fraction * minf(mirror.effort, 1.0)
 	input.brake = 0.0
-	input.handbrake = absf(angle) > 1.0 and kart.motor.speed_fraction() > 0.6
+	input.handbrake = (absf(angle) > mirror.drift_angle() and kart.motor.speed_fraction() > 0.6)
 	if absf(angle) > 1.7:
 		input.throttle = 0.35
 	if _should_hold_position():
@@ -400,7 +411,7 @@ func _shoot(delta: float) -> void:
 	_aim_error_left -= delta
 	if _aim_error_left <= 0.0:
 		_aim_error_left = AIM_ERROR_INTERVAL
-		var spread := deg_to_rad(difficulty.aim_error_deg)
+		var spread := deg_to_rad(difficulty.aim_error_deg / _mirror().effort)
 		_aim_error = rng.randf_range(-spread, spread)
 	input.fire = false
 	if not _willing_to_fire or bot_trait.rams:
@@ -430,11 +441,17 @@ func _use_item(delta: float) -> void:
 		_item_hold_time = 0.0
 		return
 	_item_hold_time += delta
-	var use := _item_hold_time >= ITEM_PATIENCE
+	var mirror := _mirror()
+	# A bot holds on to an item roughly as long as the players do, and only plays it cleverly
+	# once they have shown they play theirs.
+	var use := _item_hold_time >= mirror.item_patience(ITEM_PATIENCE)
 	var enemy := _nearest_enemy()
 	var enemy_distance := (
 		kart.global_position.distance_to(enemy.global_position) if enemy != null else INF
 	)
+	if mirror.items <= 0.3:
+		input.use_item_pressed = use
+		return
 	match item.id:
 		&"boost":
 			use = (
@@ -461,7 +478,8 @@ func _use_item(delta: float) -> void:
 ## Nitro goes into a charge at a close enemy in front, or into escaping a Boosting kart.
 func _burn_nitro() -> void:
 	input.nitro = false
-	if goal == &"flee" and kart.nitro_charge > 0.3:
+	var need := _mirror().nitro_threshold()
+	if goal == &"flee" and kart.nitro_charge > need:
 		input.nitro = true
 		return
 	if goal != &"hunt" or target_node == null or not is_instance_valid(target_node):
@@ -470,7 +488,9 @@ func _burn_nitro() -> void:
 	to_enemy.y = 0.0
 	var ahead := absf(kart.motor.forward_vector().signed_angle_to(to_enemy, Vector3.UP)) < 0.4
 	input.nitro = (
-		ahead and to_enemy.length() < 9.0 and (kart.nitro_active or kart.nitro_charge > 0.5)
+		ahead
+		and to_enemy.length() < 9.0
+		and (kart.nitro_active or kart.nitro_charge > minf(need + 0.2, 1.05))
 	)
 
 
@@ -481,6 +501,11 @@ func _enemy_behind(enemy: Kart) -> bool:
 	var to_enemy := enemy.global_position - kart.global_position
 	to_enemy.y = 0.0
 	return to_enemy.dot(kart.motor.forward_vector()) < 0.0
+
+
+## The match's reading of the players, or a neutral one when there is no match to ask.
+func _mirror() -> BotMirror:
+	return match_node.bot_mirror if match_node != null else _fallback
 
 
 func _bullets_nearby(radius: float) -> bool:

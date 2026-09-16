@@ -788,6 +788,23 @@ bot:
 | Dodge chance     | 40%   | 65%    | 85%   |
 | Top speed        | 90%   | 100%   | 100%  |
 
+Bots play at the pitch the players set, which the code calls the mirror. Every
+few ticks the match reads the human players' own statistics from 3.8 and turns
+them into four numbers the bots use:
+
+| Reading | Taken from                             | What it changes                                               |
+|---------|----------------------------------------|---------------------------------------------------------------|
+| Items   | Items used per minute, 3 is all-in     | How long a bot sits on an item, from 30 s down to 2 s, and whether it plays items cleverly at all, which needs a reading above 0.3. Also how far it will go out of its way for an item box |
+| Nitro   | Share of the match spent burning nitro, a twentieth is all-in | How full a bot wants its tank before burning any, from a full tank, meaning never, down to 30% |
+| Drift   | Share of distance driven sideways, a quarter is all-in | The corner a bot will yank the handbrake in, from 137°, meaning never, down to 52° |
+| Effort  | Banked points between the best player and the best bot, 800 is a full step, held between 0.7 and 1.3 | Throttle while ahead, aim error, and the pot a bot settles for before heading to the Junction |
+
+The first 45 s are measured as if they lasted 45 s, so one early item does not
+peg the whole match. Traits still apply over the top: a Bumper is a Bumper
+whatever the players do, it just does its Bumper things at their pitch. Effort
+never pushes a bot past its own top speed, only lets it lift off when it is
+winning, so the bots close a gap by playing better rather than by cheating.
+
 ### 9.2 Local multiplayer
 
 Shared screen, up to 4 players, gamepads plus one keyboard and mouse player.
