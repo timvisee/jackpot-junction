@@ -100,3 +100,14 @@ func test_match_scene_starts_from_the_pending_configuration() -> void:
 			hints += 1
 	assert_int(hints).is_equal(1)
 	Game.pending_config = null
+
+
+func test_a_freed_control_hint_leaves_no_connection_behind() -> void:
+	var kart: Kart = auto_free(load("res://scenes/kart/kart.tscn").instantiate())
+	add_child(kart)
+	var hint := ControlHint.attach(kart, DeviceInput.KEYBOARD)
+	assert_bool(kart.fired.is_connected(hint._on_fired)).is_true()
+	hint.free()
+	assert_int(kart.fired.get_connections().size()).is_equal(0)
+	var none: Array[Bullet] = []
+	kart.fired.emit(none)

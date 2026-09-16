@@ -24,7 +24,8 @@ static func attach(target: Kart, device: int) -> ControlHint:
 	hint.modulate = Palette.CHIP_WHITE
 	hint.position = Vector3(0.0, 2.2, 0.0)
 	target.add_child(hint)
-	target.fired.connect(func(_bullets: Array[Bullet]) -> void: hint._fired = true)
+	# A method connection, not a lambda: it is dropped automatically when the hint is freed.
+	target.fired.connect(hint._on_fired)
 	return hint
 
 
@@ -48,6 +49,15 @@ static func hint_text(device: int) -> String:
 		DeviceInput.ANY:
 			return keyboard + "\n" + gamepad
 	return gamepad
+
+
+func _exit_tree() -> void:
+	if kart != null and is_instance_valid(kart) and kart.fired.is_connected(_on_fired):
+		kart.fired.disconnect(_on_fired)
+
+
+func _on_fired(_bullets: Array[Bullet]) -> void:
+	_fired = true
 
 
 func _process(delta: float) -> void:
