@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/aimbot.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"aimbot"
+display_name = "Aimbot"
+description = "Every shot leaves the barrel aimed up to 14° toward the nearest enemy."
+rarity = 2
+kind = 1

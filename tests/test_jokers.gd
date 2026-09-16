@@ -42,9 +42,9 @@ func _chip(dropped := false, gold := false) -> Chip:
 	return auto_free(chip)
 
 
-func test_catalog_has_twenty_unique_jokers_and_offers_exclude_held_ones() -> void:
+func test_catalog_has_unique_jokers_and_offers_exclude_held_ones() -> void:
 	var catalog: JokerCatalog = CATALOG
-	assert_int(catalog.jokers.size()).is_equal(20)
+	assert_int(catalog.jokers.size()).is_equal(22)
 	var ids: Array[StringName] = []
 	for joker: Joker in catalog.jokers:
 		(
@@ -117,6 +117,69 @@ func test_the_hud_deals_the_jokers_as_cards_and_lifts_the_one_picked_in_the_menu
 	_attach(kart, "big_tank")
 	await _runner.simulate_frames(2, 17)
 	assert_int(hand.card_count()).is_equal(3)
+
+
+func test_curve_ball_bends_bullets_hard_and_after_a_bounce() -> void:
+	var match_node := _start_match(_bots())
+	var kart := match_node.kart_of(0)
+	var plain := kart.cannon.stats.aim_assist_turn_rate_deg
+	assert_bool(kart.cannon.stats.assist_after_bounce).is_false()
+	_attach(kart, "curve_ball")
+	var curved := kart.cannon.stats
+	assert_bool(curved.aim_assist).is_true()
+	assert_float(curved.aim_assist_turn_rate_deg).is_greater(plain * 2.0)
+	assert_float(curved.aim_assist_cone_deg).is_greater(50.0)
+	assert_bool(curved.assist_after_bounce).is_true()
+	# A bullet fired 20° wide of an enemy, into the open, curves onto it instead of sailing past.
+	var enemy := match_node.kart_of(1)
+	enemy.global_position = Vector3(6.0, 0.0, -9.375)
+	kart.global_position = Vector3(-6.0, 0.0, -9.375)
+	kart.face(Vector3(1.0, 0.0, 0.0))
+	await _runner.simulate_frames(2, 17)
+	kart.cannon.cooldown_left = 0.0
+	var shots := kart.cannon.fire(
+		match_node.bullets,
+		0,
+		kart.global_position + Vector3(1.2, 0.0, 0.0),
+		Vector3(1.0, 0.0, 0.0).rotated(Vector3.UP, deg_to_rad(-20.0)),
+		Color.WHITE
+	)
+	var bullet: Bullet = shots[0]
+	assert_bool(bullet.assist_after_bounce).is_true()
+	var start := bullet.global_position.distance_to(enemy.global_position)
+	await _runner.simulate_frames(40, 17)
+	(
+		assert_int(match_node.slots[1].deaths)
+		. override_failure_message("the curved bullet missed; it started %.1f m away" % start)
+		. is_equal(1)
+	)
+	assert_int(match_node.slots[0].kills).is_equal(1)
+
+
+func test_aimbot_turns_the_shot_toward_the_nearest_enemy() -> void:
+	var match_node := _start_match(_bots())
+	var kart := match_node.kart_of(0)
+	var enemy := match_node.kart_of(1)
+	assert_float(kart.cannon.stats.auto_aim_deg).is_equal(0.0)
+	kart.global_position = Vector3(-6.0, 0.0, 4.0)
+	kart.face(Vector3(1.0, 0.0, 0.0))
+	enemy.global_position = Vector3(0.0, 0.0, 2.0)
+	await _runner.simulate_frames(2, 17)
+	# Without the joker the shot goes exactly where the kart points.
+	var straight := kart._auto_aimed(Vector3(1.0, 0.0, 0.0))
+	assert_vector(straight).is_equal_approx(Vector3(1.0, 0.0, 0.0), Vector3.ONE * 0.001)
+	_attach(kart, "aimbot")
+	assert_float(kart.cannon.stats.auto_aim_deg).is_equal_approx(14.0, 0.001)
+	var aimed := kart._auto_aimed(Vector3(1.0, 0.0, 0.0))
+	var toward := (enemy.global_position - kart.global_position).normalized()
+	assert_float(rad_to_deg(aimed.angle_to(Vector3(1.0, 0.0, 0.0)))).is_equal_approx(14.0, 0.5)
+	assert_float(aimed.angle_to(toward)).is_less(Vector3(1.0, 0.0, 0.0).angle_to(toward))
+	# Nothing in range leaves the shot alone.
+	enemy.global_position = Vector3(18.0, 0.0, 18.0)
+	await _runner.simulate_frames(2, 17)
+	assert_vector(kart._auto_aimed(Vector3(1.0, 0.0, 0.0))).is_equal_approx(
+		Vector3(1.0, 0.0, 0.0), Vector3.ONE * 0.001
+	)
 
 
 func test_stat_jokers_rebuild_the_karts_own_stats_and_removal_restores_them() -> void:

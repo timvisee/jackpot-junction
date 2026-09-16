@@ -22,3 +22,9 @@ extends Resource
 @export var aim_assist_cone_deg := 15.0
 @export var aim_assist_range := 15.0
 @export var aim_assist_turn_rate_deg := 50.0
+## Whether bullets keep bending after their first bounce, which Curve Ball turns on.
+@export var assist_after_bounce := false
+## Degrees a shot is turned toward the nearest enemy as it leaves the barrel, for Aimbot.
+@export var auto_aim_deg := 0.0
+## How far Aimbot looks for that enemy.
+@export var auto_aim_range := 20.0

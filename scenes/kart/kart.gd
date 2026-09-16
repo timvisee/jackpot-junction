@@ -270,14 +270,16 @@ func set_aim_arrow_visible(on: bool) -> void:
 func rebuild_stats() -> void:
 	stats = base_stats.duplicate()
 	cannon_stats = base_cannon_stats.duplicate()
-	for joker: Joker in jokers.jokers:
-		joker.modify_kart_stats(stats)
-		joker.modify_cannon_stats(cannon_stats)
 	if input is PlayerInput:
+		# The accessibility setting scales the built-in assist. Jokers come after it, so Curve
+		# Ball still curves for a player who turned the assist off.
 		var strength := clampf(Game.settings.aim_assist, 0.0, 1.0)
 		cannon_stats.aim_assist_cone_deg *= strength
 		cannon_stats.aim_assist_turn_rate_deg *= strength
 		cannon_stats.aim_assist = cannon_stats.aim_assist and strength > 0.0
+	for joker: Joker in jokers.jokers:
+		joker.modify_kart_stats(stats)
+		joker.modify_cannon_stats(cannon_stats)
 	if is_wounded():
 		stats.top_speed *= rules.wounded_speed
 	motor.stats = stats
@@ -722,13 +724,37 @@ func apply_turbo(direction: Vector3) -> void:
 
 
 func _fire() -> void:
-	var direction := aim_direction()
+	var direction := _auto_aimed(aim_direction())
 	var origin := global_position + direction * cannon_stats.muzzle_offset
 	var shots := cannon.fire(
 		bullet_system, slot, origin, direction, Palette.player_color(color_index), global_position
 	)
 	fired.emit(shots)
 	Events.bullet_fired.emit(slot)
+
+
+## Aimbot, GAME.md 7.3: turns the shot part of the way toward the nearest enemy in front, up
+## to [member CannonStats.auto_aim_deg]. Without the joker that is zero and the shot goes
+## exactly where the kart points.
+func _auto_aimed(direction: Vector3) -> Vector3:
+	var active := cannon.current_stats()
+	if active.auto_aim_deg <= 0.0:
+		return direction
+	var target := Bullet.nearest_target(get_tree(), global_position, slot, active.auto_aim_range)
+	if target == null:
+		return direction
+	return (
+		Bullet
+		. steer_toward(
+			direction,
+			global_position,
+			target.global_position,
+			deg_to_rad(90.0),
+			active.auto_aim_range,
+			deg_to_rad(active.auto_aim_deg)
+		)
+		. normalized()
+	)
 
 
 func _step_protection(delta: float) -> void:

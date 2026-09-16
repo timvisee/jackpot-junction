@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/curve_ball.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"curve_ball"
+display_name = "Curve Ball"
+description = "Your bullets curve hard toward enemies, further out, and keep curving after a bounce."
+rarity = 1
+kind = 1

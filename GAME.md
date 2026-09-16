@@ -392,7 +392,11 @@ bounces back into the shooter.
 
 ### 5.2 Aim assist
 
-To make forward-only aiming forgiving, bullets bend slightly toward targets.
+To make forward-only aiming forgiving, bullets bend slightly toward targets. The bend stops
+at the first bounce and the accessibility setting in 8.5 scales it, down to nothing. Two
+jokers change this: Curve Ball bends much harder and keeps bending after a bounce, and
+Aimbot turns the shot toward the nearest enemy as it leaves the barrel. Both work at their
+own strength whatever the accessibility setting says.
 
 | Parameter    | Starting value                                                  |
 |--------------|-----------------------------------------------------------------|
@@ -556,6 +560,8 @@ a real downside. Starting set; balance is untested.
 | Loaded Dice      | Uncommon | Rule   | Every chip has a 10% chance to count as a gold chip                       |
 | Toll Booth       | Uncommon | Rule   | Whenever another kart completes a cash-out, you bank 5% of it             |
 | High Roller      | Uncommon | Cursed | All mult gains are doubled, but death banks 0%                            |
+| Curve Ball       | Uncommon | Rule   | Your bullets curve hard toward enemies: a 55° cone out to 22 m at 150°/s, and they keep curving after a bounce |
+| Aimbot           | Rare     | Rule   | Every shot leaves the barrel turned up to 14° toward the nearest enemy within 20 m and in front of you |
 | Road Rage        | Uncommon | Cursed | Ramming above 90% of top speed kills without Boost, but top speed is -10% |
 | Snake Eyes       | Uncommon | Cursed | Start every life with mult 3, but grazes give nothing                     |
 | Lucky Seven      | Rare     | Rule   | Every 7th chip you collect gives +1 mult                                  |

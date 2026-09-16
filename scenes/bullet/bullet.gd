@@ -24,6 +24,8 @@ var assist_enabled := true
 var assist_cone := 0.2
 var assist_range := 15.0
 var assist_turn_rate := 0.5
+## Whether the bend survives a bounce.
+var assist_after_bounce := false
 ## Where this tick's movement started, for sweeps against other bullets.
 var previous_position := Vector3.ZERO
 ## The shooter's centre; anything solid between it and the muzzle stops the bullet at once.
@@ -84,6 +86,7 @@ func setup(
 	assist_cone = deg_to_rad(stats.aim_assist_cone_deg)
 	assist_range = stats.aim_assist_range
 	assist_turn_rate = deg_to_rad(stats.aim_assist_turn_rate_deg)
+	assist_after_bounce = stats.assist_after_bounce
 
 
 func _ready() -> void:
@@ -126,7 +129,7 @@ func _physics_process(delta: float) -> void:
 	if lifetime_left <= 0.0:
 		destroy()
 		return
-	if assist_enabled and not bounced:
+	if assist_enabled and (assist_after_bounce or not bounced):
 		_steer(delta)
 	_move(delta)
 	if _dead:
@@ -169,15 +172,23 @@ static func steer_toward(
 
 
 func _nearest_target() -> Node3D:
+	return nearest_target(get_tree(), global_position, owner_slot)
+
+
+## The nearest kart or turret that may be shot right now, skipping [param ignore_slot]'s own
+## and anything further away than [param max_range].
+static func nearest_target(
+	tree: SceneTree, from: Vector3, ignore_slot: int, max_range: float = INF
+) -> Node3D:
 	var best: Node3D = null
-	var best_distance := INF
-	for node: Node in get_tree().get_nodes_in_group(TARGET_GROUP):
+	var best_distance := max_range
+	for node: Node in tree.get_nodes_in_group(TARGET_GROUP):
 		var target := node as Node3D
 		if target == null or not target.has_method("is_targetable"):
 			continue
-		if not target.call("is_targetable") or target.get("slot") == owner_slot:
+		if not target.call("is_targetable") or target.get("slot") == ignore_slot:
 			continue
-		var distance := global_position.distance_to(target.global_position)
+		var distance := from.distance_to(target.global_position)
 		if distance < best_distance:
 			best_distance = distance
 			best = target
