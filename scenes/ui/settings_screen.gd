@@ -17,6 +17,7 @@ const REBINDABLE: Array[StringName] = [
 	InputActions.JOKER_DESTROY,
 	InputActions.PAUSE,
 	InputActions.JOIN,
+	InputActions.MUTE_MUSIC,
 ]
 
 var tabs: TabContainer
@@ -211,7 +212,13 @@ func _audio_tab() -> Control:
 			_volume_slider(_settings.sfx_volume, func(v: float) -> void: _settings.sfx_volume = v)
 		)
 	)
+	column.add_child(MenuTheme.row("Music muted", _check(_settings.music_muted, _set_music_muted)))
 	return column
+
+
+func _set_music_muted(on: bool) -> void:
+	_settings.music_muted = on
+	_settings.apply_audio()
 
 
 func _volume_slider(value: float, setter: Callable) -> HSlider:

@@ -31,6 +31,8 @@ const AIM_DOWN := &"aim_down"
 const PAUSE := &"pause"
 ## Claims a device for a player in the lobby or joins a running match.
 const JOIN := &"join"
+## Toggles the music bus at once.
+const MUTE_MUSIC := &"mute_music"
 
 const DEFAULT_DEADZONE := 0.2
 const STICK_DEADZONE := 0.15
@@ -62,6 +64,7 @@ const DEFAULTS: Dictionary[StringName, Array] = {
 	AIM_DOWN: [{"axis": JOY_AXIS_RIGHT_Y, "value": 1.0}],
 	PAUSE: [{"key": KEY_ESCAPE}, {"button": JOY_BUTTON_START}],
 	JOIN: [{"key": KEY_J}, {"button": JOY_BUTTON_START}],
+	MUTE_MUSIC: [{"key": KEY_M}],
 }
 
 ## Actions driven by an analog stick get a smaller deadzone.

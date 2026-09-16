@@ -92,6 +92,25 @@ func _ready() -> void:
 		play_music()
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(InputActions.MUTE_MUSIC):
+		toggle_music_mute()
+		get_viewport().set_input_as_handled()
+
+
+## Mutes or unmutes the music bus at once and remembers the choice.
+func toggle_music_mute() -> void:
+	Game.settings.music_muted = not Game.settings.music_muted
+	Game.settings.apply_audio()
+	Game.settings.save_to_disk()
+	play_sfx(&"ui_click", -10.0, 0.0)
+
+
+func is_music_muted() -> bool:
+	var music := AudioServer.get_bus_index("Music")
+	return music >= 0 and AudioServer.is_bus_mute(music)
+
+
 func _process(delta: float) -> void:
 	_bank_tick_left = maxf(_bank_tick_left - delta, 0.0)
 	if _tense_left > 0.0:

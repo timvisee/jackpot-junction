@@ -9,6 +9,8 @@ const AIM_ASSIST_MAX := 1.0
 var master_volume := 1.0
 var music_volume := 0.8
 var sfx_volume := 1.0
+## Music switched off entirely, toggled with the mute key.
+var music_muted := false
 var fullscreen := false
 var vsync := true
 var render_scale := 1.0
@@ -40,6 +42,7 @@ func load_from_disk() -> void:
 	master_volume = file.get_value("audio", "master", master_volume)
 	music_volume = file.get_value("audio", "music", music_volume)
 	sfx_volume = file.get_value("audio", "sfx", sfx_volume)
+	music_muted = file.get_value("audio", "music_muted", music_muted)
 	fullscreen = file.get_value("video", "fullscreen", fullscreen)
 	vsync = file.get_value("video", "vsync", vsync)
 	render_scale = file.get_value("video", "render_scale", render_scale)
@@ -66,6 +69,7 @@ func save_to_disk() -> Error:
 	file.set_value("audio", "master", master_volume)
 	file.set_value("audio", "music", music_volume)
 	file.set_value("audio", "sfx", sfx_volume)
+	file.set_value("audio", "music_muted", music_muted)
 	file.set_value("video", "fullscreen", fullscreen)
 	file.set_value("video", "vsync", vsync)
 	file.set_value("video", "render_scale", render_scale)
@@ -98,6 +102,9 @@ func apply_audio() -> void:
 	_set_bus("Master", master_volume)
 	_set_bus("Music", music_volume)
 	_set_bus("SFX", sfx_volume)
+	var music := AudioServer.get_bus_index("Music")
+	if music >= 0 and music_muted:
+		AudioServer.set_bus_mute(music, true)
 
 
 func apply_video(tree: SceneTree) -> void:

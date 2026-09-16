@@ -304,6 +304,7 @@ assigns physical devices to player slots, see 10.2.
 | Free aim, Swivel Cannon only| Right stick         | Mouse position on the arena plane |
 | Pause                       | Start               | Esc                       |
 | Join, in lobby or mid-match | Start               | J                         |
+| Mute music                  |                     | M                         |
 
 ### 4.3 Trails
 

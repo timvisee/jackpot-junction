@@ -48,3 +48,13 @@ func test_everyone_down_calms_the_music_at_once() -> void:
 	Audio.mark_excitement()
 	Audio.mark_all_players_down()
 	assert_str(Audio.current_layer).is_equal("calm")
+
+
+func test_the_mute_toggle_flips_the_music_bus_and_the_setting() -> void:
+	var muted_before := Game.settings.music_muted
+	Audio.toggle_music_mute()
+	assert_bool(Game.settings.music_muted).is_not_equal(muted_before)
+	assert_bool(Audio.is_music_muted()).is_equal(Game.settings.music_muted)
+	Audio.toggle_music_mute()
+	assert_bool(Game.settings.music_muted).is_equal(muted_before)
+	assert_bool(Audio.is_music_muted()).is_equal(muted_before)
