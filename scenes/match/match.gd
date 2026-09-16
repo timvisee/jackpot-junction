@@ -390,6 +390,8 @@ func _physics_process(delta: float) -> void:
 			_step_respawns(delta)
 			_step_stats(delta)
 			arena.junction.hint = junction_hint()
+			# Only the last stretch of the meter trembles the camera, and only a little.
+			camera_rig.tremble = maxf(intensity.value - 0.75, 0.0) * 4.0
 
 
 ## How loudly the Junction should blink: from the biggest pot a local player is carrying,
@@ -496,6 +498,9 @@ func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> voi
 	slot.respawn_left = rules.respawn_delay
 	slot.offer = _make_offer(slot)
 	Events.kart_killed.emit(slot.index, killer_slot, cause)
+	if camera_rig != null:
+		# A kill in a hot match hits harder than the first one of the round.
+		camera_rig.shake(0.2 + 0.5 * intensity.value)
 	_check_target()
 
 

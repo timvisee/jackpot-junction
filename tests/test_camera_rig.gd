@@ -44,3 +44,28 @@ func test_pan_follows_the_targets_but_stays_within_the_limit() -> void:
 	assert_float(pan.length()).is_equal_approx(rig.pan_limit, 0.001)
 	assert_float(pan.x).is_greater(0.0)
 	assert_float(pan.z).is_greater(0.0)
+
+
+## GAME.md 8.4: a frantic match gives the camera a faint constant tremble, and the toggle in 8.5
+## still switches every kind of shake off.
+func test_a_tremble_keeps_the_camera_shaking_and_the_setting_still_silences_it() -> void:
+	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())
+	add_child(rig)
+	rig.frame_arena(BOUNDS)
+	var shake_was := Game.settings.screen_shake
+	Game.settings.screen_shake = true
+	rig._shake = 0.0
+	rig.tremble = 1.0
+	await await_idle_frame()
+	await await_idle_frame()
+	assert_float(rig._shake).is_greater(0.0)
+	rig.tremble = 0.0
+	for i: int in 30:
+		await await_idle_frame()
+	assert_float(rig._shake).is_equal_approx(0.0, 0.001)
+	Game.settings.screen_shake = false
+	rig.tremble = 1.0
+	for i: int in 4:
+		await await_idle_frame()
+	assert_float(rig._shake).is_equal_approx(0.0, 0.001)
+	Game.settings.screen_shake = shake_was

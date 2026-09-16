@@ -686,7 +686,13 @@ every kart, so everyone sees when an opponent cashes out.
   dead the meter drops to zero and the music calms at once. Last Call pins the
   meter at 1 and switches to the full mix until the results. The F3 overlay
   shows the meter with its two parts, the layer, both players' levels and
-  positions, and the mute state.
+  positions, how far the filter is open, and the mute state.
+- **Winding up**: the music bus carries a low-pass filter and a gain stage that
+  follow the meter, sweeping from a dulled 3.8 kHz up to fully open with 1.5 dB
+  of lift, so the track opens out as the match heats up. Both sit after the bus
+  volume, so the audio settings keep full control. A kill shakes the camera by
+  0.2 plus half the meter, and above 0.75 the camera picks up a faint constant
+  tremble. All shake obeys the accessibility toggle in 8.5.
 - **Chips**: clink on pickup, pitch rising with rapid pickups.
 - **Mult**: dice rattle on gain, a soft ping on graze.
 - **Cash-out**: slot-machine ticks while draining, a jackpot chime on

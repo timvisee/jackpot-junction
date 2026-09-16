@@ -12,6 +12,8 @@ extends Node3D
 @export var zoom_max := 1.07
 @export var smoothing := 0.6
 @export var shake_decay := 4.0
+## A faint constant tremble, 0 to 1, for when the match is at its most frantic.
+var tremble := 0.0
 
 var targets: Array[Node3D] = []
 var camera: Camera3D
@@ -68,6 +70,8 @@ func _process(delta: float) -> void:
 	_pan = _pan.lerp(_target_pan(), blend)
 	_zoom = lerpf(_zoom, _target_zoom(), blend)
 	_shake = maxf(_shake - shake_decay * delta * maxf(_shake, 0.1), 0.0)
+	if tremble > 0.0:
+		shake(tremble * 0.08)
 	_place(_distance, _pan, _zoom)
 
 

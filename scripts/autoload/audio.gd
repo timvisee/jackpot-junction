@@ -26,6 +26,13 @@ const TENSE_ON := 0.5
 const TENSE_OFF := 0.3
 ## Nothing has refreshed the intensity for this long: no match is running, so wind down.
 const INTENSITY_TIMEOUT := 0.5
+## The music bus opens up as the match heats up: a low-pass filter sweeps from a dulled
+## cutoff to fully open, and a little gain comes in with it.
+const FILTER_CLOSED_HZ := 3800.0
+const FILTER_OPEN_HZ := 20500.0
+const HOT_GAIN_DB := 1.5
+## How fast the filter follows the meter, per second, so it sweeps rather than snaps.
+const OPEN_FOLLOW := 0.8
 const BANK_TICK_INTERVAL := 0.07
 
 ## Effect name to the files it picks from at random.
@@ -82,6 +89,10 @@ var _music_players: Array[AudioStreamPlayer] = []
 var _active_player := 0
 var _music_tween: Tween
 var _intensity_age := 0.0
+## The filter's own smoothed take on the intensity, 0 dulled and 1 wide open.
+var _open := 0.0
+var _filter: AudioEffectLowPassFilter
+var _amplify: AudioEffectAmplify
 var _last_call := false
 var _bank_tick_left := 0.0
 var _bank_pitch := 1.0
@@ -100,9 +111,24 @@ func _ready() -> void:
 		player.volume_linear = 0.0
 		add_child(player)
 		_music_players.append(player)
+	_build_music_effects()
 	_connect_events()
 	if not Game.is_headless():
 		play_music()
+
+
+## Puts a sweepable low-pass filter and a gain stage on the music bus. They sit after the bus
+## volume, so the settings in 8.5 keep full control of how loud the music is.
+func _build_music_effects() -> void:
+	var bus := AudioServer.get_bus_index(BUS_MUSIC)
+	if bus < 0:
+		return
+	_filter = AudioEffectLowPassFilter.new()
+	_filter.cutoff_hz = FILTER_CLOSED_HZ
+	AudioServer.add_bus_effect(bus, _filter)
+	_amplify = AudioEffectAmplify.new()
+	_amplify.volume_db = 0.0
+	AudioServer.add_bus_effect(bus, _amplify)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -117,6 +143,16 @@ func toggle_music_mute() -> void:
 	Game.settings.apply_audio()
 	Game.settings.save_to_disk()
 	play_sfx(&"ui_click", -10.0, 0.0)
+
+
+## Sweeps the filter open and the gain up as the meter rises, and back down as it falls.
+func _step_music_effects(delta: float) -> void:
+	if _filter == null:
+		return
+	_open = move_toward(_open, intensity, OPEN_FOLLOW * delta)
+	# Cutoff by ear rather than by number: an octave is a doubling, so sweep it that way.
+	_filter.cutoff_hz = FILTER_CLOSED_HZ * pow(FILTER_OPEN_HZ / FILTER_CLOSED_HZ, _open)
+	_amplify.volume_db = HOT_GAIN_DB * _open
 
 
 func is_music_muted() -> bool:
@@ -143,6 +179,7 @@ func music_debug() -> String:
 			)
 		else:
 			parts.append("%s%s off" % [mark, file])
+	parts.append("open %3.0f%%" % (_open * 100.0))
 	if is_music_muted():
 		parts.append("MUTED")
 	elif not music_enabled:
@@ -156,6 +193,7 @@ func _process(delta: float) -> void:
 	if _intensity_age > INTENSITY_TIMEOUT and intensity > 0.0:
 		# The match is over or gone: let the music settle.
 		set_intensity(maxf(intensity - delta, 0.0))
+	_step_music_effects(delta)
 
 
 ## Plays a one-shot effect by library name, with a little random pitch.

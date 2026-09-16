@@ -80,3 +80,24 @@ func test_the_mute_toggle_flips_the_music_bus_and_the_setting() -> void:
 	Audio.toggle_music_mute()
 	assert_bool(Game.settings.music_muted).is_equal(muted_before)
 	assert_bool(Audio.is_music_muted()).is_equal(muted_before)
+
+
+## GAME.md 8.4: the music bus opens up as the match heats up and closes again as it cools.
+func test_the_music_bus_sweeps_open_with_the_intensity() -> void:
+	assert_object(Audio._filter).is_not_null()
+	assert_object(Audio._amplify).is_not_null()
+	Audio._open = 0.0
+	Audio._step_music_effects(0.0)
+	assert_float(Audio._filter.cutoff_hz).is_equal_approx(Audio.FILTER_CLOSED_HZ, 1.0)
+	assert_float(Audio._amplify.volume_db).is_equal_approx(0.0, 0.01)
+	Audio.set_intensity(1.0)
+	for i: int in 40:
+		Audio._step_music_effects(0.05)
+	assert_float(Audio._open).is_equal_approx(1.0, 0.01)
+	assert_float(Audio._filter.cutoff_hz).is_equal_approx(Audio.FILTER_OPEN_HZ, 20.0)
+	assert_float(Audio._amplify.volume_db).is_equal_approx(Audio.HOT_GAIN_DB, 0.01)
+	assert_str(Audio.music_debug()).contains("open 100%")
+	Audio.set_intensity(0.0)
+	for i: int in 40:
+		Audio._step_music_effects(0.05)
+	assert_float(Audio._filter.cutoff_hz).is_equal_approx(Audio.FILTER_CLOSED_HZ, 1.0)
