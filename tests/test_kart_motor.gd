@@ -140,7 +140,6 @@ func test_with_handbrake_only_drifting_steering_never_drifts_and_the_handbrake_b
 	_run(1.0)
 	assert_bool(_motor.drifting).is_false()
 	var before := _motor.speed()
-	_input.steer = 0.0
 	_input.handbrake = true
 	_run(0.5)
 	assert_bool(_motor.drifting).is_true()
@@ -148,6 +147,7 @@ func test_with_handbrake_only_drifting_steering_never_drifts_and_the_handbrake_b
 	_input.handbrake = false
 	_run(DT)
 	assert_bool(_motor.drifting).is_false()
+	_input.steer = 0.0
 	_input.throttle = 0.0
 	_motor.velocity = _motor.forward_vector() * 3.0
 	_input.handbrake = true
@@ -166,6 +166,19 @@ func test_handbrake_drifts_at_lower_speed_than_a_hard_turn() -> void:
 	_input.handbrake = true
 	_run(DT)
 	assert_bool(_motor.drifting).is_true()
+
+
+func test_the_handbrake_without_steering_stops_the_kart_quickly_without_drifting() -> void:
+	_input.throttle = 1.0
+	_run(2.5)
+	assert_float(_motor.speed()).is_greater(_stats.top_speed * 0.95)
+	_input.throttle = 0.0
+	_input.handbrake = true
+	_run(0.3)
+	assert_bool(_motor.drifting).is_false()
+	assert_float(_motor.speed()).is_less(_stats.top_speed * 0.7)
+	_run(0.9)
+	assert_float(_motor.speed()).is_equal_approx(0.0, 0.001)
 
 
 func test_drift_grip_keeps_more_sideways_velocity() -> void:
@@ -220,6 +233,7 @@ func _sideways_speed_after_turn(drifting: bool) -> float:
 	motor.drifting = drifting
 	var input := KartInput.new()
 	input.throttle = 1.0
+	input.steer = 1.0
 	input.handbrake = drifting
 	for i: int in 6:
 		motor.step(input, DT)

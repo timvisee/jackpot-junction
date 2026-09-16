@@ -151,7 +151,8 @@ func _step_drift(input: KartInput) -> void:
 	if drifting:
 		var too_slow := fraction < stats.handbrake_speed_fraction * 0.75
 		if stats.handbrake_drift_only:
-			if too_slow or not input.handbrake:
+			# Straightening up while holding the handbrake turns the drift into a straight stop.
+			if too_slow or not input.handbrake or absf(steer) < 0.1:
 				_end_drift()
 			return
 		var steering := absf(steer) >= stats.drift_exit_steer
@@ -160,7 +161,8 @@ func _step_drift(input: KartInput) -> void:
 		return
 	if turboing() or forward_speed <= 0.0:
 		return
-	var handbrake := input.handbrake and fraction >= stats.handbrake_speed_fraction
+	var steering := absf(steer) >= stats.handbrake_drift_steer
+	var handbrake := input.handbrake and steering and fraction >= stats.handbrake_speed_fraction
 	var hard_turn := absf(steer) >= stats.drift_steer_threshold
 	var fast := fraction >= stats.drift_speed_fraction
 	if handbrake or (not stats.handbrake_drift_only and hard_turn and fast):

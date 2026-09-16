@@ -31,6 +31,8 @@ extends Resource
 @export var handbrake_drift_only := true
 ## Braking of the handbrake, reduced while drifting; 0 means it never brakes.
 @export var handbrake_decel := 12.0
+## Steering needed for the handbrake to start a drift; below it the handbrake just stops the kart.
+@export var handbrake_drift_steer := 0.3
 @export var drift_steer_threshold := 0.8
 @export var drift_speed_fraction := 0.7
 @export var handbrake_speed_fraction := 0.4

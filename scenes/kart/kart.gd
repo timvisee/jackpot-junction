@@ -652,6 +652,9 @@ func _update_trails(delta: float, heading_before: float) -> void:
 	var slip := absf(motor.slip_angle())
 	if motor.drifting or slip > 0.3:
 		intensity = clampf(slip / 0.7, 0.5, 1.0)
+	elif input.handbrake and speed > 1.5:
+		# A straight handbrake stop lays down locked-wheel skid marks.
+		intensity = 0.85
 	elif input.brake > 0.3 and motor.forward_speed > 1.0:
 		intensity = 0.6
 	elif turning > 1.5:
@@ -662,7 +665,10 @@ func _update_trails(delta: float, heading_before: float) -> void:
 	var half_track := stats.width * 0.42
 	_tire_marks.add_sample(0, rear - side * half_track, side, intensity, now)
 	_tire_marks.add_sample(1, rear + side * half_track, side, intensity, now)
-	_smoke.update_state(input.throttle, motor.drifting, motor.boosting() or motor.turboing())
+	var skidding := input.handbrake and speed > 1.5
+	_smoke.update_state(
+		input.throttle, motor.drifting or skidding, motor.boosting() or motor.turboing()
+	)
 
 
 func _build_visuals() -> void:

@@ -20,6 +20,7 @@ grip_normal = 16.0
 grip_drift = 4.8
 handbrake_drift_only = true
 handbrake_decel = 12.0
+handbrake_drift_steer = 0.3
 drift_steer_threshold = 0.8
 drift_speed_fraction = 0.7
 handbrake_speed_fraction = 0.4
