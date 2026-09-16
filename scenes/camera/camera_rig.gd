@@ -53,6 +53,16 @@ func frame_arena(bounds: AABB) -> void:
 	_place(_distance, _pan, _zoom)
 
 
+## Follows its targets from close in rather than framing the whole arena, for the driving room
+## of GAME.md 9.5: a kart twenty pixels tall tells you nothing about how it drives.
+func follow_close(distance: float) -> void:
+	_framed = false
+	_distance = distance
+	pan_weight = 1.0
+	pan_limit = 1000.0
+	smoothing = 0.25
+
+
 func _refit() -> void:
 	if _framed:
 		_distance = _fit_distance()

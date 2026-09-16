@@ -1040,6 +1040,26 @@ Everything the game does is somewhere on the floor, and a sign names each one:
 - The disco lights from 8.1 stay off in here: it is a place to look at the
   controls, not a nightclub.
 
+### 9.5 The driving room
+
+A development scene, `make drive`, holding one kart, one track and nothing else: no bots, no
+bullets, no pickups, no clock. Driving has to be worth doing on its own before any of the rest
+is worth adding, and everything else in the game gets in the way of judging that.
+
+The track is 60 by 37.5 m and has the four things that tell you how a kart feels:
+
+- A straight along the top with posts every 10 m, to wind the kart out and pick a braking
+  point between.
+- A slalom of single posts 7.5 m apart, alternating sides, for turn-in and change of direction.
+- A ring of posts on the right, to hold a constant turn around the outside or thread the inside.
+- A block of 2.5 m corridors on the left, for close quarters, which is where the handling is
+  hardest to get right.
+
+The camera follows the kart from close in rather than framing the arena, because a kart twenty
+pixels tall tells you nothing. A readout gives speed, how far the wheel is turned, how far the
+kart is sideways, how fast the nose is coming round and how hard the tires are working in g,
+so "it feels off" can be turned into a number and chased. R puts the kart back on the line.
+
 ## 10. Technology
 
 ### 10.1 Engine and project settings
