@@ -643,6 +643,9 @@ Starting palette:
   again. While any head is still dark the lit run walks around the rig by itself,
   every 7 s at rest down to every 2 s at full heat, so the room keeps moving
   without getting brighter.
+- Each beam is cut to the distance it actually has to cross and widened to its
+  own spot angle every frame, so however far across the table a head is
+  pointing its cone ends in a lit pool on the floor rather than in mid-air.
 - Every head flashes on the beat, harder on the first beat of the bar, and the
   flash grows with the meter too. The track is a steady 120 BPM in four, so the
   beat comes straight off the music's playback position. The lights cast no
