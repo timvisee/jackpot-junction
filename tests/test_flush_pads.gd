@@ -52,6 +52,26 @@ func test_a_held_pad_trickles_coins_into_its_holders_pot() -> void:
 
 ## GAME.md 3.9: a paid coin throws a ring off the pad, in the holder's colour, so the trickle can
 ## be seen from across the table.
+## GAME.md 3.9: the trickle runs with the room, so a pad pays faster at level 6 than at level 1.
+func test_a_hot_room_pays_the_pads_faster() -> void:
+	var match_node := _start_match()
+	match_node.rules.flush_pad_income = 4.0
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	var pads := match_node.arena.flush_pads
+	await _park(kart, pads[0])
+	kart.global_position = match_node.arena.spawn_points[0]
+	match_node.intensity.level = 1
+	kart.pot.reset()
+	await _runner.simulate_frames(60, 17)
+	var cold := kart.pot.coins
+	assert_int(cold).is_greater(0)
+	match_node.intensity.level = MatchIntensity.LEVELS
+	kart.pot.reset()
+	await _runner.simulate_frames(60, 17)
+	assert_int(kart.pot.coins).is_greater(cold * 2)
+
+
 func test_every_paid_coin_throws_a_ring_off_the_pad() -> void:
 	var match_node := _start_match()
 	match_node.rules.flush_pad_income = 4.0

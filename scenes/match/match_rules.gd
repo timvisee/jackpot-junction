@@ -49,6 +49,9 @@ extends Resource
 ## Coins every held pad trickles into its holder's pot each second, so a pad is worth
 ## something on its own rather than only as a quarter of the flush.
 @export var flush_pad_income := 1.0
+## What that trickle is multiplied by at the top excitement level of GAME.md 8.4, so a room
+## that is already going pays out faster and the pads are worth more the hotter it gets.
+@export var flush_pad_income_hot := 3.0
 ## Seconds a pad stays claimed before it lapses back to nobody. Driving over it again renews
 ## it, so a flush has to be put together inside this window and then kept up.
 @export var flush_pad_decay := 30.0

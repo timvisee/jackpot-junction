@@ -611,15 +611,18 @@ func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> voi
 
 ## GAME.md 3.9: every pad a kart is holding trickles coins into its pot, so the pads are worth
 ## driving over even when a flush is out of reach. A holder who is dead, falling or rolling out
-## the end of the match earns nothing while they are; the pad simply waits for them.
+## the end of the match earns nothing while they are; the pad simply waits for them. The
+## trickle runs with the room: at the top excitement level of 8.4 the pads pay three times what
+## they pay over a quiet opening lap, so a hot match is worth being out in.
 func _step_flush_income(delta: float) -> void:
+	var rate := rules.flush_pad_income * lerpf(1.0, rules.flush_pad_income_hot, intensity.share())
 	for pad: FlushPad in arena.flush_pads:
 		if pad.owner_slot < 0 or pad.owner_slot >= slots.size() or pad.is_disabled():
 			continue
 		var kart := slots[pad.owner_slot].kart
 		if kart == null or not kart.is_active():
 			continue
-		var coins := pad.take_income(rules.flush_pad_income, delta)
+		var coins := pad.take_income(rate, delta)
 		if coins > 0:
 			kart.collect_coins(coins, null)
 

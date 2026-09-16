@@ -281,7 +281,9 @@ Four pads spread around the arena, marked A, K, Q and J. Driving over a pad
 paints its frame in your colour and takes it from whoever held it.
 
 - Every pad you hold pays you 1 coin a second into your pot, for as long as you
-  hold it, so a single pad is worth taking and worth defending. A holder who is
+  hold it, so a single pad is worth taking and worth defending. The rate runs with
+  the excitement level in 8.4: three times as fast at level 6 as at level 1, so
+  the pads pay best exactly when the room is worth being out in. A holder who is
   dead, falling or rolling out the end of the match earns nothing while they are;
   the pad keeps their colour and waits for them.
 - Every coin paid throws a ring of light off the pad in its holder's colour,
