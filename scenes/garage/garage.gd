@@ -26,6 +26,8 @@ func _ready() -> void:
 	add_child(match_node)
 	var inputs: Array[KartInput] = [PlayerInput.new()]
 	match_node.start(inputs)
+	# A room for learning the controls in, not a nightclub.
+	match_node.arena.disco.enabled = false
 	_add_signs()
 	var overlay := DebugOverlay.new()
 	overlay.name = "DebugOverlay"

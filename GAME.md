@@ -928,6 +928,8 @@ Everything the game does is somewhere on the floor, and a sign names each one:
   dropped and destroyed without dying for them.
 - Pressing join brings a second player in on another device, the same as in a
   match, and pausing leads back to the title.
+- The disco lights from 8.1 stay off in here: it is a place to look at the
+  controls, not a nightclub.
 
 ## 10. Technology
 

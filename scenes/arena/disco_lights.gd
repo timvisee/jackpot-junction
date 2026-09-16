@@ -41,6 +41,9 @@ const CYCLE_FAST := 2.0
 
 ## The excitement meter, 0 to 1, set by the match every tick.
 var level := 0.0
+## Whether this room wants lights at all. The Garage in GAME.md 9.4 turns them off: it is a
+## place to look at the controls, not a nightclub.
+var enabled := true
 
 var _heads: Array[Dictionary] = []
 var _time := 0.0
@@ -72,7 +75,7 @@ func lit_count() -> int:
 func _process(delta: float) -> void:
 	if _heads.is_empty():
 		return
-	if not Game.settings.disco_lights:
+	if not enabled or not Game.settings.disco_lights:
 		for head: Dictionary in _heads:
 			(head["light"] as SpotLight3D).visible = false
 		return
