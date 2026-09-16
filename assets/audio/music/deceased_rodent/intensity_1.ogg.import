@@ -12,8 +12,8 @@ dest_files=["res://.godot/imported/intensity_1.ogg-a3d7b452872298047277e987b8425
 
 [params]
 
-loop=false
+loop=true
 loop_offset=0
-bpm=0
-beat_count=0
+bpm=120
+beat_count=176
 bar_beats=4

@@ -3,7 +3,9 @@ extends Node
 ## short effects from a pooled set of players on the SFX bus. The music is one track in three
 ## intensities that stay in step: calm by default, tense for a while after a kill, and the full
 ## mix from Last Call to the end. Switches crossfade over one second with the two players
-## summing to a constant level, so nothing dips. Every file is logged in THIRD_PARTY.md.
+## summing to a constant level, so nothing dips. The files are cut to the track's 88 s loop with
+## the decay tail folded under the start, so they loop without a gap. Every file is logged in
+## THIRD_PARTY.md.
 
 const BUS_MASTER := &"Master"
 const BUS_MUSIC := &"Music"

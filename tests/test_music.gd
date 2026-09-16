@@ -16,14 +16,12 @@ func after_test() -> void:
 	Audio.set_layer(Audio.LAYER_CALM)
 
 
-func test_all_three_layers_exist_and_share_a_length() -> void:
-	var lengths: Array[float] = []
+func test_all_three_layers_exist_loop_and_share_the_88_second_length() -> void:
 	for layer: StringName in Audio.LAYER_FILES:
 		var stream: AudioStream = Audio._music_stream(layer)
 		assert_object(stream).override_failure_message("missing layer %s" % layer).is_not_null()
-		lengths.append(stream.get_length())
-	assert_float(lengths[0]).is_equal_approx(lengths[1], 0.05)
-	assert_float(lengths[0]).is_equal_approx(lengths[2], 0.05)
+		assert_float(stream.get_length()).is_equal_approx(88.0, 0.02)
+		assert_bool((stream as AudioStreamOggVorbis).loop).is_true()
 
 
 func test_a_crossfade_keeps_the_summed_level_constant() -> void:
