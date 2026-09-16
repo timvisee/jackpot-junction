@@ -262,6 +262,7 @@ func _add_turbo_pads() -> void:
 		var pad := TurboPad.new()
 		pad.name = "TurboPad%d" % i
 		pad.direction = grid.turbo_direction(cell)
+		pad.half_size = grid.cell_size * 0.5
 		pad.position = grid.cell_center(cell)
 		var shape := CollisionShape3D.new()
 		var box := BoxShape3D.new()
