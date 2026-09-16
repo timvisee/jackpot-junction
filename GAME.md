@@ -396,8 +396,8 @@ crawling kart turns at a rate that comes from how fast it is rolling rather than
 at 191 deg/s while it travels a few centimetres. Below walking pace it hands over to plain
 geometry, and stopped it still pivots at 70 deg/s to line up a shot.
 
-Four sets of numbers for it sit in `data/kart/feel_*.tres`, cycled with Tab in the driving
-room: a grippy go-kart, a loose rally car, a forgiving arcade kart and a heavy one.
+One set of numbers for it is kept, `data/kart/feel_grip.tres`, so the comparison can be made
+again without writing it twice.
 
 ### 4.2 Controls
 

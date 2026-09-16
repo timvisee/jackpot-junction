@@ -28,16 +28,16 @@ const CAMERA_DISTANCE := 26.0
 const PRESETS: Array[String] = [
 	"feel_shipped",
 	"default",
-	"feel_snap",
-	"feel_gripper",
-	"feel_sharp",
+	"feel_wider",
+	"feel_tighter",
+	"feel_snapdrift",
 ]
 const PRESET_NAMES: Array[String] = [
 	"as it ships",
-	"blended low speed",
-	"blended, sharper crawl",
-	"blended + follows its nose",
-	"blended + tighter at speed",
+	"the kart now",
+	"wider at speed, 5.1 m",
+	"tighter at speed, 4.4 m",
+	"now, but with the old instant drift",
 ]
 
 var match_node: Match
