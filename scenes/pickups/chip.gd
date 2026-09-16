@@ -27,7 +27,7 @@ func _build_visual(parent: Node3D) -> void:
 	stripe.material_override = _unshaded(Palette.CHIP_WHITE)
 	stripe.rotation_degrees = Vector3(0.0, 0.0, 90.0)
 	parent.add_child(stripe)
-	parent.position.y = 0.35
+	hover = 0.4
 
 
 func _apply(kart: Kart) -> void:

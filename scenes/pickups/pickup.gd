@@ -11,6 +11,9 @@ const BOB_SPEED := 3.0
 
 ## Seconds before the pickup vanishes on its own; 0 keeps it forever.
 var lifetime := 0.0
+## Height the visual hovers at, the centre of its bob. Subclasses set it in [method
+## _build_visual] so the mesh clears the floor instead of sinking into it.
+var hover := 0.35
 
 var _age := 0.0
 var _taken := false
@@ -38,7 +41,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_age += delta
 	_visual.rotation.y += SPIN_SPEED * delta
-	_visual.position.y = sin(_age * BOB_SPEED) * BOB_HEIGHT
+	_visual.position.y = hover + sin(_age * BOB_SPEED) * BOB_HEIGHT
 	if lifetime > 0.0:
 		if _age >= lifetime:
 			queue_free()

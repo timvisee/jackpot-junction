@@ -66,7 +66,7 @@ func _build_visual(parent: Node3D) -> void:
 	beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	beam.position = Vector3(0.0, 1.65, 0.0)
 	parent.add_child(beam)
-	parent.position.y = 0.65
+	hover = 0.65
 
 
 ## Spins and bobs like every pickup, and pulses its glow and size on top.

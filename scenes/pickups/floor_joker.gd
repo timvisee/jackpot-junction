@@ -28,7 +28,7 @@ func _build_visual(parent: Node3D) -> void:
 	mark.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	mark.position = Vector3(0.0, 0.75, 0.0)
 	parent.add_child(mark)
-	parent.position.y = 0.5
+	hover = 0.55
 
 
 func _apply(kart: Kart) -> void:

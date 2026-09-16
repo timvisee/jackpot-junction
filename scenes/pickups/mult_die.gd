@@ -21,7 +21,7 @@ func _build_visual(parent: Node3D) -> void:
 	dot.material_override = _unshaded(Color(0.1, 0.1, 0.12))
 	dot.position = Vector3(0.0, 0.3, 0.0)
 	parent.add_child(dot)
-	parent.position.y = 0.45
+	hover = 0.45
 
 
 func _apply(kart: Kart) -> void:

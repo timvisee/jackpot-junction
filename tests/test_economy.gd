@@ -108,6 +108,26 @@ func test_a_lone_kart_in_the_active_jackpot_collects_it_and_the_other_zone_takes
 	assert_bool(other.active).is_true()
 
 
+## The bob used to overwrite the hover height, so chips and dice sat half inside the floor.
+func test_pickups_hover_clear_of_the_floor_while_they_bob() -> void:
+	var root: Node3D = auto_free(Node3D.new())
+	var runner: GdUnitSceneRunner = scene_runner(root)
+	var chip := Chip.new()
+	var die := MultDie.new()
+	var box := ItemBox.new()
+	for pickup: Pickup in [chip, die, box]:
+		root.add_child(pickup)
+	await runner.simulate_frames(4, 17)
+	for pickup: Pickup in [chip, die, box]:
+		var height: float = (pickup.get_node("Visual") as Node3D).position.y
+		(
+			assert_float(height)
+			. override_failure_message("%s sits at %.2f" % [pickup.get_class(), height])
+			. is_greater(Pickup.BOB_HEIGHT)
+		)
+	assert_float((chip.get_node("Visual") as Node3D).position.y).is_between(0.3, 0.5)
+
+
 func test_coin_pads_spawn_pickups_that_karts_collect() -> void:
 	var rules := _quick_rules()
 	rules.duration = 60.0
