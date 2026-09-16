@@ -33,6 +33,9 @@ var forward_speed := 0.0
 ## The steering actually applied this tick: the input shaped by the stick curve and smoothed.
 var steer := 0.0
 var drifting := false
+## How far into the slide the kart is, 0 gripping and 1 fully sideways. The flag above says
+## whether a drift is being asked for; this says how much of one has actually arrived.
+var drift_amount := 0.0
 var drift_time := 0.0
 var boost_time_left := 0.0
 var turbo_time_left := 0.0
@@ -54,6 +57,8 @@ var yaw := 0.0
 var _wheel := 0.0
 ## Radians of drift entry kick still to apply, signed like the steering that started it.
 var _kick_remaining := 0.0
+## Which way the current drift is pointed, so a change of direction can be noticed.
+var _drift_direction := 0.0
 ## Which way the nose whips during a spin-out: +1 left, -1 right.
 var _spin_direction := 1.0
 
@@ -131,6 +136,7 @@ func step(input: KartInput, delta: float) -> void:
 	_step_steer_input(input, delta)
 	_step_longitudinal(input, delta)
 	_step_drift(input)
+	_step_drift_amount(delta)
 	_step_steering(delta)
 	var reversing := forward_speed < 0.0
 	var target := forward_vector() * (-1.0 if reversing else 1.0)
@@ -145,11 +151,12 @@ func step(input: KartInput, delta: float) -> void:
 		forward_speed = velocity.length() * (-1.0 if velocity.dot(forward_vector()) < 0.0 else 1.0)
 		return
 	var angle := travel.signed_angle_to(target, Vector3.UP)
-	var grip := stats.grip_drift
-	if not drifting:
-		# Tires that have let go in a big slide keep sliding until the kart slows down.
-		var letting_go := clampf((absf(angle) - deg_to_rad(20.0)) / deg_to_rad(25.0), 0.0, 1.0)
-		grip = lerpf(stats.grip_normal, stats.grip_sliding, letting_go)
+	# Tires that have let go in a big slide keep sliding until the kart slows down, and a drift
+	# takes the grip away over its entry time rather than in one tick.
+	var letting_go := clampf((absf(angle) - deg_to_rad(20.0)) / deg_to_rad(25.0), 0.0, 1.0)
+	var grip := lerpf(
+		lerpf(stats.grip_normal, stats.grip_sliding, letting_go), stats.grip_drift, drift_amount
+	)
 	if nitro_bonus > 1.0:
 		grip *= stats.nitro_grip_multiplier
 	if spinning():
@@ -393,6 +400,24 @@ func _step_drift(input: KartInput) -> void:
 		_kick_remaining = signf(steer) * kick if absf(steer) > 0.1 else 0.0
 
 
+## How much of the drift has actually arrived. Asking for one starts the rear coming round
+## rather than putting it there, letting go hooks it back up, and turning the other way mid-
+## drift throws most of the slide away: the rear has to come back through the middle and bite
+## before it will step out the other side.
+func _step_drift_amount(delta: float) -> void:
+	if not drifting:
+		_drift_direction = 0.0
+		drift_amount = move_toward(drift_amount, 0.0, delta / maxf(stats.drift_exit_time, 0.001))
+		return
+	var way := signf(steer)
+	if way != 0.0 and _drift_direction != 0.0 and way != _drift_direction:
+		drift_amount = minf(drift_amount, stats.drift_switch_amount)
+		_kick_remaining = way * deg_to_rad(stats.drift_entry_kick_deg)
+	if way != 0.0:
+		_drift_direction = way
+	drift_amount = move_toward(drift_amount, 1.0, delta / maxf(stats.drift_entry_time, 0.001))
+
+
 func _end_drift() -> void:
 	drifting = false
 	_kick_remaining = 0.0
@@ -439,8 +464,7 @@ func _step_steering_switched(speed_now: float, pivot: float, delta: float) -> vo
 ## How fast the nose comes round on the wheels at this speed, with everything that scales it.
 func _rolling_rate(speed_now: float) -> float:
 	var rate := yaw_rate(speed_now / stats.top_speed)
-	if drifting:
-		rate *= stats.drift_yaw_multiplier
+	rate *= lerpf(1.0, stats.drift_yaw_multiplier, drift_amount)
 	if turboing():
 		rate *= stats.turbo_steer_multiplier
 	if nitro_bonus > 1.0:
@@ -468,6 +492,7 @@ func apply_spin_out(direction: float) -> void:
 	spin_time_left = stats.spin_out_time
 	_spin_direction = 1.0 if direction >= 0.0 else -1.0
 	drifting = false
+	drift_amount = 0.0
 	drift_time = 0.0
 	_kick_remaining = 0.0
 	turbo_time_left = 0.0

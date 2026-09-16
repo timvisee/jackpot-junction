@@ -171,6 +171,58 @@ func test_hard_turn_at_speed_drifts_and_a_long_drift_exit_boosts() -> void:
 	assert_float(_motor.speed()).is_greater(_stats.top_speed)
 
 
+## GAME.md 4.1: the rear comes round over the entry time rather than arriving sideways in one
+## tick, and hooks back up when the drift ends.
+func test_the_slide_arrives_over_the_entry_time_rather_than_at_once() -> void:
+	_input.throttle = 1.0
+	_run(2.0)
+	_input.steer = 1.0
+	_input.handbrake = true
+	_motor.step(_input, DT)
+	assert_bool(_motor.drifting).is_true()
+	# Asked for, but barely arrived: one tick of an 0.18 s entry.
+	assert_float(_motor.drift_amount).is_less(0.2)
+	assert_float(absf(rad_to_deg(_motor.slip_angle()))).is_less(6.0)
+	_run(_stats.drift_entry_time)
+	assert_float(_motor.drift_amount).is_equal_approx(1.0, 0.05)
+	var sideways := absf(rad_to_deg(_motor.slip_angle()))
+	assert_float(sideways).is_greater(15.0)
+	# Letting go hooks it back up over the exit time.
+	_input.handbrake = false
+	_input.steer = 0.0
+	_motor.step(_input, DT)
+	assert_float(_motor.drift_amount).is_less(1.0)
+	_run(_stats.drift_exit_time + 0.1)
+	assert_float(_motor.drift_amount).is_equal(0.0)
+
+
+## GAME.md 4.1: turning the other way mid-drift throws most of the slide away, so the rear comes
+## back through the middle and bites before it steps out the other side.
+func test_changing_sides_mid_drift_goes_through_the_middle() -> void:
+	_input.throttle = 1.0
+	_run(2.0)
+	_input.steer = 1.0
+	_input.handbrake = true
+	_run(0.6)
+	var settled := rad_to_deg(_motor.slip_angle())
+	assert_float(absf(settled)).is_greater(20.0)
+	_input.steer = -1.0
+	_motor.step(_input, DT)
+	# Most of the slide is gone the moment the wheel crosses over, and it starts again from
+	# there rather than from where it was.
+	assert_float(_motor.drift_amount).is_less(0.5)
+	# It passes through straight rather than mirroring: there is a moment of grip in the middle.
+	var crossed := false
+	for i: int in 30:
+		_motor.step(_input, DT)
+		crossed = crossed or absf(rad_to_deg(_motor.slip_angle())) < 8.0
+	assert_bool(crossed).override_failure_message("the kart mirrored instead of crossing").is_true()
+	_run(0.5)
+	# And ends up sideways the other way.
+	assert_float(rad_to_deg(_motor.slip_angle()) * signf(settled)).is_less(0.0)
+	assert_float(absf(rad_to_deg(_motor.slip_angle()))).is_greater(20.0)
+
+
 func test_a_short_drift_gives_no_boost() -> void:
 	_stats.handbrake_drift_only = false
 	_input.throttle = 1.0
@@ -273,8 +325,26 @@ func test_drift_entry_kicks_the_nose_into_the_turn() -> void:
 	assert_float(first_tick).is_greater(plain_turn)
 	_run(_stats.drift_entry_kick_time)
 	var turned := rad_to_deg(wrapf(before - _motor.heading, -PI, PI))
-	var expected_plain := plain_turn * (_stats.drift_entry_kick_time / DT + 1.0)
-	assert_float(turned).is_greater(expected_plain + _stats.drift_entry_kick_deg * 0.9)
+	assert_float(turned - _turn_without_the_kick()).is_greater(_stats.drift_entry_kick_deg * 0.9)
+
+
+## The same drift entry with the kick turned off, so the kick can be read as the difference
+## rather than guessed at from the yaw rate it is added to.
+func _turn_without_the_kick() -> float:
+	var stats: KartStats = _stats.duplicate()
+	stats.drift_entry_kick_deg = 0.0
+	var motor := KartMotor.new(stats)
+	var input := KartInput.new()
+	input.throttle = 1.0
+	for i: int in int(2.5 / DT):
+		motor.step(input, DT)
+	input.steer = 1.0
+	motor.step(input, DT)
+	var before := motor.heading
+	input.handbrake = true
+	for i: int in int(stats.drift_entry_kick_time / DT) + 1:
+		motor.step(input, DT)
+	return rad_to_deg(wrapf(before - motor.heading, -PI, PI))
 
 
 func _sideways_speed_after_turn(drifting: bool) -> float:
@@ -282,6 +352,7 @@ func _sideways_speed_after_turn(drifting: bool) -> float:
 	motor.velocity = motor.forward_vector() * _stats.top_speed
 	motor.heading = 0.6
 	motor.drifting = drifting
+	motor.drift_amount = 1.0 if drifting else 0.0
 	var input := KartInput.new()
 	input.throttle = 1.0
 	input.steer = 1.0

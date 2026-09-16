@@ -59,6 +59,14 @@ enum Model {
 @export var handbrake_speed_fraction := 0.4
 @export var drift_exit_steer := 0.3
 @export var drift_yaw_multiplier := 1.55
+## Seconds the rear takes to come round into a drift, and to hook back up when it ends. Fast,
+## but not instant: a drift that arrives in one tick reads as the kart teleporting sideways.
+@export var drift_entry_time := 0.18
+@export var drift_exit_time := 0.12
+## How much of the slide survives a change of direction mid-drift. The rear has to come back
+## through the middle and catch before it will go the other way, so swapping sides is a slide,
+## a bite and a slide rather than a mirror image.
+@export var drift_switch_amount := 0.3
 ## Degrees the nose kicks into the turn when a drift starts while steering.
 @export var drift_entry_kick_deg := 15.0
 ## Seconds over which that kick plays out, so the rear swings rather than snaps.

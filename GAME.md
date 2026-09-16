@@ -343,9 +343,10 @@ then hooks up and launches when the handbrake is released.
 | Minimum speed to steer        | none: turning on the spot at 85°/s and turning on the wheels are one control, mixed by speed and fully on the wheels by 2.2 m/s. A kart shuffling about in a corner crosses that range over and over, and the old hard switch at 0.5 m/s stepped from 70 to 195°/s every time it did |
 | Grip, normal                  | travel direction turns toward the nose at 30 rad/s, so the kart goes where it is pointed within about 33 ms |
 | Grip, drifting                | 4.8 rad/s, 35 to 55° of slip depending on speed       |
-| Drift entry                   | handbrake held while steering, at over 40% of top speed; steering alone never drifts, and straightening up mid-drift turns it into a stop |
+| Drift entry                   | handbrake held while steering, at over 40% of top speed; steering alone never drifts, and straightening up mid-drift turns it into a stop. The slide arrives over 0.18 s and hooks back up over 0.12 s rather than switching on: a drift that lands in one tick reads as the kart teleporting sideways |
 | Drift yaw multiplier          | 1.55, so a drift turns about 15% tighter than the same steering with grip |
-| Drift entry kick              | the nose turns an extra 15° into the turn over the first 0.15 s of a drift started while steering |
+| Drift entry kick              | the nose turns an extra 15° into the turn over the first 0.15 s of a drift started while steering, and again when the drift changes sides |
+| Changing sides mid-drift      | 30% of the slide survives it. The rear comes back through the middle, bites for about a tenth of a second and then steps out the other way, instead of the whole kart mirroring in one tick |
 | Drift speed decay             | 5% per second                                         |
 | Drift exit boost              | +20% top speed for 0.8 s if the drift lasted 0.6 s or longer |
 | Handbrake                     | with steering above 30% it starts a drift and scrubs speed at 4.2 m/s²; without steering it is a straight stop at 22 m/s², about half a second from top speed, that lays down skid marks |
