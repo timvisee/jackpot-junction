@@ -3,7 +3,9 @@ extends Node
 ## The utility AI from GAME.md 9.1. Every tenth of a second it picks a goal from its trait's
 ## weights and the situation; every tick it follows a grid path toward the goal, dodges bullets
 ## it can see coming, fires when an enemy is in front of the cannon after its reaction delay, and
-## uses its item when the moment fits. Writes into a [BotInput] the kart reads.
+## uses its item when the moment fits. With nothing to shoot at, it breaks open whatever scenery
+## is in front of the cannon instead, since a crate pays in chips and a target pays in coins.
+## Writes into a [BotInput] the kart reads.
 ##
 ## How keenly it does any of that is set by the [BotMirror] on the match: the bots play at
 ## the pitch the players set, with their own trait on top.
@@ -30,6 +32,15 @@ const REVERSE_TIME := 0.7
 const AIM_ERROR_INTERVAL := 0.5
 const ITEM_PATIENCE := 5.0
 const BULLET_HEIGHT := 0.5
+## How far away a crate or a target is still worth a shot, with nothing better to fire at.
+## What a wounded bot cuts its banking threshold to: a full cash-out is also how it gets its
+## second life back, GAME.md 3.4, so it settles for a smaller pot to go and collect one.
+const WOUNDED_BANK_SHARE := 0.5
+## How far away a crate or a target is still worth a shot, with nothing better to fire at.
+const SCENERY_RANGE := 13.0
+## How far short of a piece of scenery its line of sight is checked, so it does not block the
+## view of itself.
+const SCENERY_CLEARANCE := 0.9
 
 var kart: Kart
 var match_node: Match
@@ -109,6 +120,8 @@ static func choose_goal(context: Dictionary, personality: BotTrait) -> StringNam
 	var threshold := roundi(personality.bank_threshold / float(context.get("bank_urgency", 1.0)))
 	if bool(context.get("last_call", false)):
 		threshold = personality.last_call_bank_threshold
+	if bool(context.get("wounded", false)):
+		threshold = maxi(roundi(float(threshold) * WOUNDED_BANK_SHARE), 1)
 	if pot > 0 and (pot >= threshold or float(context.get("time_left", INF)) < 20.0):
 		return &"bank"
 	var jackpot_chips := int(context.get("jackpot_chips", 0))
@@ -216,6 +229,7 @@ func _context() -> Dictionary:
 		"time_left": match_node.time_left,
 		"last_call": match_node.state == Match.State.LAST_CALL,
 		"has_item": kart.held_item != null,
+		"wounded": kart.is_wounded(),
 	}
 	var enemy := _hunt_target()
 	if enemy != null:
@@ -491,15 +505,14 @@ func _shoot(delta: float) -> void:
 	if not _willing_to_fire or bot_trait.rams:
 		_aim_timer = 0.0
 		return
-	var enemy := _hunt_target()
-	if enemy == null:
+	var mark: Node3D = _hunt_target()
+	if mark == null or not _in_reach(mark.global_position, HUNT_RANGE):
+		# Nobody worth shooting: break something open instead.
+		mark = _scenery_mark()
+	if mark == null:
 		_aim_timer = 0.0
 		return
-	var distance := kart.global_position.distance_to(enemy.global_position)
-	if distance > HUNT_RANGE or not _has_line_of_sight(enemy.global_position):
-		_aim_timer = 0.0
-		return
-	var to_aim := _lead_point(enemy) - kart.global_position
+	var to_aim := _lead_point(mark) - kart.global_position
 	to_aim.y = 0.0
 	var angle := kart.motor.forward_vector().signed_angle_to(to_aim, Vector3.UP) + _aim_error
 	if absf(angle) > FIRE_CONE:
@@ -507,6 +520,36 @@ func _shoot(delta: float) -> void:
 		return
 	_aim_timer += delta
 	input.fire = _aim_timer >= difficulty.reaction_delay
+
+
+## Whether a point is close enough to shoot at and not behind a wall.
+func _in_reach(point: Vector3, reach: float) -> bool:
+	return kart.global_position.distance_to(point) <= reach and _has_line_of_sight(point)
+
+
+## The nearest crate or shooting target in front of the bot, GAME.md 6.2: both pay whoever
+## breaks them, and a bot with nothing else to do may as well be paid. The line of sight stops
+## short of the thing itself, which would otherwise block the view of itself.
+func _scenery_mark() -> Node3D:
+	var best: Node3D = null
+	var best_distance := SCENERY_RANGE
+	var marks: Array[Node3D] = []
+	for crate: Crate in match_node.arena.crates:
+		if crate.alive:
+			marks.append(crate)
+	for target: Target in match_node.arena.targets:
+		if target.alive:
+			marks.append(target)
+	for mark: Node3D in marks:
+		var distance := kart.global_position.distance_to(mark.global_position)
+		if distance >= best_distance:
+			continue
+		var toward := mark.global_position - kart.global_position
+		if not _has_line_of_sight(mark.global_position - toward.normalized() * SCENERY_CLEARANCE):
+			continue
+		best_distance = distance
+		best = mark
+	return best
 
 
 func _use_item(delta: float) -> void:

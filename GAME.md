@@ -880,7 +880,7 @@ NavigationAgent3D, plus reactive bullet dodging.
 |-----------------|-------------------------------------------------------------------------------|
 | Collect         | Default. Nearest coin pad or dropped chips, weighted by value over distance    |
 | Hunt            | An enemy is within 18 m and can be brought in front of the cannon             |
-| Bank            | Pot value above the trait's threshold, or under 20 s left with a non-empty pot |
+| Bank            | Pot value above the trait's threshold, or under 20 s left with a non-empty pot. A wounded bot halves its threshold, since a full cash-out is also its second life back, see 3.4 |
 | Jackpot         | The active Jackpot has 20 or more chips and nobody is inside                  |
 | Flush pad       | A Royal Flush pad is worth the detour: a pad held by nobody or by somebody else counts as 4 chips, the one that would complete the set as 24, and a pad of the bot's own with under 10 s left on its claim as 2.5, each divided by the distance to it |
 | Grab item       | Holding nothing and a power-up pad is near                                    |
@@ -891,7 +891,10 @@ over the next second. If it is under 1.2 m, steer perpendicular to the bullet,
 with the difficulty's dodge chance.
 
 **Firing**: fire when an enemy is within 8° of the heading and within 18 m,
-after the difficulty's reaction delay, leading the target by its velocity.
+after the difficulty's reaction delay, leading the target by its velocity. With
+nobody in reach, the same shot goes into the nearest crate or shooting target
+within 13 m instead: both pay whoever breaks them, see 6.2, and a bot with
+nothing else to fire at may as well be paid.
 
 **Traits**: each bot gets one trait that shifts its goal weights.
 

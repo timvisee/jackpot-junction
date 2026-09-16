@@ -1,6 +1,7 @@
 extends GdUnitTestSuite
 ## Grid navigation and the bot brain from GAME.md 9.1.
 
+const DEFAULT_RULES: MatchRules = preload("res://data/match/default.tres")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 
 var _runner: GdUnitSceneRunner
@@ -128,6 +129,61 @@ func test_a_bot_goes_for_a_flush_pad_when_it_is_worth_the_detour() -> void:
 	assert_str(BotBrain.choose_goal(loaded, balanced)).is_equal("bank")
 
 
+## GAME.md 3.4: a full cash-out is what gives a wounded kart its second life back, so a wounded
+## bot heads for the Junction with a smaller pot than it otherwise would.
+func test_a_wounded_bot_settles_for_a_smaller_pot() -> void:
+	var balanced := _trait("balanced")
+	var pot := {"pot_value": balanced.bank_threshold / 2, "time_left": 100.0}
+	assert_str(BotBrain.choose_goal(pot, balanced)).is_not_equal("bank")
+	pot["wounded"] = true
+	assert_str(BotBrain.choose_goal(pot, balanced)).is_equal("bank")
+	# An empty pot still buys nothing, so there is nothing to go to the Junction for.
+	(
+		assert_str(
+			BotBrain.choose_goal({"pot_value": 0, "time_left": 100.0, "wounded": true}, balanced)
+		)
+		. is_equal("wander")
+	)
+
+
+## Which piece of scenery the brain would shoot at, as an instance id, or 0 for none.
+func _picked(brain: BotBrain) -> int:
+	var mark := brain._scenery_mark()
+	return mark.get_instance_id() if mark != null else 0
+
+
+## GAME.md 9.1: with nobody worth shooting, a bot puts its shots into the scenery, which pays.
+func test_a_bot_with_nobody_to_shoot_picks_the_scenery_in_front_of_it() -> void:
+	var rules: MatchRules = DEFAULT_RULES.duplicate()
+	rules.countdown = 0.1
+	rules.duration = 60.0
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	var inputs: Array[KartInput] = [BotInput.new(), BotInput.new()]
+	match_node.start(inputs, 9)
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	var brain: BotBrain = kart.get_node("Brain")
+	var crate := match_node.arena.crates[0]
+	assert_bool(crate.alive).is_true()
+	# Instance ids rather than the nodes: two crates are alike in everything but which one they are.
+	kart.global_position = crate.global_position + Vector3(3.0, 0.0, 0.0)
+	await _runner.simulate_frames(2, 17)
+	assert_int(_picked(brain)).is_equal(crate.get_instance_id())
+	# A crate right across the arena is not worth a shot.
+	kart.global_position = -crate.global_position
+	await _runner.simulate_frames(2, 17)
+	assert_int(_picked(brain)).is_not_equal(crate.get_instance_id())
+	# Nor is a broken one, even from right next to it.
+	kart.global_position = crate.global_position + Vector3(3.0, 0.0, 0.0)
+	crate.hit(1)
+	await _runner.simulate_frames(2, 17)
+	assert_int(_picked(brain)).is_not_equal(crate.get_instance_id())
+
+
 func test_closest_approach_predicts_near_misses() -> void:
 	var head_on := BotBrain.closest_approach(Vector3(0.0, 0.0, -6.0), Vector3(0.0, 0.0, 20.0), 1.0)
 	assert_float(head_on).is_equal_approx(0.0, 0.001)
@@ -147,7 +203,7 @@ func test_trait_table_covers_every_trait() -> void:
 
 
 func test_bots_drive_collect_and_bank_in_a_short_match() -> void:
-	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	var rules: MatchRules = DEFAULT_RULES.duplicate()
 	rules.countdown = 0.1
 	rules.lives = 1
 	rules.duration = 60.0
