@@ -8,6 +8,10 @@ extends RefCounted
 ## grip: a few degrees while driving, and in a drift, with low grip and quicker yaw, the nose
 ## leads the travel direction by tens of degrees and the kart visibly goes sideways.
 
+## How far the wheel has to go over to take a kart back off a turbo pad's arrow. Well past
+## a nudge, so lining the kart up during the shove does not throw it away.
+const TURBO_RELEASE_STEER := 0.6
+
 var stats: KartStats
 ## Yaw in radians about +Y. Forward is -Z rotated by the heading, like a Node3D.
 var heading := 0.0
@@ -98,6 +102,7 @@ func step(input: KartInput, delta: float) -> void:
 	boost_time_left = maxf(boost_time_left - delta, 0.0)
 	turbo_time_left = maxf(turbo_time_left - delta, 0.0)
 	spin_time_left = maxf(spin_time_left - delta, 0.0)
+	_step_turbo_release(input)
 	var forward := forward_vector()
 	var along := velocity.dot(forward)
 	var was_moving := velocity.length() > 0.05
@@ -278,6 +283,16 @@ func apply_spin_out(direction: float) -> void:
 	_kick_remaining = 0.0
 	turbo_time_left = 0.0
 	boost_time_left = 0.0
+
+
+## A shove is a gift, not a sentence, GAME.md 6.2: braking, yanking the handbrake or putting
+## the wheel over ends it there and then, and the kart keeps the speed it was given. Without
+## this a pair of pads pointing at each other is a trap with no way out of it.
+func _step_turbo_release(input: KartInput) -> void:
+	if not turboing():
+		return
+	if input.brake > 0.01 or input.handbrake or absf(input.steer) > TURBO_RELEASE_STEER:
+		turbo_time_left = 0.0
 
 
 ## A turbo pad shoves the kart along its arrow without turning it. Facing along the arrow, or

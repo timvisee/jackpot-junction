@@ -287,6 +287,34 @@ func test_turbo_pad_against_the_nose_pushes_the_kart_backwards() -> void:
 	assert_float(_motor.velocity.z).is_greater(0.0)
 
 
+## GAME.md 6.2: the shove is a gift, not a sentence. Braking, the handbrake or a real turn of the
+## wheel hands the kart straight back, with the speed it was given still on it.
+func test_a_turbo_shove_can_be_steered_or_braked_out_of_at_once() -> void:
+	_motor.apply_turbo(Vector3(0.0, 0.0, -1.0))
+	assert_bool(_motor.turboing()).is_true()
+	# A nudge of the wheel is for lining up during the shove, and does not end it.
+	_input.steer = 0.2
+	_motor.step(_input, DT)
+	assert_bool(_motor.turboing()).is_true()
+	# Putting it over does, and the kart keeps what the pad gave it.
+	_input.steer = 1.0
+	_motor.step(_input, DT)
+	assert_bool(_motor.turboing()).is_false()
+	assert_float(_motor.speed()).is_greater(_stats.top_speed)
+	# So does the brake, from a fresh shove.
+	_input.steer = 0.0
+	_motor.apply_turbo(Vector3(0.0, 0.0, -1.0))
+	_input.brake = 1.0
+	_motor.step(_input, DT)
+	assert_bool(_motor.turboing()).is_false()
+	# And so does the handbrake.
+	_input.brake = 0.0
+	_motor.apply_turbo(Vector3(0.0, 0.0, -1.0))
+	_input.handbrake = true
+	_motor.step(_input, DT)
+	assert_bool(_motor.turboing()).is_false()
+
+
 func test_turbo_pad_crossed_sideways_shoves_briefly_then_slides_to_a_near_stop() -> void:
 	_motor.apply_turbo(Vector3(1.0, 0.0, 0.0))
 	assert_float(_motor.heading).is_equal_approx(0.0, 0.0001)
