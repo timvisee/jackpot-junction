@@ -38,6 +38,17 @@ func _shoot(match_node: Match, shooter: Kart, at: Vector3) -> void:
 	await _runner.simulate_frames(30, 17)
 
 
+## One bullet from [param slot], 2 m to the left of the lane and heading along it.
+func _shot(match_node: Match, slot: int) -> Bullet:
+	return match_node.bullets.spawn(
+		slot,
+		LANE + Vector3(-2.0, 0.0, 0.0),
+		Vector3(1.0, 0.0, 0.0),
+		match_node.kart_of(0).cannon.stats,
+		Color.WHITE
+	)
+
+
 ## Waits out the moment of immunity a wound grants, so the next shot actually lands.
 func _wait_out_immunity(kart: Kart) -> void:
 	for i: int in 20:
@@ -88,45 +99,41 @@ func test_the_first_hit_wounds_the_junction_heals_and_the_second_hit_kills() -> 
 	assert_float(victim.stats.top_speed).is_equal_approx(base_speed, 0.001)
 
 
-## GAME.md 5.1: a kart's own shots pass through it unless the lobby says otherwise. Its turret
-## and its decoy fire its bullets, so they are covered by the same answer.
-func test_your_own_bullets_pass_through_you_unless_the_rules_say_otherwise() -> void:
+## GAME.md 5.1: a kart's own shot is spent on it but does no harm, unless the lobby says
+## otherwise. Its turret and its decoy fire its bullets, so they are covered by the same answer.
+func test_your_own_bullets_drop_on_you_without_hurting_you() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)
 	assert_bool(match_node.rules.own_bullets_hurt).is_false()
 	var kart := match_node.kart_of(0)
 	kart.global_position = LANE
 	kart.cannon.stats.aim_assist = false
-	var own := match_node.bullets.spawn(
-		kart.slot,
-		LANE + Vector3(-2.0, 0.0, 0.0),
-		Vector3(1.0, 0.0, 0.0),
-		kart.cannon.stats,
-		Color.WHITE
-	)
-	assert_bool(kart.take_hit(own)).is_false()
+	# Spent on the kart it came from, rather than carrying on through it.
+	var own := _shot(match_node, kart.slot)
+	assert_bool(kart.take_hit(own)).is_true()
 	assert_int(kart.lives).is_equal(match_node.rules.lives)
-	# It flies on rather than dying on the kart it came from.
+	own.destroy()
+	# One arriving under its own steam drops on the kart and is gone.
+	_shot(match_node, kart.slot)
 	await _runner.simulate_frames(12, 17)
+	assert_int(match_node.bullets.live_count()).is_equal(0)
 	assert_int(kart.lives).is_equal(match_node.rules.lives)
 	assert_bool(kart.alive).is_true()
-	own.destroy()
+	# It does not cost a shield either.
+	kart.set_shielded(true)
+	var shielded := _shot(match_node, kart.slot)
+	assert_bool(kart.take_hit(shielded)).is_true()
+	assert_bool(kart.shielded).is_true()
+	kart.set_shielded(false)
+	shielded.destroy()
 	# Somebody else's bullet still lands, and so does your own once the rules allow it.
-	var theirs := match_node.bullets.spawn(
-		1, LANE + Vector3(-2.0, 0.0, 0.0), Vector3(1.0, 0.0, 0.0), kart.cannon.stats, Color.WHITE
-	)
+	var theirs := _shot(match_node, 1)
 	assert_bool(kart.take_hit(theirs)).is_true()
 	assert_int(kart.lives).is_equal(match_node.rules.lives - 1)
 	theirs.destroy()
 	await _wait_out_immunity(kart)
 	match_node.rules.own_bullets_hurt = true
-	var mine := match_node.bullets.spawn(
-		kart.slot,
-		LANE + Vector3(-2.0, 0.0, 0.0),
-		Vector3(1.0, 0.0, 0.0),
-		kart.cannon.stats,
-		Color.WHITE
-	)
+	var mine := _shot(match_node, kart.slot)
 	assert_bool(kart.take_hit(mine)).is_true()
 	assert_bool(kart.alive).is_false()
 	mine.destroy()

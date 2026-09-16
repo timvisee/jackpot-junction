@@ -60,7 +60,7 @@ func _ready() -> void:
 	column.add_child(MenuTheme.row("Bot difficulty", difficulty_option))
 	column.add_child(MenuTheme.row("Items", items_option))
 	own_bullets_option = MenuTheme.option(
-		["Harmless", "Deadly"], OWN_BULLETS.find(settings.own_bullets_hurt)
+		["Stop harmlessly", "Are deadly"], OWN_BULLETS.find(settings.own_bullets_hurt)
 	)
 	column.add_child(MenuTheme.row("Your own bullets", own_bullets_option))
 	var spacer := Control.new()

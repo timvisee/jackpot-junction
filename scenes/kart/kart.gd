@@ -518,14 +518,16 @@ func _step_effects(delta: float) -> void:
 			effects.erase(effect)
 
 
-## A bullet reached the kart. Returns false when it passes through, for example during spawn
-## protection or when the rules let a kart's own shots pass. A shield absorbs the hit and
-## pops; otherwise the hit costs a life.
+## A bullet reached the kart. Returns true when the bullet is spent on it, which includes a
+## kart's own harmless shot, and false when it passes through, as during spawn protection. A
+## shield absorbs the hit and pops; otherwise the hit costs a life.
 func take_hit(bullet: Bullet) -> bool:
 	if not is_targetable():
 		return false
 	if bullet.owner_slot == slot and not rules.own_bullets_hurt:
-		return false
+		# Your own shot stops on you rather than carrying on through: it simply does no harm,
+		# and it does not cost a shield either.
+		return true
 	if shielded:
 		pop_shield()
 		return true

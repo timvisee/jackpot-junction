@@ -406,7 +406,7 @@ assigns physical devices to player slots, see 10.2.
 | Bounces                        | 0 by default, destroyed on wall contact; Rubber Bumpers and the Ricochet Cannon add one each |
 | Lifetime                       | 3 s                                                |
 | Muzzle                         | 1.0 m ahead of the kart centre                     |
-| Own bullets                    | Harmless to the owner by default, deadly with the lobby option in 3.8 turned on. A kart's turret and decoy shoot its own bullets, so the same answer covers those |
+| Own bullets                    | Stopped by the owner and destroyed either way, harmless by default and deadly with the lobby option in 3.8 turned on. A kart's turret and decoy shoot its own bullets, so the same answer covers those |
 | Bullet vs bullet               | Both destroyed, unless they came from the same cannon, which lets a spread leave the barrel |
 | Bullet vs crate                | Both destroyed, crate drops its chips              |
 | Bullet vs spawn-protected kart | Passes through                                     |
