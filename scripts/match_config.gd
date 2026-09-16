@@ -13,6 +13,8 @@ var duration := 300.0
 var target_score := 3000
 ## "first" for the first power-up set, "all" for every power-up.
 var item_set := "first"
+## Whether a kart's own shots hurt it, GAME.md 5.1.
+var own_bullets_hurt := false
 ## "", "host" or "join".
 var online := ""
 var address := "127.0.0.1"
@@ -46,6 +48,7 @@ func rules(base: MatchRules) -> MatchRules:
 	var copy: MatchRules = base.duplicate()
 	copy.duration = duration
 	copy.target_score = target_score if target_score > 0 else 1 << 30
+	copy.own_bullets_hurt = own_bullets_hurt
 	return copy
 
 
@@ -60,4 +63,5 @@ static func from_settings(settings: Settings) -> MatchConfig:
 	config.duration = settings.match_minutes * 60.0
 	config.target_score = settings.target_score
 	config.item_set = settings.item_set
+	config.own_bullets_hurt = settings.own_bullets_hurt
 	return config

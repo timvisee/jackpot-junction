@@ -88,6 +88,50 @@ func test_the_first_hit_wounds_the_junction_heals_and_the_second_hit_kills() -> 
 	assert_float(victim.stats.top_speed).is_equal_approx(base_speed, 0.001)
 
 
+## GAME.md 5.1: a kart's own shots pass through it unless the lobby says otherwise. Its turret
+## and its decoy fire its bullets, so they are covered by the same answer.
+func test_your_own_bullets_pass_through_you_unless_the_rules_say_otherwise() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	assert_bool(match_node.rules.own_bullets_hurt).is_false()
+	var kart := match_node.kart_of(0)
+	kart.global_position = LANE
+	kart.cannon.stats.aim_assist = false
+	var own := match_node.bullets.spawn(
+		kart.slot,
+		LANE + Vector3(-2.0, 0.0, 0.0),
+		Vector3(1.0, 0.0, 0.0),
+		kart.cannon.stats,
+		Color.WHITE
+	)
+	assert_bool(kart.take_hit(own)).is_false()
+	assert_int(kart.lives).is_equal(match_node.rules.lives)
+	# It flies on rather than dying on the kart it came from.
+	await _runner.simulate_frames(12, 17)
+	assert_int(kart.lives).is_equal(match_node.rules.lives)
+	assert_bool(kart.alive).is_true()
+	own.destroy()
+	# Somebody else's bullet still lands, and so does your own once the rules allow it.
+	var theirs := match_node.bullets.spawn(
+		1, LANE + Vector3(-2.0, 0.0, 0.0), Vector3(1.0, 0.0, 0.0), kart.cannon.stats, Color.WHITE
+	)
+	assert_bool(kart.take_hit(theirs)).is_true()
+	assert_int(kart.lives).is_equal(match_node.rules.lives - 1)
+	theirs.destroy()
+	await _wait_out_immunity(kart)
+	match_node.rules.own_bullets_hurt = true
+	var mine := match_node.bullets.spawn(
+		kart.slot,
+		LANE + Vector3(-2.0, 0.0, 0.0),
+		Vector3(1.0, 0.0, 0.0),
+		kart.cannon.stats,
+		Color.WHITE
+	)
+	assert_bool(kart.take_hit(mine)).is_true()
+	assert_bool(kart.alive).is_false()
+	mine.destroy()
+
+
 ## GAME.md 3.6: a kill patches the killer up, so a wounded kart can fight its way back instead
 ## of having to break off for the Junction.
 func test_a_kill_gives_the_killer_a_life_back() -> void:

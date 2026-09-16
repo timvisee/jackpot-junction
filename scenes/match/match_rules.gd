@@ -77,6 +77,13 @@ extends Resource
 ## Banked points the killer collects.
 @export var bounty_reward := 150
 
+@export_group("Friendly fire")
+## Whether a kart's own shots can hurt it, GAME.md 5.1. Off by default: a bullet that bounces
+## back into its owner, or one fired into a wall at point-blank range, is a bad surprise
+## rather than an interesting risk. Anything a kart owns counts as its own, so this also
+## covers its turret's shots and its decoy's.
+@export var own_bullets_hurt := false
+
 @export_group("Lives")
 ## Hits a kart takes before it dies; pits kill outright.
 @export var lives := 2

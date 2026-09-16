@@ -9,6 +9,8 @@ const TARGETS: Array[int] = [0, 2000, 3000, 5000]
 const BOTS: Array[int] = [0, 1, 2, 3]
 const DIFFICULTIES: Array[String] = ["easy", "normal", "hard"]
 const ITEM_SETS: Array[String] = ["first", "all"]
+## Index order of the own-bullets option: off first, so it is the default.
+const OWN_BULLETS: Array[bool] = [false, true]
 const MAX_HUMANS := 4
 
 var minutes_option: OptionButton
@@ -16,6 +18,7 @@ var target_option: OptionButton
 var bots_option: OptionButton
 var difficulty_option: OptionButton
 var items_option: OptionButton
+var own_bullets_option: OptionButton
 var start_button: Button
 ## Devices of the joined players in slot order; the first entry may be ANY until claimed.
 var devices: Array[int] = [DeviceInput.ANY]
@@ -56,6 +59,10 @@ func _ready() -> void:
 	column.add_child(MenuTheme.row("Bots", bots_option))
 	column.add_child(MenuTheme.row("Bot difficulty", difficulty_option))
 	column.add_child(MenuTheme.row("Items", items_option))
+	own_bullets_option = MenuTheme.option(
+		["Harmless", "Deadly"], OWN_BULLETS.find(settings.own_bullets_hurt)
+	)
+	column.add_child(MenuTheme.row("Your own bullets", own_bullets_option))
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0.0, 24.0)
 	column.add_child(spacer)
@@ -129,6 +136,7 @@ func config() -> MatchConfig:
 	result.bot_count = mini(BOTS[bots_option.selected], MAX_HUMANS - devices.size())
 	result.difficulty = DIFFICULTIES[difficulty_option.selected]
 	result.item_set = ITEM_SETS[items_option.selected]
+	result.own_bullets_hurt = OWN_BULLETS[own_bullets_option.selected]
 	return result
 
 
@@ -139,6 +147,7 @@ func _start() -> void:
 	settings.bot_count = BOTS[bots_option.selected]
 	settings.difficulty = DIFFICULTIES[difficulty_option.selected]
 	settings.item_set = ITEM_SETS[items_option.selected]
+	settings.own_bullets_hurt = OWN_BULLETS[own_bullets_option.selected]
 	settings.save_to_disk()
 	Game.start_match(config())
 

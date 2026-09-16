@@ -33,6 +33,8 @@ var target_score := 3000
 var bot_count := 3
 var difficulty := "normal"
 var item_set := "first"
+## Whether a kart's own shots hurt it, GAME.md 5.1.
+var own_bullets_hurt := false
 var last_address := "127.0.0.1"
 var last_port := 7777
 
@@ -66,6 +68,7 @@ func load_from_disk() -> void:
 	bot_count = file.get_value("lobby", "bot_count", bot_count)
 	difficulty = file.get_value("lobby", "difficulty", difficulty)
 	item_set = file.get_value("lobby", "item_set", item_set)
+	own_bullets_hurt = file.get_value("lobby", "own_bullets_hurt", own_bullets_hurt)
 	last_address = file.get_value("online", "address", last_address)
 	last_port = file.get_value("online", "port", last_port)
 
@@ -93,6 +96,7 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "bot_count", bot_count)
 	file.set_value("lobby", "difficulty", difficulty)
 	file.set_value("lobby", "item_set", item_set)
+	file.set_value("lobby", "own_bullets_hurt", own_bullets_hurt)
 	file.set_value("online", "address", last_address)
 	file.set_value("online", "port", last_port)
 	return file.save(path)

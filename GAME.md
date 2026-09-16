@@ -257,8 +257,9 @@ restored), Spelunker (pit falls), Own Goal (self kills) and Crash Test Dummy
   human player's kart, from the countdown until that player has both driven
   and fired, or for 10 s at most.
 - The lobby exposes match length, target score, bot count, one global bot
-  difficulty and the item set (first set or all items), with the values in
-  this document as defaults.
+  difficulty, the item set (first set or all items) and whether a kart's own
+  bullets hurt it, with the values in this document as defaults. Every choice is
+  remembered for the next match.
 - Pausing in single-player and local play freezes the match for everyone.
   Online matches cannot be paused.
 
@@ -405,7 +406,7 @@ assigns physical devices to player slots, see 10.2.
 | Bounces                        | 0 by default, destroyed on wall contact; Rubber Bumpers and the Ricochet Cannon add one each |
 | Lifetime                       | 3 s                                                |
 | Muzzle                         | 1.0 m ahead of the kart centre                     |
-| Own bullets                    | Deadly to the owner                                |
+| Own bullets                    | Harmless to the owner by default, deadly with the lobby option in 3.8 turned on. A kart's turret and decoy shoot its own bullets, so the same answer covers those |
 | Bullet vs bullet               | Both destroyed, unless they came from the same cannon, which lets a spread leave the barrel |
 | Bullet vs crate                | Both destroyed, crate drops its chips              |
 | Bullet vs spawn-protected kart | Passes through                                     |
