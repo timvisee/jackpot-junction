@@ -58,6 +58,25 @@ func _ready() -> void:
 	Events.kart_killed.connect(_on_kart_killed)
 	Events.nitro_gained.connect(_on_nitro_gained)
 	Events.flush_completed.connect(_on_flush_completed)
+	Events.kart_wounded.connect(_on_kart_wounded)
+	Events.life_restored.connect(_on_life_restored)
+
+
+func _on_kart_wounded(slot: int, _by_slot: int, _cause: StringName) -> void:
+	var kart := _kart(slot)
+	if kart != null:
+		FloatingText.spawn(
+			match_node, kart.global_position, "-1 LIFE", Color(1.0, 0.4, 0.35), 40, 1.0
+		)
+	_rumble(slot, 0.6, 0.25)
+
+
+func _on_life_restored(slot: int) -> void:
+	var kart := _kart(slot)
+	if kart != null:
+		FloatingText.spawn(
+			match_node, kart.global_position, "PATCHED UP", Color(0.45, 1.0, 0.55), 40, 1.0
+		)
 
 
 func _on_flush_completed(slot: int) -> void:
@@ -106,6 +125,8 @@ func _exit_tree() -> void:
 	Events.match_state_changed.disconnect(_on_state_changed)
 	Events.nitro_gained.disconnect(_on_nitro_gained)
 	Events.flush_completed.disconnect(_on_flush_completed)
+	Events.kart_wounded.disconnect(_on_kart_wounded)
+	Events.life_restored.disconnect(_on_life_restored)
 
 
 ## Shows a HUD block and the control hint for a human slot.
@@ -193,6 +214,10 @@ func _update_blocks() -> void:
 		else:
 			pot.text = "respawning %.1f" % maxf(slot.respawn_left, 0.0)
 		stats.text = "K %d  D %d" % [slot.kills, slot.deaths]
+		var pips: Array = block["lives"]
+		for i: int in pips.size():
+			var lit := kart.alive and i < kart.lives
+			(pips[i] as ColorRect).color = slot.color() if lit else Color(0.22, 0.22, 0.26, 0.9)
 		var nitro: ProgressBar = block["nitro"]
 		nitro.value = kart.nitro_charge * 100.0
 		nitro.modulate = Color(1.0, 0.75, 0.3) if kart.nitro_active else Color(0.85, 0.85, 0.9)
@@ -383,6 +408,16 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 	pot.add_theme_font_size_override("font_size", 26)
 	var stats := Label.new()
 	stats.add_theme_font_size_override("font_size", 18)
+	var lives := HBoxContainer.new()
+	lives.add_theme_constant_override("separation", 6)
+	lives.alignment = BoxContainer.ALIGNMENT_END if right else BoxContainer.ALIGNMENT_BEGIN
+	var pips: Array = []
+	for i: int in match_node.rules.lives:
+		var pip := ColorRect.new()
+		pip.custom_minimum_size = Vector2(18.0, 18.0)
+		pip.color = slot.color()
+		lives.add_child(pip)
+		pips.append(pip)
 	var nitro := ProgressBar.new()
 	nitro.min_value = 0.0
 	nitro.max_value = 100.0
@@ -410,6 +445,7 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 		label.add_theme_constant_override("shadow_offset_x", 2)
 		label.add_theme_constant_override("shadow_offset_y", 2)
 		box.add_child(label)
+	box.add_child(lives)
 	box.add_child(nitro)
 	box.add_child(offer)
 	return {
@@ -417,6 +453,7 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 		"banked": banked,
 		"pot": pot,
 		"stats": stats,
+		"lives": pips,
 		"nitro": nitro,
 		"item": item,
 		"offer": offer,

@@ -24,6 +24,7 @@ func activate(kart: Kart) -> void:
 	var behind := kart.global_position + kart.global_basis.z * placement_distance
 	decoy.position = Vector3(behind.x, 0.0, behind.z)
 	match_node.add_child(decoy)
+	decoy.lives = 1
 	decoy.face(-kart.global_basis.z)
 	var brain := BotBrain.new()
 	brain.name = "Brain"

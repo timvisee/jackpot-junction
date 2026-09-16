@@ -37,6 +37,8 @@ const RELAYED_EVENTS: Array[StringName] = [
 	&"nitro_gained",
 	&"pad_claimed",
 	&"flush_completed",
+	&"kart_wounded",
+	&"life_restored",
 	&"crate_destroyed",
 	&"shield_popped",
 	&"bomb_exploded",

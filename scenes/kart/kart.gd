@@ -1,10 +1,11 @@
 class_name Kart
 extends CharacterBody3D
 ## A player's or bot's kart. Movement is planar, gravity-free and driven by a [KartMotor]; the
-## [KartInput] decides who is at the wheel; the [Cannon] fires forward. Death, falling into pits
-## and spawn protection follow GAME.md 3.6.
+## [KartInput] decides who is at the wheel; the [Cannon] fires forward. Lives, death, falling
+## into pits and spawn protection follow GAME.md 3.6: the first hit wounds, the second kills.
 
 signal died(cause: StringName, killer_slot: int)
+signal wounded(cause: StringName, by_slot: int)
 signal respawned
 signal fired(bullets: Array[Bullet])
 signal turbo_taken(direction: Vector3)
@@ -58,6 +59,10 @@ var menu_index := 0
 ## Set by the match so jokers and items can roll dice deterministically.
 var rng := RandomNumberGenerator.new()
 var alive := true
+## Hits left before death; a kart below the rules' count is wounded: darker and slower.
+var lives := 2
+## Seconds a freshly wounded kart cannot be hit again.
+var hurt_left := 0.0
 var falling := false
 ## Set by the match during the countdown and the results: no input, no movement.
 var frozen := false
@@ -80,6 +85,7 @@ var last_bump_slot := -1
 var last_bump_time := -INF
 
 var _body: Node3D
+var _tint: StandardMaterial3D
 var _wheels: Array[MeshInstance3D] = []
 var _ring: MeshInstance3D
 var _pickup_area: Area3D
@@ -106,6 +112,7 @@ func _ready() -> void:
 		cannon_stats = load("res://data/cannons/default.tres")
 	if rules == null:
 		rules = load("res://data/match/default.tres")
+	lives = rules.lives
 	base_stats = stats
 	base_cannon_stats = cannon_stats
 	stats = base_stats.duplicate()
@@ -149,6 +156,7 @@ func _physics_process(delta: float) -> void:
 			die(&"expired", -1)
 			return
 	_step_protection(delta)
+	hurt_left = maxf(hurt_left - delta, 0.0)
 	_graze_cooldown_left = maxf(_graze_cooldown_left - delta, 0.0)
 	_step_effects(delta)
 	input.poll(delta)
@@ -175,7 +183,11 @@ func _physics_process(delta: float) -> void:
 
 ## True while bullets may hit and aim assist may pick this kart.
 func is_targetable() -> bool:
-	return alive and not falling and protection_left <= 0.0
+	return alive and not falling and protection_left <= 0.0 and hurt_left <= 0.0
+
+
+func is_wounded() -> bool:
+	return lives < rules.lives
 
 
 ## Turns the kart into a client-side puppet: no physics, no collisions, visuals from snapshots.
@@ -210,6 +222,10 @@ func apply_puppet_state(state: Dictionary, _delta: float) -> void:
 	channel_progress = state["ring"]
 	_aim_arrow.visible = state["aim"]
 	_flame.set_active(state.get("nitro", false))
+	var new_lives: int = state.get("lives", rules.lives)
+	if new_lives != lives:
+		lives = new_lives
+		_apply_wounds()
 
 
 ## Glides a puppet toward its extrapolated snapshot target every physics tick, so movement stays
@@ -262,6 +278,8 @@ func rebuild_stats() -> void:
 		cannon_stats.aim_assist_cone_deg *= strength
 		cannon_stats.aim_assist_turn_rate_deg *= strength
 		cannon_stats.aim_assist = cannon_stats.aim_assist and strength > 0.0
+	if is_wounded():
+		stats.top_speed *= rules.wounded_speed
 	motor.stats = stats
 	cannon.stats = cannon_stats
 	refresh_pickup_radius()
@@ -481,14 +499,14 @@ func _step_effects(delta: float) -> void:
 
 
 ## A bullet reached the kart. Returns false when it passes through, for example during spawn
-## protection. A shield absorbs the hit and pops.
+## protection. A shield absorbs the hit and pops; otherwise the hit costs a life.
 func take_hit(bullet: Bullet) -> bool:
 	if not is_targetable():
 		return false
 	if shielded:
 		pop_shield()
 		return true
-	die(&"bullet", bullet.owner_slot)
+	_take_lethal(&"bullet", bullet.owner_slot)
 	return true
 
 
@@ -499,7 +517,7 @@ func take_ram(rammer_slot: int) -> void:
 	if shielded:
 		pop_shield()
 		return
-	die(&"ram", rammer_slot)
+	_take_lethal(&"ram", rammer_slot)
 
 
 ## A bomb went off within reach: the shield pops or the kart dies, credited to the bomb's owner.
@@ -509,7 +527,36 @@ func take_blast(owner_slot: int) -> void:
 	if shielded:
 		pop_shield()
 		return
-	die(&"bomb", owner_slot)
+	_take_lethal(&"bomb", owner_slot)
+
+
+## A lethal hit: a kart with a life to spare loses it and limps on, darker, slower and for a
+## moment untouchable; otherwise it dies. Pits skip this and kill outright.
+func _take_lethal(cause: StringName, by_slot: int) -> void:
+	if lives > 1:
+		lives -= 1
+		hurt_left = rules.hurt_protection
+		_apply_wounds()
+		wounded.emit(cause, by_slot)
+		Events.kart_wounded.emit(slot, by_slot, cause)
+		return
+	die(cause, by_slot)
+
+
+## Driving onto the Junction patches a wounded kart up to full lives.
+func restore_life() -> void:
+	if not alive or not is_wounded():
+		return
+	lives = rules.lives
+	_apply_wounds()
+	Events.life_restored.emit(slot)
+
+
+## The darker body and lower top speed of a wounded kart, or the normal ones when healed.
+func _apply_wounds() -> void:
+	var color := Palette.player_color(color_index)
+	_tint.albedo_color = color.darkened(0.5) if is_wounded() else color
+	rebuild_stats()
 
 
 ## Starts a timed effect, replacing one with the same id.
@@ -620,6 +667,9 @@ func respawn(point: Vector3, direction: Vector3, protection: float) -> void:
 	motor.turbo_time_left = 0.0
 	velocity = Vector3.ZERO
 	cannon.cooldown_left = 0.0
+	lives = rules.lives
+	hurt_left = 0.0
+	_apply_wounds()
 	protection_left = protection
 	collision_layer = Layers.PROTECTED if protection > 0.0 else Layers.KART
 	collision_mask = Layers.WORLD | Layers.KART | Layers.PROTECTED | Layers.TURRET
@@ -764,15 +814,15 @@ func _build_visuals() -> void:
 	model.scale = Vector3.ONE * MODEL_SCALE
 	model.position = Vector3(0.0, MODEL_LIFT, 0.0)
 	_body.add_child(model)
-	var tint := StandardMaterial3D.new()
-	tint.albedo_color = Palette.player_color(color_index)
+	_tint = StandardMaterial3D.new()
+	_tint.albedo_color = Palette.player_color(color_index)
 	for node: Node in model.find_children("*", "MeshInstance3D", true, false):
 		var mesh := node as MeshInstance3D
 		var lower := mesh.name.to_lower()
 		if lower.begins_with("wheel"):
 			_wheels.append(mesh)
 		elif not lower.contains("character"):
-			mesh.material_override = tint
+			mesh.material_override = _tint
 	_body.add_child(_roof_marker())
 
 

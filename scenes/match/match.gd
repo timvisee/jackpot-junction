@@ -345,6 +345,7 @@ func build_snapshot() -> Dictionary:
 					"drift": kart.motor.drifting,
 					"aim": kart._aim_arrow.visible,
 					"nitro": kart.nitro_active,
+					"lives": kart.lives,
 					"decoy": kart.is_decoy(),
 				}
 			)

@@ -29,6 +29,7 @@ func after_test() -> void:
 func _quick_rules() -> MatchRules:
 	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
 	rules.countdown = 0.1
+	rules.lives = 1
 	rules.duration = 60.0
 	return rules
 

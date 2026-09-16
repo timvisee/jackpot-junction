@@ -38,6 +38,7 @@ func test_a_bullet_kills_the_kart_ahead_and_the_victim_respawns_protected() -> v
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
+	rules.lives = 1
 	match_node.rules = rules
 	match_node.with_hud = false
 	var runner := scene_runner(match_node)
@@ -69,6 +70,7 @@ func test_two_bullets_meeting_head_on_destroy_each_other() -> void:
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
+	rules.lives = 1
 	match_node.rules = rules
 	match_node.with_hud = false
 	var runner := scene_runner(match_node)

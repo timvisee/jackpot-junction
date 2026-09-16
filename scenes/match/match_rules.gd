@@ -59,6 +59,14 @@ extends Resource
 @export var pit_fall_time := 0.4
 @export var bump_attribution_window := 2.0
 
+@export_group("Lives")
+## Hits a kart takes before it dies; pits kill outright.
+@export var lives := 2
+## Top speed multiplier while a life is missing.
+@export var wounded_speed := 0.85
+## Seconds after losing a life during which the kart cannot be hit again.
+@export var hurt_protection := 0.5
+
 @export_group("Match")
 @export var duration := 300.0
 @export var target_score := 3000

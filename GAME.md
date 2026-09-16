@@ -127,6 +127,8 @@ R0 = 40 points per second, D = 0.5 s
 - When the pot is empty: coins reset to 0, mult to 1, and the tally plays.
 - During Last Call every banked point counts double.
 - The Junction is always open. A pulsing variant is in the ideas backlog.
+- Driving onto the Junction patches a wounded kart up to two lives at once,
+  see 3.6, whether or not it has anything to bank.
 
 Time to fully bank a pot with the starting values:
 
@@ -162,9 +164,12 @@ are plain chips and multiply with your mult like any other.
 
 ### 3.6 Death
 
-A kart dies from one bullet hit, from a bomb blast, from falling into a pit, or
-from being rammed by a kart with an active Boost or burning nitro. A kart that drives into a pit falls for 0.4 s,
-uncontrollable, before the death rules apply. On death, in this order:
+A kart has two lives. A bullet hit, a bomb blast or a ram by a kart with an
+active Boost or burning nitro takes one. With a life to spare the kart limps
+on: darker, at 85% top speed and untouchable for 0.5 s so one volley cannot
+take both lives. Driving onto the Junction restores the lost life at once, see
+3.4. Losing the last life is death. A kart that drives into a pit falls for
+0.4 s, uncontrollable, and dies whatever its lives. On death, in this order:
 
 1. **Bank half**: `floor(0.5 * coins * mult)` is added to banked score.
 2. **Drop coins**: `floor(0.3 * coins)` chips, at most 10, scatter around the
@@ -278,6 +283,7 @@ then hooks up and launches when the handbrake is released.
 | Drift exit boost              | +20% top speed for 0.8 s if the drift lasted 0.6 s or longer |
 | Handbrake                     | with steering above 30% it starts a drift and scrubs speed at 4.2 m/s²; without steering it is a straight stop at 22 m/s², about half a second from top speed, that lays down skid marks |
 | Nitro                         | held button: 190% top speed with 1.5 times the acceleration, steering at 60% and grip at 55%, so it is fast and a handful, kills on contact; a full tank burns 2 s and takes 90 s to refill from empty, starting 0.6 s after letting go; a kill refills half a tank; the tank is kept across deaths; cannot restart below 20% |
+| Wounded                       | one life left: top speed 85%, body tinted darker until the Junction restores the life |
 | Turbo pad                     | fires once the kart's centre is on the pad, not when its bumper touches the edge; shoves along the pad's arrow at 150% top speed without turning the kart. Facing within 45° of the arrow, or straight against it, the shove lasts 1.0 s and the kart simply runs faster, forward or in reverse; crossing sideways gives a 0.15 s shove after which the tires slip and the kart slides to a near standstill. Steering halved while the shove lasts |
 | Sideways slip friction        | outside a drift, sliding more than 10° sideways brakes at up to 14 m/s² at a right angle; past 20° of slip the grip fades to 1.5 rad/s so the kart keeps sliding until it has slowed |
 | Wall contact                  | velocity into the wall is cancelled; if that component exceeded 50% of top speed, total speed drops by 30% |
@@ -389,8 +395,10 @@ can permanently modify the cannon's stats.
 
 ### 5.4 Health
 
-Karts have no hit points. One hit kills. The Shield power-up is the only
-protection besides spawn protection.
+Karts have two lives, see 3.6: the first hit wounds, the second kills. A
+wounded kart is darker, drives at 85% top speed and gets its life back on the
+Junction. The Shield power-up absorbs a hit without costing a life; spawn
+protection makes the kart untouchable.
 
 ## 6. Arena
 
@@ -603,6 +611,8 @@ corners, in single-player and online only the local block is shown.
   colour with the joker's initials and name. While the joker menu is open the
   selected card lifts out of the hand with a bright frame, its name, description
   and the menu controls float above it, and the other cards dim.
+- **Lives**: two pips in the player colour under the kill count; a lost life
+  goes dark.
 - **Held power-up** icon.
 - **Nitro tank** as a thin bar, lit while burning.
 - **Match timer** at the top centre, turning red during Last Call.

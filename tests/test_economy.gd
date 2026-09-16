@@ -10,6 +10,7 @@ var _runner: GdUnitSceneRunner
 func _quick_rules() -> MatchRules:
 	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
 	rules.countdown = 0.1
+	rules.lives = 1
 	rules.duration = 4.0
 	rules.last_call_duration = 1.5
 	return rules

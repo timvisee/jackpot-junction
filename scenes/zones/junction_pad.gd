@@ -3,6 +3,7 @@ extends Area3D
 ## The cash-out pad, GAME.md 3.4. A kart standing on it drains its pot into banked score at a
 ## rate that doubles every few tenths of a second. Leaving keeps what was banked and resets the
 ## ramp; emptying the pot resets coins and mult. The match listens for the ticks and totals.
+## Driving onto the pad also patches a wounded kart up to full lives, GAME.md 3.6.
 
 signal bank_started(kart: Kart)
 signal bank_tick(kart: Kart, points: int)
@@ -66,6 +67,8 @@ func _physics_process(delta: float) -> void:
 		if kart == null:
 			_channels.erase(id)
 			continue
+		if kart.alive and not kart.falling and not kart.frozen and kart.is_wounded():
+			kart.restore_life()
 		if not kart.alive or kart.falling or kart.frozen or kart.pot.is_empty():
 			kart.channel_progress = -1.0
 			continue

@@ -11,6 +11,7 @@ var _runner: GdUnitSceneRunner
 func _start_match(inputs: Array[KartInput], colors: Array[int] = []) -> Match:
 	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
 	rules.countdown = 0.1
+	rules.lives = 1
 	rules.duration = 60.0
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = rules
