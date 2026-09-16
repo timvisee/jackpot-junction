@@ -650,32 +650,31 @@ Starting palette:
 
 - **Disco lights**: six moving-head spot lights stand on posts along the long
   edges of the table, in magenta, cyan, white, gold, violet and green, and follow
-  the excitement meter from 8.4. They can be switched off in the accessibility
-  settings in 8.5 and stay off in the Garage. At rest a single head drifts slowly,
-  pointing up and sweeping the air above the room with a barely visible beam. As
-  the meter climbs more heads switch on, one for every fifth of the way up, and
-  between 0.12 and 0.7 they tip down onto the floor, so the lights come down to
-  the players rather than being switched on over them. Past that they sweep wider,
-  faster and brighter. Last Call has all six at their widest, kept deliberately
-  short of washing the table out: six heads blazing would cost more in readability
-  than they buy in atmosphere. A head that is not taking its turn goes dark where
-  it stands, beam gone and lens unlit, rather than vanishing: the lamps are part
-  of the room. Only a room that wants no rig at all, such as the Garage, takes the
-  posts away with it.
-- The rig lags the meter on purpose: it follows a copy of it that moves at 0.3 a
-  second, a head only lights once the level has clearly earned it and only goes
-  out once it has fallen 0.06 back below that mark, and either way the count then
-  stands for 3 s. A flurry in the match cannot blink a head on and straight off
-  again. While any head is still dark the lit run walks around the rig by itself,
-  every 7 s at rest down to every 2 s at full heat, so the room keeps moving
+  the excitement levels from 8.4, one head per level. They can be switched off in
+  the accessibility settings in 8.5 and stay off in the Garage. At level 1 a
+  single head drifts slowly, pointing up and sweeping the air above the room with
+  a barely visible beam. Every level brings another head on; the heads tip down
+  onto the floor over level 3 and are fully down from level 4, so the lights come
+  down to the players rather than being switched on over them; and they sweep
+  wider, faster and brighter the higher the room goes. Level 6 has all six at
+  their widest, kept deliberately short of washing the table out: six heads
+  blazing would cost more in readability than they buy in atmosphere. A head that
+  is not taking its turn goes dark where it stands, beam gone and lens unlit,
+  rather than vanishing: the lamps are part of the room. Only a room that wants no
+  rig at all, such as the Garage, takes the posts away with it.
+- The levels themselves hold for long enough, see 8.4, that the rig needs no
+  guard of its own against flickering: it only eases between them, sweeping the
+  beams open at 0.35 of the climb a second so a step up takes rather more than
+  half a second. While any head is still dark the lit run walks around the rig by
+  itself, every 7 s at rest down to every 2 s at the top, so the room keeps moving
   without getting brighter.
 - Each beam is cut to the distance it actually has to cross and widened to its
   own spot angle every frame, so however far across the table a head is
   pointing its cone ends in a lit pool on the floor rather than in mid-air.
-- Every head flashes on the beat, harder on the first beat of the bar, and the
-  flash grows with the meter too. The track is a steady 120 BPM in four, so the
-  beat comes straight off the music's playback position. The lights cast no
-  shadows and change nothing about play.
+- From level 3 every lit head flashes on the beat, harder on the first beat of
+  the bar, faintly at first and hardest at level 6. The track is a steady 120 BPM
+  in four, so the beat comes straight off the music's playback position. The
+  lights cast no shadows and change nothing about play.
 
 ### 8.2 Camera
 
@@ -766,27 +765,47 @@ every kart, so everyone sees when an opponent cashes out.
   is linear in amplitude so the level never dips. The files are cut to the
   track's 88 s loop with the decay tail folded under the start, so the music
   loops without a gap. Intensity 1 plays by default and in the menus.
-- **Excitement**: a single meter from 0 to 1 drives the music, and later the
-  arena lights. Heat comes from things that just happened and fades over a few
-  seconds: a kill 0.30, a wound 0.14, a bomb 0.14, a cash-out 0.10, a Royal
-  Flush 0.22, a graze 0.06, all decaying at 0.30 a second. Pressure comes from
-  how the match stands and does not fade: up to 0.25 for the biggest unbanked
-  pot, up to 0.25 for how close the nearest two karts are within 10 m, 0.20
-  while anyone is cashing out and 0.12 for a nearly full Jackpot. The two add
-  up, capped at 1, and the reported value climbs at 3 a second and falls at 1.2. The music
-  steps up to intensity 2 above 0.50 and only falls back to intensity 1 below
-  0.30, so one kill on its own no longer swings the soundtrack: it takes a
-  kill on top of a duel, or a fat pot, or a flurry. When every human player is
-  dead the meter drops to zero and the music calms at once. Last Call pins the
-  meter at 1 and switches to the full mix until the results. The F3 overlay
-  shows the meter with its two parts, the layer, both players' levels and
-  positions, how far the filter is open, and the mute state.
-- **Winding up**: the music bus carries a low-pass filter and a gain stage that
-  follow the meter, sweeping from a dulled 3.8 kHz up to fully open with 1.5 dB
-  of lift, so the track opens out as the match heats up. Both sit after the bus
-  volume, so the audio settings keep full control. A kill shakes the camera by
-  0.2 plus half the meter, and above 0.75 the camera picks up a faint constant
-  tremble. All shake obeys the accessibility toggle in 8.5.
+- **Excitement meter**: underneath everything is one meter from 0 to 1. Heat
+  comes from things that just happened and fades over a few seconds: a kill
+  0.30, a wound 0.14, a bomb 0.14, a cash-out 0.10, a Royal Flush 0.22, a graze
+  0.06, all decaying at 0.30 a second. Pressure comes from how the match stands
+  and does not fade: up to 0.25 for the biggest unbanked pot, up to 0.25 for how
+  close the nearest two karts are within 10 m, 0.20 while anyone is cashing out
+  and 0.12 for a nearly full Jackpot. The two add up, capped at 1, and the
+  reported value climbs at 3 a second and falls at 1.2. Pressure alone never
+  quite reaches the top and one kill on its own does not either, so nothing winds
+  up unless several things are going on at once.
+- **Excitement levels**: the meter is not read directly. A match is run as six
+  levels, opening at 1 and finishing at 6, and each level has a fixed effect:
+
+| Level | Meter from | Lights                                                      | Music                     | Camera                    |
+|-------|------------|-------------------------------------------------------------|---------------------------|---------------------------|
+| 1     | 0.00       | One head, pointing up, drifting over the air above the room  | Intensity 1, mix dullest  | -                         |
+| 2     | 0.12       | Two heads, still pointing up                                 | Intensity 1               | -                         |
+| 3     | 0.28       | Three heads, tipping down onto the floor, faint beat flash   | Intensity 1               | -                         |
+| 4     | 0.45       | Four heads, fully down on the floor, sweeping wider          | Intensity 2               | -                         |
+| 5     | 0.62       | Five heads, wider, quicker and brighter                      | Intensity 2               | -                         |
+| 6     | 0.80       | All six, widest and quickest, hardest flash on the beat      | Main mix, fully open      | A nudge on every beat     |
+
+- **Moving between levels**: the meter has to keep asking for a different level
+  for 2.5 s running before the room follows it, the level then moves one step,
+  and having moved it stands for 6 s whichever way it went. Giving a level back
+  also takes the meter falling 0.06 below the mark that won it. So the evening
+  builds rather than flickers: a flurry cannot flick the room up and straight
+  back down, and a climb from 1 to 6 takes at least half a minute of sustained
+  action. Two things skip the queue: Last Call goes to level 6 at once, because
+  it is the finale rather than a build-up, and every human player being dead
+  drops the room to level 1 at once.
+- **Winding up between levels**: the music bus carries a low-pass filter and a
+  gain stage that follow how far through the levels the room is, 0 at level 1 and
+  1 at level 6, sweeping from a dulled 3.8 kHz up to fully open with 1.5 dB of
+  lift. Both sit after the bus volume, so the audio settings keep full control.
+  A kill shakes the camera by 0.2 plus half of that same share. The beat nudge at
+  level 6 is shaped so it has fallen away again before the next beat. All shake
+  obeys the accessibility toggle in 8.5.
+- The F3 overlay shows the level and the meter with its two parts, the layer,
+  both players' levels and positions, how far the filter is open, and the mute
+  state.
 - **Chips**: clink on pickup, pitch rising with rapid pickups.
 - **Mult**: dice rattle on gain, a soft ping on graze.
 - **Cash-out**: slot-machine ticks while draining, a jackpot chime on

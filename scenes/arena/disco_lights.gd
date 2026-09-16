@@ -1,21 +1,21 @@
 class_name DiscoLights
 extends Node3D
-## Moving-head spot lights around the arena, GAME.md 8.1. They follow the excitement meter: one
-## light drifting slowly over a quiet lap, more of them joining and sweeping wider and faster as
-## the match heats up, all six at their widest during Last Call.
+## Moving-head spot lights around the arena, GAME.md 8.1. The rig runs on the excitement levels
+## of GAME.md 8.4, one head per level: a single light drifting over the opening lap at level 1,
+## another joining at every level, all six sweeping their widest and quickest at level 6.
 ##
-## The heads stand on posts along the long edges of the table, like a stage rig. While the match
-## is cold they point up and sweep the air above the room; as the heat builds they tip down onto
-## the floor, so the lights come down to the players rather than being switched on over them.
+## The heads stand on posts along the long edges of the table, like a stage rig. At the first two
+## levels they point up and sweep the air above the room; from level 3 they tip down onto the
+## floor, and by level 4 they are fully down, so the lights come down to the players rather than
+## being switched on over them.
 ##
-## Every head flashes on the beat of the music, harder on the first beat of the bar, and the flash
-## too is barely there until the match is hot.
+## From level 3 the heads also flash on the beat of the music, harder on the first beat of the
+## bar, faintly at first and hardest at level 6.
 ##
-## The rig deliberately lags the meter. It follows a slowed-down copy of it, a head has to be
-## clearly earned before it lights and clearly unearned before it goes out, and whichever way it
-## went it stands for a few seconds. A flurry in the match therefore cannot blink a light on and
-## straight off again. While some heads are still dark the lit run walks around the rig on its
-## own, slowly at rest and quicker as things heat up, so the room keeps moving without brightening.
+## The levels themselves hold for long enough that nothing here has to guard against flapping,
+## so the rig only eases between them: a step up sweeps the beams open over a second or so rather
+## than snapping. While some heads are still dark the lit run walks around the rig on its own,
+## slowly at rest and quicker as things heat up, so the room keeps moving without brightening.
 ##
 ## The lamps themselves are part of the room and stay where they are: a head that is not taking
 ## its turn simply goes dark, with its beam gone and its lens unlit, rather than vanishing. Only
@@ -30,9 +30,10 @@ const MOUNT_HEIGHT := 1.9
 const EDGE_OFFSET := 0.9
 ## How far above itself a head points while the match is cold.
 const SKY_RISE := 13.0
-## The heat at which heads start tipping down toward the floor, and where they are fully down.
-const TIP_START := 0.12
-const TIP_FULL := 0.7
+## Where in the climb the heads start tipping down toward the floor, and where they are fully
+## down: nothing at levels 1 and 2, halfway at level 3, all the way from level 4.
+const TIP_START := 0.25
+const TIP_FULL := 0.58
 ## How brightly a lit head's lens shows, and the colour a dark one's takes instead.
 const LENS_GLOW := 2.0
 const LENS_DARK := Color(0.16, 0.16, 0.19)
@@ -48,18 +49,17 @@ const COLORS: Array[Color] = [
 	Color("#8B5CF6"),
 	Color("#4ADE80"),
 ]
-## How fast the rig follows the meter, per second. Well below the meter's own rise.
-const LEVEL_FOLLOW := 0.3
-## Once a head has come on or gone out, the count stands for this long.
-const HOLD := 3.0
-## How far the level has to fall back below the mark that lit a head before it goes out again.
-const BAND := 0.06
+## How fast the beams follow a change of level, per second: a step is a fifth of the climb, so
+## this sweeps one open over rather more than half a second.
+const LEVEL_FOLLOW := 0.35
+## The level from which the heads start flashing on the beat.
+const FLASH_FROM := 3
 ## Seconds between handing the lit run on to the next head, at rest and at full heat.
 const CYCLE_SLOW := 7.0
 const CYCLE_FAST := 2.0
 
-## The excitement meter, 0 to 1, set by the match every tick.
-var level := 0.0
+## The excitement level, 1 to [constant COUNT], set by the match every tick.
+var level := 1
 ## Whether this room wants lights at all. The Garage in GAME.md 9.4 turns them off: it is a
 ## place to look at the controls, not a nightclub.
 var enabled := true
@@ -67,11 +67,10 @@ var enabled := true
 var _heads: Array[Dictionary] = []
 var _time := 0.0
 var _floor := Vector2(20.0, 11.25)
-## The meter as the lights see it: the same number, slowed right down.
+## How far through the levels the beams are, 0 at level 1 and 1 at the top, eased so a step up
+## sweeps rather than snaps.
 var _smooth := 0.0
-## How many heads are lit, how long that has to stand, and which head the lit run starts at.
-var _count := 1
-var _hold := 0.0
+## Which head the lit run starts at.
 var _offset := 0
 var _cycle := 0.0
 
@@ -105,38 +104,34 @@ func _process(delta: float) -> void:
 		for head: Dictionary in _heads:
 			_darken(head)
 		return
-	_smooth = move_toward(_smooth, level, LEVEL_FOLLOW * delta)
-	_step_count(delta)
+	_smooth = move_toward(_smooth, _climb(), LEVEL_FOLLOW * delta)
 	_step_cycle(delta)
 	# Everything moves at a crawl until the match gives it a reason not to.
 	_time += delta * (0.3 + 1.4 * _smooth)
 	var beat := Audio.music_beat()
 	var downbeat := Audio.music_beat_index() == 0
 	# A flash right on the beat that falls away before the next one.
-	var flash := pow(1.0 - beat, 4.0) * (1.3 if downbeat else 1.0)
+	# Below [constant FLASH_FROM] the room is not pulsing yet, and it pulses hardest at the top.
+	var strength := float(lit_heads() - FLASH_FROM + 1) / float(COUNT - FLASH_FROM + 1)
+	var flash := pow(1.0 - beat, 4.0) * (1.3 if downbeat else 1.0) * clampf(strength, 0.0, 1.0)
 	for i: int in _heads.size():
 		_step_head(_heads[i], is_lit(i), flash)
 
 
-## How many heads are lit. One more comes on only once the level has clearly earned it, one goes
-## out only once it has clearly lost it, and either way the count then stands for a few seconds.
-func _step_count(delta: float) -> void:
-	_hold = maxf(_hold - delta, 0.0)
-	if _hold > 0.0:
-		return
-	var step := 1.0 / float(COUNT - 1)
-	if _count < COUNT and _smooth >= float(_count) * step:
-		_count += 1
-		_hold = HOLD
-	elif _count > 1 and _smooth < float(_count - 1) * step - BAND:
-		_count -= 1
-		_hold = HOLD
+## How many heads the current level asks for: one per level, and never fewer than one.
+func lit_heads() -> int:
+	return clampi(level, 1, COUNT)
+
+
+## How far up the rig the current level sits, 0 at the bottom and 1 at the top.
+func _climb() -> float:
+	return float(lit_heads() - 1) / float(COUNT - 1)
 
 
 ## While some heads are dark the lit run walks around the rig, so the room keeps changing without
 ## getting any brighter. With every head already lit there is nothing to hand on.
 func _step_cycle(delta: float) -> void:
-	if _count >= COUNT:
+	if lit_heads() >= COUNT:
 		return
 	_cycle -= delta
 	if _cycle <= 0.0:
@@ -144,9 +139,9 @@ func _step_cycle(delta: float) -> void:
 		_offset = posmod(_offset + 1, COUNT)
 
 
-## Whether this head is one of the [member _count] currently taking their turn.
+## Whether this head is one of those currently taking their turn.
 func is_lit(index: int) -> bool:
-	return posmod(index - _offset, COUNT) < _count
+	return posmod(index - _offset, COUNT) < lit_heads()
 
 
 func _step_head(head: Dictionary, on: bool, flash: float) -> void:
@@ -172,7 +167,7 @@ func _step_head(head: Dictionary, on: bool, flash: float) -> void:
 	(head["beam"] as MeshInstance3D).position.z = -throw * 0.5
 	# Kept well short of washing the table out: at full heat every head is on, and six of them
 	# blazing would cost more in readability than it buys in atmosphere.
-	var pulse := 1.0 + (0.15 + 0.55 * _smooth) * flash
+	var pulse := 1.0 + (0.2 + 0.6 * _smooth) * flash
 	light.light_energy = (0.8 + 1.5 * _smooth) * pulse
 	light.spot_angle = lerpf(14.0, 24.0, _smooth)
 	var tint: StandardMaterial3D = head["tint"]

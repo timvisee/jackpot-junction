@@ -15,7 +15,7 @@ extends Node3D
 ##   --feed=1             put a few made-up kills in the kill feed, for screenshots
 ##   --offer=1            open the respawn joker pick, for screenshots
 ##   --destroy=1          open the pick with a full hand, on the destroy step
-##   --disco=0.8          hold the excitement meter here, for the lights and the music
+##   --disco=4            hold the excitement level here, 1 to 6, for the lights and the music
 ##   --bounty=1           put a bounty on the second slot, for screenshots
 ##   --results=1          end the match at once with made-up stats, to see the results screen
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
@@ -37,7 +37,7 @@ var _burst := false
 var _feed := false
 var _offer := false
 var _destroy := false
-var _disco := -1.0
+var _disco := 0
 var _bounty := false
 var _results := false
 
@@ -135,14 +135,15 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(_delta: float) -> void:
-	if _disco >= 0.0:
-		match_node.intensity.heat = _disco
-		match_node.intensity.value = _disco
+	if _disco > 0:
+		var share := float(_disco - 1) / float(MatchIntensity.LEVELS - 1)
+		match_node.intensity.level = _disco
+		match_node.intensity.value = share
 		var lights := match_node.arena.disco
 		lights.level = _disco
-		# Settled at once: a screenshot cannot wait out the rig's slow follower and its holds.
-		lights._smooth = _disco
-		lights._count = 1 + floori(_disco * (DiscoLights.COUNT - 1))
+		# Settled at once: a screenshot cannot wait out the rig easing between levels.
+		lights._smooth = share
+		Audio.set_excitement(_disco, share)
 	if _flame:
 		match_node.kart_of(0)._flame.set_active(true)
 	if _menu < 0:
@@ -195,7 +196,7 @@ func _parse_user_args() -> void:
 		elif arg.begins_with("--destroy="):
 			_destroy = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--disco="):
-			_disco = float(arg.get_slice("=", 1))
+			_disco = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--bounty="):
 			_bounty = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--results="):

@@ -5,13 +5,13 @@ extends GdUnitTestSuite
 
 func before_test() -> void:
 	Audio._last_call = false
-	Audio.set_intensity(0.0)
+	Audio.set_excitement(1, 0.0)
 	Audio.set_layer(Audio.LAYER_CALM)
 
 
 func after_test() -> void:
 	Audio._last_call = false
-	Audio.set_intensity(0.0)
+	Audio.set_excitement(1, 0.0)
 	Audio.set_layer(Audio.LAYER_CALM)
 
 
@@ -36,28 +36,32 @@ func test_a_crossfade_keeps_the_summed_level_constant() -> void:
 		assert_float(active.volume_linear + other.volume_linear).is_equal_approx(1.0, 0.05)
 	else:
 		assert_float(active.volume_linear).is_equal_approx(1.0, 0.001)
-	assert_str(Audio.music_debug()).contains("music tense")
+	assert_str(Audio.music_debug()).contains("music tense L")
 
 
-## The layer follows the excitement meter, with a gap between the two marks so a value sitting on
-## the line does not flap between layers.
-func test_the_music_steps_up_with_the_intensity_and_holds_until_it_drops_well_back() -> void:
-	Audio.set_intensity(0.45)
-	assert_str(Audio.current_layer).is_equal("calm")
-	Audio.set_intensity(0.55)
+## GAME.md 8.4: the mix is chosen by the excitement level, calm up to 3, tense from 4 and the
+## full track at 6. The levels hold themselves, so the layer follows them straight away.
+func test_the_music_steps_up_with_the_excitement_level() -> void:
+	for level: int in [1, 2, 3]:
+		Audio.set_excitement(level, 0.0)
+		assert_str(Audio.current_layer).is_equal("calm")
+	for level: int in [4, 5]:
+		Audio.set_excitement(level, 0.6)
+		assert_str(Audio.current_layer).is_equal("tense")
+	Audio.set_excitement(6, 1.0)
+	assert_str(Audio.current_layer).is_equal("peak")
+	Audio.set_excitement(5, 0.8)
 	assert_str(Audio.current_layer).is_equal("tense")
-	Audio.set_intensity(0.4)
-	assert_str(Audio.current_layer).is_equal("tense")
-	Audio.set_intensity(0.25)
+	Audio.set_excitement(2, 0.2)
 	assert_str(Audio.current_layer).is_equal("calm")
 
 
 func test_last_call_brings_the_full_mix_until_the_results() -> void:
 	Audio._on_state_changed(Match.State.LAST_CALL)
 	assert_str(Audio.current_layer).is_equal("peak")
-	Audio.set_intensity(1.0)
+	Audio.set_excitement(6, 1.0)
 	assert_str(Audio.current_layer).is_equal("peak")
-	Audio.set_intensity(0.0)
+	Audio.set_excitement(1, 0.0)
 	assert_str(Audio.current_layer).is_equal("peak")
 	Audio.mark_all_players_down()
 	assert_str(Audio.current_layer).is_equal("peak")
@@ -66,7 +70,7 @@ func test_last_call_brings_the_full_mix_until_the_results() -> void:
 
 
 func test_everyone_down_calms_the_music_at_once() -> void:
-	Audio.set_intensity(0.9)
+	Audio.set_excitement(4, 0.6)
 	assert_str(Audio.current_layer).is_equal("tense")
 	Audio.mark_all_players_down()
 	assert_str(Audio.current_layer).is_equal("calm")
@@ -82,22 +86,22 @@ func test_the_mute_toggle_flips_the_music_bus_and_the_setting() -> void:
 	assert_bool(Audio.is_music_muted()).is_equal(muted_before)
 
 
-## GAME.md 8.4: the music bus opens up as the match heats up and closes again as it cools.
-func test_the_music_bus_sweeps_open_with_the_intensity() -> void:
+## GAME.md 8.4: the music bus opens up as the levels climb and closes again as they drop back.
+func test_the_music_bus_sweeps_open_with_the_excitement() -> void:
 	assert_object(Audio._filter).is_not_null()
 	assert_object(Audio._amplify).is_not_null()
 	Audio._open = 0.0
 	Audio._step_music_effects(0.0)
 	assert_float(Audio._filter.cutoff_hz).is_equal_approx(Audio.FILTER_CLOSED_HZ, 1.0)
 	assert_float(Audio._amplify.volume_db).is_equal_approx(0.0, 0.01)
-	Audio.set_intensity(1.0)
+	Audio.set_excitement(6, 1.0)
 	for i: int in 40:
 		Audio._step_music_effects(0.05)
 	assert_float(Audio._open).is_equal_approx(1.0, 0.01)
 	assert_float(Audio._filter.cutoff_hz).is_equal_approx(Audio.FILTER_OPEN_HZ, 20.0)
 	assert_float(Audio._amplify.volume_db).is_equal_approx(Audio.HOT_GAIN_DB, 0.01)
 	assert_str(Audio.music_debug()).contains("open 100%")
-	Audio.set_intensity(0.0)
+	Audio.set_excitement(1, 0.0)
 	for i: int in 40:
 		Audio._step_music_effects(0.05)
 	assert_float(Audio._filter.cutoff_hz).is_equal_approx(Audio.FILTER_CLOSED_HZ, 1.0)

@@ -229,7 +229,7 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 		if slot.kart != null:
 			slot.kart.set_bounty(slot.index == match_node.bounty_slot)
 	match_node.arena.junction.hint = match_node.junction_hint()
-	match_node.arena.disco.level = match_node.intensity.value
+	match_node.arena.disco.level = match_node.intensity.level
 	var flush: Array = data.get("flush", [])
 	for i: int in mini(flush.size(), match_node.arena.flush_pads.size()):
 		match_node.arena.flush_pads[i].apply_puppet_state(

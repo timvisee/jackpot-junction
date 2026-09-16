@@ -1,13 +1,20 @@
 class_name MatchIntensity
 extends Node
-## How exciting the match feels right now, from 0 for a quiet lap to 1 for chaos, GAME.md 8.4.
+## How exciting the match feels right now, GAME.md 8.4. A match is run as six levels: it opens
+## at level 1 and finishes at level 6, and every level has a written-down effect on the music,
+## the lights and the camera.
 ##
-## Two parts add up. Heat comes from things that just happened, a kill or a cash-out, and fades
-## over a few seconds. Pressure comes from how the match stands: a fat unbanked pot on the loose,
-## karts in each other's faces, a cash-out running, a Jackpot about to burst. Pressure alone
-## never quite reaches the top, and one kill on its own does not either, so the music, the arena
-## lights and the camera only wind up when several things are going on at once. Last Call pins it
-## to the top until the match ends.
+## Underneath the levels is a meter from 0 to 1. Two parts add up to it. Heat comes from things
+## that just happened, a kill or a cash-out, and fades over a few seconds. Pressure comes from
+## how the match stands: a fat unbanked pot on the loose, karts in each other's faces, a cash-out
+## running, a Jackpot about to burst. Pressure alone never quite reaches the top, and one kill on
+## its own does not either, so nothing winds up unless several things are going on at once.
+##
+## The level is deliberately slow. The meter has to ask for a different one for a few seconds
+## running before the room follows, it moves one level at a time, and whichever way it went it
+## then stands for a good while. A flurry therefore cannot flick the room up and straight back
+## down: the evening builds, and the little it loses it loses gradually. Last Call is the one
+## exception, going to the top level at once, because it is the finale rather than a build-up.
 ##
 ## A client keeps its own meter: the host relays the same events, and snapshots give it the same
 ## pots and positions, so both machines wind up together.
@@ -29,14 +36,32 @@ const RISE := 3.0
 const FALL := 1.2
 ## Karts closer than this to each other are reading as a duel.
 const DUEL_RANGE := 10.0
+## The levels of the evening. One per light on the rig, see GAME.md 8.4 for what each does.
+const LEVELS := 6
+## What the meter has to read for each level from 2 upward.
+const MARKS: Array[float] = [0.12, 0.28, 0.45, 0.62, 0.80]
+## How far the meter has to fall back below the mark that won a level before it is given up.
+const BAND := 0.06
+## Seconds the meter has to keep asking for a different level before the room follows it.
+const DWELL := 2.5
+## Seconds a level stands once it has changed, whichever way it went.
+const HOLD := 6.0
 
 var match_node: Match
-## The smoothed value everything else reads.
+## The level the room is running at, 1 to [constant LEVELS]. This is what the music, the lights
+## and the camera read.
+var level := 1
+## The smoothed meter the level is picked from.
 var value := 0.0
 ## The fading part, from what just happened.
 var heat := 0.0
 ## The steady part, from how the match stands.
 var pressure := 0.0
+
+## Seconds the meter has been asking for a different level, and seconds the current one still
+## stands for.
+var _dwell := 0.0
+var _hold := 0.0
 
 
 func _ready() -> void:
@@ -70,21 +95,73 @@ func add(amount: float) -> void:
 func reset() -> void:
 	heat = 0.0
 	value = 0.0
+	_set_level(1)
+
+
+## How far through the levels the room is, 0 at level 1 and 1 at the top. Anything that wants
+## to fade with the evening rather than step with it reads this.
+func share() -> float:
+	return float(level - 1) / float(LEVELS - 1)
 
 
 ## One line for the debug overlay.
 func debug_text() -> String:
-	return "intensity %.2f (heat %.2f  hold %.2f)" % [value, heat, pressure]
+	return (
+		"level %d/%d  meter %.2f (heat %.2f  hold %.2f  next %.0fs)"
+		% [level, LEVELS, value, heat, pressure, maxf(_hold, DWELL - _dwell)]
+	)
 
 
 func _physics_process(delta: float) -> void:
 	heat = maxf(heat - DECAY * delta, 0.0)
 	pressure = _pressure()
 	var target := clampf(heat + pressure, 0.0, 1.0)
-	if match_node != null and match_node.state == Match.State.LAST_CALL:
+	if _last_call():
 		target = 1.0
 	value = move_toward(value, target, (RISE if target > value else FALL) * delta)
-	Audio.set_intensity(value)
+	_step_level(delta)
+	Audio.set_excitement(level, share())
+
+
+## Walks the level toward what the meter is asking for: one step at a time, only once the meter
+## has kept asking for a while, and never within [constant HOLD] of the last change. Last Call
+## skips the queue and takes the room straight to the top.
+func _step_level(delta: float) -> void:
+	if _last_call():
+		_set_level(LEVELS)
+		return
+	_hold = maxf(_hold - delta, 0.0)
+	var wanted := _wanted_level()
+	if wanted == level:
+		_dwell = 0.0
+		return
+	_dwell += delta
+	if _hold > 0.0 or _dwell < DWELL:
+		return
+	_set_level(level + (1 if wanted > level else -1))
+
+
+## The level the meter is asking for. Holding on to a level takes a little less than reaching it
+## did, so a meter sitting right on a mark does not walk up and down over it.
+func _wanted_level() -> int:
+	var wanted := 1
+	for i: int in MARKS.size():
+		var mark := MARKS[i] - (BAND if i + 2 <= level else 0.0)
+		if value >= mark:
+			wanted = i + 2
+	return wanted
+
+
+func _set_level(to: int) -> void:
+	if to == level:
+		return
+	level = clampi(to, 1, LEVELS)
+	_dwell = 0.0
+	_hold = HOLD
+
+
+func _last_call() -> bool:
+	return match_node != null and match_node.state == Match.State.LAST_CALL
 
 
 ## The part that does not fade.

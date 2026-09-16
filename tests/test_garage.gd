@@ -40,7 +40,7 @@ func test_the_room_runs_one_player_no_bots_and_no_clock() -> void:
 	assert_int(match_node.arena.joker_pads.size()).is_equal(1)
 	# No nightclub in here, whatever the excitement meter says.
 	assert_bool(match_node.arena.disco.enabled).is_false()
-	match_node.arena.disco.level = 1.0
+	match_node.arena.disco.level = DiscoLights.COUNT
 	await runner.simulate_frames(10, 17)
 	assert_int(match_node.arena.disco.lit_count()).is_equal(0)
 	# The clock stands still, so the room never reaches Last Call or the results.

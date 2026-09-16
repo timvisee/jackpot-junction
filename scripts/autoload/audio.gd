@@ -20,12 +20,13 @@ const LAYER_FILES: Dictionary[StringName, String] = {
 	LAYER_CALM: "intensity_1.ogg", LAYER_TENSE: "intensity_2.ogg", LAYER_PEAK: "main.ogg"
 }
 const CROSSFADE_SECONDS := 1.0
-## Intensity at which the music steps up, and the lower mark it has to fall back through
-## before it calms down again, so a value hovering around the line does not flap.
-const TENSE_ON := 0.5
-const TENSE_OFF := 0.3
-## Nothing has refreshed the intensity for this long: no match is running, so wind down.
-const INTENSITY_TIMEOUT := 0.5
+## The excitement levels of GAME.md 8.4 at which the music steps up. Below the first the calm
+## mix plays, from it the tense one, from the second the full one. The levels themselves hold
+## for long enough that no extra hysteresis is needed here.
+const TENSE_LEVEL := 4
+const PEAK_LEVEL := 6
+## Nothing has refreshed the excitement for this long: no match is running, so wind down.
+const EXCITEMENT_TIMEOUT := 0.5
 ## The music bus opens up as the match heats up: a low-pass filter sweeps from a dulled
 ## cutoff to fully open, and a little gain comes in with it.
 const FILTER_CLOSED_HZ := 3800.0
@@ -86,16 +87,19 @@ const LIBRARY: Dictionary[StringName, Array] = {
 var music_enabled := true
 ## The intensity playing or fading in right now.
 var current_layer := LAYER_CALM
-## The match's excitement, 0 to 1, pushed in every tick by [MatchIntensity].
-var intensity := 0.0
+## The match's excitement level, 1 to 6, pushed in every tick by [MatchIntensity].
+var excitement := 1
+## How far through the levels that is, 0 at level 1 and 1 at the top. The filter sweep and the
+## gain follow it, so the mix keeps opening between the steps where the track itself changes.
+var excitement_share := 0.0
 
 var _streams: Dictionary[String, AudioStream] = {}
 var _pool: Array[AudioStreamPlayer] = []
 var _music_players: Array[AudioStreamPlayer] = []
 var _active_player := 0
 var _music_tween: Tween
-var _intensity_age := 0.0
-## The filter's own smoothed take on the intensity, 0 dulled and 1 wide open.
+var _excitement_age := 0.0
+## The filter's own smoothed take on the excitement, 0 dulled and 1 wide open.
 var _open := 0.0
 var _filter: AudioEffectLowPassFilter
 var _amplify: AudioEffectAmplify
@@ -155,7 +159,7 @@ func toggle_music_mute() -> void:
 func _step_music_effects(delta: float) -> void:
 	if _filter == null:
 		return
-	_open = move_toward(_open, intensity, OPEN_FOLLOW * delta)
+	_open = move_toward(_open, excitement_share, OPEN_FOLLOW * delta)
 	# Cutoff by ear rather than by number: an octave is a doubling, so sweep it that way.
 	_filter.cutoff_hz = FILTER_CLOSED_HZ * pow(FILTER_OPEN_HZ / FILTER_CLOSED_HZ, _open)
 	_amplify.volume_db = HOT_GAIN_DB * _open
@@ -188,7 +192,7 @@ func _beats() -> float:
 
 ## One line for the debug overlay: the layer, both players' levels and positions, and the mute.
 func music_debug() -> String:
-	var parts: PackedStringArray = ["music %s %.2f" % [current_layer, intensity]]
+	var parts: PackedStringArray = ["music %s L%d" % [current_layer, excitement]]
 	for i: int in _music_players.size():
 		var player := _music_players[i]
 		var file := "-"
@@ -215,10 +219,10 @@ func music_debug() -> String:
 
 func _process(delta: float) -> void:
 	_bank_tick_left = maxf(_bank_tick_left - delta, 0.0)
-	_intensity_age += delta
-	if _intensity_age > INTENSITY_TIMEOUT and intensity > 0.0:
+	_excitement_age += delta
+	if _excitement_age > EXCITEMENT_TIMEOUT and excitement > 1:
 		# The match is over or gone: let the music settle.
-		set_intensity(maxf(intensity - delta, 0.0))
+		set_excitement(1, 0.0)
 	_step_music_effects(delta)
 
 
@@ -290,22 +294,27 @@ func set_layer(layer: StringName) -> void:
 	_music_tween.chain().tween_callback(from.stop)
 
 
-## The match's excitement, pushed in every tick. The music steps up past [constant TENSE_ON]
-## and only calms down again below [constant TENSE_OFF]. Last Call outranks both.
-func set_intensity(value: float) -> void:
-	intensity = clampf(value, 0.0, 1.0)
-	_intensity_age = 0.0
+## The match's excitement level and how far through the levels it is, pushed in every tick.
+## The music steps up at [constant TENSE_LEVEL] and again at [constant PEAK_LEVEL]; the filter
+## and the gain sweep with the share in between. Last Call outranks all of it.
+func set_excitement(level: int, share: float) -> void:
+	excitement = clampi(level, 1, PEAK_LEVEL)
+	excitement_share = clampf(share, 0.0, 1.0)
+	_excitement_age = 0.0
 	if _last_call:
 		return
-	if intensity >= TENSE_ON:
+	if excitement >= PEAK_LEVEL:
+		set_layer(LAYER_PEAK)
+	elif excitement >= TENSE_LEVEL:
 		set_layer(LAYER_TENSE)
-	elif intensity <= TENSE_OFF:
+	else:
 		set_layer(LAYER_CALM)
 
 
 ## Everyone who plays on this machine is dead: back to calm, whatever just happened.
 func mark_all_players_down() -> void:
-	intensity = 0.0
+	excitement = 1
+	excitement_share = 0.0
 	if not _last_call:
 		set_layer(LAYER_CALM)
 
@@ -449,5 +458,6 @@ func _on_state_changed(state: int) -> void:
 		Match.State.RESULTS:
 			play_sfx(&"results", -2.0, 0.0)
 			_last_call = false
-			intensity = 0.0
+			excitement = 1
+			excitement_share = 0.0
 			set_layer(LAYER_CALM)

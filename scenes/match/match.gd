@@ -413,9 +413,16 @@ func _physics_process(delta: float) -> void:
 			bot_mirror.update(self)
 			_step_bounty(delta)
 			arena.junction.hint = junction_hint()
-			arena.disco.level = intensity.value
-			# Only the last stretch of the meter trembles the camera, and only a little.
-			camera_rig.tremble = maxf(intensity.value - 0.75, 0.0) * 4.0
+			arena.disco.level = intensity.level
+			camera_rig.tremble = _beat_tremble()
+
+
+## The camera's share of the top excitement level, GAME.md 8.4: at level 6 and nowhere else it
+## takes a nudge on every beat, shaped so it has fallen away again before the next one.
+func _beat_tremble() -> float:
+	if intensity.level < MatchIntensity.LEVELS:
+		return 0.0
+	return pow(1.0 - Audio.music_beat(), 6.0)
 
 
 ## How loudly the Junction should blink: from the biggest pot a local player is carrying,
@@ -581,7 +588,7 @@ func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> voi
 	Events.kart_killed.emit(slot.index, killer_slot, cause)
 	if camera_rig != null:
 		# A kill in a hot match hits harder than the first one of the round.
-		camera_rig.shake(0.2 + 0.5 * intensity.value)
+		camera_rig.shake(0.2 + 0.5 * intensity.share())
 	_check_target()
 
 

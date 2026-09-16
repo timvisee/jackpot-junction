@@ -1,6 +1,6 @@
 extends GdUnitTestSuite
-## The moving-head lights over the arena, GAME.md 8.1: how many are lit follows the excitement
-## meter, and they flash on the beat read off the music's tempo.
+## The moving-head lights around the arena, GAME.md 8.1: one head per excitement level, tipping
+## down onto the floor as the levels climb and flashing on the beat read off the music's tempo.
 
 
 func _lights() -> DiscoLights:
@@ -13,8 +13,8 @@ func _lights() -> DiscoLights:
 ## GAME.md 8.5: the accessibility setting puts every head out.
 func test_the_setting_switches_every_head_off() -> void:
 	var lights := _lights()
-	lights.level = 1.0
-	_run(lights, 25.0)
+	lights.level = DiscoLights.COUNT
+	_run(lights, 1.0)
 	assert_int(lights.lit_count()).is_equal(DiscoLights.COUNT)
 	var was := Game.settings.disco_lights
 	Game.settings.disco_lights = false
@@ -40,19 +40,19 @@ func _run(lights: DiscoLights, seconds: float) -> void:
 		lights._process(1.0 / 60.0)
 
 
-func test_more_heads_switch_on_as_the_meter_climbs() -> void:
+## One head per level, which is what makes the level readable from across the room.
+func test_one_head_lights_up_per_excitement_level() -> void:
 	var lights := _lights()
-	lights.level = 0.0
-	_run(lights, 1.0)
-	assert_int(lights.lit_count()).is_equal(1)
-	lights.level = 0.5
-	_run(lights, 10.0)
-	assert_int(lights.lit_count()).is_between(3, 4)
-	lights.level = 1.0
-	_run(lights, 20.0)
-	assert_int(lights.lit_count()).is_equal(DiscoLights.COUNT)
-	lights.level = 0.0
-	_run(lights, 40.0)
+	for level: int in range(1, DiscoLights.COUNT + 1):
+		lights.level = level
+		_run(lights, 0.2)
+		(
+			assert_int(lights.lit_count())
+			. override_failure_message("level %d lit the wrong number of heads" % level)
+			. is_equal(level)
+		)
+	lights.level = 1
+	_run(lights, 0.2)
 	assert_int(lights.lit_count()).is_equal(1)
 
 
@@ -60,7 +60,7 @@ func test_more_heads_switch_on_as_the_meter_climbs() -> void:
 ## the beam is not.
 func test_a_dark_head_keeps_its_lamp_and_loses_only_its_beam() -> void:
 	var lights := _lights()
-	lights.level = 0.0
+	lights.level = 1
 	_run(lights, 2.0)
 	assert_int(lights.lit_count()).is_equal(1)
 	for i: int in DiscoLights.COUNT:
@@ -96,46 +96,42 @@ func test_the_heads_stand_at_the_edges_and_tip_down_as_the_heat_builds() -> void
 		assert_float(absf(light.position.z)).is_greater(11.2)
 		assert_float(absf(light.position.x)).is_less(20.0)
 		assert_object(head["post"]).is_not_null()
-	lights.level = 0.0
+	# Levels 1 and 2 sweep the air above the room.
+	lights.level = 1
 	_run(lights, 2.0)
 	var first: Dictionary = lights._heads[0]
 	assert_float(lights._aim_point(first).y).is_greater(5.0)
-	lights.level = 1.0
-	_run(lights, 25.0)
+	lights.level = 2
+	_run(lights, 4.0)
+	assert_float(lights._aim_point(first).y).is_greater(5.0)
+	# Level 3 is on its way down, and from level 4 they rake the table itself.
+	lights.level = 3
+	_run(lights, 4.0)
+	assert_float(lights._aim_point(first).y).is_between(1.0, 12.0)
+	lights.level = 4
+	_run(lights, 4.0)
 	assert_float(lights._aim_point(first).y).is_equal_approx(0.0, 0.01)
-	# Halfway up the meter they are already looking at the floor rather than the ceiling.
-	lights.level = DiscoLights.TIP_FULL
-	_run(lights, 20.0)
-	assert_float(lights._aim_point(first).y).is_less(1.0)
+	lights.level = DiscoLights.COUNT
+	_run(lights, 8.0)
+	assert_float(lights._aim_point(first).y).is_equal_approx(0.0, 0.01)
 
 
-## The point of the slow follower, the dead band and the hold: a moment of excitement must not
-## flick a head on and straight back off.
-func test_a_brief_spike_does_not_flicker_a_head() -> void:
+## The beams ease between levels rather than snapping: a step up sweeps them open.
+func test_a_step_up_sweeps_the_beams_open_rather_than_snapping() -> void:
 	var lights := _lights()
-	lights.level = 0.0
+	lights.level = 1
 	_run(lights, 2.0)
-	assert_int(lights.lit_count()).is_equal(1)
-	# Half a second of chaos, then quiet again.
-	lights.level = 1.0
-	_run(lights, 0.5)
-	lights.level = 0.0
-	_run(lights, 0.5)
-	assert_int(lights.lit_count()).is_equal(1)
-	# A spell of real heat does bring one on, and it then stays on for a while.
-	lights.level = 0.6
-	_run(lights, 3.0)
-	assert_int(lights.lit_count()).is_greater(1)
-	var lit := lights.lit_count()
-	lights.level = 0.0
-	_run(lights, 1.0)
-	assert_int(lights.lit_count()).is_equal(lit)
+	lights.level = DiscoLights.COUNT
+	_run(lights, 0.1)
+	assert_float(lights._smooth).is_less(0.15)
+	_run(lights, 4.0)
+	assert_float(lights._smooth).is_equal_approx(1.0, 0.01)
 
 
 ## With heads to spare the lit run walks around the rig, and quicker when the match is hot.
 func test_the_lit_heads_cycle_around_the_rig() -> void:
 	var lights := _lights()
-	lights.level = 0.0
+	lights.level = 1
 	_run(lights, 1.0)
 	var first := lights._offset
 	_run(lights, DiscoLights.CYCLE_SLOW + 0.5)
@@ -144,9 +140,9 @@ func test_the_lit_heads_cycle_around_the_rig() -> void:
 	# Two heads on, so exactly one head over from the offset is lit and the rest are dark.
 	assert_bool(lights.is_lit(lights._offset)).is_true()
 	assert_bool(lights.is_lit(posmod(lights._offset + 1, DiscoLights.COUNT))).is_false()
-	# At full heat every head is lit, so there is nothing left to hand on.
-	lights.level = 1.0
-	_run(lights, 25.0)
+	# At the top level every head is lit, so there is nothing left to hand on.
+	lights.level = DiscoLights.COUNT
+	_run(lights, 5.0)
 	var settled := lights._offset
 	_run(lights, DiscoLights.CYCLE_SLOW + 1.0)
 	assert_int(lights._offset).is_equal(settled)
@@ -154,14 +150,14 @@ func test_the_lit_heads_cycle_around_the_rig() -> void:
 
 func test_a_hot_match_sweeps_wider_brighter_and_faster() -> void:
 	var lights := _lights()
-	lights.level = 0.0
+	lights.level = 1
 	_run(lights, 2.0)
 	var calm_time := lights._time
 	var head: SpotLight3D = lights._heads[0]["light"]
 	var calm_energy := head.light_energy
 	var calm_angle := head.spot_angle
-	lights.level = 1.0
-	_run(lights, 20.0)
+	lights.level = DiscoLights.COUNT
+	_run(lights, 5.0)
 	var hot_time := lights._time
 	_run(lights, 2.0)
 	assert_float(lights._time - hot_time).is_greater(calm_time * 0.9)
