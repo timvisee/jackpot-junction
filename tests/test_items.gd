@@ -49,6 +49,11 @@ func test_power_pads_spawn_item_boxes_that_a_kart_takes_and_reveals() -> void:
 	assert_object(kart.held_item).is_not_null()
 	assert_object(pad.current).is_null()
 	assert_float(kart.item_reveal_left).is_greater(0.0)
+	var flights := match_node.get_tree().get_nodes_in_group(&"item_flights")
+	assert_int(flights.size()).is_equal(1)
+	assert_float((flights[0] as Node3D).global_position.distance_to(kart.global_position)).is_less(
+		3.0
+	)
 	await _runner.simulate_frames(40, 17)
 	assert_float(kart.item_reveal_left).is_equal(0.0)
 	var other := match_node.arena.power_pads[1]

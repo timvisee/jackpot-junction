@@ -647,7 +647,29 @@ func _apply_pickups(entries: Array) -> void:
 		if not seen.has(id):
 			var pickup: Pickup = _puppet_pickups[id]
 			_puppet_pickups.erase(id)
+			var box := pickup as ItemBox
+			if box != null:
+				# The host does not say who took it; the kart on top of it did.
+				var taker := _nearest_puppet_kart(box.global_position, 2.5)
+				if taker != null:
+					var color := (
+						box.fixed_item.color if box.fixed_item != null else Palette.CHIP_GOLD
+					)
+					ItemFlight.spawn(arena.pickups, box.global_position, taker, color)
 			pickup.queue_free()
+
+
+func _nearest_puppet_kart(point: Vector3, max_distance: float) -> Kart:
+	var best: Kart = null
+	var best_distance := max_distance
+	for kart: Kart in _puppet_karts.values():
+		if not kart.alive:
+			continue
+		var distance := kart.global_position.distance_to(point)
+		if distance < best_distance:
+			best_distance = distance
+			best = kart
+	return best
 
 
 func _apply_turrets(entries: Array) -> void:

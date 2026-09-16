@@ -618,7 +618,9 @@ corners, in single-player and online only the local block is shown.
   and the menu controls float above it, and the other cards dim.
 - **Lives**: two pips in the player colour under the kill count; a lost life
   goes dark.
-- **Held power-up** icon.
+- **Held power-up** icon. On pickup the item box arcs and shrinks into the kart
+  that took it over 0.4 s, so everyone sees who got it, before the roulette
+  flicker reveals the item.
 - **Nitro tank** as a thin bar, lit while burning.
 - **Match timer** at the top centre, turning red during Last Call.
 - **Standings**: a compact ranked list of every kart's banked score next to

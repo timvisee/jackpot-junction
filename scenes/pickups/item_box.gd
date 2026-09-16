@@ -81,3 +81,5 @@ func _process(delta: float) -> void:
 func _apply(kart: Kart) -> void:
 	var item := fixed_item if fixed_item != null else table.pick(rng)
 	kart.hold_item(item, reveal_time if fixed_item == null else 0.0)
+	var color := fixed_item.color if fixed_item != null else Palette.CHIP_GOLD
+	ItemFlight.spawn(get_parent(), global_position, kart, color)
