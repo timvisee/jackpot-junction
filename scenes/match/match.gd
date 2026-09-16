@@ -9,6 +9,8 @@ enum State { LOBBY, COUNTDOWN, PLAYING, LAST_CALL, RESULTS }
 const ARENA_SCENE := preload("res://scenes/arena/arena.tscn")
 const KART_SCENE := preload("res://scenes/kart/kart.tscn")
 const CAMERA_SCENE := preload("res://scenes/camera/camera_rig.tscn")
+## Seconds before looking again when there was nobody worth putting a bounty on.
+const BOUNTY_RETRY := 5.0
 
 @export var rules: MatchRules
 @export var power_ups: PowerUpTable
@@ -35,6 +37,9 @@ var hud: MatchHud
 var intensity: MatchIntensity
 ## What the bots copy from the players, and how hard they are trying.
 var bot_mirror := BotMirror.new()
+## The slot with a price on its head, -1 for nobody, and how long the bounty still stands.
+var bounty_slot := -1
+var bounty_left := 0.0
 var nav: ArenaNav
 var countdown_left := 0.0
 var time_left := 0.0
@@ -51,6 +56,8 @@ var puppet_stains: Dictionary[int, OilStain] = {}
 var _inputs: Array[KartInput] = []
 var _colors: Array[int] = []
 var _seed := 0
+## Seconds until the next bounty may be called.
+var _bounty_wait := 0.0
 
 
 func _ready() -> void:
@@ -122,6 +129,7 @@ func start(inputs: Array[KartInput], seed: int = 0, colors: Array[int] = []) -> 
 		add_child(hud)
 	time_left = rules.duration
 	countdown_left = rules.countdown
+	_bounty_wait = rules.bounty_first_delay
 	_set_frozen(true)
 	_set_state(State.COUNTDOWN)
 
@@ -392,6 +400,7 @@ func _physics_process(delta: float) -> void:
 			_step_respawns(delta)
 			_step_stats(delta)
 			bot_mirror.update(self)
+			_step_bounty(delta)
 			arena.junction.hint = junction_hint()
 			arena.disco.level = intensity.value
 			# Only the last stretch of the meter trembles the camera, and only a little.
@@ -401,6 +410,52 @@ func _physics_process(delta: float) -> void:
 ## How loudly the Junction should blink: from the biggest pot a local player is carrying,
 ## GAME.md 3.4. Bots and remote players never make it blink; it is a nudge for whoever is
 ## watching this screen.
+## The kart carrying the bounty, or null when nobody is.
+func bounty_kart() -> Kart:
+	return kart_of(bounty_slot) if bounty_slot >= 0 else null
+
+
+## The bounty, GAME.md 3.10: now and then a price goes on the leader's head, and whoever
+## takes them out collects it. It lapses on its own if nobody manages it.
+func _step_bounty(delta: float) -> void:
+	if bounty_slot >= 0:
+		bounty_left -= delta
+		var kart := kart_of(bounty_slot)
+		if bounty_left <= 0.0 or kart == null or not kart.alive:
+			_clear_bounty(true)
+		return
+	_bounty_wait -= delta
+	if _bounty_wait > 0.0:
+		return
+	# Nobody worth calling on yet: look again shortly rather than sitting out a whole interval.
+	_bounty_wait = BOUNTY_RETRY
+	var ranked := standings()
+	if ranked.size() < 2:
+		return
+	var leader := ranked[0]
+	# Only worth calling on a clear leader who is actually out there to be caught.
+	if leader.banked - ranked[1].banked < rules.bounty_min_lead:
+		return
+	if leader.kart == null or not leader.kart.alive:
+		return
+	_bounty_wait = rng.randf_range(rules.bounty_interval_min, rules.bounty_interval_max)
+	bounty_slot = leader.index
+	bounty_left = rules.bounty_duration
+	leader.kart.set_bounty(true)
+	Events.bounty_called.emit(bounty_slot)
+
+
+func _clear_bounty(lapsed: bool) -> void:
+	var was := bounty_slot
+	bounty_slot = -1
+	bounty_left = 0.0
+	var kart := kart_of(was) if was >= 0 else null
+	if kart != null:
+		kart.set_bounty(false)
+	if lapsed and was >= 0:
+		Events.bounty_lapsed.emit(was)
+
+
 func junction_hint() -> float:
 	var most := 0.0
 	for slot: PlayerSlot in slots:
@@ -490,6 +545,14 @@ func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> voi
 		if rng.randf() < death.item_drop_chance:
 			arena.spawn_floor_item(position, kart.held_item, rules.floor_item_lifetime)
 		kart.held_item = null
+	var collected := 0
+	if slot.index == bounty_slot:
+		if killer != null:
+			collected = rules.bounty_reward
+			killer.banked += collected
+			killer.stats.add(&"bounties")
+			Events.bounty_claimed.emit(killer.index, slot.index, collected)
+		_clear_bounty(killer == null)
 	if killer != null:
 		killer.kills += 1
 		if cause == &"bomb":

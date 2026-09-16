@@ -56,8 +56,29 @@ func _ready() -> void:
 	Events.kart_killed.connect(_on_kart_killed)
 	Events.nitro_gained.connect(_on_nitro_gained)
 	Events.flush_completed.connect(_on_flush_completed)
+	Events.bounty_called.connect(_on_bounty_called)
+	Events.bounty_claimed.connect(_on_bounty_claimed)
 	Events.kart_wounded.connect(_on_kart_wounded)
 	Events.life_restored.connect(_on_life_restored)
+
+
+func _on_bounty_called(slot: int) -> void:
+	var kart := _kart(slot)
+	if kart != null:
+		FloatingText.spawn(match_node, kart.global_position, "BOUNTY", Palette.CHIP_GOLD, 56, 1.6)
+	_kill_feed.add_line("a bounty on %s" % _slot_name(slot), Palette.CHIP_GOLD)
+
+
+func _on_bounty_claimed(killer_slot: int, victim_slot: int, amount: int) -> void:
+	var kart := _kart(killer_slot)
+	if kart != null:
+		FloatingText.spawn(
+			match_node, kart.global_position, "+%d BOUNTY" % amount, Palette.CHIP_GOLD, 48, 1.4
+		)
+	_kill_feed.add_line(
+		"%s collected %d on %s" % [_slot_name(killer_slot), amount, _slot_name(victim_slot)],
+		Palette.CHIP_GOLD
+	)
 
 
 func _on_kart_wounded(slot: int, _by_slot: int, _cause: StringName) -> void:
@@ -129,6 +150,8 @@ func _exit_tree() -> void:
 	Events.match_state_changed.disconnect(_on_state_changed)
 	Events.nitro_gained.disconnect(_on_nitro_gained)
 	Events.flush_completed.disconnect(_on_flush_completed)
+	Events.bounty_called.disconnect(_on_bounty_called)
+	Events.bounty_claimed.disconnect(_on_bounty_claimed)
 	Events.kart_wounded.disconnect(_on_kart_wounded)
 	Events.life_restored.disconnect(_on_life_restored)
 

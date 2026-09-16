@@ -190,7 +190,7 @@ func _context() -> Dictionary:
 		"last_call": match_node.state == Match.State.LAST_CALL,
 		"has_item": kart.held_item != null,
 	}
-	var enemy := _nearest_enemy()
+	var enemy := _hunt_target()
 	if enemy != null:
 		context["enemy"] = enemy
 		context["enemy_distance"] = kart.global_position.distance_to(enemy.global_position)
@@ -242,6 +242,16 @@ func _pickup_value(pickup: Pickup) -> float:
 	if pickup is FloorJoker:
 		return 6.0
 	return 1.0
+
+
+## Who to go after: whoever is carrying a bounty, when they are close enough to be worth the
+## detour, and otherwise simply the nearest enemy.
+func _hunt_target() -> Kart:
+	var bounty := match_node.bounty_kart()
+	if bounty != null and bounty.slot != kart.slot and bounty.is_targetable():
+		if kart.global_position.distance_to(bounty.global_position) <= HUNT_RANGE:
+			return bounty
+	return _nearest_enemy()
 
 
 func _nearest_enemy() -> Kart:
@@ -417,7 +427,7 @@ func _shoot(delta: float) -> void:
 	if not _willing_to_fire or bot_trait.rams:
 		_aim_timer = 0.0
 		return
-	var enemy := _nearest_enemy()
+	var enemy := _hunt_target()
 	if enemy == null:
 		_aim_timer = 0.0
 		return

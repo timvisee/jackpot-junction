@@ -18,6 +18,7 @@ const WOUND := 0.14
 const GRAZE := 0.06
 const BANK := 0.10
 const FLUSH := 0.22
+const BOUNTY := 0.18
 const BLAST := 0.14
 ## Heat lost per second, and the most that can be stored, so a flurry keeps paying out.
 const DECAY := 0.3
@@ -44,6 +45,8 @@ func _ready() -> void:
 	Events.grazed.connect(_on_grazed)
 	Events.bank_completed.connect(_on_banked)
 	Events.flush_completed.connect(_on_flush)
+	Events.bounty_called.connect(_on_bounty)
+	Events.bounty_claimed.connect(_on_bounty_claimed)
 	Events.bomb_exploded.connect(_on_blast)
 
 
@@ -53,6 +56,8 @@ func _exit_tree() -> void:
 	Events.grazed.disconnect(_on_grazed)
 	Events.bank_completed.disconnect(_on_banked)
 	Events.flush_completed.disconnect(_on_flush)
+	Events.bounty_called.disconnect(_on_bounty)
+	Events.bounty_claimed.disconnect(_on_bounty_claimed)
 	Events.bomb_exploded.disconnect(_on_blast)
 
 
@@ -144,6 +149,14 @@ func _on_flush(_slot: int) -> void:
 
 func _on_blast(_slot: int) -> void:
 	add(BLAST)
+
+
+func _on_bounty(_slot: int) -> void:
+	add(BOUNTY)
+
+
+func _on_bounty_claimed(_killer: int, _victim: int, _amount: int) -> void:
+	add(BOUNTY)
 
 
 ## True when every human in this match is dead, players and remote players alike.

@@ -15,6 +15,7 @@ extends Node3D
 ##   --feed=1             put a few made-up kills in the kill feed, for screenshots
 ##   --offer=1            open the respawn joker pick, for screenshots
 ##   --disco=0.8          hold the excitement meter here, for the lights and the music
+##   --bounty=1           put a bounty on the second slot, for screenshots
 ##   --results=1          end the match at once with made-up stats, to see the results screen
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
 ## on an unused device to join mid-match; F6 deals the player a random joker.
@@ -35,6 +36,7 @@ var _burst := false
 var _feed := false
 var _offer := false
 var _disco := -1.0
+var _bounty := false
 var _results := false
 
 
@@ -58,6 +60,12 @@ func _ready() -> void:
 	var player := match_node.kart_of(0)
 	for i: int in _jokers:
 		_deal_joker(player)
+	if _bounty:
+		# Straight on, without waiting for the countdown and the leader check.
+		match_node.slots[1].banked = 900
+		match_node.bounty_slot = 1
+		match_node.bounty_left = 999.0
+		match_node.kart_of(1).set_bounty(true)
 	if _offer:
 		var slot := match_node.slots[0]
 		var choices := match_node.joker_catalog.offer(match_node.rng, 3, [])
@@ -172,5 +180,7 @@ func _parse_user_args() -> void:
 			_offer = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--disco="):
 			_disco = float(arg.get_slice("=", 1))
+		elif arg.begins_with("--bounty="):
+			_bounty = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--results="):
 			_results = arg.get_slice("=", 1) == "1"

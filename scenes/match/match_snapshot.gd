@@ -187,6 +187,8 @@ static func build(match_node: Match) -> Dictionary:
 		"jackpots": jackpots,
 		"crates": crates,
 		"flush": flush,
+		"bounty": match_node.bounty_slot,
+		"bounty_left": match_node.bounty_left,
 	}
 
 
@@ -221,6 +223,11 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 			Burst.spawn(match_node, crate.global_position, Palette.BLOCK, 0.9, 18)
 		crate.visible = crates[i]
 		crate.alive = crates[i]
+	match_node.bounty_slot = data.get("bounty", -1)
+	match_node.bounty_left = data.get("bounty_left", 0.0)
+	for slot: PlayerSlot in match_node.slots:
+		if slot.kart != null:
+			slot.kart.set_bounty(slot.index == match_node.bounty_slot)
 	match_node.arena.junction.hint = match_node.junction_hint()
 	match_node.arena.disco.level = match_node.intensity.value
 	var flush: Array = data.get("flush", [])

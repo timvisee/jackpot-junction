@@ -57,7 +57,16 @@ func add_kill(
 	label.add_theme_font_size_override("normal_font_size", FONT_SIZE)
 	label.add_theme_font_size_override("bold_font_size", FONT_SIZE)
 	label.add_theme_color_override("default_color", NEUTRAL)
-	label.text = "[right]%s[/right]" % _line(victim, victim_color, killer, killer_color, cause)
+	_push(label, _line(victim, victim_color, killer, killer_color, cause))
+
+
+## Adds a line of its own, for news that is not a kill: a bounty called or collected.
+func add_line(text: String, color: Color) -> void:
+	add_kill(text, color, "", color, &"line")
+
+
+func _push(label: RichTextLabel, line: String) -> void:
+	label.text = "[right]%s[/right]" % line
 	add_child(label)
 	move_child(label, 0)
 	_rows.push_front(label)
@@ -88,6 +97,8 @@ func _line(
 	victim: String, victim_color: Color, killer: String, killer_color: Color, cause: StringName
 ) -> String:
 	var red := _tag(victim, victim_color)
+	if cause == &"line":
+		return red
 	if killer.is_empty():
 		return "%s %s" % [red, "fell in" if cause == &"pit" else "wrecked itself"]
 	if killer == victim:

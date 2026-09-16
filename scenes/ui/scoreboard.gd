@@ -73,6 +73,8 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, count: int) -> vo
 	score.text = str(slot.banked)
 	var unbanked := slot.kart.pot.value() if slot.kart != null else 0
 	risk.text = "+%d" % unbanked if unbanked > 0 else ""
+	var hunted := match_node.bounty_slot == slot.index
+	(row["bounty"] as Label).visible = hunted
 	for label: Label in [place, name_label, score]:
 		label.add_theme_font_size_override("font_size", size)
 	risk.add_theme_font_size_override("font_size", maxi(size - 8, RISK_FONT))
@@ -114,7 +116,12 @@ func _row(slot: PlayerSlot) -> Dictionary:
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var score := _label(HORIZONTAL_ALIGNMENT_RIGHT, 78.0)
 	var risk := _label(HORIZONTAL_ALIGNMENT_RIGHT, 56.0)
-	for label: Label in [place, name_label, score, risk]:
+	var bounty := _label(HORIZONTAL_ALIGNMENT_RIGHT, 22.0)
+	bounty.text = "$"
+	bounty.visible = false
+	bounty.add_theme_color_override("font_color", Palette.CHIP_GOLD)
+	bounty.add_theme_font_size_override("font_size", 24)
+	for label: Label in [place, name_label, score, risk, bounty]:
 		line.add_child(label)
 	add_child(panel)
 	var row: Dictionary = {
@@ -123,6 +130,7 @@ func _row(slot: PlayerSlot) -> Dictionary:
 		"name": name_label,
 		"score": score,
 		"risk": risk,
+		"bounty": bounty,
 		"plain": plain,
 		"own": own
 	}

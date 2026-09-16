@@ -232,17 +232,17 @@ The joker catalogue is in section 7.3.
 
 Flow: Title screen, Lobby, Countdown, Playing, Last Call, Results. Results show
 every player's banked score and kills, ranked, then offer a rematch or a return
-to the lobby. Under each player up to three awards pick out what they did most
-compared with the others, leaders first, ranked by how far ahead of the others'
-average they are: Trigger Happy (shots fired), Butterfingers (coins lost),
-Vacuum Cleaner (coins picked up), Card Shark (jokers taken), Road Warrior
-(distance driven), Sideways Specialist (distance drifted), Close Shave
-(grazes), Regular Customer (cash-outs), Big Spender (biggest cash-out),
-Gadgeteer (items used), Nitro Junkie (nitro time), Pad Hopper (turbo pads),
-Multiplier Maniac (peak mult), Demolition Crew (crates), Pyrotechnician (bomb
-kills), Royal Flush (flushes), Comeback Kid (lives restored), Spelunker (pit
-falls), Own Goal (self kills) and Crash Test Dummy (deaths). Stats with a value
-of zero never earn an award.
+to the lobby. Under each player up to three awards pick out what they did most compared with
+the others, leaders first, ranked by how far ahead of the others' average they
+are: Trigger Happy (shots fired), Butterfingers (coins lost), Vacuum Cleaner
+(coins picked up), Card Shark (jokers taken), Road Warrior (distance driven),
+Sideways Specialist (distance drifted), Close Shave (grazes), Regular Customer
+(cash-outs), Big Spender (biggest cash-out), Gadgeteer (items used), Nitro
+Junkie (nitro time), Pad Hopper (turbo pads), Multiplier Maniac (peak mult),
+Demolition Crew (crates), Pyrotechnician (bomb kills), Royal Flush (flushes),
+Bounty Hunter (bounties collected), Comeback Kid (lives restored), Spelunker
+(pit falls), Own Goal (self kills) and Crash Test Dummy (deaths). Stats with a
+value of zero never earn an award.
 
 - The title screen offers Play, Settings and Quit. There is no tutorial. At
   the start of a match the drive and fire controls are shown next to each
@@ -266,6 +266,22 @@ four at once is a Royal Flush:
 - Pads keep their colour when their holder dies, so a flush can be finished
   after a respawn, and stolen pads have to be won back.
 - Decoys cannot claim pads. Bots claim pads only by driving over them.
+
+### 3.10 Bounty
+
+Now and then a price goes on the leader's head, to give everyone else a reason
+to go after them.
+
+- No bounty in the first 45 s. After that one is called every 25 to 50 s, at
+  random, but only on a leader who is at least 120 banked points clear of second
+  place and alive at that moment.
+- The bounty stands for 20 s. Whoever kills the carrier banks 150 points on top
+  of the usual kill reward. If nobody manages it, or the carrier dies some other
+  way, it lapses.
+- The carrier wears a gold crown, is marked on the standings, and both the
+  calling and the collecting are announced in the kill feed.
+- Bots go after the carrier ahead of whoever is nearest, as long as it is within
+  their hunting range.
 
 ## 4. Kart
 

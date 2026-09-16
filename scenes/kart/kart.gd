@@ -20,10 +20,6 @@ const WHEEL_RADIUS := 0.24
 const PUPPET_SMOOTHING := 18.0
 ## Beyond this distance a puppet snaps instead of gliding, for example after a respawn.
 const PUPPET_SNAP_DISTANCE := 4.0
-const KART_MODEL := preload("res://assets/models/car-kit/kart-oobi.glb")
-const MODEL_SCALE := 1.12
-const MODEL_LIFT := 0.235
-const MARKER_HEIGHT := 1.75
 const FALL_SPEED := 2.5
 const FALL_SPIN := 7.0
 const BLINK_PERIOD := 0.25
@@ -95,6 +91,7 @@ var _pickup_shape: SphereShape3D
 var _shield_visual: MeshInstance3D
 var _aim_arrow: MeshInstance3D
 var _flame: NitroFlame
+var _crown: Node3D
 var _nitro_recharge_wait := 0.0
 var _puppet_target := Vector3.ZERO
 var _puppet_heading := 0.0
@@ -129,7 +126,10 @@ func _ready() -> void:
 	cannon = Cannon.new(cannon_stats)
 	if bullet_system == null:
 		bullet_system = get_tree().get_first_node_in_group(&"bullet_system") as BulletSystem
-	_build_visuals()
+	var parts := KartVisuals.build_body(self)
+	_body = parts["body"]
+	_tint = parts["tint"]
+	_wheels.assign(parts["wheels"])
 	_tire_marks = TireMarks.new()
 	_tire_marks.name = "TireMarks"
 	add_child(_tire_marks)
@@ -137,7 +137,14 @@ func _ready() -> void:
 	_smoke.name = "Smoke"
 	_smoke.position = Vector3(0.0, 0.35, stats.length * 0.5)
 	add_child(_smoke)
-	_build_pickup_area()
+	var attached := KartVisuals.build_attachments(self)
+	_pickup_area = attached["pickup_area"]
+	_pickup_shape = attached["pickup_shape"]
+	_ring = attached["ring"]
+	_shield_visual = attached["shield"]
+	_aim_arrow = attached["aim_arrow"]
+	_crown = attached["crown"]
+	_flame = attached["flame"]
 	rebuild_stats()
 
 
@@ -178,6 +185,7 @@ func _physics_process(delta: float) -> void:
 	rotation = Vector3(0.0, motor.heading, 0.0)
 	_collect_overlapping_pickups()
 	_spin_wheels(delta)
+	_step_crown(delta)
 	_update_trails(delta, heading_before)
 
 
@@ -247,6 +255,13 @@ func _step_puppet(delta: float) -> void:
 	motor.forward_speed = motor.velocity.dot(motor.forward_vector())
 	_spin_wheels(delta)
 	_update_trails(delta, heading_before)
+
+
+func _step_crown(delta: float) -> void:
+	if not _crown.visible:
+		return
+	_crown.rotate_y(2.2 * delta)
+	_crown.position.y = KartVisuals.CROWN_HEIGHT + sin(Time.get_ticks_msec() * 0.004) * 0.08
 
 
 func is_decoy() -> bool:
@@ -647,6 +662,7 @@ func die(cause: StringName, killer_slot: int) -> void:
 	effects.clear()
 	set_shielded(false)
 	ramming = false
+	set_bounty(false)
 	_set_nitro_active(false)
 	_body.visible = false
 	_smoke.emitting = false
@@ -845,67 +861,13 @@ func _update_trails(delta: float, heading_before: float) -> void:
 	_smoke.update_state(input.throttle, motor.drifting or skidding, pushing)
 
 
-func _build_visuals() -> void:
-	_body = Node3D.new()
-	_body.name = "Body"
-	add_child(_body)
-	var model: Node3D = KART_MODEL.instantiate()
-	model.name = "Model"
-	# The model drives toward its +Z; Godot's forward is -Z.
-	model.rotation_degrees = Vector3(0.0, 180.0, 0.0)
-	model.scale = Vector3.ONE * MODEL_SCALE
-	model.position = Vector3(0.0, MODEL_LIFT, 0.0)
-	_body.add_child(model)
-	_tint = StandardMaterial3D.new()
-	_tint.albedo_color = Palette.player_color(color_index)
-	for node: Node in model.find_children("*", "MeshInstance3D", true, false):
-		var mesh := node as MeshInstance3D
-		var lower := mesh.name.to_lower()
-		if lower.begins_with("wheel"):
-			_wheels.append(mesh)
-		elif not lower.contains("character"):
-			mesh.material_override = _tint
-	_body.add_child(_roof_marker())
+## A gold crown over the roof marker while there is a price on this kart's head, GAME.md 3.10.
+func set_bounty(on: bool) -> void:
+	_crown.visible = on
 
 
-## A distinct shape per slot above the driver, so colours are not the only way to tell karts apart.
-func _roof_marker() -> MeshInstance3D:
-	var marker := MeshInstance3D.new()
-	marker.name = "RoofMarker"
-	var shapes: Array[Mesh] = [
-		SphereMesh.new(),
-		BoxMesh.new(),
-		PrismMesh.new(),
-		TorusMesh.new(),
-		CylinderMesh.new(),
-		CapsuleMesh.new()
-	]
-	var mesh: Mesh = shapes[posmod(slot, shapes.size())]
-	if mesh is SphereMesh:
-		(mesh as SphereMesh).radius = 0.16
-		(mesh as SphereMesh).height = 0.32
-	elif mesh is BoxMesh:
-		(mesh as BoxMesh).size = Vector3.ONE * 0.28
-	elif mesh is PrismMesh:
-		(mesh as PrismMesh).size = Vector3(0.32, 0.3, 0.32)
-	elif mesh is TorusMesh:
-		(mesh as TorusMesh).inner_radius = 0.08
-		(mesh as TorusMesh).outer_radius = 0.18
-	elif mesh is CylinderMesh:
-		(mesh as CylinderMesh).top_radius = 0.14
-		(mesh as CylinderMesh).bottom_radius = 0.14
-		(mesh as CylinderMesh).height = 0.26
-	elif mesh is CapsuleMesh:
-		(mesh as CapsuleMesh).radius = 0.11
-		(mesh as CapsuleMesh).height = 0.36
-	marker.mesh = mesh
-	var material := StandardMaterial3D.new()
-	material.albedo_color = Palette.player_color(color_index)
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	marker.material_override = material
-	marker.position = Vector3(0.0, MARKER_HEIGHT, 0.0)
-	marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	return marker
+func has_bounty() -> bool:
+	return _crown.visible
 
 
 func _spin_wheels(delta: float) -> void:
@@ -915,65 +877,6 @@ func _spin_wheels(delta: float) -> void:
 		if wheel.name.to_lower().contains("front"):
 			# Steering right is a clockwise turn seen from above, a negative rotation about +Y.
 			wheel.rotation.y = -motor.steer * 0.35
-
-
-func _build_pickup_area() -> void:
-	_pickup_area = Area3D.new()
-	_pickup_area.name = "PickupArea"
-	_pickup_area.collision_layer = 0
-	_pickup_area.collision_mask = Layers.PICKUP
-	var shape := CollisionShape3D.new()
-	_pickup_shape = SphereShape3D.new()
-	_pickup_shape.radius = rules.pickup_radius
-	shape.shape = _pickup_shape
-	shape.position = Vector3(0.0, 0.4, 0.0)
-	_pickup_area.add_child(shape)
-	add_child(_pickup_area)
-	_ring = MeshInstance3D.new()
-	_ring.name = "Ring"
-	var torus := TorusMesh.new()
-	torus.inner_radius = 0.9
-	torus.outer_radius = 1.0
-	_ring.mesh = torus
-	var ring_material := StandardMaterial3D.new()
-	ring_material.albedo_color = Palette.NEON_CYAN
-	ring_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	_ring.material_override = ring_material
-	_ring.position = Vector3(0.0, 0.06, 0.0)
-	_ring.visible = false
-	add_child(_ring)
-	_shield_visual = MeshInstance3D.new()
-	_shield_visual.name = "Shield"
-	var bubble := SphereMesh.new()
-	bubble.radius = 1.25
-	bubble.height = 2.5
-	_shield_visual.mesh = bubble
-	var bubble_material := StandardMaterial3D.new()
-	bubble_material.albedo_color = Color(0.2, 0.8, 1.0, 0.3)
-	bubble_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	bubble_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	_shield_visual.material_override = bubble_material
-	_shield_visual.position = Vector3(0.0, 0.5, 0.0)
-	_shield_visual.visible = false
-	_shield_visual.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(_shield_visual)
-	_aim_arrow = MeshInstance3D.new()
-	_aim_arrow.name = "AimArrow"
-	var arrow := PrismMesh.new()
-	arrow.size = Vector3(0.35, 0.5, 0.08)
-	_aim_arrow.mesh = arrow
-	var arrow_material := StandardMaterial3D.new()
-	arrow_material.albedo_color = Palette.NEON_CYAN
-	arrow_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	_aim_arrow.material_override = arrow_material
-	_aim_arrow.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
-	_aim_arrow.top_level = true
-	_aim_arrow.visible = false
-	add_child(_aim_arrow)
-	_flame = NitroFlame.new()
-	_flame.name = "Flame"
-	_flame.position = Vector3(0.0, 0.4, stats.length * 0.5 - 0.05)
-	add_child(_flame)
 
 
 ## Polled every tick rather than on entry, so a kart that unfreezes or spawns on top of a pickup

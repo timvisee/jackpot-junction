@@ -76,6 +76,7 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"explosion": ["impactPunch_heavy_000.ogg"],
 	&"pad_claim": ["select_001.ogg"],
 	&"oil": ["impactSoft_heavy_001.ogg"],
+	&"bounty": ["question_001.ogg"],
 	&"wounded": ["impactPunch_heavy_000.ogg"],
 	&"patched": ["confirmation_002.ogg"],
 	&"explosion_tail": ["impactSoft_heavy_001.ogg"],
@@ -367,6 +368,8 @@ func _connect_events() -> void:
 	Events.bomb_exploded.connect(func(_slot: int) -> void: _play_explosion())
 	Events.pad_claimed.connect(func(_slot: int) -> void: play_sfx(&"pad_claim", -8.0, 0.05))
 	Events.oil_hit.connect(func(_slot: int) -> void: play_sfx(&"oil", -4.0, 0.12))
+	Events.bounty_called.connect(func(_slot: int) -> void: play_sfx(&"bounty", -2.0, 0.0))
+	Events.bounty_claimed.connect(_on_bounty_claimed)
 	Events.flush_completed.connect(_on_flush_completed)
 	Events.kart_wounded.connect(
 		func(_victim: int, _by: int, _cause: StringName) -> void: play_sfx(&"wounded", -4.0, 0.1)
@@ -395,6 +398,11 @@ func _on_bank_tick(_slot: int, _points: int) -> void:
 	player.volume_db = -8.0
 	player.pitch_scale = _bank_pitch
 	player.play()
+
+
+func _on_bounty_claimed(_killer: int, _victim: int, _amount: int) -> void:
+	play_sfx(&"bank_done", 0.0, 0.0)
+	play_sfx(&"fanfare", -2.0, 0.0)
 
 
 func _on_flush_completed(_slot: int) -> void:

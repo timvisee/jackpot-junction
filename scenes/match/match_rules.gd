@@ -63,6 +63,18 @@ extends Resource
 @export var pit_fall_time := 0.4
 @export var bump_attribution_window := 2.0
 
+@export_group("Bounty")
+## Seconds before the first bounty can be called, and the range between later ones.
+@export var bounty_first_delay := 45.0
+@export var bounty_interval_min := 25.0
+@export var bounty_interval_max := 50.0
+## How long a bounty stands before it lapses.
+@export var bounty_duration := 20.0
+## Banked points the leader must be clear by for a bounty to be worth calling.
+@export var bounty_min_lead := 120
+## Banked points the killer collects.
+@export var bounty_reward := 150
+
 @export_group("Lives")
 ## Hits a kart takes before it dies; pits kill outright.
 @export var lives := 2
