@@ -748,6 +748,12 @@ corners, in single-player and online only the local block is shown.
   that took it over 0.4 s, so everyone sees who got it, before the roulette
   flicker reveals the item.
 - **Nitro tank** as a thin bar, lit while burning.
+- **Speedometer** under it: a thin dial and a number in km/h, both turning the
+  nitro colour while the bottle is lit. The dial is full at a kart flat out on
+  nitro, so the needle still has somewhere to go when it lights. The number is the
+  kart's real speed scaled by 20, which puts a kart at about 210 km/h flat out and
+  400 on nitro: the honest metres a second is a single figure and says nothing
+  about how the driving feels. A dead kart reads zero.
 - **Control hints**, on by default and switchable in 8.5: a line under each
   player's block naming the button that drifts, the one that burns nitro and
   the one that plays a held item. Each shows only while it is worth pressing, so

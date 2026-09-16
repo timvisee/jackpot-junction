@@ -5,6 +5,14 @@ extends CanvasLayer
 ## grazes and mult, the tally on cash-out, and the results panel. Reads the match; never changes
 ## it except through the results and lobby buttons.
 
+## What a metre a second reads as on the speedometer. The karts are small and the arena is a
+## table, so the honest number is a single figure and says nothing; scaled like this a kart
+## tops out around 210 and nitro takes it to 400, which is what the driving feels like.
+const SPEED_SCALE := 20.0
+## The speed the dial is full at: a kart flat out on nitro, so the needle has somewhere to go
+## when the bottle is lit.
+const SPEED_FULL := 1.9
+
 const BLOCK_ANCHORS: Array[int] = [
 	Control.PRESET_TOP_LEFT,
 	Control.PRESET_TOP_RIGHT,
@@ -263,6 +271,7 @@ func _update_blocks() -> void:
 		var nitro: ProgressBar = block["nitro"]
 		nitro.value = kart.nitro_charge * 100.0
 		nitro.modulate = Color(1.0, 0.75, 0.3) if kart.nitro_active else Color(0.85, 0.85, 0.9)
+		_update_speed(block, kart)
 		_update_hints(block, kart, slot.device())
 		var item: Label = block["item"]
 		if kart.held_item == null:
@@ -370,6 +379,20 @@ func _on_death_banked(slot: int, amount: int) -> void:
 
 
 ## The reminder row under a player's block, GAME.md 8.3: which button drifts, which burns
+## The speedometer, GAME.md 8.3: the needle and the number both read whatever the kart is
+## actually doing, and both turn the nitro colour while the bottle is lit. A dead kart reads
+## zero rather than keeping the speed it died at.
+func _update_speed(block: Dictionary, kart: Kart) -> void:
+	var dial: ProgressBar = block["speed_dial"]
+	var readout: Label = block["speed"]
+	var speed := kart.motor.speed() if kart.alive else 0.0
+	dial.value = clampf(speed / (kart.stats.top_speed * SPEED_FULL), 0.0, 1.0) * 100.0
+	readout.text = "%d km/h" % roundi(speed * SPEED_SCALE)
+	var lit := Color(1.0, 0.75, 0.3) if kart.nitro_active else Color(0.85, 0.85, 0.9)
+	dial.modulate = lit
+	readout.add_theme_color_override("font_color", lit)
+
+
 ## nitro and which plays the item they are holding. Each one only appears while it is worth
 ## pressing, and they are named for whichever scheme that player last used.
 func _update_hints(block: Dictionary, kart: Kart, device: int) -> void:
@@ -475,6 +498,31 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 	nitro.show_percentage = false
 	nitro.custom_minimum_size = Vector2(180.0, 10.0)
 	nitro.tooltip_text = "Nitro"
+	var speed_dial := ProgressBar.new()
+	speed_dial.min_value = 0.0
+	speed_dial.max_value = 100.0
+	speed_dial.value = 0.0
+	speed_dial.show_percentage = false
+	speed_dial.custom_minimum_size = Vector2(120.0, 10.0)
+	speed_dial.tooltip_text = "Speed"
+	speed_dial.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var speed := Label.new()
+	speed.text = "0 km/h"
+	speed.add_theme_font_size_override("font_size", 19)
+	speed.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.8))
+	speed.add_theme_constant_override("shadow_offset_x", 2)
+	speed.add_theme_constant_override("shadow_offset_y", 2)
+	# The dial reads left to right whichever corner the block is in, with the number at the
+	# outside edge where the rest of the block's text already lines up.
+	var speed_row := HBoxContainer.new()
+	speed_row.add_theme_constant_override("separation", 8)
+	speed_row.alignment = BoxContainer.ALIGNMENT_END if right else BoxContainer.ALIGNMENT_BEGIN
+	if right:
+		speed_row.add_child(speed)
+		speed_row.add_child(speed_dial)
+	else:
+		speed_row.add_child(speed_dial)
+		speed_row.add_child(speed)
 	var item := Label.new()
 	item.add_theme_font_size_override("font_size", 22)
 	item.add_theme_color_override("font_color", Palette.NEON_MAGENTA)
@@ -488,6 +536,7 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 		box.add_child(label)
 	box.add_child(lives)
 	box.add_child(nitro)
+	box.add_child(speed_row)
 	box.add_child(hints)
 	return {
 		"box": box,
@@ -496,6 +545,8 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 		"stats": stats,
 		"lives": pips,
 		"nitro": nitro,
+		"speed_dial": speed_dial,
+		"speed": speed,
 		"item": item,
 		"hints": hints,
 	}
