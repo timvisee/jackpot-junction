@@ -97,6 +97,26 @@ func test_only_the_top_level_puts_the_beat_in_the_camera() -> void:
 	assert_float(trough).is_less(0.1)
 
 
+## GAME.md 8.4: everyone being dead normally takes the room back to level 1, but the finale is
+## the finale whoever is lying in a pit for the last few seconds of it.
+func test_dying_in_last_call_does_not_wind_the_room_back_down() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	await _settle(match_node)
+	var meter := match_node.intensity
+	match_node._enter_last_call()
+	await _runner.simulate_frames(int(MatchIntensity.LAST_CALL_CLIMB * 60.0) + 30, 17)
+	assert_int(meter.level).is_equal(MatchIntensity.LEVELS)
+	assert_str(Audio.current_layer).is_equal("peak")
+	# The only human on this screen goes down, and the room carries on regardless.
+	match_node.kart_of(0).die(&"test", -1)
+	await _runner.simulate_frames(30, 17)
+	assert_bool(match_node.kart_of(0).alive).is_false()
+	assert_int(meter.level).is_equal(MatchIntensity.LEVELS)
+	assert_float(meter.value).is_equal_approx(1.0, 0.001)
+	assert_str(Audio.current_layer).is_equal("peak")
+
+
 func test_pressure_comes_from_a_fat_pot_a_duel_and_a_cash_out() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)

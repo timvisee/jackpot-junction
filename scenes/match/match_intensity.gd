@@ -226,7 +226,9 @@ func _closeness(karts: Array[Kart]) -> float:
 
 func _on_killed(_victim: int, _killer: int, _cause: StringName) -> void:
 	add(KILL)
-	if _everyone_down():
+	# Everybody watching this screen is dead, so the room goes quiet for them. Not during Last
+	# Call: the finale is the finale whoever is lying in the pit for the last few seconds of it.
+	if _everyone_down() and not _last_call():
 		reset()
 		Audio.mark_all_players_down()
 

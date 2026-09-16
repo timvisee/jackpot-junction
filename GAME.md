@@ -130,11 +130,10 @@ R0 = 40 points per second, D = 0.5 s
 - The neon ring blinks when a player on this screen is carrying an unbanked pot
   worth 250 or more, brighter and quicker the bigger the pot, up to a fortune of
   1200. It only nudges; the pad behaves the same either way.
-- Banking a pot dry patches a wounded kart up to two lives, see 3.6. The life
-  comes with the last coin, not with arriving: a wounded kart has to stand on the
-  pad with everything it is carrying until the pot is empty, which is exactly when
-  it is most worth shooting. A kart that rolls on with nothing to bank gets
-  nothing.
+- Standing on the Junction patches a wounded kart up to two lives, see 3.6, but a
+  pot has to go in first: the life comes with the last coin of the cash-out, which
+  is exactly when the kart is most worth shooting. A kart that rolls on with
+  nothing to bank is owed the life straight away.
 
 Time to fully bank a pot with the starting values:
 
@@ -173,8 +172,9 @@ are plain chips and multiply with your mult like any other.
 A kart has two lives. A bullet hit, a bomb blast or a ram by a kart with an
 active Boost or burning nitro takes one. With a life to spare the kart limps
 on: darker, at 85% top speed, blinking and untouchable for 1.2 s, so a burst of
-bullets cannot take both lives in the same moment. Banking a pot dry at the
-Junction restores the lost life, see 3.4, and so does taking somebody out.
+bullets cannot take both lives in the same moment. Standing on the Junction with
+an empty pot restores the lost life, and so does banking a pot dry there, see 3.4;
+so does taking somebody out.
 Losing the last life is death. A kart that drives into a pit falls for 0.4 s,
 uncontrollable, and dies whatever its lives. On death, in this order:
 

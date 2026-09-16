@@ -75,12 +75,12 @@ func test_the_first_hit_wounds_the_junction_heals_and_the_second_hit_kills() -> 
 	assert_float(victim.stats.top_speed).is_equal_approx(base_speed * 0.85, 0.001)
 	assert_float(victim._tint.albedo_color.v).is_less(color.v - 0.1)
 	await assert_signal(events).is_emitted("kart_wounded", [1, 0, &"bullet"])
-	# GAME.md 3.4: arriving is not enough, and nor is standing there with nothing to bank.
-	victim.global_position = match_node.arena.junction_position
-	await _runner.simulate_frames(20, 17)
-	assert_int(victim.lives).is_equal(1)
-	# The life comes with the last coin of a cash-out.
+	# GAME.md 3.4: a pot goes in before the life comes back, so arriving loaded is not enough.
 	victim.pot.add_coins(20)
+	victim.global_position = match_node.arena.junction_position
+	await _runner.simulate_frames(3, 17)
+	assert_int(victim.lives).is_equal(1)
+	# The life comes with the last coin of the cash-out.
 	await _runner.simulate_frames(60, 17)
 	assert_bool(victim.pot.is_empty()).is_true()
 	assert_int(victim.lives).is_equal(2)
@@ -147,6 +147,24 @@ func test_your_own_bullets_drop_on_you_without_hurting_you() -> void:
 
 ## GAME.md 3.6: a kill patches the killer up, so a wounded kart can fight its way back instead
 ## of having to break off for the Junction.
+## GAME.md 3.4: with nothing to bank there is nothing to wait for, so the pad patches a wounded
+## kart up the moment it rolls on.
+func test_an_empty_pot_is_patched_up_on_arrival() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var shooter := match_node.kart_of(0)
+	var victim := match_node.kart_of(1)
+	victim.global_position = LANE
+	victim.face(Vector3(1.0, 0.0, 0.0))
+	await _shoot(match_node, shooter, LANE)
+	assert_bool(victim.is_wounded()).is_true()
+	victim.pot.reset()
+	victim.global_position = match_node.arena.junction_position
+	await _runner.simulate_frames(6, 17)
+	assert_int(victim.lives).is_equal(2)
+	assert_bool(victim.is_wounded()).is_false()
+
+
 func test_a_kill_gives_the_killer_a_life_back() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)
