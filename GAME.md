@@ -578,7 +578,11 @@ corners, in single-player and online only the local block is shown.
 
 - **Banked score**, large.
 - **Pot** as `coins × mult = value`, updating live.
-- **Joker slots**: 5 icons, empty slots outlined.
+- **Joker hand**: the held jokers as a row of overlapping cards along the bottom
+  of the screen, one hand per local player, each card framed in its kind's
+  colour with the joker's initials and name. While the joker menu is open the
+  selected card lifts out of the hand with a bright frame, its name, description
+  and the menu controls float above it, and the other cards dim.
 - **Held power-up** icon.
 - **Nitro tank** as a thin bar, lit while burning.
 - **Match timer** at the top centre, turning red during Last Call.

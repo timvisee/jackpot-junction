@@ -36,6 +36,20 @@ const MUTE_MUSIC := &"mute_music"
 
 const DEFAULT_DEADZONE := 0.2
 const STICK_DEADZONE := 0.15
+## Punctuation keys shown as the character itself instead of Godot's long key name.
+const KEY_SYMBOLS: Dictionary[String, String] = {
+	"BracketLeft": "[",
+	"BracketRight": "]",
+	"Comma": ",",
+	"Period": ".",
+	"Slash": "/",
+	"Semicolon": ";",
+	"Apostrophe": "'",
+	"Minus": "-",
+	"Equal": "=",
+	"BackSlash": "\\",
+	"QuoteLeft": "`",
+}
 
 ## Default events per action. A descriptor is one of
 ## {"key": Key}, {"button": JoyButton} or {"axis": JoyAxis, "value": float}.
@@ -168,7 +182,8 @@ static func binding_text(action: StringName, keyboard: bool) -> String:
 static func event_text(event: InputEvent) -> String:
 	var text := event.as_text()
 	if event is InputEventKey:
-		return text.replace(" - Physical", "")
+		var key := text.replace(" - Physical", "")
+		return KEY_SYMBOLS.get(key, key)
 	var motion := event as InputEventJoypadMotion
 	if event is InputEventJoypadButton or motion != null:
 		var open := text.find("(")

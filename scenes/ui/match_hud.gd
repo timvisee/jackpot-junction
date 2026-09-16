@@ -1,8 +1,9 @@
 class_name MatchHud
 extends CanvasLayer
-## The match HUD from GAME.md 8.3: timer, standings, one block per human player, countdown and
-## Last Call banners, in-world floating texts for grazes and mult, the tally on cash-out, and the
-## results panel. Reads the match; never changes it except through the results buttons.
+## The match HUD from GAME.md 8.3: timer, standings, one block per human player, a hand of joker
+## cards per human along the bottom, countdown and Last Call banners, in-world floating texts for
+## grazes and mult, the tally on cash-out, and the results panel. Reads the match; never changes
+## it except through the results and lobby buttons.
 
 const BLOCK_ANCHORS: Array[int] = [
 	Control.PRESET_TOP_LEFT,
@@ -17,6 +18,7 @@ var _timer: Label
 var _standings: RichTextLabel
 var _banner: Label
 var _blocks: Dictionary[int, Dictionary] = {}
+var _hands: Dictionary[int, JokerHand] = {}
 var _results: PanelContainer
 var _results_rows: VBoxContainer
 var _lobby: PanelContainer
@@ -91,6 +93,13 @@ func add_block(slot: PlayerSlot) -> void:
 	if _blocks.has(slot.index):
 		return
 	_blocks[slot.index] = _make_block(slot)
+	var hand := JokerHand.new()
+	hand.name = "Hand%d" % slot.index
+	hand.kart = slot.kart
+	hand.keyboard = slot.device() in [DeviceInput.KEYBOARD, DeviceInput.ANY]
+	add_child(hand)
+	_hands[slot.index] = hand
+	_layout_hands()
 	ControlHint.attach(slot.kart, slot.device())
 
 
@@ -100,6 +109,19 @@ func remove_block(slot: PlayerSlot) -> void:
 	var block: Dictionary = _blocks[slot.index]
 	(block["box"] as Control).queue_free()
 	_blocks.erase(slot.index)
+	_hands[slot.index].queue_free()
+	_hands.erase(slot.index)
+	_layout_hands()
+
+
+## Hands share the bottom edge in slot order.
+func _layout_hands() -> void:
+	var indices := _hands.keys()
+	indices.sort()
+	for i: int in indices.size():
+		var hand := _hands[indices[i]]
+		hand.column = i
+		hand.columns = indices.size()
 
 
 func _process(delta: float) -> void:
@@ -132,6 +154,10 @@ func _update_standings() -> void:
 
 
 func _update_blocks() -> void:
+	var bottom_blocks: Array[Rect2] = []
+	for index: int in _blocks:
+		if index % BLOCK_ANCHORS.size() >= 2:
+			bottom_blocks.append((_blocks[index]["box"] as Control).get_global_rect())
 	for index: int in _blocks:
 		var slot := match_node.slots[index]
 		var block := _blocks[index]
@@ -157,28 +183,10 @@ func _update_blocks() -> void:
 			item.text = "? ? ?" if fmod(kart.item_reveal_left, 0.12) < 0.06 else "? ?"
 		else:
 			item.text = "Item: %s" % kart.held_item.display_name
-		var jokers: RichTextLabel = block["jokers"]
-		jokers.text = _joker_row(kart)
+		var hand := _hands[index]
+		hand.kart = kart
+		hand.avoid = bottom_blocks
 		_update_offer(slot, block)
-
-
-func _joker_row(kart: Kart) -> String:
-	if kart.jokers.count() == 0:
-		return ""
-	var parts: PackedStringArray = []
-	for i: int in kart.jokers.count():
-		var joker := kart.jokers.jokers[i]
-		var text := "[color=%s]%s[/color]" % [_kind_color(joker), joker.initials()]
-		if kart.menu_open and i == kart.menu_index:
-			text = "[%s]" % text
-		parts.append(text)
-	var row := "  ".join(parts)
-	if kart.menu_open:
-		var current := kart.jokers.jokers[kart.menu_index]
-		row += (
-			"\n%s: %s\n[ ] cycle   E drop   Q destroy" % [current.display_name, current.description]
-		)
-	return row
 
 
 func _update_offer(slot: PlayerSlot, block: Dictionary) -> void:
@@ -218,12 +226,7 @@ func _update_offer(slot: PlayerSlot, block: Dictionary) -> void:
 
 
 func _kind_color(joker: Joker) -> String:
-	match joker.kind:
-		Joker.Kind.STAT:
-			return "#dddddd"
-		Joker.Kind.CURSED:
-			return "#ff6b6b"
-	return "#f2c14e"
+	return "#" + JokerHand.kind_color(joker).to_html(false)
 
 
 func _update_banner(delta: float) -> void:
@@ -370,13 +373,6 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 	var item := Label.new()
 	item.add_theme_font_size_override("font_size", 22)
 	item.add_theme_color_override("font_color", Palette.NEON_MAGENTA)
-	var jokers := RichTextLabel.new()
-	jokers.bbcode_enabled = true
-	jokers.fit_content = true
-	jokers.scroll_active = false
-	jokers.autowrap_mode = TextServer.AUTOWRAP_OFF
-	jokers.custom_minimum_size = Vector2(420.0, 0.0)
-	jokers.add_theme_font_size_override("normal_font_size", 20)
 	var offer := PanelContainer.new()
 	offer.visible = false
 	offer.custom_minimum_size = Vector2(560.0, 0.0)
@@ -395,7 +391,6 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 		label.add_theme_constant_override("shadow_offset_y", 2)
 		box.add_child(label)
 	box.add_child(nitro)
-	box.add_child(jokers)
 	box.add_child(offer)
 	return {
 		"box": box,
@@ -404,7 +399,6 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 		"stats": stats,
 		"nitro": nitro,
 		"item": item,
-		"jokers": jokers,
 		"offer": offer,
 		"offer_text": offer_text,
 	}

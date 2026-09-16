@@ -9,14 +9,16 @@ var _runner: GdUnitSceneRunner
 
 
 ## Offers are off by default so deaths do not hand out random jokers; offer tests turn them on.
-func _start_match(inputs: Array[KartInput], offer_size: int = 0, seed: int = 21) -> Match:
+func _start_match(
+	inputs: Array[KartInput], offer_size: int = 0, seed: int = 21, with_hud: bool = false
+) -> Match:
 	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
 	rules.countdown = 0.1
 	rules.duration = 60.0
 	rules.respawn_delay = 0.2
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = rules
-	match_node.with_hud = false
+	match_node.with_hud = with_hud
 	match_node.offer_size = offer_size
 	_runner = scene_runner(match_node)
 	match_node.start(inputs, seed)
@@ -85,6 +87,35 @@ func test_bullets_do_not_bounce_by_default_and_rubber_bumpers_stack_one_bounce_e
 		bullet.destroy()
 	kart.jokers.remove(first)
 	assert_int(kart.cannon.stats.bounces).is_equal(1)
+
+
+func test_the_hud_deals_the_jokers_as_cards_and_lifts_the_one_picked_in_the_menu() -> void:
+	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs, 0, 21, true)
+	var kart := match_node.kart_of(0)
+	_attach(kart, "hair_trigger")
+	_attach(kart, "rubber_bumpers")
+	await _runner.simulate_frames(12, 17)
+	var hand: JokerHand = match_node.hud._hands[0]
+	assert_int(hand.card_count()).is_equal(2)
+	assert_int(hand.selected()).is_equal(-1)
+	assert_bool(hand._detail.visible).is_false()
+	Input.action_press(InputActions.JOKER_MENU)
+	Input.action_press(InputActions.JOKER_NEXT)
+	await _runner.simulate_frames(3, 17)
+	Input.action_release(InputActions.JOKER_NEXT)
+	await _runner.simulate_frames(30, 17)
+	assert_bool(kart.menu_open).is_true()
+	assert_int(hand.selected()).is_equal(1)
+	assert_float(hand._cards[1].position.y).is_less(hand._cards[0].position.y - 20.0)
+	assert_bool(hand._detail.visible).is_true()
+	assert_str(hand._detail_text.text).contains("Rubber Bumpers")
+	Input.action_release(InputActions.JOKER_MENU)
+	await _runner.simulate_frames(3, 17)
+	assert_int(hand.selected()).is_equal(-1)
+	_attach(kart, "big_tank")
+	await _runner.simulate_frames(2, 17)
+	assert_int(hand.card_count()).is_equal(3)
 
 
 func test_stat_jokers_rebuild_the_karts_own_stats_and_removal_restores_them() -> void:

@@ -6,8 +6,10 @@ extends Node3D
 ##   --players=2          keyboard drives slot 0 and the first gamepad slot 1
 ##   --bots=3             number of bot karts added after the humans (default 1)
 ##   --difficulty=hard    bot difficulty: easy, normal or hard
+##   --jokers=3           deal the player this many random jokers at the start
+##   --menu=1             hold the player's joker menu open on this card, for screenshots
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
-## on an unused device to join mid-match.
+## on an unused device to join mid-match; F6 deals the player a random joker.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 
@@ -16,6 +18,8 @@ var match_node: Match
 var _players := 1
 var _bots := 1
 var _difficulty := "normal"
+var _jokers := 0
+var _menu := -1
 
 
 func _ready() -> void:
@@ -36,6 +40,8 @@ func _ready() -> void:
 		inputs.append(BotInput.new())
 	match_node.start(inputs)
 	var player := match_node.kart_of(0)
+	for i: int in _jokers:
+		_deal_joker(player)
 	var overlay := DebugOverlay.new()
 	overlay.kart = player
 	overlay.arena_width = match_node.arena.world_size().x
@@ -45,6 +51,31 @@ func _ready() -> void:
 	tuning.cannon_stats = player.base_cannon_stats
 	tuning.on_change = _rebuild_all_karts
 	add_child(tuning)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	var key := event as InputEventKey
+	if key == null or not key.pressed or key.echo or key.physical_keycode != KEY_F6:
+		return
+	_deal_joker(match_node.kart_of(0))
+	get_viewport().set_input_as_handled()
+
+
+func _process(_delta: float) -> void:
+	if _menu < 0:
+		return
+	var player := match_node.kart_of(0)
+	player.menu_open = player.jokers.count() > 0
+	player.menu_index = clampi(_menu, 0, maxi(player.jokers.count() - 1, 0))
+
+
+## Hands the kart a random joker it does not hold yet, when it has room.
+func _deal_joker(kart: Kart) -> void:
+	if kart.jokers.is_full():
+		return
+	var choices := match_node.joker_catalog.offer(match_node.rng, 1, kart.jokers.ids())
+	if not choices.is_empty():
+		kart.jokers.add(choices[0])
 
 
 ## Live tuning edits the shared resources; every kart re-copies them.
@@ -62,3 +93,7 @@ func _parse_user_args() -> void:
 			_bots = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--difficulty="):
 			_difficulty = arg.get_slice("=", 1)
+		elif arg.begins_with("--jokers="):
+			_jokers = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--menu="):
+			_menu = int(arg.get_slice("=", 1))
