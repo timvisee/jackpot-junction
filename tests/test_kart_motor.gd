@@ -176,8 +176,8 @@ func test_the_handbrake_without_steering_stops_the_kart_quickly_without_drifting
 	_input.handbrake = true
 	_run(0.3)
 	assert_bool(_motor.drifting).is_false()
-	assert_float(_motor.speed()).is_less(_stats.top_speed * 0.7)
-	_run(0.9)
+	assert_float(_motor.speed()).is_less(_stats.top_speed * 0.45)
+	_run(0.3)
 	assert_float(_motor.speed()).is_equal_approx(0.0, 0.001)
 
 

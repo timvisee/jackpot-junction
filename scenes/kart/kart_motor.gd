@@ -160,8 +160,8 @@ func _step_longitudinal(input: KartInput, delta: float) -> void:
 	else:
 		forward_speed = move_toward(forward_speed, 0.0, stats.coast_decel * delta)
 	if input.handbrake and stats.handbrake_decel > 0.0:
-		# A drift scrubs speed gently; below drifting speed the handbrake is a real brake.
-		var decel := stats.handbrake_decel * (0.35 if drifting else 1.0)
+		# A drift scrubs speed gently; without steering the handbrake is a hard, quick stop.
+		var decel := stats.handbrake_drift_scrub if drifting else stats.handbrake_decel
 		forward_speed = move_toward(forward_speed, 0.0, decel * delta)
 
 
