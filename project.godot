@@ -11,8 +11,8 @@ config_version=5
 [application]
 
 config/name="Jackpot Junction"
-config/version="0.1.0"
 config/description="Arena kart game: collect chips, build a multiplier, cash out at the Junction before someone shoots you."
+config/version="0.1.0"
 run/main_scene="res://scenes/ui/title.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
@@ -47,9 +47,8 @@ window/stretch/aspect="expand"
 
 [physics]
 
-common/physics_ticks_per_second=60
-common/physics_interpolation=true
 3d/physics_engine="Jolt Physics"
+common/physics_interpolation=true
 
 [rendering]
 
