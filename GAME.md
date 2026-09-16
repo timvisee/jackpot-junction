@@ -184,7 +184,8 @@ uncontrollable, before the death rules apply. On death, in this order:
 Jokers are passive rule modifiers held for the rest of the match.
 
 - On every respawn the player is offered 3 jokers during the respawn delay and
-  picks 1 or skips. Offers never include a joker the player already holds.
+  picks 1 or skips. Offers never include a joker the player already holds,
+  except stackable jokers such as Rubber Bumpers, whose copies each apply again.
 - A player holds at most 5 jokers. A player holding 5 who wants a new one must
   first destroy or drop one: at the respawn pick, choosing a joker to discard
   destroys it; in the arena, the joker menu lets you drop one on the floor or
@@ -335,7 +336,7 @@ assigns physical devices to player slots, see 10.2.
 | Max live bullets per kart      | 3                                                  |
 | Bullet speed                   | 17 m/s, about 1.6 times kart top speed             |
 | Bullet radius                  | 0.15 m                                             |
-| Bounces                        | 1 off walls, destroyed on the second wall contact  |
+| Bounces                        | 0 by default, destroyed on wall contact; Rubber Bumpers and the Ricochet Cannon add one each |
 | Lifetime                       | 3 s                                                |
 | Muzzle                         | 1.0 m ahead of the kart centre                     |
 | Own bullets                    | Deadly to the owner                                |
@@ -384,7 +385,8 @@ protection besides spawn protection.
 - The layout has two-fold rotational symmetry so that no spawn is favoured.
 - The Junction is in the centre and reachable from all sides, with hazards or
   cover near it so that banking is never a free walk.
-- Cover is partial. Bullets bounce once, so no spot is safe from every angle.
+- Cover is partial. Bullets only bounce with Rubber Bumpers or a Ricochet Cannon,
+  so cover is worth something, but no spot is safe from every angle.
 - Keep it simple: a handful of wall segments, a few crates and pits, four turbo
   pads. No moving hazards in the first map.
 - Maps are Godot scenes. Markers in the scene define spawns, pads, zones and
@@ -441,7 +443,7 @@ B  crate         .  floor
   reward the risk.
 - The short vertical walls screen the Jackpot zones from the centre, so a kart
   collecting the Jackpot can only be shot from the top or bottom lane, or by a
-  bounced bullet.
+  bouncing bullet.
 
 ## 7. Power-ups and jokers
 
@@ -464,7 +466,7 @@ First set:
 | Boost           | 25     | 3 s: +50% top speed, steering at 80%, ramming kills. You remain vulnerable to bullets |
 | Shield          | 25     | Absorbs one bullet or ram, then pops. Expires after 10 s                        |
 | Turret          | 15     | Deploys a turret at your position. Rotates at 180°/s toward the nearest enemy, fires 1 default bullet per second. Lives 20 s or 1 hit. Kills credit you. Can hit you |
-| Ricochet Cannon | 20     | Next 8 shots bounce twice and fly 25% faster                                    |
+| Ricochet Cannon | 20     | Next 8 shots bounce off walls once more and fly 25% faster                      |
 | Coin Magnet     | 15     | 8 s: pickup radius times 3, chips within it drift toward you at 6 m/s           |
 
 Later set, off by default and switched on per match in the lobby:
@@ -503,7 +505,7 @@ a real downside. Starting set; balance is untested.
 | Insurance Policy | Uncommon | Rule   | Bank 100% of your pot on death                                            |
 | Getaway Driver   | Uncommon | Rule   | Junction drain ramps twice as fast, D = 0.25 s                            |
 | Pickpocket       | Uncommon | Rule   | Kills move 50% of the victim's coins into your pot; the victim drops none |
-| Rubber Bumpers   | Uncommon | Rule   | Your bullets bounce one extra time                                        |
+| Rubber Bumpers   | Uncommon | Rule   | Your bullets bounce off walls once more. Stacks: two copies bounce twice  |
 | Comeback         | Uncommon | Rule   | Respawn with mult equal to half your mult at death, rounded up            |
 | Loaded Dice      | Uncommon | Rule   | Every chip has a 10% chance to count as a gold chip                       |
 | Toll Booth       | Uncommon | Rule   | Whenever another kart completes a cash-out, you bank 5% of it             |

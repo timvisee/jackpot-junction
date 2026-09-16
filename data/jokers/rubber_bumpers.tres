@@ -6,6 +6,7 @@
 script = ExtResource("1_script")
 id = &"rubber_bumpers"
 display_name = "Rubber Bumpers"
-description = "Your bullets bounce one extra time."
+description = "Your bullets bounce off walls once more. Stacks."
 rarity = 1
 kind = 1
+stackable = true

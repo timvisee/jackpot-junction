@@ -1,5 +1,5 @@
 extends Joker
-## Rubber Bumpers: Your bullets bounce one extra time.
+## Rubber Bumpers: your bullets bounce off walls once more. Stackable: two copies bounce twice.
 
 
 func modify_cannon_stats(stats: CannonStats) -> void:

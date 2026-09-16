@@ -1,6 +1,6 @@
 class_name RicochetCannonPowerUp
 extends PowerUp
-## Ricochet Cannon: the next shots bounce one extra time and fly faster.
+## Ricochet Cannon: the next shots bounce off walls once more and fly faster.
 
 @export var shots := 8
 @export var extra_bounces := 1

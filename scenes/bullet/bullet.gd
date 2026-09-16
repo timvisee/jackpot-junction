@@ -1,7 +1,8 @@
 class_name Bullet
 extends Node3D
 ## One bullet, GAME.md 5.1 and 5.2. Moves by ray each physics tick so it cannot tunnel, bounces
-## off walls, bends slightly toward targets until its first bounce, and kills what it touches.
+## off walls while it has bounces left, bends slightly toward targets until its first bounce,
+## and kills what it touches.
 ## Bullet against bullet is resolved by the [BulletSystem].
 
 signal expired(bullet: Bullet)
@@ -13,7 +14,7 @@ const TARGET_GROUP := &"targets"
 var owner_slot := -1
 var velocity := Vector3.ZERO
 var radius := 0.15
-var bounces_left := 1
+var bounces_left := 0
 var lifetime_left := 3.0
 var bounced := false
 var color := Color.WHITE

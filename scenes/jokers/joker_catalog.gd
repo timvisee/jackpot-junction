@@ -16,7 +16,7 @@ func by_id(id: StringName) -> Joker:
 func offer(rng: RandomNumberGenerator, count: int, exclude: Array[StringName]) -> Array[Joker]:
 	var pool: Array[Joker] = []
 	for joker: Joker in jokers:
-		if joker.id not in exclude:
+		if joker.stackable or joker.id not in exclude:
 			pool.append(joker)
 	var result: Array[Joker] = []
 	while result.size() < count and not pool.is_empty():

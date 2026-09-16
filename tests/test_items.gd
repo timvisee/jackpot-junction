@@ -103,7 +103,7 @@ func test_ricochet_cannon_overrides_the_next_shots_only() -> void:
 	var ricochet: RicochetCannonPowerUp = _item("ricochet_cannon")
 	ricochet.activate(kart)
 	assert_int(kart.cannon.override_shots_left()).is_equal(8)
-	assert_int(kart.cannon.current_stats().bounces).is_equal(2)
+	assert_int(kart.cannon.current_stats().bounces).is_equal(1)
 	var faster := kart.base_cannon_stats.bullet_speed * 1.25
 	assert_float(kart.cannon.current_stats().bullet_speed).is_equal_approx(faster, 0.001)
 	for i: int in 8:
@@ -111,11 +111,11 @@ func test_ricochet_cannon_overrides_the_next_shots_only() -> void:
 		var shots := kart.cannon.fire(
 			match_node.bullets, 0, Vector3(0.0, 0.0, 0.0), Vector3(1.0, 0.0, 0.0), Color.WHITE
 		)
-		assert_int(shots[0].bounces_left).is_equal(2)
+		assert_int(shots[0].bounces_left).is_equal(1)
 		for bullet: Bullet in shots:
 			bullet.destroy()
 	assert_int(kart.cannon.override_shots_left()).is_equal(0)
-	assert_int(kart.cannon.current_stats().bounces).is_equal(1)
+	assert_int(kart.cannon.current_stats().bounces).is_equal(0)
 
 
 func test_a_turret_kills_the_enemy_ahead_and_credits_its_owner() -> void:

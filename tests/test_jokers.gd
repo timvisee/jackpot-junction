@@ -1,6 +1,8 @@
 extends GdUnitTestSuite
 ## The joker system from GAME.md 3.7 and the twenty jokers from 7.3, in a running match.
 
+const CATALOG: JokerCatalog = preload("res://data/jokers/catalog.tres")
+
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 
 var _runner: GdUnitSceneRunner
@@ -38,7 +40,7 @@ func _chip(dropped := false, gold := false) -> Chip:
 
 
 func test_catalog_has_twenty_unique_jokers_and_offers_exclude_held_ones() -> void:
-	var catalog: JokerCatalog = load("res://data/jokers/catalog.tres")
+	var catalog: JokerCatalog = CATALOG
 	assert_int(catalog.jokers.size()).is_equal(20)
 	var ids: Array[StringName] = []
 	for joker: Joker in catalog.jokers:
@@ -58,6 +60,33 @@ func test_catalog_has_twenty_unique_jokers_and_offers_exclude_held_ones() -> voi
 	assert_bool(offered[0] == offered[1] or offered[1] == offered[2]).is_false()
 
 
+func test_bullets_do_not_bounce_by_default_and_rubber_bumpers_stack_one_bounce_each() -> void:
+	var match_node := _start_match(_bots())
+	var kart := match_node.kart_of(0)
+	assert_int(kart.cannon.stats.bounces).is_equal(0)
+	var first := _attach(kart, "rubber_bumpers")
+	assert_int(kart.cannon.stats.bounces).is_equal(1)
+	var catalog: JokerCatalog = CATALOG
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 5
+	var offered := catalog.offer(rng, 19, kart.jokers.ids())
+	var again := false
+	for joker: Joker in offered:
+		again = again or joker.id == &"rubber_bumpers"
+	assert_bool(again).override_failure_message("a stackable joker is offered again").is_true()
+	_attach(kart, "rubber_bumpers")
+	assert_int(kart.cannon.stats.bounces).is_equal(2)
+	kart.cannon.cooldown_left = 0.0
+	var shots := kart.cannon.fire(
+		match_node.bullets, 0, Vector3(0.0, 0.0, 0.0), Vector3(1.0, 0.0, 0.0), Color.WHITE
+	)
+	assert_int(shots[0].bounces_left).is_equal(2)
+	for bullet: Bullet in shots:
+		bullet.destroy()
+	kart.jokers.remove(first)
+	assert_int(kart.cannon.stats.bounces).is_equal(1)
+
+
 func test_stat_jokers_rebuild_the_karts_own_stats_and_removal_restores_them() -> void:
 	var match_node := _start_match(_bots())
 	var kart := match_node.kart_of(0)
@@ -68,7 +97,7 @@ func test_stat_jokers_rebuild_the_karts_own_stats_and_removal_restores_them() ->
 	_attach(kart, "magnet_hubcaps")
 	assert_float(kart.cannon.stats.fire_cooldown).is_equal_approx(0.28, 0.001)
 	assert_int(kart.cannon.stats.max_live_bullets).is_equal(4)
-	assert_int(kart.cannon.stats.bounces).is_equal(2)
+	assert_int(kart.cannon.stats.bounces).is_equal(1)
 	assert_float(kart.stats.drift_exit_boost_duration).is_equal_approx(1.6, 0.001)
 	assert_float(kart.stats.turbo_duration).is_equal_approx(2.0, 0.001)
 	assert_float(kart._pickup_shape.radius).is_equal_approx(1.8, 0.001)

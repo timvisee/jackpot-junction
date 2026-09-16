@@ -16,6 +16,8 @@ const RARITY_WEIGHTS: Dictionary[int, float] = {
 @export var description := ""
 @export var rarity := Rarity.COMMON
 @export var kind := Kind.RULE
+## A stackable joker is offered again while held; every copy applies its effect once more.
+@export var stackable := false
 
 
 ## Offer weight from rarity.

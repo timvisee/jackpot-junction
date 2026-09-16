@@ -13,7 +13,8 @@ extends Resource
 @export_group("Bullet")
 @export var bullet_speed := 17.0
 @export var bullet_radius := 0.15
-@export var bounces := 1
+## Wall bounces before a bullet dies. Zero by default: jokers and the Ricochet Cannon add some.
+@export var bounces := 0
 @export var lifetime := 3.0
 
 @export_group("Aim assist")
