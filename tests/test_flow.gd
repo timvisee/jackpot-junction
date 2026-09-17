@@ -2,16 +2,54 @@ extends GdUnitTestSuite
 ## Settings persistence, the menu scenes and the match scene built from a lobby configuration.
 
 const TEST_SETTINGS_PATH := "user://test_settings.cfg"
+const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
 
 
 func after_test() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SETTINGS_PATH))
 
 
+## The karts have a slider of their own, GAME.md 8.5: their engine and tires run the whole time
+## rather than in bursts, so how loud that bed sits is a taste the effects slider cannot express.
+func test_the_kart_slider_drives_the_kart_bus() -> void:
+	var bus := AudioServer.get_bus_index("Kart")
+	assert_int(bus).is_greater(0)
+	assert_str(AudioServer.get_bus_send(bus)).is_equal("SFX")
+	var before := AudioServer.get_bus_volume_db(bus)
+	var settings := Settings.new()
+	settings.kart_volume = 0.25
+	settings.apply_audio()
+	assert_float(AudioServer.get_bus_volume_db(bus)).is_less(-6.0)
+	settings.kart_volume = 1.0
+	settings.apply_audio()
+	assert_float(AudioServer.get_bus_volume_db(bus)).is_equal_approx(0.0, 0.01)
+	AudioServer.set_bus_volume_db(bus, before)
+
+
+func test_the_audio_tab_offers_the_kart_slider() -> void:
+	var screen: Control = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	await await_idle_frame()
+	var labels: PackedStringArray = []
+	for node: Node in _all(screen):
+		var label := node as Label
+		if label != null:
+			labels.append(label.text)
+	assert_array(labels).contains(["Master", "Music", "Effects", "Karts"])
+
+
+func _all(node: Node) -> Array[Node]:
+	var found: Array[Node] = [node]
+	for child: Node in node.get_children():
+		found.append_array(_all(child))
+	return found
+
+
 func test_settings_round_trip_through_disk() -> void:
 	var saved := Settings.new()
 	saved.path = TEST_SETTINGS_PATH
 	saved.music_volume = 0.25
+	saved.kart_volume = 0.35
 	saved.fullscreen = true
 	saved.aim_assist = 0.4
 	saved.bot_count = 2
@@ -22,6 +60,7 @@ func test_settings_round_trip_through_disk() -> void:
 	loaded.path = TEST_SETTINGS_PATH
 	loaded.load_from_disk()
 	assert_float(loaded.music_volume).is_equal(0.25)
+	assert_float(loaded.kart_volume).is_equal(0.35)
 	assert_bool(loaded.fullscreen).is_true()
 	assert_float(loaded.aim_assist).is_equal_approx(0.4, 0.0001)
 	assert_int(loaded.bot_count).is_equal(2)
@@ -75,7 +114,7 @@ func test_menu_scenes_build() -> void:
 	var config: MatchConfig = lobby.config()
 	assert_int(config.bot_count).is_equal(1)
 	assert_str(config.difficulty).is_equal("hard")
-	var settings: Control = auto_free(load("res://scenes/ui/settings_screen.tscn").instantiate())
+	var settings: Control = auto_free(SETTINGS_SCENE.instantiate())
 	add_child(settings)
 	assert_int(settings.tabs.get_tab_count()).is_equal(4)
 

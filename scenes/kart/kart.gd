@@ -86,6 +86,15 @@ var effects: Array[KartEffect] = []
 var pickup_radius_bonus := 1.0
 var last_bump_slot := -1
 var last_bump_time := -INF
+## Contact state kept for [KartCollisions]: whether the kart was already up against a wall last
+## tick, so leaning on one is heard once, and how long until it may be heard hitting one again.
+var touching_wall := false
+var crash_wait := 0.0
+## The engine and tire voices, only on karts somebody drives on this machine; null otherwise.
+var sound: KartSound
+## Whether somebody sitting at this machine is driving this kart. Feedback meant for a driver
+## rather than for the room follows this, so three bots cannot set it off.
+var driven_here := false
 
 var _body: Node3D
 var _tint: StandardMaterial3D
@@ -166,10 +175,18 @@ func _physics_process(delta: float) -> void:
 	if puppet:
 		_step_puppet(delta)
 		return
-	if not alive or frozen:
+	if not alive:
+		_step_sound(delta)
+		return
+	if frozen:
+		# Waiting on the grid: nothing moves, but the engine is running and the throttle still
+		# revs it, GAME.md 8.4. Polling only fills the control state in; nothing acts on it.
+		input.poll(delta)
+		_step_sound(delta)
 		return
 	if falling:
 		_step_fall(delta)
+		_step_sound(delta)
 		return
 	if lifetime > 0.0:
 		lifetime -= delta
@@ -178,6 +195,7 @@ func _physics_process(delta: float) -> void:
 			return
 	_step_protection(delta)
 	_graze_cooldown_left = maxf(_graze_cooldown_left - delta, 0.0)
+	crash_wait = maxf(crash_wait - delta, 0.0)
 	_step_effects(delta)
 	input.poll(delta)
 	_step_nitro(delta)
@@ -192,7 +210,7 @@ func _physics_process(delta: float) -> void:
 	motor.step(input, delta)
 	velocity = motor.velocity
 	move_and_slide()
-	_resolve_collisions()
+	KartCollisions.resolve(self, motor.velocity)
 	motor.velocity = Vector3(velocity.x, 0.0, velocity.z)
 	position.y = 0.0
 	rotation = Vector3(0.0, motor.heading, 0.0)
@@ -200,6 +218,7 @@ func _physics_process(delta: float) -> void:
 	_spin_wheels(delta)
 	_step_crown(delta)
 	_update_trails(delta, heading_before)
+	_step_sound(delta)
 
 
 ## Whether the kart is in play: alive, on the floor and with somebody at the wheel. Zones,
@@ -228,6 +247,27 @@ func coast() -> void:
 	coasting = true
 	input = KartInput.new()
 	menu_open = false
+
+
+## Gives the kart its own engine and tires, or takes them away again, GAME.md 8.4. A kart
+## nobody here is driving takes the lean version: one engine, one squeal, a little quieter and
+## detuned off the others. A puppet counts as driven by somebody, just not here.
+func enable_sound(on: bool, lean: bool = false) -> void:
+	driven_here = on and not lean
+	if sound != null and (not on or sound.lean != lean):
+		sound.queue_free()
+		sound = null
+	if not on or sound != null:
+		return
+	sound = KartSound.new()
+	sound.name = "Sound"
+	sound.setup(self, load("res://data/kart/sound.tres"), lean)
+	add_child(sound)
+
+
+func _step_sound(delta: float) -> void:
+	if sound != null:
+		sound.step(delta)
 
 
 ## Turns the kart into a client-side puppet: no physics, no collisions, visuals from snapshots.
@@ -276,6 +316,7 @@ func apply_puppet_state(state: Dictionary, _delta: float) -> void:
 func _step_puppet(delta: float) -> void:
 	if not _puppet_has_target or not alive:
 		motor.velocity = Vector3.ZERO
+		_step_sound(delta)
 		return
 	_puppet_target += _puppet_velocity * delta
 	var blend := 1.0 - exp(-PUPPET_SMOOTHING * delta)
@@ -288,6 +329,7 @@ func _step_puppet(delta: float) -> void:
 	motor.forward_speed = motor.velocity.dot(motor.forward_vector())
 	_spin_wheels(delta)
 	_update_trails(delta, heading_before)
+	_step_sound(delta)
 
 
 func _step_crown(delta: float) -> void:
@@ -486,6 +528,8 @@ func _step_drift_sparks() -> void:
 	_sparks.set_state(motor.drifting, charged)
 	if _was_drifting and not motor.drifting and _was_charged:
 		_sparks.pop()
+		if driven_here:
+			Events.drift_boosted.emit(slot)
 	_was_drifting = motor.drifting
 	_was_charged = charged
 
@@ -876,34 +920,6 @@ func _step_fall(delta: float) -> void:
 			last_bump_slot if now - last_bump_time <= rules.bump_attribution_window else -1
 		)
 		die(&"pit", pusher)
-
-
-func _resolve_collisions() -> void:
-	var pre := motor.velocity
-	for i: int in get_slide_collision_count():
-		var collision := get_slide_collision(i)
-		var normal := collision.get_normal()
-		if absf(normal.y) > 0.7:
-			continue
-		var collider := collision.get_collider()
-		var other := collider as Kart
-		var turret := collider as Turret
-		if other != null:
-			last_bump_slot = other.slot
-			last_bump_time = Time.get_ticks_msec() * 0.001
-			if ram_kills():
-				other.take_ram(slot)
-			motor.apply_bump(normal)
-			velocity = motor.velocity
-			if pre.length() > 3.0:
-				Events.kart_bumped.emit(slot)
-		elif turret != null and ramming:
-			turret.destroy()
-		else:
-			motor.velocity = Vector3(velocity.x, 0.0, velocity.z)
-			if not motor.apply_wall_glance(normal, pre):
-				motor.apply_wall_hit(-pre.dot(normal))
-			velocity = motor.velocity
 
 
 func _update_trails(delta: float, heading_before: float) -> void:

@@ -12,11 +12,20 @@ extends Node3D
 @export var zoom_max := 1.07
 @export var smoothing := 0.6
 @export var shake_decay := 4.0
+## How far above the floor the ears sit, so a kart right under them is not at zero distance.
+## [member KartSoundStats.unit_size] has to match it: that is the distance a kart plays at its
+## written level, so the two moving apart quietly changes every level in the kart mix.
+@export var listener_height := 2.5
 ## A faint constant tremble, 0 to 1, for when the match is at its most frantic.
 var tremble := 0.0
 
 var targets: Array[Node3D] = []
+## The karts somebody is driving on this machine. The ears sit over them rather than up at the
+## camera, which frames the whole room from far enough away that every kart would sound the
+## same distance off, GAME.md 8.4. Facing is the camera's, so left on screen is left in the mix.
+var listener_targets: Array[Node3D] = []
 var camera: Camera3D
+var listener: AudioListener3D
 
 var _center := Vector3.ZERO
 var _arena_size := Vector2(40.0, 22.5)
@@ -37,8 +46,14 @@ func _ready() -> void:
 	camera.fov = base_fov
 	add_child(camera)
 	camera.make_current()
+	listener = AudioListener3D.new()
+	listener.name = "Listener"
+	listener.top_level = true
+	add_child(listener)
+	listener.make_current()
 	get_viewport().size_changed.connect(_refit)
 	_place(_distance, Vector3.ZERO, 1.0)
+	_place_listener()
 
 
 ## Frames an arena so that its whole bounding box, plus the margin, stays on screen.
@@ -83,11 +98,32 @@ func _process(delta: float) -> void:
 	if tremble > 0.0:
 		shake(tremble * 0.08)
 	_place(_distance, _pan, _zoom)
+	_place_listener()
+
+
+## Puts the ears over the karts being driven here, facing the way the camera does. With nobody
+## to follow they sit where the camera is looking, so the room still sounds like it is in front.
+func _place_listener() -> void:
+	if listener == null:
+		return
+	var centre := _center + _pan
+	var alive := _valid(listener_targets)
+	if not alive.is_empty():
+		centre = Vector3.ZERO
+		for target: Node3D in alive:
+			centre += target.global_position
+		centre /= alive.size()
+	listener.global_position = Vector3(centre.x, listener_height, centre.z)
+	listener.global_basis = camera.global_basis
 
 
 func _alive_targets() -> Array[Node3D]:
+	return _valid(targets)
+
+
+static func _valid(list: Array[Node3D]) -> Array[Node3D]:
 	var alive: Array[Node3D] = []
-	for target: Node3D in targets:
+	for target: Node3D in list:
 		if is_instance_valid(target) and target.is_inside_tree():
 			alive.append(target)
 	return alive

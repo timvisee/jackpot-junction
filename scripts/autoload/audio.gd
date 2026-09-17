@@ -11,7 +11,8 @@ const BUS_MASTER := &"Master"
 const BUS_MUSIC := &"Music"
 const BUS_SFX := &"SFX"
 const POOL_SIZE := 16
-const SFX_DIR := "res://assets/audio/sfx/"
+const AUDIO_DIR := "res://assets/audio/"
+const SFX_DIR := AUDIO_DIR + "sfx/"
 const MUSIC_DIR := "res://assets/audio/music/deceased_rodent/"
 const LAYER_CALM := &"calm"
 const LAYER_TENSE := &"tense"
@@ -40,7 +41,21 @@ const BANK_TICK_INTERVAL := 0.07
 const MUSIC_BPM := 120.0
 const BEATS_PER_BAR := 4
 
-## Effect name to the files it picks from at random.
+## The swell that leads into a nitro burn runs backwards into its own hit, so it is played
+## from this far before the end rather than from the start. Longer lands later and bigger.
+const NITRO_SWELL_LEAD := 0.18
+## A kart into a wall, GAME.md 8.4: the level and the playback speed run between these with how
+## hard it was hit, so clipping a wall is a knock and only a real shunt is a bang. The heavy
+## layer is only added above that much force.
+const CRASH_LIGHT_DB := -24.0
+const CRASH_HARD_DB := -8.0
+const CRASH_HEAVY_DB := -12.0
+const CRASH_HEAVY_FORCE := 0.55
+const CRASH_LIGHT_PITCH := 1.3
+const CRASH_HARD_PITCH := 0.9
+
+## Effect name to the files it picks from at random. A name with a slash is under
+## [constant AUDIO_DIR], anything else under [constant SFX_DIR].
 const LIBRARY: Dictionary[StringName, Array] = {
 	&"chip": ["chip-lay-1.ogg", "chip-lay-2.ogg", "chip-lay-3.ogg"],
 	&"gold_chip": ["chips-stack-1.ogg", "chips-stack-2.ogg"],
@@ -51,7 +66,9 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"fire": ["drop_001.ogg", "drop_002.ogg"],
 	&"bounce":
 	["impactMetal_light_000.ogg", "impactMetal_light_001.ogg", "impactMetal_light_002.ogg"],
-	&"bump": ["impactGeneric_light_000.ogg", "impactGeneric_light_001.ogg"],
+	&"bump": ["kart/crash_1.ogg", "kart/crash_2.ogg"],
+	&"crash": ["kart/crash_1.ogg", "kart/crash_2.ogg", "kart/crash_3.ogg"],
+	&"crash_hard": ["kart/crash_heavy.ogg"],
 	&"death": ["impactGlass_heavy_000.ogg", "impactGlass_heavy_001.ogg"],
 	&"crate": ["impactPlate_light_000.ogg", "impactPlate_light_001.ogg"],
 	&"turbo": ["maximize_001.ogg", "maximize_002.ogg"],
@@ -65,8 +82,8 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"joker_offer": ["card-fan-1.ogg"],
 	&"joker_take": ["card-place-1.ogg", "card-place-2.ogg"],
 	&"joker_drop": ["card-shove-1.ogg"],
-	&"countdown": ["click_002.ogg"],
-	&"go": ["confirmation_001.ogg"],
+	&"countdown": ["kart/start_tone_low.ogg"],
+	&"go": ["kart/start_tone_high.ogg"],
 	&"last_call": ["error_001.ogg"],
 	&"results": ["bong_001.ogg", "chips-handle-1.ogg"],
 	&"ui_click": ["click_001.ogg"],
@@ -76,12 +93,14 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"turret_place": ["impactSoft_heavy_000.ogg"],
 	&"explosion": ["impactPunch_heavy_000.ogg"],
 	&"pad_claim": ["select_001.ogg"],
-	&"oil": ["impactSoft_heavy_001.ogg"],
+	&"oil": ["kart/spin_out.ogg"],
 	&"bounty": ["question_001.ogg"],
 	&"target": ["select_002.ogg"],
 	&"wounded": ["impactPunch_heavy_000.ogg"],
 	&"patched": ["confirmation_002.ogg"],
 	&"explosion_tail": ["impactSoft_heavy_001.ogg"],
+	&"turbo_pass": ["kart/turbo_pass.ogg"],
+	&"nitro_swell": ["kart/nitro_swell.ogg"],
 }
 
 var music_enabled := true
@@ -103,6 +122,9 @@ var _excitement_age := 0.0
 var _open := 0.0
 var _filter: AudioEffectLowPassFilter
 var _amplify: AudioEffectAmplify
+## The file each effect played last, so an effect with several never plays the same one twice
+## running. Hearing one sound over and over is what makes a repeated effect wearing.
+var _last_pick: Dictionary[StringName, int] = {}
 var _bank_tick_left := 0.0
 var _bank_pitch := 1.0
 var _rng := RandomNumberGenerator.new()
@@ -225,19 +247,21 @@ func _process(delta: float) -> void:
 	_step_music_effects(delta)
 
 
-## Plays a one-shot effect by library name, with a little random pitch.
-func play_sfx(name: StringName, volume_db: float = 0.0, pitch_variation: float = 0.06) -> void:
+## Plays a one-shot effect by library name, with a little random pitch. [param pitch] shifts
+## the whole effect: below 1 it plays slower and deeper, above 1 quicker and higher.
+func play_sfx(
+	name: StringName, volume_db: float = 0.0, pitch_variation: float = 0.06, pitch: float = 1.0
+) -> void:
 	if not LIBRARY.has(name):
 		push_warning("unknown sound effect %s" % name)
 		return
-	var files: Array = LIBRARY[name]
-	var stream := _stream(files[_rng.randi_range(0, files.size() - 1)])
+	var stream := _stream(_pick(name, LIBRARY[name]))
 	if stream == null:
 		return
 	var player := _free_player()
 	player.stream = stream
 	player.volume_db = volume_db
-	player.pitch_scale = 1.0 + _rng.randf_range(-pitch_variation, pitch_variation)
+	player.pitch_scale = pitch * (1.0 + _rng.randf_range(-pitch_variation, pitch_variation))
 	player.play()
 
 
@@ -327,9 +351,21 @@ func _music_stream(layer: StringName) -> AudioStream:
 
 func _stream(file: String) -> AudioStream:
 	if not _streams.has(file):
-		var path := SFX_DIR + file
+		var path := (AUDIO_DIR + file) if file.contains("/") else (SFX_DIR + file)
 		_streams[file] = load(path) as AudioStream if ResourceLoader.exists(path) else null
 	return _streams[file]
+
+
+## One of an effect's files, never the one it played last.
+func _pick(name: StringName, files: Array) -> String:
+	var last: int = _last_pick.get(name, -1)
+	var index := _rng.randi_range(0, files.size() - 1)
+	if last >= 0 and files.size() > 1:
+		index = _rng.randi_range(0, files.size() - 2)
+		if index >= last:
+			index += 1
+	_last_pick[name] = index
+	return files[index]
 
 
 func _free_player() -> AudioStreamPlayer:
@@ -366,9 +402,14 @@ func _connect_events() -> void:
 	)
 	Events.bullet_fired.connect(func(_slot: int) -> void: play_sfx(&"fire", -10.0, 0.1))
 	Events.bullet_bounced.connect(func() -> void: play_sfx(&"bounce", -12.0, 0.1))
-	Events.kart_bumped.connect(func(_slot: int) -> void: play_sfx(&"bump", -8.0))
-	Events.turbo_taken.connect(func(_slot: int) -> void: play_sfx(&"turbo", -6.0))
-	Events.nitro_started.connect(func(_slot: int) -> void: play_sfx(&"turbo", -8.0, 0.1))
+	Events.kart_bumped.connect(func(_slot: int) -> void: play_sfx(&"bump", -10.8))
+	Events.turbo_taken.connect(_on_turbo_taken)
+	# The same chime nitro and a turbo pad get, a little brighter so a drift boost is its own
+	# receipt rather than sounding like the bottle went off. No swell: that is nitro's alone.
+	Events.drift_boosted.connect(func(_slot: int) -> void: play_sfx(&"turbo", -12.0, 0.1, 1.15))
+	Events.nitro_started.connect(_on_nitro_started)
+	Events.kart_crashed.connect(_on_kart_crashed)
+	Events.countdown_tick.connect(func(_count: int) -> void: play_sfx(&"countdown", -11.0, 0.0))
 	Events.crate_destroyed.connect(func() -> void: play_sfx(&"crate", -6.0))
 	Events.target_struck.connect(
 		func(_slot: int, _coins: int) -> void: play_sfx(&"target", -4.0, 0.12)
@@ -376,7 +417,7 @@ func _connect_events() -> void:
 	Events.shield_popped.connect(func(_slot: int) -> void: play_sfx(&"shield_pop", -6.0))
 	Events.bomb_exploded.connect(func(_slot: int) -> void: _play_explosion())
 	Events.pad_claimed.connect(func(_slot: int) -> void: play_sfx(&"pad_claim", -8.0, 0.05))
-	Events.oil_hit.connect(func(_slot: int) -> void: play_sfx(&"oil", -4.0, 0.12))
+	Events.oil_hit.connect(func(_slot: int) -> void: play_sfx(&"oil", -2.5, 0.12))
 	Events.bounty_called.connect(func(_slot: int) -> void: play_sfx(&"bounty", -2.0, 0.0))
 	Events.bounty_claimed.connect(_on_bounty_claimed)
 	Events.flush_completed.connect(_on_flush_completed)
@@ -389,6 +430,41 @@ func _connect_events() -> void:
 
 func _on_kart_killed(_victim: int, _killer: int, _cause: StringName) -> void:
 	play_sfx(&"death")
+
+
+## A turbo pad: the chime that says a power-up landed, and a kart rushing past underneath it.
+func _on_turbo_taken(_slot: int) -> void:
+	play_sfx(&"turbo", -6.0)
+	play_sfx(&"turbo_pass", -4.9, 0.05, 0.7)
+
+
+## Nitro: a quiet chime for the cue, and the swell that runs backwards into its own kick.
+func _on_nitro_started(_slot: int) -> void:
+	play_sfx(&"turbo", -12.0, 0.1)
+	var stream := _stream(LIBRARY[&"nitro_swell"][0])
+	if stream == null:
+		return
+	var player := _free_player()
+	player.stream = stream
+	player.volume_db = -6.6
+	player.pitch_scale = 1.0
+	player.play(maxf(stream.get_length() - NITRO_SWELL_LEAD, 0.0))
+
+
+## A kart into a wall. [param force] is 0 for the lightest contact worth hearing and 1 for a
+## flat-out shunt. Walls are clipped constantly in an arena this size, so the level and the
+## weight follow it rather than the same bang landing every time.
+func _on_kart_crashed(_slot: int, force: float) -> void:
+	var shaped := clampf(force, 0.0, 1.0)
+	play_sfx(
+		&"crash",
+		lerpf(CRASH_LIGHT_DB, CRASH_HARD_DB, shaped),
+		0.18,
+		lerpf(CRASH_LIGHT_PITCH, CRASH_HARD_PITCH, shaped)
+	)
+	if shaped >= CRASH_HEAVY_FORCE:
+		var over := (shaped - CRASH_HEAVY_FORCE) / (1.0 - CRASH_HEAVY_FORCE)
+		play_sfx(&"crash_hard", lerpf(CRASH_LIGHT_DB, CRASH_HEAVY_DB, over), 0.1)
 
 
 func _on_mult_gained(_slot: int, _amount: float, reason: StringName) -> void:
@@ -442,10 +518,10 @@ func _on_bank_completed(_slot: int, _coins: int, _mult: float, total: int) -> vo
 func _on_state_changed(state: int) -> void:
 	match state:
 		Match.State.COUNTDOWN:
-			play_sfx(&"countdown", -4.0, 0.0)
+			# The beeps come from the clock, one a second, not from entering the state.
 			set_layer(LAYER_CALM)
 		Match.State.PLAYING:
-			play_sfx(&"go", -2.0, 0.0)
+			play_sfx(&"go", -5.0, 0.0)
 		Match.State.LAST_CALL:
 			# The mix is not switched here: the excitement climb of GAME.md 8.4 brings the full
 			# track in as it walks the room up to the top level.

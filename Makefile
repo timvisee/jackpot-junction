@@ -26,7 +26,8 @@ smoke:
 	tools/smoke res://scenes/ui/lobby.tscn 30
 	tools/smoke res://scenes/ui/settings_screen.tscn 30
 	tools/smoke res://scenes/match/match_scene.tscn 120
-	tools/smoke res://scenes/garage/garage.tscn
+	# Past the countdown, so the run does not end with a beep still sounding.
+	tools/smoke res://scenes/garage/garage.tscn 240
 	tools/smoke res://scenes/dev/playground.tscn
 	tools/smoke res://scenes/dev/driving.tscn
 

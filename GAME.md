@@ -897,8 +897,92 @@ every kart, so everyone sees when an opponent cashes out.
   completion, fanfare on big pots.
 - **Jackpot**: a soft tick per accrued chip when nearby, and a bell heard by
   everyone when the pile is full.
-- **Karts**: engine hum pitched by speed, tire squeal on drift, whoosh on
-  turbo and Boost.
+- **Karts**: every kart carries its own engine and tires, positional in the
+  room. The kart somebody is driving here gets all of it; every other kart gets
+  a lean version, one engine and one squeal covering whatever its tires are
+  doing, no wheelspin chirp, and its engine shifted a little off the recorded
+  pitch by slot, so three karts behind you are three engines rather than one
+  louder one. A kart somebody else is driving over the network is one of these
+  too: it sounds like any other kart that is not yours.
+- **How loud another kart is**: 2 dB over your own at the distance the ears sit
+  at, which is another kart right alongside, and the falloff takes it from there.
+  Your own engine is a bed running the whole time, so anything much under it
+  simply disappears; a kart has to be able to poke through that bed as it comes
+  past, and be well under it by the time it is across the room. Everything else a kart does is a one-shot the whole room
+  hears. Sounds are from the Cascadia Games Racing Sound Pack.
+- **How far off a kart sounds**: level falls by 6 dB each time the distance
+  doubles from the 2.5 m the ears sit at, so a kart right behind you is close to
+  its written level and one across the room is about 20 dB down. That range is
+  what makes somebody coming up behind you worth hearing.
+- **Rev counter**: the engine is not pitched off road speed. One engine loop is
+  stretched across the whole range by a needle that the road pulls on, running
+  from an idle at 0.13 to the limiter at 1 and on to 1.30 when the kart is shoved
+  past its top speed. There is no gearbox: one continuous pull. The needle
+  climbs and falls at 4.5 a second, so it leads the kart rather than tracking it.
+  - Off the line the clutch slips: the throttle revs the engine against a kart
+    that has not moved yet, up to 0.62, and the kart then catches up to it. This
+    is what pulling away sounds like, and it is why the engine revs on the grid
+    during the countdown while the kart is held still.
+  - The clutch bites over exactly the speed the road needs to reach that same
+    0.62, so the needle climbs to it and carries straight on. Biting any sooner
+    would drop it back down before it climbed again, which is heard as a harsh
+    flare rather than a swell. The bite point is derived from the flare height
+    rather than set on its own, so the two cannot drift apart.
+  - Driven wheels slipping in a drift or on the handbrake add 0.16 at full
+    throttle, so a drift revs higher than the road alone would ask for.
+  - Reverse is one short gear of its own: it whines up to the limiter at the
+    reverse top speed and stays there.
+  - Nitro and turbo pads carry the needle past the limiter at 30% of the speed
+    over the top, capped at 1.30, so a burn screams rather than simply repeats.
+  - Spun out on oil the driver is off the pedal and it drops to a fast idle.
+  - The loop plays between 0.55 and 2.30 times its recorded speed. Off the
+    throttle the engine drops 6.5 dB without dropping its revs, following the
+    pedals at 9 a second down and 5 back up.
+- **Tires**: three squeals, one for each way of losing grip. A bright one
+  for a controlled drift, rising with the slip angle; a duller one for sliding
+  sideways with nobody asking, from 13 to 43 degrees of slip, and for a spin-out;
+  and that same duller one pitched well down for wheels locked under the
+  handbrake or under hard braking from speed. All three are silent below 0.8 m/s
+  and at full voice by 3, come in at 14 a second and die away at 7, and rise in
+  pitch with speed. A chirp of wheelspin fires when the throttle goes down at a
+  standstill.
+- **Drift boost**: the same chime a turbo pad and nitro get, a little brighter,
+  the moment a drift ends having earned its exit boost. It is the receipt the
+  gold sparks give the eye. Only the kart being driven here rings it: the bots
+  throw themselves into every tight corner, and a room full of that is a racket.
+  No swell under it, which stays nitro's alone.
+- **One-shots**: a rushing pass on a turbo pad; a swell that runs backwards into
+  its own kick when nitro lights, played from 0.18 s before the end of the file
+  so the kick lands just after the button; the pack's spin-out on oil; its
+  crashes for a kart into a wall, the heavier one on top of a square hit; and its
+  start tones for the countdown, one a second, with the higher one on the flag.
+- **Level**: everything a kart itself makes comes down 5 dB together, so the
+  engine flat out sits near -4 dB and the squeals below that. It is running the
+  whole time, so it is the bed the rest is heard over rather than an event in
+  it. All of it goes to a Kart bus under the effects bus, so one slider in 8.5
+  covers the lot.
+- **Hitting a wall**: walls are clipped constantly in a room this size, so the
+  same bang every time wears out fast. How hard the wall was hit, 0 at the
+  lightest contact worth hearing and 1 straight into it flat out, runs the level
+  from -24 dB up to -8 and the playback speed from 1.3 down to 0.9, and only
+  past 0.55 of it does the heavy layer come in underneath. A kart may be heard
+  hitting a wall once every 0.45 s at most, because bouncing down a wall breaks
+  contact between every touch and each touch would otherwise be another bang.
+  No effect with more than one file ever plays the same one twice running.
+- **What makes those levels real**: a positional voice has its level added to
+  its distance attenuation and the sum clamped to a ceiling. So the ears sit at
+  exactly the distance a kart is written for, 2.5 m, where that attenuation is
+  nothing, and the ceiling sits above the loudest thing asked for. With the
+  ceiling at or under the levels every voice is flattened onto it instead and
+  none of the numbers above do anything, which is audible as an engine that
+  never changes and squeals that snap in at full voice.
+- **Where the ears are**: the camera frames the whole room from well outside it,
+  so a listener up there would put every kart at the same distance. The ears sit
+  over the karts being driven here instead, two and a half metres up, facing the
+  way the camera does, so left on screen is left in the mix. The engine goes to
+  its own bus under SFX so it can be balanced against the one-shots.
+- The F3 overlay shows the needle, what it does to the loop, the load and the
+  three tire levels.
 - **Combat**: soft pop on fire, ricochet tick on bounce, thud and a short
   deflating sound on death.
 
@@ -908,7 +992,10 @@ All settings are saved between sessions, see 10.2.
 
 - **Controls**: rebinding per player for gamepad and keyboard, stick dead
   zone, rumble on or off.
-- **Audio**: master, music and effects volume.
+- **Audio**: master, music, effects and kart volume. The karts have their own
+  because their engine and tires run the whole time rather than in bursts, so
+  how loud that bed should sit is a matter of taste in a way the rest is not.
+  The kart bus is under the effects bus, so the effects slider still scopes it.
 - **Video**: window mode, vsync, render scale.
 - **Accessibility**: screen shake on or off, flash reduction, aim assist
   strength from 0% to 100% of the default and never above it, per player, and
@@ -1153,7 +1240,7 @@ res://
 ├── data/              Resource files: jokers, powerups, cannons, coins, ai_traits
 ├── scenes/
 │   ├── arena/         one scene per map plus shared arena elements
-│   ├── kart/          kart.tscn, motor, cannon, pot, holders, trails
+│   ├── kart/          kart.tscn, motor, cannon, pot, holders, trails, sound
 │   ├── bullet/
 │   ├── pickups/       chip, gold chip, mult die, item box, floor joker, floor item
 │   ├── zones/         junction pad, jackpot zone

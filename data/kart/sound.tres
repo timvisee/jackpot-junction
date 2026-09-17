@@ -1,0 +1,55 @@
+[gd_resource type="Resource" script_class="KartSoundStats" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/kart/kart_sound_stats.gd" id="1_sound"]
+
+[resource]
+script = ExtResource("1_sound")
+idle_rev = 0.13
+launch_rev = 0.62
+slip_rev_bonus = 0.16
+over_slope = 0.3
+over_max = 1.3
+rev_rate_up = 4.5
+rev_rate_down = 4.5
+spin_idle_multiplier = 1.6
+load_rate_up = 9.0
+load_rate_down = 5.0
+kart_db = -5.0
+nominal_rev = 0.55
+pitch_min = 0.55
+pitch_max = 2.3
+engine_db = 0.9
+off_throttle_db = -6.5
+engine_fade = 3.0
+roll_speed_min = 0.8
+roll_speed_full = 3.0
+drift_slip_full = 0.7
+drift_floor = 0.4
+slide_slip_min = 0.22
+slide_slip_full = 0.75
+lock_speed_min = 2.0
+lock_speed_full = 7.0
+squeal_attack = 14.0
+squeal_release = 7.0
+drift_pitch = 1.0
+drift_pitch_speed = 0.3
+drift_db = -5.5
+slide_pitch = 0.88
+slide_pitch_speed = 0.22
+slide_db = -9.9
+lock_pitch = 0.72
+lock_pitch_speed = 0.16
+lock_db = -6.9
+squeal_pitch_cap = 1.6
+chirp_speed_min = 0.2
+chirp_speed_full = 2.2
+chirp_threshold = 0.4
+chirp_cooldown = 0.6
+chirp_pitch = 1.25
+chirp_db = -8.0
+bot_db = 2.0
+bot_squeal_db = -6.0
+bot_detune = 0.055
+unit_size = 2.5
+max_db = 3.0
+panning_strength = 0.6
