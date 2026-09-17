@@ -40,6 +40,24 @@ static func build_body(kart: Kart) -> Dictionary:
 	return {"body": body, "tint": tint, "wheels": wheels}
 
 
+## Where the rear wheels sit on the model, as (half track, distance behind the middle). The tire
+## marks are laid here rather than at a fraction of the kart's length that was nearly right: the
+## marks were coming down a quarter of a metre behind the wheels meant to be making them. The
+## rear wheels do not steer, so one measurement stands for the whole match.
+static func rear_axle(kart: Kart, wheels: Array[MeshInstance3D]) -> Vector2:
+	var found := Vector2.ZERO
+	var count := 0
+	for wheel: MeshInstance3D in wheels:
+		if not wheel.name.to_lower().contains("back"):
+			continue
+		var at := kart.to_local(wheel.global_position)
+		found += Vector2(absf(at.x), at.z)
+		count += 1
+	if count == 0:
+		return Vector2(kart.stats.width * 0.31, kart.stats.length * 0.25)
+	return found / float(count)
+
+
 ## Everything that hangs off the kart rather than being part of it: the pickup area with its
 ## progress ring, the shield bubble, the free-aim arrow, the bounty crown and the nitro flame.
 static func build_attachments(kart: Kart) -> Dictionary:

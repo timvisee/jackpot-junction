@@ -443,7 +443,10 @@ assigns physical devices to player slots, see 10.2.
   straight line is barely there, a hard turn and a brake not much more. A full
   drift leaves a clear skid at just under half opacity, and a straight handbrake
   stop leaves the darkest mark of all.
-  Marks fade out over 20 s. Segments are capped per kart to bound the cost.
+  Marks fade out over 20 s. Segments are capped per kart to bound the cost. They
+  are laid where the model's own rear wheels are, measured off it rather than
+  guessed from the kart's length, so they come down under the wheels making them
+  instead of trailing a hand's width behind the kart.
 - **Smoke**: a faint exhaust particle trail whose rate scales with throttle,
   with bursts on drift entry, drift exit boost, turbo pads and Boost.
 

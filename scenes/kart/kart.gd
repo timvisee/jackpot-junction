@@ -99,6 +99,10 @@ var driven_here := false
 var _body: Node3D
 var _tint: StandardMaterial3D
 var _wheels: Array[MeshInstance3D] = []
+## Where the rear wheels actually sit on the model, so the marks are laid under them rather
+## than under a guess at the shape of a kart. Measured once: the rear wheels do not steer.
+var _rear_axle := 0.0
+var _rear_half_track := 0.0
 var _ring: MeshInstance3D
 var _pickup_area: Area3D
 var _tire_marks: TireMarks
@@ -152,6 +156,9 @@ func _ready() -> void:
 	_body = parts["body"]
 	_tint = parts["tint"]
 	_wheels.assign(parts["wheels"])
+	var axle := KartVisuals.rear_axle(self, _wheels)
+	_rear_axle = axle.y
+	_rear_half_track = axle.x
 	_tire_marks = TireMarks.new()
 	_tire_marks.name = "TireMarks"
 	add_child(_tire_marks)
@@ -943,11 +950,10 @@ func _update_trails(delta: float, heading_before: float) -> void:
 	elif turning > 1.5:
 		intensity = 0.2
 	var side := global_basis.x
-	var rear := global_position + global_basis.z * stats.length * 0.4
+	var rear := global_position + global_basis.z * _rear_axle
 	var now := Time.get_ticks_msec() * 0.001
-	var half_track := stats.width * 0.42
-	_tire_marks.add_sample(0, rear - side * half_track, side, intensity, now)
-	_tire_marks.add_sample(1, rear + side * half_track, side, intensity, now)
+	_tire_marks.add_sample(0, rear - side * _rear_half_track, side, intensity, now)
+	_tire_marks.add_sample(1, rear + side * _rear_half_track, side, intensity, now)
 	var skidding := input.handbrake and speed > 1.5
 	var pushing := motor.boosting() or motor.turboing() or nitro_active
 	_smoke.update_state(input.throttle, motor.drifting or skidding, pushing)
