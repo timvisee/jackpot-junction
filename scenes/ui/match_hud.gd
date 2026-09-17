@@ -26,6 +26,8 @@ var _timer: Label
 var _scoreboard: Scoreboard
 var _banner: Label
 var _blocks: Dictionary[int, Dictionary] = {}
+## The cash-out tally each slot has in the air, so a run of them climbs one number.
+var _tallies: Dictionary[int, FloatingText] = {}
 var _hands: Dictionary[int, JokerHand] = {}
 var _pickers: Dictionary[int, JokerPicker] = {}
 var _kill_feed: KillFeed
@@ -349,13 +351,22 @@ func _on_mult_gained(slot: int, amount: float, reason: StringName) -> void:
 		)
 
 
+## A cash-out finished. A player parked on the Junction while the Royal Flush pads trickle
+## finishes one every second or so, each of a single coin, so a run of them is shown as one
+## number climbing rather than as a fresh label, a fresh shower of chips and a fresh thump
+## for every coin. The tally goes away on its own once the coins stop arriving.
 func _on_bank_completed(slot: int, coins: int, mult: float, total: int) -> void:
 	var kart := _kart(slot)
 	if kart == null:
 		return
+	var running: FloatingText = _tallies.get(slot)
+	if running != null and is_instance_valid(running):
+		running.extend_to(running.total() + total)
+		running.global_position = kart.global_position + Vector3(0.0, 1.2, 0.0)
+		return
 	var prefix := "%d × %s = " % [coins, _format_mult(mult)]
 	var big := total >= 500
-	FloatingText.spawn_counting(
+	_tallies[slot] = FloatingText.spawn_counting(
 		match_node, kart.global_position, prefix, total, Palette.CHIP_GOLD, 96 if big else 72, 1.8
 	)
 	ChipBurst.spawn(

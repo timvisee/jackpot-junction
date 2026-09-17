@@ -40,6 +40,8 @@ const HOT_GAIN_DB := 1.5
 ## How fast the filter follows the meter, per second, so it sweeps rather than snaps.
 const OPEN_FOLLOW := 0.8
 const BANK_TICK_INTERVAL := 0.07
+## The least time between two cash-out chimes for one player.
+const BANK_CHIME_GAP := 1.6
 ## The track's tempo. It is a steady four to the bar, so the beat can be read straight off
 ## the playback position rather than analysed.
 const MUSIC_BPM := 120.0
@@ -131,6 +133,8 @@ var _amplify: AudioEffectAmplify
 ## running. Hearing one sound over and over is what makes a repeated effect wearing.
 var _last_pick: Dictionary[StringName, int] = {}
 var _bank_tick_left := 0.0
+## When each slot last finished a cash-out, so a run of them is not a run of chimes.
+var _banked_at: Dictionary[int, float] = {}
 var _bank_pitch := 1.0
 var _rng := RandomNumberGenerator.new()
 
@@ -516,8 +520,15 @@ func _play_explosion() -> void:
 		player.play()
 
 
-func _on_bank_completed(_slot: int, _coins: int, _mult: float, total: int) -> void:
-	play_sfx(&"bank_done", 0.0, 0.0)
+## A run of tiny cash-outs, which is what a player parked on the Junction with the flush pads
+## trickling makes, is one event and gets one sound: the chime is skipped while the last one
+## is still ringing.
+func _on_bank_completed(slot: int, _coins: int, _mult: float, total: int) -> void:
+	var now := Time.get_ticks_msec() * 0.001
+	var quiet: float = _banked_at.get(slot, -BANK_CHIME_GAP)
+	if now - quiet >= BANK_CHIME_GAP:
+		play_sfx(&"bank_done", 0.0, 0.0)
+	_banked_at[slot] = now
 	if total >= 500:
 		play_sfx(&"fanfare", 0.0, 0.0)
 		play_sfx(&"chips_scatter", -2.0)

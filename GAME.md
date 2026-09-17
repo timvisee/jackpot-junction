@@ -836,6 +836,12 @@ corners, in single-player and online only the local block is shown.
 - **Destruction**: a kart, turret or crate that is destroyed leaves a burst of
   tumbling chunks in its own colour with a brief flash. A kart lost down a pit
   shrinks away instead. The Bomb keeps the one real explosion, see 7.1.
+- A cash-out shows one tally that counts up to what it paid. A player parked on the
+  Junction while their Royal Flush pads trickle finishes a cash-out of a single coin
+  every second, so a run of them climbs that one number instead of spawning a label,
+  a shower of chips and a thump apiece; the equation is dropped once it is no longer
+  what made the total, and the tally goes away on its own when the coins stop. The
+  chime keeps the same company: one per run rather than one per coin.
 - In-world: a progress ring around the kart while banking or collecting the
   Jackpot, the chip count on the floor of the Jackpot zone, floating `+0.5` on grazes,
   and for local players an aim guide of four faint dots ahead of the cannon.

@@ -5,6 +5,7 @@ extends Label3D
 var _duration := 1.0
 var _age := 0.0
 var _prefix := ""
+var _count_from := 0
 var _count_to := -1
 var _count_time := 0.0
 
@@ -48,10 +49,36 @@ static func spawn_counting(
 	return label
 
 
+## The tally this label is counting to, so a run of them can be added up into one.
+func total() -> int:
+	return _count_to
+
+
+## Keeps a tally alive and sends it on to a bigger number, counting from wherever it had got
+## to. A player sitting on the Junction while the flush pads trickle banks over and over, and
+## one number climbing says that better than a new label every second. The equation the first
+## cash-out showed is dropped, since it is no longer what made the total.
+func extend_to(new_total: int) -> void:
+	_prefix = ""
+	_count_from = _shown()
+	_count_to = new_total
+	_age = 0.0
+	modulate.a = 1.0
+
+
+## The number on the label right now, part way through its count.
+func _shown() -> int:
+	if _count_to < 0:
+		return 0
+	return int(
+		round(lerpf(float(_count_from), float(_count_to), clampf(_age / _count_time, 0.0, 1.0)))
+	)
+
+
 func _process(delta: float) -> void:
 	_age += delta
 	if _count_to >= 0:
-		var shown := int(round(lerpf(0.0, float(_count_to), clampf(_age / _count_time, 0.0, 1.0))))
+		var shown := _shown()
 		text = "%s%d" % [_prefix, shown]
 		position.y += 0.3 * delta
 	else:
