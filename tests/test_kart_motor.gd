@@ -104,11 +104,15 @@ func test_the_turn_on_the_spot_blends_into_the_turn_on_the_wheels() -> void:
 		assert_float(rates[i]).is_greater(rates[i - 1])
 		assert_float(rates[i] - rates[i - 1]).is_less(rates[-1] - rates[0])
 	assert_float(rates[0]).is_equal_approx(_stats.turn_in_place_rate_deg, 1.0)
-	# Switched instead of blended, the old way still steps: standing still to rolling is a jump.
+	# Switched instead of blended, the old way steps: a fifth of a metre a second either side of
+	# the threshold changes the turn rate by more than the whole blended range does.
+	var widest := 0.0
+	for i: int in range(1, rates.size()):
+		widest = maxf(widest, rates[i] - rates[i - 1])
 	_stats.pivot_blend_speed = 0.0
-	var parked := _rate_at(_stats, 0.2)
-	var rolling := _rate_at(_stats, 0.8)
-	assert_float(rolling).is_greater(parked * 2.0)
+	var parked := _rate_at(_stats, _stats.min_steer_speed - 0.1)
+	var rolling := _rate_at(_stats, _stats.min_steer_speed + 0.1)
+	assert_float(rolling - parked).is_greater(widest * 3.0)
 
 
 ## Degrees a second the nose comes round at a given speed, with the wheel fully over.
