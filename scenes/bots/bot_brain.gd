@@ -13,6 +13,28 @@ extends Node
 const DECISION_INTERVAL := 0.1
 const REPLAN_INTERVAL := 0.3
 const WAYPOINT_REACHED := 1.3
+## How long a bot sticks with a goal before a merely better one can take it off, GAME.md 9.1.
+## Ten decisions a second with nothing holding them together makes a bot that dithers between
+## two errands it is equally near; danger and a goal that has gone away still cut in at once.
+const GOAL_DWELL := 1.5
+## Inside this of its target the bot has arrived, and whatever it went there for is done.
+const ARRIVED_RADIUS := 2.0
+## How hard the wheel answers the angle to the next waypoint, and how much of that is taken
+## back by how fast the nose is already coming round. Without the second one a bot holds full
+## lock until it is pointed at the waypoint, by which time it is turning too fast to stop
+## there, and it saws at the wheel all the way down the road.
+const STEER_GAIN := 2.0
+const STEER_DAMP := 0.3
+## What the context has to still be offering for each errand, so a bot notices at once when the
+## thing it set out for has been taken, collected or has driven off.
+const GOAL_NEEDS: Dictionary[StringName, String] = {
+	&"flee": "boost_enemy",
+	&"jackpot": "jackpot_position",
+	&"hunt": "enemy",
+	&"item": "item",
+	&"collect": "pickup",
+	&"flush": "flush_pad",
+}
 const HUNT_RANGE := 18.0
 ## What a Royal Flush pad is worth to a bot: a pad on its own, then one that would complete
 ## the set. A pad pays its holder for as long as they keep it, GAME.md 3.9, and the fourth
@@ -106,6 +128,13 @@ var _aim_timer := 0.0
 var _aim_error := 0.0
 var _aim_error_left := 0.0
 var _willing_to_fire := true
+## How long the current goal has been held, and which side of the path the aim is taking.
+var _goal_held := 0.0
+var _skip_index := -1
+var _skip_ahead := false
+## The heading last tick, for how fast the nose is coming round.
+var _last_heading := 0.0
+var _turn_rate := 0.0
 var _stuck_time := 0.0
 var _reverse_left := 0.0
 var _swing_left := 0.0
@@ -238,7 +267,11 @@ static func closest_approach(
 
 func _decide() -> void:
 	var context := _context()
-	goal = choose_goal(context, bot_trait)
+	var wanted := choose_goal(context, bot_trait)
+	if wanted != goal and not _may_switch(wanted, context):
+		wanted = goal
+	_goal_held = _goal_held + DECISION_INTERVAL if wanted == goal else 0.0
+	goal = wanted
 	target_node = null
 	match goal:
 		&"flee":
@@ -269,6 +302,27 @@ func _decide() -> void:
 				)
 			)
 	_willing_to_fire = rng.randf() < bot_trait.fire_chance
+
+
+## Whether a bot is allowed to drop what it is doing for [param wanted], GAME.md 9.1. Something
+## about to hit it, and an errand that has stopped existing, are both worth turning on a penny
+## for; anything else waits out the dwell, so two errands a bot is equally near stop pulling it
+## back and forth. Wandering is what a bot does for want of a plan, so it never holds one up.
+func _may_switch(wanted: StringName, context: Dictionary) -> bool:
+	if wanted == &"flee" or goal == &"wander":
+		return true
+	if not _goal_still_on(context):
+		return true
+	# An errand the bot is standing on is finished, whatever the clock says. Holding one of
+	# those leaves a bot shuffling about on the pad it has just claimed waiting to be let go.
+	if not _should_hold_position() and kart.global_position.distance_to(target) < ARRIVED_RADIUS:
+		return true
+	return _goal_held >= GOAL_DWELL
+
+
+## Whether what the bot is doing now is still there to be done.
+func _goal_still_on(context: Dictionary) -> bool:
+	return not GOAL_NEEDS.has(goal) or context.has(GOAL_NEEDS[goal])
 
 
 func _context() -> Dictionary:
@@ -420,6 +474,17 @@ func _has_line_of_sight(point: Vector3) -> bool:
 	return space.intersect_ray(ray).is_empty()
 
 
+## How fast the nose is coming round, from the heading itself rather than from what was asked
+## for: a kart in a slide, being shoved or up against something is not turning at the rate its
+## wheel says it is.
+func _step_turn_rate(delta: float) -> void:
+	if delta <= 0.0:
+		return
+	var turned := wrapf(kart.motor.heading - _last_heading, -PI, PI)
+	_last_heading = kart.motor.heading
+	_turn_rate = lerpf(_turn_rate, turned / delta, clampf(delta * 12.0, 0.0, 1.0))
+
+
 func _clamp_to_arena(point: Vector3) -> Vector3:
 	var half := match_node.arena.world_size() * 0.5 - Vector2.ONE * 2.0
 	return Vector3(clampf(point.x, -half.x, half.x), 0.0, clampf(point.z, -half.y, half.y))
@@ -436,6 +501,7 @@ func _steer(delta: float) -> void:
 		_planned_target = target
 		_path = match_node.nav.path(kart.global_position, target)
 		_path_index = 0
+		_skip_index = -1
 	var waypoint := _current_waypoint()
 	var to_waypoint := waypoint - kart.global_position
 	to_waypoint.y = 0.0
@@ -452,7 +518,13 @@ func _steer(delta: float) -> void:
 	var aim := angle
 	if kart.motor.drifting:
 		aim += kart.motor.slip_angle()
-	input.steer = -clampf(aim * 2.0, -1.0, 1.0)
+	# Wind off as the nose comes round rather than holding full lock until it is pointed at the
+	# waypoint: by then the kart is turning too fast to stop there and it saws at the wheel all
+	# the way down the road. Not in a slide, where the nose coming round is the whole point and
+	# the wheel is already answering the slip angle.
+	_step_turn_rate(delta)
+	var settle := 0.0 if kart.motor.drifting else _turn_rate * STEER_DAMP
+	input.steer = -clampf(aim * STEER_GAIN - settle, -1.0, 1.0)
 	# Bots that are ahead lift off; being behind cannot push them past their own top speed.
 	input.throttle = difficulty.top_speed_fraction * minf(mirror.effort, 1.0)
 	input.brake = 0.0
@@ -557,11 +629,16 @@ func _current_waypoint() -> Vector3:
 	if _path_index < _path.size():
 		# Skip a waypoint when the one after it is directly reachable. A pit is not a wall: it
 		# stops nothing and blocks no raycast, so the short cut has to be checked against it too.
-		if (
-			_path_index + 1 < _path.size()
-			and _has_line_of_sight(_path[_path_index + 1])
-			and not match_node.nav.crosses_pit(kart.global_position, _path[_path_index + 1])
-		):
+		# Decided once per waypoint and then left alone: a ray that grazes a corner answers
+		# differently from one frame to the next, and each answer is a different way to aim.
+		if _skip_index != _path_index:
+			_skip_index = _path_index
+			_skip_ahead = (
+				_path_index + 1 < _path.size()
+				and _has_line_of_sight(_path[_path_index + 1])
+				and not match_node.nav.crosses_pit(kart.global_position, _path[_path_index + 1])
+			)
+		if _skip_ahead and _path_index + 1 < _path.size():
 			return _path[_path_index + 1]
 		return _path[_path_index]
 	return target

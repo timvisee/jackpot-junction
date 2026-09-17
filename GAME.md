@@ -1053,6 +1053,25 @@ NavigationAgent3D, plus reactive bullet dodging.
 | Grab item       | Holding nothing and a power-up pad is near                                    |
 | Flee            | A Boosting enemy is within 6 m                                                |
 
+**Sticking to it**: a goal is picked ten times a second, and two errands a bot is
+equally near will otherwise swap places under it every tick and leave it driving
+down the middle between them. A goal it has just picked is kept for a second and a
+half before a merely better one may take it off. Three things still cut in at once:
+a Boosting enemy about to hit it, an errand that has stopped existing because
+somebody else took the pickup or the pad, and arriving, since an errand a bot is
+standing on is finished whatever the clock says. Wandering is what a bot does for
+want of a plan, so it never holds anything up.
+
+**Settling the wheel**: steering answers the angle to the next waypoint, less a
+share of how fast the nose is already coming round. Without that a bot holds full
+lock until it is pointed at the waypoint, by which time it is turning too fast to
+stop there, and it saws at the wheel the whole way down the road. In a slide the
+correction is off: the nose coming round is the point of a slide, and the wheel is
+already answering the slip angle. Whether the corner can be cut to the waypoint
+after next is decided once per waypoint as well, since a ray that grazes a corner
+answers differently from one frame to the next and each answer is a different way
+to aim.
+
 **Arriving**: waypoints get a bot to the right part of the arena, but the last few
 metres are their own problem. Flat out, a kart turns in a wider circle than the pad
 it is aiming for, so it sails past and comes round again, forever. Inside 6 m of the

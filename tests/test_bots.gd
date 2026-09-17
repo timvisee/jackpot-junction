@@ -314,6 +314,63 @@ func test_a_bot_nosed_against_a_wall_backs_out_of_it() -> void:
 	assert_bool(_gets_stuck(brain, 1.0)).is_true()
 
 
+## GAME.md 9.1: a bot picks a goal ten times a second, so without something holding them
+## together two errands it is equally near pull it back and forth and it drives down the middle.
+func test_a_bot_sticks_with_its_errand_instead_of_dithering() -> void:
+	var match_node := _match()
+	await _runner.simulate_frames(30, 17)
+	var kart := match_node.kart_of(0)
+	var brain: BotBrain = kart.get_node("Brain")
+	brain.goal = &"collect"
+	brain.target = kart.global_position + Vector3(20.0, 0.0, 0.0)
+	var offer := {"pickup": true, "item": true, "boost_enemy": true}
+	# Freshly picked, a merely different errand does not get to take it off.
+	brain._goal_held = 0.0
+	assert_bool(brain._may_switch(&"item", offer)).is_false()
+	# Once it has had its run, anything may.
+	brain._goal_held = BotBrain.GOAL_DWELL
+	assert_bool(brain._may_switch(&"item", offer)).is_true()
+	# Something about to hit it always cuts in.
+	brain._goal_held = 0.0
+	assert_bool(brain._may_switch(&"flee", offer)).is_true()
+	# So does an errand that has stopped existing: the pickup was taken.
+	assert_bool(brain._may_switch(&"item", {"item": true})).is_true()
+	# And one it is standing on is finished, whatever the clock says.
+	brain.target = kart.global_position
+	assert_bool(brain._may_switch(&"item", offer)).is_true()
+
+
+## GAME.md 9.1: the wheel comes off as the nose comes round. Holding full lock until the kart
+## is pointed at the waypoint arrives there turning too fast to stop, which is the saw.
+func test_a_bot_winds_the_wheel_off_as_the_nose_comes_round() -> void:
+	var match_node := _match()
+	await _runner.simulate_frames(30, 17)
+	var kart := match_node.kart_of(0)
+	var brain: BotBrain = kart.get_node("Brain")
+	kart.global_position = match_node.arena.junction_position + Vector3(0.0, 0.0, 10.0)
+	kart.face(Vector3(1.0, 0.0, 0.0))
+	kart.motor.forward_speed = kart.stats.top_speed * 0.5
+	kart.motor.velocity = kart.motor.forward_vector() * kart.motor.forward_speed
+	brain.goal = &"wander"
+	brain.target_node = null
+	# A gentle bend, so the wheel has somewhere between here and full lock to go.
+	brain.target = kart.global_position + Vector3(12.0, 0.0, -2.0)
+	brain._path = PackedVector3Array()
+	brain._replan_left = 0.0
+	# Dead ahead of the corner with the nose still straight: the wheel goes on.
+	brain._turn_rate = 0.0
+	brain._last_heading = kart.motor.heading
+	brain._steer(1.0 / 60.0)
+	var straight := brain.input.steer
+	assert_float(absf(straight)).is_greater(0.0)
+	# The same corner with the nose already swinging into it asks for less of the same wheel.
+	brain._turn_rate = -signf(straight) * 0.4
+	brain._last_heading = kart.motor.heading
+	brain._steer(1.0 / 60.0)
+	assert_float(signf(brain.input.steer)).is_equal(signf(straight))
+	assert_float(absf(brain.input.steer)).is_less(absf(straight))
+
+
 ## GAME.md 9.1: a kart wedged on a corner can keep a speed on the clock while arriving nowhere,
 ## so what a bot goes by is the ground it has covered, not the speedometer.
 func test_a_bot_that_covers_no_ground_backs_out_even_with_speed_on_the_clock() -> void:
