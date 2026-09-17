@@ -40,13 +40,27 @@ func is_pit_at(point: Vector3) -> bool:
 	return is_pit(world_to_cell(point))
 
 
-## Whether the straight line between two points passes over a pit. Sampled every half cell,
-## which is finer than a kart is wide, so nothing slips between two samples.
-func crosses_pit(from: Vector3, to: Vector3) -> bool:
+## Whether a pit lies within [param margin] of this point. A kart goes down a hole when any
+## corner of it touches the hole, not when its middle arrives, so anything asking "may I drive
+## here" has to ask about a body rather than about a point.
+func is_pit_within(point: Vector3, margin: float) -> bool:
+	for rect: Rect2i in grid.pits:
+		var centre := grid.rect_center(rect)
+		var half := grid.rect_size(rect) * 0.5 + Vector2.ONE * margin
+		if absf(point.x - centre.x) <= half.x and absf(point.z - centre.z) <= half.y:
+			return true
+	return false
+
+
+## Whether the straight line between two points passes over a pit, allowing [param margin] of
+## clearance around the hole. Sampled every half cell, which is finer than a kart is wide, so
+## nothing slips between two samples.
+func crosses_pit(from: Vector3, to: Vector3, margin: float = 0.0) -> bool:
 	var span := Vector2(to.x - from.x, to.z - from.z)
 	var steps := maxi(ceili(span.length() / (grid.cell_size * 0.5)), 1)
 	for i: int in steps + 1:
-		if is_pit_at(from.lerp(to, float(i) / float(steps))):
+		var at := from.lerp(to, float(i) / float(steps))
+		if is_pit_within(at, margin) if margin > 0.0 else is_pit_at(at):
 			return true
 	return false
 

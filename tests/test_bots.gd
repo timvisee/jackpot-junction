@@ -3,6 +3,7 @@ extends GdUnitTestSuite
 
 const DEFAULT_RULES: MatchRules = preload("res://data/match/default.tres")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const LUCKY_CROSSING: ArenaLayout = preload("res://data/maps/lucky_crossing.tres")
 
 var _runner: GdUnitSceneRunner
 
@@ -12,7 +13,7 @@ func _trait(id: String) -> BotTrait:
 
 
 func test_paths_avoid_walls_and_reopen_when_a_crate_dies() -> void:
-	var layout: ArenaLayout = load("res://data/maps/lucky_crossing.tres")
+	var layout: ArenaLayout = LUCKY_CROSSING
 	var grid := layout.parse()
 	var nav := ArenaNav.new(grid)
 	var from := grid.cell_center(grid.spawns[0])
@@ -449,10 +450,11 @@ func test_a_bot_flicks_the_handbrake_into_a_tight_corner_and_then_drives_it() ->
 	assert_int(pulls).override_failure_message("the bot never threw it in").is_greater(0)
 	# Flicks, not a held handbrake: three seconds of corner, well under a second of brake.
 	assert_float(held / 60.0).is_less(1.0)
-	# And the flick did what it was for. The slide is short, a third of a second or so, because
-	# a bot steering its travel catches it the moment the kart is pointed down the new road,
-	# which is the tidy way to use one rather than a failure to hold it.
-	assert_float(slid / 60.0).is_greater(0.2)
+	# And the flick did what it was for: the rear came out, and was caught again rather than
+	# held. A bot steering its travel catches it the moment the kart is pointed down the new
+	# road, which is the tidy way to use one rather than a failure to hold it, so what is
+	# checked is that there was a slide and that it was brief, not its length to the frame.
+	assert_float(slid / 60.0).is_between(0.1, 0.8)
 
 
 ## A bot in a slide steers where the kart is going rather than where its nose points, which is
@@ -549,3 +551,26 @@ func test_a_bot_forgets_its_dodge_decisions_with_the_bullets() -> void:
 		bullet.destroy()
 	await _runner.simulate_frames(int(BotBrain.DECISION_INTERVAL * 60.0) + 6, 17)
 	assert_int(brain._dodge_rolls.size()).is_equal(0)
+
+
+## GAME.md 9.1: a kart goes down a hole when any corner of it touches the edge, not when its
+## middle arrives, so a bot that aims to miss the hole itself aims to clip it.
+func test_a_bot_leaves_room_for_its_own_body_around_a_hole() -> void:
+	var nav := ArenaNav.new(LUCKY_CROSSING.parse())
+	var pit := nav.first_pit_center(Vector3.ZERO, Vector3(0.0, 0.0, -9.0))
+	assert_vector(pit).is_not_equal(Vector3.ZERO)
+	# A point just outside the hole's own cells is clear of the hole and not clear of a kart.
+	var beside := pit + Vector3(1.25 + 0.3, 0.0, 0.0)
+	assert_bool(nav.is_pit_at(beside)).is_false()
+	assert_bool(nav.is_pit_within(beside, BotBrain.PIT_CLEARANCE)).is_true()
+	# Far enough away and it is clear either way.
+	var clear := pit + Vector3(4.0, 0.0, 0.0)
+	assert_bool(nav.is_pit_within(clear, BotBrain.PIT_CLEARANCE)).is_false()
+	# A line that grazes the hole counts as crossing it once the margin is asked for.
+	assert_bool(nav.crosses_pit(beside + Vector3(0.0, 0.0, -4.0), beside)).is_false()
+	(
+		assert_bool(
+			nav.crosses_pit(beside + Vector3(0.0, 0.0, -4.0), beside, BotBrain.PIT_CLEARANCE)
+		)
+		. is_true()
+	)

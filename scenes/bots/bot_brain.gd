@@ -93,6 +93,15 @@ const REVERSE_RADIUS := 4.0
 ## drops to when it sees one. A second is comfortably more than the half second it takes to
 ## stop from top speed, so there is room to turn out rather than only to stop.
 const PIT_LOOKAHEAD := 1.2
+## How much room a bot leaves around a hole, over and above the cells the hole sits in. A kart
+## goes down when any corner of it touches the trigger, which sits a little inside those cells,
+## so the margin is the kart's half-diagonal less that inset: aiming to miss the hole itself is
+## aiming to clip it with a corner.
+const PIT_CLEARANCE := 0.6
+## Where the look-ahead starts, in seconds of travel. Measured from a little in front of the
+## nose rather than from under it: a bot parked beside a hole is not driving into it, and a
+## sweep that starts where it stands would have it fleeing a hole it is nowhere near entering.
+const PIT_LOOK_FROM := 0.15
 const PIT_THROTTLE := 0.25
 ## Within this of the hole, turning alone will not do it and the brakes go on as well.
 const PIT_BRAKE_DISTANCE := 6.0
@@ -589,8 +598,9 @@ func _close_in(forward: Vector3) -> void:
 ## chasing a kart across one would go in regardless, so where it is headed is checked against
 ## the hole and it turns out of it.
 func _avoid_pit() -> void:
+	var from := kart.global_position + kart.motor.velocity * PIT_LOOK_FROM
 	var ahead := kart.global_position + kart.motor.velocity * PIT_LOOKAHEAD
-	if not match_node.nav.crosses_pit(kart.global_position, ahead):
+	if not match_node.nav.crosses_pit(from, ahead, PIT_CLEARANCE):
 		return
 	var forward := kart.motor.forward_vector()
 	var away := kart.global_position - match_node.nav.first_pit_center(kart.global_position, ahead)

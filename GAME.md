@@ -1254,6 +1254,13 @@ nitro and steers along the edge of the hole rather than trying to turn round,
 and inside 6 m it brakes as well. Short cuts between waypoints are checked
 against the holes too.
 
+What it checks for is room for the whole kart, not for its middle. A kart goes
+down when any corner of it touches the hole, so a bot aiming to miss the hole
+itself is a bot aiming to clip it, which is how half of all bot deaths used to
+happen on a map whose two holes sit either side of the Junction. The look-ahead
+also starts a little in front of the nose rather than under it, so a bot parked
+beside a hole is not forever fleeing one it is nowhere near entering.
+
 **Dodging**: for each enemy bullet within 8 m, predict the closest approach
 over the next second. If it is under 1.2 m, steer perpendicular to the bullet,
 with the difficulty's dodge chance.
