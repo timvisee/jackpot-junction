@@ -123,6 +123,9 @@ var _replan_left := 0.0
 var _planned_target := Vector3.INF
 var _dodge_left := 0.0
 var _dodge_steer := 0.0
+## Whether this bot reacts to each bullet it has seen, decided once so it does not change its
+## mind about the same one every frame. Kept only for bullets still in the air: a match fires
+## thousands, and a bot that remembered every one of them would carry the lot to the whistle.
 var _dodge_rolls: Dictionary[int, bool] = {}
 var _aim_timer := 0.0
 var _aim_error := 0.0
@@ -183,6 +186,7 @@ func _physics_process(delta: float) -> void:
 	if _decision_left <= 0.0:
 		_decision_left = DECISION_INTERVAL
 		_decide()
+		_forget_spent_bullets()
 	input.fire_pressed = false
 	input.use_item_pressed = false
 	_steer(delta)
@@ -736,6 +740,19 @@ func _swing_out() -> void:
 ## Whether there is something solid right in front of the nose.
 func _nose_on_a_wall() -> bool:
 	return not _has_line_of_sight(kart.global_position + kart.motor.forward_vector() * WALL_PROBE)
+
+
+## Drops the dodge decisions for bullets that have gone, at the pace the bot thinks rather than
+## every frame: nothing goes wrong while a dead one lingers, it simply takes up room.
+func _forget_spent_bullets() -> void:
+	if _dodge_rolls.is_empty():
+		return
+	var live: Dictionary[int, bool] = {}
+	for bullet: Bullet in match_node.bullets.bullets:
+		var id := bullet.get_instance_id()
+		if _dodge_rolls.has(id):
+			live[id] = _dodge_rolls[id]
+	_dodge_rolls = live
 
 
 func _dodge(delta: float) -> void:

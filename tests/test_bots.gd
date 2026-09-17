@@ -525,3 +525,27 @@ func test_bots_drive_collect_and_bank_in_a_short_match() -> void:
 		coins += kart.pot.coins + match_node.slots[i].banked
 	assert_int(moved).is_greater_equal(2)
 	assert_int(coins).is_greater(0)
+
+
+## GAME.md 9.1: a bot decides once per bullet whether it reacts to that one, so it does not
+## change its mind every frame. It keeps those decisions only while the bullets are in the air:
+## a match fires thousands, and carrying all of them to the whistle is a leak with a clock on it.
+func test_a_bot_forgets_its_dodge_decisions_with_the_bullets() -> void:
+	var match_node := _match()
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	var brain: BotBrain = kart.get_node("Brain")
+	# A handful of shots heading straight at the bot, so it has to make up its mind about them.
+	kart.motor.velocity = Vector3.ZERO
+	for i: int in 6:
+		var at := kart.global_position + Vector3(4.0 + i * 0.3, 0.0, 0.0)
+		match_node.bullets.spawn(
+			1, at, Vector3(-1.0, 0.0, 0.0), match_node.kart_of(1).cannon_stats, Color.WHITE
+		)
+	await _runner.simulate_frames(4, 17)
+	assert_int(brain._dodge_rolls.size()).is_greater(0)
+	# Gone, and forgotten by the next time the bot thinks.
+	for bullet: Bullet in match_node.bullets.bullets.duplicate():
+		bullet.destroy()
+	await _runner.simulate_frames(int(BotBrain.DECISION_INTERVAL * 60.0) + 6, 17)
+	assert_int(brain._dodge_rolls.size()).is_equal(0)
