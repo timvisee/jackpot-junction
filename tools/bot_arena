@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Runs whole matches of bots and reports what they achieved, so "are the bots any good" is a
+# number rather than an impression. Several seeds, because one match of four bots is mostly
+# luck, and driven by the match clock so two readings can be held against each other.
+#
+# Usage: tools/bot_arena          (about seven minutes)
+set -euo pipefail
+cd "$(dirname "$0")/.."
+out=$(mktemp)
+trap 'rm -f "$out"' EXIT
+tools/godot --headless --path . -s addons/gdUnit4/bin/GdUnitCmdTool.gd \
+  -a res://tools/bot_arena.gd -c --ignoreHeadlessMode 2>&1 | grep '^ARENA' > "$out" || true
+python3 - "$out" <<'PY'
+import sys, collections
+rows = []
+for line in open(sys.argv[1]):
+    d = {}
+    for p in line.split()[3:]:
+        k, v = p.split("=")
+        d[k] = float(v)
+    rows.append(d)
+if not rows:
+    print("no matches ran"); sys.exit(1)
+n = len(rows)
+tot = collections.Counter()
+for r in rows:
+    for k, v in r.items():
+        tot[k] += v
+w = tot["samples"]
+mean = lambda k: sum(r[k] * r["samples"] for r in rows) / w
+print("== %d matches of four hard bots ==" % n)
+print("score: banked %6.0f  cash-outs %5.1f  coins %5.0f  jackpot %4.0f  pads %4.0f  flushes %.2f"
+      % (tot["banked"]/n, tot["banks"]/n, tot["coins"]/n, tot["jackpot"]/n, tot["pads"]/n,
+         tot["flushes"]/n))
+print("fight: kills %5.1f  deaths %5.1f (holes %4.1f)  coins lost %5.0f  peak mult %5.1f"
+      % (tot["kills"]/n, tot["deaths"]/n, tot["pits"]/n, tot["lost"]/n, tot["mult"]/n))
+print("wheel: full lock %2.0f%% of the time: driving %2.0f  round a hole %2.0f  backing out %2.0f  dodging %2.0f"
+      % (mean("full_lock")*100, mean("lock_driving")*100, mean("lock_pit")*100,
+         mean("lock_reversing")*100, mean("lock_dodging")*100))
+print("drive: %6.0f m a match  %.2f m/s  |steer| %.2f  touching a wall %2.0f%%  drift boosts %3.0f"
+      % (tot["driven"]/n, mean("speed"), mean("steer"), mean("walled")*100, tot["boosts"]/n))
+PY

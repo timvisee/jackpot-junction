@@ -4,7 +4,7 @@ GDLINT ?= gdlint
 GDFORMAT ?= gdformat
 GD_DIRS := scenes scripts tests
 
-.PHONY: import test lint format format-check smoke run drive check export
+.PHONY: import test lint format format-check smoke run drive bots check export
 
 import:
 	$(GODOT) --headless --path . --import
@@ -39,6 +39,11 @@ run:
 
 drive:
 	$(GODOT) --path . res://scenes/dev/driving.tscn
+
+# Whole matches of bots, reported as numbers. Minutes rather than seconds, so it is its own
+# target rather than part of check.
+bots:
+	tools/bot_arena
 
 check: import lint format-check test smoke
 

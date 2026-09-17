@@ -1232,6 +1232,14 @@ which is the same thing as winding on opposite lock at the moment a driver would
 the slides short, about a third of a second: the bot catches it as soon as the kart is pointed
 down the new road, which is the tidy way to use one.
 
+**Judging them**: `make bots` runs whole matches of four hard bots on several seeds and reports
+what they achieved: banked score, cash-outs, coins collected and lost, deaths and what caused
+them, and how the wheel was used. It is driven by the match clock rather than by a frame count,
+so two readings can be held against each other, and it is not part of `make check` because it
+takes minutes. Bot work is judged on those numbers rather than on how a match looked, because a
+single match of four bots is mostly luck: the first three ideas tried against it all read as
+clear wins on one match and as losses over three.
+
 **Getting unstuck**: driving at something solid pins a kart against it, and steering
 toward a target on the far side only holds it there harder. A bot that is going
 nowhere with the throttle down backs up for 0.7 s with the wheel over, which swings
