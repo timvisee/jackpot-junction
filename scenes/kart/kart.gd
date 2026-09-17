@@ -929,7 +929,7 @@ func _update_trails(delta: float, heading_before: float) -> void:
 		_smoke.update_state(input.throttle, false, false)
 		return
 	var turning := absf(wrapf(motor.heading - heading_before, -PI, PI)) / maxf(delta, 0.0001)
-	var intensity := 0.15
+	var intensity := 0.06
 	var slip := absf(motor.slip_angle())
 	if motor.spinning():
 		intensity = 1.0
@@ -939,9 +939,9 @@ func _update_trails(delta: float, heading_before: float) -> void:
 		# A straight handbrake stop lays down locked-wheel skid marks.
 		intensity = 0.85
 	elif input.brake > 0.3 and motor.forward_speed > 1.0:
-		intensity = 0.6
+		intensity = 0.45
 	elif turning > 1.5:
-		intensity = 0.35
+		intensity = 0.2
 	var side := global_basis.x
 	var rear := global_position + global_basis.z * stats.length * 0.4
 	var now := Time.get_ticks_msec() * 0.001

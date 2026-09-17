@@ -429,8 +429,11 @@ assigns physical devices to player slots, see 10.2.
 ### 4.3 Trails
 
 - **Tire marks**: a ribbon mesh per rear wheel, drawn while the kart moves,
-  darker and wider while drifting or braking. Straight driving leaves a barely
-  visible trace; a full drift leaves a clear skid at just under half opacity.
+  darker and wider while drifting or braking. Everything short of a drift is kept
+  faint, since a floor covered in the marks of ordinary driving says nothing: a
+  straight line is barely there, a hard turn and a brake not much more. A full
+  drift leaves a clear skid at just under half opacity, and a straight handbrake
+  stop leaves the darkest mark of all.
   Marks fade out over 20 s. Segments are capped per kart to bound the cost.
 - **Smoke**: a faint exhaust particle trail whose rate scales with throttle,
   with bursts on drift entry, drift exit boost, turbo pads and Boost.
