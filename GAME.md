@@ -935,6 +935,17 @@ drifting, which shrinks the circle to something that fits. With the goal behind 
 and under 4 m away it backs onto it instead, because no turning circle fits at that
 range. On the Junction and the Jackpot it then holds position as before.
 
+**Drifting**: the kart drifts the oversteer way, see 4.1, so a bot throws it into a tight
+corner the way a driver would: the handbrake goes in for a flick of 0.18 s when the corner is
+tighter than the trait's drift angle and the kart is above 60% of top speed, with a second or
+so before another is allowed. Holding it would break the rear loose again every time the slide
+was caught, and walk the kart down the road sideways.
+
+Once the rear is out a bot steers where the kart is going rather than where its nose points,
+which is the same thing as winding on opposite lock at the moment a driver would. That makes
+the slides short, about a third of a second: the bot catches it as soon as the kart is pointed
+down the new road, which is the tidy way to use one.
+
 **Getting unstuck**: driving at something solid pins a kart against it, and steering
 toward a target on the far side only holds it there harder. A bot that is going
 nowhere with the throttle down backs up for 0.7 s with the wheel over, which swings

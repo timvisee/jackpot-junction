@@ -36,6 +36,15 @@ const REVERSE_TIME := 0.7
 const STUCK_SPEED := 0.6
 ## How far in front of itself a bot feels for a wall it is nosed up against.
 const WALL_PROBE := 1.3
+## Seconds the handbrake is held to break the rear loose, and the least time between two of
+## those. The kart drifts the oversteer way now, GAME.md 4.1, where the handbrake is a flick:
+## holding it through a corner only breaks the rear loose again every time the slide is
+## caught, which walks the kart from one side to the other and down the road backwards.
+const FLICK_TIME := 0.18
+const FLICK_COOLDOWN := 1.1
+## How tight a corner has to be, and how fast the kart has to be going, before a bot will
+## throw it in. Below this it simply steers round.
+const FLICK_SPEED := 0.6
 const AIM_ERROR_INTERVAL := 0.5
 const ITEM_PATIENCE := 5.0
 const BULLET_HEIGHT := 0.5
@@ -91,6 +100,10 @@ var _stuck_time := 0.0
 var _reverse_left := 0.0
 ## Which way the wheel goes while backing out, held for the whole manoeuvre.
 var _reverse_steer := 1.0
+## The handbrake flick that breaks the rear loose: how long this one lasts and how long until
+## another is allowed.
+var _flick_left := 0.0
+var _flick_wait := 0.0
 var _item_hold_time := 0.0
 ## Stands in for the match's reading when a brain is stepped on its own, in tests.
 var _fallback := BotMirror.new()
@@ -419,11 +432,17 @@ func _steer(delta: float) -> void:
 		else 0.0
 	)
 	var mirror := _mirror()
-	input.steer = -clampf(angle * 2.0, -1.0, 1.0)
+	# Steer where the kart is going, not where its nose points. In a slide those are different,
+	# and aiming the nose at the corner sends the kart wide of it; aiming the travel at it makes
+	# the bot wind on opposite lock exactly when a driver would.
+	var aim := angle
+	if kart.motor.drifting:
+		aim += kart.motor.slip_angle()
+	input.steer = -clampf(aim * 2.0, -1.0, 1.0)
 	# Bots that are ahead lift off; being behind cannot push them past their own top speed.
 	input.throttle = difficulty.top_speed_fraction * minf(mirror.effort, 1.0)
 	input.brake = 0.0
-	input.handbrake = (absf(angle) > mirror.drift_angle() and kart.motor.speed_fraction() > 0.6)
+	input.handbrake = _step_flick(delta, angle, mirror)
 	if absf(angle) > 1.7:
 		input.throttle = 0.35
 	_close_in(forward)
@@ -433,6 +452,26 @@ func _steer(delta: float) -> void:
 		input.brake = 1.0 if kart.motor.forward_speed > 0.5 else 0.0
 		input.steer = 0.0
 	_step_stuck(delta)
+
+
+## Whether to have the handbrake in this tick, GAME.md 9.1. A tight corner taken at speed is
+## worth throwing the kart into: the handbrake goes in for a flick, the rear comes loose, and
+## from there the slide is driven on the wheel like anyone else drives one. Holding it would
+## keep breaking the rear loose over and over, and a bot that has already got the kart sideways
+## has nothing to gain by asking for more of it.
+func _step_flick(delta: float, angle: float, mirror: BotMirror) -> bool:
+	_flick_wait = maxf(_flick_wait - delta, 0.0)
+	if _flick_left > 0.0:
+		_flick_left -= delta
+		return true
+	if kart.motor.drifting:
+		return false
+	var tight := absf(angle) > mirror.drift_angle()
+	if not tight or kart.motor.speed_fraction() < FLICK_SPEED or _flick_wait > 0.0:
+		return false
+	_flick_left = FLICK_TIME
+	_flick_wait = FLICK_COOLDOWN
+	return true
 
 
 ## The last stretch onto the goal itself, GAME.md 9.1. Waypoints get a bot to the right part of
