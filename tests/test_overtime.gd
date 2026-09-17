@@ -118,3 +118,27 @@ func test_a_field_of_one_never_enters_overtime() -> void:
 	match_node.time_left = 0.02
 	await _runner.simulate_frames(6, 17)
 	assert_int(match_node.state).is_equal(Match.State.RESULTS)
+
+
+## GAME.md 3.8: a player who would rather the whistle went on the hour can say so, and then it
+## does, whoever is still driving.
+func test_the_lobby_switch_turns_overtime_off() -> void:
+	var match_node := _start_match(false)
+	await _runner.simulate_frames(12, 17)
+	match_node.time_left = 0.02
+	await _runner.simulate_frames(6, 17)
+	assert_int(match_node.state).is_equal(Match.State.RESULTS)
+
+
+## The switch reaches the rules the way every other lobby option does.
+func test_the_setting_reaches_the_rules() -> void:
+	var config := MatchConfig.new()
+	config.overtime = false
+	var rules: MatchRules = load("res://data/match/default.tres")
+	assert_bool(rules.overtime).is_true()
+	assert_bool(config.rules(rules).overtime).is_false()
+	config.overtime = true
+	assert_bool(config.rules(rules).overtime).is_true()
+	var settings := Settings.new()
+	settings.overtime = false
+	assert_bool(MatchConfig.from_settings(settings).overtime).is_false()

@@ -246,7 +246,7 @@ The joker catalogue is in section 7.3.
 | Duration        | 5:00                                                      |
 | Target score    | 3000 banked ends the match early                          |
 | Last Call       | Final 30 s: Junction pays double, Jackpot accrues double  |
-| Time out        | Pots still unbanked when the timer ends are lost          |
+| Time out        | Sudden death, see 3.13, unless the lobby option turns it off; pots still unbanked when the match ends are lost |
 | Countdown       | 3 s before the karts can move                             |
 | Players         | 1 to 4 humans, bots fill the remaining slots to 4         |
 | Tie-break       | Most kills, then fewest deaths                            |
@@ -398,8 +398,9 @@ treat it the same way: what is in the pot is worth taking to the Junction now,
 because there is no lap after this one. Entering it sounds the Last Call alarm
 again, pitched down: the same warning, only final.
 
-Overtime can be switched off in the settings, see 8.5, for players who would
-rather the whistle went on the hour.
+The lobby carries the switch, alongside the other match options in 3.8: Out of
+time is either Sudden death or Whistle on the hour, and the choice is remembered
+with the rest of them.
 
 ## 4. Kart
 

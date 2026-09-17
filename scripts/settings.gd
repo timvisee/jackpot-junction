@@ -37,6 +37,8 @@ var difficulty := "normal"
 var item_set := "first"
 ## Whether a kart's own shots hurt it, GAME.md 5.1.
 var own_bullets_hurt := false
+## Whether a match that runs out of clock goes to sudden death, GAME.md 3.13.
+var overtime := true
 var last_address := "127.0.0.1"
 var last_port := 7777
 
@@ -72,6 +74,7 @@ func load_from_disk() -> void:
 	difficulty = file.get_value("lobby", "difficulty", difficulty)
 	item_set = file.get_value("lobby", "item_set", item_set)
 	own_bullets_hurt = file.get_value("lobby", "own_bullets_hurt", own_bullets_hurt)
+	overtime = file.get_value("lobby", "overtime", overtime)
 	last_address = file.get_value("online", "address", last_address)
 	last_port = file.get_value("online", "port", last_port)
 
@@ -101,6 +104,7 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "difficulty", difficulty)
 	file.set_value("lobby", "item_set", item_set)
 	file.set_value("lobby", "own_bullets_hurt", own_bullets_hurt)
+	file.set_value("lobby", "overtime", overtime)
 	file.set_value("online", "address", last_address)
 	file.set_value("online", "port", last_port)
 	return file.save(path)

@@ -15,6 +15,8 @@ var target_score := 3000
 var item_set := "first"
 ## Whether a kart's own shots hurt it, GAME.md 5.1.
 var own_bullets_hurt := false
+## Whether the clock running out goes to sudden death rather than the whistle, GAME.md 3.13.
+var overtime := true
 ## "", "host" or "join".
 var online := ""
 var address := "127.0.0.1"
@@ -49,6 +51,7 @@ func rules(base: MatchRules) -> MatchRules:
 	copy.duration = duration
 	copy.target_score = target_score if target_score > 0 else 1 << 30
 	copy.own_bullets_hurt = own_bullets_hurt
+	copy.overtime = overtime
 	return copy
 
 
@@ -64,4 +67,5 @@ static func from_settings(settings: Settings) -> MatchConfig:
 	config.target_score = settings.target_score
 	config.item_set = settings.item_set
 	config.own_bullets_hurt = settings.own_bullets_hurt
+	config.overtime = settings.overtime
 	return config
