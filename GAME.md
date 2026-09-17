@@ -946,6 +946,11 @@ every kart, so everyone sees when an opponent cashes out.
   and at full voice by 3, come in at 14 a second and die away at 7, and rise in
   pitch with speed. A chirp of wheelspin fires when the throttle goes down at a
   standstill.
+- **Drift boost**: the same chime a turbo pad and nitro get, a little brighter,
+  the moment a drift ends having earned its exit boost. It is the receipt the
+  gold sparks give the eye. Only the kart being driven here rings it: the bots
+  throw themselves into every tight corner, and a room full of that is a racket.
+  No swell under it, which stays nitro's alone.
 - **One-shots**: a rushing pass on a turbo pad; a swell that runs backwards into
   its own kick when nitro lights, played from 0.18 s before the end of the file
   so the kick lands just after the button; the pack's spin-out on oil; its

@@ -92,6 +92,9 @@ var touching_wall := false
 var crash_wait := 0.0
 ## The engine and tire voices, only on karts somebody drives on this machine; null otherwise.
 var sound: KartSound
+## Whether somebody sitting at this machine is driving this kart. Feedback meant for a driver
+## rather than for the room follows this, so three bots cannot set it off.
+var driven_here := false
 
 var _body: Node3D
 var _tint: StandardMaterial3D
@@ -250,6 +253,7 @@ func coast() -> void:
 ## nobody here is driving takes the lean version: one engine, one squeal, a little quieter and
 ## detuned off the others. A puppet counts as driven by somebody, just not here.
 func enable_sound(on: bool, lean: bool = false) -> void:
+	driven_here = on and not lean
 	if sound != null and (not on or sound.lean != lean):
 		sound.queue_free()
 		sound = null
@@ -524,6 +528,8 @@ func _step_drift_sparks() -> void:
 	_sparks.set_state(motor.drifting, charged)
 	if _was_drifting and not motor.drifting and _was_charged:
 		_sparks.pop()
+		if driven_here:
+			Events.drift_boosted.emit(slot)
 	_was_drifting = motor.drifting
 	_was_charged = charged
 

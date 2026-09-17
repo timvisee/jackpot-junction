@@ -404,6 +404,9 @@ func _connect_events() -> void:
 	Events.bullet_bounced.connect(func() -> void: play_sfx(&"bounce", -12.0, 0.1))
 	Events.kart_bumped.connect(func(_slot: int) -> void: play_sfx(&"bump", -10.8))
 	Events.turbo_taken.connect(_on_turbo_taken)
+	# The same chime nitro and a turbo pad get, a little brighter so a drift boost is its own
+	# receipt rather than sounding like the bottle went off. No swell: that is nitro's alone.
+	Events.drift_boosted.connect(func(_slot: int) -> void: play_sfx(&"turbo", -12.0, 0.1, 1.15))
 	Events.nitro_started.connect(_on_nitro_started)
 	Events.kart_crashed.connect(_on_kart_crashed)
 	Events.countdown_tick.connect(func(_count: int) -> void: play_sfx(&"countdown", -11.0, 0.0))

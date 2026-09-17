@@ -92,6 +92,24 @@ func test_a_kart_driven_from_somewhere_else_still_revs_with_its_speed() -> void:
 	assert_float(sound.rev.load).is_less(0.2)
 
 
+func test_earning_a_drift_boost_pings_for_you_and_not_for_the_bots() -> void:
+	var match_node := _start_match([PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()])
+	await _runner.simulate_frames(20, 17)
+	var pings: Array[int] = [0]
+	Events.drift_boosted.connect(func(_slot: int) -> void: pings[0] += 1)
+	var mine := match_node.kart_of(0)
+	var theirs := match_node.kart_of(1)
+	assert_bool(mine.driven_here).is_true()
+	assert_bool(theirs.driven_here).is_false()
+	# Both karts end a drift that earned its boost on the same tick.
+	for kart: Kart in [mine, theirs]:
+		kart._was_drifting = true
+		kart._was_charged = true
+		kart.motor.drifting = false
+		kart._step_drift_sparks()
+	assert_int(pings[0]).is_equal(1)
+
+
 func test_a_human_leaving_hands_the_kart_the_lean_voice() -> void:
 	var match_node := _start_match([PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()])
 	await _runner.simulate_frames(12, 17)

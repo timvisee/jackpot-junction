@@ -32,6 +32,9 @@ signal kart_bumped(slot: int)
 ## and 1 for a flat-out shunt, so a scrape and a proper thump are not the same sound.
 signal kart_crashed(slot: int, force: float)
 signal turbo_taken(slot: int)
+## A drift ended having earned its exit boost. Only raised for the kart being driven here: it
+## is a receipt for the driver, and every kart in the room earning one is a racket.
+signal drift_boosted(slot: int)
 signal nitro_started(slot: int)
 signal nitro_gained(slot: int)
 signal pad_claimed(slot: int)
