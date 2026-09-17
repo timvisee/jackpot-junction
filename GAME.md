@@ -937,11 +937,11 @@ every kart, so everyone sees when an opponent cashes out.
   so the kick lands just after the button; the pack's spin-out on oil; its
   crashes for a kart into a wall, the heavier one on top of a square hit; and its
   start tones for the countdown, one a second, with the higher one on the flag.
-- **Level**: everything a kart itself makes comes down 9 dB together, so the
-  engine flat out sits near -8 dB and the squeals below that. It is running the
+- **Level**: everything a kart itself makes comes down 5 dB together, so the
+  engine flat out sits near -4 dB and the squeals below that. It is running the
   whole time, so it is the bed the rest is heard over rather than an event in
-  it. A kart into a wall is the exception and one of the loudest things it does:
-  hitting a wall should land.
+  it. A kart into a wall sits just under the engine: loud enough to land over
+  the bed, not so loud that clipping a wall is the loudest thing in the room.
 - **What makes those levels real**: a positional voice has its level added to
   its distance attenuation and the sum clamped to a ceiling. So the ears sit at
   exactly the distance a kart is written for, 2.5 m, where that attenuation is

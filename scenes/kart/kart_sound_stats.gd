@@ -31,7 +31,7 @@ extends Resource
 @export_group("Levels")
 ## Everything the kart itself makes, against the one-shots the whole room hears. The kart sits
 ## under them on purpose: it is running the whole time, so it is the bed rather than an event.
-@export var kart_db := -9.0
+@export var kart_db := -5.0
 
 @export_group("Engine")
 ## The rev the engine loop was recorded at: the needle here plays the file at its own pitch.
