@@ -33,13 +33,29 @@ static func resolve(kart: Kart, pre: Vector3) -> void:
 		var collider := collision.get_collider()
 		var other := collider as Kart
 		var turret := collider as Turret
+		var crate := collider as Crate
 		if other != null:
 			_bump(kart, other, normal, pre)
 		elif turret != null and kart.ramming:
 			turret.destroy()
+		elif crate != null and _smashes(kart, crate, normal, pre):
+			continue
 		else:
 			touching_wall = _wall(kart, normal, pre, touching_wall) or touching_wall
 	kart.touching_wall = touching_wall
+
+
+## A crate taken at ramming speed, GAME.md 6.2. A kart that could ram another kart to death
+## goes through a box rather than bouncing off it, so nitro, the Ram item and Road Rage all
+## clear cover. The kart keeps the speed it arrived with: being stopped dead by a wooden box
+## is the opposite of what breaking it is for. Returns whether the crate went.
+static func _smashes(kart: Kart, crate: Crate, normal: Vector3, pre: Vector3) -> bool:
+	if not crate.alive or not kart.ram_kills() or -pre.dot(normal) <= CRASH_SPEED:
+		return false
+	crate.hit(kart.slot)
+	kart.motor.velocity = pre
+	kart.velocity = pre
+	return true
 
 
 static func _bump(kart: Kart, other: Kart, normal: Vector3, pre: Vector3) -> void:

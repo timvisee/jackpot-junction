@@ -78,6 +78,44 @@ func test_boost_speeds_up_and_rams_then_wears_off() -> void:
 	assert_float(kart.motor.speed_bonus).is_equal(1.0)
 
 
+## GAME.md 4.1: a kart that can ram another kart to death goes through a crate too, and keeps
+## the speed it arrived with rather than being stopped dead by a wooden box.
+func test_a_kart_at_ramming_speed_goes_through_a_crate() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	var kart := match_node.kart_of(0)
+	await _runner.simulate_frames(12, 17)
+	var crate: Crate = match_node.arena.crates[0]
+	# Lined up a couple of metres short of the crate, pointed at it, flat out.
+	var at := crate.global_position
+	var approach := match_node.arena.junction_position - at
+	approach.y = 0.0
+	approach = approach.normalized()
+	kart.global_position = at + approach * 2.2
+	kart.face(-approach)
+	kart.motor.forward_speed = kart.stats.top_speed
+	kart.motor.velocity = kart.motor.forward_vector() * kart.stats.top_speed
+	kart.input.throttle = 1.0
+	# Without ramming speed the box stands and the kart is stopped by it.
+	await _runner.simulate_frames(20, 17)
+	assert_bool(crate.alive).is_true()
+	# Boosting, the same run takes it out and the kart is still travelling.
+	var boost: BoostPowerUp = _item("boost").duplicate()
+	boost.duration = 3.0
+	boost.activate(kart)
+	assert_bool(kart.ram_kills()).is_true()
+	kart.global_position = at + approach * 2.2
+	kart.face(-approach)
+	kart.motor.forward_speed = kart.motor.max_speed()
+	kart.motor.velocity = kart.motor.forward_vector() * kart.motor.forward_speed
+	for i: int in 30:
+		await _runner.simulate_frames(1, 17)
+		if not crate.alive:
+			break
+	assert_bool(crate.alive).is_false()
+	assert_float(kart.motor.speed()).is_greater(kart.stats.top_speed * 0.5)
+
+
 func test_shield_absorbs_one_bullet_then_the_next_kills() -> void:
 	var shooter_input := KartInput.new()
 	var inputs: Array[KartInput] = [shooter_input, KartInput.new()]

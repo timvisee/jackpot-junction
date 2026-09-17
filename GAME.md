@@ -373,6 +373,11 @@ then hooks up and launches when the handbrake is released.
 Ramming only kills when the rammer has the Boost power-up active, see 7.1, or
 is burning nitro. Turbo pads do not enable ramming kills.
 
+A kart that can ram another kart to death goes through a crate as well, so a
+square hit while Boosting, burning nitro or under Road Rage breaks it and pays
+its chips, and the kart keeps the speed it arrived with rather than being stopped
+dead by a wooden box. Anything slower bounces off it as before.
+
 After the first play session the handling changed as follows. Drifts start only
 with the handbrake, which also brakes; steering alone keeps grip. A stopped
 kart turns in place. The kart and its bullets are slower. Shots are shown by an
