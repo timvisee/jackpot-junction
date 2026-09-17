@@ -105,3 +105,25 @@ func test_stains_reach_puppets_and_vanish_with_the_host_copy() -> void:
 	await _runner.simulate_frames(2, 17)
 	client.apply_snapshot(match_node.build_snapshot())
 	assert_int(client.puppet_stains.size()).is_equal(0)
+
+
+## GAME.md 7.1: the floor of this arena is not flat. A slick lying at floor level disappears
+## inside whichever pad it was dropped on, and the Junction is exactly where somebody wants to
+## drop one, so it rides above every one of them.
+func test_a_stain_dropped_on_the_junction_is_still_visible() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var dropper := match_node.kart_of(0)
+	dropper.global_position = match_node.arena.junction_position
+	ITEM.activate(dropper)
+	var stain: OilStain = match_node.get_tree().get_nodes_in_group(&"oil_stains")[0]
+	stain.global_position = match_node.arena.junction_position
+	await _runner.simulate_frames(4, 17)
+	# Clear of the Junction's own disc, of the Jackpot tiles with their trim, and of every pad.
+	var lowest := INF
+	for blob: Node in stain._visual.get_children():
+		lowest = minf(lowest, (blob as Node3D).global_position.y)
+	assert_float(lowest).is_greater(Arena.PAD_HEIGHT * 1.6)
+	assert_float(OilStain.LIFT).is_greater(Arena.PAD_HEIGHT * 1.6)
+	# And still on the floor rather than in the air: a kart drives over it, not under it.
+	assert_float(OilStain.LIFT).is_less(0.2)

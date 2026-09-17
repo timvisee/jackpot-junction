@@ -718,7 +718,7 @@ First set:
 | Turret          | 15     | Deploys a turret at your position. Rotates at 180°/s toward the nearest enemy, fires 1 default bullet per second. Lives 20 s or 1 hit. Kills credit you. Can hit you |
 | Ricochet Cannon | 20     | Next 8 shots bounce off walls once more and fly 25% faster                      |
 | Coin Magnet     | 15     | 8 s: pickup radius times 3, chips within it drift toward you at 6 m/s           |
-| Oil Stain       | 20     | Leaves a slick 1.8 m behind you for 25 s. Any kart whose centre crosses it, you included, spins out. It never kills |
+| Oil Stain       | 20     | Leaves a slick 1.8 m behind you for 25 s. Any kart whose centre crosses it, you included, spins out. It never kills. The slick lies a little above the floor, clear of the Junction, the Jackpot tiles and every pad: those all stand proud of the floor, and a slick at floor level vanishes inside whichever one it was dropped on, which is exactly where somebody wants to drop one |
 | Bomb            | 20     | Drops a bomb 1.8 m behind you. It arms after 0.6 s and blows up when any kart, you included, drives over it, when a bullet hits it, or after 30 s. The 2.6 m blast kills karts, breaks crates and turrets and sets off other bombs. Kills credit you |
 
 Later set, off by default and switched on per match in the lobby:

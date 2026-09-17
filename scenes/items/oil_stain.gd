@@ -10,6 +10,11 @@ signal triggered(stain: OilStain, kart: Kart)
 const RADIUS := 0.85
 ## Karts hit before this may drive over the stain without spinning again.
 const REARM_TIME := 1.6
+## How high the slick lies. The floor of this arena is not flat: the Junction, the Jackpot tiles
+## and every pad stand a few centimetres proud of it, and a slick at floor level simply vanishes
+## inside whichever one it was dropped on. It rides above the tallest of them instead, which
+## reads as oil lying on top of what it was spilled on.
+const LIFT := 0.09
 
 var owner_slot := -1
 var lifetime := 25.0
@@ -103,7 +108,7 @@ func _build_visuals() -> void:
 		blob.mesh = mesh
 		blob.material_override = _material
 		blob.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		blob.position = blobs[i] + Vector3(0.0, 0.02, 0.0)
+		blob.position = blobs[i] + Vector3(0.0, LIFT, 0.0)
 		_visual.add_child(blob)
 	var sheen := MeshInstance3D.new()
 	var sheen_mesh := CylinderMesh.new()
@@ -117,5 +122,5 @@ func _build_visuals() -> void:
 	sheen_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	sheen.material_override = sheen_material
 	sheen.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	sheen.position = Vector3(-0.18, 0.035, 0.12)
+	sheen.position = Vector3(-0.18, LIFT + 0.015, 0.12)
 	_visual.add_child(sheen)
