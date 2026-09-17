@@ -350,7 +350,7 @@ then hooks up and launches when the handbrake is released.
 | Drift style, the other one    | **Tighten**, which the kart used until the oversteer one replaced it, kept whole in `data/kart/feel_tighten.tres` and second on the driving room's list so it can be driven again. Holding the wheel over holds the slide and the kart simply turns tighter: grip drops to 4.8 rad/s, the yaw rate is multiplied by 1.55, the nose kicks 15° into the turn over 0.15 s, and straightening up or letting the handbrake go ends it. It is a good mechanic and an easy one; it was replaced because the oversteer one is worth more skill for the same effort, not because it was bad |
 | Changing sides mid-drift      | 30% of the slide survives it. The rear comes back through the middle, bites for about a tenth of a second and then steps out the other way, instead of the whole kart mirroring in one tick |
 | Drift speed decay             | 5% per second                                         |
-| Drift exit boost              | +20% top speed for 0.8 s if the drift lasted 0.6 s or longer |
+| Drift exit boost              | +20% top speed for 0.8 s if the drift lasted 0.6 s or longer and the kart is still carrying half its top speed when the slide ends. A drift that was allowed to die is not one worth rewarding, and without the speed rule a slow shuffle held for the minimum collected as much as a corner taken well |
 | Handbrake                     | with steering above 30% it starts a drift and scrubs speed at 4.2 m/s²; without steering it is a straight stop at 22 m/s², about half a second from top speed, that lays down skid marks |
 | Nitro                         | held button, and a throttle in its own right: it pushes the kart forward whether or not the accelerator is held, though braking still overrules it. 190% top speed with 1.5 times the acceleration, steering at 60% and grip at 55%, so it is fast and a handful, kills on contact; a full tank burns 2 s and takes 90 s to refill from empty, starting 0.6 s after letting go; a kill refills half a tank; the tank is kept across deaths; cannot restart below 20% |
 | Wounded                       | one life left: top speed 85%, body tinted darker until a cash-out or a kill restores the life |
@@ -435,8 +435,9 @@ assigns physical devices to player slots, see 10.2.
 - **Smoke**: a faint exhaust particle trail whose rate scales with throttle,
   with bursts on drift entry, drift exit boost, turbo pads and Boost.
 
-- **Drift sparks**: a fountain off each rear wheel, lit white the moment the slide has earned
-  its exit boost and quiet before then, so the sparks are the news that the drift is worth
+- **Drift sparks**: a fountain off each rear wheel, lit white while the slide has its exit
+  boost earned and quiet otherwise, so they go out again if the kart is allowed to slow below
+  the speed the boost asks for, so the sparks are the news that the drift is worth
   ending rather than a decoration on every slide. Spending the boost throws gold off the back
   and flashes a light with it for 0.45 s, and that gold appears nowhere else: white is ready,
   gold is gone. The flash follows a drift ending with enough time on it rather than the boost

@@ -83,25 +83,37 @@ func test_a_watched_kart_sparks_from_the_snapshot() -> void:
 	var sparks: DriftSparks = kart.get_node("DriftSparks")
 	var left: GPUParticles3D = sparks._fountains[0]
 	kart.make_puppet()
-	var state := {
-		"x": kart.global_position.x,
-		"z": kart.global_position.z,
-		"h": 0.0,
-		"vx": 6.0,
-		"vz": 0.0,
-		"alive": true,
-		"drift": true,
-		"drift_time": 1.2,
-		"prot": false,
-		"shield": false,
-		"ring": -1.0,
-		"aim": false,
-		"nitro": false,
-		"lives": 2,
-		"decoy": false,
-	}
-	kart.apply_puppet_state(state, 1.0 / 60.0)
-	await _runner.simulate_frames(4, 17)
+	# A puppet's speed is how far it actually moves, not what the snapshot says, so it is fed a
+	# run of them and walked down the floor at a proper drifting pace.
+	var step := 8.0 / 60.0
+	var x := kart.global_position.x
+	for i: int in 12:
+		x += step
+		(
+			kart
+			. apply_puppet_state(
+				{
+					"x": x,
+					"z": kart.global_position.z,
+					"h": 0.0,
+					"vx": 8.0,
+					"vz": 0.0,
+					"alive": true,
+					"drift": true,
+					"drift_time": 1.2,
+					"prot": false,
+					"shield": false,
+					"ring": -1.0,
+					"aim": false,
+					"nitro": false,
+					"lives": 2,
+					"decoy": false,
+				},
+				1.0 / 60.0
+			)
+		)
+		await _runner.simulate_frames(1, 17)
+	assert_float(kart.motor.speed_fraction()).is_greater(kart.stats.drift_boost_speed_fraction)
 	assert_bool(left.emitting).is_true()
 
 

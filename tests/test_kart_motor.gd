@@ -254,6 +254,44 @@ func test_the_drift_ramp_can_be_turned_off() -> void:
 	assert_float(_motor.drift_amount).is_equal(0.0)
 
 
+## GAME.md 4.1: the boost is for a drift, not for a shuffle. Held past the minimum but allowed to
+## die, it pays nothing however long it lasted.
+func test_a_drift_that_dies_pays_no_boost() -> void:
+	_use_the_tighten_drift()
+	_input.throttle = 1.0
+	_run(3.0)
+	_input.steer = 1.0
+	_input.handbrake = true
+	_run(_stats.drift_min_duration + 0.3)
+	assert_bool(_motor.drifting).is_true()
+	assert_bool(_motor.boost_earned()).is_true()
+	# Off the power until the kart is crawling: the drift is long enough and far too slow.
+	_input.throttle = 0.0
+	_input.brake = 0.8
+	for i: int in 240:
+		_motor.step(_input, DT)
+		if not _motor.drifting:
+			break
+	assert_float(_motor.speed_fraction()).is_less(_stats.drift_boost_speed_fraction)
+	assert_bool(_motor.boosting()).is_false()
+
+
+## And one carried through at speed pays, which is the whole point of the rule above.
+func test_a_drift_carried_at_speed_pays() -> void:
+	_use_the_tighten_drift()
+	_input.throttle = 1.0
+	_run(3.0)
+	_input.steer = 1.0
+	_input.handbrake = true
+	_run(_stats.drift_min_duration + 0.3)
+	var carried := _motor.speed()
+	_input.handbrake = false
+	_input.steer = 0.0
+	_run(0.1)
+	assert_bool(_motor.boosting()).is_true()
+	assert_float(_motor.speed()).is_greater(carried)
+
+
 func test_a_short_drift_gives_no_boost() -> void:
 	_use_the_tighten_drift()
 	_stats.handbrake_drift_only = false

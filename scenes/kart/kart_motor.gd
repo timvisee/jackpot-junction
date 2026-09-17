@@ -505,10 +505,20 @@ func _step_drift_amount(delta: float) -> void:
 func _end_drift() -> void:
 	drifting = false
 	_kick_remaining = 0.0
-	if drift_time >= stats.drift_min_duration:
+	if boost_earned():
 		boost_time_left = stats.drift_exit_boost_duration
 		forward_speed *= 1.0 + stats.drift_exit_boost
 	drift_time = 0.0
+
+
+## Whether the drift running right now would pay its exit boost if it ended here: long enough
+## to have been meant, and still quick enough to have been a drift rather than a shuffle. The
+## sparks ask the same question, so what the kart promises and what it pays are one answer.
+func boost_earned() -> bool:
+	return (
+		drift_time >= stats.drift_min_duration
+		and speed_fraction() >= stats.drift_boost_speed_fraction
+	)
 
 
 func _step_steering(delta: float) -> void:

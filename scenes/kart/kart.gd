@@ -108,10 +108,10 @@ var _puppet_has_target := false
 var _aim_guide: AimGuide
 var _fall_left := 0.0
 var _graze_cooldown_left := 0.0
-## Whether the kart was drifting last tick and how long that drift had run, so the moment a
-## drift ends having earned its boost can be caught.
+## Whether the kart was drifting last tick and whether that drift had earned its boost, so
+## the moment one ends having earned it can be caught.
 var _was_drifting := false
-var _drift_time_was := 0.0
+var _was_charged := false
 var _menu_steer := 0
 
 
@@ -482,12 +482,12 @@ func _menu_steer_step() -> int:
 ## across the network has the drift and its length from the snapshot but not the boost, and
 ## a receipt nobody else can see is not much of a receipt.
 func _step_drift_sparks() -> void:
-	var charged := motor.drift_time >= stats.drift_min_duration
-	_sparks.set_state(motor.drifting, motor.drifting and charged)
-	if _was_drifting and not motor.drifting and _drift_time_was >= stats.drift_min_duration:
+	var charged := motor.boost_earned()
+	_sparks.set_state(motor.drifting, charged)
+	if _was_drifting and not motor.drifting and _was_charged:
 		_sparks.pop()
 	_was_drifting = motor.drifting
-	_drift_time_was = motor.drift_time
+	_was_charged = charged
 
 
 ## The floor point under the mouse, as a direction from the kart, for free aim on keyboard.

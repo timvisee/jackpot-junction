@@ -87,6 +87,10 @@ enum Model {
 @export var drift_entry_kick_time := 0.15
 @export var drift_speed_decay := 0.05
 @export var drift_min_duration := 0.6
+## Fraction of top speed the kart has to still be carrying when the drift ends for the boost
+## to be paid. A drift that has been allowed to die is not a drift worth rewarding, and
+## without this a slow shuffle held for the minimum collects the same as a corner taken well.
+@export var drift_boost_speed_fraction := 0.5
 @export var drift_exit_boost := 0.2
 @export var drift_exit_boost_duration := 0.8
 
