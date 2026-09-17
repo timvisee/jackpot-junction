@@ -185,9 +185,11 @@ func _exit_tree() -> void:
 	Events.life_restored.disconnect(_on_life_restored)
 
 
-## Shows a HUD block and the control hint for a human slot.
+## Shows a HUD block and the control hint for a human slot. Only for a human at this machine:
+## a corner block, a hand of cards and a joker pick are all things somebody here has to be able
+## to answer, and a host watching a player on the other end of a wire cannot answer any of them.
 func add_block(slot: PlayerSlot) -> void:
-	if _blocks.has(slot.index):
+	if _blocks.has(slot.index) or not slot.is_local_human():
 		return
 	_blocks[slot.index] = _make_block(slot)
 	var hand := JokerHand.new()

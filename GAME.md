@@ -876,7 +876,10 @@ In shared-screen play the camera is the same for everyone.
 ### 8.3 HUD and feedback
 
 Each player has a HUD block. In shared-screen play the blocks sit in the four
-corners, in single-player and online only the local block is shown.
+corners, in single-player and online only the local block is shown. Local means
+somebody at this machine: a block, a hand of cards and a joker pick are all things
+a player here has to be able to answer, so a host never shows them for a player at
+the other end of a wire, who has their own screen for all three.
 
 - **Banked score**, large.
 - **Pot** as `coins × mult = value`, updating live.

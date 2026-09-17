@@ -76,7 +76,9 @@ func test_client_joins_takes_over_a_bot_drives_it_and_hands_it_back_on_leaving()
 	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
 	host_match.name = "Match"
 	host_match.rules = _quick_rules()
-	host_match.with_hud = false
+	# The host has a HUD of its own, so what it puts on its own screen for a player at the other
+	# end of a wire is part of what this is checking.
+	host_match.with_hud = true
 	host_match.offer_size = 0
 	_host_root.add_child(host_match)
 	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
@@ -103,6 +105,12 @@ func test_client_joins_takes_over_a_bot_drives_it_and_hands_it_back_on_leaving()
 	assert_int(client_session.local_slot).is_equal(1)
 	assert_bool(host_match.slots[1].input is NetInput).is_true()
 	assert_bool(host_match.slots[1].is_human()).is_true()
+	# The host drives one kart, so it has one corner block, one hand and one joker pick. The
+	# player on the other end of the wire has their own screen for all three.
+	assert_bool(host_match.slots[1].is_local_human()).is_false()
+	assert_array(host_match.hud._blocks.keys()).is_equal([0])
+	assert_array(host_match.hud._hands.keys()).is_equal([0])
+	assert_array(host_match.hud._pickers.keys()).is_equal([0])
 	var seen := await _wait_until(
 		func() -> bool: return client_match.puppet_karts.size() >= 2, 4000
 	)
