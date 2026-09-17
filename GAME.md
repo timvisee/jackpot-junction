@@ -1199,7 +1199,9 @@ paused.
 A practice room reached straight from the title screen, before anybody starts a
 real match. Nobody else is in it: no bots, no clock, no score to protect. It
 runs an ordinary match on its own map with the timer switched off, so nothing
-ever ends and the player can take as long as they like.
+ever ends and the player can take as long as they like. There is no countdown
+either, so no start gantry and no start tones: the player is let out onto the
+floor rather than held on a grid for a race that is not being run.
 
 ```
 ################################

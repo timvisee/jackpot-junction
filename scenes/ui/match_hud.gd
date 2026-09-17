@@ -304,10 +304,12 @@ func _kind_color(joker: Joker) -> String:
 func _update_banner(delta: float) -> void:
 	match match_node.state:
 		Match.State.COUNTDOWN:
+			# A room with no countdown, like the Garage, holds nobody on a grid and gets no
+			# gantry and no flag: it is a place to drive around in, not a race being started.
 			_banner.visible = false
-			_light.visible = true
+			_light.visible = match_node.rules.countdown > 0.0
 			_light.set_countdown(match_node.countdown_lamps())
-			_go_left = 0.8
+			_go_left = 0.8 if match_node.rules.countdown > 0.0 else 0.0
 		Match.State.PLAYING:
 			_go_left -= delta
 			_banner.visible = _go_left > 0.0

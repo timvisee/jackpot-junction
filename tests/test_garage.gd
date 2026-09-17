@@ -50,6 +50,9 @@ func test_the_room_runs_one_player_no_bots_and_no_clock() -> void:
 	assert_float(match_node.time_left).is_equal(left)
 	assert_int(match_node.state).is_equal(Match.State.PLAYING)
 	assert_bool(match_node.hud._timer.visible).is_false()
+	# Nobody is held on a grid in here, GAME.md 9.4: no countdown, so no gantry and no tones.
+	assert_float(match_node.rules.countdown).is_equal(0.0)
+	assert_bool(match_node.hud._light.visible).is_false()
 
 
 func test_shooting_a_target_pays_the_shooter() -> void:
