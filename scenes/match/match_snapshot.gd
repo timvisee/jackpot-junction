@@ -9,9 +9,33 @@ extends RefCounted
 static var _all_items: PowerUpTable
 
 
-## Everything a client needs to render the match this tick.
+## Everything a client needs to render the match this tick. One section per kind of thing on
+## the table, each of which is its own question and answers it on its own.
 static func build(match_node: Match) -> Dictionary:
-	var slot_data: Array = []
+	return {
+		"state": match_node.state,
+		"time": match_node.time_left,
+		"countdown": match_node.countdown_left,
+		"payout": match_node.arena.junction.payout_multiplier,
+		"slots": _slots(match_node),
+		"karts": _karts(match_node),
+		"bullets": _bullets(match_node),
+		"pickups": _pickups(match_node),
+		"turrets": _turrets(match_node),
+		"bombs": _bombs(match_node),
+		"stains": _stains(match_node),
+		"jackpots": _jackpots(match_node),
+		"crates": _crates(match_node),
+		"flush": _flush(match_node),
+		"bounty": match_node.bounty_slot,
+		"bounty_left": match_node.bounty_left,
+	}
+
+
+## The players themselves: what they have scored and are carrying, and the joker pick in front
+## of them if one is open.
+static func _slots(match_node: Match) -> Array:
+	var data: Array = []
 	for slot: PlayerSlot in match_node.slots:
 		var kart := slot.kart
 		var entry := {
@@ -33,23 +57,32 @@ static func build(match_node: Match) -> Dictionary:
 			"stats": slot.stats.to_array(),
 		}
 		if slot.offer != null and not slot.offer.is_done():
-			var ids: Array = []
-			for joker: Joker in slot.offer.choices:
-				ids.append(String(joker.id))
-			entry["offer"] = {
-				"stage": slot.offer.stage,
-				"selected": slot.offer.selected,
-				"choices": ids,
-				"chosen": String(slot.offer.chosen.id) if slot.offer.chosen != null else "",
-			}
-		slot_data.append(entry)
-	var karts: Array = []
+			entry["offer"] = _offer(slot.offer)
+		data.append(entry)
+	return data
+
+
+static func _offer(offer: JokerOffer) -> Dictionary:
+	var ids: Array = []
+	for joker: Joker in offer.choices:
+		ids.append(String(joker.id))
+	return {
+		"stage": offer.stage,
+		"selected": offer.selected,
+		"choices": ids,
+		"chosen": String(offer.chosen.id) if offer.chosen != null else "",
+	}
+
+
+## Where every kart is and what it is doing, which is most of what a client draws.
+static func _karts(match_node: Match) -> Array:
+	var data: Array = []
 	for node: Node in match_node.get_children():
 		var kart := node as Kart
 		if kart == null:
 			continue
 		(
-			karts
+			data
 			. append(
 				{
 					"id": kart.get_instance_id(),
@@ -75,10 +108,14 @@ static func build(match_node: Match) -> Dictionary:
 				}
 			)
 		)
-	var bullet_data: Array = []
+	return data
+
+
+static func _bullets(match_node: Match) -> Array:
+	var data: Array = []
 	for bullet: Bullet in match_node.bullets.bullets:
 		(
-			bullet_data
+			data
 			. append(
 				{
 					"id": bullet.get_instance_id(),
@@ -91,7 +128,12 @@ static func build(match_node: Match) -> Dictionary:
 				}
 			)
 		)
-	var pickup_data: Array = []
+	return data
+
+
+## Everything lying on the floor, each kind carrying what it takes to build the right one back.
+static func _pickups(match_node: Match) -> Array:
+	var data: Array = []
 	for node: Node in match_node.arena.pickups.get_children():
 		var pickup := node as Pickup
 		if pickup == null or pickup.is_queued_for_deletion():
@@ -120,26 +162,37 @@ static func build(match_node: Match) -> Dictionary:
 			entry["joker"] = String(card.joker.id)
 		else:
 			continue
-		pickup_data.append(entry)
-	var turret_data: Array = []
+		data.append(entry)
+	return data
+
+
+static func _turrets(match_node: Match) -> Array:
+	var data: Array = []
 	for node: Node in _own_nodes(match_node, &"turrets"):
 		var turret := node as Turret
 		if turret != null and turret.alive:
-			turret_data.append(
-				{
-					"id": turret.get_instance_id(),
-					"x": turret.global_position.x,
-					"z": turret.global_position.z,
-					"h": turret.rotation.y,
-					"c": turret.color
-				}
+			(
+				data
+				. append(
+					{
+						"id": turret.get_instance_id(),
+						"x": turret.global_position.x,
+						"z": turret.global_position.z,
+						"h": turret.rotation.y,
+						"c": turret.color,
+					}
+				)
 			)
-	var bomb_data: Array = []
+	return data
+
+
+static func _bombs(match_node: Match) -> Array:
+	var data: Array = []
 	for node: Node in _own_nodes(match_node, &"bombs"):
 		var bomb := node as Bomb
 		if bomb != null and bomb.alive:
 			(
-				bomb_data
+				data
 				. append(
 					{
 						"id": bomb.get_instance_id(),
@@ -150,12 +203,16 @@ static func build(match_node: Match) -> Dictionary:
 					}
 				)
 			)
-	var stain_data: Array = []
+	return data
+
+
+static func _stains(match_node: Match) -> Array:
+	var data: Array = []
 	for node: Node in _own_nodes(match_node, &"oil_stains"):
 		var stain := node as OilStain
 		if stain != null and not stain.is_queued_for_deletion():
 			(
-				stain_data
+				data
 				. append(
 					{
 						"id": stain.get_instance_id(),
@@ -164,35 +221,30 @@ static func build(match_node: Match) -> Dictionary:
 					}
 				)
 			)
-	var jackpots: Array = []
+	return data
+
+
+static func _jackpots(match_node: Match) -> Array:
+	var data: Array = []
 	for zone: JackpotZone in match_node.arena.jackpot_zones:
-		jackpots.append({"active": zone.active, "chips": zone.chips})
-	var crates: Array = []
+		data.append({"active": zone.active, "chips": zone.chips})
+	return data
+
+
+static func _crates(match_node: Match) -> Array:
+	var data: Array = []
 	for crate: Crate in match_node.arena.crates:
-		crates.append(crate.alive)
-	var flush: Array = []
+		data.append(crate.alive)
+	return data
+
+
+static func _flush(match_node: Match) -> Array:
+	var data: Array = []
 	for pad: FlushPad in match_node.arena.flush_pads:
-		flush.append(
+		data.append(
 			{"owner": pad.owner_slot, "color": pad.owner_color, "disabled": pad.disabled_left}
 		)
-	return {
-		"state": match_node.state,
-		"time": match_node.time_left,
-		"countdown": match_node.countdown_left,
-		"payout": match_node.arena.junction.payout_multiplier,
-		"slots": slot_data,
-		"karts": karts,
-		"bullets": bullet_data,
-		"pickups": pickup_data,
-		"turrets": turret_data,
-		"bombs": bomb_data,
-		"stains": stain_data,
-		"jackpots": jackpots,
-		"crates": crates,
-		"flush": flush,
-		"bounty": match_node.bounty_slot,
-		"bounty_left": match_node.bounty_left,
-	}
+	return data
 
 
 ## Renders a host snapshot on a match_node.puppet match.
