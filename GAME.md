@@ -821,6 +821,11 @@ corners, in single-player and online only the local block is shown.
   picker and the start-of-match hint follow the same rule, so a player who picks
   up a pad mid-match sees gamepad buttons everywhere.
 - **Match timer** at the top centre, turning red during Last Call.
+- **Start gantry**: the countdown is a horizontal rack of five lamps hung over the
+  middle of the screen, the way a racing track starts a field, rather than a number.
+  They fill up red left to right across the three seconds and the whole row turns
+  green on the drop, under the GO. A driver on the grid watches the lights, not a
+  clock.
 - **Kill feed** in the top right: the last five kills, newest first, reading as
   "P1 shot P2", "P1 rammed P2", "P1 bombed P2", "P1 shoved P2 in" for a pit
   shove, "P2 fell in" for a fall nobody caused and "P2 wrecked itself" for a

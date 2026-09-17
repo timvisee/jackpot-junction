@@ -25,6 +25,7 @@ var match_node: Match
 var _timer: Label
 var _scoreboard: Scoreboard
 var _banner: Label
+var _light: StartLight
 var _blocks: Dictionary[int, Dictionary] = {}
 ## The cash-out tally each slot has in the air, so a run of them climbs one number.
 var _tallies: Dictionary[int, FloatingText] = {}
@@ -50,6 +51,12 @@ func _ready() -> void:
 	add_child(_scoreboard)
 	_banner = _label(96, Control.PRESET_CENTER)
 	_banner.visible = false
+	_light = StartLight.new()
+	_light.name = "StartLight"
+	# Above the middle of the screen, so the GO that follows it has the centre to itself.
+	_light.hang(50.0)
+	_light.visible = false
+	add_child(_light)
 	for slot: PlayerSlot in match_node.slots:
 		if slot.is_local_human():
 			add_block(slot)
@@ -297,13 +304,16 @@ func _kind_color(joker: Joker) -> String:
 func _update_banner(delta: float) -> void:
 	match match_node.state:
 		Match.State.COUNTDOWN:
-			_banner.visible = true
-			_banner.text = str(ceili(match_node.countdown_left))
+			_banner.visible = false
+			_light.visible = true
+			_light.set_countdown(match_node.countdown_left, match_node.rules.countdown)
 			_go_left = 0.8
 		Match.State.PLAYING:
 			_go_left -= delta
 			_banner.visible = _go_left > 0.0
 			_banner.text = "GO"
+			_light.visible = _go_left > 0.0
+			_light.set_go()
 		Match.State.LAST_CALL:
 			var pulse := (
 				Game.settings.flash_reduction or fmod(Time.get_ticks_msec() * 0.001, 1.0) < 0.5
@@ -314,6 +324,7 @@ func _update_banner(delta: float) -> void:
 			_banner.text = "LAST CALL"
 		_:
 			_banner.visible = false
+			_light.visible = false
 
 
 func _on_state_changed(state: int) -> void:
