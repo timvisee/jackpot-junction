@@ -44,17 +44,22 @@ static func build_body(kart: Kart) -> Dictionary:
 ## marks are laid here rather than at a fraction of the kart's length that was nearly right: the
 ## marks were coming down a quarter of a metre behind the wheels meant to be making them. The
 ## rear wheels do not steer, so one measurement stands for the whole match.
+##
+## Measured from the middle of the tyre itself rather than from the point the model hangs it
+## from. On this model the wheel's own origin sits at its inner face, a tyre's width inboard of
+## where the rubber actually meets the floor, which laid the marks between the wheels.
 static func rear_axle(kart: Kart, wheels: Array[MeshInstance3D]) -> Vector2:
 	var found := Vector2.ZERO
 	var count := 0
 	for wheel: MeshInstance3D in wheels:
 		if not wheel.name.to_lower().contains("back"):
 			continue
-		var at := kart.to_local(wheel.global_position)
+		var to_kart := kart.global_transform.affine_inverse() * wheel.global_transform
+		var at := (to_kart * wheel.get_aabb()).get_center()
 		found += Vector2(absf(at.x), at.z)
 		count += 1
 	if count == 0:
-		return Vector2(kart.stats.width * 0.31, kart.stats.length * 0.25)
+		return Vector2(kart.stats.width * 0.43, kart.stats.length * 0.25)
 	return found / float(count)
 
 

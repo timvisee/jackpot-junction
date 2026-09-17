@@ -526,7 +526,11 @@ assigns physical devices to player slots, see 10.2.
   Marks fade out over 20 s. Segments are capped per kart to bound the cost. They
   are laid where the model's own rear wheels are, measured off it rather than
   guessed from the kart's length, so they come down under the wheels making them
-  instead of trailing a hand's width behind the kart.
+  instead of trailing a hand's width behind the kart. What is measured is the
+  middle of each tyre, not the point the model hangs the wheel from: that sits at
+  the inner face, a tyre's width inboard of where the rubber meets the floor, and
+  taking it for the contact patch drew the marks between the wheels rather than
+  under them.
 - **Smoke**: a faint exhaust particle trail whose rate scales with throttle,
   with bursts on drift entry, drift exit boost, turbo pads and Boost.
 
