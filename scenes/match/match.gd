@@ -18,8 +18,9 @@ const BEAT_DOWNBEAT := 1.4
 const BOUNTY_RETRY := 5.0
 ## Lamps on the start gantry, GAME.md 8.3. The rack and the start tones are one countdown: a
 ## lamp lights and a tone plays together, so however long the countdown is set to, there are
-## this many of both.
-const COUNTDOWN_LAMPS := 5
+## this many of both. Three of them over the usual three seconds is a lamp a second, which is
+## the pace anyone counting a field down actually counts at.
+const COUNTDOWN_LAMPS := 3
 
 @export var rules: MatchRules
 @export var power_ups: PowerUpTable

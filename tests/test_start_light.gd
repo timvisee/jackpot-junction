@@ -10,8 +10,8 @@ func test_the_lamps_fill_up_across_the_countdown_and_turn_green_on_the_drop() ->
 	light.set_countdown(1)
 	assert_int(light.lit).is_equal(1)
 	assert_bool(light.go).is_false()
-	light.set_countdown(3)
-	assert_int(light.lit).is_equal(3)
+	light.set_countdown(StartLight.LAMPS)
+	assert_int(light.lit).is_equal(StartLight.LAMPS)
 	# Never past the rack, whatever it is handed.
 	light.set_countdown(StartLight.LAMPS + 4)
 	assert_int(light.lit).is_equal(StartLight.LAMPS)
@@ -41,7 +41,10 @@ func test_a_lamp_lights_with_every_start_tone() -> void:
 	assert_array(tones).is_equal([1])
 	while match_node.state == Match.State.COUNTDOWN:
 		await runner.simulate_frames(1, 1)
-	assert_array(tones).is_equal([1, 2, 3, 4, 5])
+	var every_lamp: Array[int] = []
+	for i: int in Match.COUNTDOWN_LAMPS:
+		every_lamp.append(i + 1)
+	assert_array(tones).is_equal(every_lamp)
 	assert_int(Match.COUNTDOWN_LAMPS).is_equal(StartLight.LAMPS)
 
 
