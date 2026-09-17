@@ -1,6 +1,6 @@
 class_name MenuTheme
 extends RefCounted
-## Shared helpers for the menu screens: a title, a button column, a full-screen background.
+## Shared helpers for the menu screens: the screen itself, a title, rows of options, buttons.
 
 
 static func background(parent: Control) -> void:
@@ -9,6 +9,19 @@ static func background(parent: Control) -> void:
 	back.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	parent.add_child(back)
 	parent.move_child(back, 0)
+
+
+## A screen: the background behind it and a column down the middle of it, which is the shape
+## every menu in the game has. Returns the column to fill.
+static func screen(parent: Control, separation: int = 16) -> VBoxContainer:
+	background(parent)
+	var centre := CenterContainer.new()
+	centre.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	parent.add_child(centre)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", separation)
+	centre.add_child(column)
+	return column
 
 
 static func title(text: String, size: int = 72) -> Label:

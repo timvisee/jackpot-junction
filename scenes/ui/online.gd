@@ -10,13 +10,7 @@ var status: Label
 
 
 func _ready() -> void:
-	MenuTheme.background(self)
-	var centre := CenterContainer.new()
-	centre.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(centre)
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 16)
-	centre.add_child(column)
+	var column := MenuTheme.screen(self, 16)
 	column.add_child(MenuTheme.title("Play online", 64))
 	column.add_child(
 		MenuTheme.subtitle(

@@ -32,13 +32,7 @@ var _steer_was_down: Dictionary[String, bool] = {}
 
 
 func _ready() -> void:
-	MenuTheme.background(self)
-	var centre := CenterContainer.new()
-	centre.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(centre)
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 16)
-	centre.add_child(column)
+	var column := MenuTheme.screen(self, 16)
 	column.add_child(MenuTheme.title("Lobby", 64))
 	_players_label = RichTextLabel.new()
 	_players_label.bbcode_enabled = true

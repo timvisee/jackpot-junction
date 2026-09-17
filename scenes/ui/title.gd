@@ -5,14 +5,8 @@ var play_button: Button
 
 
 func _ready() -> void:
-	MenuTheme.background(self)
-	var centre := CenterContainer.new()
-	centre.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(centre)
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 18)
+	var column := MenuTheme.screen(self, 18)
 	column.alignment = BoxContainer.ALIGNMENT_CENTER
-	centre.add_child(column)
 	column.add_child(MenuTheme.title("Jackpot Junction", 96))
 	column.add_child(
 		MenuTheme.subtitle("Collect chips. Build your mult. Cash out before they get you.")
