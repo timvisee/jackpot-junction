@@ -396,6 +396,19 @@ func _on_mult_gained(slot: int, amount: float, reason: StringName) -> void:
 		)
 
 
+## The tally this slot still has in the air, or null when it has none. Read out as a plain
+## value first and checked before it is given a type: a slot naming a label that has already
+## gone is the ordinary case here, and assigning a freed instance to a typed variable is itself
+## the error rather than something a later check could catch.
+func _running_tally(slot: int) -> FloatingText:
+	var previous: Variant = _tallies.get(slot)
+	if previous == null or not is_instance_valid(previous):
+		return null
+	var label: FloatingText = previous
+	# Already on its way out: extending it would put the coins on a label nobody will see.
+	return null if label.is_queued_for_deletion() else label
+
+
 ## A cash-out finished. A player parked on the Junction while the Royal Flush pads trickle
 ## finishes one every second or so, each of a single coin, so a run of them is shown as one
 ## number climbing rather than as a fresh label, a fresh shower of chips and a fresh thump
@@ -404,16 +417,20 @@ func _on_bank_completed(slot: int, coins: int, mult: float, total: int) -> void:
 	var kart := _kart(slot)
 	if kart == null:
 		return
-	var running: FloatingText = _tallies.get(slot)
-	if running != null and is_instance_valid(running):
+	var running := _running_tally(slot)
+	if running != null:
 		running.extend_to(running.total() + total)
 		running.global_position = kart.global_position + Vector3(0.0, 1.2, 0.0)
 		return
 	var prefix := "%d × %s = " % [coins, _format_mult(mult)]
 	var big := total >= 500
-	_tallies[slot] = FloatingText.spawn_counting(
+	var tally := FloatingText.spawn_counting(
 		match_node, kart.global_position, prefix, total, Palette.CHIP_GOLD, 96 if big else 72, 1.8
 	)
+	_tallies[slot] = tally
+	# A tally takes itself off the screen when it has had its time, so the slot lets go of it at
+	# the same moment rather than holding the name of something that is not there any more.
+	tally.tree_exited.connect(func() -> void: _tallies.erase(slot))
 	ChipBurst.spawn(
 		match_node,
 		kart.global_position,

@@ -49,3 +49,32 @@ func test_a_run_of_cash_outs_climbs_one_number() -> void:
 	await runner.simulate_frames(180, 17)
 	assert_int(_tallies(match_node).size()).is_equal(0)
 	assert_bool(kart.alive).is_true()
+
+
+## A tally that has come and gone leaves its slot pointing at a label that no longer exists, and
+## the next cash-out has to start a fresh one rather than trip over the old one's ghost.
+func test_a_cash_out_after_the_last_tally_has_gone_starts_a_new_one() -> void:
+	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	rules.countdown = 0.1
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.offer_size = 0
+	var runner := scene_runner(match_node)
+	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
+	match_node.start(inputs, 17)
+	await runner.simulate_frames(30, 17)
+	var hud := match_node.hud
+	Events.bank_completed.emit(0, 5, 2.0, 10)
+	await runner.simulate_frames(2, 17)
+	assert_int(_tallies(match_node).size()).is_equal(1)
+	# Let it run out and go, which leaves the slot naming something that has been freed.
+	await runner.simulate_frames(180, 17)
+	assert_int(_tallies(match_node).size()).is_equal(0)
+	# The next one banks normally: a label of its own, with its own equation on it.
+	Events.bank_completed.emit(0, 7, 3.0, 21)
+	await runner.simulate_frames(2, 17)
+	assert_int(_tallies(match_node).size()).is_equal(1)
+	var fresh: FloatingText = hud._tallies[0]
+	assert_bool(is_instance_valid(fresh)).is_true()
+	assert_int(fresh.total()).is_equal(21)
+	assert_str(fresh.text).contains("×")
