@@ -21,11 +21,52 @@ func _start_match(inputs: Array[KartInput]) -> Match:
 	return match_node
 
 
-func test_only_a_local_player_kart_carries_the_voices() -> void:
+func test_every_kart_has_a_voice_and_only_the_driven_one_has_all_of_it() -> void:
 	var match_node := _start_match([PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()])
 	await _runner.simulate_frames(12, 17)
-	assert_object(match_node.kart_of(0).sound).is_not_null()
-	assert_object(match_node.kart_of(1).sound).is_null()
+	var mine := match_node.kart_of(0).sound
+	var theirs := match_node.kart_of(1).sound
+	assert_object(mine).is_not_null()
+	assert_object(theirs).is_not_null()
+	assert_bool(mine.lean).is_false()
+	assert_bool(theirs.lean).is_true()
+	# The lean one is an engine and one squeal; the full one has the other two and the chirp.
+	assert_object(mine.get_node_or_null("Lock")).is_not_null()
+	assert_object(mine.get_node_or_null("Chirp")).is_not_null()
+	assert_object(theirs.get_node_or_null("Lock")).is_null()
+	assert_object(theirs.get_node_or_null("Chirp")).is_null()
+
+
+func test_karts_nobody_here_drives_are_quieter_and_not_all_the_same_engine() -> void:
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD)]
+	for i: int in 3:
+		inputs.append(BotInput.new())
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	# The player nodes only take a level headless, so this reads what would be written to them.
+	assert_float(match_node.kart_of(0).sound._trim).is_equal(0.0)
+	assert_float(match_node.kart_of(0).sound._detune).is_equal(1.0)
+	var detunes: Array[float] = []
+	for i: int in 3:
+		var bot := match_node.kart_of(i + 1)
+		detunes.append(bot.sound._detune)
+		# Quieter than the kart being driven here, at the same point on the needle.
+		assert_float(bot.sound._trim).is_less(0.0)
+	# Three engines rather than three copies of one, none of them far off their own pitch.
+	assert_float(absf(detunes[0] - detunes[1])).is_greater(0.01)
+	assert_float(absf(detunes[1] - detunes[2])).is_greater(0.01)
+	assert_float(absf(detunes[0] - detunes[2])).is_greater(0.01)
+	for detune: float in detunes:
+		assert_float(absf(detune - 1.0)).is_less(0.2)
+
+
+func test_a_human_leaving_hands_the_kart_the_lean_voice() -> void:
+	var match_node := _start_match([PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()])
+	await _runner.simulate_frames(12, 17)
+	assert_bool(match_node.kart_of(0).sound.lean).is_false()
+	match_node.leave_human(match_node.slots[0])
+	await _runner.simulate_frames(4, 17)
+	assert_bool(match_node.kart_of(0).sound.lean).is_true()
 
 
 func test_the_ears_follow_the_player_rather_than_the_camera() -> void:

@@ -202,7 +202,7 @@ func leave_human(slot: PlayerSlot) -> void:
 	slot.input = BotInput.new()
 	slot.kart.input = slot.input
 	slot.kart.rebuild_stats()
-	slot.kart.enable_sound(false)
+	slot.kart.enable_sound(true, true)
 	_attach_brain(slot)
 	_refresh_listener()
 	if hud != null:
@@ -230,7 +230,7 @@ func _make_human(slot: PlayerSlot, input: KartInput) -> void:
 	slot.kart.input = slot.input
 	slot.bot_trait = null
 	slot.kart.rebuild_stats()
-	slot.kart.enable_sound(slot.is_local_human())
+	slot.kart.enable_sound(true, not slot.is_local_human())
 	_refresh_listener()
 	if hud != null:
 		hud.add_block(slot)
@@ -405,7 +405,7 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 	kart.turbo_taken.connect(func(_direction: Vector3) -> void: slot.stats.add(&"turbo_pads"))
 	kart.mult_changed.connect(_on_stat_mult.bind(slot))
 	slot.kart = kart
-	kart.enable_sound(slot.is_local_human())
+	kart.enable_sound(true, not slot.is_local_human())
 	if slot.input is BotInput:
 		_attach_brain(slot)
 

@@ -12,7 +12,9 @@ extends Node3D
 ## under the one-shots by [member KartSoundStats.kart_db]: the kart is running the whole time,
 ## so it is the bed the room is heard over rather than an event in it.
 ##
-## Only karts somebody is driving on this machine are given one, see [method Kart.enable_sound].
+## Every kart carries one. A kart nobody here is driving gets a lean version of it: one engine
+## and one squeal covering everything its tires do, no chirp, a few dB down and detuned a little
+## off the recorded pitch so three of them behind you are three engines and not one loud one.
 
 const AUDIO_DIR := "res://assets/audio/kart/"
 const ENGINE_FILE := "engine_loop.ogg"
@@ -22,9 +24,14 @@ const SCRUB_FILE := "tire_scrub.ogg"
 const BUS_KART := &"Kart"
 ## Below this much of a voice there is nothing left to hear, so the player is stopped.
 const SILENT := 0.002
+## How far off its own pitch each slot's engine sits, in steps of
+## [member KartSoundStats.bot_detune], spread either side so nobody sits far from it.
+const DETUNE_STEPS: Array[float] = [0.0, -1.0, 1.0, -2.0, 2.0, -3.0]
 
 var stats: KartSoundStats
 var rev: KartRev
+## One engine and one squeal rather than the full set: everything but the kart being driven here.
+var lean := false
 
 var _kart: Kart
 var _engine: AudioStreamPlayer3D
@@ -40,21 +47,30 @@ var _alive_fade := 1.0
 var _spin_up := 0.0
 var _chirp_wait := 0.0
 var _silent := false
+## This kart's own engine pitch, a little off the recorded one when it is not the one being
+## driven here, and the level every one of its voices is shifted by.
+var _detune := 1.0
+var _trim := 0.0
 
 
-func setup(kart: Kart, sound_stats: KartSoundStats) -> void:
+func setup(kart: Kart, sound_stats: KartSoundStats, is_lean: bool = false) -> void:
 	_kart = kart
 	stats = sound_stats
+	lean = is_lean
 	rev = KartRev.new(stats)
+	if lean:
+		_trim = stats.bot_db
+		_detune = 1.0 + stats.bot_detune * DETUNE_STEPS[kart.slot % DETUNE_STEPS.size()]
 
 
 func _ready() -> void:
 	_silent = Game.is_headless()
 	_engine = _build("Engine", ENGINE_FILE, true)
-	_drift = _build("Drift", SQUEAL_FILE, true)
-	_slide = _build("Slide", SCRUB_FILE, true)
-	_lock = _build("Lock", SCRUB_FILE, true)
-	_chirp = _build("Chirp", SQUEAL_FILE, false)
+	_drift = _build("Drift", SCRUB_FILE if lean else SQUEAL_FILE, true)
+	if not lean:
+		_slide = _build("Slide", SCRUB_FILE, true)
+		_lock = _build("Lock", SCRUB_FILE, true)
+		_chirp = _build("Chirp", SQUEAL_FILE, false)
 	if not _silent:
 		_engine.volume_db = _quiet_db()
 		_engine.play()
@@ -93,12 +109,12 @@ func debug_text() -> String:
 func _step_engine() -> void:
 	if _silent:
 		return
-	_engine.pitch_scale = rev.pitch()
+	_engine.pitch_scale = rev.pitch() * _detune
 	if _alive_fade <= SILENT:
 		if _engine.playing:
 			_engine.stop()
 		return
-	_engine.volume_db = stats.kart_db + rev.volume_db() + linear_to_db(_alive_fade)
+	_engine.volume_db = (stats.kart_db + _trim + rev.volume_db() + linear_to_db(_alive_fade))
 	if not _engine.playing:
 		_engine.play()
 
@@ -122,10 +138,23 @@ func _step_tires(delta: float, driving: bool) -> void:
 		lock = 1.0
 	elif motor.forward_speed > 1.0:
 		lock = _kart.input.brake * _ramp(speed, stats.lock_speed_min, stats.lock_speed_full)
+	var fraction := minf(speed / maxf(motor.stats.top_speed, 0.001), stats.squeal_pitch_cap)
+	if lean:
+		# One squeal for whatever the tires are doing: at the distance a kart like this is
+		# usually heard from, which of the three it is does not survive the trip anyway.
+		_drift_level = _follow(_drift_level, maxf(maxf(drift, slide), lock) * rolling, delta)
+		_voice(
+			_drift,
+			_drift_level,
+			stats.bot_squeal_db,
+			stats.slide_pitch,
+			stats.slide_pitch_speed,
+			fraction
+		)
+		return
 	_drift_level = _follow(_drift_level, drift * rolling, delta)
 	_slide_level = _follow(_slide_level, slide * rolling, delta)
 	_lock_level = _follow(_lock_level, lock * rolling, delta)
-	var fraction := minf(speed / maxf(motor.stats.top_speed, 0.001), stats.squeal_pitch_cap)
 	_voice(
 		_drift, _drift_level, stats.drift_db, stats.drift_pitch, stats.drift_pitch_speed, fraction
 	)
@@ -137,6 +166,8 @@ func _step_tires(delta: float, driving: bool) -> void:
 
 ## A chirp of wheelspin the moment the throttle goes down at a standstill.
 func _step_chirp(delta: float, driving: bool) -> void:
+	if lean:
+		return
 	_chirp_wait = maxf(_chirp_wait - delta, 0.0)
 	var speed := _kart.motor.speed()
 	var room := 1.0 - _ramp(speed, stats.chirp_speed_min, stats.chirp_speed_full)
@@ -167,7 +198,7 @@ func _voice(
 		if player.playing:
 			player.stop()
 		return
-	player.volume_db = stats.kart_db + voice_db + linear_to_db(level)
+	player.volume_db = stats.kart_db + _trim + voice_db + linear_to_db(level)
 	player.pitch_scale = base_pitch + pitch_speed * fraction
 	if not player.playing:
 		player.play()
@@ -184,7 +215,7 @@ static func _ramp(value: float, from: float, to: float) -> float:
 
 
 func _quiet_db() -> float:
-	return stats.kart_db + stats.engine_db + stats.off_throttle_db
+	return stats.kart_db + _trim + stats.engine_db + stats.off_throttle_db
 
 
 func _build(name: String, file: String, looping: bool) -> AudioStreamPlayer3D:

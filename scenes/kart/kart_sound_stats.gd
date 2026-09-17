@@ -84,6 +84,16 @@ extends Resource
 @export var chirp_pitch := 1.25
 @export var chirp_db := -8.0
 
+@export_group("Other karts")
+## A kart nobody here is driving carries a leaner voice: one engine and one squeal covering
+## everything its tires do, and no chirp. It is background, and there can be three of them.
+@export var bot_db := -7.0
+## The one squeal a lean kart makes, in place of the player's drift, slide and locked wheels.
+@export var bot_squeal_db := -6.0
+## Engines a little apart from each other, so several karts are several engines rather than one
+## louder one. Steps of this much either side of the recorded pitch, by slot.
+@export var bot_detune := 0.055
+
 @export_group("Placement")
 ## Metres at which a kart plays at exactly the level written above. It has to be the distance
 ## the ears sit at, [member CameraRig.listener_height], or the attenuation at that distance is

@@ -897,9 +897,17 @@ every kart, so everyone sees when an opponent cashes out.
   completion, fanfare on big pots.
 - **Jackpot**: a soft tick per accrued chip when nearby, and a bell heard by
   everyone when the pile is full.
-- **Karts**: every kart somebody drives on this machine carries its own engine
-  and tires, positional in the room. Everything else a kart does is a one-shot
-  the whole room hears. Sounds are from the Cascadia Games Racing Sound Pack.
+- **Karts**: every kart carries its own engine and tires, positional in the
+  room. The kart somebody is driving here gets all of it; every other kart gets
+  a lean version, one engine and one squeal covering whatever its tires are
+  doing, no wheelspin chirp, 7 dB down and its engine shifted a little off the
+  recorded pitch by slot, so three karts behind you are three engines rather
+  than one louder one. Everything else a kart does is a one-shot the whole room
+  hears. Sounds are from the Cascadia Games Racing Sound Pack.
+- **How far off a kart sounds**: level falls by 6 dB each time the distance
+  doubles from the 2.5 m the ears sit at, so a kart right behind you is close to
+  its written level and one across the room is about 20 dB down. That range is
+  what makes somebody coming up behind you worth hearing.
 - **Rev counter**: the engine is not pitched off road speed. One engine loop is
   stretched across the whole range by a needle that the road pulls on, running
   from an idle at 0.13 to the limiter at 1 and on to 1.30 when the kart is shoved

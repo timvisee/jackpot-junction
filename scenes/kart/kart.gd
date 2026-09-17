@@ -246,19 +246,18 @@ func coast() -> void:
 	menu_open = false
 
 
-## Gives the kart its own engine and tires, or takes them away again, GAME.md 8.4. Only karts
-## somebody is driving on this machine get them; everything else is heard through the one-shots
-## the [Audio] autoload plays for the whole room.
-func enable_sound(on: bool) -> void:
-	if on == (sound != null):
-		return
-	if not on:
+## Gives the kart its own engine and tires, or takes them away again, GAME.md 8.4. A kart
+## nobody here is driving takes the lean version: one engine, one squeal, a little quieter and
+## detuned off the others. Puppets stay silent; their input never arrives to drive one.
+func enable_sound(on: bool, lean: bool = false) -> void:
+	if sound != null and (not on or sound.lean != lean):
 		sound.queue_free()
 		sound = null
+	if not on or sound != null:
 		return
 	sound = KartSound.new()
 	sound.name = "Sound"
-	sound.setup(self, load("res://data/kart/sound.tres"))
+	sound.setup(self, load("res://data/kart/sound.tres"), lean)
 	add_child(sound)
 
 
