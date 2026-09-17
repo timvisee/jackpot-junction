@@ -694,7 +694,7 @@ subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
 - **Junction pad**: a slot-machine roundel with neon rings that light up while
   someone is banking, and a traffic light that turns green during a cash-out.
 - **Jackpot zone**: a vault floor tile with a chip pile that grows, a traffic light
-  for its state, and its chip count painted large on the floor of the zone, the way
+  for its state, and its chip count painted on the floor of the zone, the way
   a Royal Flush pad wears its letter. The number belongs to the square a kart has to
   stand in, so it is on the square rather than floating over it. See 3.5.
 - **Chips**: poker chips, gold for the gold chip, a die for the mult die.

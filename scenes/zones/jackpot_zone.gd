@@ -176,7 +176,9 @@ func _build_signals() -> void:
 	_label = Label3D.new()
 	_label.name = "Counter"
 	_label.font_size = 200
-	_label.pixel_size = 0.01
+	# Sized so two digits sit inside the square with room around them, rather than filling it
+	# corner to corner: it is a marking on the floor, not the floor.
+	_label.pixel_size = 0.005
 	_label.outline_size = 22
 	_label.outline_modulate = Color(0.05, 0.05, 0.06)
 	_label.modulate = Palette.CHIP_GOLD
