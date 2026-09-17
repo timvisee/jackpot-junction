@@ -195,18 +195,18 @@ func test_aimbot_turns_the_shot_toward_the_nearest_enemy() -> void:
 	enemy.global_position = Vector3(0.0, 0.0, 2.0)
 	await _runner.simulate_frames(2, 17)
 	# Without the joker the shot goes exactly where the kart points.
-	var straight := kart._auto_aimed(Vector3(1.0, 0.0, 0.0))
+	var straight := KartAim.steered(kart, Vector3(1.0, 0.0, 0.0))
 	assert_vector(straight).is_equal_approx(Vector3(1.0, 0.0, 0.0), Vector3.ONE * 0.001)
 	_attach(kart, "aimbot")
 	assert_float(kart.cannon.stats.auto_aim_deg).is_equal_approx(14.0, 0.001)
-	var aimed := kart._auto_aimed(Vector3(1.0, 0.0, 0.0))
+	var aimed := KartAim.steered(kart, Vector3(1.0, 0.0, 0.0))
 	var toward := (enemy.global_position - kart.global_position).normalized()
 	assert_float(rad_to_deg(aimed.angle_to(Vector3(1.0, 0.0, 0.0)))).is_equal_approx(14.0, 0.5)
 	assert_float(aimed.angle_to(toward)).is_less(Vector3(1.0, 0.0, 0.0).angle_to(toward))
 	# Nothing in range leaves the shot alone.
 	enemy.global_position = Vector3(18.0, 0.0, 18.0)
 	await _runner.simulate_frames(2, 17)
-	assert_vector(kart._auto_aimed(Vector3(1.0, 0.0, 0.0))).is_equal_approx(
+	assert_vector(KartAim.steered(kart, Vector3(1.0, 0.0, 0.0))).is_equal_approx(
 		Vector3(1.0, 0.0, 0.0), Vector3.ONE * 0.001
 	)
 

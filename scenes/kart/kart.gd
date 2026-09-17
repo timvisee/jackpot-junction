@@ -354,14 +354,9 @@ func is_decoy() -> bool:
 
 
 ## Where the cannon points: forward, or the free-aim direction while a swivel cannon is active.
+## Where this kart is pointing its cannon, see [KartAim].
 func aim_direction() -> Vector3:
-	var forward := -global_basis.z
-	if not cannon.current_stats().free_aim:
-		return forward
-	if input.aim.length() > 0.3:
-		return Vector3(input.aim.x, 0.0, input.aim.y).normalized()
-	var mouse := _mouse_aim_direction()
-	return mouse if mouse != Vector3.ZERO else forward
+	return KartAim.direction(self)
 
 
 func set_aim_arrow_visible(on: bool) -> void:
@@ -542,24 +537,6 @@ func _step_drift_sparks() -> void:
 			Events.drift_boosted.emit(slot)
 	_was_drifting = motor.drifting
 	_was_charged = charged
-
-
-## The floor point under the mouse, as a direction from the kart, for free aim on keyboard.
-func _mouse_aim_direction() -> Vector3:
-	var camera := get_viewport().get_camera_3d()
-	if camera == null:
-		return Vector3.ZERO
-	var mouse := get_viewport().get_mouse_position()
-	var from := camera.project_ray_origin(mouse)
-	var normal := camera.project_ray_normal(mouse)
-	if absf(normal.y) < 0.0001:
-		return Vector3.ZERO
-	var t := (Bullet.HEIGHT - from.y) / normal.y
-	if t < 0.0:
-		return Vector3.ZERO
-	var point := from + normal * t
-	var direction := Vector3(point.x - global_position.x, 0.0, point.z - global_position.z)
-	return direction.normalized() if direction.length() > 0.2 else Vector3.ZERO
 
 
 func _process(_delta: float) -> void:
@@ -870,37 +847,13 @@ func apply_turbo(direction: Vector3) -> void:
 
 
 func _fire() -> void:
-	var direction := _auto_aimed(aim_direction())
+	var direction := KartAim.steered(self, aim_direction())
 	var origin := global_position + direction * cannon_stats.muzzle_offset
 	var shots := cannon.fire(
 		bullet_system, slot, origin, direction, Palette.player_color(color_index), global_position
 	)
 	fired.emit(shots)
 	Events.bullet_fired.emit(slot)
-
-
-## Aimbot, GAME.md 7.3: turns the shot part of the way toward the nearest enemy in front, up
-## to [member CannonStats.auto_aim_deg]. Without the joker that is zero and the shot goes
-## exactly where the kart points.
-func _auto_aimed(direction: Vector3) -> Vector3:
-	var active := cannon.current_stats()
-	if active.auto_aim_deg <= 0.0:
-		return direction
-	var target := Bullet.nearest_target(get_tree(), global_position, slot, active.auto_aim_range)
-	if target == null:
-		return direction
-	return (
-		Bullet
-		. steer_toward(
-			direction,
-			global_position,
-			target.global_position,
-			deg_to_rad(90.0),
-			active.auto_aim_range,
-			deg_to_rad(active.auto_aim_deg)
-		)
-		. normalized()
-	)
 
 
 ## Both kinds of invulnerability, GAME.md 3.6: the spawn protection a kart comes back with,

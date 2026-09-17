@@ -1412,7 +1412,7 @@ res://
 ├── data/              Resource files: jokers, powerups, cannons, coins, ai_traits
 ├── scenes/
 │   ├── arena/         one scene per map plus shared arena elements
-│   ├── kart/          kart.tscn, motor, cannon, pot, holders, trails, sound
+│   ├── kart/          kart.tscn, motor, cannon, aim, contacts, pot, holders, trails, sound
 │   ├── bullet/
 │   ├── pickups/       chip, gold chip, mult die, item box, floor joker, floor item
 │   ├── zones/         junction pad, jackpot zone
