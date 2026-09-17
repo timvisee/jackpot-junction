@@ -64,9 +64,7 @@ func _ready() -> void:
 	_start = _kart().global_position
 	_apply_preset()
 	_build_readout()
-	var pause := PauseMenu.new()
-	pause.name = "PauseMenu"
-	add_child(pause)
+	PauseMenu.add_to(self)
 
 
 func _kart() -> Kart:

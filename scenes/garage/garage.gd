@@ -29,14 +29,8 @@ func _ready() -> void:
 	# A room for learning the controls in, not a nightclub.
 	match_node.arena.disco.enabled = false
 	_add_signs()
-	var overlay := DebugOverlay.new()
-	overlay.name = "DebugOverlay"
-	overlay.match_node = match_node
-	overlay.visible = false
-	add_child(overlay)
-	var pause := PauseMenu.new()
-	pause.name = "PauseMenu"
-	add_child(pause)
+	DebugOverlay.add_to(self, match_node)
+	PauseMenu.add_to(self)
 
 
 ## Pressing join on a device nobody is using brings a second player in, the same as in a match.

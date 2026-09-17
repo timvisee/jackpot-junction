@@ -10,6 +10,16 @@ var _panel: CenterContainer
 var _resume: Button
 
 
+## Hangs one over a room. Online matches cannot pause, see GAME.md 3.8, so a room that is one
+## says so here.
+static func add_to(parent: Node, is_online: bool = false) -> PauseMenu:
+	var menu := PauseMenu.new()
+	menu.name = "PauseMenu"
+	menu.online = is_online
+	parent.add_child(menu)
+	return menu
+
+
 func _ready() -> void:
 	layer = 20
 	process_mode = Node.PROCESS_MODE_ALWAYS

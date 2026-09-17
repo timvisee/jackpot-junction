@@ -17,6 +17,17 @@ var _crossing_start := 0.0
 var _last_crossing := 0.0
 
 
+## Hangs one over a room, watching that room's match and hidden until F3 asks for it. Every
+## room that runs a match wants exactly this, so it is worth one call rather than five lines.
+static func add_to(parent: Node, watching: Match) -> DebugOverlay:
+	var overlay := DebugOverlay.new()
+	overlay.name = "DebugOverlay"
+	overlay.match_node = watching
+	overlay.visible = false
+	parent.add_child(overlay)
+	return overlay
+
+
 func _ready() -> void:
 	layer = 10
 	_label = Label.new()

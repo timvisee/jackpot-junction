@@ -53,15 +53,8 @@ func _ready() -> void:
 				_show_status("Connecting to %s:%d..." % [config.address, config.port])
 		_:
 			match_node.start(config.inputs(), 0, config.colors())
-	var overlay := DebugOverlay.new()
-	overlay.name = "DebugOverlay"
-	overlay.match_node = match_node
-	overlay.visible = false
-	add_child(overlay)
-	var pause := PauseMenu.new()
-	pause.name = "PauseMenu"
-	pause.online = config.online != ""
-	add_child(pause)
+	DebugOverlay.add_to(self, match_node)
+	PauseMenu.add_to(self, config.online != "")
 
 
 ## IPv4 addresses of this machine other than loopback, for the lobby hint.
