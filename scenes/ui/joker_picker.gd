@@ -13,6 +13,14 @@ extends Control
 const LIFT := 26.0
 const PICKED_SCALE := 1.12
 const GAP := 18.0
+## Sharing the screen, GAME.md 8.3: a pick in the middle of one player's half is a wall across
+## the arena for everybody else, who are still driving in it. With somebody else on this screen
+## the row shrinks and drops to the bottom of its own share, and the pane describing the card
+## goes above the cards rather than below, so the table stays readable. Alone on the screen
+## there is nobody to block and the pick keeps the middle.
+const SHARED_SCALE := 0.72
+const SHARED_BASELINE := 0.82
+const LONE_BASELINE := 0.52
 ## How thick the bars of the destroy cross are, and how far they reach over the card.
 const CROSS_WIDTH := 11.0
 const CROSS_REACH := 0.82
@@ -99,19 +107,23 @@ func _build_cross() -> void:
 func _layout(picked: int) -> void:
 	var count := _cards.size()
 	var destroying := _stage == JokerOffer.Stage.REPLACING
+	var shared := columns > 1
+	var factor := SHARED_SCALE if shared else 1.0
+	var card_size := JokerCard.SIZE * factor
+	var gap := GAP * factor
 	var width := size.x / columns
 	var centre := width * (column + 0.5)
-	var row := JokerCard.SIZE.x * count + GAP * maxf(count - 1, 0.0)
+	var row := card_size.x * count + gap * maxf(count - 1, 0.0)
 	var left := centre - row * 0.5
-	var baseline := size.y * 0.52
+	var baseline := size.y * (SHARED_BASELINE if shared else LONE_BASELINE)
 	for i: int in count:
 		var card := _cards[i]
 		var chosen := i == picked
 		var anchor := Vector2(
-			left + (JokerCard.SIZE.x + GAP) * i + JokerCard.SIZE.x * 0.5,
-			baseline - (LIFT if chosen else 0.0)
+			left + (card_size.x + gap) * i + card_size.x * 0.5,
+			baseline - (LIFT * factor if chosen else 0.0)
 		)
-		var scale_to := PICKED_SCALE if chosen else 1.0
+		var scale_to := factor * (PICKED_SCALE if chosen else 1.0)
 		card.scale = card.scale.lerp(Vector2.ONE * scale_to, 0.4)
 		card.position = anchor - card.pivot_offset * card.scale
 		card.modulate = Color.WHITE if chosen else Color(0.66, 0.66, 0.72, 0.95)
@@ -123,11 +135,15 @@ func _layout(picked: int) -> void:
 		_cross.scale = doomed.scale
 		_cross.position = doomed.position
 		_cross.z_index = 2
-	_title.size = Vector2(width, 0.0)
-	_title.position = Vector2(centre - width * 0.5, baseline - JokerCard.SIZE.y - 86.0)
 	var detail := _detail.get_combined_minimum_size()
 	_detail.size = detail
-	_detail.position = Vector2(centre - detail.x * 0.5, baseline + 24.0)
+	# Sharing, everything stacks upward off the bottom of the column; alone, the pane hangs
+	# under the cards where there is room for it.
+	var pane_y := baseline - card_size.y - detail.y - 16.0 if shared else baseline + 24.0
+	_detail.position = Vector2(centre - detail.x * 0.5, pane_y)
+	_title.size = Vector2(width, 0.0)
+	var title_y := pane_y - 52.0 if shared else baseline - card_size.y - 86.0
+	_title.position = Vector2(centre - width * 0.5, title_y)
 
 
 ## Rebuilds the row when the offered jokers or the stage change, and leaves it alone otherwise so

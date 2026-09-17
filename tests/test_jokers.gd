@@ -692,3 +692,32 @@ func test_backfire_shoots_out_of_the_back_while_the_brake_is_held() -> void:
 	assert_vector(KartAim.direction(kart)).is_equal_approx(
 		Vector3(0.0, 0.0, -1.0), Vector3.ONE * 0.01
 	)
+
+
+## GAME.md 8.3: a pick in the middle of one player's half is a wall across the arena for whoever
+## else is on this screen, who is still driving in it. Sharing, it shrinks and drops to the
+## bottom of its own share; alone, there is nobody to block and it keeps the middle.
+func test_a_shared_screen_keeps_the_joker_pick_out_of_the_arena() -> void:
+	var match_node := _start_match(_bots())
+	var kart := match_node.kart_of(0)
+	var offer := JokerOffer.new(kart, CATALOG.offer(match_node.rng, 3, []))
+	var alone: JokerPicker = auto_free(JokerPicker.new())
+	add_child(alone)
+	var shared: JokerPicker = auto_free(JokerPicker.new())
+	shared.columns = 2
+	add_child(shared)
+	await await_idle_frame()
+	alone.size = Vector2(1920.0, 1080.0)
+	shared.size = Vector2(1920.0, 1080.0)
+	alone.show_offer(offer, kart)
+	shared.show_offer(offer, kart)
+	# Lower down the screen, and smaller, so less of the table goes behind it.
+	var alone_card := alone._cards[0]
+	var shared_card := shared._cards[0]
+	assert_float(shared_card.position.y).is_greater(alone_card.position.y)
+	assert_float(shared_card.scale.x).is_less(alone_card.scale.x)
+	# The pane goes above the cards rather than below, so the whole thing stacks off the bottom.
+	assert_float(shared._detail.position.y).is_less(shared_card.position.y)
+	assert_float(alone._detail.position.y).is_greater(alone_card.position.y)
+	# And it keeps to its own half of the screen.
+	assert_float(shared._detail.position.x + shared._detail.size.x).is_less(960.0)

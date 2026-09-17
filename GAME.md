@@ -915,6 +915,11 @@ the other end of a wire, who has their own screen for all three.
   rule separates them from what the joker actually does, and the keys for whatever
   can be done from there sit at the foot in grey. Three things told apart beats one
   paragraph they were all run into.
+- **The respawn pick** takes the middle of the screen when one player is on it:
+  they are dead, and there is nobody else to block. With somebody else sharing the
+  screen it shrinks and drops to the bottom of its own share, with the pane above
+  the cards rather than below, so it stacks off the bottom edge instead of walling
+  off the arena the others are still driving in.
 - **Nitro tank** as a thin bar, lit while burning.
 - **Speedometer** under it: a thin dial and a number in km/h, both turning the
   nitro colour while the bottle is lit. The dial is full at a kart flat out on
