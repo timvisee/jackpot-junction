@@ -1102,6 +1102,18 @@ pixels tall tells you nothing. A readout gives speed, how far the wheel is turne
 kart is sideways, how fast the nose is coming round and how hard the tires are working in g,
 so "it feels off" can be turned into a number and chased. R puts the kart back on the line.
 
+Tab swaps the handling under the kart without stopping it, which is the only honest way to tell
+two of them apart: the same corner, half a second later. The sets it walks through are in
+`data/kart/`, and each is kept for a reason rather than as a souvenir.
+
+| Preset            | What it is                                                              |
+|-------------------|-------------------------------------------------------------------------|
+| `feel_shipped`    | the kart as it was before any of this, frozen, so every change is judged against the real thing |
+| `default`         | the kart itself                                                          |
+| `feel_tighten`    | the drift it had before the oversteer one, see 4.1                       |
+| `feel_snapdrift`  | the kart with the drift ramp off, so the instant drift can be compared    |
+| `feel_grip`       | the rejected tire model, kept so that experiment need not be written twice |
+
 ## 10. Technology
 
 ### 10.1 Engine and project settings
