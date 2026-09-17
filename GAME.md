@@ -985,6 +985,9 @@ every kart, so everyone sees when an opponent cashes out.
   three tire levels.
 - **Combat**: soft pop on fire, ricochet tick on bounce, thud and a short
   deflating sound on death.
+- **Pits**: a tone dropping away as the floor goes from under a kart, pitched well
+  down so it reads as going somewhere rather than arriving. What it lands on is the
+  death sound, which follows on its own when the fall runs out.
 
 ### 8.5 Settings and accessibility
 

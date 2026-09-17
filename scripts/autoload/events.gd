@@ -11,6 +11,8 @@ signal kart_killed(victim_slot: int, killer_slot: int, cause: StringName)
 signal kart_wounded(victim_slot: int, by_slot: int, cause: StringName)
 signal life_restored(slot: int)
 signal kart_respawned(slot: int)
+## The floor has gone from under a kart. The kill follows when it reaches the bottom.
+signal kart_fell(slot: int)
 signal death_banked(slot: int, amount: int)
 signal bank_started(slot: int)
 signal bank_tick(slot: int, points: int)

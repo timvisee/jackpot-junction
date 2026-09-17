@@ -823,6 +823,7 @@ func start_fall() -> void:
 		return
 	falling = true
 	_fall_left = rules.pit_fall_time
+	Events.kart_fell.emit(slot)
 	collision_layer = 0
 	collision_mask = 0
 

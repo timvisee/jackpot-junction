@@ -70,6 +70,7 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"crash": ["kart/crash_1.ogg", "kart/crash_2.ogg", "kart/crash_3.ogg"],
 	&"crash_hard": ["kart/crash_heavy.ogg"],
 	&"death": ["impactGlass_heavy_000.ogg", "impactGlass_heavy_001.ogg"],
+	&"fall": ["back_001.ogg"],
 	&"crate": ["impactPlate_light_000.ogg", "impactPlate_light_001.ogg"],
 	&"turbo": ["maximize_001.ogg", "maximize_002.ogg"],
 	&"bank_tick": ["tick_001.ogg", "tick_002.ogg"],
@@ -383,6 +384,9 @@ func _connect_events() -> void:
 	Events.mult_gained.connect(_on_mult_gained)
 	Events.grazed.connect(func(_slot: int) -> void: play_sfx(&"graze", -4.0))
 	Events.kart_killed.connect(_on_kart_killed)
+	# Dropping away, pitched well down so it reads as going somewhere rather than arriving.
+	# What it lands on is the death sound, which follows on its own when the fall runs out.
+	Events.kart_fell.connect(func(_slot: int) -> void: play_sfx(&"fall", -2.0, 0.05, 0.55))
 	Events.death_banked.connect(
 		func(_slot: int, _amount: int) -> void: play_sfx(&"death_bank", -4.0)
 	)

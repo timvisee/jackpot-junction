@@ -264,10 +264,13 @@ func test_a_pit_kills_a_kart_whatever_its_lives() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)
 	var victim := match_node.kart_of(1)
+	var events := monitor_signals(Events, false)
 	victim.global_position = match_node.arena.pits[0].global_position
 	await _runner.simulate_frames(45, 17)
 	assert_bool(victim.alive).is_false()
 	assert_int(match_node.slots[1].deaths).is_equal(1)
+	# The floor going is its own moment, and its own sound: the kill is the landing.
+	await assert_signal(events).is_emitted("kart_fell", [1])
 
 
 func test_lives_reach_puppets_through_snapshots() -> void:
