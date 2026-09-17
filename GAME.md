@@ -953,6 +953,12 @@ the other end of a wire, who has their own screen for all three.
   row is the largest and last place the smallest, and the players on this screen
   are boxed in their own colour. It stands down in three- and four-player
   shared-screen games, where every player already has a corner block.
+- **Dropping something**: a kart that bursts, or a crate that breaks, throws what
+  it was carrying clear of itself rather than having it appear on the floor. Each
+  piece flies out of the middle of the thing that dropped it and settles onto the
+  spot it is going to lie on, growing from nothing as it goes: the same 0.3 s arc
+  as taking one, run the other way. Anything simply put down, such as what a coin
+  pad puts out, is just there.
 - **Taking something**: a pickup never simply blinks out. Whatever it was, chip,
   gold chip, mult die, joker card or item box, leaves the floor and flows into the
   kart that took it over 0.3 s, easing away slowly and arriving fast, rising a

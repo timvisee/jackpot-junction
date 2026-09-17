@@ -135,7 +135,7 @@ func spawn_chips(
 		var angle := _rng.randf_range(0.0, TAU)
 		var distance := _rng.randf_range(0.8, 3.2)
 		var offset := Vector3(cos(angle), 0.0, sin(angle)) * distance
-		place_drop(chip, clamp_to_floor(origin + offset))
+		place_drop(chip, clamp_to_floor(origin + offset), origin)
 		result.append(chip)
 	return result
 
@@ -147,7 +147,9 @@ func spawn_floor_item(origin: Vector3, item: PowerUp, lifetime: float) -> ItemBo
 	box.lifetime = lifetime
 	var angle := _rng.randf_range(0.0, TAU)
 	var distance := _rng.randf_range(1.6, 2.8)
-	place_drop(box, clamp_to_floor(origin + Vector3(cos(angle), 0.0, sin(angle)) * distance))
+	place_drop(
+		box, clamp_to_floor(origin + Vector3(cos(angle), 0.0, sin(angle)) * distance), origin
+	)
 	return box
 
 
@@ -158,7 +160,9 @@ func spawn_floor_joker(origin: Vector3, joker: Joker, lifetime: float) -> FloorJ
 	card.lifetime = lifetime
 	var angle := _rng.randf_range(0.0, TAU)
 	var distance := _rng.randf_range(1.8, 3.0)
-	place_drop(card, clamp_to_floor(origin + Vector3(cos(angle), 0.0, sin(angle)) * distance))
+	place_drop(
+		card, clamp_to_floor(origin + Vector3(cos(angle), 0.0, sin(angle)) * distance), origin
+	)
 	return card
 
 
@@ -173,11 +177,16 @@ func is_over_pit(point: Vector3) -> bool:
 
 
 ## Puts a freshly dropped pickup down, sending it into the hole if that is where it landed.
-func place_drop(pickup: Pickup, at: Vector3) -> void:
+## Puts a pickup on the floor. Given a [param thrown_from] it is thrown clear of that point
+## rather than simply appearing there, GAME.md 8.3, which is what a kart bursting or a crate
+## breaking looks like from outside.
+func place_drop(pickup: Pickup, at: Vector3, thrown_from: Vector3 = Vector3.INF) -> void:
 	pickup.position = at
 	pickups.add_child(pickup)
 	if is_over_pit(at):
 		pickup.fall_into_pit()
+	elif thrown_from != Vector3.INF:
+		pickup.throw_from(thrown_from)
 
 
 func clamp_to_floor(point: Vector3) -> Vector3:

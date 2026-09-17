@@ -250,3 +250,40 @@ func test_a_near_miss_grazes_for_half_a_mult() -> void:
 	await runner.simulate_frames(40, 17)
 	assert_bool(target.alive).is_true()
 	assert_float(target.pot.mult).is_equal(1.5)
+
+
+## GAME.md 8.3: what a kart drops on the way out is thrown clear of it rather than appearing on
+## the floor, the mirror of the way a pickup is drawn into a kart that takes one.
+func test_dropped_chips_are_thrown_clear_of_the_kart() -> void:
+	var rules := _quick_rules()
+	rules.duration = 60.0
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs, rules)
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	kart.global_position = match_node.arena.junction_position + Vector3(8.0, 0.0, 0.0)
+	var chips := match_node.arena.spawn_chips(kart.global_position, 5, 15.0, 0.0, true)
+	assert_int(chips.size()).is_equal(5)
+	await _runner.simulate_frames(1, 17)
+	# Straight away each one is still up by the kart rather than down where it will lie.
+	for chip: Chip in chips:
+		var lying := chip.global_position + Vector3(0.0, chip.hover, 0.0)
+		assert_float(chip.visual_center().distance_to(kart.global_position)).is_less(
+			lying.distance_to(kart.global_position)
+		)
+	# And once it has landed it sits on its own spot and bobs there like any other.
+	await _runner.simulate_frames(int(Pickup.THROW_TIME * 60.0) + 20, 17)
+	for chip: Chip in chips:
+		assert_float(chip.visual_center().distance_to(chip.global_position)).is_less(1.0)
+
+
+## A pickup put down rather than dropped is simply there: the coin pads do not throw anything.
+func test_a_pad_pickup_is_placed_rather_than_thrown() -> void:
+	var rules := _quick_rules()
+	rules.duration = 60.0
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs, rules)
+	await _runner.simulate_frames(12, 17)
+	var pad := match_node.arena.coin_pads[0]
+	assert_object(pad.current).is_not_null()
+	assert_float(pad.current._thrown_left).is_equal(0.0)
