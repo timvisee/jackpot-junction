@@ -59,6 +59,10 @@ extends Resource
 @export var flush_mult := 3.0
 ## Fraction of the nitro tank a flush refills.
 @export var flush_nitro_refill := 1.0
+## Seconds a flush keeps paying its winner after the pads have cleared, at the rate all four
+## of them paid together. The pads rest for longer than that, so the winner is still ahead
+## when the board comes back and everyone starts again from nothing.
+@export var flush_lock_seconds := 12.0
 ## Seconds the pads stay disabled after a flush.
 @export var flush_disable_time := 20.0
 

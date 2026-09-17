@@ -290,8 +290,14 @@ paints its frame in your colour and takes it from whoever held it.
   growing outward and fading over 0.7 s, so four pads ticking over read as four
   pads ticking over from anywhere on the table. The ring is square like the pad
   and lined up with it, not stood on a corner.
-- Holding all four at once is a Royal Flush. The bonus is unchanged by the
-  trickle: +3 mult and a full nitro tank, announced to everyone with a fanfare.
+- Holding all four at once is a Royal Flush: +3 mult, a full nitro tank, and the
+  four pads keep paying you for 12 s after they have cleared, at the rate all four
+  of them paid together. Without that last part the reward for winning a flush
+  would be that the thing paying you stops. The pads rest for 20 s, so the winner
+  is still being paid for most of it and everyone starts again from nothing when
+  the board comes back. Announced to everyone with a fanfare.
+- While a flush is still paying, the resting pads throw their rings in the winner's
+  colour, since a pad wearing nobody's colour is still handing somebody coins.
 - A claim lapses on its own after 30 s, the frame dimming over the last 12 s of it,
   and driving over your own pad again renews it for another 30 s. A flush has to be
   put together inside that window and then kept up; three pads cannot be banked for

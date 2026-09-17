@@ -72,6 +72,40 @@ func test_a_hot_room_pays_the_pads_faster() -> void:
 	assert_int(kart.pot.coins).is_greater(cold * 2)
 
 
+## GAME.md 3.9: winning a flush clears the board it was won on, so without a lock-in the reward
+## for winning one is that the thing paying you stops. The four pads keep paying their winner for
+## a while as though they were still held.
+func test_a_flush_keeps_paying_its_winner_while_the_pads_rest() -> void:
+	var match_node := _start_match()
+	match_node.rules.flush_pad_income = 4.0
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	var rival := match_node.kart_of(1)
+	for pad: FlushPad in match_node.arena.flush_pads:
+		await _park(kart, pad)
+	assert_int(match_node.flush_lock_slot).is_equal(0)
+	assert_float(match_node.flush_lock_left).is_greater(0.0)
+	for pad: FlushPad in match_node.arena.flush_pads:
+		assert_bool(pad.is_disabled()).is_true()
+		assert_int(pad.owner_slot).is_equal(-1)
+	# Off the pads entirely, and still being paid by them.
+	kart.global_position = match_node.arena.spawn_points[0]
+	kart.pot.reset()
+	rival.pot.reset()
+	await _runner.simulate_frames(60, 17)
+	assert_int(kart.pot.coins).is_greater(0)
+	# Nobody else is, and the rings say whose flush it is.
+	assert_int(rival.pot.coins).is_equal(0)
+	assert_object(match_node.arena.flush_pads[0]._halo_color).is_equal(match_node.slots[0].color())
+	# And it runs out, leaving the board to be fought over again.
+	match_node.flush_lock_left = 0.05
+	await _runner.simulate_frames(20, 17)
+	kart.pot.reset()
+	await _runner.simulate_frames(60, 17)
+	assert_float(match_node.flush_lock_left).is_equal(0.0)
+	assert_int(kart.pot.coins).is_equal(0)
+
+
 func test_every_paid_coin_throws_a_ring_off_the_pad() -> void:
 	var match_node := _start_match()
 	match_node.rules.flush_pad_income = 4.0

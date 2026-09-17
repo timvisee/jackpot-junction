@@ -46,6 +46,9 @@ var intensity: MatchIntensity
 var bot_mirror := BotMirror.new()
 ## The slot with a price on its head, -1 for nobody, and how long the bounty still stands.
 var bounty_slot := -1
+## Whose flush is still paying out and for how much longer, GAME.md 3.9.
+var flush_lock_slot := -1
+var flush_lock_left := 0.0
 var bounty_left := 0.0
 var nav: ArenaNav
 var countdown_left := 0.0
@@ -646,15 +649,33 @@ func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> voi
 ## they pay over a quiet opening lap, so a hot match is worth being out in.
 func _step_flush_income(delta: float) -> void:
 	var rate := rules.flush_pad_income * lerpf(1.0, rules.flush_pad_income_hot, intensity.share())
+	var locked := _step_flush_lock(delta)
 	for pad: FlushPad in arena.flush_pads:
-		if pad.owner_slot < 0 or pad.owner_slot >= slots.size() or pad.is_disabled():
+		var slot := locked if locked >= 0 else pad.owner_slot
+		if slot < 0 or slot >= slots.size():
 			continue
-		var kart := slots[pad.owner_slot].kart
+		if locked < 0 and pad.is_disabled():
+			continue
+		var kart := slots[slot].kart
 		if kart == null or not kart.is_active():
 			continue
 		var coins := pad.take_income(rate, delta)
 		if coins > 0:
 			kart.collect_coins(coins, null)
+			if locked >= 0:
+				# The pads are wearing nobody's colour while they rest, so the rings say whose
+				# flush is still being paid out.
+				pad.pop_halo(slots[slot].color())
+
+
+## Whose flush is still paying, or -1 when none is. A Royal Flush clears the board it was won
+## on, so without this the reward for winning one is that the thing paying you stops: the four
+## pads keep paying the winner for a while as if they were still held, GAME.md 3.9.
+func _step_flush_lock(delta: float) -> int:
+	if flush_lock_left <= 0.0:
+		return -1
+	flush_lock_left = maxf(flush_lock_left - delta, 0.0)
+	return flush_lock_slot if flush_lock_left > 0.0 else -1
 
 
 ## A flush pad changed hands. Holding all four at once is a Royal Flush, GAME.md 3.9: a mult
@@ -666,6 +687,8 @@ func _on_pad_claimed(_pad: FlushPad, kart: Kart) -> void:
 			return
 	for other: FlushPad in arena.flush_pads:
 		other.clear_and_disable(rules.flush_disable_time)
+	flush_lock_slot = kart.slot
+	flush_lock_left = rules.flush_lock_seconds
 	kart.gain_mult(rules.flush_mult, &"flush")
 	kart.refill_nitro(rules.flush_nitro_refill)
 	if kart.slot < slots.size():

@@ -51,6 +51,8 @@ var _halo: MeshInstance3D
 var _halo_material: StandardMaterial3D
 ## How far through its life the last ring is, 1 the moment a coin lands and 0 once it is gone.
 var _halo_left := 0.0
+## The colour of the ring in the air right now, which outlives the claim that threw it.
+var _halo_color := NEUTRAL
 
 
 func _ready() -> void:
@@ -81,9 +83,12 @@ func take_income(rate: float, seconds: float) -> int:
 	return coins
 
 
-## Throws a ring of light off the pad, for a coin landing in its holder's pot.
-func pop_halo() -> void:
+## Throws a ring of light off the pad, for a coin landing in somebody's pot. The colour is
+## given rather than taken from the pad, since a pad resting after a flush is wearing nobody's
+## colour and is still paying out the flush that cleared it.
+func pop_halo(color: Color = Color.TRANSPARENT) -> void:
 	_halo_left = 1.0
+	_halo_color = owner_color if color.a <= 0.0 else color
 
 
 func _physics_process(delta: float) -> void:
@@ -127,7 +132,7 @@ func _step_halo(delta: float) -> void:
 	var age := 1.0 - _halo_left
 	_halo.visible = true
 	_halo.scale = Vector3.ONE * lerpf(1.0, HALO_GROWTH, age)
-	_halo_material.albedo_color = Color(owner_color, HALO_ALPHA * _halo_left * _halo_left)
+	_halo_material.albedo_color = Color(_halo_color, HALO_ALPHA * _halo_left * _halo_left)
 
 
 func _can_claim(kart: Kart) -> bool:
