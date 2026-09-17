@@ -63,7 +63,7 @@ extends Resource
 ## Each squeal's playback speed standing still, and how much of that again it gains at top speed.
 @export var drift_pitch := 1.00
 @export var drift_pitch_speed := 0.30
-@export var drift_db := -6.5
+@export var drift_db := -5.5
 @export var slide_pitch := 0.88
 @export var slide_pitch_speed := 0.22
 @export var slide_db := -9.9
