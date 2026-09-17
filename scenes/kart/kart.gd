@@ -27,8 +27,6 @@ const BLINK_PERIOD := 0.25
 const HURT_BLINK_PERIOD := 0.12
 ## How far the steering has to be pushed to walk the joker cursor one card, GAME.md 3.7.
 const MENU_STEER_STEP := 0.6
-## Speed straight into a wall below which a scrape is not worth a sound.
-const CRASH_SPEED := 2.5
 const RING_RADIUS_EMPTY := 0.6
 const RING_RADIUS_FULL := 1.4
 
@@ -88,6 +86,10 @@ var effects: Array[KartEffect] = []
 var pickup_radius_bonus := 1.0
 var last_bump_slot := -1
 var last_bump_time := -INF
+## Contact state kept for [KartCollisions]: whether the kart was already up against a wall last
+## tick, so leaning on one is heard once, and how long until it may be heard hitting one again.
+var touching_wall := false
+var crash_wait := 0.0
 ## The engine and tire voices, only on karts somebody drives on this machine; null otherwise.
 var sound: KartSound
 
@@ -116,8 +118,6 @@ var _graze_cooldown_left := 0.0
 ## the moment one ends having earned it can be caught.
 var _was_drifting := false
 var _was_charged := false
-## Whether the kart was already up against a wall last tick, so leaning on one crashes once.
-var _touching_wall := false
 var _menu_steer := 0
 
 
@@ -192,6 +192,7 @@ func _physics_process(delta: float) -> void:
 			return
 	_step_protection(delta)
 	_graze_cooldown_left = maxf(_graze_cooldown_left - delta, 0.0)
+	crash_wait = maxf(crash_wait - delta, 0.0)
 	_step_effects(delta)
 	input.poll(delta)
 	_step_nitro(delta)
@@ -206,7 +207,7 @@ func _physics_process(delta: float) -> void:
 	motor.step(input, delta)
 	velocity = motor.velocity
 	move_and_slide()
-	_resolve_collisions()
+	KartCollisions.resolve(self, motor.velocity)
 	motor.velocity = Vector3(velocity.x, 0.0, velocity.z)
 	position.y = 0.0
 	rotation = Vector3(0.0, motor.heading, 0.0)
@@ -913,46 +914,6 @@ func _step_fall(delta: float) -> void:
 			last_bump_slot if now - last_bump_time <= rules.bump_attribution_window else -1
 		)
 		die(&"pit", pusher)
-
-
-func _resolve_collisions() -> void:
-	var pre := motor.velocity
-	var touching_wall := false
-	for i: int in get_slide_collision_count():
-		var collision := get_slide_collision(i)
-		var normal := collision.get_normal()
-		if absf(normal.y) > 0.7:
-			continue
-		var collider := collision.get_collider()
-		var other := collider as Kart
-		var turret := collider as Turret
-		if other != null:
-			last_bump_slot = other.slot
-			last_bump_time = Time.get_ticks_msec() * 0.001
-			if ram_kills():
-				other.take_ram(slot)
-			motor.apply_bump(normal)
-			velocity = motor.velocity
-			if pre.length() > 3.0:
-				Events.kart_bumped.emit(slot)
-		elif turret != null and ramming:
-			turret.destroy()
-		else:
-			motor.velocity = Vector3(velocity.x, 0.0, velocity.z)
-			# The speed the kart wanted to carry into the wall: move_and_slide has already
-			# taken it off the body, but the motor still holds what the driver asked for.
-			var into := -pre.dot(normal)
-			if not motor.apply_wall_glance(normal, pre):
-				motor.apply_wall_hit(into)
-				if not touching_wall and not _touching_wall and into > CRASH_SPEED:
-					# Squarely into a wall rather than a graze along one, and the first frame
-					# of it: holding the throttle against a wall asks for this every tick.
-					Events.kart_crashed.emit(
-						slot, into > stats.wall_hit_threshold * stats.top_speed
-					)
-				touching_wall = true
-			velocity = motor.velocity
-	_touching_wall = touching_wall
 
 
 func _update_trails(delta: float, heading_before: float) -> void:

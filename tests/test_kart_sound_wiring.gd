@@ -73,7 +73,7 @@ func test_driving_into_a_wall_crashes_once_rather_than_every_tick() -> void:
 	var kart := match_node.kart_of(0)
 	# An array, because a lambda captures a plain local by value and would count into its own copy.
 	var crashes: Array[int] = [0]
-	Events.kart_crashed.connect(func(_slot: int, _hard: bool) -> void: crashes[0] += 1)
+	Events.kart_crashed.connect(func(_slot: int, _force: float) -> void: crashes[0] += 1)
 	var wall := match_node.arena.bounds()
 	kart.global_position = Vector3(wall.position.x + wall.size.x - 9.0, 0.0, 0.0)
 	kart.face(Vector3.RIGHT)
@@ -85,6 +85,37 @@ func test_driving_into_a_wall_crashes_once_rather_than_every_tick() -> void:
 	# Still pinned against it at full throttle: it must not keep crashing.
 	await _runner.simulate_frames(60, 17)
 	assert_int(crashes[0]).is_equal(on_impact)
+
+
+func test_a_light_clip_of_a_wall_reports_less_force_than_a_square_hit() -> void:
+	var input := KartInput.new()
+	var match_node := _start_match([input, BotInput.new()])
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	var stats := kart.stats
+	var lightest := KartCollisions.CRASH_SPEED
+	assert_float(KartCollisions.force(stats, lightest)).is_equal_approx(0.0, 0.001)
+	assert_float(KartCollisions.force(stats, stats.top_speed)).is_equal_approx(1.0, 0.001)
+	assert_float(KartCollisions.force(stats, stats.top_speed * 2.0)).is_equal(1.0)
+	# A clip at walking pace has to be far quieter than a shunt, not a step below it.
+	assert_float(KartCollisions.force(stats, 3.5)).is_less(0.2)
+
+
+func test_bouncing_down_a_wall_is_not_a_string_of_bangs() -> void:
+	var input := KartInput.new()
+	var match_node := _start_match([input, BotInput.new()])
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	var crashes: Array[int] = [0]
+	Events.kart_crashed.connect(func(_slot: int, _force: float) -> void: crashes[0] += 1)
+	var wall := match_node.arena.bounds()
+	kart.global_position = Vector3(wall.position.x + wall.size.x - 9.0, 0.0, 0.0)
+	kart.face(Vector3.RIGHT)
+	input.throttle = 1.0
+	input.steer = 0.35
+	# Two seconds of running along the wall, breaking contact and touching it again.
+	await _runner.simulate_frames(120, 17)
+	assert_int(crashes[0]).is_less_equal(int(ceil(2.0 / KartCollisions.CRASH_INTERVAL)) + 1)
 
 
 func test_a_dead_kart_goes_quiet_and_comes_back_on_respawn() -> void:

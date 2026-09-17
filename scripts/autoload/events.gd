@@ -28,8 +28,9 @@ signal countdown_tick(count: int)
 signal bullet_fired(slot: int)
 signal bullet_bounced
 signal kart_bumped(slot: int)
-## A kart into a wall. [code]hard[/code] separates a proper thump from a scrape along it.
-signal kart_crashed(slot: int, hard: bool)
+## A kart into a wall. [code]force[/code] is 0 for the lightest contact worth hearing at all
+## and 1 for a flat-out shunt, so a scrape and a proper thump are not the same sound.
+signal kart_crashed(slot: int, force: float)
 signal turbo_taken(slot: int)
 signal nitro_started(slot: int)
 signal nitro_gained(slot: int)

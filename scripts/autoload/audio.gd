@@ -44,6 +44,15 @@ const BEATS_PER_BAR := 4
 ## The swell that leads into a nitro burn runs backwards into its own hit, so it is played
 ## from this far before the end rather than from the start. Longer lands later and bigger.
 const NITRO_SWELL_LEAD := 0.18
+## A kart into a wall, GAME.md 8.4: the level and the playback speed run between these with how
+## hard it was hit, so clipping a wall is a knock and only a real shunt is a bang. The heavy
+## layer is only added above that much force.
+const CRASH_LIGHT_DB := -24.0
+const CRASH_HARD_DB := -8.0
+const CRASH_HEAVY_DB := -12.0
+const CRASH_HEAVY_FORCE := 0.55
+const CRASH_LIGHT_PITCH := 1.3
+const CRASH_HARD_PITCH := 0.9
 
 ## Effect name to the files it picks from at random. A name with a slash is under
 ## [constant AUDIO_DIR], anything else under [constant SFX_DIR].
@@ -113,6 +122,9 @@ var _excitement_age := 0.0
 var _open := 0.0
 var _filter: AudioEffectLowPassFilter
 var _amplify: AudioEffectAmplify
+## The file each effect played last, so an effect with several never plays the same one twice
+## running. Hearing one sound over and over is what makes a repeated effect wearing.
+var _last_pick: Dictionary[StringName, int] = {}
 var _bank_tick_left := 0.0
 var _bank_pitch := 1.0
 var _rng := RandomNumberGenerator.new()
@@ -243,8 +255,7 @@ func play_sfx(
 	if not LIBRARY.has(name):
 		push_warning("unknown sound effect %s" % name)
 		return
-	var files: Array = LIBRARY[name]
-	var stream := _stream(files[_rng.randi_range(0, files.size() - 1)])
+	var stream := _stream(_pick(name, LIBRARY[name]))
 	if stream == null:
 		return
 	var player := _free_player()
@@ -345,6 +356,18 @@ func _stream(file: String) -> AudioStream:
 	return _streams[file]
 
 
+## One of an effect's files, never the one it played last.
+func _pick(name: StringName, files: Array) -> String:
+	var last: int = _last_pick.get(name, -1)
+	var index := _rng.randi_range(0, files.size() - 1)
+	if last >= 0 and files.size() > 1:
+		index = _rng.randi_range(0, files.size() - 2)
+		if index >= last:
+			index += 1
+	_last_pick[name] = index
+	return files[index]
+
+
 func _free_player() -> AudioStreamPlayer:
 	for player: AudioStreamPlayer in _pool:
 		if not player.playing:
@@ -425,12 +448,20 @@ func _on_nitro_started(_slot: int) -> void:
 	player.play(maxf(stream.get_length() - NITRO_SWELL_LEAD, 0.0))
 
 
-## A kart into a wall. A shallow scrape is a light knock; a proper hit gets the heavy one too.
-## It is one of the loudest things a kart does on purpose: hitting a wall should land.
-func _on_kart_crashed(_slot: int, hard: bool) -> void:
-	play_sfx(&"crash", -8.0 if hard else -15.0, 0.12)
-	if hard:
-		play_sfx(&"crash_hard", -11.0, 0.08)
+## A kart into a wall. [param force] is 0 for the lightest contact worth hearing and 1 for a
+## flat-out shunt. Walls are clipped constantly in an arena this size, so the level and the
+## weight follow it rather than the same bang landing every time.
+func _on_kart_crashed(_slot: int, force: float) -> void:
+	var shaped := clampf(force, 0.0, 1.0)
+	play_sfx(
+		&"crash",
+		lerpf(CRASH_LIGHT_DB, CRASH_HARD_DB, shaped),
+		0.18,
+		lerpf(CRASH_LIGHT_PITCH, CRASH_HARD_PITCH, shaped)
+	)
+	if shaped >= CRASH_HEAVY_FORCE:
+		var over := (shaped - CRASH_HEAVY_FORCE) / (1.0 - CRASH_HEAVY_FORCE)
+		play_sfx(&"crash_hard", lerpf(CRASH_LIGHT_DB, CRASH_HEAVY_DB, over), 0.1)
 
 
 func _on_mult_gained(_slot: int, _amount: float, reason: StringName) -> void:

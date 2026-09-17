@@ -940,8 +940,16 @@ every kart, so everyone sees when an opponent cashes out.
 - **Level**: everything a kart itself makes comes down 5 dB together, so the
   engine flat out sits near -4 dB and the squeals below that. It is running the
   whole time, so it is the bed the rest is heard over rather than an event in
-  it. A kart into a wall sits just under the engine: loud enough to land over
-  the bed, not so loud that clipping a wall is the loudest thing in the room.
+  it. All of it goes to a Kart bus under the effects bus, so one slider in 8.5
+  covers the lot.
+- **Hitting a wall**: walls are clipped constantly in a room this size, so the
+  same bang every time wears out fast. How hard the wall was hit, 0 at the
+  lightest contact worth hearing and 1 straight into it flat out, runs the level
+  from -24 dB up to -8 and the playback speed from 1.3 down to 0.9, and only
+  past 0.55 of it does the heavy layer come in underneath. A kart may be heard
+  hitting a wall once every 0.45 s at most, because bouncing down a wall breaks
+  contact between every touch and each touch would otherwise be another bang.
+  No effect with more than one file ever plays the same one twice running.
 - **What makes those levels real**: a positional voice has its level added to
   its distance attenuation and the sum clamped to a ceiling. So the ears sit at
   exactly the distance a kart is written for, 2.5 m, where that attenuation is
@@ -965,7 +973,10 @@ All settings are saved between sessions, see 10.2.
 
 - **Controls**: rebinding per player for gamepad and keyboard, stick dead
   zone, rumble on or off.
-- **Audio**: master, music and effects volume.
+- **Audio**: master, music, effects and kart volume. The karts have their own
+  because their engine and tires run the whole time rather than in bursts, so
+  how loud that bed should sit is a matter of taste in a way the rest is not.
+  The kart bus is under the effects bus, so the effects slider still scopes it.
 - **Video**: window mode, vsync, render scale.
 - **Accessibility**: screen shake on or off, flash reduction, aim assist
   strength from 0% to 100% of the default and never above it, per player, and

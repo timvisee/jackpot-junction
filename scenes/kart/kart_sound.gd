@@ -18,8 +18,8 @@ const AUDIO_DIR := "res://assets/audio/kart/"
 const ENGINE_FILE := "engine_loop.ogg"
 const SQUEAL_FILE := "tire_squeal.ogg"
 const SCRUB_FILE := "tire_scrub.ogg"
-const BUS_ENGINE := &"Engine"
-const BUS_SFX := &"SFX"
+## Every kart voice goes to its own bus under SFX, so one slider covers the lot, GAME.md 8.5.
+const BUS_KART := &"Kart"
 ## Below this much of a voice there is nothing left to hear, so the player is stopped.
 const SILENT := 0.002
 
@@ -50,11 +50,11 @@ func setup(kart: Kart, sound_stats: KartSoundStats) -> void:
 
 func _ready() -> void:
 	_silent = Game.is_headless()
-	_engine = _build("Engine", ENGINE_FILE, BUS_ENGINE, true)
-	_drift = _build("Drift", SQUEAL_FILE, BUS_SFX, true)
-	_slide = _build("Slide", SCRUB_FILE, BUS_SFX, true)
-	_lock = _build("Lock", SCRUB_FILE, BUS_SFX, true)
-	_chirp = _build("Chirp", SQUEAL_FILE, BUS_SFX, false)
+	_engine = _build("Engine", ENGINE_FILE, true)
+	_drift = _build("Drift", SQUEAL_FILE, true)
+	_slide = _build("Slide", SCRUB_FILE, true)
+	_lock = _build("Lock", SCRUB_FILE, true)
+	_chirp = _build("Chirp", SQUEAL_FILE, false)
 	if not _silent:
 		_engine.volume_db = _quiet_db()
 		_engine.play()
@@ -187,11 +187,11 @@ func _quiet_db() -> float:
 	return stats.kart_db + stats.engine_db + stats.off_throttle_db
 
 
-func _build(name: String, file: String, bus: StringName, looping: bool) -> AudioStreamPlayer3D:
+func _build(name: String, file: String, looping: bool) -> AudioStreamPlayer3D:
 	var player := AudioStreamPlayer3D.new()
 	player.name = name
 	player.stream = _stream(file, looping)
-	player.bus = bus
+	player.bus = BUS_KART
 	player.attenuation_model = AudioStreamPlayer3D.ATTENUATION_INVERSE_DISTANCE
 	player.unit_size = stats.unit_size
 	# Godot adds volume_db to the distance attenuation and only then clamps to max_db, so a

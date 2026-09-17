@@ -212,6 +212,12 @@ func _audio_tab() -> Control:
 			_volume_slider(_settings.sfx_volume, func(v: float) -> void: _settings.sfx_volume = v)
 		)
 	)
+	column.add_child(
+		MenuTheme.row(
+			"Karts",
+			_volume_slider(_settings.kart_volume, func(v: float) -> void: _settings.kart_volume = v)
+		)
+	)
 	column.add_child(MenuTheme.row("Music muted", _check(_settings.music_muted, _set_music_muted)))
 	return column
 
