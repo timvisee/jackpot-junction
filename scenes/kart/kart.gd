@@ -248,7 +248,7 @@ func coast() -> void:
 
 ## Gives the kart its own engine and tires, or takes them away again, GAME.md 8.4. A kart
 ## nobody here is driving takes the lean version: one engine, one squeal, a little quieter and
-## detuned off the others. Puppets stay silent; their input never arrives to drive one.
+## detuned off the others. A puppet counts as driven by somebody, just not here.
 func enable_sound(on: bool, lean: bool = false) -> void:
 	if sound != null and (not on or sound.lean != lean):
 		sound.queue_free()
@@ -271,7 +271,6 @@ func make_puppet() -> void:
 	puppet = true
 	collision_layer = 0
 	collision_mask = 0
-	enable_sound(false)
 	remove_from_group(Bullet.TARGET_GROUP)
 
 
@@ -313,6 +312,7 @@ func apply_puppet_state(state: Dictionary, _delta: float) -> void:
 func _step_puppet(delta: float) -> void:
 	if not _puppet_has_target or not alive:
 		motor.velocity = Vector3.ZERO
+		_step_sound(delta)
 		return
 	_puppet_target += _puppet_velocity * delta
 	var blend := 1.0 - exp(-PUPPET_SMOOTHING * delta)
@@ -325,6 +325,7 @@ func _step_puppet(delta: float) -> void:
 	motor.forward_speed = motor.velocity.dot(motor.forward_vector())
 	_spin_wheels(delta)
 	_update_trails(delta, heading_before)
+	_step_sound(delta)
 
 
 func _step_crown(delta: float) -> void:

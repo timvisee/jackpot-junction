@@ -344,6 +344,9 @@ static func _apply_karts(match_node: Match, entries: Array) -> void:
 				kart.decoy_owner = kart
 			match_node.add_child(kart)
 			kart.make_puppet()
+			# The one this player drives sounds like their own; everybody else's sounds like a
+			# kart somebody else is driving, which is what a bot sounds like, GAME.md 8.4.
+			kart.enable_sound(true, entry["slot"] != match_node.local_slot)
 			kart.global_position = Vector3(entry["x"], 0.0, entry["z"])
 			match_node.puppet_karts[id] = kart
 			if not entry["decoy"] and entry["slot"] < match_node.slots.size():

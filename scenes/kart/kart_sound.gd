@@ -51,10 +51,16 @@ var _silent := false
 ## driven here, and the level every one of its voices is shifted by.
 var _detune := 1.0
 var _trim := 0.0
+## Controls read back off a puppet's movement, the speed they were read from last tick, and
+## what the driver is doing this tick, worked out once and then read by every voice.
+var _read := KartInput.new()
+var _last_speed := 0.0
+var _driver: KartInput
 
 
 func setup(kart: Kart, sound_stats: KartSoundStats, is_lean: bool = false) -> void:
 	_kart = kart
+	_driver = kart.input
 	stats = sound_stats
 	lean = is_lean
 	rev = KartRev.new(stats)
@@ -83,11 +89,30 @@ func step(delta: float) -> void:
 		return
 	var driving := _kart.alive and not _kart.falling
 	_alive_fade = move_toward(_alive_fade, 1.0 if driving else 0.0, stats.engine_fade * delta)
+	_driver = _read_controls(delta)
 	if driving:
-		rev.step(_kart.motor, _kart.input, delta)
+		rev.step(_kart.motor, _driver, delta)
 	_step_engine()
 	_step_tires(delta, driving)
 	_step_chirp(delta, driving)
+
+
+## What the driver is doing. A puppet's controls never arrive over the wire, only where it
+## ended up, so they are read back off its movement instead: speeding up or already going fast
+## is the throttle, slowing down hard is the brake. It is an approximation, but without it a
+## kart somebody else is driving would idle its way around the room.
+func _read_controls(delta: float) -> KartInput:
+	if not _kart.puppet:
+		return _kart.input
+	var motor := _kart.motor
+	var speed := motor.speed()
+	var change := (speed - _last_speed) / maxf(delta, 0.0001)
+	_last_speed = speed
+	var fraction := speed / maxf(motor.stats.top_speed, 0.001)
+	var climbing := change / maxf(motor.stats.acceleration(), 0.001)
+	_read.throttle = clampf(maxf(climbing, fraction), 0.0, 1.0)
+	_read.brake = clampf(-change / maxf(motor.stats.brake_decel, 0.001), 0.0, 1.0)
+	return _read
 
 
 ## One line for the debug overlay: where the needle is, what that does to the loop, and which
@@ -134,10 +159,10 @@ func _step_tires(delta: float, driving: bool) -> void:
 		# Spun out on oil: the tires are scrubbing sideways whatever the slip angle says.
 		slide = 1.0
 	var lock := 0.0
-	if _kart.input.handbrake:
+	if _driver.handbrake:
 		lock = 1.0
 	elif motor.forward_speed > 1.0:
-		lock = _kart.input.brake * _ramp(speed, stats.lock_speed_min, stats.lock_speed_full)
+		lock = _driver.brake * _ramp(speed, stats.lock_speed_min, stats.lock_speed_full)
 	var fraction := minf(speed / maxf(motor.stats.top_speed, 0.001), stats.squeal_pitch_cap)
 	if lean:
 		# One squeal for whatever the tires are doing: at the distance a kart like this is
@@ -171,7 +196,7 @@ func _step_chirp(delta: float, driving: bool) -> void:
 	_chirp_wait = maxf(_chirp_wait - delta, 0.0)
 	var speed := _kart.motor.speed()
 	var room := 1.0 - _ramp(speed, stats.chirp_speed_min, stats.chirp_speed_full)
-	var amount := (_kart.input.throttle * room) if driving else 0.0
+	var amount := (_driver.throttle * room) if driving else 0.0
 	var crossed := _spin_up < stats.chirp_threshold and amount >= stats.chirp_threshold
 	_spin_up = amount
 	if not crossed or _chirp_wait > 0.0 or _silent:

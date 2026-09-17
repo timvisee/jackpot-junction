@@ -900,11 +900,15 @@ every kart, so everyone sees when an opponent cashes out.
 - **Karts**: every kart carries its own engine and tires, positional in the
   room. The kart somebody is driving here gets all of it; every other kart gets
   a lean version, one engine and one squeal covering whatever its tires are
-  doing, no wheelspin chirp, 2 dB down and its engine shifted a little off the
-  recorded pitch by slot, so three karts behind you are three engines rather
-  than one louder one. That trim is small because the distance falloff is
-  already doing the work, and your own engine is a bed running the whole time
-  that anything much quieter simply disappears under. Everything else a kart does is a one-shot the whole room
+  doing, no wheelspin chirp, and its engine shifted a little off the recorded
+  pitch by slot, so three karts behind you are three engines rather than one
+  louder one. A kart somebody else is driving over the network is one of these
+  too: it sounds like any other kart that is not yours.
+- **How loud another kart is**: 2 dB over your own at the distance the ears sit
+  at, which is another kart right alongside, and the falloff takes it from there.
+  Your own engine is a bed running the whole time, so anything much under it
+  simply disappears; a kart has to be able to poke through that bed as it comes
+  past, and be well under it by the time it is across the room. Everything else a kart does is a one-shot the whole room
   hears. Sounds are from the Cascadia Games Racing Sound Pack.
 - **How far off a kart sounds**: level falls by 6 dB each time the distance
   doubles from the 2.5 m the ears sit at, so a kart right behind you is close to

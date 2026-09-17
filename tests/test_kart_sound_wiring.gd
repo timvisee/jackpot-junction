@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const RULES: MatchRules = preload("res://data/match/default.tres")
+const SOUND: KartSoundStats = preload("res://data/kart/sound.tres")
 
 var _runner: GdUnitSceneRunner
 
@@ -46,18 +47,49 @@ func test_karts_nobody_here_drives_are_quieter_and_not_all_the_same_engine() -> 
 	# The player nodes only take a level headless, so this reads what would be written to them.
 	assert_float(match_node.kart_of(0).sound._trim).is_equal(0.0)
 	assert_float(match_node.kart_of(0).sound._detune).is_equal(1.0)
+	# A kart alongside is meant to be as present as your own, so the trim is not what keeps it
+	# in its place; the distance is. What has to hold is that a kart at the range another one is
+	# usually at cannot drown out the engine you are driving.
+	var carried := 20.0 * log(SOUND.unit_size / 10.0) / log(10.0)
+	assert_float(SOUND.bot_db + carried).is_less(-6.0)
 	var detunes: Array[float] = []
 	for i: int in 3:
 		var bot := match_node.kart_of(i + 1)
 		detunes.append(bot.sound._detune)
-		# Quieter than the kart being driven here, at the same point on the needle.
-		assert_float(bot.sound._trim).is_less(0.0)
+		assert_float(bot.sound._trim).is_equal(SOUND.bot_db)
 	# Three engines rather than three copies of one, none of them far off their own pitch.
 	assert_float(absf(detunes[0] - detunes[1])).is_greater(0.01)
 	assert_float(absf(detunes[1] - detunes[2])).is_greater(0.01)
 	assert_float(absf(detunes[0] - detunes[2])).is_greater(0.01)
 	for detune: float in detunes:
 		assert_float(absf(detune - 1.0)).is_less(0.2)
+
+
+func test_a_kart_driven_from_somewhere_else_still_revs_with_its_speed() -> void:
+	# A puppet's controls never come over the wire, so the engine has to be read off where the
+	# kart ended up, or every other player in an online match idles around the room.
+	var match_node := _start_match([PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()])
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(1)
+	kart.make_puppet()
+	kart.enable_sound(true, true)
+	await _runner.simulate_frames(2, 17)
+	var sound := kart.sound
+	var idling := sound.rev.rev
+	# Pulling away: the snapshots say it is moving, and nothing says why.
+	for i: int in 40:
+		kart.motor.velocity = Vector3(mini(i, 30) * 0.35, 0.0, 0.0)
+		kart.motor.forward_speed = kart.motor.velocity.length()
+		sound.step(1.0 / 60.0)
+	assert_float(sound.rev.rev).is_greater(idling + 0.3)
+	assert_float(sound.rev.load).is_greater(0.5)
+	# Stopped again, and it settles.
+	for i: int in 120:
+		kart.motor.velocity = Vector3.ZERO
+		kart.motor.forward_speed = 0.0
+		sound.step(1.0 / 60.0)
+	assert_float(sound.rev.rev).is_less(idling + 0.1)
+	assert_float(sound.rev.load).is_less(0.2)
 
 
 func test_a_human_leaving_hands_the_kart_the_lean_voice() -> void:
