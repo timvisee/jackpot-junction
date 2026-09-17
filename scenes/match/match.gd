@@ -126,14 +126,7 @@ func start(inputs: Array[KartInput], seed: int = 0, colors: Array[int] = []) -> 
 		zone.collected.connect(
 			func(kart: Kart, chips: int) -> void: Events.jackpot_collected.emit(kart.slot, chips)
 		)
-	bullets = BulletSystem.new()
-	bullets.name = "Bullets"
-	add_child(bullets)
-	_add_intensity()
-	camera_rig = CAMERA_SCENE.instantiate()
-	camera_rig.name = "CameraRig"
-	add_child(camera_rig)
-	camera_rig.frame_arena(arena.bounds())
+	_build_systems(false)
 	var karts: Array[Node3D] = []
 	for i: int in mini(inputs.size(), rules.max_players):
 		var slot := PlayerSlot.new(i, inputs[i], colors[i] if i < colors.size() else -1)
@@ -144,11 +137,7 @@ func start(inputs: Array[KartInput], seed: int = 0, colors: Array[int] = []) -> 
 	_refresh_listener()
 	if not Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
 		Input.joy_connection_changed.connect(_on_joy_connection_changed)
-	if with_hud:
-		hud = MatchHud.new()
-		hud.name = "Hud"
-		hud.match_node = self
-		add_child(hud)
+	_build_hud()
 	time_left = rules.duration
 	_bounty_wait = rules.bounty_first_delay
 	_set_frozen(true)
@@ -281,6 +270,33 @@ func _on_joy_connection_changed(device: int, connected: bool) -> void:
 			leave_human(slot)
 
 
+## What a host and a client both have around the arena: the bullets, the excitement meter and
+## the camera framing the floor. The only difference is whether the bullets are driven here or
+## replayed from snapshots, so everything else stays one description rather than two that have
+## to be kept in step by hand.
+func _build_systems(from_snapshots: bool) -> void:
+	bullets = BulletSystem.new()
+	bullets.name = "Bullets"
+	bullets.puppet = from_snapshots
+	add_child(bullets)
+	_add_intensity()
+	camera_rig = CAMERA_SCENE.instantiate()
+	camera_rig.name = "CameraRig"
+	add_child(camera_rig)
+	camera_rig.frame_arena(arena.bounds())
+
+
+## The HUD, when this build wants one. It reads the slots as it is built, so a host adds it once
+## the karts are in and a client adds it empty and lets the snapshots fill it.
+func _build_hud() -> void:
+	if not with_hud:
+		return
+	hud = MatchHud.new()
+	hud.name = "Hud"
+	hud.match_node = self
+	add_child(hud)
+
+
 ## The excitement meter, on the host and on a client alike: both see the same events and the
 ## same snapshot, so the music and the lights wind up together.
 func _add_intensity() -> void:
@@ -322,20 +338,8 @@ func start_puppet() -> void:
 		zone.rules = rules
 		zone.puppet = true
 	arena.junction.puppet = true
-	bullets = BulletSystem.new()
-	bullets.name = "Bullets"
-	bullets.puppet = true
-	add_child(bullets)
-	_add_intensity()
-	camera_rig = CAMERA_SCENE.instantiate()
-	camera_rig.name = "CameraRig"
-	add_child(camera_rig)
-	camera_rig.frame_arena(arena.bounds())
-	if with_hud:
-		hud = MatchHud.new()
-		hud.name = "Hud"
-		hud.match_node = self
-		add_child(hud)
+	_build_systems(true)
+	_build_hud()
 
 
 ## Tells a puppet match which slot the local player has.
