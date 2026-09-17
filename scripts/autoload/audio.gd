@@ -29,9 +29,13 @@ const PEAK_LEVEL := 6
 ## Nothing has refreshed the excitement for this long: no match is running, so wind down.
 const EXCITEMENT_TIMEOUT := 0.5
 ## The music bus opens up as the match heats up: a low-pass filter sweeps from a dulled
-## cutoff to fully open, and a little gain comes in with it.
-const FILTER_CLOSED_HZ := 3800.0
+## cutoff to fully open, and the volume comes up with it. The early levels are meant to sit
+## under the room rather than lead it, so they are both quieter and duller: a lap on a quiet
+## table should sound like a bar with the music on, not like the music.
+const FILTER_CLOSED_HZ := 1700.0
 const FILTER_OPEN_HZ := 20500.0
+## Decibels at level 1 and at the top, against the bus's own setting.
+const COLD_GAIN_DB := -7.5
 const HOT_GAIN_DB := 1.5
 ## How fast the filter follows the meter, per second, so it sweeps rather than snaps.
 const OPEN_FOLLOW := 0.8
@@ -184,7 +188,7 @@ func _step_music_effects(delta: float) -> void:
 	_open = move_toward(_open, excitement_share, OPEN_FOLLOW * delta)
 	# Cutoff by ear rather than by number: an octave is a doubling, so sweep it that way.
 	_filter.cutoff_hz = FILTER_CLOSED_HZ * pow(FILTER_OPEN_HZ / FILTER_CLOSED_HZ, _open)
-	_amplify.volume_db = HOT_GAIN_DB * _open
+	_amplify.volume_db = lerpf(COLD_GAIN_DB, HOT_GAIN_DB, _open)
 
 
 func is_music_muted() -> bool:

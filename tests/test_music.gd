@@ -94,8 +94,10 @@ func test_the_music_bus_sweeps_open_with_the_excitement() -> void:
 	assert_object(Audio._amplify).is_not_null()
 	Audio._open = 0.0
 	Audio._step_music_effects(0.0)
+	# Level 1: muffled, and well under the room rather than leading it.
 	assert_float(Audio._filter.cutoff_hz).is_equal_approx(Audio.FILTER_CLOSED_HZ, 1.0)
-	assert_float(Audio._amplify.volume_db).is_equal_approx(0.0, 0.01)
+	assert_float(Audio._amplify.volume_db).is_equal_approx(Audio.COLD_GAIN_DB, 0.01)
+	assert_float(Audio.COLD_GAIN_DB).is_less(Audio.HOT_GAIN_DB - 5.0)
 	Audio.set_excitement(6, 1.0)
 	for i: int in 40:
 		Audio._step_music_effects(0.05)

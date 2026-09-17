@@ -888,8 +888,10 @@ every kart, so everyone sees when an opponent cashes out.
   everything else, so the full mix arrives with level 6 partway through the climb.
 - **Winding up between levels**: the music bus carries a low-pass filter and a
   gain stage that follow how far through the levels the room is, 0 at level 1 and
-  1 at level 6, sweeping from a dulled 3.8 kHz up to fully open with 1.5 dB of
-  lift. Both sit after the bus volume, so the audio settings keep full control.
+  1 at level 6. The filter sweeps from a muffled 1.7 kHz up to fully open and the
+  gain from -7.5 dB to +1.5, so an opening lap sounds like a bar with music on
+  somewhere and the finale sounds like the music. The early levels are meant to
+  sit under the room rather than lead it. Both sit after the bus volume, so the audio settings keep full control.
   A kill shakes the camera by 0.2 plus half of that same share. The beat nudge at
   level 6 is shaped so it has fallen away again before the next beat. All shake
   obeys the accessibility toggle in 8.5.
