@@ -41,20 +41,33 @@ func _on_bullet_expired(bullet: Bullet) -> void:
 func _physics_process(_delta: float) -> void:
 	if puppet:
 		return
+	# Which bullets this tick has already spent, as a flag per bullet rather than a list to
+	# search: the pairing is quadratic in the number of bullets, so anything inside it that
+	# walks a list of its own answers is quadratic again on top, and a room at its busiest is
+	# exactly when that is being paid.
+	var spent := PackedByteArray()
+	spent.resize(bullets.size())
 	var doomed: Array[Bullet] = []
 	for i: int in bullets.size():
+		if spent[i] == 1:
+			continue
 		var a := bullets[i]
 		for j: int in range(i + 1, bullets.size()):
-			var b := bullets[j]
-			if a in doomed or b in doomed:
+			if spent[j] == 1:
 				continue
+			var b := bullets[j]
 			# One cannon's own shots pass through each other. A Spread Cannon puts three of them
 			# on the same muzzle, and they would otherwise cancel before they had left it.
 			if a.owner_slot == b.owner_slot:
 				continue
 			if sweeps_touch(a, b):
+				spent[i] = 1
+				spent[j] = 1
 				doomed.append(a)
 				doomed.append(b)
+				break
+	# Held as their own list rather than walked by index: destroying one takes it out of
+	# [member bullets] on the spot, which would shift everything after it under the loop.
 	for bullet: Bullet in doomed:
 		bullet.destroy()
 
