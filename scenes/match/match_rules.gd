@@ -39,11 +39,28 @@ extends Resource
 
 @export_group("Jackpot")
 @export var jackpot_accrual := 1.0
+## What the accrual and the cap are multiplied by at the top excitement level of GAME.md 8.4.
+## A hot table fills faster and holds more, so the pile everyone is fighting over grows with
+## the room rather than in spite of it.
+@export var jackpot_accrual_hot := 3.0
+@export var jackpot_cap_hot := 2.0
 @export var jackpot_cap := 60
 @export var jackpot_amber := 20
 @export var jackpot_rate_base := 2.0
 @export var jackpot_rate_doubling := 0.5
 @export var last_call_accrual := 2.0
+
+@export_group("Hot table")
+## What the nitro refill rate is multiplied by at the top excitement level. Nitro is scarce by
+## design, but a finale where nobody has any is a finale where nobody does anything.
+@export var nitro_recharge_hot := 3.0
+## The excitement level at which jokers start turning up on the floor of their own accord, and
+## the seconds between them at the top. Below the top they come at half that pace. Nothing
+## common is ever thrown out this way: the late match is where the good cards come from.
+@export var wild_joker_level := 5
+@export var wild_joker_interval := 22.0
+## Seconds a joker thrown onto the floor lies there before it goes.
+@export var wild_joker_lifetime := 15.0
 
 @export_group("Royal Flush")
 ## Coins every held pad trickles into its holder's pot each second, so a pad is worth

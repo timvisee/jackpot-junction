@@ -161,7 +161,8 @@ the tension.
 | Collection rate  | `2 * 2^(t / 0.5)` chips per second into the pot of the kart inside, `t` resets on leaving |
 | Contested        | 2 or more karts inside: collection pauses for everyone          |
 | Emptied          | Zone deactivates; the other zone activates with 0 chips         |
-| Last Call        | Accrual doubles                                                 |
+| Heat             | Accrual and the cap both run with the excitement level of 8.4: at level 6 the pile fills three times as fast and may grow to twice as many chips |
+| Last Call        | Accrual doubles, on top of the heat                              |
 | Signal           | Traffic light on the zone: red below 20 chips, amber below 60, flashing green when full |
 
 A full pile of 60 chips takes about 2.7 s to collect. Chips from the Jackpot
@@ -332,6 +333,27 @@ to go after them.
   calling and the collecting are announced in the kill feed.
 - Bots go after the carrier ahead of whoever is nearest, as long as it is within
   their hunting range.
+
+### 3.11 A hot table
+
+The excitement level of 8.4 is not only something to hear. Past the middle of the
+meter the room itself speeds up, so a finale has something to spend as well as
+something to listen to.
+
+| At the top of the meter | What happens                                                   |
+|-------------------------|----------------------------------------------------------------|
+| Jackpot                 | Fills three times as fast and holds twice as many chips, see 3.5 |
+| Royal Flush pads        | Pay three times as fast, see 3.9                                |
+| Nitro                   | The tank refills three times as fast. Nitro is scarce by design, but a finale where nobody has any is a finale where nobody does anything |
+| Jokers                  | From level 5 the table starts throwing cards onto the floor: one every 44 s at level 5 and every 22 s at level 6, lying there for 15 s |
+
+Nothing common is ever thrown out that way. A late match is where the cards that
+change how a kart plays come from, and one landing is worth breaking off whatever
+you were doing for. They are ordinary floor jokers once they land, see 3.7: anyone
+with a free slot may take one.
+
+None of this touches how a kart drives. The room decides what there is to fight
+over and how fast it arrives, never how the kart answers the wheel.
 
 ## 4. Kart
 

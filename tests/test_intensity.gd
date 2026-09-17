@@ -188,3 +188,62 @@ func test_last_call_climbs_to_the_top_level_and_everyone_down_drops_it() -> void
 	assert_float(meter.value).is_equal(0.0)
 	assert_int(meter.level).is_equal(1)
 	assert_str(Audio.current_layer).is_equal("calm")
+
+
+## GAME.md 8.4: a hot table is not only louder. The Jackpot fills faster and holds more and
+## nitro comes back quicker, so the finale has something to spend as well as something to hear.
+func test_a_hot_table_fills_and_refills_faster_than_a_cold_one() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	await _settle(match_node)
+	var zone: JackpotZone = match_node.arena.jackpot_zones[0]
+	var kart := match_node.kart_of(0)
+	match_node.intensity.level = 1
+	await _runner.simulate_frames(4, 17)
+	var cold_fill := zone.accrual_multiplier
+	var cold_cap := zone.cap()
+	var cold_nitro := kart.nitro_recharge_scale
+	match_node.intensity.level = MatchIntensity.LEVELS
+	await _runner.simulate_frames(4, 17)
+	assert_float(zone.accrual_multiplier).is_greater(cold_fill)
+	assert_int(zone.cap()).is_greater(cold_cap)
+	assert_float(kart.nitro_recharge_scale).is_greater(cold_nitro)
+	assert_float(zone.accrual_multiplier).is_equal_approx(
+		match_node.rules.jackpot_accrual_hot, 0.001
+	)
+	assert_int(zone.cap()).is_equal(
+		roundi(match_node.rules.jackpot_cap * match_node.rules.jackpot_cap_hot)
+	)
+
+
+## GAME.md 3.11: once the room is going the table starts throwing good cards onto the floor,
+## and never a common one.
+func test_a_hot_table_throws_jokers_onto_the_floor() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	await _settle(match_node)
+	# Cold, nothing is thrown however long it is left.
+	match_node.intensity.level = 1
+	match_node.wild_joker_left = 0.05
+	await _runner.simulate_frames(30, 17)
+	assert_int(_floor_jokers(match_node).size()).is_equal(0)
+	# Hot, one lands, and it is worth picking up.
+	match_node.intensity.level = MatchIntensity.LEVELS
+	match_node.wild_joker_left = 0.05
+	var dropped: Array[StringName] = []
+	Events.wild_joker_dropped.connect(func(id: StringName) -> void: dropped.append(id))
+	await _runner.simulate_frames(30, 17)
+	var cards := _floor_jokers(match_node)
+	assert_int(cards.size()).is_equal(1)
+	assert_array(dropped).has_size(1)
+	assert_int((cards[0] as FloorJoker).joker.rarity).is_greater_equal(Joker.Rarity.UNCOMMON)
+	# And it does not keep raining cards: the next one is a while off.
+	assert_float(match_node.wild_joker_left).is_greater(1.0)
+
+
+func _floor_jokers(match_node: Match) -> Array[Node]:
+	var found: Array[Node] = []
+	for child: Node in match_node.arena.pickups.get_children():
+		if child is FloorJoker:
+			found.append(child)
+	return found

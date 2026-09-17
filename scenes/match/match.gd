@@ -55,6 +55,8 @@ var flush_lock_slot := -1
 var flush_lock_left := 0.0
 ## The board's share of a coin, so every pad pays on the same beat however slowly they pay.
 var flush_change := 0.0
+## Seconds until the table throws another joker onto the floor, GAME.md 3.11.
+var wild_joker_left := 0.0
 var bounty_left := 0.0
 var nav: ArenaNav
 var countdown_left := 0.0
@@ -466,6 +468,7 @@ func _physics_process(delta: float) -> void:
 			bot_mirror.update(self)
 			_step_bounty(delta)
 			_step_flush_income(delta)
+			_step_heat(delta)
 			arena.junction.hint = junction_hint()
 			arena.disco.level = intensity.level
 			camera_rig.tremble = _beat_tremble()
@@ -549,8 +552,6 @@ func _begin_play() -> void:
 
 func _enter_last_call() -> void:
 	arena.junction.payout_multiplier = rules.last_call_payout
-	for zone: JackpotZone in arena.jackpot_zones:
-		zone.accrual_multiplier = rules.last_call_accrual
 	_set_state(State.LAST_CALL)
 
 
@@ -696,6 +697,45 @@ func _step_flush_income(delta: float) -> void:
 		# While a flush is resting the pads wear nobody's colour, so the rings say whose flush
 		# is still being paid out.
 		pad.pop_halo(slots[slot].color() if locked >= 0 else Color.TRANSPARENT)
+
+
+## The room speeding everything up, GAME.md 8.4. A hot table is not only louder: the Jackpot
+## fills faster and holds more, nitro comes back quicker, and past a certain heat the table
+## starts throwing good jokers onto the floor. A finale where nobody has anything left to spend
+## is a finale where nobody does anything.
+func _step_heat(delta: float) -> void:
+	var share := intensity.share()
+	var last_call := rules.last_call_accrual if state == State.LAST_CALL else 1.0
+	for zone: JackpotZone in arena.jackpot_zones:
+		zone.accrual_multiplier = lerpf(1.0, rules.jackpot_accrual_hot, share) * last_call
+		zone.cap_multiplier = lerpf(1.0, rules.jackpot_cap_hot, share)
+	var nitro := lerpf(1.0, rules.nitro_recharge_hot, share)
+	for slot: PlayerSlot in slots:
+		if slot.kart != null:
+			slot.kart.nitro_recharge_scale = nitro
+	_step_wild_jokers(delta)
+
+
+## Good cards turning up on the floor once the room is going, GAME.md 3.11. Nothing common is
+## ever thrown out this way: a late match is where the jokers that change how a kart plays come
+## from, and they are worth breaking off whatever you were doing for.
+func _step_wild_jokers(delta: float) -> void:
+	if joker_catalog == null or intensity.level < rules.wild_joker_level:
+		wild_joker_left = rules.wild_joker_interval
+		return
+	wild_joker_left -= delta * (1.0 if intensity.level >= MatchIntensity.LEVELS else 0.5)
+	if wild_joker_left > 0.0:
+		return
+	wild_joker_left = rules.wild_joker_interval
+	var joker := joker_catalog.quality(rng, Joker.Rarity.UNCOMMON)
+	if joker == null:
+		return
+	var half := arena.world_size() * 0.5
+	var spot := arena.clamp_to_floor(
+		Vector3(rng.randf_range(-half.x, half.x), 0.0, rng.randf_range(-half.y, half.y))
+	)
+	arena.spawn_floor_joker(spot, joker, rules.wild_joker_lifetime)
+	Events.wild_joker_dropped.emit(joker.id)
 
 
 ## Whose flush is still paying, or -1 when none is. A Royal Flush clears the board it was won

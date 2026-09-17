@@ -27,6 +27,8 @@ signal joker_taken(slot: int, joker: StringName)
 signal match_state_changed(state: int)
 ## One tick of the starting clock, counting down to the flag.
 signal countdown_tick(count: int)
+## The table threw a joker onto the floor because the room is hot, GAME.md 3.11.
+signal wild_joker_dropped(joker_id: StringName)
 signal bullet_fired(slot: int)
 signal bullet_bounced
 signal kart_bumped(slot: int)

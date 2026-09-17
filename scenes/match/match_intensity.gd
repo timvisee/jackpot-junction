@@ -214,7 +214,7 @@ func _pressure() -> float:
 	if banking:
 		total += 0.2
 	for zone: JackpotZone in match_node.arena.jackpot_zones:
-		if zone.active and zone.chips >= rules.jackpot_cap * 0.9:
+		if zone.active and zone.chips >= zone.cap() * 0.9:
 			total += 0.12
 			break
 	return clampf(total, 0.0, 1.0)

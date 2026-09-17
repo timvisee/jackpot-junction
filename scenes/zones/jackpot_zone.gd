@@ -13,8 +13,11 @@ var index := 0
 var size := Vector2(2.5, 2.5)
 var active := false
 var chips := 0.0
-## 2.0 during Last Call.
+## 2.0 during Last Call, and more again as the room heats up.
 var accrual_multiplier := 1.0
+## How much bigger the pile is allowed to grow than the rules' cap, set from the excitement
+## level: a hot table holds more, GAME.md 3.5.
+var cap_multiplier := 1.0
 ## On a client the zone only shows replicated state.
 var puppet := false
 
@@ -71,8 +74,14 @@ func apply_puppet_state(is_active: bool, chip_count: float) -> void:
 	_refresh()
 
 
+## The most the pile may grow to right now, which is the rules' cap opened up by how hot the
+## room is.
+func cap() -> int:
+	return maxi(1, roundi(rules.jackpot_cap * cap_multiplier)) if rules != null else 1
+
+
 func is_full() -> bool:
-	return rules != null and whole_chips() >= rules.jackpot_cap
+	return rules != null and whole_chips() >= cap()
 
 
 func _on_body_entered(body: Node3D) -> void:
@@ -107,10 +116,8 @@ func _collectors() -> Array[Kart]:
 func _physics_process(delta: float) -> void:
 	if rules == null or puppet:
 		return
-	if active and chips < rules.jackpot_cap:
-		chips = minf(
-			chips + rules.jackpot_accrual * accrual_multiplier * delta, float(rules.jackpot_cap)
-		)
+	if active and chips < cap():
+		chips = minf(chips + rules.jackpot_accrual * accrual_multiplier * delta, float(cap()))
 		if is_full() and not _was_full:
 			_was_full = true
 			filled.emit(self)
@@ -162,8 +169,8 @@ func _refresh() -> void:
 		return
 	var count := whole_chips()
 	_set_light(0, active and count < rules.jackpot_amber)
-	_set_light(1, active and count >= rules.jackpot_amber and count < rules.jackpot_cap)
-	_set_light(2, active and count >= rules.jackpot_cap)
+	_set_light(1, active and count >= rules.jackpot_amber and count < cap())
+	_set_light(2, active and count >= cap())
 
 
 func _set_light(which: int, on: bool) -> void:
