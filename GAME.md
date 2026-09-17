@@ -1476,6 +1476,12 @@ run in one place, the Match, and karts are driven by a KartInput interface.
   is built in code.
 - Clients send their input state to the server every physics tick with an
   unreliable ordered RPC. The server simulates all karts.
+- The connection uses ENet's range coder both ends. A snapshot is mostly the same
+  dictionary keys over and over, so a busy one runs to about 14 KB written out and
+  a tenth of that packed. It is still bigger than one datagram: a snapshot that
+  large is split against the MTU before the datagrams are compressed, and an
+  unreliable packet in pieces is lost whenever any piece is. Fitting one in a
+  single datagram is a job for a smaller snapshot, not a smaller wire, and is open.
 - Hits, pickups, banking and scoring are server-authoritative. The server seeds
   all randomness and relays gameplay events so clients' HUD and audio react.
 - Client-side prediction and reconciliation for the local kart is a later step

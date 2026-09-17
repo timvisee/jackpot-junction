@@ -82,6 +82,7 @@ func host(port: int = DEFAULT_PORT) -> Error:
 	var error := peer.create_server(port, MAX_CLIENTS)
 	if error != OK:
 		return error
+	_compress(peer)
 	multiplayer.multiplayer_peer = peer
 	is_host = true
 	_start_relaying()
@@ -93,9 +94,22 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 	var error := peer.create_client(address, port)
 	if error != OK:
 		return error
+	_compress(peer)
 	multiplayer.multiplayer_peer = peer
 	is_host = false
 	return OK
+
+
+## Snapshots are mostly the same words over and over, GAME.md 10.3: every dictionary key of
+## every kart, bullet and pickup, thirty times a second. A busy one runs to about fourteen
+## kilobytes written out and a tenth of that packed, so it is worth packing.
+##
+## This does not stop a big snapshot being broken up: the packet is split against the MTU before
+## the datagrams carrying it are compressed, which is what the engine warns about. Fitting one
+## in a single datagram means a smaller snapshot, not a smaller wire. Both ends have to agree on
+## the compressor, so both are set from here.
+static func _compress(peer: ENetMultiplayerPeer) -> void:
+	peer.host.compress(ENetConnection.COMPRESS_RANGE_CODER)
 
 
 func _physics_process(delta: float) -> void:
