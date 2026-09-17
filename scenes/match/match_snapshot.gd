@@ -65,6 +65,9 @@ static func build(match_node: Match) -> Dictionary:
 					"shield": kart.shielded,
 					"ring": kart.channel_progress,
 					"drift": kart.motor.drifting,
+					# How long the slide has run, so a watching client can see the drift sparks earn
+					# their boost and flash when it is taken, the same as the driver does.
+					"drift_time": kart.motor.drift_time,
 					"aim": kart._aim_arrow.visible,
 					"nitro": kart.nitro_active,
 					"lives": kart.lives,

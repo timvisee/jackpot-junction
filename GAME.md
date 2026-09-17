@@ -435,6 +435,13 @@ assigns physical devices to player slots, see 10.2.
 - **Smoke**: a faint exhaust particle trail whose rate scales with throttle,
   with bursts on drift entry, drift exit boost, turbo pads and Boost.
 
+- **Drift sparks**: a fountain off each rear wheel while the rear is out, white and thin
+  while the slide is still earning its exit boost and gold and twice as thick once it has,
+  with a low gold glow under the kart to say so from outside. Taking the boost throws a
+  shower of the same gold off the back and flashes the glow for 0.45 s. The flash follows the
+  boost arriving rather than the drift ending, because a drift can end without paying and the
+  flash is a receipt. There is no HUD for any of this and there should not be: it is a
+  driving reward and it belongs on the kart.
 - **Nitro**: a flickering blue-white flame from the exhaust with a warm glow on the
   floor, a trail of tiny glowing sparks left behind that fade over a second, and a
   thick plume of smoke thrown backward that swells as it drifts, much heavier than
