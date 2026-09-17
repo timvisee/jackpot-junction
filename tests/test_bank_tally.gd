@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 ## number climbing rather than as a label, a shower of chips and a thump for every coin.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const DEFAULT_RULES: MatchRules = preload("res://data/match/default.tres")
 
 
 func _tallies(match_node: Match) -> Array[Node]:
@@ -15,7 +16,7 @@ func _tallies(match_node: Match) -> Array[Node]:
 
 
 func test_a_run_of_cash_outs_climbs_one_number() -> void:
-	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	var rules: MatchRules = DEFAULT_RULES.duplicate()
 	rules.countdown = 0.1
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = rules
@@ -54,7 +55,7 @@ func test_a_run_of_cash_outs_climbs_one_number() -> void:
 ## A tally that has come and gone leaves its slot pointing at a label that no longer exists, and
 ## the next cash-out has to start a fresh one rather than trip over the old one's ghost.
 func test_a_cash_out_after_the_last_tally_has_gone_starts_a_new_one() -> void:
-	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	var rules: MatchRules = DEFAULT_RULES.duplicate()
 	rules.countdown = 0.1
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = rules
