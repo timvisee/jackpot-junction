@@ -22,12 +22,6 @@ const GLIDE := 14.0
 const ARC := 18.0
 const TILT_DEG := 6.0
 const DIMMED := Color(0.55, 0.55, 0.6, 0.9)
-## The card's own panel, laid out like a scoreboard row so the two read as the same game: a
-## dark translucent card with room to breathe and a bar of the joker's own colour down its edge.
-const DETAIL_WIDTH := 380.0
-const DETAIL_BG := Color(0.07, 0.07, 0.09, 0.92)
-const DETAIL_RULE := Color(1.0, 1.0, 1.0, 0.13)
-const DETAIL_HINT := Color(0.62, 0.62, 0.68)
 
 var kart: Kart
 ## This hand takes share [member column] of [member columns] of the bottom edge.
@@ -40,12 +34,7 @@ var avoid: Array[Rect2] = []
 
 var _cards: Array[JokerCard] = []
 var _ids: Array[StringName] = []
-var _detail: PanelContainer
-var _detail_style: StyleBoxFlat
-var _detail_name: Label
-var _detail_kind: Label
-var _detail_body: RichTextLabel
-var _detail_hints: Label
+var _detail: JokerDetail
 var _cap: PanelContainer
 var _cap_label: Label
 var _count_label: Label
@@ -54,7 +43,10 @@ var _count_label: Label
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_build_detail()
+	_detail = JokerDetail.new()
+	_detail.name = "Detail"
+	_detail.visible = false
+	add_child(_detail)
 	_build_cap()
 	_build_count()
 
@@ -197,64 +189,11 @@ func _sync_cards() -> void:
 		_cards.append(card)
 
 
-## The panel that describes the lifted card. Built once and refilled, laid out as a name and
-## its kind on one line, what the joker does under a rule, and the keys for it at the foot, so
-## the three are told apart at a glance rather than run together in one paragraph.
-func _build_detail() -> void:
-	_detail = PanelContainer.new()
-	_detail.visible = false
-	_detail.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_detail_style = StyleBoxFlat.new()
-	_detail_style.bg_color = DETAIL_BG
-	_detail_style.set_corner_radius_all(8)
-	_detail_style.content_margin_left = 18.0
-	_detail_style.content_margin_right = 18.0
-	_detail_style.content_margin_top = 13.0
-	_detail_style.content_margin_bottom = 13.0
-	_detail_style.border_width_left = 6
-	_detail.add_theme_stylebox_override("panel", _detail_style)
-	var box := VBoxContainer.new()
-	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_theme_constant_override("separation", 9)
-	_detail.add_child(box)
-	var heading := HBoxContainer.new()
-	heading.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	heading.add_theme_constant_override("separation", 14)
-	box.add_child(heading)
-	_detail_name = _detail_label(24, Color(0.97, 0.97, 1.0))
-	_detail_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	heading.add_child(_detail_name)
-	_detail_kind = _detail_label(16, Color.WHITE)
-	_detail_kind.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_detail_kind.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	heading.add_child(_detail_kind)
-	var rule := ColorRect.new()
-	rule.color = DETAIL_RULE
-	rule.custom_minimum_size = Vector2(DETAIL_WIDTH, 1.0)
-	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_child(rule)
-	_detail_body = RichTextLabel.new()
-	_detail_body.fit_content = true
-	_detail_body.scroll_active = false
-	_detail_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_detail_body.custom_minimum_size = Vector2(DETAIL_WIDTH, 0.0)
-	_detail_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_detail_body.add_theme_font_size_override("normal_font_size", 18)
-	box.add_child(_detail_body)
-	_detail_hints = _detail_label(15, DETAIL_HINT)
-	box.add_child(_detail_hints)
-	add_child(_detail)
-
-
-## Fills the panel for one joker, and paints the edge bar in its kind's colour.
+## What the player can do with the lifted card, which is the only part of the pane the hand has
+## to say anything about.
 func _show_detail(joker: Joker) -> void:
-	var color := JokerCard.kind_color(joker)
-	_detail_style.border_color = color
-	_detail_name.text = joker.display_name
-	_detail_kind.text = JokerCard.kind_name(joker).to_upper()
-	_detail_kind.add_theme_color_override("font_color", color)
-	_detail_body.text = joker.description
-	_detail_hints.text = (
+	_detail.show_joker(joker)
+	var keys := (
 		"%s / %s cycle    %s drop    %s destroy"
 		% [
 			InputActions.short_binding_text(InputActions.STEER_LEFT, keyboard),
@@ -263,11 +202,4 @@ func _show_detail(joker: Joker) -> void:
 			InputActions.binding_text(InputActions.JOKER_DESTROY, keyboard),
 		]
 	)
-
-
-func _detail_label(font_size: int, color: Color) -> Label:
-	var label := Label.new()
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.add_theme_font_size_override("font_size", font_size)
-	label.add_theme_color_override("font_color", color)
-	return label
+	_detail.set_hints(keys)

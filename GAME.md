@@ -891,13 +891,15 @@ corners, in single-player and online only the local block is shown.
 - **Lives**: two pips in the player colour under the kill count; a lost life
   goes dark.
 - **Held power-up** icon, filled by the roulette flicker once the box is in.
-- **The lifted card's panel** sits above the hand while the joker menu is open,
-  built like a standings row so the two read as the same game: a dark translucent
-  card with room to breathe and a bar of the joker's own kind colour down its
-  edge. The name and the kind share the top line, a rule separates them from what
-  the joker actually does, and the keys for cycling, dropping and destroying sit
-  at the foot in grey. Three things told apart beats one paragraph they were all
-  run into.
+- **The joker pane** describes whichever card is under the cursor, and is the same
+  pane everywhere a player reads about a joker: above the hand for the card lifted
+  out of the fan, and under the row for the respawn pick and again for the card
+  being destroyed. It is built like a standings row so the two read as the same
+  game: a dark translucent card with room to breathe and a bar of the joker's own
+  kind colour along the top of it. The name and the kind share the first line, a
+  rule separates them from what the joker actually does, and the keys for whatever
+  can be done from there sit at the foot in grey. Three things told apart beats one
+  paragraph they were all run into.
 - **Nitro tank** as a thin bar, lit while burning.
 - **Speedometer** under it: a thin dial and a number in km/h, both turning the
   nitro colour while the bottle is lit. The dial is full at a kart flat out on

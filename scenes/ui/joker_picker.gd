@@ -1,10 +1,11 @@
 class_name JokerPicker
 extends Control
 ## The respawn joker choice, GAME.md 3.7, as a row of cards in the middle of the screen. The card
-## under the cursor lifts, grows and lights up, with its description underneath. A player holding
-## five jokers gets the same row again, this time of their own cards, to choose one to destroy;
-## that card wears a red frame and a big red cross, so it can never be read as the one being
-## claimed.
+## under the cursor lifts, grows and lights up, with a [JokerDetail] pane underneath saying what
+## it does: the same pane the hand shows for a lifted card, so reading about a joker reads the
+## same wherever the player is doing it. A player holding five jokers gets the same row again,
+## this time of their own cards, to choose one to destroy; that card wears a red frame and a big
+## red cross, so it can never be read as the one being claimed.
 ##
 ## Each local player picks inside their own share of the screen, the same share their hand of
 ## cards uses, so two players choosing at once never overlap.
@@ -24,9 +25,7 @@ var keyboard := true
 
 var _title: Label
 var _cards: Array[JokerCard] = []
-var _detail: PanelContainer
-var _detail_text: RichTextLabel
-var _hints: Label
+var _detail: JokerDetail
 var _cross: Control
 var _shown: Array[StringName] = []
 var _stage := JokerOffer.Stage.DONE
@@ -48,25 +47,13 @@ func _ready() -> void:
 	_title.add_theme_constant_override("shadow_offset_y", 2)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Over the row rather than under it: the lifted card reaches up into the line the title sits
+	# on, and a question with a card through the middle of it is a question nobody can read.
+	_title.z_index = 3
 	add_child(_title)
-	_detail = PanelContainer.new()
-	_detail.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_detail_text = RichTextLabel.new()
-	_detail_text.bbcode_enabled = true
-	_detail_text.fit_content = true
-	_detail_text.scroll_active = false
-	_detail_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_detail_text.custom_minimum_size = Vector2(420.0, 0.0)
-	_detail_text.add_theme_font_size_override("normal_font_size", 19)
-	_detail_text.add_theme_font_size_override("bold_font_size", 23)
-	_detail.add_child(_detail_text)
+	_detail = JokerDetail.new()
+	_detail.name = "Detail"
 	add_child(_detail)
-	_hints = Label.new()
-	_hints.add_theme_font_size_override("font_size", 17)
-	_hints.add_theme_color_override("font_color", Color(0.72, 0.72, 0.78))
-	_hints.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hints.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_hints)
 	_build_cross()
 
 
@@ -85,8 +72,8 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 		"Pick a joker" if choosing else "Destroy which joker for %s?" % offer.chosen.display_name
 	)
 	if picked < jokers.size():
-		_detail_text.text = _describe(jokers[picked])
-	_hints.text = _hint_text(choosing)
+		_detail.show_joker(jokers[picked])
+		_detail.set_hints(_hint_text(choosing))
 	_layout(picked)
 
 
@@ -143,8 +130,6 @@ func _layout(picked: int) -> void:
 	var detail := _detail.get_combined_minimum_size()
 	_detail.size = detail
 	_detail.position = Vector2(centre - detail.x * 0.5, baseline + 24.0)
-	_hints.size = Vector2(width, 0.0)
-	_hints.position = Vector2(centre - width * 0.5, baseline + 36.0 + detail.y)
 
 
 ## Rebuilds the row when the offered jokers or the stage change, and leaves it alone otherwise so
@@ -171,18 +156,6 @@ func _clear() -> void:
 	_cards.clear()
 	_shown = []
 	_stage = JokerOffer.Stage.DONE
-
-
-func _describe(joker: Joker) -> String:
-	return (
-		"[b]%s[/b]  [color=#%s]%s[/color]\n%s"
-		% [
-			joker.display_name,
-			JokerCard.kind_color(joker).to_html(false),
-			JokerCard.kind_name(joker),
-			joker.description,
-		]
-	)
 
 
 func _hint_text(choosing: bool) -> String:
