@@ -693,8 +693,10 @@ subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
 - **Beyond the walls**: a warm wooden table surface, slightly out of focus.
 - **Junction pad**: a slot-machine roundel with neon rings that light up while
   someone is banking, and a traffic light that turns green during a cash-out.
-- **Jackpot zone**: a vault floor tile with a chip pile that grows, and a
-  traffic light for its state, see 3.5.
+- **Jackpot zone**: a vault floor tile with a chip pile that grows, a traffic light
+  for its state, and its chip count painted large on the floor of the zone, the way
+  a Royal Flush pad wears its letter. The number belongs to the square a kart has to
+  stand in, so it is on the square rather than floating over it. See 3.5.
 - **Chips**: poker chips, gold for the gold chip, a die for the mult die.
 - **Item boxes**: gold crates with black bands, a big question mark and a beam of
   light, glowing and pulsing so they read at a glance.
@@ -835,7 +837,7 @@ corners, in single-player and online only the local block is shown.
   tumbling chunks in its own colour with a brief flash. A kart lost down a pit
   shrinks away instead. The Bomb keeps the one real explosion, see 7.1.
 - In-world: a progress ring around the kart while banking or collecting the
-  Jackpot, the chip count above the Jackpot zone, floating `+0.5` on grazes,
+  Jackpot, the chip count on the floor of the Jackpot zone, floating `+0.5` on grazes,
   and for local players an aim guide of four faint dots ahead of the cannon.
   Royal Flush pad frames glow and pulse in their holder's colour; a flush shows
   ROYAL FLUSH over the kart.

@@ -175,12 +175,16 @@ func _set_light(which: int, on: bool) -> void:
 func _build_signals() -> void:
 	_label = Label3D.new()
 	_label.name = "Counter"
-	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_label.font_size = 96
+	_label.font_size = 200
 	_label.pixel_size = 0.01
-	_label.outline_size = 12
+	_label.outline_size = 22
+	_label.outline_modulate = Color(0.05, 0.05, 0.06)
 	_label.modulate = Palette.CHIP_GOLD
-	_label.position = Vector3(0.0, 1.6, 0.0)
+	# Painted on the floor of the zone like the letter on a flush pad, rather than floating
+	# over it: the number belongs to the square a kart has to stand in, so it is on the square.
+	_label.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
+	_label.position = Vector3(0.0, 0.06, 0.0)
+	_label.no_depth_test = true
 	add_child(_label)
 	var pole := MeshInstance3D.new()
 	var pole_mesh := CylinderMesh.new()
