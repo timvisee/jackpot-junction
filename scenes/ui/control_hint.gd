@@ -47,7 +47,12 @@ static func hint_text(for_device: int) -> String:
 			InputActions.binding_text(InputActions.FIRE, true).get_slice(",", 0),
 		]
 	)
-	var gamepad := "Triggers drive   Left stick steer   RB fire"
+	# The fire button comes from the bindings, the same as the keyboard line: naming it here
+	# meant it went on saying RB long after firing had moved off the shoulder.
+	var gamepad := (
+		"Triggers drive   Left stick steer   %s fire"
+		% InputActions.binding_text(InputActions.FIRE, false).get_slice(",", 0)
+	)
 	return keyboard if DeviceInput.uses_keyboard(for_device) else gamepad
 
 

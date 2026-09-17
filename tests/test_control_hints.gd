@@ -125,3 +125,14 @@ func test_the_joker_menu_cap_shows_beside_a_hand_with_cards_in_it() -> void:
 	Game.settings.control_hints = false
 	await _runner.simulate_frames(4, 17)
 	assert_bool(hand._cap.visible).is_false()
+
+
+## GAME.md 3.8: the hint names the button that actually fires. Naming one in the text meant it
+## went on saying RB long after firing had moved off the shoulder.
+func test_the_gamepad_hint_names_whatever_fire_is_bound_to() -> void:
+	InputActions.register_defaults()
+	var bound := InputActions.binding_text(InputActions.FIRE, false).get_slice(",", 0)
+	assert_str(ControlHint.hint_text(0)).contains("%s fire" % bound)
+	InputActions.rebind(InputActions.FIRE, {"button": JOY_BUTTON_RIGHT_SHOULDER})
+	assert_str(ControlHint.hint_text(0)).contains("RB fire")
+	InputActions.register_defaults()
