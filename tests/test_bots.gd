@@ -293,6 +293,15 @@ func test_a_bot_nosed_against_a_wall_backs_out_of_it() -> void:
 	for i: int in 20:
 		brain._step_stuck(1.0 / 60.0)
 		assert_float(signf(brain.input.steer)).is_equal(first_way)
+	# Once it has backed up it drives out again on the wheel it backed up with, rather than
+	# being handed straight back to a navigator that points it at the wall it just came off.
+	while brain._reverse_left > 0.0:
+		brain._step_stuck(1.0 / 60.0)
+	assert_float(brain._swing_left).is_greater(0.0)
+	brain._step_stuck(1.0 / 60.0)
+	assert_float(brain.input.throttle).is_greater(0.0)
+	assert_float(brain.input.brake).is_equal(0.0)
+	assert_float(signf(brain.input.steer)).is_equal(first_way)
 	# Backed into the same corner again, it tries the other way out.
 	_run_out_reverse(brain)
 	assert_bool(_gets_stuck(brain, 0.5)).is_true()
@@ -303,6 +312,28 @@ func test_a_bot_nosed_against_a_wall_backs_out_of_it() -> void:
 	assert_bool(brain._nose_on_a_wall()).is_false()
 	assert_bool(_gets_stuck(brain, 0.5)).is_false()
 	assert_bool(_gets_stuck(brain, 1.0)).is_true()
+
+
+## GAME.md 9.1: a kart wedged on a corner can keep a speed on the clock while arriving nowhere,
+## so what a bot goes by is the ground it has covered, not the speedometer.
+func test_a_bot_that_covers_no_ground_backs_out_even_with_speed_on_the_clock() -> void:
+	var match_node := _match()
+	await _runner.simulate_frames(30, 17)
+	var kart := match_node.kart_of(0)
+	var brain: BotBrain = kart.get_node("Brain")
+	kart.global_position = match_node.arena.junction_position
+	# Scrubbing along at a speed that would never read as stuck, and staying put.
+	kart.motor.forward_speed = BotBrain.STUCK_SPEED * 4.0
+	kart.motor.velocity = kart.motor.forward_vector() * kart.motor.forward_speed
+	brain._forget_progress()
+	var backed := false
+	for i: int in int((BotBrain.PROGRESS_TIME + 0.5) * 60.0):
+		brain.input.throttle = 1.0
+		brain._step_stuck(1.0 / 60.0)
+		if brain._reverse_left > 0.0:
+			backed = true
+			break
+	assert_bool(backed).is_true()
 
 
 ## Holds the throttle down on a kart that is going nowhere for [param seconds], and says whether
@@ -316,9 +347,12 @@ func _gets_stuck(brain: BotBrain, seconds: float) -> bool:
 	return false
 
 
-## Lets a reverse manoeuvre finish, with nobody on the throttle.
+## Lets the whole manoeuvre finish, backing out and driving out again, with nobody asking for
+## anything.
 func _run_out_reverse(brain: BotBrain) -> void:
-	for i: int in 60:
+	for i: int in 240:
+		if brain._reverse_left <= 0.0 and brain._swing_left <= 0.0:
+			return
 		brain.input.throttle = 0.0
 		brain._step_stuck(1.0 / 60.0)
 

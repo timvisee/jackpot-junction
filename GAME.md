@@ -1075,10 +1075,16 @@ down the new road, which is the tidy way to use one.
 **Getting unstuck**: driving at something solid pins a kart against it, and steering
 toward a target on the far side only holds it there harder. A bot that is going
 nowhere with the throttle down backs up for 0.7 s with the wheel over, which swings
-its nose clear. It puts up with that for a second before deciding, unless it can
-feel a wall right on its nose, which takes a third of a second. The turn is picked
-once and held for the whole manoeuvre, and alternates, so a bot that backs into the
-same corner twice tries the other way out rather than rocking on the spot.
+its nose clear, and then drives out for another half second on that same wheel
+before the navigator gets the kart back, so it leaves along its new heading instead
+of turning straight into what it was stuck on. It puts up with going nowhere for a
+second before deciding, unless it can feel a wall right on its nose, which takes a
+third of a second. Standing still is not the only way to arrive nowhere: a kart
+scrubbing along a wall or grinding on a corner keeps a speed on the clock the whole
+time, so a bot also watches the ground it has actually covered and gives up on
+anything that has moved less than 2 m in two seconds. The turn is picked once and
+held for the whole manoeuvre, and alternates, so a bot that backs into the same
+corner twice tries the other way out rather than rocking on the spot.
 
 **Pits**: paths already go around them, but a pit stops nothing and blocks no
 raycast, so a bot cutting a corner, sliding out of a drift or chasing a kart
