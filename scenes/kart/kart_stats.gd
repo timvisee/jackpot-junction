@@ -93,12 +93,18 @@ enum Model {
 @export_group("Oversteer drift")
 ## How fast the rear is already coming round the moment it lets go, in degrees a second.
 @export var slide_start_deg := 90.0
-## Degrees a second squared the slide gains while the wheel is held into it, loses to full
-## opposite lock, and bleeds off by itself with the wheel straight. Counter has to beat build
-## by a good margin or the slide cannot be caught once it is running.
-@export var slide_build_deg := 260.0
-@export var slide_counter_deg := 520.0
-@export var slide_settle_deg := 90.0
+## The angle full lock into the slide asks the kart to hang out at, in degrees. The wheel
+## asks for an angle rather than for more slide: half lock asks for half of this, a straight
+## wheel asks for none, and opposite lock asks for less than none, which is a catch. A slide
+## that runs away from a held wheel cannot be driven, only fought.
+@export var slide_hold_deg := 95.0
+## How hard opposite lock asks, as a multiple of the above: full counter asks the rear to come
+## back past straight, so a catch is decisive rather than a slow unwind.
+@export var slide_catch := 1.6
+## How hard the rear chases the angle the wheel asked for, and how much its own swing is
+## damped. Seek without damp overshoots and wallows; damp without seek never gets there.
+@export var slide_seek := 9.0
+@export var slide_damp := 3.5
 ## The most the kart will hang out, in degrees between the nose and where it is going. Set
 ## just short of sideways: the point of this style is that holding the wheel in loses you the
 ## corner, so the kart has to be allowed to come all the way round.

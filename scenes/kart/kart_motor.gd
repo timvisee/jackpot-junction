@@ -275,29 +275,36 @@ func _oversteering() -> bool:
 
 
 ## The rear coming round, GAME.md 4.1. It lets go once, when the handbrake is flicked, and
-## a life of its own: holding the wheel into it feeds it, straightening lets it bleed off
-## slowly, and winding the wheel the other way pulls it back in quickly. Catching it is the
-## end of it, so opposite lock held after the catch steers the kart rather than throwing it
-## the other way; another pull of the handbrake is what breaks the rear loose again. Hanging
-## past the biggest angle the tires would hold bleeds it off whatever the wheel is doing, so a
-## slide stays a slide rather than becoming a spin.
+## a life of its own, and the wheel drives it by asking for an angle rather than for more
+## slide: full lock into the slide asks the kart to sit at [member KartStats.slide_hold_deg],
+## half lock asks for half of that, a straight wheel asks for none and opposite lock asks for
+## less than none, which is a catch. The rear chases whatever was asked for, damped so it
+## settles rather than wallowing. A wheel held over therefore holds an angle, which is the
+## whole difference between driving a slide and fighting one.
+##
+## Catching it is the end of it, so opposite lock held after the catch steers the kart rather
+## than throwing it the other way; another flick of the handbrake breaks the rear loose again.
 func _step_slide(delta: float) -> void:
 	if not _oversteering() or not drifting or spinning() or turboing():
 		# Gathered up as quickly as counter-steering would: the drift is over.
-		slide_rate = move_toward(slide_rate, 0.0, deg_to_rad(stats.slide_counter_deg) * delta)
+		# Gathered up as briskly as a catch would: the drift is over.
+		slide_rate = move_toward(
+			slide_rate, 0.0, deg_to_rad(stats.slide_hold_deg) * stats.slide_catch * delta
+		)
 		return
 	if slide_rate == 0.0:
 		return
 	var way := signf(slide_rate)
-	if -slip_angle() * way >= deg_to_rad(stats.slide_max_deg):
-		slide_rate = move_toward(slide_rate, 0.0, deg_to_rad(stats.slide_counter_deg) * delta)
-		return
+	var hanging := -slip_angle() * way
 	var into := clampf(steer * way, 0.0, 1.0)
 	var against := clampf(-steer * way, 0.0, 1.0)
-	var change := (
-		stats.slide_build_deg * into - stats.slide_counter_deg * against - stats.slide_settle_deg
-	)
-	slide_rate += way * deg_to_rad(change) * delta
+	# Where the wheel is asking the kart to sit: full lock into the slide asks for the whole
+	# angle, half asks for half, straight asks for none and opposite asks for less than none.
+	var wanted := deg_to_rad(stats.slide_hold_deg) * (into - against * stats.slide_catch)
+	if hanging >= deg_to_rad(stats.slide_max_deg):
+		wanted = minf(wanted, 0.0)
+	slide_rate += way * stats.slide_seek * (wanted - hanging) * delta
+	slide_rate -= slide_rate * minf(stats.slide_damp * delta, 1.0)
 	if signf(slide_rate) != way:
 		# Caught: the rear has come back in line rather than swinging through it.
 		slide_rate = 0.0

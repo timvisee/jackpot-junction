@@ -45,26 +45,53 @@ func test_the_handbrake_breaks_the_rear_loose() -> void:
 	assert_float(_hang()).is_greater(20.0)
 
 
-## The whole point of the style: holding the wheel into the slide loses you the corner. The
-## rear keeps coming round until the kart is travelling sideways and the nose has swung most
-## of the way round with it, so the kart leaves pointing somewhere it never meant to go. That
-## is the punishment: not the speed, which power-on it largely keeps, but the direction.
-func test_holding_the_wheel_in_loses_you_the_corner() -> void:
+## The whole point of the style, and the second attempt at it: the wheel asks the kart to sit at
+## an angle rather than asking for more slide. Full lock into the slide holds a big one, half lock
+## holds half of it, and every one of them is steady. A slide that runs away from a held wheel can
+## only be fought.
+func test_the_wheel_asks_for_an_angle_and_the_kart_holds_it() -> void:
+	var angles: Array[float] = []
+	for lock: float in [1.0, 0.6, 0.3]:
+		angles.append(_hang_held_at(lock))
+	assert_float(angles[0]).is_between(30.0, 50.0)
+	# Proportional to the wheel, near enough, and in the right order.
+	assert_float(angles[1]).is_between(angles[0] * 0.45, angles[0] * 0.75)
+	assert_float(angles[2]).is_between(angles[0] * 0.2, angles[0] * 0.45)
+
+
+## Held, not merely reached: three seconds at one wheel position ends where it settled a second in.
+func test_a_held_angle_is_steady() -> void:
 	_break_the_rear_loose()
-	var swung := _motor.heading
-	var early := _hang()
-	_run(0.5)
-	assert_float(_hang()).is_greater(early)
-	var worst := 0.0
-	for i: int in 90:
+	_input.steer = 1.0
+	_run(1.0)
+	var settled := _hang()
+	var lowest := settled
+	var highest := settled
+	for i: int in 120:
 		_motor.step(_input, DT)
-		worst = maxf(worst, _hang())
-	# Round far enough to be a mistake, and never so far that the nose passes what it is
-	# chasing, which would flip the kart into reverse.
-	assert_float(worst).is_greater(70.0)
-	assert_float(worst).is_less(90.0)
-	# And the nose has gone round with it, well past any corner that was being taken.
-	assert_float(rad_to_deg(absf(wrapf(_motor.heading - swung, -PI, PI)))).is_greater(100.0)
+		lowest = minf(lowest, _hang())
+		highest = maxf(highest, _hang())
+	assert_float(highest - lowest).override_failure_message("the slide wandered").is_less(6.0)
+	assert_bool(_motor.drifting).is_true()
+	assert_float(_motor.speed()).is_greater(_stats.top_speed * 0.9)
+
+
+## Where the kart settles with the wheel held at one position for two seconds after the flick.
+func _hang_held_at(lock: float) -> float:
+	var motor := KartMotor.new(_stats)
+	var input := KartInput.new()
+	input.throttle = 1.0
+	for i: int in int(3.0 / DT):
+		motor.step(input, DT)
+	input.steer = 1.0
+	input.handbrake = true
+	for i: int in 24:
+		motor.step(input, DT)
+	input.handbrake = false
+	input.steer = lock
+	for i: int in int(2.0 / DT):
+		motor.step(input, DT)
+	return -rad_to_deg(motor.slip_angle())
 
 
 ## Winding the wheel the other way is what holds a rally car straight, and it works here: the
@@ -101,30 +128,20 @@ func test_a_straight_wheel_lets_the_slide_bleed_off() -> void:
 
 
 ## The technique the style exists for: flick the handbrake, let go of it, and drive the slide on
-## the wheel alone, catching it back whenever it hangs out too far. Nothing the wheel does may end
-## the drift, or the first catch would end it and there would be no slide to drive.
-func test_a_slide_can_be_held_on_the_wheel_alone() -> void:
-	_input.throttle = 1.0
-	_run(3.0)
-	_input.steer = 1.0
-	_input.handbrake = true
-	_run(0.2)
-	# The handbrake was a flick. From here the wheel is the only thing driving the slide.
-	_input.handbrake = false
+## the wheel alone. Nothing the wheel does may end the drift, or the first correction would end it
+## and there would be no slide left to drive.
+func test_a_slide_is_driven_on_the_wheel_after_the_flick() -> void:
+	_break_the_rear_loose()
 	var carried := _motor.speed()
 	var held := 0
-	var hangs: Array[float] = []
 	for i: int in 240:
-		_input.steer = -1.0 if _hang() > 40.0 else 1.0
+		# Eased off when it hangs out too far, fed back in when it tucks up: driving, not fighting.
+		_input.steer = 0.2 if _hang() > 38.0 else 1.0
 		_motor.step(_input, DT)
 		if _motor.drifting:
 			held += 1
-		if i > 60:
-			hangs.append(_hang())
 	assert_int(held).override_failure_message("the drift did not last").is_greater(230)
-	# Held out around the angle it was being driven to, rather than creeping in or running away.
-	assert_float(hangs.min()).is_greater(20.0)
-	assert_float(hangs.max()).is_less(55.0)
+	assert_float(_hang()).is_between(20.0, 50.0)
 	assert_float(_motor.speed()).is_greater(carried * 0.9)
 
 
