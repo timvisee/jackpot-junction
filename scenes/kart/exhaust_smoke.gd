@@ -24,10 +24,7 @@ func _ready() -> void:
 	var sphere := SphereMesh.new()
 	sphere.radius = 0.12
 	sphere.height = 0.24
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.vertex_color_use_as_albedo = true
+	var material := ParticleLook.material()
 	material.albedo_color = Color(1.0, 1.0, 1.0, 1.0)
 	sphere.material = material
 	draw_pass_1 = sphere

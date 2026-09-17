@@ -127,15 +127,14 @@ func _sparks(tint: Color) -> GPUParticles3D:
 	process.scale_min = 0.5
 	process.scale_max = 1.2
 	process.color = Color(1.0, 0.8, 0.35, 1.0)
-	process.color_ramp = _fade_ramp(Color(1.0, 0.95, 0.6), tint.lerp(Color(1.0, 0.4, 0.1), 0.5))
+	process.color_ramp = ParticleLook.fade_out(
+		Color(1.0, 0.95, 0.6), tint.lerp(Color(1.0, 0.4, 0.1), 0.5)
+	)
 	particles.process_material = process
 	var mesh := SphereMesh.new()
 	mesh.radius = 0.07
 	mesh.height = 0.14
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.vertex_color_use_as_albedo = true
+	var material := ParticleLook.material()
 	mesh.material = material
 	particles.draw_pass_1 = mesh
 	particles.position = Vector3(0.0, 0.4, 0.0)
@@ -161,27 +160,16 @@ func _smoke() -> GPUParticles3D:
 	process.scale_max = 1.8
 	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
 	process.emission_sphere_radius = 0.9
-	process.color_ramp = _fade_ramp(Color(0.3, 0.3, 0.32, 0.4), Color(0.5, 0.5, 0.52, 0.0))
+	process.color_ramp = ParticleLook.fade_out(
+		Color(0.3, 0.3, 0.32, 0.4), Color(0.5, 0.5, 0.52, 0.0)
+	)
 	particles.process_material = process
 	var mesh := SphereMesh.new()
 	mesh.radius = 0.35
 	mesh.height = 0.7
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.vertex_color_use_as_albedo = true
+	var material := ParticleLook.material()
 	mesh.material = material
 	particles.draw_pass_1 = mesh
 	particles.position = Vector3(0.0, 0.6, 0.0)
 	particles.emitting = true
 	return particles
-
-
-## A colour ramp from [param from] to a transparent [param to], so particles fade out.
-static func _fade_ramp(from: Color, to: Color) -> GradientTexture1D:
-	var gradient := Gradient.new()
-	gradient.set_color(0, from)
-	gradient.set_color(1, Color(to.r, to.g, to.b, 0.0))
-	var texture := GradientTexture1D.new()
-	texture.gradient = gradient
-	return texture

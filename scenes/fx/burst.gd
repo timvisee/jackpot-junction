@@ -89,12 +89,7 @@ func _chunks(color: Color, count: int) -> GPUParticles3D:
 	process.scale_max = 1.3 * size
 	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
 	process.emission_sphere_radius = 0.3 * size
-	var gradient := Gradient.new()
-	gradient.set_color(0, color)
-	gradient.set_color(1, Color(color.darkened(0.4), 0.0))
-	var ramp := GradientTexture1D.new()
-	ramp.gradient = gradient
-	process.color_ramp = ramp
+	process.color_ramp = ParticleLook.fade_out(color, color.darkened(0.4))
 	particles.process_material = process
 	var mesh := BoxMesh.new()
 	mesh.size = Vector3.ONE * 0.16

@@ -106,10 +106,7 @@ func _build_fountain() -> GPUParticles3D:
 	mesh.height = 0.09
 	mesh.radial_segments = 6
 	mesh.rings = 3
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.vertex_color_use_as_albedo = true
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	var material := ParticleLook.material()
 	mesh.material = material
 	sparks.draw_pass_1 = mesh
 	return sparks

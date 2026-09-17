@@ -103,20 +103,14 @@ func _build_smoke() -> GPUParticles3D:
 	process.scale_curve = _growth_curve()
 	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
 	process.emission_sphere_radius = 0.18
-	var gradient := Gradient.new()
-	gradient.set_color(0, Color(0.72, 0.78, 0.9, 0.55))
-	gradient.set_color(1, Color(0.5, 0.55, 0.68, 0.0))
-	var ramp := GradientTexture1D.new()
-	ramp.gradient = gradient
-	process.color_ramp = ramp
+	process.color_ramp = ParticleLook.fade_out(
+		Color(0.72, 0.78, 0.9, 0.55), Color(0.5, 0.55, 0.68, 0.0)
+	)
 	particles.process_material = process
 	var mesh := SphereMesh.new()
 	mesh.radius = 0.22
 	mesh.height = 0.44
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.vertex_color_use_as_albedo = true
+	var material := ParticleLook.material()
 	mesh.material = material
 	particles.draw_pass_1 = mesh
 	particles.position = Vector3(0.0, 0.05, 0.35)
@@ -152,20 +146,14 @@ func _build_sparks() -> GPUParticles3D:
 	process.scale_max = 1.0
 	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
 	process.emission_sphere_radius = 0.12
-	var gradient := Gradient.new()
-	gradient.set_color(0, Color(0.85, 0.95, 1.0, 1.0))
-	gradient.set_color(1, Color(0.3, 0.6, 1.0, 0.0))
-	var ramp := GradientTexture1D.new()
-	ramp.gradient = gradient
-	process.color_ramp = ramp
+	process.color_ramp = ParticleLook.fade_out(
+		Color(0.85, 0.95, 1.0, 1.0), Color(0.3, 0.6, 1.0, 0.0)
+	)
 	particles.process_material = process
 	var mesh := SphereMesh.new()
 	mesh.radius = 0.05
 	mesh.height = 0.1
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.vertex_color_use_as_albedo = true
+	var material := ParticleLook.material()
 	mesh.material = material
 	particles.draw_pass_1 = mesh
 	particles.position = Vector3(0.0, 0.0, 0.2)

@@ -24,10 +24,7 @@ func _ready() -> void:
 	top_level = true
 	global_transform = Transform3D.IDENTITY
 	mesh = _mesh
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.vertex_color_use_as_albedo = true
+	var material := ParticleLook.material()
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material.albedo_color = Color(0.1, 0.09, 0.09, 1.0)
 	material_override = material
