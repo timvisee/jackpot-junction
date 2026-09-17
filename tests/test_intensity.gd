@@ -21,6 +21,13 @@ func _start_match() -> Match:
 	return match_node
 
 
+## Frames needed to cover [param seconds] of match time at the 17 ms step these suites run at.
+## Worth saying once: the suite waits these out in real time, so guessing high costs the whole
+## suite that time on every run.
+func _frames(seconds: float) -> int:
+	return int(ceilf(seconds * 1000.0 / 17.0))
+
+
 ## Parks both karts well apart and empties their pots, so the meter starts from nothing.
 func _settle(match_node: Match) -> void:
 	match_node.kart_of(0).global_position = Vector3(-15.0, 0.0, -9.0)
@@ -140,7 +147,7 @@ func test_a_bounty_puts_the_room_up_a_level() -> void:
 	await _runner.simulate_frames(120, 17)
 	assert_int(meter.level).is_equal(3)
 	# And a room nobody is fighting in does come back down eventually.
-	await _runner.simulate_frames(int((MatchIntensity.HOLD + MatchIntensity.DWELL) * 120.0), 17)
+	await _runner.simulate_frames(_frames(MatchIntensity.HOLD + MatchIntensity.DWELL + 1.0), 17)
 	assert_int(meter.level).is_less(3)
 
 
