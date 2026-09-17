@@ -110,7 +110,11 @@ func test_the_hud_deals_the_jokers_as_cards_and_lifts_the_one_picked_in_the_menu
 	assert_int(hand.selected()).is_equal(1)
 	assert_float(hand._cards[1].position.y).is_less(hand._cards[0].position.y - 20.0)
 	assert_bool(hand._detail.visible).is_true()
-	assert_str(hand._detail_text.text).contains("Rubber Bumpers")
+	# Name, kind and what it does are told apart rather than run into one paragraph, GAME.md 8.3.
+	assert_str(hand._detail_name.text).is_equal("Rubber Bumpers")
+	assert_str(hand._detail_kind.text).is_not_empty()
+	assert_str(hand._detail_body.text).is_not_empty()
+	assert_str(hand._detail_hints.text).contains("drop")
 	Input.action_release(InputActions.JOKER_MENU)
 	await _runner.simulate_frames(3, 17)
 	assert_int(hand.selected()).is_equal(-1)
