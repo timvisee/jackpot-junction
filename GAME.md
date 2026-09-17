@@ -339,7 +339,7 @@ then hooks up and launches when the handbrake is released.
 | Reverse top speed             | 5 m/s                                                 |
 | Coast deceleration            | 4 m/s² with no input                                  |
 | Yaw rate at low speed         | 200°/s                                                |
-| Yaw rate at top speed         | 128°/s, interpolated linearly by speed: 4.7 m of turning circle flat out, chosen between a 5.5 m one that would not place the kart and a 4.2 m one that turned in on itself |
+| Yaw rate at top speed         | 138°/s, interpolated linearly by speed: 4.4 m of turning circle flat out. 5.5 m would not place the kart in a lane, 4.2 m turned in on itself, and of the two either side of that 4.4 m was the one that placed it best |
 | Minimum speed to steer        | none: turning on the spot at 85°/s and turning on the wheels are one control, mixed by speed and fully on the wheels by 2.2 m/s. A kart shuffling about in a corner crosses that range over and over, and the old hard switch at 0.5 m/s stepped from 70 to 195°/s every time it did |
 | Grip, normal                  | travel direction turns toward the nose at 30 rad/s, so the kart goes where it is pointed within about 33 ms |
 | Grip, drifting                | 4.8 rad/s, 35 to 55° of slip depending on speed       |
