@@ -866,7 +866,7 @@ scrolls far; the whole arena stays visible.
 | Framing          | The whole arena plus a 1 m margin fits the 16:9 view              |
 | Pan              | Target is the arena centre moved 30% toward the centroid of alive karts, clamped to 2 m |
 | Zoom             | FOV scaled between 93% and 107% by how spread out the karts are   |
-| Smoothing        | Exponential, 0.6 s time constant                                  |
+| Smoothing        | Exponential, 0.6 s time constant, applied every drawn frame. The rig opts out of the engine's physics interpolation for that reason: it follows karts that move on the physics tick, but the following is what this smoothing is, and having both would smooth an already smoothed camera |
 | Shake            | Small on deaths, larger on cash-outs of 500 or more               |
 | Ultrawide        | Shows more table on the sides, never less arena                   |
 

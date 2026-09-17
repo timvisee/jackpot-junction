@@ -43,6 +43,12 @@ var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
+	# The camera and the ears are placed every drawn frame, smoothed here rather than by the
+	# engine: they follow karts that move on the physics tick, but the following itself is what
+	# the smoothing in [method _process] is for. Left interpolated, the engine would smooth an
+	# already smoothed transform and warn on every frame that it was moved outside a physics
+	# tick, which is the only place this rig ever moves it.
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	camera = Camera3D.new()
 	camera.name = "Camera"
 	camera.near = 0.5
