@@ -30,6 +30,10 @@ func test_the_sparks_light_up_when_charged_and_go_gold_when_spent() -> void:
 	var sparks: DriftSparks = kart.get_node("DriftSparks")
 	var left: GPUParticles3D = sparks._fountains[0]
 	assert_bool(left.emitting).is_false()
+	# Out in the middle of the floor with room to slide: running into something spoils a drift,
+	# GAME.md 4.1, and this test is about what a drift that is driven says for itself.
+	kart.global_position = match_node.arena.junction_position + Vector3(0.0, 0.0, 9.0)
+	kart.face(Vector3(1.0, 0.0, 0.0))
 	# Up to speed, then a flick of the handbrake to break the rear loose.
 	kart.motor.forward_speed = kart.stats.top_speed
 	kart.motor.velocity = kart.motor.forward_vector() * kart.stats.top_speed
