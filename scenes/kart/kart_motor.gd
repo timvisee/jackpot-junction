@@ -37,6 +37,9 @@ var drifting := false
 ## whether a drift is being asked for; this says how much of one has actually arrived.
 var drift_amount := 0.0
 var drift_time := 0.0
+## How fast the rear is coming round on its own, in radians a second, signed like the
+## steering: positive swings the nose to the right. Only the oversteer drift style uses it.
+var slide_rate := 0.0
 var boost_time_left := 0.0
 var turbo_time_left := 0.0
 ## Direction a turbo pad pushes along while [method turboing].
@@ -137,6 +140,7 @@ func step(input: KartInput, delta: float) -> void:
 	_step_longitudinal(input, delta)
 	_step_drift(input)
 	_step_drift_amount(delta)
+	_step_slide(delta)
 	_step_steering(delta)
 	var reversing := forward_speed < 0.0
 	var target := forward_vector() * (-1.0 if reversing else 1.0)
@@ -167,6 +171,14 @@ func step(input: KartInput, delta: float) -> void:
 		forward_speed = move_toward(forward_speed, 0.0, stats.spin_out_decel * delta)
 	elif drifting:
 		forward_speed *= 1.0 - stats.drift_speed_decay * delta
+		if _oversteering():
+			# Hanging the kart out costs speed, and costs more the further it hangs. A slide held
+			# at a sensible angle is quick; one left to come all the way round scrubs itself to a
+			# stop, which is what makes catching it worth doing rather than merely tidy.
+			var past := maxf(absf(slip_angle()) - deg_to_rad(stats.slide_scrub_deg), 0.0)
+			forward_speed = move_toward(
+				forward_speed, 0.0, stats.slide_scrub * sin(past) * drift_amount * delta
+			)
 	else:
 		# Sliding sideways outside a controlled drift scrubs speed hard, down to a near standstill.
 		var slip := absf(travel.signed_angle_to(target, Vector3.UP))
@@ -177,6 +189,22 @@ func step(input: KartInput, delta: float) -> void:
 	var limit := max_speed()
 	if velocity.length() > limit:
 		velocity = velocity.normalized() * limit
+	_hold_the_slide_angle()
+
+
+## The tires will not let the nose get further than [member KartStats.slide_max_deg] from where
+## the kart is going. Bleeding the slide off at the limit is not enough: the rear is swinging at
+## 370°/s by the time it gets there and carries straight through, and past a right angle the kart
+## counts as travelling backwards, which inverts its steering. So the rotation is arrested there.
+func _hold_the_slide_angle() -> void:
+	if not _oversteering() or spinning() or velocity.length() < 0.5:
+		return
+	var edge := deg_to_rad(stats.slide_max_deg)
+	var slip := slip_angle()
+	if absf(slip) <= edge:
+		return
+	heading = wrapf(heading - (slip - signf(slip) * edge), -PI, PI)
+	slide_rate = 0.0
 
 
 ## The tire model, GAME.md 4.1. Sub-stepped, because tires are stiff: a whole 60 Hz tick of a
@@ -239,6 +267,40 @@ func _step_tires_once(input: KartInput, delta: float) -> void:
 	var turned := forward_vector()
 	velocity = turned * long_speed + turned.cross(Vector3.UP) * lat_speed
 	_set_drifting(absf(rear_slip) > deg_to_rad(18.0) and absf(lat_speed) > 1.5, delta)
+
+
+## Whether a drift is running under the oversteer style, where the rear has a mind of its own.
+func _oversteering() -> bool:
+	return stats.drift_style == KartStats.DriftStyle.OVERSTEER
+
+
+## The rear coming round, GAME.md 4.1. It lets go once, when the drift starts, and then has
+## a life of its own: holding the wheel into it feeds it, straightening lets it bleed off
+## slowly, and winding the wheel the other way pulls it back in quickly. Catching it is the
+## end of it, so opposite lock held after the catch steers the kart rather than throwing it
+## the other way; another pull of the handbrake is what breaks the rear loose again. Hanging
+## past the biggest angle the tires would hold bleeds it off whatever the wheel is doing, so a
+## slide stays a slide rather than becoming a spin.
+func _step_slide(delta: float) -> void:
+	if not _oversteering() or not drifting or spinning() or turboing():
+		# Gathered up as quickly as counter-steering would: the drift is over.
+		slide_rate = move_toward(slide_rate, 0.0, deg_to_rad(stats.slide_counter_deg) * delta)
+		return
+	if slide_rate == 0.0:
+		return
+	var way := signf(slide_rate)
+	if -slip_angle() * way >= deg_to_rad(stats.slide_max_deg):
+		slide_rate = move_toward(slide_rate, 0.0, deg_to_rad(stats.slide_counter_deg) * delta)
+		return
+	var into := clampf(steer * way, 0.0, 1.0)
+	var against := clampf(-steer * way, 0.0, 1.0)
+	var change := (
+		stats.slide_build_deg * into - stats.slide_counter_deg * against - stats.slide_settle_deg
+	)
+	slide_rate += way * deg_to_rad(change) * delta
+	if signf(slide_rate) != way:
+		# Caught: the rear has come back in line rather than swinging through it.
+		slide_rate = 0.0
 
 
 ## Drifting is not a mode here, it is a reading: the rear is sliding and the kart is going
@@ -395,6 +457,9 @@ func _step_drift(input: KartInput) -> void:
 	if handbrake or (not stats.handbrake_drift_only and hard_turn and fast):
 		drifting = true
 		drift_time = 0.0
+		if _oversteering():
+			# The rear lets go, once, the way the kart was turned.
+			slide_rate = signf(steer) * deg_to_rad(stats.slide_start_deg)
 		# The rear swings out: the nose kicks into the turn over the next fraction of a second.
 		var kick := deg_to_rad(stats.drift_entry_kick_deg)
 		_kick_remaining = signf(steer) * kick if absf(steer) > 0.1 else 0.0
@@ -451,7 +516,7 @@ func _step_steering(delta: float) -> void:
 	# and over, and a step in the turn rate is felt every single time.
 	var rolling := _rolling_rate(speed_now) * signf(forward_speed)
 	var blend := clampf(speed_now / stats.pivot_blend_speed, 0.0, 1.0)
-	heading = wrapf(heading - steer * lerpf(pivot, rolling, blend) * delta, -PI, PI)
+	heading = wrapf(heading - (steer * lerpf(pivot, rolling, blend) + slide_rate) * delta, -PI, PI)
 
 
 ## The original hard switch at [member KartStats.min_steer_speed], kept so the blend can be
@@ -466,9 +531,15 @@ func _step_steering_switched(speed_now: float, pivot: float, delta: float) -> vo
 
 
 ## How fast the nose comes round on the wheels at this speed, with everything that scales it.
+## Under the oversteer style a drift does not tighten the steering, it takes authority away
+## from it: what turns the kart then is the rear coming round, which [member slide_rate]
+## carries.
 func _rolling_rate(speed_now: float) -> float:
 	var rate := yaw_rate(speed_now / stats.top_speed)
-	rate *= lerpf(1.0, stats.drift_yaw_multiplier, drift_amount)
+	if _oversteering():
+		rate *= lerpf(1.0, stats.slide_front_authority, drift_amount)
+	else:
+		rate *= lerpf(1.0, stats.drift_yaw_multiplier, drift_amount)
 	if turboing():
 		rate *= stats.turbo_steer_multiplier
 	if nitro_bonus > 1.0:
@@ -494,6 +565,7 @@ func _step_entry_kick(delta: float) -> void:
 ## throttle doing nothing. [param direction] is +1 to spin left, -1 to spin right.
 func apply_spin_out(direction: float) -> void:
 	spin_time_left = stats.spin_out_time
+	slide_rate = 0.0
 	_spin_direction = 1.0 if direction >= 0.0 else -1.0
 	drifting = false
 	drift_amount = 0.0

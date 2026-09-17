@@ -122,9 +122,16 @@ func test_the_wheel_winds_on_rather_than_snapping() -> void:
 
 
 ## A corner taken at the limit costs speed, because rubber spent holding the kart cannot also
-## drive it. The grippy preset is quick enough about it that a tidy line keeps its speed.
+## drive it. Taken on tires this loose the corner is a slide, and the slide is slow. The
+## numbers are built here rather than kept as a preset: the model lost, and one set of its
+## numbers is enough to keep around.
 func test_a_slide_costs_speed() -> void:
-	var loose: KartStats = load("res://data/kart/feel_rally.tres").duplicate()
+	var loose: KartStats = _stats.duplicate()
+	loose.front_grip = 12.0
+	loose.rear_grip = 9.5
+	loose.front_stiffness = 85.0
+	loose.rear_stiffness = 70.0
+	loose.steer_angle_high_deg = 17.0
 	var motor := KartMotor.new(loose)
 	var input := KartInput.new()
 	input.throttle = 1.0

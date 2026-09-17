@@ -28,15 +28,13 @@ const CAMERA_DISTANCE := 26.0
 const PRESETS: Array[String] = [
 	"feel_shipped",
 	"default",
-	"feel_wider",
-	"feel_tighter",
+	"feel_oversteer",
 	"feel_snapdrift",
 ]
 const PRESET_NAMES: Array[String] = [
 	"as it ships",
 	"the kart now",
-	"wider at speed, 5.1 m",
-	"tighter at speed, 4.4 m",
+	"oversteer drift: counter-steer to hold it",
 	"now, but with the old instant drift",
 ]
 

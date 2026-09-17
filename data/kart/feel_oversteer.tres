@@ -1,0 +1,67 @@
+[gd_resource type="Resource" script_class="KartStats" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/kart/kart_stats.gd" id="1_stats"]
+
+[resource]
+script = ExtResource("1_stats")
+top_speed = 10.5
+accel_time = 1.5
+brake_decel = 20.0
+reverse_top_speed = 5.0
+coast_decel = 4.0
+yaw_rate_low_deg = 200.0
+yaw_rate_high_deg = 138.0
+min_steer_speed = 0.5
+steer_ramp_up = 0.0
+steer_ramp_down = 0.0
+stick_curve = 1.0
+turn_in_place_rate_deg = 85.0
+pivot_blend_speed = 2.2
+grip_normal = 30.0
+drift_style = 1
+grip_drift = 4.8
+handbrake_drift_only = true
+handbrake_decel = 22.0
+handbrake_drift_scrub = 4.2
+handbrake_drift_steer = 0.3
+drift_steer_threshold = 0.8
+drift_speed_fraction = 0.7
+handbrake_speed_fraction = 0.4
+drift_exit_steer = 0.3
+drift_yaw_multiplier = 1.55
+drift_entry_kick_deg = 15.0
+drift_entry_kick_time = 0.15
+drift_speed_decay = 0.05
+drift_min_duration = 0.6
+drift_exit_boost = 0.2
+drift_exit_boost_duration = 0.8
+nitro_speed_multiplier = 1.9
+nitro_steer_multiplier = 0.6
+nitro_grip_multiplier = 0.55
+nitro_capacity_seconds = 2.0
+nitro_recharge_seconds = 90.0
+nitro_kill_refill = 0.5
+nitro_recharge_delay = 0.6
+nitro_min_start = 0.2
+turbo_speed_multiplier = 1.5
+turbo_duration = 1.0
+turbo_steer_multiplier = 0.5
+turbo_align_angle_deg = 45.0
+turbo_side_push_time = 0.15
+slip_friction = 7.0
+grip_sliding = 4.0
+spin_out_time = 1.1
+spin_out_rate_deg = 420.0
+spin_out_grip = 0.8
+spin_out_decel = 3.0
+wall_hit_threshold = 0.5
+wall_hit_speed_loss = 0.3
+bump_push_speed = 6.0
+bump_speed_loss = 0.2
+wall_glance_angle_deg = 35.0
+wall_glance_turn = 0.6
+wall_glance_bounce = 1.2
+wall_glance_speed_loss = 0.15
+length = 1.6
+width = 1.0
+height = 0.8

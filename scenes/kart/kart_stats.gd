@@ -8,6 +8,16 @@ extends Resource
 ## wheel instead and lets the tires decide what the kart does with it, which is what the Tire
 ## model group below is for. Most of the numbers outside that group are shared.
 
+## What a drift does once it has started, GAME.md 4.1.
+enum DriftStyle {
+	## Holding the wheel over holds the slide: the kart turns tighter and keeps turning.
+	TIGHTEN,
+	## The rear steps out and keeps coming round on its own. Holding the wheel over feeds it
+	## and eventually swaps the kart end for end; the wheel has to come back the other way to
+	## hold an angle, which is how a rally car is driven.
+	OVERSTEER,
+}
+
 ## Which handling model drives the kart, GAME.md 4.1.
 enum Model {
 	## The stick is a yaw rate and the travel direction chases the nose.
@@ -46,6 +56,7 @@ enum Model {
 ## How fast the direction of travel turns toward the nose, per second. Slip is about yaw over grip.
 @export var grip_normal := 16.0
 @export var grip_drift := 4.8
+@export var drift_style: DriftStyle = DriftStyle.TIGHTEN
 ## When on, only the handbrake starts a drift; steering alone never does.
 @export var handbrake_drift_only := true
 ## Braking of the handbrake without steering: a quick straight stop; 0 means it never brakes.
@@ -78,6 +89,28 @@ enum Model {
 @export var drift_min_duration := 0.6
 @export var drift_exit_boost := 0.2
 @export var drift_exit_boost_duration := 0.8
+
+@export_group("Oversteer drift")
+## How fast the rear is already coming round the moment it lets go, in degrees a second.
+@export var slide_start_deg := 90.0
+## Degrees a second squared the slide gains while the wheel is held into it, loses to full
+## opposite lock, and bleeds off by itself with the wheel straight. Counter has to beat build
+## by a good margin or the slide cannot be caught once it is running.
+@export var slide_build_deg := 260.0
+@export var slide_counter_deg := 520.0
+@export var slide_settle_deg := 90.0
+## The most the kart will hang out, in degrees between the nose and where it is going. Set
+## just short of sideways: the point of this style is that holding the wheel in loses you the
+## corner, so the kart has to be allowed to come all the way round.
+@export var slide_max_deg := 88.0
+## Where a slide stops being fast and starts costing speed, and the most it costs at a right
+## angle, in m/s². A shallow slide is quick and a big one scrubs itself to a stop, which is
+## what makes catching the slide worth doing rather than merely tidy.
+@export var slide_scrub_deg := 25.0
+@export var slide_scrub := 13.0
+## What is left of the front wheels' own steering while the rear is out. The front is still
+## doing something, but the slide is most of what turns the kart.
+@export var slide_front_authority := 0.5
 
 @export_group("Tire model")
 ## Wheelbase, and how far forward of the middle the weight sits. A kart with its weight back
