@@ -876,7 +876,9 @@ every kart, so everyone sees when an opponent cashes out.
   also takes the meter falling 0.06 below the mark that won it. So the evening
   builds rather than flickers: a flurry cannot flick the room up and straight
   back down, and a climb from 1 to 6 takes at least half a minute of sustained
-  action. Two things skip the queue. Last Call stops listening to the meter and
+  action. A bounty being called puts the room up a level on the spot, since a price on the
+  leader's head is an announcement rather than something to wait out, and the usual hold
+  keeps it there. Two more things skip the queue. Last Call stops listening to the meter and
   walks the room up on its own clock, one level every 2 s until it is at the top,
   so the finale arrives over about ten seconds as a build rather than as a switch;
   a room already halfway up gets there sooner. And every human player being dead

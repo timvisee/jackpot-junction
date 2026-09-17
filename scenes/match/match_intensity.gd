@@ -97,6 +97,13 @@ func add(amount: float) -> void:
 	heat = minf(heat + amount, HEAT_CAP)
 
 
+## Puts the room up a level on the spot, for the things that are worth announcing rather than
+## waiting out. It stands for the usual hold afterwards, so one cannot be stacked on another.
+func bump() -> void:
+	if level < LEVELS:
+		_set_level(level + 1)
+
+
 ## Drops the meter at once, for example when everyone on this machine is dead and the room should
 ## go quiet whatever just happened.
 func reset() -> void:
@@ -253,8 +260,11 @@ func _on_blast(_slot: int) -> void:
 	add(BLAST)
 
 
+## A price going on the leader's head is an announcement, not a rumour: the room goes up a
+## level for it whatever the meter thinks, and the usual hold keeps it there.
 func _on_bounty(_slot: int) -> void:
 	add(BOUNTY)
+	bump()
 
 
 func _on_bounty_claimed(_killer: int, _victim: int, _amount: int) -> void:

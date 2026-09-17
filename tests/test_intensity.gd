@@ -117,6 +117,29 @@ func test_dying_in_last_call_does_not_wind_the_room_back_down() -> void:
 	assert_str(Audio.current_layer).is_equal("peak")
 
 
+## GAME.md 8.4: a bounty is an announcement, so the room goes up a level for it there and then
+## rather than waiting for the meter to argue its way there.
+func test_a_bounty_puts_the_room_up_a_level() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	await _settle(match_node)
+	var meter := match_node.intensity
+	assert_int(meter.level).is_equal(1)
+	Events.bounty_called.emit(0)
+	await _runner.simulate_frames(2, 17)
+	assert_int(meter.level).is_equal(2)
+	# Another one on top of it goes up again: a bounty does not wait on the hold.
+	Events.bounty_called.emit(0)
+	await _runner.simulate_frames(2, 17)
+	assert_int(meter.level).is_equal(3)
+	# It stands for a while rather than being argued straight back down by a quiet meter.
+	await _runner.simulate_frames(120, 17)
+	assert_int(meter.level).is_equal(3)
+	# And a room nobody is fighting in does come back down eventually.
+	await _runner.simulate_frames(int((MatchIntensity.HOLD + MatchIntensity.DWELL) * 120.0), 17)
+	assert_int(meter.level).is_less(3)
+
+
 func test_pressure_comes_from_a_fat_pot_a_duel_and_a_cash_out() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)
