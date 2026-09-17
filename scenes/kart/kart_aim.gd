@@ -9,8 +9,17 @@ extends RefCounted
 ## which is that answer bent toward an enemy when the Aimbot joker is held.
 
 
-## Where this kart is pointing its cannon.
+## Where this kart is pointing its cannon, after any joker has had its say about it.
 static func direction(kart: Kart) -> Vector3:
+	var aim := _pointed(kart)
+	for joker: Joker in kart.jokers.jokers:
+		aim = joker.modify_aim(kart, aim)
+	return aim
+
+
+## Where the kart itself is pointing: the nose, unless the cannon allows free aim and the stick
+## or the mouse says otherwise.
+static func _pointed(kart: Kart) -> Vector3:
 	var forward := -kart.global_basis.z
 	if not kart.cannon.current_stats().free_aim:
 		return forward

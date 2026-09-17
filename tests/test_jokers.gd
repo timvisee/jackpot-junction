@@ -44,7 +44,7 @@ func _chip(dropped := false, gold := false) -> Chip:
 
 func test_catalog_has_unique_jokers_and_offers_exclude_held_ones() -> void:
 	var catalog: JokerCatalog = CATALOG
-	assert_int(catalog.jokers.size()).is_equal(22)
+	assert_int(catalog.jokers.size()).is_equal(23)
 	var ids: Array[StringName] = []
 	for joker: Joker in catalog.jokers:
 		(
@@ -72,7 +72,8 @@ func test_bullets_do_not_bounce_by_default_and_rubber_bumpers_stack_one_bounce_e
 	var catalog: JokerCatalog = CATALOG
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 5
-	var offered := catalog.offer(rng, 19, kart.jokers.ids())
+	# The whole pool, so the draw cannot simply miss it as the catalog grows.
+	var offered := catalog.offer(rng, catalog.jokers.size(), kart.jokers.ids())
 	var again := false
 	for joker: Joker in offered:
 		again = again or joker.id == &"rubber_bumpers"
@@ -664,3 +665,30 @@ func test_the_fire_button_takes_the_card_under_the_cursor() -> void:
 	item.use_item_pressed = true
 	second.poll_input(item)
 	assert_bool(second.is_done()).is_true()
+
+
+## GAME.md 7.3: Backfire points the cannon out of the back of the kart while the brake is held,
+## so a driver being chased can answer without turning round.
+func test_backfire_shoots_out_of_the_back_while_the_brake_is_held() -> void:
+	var match_node := _start_match(_bots())
+	var kart := match_node.kart_of(0)
+	kart.face(Vector3(1.0, 0.0, 0.0))
+	await _runner.simulate_frames(4, 17)
+	var nose := KartAim.direction(kart)
+	assert_vector(nose).is_equal_approx(Vector3(1.0, 0.0, 0.0), Vector3.ONE * 0.01)
+	_attach(kart, "backfire")
+	# Off the brake it is an ordinary cannon.
+	kart.input.brake = 0.0
+	assert_vector(KartAim.direction(kart)).is_equal_approx(nose, Vector3.ONE * 0.01)
+	# A brush of it while trail braking is not somebody asking to shoot behind themselves.
+	kart.input.brake = 0.2
+	assert_vector(KartAim.direction(kart)).is_equal_approx(nose, Vector3.ONE * 0.01)
+	# Held, and the shot leaves the other way.
+	kart.input.brake = 1.0
+	assert_vector(KartAim.direction(kart)).is_equal_approx(-nose, Vector3.ONE * 0.01)
+	# Free aim overrules it: a hand on the stick has already said where the shot goes.
+	kart.cannon.stats.free_aim = true
+	kart.input.aim = Vector2(0.0, -1.0)
+	assert_vector(KartAim.direction(kart)).is_equal_approx(
+		Vector3(0.0, 0.0, -1.0), Vector3.ONE * 0.01
+	)

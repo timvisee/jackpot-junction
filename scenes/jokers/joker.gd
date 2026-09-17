@@ -50,6 +50,12 @@ func modify_cannon_stats(_stats: CannonStats) -> void:
 	pass
 
 
+## Where a shot leaves, given where the kart says it is pointing. Aimbot bends the answer toward
+## an enemy afterwards, see [KartAim]; this is the direction it starts from.
+func modify_aim(_kart: Kart, direction: Vector3) -> Vector3:
+	return direction
+
+
 func modify_pickup_radius(radius: float) -> float:
 	return radius
 

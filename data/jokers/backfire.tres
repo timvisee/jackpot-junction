@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/backfire.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"backfire"
+display_name = "Backfire"
+description = "Hold the brake and your cannon points out of the back of the kart."
+rarity = 1
+kind = 1
