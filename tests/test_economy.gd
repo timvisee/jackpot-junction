@@ -39,6 +39,11 @@ func test_countdown_then_play_then_last_call_then_results() -> void:
 	assert_int(match_node.state).is_equal(Match.State.LAST_CALL)
 	assert_float(match_node.arena.junction.payout_multiplier).is_equal(rules.last_call_payout)
 	await runner.simulate_frames(110, 17)
+	# The clock running out with a field still driving is sudden death, GAME.md 3.13, and the
+	# whistle goes when one of them is left.
+	assert_int(match_node.state).is_equal(Match.State.OVERTIME)
+	match_node.kart_of(1).die(&"test", -1)
+	await runner.simulate_frames(4, 17)
 	assert_int(match_node.state).is_equal(Match.State.RESULTS)
 	# Not stopped dead: let go of, and out of play while it rolls out.
 	assert_bool(match_node.kart_of(0).frozen).is_false()

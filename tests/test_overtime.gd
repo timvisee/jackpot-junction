@@ -4,12 +4,13 @@ extends GdUnitTestSuite
 ## everything it is carrying.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const DEFAULT_RULES: MatchRules = preload("res://data/match/default.tres")
 
 var _runner: GdUnitSceneRunner
 
 
 func _start_match(overtime: bool, players: int = 3) -> Match:
-	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	var rules: MatchRules = DEFAULT_RULES.duplicate()
 	rules.countdown = 0.1
 	rules.duration = 60.0
 	rules.lives = 1
@@ -134,7 +135,7 @@ func test_the_lobby_switch_turns_overtime_off() -> void:
 func test_the_setting_reaches_the_rules() -> void:
 	var config := MatchConfig.new()
 	config.overtime = false
-	var rules: MatchRules = load("res://data/match/default.tres")
+	var rules: MatchRules = DEFAULT_RULES
 	assert_bool(rules.overtime).is_true()
 	assert_bool(config.rules(rules).overtime).is_false()
 	config.overtime = true

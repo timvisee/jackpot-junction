@@ -259,6 +259,8 @@ func test_the_picker_keeps_its_cards_between_frames() -> void:
 ## results, so the pick has nothing left to be for and it would sit over the standings unusable.
 func test_the_whistle_takes_an_open_joker_pick_off_the_screen() -> void:
 	var match_node := _start_match(_bots(), 3)
+	# The whistle this is about is the real one, so no sudden death in the way of it.
+	match_node.rules.overtime = false
 	var kart := match_node.kart_of(0)
 	var slot := match_node.slots[0]
 	slot.offer = JokerOffer.new(kart, CATALOG.offer(match_node.rng, 3, []))

@@ -2,6 +2,7 @@ extends GdUnitTestSuite
 ## The start gantry from GAME.md 8.3: the countdown is a rack of lamps, not a number.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const DEFAULT_RULES: MatchRules = preload("res://data/match/default.tres")
 
 
 func test_the_lamps_fill_up_across_the_countdown_and_turn_green_on_the_drop() -> void:
@@ -24,7 +25,7 @@ func test_the_lamps_fill_up_across_the_countdown_and_turn_green_on_the_drop() ->
 ## The rack and the start tones are one countdown, GAME.md 8.3: every lamp that lights plays a
 ## tone, so a player watching and a player listening are counting the same thing.
 func test_a_lamp_lights_with_every_start_tone() -> void:
-	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	var rules: MatchRules = DEFAULT_RULES.duplicate()
 	rules.countdown = 3.0
 	rules.duration = 60.0
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
@@ -46,7 +47,7 @@ func test_a_lamp_lights_with_every_start_tone() -> void:
 
 ## A room with no countdown holds nobody up and says nothing about it.
 func test_a_match_with_no_countdown_plays_no_tones() -> void:
-	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	var rules: MatchRules = DEFAULT_RULES.duplicate()
 	rules.countdown = 0.0
 	rules.duration = 60.0
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
