@@ -190,8 +190,10 @@ func _set_level(to: int) -> void:
 	_hold = HOLD
 
 
+## The finale, which sudden death is a continuation of rather than an interruption: neither
+## winds the room back down, GAME.md 8.4.
 func _last_call() -> bool:
-	return match_node != null and match_node.state == Match.State.LAST_CALL
+	return match_node != null and match_node.in_the_finale()
 
 
 ## The part that does not fade.

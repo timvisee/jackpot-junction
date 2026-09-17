@@ -251,7 +251,7 @@ The joker catalogue is in section 7.3.
 | Players         | 1 to 4 humans, bots fill the remaining slots to 4         |
 | Tie-break       | Most kills, then fewest deaths                            |
 
-Flow: Title screen, Lobby, Countdown, Playing, Last Call, Results. At the
+Flow: Title screen, Lobby, Countdown, Playing, Last Call, Overtime, Results. At the
 whistle nobody is stopped dead: every driver lets go of the wheel and the karts
 roll to a halt on their own, out of anyone's control and out of reach of pits,
 hazards and the Junction alike, while the rig swings onto the winner. Results
@@ -375,6 +375,31 @@ and is never called. Dying wipes a streak and a run both.
 
 The calls are text for now. They are worked out apart from how they are shown, so
 a voice can be put behind them later without the rules moving.
+
+### 3.13 Overtime
+
+The clock running out does not end the match while there is still a field out
+there. It goes to sudden death instead, and the timer says OVERTIME rather than
+counting anything.
+
+- Nobody respawns. A kart that goes down in overtime is out, and is offered no
+  joker, because there is no respawn for it to be for.
+- The Junction still pays. A player who would rather keep what they are carrying
+  than bet it on staying alive can drive in and bank it, the same as ever.
+- The last kart standing banks its whole pot, at full value, and the whistle goes.
+- Everybody going down at once is nobody's win: the whistle simply goes and the
+  unbanked pots are lost as usual.
+- A field already down to one when the clock runs out has nothing to play out, so
+  the whistle goes on the hour as it did before there was an overtime.
+
+The room does not wind down for it. Sudden death counts as the finale the same as
+Last Call does, see 8.4, so the lights and the music stay at the top, and bots
+treat it the same way: what is in the pot is worth taking to the Junction now,
+because there is no lap after this one. Entering it sounds the Last Call alarm
+again, pitched down: the same warning, only final.
+
+Overtime can be switched off in the settings, see 8.5, for players who would
+rather the whistle went on the hour.
 
 ## 4. Kart
 
@@ -1392,7 +1417,7 @@ res://
 
 Key pieces:
 
-- **Match**: state machine Lobby, Countdown, Playing, LastCall, Results. Owns
+- **Match**: state machine Lobby, Countdown, Playing, LastCall, Overtime, Results. Owns
   the player list, timer and standings, and instantiates the arena scene.
 - **Kart**: CharacterBody3D with child components: KartMotor for handling,
   Cannon, Pot for coins and mult, JokerHolder, ItemHolder, GrazeArea, Trails.

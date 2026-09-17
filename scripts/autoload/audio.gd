@@ -554,6 +554,9 @@ func _on_state_changed(state: int) -> void:
 			# The mix is not switched here: the excitement climb of GAME.md 8.4 brings the full
 			# track in as it walks the room up to the top level.
 			play_sfx(&"last_call", -2.0, 0.0)
+		Match.State.OVERTIME:
+			# The same alarm as Last Call, further down: it is the same warning, only final.
+			play_sfx(&"last_call", -1.0, 0.0, 0.78)
 		Match.State.RESULTS:
 			play_sfx(&"results", -2.0, 0.0)
 			excitement = 1

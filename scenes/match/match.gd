@@ -4,7 +4,7 @@ extends Node3D
 ## countdown, the timer, Last Call and the results, and applies the death sequence. Zones and
 ## karts report through signals; the match is the only place that changes banked scores.
 
-enum State { LOBBY, COUNTDOWN, PLAYING, LAST_CALL, RESULTS }
+enum State { LOBBY, COUNTDOWN, PLAYING, LAST_CALL, OVERTIME, RESULTS }
 
 const ARENA_SCENE := preload("res://scenes/arena/arena.tscn")
 const KART_SCENE := preload("res://scenes/kart/kart.tscn")
@@ -383,8 +383,14 @@ func apply_snapshot(data: Dictionary) -> void:
 	MatchSnapshot.apply(self, data)
 
 
+## The end of the match, whether that is the clock running down or the sudden death after it.
+## Both mean the same thing to anyone watching: there is no lap after this one.
+func in_the_finale() -> bool:
+	return state == State.LAST_CALL or state == State.OVERTIME
+
+
 func is_running() -> bool:
-	return state == State.PLAYING or state == State.LAST_CALL
+	return state == State.PLAYING or state == State.LAST_CALL or state == State.OVERTIME
 
 
 ## Slots ranked by banked score, then kills, then fewest deaths.
@@ -459,16 +465,20 @@ func _physics_process(delta: float) -> void:
 				Events.countdown_tick.emit(now)
 			if countdown_left <= 0.0:
 				_begin_play()
-		State.PLAYING, State.LAST_CALL:
-			if rules.timed:
+		State.PLAYING, State.LAST_CALL, State.OVERTIME:
+			if rules.timed and state != State.OVERTIME:
 				time_left -= delta
 			if state == State.PLAYING and time_left <= rules.last_call_duration:
 				_enter_last_call()
-			if time_left <= 0.0:
+			if state != State.OVERTIME and time_left <= 0.0:
 				time_left = 0.0
-				_finish()
-				return
-			_step_respawns(delta)
+				if not _enter_overtime():
+					return
+			if state == State.OVERTIME:
+				if _step_overtime():
+					return
+			else:
+				_step_respawns(delta)
 			_step_stats(delta)
 			bot_mirror.update(self)
 			_step_bounty(delta)
@@ -558,6 +568,46 @@ func _begin_play() -> void:
 func _enter_last_call() -> void:
 	arena.junction.payout_multiplier = rules.last_call_payout
 	_set_state(State.LAST_CALL)
+
+
+## The clock running out, GAME.md 3.13. With overtime on, the match does not end there: it
+## goes to sudden death instead, where nobody comes back and the last kart standing takes
+## everything it is carrying. Returns whether overtime was entered; if it was not, the match is
+## over and the caller should stop.
+func _enter_overtime() -> bool:
+	if not rules.overtime or _alive_slots().size() < 2:
+		_finish()
+		return false
+	_set_state(State.OVERTIME)
+	Events.overtime_started.emit()
+	return true
+
+
+## Sudden death, GAME.md 3.13. Nobody respawns, so the field only shrinks; the last one left
+## banks the lot and the whistle goes. Returns whether the match ended on this tick.
+func _step_overtime() -> bool:
+	var standing := _alive_slots()
+	if standing.size() > 1:
+		return false
+	if standing.size() == 1:
+		var winner := standing[0]
+		var kart := winner.kart
+		var won := Scoring.pot_value(kart.pot.coins, kart.pot.mult)
+		if won > 0:
+			winner.banked += won
+			Events.death_banked.emit(winner.index, won)
+		kart.pot.reset()
+	_finish()
+	return true
+
+
+## Every slot whose kart is still in play. A kart on its way down a pit is already gone.
+func _alive_slots() -> Array[PlayerSlot]:
+	var standing: Array[PlayerSlot] = []
+	for slot: PlayerSlot in slots:
+		if slot.kart != null and slot.kart.alive and not slot.kart.falling:
+			standing.append(slot)
+	return standing
 
 
 ## Ends the match. Pots still unbanked are lost. The karts are not stopped dead: every driver
@@ -665,7 +715,8 @@ func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> voi
 	kart.pot.reset()
 	slot.deaths += 1
 	slot.respawn_left = rules.respawn_delay
-	slot.offer = _make_offer(slot)
+	# Nobody comes back out of sudden death, so there is nothing to pick a joker for.
+	slot.offer = null if state == State.OVERTIME else _make_offer(slot)
 	Events.kart_killed.emit(slot.index, killer_slot, cause)
 	if camera_rig != null:
 		# A kill in a hot match hits harder than the first one of the round.

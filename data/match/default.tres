@@ -35,6 +35,7 @@ jackpot_amber = 20
 jackpot_rate_base = 2.0
 jackpot_rate_doubling = 0.5
 last_call_accrual = 2.0
+overtime = true
 nitro_recharge_hot = 3.0
 wild_joker_level = 5
 wild_joker_interval = 22.0

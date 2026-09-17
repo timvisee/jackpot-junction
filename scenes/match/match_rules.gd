@@ -50,6 +50,11 @@ extends Resource
 @export var jackpot_rate_doubling := 0.5
 @export var last_call_accrual := 2.0
 
+@export_group("Overtime")
+## Whether the clock running out sends the match to sudden death instead of ending it, GAME.md
+## 3.13. Off means the whistle goes on the hour as it always did.
+@export var overtime := true
+
 @export_group("Hot table")
 ## What the nitro refill rate is multiplied by at the top excitement level. Nitro is scarce by
 ## design, but a finale where nobody has any is a finale where nobody does anything.

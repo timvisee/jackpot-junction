@@ -333,7 +333,9 @@ func _context() -> Dictionary:
 		"hunt_urgency": mirror.hunt_urgency(),
 		"pot_value": kart.pot.value(),
 		"time_left": match_node.time_left,
-		"last_call": match_node.state == Match.State.LAST_CALL,
+		# Sudden death reads as Last Call to a bot: what is in the pot is worth taking to the
+		# Junction now, because there is no lap after this one.
+		"last_call": match_node.in_the_finale(),
 		"has_item": kart.held_item != null,
 		"wounded": kart.is_wounded(),
 	}

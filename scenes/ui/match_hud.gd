@@ -245,12 +245,15 @@ func _update_timer() -> void:
 		# A room with no clock, such as the Garage: nothing to count down to.
 		_timer.visible = false
 		return
-	var seconds := ceili(match_node.time_left)
-	_timer.text = "%d:%02d" % [seconds / 60, seconds % 60]
-	var last_call := match_node.state == Match.State.LAST_CALL
-	_timer.add_theme_color_override(
-		"font_color", Color(1.0, 0.35, 0.3) if last_call else Color.WHITE
-	)
+	var overtime := match_node.state == Match.State.OVERTIME
+	if overtime:
+		# There is nothing left to count: the clock has run out and the match is still on.
+		_timer.text = "OVERTIME"
+	else:
+		var seconds := ceili(match_node.time_left)
+		_timer.text = "%d:%02d" % [seconds / 60, seconds % 60]
+	var hot := overtime or match_node.state == Match.State.LAST_CALL
+	_timer.add_theme_color_override("font_color", Color(1.0, 0.35, 0.3) if hot else Color.WHITE)
 
 
 ## The running order is for the player watching this screen. In a four-corner shared-screen game

@@ -31,6 +31,8 @@ signal countdown_tick(count: int)
 signal wild_joker_dropped(joker_id: StringName)
 ## The announcer called something, GAME.md 3.12: a run of kills, a streak or a trade.
 signal announced(slot: int, call: String)
+## The clock ran out and the match went to sudden death instead, GAME.md 3.13.
+signal overtime_started
 signal bullet_fired(slot: int)
 signal bullet_bounced
 signal kart_bumped(slot: int)
