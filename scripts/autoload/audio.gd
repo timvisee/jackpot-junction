@@ -7,9 +7,6 @@ extends Node
 ## the track's 88 s loop with the decay tail folded under the start, so they loop without a gap.
 ## Every file is logged in THIRD_PARTY.md.
 
-const BUS_MASTER := &"Master"
-const BUS_MUSIC := &"Music"
-const BUS_SFX := &"SFX"
 const POOL_SIZE := 16
 const AUDIO_DIR := "res://assets/audio/"
 const SFX_DIR := AUDIO_DIR + "sfx/"
@@ -144,12 +141,12 @@ var _rng := RandomNumberGenerator.new()
 func _ready() -> void:
 	for i: int in POOL_SIZE:
 		var player := AudioStreamPlayer.new()
-		player.bus = BUS_SFX
+		player.bus = Buses.SFX
 		add_child(player)
 		_pool.append(player)
 	for i: int in 2:
 		var player := AudioStreamPlayer.new()
-		player.bus = BUS_MUSIC
+		player.bus = Buses.MUSIC
 		player.volume_linear = 0.0
 		add_child(player)
 		_music_players.append(player)
@@ -162,7 +159,7 @@ func _ready() -> void:
 ## Puts a sweepable low-pass filter and a gain stage on the music bus. They sit after the bus
 ## volume, so the settings in 8.5 keep full control of how loud the music is.
 func _build_music_effects() -> void:
-	var bus := AudioServer.get_bus_index(BUS_MUSIC)
+	var bus := AudioServer.get_bus_index(Buses.MUSIC)
 	if bus < 0:
 		return
 	_filter = AudioEffectLowPassFilter.new()
@@ -198,7 +195,7 @@ func _step_music_effects(delta: float) -> void:
 
 
 func is_music_muted() -> bool:
-	var music := AudioServer.get_bus_index("Music")
+	var music := AudioServer.get_bus_index(Buses.MUSIC)
 	return music >= 0 and AudioServer.is_bus_mute(music)
 
 

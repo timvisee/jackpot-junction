@@ -21,7 +21,6 @@ const ENGINE_FILE := "engine_loop.ogg"
 const SQUEAL_FILE := "tire_squeal.ogg"
 const SCRUB_FILE := "tire_scrub.ogg"
 ## Every kart voice goes to its own bus under SFX, so one slider covers the lot, GAME.md 8.5.
-const BUS_KART := &"Kart"
 ## Below this much of a voice there is nothing left to hear, so the player is stopped.
 const SILENT := 0.002
 ## How far off its own pitch each slot's engine sits, in steps of
@@ -247,7 +246,7 @@ func _build(name: String, file: String, looping: bool) -> AudioStreamPlayer3D:
 	var player := AudioStreamPlayer3D.new()
 	player.name = name
 	player.stream = _stream(file, looping)
-	player.bus = BUS_KART
+	player.bus = Buses.KART
 	player.attenuation_model = AudioStreamPlayer3D.ATTENUATION_INVERSE_DISTANCE
 	player.unit_size = stats.unit_size
 	# Godot adds volume_db to the distance attenuation and only then clamps to max_db, so a

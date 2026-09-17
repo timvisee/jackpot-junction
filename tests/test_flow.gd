@@ -12,9 +12,9 @@ func after_test() -> void:
 ## The karts have a slider of their own, GAME.md 8.5: their engine and tires run the whole time
 ## rather than in bursts, so how loud that bed sits is a taste the effects slider cannot express.
 func test_the_kart_slider_drives_the_kart_bus() -> void:
-	var bus := AudioServer.get_bus_index("Kart")
+	var bus := AudioServer.get_bus_index(Buses.KART)
 	assert_int(bus).is_greater(0)
-	assert_str(AudioServer.get_bus_send(bus)).is_equal("SFX")
+	assert_str(AudioServer.get_bus_send(bus)).is_equal(Buses.SFX)
 	var before := AudioServer.get_bus_volume_db(bus)
 	var settings := Settings.new()
 	settings.kart_volume = 0.25

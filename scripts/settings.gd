@@ -119,11 +119,11 @@ func apply(tree: SceneTree) -> void:
 
 
 func apply_audio() -> void:
-	_set_bus("Master", master_volume)
-	_set_bus("Music", music_volume)
-	_set_bus("SFX", sfx_volume)
-	_set_bus("Kart", kart_volume)
-	var music := AudioServer.get_bus_index("Music")
+	_set_bus(Buses.MASTER, master_volume)
+	_set_bus(Buses.MUSIC, music_volume)
+	_set_bus(Buses.SFX, sfx_volume)
+	_set_bus(Buses.KART, kart_volume)
+	var music := AudioServer.get_bus_index(Buses.MUSIC)
 	if music >= 0 and music_muted:
 		AudioServer.set_bus_mute(music, true)
 
@@ -166,7 +166,7 @@ func reset_bindings() -> void:
 	apply_input()
 
 
-func _set_bus(bus: String, linear: float) -> void:
+func _set_bus(bus: StringName, linear: float) -> void:
 	var index := AudioServer.get_bus_index(bus)
 	if index < 0:
 		return
