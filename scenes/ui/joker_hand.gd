@@ -117,9 +117,7 @@ func _build_count() -> void:
 	_count_label.visible = false
 	_count_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_count_label.add_theme_font_size_override("font_size", 22)
-	_count_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.85))
-	_count_label.add_theme_constant_override("shadow_offset_x", 2)
-	_count_label.add_theme_constant_override("shadow_offset_y", 2)
+	HudText.shadowed(_count_label, 2)
 	add_child(_count_label)
 
 

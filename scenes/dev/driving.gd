@@ -170,7 +170,5 @@ func _build_readout() -> void:
 	_readout.position = Vector2(16.0, 12.0)
 	_readout.add_theme_font_size_override("font_size", 20)
 	_readout.add_theme_color_override("font_color", Color.WHITE)
-	_readout.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.85))
-	_readout.add_theme_constant_override("shadow_offset_x", 2)
-	_readout.add_theme_constant_override("shadow_offset_y", 2)
+	HudText.shadowed(_readout, 2)
 	layer.add_child(_readout)

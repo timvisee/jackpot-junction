@@ -495,9 +495,7 @@ func _format_mult(mult: float) -> String:
 func _label(size: int, preset: int) -> Label:
 	var label := Label.new()
 	label.add_theme_font_size_override("font_size", size)
-	label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.8))
-	label.add_theme_constant_override("shadow_offset_x", 2)
-	label.add_theme_constant_override("shadow_offset_y", 2)
+	HudText.shadowed(label, 2)
 	label.set_anchors_and_offsets_preset(preset)
 	label.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -541,9 +539,7 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 	var hints := Label.new()
 	hints.add_theme_font_size_override("font_size", 17)
 	hints.add_theme_color_override("font_color", Color(0.82, 0.82, 0.88))
-	hints.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.8))
-	hints.add_theme_constant_override("shadow_offset_x", 1)
-	hints.add_theme_constant_override("shadow_offset_y", 1)
+	HudText.shadowed(hints, 1)
 	hints.horizontal_alignment = (
 		HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
 	)
@@ -565,9 +561,7 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 	var speed := Label.new()
 	speed.text = "0 km/h"
 	speed.add_theme_font_size_override("font_size", 19)
-	speed.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.8))
-	speed.add_theme_constant_override("shadow_offset_x", 2)
-	speed.add_theme_constant_override("shadow_offset_y", 2)
+	HudText.shadowed(speed, 2)
 	# The dial reads left to right whichever corner the block is in, with the number at the
 	# outside edge where the rest of the block's text already lines up.
 	var speed_row := HBoxContainer.new()
@@ -586,9 +580,7 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 		label.horizontal_alignment = (
 			HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
 		)
-		label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.8))
-		label.add_theme_constant_override("shadow_offset_x", 2)
-		label.add_theme_constant_override("shadow_offset_y", 2)
+		HudText.shadowed(label)
 		box.add_child(label)
 	box.add_child(lives)
 	box.add_child(nitro)

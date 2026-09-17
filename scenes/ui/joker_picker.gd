@@ -42,9 +42,7 @@ func _ready() -> void:
 	_title = Label.new()
 	_title.add_theme_font_size_override("font_size", 34)
 	_title.add_theme_color_override("font_color", Palette.CHIP_WHITE)
-	_title.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.85))
-	_title.add_theme_constant_override("shadow_offset_x", 2)
-	_title.add_theme_constant_override("shadow_offset_y", 2)
+	HudText.shadowed(_title, 2)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	# Over the row rather than under it: the lifted card reaches up into the line the title sits

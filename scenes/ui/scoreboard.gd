@@ -144,7 +144,4 @@ func _label(align: HorizontalAlignment, width: float) -> Label:
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.custom_minimum_size = Vector2(width, 0.0)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.8))
-	label.add_theme_constant_override("shadow_offset_x", 1)
-	label.add_theme_constant_override("shadow_offset_y", 1)
-	return label
+	return HudText.shadowed(label, 1)

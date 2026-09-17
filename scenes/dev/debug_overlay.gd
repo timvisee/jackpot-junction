@@ -26,9 +26,7 @@ func _ready() -> void:
 	_label.offset_bottom = -12.0
 	_label.add_theme_font_size_override("font_size", 18)
 	_label.add_theme_color_override("font_color", Color.WHITE)
-	_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.8))
-	_label.add_theme_constant_override("shadow_offset_x", 1)
-	_label.add_theme_constant_override("shadow_offset_y", 1)
+	HudText.shadowed(_label, 1)
 	add_child(_label)
 
 
