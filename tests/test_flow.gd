@@ -84,7 +84,7 @@ func test_rebind_replaces_only_the_same_device_kind() -> void:
 	InputActions.register_defaults()
 	InputActions.rebind(InputActions.FIRE, {"key": KEY_J})
 	assert_str(InputActions.binding_text(InputActions.FIRE, true)).is_equal("J")
-	assert_str(InputActions.binding_text(InputActions.FIRE, false)).is_equal("RB")
+	assert_str(InputActions.binding_text(InputActions.FIRE, false)).is_equal("A")
 	assert_str(InputActions.binding_text(InputActions.FIRE, false)).is_not_equal("-")
 	InputActions.register_defaults()
 

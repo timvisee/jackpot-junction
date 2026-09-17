@@ -24,9 +24,9 @@ Default controls, all rebindable in Settings:
 | Action               | Keyboard        | Gamepad          |
 |----------------------|-----------------|------------------|
 | Drive, brake, steer  | W, S, A, D      | Triggers, stick  |
-| Fire                 | Space           | RB               |
+| Fire                 | Space           | A                |
 | Handbrake            | Shift           | LB               |
-| Use item             | E               | A                |
+| Use item             | E               | X                |
 | Joker menu           | Tab, 1 to 5     | Y, D-pad         |
 | Pause                | Escape          | Start            |
 

@@ -502,18 +502,24 @@ assigns physical devices to player slots, see 10.2.
 | Steer                       | Left stick X        | A / D, or Left / Right    |
 | Throttle                    | Right trigger       | W, or Up                  |
 | Brake, reverse              | Left trigger        | S, or Down                |
-| Fire                        | Right bumper        | Space                     |
+| Fire                        | A                   | Space                     |
 | Handbrake, drift            | Left bumper         | Shift                     |
 | Nitro                       | B                   | Ctrl                      |
-| Use power-up                | A                   | E                         |
+| Use power-up                | X                   | E                         |
 | Joker menu, hold            | Y                   | Tab                       |
 | Joker menu: select          | Left stick or D-pad left / right | Arrows, A / D, brackets or 1 to 5 |
 | Joker menu: drop            | A                   | E                         |
-| Joker menu: destroy         | X                   | Q                         |
+| Joker menu: destroy         | B                   | Q                         |
 | Free aim, Swivel Cannon only| Right stick         | Mouse position on the arena plane |
 | Pause                       | Start               | Esc                       |
 | Join, in lobby or mid-match | Start               | J                         |
 | Mute music                  |                     | M                         |
+
+The two things a thumb does on a gamepad are firing and using an item, so they take
+the two buttons under it. The joker screens borrow the same hand: A drops, B
+destroys. Destroy cannot share with use, because the respawn pick puts taking a
+joker and skipping it on one screen and reads taking first, so a shared button
+would leave skipping unreachable.
 
 ### 4.3 Trails
 

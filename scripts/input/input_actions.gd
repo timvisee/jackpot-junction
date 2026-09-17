@@ -58,15 +58,20 @@ const KEY_SYMBOLS: Dictionary[String, String] = {
 
 ## Default events per action. A descriptor is one of
 ## {"key": Key}, {"button": JoyButton} or {"axis": JoyAxis, "value": float}.
+##
+## On a gamepad the two things a player does with their thumb are firing and using an item, so
+## they take the two buttons under it: A fires, X uses. The joker screens borrow the same two,
+## A to drop and B to destroy, because destroy shares a screen with taking a joker and the two
+## cannot be the same button: the pick reads take first, and skip would never be heard.
 const DEFAULTS: Dictionary[StringName, Array] = {
 	STEER_LEFT: [{"key": KEY_A}, {"key": KEY_LEFT}, {"axis": JOY_AXIS_LEFT_X, "value": -1.0}],
 	STEER_RIGHT: [{"key": KEY_D}, {"key": KEY_RIGHT}, {"axis": JOY_AXIS_LEFT_X, "value": 1.0}],
 	THROTTLE: [{"key": KEY_W}, {"key": KEY_UP}, {"axis": JOY_AXIS_TRIGGER_RIGHT, "value": 1.0}],
 	BRAKE: [{"key": KEY_S}, {"key": KEY_DOWN}, {"axis": JOY_AXIS_TRIGGER_LEFT, "value": 1.0}],
-	FIRE: [{"key": KEY_SPACE}, {"button": JOY_BUTTON_RIGHT_SHOULDER}],
+	FIRE: [{"key": KEY_SPACE}, {"button": JOY_BUTTON_A}],
 	HANDBRAKE: [{"key": KEY_SHIFT}, {"button": JOY_BUTTON_LEFT_SHOULDER}],
 	NITRO: [{"key": KEY_CTRL}, {"button": JOY_BUTTON_B}],
-	USE_ITEM: [{"key": KEY_E}, {"button": JOY_BUTTON_A}],
+	USE_ITEM: [{"key": KEY_E}, {"button": JOY_BUTTON_X}],
 	JOKER_MENU: [{"key": KEY_TAB}, {"button": JOY_BUTTON_Y}],
 	JOKER_PREV: [{"key": KEY_BRACKETLEFT}, {"button": JOY_BUTTON_DPAD_LEFT}],
 	JOKER_NEXT: [{"key": KEY_BRACKETRIGHT}, {"button": JOY_BUTTON_DPAD_RIGHT}],
@@ -76,7 +81,7 @@ const DEFAULTS: Dictionary[StringName, Array] = {
 	JOKER_SELECT_4: [{"key": KEY_4}],
 	JOKER_SELECT_5: [{"key": KEY_5}],
 	JOKER_DROP: [{"key": KEY_E}, {"button": JOY_BUTTON_A}],
-	JOKER_DESTROY: [{"key": KEY_Q}, {"button": JOY_BUTTON_X}],
+	JOKER_DESTROY: [{"key": KEY_Q}, {"button": JOY_BUTTON_B}],
 	AIM_LEFT: [{"axis": JOY_AXIS_RIGHT_X, "value": -1.0}],
 	AIM_RIGHT: [{"axis": JOY_AXIS_RIGHT_X, "value": 1.0}],
 	AIM_UP: [{"axis": JOY_AXIS_RIGHT_Y, "value": -1.0}],
