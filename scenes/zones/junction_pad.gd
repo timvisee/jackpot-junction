@@ -43,11 +43,6 @@ func _ready() -> void:
 	body_exited.connect(_on_body_exited)
 
 
-## True while any kart is banking.
-func is_busy() -> bool:
-	return not _channels.is_empty()
-
-
 ## The blink: off below the hint threshold, then brighter and quicker the more is at stake.
 func _process(delta: float) -> void:
 	if ring_material == null:

@@ -333,10 +333,6 @@ func _update_call(delta: float) -> void:
 	_call.visible = _call_left > 0.0
 
 
-func _kind_color(joker: Joker) -> String:
-	return "#" + JokerCard.kind_color(joker).to_html(false)
-
-
 func _update_banner(delta: float) -> void:
 	match match_node.state:
 		Match.State.COUNTDOWN:

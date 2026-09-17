@@ -98,10 +98,6 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 	return OK
 
 
-func is_connected_to_host() -> bool:
-	return not is_host and local_slot >= 0
-
-
 func _physics_process(delta: float) -> void:
 	if match_node == null or multiplayer.multiplayer_peer == null:
 		return

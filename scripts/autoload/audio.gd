@@ -287,11 +287,6 @@ func play_music() -> void:
 		player.play()
 
 
-func stop_music() -> void:
-	for player: AudioStreamPlayer in _music_players:
-		player.stop()
-
-
 ## Crossfades to another intensity of the same track, continuing from the same position. The
 ## fade is linear in amplitude: the layers are the same music, so their sum stays level.
 func set_layer(layer: StringName) -> void:

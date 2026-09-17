@@ -584,7 +584,6 @@ func _enter_overtime() -> bool:
 		_finish()
 		return false
 	_set_state(State.OVERTIME)
-	Events.overtime_started.emit()
 	return true
 
 

@@ -9,7 +9,6 @@ extends VBoxContainer
 const TOP_FONT := 30
 const BOTTOM_FONT := 17
 const RISK_FONT := 15
-const ROW_HEIGHT := 34.0
 const DIM := Color(0.82, 0.82, 0.86)
 
 var match_node: Match
