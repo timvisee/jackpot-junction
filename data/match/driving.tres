@@ -63,5 +63,5 @@ timed = false
 duration = 600.0
 target_score = 0
 last_call_duration = 0.0
-countdown = 1.5
+countdown = 0.0
 max_players = 4

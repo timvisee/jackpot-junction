@@ -1353,8 +1353,9 @@ Everything the game does is somewhere on the floor, and a sign names each one:
 ### 9.5 The driving room
 
 A development scene, `make drive`, holding one kart, one track and nothing else: no bots, no
-bullets, no pickups, no clock. Driving has to be worth doing on its own before any of the rest
-is worth adding, and everything else in the game gets in the way of judging that.
+bullets, no pickups, no clock and no countdown, since there is nothing here to start. Driving
+has to be worth doing on its own before any of the rest is worth adding, and everything else in
+the game gets in the way of judging that.
 
 The track is 60 by 37.5 m and has the four things that tell you how a kart feels:
 

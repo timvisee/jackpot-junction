@@ -156,6 +156,16 @@ func _ready() -> void:
 		play_music()
 
 
+## Everything still sounding when the game quits is a stream the engine then finds still in use
+## on its way out, which it reports as a leak. Nothing is playing at that point that anybody is
+## listening to, so it is stopped rather than left to be complained about.
+func _exit_tree() -> void:
+	for player: AudioStreamPlayer in _pool + _music_players:
+		player.stop()
+		player.stream = null
+	_streams.clear()
+
+
 ## Puts a sweepable low-pass filter and a gain stage on the music bus. They sit after the bus
 ## volume, so the settings in 8.5 keep full control of how loud the music is.
 func _build_music_effects() -> void:
