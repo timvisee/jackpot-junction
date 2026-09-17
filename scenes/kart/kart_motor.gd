@@ -274,7 +274,7 @@ func _oversteering() -> bool:
 	return stats.drift_style == KartStats.DriftStyle.OVERSTEER
 
 
-## The rear coming round, GAME.md 4.1. It lets go once, when the drift starts, and then has
+## The rear coming round, GAME.md 4.1. It lets go once, when the handbrake is flicked, and
 ## a life of its own: holding the wheel into it feeds it, straightening lets it bleed off
 ## slowly, and winding the wheel the other way pulls it back in quickly. Catching it is the
 ## end of it, so opposite lock held after the catch steers the kart rather than throwing it
@@ -439,6 +439,14 @@ func _step_drift(input: KartInput) -> void:
 	var fraction := absf(forward_speed) / stats.top_speed
 	if drifting:
 		var too_slow := fraction < stats.handbrake_speed_fraction * 0.75
+		if _oversteering():
+			# The rear is loose or it is not. Nothing the wheel does ends this one, since
+			# straightening it and winding it the other way are how the slide is driven; the drift
+			# is over when the slide has been caught or has bled away, and the handbrake is a flick
+			# to start it rather than something to hold down.
+			if too_slow or slide_rate == 0.0:
+				_end_drift()
+			return
 		if stats.handbrake_drift_only:
 			# Straightening up while holding the handbrake turns the drift into a straight stop.
 			if too_slow or not input.handbrake or absf(steer) < 0.1:

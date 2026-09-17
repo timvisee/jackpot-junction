@@ -21,13 +21,16 @@ func _run(seconds: float) -> void:
 		_motor.step(_input, DT)
 
 
-## Up to speed, then the handbrake and the wheel to the right: the rear lets go.
+## Up to speed, then a flick of the handbrake with the wheel to the right: the rear lets go
+## and the handbrake comes straight back off, which is how the technique goes. Holding it down
+## keeps breaking the rear loose, which is its own test.
 func _break_the_rear_loose() -> void:
 	_input.throttle = 1.0
 	_run(3.0)
 	_input.steer = 1.0
 	_input.handbrake = true
 	_run(0.4)
+	_input.handbrake = false
 
 
 ## Degrees of slip, positive when the kart is hanging out to the right of where it is going.
@@ -43,11 +46,12 @@ func test_the_handbrake_breaks_the_rear_loose() -> void:
 
 
 ## The whole point of the style: holding the wheel into the slide loses you the corner. The
-## rear keeps coming round until the kart is all but sideways and the speed scrubs away with
-## it, so there is a reason to catch it beyond tidiness.
+## rear keeps coming round until the kart is travelling sideways and the nose has swung most
+## of the way round with it, so the kart leaves pointing somewhere it never meant to go. That
+## is the punishment: not the speed, which power-on it largely keeps, but the direction.
 func test_holding_the_wheel_in_loses_you_the_corner() -> void:
 	_break_the_rear_loose()
-	var carried := _motor.speed()
+	var swung := _motor.heading
 	var early := _hang()
 	_run(0.5)
 	assert_float(_hang()).is_greater(early)
@@ -59,7 +63,8 @@ func test_holding_the_wheel_in_loses_you_the_corner() -> void:
 	# chasing, which would flip the kart into reverse.
 	assert_float(worst).is_greater(70.0)
 	assert_float(worst).is_less(90.0)
-	assert_float(_motor.speed()).is_less(carried * 0.45)
+	# And the nose has gone round with it, well past any corner that was being taken.
+	assert_float(rad_to_deg(absf(wrapf(_motor.heading - swung, -PI, PI)))).is_greater(100.0)
 
 
 ## Winding the wheel the other way is what holds a rally car straight, and it works here: the
@@ -93,6 +98,47 @@ func test_a_straight_wheel_lets_the_slide_bleed_off() -> void:
 	_motor.step(_input, DT)
 	assert_float(_motor.slide_rate).is_less(loose)
 	assert_float(_motor.slide_rate).is_greater(0.0)
+
+
+## The technique the style exists for: flick the handbrake, let go of it, and drive the slide on
+## the wheel alone, catching it back whenever it hangs out too far. Nothing the wheel does may end
+## the drift, or the first catch would end it and there would be no slide to drive.
+func test_a_slide_can_be_held_on_the_wheel_alone() -> void:
+	_input.throttle = 1.0
+	_run(3.0)
+	_input.steer = 1.0
+	_input.handbrake = true
+	_run(0.2)
+	# The handbrake was a flick. From here the wheel is the only thing driving the slide.
+	_input.handbrake = false
+	var carried := _motor.speed()
+	var held := 0
+	var hangs: Array[float] = []
+	for i: int in 240:
+		_input.steer = -1.0 if _hang() > 40.0 else 1.0
+		_motor.step(_input, DT)
+		if _motor.drifting:
+			held += 1
+		if i > 60:
+			hangs.append(_hang())
+	assert_int(held).override_failure_message("the drift did not last").is_greater(230)
+	# Held out around the angle it was being driven to, rather than creeping in or running away.
+	assert_float(hangs.min()).is_greater(20.0)
+	assert_float(hangs.max()).is_less(55.0)
+	assert_float(_motor.speed()).is_greater(carried * 0.9)
+
+
+## Keeping the handbrake down through a catch breaks the rear loose again, the other way. That
+## is the player asking for it rather than the kart doing it to them: the flick is meant to be
+## a flick, and holding it is how a kart is thrown from one side to the other on purpose.
+func test_holding_the_handbrake_through_a_catch_throws_it_the_other_way() -> void:
+	_break_the_rear_loose()
+	_input.handbrake = true
+	_input.steer = -1.0
+	_run(1.0)
+	assert_bool(_motor.drifting).is_true()
+	assert_float(_motor.slide_rate).is_less(0.0)
+	assert_float(_hang()).is_less(-20.0)
 
 
 ## The style is a switch: the kart the game ships with still holds its drift on the wheel.
