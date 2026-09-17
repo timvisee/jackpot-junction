@@ -93,6 +93,23 @@ func test_the_death_sequence_banks_half_drops_chips_and_credits_the_killer() -> 
 	assert_float(victim.pot.mult).is_equal(1.0)
 
 
+## GAME.md 8.1: the chip count is a marking on the floor of the zone, so a kart parked on it is
+## in front of it. It is painted the way a Royal Flush pad wears its letter, and neither is drawn
+## through whatever is standing on it.
+func test_the_jackpot_count_is_painted_on_the_floor_rather_than_over_everything() -> void:
+	var rules := _quick_rules()
+	rules.duration = 60.0
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs, rules)
+	await _runner.simulate_frames(12, 17)
+	var zone: JackpotZone = match_node.arena.jackpot_zones[0]
+	var pad: FlushPad = match_node.arena.flush_pads[0]
+	assert_bool(zone._label.no_depth_test).is_equal(pad._label.no_depth_test)
+	assert_bool(zone._label.no_depth_test).is_false()
+	# And it clears the trim of the tile it is painted on, or nobody would see it at all.
+	assert_float(zone._label.position.y).is_greater(Arena.PAD_HEIGHT * 1.6)
+
+
 func test_a_lone_kart_in_the_active_jackpot_collects_it_and_the_other_zone_takes_over() -> void:
 	var rules := _quick_rules()
 	rules.duration = 60.0

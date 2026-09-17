@@ -786,7 +786,10 @@ subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
 - **Jackpot zone**: a vault floor tile with a chip pile that grows, a traffic light
   for its state, and its chip count painted on the floor of the zone, the way
   a Royal Flush pad wears its letter. The number belongs to the square a kart has to
-  stand in, so it is on the square rather than floating over it. See 3.5.
+  stand in, so it is on the square rather than floating over it, and like the pad
+  letters it goes behind whatever is parked on top of it rather than being drawn
+  through it. It does sit clear of the tile's own gold trim, since a marking buried
+  in the floor is a marking nobody sees. See 3.5.
 - **Chips**: poker chips, gold for the gold chip, a die for the mult die.
 - **Item boxes**: gold crates with black bands, a big question mark and a beam of
   light, glowing and pulsing so they read at a glance.

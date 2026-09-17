@@ -8,6 +8,10 @@ signal filled(zone: JackpotZone)
 signal emptied(zone: JackpotZone)
 signal collected(kart: Kart, chips: int)
 
+## How high the chip count is painted, which has to clear the gold trim of the zone it is
+## painted on: a marking buried in the tile is a marking nobody sees.
+const LABEL_HEIGHT := 0.1
+
 var rules: MatchRules
 var index := 0
 var size := Vector2(2.5, 2.5)
@@ -191,9 +195,11 @@ func _build_signals() -> void:
 	_label.modulate = Palette.CHIP_GOLD
 	# Painted on the floor of the zone like the letter on a flush pad, rather than floating
 	# over it: the number belongs to the square a kart has to stand in, so it is on the square.
+	# A marking on the floor is under whatever is parked on it, the same as the pad letters are,
+	# so it takes its turn in the depth buffer rather than being drawn over the kart. That means
+	# clearing the gold trim it is painted on rather than sitting inside it.
 	_label.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
-	_label.position = Vector3(0.0, 0.06, 0.0)
-	_label.no_depth_test = true
+	_label.position = Vector3(0.0, LABEL_HEIGHT, 0.0)
 	add_child(_label)
 	var pole := MeshInstance3D.new()
 	var pole_mesh := CylinderMesh.new()
