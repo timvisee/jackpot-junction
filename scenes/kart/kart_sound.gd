@@ -194,8 +194,10 @@ func _build(name: String, file: String, bus: StringName, looping: bool) -> Audio
 	player.bus = bus
 	player.attenuation_model = AudioStreamPlayer3D.ATTENUATION_INVERSE_DISTANCE
 	player.unit_size = stats.unit_size
-	# The kart is right under the listener, so without a ceiling the level would run away.
-	player.max_db = 0.0
+	# Godot adds volume_db to the distance attenuation and only then clamps to max_db, so a
+	# ceiling at or under the written levels pins every voice to it and the whole resource
+	# stops doing anything. It sits above them instead.
+	player.max_db = stats.max_db
 	player.panning_strength = stats.panning_strength
 	# The engine is already pitched by the rev needle; a second helping from the engine's own
 	# speed would fight it.

@@ -1,7 +1,9 @@
 extends GdUnitTestSuite
-## The virtual rev counter behind the engine sound, GAME.md 8.4, at a 60 Hz tick.
+## The virtual rev counter behind the engine sound, GAME.md 8.4, at a 60 Hz tick, and the two
+## placement numbers that decide whether the levels around it mean anything at all.
 
 const DT := 1.0 / 60.0
+const SOUND: KartSoundStats = preload("res://data/kart/sound.tres")
 
 var _stats: KartStats
 var _sound: KartSoundStats
@@ -12,7 +14,7 @@ var _input: KartInput
 
 func before_test() -> void:
 	_stats = load("res://data/kart/default.tres").duplicate()
-	_sound = load("res://data/kart/sound.tres").duplicate()
+	_sound = SOUND.duplicate()
 	_motor = KartMotor.new(_stats)
 	_rev = KartRev.new(_sound)
 	_input = KartInput.new()
@@ -22,6 +24,23 @@ func _run(seconds: float) -> void:
 	for i: int in int(round(seconds / DT)):
 		_motor.step(_input, DT)
 		_rev.step(_motor, _input, DT)
+
+
+## Godot adds a player's volume_db to its distance attenuation and clamps the sum to max_db.
+## These two are what make the dB in [KartSoundStats] the dB that come out: the ears have to be
+## at the distance a voice is written for, so the attenuation there is nothing, and the ceiling
+## has to sit above the loudest thing asked for, or every voice is flattened onto it and none of
+## the levels do anything. Both were wrong once and nothing else noticed.
+func test_a_kart_plays_at_the_distance_the_ears_are_at() -> void:
+	var rig: CameraRig = auto_free(CameraRig.new())
+	assert_float(SOUND.unit_size).is_equal_approx(rig.listener_height, 0.001)
+
+
+func test_the_ceiling_sits_above_every_level_asked_for() -> void:
+	# The engine flat out is the loudest a kart gets; the squeals and the chirp are below it.
+	assert_float(SOUND.max_db).is_greater(SOUND.kart_db + SOUND.engine_db)
+	for voice_db: float in [SOUND.drift_db, SOUND.slide_db, SOUND.lock_db, SOUND.chirp_db]:
+		assert_float(SOUND.kart_db + voice_db).is_less(SOUND.kart_db + SOUND.engine_db)
 
 
 func test_idles_when_nobody_is_driving() -> void:

@@ -85,7 +85,14 @@ extends Resource
 @export var chirp_db := -8.0
 
 @export_group("Placement")
-## Metres at which a kart heard from the side is at its recorded level; nearer is capped.
-@export var unit_size := 12.0
+## Metres at which a kart plays at exactly the level written above. It has to be the distance
+## the ears sit at, [member CameraRig.listener_height], or the attenuation at that distance is
+## added to every level here and none of them mean what they say. It also sets the falloff:
+## a kart twice this far off is 6 dB down.
+@export var unit_size := 2.5
+## A ceiling on gain, for a kart closer to the ears than [member unit_size]. It is a guard, not
+## the level anything is meant to run at: set at or below the written levels it flattens them
+## all to itself and nothing in this resource does anything.
+@export var max_db := 3.0
 ## How hard a kart off to one side is pushed into that speaker, 0 to 1.
 @export var panning_strength := 0.6

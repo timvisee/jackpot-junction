@@ -13,6 +13,8 @@ extends Node3D
 @export var smoothing := 0.6
 @export var shake_decay := 4.0
 ## How far above the floor the ears sit, so a kart right under them is not at zero distance.
+## [member KartSoundStats.unit_size] has to match it: that is the distance a kart plays at its
+## written level, so the two moving apart quietly changes every level in the kart mix.
 @export var listener_height := 2.5
 ## A faint constant tremble, 0 to 1, for when the match is at its most frantic.
 var tremble := 0.0
