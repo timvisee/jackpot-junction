@@ -8,23 +8,30 @@ extends Resource
 ## Where the needle sits with the engine idling; 1 is the limiter.
 @export var idle_rev := 0.13
 ## How far the engine revs against a slipping clutch with the throttle pinned off the line.
-@export var launch_rev := 0.90
-## Fraction of top speed by which the clutch has fully bitten, so the revs follow the road again.
-@export var clutch_fraction := 0.20
+## The clutch then bites over exactly the speed the road needs to reach this same rev, see
+## [method KartRev.clutch_fraction], so the needle climbs to it and carries on from there
+## instead of flaring and falling back, which is what made pulling away sound harsh.
+@export var launch_rev := 0.62
 ## Extra revs from driven wheels slipping in a drift, at full throttle.
 @export var slip_rev_bonus := 0.16
 ## How much of the speed past the top the needle follows, on nitro or a turbo pad.
 @export var over_slope := 0.30
 ## The needle never passes this, however hard the kart is shoved.
 @export var over_max := 1.30
-## How fast the needle climbs and falls, per second.
-@export var rev_rate_up := 7.0
+## How fast the needle climbs and falls, per second. Climbing slowly enough that the road can
+## keep up with it is what makes pulling away a swell rather than a jump.
+@export var rev_rate_up := 4.5
 @export var rev_rate_down := 4.5
 ## Spinning out on oil, the driver is off the pedal: the engine settles to this times the idle.
 @export var spin_idle_multiplier := 1.6
 ## How fast the load follows the pedals, per second. Load is 0 coasting and 1 flat out.
 @export var load_rate_up := 9.0
 @export var load_rate_down := 5.0
+
+@export_group("Levels")
+## Everything the kart itself makes, against the one-shots the whole room hears. The kart sits
+## under them on purpose: it is running the whole time, so it is the bed rather than an event.
+@export var kart_db := -9.0
 
 @export_group("Engine")
 ## The rev the engine loop was recorded at: the needle here plays the file at its own pitch.

@@ -5,16 +5,16 @@
 [resource]
 script = ExtResource("1_sound")
 idle_rev = 0.13
-launch_rev = 0.9
-clutch_fraction = 0.2
+launch_rev = 0.62
 slip_rev_bonus = 0.16
 over_slope = 0.3
 over_max = 1.3
-rev_rate_up = 7.0
+rev_rate_up = 4.5
 rev_rate_down = 4.5
 spin_idle_multiplier = 1.6
 load_rate_up = 9.0
 load_rate_down = 5.0
+kart_db = -9.0
 nominal_rev = 0.55
 pitch_min = 0.55
 pitch_max = 2.3

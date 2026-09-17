@@ -8,7 +8,9 @@ extends Node3D
 ## road speed, so it revs against a slipping clutch as the kart pulls away and screams past the
 ## limiter on nitro. The tires are three squeals, one for each way of losing grip: a
 ## bright one for a drift, a duller one for sliding sideways with nobody asking, and that same
-## one pitched well down for wheels locked under the brakes or the handbrake.
+## one pitched well down for wheels locked under the brakes or the handbrake. All of it sits
+## under the one-shots by [member KartSoundStats.kart_db]: the kart is running the whole time,
+## so it is the bed the room is heard over rather than an event in it.
 ##
 ## Only karts somebody is driving on this machine are given one, see [method Kart.enable_sound].
 
@@ -96,7 +98,7 @@ func _step_engine() -> void:
 		if _engine.playing:
 			_engine.stop()
 		return
-	_engine.volume_db = rev.volume_db() + linear_to_db(_alive_fade)
+	_engine.volume_db = stats.kart_db + rev.volume_db() + linear_to_db(_alive_fade)
 	if not _engine.playing:
 		_engine.play()
 
@@ -144,7 +146,7 @@ func _step_chirp(delta: float, driving: bool) -> void:
 	if not crossed or _chirp_wait > 0.0 or _silent:
 		return
 	_chirp_wait = stats.chirp_cooldown
-	_chirp.volume_db = stats.chirp_db
+	_chirp.volume_db = stats.kart_db + stats.chirp_db
 	_chirp.pitch_scale = stats.chirp_pitch
 	_chirp.play()
 
@@ -165,7 +167,7 @@ func _voice(
 		if player.playing:
 			player.stop()
 		return
-	player.volume_db = voice_db + linear_to_db(level)
+	player.volume_db = stats.kart_db + voice_db + linear_to_db(level)
 	player.pitch_scale = base_pitch + pitch_speed * fraction
 	if not player.playing:
 		player.play()
@@ -182,7 +184,7 @@ static func _ramp(value: float, from: float, to: float) -> float:
 
 
 func _quiet_db() -> float:
-	return stats.engine_db + stats.off_throttle_db
+	return stats.kart_db + stats.engine_db + stats.off_throttle_db
 
 
 func _build(name: String, file: String, bus: StringName, looping: bool) -> AudioStreamPlayer3D:

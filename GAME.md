@@ -904,12 +904,16 @@ every kart, so everyone sees when an opponent cashes out.
   stretched across the whole range by a needle that the road pulls on, running
   from an idle at 0.13 to the limiter at 1 and on to 1.30 when the kart is shoved
   past its top speed. There is no gearbox: one continuous pull. The needle
-  climbs at 7 a second and falls at 4.5, so it leads the kart rather than
-  tracking it.
-  - Off the line the clutch slips: below 20% of top speed the throttle revs the
-    engine against a kart that has not moved yet, up to 0.90, and the kart then
-    catches up to it. This is what pulling away sounds like, and it is why the
-    engine revs on the grid during the countdown while the kart is held still.
+  climbs and falls at 4.5 a second, so it leads the kart rather than tracking it.
+  - Off the line the clutch slips: the throttle revs the engine against a kart
+    that has not moved yet, up to 0.62, and the kart then catches up to it. This
+    is what pulling away sounds like, and it is why the engine revs on the grid
+    during the countdown while the kart is held still.
+  - The clutch bites over exactly the speed the road needs to reach that same
+    0.62, so the needle climbs to it and carries straight on. Biting any sooner
+    would drop it back down before it climbed again, which is heard as a harsh
+    flare rather than a swell. The bite point is derived from the flare height
+    rather than set on its own, so the two cannot drift apart.
   - Driven wheels slipping in a drift or on the handbrake add 0.16 at full
     throttle, so a drift revs higher than the road alone would ask for.
   - Reverse is one short gear of its own: it whines up to the limiter at the
@@ -933,6 +937,10 @@ every kart, so everyone sees when an opponent cashes out.
   so the kick lands just after the button; the pack's spin-out on oil; its
   crashes for a kart into a wall, the heavier one on top of a square hit; and its
   start tones for the countdown, one a second, with the higher one on the flag.
+- **Level**: everything a kart itself makes sits 9 dB under the one-shots the
+  room hears. It is running the whole time, so it is the bed the rest is heard
+  over rather than an event in it. A kart into a wall is the exception and one
+  of the loudest things it does: hitting a wall should land.
 - **Where the ears are**: the camera frames the whole room from well outside it,
   so a listener up there would put every kart at the same distance. The ears sit
   over the karts being driven here instead, two and a half metres up, facing the

@@ -426,10 +426,11 @@ func _on_nitro_started(_slot: int) -> void:
 
 
 ## A kart into a wall. A shallow scrape is a light knock; a proper hit gets the heavy one too.
+## It is one of the loudest things a kart does on purpose: hitting a wall should land.
 func _on_kart_crashed(_slot: int, hard: bool) -> void:
-	play_sfx(&"crash", -10.0 if hard else -16.0, 0.12)
+	play_sfx(&"crash", -2.0 if hard else -9.0, 0.12)
 	if hard:
-		play_sfx(&"crash_hard", -13.0, 0.08)
+		play_sfx(&"crash_hard", -5.0, 0.08)
 
 
 func _on_mult_gained(_slot: int, _amount: float, reason: StringName) -> void:

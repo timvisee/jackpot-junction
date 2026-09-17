@@ -35,7 +35,7 @@ func test_throttle_revs_the_engine_before_the_kart_has_moved() -> void:
 	# A quarter of a second in, the kart has barely left the line but the engine is up.
 	_run(0.25)
 	assert_float(_motor.speed()).is_less(_stats.top_speed * 0.2)
-	assert_float(_rev.rev).is_greater(_sound.idle_rev * 3.0)
+	assert_float(_rev.rev).is_greater(_sound.idle_rev * 2.5)
 
 
 func test_engine_keeps_revving_on_the_grid_with_the_kart_held_still() -> void:
@@ -45,6 +45,27 @@ func test_engine_keeps_revving_on_the_grid_with_the_kart_held_still() -> void:
 		_rev.step(_motor, _input, DT)
 	assert_float(_rev.rev).is_equal_approx(_sound.launch_rev, 0.02)
 	assert_float(_motor.speed()).is_equal(0.0)
+
+
+func test_pulling_away_only_ever_climbs() -> void:
+	# The flare used to overshoot what the road could hold and drop back before climbing again,
+	# heard as a harsh wah. The clutch now hands over exactly where the road catches up, so the
+	# needle rises the whole way from idle to the limiter.
+	_input.throttle = 1.0
+	var highest := _rev.rev
+	var worst_drop := 0.0
+	for i: int in int(round(3.0 / DT)):
+		_motor.step(_input, DT)
+		_rev.step(_motor, _input, DT)
+		worst_drop = maxf(worst_drop, highest - _rev.rev)
+		highest = maxf(highest, _rev.rev)
+	assert_float(worst_drop).is_less(0.01)
+	assert_float(_rev.rev).is_greater(0.9)
+
+
+func test_the_clutch_bites_where_the_road_reaches_the_flare() -> void:
+	var at_bite := _sound.idle_rev + (1.0 - _sound.idle_rev) * _rev.clutch_fraction()
+	assert_float(at_bite).is_equal_approx(_sound.launch_rev, 0.001)
 
 
 func test_flat_out_sits_near_the_limiter() -> void:

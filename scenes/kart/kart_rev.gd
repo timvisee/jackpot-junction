@@ -56,9 +56,17 @@ func _target(motor: KartMotor, input: KartInput) -> float:
 		return stats.idle_rev
 	# The clutch slips off the line, so the throttle revs the engine against a kart that has not
 	# started moving yet, and the kart catches up to it. This is what pulling away sounds like.
-	var clutch := clampf(1.0 - fraction / maxf(stats.clutch_fraction, 0.001), 0.0, 1.0)
+	var clutch := clampf(1.0 - fraction / clutch_fraction(), 0.0, 1.0)
 	var free := stats.idle_rev + input.throttle * (stats.launch_rev - stats.idle_rev)
 	return lerpf(from_road, maxf(from_road, free), clutch)
+
+
+## The speed fraction over which the clutch bites, which is exactly the speed at which the road
+## on its own would ask for [member KartSoundStats.launch_rev]. Handing over there is what keeps
+## the needle climbing: were the clutch to bite sooner, the road would not have caught up yet and
+## the engine would drop back down again, which is heard as a harsh flare rather than a swell.
+func clutch_fraction() -> float:
+	return maxf((stats.launch_rev - stats.idle_rev) / (1.0 - stats.idle_rev), 0.02)
 
 
 ## Playback speed for the engine loop: the needle against the rev the file was recorded at.
