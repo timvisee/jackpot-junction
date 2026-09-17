@@ -41,8 +41,6 @@ var held_left := 0.0
 ## Seconds the pad still ignores karts after a flush.
 var disabled_left := 0.0
 var puppet := false
-## Coins earned but not yet handed over, so a rate below a coin a second still pays out.
-var change := 0.0
 
 var _frame_material: StandardMaterial3D
 var _label: Label3D
@@ -70,17 +68,6 @@ func _ready() -> void:
 
 func is_disabled() -> bool:
 	return disabled_left > 0.0
-
-
-## Whole coins the pad owes its holder after [param seconds] of holding it at [param rate] a
-## second. The remainder is kept for the next tick.
-func take_income(rate: float, seconds: float) -> int:
-	change += rate * seconds
-	var coins := floori(change)
-	change -= float(coins)
-	if coins > 0:
-		pop_halo()
-	return coins
 
 
 ## Throws a ring of light off the pad, for a coin landing in somebody's pot. The colour is
@@ -142,8 +129,6 @@ func _can_claim(kart: Kart) -> bool:
 ## Hands the pad to a slot, painting the frame in its colour.
 func claim(slot: int, color: Color) -> void:
 	owner_slot = slot
-	# A new holder starts from nothing rather than inheriting the last one's change.
-	change = 0.0
 	held_left = decay if slot >= 0 else 0.0
 	owner_color = color if slot >= 0 else NEUTRAL
 	_refresh()
@@ -152,7 +137,6 @@ func claim(slot: int, color: Color) -> void:
 ## After a flush: nobody holds the pad and it ignores karts for a while.
 func clear_and_disable(seconds: float) -> void:
 	owner_slot = -1
-	change = 0.0
 	held_left = 0.0
 	owner_color = NEUTRAL
 	disabled_left = seconds

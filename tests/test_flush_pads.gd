@@ -50,6 +50,42 @@ func test_a_held_pad_trickles_coins_into_its_holders_pot() -> void:
 	assert_int(pads[0].owner_slot).is_equal(0)
 
 
+## GAME.md 3.9: the board pays on one beat rather than four. Every pad that owes somebody a coin
+## hands it over on the same tick, so the rings go up together and a player holding two pads is
+## paid two coins at once instead of a stutter of singles.
+func test_the_pads_all_pay_on_the_same_beat() -> void:
+	var match_node := _start_match()
+	match_node.rules.flush_pad_income = 3.0
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	var pads := match_node.arena.flush_pads
+	kart.pot.reset()
+	for pad: FlushPad in pads:
+		await _park(kart, pad)
+	# Taking the fourth scores the flush, which clears the board, so the lock is what is paying
+	# now: all four pads at once, in the winner's colour.
+	kart.global_position = match_node.arena.spawn_points[0]
+	assert_float(match_node.flush_lock_left).is_greater(0.0)
+	var paid: Array[int] = []
+	var rings := 0
+	for i: int in 90:
+		var before := kart.pot.coins
+		await _runner.simulate_frames(1, 17)
+		var gained := kart.pot.coins - before
+		if gained > 0:
+			paid.append(gained)
+			# Every pad throws its ring on that same tick rather than in its own time.
+			var lit := 0
+			for pad: FlushPad in pads:
+				if pad._halo_left > 0.9:
+					lit += 1
+			rings = maxi(rings, lit)
+	assert_int(paid.size()).is_greater(0)
+	# Four pads, four coins, all in the one tick.
+	assert_int(paid[0]).is_equal(pads.size())
+	assert_int(rings).is_equal(pads.size())
+
+
 ## GAME.md 3.9: a paid coin throws a ring off the pad, in the holder's colour, so the trickle can
 ## be seen from across the table.
 ## GAME.md 3.9: the trickle runs with the room, so a pad pays faster at level 6 than at level 1.

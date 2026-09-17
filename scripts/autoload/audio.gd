@@ -136,6 +136,8 @@ var _bank_tick_left := 0.0
 ## When each slot last finished a cash-out, so a run of them is not a run of chimes.
 var _banked_at: Dictionary[int, float] = {}
 var _bank_pitch := 1.0
+## The physics frame the last chip clink played on, so coins that land together are one sound.
+var _chip_frame := -1
 var _rng := RandomNumberGenerator.new()
 
 
@@ -384,11 +386,18 @@ func _free_player() -> AudioStreamPlayer:
 	return _pool[_rng.randi_range(0, _pool.size() - 1)]
 
 
+## Coins landing in the same instant are one sound. The four Royal Flush pads pay on the same
+## beat, GAME.md 3.9, and four clinks stacked on one frame is a rattle rather than four coins.
+func _on_coin_collected(_slot: int, coins: int) -> void:
+	var frame := Engine.get_physics_frames()
+	if frame == _chip_frame:
+		return
+	_chip_frame = frame
+	play_sfx(&"gold_chip" if coins >= 5 else &"chip", -6.0)
+
+
 func _connect_events() -> void:
-	Events.coin_collected.connect(
-		func(_slot: int, coins: int) -> void:
-			play_sfx(&"gold_chip" if coins >= 5 else &"chip", -6.0)
-	)
+	Events.coin_collected.connect(_on_coin_collected)
 	Events.mult_gained.connect(_on_mult_gained)
 	Events.grazed.connect(func(_slot: int) -> void: play_sfx(&"graze", -4.0))
 	Events.kart_killed.connect(_on_kart_killed)

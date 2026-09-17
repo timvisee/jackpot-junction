@@ -53,6 +53,8 @@ var bounty_slot := -1
 ## Whose flush is still paying out and for how much longer, GAME.md 3.9.
 var flush_lock_slot := -1
 var flush_lock_left := 0.0
+## The board's share of a coin, so every pad pays on the same beat however slowly they pay.
+var flush_change := 0.0
 var bounty_left := 0.0
 var nav: ArenaNav
 var countdown_left := 0.0
@@ -673,6 +675,14 @@ func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> voi
 func _step_flush_income(delta: float) -> void:
 	var rate := rules.flush_pad_income * lerpf(1.0, rules.flush_pad_income_hot, intensity.share())
 	var locked := _step_flush_lock(delta)
+	# One clock for the whole board rather than one per pad: the pads pay on the same beat, so
+	# two pads across the room from each other throw their rings together and a player holding
+	# three of them is paid three coins at once instead of a stutter of singles.
+	flush_change += rate * delta
+	var coins := floori(flush_change)
+	if coins <= 0:
+		return
+	flush_change -= float(coins)
 	for pad: FlushPad in arena.flush_pads:
 		var slot := locked if locked >= 0 else pad.owner_slot
 		if slot < 0 or slot >= slots.size():
@@ -682,13 +692,10 @@ func _step_flush_income(delta: float) -> void:
 		var kart := slots[slot].kart
 		if kart == null or not kart.is_active():
 			continue
-		var coins := pad.take_income(rate, delta)
-		if coins > 0:
-			kart.collect_coins(coins, null)
-			if locked >= 0:
-				# The pads are wearing nobody's colour while they rest, so the rings say whose
-				# flush is still being paid out.
-				pad.pop_halo(slots[slot].color())
+		kart.collect_coins(coins, null)
+		# While a flush is resting the pads wear nobody's colour, so the rings say whose flush
+		# is still being paid out.
+		pad.pop_halo(slots[slot].color() if locked >= 0 else Color.TRANSPARENT)
 
 
 ## Whose flush is still paying, or -1 when none is. A Royal Flush clears the board it was won

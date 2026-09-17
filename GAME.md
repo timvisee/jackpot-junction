@@ -289,10 +289,16 @@ paints its frame in your colour and takes it from whoever held it.
   the pads pay best exactly when the room is worth being out in. A holder who is
   dead, falling or rolling out the end of the match earns nothing while they are;
   the pad keeps their colour and waits for them.
+- The whole board pays on one beat rather than four. A single clock decides when a
+  coin is due, and every pad that owes somebody one hands it over on that tick, so
+  a player holding three pads is paid three coins at once instead of a stutter of
+  singles and the rings go up together across the table.
 - Every coin paid throws a ring of light off the pad in its holder's colour,
   growing outward and fading over 0.7 s, so four pads ticking over read as four
   pads ticking over from anywhere on the table. The ring is square like the pad
-  and lined up with it, not stood on a corner.
+  and lined up with it, not stood on a corner. Coins landing in the same instant
+  are one clink, however many pads and players they belong to: four chips stacked
+  on one frame is a rattle rather than four coins.
 - Holding all four at once is a Royal Flush: +3 mult, a full nitro tank, and the
   four pads keep paying you for 12 s after they have cleared, at the rate all four
   of them paid together. Without that last part the reward for winning a flush
