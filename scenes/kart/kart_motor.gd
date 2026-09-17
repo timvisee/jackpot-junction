@@ -511,6 +511,15 @@ func _end_drift() -> void:
 	drift_time = 0.0
 
 
+## Running into something spoils the slide, GAME.md 4.1. The exit boost is for a drift that was
+## driven all the way round, not for one that finished in a wall, so the charge goes and any
+## boost already running is cut. The kart keeps sliding; it just has nothing to collect at the
+## end of it until it has earned another one.
+func spoil_drift() -> void:
+	drift_time = 0.0
+	boost_time_left = 0.0
+
+
 ## Whether the drift running right now would pay its exit boost if it ended here: long enough
 ## to have been meant, and still quick enough to have been a drift rather than a shuffle. The
 ## sparks ask the same question, so what the kart promises and what it pays are one answer.

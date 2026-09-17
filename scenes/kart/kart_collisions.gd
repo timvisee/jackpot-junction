@@ -50,6 +50,7 @@ static func _bump(kart: Kart, other: Kart, normal: Vector3, pre: Vector3) -> voi
 	kart.motor.apply_bump(normal)
 	kart.velocity = kart.motor.velocity
 	if pre.length() > BUMP_SPEED:
+		kart.motor.spoil_drift()
 		Events.kart_bumped.emit(kart.slot)
 
 
@@ -60,6 +61,10 @@ static func _wall(kart: Kart, normal: Vector3, pre: Vector3, already: bool) -> b
 	var square := not kart.motor.apply_wall_glance(normal, pre)
 	if square:
 		kart.motor.apply_wall_hit(into)
+		if into > CRASH_SPEED:
+			# A glance along a wall is part of driving here and costs nothing; a square hit
+			# is a crash, and a crash has nothing to collect at the end of it.
+			kart.motor.spoil_drift()
 		if not already and not kart.touching_wall and kart.crash_wait <= 0.0 and into > CRASH_SPEED:
 			kart.crash_wait = CRASH_INTERVAL
 			Events.kart_crashed.emit(kart.slot, force(kart.stats, into))

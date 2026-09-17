@@ -292,6 +292,43 @@ func test_a_drift_carried_at_speed_pays() -> void:
 	assert_float(_motor.speed()).is_greater(carried)
 
 
+## GAME.md 4.1: the exit boost is for a slide that was driven all the way round, so running
+## into something during one leaves nothing to collect at the end of it.
+func test_hitting_something_mid_drift_costs_the_exit_boost() -> void:
+	_use_the_tighten_drift()
+	_input.throttle = 1.0
+	_run(3.0)
+	_input.steer = 1.0
+	_input.handbrake = true
+	_run(_stats.drift_min_duration + 0.3)
+	assert_bool(_motor.drifting).is_true()
+	assert_bool(_motor.boost_earned()).is_true()
+	# The crash. The kart is still sideways, it just has nothing owing to it now.
+	_motor.spoil_drift()
+	assert_bool(_motor.drifting).is_true()
+	assert_bool(_motor.boost_earned()).is_false()
+	_input.handbrake = false
+	_input.steer = 0.0
+	_run(0.1)
+	assert_bool(_motor.boosting()).is_false()
+
+
+## And a boost already running is cut rather than carrying the kart on through the wall.
+func test_hitting_something_mid_boost_cuts_it_short() -> void:
+	_use_the_tighten_drift()
+	_input.throttle = 1.0
+	_run(3.0)
+	_input.steer = 1.0
+	_input.handbrake = true
+	_run(_stats.drift_min_duration + 0.3)
+	_input.handbrake = false
+	_input.steer = 0.0
+	_run(0.1)
+	assert_bool(_motor.boosting()).is_true()
+	_motor.spoil_drift()
+	assert_bool(_motor.boosting()).is_false()
+
+
 func test_a_short_drift_gives_no_boost() -> void:
 	_use_the_tighten_drift()
 	_stats.handbrake_drift_only = false
