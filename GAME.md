@@ -210,6 +210,9 @@ Jokers are passive rule modifiers held for the rest of the match.
   any kart, including its previous owner, for 15 s.
 - Players start a match with no jokers. The first offer comes with the first
   death.
+- An offer still open at the whistle is dropped. Nobody respawns out of the
+  results, so there is nothing left for the pick to be for, and leaving it up
+  would put an unusable card over the standings.
 - The offer stays open until the player picks or skips. Respawn waits for the
   choice, but never happens before the 3 s delay has passed. The match keeps
   running meanwhile.

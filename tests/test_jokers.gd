@@ -251,6 +251,20 @@ func test_the_picker_keeps_its_cards_between_frames() -> void:
 	assert_object(picker._cards[0]).is_same(first)
 
 
+## GAME.md 4.4: an offer still open at the whistle is dropped. Nobody respawns out of the
+## results, so the pick has nothing left to be for and it would sit over the standings unusable.
+func test_the_whistle_takes_an_open_joker_pick_off_the_screen() -> void:
+	var match_node := _start_match(_bots(), 3)
+	var kart := match_node.kart_of(0)
+	var slot := match_node.slots[0]
+	slot.offer = JokerOffer.new(kart, CATALOG.offer(match_node.rng, 3, []))
+	assert_bool(slot.offer.is_done()).is_false()
+	match_node.time_left = 0.0
+	await _runner.simulate_frames(6, 17)
+	assert_int(match_node.state).is_equal(Match.State.RESULTS)
+	assert_object(slot.offer).is_null()
+
+
 ## GAME.md 8.3: the count beside the hand says how many of the five slots are taken.
 func test_the_hand_shows_how_full_it_is() -> void:
 	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]

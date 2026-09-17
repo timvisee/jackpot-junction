@@ -560,6 +560,9 @@ func _finish() -> void:
 	for slot: PlayerSlot in slots:
 		if slot.kart != null:
 			slot.kart.coast()
+		# Nobody respawns out of the results, so an open joker pick has nothing left to be
+		# for. It comes off the screen rather than sitting over the standings being unusable.
+		slot.offer = null
 	bullets.process_mode = Node.PROCESS_MODE_DISABLED
 	_set_state(State.RESULTS)
 	_spotlight_winner()
