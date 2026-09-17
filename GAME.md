@@ -892,8 +892,9 @@ every kart, so everyone sees when an opponent cashes out.
   gain from -7.5 dB to +1.5, so an opening lap sounds like a bar with music on
   somewhere and the finale sounds like the music. The early levels are meant to
   sit under the room rather than lead it. Both sit after the bus volume, so the audio settings keep full control.
-  A kill shakes the camera by 0.2 plus half of that same share. The beat nudge at
-  level 6 is shaped so it has fallen away again before the next beat. All shake
+  A kill shakes the camera by 0.2 plus half of that same share. At level 6 the camera thumps on every
+  beat and harder on the first of the bar, each shaped so it has fallen away before the
+  next arrives, which is the one place the room is felt as well as heard. All shake
   obeys the accessibility toggle in 8.5.
 - The F3 overlay shows the level and the meter with its two parts, the layer,
   both players' levels and positions, how far the filter is open, and the mute

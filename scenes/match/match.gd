@@ -9,6 +9,11 @@ enum State { LOBBY, COUNTDOWN, PLAYING, LAST_CALL, RESULTS }
 const ARENA_SCENE := preload("res://scenes/arena/arena.tscn")
 const KART_SCENE := preload("res://scenes/kart/kart.tscn")
 const CAMERA_SCENE := preload("res://scenes/camera/camera_rig.tscn")
+## How hard the top excitement level thumps the camera on the beat, and how much harder on
+## the first beat of the bar. This is the only effect that moves what the player is aiming
+## through, so it is kept to a thump rather than a shake.
+const BEAT_TREMBLE := 1.7
+const BEAT_DOWNBEAT := 1.4
 ## Seconds before looking again when there was nobody worth putting a bounty on.
 const BOUNTY_RETRY := 5.0
 
@@ -441,12 +446,15 @@ func _physics_process(delta: float) -> void:
 			camera_rig.tremble = _beat_tremble()
 
 
-## The camera's share of the top excitement level, GAME.md 8.4: at level 6 and nowhere else it
-## takes a nudge on every beat, shaped so it has fallen away again before the next one.
+## The camera's share of the top excitement level, GAME.md 8.4: at level 6 and nowhere else
+## the room is felt as well as heard. A thump on every beat and a harder one on the first of
+## the bar, each shaped so it has fallen away before the next arrives. The accessibility
+## toggle in 8.5 turns all of it off, since this is the one effect that moves the whole view.
 func _beat_tremble() -> float:
 	if intensity.level < MatchIntensity.LEVELS:
 		return 0.0
-	return pow(1.0 - Audio.music_beat(), 6.0)
+	var downbeat := BEAT_DOWNBEAT if Audio.music_beat_index() == 0 else 1.0
+	return BEAT_TREMBLE * downbeat * pow(1.0 - Audio.music_beat(), 5.0)
 
 
 ## How loudly the Junction should blink: from the biggest pot a local player is carrying,
