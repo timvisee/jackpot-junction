@@ -12,6 +12,12 @@ const SPEED_SCALE := 20.0
 ## The speed the dial is full at: a kart flat out on nitro, so the needle has somewhere to go
 ## when the bottle is lit.
 const SPEED_FULL := 1.9
+## The announcer's call: how far under the middle of the screen it sits, how long it holds and
+## how much of that is the fade. It shares the middle with the start gantry and the GO, neither
+## of which is up while anybody is being killed.
+const CALL_DROP := 120.0
+const CALL_TIME := 2.2
+const CALL_FADE := 0.6
 
 const BLOCK_ANCHORS: Array[int] = [
 	Control.PRESET_TOP_LEFT,
@@ -26,6 +32,8 @@ var _timer: Label
 var _scoreboard: Scoreboard
 var _banner: Label
 var _light: StartLight
+var _call: Label
+var _call_left := 0.0
 var _blocks: Dictionary[int, Dictionary] = {}
 ## The cash-out tally each slot has in the air, so a run of them climbs one number.
 var _tallies: Dictionary[int, FloatingText] = {}
@@ -57,6 +65,9 @@ func _ready() -> void:
 	_light.hang(50.0)
 	_light.visible = false
 	add_child(_light)
+	_call = _label(64, Control.PRESET_CENTER)
+	_call.offset_top += CALL_DROP
+	_call.visible = false
 	for slot: PlayerSlot in match_node.slots:
 		if slot.is_local_human():
 			add_block(slot)
@@ -77,6 +88,7 @@ func _ready() -> void:
 	Events.bounty_claimed.connect(_on_bounty_claimed)
 	Events.kart_wounded.connect(_on_kart_wounded)
 	Events.life_restored.connect(_on_life_restored)
+	Events.announced.connect(_on_announced)
 
 
 func _on_bounty_called(slot: int) -> void:
@@ -220,6 +232,7 @@ func _layout_hands() -> void:
 
 
 func _process(delta: float) -> void:
+	_update_call(delta)
 	_update_timer()
 	_update_scoreboard()
 	_update_blocks()
@@ -295,6 +308,26 @@ func _update_blocks() -> void:
 		hand.keyboard = DeviceInput.uses_keyboard(slot.device())
 		_pickers[index].keyboard = hand.keyboard
 		_pickers[index].show_offer(slot.offer, kart)
+
+
+## The announcer's call, GAME.md 3.12: the player's name and what they just did, in their own
+## colour, under the middle of the screen where the eye already is. It holds and then goes.
+func _on_announced(slot: int, call: String) -> void:
+	var name_of := _slot_name(slot)
+	_call.text = call if name_of.is_empty() else "%s  %s" % [name_of, call]
+	_call.add_theme_color_override("font_color", _slot_color(slot))
+	_call.visible = true
+	_call.modulate.a = 1.0
+	_call_left = CALL_TIME
+
+
+## Held at full for most of its life and then faded, so it is read rather than glimpsed.
+func _update_call(delta: float) -> void:
+	if _call_left <= 0.0:
+		return
+	_call_left = maxf(_call_left - delta, 0.0)
+	_call.modulate.a = clampf(_call_left / CALL_FADE, 0.0, 1.0)
+	_call.visible = _call_left > 0.0
 
 
 func _kind_color(joker: Joker) -> String:

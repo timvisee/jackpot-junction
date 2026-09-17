@@ -29,6 +29,8 @@ signal match_state_changed(state: int)
 signal countdown_tick(count: int)
 ## The table threw a joker onto the floor because the room is hot, GAME.md 3.11.
 signal wild_joker_dropped(joker_id: StringName)
+## The announcer called something, GAME.md 3.12: a run of kills, a streak or a trade.
+signal announced(slot: int, call: String)
 signal bullet_fired(slot: int)
 signal bullet_bounced
 signal kart_bumped(slot: int)

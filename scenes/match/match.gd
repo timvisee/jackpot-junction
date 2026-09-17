@@ -46,6 +46,8 @@ var bullets: BulletSystem
 var hud: MatchHud
 ## How hot the match feels, read by the music, the arena lights and the camera.
 var intensity: MatchIntensity
+## Calls out the kills worth calling out, GAME.md 3.12.
+var announcer: Announcer
 ## What the bots copy from the players, and how hard they are trying.
 var bot_mirror := BotMirror.new()
 ## The slot with a price on its head, -1 for nobody, and how long the bounty still stands.
@@ -285,6 +287,9 @@ func _add_intensity() -> void:
 	intensity.name = "Intensity"
 	intensity.match_node = self
 	add_child(intensity)
+	announcer = Announcer.new()
+	announcer.name = "Announcer"
+	add_child(announcer)
 
 
 ## Instantiates the arena on the chosen map. The layout has to be in place before the node

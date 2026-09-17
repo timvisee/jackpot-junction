@@ -355,6 +355,27 @@ with a free slot may take one.
 None of this touches how a kart drives. The room decides what there is to fight
 over and how fast it arrives, never how the kart answers the wheel.
 
+### 3.12 The announcer
+
+Some kills are worth more than a line in the feed. The room calls those out in big
+letters under the middle of the screen, in the player's own colour, for a couple of
+seconds.
+
+| Call         | When                                                              |
+|--------------|-------------------------------------------------------------------|
+| Double kill  | Two kills inside 4 s                                              |
+| Triple kill  | Three, then Quad kill, then Killing spree for anything longer     |
+| Hot streak   | 3 kills without dying, then On fire at 5 and Untouchable at 8     |
+| Trade kill   | Killing the player who killed you within the last 2.5 s           |
+
+One call per kill, the biggest thing that just happened: a run of kills outranks a
+streak, which outranks a trade, since the rarer the thing the louder it should be.
+A death with nobody to credit, down a pit or on your own bomb, is nobody's moment
+and is never called. Dying wipes a streak and a run both.
+
+The calls are text for now. They are worked out apart from how they are shown, so
+a voice can be put behind them later without the rules moving.
+
 ## 4. Kart
 
 ### 4.1 Handling
