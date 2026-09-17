@@ -63,7 +63,9 @@ func cancel_replace() -> void:
 
 
 ## Reads the player's device: steering or the bracket keys move the cursor, number keys pick
-## directly, the item button confirms, the destroy button skips or cancels.
+## directly, the item or fire button confirms, the destroy button skips or cancels. Fire counts
+## as well as the item button because a player sitting on a respawn pick has a thumb on it
+## already, and pressing the obvious button to choose a card should choose the card.
 func poll(device: int) -> void:
 	if stage == Stage.DONE:
 		return
@@ -77,7 +79,7 @@ func poll(device: int) -> void:
 		if _pressed(selects[i], device) and i < options:
 			_confirm(i)
 			return
-	if _pressed(InputActions.USE_ITEM, device):
+	if _pressed(InputActions.USE_ITEM, device) or _pressed(InputActions.FIRE, device):
 		_confirm(selected)
 		return
 	if _pressed(InputActions.JOKER_DESTROY, device):
@@ -88,7 +90,7 @@ func poll(device: int) -> void:
 
 
 ## Reads the one-tick fields of a polled input: steering or the cursor keys move, numbers pick,
-## the item button confirms, the destroy button skips or cancels. Used for remote players,
+## the item or fire button confirms, the destroy button skips or cancels. Used for remote players,
 ## whose steering arrives as an axis, so it is turned back into presses here.
 func poll_input(input: KartInput) -> void:
 	if stage == Stage.DONE:
@@ -108,7 +110,7 @@ func poll_input(input: KartInput) -> void:
 	if input.joker_select >= 0 and input.joker_select < options:
 		_confirm(input.joker_select)
 		return
-	if input.use_item_pressed:
+	if input.use_item_pressed or input.fire_pressed:
 		_confirm(selected)
 		return
 	if input.joker_destroy_pressed:

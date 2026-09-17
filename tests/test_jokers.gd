@@ -642,3 +642,25 @@ func test_dropped_jokers_land_on_the_floor_and_can_be_picked_up() -> void:
 		if child is FloorJoker:
 			dropped += 1
 	assert_int(dropped).is_equal(1)
+
+
+## GAME.md 3.7: fire takes the card under the cursor as well as the item button does. A player
+## sitting on a respawn pick has a thumb on fire already.
+func test_the_fire_button_takes_the_card_under_the_cursor() -> void:
+	var match_node := _start_match(_bots(), 3)
+	var kart := match_node.kart_of(0)
+	var offer := JokerOffer.new(kart, CATALOG.offer(match_node.rng, 3, []))
+	offer.selected = 1
+	var wanted := offer.choices[1]
+	var input := KartInput.new()
+	input.fire_pressed = true
+	offer.poll_input(input)
+	assert_bool(offer.is_done()).is_true()
+	assert_array(kart.jokers.ids()).contains([wanted.id])
+	# And the item button still does, for anyone who learned it that way.
+	var second := JokerOffer.new(kart, CATALOG.offer(match_node.rng, 3, kart.jokers.ids()))
+	second.selected = 0
+	var item := KartInput.new()
+	item.use_item_pressed = true
+	second.poll_input(item)
+	assert_bool(second.is_done()).is_true()

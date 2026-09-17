@@ -508,6 +508,7 @@ assigns physical devices to player slots, see 10.2.
 | Use power-up                | X                   | E                         |
 | Joker menu, hold            | Y                   | Tab                       |
 | Joker menu: select          | Left stick or D-pad left / right | Arrows, A / D, brackets or 1 to 5 |
+| Respawn pick: take          | Fire or use power-up | Space or E                |
 | Joker menu: drop            | A                   | E                         |
 | Joker menu: destroy         | B                   | Q                         |
 | Free aim, Swivel Cannon only| Right stick         | Mouse position on the arena plane |
