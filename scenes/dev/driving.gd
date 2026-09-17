@@ -28,14 +28,14 @@ const CAMERA_DISTANCE := 26.0
 const PRESETS: Array[String] = [
 	"feel_shipped",
 	"default",
-	"feel_oversteer",
+	"feel_tighten",
 	"feel_snapdrift",
 ]
 const PRESET_NAMES: Array[String] = [
 	"as it ships",
-	"the kart now",
-	"oversteer drift: counter-steer to hold it",
-	"now, but with the old instant drift",
+	"the kart now: oversteer drift",
+	"the tighten drift it had before",
+	"the kart now, with the instant drift ramp",
 ]
 
 var match_node: Match

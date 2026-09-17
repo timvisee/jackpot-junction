@@ -18,7 +18,6 @@ stick_curve = 1.0
 turn_in_place_rate_deg = 85.0
 pivot_blend_speed = 2.2
 grip_normal = 30.0
-drift_style = 1
 grip_drift = 4.8
 handbrake_drift_only = true
 handbrake_decel = 22.0

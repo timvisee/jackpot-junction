@@ -14,6 +14,13 @@ func before_test() -> void:
 	_input = KartInput.new()
 
 
+## The kart drifts the oversteer way, GAME.md 4.1, and these tests are about the tighten drift it
+## keeps alongside: holding the wheel over holds the slide and the kart turns tighter. Switching
+## the style on the shared stats is enough, since the motor reads them every tick.
+func _use_the_tighten_drift() -> void:
+	_stats.drift_style = KartStats.DriftStyle.TIGHTEN
+
+
 func _run(seconds: float) -> void:
 	for i: int in int(round(seconds / DT)):
 		_motor.step(_input, DT)
@@ -157,6 +164,7 @@ func test_steering_right_is_clockwise_and_reversing_flips_it() -> void:
 
 
 func test_hard_turn_at_speed_drifts_and_a_long_drift_exit_boosts() -> void:
+	_use_the_tighten_drift()
 	_stats.handbrake_drift_only = false
 	_input.throttle = 1.0
 	_run(2.0)
@@ -174,6 +182,7 @@ func test_hard_turn_at_speed_drifts_and_a_long_drift_exit_boosts() -> void:
 ## GAME.md 4.1: the rear comes round over the entry time rather than arriving sideways in one
 ## tick, and hooks back up when the drift ends.
 func test_the_slide_arrives_over_the_entry_time_rather_than_at_once() -> void:
+	_use_the_tighten_drift()
 	_input.throttle = 1.0
 	_run(2.0)
 	_input.steer = 1.0
@@ -226,6 +235,7 @@ func test_changing_sides_mid_drift_goes_through_the_middle() -> void:
 ## The ramp can be switched off, which puts the old instant drift back: the slide lands whole in
 ## the tick the handbrake goes in.
 func test_the_drift_ramp_can_be_turned_off() -> void:
+	_use_the_tighten_drift()
 	_stats.drift_ramp = false
 	_input.throttle = 1.0
 	_run(2.0)
@@ -241,6 +251,7 @@ func test_the_drift_ramp_can_be_turned_off() -> void:
 
 
 func test_a_short_drift_gives_no_boost() -> void:
+	_use_the_tighten_drift()
 	_stats.handbrake_drift_only = false
 	_input.throttle = 1.0
 	_run(2.0)
@@ -254,6 +265,7 @@ func test_a_short_drift_gives_no_boost() -> void:
 
 
 func test_with_handbrake_only_drifting_steering_never_drifts_and_the_handbrake_brakes() -> void:
+	_use_the_tighten_drift()
 	_input.throttle = 1.0
 	_run(2.5)
 	_input.steer = 1.0
@@ -302,12 +314,14 @@ func test_the_handbrake_without_steering_stops_the_kart_quickly_without_drifting
 
 
 func test_drift_grip_keeps_more_sideways_velocity() -> void:
+	_use_the_tighten_drift()
 	var gripping := _sideways_speed_after_turn(false)
 	var sliding := _sideways_speed_after_turn(true)
 	assert_float(sliding).is_greater(gripping * 1.5)
 
 
 func test_a_handbrake_drift_goes_visibly_sideways_then_hooks_up_on_release() -> void:
+	_use_the_tighten_drift()
 	_input.throttle = 1.0
 	_run(2.5)
 	_input.steer = 1.0

@@ -1,7 +1,7 @@
 extends GdUnitTestSuite
-## The oversteer drift style from GAME.md 4.1, at a 60 Hz tick. Pulling the handbrake breaks the
-## rear loose once; after that the wheel does not hold the slide, it feeds it, bleeds it or catches
-## it, which is how a rally car is driven.
+## The oversteer drift from GAME.md 4.1, which is what the kart drifts with, at a 60 Hz tick. A
+## flick of the handbrake breaks the rear loose; after that the wheel asks the kart to sit at an
+## angle rather than asking for more slide, which is how a rally car is driven.
 
 const DT := 1.0 / 60.0
 
@@ -11,7 +11,7 @@ var _input: KartInput
 
 
 func before_test() -> void:
-	_stats = load("res://data/kart/feel_oversteer.tres").duplicate()
+	_stats = load("res://data/kart/default.tres").duplicate()
 	_motor = KartMotor.new(_stats)
 	_input = KartInput.new()
 
@@ -158,9 +158,10 @@ func test_holding_the_handbrake_through_a_catch_throws_it_the_other_way() -> voi
 	assert_float(_hang()).is_less(-20.0)
 
 
-## The style is a switch: the kart the game ships with still holds its drift on the wheel.
-func test_the_other_style_is_untouched() -> void:
-	var tighten: KartStats = load("res://data/kart/default.tres").duplicate()
+## The style is a switch, and the one it replaced is kept whole: holding the wheel over holds
+## that slide and simply turns the kart tighter, with no rear of its own to catch.
+func test_the_tighten_style_is_kept_and_still_works() -> void:
+	var tighten: KartStats = load("res://data/kart/feel_tighten.tres").duplicate()
 	assert_int(tighten.drift_style).is_equal(KartStats.DriftStyle.TIGHTEN)
 	var motor := KartMotor.new(tighten)
 	var input := KartInput.new()
