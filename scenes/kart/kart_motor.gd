@@ -405,6 +405,10 @@ func _step_drift(input: KartInput) -> void:
 ## drift throws most of the slide away: the rear has to come back through the middle and bite
 ## before it will step out the other side.
 func _step_drift_amount(delta: float) -> void:
+	if not stats.drift_ramp:
+		drift_amount = 1.0 if drifting else 0.0
+		_drift_direction = signf(steer) if drifting else 0.0
+		return
 	if not drifting:
 		_drift_direction = 0.0
 		drift_amount = move_toward(drift_amount, 0.0, delta / maxf(stats.drift_exit_time, 0.001))

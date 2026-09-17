@@ -59,6 +59,9 @@ enum Model {
 @export var handbrake_speed_fraction := 0.4
 @export var drift_exit_steer := 0.3
 @export var drift_yaw_multiplier := 1.55
+## Whether the slide comes round over the times below or lands whole. Off is how the drift
+## used to work: the grip drops and the kart is sideways within one tick.
+@export var drift_ramp := true
 ## Seconds the rear takes to come round into a drift, and to hook back up when it ends. Fast,
 ## but not instant: a drift that arrives in one tick reads as the kart teleporting sideways.
 @export var drift_entry_time := 0.18

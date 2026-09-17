@@ -223,6 +223,23 @@ func test_changing_sides_mid_drift_goes_through_the_middle() -> void:
 	assert_float(absf(rad_to_deg(_motor.slip_angle()))).is_greater(20.0)
 
 
+## The ramp can be switched off, which puts the old instant drift back: the slide lands whole in
+## the tick the handbrake goes in.
+func test_the_drift_ramp_can_be_turned_off() -> void:
+	_stats.drift_ramp = false
+	_input.throttle = 1.0
+	_run(2.0)
+	_input.steer = 1.0
+	_input.handbrake = true
+	_motor.step(_input, DT)
+	assert_bool(_motor.drifting).is_true()
+	assert_float(_motor.drift_amount).is_equal(1.0)
+	_input.handbrake = false
+	_input.steer = 0.0
+	_motor.step(_input, DT)
+	assert_float(_motor.drift_amount).is_equal(0.0)
+
+
 func test_a_short_drift_gives_no_boost() -> void:
 	_stats.handbrake_drift_only = false
 	_input.throttle = 1.0
