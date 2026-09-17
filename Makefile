@@ -31,8 +31,11 @@ smoke:
 	tools/smoke res://scenes/dev/playground.tscn
 	tools/smoke res://scenes/dev/driving.tscn
 
-run:
+dev:
 	$(GODOT) --path . res://scenes/dev/playground.tscn
+
+run:
+	$(GODOT) --path . res://scenes/ui/title.tscn
 
 drive:
 	$(GODOT) --path . res://scenes/dev/driving.tscn

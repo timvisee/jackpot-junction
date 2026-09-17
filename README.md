@@ -37,7 +37,8 @@ install, or `godot4` on the path. Lint and format use
 [gdtoolkit](https://github.com/Scony/godot-gdscript-toolkit): `pipx install gdtoolkit`.
 
 ```
-make run        # start the development scene
+make dev        # start the development scene
+make run        # start the game scene
 make check      # import, lint, format check, unit tests, smoke runs
 make test       # unit tests only (gdUnit4, headless)
 make export     # release builds for Linux, Windows and macOS in build/

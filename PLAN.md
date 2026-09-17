@@ -127,7 +127,7 @@ noticeable. Expect two or three tuning rounds; write the final numbers into
 GAME.md.
 
 Status: built and checked headless (32 tests, smoke run, screenshot). The
-handling session is still open: run `make run`, F3 shows the readout, F4 the
+handling session is still open: run `make dev`, F3 shows the readout, F4 the
 tuning panel, and Save writes the numbers back to `data/kart/default.tres`.
 
 ## M1: combat
