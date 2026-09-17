@@ -30,22 +30,8 @@ func _ready() -> void:
 ## match uses. Highest first.
 func order() -> Array[PlayerSlot]:
 	var ranked := match_node.slots.duplicate()
-	ranked.sort_custom(
-		func(a: PlayerSlot, b: PlayerSlot) -> bool:
-			var left := total_of(a)
-			var right := total_of(b)
-			if left != right:
-				return left > right
-			if a.kills != b.kills:
-				return a.kills > b.kills
-			return a.deaths < b.deaths
-	)
+	ranked.sort_custom(PlayerSlot.by_score)
 	return ranked
-
-
-## Banked score plus whatever the kart is still driving around with.
-static func total_of(slot: PlayerSlot) -> int:
-	return slot.score()
 
 
 func _process(_delta: float) -> void:

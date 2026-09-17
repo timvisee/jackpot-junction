@@ -33,7 +33,7 @@ func test_unbanked_coins_move_a_kart_up_the_board() -> void:
 	# 250 unbanked is enough to take the lead, and losing them gives it straight back.
 	match_node.kart_of(0).pot.add_coins(250)
 	await _runner.simulate_frames(2, 17)
-	assert_int(Scoreboard.total_of(match_node.slots[0])).is_equal(550)
+	assert_int(match_node.slots[0].score()).is_equal(550)
 	assert_int(board.order()[0].index).is_equal(0)
 	assert_str((board._rows[0]["risk"] as Label).text).is_equal("+250")
 	match_node.kart_of(0).pot.reset()

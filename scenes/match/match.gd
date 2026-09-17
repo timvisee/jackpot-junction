@@ -401,14 +401,7 @@ func is_running() -> bool:
 ## Slots ranked by banked score, then kills, then fewest deaths.
 func standings() -> Array[PlayerSlot]:
 	var ranked := slots.duplicate()
-	ranked.sort_custom(
-		func(a: PlayerSlot, b: PlayerSlot) -> bool:
-			if a.banked != b.banked:
-				return a.banked > b.banked
-			if a.kills != b.kills:
-				return a.kills > b.kills
-			return a.deaths < b.deaths
-	)
+	ranked.sort_custom(PlayerSlot.by_banked)
 	return ranked
 
 

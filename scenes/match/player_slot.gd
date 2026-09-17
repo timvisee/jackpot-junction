@@ -34,6 +34,31 @@ func score() -> int:
 	return banked + (kart.pot.value() if kart != null else 0)
 
 
+## Ranks two slots for the results, GAME.md 3.8: most banked, then most kills, then fewest
+## deaths. Only what is banked wins a match.
+static func by_banked(a: PlayerSlot, b: PlayerSlot) -> bool:
+	if a.banked != b.banked:
+		return a.banked > b.banked
+	return _tie_break(a, b)
+
+
+## Ranks two slots for the running order, which counts what a kart is still carrying as well, so
+## a hot lap climbs the board before it reaches the Junction and drops back on dying.
+static func by_score(a: PlayerSlot, b: PlayerSlot) -> bool:
+	var left := a.score()
+	var right := b.score()
+	if left != right:
+		return left > right
+	return _tie_break(a, b)
+
+
+## How a tie is settled, which is the same question whichever number was being compared.
+static func _tie_break(a: PlayerSlot, b: PlayerSlot) -> bool:
+	if a.kills != b.kills:
+		return a.kills > b.kills
+	return a.deaths < b.deaths
+
+
 func color() -> Color:
 	return Palette.player_color(color_index)
 
