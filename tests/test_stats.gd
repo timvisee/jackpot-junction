@@ -81,3 +81,33 @@ func test_the_match_counts_shots_distance_coins_and_deaths() -> void:
 	copy.from_array(data["slots"][1]["stats"])
 	assert_float(copy.value(&"coins_lost")).is_equal(9.0)
 	assert_float(copy.value(&"deaths")).is_equal(1.0)
+
+
+## GAME.md 3.8: the awards follow the game. The Jackpot, the drift boost, the Royal Flush pads
+## and the oil are all things a player does a lot of, and each is now counted.
+func test_the_newer_mechanics_are_counted_too() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var stats := match_node.slots[0].stats
+	assert_float(stats.value(&"jackpot_chips")).is_equal(0.0)
+	Events.jackpot_collected.emit(0, 9)
+	Events.drift_boosted.emit(0)
+	Events.drift_boosted.emit(0)
+	Events.oil_hit.emit(0)
+	await _runner.simulate_frames(2, 17)
+	assert_float(stats.value(&"jackpot_chips")).is_equal(9.0)
+	assert_float(stats.value(&"drift_boosts")).is_equal(2.0)
+	assert_float(stats.value(&"oil_spins")).is_equal(1.0)
+	# Taking a flush pad counts whether or not it ever becomes a flush.
+	var kart := match_node.kart_of(0)
+	kart.global_position = match_node.arena.flush_pads[0].global_position
+	await _runner.simulate_frames(6, 17)
+	assert_float(stats.value(&"pads_taken")).is_greater_equal(1.0)
+	# And every one of them can be named on the results screen.
+	for field: StringName in PlayerStats.FIELDS:
+		(
+			assert_bool(PlayerStats.AWARDS.has(field))
+			. override_failure_message("%s has no award" % field)
+			. is_true()
+		)

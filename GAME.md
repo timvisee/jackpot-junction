@@ -265,8 +265,12 @@ Sideways Specialist (distance drifted), Close Shave (grazes), Regular Customer
 Junkie (nitro time), Pad Hopper (turbo pads), Multiplier Maniac (peak mult),
 Demolition Crew (crates), Sharpshooter (targets), Pyrotechnician (bomb kills),
 Royal Flush (flushes), Bounty Hunter (bounties collected), Comeback Kid (lives
-restored), Spelunker (pit falls), Own Goal (self kills) and Crash Test Dummy
-(deaths). Stats with a value of zero never earn an award.
+restored), Spelunker (pit falls), Own Goal (self kills), Crash Test Dummy
+(deaths), Vault Cracker (chips out of the Jackpot), Power Slide (drifts carried
+to the boost), Card Counter (flush pads taken) and Banana Skin (spins on oil).
+Stats with a value of zero never earn an award. The list follows the game: a
+mechanic worth playing around is worth counting, so anything added to the floor
+gets a line here.
 
 - The title screen offers Play, Settings and Quit. There is no tutorial. At
   the start of a match the drive and fire controls are shown next to each

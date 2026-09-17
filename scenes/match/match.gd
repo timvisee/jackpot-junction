@@ -123,6 +123,12 @@ func start(inputs: Array[KartInput], seed: int = 0, colors: Array[int] = []) -> 
 		Events.joker_taken.connect(_on_stat_joker)
 	if not Events.life_restored.is_connected(_on_stat_life):
 		Events.life_restored.connect(_on_stat_life)
+	if not Events.jackpot_collected.is_connected(_on_stat_jackpot):
+		Events.jackpot_collected.connect(_on_stat_jackpot)
+	if not Events.drift_boosted.is_connected(_on_stat_drift_boost):
+		Events.drift_boosted.connect(_on_stat_drift_boost)
+	if not Events.oil_hit.is_connected(_on_stat_oil):
+		Events.oil_hit.connect(_on_stat_oil)
 	for zone: JackpotZone in arena.jackpot_zones:
 		zone.filled.connect(
 			func(filled: JackpotZone) -> void: Events.jackpot_full.emit(filled.index)
@@ -167,6 +173,12 @@ func _exit_tree() -> void:
 		Events.joker_taken.disconnect(_on_stat_joker)
 	if Events.life_restored.is_connected(_on_stat_life):
 		Events.life_restored.disconnect(_on_stat_life)
+	if Events.jackpot_collected.is_connected(_on_stat_jackpot):
+		Events.jackpot_collected.disconnect(_on_stat_jackpot)
+	if Events.drift_boosted.is_connected(_on_stat_drift_boost):
+		Events.drift_boosted.disconnect(_on_stat_drift_boost)
+	if Events.oil_hit.is_connected(_on_stat_oil):
+		Events.oil_hit.disconnect(_on_stat_oil)
 	if Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
 		Input.joy_connection_changed.disconnect(_on_joy_connection_changed)
 
@@ -814,6 +826,8 @@ func _step_flush_lock(delta: float) -> int:
 ## A flush pad changed hands. Holding all four at once is a Royal Flush, GAME.md 3.9: a mult
 ## bonus and a full nitro tank, and the pads clear and rest for a while.
 func _on_pad_claimed(_pad: FlushPad, kart: Kart) -> void:
+	if kart.slot >= 0 and kart.slot < slots.size():
+		slots[kart.slot].stats.add(&"pads_taken")
 	Events.pad_claimed.emit(kart.slot)
 	for other: FlushPad in arena.flush_pads:
 		if other.owner_slot != kart.slot:
@@ -874,6 +888,21 @@ func _on_stat_joker(slot: int, _joker: StringName) -> void:
 func _on_stat_life(slot: int) -> void:
 	if not puppet and slot >= 0 and slot < slots.size():
 		slots[slot].stats.add(&"lives_restored")
+
+
+func _on_stat_jackpot(slot: int, chips: int) -> void:
+	if not puppet and slot >= 0 and slot < slots.size():
+		slots[slot].stats.add(&"jackpot_chips", chips)
+
+
+func _on_stat_drift_boost(slot: int) -> void:
+	if not puppet and slot >= 0 and slot < slots.size():
+		slots[slot].stats.add(&"drift_boosts")
+
+
+func _on_stat_oil(slot: int) -> void:
+	if not puppet and slot >= 0 and slot < slots.size():
+		slots[slot].stats.add(&"oil_spins")
 
 
 ## Offers jokers for the respawn. Bots choose at once; humans steer the offer while dead.

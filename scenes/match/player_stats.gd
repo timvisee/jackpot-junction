@@ -28,6 +28,10 @@ const FIELDS: Array[StringName] = [
 	&"pit_deaths",
 	&"self_kills",
 	&"deaths",
+	&"jackpot_chips",
+	&"drift_boosts",
+	&"pads_taken",
+	&"oil_spins",
 ]
 
 ## Award title and value format per field.
@@ -54,6 +58,10 @@ const AWARDS: Dictionary[StringName, Array] = {
 	&"pit_deaths": ["Spelunker", "%d pit falls"],
 	&"self_kills": ["Own Goal", "%d self kills"],
 	&"deaths": ["Crash Test Dummy", "%d deaths"],
+	&"jackpot_chips": ["Vault Cracker", "%d chips out of the Jackpot"],
+	&"drift_boosts": ["Power Slide", "%d drifts carried to the boost"],
+	&"pads_taken": ["Card Counter", "%d flush pads taken"],
+	&"oil_spins": ["Banana Skin", "%d spins on oil"],
 }
 
 var values: Dictionary[StringName, float] = {}
