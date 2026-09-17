@@ -1,18 +1,12 @@
 class_name JokerPad
-extends Node3D
+extends SpawningPad
 ## A pad that keeps a joker lying on it, GAME.md 6.2. Drive over it to take the card; another one
 ## turns up a few seconds later. Meant for the Garage, where nobody dies and so nobody is ever
 ## offered a joker the usual way, but it is an ordinary arena element any map may use.
 
 const RESPAWN := 6.0
 
-var rules: MatchRules
-var rng: RandomNumberGenerator
 var catalog: JokerCatalog
-var pickup_parent: Node
-var current: FloorJoker
-
-var _left := 0.0
 
 
 ## Starts handing out cards. Without a catalog the pad just sits there.
@@ -30,14 +24,6 @@ func _ready() -> void:
 	_build_visuals()
 
 
-func _physics_process(delta: float) -> void:
-	if catalog == null or current != null:
-		return
-	_left -= delta
-	if _left <= 0.0:
-		_spawn()
-
-
 func _spawn() -> void:
 	if catalog == null or catalog.jokers.is_empty():
 		return
@@ -46,15 +32,17 @@ func _spawn() -> void:
 		return
 	var card := FloorJoker.new()
 	card.joker = offered[0]
-	card.position = global_position
-	card.collected.connect(_on_collected)
-	pickup_parent.add_child(card)
-	current = card
+	_place(card)
 
 
-func _on_collected(_pickup: Pickup, _kart: Kart) -> void:
-	current = null
-	_left = RESPAWN
+## The pad hands out cards rather than pickups from the rules, so it needs a catalog rather than
+## the rules to have anything to put out.
+func _can_spawn() -> bool:
+	return catalog != null
+
+
+func _respawn_delay() -> float:
+	return RESPAWN
 
 
 func _build_visuals() -> void:

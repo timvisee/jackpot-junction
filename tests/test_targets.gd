@@ -48,5 +48,6 @@ func test_the_parser_and_the_arena_pick_up_targets_and_joker_pads() -> void:
 	arena.start_economy(rules, rng, null, load("res://data/jokers/catalog.tres"))
 	assert_int(arena.targets[0].coins).is_equal(rules.target_coins)
 	# The pad puts a card out straight away and holds one for whoever turns up.
-	assert_object(arena.joker_pads[0].current).is_not_null()
-	assert_object(arena.joker_pads[0].current.joker).is_not_null()
+	var card := arena.joker_pads[0].current as FloorJoker
+	assert_object(card).is_not_null()
+	assert_object(card.joker).is_not_null()
