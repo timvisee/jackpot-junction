@@ -60,12 +60,14 @@ func test_a_tremble_keeps_the_camera_shaking_and_the_setting_still_silences_it()
 	await await_idle_frame()
 	assert_float(rig._shake).is_greater(0.0)
 	rig.tremble = 0.0
-	for i: int in 30:
-		await await_idle_frame()
+	# Stepped by hand rather than by idle frames, which in a headless run are however long they
+	# happen to be and say nothing about how long a shake takes to die away.
+	for i: int in 40:
+		rig._process(0.1)
 	assert_float(rig._shake).is_equal_approx(0.0, 0.001)
 	Game.settings.screen_shake = false
 	rig.tremble = 1.0
 	for i: int in 4:
-		await await_idle_frame()
+		rig._process(0.1)
 	assert_float(rig._shake).is_equal_approx(0.0, 0.001)
 	Game.settings.screen_shake = shake_was

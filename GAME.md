@@ -927,8 +927,10 @@ every kart, so everyone sees when an opponent cashes out.
   sit under the room rather than lead it. Both sit after the bus volume, so the audio settings keep full control.
   A kill shakes the camera by 0.2 plus half of that same share. At level 6 the camera thumps on every
   beat and harder on the first of the bar, each shaped so it has fallen away before the
-  next arrives, which is the one place the room is felt as well as heard. All shake
-  obeys the accessibility toggle in 8.5.
+  next arrives, which is the one place the room is felt as well as heard. A beat hits
+  harder than a kart being wrecked in a cold room and stays short of a kill in a hot
+  one, so the music is felt through the floor without ever outshouting what is
+  happening on it. All shake obeys the accessibility toggle in 8.5.
 - The F3 overlay shows the level and the meter with its two parts, the layer,
   both players' levels and positions, how far the filter is open, and the mute
   state.

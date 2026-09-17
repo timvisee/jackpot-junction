@@ -12,7 +12,7 @@ const CAMERA_SCENE := preload("res://scenes/camera/camera_rig.tscn")
 ## How hard the top excitement level thumps the camera on the beat, and how much harder on
 ## the first beat of the bar. This is the only effect that moves what the player is aiming
 ## through, so it is kept to a thump rather than a shake.
-const BEAT_TREMBLE := 1.7
+const BEAT_TREMBLE := 2.0
 const BEAT_DOWNBEAT := 1.4
 ## Seconds before looking again when there was nobody worth putting a bounty on.
 const BOUNTY_RETRY := 5.0

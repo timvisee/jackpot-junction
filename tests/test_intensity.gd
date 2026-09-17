@@ -95,6 +95,10 @@ func test_only_the_top_level_puts_the_beat_in_the_camera() -> void:
 		await _runner.simulate_frames(1, 17)
 	assert_float(peak).is_greater(0.5)
 	assert_float(trough).is_less(0.1)
+	# And a beat is worth being felt: it shakes the camera harder than a kart being wrecked in a
+	# cold room, which is the point of the top of the meter. Kills still hit hardest.
+	assert_float(peak * CameraRig.TREMBLE_SHAKE).is_greater(0.2)
+	assert_float(peak * CameraRig.TREMBLE_SHAKE).is_less(0.7)
 
 
 ## GAME.md 8.4: everyone being dead normally takes the room back to level 1, but the finale is

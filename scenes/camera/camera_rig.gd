@@ -3,6 +3,10 @@ extends Node3D
 ## The fixed tilted camera from GAME.md 8.2. It frames the whole arena, pans a little toward the
 ## karts it tracks, zooms a little with their spread, and can shake.
 
+## What a unit of tremble is worth as a shake. A beat at the top level should land between a
+## kart being wrecked and a bomb going off: felt through the floor, not read off the screen.
+const TREMBLE_SHAKE := 0.2
+
 @export var pitch_degrees := 55.0
 @export var base_fov := 35.0
 @export var margin := 1.0
@@ -16,7 +20,7 @@ extends Node3D
 ## [member KartSoundStats.unit_size] has to match it: that is the distance a kart plays at its
 ## written level, so the two moving apart quietly changes every level in the kart mix.
 @export var listener_height := 2.5
-## A faint constant tremble, 0 to 1, for when the match is at its most frantic.
+## The thump of the room at its most frantic, fed every frame and shaped by whoever sets it.
 var tremble := 0.0
 
 var targets: Array[Node3D] = []
@@ -96,7 +100,7 @@ func _process(delta: float) -> void:
 	_zoom = lerpf(_zoom, _target_zoom(), blend)
 	_shake = maxf(_shake - shake_decay * delta * maxf(_shake, 0.1), 0.0)
 	if tremble > 0.0:
-		shake(tremble * 0.08)
+		shake(tremble * TREMBLE_SHAKE)
 	_place(_distance, _pan, _zoom)
 	_place_listener()
 
