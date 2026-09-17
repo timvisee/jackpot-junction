@@ -1487,6 +1487,10 @@ run in one place, the Match, and karts are driven by a KartInput interface.
   single datagram is a job for a smaller snapshot, not a smaller wire, and is open.
 - Hits, pickups, banking and scoring are server-authoritative. The server seeds
   all randomness and relays gameplay events so clients' HUD and audio react.
+- Which slot a client plays arrives in a message of its own, after the first
+  snapshots have already built the karts. Anything that depends on knowing it,
+  such as which kart sounds like your own rather than like somebody else's, is
+  asked again every snapshot rather than settled once when a kart is built.
 - Anything a client is told about is told all of it, and keeps no clock of its own.
   A crate running its own respawn timer would come back the frame after a snapshot
   broke it and be broken again by the next one, throwing fresh debris thirty times

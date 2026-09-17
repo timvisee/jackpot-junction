@@ -254,3 +254,38 @@ func _bursts(match_node: Match) -> int:
 		if match_node.is_ancestor_of(node):
 			count += 1
 	return count
+
+
+## GAME.md 8.4: the kart you drive sounds like your own and everybody else's sounds like a kart
+## somebody else is driving. The host says which slot is yours in a message of its own, which
+## lands after the first snapshot has already built the karts, so the voice has to be asked for
+## again rather than settled once on the way in.
+func test_your_own_kart_finds_its_voice_once_the_host_says_which_is_yours() -> void:
+	var host: Match = auto_free(MATCH_SCENE.instantiate())
+	host.rules = _quick_rules()
+	host.with_hud = false
+	host.offer_size = 0
+	_host_root.add_child(host)
+	var inputs: Array[KartInput] = [PlayerInput.new(), BotInput.new()]
+	host.start(inputs, 9)
+	var client: Match = auto_free(MATCH_SCENE.instantiate())
+	client.rules = _quick_rules()
+	client.with_hud = false
+	client.offer_size = 0
+	_client_root.add_child(client)
+	client.start_puppet()
+	var runner := scene_runner(client)
+	await runner.simulate_frames(4, 17)
+	# Snapshots first, the slot assignment after, which is the order they really arrive in.
+	MatchSnapshot.apply(client, MatchSnapshot.build(host))
+	await runner.simulate_frames(2, 17)
+	assert_int(client.local_slot).is_equal(-1)
+	client.set_local_slot(1)
+	MatchSnapshot.apply(client, MatchSnapshot.build(host))
+	await runner.simulate_frames(2, 17)
+	var mine := client.kart_of(1)
+	var theirs := client.kart_of(0)
+	assert_bool(mine.sound.lean).override_failure_message("own kart kept a bot voice").is_false()
+	assert_bool(mine.driven_here).is_true()
+	assert_bool(theirs.sound.lean).is_true()
+	assert_bool(theirs.driven_here).is_false()
