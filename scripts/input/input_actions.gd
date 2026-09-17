@@ -22,6 +22,11 @@ const JOKER_SELECT_2 := &"joker_select_2"
 const JOKER_SELECT_3 := &"joker_select_3"
 const JOKER_SELECT_4 := &"joker_select_4"
 const JOKER_SELECT_5 := &"joker_select_5"
+## The five in card order, for anything that walks the hand: one list rather than one per
+## reader, since a sixth slot would otherwise have to be remembered in several places.
+const JOKER_SELECTS: Array[StringName] = [
+	JOKER_SELECT_1, JOKER_SELECT_2, JOKER_SELECT_3, JOKER_SELECT_4, JOKER_SELECT_5
+]
 const JOKER_DROP := &"joker_drop"
 const JOKER_DESTROY := &"joker_destroy"
 const AIM_LEFT := &"aim_left"

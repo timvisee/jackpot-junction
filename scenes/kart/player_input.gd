@@ -3,14 +3,6 @@ extends KartInput
 ## Reads the input map for one device. [constant DeviceInput.ANY] lets every device drive the
 ## kart, which suits single-player; local multiplayer gives each slot its own device.
 
-const SELECTS: Array[StringName] = [
-	InputActions.JOKER_SELECT_1,
-	InputActions.JOKER_SELECT_2,
-	InputActions.JOKER_SELECT_3,
-	InputActions.JOKER_SELECT_4,
-	InputActions.JOKER_SELECT_5,
-]
-
 var device := DeviceInput.ANY
 ## For an any-device player, the device that last produced input; ANY until something moved.
 var last_device := DeviceInput.ANY
@@ -57,8 +49,8 @@ func poll(_delta: float) -> void:
 	joker_drop_pressed = _just_pressed(InputActions.JOKER_DROP)
 	joker_destroy_pressed = _just_pressed(InputActions.JOKER_DESTROY)
 	joker_select = -1
-	for i: int in SELECTS.size():
-		if _just_pressed(SELECTS[i]):
+	for i: int in InputActions.JOKER_SELECTS.size():
+		if _just_pressed(InputActions.JOKER_SELECTS[i]):
 			joker_select = i
 
 

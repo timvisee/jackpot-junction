@@ -72,13 +72,7 @@ func poll(device: int) -> void:
 		selected = (selected + 1) % options
 	if _pressed(InputActions.JOKER_PREV, device) or _pressed(InputActions.STEER_LEFT, device):
 		selected = posmod(selected - 1, options)
-	var selects: Array[StringName] = [
-		InputActions.JOKER_SELECT_1,
-		InputActions.JOKER_SELECT_2,
-		InputActions.JOKER_SELECT_3,
-		InputActions.JOKER_SELECT_4,
-		InputActions.JOKER_SELECT_5,
-	]
+	var selects := InputActions.JOKER_SELECTS
 	for i: int in selects.size():
 		if _pressed(selects[i], device) and i < options:
 			_confirm(i)

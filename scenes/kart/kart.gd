@@ -655,22 +655,22 @@ func take_hit(bullet: Bullet) -> bool:
 
 ## A ramming kart reached this one: the shield pops or the kart dies.
 func take_ram(rammer_slot: int) -> void:
-	if not is_targetable():
-		return
-	if shielded:
-		pop_shield()
-		return
-	_take_lethal(&"ram", rammer_slot)
+	_take_through_shield(&"ram", rammer_slot)
 
 
 ## A bomb went off within reach: the shield pops or the kart dies, credited to the bomb's owner.
 func take_blast(owner_slot: int) -> void:
+	_take_through_shield(&"bomb", owner_slot)
+
+
+## A hit the shield is allowed to answer for: it pops instead, and the kart lives.
+func _take_through_shield(cause: StringName, by_slot: int) -> void:
 	if not is_targetable():
 		return
 	if shielded:
 		pop_shield()
 		return
-	_take_lethal(&"bomb", owner_slot)
+	_take_lethal(cause, by_slot)
 
 
 ## A lethal hit: a kart with a life to spare loses it and limps on, darker, slower and for a
