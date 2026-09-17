@@ -28,6 +28,13 @@ func test_the_map_has_one_of_everything_to_practise_on() -> void:
 
 
 func test_the_room_runs_one_player_no_bots_and_no_clock() -> void:
+	# Nothing is heard on the way in either: the tones and the flag both come from the countdown,
+	# and there is none. Watched from before the room is built, so nothing can be missed.
+	var start_cues: Array[int] = []
+	var tone := func(count: int) -> void: start_cues.append(count)
+	var flag := func() -> void: start_cues.append(0)
+	Events.countdown_tick.connect(tone)
+	Events.countdown_done.connect(flag)
 	var garage: Node3D = auto_free(GARAGE_SCENE.instantiate())
 	var runner: GdUnitSceneRunner = scene_runner(garage)
 	# Long enough for the countdown to run out, so the room is actually under way.
@@ -51,8 +58,11 @@ func test_the_room_runs_one_player_no_bots_and_no_clock() -> void:
 	assert_int(match_node.state).is_equal(Match.State.PLAYING)
 	assert_bool(match_node.hud._timer.visible).is_false()
 	# Nobody is held on a grid in here, GAME.md 9.4: no countdown, so no gantry and no tones.
+	Events.countdown_tick.disconnect(tone)
+	Events.countdown_done.disconnect(flag)
 	assert_float(match_node.rules.countdown).is_equal(0.0)
 	assert_bool(match_node.hud._light.visible).is_false()
+	assert_array(start_cues).is_empty()
 
 
 func test_shooting_a_target_pays_the_shooter() -> void:

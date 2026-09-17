@@ -563,6 +563,10 @@ func _begin_play() -> void:
 	_set_frozen(false)
 	# A rematch in the same room takes the rig off the last winner and hands it back to the levels.
 	arena.disco.clear_focus()
+	if rules.countdown > 0.0:
+		# The flag belongs to the countdown, not to the match starting: a room that holds nobody
+		# on a grid drops no flag, so the Garage gets no lights and no tones at all.
+		Events.countdown_done.emit()
 	_set_state(State.PLAYING)
 
 

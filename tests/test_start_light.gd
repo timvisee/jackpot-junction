@@ -39,8 +39,14 @@ func test_a_lamp_lights_with_every_start_tone() -> void:
 	match_node.start(inputs, 3)
 	# The first lamp and its tone come with the field being held, before any time has passed.
 	assert_array(tones).is_equal([1])
+	# An array rather than a counter: a lambda captures what it closes over by value, so a
+	# counted int would never leave the lambda.
+	var flags: Array[int] = []
+	Events.countdown_done.connect(func() -> void: flags.append(1))
 	while match_node.state == Match.State.COUNTDOWN:
 		await runner.simulate_frames(1, 1)
+	# And the flag at the end of it, which is the higher tone and the green lamps together.
+	assert_array(flags).has_size(1)
 	var every_lamp: Array[int] = []
 	for i: int in Match.COUNTDOWN_LAMPS:
 		every_lamp.append(i + 1)
@@ -48,7 +54,8 @@ func test_a_lamp_lights_with_every_start_tone() -> void:
 	assert_int(Match.COUNTDOWN_LAMPS).is_equal(StartLight.LAMPS)
 
 
-## A room with no countdown holds nobody up and says nothing about it.
+## A room with no countdown holds nobody up and says nothing about it: no lamps, no start tones
+## and no flag either.
 func test_a_match_with_no_countdown_plays_no_tones() -> void:
 	var rules: MatchRules = DEFAULT_RULES.duplicate()
 	rules.countdown = 0.0
@@ -58,10 +65,17 @@ func test_a_match_with_no_countdown_plays_no_tones() -> void:
 	match_node.with_hud = false
 	match_node.offer_size = 0
 	var runner := scene_runner(match_node)
-	var tones := 0
-	Events.countdown_tick.connect(func(_count: int) -> void: tones += 1)
+	var tones: Array[int] = []
+	var flags: Array[int] = []
+	var count_tone := func(count: int) -> void: tones.append(count)
+	var count_flag := func() -> void: flags.append(1)
+	Events.countdown_tick.connect(count_tone)
+	Events.countdown_done.connect(count_flag)
 	var inputs: Array[KartInput] = [KartInput.new()]
 	match_node.start(inputs, 3)
 	await runner.simulate_frames(10, 17)
-	assert_int(tones).is_equal(0)
+	Events.countdown_tick.disconnect(count_tone)
+	Events.countdown_done.disconnect(count_flag)
+	assert_array(tones).is_empty()
+	assert_array(flags).is_empty()
 	assert_int(match_node.state).is_not_equal(Match.State.COUNTDOWN)

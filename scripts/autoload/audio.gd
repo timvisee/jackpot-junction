@@ -431,6 +431,7 @@ func _connect_events() -> void:
 	Events.nitro_started.connect(_on_nitro_started)
 	Events.kart_crashed.connect(_on_kart_crashed)
 	Events.countdown_tick.connect(func(_count: int) -> void: play_sfx(&"countdown", -11.0, 0.0))
+	Events.countdown_done.connect(func() -> void: play_sfx(&"go", -5.0, 0.0))
 	Events.crate_destroyed.connect(func() -> void: play_sfx(&"crate", -6.0))
 	Events.target_struck.connect(
 		func(_slot: int, _coins: int) -> void: play_sfx(&"target", -4.0, 0.12)
@@ -546,10 +547,10 @@ func _on_bank_completed(slot: int, _coins: int, _mult: float, total: int) -> voi
 func _on_state_changed(state: int) -> void:
 	match state:
 		Match.State.COUNTDOWN:
-			# The beeps come from the clock, one a second, not from entering the state.
+			# The start tones come from the clock, one per lamp, and the flag from the countdown
+			# finishing. Neither is a sound the match makes on changing state, which is what lets
+			# a room with no countdown, such as the Garage, have none of them at all.
 			set_layer(LAYER_CALM)
-		Match.State.PLAYING:
-			play_sfx(&"go", -5.0, 0.0)
 		Match.State.LAST_CALL:
 			# The mix is not switched here: the excitement climb of GAME.md 8.4 brings the full
 			# track in as it walks the room up to the top level.

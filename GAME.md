@@ -1096,7 +1096,8 @@ every kart, so everyone sees when an opponent cashes out.
   so the kick lands just after the button; the pack's spin-out on oil; its
   crashes for a kart into a wall, the heavier one on top of a square hit; and its
   start tones for the countdown, one per lamp of the start gantry, with the higher
-  one on the flag.
+  one on the flag. Both come from the countdown itself rather than from the match
+  starting, so a room with no countdown has neither.
 - **Level**: everything a kart itself makes comes down 5 dB together, so the
   engine flat out sits near -4 dB and the squeals below that. It is running the
   whole time, so it is the bed the rest is heard over rather than an event in
@@ -1310,8 +1311,8 @@ A practice room reached straight from the title screen, before anybody starts a
 real match. Nobody else is in it: no bots, no clock, no score to protect. It
 runs an ordinary match on its own map with the timer switched off, so nothing
 ever ends and the player can take as long as they like. There is no countdown
-either, so no start gantry and no start tones: the player is let out onto the
-floor rather than held on a grid for a race that is not being run.
+either, so no start gantry, no start tones and no flag: the player is let out onto
+the floor rather than held on a grid for a race that is not being run.
 
 ```
 ################################

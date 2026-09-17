@@ -27,6 +27,9 @@ signal joker_taken(slot: int, joker: StringName)
 signal match_state_changed(state: int)
 ## One tick of the starting clock, counting down to the flag.
 signal countdown_tick(count: int)
+## The flag dropping at the end of a countdown, GAME.md 8.3. A room that holds nobody on a grid,
+## such as the Garage, never sends this: there is no flag where there was no countdown.
+signal countdown_done
 ## The table threw a joker onto the floor because the room is hot, GAME.md 3.11.
 signal wild_joker_dropped(joker_id: StringName)
 ## The announcer called something, GAME.md 3.12: a run of kills, a streak or a trade.
