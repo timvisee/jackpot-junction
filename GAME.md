@@ -808,9 +808,7 @@ corners, in single-player and online only the local block is shown.
   the five slots are taken, turning gold once the hand is full.
 - **Lives**: two pips in the player colour under the kill count; a lost life
   goes dark.
-- **Held power-up** icon. On pickup the item box arcs and shrinks into the kart
-  that took it over 0.4 s, so everyone sees who got it, before the roulette
-  flicker reveals the item.
+- **Held power-up** icon, filled by the roulette flicker once the box is in.
 - **Nitro tank** as a thin bar, lit while burning.
 - **Speedometer** under it: a thin dial and a number in km/h, both turning the
   nitro colour while the bottle is lit. The dial is full at a kart flat out on
@@ -852,6 +850,13 @@ corners, in single-player and online only the local block is shown.
   row is the largest and last place the smallest, and the players on this screen
   are boxed in their own colour. It stands down in three- and four-player
   shared-screen games, where every player already has a corner block.
+- **Taking something**: a pickup never simply blinks out. Whatever it was, chip,
+  gold chip, mult die, joker card or item box, leaves the floor and flows into the
+  kart that took it over 0.3 s, easing away slowly and arriving fast, rising a
+  little and shrinking to nothing as it goes. It is the pickup's own model that
+  flies, so a chip goes in as a chip and a card as a card, and from a distance it
+  is plain who got what. Online it happens on every screen: the host does not say
+  who took a pickup, so the kart standing on it is credited with it.
 - **Destruction**: a kart, turret or crate that is destroyed leaves a burst of
   tumbling chunks in its own colour with a brief flash. A kart lost down a pit
   shrinks away instead. The Bomb keeps the one real explosion, see 7.1.

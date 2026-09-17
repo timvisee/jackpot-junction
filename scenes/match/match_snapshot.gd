@@ -421,15 +421,11 @@ static func _apply_pickups(match_node: Match, entries: Array) -> void:
 		if not seen.has(id):
 			var pickup: Pickup = match_node.puppet_pickups[id]
 			match_node.puppet_pickups.erase(id)
-			var box := pickup as ItemBox
-			if box != null:
-				# The host does not say who took it; the kart on top of it did.
-				var taker := _nearest_puppet_kart(match_node, box.global_position, 2.5)
-				if taker != null:
-					var color := (
-						box.fixed_item.color if box.fixed_item != null else Palette.CHIP_GOLD
-					)
-					ItemFlight.spawn(match_node.arena.pickups, box.global_position, taker, color)
+			# The host does not say who took it; the kart on top of it did. Whatever it was
+			# flows into that kart here the same as it does for the player who took it.
+			var taker := _nearest_puppet_kart(match_node, pickup.global_position, 2.5)
+			if taker != null:
+				PickupFlight.take(pickup, taker)
 			pickup.queue_free()
 
 

@@ -49,7 +49,7 @@ func test_power_pads_spawn_item_boxes_that_a_kart_takes_and_reveals() -> void:
 	assert_object(kart.held_item).is_not_null()
 	assert_object(pad.current).is_null()
 	assert_float(kart.item_reveal_left).is_greater(0.0)
-	var flights := match_node.get_tree().get_nodes_in_group(&"item_flights")
+	var flights := match_node.get_tree().get_nodes_in_group(&"pickup_flights")
 	assert_int(flights.size()).is_equal(1)
 	assert_float((flights[0] as Node3D).global_position.distance_to(kart.global_position)).is_less(
 		3.0
@@ -80,6 +80,37 @@ func test_boost_speeds_up_and_rams_then_wears_off() -> void:
 
 ## GAME.md 4.1: a kart that can ram another kart to death goes through a crate too, and keeps
 ## the speed it arrived with rather than being stopped dead by a wooden box.
+## GAME.md 8.3: everything a kart takes flows into it rather than blinking out, so it is plain
+## who got it. The pickup hands over its own visual, so a chip flies as a chip.
+func test_a_taken_pickup_flies_into_the_kart_that_took_it() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	var kart := match_node.kart_of(0)
+	await _runner.simulate_frames(12, 17)
+	var chip := Chip.new()
+	chip.value = 3
+	match_node.arena.pickups.add_child(chip)
+	chip.global_position = kart.global_position + Vector3(6.0, 0.0, 0.0)
+	await _runner.simulate_frames(4, 17)
+	var was := chip.visual_center()
+	chip.collect(kart)
+	var flights := match_node.get_tree().get_nodes_in_group(&"pickup_flights")
+	assert_int(flights.size()).is_equal(1)
+	var flight: PickupFlight = flights[0]
+	# It leaves from where the chip was being drawn, not from the floor under it.
+	assert_float(flight.global_position.distance_to(was)).is_less(0.2)
+	assert_int(flight.get_child_count()).is_greater(0)
+	# And arrives at the kart, shrunk to nothing, then goes.
+	var closest := INF
+	for i: int in 40:
+		await _runner.simulate_frames(1, 17)
+		if not is_instance_valid(flight):
+			break
+		closest = minf(closest, flight.global_position.distance_to(kart.global_position))
+	assert_float(closest).is_less(1.0)
+	assert_bool(is_instance_valid(flight)).is_false()
+
+
 func test_a_kart_at_ramming_speed_goes_through_a_crate() -> void:
 	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
 	var match_node := _start_match(inputs)

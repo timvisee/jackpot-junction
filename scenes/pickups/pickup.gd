@@ -45,6 +45,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if _visual == null:
+		return
 	if falling:
 		_step_fall(delta)
 		return
@@ -76,6 +78,8 @@ func collect(kart: Kart) -> void:
 	_taken = true
 	_apply(kart)
 	collected.emit(self, kart)
+	# It flows into the kart rather than blinking out, GAME.md 8.3, so it is plain who got it.
+	PickupFlight.take(self, kart)
 	queue_free()
 
 
@@ -87,6 +91,23 @@ func _step_fall(delta: float) -> void:
 	_visual.scale = Vector3.ONE * maxf(1.0 - _fall / FALL_TIME, 0.05)
 	if _fall >= FALL_TIME:
 		queue_free()
+
+
+## Where the pickup is actually being drawn, which is above the floor it sits on and moving
+## with its bob. What flies into a kart leaves from here rather than from the floor.
+func visual_center() -> Vector3:
+	return _visual.global_position if _visual != null else global_position
+
+
+## Hands the visual over to whatever is going to animate it, leaving the pickup with nothing
+## left to draw. Used by [PickupFlight] on the way out.
+func detach_visual() -> Node3D:
+	if _visual == null:
+		return null
+	var visual := _visual
+	_visual = null
+	remove_child(visual)
+	return visual
 
 
 func _build_visual(_parent: Node3D) -> void:
