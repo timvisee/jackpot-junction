@@ -5,7 +5,7 @@ extends Control
 ## actually looks at. Five lamps light left to right over the countdown and all five turn green
 ## on the drop. Driven by [MatchHud]; holds no match state of its own.
 
-const LAMPS := 5
+const LAMPS := Match.COUNTDOWN_LAMPS
 const LAMP_RADIUS := 21.0
 const LAMP_GAP := 58.0
 const GLOW_RADIUS := 36.0
@@ -38,10 +38,9 @@ func hang(above: float) -> void:
 	offset_bottom = -above
 
 
-## Lights the row for a countdown with [param left] seconds to go out of [param total].
-func set_countdown(left: float, total: float) -> void:
-	var run := 1.0 - clampf(left / maxf(total, 0.001), 0.0, 1.0)
-	_set_lamps(clampi(floori(run * LAMPS) + 1, 1, LAMPS), false)
+## Lights this many lamps, counted by the match so the rack and the start tones agree.
+func set_countdown(count: int) -> void:
+	_set_lamps(clampi(count, 0, LAMPS), false)
 
 
 func set_go() -> void:

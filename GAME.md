@@ -823,9 +823,12 @@ corners, in single-player and online only the local block is shown.
 - **Match timer** at the top centre, turning red during Last Call.
 - **Start gantry**: the countdown is a horizontal rack of five lamps hung over the
   middle of the screen, the way a racing track starts a field, rather than a number.
-  They fill up red left to right across the three seconds and the whole row turns
-  green on the drop, under the GO. A driver on the grid watches the lights, not a
-  clock.
+  They fill up red left to right and the whole row turns green on the drop, under the
+  GO. A driver on the grid watches the lights, not a clock. The rack and the start
+  tones are one countdown rather than two: the first lamp lights with its tone as the
+  field is held, each of the rest lights with its own, and the higher tone comes with
+  the green. However long the countdown is set to, there are five of each, so what a
+  player sees and what they hear never disagree.
 - **Kill feed** in the top right: the last five kills, newest first, reading as
   "P1 shot P2", "P1 rammed P2", "P1 bombed P2", "P1 shoved P2 in" for a pit
   shove, "P2 fell in" for a fall nobody caused and "P2 wrecked itself" for a
@@ -982,7 +985,8 @@ every kart, so everyone sees when an opponent cashes out.
   its own kick when nitro lights, played from 0.18 s before the end of the file
   so the kick lands just after the button; the pack's spin-out on oil; its
   crashes for a kart into a wall, the heavier one on top of a square hit; and its
-  start tones for the countdown, one a second, with the higher one on the flag.
+  start tones for the countdown, one per lamp of the start gantry, with the higher
+  one on the flag.
 - **Level**: everything a kart itself makes comes down 5 dB together, so the
   engine flat out sits near -4 dB and the squeals below that. It is running the
   whole time, so it is the bed the rest is heard over rather than an event in

@@ -16,6 +16,10 @@ const BEAT_TREMBLE := 1.7
 const BEAT_DOWNBEAT := 1.4
 ## Seconds before looking again when there was nobody worth putting a bounty on.
 const BOUNTY_RETRY := 5.0
+## Lamps on the start gantry, GAME.md 8.3. The rack and the start tones are one countdown: a
+## lamp lights and a tone plays together, so however long the countdown is set to, there are
+## this many of both.
+const COUNTDOWN_LAMPS := 5
 
 @export var rules: MatchRules
 @export var power_ups: PowerUpTable
@@ -139,10 +143,9 @@ func start(inputs: Array[KartInput], seed: int = 0, colors: Array[int] = []) -> 
 		hud.match_node = self
 		add_child(hud)
 	time_left = rules.duration
-	countdown_left = rules.countdown
 	_bounty_wait = rules.bounty_first_delay
 	_set_frozen(true)
-	_set_state(State.COUNTDOWN)
+	_begin_countdown()
 
 
 ## Tears everything down and starts again with the same players and a fresh seed.
@@ -340,8 +343,25 @@ func hold_in_lobby() -> void:
 func begin_from_lobby() -> void:
 	if state != State.LOBBY or puppet:
 		return
+	_begin_countdown()
+
+
+## How many lamps of the start gantry are lit, GAME.md 8.3, first one the moment the field is
+## held and the last as the flag drops. The rack and the start tones both read this, so what a
+## player sees and what they hear are the same countdown however long it is set to.
+func countdown_lamps() -> int:
+	if rules == null or rules.countdown <= 0.0:
+		return COUNTDOWN_LAMPS
+	var run := 1.0 - clampf(countdown_left / rules.countdown, 0.0, 1.0)
+	return clampi(floori(run * COUNTDOWN_LAMPS) + 1, 1, COUNTDOWN_LAMPS)
+
+
+## Holds the field on the grid with the first lamp lit and its tone played.
+func _begin_countdown() -> void:
 	countdown_left = rules.countdown
 	_set_state(State.COUNTDOWN)
+	if rules.countdown > 0.0:
+		Events.countdown_tick.emit(countdown_lamps())
 
 
 ## The host's description of the whole match for online clients, see [MatchSnapshot].
@@ -423,10 +443,10 @@ func _physics_process(delta: float) -> void:
 		return
 	match state:
 		State.COUNTDOWN:
-			var before := ceili(countdown_left)
+			var before := countdown_lamps()
 			countdown_left -= delta
-			var now := ceili(countdown_left)
-			if now < before and now > 0:
+			var now := countdown_lamps()
+			if now > before:
 				Events.countdown_tick.emit(now)
 			if countdown_left <= 0.0:
 				_begin_play()

@@ -306,7 +306,7 @@ func _update_banner(delta: float) -> void:
 		Match.State.COUNTDOWN:
 			_banner.visible = false
 			_light.visible = true
-			_light.set_countdown(match_node.countdown_left, match_node.rules.countdown)
+			_light.set_countdown(match_node.countdown_lamps())
 			_go_left = 0.8
 		Match.State.PLAYING:
 			_go_left -= delta
