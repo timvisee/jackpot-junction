@@ -2,6 +2,31 @@ class_name KartStats
 extends Resource
 ## Handling numbers from GAME.md section 4.1. Starting values: tune in playtests and write the
 ## result back into both the resource and GAME.md.
+##
+## Two handling models live here, picked by [member model]. The rate model is the original: the
+## stick sets a yaw rate and the direction of travel chases the nose. The tire model turns a
+## wheel instead and lets the tires decide what the kart does with it, which is what the Tire
+## model group below is for. Most of the numbers outside that group are shared.
+
+## What a drift does once it has started, GAME.md 4.1.
+enum DriftStyle {
+	## Holding the wheel over holds the slide: the kart turns tighter and keeps turning.
+	TIGHTEN,
+	## The rear steps out and keeps coming round on its own. Holding the wheel over feeds it
+	## and eventually swaps the kart end for end; the wheel has to come back the other way to
+	## hold an angle, which is how a rally car is driven.
+	OVERSTEER,
+}
+
+## Which handling model drives the kart, GAME.md 4.1.
+enum Model {
+	## The stick is a yaw rate and the travel direction chases the nose.
+	RATE,
+	## The stick is a steering wheel and tires with a grip limit decide the rest.
+	TIRES,
+}
+
+@export var model: Model = Model.RATE
 
 @export_group("Speed")
 @export var top_speed := 10.5
@@ -22,11 +47,16 @@ extends Resource
 @export var stick_curve := 1.0
 ## Turning speed while standing still, to line up a shot; 0 disables it.
 @export var turn_in_place_rate_deg := 70.0
+## Speed by which the turn on the spot has faded out entirely and the kart is turning on its
+## wheels alone. Manoeuvring in a corner crosses this range constantly, and a hard switch
+## between the two rates is felt every time; 0 keeps that switch, at [member min_steer_speed].
+@export var pivot_blend_speed := 2.2
 
 @export_group("Grip and drift")
 ## How fast the direction of travel turns toward the nose, per second. Slip is about yaw over grip.
 @export var grip_normal := 16.0
 @export var grip_drift := 4.8
+@export var drift_style: DriftStyle = DriftStyle.TIGHTEN
 ## When on, only the handbrake starts a drift; steering alone never does.
 @export var handbrake_drift_only := true
 ## Braking of the handbrake without steering: a quick straight stop; 0 means it never brakes.
@@ -40,14 +70,90 @@ extends Resource
 @export var handbrake_speed_fraction := 0.4
 @export var drift_exit_steer := 0.3
 @export var drift_yaw_multiplier := 1.55
+## Whether the slide comes round over the times below or lands whole. Off is how the drift
+## used to work: the grip drops and the kart is sideways within one tick.
+@export var drift_ramp := true
+## Seconds the rear takes to come round into a drift, and to hook back up when it ends. Fast,
+## but not instant: a drift that arrives in one tick reads as the kart teleporting sideways.
+@export var drift_entry_time := 0.18
+@export var drift_exit_time := 0.12
+## How much of the slide survives a change of direction mid-drift. The rear has to come back
+## through the middle and catch before it will go the other way, so swapping sides is a slide,
+## a bite and a slide rather than a mirror image.
+@export var drift_switch_amount := 0.3
 ## Degrees the nose kicks into the turn when a drift starts while steering.
 @export var drift_entry_kick_deg := 15.0
 ## Seconds over which that kick plays out, so the rear swings rather than snaps.
 @export var drift_entry_kick_time := 0.15
 @export var drift_speed_decay := 0.05
 @export var drift_min_duration := 0.6
+## Fraction of top speed the kart has to still be carrying when the drift ends for the boost
+## to be paid. A drift that has been allowed to die is not a drift worth rewarding, and
+## without this a slow shuffle held for the minimum collects the same as a corner taken well.
+@export var drift_boost_speed_fraction := 0.5
 @export var drift_exit_boost := 0.2
 @export var drift_exit_boost_duration := 0.8
+
+@export_group("Oversteer drift")
+## How fast the rear is already coming round the moment it lets go, in degrees a second.
+@export var slide_start_deg := 90.0
+## The angle full lock into the slide asks the kart to hang out at, in degrees. The wheel
+## asks for an angle rather than for more slide: half lock asks for half of this, a straight
+## wheel asks for none, and opposite lock asks for less than none, which is a catch. A slide
+## that runs away from a held wheel cannot be driven, only fought.
+@export var slide_hold_deg := 95.0
+## How hard opposite lock asks, as a multiple of the above: full counter asks the rear to come
+## back past straight, so a catch is decisive rather than a slow unwind.
+@export var slide_catch := 1.6
+## How hard the rear chases the angle the wheel asked for, and how much its own swing is
+## damped. Seek without damp overshoots and wallows; damp without seek never gets there.
+@export var slide_seek := 9.0
+@export var slide_damp := 3.5
+## The most the kart will hang out, in degrees between the nose and where it is going. Set
+## just short of sideways: the point of this style is that holding the wheel in loses you the
+## corner, so the kart has to be allowed to come all the way round.
+@export var slide_max_deg := 88.0
+## Where a slide stops being fast and starts costing speed, and the most it costs at a right
+## angle, in m/s². A shallow slide is quick and a big one scrubs itself to a stop, which is
+## what makes catching the slide worth doing rather than merely tidy.
+@export var slide_scrub_deg := 25.0
+@export var slide_scrub := 13.0
+## What is left of the front wheels' own steering while the rear is out. The front is still
+## doing something, but the slide is most of what turns the kart.
+@export var slide_front_authority := 0.5
+
+@export_group("Tire model")
+## Wheelbase, and how far forward of the middle the weight sits. A kart with its weight back
+## rotates more easily and lets go at the rear first.
+@export var wheelbase := 1.15
+@export var weight_bias := 0.5
+## Full lock in degrees, at a standstill and at top speed. Winding the lock off with speed is
+## what keeps a fast kart from being twitchy without making a slow one feel numb.
+@export var steer_angle_low_deg := 34.0
+@export var steer_angle_high_deg := 17.0
+## Degrees a second the wheel turns toward where the stick is asking. This is the weight in
+## the steering, and the one number a keyboard player feels most.
+@export var steer_speed_deg := 320.0
+## How hard each axle bites per radian of slip, in m/s² per radian.
+@export var front_stiffness := 90.0
+@export var rear_stiffness := 110.0
+## The most each axle can pull sideways, in m/s². Under about 8 the kart understeers on the
+## way in; a rear below the front is a kart that wants to swap ends.
+@export var front_grip := 12.0
+@export var rear_grip := 13.0
+## What the handbrake leaves of the rear grip, so pulling it steps the back out.
+@export var handbrake_rear_grip := 0.25
+## How hard the kart resists being turned. Higher is heavier and slower to rotate.
+@export var rotational_inertia := 1.6
+## A whisker of extra yaw damping. The tires damp the kart themselves, since yaw shows up in
+## their slip angles, so this is only here to take the ring out of the numbers: turn it up and
+## it starts deciding the cornering instead of the grip.
+@export var yaw_damping := 0.25
+## Below this speed the tire model hands over to plain geometry, so a crawling kart does not
+## chatter on slip angles measured from almost no velocity.
+@export var creep_speed := 1.6
+## Physics sub-steps per tick. Tires are stiff, and one step of 60 Hz is not enough for them.
+@export var substeps := 4
 
 @export_group("Nitro")
 ## Speed multiplier while burning nitro.

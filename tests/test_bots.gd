@@ -323,6 +323,72 @@ func _run_out_reverse(brain: BotBrain) -> void:
 		brain._step_stuck(1.0 / 60.0)
 
 
+## GAME.md 9.1: the kart drifts the oversteer way, where the handbrake is a flick. A bot throws it
+## into a tight corner and then drives the slide on the wheel; holding the handbrake down would
+## break the rear loose again every time the slide was caught.
+func test_a_bot_flicks_the_handbrake_into_a_tight_corner_and_then_drives_it() -> void:
+	var match_node := _match()
+	await _runner.simulate_frames(30, 17)
+	var kart := match_node.kart_of(0)
+	var brain: BotBrain = kart.get_node("Brain")
+	# Flat out with the corner square to the left: as tight as it gets.
+	kart.global_position = match_node.arena.junction_position + Vector3(0.0, 0.0, 12.0)
+	kart.face(Vector3(1.0, 0.0, 0.0))
+	kart.motor.forward_speed = kart.stats.top_speed
+	kart.motor.velocity = kart.motor.forward_vector() * kart.stats.top_speed
+	brain.goal = &"wander"
+	brain.target = kart.global_position + Vector3(0.0, 0.0, -14.0)
+	brain.target_node = null
+	brain._path = PackedVector3Array()
+	var pulls := 0
+	var held := 0
+	var slid := 0
+	var was_down := false
+	for i: int in 180:
+		brain._steer(1.0 / 60.0)
+		if brain.input.handbrake:
+			held += 1
+			if not was_down:
+				pulls += 1
+		was_down = brain.input.handbrake
+		kart.motor.step(brain.input, 1.0 / 60.0)
+		kart.global_position += kart.motor.velocity * (1.0 / 60.0)
+		if kart.motor.drifting:
+			slid += 1
+	assert_int(pulls).override_failure_message("the bot never threw it in").is_greater(0)
+	# Flicks, not a held handbrake: three seconds of corner, well under a second of brake.
+	assert_float(held / 60.0).is_less(1.0)
+	# And the flick did what it was for. The slide is short, a third of a second or so, because
+	# a bot steering its travel catches it the moment the kart is pointed down the new road,
+	# which is the tidy way to use one rather than a failure to hold it.
+	assert_float(slid / 60.0).is_greater(0.2)
+
+
+## A bot in a slide steers where the kart is going rather than where its nose points, which is
+## what winds on opposite lock at the moment a driver would.
+func test_a_drifting_bot_steers_its_travel_not_its_nose() -> void:
+	var match_node := _match()
+	await _runner.simulate_frames(30, 17)
+	var kart := match_node.kart_of(0)
+	var brain: BotBrain = kart.get_node("Brain")
+	kart.global_position = match_node.arena.junction_position + Vector3(0.0, 0.0, 10.0)
+	kart.face(Vector3(1.0, 0.0, 0.0))
+	kart.motor.forward_speed = kart.stats.top_speed
+	kart.motor.velocity = kart.motor.forward_vector() * kart.stats.top_speed
+	brain.goal = &"wander"
+	# Straight on, so any steering is the bot answering the slide rather than aiming at a corner.
+	brain.target = kart.global_position + kart.motor.forward_vector() * 20.0
+	brain.target_node = null
+	brain._path = PackedVector3Array()
+	# Thrown sideways by hand: the rear is out to the right and nobody asked for it.
+	kart.motor.drifting = true
+	kart.motor.drift_amount = 1.0
+	kart.motor.slide_rate = deg_to_rad(160.0)
+	brain._steer(1.0 / 60.0)
+	# The nose is swinging right, so the wheel goes left: opposite lock.
+	assert_float(brain.input.steer).is_less(0.0)
+
+
 func test_closest_approach_predicts_near_misses() -> void:
 	var head_on := BotBrain.closest_approach(Vector3(0.0, 0.0, -6.0), Vector3(0.0, 0.0, 20.0), 1.0)
 	assert_float(head_on).is_equal_approx(0.0, 0.001)

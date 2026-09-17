@@ -98,6 +98,7 @@ var _pickup_shape: SphereShape3D
 var _shield_visual: MeshInstance3D
 var _aim_arrow: MeshInstance3D
 var _flame: NitroFlame
+var _sparks: DriftSparks
 var _crown: Node3D
 var _nitro_recharge_wait := 0.0
 var _puppet_target := Vector3.ZERO
@@ -107,6 +108,10 @@ var _puppet_has_target := false
 var _aim_guide: AimGuide
 var _fall_left := 0.0
 var _graze_cooldown_left := 0.0
+## Whether the kart was drifting last tick and whether that drift had earned its boost, so
+## the moment one ends having earned it can be caught.
+var _was_drifting := false
+var _was_charged := false
 var _menu_steer := 0
 
 
@@ -153,6 +158,7 @@ func _ready() -> void:
 	_aim_arrow = attached["aim_arrow"]
 	_crown = attached["crown"]
 	_flame = attached["flame"]
+	_sparks = attached["sparks"]
 	rebuild_stats()
 
 
@@ -250,6 +256,7 @@ func apply_puppet_state(state: Dictionary, _delta: float) -> void:
 	_puppet_velocity = Vector3(state.get("vx", 0.0), 0.0, state.get("vz", 0.0))
 	_puppet_has_target = true
 	motor.drifting = state["drift"]
+	motor.drift_time = state.get("drift_time", 0.0)
 	protection_left = 1.0 if state["prot"] else 0.0
 	var blink := fmod(Time.get_ticks_msec() * 0.001, BLINK_PERIOD) < BLINK_PERIOD * 0.5
 	_body.visible = alive and (protection_left <= 0.0 or blink)
@@ -465,6 +472,22 @@ func _menu_steer_step() -> int:
 	var stepped := pushed if pushed != _menu_steer else 0
 	_menu_steer = pushed
 	return stepped
+
+
+## The sparks off the rear wheels, GAME.md 4.3: white while the drift is still earning its
+## exit boost, gold once it has, and a flash off the back the moment the boost is taken.
+##
+## The flash is worked out from the drift ending with enough time on it, which is the same
+## condition that pays the boost, rather than from the boost itself. A kart being watched
+## across the network has the drift and its length from the snapshot but not the boost, and
+## a receipt nobody else can see is not much of a receipt.
+func _step_drift_sparks() -> void:
+	var charged := motor.boost_earned()
+	_sparks.set_state(motor.drifting, charged)
+	if _was_drifting and not motor.drifting and _was_charged:
+		_sparks.pop()
+	_was_drifting = motor.drifting
+	_was_charged = charged
 
 
 ## The floor point under the mouse, as a direction from the kart, for free aim on keyboard.
@@ -911,6 +934,7 @@ func _update_trails(delta: float, heading_before: float) -> void:
 	var skidding := input.handbrake and speed > 1.5
 	var pushing := motor.boosting() or motor.turboing() or nitro_active
 	_smoke.update_state(input.throttle, motor.drifting or skidding, pushing)
+	_step_drift_sparks()
 
 
 ## A gold crown over the roof marker while there is a price on this kart's head, GAME.md 3.10.

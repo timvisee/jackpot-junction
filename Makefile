@@ -4,7 +4,7 @@ GDLINT ?= gdlint
 GDFORMAT ?= gdformat
 GD_DIRS := scenes scripts tests
 
-.PHONY: import test lint format format-check smoke run check export
+.PHONY: import test lint format format-check smoke run drive check export
 
 import:
 	$(GODOT) --headless --path . --import
@@ -28,9 +28,13 @@ smoke:
 	tools/smoke res://scenes/match/match_scene.tscn 120
 	tools/smoke res://scenes/garage/garage.tscn
 	tools/smoke res://scenes/dev/playground.tscn
+	tools/smoke res://scenes/dev/driving.tscn
 
 run:
 	$(GODOT) --path . res://scenes/dev/playground.tscn
+
+drive:
+	$(GODOT) --path . res://scenes/dev/driving.tscn
 
 check: import lint format-check test smoke
 

@@ -339,22 +339,25 @@ then hooks up and launches when the handbrake is released.
 | Reverse top speed             | 5 m/s                                                 |
 | Coast deceleration            | 4 m/s² with no input                                  |
 | Yaw rate at low speed         | 200°/s                                                |
-| Yaw rate at top speed         | 110°/s, interpolated linearly by speed                |
-| Minimum speed to steer        | 0.5 m/s; below it the kart turns in place at 70°/s to line up a shot |
-| Grip, normal                  | travel direction turns toward the nose at 16 rad/s, about 7° of slip at top speed |
+| Yaw rate at top speed         | 138°/s, interpolated linearly by speed: 4.4 m of turning circle flat out. 5.5 m would not place the kart in a lane, 4.2 m turned in on itself, and of the two either side of that 4.4 m was the one that placed it best |
+| Minimum speed to steer        | none: turning on the spot at 170°/s and turning on the wheels are one control, mixed by speed and fully on the wheels by 2.2 m/s. That leaves the turn rate near enough flat from a standstill to walking pace, 170 to 187°/s, which is what manoeuvring in a corner wants. The old hard switch at 0.5 m/s stepped from 70 to 195°/s every time it was crossed, and a kart shuffling about crosses it over and over |
+| Grip, normal                  | travel direction turns toward the nose at 30 rad/s, so the kart goes where it is pointed within about 33 ms |
 | Grip, drifting                | 4.8 rad/s, 35 to 55° of slip depending on speed       |
-| Drift entry                   | handbrake held while steering, at over 40% of top speed; steering alone never drifts, and straightening up mid-drift turns it into a stop |
+| Drift entry                   | handbrake held while steering, at over 40% of top speed; steering alone never drifts, and straightening up mid-drift turns it into a stop. The slide arrives over 0.18 s and hooks back up over 0.12 s rather than switching on: a drift that lands in one tick reads as the kart teleporting sideways. A switch turns the ramp off and puts that instant drift back |
 | Drift yaw multiplier          | 1.55, so a drift turns about 15% tighter than the same steering with grip |
-| Drift entry kick              | the nose turns an extra 15° into the turn over the first 0.15 s of a drift started while steering |
+| Drift entry kick              | the nose turns an extra 15° into the turn over the first 0.15 s of a drift started while steering, and again when the drift changes sides |
+| Drift style                   | **Oversteer**, which the kart uses. A flick of the handbrake breaks the rear loose and the wheel then asks the kart to sit at an angle rather than asking for more slide: full lock into the slide holds about 40°, half lock about 24°, a straight wheel none, and opposite lock asks for less than none, which catches it. The rear chases whatever was asked for, damped so it settles rather than wallows, so a wheel held over holds an angle instead of running away. Nothing the wheel does ends the drift, since straightening up and winding on opposite lock are how a slide is driven; it is over when the slide has been caught or has bled away, which pays the usual exit boost. Catching it ends it, so opposite lock held afterwards steers rather than throwing the kart the other way, though holding the handbrake through a catch does break the rear loose again, which is how a kart is thrown from side to side on purpose. The front keeps half its steering while the rear is out, a slide past 25° scrubs up to 13 m/s² off the speed, and the tires arrest the rotation at 88°, so a slide cannot become a spin: that is what oil is for |
+| Drift style, the other one    | **Tighten**, which the kart used until the oversteer one replaced it, kept whole in `data/kart/feel_tighten.tres` and second on the driving room's list so it can be driven again. Holding the wheel over holds the slide and the kart simply turns tighter: grip drops to 4.8 rad/s, the yaw rate is multiplied by 1.55, the nose kicks 15° into the turn over 0.15 s, and straightening up or letting the handbrake go ends it. It is a good mechanic and an easy one; it was replaced because the oversteer one is worth more skill for the same effort, not because it was bad |
+| Changing sides mid-drift      | 30% of the slide survives it. The rear comes back through the middle, bites for about a tenth of a second and then steps out the other way, instead of the whole kart mirroring in one tick |
 | Drift speed decay             | 5% per second                                         |
-| Drift exit boost              | +20% top speed for 0.8 s if the drift lasted 0.6 s or longer |
+| Drift exit boost              | +20% top speed for 0.8 s if the drift lasted 0.6 s or longer and the kart is still carrying half its top speed when the slide ends. A drift that was allowed to die is not one worth rewarding, and without the speed rule a slow shuffle held for the minimum collected as much as a corner taken well |
 | Handbrake                     | with steering above 30% it starts a drift and scrubs speed at 4.2 m/s²; without steering it is a straight stop at 22 m/s², about half a second from top speed, that lays down skid marks |
 | Nitro                         | held button, and a throttle in its own right: it pushes the kart forward whether or not the accelerator is held, though braking still overrules it. 190% top speed with 1.5 times the acceleration, steering at 60% and grip at 55%, so it is fast and a handful, kills on contact; a full tank burns 2 s and takes 90 s to refill from empty, starting 0.6 s after letting go; a kill refills half a tank; the tank is kept across deaths; cannot restart below 20% |
 | Wounded                       | one life left: top speed 85%, body tinted darker until a cash-out or a kill restores the life |
 | Spin-out                      | crossing an oil stain: the nose whips around at 420°/s for 1.1 s while grip drops to 0.8 rad/s, so the kart keeps its line and skids; steering and throttle do nothing and speed bleeds at 3 m/s² |
 | Wall glance                   | hitting a wall within 35° of it turns the nose 60% of the way along the wall, nudges the kart 1.2 m/s off it and costs at most 15% speed; steeper hits are stopped by the wall and cost 30% speed above half of top speed |
-| Turbo pad                     | fires once the kart's centre is on the pad, not when its bumper touches the edge; shoves along the pad's arrow at 150% top speed without turning the kart. Facing within 45° of the arrow, or straight against it, the shove lasts 1.0 s and the kart simply runs faster, forward or in reverse; crossing sideways gives a 0.15 s shove after which the tires slip and the kart slides to a near standstill. Steering halved while the shove lasts, and the shove ends the moment the driver asks for the kart back: braking, the handbrake or putting the wheel properly over hands it over at once with the speed still on it, so two pads pointing at each other are not a trap |
-| Sideways slip friction        | outside a drift, sliding more than 10° sideways brakes at up to 14 m/s² at a right angle; past 20° of slip the grip fades to 1.5 rad/s so the kart keeps sliding until it has slowed |
+| Turbo pad                     | fires once the kart's centre is on the pad, not when its bumper touches the edge; shoves along the pad's arrow at 150% top speed without turning the kart. Facing within 45° of the arrow, or straight against it, the shove lasts 1.0 s and the kart simply runs faster, forward or in reverse; crossing sideways gives a 0.15 s shove after which the tires slip and the kart slides most of it off, keeping enough to drive out of: the sideways slip friction that used to leave it standing was part of the kart fighting its driver. Steering halved while the shove lasts, and the shove ends the moment the driver asks for the kart back: braking, the handbrake or putting the wheel properly over hands it over at once with the speed still on it, so two pads pointing at each other are not a trap |
+| Sideways slip friction        | outside a drift, sliding more than 10° sideways brakes at up to 7 m/s² at a right angle; past 20° of slip the grip fades to 4 rad/s. Both were harsher, and both read as the kart fighting the driver rather than as weight |
 | Wall contact                  | velocity into the wall is cancelled; if that component exceeded 50% of top speed, total speed drops by 30% |
 | Kart to kart bump             | both karts pushed apart at 6 m/s along the contact normal and lose 20% speed |
 
@@ -369,6 +372,34 @@ after a smoothed variant felt worse. A second session found drifts invisible,
 which traced to the travel direction snapping to the nose every tick; the model
 above replaced it, with the numbers exposed on the F4 panel of the
 development scene.
+
+**The tire model** was an experiment of the driving room, 9.5, and was driven against the model
+above and rejected. It is kept for reference and is not what the game uses.
+
+It lost for a reason worth writing down. At 10.5 m/s on a table 60 m across, an honest tire
+model understeers everywhere unless the tires are given grip no vehicle has: holding a 5 m
+radius at that speed needs 2.2 g, and the lock that would ask for it needs more grip still. It
+also turned a kart crawling in a corner at 69°/s where the rate model turns it at 191, which
+reads as understeer even though it is the realistic answer. And winding a wheel on at a rate,
+however small, is lag on the one thing this game wants to be immediate. A rate model is not a
+shortcut at this speed and this scale; it is the right tool.
+
+What it is: The stick turns a front wheel rather than the kart: the wheel winds on at a rate and
+its lock comes off with speed, each axle gets a slip angle from where the kart is actually
+going against where it is pointing, and each pulls sideways in proportion to that slip up to a
+grip limit it cannot exceed. Yaw is what is left over when the two axles pull by different
+amounts, so understeer, oversteer and drift are what the numbers do rather than states to be
+entered. The handbrake takes grip off the back axle, which is the same thing a real one does.
+Rubber spent holding a corner cannot also drive, so a corner taken at the limit costs speed.
+
+Two things about it matter more than the rest. The turn radius comes from the wheel instead of
+from the speed, so half the lock is about twice the circle whatever the kart is doing, and a
+crawling kart turns at a rate that comes from how fast it is rolling rather than whipping round
+at 191 deg/s while it travels a few centimetres. Below walking pace it hands over to plain
+geometry, and stopped it still pivots at 70 deg/s to line up a shot.
+
+One set of numbers for it is kept, `data/kart/feel_grip.tres`, so the comparison can be made
+again without writing it twice.
 
 ### 4.2 Controls
 
@@ -404,6 +435,15 @@ assigns physical devices to player slots, see 10.2.
 - **Smoke**: a faint exhaust particle trail whose rate scales with throttle,
   with bursts on drift entry, drift exit boost, turbo pads and Boost.
 
+- **Drift sparks**: a fountain off each rear wheel, lit white while the slide has its exit
+  boost earned and quiet otherwise, so they go out again if the kart is allowed to slow below
+  the speed the boost asks for, so the sparks are the news that the drift is worth
+  ending rather than a decoration on every slide. Spending the boost throws gold off the back
+  and flashes a light with it for 0.45 s, and that gold appears nowhere else: white is ready,
+  gold is gone. The flash follows a drift ending with enough time on it rather than the boost
+  itself, which is the same condition but the one a watching client can see, since the drift
+  and its length come over in the snapshot and the boost does not. There is no HUD for any of
+  this and there should not be: it is a driving reward and it belongs on the kart.
 - **Nitro**: a flickering blue-white flame from the exhaust with a warm glow on the
   floor, a trail of tiny glowing sparks left behind that fade over a second, and a
   thick plume of smoke thrown backward that swells as it drifts, much heavier than
@@ -904,6 +944,17 @@ drifting, which shrinks the circle to something that fits. With the goal behind 
 and under 4 m away it backs onto it instead, because no turning circle fits at that
 range. On the Junction and the Jackpot it then holds position as before.
 
+**Drifting**: the kart drifts the oversteer way, see 4.1, so a bot throws it into a tight
+corner the way a driver would: the handbrake goes in for a flick of 0.18 s when the corner is
+tighter than the trait's drift angle and the kart is above 60% of top speed, with a second or
+so before another is allowed. Holding it would break the rear loose again every time the slide
+was caught, and walk the kart down the road sideways.
+
+Once the rear is out a bot steers where the kart is going rather than where its nose points,
+which is the same thing as winding on opposite lock at the moment a driver would. That makes
+the slides short, about a third of a second: the bot catches it as soon as the kart is pointed
+down the new road, which is the tidy way to use one.
+
 **Getting unstuck**: driving at something solid pins a kart against it, and steering
 toward a target on the far side only holds it there harder. A bot that is going
 nowhere with the throttle down backs up for 0.7 s with the wheel over, which swings
@@ -1039,6 +1090,38 @@ Everything the game does is somewhere on the floor, and a sign names each one:
   match, and pausing leads back to the title.
 - The disco lights from 8.1 stay off in here: it is a place to look at the
   controls, not a nightclub.
+
+### 9.5 The driving room
+
+A development scene, `make drive`, holding one kart, one track and nothing else: no bots, no
+bullets, no pickups, no clock. Driving has to be worth doing on its own before any of the rest
+is worth adding, and everything else in the game gets in the way of judging that.
+
+The track is 60 by 37.5 m and has the four things that tell you how a kart feels:
+
+- A straight along the top with posts every 10 m, to wind the kart out and pick a braking
+  point between.
+- A slalom of single posts 7.5 m apart, alternating sides, for turn-in and change of direction.
+- A ring of posts on the right, to hold a constant turn around the outside or thread the inside.
+- A block of 2.5 m corridors on the left, for close quarters, which is where the handling is
+  hardest to get right.
+
+The camera follows the kart from close in rather than framing the arena, because a kart twenty
+pixels tall tells you nothing. A readout gives speed, how far the wheel is turned, how far the
+kart is sideways, how fast the nose is coming round and how hard the tires are working in g,
+so "it feels off" can be turned into a number and chased. R puts the kart back on the line.
+
+Tab swaps the handling under the kart without stopping it, which is the only honest way to tell
+two of them apart: the same corner, half a second later. The sets it walks through are in
+`data/kart/`, and each is kept for a reason rather than as a souvenir.
+
+| Preset            | What it is                                                              |
+|-------------------|-------------------------------------------------------------------------|
+| `feel_shipped`    | the kart as it was before any of this, frozen, so every change is judged against the real thing |
+| `default`         | the kart itself                                                          |
+| `feel_tighten`    | the drift it had before the oversteer one, see 4.1                       |
+| `feel_snapdrift`  | the kart with the drift ramp off, so the instant drift can be compared    |
+| `feel_grip`       | the rejected tire model, kept so that experiment need not be written twice |
 
 ## 10. Technology
 

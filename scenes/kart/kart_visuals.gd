@@ -101,6 +101,9 @@ static func build_attachments(kart: Kart) -> Dictionary:
 	flame.name = "Flame"
 	flame.position = Vector3(0.0, 0.4, kart.stats.length * 0.5 - 0.05)
 	kart.add_child(flame)
+	var sparks := DriftSparks.new()
+	sparks.name = "DriftSparks"
+	kart.add_child(sparks)
 	return {
 		"pickup_area": pickup_area,
 		"pickup_shape": pickup_shape,
@@ -109,6 +112,7 @@ static func build_attachments(kart: Kart) -> Dictionary:
 		"aim_arrow": aim_arrow,
 		"crown": crown,
 		"flame": flame,
+		"sparks": sparks,
 	}
 
 
