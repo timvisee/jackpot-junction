@@ -20,8 +20,8 @@ class SwivelEffect:
 		stats.free_aim = true
 		stats.aim_assist = false
 		kart.cannon.set_override(stats, 1 << 20)
-		kart.set_aim_arrow_visible(true)
+		kart.aim_arrow_visible = true
 
 	func end(kart: Kart) -> void:
 		kart.cannon.clear_override()
-		kart.set_aim_arrow_visible(false)
+		kart.aim_arrow_visible = false

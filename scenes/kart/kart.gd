@@ -99,6 +99,14 @@ var sound: KartSound
 ## rather than for the room follows this, so three bots cannot set it off.
 var driven_here := false
 
+## Whether the free-aim arrow is showing. A snapshot carries it, so a watching client draws the
+## same kart the driver sees, and the Swivel Cannon turns it on and off.
+var aim_arrow_visible: bool:
+	get:
+		return _aim_arrow.visible
+	set(value):
+		_aim_arrow.visible = value
+
 var _body: Node3D
 var _tint: StandardMaterial3D
 var _wheels: Array[MeshInstance3D] = []
@@ -357,10 +365,6 @@ func is_decoy() -> bool:
 ## Where this kart is pointing its cannon, see [KartAim].
 func aim_direction() -> Vector3:
 	return KartAim.direction(self)
-
-
-func set_aim_arrow_visible(on: bool) -> void:
-	_aim_arrow.visible = on
 
 
 ## Rebuilds the kart's own stat copies from the shared bases and the held jokers.

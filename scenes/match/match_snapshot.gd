@@ -101,7 +101,7 @@ static func _karts(match_node: Match) -> Array:
 					# How long the slide has run, so a watching client can see the drift sparks earn
 					# their boost and flash when it is taken, the same as the driver does.
 					"drift_time": kart.motor.drift_time,
-					"aim": kart._aim_arrow.visible,
+					"aim": kart.aim_arrow_visible,
 					"nitro": kart.nitro_active,
 					"lives": kart.lives,
 					"decoy": kart.is_decoy(),
