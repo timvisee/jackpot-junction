@@ -88,3 +88,44 @@ func test_two_bullets_meeting_head_on_destroy_each_other() -> void:
 	assert_bool(is_instance_valid(left) and not left.is_dead()).is_false()
 	assert_bool(is_instance_valid(right) and not right.is_dead()).is_false()
 	assert_int(match_node.bullets.live_count()).is_equal(0)
+
+
+## GAME.md 3.8: the results screen offers a rematch, which tears the room down and builds it
+## again for the same players. The match node itself survives that, so anything it hung on a
+## signal outside itself is still hanging there the second time round.
+func test_a_rematch_rebuilds_the_room_without_connecting_anything_twice() -> void:
+	var rules: MatchRules = RULES.duplicate()
+	rules.countdown = 0.1
+	rules.duration = 60.0
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	var runner := scene_runner(match_node)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	match_node.start(inputs, 5)
+	await runner.simulate_frames(10, 17)
+	match_node.slots[0].banked = 700
+	assert_int(_connections(match_node)).is_equal(2)
+	match_node.rematch()
+	await runner.simulate_frames(10, 17)
+	# The same players, a fresh arena, and nobody carrying last match's score.
+	assert_int(match_node.slots.size()).is_equal(2)
+	assert_int(match_node.slots[0].banked).is_equal(0)
+	assert_object(match_node.arena).is_not_null()
+	assert_object(match_node.camera_rig).is_not_null()
+	assert_int(match_node.kart_of(0).lives).is_equal(rules.lives)
+	# One connection each, not two. The engine refuses a duplicate rather than making one, so
+	# this held before the guard was added as well; what the guard takes away is the pair of
+	# errors it printed on the way, on a button every player who finishes a match can press.
+	assert_int(_connections(match_node)).is_equal(2)
+
+
+## How many of the match's own handlers are hanging off the global event bus.
+func _connections(match_node: Match) -> int:
+	var mine := 0
+	for signal_name: StringName in [&"joker_taken", &"life_restored"]:
+		for entry: Dictionary in (Events.get(signal_name) as Signal).get_connections():
+			if (entry["callable"] as Callable).get_object() == match_node:
+				mine += 1
+	return mine

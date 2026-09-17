@@ -117,8 +117,12 @@ func start(inputs: Array[KartInput], seed: int = 0, colors: Array[int] = []) -> 
 		pad.claimed.connect(_on_pad_claimed)
 	arena.crate_broken.connect(_on_stat_crate)
 	arena.target_struck.connect(_on_target_struck)
-	Events.joker_taken.connect(_on_stat_joker)
-	Events.life_restored.connect(_on_stat_life)
+	# Guarded, because a rematch runs this again on the same node: the arena and the karts are
+	# rebuilt but the match itself is not, and the engine refuses a connection it already has.
+	if not Events.joker_taken.is_connected(_on_stat_joker):
+		Events.joker_taken.connect(_on_stat_joker)
+	if not Events.life_restored.is_connected(_on_stat_life):
+		Events.life_restored.connect(_on_stat_life)
 	for zone: JackpotZone in arena.jackpot_zones:
 		zone.filled.connect(
 			func(filled: JackpotZone) -> void: Events.jackpot_full.emit(filled.index)
