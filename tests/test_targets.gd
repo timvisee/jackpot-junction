@@ -14,8 +14,9 @@ func _bullet(slot: int) -> Bullet:
 
 func test_a_bullet_knocks_a_target_down_and_it_comes_back() -> void:
 	var target: Target = auto_free(Target.new())
-	add_child(target)
 	target.coins = 4
+	# The runner puts it in the tree itself; adding it first leaves it with a parent the runner
+	# cannot take it from, which the engine complains about and nothing then owns cleanly.
 	var runner: GdUnitSceneRunner = scene_runner(target)
 	var events := monitor_signals(Events, false)
 	assert_bool(target.alive).is_true()
