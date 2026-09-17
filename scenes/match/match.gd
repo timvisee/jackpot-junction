@@ -342,6 +342,8 @@ func start_puppet() -> void:
 		zone.rules = rules
 		zone.puppet = true
 	arena.junction.puppet = true
+	for crate: Crate in arena.crates:
+		crate.puppet = true
 	_build_systems(true)
 	_build_hud()
 

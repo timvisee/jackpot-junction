@@ -207,3 +207,50 @@ func test_puppets_glide_toward_new_snapshot_positions_instead_of_jumping() -> vo
 	assert_vector(puppet.global_position).is_equal_approx(
 		Vector3(10.0, 0.0, 1.0), Vector3.ONE * 0.001
 	)
+
+
+## GAME.md 10.3: a client is told what is there rather than keeping its own clocks. A crate that
+## ran one would come back the frame after a snapshot broke it, and the next snapshot would find
+## it whole and break it again, throwing a fresh burst of debris thirty times a second for as
+## long as it was really gone.
+func test_a_broken_crate_bursts_once_on_a_client() -> void:
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var runner := scene_runner(client_match)
+	await runner.simulate_frames(4, 17)
+	var crate := client_match.arena.crates[0]
+	assert_bool(crate.puppet).is_true()
+	# A snapshot in which that one crate has gone, repeated the way the host repeats them.
+	var broken: Array = []
+	for other: Crate in client_match.arena.crates:
+		broken.append(other != crate)
+	for i: int in 30:
+		MatchSnapshot.apply(client_match, _crate_snapshot(client_match, broken))
+		await runner.simulate_frames(2, 17)
+	assert_bool(crate.alive).is_false()
+	assert_int(_bursts(client_match)).is_less_equal(1)
+	# And it comes back when, and only when, the host says so.
+	var whole: Array = []
+	for other: Crate in client_match.arena.crates:
+		whole.append(true)
+	MatchSnapshot.apply(client_match, _crate_snapshot(client_match, whole))
+	await runner.simulate_frames(2, 17)
+	assert_bool(crate.alive).is_true()
+
+
+## A host snapshot of a match standing still, with the crates in the state given.
+func _crate_snapshot(match_node: Match, crates: Array) -> Dictionary:
+	var data := MatchSnapshot.build(match_node)
+	data["crates"] = crates
+	return data
+
+
+func _bursts(match_node: Match) -> int:
+	var count := 0
+	for node: Node in match_node.get_tree().get_nodes_in_group(&"bursts"):
+		if match_node.is_ancestor_of(node):
+			count += 1
+	return count

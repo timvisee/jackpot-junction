@@ -8,6 +8,11 @@ signal respawned
 @export var respawn_delay := 30.0
 
 var alive := true
+## On a client a crate is told whether it is there, GAME.md 10.3; it does not keep its own
+## clock. Left to run one it would revive itself the frame after a snapshot killed it, and the
+## next snapshot would find it alive and kill it again, bursting once per snapshot for as long
+## as it was really gone.
+var puppet := false
 
 var _respawn_left := 0.0
 
@@ -31,7 +36,7 @@ func hit(by_slot: int) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if alive:
+	if alive or puppet:
 		return
 	_respawn_left -= delta
 	if _respawn_left <= 0.0:
