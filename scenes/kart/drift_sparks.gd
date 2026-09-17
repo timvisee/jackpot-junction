@@ -1,27 +1,26 @@
 class_name DriftSparks
 extends Node3D
-## What a drift looks like while it is earning its exit boost, GAME.md 4.3. A pair of spark
-## fountains off the rear wheels: white and thin while the slide is still paying its dues, gold
-## and twice as thick once the boost is charged, and a flash of the same gold thrown off the back
-## when it is finally spent. The kart has no HUD for this and should not need one; the boost is a
-## driving reward and belongs on the kart.
+## What a drift looks like once it has earned its exit boost, GAME.md 4.3. A pair of spark
+## fountains off the rear wheels light up white the moment the boost is in the bank, and stay
+## quiet before it: the sparks are the news that the drift is worth something, so they say
+## nothing until it is. Spending the boost throws gold off the back with a flash of light.
+##
+## Two colours, two meanings, and nothing on the HUD: white is ready, gold is gone.
 
-## The two states the sparks read in, and the colour of the flash when the boost is taken.
-const CHARGING := Color(0.85, 0.87, 0.95)
-const READY := Palette.CHIP_GOLD
+## The sparks a charged drift throws, and the gold of the boost being spent.
+const READY := Color(0.85, 0.87, 0.95)
+const SPENT := Palette.CHIP_GOLD
 ## How long the flash on release lasts, and how bright it starts.
 const FLASH_TIME := 0.45
 const FLASH_ENERGY := 3.2
-## Spark counts, so a charged drift is visibly busier than one still working at it.
-const RATE_CHARGING := 0.35
-const RATE_READY := 1.0
+## How hard a charged drift throws them.
+const RATE_READY := 0.8
 
 var _fountains: Array[GPUParticles3D] = []
 var _materials: Array[ParticleProcessMaterial] = []
 var _glow: OmniLight3D
 var _burst: GPUParticles3D
 var _flash := 0.0
-var _charged := false
 
 
 func _ready() -> void:
@@ -44,11 +43,11 @@ func _ready() -> void:
 	burst_material.initial_velocity_min = 4.0
 	burst_material.initial_velocity_max = 9.0
 	burst_material.spread = 40.0
-	burst_material.color = READY
+	burst_material.color = SPENT
 	add_child(_burst)
 	_glow = OmniLight3D.new()
 	_glow.name = "Glow"
-	_glow.light_color = READY
+	_glow.light_color = SPENT
 	_glow.light_energy = 0.0
 	_glow.omni_range = 3.0
 	_glow.shadow_enabled = false
@@ -58,17 +57,17 @@ func _ready() -> void:
 
 
 ## Whether the rear is sliding, and whether the slide has run long enough to have earned the
-## boost. The colour is the whole message: white means keep going, gold means let it go.
+## boost. Only the second of those shows: sparks mean the drift is worth ending, so a slide
+## that has not got there yet throws none at all.
 func set_state(sliding: bool, charged: bool) -> void:
-	_charged = charged
 	for i: int in _fountains.size():
 		var fountain := _fountains[i]
-		fountain.emitting = sliding
-		fountain.amount_ratio = RATE_READY if charged else RATE_CHARGING
-		_materials[i].color = READY if charged else CHARGING
+		fountain.emitting = sliding and charged
+		fountain.amount_ratio = RATE_READY
+		_materials[i].color = READY
 
 
-## The boost has been taken: a flash and a shower off the back, in the same gold that promised it.
+## The boost has been taken: a flash and a shower off the back, and the only gold in the effect.
 func pop() -> void:
 	_flash = 1.0
 	_burst.restart()
@@ -77,8 +76,8 @@ func pop() -> void:
 
 func _process(delta: float) -> void:
 	if _flash <= 0.0:
-		# A charged drift keeps a low glow of its own, so the promise is visible from outside too.
-		_glow.light_energy = 0.6 if _charged and _fountains[0].emitting else 0.0
+		# The light belongs to the boost alone, so a charged drift is sparks and nothing else.
+		_glow.light_energy = 0.0
 		return
 	_flash = maxf(_flash - delta / FLASH_TIME, 0.0)
 	_glow.light_energy = FLASH_ENERGY * _flash * _flash
@@ -100,7 +99,7 @@ func _build_fountain() -> GPUParticles3D:
 	process.gravity = Vector3(0.0, -7.0, 0.0)
 	process.scale_min = 0.5
 	process.scale_max = 1.0
-	process.color = CHARGING
+	process.color = READY
 	sparks.process_material = process
 	var mesh := SphereMesh.new()
 	mesh.radius = 0.045

@@ -1,6 +1,6 @@
 extends GdUnitTestSuite
-## The sparks off the rear wheels, GAME.md 4.3: they say whether the drift has earned its exit
-## boost yet, and they flash when it is taken.
+## The sparks off the rear wheels, GAME.md 4.3: they say when the drift has earned its exit boost
+## and when the boost is spent.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 
@@ -21,13 +21,14 @@ func _start_match() -> Match:
 	return match_node
 
 
-func test_the_sparks_turn_gold_once_the_boost_is_earned_and_flash_when_it_is_taken() -> void:
+## Nothing while the drift is still earning its boost, white sparks the moment it has, and gold
+## with a flash of light when the boost is spent.
+func test_the_sparks_light_up_when_charged_and_go_gold_when_spent() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(30, 17)
 	var kart := match_node.kart_of(0)
 	var sparks: DriftSparks = kart.get_node("DriftSparks")
 	var left: GPUParticles3D = sparks._fountains[0]
-	var colour := func() -> Color: return (left.process_material as ParticleProcessMaterial).color
 	assert_bool(left.emitting).is_false()
 	# Up to speed, then a flick of the handbrake to break the rear loose.
 	kart.motor.forward_speed = kart.stats.top_speed
@@ -38,17 +39,21 @@ func test_the_sparks_turn_gold_once_the_boost_is_earned_and_flash_when_it_is_tak
 	await _runner.simulate_frames(12, 17)
 	kart.input.handbrake = false
 	assert_bool(kart.motor.drifting).is_true()
-	assert_bool(left.emitting).is_true()
-	# Still earning it: white and thin.
-	assert_object(colour.call()).is_equal(DriftSparks.CHARGING)
-	assert_float(left.amount_ratio).is_equal_approx(DriftSparks.RATE_CHARGING, 0.01)
-	# Held past the minimum, the boost is in the bank and the sparks say so.
+	# Sliding but not yet worth ending: the kart says nothing.
+	assert_float(kart.motor.drift_time).is_less(kart.stats.drift_min_duration)
+	assert_bool(left.emitting).is_false()
+	assert_float(sparks._glow.light_energy).is_equal(0.0)
+	# Held past the minimum, the boost is in the bank and the sparks light up white.
 	await _runner.simulate_frames(60, 17)
 	assert_float(kart.motor.drift_time).is_greater(kart.stats.drift_min_duration)
-	assert_object(colour.call()).is_equal(DriftSparks.READY)
-	assert_float(left.amount_ratio).is_equal_approx(DriftSparks.RATE_READY, 0.01)
-	# Gathered up: the boost is taken and the flash goes off with it. Caught on the frame it
-	# happens, since the flash is shorter than half a second and this is what it is for.
+	assert_bool(left.emitting).is_true()
+	assert_object((left.process_material as ParticleProcessMaterial).color).is_equal(
+		DriftSparks.READY
+	)
+	# Still no light: that belongs to the boost being spent, not to having earned it.
+	assert_float(sparks._glow.light_energy).is_equal(0.0)
+	# Gathered up: the gold goes off the back with the flash. Caught on the frame it happens,
+	# since the flash is shorter than half a second and this is what it is for.
 	kart.input.steer = -1.0
 	var lit := 0.0
 	for i: int in 30:
@@ -60,9 +65,13 @@ func test_the_sparks_turn_gold_once_the_boost_is_earned_and_flash_when_it_is_tak
 	assert_float(lit).is_greater(0.0)
 	sparks._process(0.0)
 	assert_float(sparks._glow.light_energy).is_greater(0.0)
+	assert_object((sparks._burst.process_material as ParticleProcessMaterial).color).is_equal(
+		DriftSparks.SPENT
+	)
 	# And it fades rather than hanging there.
 	sparks._process(DriftSparks.FLASH_TIME + 0.1)
 	assert_float(sparks._flash).is_equal(0.0)
+	assert_float(sparks._glow.light_energy).is_equal(0.0)
 
 
 ## A kart being watched across the network sparks too: the drift and how long it has run both
@@ -94,9 +103,6 @@ func test_a_watched_kart_sparks_from_the_snapshot() -> void:
 	kart.apply_puppet_state(state, 1.0 / 60.0)
 	await _runner.simulate_frames(4, 17)
 	assert_bool(left.emitting).is_true()
-	assert_object((left.process_material as ParticleProcessMaterial).color).is_equal(
-		DriftSparks.READY
-	)
 
 
 ## A kart doing nothing throws no sparks and no light, so the effect never says anything untrue.
