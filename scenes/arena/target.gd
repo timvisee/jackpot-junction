@@ -17,6 +17,8 @@ const RINGS: Array[Color] = [Palette.CHIP_WHITE, Palette.CHIP_RED, Palette.CHIP_
 ## Coins the shooter collects, set by the arena from the rules.
 var coins := 3
 var alive := true
+## Whether this target takes the host's word for it rather than keeping its own respawn clock.
+var puppet := false
 
 var _left := 0.0
 var _face: Node3D
@@ -40,9 +42,7 @@ func _ready() -> void:
 func take_hit(bullet: Bullet) -> bool:
 	if not alive:
 		return false
-	alive = false
-	visible = false
-	collision_layer = 0
+	_stand(false)
 	_left = RESPAWN_DELAY
 	Burst.spawn(get_parent(), global_position + Vector3(0.0, FACE_HEIGHT, 0.0), RINGS[1], 0.7, 12)
 	struck.emit(self, bullet.owner_slot)
@@ -51,13 +51,30 @@ func take_hit(bullet: Bullet) -> bool:
 
 
 func _physics_process(delta: float) -> void:
-	if alive:
+	if alive or puppet:
 		return
 	_left -= delta
 	if _left <= 0.0:
-		alive = true
-		visible = true
-		collision_layer = Layers.WORLD
+		_stand(true)
+
+
+## The host's word on whether this one is up, for a client. A target only ever goes down to a
+## bullet, and a client runs no bullets, so without this it watches a gallery nobody can hit.
+func apply_puppet_state(standing: bool) -> void:
+	puppet = true
+	if standing == alive:
+		return
+	if not standing:
+		Burst.spawn(
+			get_parent(), global_position + Vector3(0.0, FACE_HEIGHT, 0.0), RINGS[1], 0.7, 12
+		)
+	_stand(standing)
+
+
+func _stand(up: bool) -> void:
+	alive = up
+	visible = up
+	collision_layer = Layers.WORLD if up else 0
 
 
 func _build_visuals() -> void:

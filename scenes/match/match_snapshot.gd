@@ -26,6 +26,7 @@ static func build(match_node: Match) -> Dictionary:
 		"stains": _stains(match_node),
 		"jackpots": _jackpots(match_node),
 		"crates": _crates(match_node),
+		"targets": _targets(match_node),
 		"flush": _flush(match_node),
 		"bounty": match_node.bounty_slot,
 		"bounty_left": match_node.bounty_left,
@@ -239,6 +240,15 @@ static func _crates(match_node: Match) -> Array:
 	return data
 
 
+## Which shooting targets are still standing, GAME.md 6.2. Only a bullet knocks one down and a
+## client runs no bullets of its own, so without this a client watches a gallery nobody can hit.
+static func _targets(match_node: Match) -> Array:
+	var data: Array = []
+	for target: Target in match_node.arena.targets:
+		data.append(target.alive)
+	return data
+
+
 static func _flush(match_node: Match) -> Array:
 	var data: Array = []
 	for pad: FlushPad in match_node.arena.flush_pads:
@@ -279,6 +289,9 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 			Burst.spawn(match_node, crate.global_position, Palette.BLOCK, 0.9, 18)
 		crate.visible = crates[i]
 		crate.alive = crates[i]
+	var targets: Array = data.get("targets", [])
+	for i: int in mini(targets.size(), match_node.arena.targets.size()):
+		match_node.arena.targets[i].apply_puppet_state(targets[i])
 	match_node.bounty_slot = data.get("bounty", -1)
 	match_node.bounty_left = data.get("bounty_left", 0.0)
 	for slot: PlayerSlot in match_node.slots:

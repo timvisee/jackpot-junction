@@ -1533,8 +1533,13 @@ run in one place, the Match, and karts are driven by a KartInput interface.
 
 - ENetMultiplayerPeer, default port 7777. The host runs the server and plays.
 - The host sends a state snapshot at 30 Hz: karts, bullets, pickups, turrets,
-  zones, slots and joker offers. Clients keep a puppet match that renders the
-  snapshots and dead-reckons bullets between them. Snapshots were chosen over
+  bombs, oil, crates, shooting targets, Royal Flush pads, Jackpot zones, the
+  bounty, slots and joker offers. Clients keep a puppet match that renders the
+  snapshots and dead-reckons bullets between them. The rule is that anything a
+  player can read off a screen is either in the snapshot or worked out from it:
+  a pot halfway through a cash-out carries the part of the coin already drained,
+  not just its coins and its mult, because the two are different numbers and the
+  one on the screen is the second. Snapshots were chosen over
   MultiplayerSpawner and MultiplayerSynchronizer because every gameplay node
   is built in code.
 - Clients send their input state to the server every physics tick with an
@@ -1554,7 +1559,10 @@ run in one place, the Match, and karts are driven by a KartInput interface.
 - Anything a client is told about is told all of it, and keeps no clock of its own.
   A crate running its own respawn timer would come back the frame after a snapshot
   broke it and be broken again by the next one, throwing fresh debris thirty times
-  a second for as long as it was really gone.
+  a second for as long as it was really gone. The same goes for a shooting target,
+  which only a bullet puts down and a client runs no bullets.
+- The match is played by the host's lobby settings. A joining client is sent them
+  before it is given a slot, see 9.3, since until then it reads its own.
 - Client-side prediction and reconciliation for the local kart is a later step
   once latency is felt in tests.
 
