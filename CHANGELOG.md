@@ -31,6 +31,13 @@ below, and hands the notes to the release workflow.
   kart's collisions away, and on a client the kart is dead, stood down and
   brought back between losing them and being driven again, so it came back able
   to drive through walls for the rest of the match.
+- **Online: a rematch keeps the players who are in it.** The host pressing
+  Rematch started again from the lobby's list, so every connected player's kart
+  was handed to a bot while they carried on steering it.
+- **Online: a chip pulled in by the Coin Magnet flies into the kart.** On a
+  client it blinked off the floor instead: the magnet triples how far a kart
+  reaches, and a client judging who took something was still using the plain
+  reach.
 - **Online: turbo pads shove a client's kart again.** They had stopped working on
   clients altogether: the pad could not see a kart being driven there, and the
   host's shove lost to that machine's own answer about where its kart was.

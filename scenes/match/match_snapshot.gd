@@ -9,6 +9,10 @@ extends RefCounted
 ## arrives, so every removal asks before it looks. Naming a freed object at all is the error in
 ## GDScript, not using it, which is why each one goes through a [Variant] first.
 
+## How far past its own pickup radius a kart may be and still be the one that took something.
+## Covers the ground it made up between the snapshot being built and this reading it.
+const TAKEN_SLACK := 1.6
+
 ## Every item in the game, for looking up held and dropped items by id.
 static var _all_items: PowerUpTable
 
@@ -60,6 +64,7 @@ static func _slots(match_node: Match) -> Array:
 			"menu": kart.menu_open,
 			"menu_index": kart.menu_index,
 			"nitro_charge": kart.nitro_charge,
+			"magnet": kart.pickup_radius_bonus,
 			"stats": slot.stats.to_array(),
 		}
 		if slot.offer != null and not slot.offer.is_done():
@@ -395,6 +400,7 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 			slot.kart.pot.set_partial(entry.get("partial", 0.0))
 			slot.kart.held_item = _item_by_id(entry["item"])
 			slot.kart.item_reveal_left = entry["reveal"]
+			slot.kart.pickup_radius_bonus = entry.get("magnet", 1.0)
 			slot.kart.menu_open = entry["menu"]
 			slot.kart.menu_index = entry["menu_index"]
 			if not slot.kart.predicted:
@@ -566,20 +572,28 @@ static func _apply_pickups(match_node: Match, entries: Array) -> void:
 			var pickup := gone as Pickup
 			# The host does not say who took it; the kart on top of it did. Whatever it was
 			# flows into that kart here the same as it does for the player who took it.
-			var taker := _nearest_puppet_kart(match_node, pickup.global_position, 2.5)
+			var taker := _nearest_puppet_kart(match_node, pickup.global_position)
 			if taker != null:
 				PickupFlight.take(pickup, taker)
 			pickup.queue_free()
 
 
-static func _nearest_puppet_kart(match_node: Match, point: Vector3, max_distance: float) -> Kart:
+## Whose kart took it, judged by who was near enough to. Each kart is asked about its own reach
+## rather than a flat distance, because the Coin Magnet triples it: a chip pulled in from three
+## metres away was outside the old answer, so nothing flew and the chip simply blinked out, which
+## is the one thing GAME.md 8.3 says a pickup never does.
+##
+## The slack on top is for the moment between the snapshot being built and it being read here,
+## in which the kart carried on driving.
+static func _nearest_puppet_kart(match_node: Match, point: Vector3) -> Kart:
 	var best: Kart = null
-	var best_distance := max_distance
+	var best_distance := INF
 	for kart: Kart in match_node.puppet_karts.values():
 		if not kart.alive:
 			continue
+		var reach := match_node.rules.pickup_radius * kart.pickup_radius_bonus + TAKEN_SLACK
 		var distance := kart.global_position.distance_to(point)
-		if distance < best_distance:
+		if distance <= reach and distance < best_distance:
 			best_distance = distance
 			best = kart
 	return best

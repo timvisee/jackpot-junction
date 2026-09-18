@@ -640,3 +640,59 @@ func test_a_dead_kart_is_out_of_the_way_and_comes_back_properly() -> void:
 		. is_greater(2.0)
 	)
 	assert_float(own.global_position.y).is_equal_approx(0.0, 0.2)
+
+
+## A rematch keeps whoever is at the table, GAME.md 10.3. Starting again from the lobby's list
+## handed every remote player's kart to a bot while they went on driving it: each client stayed
+## at the wheel of a kart the host had given away.
+func test_a_rematch_keeps_the_players_who_are_here() -> void:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	host_match.offer_size = 0
+	_host_root.add_child(host_match)
+	# One player at this keyboard and one bot, which is the lobby's idea of the match.
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(PORT)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client_match
+	client_session.local_input = PlayerInput.new()
+	_client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
+	assert_bool(assigned).is_true()
+	var slot := client_session.local_slot
+	assert_bool(host_match.slots[slot].input is NetInput).is_true()
+	var was := host_match.slots[slot].input
+	# The host plays it again.
+	host_match.rematch()
+	await await_millis(400)
+	(
+		assert_bool(host_match.slots[slot].input is NetInput)
+		. override_failure_message("the rematch handed a connected player's kart to a bot")
+		. is_true()
+	)
+	assert_object(host_match.slots[slot].input).is_equal(was)
+	assert_bool(host_match.slots[slot].is_human()).is_true()
+	assert_object(host_match.slots[slot].bot_trait).is_null()
+	# And the client is still driving it: its controls still reach the host.
+	var heard := (host_match.slots[slot].input as NetInput).last_seq
+	await await_millis(400)
+	(
+		assert_int((host_match.slots[slot].input as NetInput).last_seq)
+		. override_failure_message("the host stopped hearing the client after a rematch")
+		. is_greater(heard)
+	)

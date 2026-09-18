@@ -466,3 +466,55 @@ func test_a_box_a_client_broke_stays_broken_until_the_host_says_otherwise() -> v
 		. is_true()
 	)
 	assert_int(wrong.collision_layer).is_equal(Layers.WORLD)
+
+
+## GAME.md 8.3: a pickup is never simply taken off the floor, it flies into the kart that took it.
+## A client works out who took it from who was near enough, and the Coin Magnet triples how near
+## that is: a chip pulled in from three metres away was outside the old answer, so nothing flew
+## and the chip blinked out, which is the one thing a pickup is not supposed to do.
+func test_a_chip_pulled_in_by_a_magnet_still_flies_into_the_kart() -> void:
+	var host: Match = auto_free(MATCH_SCENE.instantiate())
+	host.rules = _rules()
+	host.with_hud = false
+	var runner := scene_runner(host)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	host.start(inputs, 91)
+	await runner.simulate_frames(20, 17)
+	var client: Match = auto_free(MATCH_SCENE.instantiate())
+	client.rules = _rules()
+	client.with_hud = false
+	add_child(client)
+	client.start_puppet()
+	client.apply_snapshot(host.build_snapshot())
+	# A magnet on the host's kart, which the client has to be told about to judge the reach.
+	host.kart_of(0).pickup_radius_bonus = 3.0
+	var chip := Chip.new()
+	var kart_at := host.kart_of(0).global_position
+	host.arena.place_drop(chip, kart_at + Vector3(2.6, 0.0, 0.0))
+	await runner.simulate_frames(2, 17)
+	client.apply_snapshot(host.build_snapshot())
+	(
+		assert_float(client.slots[0].kart.pickup_radius_bonus)
+		. override_failure_message("the client never heard about the magnet")
+		. is_equal_approx(3.0, 0.01)
+	)
+	var id := chip.get_instance_id()
+	assert_bool(client.puppet_pickups.has(id)).is_true()
+	# Pulled in on the host, from further out than a kart without a magnet could reach.
+	chip.queue_free()
+	await runner.simulate_frames(2, 17)
+	# The flight is parented where the pickup was, which is the arena's pickup holder.
+	var before := 0
+	for node: Node in client.arena.pickups.get_children():
+		if node is PickupFlight:
+			before += 1
+	client.apply_snapshot(host.build_snapshot())
+	var flying := 0
+	for node: Node in client.arena.pickups.get_children():
+		if node is PickupFlight:
+			flying += 1
+	(
+		assert_int(flying - before)
+		. override_failure_message("the chip blinked out instead of flying into the kart")
+		. is_greater(0)
+	)
