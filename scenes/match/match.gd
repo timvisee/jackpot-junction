@@ -471,12 +471,6 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 
 func _physics_process(delta: float) -> void:
 	if puppet:
-		# A client runs no match of its own, but the Junction's blink only ever asked about the
-		# karts on this screen, and snapshots keep those up to date. So it lights its own ring
-		# rather than waiting to be told what its own pot is worth.
-		if arena != null and arena.junction != null:
-			arena.junction.hint = junction_hint()
-			arena.junction.winning = junction_wins_it()
 		return
 	match state:
 		State.COUNTDOWN:
