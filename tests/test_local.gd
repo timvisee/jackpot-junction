@@ -99,3 +99,26 @@ func test_joining_without_bots_spawns_a_fresh_slot_until_the_match_is_full() -> 
 	assert_object(fourth).is_not_null()
 	assert_object(match_node.join_human(3)).is_null()
 	assert_int(match_node.camera_rig.targets.size()).is_equal(4)
+
+
+## GAME.md 3.8: a debug build offers a one-minute match, which is long enough to reach the
+## Junction and the results screen and short enough to do it again straight away. A real build
+## does not, because it is not a length anybody wants a game to be.
+func test_a_debug_build_offers_a_short_match() -> void:
+	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
+	add_child(lobby)
+	var lengths: Array[int] = lobby._match_lengths()
+	assert_array(lengths).is_not_empty()
+	if OS.is_debug_build():
+		(
+			assert_int(lengths[0])
+			. override_failure_message("a debug build did not offer the short match first")
+			. is_equal(lobby.DEBUG_MINUTES)
+		)
+		assert_int(lengths.size()).is_equal(lobby.MINUTES.size() + 1)
+	else:
+		assert_array(lengths).is_equal(lobby.MINUTES)
+	# Whichever it is, picking one gives a match that long and nothing else.
+	lobby.minutes_option.selected = 0
+	var config: MatchConfig = lobby.config()
+	assert_float(config.duration).is_equal_approx(float(lengths[0]) * 60.0, 0.001)

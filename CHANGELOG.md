@@ -25,6 +25,11 @@ below, and hands the notes to the release workflow.
   ends where it used to offer Sudden death and Whistle on the hour. Both of those
   needed the rule explained before they meant anything.
 
+### Added
+
+- **A one-minute match, in debug builds only.** Long enough to reach the Junction
+  and the results screen, short enough to do it again straight away.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button

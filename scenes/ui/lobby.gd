@@ -5,6 +5,10 @@ extends Control
 ## that player again. Steering left or right on a device cycles that player's colour.
 
 const MINUTES: Array[int] = [3, 5, 8]
+## A minute, for a match somebody is testing rather than playing: long enough to reach the
+## Junction and the results screen, short enough to do it again straight away. Only in a debug
+## build, because it is not a length anybody wants a real game to be.
+const DEBUG_MINUTES := 1
 const TARGETS: Array[int] = [0, 2000, 3000, 5000]
 const BOTS: Array[int] = [0, 1, 2, 3]
 const DIFFICULTIES: Array[String] = ["easy", "normal", "hard"]
@@ -42,8 +46,9 @@ func _ready() -> void:
 	_players_label.add_theme_font_size_override("normal_font_size", 22)
 	column.add_child(_players_label)
 	var settings := Game.settings
+	var lengths := _match_lengths()
 	minutes_option = MenuTheme.option(
-		_labels(MINUTES, "%d min"), MINUTES.find(settings.match_minutes)
+		_labels(lengths, "%d min"), maxi(lengths.find(settings.match_minutes), 0)
 	)
 	target_option = MenuTheme.option(_target_labels(), TARGETS.find(settings.target_score))
 	bots_option = MenuTheme.option(BOTS, BOTS.find(settings.bot_count))
@@ -132,7 +137,7 @@ func config() -> MatchConfig:
 	var result := MatchConfig.new()
 	result.human_devices = devices.duplicate()
 	result.human_colors = colors.duplicate()
-	result.duration = MINUTES[minutes_option.selected] * 60.0
+	result.duration = _match_lengths()[minutes_option.selected] * 60.0
 	result.target_score = TARGETS[target_option.selected]
 	result.bot_count = mini(BOTS[bots_option.selected], MAX_HUMANS - devices.size())
 	result.difficulty = DIFFICULTIES[difficulty_option.selected]
@@ -144,7 +149,7 @@ func config() -> MatchConfig:
 
 func _start() -> void:
 	var settings := Game.settings
-	settings.match_minutes = MINUTES[minutes_option.selected]
+	settings.match_minutes = _match_lengths()[minutes_option.selected]
 	settings.target_score = TARGETS[target_option.selected]
 	settings.bot_count = BOTS[bots_option.selected]
 	settings.difficulty = DIFFICULTIES[difficulty_option.selected]
@@ -195,6 +200,16 @@ func _just_pressed(action: StringName, device: int) -> bool:
 	var was: bool = _steer_was_down.get(key, false)
 	_steer_was_down[key] = down
 	return down and not was
+
+
+## The match lengths on offer, shortest first. A debug build gets the one-minute match in front
+## of the real ones, where somebody testing will find it without hunting.
+func _match_lengths() -> Array[int]:
+	if not OS.is_debug_build():
+		return MINUTES
+	var with_short: Array[int] = [DEBUG_MINUTES]
+	with_short.append_array(MINUTES)
+	return with_short
 
 
 func _labels(values: Array[int], format: String) -> Array:
