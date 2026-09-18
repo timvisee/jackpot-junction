@@ -812,6 +812,7 @@ a real downside. Starting set; balance is untested.
 | Toll Booth       | Uncommon | Rule   | Whenever another kart completes a cash-out, you bank 5% of it             |
 | Tailslide        | Uncommon | Rule   | +1 coin for every 8 m you drift                                           |
 | Jerry Can        | Uncommon | Stat   | Nitro refills 4x as fast                                                  |
+| Direct Debit     | Uncommon | Rule   | 5 points of your pot bank themselves every second, wherever you are. Your mult is left alone |
 | Payday           | Uncommon | Rule   | +1 coin every second, wherever you are and whatever you are doing        |
 | High Roller      | Uncommon | Cursed | All mult gains are doubled, but death banks 0%                            |
 | Curve Ball       | Uncommon | Rule   | Your bullets curve hard toward enemies: a 55° cone out to 22 m at 150°/s, and they keep curving after a bounce |

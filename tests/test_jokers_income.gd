@@ -91,6 +91,23 @@ func test_tailslide_pays_only_for_metres_driven_sideways() -> void:
 	assert_int(kart.pot.coins).is_equal(4)
 
 
+func test_direct_debit_trickles_the_pot_into_the_bank_and_keeps_the_mult() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := _armed(match_node, "direct_debit")
+	var slot := match_node.slots[0]
+	var start := slot.banked
+	kart.pot.add_coins(10)
+	kart.pot.add_mult(2.0)
+	assert_bool(JokerTick.step(match_node.slots, 2.0)).is_true()
+	assert_int(slot.banked).is_equal(start + 10)
+	assert_float(kart.pot.exact_value()).is_equal_approx(20.0, 0.001)
+	JokerTick.step(match_node.slots, 10.0)
+	assert_int(slot.banked).is_equal(start + 30)
+	assert_bool(kart.pot.is_empty()).is_true()
+	assert_float(kart.pot.mult).is_equal(3.0)
+
+
 ## The wiring rather than the sum: a match steps its jokers on its own, without being asked.
 func test_a_running_match_pays_the_jokers_that_pay() -> void:
 	var match_node := _start_match()

@@ -52,6 +52,9 @@ below, and hands the notes to the release workflow.
 
 - **A new joker, Jerry Can.** Nitro refills four times as fast. Uncommon.
 
+- **A new joker, Direct Debit.** Five points of your pot bank themselves every
+  second, wherever you are, and your mult is left alone. Uncommon.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button

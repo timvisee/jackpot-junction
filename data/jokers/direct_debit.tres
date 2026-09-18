@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/direct_debit.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"direct_debit"
+display_name = "Direct Debit"
+description = "5 points of your pot bank themselves every second, wherever you are. Your mult is left alone."
+rarity = 1
+kind = 1
