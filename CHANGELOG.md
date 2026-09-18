@@ -31,6 +31,9 @@ below, and hands the notes to the release workflow.
   kart's collisions away, and on a client the kart is dead, stood down and
   brought back between losing them and being driven again, so it came back able
   to drive through walls for the rest of the match.
+- **Online: a correction says so on screen.** A client that is put back where the
+  host has it now shows how far it moved and how many times it has happened, so a
+  bad connection reads as a bad connection rather than as a bad kart.
 - **Online: a rematch starts fresh on every screen.** A client keeps its own
   excitement meter and announcer, and nothing told either of them the last match
   was over, so the new one opened at the old one's heat with the lights still

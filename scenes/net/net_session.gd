@@ -65,9 +65,12 @@ const RELAYED_EVENTS: Array[StringName] = [
 ## [code]announced[/code] is made on each machine by its own announcer, out of the events above,
 ## so relaying it would say everything twice. [code]wild_joker_dropped[/code] has nothing
 ## listening to it on any machine; the card it names arrives as a pickup like any other.
+## [code]kart_corrected[/code] is about this machine's own guess being put right, which is news
+## to nobody else: their picture of that kart never changed.
 const LOCAL_EVENTS: Array[StringName] = [
 	&"announced",
 	&"wild_joker_dropped",
+	&"kart_corrected",
 ]
 
 var match_node: Match

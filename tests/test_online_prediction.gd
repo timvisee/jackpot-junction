@@ -613,3 +613,29 @@ func test_a_turbo_pad_shoves_the_kart_this_machine_drives() -> void:
 	)
 	pad._on_body_entered(mine)
 	assert_int(pad._pending.size()).is_equal(1)
+
+
+## GAME.md 8.3: when the host puts a client's kart back, the client says so. A player who can see
+## that is a player who can tell a bad connection from a bad kart, and it is the only way to know
+## from inside a real match how often this is happening.
+func test_a_correction_lights_the_sync_indicator() -> void:
+	await _connect()
+	_input.throttle = 1.0
+	await _drive(30)
+	var seen: Array[float] = []
+	var snapped: Array[bool] = []
+	var listener := func(metres: float, was_snap: bool) -> void:
+		seen.append(metres)
+		snapped.append(was_snap)
+	Events.kart_corrected.connect(listener)
+	# Knocked well out of place, which is the loud kind.
+	_prediction.kart.global_position += Vector3(4.0, 0.0, 0.0)
+	await _drive(20)
+	_running = false
+	Events.kart_corrected.disconnect(listener)
+	(
+		assert_int(seen.size())
+		. override_failure_message("a correction happened and nothing said so")
+		. is_greater(0)
+	)
+	assert_float(seen[0]).is_greater(KartPrediction.IGNORE)

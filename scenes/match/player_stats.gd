@@ -84,16 +84,24 @@ func value(field: StringName) -> float:
 	return values[field]
 
 
-func to_array() -> Array:
-	var result: Array = []
-	for field: StringName in FIELDS:
-		result.append(values[field])
+## Packed rather than a plain array, for the wire. A generic array writes a type tag beside every
+## number and these go out thirty times a second for every player: as floats in a packed array
+## the same figures cost a third of what they did. Single precision is ample for a tally nobody
+## reads to more than a decimal place.
+func to_array() -> PackedFloat32Array:
+	var result := PackedFloat32Array()
+	result.resize(FIELDS.size())
+	for i: int in FIELDS.size():
+		result[i] = values[FIELDS[i]]
 	return result
 
 
-func from_array(data: Array) -> void:
-	for i: int in mini(data.size(), FIELDS.size()):
-		values[FIELDS[i]] = float(data[i])
+func from_array(data: Variant) -> void:
+	var packed: PackedFloat32Array = (
+		data if data is PackedFloat32Array else PackedFloat32Array(data)
+	)
+	for i: int in mini(packed.size(), FIELDS.size()):
+		values[FIELDS[i]] = packed[i]
 
 
 ## Up to [param count] awards for [param mine] among [param everyone], as [title, text] pairs.

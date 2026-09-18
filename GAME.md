@@ -1592,12 +1592,28 @@ other before it will pass.
   is built in code.
 - Clients send their input state to the server every physics tick with an
   unreliable ordered RPC. The server simulates all karts.
-- The connection uses ENet's range coder both ends. A snapshot is mostly the same
-  dictionary keys over and over, so a busy one runs to about 14 KB written out and
-  a tenth of that packed. It is still bigger than one datagram: a snapshot that
-  large is split against the MTU before the datagrams are compressed, and an
-  unreliable packet in pieces is lost whenever any piece is. Fitting one in a
-  single datagram is a job for a smaller snapshot, not a smaller wire, and is open.
+- The connection uses ENet's range coder both ends. A snapshot is still bigger than
+  one datagram: it is split against the MTU of 1392 bytes *before* the datagrams
+  are compressed, and an unreliable packet in pieces is lost whenever any piece
+  is. Fitting one in a single datagram is a job for a smaller snapshot, not a
+  smaller wire, and is open. Measured on a four-bot match, a busy snapshot is
+  about 6.4 KB, or five fragments:
+
+  | Section  | Bytes | Of what                                  |
+  |----------|-------|------------------------------------------|
+  | slots    | 2252  | 4 players, mostly their statistics       |
+  | karts    | 1680  | 4 karts                                  |
+  | pickups  | 1576  | 10 on the floor, and a real match has more |
+  | flush    | 400   | 4 pads                                   |
+  | the rest | 480   | jackpots, crates, clock, bounty          |
+
+  Most of it is shape rather than substance: every entry is a dictionary, so its
+  keys are written out again for every kart, every pickup and every player, thirty
+  times a second. The three things worth doing, in order of what they are worth:
+  send pickups as changes rather than as the whole floor, since most of them do
+  not move from one snapshot to the next; write entries as plain values instead of
+  dictionaries; and split fast-changing sections from slow ones so the slow half
+  goes less often. The first alone would roughly halve a busy snapshot.
 - Hits, pickups, banking and scoring are server-authoritative. The server seeds
   all randomness and relays gameplay events so clients' HUD and audio react. That
   includes the ones a client could never raise for itself because its karts are

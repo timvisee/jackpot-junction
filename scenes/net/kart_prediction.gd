@@ -261,6 +261,7 @@ func reconcile(ack: int, state: Array, delta: float) -> void:
 	last_jump = kart.global_position.distance_to(drawn)
 	last_turn = absf(wrapf(kart.rotation.y - drawn_facing, -PI, PI))
 	worst_jump = maxf(worst_jump, last_jump)
+	Events.kart_corrected.emit(last_correction, last_correction > SNAP)
 
 
 ## One line for the debug overlay: how far ahead of the host this machine is running, and what
