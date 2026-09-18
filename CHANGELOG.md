@@ -40,6 +40,9 @@ below, and hands the notes to the release workflow.
 - **A one-minute match, in debug builds only.** Long enough to reach the Junction
   and the results screen, short enough to do it again straight away.
 
+- **A new joker, Payday.** A coin every second, wherever you are and whatever you
+  are doing. Uncommon.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button

@@ -809,6 +809,7 @@ a real downside. Starting set; balance is untested.
 | Comeback         | Uncommon | Rule   | Respawn with mult equal to half your mult at death, rounded up            |
 | Loaded Dice      | Uncommon | Rule   | Every chip has a 10% chance to count as a gold chip                       |
 | Toll Booth       | Uncommon | Rule   | Whenever another kart completes a cash-out, you bank 5% of it             |
+| Payday           | Uncommon | Rule   | +1 coin every second, wherever you are and whatever you are doing        |
 | High Roller      | Uncommon | Cursed | All mult gains are doubled, but death banks 0%                            |
 | Curve Ball       | Uncommon | Rule   | Your bullets curve hard toward enemies: a 55° cone out to 22 m at 150°/s, and they keep curving after a bounce |
 | Aimbot           | Rare     | Rule   | Every shot leaves the barrel turned up to 14° toward the nearest enemy within 20 m and in front of you |

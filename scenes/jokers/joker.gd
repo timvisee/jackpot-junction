@@ -80,6 +80,12 @@ func on_turbo_pad(_kart: Kart) -> void:
 	pass
 
 
+## A tick of the holder's own time, for the jokers that pay rather than react. Returns points to
+## bank straight into the holder's score; coins and mult a joker hands out itself.
+func on_step(_kart: Kart, _delta: float) -> int:
+	return 0
+
+
 ## The seconds in which the Junction drain rate doubles.
 func modify_bank_doubling(_kart: Kart, doubling: float) -> float:
 	return doubling

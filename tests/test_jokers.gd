@@ -1,5 +1,5 @@
 extends GdUnitTestSuite
-## The joker system from GAME.md 3.7 and the twenty jokers from 7.3, in a running match.
+## The joker system from GAME.md 3.7 and the jokers from 7.3, in a running match.
 
 const CATALOG: JokerCatalog = preload("res://data/jokers/catalog.tres")
 
@@ -44,7 +44,7 @@ func _chip(dropped := false, gold := false) -> Chip:
 
 func test_catalog_has_unique_jokers_and_offers_exclude_held_ones() -> void:
 	var catalog: JokerCatalog = CATALOG
-	assert_int(catalog.jokers.size()).is_equal(23)
+	assert_int(catalog.jokers.size()).is_equal(24)
 	var ids: Array[StringName] = []
 	for joker: Joker in catalog.jokers:
 		(

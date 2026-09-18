@@ -525,6 +525,8 @@ func _physics_process(delta: float) -> void:
 			bot_mirror.update(self)
 			_step_bounty(delta)
 			_step_flush_income(delta)
+			if JokerTick.step(slots, delta):
+				_check_target()
 			_step_heat(delta)
 			arena.junction.hint = junction_hint()
 			arena.junction.winning = junction_wins_it()
