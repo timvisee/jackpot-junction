@@ -11,15 +11,17 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-18
+
+Multiplayer. Online play worked before this and did not feel like it: every button
+a player pressed went to the host and came back, so at any real ping the kart
+answered late and driving felt like steering through treacle. A client now drives
+its own kart and answers its own controls on the frame they are pressed, and the
+host puts it right where the two ever disagree. Almost everything below follows
+from that, one way or another.
+
 ### Fixed
 
-- **Online: your own kart is yours until you touch somebody.** The host now takes
-  a client's word for where its own kart ended each tick, rather than working it
-  out again and correcting any difference, and only takes the wheel back for the
-  things one end cannot settle alone: running into another kart, being hit, going
-  down a hole, dying, coming back. On a wire dropping a packet in five that cut
-  corrections from eleven snapshots in sixty to three. A claim further out than a
-  few ticks of driving is refused, so this cannot be used to appear somewhere else.
 - **Online: a client's kart comes back from a hole, and a dead kart is out of the
   way.** Falling down a hole on a client left the kart there for good: a respawn
   is the host's to place and a kart being driven here was ignoring the host's
@@ -91,18 +93,18 @@ below, and hands the notes to the release workflow.
   one that describes a joker, and has the screen to itself: the HUD stands down
   and takes any open joker pick, the standings and the control hints with it.
 
-- **Online play: your own kart is yours.** A client used to send its controls to
-  the host and wait for the kart to come back, so at any real ping the kart
-  answered the stick late and driving felt like steering through treacle. A
-  client now drives its own kart itself, on the frame the stick moves, and the
-  host corrects it where the two ever disagree. Over 100 ms of round trip the
-  kart answers at once instead of five ticks later, and through four seconds of
-  driving, drifting and handbrake turns the host had nothing to correct. Knocked
-  out of place it is put back; on a wire losing a packet in five the corrections
-  are absorbed whole: the kart a player is looking at does not move for them at
-  all. Everything that decides the game is still the host's: what you collected,
+- **Online play: your own kart is yours.** A client drives its own kart on the
+  frame the stick moves, and the host takes its word for where that kart ended
+  each tick rather than working it out again. The host takes the wheel back only
+  for what one end cannot settle alone: running into another kart, being hit,
+  oil, going down a hole, dying, coming back. Over 100 ms of round trip the kart
+  answers at once instead of five ticks later, and through four seconds of
+  driving, drifting and handbrake turns the host had nothing to correct at all.
+  On a wire losing a packet in five the corrections are absorbed whole: the kart
+  a player is looking at does not move for them. A claim further out than a few
+  ticks of driving is refused, so this cannot be used to appear somewhere else,
+  and everything that decides the game is still the host's: what you collected,
   who you hit, what it was worth.
-
 ## [0.1.0] - 2026-09-18
 
 ### Added
@@ -151,5 +153,6 @@ below, and hands the notes to the release workflow.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.2.0
 [0.1.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.1.0

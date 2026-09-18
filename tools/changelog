@@ -81,7 +81,10 @@ order = [tuple(int(part) for part in name.split(".")) for name, _, _, _ in relea
 if order != sorted(order, reverse=True):
     fail("released versions have to run newest first, found %s" % ", ".join(names[1:]))
 for name, _, start, end in released:
-    if not body(lines, start, end).lstrip().startswith(("-", "#")):
+    # Something to read, somewhere in it. A version may open with a line about what the release
+    # is for before it gets to the list, which is worth having on the ones that have a theme.
+    written = body(lines, start, end)
+    if not any(line.lstrip().startswith(("-", "#")) for line in written.split("\n")):
         fail("[%s] has no entries under it" % name)
 
 if command == "check":
