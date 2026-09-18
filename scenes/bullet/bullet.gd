@@ -176,7 +176,13 @@ static func steer_toward(
 
 func _nearest_target() -> Node3D:
 	return nearest_target(
-		get_tree(), global_position, owner_slot, assist_range, velocity, assist_cone
+		get_tree(),
+		global_position,
+		owner_slot,
+		assist_range,
+		velocity,
+		assist_cone,
+		get_world_3d().direct_space_state
 	)
 
 
@@ -191,16 +197,21 @@ func _nearest_target() -> Node3D:
 ##
 ## With a [param facing] and a [param cone], only what is in front is considered. Without them
 ## the nearest thing wins wherever it is, which is what a bullet with no direction yet wants.
+##
+## Given a [param space], anything a shot could not reach is passed over: the bend cannot go
+## round a wall, GAME.md 5.2, so bending toward somebody standing behind one only throws the
+## shot away. The candidates are ranked first and looked through in order, so the usual case
+## costs one cast rather than one per box on the floor.
 static func nearest_target(
 	tree: SceneTree,
 	from: Vector3,
 	ignore_slot: int,
 	max_range: float = INF,
 	facing: Vector3 = Vector3.ZERO,
-	cone: float = 0.0
+	cone: float = 0.0,
+	space: PhysicsDirectSpaceState3D = null
 ) -> Node3D:
-	var best: Node3D = null
-	var best_score := INF
+	var scored: Array = []
 	var flat := Vector3(facing.x, 0.0, facing.z)
 	for node: Node in tree.get_nodes_in_group(TARGET_GROUP):
 		var target := node as Node3D
@@ -217,11 +228,29 @@ static func nearest_target(
 		if cone > 0.0 and not flat.is_zero_approx() and distance > 0.001:
 			if absf(flat.signed_angle_to(to_target, Vector3.UP)) > cone:
 				continue
-		var score := distance * (PLAYER_PULL if target is Kart else 1.0)
-		if score < best_score:
-			best_score = score
-			best = target
-	return best
+		scored.append([distance * (PLAYER_PULL if target is Kart else 1.0), target])
+	scored.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+	for entry: Array in scored:
+		if in_the_open(space, from, entry[1]):
+			return entry[1]
+	return null
+
+
+## Whether a shot from [param from] could reach [param target] at all, or whether a wall or a
+## box stands between the two. Walls and boxes are the only things that stop a bullet dead;
+## karts are not in the way of a shot at another kart, they are another shot at a kart.
+static func in_the_open(space: PhysicsDirectSpaceState3D, from: Vector3, target: Node3D) -> bool:
+	if space == null:
+		return true
+	var to := target.global_position
+	var ray := PhysicsRayQueryParameters3D.create(
+		Vector3(from.x, HEIGHT, from.z), Vector3(to.x, HEIGHT, to.z), Layers.WORLD
+	)
+	var body := target as CollisionObject3D
+	if body != null:
+		# The target itself is on the wall layer when it is a box, a bomb or a shooting target.
+		ray.exclude = [body.get_rid()]
+	return space.intersect_ray(ray).is_empty()
 
 
 func _move(delta: float) -> void:

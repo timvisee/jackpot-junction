@@ -656,7 +656,12 @@ Everything worth shooting counts as a target, not only karts: a box broken is co
 coins on the floor, a bomb set off from across the room does more than a bullet ever does, and
 a shooting target pays. But none of that wins a match, so a kart always comes first: it is
 weighed as though it were much nearer than it is, and a box has to be well inside one before
-the shot goes to the box instead. Two
+the shot goes to the box instead.
+
+The bend cannot go round anything, so nothing it could not reach is aimed at. A player standing
+behind a wall is passed over for whatever is on this side of it, and a shot fired past the edge
+of a wall is left alone rather than curved into the brickwork. Curve Ball made the want of this
+obvious, bending hard enough to bury a shot in a wall the player was deliberately shooting past. Two
 jokers change this: Curve Ball bends much harder and keeps bending after a bounce, and
 Aimbot turns the shot toward the nearest enemy as it leaves the barrel. Both work at their
 own strength whatever the accessibility setting says.
@@ -670,6 +675,7 @@ own strength whatever the accessibility setting says.
 | Targets      | Enemy karts, decoys, turrets, crates, bombs and shooting targets. Never the owner, never spawn-protected karts |
 | Priority     | A kart counts as 0.4 of its real distance away, so a player is chosen over a box twice as near |
 | Direction    | Only what is inside the cone is considered at all, so nothing behind the shot takes the aim off what is in front of it |
+| Line of sight | Anything with a wall or a box between it and the shot is passed over; the bend cannot go round either |
 
 Turret bullets and Swivel Cannon bullets have no aim assist.
 

@@ -42,6 +42,19 @@ func _best(match_node: Match) -> Node3D:
 	)
 
 
+## The same question asked of a shot that has to actually get there.
+func _best_seen(match_node: Match) -> Node3D:
+	return Bullet.nearest_target(
+		match_node.get_tree(),
+		Vector3.ZERO,
+		0,
+		REACH,
+		Vector3(1.0, 0.0, 0.0),
+		CONE,
+		match_node.arena.get_world_3d().direct_space_state
+	)
+
+
 func test_a_kart_is_worth_more_than_a_box_in_front_of_it() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)
@@ -91,3 +104,26 @@ func test_nothing_behind_the_shot_takes_the_aim() -> void:
 	var crate: Crate = match_node.arena.crates[0]
 	crate.global_position = Vector3(-3.0, 0.0, 0.0)
 	assert_object(_best(match_node)).is_null()
+
+
+## GAME.md 5.2: the bend cannot go round a wall, so a target standing behind one is passed over.
+## Curve Ball made this obvious: a shot fired at a wall swung hard toward somebody safely behind
+## it and buried itself in the brickwork.
+func test_a_target_behind_a_wall_is_passed_over() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	_clear_floor(match_node)
+	var enemy := match_node.kart_of(1)
+	match_node.kart_of(0).global_position = Vector3(0.0, 0.0, 12.0)
+	enemy.global_position = Vector3(5.0, 0.0, 0.0)
+	var crate: Crate = match_node.arena.crates[0]
+	crate.global_position = Vector3(2.5, 0.0, 0.0)
+	await _runner.simulate_frames(4, 17)
+	# On distance alone the kart wins, being worth far more than a box.
+	assert_object(_best(match_node)).is_same(enemy)
+	# A shot that has to get there picks the box, which is what it would hit anyway.
+	assert_object(_best_seen(match_node)).is_same(crate)
+	# Out from behind the box and it is the better thing to aim at again.
+	enemy.global_position = Vector3(4.0, 0.0, 3.0)
+	await _runner.simulate_frames(4, 17)
+	assert_object(_best_seen(match_node)).is_same(enemy)

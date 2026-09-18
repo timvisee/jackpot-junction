@@ -60,7 +60,8 @@ static func steered(kart: Kart, direction_now: Vector3) -> Vector3:
 		kart.slot,
 		active.auto_aim_range,
 		direction_now,
-		deg_to_rad(90.0)
+		deg_to_rad(90.0),
+		kart.get_world_3d().direct_space_state
 	)
 	if target == null:
 		return direction_now

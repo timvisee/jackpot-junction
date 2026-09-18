@@ -86,6 +86,13 @@ below, and hands the notes to the release workflow.
   screen, or TAKING THE LEAD when it puts you top of the board, and counts toward
   a Last Word award on the results.
 
+### Fixed
+
+- **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball
+  most of all, would swing a bullet toward somebody standing safely behind a wall
+  and bury it in the brickwork. Anything with a wall or a box in the way is now
+  passed over for whatever is on this side of it.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button
