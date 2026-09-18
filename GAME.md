@@ -67,6 +67,10 @@ ends are lost. The highest banked score wins.
 
 ## 3. Rules
 
+Everything in this section is a rule of the game rather than of one machine:
+all of it applies in single-player, in shared-screen and online alike, and
+10.3 says what that costs and how it is paid.
+
 ### 3.1 Pot and score
 
 Each player has:
@@ -278,7 +282,9 @@ restored), Spelunker (pit falls), Own Goal (self kills), Crash Test Dummy
 to the boost), Card Counter (flush pads taken) and Banana Skin (spins on oil).
 Stats with a value of zero never earn an award. The list follows the game: a
 mechanic worth playing around is worth counting, so anything added to the floor
-gets a line here.
+gets a line here, and a line here is counted the same on every machine in the
+match. A statistic that only adds up on the host is a wrong number on somebody
+else's results screen, see 10.3.
 
 - The title screen offers Play, Settings and Quit. There is no tutorial. At
   the start of a match the drive and fire controls are shown next to each
@@ -1534,6 +1540,36 @@ Key pieces:
 Designed in from the start so that M6 is an addition, not a rewrite: all rules
 run in one place, the Match, and karts are driven by a KartInput interface.
 
+**A mechanic is not finished until it works online.** This is the standard the
+rest of this section exists to meet, and it applies to everything in this
+document: every rule in 3, every number, every statistic and award in 3.8,
+every light, sound and label in 8. Whatever a player can see, hear or count on
+the host, a player on a client sees, hears and counts the same, at the same
+moment and with the same value on it.
+
+Anything new therefore gets one of three answers before it is done, and the
+answer is written down here next to the mechanic:
+
+1. **Its state goes in the snapshot**, if it is something that persists: a
+   score, a pot, a timer, whether a thing is standing or in pieces.
+2. **Its moment is relayed**, if it is something that happens: a kill, a
+   cash-out, a tone, a crash. A client raises none of these for itself, because
+   its karts are puppets and its match takes no physics step.
+3. **It is worked out from what is already there**, if the client has the
+   ingredients: the excitement meter, the Junction's blink, the running order.
+   This is the only answer that costs nothing, and the only one that is wrong
+   if the ingredients turn out to be missing.
+
+A fourth answer, *it is host-only*, is not available for anything a player can
+perceive. Half a mechanic on one machine is a bug, not a limitation.
+
+`tests/test_online_sync.gd` is where this is held to. It runs a match on both
+machines and compares every number either would show a player, it insists every
+signal is either relayed or named as one that stays put, and it fails if the
+match it ran was too quiet to prove anything. A new mechanic or statistic
+belongs in that comparison, and a new signal has to be put in one list or the
+other before it will pass.
+
 - ENetMultiplayerPeer, default port 7777. The host runs the server and plays.
 - The host sends a state snapshot at 30 Hz: karts, bullets, pickups, turrets,
   bombs, oil, crates, shooting targets, Royal Flush pads, Jackpot zones, the
@@ -1595,6 +1631,10 @@ run in one place, the Match, and karts are driven by a KartInput interface.
   language, so translations can be added later without touching code.
 - Every tunable number here matches the value in the game. Changing one means
   changing both.
+- Nothing ships single-player only. A new mechanic, number, statistic or award
+  works in an online match or it is not done, and the sweep in
+  `tests/test_online_sync.gd` grows with it. See 10.3 for the three ways state
+  reaches a client and how to choose between them.
 
 ### 10.5 Assets and licensing
 
