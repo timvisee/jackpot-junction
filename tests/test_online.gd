@@ -696,3 +696,62 @@ func test_a_rematch_keeps_the_players_who_are_here() -> void:
 		. override_failure_message("the host stopped hearing the client after a rematch")
 		. is_greater(heard)
 	)
+
+
+## The Swivel Cannon on a client, GAME.md 7.1 and 10.3. Free aim points the cannon with the stick
+## or the mouse, and a mouse reads nothing that means anything on another machine: the pointer is
+## on this screen. A host handed an empty aim asked where its own pointer was and fired the shot
+## at that, so a client's swivel shots went anywhere but where it was aiming.
+func test_a_client_aims_its_swivel_cannon_itself() -> void:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	host_match.offer_size = 0
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(PORT)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client_match
+	client_session.local_input = PlayerInput.new()
+	_client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
+	assert_bool(assigned).is_true()
+	await await_millis(300)
+	var slot := client_session.local_slot
+	var mine: Kart = client_match.slots[slot].kart
+	# The Swivel Cannon is on, which a client knows from the arrow the host sends it.
+	mine.aim_arrow_visible = true
+	mine.motor.heading = PI * 0.5
+	mine.rotation = Vector3(0.0, mine.motor.heading, 0.0)
+	assert_float(KartAim.pointed_flat(mine).length()).is_greater(0.5)
+	# What goes out is that direction, not the empty stick reading behind it. Read together with
+	# the kart's own answer, because the kart is still rolling and the two have to agree now
+	# rather than agree with where it was pointing a moment ago.
+	await await_millis(300)
+	var host_input := host_match.slots[slot].input as NetInput
+	host_input.poll(1.0 / 60.0)
+	var pointing := KartAim.pointed_flat(mine)
+	(
+		assert_float(host_input.aim.length())
+		. override_failure_message("the host was handed an empty aim and had to guess")
+		. is_greater(0.5)
+	)
+	(
+		assert_vector(Vector2(host_input.aim.x, host_input.aim.y))
+		. override_failure_message("the host is aiming somewhere the client is not")
+		. is_equal_approx(pointing, Vector2.ONE * 0.15)
+	)

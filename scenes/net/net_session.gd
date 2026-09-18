@@ -184,7 +184,13 @@ func _physics_process(delta: float) -> void:
 				# host follows it rather than second-guessing it, GAME.md 10.3, which is what
 				# keeps a kart from being corrected for driving perfectly well.
 				claim = KartPrediction.capture(_prediction.kart)
-		_send_input.rpc_id(1, NetInput.encode(local_input), _input_seq, claim)
+		var packet := NetInput.encode(local_input)
+		if _prediction != null and is_instance_valid(_prediction.kart):
+			# The aim goes out as a direction rather than as whatever the stick happened to read,
+			# because a mouse reads nothing at all: the pointer is on this screen and the host
+			# has one of its own, GAME.md 10.3.
+			packet[NetInput.FIELDS] = KartAim.pointed_flat(_prediction.kart)
+		_send_input.rpc_id(1, packet, _input_seq, claim)
 
 
 func _on_peer_connected(peer: int) -> void:

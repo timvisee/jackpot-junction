@@ -31,6 +31,9 @@ below, and hands the notes to the release workflow.
   kart's collisions away, and on a client the kart is dead, stood down and
   brought back between losing them and being driven again, so it came back able
   to drive through walls for the rest of the match.
+- **Online: the Swivel Cannon aims where a client is aiming.** Free aim never
+  crossed the wire when it came from a mouse, so the host asked where its own
+  pointer was and fired the client's shot at that.
 - **Online: a rematch keeps the players who are in it.** The host pressing
   Rematch started again from the lobby's list, so every connected player's kart
   was handed to a bot while they carried on steering it.
