@@ -110,9 +110,9 @@ func _on_tick() -> void:
 	if not _running or not is_instance_valid(_prediction.kart):
 		return
 	_tick += 1
-	var seq := _prediction.predict(_input, TICK)
-	if _drop_one_in <= 0 or seq % _drop_one_in != 0:
-		_up.append({"at": _tick + LAG, "seq": seq, "state": NetInput.encode(_input)})
+	_prediction.predict(_input, TICK, _tick)
+	if _drop_one_in <= 0 or _tick % _drop_one_in != 0:
+		_up.append({"at": _tick + LAG, "seq": _tick, "state": NetInput.encode(_input)})
 	var host_input := _host.slots[0].input as NetInput
 	for packet: Dictionary in _up.duplicate():
 		if packet["at"] <= _tick:

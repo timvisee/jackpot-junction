@@ -36,7 +36,9 @@ const EASE_MAX := 1.2
 const SNAP := 6.0
 
 var kart: Kart
-## The number of the last tick this client simulated and sent.
+## The number of the last tick this client simulated. The numbering belongs to the session, not
+## to this: every packet a client sends is numbered whether or not the kart is being driven, so a
+## player who is dead and picking a joker is still heard.
 var seq := 0
 ## How far the last correction moved the kart, for the debug overlay and the tests.
 var last_correction := 0.0
@@ -109,21 +111,20 @@ static func restore(on: Kart, state: Array) -> void:
 	on.velocity = on.motor.velocity
 
 
-## Runs this tick on the kart and remembers it. Returns the tick's number, which goes on the wire
-## with the controls so the host can say what it made of it.
+## Runs tick [param at] on the kart and remembers it, under the number the session is about to
+## send it with.
 ##
 ## A correction still being eased in sits between where the kart is simulated and where it is
 ## drawn, so it comes off before the tick and goes back on after it: the simulation always runs
 ## from its own answer, and only the picture lags behind by the part of the error left to walk off.
-func predict(with: KartInput, delta: float) -> int:
-	seq += 1
+func predict(with: KartInput, delta: float, at: int) -> void:
+	seq = at
 	kart.global_position -= _ease
 	step(kart, with, delta)
 	_history.append({"seq": seq, "input": NetInput.encode(with), "state": capture(kart)})
 	if _history.size() > HISTORY:
 		_history = _history.slice(_history.size() - HISTORY)
 	_wear_off()
-	return seq
 
 
 ## Takes this tick's share off whatever correction is still being walked in, and draws the kart

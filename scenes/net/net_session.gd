@@ -93,6 +93,11 @@ var _prediction: KartPrediction
 ## the engine interpolates the picture from one tick to the next, and a correction applied in
 ## the gap is drawn as a swerve through somewhere the kart never was. So it waits its turn.
 var _authority: Array = []
+## The number this client puts on the next set of controls it sends. Every tick gets one whether
+## or not the kart is being driven: a player who is dead and picking a joker, or waiting on the
+## grid for the flag, is still pressing buttons the host has to hear, and a host that only ever
+## accepts a higher number than the last would throw away everything they pressed.
+var _input_seq := 0
 
 
 func _ready() -> void:
@@ -161,7 +166,7 @@ func _physics_process(delta: float) -> void:
 		# Driven here first and sent second, GAME.md 10.3. The kart answers the stick on this
 		# frame; the packet carries the number of the tick it answered, so the host's reply can
 		# be held against what this machine thought at the time.
-		var seq := 0
+		_input_seq += 1
 		if _prediction != null and is_instance_valid(_prediction.kart):
 			var driving := _drivable()
 			if driving != _prediction.kart.predicted:
@@ -172,8 +177,8 @@ func _physics_process(delta: float) -> void:
 				else:
 					_prediction.suspend()
 			if driving:
-				seq = _prediction.predict(local_input, delta)
-		_send_input.rpc_id(1, NetInput.encode(local_input), seq)
+				_prediction.predict(local_input, delta, _input_seq)
+		_send_input.rpc_id(1, NetInput.encode(local_input), _input_seq)
 
 
 func _on_peer_connected(peer: int) -> void:

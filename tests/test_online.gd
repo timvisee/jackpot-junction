@@ -376,3 +376,61 @@ func test_a_match_stops_only_once_every_machine_has_asked_it_to() -> void:
 	assert_bool(host_session.paused).is_true()
 	host_session.want_pause(false)
 	assert_bool(host_session.paused).is_false()
+
+
+## A player who is dead is not driving, and for a while that meant not being heard either. The
+## controls went out unnumbered while the kart was dead and the host dropped every packet, so a
+## client could not pick a joker, walk the cursor along the cards, or press anything at all in
+## the one part of the match that is nothing but pressing things.
+func test_a_dead_client_is_still_heard() -> void:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(PORT)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client_match
+	client_session.local_input = PlayerInput.new()
+	_client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
+	assert_bool(assigned).override_failure_message("client never got a slot").is_true()
+	var host_input := host_match.slots[1].input as NetInput
+	await await_millis(300)
+	assert_int(host_input.last_seq).is_greater(0)
+	# Killed, which is the state a joker pick happens in.
+	host_match.kart_of(1).die(&"test", -1)
+	# Waited out rather than slept through: packets already on their way when the kart died are
+	# still accepted, and counting those would say the host was listening when it had stopped.
+	var knows := await _wait_until(
+		func() -> bool: return not client_match.slots[1].kart.alive, 4000
+	)
+	assert_bool(knows).override_failure_message("the client never saw its kart die").is_true()
+	await await_millis(200)
+	var heard_dead := host_input.last_seq
+	await await_millis(500)
+	assert_bool(host_match.kart_of(1).alive).is_false()
+	(
+		assert_int(host_input.last_seq - heard_dead)
+		. override_failure_message(
+			(
+				"the host heard %d packets in half a second from a client that had died"
+				% (host_input.last_seq - heard_dead)
+			)
+		)
+		. is_greater(10)
+	)
