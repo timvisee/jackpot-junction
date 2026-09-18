@@ -50,6 +50,11 @@ below, and hands the notes to the release workflow.
   take the aim off what is in front of it any more. Karts still come first: a box
   has to be well inside a player to be chosen over one.
 
+- **Hard bots come after a big pot.** They look further for whoever is carrying
+  one, pick the richest kart in range over the nearest, and a pot big enough will
+  take them off almost any errand. Easy and normal bots still fight whoever
+  happens to be closest.
+
 ### Added
 
 - **A one-minute match, in debug builds only.** Long enough to reach the Junction

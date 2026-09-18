@@ -36,6 +36,15 @@ const GOAL_NEEDS: Dictionary[StringName, String] = {
 	&"flush": "flush_pad",
 }
 const HUNT_RANGE := 18.0
+## How far a bot that reads the board will go after a pot, and the smallest pot worth crossing
+## the room for, GAME.md 9.1.
+const POT_HUNT_RANGE := 26.0
+const POT_WORTH_CHASING := 150.0
+## The pot worth a full point of pull toward its carrier, and the most pull any pot can be
+## worth. Added to the urge to hunt rather than multiplied into it, because distance is exactly
+## what a pot is meant to overcome: somebody about to win is worth crossing the room for.
+const POT_FULL_PULL := 500.0
+const POT_MAX_PULL := 3.0
 ## What a Royal Flush pad is worth to a bot: a pad on its own, then one that would complete
 ## the set. A pad pays its holder for as long as they keep it, GAME.md 3.9, and the fourth
 ## one is worth a detour across the arena.
@@ -226,12 +235,17 @@ static func choose_goal(context: Dictionary, personality: BotTrait) -> StringNam
 		return &"jackpot"
 	var hunt := 0.0
 	var enemy_distance := float(context.get("enemy_distance", INF))
-	if enemy_distance <= HUNT_RANGE and bool(context.get("enemy_visible", false)):
+	# What the enemy is carrying, to a bot that cares what anybody is carrying. A pot is coins
+	# somebody else has already collected and not yet made safe, GAME.md 3.6, and a bot that
+	# reads the board will cross the room for one and go further than it otherwise would.
+	var purse := float(context.get("enemy_pot", 0.0)) * float(context.get("pot_greed", 0.0))
+	var reach := POT_HUNT_RANGE if purse >= POT_WORTH_CHASING else HUNT_RANGE
+	if enemy_distance <= reach and bool(context.get("enemy_visible", false)):
 		# A bot that is behind goes looking for a fight; one that is ahead can sit on its lead.
 		hunt = (
 			personality.hunt_weight
 			* float(context.get("hunt_urgency", 1.0))
-			* (1.0 - enemy_distance / HUNT_RANGE)
+			* ((1.0 - enemy_distance / reach) + minf(purse / POT_FULL_PULL, POT_MAX_PULL))
 		)
 	var collect := 0.0
 	var pickup_distance := float(context.get("pickup_distance", INF))
@@ -357,6 +371,8 @@ func _context() -> Dictionary:
 		context["enemy"] = enemy
 		context["enemy_distance"] = kart.global_position.distance_to(enemy.global_position)
 		context["enemy_visible"] = _has_line_of_sight(enemy.global_position)
+		context["enemy_pot"] = enemy.pot.value()
+		context["pot_greed"] = difficulty.pot_hunting if difficulty != null else 0.0
 	var threat := _nearest_boosting_enemy()
 	if threat != null:
 		context["boost_enemy"] = threat
@@ -444,13 +460,35 @@ func _pickup_value(pickup: Pickup) -> float:
 
 
 ## Who to go after: whoever is carrying a bounty, when they are close enough to be worth the
-## detour, and otherwise simply the nearest enemy.
+## detour, then whoever is carrying a pot worth taking off them, and otherwise simply the
+## nearest enemy.
 func _hunt_target() -> Kart:
 	var bounty := match_node.bounty_kart()
 	if bounty != null and bounty.slot != kart.slot and bounty.is_targetable():
 		if kart.global_position.distance_to(bounty.global_position) <= HUNT_RANGE:
 			return bounty
-	return _nearest_enemy()
+	var rich := _richest_enemy()
+	return rich if rich != null else _nearest_enemy()
+
+
+## The enemy carrying the most, among those close enough and loaded enough to be worth going
+## after, GAME.md 9.1. Null for a bot that does not read the board, which is every bot below
+## hard, and for a room where nobody is carrying anything worth crossing it for.
+func _richest_enemy() -> Kart:
+	if difficulty == null or difficulty.pot_hunting <= 0.0:
+		return null
+	var best: Kart = null
+	var best_pot := POT_WORTH_CHASING
+	for node: Node in get_tree().get_nodes_in_group(&"karts"):
+		var other := node as Kart
+		if other == null or other.slot == kart.slot or not other.is_targetable():
+			continue
+		if kart.global_position.distance_to(other.global_position) > POT_HUNT_RANGE:
+			continue
+		if float(other.pot.value()) > best_pot:
+			best_pot = float(other.pot.value())
+			best = other
+	return best
 
 
 func _nearest_enemy() -> Kart:

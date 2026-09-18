@@ -574,3 +574,40 @@ func test_a_bot_leaves_room_for_its_own_body_around_a_hole() -> void:
 		)
 		. is_true()
 	)
+
+
+## GAME.md 9.1: a hard bot reads the board. A pot is coins somebody has already collected and
+## not yet made safe, so whoever is carrying one is worth crossing the room for, and worth
+## going after in preference to the fight that happens to be nearest.
+func test_a_hard_bot_goes_after_a_fat_pot() -> void:
+	var balanced := _trait("balanced")
+	var context: Dictionary = {
+		"pot_value": 0,
+		"enemy_distance": 22.0,
+		"enemy_visible": true,
+		"pickup_distance": 3.0,
+		"pickup_value": 4.0,
+	}
+	# Out of reach and carrying nothing anybody cares about: the errand wins.
+	assert_str(BotBrain.choose_goal(context, balanced)).is_equal("collect")
+	# The same kart, the same distance, with 900 points on board and a bot that reads pots.
+	context["enemy_pot"] = 900
+	context["pot_greed"] = 1.0
+	assert_str(BotBrain.choose_goal(context, balanced)).is_equal("hunt")
+	# A bot that does not read pots never notices.
+	context["pot_greed"] = 0.0
+	assert_str(BotBrain.choose_goal(context, balanced)).is_equal("collect")
+	# Nor does a pot too small to be worth the detour move anybody far.
+	context["pot_greed"] = 1.0
+	context["enemy_pot"] = 30
+	assert_str(BotBrain.choose_goal(context, balanced)).is_equal("collect")
+
+
+## Only the hard bots read the board, which is what makes them hard.
+func test_only_the_hard_preset_hunts_pots() -> void:
+	var easy: BotDifficulty = load("res://data/ai/easy.tres")
+	var normal: BotDifficulty = load("res://data/ai/normal.tres")
+	var hard: BotDifficulty = load("res://data/ai/hard.tres")
+	assert_float(easy.pot_hunting).is_equal(0.0)
+	assert_float(normal.pot_hunting).is_equal(0.0)
+	assert_float(hard.pot_hunting).is_greater(0.0)

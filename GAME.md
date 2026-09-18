@@ -1278,12 +1278,23 @@ NavigationAgent3D, plus reactive bullet dodging.
 | Goal            | When                                                                          |
 |-----------------|-------------------------------------------------------------------------------|
 | Collect         | Default. Nearest coin pad or dropped chips, weighted by value over distance    |
-| Hunt            | An enemy is within 18 m and can be brought in front of the cannon             |
+| Hunt            | An enemy is within 18 m and can be brought in front of the cannon, or within 26 m carrying a pot of 150 or more and this bot reads the board |
 | Bank            | Pot value above the trait's threshold, or under 20 s left with a non-empty pot. A wounded bot halves its threshold, since a full cash-out is also its second life back, see 3.4 |
 | Jackpot         | The active Jackpot has 20 or more chips and nobody is inside                  |
 | Flush pad       | A Royal Flush pad is worth the detour: a pad held by nobody or by somebody else counts as 4 chips, the one that would complete the set as 24, and a pad of the bot's own with under 10 s left on its claim as 2.5, each divided by the distance to it |
 | Grab item       | Holding nothing and a power-up pad is near                                    |
 | Flee            | A Boosting enemy is within 6 m                                                |
+
+**Hunting a pot**: a pot is coins somebody else has already collected and has not
+yet made safe, see 3.6, so on hard the bots go after whoever is carrying one.
+They look further for it, 26 m rather than 18, they pick the richest kart in
+range over the nearest one, and what that kart is carrying is added to the urge
+to hunt rather than multiplied into it, since distance is exactly what a pot is
+meant to overcome. A pot of 500 is worth a full point of pull and 1500 is worth
+the cap of three, which is enough to take a bot off almost any errand. Below
+hard nobody reads the board, and that is most of the difference between an
+opponent and a threat: an easy bot fights whoever is nearest, a hard one comes
+for the player who is one cash-out from winning.
 
 **Sticking to it**: a goal is picked ten times a second, and two errands a bot is
 equally near will otherwise swap places under it every tick and leave it driving
