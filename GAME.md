@@ -1536,7 +1536,7 @@ res://
 │   ├── ui/            player hud, tally, joker pick, joker menu, lobby, results
 │   ├── fx/            destruction bursts and other world effects
 │   ├── garage/        the practice room from 9.4
-│   └── match/         match state machine, snapshots, player stats
+│   └── match/         match state machine, the death sequence, snapshots, player stats
 ├── scripts/           shared code: autoloads, scoring math, input router
 ├── tests/             gdUnit4 tests
 ├── GAME.md

@@ -527,7 +527,7 @@ func _physics_process(delta: float) -> void:
 			_step_bounty(delta)
 			_step_flush_income(delta)
 			if JokerTick.step(slots, delta):
-				_check_target()
+				check_target()
 			_step_heat(delta)
 			arena.junction.hint = junction_hint()
 			arena.junction.winning = junction_wins_it()
@@ -561,7 +561,7 @@ func _step_bounty(delta: float) -> void:
 		bounty_left -= delta
 		var kart := kart_of(bounty_slot)
 		if bounty_left <= 0.0 or kart == null or not kart.alive:
-			_clear_bounty(true)
+			clear_bounty(true)
 		return
 	_bounty_wait -= delta
 	if _bounty_wait > 0.0:
@@ -584,7 +584,7 @@ func _step_bounty(delta: float) -> void:
 	Events.bounty_called.emit(bounty_slot)
 
 
-func _clear_bounty(lapsed: bool) -> void:
+func clear_bounty(lapsed: bool) -> void:
 	var was := bounty_slot
 	bounty_slot = -1
 	bounty_left = 0.0
@@ -706,80 +706,17 @@ func _step_respawns(delta: float) -> void:
 			_respawn(slot)
 
 
-func _check_target() -> void:
+func check_target() -> void:
 	for slot: PlayerSlot in slots:
 		if slot.banked >= rules.target_score:
 			_finish()
 			return
 
 
-## The death sequence from GAME.md 3.6, bent by jokers: bank a share, drop coins and maybe a
-## joker or the item, credit the killer, reset the pot, offer jokers, start the respawn timer.
+## The death sequence, GAME.md 3.6. All of it lives in [KartDeath]: it is the longest single
+## thing that happens in a match and none of it is about running one.
 func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> void:
-	var kart := slot.kart
-	slot.stats.add(&"deaths")
-	slot.stats.add(&"coins_lost", kart.pot.coins)
-	if cause == &"pit":
-		slot.stats.add(&"pit_deaths")
-	if killer_slot == slot.index:
-		slot.stats.add(&"self_kills")
-	var death := DeathOutcome.from_rules(rules)
-	for joker: Joker in kart.jokers.jokers:
-		joker.modify_death(kart, death)
-		joker.on_death(kart)
-	var killer: PlayerSlot = null
-	if killer_slot >= 0 and killer_slot != slot.index and killer_slot < slots.size():
-		killer = slots[killer_slot]
-		for joker: Joker in killer.kart.jokers.jokers:
-			joker.on_victim_death(killer.kart, kart, death)
-	var banked := Scoring.death_bank(kart.pot.coins, kart.pot.mult, death.bank_fraction)
-	if banked > 0:
-		slot.banked += banked
-		Events.death_banked.emit(slot.index, banked)
-	var position := kart.global_position
-	var stolen := 0
-	if killer != null and death.steal_fraction > 0.0 and killer.kart.alive:
-		stolen = floori(kart.pot.coins * death.steal_fraction)
-		killer.kart.collect_coins(stolen, null)
-	var drop := Scoring.death_drop(kart.pot.coins - stolen, death.drop_fraction, death.drop_max)
-	if drop > 0:
-		arena.spawn_chips(position, drop, rules.dropped_chip_lifetime, 0.0, true)
-	for i: int in death.joker_drop_count:
-		if kart.jokers.count() > 0 and rng.randf() < death.joker_drop_chance:
-			var dropped := kart.jokers.remove_at(rng.randi_range(0, kart.jokers.count() - 1))
-			arena.spawn_floor_joker(position, dropped, rules.floor_item_lifetime)
-	if kart.held_item != null:
-		if rng.randf() < death.item_drop_chance:
-			arena.spawn_floor_item(position, kart.held_item, rules.floor_item_lifetime)
-		kart.held_item = null
-	var collected := 0
-	if slot.index == bounty_slot:
-		if killer != null:
-			collected = rules.bounty_reward
-			killer.banked += collected
-			killer.stats.add(&"bounties")
-			Events.bounty_claimed.emit(killer.index, slot.index, collected)
-		_clear_bounty(killer == null)
-	if killer != null:
-		killer.kills += 1
-		if cause == &"bomb":
-			killer.stats.add(&"bomb_kills")
-		if killer.kart.alive:
-			killer.kart.gain_mult(rules.kill_mult, &"kill")
-			killer.kart.refill_nitro(killer.kart.stats.nitro_kill_refill)
-			# A kill patches the killer up, so a wounded kart can fight its way back rather than
-			# having to break off for the Junction.
-			killer.kart.restore_life()
-	kart.pot.reset()
-	slot.deaths += 1
-	slot.respawn_left = rules.respawn_delay
-	# Nobody comes back out of sudden death, so there is nothing to pick a joker for.
-	slot.offer = null if state == State.OVERTIME else _make_offer(slot)
-	Events.kart_killed.emit(slot.index, killer_slot, cause)
-	if camera_rig != null:
-		# A kill in a hot match hits harder than the first one of the round.
-		camera_rig.shake(0.2 + 0.5 * intensity.share())
-	_check_target()
+	KartDeath.resolve(self, cause, killer_slot, slot)
 
 
 ## GAME.md 3.9: every pad a kart is holding trickles coins into its pot, so the pads are worth
@@ -928,20 +865,6 @@ func _on_stat_oil(slot: int) -> void:
 	MatchStats.count(self, slot, &"oil_spins")
 
 
-## Offers jokers for the respawn. Bots choose at once; humans steer the offer while dead.
-func _make_offer(slot: PlayerSlot) -> JokerOffer:
-	var kart := slot.kart
-	var choices := joker_catalog.offer(rng, kart.offer_count(offer_size), kart.jokers.ids())
-	var offer := JokerOffer.new(kart, choices)
-	if not offer.is_done():
-		Events.joker_offered.emit(slot.index)
-	if not slot.is_human() and not offer.is_done():
-		offer.take(rng.randi_range(0, choices.size() - 1))
-		if offer.stage == JokerOffer.Stage.REPLACING:
-			offer.replace(rng.randi_range(0, kart.jokers.count() - 1))
-	return offer
-
-
 func _on_joker_dropped(joker: Joker, slot: PlayerSlot) -> void:
 	arena.spawn_floor_joker(slot.kart.global_position, joker, rules.floor_item_lifetime)
 
@@ -963,7 +886,7 @@ func _on_bank_started(kart: Kart) -> void:
 func _on_bank_tick(kart: Kart, points: int) -> void:
 	slots[kart.slot].banked += points
 	Events.bank_tick.emit(kart.slot, points)
-	_check_target()
+	check_target()
 
 
 func _on_bank_completed(kart: Kart, coins: int, mult: float, total: int) -> void:
@@ -980,7 +903,7 @@ func _on_bank_completed(kart: Kart, coins: int, mult: float, total: int) -> void
 		if bonus > 0:
 			other.banked += bonus
 			Events.bank_tick.emit(other.index, bonus)
-	_check_target()
+	check_target()
 
 
 ## The spawn point whose nearest enemy is farthest away. Ties go to the earliest point.
