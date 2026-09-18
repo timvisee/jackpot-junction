@@ -106,7 +106,7 @@ func test_earning_a_drift_boost_pings_for_you_and_not_for_the_bots() -> void:
 		kart._was_drifting = true
 		kart._was_charged = true
 		kart.motor.drifting = false
-		kart._step_drift_sparks()
+		kart.step_drift_sparks()
 	assert_int(pings[0]).is_equal(1)
 
 

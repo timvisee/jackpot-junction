@@ -31,6 +31,9 @@ below, and hands the notes to the release workflow.
   kart's collisions away, and on a client the kart is dead, stood down and
   brought back between losing them and being driven again, so it came back able
   to drive through walls for the rest of the match.
+- **Online: turbo pads shove a client's kart again.** They had stopped working on
+  clients altogether: the pad could not see a kart being driven there, and the
+  host's shove lost to that machine's own answer about where its kart was.
 - **Online: dropped chips fly out on every screen.** Coins and items thrown clear
   of a bursting kart or a breaking box only arced on the host; everybody else saw
   them appear on the floor already landed.

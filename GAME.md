@@ -1723,6 +1723,11 @@ put right afterwards, which is more than where the kart is:
   or bounces off one, so a client that waited for it spent the wait driving at a
   speed it had not asked for. The tank rides the message addressed to this client
   rather than the snapshot, which would fill it back up a round trip late.
+- **A turbo pad's shove**, since a pad is painted on the floor and is in the same
+  place on both machines, which makes it as safe to predict against as a wall.
+  Losing the tires on an oil stain is the other way round and the host keeps the
+  wheel for it: no client can see it coming, the stain is the host's and so is the
+  direction it throws the kart.
 - **Bumping into things**: the walls, the crates and the other karts. Puppets sit
   on a physics layer of their own so a predicted kart has them to push off, and so
   that a host and a puppet match sharing a scene tree, which is tests today and a

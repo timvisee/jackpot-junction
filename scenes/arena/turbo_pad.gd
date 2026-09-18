@@ -19,7 +19,10 @@ var _pending: Array[Node3D] = []
 
 func _ready() -> void:
 	collision_layer = Layers.TRIGGER
-	collision_mask = Layers.KART | Layers.PROTECTED
+	# Puppets too, so a client gets its own shove on the tick it drives onto the arrow rather
+	# than a round trip later, GAME.md 10.3. A pad is painted on the floor and is in the same
+	# place on both machines, which makes it as safe to predict against as a wall.
+	collision_mask = Layers.KART | Layers.PROTECTED | Layers.PUPPET
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 
@@ -38,6 +41,11 @@ func _physics_process(_delta: float) -> void:
 
 
 func _on_body_entered(body: Node3D) -> void:
+	var kart := body as Kart
+	# Somebody else's kart, drawn on this screen where the host last said it was. Shoving it
+	# would be shoving it on the strength of a position a round trip old.
+	if kart != null and kart.puppet and not kart.predicted:
+		return
 	if body.has_method("apply_turbo") and body not in _pending:
 		_pending.append(body)
 

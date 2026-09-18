@@ -35,7 +35,7 @@ func test_nitro_burns_for_speed_then_empties_and_refills_after_a_pause() -> void
 	assert_bool(kart._flame.active).is_true()
 	# The flame drags a heavy plume behind it, well past the exhaust's own faint trail.
 	assert_bool(kart._flame._smoke.emitting).is_true()
-	assert_int(kart._flame._smoke.amount).is_greater(kart._smoke.amount)
+	assert_int(kart._flame._smoke.amount).is_greater(kart.smoke.amount)
 	assert_float(kart.motor.max_speed()).is_equal_approx(
 		kart.stats.top_speed * kart.stats.nitro_speed_multiplier, 0.01
 	)

@@ -39,8 +39,8 @@ func test_the_marks_are_laid_at_the_middle_of_the_rear_tyres() -> void:
 		count += 1
 	assert_int(count).is_equal(2)
 	wanted /= float(count)
-	assert_float(kart._rear_half_track).is_equal_approx(wanted.x, 0.001)
-	assert_float(kart._rear_axle).is_equal_approx(wanted.y, 0.001)
+	assert_float(kart.rear_half_track).is_equal_approx(wanted.x, 0.001)
+	assert_float(kart.rear_axle).is_equal_approx(wanted.y, 0.001)
 	# And that is wider than the wheels' own origins, which sit at their inner faces.
 	var origin := absf(kart.to_local(kart._wheels[0].global_position).x)
-	assert_float(kart._rear_half_track).is_greater(origin)
+	assert_float(kart.rear_half_track).is_greater(origin)

@@ -564,3 +564,52 @@ func test_a_claim_from_nowhere_is_refused() -> void:
 		. override_failure_message("the host kept taking that client's word for things")
 		. is_greater(0.0)
 	)
+
+
+## A turbo pad shoves the kart on the tick it drives onto the arrow, GAME.md 10.3. A pad is
+## painted on the floor and is in the same place on both machines, which makes it as safe to
+## predict against as a wall. Left to the host, the shove arrived a round trip late and then lost
+## to this machine's own answer about where the kart was, which is to say it never arrived.
+func test_a_turbo_pad_shoves_the_kart_this_machine_drives() -> void:
+	await _connect()
+	var pad: TurboPad = _client.arena.turbo_pads[0]
+	# It can see a kart being driven here at all, which is where this went wrong: a predicted
+	# kart sits on the puppets' layer and the pad was only looking for the host's.
+	assert_int(pad.collision_mask & Layers.PUPPET).is_not_equal(0)
+	var mine := _prediction.kart
+	assert_bool(mine.predicted).is_true()
+	# Lined up along the arrow and shoved. The shove is movement, so it happens here.
+	mine.motor.heading = atan2(-pad.direction.x, -pad.direction.z)
+	var heard: Array[int] = []
+	var listener := func(slot: int) -> void: heard.append(slot)
+	Events.turbo_taken.connect(listener)
+	mine.apply_turbo(pad.direction)
+	Events.turbo_taken.disconnect(listener)
+	_running = false
+	(
+		assert_bool(mine.motor.turboing())
+		. override_failure_message("the pad's shove did not reach the kart on this machine")
+		. is_true()
+	)
+	assert_vector(mine.motor.turbo_direction).is_equal_approx(pad.direction, Vector3.ONE * 0.01)
+	# And nothing is announced for it. The host drives over the same pad a moment later and its
+	# word is what the room hears, so a machine announcing its own guess would say it twice.
+	(
+		assert_array(heard)
+		. override_failure_message("a client announced its own predicted turbo")
+		. is_empty()
+	)
+	# Somebody else's kart is drawn here where the host last said it was, a round trip ago, and
+	# is not this machine's to shove about on the strength of that.
+	var theirs := _client.slots[1].kart
+	assert_bool(theirs.predicted).is_false()
+	theirs.global_position = pad.global_position
+	pad._pending.clear()
+	pad._on_body_entered(theirs)
+	(
+		assert_int(pad._pending.size())
+		. override_failure_message("this machine lined up a kart it only has a picture of")
+		. is_equal(0)
+	)
+	pad._on_body_entered(mine)
+	assert_int(pad._pending.size()).is_equal(1)

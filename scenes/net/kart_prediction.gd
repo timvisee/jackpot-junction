@@ -107,7 +107,7 @@ static func step(on: Kart, with: KartInput, delta: float, live: bool = true) -> 
 	on.rotation = Vector3(0.0, on.motor.heading, 0.0)
 	if live:
 		on._spin_wheels(delta)
-		on._update_trails(delta, heading_before)
+		KartVisuals.update_trails(on, delta, heading_before)
 	on.input = held
 
 
