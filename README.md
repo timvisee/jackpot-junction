@@ -6,7 +6,8 @@ multipliers, and decide when to cash out at the Junction before someone shoots
 you.
 
 Made with Godot 4.7 and GDScript. `GAME.md` holds the design, `PLAN.md` the
-implementation plan with the status of every milestone.
+implementation plan with the status of every milestone, and `CHANGELOG.md` what
+has changed in each release.
 
 ![Four karts on a felt-topped table arena under stage lights, with the joker hand open along the bottom of the screen](docs/screenshot.png)
 
@@ -40,12 +41,26 @@ install, or `godot4` on the path. Lint and format use
 make dev        # start the development scene
 make drive      # start the driving room, for handling work
 make run        # start the game scene
-make check      # import, lint, format check, unit tests, smoke runs
+make check      # import, lint, format check, changelog, unit tests, smoke runs
 make test       # unit tests only (gdUnit4, headless)
 make export     # release builds for Linux, Windows and macOS in build/
 ```
 
-A tag `v*` makes the release workflow build and publish the three exports.
+Anything a player would notice gets a line in the `## [Unreleased]` section of
+`CHANGELOG.md` in the same commit, see GAME.md 10.4.
+
+## Releasing
+
+```
+tools/changelog release 0.2.0     # cut Unreleased into a dated version, set project.godot
+git commit -am "Release 0.2.0"
+git tag -a v0.2.0 -m "Jackpot Junction 0.2.0" && git push --follow-tags
+```
+
+The tag starts the release workflow, which exports Linux, Windows and macOS
+builds and publishes them with that version's changelog section as the release
+notes. A tag whose version has no section fails rather than publishing a release
+with nothing written on it. GAME.md 10.5 has the detail.
 
 ## License
 

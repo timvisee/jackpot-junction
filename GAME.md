@@ -1635,8 +1635,39 @@ other before it will pass.
   works in an online match or it is not done, and the sweep in
   `tests/test_online_sync.gd` grows with it. See 10.3 for the three ways state
   reaches a client and how to choose between them.
+- Every change a player would notice adds its line to the `## [Unreleased]`
+  section of `CHANGELOG.md`, in the same commit that makes it. The test is
+  whether somebody who plays the game would care, not whether the diff was
+  large: a renamed variable is not a line, a joker that now fires backwards is.
+  Write it for them, in the game's words rather than the code's. Refactors,
+  tests and tooling leave the file alone. See 10.5 for what a release does with
+  it.
 
-### 10.5 Assets and licensing
+### 10.5 Releasing
+
+Versions are [semantic](https://semver.org/spec/v2.0.0.html) and live in one
+place, `config/version` in `project.godot`. `CHANGELOG.md` keeps a section per
+version, newest first, in [Keep a Changelog](https://keepachangelog.com/) form,
+and an `## [Unreleased]` section at the top that the current work goes into as
+it is done. `tools/changelog` is the only thing that edits either:
+
+| Command                        | What it does                                                        |
+|--------------------------------|---------------------------------------------------------------------|
+| `tools/changelog`              | Checks the file parses and that `project.godot`'s version has a section. `make check` and CI run it |
+| `tools/changelog release X.Y.Z` | Turns `Unreleased` into a dated `X.Y.Z`, sets `project.godot`, and fixes up the links at the foot |
+| `tools/changelog extract X.Y.Z` | Prints one version's notes. The release workflow uses it            |
+
+A release is therefore: cut it, read it over, commit, then tag `vX.Y.Z` and push
+the tag. The tag starts the release workflow, which exports Linux, Windows and
+macOS builds and publishes them with that version's changelog section as the
+release notes, GitHub's own list of commits appended underneath. A tag whose
+version has no section fails the workflow rather than publishing a release with
+nothing written on it.
+
+Tagging is a person's decision, not a step in a script: it says a build is worth
+other people's time.
+
+### 10.6 Assets and licensing
 
 - Use free resources: CC0 and similarly licensed models, textures, music and
   sound effects, starting with Kenney's kits. Custom audio and sound effects
