@@ -1562,6 +1562,10 @@ run in one place, the Match, and karts are driven by a KartInput interface.
   snapshots have already built the karts. Anything that depends on knowing it,
   such as which kart sounds like your own rather than like somebody else's, is
   asked again every snapshot rather than settled once when a kart is built.
+- What a client cannot run for itself it is told or works out from what it is told.
+  Its karts are puppets and its match takes no physics step, so the whistle never
+  goes there: the rig swings onto the winner off the snapshot's standings rather
+  than off a result it worked out.
 - Anything a client is told about is told all of it, and keeps no clock of its own.
   A crate running its own respawn timer would come back the frame after a snapshot
   broke it and be broken again by the next one, throwing fresh debris thirty times

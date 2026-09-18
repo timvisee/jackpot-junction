@@ -285,3 +285,34 @@ func test_the_sounds_of_the_room_reach_a_client() -> void:
 	)
 	get_tree().set_multiplayer(null, host_root.get_path())
 	get_tree().set_multiplayer(null, client_root.get_path())
+
+
+## GAME.md 8.1: at the whistle the rig swings onto the winner. A client never runs a whistle, so
+## it has to take the result off the snapshot and light the same kart.
+func test_the_rig_swings_onto_the_winner_on_a_client_too() -> void:
+	var host: Match = auto_free(MATCH_SCENE.instantiate())
+	host.rules = _rules()
+	host.with_hud = false
+	host.offer_size = 0
+	var runner := scene_runner(host)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	host.start(inputs, 23)
+	await runner.simulate_frames(20, 17)
+	var client: Match = auto_free(MATCH_SCENE.instantiate())
+	client.rules = _rules()
+	client.with_hud = false
+	add_child(client)
+	client.start_puppet()
+	client.apply_snapshot(host.build_snapshot())
+	assert_object(client.arena.disco._focus).is_null()
+	# Second player runs away with it, then the clock runs out.
+	host.slots[1].banked = 900
+	host.time_left = 0.0
+	host.rules.overtime = false
+	await runner.simulate_frames(6, 17)
+	assert_int(host.state).is_equal(Match.State.RESULTS)
+	assert_object(host.arena.disco._focus).is_equal(host.kart_of(1))
+	client.apply_snapshot(host.build_snapshot())
+	assert_int(client.state).is_equal(Match.State.RESULTS)
+	assert_int(client.standings()[0].index).is_equal(1)
+	assert_object(client.arena.disco._focus).is_equal(client.slots[1].kart)

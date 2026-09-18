@@ -651,13 +651,14 @@ func _finish() -> void:
 		slot.offer = null
 	bullets.process_mode = Node.PROCESS_MODE_DISABLED
 	_set_state(State.RESULTS)
-	_spotlight_winner()
+	spotlight_winner()
 
 
 ## GAME.md 8.1: at the whistle every head leaves its sweep and swings onto whoever won, so the
 ## winner takes their lap of honour in the spotlight. A winner who is dead at the whistle has
-## nothing to light, so the rig is left as it is.
-func _spotlight_winner() -> void:
+## nothing to light, so the rig is left as it is. Public because a client reaches the whistle by
+## being told about it rather than by running one, and the lap of honour is for everybody.
+func spotlight_winner() -> void:
 	var winner := standings()[0]
 	if winner.kart != null and winner.kart.alive:
 		arena.disco.focus(winner.kart)

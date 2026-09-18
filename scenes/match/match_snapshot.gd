@@ -306,6 +306,13 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 	match_node.arena.junction.hint = match_node.junction_hint()
 	match_node.arena.junction.winning = match_node.junction_wins_it()
 	match_node.arena.disco.level = match_node.intensity.level
+	# The whistle, GAME.md 8.1. A client never runs one, so the rig would keep sweeping while the
+	# standings sat on the screen. Asked after the slots are in, since who won is read off them.
+	if match_node.state != previous_state:
+		if match_node.state == Match.State.RESULTS:
+			match_node.spotlight_winner()
+		elif previous_state == Match.State.RESULTS:
+			match_node.arena.disco.clear_focus()
 	var flush: Array = data.get("flush", [])
 	for i: int in mini(flush.size(), match_node.arena.flush_pads.size()):
 		match_node.arena.flush_pads[i].apply_puppet_state(
