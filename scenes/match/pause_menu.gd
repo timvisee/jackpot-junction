@@ -1,21 +1,22 @@
 class_name PauseMenu
 extends CanvasLayer
-## Pausing freezes the whole match in single-player and local play, GAME.md 3.8. Resume,
-## Settings, or back to the title.
+## Pausing freezes the whole match in single-player and local play, GAME.md 3.8. Online it takes
+## the whole room: the menu opens straight away, and the match stops once everybody has opened
+## theirs. Resume, Settings, or back to the title.
 
-## Online matches cannot pause: the menu shows, the match keeps running.
-var online := false
+## The session to ask online, null in a room where this machine is the only one.
+var session: NetSession
 
 var _panel: CenterContainer
 var _resume: Button
 
 
-## Hangs one over a room. Online matches cannot pause, see GAME.md 3.8, so a room that is one
-## says so here.
-static func add_to(parent: Node, is_online: bool = false) -> PauseMenu:
+## Hangs one over a room. An online room passes its session, which is what decides whether the
+## whole room has asked to stop, see GAME.md 3.8.
+static func add_to(parent: Node, net: NetSession = null) -> PauseMenu:
 	var menu := PauseMenu.new()
 	menu.name = "PauseMenu"
-	menu.online = is_online
+	menu.session = net
 	parent.add_child(menu)
 	return menu
 
@@ -23,6 +24,8 @@ static func add_to(parent: Node, is_online: bool = false) -> PauseMenu:
 func _ready() -> void:
 	layer = 20
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	if session != null:
+		session.pause_agreed.connect(_freeze)
 	_panel = CenterContainer.new()
 	_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_panel.visible = false
@@ -41,12 +44,16 @@ func _ready() -> void:
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(
 		func() -> void:
-			get_tree().paused = false
+			set_paused(false)
 			Game.go_to_settings(Game.MATCH_SCENE)
 	)
 	column.add_child(settings)
 	var quit := MenuTheme.button("Back to title")
-	quit.pressed.connect(func() -> void: Game.go_to_title())
+	quit.pressed.connect(
+		func() -> void:
+			set_paused(false)
+			Game.go_to_title()
+	)
 	column.add_child(quit)
 
 
@@ -56,8 +63,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+## Opens or closes the menu for whoever is at this screen. Alone that is the same thing as
+## stopping the match; online it is a request, and the match stops when the last player makes it.
 func set_paused(paused: bool) -> void:
-	get_tree().paused = paused and not online
 	_panel.visible = paused
+	if session == null:
+		_freeze(paused)
+	else:
+		session.want_pause(paused)
 	if paused:
 		_resume.grab_focus()
+
+
+func _freeze(on: bool) -> void:
+	get_tree().paused = on

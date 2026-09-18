@@ -293,3 +293,63 @@ func test_your_own_kart_finds_its_voice_once_the_host_says_which_is_yours() -> v
 	assert_bool(mine.driven_here).is_true()
 	assert_bool(theirs.sound.lean).is_true()
 	assert_bool(theirs.driven_here).is_false()
+
+
+## GAME.md 3.8: online it takes the whole room. One player in the menu is one player not
+## driving, not a match everyone else has to sit out.
+func test_a_match_stops_only_once_every_machine_has_asked_it_to() -> void:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	host_match.offer_size = 0
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(PORT)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client_match
+	client_session.local_input = KartInput.new()
+	_client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
+	assert_bool(assigned).override_failure_message("client never got a slot").is_true()
+	# The host asking on its own leaves the client still playing, so the match runs on.
+	host_session.want_pause(true)
+	await await_millis(200)
+	assert_bool(host_session.paused).is_false()
+	assert_bool(client_session.paused).is_false()
+	# The last one to ask stops it, for both of them.
+	client_session.want_pause(true)
+	var stopped := await _wait_until(func() -> bool: return client_session.paused, 4000)
+	assert_bool(stopped).override_failure_message("the room never stopped").is_true()
+	assert_bool(host_session.paused).is_true()
+	# One of them going back to the wheel starts it again for everyone.
+	client_session.want_pause(false)
+	var running := await _wait_until(func() -> bool: return not client_session.paused, 4000)
+	assert_bool(running).override_failure_message("the room never started again").is_true()
+	assert_bool(host_session.paused).is_false()
+	# The host is still holding its own answer, so the client asking again is enough on its own.
+	client_session.want_pause(true)
+	var again := await _wait_until(func() -> bool: return client_session.paused, 4000)
+	assert_bool(again).is_true()
+	# And a client leaving leaves the host as the whole room, still asking.
+	client_session.multiplayer.multiplayer_peer.close()
+	var handed_back := await _wait_until(
+		func() -> bool: return not host_match.slots[1].is_human(), 4000
+	)
+	assert_bool(handed_back).is_true()
+	assert_bool(host_session.paused).is_true()
+	host_session.want_pause(false)
+	assert_bool(host_session.paused).is_false()

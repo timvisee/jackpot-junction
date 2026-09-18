@@ -54,7 +54,7 @@ func _ready() -> void:
 		_:
 			match_node.start(config.inputs(), 0, config.colors())
 	DebugOverlay.add_to(self, match_node)
-	PauseMenu.add_to(self, config.online != "")
+	PauseMenu.add_to(self, session)
 
 
 ## IPv4 addresses of this machine other than loopback, for the lobby hint.

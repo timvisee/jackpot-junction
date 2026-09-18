@@ -8,6 +8,8 @@ signal connected
 signal connection_failed
 signal disconnected
 signal slot_assigned(index: int)
+## The whole room has agreed to stop, or somebody has started playing again. GAME.md 3.8.
+signal pause_agreed(on: bool)
 
 const DEFAULT_PORT := 7777
 const MAX_CLIENTS := 3
@@ -57,10 +59,16 @@ var local_slot := -1
 ## The input the client sends; tests may swap it.
 var local_input: KartInput = PlayerInput.new()
 var is_host := false
+## Whether every machine in the match currently has its pause menu open. One player alone cannot
+## stop the others playing, GAME.md 3.8, so this is the agreement rather than what anyone asked.
+var paused := false
 
 var _tick := 0
 var _peer_slots: Dictionary[int, int] = {}
 var _relaying := false
+## Whether this machine is asking for a pause, and which of the host's clients are.
+var _asking := false
+var _peer_asking: Dictionary[int, bool] = {}
 
 
 func _ready() -> void:
@@ -135,6 +143,9 @@ func _on_peer_connected(peer: int) -> void:
 		return
 	_peer_slots[peer] = slot.index
 	_assign_slot.rpc_id(peer, slot.index, match_node.rng.seed)
+	# Somebody who has only just sat down is not asking for a pause, so a room that was stopped
+	# starts playing again.
+	_settle_pause()
 
 
 func _on_peer_disconnected(peer: int) -> void:
@@ -142,8 +153,62 @@ func _on_peer_disconnected(peer: int) -> void:
 		return
 	var index: int = _peer_slots[peer]
 	_peer_slots.erase(peer)
+	# Whoever is left may be the whole room now, and they may all be waiting in the menu.
+	_peer_asking.erase(peer)
+	_settle_pause()
 	if index < match_node.slots.size():
 		match_node.leave_human(match_node.slots[index])
+
+
+## Says whether this machine wants the match stopped. The host adds up the answers; online the
+## match only stops once every machine has said yes, GAME.md 3.8.
+func want_pause(wanted: bool) -> void:
+	_asking = wanted
+	if is_host:
+		_settle_pause()
+	elif _connected():
+		_ask_pause.rpc_id(1, wanted)
+	else:
+		# No host to ask yet, and nobody else here either, so this machine is the whole room.
+		_agree_pause(wanted)
+
+
+## The host's count: the match stops when it and every client are asking, and starts again the
+## moment one of them is not.
+func _settle_pause() -> void:
+	if not is_host:
+		return
+	var all := _asking
+	for peer: int in multiplayer.get_peers():
+		all = all and bool(_peer_asking.get(peer, false))
+	_agree_pause(all)
+	if not multiplayer.get_peers().is_empty():
+		_settled_pause.rpc(all)
+
+
+func _connected() -> bool:
+	var peer := multiplayer.multiplayer_peer
+	return peer != null and peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
+
+
+func _agree_pause(on: bool) -> void:
+	if paused == on:
+		return
+	paused = on
+	pause_agreed.emit(on)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _ask_pause(wanted: bool) -> void:
+	if not is_host:
+		return
+	_peer_asking[multiplayer.get_remote_sender_id()] = wanted
+	_settle_pause()
+
+
+@rpc("authority", "call_remote", "reliable")
+func _settled_pause(on: bool) -> void:
+	_agree_pause(on)
 
 
 @rpc("authority", "call_remote", "reliable")
@@ -206,8 +271,7 @@ func _signal_arity(name: StringName) -> int:
 
 
 func _relay(name: StringName, args: Array) -> void:
-	var peer := multiplayer.multiplayer_peer
-	if peer == null or peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
+	if not _connected():
 		return
 	if not multiplayer.get_peers().is_empty():
 		_relay_event.rpc(name, args)

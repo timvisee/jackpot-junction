@@ -281,7 +281,11 @@ gets a line here.
   bullets hurt it, with the values in this document as defaults. Every choice is
   remembered for the next match.
 - Pausing in single-player and local play freezes the match for everyone.
-  Online matches cannot be paused.
+  Online it takes the whole room: opening the menu shows it at once and asks
+  the others, and the match only stops once every machine has its menu open.
+  While anybody is still playing the match runs on, and the moment one of them
+  closes their menu it starts again for everyone. Somebody joining a stopped
+  room starts it again, and somebody leaving can be the last one holding it up.
 
 ### 3.9 Royal Flush pads
 
@@ -1349,8 +1353,8 @@ shows the address to join at, and presses Start when everyone is there;
 players may still join a running match. Up to 4 players, bots run on the
 host, and a joining client takes over a bot's kart. Design details in 10.3. A join code needs a relay
 service and Steam integration needs GodotSteam; both are backlog items.
-Joining mid-match follows the local rule in 9.2. Online matches cannot be
-paused.
+Joining mid-match follows the local rule in 9.2. Pausing an online match takes
+every machine in the room asking for it, see 3.8.
 
 ### 9.4 The Garage
 
