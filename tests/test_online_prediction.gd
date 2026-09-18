@@ -367,3 +367,29 @@ func test_nitro_burns_on_the_tick_it_is_pressed() -> void:
 		. is_equal_approx(_host.kart_of(0).nitro_charge, 0.06)
 	)
 	assert_float(_worst_jump).override_failure_message(_report()).is_less(0.01)
+
+
+## Driving into a hole, GAME.md 3.6. The kart used to carry on across the gap on this machine,
+## get dragged back by the correction and only then start falling. It goes over the edge here.
+func test_a_kart_falls_down_a_hole_when_it_drives_into_one() -> void:
+	await _connect()
+	var hole: Pit = _client.arena.pits[0]
+	# Put the kart on the lip of the hole and drive it in.
+	var at := hole.global_position + Vector3(0.0, 0.0, 3.0)
+	KartPrediction.restore(_prediction.kart, KartPrediction.capture(_prediction.kart))
+	_prediction.kart.global_position = at
+	_host.kart_of(0).global_position = at
+	_input.throttle = 1.0
+	_input.steer = 0.0
+	_prediction.kart.motor.heading = PI
+	_host.kart_of(0).motor.heading = PI
+	await _drive(60)
+	_running = false
+	(
+		assert_bool(_prediction.kart.falling or not _prediction.kart.alive)
+		. override_failure_message("the kart drove over the hole without going down it")
+		. is_true()
+	)
+	# It falls here and nowhere else: whether that cost a life is the host's to say, and the
+	# client waits to be told rather than killing its own kart.
+	assert_bool(_prediction.kart.puppet).is_true()

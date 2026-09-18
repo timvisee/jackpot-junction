@@ -67,15 +67,12 @@ var _ease_heading := 0.0
 func _init(for_kart: Kart) -> void:
 	kart = for_kart
 	kart.predicted = true
-	# The walls and the crates, and nothing that moves. Those are the same on both machines and
-	# always there, so predicting against them is predicting against what the host will say.
-	#
-	# Other karts are deliberately left out. A client has only puppets of them, put where the
-	# host last said rather than where they are now, so a predicted bump would be a guess at a
-	# guess; and two karts each predicting their own side of the same contact would each shove
-	# the other and neither would be right. A bump is the host's to settle and arrives as a
-	# correction, which is what corrections are for.
-	kart.collision_mask = Layers.WORLD
+	# The walls and the crates, which are the same on both machines, and the other karts in this
+	# room, which are puppets on a layer of their own. Driving into somebody used to be the worst
+	# of it: the kart carried on through where they were standing and was then dragged back by
+	# the correction. A predicted bump is a guess at where they are, since a puppet is only ever
+	# where the host last said, but it is a much better guess than no bump at all.
+	kart.collision_mask = Layers.WORLD | Layers.PUPPET
 
 
 ## One tick of movement and nothing else. Firing, items, pickups, scoring and damage are all left
@@ -89,6 +86,13 @@ static func step(on: Kart, with: KartInput, delta: float, live: bool = true) -> 
 	# lends it the tick's controls for the length of the tick. Live, this is the same object.
 	var held := on.input
 	on.input = with
+	if on.falling:
+		# Down a hole. The drop is run here so it starts the moment the kart goes over the edge
+		# rather than a round trip later, and stops there: the kart does not die of it on this
+		# machine, it waits to be told.
+		on._step_fall(delta)
+		on.input = held
+		return
 	# Nitro is predicted, and has to be: it is the button with the most immediate effect in the
 	# game, it changes how fast the kart is about to go, and it decides whether the kart goes
 	# through a crate or bounces off it. A client that waited a round trip for it would spend

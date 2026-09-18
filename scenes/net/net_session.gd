@@ -166,6 +166,7 @@ func _physics_process(delta: float) -> void:
 		# Driven here first and sent second, GAME.md 10.3. The kart answers the stick on this
 		# frame; the packet carries the number of the tick it answered, so the host's reply can
 		# be held against what this machine thought at the time.
+		_step_own_offer()
 		_input_seq += 1
 		if _prediction != null and is_instance_valid(_prediction.kart):
 			var driving := _drivable()
@@ -317,6 +318,18 @@ func prediction_debug() -> String:
 	if _prediction == null or not is_instance_valid(_prediction.kart):
 		return ""
 	return _prediction.debug_text()
+
+
+## The joker pick in front of this player, answered here, GAME.md 10.3. The host is running the
+## same pick off the same controls and its answer is the one that counts, but waiting a round
+## trip to see the cursor move, and another to see a card taken, is the whole of what made
+## picking a joker on a client feel broken. The snapshot leaves this one alone while it is open.
+func _step_own_offer() -> void:
+	if local_slot < 0 or local_slot >= match_node.slots.size():
+		return
+	var slot := match_node.slots[local_slot]
+	if slot.offer != null and not slot.offer.is_done():
+		slot.offer.poll_input(local_input)
 
 
 ## Whether this client is driving its own kart rather than watching it, GAME.md 10.3. A kart the

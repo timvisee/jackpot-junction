@@ -13,6 +13,12 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Online: things a client does now happen when it does them.** Nitro burnt a
+  round trip late, driving into a crate at ramming speed stopped the kart dead
+  and then dragged it through, driving into another kart carried on through
+  where they were standing, driving into a hole crossed it and then fell in
+  backwards, and the joker cursor moved a round trip after the key. All of them
+  are answered on the spot now and put right by the host afterwards.
 - **Online: picking a joker on a client.** A player whose kart had died was not
   heard by the host at all, so no card could be picked, no cursor moved and
   nothing answered until the kart came back on its own. The same held on the

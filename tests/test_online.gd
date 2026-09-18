@@ -462,3 +462,60 @@ func test_the_host_going_away_clears_the_screen() -> void:
 	hud.call("_on_state_changed", Match.State.RESULTS)
 	await await_millis(80)
 	assert_bool(hud.visible).is_false()
+
+
+## GAME.md 10.3: the joker pick in front of this player is answered here. Waiting a round trip to
+## see the cursor move, and another to see a card taken, is the whole of what made picking a
+## joker on a client feel broken.
+func test_a_client_works_its_own_joker_pick_at_once() -> void:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(PORT)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client_match
+	client_session.local_input = PlayerInput.new()
+	_client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
+	assert_bool(assigned).is_true()
+	host_match.kart_of(1).die(&"test", -1)
+	var offered := await _wait_until(
+		func() -> bool:
+			return client_match.slots.size() > 1 and client_match.slots[1].offer != null,
+		4000
+	)
+	assert_bool(offered).override_failure_message("the client never saw the pick").is_true()
+	var offer: JokerOffer = client_match.slots[1].offer
+	assert_int(offer.selected).is_equal(0)
+	# Walking the cursor along is answered here rather than a round trip away. Pressed straight
+	# into the session's own step, because a real player's controls are read off the keyboard
+	# every tick and a flag set from a test is gone again before the tick comes round.
+	client_session.local_input.joker_next_pressed = true
+	client_session._step_own_offer()
+	assert_int(offer.selected).override_failure_message("the cursor waited for the host").is_equal(
+		1
+	)
+	# And the snapshot does not walk it back again on its way past.
+	await await_millis(300)
+	assert_object(client_match.slots[1].offer).is_equal(offer)
+	(
+		assert_int(offer.selected)
+		. override_failure_message("a snapshot put the cursor back where the host had it")
+		. is_equal(1)
+	)

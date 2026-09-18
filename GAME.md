@@ -1689,13 +1689,31 @@ the host. A kart the host says is dead, frozen on the grid or rolling out the
 end of the match is not predicted at all; it follows the snapshot, because none
 of those are states a player is steering out of.
 
-A predicted kart pushes off the walls and the crates, which are in the same place
-on both machines, and off nothing that moves. Other karts are deliberately left
-out: a client has only puppets of them, put where the host last said rather than
-where they are now, so a predicted bump would be a guess at a guess, and two
-karts each predicting their own side of the same contact would each shove the
-other and neither would be right. A bump is the host's to settle and arrives as
-a correction, which is what corrections are for.
+What a client predicts is everything it can work out from its own controls and
+put right afterwards, which is more than where the kart is:
+
+- **Nitro**, because it is the button with the most immediate effect in the game.
+  It decides how fast the kart is about to go and whether it goes through a crate
+  or bounces off one, so a client that waited for it spent the wait driving at a
+  speed it had not asked for. The tank rides the message addressed to this client
+  rather than the snapshot, which would fill it back up a round trip late.
+- **Bumping into things**: the walls, the crates and the other karts. Puppets sit
+  on a physics layer of their own so a predicted kart has them to push off, and so
+  that a host and a puppet match sharing a scene tree, which is tests today and a
+  split screen later, never shove each other's karts about.
+- **Going down a hole**, which starts here the moment the kart is over the edge.
+  The drop runs and stops there: a puppet is never killed on its own machine, so
+  whether that cost a life, and whose fault it was, still comes from the host.
+- **The joker pick**, which is not physics at all. The cursor moves and the card
+  is taken on the tick the key goes down, and the snapshot leaves that one pick
+  alone while it is open rather than walking the cursor back to where the host had
+  it a round trip ago.
+
+None of this decides anything. A predicted bump never costs a life, a predicted
+fall never costs one either, a predicted pick never changes which joker is
+actually held: those are the host's answers and they arrive as they always did.
+A puppet raises no events of its own for any of it, because the host relays the
+real ones and a machine announcing both would say everything twice.
 
 Two more things follow that are worth stating. The kart is predicted, not the
 world: a client that presses fire still waits a round trip for the bullet,

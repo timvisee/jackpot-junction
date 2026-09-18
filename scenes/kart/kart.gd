@@ -298,9 +298,12 @@ func _step_sound(delta: float) -> void:
 
 
 ## Turns the kart into a client-side puppet: no physics, no collisions, visuals from snapshots.
+## Turns the kart into a client-side puppet: no physics of its own, visuals from snapshots. It
+## keeps a layer of its own so the one kart this client drives has the others to bump into, and
+## no mask, because nothing may push a puppet off where the host put it.
 func make_puppet() -> void:
 	puppet = true
-	collision_layer = 0
+	collision_layer = Layers.PUPPET
 	collision_mask = 0
 	remove_from_group(Bullet.TARGET_GROUP)
 
@@ -313,6 +316,14 @@ func apply_puppet_state(state: Dictionary, _delta: float) -> void:
 	alive = state["alive"]
 	if was_alive and not alive:
 		Burst.spawn(get_parent(), global_position, Palette.player_color(color_index), 1.0, 20)
+	if alive and not was_alive:
+		# Back on the floor. A predicted kart may have been part way down a hole when the host
+		# brought it back, and nothing here runs the respawn that would have tidied that up.
+		falling = false
+		scale = Vector3.ONE
+		if predicted:
+			collision_layer = Layers.PUPPET
+			collision_mask = Layers.WORLD | Layers.PUPPET
 	# A kart this client is driving takes its pose from its own driving and its corrections from
 	# the message addressed to it, GAME.md 10.3. The broadcast snapshot is a third of a second of
 	# round trip out of date for this one kart, and putting it here would undo the prediction
@@ -773,7 +784,10 @@ func refresh_pickup_radius() -> void:
 
 ## Kills the kart. The match decides when and where it respawns.
 func die(cause: StringName, killer_slot: int) -> void:
-	if not alive:
+	# A puppet is never killed here; it is told, GAME.md 10.3. A client predicting its own fall
+	# down a hole runs the drop and stops there: whether that cost a life, and whose fault it
+	# was, is the host's to say and arrives in the snapshot.
+	if not alive or puppet:
 		return
 	alive = false
 	falling = false
@@ -834,7 +848,9 @@ func start_fall() -> void:
 		return
 	falling = true
 	_fall_left = rules.pit_fall_time
-	Events.kart_fell.emit(slot)
+	if not puppet:
+		# A puppet raises nothing; the host relays the sound for the fall it decides on.
+		Events.kart_fell.emit(slot)
 	collision_layer = 0
 	collision_mask = 0
 

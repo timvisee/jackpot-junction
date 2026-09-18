@@ -398,15 +398,21 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 					choices.append(joker)
 			if slot.offer == null or slot.offer.is_done():
 				slot.offer = JokerOffer.new(slot.kart, choices)
-			slot.offer.choices = choices
-			slot.offer.stage = offer_data["stage"]
-			slot.offer.selected = offer_data["selected"]
-			slot.offer.chosen = (
-				match_node.joker_catalog.by_id(StringName(offer_data["chosen"]))
-				if offer_data["chosen"] != ""
-				else null
-			)
+				slot.offer.choices = choices
+			elif i != match_node.local_slot:
+				# Somebody else's pick, watched rather than made: the host says where their
+				# cursor is and what they have taken.
+				slot.offer.choices = choices
+				slot.offer.stage = offer_data["stage"]
+				slot.offer.selected = offer_data["selected"]
+				slot.offer.chosen = (
+					match_node.joker_catalog.by_id(StringName(offer_data["chosen"]))
+					if offer_data["chosen"] != ""
+					else null
+				)
 		else:
+			# The host has finished with it: the card is taken, the kart is coming back, and the
+			# pick comes off the screen whoever was making it.
 			slot.offer = null
 
 
