@@ -55,6 +55,9 @@ below, and hands the notes to the release workflow.
 - **A new joker, Direct Debit.** Five points of your pot bank themselves every
   second, wherever you are, and your mult is left alone. Uncommon.
 
+- **A new joker, Deep Pockets.** Two more joker slots, one of which it stands in,
+  and it stacks. Rare.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button

@@ -11,7 +11,8 @@ extends Control
 ## Every card is positioned by its bottom centre, which is also its pivot, so the fan tilt and the
 ## per-player scale both turn about the point the hand is held at. A key cap to the left of the
 ## hand names the button that opens the joker menu, while cards are held and the control hints
-## setting is on, and a count on the other side says how many of the five slots are taken.
+## setting is on, and a count on the other side says how many of the slots are taken, out of
+## however many the hand has room for.
 
 ## Fraction of a card hidden by the next one.
 const OVERLAP := 0.35
@@ -126,10 +127,10 @@ func _place_count(right: float, baseline: float, card: Vector2) -> void:
 	if not _count_label.visible:
 		return
 	var held := _cards.size()
-	_count_label.text = "%d / %d" % [held, JokerHolder.MAX_JOKERS]
+	var room := kart.jokers.capacity() if kart != null else JokerHolder.MAX_JOKERS
+	_count_label.text = "%d / %d" % [held, room]
 	_count_label.add_theme_color_override(
-		"font_color",
-		Palette.CHIP_GOLD if held >= JokerHolder.MAX_JOKERS else Color(0.82, 0.82, 0.88)
+		"font_color", Palette.CHIP_GOLD if held >= room else Color(0.82, 0.82, 0.88)
 	)
 	var label_size := _count_label.get_combined_minimum_size()
 	_count_label.size = label_size

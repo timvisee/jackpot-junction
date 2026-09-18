@@ -1,7 +1,7 @@
 class_name JokerHolder
 extends RefCounted
-## The jokers a kart holds, up to five. Adding duplicates the resource so state stays with the
-## holder; every change asks the kart to rebuild its stats.
+## The jokers a kart holds, five of them unless one of them says otherwise. Adding duplicates the
+## resource so state stays with the holder; every change asks the kart to rebuild its stats.
 
 signal changed
 
@@ -20,8 +20,16 @@ func count() -> int:
 	return jokers.size()
 
 
+## How many jokers may be held at once. The hand itself can widen it, GAME.md 3.7 and 7.3.
+func capacity() -> int:
+	var room := MAX_JOKERS
+	for joker: Joker in jokers:
+		room = joker.modify_joker_slots(room)
+	return room
+
+
 func is_full() -> bool:
-	return jokers.size() >= MAX_JOKERS
+	return jokers.size() >= capacity()
 
 
 func has(id: StringName) -> bool:

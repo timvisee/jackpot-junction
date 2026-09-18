@@ -225,10 +225,11 @@ Jokers are passive rule modifiers held for the rest of the match.
 - On every respawn the player is offered 3 jokers during the respawn delay and
   picks 1 or skips. Offers never include a joker the player already holds,
   except stackable jokers such as Rubber Bumpers, whose copies each apply again.
-- A player holds at most 5 jokers. A player holding 5 who wants a new one must
-  first destroy or drop one: at the respawn pick, choosing a joker to discard
-  destroys it; in the arena, the joker menu lets you drop one on the floor or
-  destroy it.
+- A player holds at most 5 jokers, unless a joker in the hand says otherwise:
+  Deep Pockets adds 2 slots and stands in one of them. A player with a full hand
+  who wants a new one must first destroy or drop one: at the respawn pick,
+  choosing a joker to discard destroys it; in the arena, the joker menu lets you
+  drop one on the floor or destroy it.
 - Jokers can drop on death, see 3.6. A joker on the floor can be picked up by
   any kart, including its previous owner, for 15 s.
 - Players start a match with no jokers. The first offer comes with the first
@@ -822,6 +823,7 @@ a real downside. Starting set; balance is untested.
 | Snake Eyes       | Uncommon | Cursed | Start every life with mult 3, but grazes give nothing                     |
 | Lucky Seven      | Rare     | Rule   | Every 7th chip you collect gives +1 mult                                  |
 | Hot Streak       | Rare     | Rule   | +0.5 mult every 10 seconds you stay on the floor                          |
+| Deep Pockets     | Rare     | Rule   | +2 joker slots, one of which it stands in. Stacks                         |
 | Wild Card        | Rare     | Rule   | Respawn offers 5 jokers instead of 3                                      |
 | Glass Jackpot    | Rare     | Cursed | Completed cash-outs pay 150%, but dying drops all your chips and 2 jokers |
 

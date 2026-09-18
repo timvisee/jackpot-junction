@@ -44,7 +44,7 @@ func _chip(dropped := false, gold := false) -> Chip:
 
 func test_catalog_has_unique_jokers_and_offers_exclude_held_ones() -> void:
 	var catalog: JokerCatalog = CATALOG
-	assert_int(catalog.jokers.size()).is_equal(29)
+	assert_int(catalog.jokers.size()).is_equal(30)
 	var ids: Array[StringName] = []
 	for joker: Joker in catalog.jokers:
 		(
@@ -416,6 +416,27 @@ func test_stat_jokers_rebuild_the_karts_own_stats_and_removal_restores_them() ->
 	kart.jokers.remove(trigger)
 	assert_float(kart.cannon.stats.fire_cooldown).is_equal_approx(0.4, 0.001)
 	assert_int(kart.jokers.count()).is_equal(5)
+
+
+## GAME.md 3.7: five slots unless the hand itself says otherwise, and Deep Pockets stands in one
+## of the two it adds. Two copies leave room for seven other jokers.
+func test_deep_pockets_widens_the_hand_and_stacks() -> void:
+	var match_node := _start_match(_bots())
+	var kart := match_node.kart_of(0)
+	assert_int(kart.jokers.capacity()).is_equal(JokerHolder.MAX_JOKERS)
+	_attach(kart, "deep_pockets")
+	assert_int(kart.jokers.capacity()).is_equal(7)
+	assert_bool(kart.jokers.is_full()).is_false()
+	var second := _attach(kart, "deep_pockets")
+	assert_int(kart.jokers.capacity()).is_equal(9)
+	for i: int in 7:
+		_attach(kart, "big_tank")
+	assert_int(kart.jokers.count()).is_equal(9)
+	assert_bool(kart.jokers.is_full()).is_true()
+	# Losing one takes its room with it, and a hand over the new limit is simply full.
+	kart.jokers.remove(second)
+	assert_int(kart.jokers.capacity()).is_equal(7)
+	assert_bool(kart.jokers.is_full()).is_true()
 
 
 func test_road_rage_slows_the_kart_and_rams_at_speed() -> void:

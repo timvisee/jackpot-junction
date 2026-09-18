@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="JokerCatalog" load_steps=31 format=3]
+[gd_resource type="Resource" script_class="JokerCatalog" load_steps=32 format=3]
 
 [ext_resource type="Script" path="res://scenes/jokers/joker_catalog.gd" id="1_catalog"]
 [ext_resource type="Resource" path="res://data/jokers/hair_trigger.tres" id="2_hair_trigger"]
@@ -31,6 +31,7 @@
 [ext_resource type="Resource" path="res://data/jokers/tailslide.tres" id="28_tailslide"]
 [ext_resource type="Resource" path="res://data/jokers/jerry_can.tres" id="29_jerry_can"]
 [ext_resource type="Resource" path="res://data/jokers/direct_debit.tres" id="30_direct_debit"]
+[ext_resource type="Resource" path="res://data/jokers/deep_pockets.tres" id="31_deep_pockets"]
 [resource]
 script = ExtResource("1_catalog")
-jokers = Array[Resource]([ExtResource("2_hair_trigger"), ExtResource("3_big_tank"), ExtResource("4_magnet_hubcaps"), ExtResource("5_nitro_habit"), ExtResource("6_slipstream"), ExtResource("7_green_light"), ExtResource("8_vulture"), ExtResource("9_insurance_policy"), ExtResource("10_getaway_driver"), ExtResource("11_pickpocket"), ExtResource("12_rubber_bumpers"), ExtResource("13_comeback"), ExtResource("14_loaded_dice"), ExtResource("15_toll_booth"), ExtResource("16_high_roller"), ExtResource("17_road_rage"), ExtResource("18_snake_eyes"), ExtResource("19_lucky_seven"), ExtResource("20_wild_card"), ExtResource("21_glass_jackpot"), ExtResource("22_curve_ball"), ExtResource("23_aimbot"), ExtResource("24_backfire"), ExtResource("25_payday"), ExtResource("26_hot_streak"), ExtResource("27_odometer"), ExtResource("28_tailslide"), ExtResource("29_jerry_can"), ExtResource("30_direct_debit")])
+jokers = Array[Resource]([ExtResource("2_hair_trigger"), ExtResource("3_big_tank"), ExtResource("4_magnet_hubcaps"), ExtResource("5_nitro_habit"), ExtResource("6_slipstream"), ExtResource("7_green_light"), ExtResource("8_vulture"), ExtResource("9_insurance_policy"), ExtResource("10_getaway_driver"), ExtResource("11_pickpocket"), ExtResource("12_rubber_bumpers"), ExtResource("13_comeback"), ExtResource("14_loaded_dice"), ExtResource("15_toll_booth"), ExtResource("16_high_roller"), ExtResource("17_road_rage"), ExtResource("18_snake_eyes"), ExtResource("19_lucky_seven"), ExtResource("20_wild_card"), ExtResource("21_glass_jackpot"), ExtResource("22_curve_ball"), ExtResource("23_aimbot"), ExtResource("24_backfire"), ExtResource("25_payday"), ExtResource("26_hot_streak"), ExtResource("27_odometer"), ExtResource("28_tailslide"), ExtResource("29_jerry_can"), ExtResource("30_direct_debit"), ExtResource("31_deep_pockets")])

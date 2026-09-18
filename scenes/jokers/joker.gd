@@ -127,3 +127,8 @@ func ram_kills(_kart: Kart) -> bool:
 
 func modify_offer_count(count: int) -> int:
 	return count
+
+
+## How many jokers the holder may hold at once, GAME.md 3.7.
+func modify_joker_slots(count: int) -> int:
+	return count
