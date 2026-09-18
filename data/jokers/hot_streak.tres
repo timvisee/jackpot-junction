@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/hot_streak.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"hot_streak"
+display_name = "Hot Streak"
+description = "+0.5 mult every 10 seconds you stay on the floor."
+rarity = 2
+kind = 1

@@ -817,6 +817,7 @@ a real downside. Starting set; balance is untested.
 | Road Rage        | Uncommon | Cursed | Ramming above 90% of top speed kills without Boost, but top speed is -10% |
 | Snake Eyes       | Uncommon | Cursed | Start every life with mult 3, but grazes give nothing                     |
 | Lucky Seven      | Rare     | Rule   | Every 7th chip you collect gives +1 mult                                  |
+| Hot Streak       | Rare     | Rule   | +0.5 mult every 10 seconds you stay on the floor                          |
 | Wild Card        | Rare     | Rule   | Respawn offers 5 jokers instead of 3                                      |
 | Glass Jackpot    | Rare     | Cursed | Completed cash-outs pay 150%, but dying drops all your chips and 2 jokers |
 

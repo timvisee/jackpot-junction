@@ -45,6 +45,19 @@ func test_payday_pays_a_coin_a_second() -> void:
 	assert_int(kart.pot.coins).is_equal(4)
 
 
+func test_hot_streak_climbs_the_mult_on_its_own() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := _armed(match_node, "hot_streak")
+	var start := kart.pot.mult
+	JokerTick.step(match_node.slots, 9.0)
+	assert_float(kart.pot.mult).is_equal(start)
+	JokerTick.step(match_node.slots, 1.0)
+	assert_float(kart.pot.mult).is_equal(start + 0.5)
+	JokerTick.step(match_node.slots, 30.0)
+	assert_float(kart.pot.mult).is_equal(start + 2.0)
+
+
 ## The wiring rather than the sum: a match steps its jokers on its own, without being asked.
 func test_a_running_match_pays_the_jokers_that_pay() -> void:
 	var match_node := _start_match()

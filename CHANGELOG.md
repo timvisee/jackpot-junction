@@ -43,6 +43,9 @@ below, and hands the notes to the release workflow.
 - **A new joker, Payday.** A coin every second, wherever you are and whatever you
   are doing. Uncommon.
 
+- **A new joker, Hot Streak.** Half a point of mult every ten seconds you stay on
+  the floor. Rare.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button
