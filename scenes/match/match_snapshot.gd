@@ -293,6 +293,9 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 			Burst.spawn(match_node, crate.global_position, Palette.BLOCK, 0.9, 18)
 		crate.visible = crates[i]
 		crate.alive = crates[i]
+		# A client may have taken this box off the floor itself on the strength of driving through
+		# it. If the host says otherwise the box is back, and it has to be solid again with it.
+		crate.collision_layer = Layers.WORLD if crates[i] else 0
 	var targets: Array = data.get("targets", [])
 	for i: int in mini(targets.size(), match_node.arena.targets.size()):
 		match_node.arena.targets[i].apply_puppet_state(targets[i])

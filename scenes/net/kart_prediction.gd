@@ -30,6 +30,8 @@ const EASE_RATE := 0.2
 ## The most the picture is ever allowed to lag the simulation by. Past this the kart on screen
 ## would be somewhere the kart is not, which is worse than the correction it is hiding.
 const EASE_MAX := 1.2
+## How many times an offset is halved looking for room to draw the kart in before giving up.
+const EASE_TRIES := 4
 ## Past this, in metres, nothing is being hidden: the kart is simply put where the host says. A
 ## disagreement this size is a respawn, a death, a blast or a pit, not a difference of opinion
 ## about driving, and easing it in would send the kart gliding across the room.
@@ -161,8 +163,23 @@ func _wear_off() -> void:
 		_ease = Vector3.ZERO
 	if absf(_ease_heading) < 0.0005:
 		_ease_heading = 0.0
-	kart.global_position += _ease
+	kart.global_position += _clear(_ease)
 	kart.rotation = Vector3(0.0, kart.motor.heading + _ease_heading, 0.0)
+
+
+## The part of an offset the kart can actually be drawn along without ending up inside a wall.
+## The offset is a picture lagging behind a simulation, not a movement, so nothing tests it for
+## collisions; up against a wall that is how a kart comes to be seen halfway through one.
+func _clear(offset: Vector3) -> Vector3:
+	if offset == Vector3.ZERO or not kart.test_move(kart.global_transform, offset):
+		return offset
+	# Something is in the way. Half of it, until it fits or there is nothing left worth moving.
+	var shrunk := offset
+	for i: int in EASE_TRIES:
+		shrunk *= 0.5
+		if not kart.test_move(kart.global_transform, shrunk):
+			return shrunk
+	return Vector3.ZERO
 
 
 ## The host's answer for tick [param ack]. Anything this client did after that tick is run again
@@ -173,6 +190,13 @@ func reconcile(ack: int, state: Array, delta: float) -> void:
 	last_replay = 0
 	last_jump = 0.0
 	last_turn = 0.0
+	if kart.falling:
+		# Over the edge and on the way down. The host is still a round trip behind and its answer
+		# says the kart is driving along quite happily, which would lift it back out of the hole
+		# to drive over it again and fall in a second time when the truth caught up. A fall is
+		# not a guess to be talked out of: the kart is in the hole, and the host will say so.
+		_history.clear()
+		return
 	# Where the kart is drawn right now. Whatever else this does, the honest measure of it is how
 	# far that moves by the time it returns.
 	var drawn := kart.global_position

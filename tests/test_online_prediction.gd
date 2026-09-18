@@ -49,6 +49,9 @@ var _moved_there_at := -1
 var _nitro_at := -1
 var _burned_here_at := -1
 var _burned_there_at := -1
+## The tick each machine's kart went over the edge of a hole.
+var _fell_here_at := -1
+var _fell_there_at := -1
 
 
 ## Every test gets its own wire. Packets left in flight from the last one would be delivered into
@@ -72,6 +75,8 @@ func before_test() -> void:
 	_nitro_at = -1
 	_burned_here_at = -1
 	_burned_there_at = -1
+	_fell_here_at = -1
+	_fell_there_at = -1
 	_drop_one_in = 0
 
 
@@ -166,6 +171,10 @@ func _on_tick() -> void:
 		_burned_here_at = _tick
 	if _burned_there_at < 0 and _host.kart_of(0).nitro_active:
 		_burned_there_at = _tick
+	if _fell_here_at < 0 and _prediction.kart.falling:
+		_fell_here_at = _tick
+	if _fell_there_at < 0 and (_host.kart_of(0).falling or not _host.kart_of(0).alive):
+		_fell_there_at = _tick
 
 
 ## Waits for [param ticks] physics ticks of the harness to have run.
@@ -369,6 +378,39 @@ func test_nitro_burns_on_the_tick_it_is_pressed() -> void:
 	assert_float(_worst_jump).override_failure_message(_report()).is_less(0.01)
 
 
+## A wall is a wall on both machines, GAME.md 10.3. The kart used to be drawn part way through
+## one: a correction still being walked in is a picture lagging behind a simulation, and nothing
+## tested whether there was room to lag into.
+func test_a_kart_is_never_drawn_inside_a_wall() -> void:
+	await _connect()
+	var bounds := _client.arena.bounds()
+	var wall := -bounds.size.z * 0.5
+	var start := Vector3(bounds.size.x * 0.5 - 2.0, 0.0, wall + 4.0)
+	_prediction.kart.global_position = start
+	_host.kart_of(0).global_position = start
+	_prediction.kart.motor.heading = 0.0
+	_host.kart_of(0).motor.heading = 0.0
+	# Flat out into it, at an angle, on a wire dropping a packet in five. A clean run at a wall
+	# barely disagrees with the host at all; the corrections that could push a kart through one
+	# are the ones a lossy wire produces, so those are the conditions to ask about.
+	_input.throttle = 1.0
+	_input.nitro = true
+	_input.steer = 0.25
+	_drop_one_in = 5
+	var deepest := 0.0
+	for i: int in 90:
+		await _drive(1)
+		# How far past the inside face of the wall the kart is drawn, at any point in the run.
+		deepest = maxf(deepest, wall - _prediction.kart.global_position.z)
+	_running = false
+	prints("MEASURE wall: deepest %.3f m past the wall, %s" % [deepest, _report()])
+	(
+		assert_float(deepest)
+		. override_failure_message("drawn %.2f m inside the wall" % deepest)
+		. is_less(0.6)
+	)
+
+
 ## Driving into a hole, GAME.md 3.6. The kart used to carry on across the gap on this machine,
 ## get dragged back by the correction and only then start falling. It goes over the edge here.
 func test_a_kart_falls_down_a_hole_when_it_drives_into_one() -> void:
@@ -386,10 +428,60 @@ func test_a_kart_falls_down_a_hole_when_it_drives_into_one() -> void:
 	await _drive(60)
 	_running = false
 	(
-		assert_bool(_prediction.kart.falling or not _prediction.kart.alive)
+		assert_bool(_fell_here_at >= 0)
 		. override_failure_message("the kart drove over the hole without going down it")
 		. is_true()
 	)
+	# The point of the exercise: it went down on this machine before the host had any idea, and
+	# stayed down rather than being lifted back out by the next correction to arrive.
+	prints("MEASURE hole: fell here at %d, host at %d" % [_fell_here_at, _fell_there_at])
+	(
+		assert_bool(_fell_there_at < 0 or _fell_here_at < _fell_there_at)
+		. override_failure_message("fell here at %d, host at %d" % [_fell_here_at, _fell_there_at])
+		. is_true()
+	)
+	assert_bool(_prediction.kart.falling or not _prediction.kart.alive).is_true()
 	# It falls here and nowhere else: whether that cost a life is the host's to say, and the
 	# client waits to be told rather than killing its own kart.
 	assert_bool(_prediction.kart.puppet).is_true()
+
+
+## A box taken at ramming speed, GAME.md 6.2. Passing through one is right, but the box has to go
+## with it: a client that drove through a box still standing on its own screen is a kart seen
+## ploughing through solid scenery until the snapshot catches up.
+func test_a_box_driven_through_goes_off_the_floor_here() -> void:
+	await _connect()
+	var crate: Crate = _client.arena.crates[0]
+	assert_bool(crate.alive).is_true()
+	# Lined up on it, flat out, with nitro, which is what takes a kart through a box.
+	var at := crate.global_position + Vector3(0.0, 0.0, 2.2)
+	_prediction.kart.global_position = at
+	_host.kart_of(0).global_position = at
+	_prediction.kart.motor.heading = 0.0
+	_host.kart_of(0).motor.heading = 0.0
+	_input.throttle = 1.0
+	_input.nitro = true
+	var host_crate: Crate = _host.arena.crates[0]
+	var broke_here := -1
+	var broke_there := -1
+	for i: int in 60:
+		await _drive(1)
+		if broke_here < 0 and not crate.alive:
+			broke_here = _tick
+		if broke_there < 0 and not host_crate.alive:
+			broke_there = _tick
+	_running = false
+	prints("MEASURE box: went here at %d, host at %d" % [broke_here, broke_there])
+	(
+		assert_int(broke_here)
+		. override_failure_message("the kart drove through a box that stayed on the floor")
+		. is_greater(0)
+	)
+	# Off the floor here first, and not solid any more either, so the kart is through it rather
+	# than grinding along a box nobody can see the point of.
+	assert_int(crate.collision_layer).is_equal(0)
+	(
+		assert_bool(broke_there < 0 or broke_here <= broke_there)
+		. override_failure_message("here at %d, host at %d" % [broke_here, broke_there])
+		. is_true()
+	)

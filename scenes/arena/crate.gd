@@ -23,6 +23,16 @@ func _ready() -> void:
 	add_to_group(&"crates")
 
 
+## A box a client has just driven through, GAME.md 10.3. It goes off the floor here so the kart
+## is not seen ploughing through a box that is still drawn, and nothing else about it happens:
+## the chips it drops, the credit for it and the burst are the host's, and arrive on their own. A
+## snapshot that disagrees puts the box straight back, which is what makes guessing safe.
+func predict_break() -> void:
+	alive = false
+	visible = false
+	collision_layer = 0
+
+
 func hit(by_slot: int) -> void:
 	if not alive:
 		return

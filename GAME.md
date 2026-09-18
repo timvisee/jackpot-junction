@@ -1659,6 +1659,11 @@ who hit whom, what was collected and what anything is worth.
   case, costs nothing and changes nothing. Disagreement rewinds the kart to the
   host's state and replays every tick since, so the correction lands in the
   present rather than in the past.
+- **A correction is never walked in through a wall.** The offset between where the
+  kart is simulated and where it is drawn is a picture lagging behind, not a
+  movement, so nothing tests it for collisions; up against a wall that is how a
+  kart comes to be seen halfway through one. It is tested for room and shortened
+  until it fits.
 - **Corrections are walked in, not applied.** The simulation goes onto the host's
   answer at once; the picture does not. What is left between the two is carried
   as an offset on the drawn position and heading, and a fifth of it comes off
@@ -1702,8 +1707,17 @@ put right afterwards, which is more than where the kart is:
   that a host and a puppet match sharing a scene tree, which is tests today and a
   split screen later, never shove each other's karts about.
 - **Going down a hole**, which starts here the moment the kart is over the edge.
-  The drop runs and stops there: a puppet is never killed on its own machine, so
-  whether that cost a life, and whose fault it was, still comes from the host.
+  A fall is not a guess to be talked out of: once the kart is in the hole its
+  position stops being reconciled, because the host is still a round trip behind
+  and its answer says the kart is driving along quite happily, which would lift it
+  back out to drive over the hole and fall in a second time. The drop runs and
+  stops there: a puppet is never killed on its own machine, so whether that cost a
+  life, and whose fault it was, still comes from the host.
+- **A box driven through at ramming speed**, which comes off the floor here so the
+  kart is not seen ploughing through scenery that is still drawn. What the box was
+  worth, and who gets the credit, are the host's and arrive on their own. A
+  snapshot that disagrees puts the box straight back, solid again, which is what
+  makes guessing at it safe.
 - **The joker pick**, which is not physics at all. The cursor moves and the card
   is taken on the tick the key goes down, and the snapshot leaves that one pick
   alone while it is open rather than walking the cursor back to where the host had

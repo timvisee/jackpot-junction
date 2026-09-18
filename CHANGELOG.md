@@ -18,7 +18,10 @@ below, and hands the notes to the release workflow.
   and then dragged it through, driving into another kart carried on through
   where they were standing, driving into a hole crossed it and then fell in
   backwards, and the joker cursor moved a round trip after the key. All of them
-  are answered on the spot now and put right by the host afterwards.
+  are answered on the spot now and put right by the host afterwards. A kart that
+  falls in a hole stays in it rather than being lifted back out to fall in again
+  when the host catches up, and a box driven through at ramming speed comes off
+  the floor rather than being ploughed through while still drawn.
 - **Online: picking a joker on a client.** A player whose kart had died was not
   heard by the host at all, so no card could be picked, no cursor moved and
   nothing answered until the kart came back on its own. The same held on the

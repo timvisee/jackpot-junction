@@ -61,7 +61,11 @@ static func _smashes(
 ) -> bool:
 	if not crate.alive or not kart.ram_kills() or -pre.dot(normal) <= CRASH_SPEED:
 		return false
-	if not quiet:
+	if quiet:
+		# Predicted: the box comes off the floor so the kart is not seen driving through one that
+		# is still there, and nothing it was worth is decided here.
+		crate.predict_break()
+	else:
 		crate.hit(kart.slot)
 	kart.motor.velocity = pre
 	kart.velocity = pre
