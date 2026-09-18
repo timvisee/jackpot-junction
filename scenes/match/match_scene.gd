@@ -128,7 +128,7 @@ func _show_status(text: String, colour: Color = Palette.NEON_CYAN) -> void:
 ## itself: the HUD stands down, taking any open joker pick, the standings and the blocks with it,
 ## and the pane is the only thing left to read.
 func _fail(message: String) -> void:
-	_show_status(message + "\nReturning to the title...", Palette.CHIP_RED)
+	_show_status(message + "\nReturning to the menu...", Palette.CHIP_RED)
 	if match_node != null and match_node.hud != null:
 		match_node.hud.stand_down()
 	get_tree().create_timer(RETURN_DELAY).timeout.connect(func() -> void: Game.go_to_title())

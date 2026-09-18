@@ -18,6 +18,9 @@ below, and hands the notes to the release workflow.
   and holding a face button through a corner meant fighting the thumb that was
   steering through it.
 
+- **The notice about a lost host says where you are going.** It said the title,
+  which is what the first screen is called in the code. A player sees a menu.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button
