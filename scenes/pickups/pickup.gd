@@ -80,6 +80,20 @@ func throw_from(origin: Vector3) -> void:
 	_thrown_left = THROW_TIME
 
 
+## The throw in progress, for a client to draw the same one, GAME.md 10.3: where it is flying
+## from and how much of the flight is left. Empty once it has landed, which is most of a
+## pickup's life, so it costs nothing to carry.
+func throw_state() -> Array:
+	return [] if _thrown_left <= 0.0 else [_thrown_from, _thrown_left]
+
+
+## Picks the same throw up part way through on a client. Cosmetic the whole way: the pickup is
+## already lying where it lands on both machines, and this is only the look of it getting there.
+func resume_throw(from: Vector3, left: float) -> void:
+	_thrown_from = from
+	_thrown_left = left
+
+
 ## Out of the kart fast and settling slowly, growing from nothing as it goes, which is the way
 ## a taken pickup leaves the floor slowly and arrives fast, run backwards.
 func _step_throw(delta: float) -> void:

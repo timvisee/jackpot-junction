@@ -20,6 +20,9 @@ below, and hands the notes to the release workflow.
   down a hole, dying, coming back. On a wire dropping a packet in five that cut
   corrections from eleven snapshots in sixty to three. A claim further out than a
   few ticks of driving is refused, so this cannot be used to appear somewhere else.
+- **Online: dropped chips fly out on every screen.** Coins and items thrown clear
+  of a bursting kart or a breaking box only arced on the host; everybody else saw
+  them appear on the floor already landed.
 - **Online: things a client does now happen when it does them.** Nitro burnt a
   round trip late, driving into a crate at ramming speed stopped the kart dead
   and then dragged it through, driving into another kart carried on through

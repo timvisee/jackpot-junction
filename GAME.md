@@ -994,7 +994,10 @@ name. Somebody leaving frees their corner for the next player to sit down.
   see 3.4. It stands down in three- and four-player shared-screen games, where
   every player already has a corner block.
 - **Dropping something**: a kart that bursts, or a crate that breaks, throws what
-  it was carrying clear of itself rather than having it appear on the floor. Each
+  it was carrying clear of itself rather than having it appear on the floor. It
+  flies on every machine: the throw is cosmetic, since the pickup is already lying
+  where it lands on both, so a snapshot carries the flight still to run and a
+  client picks it up part way through rather than starting it again. Each
   piece flies out of the middle of the thing that dropped it and settles onto the
   spot it is going to lie on, growing from nothing as it goes: the same 0.3 s arc
   as taking one, run the other way. Anything simply put down, such as what a coin

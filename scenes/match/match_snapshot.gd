@@ -149,6 +149,13 @@ static func _pickups(match_node: Match) -> Array:
 			"x": pickup.global_position.x,
 			"z": pickup.global_position.z
 		}
+		# Still in the air. A kart bursting or a crate breaking throws what it was carrying clear
+		# of itself, GAME.md 8.3, and a client that only ever saw the chips lying on the floor was
+		# missing the half of that a player actually watches.
+		var throw := pickup.throw_state()
+		if not throw.is_empty():
+			entry["from"] = throw[0]
+			entry["left"] = throw[1]
 		var chip := pickup as Chip
 		var die := pickup as MultDie
 		var box := pickup as ItemBox
@@ -537,6 +544,11 @@ static func _apply_pickups(match_node: Match, entries: Array) -> void:
 		pickup.monitorable = false
 		match_node.arena.pickups.add_child(pickup)
 		match_node.puppet_pickups[id] = pickup
+		# Caught mid-flight: it carries on from wherever the host had got to rather than starting
+		# the throw again, so a client hearing about it late sees the end of the arc instead of a
+		# fresh one landing after everybody else's has.
+		if entry.has("left"):
+			pickup.resume_throw(entry["from"], entry["left"])
 	for id: int in match_node.puppet_pickups.keys():
 		if not seen.has(id):
 			var gone: Variant = match_node.puppet_pickups[id]

@@ -367,3 +367,51 @@ func test_a_client_draws_the_aim_guide_on_the_kart_its_player_drives() -> void:
 	await await_millis(60)
 	assert_bool(ours._aim_guide.visible).is_false()
 	Game.settings.aim_guide = true
+
+
+## GAME.md 8.3: a kart bursting or a crate breaking throws what it was carrying clear of itself
+## rather than having it appear on the floor. A client used to get only the second half of that,
+## because a pickup's position is where it lands from the first snapshot it appears in and the
+## flight is drawn on top of that.
+func test_a_client_sees_a_dropped_pickup_thrown_clear() -> void:
+	var host: Match = auto_free(MATCH_SCENE.instantiate())
+	host.rules = _rules()
+	host.with_hud = false
+	var runner := scene_runner(host)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	host.start(inputs, 91)
+	await runner.simulate_frames(20, 17)
+	var client: Match = auto_free(MATCH_SCENE.instantiate())
+	client.rules = _rules()
+	client.with_hud = false
+	add_child(client)
+	client.start_puppet()
+	client.apply_snapshot(host.build_snapshot())
+	# A chip thrown clear of a point, the way a bursting kart scatters them.
+	var chip := Chip.new()
+	var origin := Vector3(2.0, 0.0, 2.0)
+	host.arena.place_drop(chip, Vector3(3.0, 0.0, 3.0), origin)
+	await runner.simulate_frames(2, 17)
+	assert_bool(chip.throw_state().is_empty()).is_false()
+	client.apply_snapshot(host.build_snapshot())
+	var mine: Pickup = null
+	for node: Node in client.arena.pickups.get_children():
+		var found := node as Pickup
+		if found != null and found.global_position.distance_to(Vector3(3.0, 0.0, 3.0)) < 0.2:
+			mine = found
+	assert_object(mine).override_failure_message("the client never got the chip").is_not_null()
+	(
+		assert_bool(mine.throw_state().is_empty())
+		. override_failure_message("the chip appeared on the floor instead of being thrown there")
+		. is_false()
+	)
+	# Flying from where the host threw it, and part way through rather than starting again.
+	var state := mine.throw_state()
+	assert_vector(state[0] as Vector3).is_equal_approx(
+		origin + Vector3(0.0, Pickup.THROW_HEIGHT, 0.0), Vector3.ONE * 0.01
+	)
+	assert_float(state[1]).is_less(Pickup.THROW_TIME)
+	assert_float(state[1]).is_greater(0.0)
+	# And it lands, rather than hanging in the air for the rest of the match.
+	await runner.simulate_frames(40, 17)
+	assert_bool(mine.throw_state().is_empty()).is_true()
