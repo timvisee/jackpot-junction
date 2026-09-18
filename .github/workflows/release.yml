@@ -57,8 +57,15 @@ jobs:
           zip -qr "../jackpot-junction-${GITHUB_REF_NAME}-windows.zip" windows
           cp macos/jackpot-junction.zip "../jackpot-junction-${GITHUB_REF_NAME}-macos.zip"
 
+      # The tag's own section of the changelog becomes the release notes. A tag with no section
+      # fails here rather than publishing a release with nothing on it.
+      - name: Release notes
+        run: tools/changelog extract "${GITHUB_REF_NAME#v}" > release-notes.md
+
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           files: jackpot-junction-*.zip
+          body_path: release-notes.md
+          # GitHub appends its own list of commits and contributors under the notes above.
           generate_release_notes: true
