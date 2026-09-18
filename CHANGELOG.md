@@ -20,6 +20,10 @@ below, and hands the notes to the release workflow.
   down a hole, dying, coming back. On a wire dropping a packet in five that cut
   corrections from eleven snapshots in sixty to three. A claim further out than a
   few ticks of driving is refused, so this cannot be used to appear somewhere else.
+- **Online: a kart that has been down a hole is solid again.** Falling takes a
+  kart's collisions away, and on a client the kart is dead, stood down and
+  brought back between losing them and being driven again, so it came back able
+  to drive through walls for the rest of the match.
 - **Online: dropped chips fly out on every screen.** Coins and items thrown clear
   of a bursting kart or a breaking box only arced on the host; everybody else saw
   them appear on the floor already landed.

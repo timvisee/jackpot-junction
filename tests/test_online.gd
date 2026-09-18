@@ -519,3 +519,58 @@ func test_a_client_works_its_own_joker_pick_at_once() -> void:
 		. override_failure_message("a snapshot put the cursor back where the host had it")
 		. is_equal(1)
 	)
+
+
+## A kart that has been down a hole and come back is still solid, GAME.md 10.3. Falling takes a
+## kart's collisions away, and a client's kart is dead, suspended and brought back between losing
+## them and being driven again: whatever it was left holding is not to be trusted. Getting that
+## wrong meant driving through walls for the rest of the match.
+func test_a_client_kart_is_solid_again_after_coming_back() -> void:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	host_match.offer_size = 0
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(PORT)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client_match
+	client_session.local_input = PlayerInput.new()
+	_client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
+	assert_bool(assigned).is_true()
+	await await_millis(300)
+	var slot := client_session.local_slot
+	var kart: Kart = client_match.slots[slot].kart
+	var driving := kart.collision_mask
+	assert_int(driving).is_not_equal(0)
+	# Down a hole here, killed there, which is the order those happen in.
+	kart.start_fall()
+	assert_int(kart.collision_mask).is_equal(0)
+	host_match.kart_of(slot).die(&"pit", -1)
+	var died := await _wait_until(func() -> bool: return not kart.alive, 4000)
+	assert_bool(died).override_failure_message("the client never saw its kart die").is_true()
+	var back := await _wait_until(func() -> bool: return kart.alive, 8000)
+	assert_bool(back).override_failure_message("the kart never came back").is_true()
+	await await_millis(150)
+	(
+		assert_int(kart.collision_mask)
+		. override_failure_message("came back able to drive through walls")
+		. is_equal(driving)
+	)
+	assert_int(kart.collision_layer).is_equal(Layers.PUPPET)
+	assert_bool(kart.falling).is_false()

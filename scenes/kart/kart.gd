@@ -318,13 +318,11 @@ func apply_puppet_state(state: Dictionary, _delta: float) -> void:
 	if was_alive and not alive:
 		Burst.spawn(get_parent(), global_position, Palette.player_color(color_index), 1.0, 20)
 	if alive and not was_alive:
-		# Back on the floor. A predicted kart may have been part way down a hole when the host
-		# brought it back, and nothing here runs the respawn that would have tidied that up.
+		# Back on the floor. A puppet may have been part way down a hole when the host brought it
+		# back, and nothing here runs the respawn that would have tidied that up. What it is
+		# allowed to run into is [KartPrediction]'s to say and it says it every tick.
 		falling = false
 		scale = Vector3.ONE
-		if predicted:
-			collision_layer = Layers.PUPPET
-			collision_mask = Layers.WORLD | Layers.PUPPET
 	# A kart this client is driving takes its pose from its own driving and its corrections from
 	# the message addressed to it, GAME.md 10.3. The broadcast snapshot is a third of a second of
 	# round trip out of date for this one kart, and putting it here would undo the prediction

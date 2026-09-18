@@ -72,12 +72,7 @@ var _ease_heading := 0.0
 func _init(for_kart: Kart) -> void:
 	kart = for_kart
 	kart.predicted = true
-	# The walls and the crates, which are the same on both machines, and the other karts in this
-	# room, which are puppets on a layer of their own. Driving into somebody used to be the worst
-	# of it: the kart carried on through where they were standing and was then dragged back by
-	# the correction. A predicted bump is a guess at where they are, since a puppet is only ever
-	# where the host last said, but it is a much better guess than no bump at all.
-	kart.collision_mask = Layers.WORLD | Layers.PUPPET
+	take_the_wheel()
 
 
 ## One tick of movement and nothing else. Firing, items, pickups, scoring and damage are all left
@@ -164,6 +159,13 @@ static func restore(on: Kart, state: Array) -> void:
 ## from its own answer, and only the picture lags behind by the part of the error left to walk off.
 func predict(with: KartInput, delta: float, at: int) -> void:
 	seq = at
+	# A kart being driven here is solid, every tick, by asking rather than by remembering. Going
+	# down a hole takes a kart's collisions away, and between losing them and being driven again
+	# it has been dead, stood down and brought back by three different pieces of code; the one
+	# time that was left to trust, a kart came back able to drive through walls for the rest of
+	# the match. It is one comparison a tick to never have to reason about that again.
+	if not kart.falling and kart.collision_mask == 0:
+		take_the_wheel()
 	kart.global_position -= _ease
 	step(kart, with, delta)
 	_history.append({"seq": seq, "input": NetInput.encode(with), "state": capture(kart)})
@@ -296,6 +298,21 @@ func accept(ack: int) -> void:
 	_forget_through(ack)
 
 
+## Gives the kart the physics of something being driven here: the walls and the crates, which
+## are the same on both machines, and the other karts in this room, which are puppets on a layer
+## of their own. Driving into somebody used to be the worst of it: the kart carried on through
+## where they were standing and was then dragged back by the correction. A predicted bump is a
+## guess at where they are, since a puppet is only ever where the host last said, but it is a
+## much better guess than no bump at all.
+##
+## Set here and nowhere else, and checked on every tick that drives the kart. Falling down a hole
+## takes a kart's collisions away, and a kart that has been down one has been dead, stood down and
+## brought back by the time it is driven again: whatever it was left holding is not to be trusted.
+func take_the_wheel() -> void:
+	kart.collision_layer = Layers.PUPPET
+	kart.collision_mask = Layers.WORLD | Layers.PUPPET
+
+
 ## Stops driving and forgets what it was holding, for a kart that has died, been frozen on the
 ## grid or sent rolling out the end of the match. None of those is a state a player steers out
 ## of, and the ticks in the buffer are about to become history nobody will ask about.
@@ -312,6 +329,7 @@ func suspend() -> void:
 ## host answered while nobody here was driving, so the count starts again above all of them.
 func resume() -> void:
 	kart.predicted = true
+	take_the_wheel()
 	_history.clear()
 	_ease = Vector3.ZERO
 	_ease_heading = 0.0
