@@ -22,12 +22,23 @@ const QUEUE_MAX := 6
 ## and the client is corrected for it. Two ticks of slack is a thirtieth of a second of delay
 ## for everyone watching, and nothing at all for the player driving, who is not waiting on this.
 const QUEUE_REFILL := 2
+## How far a client's kart may be from where the host had it and still be believed, in metres. A
+## tick of driving is a fifth of this at top speed, so anything past it is not a difference of
+## opinion about physics: it is a kart somewhere else, and the host drives it itself instead.
+const CLAIM_REACH := 2.0
+## Seconds the host keeps the wheel after something it has to settle, GAME.md 10.3. Long enough
+## for the client to be told and to stop arguing, short enough not to be felt as a lurch.
+const CLAIM_DENIED := 0.4
 
 ## The newest packet number that has arrived, and the number the kart last actually drove. The
 ## second is what goes back to the client: a packet sitting in the queue has not moved anything
 ## yet, and a client replaying from it would replay from a tick that never ran.
 var last_seq := 0
 var applied_seq := 0
+## Where the client says its kart ended the tick being played back, and how long the host is
+## driving this kart itself whatever the client says.
+var claim: Array = []
+var denied_left := 0.0
 
 var _queue: Array[Array] = []
 ## Set when the queue ran dry, cleared once there is enough in hand to run smoothly again.
@@ -39,6 +50,17 @@ var _pending_next := false
 var _pending_select := -1
 var _pending_drop := false
 var _pending_destroy := false
+
+
+## What the far end says it did with this tick, for the host to follow rather than second-guess.
+## Empty while the host holds the wheel, so the kart is simulated here instead.
+func claimed_state() -> Array:
+	return [] if denied_left > 0.0 else claim
+
+
+func deny_claim(seconds: float) -> void:
+	denied_left = maxf(denied_left, seconds)
+	claim = []
 
 
 ## Packs a local input for the wire.
@@ -64,11 +86,11 @@ static func encode(source: KartInput) -> Array:
 
 ## Takes a packet from the client and puts it in the queue. Packets travel unreliably, so one
 ## that turns up out of order is older news than what is already here and is dropped.
-func receive(state: Array, seq: int = 0) -> void:
+func receive(state: Array, seq: int = 0, claimed: Array = []) -> void:
 	if state.size() < FIELDS or seq <= last_seq:
 		return
 	last_seq = seq
-	_queue.append([seq, state])
+	_queue.append([seq, state, claimed])
 	while _queue.size() > QUEUE_MAX:
 		# Too far behind to be worth playing out one at a time. The oldest is spent for its
 		# presses, which are the part nobody can afford to lose, and its steering is skipped.
@@ -78,7 +100,9 @@ func receive(state: Array, seq: int = 0) -> void:
 ## Plays back one tick of the client's controls. An empty queue means nothing has arrived for
 ## this tick, and the kart holds what it had: a player whose packet is late is still holding the
 ## throttle down, and letting go on their behalf would be worse than being a tick out of date.
-func poll(_delta: float) -> void:
+func poll(delta: float) -> void:
+	denied_left = maxf(denied_left - delta, 0.0)
+	claim = []
 	if _starved and _queue.size() >= QUEUE_REFILL:
 		_starved = false
 	if _queue.is_empty():
@@ -87,6 +111,7 @@ func poll(_delta: float) -> void:
 		var packet: Array = _queue.pop_front()
 		applied_seq = packet[0]
 		_apply(packet[1])
+		claim = packet[2] if packet.size() > 2 else []
 	fire_pressed = _pending_fire_pressed
 	use_item_pressed = _pending_use
 	joker_prev_pressed = _pending_prev

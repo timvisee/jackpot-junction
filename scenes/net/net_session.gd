@@ -168,6 +168,7 @@ func _physics_process(delta: float) -> void:
 		# be held against what this machine thought at the time.
 		_step_own_offer()
 		_input_seq += 1
+		var claim: Array = []
 		if _prediction != null and is_instance_valid(_prediction.kart):
 			var driving := _drivable()
 			if driving != _prediction.kart.predicted:
@@ -179,7 +180,11 @@ func _physics_process(delta: float) -> void:
 					_prediction.suspend()
 			if driving:
 				_prediction.predict(local_input, delta, _input_seq)
-		_send_input.rpc_id(1, NetInput.encode(local_input), _input_seq)
+				# What this machine made of the tick goes with the controls that made it. The
+				# host follows it rather than second-guessing it, GAME.md 10.3, which is what
+				# keeps a kart from being corrected for driving perfectly well.
+				claim = KartPrediction.capture(_prediction.kart)
+		_send_input.rpc_id(1, NetInput.encode(local_input), _input_seq, claim)
 
 
 func _on_peer_connected(peer: int) -> void:
@@ -300,7 +305,7 @@ func _receive_snapshot(bytes: PackedByteArray) -> void:
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered")
-func _send_input(state: Array, seq: int = 0) -> void:
+func _send_input(state: Array, seq: int = 0, claim: Array = []) -> void:
 	var peer := multiplayer.get_remote_sender_id()
 	if not _peer_slots.has(peer):
 		return
@@ -309,7 +314,7 @@ func _send_input(state: Array, seq: int = 0) -> void:
 		return
 	var input := match_node.slots[index].input as NetInput
 	if input != null:
-		input.receive(state, seq)
+		input.receive(state, seq, claim)
 
 
 ## One line about this client's own kart for the debug overlay, empty on a host or before a slot
@@ -353,22 +358,33 @@ func _send_authority() -> void:
 		var input := slot.input as NetInput
 		if input == null or slot.kart == null:
 			continue
-		_receive_authority.rpc_id(peer, input.applied_seq, KartPrediction.capture(slot.kart))
+		# Whether the host drove this kart itself this tick. While it did not, the client's own
+		# answer is the one that stands and there is nothing here to put right.
+		var host_drove := input.claimed_state().is_empty()
+		_receive_authority.rpc_id(
+			peer, input.applied_seq, KartPrediction.capture(slot.kart), host_drove
+		)
 
 
 ## Kept rather than acted on, see [member _authority]. Only the newest is worth anything: an
 ## older one describes a tick the newer has already answered for.
 @rpc("authority", "call_remote", "unreliable")
-func _receive_authority(ack: int, state: Array) -> void:
+func _receive_authority(ack: int, state: Array, host_drove: bool = true) -> void:
 	if _authority.is_empty() or ack >= int(_authority[0]):
-		_authority = [ack, state]
+		_authority = [ack, state, host_drove]
 
 
 func _settle_authority(delta: float) -> void:
 	if _authority.is_empty():
 		return
 	if _prediction != null and is_instance_valid(_prediction.kart) and _prediction.kart.predicted:
-		_prediction.reconcile(int(_authority[0]), _authority[1], delta)
+		if bool(_authority[2]):
+			_prediction.reconcile(int(_authority[0]), _authority[1], delta)
+		else:
+			# The host followed this machine's own answer for that tick, so there is nothing to
+			# put right. The history is trimmed and the kart carries on undisturbed, which is
+			# most ticks of most matches and the whole point of claiming at all.
+			_prediction.accept(int(_authority[0]))
 	_authority = []
 
 

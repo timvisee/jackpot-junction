@@ -32,6 +32,19 @@ func poll(_delta: float) -> void:
 	pass
 
 
+## Where the machine at the other end says its kart ended this tick, GAME.md 10.3. Empty for
+## anything driven here, which is everything except a remote player: a bot and a player at this
+## keyboard are simulated on this machine and have nothing to claim.
+func claimed_state() -> Array:
+	return []
+
+
+## Takes the wheel back off the far end for [param seconds], for the things it does not get to
+## decide on its own: running into somebody, being hit, going down a hole, coming back.
+func deny_claim(_seconds: float) -> void:
+	pass
+
+
 func clear() -> void:
 	steer = 0.0
 	throttle = 0.0

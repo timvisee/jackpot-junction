@@ -241,6 +241,7 @@ func _physics_process(delta: float) -> void:
 	motor.velocity = Vector3(velocity.x, 0.0, velocity.z)
 	position.y = 0.0
 	rotation = Vector3(0.0, motor.heading, 0.0)
+	KartPrediction.follow_claim(self)
 	_collect_overlapping_pickups()
 	_spin_wheels(delta)
 	_step_crown(delta)
@@ -789,6 +790,7 @@ func die(cause: StringName, killer_slot: int) -> void:
 	# was, is the host's to say and arrives in the snapshot.
 	if not alive or puppet:
 		return
+	input.deny_claim(NetInput.CLAIM_DENIED)
 	alive = false
 	falling = false
 	collision_layer = 0
@@ -816,6 +818,7 @@ func die(cause: StringName, killer_slot: int) -> void:
 ## Puts the kart back on the floor at [param point], facing [param direction], protected for
 ## [param protection] seconds.
 func respawn(point: Vector3, direction: Vector3, protection: float) -> void:
+	input.deny_claim(NetInput.CLAIM_DENIED)
 	alive = true
 	falling = false
 	global_position = Vector3(point.x, 0.0, point.z)
@@ -846,6 +849,7 @@ func respawn(point: Vector3, direction: Vector3, protection: float) -> void:
 func start_fall() -> void:
 	if not alive or falling or coasting:
 		return
+	input.deny_claim(NetInput.CLAIM_DENIED)
 	falling = true
 	_fall_left = rules.pit_fall_time
 	if not puppet:

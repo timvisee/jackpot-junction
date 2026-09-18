@@ -124,11 +124,21 @@ func _on_tick() -> void:
 	_tick += 1
 	_prediction.predict(_input, TICK, _tick)
 	if _drop_one_in <= 0 or _tick % _drop_one_in != 0:
-		_up.append({"at": _tick + LAG, "seq": _tick, "state": NetInput.encode(_input)})
+		(
+			_up
+			. append(
+				{
+					"at": _tick + LAG,
+					"seq": _tick,
+					"state": NetInput.encode(_input),
+					"claim": KartPrediction.capture(_prediction.kart),
+				}
+			)
+		)
 	var host_input := _host.slots[0].input as NetInput
 	for packet: Dictionary in _up.duplicate():
 		if packet["at"] <= _tick:
-			host_input.receive(packet["state"], packet["seq"])
+			host_input.receive(packet["state"], packet["seq"], packet["claim"])
 			_up.erase(packet)
 	if _tick % SNAPSHOT_EVERY == 0:
 		(
@@ -138,6 +148,7 @@ func _on_tick() -> void:
 					"at": _tick + LAG,
 					"ack": host_input.applied_seq,
 					"state": KartPrediction.capture(_host.kart_of(0)),
+					"drove": host_input.claimed_state().is_empty(),
 					"snapshot": _host.build_snapshot(),
 				}
 			)
@@ -146,7 +157,10 @@ func _on_tick() -> void:
 		if packet["at"] <= _tick:
 			_snapshots += 1
 			_client.apply_snapshot(packet["snapshot"])
-			_prediction.reconcile(packet["ack"], packet["state"], TICK)
+			if packet["drove"]:
+				_prediction.reconcile(packet["ack"], packet["state"], TICK)
+			else:
+				_prediction.accept(packet["ack"])
 			_down.erase(packet)
 			if _prediction.last_correction > 0.0:
 				_corrections += 1
@@ -192,13 +206,14 @@ func _drive(ticks: int) -> void:
 func _report() -> String:
 	return (
 		(
-			"gap %.3f m, %d of %d snapshots corrected, worst %.3f m over %d ticks, "
+			"gap %.3f m, %d of %d snapshots corrected (%d taken as read), worst %.3f m over %d ticks, "
 			+ "worst unexplained jump %.4f m and %.2f deg"
 		)
 		% [
 			_worst_gap,
 			_corrections,
 			_snapshots,
+			_prediction.accepted,
 			_worst_correction,
 			_deepest_replay,
 			_worst_jump,
@@ -484,4 +499,61 @@ func test_a_box_driven_through_goes_off_the_floor_here() -> void:
 		assert_bool(broke_there < 0 or broke_here <= broke_there)
 		. override_failure_message("here at %d, host at %d" % [broke_here, broke_there])
 		. is_true()
+	)
+
+
+## The request this was built for: the client's own answer stands until two karts touch, and then
+## the host settles it. Neither machine can settle a bump on its own, since each sees the other
+## where it last heard, so each predicting its own side would have both shoved and neither right.
+func test_touching_another_kart_hands_the_wheel_to_the_host() -> void:
+	await _connect()
+	_input.throttle = 1.0
+	await _drive(30)
+	var host_input := _host.slots[0].input as NetInput
+	(
+		assert_bool(host_input.claimed_state().is_empty())
+		. override_failure_message("the host was not taking the client's word for driving")
+		. is_false()
+	)
+	# Parked right on top of the bot, which is a contact the host has to resolve.
+	var bot := _host.kart_of(1)
+	bot.global_position = _host.kart_of(0).global_position + Vector3(1.0, 0.0, 0.0)
+	_input.steer = 1.0
+	await _drive(20)
+	_running = false
+	(
+		assert_float(host_input.denied_left)
+		. override_failure_message("running into somebody left the client still steering")
+		. is_greater(0.0)
+	)
+	(
+		assert_bool(host_input.claimed_state().is_empty())
+		. override_failure_message("the host was still following a claim mid-contact")
+		. is_true()
+	)
+
+
+## The other half of taking a client's word for things: a claim has to be believable. This is the
+## limit that stops a kart appearing on the far side of the arena, and it is the host's own
+## simulation that catches it, because the host is still driving the kart anyway.
+func test_a_claim_from_nowhere_is_refused() -> void:
+	await _connect()
+	_input.throttle = 1.0
+	await _drive(30)
+	var host_input := _host.slots[0].input as NetInput
+	var was_at := _host.kart_of(0).global_position
+	var bogus := KartPrediction.capture(_prediction.kart)
+	bogus[0] = float(bogus[0]) + 12.0
+	host_input.receive(NetInput.encode(_input), host_input.last_seq + 1, bogus)
+	await _drive(6)
+	_running = false
+	(
+		assert_float(_host.kart_of(0).global_position.distance_to(was_at))
+		. override_failure_message("a kart was moved twelve metres by asking")
+		. is_less(3.0)
+	)
+	(
+		assert_float(host_input.denied_left)
+		. override_failure_message("the host kept taking that client's word for things")
+		. is_greater(0.0)
 	)

@@ -13,6 +13,13 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Online: your own kart is yours until you touch somebody.** The host now takes
+  a client's word for where its own kart ended each tick, rather than working it
+  out again and correcting any difference, and only takes the wheel back for the
+  things one end cannot settle alone: running into another kart, being hit, going
+  down a hole, dying, coming back. On a wire dropping a packet in five that cut
+  corrections from eleven snapshots in sixty to three. A claim further out than a
+  few ticks of driving is refused, so this cannot be used to appear somewhere else.
 - **Online: things a client does now happen when it does them.** Nitro burnt a
   round trip late, driving into a crate at ramming speed stopped the kart dead
   and then dragged it through, driving into another kart carried on through

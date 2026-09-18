@@ -1654,11 +1654,29 @@ who hit whom, what was collected and what anything is worth.
   back to that client alone, at snapshot rate. Other clients are not interested:
   the broadcast snapshot still carries everybody's pose for drawing, and this is
   the one extra message, sent to one peer.
-- **The client reconciles.** It compares where it predicted it would be at that
-  sequence number with where the host says it was. Agreement, which is the normal
-  case, costs nothing and changes nothing. Disagreement rewinds the kart to the
-  host's state and replays every tick since, so the correction lands in the
-  present rather than in the past.
+- **The host takes the client's word for it.** Along with the controls, a client
+  sends what it made of that tick, and the host's kart ends the tick there. The
+  host simulates it anyway, which is what settles anything the kart ran into and
+  what catches a claim that is nonsense, but between the two answers the one a
+  player is looking at on their own screen is the one that stands. A client
+  driving on its own is then never corrected at all, because there is nothing to
+  correct: both machines agree because one of them is following the other.
+- **Until the host has to settle something.** Running into another kart, being
+  hit, going down a hole, dying, coming back: none of those is a question one end
+  can answer on its own, and a bump least of all, since each machine sees the
+  other kart where it last heard and each predicting its own side would have both
+  shoved and neither right. The host takes the wheel for a fraction of a second,
+  drives the kart itself, and says so.
+- **A claim has to be believable.** Further from where the host's own simulation
+  put the kart than a good few ticks of driving, and the host keeps the wheel
+  instead. The limit is what stops a kart appearing on the far side of the room;
+  it costs nothing to check because the host is simulating the kart regardless.
+- **The client reconciles when the host had the wheel.** It compares where it
+  predicted it would be at that sequence number with where the host says it was.
+  Agreement costs nothing and changes nothing. Disagreement rewinds the kart to
+  the host's state and replays every tick since, so the correction lands in the
+  present rather than in the past. While the host was following the client there
+  is nothing to put right, and the ticks are simply retired.
 - **A correction is never walked in through a wall.** The offset between where the
   kart is simulated and where it is drawn is a picture lagging behind, not a
   movement, so nothing tests it for collisions; up against a wall that is how a

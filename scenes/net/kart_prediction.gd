@@ -49,6 +49,9 @@ var last_replay := 0
 ## How many corrections there have been in all, and how many of those were too big to hide.
 var corrections := 0
 var snaps := 0
+## How many times the host simply took this machine's word for a tick, which is what most of a
+## match should look like.
+var accepted := 0
 ## How far the kart on screen actually moved because of the last correction, and how far it
 ## turned, which is the only part of any of this a player can see. Walking a correction in rather
 ## than applying it is meant to keep both at nothing; a snap is meant to show.
@@ -111,6 +114,22 @@ static func step(on: Kart, with: KartInput, delta: float, live: bool = true) -> 
 		on._spin_wheels(delta)
 		on._update_trails(delta, heading_before)
 	on.input = held
+
+
+## A kart driven from another machine ends the tick where that machine says it did, GAME.md 10.3.
+## The host has just simulated it anyway, which is what settles anything it ran into and what
+## catches a claim that is nonsense, but the answer a player sees on their own screen is the one
+## that stands. Anything the host has to arbitrate takes the wheel back for a moment.
+static func follow_claim(on: Kart) -> void:
+	var claim := on.input.claimed_state()
+	if claim.is_empty():
+		return
+	if on.global_position.distance_to(Vector3(claim[0], 0.0, claim[1])) > NetInput.CLAIM_REACH:
+		# Not a difference of opinion about physics: a kart somewhere else entirely. The host
+		# keeps this one, and says so, and the client puts itself right.
+		on.input.deny_claim(NetInput.CLAIM_DENIED)
+		return
+	restore(on, claim)
 
 
 ## Where a kart is, what its motor is doing and what is in its nitro tank, as one value. The
@@ -250,11 +269,12 @@ func debug_text() -> String:
 		return "prediction off"
 	return (
 		(
-			"prediction %d ticks ahead  %d corrections, %d snapped\n"
+			"prediction %d ticks ahead  %d accepted, %d corrections, %d snapped\n"
 			+ "last %.2f m over %d ticks, moved the kart %.3f m  worst %.3f m"
 		)
 		% [
 			_history.size(),
+			accepted,
 			corrections,
 			snaps,
 			last_correction,
@@ -263,6 +283,17 @@ func debug_text() -> String:
 			worst_jump,
 		]
 	)
+
+
+## The host took this machine's word for tick [param ack]. Nothing to replay and nothing to move:
+## the ticks up to it are done with, and the kart is already where both machines agree it is.
+func accept(ack: int) -> void:
+	last_correction = 0.0
+	last_replay = 0
+	last_jump = 0.0
+	last_turn = 0.0
+	accepted += 1
+	_forget_through(ack)
 
 
 ## Stops driving and forgets what it was holding, for a kart that has died, been frozen on the

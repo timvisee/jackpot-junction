@@ -78,6 +78,11 @@ static func _bump(
 	if not quiet:
 		kart.last_bump_slot = other.slot
 		kart.last_bump_time = Time.get_ticks_msec() * 0.001
+		# Two karts touching is the one thing neither machine can settle on its own: each sees
+		# the other where it last heard, and each predicting its own side would have both shoved
+		# and neither right. The host takes the wheel off both of them for a moment, GAME.md 10.3.
+		kart.input.deny_claim(NetInput.CLAIM_DENIED)
+		other.input.deny_claim(NetInput.CLAIM_DENIED)
 		if kart.ram_kills():
 			other.take_ram(kart.slot)
 	kart.motor.apply_bump(normal)
