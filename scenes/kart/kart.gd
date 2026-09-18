@@ -50,6 +50,9 @@ var decoy_owner: Kart
 var lifetime := 0.0
 ## On a client: driven by snapshots from the host, never simulated.
 var puppet := false
+## The one kart on a client that its own player drives, GAME.md 10.3. Still a puppet for
+## everything the host decides, but it moves itself rather than waiting for a round trip.
+var predicted := false
 ## The shared resources the kart's own stat copies are rebuilt from when jokers change.
 var base_stats: KartStats
 var base_cannon_stats: CannonStats
@@ -191,7 +194,13 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if puppet:
-		_step_puppet(delta)
+		# The one kart on a client its own player drives moves itself, GAME.md 10.3, and its
+		# session steps it rather than this. Gliding it toward the host's last word as well
+		# would be two hands on the same wheel.
+		if not predicted:
+			_step_puppet(delta)
+		else:
+			_step_sound(delta)
 		return
 	if not alive:
 		_step_sound(delta)
@@ -304,17 +313,22 @@ func apply_puppet_state(state: Dictionary, _delta: float) -> void:
 	alive = state["alive"]
 	if was_alive and not alive:
 		Burst.spawn(get_parent(), global_position, Palette.player_color(color_index), 1.0, 20)
-	var far := global_position.distance_to(target) > PUPPET_SNAP_DISTANCE
-	if not _puppet_has_target or not alive or not was_alive or far:
-		global_position = target
-		motor.heading = state["h"]
-		rotation = Vector3(0.0, motor.heading, 0.0)
-	_puppet_target = target
-	_puppet_heading = state["h"]
-	_puppet_velocity = Vector3(state.get("vx", 0.0), 0.0, state.get("vz", 0.0))
-	_puppet_has_target = true
-	motor.drifting = state["drift"]
-	motor.drift_time = state.get("drift_time", 0.0)
+	# A kart this client is driving takes its pose from its own driving and its corrections from
+	# the message addressed to it, GAME.md 10.3. The broadcast snapshot is a third of a second of
+	# round trip out of date for this one kart, and putting it here would undo the prediction
+	# thirty times a second. Everything below is the host's either way.
+	if not predicted:
+		var far := global_position.distance_to(target) > PUPPET_SNAP_DISTANCE
+		if not _puppet_has_target or not alive or not was_alive or far:
+			global_position = target
+			motor.heading = state["h"]
+			rotation = Vector3(0.0, motor.heading, 0.0)
+		_puppet_target = target
+		_puppet_heading = state["h"]
+		_puppet_velocity = Vector3(state.get("vx", 0.0), 0.0, state.get("vz", 0.0))
+		_puppet_has_target = true
+		motor.drifting = state["drift"]
+		motor.drift_time = state.get("drift_time", 0.0)
 	protection_left = 1.0 if state["prot"] else 0.0
 	var blink := fmod(Time.get_ticks_msec() * 0.001, BLINK_PERIOD) < BLINK_PERIOD * 0.5
 	_body.visible = alive and (protection_left <= 0.0 or blink)
