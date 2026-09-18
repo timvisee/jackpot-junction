@@ -1734,11 +1734,13 @@ put right afterwards, which is more than where the kart is:
   back out to drive over the hole and fall in a second time. The drop runs and
   stops there: a puppet is never killed on its own machine, so whether that cost a
   life, and whose fault it was, still comes from the host.
-- **A box driven through at ramming speed**, which comes off the floor here so the
-  kart is not seen ploughing through scenery that is still drawn. What the box was
-  worth, and who gets the credit, are the host's and arrive on their own. A
-  snapshot that disagrees puts the box straight back, solid again, which is what
-  makes guessing at it safe.
+- **A box driven through at ramming speed**, which comes off the floor here, in
+  pieces, and stays off it. The snapshots arriving over the next round trip were
+  built before the host had heard about it, and letting those put the box back is
+  what left a kart stuck against a box it had already gone through, waiting to be
+  dragged past it. So the client's own answer stands for a second, which is long
+  enough for the host to agree; if it does not, the box comes back solid. What the
+  box was worth and who gets the credit for it are the host's either way.
 - **The joker pick**, which is not physics at all. The cursor moves and the card
   is taken on the tick the key goes down, and the snapshot leaves that one pick
   alone while it is open rather than walking the cursor back to where the host had

@@ -415,3 +415,54 @@ func test_a_client_sees_a_dropped_pickup_thrown_clear() -> void:
 	# And it lands, rather than hanging in the air for the rest of the match.
 	await runner.simulate_frames(40, 17)
 	assert_bool(mine.throw_state().is_empty()).is_true()
+
+
+## A box a client drove through stays through, GAME.md 10.3. The snapshots arriving over the next
+## round trip were built before the host had heard about it, and letting them put the box back is
+## what left a kart stuck against a box it had already gone through, waiting to be dragged past.
+func test_a_box_a_client_broke_stays_broken_until_the_host_says_otherwise() -> void:
+	var host: Match = auto_free(MATCH_SCENE.instantiate())
+	host.rules = _rules()
+	host.with_hud = false
+	var runner := scene_runner(host)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	host.start(inputs, 91)
+	await runner.simulate_frames(20, 17)
+	var client: Match = auto_free(MATCH_SCENE.instantiate())
+	client.rules = _rules()
+	client.with_hud = false
+	add_child(client)
+	client.start_puppet()
+	client.apply_snapshot(host.build_snapshot())
+	var mine: Crate = client.arena.crates[0]
+	assert_bool(mine.alive).is_true()
+	# Driven through here. The host has not heard yet and goes on saying the box is there.
+	mine.predict_break()
+	assert_bool(mine.alive).is_false()
+	assert_int(mine.collision_layer).is_equal(0)
+	for i: int in 8:
+		await runner.simulate_frames(2, 17)
+		client.apply_snapshot(host.build_snapshot())
+	(
+		assert_bool(mine.alive)
+		. override_failure_message("a snapshot put the box back under the kart that broke it")
+		. is_false()
+	)
+	# The host agrees, and that is that.
+	host.arena.crates[0].hit(0)
+	client.apply_snapshot(host.build_snapshot())
+	assert_bool(mine.alive).is_false()
+	assert_bool(mine.predicted_break()).is_false()
+	# And the other way: a box this machine was wrong about comes back, because the host's word
+	# is what settles it and a guess only ever buys itself a moment.
+	var wrong: Crate = client.arena.crates[1]
+	wrong.predict_break()
+	assert_bool(wrong.alive).is_false()
+	await runner.simulate_frames(80, 17)
+	client.apply_snapshot(host.build_snapshot())
+	(
+		assert_bool(wrong.alive)
+		. override_failure_message("a box this machine was wrong about never came back")
+		. is_true()
+	)
+	assert_int(wrong.collision_layer).is_equal(Layers.WORLD)

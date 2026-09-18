@@ -11,7 +11,8 @@ extends GdUnitTestSuite
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const TICK := 1.0 / 60.0
-## Ticks each way. Three is 100 ms of round trip, four times the 25 ms the report was about.
+## Ticks each way by default. Three is 100 ms of round trip, four times the 25 ms the first
+## report was about. A test that wants a slower wire raises [member _lag].
 const LAG := 3
 ## The host sends its state every other tick, the same as [NetSession] does.
 const SNAPSHOT_EVERY := 2
@@ -28,6 +29,8 @@ var _up: Array[Dictionary] = []
 var _down: Array[Dictionary] = []
 ## One packet in this many is thrown away on the way up, 0 for a clean wire.
 var _drop_one_in := 0
+## Ticks each way on this test's wire.
+var _lag := LAG
 ## What the run cost: how far the two machines ever drifted apart, how often that needed putting
 ## right, how big the worst one was, and how many ticks the deepest replay had to run.
 var _worst_gap := 0.0
@@ -78,6 +81,7 @@ func before_test() -> void:
 	_fell_here_at = -1
 	_fell_there_at = -1
 	_drop_one_in = 0
+	_lag = LAG
 
 
 func after_test() -> void:
@@ -128,7 +132,7 @@ func _on_tick() -> void:
 			_up
 			. append(
 				{
-					"at": _tick + LAG,
+					"at": _tick + _lag,
 					"seq": _tick,
 					"state": NetInput.encode(_input),
 					"claim": KartPrediction.capture(_prediction.kart),
@@ -145,7 +149,7 @@ func _on_tick() -> void:
 			_down
 			. append(
 				{
-					"at": _tick + LAG,
+					"at": _tick + _lag,
 					"ack": host_input.applied_seq,
 					"state": KartPrediction.capture(_host.kart_of(0)),
 					"drove": host_input.claimed_state().is_empty(),
@@ -246,9 +250,9 @@ func test_your_own_kart_answers_the_stick_at_once() -> void:
 	(
 		assert_int(there)
 		. override_failure_message(
-			"the host answered in %d ticks, expected at least %d" % [there, LAG]
+			"the host answered in %d ticks, expected at least %d" % [there, _lag]
 		)
-		. is_greater_equal(LAG)
+		. is_greater_equal(_lag)
 	)
 
 
@@ -275,7 +279,7 @@ func test_a_predicted_kart_stays_where_the_host_has_it() -> void:
 	# A client is a round trip ahead of the host by design, so the two are never in the same
 	# place. The lead is that round trip at whatever speed the kart is doing, and it has to be
 	# that and not more: anything beyond it is prediction drifting rather than leading.
-	var round_trip := float(LAG * 2 + SNAPSHOT_EVERY) * TICK
+	var round_trip := float(_lag * 2 + SNAPSHOT_EVERY) * TICK
 	var lead := host_kart.motor.speed() * round_trip
 	(
 		assert_float(own.global_position.distance_to(host_kart.global_position))
@@ -381,7 +385,7 @@ func test_nitro_burns_on_the_tick_it_is_pressed() -> void:
 		. override_failure_message(
 			"the host lit it in %d ticks, expected at least %d" % [there, LAG]
 		)
-		. is_greater_equal(LAG)
+		. is_greater_equal(_lag)
 	)
 	(
 		assert_float(_prediction.kart.nitro_charge)
@@ -495,6 +499,9 @@ func test_a_box_driven_through_goes_off_the_floor_here() -> void:
 	# Off the floor here first, and not solid any more either, so the kart is through it rather
 	# than grinding along a box nobody can see the point of.
 	assert_int(crate.collision_layer).is_equal(0)
+	# Whether it then stays off the floor is asked in test_online_sync.gd rather than here: both
+	# matches in this harness share one physics space, so the kart breaks the host's box at the
+	# same moment as its own and there is never a snapshot saying otherwise to stand up to.
 	(
 		assert_bool(broke_there < 0 or broke_here <= broke_there)
 		. override_failure_message("here at %d, host at %d" % [broke_here, broke_there])

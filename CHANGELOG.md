@@ -42,7 +42,9 @@ below, and hands the notes to the release workflow.
   are answered on the spot now and put right by the host afterwards. A kart that
   falls in a hole stays in it rather than being lifted back out to fall in again
   when the host catches up, and a box driven through at ramming speed comes off
-  the floor rather than being ploughed through while still drawn.
+  the floor rather than being ploughed through while still drawn, and stays off
+  it rather than being put back by the next snapshot under the kart that has
+  already gone through it.
 - **Online: picking a joker on a client.** A player whose kart had died was not
   heard by the host at all, so no card could be picked, no cursor moved and
   nothing answered until the kart came back on its own. The same held on the

@@ -298,6 +298,14 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 		var crate := match_node.arena.crates[i]
 		if crate.alive and not crates[i]:
 			Burst.spawn(match_node, crate.global_position, Palette.BLOCK, 0.9, 18)
+		if crate.predicted_break():
+			# This client drove through it and says so. Snapshots built before the host heard
+			# about that would put the box back under the kart that has already gone through it,
+			# so its own answer stands until the host has had time to agree, or not.
+			if crates[i]:
+				continue
+			crate.settle_break(false)
+			continue
 		crate.visible = crates[i]
 		crate.alive = crates[i]
 		# A client may have taken this box off the floor itself on the strength of driving through
