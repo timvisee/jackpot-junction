@@ -28,6 +28,13 @@ func _ready() -> void:
 	collision_layer = Layers.WORLD
 	collision_mask = 0
 	add_to_group(&"crates")
+	# Worth bending a shot toward, GAME.md 5.1: a box broken is cover gone and coins on the floor.
+	add_to_group(Bullet.TARGET_GROUP)
+
+
+## Whether a shot may be aimed at this box, GAME.md 5.1.
+func is_targetable() -> bool:
+	return alive
 
 
 ## A box a client has just driven through, GAME.md 10.3. It goes off the floor here and stays

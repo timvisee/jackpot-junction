@@ -12,6 +12,9 @@ signal expired(bullet: Bullet)
 const HEIGHT := 0.5
 const SKIN := 0.02
 const TARGET_GROUP := &"targets"
+## How much nearer a kart counts than it really is when the aim has a choice, GAME.md 5.1. A
+## player is always the better thing to hit, so a box has to be well inside one to win the shot.
+const PLAYER_PULL := 0.4
 
 var owner_slot := -1
 var velocity := Vector3.ZERO
@@ -172,25 +175,51 @@ static func steer_toward(
 
 
 func _nearest_target() -> Node3D:
-	return nearest_target(get_tree(), global_position, owner_slot)
+	return nearest_target(
+		get_tree(), global_position, owner_slot, assist_range, velocity, assist_cone
+	)
 
 
-## The nearest kart or turret that may be shot right now, skipping [param ignore_slot]'s own
-## and anything further away than [param max_range].
+## The best thing to bend a shot toward right now, GAME.md 5.1: a kart, a turret, a box, a bomb
+## or a shooting target, whichever of them is worth most from here. Skips [param ignore_slot]'s
+## own kart and anything further than [param max_range].
+##
+## Karts come first. Everything else on the floor is worth shooting and a shot that finds a box
+## or sets off a bomb is a shot that did something, but none of it wins a match, so a kart is
+## treated as [constant PLAYER_PULL] of its real distance away and a box has to be well inside
+## one to take the aim off it.
+##
+## With a [param facing] and a [param cone], only what is in front is considered. Without them
+## the nearest thing wins wherever it is, which is what a bullet with no direction yet wants.
 static func nearest_target(
-	tree: SceneTree, from: Vector3, ignore_slot: int, max_range: float = INF
+	tree: SceneTree,
+	from: Vector3,
+	ignore_slot: int,
+	max_range: float = INF,
+	facing: Vector3 = Vector3.ZERO,
+	cone: float = 0.0
 ) -> Node3D:
 	var best: Node3D = null
-	var best_distance := max_range
+	var best_score := INF
+	var flat := Vector3(facing.x, 0.0, facing.z)
 	for node: Node in tree.get_nodes_in_group(TARGET_GROUP):
 		var target := node as Node3D
 		if target == null or not target.has_method("is_targetable"):
 			continue
 		if not target.call("is_targetable") or target.get("slot") == ignore_slot:
 			continue
-		var distance := from.distance_to(target.global_position)
-		if distance < best_distance:
-			best_distance = distance
+		var to_target := Vector3(
+			target.global_position.x - from.x, 0.0, target.global_position.z - from.z
+		)
+		var distance := to_target.length()
+		if distance > max_range:
+			continue
+		if cone > 0.0 and not flat.is_zero_approx() and distance > 0.001:
+			if absf(flat.signed_angle_to(to_target, Vector3.UP)) > cone:
+				continue
+		var score := distance * (PLAYER_PULL if target is Kart else 1.0)
+		if score < best_score:
+			best_score = score
 			best = target
 	return best
 

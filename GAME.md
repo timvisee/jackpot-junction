@@ -650,7 +650,13 @@ bounces back into the shooter.
 ### 5.2 Aim assist
 
 To make forward-only aiming forgiving, bullets bend slightly toward targets. The bend stops
-at the first bounce and the accessibility setting in 8.5 scales it, down to nothing. Two
+at the first bounce and the accessibility setting in 8.5 scales it, down to nothing.
+
+Everything worth shooting counts as a target, not only karts: a box broken is cover gone and
+coins on the floor, a bomb set off from across the room does more than a bullet ever does, and
+a shooting target pays. But none of that wins a match, so a kart always comes first: it is
+weighed as though it were much nearer than it is, and a box has to be well inside one before
+the shot goes to the box instead. Two
 jokers change this: Curve Ball bends much harder and keeps bending after a bounce, and
 Aimbot turns the shot toward the nearest enemy as it leaves the barrel. Both work at their
 own strength whatever the accessibility setting says.
@@ -661,7 +667,9 @@ own strength whatever the accessibility setting says.
 | Range        | 15 m                                                            |
 | Turn rate    | At most 50°/s                                                   |
 | Active       | Until the first bounce                                          |
-| Targets      | Enemy karts, decoys and turrets. Never the owner, never spawn-protected karts |
+| Targets      | Enemy karts, decoys, turrets, crates, bombs and shooting targets. Never the owner, never spawn-protected karts |
+| Priority     | A kart counts as 0.4 of its real distance away, so a player is chosen over a box twice as near |
+| Direction    | Only what is inside the cone is considered at all, so nothing behind the shot takes the aim off what is in front of it |
 
 Turret bullets and Swivel Cannon bullets have no aim assist.
 

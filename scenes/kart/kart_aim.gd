@@ -55,7 +55,12 @@ static func steered(kart: Kart, direction_now: Vector3) -> Vector3:
 	if active.auto_aim_deg <= 0.0:
 		return direction_now
 	var target := Bullet.nearest_target(
-		kart.get_tree(), kart.global_position, kart.slot, active.auto_aim_range
+		kart.get_tree(),
+		kart.global_position,
+		kart.slot,
+		active.auto_aim_range,
+		direction_now,
+		deg_to_rad(90.0)
 	)
 	if target == null:
 		return direction_now

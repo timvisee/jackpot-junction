@@ -39,6 +39,12 @@ func _ready() -> void:
 
 ## A bullet reached the face. Returns false once it is already down, so a second bullet in the
 ## same volley carries on instead of vanishing on nothing.
+## Whether a shot may be aimed at this target, GAME.md 5.1. It has been in the aim's group all
+## along, as the group it gave its name to, and was passed over for want of this.
+func is_targetable() -> bool:
+	return alive
+
+
 func take_hit(bullet: Bullet) -> bool:
 	if not alive:
 		return false

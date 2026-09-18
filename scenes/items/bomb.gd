@@ -27,6 +27,9 @@ func _ready() -> void:
 	collision_layer = Layers.BOMB
 	collision_mask = 0
 	add_to_group(&"bombs")
+	# Worth bending a shot toward, GAME.md 5.1: setting one off from across the room is a shot
+	# that did far more than a bullet normally does.
+	add_to_group(Bullet.TARGET_GROUP)
 	var shape := CollisionShape3D.new()
 	var sphere := SphereShape3D.new()
 	sphere.radius = BODY_RADIUS
@@ -68,6 +71,11 @@ func _physics_process(delta: float) -> void:
 
 
 ## A bullet sets the bomb off, armed or not.
+## Whether a shot may be aimed at this bomb, GAME.md 5.1.
+func is_targetable() -> bool:
+	return alive
+
+
 func take_hit(_bullet: Bullet) -> bool:
 	if not alive:
 		return false

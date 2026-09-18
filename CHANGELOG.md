@@ -45,6 +45,11 @@ below, and hands the notes to the release workflow.
   worth three coins, Loaded Dice turns a quarter of your chips gold, and Toll
   Booth takes 15% of everybody else's cash-outs instead of 5%.
 
+- **Aim assist aims at everything worth shooting.** Boxes, bombs and shooting
+  targets bend a shot the way a kart always did, and nothing behind the shot can
+  take the aim off what is in front of it any more. Karts still come first: a box
+  has to be well inside a player to be chosen over one.
+
 ### Added
 
 - **A one-minute match, in debug builds only.** Long enough to reach the Junction

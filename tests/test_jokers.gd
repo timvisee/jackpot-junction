@@ -204,8 +204,10 @@ func test_aimbot_turns_the_shot_toward_the_nearest_enemy() -> void:
 	var toward := (enemy.global_position - kart.global_position).normalized()
 	assert_float(rad_to_deg(aimed.angle_to(Vector3(1.0, 0.0, 0.0)))).is_equal_approx(14.0, 0.5)
 	assert_float(aimed.angle_to(toward)).is_less(Vector3(1.0, 0.0, 0.0).angle_to(toward))
-	# Nothing in range leaves the shot alone.
+	# Nothing in range leaves the shot alone. The reach is pulled right in for it, because the
+	# boxes on the floor are things a shot may be bent toward now as well, GAME.md 5.1.
 	enemy.global_position = Vector3(18.0, 0.0, 18.0)
+	kart.cannon.stats.auto_aim_range = 1.0
 	await _runner.simulate_frames(2, 17)
 	assert_vector(KartAim.steered(kart, Vector3(1.0, 0.0, 0.0))).is_equal_approx(
 		Vector3(1.0, 0.0, 0.0), Vector3.ONE * 0.001
