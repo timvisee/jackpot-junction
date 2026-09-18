@@ -174,7 +174,7 @@ static func _pickups(match_node: Match) -> Array:
 
 static func _turrets(match_node: Match) -> Array:
 	var data: Array = []
-	for node: Node in _own_nodes(match_node, &"turrets"):
+	for node: Node in own_nodes(match_node, &"turrets"):
 		var turret := node as Turret
 		if turret != null and turret.alive:
 			(
@@ -194,7 +194,7 @@ static func _turrets(match_node: Match) -> Array:
 
 static func _bombs(match_node: Match) -> Array:
 	var data: Array = []
-	for node: Node in _own_nodes(match_node, &"bombs"):
+	for node: Node in own_nodes(match_node, &"bombs"):
 		var bomb := node as Bomb
 		if bomb != null and bomb.alive:
 			(
@@ -214,7 +214,7 @@ static func _bombs(match_node: Match) -> Array:
 
 static func _stains(match_node: Match) -> Array:
 	var data: Array = []
-	for node: Node in _own_nodes(match_node, &"oil_stains"):
+	for node: Node in own_nodes(match_node, &"oil_stains"):
 		var stain := node as OilStain
 		if stain != null and not stain.is_queued_for_deletion():
 			(
@@ -314,8 +314,9 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 
 
 ## Members of a group that belong to this match. A host and a puppet match can share a scene
-## tree, in tests and in a future split screen, and must never describe each other's nodes.
-static func _own_nodes(match_node: Match, group: StringName) -> Array[Node]:
+## tree, in tests and in a future split screen, and must never describe each other's nodes or
+## reach into them. Anything that sweeps the tree by group asks this rather than the tree.
+static func own_nodes(match_node: Match, group: StringName) -> Array[Node]:
 	var result: Array[Node] = []
 	for node: Node in match_node.get_tree().get_nodes_in_group(group):
 		if match_node.is_ancestor_of(node):

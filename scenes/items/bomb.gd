@@ -87,28 +87,44 @@ func explode() -> void:
 	queue_free()
 
 
-## Everything within the radius takes the blast: karts, crates, turrets and other bombs.
+## Everything within the radius takes the blast: karts, crates, turrets and other bombs. Asked
+## of this bomb's own match rather than of the whole tree: a host and a puppet match can share
+## one, in tests and in a future split screen, and a blast that swept the tree would kill the
+## other match's karts and free its puppets from under it.
 func _blast() -> void:
-	var tree := get_tree()
-	for node: Node in tree.get_nodes_in_group(&"karts"):
+	var match_node := _match()
+	if match_node == null:
+		return
+	for node: Node in MatchSnapshot.own_nodes(match_node, &"karts"):
 		var kart := node as Kart
 		if kart != null and _within(kart.global_position, 0.5):
 			kart.take_blast(owner_slot)
-	for node: Node in tree.get_nodes_in_group(&"crates"):
+	for node: Node in MatchSnapshot.own_nodes(match_node, &"crates"):
 		var crate := node as Crate
 		if crate != null and crate.alive and _within(crate.global_position, 0.5):
 			crate.hit(owner_slot)
-	for node: Node in tree.get_nodes_in_group(&"turrets"):
+	for node: Node in MatchSnapshot.own_nodes(match_node, &"turrets"):
 		var turret := node as Turret
 		if turret != null and turret.alive and _within(turret.global_position, 0.4):
 			turret.destroy()
-	for node: Node in tree.get_nodes_in_group(&"bombs"):
+	for node: Node in MatchSnapshot.own_nodes(match_node, &"bombs"):
 		var other := node as Bomb
 		if other != null and other != self and other.alive and _within(other.global_position, 0.0):
 			other.explode()
-	var match_node := tree.get_first_node_in_group(&"match") as Match
-	if match_node != null and match_node.camera_rig != null:
+	if match_node.camera_rig != null:
 		match_node.camera_rig.shake(0.7)
+
+
+## The match this bomb was dropped in, found by walking up rather than by asking the tree for
+## the first one it has.
+func _match() -> Match:
+	var at: Node = self
+	while at != null:
+		var found := at as Match
+		if found != null:
+			return found
+		at = at.get_parent()
+	return null
 
 
 func _within(point: Vector3, margin: float) -> bool:
