@@ -532,7 +532,7 @@ assigns physical devices to player slots, see 10.2.
 | Brake, reverse              | Left trigger        | S, or Down                |
 | Fire                        | A                   | Space                     |
 | Handbrake, drift            | Left bumper         | Shift                     |
-| Nitro                       | B                   | Ctrl                      |
+| Nitro                       | RB                  | Ctrl                      |
 | Use power-up                | X                   | E                         |
 | Joker menu, hold            | Y                   | Tab                       |
 | Joker menu: select          | Left stick or D-pad left / right | Arrows, A / D, brackets or 1 to 5 |

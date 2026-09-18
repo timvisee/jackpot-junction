@@ -70,7 +70,7 @@ const DEFAULTS: Dictionary[StringName, Array] = {
 	BRAKE: [{"key": KEY_S}, {"key": KEY_DOWN}, {"axis": JOY_AXIS_TRIGGER_LEFT, "value": 1.0}],
 	FIRE: [{"key": KEY_SPACE}, {"button": JOY_BUTTON_A}],
 	HANDBRAKE: [{"key": KEY_SHIFT}, {"button": JOY_BUTTON_LEFT_SHOULDER}],
-	NITRO: [{"key": KEY_CTRL}, {"button": JOY_BUTTON_B}],
+	NITRO: [{"key": KEY_CTRL}, {"button": JOY_BUTTON_RIGHT_SHOULDER}],
 	USE_ITEM: [{"key": KEY_E}, {"button": JOY_BUTTON_X}],
 	JOKER_MENU: [{"key": KEY_TAB}, {"button": JOY_BUTTON_Y}],
 	JOKER_PREV: [{"key": KEY_BRACKETLEFT}, {"button": JOY_BUTTON_DPAD_LEFT}],

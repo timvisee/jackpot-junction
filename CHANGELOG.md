@@ -11,6 +11,13 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **Nitro is on the right shoulder.** On a gamepad nitro has moved off B onto the
+  right shoulder button, opposite the handbrake. It is held rather than tapped,
+  and holding a face button through a corner meant fighting the thumb that was
+  steering through it.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button
