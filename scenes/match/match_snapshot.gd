@@ -4,6 +4,10 @@ extends RefCounted
 ## thirty times a second with [method build]; a puppet match renders it with [method apply],
 ## creating and removing puppet karts, bullets, pickups, turrets and bombs by the host's
 ## instance ids. Kept out of [Match] so both stay readable.
+##
+## A puppet this is holding may already have been freed by the time the snapshot that drops it
+## arrives, so every removal asks before it looks. Naming a freed object at all is the error in
+## GDScript, not using it, which is why each one goes through a [Variant] first.
 
 ## Every item in the game, for looking up held and dropped items by id.
 static var _all_items: PowerUpTable
@@ -435,8 +439,11 @@ static func _apply_karts(match_node: Match, entries: Array) -> void:
 		kart.apply_puppet_state(entry, delta)
 	for id: int in match_node.puppet_karts.keys():
 		if not seen.has(id):
-			var kart: Kart = match_node.puppet_karts[id]
+			var gone: Variant = match_node.puppet_karts[id]
 			match_node.puppet_karts.erase(id)
+			if not is_instance_valid(gone):
+				continue
+			var kart := gone as Kart
 			match_node.camera_rig.targets.erase(kart)
 			kart.queue_free()
 
@@ -459,9 +466,10 @@ static func _apply_bullets(match_node: Match, entries: Array) -> void:
 			bullet.correct_puppet(Vector3(entry["x"], 0.0, entry["z"]), velocity)
 	for id: int in match_node.puppet_bullets.keys():
 		if not seen.has(id):
-			var bullet: Bullet = match_node.puppet_bullets[id]
+			var gone: Variant = match_node.puppet_bullets[id]
 			match_node.puppet_bullets.erase(id)
-			bullet.queue_free()
+			if is_instance_valid(gone):
+				(gone as Bullet).queue_free()
 
 
 static func _apply_pickups(match_node: Match, entries: Array) -> void:
@@ -497,8 +505,11 @@ static func _apply_pickups(match_node: Match, entries: Array) -> void:
 		match_node.puppet_pickups[id] = pickup
 	for id: int in match_node.puppet_pickups.keys():
 		if not seen.has(id):
-			var pickup: Pickup = match_node.puppet_pickups[id]
+			var gone: Variant = match_node.puppet_pickups[id]
 			match_node.puppet_pickups.erase(id)
+			if not is_instance_valid(gone):
+				continue
+			var pickup := gone as Pickup
 			# The host does not say who took it; the kart on top of it did. Whatever it was
 			# flows into that kart here the same as it does for the player who took it.
 			var taker := _nearest_puppet_kart(match_node, pickup.global_position, 2.5)
@@ -537,8 +548,11 @@ static func _apply_turrets(match_node: Match, entries: Array) -> void:
 		turret.rotation.y = entry["h"]
 	for id: int in match_node.puppet_turrets.keys():
 		if not seen.has(id):
-			var turret: Turret = match_node.puppet_turrets[id]
+			var gone: Variant = match_node.puppet_turrets[id]
 			match_node.puppet_turrets.erase(id)
+			if not is_instance_valid(gone):
+				continue
+			var turret := gone as Turret
 			Burst.spawn(match_node, turret.global_position, turret.color, 0.8, 14)
 			turret.queue_free()
 
@@ -561,9 +575,10 @@ static func _apply_stains(match_node: Match, entries: Array) -> void:
 		match_node.puppet_stains[id] = stain
 	for id: int in match_node.puppet_stains.keys():
 		if not seen.has(id):
-			var stain: OilStain = match_node.puppet_stains[id]
+			var gone: Variant = match_node.puppet_stains[id]
 			match_node.puppet_stains.erase(id)
-			stain.queue_free()
+			if is_instance_valid(gone):
+				(gone as OilStain).queue_free()
 
 
 static func _apply_bombs(match_node: Match, entries: Array) -> void:
@@ -583,7 +598,10 @@ static func _apply_bombs(match_node: Match, entries: Array) -> void:
 		bomb.armed = entry["armed"]
 	for id: int in match_node.puppet_bombs.keys():
 		if not seen.has(id):
-			var bomb: Bomb = match_node.puppet_bombs[id]
+			var gone: Variant = match_node.puppet_bombs[id]
 			match_node.puppet_bombs.erase(id)
+			if not is_instance_valid(gone):
+				continue
+			var bomb := gone as Bomb
 			if bomb.alive:
 				bomb.explode()
