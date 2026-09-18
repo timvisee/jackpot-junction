@@ -23,6 +23,34 @@ extends RefCounted
 ## a nudge, so lining the kart up during the shove does not throw it away.
 const TURBO_RELEASE_STEER := 0.6
 
+## Everything the motor carries from one tick to the next, GAME.md 10.3. A client replaying its
+## own ticks after the host corrects it has to start from the motor the host had, not from a
+## position with a fresh motor behind it: a kart mid-drift, mid-boost or mid-spin is most of
+## what it is about to do. Kept as one list so a field added to the motor and forgotten here
+## shows up as a kart that replays differently rather than as a silent drift apart.
+const STATE_FIELDS: Array[StringName] = [
+	&"heading",
+	&"velocity",
+	&"forward_speed",
+	&"steer",
+	&"drifting",
+	&"drift_amount",
+	&"drift_time",
+	&"slide_rate",
+	&"boost_time_left",
+	&"turbo_time_left",
+	&"turbo_direction",
+	&"spin_time_left",
+	&"speed_bonus",
+	&"steer_multiplier",
+	&"nitro_bonus",
+	&"yaw",
+	&"_wheel",
+	&"_kick_remaining",
+	&"_drift_direction",
+	&"_spin_direction",
+]
+
 var stats: KartStats
 ## Yaw in radians about +Y. Forward is -Z rotated by the heading, like a Node3D.
 var heading := 0.0
@@ -68,6 +96,21 @@ var _spin_direction := 1.0
 
 func _init(kart_stats: KartStats) -> void:
 	stats = kart_stats
+
+
+## The motor's whole state, for the wire and for the replay buffer.
+func capture() -> Array:
+	var out: Array = []
+	for field: StringName in STATE_FIELDS:
+		out.append(get(field))
+	return out
+
+
+func restore(state: Array) -> void:
+	if state.size() != STATE_FIELDS.size():
+		return
+	for i: int in STATE_FIELDS.size():
+		set(STATE_FIELDS[i], state[i])
 
 
 func forward_vector() -> Vector3:

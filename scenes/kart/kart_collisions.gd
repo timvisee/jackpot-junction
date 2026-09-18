@@ -23,7 +23,13 @@ const FLOOR_NORMAL := 0.7
 
 ## Applies every contact [method CharacterBody3D.move_and_slide] found. [param pre] is the
 ## velocity the motor wanted before the body slid along anything.
-static func resolve(kart: Kart, pre: Vector3) -> void:
+##
+## [param quiet] is a client predicting its own kart, GAME.md 10.3. It wants the push a wall or
+## another kart gives, because that is movement and movement is what it is predicting, and none
+## of the consequences: no crate broken, no kart rammed, no crash heard. Those are the host's to
+## decide and arrive on their own, and a replay would raise each of them again every time it ran
+## back over the same tick.
+static func resolve(kart: Kart, pre: Vector3, quiet: bool = false) -> void:
 	var touching_wall := false
 	for i: int in kart.get_slide_collision_count():
 		var collision := kart.get_slide_collision(i)
@@ -35,13 +41,14 @@ static func resolve(kart: Kart, pre: Vector3) -> void:
 		var turret := collider as Turret
 		var crate := collider as Crate
 		if other != null:
-			_bump(kart, other, normal, pre)
+			_bump(kart, other, normal, pre, quiet)
 		elif turret != null and kart.ramming:
-			turret.destroy()
-		elif crate != null and _smashes(kart, crate, normal, pre):
+			if not quiet:
+				turret.destroy()
+		elif crate != null and _smashes(kart, crate, normal, pre, quiet):
 			continue
 		else:
-			touching_wall = _wall(kart, normal, pre, touching_wall) or touching_wall
+			touching_wall = _wall(kart, normal, pre, touching_wall, quiet) or touching_wall
 	kart.touching_wall = touching_wall
 
 
@@ -49,29 +56,38 @@ static func resolve(kart: Kart, pre: Vector3) -> void:
 ## goes through a box rather than bouncing off it, so nitro, the Ram item and Road Rage all
 ## clear cover. The kart keeps the speed it arrived with: being stopped dead by a wooden box
 ## is the opposite of what breaking it is for. Returns whether the crate went.
-static func _smashes(kart: Kart, crate: Crate, normal: Vector3, pre: Vector3) -> bool:
+static func _smashes(
+	kart: Kart, crate: Crate, normal: Vector3, pre: Vector3, quiet: bool = false
+) -> bool:
 	if not crate.alive or not kart.ram_kills() or -pre.dot(normal) <= CRASH_SPEED:
 		return false
-	crate.hit(kart.slot)
+	if not quiet:
+		crate.hit(kart.slot)
 	kart.motor.velocity = pre
 	kart.velocity = pre
 	return true
 
 
-static func _bump(kart: Kart, other: Kart, normal: Vector3, pre: Vector3) -> void:
-	kart.last_bump_slot = other.slot
-	kart.last_bump_time = Time.get_ticks_msec() * 0.001
-	if kart.ram_kills():
-		other.take_ram(kart.slot)
+static func _bump(
+	kart: Kart, other: Kart, normal: Vector3, pre: Vector3, quiet: bool = false
+) -> void:
+	if not quiet:
+		kart.last_bump_slot = other.slot
+		kart.last_bump_time = Time.get_ticks_msec() * 0.001
+		if kart.ram_kills():
+			other.take_ram(kart.slot)
 	kart.motor.apply_bump(normal)
 	kart.velocity = kart.motor.velocity
 	if pre.length() > BUMP_SPEED:
 		kart.motor.spoil_drift()
-		Events.kart_bumped.emit(kart.slot)
+		if not quiet:
+			Events.kart_bumped.emit(kart.slot)
 
 
 ## One wall contact. Returns whether it was a square hit rather than a glance along the wall.
-static func _wall(kart: Kart, normal: Vector3, pre: Vector3, already: bool) -> bool:
+static func _wall(
+	kart: Kart, normal: Vector3, pre: Vector3, already: bool, quiet: bool = false
+) -> bool:
 	kart.motor.velocity = Vector3(kart.velocity.x, 0.0, kart.velocity.z)
 	var into := -pre.dot(normal)
 	var square := not kart.motor.apply_wall_glance(normal, pre)
@@ -81,7 +97,13 @@ static func _wall(kart: Kart, normal: Vector3, pre: Vector3, already: bool) -> b
 			# A glance along a wall is part of driving here and costs nothing; a square hit
 			# is a crash, and a crash has nothing to collect at the end of it.
 			kart.motor.spoil_drift()
-		if not already and not kart.touching_wall and kart.crash_wait <= 0.0 and into > CRASH_SPEED:
+		if (
+			not quiet
+			and not already
+			and not kart.touching_wall
+			and kart.crash_wait <= 0.0
+			and into > CRASH_SPEED
+		):
 			kart.crash_wait = CRASH_INTERVAL
 			Events.kart_crashed.emit(kart.slot, force(kart.stats, into))
 	kart.velocity = kart.motor.velocity
