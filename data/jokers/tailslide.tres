@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/tailslide.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"tailslide"
+display_name = "Tailslide"
+description = "+1 coin for every 8 m you drift."
+rarity = 1
+kind = 1

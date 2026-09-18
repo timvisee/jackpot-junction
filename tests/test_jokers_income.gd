@@ -74,6 +74,23 @@ func test_the_odometer_pays_by_the_metre() -> void:
 	assert_int(kart.pot.coins).is_equal(4)
 
 
+func test_tailslide_pays_only_for_metres_driven_sideways() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := _armed(match_node, "tailslide")
+	kart.motor.velocity = Vector3(10.0, 0.0, 0.0)
+	# Driving in a straight line is worth nothing here, however far it goes.
+	JokerTick.step(match_node.slots, 10.0)
+	assert_int(kart.pot.coins).is_equal(0)
+	kart.motor.drifting = true
+	JokerTick.step(match_node.slots, 0.7)
+	assert_int(kart.pot.coins).is_equal(0)
+	JokerTick.step(match_node.slots, 0.1)
+	assert_int(kart.pot.coins).is_equal(1)
+	JokerTick.step(match_node.slots, 2.4)
+	assert_int(kart.pot.coins).is_equal(4)
+
+
 ## The wiring rather than the sum: a match steps its jokers on its own, without being asked.
 func test_a_running_match_pays_the_jokers_that_pay() -> void:
 	var match_node := _start_match()

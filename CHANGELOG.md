@@ -48,6 +48,8 @@ below, and hands the notes to the release workflow.
 
 - **A new joker, Odometer.** A coin for every 20 m you drive. Common.
 
+- **A new joker, Tailslide.** A coin for every 8 m you spend sideways. Uncommon.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button
