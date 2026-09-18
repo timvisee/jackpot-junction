@@ -6,6 +6,10 @@ extends Panel
 ## them. Highlighting swaps the frame for a bright gold one, or a red one when the card is the
 ## one about to be destroyed.
 ##
+## Under the name sit one, two or three pips for how rare the joker is. Count and colour say the
+## same thing twice on purpose: colour alone is not something every player can read, and a card
+## already spends its colour on saying what kind of joker it is.
+##
 ## Cards are pivoted at their bottom centre, so a fan tilt or a scale turns about the point the
 ## hand is held at rather than about a corner.
 
@@ -15,9 +19,23 @@ const DOOMED := Color("#FF3B30")
 const KIND_NAMES: Dictionary[int, String] = {
 	Joker.Kind.STAT: "Stat", Joker.Kind.RULE: "Rule", Joker.Kind.CURSED: "Cursed"
 }
+const RARITY_NAMES: Dictionary[int, String] = {
+	Joker.Rarity.COMMON: "Common", Joker.Rarity.UNCOMMON: "Uncommon", Joker.Rarity.RARE: "Rare"
+}
+## Steel, then the two neon colours of the room, kept clear of the kind colours so that a card
+## says two different things rather than one thing twice over.
+const RARITY_COLORS: Dictionary[int, Color] = {
+	Joker.Rarity.COMMON: Color("#9AA3AD"),
+	Joker.Rarity.UNCOMMON: Palette.NEON_CYAN,
+	Joker.Rarity.RARE: Palette.NEON_MAGENTA
+}
+## Side of one rarity pip, and the gap between two of them.
+const PIP := 9.0
+const PIP_GAP := 5
 
 var joker: Joker
 
+var _pips: HBoxContainer
 var _normal: StyleBoxFlat
 var _chosen: StyleBoxFlat
 var _doomed: StyleBoxFlat
@@ -42,6 +60,20 @@ static func kind_color(for_joker: Joker) -> Color:
 
 static func kind_name(for_joker: Joker) -> String:
 	return KIND_NAMES[for_joker.kind]
+
+
+## The colour that stands for how rare a joker is, shared by the cards and the detail pane.
+static func rarity_color(for_joker: Joker) -> Color:
+	return RARITY_COLORS[for_joker.rarity]
+
+
+static func rarity_name(for_joker: Joker) -> String:
+	return RARITY_NAMES[for_joker.rarity]
+
+
+## How many pips this card is wearing: one for a common joker, three for a rare one.
+func rarity_pips() -> int:
+	return _pips.get_child_count()
 
 
 ## Lights the card up as the one under the cursor. [param doomed] marks it as the one that is
@@ -108,3 +140,19 @@ func _build() -> void:
 	for label: Label in [kind, initials, title]:
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		stack.add_child(label)
+	stack.add_child(_build_pips())
+
+
+## One pip per step up the rarity scale, in a row under the name.
+func _build_pips() -> HBoxContainer:
+	_pips = HBoxContainer.new()
+	_pips.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_pips.alignment = BoxContainer.ALIGNMENT_CENTER
+	_pips.add_theme_constant_override("separation", PIP_GAP)
+	for i: int in int(joker.rarity) + 1:
+		var pip := ColorRect.new()
+		pip.color = rarity_color(joker)
+		pip.custom_minimum_size = Vector2(PIP, PIP)
+		pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_pips.add_child(pip)
+	return _pips

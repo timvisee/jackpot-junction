@@ -948,12 +948,17 @@ name. Somebody leaving frees their corner for the next player to sit down.
 - **Pot** as `coins × mult = value`, updating live.
 - **Joker hand**: the held jokers as a row of overlapping cards along the bottom
   of the screen, one hand per local player, each card framed in its kind's
-  colour with the joker's initials and name. Three or more cards fan out, the
+  colour with the joker's initials and name, and one, two or three pips under the
+  name for how rare it is: steel for common, cyan for uncommon, magenta for rare.
+  Count and colour say it twice on purpose, since the card already spends its
+  colour on saying what kind of joker it is and colour alone is not something
+  every player can read. Three or more cards fan out, the
   middle riding higher and the ends tipping away, like a hand held in a fist.
   While the joker menu is open the selected card straightens up and lifts out of
   the fan with a bright frame, its name, description and the menu controls float
   above it, and the other cards dim. A count beside the hand reads how many of
-  the five slots are taken, turning gold once the hand is full.
+  the slots are taken, out of however many the hand has room for, turning gold
+  once the hand is full.
 - **Lives**: two pips in the player colour under the kill count; a lost life
   goes dark.
 - **Held power-up** icon, filled by the roulette flicker once the box is in.
@@ -962,10 +967,10 @@ name. Somebody leaving frees their corner for the next player to sit down.
   out of the fan, and under the row for the respawn pick and again for the card
   being destroyed. It is built like a standings row so the two read as the same
   game: a dark translucent card with room to breathe and a bar of the joker's own
-  kind colour along the top of it. The name and the kind share the first line, a
-  rule separates them from what the joker actually does, and the keys for whatever
-  can be done from there sit at the foot in grey. Three things told apart beats one
-  paragraph they were all run into.
+  kind colour along the top of it. The name, how rare the joker is and what kind it
+  is share the first line, a rule separates them from what the joker actually does,
+  and the keys for whatever can be done from there sit at the foot in grey. Things
+  told apart beats one paragraph they were all run into.
 - **The respawn pick** takes the middle of the screen when one player is on it:
   they are dead, and there is nobody else to block. With somebody else sharing the
   screen it shrinks and drops to the bottom of its own share, with the pane above

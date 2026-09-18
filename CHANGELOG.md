@@ -62,6 +62,10 @@ below, and hands the notes to the release workflow.
 - **A new joker, Deep Pockets.** Two more joker slots, one of which it stands in,
   and it stacks. Rare.
 
+- **Joker cards say how rare they are.** One, two or three pips under the name,
+  steel for common, cyan for uncommon, magenta for rare, and the pane that
+  describes a joker names the rarity next to the kind.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button

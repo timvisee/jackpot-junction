@@ -5,10 +5,10 @@ extends PanelContainer
 ## being destroyed, so wherever a player is reading about a joker it reads the same way.
 ##
 ## Laid out like a standings row so the two read as the same game: a dark translucent card with
-## room to breathe and a bar of the joker's own kind colour along the top. The name and the kind
-## share the first line, a rule separates them from what the joker actually does, and the keys
-## for it sit at the foot in grey, so the three are told apart at a glance rather than run
-## together in one paragraph.
+## room to breathe and a bar of the joker's own kind colour along the top. The name, how rare the
+## joker is and what kind it is share the first line, a rule separates them from what the joker
+## actually does, and the keys for it sit at the foot in grey, so they are told apart at a glance
+## rather than run together in one paragraph.
 
 const WIDTH := 400.0
 const BG := Color(0.07, 0.07, 0.09, 0.92)
@@ -19,6 +19,7 @@ const EDGE := 6
 
 var _style: StyleBoxFlat
 var _name: Label
+var _rarity: Label
 var _kind: Label
 var _body: RichTextLabel
 var _hints: Label
@@ -46,6 +47,9 @@ func _init() -> void:
 	_name = _line(24, Color(0.97, 0.97, 1.0))
 	_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_child(_name)
+	_rarity = _line(16, Color.WHITE)
+	_rarity.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	heading.add_child(_rarity)
 	_kind = _line(16, Color.WHITE)
 	_kind.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_kind.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -73,6 +77,8 @@ func show_joker(joker: Joker) -> void:
 	var color := JokerCard.kind_color(joker)
 	_style.border_color = color
 	_name.text = joker.display_name
+	_rarity.text = JokerCard.rarity_name(joker).to_upper()
+	_rarity.add_theme_color_override("font_color", JokerCard.rarity_color(joker))
 	_kind.text = JokerCard.kind_name(joker).to_upper()
 	_kind.add_theme_color_override("font_color", color)
 	_body.text = joker.description

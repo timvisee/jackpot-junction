@@ -439,6 +439,24 @@ func test_deep_pockets_widens_the_hand_and_stacks() -> void:
 	assert_bool(kart.jokers.is_full()).is_true()
 
 
+## GAME.md 8.3: a card says how rare its joker is in pips as well as in colour, and the pane
+## says it in a word. Count as well as colour, because colour alone is not readable by everybody
+## and the card is already spending its colour on the joker's kind.
+func test_a_card_wears_its_rarity_in_pips_and_the_pane_names_it() -> void:
+	var common: Joker = load("res://data/jokers/big_tank.tres")
+	var uncommon: Joker = load("res://data/jokers/getaway_driver.tres")
+	var rare: Joker = load("res://data/jokers/wild_card.tres")
+	assert_int(auto_free(JokerCard.create(common)).rarity_pips()).is_equal(1)
+	assert_int(auto_free(JokerCard.create(uncommon)).rarity_pips()).is_equal(2)
+	assert_int(auto_free(JokerCard.create(rare)).rarity_pips()).is_equal(3)
+	assert_object(JokerCard.rarity_color(common)).is_not_equal(JokerCard.rarity_color(rare))
+	var pane: JokerDetail = auto_free(JokerDetail.new())
+	pane.show_joker(rare)
+	assert_str(pane._rarity.text).is_equal("RARE")
+	pane.show_joker(common)
+	assert_str(pane._rarity.text).is_equal("COMMON")
+
+
 func test_road_rage_slows_the_kart_and_rams_at_speed() -> void:
 	var match_node := _start_match(_bots())
 	var kart := match_node.kart_of(0)
