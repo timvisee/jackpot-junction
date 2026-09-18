@@ -799,18 +799,18 @@ a real downside. Starting set; balance is untested.
 | Hair Trigger     | Common   | Stat   | Fire cooldown -30%                                                        |
 | Big Tank         | Common   | Stat   | +2 max live bullets                                                       |
 | Magnet Hubcaps   | Common   | Stat   | Pickup radius times 2                                                     |
-| Nitro Habit      | Common   | Stat   | Drift exit boosts and turbo pads last twice as long                       |
-| Slipstream       | Common   | Rule   | Grazes give +1 mult instead of +0.5                                       |
-| Green Light      | Common   | Rule   | Turbo pads give +0.5 mult                                                 |
-| Vulture          | Common   | Rule   | Chips dropped by other karts are worth 2 coins to you                     |
+| Nitro Habit      | Common   | Stat   | Drift exit boosts and turbo pads last three times as long                 |
+| Slipstream       | Common   | Rule   | Grazes give +1.5 mult instead of +0.5                                     |
+| Green Light      | Common   | Rule   | Turbo pads give +1 mult                                                   |
+| Vulture          | Common   | Rule   | Chips dropped by other karts are worth 3 coins to you                     |
 | Odometer         | Common   | Rule   | +1 coin for every 20 m you drive                                          |
 | Insurance Policy | Uncommon | Rule   | Bank 100% of your pot on death                                            |
 | Getaway Driver   | Uncommon | Rule   | Junction drain ramps twice as fast, D = 0.25 s                            |
 | Pickpocket       | Uncommon | Rule   | Kills move 50% of the victim's coins into your pot; the victim drops none |
 | Rubber Bumpers   | Uncommon | Rule   | Your bullets bounce off walls once more. Stacks: two copies bounce twice  |
 | Comeback         | Uncommon | Rule   | Respawn with mult equal to half your mult at death, rounded up            |
-| Loaded Dice      | Uncommon | Rule   | Every chip has a 10% chance to count as a gold chip                       |
-| Toll Booth       | Uncommon | Rule   | Whenever another kart completes a cash-out, you bank 5% of it             |
+| Loaded Dice      | Uncommon | Rule   | Every chip has a 25% chance to count as a gold chip                       |
+| Toll Booth       | Uncommon | Rule   | Whenever another kart completes a cash-out, you bank 15% of it            |
 | Tailslide        | Uncommon | Rule   | +1 coin for every 8 m you drift                                           |
 | Jerry Can        | Uncommon | Stat   | Nitro refills 4x as fast                                                  |
 | Direct Debit     | Uncommon | Rule   | 5 points of your pot bank themselves every second, wherever you are. Your mult is left alone |

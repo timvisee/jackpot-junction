@@ -408,8 +408,8 @@ func test_stat_jokers_rebuild_the_karts_own_stats_and_removal_restores_them() ->
 	assert_float(kart.cannon.stats.fire_cooldown).is_equal_approx(0.28, 0.001)
 	assert_int(kart.cannon.stats.max_live_bullets).is_equal(5)
 	assert_int(kart.cannon.stats.bounces).is_equal(1)
-	assert_float(kart.stats.drift_exit_boost_duration).is_equal_approx(1.6, 0.001)
-	assert_float(kart.stats.turbo_duration).is_equal_approx(2.0, 0.001)
+	assert_float(kart.stats.drift_exit_boost_duration).is_equal_approx(2.4, 0.001)
+	assert_float(kart.stats.turbo_duration).is_equal_approx(3.0, 0.001)
 	assert_float(kart.stats.nitro_recharge_seconds).is_equal_approx(22.5, 0.001)
 	assert_float(kart._pickup_shape.radius).is_equal_approx(1.8, 0.001)
 	assert_float(kart.base_stats.turbo_duration).is_equal_approx(1.0, 0.001)
@@ -476,7 +476,7 @@ func test_graze_jokers() -> void:
 	_attach(snake, "snake_eyes")
 	slip.graze(1)
 	snake.graze(0)
-	assert_float(slip.pot.mult).is_equal(2.0)
+	assert_float(slip.pot.mult).is_equal(2.5)
 	assert_float(snake.pot.mult).is_equal(1.0)
 
 
@@ -509,10 +509,10 @@ func test_coin_value_jokers() -> void:
 	_attach(dice, "loaded_dice")
 	vulture.collect_coins(1, _chip(true))
 	vulture.collect_coins(1, _chip(false))
-	assert_int(vulture.pot.coins).is_equal(3)
+	assert_int(vulture.pot.coins).is_equal(4)
 	for i: int in 300:
 		dice.collect_coins(1, _chip())
-	assert_int(dice.pot.coins).is_between(330, 520)
+	assert_int(dice.pot.coins).is_between(510, 690)
 
 
 func test_lucky_seven_gives_a_mult_every_seventh_chip() -> void:
@@ -530,7 +530,7 @@ func test_green_light_rewards_turbo_pads() -> void:
 	_attach(kart, "green_light")
 	await _runner.simulate_frames(12, 17)
 	kart.apply_turbo(Vector3(0.0, 0.0, 1.0))
-	assert_float(kart.pot.mult).is_equal(1.5)
+	assert_float(kart.pot.mult).is_equal(2.0)
 
 
 func test_pickpocket_steals_half_the_victims_coins_and_the_victim_drops_none() -> void:
@@ -577,7 +577,7 @@ func test_getaway_driver_banks_faster_and_toll_booth_skims_others() -> void:
 	driver.global_position = match_node.arena.junction_position
 	await _runner.simulate_frames(60, 17)
 	assert_int(match_node.slots[0].banked).is_equal(40)
-	assert_int(match_node.slots[1].banked).is_equal(2)
+	assert_int(match_node.slots[1].banked).is_equal(6)
 
 
 func test_comeback_and_snake_eyes_set_the_mult_on_respawn() -> void:

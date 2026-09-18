@@ -39,6 +39,12 @@ below, and hands the notes to the release workflow.
   three, which was hard to feel next to what the other common jokers do. It now
   gives two.
 
+- **Six jokers hit harder.** Nitro Habit stretches drift boosts and turbo pads
+  three times rather than twice, Slipstream grazes are worth +1.5 mult, Green
+  Light pays a whole point of mult per turbo pad, Vulture makes a dropped chip
+  worth three coins, Loaded Dice turns a quarter of your chips gold, and Toll
+  Booth takes 15% of everybody else's cash-outs instead of 5%.
+
 ### Added
 
 - **A one-minute match, in debug builds only.** Long enough to reach the Junction
