@@ -340,9 +340,10 @@ static func _ensure_slots(match_node: Match, count: int) -> void:
 		match_node.slots.append(PlayerSlot.new(index, input))
 
 
-## The input this machine is polling for its own player. A puppet match built without a session,
-## as the tests do, gets one of its own so there is always something to read.
-static func _local_input(match_node: Match) -> KartInput:
+## The input this machine is polling for its own player. A puppet match whose session never
+## handed one over, as a test driving snapshots directly does, gets one of its own: the local
+## slot holds a player's input either way, which is what says somebody is here to play.
+static func _local_input(match_node: Match) -> PlayerInput:
 	if match_node.local_input == null:
 		match_node.local_input = PlayerInput.new()
 	return match_node.local_input
