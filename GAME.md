@@ -1415,7 +1415,8 @@ and drops its own.
 ### 9.4 The Garage
 
 A practice room reached straight from the title screen, before anybody starts a
-real match. Nobody else is in it: no bots, no clock, no score to protect. It
+real match. Nobody is playing against you in it: no bots, no clock, no score to
+protect, only two dummy karts standing about to be shot at. It
 runs an ordinary match on its own map with the timer switched off, so nothing
 ever ends and the player can take as long as they like. There is no countdown
 either, so no start gantry, no start tones and no flag: the player is let out onto
@@ -1424,7 +1425,7 @@ the floor rather than held on a grid for a race that is not being run.
 ```
 ################################
 #....R.......R.......R.........#
-#.S............................#
+#.S..........................S.#
 #..>........................<..#
 #..............................#
 #...BB..B..........B..B........#
@@ -1436,7 +1437,7 @@ the floor rather than held on a grid for a race that is not being run.
 #.F............CC.........F....#
 #...BB..B..........B..B........#
 #.......XX.........D...........#
-#.S.....XX.....................#
+#.S.....XX...................S.#
 #..............................#
 #..............................#
 ################################
@@ -1452,8 +1453,15 @@ Everything the game does is somewhere on the floor, and a sign names each one:
   two item pads carrying the full item set rather than the first set.
 - A joker pad that keeps a joker lying on it, so jokers can be tried out, kept,
   dropped and destroyed without dying for them.
+- Two dummy karts, parked on the spawn points down the right-hand side. Nobody
+  is driving them, so they never move and never shoot back. Each one carries a
+  pot of coins with a mult on it and an item in the boot, so a kill scatters
+  chips and often drops the item, and each comes back after the usual respawn
+  delay carrying something new. They wear their own sign rather than a sign on
+  the floor, since they are the one piece of furniture in here that moves.
 - Pressing join brings a second player in on another device, the same as in a
-  match, and pausing leads back to the title.
+  match, and takes an empty seat rather than one of the dummies. Pausing leads
+  back to the title.
 - The disco lights from 8.1 stay off in here: it is a place to look at the
   controls, not a nightclub.
 

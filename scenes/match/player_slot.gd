@@ -76,6 +76,12 @@ func is_human() -> bool:
 	return input is PlayerInput or input is NetInput
 
 
+## A practice dummy in the Garage, GAME.md 9.4: neither a player nor a bot, and not a seat for
+## anybody to take.
+func is_dummy() -> bool:
+	return input is DummyInput
+
+
 ## A human playing on this machine, the only kind that gets a HUD block and rumble.
 func is_local_human() -> bool:
 	return input is PlayerInput
@@ -88,6 +94,8 @@ func device() -> int:
 
 
 func display_name() -> String:
+	if is_dummy():
+		return "P%d Dummy" % (index + 1)
 	if bot_trait != null:
 		return "P%d %s" % [index + 1, bot_trait.display_name]
 	return "P%d" % (index + 1)

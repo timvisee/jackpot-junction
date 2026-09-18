@@ -1,6 +1,6 @@
 extends GdUnitTestSuite
-## The Garage, GAME.md 9.4: a practice room with everything on the floor, nobody to fight and no
-## clock running.
+## The Garage, GAME.md 9.4: a practice room with everything on the floor, nobody to fight but a
+## pair of dummies to shoot at, and no clock running.
 
 const GARAGE_SCENE := preload("res://scenes/garage/garage.tscn")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
@@ -13,7 +13,8 @@ var _runner: GdUnitSceneRunner
 func test_the_map_has_one_of_everything_to_practise_on() -> void:
 	assert_array(LAYOUT.validate()).is_empty()
 	var grid := LAYOUT.parse()
-	assert_int(grid.spawns.size()).is_greater_equal(2)
+	# Four spawn points: two for players and two for the dummies to stand on.
+	assert_int(grid.spawns.size()).is_equal(4)
 	assert_int(grid.targets.size()).is_equal(3)
 	assert_int(grid.joker_pads.size()).is_equal(1)
 	assert_int(grid.turbo_pads.size()).is_equal(2)
@@ -27,7 +28,7 @@ func test_the_map_has_one_of_everything_to_practise_on() -> void:
 	assert_vector(grid.rect_center(grid.junction)).is_equal_approx(Vector3.ZERO, Vector3.ONE * 0.01)
 
 
-func test_the_room_runs_one_player_no_bots_and_no_clock() -> void:
+func test_the_room_runs_one_player_two_dummies_and_no_clock() -> void:
 	# Nothing is heard on the way in either: the tones and the flag both come from the countdown,
 	# and there is none. Watched from before the room is built, so nothing can be missed.
 	var start_cues: Array[int] = []
@@ -40,9 +41,13 @@ func test_the_room_runs_one_player_no_bots_and_no_clock() -> void:
 	# Long enough for the countdown to run out, so the room is actually under way.
 	await runner.simulate_frames(120, 17)
 	var match_node: Match = garage.get_node("Match")
-	assert_int(match_node.slots.size()).is_equal(1)
+	assert_int(match_node.slots.size()).is_equal(3)
 	assert_bool(match_node.slots[0].is_local_human()).is_true()
 	assert_object(match_node.slots[0].bot_trait).is_null()
+	# The other two are dummies rather than bots: nobody is playing against anybody in here.
+	for slot: PlayerSlot in [match_node.slots[1], match_node.slots[2]]:
+		assert_bool(slot.is_dummy()).is_true()
+		assert_object(slot.bot_trait).is_null()
 	assert_int(match_node.arena.targets.size()).is_equal(3)
 	assert_int(match_node.arena.joker_pads.size()).is_equal(1)
 	# No nightclub in here, whatever the excitement meter says.
@@ -96,3 +101,33 @@ func test_shooting_a_target_pays_the_shooter() -> void:
 	assert_bool(target.alive).is_false()
 	assert_int(kart.pot.coins).is_equal(rules.target_coins)
 	assert_float(match_node.slots[0].stats.value(&"targets")).is_equal(1.0)
+
+
+## GAME.md 9.4: the dummies are targets rather than opponents. Nobody drives them, they carry
+## something worth shooting them for, and they come back carrying something new.
+func test_the_dummies_carry_loot_stand_still_and_come_back_restocked() -> void:
+	var garage: Node3D = auto_free(GARAGE_SCENE.instantiate())
+	var runner: GdUnitSceneRunner = scene_runner(garage)
+	await runner.simulate_frames(120, 17)
+	var match_node: Match = garage.get_node("Match")
+	var dummies: Array[PlayerSlot] = []
+	for slot: PlayerSlot in match_node.slots:
+		if slot.is_dummy():
+			dummies.append(slot)
+	assert_int(dummies.size()).is_equal(2)
+	for slot: PlayerSlot in dummies:
+		assert_str(slot.display_name()).contains("Dummy")
+		assert_int(slot.kart.pot.coins).is_greater(0)
+		assert_object(slot.kart.held_item).is_not_null()
+	var kart := dummies[0].kart
+	var parked := kart.global_position
+	await runner.simulate_frames(90, 17)
+	# Standing where it was put, with nothing fired, however long the room runs.
+	assert_vector(kart.global_position).is_equal_approx(parked, Vector3.ONE * 0.05)
+	assert_float(dummies[0].stats.value(&"bullets")).is_equal(0.0)
+	kart.die(&"bullet", 0)
+	assert_bool(kart.alive).is_false()
+	await runner.simulate_frames(200, 17)
+	assert_bool(kart.alive).is_true()
+	assert_int(kart.pot.coins).is_greater(0)
+	assert_object(kart.held_item).is_not_null()

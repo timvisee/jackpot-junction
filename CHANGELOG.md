@@ -72,6 +72,10 @@ below, and hands the notes to the release workflow.
   steel for common, cyan for uncommon, magenta for rare, and the pane that
   describes a joker names the rarity next to the kind.
 
+- **Two dummy karts in the Garage.** Nobody is driving them, so they never shoot
+  back. Each carries a pot of coins and an item, so shooting one scatters loot
+  worth picking up, and each comes back after a moment carrying something new.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button

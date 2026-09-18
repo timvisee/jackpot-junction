@@ -212,7 +212,8 @@ func join_human(device: int) -> PlayerSlot:
 
 func _join_with_input(input: KartInput) -> PlayerSlot:
 	for slot: PlayerSlot in slots:
-		if not slot.is_human():
+		# A bot's seat is there to be taken. A practice dummy's is not: it is furniture.
+		if not slot.is_human() and not slot.is_dummy():
 			_make_human(slot, input)
 			return slot
 	if slots.size() >= rules.max_players or arena == null:
