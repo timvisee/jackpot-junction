@@ -117,6 +117,10 @@ func test_client_joins_takes_over_a_bot_drives_it_and_hands_it_back_on_leaving()
 	assert_bool(seen).override_failure_message("client never saw the karts").is_true()
 	assert_int(client_match.slots.size()).is_equal(2)
 	assert_int(client_match.hud._blocks.size()).is_equal(1)
+	# The client is player two at the table but the only player in the room, so its block takes
+	# the corner a lone player always gets rather than the second player's corner.
+	assert_array(client_match.hud._blocks.keys()).is_equal([1])
+	assert_int(client_match.hud._blocks[1]["corner"]).is_equal(0)
 	var kart := host_match.kart_of(1)
 	var start := kart.global_position
 	client_session.local_input.throttle = 1.0

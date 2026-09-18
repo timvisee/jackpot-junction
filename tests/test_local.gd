@@ -69,12 +69,19 @@ func test_joining_mid_match_takes_over_a_bot_and_settles_the_any_device_player()
 	assert_object(joined.kart.get_node_or_null("Brain")).is_null()
 	assert_int(match_node.slots[0].device()).is_equal(DeviceInput.KEYBOARD)
 	assert_int(match_node.hud._blocks.size()).is_equal(2)
+	# Two players sitting here, so two corners: the one who was already here keeps theirs.
+	assert_int(match_node.hud._blocks[0]["corner"]).is_equal(0)
+	assert_int(match_node.hud._blocks[1]["corner"]).is_equal(1)
 	assert_object(match_node.join_human(1)).is_null()
 	match_node.leave_human(joined)
 	assert_bool(joined.is_human()).is_false()
 	assert_object(joined.bot_trait).is_not_null()
 	assert_object(joined.kart.get_node_or_null("Brain")).is_not_null()
 	assert_int(match_node.hud._blocks.size()).is_equal(1)
+	# And the corner they gave up is the one the next player to sit down takes.
+	var again := match_node.join_human(1)
+	await _runner.simulate_frames(2, 17)
+	assert_int(match_node.hud._blocks[again.index]["corner"]).is_equal(1)
 
 
 func test_joining_without_bots_spawns_a_fresh_slot_until_the_match_is_full() -> void:

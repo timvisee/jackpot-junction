@@ -893,6 +893,12 @@ somebody at this machine: a block, a hand of cards and a joker pick are all thin
 a player here has to be able to answer, so a host never shows them for a player at
 the other end of a wire, who has their own screen for all three.
 
+The corners are handed out by who is sitting at this screen, not by seat number at
+the table: the first player here takes the top left, the second the top right, then
+the bottom two. A client online may well be player three, and alone in its room it
+still gets the top left corner rather than the bottom one its seat number would
+name. Somebody leaving frees their corner for the next player to sit down.
+
 - **Banked score**, large.
 - **Pot** as `coins × mult = value`, updating live.
 - **Joker hand**: the held jokers as a row of overlapping cards along the bottom

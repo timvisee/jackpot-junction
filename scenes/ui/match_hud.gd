@@ -19,6 +19,10 @@ const CALL_DROP := 120.0
 const CALL_TIME := 2.2
 const CALL_FADE := 0.6
 
+## Which corner the first, second, third and fourth block on this screen take. The order is by
+## who is sitting here, not by slot number: online, a lone client may well be slot 2, and its one
+## player still wants the corner a lone player always gets rather than the one their seat at the
+## table happens to be numbered.
 const BLOCK_ANCHORS: Array[int] = [
 	Control.PRESET_TOP_LEFT,
 	Control.PRESET_TOP_RIGHT,
@@ -191,7 +195,7 @@ func _exit_tree() -> void:
 func add_block(slot: PlayerSlot) -> void:
 	if _blocks.has(slot.index) or not slot.is_local_human():
 		return
-	_blocks[slot.index] = _make_block(slot)
+	_blocks[slot.index] = _make_block(slot, _free_corner())
 	var hand := JokerHand.new()
 	hand.name = "Hand%d" % slot.index
 	hand.kart = slot.kart
@@ -218,6 +222,18 @@ func remove_block(slot: PlayerSlot) -> void:
 	_pickers[slot.index].queue_free()
 	_pickers.erase(slot.index)
 	_layout_hands()
+
+
+## The lowest corner nobody on this screen is using. Somebody leaving frees theirs for the next
+## player to join rather than pushing everybody after them along.
+func _free_corner() -> int:
+	var taken: Array[int] = []
+	for index: int in _blocks:
+		taken.append(_blocks[index]["corner"])
+	for corner: int in BLOCK_ANCHORS.size():
+		if not taken.has(corner):
+			return corner
+	return 0
 
 
 ## Hands share the bottom edge in slot order.
@@ -268,7 +284,7 @@ func _update_blocks() -> void:
 	var bottom_blocks: Array[Rect2] = []
 	var feed_top := 16.0
 	for index: int in _blocks:
-		var corner := index % BLOCK_ANCHORS.size()
+		var corner: int = _blocks[index]["corner"]
 		var rect := (_blocks[index]["box"] as Control).get_global_rect()
 		if corner >= 2:
 			bottom_blocks.append(rect)
@@ -522,12 +538,12 @@ func _label(size: int, preset: int) -> Label:
 	return label
 
 
-func _make_block(slot: PlayerSlot) -> Dictionary:
+func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	var box := VBoxContainer.new()
 	box.name = "Block%d" % slot.index
-	box.set_anchors_and_offsets_preset(BLOCK_ANCHORS[slot.index % BLOCK_ANCHORS.size()])
-	var right := slot.index % 2 == 1
-	var bottom := slot.index >= 2
+	box.set_anchors_and_offsets_preset(BLOCK_ANCHORS[corner])
+	var right := corner % 2 == 1
+	var bottom := corner >= 2
 	box.grow_horizontal = Control.GROW_DIRECTION_BEGIN if right else Control.GROW_DIRECTION_END
 	box.grow_vertical = Control.GROW_DIRECTION_BEGIN if bottom else Control.GROW_DIRECTION_END
 	box.offset_left = -16.0 if right else 16.0
@@ -607,6 +623,7 @@ func _make_block(slot: PlayerSlot) -> Dictionary:
 	box.add_child(hints)
 	return {
 		"box": box,
+		"corner": corner,
 		"banked": banked,
 		"pot": pot,
 		"stats": stats,
