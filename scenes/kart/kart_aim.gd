@@ -21,12 +21,21 @@ static func direction(kart: Kart) -> Vector3:
 ## or the mouse says otherwise.
 static func _pointed(kart: Kart) -> Vector3:
 	var forward := -kart.global_basis.z
-	if not kart.cannon.current_stats().free_aim:
+	if not _free_aim(kart):
 		return forward
 	if kart.input.aim.length() > 0.3:
 		return Vector3(kart.input.aim.x, 0.0, kart.input.aim.y).normalized()
 	var mouse := _from_mouse(kart)
 	return mouse if mouse != Vector3.ZERO else forward
+
+
+## Whether this kart is aiming freely rather than down its nose. A puppet holds no cannon
+## override of its own, since the host is the one shooting, but the arrow that shows for exactly
+## as long as free aim lasts rides the snapshot, so on a client that is the answer.
+static func _free_aim(kart: Kart) -> bool:
+	if kart.puppet:
+		return kart.aim_arrow_visible
+	return kart.cannon.current_stats().free_aim
 
 
 ## Aimbot, GAME.md 7.3: turns the shot part of the way toward the nearest enemy in front, up to

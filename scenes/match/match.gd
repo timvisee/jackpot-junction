@@ -41,6 +41,10 @@ var puppet := false
 var lobby_hint := ""
 ## The slot the local player controls in a puppet match, -1 until assigned.
 var local_slot := -1
+## On a client, the input its session is polling and sending to the host. The local player's kart
+## is a puppet, but it is still the one they are steering, so anything drawn from where they are
+## pointing reads this rather than an input nobody fills in.
+var local_input: KartInput
 var arena: Arena
 var camera_rig: CameraRig
 var bullets: BulletSystem
@@ -361,8 +365,10 @@ func start_puppet() -> void:
 
 
 ## Tells a puppet match which slot the local player has.
-func set_local_slot(index: int) -> void:
+func set_local_slot(index: int, input: KartInput = null) -> void:
 	local_slot = index
+	if input != null:
+		local_input = input
 
 
 ## Parks a started match in the lobby, karts frozen and the clock stopped, until the host begins.

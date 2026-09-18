@@ -316,3 +316,45 @@ func test_the_rig_swings_onto_the_winner_on_a_client_too() -> void:
 	assert_int(client.state).is_equal(Match.State.RESULTS)
 	assert_int(client.standings()[0].index).is_equal(1)
 	assert_object(client.arena.disco._focus).is_equal(client.slots[1].kart)
+
+
+## GAME.md 8.5: the aim guide is drawn for the player driving. Online the kart they drive is a
+## puppet moved by the host, which is not the same thing as a kart they are not driving.
+func test_a_client_draws_the_aim_guide_on_the_kart_its_player_drives() -> void:
+	var host: Match = auto_free(MATCH_SCENE.instantiate())
+	host.rules = _rules()
+	host.with_hud = false
+	host.offer_size = 0
+	var runner := scene_runner(host)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	host.start(inputs, 23)
+	await runner.simulate_frames(20, 17)
+	var client: Match = auto_free(MATCH_SCENE.instantiate())
+	client.rules = _rules()
+	client.with_hud = false
+	add_child(client)
+	client.start_puppet()
+	# What a session does once the host says which slot is ours, input and all.
+	var mine := PlayerInput.new()
+	client.set_local_slot(1, mine)
+	client.apply_snapshot(host.build_snapshot())
+	await await_millis(60)
+	var ours: Kart = client.slots[1].kart
+	var theirs: Kart = client.slots[0].kart
+	assert_bool(ours.puppet).is_true()
+	assert_object(ours.input).is_equal(mine)
+	assert_object(ours._aim_guide).is_not_null()
+	assert_bool(ours._aim_guide.visible).is_true()
+	# And not on the kart somebody else is driving, which is every other kart on this screen.
+	assert_object(theirs._aim_guide).is_null()
+	# It follows the nose, which is where an ordinary cannon shoots.
+	assert_vector(ours.aim_direction()).is_equal_approx(-ours.global_basis.z, Vector3.ONE * 0.01)
+	# A swivel cannon is free aim, and a client knows that from the arrow the host sends it.
+	ours.aim_arrow_visible = true
+	mine.aim = Vector2(0.0, -1.0)
+	assert_vector(ours.aim_direction()).is_equal_approx(Vector3.FORWARD, Vector3.ONE * 0.01)
+	# Turned off in the settings it goes, on a client the same as anywhere else.
+	Game.settings.aim_guide = false
+	await await_millis(60)
+	assert_bool(ours._aim_guide.visible).is_false()
+	Game.settings.aim_guide = true

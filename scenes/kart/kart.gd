@@ -555,9 +555,12 @@ func _process(_delta: float) -> void:
 	_update_aim_guide()
 
 
-## The aim guide shows for local players when the setting is on.
+## The aim guide shows for local players when the setting is on. A puppet counts: online the
+## kart a player drives is moved by the host, and it is still the one they are steering and the
+## only one on their screen whose aim is theirs to see. Holding a [PlayerInput] is what says so,
+## since nothing else on either machine is given one.
 func _update_aim_guide() -> void:
-	var wanted := alive and not puppet and input is PlayerInput and Game.settings.aim_guide
+	var wanted := alive and input is PlayerInput and Game.settings.aim_guide
 	if wanted and _aim_guide == null:
 		_aim_guide = AimGuide.attach(self, Palette.player_color(color_index))
 	if _aim_guide == null:

@@ -1005,7 +1005,10 @@ name. Somebody leaving frees their corner for the next player to sit down.
   chime keeps the same company: one per run rather than one per coin.
 - In-world: a progress ring around the kart while banking or collecting the
   Jackpot, the chip count on the floor of the Jackpot zone, floating `+0.5` on grazes,
-  and for local players an aim guide of four faint dots ahead of the cannon.
+  and for local players an aim guide of four faint dots ahead of the cannon. A
+  local player is whoever is steering the kart, which online is a kart the host
+  moves: the guide is for the hand on the stick, not for the machine running the
+  physics.
   Royal Flush pad frames glow and pulse in their holder's colour; a flush shows
   ROYAL FLUSH over the kart.
 

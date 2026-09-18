@@ -243,7 +243,7 @@ func _set_rules(data: Dictionary) -> void:
 @rpc("authority", "call_remote", "reliable")
 func _assign_slot(index: int, _seed: int) -> void:
 	local_slot = index
-	match_node.set_local_slot(index)
+	match_node.set_local_slot(index, local_input)
 	slot_assigned.emit(index)
 
 

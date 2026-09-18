@@ -335,9 +335,17 @@ static func _ensure_slots(match_node: Match, count: int) -> void:
 	while match_node.slots.size() < count:
 		var index := match_node.slots.size()
 		var input: KartInput = (
-			PlayerInput.new() if index == match_node.local_slot else KartInput.new()
+			_local_input(match_node) if index == match_node.local_slot else KartInput.new()
 		)
 		match_node.slots.append(PlayerSlot.new(index, input))
+
+
+## The input this machine is polling for its own player. A puppet match built without a session,
+## as the tests do, gets one of its own so there is always something to read.
+static func _local_input(match_node: Match) -> KartInput:
+	if match_node.local_input == null:
+		match_node.local_input = PlayerInput.new()
+	return match_node.local_input
 
 
 static func _apply_slots(match_node: Match, entries: Array) -> void:
@@ -345,7 +353,7 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 		var entry: Dictionary = entries[i]
 		var slot := match_node.slots[i]
 		if i == match_node.local_slot and not slot.is_local_human():
-			slot.input = PlayerInput.new()
+			slot.input = _local_input(match_node)
 		slot.banked = entry["banked"]
 		slot.kills = entry["kills"]
 		slot.deaths = entry["deaths"]
@@ -437,6 +445,11 @@ static func _apply_karts(match_node: Match, entries: Array) -> void:
 		# message of its own, which arrives after the first karts have already been built, so a
 		# kart that settled its voice on the way in would keep somebody else's all match.
 		kart.enable_sound(true, entry["slot"] != match_node.local_slot)
+		# The kart this player steers reads the input this machine is polling, even though the
+		# host is the one moving it. Everything drawn from where they are pointing — the aim
+		# guide, the swivel cannon's arrow — then points where their shot is going to go.
+		if entry["slot"] == match_node.local_slot and entry["slot"] < match_node.slots.size():
+			kart.input = match_node.slots[entry["slot"]].input
 		if (
 			match_node.hud != null
 			and not entry["decoy"]
