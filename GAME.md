@@ -802,6 +802,7 @@ a real downside. Starting set; balance is untested.
 | Slipstream       | Common   | Rule   | Grazes give +1 mult instead of +0.5                                       |
 | Green Light      | Common   | Rule   | Turbo pads give +0.5 mult                                                 |
 | Vulture          | Common   | Rule   | Chips dropped by other karts are worth 2 coins to you                     |
+| Odometer         | Common   | Rule   | +1 coin for every 20 m you drive                                          |
 | Insurance Policy | Uncommon | Rule   | Bank 100% of your pot on death                                            |
 | Getaway Driver   | Uncommon | Rule   | Junction drain ramps twice as fast, D = 0.25 s                            |
 | Pickpocket       | Uncommon | Rule   | Kills move 50% of the victim's coins into your pot; the victim drops none |

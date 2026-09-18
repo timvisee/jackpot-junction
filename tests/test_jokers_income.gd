@@ -58,6 +58,22 @@ func test_hot_streak_climbs_the_mult_on_its_own() -> void:
 	assert_float(kart.pot.mult).is_equal(start + 2.0)
 
 
+func test_the_odometer_pays_by_the_metre() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := _armed(match_node, "odometer")
+	# Standing still is not driving, however long it goes on for.
+	JokerTick.step(match_node.slots, 10.0)
+	assert_int(kart.pot.coins).is_equal(0)
+	kart.motor.velocity = Vector3(10.0, 0.0, 0.0)
+	JokerTick.step(match_node.slots, 1.9)
+	assert_int(kart.pot.coins).is_equal(0)
+	JokerTick.step(match_node.slots, 0.1)
+	assert_int(kart.pot.coins).is_equal(1)
+	JokerTick.step(match_node.slots, 6.0)
+	assert_int(kart.pot.coins).is_equal(4)
+
+
 ## The wiring rather than the sum: a match steps its jokers on its own, without being asked.
 func test_a_running_match_pays_the_jokers_that_pay() -> void:
 	var match_node := _start_match()
