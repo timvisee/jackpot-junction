@@ -31,6 +31,8 @@ below, and hands the notes to the release workflow.
   kart's collisions away, and on a client the kart is dead, stood down and
   brought back between losing them and being driven again, so it came back able
   to drive through walls for the rest of the match.
+- **Online play is written down.** GAME.md 10.3 opens with who decides what, as a
+  table, along with what the arrangement guarantees and what it does not.
 - **Online: pulling the trigger answers at once.** The cannon goes on cooldown and
   the shot is heard on the tick the button goes down; the bullet still comes from
   the host, because whether one lives depends on a bullet fired by somebody a

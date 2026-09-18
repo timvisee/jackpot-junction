@@ -1549,6 +1549,59 @@ Key pieces:
 Designed in from the start so that M6 is an addition, not a rewrite: all rules
 run in one place, the Match, and karts are driven by a KartInput interface.
 
+#### Who decides what
+
+One rule underneath all of it: **a client may decide where its own kart is and
+what its own controls just did; everything else is the host's.** A client can
+move, and it can answer its own buttons on the tick they are pressed. It cannot
+award itself anything, hurt anybody, or decide that it picked something up.
+
+| Question | Answered by | How the other end finds out |
+|----------|-------------|------------------------------|
+| Where my own kart is | the client driving it | it sends its answer with its controls; the host follows it |
+| Where anybody else's kart is | the host | the snapshot, thirty times a second |
+| Two karts touching | the host | it takes the wheel off both for a moment, and says so |
+| Nitro burning, and the tank | the client predicts, the host confirms | the message addressed to that client |
+| A turbo pad's shove | the client predicts it | nothing to send: the pad is in the same place on both |
+| Going down a hole | the client predicts the fall | the host decides the death, in the snapshot |
+| Breaking a box by ramming it | the client predicts it | the host settles it within a second, in the snapshot |
+| Pulling the trigger: cooldown and sound | the client | nothing to send; the host's word for it is dropped on the way in |
+| The bullet itself | the host | the snapshot |
+| Who hit whom, who died, lives | the host | the snapshot and relayed events |
+| Coins, pots, cashing out, score | the host | the snapshot |
+| What is on the floor and who took it | the host | the snapshot, as what changed |
+| Items held and items used | the host | the snapshot |
+| The joker pick in front of me | the client works its own | the host decides what is actually held |
+| Statistics and awards | the host | the snapshot |
+| The clock, the state, Last Call, overtime | the host | the snapshot |
+| Jackpot, Royal Flush pads, the bounty | the host | the snapshot |
+| Excitement, music, lights, the announcer | every machine, for itself | nothing is sent; the same events arrive at both |
+| Match rules: clock, target, lives | the host | sent once, before a slot is handed out |
+| Pausing | every machine has to agree | asked and answered both ways |
+
+What this is meant to guarantee:
+
+- A client never watches its own kart lag its controls. Driving, nitro, the
+  trigger and the joker cursor all answer on the tick.
+- A client can never give itself a coin, a kill, a life or a point.
+- A client can never move its kart further than a couple of metres from where the
+  host's own simulation put it. Past that the host keeps the wheel and says so.
+- Anything a client guesses at is settled by the host within a round trip, and
+  every guess has a way of being put back: a box comes back solid, a kart is put
+  where the host has it, a correction is walked in rather than applied.
+- Nothing a client guesses at is ever announced twice. A puppet raises no events
+  of its own, except the ones it is deliberately raising instead of the host's.
+
+What it is not:
+
+- It is not cheat-proof. A modified client can drive its own kart anywhere inside
+  the plausibility limit and can hold its own trigger down. This is a game played
+  with friends over a direct address, 9.3, and the trade is deliberate: the same
+  limits that would stop it would put the round trip back into the driving.
+- It is not lockstep. The two machines are not expected to agree exactly, only to
+  agree closely and to be put right when they do not.
+- A snapshot does not fit in one datagram. See the sizes below.
+
 **A mechanic is not finished until it works online.** This is the standard the
 rest of this section exists to meet, and it applies to everything in this
 document: every rule in 3, every number, every statistic and award in 3.8,
