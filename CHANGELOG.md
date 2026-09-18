@@ -30,6 +30,11 @@ below, and hands the notes to the release workflow.
   place everybody has to visit was the one place nobody could be finished off.
   The wait runs whether the kart stays put or drives off and comes back.
 
+- **The Junction refills your nitro four times as fast.** Cashing out parks you
+  still and in the open in the middle of the arena, so the pad now hands you the
+  one thing that gets you out of there again, on top of whatever the hot table is
+  already giving you.
+
 ### Added
 
 - **A one-minute match, in debug builds only.** Long enough to reach the Junction

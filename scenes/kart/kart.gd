@@ -80,8 +80,10 @@ var ramming := false
 ## Nitro tank from 0 to 1, and whether it is burning right now. Burning also kills on contact.
 var nitro_charge := 1.0
 ## How much faster the tank refills than its own rate, set by the match from how hot the room
-## is, GAME.md 8.4.
+## is, GAME.md 8.4, and by the Junction while the kart stands on it, GAME.md 3.4. Two sources
+## that multiply rather than one that overwrites, since each keeps writing its own every frame.
 var nitro_recharge_scale := 1.0
+var junction_recharge := 1.0
 var nitro_active := false
 var shielded := false
 var held_item: PowerUp
@@ -637,7 +639,7 @@ func _step_nitro(delta: float) -> void:
 		return
 	_nitro_recharge_wait = maxf(_nitro_recharge_wait - delta, 0.0)
 	if _nitro_recharge_wait <= 0.0:
-		var rate := nitro_recharge_scale / stats.nitro_recharge_seconds
+		var rate := nitro_recharge_scale * junction_recharge / stats.nitro_recharge_seconds
 		nitro_charge = minf(nitro_charge + delta * rate, 1.0)
 
 

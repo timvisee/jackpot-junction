@@ -54,6 +54,10 @@ const WIRE_FIELDS: Array[StringName] = [
 ## hardest. Nothing but a nudge: the pad works the same either way.
 @export var junction_hint_start := 250.0
 @export var junction_hint_full := 1200.0
+## What the nitro refill rate is multiplied by while a kart stands on the pad. Cashing out puts
+## a kart still and in the open in the middle of the arena for a couple of seconds, so the pad
+## hands it the one thing that gets it out of there again.
+@export var junction_nitro_recharge := 4.0
 
 @export_group("Jackpot")
 @export var jackpot_accrual := 1.0

@@ -27,6 +27,7 @@ bank_rate_doubling = 0.5
 last_call_payout = 2.0
 junction_hint_start = 250.0
 junction_hint_full = 1200.0
+junction_nitro_recharge = 4.0
 jackpot_accrual = 1.0
 jackpot_accrual_hot = 3.0
 jackpot_cap_hot = 2.0

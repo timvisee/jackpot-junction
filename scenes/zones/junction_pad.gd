@@ -9,6 +9,10 @@ extends Area3D
 ## will it do it twice in a row: after a patch-up the pad needs a moment before it has another
 ## one to give, so a kart parked in the middle of the arena can still be finished off there.
 ##
+## A kart standing on the pad also refills its nitro tank several times as fast, GAME.md 3.4.
+## Cashing out parks a kart in the open in the middle of the arena for a couple of seconds, so
+## the pad hands it the one thing that gets it out of there again.
+##
 ## The neon ring blinks when a local player is riding around with a big unbanked pot, harder
 ## and faster the more is at stake, as a nudge to come and cash it in. A pot that would win the
 ## match outright takes the ring over: flat gold, flat out, GAME.md 3.4.
@@ -49,7 +53,11 @@ var _pulse := 0.0
 
 func _ready() -> void:
 	collision_layer = Layers.TRIGGER
-	collision_mask = Layers.KART | Layers.PROTECTED
+	# Puppets too, so a client's own kart gets the faster tank on the tick it drives on rather
+	# than a round trip later, GAME.md 10.3. The pad is in the same place on both machines, so
+	# who is standing on it is as safe to answer here as who is standing on a turbo pad. Banking
+	# is not: see below, that stays the host's.
+	collision_mask = Layers.KART | Layers.PROTECTED | Layers.PUPPET
 	var shape := CollisionShape3D.new()
 	var cylinder := CylinderShape3D.new()
 	cylinder.radius = radius
@@ -81,17 +89,32 @@ func _process(delta: float) -> void:
 
 func _on_body_entered(body: Node3D) -> void:
 	var kart := body as Kart
-	if kart == null:
+	if not _ours(kart):
+		return
+	kart.junction_recharge = rules.junction_nitro_recharge
+	# A kart on the puppet layer is either somebody else's, drawn here where the host last said
+	# it was, or this client's own. Neither one's pot is this pad's to drain: banking is decided
+	# once, on the host, and arrives in the snapshot.
+	if kart.puppet:
 		return
 	_channels[kart.get_instance_id()] = _new_channel()
 
 
 func _on_body_exited(body: Node3D) -> void:
 	var kart := body as Kart
-	if kart == null:
+	if not _ours(kart):
 		return
+	kart.junction_recharge = 1.0
 	_channels.erase(kart.get_instance_id())
 	kart.channel_progress = -1.0
+
+
+## Whether this kart belongs to the same match as this pad. A host match and a puppet match can
+## share a scene tree, in tests and in a future split screen, and they share the physics space
+## with it: without this the pad in one room would bank and refuel karts standing in the other.
+## Every kart in a match holds the same [MatchRules] instance the pad was handed.
+func _ours(kart: Kart) -> bool:
+	return kart != null and rules != null and kart.rules == rules
 
 
 func _new_channel() -> Dictionary:

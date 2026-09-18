@@ -146,6 +146,12 @@ R0 = 40 points per second, D = 0.5 s
   pot has to go in first: the life comes with the last coin of the cash-out, which
   is exactly when the kart is most worth shooting. A kart that rolls on with
   nothing to bank is owed the life straight away.
+- Nitro refills 4x as fast while a kart stands on the pad, on top of whatever the
+  hot table is already giving it. Cashing out parks a kart still and in the open
+  in the middle of the arena for a couple of seconds, which is the moment it most
+  needs something to leave with; a full tank is also what makes coming back worth
+  it. A client works this out for itself, see 10.3: the pad is in the same place
+  on both machines, so who is standing on it needs no round trip.
 - The pad has one life to give every 3 seconds per kart, and the wait runs whether
   the kart stays or leaves and comes back. Otherwise a kart parked on the Junction
   is patched up the instant it is wounded and can never be finished off in the

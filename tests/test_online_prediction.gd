@@ -261,6 +261,29 @@ func test_your_own_kart_answers_the_stick_at_once() -> void:
 ## Prediction is worth nothing if it wanders off. Driving hard for a few seconds, the kart on the
 ## client has to still be the kart on the host, and the corrections that keep it there have to be
 ## rare and small rather than a running argument.
+## GAME.md 3.4 and 10.3: the Junction's faster tank is worked out on both machines, so a client
+## cashing out watches its own tank fill as it waits rather than in steps as snapshots land.
+func test_the_junction_fills_a_clients_tank_on_the_client() -> void:
+	await _connect()
+	var here := _prediction.kart
+	var there := _host.kart_of(0)
+	here.global_position = _host.arena.junction_position
+	there.global_position = _host.arena.junction_position
+	here.nitro_charge = 0.0
+	there.nitro_charge = 0.0
+	await _drive(4)
+	assert_float(here.junction_recharge).is_equal(_host.rules.junction_nitro_recharge)
+	# Two seconds of standing there. A tank takes 90 seconds to fill on its own, so the pad's
+	# four times over is worth about 0.089 of one and going without it about 0.022.
+	await _drive(120)
+	_running = false
+	assert_float(here.nitro_charge).override_failure_message(_report()).is_greater(0.05)
+	assert_float(there.nitro_charge).override_failure_message(_report()).is_greater(0.05)
+	assert_float(here.nitro_charge).override_failure_message(_report()).is_equal_approx(
+		there.nitro_charge, 0.005
+	)
+
+
 func test_a_predicted_kart_stays_where_the_host_has_it() -> void:
 	await _connect()
 	_input.throttle = 1.0

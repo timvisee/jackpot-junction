@@ -371,6 +371,10 @@ func start_puppet() -> void:
 		zone.rules = rules
 		zone.puppet = true
 	arena.junction.puppet = true
+	# Banking stays the host's, but the pad's faster nitro tank is worked out here too, GAME.md
+	# 3.4, and for that it needs the numbers. They are the same numbers: a client's copy is the
+	# one the host's lobby settings are written into, and everything else comes from the file.
+	arena.junction.rules = rules
 	for crate: Crate in arena.crates:
 		crate.puppet = true
 	_build_systems(true)

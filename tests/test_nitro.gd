@@ -55,6 +55,29 @@ func test_nitro_burns_for_speed_then_empties_and_refills_after_a_pause() -> void
 	assert_bool(kart.nitro_active).is_false()
 
 
+## GAME.md 3.4: the pad refills a tank several times as fast, so cashing out is not a sentence
+## to crawl away from the middle of the arena afterwards.
+func test_the_junction_refills_the_tank_faster() -> void:
+	var match_node := _start_match([KartInput.new(), KartInput.new()])
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	var away := match_node.kart_of(1)
+	kart.global_position = match_node.arena.junction_position
+	away.global_position = Vector3(-14.0, 0.0, 0.0)
+	kart.nitro_charge = 0.0
+	away.nitro_charge = 0.0
+	await _runner.simulate_frames(4, 17)
+	assert_float(kart.junction_recharge).is_equal(match_node.rules.junction_nitro_recharge)
+	assert_float(away.junction_recharge).is_equal(1.0)
+	await _runner.simulate_frames(90, 17)
+	assert_float(away.nitro_charge).is_greater(0.0)
+	assert_float(kart.nitro_charge).is_greater(away.nitro_charge * 3.0)
+	# Driving off gives the tank its own pace back.
+	kart.global_position = Vector3(14.0, 0.0, 0.0)
+	await _runner.simulate_frames(4, 17)
+	assert_float(kart.junction_recharge).is_equal(1.0)
+
+
 func test_ramming_with_nitro_kills_the_other_kart() -> void:
 	var input := KartInput.new()
 	var match_node := _start_match([input, KartInput.new()])
