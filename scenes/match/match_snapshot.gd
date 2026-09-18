@@ -336,6 +336,14 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 			match_node.spotlight_winner()
 		elif previous_state == Match.State.RESULTS:
 			match_node.arena.disco.clear_focus()
+		if match_node.state == Match.State.COUNTDOWN:
+			# A fresh match. The host built itself new ones of these when it started again; a
+			# client keeps its own and has to be told to put them down, or the new match opens
+			# at the excitement level the last one finished at, with the lights still going and
+			# somebody still on a killing spree they earned in a game that is over.
+			match_node.intensity.reset()
+			match_node.announcer.forget_the_match()
+			match_node.arena.disco.clear_focus()
 	var flush: Array = data.get("flush", [])
 	for i: int in mini(flush.size(), match_node.arena.flush_pads.size()):
 		match_node.arena.flush_pads[i].apply_puppet_state(

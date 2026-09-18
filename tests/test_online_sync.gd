@@ -518,3 +518,47 @@ func test_a_chip_pulled_in_by_a_magnet_still_flies_into_the_kart() -> void:
 		. override_failure_message("the chip blinked out instead of flying into the kart")
 		. is_greater(0)
 	)
+
+
+## A rematch is a new match on every machine, GAME.md 8.4. A client keeps its own excitement
+## meter and its own announcer, on purpose, and nothing was telling either of them the last match
+## was over: the new one opened at the level the old one finished at, lights still going.
+func test_a_new_match_puts_down_what_a_client_was_carrying() -> void:
+	var host: Match = auto_free(MATCH_SCENE.instantiate())
+	host.rules = _rules()
+	host.with_hud = false
+	var runner := scene_runner(host)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	host.start(inputs, 91)
+	await runner.simulate_frames(20, 17)
+	var client: Match = auto_free(MATCH_SCENE.instantiate())
+	client.rules = _rules()
+	client.with_hud = false
+	add_child(client)
+	client.start_puppet()
+	client.apply_snapshot(host.build_snapshot())
+	# A hot room, a streak going and the rig on somebody.
+	client.intensity.add(1.0)
+	client.intensity.bump()
+	client.intensity.bump()
+	client.announcer.streaks[0] = 4
+	client.arena.disco.focus(client.slots[0].kart)
+	await runner.simulate_frames(4, 17)
+	assert_int(client.intensity.level).is_greater(1)
+	# The host plays it again, and the countdown for the new one reaches this machine.
+	host.rematch()
+	await runner.simulate_frames(4, 17)
+	assert_int(host.state).is_equal(Match.State.COUNTDOWN)
+	client.apply_snapshot(host.build_snapshot())
+	(
+		assert_int(client.intensity.level)
+		. override_failure_message("the new match opened at the old one's excitement level")
+		. is_equal(1)
+	)
+	assert_float(client.intensity.value).is_equal_approx(0.0, 0.01)
+	(
+		assert_bool(client.announcer.streaks.is_empty())
+		. override_failure_message("somebody was still on a streak from the last match")
+		. is_true()
+	)
+	assert_object(client.arena.disco._focus).is_null()

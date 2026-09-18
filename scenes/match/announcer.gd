@@ -32,6 +32,17 @@ func _ready() -> void:
 	Events.kart_killed.connect(_on_kart_killed)
 
 
+## Forgets the match just played, GAME.md 3.12. Kill streaks and killing sprees belong to one
+## match; carrying them into the next would announce a spree somebody earned in a game that is
+## over. A client resets its own when the host starts another, since it keeps its own count.
+func forget_the_match() -> void:
+	streaks.clear()
+	runs.clear()
+	_last_kill_at.clear()
+	_died_to.clear()
+	_died_at.clear()
+
+
 func _physics_process(delta: float) -> void:
 	_now += delta
 

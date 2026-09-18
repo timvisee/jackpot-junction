@@ -31,6 +31,10 @@ below, and hands the notes to the release workflow.
   kart's collisions away, and on a client the kart is dead, stood down and
   brought back between losing them and being driven again, so it came back able
   to drive through walls for the rest of the match.
+- **Online: a rematch starts fresh on every screen.** A client keeps its own
+  excitement meter and announcer, and nothing told either of them the last match
+  was over, so the new one opened at the old one's heat with the lights still
+  going and somebody still on a killing spree they earned in a finished game.
 - **Online: the Swivel Cannon aims where a client is aiming.** Free aim never
   crossed the wire when it came from a mouse, so the host asked where its own
   pointer was and fired the client's shot at that.
