@@ -40,14 +40,39 @@ var jackpot_zones: Array[JackpotZone] = []
 var jackpot_positions: Array[Vector3] = []
 var pickups: Node3D
 
+## The scorch marks the walls are wearing, oldest first, GAME.md 8.3. Untyped, because a mark
+## frees itself once it has faded and a typed array will not hand a freed instance back out.
+var _marks: Array = []
 var _materials: Dictionary[Color, StandardMaterial3D] = {}
 var _rules: MatchRules
 var _rng: RandomNumberGenerator
 
 
 func _ready() -> void:
+	Events.bullet_struck.connect(_on_bullet_struck)
 	if layout != null and grid == null:
 		build()
+
+
+func _exit_tree() -> void:
+	if Events.bullet_struck.is_connected(_on_bullet_struck):
+		Events.bullet_struck.disconnect(_on_bullet_struck)
+
+
+## A bullet landed on a wall. The mark is drawn from the event rather than by the bullet itself
+## so that it appears on every screen: a client's bullets are dead reckoned and never touch
+## anything, GAME.md 10.3, so they have nothing to leave a mark from.
+func _on_bullet_struck(at: Vector3, normal: Vector3, color: Color) -> void:
+	var kept: Array = []
+	for mark: Variant in _marks:
+		if is_instance_valid(mark):
+			kept.append(mark)
+	kept.append(BulletMark.spawn(self, at, normal, color))
+	while kept.size() > BulletMark.MAX_MARKS:
+		var oldest: Variant = kept.pop_front()
+		if is_instance_valid(oldest):
+			(oldest as Node).queue_free()
+	_marks = kept
 
 
 ## Rebuilds every child from the layout.
@@ -55,6 +80,7 @@ func build() -> void:
 	grid = layout.parse()
 	for child: Node in get_children():
 		child.queue_free()
+	_marks.clear()
 	spawn_points.clear()
 	turbo_pads.clear()
 	pits.clear()

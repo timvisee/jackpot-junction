@@ -86,6 +86,10 @@ below, and hands the notes to the release workflow.
   screen, or TAKING THE LEAD when it puts you top of the board, and counts toward
   a Last Word award on the results.
 
+- **Bullets leave marks on the walls they hit.** A small scorch in the shooter's
+  colour, fading out over a few seconds, so a wall that has been shot at looks
+  like one.
+
 ### Fixed
 
 - **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball

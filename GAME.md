@@ -876,7 +876,11 @@ subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
   light, glowing and pulsing so they read at a glance.
 - **Karts**: toy go-karts with a simple driver figure, body tinted in the
   player colour, a roof marker shape per colour.
-- **Bullets**: glowing spheres in the owner's colour with a short trail.
+- **Bullets**: glowing spheres in the owner's colour with a short trail. A shot
+  that lands on a wall leaves a small dark disc of the shooter's colour lying flat
+  against it, which fades out over about seven seconds. A room wears 60 of them at
+  once and the oldest goes to make room, so a long firefight against one wall does
+  not end with the wall made of scorch marks.
 - **Traffic lights and road signs** as props at lane ends and near spawns.
 
 Starting palette:

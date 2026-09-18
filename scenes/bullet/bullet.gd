@@ -305,15 +305,17 @@ func _check_spawn_path() -> void:
 
 
 func _bounce(point: Vector3, normal: Vector3) -> void:
+	var flat_normal := Vector3(normal.x, 0.0, normal.z).normalized()
+	if flat_normal.is_zero_approx():
+		flat_normal = -velocity.normalized()
+	# A mark on the wall wherever a shot lands, GAME.md 8.3, whether it stops there or comes off.
+	Events.bullet_struck.emit(Vector3(point.x, HEIGHT, point.z), flat_normal, color)
 	if bounces_left <= 0:
 		destroy()
 		return
 	bounces_left -= 1
 	bounced = true
 	Events.bullet_bounced.emit()
-	var flat_normal := Vector3(normal.x, 0.0, normal.z).normalized()
-	if flat_normal.is_zero_approx():
-		flat_normal = -velocity.normalized()
 	velocity = velocity.bounce(flat_normal)
 	velocity.y = 0.0
 	global_position = Vector3(point.x, HEIGHT, point.z) + flat_normal * (radius + SKIN)

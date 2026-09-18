@@ -36,6 +36,10 @@ signal wild_joker_dropped(joker_id: StringName)
 signal announced(slot: int, call: String)
 signal bullet_fired(slot: int)
 signal bullet_bounced
+## A bullet landed on a wall, GAME.md 8.3, with the surface normal and the shooter's colour, so
+## the arena can leave a mark there. An event rather than something the bullet does itself
+## because a client's bullets are dead reckoned and never touch anything, GAME.md 10.3.
+signal bullet_struck(at: Vector3, normal: Vector3, color: Color)
 signal kart_bumped(slot: int)
 ## A kart into a wall. [code]force[/code] is 0 for the lightest contact worth hearing at all
 ## and 1 for a flat-out shunt, so a scrape and a proper thump are not the same sound.
