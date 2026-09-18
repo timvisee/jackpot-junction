@@ -364,7 +364,11 @@ func apply_puppet_state(state: Dictionary, _delta: float) -> void:
 	set_shielded(state["shield"])
 	channel_progress = state["ring"]
 	_aim_arrow.visible = state["aim"]
-	_flame.set_active(state.get("nitro", false))
+	if not predicted:
+		# A kart driven here burns its own nitro and lights its own flame, GAME.md 10.3. The
+		# host's word for it is a round trip old, and laying that over the top is what made
+		# nitro flicker on a client: lit here, put out by the next snapshot, lit again.
+		_flame.set_active(state.get("nitro", false))
 	var new_lives: int = state.get("lives", rules.lives)
 	if new_lives != lives:
 		lives = new_lives

@@ -31,6 +31,15 @@ below, and hands the notes to the release workflow.
   kart's collisions away, and on a client the kart is dead, stood down and
   brought back between losing them and being driven again, so it came back able
   to drive through walls for the rest of the match.
+- **Online: the floor is sent as what changed.** Every chip on the ground went out
+  thirty times a second whether or not it had moved, which was the largest part of
+  a snapshot and most of why one did not fit in a single packet. A typical snapshot
+  is now about a fifth smaller, and more on a busy floor.
+- **Online: chips pulled in by a Coin Magnet move on every screen.** They sat
+  where a client first saw them and blinked out from there, so both halves of the
+  effect were missed.
+- **Online: nitro stops flickering on a client.** It was lit on the tick the button
+  went down and then put out again by the host'''s word for it, a round trip behind.
 - **Online: a correction says so on screen.** A client that is put back where the
   host has it now shows how far it moved and how many times it has happened, so a
   bad connection reads as a bad connection rather than as a bad kart.

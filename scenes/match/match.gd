@@ -416,9 +416,11 @@ func _begin_countdown() -> void:
 		Events.countdown_tick.emit(countdown_lamps())
 
 
-## The host's description of the whole match for online clients, see [MatchSnapshot].
-func build_snapshot() -> Dictionary:
-	return MatchSnapshot.build(self)
+## The host's description of the whole match for online clients, see [MatchSnapshot]. Given a
+## [PickupWire] the floor goes out as what changed rather than as all of it; without one, which
+## is how anything but a live session asks, the snapshot stands on its own.
+func build_snapshot(wire: PickupWire = null) -> Dictionary:
+	return MatchSnapshot.build(self, wire)
 
 
 ## Renders a host snapshot on a puppet match, see [MatchSnapshot].

@@ -19,7 +19,15 @@ static var _all_items: PowerUpTable
 
 ## Everything a client needs to render the match this tick. One section per kind of thing on
 ## the table, each of which is its own question and answers it on its own.
-static func build(match_node: Match) -> Dictionary:
+## [param wire] is the host's account of what it has already told its clients about the floor,
+## GAME.md 10.3. Given one, the pickups are sent as what changed; without one, as the whole floor,
+## which is what anything asking for a snapshot on its own wants.
+static func build(match_node: Match, wire: PickupWire = null) -> Dictionary:
+	var floor_state := (
+		{"pickups": pickups_now(match_node).values(), "gone": [], "moved": [], "whole": true}
+		if wire == null
+		else wire.section(match_node)
+	)
 	return {
 		"state": match_node.state,
 		"time": match_node.time_left,
@@ -28,7 +36,10 @@ static func build(match_node: Match) -> Dictionary:
 		"slots": _slots(match_node),
 		"karts": _karts(match_node),
 		"bullets": _bullets(match_node),
-		"pickups": _pickups(match_node),
+		"pickups": floor_state["pickups"],
+		"gone": floor_state["gone"],
+		"moved": floor_state["moved"],
+		"whole": floor_state["whole"],
 		"turrets": _turrets(match_node),
 		"bombs": _bombs(match_node),
 		"stains": _stains(match_node),
@@ -142,9 +153,10 @@ static func _bullets(match_node: Match) -> Array:
 	return data
 
 
-## Everything lying on the floor, each kind carrying what it takes to build the right one back.
-static func _pickups(match_node: Match) -> Array:
-	var data: Array = []
+## Everything lying on the floor right now, by the host's id for each, each kind carrying what it
+## takes to build the right one back.
+static func pickups_now(match_node: Match) -> Dictionary:
+	var data: Dictionary[int, Dictionary] = {}
 	for node: Node in match_node.arena.pickups.get_children():
 		var pickup := node as Pickup
 		if pickup == null or pickup.is_queued_for_deletion():
@@ -180,7 +192,7 @@ static func _pickups(match_node: Match) -> Array:
 			entry["joker"] = String(card.joker.id)
 		else:
 			continue
-		data.append(entry)
+		data[entry["id"]] = entry
 	return data
 
 
@@ -289,7 +301,13 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 	_apply_karts(match_node, data["karts"])
 	_apply_slots(match_node, data["slots"])
 	_apply_bullets(match_node, data["bullets"])
-	_apply_pickups(match_node, data["pickups"])
+	_apply_pickups(match_node, data["pickups"], data.get("gone", []), bool(data.get("whole", true)))
+	# The few that are going somewhere: pulled in by a Coin Magnet, or still in the air from
+	# whatever dropped them. Everything else is where it was told to be once and stays there.
+	for move: Array in data.get("moved", []):
+		var moving: Variant = match_node.puppet_pickups.get(move[0])
+		if is_instance_valid(moving):
+			(moving as Pickup).global_position = Vector3(move[1], 0.0, move[2])
 	_apply_turrets(match_node, data["turrets"])
 	_apply_bombs(match_node, data.get("bombs", []))
 	_apply_stains(match_node, data.get("stains", []))
@@ -535,7 +553,13 @@ static func _apply_bullets(match_node: Match, entries: Array) -> void:
 				(gone as Bullet).queue_free()
 
 
-static func _apply_pickups(match_node: Match, entries: Array) -> void:
+## The floor, as the whole of it or as what changed, GAME.md 10.3. [param whole] says which: the
+## whole floor also takes away anything this machine has that the host does not, which is how a
+## client that has missed something is put right, and a difference only ever adds and removes what
+## it names.
+static func _apply_pickups(
+	match_node: Match, entries: Array, gone: Array, whole: bool = true
+) -> void:
 	var seen: Dictionary[int, bool] = {}
 	for entry: Dictionary in entries:
 		var id: int = entry["id"]
@@ -571,19 +595,31 @@ static func _apply_pickups(match_node: Match, entries: Array) -> void:
 		# fresh one landing after everybody else's has.
 		if entry.has("left"):
 			pickup.resume_throw(entry["from"], entry["left"])
+	for id: int in gone:
+		_take_pickup(match_node, id)
+	if not whole:
+		return
 	for id: int in match_node.puppet_pickups.keys():
 		if not seen.has(id):
-			var gone: Variant = match_node.puppet_pickups[id]
-			match_node.puppet_pickups.erase(id)
-			if not is_instance_valid(gone):
-				continue
-			var pickup := gone as Pickup
-			# The host does not say who took it; the kart on top of it did. Whatever it was
-			# flows into that kart here the same as it does for the player who took it.
-			var taker := _nearest_puppet_kart(match_node, pickup.global_position)
-			if taker != null:
-				PickupFlight.take(pickup, taker)
-			pickup.queue_free()
+			_take_pickup(match_node, id)
+
+
+## One pickup off this machine's floor. The host does not say who took it; the kart on top of it
+## did, so whatever it was flows into that kart here the same as it does for the player who took
+## it. Saying the same id twice is nothing: a change is repeated for a few snapshots so that
+## losing one packet does not leave a chip lying there, and the second telling finds nothing left.
+static func _take_pickup(match_node: Match, id: int) -> void:
+	if not match_node.puppet_pickups.has(id):
+		return
+	var leaving: Variant = match_node.puppet_pickups[id]
+	match_node.puppet_pickups.erase(id)
+	if not is_instance_valid(leaving):
+		return
+	var pickup := leaving as Pickup
+	var taker := _nearest_puppet_kart(match_node, pickup.global_position)
+	if taker != null:
+		PickupFlight.take(pickup, taker)
+	pickup.queue_free()
 
 
 ## Whose kart took it, judged by who was near enough to. Each kart is asked about its own reach

@@ -562,3 +562,181 @@ func test_a_new_match_puts_down_what_a_client_was_carrying() -> void:
 		. is_true()
 	)
 	assert_object(client.arena.disco._focus).is_null()
+
+
+## The floor goes out as what changed, GAME.md 10.3. Most of a snapshot used to be a list of
+## chips that had not moved since the last one.
+func test_the_floor_is_sent_as_what_changed() -> void:
+	var host: Match = auto_free(MATCH_SCENE.instantiate())
+	host.rules = _rules()
+	host.with_hud = false
+	var runner := scene_runner(host)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	host.start(inputs, 91)
+	await runner.simulate_frames(20, 17)
+	var client: Match = auto_free(MATCH_SCENE.instantiate())
+	client.rules = _rules()
+	client.with_hud = false
+	add_child(client)
+	client.start_puppet()
+	var wire := PickupWire.new()
+	# The first one is the whole floor, and the client ends up holding all of it.
+	var whole := host.build_snapshot(wire)
+	assert_bool(whole["whole"]).is_true()
+	assert_int((whole["pickups"] as Array).size()).is_greater(5)
+	client.apply_snapshot(whole)
+	var floor_size := client.puppet_pickups.size()
+	assert_int(floor_size).is_equal((whole["pickups"] as Array).size())
+	# Nothing has happened, so the next one says nothing about the floor at all.
+	var quiet := host.build_snapshot(wire)
+	assert_bool(quiet["whole"]).is_false()
+	(
+		assert_int((quiet["pickups"] as Array).size())
+		. override_failure_message("a quiet floor was sent in full anyway")
+		. is_equal(0)
+	)
+	assert_int((quiet["gone"] as Array).size()).is_equal(0)
+	assert_int(var_to_bytes(quiet).size()).is_less(var_to_bytes(whole).size())
+	client.apply_snapshot(quiet)
+	assert_int(client.puppet_pickups.size()).is_equal(floor_size)
+	# One arrives and one goes, and only those two are mentioned.
+	var fresh := Chip.new()
+	host.arena.place_drop(fresh, Vector3(4.0, 0.0, 4.0))
+	var doomed: Pickup = null
+	for node: Node in host.arena.pickups.get_children():
+		var found := node as Pickup
+		if found != null and found != fresh:
+			doomed = found
+			break
+	var doomed_id := doomed.get_instance_id()
+	doomed.queue_free()
+	await runner.simulate_frames(2, 17)
+	var changed := host.build_snapshot(wire)
+	# The one that arrived is in there. Possibly with a pad's own fresh chip beside it, since the
+	# floor does not hold still for a test.
+	var added: Array = []
+	for entry: Dictionary in changed["pickups"]:
+		added.append(entry["id"])
+	assert_array(added).contains([fresh.get_instance_id()])
+	assert_int(added.size()).is_less(4)
+	assert_array(changed["gone"]).contains([doomed_id])
+	client.apply_snapshot(changed)
+	assert_bool(client.puppet_pickups.has(fresh.get_instance_id())).is_true()
+	assert_bool(client.puppet_pickups.has(doomed_id)).is_false()
+	# Said again for a few snapshots, because a lost packet must not leave a chip lying there.
+	var again := host.build_snapshot(wire)
+	(
+		assert_array(again["gone"])
+		. override_failure_message("a removal was said once and trusted to arrive")
+		. contains([doomed_id])
+	)
+	# And a client that missed everything is put right by the next whole floor on its own.
+	client.puppet_pickups.clear()
+	for node: Node in client.arena.pickups.get_children():
+		node.queue_free()
+	await runner.simulate_frames(2, 17)
+	for i: int in PickupWire.KEYFRAME_EVERY + 2:
+		client.apply_snapshot(host.build_snapshot(wire))
+	(
+		assert_int(client.puppet_pickups.size())
+		. override_failure_message("a client that lost the floor never got it back")
+		. is_greater(5)
+	)
+
+
+## GAME.md 8.3: a pickup is never simply taken off the floor. A Coin Magnet drags chips toward
+## the kart, and a client that was never told they were moving watched one sit where it first saw
+## it and then blink out from there, which is both halves of the effect missed at once.
+func test_a_chip_being_pulled_in_moves_on_a_client_and_then_flies() -> void:
+	var host: Match = auto_free(MATCH_SCENE.instantiate())
+	host.rules = _rules()
+	host.with_hud = false
+	var runner := scene_runner(host)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	host.start(inputs, 91)
+	await runner.simulate_frames(20, 17)
+	var client: Match = auto_free(MATCH_SCENE.instantiate())
+	client.rules = _rules()
+	client.with_hud = false
+	add_child(client)
+	client.start_puppet()
+	var wire := PickupWire.new()
+	host.kart_of(0).pickup_radius_bonus = 3.0
+	var at := host.kart_of(0).global_position
+	var chip := Chip.new()
+	host.arena.place_drop(chip, at + Vector3(2.4, 0.0, 0.0))
+	await runner.simulate_frames(2, 17)
+	client.apply_snapshot(host.build_snapshot(wire))
+	var mine: Pickup = client.puppet_pickups.get(chip.get_instance_id())
+	assert_object(mine).override_failure_message("the client never got the chip").is_not_null()
+	# Dragged in, which is what the magnet does on the host. Not all the way in: inside the
+	# ordinary pickup radius the host simply collects it, and this is about the journey.
+	chip.global_position = at + Vector3(1.5, 0.0, 0.0)
+	await runner.simulate_frames(2, 17)
+	client.apply_snapshot(host.build_snapshot(wire))
+	(
+		assert_vector(mine.global_position)
+		. override_failure_message("the chip stayed where the client first saw it")
+		. is_equal_approx(chip.global_position, Vector3.ONE * 0.05)
+	)
+	# Then taken, and it flies in from where it actually is rather than blinking out.
+	var before := 0
+	for node: Node in client.arena.pickups.get_children():
+		if node is PickupFlight:
+			before += 1
+	chip.queue_free()
+	await runner.simulate_frames(2, 17)
+	client.apply_snapshot(host.build_snapshot(wire))
+	var flying := 0
+	for node: Node in client.arena.pickups.get_children():
+		if node is PickupFlight:
+			flying += 1
+	(
+		assert_int(flying - before)
+		. override_failure_message("the chip blinked out instead of flying into the kart")
+		. is_greater(0)
+	)
+
+
+## GAME.md 10.3: a kart driven here burns its own nitro. The host's word for it is a round trip
+## old, and laying that over the top made nitro flicker on a client — lit here, put out by the
+## next snapshot, lit again — which is the opposite of the instant the button is supposed to feel.
+func test_nitro_on_a_client_is_not_put_out_by_the_host() -> void:
+	var host: Match = auto_free(MATCH_SCENE.instantiate())
+	host.rules = _rules()
+	host.with_hud = false
+	var runner := scene_runner(host)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	host.start(inputs, 91)
+	await runner.simulate_frames(20, 17)
+	var client: Match = auto_free(MATCH_SCENE.instantiate())
+	client.rules = _rules()
+	client.with_hud = false
+	add_child(client)
+	client.start_puppet()
+	client.set_local_slot(0)
+	client.apply_snapshot(host.build_snapshot())
+	var mine: Kart = client.slots[0].kart
+	var prediction := KartPrediction.new(mine)
+	assert_bool(mine.predicted).is_true()
+	# Lit here, on the tick the button went down. The host has not heard yet.
+	var driving := KartInput.new()
+	driving.nitro = true
+	driving.throttle = 1.0
+	KartPrediction.step(mine, driving, 1.0 / 60.0)
+	assert_bool(mine.nitro_active).is_true()
+	assert_bool(mine._flame._smoke.emitting).is_true()
+	assert_bool(host.kart_of(0).nitro_active).is_false()
+	# A snapshot arrives saying the kart is not burning any, because on the host it is not yet.
+	client.apply_snapshot(host.build_snapshot())
+	(
+		assert_bool(mine._flame._smoke.emitting)
+		. override_failure_message("the host's word put out a flame this machine had just lit")
+		. is_true()
+	)
+	assert_bool(mine.nitro_active).is_true()
+	# Somebody else's kart is drawn from the host's word, which is all anybody has of it.
+	var theirs: Kart = client.slots[1].kart
+	assert_bool(theirs.predicted).is_false()
+	assert_bool(theirs._flame._smoke.emitting).is_false()
+	assert_object(prediction).is_not_null()

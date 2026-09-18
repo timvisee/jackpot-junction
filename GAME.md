@@ -1607,13 +1607,25 @@ other before it will pass.
   | flush    | 400   | 4 pads                                   |
   | the rest | 480   | jackpots, crates, clock, bounty          |
 
-  Most of it is shape rather than substance: every entry is a dictionary, so its
-  keys are written out again for every kart, every pickup and every player, thirty
-  times a second. The three things worth doing, in order of what they are worth:
-  send pickups as changes rather than as the whole floor, since most of them do
-  not move from one snapshot to the next; write entries as plain values instead of
-  dictionaries; and split fast-changing sections from slow ones so the slow half
-  goes less often. The first alone would roughly halve a busy snapshot.
+  Most of what is left is shape rather than substance: every entry is a dictionary,
+  so its keys are written out again for every kart and every player, thirty times a
+  second. Two things are still worth doing: write entries as plain values instead
+  of dictionaries, and split the fast-changing sections from the slow ones so the
+  slow half goes less often.
+- **The floor is sent as what changed.** A chip lies where it fell until somebody
+  drives over it, and sending every one of them thirty times a second was the
+  largest part of a snapshot. So a snapshot carries what appeared and what went,
+  and the whole floor again every couple of seconds. On the measurement above that
+  takes a typical snapshot from 6.4 KB to 5.1 KB, and more on a busier floor.
+
+  Unreliable packets go missing, so none of this trusts a single telling. Every
+  change is repeated over a few snapshots, which costs a handful of numbers and
+  means one lost packet changes nothing. The whole floor goes out on its own clock
+  regardless, so a client that missed something is never wrong for long, and a
+  client that has only just arrived is sent all of it at once rather than waiting.
+  The few pickups that are actually going somewhere — pulled in by a Coin Magnet,
+  or still in the air from whatever dropped them — carry their position every
+  snapshot, as an id and a place and nothing else.
 - Hits, pickups, banking and scoring are server-authoritative. The server seeds
   all randomness and relays gameplay events so clients' HUD and audio react. That
   includes the ones a client could never raise for itself because its karts are

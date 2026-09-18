@@ -96,6 +96,9 @@ var _prediction: KartPrediction
 ## the engine interpolates the picture from one tick to the next, and a correction applied in
 ## the gap is drawn as a swerve through somewhere the kart never was. So it waits its turn.
 var _authority: Array = []
+## On the host: what it has told its clients is lying on the floor, so the next snapshot can
+## carry what changed instead of all of it, GAME.md 10.3.
+var _floor := PickupWire.new()
 ## The number this client puts on the next set of controls it sends. Every tick gets one whether
 ## or not the kart is being driven: a player who is dead and picking a joker, or waiting on the
 ## grid for the flag, is still pressing buttons the host has to hear, and a host that only ever
@@ -160,7 +163,7 @@ func _physics_process(delta: float) -> void:
 	if is_host:
 		_tick += 1
 		if _tick % SNAPSHOT_EVERY_TICKS == 0 and not multiplayer.get_peers().is_empty():
-			_receive_snapshot.rpc(var_to_bytes(match_node.build_snapshot()))
+			_receive_snapshot.rpc(var_to_bytes(match_node.build_snapshot(_floor)))
 			_send_authority()
 	elif local_slot >= 0:
 		adopt_own_kart()
@@ -204,6 +207,9 @@ func _on_peer_connected(peer: int) -> void:
 		multiplayer.multiplayer_peer.disconnect_peer(peer)
 		return
 	_peer_slots[peer] = slot.index
+	# Somebody who has just arrived has none of the floor, so the next snapshot carries all of it
+	# rather than the difference since a moment they were not here for.
+	_floor.start_again()
 	# The rules go first. A client arrives with whatever its own lobby was set to, and until it
 	# is told otherwise it reads its own clock, its own target score and its own number of lives
 	# off them, none of which is the match it has just joined.
