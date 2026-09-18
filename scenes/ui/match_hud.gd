@@ -31,6 +31,8 @@ const BLOCK_ANCHORS: Array[int] = [
 ]
 
 var match_node: Match
+## Set once the room is closing, see [method stand_down]. Nothing is drawn or updated after it.
+var dismissed := false
 
 var _timer: Label
 var _scoreboard: Scoreboard
@@ -249,7 +251,30 @@ func _layout_hands() -> void:
 		picker.columns = indices.size()
 
 
+## Takes the whole HUD off the screen and keeps it off. For the moment a match stops being
+## something anybody can answer: the host has gone and this room is closing. A joker pick left
+## open under the notice would be asking a player to choose a card for a match that is not there
+## any more, and the standings would be a scoreboard for a game nobody is playing.
+func stand_down() -> void:
+	dismissed = true
+	# The whole layer goes, rather than each thing on it. Anything that shows itself later from a
+	# signal rather than from the frame loop is then already covered, and there is no way for one
+	# straggler to appear over the notice.
+	visible = false
+	# The control hints are not on this layer: they hang off the karts, out in the room. They are
+	# telling a player which key drives a kart nobody can drive any more.
+	for slot: PlayerSlot in match_node.slots:
+		if slot.kart == null:
+			continue
+		for child: Node in slot.kart.get_children():
+			var hint := child as ControlHint
+			if hint != null:
+				hint.visible = false
+
+
 func _process(delta: float) -> void:
+	if dismissed:
+		return
 	_update_call(delta)
 	_update_timer()
 	_update_scoreboard()
@@ -380,6 +405,8 @@ func _update_banner(delta: float) -> void:
 
 
 func _on_state_changed(state: int) -> void:
+	if dismissed:
+		return
 	if state == Match.State.RESULTS:
 		_show_results()
 	else:

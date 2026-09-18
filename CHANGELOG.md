@@ -11,7 +11,18 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Online: picking a joker on a client.** A player whose kart had died was not
+  heard by the host at all, so no card could be picked, no cursor moved and
+  nothing answered until the kart came back on its own. The same held on the
+  grid during the countdown.
+
 ### Changed
+
+- **Losing the host says so properly.** The notice now sits on a pane like the
+  one that describes a joker, and has the screen to itself: the HUD stands down
+  and takes any open joker pick, the standings and the control hints with it.
 
 - **Online play: your own kart is yours.** A client used to send its controls to
   the host and wait for the kart to come back, so at any real ping the kart

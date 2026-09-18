@@ -434,3 +434,31 @@ func test_a_dead_client_is_still_heard() -> void:
 		)
 		. is_greater(10)
 	)
+
+
+## GAME.md 8.3: the host going away ends the room, and the notice saying so has the screen to
+## itself. A joker pick left open under it would be asking a player to choose a card for a match
+## that is not there any more.
+func test_the_host_going_away_clears_the_screen() -> void:
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = true
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	client_match.set_local_slot(0)
+	await await_millis(60)
+	var hud := client_match.hud
+	assert_bool(hud.visible).is_true()
+	assert_bool(hud.dismissed).is_false()
+	hud.stand_down()
+	assert_bool(hud.dismissed).is_true()
+	(
+		assert_bool(hud.visible)
+		. override_failure_message("the HUD was still on the screen under the notice")
+		. is_false()
+	)
+	# And it stays down: nothing the frame loop or a relayed event does brings it back.
+	hud.call("_on_state_changed", Match.State.RESULTS)
+	await await_millis(80)
+	assert_bool(hud.visible).is_false()

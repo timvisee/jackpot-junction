@@ -286,6 +286,12 @@ gets a line here, and a line here is counted the same on every machine in the
 match. A statistic that only adds up on the host is a wrong number on somebody
 else's results screen, see 10.3.
 
+- A room that has lost its host says so on a pane in the middle of the screen,
+  built like the joker detail pane in 8.3, and has the screen to itself: the HUD
+  stands down and takes any open joker pick, the standings, the blocks and the
+  control hints with it. There is nothing left in that room to answer, and a card
+  pick left open under the notice would be asking for a choice about a match that
+  is not there any more.
 - The title screen offers Play, Settings and Quit. There is no tutorial. At
   the start of a match the drive and fire controls are shown next to each
   human player's kart, from the countdown until that player has both driven
