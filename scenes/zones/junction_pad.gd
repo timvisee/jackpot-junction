@@ -8,11 +8,17 @@ extends Area3D
 ## carrying something: the pot goes in first and the life comes with the last coin of it.
 ##
 ## The neon ring blinks when a local player is riding around with a big unbanked pot, harder
-## and faster the more is at stake, as a nudge to come and cash it in.
+## and faster the more is at stake, as a nudge to come and cash it in. A pot that would win the
+## match outright takes the ring over: flat gold, flat out, GAME.md 3.4.
 
 signal bank_started(kart: Kart)
 signal bank_tick(kart: Kart, points: int)
 signal bank_completed(kart: Kart, coins: int, mult: float, total: int)
+
+## The blink that says the match is one cash-out away, over and above the one that says a pot is
+## worth protecting.
+const WIN_RATE := 3.2
+const WIN_ENERGY := 2.6
 
 var rules: MatchRules
 var radius := 2.5
@@ -23,6 +29,8 @@ var puppet := false
 var ring_material: StandardMaterial3D
 ## How loudly the pad asks to be visited, 0 to 1. The match keeps it up to date.
 var hint := 0.0
+## Whether somebody on this screen would win the match by cashing in now. Also the match's to set.
+var winning := false
 
 ## Kart instance id to channel state: t, carry, total, start_coins, start_mult, start_value.
 var _channels: Dictionary[int, Dictionary] = {}
@@ -43,9 +51,17 @@ func _ready() -> void:
 	body_exited.connect(_on_body_exited)
 
 
-## The blink: off below the hint threshold, then brighter and quicker the more is at stake.
+## The blink: off below the hint threshold, then brighter and quicker the more is at stake. A
+## winning pot is not more of the same thing, so it gets a note of its own rather than the top
+## of the same scale: no colour left to travel, no rate left to climb, just gold on and off.
 func _process(delta: float) -> void:
 	if ring_material == null:
+		return
+	if winning:
+		_pulse += delta * WIN_RATE
+		var beat := 0.5 + 0.5 * sin(_pulse * TAU)
+		ring_material.emission_energy_multiplier = WIN_ENERGY * (0.12 + 0.88 * beat)
+		ring_material.albedo_color = Palette.CHIP_GOLD
 		return
 	_pulse += delta * (1.3 + 2.6 * hint)
 	var wave := 0.5 + 0.5 * sin(_pulse * TAU)

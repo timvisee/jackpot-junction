@@ -4,17 +4,23 @@ extends VBoxContainer
 ## score, and next to it what it is still carrying around unbanked. Rows are ordered by the two
 ## added together, so a kart on a hot lap climbs the board before it reaches the Junction and
 ## drops back the moment it dies. The leader's row is the biggest and the last place the
-## smallest, and the players on this screen are boxed in their own colour.
+## smallest, and the players on this screen are boxed in their own colour. A carried pot big
+## enough to win the match on the next cash-out blinks, GAME.md 3.4, whoever is carrying it.
 
 const TOP_FONT := 30
 const BOTTOM_FONT := 17
 const RISK_FONT := 15
 const DIM := Color(0.82, 0.82, 0.86)
+## Blinks a second of the carried pot that would end the match.
+const WIN_BLINK := 3.2
 
 var match_node: Match
 
 ## Slot index to its row's parts.
 var _rows: Dictionary[int, Dictionary] = {}
+## Where the blink is in its cycle, shared by every row so they flash together rather than
+## drifting apart into a fairground.
+var _beat := 0.0
 
 
 func _ready() -> void:
@@ -34,9 +40,10 @@ func order() -> Array[PlayerSlot]:
 	return ranked
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if match_node == null or match_node.slots.is_empty():
 		return
+	_beat += delta
 	var ranked := order()
 	for rank: int in ranked.size():
 		var slot := ranked[rank]
@@ -67,7 +74,16 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, count: int) -> vo
 	place.add_theme_color_override("font_color", DIM)
 	name_label.add_theme_color_override("font_color", color)
 	score.add_theme_color_override("font_color", Color.WHITE if local else DIM)
-	risk.add_theme_color_override("font_color", Palette.CHIP_GOLD)
+	# Enough in the pot to win by banking it: the number says so itself rather than waiting for
+	# the results screen to. Everyone's row blinks, so a rival about to finish it is as plain as
+	# your own chance to.
+	if slot.would_win(match_node.rules.target_score):
+		var wave := 0.5 + 0.5 * sin(_beat * WIN_BLINK * TAU)
+		risk.add_theme_color_override("font_color", Palette.CHIP_GOLD.lerp(Color.WHITE, wave))
+		risk.modulate = Color(1.0, 1.0, 1.0, lerpf(0.45, 1.0, wave))
+	else:
+		risk.add_theme_color_override("font_color", Palette.CHIP_GOLD)
+		risk.modulate = Color.WHITE
 	(row["panel"] as PanelContainer).add_theme_stylebox_override(
 		"panel", row["own"] if local else row["plain"]
 	)

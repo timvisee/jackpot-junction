@@ -66,3 +66,42 @@ func test_the_board_stands_down_in_a_four_corner_game() -> void:
 	await _runner.simulate_frames(20, 17)
 	assert_int(match_node.hud._blocks.size()).is_equal(4)
 	assert_bool(match_node.hud._scoreboard.visible).is_false()
+
+
+## GAME.md 3.4: a pot that would win the match says so on the spot, on the Junction ring and on
+## the row of whoever is carrying it.
+func test_a_pot_that_would_win_the_match_blinks_on_the_board_and_the_junction() -> void:
+	var match_node := _start_match(1)
+	await _runner.simulate_frames(12, 17)
+	var board := match_node.hud._scoreboard
+	var junction := match_node.arena.junction
+	match_node.rules.target_score = 1000
+	# Nowhere near it: neither the row nor the ring has anything to say.
+	match_node.slots[0].banked = 400
+	match_node.kart_of(0).pot.add_coins(100)
+	await _runner.simulate_frames(4, 17)
+	assert_bool(match_node.slots[0].would_win(1000)).is_false()
+	assert_bool(junction.winning).is_false()
+	assert_float((board._rows[0]["risk"] as Label).modulate.a).is_equal(1.0)
+	# Banked plus pot reaches the target, so cashing in now ends it.
+	match_node.kart_of(0).pot.add_coins(500)
+	await _runner.simulate_frames(4, 17)
+	assert_int(match_node.slots[0].score()).is_equal(1000)
+	assert_bool(junction.winning).is_true()
+	# The blink is a blink: over a second the row's pot value is not always at full strength.
+	var dimmest := 1.0
+	for i: int in 40:
+		await _runner.simulate_frames(1, 17)
+		dimmest = minf(dimmest, (board._rows[0]["risk"] as Label).modulate.a)
+	assert_float(dimmest).is_less(0.9)
+	# A rival carrying it counts too, even though the ring only speaks for this screen.
+	match_node.kart_of(0).pot.reset()
+	match_node.slots[2].banked = 900
+	match_node.kart_of(2).pot.add_coins(200)
+	await _runner.simulate_frames(4, 17)
+	assert_bool(match_node.slots[2].would_win(1000)).is_true()
+	assert_bool(junction.winning).is_false()
+	# Banking it empties the pot, so there is nothing left to promise.
+	match_node.kart_of(2).pot.reset()
+	await _runner.simulate_frames(4, 17)
+	assert_bool(match_node.slots[2].would_win(1000)).is_false()

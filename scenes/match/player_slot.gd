@@ -34,6 +34,14 @@ func score() -> int:
 	return banked + (kart.pot.value() if kart != null else 0)
 
 
+## Whether driving onto the Junction and cashing in would end the match here and now, GAME.md
+## 3.4. Banked plus pot is the sum, which is the number the running order already shows as a
+## score and a [code]+N[/code] beside it. Last Call pays double, so during it this says yes no
+## later than it has to rather than promising more than it knows.
+func would_win(target: int) -> bool:
+	return kart != null and kart.alive and not kart.pot.is_empty() and score() >= target
+
+
 ## Ranks two slots for the results, GAME.md 3.8: most banked, then most kills, then fewest
 ## deaths. Only what is banked wins a match.
 static func by_banked(a: PlayerSlot, b: PlayerSlot) -> bool:

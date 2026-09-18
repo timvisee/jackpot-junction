@@ -69,6 +69,10 @@ func test_snapshot_round_trip_describes_the_match() -> void:
 	assert_bool(client_match.kart_of(0).puppet).is_true()
 	assert_int(client_match.arena.pickups.get_child_count()).is_equal(data["pickups"].size())
 	assert_int(client_match.hud._blocks.size()).is_equal(1)
+	# A client lights its own Junction ring off the pot the snapshot just handed it, GAME.md 3.4.
+	client_match.rules.target_score = 5
+	await await_millis(60)
+	assert_bool(client_match.arena.junction.winning).is_true()
 	assert_str(client_match.slots[1].display_name()).contains("P2")
 
 

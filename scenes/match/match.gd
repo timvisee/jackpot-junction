@@ -471,6 +471,12 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 
 func _physics_process(delta: float) -> void:
 	if puppet:
+		# A client runs no match of its own, but the Junction's blink only ever asked about the
+		# karts on this screen, and snapshots keep those up to date. So it lights its own ring
+		# rather than waiting to be told what its own pot is worth.
+		if arena != null and arena.junction != null:
+			arena.junction.hint = junction_hint()
+			arena.junction.winning = junction_wins_it()
 		return
 	match state:
 		State.COUNTDOWN:
@@ -501,6 +507,7 @@ func _physics_process(delta: float) -> void:
 			_step_flush_income(delta)
 			_step_heat(delta)
 			arena.junction.hint = junction_hint()
+			arena.junction.winning = junction_wins_it()
 			arena.disco.level = intensity.level
 			camera_rig.tremble = _beat_tremble()
 
@@ -563,6 +570,14 @@ func _clear_bounty(lapsed: bool) -> void:
 		kart.set_bounty(false)
 	if lapsed and was >= 0:
 		Events.bounty_lapsed.emit(was)
+
+
+## Whether a player on this screen is one cash-out away from taking the match, GAME.md 3.4.
+func junction_wins_it() -> bool:
+	for slot: PlayerSlot in slots:
+		if slot.is_local_human() and slot.would_win(rules.target_score):
+			return true
+	return false
 
 
 func junction_hint() -> float:

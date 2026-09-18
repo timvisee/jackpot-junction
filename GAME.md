@@ -130,6 +130,14 @@ R0 = 40 points per second, D = 0.5 s
 - The neon ring blinks when a player on this screen is carrying an unbanked pot
   worth 250 or more, brighter and quicker the bigger the pot, up to a fortune of
   1200. It only nudges; the pad behaves the same either way.
+- A pot that would win the match takes the ring over: banked plus pot at or past
+  the target score, and it stops climbing the same scale and goes flat gold, on
+  and off three times a second. That is a different thing to say, so it is said
+  a different way rather than as more of the first. The same pot blinks as the
+  `+N` beside its owner's score in the running order, for every player rather
+  than only the ones on this screen: somebody else one cash-out from ending it is
+  worth knowing about. Last Call pays double, so the blink comes on no later than
+  it has to and never promises a win it cannot pay.
 - Standing on the Junction patches a wounded kart up to two lives, see 3.6, but a
   pot has to go in first: the life comes with the last coin of the cash-out, which
   is exactly when the kart is most worth shooting. A kart that rolls on with
@@ -970,8 +978,9 @@ name. Somebody leaving frees their corner for the next player to sit down.
   unbanked. Rows are ordered by the two added together, so a kart on a hot lap
   climbs before it reaches the Junction and drops back when it dies. The leader's
   row is the largest and last place the smallest, and the players on this screen
-  are boxed in their own colour. It stands down in three- and four-player
-  shared-screen games, where every player already has a corner block.
+  are boxed in their own colour. A carried pot that would win the match blinks,
+  see 3.4. It stands down in three- and four-player shared-screen games, where
+  every player already has a corner block.
 - **Dropping something**: a kart that bursts, or a crate that breaks, throws what
   it was carrying clear of itself rather than having it appear on the floor. Each
   piece flies out of the middle of the thing that dropped it and settles onto the
