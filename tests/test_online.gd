@@ -146,6 +146,9 @@ func test_client_joins_takes_over_a_bot_drives_it_and_hands_it_back_on_leaving()
 	client_session.local_input.throttle = 1.0
 	await await_millis(1200)
 	assert_float(kart.global_position.distance_to(start)).is_greater(2.0)
+	# The kart this player drives is driven here, GAME.md 10.3, not waited for.
+	assert_bool(client_session._prediction != null).is_true()
+	assert_bool(client_match.slots[1].kart.predicted).is_true()
 	var puppet: Kart = client_match.slots[1].kart
 	assert_float(puppet.global_position.distance_to(kart.global_position)).is_less(3.0)
 	client_session.multiplayer.multiplayer_peer.close()

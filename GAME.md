@@ -1612,8 +1612,84 @@ other before it will pass.
   which only a bullet puts down and a client runs no bullets.
 - The match is played by the host's lobby settings. A joining client is sent them
   before it is given a slot, see 9.3, since until then it reads its own.
-- Client-side prediction and reconciliation for the local kart is a later step
-  once latency is felt in tests.
+#### Driving your own kart
+
+A client used to send its controls and wait: the host drove the kart and the
+client watched the answer arrive. At 25 ms of ping that is a round trip between
+pressing the throttle and the kart moving, which reads as a sluggish kart rather
+than as a network, and the game is not worth playing that way.
+
+So a client drives its own kart itself, at once, and the host corrects it.
+Everything else stays exactly as it was: the host is still the only authority on
+who hit whom, what was collected and what anything is worth.
+
+- **The client predicts.** Every physics tick it numbers its controls, sends
+  them, and immediately steps its own kart with them: the same motor, the same
+  `move_and_slide`, the same arena. The kart answers the stick on the frame the
+  stick moved, whatever the ping is.
+- **It keeps what it did.** Each tick's sequence number, controls and resulting
+  state go in a history buffer, about two seconds of them.
+- **The host plays the ticks back one a tick.** Packets go into a short queue and
+  one comes out per physics tick, in order. This matters more than it sounds. The
+  client has already driven that tick itself and kept the answer, so a host that
+  ran the same controls twice, or took two at once because two packets arrived
+  together, would land somewhere the client never predicted and correct it for a
+  mistake neither of them made. One packet, one tick, in order, and the difference
+  between that and taking whatever has arrived is the difference between correcting
+  on every snapshot and correcting on none.
+- **A short queue absorbs the jitter.** A couple of ticks are held in hand, and
+  after the queue runs dry it waits until it has that much again before playing
+  out. The delay is a thirtieth of a second for everybody watching and nothing at
+  all for the player driving, who is not waiting on this. A queue that runs dry
+  anyway leaves the kart on the controls it last had, because a player whose
+  packet is late is still holding the throttle down.
+- **The host acknowledges.** It stamps each client's kart state with the last
+  sequence number it actually drove, not the last that arrived, and sends the pair
+  back to that client alone, at snapshot rate. Other clients are not interested:
+  the broadcast snapshot still carries everybody's pose for drawing, and this is
+  the one extra message, sent to one peer.
+- **The client reconciles.** It compares where it predicted it would be at that
+  sequence number with where the host says it was. Agreement, which is the normal
+  case, costs nothing and changes nothing. Disagreement rewinds the kart to the
+  host's state and replays every tick since, so the correction lands in the
+  present rather than in the past.
+- **Corrections are eased in.** A disagreement smaller than a few centimetres is
+  ignored, one up to a kart's length is walked in over a handful of ticks, and
+  anything larger snaps, because that is a respawn, a death or a blast rather
+  than a rounding difference.
+
+What a client predicts is movement and nothing else. It does not decide that it
+picked a coin up, hit anybody, fired a shot that counts, or cashed out: all of
+that arrives from the host as it always did. Its predicted kart pushes off walls
+and crates because those are the same on both machines, and off other karts
+because they are there to be bumped into, but a bump only ever costs a life on
+the host. A kart the host says is dead, frozen on the grid or rolling out the
+end of the match is not predicted at all; it follows the snapshot, because none
+of those are states a player is steering out of.
+
+A predicted kart pushes off the walls and the crates, which are in the same place
+on both machines, and off nothing that moves. Other karts are deliberately left
+out: a client has only puppets of them, put where the host last said rather than
+where they are now, so a predicted bump would be a guess at a guess, and two
+karts each predicting their own side of the same contact would each shove the
+other and neither would be right. A bump is the host's to settle and arrives as
+a correction, which is what corrections are for.
+
+Two more things follow that are worth stating. The kart is predicted, not the
+world: a client that presses fire still waits a round trip for the bullet,
+because bullets cancel each other and that is a question only the host can
+answer. And prediction assumes the two machines run the same code over the same
+numbers, which is why the host sends the whole motor state rather than only a
+position, and why the rules arrive from the host before play starts.
+
+`tests/test_online_prediction.gd` holds all of this to numbers, with a wire whose
+round trip the test sets. Over 100 ms of round trip, four times what the report
+was about: the kart answers the stick on the tick it moved rather than five ticks
+later, and over four seconds of driving, drifting and handbrake turns not one of
+112 snapshots needed correcting. Knocked four metres out of place by hand it is
+back within one. On a wire losing a packet in five it is corrected about a third
+of the time, and every one of those is small enough to be walked off rather than
+snapped.
 
 ### 10.4 Conventions
 

@@ -11,6 +11,20 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **Online play: your own kart is yours.** A client used to send its controls to
+  the host and wait for the kart to come back, so at any real ping the kart
+  answered the stick late and driving felt like steering through treacle. A
+  client now drives its own kart itself, on the frame the stick moves, and the
+  host corrects it where the two ever disagree. Over 100 ms of round trip the
+  kart answers at once instead of five ticks later, and through four seconds of
+  driving, drifting and handbrake turns the host had nothing to correct. Knocked
+  out of place it is put back; on a wire losing a packet in five the corrections
+  are small enough to be walked off rather than snapped. Everything that decides
+  the game is still the host's: what you collected, who you hit, what it was
+  worth.
+
 ## [0.1.0] - 2026-09-18
 
 ### Added
