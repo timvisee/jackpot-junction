@@ -20,6 +20,13 @@ below, and hands the notes to the release workflow.
   down a hole, dying, coming back. On a wire dropping a packet in five that cut
   corrections from eleven snapshots in sixty to three. A claim further out than a
   few ticks of driving is refused, so this cannot be used to appear somewhere else.
+- **Online: a client's kart comes back from a hole, and a dead kart is out of the
+  way.** Falling down a hole on a client left the kart there for good: a respawn
+  is the host's to place and a kart being driven here was ignoring the host's
+  position, so it came back still standing in the hole and fell down it again.
+  Separately, a kart somebody had just shot went invisible on every other screen
+  but stayed solid where it died, so the spot could not be driven through until
+  it respawned.
 - **Online: a kart that has been down a hole is solid again.** Falling takes a
   kart's collisions away, and on a client the kart is dead, stood down and
   brought back between losing them and being driven again, so it came back able

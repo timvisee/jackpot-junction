@@ -317,12 +317,29 @@ func apply_puppet_state(state: Dictionary, _delta: float) -> void:
 	alive = state["alive"]
 	if was_alive and not alive:
 		Burst.spawn(get_parent(), global_position, Palette.player_color(color_index), 1.0, 20)
+		# A dead kart is not in the way. The host takes a kart's collisions off it when it dies,
+		# and a puppet is never killed here, so until now nobody had: a kart somebody had just
+		# shot went invisible and stayed solid, and the spot it died on could not be driven
+		# through until it came back.
+		collision_layer = 0
+		collision_mask = 0
 	if alive and not was_alive:
-		# Back on the floor. A puppet may have been part way down a hole when the host brought it
-		# back, and nothing here runs the respawn that would have tidied that up. What it is
-		# allowed to run into is [KartPrediction]'s to say and it says it every tick.
-		falling = false
+		# Back on the floor, which is the host's to place. A respawn is a teleport rather than
+		# driving, so it is one of the few things a kart driven here still takes from the
+		# snapshot: without it a kart that went down a hole would come back still standing in
+		# the hole, and fall down it again, for ever.
 		scale = Vector3.ONE
+		global_position = target
+		motor.heading = state["h"]
+		rotation = Vector3(0.0, motor.heading, 0.0)
+		motor.velocity = Vector3.ZERO
+		motor.forward_speed = 0.0
+		# Moved before it is made solid again, and in that order. A kart that fell down a hole is
+		# still standing in one until it is put back, and a hole notices a kart the moment the
+		# kart is something it can notice: made solid where it died, it would be dropped down the
+		# same hole again on the frame it came back from it.
+		falling = false
+		collision_layer = Layers.PUPPET
 	# A kart this client is driving takes its pose from its own driving and its corrections from
 	# the message addressed to it, GAME.md 10.3. The broadcast snapshot is a third of a second of
 	# round trip out of date for this one kart, and putting it here would undo the prediction

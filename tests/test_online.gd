@@ -574,3 +574,69 @@ func test_a_client_kart_is_solid_again_after_coming_back() -> void:
 	)
 	assert_int(kart.collision_layer).is_equal(Layers.PUPPET)
 	assert_bool(kart.falling).is_false()
+
+
+## Two things a client gets wrong about a kart that has died, both of which a player meets within
+## a minute of playing: its own kart has to come back out of the hole it fell down, and somebody
+## else's has to stop being in the way the moment it bursts.
+func test_a_dead_kart_is_out_of_the_way_and_comes_back_properly() -> void:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	host_match.offer_size = 0
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(PORT)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client_match
+	client_session.local_input = PlayerInput.new()
+	_client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
+	assert_bool(assigned).is_true()
+	await await_millis(300)
+	var mine := client_session.local_slot
+	var theirs := 1 - mine
+	# Somebody else's kart bursts. The spot it died on has to be drivable at once.
+	host_match.kart_of(theirs).die(&"shot", mine)
+	var seen := await _wait_until(
+		func() -> bool: return not client_match.slots[theirs].kart.alive, 4000
+	)
+	assert_bool(seen).override_failure_message("the client never saw them die").is_true()
+	(
+		assert_int(client_match.slots[theirs].kart.collision_layer)
+		. override_failure_message("a kart nobody can see was still standing in the way")
+		. is_equal(0)
+	)
+	# And this player's own kart goes down a hole and has to come back out of it.
+	var own: Kart = client_match.slots[mine].kart
+	var hole: Pit = client_match.arena.pits[0]
+	own.global_position = hole.global_position
+	own.start_fall()
+	host_match.kart_of(mine).global_position = hole.global_position
+	host_match.kart_of(mine).die(&"pit", -1)
+	var died := await _wait_until(func() -> bool: return not own.alive, 4000)
+	assert_bool(died).override_failure_message("the client never saw its own kart die").is_true()
+	var back := await _wait_until(func() -> bool: return own.alive, 8000)
+	assert_bool(back).override_failure_message("the kart never came back").is_true()
+	await await_millis(250)
+	assert_bool(own.falling).override_failure_message("it came back still falling").is_false()
+	(
+		assert_float(own.global_position.distance_to(hole.global_position))
+		. override_failure_message("it came back standing in the hole it fell down")
+		. is_greater(2.0)
+	)
+	assert_float(own.global_position.y).is_equal_approx(0.0, 0.2)
