@@ -178,3 +178,110 @@ func test_a_client_sees_which_shooting_targets_are_standing() -> void:
 	client.apply_snapshot(host.build_snapshot())
 	assert_bool(host.arena.targets[0].alive).is_true()
 	assert_bool(client.arena.targets[0].alive).is_true()
+
+
+## Every gameplay event either crosses the wire or is on the list of ones that do not, GAME.md
+## 10.3. Without this a signal added later simply never reaches a client, and the only symptom
+## is a room that sounds wrong on one machine.
+func test_every_event_is_either_relayed_or_named_as_local() -> void:
+	var unaccounted: Array[String] = []
+	# The script's own signals, not the ones every Node has.
+	for info: Dictionary in Events.get_script().get_script_signal_list():
+		var name := StringName(info["name"])
+		if not NetSession.RELAYED_EVENTS.has(name) and not NetSession.LOCAL_EVENTS.has(name):
+			unaccounted.append(String(name))
+	unaccounted.sort()
+	(
+		assert_array(unaccounted)
+		. override_failure_message(
+			"not relayed and not named as local: %s" % ", ".join(unaccounted)
+		)
+		. is_empty()
+	)
+	# And nothing is claimed twice, which would be a quiet way of saying two different things.
+	for name: StringName in NetSession.LOCAL_EVENTS:
+		assert_bool(NetSession.RELAYED_EVENTS.has(name)).is_false()
+
+
+## A client hears the room the host hears, GAME.md 10.3: the countdown, a kart hitting something,
+## a kart going down a hole. None of it happens on a client, whose karts are puppets.
+func test_the_sounds_of_the_room_reach_a_client() -> void:
+	var host_root: Node = auto_free(Node.new())
+	host_root.name = "HostRoot"
+	add_child(host_root)
+	var client_root: Node = auto_free(Node.new())
+	client_root.name = "ClientRoot"
+	add_child(client_root)
+	get_tree().set_multiplayer(SceneMultiplayer.new(), host_root.get_path())
+	get_tree().set_multiplayer(SceneMultiplayer.new(), client_root.get_path())
+	var host: Match = auto_free(MATCH_SCENE.instantiate())
+	host.name = "Match"
+	host.rules = _rules()
+	host.with_hud = false
+	host.offer_size = 0
+	host_root.add_child(host)
+	var inputs: Array[KartInput] = [KartInput.new(), BotInput.new()]
+	host.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host
+	host_root.add_child(host_session)
+	assert_int(host_session.host(7793)).is_equal(OK)
+	var client: Match = auto_free(MATCH_SCENE.instantiate())
+	client.name = "Match"
+	client.rules = _rules()
+	client.with_hud = false
+	client_root.add_child(client)
+	client.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client
+	client_session.local_input = KartInput.new()
+	client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", 7793)).is_equal(OK)
+	var waited := 0
+	while client_session.local_slot < 0 and waited < 4000:
+		await await_millis(25)
+		waited += 25
+	assert_bool(client_session.local_slot >= 0).is_true()
+	# Counted on this machine, which stands in for both: the relay re-emits on the client and in
+	# one process that is the same autoload. The room is busy with a real match raising these for
+	# real, so each one carries a marker nothing else would send. An array rather than a counter
+	# because a lambda that captures a number keeps its own copy of it.
+	const MARK := 4242
+	var heard: Array[String] = []
+	Events.countdown_tick.connect(
+		func(n: int) -> void:
+			if n == MARK:
+				heard.append("countdown")
+	)
+	Events.kart_crashed.connect(
+		func(_s: int, force: float) -> void:
+			if is_equal_approx(force, float(MARK)):
+				heard.append("crash")
+	)
+	Events.kart_fell.connect(
+		func(slot: int) -> void:
+			if slot == MARK:
+				heard.append("fall")
+	)
+	Events.drift_boosted.connect(
+		func(slot: int) -> void:
+			if slot == MARK:
+				heard.append("boost")
+	)
+	Events.countdown_tick.emit(MARK)
+	Events.kart_crashed.emit(MARK, float(MARK))
+	Events.kart_fell.emit(MARK)
+	Events.drift_boosted.emit(MARK)
+	await await_millis(600)
+	# Four raised here, four more arriving back over the wire from the host's relay.
+	(
+		assert_array(heard)
+		. override_failure_message("heard %s" % ", ".join(heard))
+		. contains_exactly_in_any_order(
+			["countdown", "countdown", "crash", "crash", "fall", "fall", "boost", "boost"]
+		)
+	)
+	get_tree().set_multiplayer(null, host_root.get_path())
+	get_tree().set_multiplayer(null, client_root.get_path())

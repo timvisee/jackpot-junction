@@ -1551,7 +1551,13 @@ run in one place, the Match, and karts are driven by a KartInput interface.
   unreliable packet in pieces is lost whenever any piece is. Fitting one in a
   single datagram is a job for a smaller snapshot, not a smaller wire, and is open.
 - Hits, pickups, banking and scoring are server-authoritative. The server seeds
-  all randomness and relays gameplay events so clients' HUD and audio react.
+  all randomness and relays gameplay events so clients' HUD and audio react. That
+  includes the ones a client could never raise for itself because its karts are
+  puppets: the countdown tones and the green light, a kart hitting something, a
+  kart going down a hole, nitro lighting up and a drift carried to its boost.
+  Every event is either relayed or named as one that stays where it was raised,
+  and a test holds the two lists to the full set, so a new one cannot quietly
+  never reach a client.
 - Which slot a client plays arrives in a message of its own, after the first
   snapshots have already built the karts. Anything that depends on knowing it,
   such as which kart sounds like your own rather than like somebody else's, is

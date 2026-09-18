@@ -51,6 +51,23 @@ const RELAYED_EVENTS: Array[StringName] = [
 	&"oil_hit",
 	&"player_joined",
 	&"player_left",
+	&"countdown_tick",
+	&"countdown_done",
+	&"kart_crashed",
+	&"kart_fell",
+	&"nitro_started",
+	&"drift_boosted",
+]
+## The events that stay on the machine that raised them. Between this and [constant
+## RELAYED_EVENTS] every signal [Events] has is accounted for, and a test says so, so a new one
+## has to be put in one list or the other rather than quietly never reaching a client.
+##
+## [code]announced[/code] is made on each machine by its own announcer, out of the events above,
+## so relaying it would say everything twice. [code]wild_joker_dropped[/code] has nothing
+## listening to it on any machine; the card it names arrives as a pickup like any other.
+const LOCAL_EVENTS: Array[StringName] = [
+	&"announced",
+	&"wild_joker_dropped",
 ]
 
 var match_node: Match
