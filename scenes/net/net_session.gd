@@ -88,6 +88,11 @@ var _asking := false
 var _peer_asking: Dictionary[int, bool] = {}
 ## On a client: its own kart, driven here and corrected by the host, GAME.md 10.3.
 var _prediction: KartPrediction
+## The host's latest word on this client's kart, waiting for the physics step to act on it. An
+## RPC lands in the idle frame, and a body moved there is a body moved between physics ticks:
+## the engine interpolates the picture from one tick to the next, and a correction applied in
+## the gap is drawn as a swerve through somewhere the kart never was. So it waits its turn.
+var _authority: Array = []
 
 
 func _ready() -> void:
@@ -151,6 +156,7 @@ func _physics_process(delta: float) -> void:
 			_send_authority()
 	elif local_slot >= 0:
 		adopt_own_kart()
+		_settle_authority(delta)
 		local_input.poll(delta)
 		# Driven here first and sent second, GAME.md 10.3. The kart answers the stick on this
 		# frame; the packet carries the number of the tick it answered, so the host's reply can
@@ -332,10 +338,20 @@ func _send_authority() -> void:
 		_receive_authority.rpc_id(peer, input.applied_seq, KartPrediction.capture(slot.kart))
 
 
+## Kept rather than acted on, see [member _authority]. Only the newest is worth anything: an
+## older one describes a tick the newer has already answered for.
 @rpc("authority", "call_remote", "unreliable")
 func _receive_authority(ack: int, state: Array) -> void:
-	if _prediction != null and _prediction.kart.predicted:
-		_prediction.reconcile(ack, state, 1.0 / Engine.physics_ticks_per_second)
+	if _authority.is_empty() or ack >= int(_authority[0]):
+		_authority = [ack, state]
+
+
+func _settle_authority(delta: float) -> void:
+	if _authority.is_empty():
+		return
+	if _prediction != null and is_instance_valid(_prediction.kart) and _prediction.kart.predicted:
+		_prediction.reconcile(int(_authority[0]), _authority[1], delta)
+	_authority = []
 
 
 @rpc("authority", "call_remote", "reliable")

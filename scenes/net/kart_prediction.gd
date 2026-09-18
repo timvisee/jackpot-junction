@@ -16,18 +16,24 @@ extends RefCounted
 ## Ticks of history kept, a little over two seconds at 60 Hz. A correction older than the buffer
 ## cannot be replayed, so the kart takes the host's word for it and snaps.
 const HISTORY := 140
-## Disagreements below this, in metres, are two machines rounding differently rather than
-## disagreeing, and moving the kart for them would be a twitch in place of an error.
-const IGNORE := 0.03
-## Up to this far apart the kart is walked back into place over a few ticks rather than moved:
-## about a kart's length, which is as far as a scrape along a wall or a bump ever puts it out.
-const EASE := 2.0
-## How much of what is left of an eased correction is taken each tick.
-const EASE_RATE := 0.25
-## The same allowance for the heading, in radians: about a third of a degree.
-const HEADING_IGNORE := 0.006
-## Past [constant EASE] the kart is simply put where the host says. That far apart is a respawn,
-## a death, a blast or a pit, none of which is a difference of opinion about driving.
+## Disagreements below this, in metres, are not worth replaying a second of driving over. Ten
+## centimetres is a tenth of a kart and nobody can see it, and the host decides everything that
+## would actually turn on it anyway: what was collected, who was hit, what it was worth. Being
+## relaxed here is the difference between correcting constantly and correcting when it matters.
+const IGNORE := 0.10
+## The same allowance for the heading, in radians: about a degree and a half.
+const HEADING_IGNORE := 0.025
+## How much of a correction still outstanding is taken each tick. A fifth walks an error off over
+## about a fifth of a second, which is slow enough not to be seen and quick enough not to leave
+## the picture behind the kart it is drawn from.
+const EASE_RATE := 0.2
+## The most the picture is ever allowed to lag the simulation by. Past this the kart on screen
+## would be somewhere the kart is not, which is worse than the correction it is hiding.
+const EASE_MAX := 1.2
+## Past this, in metres, nothing is being hidden: the kart is simply put where the host says. A
+## disagreement this size is a respawn, a death, a blast or a pit, not a difference of opinion
+## about driving, and easing it in would send the kart gliding across the room.
+const SNAP := 6.0
 
 var kart: Kart
 ## The number of the last tick this client simulated and sent.
@@ -36,11 +42,24 @@ var seq := 0
 var last_correction := 0.0
 ## How many ticks the last correction had to replay.
 var last_replay := 0
+## How many corrections there have been in all, and how many of those were too big to hide.
+var corrections := 0
+var snaps := 0
+## How far the kart on screen actually moved because of the last correction, and how far it
+## turned, which is the only part of any of this a player can see. Walking a correction in rather
+## than applying it is meant to keep both at nothing; a snap is meant to show.
+var last_jump := 0.0
+var last_turn := 0.0
+## The worst either of those has been all match, for the overlay.
+var worst_jump := 0.0
 
 ## One entry per predicted tick: its number, the controls used, and the state it left the kart in.
 var _history: Array[Dictionary] = []
-## What is left of a correction being eased in, in world space.
+## What is left of a correction being eased in: where the picture still is relative to where the
+## simulation says the kart is, and the same for which way it is pointing. Corrections add to
+## these rather than replacing them, so the picture never jumps, it only ever stops lagging.
 var _ease := Vector3.ZERO
+var _ease_heading := 0.0
 
 
 func _init(for_kart: Kart) -> void:
@@ -103,11 +122,22 @@ func predict(with: KartInput, delta: float) -> int:
 	_history.append({"seq": seq, "input": NetInput.encode(with), "state": capture(kart)})
 	if _history.size() > HISTORY:
 		_history = _history.slice(_history.size() - HISTORY)
-	_ease *= 1.0 - EASE_RATE
-	if _ease.length() <= IGNORE:
-		_ease = Vector3.ZERO
-	kart.global_position += _ease
+	_wear_off()
 	return seq
+
+
+## Takes this tick's share off whatever correction is still being walked in, and draws the kart
+## where that leaves it. The simulation is always on its own answer; only the picture lags, and
+## only by what is left to walk off.
+func _wear_off() -> void:
+	_ease *= 1.0 - EASE_RATE
+	_ease_heading *= 1.0 - EASE_RATE
+	if _ease.length() < 0.001:
+		_ease = Vector3.ZERO
+	if absf(_ease_heading) < 0.0005:
+		_ease_heading = 0.0
+	kart.global_position += _ease
+	kart.rotation = Vector3(0.0, kart.motor.heading + _ease_heading, 0.0)
 
 
 ## The host's answer for tick [param ack]. Anything this client did after that tick is run again
@@ -116,6 +146,12 @@ func predict(with: KartInput, delta: float) -> int:
 func reconcile(ack: int, state: Array, delta: float) -> void:
 	last_correction = 0.0
 	last_replay = 0
+	last_jump = 0.0
+	last_turn = 0.0
+	# Where the kart is drawn right now. Whatever else this does, the honest measure of it is how
+	# far that moves by the time it returns.
+	var drawn := kart.global_position
+	var drawn_facing := kart.rotation.y
 	kart.global_position -= _ease
 	var mine := _state_at(ack)
 	_forget_through(ack)
@@ -125,6 +161,7 @@ func reconcile(ack: int, state: Array, delta: float) -> void:
 		kart.global_position += _ease
 		return
 	var before := kart.global_position
+	var facing := kart.motor.heading
 	restore(kart, state)
 	var replayed := KartInput.new()
 	for entry: Dictionary in _history:
@@ -134,16 +171,26 @@ func reconcile(ack: int, state: Array, delta: float) -> void:
 		last_replay += 1
 	var moved := before - kart.global_position
 	last_correction = moved.length()
-	# Under a few centimetres is two machines rounding differently rather than disagreeing, and
-	# the kart keeps what it had. Past a kart's length it is a respawn, a blast or a pit, and the
-	# kart simply goes where it is told. Between the two it walks back over the next few ticks.
-	if last_correction <= IGNORE:
-		kart.global_position = before
-	elif last_correction <= EASE:
-		_ease = moved
-	else:
+	corrections += 1
+	if last_correction > SNAP:
+		# Nothing to hide: the kart is somewhere else entirely, and gliding it across the room
+		# would be a stranger thing to watch than arriving.
+		snaps += 1
 		_ease = Vector3.ZERO
+		_ease_heading = 0.0
+	else:
+		# Added to what is still outstanding rather than replacing it. Replacing it would put
+		# the picture back by however much was left, which is a jump, and a jump on every
+		# correction is exactly the thing this is for avoiding.
+		_ease = (_ease + moved).limit_length(EASE_MAX)
+		_ease_heading = clampf(
+			_ease_heading + wrapf(facing - kart.motor.heading, -PI, PI), -PI * 0.5, PI * 0.5
+		)
 	kart.global_position += _ease
+	kart.rotation = Vector3(0.0, kart.motor.heading + _ease_heading, 0.0)
+	last_jump = kart.global_position.distance_to(drawn)
+	last_turn = absf(wrapf(kart.rotation.y - drawn_facing, -PI, PI))
+	worst_jump = maxf(worst_jump, last_jump)
 
 
 ## One line for the debug overlay: how far ahead of the host this machine is running, and what
@@ -153,8 +200,19 @@ func debug_text() -> String:
 	if not kart.predicted:
 		return "prediction off"
 	return (
-		"prediction %d ticks ahead  last correction %.3f m over %d ticks"
-		% [_history.size(), last_correction, last_replay]
+		(
+			"prediction %d ticks ahead  %d corrections, %d snapped\n"
+			+ "last %.2f m over %d ticks, moved the kart %.3f m  worst %.3f m"
+		)
+		% [
+			_history.size(),
+			corrections,
+			snaps,
+			last_correction,
+			last_replay,
+			last_jump,
+			worst_jump,
+		]
 	)
 
 
@@ -165,6 +223,7 @@ func suspend() -> void:
 	kart.predicted = false
 	_history.clear()
 	_ease = Vector3.ZERO
+	_ease_heading = 0.0
 	last_correction = 0.0
 	last_replay = 0
 
@@ -175,6 +234,7 @@ func resume() -> void:
 	kart.predicted = true
 	_history.clear()
 	_ease = Vector3.ZERO
+	_ease_heading = 0.0
 
 
 func _state_at(ack: int) -> Array:

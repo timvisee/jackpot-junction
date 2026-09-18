@@ -1653,10 +1653,26 @@ who hit whom, what was collected and what anything is worth.
   case, costs nothing and changes nothing. Disagreement rewinds the kart to the
   host's state and replays every tick since, so the correction lands in the
   present rather than in the past.
-- **Corrections are eased in.** A disagreement smaller than a few centimetres is
-  ignored, one up to a kart's length is walked in over a handful of ticks, and
-  anything larger snaps, because that is a respawn, a death or a blast rather
-  than a rounding difference.
+- **Corrections are walked in, not applied.** The simulation goes onto the host's
+  answer at once; the picture does not. What is left between the two is carried
+  as an offset on the drawn position and heading, and a fifth of it comes off
+  every tick, so the kart on screen never jumps, it only ever stops lagging. A
+  fresh correction adds to whatever is still outstanding rather than replacing
+  it, which matters: replacing would put the picture back by however much was
+  left, and a jump on every correction is the thing this exists to avoid.
+- **The tolerance is deliberately loose.** A disagreement under ten centimetres
+  or a degree and a half is not worth replaying a second of driving over. Nobody
+  can see it, and the host decides everything that would actually turn on it. The
+  offset is capped at about a kart's length, because past that the picture would
+  be somewhere the kart is not, which is worse than the correction it is hiding.
+- **A big enough disagreement simply lands.** Past six metres nothing is being
+  hidden: that is a respawn, a death, a blast or a pit, and gliding the kart
+  across the room would be stranger to watch than arriving.
+- **Corrections happen on the physics tick.** The host's answer arrives whenever
+  the network delivers it, which is between ticks. A body moved there is a body
+  moved between the two poses the engine is interpolating the picture from, and
+  it is drawn swerving through somewhere the kart never was. So the answer is
+  held and acted on at the top of the next tick.
 
 What a client predicts is movement and nothing else. It does not decide that it
 picked a coin up, hit anybody, fired a shot that counts, or cashed out: all of
@@ -1683,13 +1699,17 @@ numbers, which is why the host sends the whole motor state rather than only a
 position, and why the rules arrive from the host before play starts.
 
 `tests/test_online_prediction.gd` holds all of this to numbers, with a wire whose
-round trip the test sets. Over 100 ms of round trip, four times what the report
-was about: the kart answers the stick on the tick it moved rather than five ticks
-later, and over four seconds of driving, drifting and handbrake turns not one of
-112 snapshots needed correcting. Knocked four metres out of place by hand it is
-back within one. On a wire losing a packet in five it is corrected about a third
-of the time, and every one of those is small enough to be walked off rather than
-snapped.
+round trip the test sets. Over 100 ms of round trip, four times the ping this was
+reported at: the kart answers the stick on the tick it moved rather than five
+ticks later, and over four seconds of driving, drifting and handbrake turns not
+one of 110 snapshots needed correcting at all.
+
+The number that matters most is how far a correction moves the kart somebody is
+looking at, because that is the whole of what a player can see of any of this. On
+a wire losing a packet in five, the kart is put right ten times in a second and a
+half of driving and not one of those moves it: the corrections are absorbed
+whole. Knocked four metres out of place by hand, which nothing in the game does,
+it lands 2.8 m and walks off the rest.
 
 ### 10.4 Conventions
 

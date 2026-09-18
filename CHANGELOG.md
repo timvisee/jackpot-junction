@@ -21,9 +21,9 @@ below, and hands the notes to the release workflow.
   kart answers at once instead of five ticks later, and through four seconds of
   driving, drifting and handbrake turns the host had nothing to correct. Knocked
   out of place it is put back; on a wire losing a packet in five the corrections
-  are small enough to be walked off rather than snapped. Everything that decides
-  the game is still the host's: what you collected, who you hit, what it was
-  worth.
+  are absorbed whole: the kart a player is looking at does not move for them at
+  all. Everything that decides the game is still the host's: what you collected,
+  who you hit, what it was worth.
 
 ## [0.1.0] - 2026-09-18
 

@@ -35,6 +35,11 @@ var _snapshots := 0
 var _corrections := 0
 var _worst_correction := 0.0
 var _deepest_replay := 0
+## The worst single tick of movement the kart made that its own speed does not account for: what
+## a correction actually looks like from the seat, in metres. A kart driving smoothly reads zero
+## here however much it is being corrected underneath.
+var _worst_jump := 0.0
+var _worst_turn := 0.0
 ## The tick the throttle went down, and the tick each machine's kart first moved for it. The
 ## difference between those two is the thing the whole exercise is about.
 var _asked_at := -1
@@ -55,6 +60,8 @@ func before_test() -> void:
 	_corrections = 0
 	_worst_correction = 0.0
 	_deepest_replay = 0
+	_worst_jump = 0.0
+	_worst_turn = 0.0
 	_asked_at = -1
 	_moved_here_at = -1
 	_moved_there_at = -1
@@ -133,6 +140,10 @@ func _on_tick() -> void:
 				_corrections += 1
 				_worst_correction = maxf(_worst_correction, _prediction.last_correction)
 				_deepest_replay = maxi(_deepest_replay, _prediction.last_replay)
+			# How far putting it right moved the kart a player is looking at, which is the only
+			# part of a correction anybody can see.
+			_worst_jump = maxf(_worst_jump, _prediction.last_jump)
+			_worst_turn = maxf(_worst_turn, _prediction.last_turn)
 	_worst_gap = maxf(
 		_worst_gap, _prediction.kart.global_position.distance_to(_host.kart_of(0).global_position)
 	)
@@ -158,8 +169,19 @@ func _drive(ticks: int) -> void:
 
 func _report() -> String:
 	return (
-		"gap %.3f m, %d of %d snapshots corrected, worst %.3f m, deepest replay %d ticks"
-		% [_worst_gap, _corrections, _snapshots, _worst_correction, _deepest_replay]
+		(
+			"gap %.3f m, %d of %d snapshots corrected, worst %.3f m over %d ticks, "
+			+ "worst unexplained jump %.4f m and %.2f deg"
+		)
+		% [
+			_worst_gap,
+			_corrections,
+			_snapshots,
+			_worst_correction,
+			_deepest_replay,
+			_worst_jump,
+			rad_to_deg(_worst_turn),
+		]
 	)
 
 
@@ -226,6 +248,9 @@ func test_a_predicted_kart_stays_where_the_host_has_it() -> void:
 	# The two machines mostly agree. A correction on every snapshot would mean they never do.
 	assert_int(_corrections).override_failure_message(_report()).is_less(_snapshots / 4)
 	assert_float(_worst_correction).override_failure_message(_report()).is_less(0.5)
+	# Nothing a player could see. A clean wire should not move the kart at all beyond its own
+	# driving, and this is the number that says so.
+	assert_float(_worst_jump).override_failure_message(_report()).is_less(0.01)
 
 
 ## What the report asked for last: when the two do end up disagreeing, the host's word puts it
@@ -254,6 +279,13 @@ func test_a_kart_knocked_out_of_step_is_put_back() -> void:
 		. override_failure_message(_report())
 		. is_less(1.5)
 	)
+	# This one is meant to show. Four metres out is a kart somewhere it is not, and gliding it
+	# back across the room would be stranger to watch than arriving. Some of it is still walked
+	# off rather than all of it landing at once.
+	assert_float(_worst_jump).override_failure_message(_report()).is_greater(1.0)
+	assert_float(_worst_jump).override_failure_message(_report()).is_less(
+		knocked - KartPrediction.EASE_MAX + 0.1
+	)
 
 
 ## A wire that loses a packet in every five. The host carries on with the controls it last had,
@@ -275,4 +307,9 @@ func test_a_lossy_wire_still_keeps_the_kart_in_place() -> void:
 	)
 	# Every correction stays inside the range that is walked off rather than snapped, so a lossy
 	# wire reads as a kart settling rather than as a kart teleporting.
-	assert_float(_worst_correction).override_failure_message(_report()).is_less(KartPrediction.EASE)
+	assert_float(_worst_correction).override_failure_message(_report()).is_less(KartPrediction.SNAP)
+	# The point of walking a correction in rather than applying it. On a wire dropping a packet
+	# in five the kart is put right a dozen times, and not one of those moves the kart a player
+	# is looking at at all: the picture never jumps, it only ever stops lagging.
+	assert_float(_worst_jump).override_failure_message(_report()).is_less(0.01)
+	assert_float(rad_to_deg(_worst_turn)).override_failure_message(_report()).is_less(0.1)
