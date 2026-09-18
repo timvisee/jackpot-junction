@@ -44,6 +44,7 @@ static func _slots(match_node: Match) -> Array:
 			"deaths": slot.deaths,
 			"coins": kart.pot.coins,
 			"mult": kart.pot.mult,
+			"partial": kart.pot.partial(),
 			"item": String(kart.held_item.id) if kart.held_item != null else "",
 			"reveal": kart.item_reveal_left,
 			"jokers": kart.jokers.ids(),
@@ -339,6 +340,7 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 		if slot.kart != null:
 			slot.kart.pot.coins = entry["coins"]
 			slot.kart.pot.mult = entry["mult"]
+			slot.kart.pot.set_partial(entry.get("partial", 0.0))
 			slot.kart.held_item = _item_by_id(entry["item"])
 			slot.kart.item_reveal_left = entry["reveal"]
 			slot.kart.menu_open = entry["menu"]

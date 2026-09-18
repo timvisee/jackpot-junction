@@ -55,6 +55,12 @@ func test_snapshot_round_trip_describes_the_match() -> void:
 	assert_int(data["slots"].size()).is_equal(2)
 	assert_int(data["karts"].size()).is_equal(2)
 	assert_int(data["pickups"].size()).is_greater(10)
+	# A pot halfway through a cash-out is worth less than its coins times its mult, and that is
+	# the number both screens show, GAME.md 10.3.
+	host_match.kart_of(0).pot.add_mult(2.0)
+	host_match.kart_of(0).pot.drain(5.5)
+	assert_int(host_match.kart_of(0).pot.value()).is_equal(15)
+	data = host_match.build_snapshot()
 	var bytes := var_to_bytes(data)
 	var decoded: Dictionary = bytes_to_var(bytes)
 	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
@@ -65,7 +71,7 @@ func test_snapshot_round_trip_describes_the_match() -> void:
 	client_match.set_local_slot(0)
 	client_match.apply_snapshot(decoded)
 	assert_int(client_match.slots.size()).is_equal(2)
-	assert_int(client_match.kart_of(0).pot.coins).is_equal(7)
+	assert_int(client_match.kart_of(0).pot.value()).is_equal(host_match.kart_of(0).pot.value())
 	assert_bool(client_match.kart_of(0).puppet).is_true()
 	assert_int(client_match.arena.pickups.get_child_count()).is_equal(data["pickups"].size())
 	assert_int(client_match.hud._blocks.size()).is_equal(1)

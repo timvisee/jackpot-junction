@@ -13,6 +13,17 @@ var mult := 1.0
 var _partial := 0.0
 
 
+## How far into the top coin a cash-out has got, for a client to show the same number as the
+## host, GAME.md 10.3. A pot mid-drain is worth less than its coins times its mult, and that is
+## exactly the moment everybody is watching it.
+func partial() -> float:
+	return _partial
+
+
+func set_partial(amount: float) -> void:
+	_partial = amount
+
+
 func value() -> int:
 	return floori(exact_value())
 
