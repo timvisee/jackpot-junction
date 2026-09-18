@@ -143,3 +143,48 @@ func test_the_setting_reaches_the_rules() -> void:
 	var settings := Settings.new()
 	settings.overtime = false
 	assert_bool(MatchConfig.from_settings(settings).overtime).is_false()
+
+
+## GAME.md 3.13: a kill in sudden death that puts the killer past the player they took out is
+## called out and counted. In overtime a pot is a pot nobody is coming back for, so a kill
+## changes the order far more often than it does with a clock still running.
+func test_a_kill_that_takes_a_place_in_overtime_is_called_and_counted() -> void:
+	var match_node := _start_match(true)
+	await _runner.simulate_frames(12, 17)
+	match_node.time_left = 0.02
+	await _runner.simulate_frames(6, 17)
+	assert_int(match_node.state).is_equal(Match.State.OVERTIME)
+	var killer := match_node.slots[0]
+	var victim := match_node.slots[1]
+	# The victim is ahead, but only on what it is carrying, and that is what the kill takes.
+	killer.banked = 200
+	victim.banked = 40
+	victim.kart.pot.add_coins(200)
+	assert_bool(PlayerSlot.by_score(victim, killer)).is_true()
+	var calls: Array = []
+	var heard := func(slot: int, text: String) -> void: calls.append([slot, text])
+	Events.announced.connect(heard)
+	victim.kart.die(&"bullet", killer.index)
+	Events.announced.disconnect(heard)
+	assert_bool(PlayerSlot.by_score(killer, victim)).is_true()
+	assert_array(calls).contains([[killer.index, "TAKING THE LEAD"]])
+	assert_float(killer.stats.value(&"overtakes")).is_equal(1.0)
+
+
+## The same kill with the clock still running is worth nothing extra: places change hands all
+## match long when everybody is coming back.
+func test_taking_a_place_outside_overtime_is_not_called() -> void:
+	var match_node := _start_match(false)
+	await _runner.simulate_frames(12, 17)
+	var killer := match_node.slots[0]
+	var victim := match_node.slots[1]
+	killer.banked = 200
+	victim.banked = 40
+	victim.kart.pot.add_coins(200)
+	var calls: Array = []
+	var heard := func(slot: int, text: String) -> void: calls.append([slot, text])
+	Events.announced.connect(heard)
+	victim.kart.die(&"bullet", killer.index)
+	Events.announced.disconnect(heard)
+	assert_array(calls).is_empty()
+	assert_float(killer.stats.value(&"overtakes")).is_equal(0.0)

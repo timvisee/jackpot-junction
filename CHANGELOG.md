@@ -76,6 +76,11 @@ below, and hands the notes to the release workflow.
   back. Each carries a pot of coins and an item, so shooting one scatters loot
   worth picking up, and each comes back after a moment carrying something new.
 
+- **Taking a place in sudden death is called out.** A kill in overtime that puts
+  you past the player you took out reads OVERTAKE across the middle of the
+  screen, or TAKING THE LEAD when it puts you top of the board, and counts toward
+  a Last Word award on the results.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button

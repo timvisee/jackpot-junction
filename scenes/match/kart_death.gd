@@ -30,6 +30,8 @@ static func resolve(
 		killer = match_node.slots[killer_slot]
 		for joker: Joker in killer.kart.jokers.jokers:
 			joker.on_victim_death(killer.kart, kart, death)
+	# Read before the death moves any money, so that afterwards the two can be compared.
+	var behind := _behind(match_node, slot, killer)
 	var banked := Scoring.death_bank(kart.pot.coins, kart.pot.mult, death.bank_fraction)
 	if banked > 0:
 		slot.banked += banked
@@ -43,6 +45,8 @@ static func resolve(
 	# Nobody comes back out of sudden death, so there is nothing to pick a joker for.
 	slot.offer = null if match_node.state == Match.State.OVERTIME else _offer(match_node, slot)
 	Events.kart_killed.emit(slot.index, killer_slot, cause)
+	if behind:
+		_announce_overtake(match_node, slot, killer)
 	if match_node.camera_rig != null:
 		# A kill in a hot match hits harder than the first one of the round.
 		match_node.camera_rig.shake(0.2 + 0.5 * match_node.intensity.share())
@@ -116,3 +120,24 @@ static func _offer(match_node: Match, slot: PlayerSlot) -> JokerOffer:
 		if offer.stage == JokerOffer.Stage.REPLACING:
 			offer.replace(match_node.rng.randi_range(0, kart.jokers.count() - 1))
 	return offer
+
+
+## Whether this kill could hand the killer a place, GAME.md 3.13: sudden death, somebody to
+## credit, and that somebody currently behind the player they just took out. Only in overtime,
+## because that is where a place changing hands is the match changing hands.
+static func _behind(match_node: Match, slot: PlayerSlot, killer: PlayerSlot) -> bool:
+	return (
+		match_node.state == Match.State.OVERTIME
+		and killer != null
+		and PlayerSlot.by_score(slot, killer)
+	)
+
+
+## Says so, once the places really have changed. Going to the top of the board is a different
+## thing to passing somebody in the middle of it, so it is said differently.
+static func _announce_overtake(match_node: Match, slot: PlayerSlot, killer: PlayerSlot) -> void:
+	if not PlayerSlot.by_score(killer, slot):
+		return
+	killer.stats.add(&"overtakes")
+	var leading: bool = match_node.standings()[0] == killer
+	Events.announced.emit(killer.index, "TAKING THE LEAD" if leading else "OVERTAKE")

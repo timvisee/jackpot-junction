@@ -406,9 +406,14 @@ seconds.
 | Triple kill  | Three, then Quad kill, then Killing spree for anything longer     |
 | Hot streak   | 3 kills without dying, then On fire at 5 and Untouchable at 8     |
 | Trade kill   | Killing the player who killed you within the last 2.5 s           |
+| Overtake     | A kill in overtime that puts you past the player you took out     |
+| Taking the lead | The same, when it puts you top of the running order             |
 
 One call per kill, the biggest thing that just happened: a run of kills outranks a
 streak, which outranks a trade, since the rarer the thing the louder it should be.
+An overtake in sudden death is louder than any of them and is called on top of
+whatever else the kill was worth, because at that point it is the match changing
+hands rather than a good shot.
 A death with nobody to credit, down a pit or on your own bomb, is nobody's moment
 and is never called. Dying wipes a streak and a run both.
 
@@ -426,6 +431,11 @@ counting anything.
 - The Junction still pays. A player who would rather keep what they are carrying
   than bet it on staying alive can drive in and bank it, the same as ever.
 - The last kart standing banks its whole pot, at full value, and the whistle goes.
+- A kill that moves the killer past the player they took out in the running order
+  is called out, see 3.12, and counts toward the Last Word award on the results
+  screen. In sudden death the pot a player is carrying is a pot nobody is coming
+  back for, so a kill changes the order far more often than it does with a clock
+  running, and that is the whole shape of the finish.
 - Everybody going down at once is nobody's win: the whistle simply goes and the
   unbanked pots are lost as usual.
 - A field already down to one when the clock runs out has nothing to play out, so

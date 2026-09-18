@@ -32,6 +32,7 @@ const FIELDS: Array[StringName] = [
 	&"drift_boosts",
 	&"pads_taken",
 	&"oil_spins",
+	&"overtakes",
 ]
 
 ## Award title and value format per field.
@@ -62,6 +63,7 @@ const AWARDS: Dictionary[StringName, Array] = {
 	&"drift_boosts": ["Power Slide", "%d drifts carried to the boost"],
 	&"pads_taken": ["Card Counter", "%d flush pads taken"],
 	&"oil_spins": ["Banana Skin", "%d spins on oil"],
+	&"overtakes": ["Last Word", "%d places taken in sudden death"],
 }
 
 var values: Dictionary[StringName, float] = {}
