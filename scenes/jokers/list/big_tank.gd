@@ -1,6 +1,6 @@
 extends Joker
-## Big Tank: +1 max live bullet.
+## Big Tank: +2 max live bullets.
 
 
 func modify_cannon_stats(stats: CannonStats) -> void:
-	stats.max_live_bullets += 1
+	stats.max_live_bullets += 2

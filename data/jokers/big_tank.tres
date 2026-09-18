@@ -6,6 +6,6 @@
 script = ExtResource("1_script")
 id = &"big_tank"
 display_name = "Big Tank"
-description = "+1 max live bullet."
+description = "+2 max live bullets."
 rarity = 0
 kind = 0

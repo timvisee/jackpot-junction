@@ -35,6 +35,10 @@ below, and hands the notes to the release workflow.
   one thing that gets you out of there again, on top of whatever the hot table is
   already giving you.
 
+- **Big Tank is worth two bullets.** It gave one more bullet in the air, on top of
+  three, which was hard to feel next to what the other common jokers do. It now
+  gives two.
+
 ### Added
 
 - **A one-minute match, in debug builds only.** Long enough to reach the Junction

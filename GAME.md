@@ -797,7 +797,7 @@ a real downside. Starting set; balance is untested.
 | Joker            | Rarity   | Kind   | Effect                                                                    |
 |------------------|----------|--------|---------------------------------------------------------------------------|
 | Hair Trigger     | Common   | Stat   | Fire cooldown -30%                                                        |
-| Big Tank         | Common   | Stat   | +1 max live bullet                                                        |
+| Big Tank         | Common   | Stat   | +2 max live bullets                                                       |
 | Magnet Hubcaps   | Common   | Stat   | Pickup radius times 2                                                     |
 | Nitro Habit      | Common   | Stat   | Drift exit boosts and turbo pads last twice as long                       |
 | Slipstream       | Common   | Rule   | Grazes give +1 mult instead of +0.5                                       |

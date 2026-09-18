@@ -406,7 +406,7 @@ func test_stat_jokers_rebuild_the_karts_own_stats_and_removal_restores_them() ->
 	_attach(kart, "magnet_hubcaps")
 	_attach(kart, "jerry_can")
 	assert_float(kart.cannon.stats.fire_cooldown).is_equal_approx(0.28, 0.001)
-	assert_int(kart.cannon.stats.max_live_bullets).is_equal(4)
+	assert_int(kart.cannon.stats.max_live_bullets).is_equal(5)
 	assert_int(kart.cannon.stats.bounces).is_equal(1)
 	assert_float(kart.stats.drift_exit_boost_duration).is_equal_approx(1.6, 0.001)
 	assert_float(kart.stats.turbo_duration).is_equal_approx(2.0, 0.001)
