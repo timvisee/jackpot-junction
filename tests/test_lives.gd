@@ -165,6 +165,31 @@ func test_an_empty_pot_is_patched_up_on_arrival() -> void:
 	assert_bool(victim.is_wounded()).is_false()
 
 
+## GAME.md 3.4: the pad has one life to give every few seconds. Without the wait a kart parked
+## on the Junction is patched up the instant it is wounded, and the one place everybody has to
+## come to is the one place nobody can be finished off.
+func test_the_junction_waits_before_it_patches_the_same_kart_up_again() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var victim := match_node.kart_of(1)
+	victim.global_position = match_node.arena.junction_position
+	victim.pot.reset()
+	await _runner.simulate_frames(4, 17)
+	victim.take_blast(0)
+	assert_int(victim.lives).is_equal(1)
+	await _runner.simulate_frames(6, 17)
+	assert_int(victim.lives).is_equal(2)
+	# The second wound stands: the pad has nothing left to give yet.
+	victim.hurt_left = 0.0
+	victim.take_blast(0)
+	assert_int(victim.lives).is_equal(1)
+	await _runner.simulate_frames(60, 17)
+	assert_int(victim.lives).is_equal(1)
+	# A little over three seconds after the first patch-up, there is another one to have.
+	await _runner.simulate_frames(150, 17)
+	assert_int(victim.lives).is_equal(2)
+
+
 func test_a_kill_gives_the_killer_a_life_back() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)

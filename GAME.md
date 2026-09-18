@@ -146,6 +146,10 @@ R0 = 40 points per second, D = 0.5 s
   pot has to go in first: the life comes with the last coin of the cash-out, which
   is exactly when the kart is most worth shooting. A kart that rolls on with
   nothing to bank is owed the life straight away.
+- The pad has one life to give every 3 seconds per kart, and the wait runs whether
+  the kart stays or leaves and comes back. Otherwise a kart parked on the Junction
+  is patched up the instant it is wounded and can never be finished off in the
+  middle of the arena, which is the one place everybody has to come to.
 
 Time to fully bank a pot with the starting values:
 

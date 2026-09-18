@@ -5,7 +5,9 @@ extends Area3D
 ## ramp; emptying the pot resets coins and mult. The match listens for the ticks and totals.
 ## Standing on the pad with an empty pot also patches a wounded kart up to full lives, GAME.md
 ## 3.6, as does taking somebody out. What the pad will not do is patch up a kart that is still
-## carrying something: the pot goes in first and the life comes with the last coin of it.
+## carrying something: the pot goes in first and the life comes with the last coin of it. Nor
+## will it do it twice in a row: after a patch-up the pad needs a moment before it has another
+## one to give, so a kart parked in the middle of the arena can still be finished off there.
 ##
 ## The neon ring blinks when a local player is riding around with a big unbanked pot, harder
 ## and faster the more is at stake, as a nudge to come and cash it in. A pot that would win the
@@ -19,6 +21,10 @@ signal bank_completed(kart: Kart, coins: int, mult: float, total: int)
 ## worth protecting.
 const WIN_RATE := 3.2
 const WIN_ENERGY := 2.6
+## Seconds before the pad patches the same kart up again, GAME.md 3.4. Without the wait a kart
+## sitting on the pad is healed the instant it is wounded, and nobody can ever finish it off
+## there; with it, whoever wounded it has a few seconds to come back and do it.
+const PATCH_INTERVAL := 3.0
 
 var rules: MatchRules
 var radius := 2.5
@@ -34,6 +40,10 @@ var winning := false
 
 ## Kart instance id to channel state: t, carry, total, start_coins, start_mult, start_value.
 var _channels: Dictionary[int, Dictionary] = {}
+## Kart instance id to the seconds left before that kart may be patched up again. Kept here
+## rather than on the kart, and kept while the kart is away, so that driving off the pad and
+## straight back on is not a way around the wait.
+var _patch_wait: Dictionary[int, float] = {}
 var _pulse := 0.0
 
 
@@ -93,6 +103,7 @@ func _new_channel() -> Dictionary:
 func _physics_process(delta: float) -> void:
 	if rules == null or puppet:
 		return
+	_step_patch_wait(delta)
 	for id: int in _channels.keys():
 		var kart := instance_from_id(id) as Kart
 		if kart == null:
@@ -101,8 +112,8 @@ func _physics_process(delta: float) -> void:
 		if not kart.is_active() or kart.pot.is_empty():
 			kart.channel_progress = -1.0
 			# Nothing to bank is nothing to wait for: the patch-up is owed straight away.
-			if kart.is_active() and kart.is_wounded():
-				kart.restore_life()
+			if kart.is_active():
+				_patch_up(kart)
 			continue
 		_step_channel(kart, _channels[id], delta)
 
@@ -131,8 +142,26 @@ func _step_channel(kart: Kart, channel: Dictionary, delta: float) -> void:
 			bank_tick.emit(kart, leftover)
 		bank_completed.emit(kart, channel["start_coins"], channel["start_mult"], total)
 		# The whole pot is in: GAME.md 3.6 pays for that with the lost life back.
-		if kart.is_wounded():
-			kart.restore_life()
+		_patch_up(kart)
 		kart.pot.reset()
 		kart.channel_progress = -1.0
 		_channels[kart.get_instance_id()] = _new_channel()
+
+
+## Patches a wounded kart up, unless the pad has given this one a life too recently to have
+## another ready, GAME.md 3.4.
+func _patch_up(kart: Kart) -> void:
+	if not kart.is_wounded() or _patch_wait.get(kart.get_instance_id(), 0.0) > 0.0:
+		return
+	kart.restore_life()
+	_patch_wait[kart.get_instance_id()] = PATCH_INTERVAL
+
+
+## Counts the waits down, whether or not their kart is still standing here.
+func _step_patch_wait(delta: float) -> void:
+	for id: int in _patch_wait.keys():
+		var left: float = _patch_wait[id] - delta
+		if left <= 0.0:
+			_patch_wait.erase(id)
+		else:
+			_patch_wait[id] = left

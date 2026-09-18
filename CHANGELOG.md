@@ -25,6 +25,11 @@ below, and hands the notes to the release workflow.
   ends where it used to offer Sudden death and Whistle on the hour. Both of those
   needed the rule explained before they meant anything.
 
+- **The Junction only patches you up once every three seconds.** A wounded kart
+  parked on the pad used to get its life back the instant it lost it, so the one
+  place everybody has to visit was the one place nobody could be finished off.
+  The wait runs whether the kart stays put or drives off and comes back.
+
 ### Added
 
 - **A one-minute match, in debug builds only.** Long enough to reach the Junction
