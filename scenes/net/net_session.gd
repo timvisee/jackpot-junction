@@ -156,12 +156,15 @@ func _physics_process(delta: float) -> void:
 		# frame; the packet carries the number of the tick it answered, so the host's reply can
 		# be held against what this machine thought at the time.
 		var seq := 0
-		if _prediction != null:
+		if _prediction != null and is_instance_valid(_prediction.kart):
 			var driving := _drivable()
-			if driving and not _prediction.kart.predicted:
-				_prediction.resume()
-			elif not driving and _prediction.kart.predicted:
-				_prediction.suspend()
+			if driving != _prediction.kart.predicted:
+				# Killed, frozen on the grid or handed back: stop driving and forget the ticks
+				# in hand, since nobody will be asking about them. Or the other way round.
+				if driving:
+					_prediction.resume()
+				else:
+					_prediction.suspend()
 			if driving:
 				seq = _prediction.predict(local_input, delta)
 		_send_input.rpc_id(1, NetInput.encode(local_input), seq)
@@ -270,7 +273,9 @@ func adopt_own_kart() -> void:
 	if is_host or local_slot < 0 or local_slot >= match_node.slots.size():
 		return
 	var kart := match_node.slots[local_slot].kart
-	if kart == null or (_prediction != null and _prediction.kart == kart):
+	if kart == null:
+		return
+	if _prediction != null and is_instance_valid(_prediction.kart) and _prediction.kart == kart:
 		return
 	_prediction = KartPrediction.new(kart)
 
@@ -293,6 +298,14 @@ func _send_input(state: Array, seq: int = 0) -> void:
 	var input := match_node.slots[index].input as NetInput
 	if input != null:
 		input.receive(state, seq)
+
+
+## One line about this client's own kart for the debug overlay, empty on a host or before a slot
+## has been handed out.
+func prediction_debug() -> String:
+	if _prediction == null or not is_instance_valid(_prediction.kart):
+		return ""
+	return _prediction.debug_text()
 
 
 ## Whether this client is driving its own kart rather than watching it, GAME.md 10.3. A kart the

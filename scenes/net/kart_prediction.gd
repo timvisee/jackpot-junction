@@ -72,8 +72,8 @@ static func step(on: Kart, with: KartInput, delta: float, live: bool = true) -> 
 	on.position.y = 0.0
 	on.rotation = Vector3(0.0, on.motor.heading, 0.0)
 	if live:
-		on.call(&"_spin_wheels", delta)
-		on.call(&"_update_trails", delta, heading_before)
+		on._spin_wheels(delta)
+		on._update_trails(delta, heading_before)
 
 
 ## Where a kart is and what its motor is doing, as one value.
@@ -144,6 +144,18 @@ func reconcile(ack: int, state: Array, delta: float) -> void:
 	else:
 		_ease = Vector3.ZERO
 	kart.global_position += _ease
+
+
+## One line for the debug overlay: how far ahead of the host this machine is running, and what
+## the last correction cost. Corrections at nought are the two machines agreeing, which is what
+## this should read for most of a match on a decent wire.
+func debug_text() -> String:
+	if not kart.predicted:
+		return "prediction off"
+	return (
+		"prediction %d ticks ahead  last correction %.3f m over %d ticks"
+		% [_history.size(), last_correction, last_replay]
+	)
 
 
 ## Stops driving and forgets what it was holding, for a kart that has died, been frozen on the

@@ -53,7 +53,7 @@ func _ready() -> void:
 				_show_status("Connecting to %s:%d..." % [config.address, config.port])
 		_:
 			match_node.start(config.inputs(), 0, config.colors())
-	DebugOverlay.add_to(self, match_node)
+	DebugOverlay.add_to(self, match_node, session)
 	PauseMenu.add_to(self, session)
 
 

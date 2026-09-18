@@ -9,6 +9,9 @@ const CROSSING_INSET := 3.0
 
 var kart: Kart
 var match_node: Match
+## The room's session, when it has one. Online it holds what this client's own kart is doing
+## ahead of the host, GAME.md 10.3, which is worth being able to look at while playing.
+var session: NetSession
 var arena_width := 40.0
 
 var _label: Label
@@ -19,10 +22,11 @@ var _last_crossing := 0.0
 
 ## Hangs one over a room, watching that room's match and hidden until F3 asks for it. Every
 ## room that runs a match wants exactly this, so it is worth one call rather than five lines.
-static func add_to(parent: Node, watching: Match) -> DebugOverlay:
+static func add_to(parent: Node, watching: Match, net: NetSession = null) -> DebugOverlay:
 	var overlay := DebugOverlay.new()
 	overlay.name = "DebugOverlay"
 	overlay.match_node = watching
+	overlay.session = net
 	overlay.visible = false
 	parent.add_child(overlay)
 	return overlay
@@ -68,7 +72,7 @@ func _process(_delta: float) -> void:
 	if motor.boosting():
 		state += " boost %.2f" % motor.boost_time_left
 	var template := "fps %d\nspeed %.1f m/s (%.0f%%)\nforward %.1f\n%s\nheading %.0f deg\n"
-	template += "last crossing %.2f s\n%s\n%s\n%s\n\nF3 overlay  F4 tuning"
+	template += "last crossing %.2f s\n%s\n%s\n%s%s\n\nF3 overlay  F4 tuning"
 	_label.text = (
 		template
 		% [
@@ -82,8 +86,16 @@ func _process(_delta: float) -> void:
 			_intensity_text(),
 			Audio.music_debug(),
 			kart.sound.debug_text() if kart.sound != null else "engine -",
+			_prediction_text(),
 		]
 	)
+
+
+func _prediction_text() -> String:
+	if session == null:
+		return ""
+	var line := session.prediction_debug()
+	return "" if line.is_empty() else "\n" + line
 
 
 func _intensity_text() -> String:
