@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/jerry_can.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"jerry_can"
+display_name = "Jerry Can"
+description = "Nitro refills 4x as fast."
+rarity = 1
+kind = 0

@@ -44,7 +44,7 @@ func _chip(dropped := false, gold := false) -> Chip:
 
 func test_catalog_has_unique_jokers_and_offers_exclude_held_ones() -> void:
 	var catalog: JokerCatalog = CATALOG
-	assert_int(catalog.jokers.size()).is_equal(27)
+	assert_int(catalog.jokers.size()).is_equal(28)
 	var ids: Array[StringName] = []
 	for joker: Joker in catalog.jokers:
 		(
@@ -404,16 +404,18 @@ func test_stat_jokers_rebuild_the_karts_own_stats_and_removal_restores_them() ->
 	_attach(kart, "rubber_bumpers")
 	_attach(kart, "nitro_habit")
 	_attach(kart, "magnet_hubcaps")
+	_attach(kart, "jerry_can")
 	assert_float(kart.cannon.stats.fire_cooldown).is_equal_approx(0.28, 0.001)
 	assert_int(kart.cannon.stats.max_live_bullets).is_equal(4)
 	assert_int(kart.cannon.stats.bounces).is_equal(1)
 	assert_float(kart.stats.drift_exit_boost_duration).is_equal_approx(1.6, 0.001)
 	assert_float(kart.stats.turbo_duration).is_equal_approx(2.0, 0.001)
+	assert_float(kart.stats.nitro_recharge_seconds).is_equal_approx(22.5, 0.001)
 	assert_float(kart._pickup_shape.radius).is_equal_approx(1.8, 0.001)
 	assert_float(kart.base_stats.turbo_duration).is_equal_approx(1.0, 0.001)
 	kart.jokers.remove(trigger)
 	assert_float(kart.cannon.stats.fire_cooldown).is_equal_approx(0.4, 0.001)
-	assert_int(kart.jokers.count()).is_equal(4)
+	assert_int(kart.jokers.count()).is_equal(5)
 
 
 func test_road_rage_slows_the_kart_and_rams_at_speed() -> void:

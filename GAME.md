@@ -811,6 +811,7 @@ a real downside. Starting set; balance is untested.
 | Loaded Dice      | Uncommon | Rule   | Every chip has a 10% chance to count as a gold chip                       |
 | Toll Booth       | Uncommon | Rule   | Whenever another kart completes a cash-out, you bank 5% of it             |
 | Tailslide        | Uncommon | Rule   | +1 coin for every 8 m you drift                                           |
+| Jerry Can        | Uncommon | Stat   | Nitro refills 4x as fast                                                  |
 | Payday           | Uncommon | Rule   | +1 coin every second, wherever you are and whatever you are doing        |
 | High Roller      | Uncommon | Cursed | All mult gains are doubled, but death banks 0%                            |
 | Curve Ball       | Uncommon | Rule   | Your bullets curve hard toward enemies: a 55° cone out to 22 m at 150°/s, and they keep curving after a bounce |
