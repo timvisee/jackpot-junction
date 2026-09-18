@@ -70,8 +70,9 @@ func test_snapshot_round_trip_describes_the_match() -> void:
 	assert_int(client_match.arena.pickups.get_child_count()).is_equal(data["pickups"].size())
 	assert_int(client_match.hud._blocks.size()).is_equal(1)
 	# A client lights its own Junction ring off the pot the snapshot just handed it, GAME.md 3.4.
+	assert_bool(client_match.arena.junction.winning).is_false()
 	client_match.rules.target_score = 5
-	await await_millis(60)
+	client_match.apply_snapshot(decoded)
 	assert_bool(client_match.arena.junction.winning).is_true()
 	assert_str(client_match.slots[1].display_name()).contains("P2")
 
@@ -95,6 +96,10 @@ func test_client_joins_takes_over_a_bot_drives_it_and_hands_it_back_on_leaving()
 	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
 	client_match.name = "Match"
 	client_match.rules = _quick_rules()
+	# A lobby of its own, set to nothing like the host's.
+	client_match.rules.target_score = 777
+	client_match.rules.duration = 42.0
+	client_match.rules.lives = 5
 	client_match.with_hud = true
 	_client_root.add_child(client_match)
 	client_match.start_puppet()
@@ -107,6 +112,11 @@ func test_client_joins_takes_over_a_bot_drives_it_and_hands_it_back_on_leaving()
 	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
 	assert_bool(assigned).override_failure_message("client never got a slot").is_true()
 	assert_int(client_session.local_slot).is_equal(1)
+	# The client came up on its own lobby settings and is now playing the host's match, so the
+	# host's numbers replace them, GAME.md 10.3.
+	assert_int(client_match.rules.target_score).is_equal(host_match.rules.target_score)
+	assert_float(client_match.rules.duration).is_equal(host_match.rules.duration)
+	assert_int(client_match.rules.lives).is_equal(host_match.rules.lives)
 	assert_bool(host_match.slots[1].input is NetInput).is_true()
 	assert_bool(host_match.slots[1].is_human()).is_true()
 	# The host drives one kart, so it has one corner block, one hand and one joker pick. The

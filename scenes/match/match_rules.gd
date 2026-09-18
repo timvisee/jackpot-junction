@@ -3,6 +3,24 @@ extends Resource
 ## Match-level numbers from GAME.md sections 3.2 to 3.8. Starting values; tune in playtests and
 ## write the result back into both this resource and GAME.md.
 
+## The numbers a host has to tell a client about, GAME.md 10.3. Everything else in here is the
+## same on both machines because it ships in the same resource, but these are the ones the lobby
+## moves, and a client that joined with its own lobby open would otherwise play the host's match
+## by its own settings: its own clock, its own target, its own answer to whether the whistle is
+## really the end. The list also carries what a client reads for itself rather than off the wire,
+## such as how many lives to draw pips for.
+const WIRE_FIELDS: Array[StringName] = [
+	&"duration",
+	&"target_score",
+	&"own_bullets_hurt",
+	&"overtime",
+	&"timed",
+	&"lives",
+	&"last_call_duration",
+	&"countdown",
+	&"max_players",
+]
+
 @export_group("Coins")
 @export var chip_value := 1
 @export var gold_chip_value := 5
@@ -138,3 +156,18 @@ extends Resource
 @export var last_call_duration := 30.0
 @export var countdown := 3.0
 @export var max_players := 4
+
+
+func to_wire() -> Dictionary:
+	var data: Dictionary = {}
+	for field: StringName in WIRE_FIELDS:
+		data[String(field)] = get(field)
+	return data
+
+
+## Takes the host's numbers on. Anything the host did not send is left alone, so an older host
+## costs a client the fields it never knew about rather than the whole match.
+func from_wire(data: Dictionary) -> void:
+	for field: StringName in WIRE_FIELDS:
+		if data.has(String(field)):
+			set(field, data[String(field)])

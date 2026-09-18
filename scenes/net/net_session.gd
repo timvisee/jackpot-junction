@@ -142,6 +142,10 @@ func _on_peer_connected(peer: int) -> void:
 		multiplayer.multiplayer_peer.disconnect_peer(peer)
 		return
 	_peer_slots[peer] = slot.index
+	# The rules go first. A client arrives with whatever its own lobby was set to, and until it
+	# is told otherwise it reads its own clock, its own target score and its own number of lives
+	# off them, none of which is the match it has just joined.
+	_set_rules.rpc_id(peer, match_node.rules.to_wire())
 	_assign_slot.rpc_id(peer, slot.index, match_node.rng.seed)
 	# Somebody who has only just sat down is not asking for a pause, so a room that was stopped
 	# starts playing again.
@@ -209,6 +213,14 @@ func _ask_pause(wanted: bool) -> void:
 @rpc("authority", "call_remote", "reliable")
 func _settled_pause(on: bool) -> void:
 	_agree_pause(on)
+
+
+## The host's match numbers, GAME.md 10.3. Applied in place: a client's rules are its own copy,
+## made by [method MatchConfig.rules], and the arena and the karts are already holding it.
+@rpc("authority", "call_remote", "reliable")
+func _set_rules(data: Dictionary) -> void:
+	if match_node != null and match_node.rules != null:
+		match_node.rules.from_wire(data)
 
 
 @rpc("authority", "call_remote", "reliable")
