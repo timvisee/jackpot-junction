@@ -11,6 +11,98 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Online: your own kart is yours until you touch somebody.** The host now takes
+  a client's word for where its own kart ended each tick, rather than working it
+  out again and correcting any difference, and only takes the wheel back for the
+  things one end cannot settle alone: running into another kart, being hit, going
+  down a hole, dying, coming back. On a wire dropping a packet in five that cut
+  corrections from eleven snapshots in sixty to three. A claim further out than a
+  few ticks of driving is refused, so this cannot be used to appear somewhere else.
+- **Online: a client's kart comes back from a hole, and a dead kart is out of the
+  way.** Falling down a hole on a client left the kart there for good: a respawn
+  is the host's to place and a kart being driven here was ignoring the host's
+  position, so it came back still standing in the hole and fell down it again.
+  Separately, a kart somebody had just shot went invisible on every other screen
+  but stayed solid where it died, so the spot could not be driven through until
+  it respawned.
+- **Online: a kart that has been down a hole is solid again.** Falling takes a
+  kart's collisions away, and on a client the kart is dead, stood down and
+  brought back between losing them and being driven again, so it came back able
+  to drive through walls for the rest of the match.
+- **Online play is written down.** GAME.md 10.3 opens with who decides what, as a
+  table, along with what the arrangement guarantees and what it does not.
+- **Online: pulling the trigger answers at once.** The cannon goes on cooldown and
+  the shot is heard on the tick the button goes down; the bullet still comes from
+  the host, because whether one lives depends on a bullet fired by somebody a
+  client only sees where they were a round trip ago.
+- **Online: the floor is sent as what changed.** Every chip on the ground went out
+  thirty times a second whether or not it had moved, which was the largest part of
+  a snapshot and most of why one did not fit in a single packet. A typical snapshot
+  is now about a fifth smaller, and more on a busy floor.
+- **Online: chips pulled in by a Coin Magnet move on every screen.** They sat
+  where a client first saw them and blinked out from there, so both halves of the
+  effect were missed.
+- **Online: nitro stops flickering on a client.** It was lit on the tick the button
+  went down and then put out again by the host'''s word for it, a round trip behind.
+- **Online: a correction says so on screen.** A client that is put back where the
+  host has it now shows how far it moved and how many times it has happened, so a
+  bad connection reads as a bad connection rather than as a bad kart.
+- **Online: a rematch starts fresh on every screen.** A client keeps its own
+  excitement meter and announcer, and nothing told either of them the last match
+  was over, so the new one opened at the old one's heat with the lights still
+  going and somebody still on a killing spree they earned in a finished game.
+- **Online: the Swivel Cannon aims where a client is aiming.** Free aim never
+  crossed the wire when it came from a mouse, so the host asked where its own
+  pointer was and fired the client's shot at that.
+- **Online: a rematch keeps the players who are in it.** The host pressing
+  Rematch started again from the lobby's list, so every connected player's kart
+  was handed to a bot while they carried on steering it.
+- **Online: a chip pulled in by the Coin Magnet flies into the kart.** On a
+  client it blinked off the floor instead: the magnet triples how far a kart
+  reaches, and a client judging who took something was still using the plain
+  reach.
+- **Online: turbo pads shove a client's kart again.** They had stopped working on
+  clients altogether: the pad could not see a kart being driven there, and the
+  host's shove lost to that machine's own answer about where its kart was.
+- **Online: dropped chips fly out on every screen.** Coins and items thrown clear
+  of a bursting kart or a breaking box only arced on the host; everybody else saw
+  them appear on the floor already landed.
+- **Online: things a client does now happen when it does them.** Nitro burnt a
+  round trip late, driving into a crate at ramming speed stopped the kart dead
+  and then dragged it through, driving into another kart carried on through
+  where they were standing, driving into a hole crossed it and then fell in
+  backwards, and the joker cursor moved a round trip after the key. All of them
+  are answered on the spot now and put right by the host afterwards. A kart that
+  falls in a hole stays in it rather than being lifted back out to fall in again
+  when the host catches up, and a box driven through at ramming speed comes off
+  the floor rather than being ploughed through while still drawn, and stays off
+  it rather than being put back by the next snapshot under the kart that has
+  already gone through it.
+- **Online: picking a joker on a client.** A player whose kart had died was not
+  heard by the host at all, so no card could be picked, no cursor moved and
+  nothing answered until the kart came back on its own. The same held on the
+  grid during the countdown.
+
+### Changed
+
+- **Losing the host says so properly.** The notice now sits on a pane like the
+  one that describes a joker, and has the screen to itself: the HUD stands down
+  and takes any open joker pick, the standings and the control hints with it.
+
+- **Online play: your own kart is yours.** A client used to send its controls to
+  the host and wait for the kart to come back, so at any real ping the kart
+  answered the stick late and driving felt like steering through treacle. A
+  client now drives its own kart itself, on the frame the stick moves, and the
+  host corrects it where the two ever disagree. Over 100 ms of round trip the
+  kart answers at once instead of five ticks later, and through four seconds of
+  driving, drifting and handbrake turns the host had nothing to correct. Knocked
+  out of place it is put back; on a wire losing a packet in five the corrections
+  are absorbed whole: the kart a player is looking at does not move for them at
+  all. Everything that decides the game is still the host's: what you collected,
+  who you hit, what it was worth.
+
 ## [0.1.0] - 2026-09-18
 
 ### Added

@@ -9,13 +9,25 @@ extends RefCounted
 ## arrives, so every removal asks before it looks. Naming a freed object at all is the error in
 ## GDScript, not using it, which is why each one goes through a [Variant] first.
 
+## How far past its own pickup radius a kart may be and still be the one that took something.
+## Covers the ground it made up between the snapshot being built and this reading it.
+const TAKEN_SLACK := 1.6
+
 ## Every item in the game, for looking up held and dropped items by id.
 static var _all_items: PowerUpTable
 
 
 ## Everything a client needs to render the match this tick. One section per kind of thing on
 ## the table, each of which is its own question and answers it on its own.
-static func build(match_node: Match) -> Dictionary:
+## [param wire] is the host's account of what it has already told its clients about the floor,
+## GAME.md 10.3. Given one, the pickups are sent as what changed; without one, as the whole floor,
+## which is what anything asking for a snapshot on its own wants.
+static func build(match_node: Match, wire: PickupWire = null) -> Dictionary:
+	var floor_state := (
+		{"pickups": pickups_now(match_node).values(), "gone": [], "moved": [], "whole": true}
+		if wire == null
+		else wire.section(match_node)
+	)
 	return {
 		"state": match_node.state,
 		"time": match_node.time_left,
@@ -24,7 +36,10 @@ static func build(match_node: Match) -> Dictionary:
 		"slots": _slots(match_node),
 		"karts": _karts(match_node),
 		"bullets": _bullets(match_node),
-		"pickups": _pickups(match_node),
+		"pickups": floor_state["pickups"],
+		"gone": floor_state["gone"],
+		"moved": floor_state["moved"],
+		"whole": floor_state["whole"],
 		"turrets": _turrets(match_node),
 		"bombs": _bombs(match_node),
 		"stains": _stains(match_node),
@@ -60,6 +75,7 @@ static func _slots(match_node: Match) -> Array:
 			"menu": kart.menu_open,
 			"menu_index": kart.menu_index,
 			"nitro_charge": kart.nitro_charge,
+			"magnet": kart.pickup_radius_bonus,
 			"stats": slot.stats.to_array(),
 		}
 		if slot.offer != null and not slot.offer.is_done():
@@ -137,9 +153,10 @@ static func _bullets(match_node: Match) -> Array:
 	return data
 
 
-## Everything lying on the floor, each kind carrying what it takes to build the right one back.
-static func _pickups(match_node: Match) -> Array:
-	var data: Array = []
+## Everything lying on the floor right now, by the host's id for each, each kind carrying what it
+## takes to build the right one back.
+static func pickups_now(match_node: Match) -> Dictionary:
+	var data: Dictionary[int, Dictionary] = {}
 	for node: Node in match_node.arena.pickups.get_children():
 		var pickup := node as Pickup
 		if pickup == null or pickup.is_queued_for_deletion():
@@ -149,6 +166,13 @@ static func _pickups(match_node: Match) -> Array:
 			"x": pickup.global_position.x,
 			"z": pickup.global_position.z
 		}
+		# Still in the air. A kart bursting or a crate breaking throws what it was carrying clear
+		# of itself, GAME.md 8.3, and a client that only ever saw the chips lying on the floor was
+		# missing the half of that a player actually watches.
+		var throw := pickup.throw_state()
+		if not throw.is_empty():
+			entry["from"] = throw[0]
+			entry["left"] = throw[1]
 		var chip := pickup as Chip
 		var die := pickup as MultDie
 		var box := pickup as ItemBox
@@ -168,7 +192,7 @@ static func _pickups(match_node: Match) -> Array:
 			entry["joker"] = String(card.joker.id)
 		else:
 			continue
-		data.append(entry)
+		data[entry["id"]] = entry
 	return data
 
 
@@ -277,7 +301,13 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 	_apply_karts(match_node, data["karts"])
 	_apply_slots(match_node, data["slots"])
 	_apply_bullets(match_node, data["bullets"])
-	_apply_pickups(match_node, data["pickups"])
+	_apply_pickups(match_node, data["pickups"], data.get("gone", []), bool(data.get("whole", true)))
+	# The few that are going somewhere: pulled in by a Coin Magnet, or still in the air from
+	# whatever dropped them. Everything else is where it was told to be once and stays there.
+	for move: Array in data.get("moved", []):
+		var moving: Variant = match_node.puppet_pickups.get(move[0])
+		if is_instance_valid(moving):
+			(moving as Pickup).global_position = Vector3(move[1], 0.0, move[2])
 	_apply_turrets(match_node, data["turrets"])
 	_apply_bombs(match_node, data.get("bombs", []))
 	_apply_stains(match_node, data.get("stains", []))
@@ -291,8 +321,19 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 		var crate := match_node.arena.crates[i]
 		if crate.alive and not crates[i]:
 			Burst.spawn(match_node, crate.global_position, Palette.BLOCK, 0.9, 18)
+		if crate.predicted_break():
+			# This client drove through it and says so. Snapshots built before the host heard
+			# about that would put the box back under the kart that has already gone through it,
+			# so its own answer stands until the host has had time to agree, or not.
+			if crates[i]:
+				continue
+			crate.settle_break(false)
+			continue
 		crate.visible = crates[i]
 		crate.alive = crates[i]
+		# A client may have taken this box off the floor itself on the strength of driving through
+		# it. If the host says otherwise the box is back, and it has to be solid again with it.
+		crate.collision_layer = Layers.WORLD if crates[i] else 0
 	var targets: Array = data.get("targets", [])
 	for i: int in mini(targets.size(), match_node.arena.targets.size()):
 		match_node.arena.targets[i].apply_puppet_state(targets[i])
@@ -312,6 +353,14 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 		if match_node.state == Match.State.RESULTS:
 			match_node.spotlight_winner()
 		elif previous_state == Match.State.RESULTS:
+			match_node.arena.disco.clear_focus()
+		if match_node.state == Match.State.COUNTDOWN:
+			# A fresh match. The host built itself new ones of these when it started again; a
+			# client keeps its own and has to be told to put them down, or the new match opens
+			# at the excitement level the last one finished at, with the lights still going and
+			# somebody still on a killing spree they earned in a game that is over.
+			match_node.intensity.reset()
+			match_node.announcer.forget_the_match()
 			match_node.arena.disco.clear_focus()
 	var flush: Array = data.get("flush", [])
 	for i: int in mini(flush.size(), match_node.arena.flush_pads.size()):
@@ -377,9 +426,13 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 			slot.kart.pot.set_partial(entry.get("partial", 0.0))
 			slot.kart.held_item = _item_by_id(entry["item"])
 			slot.kart.item_reveal_left = entry["reveal"]
+			slot.kart.pickup_radius_bonus = entry.get("magnet", 1.0)
 			slot.kart.menu_open = entry["menu"]
 			slot.kart.menu_index = entry["menu_index"]
-			slot.kart.nitro_charge = entry.get("nitro_charge", 1.0)
+			if not slot.kart.predicted:
+				# A kart driven here spends its own tank and is corrected on it by the message
+				# addressed to it, GAME.md 10.3. This figure is a round trip old.
+				slot.kart.nitro_charge = entry.get("nitro_charge", 1.0)
 			var jokers: Array[Joker] = []
 			for id: String in entry["jokers"]:
 				var joker := match_node.joker_catalog.by_id(StringName(id))
@@ -395,15 +448,21 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 					choices.append(joker)
 			if slot.offer == null or slot.offer.is_done():
 				slot.offer = JokerOffer.new(slot.kart, choices)
-			slot.offer.choices = choices
-			slot.offer.stage = offer_data["stage"]
-			slot.offer.selected = offer_data["selected"]
-			slot.offer.chosen = (
-				match_node.joker_catalog.by_id(StringName(offer_data["chosen"]))
-				if offer_data["chosen"] != ""
-				else null
-			)
+				slot.offer.choices = choices
+			elif i != match_node.local_slot:
+				# Somebody else's pick, watched rather than made: the host says where their
+				# cursor is and what they have taken.
+				slot.offer.choices = choices
+				slot.offer.stage = offer_data["stage"]
+				slot.offer.selected = offer_data["selected"]
+				slot.offer.chosen = (
+					match_node.joker_catalog.by_id(StringName(offer_data["chosen"]))
+					if offer_data["chosen"] != ""
+					else null
+				)
 		else:
+			# The host has finished with it: the card is taken, the kart is coming back, and the
+			# pick comes off the screen whoever was making it.
 			slot.offer = null
 
 
@@ -494,7 +553,13 @@ static func _apply_bullets(match_node: Match, entries: Array) -> void:
 				(gone as Bullet).queue_free()
 
 
-static func _apply_pickups(match_node: Match, entries: Array) -> void:
+## The floor, as the whole of it or as what changed, GAME.md 10.3. [param whole] says which: the
+## whole floor also takes away anything this machine has that the host does not, which is how a
+## client that has missed something is put right, and a difference only ever adds and removes what
+## it names.
+static func _apply_pickups(
+	match_node: Match, entries: Array, gone: Array, whole: bool = true
+) -> void:
 	var seen: Dictionary[int, bool] = {}
 	for entry: Dictionary in entries:
 		var id: int = entry["id"]
@@ -525,29 +590,54 @@ static func _apply_pickups(match_node: Match, entries: Array) -> void:
 		pickup.monitorable = false
 		match_node.arena.pickups.add_child(pickup)
 		match_node.puppet_pickups[id] = pickup
+		# Caught mid-flight: it carries on from wherever the host had got to rather than starting
+		# the throw again, so a client hearing about it late sees the end of the arc instead of a
+		# fresh one landing after everybody else's has.
+		if entry.has("left"):
+			pickup.resume_throw(entry["from"], entry["left"])
+	for id: int in gone:
+		_take_pickup(match_node, id)
+	if not whole:
+		return
 	for id: int in match_node.puppet_pickups.keys():
 		if not seen.has(id):
-			var gone: Variant = match_node.puppet_pickups[id]
-			match_node.puppet_pickups.erase(id)
-			if not is_instance_valid(gone):
-				continue
-			var pickup := gone as Pickup
-			# The host does not say who took it; the kart on top of it did. Whatever it was
-			# flows into that kart here the same as it does for the player who took it.
-			var taker := _nearest_puppet_kart(match_node, pickup.global_position, 2.5)
-			if taker != null:
-				PickupFlight.take(pickup, taker)
-			pickup.queue_free()
+			_take_pickup(match_node, id)
 
 
-static func _nearest_puppet_kart(match_node: Match, point: Vector3, max_distance: float) -> Kart:
+## One pickup off this machine's floor. The host does not say who took it; the kart on top of it
+## did, so whatever it was flows into that kart here the same as it does for the player who took
+## it. Saying the same id twice is nothing: a change is repeated for a few snapshots so that
+## losing one packet does not leave a chip lying there, and the second telling finds nothing left.
+static func _take_pickup(match_node: Match, id: int) -> void:
+	if not match_node.puppet_pickups.has(id):
+		return
+	var leaving: Variant = match_node.puppet_pickups[id]
+	match_node.puppet_pickups.erase(id)
+	if not is_instance_valid(leaving):
+		return
+	var pickup := leaving as Pickup
+	var taker := _nearest_puppet_kart(match_node, pickup.global_position)
+	if taker != null:
+		PickupFlight.take(pickup, taker)
+	pickup.queue_free()
+
+
+## Whose kart took it, judged by who was near enough to. Each kart is asked about its own reach
+## rather than a flat distance, because the Coin Magnet triples it: a chip pulled in from three
+## metres away was outside the old answer, so nothing flew and the chip simply blinked out, which
+## is the one thing GAME.md 8.3 says a pickup never does.
+##
+## The slack on top is for the moment between the snapshot being built and it being read here,
+## in which the kart carried on driving.
+static func _nearest_puppet_kart(match_node: Match, point: Vector3) -> Kart:
 	var best: Kart = null
-	var best_distance := max_distance
+	var best_distance := INF
 	for kart: Kart in match_node.puppet_karts.values():
 		if not kart.alive:
 			continue
+		var reach := match_node.rules.pickup_radius * kart.pickup_radius_bonus + TAKEN_SLACK
 		var distance := kart.global_position.distance_to(point)
-		if distance < best_distance:
+		if distance <= reach and distance < best_distance:
 			best_distance = distance
 			best = kart
 	return best

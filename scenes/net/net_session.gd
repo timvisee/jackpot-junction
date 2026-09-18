@@ -65,9 +65,12 @@ const RELAYED_EVENTS: Array[StringName] = [
 ## [code]announced[/code] is made on each machine by its own announcer, out of the events above,
 ## so relaying it would say everything twice. [code]wild_joker_dropped[/code] has nothing
 ## listening to it on any machine; the card it names arrives as a pickup like any other.
+## [code]kart_corrected[/code] is about this machine's own guess being put right, which is news
+## to nobody else: their picture of that kart never changed.
 const LOCAL_EVENTS: Array[StringName] = [
 	&"announced",
 	&"wild_joker_dropped",
+	&"kart_corrected",
 ]
 
 var match_node: Match
@@ -86,6 +89,21 @@ var _relaying := false
 ## Whether this machine is asking for a pause, and which of the host's clients are.
 var _asking := false
 var _peer_asking: Dictionary[int, bool] = {}
+## On a client: its own kart, driven here and corrected by the host, GAME.md 10.3.
+var _prediction: KartPrediction
+## The host's latest word on this client's kart, waiting for the physics step to act on it. An
+## RPC lands in the idle frame, and a body moved there is a body moved between physics ticks:
+## the engine interpolates the picture from one tick to the next, and a correction applied in
+## the gap is drawn as a swerve through somewhere the kart never was. So it waits its turn.
+var _authority: Array = []
+## On the host: what it has told its clients is lying on the floor, so the next snapshot can
+## carry what changed instead of all of it, GAME.md 10.3.
+var _floor := PickupWire.new()
+## The number this client puts on the next set of controls it sends. Every tick gets one whether
+## or not the kart is being driven: a player who is dead and picking a joker, or waiting on the
+## grid for the flag, is still pressing buttons the host has to hear, and a host that only ever
+## accepts a higher number than the last would throw away everything they pressed.
+var _input_seq := 0
 
 
 func _ready() -> void:
@@ -145,10 +163,40 @@ func _physics_process(delta: float) -> void:
 	if is_host:
 		_tick += 1
 		if _tick % SNAPSHOT_EVERY_TICKS == 0 and not multiplayer.get_peers().is_empty():
-			_receive_snapshot.rpc(var_to_bytes(match_node.build_snapshot()))
+			_receive_snapshot.rpc(var_to_bytes(match_node.build_snapshot(_floor)))
+			_send_authority()
 	elif local_slot >= 0:
+		adopt_own_kart()
+		_settle_authority(delta)
 		local_input.poll(delta)
-		_send_input.rpc_id(1, NetInput.encode(local_input))
+		# Driven here first and sent second, GAME.md 10.3. The kart answers the stick on this
+		# frame; the packet carries the number of the tick it answered, so the host's reply can
+		# be held against what this machine thought at the time.
+		_step_own_offer()
+		_input_seq += 1
+		var claim: Array = []
+		if _prediction != null and is_instance_valid(_prediction.kart):
+			var driving := _drivable()
+			if driving != _prediction.kart.predicted:
+				# Killed, frozen on the grid or handed back: stop driving and forget the ticks
+				# in hand, since nobody will be asking about them. Or the other way round.
+				if driving:
+					_prediction.resume()
+				else:
+					_prediction.suspend()
+			if driving:
+				_prediction.predict(local_input, delta, _input_seq)
+				# What this machine made of the tick goes with the controls that made it. The
+				# host follows it rather than second-guessing it, GAME.md 10.3, which is what
+				# keeps a kart from being corrected for driving perfectly well.
+				claim = KartPrediction.capture(_prediction.kart)
+		var packet := NetInput.encode(local_input)
+		if _prediction != null and is_instance_valid(_prediction.kart):
+			# The aim goes out as a direction rather than as whatever the stick happened to read,
+			# because a mouse reads nothing at all: the pointer is on this screen and the host
+			# has one of its own, GAME.md 10.3.
+			packet[NetInput.FIELDS] = KartAim.pointed_flat(_prediction.kart)
+		_send_input.rpc_id(1, packet, _input_seq, claim)
 
 
 func _on_peer_connected(peer: int) -> void:
@@ -159,6 +207,9 @@ func _on_peer_connected(peer: int) -> void:
 		multiplayer.multiplayer_peer.disconnect_peer(peer)
 		return
 	_peer_slots[peer] = slot.index
+	# Somebody who has just arrived has none of the floor, so the next snapshot carries all of it
+	# rather than the difference since a moment they were not here for.
+	_floor.start_again()
 	# The rules go first. A client arrives with whatever its own lobby was set to, and until it
 	# is told otherwise it reads its own clock, its own target score and its own number of lives
 	# off them, none of which is the match it has just joined.
@@ -247,6 +298,20 @@ func _assign_slot(index: int, _seed: int) -> void:
 	slot_assigned.emit(index)
 
 
+## Takes over the driving of this client's own kart once the snapshot has built it. Called every
+## snapshot rather than once, the same as the kart's voice is: which slot is ours arrives in a
+## message of its own, and the karts may well have been built before it did.
+func adopt_own_kart() -> void:
+	if is_host or local_slot < 0 or local_slot >= match_node.slots.size():
+		return
+	var kart := match_node.slots[local_slot].kart
+	if kart == null:
+		return
+	if _prediction != null and is_instance_valid(_prediction.kart) and _prediction.kart == kart:
+		return
+	_prediction = KartPrediction.new(kart)
+
+
 @rpc("authority", "call_remote", "unreliable")
 func _receive_snapshot(bytes: PackedByteArray) -> void:
 	var data: Variant = bytes_to_var(bytes)
@@ -255,7 +320,7 @@ func _receive_snapshot(bytes: PackedByteArray) -> void:
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered")
-func _send_input(state: Array) -> void:
+func _send_input(state: Array, seq: int = 0, claim: Array = []) -> void:
 	var peer := multiplayer.get_remote_sender_id()
 	if not _peer_slots.has(peer):
 		return
@@ -264,12 +329,99 @@ func _send_input(state: Array) -> void:
 		return
 	var input := match_node.slots[index].input as NetInput
 	if input != null:
-		input.receive(state)
+		input.receive(state, seq, claim)
+
+
+## One line about this client's own kart for the debug overlay, empty on a host or before a slot
+## has been handed out.
+func prediction_debug() -> String:
+	if _prediction == null or not is_instance_valid(_prediction.kart):
+		return ""
+	return _prediction.debug_text()
+
+
+## The joker pick in front of this player, answered here, GAME.md 10.3. The host is running the
+## same pick off the same controls and its answer is the one that counts, but waiting a round
+## trip to see the cursor move, and another to see a card taken, is the whole of what made
+## picking a joker on a client feel broken. The snapshot leaves this one alone while it is open.
+func _step_own_offer() -> void:
+	if local_slot < 0 or local_slot >= match_node.slots.size():
+		return
+	var slot := match_node.slots[local_slot]
+	if slot.offer != null and not slot.offer.is_done():
+		slot.offer.poll_input(local_input)
+
+
+## Whether this client is driving its own kart rather than watching it, GAME.md 10.3. A kart the
+## host has frozen on the grid, killed or sent rolling out the end of the match is none of this
+## machine's business to move, so it goes back to following the snapshot until it is again.
+func _drivable() -> bool:
+	if _prediction == null or not is_instance_valid(_prediction.kart):
+		return false
+	return _prediction.kart.alive and match_node.is_running()
+
+
+## Each client is told what the host made of its own kart, and only its own: everybody else's
+## pose is already in the snapshot that went to everybody. The reply carries the whole motor, not
+## just a position, because a kart mid-drift is most of what it is about to do.
+func _send_authority() -> void:
+	for peer: int in _peer_slots:
+		var index: int = _peer_slots[peer]
+		if index >= match_node.slots.size():
+			continue
+		var slot := match_node.slots[index]
+		var input := slot.input as NetInput
+		if input == null or slot.kart == null:
+			continue
+		# Whether the host drove this kart itself this tick. While it did not, the client's own
+		# answer is the one that stands and there is nothing here to put right.
+		var host_drove := input.claimed_state().is_empty()
+		_receive_authority.rpc_id(
+			peer,
+			input.applied_seq,
+			KartPrediction.capture(slot.kart),
+			host_drove,
+			slot.kart.cannon.live_count()
+		)
+
+
+## Kept rather than acted on, see [member _authority]. Only the newest is worth anything: an
+## older one describes a tick the newer has already answered for.
+@rpc("authority", "call_remote", "unreliable")
+func _receive_authority(ack: int, state: Array, host_drove := true, live := 0) -> void:
+	if _authority.is_empty() or ack >= int(_authority[0]):
+		_authority = [ack, state, host_drove, live]
+
+
+func _settle_authority(delta: float) -> void:
+	if _authority.is_empty():
+		return
+	if _prediction != null and is_instance_valid(_prediction.kart) and _prediction.kart.predicted:
+		_prediction.host_live = int(_authority[3])
+		if bool(_authority[2]):
+			_prediction.reconcile(int(_authority[0]), _authority[1], delta)
+		else:
+			# The host followed this machine's own answer for that tick, so there is nothing to
+			# put right. The history is trimmed and the kart carries on undisturbed, which is
+			# most ticks of most matches and the whole point of claiming at all.
+			_prediction.accept(int(_authority[0]))
+	_authority = []
 
 
 @rpc("authority", "call_remote", "reliable")
 func _relay_event(name: StringName, args: Array) -> void:
+	if _already_heard(name, args):
+		return
 	Events.callv("emit_signal", [name] + args)
+
+
+## Whether this machine already raised this for itself. A client pulls its own trigger on the tick
+## the button goes down, GAME.md 10.3, so the host's word for that same shot, arriving a round trip
+## later, would be the same shot heard twice.
+func _already_heard(name: StringName, args: Array) -> bool:
+	if name != &"bullet_fired" or _prediction == null or args.is_empty():
+		return false
+	return int(args[0]) == local_slot and _prediction.kart.predicted
 
 
 ## The host forwards gameplay events so clients' HUD and audio react like the host's.

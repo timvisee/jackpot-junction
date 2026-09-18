@@ -50,6 +50,9 @@ var decoy_owner: Kart
 var lifetime := 0.0
 ## On a client: driven by snapshots from the host, never simulated.
 var puppet := false
+## The one kart on a client that its own player drives, GAME.md 10.3. Still a puppet for
+## everything the host decides, but it moves itself rather than waiting for a round trip.
+var predicted := false
 ## The shared resources the kart's own stat copies are rebuilt from when jokers change.
 var base_stats: KartStats
 var base_cannon_stats: CannonStats
@@ -98,6 +101,13 @@ var sound: KartSound
 ## Whether somebody sitting at this machine is driving this kart. Feedback meant for a driver
 ## rather than for the room follows this, so three bots cannot set it off.
 var driven_here := false
+## Where the rear wheels actually sit on the model, so the marks are laid under them rather than
+## under a guess at the shape of a kart. Measured once: the rear wheels do not steer.
+var rear_axle := 0.0
+var rear_half_track := 0.0
+## What the kart leaves behind it, read by [KartVisuals] when it draws the trails.
+var tire_marks: TireMarks
+var smoke: ExhaustSmoke
 
 ## Whether the free-aim arrow is showing. A snapshot carries it, so a watching client draws the
 ## same kart the driver sees, and the Swivel Cannon turns it on and off.
@@ -110,14 +120,8 @@ var aim_arrow_visible: bool:
 var _body: Node3D
 var _tint: StandardMaterial3D
 var _wheels: Array[MeshInstance3D] = []
-## Where the rear wheels actually sit on the model, so the marks are laid under them rather
-## than under a guess at the shape of a kart. Measured once: the rear wheels do not steer.
-var _rear_axle := 0.0
-var _rear_half_track := 0.0
 var _ring: MeshInstance3D
 var _pickup_area: Area3D
-var _tire_marks: TireMarks
-var _smoke: ExhaustSmoke
 var _pickup_shape: SphereShape3D
 var _shield_visual: MeshInstance3D
 var _aim_arrow: MeshInstance3D
@@ -168,15 +172,15 @@ func _ready() -> void:
 	_tint = parts["tint"]
 	_wheels.assign(parts["wheels"])
 	var axle := KartVisuals.rear_axle(self, _wheels)
-	_rear_axle = axle.y
-	_rear_half_track = axle.x
-	_tire_marks = TireMarks.new()
-	_tire_marks.name = "TireMarks"
-	add_child(_tire_marks)
-	_smoke = ExhaustSmoke.new()
-	_smoke.name = "Smoke"
-	_smoke.position = Vector3(0.0, 0.35, stats.length * 0.5)
-	add_child(_smoke)
+	rear_axle = axle.y
+	rear_half_track = axle.x
+	tire_marks = TireMarks.new()
+	tire_marks.name = "TireMarks"
+	add_child(tire_marks)
+	smoke = ExhaustSmoke.new()
+	smoke.name = "Smoke"
+	smoke.position = Vector3(0.0, 0.35, stats.length * 0.5)
+	add_child(smoke)
 	var attached := KartVisuals.build_attachments(self)
 	_pickup_area = attached["pickup_area"]
 	_pickup_shape = attached["pickup_shape"]
@@ -191,7 +195,13 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if puppet:
-		_step_puppet(delta)
+		# The one kart on a client its own player drives moves itself, GAME.md 10.3, and its
+		# session steps it rather than this. Gliding it toward the host's last word as well
+		# would be two hands on the same wheel.
+		if not predicted:
+			_step_puppet(delta)
+		else:
+			_step_sound(delta)
 		return
 	if not alive:
 		_step_sound(delta)
@@ -232,10 +242,11 @@ func _physics_process(delta: float) -> void:
 	motor.velocity = Vector3(velocity.x, 0.0, velocity.z)
 	position.y = 0.0
 	rotation = Vector3(0.0, motor.heading, 0.0)
+	KartPrediction.follow_claim(self)
 	_collect_overlapping_pickups()
 	_spin_wheels(delta)
 	_step_crown(delta)
-	_update_trails(delta, heading_before)
+	KartVisuals.update_trails(self, delta, heading_before)
 	_step_sound(delta)
 
 
@@ -289,9 +300,12 @@ func _step_sound(delta: float) -> void:
 
 
 ## Turns the kart into a client-side puppet: no physics, no collisions, visuals from snapshots.
+## Turns the kart into a client-side puppet: no physics of its own, visuals from snapshots. It
+## keeps a layer of its own so the one kart this client drives has the others to bump into, and
+## no mask, because nothing may push a puppet off where the host put it.
 func make_puppet() -> void:
 	puppet = true
-	collision_layer = 0
+	collision_layer = Layers.PUPPET
 	collision_mask = 0
 	remove_from_group(Bullet.TARGET_GROUP)
 
@@ -304,25 +318,57 @@ func apply_puppet_state(state: Dictionary, _delta: float) -> void:
 	alive = state["alive"]
 	if was_alive and not alive:
 		Burst.spawn(get_parent(), global_position, Palette.player_color(color_index), 1.0, 20)
-	var far := global_position.distance_to(target) > PUPPET_SNAP_DISTANCE
-	if not _puppet_has_target or not alive or not was_alive or far:
+		# A dead kart is not in the way. The host takes a kart's collisions off it when it dies,
+		# and a puppet is never killed here, so until now nobody had: a kart somebody had just
+		# shot went invisible and stayed solid, and the spot it died on could not be driven
+		# through until it came back.
+		collision_layer = 0
+		collision_mask = 0
+	if alive and not was_alive:
+		# Back on the floor, which is the host's to place. A respawn is a teleport rather than
+		# driving, so it is one of the few things a kart driven here still takes from the
+		# snapshot: without it a kart that went down a hole would come back still standing in
+		# the hole, and fall down it again, for ever.
+		scale = Vector3.ONE
 		global_position = target
 		motor.heading = state["h"]
 		rotation = Vector3(0.0, motor.heading, 0.0)
-	_puppet_target = target
-	_puppet_heading = state["h"]
-	_puppet_velocity = Vector3(state.get("vx", 0.0), 0.0, state.get("vz", 0.0))
-	_puppet_has_target = true
-	motor.drifting = state["drift"]
-	motor.drift_time = state.get("drift_time", 0.0)
+		motor.velocity = Vector3.ZERO
+		motor.forward_speed = 0.0
+		# Moved before it is made solid again, and in that order. A kart that fell down a hole is
+		# still standing in one until it is put back, and a hole notices a kart the moment the
+		# kart is something it can notice: made solid where it died, it would be dropped down the
+		# same hole again on the frame it came back from it.
+		falling = false
+		collision_layer = Layers.PUPPET
+	# A kart this client is driving takes its pose from its own driving and its corrections from
+	# the message addressed to it, GAME.md 10.3. The broadcast snapshot is a third of a second of
+	# round trip out of date for this one kart, and putting it here would undo the prediction
+	# thirty times a second. Everything below is the host's either way.
+	if not predicted:
+		var far := global_position.distance_to(target) > PUPPET_SNAP_DISTANCE
+		if not _puppet_has_target or not alive or not was_alive or far:
+			global_position = target
+			motor.heading = state["h"]
+			rotation = Vector3(0.0, motor.heading, 0.0)
+		_puppet_target = target
+		_puppet_heading = state["h"]
+		_puppet_velocity = Vector3(state.get("vx", 0.0), 0.0, state.get("vz", 0.0))
+		_puppet_has_target = true
+		motor.drifting = state["drift"]
+		motor.drift_time = state.get("drift_time", 0.0)
 	protection_left = 1.0 if state["prot"] else 0.0
 	var blink := fmod(Time.get_ticks_msec() * 0.001, BLINK_PERIOD) < BLINK_PERIOD * 0.5
 	_body.visible = alive and (protection_left <= 0.0 or blink)
-	_smoke.emitting = alive
+	smoke.emitting = alive
 	set_shielded(state["shield"])
 	channel_progress = state["ring"]
 	_aim_arrow.visible = state["aim"]
-	_flame.set_active(state.get("nitro", false))
+	if not predicted:
+		# A kart driven here burns its own nitro and lights its own flame, GAME.md 10.3. The
+		# host's word for it is a round trip old, and laying that over the top is what made
+		# nitro flicker on a client: lit here, put out by the next snapshot, lit again.
+		_flame.set_active(state.get("nitro", false))
 	var new_lives: int = state.get("lives", rules.lives)
 	if new_lives != lives:
 		lives = new_lives
@@ -346,7 +392,7 @@ func _step_puppet(delta: float) -> void:
 	motor.velocity = (global_position - previous) / maxf(delta, 0.0001)
 	motor.forward_speed = motor.velocity.dot(motor.forward_vector())
 	_spin_wheels(delta)
-	_update_trails(delta, heading_before)
+	KartVisuals.update_trails(self, delta, heading_before)
 	_step_sound(delta)
 
 
@@ -532,7 +578,7 @@ func _menu_steer_step() -> int:
 ## condition that pays the boost, rather than from the boost itself. A kart being watched
 ## across the network has the drift and its length from the snapshot but not the boost, and
 ## a receipt nobody else can see is not much of a receipt.
-func _step_drift_sparks() -> void:
+func step_drift_sparks() -> void:
 	var charged := motor.boost_earned()
 	_sparks.set_state(motor.drifting, charged)
 	if _was_drifting and not motor.drifting and _was_charged:
@@ -604,7 +650,9 @@ func refill_nitro(fraction: float) -> void:
 
 
 func _set_nitro_active(on: bool) -> void:
-	if on and not nitro_active:
+	# A puppet raises nothing. It is told, GAME.md 10.3: a client predicting its own nitro would
+	# otherwise announce it here and again when the host's word for the same tank arrives.
+	if on and not nitro_active and not puppet:
 		Events.nitro_started.emit(slot)
 	nitro_active = on
 	motor.nitro_bonus = stats.nitro_speed_multiplier if on else 1.0
@@ -757,8 +805,12 @@ func refresh_pickup_radius() -> void:
 
 ## Kills the kart. The match decides when and where it respawns.
 func die(cause: StringName, killer_slot: int) -> void:
-	if not alive:
+	# A puppet is never killed here; it is told, GAME.md 10.3. A client predicting its own fall
+	# down a hole runs the drop and stops there: whether that cost a life, and whose fault it
+	# was, is the host's to say and arrives in the snapshot.
+	if not alive or puppet:
 		return
+	input.deny_claim(NetInput.CLAIM_DENIED)
 	alive = false
 	falling = false
 	collision_layer = 0
@@ -773,7 +825,7 @@ func die(cause: StringName, killer_slot: int) -> void:
 	set_bounty(false)
 	_set_nitro_active(false)
 	_body.visible = false
-	_smoke.emitting = false
+	smoke.emitting = false
 	channel_progress = -1.0
 	if cause != &"pit":
 		# A kart that falls down a pit shrinks away instead; everything else pops.
@@ -786,6 +838,7 @@ func die(cause: StringName, killer_slot: int) -> void:
 ## Puts the kart back on the floor at [param point], facing [param direction], protected for
 ## [param protection] seconds.
 func respawn(point: Vector3, direction: Vector3, protection: float) -> void:
+	input.deny_claim(NetInput.CLAIM_DENIED)
 	alive = true
 	falling = false
 	global_position = Vector3(point.x, 0.0, point.z)
@@ -805,7 +858,7 @@ func respawn(point: Vector3, direction: Vector3, protection: float) -> void:
 	collision_layer = Layers.PROTECTED if protection > 0.0 else Layers.KART
 	collision_mask = Layers.WORLD | Layers.KART | Layers.PROTECTED | Layers.TURRET
 	_body.visible = true
-	_smoke.emitting = true
+	smoke.emitting = true
 	for joker: Joker in jokers.jokers:
 		joker.on_respawn(self)
 	respawned.emit()
@@ -816,9 +869,12 @@ func respawn(point: Vector3, direction: Vector3, protection: float) -> void:
 func start_fall() -> void:
 	if not alive or falling or coasting:
 		return
+	input.deny_claim(NetInput.CLAIM_DENIED)
 	falling = true
 	_fall_left = rules.pit_fall_time
-	Events.kart_fell.emit(slot)
+	if not puppet:
+		# A puppet raises nothing; the host relays the sound for the fall it decides on.
+		Events.kart_fell.emit(slot)
 	collision_layer = 0
 	collision_mask = 0
 
@@ -838,6 +894,10 @@ func face(direction: Vector3) -> void:
 func hit_oil(direction: float) -> void:
 	if not alive or falling or frozen or motor.spinning():
 		return
+	# Losing the tires is something that happens to a driver rather than something they did, and
+	# no client can see it coming: the stain is the host's and so is the direction it throws the
+	# kart. So the host keeps the wheel while it plays out, GAME.md 10.3.
+	input.deny_claim(NetInput.CLAIM_DENIED)
 	motor.apply_spin_out(direction)
 	Events.oil_hit.emit(slot)
 
@@ -847,6 +907,11 @@ func apply_turbo(direction: Vector3) -> void:
 	if not alive or falling:
 		return
 	motor.apply_turbo(direction)
+	if puppet:
+		# Predicted here: the shove is movement and movement is this machine's to work out. What
+		# the pad was worth, what the jokers make of it and the sound of it are the host's, and
+		# the host is driving over the same pad a moment later.
+		return
 	for joker: Joker in jokers.jokers:
 		joker.on_turbo_pad(self)
 	turbo_taken.emit(direction)
@@ -892,36 +957,6 @@ func _step_fall(delta: float) -> void:
 			last_bump_slot if now - last_bump_time <= rules.bump_attribution_window else -1
 		)
 		die(&"pit", pusher)
-
-
-func _update_trails(delta: float, heading_before: float) -> void:
-	var speed := motor.speed()
-	if speed < 0.8:
-		_smoke.update_state(input.throttle, false, false)
-		return
-	var turning := absf(wrapf(motor.heading - heading_before, -PI, PI)) / maxf(delta, 0.0001)
-	var intensity := 0.06
-	var slip := absf(motor.slip_angle())
-	if motor.spinning():
-		intensity = 1.0
-	elif motor.drifting or slip > 0.3:
-		intensity = clampf(slip / 0.7, 0.5, 1.0)
-	elif input.handbrake and speed > 1.5:
-		# A straight handbrake stop lays down locked-wheel skid marks.
-		intensity = 0.85
-	elif input.brake > 0.3 and motor.forward_speed > 1.0:
-		intensity = 0.45
-	elif turning > 1.5:
-		intensity = 0.2
-	var side := global_basis.x
-	var rear := global_position + global_basis.z * _rear_axle
-	var now := Time.get_ticks_msec() * 0.001
-	_tire_marks.add_sample(0, rear - side * _rear_half_track, side, intensity, now)
-	_tire_marks.add_sample(1, rear + side * _rear_half_track, side, intensity, now)
-	var skidding := input.handbrake and speed > 1.5
-	var pushing := motor.boosting() or motor.turboing() or nitro_active
-	_smoke.update_state(input.throttle, motor.drifting or skidding, pushing)
-	_step_drift_sparks()
 
 
 ## A gold crown over the roof marker while there is a price on this kart's head, GAME.md 3.10.

@@ -12,6 +12,7 @@ var config: MatchConfig
 var session: NetSession
 
 var _status: Label
+var _status_panel: PanelContainer
 
 
 func _ready() -> void:
@@ -45,7 +46,7 @@ func _ready() -> void:
 				func() -> void: _fail("Could not connect to %s:%d" % [config.address, config.port])
 			)
 			session.disconnected.connect(func() -> void: _fail("The host disconnected"))
-			session.slot_assigned.connect(func(_index: int) -> void: _status.visible = false)
+			session.slot_assigned.connect(func(_index: int) -> void: _status_panel.visible = false)
 			var error := session.join(config.address, config.port)
 			if error != OK:
 				_fail("Could not connect: %s" % error_string(error))
@@ -53,7 +54,7 @@ func _ready() -> void:
 				_show_status("Connecting to %s:%d..." % [config.address, config.port])
 		_:
 			match_node.start(config.inputs(), 0, config.colors())
-	DebugOverlay.add_to(self, match_node)
+	DebugOverlay.add_to(self, match_node, session)
 	PauseMenu.add_to(self, session)
 
 
@@ -88,22 +89,46 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func _show_status(text: String) -> void:
+## Something the player has to be told, in the middle of the screen, on a pane built the way the
+## joker detail pane is so the two read as the same game rather than as a label dropped on the
+## floor. [param colour] is the bar along its top edge.
+func _show_status(text: String, colour: Color = Palette.NEON_CYAN) -> void:
 	if _status == null:
 		var layer := CanvasLayer.new()
+		layer.name = "Status"
 		layer.layer = 30
 		add_child(layer)
+		_status_panel = PanelContainer.new()
+		_status_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_status_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+		_status_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		_status_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+		layer.add_child(_status_panel)
 		_status = Label.new()
-		_status.add_theme_font_size_override("font_size", 40)
-		_status.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-		_status.grow_horizontal = Control.GROW_DIRECTION_BOTH
-		_status.grow_vertical = Control.GROW_DIRECTION_BOTH
+		_status.add_theme_font_size_override("font_size", 34)
 		_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		layer.add_child(_status)
+		_status.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		HudText.shadowed(_status)
+		_status_panel.add_child(_status)
+	var style := StyleBoxFlat.new()
+	style.bg_color = JokerDetail.BG
+	style.set_corner_radius_all(8)
+	style.content_margin_left = 34.0
+	style.content_margin_right = 34.0
+	style.content_margin_top = 22.0
+	style.content_margin_bottom = 22.0
+	style.border_width_top = JokerDetail.EDGE
+	style.border_color = colour
+	_status_panel.add_theme_stylebox_override("panel", style)
 	_status.text = text
-	_status.visible = true
+	_status_panel.visible = true
 
 
+## The room is over and nothing in it can be answered any more, so the notice has the screen to
+## itself: the HUD stands down, taking any open joker pick, the standings and the blocks with it,
+## and the pane is the only thing left to read.
 func _fail(message: String) -> void:
-	_show_status(message + "\nReturning to the title...")
+	_show_status(message + "\nReturning to the title...", Palette.CHIP_RED)
+	if match_node != null and match_node.hud != null:
+		match_node.hud.stand_down()
 	get_tree().create_timer(RETURN_DELAY).timeout.connect(func() -> void: Game.go_to_title())

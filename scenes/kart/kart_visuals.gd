@@ -212,3 +212,39 @@ static func bounty_crown() -> Node3D:
 		crown.add_child(spike)
 	crown.position = Vector3(0.0, CROWN_HEIGHT, 0.0)
 	return crown
+
+
+## The marks a kart leaves behind it, GAME.md 4.3: skid marks under the rear wheels and smoke out
+## of the exhaust, both shaped by what the kart is doing rather than by how fast it is going. Kept
+## here rather than on the kart for the same reason the rest of this file is: it is what a kart
+## looks like, not what it is.
+static func update_trails(kart: Kart, delta: float, heading_before: float) -> void:
+	var motor := kart.motor
+	var input := kart.input
+	var speed := motor.speed()
+	if speed < 0.8:
+		kart.smoke.update_state(input.throttle, false, false)
+		return
+	var turning := absf(wrapf(motor.heading - heading_before, -PI, PI)) / maxf(delta, 0.0001)
+	var intensity := 0.06
+	var slip := absf(motor.slip_angle())
+	if motor.spinning():
+		intensity = 1.0
+	elif motor.drifting or slip > 0.3:
+		intensity = clampf(slip / 0.7, 0.5, 1.0)
+	elif input.handbrake and speed > 1.5:
+		# A straight handbrake stop lays down locked-wheel skid marks.
+		intensity = 0.85
+	elif input.brake > 0.3 and motor.forward_speed > 1.0:
+		intensity = 0.45
+	elif turning > 1.5:
+		intensity = 0.2
+	var side := kart.global_basis.x
+	var rear := kart.global_position + kart.global_basis.z * kart.rear_axle
+	var now := Time.get_ticks_msec() * 0.001
+	kart.tire_marks.add_sample(0, rear - side * kart.rear_half_track, side, intensity, now)
+	kart.tire_marks.add_sample(1, rear + side * kart.rear_half_track, side, intensity, now)
+	var skidding := input.handbrake and speed > 1.5
+	var pushing := motor.boosting() or motor.turboing() or kart.nitro_active
+	kart.smoke.update_state(input.throttle, motor.drifting or skidding, pushing)
+	kart.step_drift_sparks()

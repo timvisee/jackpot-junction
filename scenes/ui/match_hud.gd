@@ -15,6 +15,12 @@ const SPEED_FULL := 1.9
 ## The announcer's call: how far under the middle of the screen it sits, how long it holds and
 ## how much of that is the fade. It shares the middle with the start gantry and the GO, neither
 ## of which is up while anybody is being killed.
+## The sync light, GAME.md 8.3: how long one correction stays on the screen, how far under the
+## clock it sits, and the size past which one is called out as a snap rather than a nudge.
+const SYNC_TIME := 1.4
+const SYNC_DROP := 58.0
+const SYNC_SNAP := 1.0
+
 const CALL_DROP := 120.0
 const CALL_TIME := 2.2
 const CALL_FADE := 0.6
@@ -31,6 +37,8 @@ const BLOCK_ANCHORS: Array[int] = [
 ]
 
 var match_node: Match
+## Set once the room is closing, see [method stand_down]. Nothing is drawn or updated after it.
+var dismissed := false
 
 var _timer: Label
 var _scoreboard: Scoreboard
@@ -38,6 +46,10 @@ var _banner: Label
 var _light: StartLight
 var _call: Label
 var _call_left := 0.0
+## The sync light and what is left of its moment, and how many corrections there have been in all.
+var _sync: Label
+var _sync_left := 0.0
+var _sync_count := 0
 var _blocks: Dictionary[int, Dictionary] = {}
 ## The cash-out tally each slot has in the air, so a run of them climbs one number.
 var _tallies: Dictionary[int, FloatingText] = {}
@@ -72,6 +84,9 @@ func _ready() -> void:
 	_call = _label(64, Control.PRESET_CENTER)
 	_call.offset_top += CALL_DROP
 	_call.visible = false
+	_sync = _label(19, Control.PRESET_CENTER_TOP)
+	_sync.offset_top = SYNC_DROP
+	_sync.visible = false
 	for slot: PlayerSlot in match_node.slots:
 		if slot.is_local_human():
 			add_block(slot)
@@ -80,6 +95,7 @@ func _ready() -> void:
 	add_child(_kill_feed)
 	_build_results()
 	_build_lobby()
+	Events.kart_corrected.connect(_on_corrected)
 	Events.grazed.connect(_on_grazed)
 	Events.mult_gained.connect(_on_mult_gained)
 	Events.bank_completed.connect(_on_bank_completed)
@@ -175,6 +191,7 @@ func _rumble(slot: int, strength: float, seconds: float) -> void:
 
 
 func _exit_tree() -> void:
+	Events.kart_corrected.disconnect(_on_corrected)
 	Events.kart_killed.disconnect(_on_kart_killed)
 	Events.grazed.disconnect(_on_grazed)
 	Events.mult_gained.disconnect(_on_mult_gained)
@@ -249,7 +266,57 @@ func _layout_hands() -> void:
 		picker.columns = indices.size()
 
 
+## Takes the whole HUD off the screen and keeps it off. For the moment a match stops being
+## something anybody can answer: the host has gone and this room is closing. A joker pick left
+## open under the notice would be asking a player to choose a card for a match that is not there
+## any more, and the standings would be a scoreboard for a game nobody is playing.
+func stand_down() -> void:
+	dismissed = true
+	# The whole layer goes, rather than each thing on it. Anything that shows itself later from a
+	# signal rather than from the frame loop is then already covered, and there is no way for one
+	# straggler to appear over the notice.
+	visible = false
+	# The control hints are not on this layer: they hang off the karts, out in the room. They are
+	# telling a player which key drives a kart nobody can drive any more.
+	for slot: PlayerSlot in match_node.slots:
+		if slot.kart == null:
+			continue
+		for child: Node in slot.kart.get_children():
+			var hint := child as ControlHint
+			if hint != null:
+				hint.visible = false
+
+
+## The sync light, GAME.md 8.3. Online a client drives its own kart and the host puts it right
+## where the two disagree; this says when that happened and how far it moved the kart, so a
+## player can tell a bad connection from a bad kart. Nothing shows it in a match played here,
+## because nothing corrects a kart nobody is predicting.
+func _on_corrected(metres: float, snapped: bool) -> void:
+	_sync_count += 1
+	_sync_left = SYNC_TIME
+	_sync.text = (
+		"RESYNC %.2f m  (%d)" % [metres, _sync_count]
+		if snapped or metres >= SYNC_SNAP
+		else "sync %.2f m  (%d)" % [metres, _sync_count]
+	)
+	# A nudge is worth seeing and not worth worrying about; a snap moved the kart somewhere a
+	# player was not expecting and is the one they want to know about.
+	_sync.add_theme_color_override(
+		"font_color", Palette.CHIP_RED if snapped or metres >= SYNC_SNAP else Palette.CHIP_GOLD
+	)
+
+
+func _update_sync(delta: float) -> void:
+	_sync_left = maxf(_sync_left - delta, 0.0)
+	_sync.visible = _sync_left > 0.0
+	if _sync.visible:
+		_sync.modulate.a = clampf(_sync_left / (SYNC_TIME * 0.5), 0.0, 1.0)
+
+
 func _process(delta: float) -> void:
+	if dismissed:
+		return
+	_update_sync(delta)
 	_update_call(delta)
 	_update_timer()
 	_update_scoreboard()
@@ -380,6 +447,8 @@ func _update_banner(delta: float) -> void:
 
 
 func _on_state_changed(state: int) -> void:
+	if dismissed:
+		return
 	if state == Match.State.RESULTS:
 		_show_results()
 	else:

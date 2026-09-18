@@ -80,6 +80,19 @@ func fire(
 	return bullets
 
 
+## The trigger pulled without a bullet, for a client predicting its own shot, GAME.md 10.3. The
+## cannon goes on cooldown here and the bullet itself comes from the host: whether a shot lives
+## depends on somebody else's bullet this machine only knows about a round trip late, so a
+## predicted bullet would often be one that never was, and unfiring one is worse than waiting.
+func pull_dry() -> void:
+	var active := current_stats()
+	cooldown_left = active.fire_cooldown
+	if _override != null and _override_shots > 0:
+		_override_shots -= 1
+		if _override_shots == 0:
+			_override = null
+
+
 func _prune() -> void:
 	var alive: Array[Bullet] = []
 	for bullet: Bullet in _live:

@@ -286,6 +286,12 @@ gets a line here, and a line here is counted the same on every machine in the
 match. A statistic that only adds up on the host is a wrong number on somebody
 else's results screen, see 10.3.
 
+- A room that has lost its host says so on a pane in the middle of the screen,
+  built like the joker detail pane in 8.3, and has the screen to itself: the HUD
+  stands down and takes any open joker pick, the standings, the blocks and the
+  control hints with it. There is nothing left in that room to answer, and a card
+  pick left open under the notice would be asking for a choice about a match that
+  is not there any more.
 - The title screen offers Play, Settings and Quit. There is no tutorial. At
   the start of a match the drive and fire controls are shown next to each
   human player's kart, from the countdown until that player has both driven
@@ -988,7 +994,10 @@ name. Somebody leaving frees their corner for the next player to sit down.
   see 3.4. It stands down in three- and four-player shared-screen games, where
   every player already has a corner block.
 - **Dropping something**: a kart that bursts, or a crate that breaks, throws what
-  it was carrying clear of itself rather than having it appear on the floor. Each
+  it was carrying clear of itself rather than having it appear on the floor. It
+  flies on every machine: the throw is cosmetic, since the pickup is already lying
+  where it lands on both, so a snapshot carries the flight still to run and a
+  client picks it up part way through rather than starting it again. Each
   piece flies out of the middle of the thing that dropped it and settles onto the
   spot it is going to lie on, growing from nothing as it goes: the same 0.3 s arc
   as taking one, run the other way. Anything simply put down, such as what a coin
@@ -1540,6 +1549,59 @@ Key pieces:
 Designed in from the start so that M6 is an addition, not a rewrite: all rules
 run in one place, the Match, and karts are driven by a KartInput interface.
 
+#### Who decides what
+
+One rule underneath all of it: **a client may decide where its own kart is and
+what its own controls just did; everything else is the host's.** A client can
+move, and it can answer its own buttons on the tick they are pressed. It cannot
+award itself anything, hurt anybody, or decide that it picked something up.
+
+| Question | Answered by | How the other end finds out |
+|----------|-------------|------------------------------|
+| Where my own kart is | the client driving it | it sends its answer with its controls; the host follows it |
+| Where anybody else's kart is | the host | the snapshot, thirty times a second |
+| Two karts touching | the host | it takes the wheel off both for a moment, and says so |
+| Nitro burning, and the tank | the client predicts, the host confirms | the message addressed to that client |
+| A turbo pad's shove | the client predicts it | nothing to send: the pad is in the same place on both |
+| Going down a hole | the client predicts the fall | the host decides the death, in the snapshot |
+| Breaking a box by ramming it | the client predicts it | the host settles it within a second, in the snapshot |
+| Pulling the trigger: cooldown and sound | the client | nothing to send; the host's word for it is dropped on the way in |
+| The bullet itself | the host | the snapshot |
+| Who hit whom, who died, lives | the host | the snapshot and relayed events |
+| Coins, pots, cashing out, score | the host | the snapshot |
+| What is on the floor and who took it | the host | the snapshot, as what changed |
+| Items held and items used | the host | the snapshot |
+| The joker pick in front of me | the client works its own | the host decides what is actually held |
+| Statistics and awards | the host | the snapshot |
+| The clock, the state, Last Call, overtime | the host | the snapshot |
+| Jackpot, Royal Flush pads, the bounty | the host | the snapshot |
+| Excitement, music, lights, the announcer | every machine, for itself | nothing is sent; the same events arrive at both |
+| Match rules: clock, target, lives | the host | sent once, before a slot is handed out |
+| Pausing | every machine has to agree | asked and answered both ways |
+
+What this is meant to guarantee:
+
+- A client never watches its own kart lag its controls. Driving, nitro, the
+  trigger and the joker cursor all answer on the tick.
+- A client can never give itself a coin, a kill, a life or a point.
+- A client can never move its kart further than a couple of metres from where the
+  host's own simulation put it. Past that the host keeps the wheel and says so.
+- Anything a client guesses at is settled by the host within a round trip, and
+  every guess has a way of being put back: a box comes back solid, a kart is put
+  where the host has it, a correction is walked in rather than applied.
+- Nothing a client guesses at is ever announced twice. A puppet raises no events
+  of its own, except the ones it is deliberately raising instead of the host's.
+
+What it is not:
+
+- It is not cheat-proof. A modified client can drive its own kart anywhere inside
+  the plausibility limit and can hold its own trigger down. This is a game played
+  with friends over a direct address, 9.3, and the trade is deliberate: the same
+  limits that would stop it would put the round trip back into the driving.
+- It is not lockstep. The two machines are not expected to agree exactly, only to
+  agree closely and to be put right when they do not.
+- A snapshot does not fit in one datagram. See the sizes below.
+
 **A mechanic is not finished until it works online.** This is the standard the
 rest of this section exists to meet, and it applies to everything in this
 document: every rule in 3, every number, every statistic and award in 3.8,
@@ -1583,12 +1645,40 @@ other before it will pass.
   is built in code.
 - Clients send their input state to the server every physics tick with an
   unreliable ordered RPC. The server simulates all karts.
-- The connection uses ENet's range coder both ends. A snapshot is mostly the same
-  dictionary keys over and over, so a busy one runs to about 14 KB written out and
-  a tenth of that packed. It is still bigger than one datagram: a snapshot that
-  large is split against the MTU before the datagrams are compressed, and an
-  unreliable packet in pieces is lost whenever any piece is. Fitting one in a
-  single datagram is a job for a smaller snapshot, not a smaller wire, and is open.
+- The connection uses ENet's range coder both ends. A snapshot is still bigger than
+  one datagram: it is split against the MTU of 1392 bytes *before* the datagrams
+  are compressed, and an unreliable packet in pieces is lost whenever any piece
+  is. Fitting one in a single datagram is a job for a smaller snapshot, not a
+  smaller wire, and is open. Measured on a four-bot match, a busy snapshot is
+  about 6.4 KB, or five fragments:
+
+  | Section  | Bytes | Of what                                  |
+  |----------|-------|------------------------------------------|
+  | slots    | 2252  | 4 players, mostly their statistics       |
+  | karts    | 1680  | 4 karts                                  |
+  | pickups  | 1576  | 10 on the floor, and a real match has more |
+  | flush    | 400   | 4 pads                                   |
+  | the rest | 480   | jackpots, crates, clock, bounty          |
+
+  Most of what is left is shape rather than substance: every entry is a dictionary,
+  so its keys are written out again for every kart and every player, thirty times a
+  second. Two things are still worth doing: write entries as plain values instead
+  of dictionaries, and split the fast-changing sections from the slow ones so the
+  slow half goes less often.
+- **The floor is sent as what changed.** A chip lies where it fell until somebody
+  drives over it, and sending every one of them thirty times a second was the
+  largest part of a snapshot. So a snapshot carries what appeared and what went,
+  and the whole floor again every couple of seconds. On the measurement above that
+  takes a typical snapshot from 6.4 KB to 5.1 KB, and more on a busier floor.
+
+  Unreliable packets go missing, so none of this trusts a single telling. Every
+  change is repeated over a few snapshots, which costs a handful of numbers and
+  means one lost packet changes nothing. The whole floor goes out on its own clock
+  regardless, so a client that missed something is never wrong for long, and a
+  client that has only just arrived is sent all of it at once rather than waiting.
+  The few pickups that are actually going somewhere — pulled in by a Coin Magnet,
+  or still in the air from whatever dropped them — carry their position every
+  snapshot, as an id and a place and nothing else.
 - Hits, pickups, banking and scoring are server-authoritative. The server seeds
   all randomness and relays gameplay events so clients' HUD and audio react. That
   includes the ones a client could never raise for itself because its karts are
@@ -1612,8 +1702,173 @@ other before it will pass.
   which only a bullet puts down and a client runs no bullets.
 - The match is played by the host's lobby settings. A joining client is sent them
   before it is given a slot, see 9.3, since until then it reads its own.
-- Client-side prediction and reconciliation for the local kart is a later step
-  once latency is felt in tests.
+#### Driving your own kart
+
+A client used to send its controls and wait: the host drove the kart and the
+client watched the answer arrive. At 25 ms of ping that is a round trip between
+pressing the throttle and the kart moving, which reads as a sluggish kart rather
+than as a network, and the game is not worth playing that way.
+
+So a client drives its own kart itself, at once, and the host corrects it.
+Everything else stays exactly as it was: the host is still the only authority on
+who hit whom, what was collected and what anything is worth.
+
+- **The client predicts.** Every physics tick it numbers its controls, sends
+  them, and immediately steps its own kart with them: the same motor, the same
+  `move_and_slide`, the same arena. The kart answers the stick on the frame the
+  stick moved, whatever the ping is.
+- **It keeps what it did.** Each tick's sequence number, controls and resulting
+  state go in a history buffer, about two seconds of them.
+- **The host plays the ticks back one a tick.** Packets go into a short queue and
+  one comes out per physics tick, in order. This matters more than it sounds. The
+  client has already driven that tick itself and kept the answer, so a host that
+  ran the same controls twice, or took two at once because two packets arrived
+  together, would land somewhere the client never predicted and correct it for a
+  mistake neither of them made. One packet, one tick, in order, and the difference
+  between that and taking whatever has arrived is the difference between correcting
+  on every snapshot and correcting on none.
+- **A short queue absorbs the jitter.** A couple of ticks are held in hand, and
+  after the queue runs dry it waits until it has that much again before playing
+  out. The delay is a thirtieth of a second for everybody watching and nothing at
+  all for the player driving, who is not waiting on this. A queue that runs dry
+  anyway leaves the kart on the controls it last had, because a player whose
+  packet is late is still holding the throttle down.
+- **The host acknowledges.** It stamps each client's kart state with the last
+  sequence number it actually drove, not the last that arrived, and sends the pair
+  back to that client alone, at snapshot rate. Other clients are not interested:
+  the broadcast snapshot still carries everybody's pose for drawing, and this is
+  the one extra message, sent to one peer.
+- **The host takes the client's word for it.** Along with the controls, a client
+  sends what it made of that tick, and the host's kart ends the tick there. The
+  host simulates it anyway, which is what settles anything the kart ran into and
+  what catches a claim that is nonsense, but between the two answers the one a
+  player is looking at on their own screen is the one that stands. A client
+  driving on its own is then never corrected at all, because there is nothing to
+  correct: both machines agree because one of them is following the other.
+- **Until the host has to settle something.** Running into another kart, being
+  hit, going down a hole, dying, coming back: none of those is a question one end
+  can answer on its own, and a bump least of all, since each machine sees the
+  other kart where it last heard and each predicting its own side would have both
+  shoved and neither right. The host takes the wheel for a fraction of a second,
+  drives the kart itself, and says so.
+- **A claim has to be believable.** Further from where the host's own simulation
+  put the kart than a good few ticks of driving, and the host keeps the wheel
+  instead. The limit is what stops a kart appearing on the far side of the room;
+  it costs nothing to check because the host is simulating the kart regardless.
+- **The client reconciles when the host had the wheel.** It compares where it
+  predicted it would be at that sequence number with where the host says it was.
+  Agreement costs nothing and changes nothing. Disagreement rewinds the kart to
+  the host's state and replays every tick since, so the correction lands in the
+  present rather than in the past. While the host was following the client there
+  is nothing to put right, and the ticks are simply retired.
+- **A correction is never walked in through a wall.** The offset between where the
+  kart is simulated and where it is drawn is a picture lagging behind, not a
+  movement, so nothing tests it for collisions; up against a wall that is how a
+  kart comes to be seen halfway through one. It is tested for room and shortened
+  until it fits.
+- **Corrections are walked in, not applied.** The simulation goes onto the host's
+  answer at once; the picture does not. What is left between the two is carried
+  as an offset on the drawn position and heading, and a fifth of it comes off
+  every tick, so the kart on screen never jumps, it only ever stops lagging. A
+  fresh correction adds to whatever is still outstanding rather than replacing
+  it, which matters: replacing would put the picture back by however much was
+  left, and a jump on every correction is the thing this exists to avoid.
+- **The tolerance is deliberately loose.** A disagreement under ten centimetres
+  or a degree and a half is not worth replaying a second of driving over. Nobody
+  can see it, and the host decides everything that would actually turn on it. The
+  offset is capped at about a kart's length, because past that the picture would
+  be somewhere the kart is not, which is worse than the correction it is hiding.
+- **A big enough disagreement simply lands.** Past six metres nothing is being
+  hidden: that is a respawn, a death, a blast or a pit, and gliding the kart
+  across the room would be stranger to watch than arriving.
+- **Corrections happen on the physics tick.** The host's answer arrives whenever
+  the network delivers it, which is between ticks. A body moved there is a body
+  moved between the two poses the engine is interpolating the picture from, and
+  it is drawn swerving through somewhere the kart never was. So the answer is
+  held and acted on at the top of the next tick.
+
+What a client predicts is movement and nothing else. It does not decide that it
+picked a coin up, hit anybody, fired a shot that counts, or cashed out: all of
+that arrives from the host as it always did. Its predicted kart pushes off walls
+and crates because those are the same on both machines, and off other karts
+because they are there to be bumped into, but a bump only ever costs a life on
+the host. A kart the host says is dead, frozen on the grid or rolling out the
+end of the match is not predicted at all; it follows the snapshot, because none
+of those are states a player is steering out of.
+
+What a client predicts is everything it can work out from its own controls and
+put right afterwards, which is more than where the kart is:
+
+- **Nitro**, because it is the button with the most immediate effect in the game.
+  It decides how fast the kart is about to go and whether it goes through a crate
+  or bounces off one, so a client that waited for it spent the wait driving at a
+  speed it had not asked for. The tank rides the message addressed to this client
+  rather than the snapshot, which would fill it back up a round trip late.
+- **A turbo pad's shove**, since a pad is painted on the floor and is in the same
+  place on both machines, which makes it as safe to predict against as a wall.
+  Losing the tires on an oil stain is the other way round and the host keeps the
+  wheel for it: no client can see it coming, the stain is the host's and so is the
+  direction it throws the kart.
+- **Bumping into things**: the walls, the crates and the other karts. Puppets sit
+  on a physics layer of their own so a predicted kart has them to push off, and so
+  that a host and a puppet match sharing a scene tree, which is tests today and a
+  split screen later, never shove each other's karts about.
+- **Going down a hole**, which starts here the moment the kart is over the edge.
+  A fall is not a guess to be talked out of: once the kart is in the hole its
+  position stops being reconciled, because the host is still a round trip behind
+  and its answer says the kart is driving along quite happily, which would lift it
+  back out to drive over the hole and fall in a second time. The drop runs and
+  stops there: a puppet is never killed on its own machine, so whether that cost a
+  life, and whose fault it was, still comes from the host.
+- **A box driven through at ramming speed**, which comes off the floor here, in
+  pieces, and stays off it. The snapshots arriving over the next round trip were
+  built before the host had heard about it, and letting those put the box back is
+  what left a kart stuck against a box it had already gone through, waiting to be
+  dragged past it. So the client's own answer stands for a second, which is long
+  enough for the host to agree; if it does not, the box comes back solid. What the
+  box was worth and who gets the credit for it are the host's either way.
+- **The joker pick**, which is not physics at all. The cursor moves and the card
+  is taken on the tick the key goes down, and the snapshot leaves that one pick
+  alone while it is open rather than walking the cursor back to where the host had
+  it a round trip ago.
+
+None of this decides anything. A predicted bump never costs a life, a predicted
+fall never costs one either, a predicted pick never changes which joker is
+actually held: those are the host's answers and they arrive as they always did.
+A puppet raises no events of its own for any of it, because the host relays the
+real ones and a machine announcing both would say everything twice.
+
+- **The trigger, but not the bullet.** Pulling the trigger puts the cannon on
+  cooldown and is heard, on the tick the button goes down. The bullet itself comes
+  from the host, because whether one lives depends on a bullet fired by somebody
+  this machine only ever sees where they were a round trip ago: a predicted bullet
+  would often be one that never was, and unfiring one is worse than waiting for
+  one. The host's own word for that same shot is dropped on the way in, so it is
+  not heard twice.
+
+  The cap on bullets in the air is the host's count, which is a round trip old, so
+  a client counts the shots it has pulled since against the same limit. That makes
+  it cautious: held down against a full sky it stops answering and waits, because a
+  shot promised and not delivered is worse than one that arrives late. Firing at a
+  sky with room in it, which is how anybody actually plays, is answered at once.
+
+Two more things follow that are worth stating. The kart is predicted, not the
+world, and the world includes the bullets in it. And prediction assumes the two machines run the same code over the same
+numbers, which is why the host sends the whole motor state rather than only a
+position, and why the rules arrive from the host before play starts.
+
+`tests/test_online_prediction.gd` holds all of this to numbers, with a wire whose
+round trip the test sets. Over 100 ms of round trip, four times the ping this was
+reported at: the kart answers the stick on the tick it moved rather than five
+ticks later, and over four seconds of driving, drifting and handbrake turns not
+one of 110 snapshots needed correcting at all.
+
+The number that matters most is how far a correction moves the kart somebody is
+looking at, because that is the whole of what a player can see of any of this. On
+a wire losing a packet in five, the kart is put right ten times in a second and a
+half of driving and not one of those moves it: the corrections are absorbed
+whole. Knocked four metres out of place by hand, which nothing in the game does,
+it lands 2.8 m and walks off the rest.
 
 ### 10.4 Conventions
 

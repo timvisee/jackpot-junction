@@ -48,6 +48,7 @@ window/stretch/aspect="expand"
 3d_physics/layer_7="turret"
 3d_physics/layer_8="protected"
 3d_physics/layer_9="bomb"
+3d_physics/layer_10="puppet"
 
 [physics]
 

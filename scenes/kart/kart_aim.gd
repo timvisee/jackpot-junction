@@ -29,6 +29,15 @@ static func _pointed(kart: Kart) -> Vector3:
 	return mouse if mouse != Vector3.ZERO else forward
 
 
+## Where this kart's player is pointing, flattened for the wire, GAME.md 10.3. A client resolves
+## its own aim before sending it: a stick reading means the same thing on both machines, but a
+## mouse does not, and a host handed an empty aim went and asked where its own pointer was and
+## fired somebody else's shot at it.
+static func pointed_flat(kart: Kart) -> Vector2:
+	var pointed := _pointed(kart)
+	return Vector2(pointed.x, pointed.z)
+
+
 ## Whether this kart is aiming freely rather than down its nose. A puppet holds no cannon
 ## override of its own, since the host is the one shooting, but the arrow that shows for exactly
 ## as long as free aim lasts rides the snapshot, so on a client that is the answer.

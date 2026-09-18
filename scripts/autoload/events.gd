@@ -44,6 +44,10 @@ signal turbo_taken(slot: int)
 ## A drift ended having earned its exit boost. Only raised for the kart being driven here: it
 ## is a receipt for the driver, and every kart in the room earning one is a racket.
 signal drift_boosted(slot: int)
+## This machine's own kart was put back where the host had it, GAME.md 10.3: how far it moved and
+## whether it was too far to hide. Never leaves the machine it happened on; nobody else's picture
+## changed and nobody else needs telling.
+signal kart_corrected(metres: float, snapped: bool)
 signal nitro_started(slot: int)
 signal nitro_gained(slot: int)
 signal pad_claimed(slot: int)

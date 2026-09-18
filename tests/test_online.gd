@@ -146,6 +146,9 @@ func test_client_joins_takes_over_a_bot_drives_it_and_hands_it_back_on_leaving()
 	client_session.local_input.throttle = 1.0
 	await await_millis(1200)
 	assert_float(kart.global_position.distance_to(start)).is_greater(2.0)
+	# The kart this player drives is driven here, GAME.md 10.3, not waited for.
+	assert_bool(client_session._prediction != null).is_true()
+	assert_bool(client_match.slots[1].kart.predicted).is_true()
 	var puppet: Kart = client_match.slots[1].kart
 	assert_float(puppet.global_position.distance_to(kart.global_position)).is_less(3.0)
 	client_session.multiplayer.multiplayer_peer.close()
@@ -373,3 +376,382 @@ func test_a_match_stops_only_once_every_machine_has_asked_it_to() -> void:
 	assert_bool(host_session.paused).is_true()
 	host_session.want_pause(false)
 	assert_bool(host_session.paused).is_false()
+
+
+## A player who is dead is not driving, and for a while that meant not being heard either. The
+## controls went out unnumbered while the kart was dead and the host dropped every packet, so a
+## client could not pick a joker, walk the cursor along the cards, or press anything at all in
+## the one part of the match that is nothing but pressing things.
+func test_a_dead_client_is_still_heard() -> void:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(PORT)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client_match
+	client_session.local_input = PlayerInput.new()
+	_client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
+	assert_bool(assigned).override_failure_message("client never got a slot").is_true()
+	var host_input := host_match.slots[1].input as NetInput
+	await await_millis(300)
+	assert_int(host_input.last_seq).is_greater(0)
+	# Killed, which is the state a joker pick happens in.
+	host_match.kart_of(1).die(&"test", -1)
+	# Waited out rather than slept through: packets already on their way when the kart died are
+	# still accepted, and counting those would say the host was listening when it had stopped.
+	var knows := await _wait_until(
+		func() -> bool: return not client_match.slots[1].kart.alive, 4000
+	)
+	assert_bool(knows).override_failure_message("the client never saw its kart die").is_true()
+	await await_millis(200)
+	var heard_dead := host_input.last_seq
+	await await_millis(500)
+	assert_bool(host_match.kart_of(1).alive).is_false()
+	(
+		assert_int(host_input.last_seq - heard_dead)
+		. override_failure_message(
+			(
+				"the host heard %d packets in half a second from a client that had died"
+				% (host_input.last_seq - heard_dead)
+			)
+		)
+		. is_greater(10)
+	)
+
+
+## GAME.md 8.3: the host going away ends the room, and the notice saying so has the screen to
+## itself. A joker pick left open under it would be asking a player to choose a card for a match
+## that is not there any more.
+func test_the_host_going_away_clears_the_screen() -> void:
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = true
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	client_match.set_local_slot(0)
+	await await_millis(60)
+	var hud := client_match.hud
+	assert_bool(hud.visible).is_true()
+	assert_bool(hud.dismissed).is_false()
+	hud.stand_down()
+	assert_bool(hud.dismissed).is_true()
+	(
+		assert_bool(hud.visible)
+		. override_failure_message("the HUD was still on the screen under the notice")
+		. is_false()
+	)
+	# And it stays down: nothing the frame loop or a relayed event does brings it back.
+	hud.call("_on_state_changed", Match.State.RESULTS)
+	await await_millis(80)
+	assert_bool(hud.visible).is_false()
+
+
+## GAME.md 10.3: the joker pick in front of this player is answered here. Waiting a round trip to
+## see the cursor move, and another to see a card taken, is the whole of what made picking a
+## joker on a client feel broken.
+func test_a_client_works_its_own_joker_pick_at_once() -> void:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(PORT)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client_match
+	client_session.local_input = PlayerInput.new()
+	_client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
+	assert_bool(assigned).is_true()
+	host_match.kart_of(1).die(&"test", -1)
+	var offered := await _wait_until(
+		func() -> bool:
+			return client_match.slots.size() > 1 and client_match.slots[1].offer != null,
+		4000
+	)
+	assert_bool(offered).override_failure_message("the client never saw the pick").is_true()
+	var offer: JokerOffer = client_match.slots[1].offer
+	assert_int(offer.selected).is_equal(0)
+	# Walking the cursor along is answered here rather than a round trip away. Pressed straight
+	# into the session's own step, because a real player's controls are read off the keyboard
+	# every tick and a flag set from a test is gone again before the tick comes round.
+	client_session.local_input.joker_next_pressed = true
+	client_session._step_own_offer()
+	assert_int(offer.selected).override_failure_message("the cursor waited for the host").is_equal(
+		1
+	)
+	# And the snapshot does not walk it back again on its way past.
+	await await_millis(300)
+	assert_object(client_match.slots[1].offer).is_equal(offer)
+	(
+		assert_int(offer.selected)
+		. override_failure_message("a snapshot put the cursor back where the host had it")
+		. is_equal(1)
+	)
+
+
+## A kart that has been down a hole and come back is still solid, GAME.md 10.3. Falling takes a
+## kart's collisions away, and a client's kart is dead, suspended and brought back between losing
+## them and being driven again: whatever it was left holding is not to be trusted. Getting that
+## wrong meant driving through walls for the rest of the match.
+func test_a_client_kart_is_solid_again_after_coming_back() -> void:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	host_match.offer_size = 0
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(PORT)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client_match
+	client_session.local_input = PlayerInput.new()
+	_client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
+	assert_bool(assigned).is_true()
+	await await_millis(300)
+	var slot := client_session.local_slot
+	var kart: Kart = client_match.slots[slot].kart
+	var driving := kart.collision_mask
+	assert_int(driving).is_not_equal(0)
+	# Down a hole here, killed there, which is the order those happen in.
+	kart.start_fall()
+	assert_int(kart.collision_mask).is_equal(0)
+	host_match.kart_of(slot).die(&"pit", -1)
+	var died := await _wait_until(func() -> bool: return not kart.alive, 4000)
+	assert_bool(died).override_failure_message("the client never saw its kart die").is_true()
+	var back := await _wait_until(func() -> bool: return kart.alive, 8000)
+	assert_bool(back).override_failure_message("the kart never came back").is_true()
+	await await_millis(150)
+	(
+		assert_int(kart.collision_mask)
+		. override_failure_message("came back able to drive through walls")
+		. is_equal(driving)
+	)
+	assert_int(kart.collision_layer).is_equal(Layers.PUPPET)
+	assert_bool(kart.falling).is_false()
+
+
+## Two things a client gets wrong about a kart that has died, both of which a player meets within
+## a minute of playing: its own kart has to come back out of the hole it fell down, and somebody
+## else's has to stop being in the way the moment it bursts.
+func test_a_dead_kart_is_out_of_the_way_and_comes_back_properly() -> void:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	host_match.offer_size = 0
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(PORT)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client_match
+	client_session.local_input = PlayerInput.new()
+	_client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
+	assert_bool(assigned).is_true()
+	await await_millis(300)
+	var mine := client_session.local_slot
+	var theirs := 1 - mine
+	# Somebody else's kart bursts. The spot it died on has to be drivable at once.
+	host_match.kart_of(theirs).die(&"shot", mine)
+	var seen := await _wait_until(
+		func() -> bool: return not client_match.slots[theirs].kart.alive, 4000
+	)
+	assert_bool(seen).override_failure_message("the client never saw them die").is_true()
+	(
+		assert_int(client_match.slots[theirs].kart.collision_layer)
+		. override_failure_message("a kart nobody can see was still standing in the way")
+		. is_equal(0)
+	)
+	# And this player's own kart goes down a hole and has to come back out of it.
+	var own: Kart = client_match.slots[mine].kart
+	var hole: Pit = client_match.arena.pits[0]
+	own.global_position = hole.global_position
+	own.start_fall()
+	host_match.kart_of(mine).global_position = hole.global_position
+	host_match.kart_of(mine).die(&"pit", -1)
+	var died := await _wait_until(func() -> bool: return not own.alive, 4000)
+	assert_bool(died).override_failure_message("the client never saw its own kart die").is_true()
+	var back := await _wait_until(func() -> bool: return own.alive, 8000)
+	assert_bool(back).override_failure_message("the kart never came back").is_true()
+	await await_millis(250)
+	assert_bool(own.falling).override_failure_message("it came back still falling").is_false()
+	(
+		assert_float(own.global_position.distance_to(hole.global_position))
+		. override_failure_message("it came back standing in the hole it fell down")
+		. is_greater(2.0)
+	)
+	assert_float(own.global_position.y).is_equal_approx(0.0, 0.2)
+
+
+## A rematch keeps whoever is at the table, GAME.md 10.3. Starting again from the lobby's list
+## handed every remote player's kart to a bot while they went on driving it: each client stayed
+## at the wheel of a kart the host had given away.
+func test_a_rematch_keeps_the_players_who_are_here() -> void:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	host_match.offer_size = 0
+	_host_root.add_child(host_match)
+	# One player at this keyboard and one bot, which is the lobby's idea of the match.
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(PORT)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client_match
+	client_session.local_input = PlayerInput.new()
+	_client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
+	assert_bool(assigned).is_true()
+	var slot := client_session.local_slot
+	assert_bool(host_match.slots[slot].input is NetInput).is_true()
+	var was := host_match.slots[slot].input
+	# The host plays it again.
+	host_match.rematch()
+	await await_millis(400)
+	(
+		assert_bool(host_match.slots[slot].input is NetInput)
+		. override_failure_message("the rematch handed a connected player's kart to a bot")
+		. is_true()
+	)
+	assert_object(host_match.slots[slot].input).is_equal(was)
+	assert_bool(host_match.slots[slot].is_human()).is_true()
+	assert_object(host_match.slots[slot].bot_trait).is_null()
+	# And the client is still driving it: its controls still reach the host.
+	var heard := (host_match.slots[slot].input as NetInput).last_seq
+	await await_millis(400)
+	(
+		assert_int((host_match.slots[slot].input as NetInput).last_seq)
+		. override_failure_message("the host stopped hearing the client after a rematch")
+		. is_greater(heard)
+	)
+
+
+## The Swivel Cannon on a client, GAME.md 7.1 and 10.3. Free aim points the cannon with the stick
+## or the mouse, and a mouse reads nothing that means anything on another machine: the pointer is
+## on this screen. A host handed an empty aim asked where its own pointer was and fired the shot
+## at that, so a client's swivel shots went anywhere but where it was aiming.
+func test_a_client_aims_its_swivel_cannon_itself() -> void:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	host_match.offer_size = 0
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(PORT)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client_match
+	client_session.local_input = PlayerInput.new()
+	_client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
+	assert_bool(assigned).is_true()
+	await await_millis(300)
+	var slot := client_session.local_slot
+	var mine: Kart = client_match.slots[slot].kart
+	# The Swivel Cannon is on, which a client knows from the arrow the host sends it.
+	mine.aim_arrow_visible = true
+	mine.motor.heading = PI * 0.5
+	mine.rotation = Vector3(0.0, mine.motor.heading, 0.0)
+	assert_float(KartAim.pointed_flat(mine).length()).is_greater(0.5)
+	# What goes out is that direction, not the empty stick reading behind it. Read together with
+	# the kart's own answer, because the kart is still rolling and the two have to agree now
+	# rather than agree with where it was pointing a moment ago.
+	await await_millis(300)
+	var host_input := host_match.slots[slot].input as NetInput
+	host_input.poll(1.0 / 60.0)
+	var pointing := KartAim.pointed_flat(mine)
+	(
+		assert_float(host_input.aim.length())
+		. override_failure_message("the host was handed an empty aim and had to guess")
+		. is_greater(0.5)
+	)
+	(
+		assert_vector(Vector2(host_input.aim.x, host_input.aim.y))
+		. override_failure_message("the host is aiming somewhere the client is not")
+		. is_equal_approx(pointing, Vector2.ONE * 0.15)
+	)

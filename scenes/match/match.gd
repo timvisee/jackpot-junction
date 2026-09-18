@@ -161,7 +161,18 @@ func start(inputs: Array[KartInput], seed: int = 0, colors: Array[int] = []) -> 
 
 
 ## Tears everything down and starts again with the same players and a fresh seed.
+##
+## The same players means whoever is at the table now, not whoever the lobby started with. A
+## player who joined mid-match, took over a bot, or arrived over a wire is still here for the
+## next one, and starting again from the lobby's list handed their kart to a bot while they went
+## on driving it: online that broke every client at once, since each of them kept steering a kart
+## the host had given to a bot.
 func rematch() -> void:
+	var players: Array[KartInput] = []
+	var colors: Array[int] = []
+	for slot: PlayerSlot in slots:
+		players.append(slot.input)
+		colors.append(slot.color_index)
 	for child: Node in get_children():
 		remove_child(child)
 		child.queue_free()
@@ -171,7 +182,7 @@ func rematch() -> void:
 	camera_rig = null
 	hud = null
 	nav = null
-	start(_inputs, 0, _colors)
+	start(players, 0, colors)
 
 
 func _exit_tree() -> void:
@@ -405,9 +416,11 @@ func _begin_countdown() -> void:
 		Events.countdown_tick.emit(countdown_lamps())
 
 
-## The host's description of the whole match for online clients, see [MatchSnapshot].
-func build_snapshot() -> Dictionary:
-	return MatchSnapshot.build(self)
+## The host's description of the whole match for online clients, see [MatchSnapshot]. Given a
+## [PickupWire] the floor goes out as what changed rather than as all of it; without one, which
+## is how anything but a live session asks, the snapshot stands on its own.
+func build_snapshot(wire: PickupWire = null) -> Dictionary:
+	return MatchSnapshot.build(self, wire)
 
 
 ## Renders a host snapshot on a puppet match, see [MatchSnapshot].
@@ -866,17 +879,7 @@ func _on_pad_claimed(_pad: FlushPad, kart: Kart) -> void:
 
 ## Distance, drifting, nitro time and peak mult, counted every tick while the match runs.
 func _step_stats(delta: float) -> void:
-	for slot: PlayerSlot in slots:
-		var kart := slot.kart
-		if kart == null or not kart.is_active():
-			continue
-		var distance := kart.motor.speed() * delta
-		slot.stats.add(&"driven", distance)
-		if kart.motor.drifting:
-			slot.stats.add(&"drifted", distance)
-		if kart.nitro_active:
-			slot.stats.add(&"nitro", delta)
-		slot.stats.peak(&"max_mult", kart.pot.mult)
+	MatchStats.step(self, delta)
 
 
 func _on_stat_mult(_amount: float, reason: StringName, slot: PlayerSlot) -> void:
@@ -895,33 +898,27 @@ func _on_target_struck(by_slot: int, coins: int) -> void:
 
 
 func _on_stat_crate(by_slot: int) -> void:
-	if by_slot >= 0 and by_slot < slots.size():
-		slots[by_slot].stats.add(&"crates")
+	MatchStats.count(self, by_slot, &"crates")
 
 
 func _on_stat_joker(slot: int, _joker: StringName) -> void:
-	if not puppet and slot >= 0 and slot < slots.size():
-		slots[slot].stats.add(&"jokers")
+	MatchStats.count(self, slot, &"jokers")
 
 
 func _on_stat_life(slot: int) -> void:
-	if not puppet and slot >= 0 and slot < slots.size():
-		slots[slot].stats.add(&"lives_restored")
+	MatchStats.count(self, slot, &"lives_restored")
 
 
 func _on_stat_jackpot(slot: int, chips: int) -> void:
-	if not puppet and slot >= 0 and slot < slots.size():
-		slots[slot].stats.add(&"jackpot_chips", chips)
+	MatchStats.count(self, slot, &"jackpot_chips", chips)
 
 
 func _on_stat_drift_boost(slot: int) -> void:
-	if not puppet and slot >= 0 and slot < slots.size():
-		slots[slot].stats.add(&"drift_boosts")
+	MatchStats.count(self, slot, &"drift_boosts")
 
 
 func _on_stat_oil(slot: int) -> void:
-	if not puppet and slot >= 0 and slot < slots.size():
-		slots[slot].stats.add(&"oil_spins")
+	MatchStats.count(self, slot, &"oil_spins")
 
 
 ## Offers jokers for the respawn. Bots choose at once; humans steer the offer while dead.
