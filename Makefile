@@ -4,7 +4,7 @@ GDLINT ?= gdlint
 GDFORMAT ?= gdformat
 GD_DIRS := scenes scripts tests
 
-.PHONY: import test lint format format-check smoke run drive bots check export
+.PHONY: import test lint format format-check smoke run drive bots changelog check export
 
 import:
 	$(GODOT) --headless --path . --import
@@ -45,7 +45,11 @@ drive:
 bots:
 	tools/bot_arena
 
-check: import lint format-check test smoke
+# The changelog parses, and the version the game reports has notes to go with it.
+changelog:
+	tools/changelog
+
+check: import lint format-check changelog test smoke
 
 export:
 	mkdir -p build/linux build/windows build/macos

@@ -46,6 +46,9 @@ jobs:
       - name: Lint and format
         run: make lint format-check
 
+      - name: Changelog
+        run: make changelog
+
       - name: Test
         run: make test
 

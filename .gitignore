@@ -7,3 +7,6 @@
 
 # Export builds
 /build/
+
+# Release notes cut from the changelog by the release workflow
+/release-notes.md

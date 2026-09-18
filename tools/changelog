@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+# The changelog, checked and cut. GAME.md 10.4: every change a player would notice gets a line in
+# the Unreleased section of CHANGELOG.md in the same commit, and a release turns that section into
+# a numbered one. Kept as a tool rather than a habit so that a release cannot go out with no notes
+# on it and a version cannot disagree with the game's own.
+#
+# Usage:
+#   tools/changelog              check the file, and that project.godot's version has a section
+#   tools/changelog extract 1.2.3   print one version's notes, for the release workflow
+#   tools/changelog release 1.2.3   move Unreleased into a dated 1.2.3 and set project.godot
+set -euo pipefail
+cd "$(dirname "$0")/.."
+python3 - "${1:-check}" "${2:-}" <<'PY'
+import datetime
+import pathlib
+import re
+import sys
+
+command, version = sys.argv[1], sys.argv[2]
+path = pathlib.Path("CHANGELOG.md")
+project = pathlib.Path("project.godot")
+SEMVER = r"\d+\.\d+\.\d+"
+HEADING = re.compile(r"^## \[(Unreleased|%s)\](?: - (\d{4}-\d{2}-\d{2}))?\s*$" % SEMVER)
+
+
+def fail(message):
+    print("changelog: %s" % message, file=sys.stderr)
+    sys.exit(1)
+
+
+LINK = re.compile(r"^\[[^\]]+\]: \S+\s*$")
+
+
+def split_links(lines):
+    """The file, less the block of link references at its foot, and that block on its own. They
+    are for somebody reading the file on the forge and belong to none of the sections."""
+    end = len(lines)
+    while end > 0 and (not lines[end - 1].strip() or LINK.match(lines[end - 1])):
+        end -= 1
+    links = [line for line in lines[end:] if LINK.match(line)]
+    return lines[:end], links
+
+
+def sections(lines):
+    """Every '## [...]' heading as (name, date, first line, last line), in file order."""
+    found = []
+    for i, line in enumerate(lines):
+        match = HEADING.match(line)
+        if match:
+            if found:
+                found[-1][3] = i
+            found.append([match.group(1), match.group(2), i, len(lines)])
+    return [tuple(entry) for entry in found]
+
+
+def body(lines, start, end):
+    return "\n".join(lines[start + 1 : end]).strip("\n")
+
+
+def game_version():
+    match = re.search(r'^config/version="(%s)"$' % SEMVER, project.read_text(), re.M)
+    if match is None:
+        fail("project.godot has no config/version")
+    return match.group(1)
+
+
+if not path.exists():
+    fail("CHANGELOG.md is missing")
+lines, links = split_links(path.read_text().split("\n"))
+found = sections(lines)
+names = [name for name, _, _, _ in found]
+if names.count("Unreleased") != 1:
+    fail("there must be exactly one '## [Unreleased]' section, found %d" % names.count("Unreleased"))
+if names[0] != "Unreleased":
+    fail("'## [Unreleased]' has to come first, before %s" % names[0])
+released = [entry for entry in found if entry[0] != "Unreleased"]
+for name, date, _, _ in released:
+    if date is None:
+        fail("[%s] has no date; the heading reads '## [%s] - YYYY-MM-DD'" % (name, name))
+order = [tuple(int(part) for part in name.split(".")) for name, _, _, _ in released]
+if order != sorted(order, reverse=True):
+    fail("released versions have to run newest first, found %s" % ", ".join(names[1:]))
+for name, _, start, end in released:
+    if not body(lines, start, end).lstrip().startswith(("-", "#")):
+        fail("[%s] has no entries under it" % name)
+
+if command == "check":
+    running = game_version()
+    if running not in names:
+        fail(
+            "project.godot is version %s and CHANGELOG.md has no section for it. Cut one with "
+            "'tools/changelog release %s', or put the version back." % (running, running)
+        )
+    print("changelog ok: %s, %d released version(s)" % (running, len(released)))
+    sys.exit(0)
+
+if command not in ("extract", "release"):
+    fail("unknown command '%s'; try check, extract or release" % command)
+if not re.fullmatch(SEMVER, version):
+    fail("%s needs a version like 1.2.3" % command)
+
+if command == "extract":
+    for name, _, start, end in found:
+        if name == version:
+            print(body(lines, start, end))
+            sys.exit(0)
+    fail("no section for %s. A release goes out with its notes or not at all." % version)
+
+if command == "release":
+    if version in names:
+        fail("[%s] is already in the changelog" % version)
+    start, end = found[0][2], found[0][3]
+    pending = body(lines, start, end)
+    if not pending.strip():
+        fail("nothing under [Unreleased] to release")
+    today = datetime.date.today().isoformat()
+    rest = lines[end:]
+    head = lines[: start + 1] + ["", "## [%s] - %s" % (version, today), ""] + pending.split("\n")
+    # The foot of the file points at what changed between releases, so the new one gets a link of
+    # its own and Unreleased starts comparing against it.
+    base = ""
+    for link in links:
+        match = re.match(r"^\[[^\]]+\]: (https://\S+?/[^/]+/[^/]+)/", link)
+        if match:
+            base = match.group(1)
+            break
+    kept = [link for link in links if not link.startswith("[Unreleased]:")]
+    if base:
+        kept.insert(0, "[%s]: %s/releases/tag/v%s" % (version, base, version))
+        kept.insert(0, "[Unreleased]: %s/compare/v%s...HEAD" % (base, version))
+    path.write_text("\n".join(head + rest + [""] + kept) + "\n")
+    project.write_text(
+        re.sub(r'^config/version=".*"$', 'config/version="%s"' % version, project.read_text(), flags=re.M)
+    )
+    print("cut %s, and set project.godot to it." % version)
+    print("Check it over, commit, then tag: git tag -a v%s -m 'Jackpot Junction %s'" % (version, version))
+    sys.exit(0)
+PY
