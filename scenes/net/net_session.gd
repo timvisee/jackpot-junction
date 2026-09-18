@@ -377,22 +377,27 @@ func _send_authority() -> void:
 		# answer is the one that stands and there is nothing here to put right.
 		var host_drove := input.claimed_state().is_empty()
 		_receive_authority.rpc_id(
-			peer, input.applied_seq, KartPrediction.capture(slot.kart), host_drove
+			peer,
+			input.applied_seq,
+			KartPrediction.capture(slot.kart),
+			host_drove,
+			slot.kart.cannon.live_count()
 		)
 
 
 ## Kept rather than acted on, see [member _authority]. Only the newest is worth anything: an
 ## older one describes a tick the newer has already answered for.
 @rpc("authority", "call_remote", "unreliable")
-func _receive_authority(ack: int, state: Array, host_drove: bool = true) -> void:
+func _receive_authority(ack: int, state: Array, host_drove := true, live := 0) -> void:
 	if _authority.is_empty() or ack >= int(_authority[0]):
-		_authority = [ack, state, host_drove]
+		_authority = [ack, state, host_drove, live]
 
 
 func _settle_authority(delta: float) -> void:
 	if _authority.is_empty():
 		return
 	if _prediction != null and is_instance_valid(_prediction.kart) and _prediction.kart.predicted:
+		_prediction.host_live = int(_authority[3])
 		if bool(_authority[2]):
 			_prediction.reconcile(int(_authority[0]), _authority[1], delta)
 		else:
@@ -405,7 +410,18 @@ func _settle_authority(delta: float) -> void:
 
 @rpc("authority", "call_remote", "reliable")
 func _relay_event(name: StringName, args: Array) -> void:
+	if _already_heard(name, args):
+		return
 	Events.callv("emit_signal", [name] + args)
+
+
+## Whether this machine already raised this for itself. A client pulls its own trigger on the tick
+## the button goes down, GAME.md 10.3, so the host's word for that same shot, arriving a round trip
+## later, would be the same shot heard twice.
+func _already_heard(name: StringName, args: Array) -> bool:
+	if name != &"bullet_fired" or _prediction == null or args.is_empty():
+		return false
+	return int(args[0]) == local_slot and _prediction.kart.predicted
 
 
 ## The host forwards gameplay events so clients' HUD and audio react like the host's.

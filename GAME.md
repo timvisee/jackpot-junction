@@ -1785,10 +1785,22 @@ actually held: those are the host's answers and they arrive as they always did.
 A puppet raises no events of its own for any of it, because the host relays the
 real ones and a machine announcing both would say everything twice.
 
+- **The trigger, but not the bullet.** Pulling the trigger puts the cannon on
+  cooldown and is heard, on the tick the button goes down. The bullet itself comes
+  from the host, because whether one lives depends on a bullet fired by somebody
+  this machine only ever sees where they were a round trip ago: a predicted bullet
+  would often be one that never was, and unfiring one is worse than waiting for
+  one. The host's own word for that same shot is dropped on the way in, so it is
+  not heard twice.
+
+  The cap on bullets in the air is the host's count, which is a round trip old, so
+  a client counts the shots it has pulled since against the same limit. That makes
+  it cautious: held down against a full sky it stops answering and waits, because a
+  shot promised and not delivered is worse than one that arrives late. Firing at a
+  sky with room in it, which is how anybody actually plays, is answered at once.
+
 Two more things follow that are worth stating. The kart is predicted, not the
-world: a client that presses fire still waits a round trip for the bullet,
-because bullets cancel each other and that is a question only the host can
-answer. And prediction assumes the two machines run the same code over the same
+world, and the world includes the bullets in it. And prediction assumes the two machines run the same code over the same
 numbers, which is why the host sends the whole motor state rather than only a
 position, and why the rules arrive from the host before play starts.
 

@@ -31,6 +31,10 @@ below, and hands the notes to the release workflow.
   kart's collisions away, and on a client the kart is dead, stood down and
   brought back between losing them and being driven again, so it came back able
   to drive through walls for the rest of the match.
+- **Online: pulling the trigger answers at once.** The cannon goes on cooldown and
+  the shot is heard on the tick the button goes down; the bullet still comes from
+  the host, because whether one lives depends on a bullet fired by somebody a
+  client only sees where they were a round trip ago.
 - **Online: the floor is sent as what changed.** Every chip on the ground went out
   thirty times a second whether or not it had moved, which was the largest part of
   a snapshot and most of why one did not fit in a single packet. A typical snapshot

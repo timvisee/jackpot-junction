@@ -153,12 +153,14 @@ func _on_tick() -> void:
 					"ack": host_input.applied_seq,
 					"state": KartPrediction.capture(_host.kart_of(0)),
 					"drove": host_input.claimed_state().is_empty(),
+					"live": _host.kart_of(0).cannon.live_count(),
 					"snapshot": _host.build_snapshot(),
 				}
 			)
 		)
 	for packet: Dictionary in _down.duplicate():
 		if packet["at"] <= _tick:
+			_prediction.host_live = int(packet["live"])
 			_snapshots += 1
 			_client.apply_snapshot(packet["snapshot"])
 			if packet["drove"]:
@@ -639,3 +641,87 @@ func test_a_correction_lights_the_sync_indicator() -> void:
 		. is_greater(0)
 	)
 	assert_float(seen[0]).is_greater(KartPrediction.IGNORE)
+
+
+## Pulling the trigger, GAME.md 10.3. The bullet is the host's, because whether it lives depends
+## on somebody else's bullet this machine only sees where they were a round trip ago. Everything
+## about the trigger a player can feel is not: the cannon goes on cooldown and the shot is heard
+## on the tick the button goes down.
+func test_the_trigger_answers_at_once_and_the_bullet_comes_from_the_host() -> void:
+	await _connect()
+	_input.throttle = 1.0
+	await _drive(20)
+	var heard: Array[int] = []
+	var listener := func(slot: int) -> void: heard.append(slot)
+	Events.bullet_fired.connect(listener)
+	assert_float(_prediction.kart.cannon.cooldown_left).is_equal_approx(0.0, 0.001)
+	assert_int(_host.kart_of(0).cannon.live_count()).is_equal(0)
+	_input.fire = true
+	await _drive(1)
+	Events.bullet_fired.disconnect(listener)
+	# Heard here, on the tick, and the cannon is on cooldown for it.
+	(
+		assert_int(heard.size())
+		. override_failure_message("the trigger made no sound until the host answered")
+		. is_greater(0)
+	)
+	(
+		assert_float(_prediction.kart.cannon.cooldown_left)
+		. override_failure_message("the cannon was still ready after firing")
+		. is_greater(0.0)
+	)
+	# And no bullet here: this machine does not get to decide there is one.
+	assert_int(_client.puppet_bullets.size()).is_equal(0)
+	# The host fires it a round trip later, and it arrives as a puppet like everybody else's.
+	await _drive(30)
+	_running = false
+	(
+		assert_int(_host.kart_of(0).cannon.live_count())
+		. override_failure_message("the host never fired the shot")
+		. is_greater(0)
+	)
+
+
+## The cap on bullets in the air is a rule worth keeping honest, GAME.md 5.1, and a client cannot
+## count them itself: it has no bullets of its own. So the host says how many are up and this
+## machine counts the ones it has pulled since against the same limit, which makes it cautious:
+## held down against a full sky it stops answering and waits for the host, because the count it
+## is working from is a round trip old and a shot promised and not delivered is worse than one
+## that arrives late. Firing at a sky with room in it, which is how anybody actually plays, is
+## answered on the tick — that is the test above this one.
+func test_a_client_holds_itself_to_the_bullet_limit() -> void:
+	await _connect()
+	await _drive(20)
+	var cap := _prediction.kart.cannon.current_stats().max_live_bullets
+	assert_int(cap).is_greater(0)
+	# Counted on the prediction itself. Both matches share one Events, so listening for the shot
+	# would hear the host's as well and this is about what this machine decided on its own.
+	_input.fire = true
+	var most_up := 0
+	for i: int in 180:
+		await _drive(1)
+		most_up = maxi(most_up, _host.kart_of(0).cannon.live_count())
+	_running = false
+	var pulled := _prediction.pulls
+	var host_pulls := int(_host.slots[0].stats.value(&"bullets"))
+	prints(
+		(
+			"MEASURE trigger: %d pulled here, %d on the host, most in the air %d of %d"
+			% [pulled, host_pulls, most_up, cap]
+		)
+	)
+	assert_int(pulled).override_failure_message("the trigger did nothing").is_greater(3)
+	(
+		assert_int(most_up)
+		. override_failure_message(
+			"the host had %d bullets up against a cap of %d" % [most_up, cap]
+		)
+		. is_less_equal(cap)
+	)
+	# Never ahead of the host by more than the shots it has not answered for yet. Past that a
+	# player would hear a cannon their kart is not firing, which is the one thing this must not do.
+	(
+		assert_int(pulled)
+		. override_failure_message("%d pulled here against %d on the host" % [pulled, host_pulls])
+		. is_less_equal(host_pulls + cap)
+	)
