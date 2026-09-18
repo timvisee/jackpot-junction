@@ -379,7 +379,10 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 			slot.kart.item_reveal_left = entry["reveal"]
 			slot.kart.menu_open = entry["menu"]
 			slot.kart.menu_index = entry["menu_index"]
-			slot.kart.nitro_charge = entry.get("nitro_charge", 1.0)
+			if not slot.kart.predicted:
+				# A kart driven here spends its own tank and is corrected on it by the message
+				# addressed to it, GAME.md 10.3. This figure is a round trip old.
+				slot.kart.nitro_charge = entry.get("nitro_charge", 1.0)
 			var jokers: Array[Joker] = []
 			for id: String in entry["jokers"]:
 				var joker := match_node.joker_catalog.by_id(StringName(id))

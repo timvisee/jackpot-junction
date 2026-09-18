@@ -45,6 +45,10 @@ var _worst_turn := 0.0
 var _asked_at := -1
 var _moved_here_at := -1
 var _moved_there_at := -1
+## The same for the nitro button: the tick it went down, and the tick each machine lit it.
+var _nitro_at := -1
+var _burned_here_at := -1
+var _burned_there_at := -1
 
 
 ## Every test gets its own wire. Packets left in flight from the last one would be delivered into
@@ -65,6 +69,9 @@ func before_test() -> void:
 	_asked_at = -1
 	_moved_here_at = -1
 	_moved_there_at = -1
+	_nitro_at = -1
+	_burned_here_at = -1
+	_burned_there_at = -1
 	_drop_one_in = 0
 
 
@@ -153,6 +160,12 @@ func _on_tick() -> void:
 		_moved_here_at = _tick
 	if _moved_there_at < 0 and _host.kart_of(0).motor.speed() > 0.0:
 		_moved_there_at = _tick
+	if _nitro_at < 0 and _input.nitro:
+		_nitro_at = _tick
+	if _burned_here_at < 0 and _prediction.kart.nitro_active:
+		_burned_here_at = _tick
+	if _burned_there_at < 0 and _host.kart_of(0).nitro_active:
+		_burned_there_at = _tick
 
 
 ## Waits for [param ticks] physics ticks of the harness to have run.
@@ -313,3 +326,44 @@ func test_a_lossy_wire_still_keeps_the_kart_in_place() -> void:
 	# is looking at at all: the picture never jumps, it only ever stops lagging.
 	assert_float(_worst_jump).override_failure_message(_report()).is_less(0.01)
 	assert_float(rad_to_deg(_worst_turn)).override_failure_message(_report()).is_less(0.1)
+
+
+## Nitro is the button with the most immediate effect in the game, and the one the report named
+## first. It has to burn on the tick it is pressed: it changes how fast the kart is about to go,
+## and a round trip spent at the wrong speed is a round trip of being corrected for it.
+func test_nitro_burns_on_the_tick_it_is_pressed() -> void:
+	await _connect()
+	_input.throttle = 1.0
+	await _drive(40)
+	assert_bool(_prediction.kart.nitro_active).is_false()
+	_input.nitro = true
+	await _drive(90)
+	_running = false
+	var here := _burned_here_at - _nitro_at
+	var there := _burned_there_at - _nitro_at
+	prints(
+		(
+			"MEASURE nitro to burning: here %d ticks, host %d ticks; tanks %.3f and %.3f"
+			% [here, there, _prediction.kart.nitro_charge, _host.kart_of(0).nitro_charge]
+		)
+	)
+	(
+		assert_int(here)
+		. override_failure_message("nitro took %d ticks to light on this machine" % here)
+		. is_equal(0)
+	)
+	(
+		assert_int(there)
+		. override_failure_message(
+			"the host lit it in %d ticks, expected at least %d" % [there, LAG]
+		)
+		. is_greater_equal(LAG)
+	)
+	(
+		assert_float(_prediction.kart.nitro_charge)
+		. override_failure_message(
+			"tanks %.3f and %.3f" % [_prediction.kart.nitro_charge, _host.kart_of(0).nitro_charge]
+		)
+		. is_equal_approx(_host.kart_of(0).nitro_charge, 0.06)
+	)
+	assert_float(_worst_jump).override_failure_message(_report()).is_less(0.01)

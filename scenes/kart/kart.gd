@@ -618,7 +618,9 @@ func refill_nitro(fraction: float) -> void:
 
 
 func _set_nitro_active(on: bool) -> void:
-	if on and not nitro_active:
+	# A puppet raises nothing. It is told, GAME.md 10.3: a client predicting its own nitro would
+	# otherwise announce it here and again when the host's word for the same tank arrives.
+	if on and not nitro_active and not puppet:
 		Events.nitro_started.emit(slot)
 	nitro_active = on
 	motor.nitro_bonus = stats.nitro_speed_multiplier if on else 1.0

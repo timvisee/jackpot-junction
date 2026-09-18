@@ -85,6 +85,15 @@ func _init(for_kart: Kart) -> void:
 ## tire marks and turns no wheels, because that already happened the first time round.
 static func step(on: Kart, with: KartInput, delta: float, live: bool = true) -> void:
 	var heading_before := on.motor.heading
+	# The kart reads its own controls in a few places rather than being handed them, so a replay
+	# lends it the tick's controls for the length of the tick. Live, this is the same object.
+	var held := on.input
+	on.input = with
+	# Nitro is predicted, and has to be: it is the button with the most immediate effect in the
+	# game, it changes how fast the kart is about to go, and it decides whether the kart goes
+	# through a crate or bounces off it. A client that waited a round trip for it would spend
+	# that round trip driving at the wrong speed and being corrected for it.
+	on._step_nitro(delta)
 	on.motor.step(with, delta)
 	on.velocity = on.motor.velocity
 	on.move_and_slide()
@@ -95,20 +104,31 @@ static func step(on: Kart, with: KartInput, delta: float, live: bool = true) -> 
 	if live:
 		on._spin_wheels(delta)
 		on._update_trails(delta, heading_before)
+	on.input = held
 
 
-## Where a kart is and what its motor is doing, as one value.
+## Where a kart is, what its motor is doing and what is in its nitro tank, as one value. The
+## tank is in here rather than left to the snapshot because the client spends it as it goes: a
+## figure a round trip out of date would have the gauge jumping back up every time one arrived.
 static func capture(on: Kart) -> Array:
-	return [on.global_position.x, on.global_position.z] + on.motor.capture()
+	return (
+		[on.global_position.x, on.global_position.z]
+		+ on.motor.capture()
+		+ [on.nitro_charge, on.nitro_active]
+	)
 
 
 static func restore(on: Kart, state: Array) -> void:
-	if state.size() < 3:
+	var motor_end := 2 + KartMotor.STATE_FIELDS.size()
+	if state.size() < motor_end:
 		return
 	on.global_position = Vector3(state[0], 0.0, state[1])
-	on.motor.restore(state.slice(2))
+	on.motor.restore(state.slice(2, motor_end))
 	on.rotation = Vector3(0.0, on.motor.heading, 0.0)
 	on.velocity = on.motor.velocity
+	if state.size() > motor_end + 1:
+		on.nitro_charge = state[motor_end]
+		on._set_nitro_active(state[motor_end + 1])
 
 
 ## Runs tick [param at] on the kart and remembers it, under the number the session is about to
