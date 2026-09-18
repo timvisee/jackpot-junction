@@ -61,7 +61,7 @@ func _ready() -> void:
 	)
 	column.add_child(MenuTheme.row("Your own bullets", own_bullets_option))
 	overtime_option = MenuTheme.option(
-		["Sudden death", "Whistle on the hour"], OVERTIME.find(settings.overtime)
+		["Last one standing", "Match ends"], OVERTIME.find(settings.overtime)
 	)
 	column.add_child(MenuTheme.row("Out of time", overtime_option))
 	var spacer := Control.new()

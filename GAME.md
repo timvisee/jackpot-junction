@@ -427,8 +427,11 @@ because there is no lap after this one. Entering it sounds the Last Call alarm
 again, pitched down: the same warning, only final.
 
 The lobby carries the switch, alongside the other match options in 3.8: Out of
-time is either Sudden death or Whistle on the hour, and the choice is remembered
-with the rest of them.
+time is either Last one standing or Match ends, and the choice is remembered with
+the rest of them. Both say what happens rather than naming it: a player reading
+Out of time wants to know what the clock running out will do to them, and Sudden
+death and Whistle on the hour each needed the rule explained before they meant
+anything.
 
 ## 4. Kart
 
