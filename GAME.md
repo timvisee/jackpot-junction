@@ -1057,6 +1057,11 @@ subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
   once and the oldest goes to make room, so a long firefight against one wall does
   not end with the wall made of scorch marks.
 - **Traffic lights and road signs** as props at lane ends and near spawns.
+- **The title screen** has a carnival sunburst turning slowly behind the name,
+  with poker chips drifting up past it. Drawn rather than modelled: the menu is a
+  flat screen with no match running behind it, so a scene would be a scene loaded
+  to be looked at once. Dark on purpose; the point of the screen is the words on
+  it.
 - **The crowd**: a ring of small figures standing on the table all the way round
   the arena, and a DJ booth along the top edge with a pair of speakers that pulse
   on the beat. They bob while the room is quiet, they are on their feet at

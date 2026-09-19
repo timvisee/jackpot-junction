@@ -3,6 +3,7 @@ extends GdUnitTestSuite
 
 const TEST_SETTINGS_PATH := "user://test_settings.cfg"
 const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
+const TITLE_SCENE := preload("res://scenes/ui/title.tscn")
 
 
 func after_test() -> void:
@@ -119,7 +120,7 @@ func test_the_menu_actions_carry_a_gamepad_as_well_as_a_key() -> void:
 
 
 func test_menu_scenes_build() -> void:
-	var title: Control = auto_free(load("res://scenes/ui/title.tscn").instantiate())
+	var title: Control = auto_free(TITLE_SCENE.instantiate())
 	add_child(title)
 	assert_object(title.play_button).is_not_null()
 	var lobby: Control = auto_free(load("res://scenes/ui/lobby.tscn").instantiate())
@@ -146,6 +147,22 @@ func test_the_online_screen_carries_the_name_you_type() -> void:
 	assert_int(config.human_names[0].length()).is_less_equal(PlayerNames.MAX_LENGTH)
 	assert_bool(config.human_names[0].contains("[")).is_false()
 	assert_str(config.human_names[0]).starts_with("bBartholomew")
+
+
+## GAME.md 8.1: the title screen has something behind it, turning slowly, and it is behind the
+## words rather than over them.
+func test_the_title_screen_turns_behind_its_words() -> void:
+	var title: Control = auto_free(TITLE_SCENE.instantiate())
+	var runner: GdUnitSceneRunner = scene_runner(title)
+	await runner.simulate_frames(4, 17)
+	var back: TitleBackground = title.get_node("Background")
+	assert_object(back).is_not_null()
+	# Over the flat colour, under the menu: everything a player came here to read is on top.
+	assert_int(back.get_index()).is_equal(1)
+	assert_int(back.mouse_filter).is_equal(Control.MOUSE_FILTER_IGNORE)
+	var turned := back._spin
+	await runner.simulate_frames(20, 17)
+	assert_float(back._spin).is_not_equal(turned)
 
 
 func test_match_scene_starts_from_the_pending_configuration() -> void:

@@ -1,11 +1,13 @@
 extends Control
-## The title screen from GAME.md 3.8: Play, the Garage practice room, Settings, Quit.
+## The title screen from GAME.md 3.8: Play, the Garage practice room, Settings, Quit, over the
+## turning sunburst of [TitleBackground].
 
 var play_button: Button
 
 
 func _ready() -> void:
 	var column := MenuTheme.screen(self, 18)
+	TitleBackground.add_to(self)
 	column.alignment = BoxContainer.ALIGNMENT_CENTER
 	column.add_child(MenuTheme.title("Jackpot Junction", 96))
 	column.add_child(

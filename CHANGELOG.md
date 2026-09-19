@@ -174,6 +174,9 @@ below, and hands the notes to the release workflow.
   boundary wall, magenta on two sides and cyan on the other two, and a dashed cream
   line runs round the inside of the room like a lane marking.
 
+- **The title screen has something behind it.** A slow carnival sunburst with
+  poker chips drifting up past it.
+
 ### Fixed
 
 - **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball
