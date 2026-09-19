@@ -66,6 +66,9 @@ below, and hands the notes to the release workflow.
 
 - **The results screen is headed Podium.**
 
+- **Bullet marks are round.** They were squares, which read as stickers rather
+  than as holes.
+
 ### Added
 
 - **A one-minute match, in debug builds only.** Long enough to reach the Junction

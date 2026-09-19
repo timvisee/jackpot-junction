@@ -40,6 +40,9 @@ func test_a_shot_into_a_wall_leaves_a_mark_on_it() -> void:
 	var marks := _marks(match_node)
 	assert_int(marks.size()).is_equal(1)
 	var mark: BulletMark = marks[0]
+	# Round rather than square: the quad wears a disc that falls away to nothing at its edge.
+	assert_object(mark._material.albedo_texture).is_same(BulletMark.disc())
+	assert_int(BulletMark.disc().fill).is_equal(GradientTexture2D.FILL_RADIAL)
 	# Just off the wall, and its face pointing back along the normal it was given.
 	assert_vector(mark.global_position).is_equal_approx(
 		at + Vector3(-BulletMark.LIFT, 0.0, 0.0), Vector3.ONE * 0.001
