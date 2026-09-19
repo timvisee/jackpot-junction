@@ -157,6 +157,10 @@ below, and hands the notes to the release workflow.
   stretch has one word on it and the button it names. A portal at the end leads to
   the Garage, and the Garage has one back.
 
+- **Dress your kart.** Four things to pick in the lobby beside your name: a paint
+  pattern, a hat, a flag and what the kart leaves behind it. Your colour is still
+  your colour underneath, and everybody sees the same kart online.
+
 ### Fixed
 
 - **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball

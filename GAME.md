@@ -678,11 +678,36 @@ would leave skipping unreachable.
 
 ### 4.4 Customisation
 
-- One kart body at first. Player colour is a material tint on the body
-  and the bullets.
+- One kart body. Player colour is a material tint on the body and the bullets.
 - 8 player colours, see 8.1. Each colour also has a distinct roof marker shape
   for colour-blind readability.
-- Skins and body variants come later.
+- Four more things a player picks in the lobby, beside their name, remembered per
+  seat between sessions. None of them changes how the kart drives, and the player
+  colour is still the player colour underneath all of it: these say whose kart it
+  is a second time rather than instead.
+
+| Choice | Options                                                            |
+|--------|--------------------------------------------------------------------|
+| Paint  | Solid, Stripes, Checks, Spots                                      |
+| Hat    | None, Cap, Top hat, Crown, Party                                   |
+| Flag   | None, Pennant, Banner                                              |
+| Trail  | Smoke, Sparks, Confetti, None                                      |
+
+- **Paint** is a pattern laid over the colour rather than a second colour: a tiny
+  generated texture mapped triplanar, so the model needs no unwrapping and the
+  pattern sits on the kart rather than on the world. A striped red kart is still
+  unmistakably the red one.
+- **Hats** sit on the crown of the driver's helmet, and the roof marker moves up
+  over whichever one is worn rather than through it.
+- **Flags** fly from a pole at the back, clear of the bodywork.
+- **Trails** replace the exhaust smoke: sparks or confetti in the player's colour,
+  or nothing at all. Whatever it is still thickens with the throttle and in a
+  drift, see 4.3.
+- A kart is dressed the same on every screen: the four choices ride with the kart
+  in the snapshot, see 10.3, and a choice a machine has never heard of is the
+  plain one rather than a crash.
+- The podium at the end of a match shows each kart as its owner dressed it, see
+  3.8, and so does the Garage.
 
 ## 5. Combat
 

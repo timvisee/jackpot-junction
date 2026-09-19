@@ -116,6 +116,7 @@ static func _karts(match_node: Match) -> Array:
 					"id": kart.get_instance_id(),
 					"slot": kart.slot,
 					"color": kart.color_index,
+					"style": kart.style.to_array(),
 					"x": kart.global_position.x,
 					"z": kart.global_position.z,
 					"h": kart.motor.heading,
@@ -497,6 +498,7 @@ static func _apply_karts(match_node: Match, entries: Array) -> void:
 			kart.name = "Puppet%d" % id
 			kart.slot = entry["slot"]
 			kart.color_index = entry["color"]
+			kart.style = KartStyle.from_array(entry.get("style", null))
 			kart.rules = match_node.rules
 			if entry["decoy"]:
 				kart.decoy_owner = kart

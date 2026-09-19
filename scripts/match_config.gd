@@ -6,6 +6,8 @@ extends RefCounted
 var human_devices: Array[int] = [DeviceInput.ANY]
 ## Colour index per human, in the same order; empty means slot order.
 var human_colors: Array[int] = []
+## How each human dressed their kart, in the same order, as the four numbers of a [KartStyle].
+var human_styles: Array = []
 ## What each human calls themselves, in the same order. An empty entry is handed a funny name
 ## when the match starts, GAME.md 3.8.
 var human_names: Array[String] = []
@@ -58,6 +60,15 @@ func names() -> Array[String]:
 	return result
 
 
+## The dress for every slot: what the humans picked, then nothing for the bots, which drive the
+## kart as it comes.
+func styles() -> Array:
+	var result: Array = []
+	for i: int in human_devices.size():
+		result.append(human_styles[i] if i < human_styles.size() else PackedInt32Array())
+	return result
+
+
 func rules(base: MatchRules) -> MatchRules:
 	var copy: MatchRules = base.duplicate()
 	copy.duration = duration
@@ -81,4 +92,5 @@ static func from_settings(settings: Settings) -> MatchConfig:
 	config.own_bullets_hurt = settings.own_bullets_hurt
 	config.overtime = settings.overtime
 	config.human_names = settings.player_names.duplicate()
+	config.human_styles = settings.kart_styles.duplicate()
 	return config

@@ -8,16 +8,17 @@ extends SubViewportContainer
 ## already models and a kart turning under a light says more about who won than a name in a list
 ## does. Its own world too, so none of the arena the match was played in leaks into it.
 
-const SIZE := Vector2(940.0, 246.0)
+const SIZE := Vector2(940.0, 272.0)
 ## Where each place stands and how tall its step is, in metres: the winner in the middle, second
 ## to the left a little lower, third to the right and lowest of all.
-const PLACES: Array[Vector2] = [Vector2(0.0, 1.35), Vector2(-2.3, 1.0), Vector2(2.3, 0.75)]
+const PLACES: Array[Vector2] = [Vector2(0.0, 1.15), Vector2(-2.3, 0.88), Vector2(2.3, 0.66)]
 const STEP_WIDTH := 1.9
 const STEP_DEPTH := 1.9
 ## Seconds for a kart to turn all the way round.
 const SPIN_SECONDS := 7.0
-## The karts are bigger here than on the floor: this is a trophy shot, not a scale model.
-const KART_SCALE := 1.25
+## Room over the karts for the tallest hat anybody can wear, GAME.md 4.4, without the picture
+## being mostly sky for everybody who is not wearing one.
+const KART_SCALE := 1.05
 const STEP_COLOR := Color(0.14, 0.14, 0.18)
 ## The band of the player's own colour round the top of their step.
 const BAND_HEIGHT := 0.09
@@ -88,7 +89,7 @@ func _add_step(slot: PlayerSlot, place: int) -> void:
 	kart.name = "Kart%d" % place
 	kart.position = Vector3(at.x, at.y, 0.0)
 	kart.scale = Vector3.ONE * KART_SCALE
-	kart.add_child(KartVisuals.display_model(slot.color_index))
+	kart.add_child(KartVisuals.display_model(slot.color_index, slot.style))
 	_stage.add_child(kart)
 	_karts.append(kart)
 
@@ -154,8 +155,8 @@ func _camera() -> Camera3D:
 	var camera := Camera3D.new()
 	camera.name = "Camera"
 	camera.fov = 40.0
-	camera.position = Vector3(0.0, 2.05, 5.5)
-	camera.look_at_from_position(camera.position, Vector3(0.0, 1.32, 0.0), Vector3.UP)
+	camera.position = Vector3(0.0, 2.15, 6.6)
+	camera.look_at_from_position(camera.position, Vector3(0.0, 1.25, 0.0), Vector3.UP)
 	return camera
 
 

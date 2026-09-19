@@ -4,6 +4,8 @@ extends RefCounted
 ## and scores, never node paths.
 
 var index := 0
+## How this player's kart is dressed, GAME.md 4.4.
+var style := KartStyle.new()
 ## What this player calls themselves, GAME.md 3.8. Empty for a bot or a dummy, which are named
 ## after what they are; every human has one, their own or one off the funny list.
 var player_name := ""

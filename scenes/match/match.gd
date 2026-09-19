@@ -84,6 +84,8 @@ var _inputs: Array[KartInput] = []
 var _colors: Array[int] = []
 ## What the lobby called each seat, in slot order; an empty entry is handed a funny name.
 var _names: Array[String] = []
+## How each seat dressed its kart, in slot order, as the four numbers of a [KartStyle].
+var _styles: Array = []
 ## Draws the funny names. Its own generator rather than the match's, so that naming the room
 ## does not shift every other draw of the match along and turn a seeded match into a different
 ## one than it was before names existed.
@@ -110,11 +112,16 @@ func _ready() -> void:
 ## Builds the arena, spawns one kart per input and starts the countdown. A zero seed picks a
 ## random one; [param colors] gives each slot its colour index, slot order when empty.
 func start(
-	inputs: Array[KartInput], seed: int = 0, colors: Array[int] = [], names: Array[String] = []
+	inputs: Array[KartInput],
+	seed: int = 0,
+	colors: Array[int] = [],
+	names: Array[String] = [],
+	styles: Array = []
 ) -> void:
 	_inputs = inputs
 	_colors = colors
 	_names = names
+	_styles = styles
 	_seed = seed if seed != 0 else randi()
 	rng.seed = _seed
 	_names_rng.seed = _seed + 7919
@@ -160,6 +167,7 @@ func start(
 	for i: int in mini(inputs.size(), rules.max_players):
 		var slot := PlayerSlot.new(i, inputs[i], colors[i] if i < colors.size() else -1)
 		slot.player_name = _name_for(i, inputs[i])
+		slot.style = _style_for(i)
 		slots.append(slot)
 		_spawn_kart(slot, arena.spawn_points[i % arena.spawn_points.size()])
 		karts.append(slot.kart)
@@ -185,6 +193,7 @@ func rematch() -> void:
 	var players: Array[KartInput] = []
 	var colors: Array[int] = []
 	var names: Array[String] = []
+	var styles: Array = []
 	for slot: PlayerSlot in slots:
 		players.append(slot.input)
 		colors.append(slot.color_index)
@@ -192,6 +201,7 @@ func rematch() -> void:
 		# they were handed off the list: being renamed between one match and the next would read
 		# as somebody else having sat down.
 		names.append(slot.player_name)
+		styles.append(slot.style.to_array())
 	for child: Node in get_children():
 		remove_child(child)
 		child.queue_free()
@@ -201,7 +211,7 @@ func rematch() -> void:
 	camera_rig = null
 	hud = null
 	nav = null
-	start(players, 0, colors, names)
+	start(players, 0, colors, names, styles)
 
 
 func _exit_tree() -> void:
@@ -241,6 +251,7 @@ func _join_with_input(input: KartInput) -> PlayerSlot:
 		return null
 	var slot := PlayerSlot.new(slots.size(), input, _free_color())
 	slot.player_name = _name_for(slot.index, input)
+	slot.style = _style_for(slot.index)
 	slots.append(slot)
 	var enemies: Array[Vector3] = []
 	for other: PlayerSlot in slots:
@@ -321,6 +332,11 @@ func _name_for(index: int, input: KartInput) -> String:
 	for slot: PlayerSlot in slots:
 		taken.append(slot.player_name)
 	return PlayerNames.pick(_names_rng, taken)
+
+
+## How a seat dressed its kart, GAME.md 4.4, or the plain kart for a seat that said nothing.
+func _style_for(index: int) -> KartStyle:
+	return KartStyle.from_array(_styles[index] if index < _styles.size() else null)
 
 
 func _free_color() -> int:
@@ -514,6 +530,7 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 	kart.name = "Kart%d" % slot.index
 	kart.slot = slot.index
 	kart.color_index = slot.color_index
+	kart.style = slot.style
 	kart.input = slot.input
 	kart.rules = rules
 	kart.rng = rng

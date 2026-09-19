@@ -37,6 +37,9 @@ const RING_RADIUS_FULL := 1.4
 @export var slot := 0
 ## Which player colour the kart and its bullets use.
 @export var color_index := 0
+## How this kart is dressed, GAME.md 4.4. Set before the kart enters the tree; the body is built
+## from it once.
+var style := KartStyle.new()
 
 var input: KartInput = KartInput.new()
 var motor: KartMotor
@@ -182,6 +185,7 @@ func _ready() -> void:
 	smoke = ExhaustSmoke.new()
 	smoke.name = "Smoke"
 	smoke.position = Vector3(0.0, 0.35, stats.length * 0.5)
+	smoke.dress(Palette.player_color(color_index), style.trail)
 	add_child(smoke)
 	var attached := KartVisuals.build_attachments(self)
 	_pickup_area = attached["pickup_area"]

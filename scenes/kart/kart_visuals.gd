@@ -21,23 +21,41 @@ static func build_body(kart: Kart) -> Dictionary:
 	kart.add_child(body)
 	var model := _model()
 	body.add_child(model)
-	var tint := StandardMaterial3D.new()
-	tint.albedo_color = Palette.player_color(kart.color_index)
+	var color := Palette.player_color(kart.color_index)
+	var tint := KartDress.paint(color, kart.style)
 	var wheels: Array[MeshInstance3D] = []
 	paint(model, tint, wheels)
-	body.add_child(roof_marker(kart.slot, kart.color_index))
+	var marker := roof_marker(kart.slot, kart.color_index)
+	# A hat stands where the marker floated, so the marker moves up over it rather than through.
+	marker.position.y += KartDress.HAT_LIFT[kart.style.hat]
+	body.add_child(marker)
+	var hat := KartDress.hat(kart.style.hat, color)
+	if hat != null:
+		body.add_child(hat)
+	var flag := KartDress.flag(kart.style.flag, color)
+	if flag != null:
+		body.add_child(flag)
 	return {"body": body, "tint": tint, "wheels": wheels}
 
 
 ## The kart as something to look at rather than to drive: the model in a player's colour, with
 ## nothing hanging off it and no kart under it. The results podium stands one on each step.
-static func display_model(color_index: int) -> Node3D:
+static func display_model(color_index: int, style: KartStyle = null) -> Node3D:
+	# A holder rather than the model itself: the model is turned round and scaled to sit on the
+	# floor, and a hat hung off it would be turned round and scaled with it.
+	var holder := Node3D.new()
+	holder.name = "Kart"
 	var model := _model()
-	var tint := StandardMaterial3D.new()
-	tint.albedo_color = Palette.player_color(color_index)
+	holder.add_child(model)
+	var dressed := style if style != null else KartStyle.new()
+	var color := Palette.player_color(color_index)
+	var tint := KartDress.paint(color, dressed)
 	var wheels: Array[MeshInstance3D] = []
 	paint(model, tint, wheels)
-	return model
+	for worn: Node3D in [KartDress.hat(dressed.hat, color), KartDress.flag(dressed.flag, color)]:
+		if worn != null:
+			holder.add_child(worn)
+	return holder
 
 
 ## Paints every part of a model but the driver in one colour, and collects the wheels on the way

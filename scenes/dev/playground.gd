@@ -60,7 +60,10 @@ func _ready() -> void:
 		inputs.append(PlayerInput.new())
 	for i: int in _bots:
 		inputs.append(BotInput.new())
-	match_node.start(inputs)
+	# Dressed as the settings say, GAME.md 4.4, so a screenshot of this room shows what a player
+	# actually drives rather than the kart as it comes.
+	var styles: Array = [Game.settings.kart_styles[0]]
+	match_node.start(inputs, 0, [], [], styles)
 	var player := match_node.kart_of(0)
 	for i: int in _jokers:
 		_deal_joker(player)

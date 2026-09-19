@@ -9,6 +9,8 @@ extends Control
 ## a gamepad player with no keyboard to type on is still somebody rather than P3. Steering does
 ## not cycle colours while a box has the focus, since the letters somebody is typing are also
 ## the keys that steer.
+##
+## Beside the name is how that player's kart is dressed, GAME.md 4.4, remembered the same way.
 
 const MINUTES: Array[int] = [3, 5, 8]
 ## A minute, for a match somebody is testing rather than playing: long enough to reach the
@@ -44,6 +46,10 @@ var _players_label: RichTextLabel
 ## One name box per seat, built once and shown as far down as the roster reaches.
 var _name_fields: Array[LineEdit] = []
 var _name_rows: Array[HBoxContainer] = []
+## One row of dress choices per seat, each a list of option buttons in [constant
+## KartStyle.CHOICES] order.
+var _style_rows: Array[HBoxContainer] = []
+var _style_pickers: Array[Array] = []
 var _steer_was_down: Dictionary[String, bool] = {}
 
 
@@ -60,6 +66,7 @@ func _ready() -> void:
 	var settings := Game.settings
 	player_names[0] = _remembered_name(0)
 	_build_name_rows(column)
+	_build_style_rows(column)
 	var lengths := _match_lengths()
 	minutes_option = MenuTheme.option(
 		_labels(lengths, "%d min"), maxi(lengths.find(settings.match_minutes), 0)
@@ -163,6 +170,7 @@ func config() -> MatchConfig:
 	result.human_devices = devices.duplicate()
 	result.human_colors = colors.duplicate()
 	result.human_names = names()
+	result.human_styles = styles()
 	result.duration = _match_lengths()[minutes_option.selected] * 60.0
 	result.target_score = TARGETS[target_option.selected]
 	result.bot_count = mini(BOTS[bots_option.selected], MAX_HUMANS - devices.size())
@@ -170,6 +178,17 @@ func config() -> MatchConfig:
 	result.item_set = ITEM_SETS[items_option.selected]
 	result.own_bullets_hurt = OWN_BULLETS[own_bullets_option.selected]
 	result.overtime = OVERTIME[overtime_option.selected]
+	return result
+
+
+## How each joined player dressed their kart, in slot order.
+func styles() -> Array:
+	var result: Array = []
+	for i: int in devices.size():
+		var picked := PackedInt32Array()
+		for option: OptionButton in _style_pickers[i]:
+			picked.append(option.selected)
+		result.append(picked)
 	return result
 
 
@@ -186,6 +205,9 @@ func _start() -> void:
 	var typed := names()
 	for i: int in mini(typed.size(), settings.player_names.size()):
 		settings.player_names[i] = typed[i]
+	var dressed := styles()
+	for i: int in mini(dressed.size(), settings.kart_styles.size()):
+		settings.kart_styles[i] = dressed[i]
 	settings.match_minutes = _match_lengths()[minutes_option.selected]
 	settings.target_score = TARGETS[target_option.selected]
 	settings.bot_count = BOTS[bots_option.selected]
@@ -233,11 +255,39 @@ func _build_name_rows(column: VBoxContainer) -> void:
 		column.add_child(row)
 
 
+## A row of dress choices per seat, built up front like the name boxes and shown with them. The
+## kart is the thing a player looks at for the whole match, so the choices are here rather than
+## behind a screen of their own.
+func _build_style_rows(column: VBoxContainer) -> void:
+	for i: int in MAX_HUMANS:
+		var pickers: Array = []
+		var line := HBoxContainer.new()
+		line.add_theme_constant_override("separation", 8)
+		for choice: int in KartStyle.CHOICES.size():
+			var option := MenuTheme.option(KartStyle.CHOICES[choice], _remembered_style(i, choice))
+			option.custom_minimum_size = Vector2(150.0, 40.0)
+			pickers.append(option)
+			line.add_child(option)
+		_style_pickers.append(pickers)
+		var row := MenuTheme.row("P%d kart" % (i + 1), line)
+		_style_rows.append(row)
+		column.add_child(row)
+
+
+func _remembered_style(seat: int, choice: int) -> int:
+	var stored := Game.settings.kart_styles
+	if seat >= stored.size():
+		return 0
+	var packed := PackedInt32Array(stored[seat])
+	return packed[choice] if choice < packed.size() else 0
+
+
 ## Shows as many boxes as there are players, each holding whatever its player is called.
 func _refresh_names() -> void:
 	for i: int in _name_rows.size():
 		_name_rows[i].visible = i < devices.size()
 		_name_fields[i].text = player_names[i] if i < player_names.size() else ""
+		_style_rows[i].visible = i < devices.size()
 
 
 func _remembered_name(seat: int) -> String:

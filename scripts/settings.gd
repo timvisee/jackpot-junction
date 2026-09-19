@@ -42,6 +42,14 @@ var overtime := true
 ## What each local seat calls itself, GAME.md 3.8. An empty entry is a seat that never gave a
 ## name and will be handed a funny one when the match starts.
 var player_names: Array[String] = ["", "", "", ""]
+## How each local seat dressed its kart, GAME.md 4.4: four numbers each, a paint, a hat, a flag
+## and a trail.
+var kart_styles: Array = [
+	PackedInt32Array([0, 0, 0, 0]),
+	PackedInt32Array([0, 0, 0, 0]),
+	PackedInt32Array([0, 0, 0, 0]),
+	PackedInt32Array([0, 0, 0, 0]),
+]
 ## Whether anybody has been round the test track yet, GAME.md 9.4. The first visit to the
 ## Garage goes there; every visit after it goes to the Garage proper.
 var seen_test_track := false
@@ -84,6 +92,9 @@ func load_from_disk() -> void:
 	var stored: Array = file.get_value("lobby", "player_names", [])
 	for i: int in mini(stored.size(), player_names.size()):
 		player_names[i] = PlayerNames.clean(str(stored[i]))
+	var dressed: Array = file.get_value("lobby", "kart_styles", [])
+	for i: int in mini(dressed.size(), kart_styles.size()):
+		kart_styles[i] = KartStyle.from_array(dressed[i]).to_array()
 	seen_test_track = file.get_value("progress", "seen_test_track", seen_test_track)
 	last_address = file.get_value("online", "address", last_address)
 	last_port = file.get_value("online", "port", last_port)
@@ -116,6 +127,7 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "own_bullets_hurt", own_bullets_hurt)
 	file.set_value("lobby", "overtime", overtime)
 	file.set_value("lobby", "player_names", player_names)
+	file.set_value("lobby", "kart_styles", kart_styles)
 	file.set_value("progress", "seen_test_track", seen_test_track)
 	file.set_value("online", "address", last_address)
 	file.set_value("online", "port", last_port)

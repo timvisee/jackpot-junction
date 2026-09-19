@@ -28,7 +28,7 @@ func _ready() -> void:
 	add_child(match_node)
 	match config.online:
 		"host":
-			match_node.start(config.inputs(), 0, config.colors(), config.names())
+			match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles())
 			_start_session()
 			var error := session.host(config.port)
 			if error != OK:
@@ -55,7 +55,7 @@ func _ready() -> void:
 			else:
 				_show_status("Connecting to %s:%d..." % [config.address, config.port])
 		_:
-			match_node.start(config.inputs(), 0, config.colors(), config.names())
+			match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles())
 	DebugOverlay.add_to(self, match_node, session)
 	PauseMenu.add_to(self, session)
 
