@@ -4,12 +4,13 @@ extends GdUnitTestSuite
 ## same game.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const RULES: MatchRules = preload("res://data/match/default.tres")
 
 var _runner: GdUnitSceneRunner
 
 
 func _finished_match() -> Match:
-	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
 	rules.duration = 60.0
 	rules.overtime = false
@@ -68,3 +69,50 @@ func test_filling_the_screen_in_again_does_not_double_it_up() -> void:
 	var before := _texts(screen).size()
 	screen.fill_in()
 	assert_int(_texts(screen).size()).is_equal(before)
+
+
+## GAME.md 3.8: the top three stand on a podium, the winner on the tallest step in the middle.
+func test_the_top_three_stand_on_the_podium() -> void:
+	var match_node := _finished_match()
+	await _runner.simulate_frames(12, 17)
+	match_node.slots[1].banked = 900
+	match_node.slots[0].banked = 400
+	match_node.slots[2].banked = 100
+	match_node.time_left = 0.02
+	await _runner.simulate_frames(10, 17)
+	var podium: ResultsPodium = match_node.hud._results._podium
+	assert_bool(podium.visible).is_true()
+	assert_int(podium._karts.size()).is_equal(3)
+	# The winner is in the middle on the tallest step, and the steps come down from there.
+	assert_float(podium._karts[0].position.x).is_equal(0.0)
+	assert_float(podium._karts[0].position.y).is_greater(podium._karts[1].position.y)
+	assert_float(podium._karts[1].position.y).is_greater(podium._karts[2].position.y)
+	# And second and third stand on opposite sides of the winner.
+	assert_float(podium._karts[1].position.x * podium._karts[2].position.x).is_less(0.0)
+	# They turn on the spot, so the karts are looked at rather than merely listed.
+	var facing := podium._karts[0].rotation.y
+	await _runner.simulate_frames(20, 17)
+	assert_float(podium._karts[0].rotation.y).is_not_equal(facing)
+
+
+## A match of two has two on the podium rather than an empty step, and filling the screen in
+## twice does not stack a second podium on the first.
+func test_the_podium_only_holds_who_is_there() -> void:
+	var rules: MatchRules = RULES.duplicate()
+	rules.countdown = 0.1
+	rules.duration = 60.0
+	rules.overtime = false
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.with_hud = true
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	match_node.start(inputs, 31)
+	await _runner.simulate_frames(12, 17)
+	match_node.time_left = 0.02
+	await _runner.simulate_frames(10, 17)
+	var podium: ResultsPodium = match_node.hud._results._podium
+	assert_int(podium._karts.size()).is_equal(2)
+	match_node.hud._results.fill_in()
+	assert_int(podium._karts.size()).is_equal(2)

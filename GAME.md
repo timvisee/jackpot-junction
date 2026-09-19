@@ -282,9 +282,16 @@ hazards and the Junction alike, while the rig swings onto the winner. Results
 show every player's banked score and kills, ranked, then offer a rematch or a
 return to the lobby.
 
-The screen is built like the joker detail pane in 8.3, so the two read as the same
-game: a dark translucent card with room to breathe and a bar of colour along the
-top, here the winner's. Each player gets a row of their own rather than a line of
+The screen opens with a victory podium: the top three on three steps, the winner
+in the middle on the tallest, second a little lower on one side and third lowest
+on the other, each with their own kart standing on top of it turning slowly on the
+spot. It is a small 3D scene of its own rather than a picture, lit by its own
+light in a world of its own so nothing of the arena behind it leaks in. A match of
+two fills two steps.
+
+Below it, with air between the picture and the list, the screen is built like the
+joker detail pane in 8.3, so the two read as the same game: a dark translucent card
+with room to breathe and a bar of colour along the top, here the winner's. Each player gets a row of their own rather than a line of
 text, with their place and name on the left in their own colour, their colour down
 the leading edge of the row, their kills and deaths in grey, and what they banked
 on the right in gold. The row of whoever is reading the screen is lifted a shade

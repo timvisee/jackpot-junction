@@ -110,6 +110,10 @@ below, and hands the notes to the release workflow.
   remembered between sessions. Left empty, the match hands out one of the funny
   ones.
 
+- **The results open on a victory podium.** The top three on three steps, the
+  winner in the middle on the tallest, each with their own kart standing on top of
+  it turning on the spot.
+
 ### Fixed
 
 - **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball

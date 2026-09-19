@@ -19,16 +19,30 @@ static func build_body(kart: Kart) -> Dictionary:
 	var body := Node3D.new()
 	body.name = "Body"
 	kart.add_child(body)
-	var model: Node3D = MODEL.instantiate()
-	model.name = "Model"
-	# The model drives toward its +Z; Godot's forward is -Z.
-	model.rotation_degrees = Vector3(0.0, 180.0, 0.0)
-	model.scale = Vector3.ONE * MODEL_SCALE
-	model.position = Vector3(0.0, MODEL_LIFT, 0.0)
+	var model := _model()
 	body.add_child(model)
 	var tint := StandardMaterial3D.new()
 	tint.albedo_color = Palette.player_color(kart.color_index)
 	var wheels: Array[MeshInstance3D] = []
+	paint(model, tint, wheels)
+	body.add_child(roof_marker(kart.slot, kart.color_index))
+	return {"body": body, "tint": tint, "wheels": wheels}
+
+
+## The kart as something to look at rather than to drive: the model in a player's colour, with
+## nothing hanging off it and no kart under it. The results podium stands one on each step.
+static func display_model(color_index: int) -> Node3D:
+	var model := _model()
+	var tint := StandardMaterial3D.new()
+	tint.albedo_color = Palette.player_color(color_index)
+	var wheels: Array[MeshInstance3D] = []
+	paint(model, tint, wheels)
+	return model
+
+
+## Paints every part of a model but the driver in one colour, and collects the wheels on the way
+## past, since those are turned rather than tinted.
+static func paint(model: Node3D, tint: StandardMaterial3D, wheels: Array[MeshInstance3D]) -> void:
 	for node: Node in model.find_children("*", "MeshInstance3D", true, false):
 		var mesh := node as MeshInstance3D
 		var lower := mesh.name.to_lower()
@@ -36,8 +50,16 @@ static func build_body(kart: Kart) -> Dictionary:
 			wheels.append(mesh)
 		elif not lower.contains("character"):
 			mesh.material_override = tint
-	body.add_child(roof_marker(kart.slot, kart.color_index))
-	return {"body": body, "tint": tint, "wheels": wheels}
+
+
+static func _model() -> Node3D:
+	var model: Node3D = MODEL.instantiate()
+	model.name = "Model"
+	# The model drives toward its +Z; Godot's forward is -Z.
+	model.rotation_degrees = Vector3(0.0, 180.0, 0.0)
+	model.scale = Vector3.ONE * MODEL_SCALE
+	model.position = Vector3(0.0, MODEL_LIFT, 0.0)
+	return model
 
 
 ## Where the rear wheels sit on the model, as (half track, distance behind the middle). The tire

@@ -7,10 +7,11 @@ extends PanelContainer
 ## played. This is about the match once it is over, and it is the last thing anybody looks at.
 ##
 ## Built like the joker detail pane in 8.3, so the two read as the same game: a dark translucent
-## card with room to breathe and a bar of colour along the top, here the winner's. Each player
-## is a row of their own rather than a line of text, with the place and the name on the left,
-## the score on the right, and the awards underneath as separate chips rather than run together
-## into one sentence.
+## card with room to breathe and a bar of colour along the top, here the winner's. The top three
+## stand on a podium at the head of it, see [ResultsPodium], and under that each player is a row
+## of their own rather than a line of text, with the place and the name on the left, the score
+## on the right, and the awards underneath as separate chips rather than run together into one
+## sentence.
 
 const WIDTH := 980.0
 const BG := Color(0.07, 0.07, 0.09, 0.94)
@@ -22,10 +23,13 @@ const EDGE := 6
 const ROW_BG := Color(1.0, 1.0, 1.0, 0.04)
 const ROW_MINE := Color(1.0, 1.0, 1.0, 0.09)
 const CHIP_BG := Color(1.0, 1.0, 1.0, 0.07)
+## Air between the podium and the table of players: one is a picture and the other a list.
+const PODIUM_GAP := 10.0
 
 var match_node: Match
 
 var _style: StyleBoxFlat
+var _podium: ResultsPodium
 var _rows: VBoxContainer
 
 
@@ -52,6 +56,7 @@ func fill_in() -> void:
 	var standings := match_node.standings()
 	if not standings.is_empty():
 		_style.border_color = standings[0].color()
+	_podium.show_top(standings)
 	var rank := 1
 	for slot: PlayerSlot in standings:
 		_rows.add_child(_entry(slot, rank, everyone))
@@ -180,6 +185,13 @@ func _build() -> void:
 	rule.color = RULE
 	rule.custom_minimum_size = Vector2(WIDTH, 1.0)
 	column.add_child(rule)
+	_podium = ResultsPodium.create()
+	column.add_child(_podium)
+	# The podium is a picture and the rows are a table; they want air between them rather than
+	# the spacing that holds one row off the next.
+	var gap := Control.new()
+	gap.custom_minimum_size = Vector2(0.0, PODIUM_GAP)
+	column.add_child(gap)
 	_rows = VBoxContainer.new()
 	_rows.add_theme_constant_override("separation", 10)
 	column.add_child(_rows)
