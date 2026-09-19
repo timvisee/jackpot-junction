@@ -125,9 +125,10 @@ func start(
 		var cell := arena.grid.crates[i]
 		arena.crates[i].destroyed.connect(func(_by: int) -> void: nav.set_cell_blocked(cell, false))
 		arena.crates[i].respawned.connect(func() -> void: nav.set_cell_blocked(cell, true))
-	arena.junction.bank_started.connect(_on_bank_started)
-	arena.junction.bank_tick.connect(_on_bank_tick)
-	arena.junction.bank_completed.connect(_on_bank_completed)
+	if arena.junction != null:
+		arena.junction.bank_started.connect(_on_bank_started)
+		arena.junction.bank_tick.connect(_on_bank_tick)
+		arena.junction.bank_completed.connect(_on_bank_completed)
 	for pad: FlushPad in arena.flush_pads:
 		pad.decay = rules.flush_pad_decay
 		pad.claimed.connect(_on_pad_claimed)
@@ -407,11 +408,12 @@ func start_puppet() -> void:
 	for zone: JackpotZone in arena.jackpot_zones:
 		zone.rules = rules
 		zone.puppet = true
-	arena.junction.puppet = true
-	# Banking stays the host's, but the pad's faster nitro tank is worked out here too, GAME.md
-	# 3.4, and for that it needs the numbers. They are the same numbers: a client's copy is the
-	# one the host's lobby settings are written into, and everything else comes from the file.
-	arena.junction.rules = rules
+	if arena.junction != null:
+		arena.junction.puppet = true
+		# Banking stays the host's, but the pad's faster nitro tank is worked out here too,
+		# GAME.md 3.4, and for that it needs the numbers. They are the same numbers: a client's
+		# copy is the one the host's lobby settings are written into, and the rest is in the file.
+		arena.junction.rules = rules
 	for crate: Crate in arena.crates:
 		crate.puppet = true
 	_build_systems(true)
@@ -565,8 +567,9 @@ func _physics_process(delta: float) -> void:
 			if JokerTick.step(slots, delta):
 				check_target()
 			_step_heat(delta)
-			arena.junction.hint = junction_hint()
-			arena.junction.winning = junction_wins_it()
+			if arena.junction != null:
+				arena.junction.hint = junction_hint()
+				arena.junction.winning = junction_wins_it()
 			arena.disco.level = intensity.level
 			camera_rig.tremble = _beat_tremble()
 
@@ -660,7 +663,8 @@ func _begin_play() -> void:
 
 
 func _enter_last_call() -> void:
-	arena.junction.payout_multiplier = rules.last_call_payout
+	if arena.junction != null:
+		arena.junction.payout_multiplier = rules.last_call_payout
 	_set_state(State.LAST_CALL)
 
 

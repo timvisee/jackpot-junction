@@ -826,6 +826,10 @@ R  target        D  joker pad
 B  crate         .  floor            F  Royal Flush pad
 ```
 
+Every element is optional. A map with no `J` in it has no Junction, and nothing
+that reaches for one finds one: the test track in 9.4 is a road with corners on
+it and nothing to bank.
+
 - The four turbo pads point along the vertical lanes at columns 10 and 21,
   each toward the opposite pad, so karts can rocket past the Junction's flanks.
 - The pits sit directly above and below the Junction, so approaching from the

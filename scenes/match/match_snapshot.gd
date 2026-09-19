@@ -32,7 +32,8 @@ static func build(match_node: Match, wire: PickupWire = null) -> Dictionary:
 		"state": match_node.state,
 		"time": match_node.time_left,
 		"countdown": match_node.countdown_left,
-		"payout": match_node.arena.junction.payout_multiplier,
+		"payout":
+		match_node.arena.junction.payout_multiplier if match_node.arena.junction != null else 1.0,
 		"slots": _slots(match_node),
 		"karts": _karts(match_node),
 		"bullets": _bullets(match_node),
@@ -299,7 +300,8 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 	match_node.state = data["state"]
 	match_node.time_left = data["time"]
 	match_node.countdown_left = data["countdown"]
-	match_node.arena.junction.payout_multiplier = data["payout"]
+	if match_node.arena.junction != null:
+		match_node.arena.junction.payout_multiplier = data["payout"]
 	if match_node.state != previous_state and match_node.hud != null:
 		match_node.hud.call("_on_state_changed", match_node.state)
 	_ensure_slots(match_node, (data["slots"] as Array).size())

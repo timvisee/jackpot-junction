@@ -130,7 +130,8 @@ func start_economy(
 	for crate: Crate in crates:
 		if not crate.destroyed.is_connected(_on_crate_destroyed):
 			crate.destroyed.connect(_on_crate_destroyed.bind(crate))
-	junction.rules = rules
+	if junction != null:
+		junction.rules = rules
 	for zone: JackpotZone in jackpot_zones:
 		zone.rules = rules
 		if not zone.emptied.is_connected(_on_jackpot_emptied):
@@ -579,8 +580,13 @@ func _pit_shaft(size2: Vector2) -> MeshInstance3D:
 	return shaft
 
 
+## The cash-out pad, where the map has one. A map may not: the test track in 9.4 is a road with
+## corners on it and nothing to bank, and a pad of no size in the corner of it is worse than no
+## pad at all. Everything that reaches for [member junction] checks for it.
 func _add_junction() -> void:
 	var rect := grid.junction
+	if rect.size == Vector2i.ZERO:
+		return
 	var size2 := grid.rect_size(rect)
 	junction_position = grid.rect_center(rect)
 	junction_radius = minf(size2.x, size2.y) * 0.5
