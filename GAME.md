@@ -1026,8 +1026,15 @@ A toy diorama on a tabletop, like Wii Tanks, with casino accents and a few
 road elements. Low-poly, flat or lightly gradiented colours, soft shadows,
 subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
 
-- **Floor**: dark green felt with asphalt lanes and painted road markings.
-- **Walls and crates**: sand-coloured wooden toy blocks.
+- **Floor**: dark green felt with painted road markings: a dashed cream line runs
+  round the inside of the room, a hand's width in from the wall, the way a lane is
+  marked on a road. It says where the room ends before the wall does.
+- **Walls and crates**: sand-coloured wooden toy blocks. The wall round the edge
+  of the room is capped with neon, magenta down the left side and along the
+  bottom, cyan along the top and up the right, so the room is lit round its
+  boundary and the light comes from somewhere. Only the boundary wears it: every
+  block in the room lit up is a room made of neon rather than a room with neon in
+  it, and the blocks are meant to look like wooden toys.
 - **Beyond the walls**: a warm wooden table surface, slightly out of focus.
 - **Junction pad**: a slot-machine roundel with neon rings that light up while
   someone is banking, and a traffic light that turns green during a cash-out.
