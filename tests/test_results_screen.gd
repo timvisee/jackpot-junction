@@ -48,6 +48,9 @@ func test_the_screen_ranks_everybody_with_their_score_and_awards() -> void:
 	assert_int(match_node.state).is_equal(Match.State.RESULTS)
 	var screen: ResultsScreen = match_node.hud._results
 	assert_bool(screen.visible).is_true()
+	# The hand of cards belongs to a match being played, not to one that is over.
+	for hand: JokerHand in match_node.hud._hands.values():
+		assert_bool(hand.visible).is_false()
 	var texts := _texts(screen)
 	assert_array(texts).contains([ResultsScreen.TITLE, "Grace", "Ada", "900", "400", "2 kills"])
 	# Ranked by what is banked, so the winner's row comes first.

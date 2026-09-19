@@ -169,6 +169,9 @@ below, and hands the notes to the release workflow.
   thumb on the trigger and the cards open under it, so a card was being claimed
   before anybody had read it. Moving the cursor still works the whole time.
 
+- **The joker hand goes away at the whistle.** It was lying across the bottom of
+  the podium screen.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button

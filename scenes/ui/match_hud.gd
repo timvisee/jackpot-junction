@@ -486,10 +486,15 @@ func _update_banner(delta: float) -> void:
 func _on_state_changed(state: int) -> void:
 	if dismissed:
 		return
-	if state == Match.State.RESULTS:
+	var over := state == Match.State.RESULTS
+	if over:
 		_results.fill_in()
 	else:
 		_results.visible = false
+	# The hand of cards is for a match being played. Once the podium is up it is a row of jokers
+	# lying across the bottom of the standings, for a match that is already decided.
+	for hand: JokerHand in _hands.values():
+		hand.visible = not over
 
 
 func _on_grazed(slot: int) -> void:
