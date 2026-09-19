@@ -606,6 +606,15 @@ assigns physical devices to player slots, see 10.2.
 | Pause                       | Start               | Esc                       |
 | Join, in lobby or mid-match | Start               | J                         |
 | Mute music                  |                     | M                         |
+| Menus: press the button under the cursor | A      | Enter or Space            |
+| Menus: back out                          | B      | Esc                       |
+
+A menu is driven with the pad as well as the keyboard: the stick and the D-pad walk
+the cursor, A presses whatever is under it and B is the Back button. Back only backs
+out of somewhere there is a way out of, which is the pause menu, the lobby, the
+online screen and the settings, and not the title screen, where there is nowhere to
+go. While the settings are listening for a new binding, B is a binding like any
+other button.
 
 The two things a thumb does on a gamepad are firing and using an item, so they take
 the two buttons under it. The joker screens borrow the same hand: A drops, B

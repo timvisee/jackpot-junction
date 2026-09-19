@@ -66,6 +66,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(InputActions.PAUSE):
 		set_paused(not _panel.visible)
 		get_viewport().set_input_as_handled()
+		return
+	# B on a pad backs out of the menu, GAME.md 4.2. It only closes: a menu nobody has opened is
+	# not something to back out of, and B is a button a player will be leaning on anyway.
+	if _panel.visible and event.is_action_pressed(&"ui_cancel"):
+		set_paused(false)
+		get_viewport().set_input_as_handled()
 
 
 ## Opens or closes the menu for whoever is at this screen. Alone that is the same thing as

@@ -103,6 +103,21 @@ func test_match_config_builds_inputs_and_rules() -> void:
 	assert_int(rules.target_score).is_greater(1000000)
 
 
+## GAME.md 4.2: a player who has been driving with a pad should not have to reach for the
+## keyboard to press a button on a menu.
+func test_the_menu_actions_carry_a_gamepad_as_well_as_a_key() -> void:
+	InputActions.register_defaults()
+	var accept := InputActions.make_event({"button": JOY_BUTTON_A})
+	var cancel := InputActions.make_event({"button": JOY_BUTTON_B})
+	assert_bool(InputMap.action_has_event(&"ui_accept", accept)).is_true()
+	assert_bool(InputMap.action_has_event(&"ui_cancel", cancel)).is_true()
+	# The keys they came with stay, and asking a second time does not add the pad twice.
+	var accepts := InputMap.action_get_events(&"ui_accept").size()
+	assert_int(accepts).is_greater(1)
+	InputActions.register_defaults()
+	assert_int(InputMap.action_get_events(&"ui_accept").size()).is_equal(accepts)
+
+
 func test_menu_scenes_build() -> void:
 	var title: Control = auto_free(load("res://scenes/ui/title.tscn").instantiate())
 	add_child(title)

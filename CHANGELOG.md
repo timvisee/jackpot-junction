@@ -138,6 +138,10 @@ below, and hands the notes to the release workflow.
   colour with a column of light in it, so a respawn reads from anywhere in the
   arena rather than only to whoever was watching that kart blink.
 
+- **Menus answer the gamepad.** A presses the button under the cursor and B backs
+  out, in the pause menu, the lobby, the online screen and the settings. The title
+  screen has nowhere to back out to, so B does nothing there.
+
 ### Fixed
 
 - **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball

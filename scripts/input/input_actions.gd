@@ -39,6 +39,15 @@ const JOIN := &"join"
 ## Toggles the music bus at once.
 const MUTE_MUSIC := &"mute_music"
 
+## The menu actions Godot owns, and the gamepad buttons this project adds to them. A player who
+## has been driving with a pad should not have to reach for the keyboard to press a button on a
+## menu, GAME.md 4.2, and project.godot defines these two with keys only. Added to rather than
+## replaced, so Enter and Escape go on working.
+const UI_EXTRAS: Dictionary[StringName, Array] = {
+	&"ui_accept": [{"button": JOY_BUTTON_A}],
+	&"ui_cancel": [{"button": JOY_BUTTON_B}],
+}
+
 const DEFAULT_DEADZONE := 0.2
 const STICK_DEADZONE := 0.15
 ## Punctuation keys shown as the character itself instead of Godot's long key name.
@@ -115,6 +124,19 @@ static func register_defaults() -> void:
 			InputMap.add_action(action, deadzone)
 		for descriptor: Dictionary in DEFAULTS[action]:
 			InputMap.action_add_event(action, make_event(descriptor))
+	_add_ui_buttons()
+
+
+## Puts a pad on Godot's own menu actions. Left alone otherwise: these are not in the rebinding
+## table and nothing here erases what the keyboard already has on them.
+static func _add_ui_buttons() -> void:
+	for action: StringName in UI_EXTRAS:
+		if not InputMap.has_action(action):
+			InputMap.add_action(action, DEFAULT_DEADZONE)
+		for descriptor: Dictionary in UI_EXTRAS[action]:
+			var event := make_event(descriptor)
+			if not InputMap.action_has_event(action, event):
+				InputMap.action_add_event(action, event)
 
 
 ## Builds an InputEvent from a binding descriptor.

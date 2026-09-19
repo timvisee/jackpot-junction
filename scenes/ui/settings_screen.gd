@@ -60,6 +60,11 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _listening_action == &"":
+		# B on a pad, or Escape, is the Back button, GAME.md 4.2. While a rebind is listening it
+		# is a binding like any other button, which the rest of this handles.
+		if event.is_action_pressed(&"ui_cancel"):
+			_back()
+			get_viewport().set_input_as_handled()
 		return
 	var key := event as InputEventKey
 	if key != null and key.pressed and key.physical_keycode == KEY_ESCAPE:

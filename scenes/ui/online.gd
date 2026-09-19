@@ -56,6 +56,13 @@ func _ready() -> void:
 	host_button.grab_focus()
 
 
+## B on a pad, or Escape, is the Back button, GAME.md 4.2.
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"ui_cancel"):
+		Game.go_to_title()
+		get_viewport().set_input_as_handled()
+
+
 ## The configuration for hosting or joining with the current fields.
 func config(mode: String) -> MatchConfig:
 	var result := MatchConfig.from_settings(Game.settings)
