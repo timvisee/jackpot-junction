@@ -1,7 +1,12 @@
 extends Control
 ## Host or join an online match by address and port, GAME.md 9.3. The host plays with the last
 ## lobby options against bots until friends join and take the bots' karts.
+##
+## The name box is here as well as in the local lobby, GAME.md 3.8, because somebody joining a
+## friend's match never passes through the lobby: without it every visitor would be playing
+## under whatever name this machine last set, or under one the table handed them.
 
+var name_field: LineEdit
 var address_field: LineEdit
 var port_field: LineEdit
 var host_button: Button
@@ -17,6 +22,11 @@ func _ready() -> void:
 			"Host a match on your port, or join a friend's address. Direct connection, no relay."
 		)
 	)
+	name_field = MenuTheme.field(
+		Game.settings.player_names[0], PlayerNames.PLACEHOLDER, PlayerNames.MAX_LENGTH
+	)
+	name_field.custom_minimum_size = Vector2(320.0, 44.0)
+	column.add_child(MenuTheme.row("Your name", name_field))
 	address_field = LineEdit.new()
 	address_field.text = Game.settings.last_address
 	address_field.custom_minimum_size = Vector2(320.0, 44.0)
@@ -50,6 +60,8 @@ func _ready() -> void:
 func config(mode: String) -> MatchConfig:
 	var result := MatchConfig.from_settings(Game.settings)
 	result.online = mode
+	var named: Array[String] = [PlayerNames.clean(name_field.text)]
+	result.human_names = named
 	result.address = address_field.text.strip_edges()
 	result.port = (
 		int(port_field.text) if port_field.text.is_valid_int() else NetSession.DEFAULT_PORT
@@ -67,5 +79,6 @@ func _start(mode: String) -> void:
 		return
 	Game.settings.last_address = result.address
 	Game.settings.last_port = result.port
+	Game.settings.player_names[0] = result.human_names[0]
 	Game.settings.save_to_disk()
 	Game.start_match(result)

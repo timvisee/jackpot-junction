@@ -117,6 +117,10 @@ below, and hands the notes to the release workflow.
   winner in the middle on the tallest, each with their own kart standing on top of
   it turning on the spot.
 
+- **Online players can set their name.** The screen you host or join from asks
+  what you are called, so somebody joining a friend never arrives under whatever
+  name that machine last used.
+
 ### Fixed
 
 - **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball

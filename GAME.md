@@ -327,7 +327,9 @@ else's results screen, see 10.3.
   practice dummies after what they are, so neither takes a name off anybody.
   Online the host owns every name in the room, as it owns everything else that
   decides what a player sees: a client says what it is called once its seat is
-  assigned and the name reaches every screen in the snapshot, see 10.3.
+  assigned and the name reaches every screen in the snapshot, see 10.3. The box
+  is on the online screen as well as in the lobby, since somebody joining a
+  friend's match never passes through the lobby.
 - A room that has lost its host says so on a pane in the middle of the screen,
   built like the joker detail pane in 8.3, and has the screen to itself: the HUD
   stands down and takes any open joker pick, the standings, the blocks and the

@@ -119,6 +119,20 @@ func test_menu_scenes_build() -> void:
 	assert_int(settings.tabs.get_tab_count()).is_equal(4)
 
 
+## GAME.md 3.8: somebody joining a friend's match never passes through the local lobby, so the
+## screen they do pass through asks what they are called.
+func test_the_online_screen_carries_the_name_you_type() -> void:
+	var online: Control = auto_free(load("res://scenes/ui/online.tscn").instantiate())
+	add_child(online)
+	online.name_field.text = "  [b]Bartholomew Winterbottom[/b]  "
+	var config: MatchConfig = online.config("join")
+	assert_str(config.online).is_equal("join")
+	assert_int(config.human_names.size()).is_equal(1)
+	assert_int(config.human_names[0].length()).is_less_equal(PlayerNames.MAX_LENGTH)
+	assert_bool(config.human_names[0].contains("[")).is_false()
+	assert_str(config.human_names[0]).starts_with("bBartholomew")
+
+
 func test_match_scene_starts_from_the_pending_configuration() -> void:
 	var config := MatchConfig.new()
 	config.bot_count = 1
