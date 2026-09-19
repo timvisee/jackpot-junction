@@ -822,7 +822,7 @@ playtests.
 
 #  wall          S  spawn point      C  coin pad       P  power-up pad
 J  Junction pad  K  Jackpot zone     T  turbo pad      X  pit
-R  target        D  joker pad
+R  target        D  joker pad       O  portal
 B  crate         .  floor            F  Royal Flush pad
 ```
 
@@ -1595,6 +1595,55 @@ Everything the game does is somewhere on the floor, and a sign names each one:
   gets in the way.
 - The disco lights from 8.1 stay off in here: it is a place to look at the
   controls, not a nightclub.
+- A portal in the bottom right leads to the test track in 9.4a.
+
+### 9.4a The test track
+
+The room before the Garage: the first time anybody picks Garage from the title
+they arrive here instead, and every time after that they arrive in the Garage
+proper. Both rooms are the same scene on a different map and each has a portal to
+the other, so going round once locks nothing away.
+
+It is a road rather than an arena: no Junction, no coins, no Jackpot, no pits,
+nothing to collect and nothing to score. Six signs, each of them a word and the
+button it names, read off the input map so a player who has rebound something is
+told what they bound it to.
+
+```
+########################################
+#..................#########...........#
+#.S................#########...........#
+#.S................#########...........#
+#..................#########...........#
+###############....#########...........#
+####...............#########...........#
+####...............#########...........#
+####...............#########...#####...#
+####...............#########...#...#...#
+####....####################.....O.#...#
+####......B............#####.......#...#
+####......B............#####...#...#...#
+####......B............#####...#####...#
+####......B............#####...........#
+###################....#####...........#
+###################...##...............#
+###################...##...............#
+###################.......##...........#
+###################.......##...........#
+########################################
+```
+
+1. **Drive and steer.** A straight out of the start with DRIVE and STEER on it,
+   then a corner, a lane back the other way and a second corner. None of them
+   tight.
+2. **Shoot.** A wall of boxes across the third lane, which cannot be driven
+   through. SHOOT, and the way on is where they were.
+3. **Nitro.** The long straight after the boxes, with NITRO on it.
+4. **Drift.** A corner down into a chicane, with DRIFT on it: two stubs of wall
+   that have to be woven through.
+5. **The room at the end.** A space to keep driving in, with an island in the
+   middle of it to go round and one way into the middle, where the portal to the
+   Garage stands.
 
 ### 9.5 The driving room
 

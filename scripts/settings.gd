@@ -42,6 +42,9 @@ var overtime := true
 ## What each local seat calls itself, GAME.md 3.8. An empty entry is a seat that never gave a
 ## name and will be handed a funny one when the match starts.
 var player_names: Array[String] = ["", "", "", ""]
+## Whether anybody has been round the test track yet, GAME.md 9.4. The first visit to the
+## Garage goes there; every visit after it goes to the Garage proper.
+var seen_test_track := false
 var last_address := "127.0.0.1"
 var last_port := 7777
 
@@ -81,6 +84,7 @@ func load_from_disk() -> void:
 	var stored: Array = file.get_value("lobby", "player_names", [])
 	for i: int in mini(stored.size(), player_names.size()):
 		player_names[i] = PlayerNames.clean(str(stored[i]))
+	seen_test_track = file.get_value("progress", "seen_test_track", seen_test_track)
 	last_address = file.get_value("online", "address", last_address)
 	last_port = file.get_value("online", "port", last_port)
 
@@ -112,6 +116,7 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "own_bullets_hurt", own_bullets_hurt)
 	file.set_value("lobby", "overtime", overtime)
 	file.set_value("lobby", "player_names", player_names)
+	file.set_value("progress", "seen_test_track", seen_test_track)
 	file.set_value("online", "address", last_address)
 	file.set_value("online", "port", last_port)
 	return file.save(path)

@@ -1,22 +1,36 @@
 extends Node3D
-## The Garage, GAME.md 9.4: a practice room reached from the title screen. It runs an ordinary
-## match on its own map with no bots and no clock, so there is nothing to lose and nothing to
-## win. Everything the game does is somewhere on the floor: a straight to wind the kart out on,
-## turbo pads at either end, crates to slalom and shoot, coin pads, the Junction, a Jackpot, a
-## pit, Royal Flush pads, item pads, a joker pad that keeps handing out cards, and a row of
-## targets to shoot at for coins.
+## The two practice rooms, GAME.md 9.4, which are one scene on two maps a portal apart.
 ##
-## Two of the karts on the floor are dummies: nobody is driving them, so they never shoot back,
-## and they stand there carrying a pot and an item so that shooting one is worth something. They
-## come back after the usual respawn, restocked, which makes them a target a player can practise
-## on all afternoon.
+## The Garage is a room with everything in it: a straight to wind the kart out on, turbo pads at
+## either end, crates to slalom and shoot, coin pads, the Junction, a Jackpot, a pit, Royal Flush
+## pads, item pads, a joker pad that keeps handing out cards, a row of targets to shoot at for
+## coins, and two dummy karts nobody is driving, standing there carrying a pot and an item so
+## that shooting one is worth something. Signs name every area, since a player arriving here has
+## not read anything.
 ##
-## Signs name every area, since a player arriving here has not read anything.
+## The test track is the room before that one: a road with corners on it, a wall of boxes to
+## shoot through, a straight to open the bottle on, a chicane to drift, and a room at the end to
+## keep drifting in. Nothing to collect and nothing to bank; six words of signage, each of them
+## naming a button. The first visit to the Garage from the title goes here, and the portal at the
+## end leads to the Garage proper.
+##
+## Either room runs an ordinary match with no bots and no clock, so there is nothing to lose and
+## nothing to win.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const LAYOUT: ArenaLayout = preload("res://data/maps/garage.tres")
+const TRACK: ArenaLayout = preload("res://data/maps/test_track.tres")
 const RULES: MatchRules = preload("res://data/match/garage.tres")
 const SIGN_HEIGHT := 2.7
+## The test track's signs, as the cell they stand on and the action they name. Short on purpose:
+## a player reading a wall is a player not driving.
+const TRACK_SIGNS: Array[Array] = [
+	[Vector2i(4, 2), "DRIVE", InputActions.THROTTLE],
+	[Vector2i(12, 2), "STEER", InputActions.STEER_RIGHT],
+	[Vector2i(7, 12), "SHOOT", InputActions.FIRE],
+	[Vector2i(16, 12), "NITRO", InputActions.NITRO],
+	[Vector2i(21, 17), "DRIFT", InputActions.HANDBRAKE],
+]
 ## Karts nobody is driving, parked on the floor as practice targets.
 const DUMMIES := 2
 ## The pot a dummy carries, so a kill drops chips worth picking up.
@@ -24,27 +38,59 @@ const DUMMY_COINS := Vector2i(8, 25)
 const DUMMY_MULT := Vector2(1.0, 3.0)
 
 var match_node: Match
+## Whether this is the test track rather than the Garage proper.
+var on_track := false
 
 
 func _ready() -> void:
 	ArenaEnvironment.add_to(self)
+	on_track = Game.garage_room == Game.ROOM_TRACK
 	match_node = MATCH_SCENE.instantiate()
 	match_node.name = "Match"
 	match_node.rules = RULES
-	match_node.arena_layout = LAYOUT
+	match_node.arena_layout = TRACK if on_track else LAYOUT
 	match_node.power_ups = load("res://data/powerups/all.tres")
 	add_child(match_node)
 	var inputs: Array[KartInput] = [PlayerInput.new()]
-	for i: int in DUMMIES:
+	# Nobody is standing about on the test track: it is a road, and a kart parked on it is in
+	# the way of the one lesson each stretch is there to teach.
+	for i: int in 0 if on_track else DUMMIES:
 		inputs.append(DummyInput.new())
 	match_node.start(inputs)
 	_stock_dummies()
 	Events.kart_respawned.connect(_on_kart_respawned)
 	# A room for learning the controls in, not a nightclub.
 	match_node.arena.disco.enabled = false
-	_add_signs()
+	_wire_portals()
+	if on_track:
+		# A kart is pointed at the middle of the map when it is put down, which on a road is a
+		# wall two cells away. The track runs one way out of the start, so face it down the road.
+		for slot: PlayerSlot in match_node.slots:
+			slot.kart.face(Vector3(1.0, 0.0, 0.0))
+		_add_track_signs()
+	else:
+		_add_signs()
 	DebugOverlay.add_to(self, match_node)
 	PauseMenu.add_to(self)
+
+
+## Every portal leads to the other room, GAME.md 9.4, which is the only place there is to go.
+func _wire_portals() -> void:
+	var other := Game.ROOM_GARAGE if on_track else Game.ROOM_TRACK
+	for portal: Portal in match_node.arena.portals:
+		portal.entered.connect(func(_kart: Kart) -> void: Game.go_to_garage(other))
+		_sign("GARAGE" if on_track else "TRACK", portal.global_position, Palette.NEON_CYAN)
+
+
+## Six words on the test track, each naming the button that stretch is about. The binding is read
+## off the input map, so a player who has rebound something is told what they bound it to.
+func _add_track_signs() -> void:
+	var grid := match_node.arena.grid
+	var keyboard := Game.last_input_keyboard
+	for entry: Array in TRACK_SIGNS:
+		var at: Vector3 = grid.cell_center(entry[0])
+		var text: String = "%s\n%s" % [entry[1], InputActions.binding_text(entry[2], keyboard)]
+		_sign(text, at, Palette.CHIP_WHITE)
 
 
 ## A dummy that has been shot comes back with something new in it, so the next one is worth

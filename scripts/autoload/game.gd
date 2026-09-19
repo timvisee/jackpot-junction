@@ -10,6 +10,9 @@ const SETTINGS_SCENE := "res://scenes/ui/settings_screen.tscn"
 const MATCH_SCENE := "res://scenes/match/match_scene.tscn"
 const ONLINE_SCENE := "res://scenes/ui/online.tscn"
 const GARAGE_SCENE := "res://scenes/garage/garage.tscn"
+## The two practice rooms, GAME.md 9.4. They are one scene on two maps, a portal apart.
+const ROOM_GARAGE := &"garage"
+const ROOM_TRACK := &"test_track"
 
 var settings := Settings.new()
 ## Whether the last thing anybody touched was the keyboard rather than a gamepad. Control
@@ -19,6 +22,8 @@ var last_input_keyboard := true
 var pending_config: MatchConfig
 ## Where the settings screen returns to.
 var settings_return := TITLE_SCENE
+## Which of the two practice rooms the Garage scene builds.
+var garage_room := ROOM_GARAGE
 
 var _screenshot_path := ""
 var _screenshot_frames := 8
@@ -86,10 +91,28 @@ func go_to_online() -> void:
 	get_tree().change_scene_to_file(ONLINE_SCENE)
 
 
-## The practice room, GAME.md 9.4.
-func go_to_garage() -> void:
+## The practice rooms, GAME.md 9.4. Called with a room by the portal in the other one.
+func go_to_garage(room: StringName = ROOM_GARAGE) -> void:
+	garage_room = room
 	get_tree().paused = false
 	get_tree().change_scene_to_file(GARAGE_SCENE)
+
+
+## The way in from the title, GAME.md 9.4: the very first visit is the test track, which teaches
+## the controls, and every visit after it is the Garage proper. Either room has a portal to the
+## other, so nothing is locked away by going once.
+func enter_garage() -> void:
+	go_to_garage(next_garage_room())
+
+
+## Which room that is, and the note that somebody has now been. Apart from the going, so it can
+## be asked without a scene change.
+func next_garage_room() -> StringName:
+	if settings.seen_test_track:
+		return ROOM_GARAGE
+	settings.seen_test_track = true
+	settings.save_to_disk()
+	return ROOM_TRACK
 
 
 func go_to_settings(return_to: String = TITLE_SCENE) -> void:

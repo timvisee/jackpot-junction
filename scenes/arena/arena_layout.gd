@@ -2,7 +2,8 @@ class_name ArenaLayout
 extends Resource
 ## A map as an ASCII grid. The legend is in GAME.md section 6.3: # wall, . floor, S spawn,
 ## C coin pad, P power-up pad, F Royal Flush pad, R shooting target, D joker pad, T turbo pad
-## (^ v < > for an explicit direction), B crate, X pit, J Junction pad, K Jackpot zone.
+## (^ v < > for an explicit direction), B crate, X pit, J Junction pad, K Jackpot zone,
+## O portal.
 ## Connected X, J and K cells form one rectangular area each.
 
 @export_multiline var grid: String = ""
@@ -77,6 +78,8 @@ func _collect_elements(target: ArenaGrid) -> void:
 					target.targets.append(cell)
 				ArenaGrid.JOKER_PAD:
 					target.joker_pads.append(cell)
+				ArenaGrid.PORTAL:
+					target.portals.append(cell)
 				ArenaGrid.CRATE:
 					target.crates.append(cell)
 				_:

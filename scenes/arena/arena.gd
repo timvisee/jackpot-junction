@@ -31,6 +31,7 @@ var power_pads: Array[PowerUpPad] = []
 var flush_pads: Array[FlushPad] = []
 var targets: Array[Target] = []
 var joker_pads: Array[JokerPad] = []
+var portals: Array[Portal] = []
 var junction: JunctionPad
 ## The moving-head lights over the table, driven by the match's excitement meter.
 var disco: DiscoLights
@@ -90,6 +91,7 @@ func build() -> void:
 	flush_pads.clear()
 	targets.clear()
 	joker_pads.clear()
+	portals.clear()
 	jackpot_zones.clear()
 	jackpot_positions.clear()
 	pickups = Node3D.new()
@@ -104,6 +106,7 @@ func build() -> void:
 	_add_flush_pads()
 	_add_targets()
 	_add_joker_pads()
+	_add_portals()
 	_add_turbo_pads()
 	_add_crates()
 	_add_pits()
@@ -583,6 +586,17 @@ func _pit_shaft(size2: Vector2) -> MeshInstance3D:
 ## The cash-out pad, where the map has one. A map may not: the test track in 9.4 is a road with
 ## corners on it and nothing to bank, and a pad of no size in the corner of it is worse than no
 ## pad at all. Everything that reaches for [member junction] checks for it.
+## The ways out of a practice room, GAME.md 9.4. The arena only puts them down; where one leads
+## is the room's business.
+func _add_portals() -> void:
+	for cell: Vector2i in grid.portals:
+		var pad := Portal.new()
+		pad.name = "Portal%d" % portals.size()
+		pad.position = grid.cell_center(cell)
+		add_child(pad)
+		portals.append(pad)
+
+
 func _add_junction() -> void:
 	var rect := grid.junction
 	if rect.size == Vector2i.ZERO:

@@ -21,7 +21,7 @@ func _ready() -> void:
 	online.pressed.connect(func() -> void: Game.go_to_online())
 	column.add_child(online)
 	var garage := MenuTheme.button("Garage")
-	garage.pressed.connect(func() -> void: Game.go_to_garage())
+	garage.pressed.connect(func() -> void: Game.enter_garage())
 	column.add_child(garage)
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(func() -> void: Game.go_to_settings(Game.TITLE_SCENE))

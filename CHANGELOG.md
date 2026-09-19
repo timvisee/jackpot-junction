@@ -151,6 +151,12 @@ below, and hands the notes to the release workflow.
 - **Crashes come through the pad.** Hitting a wall or another kart knocks the
   gamepad, as hard as the hit was, on top of the sound.
 
+- **A test track, before the Garage.** The first time you pick Garage you arrive
+  on a road instead: a straight, some corners, a wall of boxes to shoot through, a
+  straight to open the bottle on, a chicane to drift and a room at the end. Each
+  stretch has one word on it and the button it names. A portal at the end leads to
+  the Garage, and the Garage has one back.
+
 ### Fixed
 
 - **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball

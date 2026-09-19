@@ -23,6 +23,8 @@ const JACKPOT := "K"
 const FLUSH_PAD := "F"
 const TARGET := "R"
 const JOKER_PAD := "D"
+## A way through to the other practice room, GAME.md 9.4.
+const PORTAL := "O"
 
 const TURBO_GLYPHS: Array[String] = [TURBO_PAD, TURBO_UP, TURBO_DOWN, TURBO_LEFT, TURBO_RIGHT]
 const AREA_GLYPHS: Array[String] = [PIT, JUNCTION, JACKPOT]
@@ -44,6 +46,7 @@ const KNOWN_GLYPHS: Array[String] = [
 	FLUSH_PAD,
 	TARGET,
 	JOKER_PAD,
+	PORTAL,
 ]
 
 var width: int = 0
@@ -57,6 +60,7 @@ var power_pads: Array[Vector2i] = []
 var flush_pads: Array[Vector2i] = []
 var targets: Array[Vector2i] = []
 var joker_pads: Array[Vector2i] = []
+var portals: Array[Vector2i] = []
 var turbo_pads: Array[Vector2i] = []
 var crates: Array[Vector2i] = []
 var pits: Array[Rect2i] = []
