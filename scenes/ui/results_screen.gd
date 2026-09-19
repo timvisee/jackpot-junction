@@ -13,6 +13,9 @@ extends PanelContainer
 ## on the right, and the awards underneath as separate chips rather than run together into one
 ## sentence.
 
+## What the screen is headed. A podium is what is on it and what the last minute of a match is
+## about; "Results" is the name of a state machine's last state.
+const TITLE := "Podium"
 const WIDTH := 980.0
 const BG := Color(0.07, 0.07, 0.09, 0.94)
 const RULE := Color(1.0, 1.0, 1.0, 0.13)
@@ -176,7 +179,7 @@ func _build() -> void:
 	column.add_theme_constant_override("separation", 18)
 	add_child(column)
 	var title := Label.new()
-	title.text = "Results"
+	title.text = TITLE
 	title.add_theme_font_size_override("font_size", 46)
 	title.add_theme_color_override("font_color", Palette.CHIP_GOLD)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

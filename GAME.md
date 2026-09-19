@@ -282,7 +282,7 @@ hazards and the Junction alike, while the rig swings onto the winner. Results
 show every player's banked score and kills, ranked, then offer a rematch or a
 return to the lobby.
 
-The screen opens with a victory podium: the top three on three steps, the winner
+The screen is headed Podium and opens with one: the top three on three steps, the winner
 in the middle on the tallest, second a little lower on one side and third lowest
 on the other, each with their own kart standing on top of it turning slowly on the
 spot. It is a small 3D scene of its own rather than a picture, lit by its own

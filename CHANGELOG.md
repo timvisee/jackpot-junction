@@ -64,6 +64,8 @@ below, and hands the notes to the release workflow.
 - **The name box says Player rather than A funny one.** The box is asking for a
   name, not describing what happens if you leave it empty.
 
+- **The results screen is headed Podium.**
+
 ### Added
 
 - **A one-minute match, in debug builds only.** Long enough to reach the Junction

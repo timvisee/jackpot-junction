@@ -49,7 +49,7 @@ func test_the_screen_ranks_everybody_with_their_score_and_awards() -> void:
 	var screen: ResultsScreen = match_node.hud._results
 	assert_bool(screen.visible).is_true()
 	var texts := _texts(screen)
-	assert_array(texts).contains(["Results", "Grace", "Ada", "900", "400", "2 kills"])
+	assert_array(texts).contains([ResultsScreen.TITLE, "Grace", "Ada", "900", "400", "2 kills"])
 	# Ranked by what is banked, so the winner's row comes first.
 	assert_int(Array(texts).find("Grace")).is_less(Array(texts).find("Ada"))
 	# The award for what somebody did most of is on their row, as a chip of its own.
