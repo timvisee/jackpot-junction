@@ -133,6 +133,10 @@ below, and hands the notes to the release workflow.
 - **The podium sits properly in its frame.** The karts were clipped along the top
   edge with empty space under the steps; the picture is aimed a little higher now.
 
+- **An online match keeps running when the host looks at something else.** An
+  unfocused window could hold the whole main loop up waiting for the desktop to
+  take a frame, which froze every client in the room until somebody clicked back.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button

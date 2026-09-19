@@ -275,3 +275,19 @@ func test_the_host_says_whether_it_drove_or_followed() -> void:
 	input.denied_left = 0.0
 	input.claim = []
 	assert_bool(input.claimed_state().is_empty()).is_true()
+
+
+## GAME.md 9.3: the room does not stop because somebody looked at something else. A window the
+## desktop has stopped drawing can hold the whole main loop up on the frame it is waiting to
+## present, and on the host that is every client frozen until they click back.
+func test_the_session_takes_the_window_over_while_it_is_in_the_background() -> void:
+	var session: NetSession = auto_free(NetSession.new())
+	add_child(session)
+	assert_bool(session.unfocused).is_false()
+	session.notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	assert_bool(session.unfocused).is_true()
+	# Told twice is still once: the window is only taken over, and put back, on a change.
+	session.notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	assert_bool(session.unfocused).is_true()
+	session.notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN)
+	assert_bool(session.unfocused).is_false()

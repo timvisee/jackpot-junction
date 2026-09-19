@@ -1482,7 +1482,14 @@ Joining mid-match follows the local rule in 9.2. Pausing an online match takes
 every machine in the room asking for it, see 3.8. The match is played by the
 host's lobby settings: a joining client is sent the clock, the target score,
 the number of lives and the rest of the numbers its own lobby could have moved,
-and drops its own.
+and drops its own. Everybody says what they are called on the way in, see 3.8.
+
+A window in the background keeps playing. A window the desktop has stopped
+drawing can hold the main loop up on the frame it is waiting to present, and on
+the host that is the whole room frozen until somebody clicks back into the game.
+While a machine is in an online room an unfocused window stops waiting for the
+desktop and runs free at 60 frames a second instead, and is given back whatever
+it had the moment it comes back.
 
 ### 9.4 The Garage
 
