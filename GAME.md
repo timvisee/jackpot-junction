@@ -218,7 +218,11 @@ uncontrollable, and dies whatever its lives. On death, in this order:
 6. **Reset the pot**: coins 0, mult 1.
 7. **Respawn** after 3 s at the spawn point farthest from any enemy, with 2 s
    of spawn protection: invulnerable, cannot fire, bullets pass through. Picking
-   up coins and items is allowed.
+   up coins and items is allowed. Coming back opens a ring across the floor in
+   the player's colour with a column of light standing in it, gone inside a
+   second. The blinking says something about that kart to whoever is already
+   looking at it; the flare says to the whole room that somebody is back, and
+   where.
 
 ### 3.7 Jokers
 

@@ -3,13 +3,14 @@ extends GdUnitTestSuite
 ## kills, pits kill outright, and a wounded kart is slower and darker.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const RULES: MatchRules = preload("res://data/match/default.tres")
 const LANE := Vector3(0.0, 0.0, -9.375)
 
 var _runner: GdUnitSceneRunner
 
 
 func _start_match() -> Match:
-	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
 	rules.duration = 60.0
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
@@ -317,3 +318,40 @@ func test_lives_reach_puppets_through_snapshots() -> void:
 	assert_bool(puppet.is_wounded()).is_true()
 	assert_float(puppet._tint.albedo_color.v).is_less(Palette.player_color(1).v - 0.1)
 	assert_int(client.slots[0].kart.lives).is_equal(2)
+
+
+## GAME.md 3.6: coming back is announced to the room rather than only to whoever happened to be
+## watching that kart blink.
+func test_a_kart_coming_back_opens_a_ring_in_its_own_colour() -> void:
+	var rules: MatchRules = RULES.duplicate()
+	rules.countdown = 0.1
+	rules.lives = 1
+	rules.duration = 60.0
+	rules.respawn_delay = 0.2
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.with_hud = true
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	match_node.start(inputs, 11)
+	await _runner.simulate_frames(12, 17)
+	var victim := match_node.kart_of(1)
+	assert_array(_rings(match_node)).is_empty()
+	victim.die(&"pit", -1)
+	await _runner.simulate_frames(20, 17)
+	var rings := _rings(match_node)
+	assert_int(rings.size()).is_equal(1)
+	var flare: SpawnRing = rings[0]
+	assert_object(flare.color).is_equal(match_node.slots[1].color())
+	# And it is gone again on its own a moment later.
+	await _runner.simulate_frames(80, 17)
+	assert_array(_rings(match_node)).is_empty()
+
+
+func _rings(match_node: Match) -> Array:
+	var found: Array = []
+	for child: Node in match_node.get_children():
+		if child is SpawnRing:
+			found.append(child)
+	return found

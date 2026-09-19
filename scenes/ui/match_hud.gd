@@ -108,6 +108,7 @@ func _ready() -> void:
 	Events.kart_wounded.connect(_on_kart_wounded)
 	Events.life_restored.connect(_on_life_restored)
 	Events.announced.connect(_on_announced)
+	Events.kart_respawned.connect(_on_kart_respawned)
 
 
 func _on_bounty_called(slot: int) -> void:
@@ -136,6 +137,14 @@ func _on_kart_wounded(slot: int, _by_slot: int, _cause: StringName) -> void:
 			match_node, kart.global_position, "-1 LIFE", Color(1.0, 0.4, 0.35), 40, 1.0
 		)
 	_rumble(slot, 0.6, 0.25)
+
+
+## Somebody is back on the floor, GAME.md 3.6. A blinking kart says something to whoever
+## happens to be looking at that kart; this says it to the whole room at once.
+func _on_kart_respawned(slot: int) -> void:
+	var kart := _kart(slot)
+	if kart != null:
+		SpawnRing.spawn(match_node, kart.global_position, _slot_color(slot))
 
 
 func _on_life_restored(slot: int) -> void:
@@ -192,6 +201,7 @@ func _rumble(slot: int, strength: float, seconds: float) -> void:
 func _exit_tree() -> void:
 	Events.kart_corrected.disconnect(_on_corrected)
 	Events.kart_killed.disconnect(_on_kart_killed)
+	Events.kart_respawned.disconnect(_on_kart_respawned)
 	Events.grazed.disconnect(_on_grazed)
 	Events.mult_gained.disconnect(_on_mult_gained)
 	Events.bank_completed.disconnect(_on_bank_completed)

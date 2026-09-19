@@ -127,6 +127,10 @@ below, and hands the notes to the release workflow.
   same progress ring the Junction draws, since the count on the floor is under the
   kart standing on it, and the pile going throws a handful of gold up off the tile.
 
+- **A kart coming back says so.** A ring opens across the floor in the player's
+  colour with a column of light in it, so a respawn reads from anywhere in the
+  arena rather than only to whoever was watching that kart blink.
+
 ### Fixed
 
 - **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball
