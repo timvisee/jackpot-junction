@@ -122,3 +122,34 @@ func test_a_debug_build_offers_a_short_match() -> void:
 	lobby.minutes_option.selected = 0
 	var config: MatchConfig = lobby.config()
 	assert_float(config.duration).is_equal_approx(float(lengths[0]) * 60.0, 0.001)
+
+
+## GAME.md 3.8: every player who has joined gets a box to type a name into, and what is typed
+## stays with that player through anybody else joining or leaving.
+func test_the_lobby_gives_every_joined_player_a_name_box() -> void:
+	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
+	add_child(lobby)
+	# A box per seat, shown as far down as the roster reaches.
+	assert_int(lobby._name_fields.size()).is_equal(lobby.MAX_HUMANS)
+	assert_bool(lobby._name_rows[0].visible).is_true()
+	assert_bool(lobby._name_rows[1].visible).is_false()
+	lobby.toggle_join(0)
+	lobby.toggle_join(1)
+	lobby.toggle_join(2)
+	assert_bool(lobby._name_rows[2].visible).is_true()
+	assert_bool(lobby._name_rows[3].visible).is_false()
+	lobby._name_fields[0].text = "Ada"
+	lobby._name_fields[0].text_changed.emit("Ada")
+	lobby._name_fields[2].text = "Grace"
+	lobby._name_fields[2].text_changed.emit("Grace")
+	assert_array(lobby.names()).contains_exactly(["Ada", "", "Grace"])
+	# The middle player leaves; the names that are left belong to the people who are left.
+	lobby.toggle_join(1)
+	assert_array(lobby.names()).contains_exactly(["Ada", "Grace"])
+	assert_str(lobby._name_fields[1].text).is_equal("Grace")
+	assert_bool(lobby._name_rows[2].visible).is_false()
+	# And they reach the match the lobby describes, cleaned up on the way.
+	lobby._name_fields[1].text = "[b]Grace[/b]"
+	lobby._name_fields[1].text_changed.emit("[b]Grace[/b]")
+	var config: MatchConfig = lobby.config()
+	assert_array(config.human_names).contains_exactly(["Ada", "bGrace/b"])

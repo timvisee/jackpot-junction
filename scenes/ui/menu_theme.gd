@@ -62,6 +62,17 @@ static func option(values: Array, selected: int) -> OptionButton:
 	return control
 
 
+## A box to type something short into, sized like the option buttons beside it.
+static func field(text: String, hint: String, max_length: int) -> LineEdit:
+	var control := LineEdit.new()
+	control.text = text
+	control.placeholder_text = hint
+	control.max_length = max_length
+	control.custom_minimum_size = Vector2(220.0, 44.0)
+	control.add_theme_font_size_override("font_size", 22)
+	return control
+
+
 static func row(label_text: String, control: Control) -> HBoxContainer:
 	var line := HBoxContainer.new()
 	line.add_theme_constant_override("separation", 24)

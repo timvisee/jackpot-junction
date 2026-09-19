@@ -298,8 +298,10 @@ gets a line here, and a line here is counted the same on every machine in the
 match. A statistic that only adds up on the host is a wrong number on somebody
 else's results screen, see 10.3.
 
-- **Names.** Every player may set one in the lobby, 1 to 16 characters, remembered
-  between sessions per seat. A seat that never sets one is handed a name off a
+- **Names.** Every player may set one in the lobby, 1 to 16 characters, in a box
+  of their own beside the player list, remembered between sessions per seat.
+  Steering does not cycle colours while a box has the focus, since the letters
+  somebody is typing are the same keys that steer. A seat that never sets one is handed a name off a
   list of silly ones when the match starts, and no two players in a room are ever
   handed the same one, because a results screen listing P1, P2, P3 and P4 says
   nothing about anybody. A name is trimmed, cut to length and stripped of square

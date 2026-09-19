@@ -3,6 +3,12 @@ extends Control
 ## the last choice remembered, and local joining. The first join press claims a device for P1;
 ## further presses on other devices add players, and a second press on a joined device drops
 ## that player again. Steering left or right on a device cycles that player's colour.
+##
+## Every player who has joined also gets a box to type a name into, remembered between sessions
+## for that seat. Left empty, the match hands out a name off the funny list in [PlayerNames], so
+## a gamepad player with no keyboard to type on is still somebody rather than P3. Steering does
+## not cycle colours while a box has the focus, since the letters somebody is typing are also
+## the keys that steer.
 
 const MINUTES: Array[int] = [3, 5, 8]
 ## A minute, for a match somebody is testing rather than playing: long enough to reach the
@@ -30,8 +36,14 @@ var start_button: Button
 ## Devices of the joined players in slot order; the first entry may be ANY until claimed.
 var devices: Array[int] = [DeviceInput.ANY]
 var colors: Array[int] = [0]
+## What each joined player has typed, in the same order. Empty means a seat that wants whatever
+## the match hands it, GAME.md 3.8.
+var player_names: Array[String] = [""]
 
 var _players_label: RichTextLabel
+## One name box per seat, built once and shown as far down as the roster reaches.
+var _name_fields: Array[LineEdit] = []
+var _name_rows: Array[HBoxContainer] = []
 var _steer_was_down: Dictionary[String, bool] = {}
 
 
@@ -46,6 +58,8 @@ func _ready() -> void:
 	_players_label.add_theme_font_size_override("normal_font_size", 22)
 	column.add_child(_players_label)
 	var settings := Game.settings
+	player_names[0] = _remembered_name(0)
+	_build_name_rows(column)
 	var lengths := _match_lengths()
 	minutes_option = MenuTheme.option(
 		_labels(lengths, "%d min"), maxi(lengths.find(settings.match_minutes), 0)
@@ -91,6 +105,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(_delta: float) -> void:
+	# The letters somebody is typing are the same keys that steer, so a name being typed is not
+	# also a colour being cycled.
+	if get_viewport().gui_get_focus_owner() is LineEdit:
+		return
 	for i: int in devices.size():
 		var device := devices[i]
 		if device == DeviceInput.ANY:
@@ -107,6 +125,7 @@ func toggle_join(device: int) -> void:
 	if existing > 0:
 		devices.remove_at(existing)
 		colors.remove_at(existing)
+		player_names.remove_at(existing)
 		Audio.play_sfx(&"ui_back", -6.0, 0.0)
 	elif existing == 0:
 		return
@@ -116,6 +135,7 @@ func toggle_join(device: int) -> void:
 	elif devices.size() < MAX_HUMANS:
 		devices.append(device)
 		colors.append(_free_color())
+		player_names.append(_remembered_name(devices.size() - 1))
 		Audio.play_sfx(&"ui_click", -6.0, 0.0)
 	_refresh_players()
 
@@ -137,6 +157,7 @@ func config() -> MatchConfig:
 	var result := MatchConfig.new()
 	result.human_devices = devices.duplicate()
 	result.human_colors = colors.duplicate()
+	result.human_names = names()
 	result.duration = _match_lengths()[minutes_option.selected] * 60.0
 	result.target_score = TARGETS[target_option.selected]
 	result.bot_count = mini(BOTS[bots_option.selected], MAX_HUMANS - devices.size())
@@ -147,8 +168,19 @@ func config() -> MatchConfig:
 	return result
 
 
+## What each joined player is called, cleaned up, in slot order.
+func names() -> Array[String]:
+	var result: Array[String] = []
+	for name: String in player_names:
+		result.append(PlayerNames.clean(name))
+	return result
+
+
 func _start() -> void:
 	var settings := Game.settings
+	var typed := names()
+	for i: int in mini(typed.size(), settings.player_names.size()):
+		settings.player_names[i] = typed[i]
 	settings.match_minutes = _match_lengths()[minutes_option.selected]
 	settings.target_score = TARGETS[target_option.selected]
 	settings.bot_count = BOTS[bots_option.selected]
@@ -176,6 +208,36 @@ func _refresh_players() -> void:
 	_players_label.text = (
 		"[center]%s\n[color=#9a9aa0]%s[/color][/center]" % ["\n".join(lines), hint]
 	)
+	_refresh_names()
+
+
+## A box per seat, all of them built up front. What has been typed lives in [member
+## player_names] rather than in the boxes, so it follows its own player through somebody else
+## joining or leaving rather than staying at the position it was typed at.
+func _build_name_rows(column: VBoxContainer) -> void:
+	for i: int in MAX_HUMANS:
+		var field := MenuTheme.field("", "A funny one", PlayerNames.MAX_LENGTH)
+		field.text_changed.connect(
+			func(text: String) -> void:
+				if i < player_names.size():
+					player_names[i] = text
+		)
+		_name_fields.append(field)
+		var row := MenuTheme.row("P%d name" % (i + 1), field)
+		_name_rows.append(row)
+		column.add_child(row)
+
+
+## Shows as many boxes as there are players, each holding whatever its player is called.
+func _refresh_names() -> void:
+	for i: int in _name_rows.size():
+		_name_rows[i].visible = i < devices.size()
+		_name_fields[i].text = player_names[i] if i < player_names.size() else ""
+
+
+func _remembered_name(seat: int) -> String:
+	var stored := Game.settings.player_names
+	return stored[seat] if seat < stored.size() else ""
 
 
 func _device_name(device: int) -> String:

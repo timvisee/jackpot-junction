@@ -100,6 +100,10 @@ below, and hands the notes to the release workflow.
   of people rather than P1 through P4. Names carry through a rematch and reach
   every screen online.
 
+- **The lobby has a name box for every player.** Up to 16 characters each,
+  remembered between sessions. Left empty, the match hands out one of the funny
+  ones.
+
 ### Fixed
 
 - **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball
