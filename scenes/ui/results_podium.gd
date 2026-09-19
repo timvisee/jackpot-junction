@@ -148,12 +148,14 @@ func _world() -> World3D:
 	return world
 
 
+## Aimed a little above the steps rather than at them, so the karts have air over their heads
+## instead of being cut off by the top edge and the picture is not all sky underneath them.
 func _camera() -> Camera3D:
 	var camera := Camera3D.new()
 	camera.name = "Camera"
 	camera.fov = 40.0
-	camera.position = Vector3(0.0, 1.95, 5.5)
-	camera.look_at_from_position(camera.position, Vector3(0.0, 0.95, 0.0), Vector3.UP)
+	camera.position = Vector3(0.0, 2.05, 5.5)
+	camera.look_at_from_position(camera.position, Vector3(0.0, 1.32, 0.0), Vector3.UP)
 	return camera
 
 

@@ -128,6 +128,9 @@ below, and hands the notes to the release workflow.
   and bury it in the brickwork. Anything with a wall or a box in the way is now
   passed over for whatever is on this side of it.
 
+- **The podium sits properly in its frame.** The karts were clipped along the top
+  edge with empty space under the steps; the picture is aimed a little higher now.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button
