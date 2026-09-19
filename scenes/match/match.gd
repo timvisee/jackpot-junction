@@ -796,7 +796,7 @@ func _step_heat(delta: float) -> void:
 	for zone: JackpotZone in arena.jackpot_zones:
 		zone.accrual_multiplier = lerpf(1.0, rules.jackpot_accrual_hot, share) * last_call
 		zone.cap_multiplier = lerpf(1.0, rules.jackpot_cap_hot, share)
-	var nitro := lerpf(1.0, rules.nitro_recharge_hot, share)
+	var nitro := rules.nitro_recharge_base * lerpf(1.0, rules.nitro_recharge_hot, share)
 	for slot: PlayerSlot in slots:
 		if slot.kart != null:
 			slot.kart.nitro_recharge_scale = nitro

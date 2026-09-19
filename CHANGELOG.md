@@ -73,6 +73,9 @@ below, and hands the notes to the release workflow.
   Both sit on the same dark pane with a bar of colour along the top that the joker
   details and the podium use.
 
+- **Nitro comes back almost at once in the Garage.** A tank in a few seconds
+  rather than a minute and a half, so the button can actually be tried out.
+
 ### Added
 
 - **A one-minute match, in debug builds only.** Long enough to reach the Junction

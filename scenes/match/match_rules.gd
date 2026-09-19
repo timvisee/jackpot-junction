@@ -78,6 +78,10 @@ const WIRE_FIELDS: Array[StringName] = [
 @export var overtime := true
 
 @export_group("Hot table")
+## What the nitro refill rate is multiplied by before anything else touches it. One in a match,
+## where nitro is meant to be scarce; far more in the Garage of 9.4, which is a room for trying
+## the button rather than for rationing it.
+@export var nitro_recharge_base := 1.0
 ## What the nitro refill rate is multiplied by at the top excitement level. Nitro is scarce by
 ## design, but a finale where nobody has any is a finale where nobody does anything.
 @export var nitro_recharge_hot := 3.0

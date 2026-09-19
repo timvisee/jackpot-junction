@@ -131,3 +131,18 @@ func test_the_dummies_carry_loot_stand_still_and_come_back_restocked() -> void:
 	assert_bool(kart.alive).is_true()
 	assert_int(kart.pot.coins).is_greater(0)
 	assert_object(kart.held_item).is_not_null()
+
+
+## GAME.md 9.4: the Garage is a room for trying the button rather than for rationing it, so a
+## tank fills in a few seconds instead of a minute and a half.
+func test_nitro_comes_back_almost_at_once_in_here() -> void:
+	assert_float(RULES.nitro_recharge_base).is_greater(10.0)
+	var garage: Node3D = auto_free(GARAGE_SCENE.instantiate())
+	var runner: GdUnitSceneRunner = scene_runner(garage)
+	await runner.simulate_frames(120, 17)
+	var match_node: Match = garage.get_node("Match")
+	var kart := match_node.kart_of(0)
+	kart.nitro_charge = 0.0
+	await runner.simulate_frames(60, 17)
+	# A second of standing still is worth a fifth of a tank in here; in a match it is a ninetieth.
+	assert_float(kart.nitro_charge).is_greater(0.15)

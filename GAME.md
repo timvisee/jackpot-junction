@@ -1583,6 +1583,10 @@ Everything the game does is somewhere on the floor, and a sign names each one:
 - Pressing join brings a second player in on another device, the same as in a
   match, and takes an empty seat rather than one of the dummies. Pausing leads
   back to the title.
+- Nitro comes back 25 times as fast as it does in a match: a tank in a few
+  seconds rather than a minute and a half. The scarcity in 4.1 is a rule about
+  matches, and a room for finding out what the button does is the one place it
+  gets in the way.
 - The disco lights from 8.1 stay off in here: it is a place to look at the
   controls, not a nightclub.
 
