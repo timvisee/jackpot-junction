@@ -9,16 +9,20 @@ Made with Godot 4.7 and GDScript. `GAME.md` holds the design, `PLAN.md` the
 implementation plan with the status of every milestone, and `CHANGELOG.md` what
 has changed in each release.
 
-![Four karts on a felt-topped table arena under stage lights, with the joker hand open along the bottom of the screen](docs/screenshot.png)
+![Four karts on a felt-topped table arena ringed by a neon-lit wall and a crowd of onlookers, with a DJ booth at the far edge, the standings down the right and a hand of joker cards along the bottom of the screen](docs/screenshot.png)
 
 ## Playing
 
-- **Single-player**: Play, pick match length, target score, bots and
+- **Single-player**: Play, pick an arena, match length, target score, bots and
   difficulty, start. Bots use the same karts, items and jokers you do.
 - **Local multiplayer**: in the lobby or mid-match, press Start on a gamepad or
-  J on the keyboard to join. Steer left or right in the lobby to change colour.
+  J on the keyboard to join. Steer left or right in the lobby to change colour,
+  and give each seat a name and a kart to dress.
 - **Online**: Play online, host on a port or join a friend's address directly.
   The host runs the match; joining players take over bot karts.
+- **Garage**: a practice room with one of everything in it and two dummy karts to
+  shoot at. The first visit goes to a test track that teaches the controls, and
+  the two rooms have portals to each other.
 
 Default controls, all rebindable in Settings:
 

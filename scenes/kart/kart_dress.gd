@@ -15,9 +15,9 @@ const SHADE := 0.55
 ## How many times a pattern wraps around the kart.
 const PATTERN_SCALE := 1.6
 ## Where the driver's head is, in kart space, measured off the model rather than guessed: the
-## character mesh tops out at 1.72 and a hat sits on the crown of it, not in it. The driver wears a round
-## helmet the size of their shoulders, so a hat that fits a head looks like a badge on a ball:
-## these are cut to the helmet.
+## character mesh tops out at 1.72 and a hat sits on the crown of it rather than in it. The
+## driver wears a round helmet the size of their shoulders, so a hat cut to fit a head looks
+## like a badge on a ball: these are cut to the helmet.
 const HEAD := Vector3(0.0, 1.76, -0.06)
 const HEAD_RADIUS := 0.42
 ## How far above the head each hat reaches, so the roof marker can be lifted clear of it.
