@@ -56,8 +56,7 @@ var _tallies: Dictionary[int, FloatingText] = {}
 var _hands: Dictionary[int, JokerHand] = {}
 var _pickers: Dictionary[int, JokerPicker] = {}
 var _kill_feed: KillFeed
-var _results: PanelContainer
-var _results_rows: VBoxContainer
+var _results: ResultsScreen
 var _lobby: PanelContainer
 var _lobby_rows: RichTextLabel
 var _lobby_hint: Label
@@ -93,7 +92,7 @@ func _ready() -> void:
 	_kill_feed = KillFeed.new()
 	_kill_feed.name = "KillFeed"
 	add_child(_kill_feed)
-	_build_results()
+	_results = ResultsScreen.create(self, match_node)
 	_build_lobby()
 	Events.kart_corrected.connect(_on_corrected)
 	Events.grazed.connect(_on_grazed)
@@ -450,7 +449,7 @@ func _on_state_changed(state: int) -> void:
 	if dismissed:
 		return
 	if state == Match.State.RESULTS:
-		_show_results()
+		_results.fill_in()
 	else:
 		_results.visible = false
 
@@ -705,44 +704,6 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	}
 
 
-func _build_results() -> void:
-	_results = PanelContainer.new()
-	_results.name = "Results"
-	_results.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	_results.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	_results.grow_vertical = Control.GROW_DIRECTION_BOTH
-	_results.custom_minimum_size = Vector2(900.0, 0.0)
-	_results.visible = false
-	add_child(_results)
-	var margin := MarginContainer.new()
-	for side: String in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_%s" % side, 24)
-	_results.add_child(margin)
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 12)
-	margin.add_child(column)
-	var title := Label.new()
-	title.text = "Results"
-	title.add_theme_font_size_override("font_size", 48)
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	column.add_child(title)
-	_results_rows = VBoxContainer.new()
-	column.add_child(_results_rows)
-	var buttons := HBoxContainer.new()
-	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
-	buttons.add_theme_constant_override("separation", 24)
-	column.add_child(buttons)
-	var rematch := Button.new()
-	rematch.text = "Rematch"
-	rematch.pressed.connect(func() -> void: match_node.rematch())
-	rematch.visible = not match_node.puppet
-	buttons.add_child(rematch)
-	var quit := Button.new()
-	quit.text = "Back to title"
-	quit.pressed.connect(func() -> void: Game.go_to_title())
-	buttons.add_child(quit)
-
-
 ## The online lobby, GAME.md 9.3: who is here, how to join, and the host's Start button.
 func _build_lobby() -> void:
 	_lobby = PanelContainer.new()
@@ -806,36 +767,3 @@ func _update_lobby() -> void:
 			)
 		)
 	_lobby_rows.text = "[center]%s[/center]" % "\n".join(lines)
-
-
-## Score and kills for everyone, then up to three awards per player: the stats they stand out
-## in most, GAME.md 3.8.
-func _show_results() -> void:
-	for child: Node in _results_rows.get_children():
-		child.queue_free()
-	var everyone: Array[PlayerStats] = []
-	for slot: PlayerSlot in match_node.slots:
-		everyone.append(slot.stats)
-	var rank := 1
-	for slot: PlayerSlot in match_node.standings():
-		var row := Label.new()
-		row.text = (
-			"%d.  %s    %d    (%d kills, %d deaths)"
-			% [rank, slot.display_name(), slot.banked, slot.kills, slot.deaths]
-		)
-		row.add_theme_font_size_override("font_size", 28)
-		row.add_theme_color_override("font_color", slot.color())
-		_results_rows.add_child(row)
-		var parts: PackedStringArray = []
-		for award: Array in PlayerStats.awards(slot.stats, everyone):
-			parts.append("%s: %s" % [award[0], award[1]])
-		if not parts.is_empty():
-			var awards := Label.new()
-			awards.text = "      " + "   ·   ".join(parts)
-			awards.add_theme_font_size_override("font_size", 17)
-			awards.add_theme_color_override("font_color", Color(0.72, 0.72, 0.76))
-			awards.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			awards.custom_minimum_size = Vector2(840.0, 0.0)
-			_results_rows.add_child(awards)
-		rank += 1
-	_results.visible = true
