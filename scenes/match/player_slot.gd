@@ -4,6 +4,9 @@ extends RefCounted
 ## and scores, never node paths.
 
 var index := 0
+## What this player calls themselves, GAME.md 3.8. Empty for a bot or a dummy, which are named
+## after what they are; every human has one, their own or one off the funny list.
+var player_name := ""
 ## Which of the player colours this slot uses; defaults to the slot index.
 var color_index := 0
 var input: KartInput
@@ -94,6 +97,8 @@ func device() -> int:
 
 
 func display_name() -> String:
+	if not player_name.is_empty():
+		return player_name
 	if is_dummy():
 		return "P%d Dummy" % (index + 1)
 	if bot_trait != null:

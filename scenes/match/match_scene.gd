@@ -28,7 +28,7 @@ func _ready() -> void:
 	add_child(match_node)
 	match config.online:
 		"host":
-			match_node.start(config.inputs(), 0, config.colors())
+			match_node.start(config.inputs(), 0, config.colors(), config.names())
 			_start_session()
 			var error := session.host(config.port)
 			if error != OK:
@@ -42,6 +42,8 @@ func _ready() -> void:
 			match_node.start_puppet()
 			_start_session()
 			session.local_input = PlayerInput.new()
+			# This machine's seat is the first one in the lobby's list, GAME.md 3.8.
+			session.player_name = config.human_names[0] if not config.human_names.is_empty() else ""
 			session.connection_failed.connect(
 				func() -> void: _fail("Could not connect to %s:%d" % [config.address, config.port])
 			)
@@ -53,7 +55,7 @@ func _ready() -> void:
 			else:
 				_show_status("Connecting to %s:%d..." % [config.address, config.port])
 		_:
-			match_node.start(config.inputs(), 0, config.colors())
+			match_node.start(config.inputs(), 0, config.colors(), config.names())
 	DebugOverlay.add_to(self, match_node, session)
 	PauseMenu.add_to(self, session)
 

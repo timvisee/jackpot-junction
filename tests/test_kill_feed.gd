@@ -59,4 +59,4 @@ func test_the_hud_feeds_it_from_the_match() -> void:
 	await runner.simulate_frames(2, 17)
 	assert_int(match_node.hud._kill_feed.row_count()).is_equal(1)
 	assert_str(match_node.hud._kill_feed.newest_text()).contains("shot")
-	assert_str(match_node.hud._kill_feed.newest_text()).contains("P1")
+	assert_str(match_node.hud._kill_feed.newest_text()).contains(match_node.slots[0].display_name())

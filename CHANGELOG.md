@@ -95,6 +95,11 @@ below, and hands the notes to the release workflow.
   colour, fading out over a few seconds, so a wall that has been shot at looks
   like one.
 
+- **Players have names.** Anybody who has not set one is handed a silly one off a
+  list, so the standings, the kill feed and the results screen read as a room full
+  of people rather than P1 through P4. Names carry through a rematch and reach
+  every screen online.
+
 ### Fixed
 
 - **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball

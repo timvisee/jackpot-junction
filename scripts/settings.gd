@@ -39,6 +39,9 @@ var item_set := "first"
 var own_bullets_hurt := false
 ## Whether a match that runs out of clock goes to sudden death, GAME.md 3.13.
 var overtime := true
+## What each local seat calls itself, GAME.md 3.8. An empty entry is a seat that never gave a
+## name and will be handed a funny one when the match starts.
+var player_names: Array[String] = ["", "", "", ""]
 var last_address := "127.0.0.1"
 var last_port := 7777
 
@@ -75,6 +78,9 @@ func load_from_disk() -> void:
 	item_set = file.get_value("lobby", "item_set", item_set)
 	own_bullets_hurt = file.get_value("lobby", "own_bullets_hurt", own_bullets_hurt)
 	overtime = file.get_value("lobby", "overtime", overtime)
+	var stored: Array = file.get_value("lobby", "player_names", [])
+	for i: int in mini(stored.size(), player_names.size()):
+		player_names[i] = PlayerNames.clean(str(stored[i]))
 	last_address = file.get_value("online", "address", last_address)
 	last_port = file.get_value("online", "port", last_port)
 
@@ -105,6 +111,7 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "item_set", item_set)
 	file.set_value("lobby", "own_bullets_hurt", own_bullets_hurt)
 	file.set_value("lobby", "overtime", overtime)
+	file.set_value("lobby", "player_names", player_names)
 	file.set_value("online", "address", last_address)
 	file.set_value("online", "port", last_port)
 	return file.save(path)

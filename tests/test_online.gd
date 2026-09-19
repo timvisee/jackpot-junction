@@ -173,7 +173,7 @@ func test_the_host_holds_the_match_in_a_lobby_until_it_begins() -> void:
 	assert_bool(host_match.kart_of(0).frozen).is_true()
 	await await_millis(80)
 	assert_bool(host_match.hud._lobby.visible).is_true()
-	assert_str(host_match.hud._lobby_rows.text).contains("P1")
+	assert_str(host_match.hud._lobby_rows.text).contains(host_match.slots[0].display_name())
 	var joined := host_match.join_network(NetInput.new())
 	assert_object(joined).is_not_null()
 	assert_bool(joined.kart.frozen).is_true()

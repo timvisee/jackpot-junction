@@ -6,6 +6,9 @@ extends RefCounted
 var human_devices: Array[int] = [DeviceInput.ANY]
 ## Colour index per human, in the same order; empty means slot order.
 var human_colors: Array[int] = []
+## What each human calls themselves, in the same order. An empty entry is handed a funny name
+## when the match starts, GAME.md 3.8.
+var human_names: Array[String] = []
 var bot_count := 3
 var difficulty := "normal"
 var duration := 300.0
@@ -46,6 +49,15 @@ func colors() -> Array[int]:
 	return result
 
 
+## Names for every slot: what the humans gave, then nothing for the bots, which are named after
+## the way they drive rather than by anybody.
+func names() -> Array[String]:
+	var result: Array[String] = []
+	for i: int in human_devices.size():
+		result.append(human_names[i] if i < human_names.size() else "")
+	return result
+
+
 func rules(base: MatchRules) -> MatchRules:
 	var copy: MatchRules = base.duplicate()
 	copy.duration = duration
@@ -68,4 +80,5 @@ static func from_settings(settings: Settings) -> MatchConfig:
 	config.item_set = settings.item_set
 	config.own_bullets_hurt = settings.own_bullets_hurt
 	config.overtime = settings.overtime
+	config.human_names = settings.player_names.duplicate()
 	return config

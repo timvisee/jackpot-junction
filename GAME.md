@@ -273,6 +273,7 @@ The joker catalogue is in section 7.3.
 | Countdown       | 3 s before the karts can move                             |
 | Players         | 1 to 4 humans, bots fill the remaining slots to 4         |
 | Tie-break       | Most kills, then fewest deaths                            |
+| Names           | 1 to 16 characters each, or one off the funny list for anybody who does not set one |
 
 Flow: Title screen, Lobby, Countdown, Playing, Last Call, Overtime, Results. At the
 whistle nobody is stopped dead: every driver lets go of the wheel and the karts
@@ -297,6 +298,18 @@ gets a line here, and a line here is counted the same on every machine in the
 match. A statistic that only adds up on the host is a wrong number on somebody
 else's results screen, see 10.3.
 
+- **Names.** Every player may set one in the lobby, 1 to 16 characters, remembered
+  between sessions per seat. A seat that never sets one is handed a name off a
+  list of silly ones when the match starts, and no two players in a room are ever
+  handed the same one, because a results screen listing P1, P2, P3 and P4 says
+  nothing about anybody. A name is trimmed, cut to length and stripped of square
+  brackets on the way in, since the standings and the kill feed are drawn with
+  BBCode and a name is a name rather than markup. Whoever is at the table keeps
+  their name through a rematch. Bots are named after the way they drive and
+  practice dummies after what they are, so neither takes a name off anybody.
+  Online the host owns every name in the room, as it owns everything else that
+  decides what a player sees: a client says what it is called once its seat is
+  assigned and the name reaches every screen in the snapshot, see 10.3.
 - A room that has lost its host says so on a pane in the middle of the screen,
   built like the joker detail pane in 8.3, and has the screen to itself: the HUD
   stands down and takes any open joker pick, the standings, the blocks and the

@@ -70,6 +70,11 @@ static func _slots(match_node: Match) -> Array:
 			"jokers": kart.jokers.ids(),
 			"human": slot.is_human(),
 			"trait": String(slot.bot_trait.id) if slot.bot_trait != null else "",
+			# Sixteen characters per player per snapshot, against a snapshot of several
+			# kilobytes. A name never changes during a match, but sending it with everything
+			# else means a client that joins late, or after a rematch, is never looking at a
+			# room of strangers called P2, GAME.md 10.3.
+			"name": slot.player_name,
 			"color": slot.color_index,
 			"respawn": slot.respawn_left,
 			"menu": kart.menu_open,
@@ -408,6 +413,7 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 		slot.kills = entry["kills"]
 		slot.deaths = entry["deaths"]
 		slot.color_index = entry["color"]
+		slot.player_name = entry.get("name", "")
 		slot.respawn_left = entry["respawn"]
 		if entry.has("stats"):
 			slot.stats.from_array(entry["stats"])

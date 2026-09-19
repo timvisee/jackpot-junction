@@ -79,6 +79,9 @@ var match_node: Match
 var local_slot := -1
 ## The input the client sends; tests may swap it.
 var local_input: KartInput = PlayerInput.new()
+## What this machine's player calls themselves, sent to the host once a seat is assigned. Empty
+## leaves the host's funny name standing, GAME.md 3.8.
+var player_name := ""
 var is_host := false
 ## Whether every machine in the match currently has its pause menu open. One player alone cannot
 ## stop the others playing, GAME.md 3.8, so this is the agreement rather than what anyone asked.
@@ -296,7 +299,28 @@ func _set_rules(data: Dictionary) -> void:
 func _assign_slot(index: int, _seed: int) -> void:
 	local_slot = index
 	match_node.set_local_slot(index, local_input)
+	# The host made this seat before it could ask who was sitting in it, GAME.md 3.8, so the
+	# answer follows the moment the seat is known. An empty one leaves the funny name the host
+	# already handed out standing.
+	_claim_name.rpc_id(1, PlayerNames.clean(player_name))
 	slot_assigned.emit(index)
+
+
+## What the client at the other end calls itself. The host owns every name in the room, as it
+## owns everything else that decides what a player sees, and it reaches the other screens in the
+## snapshot like the rest of the roster.
+@rpc("any_peer", "call_remote", "reliable")
+func _claim_name(claimed: String) -> void:
+	if not is_host:
+		return
+	var peer := multiplayer.get_remote_sender_id()
+	if not _peer_slots.has(peer):
+		return
+	var index: int = _peer_slots[peer]
+	var name := PlayerNames.clean(claimed)
+	if name.is_empty() or index >= match_node.slots.size():
+		return
+	match_node.slots[index].player_name = name
 
 
 ## Takes over the driving of this client's own kart once the snapshot has built it. Called every
