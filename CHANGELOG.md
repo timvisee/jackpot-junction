@@ -166,6 +166,10 @@ below, and hands the notes to the release workflow.
   middle so every approach is a corner. The lobby picks one, and online everybody
   plays the host's pick.
 
+- **A crowd, and a DJ booth.** Small figures stand on the table all the way round
+  the arena and get up on their feet when the room is going or when somebody is
+  taken out. The booth's speakers pulse on the beat.
+
 ### Fixed
 
 - **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball

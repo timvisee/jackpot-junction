@@ -35,6 +35,8 @@ var portals: Array[Portal] = []
 var junction: JunctionPad
 ## The moving-head lights over the table, driven by the match's excitement meter.
 var disco: DiscoLights
+## The people watching, GAME.md 8.1.
+var crowd: Crowd
 var junction_position := Vector3.ZERO
 var junction_radius := 2.5
 var jackpot_zones: Array[JackpotZone] = []
@@ -113,6 +115,7 @@ func build() -> void:
 	_add_junction()
 	_add_jackpots()
 	_add_disco()
+	crowd = Crowd.add_to(self, world_size())
 
 
 ## Brings the economy to life: coin pads start spawning, crates drop chips, the Junction and one

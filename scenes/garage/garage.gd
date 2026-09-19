@@ -63,6 +63,7 @@ func _ready() -> void:
 	Events.kart_respawned.connect(_on_kart_respawned)
 	# A room for learning the controls in, not a nightclub.
 	match_node.arena.disco.enabled = false
+	match_node.arena.crowd.enabled = false
 	_wire_portals()
 	if on_track:
 		# A kart is pointed at the middle of the map when it is put down, which on a road is a

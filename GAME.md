@@ -1050,6 +1050,14 @@ subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
   once and the oldest goes to make room, so a long firefight against one wall does
   not end with the wall made of scorch marks.
 - **Traffic lights and road signs** as props at lane ends and near spawns.
+- **The crowd**: a ring of small figures standing on the table all the way round
+  the arena, and a DJ booth along the top edge with a pair of speakers that pulse
+  on the beat. They bob while the room is quiet, they are on their feet at
+  excitement levels 5 and 6, see 8.4, and a kill gets them jumping for a couple of
+  seconds whatever the meter says: the loudest thing that happens in a match is
+  answered by the room and not only by the HUD. Scenery throughout, with no
+  collision and nothing that decides anything, and every machine runs its own off
+  the same events. The Garage has none of it, the same as it has no disco lights.
 
 Starting palette:
 

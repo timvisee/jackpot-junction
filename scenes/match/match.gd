@@ -588,6 +588,7 @@ func _physics_process(delta: float) -> void:
 				arena.junction.hint = junction_hint()
 				arena.junction.winning = junction_wins_it()
 			arena.disco.level = intensity.level
+			arena.crowd.level = intensity.level
 			camera_rig.tremble = _beat_tremble()
 
 
