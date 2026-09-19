@@ -162,6 +162,10 @@ below, and hands the notes to the release workflow.
   unfocused window could hold the whole main loop up waiting for the desktop to
   take a frame, which froze every client in the room until somebody clicked back.
 
+- **The joker pick cannot be answered for half a second.** You are killed with a
+  thumb on the trigger and the cards open under it, so a card was being claimed
+  before anybody had read it. Moving the cursor still works the whole time.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button

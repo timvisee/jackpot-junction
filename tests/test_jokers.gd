@@ -694,6 +694,7 @@ func test_the_fire_button_takes_the_card_under_the_cursor() -> void:
 	var match_node := _start_match(_bots(), 3)
 	var kart := match_node.kart_of(0)
 	var offer := JokerOffer.new(kart, CATALOG.offer(match_node.rng, 3, []))
+	offer.answer_at = 0.0
 	offer.selected = 1
 	var wanted := offer.choices[1]
 	var input := KartInput.new()
@@ -703,11 +704,43 @@ func test_the_fire_button_takes_the_card_under_the_cursor() -> void:
 	assert_array(kart.jokers.ids()).contains([wanted.id])
 	# And the item button still does, for anyone who learned it that way.
 	var second := JokerOffer.new(kart, CATALOG.offer(match_node.rng, 3, kart.jokers.ids()))
+	second.answer_at = 0.0
 	second.selected = 0
 	var item := KartInput.new()
 	item.use_item_pressed = true
 	second.poll_input(item)
 	assert_bool(second.is_done()).is_true()
+
+
+## GAME.md 3.7: the cards stand there for half a second before they can be answered. A player is
+## killed with a thumb on the trigger and the pick opens under that thumb; the card under the
+## cursor was being claimed before anybody had read a word of it. Moving the cursor is allowed
+## the whole time, because which card you are looking at was never the problem.
+func test_the_pick_cannot_be_answered_for_half_a_second() -> void:
+	var match_node := _start_match(_bots(), 3)
+	var kart := match_node.kart_of(0)
+	var offer := JokerOffer.new(kart, CATALOG.offer(match_node.rng, 3, []))
+	assert_bool(offer.is_settled()).is_false()
+	var input := KartInput.new()
+	input.fire_pressed = true
+	offer.poll_input(input)
+	assert_bool(offer.is_done()).is_false()
+	assert_int(kart.jokers.count()).is_equal(0)
+	# Skipping is held back with it: a thumb on the destroy button throws the pick away.
+	var skipping := KartInput.new()
+	skipping.joker_destroy_pressed = true
+	offer.poll_input(skipping)
+	assert_bool(offer.is_done()).is_false()
+	# The cursor still walks, throughout.
+	var steering := KartInput.new()
+	steering.steer = 1.0
+	offer.poll_input(steering)
+	assert_int(offer.selected).is_equal(1)
+	# And once the moment has passed the same press is answered.
+	offer.answer_at = 0.0
+	offer.poll_input(input)
+	assert_bool(offer.is_done()).is_true()
+	assert_int(kart.jokers.count()).is_equal(1)
 
 
 ## GAME.md 7.3: Backfire points the cannon out of the back of the kart while the brake is held,

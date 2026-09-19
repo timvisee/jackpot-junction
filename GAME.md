@@ -246,6 +246,12 @@ Jokers are passive rule modifiers held for the rest of the match.
 - The offer stays open until the player picks or skips. Respawn waits for the
   choice, but never happens before the 3 s delay has passed. The match keeps
   running meanwhile.
+- Nothing can be taken, skipped or destroyed for the first 0.5 s the cards are up.
+  A player is killed with a thumb on the trigger and the pick opens under that same
+  thumb, so the card under the cursor was being claimed before anybody had read a
+  word of it. The cursor walks the whole time: which card somebody is looking at
+  was never the problem. A button held down through the wait is not counted as
+  pressed when it ends, which is the press this is here to stop.
 - The joker menu can be opened while driving; the kart stays fully
   controllable.
 - Menu controls: steer left and right, the bracket keys or the D-pad walk the
