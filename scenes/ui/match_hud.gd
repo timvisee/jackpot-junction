@@ -9,6 +9,8 @@ extends CanvasLayer
 ## table, so the honest number is a single figure and says nothing; scaled like this a kart
 ## tops out around 210 and nitro takes it to 400, which is what the driving feels like.
 const SPEED_SCALE := 20.0
+## Seconds between two knocks felt in the same pair of hands, GAME.md 4.2.
+const KNOCK_INTERVAL := 0.3
 ## The speed the dial is full at: a kart flat out on nitro, so the needle has somewhere to go
 ## when the bottle is lit.
 const SPEED_FULL := 1.9
@@ -56,6 +58,8 @@ var _tallies: Dictionary[int, FloatingText] = {}
 var _hands: Dictionary[int, JokerHand] = {}
 var _pickers: Dictionary[int, JokerPicker] = {}
 var _kill_feed: KillFeed
+## When each slot last felt a knock, so a scrape along a wall is one nudge rather than a buzz.
+var _knocked: Dictionary[int, float] = {}
 var _results: ResultsScreen
 var _lobby: PanelContainer
 var _lobby_rows: RichTextLabel
@@ -109,6 +113,8 @@ func _ready() -> void:
 	Events.life_restored.connect(_on_life_restored)
 	Events.announced.connect(_on_announced)
 	Events.kart_respawned.connect(_on_kart_respawned)
+	Events.kart_crashed.connect(_on_kart_crashed)
+	Events.kart_bumped.connect(_on_kart_bumped)
 
 
 func _on_bounty_called(slot: int) -> void:
@@ -181,6 +187,26 @@ func _on_kart_killed(victim_slot: int, killer_slot: int, cause: StringName) -> v
 	)
 
 
+## Hitting a wall, GAME.md 4.2: a knock in the hands as well as a noise, as hard as the hit was.
+func _on_kart_crashed(slot: int, force: float) -> void:
+	_knock(slot, 0.25 + 0.65 * force)
+
+
+## Running into another kart, or bouncing off a box, which the wall response covers as well.
+func _on_kart_bumped(slot: int) -> void:
+	_knock(slot, 0.4)
+
+
+## One nudge for a knock. Grinding along a wall or another kart reports contact on every tick it
+## is touching, and a pad buzzing continuously is a pad nobody can feel anything else through.
+func _knock(slot: int, strength: float) -> void:
+	var now := Time.get_ticks_msec() * 0.001
+	if now - float(_knocked.get(slot, -INF)) < KNOCK_INTERVAL:
+		return
+	_knocked[slot] = now
+	_rumble(slot, strength, 0.18)
+
+
 ## Vibrates the gamepad of a human slot, when rumble is on.
 func _rumble(slot: int, strength: float, seconds: float) -> void:
 	if not Game.settings.rumble or slot < 0 or slot >= match_node.slots.size():
@@ -202,6 +228,8 @@ func _exit_tree() -> void:
 	Events.kart_corrected.disconnect(_on_corrected)
 	Events.kart_killed.disconnect(_on_kart_killed)
 	Events.kart_respawned.disconnect(_on_kart_respawned)
+	Events.kart_crashed.disconnect(_on_kart_crashed)
+	Events.kart_bumped.disconnect(_on_kart_bumped)
 	Events.grazed.disconnect(_on_grazed)
 	Events.mult_gained.disconnect(_on_mult_gained)
 	Events.bank_completed.disconnect(_on_bank_completed)

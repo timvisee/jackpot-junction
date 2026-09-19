@@ -145,6 +145,9 @@ below, and hands the notes to the release workflow.
 - **Ramming somebody knocks coins out of them.** A ram they live through spills a
   quarter of their coins, at most 8, onto the floor for anybody to pick up.
 
+- **Crashes come through the pad.** Hitting a wall or another kart knocks the
+  gamepad, as hard as the hit was, on top of the sound.
+
 ### Fixed
 
 - **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball

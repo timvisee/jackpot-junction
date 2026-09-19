@@ -615,6 +615,15 @@ assigns physical devices to player slots, see 10.2.
 | Menus: press the button under the cursor | A      | Enter or Space            |
 | Menus: back out                          | B      | Esc                       |
 
+The pad is knocked as well as the speaker: taking a life, dying, a big cash-out,
+hitting a wall and running into another kart all come through the hands, as hard
+as the thing that caused them. Knocks are held to one every 0.3 s per player, since
+grinding along a wall reports contact on every tick it is touching and a pad
+buzzing continuously is a pad nothing else can be felt through. A box a kart
+bounces off answers as a wall does; a box it goes straight through at ramming
+speed does not stop it, so there is nothing to feel. The accessibility setting in
+8.5 turns all of it off.
+
 A menu is driven with the pad as well as the keyboard: the stick and the D-pad walk
 the cursor, A presses whatever is under it and B is the Back button. Back only backs
 out of somewhere there is a way out of, which is the pause menu, the lobby, the
