@@ -55,6 +55,12 @@ below, and hands the notes to the release workflow.
   take them off almost any errand. Easy and normal bots still fight whoever
   happens to be closest.
 
+- **The results screen is laid out properly.** Everybody gets a row of their own
+  built like the joker detail pane, with their colour down its leading edge, their
+  score in gold on the right, and each award on a chip of its own rather than run
+  together into one line. The row belonging to whoever is reading it stands out of
+  the rest.
+
 ### Added
 
 - **A one-minute match, in debug builds only.** Long enough to reach the Junction

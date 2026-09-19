@@ -280,8 +280,17 @@ whistle nobody is stopped dead: every driver lets go of the wheel and the karts
 roll to a halt on their own, out of anyone's control and out of reach of pits,
 hazards and the Junction alike, while the rig swings onto the winner. Results
 show every player's banked score and kills, ranked, then offer a rematch or a
-return to the lobby. Under each player up to three awards pick out what they did most compared with
-the others, leaders first, ranked by how far ahead of the others' average they
+return to the lobby.
+
+The screen is built like the joker detail pane in 8.3, so the two read as the same
+game: a dark translucent card with room to breathe and a bar of colour along the
+top, here the winner's. Each player gets a row of their own rather than a line of
+text, with their place and name on the left in their own colour, their colour down
+the leading edge of the row, their kills and deaths in grey, and what they banked
+on the right in gold. The row of whoever is reading the screen is lifted a shade
+out of the rest. Under each player up to three awards pick out what they did most
+compared with the others, as separate chips rather than run together into one
+sentence, leaders first, ranked by how far ahead of the others' average they
 are: Trigger Happy (shots fired), Butterfingers (coins lost), Vacuum Cleaner
 (coins picked up), Card Shark (jokers taken), Road Warrior (distance driven),
 Sideways Specialist (distance drifted), Close Shave (grazes), Regular Customer
