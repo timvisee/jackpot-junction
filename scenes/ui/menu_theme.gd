@@ -1,6 +1,14 @@
 class_name MenuTheme
 extends RefCounted
-## Shared helpers for the menu screens: the screen itself, a title, rows of options, buttons.
+## Shared helpers for the menu screens: the screen itself, a title, rows of options, buttons, and
+## the pane every panel in the game is cut from.
+
+## The pane, GAME.md 8.3: a dark translucent card with room to breathe and a bar of colour along
+## the top of it. The joker detail pane was the first thing built this way and everything since
+## has followed it, so the shape lives here rather than being written out again per screen.
+const PANE_BG := Color(0.07, 0.07, 0.09, 0.94)
+const PANE_EDGE := 6
+const PANE_RADIUS := 10
 
 
 static func background(parent: Control) -> void:
@@ -71,6 +79,31 @@ static func field(text: String, hint: String, max_length: int) -> LineEdit:
 	control.custom_minimum_size = Vector2(220.0, 44.0)
 	control.add_theme_font_size_override("font_size", 22)
 	return control
+
+
+## The look of a pane, with [param edge] painted along its top. Handed out as a style rather
+## than as a panel so that a screen which changes its own edge colour, such as the podium
+## wearing the winner's, can keep hold of it.
+static func pane_style(edge: Color = Palette.CHIP_GOLD) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = PANE_BG
+	style.set_corner_radius_all(PANE_RADIUS)
+	style.content_margin_left = 26.0
+	style.content_margin_right = 26.0
+	style.content_margin_top = 20.0
+	style.content_margin_bottom = 22.0
+	style.border_width_top = PANE_EDGE
+	style.border_color = edge
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.5)
+	style.shadow_size = 20
+	return style
+
+
+## A pane to put things in.
+static func pane(edge: Color = Palette.CHIP_GOLD) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", pane_style(edge))
+	return panel
 
 
 static func row(label_text: String, control: Control) -> HBoxContainer:

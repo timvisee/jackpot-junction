@@ -17,11 +17,8 @@ extends PanelContainer
 ## about; "Results" is the name of a state machine's last state.
 const TITLE := "Podium"
 const WIDTH := 980.0
-const BG := Color(0.07, 0.07, 0.09, 0.94)
 const RULE := Color(1.0, 1.0, 1.0, 0.13)
 const FAINT := Color(0.62, 0.62, 0.68)
-## The colour bar along the top edge, thick enough to be the screen's heading rather than a line.
-const EDGE := 6
 ## The row of the player reading this screen is lifted out of the rest of them.
 const ROW_BG := Color(1.0, 1.0, 1.0, 0.04)
 const ROW_MINE := Color(1.0, 1.0, 1.0, 0.09)
@@ -163,17 +160,7 @@ func _build() -> void:
 	grow_vertical = Control.GROW_DIRECTION_BOTH
 	custom_minimum_size = Vector2(WIDTH, 0.0)
 	visible = false
-	_style = StyleBoxFlat.new()
-	_style.bg_color = BG
-	_style.set_corner_radius_all(10)
-	_style.content_margin_left = 26.0
-	_style.content_margin_right = 26.0
-	_style.content_margin_top = 20.0
-	_style.content_margin_bottom = 22.0
-	_style.border_width_top = EDGE
-	_style.border_color = Palette.CHIP_GOLD
-	_style.shadow_color = Color(0.0, 0.0, 0.0, 0.5)
-	_style.shadow_size = 20
+	_style = MenuTheme.pane_style()
 	add_theme_stylebox_override("panel", _style)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 18)

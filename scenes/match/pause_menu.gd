@@ -3,6 +3,9 @@ extends CanvasLayer
 ## Pausing freezes the whole match in single-player and local play, GAME.md 3.8. Online it takes
 ## the whole room: the menu opens straight away, and the match stops once everybody has opened
 ## theirs. Resume, Settings, or back to the title.
+##
+## Built on the pane every panel in the game is cut from, GAME.md 8.3, over a shade of the arena
+## it is holding up.
 
 ## The session to ask online, null in a room where this machine is the only one.
 var session: NetSession
@@ -34,10 +37,12 @@ func _ready() -> void:
 	shade.color = Color(0.0, 0.0, 0.0, 0.55)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_panel.add_child(shade)
+	var pane := MenuTheme.pane()
+	_panel.add_child(pane)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 16)
-	_panel.add_child(column)
-	column.add_child(MenuTheme.title("Paused", 64))
+	pane.add_child(column)
+	column.add_child(MenuTheme.title("Paused", 48))
 	_resume = MenuTheme.button("Resume")
 	_resume.pressed.connect(set_paused.bind(false))
 	column.add_child(_resume)

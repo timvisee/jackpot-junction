@@ -69,6 +69,10 @@ below, and hands the notes to the release workflow.
 - **Bullet marks are round.** They were squares, which read as stickers rather
   than as holes.
 
+- **The pause menu and the online lobby are built like the rest of the game.**
+  Both sit on the same dark pane with a bar of colour along the top that the joker
+  details and the podium use.
+
 ### Added
 
 - **A one-minute match, in debug builds only.** Long enough to reach the Junction

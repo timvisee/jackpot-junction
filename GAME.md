@@ -1030,6 +1030,11 @@ name. Somebody leaving frees their corner for the next player to sit down.
 - **Lives**: two pips in the player colour under the kill count; a lost life
   goes dark.
 - **Held power-up** icon, filled by the roulette flicker once the box is in.
+- **The pane** is the shape every panel in the game is cut from: a dark translucent
+  card with room to breathe, rounded corners, a shadow under it and a bar of colour
+  along the top. The joker pane below was the first thing built this way; the
+  podium screen, the pause menu and the online lobby all wear it too, so a panel
+  looks like this game's panel wherever it turns up.
 - **The joker pane** describes whichever card is under the cursor, and is the same
   pane everywhere a player reads about a joker: above the hand for the card lifted
   out of the fan, and under the row for the respawn pick and again for the card

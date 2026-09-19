@@ -716,7 +716,7 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 
 ## The online lobby, GAME.md 9.3: who is here, how to join, and the host's Start button.
 func _build_lobby() -> void:
-	_lobby = PanelContainer.new()
+	_lobby = MenuTheme.pane()
 	_lobby.name = "Lobby"
 	_lobby.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	_lobby.grow_horizontal = Control.GROW_DIRECTION_BOTH
@@ -724,13 +724,9 @@ func _build_lobby() -> void:
 	_lobby.custom_minimum_size = Vector2(620.0, 0.0)
 	_lobby.visible = false
 	add_child(_lobby)
-	var margin := MarginContainer.new()
-	for side: String in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_%s" % side, 24)
-	_lobby.add_child(margin)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
-	margin.add_child(column)
+	_lobby.add_child(column)
 	column.add_child(MenuTheme.title("Online lobby", 44))
 	_lobby_hint = Label.new()
 	_lobby_hint.add_theme_font_size_override("font_size", 20)
