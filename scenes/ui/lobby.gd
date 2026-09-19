@@ -216,7 +216,7 @@ func _refresh_players() -> void:
 ## joining or leaving rather than staying at the position it was typed at.
 func _build_name_rows(column: VBoxContainer) -> void:
 	for i: int in MAX_HUMANS:
-		var field := MenuTheme.field("", "A funny one", PlayerNames.MAX_LENGTH)
+		var field := MenuTheme.field("", PlayerNames.PLACEHOLDER, PlayerNames.MAX_LENGTH)
 		field.text_changed.connect(
 			func(text: String) -> void:
 				if i < player_names.size():

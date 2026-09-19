@@ -6,6 +6,9 @@ extends RefCounted
 ## end of a match is a list of names.
 
 const MAX_LENGTH := 16
+## What an empty name box says. Not the name anybody will be given, which is drawn at the
+## whistle and would be a lie in a box: just the word for what goes here.
+const PLACEHOLDER := "Player"
 ## Square brackets are dropped from a name because the standings and the kill feed are drawn with
 ## BBCode, and a name is a name rather than markup.
 const FORBIDDEN := ["[", "]", "\n", "\t", "\r"]

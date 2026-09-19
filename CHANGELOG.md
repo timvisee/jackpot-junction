@@ -61,6 +61,9 @@ below, and hands the notes to the release workflow.
   together into one line. The row belonging to whoever is reading it stands out of
   the rest.
 
+- **The name box says Player rather than A funny one.** The box is asking for a
+  name, not describing what happens if you leave it empty.
+
 ### Added
 
 - **A one-minute match, in debug builds only.** Long enough to reach the Junction
