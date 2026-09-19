@@ -142,6 +142,9 @@ below, and hands the notes to the release workflow.
   out, in the pause menu, the lobby, the online screen and the settings. The title
   screen has nowhere to back out to, so B does nothing there.
 
+- **Ramming somebody knocks coins out of them.** A ram they live through spills a
+  quarter of their coins, at most 8, onto the floor for anybody to pick up.
+
 ### Fixed
 
 - **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball

@@ -539,6 +539,12 @@ then hooks up and launches when the handbrake is released.
 Ramming only kills when the rammer has the Boost power-up active, see 7.1, or
 is burning nitro. Turbo pads do not enable ramming kills.
 
+A ram the victim lives through knocks a quarter of their coins, at most 8, out of
+their pot and onto the floor around them, as dropped chips that anybody may
+collect and that vanish after 15 s like any other drop, see 3.6. A ram that kills
+scatters coins through the death sequence already; this is for the one that does
+not, which would otherwise cost a kart carrying a fortune nothing at all.
+
 A kart that can ram another kart to death goes through a crate as well, so a
 square hit while Boosting, burning nitro or under Road Rage breaks it and pays
 its chips, and the kart keeps the speed it arrived with rather than being stopped

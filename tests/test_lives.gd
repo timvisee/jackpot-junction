@@ -355,3 +355,43 @@ func _rings(match_node: Match) -> Array:
 		if child is SpawnRing:
 			found.append(child)
 	return found
+
+
+## GAME.md 4.1: a ram somebody lives through knocks coins out of their pot onto the floor. A ram
+## that kills scatters them through the death sequence already, so this is for the other one.
+func test_a_ram_that_does_not_kill_knocks_coins_loose() -> void:
+	var rules := RULES.duplicate()
+	rules.countdown = 0.1
+	rules.duration = 60.0
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	match_node.start(inputs, 11)
+	await _runner.simulate_frames(12, 17)
+	var victim := match_node.kart_of(1)
+	victim.pot.add_coins(20)
+	var loose := _chips(match_node)
+	victim.take_ram(0)
+	assert_bool(victim.alive).is_true()
+	assert_bool(victim.is_wounded()).is_true()
+	# A quarter of them, out of the pot and onto the floor.
+	assert_int(victim.pot.coins).is_equal(15)
+	assert_int(_chips(match_node) - loose).is_equal(5)
+	# A kart with nothing to lose loses nothing, and drops no empty handful.
+	await _wait_out_immunity(victim)
+	victim.pot.reset()
+	victim.lives = 2
+	loose = _chips(match_node)
+	victim.take_ram(0)
+	assert_int(_chips(match_node)).is_equal(loose)
+
+
+func _chips(match_node: Match) -> int:
+	var count := 0
+	for node: Node in match_node.arena.pickups.get_children():
+		if node is Chip:
+			count += 1
+	return count

@@ -112,6 +112,11 @@ const WIRE_FIELDS: Array[StringName] = [
 
 @export_group("Death and respawn")
 @export var death_bank_fraction := 0.5
+## What a ram that does not kill knocks out of the victim's pot, and the most it can ever be,
+## GAME.md 4.1. Driving nitro into somebody carrying a fortune should cost them something even
+## when they live through it.
+@export var ram_coin_fraction := 0.25
+@export var ram_coin_max := 8
 @export var death_drop_fraction := 0.3
 @export var death_drop_max := 10
 @export var death_joker_drop_chance := 0.2

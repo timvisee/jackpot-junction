@@ -145,6 +145,8 @@ func start(
 		Events.drift_boosted.connect(_on_stat_drift_boost)
 	if not Events.oil_hit.is_connected(_on_stat_oil):
 		Events.oil_hit.connect(_on_stat_oil)
+	if not Events.kart_wounded.is_connected(_on_kart_wounded):
+		Events.kart_wounded.connect(_on_kart_wounded)
 	for zone: JackpotZone in arena.jackpot_zones:
 		zone.filled.connect(
 			func(filled: JackpotZone) -> void: Events.jackpot_full.emit(filled.index)
@@ -212,6 +214,8 @@ func _exit_tree() -> void:
 		Events.drift_boosted.disconnect(_on_stat_drift_boost)
 	if Events.oil_hit.is_connected(_on_stat_oil):
 		Events.oil_hit.disconnect(_on_stat_oil)
+	if Events.kart_wounded.is_connected(_on_kart_wounded):
+		Events.kart_wounded.disconnect(_on_kart_wounded)
 	if Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
 		Input.joy_connection_changed.disconnect(_on_joy_connection_changed)
 
@@ -895,6 +899,22 @@ func _on_stat_drift_boost(slot: int) -> void:
 
 func _on_stat_oil(slot: int) -> void:
 	MatchStats.count(self, slot, &"oil_spins")
+
+
+## A ram somebody lived through, GAME.md 4.1: it knocks a quarter of their coins out onto the
+## floor. A ram that kills scatters coins through the death sequence already, so this is only
+## for the one that does not, which would otherwise cost a full pot nothing at all.
+func _on_kart_wounded(slot: int, _by_slot: int, cause: StringName) -> void:
+	if puppet or cause != &"ram" or slot < 0 or slot >= slots.size():
+		return
+	var kart := slots[slot].kart
+	if kart == null or kart.pot.coins <= 0:
+		return
+	var knocked := clampi(roundi(kart.pot.coins * rules.ram_coin_fraction), 1, rules.ram_coin_max)
+	knocked = mini(knocked, kart.pot.coins)
+	kart.pot.add_coins(-knocked)
+	slots[slot].stats.add(&"coins_lost", knocked)
+	arena.spawn_chips(kart.global_position, knocked, rules.dropped_chip_lifetime, 0.0, true)
 
 
 func _on_joker_dropped(joker: Joker, slot: PlayerSlot) -> void:
