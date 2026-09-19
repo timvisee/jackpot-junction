@@ -3,6 +3,12 @@ extends Area3D
 ## The growing bank, GAME.md 3.5. The active zone accrues chips up to a cap; a single kart inside
 ## collects the pile into its pot at a ramping rate, two or more karts pause it, and an emptied
 ## zone hands over to the other one. A traffic light and a counter show its state.
+##
+## The counter is painted on the tile, which is exactly where the kart collecting it is parked,
+## so the kart wears a ring of its own while it collects: full when it drives on, gone when the
+## pile is. It is the same ring the Junction draws, and it means the same thing both times, that
+## a channel is running and finishes when the ring does. The pile going gives a pop of gold on
+## top of that, on every screen, so the moment reads from across the arena as well as from on it.
 
 signal filled(zone: JackpotZone)
 signal emptied(zone: JackpotZone)
@@ -26,6 +32,9 @@ var cap_multiplier := 1.0
 var puppet := false
 
 var _inside: Array[Kart] = []
+## The kart collecting right now and how big the pile was when it started, for the ring it wears.
+var _collecting: Kart
+var _started_with := 0.0
 var _t := 0.0
 var _carry := 0.0
 var _was_full := false
@@ -64,6 +73,7 @@ func deactivate() -> void:
 	chips = 0.0
 	_carry = 0.0
 	_t = 0.0
+	_stop_ring()
 	_refresh()
 
 
@@ -73,8 +83,11 @@ func whole_chips() -> int:
 
 ## Replicated state from the host.
 func apply_puppet_state(is_active: bool, chip_count: float) -> void:
+	var had := active and chips > 0.0
 	active = is_active
 	chips = chip_count
+	if had and (not active or chips <= 0.0):
+		_pop()
 	_refresh()
 
 
@@ -128,12 +141,18 @@ func _physics_process(delta: float) -> void:
 	var collectors := _collectors()
 	if collectors.is_empty():
 		_t = 0.0
-	elif collectors.size() == 1 and chips > 0.0:
+	if collectors.size() == 1 and chips > 0.0:
 		_collect(collectors[0], delta)
+	else:
+		_stop_ring()
 	_refresh()
 
 
 func _collect(kart: Kart, delta: float) -> void:
+	if _collecting != kart or _started_with <= 0.0:
+		_stop_ring()
+		_collecting = kart
+		_started_with = chips
 	var amount := Scoring.banked_between(
 		_t, _t + delta, rules.jackpot_rate_base, rules.jackpot_rate_doubling
 	)
@@ -146,6 +165,7 @@ func _collect(kart: Kart, delta: float) -> void:
 		_carry -= whole
 		kart.collect_coins(whole, null)
 		collected.emit(kart, whole)
+	kart.channel_progress = clampf(chips / maxf(_started_with, 0.0001), 0.0, 1.0)
 	if chips <= 0.0001:
 		var leftover := roundi(_carry)
 		if leftover > 0:
@@ -154,6 +174,8 @@ func _collect(kart: Kart, delta: float) -> void:
 		chips = 0.0
 		_carry = 0.0
 		_t = 0.0
+		_stop_ring()
+		_pop()
 		if active:
 			active = false
 			emptied.emit(self)
@@ -163,6 +185,24 @@ func _process(delta: float) -> void:
 	_flash += delta
 	if rules != null and is_full():
 		_set_light(2, fmod(_flash, 0.6) < 0.3)
+
+
+## Takes the ring off whoever was wearing it. Called whenever the channel is not running, which
+## includes a second kart driving in and pausing it: a ring that is not moving is a lie.
+func _stop_ring() -> void:
+	if is_instance_valid(_collecting):
+		_collecting.channel_progress = -1.0
+	_collecting = null
+	_started_with = 0.0
+
+
+## The pile going, as a handful of gold thrown up off the tile. Raised wherever it is noticed:
+## on the host as the last chip is collected, on a client when the snapshot says the pile has
+## gone, so the moment lands on every screen, GAME.md 10.3.
+func _pop() -> void:
+	var parent := get_parent()
+	if parent != null:
+		Burst.spawn(parent, global_position, Palette.CHIP_GOLD, 1.15, 20)
 
 
 func _refresh() -> void:

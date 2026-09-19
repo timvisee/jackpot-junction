@@ -123,6 +123,10 @@ below, and hands the notes to the release workflow.
   what you are called, so somebody joining a friend never arrives under whatever
   name that machine last used.
 
+- **You can see the Jackpot pile running out.** The kart collecting it wears the
+  same progress ring the Junction draws, since the count on the floor is under the
+  kart standing on it, and the pile going throws a handful of gold up off the tile.
+
 ### Fixed
 
 - **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball

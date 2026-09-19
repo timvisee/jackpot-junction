@@ -133,6 +133,61 @@ func test_a_lone_kart_in_the_active_jackpot_collects_it_and_the_other_zone_takes
 	assert_bool(other.active).is_true()
 
 
+## GAME.md 3.5: the counter is painted on the tile the collector is parked on, so the kart
+## wears the ring instead, full when it arrives and gone when the pile is. A pile that has gone
+## throws a handful of gold up off the tile, on every screen.
+func test_collecting_the_jackpot_puts_a_ring_on_the_kart_and_pops_when_it_is_clear() -> void:
+	var rules := _quick_rules()
+	rules.duration = 60.0
+	rules.jackpot_accrual = 0.0
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs, rules)
+	var runner := _runner
+	await runner.simulate_frames(12, 17)
+	var active: JackpotZone = null
+	for zone: JackpotZone in match_node.arena.jackpot_zones:
+		if zone.active:
+			active = zone
+	active.chips = 40.0
+	var kart := match_node.kart_of(0)
+	assert_float(kart.channel_progress).is_equal(-1.0)
+	kart.global_position = active.global_position
+	await runner.simulate_frames(6, 17)
+	# Part way through: the ring is on and coming down with the pile.
+	assert_float(kart.channel_progress).is_between(0.05, 0.999)
+	var ring := kart.channel_progress
+	await runner.simulate_frames(6, 17)
+	assert_float(kart.channel_progress).is_less(ring)
+	await runner.simulate_frames(120, 17)
+	# The pile has gone: no ring left to wear, and gold thrown up off the tile.
+	assert_float(active.chips).is_equal(0.0)
+	assert_float(kart.channel_progress).is_equal(-1.0)
+	assert_int(match_node.arena.get_tree().get_nodes_in_group(&"bursts").size()).is_greater(0)
+
+
+## A second kart driving in pauses the channel, and a ring that is not moving is a lie.
+func test_a_contested_jackpot_takes_the_ring_off() -> void:
+	var rules := _quick_rules()
+	rules.duration = 60.0
+	rules.jackpot_accrual = 0.0
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs, rules)
+	var runner := _runner
+	await runner.simulate_frames(12, 17)
+	var active: JackpotZone = null
+	for zone: JackpotZone in match_node.arena.jackpot_zones:
+		if zone.active:
+			active = zone
+	active.chips = 40.0
+	var kart := match_node.kart_of(0)
+	kart.global_position = active.global_position
+	await runner.simulate_frames(6, 17)
+	assert_float(kart.channel_progress).is_greater(0.0)
+	match_node.kart_of(1).global_position = active.global_position + Vector3(0.6, 0.0, 0.6)
+	await runner.simulate_frames(6, 17)
+	assert_float(kart.channel_progress).is_equal(-1.0)
+
+
 ## The bob used to overwrite the hover height, so chips and dice sat half inside the floor.
 func test_pickups_hover_clear_of_the_floor_while_they_bob() -> void:
 	var root: Node3D = auto_free(Node3D.new())

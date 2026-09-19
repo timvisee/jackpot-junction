@@ -186,6 +186,8 @@ the tension.
 | Heat             | Accrual and the cap both run with the excitement level of 8.4: at level 6 the pile fills three times as fast and may grow to twice as many chips |
 | Last Call        | Accrual doubles, on top of the heat                              |
 | Signal           | Traffic light on the zone: red below 20 chips, amber below 60, flashing green when full |
+| Collecting       | The kart wears the progress ring of 8.3, full when it drives on and gone when the pile is. The counter is painted on the tile the kart is parked on, so the ring is the only part of it a collector can see |
+| Cleared          | A handful of gold thrown up off the tile the moment the pile goes, on every screen |
 
 A full pile of 60 chips takes about 2.7 s to collect. Chips from the Jackpot
 are plain chips and multiply with your mult like any other.
