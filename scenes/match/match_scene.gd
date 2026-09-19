@@ -25,6 +25,7 @@ func _ready() -> void:
 	)
 	match_node.bot_difficulty = load("res://data/ai/%s.tres" % config.difficulty)
 	match_node.power_ups = config.power_ups()
+	match_node.arena_layout = ArenaMaps.layout(match_node.rules.map)
 	add_child(match_node)
 	match config.online:
 		"host":
@@ -39,8 +40,12 @@ func _ready() -> void:
 				)
 				match_node.hold_in_lobby()
 		"join":
-			match_node.start_puppet()
+			# Nothing is built until the host has said which arena this is, GAME.md 6.3. It
+			# arrives in the first message a client is sent, before its seat and long before a
+			# snapshot; a client that guessed from its own lobby would be driving a kart round
+			# the wrong room.
 			_start_session()
+			session.rules_applied.connect(_build_puppet_arena, CONNECT_ONE_SHOT)
 			session.local_input = PlayerInput.new()
 			# This machine's seat is the first one in the lobby's list, GAME.md 3.8.
 			session.player_name = config.human_names[0] if not config.human_names.is_empty() else ""
@@ -58,6 +63,12 @@ func _ready() -> void:
 			match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles())
 	DebugOverlay.add_to(self, match_node, session)
 	PauseMenu.add_to(self, session)
+
+
+## Builds the client's match once the host's settings are in, including which map it is.
+func _build_puppet_arena() -> void:
+	match_node.arena_layout = ArenaMaps.layout(match_node.rules.map)
+	match_node.start_puppet()
 
 
 ## IPv4 addresses of this machine other than loopback, for the lobby hint.

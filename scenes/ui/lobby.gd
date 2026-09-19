@@ -27,6 +27,7 @@ const OWN_BULLETS: Array[bool] = [false, true]
 const OVERTIME: Array[bool] = [true, false]
 const MAX_HUMANS := 4
 
+var map_option: OptionButton
 var minutes_option: OptionButton
 var target_option: OptionButton
 var bots_option: OptionButton
@@ -77,6 +78,8 @@ func _ready() -> void:
 		["Easy", "Normal", "Hard"], DIFFICULTIES.find(settings.difficulty)
 	)
 	items_option = MenuTheme.option(["First set", "All items"], ITEM_SETS.find(settings.item_set))
+	map_option = MenuTheme.option(ArenaMaps.NAMES, ArenaMaps.index_of(StringName(settings.map)))
+	column.add_child(MenuTheme.row("Arena", map_option))
 	column.add_child(MenuTheme.row("Match length", minutes_option))
 	column.add_child(MenuTheme.row("Target score", target_option))
 	column.add_child(MenuTheme.row("Bots", bots_option))
@@ -171,6 +174,7 @@ func config() -> MatchConfig:
 	result.human_colors = colors.duplicate()
 	result.human_names = names()
 	result.human_styles = styles()
+	result.map = ArenaMaps.id_at(map_option.selected)
 	result.duration = _match_lengths()[minutes_option.selected] * 60.0
 	result.target_score = TARGETS[target_option.selected]
 	result.bot_count = mini(BOTS[bots_option.selected], MAX_HUMANS - devices.size())
@@ -208,6 +212,7 @@ func _start() -> void:
 	var dressed := styles()
 	for i: int in mini(dressed.size(), settings.kart_styles.size()):
 		settings.kart_styles[i] = dressed[i]
+	settings.map = String(ArenaMaps.id_at(map_option.selected))
 	settings.match_minutes = _match_lengths()[minutes_option.selected]
 	settings.target_score = TARGETS[target_option.selected]
 	settings.bot_count = BOTS[bots_option.selected]

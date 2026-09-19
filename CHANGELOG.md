@@ -161,6 +161,11 @@ below, and hands the notes to the release workflow.
   pattern, a hat, a flag and what the kart leaves behind it. Your colour is still
   your colour underneath, and everybody sees the same kart online.
 
+- **Two more arenas, and a choice of which to play.** The Vault puts the Junction
+  in a walled box with four ways in; Crossfire leans four diagonals away from the
+  middle so every approach is a corner. The lobby picks one, and online everybody
+  plays the host's pick.
+
 ### Fixed
 
 - **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball

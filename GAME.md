@@ -820,10 +820,22 @@ protection makes the kart untouchable.
 | Jackpot zone   | Growing chip pile, 2.5 m square, see 3.5                               |
 | Spawn point    | 4 points near the corners                                              |
 
-### 6.3 First map: Lucky Crossing
+### 6.3 Maps
 
-Grid of 32 by 18 cells, each 1.25 m. To be grey-boxed first and iterated in
-playtests.
+Three arenas, all 32 by 18 cells of 1.25 m, all holding the same furniture: a
+Junction in the middle, two Jackpot zones, two pits, four Royal Flush pads, four
+spawn points, four turbo pads, coin pads, item pads and crates. What differs is
+the shape of the room around them.
+
+The lobby picks one and remembers it. Online it is the host's pick: the map rides
+the wire with the rest of the host's settings, see 10.3, and a client builds
+nothing at all until that message has landed rather than guessing from its own
+lobby and driving round the wrong room.
+
+#### Lucky Crossing
+
+The open one. Long lanes top and bottom, short walls screening the Jackpots from
+the centre, and the pits directly above and below the Junction.
 
 ```
 ################################
@@ -865,6 +877,63 @@ it and nothing to bank.
   bouncing bullet.
 - The four Royal Flush pads sit on a ring: two on the top and bottom lanes and
   two behind the Jackpot zones, so a flush is a lap of the arena.
+
+#### The Vault
+
+The Junction is inside a walled box with four ways in, two wide and two narrow.
+Banking is a room you have to go into and come out of, so a pot taken in there is
+a pot somebody can corner. The coin pads inside pay for the risk, the Jackpots sit
+in line with the narrow doors, and the pits are out in the open where the running
+is fast.
+
+```
+################################
+#..............................#
+#.S..F.....>C..P...C<.....F..S.#
+#..............................#
+#........#####....#####........#
+#.....XX.#.CB......BC.#........#
+#.C...XX.#............#.B....P.#
+#........#....JJJJ....#.B......#
+#..KK.........JJJJ.........KK..#
+#..KK.........JJJJ.........KK..#
+#......B.#....JJJJ....#........#
+#.P....B.#............#.XX...C.#
+#........#.CB......BC.#.XX.....#
+#........#####....#####........#
+#..............................#
+#.S..F.....>C...P..C<.....F..S.#
+#..............................#
+################################
+```
+
+#### Crossfire
+
+Four diagonal walls leaning away from the middle, so every approach to the
+Junction is a corner and the two side lanes pinch to a gap with a pit in it. The
+Jackpots are behind a wall at the top and bottom, reachable only round the ends,
+which makes collecting one a commitment rather than a detour.
+
+```
+################################
+#.......C..F..KKKK.............#
+#.S...C.......KKKK.......C...S.#
+#............######............#
+#...P#...B................#P...#
+#.v...#....C........C....#...^.#
+#......#....B......B....#......#
+#.......#.....JJJJ.....#.......#
+#.C.F...X#....JJJJ....#X.......#
+#.......X#....JJJJ....#X...F.C.#
+#.......#.....JJJJ.....#.......#
+#......#....B......B....#......#
+#.^...#....C........C....#...v.#
+#...P#................B...#P...#
+#............######............#
+#.S...C.......KKKK.......C...S.#
+#.............KKKK..F..C.......#
+################################
+```
 
 ## 7. Power-ups and jokers
 

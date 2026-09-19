@@ -8,6 +8,9 @@ signal connected
 signal connection_failed
 signal disconnected
 signal slot_assigned(index: int)
+## The host's match settings have been applied, GAME.md 10.3. A client waits for this before it
+## builds anything, since the map it plays on is one of them.
+signal rules_applied
 ## The whole room has agreed to stop, or somebody has started playing again. GAME.md 3.8.
 signal pause_agreed(on: bool)
 
@@ -337,6 +340,7 @@ func _settled_pause(on: bool) -> void:
 func _set_rules(data: Dictionary) -> void:
 	if match_node != null and match_node.rules != null:
 		match_node.rules.from_wire(data)
+	rules_applied.emit()
 
 
 @rpc("authority", "call_remote", "reliable")

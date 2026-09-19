@@ -35,6 +35,8 @@ var target_score := 3000
 var bot_count := 3
 var difficulty := "normal"
 var item_set := "first"
+## Which arena the lobby last picked, GAME.md 6.3.
+var map := "lucky_crossing"
 ## Whether a kart's own shots hurt it, GAME.md 5.1.
 var own_bullets_hurt := false
 ## Whether a match that runs out of clock goes to sudden death, GAME.md 3.13.
@@ -87,6 +89,7 @@ func load_from_disk() -> void:
 	bot_count = file.get_value("lobby", "bot_count", bot_count)
 	difficulty = file.get_value("lobby", "difficulty", difficulty)
 	item_set = file.get_value("lobby", "item_set", item_set)
+	map = file.get_value("lobby", "map", map)
 	own_bullets_hurt = file.get_value("lobby", "own_bullets_hurt", own_bullets_hurt)
 	overtime = file.get_value("lobby", "overtime", overtime)
 	var stored: Array = file.get_value("lobby", "player_names", [])
@@ -124,6 +127,7 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "bot_count", bot_count)
 	file.set_value("lobby", "difficulty", difficulty)
 	file.set_value("lobby", "item_set", item_set)
+	file.set_value("lobby", "map", map)
 	file.set_value("lobby", "own_bullets_hurt", own_bullets_hurt)
 	file.set_value("lobby", "overtime", overtime)
 	file.set_value("lobby", "player_names", player_names)

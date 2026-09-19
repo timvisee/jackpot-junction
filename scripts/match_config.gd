@@ -11,6 +11,8 @@ var human_styles: Array = []
 ## What each human calls themselves, in the same order. An empty entry is handed a funny name
 ## when the match starts, GAME.md 3.8.
 var human_names: Array[String] = []
+## Which arena to play in, GAME.md 6.3.
+var map := &"lucky_crossing"
 var bot_count := 3
 var difficulty := "normal"
 var duration := 300.0
@@ -75,6 +77,7 @@ func rules(base: MatchRules) -> MatchRules:
 	copy.target_score = target_score if target_score > 0 else 1 << 30
 	copy.own_bullets_hurt = own_bullets_hurt
 	copy.overtime = overtime
+	copy.map = map
 	return copy
 
 
@@ -93,4 +96,5 @@ static func from_settings(settings: Settings) -> MatchConfig:
 	config.overtime = settings.overtime
 	config.human_names = settings.player_names.duplicate()
 	config.human_styles = settings.kart_styles.duplicate()
+	config.map = StringName(settings.map)
 	return config

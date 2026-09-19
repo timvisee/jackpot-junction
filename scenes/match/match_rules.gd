@@ -19,6 +19,7 @@ const WIRE_FIELDS: Array[StringName] = [
 	&"last_call_duration",
 	&"countdown",
 	&"max_players",
+	&"map",
 ]
 
 @export_group("Coins")
@@ -161,6 +162,8 @@ const WIRE_FIELDS: Array[StringName] = [
 @export var hurt_protection := 1.2
 
 @export_group("Match")
+## Which arena the match is played in, GAME.md 6.3. One of [constant ArenaMaps.IDS].
+@export var map := &"lucky_crossing"
 ## Whether the match runs against a clock. The Garage in 9.4 turns it off: no timer, no Last
 ## Call, no end.
 @export var timed := true
