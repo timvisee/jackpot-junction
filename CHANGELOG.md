@@ -180,6 +180,9 @@ below, and hands the notes to the release workflow.
 - **A chequered flag to fly.** A fourth flag, in the colours a chequered flag
   comes in rather than the player's.
 
+- **You can read your hand while you are dead.** The joker menu opens and the
+  cursor walks; dropping and destroying wait until you are back on the floor.
+
 ### Fixed
 
 - **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball

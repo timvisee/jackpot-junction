@@ -254,6 +254,10 @@ Jokers are passive rule modifiers held for the rest of the match.
   pressed when it ends, which is the press this is here to stop.
 - The joker menu can be opened while driving; the kart stays fully
   controllable.
+- It opens while dead as well, and a player waiting to come back is the player
+  with time to read their hand. Dropping and destroying are the two things it
+  will not do then: there is no kart to drop a card from, and the respawn pick is
+  already asking what is worth keeping.
 - Menu controls: steer left and right, the bracket keys or the D-pad walk the
   cursor, number keys pick directly, the drop button lays the card on the floor,
   the destroy button burns it. Steering picks cards so that whatever the player

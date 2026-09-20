@@ -459,6 +459,45 @@ func test_a_card_wears_its_rarity_in_pips_and_the_pane_names_it() -> void:
 	assert_str(pane._rarity.text).is_equal("COMMON")
 
 
+## GAME.md 3.7: a player waiting to come back can still read their hand, and is the player with
+## time to read it. What they cannot do is throw a card away: there is no kart to drop one from
+## and the respawn pick is already asking what to keep.
+func test_a_dead_player_can_look_through_their_hand_but_not_throw_any_of_it_away() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	var kart := match_node.kart_of(0)
+	for id: String in ["hair_trigger", "big_tank", "vulture"]:
+		_attach(kart, id)
+	await _runner.simulate_frames(12, 17)
+	kart.die(&"pit", -1)
+	assert_bool(kart.alive).is_false()
+	var input := inputs[0]
+	input.joker_menu = true
+	await _runner.simulate_frames(4, 17)
+	assert_bool(kart.menu_open).is_true()
+	# The cursor walks. How far depends on how many ticks the frame ran for, which is not the
+	# point: the point is that a dead player can move it at all.
+	input.joker_next_pressed = true
+	await _runner.simulate_frames(1, 17)
+	input.joker_next_pressed = false
+	assert_int(kart.menu_index).is_greater(0)
+	# Neither button throws anything away.
+	input.joker_drop_pressed = true
+	await _runner.simulate_frames(1, 17)
+	input.joker_drop_pressed = false
+	input.joker_destroy_pressed = true
+	await _runner.simulate_frames(1, 17)
+	input.joker_destroy_pressed = false
+	assert_int(kart.jokers.count()).is_equal(3)
+	# Alive again, the same buttons work as they always did.
+	await _runner.simulate_frames(120, 17)
+	assert_bool(kart.alive).is_true()
+	input.joker_destroy_pressed = true
+	await _runner.simulate_frames(1, 17)
+	input.joker_destroy_pressed = false
+	assert_int(kart.jokers.count()).is_less(3)
+
+
 func test_road_rage_slows_the_kart_and_rams_at_speed() -> void:
 	var match_node := _start_match(_bots())
 	var kart := match_node.kart_of(0)

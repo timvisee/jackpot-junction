@@ -755,9 +755,13 @@ func _step_respawns(delta: float) -> void:
 	for slot: PlayerSlot in slots:
 		if slot.kart.alive:
 			continue
-		if slot.offer != null and not slot.offer.is_done() and slot.is_human():
+		# Whoever is waiting to come back still has controls: the pick answers them while it is
+		# open, and the hand of cards answers them either way, GAME.md 3.7. Polled once, here,
+		# because a second poll in the same tick is a button press nobody sees.
+		if slot.is_human():
 			slot.input.poll(delta)
-			slot.offer.poll_input(slot.input)
+			if slot.offer != null and not slot.offer.is_done():
+				slot.offer.poll_input(slot.input)
 		slot.respawn_left = maxf(slot.respawn_left - delta, 0.0)
 		if slot.respawn_left <= 0.0 and (slot.offer == null or slot.offer.is_done()):
 			slot.offer = null

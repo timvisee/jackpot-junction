@@ -210,6 +210,11 @@ func _physics_process(delta: float) -> void:
 			_step_sound(delta)
 		return
 	if not alive:
+		# Dead is not gone. The hand is still yours to read through, GAME.md 3.7, and a player
+		# waiting to come back is exactly the player with time to read it. Dropping and burning
+		# are not: there is no kart to drop a card from, and the respawn pick is already asking
+		# what to keep. The controls are polled for the whole slot by the match while it waits.
+		_step_menu(false)
 		_step_sound(delta)
 		return
 	if frozen:
@@ -542,8 +547,10 @@ func distance_to_body(point: Vector3) -> float:
 	return Vector3(local.x, 0.0, local.z).distance_to(clamped)
 
 
-## The joker menu, GAME.md 3.7: held open while driving; cycle, pick, drop or destroy.
-func _step_menu() -> void:
+## The joker menu, GAME.md 3.7: held open while driving; cycle, pick, drop or destroy. With
+## [param can_change] false the cards may only be looked through, which is what a dead kart's
+## hand is.
+func _step_menu(can_change: bool = true) -> void:
 	menu_open = input.joker_menu and jokers.count() > 0
 	if not menu_open:
 		menu_index = 0
@@ -557,9 +564,9 @@ func _step_menu() -> void:
 		menu_index = posmod(menu_index - 1, count)
 	if input.joker_select >= 0 and input.joker_select < count:
 		menu_index = input.joker_select
-	if input.joker_drop_pressed:
+	if can_change and input.joker_drop_pressed:
 		drop_joker(menu_index)
-	elif input.joker_destroy_pressed:
+	elif can_change and input.joker_destroy_pressed:
 		destroy_joker(menu_index)
 	menu_index = clampi(menu_index, 0, maxi(jokers.count() - 1, 0))
 
