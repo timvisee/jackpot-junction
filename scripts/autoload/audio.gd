@@ -36,6 +36,11 @@ const COLD_GAIN_DB := -7.5
 const HOT_GAIN_DB := 1.5
 ## How fast the filter follows the meter, per second, so it sweeps rather than snaps.
 const OPEN_FOLLOW := 0.8
+## How far the music is pulled down under the podium, and how long it takes to get there and to
+## come back. The whistle is the end of the noise rather than more of it, GAME.md 3.8: the room
+## drops away and the screen comes up into the space that leaves.
+const PODIUM_DUCK_DB := -9.0
+const PODIUM_DUCK_SECONDS := 0.8
 const BANK_TICK_INTERVAL := 0.07
 ## The least time between two cash-out chimes for one player.
 const BANK_CHIME_GAP := 1.6
@@ -124,6 +129,9 @@ var _music_tween: Tween
 var _excitement_age := 0.0
 ## The filter's own smoothed take on the excitement, 0 dulled and 1 wide open.
 var _open := 0.0
+## Where the podium duck has got to, and where it is heading.
+var _duck_db := 0.0
+var _duck_target := 0.0
 var _filter: AudioEffectLowPassFilter
 var _amplify: AudioEffectAmplify
 ## The file each effect played last, so an effect with several never plays the same one twice
@@ -201,7 +209,16 @@ func _step_music_effects(delta: float) -> void:
 	_open = move_toward(_open, excitement_share, OPEN_FOLLOW * delta)
 	# Cutoff by ear rather than by number: an octave is a doubling, so sweep it that way.
 	_filter.cutoff_hz = FILTER_CLOSED_HZ * pow(FILTER_OPEN_HZ / FILTER_CLOSED_HZ, _open)
-	_amplify.volume_db = lerpf(COLD_GAIN_DB, HOT_GAIN_DB, _open)
+	var fade := absf(PODIUM_DUCK_DB) / maxf(PODIUM_DUCK_SECONDS, 0.001)
+	_duck_db = move_toward(_duck_db, _duck_target, fade * delta)
+	_amplify.volume_db = lerpf(COLD_GAIN_DB, HOT_GAIN_DB, _open) + _duck_db
+
+
+## Pulls the music down under the podium and lets it back up afterwards, GAME.md 3.8. The
+## meter's own wind-down already takes the room off the boil; this is the extra step back that
+## says the match is over rather than quiet.
+func duck_music(on: bool) -> void:
+	_duck_target = PODIUM_DUCK_DB if on else 0.0
 
 
 func is_music_muted() -> bool:
@@ -547,6 +564,9 @@ func _on_bank_completed(slot: int, _coins: int, _mult: float, total: int) -> voi
 
 
 func _on_state_changed(state: int) -> void:
+	if state != Match.State.RESULTS:
+		# A rematch, or a room going back to the lobby: whatever the podium took, give it back.
+		duck_music(false)
 	match state:
 		Match.State.COUNTDOWN:
 			# The start tones come from the clock, one per lamp, and the flag from the countdown

@@ -32,6 +32,10 @@ below, and hands the notes to the release workflow.
   row. It is a couple of rows in now, with people in front of it and people
   behind it.
 
+- **The whistle gets a moment before the podium.** The karts roll to a halt and
+  the lights swing onto the winner for a couple of seconds, the music steps back,
+  and then the screen comes up.
+
 ## [0.3.0] - 2026-09-20
 
 A room worth sitting in. The arena picked up a crowd a thousand strong on

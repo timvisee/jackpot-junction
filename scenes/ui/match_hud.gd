@@ -26,6 +26,10 @@ const SYNC_SNAP := 1.0
 const CALL_DROP := 120.0
 const CALL_TIME := 2.2
 const CALL_FADE := 0.6
+## How long the whistle is left to itself before the podium comes up, GAME.md 3.8. Long enough
+## for the karts to roll to a halt and for the rig to find the winner, which is the end of the
+## match; a scoreboard thrown over the top of that takes it away from the people in it.
+const PODIUM_DELAY := 2.5
 
 ## Which corner the first, second, third and fourth block on this screen take. The order is by
 ## who is sitting here, not by slot number: online, a lone client may well be slot 2, and its one
@@ -56,6 +60,9 @@ var _blocks: Dictionary[int, Dictionary] = {}
 ## The cash-out tally each slot has in the air, so a run of them climbs one number.
 var _tallies: Dictionary[int, FloatingText] = {}
 var _hands: Dictionary[int, JokerHand] = {}
+## Seconds left of the pause between the whistle and the podium, and whether one is running.
+var _podium_wait := 0.0
+var _podium_pending := false
 var _pickers: Dictionary[int, JokerPicker] = {}
 var _kill_feed: KillFeed
 ## When each slot last felt a knock, so a scrape along a wall is one nudge rather than a buzz.
@@ -225,6 +232,8 @@ func _rumble(slot: int, strength: float, seconds: float) -> void:
 
 
 func _exit_tree() -> void:
+	# Leaving the podium for the title or the lobby: the music comes back up with the screen.
+	Audio.duck_music(false)
 	Events.kart_corrected.disconnect(_on_corrected)
 	Events.kart_killed.disconnect(_on_kart_killed)
 	Events.kart_respawned.disconnect(_on_kart_respawned)
@@ -353,6 +362,7 @@ func _update_sync(delta: float) -> void:
 func _process(delta: float) -> void:
 	if dismissed:
 		return
+	_step_podium(delta)
 	_update_sync(delta)
 	_update_call(delta)
 	_update_timer()
@@ -360,6 +370,15 @@ func _process(delta: float) -> void:
 	_update_blocks()
 	_update_banner(delta)
 	_update_lobby()
+
+
+func _step_podium(delta: float) -> void:
+	if not _podium_pending:
+		return
+	_podium_wait = maxf(_podium_wait - delta, 0.0)
+	if _podium_wait <= 0.0:
+		_podium_pending = false
+		_show_podium()
 
 
 func _update_timer() -> void:
@@ -486,15 +505,32 @@ func _update_banner(delta: float) -> void:
 func _on_state_changed(state: int) -> void:
 	if dismissed:
 		return
-	var over := state == Match.State.RESULTS
-	if over:
-		_results.fill_in()
-	else:
-		_results.visible = false
+	if state == Match.State.RESULTS:
+		# The whistle is not the podium, GAME.md 3.8. The karts roll to a halt and the rig swings
+		# onto the winner, and only then does the screen come up: a scoreboard thrown over the
+		# top of a kart still rolling takes the end of the match away from the people in it.
+		# A host saying it again while the screen is already up is a repeat, not a second ending.
+		if _results.visible:
+			_results.fill_in()
+		else:
+			_podium_pending = true
+			_podium_wait = PODIUM_DELAY
+		return
+	_podium_pending = false
+	_results.visible = false
+	Audio.duck_music(false)
+	for hand: JokerHand in _hands.values():
+		hand.visible = true
+
+
+## The end of the pause: the music steps back and the podium comes up into the room it leaves.
+func _show_podium() -> void:
+	Audio.duck_music(true)
+	_results.fill_in()
 	# The hand of cards is for a match being played. Once the podium is up it is a row of jokers
 	# lying across the bottom of the standings, for a match that is already decided.
 	for hand: JokerHand in _hands.values():
-		hand.visible = not over
+		hand.visible = false
 
 
 func _on_grazed(slot: int) -> void:

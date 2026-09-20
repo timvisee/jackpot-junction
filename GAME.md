@@ -294,9 +294,13 @@ The joker catalogue is in section 7.3.
 Flow: Title screen, Lobby, Countdown, Playing, Last Call, Overtime, Results. At the
 whistle nobody is stopped dead: every driver lets go of the wheel and the karts
 roll to a halt on their own, out of anyone's control and out of reach of pits,
-hazards and the Junction alike, while the rig swings onto the winner. Results
-show every player's banked score and kills, ranked, then offer a rematch or a
-return to the lobby.
+hazards and the Junction alike, while the rig swings onto the winner. That is the
+end of the match and it is left to itself: the podium waits two and a half seconds
+before it comes up, and the hand of cards stays where it is until it does, because
+a scoreboard thrown over the top of a kart still rolling takes the ending away from
+the people who were in it. The music steps back 9 dB over 0.8 s as the screen
+arrives and comes back up when the room does. Results show every player's banked
+score and kills, ranked, then offer a rematch or a return to the lobby.
 
 The screen is headed Podium and opens with one: the top three on three steps, the winner
 in the middle on the tallest, second a little lower on one side and third lowest

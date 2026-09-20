@@ -24,6 +24,13 @@ func _finished_match() -> Match:
 	return match_node
 
 
+## The podium is held back for a couple of seconds after the whistle, GAME.md 3.8. A test that
+## is about what ends up on the screen rather than about the wait skips to the end of it.
+func _skip_the_pause(match_node: Match) -> void:
+	match_node.hud._podium_wait = 0.0
+	await _runner.simulate_frames(2, 17)
+
+
 ## Every label the screen carries, flattened, so a test can ask what it says without walking the
 ## boxes it is laid out in.
 func _texts(node: Node) -> PackedStringArray:
@@ -46,6 +53,7 @@ func test_the_screen_ranks_everybody_with_their_score_and_awards() -> void:
 	match_node.time_left = 0.02
 	await _runner.simulate_frames(10, 17)
 	assert_int(match_node.state).is_equal(Match.State.RESULTS)
+	await _skip_the_pause(match_node)
 	var screen: ResultsScreen = match_node.hud._results
 	assert_bool(screen.visible).is_true()
 	# The hand of cards belongs to a match being played, not to one that is over.
@@ -68,6 +76,7 @@ func test_filling_the_screen_in_again_does_not_double_it_up() -> void:
 	await _runner.simulate_frames(12, 17)
 	match_node.time_left = 0.02
 	await _runner.simulate_frames(10, 17)
+	await _skip_the_pause(match_node)
 	var screen: ResultsScreen = match_node.hud._results
 	var before := _texts(screen).size()
 	screen.fill_in()
@@ -83,6 +92,7 @@ func test_the_top_three_stand_on_the_podium() -> void:
 	match_node.slots[2].banked = 100
 	match_node.time_left = 0.02
 	await _runner.simulate_frames(10, 17)
+	await _skip_the_pause(match_node)
 	var podium: ResultsPodium = match_node.hud._results._podium
 	assert_bool(podium.visible).is_true()
 	assert_int(podium._karts.size()).is_equal(3)
@@ -115,7 +125,31 @@ func test_the_podium_only_holds_who_is_there() -> void:
 	await _runner.simulate_frames(12, 17)
 	match_node.time_left = 0.02
 	await _runner.simulate_frames(10, 17)
+	await _skip_the_pause(match_node)
 	var podium: ResultsPodium = match_node.hud._results._podium
 	assert_int(podium._karts.size()).is_equal(2)
 	match_node.hud._results.fill_in()
 	assert_int(podium._karts.size()).is_equal(2)
+
+
+## GAME.md 3.8: the whistle is not the podium. The karts roll to a halt and the rig swings onto
+## the winner first, and the screen comes up into a quieter room a couple of seconds later.
+func test_the_podium_waits_for_the_whistle_to_finish() -> void:
+	var match_node := _finished_match()
+	await _runner.simulate_frames(12, 17)
+	match_node.time_left = 0.02
+	await _runner.simulate_frames(10, 17)
+	var hud := match_node.hud
+	assert_int(match_node.state).is_equal(Match.State.RESULTS)
+	assert_bool(hud._results.visible).is_false()
+	assert_bool(hud._podium_pending).is_true()
+	# The cards are still the player's while the karts are still rolling.
+	for hand: JokerHand in hud._hands.values():
+		assert_bool(hand.visible).is_true()
+	await _skip_the_pause(match_node)
+	assert_bool(hud._results.visible).is_true()
+	for hand: JokerHand in hud._hands.values():
+		assert_bool(hand.visible).is_false()
+	# And the music steps back under it.
+	assert_float(Audio._duck_target).is_equal_approx(Audio.PODIUM_DUCK_DB, 0.001)
+	Audio.duck_music(false)
