@@ -205,6 +205,9 @@ below, and hands the notes to the release workflow.
 - **A Decoy Kart is dressed like you.** It had your colour and none of the rest of
   your kart, which rather gave it away.
 
+- **Kart paint has clean edges.** The patterns were drawn at sixteen pixels and
+  snapped to them, which looked like it.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button

@@ -693,10 +693,12 @@ would leave skipping unreachable.
 | Flag   | None, Pennant, Banner, Chequered                                   |
 | Trail  | Smoke, Sparks, Confetti, None                                      |
 
-- **Paint** is a pattern laid over the colour rather than a second colour: a tiny
+- **Paint** is a pattern laid over the colour rather than a second colour: a
   generated texture mapped triplanar, so the model needs no unwrapping and the
-  pattern sits on the kart rather than on the world. A striped red kart is still
-  unmistakably the red one.
+  pattern sits on the kart rather than on the world. Smoothed and mip-mapped
+  rather than snapped to the pixel, since a kart is a painted toy and not a
+  sprite, and the podium camera comes right down to it. A striped red kart is
+  still unmistakably the red one.
 - **Hats** sit on the crown of the driver's helmet, and the roof marker moves up
   over whichever one is worn rather than through it.
 - **Flags** fly from a pole at the back, clear of the bodywork and streaming

@@ -8,8 +8,10 @@ extends RefCounted
 ## player's colour multiplies through them, so a striped red kart is still unmistakably the red
 ## one.
 
-## Side of a pattern texture, in pixels. Small on purpose: these are painted toys.
-const PATTERN := 16
+## Side of a pattern texture, in pixels. Big enough that a stripe has a clean edge rather than a
+## staircase: the kart is a hand's width on screen but the camera comes right down to it on the
+## podium, and a sixteen-pixel pattern looked like a sixteen-pixel pattern there.
+const PATTERN := 128
 ## The darker of the two tones a pattern is made of. The lighter one is the colour itself.
 const SHADE := 0.55
 ## How many times a pattern wraps around the kart.
@@ -40,7 +42,9 @@ static func paint(color: Color, style: KartStyle) -> StandardMaterial3D:
 	var pattern := pattern_texture(style.paint)
 	if pattern != null:
 		material.albedo_texture = pattern
-		material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+		# Smoothed and mip-mapped rather than snapped to the pixel: a kart is a painted toy, not
+		# a sprite, and a hard-edged pattern shimmers as it drives away.
+		material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 		material.uv1_triplanar = true
 		material.uv1_scale = Vector3.ONE * PATTERN_SCALE
 	return material
@@ -53,10 +57,11 @@ static func pattern_texture(paint_index: int) -> Texture2D:
 		return null
 	if _patterns.has(paint_index):
 		return _patterns[paint_index]
-	var image := Image.create_empty(PATTERN, PATTERN, false, Image.FORMAT_RGB8)
+	var image := Image.create_empty(PATTERN, PATTERN, true, Image.FORMAT_RGB8)
 	for y: int in PATTERN:
 		for x: int in PATTERN:
 			image.set_pixel(x, y, Color.WHITE if _lit(paint_index, x, y) else _shade())
+	image.generate_mipmaps()
 	var texture := ImageTexture.create_from_image(image)
 	_patterns[paint_index] = texture
 	return texture
