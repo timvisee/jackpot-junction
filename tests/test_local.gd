@@ -127,8 +127,13 @@ func test_a_debug_build_offers_a_short_match() -> void:
 ## GAME.md 3.8: every player who has joined gets a box to type a name into, and what is typed
 ## stays with that player through anybody else joining or leaving.
 func test_the_lobby_gives_every_joined_player_a_name_box() -> void:
+	# Blank seats, so this is a test of the lobby rather than of whatever the person at this
+	# keyboard last called themselves.
+	var saved := Game.settings.player_names
+	Game.settings.player_names = ["", "", "", ""] as Array[String]
 	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
 	add_child(lobby)
+	Game.settings.player_names = saved
 	# A box per seat, shown as far down as the roster reaches.
 	assert_int(lobby._name_fields.size()).is_equal(lobby.MAX_HUMANS)
 	assert_bool(lobby._name_rows[0].visible).is_true()

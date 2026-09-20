@@ -98,10 +98,25 @@ func test_a_dressed_kart_reaches_a_client() -> void:
 	assert_object(_named(puppet, "Hat")).is_not_null()
 
 
+## Four blank seats, so a test of the lobby is a test of the lobby rather than of whatever the
+## person at this keyboard last dressed their kart in.
+func _plain_settings() -> Array:
+	var saved: Array = Game.settings.kart_styles
+	Game.settings.kart_styles = [
+		PackedInt32Array([0, 0, 0, 0]),
+		PackedInt32Array([0, 0, 0, 0]),
+		PackedInt32Array([0, 0, 0, 0]),
+		PackedInt32Array([0, 0, 0, 0]),
+	]
+	return saved
+
+
 ## The lobby asks for all four, per seat, and hands them to the match.
 func test_the_lobby_offers_the_four_choices_per_seat() -> void:
+	var saved := _plain_settings()
 	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
 	add_child(lobby)
+	Game.settings.kart_styles = saved
 	assert_int(lobby._style_pickers.size()).is_equal(lobby.MAX_HUMANS)
 	assert_int(lobby._style_pickers[0].size()).is_equal(KartStyle.CHOICES.size())
 	assert_bool(lobby._style_rows[0].visible).is_true()
@@ -115,3 +130,13 @@ func test_the_lobby_offers_the_four_choices_per_seat() -> void:
 	assert_int(config.human_styles.size()).is_equal(2)
 	assert_array(Array(config.human_styles[0])).contains_exactly([0, 2, 0, 0])
 	assert_array(Array(config.human_styles[1])).contains_exactly([0, 0, 0, 1])
+
+
+## What a seat was dressed in last time is what its boxes come up showing.
+func test_the_lobby_starts_from_what_was_remembered() -> void:
+	var saved := _plain_settings()
+	Game.settings.kart_styles[0] = PackedInt32Array([1, 2, 2, 1])
+	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
+	add_child(lobby)
+	Game.settings.kart_styles = saved
+	assert_array(Array(lobby.styles()[0])).contains_exactly([1, 2, 2, 1])
