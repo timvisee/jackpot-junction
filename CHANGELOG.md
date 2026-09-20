@@ -229,6 +229,11 @@ below, and hands the notes to the release workflow.
   after the nose instead of doing nothing until the shove is thrown away
   altogether. Hands off, it still holds the arrow exactly.
 
+- **The test track is bigger, and the camera comes down to it.** The lanes are
+  half again as wide and the road is longer, so a corner taken badly leaves you
+  room to carry on rather than parked against a wall. The camera follows your
+  kart from close in instead of framing all sixty-five metres of road at once.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button

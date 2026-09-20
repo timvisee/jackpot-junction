@@ -91,3 +91,8 @@ func test_the_track_room_has_no_dummies_and_faces_the_kart_down_the_road() -> vo
 	# Pointed along the opening straight rather than at the middle of the map.
 	var nose := -match_node.kart_of(0).global_basis.z
 	assert_float(nose.x).is_greater(0.7)
+
+	# The camera comes down onto the kart rather than framing all 65 m of road at once.
+	var kart := match_node.kart_of(0)
+	var eye := match_node.camera_rig.camera.global_position
+	assert_float(eye.distance_to(kart.global_position)).is_less(35.0)

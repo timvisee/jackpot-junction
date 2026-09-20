@@ -22,14 +22,18 @@ const LAYOUT: ArenaLayout = preload("res://data/maps/garage.tres")
 const TRACK: ArenaLayout = preload("res://data/maps/test_track.tres")
 const RULES: MatchRules = preload("res://data/match/garage.tres")
 const SIGN_HEIGHT := 2.7
+## How far back the camera sits on the test track. The track is a road rather than an arena, and
+## framing all 65 m of it at once leaves the kart too small to learn a control from, GAME.md 9.4a,
+## so the camera comes down onto the player the way the driving room's does in 9.5.
+const TRACK_CAMERA := 26.0
 ## The test track's signs, as the cell they stand on and the action they name. Short on purpose:
 ## a player reading a wall is a player not driving.
 const TRACK_SIGNS: Array[Array] = [
-	[Vector2i(4, 2), "DRIVE", InputActions.THROTTLE],
-	[Vector2i(12, 2), "STEER", InputActions.STEER_RIGHT],
-	[Vector2i(7, 12), "SHOOT", InputActions.FIRE],
-	[Vector2i(16, 12), "NITRO", InputActions.NITRO],
-	[Vector2i(21, 17), "DRIFT", InputActions.HANDBRAKE],
+	[Vector2i(6, 3), "DRIVE", InputActions.THROTTLE],
+	[Vector2i(21, 3), "STEER", InputActions.STEER_RIGHT],
+	[Vector2i(11, 17), "SHOOT", InputActions.FIRE],
+	[Vector2i(25, 17), "NITRO", InputActions.NITRO],
+	[Vector2i(31, 24), "DRIFT", InputActions.HANDBRAKE],
 ]
 ## Karts nobody is driving, parked on the floor as practice targets.
 const DUMMIES := 2
@@ -70,6 +74,7 @@ func _ready() -> void:
 		# wall two cells away. The track runs one way out of the start, so face it down the road.
 		for slot: PlayerSlot in match_node.slots:
 			slot.kart.face(Vector3(1.0, 0.0, 0.0))
+		match_node.camera_rig.follow_close(TRACK_CAMERA)
 		_add_track_signs()
 	else:
 		_add_signs()
