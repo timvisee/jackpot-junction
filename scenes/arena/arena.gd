@@ -18,21 +18,6 @@ const PIT_RIM := 0.09
 const PIT_WALL_TOP := Color(0.13, 0.17, 0.14)
 const PIT_RIM_COLOR := Color(0.1, 0.12, 0.11)
 const JUNCTION_BASE_COLOR := Color("#1E1E24")
-## The neon capping the walls round the edge of the room, GAME.md 8.1: magenta down one side and
-## cyan down the other, so the light has a direction rather than being the same everywhere. Only
-## the boundary wears it. Every block in the room lit up is a room made of neon rather than a
-## room with neon in it, and the blocks are meant to look like wooden toys.
-const TRIM_HEIGHT := 0.05
-const TRIM_INSET := 0.3
-const TRIM_ENERGY := 0.55
-## The painted line round the inside of the room: how far in from the middle of the boundary wall
-## it runs, how wide it is, how long one dash and its gap are, and how far it floats over the
-## felt.
-const MARKING_INSET := 2.1
-const MARKING_WIDTH := 0.14
-const MARKING_PERIOD := 1.7
-const MARKING_DUTY := 0.55
-const MARKING_HEIGHT := 0.012
 
 @export var layout: ArenaLayout
 
@@ -62,8 +47,6 @@ var pickups: Node3D
 ## frees itself once it has faded and a typed array will not hand a freed instance back out.
 var _marks: Array = []
 var _materials: Dictionary[Color, StandardMaterial3D] = {}
-## The dashes of the painted line, built once and shared by all four sides of the room.
-var _dashes: GradientTexture2D
 var _rules: MatchRules
 var _rng: RandomNumberGenerator
 
@@ -118,7 +101,6 @@ func build() -> void:
 	add_child(pickups)
 	_add_table()
 	_add_floor()
-	_add_markings()
 	_add_walls()
 	_add_spawns()
 	_add_coin_pads()
@@ -292,97 +274,6 @@ func _add_floor() -> void:
 	add_child(floor_mesh)
 
 
-## A strip of neon along the top of a boundary wall, GAME.md 8.1. Two colours facing each other
-## across the room rather than a blend: a wall running the whole width of it has one middle and
-## one colour, and the middle of a blend is a wall that has gone pale.
-func _wall_trim(size: Vector3, rect: Rect2i) -> MeshInstance3D:
-	# Which edge a wall belongs to is the edge it lies along, not the corner it happens to touch:
-	# the boundary is merged into four long runs and every one of them touches two corners.
-	var half := world_size() * 0.5
-	var centre := grid.rect_center(rect)
-	var magenta := centre.x < -half.x * 0.5 or centre.z > half.y * 0.5
-	var color := Palette.NEON_MAGENTA if magenta else Palette.NEON_CYAN
-	var strip := _box_mesh(
-		Vector3(maxf(size.x - TRIM_INSET, 0.1), TRIM_HEIGHT, maxf(size.z - TRIM_INSET, 0.1)), color
-	)
-	# Its own material, not the shared one: everything else in this colour would light up too.
-	var material := StandardMaterial3D.new()
-	material.albedo_color = color
-	material.emission_enabled = true
-	material.emission = color
-	material.emission_energy_multiplier = TRIM_ENERGY
-	strip.material_override = material
-	strip.position = Vector3(0.0, size.y * 0.5, 0.0)
-	return strip
-
-
-## Whether a wall is part of the boundary of the room rather than a block standing inside it.
-func _on_the_boundary(rect: Rect2i) -> bool:
-	return (
-		rect.position.x == 0
-		or rect.position.y == 0
-		or rect.end.x >= grid.width
-		or rect.end.y >= grid.height
-	)
-
-
-## The painted line round the inside of the room, GAME.md 8.1: dashes, like the markings on a
-## road, laid on the felt a hand's width inside the wall. One strip per side with the dashes in
-## the texture rather than one mesh per dash.
-func _add_markings() -> void:
-	var half := world_size() * 0.5 - Vector2.ONE * MARKING_INSET
-	var markings := Node3D.new()
-	markings.name = "Markings"
-	add_child(markings)
-	for side: int in 4:
-		var along_x := side < 2
-		var length := (half.x if along_x else half.y) * 2.0
-		var strip := MeshInstance3D.new()
-		var plane := PlaneMesh.new()
-		plane.size = Vector2(length, MARKING_WIDTH) if along_x else Vector2(MARKING_WIDTH, length)
-		strip.mesh = plane
-		strip.material_override = _marking_material(length / MARKING_PERIOD, along_x)
-		strip.position = Vector3(
-			0.0 if along_x else (half.x if side == 2 else -half.x),
-			MARKING_HEIGHT,
-			(half.y if side == 1 else -half.y) if along_x else 0.0
-		)
-		strip.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		markings.add_child(strip)
-
-
-func _marking_material(repeats: float, along_x: bool) -> StandardMaterial3D:
-	var material := StandardMaterial3D.new()
-	material.albedo_color = Palette.MARKING_CREAM
-	material.albedo_texture = _dash_texture()
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-	material.uv1_scale = (Vector3(repeats, 1.0, 1.0) if along_x else Vector3(1.0, repeats, 1.0))
-	return material
-
-
-## One dash and the gap after it, as a strip of pixels the markings tile along.
-func _dash_texture() -> GradientTexture2D:
-	if _dashes != null:
-		return _dashes
-	var gradient := Gradient.new()
-	gradient.offsets = PackedFloat32Array([0.0, MARKING_DUTY, MARKING_DUTY + 0.001, 1.0])
-	gradient.colors = PackedColorArray(
-		[
-			Color(1.0, 1.0, 1.0, 1.0),
-			Color(1.0, 1.0, 1.0, 1.0),
-			Color(1.0, 1.0, 1.0, 0.0),
-			Color(1.0, 1.0, 1.0, 0.0)
-		]
-	)
-	_dashes = GradientTexture2D.new()
-	_dashes.gradient = gradient
-	_dashes.width = 32
-	_dashes.height = 1
-	return _dashes
-
-
 ## World-space footprints of the pits on the XZ plane.
 func _pit_rects() -> Array[Rect2]:
 	var result: Array[Rect2] = []
@@ -490,8 +381,6 @@ func _add_walls() -> void:
 		shape.shape = box
 		body.add_child(shape)
 		body.add_child(_box_mesh(size, Palette.BLOCK))
-		if _on_the_boundary(rect):
-			body.add_child(_wall_trim(size, rect))
 		walls.add_child(body)
 
 

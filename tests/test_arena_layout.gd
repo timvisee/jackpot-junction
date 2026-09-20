@@ -118,29 +118,3 @@ func test_arena_scene_builds_from_the_layout() -> void:
 	assert_vector(arena.bounds().size).is_equal_approx(
 		Vector3(40.0, 1.0, 22.5), Vector3.ONE * 0.001
 	)
-
-
-## GAME.md 8.1: the room is lit round its edge and painted inside it. The blocks standing in the
-## middle of it are wooden toys and stay that way.
-func test_the_room_is_lit_round_its_edge_and_painted_inside_it() -> void:
-	var arena: Arena = auto_free(Arena.new())
-	arena.layout = load(LAYOUT_PATH)
-	add_child(arena)
-	var walls: Node3D = arena.get_node("Walls")
-	var lit := 0
-	var plain := 0
-	for wall: Node3D in walls.get_children():
-		# A wall wearing neon has a second mesh on top of the block itself.
-		if wall.get_child_count() > 2:
-			lit += 1
-		else:
-			plain += 1
-	assert_int(lit).is_greater_equal(4)
-	assert_int(plain).is_greater(0)
-	# The painted line runs inside the wall face rather than under the wall.
-	var markings: Node3D = arena.get_node("Markings")
-	assert_int(markings.get_child_count()).is_equal(4)
-	var half := arena.world_size() * 0.5
-	for strip: Node3D in markings.get_children():
-		assert_float(absf(strip.position.x)).is_less(half.x - arena.layout.cell_size)
-		assert_float(absf(strip.position.z)).is_less(half.y - arena.layout.cell_size)

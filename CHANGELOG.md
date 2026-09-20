@@ -170,10 +170,6 @@ below, and hands the notes to the release workflow.
   the arena and get up on their feet when the room is going or when somebody is
   taken out. The booth's speakers pulse on the beat.
 
-- **The arena is lit round its edge and painted inside it.** Neon caps the
-  boundary wall, magenta on two sides and cyan on the other two, and a dashed cream
-  line runs round the inside of the room like a lane marking.
-
 - **The title screen has something behind it.** A slow carnival sunburst with
   poker chips drifting up past it.
 
