@@ -216,6 +216,9 @@ below, and hands the notes to the release workflow.
 - **The podium steps wear their colour cleanly.** The grey of the step was showing
   through the coloured plate on top of it in patches.
 
+- **The Garage portal is clear of the wall.** It was standing half inside the
+  bottom one.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button
