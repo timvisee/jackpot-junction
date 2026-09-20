@@ -31,6 +31,9 @@ var match_node: Match
 var _style: StyleBoxFlat
 var _podium: ResultsPodium
 var _rows: VBoxContainer
+## The two ways on from here, kept so the screen can point at one when it comes up.
+var _rematch: Button
+var _quit: Button
 
 
 ## Builds the screen for [param for_match] and hangs it off [param parent], hidden until the
@@ -62,6 +65,11 @@ func fill_in() -> void:
 		_rows.add_child(_entry(slot, rank, everyone))
 		rank += 1
 	visible = true
+	# This is the one screen nobody asked for: it arrives on its own at the whistle, so it points
+	# at what most people want next rather than waiting to be found. Rematch, or the way out for
+	# a client, which does not get to decide there is another match.
+	var first := _rematch if _rematch.visible else _quit
+	first.grab_focus()
 
 
 ## One player: their place and name on the left, what they banked on the right, and what they
@@ -193,11 +201,11 @@ func _buttons() -> HBoxContainer:
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 24)
-	var rematch := MenuTheme.button("Rematch", 26)
-	rematch.pressed.connect(func() -> void: match_node.rematch())
-	rematch.visible = not match_node.puppet
-	buttons.add_child(rematch)
-	var quit := MenuTheme.button("Back to title", 26)
-	quit.pressed.connect(func() -> void: Game.go_to_title())
-	buttons.add_child(quit)
+	_rematch = MenuTheme.button("Rematch", 26)
+	_rematch.pressed.connect(func() -> void: match_node.rematch())
+	_rematch.visible = not match_node.puppet
+	buttons.add_child(_rematch)
+	_quit = MenuTheme.button("Back to title", 26)
+	_quit.pressed.connect(func() -> void: Game.go_to_title())
+	buttons.add_child(_quit)
 	return buttons

@@ -300,7 +300,10 @@ before it comes up, and the hand of cards stays where it is until it does, becau
 a scoreboard thrown over the top of a kart still rolling takes the ending away from
 the people who were in it. The music steps back 9 dB over 0.8 s as the screen
 arrives and comes back up when the room does. Results show every player's banked
-score and kills, ranked, then offer a rematch or a return to the lobby.
+score and kills, ranked, then offer a rematch or a return to the lobby, with the
+cursor already on Rematch: the screen arrives on its own rather than being opened,
+so it points at what most people want next instead of waiting to be found. A client,
+which does not get to decide there is another match, is pointed at the way out.
 
 The screen is headed Podium and opens with one: the top three on three steps, the winner
 in the middle on the tallest, second a little lower on one side and third lowest

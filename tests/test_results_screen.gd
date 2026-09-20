@@ -153,3 +153,15 @@ func test_the_podium_waits_for_the_whistle_to_finish() -> void:
 	# And the music steps back under it.
 	assert_float(Audio._duck_target).is_equal_approx(Audio.PODIUM_DUCK_DB, 0.001)
 	Audio.duck_music(false)
+
+
+## GAME.md 3.8: the podium comes up on its own, so it hands the cursor to Rematch rather than
+## leaving a pad holder hunting for a button.
+func test_the_podium_points_at_the_rematch_button() -> void:
+	var match_node := _finished_match()
+	await _runner.simulate_frames(12, 17)
+	match_node.time_left = 0.02
+	await _runner.simulate_frames(10, 17)
+	await _skip_the_pause(match_node)
+	var screen: ResultsScreen = match_node.hud._results
+	assert_object(screen._rematch.get_viewport().gui_get_focus_owner()).is_equal(screen._rematch)

@@ -13,6 +13,11 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The podium starts with Rematch selected.** A gamepad no longer has to go
+  looking for a button on a screen that came up by itself.
+
+### Changed
+
 - **The test track's nitro straight is long enough to use nitro on.** It ran out
   about when the bottle got going. It is 45 m now, with the sign at the near end
   of it.
