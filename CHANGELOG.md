@@ -194,6 +194,9 @@ below, and hands the notes to the release workflow.
 - **The joker hand goes away at the whistle.** It was lying across the bottom of
   the podium screen.
 
+- **Hats sit down on the head.** They were perched level with the top of the
+  helmet, which read as a hat hovering just above it.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button
