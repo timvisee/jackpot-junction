@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-09-20
+
+A tank per player beside the arena that fills as you bank, and a camera that
+comes in on the karts instead of framing the whole room.
+
 ### Changed
 
 - **No standings in the Garage.** There is no clock and nothing to reach in
@@ -35,7 +40,6 @@ below, and hands the notes to the release workflow.
   fight in one corner fills the screen instead of sharing it with three empty
   corners and the crowd. Parts of the arena go off the edge when they do; no kart
   ever does.
-
 ## [0.3.1] - 2026-09-20
 
 Buttons you can see. Every hint that used to spell a binding out in words now
@@ -483,7 +487,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.3.2
 [0.3.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.3.1
 [0.3.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.3.0
 [0.2.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.2.0
