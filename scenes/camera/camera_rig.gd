@@ -1,7 +1,13 @@
 class_name CameraRig
 extends Node3D
-## The fixed tilted camera from GAME.md 8.2. It frames the whole arena, pans a little toward the
-## karts it tracks, zooms a little with their spread, and can shake.
+## The tilted camera from GAME.md 8.2. It frames the karts rather than the arena: it comes in as
+## close as it can while keeping every kart it tracks on screen, follows them about the floor,
+## and can shake.
+##
+## Framing the whole room meant the room was always the subject. Most of a match happens in a
+## corner of it, and the table, the crowd and two empty thirds of the felt were taking up the
+## screen while the karts were eight pixels of it. What has to be visible is every kart; the rest
+## of the arena is scenery and can go off the edge.
 
 ## What a unit of tremble is worth as a shake. A beat at the top level should land between a
 ## kart being wrecked and a bomb going off: felt through the floor, not read off the screen.
@@ -10,11 +16,19 @@ const TREMBLE_SHAKE := 0.2
 @export var pitch_degrees := 55.0
 @export var base_fov := 35.0
 @export var margin := 1.0
-@export var pan_weight := 0.3
+@export var pan_weight := 1.0
 @export var pan_limit := 2.0
+## The fit is worked out against a slightly narrower view than the camera really has, which is
+## the margin that keeps a kart off the very edge of the screen.
 @export var zoom_min := 0.93
-@export var zoom_max := 1.07
 @export var smoothing := 0.6
+## Metres of floor left around the karts when the camera comes in on them, and the closest it is
+## ever allowed to get however tightly they are packed.
+@export var follow_margin := 6.0
+@export var follow_min_distance := 30.0
+## How fast the distance follows the karts spreading out and closing up. Slower than the pan on
+## purpose: a camera that pumps in and out with every bump is worse than one that is too far off.
+@export var distance_smoothing := 1.2
 @export var shake_decay := 4.0
 ## How far above the floor the ears sit, so a kart right under them is not at zero distance.
 ## [member KartSoundStats.unit_size] has to match it: that is the distance a kart plays at its
@@ -35,6 +49,9 @@ var _center := Vector3.ZERO
 var _arena_size := Vector2(40.0, 22.5)
 var _wall_height := 1.0
 var _distance := 40.0
+## The furthest back it ever goes: the distance that holds the whole arena, which is where it
+## sits when there is nobody to follow.
+var _arena_distance := 40.0
 var _pan := Vector3.ZERO
 var _zoom := 1.0
 var _shake := 0.0
@@ -66,13 +83,18 @@ func _ready() -> void:
 	_place_listener()
 
 
-## Frames an arena so that its whole bounding box, plus the margin, stays on screen.
+## Takes an arena to work in: its middle to pan around, and its size for the furthest the camera
+## ever pulls back to. From there the framing is the karts' business, see [method _target_distance].
 func frame_arena(bounds: AABB) -> void:
 	_center = Vector3(bounds.get_center().x, 0.0, bounds.get_center().z)
 	_arena_size = Vector2(bounds.size.x, bounds.size.z)
 	_wall_height = bounds.size.y
 	_framed = true
-	_distance = _fit_distance()
+	_arena_distance = _fit_distance()
+	_distance = _arena_distance
+	# Far enough to follow the karts anywhere on the floor, and no further: the look-at point
+	# stays over the table, so the camera never ends up studying the crowd.
+	pan_limit = maxf(_arena_size.x, _arena_size.y) * 0.5
 	_pan = Vector3.ZERO
 	_zoom = 1.0
 	_place(_distance, _pan, _zoom)
@@ -90,7 +112,7 @@ func follow_close(distance: float) -> void:
 
 func _refit() -> void:
 	if _framed:
-		_distance = _fit_distance()
+		_arena_distance = _fit_distance()
 
 
 ## Kicks the camera; the offset decays on its own.
@@ -104,6 +126,8 @@ func _process(delta: float) -> void:
 	var blend := 1.0 - exp(-delta / maxf(smoothing, 0.001))
 	_pan = _pan.lerp(_target_pan(), blend)
 	_zoom = lerpf(_zoom, _target_zoom(), blend)
+	var creep := 1.0 - exp(-delta / maxf(distance_smoothing, 0.001))
+	_distance = lerpf(_distance, _target_distance(), creep)
 	_shake = maxf(_shake - shake_decay * delta * maxf(_shake, 0.1), 0.0)
 	if tremble > 0.0:
 		shake(tremble * TREMBLE_SHAKE)
@@ -139,32 +163,49 @@ static func _valid(list: Array[Node3D]) -> Array[Node3D]:
 	return alive
 
 
+## The middle of everybody rather than the average of them: with the camera framing the karts,
+## what has to sit in the middle of the screen is the middle of the box they are all in, or the
+## one furthest out is the one that falls off the edge.
 func _target_pan() -> Vector3:
 	var alive := _alive_targets()
 	if alive.is_empty():
 		return Vector3.ZERO
-	var centroid := Vector3.ZERO
-	for target: Node3D in alive:
-		centroid += target.global_position
-	centroid /= alive.size()
-	var offset := (centroid - _center) * pan_weight
+	var offset := (_target_box(alive).get_center() - _center) * pan_weight
 	offset.y = 0.0
 	return offset.limit_length(pan_limit)
 
 
-func _target_zoom() -> float:
+## How far back the camera has to be for every kart, with its margin of floor, to be on screen:
+## the whole point of the rig, GAME.md 8.2. Never closer than [member follow_min_distance] and
+## never further than the distance that holds the whole arena, which is where it waits when
+## there is nobody to follow.
+func _target_distance() -> float:
+	if not _framed:
+		return _distance
 	var alive := _alive_targets()
-	if alive.size() < 2:
-		return 1.0
-	var centroid := Vector3.ZERO
+	if alive.is_empty():
+		return _arena_distance
+	var box := _target_box(alive).grow(follow_margin)
+	box.position.y = 0.0
+	box.size.y = maxf(_wall_height, 1.5)
+	var corners: Array[Vector3] = []
+	for i: int in 8:
+		corners.append(box.get_endpoint(i))
+	return clampf(_needed_distance(corners, _center + _pan), follow_min_distance, _arena_distance)
+
+
+## The box every tracked kart is inside.
+static func _target_box(alive: Array[Node3D]) -> AABB:
+	var box := AABB(alive[0].global_position, Vector3.ZERO)
 	for target: Node3D in alive:
-		centroid += target.global_position
-	centroid /= alive.size()
-	var spread := 0.0
-	for target: Node3D in alive:
-		spread = maxf(spread, centroid.distance_to(target.global_position))
-	var max_spread := _arena_size.length() * 0.5
-	return remap(clampf(spread, 0.0, max_spread), 0.0, max_spread, zoom_min, zoom_max)
+		box = box.expand(target.global_position)
+	return box
+
+
+## The zoom is the distance's job now. The field of view stays where it is, so a kart the same
+## size on screen is the same distance away wherever it is standing.
+func _target_zoom() -> float:
+	return 1.0
 
 
 func _place(distance: float, pan: Vector3, zoom: float) -> void:
@@ -181,8 +222,6 @@ func _place(distance: float, pan: Vector3, zoom: float) -> void:
 
 
 ## Smallest distance at which every corner of the arena, with margin, projects inside the view.
-## Computed from the camera's own geometry: Godot's frustum queries only work after a frame has
-## rendered, and this has to work at load.
 func _fit_distance() -> float:
 	var half := _arena_size * 0.5 + Vector2.ONE * margin
 	var corners: Array[Vector3] = []
@@ -190,15 +229,7 @@ func _fit_distance() -> float:
 		for z: int in [-1, 1]:
 			corners.append(_center + Vector3(x * half.x, 0.0, z * half.y))
 			corners.append(_center + Vector3(x * half.x, _wall_height, z * half.y))
-	var low := 1.0
-	var high := 1000.0
-	for i: int in 60:
-		var mid := (low + high) * 0.5
-		if _all_inside(corners, mid):
-			high = mid
-		else:
-			low = mid
-	return high
+	return _needed_distance(corners, _center)
 
 
 ## Aspect ratio of the viewport the camera renders to.
@@ -209,21 +240,25 @@ func _aspect() -> float:
 	return size.x / size.y
 
 
-## True when every point projects inside the view for a camera at [param distance] with the
-## tightest zoom.
-func _all_inside(points: Array[Vector3], distance: float) -> bool:
+## The smallest distance at which every one of [param points] projects inside the view of a
+## camera looking at [param at]. Worked out from the camera's own geometry rather than asked of
+## Godot, whose frustum queries only answer after a frame has rendered, and this has to answer at
+## load and again every frame.
+##
+## The camera only ever slides along one line, so in its own coordinates moving it back by d
+## moves every point d further away and nothing else. A point is on screen while its sideways
+## offset fits inside the cone at its depth, which rearranges into a smallest d per point; the
+## answer is the largest of those.
+func _needed_distance(points: Array[Vector3], at: Vector3) -> float:
 	var pitch := deg_to_rad(pitch_degrees)
-	var position := _center + Vector3(0.0, sin(pitch), cos(pitch)) * distance
-	var view := (
-		Transform3D(Basis.looking_at(_center - position, Vector3.UP), position).affine_inverse()
-	)
+	var back := Vector3(0.0, sin(pitch), cos(pitch))
+	var view := Basis.looking_at(-back, Vector3.UP).transposed()
 	var tan_half_v := tan(deg_to_rad(base_fov * zoom_min) * 0.5)
 	var tan_half_h := tan_half_v * _aspect()
+	var needed := (camera.near if camera != null else 0.5) + 1.0
 	for point: Vector3 in points:
-		var local := view * point
-		var depth := -local.z
-		if depth <= camera.near:
-			return false
-		if absf(local.x) > depth * tan_half_h or absf(local.y) > depth * tan_half_v:
-			return false
-	return true
+		var local := view * (point - at)
+		needed = maxf(
+			needed, local.z + maxf(absf(local.x) / tan_half_h, absf(local.y) / tan_half_v)
+		)
+	return needed

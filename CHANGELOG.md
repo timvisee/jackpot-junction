@@ -26,6 +26,12 @@ below, and hands the notes to the release workflow.
   in it. It is now drawn from the side the way your hand sees it -- base, shaft
   and ball -- leaning the way the binding reads.
 
+- **The camera frames the karts, not the room.** It comes in as close as it can
+  while keeping every kart on screen and follows them around the floor, so a
+  fight in one corner fills the screen instead of sharing it with three empty
+  corners and the crowd. Parts of the arena go off the edge when they do; no kart
+  ever does.
+
 ## [0.3.1] - 2026-09-20
 
 Buttons you can see. Every hint that used to spell a binding out in words now

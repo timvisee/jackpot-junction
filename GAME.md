@@ -1168,19 +1168,29 @@ Starting palette:
 
 ### 8.2 Camera
 
-A single perspective camera looks down at the arena at a fixed tilt. It never
-scrolls far; the whole arena stays visible.
+A single perspective camera looks down at the arena at a fixed tilt and frames the
+karts rather than the room. What has to be on screen is every kart; the rest of
+the arena is scenery, and the crowd, the table and an empty third of the felt can
+all go off the edge. Framing the whole room made the room the subject: most of a
+match happens in one part of it, and the karts were eight pixels of a picture
+mostly made of floor.
+
+So the camera comes in as close as it can while every kart it tracks, with 6 m of
+floor around it, still projects inside the view, and follows the middle of the box
+they are all in. It never comes closer than 30 m however tightly they are packed,
+and never pulls back further than the distance that holds the whole arena, which is
+also where it waits when there is nobody to follow.
 
 | Parameter        | Starting value                                                    |
 |------------------|-------------------------------------------------------------------|
 | Projection       | Perspective, FOV 35°                                              |
 | Pitch            | 55° below horizontal                                              |
-| Framing          | The whole arena plus a 1 m margin fits the 16:9 view              |
-| Pan              | Target is the arena centre moved 30% toward the centroid of alive karts, clamped to 2 m |
-| Zoom             | FOV scaled between 93% and 107% by how spread out the karts are   |
-| Smoothing        | Exponential, 0.6 s time constant, applied every drawn frame. The rig opts out of the engine's physics interpolation for that reason: it follows karts that move on the physics tick, but the following is what this smoothing is, and having both would smooth an already smoothed camera |
+| Framing          | Every tracked kart plus 6 m of floor fits the 16:9 view, between 30 m and the distance that holds the whole arena plus a 1 m margin |
+| Pan              | Target is the middle of the box all alive karts are in, clamped to half the arena so the look-at point stays over the table |
+| Zoom             | Fixed. The distance does the framing, so a kart the same size on screen is the same distance away wherever it is standing. The fit is worked out against a view 7% narrower than the real one, which is the margin that keeps a kart off the very edge |
+| Smoothing        | Exponential, 0.6 s time constant for the pan and 1.2 s for the distance, applied every drawn frame. The distance is slower on purpose: a camera that pumps in and out with every bump is worse than one that is too far off. The rig opts out of the engine's physics interpolation for that reason: it follows karts that move on the physics tick, but the following is what this smoothing is, and having both would smooth an already smoothed camera |
 | Shake            | Small on deaths, larger on cash-outs of 500 or more               |
-| Ultrawide        | Shows more table on the sides, never less arena                   |
+| Ultrawide        | Shows more floor on the sides, never fewer karts                  |
 
 In online play each client weights its own kart more heavily in the pan target.
 In shared-screen play the camera is the same for everyone.
