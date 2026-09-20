@@ -10,8 +10,8 @@ extends Area3D
 
 signal entered(kart: Kart)
 
-const RADIUS := 1.6
-const RING_HEIGHT := 1.5
+const RADIUS := 1.15
+const RING_HEIGHT := 1.2
 const SPIN_SECONDS := 6.0
 ## Seconds before the same pad may take anybody through again, so arriving on one does not send
 ## a kart straight back where it came from.

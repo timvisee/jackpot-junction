@@ -78,6 +78,8 @@ below, and hands the notes to the release workflow.
 
 - **Flags fly off the back of the kart** rather than out of its side.
 
+- **The portal is smaller.** It was a wide pad for what is a door.
+
 ### Added
 
 - **A one-minute match, in debug builds only.** Long enough to reach the Junction
