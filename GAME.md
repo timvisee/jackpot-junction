@@ -1258,11 +1258,14 @@ name. Somebody leaving frees their corner for the next player to sit down.
   hint beside the kart, the join line in the lobby and the rebinding rows in 8.5
   -- the binding is a picture of the thing being pressed. A key is a key cap with
   the key on it. A gamepad face button is the round one in the colour everybody's
-  pad has it in: A green, B red, X blue, Y yellow. A shoulder, a trigger, Start
-  and the stick clicks are pills with their name on. A stick is a stick seen from
-  above, pushed the way the binding reads, or sitting in the middle of its gate
-  when both halves of the axis are in play. The D-pad is a cross with the pressed
-  arm lit. "Shift drift   Ctrl nitro" is a sentence to be read; the same line with
+  pad has it in: A green, B red, X blue, Y yellow, with the letter on it in the
+  dark the pad prints it in. A shoulder, a trigger, Start and the stick clicks
+  are pills with their name on. The D-pad is a cross with the pressed arm lit.
+  Everything but a face button sits on a solid dark chip with a soft black edge
+  and a rim in the colour of the line it is in, so it is dark against the felt,
+  the crowd and a light wall and rimmed against a dark menu. A picture you have to
+  pick out of the background first is a picture that has already cost the corner
+  you were reading it in. "Shift drift   Ctrl nitro" is a sentence to be read; the same line with
   the keys drawn as keys is a picture to be recognised, which is what a hint
   glanced at mid-corner has to be. The shapes are drawn rather than loaded from a
   set of pictures, because the bindings belong to the player: any key on the board

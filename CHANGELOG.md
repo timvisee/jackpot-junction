@@ -16,6 +16,12 @@ below, and hands the notes to the release workflow.
 - **No standings in the Garage.** There is no clock and nothing to reach in
   there, so the running order was a table of two dummy karts and you.
 
+- **Button pictures stand out against the game behind them.** They were drawn on
+  a faint wash of the text colour, which disappeared into a busy arena: the Y for
+  the joker hand and the shoulder buttons for drift and nitro were the worst of
+  it. Every picture now sits on a solid dark chip with a rim, and a gamepad's
+  face buttons are filled in with the colour the pad has them in.
+
 ## [0.3.1] - 2026-09-20
 
 Buttons you can see. Every hint that used to spell a binding out in words now

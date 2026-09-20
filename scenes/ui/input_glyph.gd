@@ -25,10 +25,18 @@ const FACE_COLORS: Dictionary[String, Color] = {
 	"X": Color("#4A7FD4"),
 	"Y": Color("#E8C33D"),
 }
-## How solid the inside of a glyph is against the colour of its edge.
-const FILL_ALPHA := 0.16
-const EDGE_ALPHA := 0.8
+## The chip every glyph is drawn on. Solid and dark, with a soft black edge around it and a
+## rim in the colour of the line it sits in: dark against the felt, the crowd and a light wall,
+## rimmed against the night sky of a menu. It started out as a 16% wash of the text colour, which
+## is a chip you have to find before you can read it, and a hint you have to find has already
+## cost the corner you were reading it in.
+const CHIP := Color(0.05, 0.05, 0.07, 0.92)
+const CHIP_EDGE := Color(0.0, 0.0, 0.0, 0.55)
+const CHIP_SHADOW := 3
+const EDGE_ALPHA := 0.92
 const EDGE_WIDTH := 1.6
+## How dark the letter on a gamepad's own coloured button is, which is how it is on the pad.
+const FACE_INK := Color(0.06, 0.06, 0.08)
 
 var kind := Kind.KEY
 ## What is written on the glyph: the key, the button, or the stick's side.
@@ -140,37 +148,44 @@ func _font() -> Font:
 
 func _draw() -> void:
 	var box := Rect2(Vector2.ZERO, size)
+	if kind == Kind.FACE:
+		_draw_face(box)
+		return
+	_draw_chip(box)
 	match kind:
-		Kind.FACE:
-			_draw_face(box)
 		Kind.STICK:
 			_draw_stick(box)
 		Kind.DPAD:
 			_draw_dpad(box)
 		_:
-			_draw_cap(box)
+			_draw_caption(box, ink)
 
 
-## A key cap, or the same shape rounded off into a pill for a shoulder button and a trigger.
-func _draw_cap(box: Rect2) -> void:
+## The solid backing every glyph but a face button sits on: a key cap, or the same shape rounded
+## off into a pill for a shoulder button and a trigger.
+func _draw_chip(box: Rect2) -> void:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(ink.r, ink.g, ink.b, FILL_ALPHA)
+	style.bg_color = CHIP
 	style.border_color = Color(ink.r, ink.g, ink.b, EDGE_ALPHA)
 	style.set_border_width_all(2)
 	var radius := roundi(box.size.y * 0.5) if kind == Kind.SHOULDER else 5
 	style.set_corner_radius_all(radius)
+	style.shadow_color = CHIP_EDGE
+	style.shadow_size = CHIP_SHADOW
 	draw_style_box(style, box)
-	_draw_caption(box, ink)
 
 
-## A face button: the round one under the thumb, in the colour it is on the pad.
+## A face button: the round one under the thumb, solid, in the colour it is on the pad and with
+## the letter on it in the dark the pad prints it in. Its own dark rim rather than the chip, so
+## the colour is the whole of the picture.
 func _draw_face(box: Rect2) -> void:
 	var tone: Color = FACE_COLORS.get(caption, ink)
 	var centre := box.size * 0.5
 	var radius := minf(box.size.x, box.size.y) * 0.5 - 1.0
-	draw_circle(centre, radius, Color(tone.r, tone.g, tone.b, FILL_ALPHA * 1.6))
-	draw_arc(centre, radius, 0.0, TAU, 28, Color(tone.r, tone.g, tone.b, EDGE_ALPHA), EDGE_WIDTH)
-	_draw_caption(box, tone)
+	draw_circle(centre, radius + 1.5, CHIP_EDGE)
+	draw_circle(centre, radius, Color(tone.r, tone.g, tone.b, 0.95))
+	draw_arc(centre, radius, 0.0, TAU, 28, CHIP, EDGE_WIDTH)
+	_draw_caption(box, FACE_INK)
 
 
 ## A stick seen from above: the gate it moves inside, the top of the stick itself, and a solid
@@ -195,7 +210,7 @@ func _draw_stick(box: Rect2) -> void:
 ## The cross, with the arm this binding presses filled in.
 func _draw_dpad(box: Rect2) -> void:
 	var edge := Color(ink.r, ink.g, ink.b, EDGE_ALPHA)
-	var faint := Color(ink.r, ink.g, ink.b, FILL_ALPHA * 1.5)
+	var faint := Color(ink.r, ink.g, ink.b, 0.30)
 	var centre := box.size * 0.5
 	var reach := minf(box.size.x, box.size.y) * 0.44
 	var thick := reach * 0.62
