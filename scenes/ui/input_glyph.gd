@@ -40,7 +40,7 @@ const FACE_INK := Color(0.06, 0.06, 0.08)
 ## How much wider than tall a stick is drawn. The letter goes inside the ring, so the ring has to
 ## hold a letter, and the arrows still have to fit outside it: in a square chip the two fight and
 ## the arrows lose, coming out as nicks in the border.
-const STICK_WIDE := 1.35
+const STICK_WIDE := 1.55
 
 var kind := Kind.KEY
 ## What is written on the glyph: the key, the button, or the stick's side.
@@ -158,17 +158,20 @@ func _font() -> Font:
 
 func _draw() -> void:
 	var box := Rect2(Vector2.ZERO, size)
+	# The two that are already a shape of their own go without the chip: a face button is a round
+	# button and a stick is a round gate, and a box drawn round either of them is a box drawn
+	# round a button. Everything else is a word, and a word needs something to be written on.
 	if kind == Kind.FACE:
 		_draw_face(box)
 		return
+	if kind == Kind.STICK:
+		_draw_stick(box)
+		return
 	_draw_chip(box)
-	match kind:
-		Kind.STICK:
-			_draw_stick(box)
-		Kind.DPAD:
-			_draw_dpad(box)
-		_:
-			_draw_caption(box, ink)
+	if kind == Kind.DPAD:
+		_draw_dpad(box)
+	else:
+		_draw_caption(box, ink)
 
 
 ## The solid backing every glyph but a face button sits on: a key cap, or the same shape rounded
@@ -203,23 +206,32 @@ func _draw_face(box: Rect2) -> void:
 ## outlined ones, because the whole picture is twenty pixels across and a two-pixel chevron in it
 ## is a smudge.
 ##
-## The letter is inside the ring rather than beside it. It sat in a corner of the chip once, at a
-## size that fits a corner, which is a size nothing is legible at.
+## Drawn as a button rather than on one: the gate has the dark face and the dark rim a face
+## button has, and the heads carry their own rim, so it reads over a felt floor without a box
+## around it. The letter is inside the gate rather than beside it; it sat in a corner of the chip
+## once, at a size that fits a corner, which is a size nothing is legible at.
 func _draw_stick(box: Rect2) -> void:
 	var edge := Color(ink.r, ink.g, ink.b, EDGE_ALPHA)
 	var centre := box.size * 0.5
-	var radius := box.size.y * 0.30
+	# The same circle a face button is, so the two sit together in a line without one of them
+	# looking like the small one.
+	var radius := box.size.y * 0.5 - EDGE_WIDTH
+	draw_circle(centre, radius + EDGE_WIDTH, CHIP_EDGE)
+	draw_circle(centre, radius, CHIP)
 	draw_arc(centre, radius, 0.0, TAU, 28, edge, EDGE_WIDTH)
 	# Built rather than written as a conditional literal: an untyped array assigned to a typed
-	# one throws, and a throw halfway through a draw is a glyph with its ring and nothing in it.
+	# one throws, and a throw halfway through a draw is a glyph with its gate and nothing in it.
 	var ways: Array[float] = [1.0]
 	if both_ways:
 		ways.append(-1.0)
+	var span := radius * 0.5
 	for way: float in ways:
-		_draw_head(centre + along * (radius * way * 1.6), along * way, radius * 0.66, edge)
-	# Cut to the ring rather than to the line the glyph sits in: a letter that overflows the gate
+		var at := centre + along * (radius * way * 1.35)
+		_draw_head(at, along * way, span + EDGE_WIDTH * 1.6, CHIP_EDGE)
+		_draw_head(at, along * way, span, edge)
+	# Cut to the gate rather than to the line the glyph sits in: a letter that overflows the ring
 	# it is written in reads as a letter with a circle drawn through it.
-	_draw_caption(box, edge, mini(_caption_size(), roundi(box.size.y * 0.5)))
+	_draw_caption(box, edge, mini(_caption_size(), roundi(box.size.y * 0.55)))
 
 
 ## The cross, with the arm this binding presses filled in.
@@ -237,7 +249,8 @@ func _draw_dpad(box: Rect2) -> void:
 	)
 
 
-## A small solid arrowhead at [param at], pointing [param way].
+## A small solid arrowhead at [param at], pointing [param way]. Drawn twice by its caller, once
+## oversized in the dark, so it has a rim of its own where there is no chip to sit on.
 func _draw_head(at: Vector2, way: Vector2, span: float, color: Color) -> void:
 	var side := Vector2(-way.y, way.x)
 	draw_colored_polygon(

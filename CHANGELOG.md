@@ -23,7 +23,8 @@ below, and hands the notes to the release workflow.
   face buttons are filled in with the colour the pad has them in.
 
 - **The stick picture says which stick it is.** It has an L written inside the
-  gate, or an R for the right one.
+  gate, or an R for the right one, and it is drawn as a bare button the way A and
+  B are rather than inside a box.
 
 - **The camera frames the karts, not the room.** It comes in as close as it can
   while keeping every kart on screen and follows them around the floor, so a
