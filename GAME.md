@@ -1074,8 +1074,12 @@ subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
   to be looked at once. Dark on purpose; the point of the screen is the words on
   it.
 - **The crowd**: a band of small figures four rows deep standing on the table all
-  the way round the arena, and a DJ booth along the top edge with a pair of
-  speakers that pulse on the beat. Getting on for a thousand of them, and no two
+  the way round the arena, and a DJ booth a couple of rows into it along the top
+  edge, with a pair of speakers that pulse on the beat. The booth stands in the
+  crowd rather than behind it, with people in front of it and people behind it,
+  because a booth out on its own past the back row reads as a thing parked next
+  to the party rather than as the middle of one. The people who would be standing
+  where it is stand somewhere else, and no tribune is built over it. Getting on for a thousand of them, and no two
   the same: where somebody stands, how tall they are, which way they are facing,
   what they are wearing, how dark their face is and where in the beat they are is
   all rolled per person, and a sixth of the places are left empty, because a row

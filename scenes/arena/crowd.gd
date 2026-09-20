@@ -37,6 +37,14 @@ const STAND_LENGTH := Vector2(7.0, 13.0)
 const TIER := 0.4
 const CORNER_CLEARANCE := 2.5
 const STAND_MARGIN := 0.7
+## How far out into the band the booth stands, in rows, and the patch of table it is given: the
+## booth is in the crowd rather than behind it, so people who would be standing where it is go
+## somewhere else instead.
+const BOOTH_ROW := 1.5
+const BOOTH_CLEARANCE := Vector2(7.4, 1.9)
+## How many places a stand is allowed to try before it gives up on that side, so a stand never
+## ends up built through the booth.
+const STAND_TRIES := 8
 ## Away from the arena, on each of the four sides.
 const OUTWARD: Array[Vector3] = [
 	Vector3(0.0, 0.0, -1.0),
@@ -119,6 +127,8 @@ var enabled := true
 var _spots: Array[Transform3D] = []
 ## The footprints of the tribunes, flat on the table: inside one, a row stands a step higher.
 var _footprints: Array[Rect2] = []
+## The patch of table the booth has to itself, which nobody stands in and no stand is built over.
+var _booth_area := Rect2()
 var _stands: Node3D
 var _shirts: PackedColorArray = []
 var _traits: PackedColorArray = []
@@ -200,13 +210,16 @@ func _on_kart_killed(_victim: int, _killer: int, _cause: StringName) -> void:
 
 func _build(size: Vector2) -> void:
 	_rng.seed = hash(size)
-	var outer := size * 0.5 + Vector2.ONE * (STANDOFF + (ROWS - 1) * ROW_DEPTH)
-	_raise_stands(size * 0.5)
+	var half := size * 0.5
+	var outer := half + Vector2.ONE * (STANDOFF + (ROWS - 1) * ROW_DEPTH)
+	# The booth goes down first because everything else is placed around it: it stands a couple
+	# of rows into the crowd, with people in front of it and people behind it, rather than out on
+	# its own behind the back row where it read as a thing parked next to the party.
+	_booth(Vector3(0.0, TABLE_TOP, -(half.y + STANDOFF + BOOTH_ROW * ROW_DEPTH)))
+	_raise_stands(half)
 	for row: int in ROWS:
-		_ring(size * 0.5 + Vector2.ONE * (STANDOFF + row * ROW_DEPTH), row)
+		_ring(half + Vector2.ONE * (STANDOFF + row * ROW_DEPTH), row)
 	_raise_house(outer)
-	# Behind the stands rather than behind the front row, so their back wall does not hide it.
-	_booth(Vector3(0.0, TABLE_TOP, -outer.y - 4.2))
 
 
 ## One row of onlookers, walked round the four edges of a rectangle. Each edge leaves its far
@@ -230,6 +243,9 @@ func _line(from: Vector3, to: Vector3, row: int) -> void:
 
 ## Rolls one onlooker onto a spot, or leaves the spot empty.
 func _stand(at: Vector3, row: int) -> void:
+	# Grown by the jitter, since the spot is rolled off this point and could wander in.
+	if _booth_area.grow(JITTER).has_point(Vector2(at.x, at.z)):
+		return
 	if _rng.randf() > DENSITY:
 		return
 	var spot := Vector3(
@@ -284,9 +300,18 @@ func _raise_stands(half: Vector2) -> void:
 		var room := along - run * 0.5 - CORNER_CLEARANCE
 		if room <= 0.0:
 			continue
-		var near := out * (across + STANDOFF - ROW_DEPTH * 0.5)
-		near += sideways * _rng.randf_range(-room, room)
-		_footprints.append(_footprint(near, out, sideways, run))
+		var edge := out * (across + STANDOFF - ROW_DEPTH * 0.5)
+		var near := edge
+		var footprint := Rect2()
+		for attempt: int in STAND_TRIES:
+			near = edge + sideways * _rng.randf_range(-room, room)
+			footprint = _footprint(near, out, sideways, run)
+			if not footprint.intersects(_booth_area.grow(STAND_MARGIN)):
+				break
+			footprint = Rect2()
+		if footprint.get_area() <= 0.0:
+			continue
+		_footprints.append(footprint)
 		_step_up(near, out, run, _stands, tread, back)
 
 
@@ -411,6 +436,7 @@ func _skin(fragment: String) -> ShaderMaterial:
 ## The booth at the top: a desk, a pair of speakers that pulse on the beat, and somebody behind
 ## it who never stops dancing.
 func _booth(at: Vector3) -> void:
+	_booth_area = Rect2(Vector2(at.x, at.z) - BOOTH_CLEARANCE * 0.5, BOOTH_CLEARANCE)
 	var booth := Node3D.new()
 	booth.name = "DjBooth"
 	booth.position = at

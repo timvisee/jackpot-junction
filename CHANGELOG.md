@@ -28,6 +28,10 @@ below, and hands the notes to the release workflow.
   through the boost instead of either riding a rail or throwing the boost away by
   turning.
 
+- **The DJ booth stands in the crowd.** It was out on its own behind the back
+  row. It is a couple of rows in now, with people in front of it and people
+  behind it.
+
 ## [0.3.0] - 2026-09-20
 
 A room worth sitting in. The arena picked up a crowd a thousand strong on

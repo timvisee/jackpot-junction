@@ -44,6 +44,39 @@ func test_the_table_is_ringed_with_onlookers_and_a_booth() -> void:
 	assert_object(crowd._dj).is_not_null()
 
 
+## The booth stands in the crowd rather than behind it, GAME.md 8.1: people in front of it and
+## people behind it, and nobody standing inside it.
+func test_the_booth_stands_in_the_crowd() -> void:
+	var arena := _arena()
+	var crowd := arena.crowd
+	var booth: Node3D = crowd.get_node("DjBooth")
+	var edge := arena.world_size().y * 0.5
+	var out := absf(booth.position.z) - edge
+	assert_float(out).is_greater(Crowd.STANDOFF)
+	assert_float(out).is_less(Crowd.STANDOFF + (Crowd.ROWS - 1) * Crowd.ROW_DEPTH)
+	var nearer := 0
+	var further := 0
+	for spot: Transform3D in crowd._spots:
+		if absf(spot.origin.x) > Crowd.BOOTH_CLEARANCE.x * 0.5 or spot.origin.z > 0.0:
+			continue
+		var reach := absf(spot.origin.z) - edge
+		if reach < out:
+			nearer += 1
+		else:
+			further += 1
+		var inside := crowd._booth_area.has_point(Vector2(spot.origin.x, spot.origin.z))
+		(
+			assert_bool(inside)
+			. override_failure_message("somebody is standing inside the booth")
+			. is_false()
+		)
+	assert_int(nearer).is_greater(3)
+	assert_int(further).is_greater(3)
+	# And no stand is built through it either.
+	for footprint: Rect2 in crowd._footprints:
+		assert_bool(footprint.intersects(crowd._booth_area)).is_false()
+
+
 ## Tribunes, GAME.md 8.1: a stretch of each side is built up into steps, and the people standing
 ## on that stretch go up with them rather than staying flat while the steps rise under them.
 func test_some_of_them_are_standing_on_a_tribune() -> void:
