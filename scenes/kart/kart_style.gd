@@ -9,7 +9,7 @@ extends RefCounted
 
 const PAINTS: Array[String] = ["Solid", "Stripes", "Checks", "Spots"]
 const HATS: Array[String] = ["None", "Cap", "Top hat", "Crown", "Party"]
-const FLAGS: Array[String] = ["None", "Pennant", "Banner"]
+const FLAGS: Array[String] = ["None", "Pennant", "Banner", "Chequered"]
 const TRAILS: Array[String] = ["Smoke", "Sparks", "Confetti", "None"]
 ## The four in the order they are asked for, offered and sent.
 const CHOICES: Array[Array] = [PAINTS, HATS, FLAGS, TRAILS]

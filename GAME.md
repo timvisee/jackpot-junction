@@ -690,7 +690,7 @@ would leave skipping unreachable.
 |--------|--------------------------------------------------------------------|
 | Paint  | Solid, Stripes, Checks, Spots                                      |
 | Hat    | None, Cap, Top hat, Crown, Party                                   |
-| Flag   | None, Pennant, Banner                                              |
+| Flag   | None, Pennant, Banner, Chequered                                   |
 | Trail  | Smoke, Sparks, Confetti, None                                      |
 
 - **Paint** is a pattern laid over the colour rather than a second colour: a tiny
@@ -699,7 +699,9 @@ would leave skipping unreachable.
   unmistakably the red one.
 - **Hats** sit on the crown of the driver's helmet, and the roof marker moves up
   over whichever one is worn rather than through it.
-- **Flags** fly from a pole at the back, clear of the bodywork.
+- **Flags** fly from a pole at the back, clear of the bodywork and streaming
+  behind the kart rather than out of its side. All of them are the player's colour
+  except the chequered one, which is the colour a chequered flag is.
 - **Trails** replace the exhaust smoke: sparks or confetti in the player's colour,
   or nothing at all. Whatever it is still thickens with the throttle and in a
   drift, see 4.3.

@@ -175,6 +175,9 @@ below, and hands the notes to the release workflow.
 - **The title screen has something behind it.** A slow carnival sunburst with
   poker chips drifting up past it.
 
+- **A chequered flag to fly.** A fourth flag, in the colours a chequered flag
+  comes in rather than the player's.
+
 ### Fixed
 
 - **Shots are not bent toward what they cannot reach.** Aim assist, and Curve Ball

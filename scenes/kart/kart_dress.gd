@@ -29,6 +29,8 @@ const FLAG := Vector3(0.0, 0.95, 0.5)
 const POLE := 1.0
 
 static var _patterns: Dictionary[int, Texture2D] = {}
+## The chequered flag's squares, built once and shared by everybody flying one.
+static var _chequers: Texture2D
 
 
 ## The tint a kart's body wears: its colour, with the pattern its owner picked laid over it.
@@ -111,7 +113,8 @@ static func hat(index: int, color: Color) -> Node3D:
 	return worn
 
 
-## The flag a player picked, on its pole at the back of the kart, or null for none.
+## The flag a player picked, on its pole at the back of the kart, or null for none. All of them
+## are the player's colour except the chequered one, which is the colour a chequered flag is.
 static func flag(index: int, color: Color) -> Node3D:
 	if index <= 0 or index >= KartStyle.FLAGS.size():
 		return null
@@ -131,9 +134,32 @@ static func flag(index: int, color: Color) -> Node3D:
 		flown.add_child(pennant)
 	else:
 		var banner := _block(Vector3(0.52, 0.34, 0.03), color)
+		if index == 3:
+			banner.material_override = _chequered()
 		banner.position = Vector3(0.28, POLE * 0.3, 0.0)
 		flown.add_child(banner)
 	return flown
+
+
+## The chequered flag: the one flag in the game that is not the player's colour, because a
+## chequered flag that is red and a darker red is not a chequered flag.
+static func _chequered() -> StandardMaterial3D:
+	var material := _flat(Color.WHITE)
+	material.albedo_texture = _chequer_texture()
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	material.uv1_scale = Vector3(3.0, 2.0, 1.0)
+	return material
+
+
+static func _chequer_texture() -> Texture2D:
+	if _chequers != null:
+		return _chequers
+	var image := Image.create_empty(2, 2, false, Image.FORMAT_RGB8)
+	for y: int in 2:
+		for x: int in 2:
+			image.set_pixel(x, y, Color.WHITE if (x + y) % 2 == 0 else Color(0.06, 0.06, 0.07))
+	_chequers = ImageTexture.create_from_image(image)
+	return _chequers
 
 
 static func _pennant_mesh() -> PrismMesh:
