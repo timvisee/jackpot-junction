@@ -407,9 +407,11 @@ func _update_timer() -> void:
 
 
 ## The running order is for the player watching this screen. In a four-corner shared-screen game
-## every player already has their own block and the corners are busy, so it stands down.
+## every player already has their own block and the corners are busy, so it stands down. So does
+## it in a room with no clock and no target, GAME.md 9.4: the Garage is a place to try things in
+## and there is nothing to be winning, so a table of who is ahead is a table about nothing.
 func _update_scoreboard() -> void:
-	_scoreboard.visible = _blocks.size() <= 2
+	_scoreboard.visible = match_node.rules.timed and _blocks.size() <= 2
 
 
 func _update_blocks() -> void:

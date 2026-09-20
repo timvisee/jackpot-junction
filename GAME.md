@@ -1766,6 +1766,8 @@ Everything the game does is somewhere on the floor, and a sign names each one:
   gets in the way.
 - The disco lights from 8.1 stay off in here: it is a place to look at the
   controls, not a nightclub.
+- No standings either: there is no clock and nothing to reach, so a table of who
+  is ahead would be a table about nothing, with two dummies ranked in it.
 - A portal in the bottom right leads to the test track in 9.4a.
 
 ### 9.4a The test track

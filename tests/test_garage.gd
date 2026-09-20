@@ -146,3 +146,13 @@ func test_nitro_comes_back_almost_at_once_in_here() -> void:
 	await runner.simulate_frames(60, 17)
 	# A second of standing still is worth a fifth of a tank in here; in a match it is a ninetieth.
 	assert_float(kart.nitro_charge).is_greater(0.15)
+
+
+## GAME.md 9.4: a room with no clock and no target has no running order, so the standings stand
+## down. Two dummy karts ranked against the player is a table about nothing.
+func test_the_garage_shows_no_standings() -> void:
+	var garage: Node3D = auto_free(GARAGE_SCENE.instantiate())
+	var runner: GdUnitSceneRunner = scene_runner(garage)
+	await runner.simulate_frames(30, 17)
+	var match_node: Match = garage.get_node("Match")
+	assert_bool(match_node.hud._scoreboard.visible).is_false()

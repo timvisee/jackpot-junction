@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **No standings in the Garage.** There is no clock and nothing to reach in
+  there, so the running order was a table of two dummy karts and you.
+
 ## [0.3.1] - 2026-09-20
 
 Buttons you can see. Every hint that used to spell a binding out in words now
