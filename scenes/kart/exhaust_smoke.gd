@@ -13,7 +13,6 @@ var trail := 0
 
 
 func _ready() -> void:
-	amount = 48
 	local_coords = false
 	amount_ratio = BASE_RATIO
 	_build()
@@ -31,6 +30,9 @@ func dress(player_color: Color, style: int) -> void:
 func _build() -> void:
 	var process := ParticleProcessMaterial.new()
 	process.direction = Vector3(0.0, 1.0, 0.0)
+	# Confetti lives longer than smoke and has to be thick enough to read as a trail, so it gets
+	# more to work with. Everything else keeps the modest handful an exhaust wants.
+	amount = 96 if trail == 2 else 48
 	var mesh: Mesh = null
 	match trail:
 		1:
@@ -45,20 +47,22 @@ func _build() -> void:
 			process.color = Color(color.lightened(0.35), 0.95)
 			mesh = _sphere(0.09)
 		2:
-			# Confetti: little squares tumbling down behind the kart.
-			lifetime = 1.6
+			# Confetti: little blocks tumbling down behind the kart. Blocks rather than flat
+			# squares, which spend half a tumble edge-on and invisible, and big enough to be
+			# seen from where the camera actually is, which is the other end of the room.
+			lifetime = 2.2
 			process.spread = 55.0
-			process.initial_velocity_min = 0.8
-			process.initial_velocity_max = 2.0
-			process.gravity = Vector3(0.0, -3.5, 0.0)
+			process.initial_velocity_min = 1.0
+			process.initial_velocity_max = 2.4
+			process.gravity = Vector3(0.0, -2.6, 0.0)
 			process.angle_min = -180.0
 			process.angle_max = 180.0
 			process.angular_velocity_min = -540.0
 			process.angular_velocity_max = 540.0
-			process.scale_min = 0.5
-			process.scale_max = 1.0
-			process.color = Color(color, 0.95)
-			mesh = _square(0.1)
+			process.scale_min = 0.9
+			process.scale_max = 1.7
+			process.color = Color(color.lightened(0.15), 1.0)
+			mesh = _block(0.17)
 		3:
 			lifetime = 0.1
 			process.color = Color(1.0, 1.0, 1.0, 0.0)
@@ -85,13 +89,11 @@ func _sphere(radius: float) -> SphereMesh:
 	return sphere
 
 
-func _square(side: float) -> QuadMesh:
-	var quad := QuadMesh.new()
-	quad.size = Vector2(side, side)
-	var material := _look()
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	quad.material = material
-	return quad
+func _block(side: float) -> BoxMesh:
+	var box := BoxMesh.new()
+	box.size = Vector3(side, side * 0.35, side)
+	box.material = _look()
+	return box
 
 
 func _look() -> StandardMaterial3D:

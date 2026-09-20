@@ -208,6 +208,9 @@ below, and hands the notes to the release workflow.
 - **Kart paint has clean edges.** The patterns were drawn at sixteen pixels and
   snapped to them, which looked like it.
 
+- **Confetti can be seen.** It was flat squares small enough to miss, half of them
+  edge-on at any moment; it is tumbling blocks now, bigger and twice as many.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button

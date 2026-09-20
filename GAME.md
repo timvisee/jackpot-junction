@@ -706,7 +706,9 @@ would leave skipping unreachable.
   except the chequered one, which is the colour a chequered flag is.
 - **Trails** replace the exhaust smoke: sparks or confetti in the player's colour,
   or nothing at all. Whatever it is still thickens with the throttle and in a
-  drift, see 4.3.
+  drift, see 4.3. Confetti is thrown as tumbling blocks rather than flat squares,
+  which spend half a tumble edge-on and invisible, and there is twice as much of
+  it, because it has to read as a trail from the other end of the room.
 - A kart is dressed the same on every screen: the four choices ride with the kart
   in the snapshot, see 10.3, and a choice a machine has never heard of is the
   plain one rather than a crash.
