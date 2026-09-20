@@ -118,7 +118,8 @@ var enabled := true
 ## Where everybody is standing, kept after the build because it is the record of the house.
 var _spots: Array[Transform3D] = []
 ## The footprints of the tribunes, flat on the table: inside one, a row stands a step higher.
-var _stands: Array[Rect2] = []
+var _footprints: Array[Rect2] = []
+var _stands: Node3D
 var _shirts: PackedColorArray = []
 var _traits: PackedColorArray = []
 var _onlookers: MultiMeshInstance3D
@@ -161,6 +162,12 @@ func _process(delta: float) -> void:
 	visible = enabled
 	if not enabled:
 		return
+	# A player who would rather have the table to themselves keeps the booth and loses the house,
+	# GAME.md 8.5. Hidden rather than never built, since the setting can be changed mid-match.
+	var watching := Game.settings.crowd
+	_onlookers.visible = watching
+	if _stands != null:
+		_stands.visible = watching
 	_cheer = maxf(_cheer - delta, 0.0)
 	var dancing := level >= DANCING_LEVEL or _cheer > 0.0
 	var blend := 1.0 - exp(-delta * SETTLE)
@@ -168,10 +175,11 @@ func _process(delta: float) -> void:
 	_lift = lerpf(_lift, JUMP if dancing else RESTING_LIFT, blend)
 	_lean = lerpf(_lean, DANCING_LEAN if dancing else RESTING_LEAN, blend)
 	_beat = fmod(_beat + delta * _rate, PERIOD)
-	for skin: ShaderMaterial in _skins:
-		skin.set_shader_parameter(&"beat", _beat)
-		skin.set_shader_parameter(&"lift", _lift)
-		skin.set_shader_parameter(&"lean", _lean)
+	if watching:
+		for skin: ShaderMaterial in _skins:
+			skin.set_shader_parameter(&"beat", _beat)
+			skin.set_shader_parameter(&"lift", _lift)
+			skin.set_shader_parameter(&"lean", _lean)
 	_step_booth()
 
 
@@ -252,7 +260,7 @@ func _stand(at: Vector3, row: int) -> void:
 func _tier_at(at: Vector3, row: int) -> float:
 	if row <= 0:
 		return 0.0
-	for stand: Rect2 in _stands:
+	for stand: Rect2 in _footprints:
 		if stand.has_point(Vector2(at.x, at.z)):
 			return row * TIER
 	return 0.0
@@ -262,9 +270,9 @@ func _tier_at(at: Vector3, row: int) -> float:
 ## side rather than the whole of it: a stand that goes all the way round is a bowl, and this is a
 ## table with people standing at it.
 func _raise_stands(half: Vector2) -> void:
-	var stands := Node3D.new()
-	stands.name = "Stands"
-	add_child(stands)
+	_stands = Node3D.new()
+	_stands.name = "Stands"
+	add_child(_stands)
 	var tread := _paint(Palette.BLOCK)
 	var back := _paint(Palette.BLOCK_EDGE)
 	for side: int in 4:
@@ -278,8 +286,8 @@ func _raise_stands(half: Vector2) -> void:
 			continue
 		var near := out * (across + STANDOFF - ROW_DEPTH * 0.5)
 		near += sideways * _rng.randf_range(-room, room)
-		_stands.append(_footprint(near, out, sideways, run))
-		_step_up(near, out, run, stands, tread, back)
+		_footprints.append(_footprint(near, out, sideways, run))
+		_step_up(near, out, run, _stands, tread, back)
 
 
 ## The footprint of one stand, flat on the table, which is what decides who is standing on it.

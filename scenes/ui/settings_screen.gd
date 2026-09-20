@@ -319,6 +319,11 @@ func _accessibility_tab() -> Control:
 	)
 	column.add_child(
 		MenuTheme.row(
+			"Crowd", _check(_settings.crowd, func(on: bool) -> void: _settings.crowd = on)
+		)
+	)
+	column.add_child(
+		MenuTheme.row(
 			"Control hints",
 			_check(_settings.control_hints, func(on: bool) -> void: _settings.control_hints = on)
 		)

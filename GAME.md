@@ -1092,8 +1092,9 @@ subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
   vertex shader off a single beat the room shares, so nothing is touched per
   person per frame and a fuller house costs a longer buffer rather than more work.
   Scenery throughout, with no collision and nothing that decides anything, and
-  every machine runs its own off the same events. The Garage has none of it, the
-  same as it has no disco lights.
+  every machine runs its own off the same events. An accessibility setting in 8.5
+  empties the stands for anybody who would rather have the table to themselves.
+  The Garage has none of it, the same as it has no disco lights.
 
 Starting palette:
 
@@ -1479,8 +1480,12 @@ All settings are saved between sessions, see 10.2.
   The kart bus is under the effects bus, so the effects slider still scopes it.
 - **Video**: window mode, vsync, render scale.
 - **Accessibility**: screen shake on or off, flash reduction, aim assist
-  strength from 0% to 100% of the default and never above it, per player, and
-  the aim guide on or off. Colour-blind roof markers are always on.
+  strength from 0% to 100% of the default and never above it, per player, the
+  aim guide on or off, the disco lights on or off, the control hints on or off,
+  and the crowd on or off. The crowd is on by default; switching it off empties
+  the stands and leaves the booth, since it is the thousand moving things around
+  the table rather than the party that is worth being able to stop.
+  Colour-blind roof markers are always on.
 
 ## 9. Modes
 

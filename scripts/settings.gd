@@ -25,6 +25,10 @@ var rumble := true
 var aim_guide := true
 ## The moving-head lights over the arena, GAME.md 8.1.
 var disco_lights := true
+## The onlookers around the table and the stands they are on, GAME.md 8.1. The busiest thing on
+## screen that has nothing to do with the match, so it is the first thing worth being able to
+## turn off. On by default: the room is meant to be full.
+var crowd := true
 ## The on-screen reminders of which button does what, GAME.md 8.3.
 var control_hints := true
 var stick_deadzone := 0.15
@@ -81,6 +85,7 @@ func load_from_disk() -> void:
 	rumble = file.get_value("accessibility", "rumble", rumble)
 	aim_guide = file.get_value("accessibility", "aim_guide", aim_guide)
 	disco_lights = file.get_value("accessibility", "disco_lights", disco_lights)
+	crowd = file.get_value("accessibility", "crowd", crowd)
 	control_hints = file.get_value("accessibility", "control_hints", control_hints)
 	stick_deadzone = file.get_value("controls", "stick_deadzone", stick_deadzone)
 	bindings = file.get_value("controls", "bindings", {})
@@ -119,6 +124,7 @@ func save_to_disk() -> Error:
 	file.set_value("accessibility", "rumble", rumble)
 	file.set_value("accessibility", "aim_guide", aim_guide)
 	file.set_value("accessibility", "disco_lights", disco_lights)
+	file.set_value("accessibility", "crowd", crowd)
 	file.set_value("accessibility", "control_hints", control_hints)
 	file.set_value("controls", "stick_deadzone", stick_deadzone)
 	file.set_value("controls", "bindings", bindings)

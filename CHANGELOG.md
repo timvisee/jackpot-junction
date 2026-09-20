@@ -250,6 +250,9 @@ below, and hands the notes to the release workflow.
   steps behind a back wall, with everybody on it a step higher than the row in
   front.
 
+- **The crowd can be sent home.** Accessibility settings has a Crowd switch, on
+  by default. Off empties the stands and leaves the DJ booth where it is.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button

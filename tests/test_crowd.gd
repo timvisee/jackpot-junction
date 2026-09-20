@@ -49,7 +49,7 @@ func test_the_table_is_ringed_with_onlookers_and_a_booth() -> void:
 func test_some_of_them_are_standing_on_a_tribune() -> void:
 	var arena := _arena()
 	var crowd := arena.crowd
-	assert_int(crowd._stands.size()).is_greater(2)
+	assert_int(crowd._footprints.size()).is_greater(2)
 	var highest := Crowd.TABLE_TOP
 	var on_a_stand := 0
 	for spot: Transform3D in crowd._spots:
@@ -62,7 +62,7 @@ func test_some_of_them_are_standing_on_a_tribune() -> void:
 	assert_int(on_a_stand).is_less(crowd.count() / 2)
 	# The steps themselves are there, and they are not nine hundred nodes either.
 	var stands: Node3D = crowd.get_node("Stands")
-	assert_int(stands.get_child_count()).is_equal(crowd._stands.size() * Crowd.ROWS)
+	assert_int(stands.get_child_count()).is_equal(crowd._footprints.size() * Crowd.ROWS)
 
 
 func test_a_kill_gets_them_up_and_so_does_a_hot_room() -> void:
@@ -115,6 +115,23 @@ func test_the_match_tells_the_crowd_how_the_room_is_going() -> void:
 	match_node.intensity.level = 6
 	await _runner.simulate_frames(4, 17)
 	assert_int(match_node.arena.crowd.level).is_equal(6)
+
+
+## Anybody who would rather have the table to themselves empties the stands, GAME.md 8.5, and
+## keeps the booth: it is the thousand moving things that the setting is about.
+func test_the_stands_can_be_emptied() -> void:
+	var was := Game.settings.crowd
+	Game.settings.crowd = false
+	var arena := _arena()
+	var crowd := arena.crowd
+	var runner: GdUnitSceneRunner = scene_runner(arena)
+	await runner.simulate_frames(4, 17)
+	assert_bool(crowd._onlookers.visible).is_false()
+	assert_bool(crowd.get_node("Stands").visible).is_false()
+	assert_bool(crowd.get_node("DjBooth").visible).is_true()
+	Game.settings.crowd = was
+	await runner.simulate_frames(4, 17)
+	assert_bool(crowd._onlookers.visible).is_true()
 
 
 ## The Garage is not a party, the same as it is not a nightclub.
