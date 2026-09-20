@@ -14,8 +14,6 @@ const CAMERA_SCENE := preload("res://scenes/camera/camera_rig.tscn")
 ## through, so it is kept to a thump rather than a shake.
 const BEAT_TREMBLE := 2.0
 const BEAT_DOWNBEAT := 1.4
-## Seconds before looking again when there was nobody worth putting a bounty on.
-const BOUNTY_RETRY := 5.0
 ## Lamps on the start gantry, GAME.md 8.3. The rack and the start tones are one countdown: a
 ## lamp lights and a tone plays together, so however long the countdown is set to, there are
 ## this many of both. Three of them over the usual three seconds is a lamp a second, which is
@@ -49,6 +47,8 @@ var local_slot := -1
 var local_input: PlayerInput
 var arena: Arena
 var camera_rig: CameraRig
+## The row of tanks on the table that fill as players bank, GAME.md 8.1.
+var score_tanks: ScoreTanks
 var bullets: BulletSystem
 var hud: MatchHud
 ## How hot the match feels, read by the music, the arena lights and the camera.
@@ -371,6 +371,10 @@ func _build_systems(from_snapshots: bool) -> void:
 	camera_rig.name = "CameraRig"
 	add_child(camera_rig)
 	camera_rig.frame_arena(arena.bounds())
+	# The race to the target score, standing on the table, GAME.md 8.1. It reads the slots every
+	# frame rather than being handed them, so it is right on a client filling up from snapshots
+	# and after somebody joins mid-match.
+	score_tanks = ScoreTanks.add_to(self)
 
 
 ## The HUD, when this build wants one. It reads the slots as it is built, so a host adds it once
@@ -579,7 +583,7 @@ func _physics_process(delta: float) -> void:
 				_step_respawns(delta)
 			_step_stats(delta)
 			bot_mirror.update(self)
-			_step_bounty(delta)
+			Bounty.step(self, delta)
 			_step_flush_income(delta)
 			if JokerTick.step(slots, delta):
 				check_target()
@@ -611,45 +615,9 @@ func bounty_kart() -> Kart:
 	return kart_of(bounty_slot) if bounty_slot >= 0 else null
 
 
-## The bounty, GAME.md 3.10: now and then a price goes on the leader's head, and whoever
-## takes them out collects it. It lapses on its own if nobody manages it.
-func _step_bounty(delta: float) -> void:
-	if bounty_slot >= 0:
-		bounty_left -= delta
-		var kart := kart_of(bounty_slot)
-		if bounty_left <= 0.0 or kart == null or not kart.alive:
-			clear_bounty(true)
-		return
-	_bounty_wait -= delta
-	if _bounty_wait > 0.0:
-		return
-	# Nobody worth calling on yet: look again shortly rather than sitting out a whole interval.
-	_bounty_wait = BOUNTY_RETRY
-	var ranked := standings()
-	if ranked.size() < 2:
-		return
-	var leader := ranked[0]
-	# Only worth calling on a clear leader who is actually out there to be caught.
-	if leader.banked - ranked[1].banked < rules.bounty_min_lead:
-		return
-	if leader.kart == null or not leader.kart.alive:
-		return
-	_bounty_wait = rng.randf_range(rules.bounty_interval_min, rules.bounty_interval_max)
-	bounty_slot = leader.index
-	bounty_left = rules.bounty_duration
-	leader.kart.set_bounty(true)
-	Events.bounty_called.emit(bounty_slot)
-
-
+## Takes the price off the leader's head, GAME.md 3.10. The rule itself lives in [Bounty].
 func clear_bounty(lapsed: bool) -> void:
-	var was := bounty_slot
-	bounty_slot = -1
-	bounty_left = 0.0
-	var kart := kart_of(was) if was >= 0 else null
-	if kart != null:
-		kart.set_bounty(false)
-	if lapsed and was >= 0:
-		Events.bounty_lapsed.emit(was)
+	Bounty.clear(self, lapsed)
 
 
 ## Whether a player on this screen is one cash-out away from taking the match, GAME.md 3.4.

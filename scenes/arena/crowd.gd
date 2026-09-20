@@ -127,8 +127,11 @@ var enabled := true
 var _spots: Array[Transform3D] = []
 ## The footprints of the tribunes, flat on the table: inside one, a row stands a step higher.
 var _footprints: Array[Rect2] = []
-## The patch of table the booth has to itself, which nobody stands in and no stand is built over.
-var _booth_area := Rect2()
+## Patches of table nobody stands in and no stand is built over: the booth's, and whatever else
+## has been put out there since, such as the score tanks of GAME.md 8.1.
+var _clear: Array[Rect2] = []
+## The size of the arena this house was raised around, so it can be raised again.
+var _size := Vector2.ZERO
 var _stands: Node3D
 var _shirts: PackedColorArray = []
 var _traits: PackedColorArray = []
@@ -208,14 +211,58 @@ func _on_kart_killed(_victim: int, _killer: int, _cause: StringName) -> void:
 	_cheer = CHEER
 
 
+## Keeps a patch of table free and stands the house up again around it. For whatever else ends
+## up out here: a crowd standing in front of a thing put there to be looked at is worse than a
+## slightly smaller crowd.
+func keep_clear(area: Rect2) -> void:
+	_clear.append(area)
+	if _size != Vector2.ZERO:
+		_build(_size)
+
+
+## Whether [param at] falls in a patch that is being kept clear, grown by [param slack].
+func _blocked(at: Vector2, slack: float) -> bool:
+	for area: Rect2 in _clear:
+		if area.grow(slack).has_point(at):
+			return true
+	return false
+
+
+## Whether [param box] runs into a patch that is being kept clear, grown by [param slack].
+func _overlaps(box: Rect2, slack: float) -> bool:
+	for area: Rect2 in _clear:
+		if box.intersects(area.grow(slack)):
+			return true
+	return false
+
+
 func _build(size: Vector2) -> void:
 	_rng.seed = hash(size)
+	_size = size
+	# A rebuild starts from an empty table: the booth puts its own patch back as it goes down.
+	for child: Node in get_children():
+		remove_child(child)
+		child.queue_free()
+	_spots.clear()
+	_shirts.clear()
+	_traits.clear()
+	_footprints.clear()
+	_skins.clear()
+	_speakers.clear()
+	_onlookers = null
+	_stands = null
+	_dj = null
+	var kept := _clear.duplicate()
+	_clear.clear()
 	var half := size * 0.5
 	var outer := half + Vector2.ONE * (STANDOFF + (ROWS - 1) * ROW_DEPTH)
 	# The booth goes down first because everything else is placed around it: it stands a couple
 	# of rows into the crowd, with people in front of it and people behind it, rather than out on
 	# its own behind the back row where it read as a thing parked next to the party.
 	_booth(Vector3(0.0, TABLE_TOP, -(half.y + STANDOFF + BOOTH_ROW * ROW_DEPTH)))
+	for area: Rect2 in kept:
+		if not _clear.has(area):
+			_clear.append(area)
 	_raise_stands(half)
 	for row: int in ROWS:
 		_ring(half + Vector2.ONE * (STANDOFF + row * ROW_DEPTH), row)
@@ -244,7 +291,7 @@ func _line(from: Vector3, to: Vector3, row: int) -> void:
 ## Rolls one onlooker onto a spot, or leaves the spot empty.
 func _stand(at: Vector3, row: int) -> void:
 	# Grown by the jitter, since the spot is rolled off this point and could wander in.
-	if _booth_area.grow(JITTER).has_point(Vector2(at.x, at.z)):
+	if _blocked(Vector2(at.x, at.z), JITTER):
 		return
 	if _rng.randf() > DENSITY:
 		return
@@ -306,7 +353,7 @@ func _raise_stands(half: Vector2) -> void:
 		for attempt: int in STAND_TRIES:
 			near = edge + sideways * _rng.randf_range(-room, room)
 			footprint = _footprint(near, out, sideways, run)
-			if not footprint.intersects(_booth_area.grow(STAND_MARGIN)):
+			if not _overlaps(footprint, STAND_MARGIN):
 				break
 			footprint = Rect2()
 		if footprint.get_area() <= 0.0:
@@ -436,7 +483,7 @@ func _skin(fragment: String) -> ShaderMaterial:
 ## The booth at the top: a desk, a pair of speakers that pulse on the beat, and somebody behind
 ## it who never stops dancing.
 func _booth(at: Vector3) -> void:
-	_booth_area = Rect2(Vector2(at.x, at.z) - BOOTH_CLEARANCE * 0.5, BOOTH_CLEARANCE)
+	_clear.append(Rect2(Vector2(at.x, at.z) - BOOTH_CLEARANCE * 0.5, BOOTH_CLEARANCE))
 	var booth := Node3D.new()
 	booth.name = "DjBooth"
 	booth.position = at

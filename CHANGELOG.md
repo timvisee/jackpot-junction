@@ -26,6 +26,10 @@ below, and hands the notes to the release workflow.
   gate, or an R for the right one, and it is drawn as a bare button the way A and
   B are rather than inside a box.
 
+- **A tank per player beside the arena.** Glass tanks stand on the table outside
+  the wall and fill with your colour as you bank, full at the score that wins. A
+  glance says how close anybody is to taking the match, which the numbers do not.
+
 - **The camera frames the karts, not the room.** It comes in as close as it can
   while keeping every kart on screen and follows them around the floor, so a
   fight in one corner fills the screen instead of sharing it with three empty

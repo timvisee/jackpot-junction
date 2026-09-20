@@ -1083,6 +1083,15 @@ subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
   flat screen with no match running behind it, so a scene would be a scene loaded
   to be looked at once. Dark on purpose; the point of the screen is the words on
   it.
+- **The score tanks**: a glass tank per player standing on the table just outside
+  the arena wall, off to one side of the far edge, filling with that player's own
+  colour as they bank and brim-full at the target score of 3.8. The standings say
+  who is ahead in numbers; this says how close anybody is to being done, which is
+  the question that decides whether a pot is worth carrying another lap. Four a
+  third full is a match with a way to go; one brimming is somebody about to take
+  it. The crowd leaves them a bay rather than standing in front of them, and a
+  room with no clock and nothing to reach has no tanks, since one that can never
+  fill is furniture.
 - **The crowd**: a band of small figures four rows deep standing on the table all
   the way round the arena, and a DJ booth a couple of rows into it along the top
   edge, with a pair of speakers that pulse on the beat. The booth stands in the

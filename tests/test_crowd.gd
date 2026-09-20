@@ -64,7 +64,7 @@ func test_the_booth_stands_in_the_crowd() -> void:
 			nearer += 1
 		else:
 			further += 1
-		var inside := crowd._booth_area.has_point(Vector2(spot.origin.x, spot.origin.z))
+		var inside := crowd._blocked(Vector2(spot.origin.x, spot.origin.z), 0.0)
 		(
 			assert_bool(inside)
 			. override_failure_message("somebody is standing inside the booth")
@@ -74,7 +74,7 @@ func test_the_booth_stands_in_the_crowd() -> void:
 	assert_int(further).is_greater(3)
 	# And no stand is built through it either.
 	for footprint: Rect2 in crowd._footprints:
-		assert_bool(footprint.intersects(crowd._booth_area)).is_false()
+		assert_bool(crowd._overlaps(footprint, 0.0)).is_false()
 
 
 ## Tribunes, GAME.md 8.1: a stretch of each side is built up into steps, and the people standing
