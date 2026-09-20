@@ -76,6 +76,8 @@ below, and hands the notes to the release workflow.
 - **Nitro comes back almost at once in the Garage.** A tank in a few seconds
   rather than a minute and a half, so the button can actually be tried out.
 
+- **Flags fly off the back of the kart** rather than out of its side.
+
 ### Added
 
 - **A one-minute match, in debug builds only.** Long enough to reach the Junction

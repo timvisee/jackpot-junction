@@ -118,6 +118,9 @@ static func flag(index: int, color: Color) -> Node3D:
 	var flown := Node3D.new()
 	flown.name = "Flag"
 	flown.position = FLAG
+	# Turned a quarter so the flag flies off the back of the kart rather than out of its side,
+	# which is where a flag on a kart belongs and which keeps it out of the driver's way.
+	flown.rotation_degrees = Vector3(0.0, -90.0, 0.0)
 	flown.add_child(_disc(0.03, POLE, Color(0.16, 0.16, 0.18), 0.0))
 	if index == 1:
 		var pennant := MeshInstance3D.new()
