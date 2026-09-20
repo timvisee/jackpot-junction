@@ -136,3 +136,27 @@ func test_the_gamepad_hint_names_whatever_fire_is_bound_to() -> void:
 	InputActions.rebind(InputActions.FIRE, {"button": JOY_BUTTON_RIGHT_SHOULDER})
 	assert_str(ControlHint.hint_text(0)).contains("RB fire")
 	InputActions.register_defaults()
+
+
+## GAME.md 8.3: two ends of one stick are named as a stick. "Left Stick X-Axis - / Left Stick
+## X-Axis +" describes the input map rather than anything a player does with their thumb.
+func test_a_stick_is_named_once_rather_than_as_two_axis_halves() -> void:
+	InputActions.register_defaults()
+	var pad := InputActions.pair_text(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, false)
+	assert_str(pad).is_equal("Left stick")
+	assert_bool(pad.contains("Axis")).is_false()
+	# On a keyboard they really are two keys, and both are named.
+	var keys := InputActions.pair_text(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, true)
+	assert_str(keys).contains("/")
+	# Two actions that are not two ends of one stick fall back to naming both.
+	assert_str(InputActions.shared_stick(InputActions.FIRE, InputActions.NITRO)).is_empty()
+	assert_str(InputActions.pair_text(InputActions.FIRE, InputActions.NITRO, false)).contains("/")
+
+
+## And the joker screens use it, which is where a player reads it.
+func test_the_joker_screens_name_the_stick_once() -> void:
+	var picker: JokerPicker = auto_free(JokerPicker.new())
+	add_child(picker)
+	picker.keyboard = false
+	assert_str(picker._hint_text(true)).contains("Left stick choose")
+	assert_str(picker._hint_text(true)).not_contains("Axis")

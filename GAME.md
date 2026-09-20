@@ -630,6 +630,11 @@ bounces off answers as a wall does; a box it goes straight through at ramming
 speed does not stop it, so there is nothing to feel. The accessibility setting in
 8.5 turns all of it off.
 
+Where two actions are the opposite ends of one control, the hints name the control
+rather than both of them: on a pad the two halves of a stick are a stick, and
+"Left Stick X-Axis - / Left Stick X-Axis +" describes the input map rather than
+anything a thumb does. On a keyboard they really are two keys and both are named.
+
 A menu is driven with the pad as well as the keyboard: the stick and the D-pad walk
 the cursor, A presses whatever is under it and B is the Back button. Back only backs
 out of somewhere there is a way out of, which is the pause menu, the lobby, the

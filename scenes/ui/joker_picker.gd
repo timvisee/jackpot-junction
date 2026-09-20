@@ -173,20 +173,12 @@ func _clear() -> void:
 
 
 func _hint_text(choosing: bool) -> String:
-	var left := InputActions.short_binding_text(InputActions.STEER_LEFT, keyboard)
-	var right := InputActions.short_binding_text(InputActions.STEER_RIGHT, keyboard)
+	var walk := InputActions.pair_text(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, keyboard)
 	# Fire takes a card as well as the item button does, and it is the one a player already has
 	# a thumb on, so it is the one named here.
 	var take := InputActions.short_binding_text(InputActions.FIRE, keyboard)
 	var back := InputActions.short_binding_text(InputActions.JOKER_DESTROY, keyboard)
 	return (
-		"%s / %s choose    %s %s    %s %s"
-		% [
-			left,
-			right,
-			take,
-			"take" if choosing else "destroy",
-			back,
-			"skip" if choosing else "back"
-		]
+		"%s choose    %s %s    %s %s"
+		% [walk, take, "take" if choosing else "destroy", back, "skip" if choosing else "back"]
 	)

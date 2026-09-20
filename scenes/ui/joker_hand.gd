@@ -193,10 +193,9 @@ func _sync_cards() -> void:
 func _show_detail(joker: Joker) -> void:
 	_detail.show_joker(joker)
 	var keys := (
-		"%s / %s cycle    %s drop    %s destroy"
+		"%s cycle    %s drop    %s destroy"
 		% [
-			InputActions.short_binding_text(InputActions.STEER_LEFT, keyboard),
-			InputActions.short_binding_text(InputActions.STEER_RIGHT, keyboard),
+			InputActions.pair_text(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, keyboard),
 			InputActions.binding_text(InputActions.JOKER_DROP, keyboard),
 			InputActions.binding_text(InputActions.JOKER_DESTROY, keyboard),
 		]

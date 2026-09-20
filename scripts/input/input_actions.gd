@@ -207,6 +207,41 @@ static func short_binding_text(action: StringName, keyboard: bool) -> String:
 	return binding_text(action, keyboard).split(", ")[0]
 
 
+## Two actions that are the opposite ends of one control, named as one thing, GAME.md 8.3. On a
+## pad the two halves of a stick are a stick: "Left Stick X-Axis - / Left Stick X-Axis +" is a
+## description of an input map rather than of anything a player does. On a keyboard they really
+## are two keys and both have to be named.
+static func pair_text(left: StringName, right: StringName, keyboard: bool) -> String:
+	if not keyboard:
+		var stick := shared_stick(left, right)
+		if not stick.is_empty():
+			return stick
+	return "%s / %s" % [short_binding_text(left, keyboard), short_binding_text(right, keyboard)]
+
+
+## The name of the stick both actions read, or an empty string when they are not two ends of the
+## same one, which is what a rebinding to the D-pad or to buttons leaves them as.
+static func shared_stick(left: StringName, right: StringName) -> String:
+	var axis := _axis_of(left)
+	if axis < 0 or axis != _axis_of(right):
+		return ""
+	if axis == JOY_AXIS_LEFT_X or axis == JOY_AXIS_LEFT_Y:
+		return "Left stick"
+	if axis == JOY_AXIS_RIGHT_X or axis == JOY_AXIS_RIGHT_Y:
+		return "Right stick"
+	return ""
+
+
+static func _axis_of(action: StringName) -> int:
+	if not InputMap.has_action(action):
+		return -1
+	for event: InputEvent in InputMap.action_get_events(action):
+		var motion := event as InputEventJoypadMotion
+		if motion != null:
+			return motion.axis
+	return -1
+
+
 static func binding_text(action: StringName, keyboard: bool) -> String:
 	var parts: PackedStringArray = []
 	for event: InputEvent in InputMap.action_get_events(action):

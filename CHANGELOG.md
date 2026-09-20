@@ -219,6 +219,9 @@ below, and hands the notes to the release workflow.
 - **The Garage portal is clear of the wall.** It was standing half inside the
   bottom one.
 
+- **The joker hints name the stick, not the axes.** On a pad they read "Left stick
+  cycle" rather than "Left Stick X-Axis - / Left Stick X-Axis + cycle".
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button
