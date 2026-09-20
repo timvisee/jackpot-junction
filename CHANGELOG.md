@@ -11,6 +11,17 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-20
+
+A room worth sitting in. The arena picked up a crowd a thousand strong on
+tribunes, a DJ booth, and two more maps to choose between in the lobby; the karts
+picked up paint, hats, flags and trails, and their drivers picked up names; the
+end of a match picked up a podium; and the Garage picked up a test track in front
+of it that teaches the controls a sign at a time. Underneath all that: seven new
+jokers, a Junction that no longer patches you up for free, hard bots that come
+after whoever is carrying the money, aim assist that looks at more than karts, and
+a long list of smaller things that were wrong.
+
 ### Changed
 
 - **Nitro is on the right shoulder.** On a gamepad nitro has moved off B onto the
@@ -395,6 +406,7 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.3.0
 [0.2.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.2.0
 [0.1.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.1.0
