@@ -1,7 +1,8 @@
 extends GdUnitTestSuite
-## The crowd, GAME.md 8.1: a ring of onlookers on the table with a DJ booth at the top of it.
+## The crowd, GAME.md 8.1: a band of onlookers on the table with a DJ booth at the top of it.
 ## They bob while the room is quiet, they are on their feet at the top two excitement levels, and
-## a kill gets them up whatever the meter says.
+## a kill gets them up whatever the meter says. All of them are instances of one mesh animated in
+## a shader, so what is checked here is the house and the beat the house is dancing to.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const RULES: MatchRules = preload("res://data/match/default.tres")
@@ -21,17 +22,24 @@ func test_the_table_is_ringed_with_onlookers_and_a_booth() -> void:
 	var arena := _arena()
 	var crowd := arena.crowd
 	assert_object(crowd).is_not_null()
-	# Enough of them to read as a crowd, all standing on the table rather than on the felt.
-	assert_int(crowd._figures.size()).is_greater(20)
-	for figure: Node3D in crowd._figures:
-		assert_float(figure.position.y).is_equal_approx(Crowd.TABLE_TOP, 0.001)
-	# And all of them outside the walls, where nothing can be driven into them.
+	# A full house rather than a fence: several rows deep all the way round.
+	assert_int(crowd.count()).is_greater(400)
+	# Nobody is standing on the felt, and nobody is standing inside the table either.
 	var half := arena.world_size() * 0.5
-	for figure: Node3D in crowd._figures:
-		var outside := (
-			absf(figure.position.x) > half.x + 0.5 or absf(figure.position.z) > half.y + 0.5
-		)
+	var lowest := 0.0
+	for spot: Transform3D in crowd._spots:
+		var at := spot.origin
+		var outside := absf(at.x) > half.x + 0.5 or absf(at.z) > half.y + 0.5
 		assert_bool(outside).override_failure_message("somebody is standing on the floor").is_true()
+		lowest = minf(lowest, at.y - Crowd.TABLE_TOP)
+	assert_float(lowest).is_greater_equal(-0.001)
+	# Two draw calls for the lot of them, not two thousand nodes.
+	assert_int(crowd.get_child_count()).is_less(3)
+	assert_int(crowd._onlookers.multimesh.instance_count).is_equal(crowd.count())
+	assert_int(crowd._onlookers.multimesh.mesh.get_surface_count()).is_equal(2)
+	# No two of them are the same person standing in a line.
+	assert_vector(crowd._spots[0].origin).is_not_equal(crowd._spots[1].origin)
+	assert_object(crowd._shirts).is_not_equal(crowd._traits)
 	assert_int(crowd._speakers.size()).is_equal(2)
 	assert_object(crowd._dj).is_not_null()
 
@@ -41,22 +49,35 @@ func test_a_kill_gets_them_up_and_so_does_a_hot_room() -> void:
 	var crowd := arena.crowd
 	var runner: GdUnitSceneRunner = scene_runner(arena)
 	await runner.simulate_frames(6, 17)
-	var resting := crowd._figures[0].position.y
+	assert_float(crowd._lift).is_less(Crowd.JUMP * 0.5)
 	Events.kart_killed.emit(1, 0, &"bullet")
 	assert_float(crowd._cheer).is_greater(0.0)
-	var highest := resting
-	for i: int in 30:
-		await runner.simulate_frames(1, 17)
-		highest = maxf(highest, crowd._figures[0].position.y)
-	assert_float(highest - Crowd.TABLE_TOP).is_greater(Crowd.JUMP * 0.5)
+	await runner.simulate_frames(40, 17)
+	assert_float(crowd._lift).is_greater(Crowd.JUMP * 0.5)
+	# Whatever the room is doing is what the figures are told, since they do the moving.
+	var skin: ShaderMaterial = crowd._skins[0]
+	assert_float(skin.get_shader_parameter(&"lift")).is_equal_approx(crowd._lift, 0.001)
+	assert_float(skin.get_shader_parameter(&"beat")).is_greater(0.0)
 	# The cheer runs out; a hot room keeps them up without one.
 	crowd._cheer = 0.0
+	crowd.level = 0
+	await runner.simulate_frames(80, 17)
+	assert_float(crowd._lift).is_less(Crowd.JUMP * 0.5)
 	crowd.level = Crowd.DANCING_LEVEL
-	highest = Crowd.TABLE_TOP
-	for i: int in 30:
-		await runner.simulate_frames(1, 17)
-		highest = maxf(highest, crowd._figures[0].position.y)
-	assert_float(highest - Crowd.TABLE_TOP).is_greater(Crowd.JUMP * 0.5)
+	await runner.simulate_frames(40, 17)
+	assert_float(crowd._lift).is_greater(Crowd.JUMP * 0.5)
+
+
+## The beat is wrapped at its own period, so an hour of dancing neither drifts out of float
+## precision nor jumps when it comes round again.
+func test_the_beat_comes_round_rather_than_running_away() -> void:
+	var arena := _arena()
+	var crowd := arena.crowd
+	crowd._beat = Crowd.PERIOD - 0.01
+	var runner: GdUnitSceneRunner = scene_runner(arena)
+	await runner.simulate_frames(4, 17)
+	assert_float(crowd._beat).is_less(Crowd.PERIOD)
+	assert_float(crowd._beat).is_greater_equal(0.0)
 
 
 ## The match keeps the crowd's level up to date along with the lights.

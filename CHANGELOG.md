@@ -239,6 +239,13 @@ below, and hands the notes to the release workflow.
   with a HANDBRAKE sign at the first stub of the chicane saying what locks the
   wheels.
 
+- **The crowd is a crowd.** There was one person per two metres in a single line
+  round the arena. There are now getting on for a thousand of them, four rows
+  deep, no two the same height, colour or heading, standing where they like
+  rather than on a grid, with gaps in the rows. The lot of them draw in two
+  calls and cost nothing per frame, so a full house runs the same as an empty
+  one did.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button

@@ -1073,14 +1073,22 @@ subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
   flat screen with no match running behind it, so a scene would be a scene loaded
   to be looked at once. Dark on purpose; the point of the screen is the words on
   it.
-- **The crowd**: a ring of small figures standing on the table all the way round
-  the arena, and a DJ booth along the top edge with a pair of speakers that pulse
-  on the beat. They bob while the room is quiet, they are on their feet at
-  excitement levels 5 and 6, see 8.4, and a kill gets them jumping for a couple of
-  seconds whatever the meter says: the loudest thing that happens in a match is
-  answered by the room and not only by the HUD. Scenery throughout, with no
-  collision and nothing that decides anything, and every machine runs its own off
-  the same events. The Garage has none of it, the same as it has no disco lights.
+- **The crowd**: a band of small figures four rows deep standing on the table all
+  the way round the arena, and a DJ booth along the top edge with a pair of
+  speakers that pulse on the beat. Getting on for a thousand of them, and no two
+  the same: where somebody stands, how tall they are, which way they are facing,
+  what they are wearing, how dark their face is and where in the beat they are is
+  all rolled per person, and a sixth of the places are left empty, because a row
+  of identical people evenly spaced reads as a fence. They bob while the room is
+  quiet, they are on their feet at excitement levels 5 and 6, see 8.4, and a kill
+  gets them jumping for a couple of seconds whatever the meter says: the loudest
+  thing that happens in a match is answered by the room and not only by the HUD.
+  The whole house is one instanced mesh drawn in two calls and animated in a
+  vertex shader off a single beat the room shares, so nothing is touched per
+  person per frame and a fuller house costs a longer buffer rather than more work.
+  Scenery throughout, with no collision and nothing that decides anything, and
+  every machine runs its own off the same events. The Garage has none of it, the
+  same as it has no disco lights.
 
 Starting palette:
 
