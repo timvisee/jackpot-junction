@@ -16,6 +16,11 @@ below, and hands the notes to the release workflow.
 - **The podium starts with Rematch selected.** A gamepad no longer has to go
   looking for a button on a screen that came up by itself.
 
+- **A Decoy Kart cannot collect the Jackpot.** Parking one on the pile handed the
+  whole thing to you from across the arena, and stopped anybody who actually
+  drove there from collecting it. It now counts for nothing on the tile, the same
+  as it does on a Royal Flush pad.
+
 ### Changed
 
 - **The test track's nitro straight is long enough to use nitro on.** It ran out

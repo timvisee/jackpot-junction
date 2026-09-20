@@ -188,6 +188,34 @@ func test_a_contested_jackpot_takes_the_ring_off() -> void:
 	assert_float(kart.channel_progress).is_equal(-1.0)
 
 
+## GAME.md 7.2: a decoy cannot collect the Jackpot and does not count as somebody standing in
+## it. Parked on the pile it used to hand the whole thing to its owner from across the arena,
+## and block anybody who actually drove there while it did.
+func test_a_decoy_neither_collects_the_jackpot_nor_blocks_it() -> void:
+	var rules := _quick_rules()
+	rules.duration = 60.0
+	rules.jackpot_accrual = 0.0
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs, rules)
+	var runner := _runner
+	await runner.simulate_frames(12, 17)
+	var active: JackpotZone = null
+	for zone: JackpotZone in match_node.arena.jackpot_zones:
+		if zone.active:
+			active = zone
+	active.chips = 30.0
+	var owner := match_node.kart_of(0)
+	var decoy := match_node.kart_of(1)
+	decoy.decoy_owner = owner
+	decoy.global_position = active.global_position
+	await runner.simulate_frames(60, 17)
+	assert_float(active.chips).is_equal(30.0)
+	assert_int(owner.pot.coins).is_equal(0)
+	# And it is not in anybody's way either: as far as the zone is concerned the tile is empty,
+	# so whoever does drive there collects rather than finding the channel paused by a prop.
+	assert_int(active.occupant_count()).is_equal(0)
+
+
 ## The bob used to overwrite the hover height, so chips and dice sat half inside the floor.
 func test_pickups_hover_clear_of_the_floor_while_they_bob() -> void:
 	var root: Node3D = auto_free(Node3D.new())

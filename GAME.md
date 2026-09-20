@@ -999,6 +999,9 @@ Later set, off by default and switched on per match in the lobby:
 
 - Everything a turret or decoy does is attributed to its owner: kills give the
   owner +1 mult, coins a decoy collects go into the owner's pot.
+- A decoy cannot collect the Jackpot and does not count as somebody standing in
+  it, the same as it cannot claim a Royal Flush pad in 3.9. Parking one on the pile
+  was worth more than driving there for it, and it blocked whoever did.
 - They can hurt their owner, who receives no credit for that.
 - They are destroyed by one hit and count as targets for aim assist and grazes
   by other players.

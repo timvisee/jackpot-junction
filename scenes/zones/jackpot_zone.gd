@@ -122,10 +122,14 @@ func occupant_count(except: Kart = null) -> int:
 	return count
 
 
+## Who counts as standing in here. A decoy does not, GAME.md 7.2: it is a kart nobody is
+## driving, and left in the count it collected the whole pile for its owner from across the
+## arena and blocked anybody else from collecting it while it did. Sitting one on the Jackpot
+## was worth more than driving there, which is not what a 20-second bot is for.
 func _collectors() -> Array[Kart]:
 	var result: Array[Kart] = []
 	for kart: Kart in _inside:
-		if is_instance_valid(kart) and kart.is_active():
+		if is_instance_valid(kart) and kart.is_active() and not kart.is_decoy():
 			result.append(kart)
 	return result
 
