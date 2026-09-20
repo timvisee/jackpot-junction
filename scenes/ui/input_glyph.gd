@@ -188,23 +188,30 @@ func _draw_face(box: Rect2) -> void:
 	_draw_caption(box, FACE_INK)
 
 
-## A stick seen from above: the gate it moves inside, the top of the stick itself, and a solid
-## head each way along the axis this binding reads. Solid rather than drawn in outline, because
-## the whole picture is twenty pixels across and a two-pixel chevron in it is a smudge.
+## A stick, seen from the side the way a hand sees it: the base it stands in, the shaft, and the
+## ball on top. Leaning the shaft the way the binding reads says which half of the axis this is,
+## and a pair of them, GAME.md 8.3, stands upright with an arrow each way instead.
+##
+## It was drawn from above before, as a ring with a dot in it, which at twenty pixels is a ring
+## with a dot in it and not obviously a stick at all.
 func _draw_stick(box: Rect2) -> void:
 	var edge := Color(ink.r, ink.g, ink.b, EDGE_ALPHA)
-	var centre := box.size * 0.5
-	var radius := minf(box.size.x, box.size.y) * 0.36
-	draw_arc(centre, radius, 0.0, TAU, 28, edge, EDGE_WIDTH)
-	# Built rather than written as a conditional literal: an untyped array assigned to a typed
-	# one throws, and a throw halfway through a draw is a glyph with its ring and nothing in it.
-	var ways: Array[float] = [1.0]
-	if both_ways:
-		ways.append(-1.0)
-	var top := centre if both_ways else centre + along * radius * 0.4
-	draw_circle(top, radius * 0.45, edge)
-	for way: float in ways:
-		_draw_head(centre + along * (radius * way * 1.35), along * way, radius * 0.62, edge)
+	var wide := box.size.x
+	var tall := box.size.y
+	var foot := Vector2(wide * 0.5, tall * 0.72)
+	# The base, a shallow slab across the bottom with the shaft rising out of the middle of it.
+	draw_rect(Rect2(Vector2(wide * 0.22, foot.y), Vector2(wide * 0.56, tall * 0.14)), edge)
+	var lean := 0.0 if both_ways else along.x * 0.5
+	var head := foot + Vector2(lean, -1.0).normalized() * tall * 0.38
+	draw_line(foot, head, edge, maxf(tall * 0.12, 2.0))
+	draw_circle(head, maxf(tall * 0.17, 2.5), edge)
+	if not both_ways:
+		return
+	# Standing upright, so the arrows have to say that it moves. Beside the ball, one each way.
+	var span := tall * 0.15
+	for way: float in [-1.0, 1.0]:
+		var side := Vector2(way, 0.0)
+		_draw_head(head + side * (wide * 0.36), side, span, edge)
 
 
 ## The cross, with the arm this binding presses filled in.

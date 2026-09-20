@@ -1260,7 +1260,10 @@ name. Somebody leaving frees their corner for the next player to sit down.
   the key on it. A gamepad face button is the round one in the colour everybody's
   pad has it in: A green, B red, X blue, Y yellow, with the letter on it in the
   dark the pad prints it in. A shoulder, a trigger, Start and the stick clicks
-  are pills with their name on. The D-pad is a cross with the pressed arm lit.
+  are pills with their name on. A stick is a stick seen from the side, as a hand
+  sees it: base, shaft and ball, leaning the way the binding reads, or standing
+  upright with an arrow each way when both halves of the axis are in play. The
+  D-pad is a cross with the pressed arm lit.
   Everything but a face button sits on a solid dark chip with a soft black edge
   and a rim in the colour of the line it is in, so it is dark against the felt,
   the crowd and a light wall and rimmed against a dark menu. A picture you have to

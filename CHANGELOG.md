@@ -22,6 +22,10 @@ below, and hands the notes to the release workflow.
   it. Every picture now sits on a solid dark chip with a rim, and a gamepad's
   face buttons are filled in with the colour the pad has them in.
 
+- **The stick looks like a stick.** It was drawn from above, as a ring with a dot
+  in it. It is now drawn from the side the way your hand sees it -- base, shaft
+  and ball -- leaning the way the binding reads.
+
 ## [0.3.1] - 2026-09-20
 
 Buttons you can see. Every hint that used to spell a binding out in words now
