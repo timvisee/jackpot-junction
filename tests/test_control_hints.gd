@@ -176,8 +176,9 @@ func test_a_stick_is_drawn_once_rather_than_as_two_axis_halves() -> void:
 	)
 	assert_object(pad).is_instanceof(InputGlyph)
 	assert_int((pad as InputGlyph).kind).is_equal(InputGlyph.Kind.STICK)
-	# A picture of a stick says "stick" on its own; a letter on top of it at this size does not.
-	assert_str((pad as InputGlyph).caption).is_empty()
+	# And it says which of the two sticks it is, written inside the gate it is drawn as.
+	assert_str((pad as InputGlyph).caption).is_equal("L")
+	assert_float(pad.custom_minimum_size.x).is_greater(pad.custom_minimum_size.y)
 	var keys: Control = auto_free(
 		InputHint.pair(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, true, ink, 15)
 	)

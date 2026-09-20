@@ -37,6 +37,10 @@ const EDGE_ALPHA := 0.92
 const EDGE_WIDTH := 1.6
 ## How dark the letter on a gamepad's own coloured button is, which is how it is on the pad.
 const FACE_INK := Color(0.06, 0.06, 0.08)
+## How much wider than tall a stick is drawn. The letter goes inside the ring, so the ring has to
+## hold a letter, and the arrows still have to fit outside it: in a square chip the two fight and
+## the arrows lose, coming out as nicks in the border.
+const STICK_WIDE := 1.35
 
 var kind := Kind.KEY
 ## What is written on the glyph: the key, the button, or the stick's side.
@@ -96,12 +100,16 @@ static func _kind_of(event: InputEvent) -> Kind:
 	return Kind.KEY
 
 
-## What is written on the glyph. Nothing on a stick or a D-pad: those are pictures of a thing
-## being pushed, "Left Stick X-Axis +" is a description of an input map, and a glyph is twenty
-## pixels across, which is not enough room to letter one legibly on top of the other.
+## What is written on the glyph. A stick carries which of the two it is and nothing else: the
+## ring and the arrows say the rest, and "Left Stick X-Axis +" is a description of an input map
+## rather than of anything a player does. The D-pad carries nothing, being one of a kind.
 static func _caption_of(event: InputEvent, kind: Kind) -> String:
-	if kind == Kind.STICK or kind == Kind.DPAD:
+	if kind == Kind.DPAD:
 		return ""
+	if kind == Kind.STICK:
+		var motion := event as InputEventJoypadMotion
+		var right := motion != null and motion.axis in [JOY_AXIS_RIGHT_X, JOY_AXIS_RIGHT_Y]
+		return "R" if right else "L"
 	return InputActions.event_text(event)
 
 
@@ -131,7 +139,9 @@ static func _along(event: InputEvent) -> Vector2:
 ## shoulder button widen to hold.
 func _wanted() -> Vector2:
 	var tall := HEIGHT * maxf(float(font_size) / 15.0, 1.0)
-	if kind == Kind.FACE or kind == Kind.STICK or kind == Kind.DPAD:
+	if kind == Kind.STICK:
+		return Vector2(tall * STICK_WIDE, tall)
+	if kind == Kind.FACE or kind == Kind.DPAD:
 		return Vector2(tall, tall)
 	var run := _font().get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1.0, _caption_size()).x
 	return Vector2(maxf(tall, run + SIDE_PAD * 2.0), tall)
@@ -188,30 +198,28 @@ func _draw_face(box: Rect2) -> void:
 	_draw_caption(box, FACE_INK)
 
 
-## A stick, seen from the side the way a hand sees it: the base it stands in, the shaft, and the
-## ball on top. Leaning the shaft the way the binding reads says which half of the axis this is,
-## and a pair of them, GAME.md 8.3, stands upright with an arrow each way instead.
+## A stick seen from above: the gate it moves inside, which side it is written in the middle of
+## it, and a solid head each way along the axis this binding reads. Solid heads rather than
+## outlined ones, because the whole picture is twenty pixels across and a two-pixel chevron in it
+## is a smudge.
 ##
-## It was drawn from above before, as a ring with a dot in it, which at twenty pixels is a ring
-## with a dot in it and not obviously a stick at all.
+## The letter is inside the ring rather than beside it. It sat in a corner of the chip once, at a
+## size that fits a corner, which is a size nothing is legible at.
 func _draw_stick(box: Rect2) -> void:
 	var edge := Color(ink.r, ink.g, ink.b, EDGE_ALPHA)
-	var wide := box.size.x
-	var tall := box.size.y
-	var foot := Vector2(wide * 0.5, tall * 0.72)
-	# The base, a shallow slab across the bottom with the shaft rising out of the middle of it.
-	draw_rect(Rect2(Vector2(wide * 0.22, foot.y), Vector2(wide * 0.56, tall * 0.14)), edge)
-	var lean := 0.0 if both_ways else along.x * 0.5
-	var head := foot + Vector2(lean, -1.0).normalized() * tall * 0.38
-	draw_line(foot, head, edge, maxf(tall * 0.12, 2.0))
-	draw_circle(head, maxf(tall * 0.17, 2.5), edge)
-	if not both_ways:
-		return
-	# Standing upright, so the arrows have to say that it moves. Beside the ball, one each way.
-	var span := tall * 0.15
-	for way: float in [-1.0, 1.0]:
-		var side := Vector2(way, 0.0)
-		_draw_head(head + side * (wide * 0.36), side, span, edge)
+	var centre := box.size * 0.5
+	var radius := box.size.y * 0.30
+	draw_arc(centre, radius, 0.0, TAU, 28, edge, EDGE_WIDTH)
+	# Built rather than written as a conditional literal: an untyped array assigned to a typed
+	# one throws, and a throw halfway through a draw is a glyph with its ring and nothing in it.
+	var ways: Array[float] = [1.0]
+	if both_ways:
+		ways.append(-1.0)
+	for way: float in ways:
+		_draw_head(centre + along * (radius * way * 1.6), along * way, radius * 0.66, edge)
+	# Cut to the ring rather than to the line the glyph sits in: a letter that overflows the gate
+	# it is written in reads as a letter with a circle drawn through it.
+	_draw_caption(box, edge, mini(_caption_size(), roundi(box.size.y * 0.5)))
 
 
 ## The cross, with the arm this binding presses filled in.

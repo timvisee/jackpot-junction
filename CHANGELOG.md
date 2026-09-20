@@ -22,9 +22,8 @@ below, and hands the notes to the release workflow.
   it. Every picture now sits on a solid dark chip with a rim, and a gamepad's
   face buttons are filled in with the colour the pad has them in.
 
-- **The stick looks like a stick.** It was drawn from above, as a ring with a dot
-  in it. It is now drawn from the side the way your hand sees it -- base, shaft
-  and ball -- leaning the way the binding reads.
+- **The stick picture says which stick it is.** It has an L written inside the
+  gate, or an R for the right one.
 
 - **The camera frames the karts, not the room.** It comes in as close as it can
   while keeping every kart on screen and follows them around the floor, so a
