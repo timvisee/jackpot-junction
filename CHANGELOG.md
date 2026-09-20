@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **The test track's nitro straight is long enough to use nitro on.** It ran out
+  about when the bottle got going. It is 45 m now, with the sign at the near end
+  of it.
+
 ## [0.3.0] - 2026-09-20
 
 A room worth sitting in. The arena picked up a crowd a thousand strong on

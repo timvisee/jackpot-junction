@@ -34,9 +34,9 @@ const TRACK_SIGNS: Array[Array] = [
 	[Vector2i(6, 3), "DRIVE", "%s to go", [InputActions.THROTTLE]],
 	[Vector2i(21, 3), "STEER", "%s to turn", [InputActions.STEER_LEFT, InputActions.STEER_RIGHT]],
 	[Vector2i(11, 17), "SHOOT", "%s to break the boxes", [InputActions.FIRE]],
-	[Vector2i(25, 17), "NITRO", "hold %s to go faster", [InputActions.NITRO]],
-	[Vector2i(31, 23), "HANDBRAKE", "%s to lock the wheels", [InputActions.HANDBRAKE]],
-	[Vector2i(41, 24), "DRIFT", "handbrake and turn", []],
+	[Vector2i(22, 17), "NITRO", "hold %s to go faster", [InputActions.NITRO]],
+	[Vector2i(49, 23), "HANDBRAKE", "%s to lock the wheels", [InputActions.HANDBRAKE]],
+	[Vector2i(50, 26), "DRIFT", "handbrake and turn", []],
 ]
 ## Karts nobody is driving, parked on the floor as practice targets.
 const DUMMIES := 2
