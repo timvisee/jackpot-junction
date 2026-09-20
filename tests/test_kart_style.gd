@@ -111,6 +111,26 @@ func _plain_settings() -> Array:
 	return saved
 
 
+## GAME.md 4.4: a decoy is only worth anything for as long as somebody takes it for you, so it
+## wears what you wear.
+func test_a_decoy_is_dressed_like_its_owner() -> void:
+	var match_node := _start([PackedInt32Array([2, 3, 1, 1])])
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	var item: DecoyKartPowerUp = load("res://data/powerups/decoy_kart.tres")
+	item.activate(kart)
+	await _runner.simulate_frames(4, 17)
+	var decoy: Kart = null
+	for child: Node in match_node.get_children():
+		var other := child as Kart
+		if other != null and other.is_decoy():
+			decoy = other
+	assert_object(decoy).is_not_null()
+	assert_array(Array(decoy.style.to_array())).contains_exactly([2, 3, 1, 1])
+	assert_object(_named(decoy, "Hat")).is_not_null()
+	assert_object(_named(decoy, "Flag")).is_not_null()
+
+
 ## The lobby asks for all four, per seat, and hands them to the match.
 func test_the_lobby_offers_the_four_choices_per_seat() -> void:
 	var saved := _plain_settings()

@@ -708,6 +708,9 @@ would leave skipping unreachable.
 - A kart is dressed the same on every screen: the four choices ride with the kart
   in the snapshot, see 10.3, and a choice a machine has never heard of is the
   plain one rather than a crash.
+- A Decoy Kart wears what its owner wears, hat and flag included. It is only worth
+  anything for as long as somebody takes it for you, and a kart in your colour
+  with none of your things on it is not you.
 - The podium at the end of a match shows each kart as its owner dressed it, see
   3.8, and so does the Garage.
 

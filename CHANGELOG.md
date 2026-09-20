@@ -202,6 +202,9 @@ below, and hands the notes to the release workflow.
 - **Hats sit down on the head.** They were perched level with the top of the
   helmet, which read as a hat hovering just above it.
 
+- **A Decoy Kart is dressed like you.** It had your colour and none of the rest of
+  your kart, which rather gave it away.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button
