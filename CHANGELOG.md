@@ -211,6 +211,9 @@ below, and hands the notes to the release workflow.
 - **Confetti can be seen.** It was flat squares small enough to miss, half of them
   edge-on at any moment; it is tumbling blocks now, bigger and twice as many.
 
+- **The podium steps wear their colour cleanly.** The grey of the step was showing
+  through the coloured plate on top of it in patches.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button

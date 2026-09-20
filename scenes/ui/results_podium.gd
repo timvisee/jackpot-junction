@@ -20,8 +20,11 @@ const SPIN_SECONDS := 7.0
 ## being mostly sky for everybody who is not wearing one.
 const KART_SCALE := 1.05
 const STEP_COLOR := Color(0.14, 0.14, 0.18)
-## The band of the player's own colour round the top of their step.
+## The band of the player's own colour round the top of their step, and how far it stands proud
+## of it. Level with the step, the two faces fight over the same pixels and the grey shows
+## through the colour in patches.
 const BAND_HEIGHT := 0.09
+const BAND_LIFT := 0.03
 const NUMBER_SIZE := 72
 
 var _viewport: SubViewport
@@ -82,12 +85,12 @@ func _add_step(slot: PlayerSlot, place: int) -> void:
 	band_box.size = Vector3(STEP_WIDTH + 0.06, BAND_HEIGHT, STEP_DEPTH + 0.06)
 	band.mesh = band_box
 	band.material_override = _material(slot.color(), true)
-	band.position = Vector3(at.x, at.y - BAND_HEIGHT * 0.5, 0.0)
+	band.position = Vector3(at.x, at.y - BAND_HEIGHT * 0.5 + BAND_LIFT, 0.0)
 	_stage.add_child(band)
 	_stage.add_child(_numeral(place + 1, at))
 	var kart := Node3D.new()
 	kart.name = "Kart%d" % place
-	kart.position = Vector3(at.x, at.y, 0.0)
+	kart.position = Vector3(at.x, at.y + BAND_LIFT, 0.0)
 	kart.scale = Vector3.ONE * KART_SCALE
 	kart.add_child(KartVisuals.display_model(slot.color_index, slot.style))
 	_stage.add_child(kart)
