@@ -178,7 +178,7 @@ func test_match_scene_starts_from_the_pending_configuration() -> void:
 	assert_float(match_node.rules.duration).is_equal(120.0)
 	assert_str(match_node.bot_difficulty.id).is_equal("easy")
 	assert_object(scene.get_node("PauseMenu")).is_not_null()
-	assert_object(match_node.kart_of(0).get_node_or_null("ControlHint")).is_null()
+	assert_object(match_node.kart_of(0).get_node_or_null("ControlHint")).is_not_null()
 	var hints := 0
 	for child: Node in match_node.kart_of(0).get_children():
 		if child is ControlHint:

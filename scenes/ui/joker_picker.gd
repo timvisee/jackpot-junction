@@ -79,7 +79,7 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 	)
 	if picked < jokers.size():
 		_detail.show_joker(jokers[picked])
-		_detail.set_hints(_hint_text(choosing))
+		_detail.set_hints(_hint_row(choosing))
 	_layout(picked)
 
 
@@ -172,13 +172,16 @@ func _clear() -> void:
 	_stage = JokerOffer.Stage.DONE
 
 
-func _hint_text(choosing: bool) -> String:
-	var walk := InputActions.pair_text(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, keyboard)
-	# Fire takes a card as well as the item button does, and it is the one a player already has
-	# a thumb on, so it is the one named here.
-	var take := InputActions.short_binding_text(InputActions.FIRE, keyboard)
-	var back := InputActions.short_binding_text(InputActions.JOKER_DESTROY, keyboard)
-	return (
-		"%s choose    %s %s    %s %s"
-		% [walk, take, "take" if choosing else "destroy", back, "skip" if choosing else "back"]
-	)
+## What the player can do from here, drawn as the buttons themselves, GAME.md 8.3.
+func _hint_row(choosing: bool) -> Control:
+	var ink := JokerDetail.hint_ink()
+	var size := InputHint.FONT_SIZE
+	var parts: Array = [
+		InputHint.pair(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, keyboard, ink, size),
+		# Fire takes a card as well as the item button does, and it is the one a player already
+		# has a thumb on, so it is the one shown here.
+		InputHint.glyph(InputActions.FIRE, keyboard, ink, size),
+		InputHint.glyph(InputActions.JOKER_DESTROY, keyboard, ink, size),
+	]
+	var template := "%s choose %s take %s skip" if choosing else "%s choose %s destroy %s back"
+	return InputHint.row(template, parts, ink, size)

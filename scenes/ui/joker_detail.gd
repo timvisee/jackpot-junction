@@ -22,7 +22,8 @@ var _name: Label
 var _rarity: Label
 var _kind: Label
 var _body: RichTextLabel
-var _hints: Label
+var _box: VBoxContainer
+var _hints: Control
 
 
 func _init() -> void:
@@ -36,10 +37,11 @@ func _init() -> void:
 	_style.content_margin_bottom = 13.0
 	_style.border_width_top = EDGE
 	add_theme_stylebox_override("panel", _style)
-	var box := VBoxContainer.new()
-	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_theme_constant_override("separation", 9)
-	add_child(box)
+	_box = VBoxContainer.new()
+	_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_box.add_theme_constant_override("separation", 9)
+	add_child(_box)
+	var box := _box
 	var heading := HBoxContainer.new()
 	heading.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	heading.add_theme_constant_override("separation", 14)
@@ -67,9 +69,6 @@ func _init() -> void:
 	_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_body.add_theme_font_size_override("normal_font_size", 18)
 	box.add_child(_body)
-	_hints = _line(15, HINT)
-	_hints.visible = false
-	box.add_child(_hints)
 
 
 ## Fills the pane for one joker and paints the top edge in its kind's colour.
@@ -84,11 +83,20 @@ func show_joker(joker: Joker) -> void:
 	_body.text = joker.description
 
 
-## The keys for whatever the player can do from here. An empty line takes the row away, for a
-## pane with nothing to say about the controls.
-func set_hints(text: String) -> void:
-	_hints.text = text
-	_hints.visible = not text.is_empty()
+## The controls for whatever the player can do from here, as a row of pictures and words built
+## by [InputHint]. Null takes the row away, for a pane with nothing to say about the controls.
+func set_hints(line: Control) -> void:
+	if _hints != null:
+		_box.remove_child(_hints)
+		_hints.queue_free()
+	_hints = line
+	if _hints != null:
+		_box.add_child(_hints)
+
+
+## The colour the hint row is drawn in, so whoever builds one matches the pane it goes in.
+static func hint_ink() -> Color:
+	return HINT
 
 
 func _line(font_size: int, color: Color) -> Label:

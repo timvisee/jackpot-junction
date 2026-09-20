@@ -1,6 +1,7 @@
 extends GdUnitTestSuite
-## On-screen control hints, GAME.md 8.3: which button is named, when it is worth naming, and
-## whether it is named as a key or as a gamepad button.
+## On-screen control hints, GAME.md 8.3: which button is shown, when it is worth showing, and
+## whether it is drawn as a key or as a gamepad button. The hints are pictures rather than words,
+## so what a test reads off one is the caption on each picture and the words in between.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 
@@ -15,6 +16,23 @@ func before_test() -> void:
 
 func after_test() -> void:
 	Game.settings.control_hints = _hints_were
+
+
+## What a hint row says: every caption and every word in it, in the order they are drawn, so a
+## test can ask what a row of pictures is a row of pictures of.
+func _reads(node: Node) -> String:
+	var parts: PackedStringArray = []
+	var glyph := node as InputGlyph
+	if glyph != null and not glyph.caption.is_empty():
+		parts.append(glyph.caption)
+	var label := node as Label
+	if label != null:
+		parts.append(label.text)
+	for child: Node in node.get_children():
+		var said := _reads(child)
+		if not said.is_empty():
+			parts.append(said)
+	return " ".join(parts).strip_edges()
 
 
 func _start_match() -> Match:
@@ -60,36 +78,36 @@ func test_each_hint_shows_only_while_it_is_worth_pressing() -> void:
 	await _runner.simulate_frames(20, 17)
 	var hud := match_node.hud
 	var block: Dictionary = hud._blocks[0]
-	var label: Label = block["hints"]
+	var holder: Control = block["hints"]
 	var kart := match_node.kart_of(0)
 	# Parked, full tank, empty hands: only the nitro reminder is worth showing.
 	kart.motor.velocity = Vector3.ZERO
 	kart.nitro_charge = 1.0
 	kart.held_item = null
 	hud._update_hints(block, kart, DeviceInput.KEYBOARD)
-	assert_bool(label.visible).is_true()
-	assert_str(label.text).contains("nitro")
-	assert_str(label.text).not_contains("drift")
-	assert_str(label.text).not_contains("item")
+	assert_bool(holder.visible).is_true()
+	assert_str(_reads(holder)).contains("nitro")
+	assert_str(_reads(holder)).not_contains("drift")
+	assert_str(_reads(holder)).not_contains("item")
 	# An empty tank takes its reminder away again.
 	kart.nitro_charge = 0.0
 	hud._update_hints(block, kart, DeviceInput.KEYBOARD)
-	assert_bool(label.visible).is_false()
+	assert_bool(holder.visible).is_false()
 	# Up to speed with an item in hand: both of those show instead.
 	kart.motor.velocity = Vector3(kart.stats.top_speed, 0.0, 0.0)
 	kart.held_item = load("res://data/powerups/boost.tres")
 	kart.item_reveal_left = 0.0
 	hud._update_hints(block, kart, DeviceInput.KEYBOARD)
-	assert_str(label.text).contains("drift")
-	assert_str(label.text).contains("item")
+	assert_str(_reads(holder)).contains("drift")
+	assert_str(_reads(holder)).contains("item")
 	# An item still rolling in the roulette cannot be played yet.
 	kart.item_reveal_left = 0.4
 	hud._update_hints(block, kart, DeviceInput.KEYBOARD)
-	assert_str(label.text).not_contains("item")
+	assert_str(_reads(holder)).not_contains("item")
 	# The setting puts the whole row away.
 	Game.settings.control_hints = false
 	hud._update_hints(block, kart, DeviceInput.KEYBOARD)
-	assert_bool(label.visible).is_false()
+	assert_bool(holder.visible).is_false()
 
 
 func test_hints_are_named_for_the_scheme_in_use() -> void:
@@ -97,15 +115,21 @@ func test_hints_are_named_for_the_scheme_in_use() -> void:
 	await _runner.simulate_frames(20, 17)
 	var hud := match_node.hud
 	var block: Dictionary = hud._blocks[0]
-	var label: Label = block["hints"]
+	var holder: Control = block["hints"]
 	var kart := match_node.kart_of(0)
 	kart.nitro_charge = 1.0
 	hud._update_hints(block, kart, DeviceInput.KEYBOARD)
-	var keys := label.text
+	var keys := _reads(holder)
 	hud._update_hints(block, kart, 0)
-	assert_str(label.text).is_not_equal(keys)
+	assert_str(_reads(holder)).is_not_equal(keys)
 	assert_str(keys).contains(InputActions.short_binding_text(InputActions.NITRO, true))
-	assert_str(label.text).contains(InputActions.short_binding_text(InputActions.NITRO, false))
+	assert_str(_reads(holder)).contains(InputActions.short_binding_text(InputActions.NITRO, false))
+	# And the pad is drawn as a pad: the shoulder button is a pill, not a key cap.
+	var pad_glyph: InputGlyph = null
+	for child: Node in holder.get_child(0).get_children():
+		if child is InputGlyph:
+			pad_glyph = child
+	assert_int(pad_glyph.kind).is_equal(InputGlyph.Kind.SHOULDER)
 
 
 func test_the_joker_menu_cap_shows_beside_a_hand_with_cards_in_it() -> void:
@@ -113,50 +137,66 @@ func test_the_joker_menu_cap_shows_beside_a_hand_with_cards_in_it() -> void:
 	await _runner.simulate_frames(20, 17)
 	var hand: JokerHand = match_node.hud._hands[0]
 	var kart := match_node.kart_of(0)
-	assert_bool(hand._cap.visible).is_false()
+	assert_object(hand._cap).is_null()
 	kart.jokers.add(load("res://data/jokers/big_tank.tres"))
 	await _runner.simulate_frames(4, 17)
-	assert_bool(hand._cap.visible).is_true()
-	assert_str(hand._cap_label.text).is_equal(
+	assert_object(hand._cap).is_not_null()
+	var cap: InputGlyph = hand._cap
+	assert_str(cap.caption).is_equal(
 		InputActions.short_binding_text(InputActions.JOKER_MENU, hand.keyboard)
 	)
 	# It sits to the left of the leftmost card.
-	assert_float(hand._cap.position.x).is_less(hand._cards[0].position.x)
+	assert_float(cap.position.x).is_less(hand._cards[0].position.x)
 	Game.settings.control_hints = false
 	await _runner.simulate_frames(4, 17)
-	assert_bool(hand._cap.visible).is_false()
+	assert_object(hand._cap).is_null()
 
 
-## GAME.md 3.8: the hint names the button that actually fires. Naming one in the text meant it
+## GAME.md 3.8: the hint shows the button that actually fires. Naming one in the text meant it
 ## went on saying RB long after firing had moved off the shoulder.
-func test_the_gamepad_hint_names_whatever_fire_is_bound_to() -> void:
+func test_the_gamepad_hint_shows_whatever_fire_is_bound_to() -> void:
 	InputActions.register_defaults()
 	var bound := InputActions.binding_text(InputActions.FIRE, false).get_slice(",", 0)
-	assert_str(ControlHint.hint_text(0)).contains("%s fire" % bound)
+	var row: HBoxContainer = auto_free(ControlHint.hint_row(0))
+	assert_str(_reads(row)).contains("%s fire" % bound)
 	InputActions.rebind(InputActions.FIRE, {"button": JOY_BUTTON_RIGHT_SHOULDER})
-	assert_str(ControlHint.hint_text(0)).contains("RB fire")
+	var moved: HBoxContainer = auto_free(ControlHint.hint_row(0))
+	assert_str(_reads(moved)).contains("RB fire")
 	InputActions.register_defaults()
 
 
-## GAME.md 8.3: two ends of one stick are named as a stick. "Left Stick X-Axis - / Left Stick
-## X-Axis +" describes the input map rather than anything a player does with their thumb.
-func test_a_stick_is_named_once_rather_than_as_two_axis_halves() -> void:
+## GAME.md 8.3: two ends of one stick are one stick. On a pad the steering is drawn as a single
+## stick rather than as two halves of an axis; on a keyboard they really are two keys and both
+## are drawn.
+func test_a_stick_is_drawn_once_rather_than_as_two_axis_halves() -> void:
 	InputActions.register_defaults()
-	var pad := InputActions.pair_text(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, false)
-	assert_str(pad).is_equal("Left stick")
-	assert_bool(pad.contains("Axis")).is_false()
-	# On a keyboard they really are two keys, and both are named.
-	var keys := InputActions.pair_text(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, true)
-	assert_str(keys).contains("/")
-	# Two actions that are not two ends of one stick fall back to naming both.
+	var ink := Color.WHITE
+	var pad: Control = auto_free(
+		InputHint.pair(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, false, ink, 15)
+	)
+	assert_object(pad).is_instanceof(InputGlyph)
+	assert_int((pad as InputGlyph).kind).is_equal(InputGlyph.Kind.STICK)
+	# A picture of a stick says "stick" on its own; a letter on top of it at this size does not.
+	assert_str((pad as InputGlyph).caption).is_empty()
+	var keys: Control = auto_free(
+		InputHint.pair(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, true, ink, 15)
+	)
+	assert_int(keys.get_child_count()).is_equal(2)
+	assert_int((keys.get_child(0) as InputGlyph).kind).is_equal(InputGlyph.Kind.KEY)
+	# Two actions that are not two ends of one stick fall back to drawing both.
 	assert_str(InputActions.shared_stick(InputActions.FIRE, InputActions.NITRO)).is_empty()
-	assert_str(InputActions.pair_text(InputActions.FIRE, InputActions.NITRO, false)).contains("/")
+	var apart: Control = auto_free(
+		InputHint.pair(InputActions.FIRE, InputActions.NITRO, false, ink, 15)
+	)
+	assert_int(apart.get_child_count()).is_equal(2)
 
 
 ## And the joker screens use it, which is where a player reads it.
-func test_the_joker_screens_name_the_stick_once() -> void:
+func test_the_joker_screens_draw_the_stick_once() -> void:
 	var picker: JokerPicker = auto_free(JokerPicker.new())
 	add_child(picker)
 	picker.keyboard = false
-	assert_str(picker._hint_text(true)).contains("Left stick choose")
-	assert_str(picker._hint_text(true)).not_contains("Axis")
+	var row: HBoxContainer = auto_free(picker._hint_row(true))
+	assert_int((row.get_child(0) as InputGlyph).kind).is_equal(InputGlyph.Kind.STICK)
+	assert_str(_reads(row)).contains("choose")
+	assert_str(_reads(row)).not_contains("Axis")

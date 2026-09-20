@@ -22,6 +22,13 @@ const LAYOUT: ArenaLayout = preload("res://data/maps/garage.tres")
 const TRACK: ArenaLayout = preload("res://data/maps/test_track.tres")
 const RULES: MatchRules = preload("res://data/match/garage.tres")
 const SIGN_HEIGHT := 2.7
+## The test track's signs, which are drawn pictures on a card rather than floating words: how big
+## the lettering is, how big that picture is in the world, and what colour the line under the
+## heading is.
+const SIGN_TITLE_SIZE := 34
+const SIGN_SIZE := 26
+const SIGN_PIXEL := 0.011
+const SIGN_INK := Color(0.86, 0.86, 0.90)
 ## How far back the camera sits on the test track. The track is a road rather than an arena, and
 ## framing all 65 m of it at once leaves the kart too small to learn a control from, GAME.md 9.4a,
 ## so the camera comes down onto the player the way the driving room's does in 9.5.
@@ -94,26 +101,45 @@ func _wire_portals() -> void:
 
 
 ## Six signs on the test track, each telling the player what to press on that stretch and what it
-## does. The bindings are read off the input map, so a player who has rebound something is told
-## what they bound it to.
+## does, with the button itself drawn on the sign, GAME.md 8.3. The bindings are read off the
+## input map, so a player who has rebound something is shown what they bound it to.
 func _add_track_signs() -> void:
 	var grid := match_node.arena.grid
 	var keyboard := Game.last_input_keyboard
 	for entry: Array in TRACK_SIGNS:
 		var at: Vector3 = grid.cell_center(entry[0])
-		var text: String = "%s\n%s" % [entry[1], _track_line(entry[2], entry[3], keyboard)]
-		_sign(text, at, Palette.CHIP_WHITE)
+		var sign := InputHint.billboard(InputHint.card(_track_board(entry, keyboard)), SIGN_PIXEL)
+		sign.position = Vector3(at.x, SIGN_HEIGHT, at.z)
+		add_child(sign)
 
 
-## One sign's line with the player's own bindings written into it. Two actions are the two ends of
-## a single control and are named as one, GAME.md 8.3, so steering reads "Left stick" on a pad
-## rather than the two halves of a stick. No actions at all is a line that names no button.
-static func _track_line(line: String, actions: Array, keyboard: bool) -> String:
+## One sign: the name of the lesson over the line that teaches it, with the player's own buttons
+## drawn into the line.
+static func _track_board(entry: Array, keyboard: bool) -> VBoxContainer:
+	var column := VBoxContainer.new()
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_theme_constant_override("separation", 6)
+	var title := Label.new()
+	title.text = entry[1]
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	title.add_theme_font_size_override("font_size", SIGN_TITLE_SIZE)
+	title.add_theme_color_override("font_color", Palette.CHIP_WHITE)
+	column.add_child(title)
+	var line := InputHint.row(entry[2], _track_glyphs(entry[3], keyboard), SIGN_INK, SIGN_SIZE)
+	line.alignment = BoxContainer.ALIGNMENT_CENTER
+	column.add_child(line)
+	return column
+
+
+## The buttons one sign names. Two actions are the two ends of a single control and are drawn as
+## one, GAME.md 8.3, so steering is a stick on a pad rather than two halves of one.
+static func _track_glyphs(actions: Array, keyboard: bool) -> Array:
 	if actions.size() >= 2:
-		return line % InputActions.pair_text(actions[0], actions[1], keyboard)
+		return [InputHint.pair(actions[0], actions[1], keyboard, SIGN_INK, SIGN_SIZE)]
 	if actions.size() == 1:
-		return line % InputActions.short_binding_text(actions[0], keyboard)
-	return line
+		return [InputHint.glyph(actions[0], keyboard, SIGN_INK, SIGN_SIZE)]
+	return []
 
 
 ## A dummy that has been shot comes back with something new in it, so the next one is worth

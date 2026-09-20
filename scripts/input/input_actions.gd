@@ -201,26 +201,27 @@ static func descriptors(action: StringName) -> Array:
 	return result
 
 
+## The first event bound to an action for one device kind, or null when there is nothing bound
+## to it there. What a hint draws a picture of, GAME.md 8.3: one binding, because a hint has room
+## for one.
+static func first_event(action: StringName, keyboard: bool) -> InputEvent:
+	if not InputMap.has_action(action):
+		return null
+	for event: InputEvent in InputMap.action_get_events(action):
+		if is_keyboard_descriptor(descriptor_from_event(event)) == keyboard:
+			return event
+	return null
+
+
 ## Human-readable bindings of an action for one device kind.
 ## Just the first binding, for hints with no room for a list.
 static func short_binding_text(action: StringName, keyboard: bool) -> String:
 	return binding_text(action, keyboard).split(", ")[0]
 
 
-## Two actions that are the opposite ends of one control, named as one thing, GAME.md 8.3. On a
-## pad the two halves of a stick are a stick: "Left Stick X-Axis - / Left Stick X-Axis +" is a
-## description of an input map rather than of anything a player does. On a keyboard they really
-## are two keys and both have to be named.
-static func pair_text(left: StringName, right: StringName, keyboard: bool) -> String:
-	if not keyboard:
-		var stick := shared_stick(left, right)
-		if not stick.is_empty():
-			return stick
-	return "%s / %s" % [short_binding_text(left, keyboard), short_binding_text(right, keyboard)]
-
-
 ## The name of the stick both actions read, or an empty string when they are not two ends of the
-## same one, which is what a rebinding to the D-pad or to buttons leaves them as.
+## same one, which is what a rebinding to the D-pad or to buttons leaves them as. What tells
+## [InputHint] whether two actions are one picture of a stick or two pictures of buttons.
 static func shared_stick(left: StringName, right: StringName) -> String:
 	var axis := _axis_of(left)
 	if axis < 0 or axis != _axis_of(right):

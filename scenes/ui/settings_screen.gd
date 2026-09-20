@@ -19,6 +19,9 @@ const REBINDABLE: Array[StringName] = [
 	InputActions.JOIN,
 	InputActions.MUTE_MUSIC,
 ]
+## How the bindings themselves are drawn on the two buttons of a row, GAME.md 8.3.
+const BINDING_SIZE := 18
+const BINDING_INK := Color(0.90, 0.90, 0.94)
 
 var tabs: TabContainer
 var status: Label
@@ -167,6 +170,7 @@ func _binding_row(action: StringName) -> HBoxContainer:
 func _start_listening(action: StringName, keyboard: bool, button: Button) -> void:
 	_listening_action = action
 	_listening_keyboard = keyboard
+	_clear(button)
 	button.text = "press..."
 	status.text = (
 		"Press a %s input for %s, Escape cancels"
@@ -185,10 +189,44 @@ func _refresh_bindings() -> void:
 		_refresh_binding(action)
 
 
+## What an action is bound to, drawn as the keys and buttons themselves rather than written out,
+## GAME.md 8.3. This is the one screen where every binding of an action is shown rather than the
+## first, since it is the screen for changing them.
 func _refresh_binding(action: StringName) -> void:
 	var buttons: Array = _binding_labels[action]
-	(buttons[0] as Button).text = InputActions.binding_text(action, true)
-	(buttons[1] as Button).text = InputActions.binding_text(action, false)
+	for i: int in 2:
+		var button := buttons[i] as Button
+		_clear(button)
+		button.text = ""
+		var row := _bound_glyphs(action, i == 0)
+		row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		button.add_child(row)
+
+
+static func _bound_glyphs(action: StringName, keyboard: bool) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 6)
+	if InputMap.has_action(action):
+		for event: InputEvent in InputMap.action_get_events(action):
+			var descriptor := InputActions.descriptor_from_event(event)
+			if InputActions.is_keyboard_descriptor(descriptor) != keyboard:
+				continue
+			row.add_child(InputGlyph.of_event(event, BINDING_INK, BINDING_SIZE))
+	if row.get_child_count() == 0:
+		var empty := Label.new()
+		empty.text = "-"
+		empty.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		empty.add_theme_color_override("font_color", BINDING_INK)
+		row.add_child(empty)
+	return row
+
+
+static func _clear(button: Button) -> void:
+	for child: Node in button.get_children():
+		button.remove_child(child)
+		child.queue_free()
 
 
 func _audio_tab() -> Control:

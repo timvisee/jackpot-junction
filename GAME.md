@@ -1231,8 +1231,8 @@ name. Somebody leaving frees their corner for the next player to sit down.
   game: a dark translucent card with room to breathe and a bar of the joker's own
   kind colour along the top of it. The name, how rare the joker is and what kind it
   is share the first line, a rule separates them from what the joker actually does,
-  and the keys for whatever can be done from there sit at the foot in grey. Things
-  told apart beats one paragraph they were all run into.
+  and the buttons for whatever can be done from there sit at the foot in grey,
+  drawn as buttons. Things told apart beats one paragraph they were all run into.
 - **The respawn pick** takes the middle of the screen when one player is on it:
   they are dead, and there is nobody else to block. With somebody else sharing the
   screen it shrinks and drops to the bottom of its own share, with the pane above
@@ -1246,14 +1246,28 @@ name. Somebody leaving frees their corner for the next player to sit down.
   400 on nitro: the honest metres a second is a single figure and says nothing
   about how the driving feels. A dead kart reads zero.
 - **Control hints**, on by default and switchable in 8.5: a line under each
-  player's block naming the button that drifts, the one that burns nitro and
+  player's block showing the button that drifts, the one that burns nitro and
   the one that plays a held item. Each shows only while it is worth pressing, so
   a parked kart with a full tank sees the nitro reminder alone and an item still
-  rolling in its roulette shows none. A key cap to the left of the joker hand
-  names the button that opens the joker menu, and shows only while cards are
-  held. Driving and firing are left out: they already have the hint beside the
-  kart at the start of a match.
-- Every hint is named for the scheme that player is using: their own device when
+  rolling in its roulette shows none. The button that opens the joker menu is
+  drawn to the left of the joker hand, and shows only while cards are held.
+  Driving and firing are left out: they already have the hint beside the kart at
+  the start of a match.
+- **Bindings are drawn, not written.** Everywhere the game names a control -- the
+  hints above, the joker hand and pick, the signs on the test track in 9.4a, the
+  hint beside the kart, the join line in the lobby and the rebinding rows in 8.5
+  -- the binding is a picture of the thing being pressed. A key is a key cap with
+  the key on it. A gamepad face button is the round one in the colour everybody's
+  pad has it in: A green, B red, X blue, Y yellow. A shoulder, a trigger, Start
+  and the stick clicks are pills with their name on. A stick is a stick seen from
+  above, pushed the way the binding reads, or sitting in the middle of its gate
+  when both halves of the axis are in play. The D-pad is a cross with the pressed
+  arm lit. "Shift drift   Ctrl nitro" is a sentence to be read; the same line with
+  the keys drawn as keys is a picture to be recognised, which is what a hint
+  glanced at mid-corner has to be. The shapes are drawn rather than loaded from a
+  set of pictures, because the bindings belong to the player: any key on the board
+  can end up in one of them.
+- Every hint is drawn for the scheme that player is using: their own device when
   they are pinned to one, and otherwise whichever they last touched, which the
   game tracks from the input events themselves. The joker hand, the respawn
   picker and the start-of-match hint follow the same rule, so a player who picks

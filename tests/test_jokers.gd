@@ -115,7 +115,14 @@ func test_the_hud_deals_the_jokers_as_cards_and_lifts_the_one_picked_in_the_menu
 	assert_str(hand._detail._name.text).is_equal("Rubber Bumpers")
 	assert_str(hand._detail._kind.text).is_not_empty()
 	assert_str(hand._detail._body.text).is_not_empty()
-	assert_str(hand._detail._hints.text).contains("drop")
+	# The controls under it are drawn buttons with the words between them, GAME.md 8.3.
+	var said: PackedStringArray = []
+	for child: Node in hand._detail._hints.get_children():
+		var word := child as Label
+		if word != null:
+			said.append(word.text)
+	assert_str(" ".join(said)).contains("drop")
+	assert_int(hand._detail._hints.get_child_count()).is_greater(3)
 	# The colour bar runs along the top of the pane rather than down its side.
 	var style: StyleBoxFlat = hand._detail.get_theme_stylebox("panel")
 	assert_int(style.border_width_top).is_equal(JokerDetail.EDGE)

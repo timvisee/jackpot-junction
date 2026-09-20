@@ -21,6 +21,14 @@ below, and hands the notes to the release workflow.
   drove there from collecting it. It now counts for nothing on the tile, the same
   as it does on a Royal Flush pad.
 
+- **Controls are shown as buttons, not spelled out.** Every hint that names a
+  binding now draws it: a key cap with the key on it, the round coloured face
+  button your pad actually has, a pill for a shoulder or a trigger, a stick seen
+  from above, a cross with the pressed arm lit for the D-pad. That covers the
+  hints under your block, the joker hand and pick, the hint beside your kart at
+  the start of a match, the signs on the test track, the join line in the lobby
+  and the rebinding rows in Settings.
+
 ### Changed
 
 - **The test track's nitro straight is long enough to use nitro on.** It ran out

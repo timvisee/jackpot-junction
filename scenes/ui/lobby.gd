@@ -44,6 +44,7 @@ var colors: Array[int] = [0]
 var player_names: Array[String] = [""]
 
 var _players_label: RichTextLabel
+var _join_hint: HBoxContainer
 ## One name box per seat, built once and shown as far down as the roster reaches.
 var _name_fields: Array[LineEdit] = []
 var _name_rows: Array[HBoxContainer] = []
@@ -64,6 +65,11 @@ func _ready() -> void:
 	_players_label.custom_minimum_size = Vector2(700.0, 0.0)
 	_players_label.add_theme_font_size_override("normal_font_size", 22)
 	column.add_child(_players_label)
+	# The two ways in are drawn as the buttons themselves, GAME.md 8.3, so this is a row of its
+	# own under the list rather than another line of the same block of text.
+	_join_hint = HBoxContainer.new()
+	_join_hint.alignment = BoxContainer.ALIGNMENT_CENTER
+	column.add_child(_join_hint)
 	var settings := Game.settings
 	player_names[0] = _remembered_name(0)
 	_build_name_rows(column)
@@ -230,17 +236,27 @@ func _refresh_players() -> void:
 		var name := _device_name(devices[i])
 		var color := Palette.player_color(colors[i]).to_html(false)
 		lines.append("[color=#%s]■[/color]  P%d  %s" % [color, i + 1, name])
-	var hint := (
-		"Press %s or %s on another device to join. Steer left or right to change colour."
-		% [
-			InputActions.binding_text(InputActions.JOIN, true),
-			InputActions.binding_text(InputActions.JOIN, false)
-		]
-	)
-	_players_label.text = (
-		"[center]%s\n[color=#9a9aa0]%s[/color][/center]" % ["\n".join(lines), hint]
-	)
+	_players_label.text = "[center]%s[/center]" % "\n".join(lines)
+	_refresh_join_hint()
 	_refresh_names()
+
+
+## How to get in, with both ways drawn as the buttons they are. Built once: the bindings only
+## change in Settings, which is a different screen.
+func _refresh_join_hint() -> void:
+	if _join_hint.get_child_count() > 0:
+		return
+	var ink := Color(0.60, 0.60, 0.63)
+	var size := 18
+	var parts: Array = [
+		InputHint.glyph(InputActions.JOIN, true, ink, size),
+		InputHint.glyph(InputActions.JOIN, false, ink, size),
+	]
+	_join_hint.add_child(
+		InputHint.row(
+			"Press %s or %s on another device to join. Steer to change colour.", parts, ink, size
+		)
+	)
 
 
 ## A box per seat, all of them built up front. What has been typed lives in [member

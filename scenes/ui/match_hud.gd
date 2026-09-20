@@ -26,6 +26,15 @@ const SYNC_SNAP := 1.0
 const CALL_DROP := 120.0
 const CALL_TIME := 2.2
 const CALL_FADE := 0.6
+## The line under each player's block that says what is worth pressing right now, GAME.md 8.3:
+## how big the buttons in it are drawn, what colour it is, and the word that goes with each one.
+const HINT_SIZE := 17
+const HINT_INK := Color(0.82, 0.82, 0.88)
+const HINT_WORDS: Dictionary[StringName, String] = {
+	InputActions.HANDBRAKE: "drift",
+	InputActions.NITRO: "nitro",
+	InputActions.USE_ITEM: "item",
+}
 ## How long the whistle is left to itself before the podium comes up, GAME.md 3.8. Long enough
 ## for the karts to roll to a halt and for the rig to find the winner, which is the end of the
 ## match; a scoreboard thrown over the top of that takes it away from the people in it.
@@ -634,20 +643,36 @@ func _update_speed(block: Dictionary, kart: Kart) -> void:
 ## nitro and which plays the item they are holding. Each one only appears while it is worth
 ## pressing, and they are named for whichever scheme that player last used.
 func _update_hints(block: Dictionary, kart: Kart, device: int) -> void:
-	var hints: Label = block["hints"]
+	var holder: Control = block["hints"]
 	if not Game.settings.control_hints or not kart.alive:
-		hints.visible = false
+		holder.visible = false
 		return
 	var keyboard := DeviceInput.uses_keyboard(device)
-	var parts: PackedStringArray = []
+	var wanted: Array[StringName] = []
 	if kart.motor.speed_fraction() > 0.25:
-		parts.append("%s drift" % InputActions.short_binding_text(InputActions.HANDBRAKE, keyboard))
+		wanted.append(InputActions.HANDBRAKE)
 	if kart.nitro_charge >= kart.stats.nitro_min_start:
-		parts.append("%s nitro" % InputActions.short_binding_text(InputActions.NITRO, keyboard))
+		wanted.append(InputActions.NITRO)
 	if kart.held_item != null and kart.item_reveal_left <= 0.0:
-		parts.append("%s item" % InputActions.short_binding_text(InputActions.USE_ITEM, keyboard))
-	hints.visible = not parts.is_empty()
-	hints.text = "   ".join(parts)
+		wanted.append(InputActions.USE_ITEM)
+	holder.visible = not wanted.is_empty()
+	# Rebuilt only when the line actually changes: it is a row of drawn buttons rather than a
+	# string, and it is looked at every frame by every player on this screen.
+	var stamp := "%s|%s" % [keyboard, ",".join(wanted)]
+	if block["hint_stamp"] == stamp:
+		return
+	block["hint_stamp"] = stamp
+	for child: Node in holder.get_children():
+		holder.remove_child(child)
+		child.queue_free()
+	if wanted.is_empty():
+		return
+	var parts: Array = []
+	var template := ""
+	for action: StringName in wanted:
+		parts.append(InputHint.glyph(action, keyboard, HINT_INK, HINT_SIZE))
+		template += "%s " + HINT_WORDS[action] + " "
+	holder.add_child(InputHint.row(template, parts, HINT_INK, HINT_SIZE))
 
 
 func _slot_name(slot: int) -> String:
@@ -718,13 +743,11 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 		pip.color = slot.color()
 		lives.add_child(pip)
 		pips.append(pip)
-	var hints := Label.new()
-	hints.add_theme_font_size_override("font_size", 17)
-	hints.add_theme_color_override("font_color", Color(0.82, 0.82, 0.88))
-	HudText.shadowed(hints, 1)
-	hints.horizontal_alignment = (
-		HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
-	)
+	# A row rather than a line of text: the buttons in it are drawn, GAME.md 8.3. It fills the
+	# block so the pictures line up with the writing above them on either side of the screen.
+	var hints := HBoxContainer.new()
+	hints.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hints.alignment = BoxContainer.ALIGNMENT_END if right else BoxContainer.ALIGNMENT_BEGIN
 	var nitro := ProgressBar.new()
 	nitro.min_value = 0.0
 	nitro.max_value = 100.0
@@ -780,6 +803,7 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 		"speed": speed,
 		"item": item,
 		"hints": hints,
+		"hint_stamp": "",
 	}
 
 

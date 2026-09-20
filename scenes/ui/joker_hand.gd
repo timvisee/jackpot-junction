@@ -23,6 +23,8 @@ const GLIDE := 14.0
 const ARC := 18.0
 const TILT_DEG := 6.0
 const DIMMED := Color(0.55, 0.55, 0.6, 0.9)
+## How big the picture of the joker-menu button beside the hand is drawn.
+const CAP_SIZE := 18
 
 var kart: Kart
 ## This hand takes share [member column] of [member columns] of the bottom edge.
@@ -36,8 +38,9 @@ var avoid: Array[Rect2] = []
 var _cards: Array[JokerCard] = []
 var _ids: Array[StringName] = []
 var _detail: JokerDetail
-var _cap: PanelContainer
-var _cap_label: Label
+var _cap: Control
+## What the cap is currently a picture of, so it is only rebuilt when the button changes.
+var _cap_shown := ""
 var _count_label: Label
 
 
@@ -48,7 +51,6 @@ func _ready() -> void:
 	_detail.name = "Detail"
 	_detail.visible = false
 	add_child(_detail)
-	_build_cap()
 	_build_count()
 
 
@@ -137,35 +139,28 @@ func _place_count(right: float, baseline: float, card: Vector2) -> void:
 	_count_label.position = Vector2(right + 12.0, baseline - card.y * 0.5 - label_size.y * 0.5)
 
 
-## A key cap beside the hand, drawn the way a key is drawn in a manual.
-func _build_cap() -> void:
-	_cap = PanelContainer.new()
-	_cap.visible = false
-	_cap.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.13, 0.13, 0.16, 0.92)
-	style.set_corner_radius_all(6)
-	style.set_border_width_all(2)
-	style.border_color = Color(0.72, 0.72, 0.8)
-	style.content_margin_left = 9.0
-	style.content_margin_right = 9.0
-	style.content_margin_top = 4.0
-	style.content_margin_bottom = 4.0
-	_cap.add_theme_stylebox_override("panel", style)
-	_cap_label = Label.new()
-	_cap_label.add_theme_font_size_override("font_size", 18)
-	_cap_label.add_theme_color_override("font_color", Palette.CHIP_WHITE)
-	_cap_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_cap.add_child(_cap_label)
-	add_child(_cap)
-
-
-## Puts the cap just left of the hand, named for the scheme the player is using.
+## A picture of the button that opens the hand, sitting just left of it, GAME.md 8.3: a key cap
+## on a keyboard and the round coloured button on a pad. Rebuilt rather than relabelled, since a
+## player who picks up a pad mid-match is looking at a different shape and not only a different
+## word.
 func _place_cap(left: float, baseline: float, card: Vector2) -> void:
-	_cap.visible = not _cards.is_empty() and Game.settings.control_hints
-	if not _cap.visible:
+	var shown := not _cards.is_empty() and Game.settings.control_hints
+	var wanted := (
+		InputActions.short_binding_text(InputActions.JOKER_MENU, keyboard) if shown else ""
+	)
+	if wanted != _cap_shown:
+		_cap_shown = wanted
+		if _cap != null:
+			_cap.queue_free()
+			_cap = null
+		if shown:
+			_cap = InputGlyph.of_action(
+				InputActions.JOKER_MENU, keyboard, Palette.CHIP_WHITE, CAP_SIZE
+			)
+			if _cap != null:
+				add_child(_cap)
+	if _cap == null:
 		return
-	_cap_label.text = InputActions.short_binding_text(InputActions.JOKER_MENU, keyboard)
 	var cap_size := _cap.get_combined_minimum_size()
 	_cap.size = cap_size
 	_cap.position = Vector2(left - cap_size.x - 12.0, baseline - card.y * 0.5 - cap_size.y * 0.5)
@@ -192,12 +187,11 @@ func _sync_cards() -> void:
 ## to say anything about.
 func _show_detail(joker: Joker) -> void:
 	_detail.show_joker(joker)
-	var keys := (
-		"%s cycle    %s drop    %s destroy"
-		% [
-			InputActions.pair_text(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, keyboard),
-			InputActions.binding_text(InputActions.JOKER_DROP, keyboard),
-			InputActions.binding_text(InputActions.JOKER_DESTROY, keyboard),
-		]
-	)
-	_detail.set_hints(keys)
+	var ink := JokerDetail.hint_ink()
+	var size := InputHint.FONT_SIZE
+	var parts: Array = [
+		InputHint.pair(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, keyboard, ink, size),
+		InputHint.glyph(InputActions.JOKER_DROP, keyboard, ink, size),
+		InputHint.glyph(InputActions.JOKER_DESTROY, keyboard, ink, size),
+	]
+	_detail.set_hints(InputHint.row("%s cycle %s drop %s destroy", parts, ink, size))
