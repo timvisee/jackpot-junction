@@ -5,6 +5,8 @@ extends GdUnitTestSuite
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const CONE := PI * 0.5
 const REACH := 30.0
+## Where a kart is put when it is meant to be out of the shot: behind it, not beside it.
+const BEHIND := Vector3(-14.0, 0.0, 9.0)
 
 var _runner: GdUnitSceneRunner
 
@@ -25,6 +27,11 @@ func _start_match() -> Match:
 
 ## Everything on the floor is a target now, so the ones a test is not about are parked well out
 ## of reach. Shooting them would not do: a box that has been broken puts itself back up.
+##
+## Karts are parked with [constant BEHIND] for the same reason. Straight out to the side is not
+## out of the way: that is exactly [constant CONE] from the shot, and whether a thing on the edge
+## of the cone is in it or out of it comes down to the last bit of a float, which is a test that
+## passes on one machine and fails on another.
 func _clear_floor(match_node: Match) -> void:
 	var away := Vector3(0.0, 0.0, -400.0)
 	for crate: Crate in match_node.arena.crates:
@@ -61,7 +68,7 @@ func test_a_kart_is_worth_more_than_a_box_in_front_of_it() -> void:
 	_clear_floor(match_node)
 	var me := match_node.kart_of(0)
 	var enemy := match_node.kart_of(1)
-	me.global_position = Vector3(0.0, 0.0, 12.0)
+	me.global_position = BEHIND
 	enemy.global_position = Vector3(8.0, 0.0, 0.0)
 	var crate: Crate = match_node.arena.crates[0]
 	crate.global_position = Vector3(4.0, 0.0, 0.0)
@@ -76,8 +83,8 @@ func test_bombs_and_shooting_targets_are_worth_bending_toward() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)
 	_clear_floor(match_node)
-	match_node.kart_of(0).global_position = Vector3(0.0, 0.0, 12.0)
-	match_node.kart_of(1).global_position = Vector3(0.0, 0.0, -12.0)
+	match_node.kart_of(0).global_position = BEHIND
+	match_node.kart_of(1).global_position = BEHIND * Vector3(1.0, 1.0, -1.0)
 	var target: Target = auto_free(Target.new())
 	match_node.add_child(target)
 	target.global_position = Vector3(6.0, 0.0, 0.0)
@@ -99,7 +106,7 @@ func test_nothing_behind_the_shot_takes_the_aim() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)
 	_clear_floor(match_node)
-	match_node.kart_of(0).global_position = Vector3(0.0, 0.0, 12.0)
+	match_node.kart_of(0).global_position = BEHIND
 	match_node.kart_of(1).global_position = Vector3(-6.0, 0.0, 0.0)
 	var crate: Crate = match_node.arena.crates[0]
 	crate.global_position = Vector3(-3.0, 0.0, 0.0)
@@ -114,7 +121,7 @@ func test_a_target_behind_a_wall_is_passed_over() -> void:
 	await _runner.simulate_frames(12, 17)
 	_clear_floor(match_node)
 	var enemy := match_node.kart_of(1)
-	match_node.kart_of(0).global_position = Vector3(0.0, 0.0, 12.0)
+	match_node.kart_of(0).global_position = BEHIND
 	enemy.global_position = Vector3(5.0, 0.0, 0.0)
 	var crate: Crate = match_node.arena.crates[0]
 	crate.global_position = Vector3(2.5, 0.0, 0.0)
