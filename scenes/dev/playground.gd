@@ -18,6 +18,7 @@ extends Node3D
 ##   --disco=4            hold the excitement level here, 1 to 6, for the lights and the music
 ##   --clean=1            hide the debug overlay, for screenshots of the game itself
 ##   --bounty=1           put a bounty on the second slot, for screenshots
+##   --banked=1           spread some banked score across the field, for the score tanks
 ##   --results=1          end the match at once with made-up stats, to see the results screen
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
 ## on an unused device to join mid-match; F6 deals the player a random joker.
@@ -41,6 +42,7 @@ var _destroy := false
 var _disco := 0
 var _clean := false
 var _bounty := false
+var _banked := false
 var _results := false
 
 
@@ -67,6 +69,11 @@ func _ready() -> void:
 	var player := match_node.kart_of(0)
 	for i: int in _jokers:
 		_deal_joker(player)
+	if _banked:
+		# A field part way through a match, so the tanks of GAME.md 8.1 have something in them.
+		var spread: Array[int] = [820, 1750, 2450, 400]
+		for i: int in match_node.slots.size():
+			match_node.slots[i].banked = spread[i % spread.size()]
 	if _bounty:
 		# Straight on, without waiting for the countdown and the leader check.
 		match_node.slots[1].banked = 900
@@ -208,5 +215,7 @@ func _parse_user_args() -> void:
 			_disco = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--bounty="):
 			_bounty = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--banked="):
+			_banked = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--results="):
 			_results = arg.get_slice("=", 1) == "1"
