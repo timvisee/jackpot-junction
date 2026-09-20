@@ -11,6 +11,15 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-09-20
+
+Buttons you can see. Every hint that used to spell a binding out in words now
+draws the thing you press, and the rest of this is the round of fixes that came
+with it: a test track with room to use nitro and to drift through its chicane, a
+turbo pad that actually shoves you, a booth standing in its own crowd, a whistle
+with a moment before the podium, and a decoy that can no longer fetch the Jackpot
+for you.
+
 ### Changed
 
 - **The podium starts with Rematch selected.** A gamepad no longer has to go
@@ -449,7 +458,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.3.1
 [0.3.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.3.0
 [0.2.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.2.0
 [0.1.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.1.0
