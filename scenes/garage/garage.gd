@@ -10,9 +10,9 @@ extends Node3D
 ##
 ## The test track is the room before that one: a road with corners on it, a wall of boxes to
 ## shoot through, a straight to open the bottle on, a chicane to drift, and a room at the end to
-## keep drifting in. Nothing to collect and nothing to bank; six words of signage, each of them
-## naming a button. The first visit to the Garage from the title goes here, and the portal at the
-## end leads to the Garage proper.
+## keep drifting in. Nothing to collect and nothing to bank; six signs, each of them telling the
+## player what to press and what it does. The first visit to the Garage from the title goes here,
+## and the portal at the end leads to the Garage proper.
 ##
 ## Either room runs an ordinary match with no bots and no clock, so there is nothing to lose and
 ## nothing to win.
@@ -26,14 +26,17 @@ const SIGN_HEIGHT := 2.7
 ## framing all 65 m of it at once leaves the kart too small to learn a control from, GAME.md 9.4a,
 ## so the camera comes down onto the player the way the driving room's does in 9.5.
 const TRACK_CAMERA := 26.0
-## The test track's signs, as the cell they stand on and the action they name. Short on purpose:
-## a player reading a wall is a player not driving.
+## The test track's signs: the cell one stands on, the name of the lesson, the line under it, and
+## the actions whose bindings fill that line in. A word and a key named the button a stretch was
+## about but never said what it did, so each line is an instruction instead. Still short on
+## purpose: a player reading a wall is a player not driving.
 const TRACK_SIGNS: Array[Array] = [
-	[Vector2i(6, 3), "DRIVE", InputActions.THROTTLE],
-	[Vector2i(21, 3), "STEER", InputActions.STEER_RIGHT],
-	[Vector2i(11, 17), "SHOOT", InputActions.FIRE],
-	[Vector2i(25, 17), "NITRO", InputActions.NITRO],
-	[Vector2i(31, 24), "DRIFT", InputActions.HANDBRAKE],
+	[Vector2i(6, 3), "DRIVE", "%s to go", [InputActions.THROTTLE]],
+	[Vector2i(21, 3), "STEER", "%s to turn", [InputActions.STEER_LEFT, InputActions.STEER_RIGHT]],
+	[Vector2i(11, 17), "SHOOT", "%s to break the boxes", [InputActions.FIRE]],
+	[Vector2i(25, 17), "NITRO", "hold %s to go faster", [InputActions.NITRO]],
+	[Vector2i(31, 23), "HANDBRAKE", "%s to lock the wheels", [InputActions.HANDBRAKE]],
+	[Vector2i(41, 24), "DRIFT", "handbrake and turn", []],
 ]
 ## Karts nobody is driving, parked on the floor as practice targets.
 const DUMMIES := 2
@@ -90,15 +93,27 @@ func _wire_portals() -> void:
 		_sign("GARAGE" if on_track else "TRACK", portal.global_position, Palette.NEON_CYAN)
 
 
-## Six words on the test track, each naming the button that stretch is about. The binding is read
-## off the input map, so a player who has rebound something is told what they bound it to.
+## Six signs on the test track, each telling the player what to press on that stretch and what it
+## does. The bindings are read off the input map, so a player who has rebound something is told
+## what they bound it to.
 func _add_track_signs() -> void:
 	var grid := match_node.arena.grid
 	var keyboard := Game.last_input_keyboard
 	for entry: Array in TRACK_SIGNS:
 		var at: Vector3 = grid.cell_center(entry[0])
-		var text: String = "%s\n%s" % [entry[1], InputActions.binding_text(entry[2], keyboard)]
+		var text: String = "%s\n%s" % [entry[1], _track_line(entry[2], entry[3], keyboard)]
 		_sign(text, at, Palette.CHIP_WHITE)
+
+
+## One sign's line with the player's own bindings written into it. Two actions are the two ends of
+## a single control and are named as one, GAME.md 8.3, so steering reads "Left stick" on a pad
+## rather than the two halves of a stick. No actions at all is a line that names no button.
+static func _track_line(line: String, actions: Array, keyboard: bool) -> String:
+	if actions.size() >= 2:
+		return line % InputActions.pair_text(actions[0], actions[1], keyboard)
+	if actions.size() == 1:
+		return line % InputActions.short_binding_text(actions[0], keyboard)
+	return line
 
 
 ## A dummy that has been shot comes back with something new in it, so the next one is worth

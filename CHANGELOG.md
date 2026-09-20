@@ -234,6 +234,11 @@ below, and hands the notes to the release workflow.
   room to carry on rather than parked against a wall. The camera follows your
   kart from close in instead of framing all sixty-five metres of road at once.
 
+- **The test track's signs say what the button does.** They were a word and a
+  key: "DRIFT" over "Shift". They now read "DRIFT" over "handbrake and turn",
+  with a HANDBRAKE sign at the first stub of the chicane saying what locks the
+  wheels.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button

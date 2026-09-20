@@ -1730,9 +1730,11 @@ proper. Both rooms are the same scene on a different map and each has a portal t
 the other, so going round once locks nothing away.
 
 It is a road rather than an arena: no Junction, no coins, no Jackpot, no pits,
-nothing to collect and nothing to score. Six signs, each of them a word and the
-button it names, read off the input map so a player who has rebound something is
-told what they bound it to.
+nothing to collect and nothing to score. Six signs, each of them the name of a
+lesson and a line saying what to press and what it does: "Shift to lock the
+wheels" rather than "DRIFT". The bindings are read off the input map, so a player
+who has rebound something is told what they bound it to, and a pad is told about
+the stick rather than about its two halves, see 8.3.
 
 The road is 65 by 36.25 m with six-cell lanes, wide enough to get a corner wrong
 and carry on rather than stop against a wall. The camera does not frame it: it
@@ -1777,8 +1779,8 @@ road framed end to end puts the kart too far away to see what a control did.
 2. **Shoot.** A wall of boxes across the third lane, which cannot be driven
    through. SHOOT, and the way on is where they were.
 3. **Nitro.** The long straight after the boxes, with NITRO on it.
-4. **Drift.** A corner down into a chicane, with DRIFT on it: two stubs of wall
-   that have to be woven through.
+4. **Drift.** A corner down into a chicane: two stubs of wall that have to be
+   woven through, with HANDBRAKE at the first and DRIFT after the second.
 5. **The room at the end.** A space to keep driving in, with an island in the
    middle of it to go round and one way into the middle, where the portal to the
    Garage stands.
