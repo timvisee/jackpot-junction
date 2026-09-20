@@ -34,7 +34,7 @@ func test_the_table_is_ringed_with_onlookers_and_a_booth() -> void:
 		lowest = minf(lowest, at.y - Crowd.TABLE_TOP)
 	assert_float(lowest).is_greater_equal(-0.001)
 	# Two draw calls for the lot of them, not two thousand nodes.
-	assert_int(crowd.get_child_count()).is_less(3)
+	assert_int(crowd.get_child_count()).is_less(4)
 	assert_int(crowd._onlookers.multimesh.instance_count).is_equal(crowd.count())
 	assert_int(crowd._onlookers.multimesh.mesh.get_surface_count()).is_equal(2)
 	# No two of them are the same person standing in a line.
@@ -42,6 +42,27 @@ func test_the_table_is_ringed_with_onlookers_and_a_booth() -> void:
 	assert_object(crowd._shirts).is_not_equal(crowd._traits)
 	assert_int(crowd._speakers.size()).is_equal(2)
 	assert_object(crowd._dj).is_not_null()
+
+
+## Tribunes, GAME.md 8.1: a stretch of each side is built up into steps, and the people standing
+## on that stretch go up with them rather than staying flat while the steps rise under them.
+func test_some_of_them_are_standing_on_a_tribune() -> void:
+	var arena := _arena()
+	var crowd := arena.crowd
+	assert_int(crowd._stands.size()).is_greater(2)
+	var highest := Crowd.TABLE_TOP
+	var on_a_stand := 0
+	for spot: Transform3D in crowd._spots:
+		highest = maxf(highest, spot.origin.y)
+		if spot.origin.y > Crowd.TABLE_TOP + 0.01:
+			on_a_stand += 1
+	assert_float(highest).is_greater(Crowd.TABLE_TOP + Crowd.TIER)
+	assert_int(on_a_stand).is_greater(20)
+	# And most of the house is still on the table: a stand is somewhere, not everywhere.
+	assert_int(on_a_stand).is_less(crowd.count() / 2)
+	# The steps themselves are there, and they are not nine hundred nodes either.
+	var stands: Node3D = crowd.get_node("Stands")
+	assert_int(stands.get_child_count()).is_equal(crowd._stands.size() * Crowd.ROWS)
 
 
 func test_a_kill_gets_them_up_and_so_does_a_hot_room() -> void:

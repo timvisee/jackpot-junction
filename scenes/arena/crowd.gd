@@ -30,6 +30,20 @@ const JITTER := 0.28
 const DENSITY := 0.86
 ## The shortest and the tallest of them, as a share of the usual size.
 const SIZE_RANGE := Vector2(0.82, 1.18)
+## The stands: how long one stretch of tribune is, how far each row of it is lifted over the row
+## in front, how far one keeps off a corner, and how far its steps run past the last person on
+## them so that nobody is standing on the edge of one.
+const STAND_LENGTH := Vector2(7.0, 13.0)
+const TIER := 0.4
+const CORNER_CLEARANCE := 2.5
+const STAND_MARGIN := 0.7
+## Away from the arena, on each of the four sides.
+const OUTWARD: Array[Vector3] = [
+	Vector3(0.0, 0.0, -1.0),
+	Vector3(0.0, 0.0, 1.0),
+	Vector3(-1.0, 0.0, 0.0),
+	Vector3(1.0, 0.0, 0.0),
+]
 ## The table top, which is where they stand: the felt is a slab of this thickness on top of it.
 const TABLE_TOP := -Arena.FLOOR_THICKNESS
 const BODY := 0.42
@@ -103,6 +117,8 @@ var enabled := true
 
 ## Where everybody is standing, kept after the build because it is the record of the house.
 var _spots: Array[Transform3D] = []
+## The footprints of the tribunes, flat on the table: inside one, a row stands a step higher.
+var _stands: Array[Rect2] = []
 var _shirts: PackedColorArray = []
 var _traits: PackedColorArray = []
 var _onlookers: MultiMeshInstance3D
@@ -176,17 +192,18 @@ func _on_kart_killed(_victim: int, _killer: int, _cause: StringName) -> void:
 
 func _build(size: Vector2) -> void:
 	_rng.seed = hash(size)
-	var outer := size * 0.5
+	var outer := size * 0.5 + Vector2.ONE * (STANDOFF + (ROWS - 1) * ROW_DEPTH)
+	_raise_stands(size * 0.5)
 	for row: int in ROWS:
-		outer = size * 0.5 + Vector2.ONE * (STANDOFF + row * ROW_DEPTH)
-		_ring(outer)
+		_ring(size * 0.5 + Vector2.ONE * (STANDOFF + row * ROW_DEPTH), row)
 	_raise_house(outer)
-	_booth(Vector3(0.0, TABLE_TOP, -outer.y - 2.6))
+	# Behind the stands rather than behind the front row, so their back wall does not hide it.
+	_booth(Vector3(0.0, TABLE_TOP, -outer.y - 4.2))
 
 
 ## One row of onlookers, walked round the four edges of a rectangle. Each edge leaves its far
 ## corner to the edge after it, so nobody is standing inside anybody.
-func _ring(half: Vector2) -> void:
+func _ring(half: Vector2, row: int) -> void:
 	var corners: Array[Vector3] = [
 		Vector3(-half.x, 0.0, -half.y),
 		Vector3(half.x, 0.0, -half.y),
@@ -194,22 +211,22 @@ func _ring(half: Vector2) -> void:
 		Vector3(-half.x, 0.0, half.y),
 	]
 	for i: int in 4:
-		_line(corners[i], corners[(i + 1) % 4])
+		_line(corners[i], corners[(i + 1) % 4], row)
 
 
-func _line(from: Vector3, to: Vector3) -> void:
+func _line(from: Vector3, to: Vector3, row: int) -> void:
 	var steps := maxi(int(from.distance_to(to) / SPACING), 1)
 	for i: int in steps:
-		_stand(from.lerp(to, float(i) / float(steps)))
+		_stand(from.lerp(to, float(i) / float(steps)), row)
 
 
 ## Rolls one onlooker onto a spot, or leaves the spot empty.
-func _stand(at: Vector3) -> void:
+func _stand(at: Vector3, row: int) -> void:
 	if _rng.randf() > DENSITY:
 		return
 	var spot := Vector3(
 		at.x + _rng.randf_range(-JITTER, JITTER),
-		TABLE_TOP + at.y,
+		TABLE_TOP + _tier_at(at, row),
 		at.z + _rng.randf_range(-JITTER, JITTER)
 	)
 	var turned := Basis.from_euler(Vector3(0.0, _rng.randf_range(0.0, TAU), 0.0))
@@ -228,6 +245,88 @@ func _stand(at: Vector3) -> void:
 			_rng.randf_range(0.0, TAU)
 		)
 	)
+
+
+## How high somebody in [param row] stands at [param at]: on the table, unless a tribune has
+## been built under that stretch of the band, in which case one step per row behind the front.
+func _tier_at(at: Vector3, row: int) -> float:
+	if row <= 0:
+		return 0.0
+	for stand: Rect2 in _stands:
+		if stand.has_point(Vector2(at.x, at.z)):
+			return row * TIER
+	return 0.0
+
+
+## Builds a tribune into one stretch of each side of the band, GAME.md 8.1. Somewhere along a
+## side rather than the whole of it: a stand that goes all the way round is a bowl, and this is a
+## table with people standing at it.
+func _raise_stands(half: Vector2) -> void:
+	var stands := Node3D.new()
+	stands.name = "Stands"
+	add_child(stands)
+	var tread := _paint(Palette.BLOCK)
+	var back := _paint(Palette.BLOCK_EDGE)
+	for side: int in 4:
+		var out := OUTWARD[side]
+		var sideways := Vector3(absf(out.z), 0.0, absf(out.x))
+		var along := half.x if sideways.x > 0.5 else half.y
+		var across := half.y if sideways.x > 0.5 else half.x
+		var run := _rng.randf_range(STAND_LENGTH.x, STAND_LENGTH.y)
+		var room := along - run * 0.5 - CORNER_CLEARANCE
+		if room <= 0.0:
+			continue
+		var near := out * (across + STANDOFF - ROW_DEPTH * 0.5)
+		near += sideways * _rng.randf_range(-room, room)
+		_stands.append(_footprint(near, out, sideways, run))
+		_step_up(near, out, run, stands, tread, back)
+
+
+## The footprint of one stand, flat on the table, which is what decides who is standing on it.
+static func _footprint(near: Vector3, out: Vector3, sideways: Vector3, run: float) -> Rect2:
+	var corner := near - sideways * (run * 0.5)
+	var far := near + out * (ROWS * ROW_DEPTH) + sideways * (run * 0.5)
+	return Rect2(
+		Vector2(minf(corner.x, far.x), minf(corner.z, far.z)),
+		Vector2(absf(far.x - corner.x), absf(far.z - corner.z))
+	)
+
+
+## The steps themselves: one solid block per lifted row, rising away from the arena, with a wall
+## across the back of the top one.
+func _step_up(
+	near: Vector3, out: Vector3, run: float, parent: Node3D, tread: Material, back: Material
+) -> void:
+	var wide := run + STAND_MARGIN
+	for row: int in range(1, ROWS):
+		var high := row * TIER
+		var step := MeshInstance3D.new()
+		step.mesh = _slab(_spread(out, wide, ROW_DEPTH, high))
+		step.material_override = tread
+		step.position = (
+			near + out * (ROW_DEPTH * (row + 0.5)) + Vector3.UP * (TABLE_TOP + high * 0.5)
+		)
+		parent.add_child(step)
+	var wall := MeshInstance3D.new()
+	var high := (ROWS - 1) * TIER + 0.55
+	wall.mesh = _slab(_spread(out, wide, 0.3, high))
+	wall.material_override = back
+	wall.position = near + out * (ROWS * ROW_DEPTH + 0.15) + Vector3.UP * (TABLE_TOP + high * 0.5)
+	parent.add_child(wall)
+
+
+## A box laid out for a stand facing [param out]: [param wide] along the stand, [param deep] away
+## from the arena.
+static func _spread(out: Vector3, wide: float, deep: float, high: float) -> Vector3:
+	if absf(out.z) > 0.5:
+		return Vector3(wide, high, deep)
+	return Vector3(deep, high, wide)
+
+
+static func _slab(size: Vector3) -> BoxMesh:
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	return mesh
 
 
 ## Puts the whole house into one [MultiMesh]. Everything that varies between two people is in the
@@ -255,7 +354,7 @@ func _raise_house(outer: Vector2) -> void:
 	# One cull unit, and the shader lifts people off their spots, so the box has to allow for it.
 	_onlookers.custom_aabb = AABB(
 		Vector3(-outer.x - 1.0, TABLE_TOP - 0.5, -outer.y - 1.0),
-		Vector3(outer.x * 2.0 + 2.0, 3.0, outer.y * 2.0 + 2.0)
+		Vector3(outer.x * 2.0 + 2.0, 4.0, outer.y * 2.0 + 2.0)
 	)
 	add_child(_onlookers)
 

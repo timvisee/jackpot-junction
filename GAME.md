@@ -1079,7 +1079,12 @@ subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
   the same: where somebody stands, how tall they are, which way they are facing,
   what they are wearing, how dark their face is and where in the beat they are is
   all rolled per person, and a sixth of the places are left empty, because a row
-  of identical people evenly spaced reads as a fence. They bob while the room is
+  of identical people evenly spaced reads as a fence. One stretch of each side is
+  built up into a tribune: steps rising away from the arena with a wall across the
+  back, and everybody standing on that stretch goes up a step per row with it.
+  Somewhere along a side rather than the whole of it, since a stand that goes all
+  the way round is a bowl and this is a table with people standing at it. They bob
+  while the room is
   quiet, they are on their feet at excitement levels 5 and 6, see 8.4, and a kill
   gets them jumping for a couple of seconds whatever the meter says: the loudest
   thing that happens in a match is answered by the room and not only by the HUD.

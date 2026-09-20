@@ -246,6 +246,10 @@ below, and hands the notes to the release workflow.
   calls and cost nothing per frame, so a full house runs the same as an empty
   one did.
 
+- **Tribunes round the table.** A stretch of each side of the crowd is up on
+  steps behind a back wall, with everybody on it a step higher than the row in
+  front.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button
