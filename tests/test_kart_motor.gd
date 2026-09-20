@@ -499,6 +499,29 @@ func test_turbo_pad_against_the_nose_pushes_the_kart_backwards() -> void:
 	assert_float(_motor.velocity.z).is_greater(0.0)
 
 
+## GAME.md 6.2: leaning on the wheel during a shove pulls the line round after the nose. Left
+## alone the shove holds the pad's arrow exactly, which is what the pad promises.
+func test_a_shove_bends_with_the_wheel_and_holds_its_line_without_it() -> void:
+	_motor.apply_turbo(Vector3(0.0, 0.0, -1.0))
+	var arrow := _motor.turbo_direction
+	# Hands off: the line is the arrow, for the whole shove.
+	for i: int in 20:
+		_motor.step(_input, DT)
+	assert_vector(_motor.turbo_direction).is_equal_approx(arrow, Vector3.ONE * 0.001)
+	# A lean on the wheel, short of the release, pulls it round without ending the shove.
+	_motor.apply_turbo(Vector3(0.0, 0.0, -1.0))
+	_input.steer = 0.5
+	for i: int in 20:
+		_motor.step(_input, DT)
+	assert_bool(_motor.turboing()).is_true()
+	var bent := absf(_motor.turbo_direction.signed_angle_to(arrow, Vector3.UP))
+	assert_float(bent).is_greater(deg_to_rad(4.0))
+	# And the kart is actually travelling along the new line rather than the old one.
+	assert_vector(_motor.velocity.normalized()).is_equal_approx(
+		_motor.turbo_direction, Vector3.ONE * 0.01
+	)
+
+
 ## GAME.md 6.2: the shove is a gift, not a sentence. Braking, the handbrake or a real turn of the
 ## wheel hands the kart straight back, with the speed it was given still on it.
 func test_a_turbo_shove_can_be_steered_or_braked_out_of_at_once() -> void:

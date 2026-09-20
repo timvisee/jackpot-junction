@@ -22,6 +22,14 @@ extends RefCounted
 ## How far the wheel has to go over to take a kart back off a turbo pad's arrow. Well past
 ## a nudge, so lining the kart up during the shove does not throw it away.
 const TURBO_RELEASE_STEER := 0.6
+## How fast a shove can be bent onto a new line, in radians a second at full lock. A pad throws
+## the kart along its arrow and the nose turns at half rate while it does, but the line the kart
+## is actually on used to be the arrow and nothing else: the only way out of a shove was to
+## throw it away entirely. Leaning on the wheel now pulls the line round after the nose.
+const TURBO_BEND := 2.2
+## Below this the wheel is not being leaned on and the shove holds its arrow exactly, which is
+## what a pad promises a kart that drives onto it and lets it work.
+const TURBO_BEND_DEADZONE := 0.05
 
 ## Everything the motor carries from one tick to the next, GAME.md 10.3. A client replaying its
 ## own ticks after the host corrects it has to start from the motor the host had, not from a
@@ -171,6 +179,7 @@ func step(input: KartInput, delta: float) -> void:
 	turbo_time_left = maxf(turbo_time_left - delta, 0.0)
 	spin_time_left = maxf(spin_time_left - delta, 0.0)
 	_step_turbo_release(input)
+	_step_turbo_bend(input, delta)
 	if stats.model == KartStats.Model.TIRES:
 		_step_tires(input, delta)
 		return
@@ -660,6 +669,25 @@ func _step_turbo_release(input: KartInput) -> void:
 		return
 	if input.brake > 0.01 or input.handbrake or absf(input.steer) > TURBO_RELEASE_STEER:
 		turbo_time_left = 0.0
+
+
+## Leaning on the wheel during a shove pulls the line round after the nose, GAME.md 6.2. The
+## nose is already turning, at half rate; without this it turned and the kart carried on along
+## the arrow regardless, so the only answer to a pad pointing somewhere unhelpful was to throw
+## the whole shove away. Left alone, the line stays exactly on the arrow.
+func _step_turbo_bend(input: KartInput, delta: float) -> void:
+	if not turboing():
+		return
+	var lean := absf(input.steer)
+	if lean <= TURBO_BEND_DEADZONE:
+		return
+	var nose := forward_vector()
+	if turbo_direction.dot(nose) < 0.0:
+		# Shoved backwards onto the arrow: the line follows the tail rather than the nose.
+		nose = -nose
+	var angle := turbo_direction.signed_angle_to(nose, Vector3.UP)
+	var most := TURBO_BEND * lean * delta
+	turbo_direction = turbo_direction.rotated(Vector3.UP, clampf(angle, -most, most)).normalized()
 
 
 ## A turbo pad shoves the kart along its arrow without turning it. Facing along the arrow, or

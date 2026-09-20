@@ -225,6 +225,10 @@ below, and hands the notes to the release workflow.
 - **The joker hints name the stick, not the axes.** On a pad they read "Left stick
   cycle" rather than "Left Stick X-Axis - / Left Stick X-Axis + cycle".
 
+- **A turbo shove can be steered.** Leaning on the wheel pulls the line round
+  after the nose instead of doing nothing until the shove is thrown away
+  altogether. Hands off, it still holds the arrow exactly.
+
 ## [0.2.0] - 2026-09-18
 
 Multiplayer. Online play worked before this and did not feel like it: every button
