@@ -1788,9 +1788,9 @@ framed end to end puts the kart too far away to see what a control did.
 ###############################################....##..............#
 ###############################################....##..............#
 ###############################################....##..............#
-###############################################.......##...........#
-###############################################.......##...........#
-###############################################.......##...........#
+###############################################.........##.........#
+###############################################.........##.........#
+###############################################.........##.........#
 ####################################################################
 ```
 
@@ -1802,7 +1802,9 @@ framed end to end puts the kart too far away to see what a control did.
 3. **Nitro.** The long straight after the boxes, 45 m of it, with NITRO at the
    near end so there is road left to use it on.
 4. **Drift.** A corner down into a chicane: two stubs of wall that have to be
-   woven through, with HANDBRAKE at the mouth of it and DRIFT in the middle.
+   woven through, with HANDBRAKE at the mouth of it and DRIFT in the middle. The
+   gap between the two stubs is three cells wide. One was a keyhole to be lined
+   up and crept through, which is the opposite of a corner to be drifted.
 5. **The room at the end.** A space to keep driving in, with an island in the
    middle of it to go round and one way into the middle, where the portal to the
    Garage stands.

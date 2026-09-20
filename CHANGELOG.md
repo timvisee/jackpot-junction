@@ -17,6 +17,10 @@ below, and hands the notes to the release workflow.
   about when the bottle got going. It is 45 m now, with the sign at the near end
   of it.
 
+- **The test track's chicane has a gap you can drift through.** The way between
+  the two stubs of wall was one cell wide, which is a keyhole to be lined up and
+  crept through. It is three wide now.
+
 ## [0.3.0] - 2026-09-20
 
 A room worth sitting in. The arena picked up a crowd a thousand strong on
