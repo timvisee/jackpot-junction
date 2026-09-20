@@ -19,18 +19,6 @@ extends RefCounted
 ## feel like a vehicle rather than a cursor: the turn radius is set by the wheel instead of by
 ## the speed, and the kart carries sideways velocity that has to be scrubbed off.
 
-## How far the wheel has to go over to take a kart back off a turbo pad's arrow. Well past
-## a nudge, so lining the kart up during the shove does not throw it away.
-const TURBO_RELEASE_STEER := 0.6
-## How fast a shove can be bent onto a new line, in radians a second at full lock. A pad throws
-## the kart along its arrow and the nose turns at half rate while it does, but the line the kart
-## is actually on used to be the arrow and nothing else: the only way out of a shove was to
-## throw it away entirely. Leaning on the wheel now pulls the line round after the nose.
-const TURBO_BEND := 2.2
-## Below this the wheel is not being leaned on and the shove holds its arrow exactly, which is
-## what a pad promises a kart that drives onto it and lets it work.
-const TURBO_BEND_DEADZONE := 0.05
-
 ## Everything the motor carries from one tick to the next, GAME.md 10.3. A client replaying its
 ## own ticks after the host corrects it has to start from the motor the host had, not from a
 ## position with a fresh motor behind it: a kart mid-drift, mid-boost or mid-spin is most of
@@ -47,7 +35,6 @@ const STATE_FIELDS: Array[StringName] = [
 	&"slide_rate",
 	&"boost_time_left",
 	&"turbo_time_left",
-	&"turbo_direction",
 	&"spin_time_left",
 	&"speed_bonus",
 	&"steer_multiplier",
@@ -77,9 +64,8 @@ var drift_time := 0.0
 ## steering: positive swings the nose to the right. Only the oversteer drift style uses it.
 var slide_rate := 0.0
 var boost_time_left := 0.0
+## Seconds of held throttle and raised speed limit left after a turbo pad, GAME.md 6.2.
 var turbo_time_left := 0.0
-## Direction a turbo pad pushes along while [method turboing].
-var turbo_direction := Vector3.ZERO
 ## Seconds of spin-out left after the tires let go on an oil stain.
 var spin_time_left := 0.0
 ## Multipliers set by power-ups: Boost raises the speed bonus and lowers the steering.
@@ -155,11 +141,12 @@ func yaw_rate(fraction: float) -> float:
 	return deg_to_rad(degrees)
 
 
-## Speed limit right now, including drift exit boost and turbo.
+## Speed limit right now, including drift exit boost and turbo. A pad, a Boost and a bottle do
+## not stack: whichever is giving the most is the one in charge.
 func max_speed() -> float:
-	if turboing():
-		return stats.top_speed * stats.turbo_speed_multiplier
 	var bonus := maxf(speed_bonus, nitro_bonus)
+	if turboing():
+		bonus = maxf(bonus, stats.turbo_speed_multiplier)
 	if boosting():
 		return stats.top_speed * bonus * (1.0 + stats.drift_exit_boost)
 	return stats.top_speed * bonus
@@ -178,8 +165,6 @@ func step(input: KartInput, delta: float) -> void:
 	boost_time_left = maxf(boost_time_left - delta, 0.0)
 	turbo_time_left = maxf(turbo_time_left - delta, 0.0)
 	spin_time_left = maxf(spin_time_left - delta, 0.0)
-	_step_turbo_release(input)
-	_step_turbo_bend(input, delta)
 	if stats.model == KartStats.Model.TIRES:
 		_step_tires(input, delta)
 		return
@@ -201,11 +186,6 @@ func step(input: KartInput, delta: float) -> void:
 	# spinning kart keeps its line even as the whipping nose flips the sign of the speed.
 	if not was_moving or (reversing != was_reversing and not spinning()):
 		travel = target
-	if turboing():
-		# A pad shoves along its arrow whatever way the nose points; grip takes over afterwards.
-		velocity = turbo_direction * stats.top_speed * stats.turbo_speed_multiplier
-		forward_speed = velocity.length() * (-1.0 if velocity.dot(forward_vector()) < 0.0 else 1.0)
-		return
 	var angle := travel.signed_angle_to(target, Vector3.UP)
 	# Tires that have let go in a big slide keep sliding until the kart slows down, and a drift
 	# takes the grip away over its entry time rather than in one tick.
@@ -282,9 +262,6 @@ func _step_tires_once(input: KartInput, delta: float) -> void:
 	if spinning():
 		_step_spin(delta)
 		return
-	if turboing():
-		velocity = turbo_direction * stats.top_speed * stats.turbo_speed_multiplier
-		return
 	long_speed = _drive(input, long_speed, delta)
 	if absf(long_speed) < stats.creep_speed:
 		_step_creep(input, right, long_speed, delta)
@@ -337,7 +314,7 @@ func _oversteering() -> bool:
 ## Catching it is the end of it, so opposite lock held after the catch steers the kart rather
 ## than throwing it the other way; another flick of the handbrake breaks the rear loose again.
 func _step_slide(delta: float) -> void:
-	if not _oversteering() or not drifting or spinning() or turboing():
+	if not _oversteering() or not drifting or spinning():
 		# Gathered up as quickly as counter-steering would: the drift is over.
 		# Gathered up as briskly as a catch would: the drift is over.
 		slide_rate = move_toward(
@@ -399,7 +376,7 @@ func _step_wheel(input: KartInput, speed_now: float, delta: float) -> void:
 func _drive(input: KartInput, long_speed: float, delta: float) -> float:
 	var accel := stats.acceleration() * (1.5 if nitro_bonus > 1.0 else 1.0)
 	var throttle := input.throttle
-	if nitro_bonus > 1.0 and input.brake <= 0.01:
+	if (nitro_bonus > 1.0 or turboing()) and input.brake <= 0.01:
 		throttle = 1.0
 	if throttle > 0.01 and (long_speed >= 0.0 or input.brake <= 0.01):
 		long_speed = move_toward(long_speed, max_speed() * throttle, accel * delta)
@@ -468,15 +445,12 @@ func _step_steer_input(input: KartInput, delta: float) -> void:
 func _step_longitudinal(input: KartInput, delta: float) -> void:
 	if spinning():
 		return
-	if turboing():
-		forward_speed = max_speed()
-		return
 	var accel := stats.acceleration() * (1.5 if nitro_bonus > 1.0 else 1.0)
-	# The bottle is its own throttle, GAME.md 4.2: nitro pushes whether or not the pedal is
-	# down, so a kart coasting or reversing is thrown forward by it. Braking still wins, so
-	# there is a way to burn nitro without being carried into a wall.
+	# The bottle and a turbo pad are each their own throttle, GAME.md 4.2 and 6.2: both push
+	# whether or not the pedal is down, so a kart coasting or reversing is thrown forward by
+	# either. Braking still wins, so there is a way not to be carried into a wall.
 	var throttle := input.throttle
-	if nitro_bonus > 1.0 and input.brake <= 0.01:
+	if (nitro_bonus > 1.0 or turboing()) and input.brake <= 0.01:
 		throttle = 1.0
 	if throttle > 0.01 and (forward_speed >= 0.0 or input.brake <= 0.01):
 		forward_speed = move_toward(forward_speed, max_speed() * throttle, accel * delta)
@@ -515,7 +489,7 @@ func _step_drift(input: KartInput) -> void:
 		if too_slow or (not steering and not input.handbrake):
 			_end_drift()
 		return
-	if turboing() or spinning() or forward_speed <= 0.0:
+	if spinning() or forward_speed <= 0.0:
 		return
 	var steering := absf(steer) >= stats.handbrake_drift_steer
 	var handbrake := input.handbrake and steering and fraction >= stats.handbrake_speed_fraction
@@ -626,8 +600,6 @@ func _rolling_rate(speed_now: float) -> float:
 		rate *= lerpf(1.0, stats.slide_front_authority, drift_amount)
 	else:
 		rate *= lerpf(1.0, stats.drift_yaw_multiplier, drift_amount)
-	if turboing():
-		rate *= stats.turbo_steer_multiplier
 	if nitro_bonus > 1.0:
 		rate *= stats.nitro_steer_multiplier
 	return rate * steer_multiplier
@@ -661,53 +633,27 @@ func apply_spin_out(direction: float) -> void:
 	boost_time_left = 0.0
 
 
-## A shove is a gift, not a sentence, GAME.md 6.2: braking, yanking the handbrake or putting
-## the wheel over ends it there and then, and the kart keeps the speed it was given. Without
-## this a pair of pads pointing at each other is a trap with no way out of it.
-func _step_turbo_release(input: KartInput) -> void:
-	if not turboing():
-		return
-	if input.brake > 0.01 or input.handbrake or absf(input.steer) > TURBO_RELEASE_STEER:
-		turbo_time_left = 0.0
-
-
-## Leaning on the wheel during a shove pulls the line round after the nose, GAME.md 6.2. The
-## nose is already turning, at half rate; without this it turned and the kart carried on along
-## the arrow regardless, so the only answer to a pad pointing somewhere unhelpful was to throw
-## the whole shove away. Left alone, the line stays exactly on the arrow.
-func _step_turbo_bend(input: KartInput, delta: float) -> void:
-	if not turboing():
-		return
-	var lean := absf(input.steer)
-	if lean <= TURBO_BEND_DEADZONE:
-		return
-	var nose := forward_vector()
-	if turbo_direction.dot(nose) < 0.0:
-		# Shoved backwards onto the arrow: the line follows the tail rather than the nose.
-		nose = -nose
-	var angle := turbo_direction.signed_angle_to(nose, Vector3.UP)
-	var most := TURBO_BEND * lean * delta
-	turbo_direction = turbo_direction.rotated(Vector3.UP, clampf(angle, -most, most)).normalized()
-
-
-## A turbo pad shoves the kart along its arrow without turning it. Facing along the arrow, or
-## straight against it, the shove lasts the full duration and the kart simply runs faster,
-## forward or in reverse. Crossing the pad sideways gives only a short shove, after which the
-## kart slides on its slipping tires until it has nearly stopped.
+## A turbo pad points the kart down its arrow and fires it along it, GAME.md 6.2, and then for
+## the next second holds the throttle down for the driver and lifts the speed limit, so the kart
+## runs fast whatever their finger was doing when they crossed the pad.
+##
+## Nothing else is taken: the wheel, the handbrake and the brake all work the whole time, at full
+## authority, so the boost is something to steer and drift with. It used to be a rail instead,
+## which the kart was locked onto and could only be thrown off by asking for it back, and the
+## result was a pad that either drove for you or did nothing at all.
 func apply_turbo(direction: Vector3) -> void:
 	var flat := Vector3(direction.x, 0.0, direction.z).normalized()
 	if flat.is_zero_approx():
 		return
-	var angle := absf(flat.signed_angle_to(forward_vector(), Vector3.UP))
-	var align := deg_to_rad(stats.turbo_align_angle_deg)
-	var aligned := angle <= align or angle >= PI - align
-	turbo_direction = flat
-	turbo_time_left = stats.turbo_duration if aligned else stats.turbo_side_push_time
+	heading = atan2(-flat.x, -flat.z)
+	turbo_time_left = stats.turbo_duration
 	drifting = false
+	drift_amount = 0.0
 	drift_time = 0.0
+	slide_rate = 0.0
 	_kick_remaining = 0.0
-	velocity = flat * stats.top_speed * stats.turbo_speed_multiplier
-	forward_speed = velocity.length() * (-1.0 if flat.dot(forward_vector()) < 0.0 else 1.0)
+	forward_speed = stats.top_speed * stats.turbo_speed_multiplier
+	velocity = flat * forward_speed
 
 
 ## A shallow wall hit. Returns true when the kart glanced off: the nose turns most of the way

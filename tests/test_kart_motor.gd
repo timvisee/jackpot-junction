@@ -473,95 +473,63 @@ func _sideways_speed_after_turn(drifting: bool) -> float:
 	return (motor.velocity - forward * motor.velocity.dot(forward)).length()
 
 
-func test_turbo_pad_along_the_nose_pushes_for_the_duration_without_turning() -> void:
-	_motor.heading = 0.2
+## GAME.md 6.2: a pad points the kart down its arrow and fires it along it, whatever way the
+## nose was pointing when it crossed.
+func test_a_turbo_pad_points_the_kart_down_its_arrow_and_fires_it() -> void:
+	_motor.heading = 2.0
 	_motor.apply_turbo(Vector3(0.0, 0.0, -1.0))
-	assert_float(_motor.heading).is_equal_approx(0.2, 0.0001)
-	_run(_stats.turbo_duration * 0.5)
 	var turbo_speed := _stats.top_speed * _stats.turbo_speed_multiplier
+	assert_vector(_motor.forward_vector()).is_equal_approx(
+		Vector3(0.0, 0.0, -1.0), Vector3.ONE * 0.001
+	)
 	assert_float(_motor.speed()).is_equal_approx(turbo_speed, 0.01)
 	assert_float(_motor.forward_speed).is_greater(0.0)
+
+
+## GAME.md 6.2: the throttle is held down for the driver for the whole shove, so a pad taken with
+## a finger off the trigger still shoves. This is the whole point of it: a kart that gave the
+## boost straight back the moment the driver did anything was a pad that did nothing.
+func test_a_turbo_pad_holds_the_throttle_down_for_the_driver() -> void:
+	_motor.apply_turbo(Vector3(0.0, 0.0, -1.0))
+	var turbo_speed := _stats.top_speed * _stats.turbo_speed_multiplier
+	_input.throttle = 0.0
+	_run(_stats.turbo_duration * 0.5)
 	assert_bool(_motor.turboing()).is_true()
+	assert_float(_motor.speed()).is_equal_approx(turbo_speed, 0.01)
+	# And when it runs out the kart is back on its own throttle, which nobody is touching.
 	_run(_stats.turbo_duration)
 	assert_bool(_motor.turboing()).is_false()
 	assert_float(_motor.speed()).is_less(turbo_speed)
-	assert_float(_motor.heading).is_equal_approx(0.2, 0.0001)
 
 
-func test_turbo_pad_against_the_nose_pushes_the_kart_backwards() -> void:
-	_motor.apply_turbo(Vector3(0.0, 0.0, 1.0))
-	assert_float(_motor.heading).is_equal_approx(0.0, 0.0001)
-	_run(_stats.turbo_duration * 0.5)
-	assert_float(_motor.forward_speed).is_less(0.0)
-	assert_float(_motor.speed()).is_equal_approx(
-		_stats.top_speed * _stats.turbo_speed_multiplier, 0.01
-	)
-	assert_float(_motor.velocity.z).is_greater(0.0)
-
-
-## GAME.md 6.2: leaning on the wheel during a shove pulls the line round after the nose. Left
-## alone the shove holds the pad's arrow exactly, which is what the pad promises.
-func test_a_shove_bends_with_the_wheel_and_holds_its_line_without_it() -> void:
+## GAME.md 6.2: the wheel and the handbrake are the driver's throughout. Steering through a shove
+## turns the kart rather than throwing the shove away.
+func test_a_turbo_shove_can_be_steered_and_drifted() -> void:
 	_motor.apply_turbo(Vector3(0.0, 0.0, -1.0))
-	var arrow := _motor.turbo_direction
-	# Hands off: the line is the arrow, for the whole shove.
-	for i: int in 20:
-		_motor.step(_input, DT)
-	assert_vector(_motor.turbo_direction).is_equal_approx(arrow, Vector3.ONE * 0.001)
-	# A lean on the wheel, short of the release, pulls it round without ending the shove.
-	_motor.apply_turbo(Vector3(0.0, 0.0, -1.0))
-	_input.steer = 0.5
-	for i: int in 20:
-		_motor.step(_input, DT)
-	assert_bool(_motor.turboing()).is_true()
-	var bent := absf(_motor.turbo_direction.signed_angle_to(arrow, Vector3.UP))
-	assert_float(bent).is_greater(deg_to_rad(4.0))
-	# And the kart is actually travelling along the new line rather than the old one.
-	assert_vector(_motor.velocity.normalized()).is_equal_approx(
-		_motor.turbo_direction, Vector3.ONE * 0.01
-	)
-
-
-## GAME.md 6.2: the shove is a gift, not a sentence. Braking, the handbrake or a real turn of the
-## wheel hands the kart straight back, with the speed it was given still on it.
-func test_a_turbo_shove_can_be_steered_or_braked_out_of_at_once() -> void:
-	_motor.apply_turbo(Vector3(0.0, 0.0, -1.0))
-	assert_bool(_motor.turboing()).is_true()
-	# A nudge of the wheel is for lining up during the shove, and does not end it.
-	_input.steer = 0.2
-	_motor.step(_input, DT)
-	assert_bool(_motor.turboing()).is_true()
-	# Putting it over does, and the kart keeps what the pad gave it.
+	var heading := _motor.heading
 	_input.steer = 1.0
-	_motor.step(_input, DT)
-	assert_bool(_motor.turboing()).is_false()
-	assert_float(_motor.speed()).is_greater_equal(_stats.top_speed)
-	# So does the brake, from a fresh shove.
-	_input.steer = 0.0
-	_motor.apply_turbo(Vector3(0.0, 0.0, -1.0))
-	_input.brake = 1.0
-	_motor.step(_input, DT)
-	assert_bool(_motor.turboing()).is_false()
-	# And so does the handbrake.
-	_input.brake = 0.0
+	_input.throttle = 1.0
+	_run(_stats.turbo_duration * 0.6)
+	assert_bool(_motor.turboing()).is_true()
+	assert_float(absf(_motor.heading - heading)).is_greater(deg_to_rad(20.0))
+	assert_float(_motor.speed()).is_greater(_stats.top_speed)
+	# And the handbrake still starts a drift rather than cancelling the pad.
 	_motor.apply_turbo(Vector3(0.0, 0.0, -1.0))
 	_input.handbrake = true
-	_motor.step(_input, DT)
-	assert_bool(_motor.turboing()).is_false()
-
-
-func test_turbo_pad_crossed_sideways_shoves_briefly_then_slides_off_it() -> void:
-	_motor.apply_turbo(Vector3(1.0, 0.0, 0.0))
-	assert_float(_motor.heading).is_equal_approx(0.0, 0.0001)
-	assert_float(_motor.turbo_time_left).is_equal_approx(_stats.turbo_side_push_time, 0.0001)
 	_run(0.1)
-	assert_float(_motor.velocity.x).is_greater(10.0)
-	_run(1.6)
-	assert_bool(_motor.turboing()).is_false()
-	# Most of the shove is scrubbed off, but the kart drives out of it rather than being left
-	# standing: sideways slip costs half what it used to.
-	assert_float(_motor.speed()).is_less(_stats.top_speed * 0.45)
-	assert_float(_motor.heading).is_equal_approx(0.0, 0.0001)
+	assert_bool(_motor.turboing()).is_true()
+	assert_bool(_motor.drifting).is_true()
+
+
+## GAME.md 6.2: braking still wins, the same as it does against nitro, so there is a way not to be
+## carried into a wall. The shove itself runs its course either way.
+func test_braking_through_a_shove_still_slows_the_kart() -> void:
+	_motor.apply_turbo(Vector3(0.0, 0.0, -1.0))
+	var was := _motor.speed()
+	_input.throttle = 0.0
+	_input.brake = 1.0
+	_run(_stats.turbo_duration * 0.5)
+	assert_float(_motor.speed()).is_less(was)
 
 
 func test_wall_hits_cost_speed_only_when_hard() -> void:

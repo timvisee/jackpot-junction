@@ -173,13 +173,10 @@ enum Model {
 @export var nitro_min_start := 0.2
 
 @export_group("Turbo pads")
+## What a pad does: the speed it fires the kart off at, and how long it holds the throttle down
+## and keeps the limit raised afterwards. Steering is not touched, GAME.md 6.2.
 @export var turbo_speed_multiplier := 1.5
 @export var turbo_duration := 1.0
-@export var turbo_steer_multiplier := 0.5
-## Within this angle of the pad's arrow, forward or backward, the pad pushes for the full duration.
-@export var turbo_align_angle_deg := 45.0
-## A kart crossing the pad sideways only gets a short shove, then slides.
-@export var turbo_side_push_time := 0.15
 ## Braking from sliding sideways outside a drift, per second at a right angle of slip.
 @export var slip_friction := 14.0
 ## Grip while the tires have let go in a big uncontrolled slide, so the kart keeps sliding

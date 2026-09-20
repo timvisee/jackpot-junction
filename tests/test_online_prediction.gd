@@ -616,7 +616,7 @@ func test_a_turbo_pad_shoves_the_kart_this_machine_drives() -> void:
 		. override_failure_message("the pad's shove did not reach the kart on this machine")
 		. is_true()
 	)
-	assert_vector(mine.motor.turbo_direction).is_equal_approx(pad.direction, Vector3.ONE * 0.01)
+	assert_vector(mine.motor.forward_vector()).is_equal_approx(pad.direction, Vector3.ONE * 0.01)
 	# And nothing is announced for it. The host drives over the same pad a moment later and its
 	# word is what the room hears, so a machine announcing its own guess would say it twice.
 	(

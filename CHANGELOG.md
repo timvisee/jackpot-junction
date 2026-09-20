@@ -21,6 +21,13 @@ below, and hands the notes to the release workflow.
   the two stubs of wall was one cell wide, which is a keyhole to be lined up and
   crept through. It is three wide now.
 
+- **A turbo pad fires you down its arrow and holds the throttle.** The pad points
+  your kart along the arrow, sends it off at 150% of top speed, and keeps your
+  foot down for a second whether or not you are touching the trigger. The wheel,
+  the handbrake and the brake are yours the whole time, so you steer and drift
+  through the boost instead of either riding a rail or throwing the boost away by
+  turning.
+
 ## [0.3.0] - 2026-09-20
 
 A room worth sitting in. The arena picked up a crowd a thousand strong on
