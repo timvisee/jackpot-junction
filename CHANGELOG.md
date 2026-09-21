@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **The score tanks' caps sit on top of the glass.** They were sunk into it, so
+  the tank wall cut through the ring and the cap came out looking cracked.
+
 ## [0.3.2] - 2026-09-20
 
 A tank per player beside the arena that fills as you bank, and a camera that

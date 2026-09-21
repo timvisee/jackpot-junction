@@ -21,6 +21,12 @@ const SPACING := 1.7
 ## of tanks drawn over a row of speakers is neither.
 const STANDOFF := 0.9
 const OFFSET := 0.42
+## How far the cap sits above the top of the glass. It used to be sunk into it, which put the
+## two flat faces in the same plane and ran the glass wall through the middle of the ring: from
+## across the table that reads as the cap cutting into the tank. It still dips a hair below, so
+## there is no daylight between them, and the ring is wider than the shell, so what overlaps is
+## inside the cap rather than through it.
+const CAP_LIFT := 0.05
 ## The glass, the dark of the base and cap, and how much of the tank the fluid can fill.
 const GLASS := Color(0.80, 0.88, 0.96, 0.15)
 const FITTING := Color(0.11, 0.11, 0.14)
@@ -131,7 +137,7 @@ func _tank(at: Vector3, color: Color, glass: Material, fitting: Material) -> Mes
 	add_child(tank)
 	for foot: bool in [true, false]:
 		var ring := _tube(RADIUS * 1.16, 0.12, fitting)
-		ring.position.y = 0.06 if foot else HEIGHT - 0.06
+		ring.position.y = 0.06 if foot else HEIGHT + CAP_LIFT
 		tank.add_child(ring)
 	# The player's own colour on the foot, so an empty tank still says whose it is.
 	var band := _tube(RADIUS * 1.22, 0.07, _paint(color))
