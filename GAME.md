@@ -771,6 +771,10 @@ bounces back into the shooter.
 To make forward-only aiming forgiving, bullets bend slightly toward targets. The bend stops
 at the first bounce and the accessibility setting in 8.5 scales it, down to nothing.
 
+The assist is for a shot taken on the move. A kart sat still with its nose down a corridor is
+not taking a hard shot, and helping it there turns a parked kart into a turret, so the bend
+fades away while one stands about and comes straight back when it drives off.
+
 Everything worth shooting counts as a target, not only karts: a box broken is cover gone and
 coins on the floor, a bomb set off from across the room does more than a bullet ever does, and
 a shooting target pays. But none of that wins a match, so a kart always comes first: it is
@@ -795,6 +799,7 @@ own strength whatever the accessibility setting says.
 | Priority     | A kart counts as 0.4 of its real distance away, so a player is chosen over a box twice as near |
 | Direction    | Only what is inside the cone is considered at all, so nothing behind the shot takes the aim off what is in front of it |
 | Line of sight | Anything with a wall or a box between it and the shot is passed over; the bend cannot go round either |
+| Standing still | Under 22% of top speed for 1.2 s, then the bend fades over 1.5 s to a quarter of itself; driving off restores it at once |
 
 Turret bullets and Swivel Cannon bullets have no aim assist.
 

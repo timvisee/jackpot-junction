@@ -3,6 +3,7 @@ extends GdUnitTestSuite
 ## targets are all worth hitting, and a kart is worth more than any of them.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const CANNON := preload("res://data/cannons/default.tres")
 const CONE := PI * 0.5
 const REACH := 30.0
 ## Where a kart is put when it is meant to be out of the shot: behind it, not beside it.
@@ -134,3 +135,59 @@ func test_a_target_behind_a_wall_is_passed_over() -> void:
 	enemy.global_position = Vector3(4.0, 0.0, 3.0)
 	await _runner.simulate_frames(4, 17)
 	assert_object(_best_seen(match_node)).is_same(enemy)
+
+
+## GAME.md 5.2: the assist is for a shot taken on the move. A kart that has been parked a while
+## keeps its nose pointed down a corridor and lets the bend do the aiming, so the bend fades
+## away while it stands about.
+func test_the_assist_fades_on_a_kart_that_stands_still() -> void:
+	var stats := CANNON
+	assert_float(KartAim.assist_share(stats, 0.0)).is_equal_approx(1.0, 0.001)
+	# Nothing happens at all for the first moment: a kart lining a shot up is not camping.
+	assert_float(KartAim.assist_share(stats, stats.assist_still_grace)).is_equal_approx(1.0, 0.001)
+	var half := stats.assist_still_grace + stats.assist_still_fade * 0.5
+	var midway := KartAim.assist_share(stats, half)
+	assert_float(midway).is_less(1.0)
+	assert_float(midway).is_greater(stats.assist_still_floor)
+	# And it settles at the floor rather than falling away to nothing.
+	var parked := stats.assist_still_grace + stats.assist_still_fade + 10.0
+	assert_float(KartAim.assist_share(stats, parked)).is_equal_approx(
+		stats.assist_still_floor, 0.001
+	)
+
+
+## A kart standing still runs the clock down; driving off hands the assist straight back, which
+## is what keeps this from punishing a shot taken while fighting for position.
+func test_standing_still_runs_the_clock_and_moving_hands_the_assist_back() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	kart.still_for = 0.0
+	for i: int in 180:
+		kart._step_assist(1.0 / 60.0)
+	assert_float(kart.still_for).is_greater(kart.cannon_stats.assist_still_grace)
+	assert_float(kart.assist_share).is_less(1.0)
+	kart.motor.velocity = -kart.global_basis.z * kart.stats.top_speed
+	kart._step_assist(1.0 / 60.0)
+	assert_float(kart.still_for).is_equal(0.0)
+	assert_float(kart.assist_share).is_equal_approx(1.0, 0.001)
+
+
+## The share rides on the bullet, so a shot already in the air is not re-judged and a cannon
+## with no assist at all does not get one back.
+func test_the_share_scales_the_bend_the_shot_leaves_with() -> void:
+	var stats := CANNON
+	var bullet: Bullet = auto_free(Bullet.new())
+	bullet.setup(0, Vector3.ZERO, Vector3(1.0, 0.0, 0.0), stats, Color.WHITE)
+	var cone := bullet.assist_cone
+	var turn := bullet.assist_turn_rate
+	bullet.apply_assist_share(0.25)
+	assert_float(bullet.assist_cone).is_equal_approx(cone * 0.25, 0.0001)
+	assert_float(bullet.assist_turn_rate).is_equal_approx(turn * 0.25, 0.0001)
+	assert_bool(bullet.assist_enabled).is_true()
+	var blind: Bullet = auto_free(Bullet.new())
+	var no_assist: CannonStats = stats.duplicate()
+	no_assist.aim_assist = false
+	blind.setup(0, Vector3.ZERO, Vector3(1.0, 0.0, 0.0), no_assist, Color.WHITE)
+	blind.apply_assist_share(1.0)
+	assert_bool(blind.assist_enabled).is_false()

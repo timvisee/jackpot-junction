@@ -76,6 +76,10 @@ var frozen := false
 ## nobody steers it and nothing can touch it any more.
 var coasting := false
 var protection_left := 0.0
+## How much of the aim assist this kart's next shot gets and how long it has been standing
+## still, GAME.md 5.2. Worked out by [KartAim].
+var assist_share := 1.0
+var still_for := 0.0
 ## Fraction of the pot still to bank while on the Junction, -1 when not banking.
 var channel_progress := -1.0
 ## Set by the Boost power-up: contact with another kart kills it.
@@ -232,6 +236,7 @@ func _physics_process(delta: float) -> void:
 			die(&"expired", -1)
 			return
 	_step_protection(delta)
+	_step_assist(delta)
 	_graze_cooldown_left = maxf(_graze_cooldown_left - delta, 0.0)
 	crash_wait = maxf(crash_wait - delta, 0.0)
 	_step_effects(delta)
@@ -899,8 +904,20 @@ func _fire() -> void:
 	var shots := cannon.fire(
 		bullet_system, slot, origin, direction, Palette.player_color(color_index), global_position
 	)
+	for bullet: Bullet in shots:
+		bullet.apply_assist_share(assist_share)
 	fired.emit(shots)
 	Events.bullet_fired.emit(slot)
+
+
+## How long the kart has been standing still and how much of the aim assist that leaves it,
+## GAME.md 5.2.
+func _step_assist(delta: float) -> void:
+	var moving := (
+		cannon_stats != null and motor.speed_fraction() >= cannon_stats.assist_moving_fraction
+	)
+	still_for = 0.0 if moving else still_for + delta
+	assist_share = KartAim.assist_share(cannon_stats, still_for)
 
 
 ## Both kinds of invulnerability, GAME.md 3.6: the spawn protection a kart comes back with,

@@ -79,6 +79,17 @@ static func steered(kart: Kart, direction_now: Vector3) -> Vector3:
 	)
 
 
+## How much of the aim assist a shot leaving now gets, after [param still_for] seconds parked,
+## GAME.md 5.2. The assist is for a shot taken on the move; a kart sat still with its nose down
+## a corridor is not taking a hard shot, and the help there turns it into a turret. It fades
+## rather than cutting out, and moving again hands it straight back.
+static func assist_share(stats: CannonStats, still_for: float) -> float:
+	if stats == null:
+		return 1.0
+	var over := (still_for - stats.assist_still_grace) / maxf(stats.assist_still_fade, 0.001)
+	return lerpf(1.0, clampf(stats.assist_still_floor, 0.0, 1.0), clampf(over, 0.0, 1.0))
+
+
 ## Where the mouse is pointing on the floor, at the height bullets fly, or zero when there is no
 ## camera to ask or the pointer is somewhere the floor is not.
 static func _from_mouse(kart: Kart) -> Vector3:

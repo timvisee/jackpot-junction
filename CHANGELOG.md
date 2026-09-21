@@ -22,6 +22,10 @@ below, and hands the notes to the release workflow.
 - **The D-pad picture loses its box.** It is a cross, which is already a shape,
   so it is drawn the way the face buttons and the stick are.
 
+- **Aim assist fades on a kart that is standing still.** Sitting with the nose
+  pointed down a corridor no longer aims for you; driving off hands the help
+  straight back.
+
 ### Added
 
 - **Two more music tracks.** Ginger Bread and Let It Breathe join Deceased

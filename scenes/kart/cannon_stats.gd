@@ -24,6 +24,14 @@ extends Resource
 @export var aim_assist_turn_rate_deg := 50.0
 ## Whether bullets keep bending after their first bounce, which Curve Ball turns on.
 @export var assist_after_bounce := false
+## The assist is for a shot taken on the move, GAME.md 5.2. A kart under this share of its top
+## speed is standing still as far as the cannon is concerned; after this long parked the assist
+## fades over this long, down to this share of itself. Picking up speed hands it straight back:
+## a kart that is moving is a kart with a harder shot to take.
+@export var assist_moving_fraction := 0.22
+@export var assist_still_grace := 1.2
+@export var assist_still_fade := 1.5
+@export var assist_still_floor := 0.25
 ## Degrees a shot is turned toward the nearest enemy as it leaves the barrel, for Aimbot.
 @export var auto_aim_deg := 0.0
 ## How far Aimbot looks for that enemy.

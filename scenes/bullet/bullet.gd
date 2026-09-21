@@ -92,6 +92,15 @@ func setup(
 	assist_after_bounce = stats.assist_after_bounce
 
 
+## Scales what this shot's assist is worth, GAME.md 5.2: a kart that has been parked up gets
+## less of it than one on the move. Applied after setup rather than folded into the stats, since
+## it changes shot by shot and the stats do not.
+func apply_assist_share(share: float) -> void:
+	assist_cone *= share
+	assist_turn_rate *= share
+	assist_enabled = assist_enabled and share > 0.0
+
+
 func _ready() -> void:
 	add_to_group(&"bullets")
 	_shape.radius = radius
