@@ -43,6 +43,10 @@ below, and hands the notes to the release workflow.
   under a workbench lamp, The Vault is a dark room with one light over the felt,
   and Crossfire is played in cold daylight.
 
+- **The pads are set into the table.** The Junction is a roundel with metal rings
+  rather than a black hole with a pink ring, and the coin, power-up and turbo pads
+  wear rims and frames instead of lying on the felt like stickers.
+
 - **The signs are lit.** The hoardings and the clock carry their own light in a
   dark room, so a board over the crowd can still be read at The Vault, and stay
   paint on a board in daylight.

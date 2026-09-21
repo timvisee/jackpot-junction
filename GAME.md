@@ -1114,8 +1114,13 @@ reads as something you could pick up.
 - **Floor**: dark green felt with asphalt lanes and painted road markings.
 - **Walls and crates**: sand-coloured wooden toy blocks.
 - **Beyond the walls**: a warm wooden table surface, slightly out of focus.
-- **Junction pad**: a slot-machine roundel with neon rings that light up while
-  someone is banking, and a traffic light that turns green during a cash-out.
+- **Junction pad**: a slot-machine roundel set into the felt -- a dark floor, a
+  ring of the room's metal round the middle of it and another round the outside,
+  with the neon on the rim that lights up while somebody is banking -- and a
+  traffic light that turns green during a cash-out. Everything else on the floor
+  is set in the same way: a coin pad and a power-up pad wear a rim, and a turbo
+  pad is a lit face in a dark frame. A disc of colour lying on felt reads as a
+  sticker; the same disc with a rim round it reads as a fitting.
 - **Jackpot zone**: a vault floor tile with a chip pile that grows, a traffic light
   for its state, and its chip count painted on the floor of the zone, the way
   a Royal Flush pad wears its letter. The number belongs to the square a kart has to

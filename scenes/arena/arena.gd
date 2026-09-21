@@ -448,6 +448,7 @@ func _add_coin_pads() -> void:
 		var disc := _disc_mesh(0.45, room.trim)
 		disc.position = Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
 		pad.add_child(disc)
+		pad.add_child(_pad_rim(0.5))
 		pads.add_child(pad)
 		coin_pads.append(pad)
 
@@ -462,7 +463,9 @@ func _add_power_pads() -> void:
 		pad.position = grid.cell_center(grid.power_pads[i])
 		var disc := _disc_mesh(0.6, Palette.NEON_MAGENTA)
 		disc.position = Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
+		disc.material_override = surfaces.neon(Palette.NEON_MAGENTA, 0.35)
 		pad.add_child(disc)
+		pad.add_child(_pad_rim(0.66, 0.07))
 		pads.add_child(pad)
 		power_pads.append(pad)
 
@@ -528,10 +531,16 @@ func _add_turbo_pads() -> void:
 		shape.shape = box
 		shape.position = Vector3(0.0, 0.5, 0.0)
 		pad.add_child(shape)
+		# A dark plate set into the felt with a lit face on it, rather than a flat cyan square:
+		# the frame is what makes it read as a fitting, GAME.md 8.1.
+		var frame := _box_mesh(Vector3(grid.cell_size, PAD_HEIGHT, grid.cell_size), room.lane)
+		frame.position = Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
+		pad.add_child(frame)
 		var plate := _box_mesh(
-			Vector3(grid.cell_size, PAD_HEIGHT, grid.cell_size), Palette.NEON_CYAN
+			Vector3(grid.cell_size * 0.82, PAD_HEIGHT, grid.cell_size * 0.82), Palette.NEON_CYAN
 		)
-		plate.position = Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
+		plate.material_override = surfaces.neon(Palette.NEON_CYAN, 0.4)
+		plate.position = Vector3(0.0, PAD_HEIGHT * 0.9, 0.0)
 		pad.add_child(plate)
 		var arrow := _arrow_mesh(Palette.CHIP_WHITE)
 		arrow.position = Vector3(0.0, PAD_HEIGHT + 0.03, 0.0)
@@ -653,9 +662,17 @@ func _add_junction() -> void:
 	pad.position = junction_position
 	add_child(pad)
 	junction = pad
+	# The roundel, GAME.md 8.1: a dark floor set into the felt, a ring of the room's metal round
+	# the middle of it and another round the outside, with the neon on the rim. Flat black with
+	# one pink ring read as a hole in the table.
 	var base := _disc_mesh(junction_radius, JUNCTION_BASE_COLOR)
 	base.position = Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
 	pad.add_child(base)
+	var inner := _disc_mesh(junction_radius * 0.52, room.lane)
+	inner.position = Vector3(0.0, PAD_HEIGHT * 0.8, 0.0)
+	pad.add_child(inner)
+	pad.add_child(_pad_rim(junction_radius * 0.56, 0.1))
+	pad.add_child(_pad_rim(junction_radius - 0.26, 0.12))
 	var ring := MeshInstance3D.new()
 	var torus := TorusMesh.new()
 	torus.inner_radius = junction_radius - 0.25
@@ -717,6 +734,21 @@ func _box_mesh(size: Vector3, color: Color) -> MeshInstance3D:
 	instance.mesh = mesh
 	instance.material_override = _material(color)
 	return instance
+
+
+## A thin ring of the room's metal, laid round a pad at [param radius]. A disc of colour on the
+## felt reads as a sticker; the same disc with a rim round it reads as something set into the
+## table, GAME.md 8.1.
+func _pad_rim(radius: float, thickness := 0.06) -> MeshInstance3D:
+	var torus := TorusMesh.new()
+	torus.inner_radius = radius - thickness
+	torus.outer_radius = radius
+	torus.rings = 24
+	var rim := MeshInstance3D.new()
+	rim.mesh = torus
+	rim.material_override = surfaces.metal(room.trim)
+	rim.position = Vector3(0.0, PAD_HEIGHT * 0.9, 0.0)
+	return rim
 
 
 func _disc_mesh(radius: float, color: Color) -> MeshInstance3D:
