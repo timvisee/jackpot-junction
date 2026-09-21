@@ -192,7 +192,13 @@ func _show_detail(joker: Joker) -> void:
 	var size := InputHint.FONT_SIZE
 	var parts: Array = [
 		InputHint.pair(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, keyboard, ink, size),
-		InputHint.glyph(InputActions.JOKER_DROP, keyboard, ink, size),
-		InputHint.glyph(InputActions.JOKER_DESTROY, keyboard, ink, size),
 	]
-	_detail.set_hints(InputHint.row("%s cycle %s drop %s destroy", parts, ink, size))
+	var line := "%s cycle"
+	# A player waiting to come back can read their hand but not throw any of it away, GAME.md
+	# 3.7, so the pane stops offering the two buttons that would. A hint for a button that does
+	# nothing is worse than no hint: it reads as the game having stopped listening.
+	if kart != null and kart.alive:
+		parts.append(InputHint.glyph(InputActions.JOKER_DROP, keyboard, ink, size))
+		parts.append(InputHint.glyph(InputActions.JOKER_DESTROY, keyboard, ink, size))
+		line += " %s drop %s destroy"
+	_detail.set_hints(InputHint.row(line, parts, ink, size))

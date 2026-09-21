@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A dead player can still read their hand, sudden death included.** The cards
+  would not open at all once the clock had run out, and the pane offered two
+  buttons that do nothing while you are down.
+
 - **The lights always find the winner.** A leader who was down at the whistle used
   to be passed over and the rig kept sweeping.
 

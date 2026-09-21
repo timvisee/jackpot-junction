@@ -257,7 +257,9 @@ Jokers are passive rule modifiers held for the rest of the match.
 - It opens while dead as well, and a player waiting to come back is the player
   with time to read their hand. Dropping and destroying are the two things it
   will not do then: there is no kart to drop a card from, and the respawn pick is
-  already asking what is worth keeping.
+  already asking what is worth keeping. The pane says as much, and offers the
+  cursor alone while the kart is down: a button drawn under a card that does
+  nothing when pressed reads as the game having stopped listening.
 - Menu controls: steer left and right, the bracket keys or the D-pad walk the
   cursor, number keys pick directly, the drop button lays the card on the floor,
   the destroy button burns it. Steering picks cards so that whatever the player
@@ -484,7 +486,8 @@ there. It goes to sudden death instead, and the timer says OVERTIME rather than
 counting anything.
 
 - Nobody respawns. A kart that goes down in overtime is out, and is offered no
-  joker, because there is no respawn for it to be for.
+  joker, because there is no respawn for it to be for. They keep their controls
+  for the one thing left to do with them: reading their hand, see 3.7.
 - The Junction still pays. A player who would rather keep what they are carrying
   than bet it on staying alive can drive in and bank it, the same as ever.
 - The last kart standing banks its whole pot, at full value, and the whistle goes.

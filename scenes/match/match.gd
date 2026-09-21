@@ -592,6 +592,7 @@ func _physics_process(delta: float) -> void:
 				if not _enter_overtime():
 					return
 			if state == State.OVERTIME:
+				_step_respawns(delta, false)
 				if _step_overtime():
 					return
 			else:
@@ -744,7 +745,10 @@ func spotlight_winner() -> void:
 		camera_rig.show_the_room(MatchHud.PODIUM_DELAY)
 
 
-func _step_respawns(delta: float) -> void:
+## Whoever is waiting to come back, and in sudden death whoever is not: [param coming_back]
+## false polls the controls and stops there, since nobody respawns out of overtime, GAME.md
+## 3.13, and a player who is out is exactly the player with time to read their hand in 3.7.
+func _step_respawns(delta: float, coming_back := true) -> void:
 	for slot: PlayerSlot in slots:
 		if slot.kart.alive:
 			continue
@@ -755,6 +759,8 @@ func _step_respawns(delta: float) -> void:
 			slot.input.poll(delta)
 			if slot.offer != null and not slot.offer.is_done():
 				slot.offer.poll_input(slot.input)
+		if not coming_back:
+			continue
 		slot.respawn_left = maxf(slot.respawn_left - delta, 0.0)
 		if slot.respawn_left <= 0.0 and (slot.offer == null or slot.offer.is_done()):
 			slot.offer = null
