@@ -717,6 +717,11 @@ func spotlight_winner() -> void:
 	var winner := standings()[0]
 	if winner.kart != null and winner.kart.alive:
 		arena.disco.focus(winner.kart)
+	# And the camera lets the room back in, GAME.md 8.2, over the same pause the podium waits out
+	# in 3.8: the karts have stopped being the subject, so the last thing the match does is open
+	# out to the table it was played on.
+	if camera_rig != null:
+		camera_rig.show_the_room(MatchHud.PODIUM_DELAY)
 
 
 func _step_respawns(delta: float) -> void:

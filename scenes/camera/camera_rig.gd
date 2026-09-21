@@ -56,6 +56,8 @@ var _pan := Vector3.ZERO
 var _zoom := 1.0
 var _shake := 0.0
 var _framed := false
+## Set at the whistle: the karts stop being the subject and the room becomes it again.
+var _opening_up := false
 var _rng := RandomNumberGenerator.new()
 
 
@@ -90,6 +92,7 @@ func frame_arena(bounds: AABB) -> void:
 	_arena_size = Vector2(bounds.size.x, bounds.size.z)
 	_wall_height = bounds.size.y
 	_framed = true
+	_opening_up = false
 	_arena_distance = _fit_distance()
 	_distance = _arena_distance
 	# Far enough to follow the karts anywhere on the floor, and no further: the look-at point
@@ -98,6 +101,17 @@ func frame_arena(bounds: AABB) -> void:
 	_pan = Vector3.ZERO
 	_zoom = 1.0
 	_place(_distance, _pan, _zoom)
+
+
+## Opens back out to the whole arena over [param seconds] and stays there, for the lap of
+## honour at the whistle, GAME.md 8.2. A slow pull rather than a cut: the match is over, and the
+## last thing it does is hand the room back.
+func show_the_room(seconds: float) -> void:
+	_opening_up = true
+	# A time constant of about a third of the run gets most of the way there in the time given
+	# while still easing rather than arriving and stopping.
+	smoothing = maxf(seconds, 0.1) * 0.34
+	distance_smoothing = smoothing
 
 
 ## Follows its targets from close in rather than framing the whole arena, for the driving room
@@ -168,7 +182,7 @@ static func _valid(list: Array[Node3D]) -> Array[Node3D]:
 ## one furthest out is the one that falls off the edge.
 func _target_pan() -> Vector3:
 	var alive := _alive_targets()
-	if alive.is_empty():
+	if _opening_up or alive.is_empty():
 		return Vector3.ZERO
 	var offset := (_target_box(alive).get_center() - _center) * pan_weight
 	offset.y = 0.0
@@ -183,7 +197,7 @@ func _target_distance() -> float:
 	if not _framed:
 		return _distance
 	var alive := _alive_targets()
-	if alive.is_empty():
+	if _opening_up or alive.is_empty():
 		return _arena_distance
 	var box := _target_box(alive).grow(follow_margin)
 	box.position.y = 0.0

@@ -19,6 +19,10 @@ below, and hands the notes to the release workflow.
 - **The camera sits closer to the karts.** Less floor around them before it
   starts pulling back, and it comes in further when they are packed together.
 
+- **The camera opens out to the whole arena at the whistle.** While the lights
+  swing onto the winner it eases back to show the table, and the podium comes up
+  over that.
+
 ## [0.3.2] - 2026-09-20
 
 A tank per player beside the arena that fills as you bank, and a camera that

@@ -134,3 +134,27 @@ func test_the_camera_pulls_back_out_for_a_spread_field_and_for_nobody() -> void:
 	assert_float(spread._distance).is_greater(huddled._distance * 1.4)
 	var empty := _watching([])
 	assert_float(empty._distance).is_equal_approx(empty._arena_distance, 0.01)
+
+
+## GAME.md 8.2: at the whistle the camera lets the room back in. It opens out to the whole arena
+## and stops following, over the pause the podium waits out.
+func test_the_camera_opens_out_to_the_room_at_the_whistle() -> void:
+	var rig := _watching([Vector3(4.0, 0.0, 2.0), Vector3(6.0, 0.0, 3.0)])
+	var close := rig._distance
+	assert_float(close).is_less(rig._arena_distance * 0.8)
+	rig.show_the_room(2.5)
+	for i: int in 200:
+		rig._process(0.05)
+	assert_float(rig._distance).is_equal_approx(rig._arena_distance, 0.5)
+	# And it is looking at the middle of the room rather than at whoever is standing about.
+	assert_float(rig._pan.length()).is_less(0.5)
+	# Every corner of the arena is back on screen, which is what opening out is for.
+	rig.camera.fov = rig.base_fov * rig.zoom_min
+	for x: float in [-20.0, 20.0]:
+		for z: float in [-11.25, 11.25]:
+			var corner := Vector3(x, 0.0, z)
+			(
+				assert_bool(rig.camera.is_position_in_frustum(corner))
+				. override_failure_message("corner %s not visible" % corner)
+				. is_true()
+			)
