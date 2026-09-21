@@ -1076,6 +1076,9 @@ them:
 | After Hours | The Vault | The room is dark and the table is the only lit thing in it: one lamp hung over the felt, the sun down to a hint, the crowd a band of shapes in the dark with the neon on their edges. |
 | The Yard | Crossfire | Cold daylight, no lamp. Steel, concrete and sand, hard shadows, little glow: the same game played in the open at ten in the morning. |
 
+The lobby names the room under the arena it belongs to, so picking a map reads as
+picking a place rather than a floor plan.
+
 Rooms are data, not code: nothing in a room decides anything about play, which is
 exactly why the same match can be played in three of them. Adding a fourth is a
 resource file and a map that names it.

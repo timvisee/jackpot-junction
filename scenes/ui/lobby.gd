@@ -43,6 +43,8 @@ var colors: Array[int] = [0]
 ## the match hands it, GAME.md 3.8.
 var player_names: Array[String] = [""]
 
+## Names the room the chosen map is played in, under the arena row.
+var _room_label: Label
 var _players_label: RichTextLabel
 var _join_hint: HBoxContainer
 ## One name box per seat, built once and shown as far down as the roster reaches.
@@ -53,6 +55,13 @@ var _name_rows: Array[HBoxContainer] = []
 var _style_rows: Array[HBoxContainer] = []
 var _style_pickers: Array[Array] = []
 var _steer_was_down: Dictionary[String, bool] = {}
+
+
+## The room behind the chosen map, named under the row that chose it.
+func _show_room() -> void:
+	var layout := ArenaMaps.layout(ArenaMaps.id_at(map_option.selected))
+	var room := layout.room if layout.room != null else RoomLook.fallback()
+	_room_label.text = "Played in %s" % room.display_name
 
 
 func _ready() -> void:
@@ -86,6 +95,13 @@ func _ready() -> void:
 	items_option = MenuTheme.option(["First set", "All items"], ITEM_SETS.find(settings.item_set))
 	map_option = MenuTheme.option(ArenaMaps.NAMES, ArenaMaps.index_of(StringName(settings.map)))
 	column.add_child(MenuTheme.row("Arena", map_option))
+	# Which room that map is played in, GAME.md 8.1: three of them, and a player picking a map
+	# is picking a place as much as a floor plan.
+	_room_label = MenuTheme.subtitle("", Type.LABEL)
+	_room_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	column.add_child(_room_label)
+	map_option.item_selected.connect(func(_index: int) -> void: _show_room())
+	_show_room()
 	column.add_child(MenuTheme.row("Match length", minutes_option))
 	column.add_child(MenuTheme.row("Target score", target_option))
 	column.add_child(MenuTheme.row("Bots", bots_option))

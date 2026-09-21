@@ -39,6 +39,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **The lobby says which room a map is played in.** Picking The Vault says
+  "Played in After Hours" under the row.
+
 - **Every map is played in a room of its own.** Lucky Crossing keeps a warm table
   under a workbench lamp, The Vault is a dark room with one light over the felt,
   and Crossfire is played in cold daylight.
