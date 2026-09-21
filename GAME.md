@@ -1395,7 +1395,11 @@ name. Somebody leaving frees their corner for the next player to sit down.
   scale. Weight carries the role rather than size carrying the importance:
   anything read at a glance mid-corner -- a banked score, the clock, a heading --
   is set in the display cut, names and buttons in the middle weight, and anything
-  that is a sentence in the text cut. Sizes come off a scale where each step is
+  that is a sentence in the text cut. Anything that is a number that changes --
+  a banked score, the clock, a speed, a place in the standings -- is set with
+  tabular figures, so every digit is the same width and the line stays where it
+  is while it counts. Proportional digits move the whole line sideways on every
+  tick, and a number that moves is a number read twice. Sizes come off a scale where each step is
   about a quarter larger than the one below it, because a screen with nine sizes
   on it reads as nine screens. Display lines are tracked out a little: a heavy
   face set tight reads as a shout.

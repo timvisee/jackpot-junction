@@ -69,8 +69,8 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, count: int) -> vo
 	var hunted := match_node.bounty_slot == slot.index
 	(row["bounty"] as Label).visible = hunted
 	for label: Label in [place, name_label, score]:
-		Type.set_font(label, Type.STRONG, size)
-	Type.set_font(risk, Type.STRONG, maxi(size - 8, RISK_FONT))
+		Type.set_font(label, Type.numbers_text_font(), size)
+	Type.set_font(risk, Type.numbers_text_font(), maxi(size - 8, RISK_FONT))
 	place.add_theme_color_override("font_color", DIM)
 	name_label.add_theme_color_override("font_color", color)
 	score.add_theme_color_override("font_color", Color.WHITE if local else DIM)

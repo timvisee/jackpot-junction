@@ -18,6 +18,10 @@ below, and hands the notes to the release workflow.
   now cost almost nothing outside The Vault, which spends half a millisecond a
   frame on the bloom its neon is made of.
 
+- **Numbers stop jittering.** Scores, the clock, speeds and the standings are set
+  with tabular figures, so a line does not shift sideways every time a digit
+  changes.
+
 - **Shadows are softer.** They were dark enough to read as holes in the floor;
   they are now a dark side, and the sooty corners are gone with the screen-space
   occlusion that was drawing them.

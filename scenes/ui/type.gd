@@ -23,6 +23,9 @@ const BODY := 21
 const LABEL := 17
 const SMALL := 14
 
+## The OpenType tag for tabular figures, packed the way a tag is: four characters in an int,
+## big end first, which is "tnum".
+const TABULAR := 0x746E756D
 ## How far apart the letters of a display line are set. Heavy uppercase wants air; text does not.
 const DISPLAY_TRACKING := 1.0
 
@@ -34,6 +37,30 @@ static func display_font() -> FontVariation:
 	font.base_font = DISPLAY
 	font.spacing_glyph = int(DISPLAY_TRACKING)
 	return font
+
+
+## The display cut with tabular figures: every digit the same width, so a score counting up or a
+## clock counting down stays put instead of jittering sideways as the digits change. Anything
+## that shows a number that changes is set in this.
+static func numbers_font() -> FontVariation:
+	var font := display_font()
+	font.opentype_features = {TABULAR: 1}
+	return font
+
+
+## The middle weight with the same tabular figures, for the numbers that are not headlines.
+static func numbers_text_font() -> FontVariation:
+	var font := FontVariation.new()
+	font.base_font = STRONG
+	font.opentype_features = {TABULAR: 1}
+	return font
+
+
+## A number that changes: a score, a clock, a speed.
+static func numbers(label: Label, size: int, ink: Color = Color.WHITE) -> Label:
+	set_font(label, numbers_font(), size)
+	label.add_theme_color_override("font_color", ink)
+	return label
 
 
 ## Sets [param node] in one of the three cuts at one of the sizes off the scale.

@@ -773,7 +773,7 @@ func _format_mult(mult: float) -> String:
 
 func _label(size: int, preset: int) -> Label:
 	var label := Label.new()
-	Type.set_font(label, Type.display_font(), size)
+	Type.set_font(label, Type.numbers_font(), size)
 	HudText.shadowed(label, 2)
 	label.set_anchors_and_offsets_preset(preset)
 	label.grow_horizontal = Control.GROW_DIRECTION_BOTH
@@ -810,11 +810,13 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	var banked := Label.new()
 	# The banked score is the number a player checks mid-corner, so it is set the largest and
 	# in the heaviest cut there is, GAME.md 8.3.
-	Type.display(banked, Type.SCORE)
+	Type.numbers(banked, Type.SCORE)
 	var pot := Label.new()
-	Type.strong(pot, Type.LARGE, Color(0.94, 0.94, 0.97))
+	Type.set_font(pot, Type.numbers_text_font(), Type.LARGE)
+	pot.add_theme_color_override("font_color", Color(0.94, 0.94, 0.97))
 	var stats := Label.new()
-	Type.text(stats, Type.LABEL, Color(0.72, 0.72, 0.78))
+	Type.set_font(stats, Type.numbers_text_font(), Type.LABEL)
+	stats.add_theme_color_override("font_color", Color(0.72, 0.72, 0.78))
 	var lives := HBoxContainer.new()
 	lives.add_theme_constant_override("separation", 6)
 	lives.alignment = BoxContainer.ALIGNMENT_END if right else BoxContainer.ALIGNMENT_BEGIN
@@ -839,7 +841,7 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	speed_dial.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var speed := Label.new()
 	speed.text = "0 km/h"
-	Type.set_font(speed, Type.STRONG, Type.LABEL)
+	Type.set_font(speed, Type.numbers_text_font(), Type.LABEL)
 	HudText.shadowed(speed, 2)
 	# The dial reads left to right whichever corner the block is in, with the number at the
 	# outside edge where the rest of the block's text already lines up.

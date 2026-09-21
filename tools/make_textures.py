@@ -6,12 +6,16 @@ Everything here is periodic: the noise is built by filtering white noise in the
 frequency domain, which wraps by construction, so a slab the size of a table can
 be tiled out of it without a seam. Albedo maps are greyscale around 1.0 and are
 multiplied by the room's own colour, so one felt serves a green table and a slate
-one; normal maps carry the relief.
+one; normal maps carry what little relief there is.
 
-The scale that matters is the one the camera actually sees. From forty metres up
-a two-centimetre weave is nothing, so every map here carries a coarse component
-that survives at that distance -- planks, worn patches, slab joints -- with the
-fine detail riding on top of it for the times something is looked at closely.
+Two things decide how these look. The first is the distance they are seen from:
+from forty metres up a two-centimetre weave is nothing, so each map carries
+something coarse enough to survive that -- the boards in the table, the wear in
+the felt, the joints between slabs -- with finer grain under it. The second is
+that a surface should read as the thing it is rather than as noise: baize is an
+even nap with soft unevenness across it, a finished board is long straight grain,
+poured concrete is fine aggregate with the odd darker patch. Contrast is kept low
+on purpose. Anything stronger reads as damage.
 """
 
 import pathlib
@@ -24,11 +28,11 @@ SIZE = 512
 RNG = np.random.default_rng(20260921)
 
 
-def noise(scale, size=SIZE):
-    """Periodic value noise with features about `scale` pixels across."""
+def noise(scale, stretch=1.0, size=SIZE):
+    """Periodic noise with features about `scale` across, `stretch` times longer along x."""
     white = RNG.normal(size=(size, size))
-    fx = np.fft.fftfreq(size)[:, None]
-    fy = np.fft.fftfreq(size)[None, :]
+    fx = np.fft.fftfreq(size)[:, None] * stretch
+    fy = np.fft.fftfreq(size)[None, :] / stretch
     radius = np.sqrt(fx ** 2 + fy ** 2)
     target = 1.0 / max(scale, 2.0)
     band = np.exp(-((radius - target) ** 2) / (2.0 * (target * 0.6) ** 2))
@@ -39,10 +43,10 @@ def noise(scale, size=SIZE):
     return out / peak if peak > 0 else out
 
 
-def octaves(scales, weights):
+def octaves(scales, weights, stretch=1.0):
     out = np.zeros((SIZE, SIZE))
     for scale, weight in zip(scales, weights):
-        out += noise(scale) * weight
+        out += noise(scale, stretch) * weight
     peak = np.abs(out).max()
     return out / peak if peak > 0 else out
 
@@ -73,47 +77,45 @@ def save(image, name):
     print(name, image.size, image.mode)
 
 
-def bands(count, softness=0.02):
-    """`count` stripes across the texture, as a 0..1 seam mask that wraps."""
-    y = np.linspace(0.0, 1.0, SIZE, endpoint=False)[:, None]
-    phase = (y * count) % 1.0
+def seams(count, softness=0.012, along_x=False):
+    """`count` seams across the texture as a 0..1 mask that wraps."""
+    line = np.linspace(0.0, 1.0, SIZE, endpoint=False)
+    phase = (line * count) % 1.0
     edge = np.minimum(phase, 1.0 - phase)
-    return np.clip(1.0 - edge / softness, 0.0, 1.0) * np.ones((1, SIZE))
+    band = np.clip(1.0 - edge / softness, 0.0, 1.0)
+    return np.tile(band, (SIZE, 1)) if along_x else np.tile(band[:, None], (1, SIZE))
 
 
 def band_index(count):
-    y = np.linspace(0.0, 1.0, SIZE, endpoint=False)[:, None]
-    return np.floor(y * count).astype(int) * np.ones((1, SIZE), dtype=int)
+    line = np.floor(np.linspace(0.0, 1.0, SIZE, endpoint=False) * count).astype(int)
+    return np.tile(line[:, None], (1, SIZE))
 
 
-# --- felt: worn patches at table scale with the weave riding on them -----------
-felt_worn = octaves([220.0, 90.0], [1.0, 0.55])
-felt_weave = octaves([3.0, 6.0], [1.0, 0.6])
-save(grey(felt_worn * 0.8 + felt_weave * 0.35, 1.0, 0.11), "felt_albedo.png")
-save(normal_map(felt_weave * 0.7 + felt_worn * 0.3, 10.0), "felt_normal.png")
+# --- felt: baize. An even nap with the table's own unevenness under it -------
+nap = octaves([2.0, 4.0], [1.0, 0.5])
+wear = octaves([260.0, 110.0], [1.0, 0.5])
+save(grey(wear * 0.85 + nap * 0.3, 1.0, 0.055), "felt_albedo.png")
+save(normal_map(nap, 3.0), "felt_normal.png")
 
-# --- wood: boards with seams between them, each with its own tone and grain ----
+# --- wood: finished boards. Long straight grain, seams you can just see ------
 PLANKS = 4
-seam = bands(PLANKS, 0.012)
-plank = band_index(PLANKS)
-tone = np.take(RNG.uniform(-1.0, 1.0, PLANKS), plank)
-warp = octaves([80.0, 30.0], [1.0, 0.4])
-rings = np.sin((np.linspace(0.0, 1.0, SIZE, endpoint=False)[None, :] * 6.0 + warp * 0.5) * 2.0 * np.pi * 2.0)
-grain = noise(3.0) * 0.5 + noise(9.0) * 0.5
-wood = rings * 0.35 + grain * 0.35 + tone * 0.5
-save(grey(wood - seam * 1.4, 0.98, 0.13), "wood_albedo.png")
-save(normal_map(wood * 0.5 - seam * 1.2, 6.0), "wood_normal.png")
+seam = seams(PLANKS)
+tone = np.take(RNG.uniform(-1.0, 1.0, PLANKS), band_index(PLANKS))
+grain = octaves([3.0, 9.0, 30.0], [0.6, 1.0, 0.7], stretch=26.0)
+figure = octaves([90.0], [1.0], stretch=8.0)
+wood = grain * 0.55 + figure * 0.5 + tone * 0.35
+save(grey(wood - seam * 0.9, 1.0, 0.075), "wood_albedo.png")
+save(normal_map(grain * 0.25 - seam * 0.8, 3.0), "wood_normal.png")
 
-# --- paint: a roller's orange peel, barely there, for the blocks and the crates -
-paint = octaves([6.0, 18.0], [1.0, 0.6])
-paint_worn = octaves([160.0], [1.0])
-save(grey(paint * 0.5 + paint_worn * 0.7, 1.0, 0.06), "paint_albedo.png")
-save(normal_map(paint, 6.0), "paint_normal.png")
+# --- paint: a coat rolled onto a block. Nearly flat, a little uneven ---------
+coat = octaves([9.0], [1.0])
+uneven = octaves([200.0], [1.0])
+save(grey(uneven * 0.9 + coat * 0.25, 1.0, 0.04), "paint_albedo.png")
+save(normal_map(coat, 1.6), "paint_normal.png")
 
-# --- stone: poured slabs with joints, mottled, with a pepper of aggregate ------
-joint = np.maximum(bands(3, 0.01), bands(3, 0.01).T)
-stone = octaves([200.0, 60.0, 12.0], [1.0, 0.6, 0.35])
-pepper = (RNG.random((SIZE, SIZE)) > 0.992).astype(float)
-pepper -= (RNG.random((SIZE, SIZE)) > 0.994).astype(float)
-save(grey(stone + pepper * 0.5 - joint * 1.2, 1.0, 0.12), "stone_albedo.png")
-save(normal_map(stone * 0.5 + pepper * 0.3 - joint * 1.4, 8.0), "stone_normal.png")
+# --- stone: poured concrete. Fine aggregate, soft joints, the odd patch ------
+joint = np.maximum(seams(3, 0.008), seams(3, 0.008, along_x=True))
+aggregate = octaves([2.5, 7.0], [1.0, 0.6])
+patches = octaves([220.0, 70.0], [1.0, 0.55])
+save(grey(patches * 0.8 + aggregate * 0.35 - joint * 0.9, 1.0, 0.06), "stone_albedo.png")
+save(normal_map(aggregate * 0.3 - joint * 1.0, 4.0), "stone_normal.png")

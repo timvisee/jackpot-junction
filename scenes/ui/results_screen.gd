@@ -156,7 +156,7 @@ func _is_mine(slot: PlayerSlot) -> bool:
 func _label(text: String, size: int, color: Color) -> Label:
 	var label := Label.new()
 	label.text = text
-	Type.set_font(label, Type.STRONG, size)
+	Type.set_font(label, Type.numbers_text_font(), size)
 	label.add_theme_color_override("font_color", color)
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	return label
