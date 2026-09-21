@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The Yard is warm.** It was lit like a cold grey morning; it is now a low
+  afternoon sun over the concrete, with dust in the air rather than frost.
+
 - **The maps stand in a room rather than on a plane.** The table has an edge and
   legs, a floor under it and walls round it, and each room is dressed with what
   belongs to it: tools on the workbench, chips and decks in the card room,
