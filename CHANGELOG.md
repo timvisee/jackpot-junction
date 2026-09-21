@@ -23,6 +23,11 @@ below, and hands the notes to the release workflow.
   swing onto the winner it eases back to show the table, and the podium comes up
   over that.
 
+- **The arena sits in the middle of the screen.** There was a band of empty table
+  above it and almost none below, because the camera is tilted and the framing
+  only ever chose a distance. It now aims so the spare room is split between the
+  two.
+
 ## [0.3.2] - 2026-09-20
 
 A tank per player beside the arena that fills as you bank, and a camera that

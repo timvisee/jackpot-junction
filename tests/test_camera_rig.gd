@@ -158,3 +158,38 @@ func test_the_camera_opens_out_to_the_room_at_the_whistle() -> void:
 				. override_failure_message("corner %s not visible" % corner)
 				. is_true()
 			)
+
+
+## GAME.md 8.2: the camera is tilted, so what it is framing does not project symmetrically and a
+## fit that only picks a distance sits it against the bottom of the frame with all the slack
+## piled above. The aim slides to put the slack on both sides.
+func test_what_is_framed_sits_in_the_middle_of_the_frame() -> void:
+	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())
+	add_child(rig)
+	rig.frame_arena(BOUNDS)
+	rig.show_the_room(0.1)
+	for i: int in 200:
+		rig._process(0.05)
+	rig._place(rig._distance, rig._pan, rig.zoom_min)
+	var centred := _imbalance(rig)
+	# Against the same distance with the aim left where it was, which is what it used to do.
+	rig._lift = 0.0
+	rig._place(rig._distance, rig._pan, rig.zoom_min)
+	var lopsided := _imbalance(rig)
+	assert_float(centred).is_less(0.05)
+	assert_float(lopsided).is_greater(centred * 3.0)
+
+
+## How lopsided the arena sits in the frame: 0 when the room's corners straddle the middle of the
+## screen evenly, 1 when they are all on one side of it.
+func _imbalance(rig: CameraRig) -> float:
+	var middle := rig.get_viewport().get_visible_rect().size.y * 0.5
+	var above := 0.0
+	var below := 0.0
+	for x: float in [-20.0, 20.0]:
+		for z: float in [-11.25, 11.25]:
+			for y: float in [0.0, 1.0]:
+				var at := rig.camera.unproject_position(Vector3(x, y, z))
+				above = maxf(above, middle - at.y)
+				below = maxf(below, at.y - middle)
+	return absf(above - below) / maxf(maxf(above, below), 0.001)
