@@ -49,6 +49,9 @@ and opens out to the whole table at the whistle.
   swing onto the winner it eases back to show the table, and the podium comes up
   over that.
 
+- **The screen stops shaking at the whistle.** A match that ended while the room
+  was at its loudest kept trembling through the pull-out and on under the podium.
+
 - **The arena sits in the middle of the screen.** There was a band of empty table
   above it and almost none below, because the camera is tilted and the framing
   only ever chose a distance. It now aims so the spare room is split between the

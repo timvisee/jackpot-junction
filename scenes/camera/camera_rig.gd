@@ -118,6 +118,11 @@ func frame_arena(bounds: AABB) -> void:
 ## last thing it does is hand the room back.
 func show_the_room(seconds: float) -> void:
 	_opening_up = true
+	# And it holds still for it. The tremble is only refreshed while a match is being played, so
+	# one that ends at the top level would otherwise keep its last value and shake all the way
+	# through the pull-out and on under the podium.
+	tremble = 0.0
+	_shake = 0.0
 	# A time constant of about a third of the run gets most of the way there in the time given
 	# while still easing rather than arriving and stopping.
 	smoothing = maxf(seconds, 0.1) * 0.34
@@ -141,9 +146,11 @@ func _refit() -> void:
 		_arena_lift = widest.y
 
 
-## Kicks the camera; the offset decays on its own.
+## Kicks the camera; the offset decays on its own. Nothing kicks it once the whistle has gone:
+## the pull-out is a deliberate move and a bomb still in the air, or a death still resolving, is
+## not a reason to rattle the last thing the match does.
 func shake(strength: float) -> void:
-	if not Game.settings.screen_shake:
+	if _opening_up or not Game.settings.screen_shake:
 		return
 	_shake = maxf(_shake, strength)
 

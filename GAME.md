@@ -1191,7 +1191,8 @@ and never pulls back further than the distance that holds the whole arena, which
 also where it waits when there is nobody to follow.
 
 At the whistle it stops following and opens back out to the whole arena over the
-pause the podium waits out in 3.8, easing rather than cutting. The karts have
+pause the podium waits out in 3.8, easing rather than cutting, and it holds still
+for it: the tremble stops and nothing landing afterwards shakes it again. The karts have
 stopped being the subject by then: the rig is swinging onto the winner and the
 match is over, so the last thing it does is hand the room back.
 

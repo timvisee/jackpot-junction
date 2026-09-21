@@ -193,3 +193,27 @@ func _imbalance(rig: CameraRig) -> float:
 				above = maxf(above, middle - at.y)
 				below = maxf(below, at.y - middle)
 	return absf(above - below) / maxf(maxf(above, below), 0.001)
+
+
+## GAME.md 8.2: the camera holds still for the pull-out. The tremble is only refreshed while a
+## match is being played, so one that ends at the top level used to keep its last value and shake
+## all the way through the whistle and on under the podium.
+func test_the_whistle_stops_the_screen_shaking() -> void:
+	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())
+	add_child(rig)
+	rig.frame_arena(BOUNDS)
+	var was := Game.settings.screen_shake
+	Game.settings.screen_shake = true
+	rig.tremble = 1.0
+	rig._process(0.05)
+	assert_float(rig._shake).is_greater(0.0)
+	rig.show_the_room(2.5)
+	assert_float(rig._shake).is_equal(0.0)
+	assert_float(rig.tremble).is_equal(0.0)
+	# And nothing landing afterwards starts it up again: a bomb already in the air, a death
+	# still resolving, a cash-out being counted.
+	rig.shake(1.0)
+	for i: int in 10:
+		rig._process(0.05)
+	assert_float(rig._shake).is_equal(0.0)
+	Game.settings.screen_shake = was
