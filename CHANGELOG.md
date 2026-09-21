@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The Vault's lamp reaches the table round the arena.** The cards and chips left
+  out there were in the dark; the edge of the cone now falls on them.
+
 - **The walls and the boxes belong to their room.** Walls wear a capping strip and
   some of them carry a stack of chips, a cone or a handful of bolts; the breakable
   boxes are packs of cards in The Vault, stacked offcuts on the workbench and
