@@ -1111,6 +1111,34 @@ it for the times something is looked at closely. `make textures` generates the l
 they are noise filtered in the frequency domain, which wraps by construction, so a
 table can be tiled out of one without a seam.
 
+**The room round the table.** A table standing in the dark is a table standing in
+the dark: the eye finds the edge of it as soon as the camera moves. So each room is
+built as a room. The table has a skirt and legs, it stands on a floor, and three
+walls go up round it -- the far one and the two sides, never the near one, because
+the camera sits there and a wall behind the camera is a wall in front of it the
+moment the view pulls out over the winner. The walls stand far enough out that the
+table is still what the eye lands on, and the air of 8.1 does the rest: past the
+stands everything thins into the room's own colour.
+
+Then what is in it. The workbench has a backboard with a pegboard on it and the
+tools of whoever built the thing lying where they were put down; the card room has
+a rope line behind the crowd and what the house plays with left out on the baize;
+the yard has hoarding along the back, floodlights over it, a truck and the things
+a yard has standing about in it. Two of the rooms are models on a real table, so
+everything round them is the size it would be next to a model -- a hammer left on
+the bench is a third as long as the arena is wide -- and the yard is a place rather
+than a model, so a scaffold tower there is the size of a scaffold tower. All of it
+is boxes and cylinders in the room's own materials, which is what keeps a hammer
+and a stack of chips looking like they came out of the same game.
+
+Three rules keep the clutter out of the game. It starts past the crowd and most of
+it lands in the first few metres of that, because that is all a player ever sees of
+it; nothing big is allowed nearer than fifteen metres to the wall, and the flanks
+keep off the near corners; and the near apron carries only things that lie flat,
+since that is the side the camera looks across. None of it collides with anything,
+and a test holds the line: no prop's box may touch the arena's own, and nothing in
+front of the table may stand more than three metres tall.
+
 **Focus.** A room can put everything a set distance past whatever the camera is
 looking at out of focus, rather than at a fixed distance from the camera: the rig
 comes in on the karts and pulls out to the room, see 8.2, and the table has to
@@ -1129,6 +1157,7 @@ this existed, and anything that cannot hold that is not in a room by default:
 | Shadows from the sun | shared with the lamp | Only one of the two ever casts: a sun that is a hint casts nothing |
 | Screen-space occlusion | ~0.5 ms | Nowhere. It was half the cost of the room system and most of why the corners looked sooty |
 | Depth of field | ~0.4 ms | Nowhere by default |
+| The room and its clutter | under the noise | Every room: a few hundred boxes and cylinders, and the shell casts no shadows |
 | Textures | ~0.1 ms | Everywhere. The two big slabs carry their own world-space UVs rather than being mapped triplanar, which is three texture reads saved on the meshes that cover most of the screen |
 
 `make bench` prints the frame rate for a match on each map, measured over 600
@@ -1138,7 +1167,9 @@ measurement reads three times slower than the same build warm.
 
 - **Floor**: dark green felt with asphalt lanes and painted road markings.
 - **Walls and crates**: sand-coloured wooden toy blocks.
-- **Beyond the walls**: a warm wooden table surface, slightly out of focus.
+- **Beyond the walls**: the table the arena stands on, and past that the room it
+  stands in -- the table's edge and legs, a floor under it, walls round it and the
+  room's own clutter in between.
 - **Junction pad**: a slot-machine roundel set into the felt -- a dark floor, a
   ring of the room's metal round the middle of it and another round the outside,
   with the neon on the rim that lights up while somebody is banking -- and a

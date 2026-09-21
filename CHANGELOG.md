@@ -13,6 +13,11 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The maps stand in a room rather than on a plane.** The table has an edge and
+  legs, a floor under it and walls round it, and each room is dressed with what
+  belongs to it: tools on the workbench, chips and decks in the card room,
+  scaffolding, hoarding and a truck in the yard.
+
 - **The Vault's bloom is the halo it was meant to be.** The glow was blurring a
   step wider than it was asked for, and lighting a room printed an error while it
   did.

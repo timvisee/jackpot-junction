@@ -9,7 +9,7 @@ signal crate_broken(by_slot: int)
 signal target_struck(by_slot: int, coins: int)
 
 const FLOOR_THICKNESS := 0.2
-const TABLE_OVERHANG := 30.0
+const TABLE_OVERHANG := 64.0
 ## How far out past the far wall a hoarding stands, GAME.md 8.1, and how far along that edge
 ## from the middle: out by the corners, where the booth in the middle and the tanks beside it
 ## are not, and on the edge the camera has behind the table rather than out at the sides, which
@@ -132,6 +132,8 @@ func build() -> void:
 	_add_disco()
 	crowd = Crowd.add_to(self, world_size(), room)
 	_add_billboards()
+	# And whatever else the room has in it, GAME.md 8.1: its shell and its clutter.
+	RoomProps.add_to(self)
 
 
 ## Brings the economy to life: coin pads start spawning, crates drop chips, the Junction and one

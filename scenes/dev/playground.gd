@@ -22,6 +22,7 @@ extends Node3D
 ##   --results=1          end the match at once with made-up stats, to see the results screen
 ##   --fireworks=1        the winner's fireworks over the open-out camera, for screenshots
 ##   --wide=1             hold the camera on the whole room, so two shots can be compared
+##   --back=200           hold the camera that many metres back, to look at the room itself
 ##   --map=vault          which map to play, by id (default lucky_crossing)
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
 ## on an unused device to join mid-match; F6 deals the player a random joker.
@@ -49,6 +50,7 @@ var _banked := false
 var _results := false
 var _fireworks := false
 var _wide := false
+var _back := 0.0
 var _map := &"lucky_crossing"
 
 
@@ -118,6 +120,10 @@ func _ready() -> void:
 		# The whistle's own view, GAME.md 8.3: the camera open on the room and the show over it.
 		Fireworks.celebrate(match_node, match_node.arena.bounds(), Palette.player_color(0), 30.0)
 		match_node.camera_rig.show_the_room(30.0)
+	if _back > 0.0:
+		# Further out than the game ever goes, which is the only way to see whether the room the
+		# table stands in holds up from the side as well as from above.
+		match_node.camera_rig.follow_close(_back)
 	if _wide:
 		# The whole room, held: two screenshots of the same room are only worth holding against
 		# each other if the camera was in the same place for both.
@@ -238,5 +244,7 @@ func _parse_user_args() -> void:
 			_fireworks = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--wide="):
 			_wide = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--back="):
+			_back = float(arg.get_slice("=", 1))
 		elif arg.begins_with("--map="):
 			_map = StringName(arg.get_slice("=", 1))
