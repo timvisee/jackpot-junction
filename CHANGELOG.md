@@ -17,6 +17,10 @@ below, and hands the notes to the release workflow.
   Rodent, each in the same three intensities, and one is picked at random when a
   match starts.
 
+- **A picture on every joker card.** Each joker has a pictogram of its own in its
+  kind's colour, in place of the initials, so a card is recognised by its shape
+  rather than read.
+
 ## [0.3.3] - 2026-09-21
 
 Camera work: it sits closer to the karts, keeps the arena centred in the frame,

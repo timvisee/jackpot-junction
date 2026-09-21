@@ -2,9 +2,9 @@ class_name JokerCard
 extends Panel
 ## One joker drawn as a playing card, GAME.md 8.3. The hand along the bottom of the screen and
 ## the pick-a-joker cards in the middle are both made of these, so a joker looks the same
-## wherever it turns up: framed in its kind's colour, with its initials big and its name under
-## them. Highlighting swaps the frame for a bright gold one, or a red one when the card is the
-## one about to be destroyed.
+## wherever it turns up: framed in its kind's colour, with its own picture in the middle of it
+## and its name under that. Highlighting swaps the frame for a bright gold one, or a red one
+## when the card is the one about to be destroyed.
 ##
 ## Under the name sit one, two or three pips for how rare the joker is. Count and colour say the
 ## same thing twice on purpose: colour alone is not something every player can read, and a card
@@ -126,20 +126,20 @@ func _build() -> void:
 	kind.text = kind_name(joker).to_upper()
 	kind.add_theme_font_size_override("font_size", 13)
 	kind.add_theme_color_override("font_color", color)
-	var initials := Label.new()
-	initials.text = joker.initials()
-	initials.add_theme_font_size_override("font_size", 46)
-	initials.add_theme_color_override("font_color", color)
-	initials.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	initials.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	# The joker's own picture rather than its initials: a card is recognised across the table by
+	# its shape, and two letters at that size are a shape you have to read first, GAME.md 8.3.
+	var art := JokerArt.picture(joker.id, color)
+	art.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var title := Label.new()
 	title.text = joker.display_name
 	title.add_theme_font_size_override("font_size", 15)
 	title.add_theme_color_override("font_color", Palette.CHIP_WHITE)
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	for label: Label in [kind, initials, title]:
-		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		stack.add_child(label)
+	kind.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_child(kind)
+	stack.add_child(art)
+	stack.add_child(title)
 	stack.add_child(_build_pips())
 
 

@@ -1228,8 +1228,9 @@ name. Somebody leaving frees their corner for the next player to sit down.
 - **Pot** as `coins × mult = value`, updating live.
 - **Joker hand**: the held jokers as a row of overlapping cards along the bottom
   of the screen, one hand per local player, each card framed in its kind's
-  colour with the joker's initials and name, and one, two or three pips under the
-  name for how rare it is: steel for common, cyan for uncommon, magenta for rare.
+  colour with the joker's own picture and its name, and one, two or three pips
+  under the name for how rare it is: steel for common, cyan for uncommon,
+  magenta for rare.
   Count and colour say it twice on purpose, since the card already spends its
   colour on saying what kind of joker it is and colour alone is not something
   every player can read. Three or more cards fan out, the
@@ -1283,6 +1284,14 @@ name. Somebody leaving frees their corner for the next player to sit down.
   drawn to the left of the joker hand, and shows only while cards are held.
   Driving and firing are left out: they already have the hint beside the kart at
   the start of a match.
+- **Joker pictures**: every joker has a flat pictogram of its own, drawn in its
+  kind's colour on the dark of the card, and all of them are built from one small
+  vocabulary of shapes -- discs, rings, bars, triangles, arcs, flames, bolts and
+  pips. Sticking to that vocabulary is what makes thirty of them read as one set
+  rather than as thirty drawings, and drawn rather than loaded means they weigh
+  nothing, scale to any card size and take the kind's colour for free. A card is
+  recognised across the table by its shape; two letters at that size are a shape
+  that has to be read first.
 - **Bindings are drawn, not written.** Everywhere the game names a control -- the
   hints above, the joker hand and pick, the signs on the test track in 9.4a, the
   hint beside the kart, the join line in the lobby and the rebinding rows in 8.5

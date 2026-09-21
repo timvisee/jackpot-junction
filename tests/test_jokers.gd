@@ -281,6 +281,47 @@ func test_the_picked_card_rises_without_sliding_sideways() -> void:
 	assert_float(card.scale.x).is_greater(1.0)
 
 
+## GAME.md 8.3: every joker has a picture of its own, and no picture is left behind for a joker
+## that no longer exists. The two lists are written out separately, so this is what keeps them in
+## step when a joker is added.
+func test_every_joker_has_a_picture_and_every_picture_has_a_joker() -> void:
+	var drawn := JokerArt.known()
+	var ids: Array[StringName] = []
+	for file: String in DirAccess.get_files_at("res://data/jokers/"):
+		if file == "catalog.tres" or not file.ends_with(".tres"):
+			continue
+		var joker: Joker = load("res://data/jokers/" + file)
+		ids.append(joker.id)
+		(
+			assert_bool(drawn.has(joker.id))
+			. override_failure_message("%s has no picture" % joker.id)
+			. is_true()
+		)
+	assert_int(ids.size()).is_greater(20)
+	for id: StringName in drawn:
+		(
+			assert_bool(ids.has(id))
+			. override_failure_message("there is a picture for %s, which is not a joker" % id)
+			. is_true()
+		)
+
+
+## And the card puts it on: one picture node in the middle of every card, drawn in the kind's
+## colour, rather than the initials that used to be there.
+func test_a_card_carries_its_joker_s_picture() -> void:
+	var joker: Joker = load("res://data/jokers/aimbot.tres")
+	var card: JokerCard = auto_free(JokerCard.create(joker))
+	add_child(card)
+	await await_idle_frame()
+	var found: JokerArt.Picture = null
+	for child: Node in card.find_children("*", "Control", true, false):
+		if child is JokerArt.Picture:
+			found = child
+	assert_object(found).is_not_null()
+	assert_str(String(found.id)).is_equal("aimbot")
+	assert_object(found.ink).is_equal(JokerCard.kind_color(joker))
+
+
 ## The row is only rebuilt when what it shows changes, not on every frame.
 func test_the_picker_keeps_its_cards_between_frames() -> void:
 	var match_node := _start_match(_bots())
