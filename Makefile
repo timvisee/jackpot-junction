@@ -41,7 +41,7 @@ run:
 drive:
 	$(GODOT) --path . res://scenes/dev/driving.tscn
 
-# Every joker card at once, to see the pictures of GAME.md 8.3a as the set they are meant to be.
+# Every icon in the game at once, to see the pictures of GAME.md 8.3a as one set.
 jokers:
 	$(GODOT) --path . res://scenes/dev/joker_sheet.tscn
 

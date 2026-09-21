@@ -306,6 +306,29 @@ func test_every_joker_has_a_picture_and_every_picture_has_a_joker() -> void:
 		)
 
 
+## GAME.md 8.3a: and every power-up has one too, held to its list the same way.
+func test_every_power_up_has_a_picture_and_every_picture_has_a_power_up() -> void:
+	var drawn := PowerUpArt.known()
+	var ids: Array[StringName] = []
+	for file: String in DirAccess.get_files_at("res://data/powerups/"):
+		if file in ["all.tres", "first_set.tres", "later_set.tres"] or not file.ends_with(".tres"):
+			continue
+		var item: PowerUp = load("res://data/powerups/" + file)
+		ids.append(item.id)
+		(
+			assert_bool(drawn.has(item.id))
+			. override_failure_message("%s has no picture" % item.id)
+			. is_true()
+		)
+	assert_int(ids.size()).is_greater(8)
+	for id: StringName in drawn:
+		(
+			assert_bool(ids.has(id))
+			. override_failure_message("there is a picture for %s, which is not an item" % id)
+			. is_true()
+		)
+
+
 ## And the card puts it on: one picture node in the middle of every card, drawn in the kind's
 ## colour, rather than the initials that used to be there.
 func test_a_card_carries_its_joker_s_picture() -> void:

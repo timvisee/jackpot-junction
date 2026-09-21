@@ -45,7 +45,7 @@ install, or `godot4` on the path. Lint and format use
 ```
 make dev        # start the development scene
 make drive      # start the driving room, for handling work
-make jokers     # every joker card on one screen, to see the pictures as a set
+make jokers     # every joker and power-up icon on one screen, to see them as a set
 make run        # start the game scene
 make check      # import, lint, format check, changelog, unit tests, smoke runs
 make test       # unit tests only (gdUnit4, headless)

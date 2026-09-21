@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 ## so what a test reads off one is the caption on each picture and the words in between.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const BOOST: PowerUp = preload("res://data/powerups/boost.tres")
 
 var _runner: GdUnitSceneRunner
 var _hints_were := true
@@ -95,7 +96,7 @@ func test_each_hint_shows_only_while_it_is_worth_pressing() -> void:
 	assert_bool(holder.visible).is_false()
 	# Up to speed with an item in hand: both of those show instead.
 	kart.motor.velocity = Vector3(kart.stats.top_speed, 0.0, 0.0)
-	kart.held_item = load("res://data/powerups/boost.tres")
+	kart.held_item = BOOST
 	kart.item_reveal_left = 0.0
 	hud._update_hints(block, kart, DeviceInput.KEYBOARD)
 	assert_str(_reads(holder)).contains("drift")
@@ -151,6 +152,35 @@ func test_lives_are_hearts_that_grey_out_as_they_are_lost() -> void:
 	hud._update_blocks()
 	assert_object((pips[0] as Heart).color).is_equal(match_node.slots[0].color())
 	assert_object((pips[pips.size() - 1] as Heart).color).is_equal(MatchHud.LIFE_LOST)
+
+
+## GAME.md 8.3a: the held item shows its own picture beside its name, and while the box is still
+## opening the picture flicks through the others rather than showing question marks.
+func test_the_held_item_shows_its_picture() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(20, 17)
+	var hud := match_node.hud
+	var block: Dictionary = hud._blocks[0]
+	var kart := match_node.kart_of(0)
+	var row: HBoxContainer = block["item"]
+	var art: PowerUpArt.Picture = block["item_art"]
+	var label: Label = block["item_name"]
+	# Empty handed: no row at all.
+	kart.held_item = null
+	hud._update_blocks()
+	assert_bool(row.visible).is_false()
+	# Holding one: its own picture and its own name.
+	kart.held_item = BOOST
+	kart.item_reveal_left = 0.0
+	hud._update_blocks()
+	assert_bool(row.visible).is_true()
+	assert_str(String(art.id)).is_equal("boost")
+	assert_str(label.text).is_equal(kart.held_item.display_name)
+	# Still turning: something else on the picture and no name yet.
+	kart.item_reveal_left = 0.4
+	hud._update_blocks()
+	assert_str(label.text).is_empty()
+	assert_bool(PowerUpArt.known().has(art.id)).is_true()
 
 
 ## GAME.md 3.6: a life going is a heart coming apart, in two pieces with a crack between them,

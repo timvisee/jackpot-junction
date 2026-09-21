@@ -28,6 +28,10 @@ below, and hands the notes to the release workflow.
   your kart when a life goes and a whole one floats off when the Junction hands
   it back, in place of "-1 LIFE" and "PATCHED UP".
 
+- **A picture for every power-up.** The item you are holding shows its own
+  pictogram beside its name, and the roulette flicks through the others while the
+  box is still opening.
+
 ## [0.3.3] - 2026-09-21
 
 Camera work: it sits closer to the karts, keeps the arena centred in the frame,

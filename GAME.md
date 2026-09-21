@@ -1248,7 +1248,9 @@ name. Somebody leaving frees their corner for the next player to sit down.
   heart curve so they have the dip and the point that tell the shape apart at
   nineteen pixels. A square said one of something and left you to work out what.
   A lost life goes dark.
-- **Held power-up** icon, filled by the roulette flicker once the box is in.
+- **Held power-up**: the item's own picture beside its name, both in the item's
+  colour, see 8.3a. While the box is still opening the picture flicks through the
+  other items, which says "not yet" in the same language as the rest of the row.
 - **The pane** is the shape every panel in the game is cut from: a dark translucent
   card with room to breathe, rounded corners, a shadow under it and a bar of colour
   along the top. The joker pane below was the first thing built this way; the
@@ -1385,21 +1387,27 @@ about 0.8 s. Cash-outs of 500 or more add a fanfare, confetti and screen shake.
 Death shows a smaller grey tally marked as half. The in-world tally plays for
 every kart, so everyone sees when an opponent cashes out.
 
-### 8.3a Joker pictures
+### 8.3a Icons
 
-Every joker carries a flat pictogram of its own, in the middle of its card. They
-live in `scenes/ui/joker_art.gd` as one `match` arm per joker id, and they are
-drawn rather than loaded: a folder of PNGs would weigh something, would be cut for
-one card size, and would have to be recoloured per kind. `make jokers` puts every
-card on one screen, which is the only way to judge a set that is meant to look
-like a set.
+Two sets of flat pictograms: one per joker, in the middle of its card, and one per
+power-up, beside its name in the HUD block. They are built from one shared
+vocabulary, `scenes/ui/icon_shapes.gd`, which is what makes the two look like one
+hand's work; the recipes themselves are `scenes/ui/joker_art.gd` and
+`scenes/ui/power_up_art.gd`, one `match` arm per id.
+
+They are drawn rather than loaded: a folder of PNGs would weigh something, would
+be cut for one size, and would have to be recoloured for every kind and every
+item. `make jokers` puts every icon in the game on one screen, the power-ups
+first and then the cards, which is the only way to judge a set that is meant to
+look like a set.
 
 **The rules that make thirty drawings one set.** Break these and the card stops
 matching the others before anybody can say why.
 
 - One subject, and at most two supporting shapes behind it. A card is read at a
-  glance from a hand of five, not studied.
-- No text. The name is already under the picture and the kind is above it.
+  glance from a hand of five, not studied, and an item is picked up and played
+  inside a couple of seconds.
+- No text. The name is already beside or under the picture.
 - No third colour, no gradients, no outlines drawn around fills.
 - Nothing outside 0.06 to 0.94 of the box, so the picture never touches the frame.
 - Do not reuse a silhouette another card already owns. A round thing with a hole
@@ -1411,20 +1419,20 @@ spans and stroke widths are fractions of the box's shorter side. Nothing is in
 pixels, which is what lets the same recipe serve the card in the hand, the larger
 one in the respawn pick and anything else that asks for one.
 
-**The two colours.** A picture gets exactly two, both handed in and both the
-card's kind colour:
+**The two colours.** A picture gets exactly two, both handed in:
 
-- `ink` is the subject: the thing the card is about.
-- `dim` is the same colour at 40% alpha, for whatever the subject sits on, in or
-  behind -- the die under its pips, the pipe behind the flame, the road under the
-  arrow.
+- `ink` is the subject: the thing the icon is about.
+- `dim` is the same colour at 40% alpha, from `IconShapes.behind`, for whatever
+  the subject sits on, in or behind -- the die under its pips, the pipe behind the
+  flame, the road under the arrow.
 
-The kind colour arrives from the card, so a picture never names a colour itself.
-That is what keeps a Stat card steel, a Rule card gold and a Cursed card red
-without thirty places having to know it.
+The colour arrives from outside, so a picture never names one itself: a joker's is
+its kind's, a power-up's is the item's own. That is what keeps a Stat card steel,
+a Rule card gold and a Cursed card red without forty places having to know it.
 
-**The vocabulary.** Every picture is built from these and nothing else. All take
-the canvas and the box first, which the examples below leave out for brevity.
+**The vocabulary.** Every picture in both sets is built from these and nothing
+else. All of them are on `IconShapes` and all take the canvas and the box first,
+which the examples below leave out for brevity.
 
 | Shape | Call | What it is for |
 |-------|------|----------------|
@@ -1446,35 +1454,36 @@ is not to be borrowed. Star and burst are the same spiked ring at different poin
 counts, so a third silhouette of that shape would be `_spiked` with new numbers
 rather than new code.
 
-**Adding a picture for a new joker.**
+**Adding a picture for a new joker or power-up.** The two go the same way; only
+the file and the list differ.
 
-1. Decide the one thing the card is about, and check no card owns that shape
-   already. Run `make jokers` and look.
-2. Add a `match` arm in `JokerArt.draw_into` keyed on the joker's id, drawing the
-   subject in `ink` and anything it sits on or behind in `dim`. Build it out of
-   the vocabulary above; if it genuinely needs a shape that is not there, add the
-   shape as a helper so the next card can use it too, rather than drawing it
-   inline.
-3. Add the id to `JokerArt.known()`.
+1. Decide the one thing it is about, and check nothing owns that shape already.
+   Run `make jokers` and look.
+2. Add a `match` arm keyed on the id -- in `JokerArt.draw_into` for a joker,
+   `PowerUpArt.draw_into` for an item -- drawing the subject in `ink` and anything
+   it sits on or behind in `dim`. Build it out of the vocabulary above; if it
+   genuinely needs a shape that is not there, add the shape to `IconShapes` so the
+   next one can use it too, rather than drawing it inline.
+3. Add the id to that file's `known()`.
 4. Run the tests. `test_every_joker_has_a_picture_and_every_picture_has_a_joker`
-   holds the two lists to each other in both directions: a joker without a
-   picture fails, and so does a picture left behind by a joker that has gone.
-   They are written out separately on purpose, since a list that derives itself
-   from the other cannot catch either mistake.
+   and its power-up twin hold the two lists to each other in both directions: one
+   without a picture fails, and so does a picture left behind by something that
+   has gone. They are written out separately on purpose, since a list that derives
+   itself from the other cannot catch either mistake.
 5. Run `make jokers` again and look at it next to the rest.
 
-A joker with no arm of its own falls through to the star, so a missing picture is
-a card that looks like Wild Card rather than a card with a hole in it. The test is
-what stops that shipping.
+Anything with no arm of its own falls through: a joker gets the star and an item
+gets a plain ring, so a missing picture is a card that looks like Wild Card rather
+than a card with a hole in it. The test is what stops that shipping.
 
 **A worked example.** Nitro Habit is a bottle with a flame coming out of the
 bottom of it:
 
 ```gdscript
 &"nitro_habit":
-    _bar(on, box, 0.34, 0.24, 0.32, 0.6, dim)   # the bottle, behind
-    _bar(on, box, 0.42, 0.12, 0.16, 0.14, dim)  # its neck, behind
-    _flame(on, box, 0.5, 0.8, 0.3, 0.0, ink)    # the flame, the subject
+    IconShapes.bar(on, box, 0.34, 0.24, 0.32, 0.6, dim)   # the bottle, behind
+    IconShapes.bar(on, box, 0.42, 0.12, 0.16, 0.14, dim)  # its neck, behind
+    IconShapes.flame(on, box, 0.5, 0.8, 0.3, 0.0, ink)    # the flame, the subject
 ```
 
 Three shapes, two of them `dim` and one `ink`, everything between 0.12 and 0.84 of
