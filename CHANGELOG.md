@@ -19,6 +19,9 @@ below, and hands the notes to the release workflow.
 - **The test track's end room is twice as wide.** Room to get a drift wrong and
   go round again, which is what that room is for.
 
+- **The D-pad picture loses its box.** It is a cross, which is already a shape,
+  so it is drawn the way the face buttons and the stick are.
+
 ### Added
 
 - **Two more music tracks.** Ginger Bread and Let It Breathe join Deceased

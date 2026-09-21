@@ -1303,10 +1303,10 @@ name. Somebody leaving frees their corner for the next player to sit down.
   are pills with their name on. A stick is the gate seen from above with an L or
   an R written inside it, and a solid head each way along the axis it reads, or
   one head when only half the axis is bound. The D-pad is a cross with the
-  pressed arm lit. A face button and a stick are drawn as buttons rather than on
-  one, since each is already a round shape and a box around a button is a box
-  around a button; everything else is a word, and a word needs something to be
-  written on.
+  pressed arm lit. A face button, a stick and the D-pad are drawn as buttons
+  rather than on one, since each is already a shape and a box around a button is
+  a box around a button; everything else is a word, and a word needs something to
+  be written on.
   Everything but a face button sits on a solid dark chip with a soft black edge
   and a rim in the colour of the line it is in, so it is dark against the felt,
   the crowd and a light wall and rimmed against a dark menu. A picture you have to

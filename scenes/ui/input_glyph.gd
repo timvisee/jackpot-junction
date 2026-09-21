@@ -158,20 +158,21 @@ func _font() -> Font:
 
 func _draw() -> void:
 	var box := Rect2(Vector2.ZERO, size)
-	# The two that are already a shape of their own go without the chip: a face button is a round
-	# button and a stick is a round gate, and a box drawn round either of them is a box drawn
-	# round a button. Everything else is a word, and a word needs something to be written on.
+	# The three that are already a shape of their own go without the chip: a face button is a
+	# round button, a stick is a round gate and the D-pad is a cross, and a box drawn round any of
+	# them is a box drawn round a button. Everything else is a word, and a word needs something to
+	# be written on.
 	if kind == Kind.FACE:
 		_draw_face(box)
 		return
 	if kind == Kind.STICK:
 		_draw_stick(box)
 		return
-	_draw_chip(box)
 	if kind == Kind.DPAD:
 		_draw_dpad(box)
-	else:
-		_draw_caption(box, ink)
+		return
+	_draw_chip(box)
+	_draw_caption(box, ink)
 
 
 ## The solid backing every glyph but a face button sits on: a key cap, or the same shape rounded
@@ -234,13 +235,31 @@ func _draw_stick(box: Rect2) -> void:
 	_draw_caption(box, edge, mini(_caption_size(), roundi(box.size.y * 0.55)))
 
 
-## The cross, with the arm this binding presses filled in.
+## The cross, with the arm this binding presses filled in. Its own dark rim rather than a chip
+## behind it, the way a face button carries one, since the cross is already a shape.
 func _draw_dpad(box: Rect2) -> void:
 	var edge := Color(ink.r, ink.g, ink.b, EDGE_ALPHA)
 	var faint := Color(ink.r, ink.g, ink.b, 0.30)
 	var centre := box.size * 0.5
 	var reach := minf(box.size.x, box.size.y) * 0.44
 	var thick := reach * 0.62
+	# A dark rim first, as one cross slightly larger than the other, so it reads over felt with
+	# nothing behind it.
+	var rim := EDGE_WIDTH
+	draw_rect(
+		Rect2(
+			centre - Vector2(thick * 0.5 + rim, reach + rim),
+			Vector2(thick + rim * 2.0, reach * 2.0 + rim * 2.0)
+		),
+		CHIP_EDGE
+	)
+	draw_rect(
+		Rect2(
+			centre - Vector2(reach + rim, thick * 0.5 + rim),
+			Vector2(reach * 2.0 + rim * 2.0, thick + rim * 2.0)
+		),
+		CHIP_EDGE
+	)
 	draw_rect(Rect2(centre - Vector2(thick * 0.5, reach), Vector2(thick, reach * 2.0)), faint)
 	draw_rect(Rect2(centre - Vector2(reach, thick * 0.5), Vector2(reach * 2.0, thick)), faint)
 	var arm := Rect2(centre - Vector2(thick, thick) * 0.5, Vector2(thick, thick))
