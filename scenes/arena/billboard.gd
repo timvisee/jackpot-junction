@@ -18,6 +18,32 @@ const FRAME := 0.15
 const DEPTH := 0.15
 const STEEL := Color(0.17, 0.17, 0.2)
 const FACE := Color(0.07, 0.07, 0.09)
+## Text is drawn at this size and scaled down to metres, and kept this far clear of the frame.
+const FONT_SIZE := 64
+const MARGIN := 0.35
+
+## What the boards say: a headline, the line under it, and the colour both are in. Two are
+## drawn at random as the room goes up, GAME.md 8.1, so a run of matches is not the same two
+## posters over and over. Written the way the hoardings in a real hall are: a trade nobody in
+## the room needs, sold in a voice nobody in the room believes.
+const ADS: Array[Array] = [
+	["JACKPOT", "JUNCTION", Palette.CHIP_GOLD],
+	["NITRO", "DRINK IT FAST", Palette.NEON_CYAN],
+	["ALL IN", "INSURANCE SOLD SEPARATELY", Palette.NEON_MAGENTA],
+	["SNAKE EYES", "BRAKE PADS THAT BITE", Palette.CHIP_GOLD],
+	["FULL HOUSE", "ENGINE OIL BY THE BARREL", Palette.NEON_CYAN],
+	["ROYAL FLUSH", "PLUMBING, DAY OR NIGHT", Palette.NEON_MAGENTA],
+	["PIT STOP", "OPEN ALL NIGHT", Palette.CHIP_GOLD],
+	["DOUBLE DOWN", "TWICE THE TYRE", Palette.NEON_CYAN],
+	["LUCKY SEVEN", "SPARK PLUGS AND SIDE BETS", Palette.CHIP_GOLD],
+	["HIGH ROLLER", "SUSPENSION KITS", Palette.NEON_MAGENTA],
+	["CASH OUT", "WHILE YOU STILL CAN", Palette.CHIP_GOLD],
+	["ONE MORE LAP", "WHAT COULD GO WRONG", Palette.NEON_CYAN],
+	["BET THE FARM", "TRACTOR SOLD SEPARATELY", Palette.NEON_MAGENTA],
+	["DRIFT SCHOOL", "SIDEWAYS SINCE 1972", Palette.NEON_CYAN],
+	["JOKERS WILD", "DEALT NIGHTLY", Palette.NEON_MAGENTA],
+	["HOUSE ODDS", "GENEROUS AS EVER", Palette.CHIP_GOLD],
+]
 
 ## The middle of the face, in board space: x to the right of it, y up, and +z out of it. Ads and
 ## the clock hang off this rather than off the board, so neither has to know about the legs.
@@ -51,12 +77,14 @@ func panel(at: Vector2, size: Vector2, color: Color, lit := false) -> MeshInstan
 
 
 ## Words across the face, lying flat on it rather than turning to the camera: a board is part of
-## the room, and a sign that swings round to face you is a label.
+## the room, and a sign that swings round to face you is a label. [param size] is the height the
+## line asks for; a long one is brought down from it so every ad fits its board rather than only
+## the ones that were written short.
 func words(text: String, at: Vector2, size: float, color: Color) -> Label3D:
 	var label := Label3D.new()
 	label.text = text
-	label.font_size = 64
-	label.pixel_size = size / 64.0
+	label.font_size = FONT_SIZE
+	label.pixel_size = fitted(text, size) / float(FONT_SIZE)
 	label.modulate = color
 	label.outline_size = 10
 	label.outline_modulate = Color(0.03, 0.03, 0.04, 0.9)
@@ -65,6 +93,17 @@ func words(text: String, at: Vector2, size: float, color: Color) -> Label3D:
 	label.position = Vector3(at.x, at.y, 0.06)
 	face.add_child(label)
 	return label
+
+
+## The height a line can be drawn at and still fit between the frames, measured off the font
+## rather than guessed at from how many letters there are.
+func fitted(text: String, size: float) -> float:
+	var span := (
+		ThemeDB.fallback_font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE).x
+	)
+	if span <= 0.0:
+		return size
+	return minf(size, (WIDTH - MARGIN * 2.0) * FONT_SIZE / span)
 
 
 func _build() -> void:

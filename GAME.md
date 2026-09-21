@@ -1105,7 +1105,10 @@ subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
   player watching the table rather than the corner still knows how long is left.
   They stand on the far edge rather than out at the sides because that is the edge
   the camera of 8.2 has behind the table; the crowd leaves each one a bay; and the
-  Garage takes them down with the rest of the dressing.
+  Garage takes them down with the rest of the dressing. The two ads are drawn from
+  a set of house advertising as the room goes up, so a run of matches is not the
+  same two posters over and over, and a line too long for its board is drawn
+  smaller rather than run off the edge of it.
 - **The fireworks**: a match that has been won is seen off with a display over the
   table. Shells go up off the felt and break overhead in the winner's colour, with
   the odd gold one among them, each lighting the room as it goes, through the pause

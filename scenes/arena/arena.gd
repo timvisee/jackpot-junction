@@ -269,24 +269,25 @@ func bounds() -> AABB:
 
 
 ## Hoardings out past the far corners, GAME.md 8.1: the boards a hall like this one sells to
-## whoever will pay for them. The crowd leaves each one a bay, since a board put up to be read
-## with a band of people standing in front of it is a board nobody reads.
+## whoever will pay for them. Two of [constant Billboard.ADS] are drawn as the room goes up, so
+## a run of matches is not the same two posters over and over. The crowd leaves each one a bay,
+## since a board put up to be read with a band of people standing in front of it is a board
+## nobody reads.
 func _add_billboards() -> void:
 	billboards = Node3D.new()
 	billboards.name = "Billboards"
 	add_child(billboards)
 	var half := world_size() * 0.5
-	var ads: Array[Array] = [
-		[-1.0, "JACKPOT", "JUNCTION", Palette.CHIP_GOLD],
-		[1.0, "NITRO", "DRINK IT FAST", Palette.NEON_CYAN],
-	]
-	for ad: Array in ads:
-		var side: float = ad[0]
+	var ads := Billboard.ADS.duplicate()
+	ads.shuffle()
+	for i: int in 2:
+		var ad: Array = ads[i % ads.size()]
+		var side := -1.0 if i == 0 else 1.0
 		var at := Vector3(side * half.x * BILLBOARD_ALONG, 0.0, -(half.y + BILLBOARD_STANDOFF))
 		var board := Billboard.add_to(billboards, at, Vector3.ZERO)
-		board.panel(Vector2(0.0, -0.78), Vector2(Billboard.WIDTH - 1.0, 0.2), ad[3], true)
-		board.words(ad[1], Vector2(0.0, 0.45), 0.92, ad[3])
-		board.words(ad[2], Vector2(0.0, -0.3), 0.4, Color(0.86, 0.88, 0.94))
+		board.panel(Vector2(0.0, -0.78), Vector2(Billboard.WIDTH - 1.0, 0.2), ad[2], true)
+		board.words(ad[0], Vector2(0.0, 0.45), 0.92, ad[2])
+		board.words(ad[1], Vector2(0.0, -0.3), 0.4, Color(0.86, 0.88, 0.94))
 		var bay := Rect2(at.x - Billboard.WIDTH * 0.5, at.z - 1.6, Billboard.WIDTH, 3.2)
 		if crowd != null:
 			crowd.keep_clear(bay)
