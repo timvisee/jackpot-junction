@@ -63,6 +63,9 @@ func _ready() -> void:
 	match_node.name = "Match"
 	match_node.rules = RULES
 	match_node.arena_layout = TRACK if on_track else LAYOUT
+	# The track says what every button does on the signs along it, so the kart does not say it
+	# again over the player's shoulder, GAME.md 9.4a.
+	match_node.with_kart_hints = not on_track
 	match_node.power_ups = load("res://data/powerups/all.tres")
 	add_child(match_node)
 	var inputs: Array[KartInput] = [PlayerInput.new()]

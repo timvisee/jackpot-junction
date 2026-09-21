@@ -300,7 +300,8 @@ func add_block(slot: PlayerSlot) -> void:
 	add_child(picker)
 	_pickers[slot.index] = picker
 	_layout_hands()
-	ControlHint.attach(slot.kart, slot.device())
+	if match_node.with_kart_hints:
+		ControlHint.attach(slot.kart, slot.device())
 
 
 func remove_block(slot: PlayerSlot) -> void:

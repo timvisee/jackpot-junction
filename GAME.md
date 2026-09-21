@@ -1941,7 +1941,10 @@ proper. Both rooms are the same scene on a different map and each has a portal t
 the other, so going round once locks nothing away.
 
 It is a road rather than an arena: no Junction, no coins, no Jackpot, no pits,
-nothing to collect and nothing to score. Six signs, each of them the name of a
+nothing to collect and nothing to score. The hint that rides beside a kart at
+the start of a match, see 3.8, is off in here: this room teaches the controls a
+sign at a time, and a second copy of the same three buttons following the player
+about is the room saying it twice. Six signs, each of them the name of a
 lesson and a line saying what to press and what it does: "Shift to lock the
 wheels" rather than "DRIFT". The bindings are read off the input map, so a player
 who has rebound something is told what they bound it to, and a pad is told about

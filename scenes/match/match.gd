@@ -28,6 +28,10 @@ const COUNTDOWN_LAMPS := 3
 @export var bot_difficulty: BotDifficulty
 ## Whether the match builds its own HUD. Tests turn it off.
 @export var with_hud := true
+## Whether a human's kart gets the drive-and-fire hint beside it at the start, GAME.md 3.8. The
+## test track of 9.4a turns it off: that room teaches the controls a sign at a time, and a second
+## copy of the same three buttons riding on the kart is the room saying it twice.
+@export var with_kart_hints := true
 ## The map to build. The arena scene's own default is used when this is left empty.
 @export var arena_layout: ArenaLayout
 
