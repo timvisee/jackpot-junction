@@ -53,7 +53,13 @@ const PAD_FLUSH_VALUE := 24.0
 ## A pad of the bot's own with less than this left on the clock is worth going back for.
 const PAD_RENEW_LEFT := 10.0
 const PAD_RENEW_VALUE := 2.5
+## How far off the nose a shot is still taken, before the target's own width is added to it,
+## and the widest that sum is allowed to get.
 const FIRE_CONE := 0.14
+const FIRE_CONE_MAX := 1.1
+## Half the width of what is being shot at, near enough: a kart is a metre across and a box is
+## about the same.
+const TARGET_HALF_WIDTH := 0.6
 const DODGE_RANGE := 8.0
 const DODGE_HORIZON := 1.0
 const DODGE_DISTANCE := 1.2
@@ -857,11 +863,22 @@ func _shoot(delta: float) -> void:
 	var to_aim := _lead_point(mark) - kart.global_position
 	to_aim.y = 0.0
 	var angle := kart.motor.forward_vector().signed_angle_to(to_aim, Vector3.UP) + _aim_error
-	if absf(angle) > FIRE_CONE:
+	if absf(angle) > _fire_cone(to_aim.length()):
 		_aim_timer = 0.0
 		return
 	_aim_timer += delta
 	input.fire = _aim_timer >= difficulty.reaction_delay
+
+
+## How far off the nose a shot at something [param distance] away is still worth taking,
+## GAME.md 9.1. A fixed angle says less and less about a miss the nearer the target is: a kart
+## being shoved along is half a metre from the muzzle and forty degrees off the nose, and a bot
+## that only fired within eight degrees would keep bumping it rather than shoot it. What the
+## target is worth in angle at that distance is added, so the question asked is whether the shot
+## goes through it rather than whether it leaves along the nose.
+func _fire_cone(distance: float) -> float:
+	var wide := asin(clampf(TARGET_HALF_WIDTH / maxf(distance, TARGET_HALF_WIDTH), 0.0, 1.0))
+	return minf(FIRE_CONE + wide, FIRE_CONE_MAX)
 
 
 ## Whether a point is close enough to shoot at and not behind a wall.

@@ -1810,10 +1810,13 @@ beside a hole is not forever fleeing one it is nowhere near entering.
 over the next second. If it is under 1.2 m, steer perpendicular to the bullet,
 with the difficulty's dodge chance.
 
-**Firing**: fire when an enemy is within 8° of the heading and within 18 m,
-after the difficulty's reaction delay, leading the target by its velocity. With
-nobody in reach, the same shot goes into the nearest crate or shooting target
-within 13 m instead: both pay whoever breaks them, see 6.2, and a bot with
+**Firing**: fire when the shot would go through an enemy within 18 m, after the
+difficulty's reaction delay, leading the target by its velocity. That is 8° off
+the heading plus however wide the target is from where the bot is standing, up to
+63°: a fixed angle says less and less about a miss the nearer the target is, and a
+bot shoving a kart along at arm's length should be shooting it rather than only
+bumping it. With nobody in reach, the same shot goes into the nearest crate or
+shooting target within 13 m instead: both pay whoever breaks them, see 6.2, and a bot with
 nothing else to fire at may as well be paid.
 
 **Traits**: each bot gets one trait that shifts its goal weights.

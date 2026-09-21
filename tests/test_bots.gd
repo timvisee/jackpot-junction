@@ -611,3 +611,45 @@ func test_only_the_hard_preset_hunts_pots() -> void:
 	assert_float(easy.pot_hunting).is_equal(0.0)
 	assert_float(normal.pot_hunting).is_equal(0.0)
 	assert_float(hard.pot_hunting).is_greater(0.0)
+
+
+## GAME.md 9.1: a kart pressed up against a bot is a long way off its nose and impossible to
+## miss, and a bot that only fired within eight degrees shoved it around instead of shooting it.
+func test_a_bot_shoots_the_kart_it_is_bumping_into() -> void:
+	var match_node := _match()
+	await _runner.simulate_frames(12, 17)
+	for crate: Crate in match_node.arena.crates:
+		crate.global_position = Vector3(0.0, 0.0, -400.0)
+	var kart := match_node.kart_of(0)
+	var enemy := match_node.kart_of(1)
+	var brain: BotBrain = kart.get_node("Brain")
+	# A bumper drives into people instead of shooting them, GAME.md 9.1, and which trait a bot
+	# gets is rolled: this test is about the ones that do shoot.
+	brain.bot_trait = _trait("hunter")
+	# Asked of the brain directly, with the wobble in its aim held still, so the answer is the
+	# rule being tested rather than wherever a random spread happened to land.
+	brain._willing_to_fire = true
+	brain._aim_error = 0.0
+	brain._aim_error_left = 99.0
+	# Up against the bot's front corner: nineteen degrees off the nose and a metre and a half
+	# away, which is a shot that cannot miss and used to be one the bot would not take.
+	assert_bool(_fires_at(brain, enemy, Vector3(1.3, 0.0, 0.45))).is_true()
+	# Out at that angle across the room the same shot goes nowhere near, and is not taken.
+	assert_bool(_fires_at(brain, enemy, Vector3(13.0, 0.0, 4.5))).is_false()
+
+
+## Whether the brain would pull the trigger on an enemy standing at [param at], given a moment
+## to settle on it. The bot is put back on its mark looking along +X for each question, and the
+## enemy is parked and out of its spawn protection: a bot does not shoot at what it cannot hurt,
+## and a moving target is a lead, which is a different question.
+func _fires_at(brain: BotBrain, enemy: Kart, at: Vector3) -> bool:
+	brain.kart.global_position = Vector3.ZERO
+	brain.kart.face(Vector3(1.0, 0.0, 0.0))
+	enemy.global_position = at
+	enemy.protection_left = 0.0
+	enemy.hurt_left = 0.0
+	enemy.motor.velocity = Vector3.ZERO
+	brain._aim_timer = 0.0
+	for i: int in 30:
+		brain._shoot(1.0 / 60.0)
+	return brain.input.fire
