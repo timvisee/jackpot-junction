@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-09-21
+
+Camera work: it sits closer to the karts, keeps the arena centred in the frame,
+and opens out to the whole table at the whistle.
+
 ### Changed
 
 - **The score tanks' caps sit on top of the glass.** They were sunk into it, so
@@ -510,7 +515,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.3.3...HEAD
+[0.3.3]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.3.3
 [0.3.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.3.2
 [0.3.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.3.1
 [0.3.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.3.0
