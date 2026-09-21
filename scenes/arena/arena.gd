@@ -290,7 +290,7 @@ func _add_billboards() -> void:
 		var ad: Array = ads[i % ads.size()]
 		var side := -1.0 if i == 0 else 1.0
 		var at := Vector3(side * half.x * BILLBOARD_ALONG, 0.0, -(half.y + BILLBOARD_STANDOFF))
-		var board := Billboard.add_to(billboards, at, Vector3.ZERO)
+		var board := Billboard.add_to(billboards, at, Vector3.ZERO, room)
 		board.panel(Vector2(0.0, -0.78), Vector2(Billboard.WIDTH - 1.0, 0.2), ad[2], true)
 		board.words(ad[0], Vector2(0.0, 0.45), 0.92, ad[2])
 		board.words(ad[1], Vector2(0.0, -0.3), 0.4, Color(0.86, 0.88, 0.94))

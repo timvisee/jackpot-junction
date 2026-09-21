@@ -43,6 +43,10 @@ below, and hands the notes to the release workflow.
   under a workbench lamp, The Vault is a dark room with one light over the felt,
   and Crossfire is played in cold daylight.
 
+- **The signs are lit.** The hoardings and the clock carry their own light in a
+  dark room, so a board over the crowd can still be read at The Vault, and stay
+  paint on a board in daylight.
+
 - **Karts are painted, not coloured.** A coat of lacquer over the body colour, so
   the light runs along a kart as it turns, and chips on the floor are chips: a
   notched rim, a printed face, and metal for the gold ones.

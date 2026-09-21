@@ -170,6 +170,12 @@ func _say(word: String, caption: String, color: Color) -> void:
 		_caption.pixel_size = _board.fitted(caption, CAPTION_SIZE) / float(Billboard.FONT_SIZE)
 
 
+## How hard this room drives its signs, GAME.md 8.1: a display in a dark hall is the brightest
+## thing in it and a display in daylight is a display.
+func _neon() -> float:
+	return match_node.arena.room.neon if match_node.arena != null else 1.0
+
+
 ## The time left as mm:ss, which is what the four digits have room for.
 func _clock_text() -> String:
 	var left := maxi(int(ceil(match_node.time_left)), 0)
@@ -194,7 +200,7 @@ func _show(text: String, urgent: bool) -> void:
 			var lit := on.contains(name)
 			material.albedo_color = color if lit else DARK
 			material.emission = color
-			material.emission_energy_multiplier = 1.6 if lit else 0.0
+			material.emission_energy_multiplier = 1.6 * _neon() if lit else 0.0
 	for dot: MeshInstance3D in _colon:
 		var material := dot.material_override as StandardMaterial3D
 		material.albedo_color = color
@@ -207,7 +213,7 @@ func _build() -> void:
 	var size := match_node.arena.world_size() if match_node.arena != null else Vector2(40.0, 22.5)
 	var along := size.x * OFFSET * 0.5
 	var at := Vector3(along, 0.0, -(size.y * 0.5 + STANDOFF))
-	_board = Billboard.add_to(self, at, Vector3.ZERO)
+	_board = Billboard.add_to(self, at, Vector3.ZERO, match_node.arena.room)
 	_board.name = "ClockBoard"
 	var run := SPACING * 4.0 + COLON
 	var left := -run * 0.5 + SPACING * 0.5

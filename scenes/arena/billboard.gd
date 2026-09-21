@@ -48,12 +48,18 @@ const ADS: Array[Array] = [
 ## The middle of the face, in board space: x to the right of it, y up, and +z out of it. Ads and
 ## the clock hang off this rather than off the board, so neither has to know about the legs.
 var face: Node3D
+## The room the board is standing in, GAME.md 8.1. A hall that turns its lights down does not
+## turn its signs off, so how hard this one is lit comes from the room rather than from here.
+var room: RoomLook
 
 
 ## Stands a board at [param at] with its face turned toward [param toward], and returns it.
-static func add_to(parent: Node3D, at: Vector3, toward: Vector3) -> Billboard:
+static func add_to(
+	parent: Node3D, at: Vector3, toward: Vector3, in_room: RoomLook = null
+) -> Billboard:
 	var board := Billboard.new()
 	board.name = "Billboard"
+	board.room = in_room if in_room != null else RoomLook.fallback()
 	parent.add_child(board)
 	board.global_position = at
 	var away := Vector3(toward.x - at.x, 0.0, toward.z - at.z)
@@ -85,7 +91,9 @@ func words(text: String, at: Vector2, size: float, color: Color) -> Label3D:
 	label.text = text
 	label.font_size = FONT_SIZE
 	label.pixel_size = fitted(text, size) / float(FONT_SIZE)
-	label.modulate = color
+	# Signs are lit, GAME.md 8.1: in a dark room the words carry their own light, and in a
+	# bright one this is the colour it was asked for.
+	label.modulate = color * (0.85 + 0.35 * room.neon)
 	label.outline_size = 10
 	label.outline_modulate = Color(0.03, 0.03, 0.04, 0.9)
 	label.billboard = BaseMaterial3D.BILLBOARD_DISABLED
@@ -140,5 +148,5 @@ func _paint(color: Color, lit: bool) -> StandardMaterial3D:
 	if lit:
 		material.emission_enabled = true
 		material.emission = color
-		material.emission_energy_multiplier = 0.7
+		material.emission_energy_multiplier = 0.7 * room.neon
 	return material

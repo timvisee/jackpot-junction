@@ -1173,6 +1173,10 @@ reads as something you could pick up.
   match clock as four seven-segment digits, amber and red for Last Call. The HUD
   keeps the same clock in its corner, but a hall has a clock on the wall, and a
   player watching the table rather than the corner still knows how long is left.
+  How hard a sign is lit comes from the room: a hall that turns its lights down
+  does not turn its signs off, so After Hours the words and the colour bars carry
+  their own light and the clock is the brightest thing off the table, while in
+  daylight a sign is paint on a board.
   They stand on the far edge rather than out at the sides because that is the edge
   the camera of 8.2 has behind the table; the crowd leaves each one a bay; and the
   Garage takes them down with the rest of the dressing. The two ads are drawn from
