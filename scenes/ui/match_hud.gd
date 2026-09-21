@@ -732,6 +732,39 @@ func _kart(slot: int) -> Kart:
 	return match_node.slots[slot].kart
 
 
+## The scrim behind a player's corner: a dark card with rounded corners and no edge, soft enough
+## that it reads as shade rather than as a panel.
+func _scrim() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.03, 0.03, 0.05, 0.34)
+	style.set_corner_radius_all(14)
+	style.content_margin_left = 14.0
+	style.content_margin_right = 14.0
+	style.content_margin_top = 10.0
+	style.content_margin_bottom = 12.0
+	return style
+
+
+## One of the slim bars in a block: the nitro tank and the speedometer. Rounded, thin, and in
+## the colour of whatever it is measuring.
+func _bar(size: Vector2, ink: Color) -> ProgressBar:
+	var bar := ProgressBar.new()
+	bar.min_value = 0.0
+	bar.max_value = 100.0
+	bar.value = 0.0
+	bar.show_percentage = false
+	bar.custom_minimum_size = size
+	var back := StyleBoxFlat.new()
+	back.bg_color = Color(0.0, 0.0, 0.0, 0.45)
+	back.set_corner_radius_all(int(size.y * 0.5))
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = ink
+	fill.set_corner_radius_all(int(size.y * 0.5))
+	bar.add_theme_stylebox_override("background", back)
+	bar.add_theme_stylebox_override("fill", fill)
+	return bar
+
+
 func _format_mult(mult: float) -> String:
 	if is_equal_approx(mult, roundf(mult)):
 		return str(int(roundf(mult)))
@@ -750,18 +783,27 @@ func _label(size: int, preset: int) -> Label:
 
 
 func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
-	var box := VBoxContainer.new()
-	box.name = "Block%d" % slot.index
-	box.set_anchors_and_offsets_preset(BLOCK_ANCHORS[corner])
+	# A corner of numbers over a table that is felt one moment and a white block the next needs
+	# something to sit on, GAME.md 8.3. A scrim rather than a panel: enough to hold the text
+	# together, not so much that the arena has a box cut out of it.
+	var card := PanelContainer.new()
+	card.name = "Block%d" % slot.index
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_theme_stylebox_override("panel", _scrim())
+	card.set_anchors_and_offsets_preset(BLOCK_ANCHORS[corner])
 	var right := corner % 2 == 1
 	var bottom := corner >= 2
-	box.grow_horizontal = Control.GROW_DIRECTION_BEGIN if right else Control.GROW_DIRECTION_END
-	box.grow_vertical = Control.GROW_DIRECTION_BEGIN if bottom else Control.GROW_DIRECTION_END
-	box.offset_left = -16.0 if right else 16.0
-	box.offset_right = -16.0 if right else 16.0
-	box.offset_top = -16.0 if bottom else 16.0
-	box.offset_bottom = -16.0 if bottom else 16.0
-	add_child(box)
+	card.grow_horizontal = Control.GROW_DIRECTION_BEGIN if right else Control.GROW_DIRECTION_END
+	card.grow_vertical = Control.GROW_DIRECTION_BEGIN if bottom else Control.GROW_DIRECTION_END
+	card.offset_left = -16.0 if right else 16.0
+	card.offset_right = -16.0 if right else 16.0
+	card.offset_top = -16.0 if bottom else 16.0
+	card.offset_bottom = -16.0 if bottom else 16.0
+	add_child(card)
+	var box := VBoxContainer.new()
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_theme_constant_override("separation", 5)
+	card.add_child(box)
 	var name_label := Label.new()
 	name_label.text = slot.display_name()
 	Type.strong(name_label, Type.BODY, slot.color())
@@ -789,19 +831,10 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	var hints := HBoxContainer.new()
 	hints.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hints.alignment = BoxContainer.ALIGNMENT_END if right else BoxContainer.ALIGNMENT_BEGIN
-	var nitro := ProgressBar.new()
-	nitro.min_value = 0.0
-	nitro.max_value = 100.0
+	var nitro := _bar(Vector2(180.0, 8.0), slot.color())
 	nitro.value = 100.0
-	nitro.show_percentage = false
-	nitro.custom_minimum_size = Vector2(180.0, 10.0)
 	nitro.tooltip_text = "Nitro"
-	var speed_dial := ProgressBar.new()
-	speed_dial.min_value = 0.0
-	speed_dial.max_value = 100.0
-	speed_dial.value = 0.0
-	speed_dial.show_percentage = false
-	speed_dial.custom_minimum_size = Vector2(120.0, 10.0)
+	var speed_dial := _bar(Vector2(120.0, 6.0), Color(0.82, 0.82, 0.88))
 	speed_dial.tooltip_text = "Speed"
 	speed_dial.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var speed := Label.new()
@@ -851,7 +884,7 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	box.add_child(speed_row)
 	box.add_child(hints)
 	return {
-		"box": box,
+		"box": card,
 		"corner": corner,
 		"banked": banked,
 		"pot": pot,
