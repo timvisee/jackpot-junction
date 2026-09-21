@@ -9,11 +9,11 @@ extends Node3D
 ## garage, has no board.
 
 ## The digits and the gap between them, in metres.
-const DIGIT := Vector2(0.62, 1.2)
-const SEGMENT := 0.13
-const SPACING := 0.86
+const DIGIT := Vector2(0.5, 0.96)
+const SEGMENT := 0.11
+const SPACING := 0.69
 ## The extra gap the colon is given, between the minutes and the seconds.
-const COLON := 0.34
+const COLON := 0.28
 ## Amber while the match runs and red during Last Call, GAME.md 8.3, with the unlit segments
 ## showing faintly so the display reads as a board with segments rather than as floating bars.
 const LIT := Color(1.0, 0.72, 0.18)
@@ -115,15 +115,15 @@ func _build() -> void:
 	var left := -run * 0.5 + SPACING * 0.5
 	for i: int in 4:
 		var x := left + i * SPACING + (COLON if i >= 2 else 0.0)
-		_digits.append(_digit(Vector2(x, -0.15)))
+		_digits.append(_digit(Vector2(x, -0.18)))
 	for high: bool in [true, false]:
 		var dot := _bar(Vector2(SEGMENT, SEGMENT))
 		dot.position = Vector3(
-			left + SPACING * 1.5 + COLON * 0.5, -0.15 + (0.3 if high else -0.3), 0.04
+			left + SPACING * 1.5 + COLON * 0.5, -0.18 + (0.24 if high else -0.24), 0.04
 		)
 		_board.face.add_child(dot)
 		_colon.append(dot)
-	_board.words("TIME", Vector2(0.0, 0.95), 0.42, Color(0.75, 0.78, 0.85))
+	_board.words("TIME", Vector2(0.0, 0.74), 0.34, Color(0.75, 0.78, 0.85))
 	# Nobody stands in front of a board put up to be read.
 	if match_node.arena != null and match_node.arena.crowd != null:
 		var keep := Rect2(at.x - Billboard.WIDTH * 0.5, at.z - 1.6, Billboard.WIDTH, 3.2)

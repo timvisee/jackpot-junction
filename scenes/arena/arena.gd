@@ -284,9 +284,9 @@ func _add_billboards() -> void:
 		var side: float = ad[0]
 		var at := Vector3(side * half.x * BILLBOARD_ALONG, 0.0, -(half.y + BILLBOARD_STANDOFF))
 		var board := Billboard.add_to(billboards, at, Vector3.ZERO)
-		board.panel(Vector2(0.0, -0.95), Vector2(Billboard.WIDTH - 1.2, 0.24), ad[3], true)
-		board.words(ad[1], Vector2(0.0, 0.55), 1.15, ad[3])
-		board.words(ad[2], Vector2(0.0, -0.35), 0.5, Color(0.86, 0.88, 0.94))
+		board.panel(Vector2(0.0, -0.78), Vector2(Billboard.WIDTH - 1.0, 0.2), ad[3], true)
+		board.words(ad[1], Vector2(0.0, 0.45), 0.92, ad[3])
+		board.words(ad[2], Vector2(0.0, -0.3), 0.4, Color(0.86, 0.88, 0.94))
 		var bay := Rect2(at.x - Billboard.WIDTH * 0.5, at.z - 1.6, Billboard.WIDTH, 3.2)
 		if crowd != null:
 			crowd.keep_clear(bay)

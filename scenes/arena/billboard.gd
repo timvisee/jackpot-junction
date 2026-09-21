@@ -9,13 +9,13 @@ extends Node3D
 
 ## The face, and how far above the table its bottom edge sits: over the heads of a crowd four
 ## rows deep and up a tier, so a board is read rather than glimpsed between shoulders.
-const WIDTH := 7.0
-const HEIGHT := 2.8
-const LIFT := 2.1
+const WIDTH := 5.6
+const HEIGHT := 2.25
+const LIFT := 1.9
 ## The legs it stands on and the frame around the face.
-const POST := 0.22
-const FRAME := 0.18
-const DEPTH := 0.18
+const POST := 0.18
+const FRAME := 0.15
+const DEPTH := 0.15
 const STEEL := Color(0.17, 0.17, 0.2)
 const FACE := Color(0.07, 0.07, 0.09)
 
