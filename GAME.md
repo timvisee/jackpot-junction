@@ -1170,6 +1170,16 @@ this existed, and anything that cannot hold that is not in a room by default:
 | The room and its clutter | under the noise | Every room: a few hundred boxes and cylinders, and the shell casts no shadows |
 | Textures | ~0.1 ms | Everywhere. The two big slabs carry their own world-space UVs rather than being mapped triplanar, which is three texture reads saved on the meshes that cover most of the screen |
 
+**Why none of it is baked.** A lightmap is the obvious way to stop paying every
+frame for light on things that never move, and it is not one of the options here.
+Godot bakes lightmaps in the editor, onto meshes that carry a second set of UVs,
+and every surface in a room -- the table, the walls, the shell round it, the
+clutter on it -- is built in code while the map loads, so there is nothing on disk
+to bake and nothing to bake it against. The cost is cut instead of precomputed:
+one light per room casts shadows and the other casts none, the shadow map is drawn
+only as far out as the camera can see, and the shell round the table casts no
+shadow at all, which is the part of it that would have cost the most.
+
 `make bench` prints the frame rate for a match on each map, measured over 600
 frames after a warm-up, so a change that costs frames is caught while it is being
 made. The warm-up matters: the first run of a scene compiles shaders, and a cold
