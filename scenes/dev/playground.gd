@@ -20,6 +20,7 @@ extends Node3D
 ##   --bounty=1           put a bounty on the second slot, for screenshots
 ##   --banked=1           spread some banked score across the field, for the score tanks
 ##   --results=1          end the match at once with made-up stats, to see the results screen
+##   --fireworks=1        the winner's fireworks over the open-out camera, for screenshots
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
 ## on an unused device to join mid-match; F6 deals the player a random joker.
 
@@ -44,6 +45,7 @@ var _clean := false
 var _bounty := false
 var _banked := false
 var _results := false
+var _fireworks := false
 
 
 func _ready() -> void:
@@ -107,6 +109,10 @@ func _ready() -> void:
 		var stain := OilStain.new()
 		match_node.add_child(stain)
 		stain.global_position = player.global_position + Vector3(2.5, 0.0, 1.5)
+	if _fireworks:
+		# The whistle's own view, GAME.md 8.3: the camera open on the room and the show over it.
+		Fireworks.celebrate(match_node, match_node.arena.bounds(), Palette.player_color(0), 30.0)
+		match_node.camera_rig.show_the_room(30.0)
 	if _results:
 		var counter := 0
 		for slot: PlayerSlot in match_node.slots:
@@ -219,3 +225,5 @@ func _parse_user_args() -> void:
 			_banked = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--results="):
 			_results = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--fireworks="):
+			_fireworks = arg.get_slice("=", 1) == "1"

@@ -294,7 +294,8 @@ The joker catalogue is in section 7.3.
 Flow: Title screen, Lobby, Countdown, Playing, Last Call, Overtime, Results. At the
 whistle nobody is stopped dead: every driver lets go of the wheel and the karts
 roll to a halt on their own, out of anyone's control and out of reach of pits,
-hazards and the Junction alike, while the rig swings onto the winner. That is the
+hazards and the Junction alike, while the rig swings onto the winner and
+fireworks go up over the table in their colour. That is the
 end of the match and it is left to itself: the podium waits two and a half seconds
 before it comes up, and the hand of cards stays where it is until it does, because
 a scoreboard thrown over the top of a kart still rolling takes the ending away from
@@ -1097,6 +1098,12 @@ subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
   it. The crowd leaves them a bay rather than standing in front of them, and a
   room with no clock and nothing to reach has no tanks, since one that can never
   fill is furniture.
+- **The fireworks**: a match that has been won is seen off with a display over the
+  table. Shells go up off the felt and break overhead in the winner's colour, with
+  the odd gold one among them, each lighting the room as it goes, through the pause
+  the podium waits out in 3.8 and on under the standings. The room decides nothing
+  by it: it is the last thing the match does, and it is for whoever won rather than
+  for their kart, which may well be lying in a pit at the whistle.
 - **The crowd**: a band of small figures four rows deep standing on the table all
   the way round the arena, and a DJ booth a couple of rows into it along the top
   edge, with a pair of speakers that pulse on the beat. The booth stands in the

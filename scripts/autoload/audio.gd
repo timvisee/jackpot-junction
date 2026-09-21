@@ -116,6 +116,7 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"wounded": ["impactPunch_heavy_000.ogg"],
 	&"patched": ["confirmation_002.ogg"],
 	&"explosion_tail": ["impactSoft_heavy_001.ogg"],
+	&"firework": ["impactSoft_heavy_001.ogg", "impactPunch_heavy_000.ogg"],
 	&"turbo_pass": ["kart/turbo_pass.ogg"],
 	&"nitro_swell": ["kart/nitro_swell.ogg"],
 }

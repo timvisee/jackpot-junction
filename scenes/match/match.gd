@@ -19,6 +19,9 @@ const BEAT_DOWNBEAT := 1.4
 ## this many of both. Three of them over the usual three seconds is a lamp a second, which is
 ## the pace anyone counting a field down actually counts at.
 const COUNTDOWN_LAMPS := 3
+## How long the fireworks go up for once a match is won, GAME.md 8.3: the pause the podium waits
+## out and a while under the standings after it.
+const CELEBRATION := 8.0
 
 @export var rules: MatchRules
 @export var power_ups: PowerUpTable
@@ -724,6 +727,9 @@ func spotlight_winner() -> void:
 	var winner := standings()[0]
 	if winner.kart != null and winner.kart.alive:
 		arena.disco.focus(winner.kart)
+	# And the room throws fireworks in their colour, GAME.md 8.3. For whoever won rather than
+	# for the kart, which may well be lying in a pit at the whistle.
+	Fireworks.celebrate(self, arena.bounds(), winner.color(), CELEBRATION)
 	# And the camera lets the room back in, GAME.md 8.2, over the same pause the podium waits out
 	# in 3.8: the karts have stopped being the subject, so the last thing the match does is open
 	# out to the table it was played on.

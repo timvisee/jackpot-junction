@@ -28,6 +28,10 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Fireworks for the winner.** A won match is seen off with a display over the
+  table in the winner's colour, through the pause before the podium and on under
+  it.
+
 - **Two more music tracks.** Ginger Bread and Let It Breathe join Deceased
   Rodent, each in the same three intensities, and one is picked at random when a
   match starts.
