@@ -25,8 +25,6 @@ const FALL_SPIN := 7.0
 const BLINK_PERIOD := 0.25
 ## A quicker flicker for the moment of immunity after losing a life, so it reads as brief.
 const HURT_BLINK_PERIOD := 0.12
-## How far the steering has to be pushed to walk the joker cursor one card, GAME.md 3.7.
-const MENU_STEER_STEP := 0.6
 const RING_RADIUS_EMPTY := 0.6
 const RING_RADIUS_FULL := 1.4
 
@@ -59,9 +57,11 @@ var predicted := false
 ## The shared resources the kart's own stat copies are rebuilt from when jokers change.
 var base_stats: KartStats
 var base_cannon_stats: CannonStats
-## Whether the joker menu is held open, and which held joker the cursor is on.
+## Whether the joker menu is held open, which held joker the cursor is on, and which way the
+## wheel was last pushed while it is, read and written by [KartMenu].
 var menu_open := false
 var menu_index := 0
+var menu_steer := 0
 ## Set by the match so jokers and items can roll dice deterministically.
 var rng := RandomNumberGenerator.new()
 var alive := true
@@ -145,7 +145,6 @@ var _graze_cooldown_left := 0.0
 ## the moment one ends having earned it can be caught.
 var _was_drifting := false
 var _was_charged := false
-var _menu_steer := 0
 
 
 func _ready() -> void:
@@ -214,7 +213,7 @@ func _physics_process(delta: float) -> void:
 		# waiting to come back is exactly the player with time to read it. Dropping and burning
 		# are not: there is no kart to drop a card from, and the respawn pick is already asking
 		# what to keep. The controls are polled for the whole slot by the match while it waits.
-		_step_menu(false)
+		KartMenu.step(self, false)
 		_step_sound(delta)
 		return
 	if frozen:
@@ -242,7 +241,7 @@ func _physics_process(delta: float) -> void:
 	if input.fire and protection_left <= 0.0 and cannon.can_fire() and bullet_system != null:
 		_fire()
 	item_reveal_left = maxf(item_reveal_left - delta, 0.0)
-	_step_menu()
+	KartMenu.step(self)
 	if not menu_open and input.use_item_pressed and held_item != null and item_reveal_left <= 0.0:
 		use_item()
 	var heading_before := motor.heading
@@ -545,43 +544,6 @@ func distance_to_body(point: Vector3) -> float:
 	var half := Vector3(stats.width * 0.5, 0.0, stats.length * 0.5)
 	var clamped := Vector3(clampf(local.x, -half.x, half.x), 0.0, clampf(local.z, -half.z, half.z))
 	return Vector3(local.x, 0.0, local.z).distance_to(clamped)
-
-
-## The joker menu, GAME.md 3.7: held open while driving; cycle, pick, drop or destroy. With
-## [param can_change] false the cards may only be looked through, which is what a dead kart's
-## hand is.
-func _step_menu(can_change: bool = true) -> void:
-	menu_open = input.joker_menu and jokers.count() > 0
-	if not menu_open:
-		menu_index = 0
-		_menu_steer = 0
-		return
-	var count := jokers.count()
-	var steered := _menu_steer_step()
-	if input.joker_next_pressed or steered > 0:
-		menu_index = (menu_index + 1) % count
-	if input.joker_prev_pressed or steered < 0:
-		menu_index = posmod(menu_index - 1, count)
-	if input.joker_select >= 0 and input.joker_select < count:
-		menu_index = input.joker_select
-	if can_change and input.joker_drop_pressed:
-		drop_joker(menu_index)
-	elif can_change and input.joker_destroy_pressed:
-		destroy_joker(menu_index)
-	menu_index = clampi(menu_index, 0, maxi(jokers.count() - 1, 0))
-
-
-## Which way the steering wants to walk the cursor, one card per push. Whatever the player
-## steers with picks cards too, so the arrow keys work on a keyboard and the stick or the
-## D-pad works on a pad, with no second set of keys to learn. Holding a direction moves one
-## card and then waits, so a card is never skipped past while the wheel is held over.
-func _menu_steer_step() -> int:
-	var pushed := 0
-	if absf(input.steer) > MENU_STEER_STEP:
-		pushed = signi(roundi(input.steer))
-	var stepped := pushed if pushed != _menu_steer else 0
-	_menu_steer = pushed
-	return stepped
 
 
 ## The sparks off the rear wheels, GAME.md 4.3: white while the drift is still earning its
