@@ -33,6 +33,8 @@ var grid: ArenaGrid
 var room: RoomLook
 ## What the room is made of: the materials every mesh here is built from.
 var surfaces: Surfaces
+## What the walls and the boxes inside the arena are made of, GAME.md 8.1.
+var kit: RoomKit
 var spawn_points: Array[Vector3] = []
 var turbo_pads: Array[TurboPad] = []
 var pits: Array[Pit] = []
@@ -96,6 +98,7 @@ func build() -> void:
 	grid = layout.parse()
 	room = layout.room if layout.room != null else RoomLook.fallback()
 	surfaces = Surfaces.new(room)
+	kit = RoomKit.new(room, surfaces)
 	for child: Node in get_children():
 		child.queue_free()
 	_marks.clear()
@@ -438,6 +441,8 @@ func _add_walls() -> void:
 		shape.shape = box
 		body.add_child(shape)
 		body.add_child(_box_mesh(size, room.wall))
+		# And whatever the room puts on top of it, GAME.md 8.1.
+		body.add_child(kit.wall(size, i))
 		walls.add_child(body)
 
 
@@ -581,7 +586,7 @@ func _add_crates() -> void:
 		box.size = size
 		shape.shape = box
 		crate.add_child(shape)
-		crate.add_child(_box_mesh(size, room.wall_edge))
+		crate.add_child(kit.crate(size))
 		container.add_child(crate)
 		crates.append(crate)
 

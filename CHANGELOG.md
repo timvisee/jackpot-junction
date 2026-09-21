@@ -13,6 +13,11 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The walls and the boxes belong to their room.** Walls wear a capping strip and
+  some of them carry a stack of chips, a cone or a handful of bolts; the breakable
+  boxes are packs of cards in The Vault, stacked offcuts on the workbench and
+  cement sacks in the yard.
+
 - **The Yard is warm.** It was lit like a cold grey morning; it is now a low
   afternoon sun over the concrete, with dust in the air rather than frost.
 

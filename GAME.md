@@ -1111,6 +1111,16 @@ it for the times something is looked at closely. `make textures` generates the l
 they are noise filtered in the frequency domain, which wraps by construction, so a
 table can be tiled out of one without a seam.
 
+**What is inside the arena.** The walls and the boxes are the room's too. A wall
+keeps the block it always was -- it is the thing a kart bounces off -- and gains a
+capping strip round the top of it, which is what stops thirty metres of wall
+reading as one flat slab; every third long one carries something small up there,
+out of the way of the driving: a stack of chips in the card room, a cone in the
+yard, bolts on the bench. A breakable box is built out of what its room has by the
+crate: sealed packs of cards two by two and three high, offcuts of board stacked
+crossways, or cement sacks on a pallet. All of it stays inside the cube the
+collider is, so cover is the shape it looks like, and a test says so.
+
 **The room round the table.** A table standing in the dark is a table standing in
 the dark: the eye finds the edge of it as soon as the camera moves. So each room is
 built as a room. The table has a skirt and legs, it stands on a floor, and three
