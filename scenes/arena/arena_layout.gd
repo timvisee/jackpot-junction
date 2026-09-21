@@ -9,6 +9,9 @@ extends Resource
 @export_multiline var grid: String = ""
 @export var cell_size: float = 1.25
 @export var wall_height: float = 1.0
+## The room this map is played in, GAME.md 8.1: the light, the surfaces and the crowd around the
+## table. A map without one is played in the default room rather than in the dark.
+@export var room: RoomLook
 
 
 ## Non-empty lines of the grid with surrounding whitespace removed.

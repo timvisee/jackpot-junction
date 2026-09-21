@@ -39,6 +39,10 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Every map is played in a room of its own.** Lucky Crossing keeps a warm table
+  under a workbench lamp, The Vault is a dark room with one light over the felt,
+  and Crossfire is played in cold daylight.
+
 - **A logo of its own.** The game wears a mark rather than the engine's: the
   Junction from above, a gold chip with a crossroads through it.
 

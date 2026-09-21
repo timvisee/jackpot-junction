@@ -1059,9 +1059,40 @@ a real downside. Starting set; balance is untested.
 
 ### 8.1 Art direction
 
-A toy diorama on a tabletop, like Wii Tanks, with casino accents and a few
-road elements. Low-poly, flat or lightly gradiented colours, soft shadows,
-subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
+A model of a place, on a table, lit like a model: the table is the subject and the
+room around it is scenery. Casino accents, a few road elements, and shapes simple
+enough to read at speed from above. What has changed from the flat-shaded start is
+the lighting and the surfaces, not the shapes: the game is still a toy diorama,
+built well enough that it looks like one on purpose.
+
+**The rooms.** A map is a place rather than a floor plan. Each one names a
+`RoomLook`, and the room decides the light, the colour of every surface, how the
+crowd is dressed and how much of the room behind the table is in focus. Three of
+them:
+
+| Room | Map | What it is |
+|------|-----|------------|
+| The Workbench | Lucky Crossing | Warm and close. A tungsten key across the table, a cool fill from the far side and a soft lamp over the felt, with the room falling away into the dark past the stands. The home table. |
+| After Hours | The Vault | The room is dark and the table is the only lit thing in it: one lamp hung over the felt, the sun down to a hint, the crowd a band of shapes in the dark with the neon on their edges. |
+| The Yard | Crossfire | Cold daylight, no lamp. Steel, concrete and sand, hard shadows, little glow: the same game played in the open at ten in the morning. |
+
+Rooms are data, not code: nothing in a room decides anything about play, which is
+exactly why the same match can be played in three of them. Adding a fourth is a
+resource file and a map that names it.
+
+**The light.** Every room is lit the same way and differs only in the numbers: a
+key that casts the shadows, a fill from the other side so a shadow is a dark side
+rather than a hole, an optional lamp hung over the middle of the table, and an
+ambient that says how much the room itself glows. A lamp is what separates a room
+from a field: a sun lights everything it can see, and a lamp lights what is under
+it and lets the rest go. Past the table the air thickens, so the far side of the
+room is dimmer than the near side even before anything is in the way.
+
+**Focus.** The room goes soft a set distance past whatever the camera is looking
+at, rather than at a fixed distance from the camera: the rig comes in on the karts
+and pulls out to the room, see 8.2, and the table has to stay sharp at both ends
+of that. What it buys is a model: a tabletop with the room behind it out of focus
+reads as something you could pick up.
 
 - **Floor**: dark green felt with asphalt lanes and painted road markings.
 - **Walls and crates**: sand-coloured wooden toy blocks.

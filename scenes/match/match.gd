@@ -376,20 +376,8 @@ func _build_systems(from_snapshots: bool) -> void:
 	bullets.puppet = from_snapshots
 	add_child(bullets)
 	_add_intensity()
-	camera_rig = CAMERA_SCENE.instantiate()
-	camera_rig.name = "CameraRig"
-	add_child(camera_rig)
-	camera_rig.frame_arena(arena.bounds())
-	# The race to the target score, standing on the table, GAME.md 8.1. It reads the slots every
-	# frame rather than being handed them, so it is right on a client filling up from snapshots
-	# and after somebody joins mid-match.
-	score_tanks = ScoreTanks.add_to(self)
-	# And the clock goes up on a board over the crowd, GAME.md 8.1, which reads the match the
-	# same way.
-	led_clock = LedClock.add_to(self)
-	# A record goes on as the room is built, GAME.md 8.4: three tracks, one of them at random, so
-	# a run of matches is not the same loop over and over.
-	Audio.pick_track()
+	# The camera, the room's light, the tanks, the clock and the record, GAME.md 8.1.
+	MatchStage.build(self, CAMERA_SCENE)
 
 
 ## The HUD, when this build wants one. It reads the slots as it is built, so a host adds it once

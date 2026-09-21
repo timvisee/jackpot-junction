@@ -21,6 +21,8 @@ extends Node3D
 ##   --banked=1           spread some banked score across the field, for the score tanks
 ##   --results=1          end the match at once with made-up stats, to see the results screen
 ##   --fireworks=1        the winner's fireworks over the open-out camera, for screenshots
+##   --wide=1             hold the camera on the whole room, so two shots can be compared
+##   --map=vault          which map to play, by id (default lucky_crossing)
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
 ## on an unused device to join mid-match; F6 deals the player a random joker.
 
@@ -46,6 +48,8 @@ var _bounty := false
 var _banked := false
 var _results := false
 var _fireworks := false
+var _wide := false
+var _map := &"lucky_crossing"
 
 
 func _ready() -> void:
@@ -54,6 +58,7 @@ func _ready() -> void:
 	match_node = MATCH_SCENE.instantiate()
 	match_node.name = "Match"
 	match_node.bot_difficulty = load("res://data/ai/%s.tres" % _difficulty)
+	match_node.arena_layout = ArenaMaps.layout(_map)
 	add_child(match_node)
 	var inputs: Array[KartInput] = []
 	if _players >= 2:
@@ -113,6 +118,10 @@ func _ready() -> void:
 		# The whistle's own view, GAME.md 8.3: the camera open on the room and the show over it.
 		Fireworks.celebrate(match_node, match_node.arena.bounds(), Palette.player_color(0), 30.0)
 		match_node.camera_rig.show_the_room(30.0)
+	if _wide:
+		# The whole room, held: two screenshots of the same room are only worth holding against
+		# each other if the camera was in the same place for both.
+		match_node.camera_rig.show_the_room(120.0)
 	if _results:
 		var counter := 0
 		for slot: PlayerSlot in match_node.slots:
@@ -227,3 +236,7 @@ func _parse_user_args() -> void:
 			_results = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--fireworks="):
 			_fireworks = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--wide="):
+			_wide = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--map="):
+			_map = StringName(arg.get_slice("=", 1))

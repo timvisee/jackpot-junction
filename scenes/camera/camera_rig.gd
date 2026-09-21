@@ -15,6 +15,9 @@ const TREMBLE_SHAKE := 0.2
 ## How many halvings the aim is solved in, see [method _aim_lift]. Twenty-four takes it well past
 ## a pixel on any screen anybody has.
 const AIM_STEPS := 24
+## How wide the band between sharp and soft is, in metres: wide enough that nothing snaps into
+## focus as the rig comes in or pulls out.
+const FOCUS_BAND := 22.0
 
 @export var pitch_degrees := 55.0
 @export var base_fov := 35.0
@@ -46,8 +49,13 @@ var targets: Array[Node3D] = []
 ## same distance off, GAME.md 8.4. Facing is the camera's, so left on screen is left in the mix.
 var listener_targets: Array[Node3D] = []
 var camera: Camera3D
+## How far past what it is looking at the room starts going soft, and how soft it goes. Set by
+## the room, GAME.md 8.1.
+var focus_margin := 10.0
+var focus_blur := 0.16
 var listener: AudioListener3D
 
+var _lens: CameraAttributesPractical
 var _center := Vector3.ZERO
 var _arena_size := Vector2(40.0, 22.5)
 var _wall_height := 1.0
@@ -80,6 +88,13 @@ func _ready() -> void:
 	camera.near = 0.5
 	camera.far = 300.0
 	camera.fov = base_fov
+	# The room goes soft behind whatever the camera is looking at, GAME.md 8.1, which is what
+	# makes a table read as a model of a room rather than as a room. It follows the camera rather
+	# than sitting at a fixed distance: the rig comes in and pulls out, and the table has to stay
+	# sharp at both ends of that.
+	_lens = CameraAttributesPractical.new()
+	_lens.dof_blur_far_transition = FOCUS_BAND
+	camera.attributes = _lens
 	add_child(camera)
 	camera.make_current()
 	listener = AudioListener3D.new()
@@ -256,6 +271,9 @@ func _place(distance: float, pan: Vector3, zoom: float) -> void:
 		)
 	camera.position = look_at_point + offset
 	camera.look_at_from_position(camera.position, look_at_point, Vector3.UP)
+	_lens.dof_blur_far_enabled = focus_blur > 0.0
+	_lens.dof_blur_far_distance = distance + focus_margin
+	_lens.dof_blur_amount = focus_blur
 	camera.fov = base_fov * zoom
 
 

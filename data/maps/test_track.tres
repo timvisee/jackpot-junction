@@ -1,9 +1,12 @@
-[gd_resource type="Resource" script_class="ArenaLayout" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="ArenaLayout" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scenes/arena/arena_layout.gd" id="1_layout"]
 
+[ext_resource type="Resource" path="res://data/rooms/workbench.tres" id="2_room"]
+
 [resource]
 script = ExtResource("1_layout")
+room = ExtResource("2_room")
 grid = "##############################################################################
 #............................###########################.....................#
 #.S..........................###########################.....................#

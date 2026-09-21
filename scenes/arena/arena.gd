@@ -28,6 +28,9 @@ const JUNCTION_BASE_COLOR := Color("#1E1E24")
 @export var layout: ArenaLayout
 
 var grid: ArenaGrid
+## The room this map is played in, GAME.md 8.1: what it is lit by and what it is made of. Read
+## by the lighting, the crowd and every surface here.
+var room: RoomLook
 var spawn_points: Array[Vector3] = []
 var turbo_pads: Array[TurboPad] = []
 var pits: Array[Pit] = []
@@ -90,6 +93,7 @@ func _on_bullet_struck(at: Vector3, normal: Vector3, color: Color) -> void:
 ## Rebuilds every child from the layout.
 func build() -> void:
 	grid = layout.parse()
+	room = layout.room if layout.room != null else RoomLook.fallback()
 	for child: Node in get_children():
 		child.queue_free()
 	_marks.clear()
