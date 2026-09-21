@@ -11,6 +11,14 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **The test track keeps the hint off the kart.** The signs along the road
+  already say what every button does.
+
+- **The test track's end room is twice as wide.** Room to get a drift wrong and
+  go round again, which is what that room is for.
+
 ### Added
 
 - **Two more music tracks.** Ginger Bread and Let It Breathe join Deceased
