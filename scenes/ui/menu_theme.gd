@@ -32,28 +32,26 @@ static func screen(parent: Control, separation: int = 16) -> VBoxContainer:
 	return column
 
 
-static func title(text: String, size: int = 72) -> Label:
+static func title(text: String, size: int = Type.HERO) -> Label:
 	var label := Label.new()
 	label.text = text
-	label.add_theme_font_size_override("font_size", size)
-	label.add_theme_color_override("font_color", Palette.CHIP_GOLD)
+	Type.display(label, size, Palette.CHIP_GOLD)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	return label
 
 
-static func subtitle(text: String, size: int = 24) -> Label:
+static func subtitle(text: String, size: int = Type.BODY) -> Label:
 	var label := Label.new()
 	label.text = text
-	label.add_theme_font_size_override("font_size", size)
-	label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.88))
+	Type.text(label, size, Color(0.72, 0.72, 0.78))
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	return label
 
 
-static func button(text: String, size: int = 32) -> Button:
+static func button(text: String, size: int = Type.LARGE) -> Button:
 	var control := Button.new()
 	control.text = text
-	control.add_theme_font_size_override("font_size", size)
+	Type.set_font(control, Type.STRONG, size)
 	control.custom_minimum_size = Vector2(320.0, 56.0)
 	control.pressed.connect(func() -> void: Audio.play_sfx(&"ui_click", -6.0, 0.0))
 	control.focus_entered.connect(func() -> void: Audio.play_sfx(&"ui_move", -12.0, 0.0))
@@ -66,7 +64,7 @@ static func option(values: Array, selected: int) -> OptionButton:
 		control.add_item(str(value))
 	control.selected = clampi(selected, 0, maxi(values.size() - 1, 0))
 	control.custom_minimum_size = Vector2(220.0, 44.0)
-	control.add_theme_font_size_override("font_size", 22)
+	Type.set_font(control, Type.STRONG, Type.BODY)
 	return control
 
 
@@ -77,7 +75,7 @@ static func field(text: String, hint: String, max_length: int) -> LineEdit:
 	control.placeholder_text = hint
 	control.max_length = max_length
 	control.custom_minimum_size = Vector2(220.0, 44.0)
-	control.add_theme_font_size_override("font_size", 22)
+	Type.set_font(control, Type.TEXT, Type.BODY)
 	return control
 
 
@@ -111,7 +109,7 @@ static func row(label_text: String, control: Control) -> HBoxContainer:
 	line.add_theme_constant_override("separation", 24)
 	var label := Label.new()
 	label.text = label_text
-	label.add_theme_font_size_override("font_size", 24)
+	Type.text(label, Type.BODY, Color(0.86, 0.86, 0.9))
 	label.custom_minimum_size = Vector2(260.0, 0.0)
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	line.add_child(label)

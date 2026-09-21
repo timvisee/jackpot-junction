@@ -120,7 +120,7 @@ func _build_count() -> void:
 	_count_label = Label.new()
 	_count_label.visible = false
 	_count_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_count_label.add_theme_font_size_override("font_size", 22)
+	Type.set_font(_count_label, Type.STRONG, Type.BODY)
 	HudText.shadowed(_count_label, 2)
 	add_child(_count_label)
 

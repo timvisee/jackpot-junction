@@ -69,8 +69,8 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, count: int) -> vo
 	var hunted := match_node.bounty_slot == slot.index
 	(row["bounty"] as Label).visible = hunted
 	for label: Label in [place, name_label, score]:
-		label.add_theme_font_size_override("font_size", size)
-	risk.add_theme_font_size_override("font_size", maxi(size - 8, RISK_FONT))
+		Type.set_font(label, Type.STRONG, size)
+	Type.set_font(risk, Type.STRONG, maxi(size - 8, RISK_FONT))
 	place.add_theme_color_override("font_color", DIM)
 	name_label.add_theme_color_override("font_color", color)
 	score.add_theme_color_override("font_color", Color.WHITE if local else DIM)
@@ -122,7 +122,7 @@ func _row(slot: PlayerSlot) -> Dictionary:
 	bounty.text = "$"
 	bounty.visible = false
 	bounty.add_theme_color_override("font_color", Palette.CHIP_GOLD)
-	bounty.add_theme_font_size_override("font_size", 24)
+	Type.set_font(bounty, Type.STRONG, Type.BODY)
 	for label: Label in [place, name_label, score, risk, bounty]:
 		line.add_child(label)
 	add_child(panel)

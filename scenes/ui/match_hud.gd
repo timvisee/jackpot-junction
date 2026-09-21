@@ -740,7 +740,7 @@ func _format_mult(mult: float) -> String:
 
 func _label(size: int, preset: int) -> Label:
 	var label := Label.new()
-	label.add_theme_font_size_override("font_size", size)
+	Type.set_font(label, Type.display_font(), size)
 	HudText.shadowed(label, 2)
 	label.set_anchors_and_offsets_preset(preset)
 	label.grow_horizontal = Control.GROW_DIRECTION_BOTH
@@ -764,14 +764,15 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	add_child(box)
 	var name_label := Label.new()
 	name_label.text = slot.display_name()
-	name_label.add_theme_font_size_override("font_size", 22)
-	name_label.add_theme_color_override("font_color", slot.color())
+	Type.strong(name_label, Type.BODY, slot.color())
 	var banked := Label.new()
-	banked.add_theme_font_size_override("font_size", 56)
+	# The banked score is the number a player checks mid-corner, so it is set the largest and
+	# in the heaviest cut there is, GAME.md 8.3.
+	Type.display(banked, Type.SCORE)
 	var pot := Label.new()
-	pot.add_theme_font_size_override("font_size", 26)
+	Type.strong(pot, Type.LARGE, Color(0.94, 0.94, 0.97))
 	var stats := Label.new()
-	stats.add_theme_font_size_override("font_size", 18)
+	Type.text(stats, Type.LABEL, Color(0.72, 0.72, 0.78))
 	var lives := HBoxContainer.new()
 	lives.add_theme_constant_override("separation", 6)
 	lives.alignment = BoxContainer.ALIGNMENT_END if right else BoxContainer.ALIGNMENT_BEGIN
@@ -805,7 +806,7 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	speed_dial.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var speed := Label.new()
 	speed.text = "0 km/h"
-	speed.add_theme_font_size_override("font_size", 19)
+	Type.set_font(speed, Type.STRONG, Type.LABEL)
 	HudText.shadowed(speed, 2)
 	# The dial reads left to right whichever corner the block is in, with the number at the
 	# outside edge where the rest of the block's text already lines up.
@@ -829,7 +830,7 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	item_art.custom_minimum_size = Vector2(ITEM_ICON, ITEM_ICON)
 	var item_name := Label.new()
 	item_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	item_name.add_theme_font_size_override("font_size", 22)
+	Type.set_font(item_name, Type.STRONG, Type.BODY)
 	item_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	HudText.shadowed(item_name)
 	if right:
@@ -882,7 +883,7 @@ func _build_lobby() -> void:
 	_lobby.add_child(column)
 	column.add_child(MenuTheme.title("Online lobby", 44))
 	_lobby_hint = Label.new()
-	_lobby_hint.add_theme_font_size_override("font_size", 20)
+	Type.set_font(_lobby_hint, Type.TEXT, Type.LABEL)
 	_lobby_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_lobby_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(_lobby_hint)

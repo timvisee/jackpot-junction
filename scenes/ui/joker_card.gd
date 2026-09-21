@@ -124,7 +124,7 @@ func _build() -> void:
 	margin.add_child(stack)
 	var kind := Label.new()
 	kind.text = kind_name(joker).to_upper()
-	kind.add_theme_font_size_override("font_size", 13)
+	Type.set_font(kind, Type.STRONG, 13)
 	kind.add_theme_color_override("font_color", color)
 	# The joker's own picture rather than its initials: a card is recognised across the table by
 	# its shape, and two letters at that size are a shape you have to read first, GAME.md 8.3.
@@ -132,7 +132,7 @@ func _build() -> void:
 	art.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var title := Label.new()
 	title.text = joker.display_name
-	title.add_theme_font_size_override("font_size", 15)
+	Type.set_font(title, Type.STRONG, 15)
 	title.add_theme_color_override("font_color", Palette.CHIP_WHITE)
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	kind.mouse_filter = Control.MOUSE_FILTER_IGNORE

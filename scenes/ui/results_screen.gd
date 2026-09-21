@@ -156,7 +156,7 @@ func _is_mine(slot: PlayerSlot) -> bool:
 func _label(text: String, size: int, color: Color) -> Label:
 	var label := Label.new()
 	label.text = text
-	label.add_theme_font_size_override("font_size", size)
+	Type.set_font(label, Type.STRONG, size)
 	label.add_theme_color_override("font_color", color)
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	return label
@@ -175,7 +175,7 @@ func _build() -> void:
 	add_child(column)
 	var title := Label.new()
 	title.text = TITLE
-	title.add_theme_font_size_override("font_size", 46)
+	Type.set_font(title, Type.display_font(), Type.TITLE)
 	title.add_theme_color_override("font_color", Palette.CHIP_GOLD)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(title)

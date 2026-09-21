@@ -50,7 +50,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	visible = false
 	_title = Label.new()
-	_title.add_theme_font_size_override("font_size", 34)
+	Type.set_font(_title, Type.display_font(), Type.HEADING)
 	_title.add_theme_color_override("font_color", Palette.CHIP_WHITE)
 	HudText.shadowed(_title, 2)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

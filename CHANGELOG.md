@@ -43,6 +43,10 @@ below, and hands the notes to the release workflow.
   under a workbench lamp, The Vault is a dark room with one light over the felt,
   and Crossfire is played in cold daylight.
 
+- **The game has a typeface.** Every screen is set in Inter now, on one scale,
+  with scores and headings in a heavy cut and sentences in a light one, instead
+  of the engine's default font at nine different sizes.
+
 - **The crowd is dressed for the room it is standing in.** Deepened carnival
   colours at Lucky Crossing, silhouettes with neon on their edges in The Vault,
   workwear in Crossfire, instead of a thousand random bright shirts everywhere.

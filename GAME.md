@@ -1346,6 +1346,14 @@ name. Somebody leaving frees their corner for the next player to sit down.
 - **Held power-up**: the item's own picture beside its name, both in the item's
   colour, see 8.3a. While the box is still opening the picture flicks through the
   other items, which says "not yet" in the same language as the rest of the row.
+- **The type.** Everything in the game is set in Inter, in three cuts and on one
+  scale. Weight carries the role rather than size carrying the importance:
+  anything read at a glance mid-corner -- a banked score, the clock, a heading --
+  is set in the display cut, names and buttons in the middle weight, and anything
+  that is a sentence in the text cut. Sizes come off a scale where each step is
+  about a quarter larger than the one below it, because a screen with nine sizes
+  on it reads as nine screens. Display lines are tracked out a little: a heavy
+  face set tight reads as a shout.
 - **The pane** is the shape every panel in the game is cut from: a dark translucent
   card with room to breathe, rounded corners, a shadow under it and a bar of colour
   along the top. The joker pane below was the first thing built this way; the
