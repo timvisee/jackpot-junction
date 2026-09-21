@@ -10,6 +10,20 @@ extends Control
 ## How many points the curve is walked in. Enough that the shoulders are round rather than
 ## faceted at the size a pip is drawn.
 const POINTS := 56
+## The crack a broken one comes apart along, top to bottom in the unit box. It wanders either
+## side of the middle because a straight cut reads as a notch rather than as a break.
+const CRACK: Array[Vector2] = [
+	Vector2(0.5, -0.2),
+	Vector2(0.58, 0.14),
+	Vector2(0.44, 0.33),
+	Vector2(0.58, 0.52),
+	Vector2(0.45, 0.7),
+	Vector2(0.52, 1.2)
+]
+## How far each half is turned away from the break, where it turns about, and how far it slides.
+const BREAK_DEGREES := 12.0
+const HINGE := Vector2(0.5, 0.78)
+const BREAK_GAP := 0.05
 
 ## The curve normalised into the unit box, worked out once and shared: every heart on the screen
 ## is the same shape at a different size.
@@ -28,6 +42,32 @@ func _draw() -> void:
 	for step: Vector2 in unit_shape():
 		points.append(at + step * side)
 	draw_colored_polygon(points, color)
+
+
+## The same heart in two halves tipped apart: a life lost. The break is jagged rather than a
+## straight cut, which is the difference between a broken heart and a heart with a notch in it,
+## and each half is turned away from it so the crack opens.
+static func broken_shapes() -> Array[PackedVector2Array]:
+	var whole := unit_shape()
+	var halves: Array[PackedVector2Array] = []
+	for side: float in [-1.0, 1.0]:
+		var knife := PackedVector2Array(CRACK)
+		# Everything on one side of the crack: the seam itself, then out past the edge and back.
+		var far := 1.4 if side > 0.0 else -0.4
+		knife.append(Vector2(far, 1.2))
+		knife.append(Vector2(far, -0.2))
+		for piece: PackedVector2Array in Geometry2D.intersect_polygons(whole, knife):
+			halves.append(_tipped(piece, side))
+	return halves
+
+
+## One half turned away from the break and slid clear of it, about the point the two came apart.
+static func _tipped(piece: PackedVector2Array, side: float) -> PackedVector2Array:
+	var turned := PackedVector2Array()
+	for point: Vector2 in piece:
+		var spun := (point - HINGE).rotated(deg_to_rad(BREAK_DEGREES * side))
+		turned.append(HINGE + spun + Vector2(BREAK_GAP * side, 0.0))
+	return turned
 
 
 ## The heart in the unit box, with y downwards: (0, 0) its top left, (1, 1) its bottom right.

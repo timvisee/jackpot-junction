@@ -1374,6 +1374,9 @@ name. Somebody leaving frees their corner for the next player to sit down.
   physics.
   Royal Flush pad frames glow and pulse in their holder's colour; a flush shows
   ROYAL FLUSH over the kart.
+  A life going shows a heart breaking over the kart and one handed back shows a
+  whole one, rather than the words that were there before: two words have to be
+  read, and a player who is reading is not driving.
 
 The tally is the payoff moment and gets the polish budget. On a completed
 cash-out, chips fly from the kart into the pad while a counter above the kart

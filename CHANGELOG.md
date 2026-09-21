@@ -24,6 +24,10 @@ below, and hands the notes to the release workflow.
 - **Lives are hearts.** They were squares, which say one of something without
   saying what.
 
+- **Losing or regaining a life shows a heart, not words.** A heart breaks over
+  your kart when a life goes and a whole one floats off when the Junction hands
+  it back, in place of "-1 LIFE" and "PATCHED UP".
+
 ## [0.3.3] - 2026-09-21
 
 Camera work: it sits closer to the karts, keeps the arena centred in the frame,

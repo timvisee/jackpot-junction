@@ -153,6 +153,54 @@ func test_lives_are_hearts_that_grey_out_as_they_are_lost() -> void:
 	assert_object((pips[pips.size() - 1] as Heart).color).is_equal(MatchHud.LIFE_LOST)
 
 
+## GAME.md 3.6: a life going is a heart coming apart, in two pieces with a crack between them,
+## rather than the words "-1 LIFE" over a kart somebody is trying to drive.
+func test_a_broken_heart_is_two_pieces_with_a_gap_down_the_middle() -> void:
+	var halves := Heart.broken_shapes()
+	assert_int(halves.size()).is_equal(2)
+	var left := 0.0
+	var right := 1.0
+	for piece: PackedVector2Array in halves:
+		assert_int(piece.size()).is_greater(3)
+		var middle := 0.0
+		for point: Vector2 in piece:
+			middle += point.x
+		middle /= piece.size()
+		if middle < 0.5:
+			for point: Vector2 in piece:
+				left = maxf(left, point.x)
+		else:
+			for point: Vector2 in piece:
+				right = minf(right, point.x)
+	# The two halves do not meet: there is a crack between them at the widest part.
+	assert_float(left).is_less(0.52)
+	assert_float(right).is_greater(0.46)
+	# And together they are still most of a heart rather than slivers of one.
+	var whole := 0
+	for piece: PackedVector2Array in halves:
+		whole += piece.size()
+	assert_int(whole).is_greater(Heart.POINTS / 2)
+
+
+## And it turns into something the room can see: a flat billboarded mesh that rises and takes
+## itself off the screen when it is done.
+func test_a_floating_icon_builds_a_mesh_and_clears_itself_up() -> void:
+	var root: Node3D = auto_free(Node3D.new())
+	var runner: GdUnitSceneRunner = scene_runner(root)
+	var icon := FloatingIcon.spawn(root, Vector3.ZERO, Heart.broken_shapes(), Color.RED, 1.6, 0.2)
+	assert_object(icon).is_not_null()
+	var face: MeshInstance3D = icon.get_child(0)
+	var points: PackedVector3Array = face.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	# Triangulated, so a whole number of triangles and more than one of them.
+	assert_int(points.size() % 3).is_equal(0)
+	assert_int(points.size()).is_greater(6)
+	var high := icon.position.y
+	await runner.simulate_frames(4, 17)
+	assert_float(icon.position.y).is_greater(high)
+	await runner.simulate_frames(30, 17)
+	assert_bool(is_instance_valid(icon)).is_false()
+
+
 ## The shape is a heart rather than a box: it has the dip at the top and the point at the bottom
 ## that tell one from the other at the size a pip is drawn.
 func test_the_heart_has_a_dip_at_the_top_and_a_point_at_the_bottom() -> void:

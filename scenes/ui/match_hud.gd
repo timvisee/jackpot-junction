@@ -31,6 +31,9 @@ const CALL_FADE := 0.6
 ## A life, under the name: how big one heart is drawn and the grey a spent one goes.
 const LIFE_SIZE := 19.0
 const LIFE_LOST := Color(0.22, 0.22, 0.26, 0.9)
+## How big a heart is when it floats off a kart that has just lost or been given a life, in
+## metres, which is about the size the words it replaced took up.
+const LIFE_ICON := 1.6
 const HINT_SIZE := 17
 const HINT_INK := Color(0.82, 0.82, 0.88)
 const HINT_WORDS: Dictionary[StringName, String] = {
@@ -158,8 +161,15 @@ func _on_bounty_claimed(killer_slot: int, victim_slot: int, amount: int) -> void
 func _on_kart_wounded(slot: int, _by_slot: int, _cause: StringName) -> void:
 	var kart := _kart(slot)
 	if kart != null:
-		FloatingText.spawn(
-			match_node, kart.global_position, "-1 LIFE", Color(1.0, 0.4, 0.35), 40, 1.0
+		# A heart coming apart rather than the words "-1 LIFE", GAME.md 3.6: a player reading
+		# two words over their own kart is a player not driving it.
+		FloatingIcon.spawn(
+			match_node,
+			kart.global_position,
+			Heart.broken_shapes(),
+			Color(1.0, 0.4, 0.35),
+			LIFE_ICON,
+			1.0
 		)
 	_rumble(slot, 0.6, 0.25)
 
@@ -175,8 +185,9 @@ func _on_kart_respawned(slot: int) -> void:
 func _on_life_restored(slot: int) -> void:
 	var kart := _kart(slot)
 	if kart != null:
-		FloatingText.spawn(
-			match_node, kart.global_position, "PATCHED UP", Color(0.45, 1.0, 0.55), 40, 1.0
+		var whole: Array[PackedVector2Array] = [Heart.unit_shape()]
+		FloatingIcon.spawn(
+			match_node, kart.global_position, whole, Color(0.45, 1.0, 0.55), LIFE_ICON, 1.0
 		)
 
 
