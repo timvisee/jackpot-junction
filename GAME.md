@@ -1088,6 +1088,23 @@ from a field: a sun lights everything it can see, and a lamp lights what is unde
 it and lets the rest go. Past the table the air thickens, so the far side of the
 room is dimmer than the near side even before anything is in the way.
 
+**Surfaces.** Nothing in a room is a flat colour. Everything is built from six
+materials -- felt, wood, paint, marking, metal and neon -- and a room says what
+colour each of them is. The detail maps are greyscale and are multiplied by that
+colour, so one felt serves a green card table and a slate yard, and a room is a
+palette rather than a set of pictures. They are mapped in world space rather than
+by UV: the meshes are built in code, a slab the size of a table has no unwrap
+worth the name, and two crates side by side should not show the same knot in the
+same place.
+
+The scale that matters is the one the camera actually sees, see 8.2. From forty
+metres up a two-centimetre weave is nothing, so every map carries something coarse
+enough to survive the distance -- the boards in the table, the worn patches in the
+felt, the joints between slabs in the yard -- with the fine grain riding on top of
+it for the times something is looked at closely. `make textures` generates the lot:
+they are noise filtered in the frequency domain, which wraps by construction, so a
+table can be tiled out of one without a seam.
+
 **Focus.** The room goes soft a set distance past whatever the camera is looking
 at, rather than at a fixed distance from the camera: the rig comes in on the karts
 and pulls out to the room, see 8.2, and the table has to stay sharp at both ends

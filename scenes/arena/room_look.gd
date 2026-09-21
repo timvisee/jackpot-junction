@@ -66,6 +66,13 @@ enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR }
 @export var trim := Color("#F2C14E")
 ## How much the surface texture shows, 0 for none.
 @export var grain := 1.0
+## Whether the floor and the surround are concrete rather than felt and wood. A yard is not a
+## card table, and the same meshes read as either depending on what they are made of.
+@export var floor_stone := false
+@export var surround_stone := false
+## How hard the neon in this room is driven. A dark room wants its signs to bloom; a bright one
+## wants them to read as paint that happens to glow.
+@export var neon := 1.0
 
 @export_group("Crowd")
 @export var crowd_dress: Dress = Dress.CARNIVAL

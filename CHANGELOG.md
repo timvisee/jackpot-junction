@@ -43,6 +43,10 @@ below, and hands the notes to the release workflow.
   under a workbench lamp, The Vault is a dark room with one light over the felt,
   and Crossfire is played in cold daylight.
 
+- **The table is made of something.** Felt with worn patches, a surround of
+  boards with the grain running along them, painted blocks and concrete slabs,
+  instead of flat colour everywhere.
+
 - **A logo of its own.** The game wears a mark rather than the engine's: the
   Junction from above, a gold chip with a crossroads through it.
 

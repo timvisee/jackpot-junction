@@ -4,7 +4,7 @@ GDLINT ?= gdlint
 GDFORMAT ?= gdformat
 GD_DIRS := scenes scripts tests
 
-.PHONY: import test lint format format-check smoke run drive jokers logo bots changelog check export
+.PHONY: import test lint format format-check smoke run drive jokers logo textures bots changelog check export
 
 import:
 	$(GODOT) --headless --path . --import
@@ -40,6 +40,11 @@ run:
 
 drive:
 	$(GODOT) --path . res://scenes/dev/driving.tscn
+
+# The surfaces the rooms of GAME.md 8.1 are made of: felt, wood, paint and concrete, generated
+# rather than painted. Needs numpy and pillow.
+textures:
+	python3 tools/make_textures.py
 
 # The game's own mark, drawn by LogoArt and written out as the icon the project wears.
 logo:

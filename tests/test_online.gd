@@ -5,6 +5,8 @@ extends GdUnitTestSuite
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const PORT := 7791
+## How much slack every wait in this suite gets, see [method _wait_until].
+const PATIENCE := 3
 
 var _host_root: Node
 var _client_root: Node
@@ -34,9 +36,16 @@ func _quick_rules() -> MatchRules:
 	return rules
 
 
+## Waits for [param condition], up to [param max_millis] of real time. These are budgets rather
+## than measurements: the tests here run two whole matches over a real socket, and what is being
+## asked is whether a client ever hears about something, not how many milliseconds it took. Every
+## budget is multiplied by [constant PATIENCE], because a suite that has been running for seven
+## minutes on a loaded machine is slower than the same suite run on its own, and a budget tight
+## enough to catch that is a test that fails for reasons that have nothing to do with the game.
 func _wait_until(condition: Callable, max_millis: int) -> bool:
 	var waited := 0
-	while not condition.call() and waited < max_millis:
+	var budget := max_millis * PATIENCE
+	while not condition.call() and waited < budget:
 		await await_millis(25)
 		waited += 25
 	return condition.call()

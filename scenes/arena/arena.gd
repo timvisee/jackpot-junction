@@ -31,6 +31,8 @@ var grid: ArenaGrid
 ## The room this map is played in, GAME.md 8.1: what it is lit by and what it is made of. Read
 ## by the lighting, the crowd and every surface here.
 var room: RoomLook
+## What the room is made of: the materials every mesh here is built from.
+var surfaces: Surfaces
 var spawn_points: Array[Vector3] = []
 var turbo_pads: Array[TurboPad] = []
 var pits: Array[Pit] = []
@@ -58,7 +60,6 @@ var pickups: Node3D
 ## The scorch marks the walls are wearing, oldest first, GAME.md 8.3. Untyped, because a mark
 ## frees itself once it has faded and a typed array will not hand a freed instance back out.
 var _marks: Array = []
-var _materials: Dictionary[Color, StandardMaterial3D] = {}
 var _rules: MatchRules
 var _rng: RandomNumberGenerator
 
@@ -94,6 +95,7 @@ func _on_bullet_struck(at: Vector3, normal: Vector3, color: Color) -> void:
 func build() -> void:
 	grid = layout.parse()
 	room = layout.room if layout.room != null else RoomLook.fallback()
+	surfaces = Surfaces.new(room)
 	for child: Node in get_children():
 		child.queue_free()
 	_marks.clear()
@@ -299,7 +301,7 @@ func _add_billboards() -> void:
 
 func _add_table() -> void:
 	var half := (world_size() + Vector2.ONE * TABLE_OVERHANG) * 0.5
-	var table := _slab_with_holes(half, -FLOOR_THICKNESS, 0.5, _pit_rects(), Palette.TABLE)
+	var table := _slab_with_holes(half, -FLOOR_THICKNESS, 0.5, _pit_rects(), surfaces.surround())
 	table.name = "Table"
 	add_child(table)
 
@@ -307,7 +309,7 @@ func _add_table() -> void:
 ## The felt, with the pits cut out so the shafts below show through as real holes.
 func _add_floor() -> void:
 	var floor_mesh := _slab_with_holes(
-		world_size() * 0.5, 0.0, FLOOR_THICKNESS, _pit_rects(), Palette.FELT
+		world_size() * 0.5, 0.0, FLOOR_THICKNESS, _pit_rects(), surfaces.floor_top()
 	)
 	floor_mesh.name = "Floor"
 	add_child(floor_mesh)
@@ -327,7 +329,7 @@ func _pit_rects() -> Array[Rect2]:
 ## sides down to [param thickness] below and no bottom. The top is split along every hole edge
 ## into cells; cells inside a hole are left out.
 func _slab_with_holes(
-	half: Vector2, top: float, thickness: float, holes: Array[Rect2], color: Color
+	half: Vector2, top: float, thickness: float, holes: Array[Rect2], skin: StandardMaterial3D
 ) -> MeshInstance3D:
 	var xs: Array[float] = [-half.x, half.x]
 	var zs: Array[float] = [-half.y, half.y]
@@ -376,9 +378,8 @@ func _slab_with_holes(
 		_quad(st, a, b, Vector3(b.x, bottom, b.z), Vector3(a.x, bottom, a.z), outward)
 	var instance := MeshInstance3D.new()
 	instance.mesh = st.commit()
-	var material := _material(color)
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	instance.material_override = material
+	skin.cull_mode = BaseMaterial3D.CULL_DISABLED
+	instance.material_override = skin
 	return instance
 
 
@@ -419,7 +420,7 @@ func _add_walls() -> void:
 		box.size = size
 		shape.shape = box
 		body.add_child(shape)
-		body.add_child(_box_mesh(size, Palette.BLOCK))
+		body.add_child(_box_mesh(size, room.wall))
 		walls.add_child(body)
 
 
@@ -431,7 +432,7 @@ func _add_spawns() -> void:
 		marker.name = "Spawn%d" % i
 		marker.position = position
 		add_child(marker)
-		var disc := _disc_mesh(0.5, Palette.MARKING_CREAM)
+		var disc := _disc_mesh(0.5, room.marking)
 		disc.position = Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
 		marker.add_child(disc)
 
@@ -444,7 +445,7 @@ func _add_coin_pads() -> void:
 		var pad := CoinPad.new()
 		pad.name = "CoinPad%d" % i
 		pad.position = grid.cell_center(grid.coin_pads[i])
-		var disc := _disc_mesh(0.45, Palette.MARKING_YELLOW)
+		var disc := _disc_mesh(0.45, room.trim)
 		disc.position = Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
 		pad.add_child(disc)
 		pads.add_child(pad)
@@ -554,7 +555,7 @@ func _add_crates() -> void:
 		box.size = size
 		shape.shape = box
 		crate.add_child(shape)
-		crate.add_child(_box_mesh(size, Palette.BLOCK_EDGE))
+		crate.add_child(_box_mesh(size, room.wall_edge))
 		container.add_child(crate)
 		crates.append(crate)
 
@@ -661,7 +662,7 @@ func _add_junction() -> void:
 	torus.outer_radius = junction_radius
 	ring.mesh = torus
 	# Its own material, not the shared one: the ring blinks and the magenta pads must not.
-	var ring_material := StandardMaterial3D.new()
+	var ring_material := surfaces.neon(Palette.NEON_MAGENTA)
 	ring_material.albedo_color = Palette.NEON_MAGENTA
 	ring_material.emission_enabled = true
 	ring_material.emission = Palette.NEON_MAGENTA
@@ -693,22 +694,20 @@ func _add_jackpots() -> void:
 		zone.index = i
 		zone.size = size2
 		zone.position = position
-		var tile := _box_mesh(Vector3(size2.x, PAD_HEIGHT, size2.y), Palette.ASPHALT)
+		var tile := _box_mesh(Vector3(size2.x, PAD_HEIGHT, size2.y), room.lane)
 		tile.position = Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
 		zone.add_child(tile)
-		var trim := _box_mesh(Vector3(size2.x * 0.8, PAD_HEIGHT, size2.y * 0.8), Palette.CHIP_GOLD)
+		var trim := _box_mesh(Vector3(size2.x * 0.8, PAD_HEIGHT, size2.y * 0.8), room.trim)
 		trim.position = Vector3(0.0, PAD_HEIGHT * 1.1, 0.0)
 		zone.add_child(trim)
 		zones.add_child(zone)
 		jackpot_zones.append(zone)
 
 
+## Painted, which is what nearly everything in an arena is. The felt and the table ask the room
+## for their own materials; everything else is a block of colour with paint on it.
 func _material(color: Color) -> StandardMaterial3D:
-	if not _materials.has(color):
-		var material := StandardMaterial3D.new()
-		material.albedo_color = color
-		_materials[color] = material
-	return _materials[color]
+	return surfaces.painted(color)
 
 
 func _box_mesh(size: Vector3, color: Color) -> MeshInstance3D:
@@ -727,7 +726,8 @@ func _disc_mesh(radius: float, color: Color) -> MeshInstance3D:
 	mesh.height = PAD_HEIGHT
 	var instance := MeshInstance3D.new()
 	instance.mesh = mesh
-	instance.material_override = _material(color)
+	# A pad is paint on the floor rather than a thing standing on it.
+	instance.material_override = surfaces.marking(color)
 	return instance
 
 
@@ -737,7 +737,7 @@ func _arrow_mesh(color: Color) -> MeshInstance3D:
 	mesh.size = Vector3(0.6, 0.6, 0.05)
 	var instance := MeshInstance3D.new()
 	instance.mesh = mesh
-	instance.material_override = _material(color)
+	instance.material_override = surfaces.marking(color)
 	# The prism points up along +Y; lay it flat so the tip points along -Z.
 	instance.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
 	var pivot := MeshInstance3D.new()
