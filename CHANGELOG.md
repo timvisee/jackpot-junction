@@ -31,6 +31,9 @@ below, and hands the notes to the release workflow.
 - **A picked joker card only goes up.** It used to straighten out of the fan as
   it rose, which slid it sideways at the same time.
 
+- **The same for the joker pick.** The card under the cursor grew as it rose,
+  and the growing dragged it left along the row. It rises in place now.
+
 ## [0.3.2] - 2026-09-20
 
 A tank per player beside the arena that fills as you bank, and a camera that

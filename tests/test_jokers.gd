@@ -254,6 +254,33 @@ func test_the_destroy_step_crosses_the_card_out() -> void:
 	assert_bool(picker._cross.visible).is_false()
 
 
+## GAME.md 8.3: the card under the cursor rises and grows and does nothing else. It grows about
+## its own bottom centre, so scaling that offset again slid it left by half of what it had grown
+## by, on a row that is otherwise dead straight.
+func test_the_picked_card_rises_without_sliding_sideways() -> void:
+	var match_node := _start_match(_bots())
+	var kart := match_node.kart_of(0)
+	var offer := JokerOffer.new(kart, CATALOG.offer(match_node.rng, 3, []))
+	var picker: JokerPicker = auto_free(JokerPicker.new())
+	add_child(picker)
+	await await_idle_frame()
+	offer.selected = 0
+	picker.show_offer(offer, kart)
+	# Where the second card stands while somebody else is picked, settling the scale first.
+	for i: int in 20:
+		picker.show_offer(offer, kart)
+	var card := picker._cards[1]
+	var resting := card.position + card.pivot_offset
+	offer.selected = 1
+	for i: int in 20:
+		picker.show_offer(offer, kart)
+	var lifted := card.position + card.pivot_offset
+	assert_float(lifted.x).is_equal_approx(resting.x, 0.01)
+	assert_float(lifted.y).is_less(resting.y - 10.0)
+	# And it has grown, which is the thing that used to drag it sideways.
+	assert_float(card.scale.x).is_greater(1.0)
+
+
 ## The row is only rebuilt when what it shows changes, not on every frame.
 func test_the_picker_keeps_its_cards_between_frames() -> void:
 	var match_node := _start_match(_bots())

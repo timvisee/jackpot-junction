@@ -1260,7 +1260,10 @@ name. Somebody leaving frees their corner for the next player to sit down.
   is share the first line, a rule separates them from what the joker actually does,
   and the buttons for whatever can be done from there sit at the foot in grey,
   drawn as buttons. Things told apart beats one paragraph they were all run into.
-- **The respawn pick** takes the middle of the screen when one player is on it:
+- **The respawn pick** shows the offered cards in a straight row, the one under
+  the cursor risen and grown and nothing else: it grows about its own bottom
+  centre, so it stays where it was along the row rather than drifting sideways as
+  it swells. It takes the middle of the screen when one player is on it:
   they are dead, and there is nobody else to block. With somebody else sharing the
   screen it shrinks and drops to the bottom of its own share, with the pane above
   the cards rather than below, so it stacks off the bottom edge instead of walling
