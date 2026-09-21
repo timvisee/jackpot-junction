@@ -4,7 +4,7 @@ GDLINT ?= gdlint
 GDFORMAT ?= gdformat
 GD_DIRS := scenes scripts tests
 
-.PHONY: import test lint format format-check smoke run drive jokers bots changelog check export
+.PHONY: import test lint format format-check smoke run drive jokers logo bots changelog check export
 
 import:
 	$(GODOT) --headless --path . --import
@@ -40,6 +40,10 @@ run:
 
 drive:
 	$(GODOT) --path . res://scenes/dev/driving.tscn
+
+# The game's own mark, drawn by LogoArt and written out as the icon the project wears.
+logo:
+	$(GODOT) --path . res://scenes/dev/logo_export.tscn
 
 # Every icon in the game at once, to see the pictures of GAME.md 8.3a as one set.
 jokers:

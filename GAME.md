@@ -1087,6 +1087,14 @@ subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
   once and the oldest goes to make room, so a long firefight against one wall does
   not end with the wall made of scorch marks.
 - **Traffic lights and road signs** as props at lane ends and near spawns.
+- **The mark**: the Junction seen from above. A gold poker chip with the notches
+  round its rim, a crossroads cut through it so the gold is left in quarters, the
+  painted lines down each arm, and the pad itself lit in the middle: a cyan ring
+  with the pot sitting on it. The rim wears the Junction's magenta neon, and it
+  sits on a dark rounded plate so a desktop has something to put it on. The name
+  is a casino and a road, and so is the mark. It is drawn in code like every other
+  picture here, see 8.3a, and `make logo` writes it out as the icon the project
+  wears; changing the drawing and running that is the whole of changing the logo.
 - **The title screen** has a carnival sunburst turning slowly behind the name,
   with poker chips drifting up past it. Drawn rather than modelled: the menu is a
   flat screen with no match running behind it, so a scene would be a scene loaded

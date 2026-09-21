@@ -39,6 +39,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A logo of its own.** The game wears a mark rather than the engine's: the
+  Junction from above, a gold chip with a crossroads through it.
+
 - **Billboards around the table.** Two hoardings advertising the house, drawn at
   random from a set so a run of matches is not the same two posters, and a third
   keeping the match clock on an LED display. The clock board counts the field down
