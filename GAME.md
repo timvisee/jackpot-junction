@@ -1098,6 +1098,14 @@ subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
   it. The crowd leaves them a bay rather than standing in front of them, and a
   room with no clock and nothing to reach has no tanks, since one that can never
   fill is furniture.
+- **The hoardings**: two advertising boards on posts standing out past the far
+  corners of the table, angled in toward it, and a third between them carrying the
+  match clock as four seven-segment digits, amber and red for Last Call. The HUD
+  keeps the same clock in its corner, but a hall has a clock on the wall, and a
+  player watching the table rather than the corner still knows how long is left.
+  They stand on the far edge rather than out at the sides because that is the edge
+  the camera of 8.2 has behind the table; the crowd leaves each one a bay; and the
+  Garage takes them down with the rest of the dressing.
 - **The fireworks**: a match that has been won is seen off with a display over the
   table. Shells go up off the felt and break overhead in the winner's colour, with
   the odd gold one among them, each lighting the room as it goes, through the pause

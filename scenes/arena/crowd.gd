@@ -69,6 +69,9 @@ const RESTING_LEAN := 0.05
 const RESTING_RATE := 1.7
 ## How fast the room takes up a new mood, and the beat's own period, which it is wrapped at so
 ## that an hour-long match never runs it out of float precision or jumps when it comes round.
+## How many frames the house waits before standing up around a new bay: long enough for
+## everything that wants one as the room is built to have asked.
+const REBUILD_WAIT := 2
 const SETTLE := 5.0
 const PERIOD := TAU * 2.0
 ## The colours the crowd comes in: the room's own, plus enough others to look like people.
@@ -141,6 +144,8 @@ var _speakers: Array[Node3D] = []
 ## Whoever is behind the decks, who dances in the booth's own space rather than on the table.
 var _dj: Node3D
 var _cheer := 0.0
+## Frames left until the house goes up again, 0 when it is standing as it should be.
+var _rebuild_wait := 0
 var _beat := 0.0
 var _rate := RESTING_RATE
 var _lift := RESTING_LIFT
@@ -172,6 +177,10 @@ func count() -> int:
 
 
 func _process(delta: float) -> void:
+	if _rebuild_wait > 0:
+		_rebuild_wait -= 1
+		if _rebuild_wait == 0:
+			_build(_size)
 	visible = enabled
 	if not enabled:
 		return
@@ -216,8 +225,11 @@ func _on_kart_killed(_victim: int, _killer: int, _cause: StringName) -> void:
 ## slightly smaller crowd.
 func keep_clear(area: Rect2) -> void:
 	_clear.append(area)
-	if _size != Vector2.ZERO:
-		_build(_size)
+	# Stood up again a couple of frames later rather than here and now, and once however many
+	# bays are asked for: the tanks, the hoardings and the clock board each want one as the room
+	# is built, and a house rebuilt per asker is a thousand people put down and picked up again
+	# four times over, which is long enough to be felt.
+	_rebuild_wait = REBUILD_WAIT if _size != Vector2.ZERO else 0
 
 
 ## Whether [param at] falls in a patch that is being kept clear, grown by [param slack].

@@ -10,6 +10,12 @@ signal target_struck(by_slot: int, coins: int)
 
 const FLOOR_THICKNESS := 0.2
 const TABLE_OVERHANG := 30.0
+## How far out past the far wall a hoarding stands, GAME.md 8.1, and how far along that edge
+## from the middle: out by the corners, where the booth in the middle and the tanks beside it
+## are not, and on the edge the camera has behind the table rather than out at the sides, which
+## is off the screen.
+const BILLBOARD_STANDOFF := 3.6
+const BILLBOARD_ALONG := 0.85
 const PAD_HEIGHT := 0.05
 const PIT_COLOR := Color("#0B0B0E")
 ## How deep the pit shafts go below the floor, and the width of the dark rim around them.
@@ -37,6 +43,9 @@ var junction: JunctionPad
 var disco: DiscoLights
 ## The people watching, GAME.md 8.1.
 var crowd: Crowd
+## The hoardings out past the far corners, GAME.md 8.1. A room that wants no dressing hides
+## them, the same way it switches the crowd and the rig off.
+var billboards: Node3D
 var junction_position := Vector3.ZERO
 var junction_radius := 2.5
 var jackpot_zones: Array[JackpotZone] = []
@@ -116,6 +125,7 @@ func build() -> void:
 	_add_jackpots()
 	_add_disco()
 	crowd = Crowd.add_to(self, world_size())
+	_add_billboards()
 
 
 ## Brings the economy to life: coin pads start spawning, crates drop chips, the Junction and one
@@ -256,6 +266,30 @@ func bounds() -> AABB:
 	return AABB(
 		Vector3(-size.x * 0.5, 0.0, -size.y * 0.5), Vector3(size.x, layout.wall_height, size.y)
 	)
+
+
+## Hoardings out past the far corners, GAME.md 8.1: the boards a hall like this one sells to
+## whoever will pay for them. The crowd leaves each one a bay, since a board put up to be read
+## with a band of people standing in front of it is a board nobody reads.
+func _add_billboards() -> void:
+	billboards = Node3D.new()
+	billboards.name = "Billboards"
+	add_child(billboards)
+	var half := world_size() * 0.5
+	var ads: Array[Array] = [
+		[-1.0, "JACKPOT", "JUNCTION", Palette.CHIP_GOLD],
+		[1.0, "NITRO", "DRINK IT FAST", Palette.NEON_CYAN],
+	]
+	for ad: Array in ads:
+		var side: float = ad[0]
+		var at := Vector3(side * half.x * BILLBOARD_ALONG, 0.0, -(half.y + BILLBOARD_STANDOFF))
+		var board := Billboard.add_to(billboards, at, Vector3.ZERO)
+		board.panel(Vector2(0.0, -0.95), Vector2(Billboard.WIDTH - 1.2, 0.24), ad[3], true)
+		board.words(ad[1], Vector2(0.0, 0.55), 1.15, ad[3])
+		board.words(ad[2], Vector2(0.0, -0.35), 0.5, Color(0.86, 0.88, 0.94))
+		var bay := Rect2(at.x - Billboard.WIDTH * 0.5, at.z - 1.6, Billboard.WIDTH, 3.2)
+		if crowd != null:
+			crowd.keep_clear(bay)
 
 
 func _add_table() -> void:

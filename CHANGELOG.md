@@ -28,6 +28,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Billboards around the table.** Two hoardings advertising the house, and a
+  third keeping the match clock on an LED display.
+
 - **Fireworks for the winner.** A won match is seen off with a display over the
   table in the winner's colour, through the pause before the podium and on under
   it.

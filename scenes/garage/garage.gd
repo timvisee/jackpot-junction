@@ -81,6 +81,7 @@ func _ready() -> void:
 	# A room for learning the controls in, not a nightclub.
 	match_node.arena.disco.enabled = false
 	match_node.arena.crowd.enabled = false
+	match_node.arena.billboards.visible = false
 	_wire_portals()
 	if on_track:
 		# A kart is pointed at the middle of the map when it is put down, which on a road is a

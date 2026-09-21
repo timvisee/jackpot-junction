@@ -56,6 +56,8 @@ var arena: Arena
 var camera_rig: CameraRig
 ## The row of tanks on the table that fill as players bank, GAME.md 8.1.
 var score_tanks: ScoreTanks
+## The clock on a hoarding over the crowd, GAME.md 8.1.
+var led_clock: LedClock
 var bullets: BulletSystem
 var hud: MatchHud
 ## How hot the match feels, read by the music, the arena lights and the camera.
@@ -382,6 +384,9 @@ func _build_systems(from_snapshots: bool) -> void:
 	# frame rather than being handed them, so it is right on a client filling up from snapshots
 	# and after somebody joins mid-match.
 	score_tanks = ScoreTanks.add_to(self)
+	# And the clock goes up on a board over the crowd, GAME.md 8.1, which reads the match the
+	# same way.
+	led_clock = LedClock.add_to(self)
 	# A record goes on as the room is built, GAME.md 8.4: three tracks, one of them at random, so
 	# a run of matches is not the same loop over and over.
 	Audio.pick_track()
