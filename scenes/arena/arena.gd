@@ -384,12 +384,27 @@ func _slab_with_holes(
 
 
 ## Two triangles for the quad a, b, c, d with one normal; both faces render, so winding is free.
+##
+## Each corner carries a UV taken from where it is on the table, in metres, so the felt and the
+## boards are mapped flat and in world scale without the three texture reads a triplanar costs,
+## GAME.md 8.1. Everything here lies flat or stands on an edge, which is what makes that work.
 func _quad(
 	st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3, normal: Vector3
 ) -> void:
 	st.set_normal(normal)
 	for vertex: Vector3 in [a, b, c, a, c, d]:
+		st.set_uv(_world_uv(vertex, normal))
 		st.add_vertex(vertex)
+
+
+## Where a point sits on its own surface, in metres: along the floor for anything flat, and along
+## the edge for the sides of a slab.
+static func _world_uv(vertex: Vector3, normal: Vector3) -> Vector2:
+	if absf(normal.y) > 0.5:
+		return Vector2(vertex.x, vertex.z)
+	if absf(normal.x) > 0.5:
+		return Vector2(vertex.z, vertex.y)
+	return Vector2(vertex.x, vertex.y)
 
 
 ## Two triangles for a quad with a colour per corner, for the shaded pit shafts.

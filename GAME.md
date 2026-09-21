@@ -1084,11 +1084,14 @@ exactly why the same match can be played in three of them. Adding a fourth is a
 resource file and a map that names it.
 
 **The light.** Every room is lit the same way and differs only in the numbers: a
-key that casts the shadows, a fill from the other side so a shadow is a dark side
-rather than a hole, an optional lamp hung over the middle of the table, and an
+key, a fill from the other side so a shadow is a dark side rather than a hole, an optional lamp hung over the middle of the table, and an
 ambient that says how much the room itself glows. A lamp is what separates a room
 from a field: a sun lights everything it can see, and a lamp lights what is under
-it and lets the rest go. Past the table the air thickens, so the far side of the
+it and lets the rest go. Whichever of the two is doing the work casts the shadows
+and the other casts none, so a room never pays for two shadow maps. How dark those
+shadows go and how soft their edges are is the room's to say, and every room says
+soft: a toy on a table is lit by the room it is in as much as by the lamp over it,
+so a shadow is a dark side rather than a hole cut in the floor. Past the table the air thickens, so the far side of the
 room is dimmer than the near side even before anything is in the way.
 
 **Surfaces.** Nothing in a room is a flat colour. Everything is built from six
@@ -1108,11 +1111,30 @@ it for the times something is looked at closely. `make textures` generates the l
 they are noise filtered in the frequency domain, which wraps by construction, so a
 table can be tiled out of one without a seam.
 
-**Focus.** The room goes soft a set distance past whatever the camera is looking
-at, rather than at a fixed distance from the camera: the rig comes in on the karts
-and pulls out to the room, see 8.2, and the table has to stay sharp at both ends
-of that. What it buys is a model: a tabletop with the room behind it out of focus
-reads as something you could pick up.
+**Focus.** A room can put everything a set distance past whatever the camera is
+looking at out of focus, rather than at a fixed distance from the camera: the rig
+comes in on the karts and pulls out to the room, see 8.2, and the table has to
+stay sharp at both ends of that. It reads as a model -- and it costs about half a
+millisecond a frame, which is why no room ships with it turned on. It is a number
+in the room file for anybody who wants to spend that.
+
+**What a room may spend.** A room is data, and every line of it has a price in
+frames. The rule is that a match runs at the frame rate it ran at before any of
+this existed, and anything that cannot hold that is not in a room by default:
+
+| | Cost | Where it is used |
+|---|---|---|
+| Lamp over the table | ~0.3 ms | Every room that has one: it is what makes a room a room |
+| Bloom on the neon | ~0.5 ms | After Hours only, where the signs and the felt are the light |
+| Shadows from the sun | shared with the lamp | Only one of the two ever casts: a sun that is a hint casts nothing |
+| Screen-space occlusion | ~0.5 ms | Nowhere. It was half the cost of the room system and most of why the corners looked sooty |
+| Depth of field | ~0.4 ms | Nowhere by default |
+| Textures | ~0.1 ms | Everywhere. The two big slabs carry their own world-space UVs rather than being mapped triplanar, which is three texture reads saved on the meshes that cover most of the screen |
+
+`make bench` prints the frame rate for a match on each map, measured over 600
+frames after a warm-up, so a change that costs frames is caught while it is being
+made. The warm-up matters: the first run of a scene compiles shaders, and a cold
+measurement reads three times slower than the same build warm.
 
 - **Floor**: dark green felt with asphalt lanes and painted road markings.
 - **Walls and crates**: sand-coloured wooden toy blocks.

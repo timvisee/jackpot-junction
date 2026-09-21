@@ -13,6 +13,15 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The rooms run at the frame rate the game had before them.** The lighting and
+  the effects behind the new look were costing nearly half the frame rate; they
+  now cost almost nothing outside The Vault, which spends half a millisecond a
+  frame on the bloom its neon is made of.
+
+- **Shadows are softer.** They were dark enough to read as holes in the floor;
+  they are now a dark side, and the sooty corners are gone with the screen-space
+  occlusion that was drawing them.
+
 - **A dead player can still read their hand, sudden death included.** The cards
   would not open at all once the clock had run out, and the pane offered two
   buttons that do nothing while you are down.

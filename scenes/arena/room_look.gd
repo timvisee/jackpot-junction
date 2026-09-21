@@ -34,6 +34,10 @@ enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR }
 @export var lamp_fade := 0.5
 @export var lamp_reach := 70.0
 @export var lamp_shadow := false
+## How dark the shadows go and how soft their edges are. A toy on a table is lit by a room as
+## much as by a lamp, so a shadow here is a dark side rather than a hole cut in the floor.
+@export_range(0.0, 1.0) var shadow_depth := 0.62
+@export var shadow_softness := 2.2
 @export var ambient_color := Color(0.42, 0.40, 0.44)
 @export var ambient_energy := 0.35
 ## What is beyond everything, and the haze between here and there.

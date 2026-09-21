@@ -4,7 +4,7 @@ GDLINT ?= gdlint
 GDFORMAT ?= gdformat
 GD_DIRS := scenes scripts tests
 
-.PHONY: import test lint format format-check smoke run drive jokers logo textures bots changelog check export
+.PHONY: import test lint format format-check smoke run drive jokers logo textures bench bots changelog check export
 
 import:
 	$(GODOT) --headless --path . --import
@@ -40,6 +40,13 @@ run:
 
 drive:
 	$(GODOT) --path . res://scenes/dev/driving.tscn
+
+# What the game runs at, as a number: a match of four bots on each map, 600 frames after the
+# warm-up. A change that costs frames should be caught here rather than in a play session.
+bench:
+	$(GODOT) --path . --disable-vsync res://scenes/match/match_scene.tscn -- --bench=720
+	$(GODOT) --path . --disable-vsync res://scenes/dev/playground.tscn -- --clean=1 --bots=3 --map=vault --bench=720
+	$(GODOT) --path . --disable-vsync res://scenes/dev/playground.tscn -- --clean=1 --bots=3 --map=crossfire --bench=720
 
 # The surfaces the rooms of GAME.md 8.1 are made of: felt, wood, paint and concrete, generated
 # rather than painted. Needs numpy and pillow.

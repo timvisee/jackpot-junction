@@ -9,8 +9,11 @@ extends Node3D
 ## out it goes soft, how much the neon blooms.
 
 ## How far the shadows are drawn out from the camera. The table is small and the room around it
-## is not: past this there is nothing worth a shadow map.
-const SHADOW_REACH := 120.0
+## is not: past this there is nothing worth a shadow map, and the nearer it is drawn the more of
+## the map lands on the table.
+const SHADOW_REACH := 80.0
+## The light a room needs from its sun before that sun is worth a shadow map of its own.
+const SUN_SHADOWS := 0.8
 
 var key: DirectionalLight3D
 var fill: DirectionalLight3D
@@ -50,6 +53,11 @@ func dress(room: RoomLook) -> void:
 	key.light_color = room.key_color
 	key.light_energy = room.key_energy
 	key.rotation_degrees = room.key_angle
+	# A sun that is only a hint casts no shadows: the lamp over the table is doing that work, and
+	# two shadow maps over one room is the second one paid for and not seen.
+	key.shadow_enabled = room.key_energy >= SUN_SHADOWS
+	key.shadow_opacity = room.shadow_depth
+	key.shadow_blur = room.shadow_softness
 	fill.light_color = room.fill_color
 	fill.light_energy = room.fill_energy
 	fill.rotation_degrees = room.fill_angle
@@ -61,11 +69,17 @@ func dress(room: RoomLook) -> void:
 	lamp.spot_angle = room.lamp_angle
 	lamp.spot_angle_attenuation = room.lamp_fade
 	lamp.shadow_enabled = room.lamp_shadow
+	lamp.shadow_opacity = room.shadow_depth
+	lamp.shadow_blur = room.shadow_softness
 	var air := world.environment
 	air.background_color = room.background
 	air.ambient_light_color = room.ambient_color
 	air.ambient_light_energy = room.ambient_energy
+	# A room that asks for none of something does not pay for it: the passes come on with the
+	# numbers rather than standing enabled at zero.
+	air.ssao_enabled = room.occlusion > 0.0
 	air.ssao_intensity = room.occlusion
+	air.glow_enabled = room.glow > 0.0
 	air.glow_intensity = room.glow
 	air.fog_enabled = room.fog_density > 0.0
 	air.fog_light_color = room.fog_color
@@ -82,8 +96,6 @@ func _build() -> void:
 		return
 	key = DirectionalLight3D.new()
 	key.name = "Key"
-	key.shadow_enabled = true
-	key.shadow_blur = 1.2
 	key.directional_shadow_max_distance = SHADOW_REACH
 	add_child(key)
 	fill = DirectionalLight3D.new()
@@ -99,13 +111,15 @@ func _build() -> void:
 	var air := Environment.new()
 	air.background_mode = Environment.BG_COLOR
 	air.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	air.ssao_enabled = true
 	air.ssao_radius = 1.2
 	air.ssao_detail = 0.6
-	air.glow_enabled = true
 	air.glow_bloom = 0.15
-	air.glow_hdr_threshold = 0.9
+	air.glow_hdr_threshold = 1.0
 	air.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
+	# Two blur steps rather than the five the defaults ask for: the neon wants a halo round it,
+	# not a fog over the room, and every step is another pass over the screen.
+	for level: int in range(1, 8):
+		air.set_glow_level(level, 1.0 if level in [2, 3] else 0.0)
 	air.fog_sky_affect = 0.0
 	air.tonemap_mode = Environment.TONE_MAPPER_ACES
 	air.adjustment_enabled = true

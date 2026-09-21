@@ -13,6 +13,9 @@ const GARAGE_SCENE := "res://scenes/garage/garage.tscn"
 ## The two practice rooms, GAME.md 9.4. They are one scene on two maps, a portal apart.
 const ROOM_GARAGE := &"garage"
 const ROOM_TRACK := &"test_track"
+## Frames a `--bench` run throws away before it starts counting: the shader compiles and the
+## first arena build belong to loading rather than to running.
+const BENCH_WARMUP := 120
 
 var settings := Settings.new()
 ## Whether the last thing anybody touched was the keyboard rather than a gamepad. Control
@@ -28,6 +31,11 @@ var garage_room := ROOM_GARAGE
 var _screenshot_path := ""
 var _screenshot_frames := 8
 var _frames := 0
+## Frames to run for a `--bench=<n>` measurement, and what has been seen of it so far. The clock
+## starts after the warm-up, so the shader compiles and the first arena build do not count.
+var _bench_frames := 0
+var _bench_seen := 0
+var _bench_started := 0
 
 
 func _init() -> void:
@@ -38,6 +46,8 @@ func _init() -> void:
 			_screenshot_path = arg.get_slice("=", 1)
 		elif arg.begins_with("--frames="):
 			_screenshot_frames = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--bench="):
+			_bench_frames = int(arg.get_slice("=", 1))
 
 
 func _ready() -> void:
@@ -59,6 +69,8 @@ func _input(event: InputEvent) -> void:
 ## Development aid: with `++ --screenshot=<png> [--frames=<n>]` on the command line, saves the
 ## viewport after that many frames and quits. Needs a display.
 func _process(_delta: float) -> void:
+	if _bench_frames > 0:
+		_step_bench()
 	if _screenshot_path.is_empty():
 		return
 	_frames += 1
@@ -67,6 +79,27 @@ func _process(_delta: float) -> void:
 		var error := image.save_png(_screenshot_path)
 		print("screenshot %s: %s" % [_screenshot_path, error_string(error)])
 		get_tree().quit()
+
+
+## Development aid: with `++ --bench=<n>`, runs that many frames and prints the frame rate over
+## them, then quits. A number rather than an impression, so a change that costs frames is caught
+## while it is being made rather than in a play session.
+func _step_bench() -> void:
+	_bench_seen += 1
+	if _bench_seen == BENCH_WARMUP:
+		_bench_started = Time.get_ticks_usec()
+		return
+	if _bench_seen < _bench_frames:
+		return
+	var seconds := float(Time.get_ticks_usec() - _bench_started) / 1000000.0
+	var frames := _bench_frames - BENCH_WARMUP
+	print(
+		(
+			"bench %d frames in %.2fs: %.1f fps"
+			% [frames, seconds, float(frames) / maxf(seconds, 0.001)]
+		)
+	)
+	get_tree().quit()
 
 
 static func version() -> String:

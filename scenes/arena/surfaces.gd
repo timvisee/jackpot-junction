@@ -41,8 +41,8 @@ func _init(for_room: RoomLook) -> void:
 ## The play floor: felt, or poured concrete in a room that has no felt in it.
 func floor_top() -> StandardMaterial3D:
 	if room.floor_stone:
-		return _keep("floor", room.felt, _stone(room.felt, 0.86))
-	var felt := _dressed(room.felt, FELT_ALBEDO, FELT_NORMAL, FELT_TILE, 0.3)
+		return _keep("floor", room.felt, _stone(room.felt, 0.86, true))
+	var felt := _dressed(room.felt, FELT_ALBEDO, FELT_NORMAL, FELT_TILE, 0.3, true)
 	felt.roughness = 0.94
 	felt.metallic_specular = 0.15
 	return _keep("floor", room.felt, felt)
@@ -51,8 +51,8 @@ func floor_top() -> StandardMaterial3D:
 ## The table the arena stands on: wood, or more concrete.
 func surround() -> StandardMaterial3D:
 	if room.surround_stone:
-		return _keep("surround", room.table, _stone(room.table, 0.82))
-	var wood := _dressed(room.table, WOOD_ALBEDO, WOOD_NORMAL, WOOD_TILE, 0.45)
+		return _keep("surround", room.table, _stone(room.table, 0.82, true))
+	var wood := _dressed(room.table, WOOD_ALBEDO, WOOD_NORMAL, WOOD_TILE, 0.45, true)
 	wood.roughness = 0.55
 	wood.metallic_specular = 0.4
 	return _keep("surround", room.table, wood)
@@ -107,26 +107,32 @@ func neon(color: Color, strength := 1.0) -> StandardMaterial3D:
 	return lit
 
 
-## A material dressed in one of the detail maps, mapped in world space.
+## A material dressed in one of the detail maps.
+##
+## [param flat] surfaces carry their own world-space UVs, see [method Arena._quad], and are
+## mapped straight off them: one texture read rather than the three a triplanar costs, on the
+## two meshes that cover most of the screen. Everything else is triplanar, which is what lets a
+## crate and a wall of any size wear the same paint at the same scale.
 func _dressed(
-	color: Color, albedo: Texture2D, normal: Texture2D, tile: float, relief: float
+	color: Color, albedo: Texture2D, normal: Texture2D, tile: float, relief: float, flat := false
 ) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
 	if room.grain <= 0.0:
 		return material
 	material.albedo_texture = albedo
-	material.normal_enabled = true
-	material.normal_texture = normal
-	material.normal_scale = relief * room.grain
-	material.uv1_triplanar = true
-	material.uv1_world_triplanar = true
+	if relief > 0.0:
+		material.normal_enabled = true
+		material.normal_texture = normal
+		material.normal_scale = relief * room.grain
+	material.uv1_triplanar = not flat
+	material.uv1_world_triplanar = not flat
 	material.uv1_scale = Vector3.ONE / tile
 	return material
 
 
-func _stone(color: Color, roughness: float) -> StandardMaterial3D:
-	var stone := _dressed(color, STONE_ALBEDO, STONE_NORMAL, STONE_TILE, 0.5)
+func _stone(color: Color, roughness: float, flat := false) -> StandardMaterial3D:
+	var stone := _dressed(color, STONE_ALBEDO, STONE_NORMAL, STONE_TILE, 0.5, flat)
 	stone.roughness = roughness
 	stone.metallic_specular = 0.3
 	return stone
