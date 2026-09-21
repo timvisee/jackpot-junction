@@ -24,8 +24,8 @@ const TREMBLE_SHAKE := 0.2
 @export var smoothing := 0.6
 ## Metres of floor left around the karts when the camera comes in on them, and the closest it is
 ## ever allowed to get however tightly they are packed.
-@export var follow_margin := 6.0
-@export var follow_min_distance := 30.0
+@export var follow_margin := 4.0
+@export var follow_min_distance := 24.0
 ## How fast the distance follows the karts spreading out and closing up. Slower than the pan on
 ## purpose: a camera that pumps in and out with every bump is worse than one that is too far off.
 @export var distance_smoothing := 1.2

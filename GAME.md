@@ -1184,9 +1184,9 @@ all go off the edge. Framing the whole room made the room the subject: most of a
 match happens in one part of it, and the karts were eight pixels of a picture
 mostly made of floor.
 
-So the camera comes in as close as it can while every kart it tracks, with 6 m of
+So the camera comes in as close as it can while every kart it tracks, with 4 m of
 floor around it, still projects inside the view, and follows the middle of the box
-they are all in. It never comes closer than 30 m however tightly they are packed,
+they are all in. It never comes closer than 24 m however tightly they are packed,
 and never pulls back further than the distance that holds the whole arena, which is
 also where it waits when there is nobody to follow.
 
@@ -1194,7 +1194,7 @@ also where it waits when there is nobody to follow.
 |------------------|-------------------------------------------------------------------|
 | Projection       | Perspective, FOV 35°                                              |
 | Pitch            | 55° below horizontal                                              |
-| Framing          | Every tracked kart plus 6 m of floor fits the 16:9 view, between 30 m and the distance that holds the whole arena plus a 1 m margin |
+| Framing          | Every tracked kart plus 4 m of floor fits the 16:9 view, between 24 m and the distance that holds the whole arena plus a 1 m margin |
 | Pan              | Target is the middle of the box all alive karts are in, clamped to half the arena so the look-at point stays over the table |
 | Zoom             | Fixed. The distance does the framing, so a kart the same size on screen is the same distance away wherever it is standing. The fit is worked out against a view 7% narrower than the real one, which is the margin that keeps a kart off the very edge |
 | Smoothing        | Exponential, 0.6 s time constant for the pan and 1.2 s for the distance, applied every drawn frame. The distance is slower on purpose: a camera that pumps in and out with every bump is worse than one that is too far off. The rig opts out of the engine's physics interpolation for that reason: it follows karts that move on the physics tick, but the following is what this smoothing is, and having both would smooth an already smoothed camera |

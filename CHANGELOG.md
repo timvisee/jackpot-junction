@@ -16,6 +16,9 @@ below, and hands the notes to the release workflow.
 - **The score tanks' caps sit on top of the glass.** They were sunk into it, so
   the tank wall cut through the ring and the cap came out looking cracked.
 
+- **The camera sits closer to the karts.** Less floor around them before it
+  starts pulling back, and it comes in further when they are packed together.
+
 ## [0.3.2] - 2026-09-20
 
 A tank per player beside the arena that fills as you bank, and a camera that
