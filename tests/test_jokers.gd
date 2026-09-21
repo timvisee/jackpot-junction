@@ -310,7 +310,7 @@ func test_the_hand_shows_how_full_it_is() -> void:
 
 
 ## GAME.md 8.3: a hand of three or more fans out, and the card picked in the menu straightens.
-func test_a_full_hand_fans_out_and_the_picked_card_straightens_up() -> void:
+func test_a_full_hand_fans_out_and_the_picked_card_rises_straight_up() -> void:
 	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
 	var match_node := _start_match(inputs, 0, 21, true)
 	var kart := match_node.kart_of(0)
@@ -326,11 +326,16 @@ func test_a_full_hand_fans_out_and_the_picked_card_straightens_up() -> void:
 	assert_float(absf(cards[2].rotation)).is_less(0.005)
 	assert_float(cards[2].position.y).is_less(cards[0].position.y)
 	assert_float(cards[2].position.y).is_less(cards[4].position.y)
+	# Picking one lifts it and does nothing else: it keeps its tilt and its place along the hand,
+	# since the cards turn about their bottom corner and straightening one swings it sideways.
+	var tilt := cards[0].rotation
+	var along := cards[0].position.x
 	Input.action_press(InputActions.JOKER_MENU)
 	await _runner.simulate_frames(40, 17)
 	Input.action_release(InputActions.JOKER_MENU)
 	assert_int(hand.selected()).is_equal(0)
-	assert_float(absf(cards[0].rotation)).is_less(0.01)
+	assert_float(cards[0].rotation).is_equal_approx(tilt, 0.01)
+	assert_float(cards[0].position.x).is_equal_approx(along, 0.01)
 	assert_float(cards[0].position.y).is_less(cards[2].position.y)
 
 

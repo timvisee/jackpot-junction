@@ -97,9 +97,10 @@ func _process(delta: float) -> void:
 			picked_anchor = anchor
 		panel.scale = Vector2.ONE * factor
 		panel.position = panel.position.lerp(anchor - panel.pivot_offset * factor, blend)
-		panel.rotation = lerp_angle(
-			panel.rotation, 0.0 if lifted else across * deg_to_rad(TILT_DEG) * fan, blend
-		)
+		# The lifted card keeps its place in the fan rather than straightening up. The cards
+		# turn about their bottom corner, so un-tilting one swings its body sideways, and a card
+		# picked out of the hand slid left or right as well as rising.
+		panel.rotation = lerp_angle(panel.rotation, across * deg_to_rad(TILT_DEG) * fan, blend)
 		panel.z_index = count + 1 if lifted else i
 		var tint := DIMMED if picked >= 0 and not lifted else Color.WHITE
 		panel.modulate = panel.modulate.lerp(tint, blend)

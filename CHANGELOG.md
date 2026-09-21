@@ -28,6 +28,9 @@ below, and hands the notes to the release workflow.
   only ever chose a distance. It now aims so the spare room is split between the
   two.
 
+- **A picked joker card only goes up.** It used to straighten out of the fan as
+  it rose, which slid it sideways at the same time.
+
 ## [0.3.2] - 2026-09-20
 
 A tank per player beside the arena that fills as you bank, and a camera that

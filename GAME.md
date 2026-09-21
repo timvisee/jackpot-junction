@@ -1234,9 +1234,11 @@ name. Somebody leaving frees their corner for the next player to sit down.
   colour on saying what kind of joker it is and colour alone is not something
   every player can read. Three or more cards fan out, the
   middle riding higher and the ends tipping away, like a hand held in a fist.
-  While the joker menu is open the selected card straightens up and lifts out of
-  the fan with a bright frame, its name, description and the menu controls float
-  above it, and the other cards dim. The hand goes away at the whistle: it belongs
+  While the joker menu is open the selected card lifts straight up out of the
+  fan with a bright frame, its name, description and the menu controls float
+  above it, and the other cards dim. It keeps the tilt it had: the cards turn
+  about their bottom corner, so a card that straightened up as it rose swung
+  sideways as well, and a card being picked should only go up. The hand goes away at the whistle: it belongs
   to a match being played, and under the podium it is a row of cards lying across
   the standings of a match that is already decided. A count beside the hand reads how many of
   the slots are taken, out of however many the hand has room for, turning gold
