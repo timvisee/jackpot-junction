@@ -21,6 +21,9 @@ below, and hands the notes to the release workflow.
   kind's colour, in place of the initials, so a card is recognised by its shape
   rather than read.
 
+- **Lives are hearts.** They were squares, which say one of something without
+  saying what.
+
 ## [0.3.3] - 2026-09-21
 
 Camera work: it sits closer to the karts, keeps the arena centred in the frame,

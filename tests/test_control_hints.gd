@@ -132,6 +132,51 @@ func test_hints_are_named_for_the_scheme_in_use() -> void:
 	assert_int(pad_glyph.kind).is_equal(InputGlyph.Kind.SHOULDER)
 
 
+## GAME.md 8.3: a life is a heart, in the player's colour while it is theirs and grey once it
+## is spent. A square said "one of something" and left you to work out what.
+func test_lives_are_hearts_that_grey_out_as_they_are_lost() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(20, 17)
+	var hud := match_node.hud
+	var block: Dictionary = hud._blocks[0]
+	var pips: Array = block["lives"]
+	var kart := match_node.kart_of(0)
+	assert_int(pips.size()).is_equal(match_node.rules.lives)
+	for pip: Variant in pips:
+		assert_object(pip).is_instanceof(Heart)
+	hud._update_blocks()
+	assert_object((pips[0] as Heart).color).is_equal(match_node.slots[0].color())
+	# A life short: the last heart goes grey while the rest keep their colour.
+	kart.lives = match_node.rules.lives - 1
+	hud._update_blocks()
+	assert_object((pips[0] as Heart).color).is_equal(match_node.slots[0].color())
+	assert_object((pips[pips.size() - 1] as Heart).color).is_equal(MatchHud.LIFE_LOST)
+
+
+## The shape is a heart rather than a box: it has the dip at the top and the point at the bottom
+## that tell one from the other at the size a pip is drawn.
+func test_the_heart_has_a_dip_at_the_top_and_a_point_at_the_bottom() -> void:
+	var shape := Heart.unit_shape()
+	assert_int(shape.size()).is_greater(20)
+	var middle_top := 1.0
+	var shoulder_top := 1.0
+	var widest := 0.0
+	for point: Vector2 in shape:
+		if absf(point.x - 0.5) < 0.04:
+			middle_top = minf(middle_top, point.y)
+		if absf(point.x - 0.26) < 0.06:
+			shoulder_top = minf(shoulder_top, point.y)
+		widest = maxf(widest, absf(point.x - 0.5))
+	# The shoulders stand above the dip between them.
+	assert_float(shoulder_top).is_less(middle_top - 0.05)
+	# And it comes to a point: the bottom is narrow where the top is wide.
+	var bottom := 0.0
+	for point: Vector2 in shape:
+		if point.y > 0.9:
+			bottom = maxf(bottom, absf(point.x - 0.5))
+	assert_float(bottom).is_less(widest * 0.25)
+
+
 func test_the_joker_menu_cap_shows_beside_a_hand_with_cards_in_it() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(20, 17)

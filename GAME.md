@@ -1244,8 +1244,10 @@ name. Somebody leaving frees their corner for the next player to sit down.
   the standings of a match that is already decided. A count beside the hand reads how many of
   the slots are taken, out of however many the hand has room for, turning gold
   once the hand is full.
-- **Lives**: two pips in the player colour under the kill count; a lost life
-  goes dark.
+- **Lives**: two hearts in the player colour under the kill count, drawn off the
+  heart curve so they have the dip and the point that tell the shape apart at
+  nineteen pixels. A square said one of something and left you to work out what.
+  A lost life goes dark.
 - **Held power-up** icon, filled by the roulette flicker once the box is in.
 - **The pane** is the shape every panel in the game is cut from: a dark translucent
   card with room to breathe, rounded corners, a shadow under it and a bar of colour

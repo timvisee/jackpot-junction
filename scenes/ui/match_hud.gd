@@ -28,6 +28,9 @@ const CALL_TIME := 2.2
 const CALL_FADE := 0.6
 ## The line under each player's block that says what is worth pressing right now, GAME.md 8.3:
 ## how big the buttons in it are drawn, what colour it is, and the word that goes with each one.
+## A life, under the name: how big one heart is drawn and the grey a spent one goes.
+const LIFE_SIZE := 19.0
+const LIFE_LOST := Color(0.22, 0.22, 0.26, 0.9)
 const HINT_SIZE := 17
 const HINT_INK := Color(0.82, 0.82, 0.88)
 const HINT_WORDS: Dictionary[StringName, String] = {
@@ -444,7 +447,7 @@ func _update_blocks() -> void:
 		var pips: Array = block["lives"]
 		for i: int in pips.size():
 			var lit := kart.alive and i < kart.lives
-			(pips[i] as ColorRect).color = slot.color() if lit else Color(0.22, 0.22, 0.26, 0.9)
+			(pips[i] as Heart).color = slot.color() if lit else LIFE_LOST
 		var nitro: ProgressBar = block["nitro"]
 		nitro.value = kart.nitro_charge * 100.0
 		nitro.modulate = Color(1.0, 0.75, 0.3) if kart.nitro_active else Color(0.85, 0.85, 0.9)
@@ -740,8 +743,9 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	lives.alignment = BoxContainer.ALIGNMENT_END if right else BoxContainer.ALIGNMENT_BEGIN
 	var pips: Array = []
 	for i: int in match_node.rules.lives:
-		var pip := ColorRect.new()
-		pip.custom_minimum_size = Vector2(18.0, 18.0)
+		var pip := Heart.new()
+		pip.custom_minimum_size = Vector2(LIFE_SIZE, LIFE_SIZE)
+		pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		pip.color = slot.color()
 		lives.add_child(pip)
 		pips.append(pip)
