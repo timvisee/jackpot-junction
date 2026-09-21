@@ -43,6 +43,10 @@ below, and hands the notes to the release workflow.
   under a workbench lamp, The Vault is a dark room with one light over the felt,
   and Crossfire is played in cold daylight.
 
+- **The menus are built out of one set of parts.** Buttons are cards that light up
+  under the cursor, the title screen wears the game's own mark over its name, and
+  the kill feed carries its own shadow so it reads over a bright table.
+
 - **The game has a typeface.** Every screen is set in Inter now, on one scale,
   with scores and headings in a heavy cut and sentences in a light one, instead
   of the engine's default font at nine different sizes.

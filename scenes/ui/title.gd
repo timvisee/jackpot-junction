@@ -9,7 +9,15 @@ func _ready() -> void:
 	var column := MenuTheme.screen(self, 18)
 	TitleBackground.add_to(self)
 	column.alignment = BoxContainer.ALIGNMENT_CENTER
-	column.add_child(MenuTheme.title("Jackpot Junction", 96))
+	# The mark over the name, GAME.md 8.1: the same one the window wears, without the plate it
+	# needs on a desktop.
+	var mark := LogoArt.new()
+	mark.plate = false
+	mark.custom_minimum_size = Vector2(132.0, 132.0)
+	var centred := CenterContainer.new()
+	centred.add_child(mark)
+	column.add_child(centred)
+	column.add_child(MenuTheme.title("Jackpot Junction", Type.HERO))
 	column.add_child(
 		MenuTheme.subtitle("Collect chips. Build your mult. Cash out before they get you.")
 	)

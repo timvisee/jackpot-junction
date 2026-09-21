@@ -54,9 +54,15 @@ func add_kill(
 	label.scroll_active = false
 	label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_override("normal_font", Type.TEXT)
+	label.add_theme_font_override("bold_font", Type.STRONG)
 	label.add_theme_font_size_override("normal_font_size", FONT_SIZE)
 	label.add_theme_font_size_override("bold_font_size", FONT_SIZE)
 	label.add_theme_color_override("default_color", NEUTRAL)
+	# A line of coloured names over a bright table is a line nobody can read, GAME.md 8.3, so
+	# every one of them carries its own scrim rather than trusting the felt to be dark.
+	label.add_theme_constant_override("outline_size", 6)
+	label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.75))
 	_push(label, _line(victim, victim_color, killer, killer_color, cause))
 
 

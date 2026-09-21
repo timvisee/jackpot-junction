@@ -9,6 +9,16 @@ extends RefCounted
 const PANE_BG := Color(0.07, 0.07, 0.09, 0.94)
 const PANE_EDGE := 6
 const PANE_RADIUS := 10
+## A button is the same card as a pane, smaller and lit from behind when it has the cursor on
+## it. Four states, because a menu you drive with a stick has to say where the cursor is without
+## being pointed at.
+const BUTTON_BG := Color(0.12, 0.12, 0.15, 0.92)
+const BUTTON_HOVER := Color(0.17, 0.17, 0.21, 0.96)
+const BUTTON_DOWN := Color(0.09, 0.09, 0.11, 0.98)
+const BUTTON_RADIUS := 8
+## The edge a button wears when nothing is on it: enough to say it is a button and not enough
+## to compete with the one that has the cursor.
+const BUTTON_RIM := Color(1.0, 1.0, 1.0, 0.1)
 
 
 static func background(parent: Control) -> void:
@@ -48,10 +58,32 @@ static func subtitle(text: String, size: int = Type.BODY) -> Label:
 	return label
 
 
+## The look of one button state: a dark card, optionally with the house's gold round it.
+static func button_style(fill: Color, edge: Color = Color.TRANSPARENT) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.set_corner_radius_all(BUTTON_RADIUS)
+	style.content_margin_left = 22.0
+	style.content_margin_right = 22.0
+	style.content_margin_top = 12.0
+	style.content_margin_bottom = 12.0
+	if edge.a > 0.0:
+		style.set_border_width_all(2)
+		style.border_color = edge
+	return style
+
+
 static func button(text: String, size: int = Type.LARGE) -> Button:
 	var control := Button.new()
 	control.text = text
 	Type.set_font(control, Type.STRONG, size)
+	control.add_theme_stylebox_override("normal", button_style(BUTTON_BG, BUTTON_RIM))
+	control.add_theme_stylebox_override("hover", button_style(BUTTON_HOVER, Palette.CHIP_GOLD))
+	control.add_theme_stylebox_override("pressed", button_style(BUTTON_DOWN, Palette.CHIP_GOLD))
+	control.add_theme_stylebox_override("focus", button_style(BUTTON_HOVER, Palette.CHIP_GOLD))
+	control.add_theme_color_override("font_color", Color(0.88, 0.88, 0.92))
+	control.add_theme_color_override("font_hover_color", Color.WHITE)
+	control.add_theme_color_override("font_focus_color", Color.WHITE)
 	control.custom_minimum_size = Vector2(320.0, 56.0)
 	control.pressed.connect(func() -> void: Audio.play_sfx(&"ui_click", -6.0, 0.0))
 	control.focus_entered.connect(func() -> void: Audio.play_sfx(&"ui_move", -12.0, 0.0))
