@@ -1123,11 +1123,17 @@ reads as something you could pick up.
   letters it goes behind whatever is parked on top of it rather than being drawn
   through it. It does sit clear of the tile's own gold trim, since a marking buried
   in the floor is a marking nobody sees. See 3.5.
-- **Chips**: poker chips, gold for the gold chip, a die for the mult die.
+- **Chips**: poker chips, standing on their edge, with pale notches cut round the
+  rim. The edge is what the camera looks at, and a notched edge is the one thing
+  that says poker chip at twenty pixels across. Gold for the gold chip, which is
+  metal rather than plastic, and a die for the mult die.
 - **Item boxes**: gold crates with black bands, a big question mark and a beam of
   light, glowing and pulsing so they read at a glance.
 - **Karts**: toy go-karts with a simple driver figure, body tinted in the
-  player colour, a roof marker shape per colour.
+  player colour, a roof marker shape per colour. Painted and lacquered: the body
+  takes a coat of clear over the colour, so the lamp over the table runs along it
+  as the kart turns, and a little of the light wraps round the edge so a kart still
+  reads against a dark felt.
 - **Bullets**: glowing spheres in the owner's colour with a short trail. A shot
   that lands on a wall leaves a small round dark mark of the shooter's colour lying
   flat against it, soft at the edge rather than cut out, which fades out over about

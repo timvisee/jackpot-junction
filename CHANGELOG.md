@@ -43,6 +43,10 @@ below, and hands the notes to the release workflow.
   under a workbench lamp, The Vault is a dark room with one light over the felt,
   and Crossfire is played in cold daylight.
 
+- **Karts are painted, not coloured.** A coat of lacquer over the body colour, so
+  the light runs along a kart as it turns, and chips on the floor are chips: a
+  notched rim, a printed face, and metal for the gold ones.
+
 - **The menus are built out of one set of parts.** Buttons are cards that light up
   under the cursor, the title screen wears the game's own mark over its name, and
   the kill feed carries its own shadow so it reads over a bright table.

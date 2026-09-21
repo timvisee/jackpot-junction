@@ -168,7 +168,16 @@ func _apply(_kart: Kart) -> void:
 	pass
 
 
-static func _unshaded(color: Color) -> StandardMaterial3D:
+## What a thing lying on the floor is made of, GAME.md 8.1: moulded plastic, or metal for the
+## gold ones. A little of the room's light comes back off the edge of it, which is what keeps a
+## chip readable on a dark felt without it having to glow like a lamp.
+static func _paint(color: Color, metal := 0.0) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
+	material.metallic = metal
+	material.metallic_specular = 0.6
+	material.roughness = 0.28 if metal > 0.0 else 0.46
+	material.rim_enabled = true
+	material.rim = 0.4
+	material.rim_tint = 0.3
 	return material

@@ -39,6 +39,17 @@ static var _chequers: Texture2D
 static func paint(color: Color, style: KartStyle) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
+	# Painted and lacquered, GAME.md 8.1: a kart is a toy off a shelf rather than a block of
+	# colour, and the coat is what catches the room's lamp as it turns.
+	material.roughness = 0.34
+	material.metallic_specular = 0.6
+	material.clearcoat_enabled = true
+	material.clearcoat = 0.55
+	material.clearcoat_roughness = 0.15
+	# And a little of the light wraps round the edge of it, so a kart reads against a dark felt.
+	material.rim_enabled = true
+	material.rim = 0.45
+	material.rim_tint = 0.35
 	var pattern := pattern_texture(style.paint)
 	if pattern != null:
 		material.albedo_texture = pattern
@@ -210,4 +221,7 @@ static func _spike(radius: float, height: float, color: Color, lift: float = 0.0
 static func _flat(color: Color) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
+	material.roughness = 0.62
+	material.rim_enabled = true
+	material.rim = 0.3
 	return material
