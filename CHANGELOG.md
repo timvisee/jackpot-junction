@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Two more music tracks.** Ginger Bread and Let It Breathe join Deceased
+  Rodent, each in the same three intensities, and one is picked at random when a
+  match starts.
+
 ## [0.3.3] - 2026-09-21
 
 Camera work: it sits closer to the karts, keeps the arena centred in the frame,

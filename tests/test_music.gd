@@ -1,24 +1,77 @@
 extends GdUnitTestSuite
-## The layered music: calm by default, tense after a kill for a while, the full mix from Last
-## Call to the results, and the same position kept across switches.
+## The layered music: three tracks, one picked at random per match, each in three intensities.
+## Calm by default, tense after a kill for a while, the full mix from Last Call to the results,
+## and the same position kept across switches.
+
+const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 
 
 func before_test() -> void:
+	Audio.set_track(0)
 	Audio.set_excitement(1, 0.0)
 	Audio.set_layer(Audio.LAYER_CALM)
 
 
 func after_test() -> void:
+	Audio.set_track(0)
 	Audio.set_excitement(1, 0.0)
 	Audio.set_layer(Audio.LAYER_CALM)
 
 
-func test_all_three_layers_exist_loop_and_share_the_88_second_length() -> void:
-	for layer: StringName in Audio.LAYER_FILES:
-		var stream: AudioStream = Audio._music_stream(layer)
-		assert_object(stream).override_failure_message("missing layer %s" % layer).is_not_null()
-		assert_float(stream.get_length()).is_equal_approx(88.0, 0.02)
-		assert_bool((stream as AudioStreamOggVorbis).loop).is_true()
+## Every track has all three intensities, they loop, and each is a whole number of bars long at
+## the tempo it was measured at, which is what makes the loop seamless and the beat readable.
+func test_every_track_loops_as_three_layers_of_a_whole_number_of_bars() -> void:
+	assert_int(Audio.TRACKS.size()).is_equal(3)
+	for i: int in Audio.TRACKS.size():
+		Audio.set_track(i)
+		var folder: String = Audio.MUSIC_DIR + String(Audio.TRACKS[i]["id"]) + "/"
+		assert_bool(FileAccess.file_exists(folder + "LICENSE.txt")).is_true()
+		var length := 0.0
+		for layer: StringName in Audio.LAYER_FILES:
+			var stream: AudioStream = Audio._music_stream(layer)
+			assert_object(stream).override_failure_message("missing layer %s" % layer).is_not_null()
+			assert_str(stream.resource_path).contains(folder)
+			assert_bool((stream as AudioStreamOggVorbis).loop).is_true()
+			if length == 0.0:
+				length = stream.get_length()
+			# The three are the same music, so they run for the same time to the sample.
+			assert_float(stream.get_length()).is_equal_approx(length, 0.02)
+		var beats := length * Audio.bpm() / 60.0
+		(
+			assert_float(beats)
+			. override_failure_message("%s is %f beats long" % [Audio.TRACKS[i]["id"], beats])
+			. is_equal_approx(roundf(beats), 0.02)
+		)
+		assert_int(roundi(beats) % Audio.BEATS_PER_BAR).is_equal(0)
+
+
+## The tempo is the track's own: they were written at three different ones, so a single number
+## would have everything that moves on the beat out of step for two of them.
+func test_the_beat_is_read_at_the_tempo_of_whatever_is_playing() -> void:
+	var tempos: Array[float] = []
+	for i: int in Audio.TRACKS.size():
+		Audio.set_track(i)
+		assert_float(Audio.bpm()).is_equal(Audio.TRACKS[i]["bpm"])
+		tempos.append(Audio.bpm())
+	assert_bool(tempos[0] != tempos[1] and tempos[1] != tempos[2]).is_true()
+
+
+## GAME.md 8.4: a record goes on as the room is built, so a run of matches is not one loop over
+## and over.
+func test_building_a_match_puts_a_record_on() -> void:
+	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	rules.countdown = 0.1
+	var seen: Dictionary[int, bool] = {}
+	for i: int in 30:
+		var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+		match_node.rules = rules
+		match_node.with_hud = false
+		add_child(match_node)
+		match_node.start([KartInput.new()] as Array[KartInput], i)
+		seen[Audio.track] = true
+		remove_child(match_node)
+	# Thirty rooms built and more than one record played: it is a roll, not a fixed order.
+	assert_int(seen.size()).is_greater(1)
 
 
 func test_a_crossfade_keeps_the_summed_level_constant() -> void:

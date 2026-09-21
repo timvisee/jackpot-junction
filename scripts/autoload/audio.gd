@@ -10,7 +10,16 @@ extends Node
 const POOL_SIZE := 16
 const AUDIO_DIR := "res://assets/audio/"
 const SFX_DIR := AUDIO_DIR + "sfx/"
-const MUSIC_DIR := "res://assets/audio/music/deceased_rodent/"
+const MUSIC_DIR := "res://assets/audio/music/"
+## The music the game has, GAME.md 8.4. One folder of three intensities each, and the tempo each
+## was written at, which everything that moves on the beat is driven from. Measured off the loop
+## rather than guessed: each is an exact number of bars long, so the tempo is the beat count over
+## the length.
+const TRACKS: Array[Dictionary] = [
+	{"id": "deceased_rodent", "bpm": 120.0},
+	{"id": "ginger_bread", "bpm": 128.0},
+	{"id": "let_it_breathe", "bpm": 136.0},
+]
 const LAYER_CALM := &"calm"
 const LAYER_TENSE := &"tense"
 const LAYER_PEAK := &"peak"
@@ -44,9 +53,8 @@ const PODIUM_DUCK_SECONDS := 0.8
 const BANK_TICK_INTERVAL := 0.07
 ## The least time between two cash-out chimes for one player.
 const BANK_CHIME_GAP := 1.6
-## The track's tempo. It is a steady four to the bar, so the beat can be read straight off
-## the playback position rather than analysed.
-const MUSIC_BPM := 120.0
+## Every track is a steady four to the bar, so the beat can be read straight off the playback
+## position rather than analysed. The tempo itself is the current track's, see [member track].
 const BEATS_PER_BAR := 4
 
 ## The swell that leads into a nitro burn runs backwards into its own hit, so it is played
@@ -115,6 +123,8 @@ const LIBRARY: Dictionary[StringName, Array] = {
 var music_enabled := true
 ## The intensity playing or fading in right now.
 var current_layer := LAYER_CALM
+## Which of [constant TRACKS] is playing. Picked afresh at the start of every match, GAME.md 8.4.
+var track := 0
 ## The match's excitement level, 1 to 6, pushed in every tick by [MatchIntensity].
 var excitement := 1
 ## How far through the levels that is, 0 at level 1 and 1 at the top. The filter sweep and the
@@ -243,7 +253,7 @@ func _beats() -> float:
 	var position := Time.get_ticks_msec() * 0.001
 	if player.playing:
 		position = player.get_playback_position() + AudioServer.get_time_since_last_mix()
-	return position * MUSIC_BPM / 60.0
+	return position * bpm() / 60.0
 
 
 ## One line for the debug overlay: the layer, both players' levels and positions, and the mute.
@@ -369,8 +379,40 @@ func mark_all_players_down() -> void:
 	set_layer(LAYER_CALM)
 
 
+## The tempo of whatever is playing, in beats a minute.
+func bpm() -> float:
+	return TRACKS[track]["bpm"]
+
+
+## Picks one of the tracks at random and starts it from the top, GAME.md 8.4. Called as a match
+## is built, so a run of them is not the same loop over and over. Its own roll rather than the
+## match's: which record is on is a thing about this machine, not about the simulation, and
+## online every machine chooses for itself.
+func pick_track() -> void:
+	set_track(_rng.randi_range(0, TRACKS.size() - 1))
+
+
+## Puts a different record on, from the top. Nothing is crossfaded: the three layers of one track
+## are the same music and cross over cleanly, but two tracks are two pieces and the only clean
+## join between them is a fresh start.
+func set_track(index: int) -> void:
+	index = clampi(index, 0, TRACKS.size() - 1)
+	if index == track:
+		return
+	track = index
+	for player: AudioStreamPlayer in _music_players:
+		player.stop()
+		player.volume_linear = 0.0
+	_active_player = 0
+	if _music_tween != null and _music_tween.is_valid():
+		_music_tween.kill()
+	_music_players[0].volume_linear = 1.0
+	if not Game.is_headless():
+		play_music()
+
+
 func _music_stream(layer: StringName) -> AudioStream:
-	var path := MUSIC_DIR + LAYER_FILES[layer]
+	var path := MUSIC_DIR + String(TRACKS[track]["id"]) + "/" + LAYER_FILES[layer]
 	if not ResourceLoader.exists(path):
 		return null
 	var stream := load(path) as AudioStream

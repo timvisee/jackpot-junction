@@ -375,6 +375,9 @@ func _build_systems(from_snapshots: bool) -> void:
 	# frame rather than being handed them, so it is right on a client filling up from snapshots
 	# and after somebody joins mid-match.
 	score_tanks = ScoreTanks.add_to(self)
+	# A record goes on as the room is built, GAME.md 8.4: three tracks, one of them at random, so
+	# a run of matches is not the same loop over and over.
+	Audio.pick_track()
 
 
 ## The HUD, when this build wants one. It reads the slots as it is built, so a host adds it once

@@ -1377,11 +1377,19 @@ every kart, so everyone sees when an opponent cashes out.
 
 ### 8.4 Audio
 
-- **Music**: "Deceased Rodent" by Ovani Sound, one track in three intensities
-  that all run in step and crossfade over 1 s at the same position. The fade
-  is linear in amplitude so the level never dips. The files are cut to the
-  track's 88 s loop with the decay tail folded under the start, so the music
-  loops without a gap. Intensity 1 plays by default and in the menus.
+- **Music**: three tracks by Ovani Sound -- "Deceased Rodent" at 120 BPM,
+  "Ginger Bread" at 128 and "Let It Breathe" at 136 -- each in three intensities
+  that all run in step and crossfade over 1 s at the same position. The fade is
+  linear in amplitude so the level never dips. Each is cut to its own loop, 88 to
+  94 s, an exact fifty bars with the decay tail folded under the start, so the
+  music loops without a gap. Intensity 1 plays by default and in the menus.
+- **Which track**: one is picked at random as a room is built, so a run of
+  matches is not the same loop over and over. Two tracks are two pieces of music
+  rather than two layers of one, so the change is a fresh start rather than a
+  crossfade, and the roll is each machine's own: online everybody hears their own
+  record. Everything that moves on the beat -- the booth's speakers, the crowd,
+  the disco lights, the camera's tremble -- reads the tempo of whatever is
+  playing, since the three were written at three different ones.
 - **Excitement meter**: underneath everything is one meter from 0 to 1. Heat
   comes from things that just happened and fades over a few seconds: a kill
   0.30, a wound 0.14, a bomb 0.14, a cash-out 0.10, a Royal Flush 0.22, a graze

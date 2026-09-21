@@ -33,8 +33,7 @@ func _ready() -> void:
 	column.add_child(quit)
 	var credits := Label.new()
 	credits.text = (
-		"Music: Deceased Rodent by Ovani Sound (ovanisound.com)"
-		+ "   |   Models and sounds: Kenney (kenney.nl), CC0"
+		"Music: Ovani Sound (ovanisound.com)" + "   |   Models and sounds: Kenney (kenney.nl), CC0"
 	)
 	credits.add_theme_color_override("font_color", Color(0.6, 0.6, 0.65))
 	credits.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
