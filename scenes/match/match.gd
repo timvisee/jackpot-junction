@@ -725,12 +725,14 @@ func _finish() -> void:
 
 
 ## GAME.md 8.1: at the whistle every head leaves its sweep and swings onto whoever won, so the
-## winner takes their lap of honour in the spotlight. A winner who is dead at the whistle has
-## nothing to light, so the rig is left as it is. Public because a client reaches the whistle by
-## being told about it rather than by running one, and the lap of honour is for everybody.
+## winner takes their lap of honour in the spotlight. Whoever that is: a bot that has out-driven
+## the room gets the rig the same as a player, and a leader lying in a pit at the whistle is
+## still where the beams go, since what the rig follows is the top of the standings rather than
+## whoever happens to be on their wheels. Public because a client reaches the whistle by being
+## told about it rather than by running one, and the lap of honour is for everybody.
 func spotlight_winner() -> void:
 	var winner := standings()[0]
-	if winner.kart != null and winner.kart.alive:
+	if winner.kart != null:
 		arena.disco.focus(winner.kart)
 	# And the room throws fireworks in their colour, GAME.md 8.3. For whoever won rather than
 	# for the kart, which may well be lying in a pit at the whistle.

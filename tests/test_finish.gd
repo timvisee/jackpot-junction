@@ -81,3 +81,20 @@ func test_the_rig_swings_every_head_onto_the_winner() -> void:
 			. override_failure_message("head %d is not looking at the winner" % i)
 			. is_greater(0.99)
 		)
+
+
+## GAME.md 8.1: whoever tops the standings gets the rig, on their wheels or not. A leader lying
+## in a pit at the whistle used to be passed over, and the room saw out the end of the match
+## with the lights still sweeping as though nobody had won it.
+func test_the_rig_takes_the_winner_even_when_they_are_down() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(20, 17)
+	match_node.slots[1].banked = 500
+	var winner := match_node.kart_of(1)
+	winner.die(&"pit", -1)
+	match_node._finish()
+	assert_int(match_node.standings()[0].index).is_equal(1)
+	assert_bool(winner.alive).is_false()
+	assert_object(match_node.arena.disco._focus).is_same(winner)
+	await _runner.simulate_frames(120, 17)
+	assert_int(match_node.arena.disco.lit_count()).is_equal(DiscoLights.COUNT)

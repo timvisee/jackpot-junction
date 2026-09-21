@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The lights always find the winner.** A leader who was down at the whistle used
+  to be passed over and the rig kept sweeping.
+
 - **Bots shoot at what they are bumping into.** A kart pressed up against a bot
   was too far off its nose to be fired at, so it got shoved around instead of
   shot.

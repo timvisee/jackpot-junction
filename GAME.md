@@ -1182,8 +1182,9 @@ Starting palette:
   without getting brighter.
 - At the whistle the rig is handed the winner: every head leaves its sweep, swings
   onto their kart over 1.6 s and follows it as it rolls out, drawing in to a narrow
-  11° as it goes so the table around them stays readable. A winner who is dead at
-  the whistle has nothing to light, so the rig is left as it is.
+  11° as it goes so the table around them stays readable. Whoever won gets it: a bot
+  that has out-driven the room the same as a player, and a leader who went down
+  before the whistle the same as one still driving.
 - Each beam is cut to the distance it actually has to cross and widened to its
   own spot angle every frame, so however far across the table a head is
   pointing its cone ends in a lit pool on the floor rather than in mid-air.
