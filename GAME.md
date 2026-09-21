@@ -1285,13 +1285,9 @@ name. Somebody leaving frees their corner for the next player to sit down.
   Driving and firing are left out: they already have the hint beside the kart at
   the start of a match.
 - **Joker pictures**: every joker has a flat pictogram of its own, drawn in its
-  kind's colour on the dark of the card, and all of them are built from one small
-  vocabulary of shapes -- discs, rings, bars, triangles, arcs, flames, bolts and
-  pips. Sticking to that vocabulary is what makes thirty of them read as one set
-  rather than as thirty drawings, and drawn rather than loaded means they weigh
-  nothing, scale to any card size and take the kind's colour for free. A card is
-  recognised across the table by its shape; two letters at that size are a shape
-  that has to be read first.
+  kind's colour on the dark of the card. A card is recognised across the table by
+  its shape; two letters at that size are a shape that has to be read first. How
+  they are built, and how to add one, is 8.3a.
 - **Bindings are drawn, not written.** Everywhere the game names a control -- the
   hints above, the joker hand and pick, the signs on the test track in 9.4a, the
   hint beside the kart, the join line in the lobby and the rebinding rows in 8.5
@@ -1383,6 +1379,102 @@ counts up with rising slot-machine ticks: `coins × mult`, then `= total`, in
 about 0.8 s. Cash-outs of 500 or more add a fanfare, confetti and screen shake.
 Death shows a smaller grey tally marked as half. The in-world tally plays for
 every kart, so everyone sees when an opponent cashes out.
+
+### 8.3a Joker pictures
+
+Every joker carries a flat pictogram of its own, in the middle of its card. They
+live in `scenes/ui/joker_art.gd` as one `match` arm per joker id, and they are
+drawn rather than loaded: a folder of PNGs would weigh something, would be cut for
+one card size, and would have to be recoloured per kind. `make jokers` puts every
+card on one screen, which is the only way to judge a set that is meant to look
+like a set.
+
+**The rules that make thirty drawings one set.** Break these and the card stops
+matching the others before anybody can say why.
+
+- One subject, and at most two supporting shapes behind it. A card is read at a
+  glance from a hand of five, not studied.
+- No text. The name is already under the picture and the kind is above it.
+- No third colour, no gradients, no outlines drawn around fills.
+- Nothing outside 0.06 to 0.94 of the box, so the picture never touches the frame.
+- Do not reuse a silhouette another card already owns. A round thing with a hole
+  in it is Aimbot's; a five-pointed star is Wild Card's; a burst is Road Rage's.
+
+**The box.** Every picture is handed a square box and draws in fractions of it:
+`(0, 0)` is the top left corner, `(1, 1)` the bottom right, y downwards. Radii,
+spans and stroke widths are fractions of the box's shorter side. Nothing is in
+pixels, which is what lets the same recipe serve the card in the hand, the larger
+one in the respawn pick and anything else that asks for one.
+
+**The two colours.** A picture gets exactly two, both handed in and both the
+card's kind colour:
+
+- `ink` is the subject: the thing the card is about.
+- `dim` is the same colour at 40% alpha, for whatever the subject sits on, in or
+  behind -- the die under its pips, the pipe behind the flame, the road under the
+  arrow.
+
+The kind colour arrives from the card, so a picture never names a colour itself.
+That is what keeps a Stat card steel, a Rule card gold and a Cursed card red
+without thirty places having to know it.
+
+**The vocabulary.** Every picture is built from these and nothing else. All take
+the canvas and the box first, which the examples below leave out for brevity.
+
+| Shape | Call | What it is for |
+|-------|------|----------------|
+| Disc | `_disc(x, y, r, ink)` | a solid round thing: a coin, a chip, a ball, a wheel, a pip |
+| Ring | `_ring(x, y, r, ink)` | the same hollow: a rim, a gate, a sight |
+| Arc | `_arc(x, y, r, from, to, ink)` | part of a circle, in degrees clockwise from east with y down: a guard, a wing, a skid, a sweep |
+| Line | `_line(x1, y1, x2, y2, ink)` | a stroke between two points |
+| Bar | `_bar(x, y, w, h, ink)` | a rounded rectangle from its top left: a body, a panel, a block, a slab |
+| Triangle | `_tri(x, y, span, facing, ink)` | a solid triangle centred on x, y, facing in degrees clockwise from up: an arrow head, a bullet tip, a beak |
+| Flame | `_flame(x, y, span, turn, ink)` | a teardrop standing on x, y with its tip `span` away, blowing `turn` degrees off straight up |
+| Shield | `_shield(x, y, span, ink)` | square shoulders tapering to a point |
+| Bolt | `_bolt(x, y, span, ink)` | a lightning bolt, for speed rather than for a thing |
+| Star | `_star(x, y, span, ink)` | five points, the house's own mark |
+| Burst | `_burst(x, y, span, ink)` | ten points, for something going off |
+
+Every line is `STROKE` thick, 5.5% of the box, so weights match across the set.
+Shield, bolt, star and burst are one-off silhouettes: each belongs to one card and
+is not to be borrowed. Star and burst are the same spiked ring at different point
+counts, so a third silhouette of that shape would be `_spiked` with new numbers
+rather than new code.
+
+**Adding a picture for a new joker.**
+
+1. Decide the one thing the card is about, and check no card owns that shape
+   already. Run `make jokers` and look.
+2. Add a `match` arm in `JokerArt.draw_into` keyed on the joker's id, drawing the
+   subject in `ink` and anything it sits on or behind in `dim`. Build it out of
+   the vocabulary above; if it genuinely needs a shape that is not there, add the
+   shape as a helper so the next card can use it too, rather than drawing it
+   inline.
+3. Add the id to `JokerArt.known()`.
+4. Run the tests. `test_every_joker_has_a_picture_and_every_picture_has_a_joker`
+   holds the two lists to each other in both directions: a joker without a
+   picture fails, and so does a picture left behind by a joker that has gone.
+   They are written out separately on purpose, since a list that derives itself
+   from the other cannot catch either mistake.
+5. Run `make jokers` again and look at it next to the rest.
+
+A joker with no arm of its own falls through to the star, so a missing picture is
+a card that looks like Wild Card rather than a card with a hole in it. The test is
+what stops that shipping.
+
+**A worked example.** Nitro Habit is a bottle with a flame coming out of the
+bottom of it:
+
+```gdscript
+&"nitro_habit":
+    _bar(on, box, 0.34, 0.24, 0.32, 0.6, dim)   # the bottle, behind
+    _bar(on, box, 0.42, 0.12, 0.16, 0.14, dim)  # its neck, behind
+    _flame(on, box, 0.5, 0.8, 0.3, 0.0, ink)    # the flame, the subject
+```
+
+Three shapes, two of them `dim` and one `ink`, everything between 0.12 and 0.84 of
+the box, and the only thing drawn in full colour is the thing the card is named
+for.
 
 ### 8.4 Audio
 

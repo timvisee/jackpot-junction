@@ -4,7 +4,7 @@ GDLINT ?= gdlint
 GDFORMAT ?= gdformat
 GD_DIRS := scenes scripts tests
 
-.PHONY: import test lint format format-check smoke run drive bots changelog check export
+.PHONY: import test lint format format-check smoke run drive jokers bots changelog check export
 
 import:
 	$(GODOT) --headless --path . --import
@@ -30,6 +30,7 @@ smoke:
 	tools/smoke res://scenes/garage/garage.tscn 240
 	tools/smoke res://scenes/dev/playground.tscn
 	tools/smoke res://scenes/dev/driving.tscn
+	tools/smoke res://scenes/dev/joker_sheet.tscn 30
 
 dev:
 	$(GODOT) --path . res://scenes/dev/playground.tscn
@@ -39,6 +40,10 @@ run:
 
 drive:
 	$(GODOT) --path . res://scenes/dev/driving.tscn
+
+# Every joker card at once, to see the pictures of GAME.md 8.3a as the set they are meant to be.
+jokers:
+	$(GODOT) --path . res://scenes/dev/joker_sheet.tscn
 
 # Whole matches of bots, reported as numbers. Minutes rather than seconds, so it is its own
 # target rather than part of check.
