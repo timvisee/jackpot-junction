@@ -1178,6 +1178,13 @@ reads as something you could pick up.
   the podium waits out in 3.8 and on under the standings. The room decides nothing
   by it: it is the last thing the match does, and it is for whoever won rather than
   for their kart, which may well be lying in a pit at the whistle.
+- **The crowd wears the room.** Where everybody stands, how tall they are, which
+  way they face and where in the beat they are is rolled per person, but what they
+  are wearing comes from the room's own wardrobe: a carnival of deepened colours
+  at the Workbench, a band of near-black shapes with the room's neon along their
+  edges After Hours, muted workwear in the Yard. Random bright hues over a
+  thousand people read as confetti, and confetti next to the table is the loudest
+  thing on the screen while the karts are the smallest.
 - **The crowd**: a band of small figures four rows deep standing on the table all
   the way round the arena, and a DJ booth a couple of rows into it along the top
   edge, with a pair of speakers that pulse on the beat. The booth stands in the

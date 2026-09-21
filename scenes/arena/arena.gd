@@ -130,7 +130,7 @@ func build() -> void:
 	_add_junction()
 	_add_jackpots()
 	_add_disco()
-	crowd = Crowd.add_to(self, world_size())
+	crowd = Crowd.add_to(self, world_size(), room)
 	_add_billboards()
 
 

@@ -74,7 +74,8 @@ const RESTING_RATE := 1.7
 const REBUILD_WAIT := 2
 const SETTLE := 5.0
 const PERIOD := TAU * 2.0
-## The colours the crowd comes in: the room's own, plus enough others to look like people.
+## What a crowd wears when its room does not say: a carnival, which is what the first room in
+## the game was. A room with a wardrobe of its own, GAME.md 8.1, overrides this.
 const SHIRTS: Array[Color] = [
 	Color("#E23D3D"),
 	Color("#3D6FE2"),
@@ -110,17 +111,35 @@ void vertex() {
 ## to albedo, which is read as light rather than as a colour off a screen, so the values here and
 ## the ones in the instance buffer are the linear ones: an sRGB colour put in raw comes out of a
 ## crowd of a thousand as a wash of pastel.
+## A crowd is lit by its room rather than by itself: [code]dim[/code] is how brightly it is lit
+## against the table, and the rim is the light along the edges of everybody, which is what makes
+## a band of dark figures read as people rather than as a wall. In a lit room the rim is nothing
+## and this costs a multiply.
+const CROWD_LIGHT := """
+uniform vec4 rim_color : source_color = vec4(1.0);
+uniform float rim_strength = 0.0;
+uniform float dim = 1.0;
+
+float rim_of(vec3 normal, vec3 view) {
+	return pow(1.0 - clamp(dot(normalize(normal), normalize(view)), 0.0, 1.0), 2.5);
+}
+"""
 const SHIRT_FRAGMENT := """
 void fragment() {
-	ALBEDO = COLOR.rgb;
+	ALBEDO = COLOR.rgb * dim;
+	EMISSION = rim_color.rgb * rim_of(NORMAL, VIEW) * rim_strength;
 }
 """
 const FACE_FRAGMENT := """
 void fragment() {
-	ALBEDO = vec3(0.890, 0.768, 0.604) * (1.0 - COLOR.a * 0.62);
+	ALBEDO = vec3(0.890, 0.768, 0.604) * (1.0 - COLOR.a * 0.62) * dim;
+	EMISSION = rim_color.rgb * rim_of(NORMAL, VIEW) * rim_strength;
 }
 """
 
+## The room this crowd is standing in, GAME.md 8.1: what they are wearing, how brightly they
+## are lit and what colour the light on their edges is.
+var room: RoomLook
 ## The excitement level of the match, 0 to 6. The match keeps it up to date.
 var level := 0
 ## Scenery can be switched off: the Garage in 9.4 is not a party, GAME.md 8.1.
@@ -154,9 +173,10 @@ var _rng := RandomNumberGenerator.new()
 
 
 ## Fills the table around an arena of [param size] metres with onlookers.
-static func add_to(parent: Node3D, size: Vector2) -> Crowd:
+static func add_to(parent: Node3D, size: Vector2, in_room: RoomLook = null) -> Crowd:
 	var crowd := Crowd.new()
 	crowd.name = "Crowd"
+	crowd.room = in_room if in_room != null else RoomLook.fallback()
 	parent.add_child(crowd)
 	crowd._build(size)
 	return crowd
@@ -315,7 +335,7 @@ func _stand(at: Vector3, row: int) -> void:
 	var turned := Basis.from_euler(Vector3(0.0, _rng.randf_range(0.0, TAU), 0.0))
 	var size := _rng.randf_range(SIZE_RANGE.x, SIZE_RANGE.y)
 	_spots.append(Transform3D(turned.scaled(Vector3.ONE * size), spot))
-	var shirt := SHIRTS[_rng.randi_range(0, SHIRTS.size() - 1)].srgb_to_linear()
+	var shirt := _wardrobe().srgb_to_linear()
 	# The alpha is not transparency: it is how dark this one's face is, carried along with the
 	# shirt so that one instance colour dresses both surfaces.
 	shirt.a = _rng.randf_range(0.0, 1.0)
@@ -348,8 +368,8 @@ func _raise_stands(half: Vector2) -> void:
 	_stands = Node3D.new()
 	_stands.name = "Stands"
 	add_child(_stands)
-	var tread := _paint(Palette.BLOCK)
-	var back := _paint(Palette.BLOCK_EDGE)
+	var tread := _paint(room.stand)
+	var back := _paint(room.stand.darkened(0.25))
 	for side: int in 4:
 		var out := OUTWARD[side]
 		var sideways := Vector3(absf(out.z), 0.0, absf(out.x))
@@ -483,11 +503,24 @@ static func _lifted(arrays: Array, by: float) -> Array:
 	return arrays
 
 
+## What this one is wearing: a colour from the room's own wardrobe, GAME.md 8.1, or from the
+## carnival when the room names none.
+func _wardrobe() -> Color:
+	if room.crowd_colors.is_empty():
+		return SHIRTS[_rng.randi_range(0, SHIRTS.size() - 1)]
+	return room.crowd_colors[_rng.randi_range(0, room.crowd_colors.size() - 1)]
+
+
 func _skin(fragment: String) -> ShaderMaterial:
 	var shader := Shader.new()
-	shader.code = FIGURE_VERTEX + fragment
+	shader.code = FIGURE_VERTEX + CROWD_LIGHT + fragment
 	var material := ShaderMaterial.new()
 	material.shader = shader
+	# A room in the dark puts a light on the edge of everybody standing in it, GAME.md 8.1.
+	var silhouette := room.crowd_dress == RoomLook.Dress.SILHOUETTE
+	material.set_shader_parameter(&"rim_color", room.crowd_rim)
+	material.set_shader_parameter(&"rim_strength", 0.7 if silhouette else 0.0)
+	material.set_shader_parameter(&"dim", room.crowd_light)
 	_skins.append(material)
 	return material
 
