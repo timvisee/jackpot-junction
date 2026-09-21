@@ -71,3 +71,53 @@ func test_a_room_with_no_clock_shows_no_clock_board() -> void:
 	await _runner.simulate_frames(4, 17)
 	assert_bool(match_node.led_clock.wanted()).is_false()
 	assert_bool(match_node.led_clock.visible).is_false()
+
+
+## GAME.md 8.1: at the two moments the board has something better than a number to say, it says
+## it. The countdown counts the field down with the gantry, sudden death says so in red, and the
+## whistle names whoever won.
+func test_the_clock_board_says_its_piece_at_the_start_and_the_finish() -> void:
+	var match_node := _match()
+	await _runner.simulate_frames(4, 17)
+	var clock := match_node.led_clock
+	match_node.state = Match.State.COUNTDOWN
+	match_node.countdown_left = match_node.rules.countdown
+	assert_str(clock._word_now()).is_equal("READY")
+	match_node.countdown_left = match_node.rules.countdown * 0.4
+	assert_str(clock._word_now()).is_equal("SET")
+	# The drop is a moment rather than a state: caught as the countdown hands over, and gone a
+	# second and a bit later, which is when the clock comes back.
+	clock._was_state = Match.State.COUNTDOWN
+	match_node.state = Match.State.PLAYING
+	clock._step_state(0.1)
+	assert_str(clock._word_now()).is_equal("GO!")
+	clock._step_state(LedClock.GO_TIME)
+	assert_str(clock._word_now()).is_empty()
+	match_node.state = Match.State.OVERTIME
+	assert_str(clock._word_now()).is_equal("OVERTIME")
+	match_node.state = Match.State.RESULTS
+	var winner := match_node.standings()[0]
+	assert_str(clock._word_now()).is_equal(winner.display_name())
+	assert_bool(clock._word_color().is_equal_approx(winner.color())).is_true()
+
+
+## GAME.md 8.5: sudden death flashes, and holds still for anybody who has asked for fewer
+## flashing things.
+func test_the_overtime_word_flashes_unless_flashes_are_turned_down() -> void:
+	var match_node := _match()
+	await _runner.simulate_frames(4, 17)
+	var clock := match_node.led_clock
+	match_node.state = Match.State.OVERTIME
+	var was := Game.settings.flash_reduction
+	Game.settings.flash_reduction = false
+	clock._now = 0.0
+	var lit := clock._word_color()
+	clock._now = LedClock.FLASH * 0.75
+	var dark := clock._word_color()
+	assert_bool(lit.is_equal_approx(dark)).is_false()
+	Game.settings.flash_reduction = true
+	clock._now = 0.0
+	var steady := clock._word_color()
+	clock._now = LedClock.FLASH * 0.75
+	assert_bool(steady.is_equal_approx(clock._word_color())).is_true()
+	Game.settings.flash_reduction = was

@@ -96,7 +96,8 @@ func words(text: String, at: Vector2, size: float, color: Color) -> Label3D:
 
 
 ## The height a line can be drawn at and still fit between the frames, measured off the font
-## rather than guessed at from how many letters there are.
+## rather than guessed at from how many letters there are. Public because a board that changes
+## what it says, such as the clock in [LedClock], has to ask again for the new words.
 func fitted(text: String, size: float) -> float:
 	var span := (
 		ThemeDB.fallback_font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE).x

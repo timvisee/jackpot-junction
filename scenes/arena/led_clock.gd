@@ -19,6 +19,15 @@ const COLON := 0.28
 const LIT := Color(1.0, 0.72, 0.18)
 const LIT_LAST_CALL := Color(1.0, 0.27, 0.27)
 const DARK := Color(0.14, 0.12, 0.1)
+## The board says a word instead of the time at the two moments it has something better to say
+## than a number, GAME.md 8.1: the start and the finish. Green for the drop, the way the gantry
+## goes green, and the flash of sudden death at this rate.
+const GO := Color(0.42, 0.95, 0.5)
+const WORD_SIZE := 0.62
+const CAPTION_SIZE := 0.34
+const CAPTION_INK := Color(0.75, 0.78, 0.85)
+const GO_TIME := 1.4
+const FLASH := 0.55
 ## How far out past the far wall the board stands, and how far along that edge from the middle:
 ## off to one side, since the middle of that edge is the DJ booth's and the other side is where
 ## the tanks of 8.1 stand.
@@ -47,6 +56,13 @@ var _digits: Array[Dictionary] = []
 var _board: Billboard
 var _colon: Array[MeshInstance3D] = []
 var _shown := ""
+## The line the board reads when it has a word rather than a time on it, and the smaller line
+## above it that says which of the two you are looking at.
+var _word: Label3D
+var _caption: Label3D
+var _now := 0.0
+var _go_left := 0.0
+var _was_state := Match.State.LOBBY
 
 
 ## Hangs a clock off [param for_match], to be kept by its own clock.
@@ -63,13 +79,95 @@ func wanted() -> bool:
 	return match_node != null and match_node.rules != null and match_node.rules.timed
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	visible = wanted()
 	if not visible:
 		return
 	if _board == null:
 		_build()
-	_show(_clock_text(), _last_call())
+	_now += delta
+	_step_state(delta)
+	var word := _word_now()
+	if word.is_empty():
+		_say("", "TIME", LIT)
+		_show(_clock_text(), _last_call())
+	else:
+		_say(word, _caption_now(), _word_color())
+
+
+## The drop is a moment rather than a state, so it is caught as the countdown hands over to the
+## match and held on the board for a second and a bit after it.
+func _step_state(delta: float) -> void:
+	if match_node.state != _was_state:
+		if _was_state == Match.State.COUNTDOWN and match_node.state != Match.State.COUNTDOWN:
+			_go_left = GO_TIME
+		_was_state = match_node.state
+	_go_left = maxf(_go_left - delta, 0.0)
+
+
+## The word the board has in place of the time, or nothing while it is keeping the clock. The
+## lamps of the start gantry are what READY and SET follow, GAME.md 8.3, so the board and the
+## rack are one countdown rather than two.
+func _word_now() -> String:
+	match match_node.state:
+		Match.State.COUNTDOWN:
+			return "READY" if match_node.countdown_lamps() <= 1 else "SET"
+		Match.State.OVERTIME:
+			return "OVERTIME"
+		Match.State.RESULTS:
+			return _winner()
+		_:
+			return "GO!" if _go_left > 0.0 else ""
+
+
+## The smaller line above it, which says what the word is about.
+func _caption_now() -> String:
+	match match_node.state:
+		Match.State.COUNTDOWN:
+			return "START"
+		Match.State.OVERTIME:
+			return "SUDDEN DEATH"
+		Match.State.RESULTS:
+			return "WINNER"
+		_:
+			return "START"
+
+
+## Amber to hold the field, green for the drop, the winner's own colour at the whistle, and red
+## for sudden death, which flashes. The flash stands still for anybody who has asked for fewer
+## of them, GAME.md 8.5.
+func _word_color() -> Color:
+	if match_node.state == Match.State.RESULTS:
+		return match_node.standings()[0].color()
+	if match_node.state == Match.State.OVERTIME:
+		var lit := Game.settings.flash_reduction or fmod(_now, FLASH) < FLASH * 0.5
+		return LIT_LAST_CALL if lit else LIT_LAST_CALL.darkened(0.75)
+	return GO if _go_left > 0.0 else LIT
+
+
+## Whoever won it, for the board to name. A player who set no name still has one to be called
+## by, the same one the standings and the podium use.
+func _winner() -> String:
+	return match_node.standings()[0].display_name()
+
+
+## Puts a word on the board, or takes it off again and gives the digits back. Refitted every time
+## the words change, since how big a line can be drawn depends on how long it is.
+func _say(word: String, caption: String, color: Color) -> void:
+	var showing := not word.is_empty()
+	for digit: Dictionary in _digits:
+		for name: String in digit:
+			(digit[name] as MeshInstance3D).visible = not showing
+	for dot: MeshInstance3D in _colon:
+		dot.visible = not showing
+	_word.visible = showing
+	_word.modulate = color
+	if showing and _word.text != word:
+		_word.text = word
+		_word.pixel_size = _board.fitted(word, WORD_SIZE) / float(Billboard.FONT_SIZE)
+	if _caption.text != caption:
+		_caption.text = caption
+		_caption.pixel_size = _board.fitted(caption, CAPTION_SIZE) / float(Billboard.FONT_SIZE)
 
 
 ## The time left as mm:ss, which is what the four digits have room for.
@@ -123,7 +221,9 @@ func _build() -> void:
 		)
 		_board.face.add_child(dot)
 		_colon.append(dot)
-	_board.words("TIME", Vector2(0.0, 0.74), 0.34, Color(0.75, 0.78, 0.85))
+	_caption = _board.words("TIME", Vector2(0.0, 0.74), CAPTION_SIZE, CAPTION_INK)
+	_word = _board.words("", Vector2(0.0, -0.2), WORD_SIZE, LIT)
+	_word.visible = false
 	# Nobody stands in front of a board put up to be read.
 	if match_node.arena != null and match_node.arena.crowd != null:
 		var keep := Rect2(at.x - Billboard.WIDTH * 0.5, at.z - 1.6, Billboard.WIDTH, 3.2)

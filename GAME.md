@@ -1108,7 +1108,11 @@ subtle ambient occlusion. The arena floor is muted so bullets and chips pop.
   Garage takes them down with the rest of the dressing. The two ads are drawn from
   a set of house advertising as the room goes up, so a run of matches is not the
   same two posters over and over, and a line too long for its board is drawn
-  smaller rather than run off the edge of it.
+  smaller rather than run off the edge of it. The clock board has something better
+  than a number to say at the two moments it has one: READY and SET with the
+  gantry lamps of 8.3, GO! in green as the flag drops, OVERTIME flashing red
+  through sudden death, and the winner's name in their own colour at the whistle.
+  The flash holds still for anybody who has asked for fewer of them in 8.5.
 - **The fireworks**: a match that has been won is seen off with a display over the
   table. Shells go up off the felt and break overhead in the winner's colour, with
   the odd gold one among them, each lighting the room as it goes, through the pause
