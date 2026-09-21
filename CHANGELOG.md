@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The Vault's bloom is the halo it was meant to be.** The glow was blurring a
+  step wider than it was asked for, and lighting a room printed an error while it
+  did.
+
 - **The rooms run at the frame rate the game had before them.** The lighting and
   the effects behind the new look were costing nearly half the frame rate; they
   now cost almost nothing outside The Vault, which spends half a millisecond a

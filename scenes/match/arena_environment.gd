@@ -118,8 +118,10 @@ func _build() -> void:
 	air.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
 	# Two blur steps rather than the five the defaults ask for: the neon wants a halo round it,
 	# not a fog over the room, and every step is another pass over the screen.
-	for level: int in range(1, 8):
-		air.set_glow_level(level, 1.0 if level in [2, 3] else 0.0)
+	# The levels are numbered from one in the inspector and from zero here, so these two are the
+	# second and third blur steps.
+	for level: int in range(0, 7):
+		air.set_glow_level(level, 1.0 if level in [1, 2] else 0.0)
 	air.fog_sky_affect = 0.0
 	air.tonemap_mode = Environment.TONE_MAPPER_ACES
 	air.adjustment_enabled = true
