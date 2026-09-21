@@ -24,9 +24,9 @@ below, and hands the notes to the release workflow.
 - **Lives are hearts.** They were squares, which say one of something without
   saying what.
 
-- **Losing or regaining a life shows a heart, not words.** A heart breaks over
-  your kart when a life goes and a whole one floats off when the Junction hands
-  it back, in place of "-1 LIFE" and "PATCHED UP".
+- **Losing or regaining a life shows a heart, not words.** A small heart breaks
+  over your kart when a life goes and a whole one floats off when the Junction
+  hands it back, in place of "-1 LIFE" and "PATCHED UP".
 
 - **A picture for every power-up.** The item you are holding shows its own
   pictogram beside its name, and the roulette flicks through the others while the

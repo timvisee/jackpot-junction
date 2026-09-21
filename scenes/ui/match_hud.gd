@@ -32,8 +32,9 @@ const CALL_FADE := 0.6
 const LIFE_SIZE := 19.0
 const LIFE_LOST := Color(0.22, 0.22, 0.26, 0.9)
 ## How big a heart is when it floats off a kart that has just lost or been given a life, in
-## metres, which is about the size the words it replaced took up.
-const LIFE_ICON := 1.6
+## metres. It started at the width of the words it replaced, which as a shape rather than a line
+## of text came out wider than the kart is long and buried it.
+const LIFE_ICON := 0.65
 ## The held item's picture: how big it is drawn, how fast the roulette flicks through the others
 ## while the box is still opening, and the grey it flicks in.
 const ITEM_ICON := 30.0
