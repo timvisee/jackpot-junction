@@ -42,7 +42,7 @@ func _init(for_room: RoomLook) -> void:
 func floor_top() -> StandardMaterial3D:
 	if room.floor_stone:
 		return _keep("floor", room.felt, _stone(room.felt, 0.86, true))
-	var felt := _dressed(room.felt, FELT_ALBEDO, FELT_NORMAL, FELT_TILE, 0.3, true)
+	var felt := _dressed(room.felt, FELT_ALBEDO, FELT_NORMAL, FELT_TILE, 0.12, true)
 	felt.roughness = 0.94
 	felt.metallic_specular = 0.15
 	return _keep("floor", room.felt, felt)
@@ -52,7 +52,7 @@ func floor_top() -> StandardMaterial3D:
 func surround() -> StandardMaterial3D:
 	if room.surround_stone:
 		return _keep("surround", room.table, _stone(room.table, 0.82, true))
-	var wood := _dressed(room.table, WOOD_ALBEDO, WOOD_NORMAL, WOOD_TILE, 0.45, true)
+	var wood := _dressed(room.table, WOOD_ALBEDO, WOOD_NORMAL, WOOD_TILE, 0.25, true)
 	wood.roughness = 0.55
 	wood.metallic_specular = 0.4
 	return _keep("surround", room.table, wood)
@@ -62,7 +62,7 @@ func surround() -> StandardMaterial3D:
 func painted(color: Color) -> StandardMaterial3D:
 	if _cache.has(_key("paint", color)):
 		return _cache[_key("paint", color)]
-	var paint := _dressed(color, PAINT_ALBEDO, PAINT_NORMAL, PAINT_TILE, 0.25)
+	var paint := _dressed(color, PAINT_ALBEDO, PAINT_NORMAL, PAINT_TILE, 0.12)
 	paint.roughness = 0.72
 	paint.metallic_specular = 0.35
 	return _keep("paint", color, paint)
@@ -132,7 +132,7 @@ func _dressed(
 
 
 func _stone(color: Color, roughness: float, flat := false) -> StandardMaterial3D:
-	var stone := _dressed(color, STONE_ALBEDO, STONE_NORMAL, STONE_TILE, 0.5, flat)
+	var stone := _dressed(color, STONE_ALBEDO, STONE_NORMAL, STONE_TILE, 0.28, flat)
 	stone.roughness = roughness
 	stone.metallic_specular = 0.3
 	return stone
