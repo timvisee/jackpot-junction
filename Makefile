@@ -44,7 +44,7 @@ drive:
 # What the game runs at, as a number: a match of four bots on each map, 600 frames after the
 # warm-up. A change that costs frames should be caught here rather than in a play session.
 bench:
-	$(GODOT) --path . --disable-vsync res://scenes/match/match_scene.tscn -- --bench=720
+	$(GODOT) --path . --disable-vsync res://scenes/dev/playground.tscn -- --clean=1 --bots=3 --map=lucky_crossing --bench=720
 	$(GODOT) --path . --disable-vsync res://scenes/dev/playground.tscn -- --clean=1 --bots=3 --map=vault --bench=720
 	$(GODOT) --path . --disable-vsync res://scenes/dev/playground.tscn -- --clean=1 --bots=3 --map=crossfire --bench=720
 

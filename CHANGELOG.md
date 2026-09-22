@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Each room has landmarks of its own.** A lamp on an arm and a vice on the bench,
+  two shades and a pair of pictures in the card room, a lit sign and painted
+  markings in the yard.
+
 - **A map is put up behind a loading screen.** The room is built a phase at a time
   with its name and a progress bar on the screen, rather than in one go while the
   last screen sits frozen.

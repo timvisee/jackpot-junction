@@ -1149,6 +1149,14 @@ since that is the side the camera looks across. None of it collides with anythin
 and a test holds the line: no prop's box may touch the arena's own, and nothing in
 front of the table may stand more than three metres tall.
 
+Each room also has a handful of things that are placed rather than scattered,
+because they are the ones a player will see every match: the lamp on its arm over
+the bench, with the vice on the bench edge and the calendar nobody turned over on
+the board behind it; the two shades hung over the far side of the card room and the
+pictures on its wall; the lit sign over the warehouse doors in the yard and the
+paint on the apron under them. A room reads as somewhere because of these rather
+than because of the clutter, which is what fills the space between them.
+
 A fourth rule is about how it looks rather than where it is: it was put there by
 somebody. Everything sits on a five-metre grid a hand's width off and square with
 the table a degree or two off, and anything that comes in more than one is stacked

@@ -87,7 +87,12 @@ func _workbench() -> void:
 	_room(Color(0.15, 0.13, 0.12), Color(0.26, 0.22, 0.18), 32.0, 80.0)
 	_skirt(room.table.darkened(0.32), 2.4)
 	_legs(room.table.darkened(0.42))
-	_pegboard(_backboard(24.0, room.table.lightened(0.22)))
+	var board := _backboard(24.0, room.table.lightened(0.22))
+	_pegboard(board)
+	_calendar(board)
+	var half := arena.world_size() * 0.5
+	_bench_lamp(Vector3(-(half.x + 17.0), TOP, -(half.y + 13.0)))
+	_vice(Vector3(-(half.x + 13.0), TOP, half.y * 0.25))
 	var timber := surfaces.painted(room.table.lightened(0.16))
 	var steel := surfaces.metal(Color(0.64, 0.66, 0.7))
 	# Rod stock is painted rather than metal: there is nothing in a dim workshop for a metal to
@@ -126,10 +131,15 @@ func _workbench() -> void:
 ## A card room after hours: the baize is the floor, a rope line runs behind the crowd, and what
 ## the house plays with is left out around the table.
 func _card_room() -> void:
-	_drape(_room(Color(0.1, 0.045, 0.06), Color(0.17, 0.06, 0.09), 32.0, 80.0))
+	var wall := _room(Color(0.1, 0.045, 0.06), Color(0.17, 0.06, 0.09), 32.0, 80.0)
+	_drape(wall)
+	_pictures(wall)
 	_skirt(room.table.darkened(0.34), 2.4)
 	_legs(room.table.darkened(0.46))
 	_rope_line()
+	var half := arena.world_size() * 0.5
+	for side: float in [-1.0, 1.0]:
+		_pendant(Vector3(side * half.x * 0.62, TOP, -(half.y + 12.0)))
 	for at: Vector3 in _ring(11):
 		if _close(at):
 			match _rng.randi_range(0, 2):
@@ -157,9 +167,12 @@ func _card_room() -> void:
 ## A yard between warehouse walls: an apron of concrete, hoarding along the back, floodlights over
 ## it and the things a yard has standing about in it.
 func _yard() -> void:
-	_facade(_room(Color(0.16, 0.17, 0.18), Color(0.34, 0.35, 0.36), 3.4, 46.0))
+	var wall := _room(Color(0.13, 0.13, 0.12), Color(0.25, 0.24, 0.22), 3.4, 46.0)
+	_facade(wall)
+	_sign(wall)
 	_skirt(room.table.darkened(0.22), 3.2)
 	_hoarding()
+	_apron_markings()
 	var steel := surfaces.metal(Color(0.72, 0.74, 0.78))
 	var timber := surfaces.painted(room.table.lightened(0.26))
 	var half := arena.world_size() * 0.5
@@ -339,6 +352,93 @@ func _hoarding() -> void:
 		var x := -half.x * 0.95 + (float(i) + 0.5) * span
 		_box(Vector3(span, 6.4, 0.35), panel, Vector3(x, TOP + 3.2, z))
 		_box(Vector3(0.5, 7.0, 0.8), post, Vector3(x - span * 0.5, TOP + 3.5, z))
+
+
+## The lamp the workbench is lit by, standing at the back corner of the bench: a base, a column,
+## an arm out over the table and a shade with the bulb under it. The room says there is a lamp
+## over the table, GAME.md 8.1, and this is the thing saying so.
+func _bench_lamp(at: Vector3) -> void:
+	var steel := surfaces.painted(Color(0.32, 0.33, 0.36))
+	var reach := 9.0
+	_cylinder(3.2, 0.8, steel, at + Vector3(0.0, 0.4, 0.0))
+	_cylinder(0.5, 15.0, steel, at + Vector3(0.0, 7.5, 0.0))
+	var arm := _box(Vector3(0.6, 0.6, reach), steel, at + Vector3(0.0, 14.6, reach * 0.5))
+	arm.rotation.x = -0.12
+	_taper(3.4, 1.2, 3.0, steel, at + Vector3(0.0, 13.2, reach))
+	_cylinder(2.6, 0.3, surfaces.neon(room.lamp_color, 0.5), at + Vector3(0.0, 11.9, reach))
+
+
+## A vice on the edge of the bench: the one thing every workshop has, and the one shape that says
+## workshop from across a room.
+func _vice(at: Vector3) -> void:
+	var iron := surfaces.painted(Color(0.24, 0.26, 0.3))
+	var brass := surfaces.painted(Color(0.55, 0.42, 0.18))
+	_box(Vector3(4.0, 1.2, 4.6), iron, at + Vector3(0.0, 0.6, 0.0))
+	_box(Vector3(3.0, 3.4, 1.4), iron, at + Vector3(0.0, 2.6, -1.2))
+	_box(Vector3(3.0, 3.0, 1.2), iron, at + Vector3(0.0, 2.4, 1.4))
+	var screw := _cylinder(0.5, 7.0, brass, at + Vector3(0.0, 2.6, 1.6))
+	screw.rotation = Vector3(PI * 0.5, 0.0, 0.0)
+	_box(Vector3(4.4, 0.5, 0.5), brass, at + Vector3(0.0, 2.6, 4.6))
+
+
+## The calendar nobody has turned over, hung on the board at the back of the bench.
+func _calendar(face: float) -> void:
+	var half := _table()
+	var at := Vector3(half.x * 0.62, TOP + 13.0, face + 0.5)
+	var paper := surfaces.painted(Color(0.88, 0.86, 0.8))
+	var band := surfaces.painted(Color(0.72, 0.24, 0.2))
+	_dim(_box(Vector3(7.0, 9.0, 0.3), paper, at))
+	_dim(_box(Vector3(7.0, 2.4, 0.4), band, at + Vector3(0.0, 3.3, 0.1)))
+
+
+## Two lamps hung over the far side of a card room, out past the rope. They are what the room is
+## dressed with rather than what it is lit by -- the light over the table is the table's own --
+## but a bulb in the dark is worth having where the eye has nothing else to land on.
+func _pendant(at: Vector3) -> void:
+	var brass := surfaces.painted(room.trim.darkened(0.45))
+	var high := 11.0
+	_cylinder(0.2, 14.0, brass, at + Vector3(0.0, high + 7.0, 0.0))
+	_taper(4.2, 1.0, 3.4, brass, at + Vector3(0.0, high, 0.0))
+	_cylinder(3.4, 0.4, surfaces.neon(room.lamp_color, 0.45), at + Vector3(0.0, high - 1.6, 0.0))
+
+
+## Pictures on the wall of a card room: a frame, and something dark in it. What they are of is
+## eighty metres from the table and nobody's business.
+func _pictures(back: float) -> void:
+	var half := _table() * ROOM_SPREAD
+	var frame := surfaces.painted(room.trim.darkened(0.4))
+	var print := surfaces.painted(Color(0.12, 0.08, 0.1))
+	for side: float in [-1.0, 1.0]:
+		var at := Vector3(side * half.x * 0.42, _ground + 26.0, back + WALL_THICKNESS * 0.5 + 0.6)
+		_dim(_box(Vector3(16.0, 11.0, 0.6), frame, at))
+		_dim(_box(Vector3(14.0, 9.0, 0.7), print, at))
+
+
+## The board over the warehouse doors, lit the way a yard's sign is at the end of the day.
+func _sign(back: float) -> void:
+	var half := _table() * ROOM_SPREAD
+	var at := Vector3(0.0, _ground + 34.0, back + WALL_THICKNESS * 0.5 + 0.5)
+	var board := surfaces.painted(Color(0.16, 0.17, 0.18))
+	var lit := surfaces.neon(room.trim, 0.5)
+	_dim(_box(Vector3(46.0, 9.0, 0.8), board, at))
+	for row: float in [-1.0, 1.0]:
+		_dim(_box(Vector3(40.0, 1.2, 0.4), lit, at + Vector3(0.0, row * 2.6, 0.4)))
+
+
+## Paint on the apron: a walkway across the back and a hatched box where nothing should be left.
+## Flat, and laid on the concrete rather than standing on it.
+func _apron_markings() -> void:
+	var half := arena.world_size() * 0.5
+	var paint := surfaces.marking(room.marking)
+	var lane := -(half.y + 22.0)
+	for i: int in 9:
+		var x := -half.x * 0.8 + float(i) * (half.x * 1.6 / 8.0)
+		_dim(_box(Vector3(4.0, 0.08, 0.6), paint, Vector3(x, TOP + 0.04, lane)))
+	for i: int in 6:
+		var at := Vector3(half.x + 16.0, TOP + 0.04, -half.y * 0.6 + float(i) * 2.4)
+		var hatch := _box(Vector3(9.0, 0.08, 0.7), paint, at)
+		hatch.rotation.y = 0.6
+		_dim(hatch)
 
 
 # --- where the clutter goes --------------------------------------------------
