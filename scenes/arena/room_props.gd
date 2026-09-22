@@ -517,25 +517,70 @@ func _fanned_cards(at: Vector3) -> void:
 		lying.position += Vector3(sin(lying.rotation.y), 0.0, cos(lying.rotation.y)) * 1.1
 
 
-## A pair of dice, pips and all. Drawn rather than printed: a box maps one picture across its
-## six faces in pieces, so a die with a texture on it wears a quarter of a pip on each corner.
+## A pair of dice, pips and all. Drawn rather than printed: a box maps one picture across its six
+## faces in pieces, so a die with a texture on it wears a quarter of a pip on each corner.
+##
+## Every face carries its own number and opposite faces come to seven, the way a die is made, so
+## the one on top is whatever it was thrown as and the two you can see from the side agree with
+## it. The face on the table is left off: nothing can see it, and it is six pips nobody will ever
+## count.
 func _dice(at: Vector3) -> void:
 	var ivory := surfaces.painted(Palette.CHIP_WHITE)
 	var spots := surfaces.painted(Color(0.16, 0.14, 0.15))
-	var size := 0.9
 	for i: int in 2:
-		var spot := (
-			at + Vector3(_rng.randf_range(-1.4, 1.4), size * 0.5, _rng.randf_range(-1.4, 1.4))
-		)
-		var turn := _rng.randf_range(0.0, TAU)
-		_turned(_box(Vector3.ONE * size, ivory, spot), turn)
-		# Five on the face that is looked at, which is the only one a camera over a table sees.
-		for pip: Vector2 in [
-			Vector2(-1, -1), Vector2(1, -1), Vector2(0, 0), Vector2(-1, 1), Vector2(1, 1)
-		]:
-			var across := Vector3(pip.x, 0.0, pip.y) * size * 0.26
-			var on_top := spot + Vector3(0.0, size * 0.5, 0.0) + across.rotated(Vector3.UP, turn)
-			_box(Vector3(size * 0.16, size * 0.06, size * 0.16), spots, on_top)
+		var spot := at + Vector3(_rng.randf_range(-1.4, 1.4), 0.45, _rng.randf_range(-1.4, 1.4))
+		_die(spot, 0.9, ivory, spots)
+
+
+## One die: the cube, and the pips on the five faces that can be seen.
+func _die(at: Vector3, size: float, ivory: Material, spots: Material) -> void:
+	var turn := _rng.randf_range(0.0, TAU)
+	_turned(_box(Vector3.ONE * size, ivory, at), turn)
+	# The number on top is thrown; the four round the side are what is left, in pairs that come to
+	# seven so that no two opposite faces ever show the same thing.
+	var top := _rng.randi_range(1, 6)
+	var rest: Array[int] = []
+	for number: int in range(1, 7):
+		if number != top and number != 7 - top:
+			rest.append(number)
+	var first: int = rest[0]
+	var second: int = rest[1] if rest[1] != 7 - first else rest[2]
+	var faces: Array[int] = [top, first, second, 7 - first, 7 - second]
+	var out: Array[Vector3] = [
+		Vector3.UP, Vector3.FORWARD, Vector3.RIGHT, Vector3.BACK, Vector3.LEFT
+	]
+	for i: int in faces.size():
+		_pips(at, size, out[i].rotated(Vector3.UP, turn), faces[i], turn, spots)
+
+
+## The pips of one face, laid out the way a die lays them out: corners, then the middle, then the
+## two halfway up the sides for a six.
+func _pips(
+	at: Vector3, size: float, out: Vector3, number: int, turn: float, spots: Material
+) -> void:
+	var places: Array[Vector2] = []
+	if number % 2 == 1:
+		places.append(Vector2.ZERO)
+	if number > 1:
+		places.append(Vector2(-1.0, -1.0))
+		places.append(Vector2(1.0, 1.0))
+	if number > 3:
+		places.append(Vector2(1.0, -1.0))
+		places.append(Vector2(-1.0, 1.0))
+	if number == 6:
+		places.append(Vector2(-1.0, 0.0))
+		places.append(Vector2(1.0, 0.0))
+	# Two axes across the face, whichever way it is pointing.
+	var across := Vector3.UP.cross(out)
+	if across.length() < 0.01:
+		across = Vector3.RIGHT.rotated(Vector3.UP, turn)
+	across = across.normalized()
+	var down := out.cross(across).normalized()
+	var pip := size * 0.13
+	for place: Vector2 in places:
+		var on_face := out * (size * 0.5) + (across * place.x + down * place.y) * size * 0.26
+		var mark := _box(Vector3(pip, pip, pip), spots, at + on_face - out * pip * 0.3)
+		mark.rotation.y = turn
 
 
 func _glass(at: Vector3) -> void:

@@ -44,6 +44,10 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The dice are dice.** Every one was showing five on the top and nothing on any
+  other face; they are thrown now, with pips on every side a camera can see and
+  opposite faces coming to seven.
+
 - **A setting that is off can be seen.** The empty tick boxes in Settings were
   invisible against the dark menu; every on-or-off setting is now a switch with a
   dark track and a pale knob, gold when it is on.
