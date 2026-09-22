@@ -91,9 +91,14 @@ func _going_on(kart: Kart) -> Array[Dictionary]:
 		}
 		going.append(timed)
 	var shots := kart.cannon.override_shots_left()
-	if shots > 0 and not kart.cannon.override_name.is_empty():
+	var loaded_name := kart.cannon.override_name
+	# Unless the effect above is the thing that loaded it. The Swivel Cannon is free aim for a
+	# while, which it does by running an effect and holding the cannon open for as long as that
+	# effect lasts; read as two it was two lines saying the same thing, counting down together.
+	var already := best != null and best.display_name == loaded_name
+	if shots > 0 and not loaded_name.is_empty() and not already:
 		var loaded := {
-			"name": kart.cannon.override_name,
+			"name": loaded_name,
 			"color": kart.cannon.override_color,
 			"left": float(shots) / maxf(float(kart.cannon.override_total), 1.0),
 		}

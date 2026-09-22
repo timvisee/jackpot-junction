@@ -378,3 +378,25 @@ func test_a_loaded_cannon_says_what_is_in_it() -> void:
 		var label: Label = line["name"]
 		if (line["row"] as Control).visible:
 			assert_bool(label.text == spread.display_name).is_false()
+
+
+## And it says it once. The Swivel Cannon is free aim for a while, which it does by running an
+## effect and holding the cannon open for as long as that effect lasts; read as two things it was
+## two lines of the same name counting down together.
+func test_a_swivel_cannon_is_named_once() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(20, 17)
+	var hud := match_node.hud
+	var row: ItemRow = hud._blocks[0]["item"]
+	var kart := match_node.kart_of(0)
+	var swivel: PowerUp = load("res://data/powerups/swivel_cannon.tres")
+	kart.held_item = swivel
+	kart.item_reveal_left = 0.0
+	kart.use_item()
+	hud._update_blocks()
+	var said := 0
+	for line: Dictionary in row._lines:
+		var label: Label = line["name"]
+		if (line["row"] as Control).visible and label.text == swivel.display_name:
+			said += 1
+	assert_int(said).override_failure_message("the swivel cannon is on the HUD twice").is_equal(1)

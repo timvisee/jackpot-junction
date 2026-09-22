@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The Swivel Cannon is named once on the HUD.** It was listed twice, as an effect
+  and as a loaded cannon, counting down alongside itself.
+
 - **No prop in a room stands inside another.** Every prop now asks for the patch of
   table it actually covers, so the Yard's barrels keep out of each other for good.
 

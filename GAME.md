@@ -1536,9 +1536,11 @@ movement: the one thing a corner block must not do is ask to be looked at.
   that item started and has still to finish: a power-up that runs for a few seconds
   gets a line of its own, named the same and in the same colour, with a bar counting
   the time down, and a cannon power-up gets one counting its shots down instead,
-  since the spread and the ricochet are loaded rather than timed. A player who has
-  just played something should be able to see it is still working without counting
-  in their head.
+  since the spread and the ricochet are loaded rather than timed. One power-up is
+  one line: the Swivel Cannon is free aim for a while and holds the cannon open for
+  as long as that lasts, and two lines of the same name counting down together say
+  nothing the first does not. A player who has just played something should be able
+  to see it is still working without counting in their head.
 - **Joker hand**: the held jokers as a row of overlapping cards along the bottom
   of the screen, one hand per local player, each card framed in its kind's
   colour with the joker's own picture and its name, and one, two or three pips
