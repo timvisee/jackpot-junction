@@ -1,9 +1,10 @@
 class_name Scoreboard
 extends VBoxContainer
 ## The running order down the right-hand side, GAME.md 8.3. Every kart gets a row: its banked
-## score, and next to it what it is still carrying around unbanked. Rows are ordered by the two
-## added together, so a kart on a hot lap climbs the board before it reaches the Junction and
-## drops back the moment it dies. The leader's row is the biggest and the last place the
+## score, and next to it what it is still carrying around unbanked. Rows are ordered by what is
+## banked alone, which is the order the match is actually won in: a pot is worth nothing until it
+## reaches the Junction, and a board that counted it had a leader who had won nothing yet and
+## dropped three places on being shot. The leader's row is the biggest and the last place the
 ## smallest, and the players on this screen are boxed in their own colour. A carried pot big
 ## enough to win the match on the next cash-out blinks, GAME.md 3.4, whoever is carrying it.
 
@@ -32,11 +33,11 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
-## The scoreboard's own view of the order: by banked plus unbanked, then by the tie-breaks the
-## match uses. Highest first.
+## The scoreboard's own view of the order, which is the results screen's: by what is banked, then
+## by the tie-breaks the match uses. Highest first.
 func order() -> Array[PlayerSlot]:
 	var ranked := match_node.slots.duplicate()
-	ranked.sort_custom(PlayerSlot.by_score)
+	ranked.sort_custom(PlayerSlot.by_banked)
 	return ranked
 
 

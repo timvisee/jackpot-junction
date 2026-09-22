@@ -1664,8 +1664,11 @@ movement: the one thing a corner block must not do is ask to be looked at.
   The feed drops below a player block that owns that corner.
 - **Standings**: a ranked list down the right-hand side, one row per kart with
   its banked score and, in gold beside it, whatever it is still carrying around
-  unbanked. Rows are ordered by the two added together, so a kart on a hot lap
-  climbs before it reaches the Junction and drops back when it dies. The leader's
+  unbanked. Rows are ordered by what is banked alone, the same as the results
+  screen in 3.8: a pot is worth nothing until it reaches the Junction, and a board
+  that counted it put a player who had won nothing at the top and dropped them
+  three places for being shot. The carried pot is still shown beside the score,
+  so a hot lap is plain to read without being scored. The leader's
   row is the largest and last place the smallest, and the players on this screen
   are boxed in their own colour. A carried pot that would win the match blinks,
   see 3.4. It stands down in three- and four-player shared-screen games, where

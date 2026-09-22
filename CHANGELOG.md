@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The standings rank by banked coins.** A carried pot is still shown beside the
+  score, but it no longer moves anyone up the board.
+
 - **Fewer signs in the Garage.** Only the Junction, the Jackpots, the joker pad and
   the item pads are labelled now; the rest name themselves.
 

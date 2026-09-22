@@ -1,6 +1,6 @@
 extends GdUnitTestSuite
-## The running order on the left, GAME.md 8.3: ordered by banked plus unbanked, the leader
-## largest, the players on this screen boxed in their own colour.
+## The running order on the left, GAME.md 8.3: ordered by what is banked, the leader largest, the
+## players on this screen boxed in their own colour.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 
@@ -22,7 +22,10 @@ func _start_match(players: int) -> Match:
 	return match_node
 
 
-func test_unbanked_coins_move_a_kart_up_the_board() -> void:
+## Unbanked coins are shown but not counted. A pot is worth nothing until it reaches the
+## Junction, so the board that says who is winning says it about what has been banked; counting
+## the pot put a player who had won nothing at the top and dropped them for being shot.
+func test_unbanked_coins_show_beside_the_score_without_moving_the_row() -> void:
 	var match_node := _start_match(1)
 	await _runner.simulate_frames(12, 17)
 	var board := match_node.hud._scoreboard
@@ -30,15 +33,18 @@ func test_unbanked_coins_move_a_kart_up_the_board() -> void:
 	match_node.slots[0].banked = 300
 	await _runner.simulate_frames(2, 17)
 	assert_int(board.order()[0].index).is_equal(2)
-	# 250 unbanked is enough to take the lead, and losing them gives it straight back.
+	# Enough in the pot to pass the leader on paper, which moves nothing: the row says the pot is
+	# there and the order goes on saying who is ahead.
 	match_node.kart_of(0).pot.add_coins(250)
 	await _runner.simulate_frames(2, 17)
 	assert_int(match_node.slots[0].score()).is_equal(550)
-	assert_int(board.order()[0].index).is_equal(0)
+	assert_int(board.order()[0].index).is_equal(2)
 	assert_str((board._rows[0]["risk"] as Label).text).is_equal("+250")
+	# Banking it is what moves it.
+	match_node.slots[0].banked = 550
 	match_node.kart_of(0).pot.reset()
 	await _runner.simulate_frames(2, 17)
-	assert_int(board.order()[0].index).is_equal(2)
+	assert_int(board.order()[0].index).is_equal(0)
 	assert_str((board._rows[0]["risk"] as Label).text).is_equal("")
 
 
