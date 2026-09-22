@@ -1135,8 +1135,9 @@ does the rest: past the stands everything thins into the room's own colour.
 Then what is in it. The workbench has a backboard with a pegboard on it and the
 tools of whoever built the thing lying where they were put down; the card room has
 a rope line behind the crowd and what the house plays with left out on the baize;
-the yard has hoarding along the back, floodlights over it, a truck and the things
-a yard has standing about in it. Two of the rooms are models on a real table, so
+the yard has a fence behind the crowd, hazard stripes painted where the plant
+works, hoarding along the back, floodlights over it, a truck and the things a yard
+has standing about in it. Two of the rooms are models on a real table, so
 everything round them is the size it would be next to a model -- a hammer left on
 the bench is a third as long as the arena is wide -- and the yard is a place rather
 than a model, so a scaffold tower there is the size of a scaffold tower. All of it

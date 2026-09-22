@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Crossfire is fenced and marked out.** A fence runs behind the crowd on three
+  sides, hazard stripes are painted where the plant works, and the barriers wear
+  black and yellow rather than traffic orange.
+
 - **Every map hangs its hoardings its own way.** The workshop bolts one to a
   scaffold tower and stands another out on a flank, the card room hangs both from
   rods, and the yard braces a pair out by the corners.

@@ -186,6 +186,7 @@ func _yard() -> void:
 	_sign(wall)
 	_skirt(room.table.darkened(0.22), 3.2)
 	_hoarding()
+	_crowd_fence()
 	_apron_markings()
 	var steel := surfaces.metal(Color(0.72, 0.74, 0.78))
 	var timber := surfaces.painted(room.table.lightened(0.26))
@@ -440,20 +441,57 @@ func _sign(back: float) -> void:
 		_dim(_box(Vector3(40.0, 1.2, 0.4), lit, at + Vector3(0.0, row * 2.6, 0.4)))
 
 
-## Paint on the apron: a walkway across the back and a hatched box where nothing should be left.
-## Flat, and laid on the concrete rather than standing on it.
+## The fence behind the crowd, which is what keeps a yard's onlookers off a yard's forklifts:
+## posts and two rails, along the back and the two flanks. Never the near side -- that is the one
+## the camera looks across, and a rail through the middle of the picture is a rail in the way.
+func _crowd_fence() -> void:
+	var half := arena.world_size() * 0.5 + Vector2.ONE * (NEAR - 0.8)
+	var steel := surfaces.metal(Color(0.56, 0.58, 0.56))
+	_fence_run(Vector3(0.0, TOP, -half.y), Vector3(1.0, 0.0, 0.0), half.x, steel)
+	for side: float in [-1.0, 1.0]:
+		_fence_run(Vector3(side * half.x, TOP, 0.0), Vector3(0.0, 0.0, 1.0), half.y, steel)
+
+
+## One straight run of it, [param reach] each way from [param at] along [param along].
+func _fence_run(at: Vector3, along: Vector3, reach: float, steel: Material) -> void:
+	var tall := 2.2
+	var span := 4.0
+	var posts := int(reach * 2.0 / span) + 1
+	for i: int in posts:
+		var where := at + along * (float(i) - float(posts - 1) * 0.5) * span
+		_box(Vector3(0.16, tall, 0.16), steel, where + Vector3(0.0, tall * 0.5, 0.0))
+	var bar := Vector3(reach * 2.0, 0.1, 0.1) if along.x != 0.0 else Vector3(0.1, 0.1, reach * 2.0)
+	for lift: float in [0.55, 0.95]:
+		_box(bar, steel, at + Vector3(0.0, tall * lift, 0.0))
+
+
+## Hazard stripes, black and yellow, the way a yard marks anything that could be walked into.
+## Painted on the concrete rather than standing on it.
+func _hazard_paint(at: Vector3, length: float, turn: float) -> void:
+	var black := surfaces.marking(Color(0.11, 0.11, 0.12))
+	var yellow := surfaces.marking(Color(0.93, 0.76, 0.12))
+	var count := maxi(int(length / 1.3), 2)
+	var out := Vector3(cos(turn), 0.0, -sin(turn))
+	for i: int in count:
+		var skin := black if i % 2 == 0 else yellow
+		var where := at + Vector3(0.0, 0.04, 0.0) + out * (float(i) - float(count - 1) * 0.5) * 1.3
+		var slab := _box(Vector3(1.3, 0.08, 2.4), skin, where)
+		slab.rotation.y = turn
+		_dim(slab)
+
+
+## Paint on the apron: hazard bands where the plant works, a walkway across the back and a hatched
+## box where nothing should be left.
 func _apron_markings() -> void:
 	var half := arena.world_size() * 0.5
 	var paint := surfaces.marking(room.marking)
-	var lane := -(half.y + 22.0)
+	for side: float in [-1.0, 1.0]:
+		_hazard_paint(Vector3(side * half.x * 0.8, TOP, -(half.y + 9.0)), 11.0, 0.0)
+	_hazard_paint(Vector3(half.x + 9.0, TOP, half.y * 0.15), 9.0, PI * 0.5)
+	var lane := -(half.y + FAR + 4.0)
 	for i: int in 9:
 		var x := -half.x * 0.8 + float(i) * (half.x * 1.6 / 8.0)
 		_dim(_box(Vector3(4.0, 0.08, 0.6), paint, Vector3(x, TOP + 0.04, lane)))
-	for i: int in 6:
-		var at := Vector3(half.x + 16.0, TOP + 0.04, -half.y * 0.6 + float(i) * 2.4)
-		var hatch := _box(Vector3(9.0, 0.08, 0.7), paint, at)
-		hatch.rotation.y = 0.6
-		_dim(hatch)
 
 
 # --- where the clutter goes --------------------------------------------------
@@ -709,8 +747,8 @@ func _scaffold(at: Vector3, steel: Material) -> void:
 func _barrier(at: Vector3) -> void:
 	var turn := _squared()
 	var out := Vector3(cos(turn), 0.0, -sin(turn))
-	var warn := surfaces.painted(Color(0.92, 0.55, 0.12))
-	var pale := surfaces.painted(Color(0.9, 0.9, 0.88))
+	var warn := surfaces.painted(Color(0.93, 0.76, 0.12))
+	var pale := surfaces.painted(Color(0.13, 0.13, 0.14))
 	var dark := surfaces.painted(Color(0.22, 0.22, 0.24))
 	for i: int in 5:
 		var skin := warn if i % 2 == 0 else pale
