@@ -71,6 +71,20 @@ func test_both_are_remembered() -> void:
 	DirAccess.remove_absolute(settings.path)
 
 
+## The fixed camera of GAME.md 8.5 is remembered too, and is off until somebody asks for it.
+func test_the_fixed_camera_is_off_until_it_is_asked_for() -> void:
+	var settings := Settings.new()
+	settings.path = "user://test_fixed_camera.cfg"
+	assert_bool(settings.fixed_camera).is_false()
+	settings.fixed_camera = true
+	assert_int(settings.save_to_disk()).is_equal(OK)
+	var read := Settings.new()
+	read.path = settings.path
+	read.load_from_disk()
+	assert_bool(read.fixed_camera).is_true()
+	DirAccess.remove_absolute(settings.path)
+
+
 ## A setting that is off looks like a setting that is off, GAME.md 8.5. The engine's empty tick
 ## box is a dark outline on a dark menu: a row that was off showed nothing beside it at all.
 func test_a_switch_can_be_seen_either_way() -> void:

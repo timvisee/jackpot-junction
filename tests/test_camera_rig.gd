@@ -328,3 +328,49 @@ func test_looking_ahead_still_keeps_every_kart_on_screen() -> void:
 		)
 	# The aim is ahead of the driven kart rather than on the middle of the two.
 	assert_float(rig._pan.x).is_greater(3.0)
+
+
+## GAME.md 8.5: with the fixed camera on, the rig holds the whole arena and goes nowhere the
+## karts go. It is for a player who would rather have a picture that never moves than one that
+## comes in on the action.
+func test_the_fixed_camera_holds_the_arena_and_follows_nobody() -> void:
+	var was := Game.settings.fixed_camera
+	Game.settings.fixed_camera = true
+	var rig := _watching([Vector3(4.0, 0.0, 2.0), Vector3(6.0, 0.0, 3.0)])
+	assert_float(rig._distance).is_equal_approx(rig._arena_distance, 0.01)
+	assert_float(rig._pan.length()).is_less(0.01)
+	# And every corner of the floor is on screen, which is the whole of what it promises.
+	await await_idle_frame()
+	rig.camera.fov = rig.base_fov * rig.zoom_min
+	for x: float in [-20.0, 20.0]:
+		for z: float in [-11.25, 11.25]:
+			var corner := Vector3(x, 0.0, z)
+			(
+				assert_bool(rig.camera.is_position_in_frustum(corner))
+				. override_failure_message("corner %s not visible" % corner)
+				. is_true()
+			)
+	Game.settings.fixed_camera = was
+
+
+## It still opens on the room and still comes in from there. That move is the map being shown
+## rather than the karts being chased, and a fixed camera that refused to arrive would sit every
+## match three metres further out than it belongs.
+func test_the_fixed_camera_still_comes_in_at_the_start() -> void:
+	var was := Game.settings.fixed_camera
+	Game.settings.fixed_camera = true
+	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())
+	add_child(rig)
+	rig.frame_arena(BOUNDS)
+	var kart: Node3D = auto_free(Node3D.new())
+	add_child(kart)
+	kart.global_position = Vector3(6.0, 0.0, 2.0)
+	rig.targets.assign([kart] as Array[Node3D])
+	rig.open_on_the_room()
+	var opening := rig._distance
+	assert_float(opening).is_greater(rig._arena_distance * 1.05)
+	for i: int in 400:
+		rig._process(0.05)
+	assert_float(rig._distance).is_less(opening)
+	assert_float(rig._distance).is_equal_approx(rig._arena_distance, 0.01)
+	Game.settings.fixed_camera = was

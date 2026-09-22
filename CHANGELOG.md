@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **A fixed camera, in the accessibility settings.** It holds the whole arena for
+  the match instead of following the karts, and still comes in at the start.
+
 ### Changed
 
 - **The fireworks are louder.** The bangs sit over the fanfare now rather than

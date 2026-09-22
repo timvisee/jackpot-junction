@@ -36,6 +36,10 @@ var disco_lights := true
 var crowd := true
 ## The on-screen reminders of which button does what, GAME.md 8.3.
 var control_hints := true
+## The camera holding the whole arena instead of coming in on the karts, GAME.md 8.2. Off by
+## default, because coming in is what makes a kart big enough to read; on, for a player who would
+## rather have a picture that never moves than one that is close.
+var fixed_camera := false
 var stick_deadzone := 0.15
 ## Action name to the descriptors that replace its defaults.
 var bindings: Dictionary = {}
@@ -94,6 +98,7 @@ func load_from_disk() -> void:
 	disco_lights = file.get_value("accessibility", "disco_lights", disco_lights)
 	crowd = file.get_value("accessibility", "crowd", crowd)
 	control_hints = file.get_value("accessibility", "control_hints", control_hints)
+	fixed_camera = file.get_value("accessibility", "fixed_camera", fixed_camera)
 	stick_deadzone = file.get_value("controls", "stick_deadzone", stick_deadzone)
 	bindings = file.get_value("controls", "bindings", {})
 	match_minutes = file.get_value("lobby", "match_minutes", match_minutes)
@@ -135,6 +140,7 @@ func save_to_disk() -> Error:
 	file.set_value("accessibility", "disco_lights", disco_lights)
 	file.set_value("accessibility", "crowd", crowd)
 	file.set_value("accessibility", "control_hints", control_hints)
+	file.set_value("accessibility", "fixed_camera", fixed_camera)
 	file.set_value("controls", "stick_deadzone", stick_deadzone)
 	file.set_value("controls", "bindings", bindings)
 	file.set_value("lobby", "match_minutes", match_minutes)

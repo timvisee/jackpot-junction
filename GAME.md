@@ -1512,6 +1512,20 @@ the opening shot is where the move starts rather than a wait before it. A room
 opens once, so a match that sits in a lobby and then counts down does not jump back
 out as the countdown begins.
 
+A player can stop it following at all. The fixed camera of 8.5 holds the framing
+the rig waits at when there is nobody to follow -- the whole arena, centred -- for
+the length of the match, so nothing on screen moves except the karts. It costs
+size: a kart is as small as it ever gets at that distance, and reading the game
+from it is harder. It is offered because a camera that pans, comes in and pulls
+out is the thing on screen that moves most, and for a player who cannot watch that
+the trade is worth making.
+
+The opening shot still happens and the rig still comes in from it. That move is
+the map being shown rather than the karts being chased, and a fixed camera that
+refused to arrive would sit every match three metres further out than it belongs.
+The driving rooms of 9.4a are unaffected: they have no arena to hold and are
+following a kart down a road on purpose.
+
 At the whistle it stops following and opens back out to the whole arena over the
 pause the podium waits out in 3.8, easing rather than cutting, and it holds still
 for it: the tremble stops and nothing landing afterwards shakes it again. The karts have
@@ -1525,6 +1539,7 @@ match is over, so the last thing it does is hand the room back.
 | Framing          | Every tracked kart plus 4 m of floor fits the 16:9 view, between 24 m and the distance that holds the whole arena plus a 1 m margin |
 | Opening shot     | The whole arena plus 3 m of the room round it, centred, placed as the map finishes building and moved in from at once |
 | Pan              | Target is the middle of the box all alive karts are in, clamped to half the arena so the look-at point stays over the table |
+| Fixed camera     | Off by default, in the accessibility settings of 8.5. Holds the arena framing for the whole match: no pan, no coming in, no look-ahead. The opening shot and the move in from it still happen |
 | Look-ahead       | The aim slides the way the karts being driven on this machine are travelling, 0.45 s of it and at most 6 m, which is about a fifth of the width of the screen at the distance the rig usually sits. Paid for out of the trailing margin first, up to 70% of it, and then out of the distance, up to 12% more. Applied before the pan clamp, so a player already driving at the wall gets none of it: there is nothing out there to look ahead at |
 | Aim              | Slid along the camera's own up axis so that what is framed sits as far below the middle of the screen as it does above. The camera is tilted, so the near edge of a thing lands lower than the far edge lands high; a fit that only picks a distance puts whichever binds hard against its edge and piles all the slack on the other side |
 | Zoom             | Fixed. The distance does the framing, so a kart the same size on screen is the same distance away wherever it is standing. The fit is worked out against a view 7% narrower than the real one, which is the margin that keeps a kart off the very edge |
@@ -2045,9 +2060,12 @@ curve of it.
 - **Accessibility**: screen shake on or off, flash reduction, aim assist
   strength from 0% to 100% of the default and never above it, per player, the
   aim guide on or off, the disco lights on or off, the control hints on or off,
-  and the crowd on or off. The crowd is on by default; switching it off empties
-  the stands and leaves the booth, since it is the thousand moving things around
-  the table rather than the party that is worth being able to stop.
+  the crowd on or off, and the fixed camera on or off. The crowd is on by default;
+  switching it off empties the stands and leaves the booth, since it is the
+  thousand moving things around the table rather than the party that is worth
+  being able to stop. The fixed camera is off by default and is described in 8.2:
+  a camera that never goes anywhere is a smaller picture of the karts, which is a
+  real cost, and a still one, which for some players is worth more.
   Colour-blind roof markers are always on.
 
 ### 8.6 Loading a map

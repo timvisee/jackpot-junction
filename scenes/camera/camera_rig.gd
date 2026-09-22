@@ -255,6 +255,21 @@ func _place_listener() -> void:
 	listener.global_basis = camera.global_basis
 
 
+## Whether the rig is holding the whole arena rather than following anybody: the fixed camera of
+## GAME.md 8.5. It is the framing it waits at when there is nobody to follow, so a match played
+## with it on is a match watched from where the rig starts.
+##
+## The opening shot of 8.2 still happens and the rig still comes in from it. That move is the map
+## being shown rather than the karts being chased, and a fixed camera that also refused to arrive
+## would leave every match three metres further out than it belongs. What it never does is go
+## anywhere the karts go.
+##
+## Off in the driving rooms of 9.4a, which have no arena to hold and are following a kart down a
+## road on purpose.
+func _fixed() -> bool:
+	return _framed and Game.settings.fixed_camera
+
+
 func _alive_targets() -> Array[Node3D]:
 	return _valid(targets)
 
@@ -277,7 +292,7 @@ static func _valid(list: Array[Node3D]) -> Array[Node3D]:
 ## over the table is what keeps the camera off the crowd.
 func _target_pan() -> Vector3:
 	var alive := _alive_targets()
-	if _opening_up or alive.is_empty():
+	if _opening_up or _fixed() or alive.is_empty():
 		return Vector3.ZERO
 	var offset := (_target_box(alive).get_center() - _center) * pan_weight
 	offset.y = 0.0
@@ -349,7 +364,7 @@ func _target_framing() -> Vector2:
 	if not _framed:
 		return Vector2(_distance, 0.0)
 	var alive := _alive_targets()
-	if _opening_up or alive.is_empty():
+	if _opening_up or _fixed() or alive.is_empty():
 		return Vector2(_arena_distance, _arena_lift)
 	var corners := _framed_corners(alive, _led)
 	# The aim is worked out at the distance actually used, since a clamp changes what sits where.
