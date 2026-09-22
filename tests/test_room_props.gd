@@ -117,3 +117,48 @@ func test_no_two_dice_land_in_each_other() -> void:
 				. override_failure_message("two dice %.2f m apart" % gap)
 				. is_greater_equal(closest)
 			)
+
+
+## Nothing is put down inside anything else, GAME.md 8.1. Every prop asks for the patch of table
+## its own parts cover, turned the way it is turned, and no two of those patches touch. Props
+## standing in each other is the one thing every room here has been wrong about more than once,
+## so it is checked rather than looked at.
+func test_no_prop_is_put_down_in_another() -> void:
+	for map: String in MAPS:
+		var arena := _arena(map)
+		var props: RoomProps = arena.get_node("Props")
+		assert_int(props.laid_out.size()).is_greater(10)
+		for i: int in props.laid_out.size():
+			for j: int in range(i + 1, props.laid_out.size()):
+				var one: Dictionary = props.laid_out[i]
+				var two: Dictionary = props.laid_out[j]
+				(
+					assert_bool(one["box"].intersects(two["box"]))
+					. override_failure_message(
+						"%s: %s stands in %s" % [map, one["kind"], two["kind"]]
+					)
+					. is_false()
+				)
+
+
+## And every prop keeps to the patch it asked for. A patch smaller than the thing measured for it
+## would let two props miss each other on paper and stand in each other on the table, which is
+## what the check above would then be worth.
+func test_every_prop_keeps_to_its_own_patch() -> void:
+	for map: String in MAPS:
+		var arena := _arena(map)
+		var props: RoomProps = arena.get_node("Props")
+		for prop: Dictionary in props.laid_out:
+			var claim: Rect2 = prop["box"]
+			for i: int in range(int(prop["from"]), int(prop["to"])):
+				var part := props.get_child(i) as MeshInstance3D
+				var box := part.get_aabb()
+				for corner: int in 8:
+					var at: Vector3 = part.transform * box.get_endpoint(corner)
+					(
+						assert_bool(claim.has_point(Vector2(at.x, at.z)))
+						. override_failure_message(
+							"%s: %s reaches past its patch" % [map, prop["kind"]]
+						)
+						. is_true()
+					)

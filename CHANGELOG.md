@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **No prop in a room stands inside another.** Every prop now asks for the patch of
+  table it actually covers, so the Yard's barrels keep out of each other for good.
+
 - **The Vault's dice no longer land in each other.** A pair is set down either side
   of its place rather than dropped at random near it.
 

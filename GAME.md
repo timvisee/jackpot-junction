@@ -1155,9 +1155,11 @@ and a stack of chips looking like they came out of the same game.
 Three rules keep the clutter out of the game. It starts right behind the crowd and
 goes back nine metres from there, because a room reads as somewhere from what is
 close enough to make out and the camera sees very little past the stands; nothing
-big is allowed nearer than ten metres to the wall, and the flanks keep off the near
-corners; and the near apron carries only things that lie flat, since that is the
-side the camera looks across. None of it collides with anything,
+big is allowed nearer than twelve metres to the wall, which puts the big things down
+the flanks, and the flanks keep off the near corners; and the near apron carries only
+things that lie flat, since that is the side the camera looks across. Which band a
+prop belongs to is settled before the prop is, so that a room deals its big things as
+well as its small ones rather than only reaching for them where they will not fit. None of it collides with anything,
 and a test holds the line: no prop's box may touch the arena's own, and nothing in
 front of the table may stand more than three metres tall.
 
@@ -1182,12 +1184,18 @@ shuffled into a deck and dealt one to a place, so it gets one of everything befo
 it gets two of anything. Rolling for each place separately is what left a yard with
 five stacks of barrels in one corner and no bricks in it at all.
 
-Nothing is put down on top of anything else, either. The crowd keeps a list of the
-patches already spoken for -- the booth, the hoardings, the tanks -- and the
-clutter asks for it, adds its own as it goes, and tries somewhere else a dozen times
-before giving that prop up entirely: one thing fewer in a full room beats two of them
-in one place. That is what stops a stack of chips growing out of the DJ booth and a
-hoarding standing in a pile of rod stock.
+Nothing is put down on top of anything else, either. Every kind of prop carries the
+patch of table it covers, measured off the parts it is built from and turned with it:
+a hammer asks for fifteen metres of bench and a glass asks for three. Before anything
+is built the patch is checked against the crowd's own -- the booth, the hoardings, the
+tanks -- against the runs the room itself has put down, and against every prop placed
+so far; a prop that finds nowhere of its own after forty tries is left out rather than
+put down in something else. One thing fewer in a full room beats two of them in one
+place. A single patch the same size for every prop is what used to leave rod stock
+lying through a stack of chips and barrels standing in each other however many places
+were tried, and a round patch big enough to hold a prop whichever way it was turned
+costs nine times the table a hammer lying on it does. Two tests hold the line: no two
+patches may touch, and no prop may reach outside its own.
 
 A fourth rule is about how it looks rather than where it is: it was put there by
 somebody. Everything sits on a five-metre grid a hand's width off and square with
