@@ -18,6 +18,10 @@ const AIM_STEPS := 24
 ## How wide the band between sharp and soft is, in metres: wide enough that nothing snaps into
 ## focus as the rig comes in or pulls out.
 const FOCUS_BAND := 22.0
+## Metres of floor left round the arena while the camera is waiting for the lights, on top of
+## the margin it always leaves. A player who has just picked a map should see the map, and the
+## room round it, before the rig comes in and makes the karts the subject.
+const ROOM_MARGIN := 7.0
 
 @export var pitch_degrees := 55.0
 @export var base_fov := 35.0
@@ -64,12 +68,17 @@ var _distance := 40.0
 ## whole arena, which is where it sits when there is nobody to follow.
 var _arena_distance := 40.0
 var _arena_lift := 0.0
+## The same, with the room round the arena in it as well: where the camera waits out a countdown.
+var _room_distance := 40.0
+var _room_lift := 0.0
 var _pan := Vector3.ZERO
 var _zoom := 1.0
 var _shake := 0.0
 var _framed := false
 ## Set at the whistle: the karts stop being the subject and the room becomes it again.
 var _opening_up := false
+## Set until the lights go green: the room is the subject before a match as well as after one.
+var _holding_room := false
 ## How far the aim is slid along the camera's up axis to put the slack on both sides of what is
 ## being framed rather than all of it above, see [method _frame_points].
 var _lift := 0.0
@@ -118,6 +127,9 @@ func frame_arena(bounds: AABB) -> void:
 	var widest := _fit_arena()
 	_arena_distance = widest.x
 	_arena_lift = widest.y
+	var wider := _fit_arena(ROOM_MARGIN)
+	_room_distance = wider.x
+	_room_lift = wider.y
 	_distance = _arena_distance
 	_lift = _arena_lift
 	# Far enough to follow the karts anywhere on the floor, and no further: the look-at point
@@ -144,6 +156,29 @@ func show_the_room(seconds: float) -> void:
 	distance_smoothing = smoothing
 
 
+## Holds the room rather than coming in on the karts, for the countdown of GAME.md 8.2. The
+## start of a match is the one moment a player has to look at the place they are about to drive
+## in, so they are shown it: the arena, the crowd round it and a bite of the room past that.
+func hold_the_room() -> void:
+	if _holding_room:
+		return
+	_holding_room = true
+	if not _framed:
+		return
+	# Placed rather than eased into. This is called as a match is built, behind the loading
+	# screen of 8.6, so there is nothing on the screen yet for a cut to be a cut in.
+	_distance = _room_distance
+	_lift = _room_lift
+	_pan = Vector3.ZERO
+	_place(_distance, _pan, _zoom)
+
+
+## Makes the karts the subject again, at the whistle. The rig comes in over the second or so its
+## own smoothing takes, which is the move that says the match has started.
+func follow_the_karts() -> void:
+	_holding_room = false
+
+
 ## Follows its targets from close in rather than framing the whole arena, for the driving room
 ## of GAME.md 9.5: a kart twenty pixels tall tells you nothing about how it drives.
 func follow_close(distance: float) -> void:
@@ -159,6 +194,9 @@ func _refit() -> void:
 		var widest := _fit_arena()
 		_arena_distance = widest.x
 		_arena_lift = widest.y
+		var wider := _fit_arena(ROOM_MARGIN)
+		_room_distance = wider.x
+		_room_lift = wider.y
 
 
 ## Kicks the camera; the offset decays on its own. Nothing kicks it once the whistle has gone:
@@ -218,7 +256,7 @@ static func _valid(list: Array[Node3D]) -> Array[Node3D]:
 ## one furthest out is the one that falls off the edge.
 func _target_pan() -> Vector3:
 	var alive := _alive_targets()
-	if _opening_up or alive.is_empty():
+	if _opening_up or _holding_room or alive.is_empty():
 		return Vector3.ZERO
 	var offset := (_target_box(alive).get_center() - _center) * pan_weight
 	offset.y = 0.0
@@ -232,6 +270,8 @@ func _target_pan() -> Vector3:
 func _target_framing() -> Vector2:
 	if not _framed:
 		return Vector2(_distance, 0.0)
+	if _holding_room:
+		return Vector2(_room_distance, _room_lift)
 	var alive := _alive_targets()
 	if _opening_up or alive.is_empty():
 		return Vector2(_arena_distance, _arena_lift)
@@ -278,8 +318,8 @@ func _place(distance: float, pan: Vector3, zoom: float) -> void:
 
 
 ## The distance and the aim that hold every corner of the arena, with margin, inside the view.
-func _fit_arena() -> Vector2:
-	var half := _arena_size * 0.5 + Vector2.ONE * margin
+func _fit_arena(extra := 0.0) -> Vector2:
+	var half := _arena_size * 0.5 + Vector2.ONE * (margin + extra)
 	var corners: Array[Vector3] = []
 	for x: int in [-1, 1]:
 		for z: int in [-1, 1]:

@@ -33,3 +33,16 @@ static func build(match_node: Match, camera_scene: PackedScene) -> void:
 	# A record goes on as the room is built, GAME.md 8.4: three tracks, one of them at random, so
 	# a run of matches is not the same loop over and over.
 	Audio.pick_track()
+
+
+## What the camera has as its subject follows the state of the match, GAME.md 8.2: the room
+## while the field is held, the karts from the moment the lights go green. Called on every state
+## change rather than at the places a countdown starts, so a rematch and a client following
+## snapshots both get it without either of them having to know about the camera.
+static func watch(match_node: Match, state: Match.State) -> void:
+	if match_node.camera_rig == null:
+		return
+	if state == Match.State.LOBBY or state == Match.State.COUNTDOWN:
+		match_node.camera_rig.hold_the_room()
+	elif state == Match.State.PLAYING:
+		match_node.camera_rig.follow_the_karts()

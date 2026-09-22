@@ -1408,6 +1408,15 @@ they are all in. It never comes closer than 24 m however tightly they are packed
 and never pulls back further than the distance that holds the whole arena, which is
 also where it waits when there is nobody to follow.
 
+Before the lights go green it does not follow at all. While the field is held --
+the lobby and the countdown -- the camera waits on the room: the arena, the crowd
+round it and seven metres of the floor past that, centred and still. The start of a
+match is the one moment a player has to look at the place they are about to drive
+in, and a rig that is already in tight on four karts parked at their spawns shows
+them a map they cannot see. When the lights go green the karts become the subject
+and it comes in over the second its own smoothing takes, which is the move that
+says the match has started.
+
 At the whistle it stops following and opens back out to the whole arena over the
 pause the podium waits out in 3.8, easing rather than cutting, and it holds still
 for it: the tremble stops and nothing landing afterwards shakes it again. The karts have
@@ -1419,6 +1428,7 @@ match is over, so the last thing it does is hand the room back.
 | Projection       | Perspective, FOV 35°                                              |
 | Pitch            | 55° below horizontal                                              |
 | Framing          | Every tracked kart plus 4 m of floor fits the 16:9 view, between 24 m and the distance that holds the whole arena plus a 1 m margin |
+| Before the start | The whole arena plus 7 m of the room round it, centred, until the lights go green |
 | Pan              | Target is the middle of the box all alive karts are in, clamped to half the arena so the look-at point stays over the table |
 | Aim              | Slid along the camera's own up axis so that what is framed sits as far below the middle of the screen as it does above. The camera is tilted, so the near edge of a thing lands lower than the far edge lands high; a fit that only picks a distance puts whichever binds hard against its edge and piles all the slack on the other side |
 | Zoom             | Fixed. The distance does the framing, so a kart the same size on screen is the same distance away wherever it is standing. The fit is worked out against a view 7% narrower than the real one, which is the margin that keeps a kart off the very edge |

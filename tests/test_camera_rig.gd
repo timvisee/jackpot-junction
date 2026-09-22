@@ -33,6 +33,50 @@ func test_framing_distance_is_sensible_and_the_camera_looks_down_at_the_centre()
 	assert_float(rig.camera.global_position.y).is_greater(20.0)
 
 
+## Before the lights go green the room is the subject, GAME.md 8.2: the camera waits further
+## back than the arena's own framing, with the crowd and a bite of the room in the shot, however
+## tightly the karts are parked.
+func test_the_camera_waits_on_the_room_until_the_lights_go_green() -> void:
+	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())
+	add_child(rig)
+	rig.frame_arena(BOUNDS)
+	var framed := rig._distance
+	var kart: Node3D = auto_free(Node3D.new())
+	add_child(kart)
+	kart.global_position = Vector3(2.0, 0.0, 1.0)
+	rig.targets.assign([kart] as Array[Node3D])
+	rig.hold_the_room()
+	for i: int in 200:
+		rig._process(0.05)
+	assert_float(rig._distance).is_greater(framed * 1.05)
+	assert_vector(rig._pan).is_equal_approx(Vector3.ZERO, Vector3.ONE * 0.01)
+	# And every corner of the arena is still in the shot, with room to spare.
+	await await_idle_frame()
+	for x: float in [-20.0, 20.0]:
+		for z: float in [-11.25, 11.25]:
+			assert_bool(rig.camera.is_position_in_frustum(Vector3(x, 0.0, z))).is_true()
+
+
+## And comes in on the karts once they are the subject again.
+func test_it_comes_in_when_the_karts_take_over() -> void:
+	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())
+	add_child(rig)
+	rig.frame_arena(BOUNDS)
+	var kart: Node3D = auto_free(Node3D.new())
+	add_child(kart)
+	kart.global_position = Vector3(6.0, 0.0, 2.0)
+	rig.targets.assign([kart] as Array[Node3D])
+	rig.hold_the_room()
+	for i: int in 200:
+		rig._process(0.05)
+	var waiting := rig._distance
+	rig.follow_the_karts()
+	for i: int in 200:
+		rig._process(0.05)
+	assert_float(rig._distance).is_less(waiting * 0.9)
+	assert_float(rig._distance).is_greater_equal(rig.follow_min_distance - 0.01)
+
+
 func test_every_arena_corner_is_inside_the_frustum_after_a_frame() -> void:
 	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())
 	add_child(rig)

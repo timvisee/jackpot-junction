@@ -523,6 +523,7 @@ func standings() -> Array[PlayerSlot]:
 
 func _set_state(next: State) -> void:
 	state = next
+	MatchStage.watch(self, state)
 	Events.match_state_changed.emit(state)
 
 
