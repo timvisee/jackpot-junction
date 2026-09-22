@@ -1891,7 +1891,14 @@ All settings are saved between sessions, see 10.2.
   because their engine and tires run the whole time rather than in bursts, so
   how loud that bed should sit is a matter of taste in a way the rest is not.
   The kart bus is under the effects bus, so the effects slider still scopes it.
-- **Video**: window mode, vsync, render scale.
+- **Video**: window mode, vsync, render scale, bloom and edge smoothing. The last
+  two are the passes over the whole screen a room pays for, and they are the two
+  things worth handing back on a card that cannot spare them: at 1080p on a mid
+  card the bloom is about a tenth of The Vault's frame and the smoothing about a
+  twentieth, and turning both off is most of the difference between that room and
+  the others. Both are on by default, both take effect at once, and the smoothing
+  falls back to the cheap screen-space pass rather than to nothing, since a room
+  made of straight lines crawls without it.
 - **Accessibility**: screen shake on or off, flash reduction, aim assist
   strength from 0% to 100% of the default and never above it, per player, the
   aim guide on or off, the disco lights on or off, the control hints on or off,

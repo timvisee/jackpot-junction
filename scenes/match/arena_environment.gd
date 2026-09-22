@@ -15,6 +15,8 @@ const SHADOW_REACH := 80.0
 ## The light a room needs from its sun before that sun is worth a shadow map of its own.
 const SUN_SHADOWS := 0.8
 
+## The room this is lit for, kept so a setting can ask for the same room again.
+var lit_by: RoomLook
 var key: DirectionalLight3D
 var fill: DirectionalLight3D
 ## The lamp over the table, off in a room that has none.
@@ -40,6 +42,13 @@ static func dress_all(tree: SceneTree, room: RoomLook) -> void:
 		lighting.dress(room)
 
 
+## Lights every room again the way it already was, for a setting that changes what a room costs
+## rather than what it is, GAME.md 8.5.
+static func relight(tree: SceneTree) -> void:
+	for lighting: ArenaEnvironment in tree.get_nodes_in_group(&"arena_environment"):
+		lighting.dress(lighting.lit_by)
+
+
 func _ready() -> void:
 	add_to_group(&"arena_environment")
 
@@ -49,6 +58,7 @@ func _ready() -> void:
 func dress(room: RoomLook) -> void:
 	if room == null:
 		return
+	lit_by = room
 	_build()
 	key.light_color = room.key_color
 	key.light_energy = room.key_energy
@@ -79,7 +89,9 @@ func dress(room: RoomLook) -> void:
 	# numbers rather than standing enabled at zero.
 	air.ssao_enabled = room.occlusion > 0.0
 	air.ssao_intensity = room.occlusion
-	air.glow_enabled = room.glow > 0.0
+	# The bloom is a pass over the whole screen and about a tenth of the frame in the room that
+	# wants it most, so it is one of the two things 8.5 lets a player hand back.
+	air.glow_enabled = room.glow > 0.0 and (Game.settings == null or Game.settings.bloom)
 	air.glow_intensity = room.glow
 	air.fog_enabled = room.fog_density > 0.0
 	air.fog_light_color = room.fog_color

@@ -317,6 +317,24 @@ func _video_tab() -> Control:
 			_settings.apply_video(get_tree())
 	)
 	column.add_child(MenuTheme.row("Render scale", scale))
+	# The two passes over the whole screen, GAME.md 8.5. Both take effect at once: the smoothing
+	# on the viewport, the bloom the next time a room is lit.
+	var bloom := CheckBox.new()
+	bloom.button_pressed = _settings.bloom
+	bloom.toggled.connect(
+		func(on: bool) -> void:
+			_settings.bloom = on
+			ArenaEnvironment.relight(get_tree())
+	)
+	column.add_child(MenuTheme.row("Bloom", bloom))
+	var smoothing := CheckBox.new()
+	smoothing.button_pressed = _settings.antialiasing
+	smoothing.toggled.connect(
+		func(on: bool) -> void:
+			_settings.antialiasing = on
+			_settings.apply_video(get_tree())
+	)
+	column.add_child(MenuTheme.row("Edge smoothing", smoothing))
 	return column
 
 

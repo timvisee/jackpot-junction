@@ -16,6 +16,11 @@ var music_muted := false
 var fullscreen := false
 var vsync := true
 var render_scale := 1.0
+## The two passes over the whole screen a room pays for, GAME.md 8.5. Both are worth what they
+## cost on a card that can spare it and both are the first thing to give up on one that cannot:
+## the bloom is about a tenth of the frame in The Vault, and the smoothing about a twentieth.
+var bloom := true
+var antialiasing := true
 var screen_shake := true
 var flash_reduction := false
 ## 0 to 1 of the default aim assist, never more.
@@ -77,6 +82,8 @@ func load_from_disk() -> void:
 	fullscreen = file.get_value("video", "fullscreen", fullscreen)
 	vsync = file.get_value("video", "vsync", vsync)
 	render_scale = file.get_value("video", "render_scale", render_scale)
+	bloom = file.get_value("video", "bloom", bloom)
+	antialiasing = file.get_value("video", "antialiasing", antialiasing)
 	screen_shake = file.get_value("accessibility", "screen_shake", screen_shake)
 	flash_reduction = file.get_value("accessibility", "flash_reduction", flash_reduction)
 	aim_assist = clampf(
@@ -118,6 +125,8 @@ func save_to_disk() -> Error:
 	file.set_value("video", "fullscreen", fullscreen)
 	file.set_value("video", "vsync", vsync)
 	file.set_value("video", "render_scale", render_scale)
+	file.set_value("video", "bloom", bloom)
+	file.set_value("video", "antialiasing", antialiasing)
 	file.set_value("accessibility", "screen_shake", screen_shake)
 	file.set_value("accessibility", "flash_reduction", flash_reduction)
 	file.set_value("accessibility", "aim_assist", aim_assist)
@@ -173,6 +182,12 @@ func apply_video(tree: SceneTree) -> void:
 		DisplayServer.window_set_vsync_mode(wanted)
 	if tree != null and tree.root != null:
 		tree.root.scaling_3d_scale = clampf(render_scale, 0.5, 1.0)
+		tree.root.msaa_3d = Viewport.MSAA_2X if antialiasing else Viewport.MSAA_DISABLED
+		# Something has to keep the edges of a room of straight lines from crawling. Off the
+		# multisampling, the cheap screen-space pass does it for about a third of the price.
+		tree.root.screen_space_aa = (
+			Viewport.SCREEN_SPACE_AA_DISABLED if antialiasing else Viewport.SCREEN_SPACE_AA_FXAA
+		)
 
 
 ## Registers the default input map, then the player's rebindings and dead zone on top.

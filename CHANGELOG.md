@@ -92,6 +92,11 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Bloom and edge smoothing can be turned off in Video settings.** They are the
+  two passes over the whole screen a room pays for; turning both off is most of
+  the difference between The Vault and the other maps on a card that is
+  struggling.
+
 - **The lobby says which room a map is played in.** Picking The Vault says
   "Played in After Hours" under the row.
 
