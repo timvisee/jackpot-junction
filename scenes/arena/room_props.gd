@@ -29,6 +29,10 @@ const CLOSE := 10.0
 ## The grid the clutter is set out on. Things put down by somebody line up with the edge of the
 ## table and roughly with each other; things dropped at random read as a spill whatever they are.
 const SPACING := 4.0
+## The patch of table a prop takes for itself, and how many places it will try before it settles
+## for one it has to share. Two stacks of chips in the same square metre read as one broken stack.
+const BAY := 7.0
+const TRIES := 8
 ## How much further out the near apron starts than the flanks do.
 const APRON_CLEAR := 3.0
 ## The table's own surface, a little under the arena floor. Everything outside the wall stands on
@@ -47,6 +51,9 @@ var surfaces: Surfaces
 ## Its own generator, seeded off the room, so a room is dressed the same way every time it is
 ## built and two rooms are not dressed the same way.
 var _rng := RandomNumberGenerator.new()
+## What is already standing out here: the booth, the hoardings and whatever else asked the crowd
+## for a patch, plus every prop put down since. Nothing is placed on top of anything in it.
+var _taken: Array[Rect2] = []
 ## Where the floor of the room is and how tall its walls are, for whatever is hung on them. Both
 ## are set by [method _room], which every room builds first.
 var _ground := 0.0
@@ -67,6 +74,11 @@ static func add_to(for_arena: Arena) -> RoomProps:
 
 func _build() -> void:
 	_rng.seed = hash(room.id)
+	if arena.crowd != null:
+		# Grown by half a bay: the patches the crowd keeps are the footprints of the things in
+		# them, and a prop that only just misses a hoarding still reads as one growing out of it.
+		for bay: Rect2 in arena.crowd.taken_bays():
+			_taken.append(bay.grow(BAY * 0.5))
 	match room.id:
 		&"after_hours":
 			_card_room()
@@ -453,17 +465,22 @@ func _ring(count: int) -> Array[Vector3]:
 	var half := arena.world_size() * 0.5
 	var out: Array[Vector3] = []
 	for i: int in count:
-		var away := _lined(NEAR + (FAR - NEAR) * pow(_rng.randf(), CROWDING))
-		var along := _rng.randf_range(-0.95, 0.95)
-		# Three out of five go behind the arena. The camera looks down the table, so that is the
-		# side a player sees for most of a match; the flanks are only ever glimpsed.
-		match i % 5:
-			0, 1, 2:
-				out.append(Vector3(_lined(along * half.x), TOP, -(half.y + away)))
-			3:
-				out.append(Vector3(half.x + away, TOP, _lined(_flank() * (half.y + NEAR))))
-			_:
-				out.append(Vector3(-(half.x + away), TOP, _lined(_flank() * (half.y + NEAR))))
+		var spot := Vector3.ZERO
+		for attempt: int in TRIES:
+			var away := _lined(NEAR + (FAR - NEAR) * pow(_rng.randf(), CROWDING))
+			var along := _rng.randf_range(-0.95, 0.95)
+			# Three out of five go behind the arena. The camera looks down the table, so that is
+			# the side a player sees for most of a match; the flanks are only ever glimpsed.
+			match i % 5:
+				0, 1, 2:
+					spot = Vector3(_lined(along * half.x), TOP, -(half.y + away))
+				3:
+					spot = Vector3(half.x + away, TOP, _lined(_flank() * (half.y + NEAR)))
+				_:
+					spot = Vector3(-(half.x + away), TOP, _lined(_flank() * (half.y + NEAR)))
+			if _free(spot):
+				break
+		out.append(_claimed(spot))
 	return out
 
 
@@ -472,6 +489,25 @@ func _ring(count: int) -> Array[Vector3]:
 ## five metres tall there is in the corner of the picture the whole match.
 func _flank() -> float:
 	return _rng.randf_range(-1.0, 0.25)
+
+
+## Whether nothing has been put down in [param at]'s own patch yet.
+func _free(at: Vector3) -> bool:
+	var bay := _bay(at)
+	for other: Rect2 in _taken:
+		if other.intersects(bay):
+			return false
+	return true
+
+
+## Takes [param at]'s patch, so the next thing goes somewhere else, and hands the place back.
+func _claimed(at: Vector3) -> Vector3:
+	_taken.append(_bay(at))
+	return at
+
+
+func _bay(at: Vector3) -> Rect2:
+	return Rect2(at.x - BAY * 0.5, at.z - BAY * 0.5, BAY, BAY)
 
 
 ## Puts [param along] on the grid the room is set out on, give or take a hand's width.
@@ -500,10 +536,17 @@ func _apron(count: int) -> Array[Vector3]:
 	var half := arena.world_size() * 0.5
 	var out: Array[Vector3] = []
 	for i: int in count:
-		var along := _lined(_rng.randf_range(-1.0, 1.0) * (half.x + FAR))
-		# Further out than the flanks: a pencil is longer than it is far from the wall otherwise.
-		var away := NEAR + APRON_CLEAR + (FAR - NEAR - APRON_CLEAR) * pow(_rng.randf(), CROWDING)
-		out.append(Vector3(along, TOP, half.y + _lined(away)))
+		var spot := Vector3.ZERO
+		for attempt: int in TRIES:
+			var along := _lined(_rng.randf_range(-1.0, 1.0) * (half.x + FAR))
+			# Further out than the flanks: a pencil is longer than it is far from the wall.
+			var away := (
+				NEAR + APRON_CLEAR + (FAR - NEAR - APRON_CLEAR) * pow(_rng.randf(), CROWDING)
+			)
+			spot = Vector3(along, TOP, half.y + _lined(away))
+			if _free(spot):
+				break
+		out.append(_claimed(spot))
 	return out
 
 
@@ -622,7 +665,9 @@ func _fanned_cards(at: Vector3) -> void:
 	for i: int in 4:
 		var card := PlaneMesh.new()
 		card.size = Vector2(2.6, 3.6)
-		var lying := _put(card, face, at + Vector3(0.0, 0.02, 0.0))
+		# Each one a finger higher than the last. Four pictures in one plane is four pictures
+		# fighting over the same pixels, which is what a fanned hand was doing.
+		var lying := _put(card, face, at + Vector3(0.0, 0.03 + float(i) * 0.04, 0.0))
 		lying.rotation.y = turn + float(i) * 0.26
 		lying.position += Vector3(sin(lying.rotation.y), 0.0, cos(lying.rotation.y)) * 1.1
 

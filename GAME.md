@@ -1160,6 +1160,12 @@ pictures on its wall; the lit sign over the warehouse doors in the yard and the
 paint on the apron under them. A room reads as somewhere because of these rather
 than because of the clutter, which is what fills the space between them.
 
+Nothing is put down on top of anything else, either. The crowd keeps a list of the
+patches already spoken for -- the booth, the hoardings, the tanks -- and the
+clutter asks for it, adds its own as it goes, and tries somewhere else up to eight
+times before it settles for a spot it has to share. That is what stops a stack of
+chips growing out of the DJ booth and a hoarding standing in a pile of rod stock.
+
 A fourth rule is about how it looks rather than where it is: it was put there by
 somebody. Everything sits on a five-metre grid a hand's width off and square with
 the table a degree or two off, and anything that comes in more than one is stacked

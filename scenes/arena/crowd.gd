@@ -252,6 +252,12 @@ func keep_clear(area: Rect2) -> void:
 	_rebuild_wait = REBUILD_WAIT if _size != Vector2.ZERO else 0
 
 
+## The patches of table that are already spoken for: the booth, the hoardings, the tanks. Anybody
+## putting something else down out here asks for these rather than guessing where they are.
+func taken_bays() -> Array[Rect2]:
+	return _clear.duplicate()
+
+
 ## Whether [param at] falls in a patch that is being kept clear, grown by [param slack].
 func _blocked(at: Vector2, slack: float) -> bool:
 	for area: Rect2 in _clear:

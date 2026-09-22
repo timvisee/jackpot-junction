@@ -13,6 +13,13 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+### Fixed
+
+- **Nothing in a room is put down on top of anything else.** Stacks of chips grew
+  out of the DJ booth, hoardings stood in piles of rod stock and a fanned hand of
+  cards flickered against itself; every prop now takes a patch of table nobody else
+  has, and a fan is dealt one card over another.
+
 - **The wall behind a room is close enough to see.** It stood sixty metres past the
   crowd with nothing in between; it now runs just past the clutter, and the table
   ends with it.
