@@ -41,9 +41,6 @@ const LIFE_LOST := Color(0.22, 0.22, 0.26, 0.9)
 const LIFE_ICON := 0.65
 ## The held item's picture: how big it is drawn, how fast the roulette flicks through the others
 ## while the box is still opening, and the grey it flicks in.
-const ITEM_ICON := 30.0
-const ITEM_SPIN := 0.06
-const ITEM_SPINNING := Color(0.72, 0.72, 0.78)
 const HINT_SIZE := 17
 const HINT_INK := Color(0.82, 0.82, 0.88)
 const HINT_WORDS: Dictionary[StringName, String] = {
@@ -698,22 +695,7 @@ func _update_hints(block: Dictionary, kart: Kart, device: int) -> void:
 ## flicks through the other items rather than showing three question marks, which says the same
 ## thing and says it in the language the rest of the row is in.
 func _update_item(block: Dictionary, kart: Kart) -> void:
-	var row: HBoxContainer = block["item"]
-	row.visible = kart.held_item != null
-	if not row.visible:
-		return
-	var art: PowerUpArt.Picture = block["item_art"]
-	var label: Label = block["item_name"]
-	if kart.item_reveal_left > 0.0:
-		var spin := PowerUpArt.known()
-		art.id = spin[int(kart.item_reveal_left / ITEM_SPIN) % spin.size()]
-		art.ink = ITEM_SPINNING
-		label.text = ""
-		return
-	art.id = kart.held_item.id
-	art.ink = kart.held_item.color
-	label.text = kart.held_item.display_name
-	label.add_theme_color_override("font_color", kart.held_item.color)
+	(block["item"] as ItemRow).show_kart(kart)
 
 
 func _slot_name(slot: int) -> String:
@@ -840,8 +822,9 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	var speed := Label.new()
 	speed.text = "0 km/h"
 	Type.set_font(speed, Type.numbers_text_font(), Type.LABEL)
-	# Wide enough for the fastest thing on the table and no wider, so the row holds still.
-	speed.custom_minimum_size = Vector2(76.0, 0.0)
+	# Wide enough for the fastest thing on the table and no wider, so the row holds still. Three
+	# digits and the unit: at 76 the h of km/h was half a letter.
+	speed.custom_minimum_size = Vector2(96.0, 0.0)
 	speed.clip_text = true
 	speed.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
 	HudText.shadowed(speed, 2)
@@ -856,31 +839,7 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	else:
 		speed_row.add_child(speed_dial)
 		speed_row.add_child(speed)
-	# The held item as its own picture beside its name, GAME.md 8.3a: it is picked up, held and
-	# played inside a couple of seconds, and a name read off the HUD in that time is a name read
-	# instead of a corner taken.
-	var item := HBoxContainer.new()
-	item.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	item.alignment = BoxContainer.ALIGNMENT_END if right else BoxContainer.ALIGNMENT_BEGIN
-	item.add_theme_constant_override("separation", 7)
-	var item_art := PowerUpArt.picture(&"", Palette.NEON_MAGENTA)
-	item_art.custom_minimum_size = Vector2(ITEM_ICON, ITEM_ICON)
-	var item_name := Label.new()
-	item_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Type.set_font(item_name, Type.STRONG, Type.BODY)
-	item_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	item_name.clip_text = true
-	item_name.custom_minimum_size = Vector2(BLOCK_WIDTH - ITEM_ICON - 24.0, 0.0)
-	item_name.horizontal_alignment = (
-		HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
-	)
-	HudText.shadowed(item_name)
-	if right:
-		item.add_child(item_name)
-		item.add_child(item_art)
-	else:
-		item.add_child(item_art)
-		item.add_child(item_name)
+	# What is in hand and what is running, GAME.md 8.3: one thing in one place, see [ItemRow].
 	for label: Label in [name_label, banked, stats]:
 		label.horizontal_alignment = (
 			HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
@@ -893,7 +852,7 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	# The pot goes between the banked score and the kill count, GAME.md 8.3.
 	var pot := ScorePills.add_to(box, right)
 	box.move_child(pot, 2)
-	box.add_child(item)
+	var item := ItemRow.add_to(box, right)
 	box.add_child(lives)
 	box.add_child(nitro)
 	box.add_child(speed_row)
@@ -909,8 +868,8 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 		"speed_dial": speed_dial,
 		"speed": speed,
 		"item": item,
-		"item_art": item_art,
-		"item_name": item_name,
+		"item_art": item.art,
+		"item_name": item.label,
 		"hints": hints,
 		"hint_stamp": "",
 	}

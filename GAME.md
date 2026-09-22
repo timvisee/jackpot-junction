@@ -1513,6 +1513,11 @@ movement: the one thing a corner block must not do is ask to be looked at.
   moving is the whole of what a player is deciding about -- another lap for more
   chips, or the Junction for the mult before somebody takes it off them. Written
   as one line of text it read as arithmetic.
+- **The item in hand**, with its own picture beside its name, and under it whatever
+  that item started: a power-up that runs for a few seconds gets a line of its own,
+  named the same and in the same colour, with a bar counting the time down. A player
+  who has just played something should be able to see it is still working without
+  counting in their head.
 - **Joker hand**: the held jokers as a row of overlapping cards along the bottom
   of the screen, one hand per local player, each card framed in its kind's
   colour with the joker's own picture and its name, and one, two or three pips

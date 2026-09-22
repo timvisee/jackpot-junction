@@ -760,7 +760,13 @@ func use_item() -> void:
 		return
 	var item := held_item
 	held_item = null
+	var running := effects.size()
 	item.activate(self)
+	# Whatever it started is named after it, so the HUD of 8.3 can say what is running on a kart
+	# without knowing what any one power-up does.
+	for i: int in range(running, effects.size()):
+		effects[i].display_name = item.display_name
+		effects[i].color = item.color
 	item_used.emit(item)
 	Events.item_used.emit(slot, item.id)
 

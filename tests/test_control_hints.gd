@@ -162,18 +162,18 @@ func test_the_held_item_shows_its_picture() -> void:
 	var hud := match_node.hud
 	var block: Dictionary = hud._blocks[0]
 	var kart := match_node.kart_of(0)
-	var row: HBoxContainer = block["item"]
-	var art: PowerUpArt.Picture = block["item_art"]
-	var label: Label = block["item_name"]
-	# Empty handed: no row at all.
+	var row: ItemRow = block["item"]
+	var art: PowerUpArt.Picture = row.art
+	var label: Label = row.label
+	# Empty handed: no line at all.
 	kart.held_item = null
 	hud._update_blocks()
-	assert_bool(row.visible).is_false()
+	assert_bool(art.get_parent().visible).is_false()
 	# Holding one: its own picture and its own name.
 	kart.held_item = BOOST
 	kart.item_reveal_left = 0.0
 	hud._update_blocks()
-	assert_bool(row.visible).is_true()
+	assert_bool(art.get_parent().visible).is_true()
 	assert_str(String(art.id)).is_equal("boost")
 	assert_str(label.text).is_equal(kart.held_item.display_name)
 	# Still turning: something else on the picture and no name yet.
@@ -324,3 +324,28 @@ func test_the_joker_screens_draw_the_stick_once() -> void:
 	assert_int((row.get_child(0) as InputGlyph).kind).is_equal(InputGlyph.Kind.STICK)
 	assert_str(_reads(row)).contains("choose")
 	assert_str(_reads(row)).not_contains("Axis")
+
+
+## GAME.md 8.3: what a power-up started is named under the item that started it, and counts down.
+func test_a_running_power_up_says_what_it_is_and_how_long_is_left() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(20, 17)
+	var hud := match_node.hud
+	var row: ItemRow = hud._blocks[0]["item"]
+	var kart := match_node.kart_of(0)
+	# Nothing running: no line for it.
+	hud._update_blocks()
+	assert_bool(row.running.get_parent().visible).is_false()
+	# One playing: its own name, in its own colour, with the time left beside it.
+	kart.held_item = BOOST
+	kart.item_reveal_left = 0.0
+	kart.use_item()
+	hud._update_blocks()
+	assert_bool(row.running.get_parent().visible).is_true()
+	assert_str(row.running.text).is_equal(BOOST.display_name)
+	assert_float(row.clock.value).is_greater(50.0)
+	# And it runs down rather than sitting where it started.
+	var effect: KartEffect = kart.effects[0]
+	effect.time_left = effect.duration * 0.25
+	hud._update_blocks()
+	assert_float(row.clock.value).is_less(30.0)

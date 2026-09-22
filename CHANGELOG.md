@@ -41,6 +41,9 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The speed readout is not clipped.** At three digits the h of km/h was half a
+  letter.
+
 - **Props stop standing in each other.** The things placed by hand -- the lamp, the
   vice, the truck, the forklift, the floodlights -- never reserved the ground they
   were on, so the clutter was dealt straight through them; the fences and hoardings
@@ -160,6 +163,10 @@ below, and hands the notes to the release workflow.
   straight back.
 
 ### Added
+
+- **The HUD says what power-up is running on you.** Under the item in hand,
+  whatever it started is named in its own colour with a bar counting down the time
+  it has left.
 
 - **Bloom and edge smoothing can be turned off in Video settings.** They are the
   two passes over the whole screen a room pays for; turning both off is most of
