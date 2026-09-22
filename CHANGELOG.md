@@ -16,8 +16,8 @@ below, and hands the notes to the release workflow.
 - **The standings rank by banked coins.** A carried pot is still shown beside the
   score, but it no longer moves anyone up the board.
 
-- **Fewer signs in the Garage.** Only the Junction, the Jackpots, the joker pad and
-  the item pads are labelled now; the rest name themselves.
+- **Fewer signs in the Garage.** Only the Junction, the Jackpots and the joker pad
+  are labelled now; the rest name themselves.
 
 - **The Swivel Cannon is named once on the HUD.** It was listed twice, as an effect
   and as a loaded cannon, counting down alongside itself.

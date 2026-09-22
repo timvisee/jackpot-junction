@@ -194,15 +194,14 @@ func _unhandled_input(event: InputEvent) -> void:
 ## text, so moving something in the layout moves its sign with it.
 ##
 ## Only the things a player could not name by looking at them get one. A turbo pad, a crate, a
-## target, a pit, a coin and a royal flush pad are each the thing they are called, and a room
-## with a label over every one of them is a room read rather than driven.
+## target, a pit, a coin, an item pad and a royal flush pad are each the thing they are called,
+## and a room with a label over every one of them is a room read rather than driven.
 func _add_signs() -> void:
 	var arena := match_node.arena
 	_sign("JUNCTION\nbank your pot here", arena.junction_position, Palette.NEON_MAGENTA)
 	for position: Vector3 in arena.jackpot_positions:
 		_sign("JACKPOT\ndrive in and wait", position, Palette.CHIP_GOLD)
 	_sign_at("JOKERS\ntake one, TAB to manage", arena.joker_pads, Palette.NEON_MAGENTA)
-	_sign_at("ITEMS", arena.power_pads, Palette.NEON_MAGENTA)
 
 
 ## Puts one sign over the first of a group of things, so a row of targets gets a single label.
