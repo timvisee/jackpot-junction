@@ -12,10 +12,23 @@ extends RoomBuild
 ## the screen rather than far off, and a wall much past the clutter is a wall above the top of
 ## the picture.
 
+## The patches of table the shell itself stands on: the fence line, the hoarding, the rope and the
+## board at the back. Whatever is put down out here afterwards reads them, so that nothing ends up
+## standing in a fence.
+var taken: Array[Rect2] = []
+
 ## Where the floor of the room is and how tall its walls are, for whatever is hung on them. Both
 ## are set by [method enclose], which every room builds first.
 var _ground := 0.0
 var _height := 0.0
+
+
+## Keeps the patch of table between [param from] and [param to], grown by [param width], for
+## whatever is being built along it.
+func _keep(from: Vector3, to: Vector3, width: float) -> void:
+	var box := Rect2(Vector2(from.x, from.z), Vector2.ZERO)
+	box = box.expand(Vector2(to.x, to.z))
+	taken.append(box.grow(width * 0.5))
 
 
 ## Puts an empty shell in [param for_arena]. The room fills it in.
@@ -90,6 +103,7 @@ func legs(ink: Color) -> void:
 func backboard(height: float, ink: Color) -> float:
 	var half := Vector2(_table().x, arena.world_size().y * 0.5 + BACK_FAR + BACK_WALL)
 	var back := -half.y
+	_keep(Vector3(-half.x, TOP, back), Vector3(half.x, TOP, back), 4.0)
 	var board := Vector3(half.x * 2.0, height, 2.0)
 	_dim(_box(board, surfaces.painted(ink), Vector3(0.0, TOP - 2.0 + height * 0.5, back)))
 	return back + 1.0
@@ -156,6 +170,8 @@ func rope_line() -> void:
 	var half := arena.world_size() * 0.5
 	var post := surfaces.metal(room.trim)
 	var span := (half.x + NEAR) * 2.0 / 10.0
+	var line := -(half.y + NEAR * 0.75)
+	_keep(Vector3(-half.x - NEAR, TOP, line), Vector3(half.x + NEAR, TOP, line), 2.6)
 	for i: int in 11:
 		var stand := Vector3(-(half.x + NEAR) + float(i) * span, TOP, -(half.y + NEAR * 0.75))
 		_stanchion(stand, post)
@@ -220,6 +236,7 @@ func hoarding() -> void:
 	var panel := surfaces.metal(Color(0.62, 0.66, 0.6))
 	var post := surfaces.metal(Color(0.4, 0.42, 0.44))
 	var z := -(half.y + BACK_FAR + BACK_WALL)
+	_keep(Vector3(-half.x - FAR, TOP, z), Vector3(half.x + FAR, TOP, z), 3.0)
 	# The panels meet edge to edge. A hoarding with daylight between its boards is a fence, and a
 	# yard is hoarded off so that what is in it cannot be seen from the road.
 	var count := 15
@@ -256,6 +273,7 @@ func crowd_fence() -> void:
 
 ## One straight run of it, [param reach] each way from [param at] along [param along].
 func _fence_run(at: Vector3, along: Vector3, reach: float, steel: Material) -> void:
+	_keep(at - along * reach, at + along * reach, 2.4)
 	var tall := 1.3
 	var span := 4.0
 	var posts := int(reach * 2.0 / span) + 1

@@ -41,6 +41,13 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Props stop standing in each other.** The things placed by hand -- the lamp, the
+  vice, the truck, the forklift, the floodlights -- never reserved the ground they
+  were on, so the clutter was dealt straight through them; the fences and hoardings
+  did not either. The truck is built out of parts that sit on each other rather than
+  inside each other, and the hazard border round a pit no longer doubles up at the
+  corners.
+
 - **The card room's suits and dice are drawn properly.** Hearts and clubs came out
   looking like diamonds, and a die wore a quarter of a pip on each corner.
 

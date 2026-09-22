@@ -88,8 +88,12 @@ func _workbench() -> void:
 	shell.pegboard(board)
 	shell.calendar(board)
 	var half := arena.world_size() * 0.5
-	_bench_lamp(Vector3(-(half.x + 12.0), TOP, -(half.y + 10.0)))
-	_vice(Vector3(-(half.x + 9.0), TOP, half.y * 0.25))
+	var lamp := Vector3(-(half.x + 12.0), TOP, -(half.y + 10.0))
+	_bench_lamp(lamp)
+	_claim(lamp + Vector3(0.0, 0.0, 5.0), Vector2(10.0, 16.0))
+	var vice := Vector3(-(half.x + 9.0), TOP, half.y * 0.25)
+	_vice(vice)
+	_claim(vice, Vector2(8.0, 8.0))
 	var timber := surfaces.painted(room.table.lightened(0.16))
 	var steel := surfaces.metal(Color(0.64, 0.66, 0.7))
 	# Rod stock is painted rather than metal: there is nothing in a dim workshop for a metal to
@@ -136,7 +140,9 @@ func _card_room() -> void:
 	shell.rope_line()
 	var half := arena.world_size() * 0.5
 	for side: float in [-1.0, 1.0]:
-		_pendant(Vector3(side * half.x * 0.62, TOP, -(half.y + 10.0)))
+		var hung := Vector3(side * half.x * 0.62, TOP, -(half.y + 10.0))
+		_pendant(hung)
+		_claim(hung, Vector2(9.0, 9.0))
 	for at: Vector3 in _ring(11):
 		if _close(at):
 			match _rng.randi_range(0, 2):
@@ -175,12 +181,22 @@ func _yard() -> void:
 	var timber := surfaces.painted(room.table.lightened(0.26))
 	var half := arena.world_size() * 0.5
 	for side: float in [-1.0, 1.0]:
-		_floodlight(Vector3(side * half.x * 0.8, TOP, -(half.y + 11.0)), steel)
-	_truck(Vector3(-(half.x + 9.0), TOP, half.y * 0.1), steel)
-	_forklift(Vector3(half.x + 8.0, TOP, -half.y * 0.45))
+		var mast := Vector3(side * half.x * 0.8, TOP, -(half.y + 11.0))
+		_floodlight(mast, steel)
+		_claim(mast, Vector2(8.0, 8.0))
+	var truck := Vector3(-(half.x + 9.0), TOP, half.y * 0.1)
+	_truck(truck, steel)
+	_claim(truck, Vector2(9.0, 17.0))
+	var lift := Vector3(half.x + 8.0, TOP, -half.y * 0.45)
+	_forklift(lift)
+	_claim(lift, Vector2(8.0, 12.0))
 	for side: float in [-1.0, 1.0]:
-		_hazard_tape(Vector3(side * half.x * 0.55, TOP, -(half.y + 6.5)), 6.0, 0.0)
-	_hazard_tape(Vector3(-(half.x + 7.0), TOP, half.y * 0.55), 5.0, PI * 0.5)
+		var line := Vector3(side * half.x * 0.55, TOP, -(half.y + 6.5))
+		_hazard_tape(line, 6.0, 0.0)
+		_claim(line, Vector2(7.0, 4.0))
+	var across := Vector3(-(half.x + 7.0), TOP, half.y * 0.55)
+	_hazard_tape(across, 5.0, PI * 0.5)
+	_claim(across, Vector2(4.0, 6.0))
 	for at: Vector3 in _ring(14):
 		if _close(at):
 			match _rng.randi_range(0, 2):
@@ -304,13 +320,24 @@ func _flank() -> float:
 	return _rng.randf_range(-1.0, 0.25)
 
 
-## Whether nothing has been put down in [param at]'s own patch yet.
+## Whether nothing has been put down in [param at]'s own patch yet. The shell's own patches count
+## as well, so nothing ends up standing in a fence or through a hoarding.
 func _free(at: Vector3) -> bool:
 	var bay := _bay(at)
 	for other: Rect2 in _taken:
 		if other.intersects(bay):
 			return false
+	for other: Rect2 in shell.taken:
+		if other.intersects(bay):
+			return false
 	return true
+
+
+## Takes a patch of [param span] round [param at] for something placed by hand rather than by the
+## ring: the lamp over the bench, the truck, the floodlights. Anything put down afterwards goes
+## somewhere else.
+func _claim(at: Vector3, span: Vector2) -> void:
+	_taken.append(Rect2(at.x - span.x * 0.5, at.z - span.y * 0.5, span.x, span.y))
 
 
 ## Takes [param at]'s patch, so the next thing goes somewhere else, and hands the place back.
@@ -643,17 +670,20 @@ func _forklift(at: Vector3) -> void:
 	_box(Vector3(2.0, 0.12, 2.0), steel, at + Vector3(0.0, 4.2, 1.3))
 
 
+## The flatbed parked by the crowd: a chassis, a cab on the front of it, a bed behind that and
+## six wheels. Every part sits on the one under it rather than inside it.
 func _truck(at: Vector3, steel: Material) -> void:
 	var paint := surfaces.painted(Color(0.72, 0.24, 0.2))
 	var glass := surfaces.painted(Color(0.16, 0.2, 0.26))
 	var bed := surfaces.painted(room.table.lightened(0.3))
 	var rubber := surfaces.painted(Color(0.13, 0.13, 0.15))
-	_box(Vector3(4.2, 3.0, 4.4), paint, at + Vector3(0.0, 2.6, -4.6))
-	_box(Vector3(4.3, 1.4, 0.3), glass, at + Vector3(0.0, 3.4, -6.7))
-	_box(Vector3(4.4, 0.6, 12.0), steel, at + Vector3(0.0, 1.4, 0.4))
-	_box(Vector3(4.4, 1.0, 10.0), bed, at + Vector3(0.0, 2.0, 2.4))
+	_box(Vector3(4.4, 0.6, 12.0), steel, at + Vector3(0.0, 1.4, 0.0))
+	_box(Vector3(4.2, 3.0, 4.0), paint, at + Vector3(0.0, 3.2, -4.0))
+	_box(Vector3(4.3, 1.2, 0.2), glass, at + Vector3(0.0, 3.8, -6.05))
+	_box(Vector3(4.4, 0.4, 7.6), bed, at + Vector3(0.0, 1.9, 2.0))
+	_box(Vector3(4.4, 1.4, 0.3), bed, at + Vector3(0.0, 2.8, -1.85))
 	for side: float in [-1.0, 1.0]:
-		_box(Vector3(0.4, 1.6, 10.0), bed, at + Vector3(side * 2.0, 3.0, 2.4))
-		for z: float in [-5.0, 2.0, 4.6]:
-			var wheel := _cylinder(1.3, 0.9, rubber, at + Vector3(side * 2.1, 1.3, z))
+		_box(Vector3(0.3, 1.4, 7.6), bed, at + Vector3(side * 2.05, 2.8, 2.0))
+		for z: float in [-4.2, 2.6, 5.0]:
+			var wheel := _cylinder(1.3, 0.9, rubber, at + Vector3(side * 2.3, 1.3, z))
 			wheel.rotation.z = PI * 0.5

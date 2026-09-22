@@ -134,7 +134,9 @@ func _pit_hazard(into: Node3D, size: Vector2) -> void:
 	var step := 0.44
 	for side: int in 4:
 		var along := side % 2 == 0
-		var span := (size.x if along else size.y) + band * 2.0
+		# The two runs across take the corners and the two down stop short of them, so no two
+		# blocks of it stand in the same place.
+		var span := (size.x + band * 2.0) if along else size.y
 		var count := maxi(int(span / step), 2)
 		for i: int in count:
 			var offset := (float(i) + 0.5) * span / float(count) - span * 0.5
