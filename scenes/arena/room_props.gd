@@ -20,7 +20,13 @@ extends Node3D
 ## out, and the camera of 8.2 sees very little past the stands while a match is being played, so
 ## a prop twenty-five metres out is a prop nobody has ever seen.
 const NEAR := 6.0
-const FAR := 15.0
+const FAR := 13.0
+## How far the clutter behind the arena goes, which is shorter, and how far past the last of it
+## the wall of the room stands. The camera of 8.2 looks down at the table, so what is further
+## back is higher up rather than further off: a wall much past this is a wall above the top of
+## the picture, which is a wall nobody sees.
+const BACK_FAR := 8.0
+const BACK_WALL := 2.5
 ## How much the clutter crowds the near end of that range: the square of a flat random, which puts
 ## two thirds of it in the first half.
 const CROWDING := 1.7
@@ -106,7 +112,9 @@ func _workbench() -> void:
 	_room(Color(0.15, 0.13, 0.12), Color(0.26, 0.22, 0.18), 32.0, 80.0)
 	_skirt(room.table.darkened(0.32), 2.4)
 	_legs(room.table.darkened(0.42))
-	var board := _backboard(24.0, room.table.lightened(0.22))
+	# A painted wall rather than more of the bench. A board in the table's own colour is a board
+	# nobody can tell is there, which is what the back of this room was.
+	var board := _backboard(24.0, Color(0.4, 0.38, 0.34))
 	_pegboard(board)
 	_calendar(board)
 	var half := arena.world_size() * 0.5
@@ -286,12 +294,13 @@ func _room(floor_ink: Color, wall_ink: Color, drop: float, height: float) -> flo
 	return back
 
 
-## The board at the back of a bench, standing up from the table itself. It is the first thing
-## behind the arena when the camera looks down the table, which is what a room hangs its tools on
-## rather than a wall sixty metres further back. Returns its front face.
+## The board at the back of a bench: the wall the room actually has, rather than the one at the
+## edge of the table that nothing but the opening shot ever sees. It stands just past the last of
+## the clutter, which is close enough that a player looking down the table looks at it. Returns
+## its front face.
 func _backboard(height: float, ink: Color) -> float:
-	var half := _table()
-	var back := -(half.y - 1.0)
+	var half := Vector2(_table().x, arena.world_size().y * 0.5 + BACK_FAR + BACK_WALL)
+	var back := -half.y
 	var board := Vector3(half.x * 2.0, height, 2.0)
 	_dim(_box(board, surfaces.painted(ink), Vector3(0.0, TOP - 2.0 + height * 0.5, back)))
 	return back + 1.0
@@ -302,18 +311,20 @@ func _backboard(height: float, ink: Color) -> float:
 func _pegboard(face: float) -> void:
 	var half := _table()
 	var z := face + 0.4
-	var hang := TOP + 12.0
+	# Low on the wall. The camera looks down at the table, so anything much above head height on
+	# a wall this close to the crowd is above the top of the picture.
+	var hang := TOP + 4.6
 	var panel := surfaces.painted(room.table.darkened(0.34))
-	_dim(_box(Vector3(half.x * 0.9, 17.0, 0.6), panel, Vector3(0.0, hang, z)))
+	_dim(_box(Vector3(half.x * 0.9, 8.4, 0.6), panel, Vector3(0.0, hang, z)))
 	var steel := surfaces.metal(Color(0.66, 0.68, 0.72))
 	var timber := surfaces.painted(room.table.lightened(0.22))
-	_dim(_box(Vector3(1.0, 11.0, 0.5), steel, Vector3(-half.x * 0.3, hang - 1.0, z + 0.6)))
-	_dim(_box(Vector3(7.0, 5.0, 0.4), steel, Vector3(-half.x * 0.3 + 3.2, hang + 4.0, z + 0.6)))
-	_dim(_box(Vector3(1.4, 13.0, 0.6), timber, Vector3(half.x * 0.26, hang, z + 0.6)))
-	_dim(_box(Vector3(9.0, 1.4, 0.6), timber, Vector3(half.x * 0.26 + 4.0, hang - 5.5, z + 0.6)))
+	_dim(_box(Vector3(0.9, 5.6, 0.5), steel, Vector3(-half.x * 0.3, hang - 0.6, z + 0.6)))
+	_dim(_box(Vector3(4.0, 2.6, 0.4), steel, Vector3(-half.x * 0.3 + 1.8, hang + 1.8, z + 0.6)))
+	_dim(_box(Vector3(1.2, 6.4, 0.6), timber, Vector3(half.x * 0.26, hang, z + 0.6)))
+	_dim(_box(Vector3(5.0, 1.2, 0.6), timber, Vector3(half.x * 0.26 + 2.2, hang - 2.6, z + 0.6)))
 	for i: int in 7:
 		var x := -half.x * 0.36 + float(i) * (half.x * 0.72 / 6.0)
-		_dim(_box(Vector3(0.4, 0.4, 1.4), steel, Vector3(x, hang + 6.0, z + 0.9)))
+		_dim(_box(Vector3(0.4, 0.4, 1.4), steel, Vector3(x, hang + 3.0, z + 0.9)))
 
 
 ## The folds in the drape behind a card room: a row of pleats down the far wall, which is what
@@ -363,7 +374,7 @@ func _hoarding() -> void:
 	var half := arena.world_size() * 0.5
 	var panel := surfaces.metal(Color(0.62, 0.66, 0.6))
 	var post := surfaces.metal(Color(0.4, 0.42, 0.44))
-	var z := -(half.y + FAR + 2.0)
+	var z := -(half.y + BACK_FAR + BACK_WALL)
 	# The panels meet edge to edge. A hoarding with daylight between its boards is a fence, and a
 	# yard is hoarded off so that what is in it cannot be seen from the road.
 	var count := 15
@@ -516,7 +527,7 @@ func _ring(count: int) -> Array[Vector3]:
 			# the side a player sees for most of a match; the flanks are only ever glimpsed.
 			match i % 5:
 				0, 1, 2:
-					spot = Vector3(_lined(along * half.x), TOP, -(half.y + away))
+					spot = Vector3(_lined(along * half.x), TOP, -(half.y + minf(away, BACK_FAR)))
 				3:
 					spot = Vector3(half.x + away, TOP, _lined(_flank() * (half.y + NEAR)))
 				_:

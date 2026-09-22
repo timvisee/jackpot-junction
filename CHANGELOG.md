@@ -27,6 +27,9 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The wall behind the workbench can be seen.** It stood too far back, in the
+  table's own colour, with its pegboard hung above the top of the screen.
+
 - **Long props stop lying through short ones.** A bundle of rod stock or a stack of
   boards reserved the same patch of table as a mug did, so anything longer than the
   patch ran through whatever was next to it.

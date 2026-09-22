@@ -1153,6 +1153,14 @@ side the camera looks across. None of it collides with anything,
 and a test holds the line: no prop's box may touch the arena's own, and nothing in
 front of the table may stand more than three metres tall.
 
+The wall behind the arena is nearer than the rest of it, and lower. The camera
+looks down at the table, so anything far behind the crowd is high up on the screen
+rather than far off, and anything tall and near is above the top of it: a wall the
+player can see has to stand about ten metres past the crowd, be painted a colour
+the table is not, and carry its pegboard and its notices at head height rather than
+where a wall would really have them. The clutter behind the arena stops short of it
+so that it is the backdrop rather than something behind the backdrop.
+
 Each room also has a handful of things that are placed rather than scattered,
 because they are the ones a player will see every match: the lamp on its arm over
 the bench, with the vice on the bench edge and the calendar nobody turned over on
