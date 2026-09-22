@@ -546,9 +546,18 @@ func _fanned_cards(at: Vector3) -> void:
 func _dice(at: Vector3) -> void:
 	var ivory := surfaces.painted(Palette.CHIP_WHITE)
 	var spots := surfaces.painted(Color(0.16, 0.14, 0.15))
+	var size := 0.9
+	# Thrown together and come to rest apart. They were dropped at their own random offsets, which
+	# every so often put the two of them in the same place; now they are set down either side of
+	# one, far enough apart that no corner of a die can reach the other however either one landed.
+	# A cube turned about its upright reaches half its diagonal, so twice that is the closest two
+	# of them can be and still be two.
+	var turn := _rng.randf_range(0.0, TAU)
+	var side := Vector3(cos(turn), 0.0, sin(turn))
+	var apart := size * sqrt(2.0) * 1.3
 	for i: int in 2:
-		var spot := at + Vector3(_rng.randf_range(-1.4, 1.4), 0.45, _rng.randf_range(-1.4, 1.4))
-		_die(spot, 0.9, ivory, spots)
+		var spot := at + side * (float(i) - 0.5) * apart + Vector3(0.0, size * 0.5, 0.0)
+		_die(spot, size, ivory, spots)
 
 
 ## One die: the cube, and the pips on the five faces that can be seen.

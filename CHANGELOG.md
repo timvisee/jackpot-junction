@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The Vault's dice no longer land in each other.** A pair is set down either side
+  of its place rather than dropped at random near it.
+
 - **The settings switches are drawn smoothly.** They are painted at four times
   their size with soft edges, so they stay round on a big display.
 

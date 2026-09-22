@@ -84,3 +84,36 @@ func test_the_near_side_of_the_room_is_kept_low() -> void:
 				continue
 			var tall := "%s: %.1fm of something stands in front of the table" % [map, box.end.y]
 			assert_float(box.end.y).override_failure_message(tall).is_less(APRON_LIMIT)
+
+
+## The dice come to rest apart. They were dropped at their own random offsets round the place
+## they were dealt, which every so often put both of them in the same square foot of baize.
+func test_no_two_dice_land_in_each_other() -> void:
+	var arena := _arena("vault")
+	var dice: Array[Vector3] = []
+	var size := 0.0
+	for part: MeshInstance3D in _parts(arena):
+		var cube := part.mesh as BoxMesh
+		# The dice are the only cubes in the room, and the only boxes small enough to be one.
+		if cube == null or cube.size.x != cube.size.y or cube.size.y != cube.size.z:
+			continue
+		if cube.size.x < 0.5 or cube.size.x > 2.0:
+			continue
+		dice.append(part.position)
+		# All one size, which is how the test knows it is looking at dice and not at something
+		# else the room happens to have built out of a cube.
+		if size > 0.0:
+			assert_float(cube.size.x).is_equal_approx(size, 0.001)
+		size = cube.size.x
+	assert_int(dice.size()).is_greater(3)
+	# However a cube is turned about its upright it reaches half its own diagonal, so two of them
+	# any closer than a whole diagonal are two dice standing in each other.
+	var closest := size * sqrt(2.0)
+	for i: int in dice.size():
+		for j: int in range(i + 1, dice.size()):
+			var gap := Vector2(dice[i].x - dice[j].x, dice[i].z - dice[j].z).length()
+			(
+				assert_float(gap)
+				. override_failure_message("two dice %.2f m apart" % gap)
+				. is_greater_equal(closest)
+			)

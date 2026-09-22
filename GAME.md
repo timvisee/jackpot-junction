@@ -1193,7 +1193,8 @@ A fourth rule is about how it looks rather than where it is: it was put there by
 somebody. Everything sits on a five-metre grid a hand's width off and square with
 the table a degree or two off, and anything that comes in more than one is stacked
 rather than strewn -- rod stock three down and two on top, barrels in a row with
-one over them, cones in a line, chips in stacks squared off next to each other. The
+one over them, cones in a line, chips in stacks squared off next to each other, a
+pair of dice set down either side of their place rather than dropped near it. The
 difference between a room that has been dressed and a room that has been sprinkled
 is entirely in this, and none of it costs a frame.
 
