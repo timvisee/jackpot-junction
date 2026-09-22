@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Walls have a moulded top instead of a drawn-on edge.** The strip round the top
+  of a wall shared a plane with the side of it and the two flickered against each
+  other; a wall is now a block with a smaller block on it.
+
 - **The Vault's lamp reaches the table round the arena.** The cards and chips left
   out there were in the dark; the edge of the cone now falls on them.
 

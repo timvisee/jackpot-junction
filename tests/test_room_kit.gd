@@ -45,16 +45,17 @@ func test_the_cover_is_the_shape_it_looks_like() -> void:
 				assert_bool(room.encloses(box)).override_failure_message(out).is_true()
 
 
-## What a room leaves on a wall stays on top of it. Anything hanging over the side is in the way
-## of a kart that never touched it.
-func test_what_is_on_a_wall_stays_on_top_of_it() -> void:
+## A wall is the block it always was. What the room adds to it -- the step on top, the odd thing
+## left up there -- stays inside the footprint the collider has, so a kart never meets anything
+## that was not part of the wall.
+func test_a_wall_is_still_the_block_it_was() -> void:
 	for map: String in MAPS:
 		var arena := _arena(map)
 		for body: Node in arena.get_node("Walls").get_children():
 			var shape: CollisionShape3D = body.get_child(0)
 			var cube: BoxShape3D = shape.shape
 			var half := cube.size * 0.5
-			for part: MeshInstance3D in body.get_node("Trim").get_children():
+			for part: MeshInstance3D in body.get_node("Wall").get_children():
 				var box := part.transform * part.mesh.get_aabb()
 				var over := "%s: something on a wall hangs over the side of it" % map
 				assert_float(box.position.x).override_failure_message(over).is_greater_equal(
@@ -65,8 +66,27 @@ func test_what_is_on_a_wall_stays_on_top_of_it() -> void:
 					-half.z - SLACK
 				)
 				assert_float(box.end.z).override_failure_message(over).is_less_equal(half.z + SLACK)
-				var low := "%s: something on a wall hangs down inside it" % map
-				var floor_of_it := half.y - cube.size.y * RoomKit.CAP - SLACK
-				assert_float(box.position.y).override_failure_message(low).is_greater_equal(
-					floor_of_it
+				var under := "%s: a wall has something hanging below it" % map
+				assert_float(box.position.y).override_failure_message(under).is_greater_equal(
+					-half.y - SLACK
 				)
+
+
+## And the block and the step on it share no plane. Two surfaces at the same depth flicker
+## against each other as the camera moves, which is what a strip laid into the top face of a wall
+## does and why there is not one any more.
+func test_the_block_and_its_step_share_no_plane() -> void:
+	for map: String in MAPS:
+		var arena := _arena(map)
+		for body: Node in arena.get_node("Walls").get_children():
+			var parts := body.get_node("Wall").get_children()
+			var block: MeshInstance3D = parts[0]
+			var step: MeshInstance3D = parts[1]
+			var one := block.transform * block.mesh.get_aabb()
+			var two := step.transform * step.mesh.get_aabb()
+			var flat := "%s: the step on a wall lies in a face of the wall" % map
+			for axis: int in 3:
+				var low := absf(one.position[axis] - two.position[axis])
+				var high := absf(one.end[axis] - two.end[axis])
+				assert_float(low).override_failure_message(flat).is_greater(SLACK)
+				assert_float(high).override_failure_message(flat).is_greater(SLACK)

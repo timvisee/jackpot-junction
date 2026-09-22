@@ -10,11 +10,15 @@ extends RefCounted
 ## capping strip so that it reads as a block rather than as a slab, and some of them carry
 ## something small, up where it is out of the way.
 
-## How tall the capping strip round the top of a wall is, as a share of the wall's own height,
-## and how wide the strip itself is. It is a rim rather than a lid: from above the wall is mostly
-## its own colour still, with an edge round it that catches the light.
-const CAP := 0.1
-const CAP_EDGE := 0.14
+## The step on top of a wall: how much of the wall's height it takes and how far in from the side
+## it stands. It is a shape rather than a line -- a block with a smaller block on it, the way a
+## toy brick is moulded -- because a strip laid into the top face of a wall shares a plane with
+## the side of it and the two flicker against each other from every angle.
+const STEP := 0.26
+const STEP_INSET := 0.09
+## How far the step sinks into the block under it, so that no two faces of the pair ever lie in
+## the same plane.
+const STEP_BITE := 0.02
 ## How often a wall carries something on top of it, and how long a wall has to be to qualify.
 const DRESSED_WALLS := 3
 const LONG_ENOUGH := 2.0
@@ -47,25 +51,24 @@ func crate(size: Vector3) -> Node3D:
 	return holder
 
 
-## A wall: the capping strip along the top of it and, on some of them, whatever the room leaves
-## up there. The block itself is the arena's, since it is the thing karts bounce off.
+## A wall, as it is seen: the block itself, the step on top of it and, on some of them, whatever
+## the room leaves up there. The collider is the arena's and is the full box, so what a kart
+## drives into is the shape it was before any of this.
 func wall(size: Vector3, index: int) -> Node3D:
 	var holder := Node3D.new()
-	holder.name = "Trim"
-	var cap := size.y * CAP
-	var top := size.y * 0.5 - cap * 0.5
-	var ink := surfaces.painted(_cap_ink())
-	var edge := minf(CAP_EDGE, minf(size.x, size.z) * 0.3)
-	for side: float in [-1.0, 1.0]:
-		var across := Vector3(size.x, cap, edge)
-		_box(holder, across, ink, Vector3(0.0, top, side * (size.z - edge) * 0.5))
-		var down := Vector3(edge, cap, size.z - edge * 2.0)
-		_box(holder, down, ink, Vector3(side * (size.x - edge) * 0.5, top, 0.0))
+	holder.name = "Wall"
+	var step := size.y * STEP
+	var block := Vector3(size.x, size.y - step, size.z)
+	_box(holder, block, surfaces.painted(room.wall), Vector3(0.0, -step * 0.5, 0.0))
+	var inset := minf(STEP_INSET, minf(size.x, size.z) * 0.2)
+	var top := Vector3(size.x - inset * 2.0, step + STEP_BITE, size.z - inset * 2.0)
+	var sits := (size.y - step - STEP_BITE) * 0.5 + STEP_BITE * 0.5
+	_box(holder, top, surfaces.painted(_step_ink()), Vector3(0.0, sits, 0.0))
 	if index % DRESSED_WALLS != 0 or maxf(size.x, size.z) < LONG_ENOUGH:
 		return holder
 	var along := Vector3(1.0, 0.0, 0.0) if size.x > size.z else Vector3(0.0, 0.0, 1.0)
-	var run := maxf(size.x, size.z) * 0.5 - 0.5
-	var at := along * _rng.randf_range(-run, run) + Vector3(0.0, size.y * 0.5 + cap * 0.5, 0.0)
+	var run := maxf(size.x, size.z) * 0.5 - 0.6
+	var at := along * _rng.randf_range(-run, run) + Vector3(0.0, size.y * 0.5, 0.0)
 	match room.id:
 		&"after_hours":
 			_chips(holder, at)
@@ -168,12 +171,15 @@ func _bolts(into: Node3D, at: Vector3) -> void:
 # --- the parts ---------------------------------------------------------------
 
 
-## What a room caps its walls with: the wall's own edge colour, except in the card room, where
-## the rail round a table is baize and brass rather than more of the wall.
-func _cap_ink() -> Color:
+## What the step on top of a wall is made of: the wall's own edge colour, except in the card
+## room, where the rail round a table is brass.
+##
+## It is never the colour of the floor, whatever the room is. A wall is cover and the floor is
+## not, and the first thing a player reads at speed is which is which.
+func _step_ink() -> Color:
 	if room.id == &"after_hours":
-		return room.trim.darkened(0.25)
-	return room.wall_edge.darkened(0.28)
+		return room.trim.darkened(0.42)
+	return room.wall_edge.darkened(0.16)
 
 
 func _box(into: Node3D, size: Vector3, skin: Material, at: Vector3) -> MeshInstance3D:

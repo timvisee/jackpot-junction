@@ -440,8 +440,7 @@ func _add_walls() -> void:
 		box.size = size
 		shape.shape = box
 		body.add_child(shape)
-		body.add_child(_box_mesh(size, room.wall))
-		# And whatever the room puts on top of it, GAME.md 8.1.
+		# The block, its step and whatever the room puts up there, GAME.md 8.1.
 		body.add_child(kit.wall(size, i))
 		walls.add_child(body)
 
