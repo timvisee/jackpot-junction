@@ -29,6 +29,10 @@ const CALL_FADE := 0.6
 ## The line under each player's block that says what is worth pressing right now, GAME.md 8.3:
 ## how big the buttons in it are drawn, what colour it is, and the word that goes with each one.
 ## A life, under the name: how big one heart is drawn and the grey a spent one goes.
+## How wide a player's corner block is, whatever is in it. A pane that grows when the speed goes
+## from 99 to 100 and shrinks again at the next corner is a pane that never stops moving, and the
+## eye follows movement. Everything in it is clipped to this rather than measured from its text.
+const BLOCK_WIDTH := 316.0
 const LIFE_SIZE := 19.0
 const LIFE_LOST := Color(0.22, 0.22, 0.26, 0.9)
 ## How big a heart is when it floats off a kart that has just lost or been given a life, in
@@ -790,6 +794,7 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	card.name = "Block%d" % slot.index
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_theme_stylebox_override("panel", _scrim())
+	card.custom_minimum_size = Vector2(BLOCK_WIDTH, 0.0)
 	card.set_anchors_and_offsets_preset(BLOCK_ANCHORS[corner])
 	var right := corner % 2 == 1
 	var bottom := corner >= 2
@@ -842,6 +847,10 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	var speed := Label.new()
 	speed.text = "0 km/h"
 	Type.set_font(speed, Type.numbers_text_font(), Type.LABEL)
+	# Wide enough for the fastest thing on the table and no wider, so the row holds still.
+	speed.custom_minimum_size = Vector2(76.0, 0.0)
+	speed.clip_text = true
+	speed.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
 	HudText.shadowed(speed, 2)
 	# The dial reads left to right whichever corner the block is in, with the number at the
 	# outside edge where the rest of the block's text already lines up.
@@ -867,6 +876,11 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	item_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.set_font(item_name, Type.STRONG, Type.BODY)
 	item_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	item_name.clip_text = true
+	item_name.custom_minimum_size = Vector2(BLOCK_WIDTH - ITEM_ICON - 24.0, 0.0)
+	item_name.horizontal_alignment = (
+		HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
+	)
 	HudText.shadowed(item_name)
 	if right:
 		item.add_child(item_name)
@@ -878,6 +892,9 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 		label.horizontal_alignment = (
 			HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
 		)
+		# Clipped rather than measured: a label that asks for the width of its own text is what
+		# made the block breathe in and out with the speedometer.
+		label.clip_text = true
 		HudText.shadowed(label)
 		box.add_child(label)
 	box.add_child(item)

@@ -1473,6 +1473,11 @@ the bottom two. A client online may well be player three, and alone in its room 
 still gets the top left corner rather than the bottom one its seat number would
 name. Somebody leaving frees their corner for the next player to sit down.
 
+The block is a fixed width, and everything in it is clipped to that rather than
+measured from its own text. A pane that grows when the speed goes from 99 to 100
+and shrinks again at the next corner never stops moving, and the eye follows
+movement: the one thing a corner block must not do is ask to be looked at.
+
 - **Banked score**, large.
 - **Pot** as `coins × mult = value`, updating live.
 - **Joker hand**: the held jokers as a row of overlapping cards along the bottom

@@ -23,6 +23,9 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A player's HUD block holds its width.** It grew and shrank with the speedometer
+  and the pot, which made the corner of the screen twitch all match.
+
 - **Nothing in a room is put down on top of anything else.** Stacks of chips grew
   out of the DJ booth, hoardings stood in piles of rod stock and a fanned hand of
   cards flickered against itself; every prop now takes a patch of table nobody else

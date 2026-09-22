@@ -68,3 +68,25 @@ func test_the_dial_and_the_number_follow_the_kart() -> void:
 	await _runner.simulate_frames(2, 17)
 	assert_int(_reading(readout)).is_equal(0)
 	assert_float(dial.value).is_equal_approx(0.0, 0.5)
+
+
+## The block a speedometer sits in holds its width, GAME.md 8.3. It used to be measured from
+## whatever was written in it, so it grew as the speed went from 99 to 100 and shrank again at
+## the next corner, and a pane that never stops moving is a pane the eye keeps going back to.
+func test_the_block_holds_its_width_whatever_the_numbers_say() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(30, 17)
+	var kart := match_node.kart_of(0)
+	kart.input = KartInput.new()
+	var block: Dictionary = match_node.hud._blocks[0]
+	var card: Control = block["box"]
+	var widths: Array[float] = []
+	for speed: float in [0.0, 7.0, 19.0, 3.0]:
+		_set_speed(kart, speed)
+		kart.pot.coins = int(speed * 137.0)
+		kart.pot.mult = 1.0 + speed
+		await _runner.simulate_frames(4, 17)
+		widths.append(card.size.x)
+	for width: float in widths:
+		assert_float(width).is_equal_approx(widths[0], 0.01)
+	assert_float(widths[0]).is_greater_equal(MatchHud.BLOCK_WIDTH)
