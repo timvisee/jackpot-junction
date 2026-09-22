@@ -319,13 +319,11 @@ func _add_billboards() -> void:
 	billboards = Node3D.new()
 	billboards.name = "Billboards"
 	add_child(billboards)
-	var half := world_size() * 0.5
 	var ads := Billboard.ADS.duplicate()
 	ads.shuffle()
 	for i: int in 2:
 		var ad: Array = ads[i % ads.size()]
-		var side := -1.0 if i == 0 else 1.0
-		var at := Vector3(side * half.x * BILLBOARD_ALONG, 0.0, -(half.y + BILLBOARD_STANDOFF))
+		var at := _billboard_spot(i)
 		var board := Billboard.add_to(billboards, at, Vector3.ZERO, room)
 		board.panel(Vector2(0.0, -0.78), Vector2(Billboard.WIDTH - 1.0, 0.2), ad[2], true)
 		board.words(ad[0], Vector2(0.0, 0.45), 0.92, ad[2])
@@ -333,6 +331,27 @@ func _add_billboards() -> void:
 		var bay := Rect2(at.x - Billboard.WIDTH * 0.5, at.z - 1.6, Billboard.WIDTH, 3.2)
 		if crowd != null:
 			crowd.keep_clear(bay)
+
+
+## Where a room stands its hoardings, GAME.md 8.1. Every hall sells the same two boards and every
+## hall hangs them somewhere else: the workshop puts one out on a flank, the card room keeps both
+## in close over the far rail, and the yard sets them wide apart along the back. What none of them
+## does is put one where the clock goes, which is the middle of the far edge.
+func _billboard_spot(index: int) -> Vector3:
+	var half := world_size() * 0.5
+	var side := -1.0 if index == 0 else 1.0
+	match room.id:
+		&"after_hours":
+			var along := half.x * 0.45 * side
+			return Vector3(along, 0.0, -(half.y + BILLBOARD_STANDOFF))
+		&"the_yard":
+			var wide := half.x * 0.98 * side
+			return Vector3(wide, 0.0, -(half.y + BILLBOARD_STANDOFF + 1.4))
+		_:
+			# One on the far edge and one out on the left flank, turned to face the table.
+			if index == 0:
+				return Vector3(-half.x * 0.55, 0.0, -(half.y + BILLBOARD_STANDOFF))
+			return Vector3(half.x + BILLBOARD_STANDOFF + 1.0, 0.0, -half.y * 0.35)
 
 
 func _add_table() -> void:

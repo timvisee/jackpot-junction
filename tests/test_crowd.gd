@@ -49,6 +49,10 @@ func test_the_table_is_ringed_with_onlookers_and_a_booth() -> void:
 func test_the_booth_stands_in_the_crowd() -> void:
 	var arena := _arena()
 	var crowd := arena.crowd
+	# The house stands up again a couple of frames after the last bay is asked for, GAME.md 8.1,
+	# and the hoardings ask for theirs as the room goes up. Before that the stands are the ones
+	# raised for an empty table.
+	await await_millis(80)
 	var booth: Node3D = crowd.get_node("DjBooth")
 	var edge := arena.world_size().y * 0.5
 	var out := absf(booth.position.z) - edge

@@ -7,6 +7,11 @@ extends Node3D
 ## Scenery, like the crowd and the tanks: no collision, nothing decided here. The board is built
 ## facing +Z, and [method add_to] turns it to look at the middle of the table.
 
+## What a board is held up by, GAME.md 8.1. A hall puts its signs up the way the hall is built:
+## the workshop bolts them to scaffolding, the card room hangs them, the yard braces them against
+## the wind. Every board in a room uses the same one, the clock included.
+enum Mount { POSTS, SCAFFOLD, HANGING, BRACED }
+
 ## The face, and how far above the table its bottom edge sits: over the heads of a crowd four
 ## rows deep and up a tier, so a board is read rather than glimpsed between shoulders.
 const WIDTH := 5.6
@@ -51,6 +56,21 @@ var face: Node3D
 ## The room the board is standing in, GAME.md 8.1. A hall that turns its lights down does not
 ## turn its signs off, so how hard this one is lit comes from the room rather than from here.
 var room: RoomLook
+## What holds it up, which the room decides, see [method mount_for].
+var mount := Mount.POSTS
+
+
+## How a room holds its signs up.
+static func mount_for(in_room: RoomLook) -> Mount:
+	if in_room == null:
+		return Mount.POSTS
+	match in_room.id:
+		&"after_hours":
+			return Mount.HANGING
+		&"the_yard":
+			return Mount.BRACED
+		_:
+			return Mount.SCAFFOLD
 
 
 ## Stands a board at [param at] with its face turned toward [param toward], and returns it.
@@ -60,6 +80,7 @@ static func add_to(
 	var board := Billboard.new()
 	board.name = "Billboard"
 	board.room = in_room if in_room != null else RoomLook.fallback()
+	board.mount = mount_for(board.room)
 	parent.add_child(board)
 	board.global_position = at
 	var away := Vector3(toward.x - at.x, 0.0, toward.z - at.z)
@@ -117,10 +138,15 @@ func fitted(text: String, size: float) -> float:
 
 func _build() -> void:
 	var stand := LIFT + HEIGHT * 0.5
-	for side: float in [-1.0, 1.0]:
-		var leg := _box(Vector3(POST, LIFT + HEIGHT * 0.5, POST), STEEL)
-		leg.position = Vector3(side * (WIDTH * 0.5 - POST), stand * 0.5 - HEIGHT * 0.5, 0.0)
-		add_child(leg)
+	match mount:
+		Mount.SCAFFOLD:
+			_scaffold(stand)
+		Mount.HANGING:
+			_hanging(stand)
+		Mount.BRACED:
+			_braced(stand)
+		_:
+			_posts(stand)
 	var frame := _box(Vector3(WIDTH + FRAME * 2.0, HEIGHT + FRAME * 2.0, DEPTH), STEEL)
 	frame.position = Vector3(0.0, stand, 0.0)
 	add_child(frame)
@@ -131,6 +157,72 @@ func _build() -> void:
 	var board := _box(Vector3(WIDTH, HEIGHT, 0.02), FACE)
 	board.position = Vector3(0.0, 0.0, 0.01)
 	face.add_child(board)
+
+
+## A pair of legs, which is what a board stands on where nothing else is going on.
+func _posts(stand: float) -> void:
+	for side: float in [-1.0, 1.0]:
+		var leg := _box(Vector3(POST, LIFT + HEIGHT * 0.5, POST), STEEL)
+		leg.position = Vector3(side * (WIDTH * 0.5 - POST), stand * 0.5 - HEIGHT * 0.5, 0.0)
+		add_child(leg)
+
+
+## Bolted to a tower of scaffold: four uprights, lifts across them and a diagonal in each bay.
+## A workshop puts a sign up out of what it has in the yard.
+func _scaffold(stand: float) -> void:
+	var tall := stand - HEIGHT * 0.5
+	var deep := 0.7
+	for side: float in [-1.0, 1.0]:
+		for back: float in [-1.0, 1.0]:
+			var leg := _box(Vector3(POST, tall, POST), STEEL)
+			leg.position = Vector3(side * (WIDTH * 0.5 - POST), tall * 0.5, back * deep * 0.5)
+			add_child(leg)
+		for lift: float in [0.34, 0.72]:
+			var rail := _box(Vector3(POST, POST, deep), STEEL)
+			rail.position = Vector3(side * (WIDTH * 0.5 - POST), tall * lift, 0.0)
+			add_child(rail)
+	for lift: float in [0.34, 0.72]:
+		var across := _box(Vector3(WIDTH - POST, POST, POST), STEEL)
+		across.position = Vector3(0.0, tall * lift, -deep * 0.5)
+		add_child(across)
+	var run := WIDTH - POST * 2.0
+	var rise := tall * 0.38
+	var brace := _box(Vector3(sqrt(run * run + rise * rise), POST, POST), STEEL)
+	brace.position = Vector3(0.0, tall * 0.53, -deep * 0.5)
+	brace.rotation.z = atan2(rise, run)
+	add_child(brace)
+
+
+## Hung from a rod that goes up out of the light, the way a sign hangs over a bar. A card room
+## has a ceiling somewhere; what it has down here is the sign and the dark above it.
+func _hanging(stand: float) -> void:
+	var top := stand + HEIGHT * 0.5 + FRAME
+	for side: float in [-1.0, 1.0]:
+		var rod := _box(Vector3(POST * 0.5, 14.0, POST * 0.5), STEEL)
+		rod.position = Vector3(side * (WIDTH * 0.5 - POST * 2.0), top + 7.0, 0.0)
+		add_child(rod)
+		var eye := _box(Vector3(POST * 1.6, POST * 1.6, POST * 1.6), STEEL)
+		eye.position = Vector3(side * (WIDTH * 0.5 - POST * 2.0), top, 0.0)
+		add_child(eye)
+
+
+## Two legs with a raking brace behind each and a plate under it, which is how a board stands in
+## a yard with nothing to bolt to and weather coming across it.
+func _braced(stand: float) -> void:
+	var tall := stand - HEIGHT * 0.5
+	for side: float in [-1.0, 1.0]:
+		var x := side * (WIDTH * 0.5 - POST)
+		var leg := _box(Vector3(POST * 1.3, tall, POST * 1.3), STEEL)
+		leg.position = Vector3(x, tall * 0.5, 0.0)
+		add_child(leg)
+		var rake := tall * 0.8
+		var brace := _box(Vector3(POST, sqrt(rake * rake + 1.6), POST), STEEL)
+		brace.position = Vector3(x, rake * 0.5, -0.6)
+		brace.rotation.x = atan2(1.2, rake)
+		add_child(brace)
+		var plate := _box(Vector3(0.9, 0.12, 1.8), STEEL)
+		plate.position = Vector3(x, 0.06, -0.4)
+		add_child(plate)
 
 
 func _box(size: Vector3, color: Color) -> MeshInstance3D:

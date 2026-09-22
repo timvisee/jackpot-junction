@@ -23,20 +23,23 @@ func _match(timed := true) -> Match:
 	return match_node
 
 
-## Two boards, out past the far corners rather than out at the sides, where the camera of 8.2
-## never looks.
-func test_the_room_puts_up_two_hoardings_behind_the_far_wall() -> void:
+## Two boards, outside the arena and never on the near side: where each room puts them is its
+## own business, GAME.md 8.1, but none of them stands on the floor or between the camera of 8.2
+## and the table.
+func test_the_room_puts_its_hoardings_up_outside_the_arena() -> void:
 	var match_node := _match()
 	await _runner.simulate_frames(4, 17)
 	var boards := match_node.arena.billboards.get_children()
 	assert_int(boards.size()).is_equal(2)
 	var half := match_node.arena.world_size() * 0.5
 	for board: Billboard in boards:
-		assert_float(board.position.z).is_less(-half.y)
-		assert_float(absf(board.position.x)).is_less(half.x)
+		var outside := absf(board.position.x) > half.x or absf(board.position.z) > half.y
+		assert_bool(outside).override_failure_message("a board is standing on the floor").is_true()
+		assert_float(board.position.z).is_less(half.y)
 		# And each is turned to face the table rather than standing side on to it. A board is
 		# built facing +Z, so that is the axis its face looks along.
-		assert_float(board.global_basis.z.z).is_greater(0.5)
+		var toward := -Vector3(board.position.x, 0.0, board.position.z).normalized()
+		assert_float(board.global_basis.z.dot(toward)).is_greater(0.9)
 
 
 ## GAME.md 8.1: the clock reads the match, in minutes and seconds, and turns red for Last Call.

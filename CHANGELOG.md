@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Every map hangs its hoardings its own way.** The workshop bolts one to a
+  scaffold tower and stands another out on a flank, the card room hangs both from
+  rods, and the yard braces a pair out by the corners.
+
 ### Fixed
 
 - **Nothing in a room is put down on top of anything else.** Stacks of chips grew

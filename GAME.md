@@ -1258,6 +1258,13 @@ measurement reads three times slower than the same build warm.
   seven seconds. A room wears 60 of them at
   once and the oldest goes to make room, so a long firefight against one wall does
   not end with the wall made of scorch marks.
+- **Hoardings**: two boards of the house's own advertising, plus the clock of 8.3.
+  Where they stand and what holds them up is the room's, GAME.md 8.1: the workshop
+  bolts one to a scaffold tower behind the far wall and stands another out on a
+  flank, the card room hangs both from rods over the far rail, and the yard braces
+  a pair against the wind out by the corners. The clock stays near the middle of
+  the far edge whatever the room does, since that is the one board a player looks
+  for rather than reads by accident.
 - **Traffic lights and road signs** as props at lane ends and near spawns.
 - **The mark**: the Junction seen from above. A gold poker chip with the notches
   round its rim, a crossroads cut through it so the gold is left in quarters, the
