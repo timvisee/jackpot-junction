@@ -31,8 +31,10 @@ const SPACING := 4.0
 const BAY := 8.0
 const BIG_BAY := 13.0
 const TRIES := 12
-## How much further out the near apron starts than the flanks do.
-const APRON_CLEAR := 3.0
+## How much further out the near apron starts than the flanks do. Small on purpose: the apron is
+## the one band of table the camera looks straight across, so what is put there is the closest
+## thing to the player in the whole room.
+const APRON_CLEAR := 1.0
 
 ## The room this clutter is lying about in, built alongside it.
 var shell: RoomShell
@@ -160,8 +162,10 @@ func _card_room() -> void:
 					_glass(at)
 				_:
 					_chip_stack(at)
-	for at: Vector3 in _apron(4):
-		if _rng.randf() < 0.5:
+	# More of it on the near apron than the other rooms put there, and most of it cards: a hand
+	# fanned out on the baize is the one thing in here worth having close to the camera.
+	for at: Vector3 in _apron(6):
+		if _rng.randf() < 0.7:
 			_fanned_cards(at)
 		else:
 			_dice(at)

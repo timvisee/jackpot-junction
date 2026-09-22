@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The Vault keeps its cards nearer the camera.** More of the hands are fanned out
+  on the near apron, and the apron itself starts closer in.
+
 - **The crowd fades out the further back it goes.** Eight rows now instead of four:
   packed at the rail, and thinner and further apart with every row behind it.
 
