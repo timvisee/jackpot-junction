@@ -9,7 +9,7 @@ Made with Godot 4.7 and GDScript. `GAME.md` holds the design, `PLAN.md` the
 implementation plan with the status of every milestone, and `CHANGELOG.md` what
 has changed in each release.
 
-![A felt-topped table arena lit by a lamp over it, standing on a dark wooden surround, with four karts on the felt and a crowd of onlookers ringing it several rows deep. A row of glass tanks filled to different levels, a DJ booth and three lit hoardings stand at the far edge, one of them keeping the match clock; the player's score sits on a dark card in the top left, the standings run down the right and a hand of joker cards along the bottom of the screen](docs/screenshot.png)
+![A green felt arena on a workbench, lit by a lamp over it, with karts driving between low blocks and a steel plate set into the felt in the middle of it. Bundles of rod stock and stacks of planks lie about the bench around the table, and a crowd of onlookers rings the arena, packed at the rail and thinning outward. A row of glass tanks filled to different levels, a DJ booth, two lit hoardings and a board keeping the match clock stand at the far edge; the player's score sits on a dark card in the top left, the standings run down the right and a hand of joker cards along the bottom of the screen](docs/screenshot.png)
 
 ## Playing
 
