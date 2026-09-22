@@ -28,10 +28,8 @@ const CARD_FACES: Array[Texture2D] = [
 	preload("res://assets/textures/card_clubs.png"),
 ]
 const CARD_BACK := preload("res://assets/textures/card_back.png")
-## The other two things a card room is made of, greyscale so that a chip takes the colour of the
-## stack it is in and a die stays ivory.
+## The notches round a chip, greyscale so that a chip takes the colour of the stack it is in.
 const CHIP_FACE := preload("res://assets/textures/chip_face.png")
-const DIE_FACE := preload("res://assets/textures/die_face.png")
 
 ## How many metres one tile of each texture covers. Set by what the thing is rather than by the
 ## texture: a table is boards a metre and a half wide, a yard is slabs two metres across, and the

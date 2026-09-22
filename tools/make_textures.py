@@ -151,28 +151,45 @@ def diamond(down, across, at, size):
     return tall + wide <= 1.0
 
 
+def wedge(down, across, at, size):
+    """A triangle: a flat top of `size[1]` half-width at `at`, narrowing to a point `size[0]` on."""
+    run = (down - at[0]) / size[0]
+    return (run >= 0.0) & (run <= 1.0) & (np.abs(across - at[1]) <= size[1] * (1.0 - run))
+
+
+def stem(down, across, at, height, top_half, bottom_half):
+    """A stem that widens as it goes down, which is what a club and a spade stand on."""
+    run = np.clip((down - at[0]) / height, 0.0, 1.0)
+    width = top_half + (bottom_half - top_half) * run
+    return (down >= at[0]) & (down <= at[0] + height) & (np.abs(across - at[1]) <= width)
+
+
 def heart(down, across, at, size):
-    """Two lobes and a point, which is a heart at any size that matters here."""
-    lobes = disc(down, across, (at[0] - size[0] * 0.3, at[1] - size[1] * 0.42), (size[0] * 0.44, size[1] * 0.5))
-    lobes |= disc(down, across, (at[0] - size[0] * 0.3, at[1] + size[1] * 0.42), (size[0] * 0.44, size[1] * 0.5))
-    point = diamond(down, across, (at[0] + size[0] * 0.25, at[1]), (size[0] * 0.78, size[1]))
-    return lobes | (point & (down >= at[0] - size[0] * 0.3))
+    """Two lobes with a triangle hung off the widest part of them."""
+    lobe = (size[0] * 0.44, size[1] * 0.52)
+    top = at[0] - size[0] * 0.28
+    lobes = disc(down, across, (top, at[1] - size[1] * 0.48), lobe)
+    lobes |= disc(down, across, (top, at[1] + size[1] * 0.48), lobe)
+    return lobes | wedge(down, across, (top, at[1]), (size[0] * 1.24, size[1]))
 
 
 def spade(down, across, at, size):
     """A heart turned over, with a stem under it."""
-    body = heart(1.0 - down, across, (1.0 - at[0] + size[0] * 0.1, at[1]), (size[0] * 0.9, size[1]))
-    stem = diamond(down, across, (at[0] + size[0] * 0.74, at[1]), (size[0] * 0.4, size[1] * 0.4))
-    return body | stem
+    body = heart(1.0 - down, across, (1.0 - at[0] + size[0] * 0.12, at[1]), (size[0] * 0.88, size[1]))
+    return body | stem(
+        down, across, (at[0] + size[0] * 0.42, at[1]), size[0] * 0.6, size[1] * 0.1, size[1] * 0.42
+    )
 
 
 def club(down, across, at, size):
     """Three lobes and a stem."""
-    leaves = disc(down, across, (at[0] - size[0] * 0.42, at[1]), (size[0] * 0.42, size[1] * 0.5))
-    leaves |= disc(down, across, (at[0] + size[0] * 0.18, at[1] - size[1] * 0.56), (size[0] * 0.42, size[1] * 0.5))
-    leaves |= disc(down, across, (at[0] + size[0] * 0.18, at[1] + size[1] * 0.56), (size[0] * 0.42, size[1] * 0.5))
-    stem = diamond(down, across, (at[0] + size[0] * 0.72, at[1]), (size[0] * 0.42, size[1] * 0.38))
-    return leaves | stem
+    lobe = (size[0] * 0.4, size[1] * 0.46)
+    leaves = disc(down, across, (at[0] - size[0] * 0.42, at[1]), lobe)
+    leaves |= disc(down, across, (at[0] + size[0] * 0.14, at[1] - size[1] * 0.54), lobe)
+    leaves |= disc(down, across, (at[0] + size[0] * 0.14, at[1] + size[1] * 0.54), lobe)
+    return leaves | stem(
+        down, across, (at[0] + size[0] * 0.3, at[1]), size[0] * 0.72, size[1] * 0.12, size[1] * 0.44
+    )
 
 
 def paint(field, mask, color):
@@ -219,7 +236,8 @@ save(Image.fromarray((back * 255.0).astype(np.uint8), mode="RGB"), "card_back.pn
 #
 # Both are wrapped round a shape rather than laid on a flat one, and both are greyscale so that
 # the chip takes its stack's colour and the die stays ivory. A chip is known by the notches round
-# its edge and the ring inside its face; a die by its pips.
+# its edge and the ring inside its face. A die is not here: a box maps one picture across its six
+# faces in pieces, so the pips on one are drawn as pips rather than printed.
 
 SQUARE = 256
 square = np.linspace(0.0, 1.0, SQUARE, endpoint=False)
@@ -233,16 +251,3 @@ chip = np.where(notch, 1.0, 0.82)
 # And the ring inside the face, for the top of a stack.
 chip = np.where(np.abs(chip_v - 0.5) < 0.06, 0.9, chip)
 save(Image.fromarray((chip * 255.0).astype(np.uint8), mode="L"), "chip_face.png")
-
-die = np.ones((SQUARE, SQUARE))
-pips = np.zeros((SQUARE, SQUARE), dtype=bool)
-for row in [0.25, 0.5, 0.75]:
-    for column in [0.25, 0.5, 0.75]:
-        if row == 0.5 and column != 0.5:
-            continue
-        if column == 0.5 and row != 0.5:
-            continue
-        pips |= (chip_v - row) ** 2 + (chip_u - column) ** 2 < 0.0075
-die = np.where(pips, 0.12, die)
-die = np.where(border(chip_v, chip_u, 0.04), 0.86, die)
-save(Image.fromarray((die * 255.0).astype(np.uint8), mode="L"), "die_face.png")

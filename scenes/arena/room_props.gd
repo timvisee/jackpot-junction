@@ -490,11 +490,25 @@ func _fanned_cards(at: Vector3) -> void:
 		lying.position += Vector3(sin(lying.rotation.y), 0.0, cos(lying.rotation.y)) * 1.1
 
 
+## A pair of dice, pips and all. Drawn rather than printed: a box maps one picture across its
+## six faces in pieces, so a die with a texture on it wears a quarter of a pip on each corner.
 func _dice(at: Vector3) -> void:
-	var ivory := surfaces.printed(Surfaces.DIE_FACE, Palette.CHIP_WHITE)
+	var ivory := surfaces.painted(Palette.CHIP_WHITE)
+	var spots := surfaces.painted(Color(0.16, 0.14, 0.15))
+	var size := 0.9
 	for i: int in 2:
-		var spot := at + Vector3(_rng.randf_range(-1.4, 1.4), 0.45, _rng.randf_range(-1.4, 1.4))
-		_turned(_box(Vector3.ONE * 0.9, ivory, spot), _rng.randf_range(0.0, TAU))
+		var spot := (
+			at + Vector3(_rng.randf_range(-1.4, 1.4), size * 0.5, _rng.randf_range(-1.4, 1.4))
+		)
+		var turn := _rng.randf_range(0.0, TAU)
+		_turned(_box(Vector3.ONE * size, ivory, spot), turn)
+		# Five on the face that is looked at, which is the only one a camera over a table sees.
+		for pip: Vector2 in [
+			Vector2(-1, -1), Vector2(1, -1), Vector2(0, 0), Vector2(-1, 1), Vector2(1, 1)
+		]:
+			var across := Vector3(pip.x, 0.0, pip.y) * size * 0.26
+			var on_top := spot + Vector3(0.0, size * 0.5, 0.0) + across.rotated(Vector3.UP, turn)
+			_box(Vector3(size * 0.16, size * 0.06, size * 0.16), spots, on_top)
 
 
 func _glass(at: Vector3) -> void:

@@ -41,6 +41,9 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The card room's suits and dice are drawn properly.** Hearts and clubs came out
+  looking like diamonds, and a die wore a quarter of a pip on each corner.
+
 - **The wall behind the workbench can be seen.** It stood too far back, in the
   table's own colour, with its pegboard hung above the top of the screen.
 
