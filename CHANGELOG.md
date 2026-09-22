@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The rooms are packed in tighter.** Everything the maps are dressed with now
+  starts right behind the crowd instead of trailing off into the distance, so the
+  truck, the brick pallets and the rest are close enough to see.
+
 - **A match opens on the room it is played in.** The camera is placed to hold the
   whole map and the crowd round it as the map finishes loading, and moves in on the
   karts from there over the countdown.

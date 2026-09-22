@@ -15,22 +15,22 @@ extends Node3D
 ## it, and the near side of the room is kept flat on purpose: the camera of 8.2 looks down the
 ## table from there, so anything standing up on that side is between the player and the game.
 
-## How far past the arena wall the clutter starts and how far out it may go: past the crowd and
-## the billboards, short of the edge of the table. Most of it lands near the start of that range,
-## because the camera of 8.2 only ever sees the first fifteen metres of it while a match is being
-## played.
-const NEAR := 7.0
-const FAR := 26.0
+## How far past the arena wall the clutter starts and how far out it may go: right behind the
+## crowd, and not much further. A room reads as somewhere because of what is close enough to make
+## out, and the camera of 8.2 sees very little past the stands while a match is being played, so
+## a prop twenty-five metres out is a prop nobody has ever seen.
+const NEAR := 6.0
+const FAR := 15.0
 ## How much the clutter crowds the near end of that range: the square of a flat random, which puts
 ## two thirds of it in the first half.
-const CROWDING := 2.0
+const CROWDING := 1.7
 ## How far out a prop has to be before it is allowed to be one of the big ones.
-const CLOSE := 15.0
+const CLOSE := 10.0
 ## The grid the clutter is set out on. Things put down by somebody line up with the edge of the
 ## table and roughly with each other; things dropped at random read as a spill whatever they are.
-const SPACING := 5.0
+const SPACING := 4.0
 ## How much further out the near apron starts than the flanks do.
-const APRON_CLEAR := 5.0
+const APRON_CLEAR := 3.0
 ## The table's own surface, a little under the arena floor. Everything outside the wall stands on
 ## this rather than on the floor the karts drive on.
 const TOP := -Arena.FLOOR_THICKNESS
@@ -91,8 +91,8 @@ func _workbench() -> void:
 	_pegboard(board)
 	_calendar(board)
 	var half := arena.world_size() * 0.5
-	_bench_lamp(Vector3(-(half.x + 17.0), TOP, -(half.y + 13.0)))
-	_vice(Vector3(-(half.x + 13.0), TOP, half.y * 0.25))
+	_bench_lamp(Vector3(-(half.x + 12.0), TOP, -(half.y + 10.0)))
+	_vice(Vector3(-(half.x + 9.0), TOP, half.y * 0.25))
 	var timber := surfaces.painted(room.table.lightened(0.16))
 	var steel := surfaces.metal(Color(0.64, 0.66, 0.7))
 	# Rod stock is painted rather than metal: there is nothing in a dim workshop for a metal to
@@ -139,7 +139,7 @@ func _card_room() -> void:
 	_rope_line()
 	var half := arena.world_size() * 0.5
 	for side: float in [-1.0, 1.0]:
-		_pendant(Vector3(side * half.x * 0.62, TOP, -(half.y + 12.0)))
+		_pendant(Vector3(side * half.x * 0.62, TOP, -(half.y + 10.0)))
 	for at: Vector3 in _ring(11):
 		if _close(at):
 			match _rng.randi_range(0, 2):
@@ -177,8 +177,8 @@ func _yard() -> void:
 	var timber := surfaces.painted(room.table.lightened(0.26))
 	var half := arena.world_size() * 0.5
 	for side: float in [-1.0, 1.0]:
-		_floodlight(Vector3(side * half.x * 0.8, TOP, -(half.y + 15.0)), steel)
-	_truck(Vector3(-(half.x + 11.0), TOP, half.y * 0.1), steel)
+		_floodlight(Vector3(side * half.x * 0.8, TOP, -(half.y + 11.0)), steel)
+	_truck(Vector3(-(half.x + 9.0), TOP, half.y * 0.1), steel)
 	for at: Vector3 in _ring(14):
 		if _close(at):
 			match _rng.randi_range(0, 2):

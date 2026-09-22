@@ -1141,11 +1141,12 @@ than a model, so a scaffold tower there is the size of a scaffold tower. All of 
 is boxes and cylinders in the room's own materials, which is what keeps a hammer
 and a stack of chips looking like they came out of the same game.
 
-Three rules keep the clutter out of the game. It starts past the crowd and most of
-it lands in the first few metres of that, because that is all a player ever sees of
-it; nothing big is allowed nearer than fifteen metres to the wall, and the flanks
-keep off the near corners; and the near apron carries only things that lie flat,
-since that is the side the camera looks across. None of it collides with anything,
+Three rules keep the clutter out of the game. It starts right behind the crowd and
+goes back nine metres from there, because a room reads as somewhere from what is
+close enough to make out and the camera sees very little past the stands; nothing
+big is allowed nearer than ten metres to the wall, and the flanks keep off the near
+corners; and the near apron carries only things that lie flat, since that is the
+side the camera looks across. None of it collides with anything,
 and a test holds the line: no prop's box may touch the arena's own, and nothing in
 front of the table may stand more than three metres tall.
 
