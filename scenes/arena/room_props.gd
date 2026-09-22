@@ -26,6 +26,9 @@ const FAR := 26.0
 const CROWDING := 2.0
 ## How far out a prop has to be before it is allowed to be one of the big ones.
 const CLOSE := 15.0
+## The grid the clutter is set out on. Things put down by somebody line up with the edge of the
+## table and roughly with each other; things dropped at random read as a spill whatever they are.
+const SPACING := 5.0
 ## How much further out the near apron starts than the flanks do.
 const APRON_CLEAR := 5.0
 ## The table's own surface, a little under the arena floor. Everything outside the wall stands on
@@ -83,12 +86,15 @@ func _workbench() -> void:
 	_pegboard(_backboard(24.0, room.table.lightened(0.22)))
 	var timber := surfaces.painted(room.table.lightened(0.16))
 	var steel := surfaces.metal(Color(0.64, 0.66, 0.7))
+	# Rod stock is painted rather than metal: there is nothing in a dim workshop for a metal to
+	# reflect, so a metal bar the size of this one reads as a black bar.
+	var stock := surfaces.painted(Color(0.7, 0.72, 0.76))
 	var handle := surfaces.painted(Color(0.58, 0.27, 0.16))
 	for at: Vector3 in _ring(14):
 		if _close(at):
 			match _rng.randi_range(0, 2):
 				0:
-					_screws(at, steel)
+					_rods(at, stock)
 				1:
 					_tape(at, surfaces.painted(Color(0.85, 0.78, 0.12)), steel)
 				_:
@@ -103,11 +109,14 @@ func _workbench() -> void:
 					_drill(at, surfaces.painted(Color(0.87, 0.66, 0.16)), steel)
 				_:
 					_mug(at, surfaces.painted(Color(0.87, 0.88, 0.91)))
-	for at: Vector3 in _apron(4):
-		if _rng.randf() < 0.5:
-			_pencil(at, surfaces.painted(Color(0.9, 0.72, 0.2)), steel)
-		else:
-			_screws(at, steel)
+	for at: Vector3 in _apron(3):
+		match _rng.randi_range(0, 2):
+			0:
+				_pencil(at, surfaces.painted(Color(0.9, 0.72, 0.2)), steel)
+			1:
+				_rods(at, stock)
+			_:
+				_rule(at, stock)
 
 
 ## A card room after hours: the baize is the floor, a rope line runs behind the crowd, and what
@@ -318,10 +327,14 @@ func _hoarding() -> void:
 	var panel := surfaces.metal(Color(0.62, 0.66, 0.6))
 	var post := surfaces.metal(Color(0.4, 0.42, 0.44))
 	var z := -(half.y - 1.5)
-	for i: int in 15:
-		var x := -half.x * 0.94 + float(i) * (half.x * 1.88 / 14.0)
-		_box(Vector3(half.x * 0.128, 6.0, 0.35), panel, Vector3(x, TOP + 3.0, z))
-		_box(Vector3(0.5, 6.6, 0.8), post, Vector3(x - half.x * 0.067, TOP + 3.3, z))
+	# The panels meet edge to edge. A hoarding with daylight between its boards is a fence, and a
+	# yard is hoarded off so that what is in it cannot be seen from the road.
+	var count := 15
+	var span := half.x * 1.9 / float(count)
+	for i: int in count:
+		var x := -half.x * 0.95 + (float(i) + 0.5) * span
+		_box(Vector3(span, 6.4, 0.35), panel, Vector3(x, TOP + 3.2, z))
+		_box(Vector3(0.5, 7.0, 0.8), post, Vector3(x - span * 0.5, TOP + 3.5, z))
 
 
 # --- where the clutter goes --------------------------------------------------
@@ -333,17 +346,17 @@ func _ring(count: int) -> Array[Vector3]:
 	var half := arena.world_size() * 0.5
 	var out: Array[Vector3] = []
 	for i: int in count:
-		var away := NEAR + (FAR - NEAR) * pow(_rng.randf(), CROWDING)
+		var away := _lined(NEAR + (FAR - NEAR) * pow(_rng.randf(), CROWDING))
 		var along := _rng.randf_range(-0.95, 0.95)
 		# Three out of five go behind the arena. The camera looks down the table, so that is the
 		# side a player sees for most of a match; the flanks are only ever glimpsed.
 		match i % 5:
 			0, 1, 2:
-				out.append(Vector3(along * half.x, TOP, -(half.y + away)))
+				out.append(Vector3(_lined(along * half.x), TOP, -(half.y + away)))
 			3:
-				out.append(Vector3(half.x + away, TOP, _flank() * (half.y + NEAR)))
+				out.append(Vector3(half.x + away, TOP, _lined(_flank() * (half.y + NEAR))))
 			_:
-				out.append(Vector3(-(half.x + away), TOP, _flank() * (half.y + NEAR)))
+				out.append(Vector3(-(half.x + away), TOP, _lined(_flank() * (half.y + NEAR))))
 	return out
 
 
@@ -352,6 +365,18 @@ func _ring(count: int) -> Array[Vector3]:
 ## five metres tall there is in the corner of the picture the whole match.
 func _flank() -> float:
 	return _rng.randf_range(-1.0, 0.25)
+
+
+## Puts [param along] on the grid the room is set out on, give or take a hand's width.
+func _lined(along: float) -> float:
+	return snappedf(along, SPACING) + _rng.randf_range(-0.6, 0.6)
+
+
+## An angle for something that was put down rather than dropped: square with the table, off by a
+## degree or two. A room where everything sits at its own angle reads as a mess however carefully
+## each thing is made, and a room where everything is exactly square reads as a spreadsheet.
+func _squared() -> float:
+	return snappedf(_rng.randf_range(0.0, TAU), PI * 0.5) + _rng.randf_range(-0.05, 0.05)
 
 
 ## Whether [param at] is one of the places near the arena. Only the small things go there: a
@@ -368,10 +393,10 @@ func _apron(count: int) -> Array[Vector3]:
 	var half := arena.world_size() * 0.5
 	var out: Array[Vector3] = []
 	for i: int in count:
-		var along := _rng.randf_range(-1.0, 1.0) * (half.x + FAR)
+		var along := _lined(_rng.randf_range(-1.0, 1.0) * (half.x + FAR))
 		# Further out than the flanks: a pencil is longer than it is far from the wall otherwise.
 		var away := NEAR + APRON_CLEAR + (FAR - NEAR - APRON_CLEAR) * pow(_rng.randf(), CROWDING)
-		out.append(Vector3(along, TOP, half.y + away))
+		out.append(Vector3(along, TOP, half.y + _lined(away)))
 	return out
 
 
@@ -379,14 +404,14 @@ func _apron(count: int) -> Array[Vector3]:
 
 
 func _hammer(at: Vector3, steel: Material, handle: Material) -> void:
-	var turn := _rng.randf_range(0.0, TAU)
+	var turn := _squared()
 	var out := Vector3(sin(turn), 0.0, cos(turn))
 	_turned(_box(Vector3(1.2, 1.2, 15.0), handle, at + Vector3(0.0, 0.6, 0.0)), turn)
 	_turned(_box(Vector3(2.8, 2.6, 5.4), steel, at + Vector3(0.0, 1.3, 0.0) + out * 8.6), turn)
 
 
 func _planks(at: Vector3, timber: Material) -> void:
-	var turn := _rng.randf_range(0.0, TAU)
+	var turn := _squared()
 	for i: int in _rng.randi_range(2, 3):
 		var lift := Vector3(_rng.randf_range(-0.6, 0.6), 0.6 + float(i) * 1.2, 0.0)
 		var plank := _box(Vector3(5.4, 1.2, 22.0), timber, at + lift)
@@ -394,7 +419,7 @@ func _planks(at: Vector3, timber: Material) -> void:
 
 
 func _drill(at: Vector3, shell: Material, steel: Material) -> void:
-	var turn := _rng.randf_range(0.0, TAU)
+	var turn := _squared()
 	var out := Vector3(sin(turn), 0.0, cos(turn))
 	_turned(_box(Vector3(3.6, 4.0, 9.0), shell, at + Vector3(0.0, 4.2, 0.0)), turn)
 	_turned(_box(Vector3(3.0, 5.6, 3.6), shell, at + Vector3(0.0, 2.8, 0.0) - out * 2.2), turn)
@@ -408,17 +433,26 @@ func _tin(at: Vector3, paint: Material, steel: Material) -> void:
 
 
 func _mug(at: Vector3, china: Material) -> void:
-	var turn := _rng.randf_range(0.0, TAU)
+	var turn := _squared()
 	var out := Vector3(sin(turn), 0.0, cos(turn))
 	_cylinder(2.6, 5.6, china, at + Vector3(0.0, 2.8, 0.0))
 	_turned(_box(Vector3(0.8, 2.6, 0.8), china, at + Vector3(0.0, 3.4, 0.0) + out * 2.9), turn)
 
 
-func _screws(at: Vector3, steel: Material) -> void:
-	for i: int in _rng.randi_range(7, 12):
-		var spot := at + Vector3(_rng.randf_range(-5.0, 5.0), 0.32, _rng.randf_range(-5.0, 5.0))
-		var screw := _cylinder(0.32, 3.0, steel, spot)
-		screw.rotation = Vector3(PI * 0.5, _rng.randf_range(0.0, TAU), 0.0)
+## A bundle of rod stock: three down, two nestled on top, all pointing the same way. Scattered
+## singly they read as a spill rather than as something stacked against the day it is wanted.
+func _rods(at: Vector3, steel: Material) -> void:
+	var turn := _squared()
+	var side := Vector3(cos(turn), 0.0, -sin(turn))
+	var radius := 0.42
+	var rows: Array[int] = [3, 2]
+	for tier: int in rows.size():
+		var count: int = rows[tier]
+		for i: int in count:
+			var across := (float(i) - float(count - 1) * 0.5) * radius * 2.05
+			var lift := radius + float(tier) * radius * 1.75
+			var rod := _cylinder(radius, 7.0, steel, at + side * across + Vector3(0.0, lift, 0.0))
+			rod.rotation = Vector3(PI * 0.5, turn, 0.0)
 
 
 ## A pencil, lying along the edge of the bench rather than across it. It is longer than the gap
@@ -426,14 +460,21 @@ func _screws(at: Vector3, steel: Material) -> void:
 func _pencil(at: Vector3, wood: Material, lead: Material) -> void:
 	var turn := PI * 0.5 + _rng.randf_range(-0.3, 0.3)
 	var out := Vector3(sin(turn), 0.0, cos(turn))
-	var shaft := _cylinder(0.55, 15.0, wood, at + Vector3(0.0, 0.55, 0.0))
+	var shaft := _cylinder(0.45, 9.0, wood, at + Vector3(0.0, 0.45, 0.0))
 	shaft.rotation = Vector3(PI * 0.5, turn, 0.0)
-	var tip := _cylinder(0.4, 1.6, lead, at + Vector3(0.0, 0.55, 0.0) + out * 8.0)
+	var tip := _cylinder(0.32, 1.2, lead, at + Vector3(0.0, 0.45, 0.0) + out * 5.0)
 	tip.rotation = shaft.rotation
 
 
+## A steel rule, lying along the front of the bench. The near apron takes flat things only, and
+## a rule is the flattest thing in a workshop.
+func _rule(at: Vector3, steel: Material) -> void:
+	var turn := PI * 0.5 + _rng.randf_range(-0.25, 0.25)
+	_turned(_box(Vector3(12.0, 0.18, 0.9), steel, at + Vector3(0.0, 0.09, 0.0)), turn)
+
+
 func _tape(at: Vector3, shell: Material, steel: Material) -> void:
-	var turn := _rng.randf_range(0.0, TAU)
+	var turn := _squared()
 	var out := Vector3(sin(turn), 0.0, cos(turn))
 	_turned(_box(Vector3(4.4, 4.2, 2.6), shell, at + Vector3(0.0, 2.1, 0.0)), turn)
 	_turned(_box(Vector3(1.8, 0.16, 4.0), steel, at + Vector3(0.0, 0.1, 0.0) + out * 3.2), turn)
@@ -442,27 +483,32 @@ func _tape(at: Vector3, shell: Material, steel: Material) -> void:
 # --- what is lying on the baize ----------------------------------------------
 
 
+## Chips, stacked and lined up: a player's stack is squared off in front of them rather than
+## strewn about the baize.
 func _chip_stack(at: Vector3) -> void:
 	var colors: Array[Color] = [Palette.CHIP_RED, Palette.CHIP_WHITE, room.trim, Palette.NEON_CYAN]
-	for stack: int in _rng.randi_range(2, 3):
+	var turn := _squared()
+	var side := Vector3(cos(turn), 0.0, -sin(turn))
+	var count := _rng.randi_range(2, 3)
+	for stack: int in count:
 		var ink: Color = colors[_rng.randi_range(0, colors.size() - 1)]
 		var chips := surfaces.painted(ink)
-		var foot := at + Vector3(_rng.randf_range(-2.4, 2.4), 0.0, _rng.randf_range(-2.4, 2.4))
+		var foot := at + side * (float(stack) - float(count - 1) * 0.5) * 2.4
 		for i: int in _rng.randi_range(5, 11):
 			_cylinder(1.0, 0.28, chips, foot + Vector3(0.0, 0.14 + float(i) * 0.28, 0.0))
 
 
-## A deck or three, boxed, with the house's own back on the box.
+## A deck or three, boxed, squared up the way a box of cards is left on a table.
 func _card_deck(at: Vector3) -> void:
 	var box := surfaces.printed(Surfaces.CARD_BACK)
-	var turn := _rng.randf_range(0.0, TAU)
+	var turn := _squared()
 	for i: int in _rng.randi_range(1, 3):
 		var lift := Vector3(0.0, 0.4 + float(i) * 0.82, 0.0)
 		_turned(_box(Vector3(2.4, 0.8, 3.4), box, at + lift), turn + _rng.randf_range(-0.1, 0.1))
 
 
-## A hand fanned out and left. Flat pictures rather than boxes: what a card is is its face, and a
-## picture of one costs a tenth of the mesh a box of the same size does.
+## A hand fanned out and left. Flat pictures rather than boxes: a card is a card face, and the
+## thickness of one is a tenth of the mesh it would take to carry it.
 func _fanned_cards(at: Vector3) -> void:
 	var face := surfaces.printed(Surfaces.CARD_FACE)
 	var turn := _rng.randf_range(0.0, TAU)
@@ -509,7 +555,7 @@ func _scaffold(at: Vector3, steel: Material) -> void:
 
 
 func _barrier(at: Vector3) -> void:
-	var turn := _rng.randf_range(0.0, TAU)
+	var turn := _squared()
 	var out := Vector3(cos(turn), 0.0, -sin(turn))
 	var warn := surfaces.painted(Color(0.92, 0.55, 0.12))
 	var pale := surfaces.painted(Color(0.9, 0.9, 0.88))
@@ -523,16 +569,25 @@ func _barrier(at: Vector3) -> void:
 		_turned(_box(Vector3(0.3, 2.0, 1.6), dark, foot), turn)
 
 
+## Barrels, stood in a row and one stacked on top, the way a yard keeps them.
 func _barrels(at: Vector3, paint: Material, steel: Material) -> void:
-	for i: int in _rng.randi_range(2, 4):
-		var foot := at + Vector3(_rng.randf_range(-3.0, 3.0), 0.0, _rng.randf_range(-3.0, 3.0))
-		_cylinder(1.0, 2.6, paint, foot + Vector3(0.0, 1.3, 0.0))
-		for height: float in [0.8, 1.8]:
-			_cylinder(1.06, 0.2, steel, foot + Vector3(0.0, height, 0.0))
+	var turn := _squared()
+	var side := Vector3(cos(turn), 0.0, -sin(turn))
+	var count := _rng.randi_range(2, 3)
+	for i: int in count:
+		_barrel(at + side * (float(i) - float(count - 1) * 0.5) * 2.1, paint, steel)
+	if count > 2:
+		_barrel(at + Vector3(0.0, 2.6, 0.0), paint, steel)
+
+
+func _barrel(at: Vector3, paint: Material, steel: Material) -> void:
+	_cylinder(1.0, 2.6, paint, at + Vector3(0.0, 1.3, 0.0))
+	for height: float in [0.8, 1.8]:
+		_cylinder(1.06, 0.2, steel, at + Vector3(0.0, height, 0.0))
 
 
 func _bricks(at: Vector3, clay: Material) -> void:
-	var turn := _rng.randf_range(0.0, TAU)
+	var turn := _squared()
 	for row: int in _rng.randi_range(4, 8):
 		for i: int in 4:
 			var lift := Vector3(0.0, 0.3 + float(row) * 0.62, (float(i) - 1.5) * 1.1)
@@ -541,7 +596,7 @@ func _bricks(at: Vector3, clay: Material) -> void:
 
 
 func _pallets(at: Vector3, timber: Material) -> void:
-	var turn := _rng.randf_range(0.0, TAU)
+	var turn := _squared()
 	for i: int in _rng.randi_range(2, 5):
 		var lift := 0.3 + float(i) * 0.5
 		_turned(_box(Vector3(4.0, 0.2, 3.2), timber, at + Vector3(0.0, lift, 0.0)), turn)
@@ -554,18 +609,22 @@ func _container(at: Vector3) -> void:
 	var paint := Color(0.24, 0.42, 0.34) if _rng.randf() < 0.5 else Color(0.5, 0.3, 0.2)
 	var shell := surfaces.painted(paint)
 	var rib := surfaces.metal(Color(0.5, 0.52, 0.5))
-	var turn := _rng.randf_range(0.0, TAU)
+	var turn := _squared()
 	_turned(_box(Vector3(12.0, 3.4, 3.4), shell, at + Vector3(0.0, 1.7, 0.0)), turn)
 	for i: int in 5:
 		var spot := at + Vector3((float(i) - 2.0) * 2.4, 1.7, 0.0)
 		_turned(_box(Vector3(0.3, 3.5, 3.5), rib, spot), turn)
 
 
+## Cones, set out in a line the way cones are set out.
 func _cones(at: Vector3) -> void:
 	var cone := surfaces.painted(Color(0.94, 0.42, 0.1))
 	var base := surfaces.painted(Color(0.2, 0.2, 0.22))
-	for i: int in _rng.randi_range(3, 6):
-		var foot := at + Vector3(_rng.randf_range(-4.0, 4.0), 0.0, _rng.randf_range(-4.0, 4.0))
+	var turn := _squared()
+	var side := Vector3(cos(turn), 0.0, -sin(turn))
+	var count := _rng.randi_range(3, 5)
+	for i: int in count:
+		var foot := at + side * (float(i) - float(count - 1) * 0.5) * 2.6
 		_box(Vector3(1.4, 0.2, 1.4), base, foot + Vector3(0.0, 0.1, 0.0))
 		_taper(0.5, 0.1, 1.8, cone, foot + Vector3(0.0, 1.0, 0.0))
 

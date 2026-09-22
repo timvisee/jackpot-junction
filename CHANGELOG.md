@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The rooms are tidied.** Everything outside the arena is lined up with the table
+  and stacked rather than scattered: rod stock in bundles, barrels in a row with
+  one on top, cones in a line, chips squared off.
+
 - **The Vault's cards look like cards.** The cards and decks left round the table
   were blank white slabs half again too big; they now carry a face and a back, at
   the size a card is next to a kart, and there are fewer of them.
