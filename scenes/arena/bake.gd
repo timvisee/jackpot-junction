@@ -43,7 +43,12 @@ static func merge(root: Node3D) -> int:
 		if counts[group] < WORTH_IT:
 			continue
 		part.get_parent().remove_child(part)
-		part.queue_free()
+		# Freed on the spot rather than queued. Between coming out of the tree and a queued free
+		# being run, a mesh is a node with no parent, which is what an orphan is; a room that was
+		# still merging when its test finished counted every one of them, and on a slow machine
+		# that was two dozen. Nothing holds these -- the doc above says as much -- so there is
+		# nothing to wait for.
+		part.free()
 	return made
 
 
