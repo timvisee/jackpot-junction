@@ -31,8 +31,13 @@ const CLOSE := 10.0
 const SPACING := 4.0
 ## The patch of table a prop takes for itself, and how many places it will try before it settles
 ## for one it has to share. Two stacks of chips in the same square metre read as one broken stack.
-const BAY := 7.0
-const TRIES := 8
+##
+## Two sizes of patch, because there are two sizes of prop: a bundle of rod stock is a bay, a
+## stack of boards is nearly twice one, and a small patch round a long thing is a long thing
+## lying through whatever was put down next to it.
+const BAY := 8.0
+const BIG_BAY := 13.0
+const TRIES := 12
 ## How much further out the near apron starts than the flanks do.
 const APRON_CLEAR := 3.0
 ## The table's own surface, a little under the arena floor. Everything outside the wall stands on
@@ -545,7 +550,8 @@ func _claimed(at: Vector3) -> Vector3:
 
 
 func _bay(at: Vector3) -> Rect2:
-	return Rect2(at.x - BAY * 0.5, at.z - BAY * 0.5, BAY, BAY)
+	var span := BAY if _close(at) else BIG_BAY
+	return Rect2(at.x - span * 0.5, at.z - span * 0.5, span, span)
 
 
 ## Puts [param along] on the grid the room is set out on, give or take a hand's width.
@@ -594,15 +600,15 @@ func _apron(count: int) -> Array[Vector3]:
 func _hammer(at: Vector3, steel: Material, handle: Material) -> void:
 	var turn := _squared()
 	var out := Vector3(sin(turn), 0.0, cos(turn))
-	_turned(_box(Vector3(1.2, 1.2, 15.0), handle, at + Vector3(0.0, 0.6, 0.0)), turn)
-	_turned(_box(Vector3(2.8, 2.6, 5.4), steel, at + Vector3(0.0, 1.3, 0.0) + out * 8.6), turn)
+	_turned(_box(Vector3(1.2, 1.2, 11.5), handle, at + Vector3(0.0, 0.6, 0.0)), turn)
+	_turned(_box(Vector3(2.8, 2.6, 4.6), steel, at + Vector3(0.0, 1.3, 0.0) + out * 6.6), turn)
 
 
 func _planks(at: Vector3, timber: Material) -> void:
 	var turn := _squared()
 	for i: int in _rng.randi_range(2, 3):
 		var lift := Vector3(_rng.randf_range(-0.6, 0.6), 0.6 + float(i) * 1.2, 0.0)
-		var plank := _box(Vector3(5.4, 1.2, 16.0), timber, at + lift)
+		var plank := _box(Vector3(5.0, 1.2, 11.0), timber, at + lift)
 		plank.rotation.y = turn + _rng.randf_range(-0.04, 0.04)
 
 
@@ -639,7 +645,7 @@ func _rods(at: Vector3, steel: Material) -> void:
 		for i: int in count:
 			var across := (float(i) - float(count - 1) * 0.5) * radius * 2.05
 			var lift := radius + float(tier) * radius * 1.75
-			var rod := _cylinder(radius, 7.0, steel, at + side * across + Vector3(0.0, lift, 0.0))
+			var rod := _cylinder(radius, 6.4, steel, at + side * across + Vector3(0.0, lift, 0.0))
 			rod.rotation = Vector3(PI * 0.5, turn, 0.0)
 
 
@@ -648,9 +654,9 @@ func _rods(at: Vector3, steel: Material) -> void:
 func _pencil(at: Vector3, wood: Material, lead: Material) -> void:
 	var turn := PI * 0.5 + _rng.randf_range(-0.3, 0.3)
 	var out := Vector3(sin(turn), 0.0, cos(turn))
-	var shaft := _cylinder(0.45, 9.0, wood, at + Vector3(0.0, 0.45, 0.0))
+	var shaft := _cylinder(0.45, 7.6, wood, at + Vector3(0.0, 0.45, 0.0))
 	shaft.rotation = Vector3(PI * 0.5, turn, 0.0)
-	var tip := _cylinder(0.32, 1.2, lead, at + Vector3(0.0, 0.45, 0.0) + out * 5.0)
+	var tip := _cylinder(0.32, 1.2, lead, at + Vector3(0.0, 0.45, 0.0) + out * 4.3)
 	tip.rotation = shaft.rotation
 
 
@@ -658,7 +664,7 @@ func _pencil(at: Vector3, wood: Material, lead: Material) -> void:
 ## a rule is the flattest thing in a workshop.
 func _rule(at: Vector3, steel: Material) -> void:
 	var turn := PI * 0.5 + _rng.randf_range(-0.25, 0.25)
-	_turned(_box(Vector3(12.0, 0.18, 0.9), steel, at + Vector3(0.0, 0.09, 0.0)), turn)
+	_turned(_box(Vector3(10.0, 0.18, 0.9), steel, at + Vector3(0.0, 0.09, 0.0)), turn)
 
 
 func _tape(at: Vector3, shell: Material, steel: Material) -> void:
@@ -800,7 +806,7 @@ func _container(at: Vector3) -> void:
 	var shell := surfaces.painted(paint)
 	var rib := surfaces.metal(Color(0.5, 0.52, 0.5))
 	var turn := _squared()
-	_turned(_box(Vector3(9.0, 3.4, 3.4), shell, at + Vector3(0.0, 1.7, 0.0)), turn)
+	_turned(_box(Vector3(8.4, 3.4, 3.4), shell, at + Vector3(0.0, 1.7, 0.0)), turn)
 	for i: int in 5:
 		var spot := at + Vector3((float(i) - 2.0) * 1.8, 1.7, 0.0)
 		_turned(_box(Vector3(0.3, 3.5, 3.5), rib, spot), turn)
@@ -812,9 +818,9 @@ func _cones(at: Vector3) -> void:
 	var base := surfaces.painted(Color(0.2, 0.2, 0.22))
 	var turn := _squared()
 	var side := Vector3(cos(turn), 0.0, -sin(turn))
-	var count := _rng.randi_range(3, 5)
+	var count := _rng.randi_range(3, 4)
 	for i: int in count:
-		var foot := at + side * (float(i) - float(count - 1) * 0.5) * 2.6
+		var foot := at + side * (float(i) - float(count - 1) * 0.5) * 2.2
 		_box(Vector3(1.4, 0.2, 1.4), base, foot + Vector3(0.0, 0.1, 0.0))
 		_taper(0.5, 0.1, 1.8, cone, foot + Vector3(0.0, 1.0, 0.0))
 

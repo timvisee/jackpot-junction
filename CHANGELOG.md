@@ -27,6 +27,10 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Long props stop lying through short ones.** A bundle of rod stock or a stack of
+  boards reserved the same patch of table as a mug did, so anything longer than the
+  patch ran through whatever was next to it.
+
 - **A player's HUD block holds its width.** It grew and shrank with the speedometer
   and the pot, which made the corner of the screen twitch all match.
 
