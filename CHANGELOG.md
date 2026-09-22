@@ -11,6 +11,8 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-22
+
 ### Added
 
 - **A fixed camera, in the accessibility settings.** It holds the whole arena for
@@ -300,7 +302,6 @@ below, and hands the notes to the release workflow.
 - **A picture for every power-up.** The item you are holding shows its own
   pictogram beside its name, and the roulette flicks through the others while the
   box is still opening.
-
 ## [0.3.3] - 2026-09-21
 
 Camera work: it sits closer to the karts, keeps the arena centred in the frame,
@@ -808,7 +809,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.3.3...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.4.0
 [0.3.3]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.3.3
 [0.3.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.3.2
 [0.3.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.3.1
