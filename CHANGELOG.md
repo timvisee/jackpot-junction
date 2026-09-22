@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The wall behind a room is close enough to see.** It stood sixty metres past the
+  crowd with nothing in between; it now runs just past the clutter, and the table
+  ends with it.
+
 - **The rooms are packed in tighter.** Everything the maps are dressed with now
   starts right behind the crowd instead of trailing off into the distance, so the
   truck, the brick pallets and the rest are close enough to see.

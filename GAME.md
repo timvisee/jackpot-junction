@@ -1126,9 +1126,11 @@ the dark: the eye finds the edge of it as soon as the camera moves. So each room
 built as a room. The table has a skirt and legs, it stands on a floor, and three
 walls go up round it -- the far one and the two sides, never the near one, because
 the camera sits there and a wall behind the camera is a wall in front of it the
-moment the view pulls out over the winner. The walls stand far enough out that the
-table is still what the eye lands on, and the air of 8.1 does the rest: past the
-stands everything thins into the room's own colour.
+moment the view pulls out over the winner. The walls stand a couple of metres past
+the edge of the table, which is a couple of metres past the furthest clutter: a
+wall sixty metres behind the crowd is a wall nobody ever knew was there, and the
+whole point of a room having one is that the table is in a room. The air of 8.1
+does the rest: past the stands everything thins into the room's own colour.
 
 Then what is in it. The workbench has a backboard with a pegboard on it and the
 tools of whoever built the thing lying where they were put down; the card room has

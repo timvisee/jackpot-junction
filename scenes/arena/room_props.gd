@@ -34,8 +34,10 @@ const APRON_CLEAR := 3.0
 ## The table's own surface, a little under the arena floor. Everything outside the wall stands on
 ## this rather than on the floor the karts drive on.
 const TOP := -Arena.FLOOR_THICKNESS
-## How far past the table the room itself goes, and how thick its walls are.
-const ROOM_SPREAD := 1.8
+## How far past the edge of the table the wall round the room stands, and how thick it is. Close
+## enough to be seen: a wall sixty metres behind the crowd is a wall nobody ever knew was there,
+## and the point of a room having one is that the table is in a room.
+const ROOM_CLEAR := 2.0
 const WALL_THICKNESS := 2.0
 
 var arena: Arena
@@ -250,7 +252,7 @@ func _legs(ink: Color) -> void:
 ## There is no wall on the near side. The camera sits there while the match is played, and a wall
 ## behind the camera is a wall in front of it the moment the view pulls out over the winner.
 func _room(floor_ink: Color, wall_ink: Color, drop: float, height: float) -> float:
-	var half := _table() * ROOM_SPREAD
+	var half := _room_half()
 	_ground = TOP - drop
 	_height = height
 	var ground := Vector3(half.x * 2.0, 3.0, half.y * 2.0)
@@ -299,7 +301,7 @@ func _pegboard(face: float) -> void:
 ## The folds in the drape behind a card room: a row of pleats down the far wall, which is what
 ## stops eighty metres of flat colour reading as a backdrop.
 func _drape(back: float) -> void:
-	var half := _table() * ROOM_SPREAD
+	var half := _room_half()
 	var fold := surfaces.painted(Color(0.24, 0.08, 0.12))
 	var count := 21
 	for i: int in count:
@@ -325,7 +327,7 @@ func _rope_line() -> void:
 ## The warehouse the yard backs onto: a band of windows across the wall and two roller doors
 ## under it.
 func _facade(back: float) -> void:
-	var half := _table() * ROOM_SPREAD
+	var half := _room_half()
 	var z := back + WALL_THICKNESS * 0.5 + 0.3
 	var glass := surfaces.painted(Color(0.16, 0.19, 0.24))
 	var door := surfaces.painted(Color(0.27, 0.28, 0.29))
@@ -340,16 +342,17 @@ func _facade(back: float) -> void:
 ## The hoarding round the back of a yard: corrugated panels on posts, at the edge of the apron
 ## rather than against the wall.
 func _hoarding() -> void:
-	var half := _table()
+	var half := arena.world_size() * 0.5
 	var panel := surfaces.metal(Color(0.62, 0.66, 0.6))
 	var post := surfaces.metal(Color(0.4, 0.42, 0.44))
-	var z := -(half.y - 1.5)
+	var z := -(half.y + FAR + 2.0)
 	# The panels meet edge to edge. A hoarding with daylight between its boards is a fence, and a
 	# yard is hoarded off so that what is in it cannot be seen from the road.
 	var count := 15
-	var span := half.x * 1.9 / float(count)
+	var wide := half.x + FAR
+	var span := wide * 2.0 / float(count)
 	for i: int in count:
-		var x := -half.x * 0.95 + (float(i) + 0.5) * span
+		var x := -wide + (float(i) + 0.5) * span
 		_box(Vector3(span, 6.4, 0.35), panel, Vector3(x, TOP + 3.2, z))
 		_box(Vector3(0.5, 7.0, 0.8), post, Vector3(x - span * 0.5, TOP + 3.5, z))
 
@@ -405,7 +408,7 @@ func _pendant(at: Vector3) -> void:
 ## Pictures on the wall of a card room: a frame, and something dark in it. What they are of is
 ## eighty metres from the table and nobody's business.
 func _pictures(back: float) -> void:
-	var half := _table() * ROOM_SPREAD
+	var half := _room_half()
 	var frame := surfaces.painted(room.trim.darkened(0.4))
 	var print := surfaces.painted(Color(0.12, 0.08, 0.1))
 	for side: float in [-1.0, 1.0]:
@@ -416,7 +419,7 @@ func _pictures(back: float) -> void:
 
 ## The board over the warehouse doors, lit the way a yard's sign is at the end of the day.
 func _sign(back: float) -> void:
-	var half := _table() * ROOM_SPREAD
+	var half := _room_half()
 	var at := Vector3(0.0, _ground + 34.0, back + WALL_THICKNESS * 0.5 + 0.5)
 	var board := surfaces.painted(Color(0.16, 0.17, 0.18))
 	var lit := surfaces.neon(room.trim, 0.5)
@@ -518,7 +521,7 @@ func _planks(at: Vector3, timber: Material) -> void:
 	var turn := _squared()
 	for i: int in _rng.randi_range(2, 3):
 		var lift := Vector3(_rng.randf_range(-0.6, 0.6), 0.6 + float(i) * 1.2, 0.0)
-		var plank := _box(Vector3(5.4, 1.2, 22.0), timber, at + lift)
+		var plank := _box(Vector3(5.4, 1.2, 16.0), timber, at + lift)
 		plank.rotation.y = turn + _rng.randf_range(-0.04, 0.04)
 
 
@@ -714,9 +717,9 @@ func _container(at: Vector3) -> void:
 	var shell := surfaces.painted(paint)
 	var rib := surfaces.metal(Color(0.5, 0.52, 0.5))
 	var turn := _squared()
-	_turned(_box(Vector3(12.0, 3.4, 3.4), shell, at + Vector3(0.0, 1.7, 0.0)), turn)
+	_turned(_box(Vector3(9.0, 3.4, 3.4), shell, at + Vector3(0.0, 1.7, 0.0)), turn)
 	for i: int in 5:
-		var spot := at + Vector3((float(i) - 2.0) * 2.4, 1.7, 0.0)
+		var spot := at + Vector3((float(i) - 2.0) * 1.8, 1.7, 0.0)
 		_turned(_box(Vector3(0.3, 3.5, 3.5), rib, spot), turn)
 
 
@@ -767,6 +770,11 @@ func _truck(at: Vector3, steel: Material) -> void:
 ## Half the table: the arena and its overhang together.
 func _table() -> Vector2:
 	return (arena.world_size() + Vector2.ONE * Arena.TABLE_OVERHANG) * 0.5
+
+
+## Half the room: the table and the clearance round it that the walls stand in.
+func _room_half() -> Vector2:
+	return _table() + Vector2.ONE * ROOM_CLEAR
 
 
 func _box(size: Vector3, skin: Material, at: Vector3) -> MeshInstance3D:
