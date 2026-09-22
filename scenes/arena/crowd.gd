@@ -289,9 +289,11 @@ func _build(size: Vector2) -> void:
 	_rng.seed = hash(size)
 	_size = size
 	# A rebuild starts from an empty table: the booth puts its own patch back as it goes down.
+	# Freed on the spot rather than queued: a node taken out of the tree and left waiting for a
+	# queued free is a node with no parent, which is what Godot counts as an orphan, and a house
+	# that rebuilt itself just before a test finished left two dozen of them lying about.
 	for child: Node in get_children():
-		remove_child(child)
-		child.queue_free()
+		child.free()
 	_spots.clear()
 	_shirts.clear()
 	_traits.clear()
