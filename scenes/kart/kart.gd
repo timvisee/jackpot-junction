@@ -761,12 +761,17 @@ func use_item() -> void:
 	var item := held_item
 	held_item = null
 	var running := effects.size()
+	var loaded := cannon.override_shots_left()
 	item.activate(self)
 	# Whatever it started is named after it, so the HUD of 8.3 can say what is running on a kart
-	# without knowing what any one power-up does.
+	# without knowing what any one power-up does. A cannon power-up loads shots rather than
+	# starting an effect, so it is named the same way.
 	for i: int in range(running, effects.size()):
 		effects[i].display_name = item.display_name
 		effects[i].color = item.color
+	if cannon.override_shots_left() > loaded:
+		cannon.override_name = item.display_name
+		cannon.override_color = item.color
 	item_used.emit(item)
 	Events.item_used.emit(slot, item.id)
 

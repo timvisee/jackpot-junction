@@ -6,6 +6,12 @@ extends RefCounted
 
 var stats: CannonStats
 var cooldown_left := 0.0
+## What the power-up that set the override was called, what colour it is drawn in and how many
+## shots it started with, so the HUD of 8.3 can say what is loaded without knowing what any one
+## power-up does. Filled in by the kart as the item is played.
+var override_name := ""
+var override_color := Color.WHITE
+var override_total := 0
 
 var _live: Array[Bullet] = []
 var _override: CannonStats
@@ -39,11 +45,14 @@ func current_stats() -> CannonStats:
 func set_override(override: CannonStats, shots: int) -> void:
 	_override = override
 	_override_shots = shots
+	override_total = shots
 
 
 func clear_override() -> void:
 	_override = null
 	_override_shots = 0
+	override_name = ""
+	override_total = 0
 
 
 func override_shots_left() -> int:

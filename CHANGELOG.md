@@ -186,6 +186,10 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A loaded cannon shows on the HUD.** The Spread Cannon and the Ricochet Cannon
+  are loaded with shots rather than timed, so they now get their own line counting
+  the shots down.
+
 - **The HUD says what power-up is running on you.** Under the item in hand,
   whatever it started is named in its own colour with a bar counting down the time
   it has left.

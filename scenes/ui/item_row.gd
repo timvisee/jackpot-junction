@@ -2,10 +2,11 @@ class_name ItemRow
 extends VBoxContainer
 ## What a player is carrying and what is running on them, GAME.md 8.3.
 ##
-## Two lines in one place, because they are one question: an item is picked up, held, played, and
-## then it is doing something for a few seconds. The first line is the item in hand, with its own
-## picture beside its name; the second is whatever it started, named the same and counting down.
-## Neither line is there when there is nothing to say.
+## Three lines in one place, because they are one question: an item is picked up, held, played,
+## and then it is doing something. The first is the item in hand, with its own picture beside its
+## name. Under it is whatever that item started and has still to finish -- an effect counting down
+## in seconds, a cannon counting down in shots -- named the same and in the same colour. None of
+## the lines is there when there is nothing for it to say.
 
 ## The picture beside the name, and how fast the picture flicks through the others while the box
 ## a player just drove into is still opening.
@@ -17,11 +18,15 @@ const BAR := Vector2(112.0, 5.0)
 
 var art: PowerUpArt.Picture
 var label: Label
+## The first running line's own two pieces, which is what most of a match has at most one of.
 var running: Label
 var clock: ProgressBar
 
 var _held: HBoxContainer
-var _effect: HBoxContainer
+## A line each for what is running: one for whatever a power-up started and one for a cannon
+## that is loaded with something. Two is the most a kart can have going at once that is worth
+## reading; a third would be a paragraph in the corner of the screen.
+var _lines: Array[Dictionary] = []
 
 
 ## Puts the two lines in [param parent], reading outward from the edge of the screen the block is
@@ -50,26 +55,50 @@ func show_kart(kart: Kart) -> void:
 			art.ink = kart.held_item.color
 			label.text = kart.held_item.display_name
 			label.add_theme_color_override("font_color", kart.held_item.color)
-	var longest := _longest(kart)
-	_effect.visible = longest != null
-	if longest == null:
-		return
-	running.text = longest.display_name
-	running.add_theme_color_override("font_color", longest.color)
-	clock.modulate = longest.color
-	clock.value = 100.0 * longest.time_left / maxf(longest.duration, 0.001)
+	var going := _going_on(kart)
+	for i: int in _lines.size():
+		var line: Dictionary = _lines[i]
+		var row: HBoxContainer = line["row"]
+		row.visible = i < going.size()
+		if not row.visible:
+			continue
+		var what: Dictionary = going[i]
+		var name_of_it: Label = line["name"]
+		var bar: ProgressBar = line["clock"]
+		name_of_it.text = what["name"]
+		name_of_it.add_theme_color_override("font_color", what["color"])
+		bar.modulate = what["color"]
+		bar.value = 100.0 * float(what["left"])
 
 
-## The effect with the most time left on it that has a name to show. A kart can be carrying two at
-## once; the one with longest to run is the one worth a line.
-func _longest(kart: Kart) -> KartEffect:
+## What is going on a kart, in the order it is worth reading: whatever a power-up started and is
+## still running, and whatever is loaded in the cannon. A cannon power-up runs out in shots rather
+## than in seconds -- the spread and the ricochet are loaded, not timed -- so the bar under it is
+## the shots left rather than the time.
+func _going_on(kart: Kart) -> Array[Dictionary]:
+	var going: Array[Dictionary] = []
 	var best: KartEffect = null
 	for effect: KartEffect in kart.effects:
 		if effect.display_name.is_empty():
 			continue
 		if best == null or effect.time_left > best.time_left:
 			best = effect
-	return best
+	if best != null:
+		var timed := {
+			"name": best.display_name,
+			"color": best.color,
+			"left": best.time_left / maxf(best.duration, 0.001),
+		}
+		going.append(timed)
+	var shots := kart.cannon.override_shots_left()
+	if shots > 0 and not kart.cannon.override_name.is_empty():
+		var loaded := {
+			"name": kart.cannon.override_name,
+			"color": kart.cannon.override_color,
+			"left": float(shots) / maxf(float(kart.cannon.override_total), 1.0),
+		}
+		going.append(loaded)
+	return going
 
 
 func _build(right: bool) -> void:
@@ -89,20 +118,24 @@ func _build(right: bool) -> void:
 		_held.add_child(art)
 		_held.add_child(label)
 	add_child(_held)
-	_effect = HBoxContainer.new()
-	_effect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_effect.alignment = edge
-	_effect.add_theme_constant_override("separation", 8)
-	running = _name(right)
-	Type.set_font(running, Type.numbers_text_font(), Type.LABEL)
-	clock = _clock()
-	if right:
-		_effect.add_child(running)
-		_effect.add_child(clock)
-	else:
-		_effect.add_child(clock)
-		_effect.add_child(running)
-	add_child(_effect)
+	for i: int in 2:
+		var row := HBoxContainer.new()
+		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.alignment = edge
+		row.add_theme_constant_override("separation", 8)
+		var named := _name(right)
+		Type.set_font(named, Type.numbers_text_font(), Type.LABEL)
+		var bar := _clock()
+		if right:
+			row.add_child(named)
+			row.add_child(bar)
+		else:
+			row.add_child(bar)
+			row.add_child(named)
+		add_child(row)
+		_lines.append({"row": row, "name": named, "clock": bar})
+	running = _lines[0]["name"]
+	clock = _lines[0]["clock"]
 
 
 func _name(right: bool) -> Label:

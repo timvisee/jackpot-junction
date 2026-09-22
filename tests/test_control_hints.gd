@@ -349,3 +349,32 @@ func test_a_running_power_up_says_what_it_is_and_how_long_is_left() -> void:
 	effect.time_left = effect.duration * 0.25
 	hud._update_blocks()
 	assert_float(row.clock.value).is_less(30.0)
+
+
+## A cannon power-up is loaded rather than timed, GAME.md 8.3, so the HUD counts its shots down
+## instead of its seconds: a Spread Cannon is running on a kart until the last shot of it is fired.
+func test_a_loaded_cannon_says_what_is_in_it() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(20, 17)
+	var hud := match_node.hud
+	var row: ItemRow = hud._blocks[0]["item"]
+	var kart := match_node.kart_of(0)
+	var spread: PowerUp = load("res://data/powerups/spread_cannon.tres")
+	kart.held_item = spread
+	kart.item_reveal_left = 0.0
+	kart.use_item()
+	hud._update_blocks()
+	var said := false
+	for line: Dictionary in row._lines:
+		var label: Label = line["name"]
+		if (line["row"] as Control).visible and label.text == spread.display_name:
+			said = true
+			assert_float((line["clock"] as ProgressBar).value).is_greater(90.0)
+	assert_bool(said).override_failure_message("the loaded cannon is not on the HUD").is_true()
+	# And it goes when the shots do.
+	kart.cannon.clear_override()
+	hud._update_blocks()
+	for line: Dictionary in row._lines:
+		var label: Label = line["name"]
+		if (line["row"] as Control).visible:
+			assert_bool(label.text == spread.display_name).is_false()
