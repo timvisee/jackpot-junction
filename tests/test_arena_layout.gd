@@ -113,7 +113,12 @@ func test_arena_scene_builds_from_the_layout() -> void:
 	assert_int(arena.turbo_pads.size()).is_equal(4)
 	assert_int(arena.flush_pads.size()).is_equal(4)
 	assert_int(arena.pits.size()).is_equal(2)
-	assert_int(arena.get_node("Walls").get_child_count()).is_equal(arena.grid.walls.size())
+	# One body per wall in the layout. The meshes are baked into a handful of merged ones, see
+	# GAME.md 8.1, so the bodies are what there is to count.
+	var bodies := 0
+	for wall: Node in arena.get_node("Walls").get_children():
+		bodies += 1 if wall is StaticBody3D else 0
+	assert_int(bodies).is_equal(arena.grid.walls.size())
 	assert_float(arena.junction_radius).is_equal_approx(2.5, 0.001)
 	assert_vector(arena.bounds().size).is_equal_approx(
 		Vector3(40.0, 1.0, 22.5), Vector3.ONE * 0.001

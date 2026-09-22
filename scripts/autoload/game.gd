@@ -93,10 +93,19 @@ func _step_bench() -> void:
 		return
 	var seconds := float(Time.get_ticks_usec() - _bench_started) / 1000000.0
 	var frames := _bench_frames - BENCH_WARMUP
+	# The draw calls go with the frame rate: a frame rate that has dropped tells you something is
+	# wrong and this says whether the answer is on the CPU, handing the card a thousand things to
+	# draw, or on the GPU drawing them.
+	var calls := RenderingServer.get_rendering_info(
+		RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME
+	)
+	var objects := RenderingServer.get_rendering_info(
+		RenderingServer.RENDERING_INFO_TOTAL_OBJECTS_IN_FRAME
+	)
 	print(
 		(
-			"bench %d frames in %.2fs: %.1f fps"
-			% [frames, seconds, float(frames) / maxf(seconds, 0.001)]
+			"bench %d frames in %.2fs: %.1f fps, %d draw calls, %d objects"
+			% [frames, seconds, float(frames) / maxf(seconds, 0.001), calls, objects]
 		)
 	)
 	get_tree().quit()

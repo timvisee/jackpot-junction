@@ -1175,18 +1175,30 @@ this existed, and anything that cannot hold that is not in a room by default:
 | Shadows from the sun | shared with the lamp | Only one of the two ever casts: a sun that is a hint casts nothing |
 | Screen-space occlusion | ~0.5 ms | Nowhere. It was half the cost of the room system and most of why the corners looked sooty |
 | Depth of field | ~0.4 ms | Nowhere by default |
-| The room and its clutter | under the noise | Every room: a few hundred boxes and cylinders, and the shell casts no shadows |
+| The room and its clutter | under the noise | Every room: a few hundred boxes and cylinders, merged at load into a dozen, and the shell casts no shadows |
+| Anti-aliasing | ~0.3 ms | Everywhere, at 2×. It is what keeps a room of straight edges from crawling |
 | Textures | ~0.1 ms | Everywhere. The two big slabs carry their own world-space UVs rather than being mapped triplanar, which is three texture reads saved on the meshes that cover most of the screen |
 
-**Why none of it is baked.** A lightmap is the obvious way to stop paying every
-frame for light on things that never move, and it is not one of the options here.
-Godot bakes lightmaps in the editor, onto meshes that carry a second set of UVs,
-and every surface in a room -- the table, the walls, the shell round it, the
-clutter on it -- is built in code while the map loads, so there is nothing on disk
-to bake and nothing to bake it against. The cost is cut instead of precomputed:
-one light per room casts shadows and the other casts none, the shadow map is drawn
-only as far out as the camera can see, and the shell round the table casts no
-shadow at all, which is the part of it that would have cost the most.
+**What is baked, and what cannot be.** A room is built out of boxes and cylinders,
+one node each, and one node is one thing for the card to draw: The Vault was asking
+for fourteen hundred draw calls a frame, most of them a poker chip or a pack of
+cards the size of a hand. None of it moves, none of it is ever hidden by itself,
+and all of it wears a material out of the room's own small set, so as the map loads
+it is merged -- one mesh per material and shadow setting, built in the room's own
+space, with the nodes it came from freed behind it. That is about sixty
+milliseconds of the map's load and it halves the draw calls: 1435 to 673 in The
+Vault, 958 to 720 on the Workbench, 1185 to 722 in The Yard. Breakable boxes are
+merged one box at a time, since each of them still has to go off the floor when it
+is shot, and the walls keep their colliders, since that is the part a kart drives
+into.
+
+The light is not baked and cannot be. Godot's lightmapper is an editor tool:
+`LightmapGI.bake` is not in the scripting API at all -- `ClassDB.class_has_method`
+says so on this build -- and the module behind it is compiled only into the editor,
+so an exported game has nothing to bake with even if the call existed. It would
+also not be the win here. What the frame rate is spent on in a room is the passes
+over the screen and the shadow map, both of which serve the karts, and the karts
+move.
 
 `make bench` prints the frame rate for a match on each map, measured over 600
 frames after a warm-up, so a change that costs frames is caught while it is being

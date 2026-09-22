@@ -35,6 +35,10 @@ var room: RoomLook
 var surfaces: Surfaces
 ## What the walls and the boxes inside the arena are made of, GAME.md 8.1.
 var kit: RoomKit
+## Whether the scenery is merged into as few meshes as it will go once it is built, GAME.md 8.1.
+## Off in the tests that look at what a room is made of: after a bake there is nothing left to
+## look at but the result.
+var bake_scenery := true
 var spawn_points: Array[Vector3] = []
 var turbo_pads: Array[TurboPad] = []
 var pits: Array[Pit] = []
@@ -443,6 +447,9 @@ func _add_walls() -> void:
 		# The block, its step and whatever the room puts up there, GAME.md 8.1.
 		body.add_child(kit.wall(size, i))
 		walls.add_child(body)
+	# Every wall in the room is the same handful of materials and none of them ever moves.
+	if bake_scenery:
+		Bake.merge(walls)
 
 
 func _add_spawns() -> void:
@@ -588,6 +595,10 @@ func _add_crates() -> void:
 		crate.add_child(kit.crate(size))
 		container.add_child(crate)
 		crates.append(crate)
+		# A box is two dozen little boxes and goes off the floor as one thing, so it is baked as
+		# one thing. Across boxes it cannot be: they are broken one at a time.
+		if bake_scenery:
+			Bake.merge(crate)
 
 
 func _add_pits() -> void:

@@ -72,6 +72,10 @@ func _build() -> void:
 			_yard()
 		_:
 			_workbench()
+	# And the lot of it goes into as few meshes as it will go, GAME.md 8.1: none of it moves and
+	# none of it is ever hidden on its own, so a chip does not need a draw call of its own.
+	if arena.bake_scenery:
+		Bake.merge(self)
 
 
 # --- the rooms ---------------------------------------------------------------

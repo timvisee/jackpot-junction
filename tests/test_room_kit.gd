@@ -9,9 +9,11 @@ const MAPS: Array[String] = ["lucky_crossing", "vault", "crossfire"]
 const SLACK := 0.002
 
 
+## Unbaked: after the merge of 8.1 there is no wall left to look at, only the result.
 func _arena(map: String) -> Arena:
 	var arena: Arena = auto_free(Arena.new())
 	arena.layout = load("res://data/maps/%s.tres" % map)
+	arena.bake_scenery = false
 	add_child(arena)
 	return arena
 

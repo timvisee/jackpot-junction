@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The scenery is baked into a handful of meshes as a map loads.** The rooms were
+  asking the card to draw everything they are dressed with one chip and one card at
+  a time; The Vault now asks for less than half of what it did.
+
 - **The rooms are tidied.** Everything outside the arena is lined up with the table
   and stacked rather than scattered: rod stock in bundles, barrels in a row with
   one on top, cones in a line, chips squared off.
