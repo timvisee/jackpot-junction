@@ -6,10 +6,21 @@ GD_DIRS := scenes scripts tests
 
 .PHONY: import test lint format format-check smoke run drive jokers logo textures bench bots changelog check export
 
+# Godot keeps its import cache and its register of every class_name in .godot. Without them
+# nothing runs: no class_name is known, so every script that names another fails to parse and the
+# autoloads never load, which is what a fresh clone and a cleared .godot both look like. The game
+# itself never writes them -- only an import or the editor does -- so the targets that start it
+# ask for them first. The register is the marker rather than the directory, so a warm tree pays
+# nothing and a cold one imports itself once.
+CACHE := .godot/global_script_class_cache.cfg
+
+$(CACHE):
+	$(GODOT) --headless --path . --import
+
 import:
 	$(GODOT) --headless --path . --import
 
-test:
+test: | $(CACHE)
 	$(GODOT) --headless --path . -s addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests -c --ignoreHeadlessMode
 
 lint:
@@ -21,7 +32,7 @@ format-check:
 format:
 	$(GDFORMAT) $(GD_DIRS)
 
-smoke:
+smoke: | $(CACHE)
 	tools/smoke res://scenes/ui/title.tscn 30
 	tools/smoke res://scenes/ui/lobby.tscn 30
 	tools/smoke res://scenes/ui/settings_screen.tscn 30
@@ -32,18 +43,18 @@ smoke:
 	tools/smoke res://scenes/dev/driving.tscn
 	tools/smoke res://scenes/dev/joker_sheet.tscn 30
 
-dev:
+dev: | $(CACHE)
 	$(GODOT) --path . res://scenes/dev/playground.tscn
 
-run:
+run: | $(CACHE)
 	$(GODOT) --path . res://scenes/ui/title.tscn
 
-drive:
+drive: | $(CACHE)
 	$(GODOT) --path . res://scenes/dev/driving.tscn
 
 # What the game runs at, as a number: a match of four bots on each map, 600 frames after the
 # warm-up. A change that costs frames should be caught here rather than in a play session.
-bench:
+bench: | $(CACHE)
 	$(GODOT) --path . --disable-vsync res://scenes/dev/playground.tscn -- --clean=1 --bots=3 --map=lucky_crossing --bench=720
 	$(GODOT) --path . --disable-vsync res://scenes/dev/playground.tscn -- --clean=1 --bots=3 --map=vault --bench=720
 	$(GODOT) --path . --disable-vsync res://scenes/dev/playground.tscn -- --clean=1 --bots=3 --map=crossfire --bench=720
@@ -54,16 +65,16 @@ textures:
 	python3 tools/make_textures.py
 
 # The game's own mark, drawn by LogoArt and written out as the icon the project wears.
-logo:
+logo: | $(CACHE)
 	$(GODOT) --path . res://scenes/dev/logo_export.tscn
 
 # Every icon in the game at once, to see the pictures of GAME.md 8.3a as one set.
-jokers:
+jokers: | $(CACHE)
 	$(GODOT) --path . res://scenes/dev/joker_sheet.tscn
 
 # Whole matches of bots, reported as numbers. Minutes rather than seconds, so it is its own
 # target rather than part of check.
-bots:
+bots: | $(CACHE)
 	tools/bot_arena
 
 # The changelog parses, and the version the game reports has notes to go with it.
@@ -72,7 +83,7 @@ changelog:
 
 check: import lint format-check changelog test smoke
 
-export:
+export: | $(CACHE)
 	mkdir -p build/linux build/windows build/macos
 	$(GODOT) --headless --path . --export-release "Linux" build/linux/jackpot-junction.x86_64
 	$(GODOT) --headless --path . --export-release "Windows" build/windows/jackpot-junction.exe

@@ -52,6 +52,13 @@ make test       # unit tests only (gdUnit4, headless)
 make export     # release builds for Linux, Windows and macOS in build/
 ```
 
+`.godot` is a build cache, not source: Godot keeps its imported assets and its
+register of every `class_name` there. The game cannot write it -- only an import
+or the editor can -- so a fresh clone or a cleared `.godot` looks thoroughly
+broken if it is started directly, with every script failing to parse because no
+class is known. The targets above import first when it is missing, so `make run`
+on a fresh clone works; `make import` does it on its own.
+
 Anything a player would notice gets a line in the `## [Unreleased]` section of
 `CHANGELOG.md` in the same commit, see GAME.md 10.4.
 
