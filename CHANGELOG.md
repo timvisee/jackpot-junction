@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A map is put up behind a loading screen.** The room is built a phase at a time
+  with its name and a progress bar on the screen, rather than in one go while the
+  last screen sits frozen.
+
 - **The scenery is baked into a handful of meshes as a map loads.** The rooms were
   asking the card to draw everything they are dressed with one chip and one card at
   a time; The Vault now asks for less than half of what it did.

@@ -4,6 +4,10 @@ extends Node3D
 ## clients run a puppet match fed by snapshots. Falls back to one human against three bots when
 ## started directly.
 
+## Told once the room is up and the match has started, for anything waiting on a scene that no
+## longer finishes building inside one frame.
+signal loaded
+
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const RETURN_DELAY := 2.5
 
@@ -29,6 +33,7 @@ func _ready() -> void:
 	add_child(match_node)
 	match config.online:
 		"host":
+			await _put_the_room_up()
 			match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles())
 			_start_session()
 			var error := session.host(config.port)
@@ -60,15 +65,29 @@ func _ready() -> void:
 			else:
 				_show_status("Connecting to %s:%d..." % [config.address, config.port])
 		_:
+			await _put_the_room_up()
 			match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles())
 	DebugOverlay.add_to(self, match_node, session)
 	PauseMenu.add_to(self, session)
+	loaded.emit()
+
+
+## Builds the room a phase at a time with a loading screen over it, GAME.md 8.6. A room takes
+## about a sixth of a second to put up and bake, which is ten frames of a screen that has stopped
+## if it is done in one go.
+func _put_the_room_up() -> void:
+	var arena := match_node.prepare_arena(true)
+	var named := ArenaMaps.NAMES[ArenaMaps.index_of(match_node.rules.map)]
+	var screen := LoadingScreen.add_to(self, named)
+	await screen.run(arena.build_steps(), "Building the room")
 
 
 ## Builds the client's match once the host's settings are in, including which map it is.
 func _build_puppet_arena() -> void:
 	match_node.arena_layout = ArenaMaps.layout(match_node.rules.map)
+	await _put_the_room_up()
 	match_node.start_puppet()
+	loaded.emit()
 
 
 ## IPv4 addresses of this machine other than loopback, for the lobby hint.

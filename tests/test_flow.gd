@@ -173,6 +173,9 @@ func test_match_scene_starts_from_the_pending_configuration() -> void:
 	Game.pending_config = config
 	var scene: Node3D = auto_free(load("res://scenes/match/match_scene.tscn").instantiate())
 	add_child(scene)
+	# The room goes up a phase at a time behind a loading screen now, GAME.md 8.6, so the scene
+	# says when it is playable rather than being playable the moment it is added.
+	await assert_signal(scene).is_emitted("loaded")
 	var match_node: Match = scene.get_node("Match")
 	assert_int(match_node.slots.size()).is_equal(2)
 	assert_float(match_node.rules.duration).is_equal(120.0)

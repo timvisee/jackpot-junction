@@ -1900,6 +1900,23 @@ All settings are saved between sessions, see 10.2.
   the table rather than the party that is worth being able to stop.
   Colour-blind roof markers are always on.
 
+### 8.6 Loading a map
+
+A room takes about a sixth of a second to put up: the floor, the walls, the
+thousand people round it, the clutter of 8.1 and the bake that merges the lot.
+Done in one go it is ten frames in which the last screen has stopped, which reads
+as the game hanging rather than as the game working.
+
+So a map goes up a phase at a time with a loading screen over it: the name of the
+room, a bar, and what is being built. The phases are the real ones -- the same list
+the room builds itself from -- so the bar moves when something has actually
+happened, and a room that takes longer to build shows a bar that takes longer to
+fill rather than one that lies faster. It is the same screen whether the match is
+local, hosted, or a client waiting on the host to say which room it is.
+
+Anything that cannot wait a frame -- the tests, the dev scenes -- builds the room
+in one go as before, which is the same room by the time it is finished.
+
 ## 9. Modes
 
 ### 9.1 Single-player against bots

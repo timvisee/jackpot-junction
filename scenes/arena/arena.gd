@@ -39,6 +39,9 @@ var kit: RoomKit
 ## Off in the tests that look at what a room is made of: after a bake there is nothing left to
 ## look at but the result.
 var bake_scenery := true
+## Whether this room builds itself the moment it enters the tree. A loader that means to put a
+## progress bar up runs [method build_steps] itself instead, GAME.md 8.6.
+var deferred_build := false
 var spawn_points: Array[Vector3] = []
 var turbo_pads: Array[TurboPad] = []
 var pits: Array[Pit] = []
@@ -72,7 +75,7 @@ var _rng: RandomNumberGenerator
 
 func _ready() -> void:
 	Events.bullet_struck.connect(_on_bullet_struck)
-	if layout != null and grid == null:
+	if layout != null and grid == null and not deferred_build:
 		build()
 
 
@@ -97,8 +100,43 @@ func _on_bullet_struck(at: Vector3, normal: Vector3, color: Color) -> void:
 	_marks = kept
 
 
-## Rebuilds every child from the layout.
+## Rebuilds every child from the layout, all in one go.
 func build() -> void:
+	for step: Callable in build_steps():
+		step.call()
+
+
+## The phases a room is built in, in order. Run one to a frame and a loading screen can say how
+## far along it is, GAME.md 8.6; run the lot and it is the build it has always been. A room takes
+## about a sixth of a second to put up, most of it the crowd and the baking of 8.1, which is long
+## enough to be a hitch if it happens while something is already on the screen.
+func build_steps() -> Array[Callable]:
+	return [
+		_clear_the_room,
+		_add_table,
+		_add_floor,
+		_add_walls,
+		_add_spawns,
+		_add_coin_pads,
+		_add_power_pads,
+		_add_flush_pads,
+		_add_targets,
+		_add_joker_pads,
+		_add_portals,
+		_add_turbo_pads,
+		_add_crates,
+		_add_pits,
+		_add_junction,
+		_add_jackpots,
+		_add_disco,
+		_add_crowd,
+		_add_billboards,
+		_add_props,
+	]
+
+
+## The first phase: what the room is made of, and nothing of the last one left in it.
+func _clear_the_room() -> void:
 	grid = layout.parse()
 	room = layout.room if layout.room != null else RoomLook.fallback()
 	surfaces = Surfaces.new(room)
@@ -121,25 +159,14 @@ func build() -> void:
 	pickups = Node3D.new()
 	pickups.name = "Pickups"
 	add_child(pickups)
-	_add_table()
-	_add_floor()
-	_add_walls()
-	_add_spawns()
-	_add_coin_pads()
-	_add_power_pads()
-	_add_flush_pads()
-	_add_targets()
-	_add_joker_pads()
-	_add_portals()
-	_add_turbo_pads()
-	_add_crates()
-	_add_pits()
-	_add_junction()
-	_add_jackpots()
-	_add_disco()
+
+
+func _add_crowd() -> void:
 	crowd = Crowd.add_to(self, world_size(), room)
-	_add_billboards()
-	# And whatever else the room has in it, GAME.md 8.1: its shell and its clutter.
+
+
+## And whatever else the room has in it, GAME.md 8.1: its shell and its clutter.
+func _add_props() -> void:
 	RoomProps.add_to(self)
 
 

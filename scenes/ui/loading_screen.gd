@@ -1,0 +1,89 @@
+class_name LoadingScreen
+extends CanvasLayer
+## What is on the screen while a map is being put up, GAME.md 8.6.
+##
+## A room takes about a sixth of a second to build and bake, which is ten frames of nothing
+## happening if it is done while the last screen is still up. So it is done a phase at a time
+## with this over the top: the name of the room, a bar, and the phase it is on.
+##
+## The bar is the real thing rather than an animation. It moves when a phase finishes, and the
+## phases are the ones in [method Arena.build_steps], so a room that takes longer to build shows
+## a bar that takes longer to fill rather than one that lies faster.
+
+## Over everything, including the match's own HUD.
+const LAYER := 100
+## How long the screen stays up after the last phase, so the bar is seen full rather than seen
+## to vanish at nine tenths.
+const LINGER := 0.12
+
+var room_name := ""
+
+var _bar: ProgressBar
+var _phase: Label
+
+
+## Puts a loading screen up over [param parent] for the room called [param room].
+static func add_to(parent: Node, room: String) -> LoadingScreen:
+	var screen := LoadingScreen.new()
+	screen.name = "LoadingScreen"
+	screen.room_name = room
+	screen.layer = LAYER
+	parent.add_child(screen)
+	return screen
+
+
+func _ready() -> void:
+	var back := ColorRect.new()
+	back.color = Color(0.04, 0.04, 0.05)
+	back.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(back)
+	var column := VBoxContainer.new()
+	column.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	column.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	column.grow_vertical = Control.GROW_DIRECTION_BOTH
+	column.add_theme_constant_override("separation", 14)
+	column.alignment = BoxContainer.ALIGNMENT_CENTER
+	add_child(column)
+	var title := Label.new()
+	title.text = room_name
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	Type.display(title, Type.TITLE, Color(0.94, 0.94, 0.97))
+	column.add_child(title)
+	_bar = ProgressBar.new()
+	_bar.custom_minimum_size = Vector2(420.0, 10.0)
+	_bar.max_value = 1.0
+	_bar.value = 0.0
+	_bar.show_percentage = false
+	_bar.add_theme_stylebox_override("background", _bar_style(Color(0.16, 0.16, 0.2)))
+	_bar.add_theme_stylebox_override("fill", _bar_style(Palette.CHIP_GOLD))
+	column.add_child(_bar)
+	_phase = Label.new()
+	_phase.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	Type.text(_phase, Type.LABEL, Color(0.66, 0.66, 0.72))
+	column.add_child(_phase)
+
+
+## Runs [param steps] one to a frame with the bar following them, and takes the screen down after
+## the last one. Awaited by whoever is loading the map.
+func run(steps: Array[Callable], label: String) -> void:
+	_phase.text = label
+	# Two frames before the first phase: one for this to be laid out, one for it to be drawn.
+	# Otherwise the first thing on the screen is the frame the room was built in.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	for i: int in steps.size():
+		steps[i].call()
+		_bar.value = float(i + 1) / float(steps.size())
+		await get_tree().process_frame
+	await get_tree().create_timer(LINGER).timeout
+	queue_free()
+
+
+func _bar_style(fill: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.corner_radius_top_left = 5
+	style.corner_radius_top_right = 5
+	style.corner_radius_bottom_left = 5
+	style.corner_radius_bottom_right = 5
+	return style

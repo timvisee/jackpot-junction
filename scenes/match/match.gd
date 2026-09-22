@@ -134,7 +134,7 @@ func start(
 	_seed = seed if seed != 0 else randi()
 	rng.seed = _seed
 	_names_rng.seed = _seed + 7919
-	arena = _build_arena()
+	arena = prepare_arena()
 	arena.start_economy(rules, rng, power_ups, joker_catalog)
 	nav = ArenaNav.new(arena.grid)
 	for i: int in arena.crates.size():
@@ -405,9 +405,19 @@ func _add_intensity() -> void:
 
 ## Instantiates the arena on the chosen map. The layout has to be in place before the node
 ## enters the tree, because that is when it builds itself.
-func _build_arena() -> Arena:
+## The room, built. A loader that means to show a progress bar asks for it with [param stepped],
+## runs [method Arena.build_steps] itself and then starts the match, GAME.md 8.6; everything else
+## lets this build it in one go when the match starts.
+func prepare_arena(stepped := false) -> Arena:
+	if arena == null:
+		arena = _build_arena(stepped)
+	return arena
+
+
+func _build_arena(stepped := false) -> Arena:
 	var built: Arena = ARENA_SCENE.instantiate()
 	built.name = "Arena"
+	built.deferred_build = stepped
 	if arena_layout != null:
 		built.layout = arena_layout
 	add_child(built)
@@ -427,7 +437,7 @@ func join_network(input: NetInput) -> PlayerSlot:
 ## bullets and pickups appear as snapshots arrive.
 func start_puppet() -> void:
 	puppet = true
-	arena = _build_arena()
+	arena = prepare_arena()
 	for zone: JackpotZone in arena.jackpot_zones:
 		zone.rules = rules
 		zone.puppet = true
