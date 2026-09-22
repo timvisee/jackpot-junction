@@ -44,6 +44,28 @@ func _stand_in(for_arena: Arena, called: String) -> void:
 	for_arena.add_child(self)
 
 
+## Deals [param count] choices out of [param kinds], shuffled, so a room gets one of everything
+## before it gets two of anything. Rolling for each place separately is what leaves a yard with
+## five stacks of barrels in one corner and no bricks anywhere.
+##
+## Shuffled with the room's own generator rather than with [method Array.shuffle], which uses the
+## global one and would dress the same room differently every time it was built.
+func _deal(kinds: int, count: int) -> Array[int]:
+	var out: Array[int] = []
+	while out.size() < count:
+		var deck: Array[int] = []
+		for kind: int in kinds:
+			deck.append(kind)
+		for i: int in range(deck.size() - 1, 0, -1):
+			var j := _rng.randi_range(0, i)
+			var keep: int = deck[i]
+			deck[i] = deck[j]
+			deck[j] = keep
+		out.append_array(deck)
+	out.resize(count)
+	return out
+
+
 ## Half the table: the arena and its overhang together.
 func _table() -> Vector2:
 	return (arena.world_size() + Vector2.ONE * Arena.TABLE_OVERHANG) * 0.5

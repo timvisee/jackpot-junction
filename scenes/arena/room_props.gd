@@ -28,8 +28,8 @@ const SPACING := 4.0
 ## Two sizes of patch, because there are two sizes of prop: a bundle of rod stock is a bay, a
 ## stack of boards is nearly twice one, and a small patch round a long thing is a long thing
 ## lying through whatever was put down next to it.
-const BAY := 8.0
-const BIG_BAY := 13.0
+const BAY := 10.0
+const BIG_BAY := 15.0
 const TRIES := 12
 ## How much further out the near apron starts than the flanks do. Small on purpose: the apron is
 ## the one band of table the camera looks straight across, so what is put there is the closest
@@ -102,9 +102,13 @@ func _workbench() -> void:
 	# reflect, so a metal bar the size of this one reads as a black bar.
 	var stock := surfaces.painted(Color(0.7, 0.72, 0.76))
 	var handle := surfaces.painted(Color(0.58, 0.27, 0.16))
-	for at: Vector3 in _ring(14):
+	var ring := _ring(14)
+	var near_kinds := _deal(3, ring.size())
+	var far_kinds := _deal(4, ring.size())
+	for i: int in ring.size():
+		var at: Vector3 = ring[i]
 		if _close(at):
-			match _rng.randi_range(0, 2):
+			match near_kinds[i]:
 				0:
 					_rods(at, stock)
 				1:
@@ -112,7 +116,7 @@ func _workbench() -> void:
 				_:
 					_tin(at, surfaces.painted(Color(0.76, 0.78, 0.82)), steel)
 		else:
-			match _rng.randi_range(0, 3):
+			match far_kinds[i]:
 				0:
 					_hammer(at, steel, handle)
 				1:
@@ -145,9 +149,13 @@ func _card_room() -> void:
 		var hung := Vector3(side * half.x * 0.62, TOP, -(half.y + 10.0))
 		_pendant(hung)
 		_claim(hung, Vector2(9.0, 9.0))
-	for at: Vector3 in _ring(11):
+	var ring := _ring(11)
+	var near_kinds := _deal(3, ring.size())
+	var far_kinds := _deal(3, ring.size())
+	for i: int in ring.size():
+		var at: Vector3 = ring[i]
 		if _close(at):
-			match _rng.randi_range(0, 2):
+			match near_kinds[i]:
 				0:
 					_dice(at)
 				1:
@@ -155,7 +163,7 @@ func _card_room() -> void:
 				_:
 					_chip_stack(at)
 		else:
-			match _rng.randi_range(0, 2):
+			match far_kinds[i]:
 				0:
 					_card_deck(at)
 				1:
@@ -187,13 +195,13 @@ func _yard() -> void:
 	for side: float in [-1.0, 1.0]:
 		var mast := Vector3(side * half.x * 0.8, TOP, -(half.y + 11.0))
 		_floodlight(mast, steel)
-		_claim(mast, Vector2(8.0, 8.0))
+		_claim(mast, Vector2(10.0, 10.0))
 	var truck := Vector3(-(half.x + 9.0), TOP, half.y * 0.1)
 	_truck(truck, steel)
-	_claim(truck, Vector2(9.0, 17.0))
+	_claim(truck, Vector2(12.0, 20.0))
 	var lift := Vector3(half.x + 8.0, TOP, -half.y * 0.45)
 	_forklift(lift)
-	_claim(lift, Vector2(8.0, 12.0))
+	_claim(lift, Vector2(11.0, 15.0))
 	for side: float in [-1.0, 1.0]:
 		var line := Vector3(side * half.x * 0.55, TOP, -(half.y + 6.5))
 		_hazard_tape(line, 6.0, 0.0)
@@ -201,9 +209,13 @@ func _yard() -> void:
 	var across := Vector3(-(half.x + 7.0), TOP, half.y * 0.55)
 	_hazard_tape(across, 5.0, PI * 0.5)
 	_claim(across, Vector2(4.0, 6.0))
-	for at: Vector3 in _ring(14):
+	var ring := _ring(14)
+	var near_kinds := _deal(3, ring.size())
+	var far_kinds := _deal(4, ring.size())
+	for i: int in ring.size():
+		var at: Vector3 = ring[i]
 		if _close(at):
-			match _rng.randi_range(0, 2):
+			match near_kinds[i]:
 				0:
 					_cones(at)
 				1:
@@ -211,7 +223,7 @@ func _yard() -> void:
 				_:
 					_barrels(at, surfaces.painted(Color(0.78, 0.44, 0.14)), steel)
 		else:
-			match _rng.randi_range(0, 3):
+			match far_kinds[i]:
 				0:
 					_scaffold(at, steel)
 				1:
@@ -382,6 +394,7 @@ func _apron(count: int) -> Array[Vector3]:
 	var out: Array[Vector3] = []
 	for i: int in count:
 		var spot := Vector3.ZERO
+		var room_for_it := false
 		for attempt: int in TRIES:
 			var along := _lined(_rng.randf_range(-1.0, 1.0) * (half.x + FAR))
 			# Further out than the flanks: a pencil is longer than it is far from the wall.
@@ -389,9 +402,11 @@ func _apron(count: int) -> Array[Vector3]:
 				NEAR + APRON_CLEAR + (FAR - NEAR - APRON_CLEAR) * pow(_rng.randf(), CROWDING)
 			)
 			spot = Vector3(along, TOP, half.y + _lined(away))
-			if _free(spot):
+			room_for_it = _free(spot)
+			if room_for_it:
 				break
-		out.append(_claimed(spot))
+		if room_for_it:
+			out.append(_claimed(spot))
 	return out
 
 

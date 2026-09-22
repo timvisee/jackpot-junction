@@ -47,6 +47,11 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A room deals its clutter rather than rolling for it.** The yard was ending up
+  with piles of barrels in one corner and nothing anywhere else; each kind of thing
+  now comes out once before any of them comes out twice, and a prop with nowhere
+  free to stand is left out rather than stood on top of something.
+
 - **The Vault's hoardings are clear of the clock.** One stood a few metres off the
   clock board and read as a second board stuck behind it.
 

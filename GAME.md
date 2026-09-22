@@ -1177,11 +1177,17 @@ pictures on its wall; the lit sign over the warehouse doors in the yard and the
 paint on the apron under them. A room reads as somewhere because of these rather
 than because of the clutter, which is what fills the space between them.
 
+What a room puts where is dealt rather than rolled: the kinds of thing it has are
+shuffled into a deck and dealt one to a place, so it gets one of everything before
+it gets two of anything. Rolling for each place separately is what left a yard with
+five stacks of barrels in one corner and no bricks in it at all.
+
 Nothing is put down on top of anything else, either. The crowd keeps a list of the
 patches already spoken for -- the booth, the hoardings, the tanks -- and the
-clutter asks for it, adds its own as it goes, and tries somewhere else up to eight
-times before it settles for a spot it has to share. That is what stops a stack of
-chips growing out of the DJ booth and a hoarding standing in a pile of rod stock.
+clutter asks for it, adds its own as it goes, and tries somewhere else a dozen times
+before giving that prop up entirely: one thing fewer in a full room beats two of them
+in one place. That is what stops a stack of chips growing out of the DJ booth and a
+hoarding standing in a pile of rod stock.
 
 A fourth rule is about how it looks rather than where it is: it was put there by
 somebody. Everything sits on a five-metre grid a hand's width off and square with
