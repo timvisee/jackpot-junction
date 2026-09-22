@@ -18,10 +18,10 @@ const AIM_STEPS := 24
 ## How wide the band between sharp and soft is, in metres: wide enough that nothing snaps into
 ## focus as the rig comes in or pulls out.
 const FOCUS_BAND := 22.0
-## Metres of floor left round the arena while the camera is waiting for the lights, on top of
-## the margin it always leaves. A player who has just picked a map should see the map, and the
+## Metres of floor left round the arena in the shot a match opens on, on top of the margin the
+## rig always leaves. A player who has just picked a map should see the map, and a little of the
 ## room round it, before the rig comes in and makes the karts the subject.
-const ROOM_MARGIN := 7.0
+const ROOM_MARGIN := 3.0
 
 @export var pitch_degrees := 55.0
 @export var base_fov := 35.0
@@ -68,7 +68,7 @@ var _distance := 40.0
 ## whole arena, which is where it sits when there is nobody to follow.
 var _arena_distance := 40.0
 var _arena_lift := 0.0
-## The same, with the room round the arena in it as well: where the camera waits out a countdown.
+## The same, with the room round the arena in it as well: the shot a match opens on.
 var _room_distance := 40.0
 var _room_lift := 0.0
 var _pan := Vector3.ZERO
@@ -77,8 +77,9 @@ var _shake := 0.0
 var _framed := false
 ## Set at the whistle: the karts stop being the subject and the room becomes it again.
 var _opening_up := false
-## Set until the lights go green: the room is the subject before a match as well as after one.
-var _holding_room := false
+## Whether this room has had its opening shot yet. One to a room: a match that waits in a lobby
+## and then counts down opens once, not once for each.
+var _opened := false
 ## How far the aim is slid along the camera's up axis to put the slack on both sides of what is
 ## being framed rather than all of it above, see [method _frame_points].
 var _lift := 0.0
@@ -130,6 +131,7 @@ func frame_arena(bounds: AABB) -> void:
 	var wider := _fit_arena(ROOM_MARGIN)
 	_room_distance = wider.x
 	_room_lift = wider.y
+	_opened = false
 	_distance = _arena_distance
 	_lift = _arena_lift
 	# Far enough to follow the karts anywhere on the floor, and no further: the look-at point
@@ -156,27 +158,20 @@ func show_the_room(seconds: float) -> void:
 	distance_smoothing = smoothing
 
 
-## Holds the room rather than coming in on the karts, for the countdown of GAME.md 8.2. The
-## start of a match is the one moment a player has to look at the place they are about to drive
-## in, so they are shown it: the arena, the crowd round it and a bite of the room past that.
-func hold_the_room() -> void:
-	if _holding_room:
+## The shot a match opens on, GAME.md 8.2: the arena, the crowd round it and a little of the
+## room past that. Placed rather than eased into, since this happens while the map is being built
+## behind the loading screen of 8.6 and there is nothing on the screen for a cut to be a cut in.
+##
+## Nothing is held. From the first frame the rig is doing what it always does -- coming in on the
+## karts -- so the opening shot is where the move starts rather than a wait before it.
+func open_on_the_room() -> void:
+	if _opened or not _framed:
 		return
-	_holding_room = true
-	if not _framed:
-		return
-	# Placed rather than eased into. This is called as a match is built, behind the loading
-	# screen of 8.6, so there is nothing on the screen yet for a cut to be a cut in.
+	_opened = true
 	_distance = _room_distance
 	_lift = _room_lift
 	_pan = Vector3.ZERO
 	_place(_distance, _pan, _zoom)
-
-
-## Makes the karts the subject again, at the whistle. The rig comes in over the second or so its
-## own smoothing takes, which is the move that says the match has started.
-func follow_the_karts() -> void:
-	_holding_room = false
 
 
 ## Follows its targets from close in rather than framing the whole arena, for the driving room
@@ -256,7 +251,7 @@ static func _valid(list: Array[Node3D]) -> Array[Node3D]:
 ## one furthest out is the one that falls off the edge.
 func _target_pan() -> Vector3:
 	var alive := _alive_targets()
-	if _opening_up or _holding_room or alive.is_empty():
+	if _opening_up or alive.is_empty():
 		return Vector3.ZERO
 	var offset := (_target_box(alive).get_center() - _center) * pan_weight
 	offset.y = 0.0
@@ -270,8 +265,6 @@ func _target_pan() -> Vector3:
 func _target_framing() -> Vector2:
 	if not _framed:
 		return Vector2(_distance, 0.0)
-	if _holding_room:
-		return Vector2(_room_distance, _room_lift)
 	var alive := _alive_targets()
 	if _opening_up or alive.is_empty():
 		return Vector2(_arena_distance, _arena_lift)

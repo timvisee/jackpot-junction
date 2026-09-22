@@ -13,9 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
-- **The camera waits on the room until the lights go green.** A match now opens on
-  the whole map, the crowd and the room round it, and comes in on the karts as the
-  countdown ends.
+- **A match opens on the room it is played in.** The camera is placed to hold the
+  whole map and the crowd round it as the map finishes loading, and moves in on the
+  karts from there over the countdown.
 
 - **Each room has landmarks of its own.** A lamp on an arm and a vice on the bench,
   two shades and a pair of pictures in the card room, a lit sign and painted
