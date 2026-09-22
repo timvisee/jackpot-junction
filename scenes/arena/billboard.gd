@@ -59,6 +59,11 @@ var room: RoomLook
 ## What holds it up, which the room decides, see [method mount_for].
 var mount := Mount.POSTS
 
+## The legs, the tower or the rods, whichever the room asked for: baked into one mesh, since none
+## of it moves and all of it is the same steel.
+var _mount: Node3D
+var _paints: Dictionary[String, StandardMaterial3D] = {}
+
 
 ## How a room holds its signs up.
 static func mount_for(in_room: RoomLook) -> Mount:
@@ -138,6 +143,9 @@ func fitted(text: String, size: float) -> float:
 
 func _build() -> void:
 	var stand := LIFT + HEIGHT * 0.5
+	_mount = Node3D.new()
+	_mount.name = "Mount"
+	add_child(_mount)
 	match mount:
 		Mount.SCAFFOLD:
 			_scaffold(stand)
@@ -149,7 +157,10 @@ func _build() -> void:
 			_posts(stand)
 	var frame := _box(Vector3(WIDTH + FRAME * 2.0, HEIGHT + FRAME * 2.0, DEPTH), STEEL)
 	frame.position = Vector3(0.0, stand, 0.0)
-	add_child(frame)
+	_mount.add_child(frame)
+	# What holds a board up never moves and is all one colour, so it is one mesh, GAME.md 8.1.
+	# A tower of scaffold is fifteen boxes otherwise, and every board in the room has one.
+	Bake.merge(_mount)
 	face = Node3D.new()
 	face.name = "Face"
 	face.position = Vector3(0.0, stand, DEPTH * 0.5)
@@ -164,7 +175,7 @@ func _posts(stand: float) -> void:
 	for side: float in [-1.0, 1.0]:
 		var leg := _box(Vector3(POST, LIFT + HEIGHT * 0.5, POST), STEEL)
 		leg.position = Vector3(side * (WIDTH * 0.5 - POST), stand * 0.5 - HEIGHT * 0.5, 0.0)
-		add_child(leg)
+		_mount.add_child(leg)
 
 
 ## Bolted to a tower of scaffold: four uprights, lifts across them and a diagonal in each bay.
@@ -176,21 +187,21 @@ func _scaffold(stand: float) -> void:
 		for back: float in [-1.0, 1.0]:
 			var leg := _box(Vector3(POST, tall, POST), STEEL)
 			leg.position = Vector3(side * (WIDTH * 0.5 - POST), tall * 0.5, back * deep * 0.5)
-			add_child(leg)
+			_mount.add_child(leg)
 		for lift: float in [0.34, 0.72]:
 			var rail := _box(Vector3(POST, POST, deep), STEEL)
 			rail.position = Vector3(side * (WIDTH * 0.5 - POST), tall * lift, 0.0)
-			add_child(rail)
+			_mount.add_child(rail)
 	for lift: float in [0.34, 0.72]:
 		var across := _box(Vector3(WIDTH - POST, POST, POST), STEEL)
 		across.position = Vector3(0.0, tall * lift, -deep * 0.5)
-		add_child(across)
+		_mount.add_child(across)
 	var run := WIDTH - POST * 2.0
 	var rise := tall * 0.38
 	var brace := _box(Vector3(sqrt(run * run + rise * rise), POST, POST), STEEL)
 	brace.position = Vector3(0.0, tall * 0.53, -deep * 0.5)
 	brace.rotation.z = atan2(rise, run)
-	add_child(brace)
+	_mount.add_child(brace)
 
 
 ## Hung from a rod that goes up out of the light, the way a sign hangs over a bar. A card room
@@ -200,10 +211,10 @@ func _hanging(stand: float) -> void:
 	for side: float in [-1.0, 1.0]:
 		var rod := _box(Vector3(POST * 0.5, 14.0, POST * 0.5), STEEL)
 		rod.position = Vector3(side * (WIDTH * 0.5 - POST * 2.0), top + 7.0, 0.0)
-		add_child(rod)
+		_mount.add_child(rod)
 		var eye := _box(Vector3(POST * 1.6, POST * 1.6, POST * 1.6), STEEL)
 		eye.position = Vector3(side * (WIDTH * 0.5 - POST * 2.0), top, 0.0)
-		add_child(eye)
+		_mount.add_child(eye)
 
 
 ## Two legs with a raking brace behind each and a plate under it, which is how a board stands in
@@ -214,15 +225,15 @@ func _braced(stand: float) -> void:
 		var x := side * (WIDTH * 0.5 - POST)
 		var leg := _box(Vector3(POST * 1.3, tall, POST * 1.3), STEEL)
 		leg.position = Vector3(x, tall * 0.5, 0.0)
-		add_child(leg)
+		_mount.add_child(leg)
 		var rake := tall * 0.8
 		var brace := _box(Vector3(POST, sqrt(rake * rake + 1.6), POST), STEEL)
 		brace.position = Vector3(x, rake * 0.5, -0.6)
 		brace.rotation.x = atan2(1.2, rake)
-		add_child(brace)
+		_mount.add_child(brace)
 		var plate := _box(Vector3(0.9, 0.12, 1.8), STEEL)
 		plate.position = Vector3(x, 0.06, -0.4)
-		add_child(plate)
+		_mount.add_child(plate)
 
 
 func _box(size: Vector3, color: Color) -> MeshInstance3D:
@@ -234,11 +245,17 @@ func _box(size: Vector3, color: Color) -> MeshInstance3D:
 	return node
 
 
+## A coat of paint, one instance per colour rather than one per box. Two boxes wearing the same
+## colour can be baked into one mesh, and a board's mount is fifteen of them.
 func _paint(color: Color, lit: bool) -> StandardMaterial3D:
+	var key := "%s%d" % [color.to_html(), 1 if lit else 0]
+	if _paints.has(key):
+		return _paints[key]
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
 	if lit:
 		material.emission_enabled = true
 		material.emission = color
 		material.emission_energy_multiplier = 0.7 * room.neon
+	_paints[key] = material
 	return material
