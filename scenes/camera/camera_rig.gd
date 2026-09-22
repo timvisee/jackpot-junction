@@ -15,6 +15,9 @@ const TREMBLE_SHAKE := 0.2
 ## How many halvings the aim is solved in, see [method _aim_lift]. Twenty-four takes it well past
 ## a pixel on any screen anybody has.
 const AIM_STEPS := 24
+## And how many the look-ahead is trimmed in, see [method _afforded]. Fewer, because the answer is
+## a lead in metres rather than a position on the screen: a tenth of a metre is nobody's business.
+const LEAD_STEPS := 10
 ## How wide the band between sharp and soft is, in metres: wide enough that nothing snaps into
 ## focus as the rig comes in or pulls out.
 const FOCUS_BAND := 22.0
@@ -40,6 +43,21 @@ const ROOM_MARGIN := 3.0
 ## purpose: a camera that pumps in and out with every bump is worse than one that is too far off.
 @export var distance_smoothing := 1.2
 @export var shake_decay := 4.0
+## How far ahead of the karts being driven on this machine the camera looks: seconds of travel at
+## whatever speed they are doing, and the most that is ever worth in metres, so a turbo does not
+## fling the aim off across the floor. Zero looks straight at them.
+@export var lead_seconds := 0.65
+@export var lead_limit := 8.0
+## And what the look-ahead may cost, as a fraction of the distance the rig would be at without it.
+## Sliding the aim ahead pushes whatever is behind towards the edge of the screen and the fit
+## answers by pulling back: given its head, seven metres of lead took the camera half again as far
+## out in a close fight, which is a worse picture than the one it was fixing.
+@export var lead_cost := 0.12
+## And how much of the margin of floor behind the karts it may take while it is at it. Floor
+## behind a kart is floor nobody is looking at: handed to the road ahead it comes off the trailing
+## side of what is framed rather than out of the distance, so the first few metres of lead are
+## free rather than merely cheap.
+@export var lead_margin := 0.7
 ## How far above the floor the ears sit, so a kart right under them is not at zero distance.
 ## [member KartSoundStats.unit_size] has to match it: that is the distance a kart plays at its
 ## written level, so the two moving apart quietly changes every level in the kart mix.
@@ -83,6 +101,9 @@ var _opened := false
 ## How far the aim is slid along the camera's up axis to put the slack on both sides of what is
 ## being framed rather than all of it above, see [method _frame_points].
 var _lift := 0.0
+## The look-ahead in force, worked out with the pan and used again by the framing so that the two
+## agree about where the camera is looking and what it has to hold on screen.
+var _led := Vector3.ZERO
 var _rng := RandomNumberGenerator.new()
 
 
@@ -248,14 +269,76 @@ static func _valid(list: Array[Node3D]) -> Array[Node3D]:
 
 ## The middle of everybody rather than the average of them: with the camera framing the karts,
 ## what has to sit in the middle of the screen is the middle of the box they are all in, or the
-## one furthest out is the one that falls off the edge.
+## one furthest out is the one that falls off the edge. Slid the way the karts being driven here
+## are going, see [method _lead].
+##
+## The lead goes on before the limit rather than after it, so a player already driving at the wall
+## gets none of it. There is nothing out there to look ahead at, and the rule that the aim stays
+## over the table is what keeps the camera off the crowd.
 func _target_pan() -> Vector3:
 	var alive := _alive_targets()
 	if _opening_up or alive.is_empty():
 		return Vector3.ZERO
 	var offset := (_target_box(alive).get_center() - _center) * pan_weight
 	offset.y = 0.0
-	return offset.limit_length(pan_limit)
+	_led = _lead(alive, _center + offset)
+	return (offset + _led).limit_length(pan_limit)
+
+
+## How far to slide the aim towards where the karts being driven on this machine are going,
+## GAME.md 8.2, with [param alive] the karts being framed and [param at] where the rig would be
+## looking without it.
+##
+## The rig frames every kart, which puts the middle of all of them in the middle of the screen; for
+## the player at the wheel that is as much screen behind their kart as in front, and what a driver
+## needs is the road ahead. This slides the aim the way they are actually travelling -- travel
+## rather than facing, so a kart sliding out of a corner leads the way it is really going -- by
+## however far they would get in [member lead_seconds]. Standing still it is nothing, so a kart
+## waiting on the grid still sits in the middle.
+##
+## Only the karts somebody is driving here get it. A rival's kart is something to watch, not
+## somewhere to look, and leading for all four would be four leads cancelling each other out.
+func _lead(alive: Array[Node3D], at: Vector3) -> Vector3:
+	var driven := _valid(listener_targets)
+	if lead_seconds <= 0.0 or driven.is_empty():
+		return Vector3.ZERO
+	var ahead := Vector3.ZERO
+	for target: Node3D in driven:
+		var body := target as CharacterBody3D
+		if body != null:
+			ahead += Vector3(body.velocity.x, 0.0, body.velocity.z)
+	var want := (ahead * (lead_seconds / float(driven.size()))).limit_length(lead_limit)
+	return _afforded(want, alive, at)
+
+
+## As much of [param want] as the framing can pay for. The fit in [method _target_framing] still
+## has to hold every kart on screen from wherever the aim ends up, so a lead that slides the aim
+## off the middle of the field is paid for in distance. Whatever it can have for
+## [member lead_cost] it takes, and the rest it gives up: a camera that pulls back to look ahead
+## has made everything smaller to show more of it, which is the trade the other way round.
+##
+## With one kart to follow it is nearly all free, since the rig is already as close as it is
+## allowed to get and the slack under that clamp costs nothing to spend.
+##
+## Solved by halving rather than in closed form: which corner of the framing binds changes as the
+## aim slides, so what a lead costs is not a straight line in how far it goes.
+func _afforded(want: Vector3, alive: Array[Node3D], at: Vector3) -> Vector3:
+	if not _framed or alive.is_empty() or want.is_zero_approx():
+		return want
+	var plain := _needed_distance(_framed_corners(alive, Vector3.ZERO), at)
+	var budget := maxf(plain, follow_min_distance) * (1.0 + lead_cost)
+	if _needed_distance(_framed_corners(alive, want), at + want) <= budget:
+		return want
+	var low := 0.0
+	var high := 1.0
+	for i: int in LEAD_STEPS:
+		var mid := (low + high) * 0.5
+		var tried := want * mid
+		if _needed_distance(_framed_corners(alive, tried), at + tried) <= budget:
+			low = mid
+		else:
+			high = mid
+	return want * low
 
 
 ## How far back the camera has to be for every kart, with its margin of floor, to be on screen:
@@ -268,16 +351,33 @@ func _target_framing() -> Vector2:
 	var alive := _alive_targets()
 	if _opening_up or alive.is_empty():
 		return Vector2(_arena_distance, _arena_lift)
+	var corners := _framed_corners(alive, _led)
+	# The aim is worked out at the distance actually used, since a clamp changes what sits where.
+	var at := _center + _pan
+	var far := clampf(_needed_distance(corners, at), follow_min_distance, _arena_distance)
+	return Vector2(far, _aim_lift(corners, at, far))
+
+
+## The corners of the box the rig has to hold on screen: every kart it is tracking with its
+## margin of floor round it, from the floor to the top of the walls.
+##
+## With a [param lead] on, up to [member lead_margin] of that margin comes off the trailing side.
+## Floor behind a kart is floor nobody is looking at, and taking it there rather than out of the
+## distance is what makes the first few metres of look-ahead free: the trailing corner ends up
+## exactly as far from the aim as it was before the aim moved.
+func _framed_corners(alive: Array[Node3D], lead: Vector3) -> Array[Vector3]:
 	var box := _target_box(alive).grow(follow_margin)
+	for axis: int in [Vector3.AXIS_X, Vector3.AXIS_Z]:
+		var give := minf(absf(lead[axis]), follow_margin * lead_margin)
+		box.size[axis] -= give
+		if lead[axis] > 0.0:
+			box.position[axis] += give
 	box.position.y = 0.0
 	box.size.y = maxf(_wall_height, 1.5)
 	var corners: Array[Vector3] = []
 	for i: int in 8:
 		corners.append(box.get_endpoint(i))
-	# The aim is worked out at the distance actually used, since a clamp changes what sits where.
-	var at := _center + _pan
-	var far := clampf(_needed_distance(corners, at), follow_min_distance, _arena_distance)
-	return Vector2(far, _aim_lift(corners, at, far))
+	return corners
 
 
 ## The box every tracked kart is inside.

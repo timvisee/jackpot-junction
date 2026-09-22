@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The camera looks ahead of the kart you are driving.** The aim slides the way you
+  are travelling, so there is more road in front of you than behind.
+
 - **The Yard keeps barrels where you can see them.** A stack now stands in against
   the fence on either flank instead of only turning up out past the crowd.
 

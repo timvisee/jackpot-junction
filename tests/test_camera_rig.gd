@@ -273,3 +273,58 @@ func test_the_whistle_stops_the_screen_shaking() -> void:
 		rig._process(0.05)
 	assert_float(rig._shake).is_equal(0.0)
 	Game.settings.screen_shake = was
+
+
+## GAME.md 8.2: the camera looks ahead of the karts being driven on this machine, so the player at
+## the wheel has more screen in front of them than behind. Only those karts lead it -- a rival's is
+## something to watch rather than somewhere to look.
+func test_the_camera_looks_ahead_of_the_kart_being_driven_here() -> void:
+	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())
+	add_child(rig)
+	rig.frame_arena(BOUNDS)
+	var kart: CharacterBody3D = auto_free(CharacterBody3D.new())
+	add_child(kart)
+	kart.global_position = Vector3(2.0, 0.0, 0.0)
+	rig.targets.assign([kart] as Array[Node3D])
+	# Nobody driving it from here, so the aim sits on it however fast it is going.
+	kart.velocity = Vector3(10.5, 0.0, 0.0)
+	assert_float(rig._target_pan().x).is_equal_approx(2.0, 0.01)
+	# Driven from here and going right: the aim slides right of it, onto the road ahead.
+	rig.listener_targets.assign([kart] as Array[Node3D])
+	var led := rig._target_pan()
+	assert_float(led.x).is_greater(3.0)
+	assert_float(absf(led.z)).is_less(0.5)
+	# The other way leads the other way, and standing still leads nowhere.
+	kart.velocity = Vector3(-10.5, 0.0, 0.0)
+	assert_float(rig._target_pan().x).is_less(0.0)
+	kart.velocity = Vector3.ZERO
+	assert_float(rig._target_pan().x).is_equal_approx(2.0, 0.01)
+
+
+## And looking ahead never loses anybody. The fit still has to hold every kart on screen from
+## wherever the lead has taken the aim, so it pays for the lead in distance.
+func test_looking_ahead_still_keeps_every_kart_on_screen() -> void:
+	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())
+	add_child(rig)
+	rig.frame_arena(BOUNDS)
+	var driven: CharacterBody3D = auto_free(CharacterBody3D.new())
+	add_child(driven)
+	driven.global_position = Vector3(14.0, 0.0, 6.0)
+	driven.velocity = Vector3(10.5, 0.0, 0.0)
+	var rival: Node3D = auto_free(Node3D.new())
+	add_child(rival)
+	rival.global_position = Vector3(-14.0, 0.0, -6.0)
+	rig.targets.assign([driven, rival] as Array[Node3D])
+	rig.listener_targets.assign([driven] as Array[Node3D])
+	for i: int in 400:
+		rig._process(0.05)
+	await await_idle_frame()
+	rig.camera.fov = rig.base_fov * rig.zoom_min
+	for at: Vector3 in [driven.global_position, rival.global_position]:
+		(
+			assert_bool(rig.camera.is_position_in_frustum(at))
+			. override_failure_message("a kart at %s is off the screen" % at)
+			. is_true()
+		)
+	# The aim is ahead of the driven kart rather than on the middle of the two.
+	assert_float(rig._pan.x).is_greater(3.0)
