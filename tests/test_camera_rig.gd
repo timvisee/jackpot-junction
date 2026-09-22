@@ -15,6 +15,10 @@ var _was_fixed := false
 
 func before_test() -> void:
 	_was_fixed = Game.settings.fixed_camera
+	# Off to start with, whatever the machine running the tests has in its own settings file.
+	# Every test here but the two about the fixed camera is a test about one that follows karts,
+	# and a player who had turned it on would watch this suite fail twelve ways.
+	Game.settings.fixed_camera = false
 
 
 func after_test() -> void:

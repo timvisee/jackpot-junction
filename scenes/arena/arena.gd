@@ -25,7 +25,6 @@ const PIT_DEPTH := 1.1
 const PIT_RIM := 0.09
 const PIT_WALL_TOP := Color(0.13, 0.17, 0.14)
 const PIT_RIM_COLOR := Color(0.1, 0.12, 0.11)
-const JUNCTION_BASE_COLOR := Color("#1E1E24")
 
 @export var layout: ArenaLayout
 
@@ -760,32 +759,14 @@ func _add_junction() -> void:
 	pad.position = junction_position
 	add_child(pad)
 	junction = pad
-	# The roundel, GAME.md 8.1: a dark floor set into the felt, a ring of the room's metal round
-	# the middle of it and another round the outside, with the neon on the rim. Flat black with
-	# one pink ring read as a hole in the table.
-	var base := _disc_mesh(junction_radius, JUNCTION_BASE_COLOR)
-	base.position = Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
-	pad.add_child(base)
-	var inner := _disc_mesh(junction_radius * 0.52, room.lane)
-	inner.position = Vector3(0.0, PAD_HEIGHT * 0.8, 0.0)
-	pad.add_child(inner)
-	pad.add_child(_pad_rim(junction_radius * 0.56, 0.1))
-	pad.add_child(_pad_rim(junction_radius - 0.26, 0.12))
-	var ring := MeshInstance3D.new()
-	var torus := TorusMesh.new()
-	torus.inner_radius = junction_radius - 0.25
-	torus.outer_radius = junction_radius
-	ring.mesh = torus
-	# Its own material, not the shared one: the ring blinks and the magenta pads must not.
-	var ring_material := surfaces.neon(Palette.NEON_MAGENTA)
-	ring_material.albedo_color = Palette.NEON_MAGENTA
-	ring_material.emission_enabled = true
-	ring_material.emission = Palette.NEON_MAGENTA
-	ring_material.emission_energy_multiplier = 0.0
-	ring.material_override = ring_material
-	pad.ring_material = ring_material
-	ring.position = Vector3(0.0, PAD_HEIGHT + 0.02, 0.0)
-	pad.add_child(ring)
+	# What is painted on it is the room's, GAME.md 8.1: a roulette wheel let into the baize After
+	# Hours, a hazard border in the Yard, a machined plate on the bench. The rim that blinks is
+	# not, since the hint of 3.4 says the same thing wherever it is said.
+	pad.ring_material = kit.junction(pad, junction_radius)
+	# A face made of twenty flat pieces is twenty things to draw for a disc two metres across,
+	# and none of it moves or is ever hidden on its own.
+	if bake_scenery:
+		Bake.merge(pad)
 
 
 func _add_disco() -> void:

@@ -146,3 +146,72 @@ func test_the_spikes_stay_in_the_pit() -> void:
 					"%s: something in a pit stands %.2fm above the floor" % [map, box.end.y]
 				)
 				assert_float(box.end.y).override_failure_message(proud).is_less_equal(0.02)
+
+
+## Every room paints its own face on the cash-out pad, GAME.md 8.1: a roulette wheel After Hours,
+## a hazard border in the Yard, a machined plate on the bench. No two of them are the same set of
+## colours, which is the whole of what "map specific" means here.
+func test_every_room_paints_its_own_cash_out_pad() -> void:
+	var seen: Array[String] = []
+	for map: String in MAPS:
+		var arena := _arena(map)
+		var parts := _meshes(arena.junction)
+		assert_int(parts.size()).override_failure_message("%s has a bare pad" % map).is_greater(8)
+		var inks: Array[String] = []
+		for part: MeshInstance3D in parts:
+			var skin := part.material_override as StandardMaterial3D
+			if skin != null and not inks.has(str(skin.albedo_color)):
+				inks.append(str(skin.albedo_color))
+		inks.sort()
+		var face := ",".join(inks)
+		(
+			assert_bool(seen.has(face))
+			. override_failure_message("%s wears another room's pad" % map)
+			. is_false()
+		)
+		seen.append(face)
+
+
+## And the pad is still the pad. What a room paints on it changes nothing a kart can touch: the
+## same disc of the same size in the same place, and the same rim blinking the hint of 3.4.
+func test_the_painted_pad_is_still_the_pad_underneath() -> void:
+	for map: String in MAPS:
+		var arena := _arena(map)
+		var pad := arena.junction
+		assert_float(pad.radius).is_equal_approx(arena.junction_radius, 0.001)
+		assert_vector(pad.position).is_equal_approx(arena.junction_position, Vector3.ONE * 0.001)
+		var shapes := 0
+		for child: Node in pad.get_children():
+			if child is CollisionShape3D:
+				shapes += 1
+		assert_int(shapes).override_failure_message("%s: the pad has no shape" % map).is_equal(1)
+		# Nothing painted on it stands high enough to be in anybody's way.
+		for part: MeshInstance3D in _meshes(pad):
+			var top: float = (part.transform * part.get_aabb()).end.y
+			(
+				assert_float(top)
+				. override_failure_message("%s: the pad stands %.2f m up" % [map, top])
+				. is_less(0.5)
+			)
+
+
+## The rim blinks, and it blinks on its own. It is the one part of the pad that moves, and the
+## material that drives it is built for it rather than taken from the room's shared neon: a rim
+## that borrowed one would take every other magenta light in the room along with it.
+func test_the_rim_blinks_without_taking_the_room_with_it() -> void:
+	for map: String in MAPS:
+		var arena := _arena(map)
+		var pad := arena.junction
+		assert_object(pad.ring_material).is_not_null()
+		assert_float(pad.ring_material.emission_energy_multiplier).is_equal(0.0)
+		pad.hint = 1.0
+		var brightest := 0.0
+		for i: int in 40:
+			pad._process(0.02)
+			brightest = maxf(brightest, pad.ring_material.emission_energy_multiplier)
+		assert_float(brightest).is_greater(0.5)
+		# Nothing else in the room wears it.
+		for part: MeshInstance3D in _meshes(arena):
+			if part.get_parent() == pad:
+				continue
+			assert_bool(part.material_override == pad.ring_material).is_false()

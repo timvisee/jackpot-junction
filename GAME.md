@@ -1264,13 +1264,20 @@ measurement reads three times slower than the same build warm.
 - **Beyond the walls**: the table the arena stands on, and past that the room it
   stands in -- the table's edge and legs, a floor under it, walls round it and the
   room's own clutter in between.
-- **Junction pad**: a slot-machine roundel set into the felt -- a dark floor, a
-  ring of the room's metal round the middle of it and another round the outside,
-  with the neon on the rim that lights up while somebody is banking -- and a
-  traffic light that turns green during a cash-out. Everything else on the floor
-  is set in the same way: a coin pad and a power-up pad wear a rim, and a turbo
-  pad is a lit face in a dark frame. A disc of colour lying on felt reads as a
-  sticker; the same disc with a rim round it reads as a fitting.
+- **Junction pad**: the same disc of the same size in the same place in every room,
+  with the room's own thing painted on it. After Hours it is a roulette wheel let
+  into the baize: red and black pockets round a brass spindle with the green zero
+  among them. In the Yard it is a bay marked out the way a yard marks the one
+  square of floor everybody is meant to drive into -- black and yellow round the
+  edge and two painted lines pointing in. On the bench it is a steel inspection
+  plate, bolted down round the rim and turned bright in the middle. The rim that
+  blinks is not the room's: the hint of 3.4 says the same thing wherever it is
+  said, so it is the same neon ring on every one of them, and whatever a room
+  paints stops short of it. A traffic light over the pad turns green during a
+  cash-out. Everything else on the floor is set in the same way: a coin pad and a
+  power-up pad wear a rim, and a turbo pad is a lit face in a dark frame. A disc of
+  colour lying on felt reads as a sticker; the same disc with a rim round it reads
+  as a fitting.
 - **Pits**: a hole in the floor with something waiting at the bottom of it, because
   a hole with nothing in it is a hole. What is down there is the room's: rusted
   rebar in the yard, bright nails on the bench, something dark under the card table.

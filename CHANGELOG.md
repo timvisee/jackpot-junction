@@ -18,6 +18,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The Junction wears its room.** A roulette wheel in The Vault, a marked-out bay
+  in Crossfire, a bolted steel plate in Lucky Crossing.
+
 - **The fireworks are louder.** The bangs sit over the fanfare now rather than
   behind it.
 
