@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The Vault's cards look like cards.** The cards and decks left round the table
+  were blank white slabs half again too big; they now carry a face and a back, at
+  the size a card is next to a kart, and there are fewer of them.
+
 - **Walls have a moulded top instead of a drawn-on edge.** The strip round the top
   of a wall shared a plane with the side of it and the two flickered against each
   other; a wall is now a block with a smaller block on it.

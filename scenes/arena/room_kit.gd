@@ -88,16 +88,15 @@ func _deck_packs(into: Node3D, size: Vector3) -> void:
 	var pack := Vector3(size.x * 0.46, size.y * 0.3, size.z * 0.46)
 	var band := Vector3(pack.x * 1.02, pack.y * 0.22, pack.z * 1.02)
 	var gold := surfaces.painted(room.trim)
-	var backs: Array[Color] = [Color(0.62, 0.13, 0.16), Color(0.14, 0.22, 0.5)]
+	var wrap := surfaces.printed(Surfaces.CARD_BACK)
 	for tier: int in 3:
 		for corner: Vector2 in [Vector2(-1, -1), Vector2(1, -1), Vector2(-1, 1), Vector2(1, 1)]:
-			var ink: Color = backs[(tier + int(corner.x + corner.y)) % backs.size()]
 			var at := Vector3(
 				corner.x * pack.x * 0.52,
 				-size.y * 0.5 + pack.y * (float(tier) + 0.5),
 				corner.y * pack.z * 0.52
 			)
-			_box(into, pack, surfaces.painted(ink), at)
+			_box(into, pack, wrap, at)
 			_box(into, band, gold, at)
 
 

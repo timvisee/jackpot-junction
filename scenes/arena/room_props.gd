@@ -117,7 +117,7 @@ func _card_room() -> void:
 	_skirt(room.table.darkened(0.34), 2.4)
 	_legs(room.table.darkened(0.46))
 	_rope_line()
-	for at: Vector3 in _ring(15):
+	for at: Vector3 in _ring(11):
 		if _close(at):
 			match _rng.randi_range(0, 2):
 				0:
@@ -444,47 +444,49 @@ func _tape(at: Vector3, shell: Material, steel: Material) -> void:
 
 func _chip_stack(at: Vector3) -> void:
 	var colors: Array[Color] = [Palette.CHIP_RED, Palette.CHIP_WHITE, room.trim, Palette.NEON_CYAN]
-	for stack: int in _rng.randi_range(2, 5):
+	for stack: int in _rng.randi_range(2, 3):
 		var ink: Color = colors[_rng.randi_range(0, colors.size() - 1)]
 		var chips := surfaces.painted(ink)
-		var foot := at + Vector3(_rng.randf_range(-6.0, 6.0), 0.0, _rng.randf_range(-6.0, 6.0))
-		for i: int in _rng.randi_range(4, 12):
-			_cylinder(2.4, 0.6, chips, foot + Vector3(0.0, 0.3 + float(i) * 0.6, 0.0))
+		var foot := at + Vector3(_rng.randf_range(-2.4, 2.4), 0.0, _rng.randf_range(-2.4, 2.4))
+		for i: int in _rng.randi_range(5, 11):
+			_cylinder(1.0, 0.28, chips, foot + Vector3(0.0, 0.14 + float(i) * 0.28, 0.0))
 
 
+## A deck or three, boxed, with the house's own back on the box.
 func _card_deck(at: Vector3) -> void:
-	var back := Color(0.64, 0.12, 0.16) if _rng.randf() < 0.5 else Color(0.13, 0.21, 0.52)
-	var box := surfaces.painted(back)
-	var trim := surfaces.painted(room.trim)
-	for i: int in _rng.randi_range(1, 3):
-		var turn := _rng.randf_range(0.0, TAU)
-		var lift := Vector3(_rng.randf_range(-1.0, 1.0), 0.8 + float(i) * 1.7, 0.0)
-		_turned(_box(Vector3(4.2, 1.6, 5.8), box, at + lift), turn)
-		_turned(_box(Vector3(1.4, 1.7, 2.0), trim, at + lift), turn)
-
-
-func _fanned_cards(at: Vector3) -> void:
-	var face := surfaces.painted(Palette.CHIP_WHITE)
+	var box := surfaces.printed(Surfaces.CARD_BACK)
 	var turn := _rng.randf_range(0.0, TAU)
-	for i: int in 5:
-		var card := _box(Vector3(4.2, 0.1, 5.8), face, at + Vector3(0.0, 0.05, 0.0))
-		card.rotation.y = turn + float(i) * 0.2
-		card.position += Vector3(sin(card.rotation.y), 0.0, cos(card.rotation.y)) * 1.8
+	for i: int in _rng.randi_range(1, 3):
+		var lift := Vector3(0.0, 0.4 + float(i) * 0.82, 0.0)
+		_turned(_box(Vector3(2.4, 0.8, 3.4), box, at + lift), turn + _rng.randf_range(-0.1, 0.1))
+
+
+## A hand fanned out and left. Flat pictures rather than boxes: what a card is is its face, and a
+## picture of one costs a tenth of the mesh a box of the same size does.
+func _fanned_cards(at: Vector3) -> void:
+	var face := surfaces.printed(Surfaces.CARD_FACE)
+	var turn := _rng.randf_range(0.0, TAU)
+	for i: int in 4:
+		var card := PlaneMesh.new()
+		card.size = Vector2(2.6, 3.6)
+		var lying := _put(card, face, at + Vector3(0.0, 0.02, 0.0))
+		lying.rotation.y = turn + float(i) * 0.26
+		lying.position += Vector3(sin(lying.rotation.y), 0.0, cos(lying.rotation.y)) * 1.1
 
 
 func _dice(at: Vector3) -> void:
 	var ivory := surfaces.painted(Palette.CHIP_WHITE)
 	for i: int in 2:
-		var spot := at + Vector3(_rng.randf_range(-3.0, 3.0), 1.2, _rng.randf_range(-3.0, 3.0))
-		_turned(_box(Vector3.ONE * 2.4, ivory, spot), _rng.randf_range(0.0, TAU))
+		var spot := at + Vector3(_rng.randf_range(-1.4, 1.4), 0.45, _rng.randf_range(-1.4, 1.4))
+		_turned(_box(Vector3.ONE * 0.9, ivory, spot), _rng.randf_range(0.0, TAU))
 
 
 func _glass(at: Vector3) -> void:
 	var glass := surfaces.painted(Color(0.82, 0.86, 0.9))
 	var drink := surfaces.painted(Color(0.72, 0.38, 0.12))
-	_cylinder(2.2, 0.4, glass, at + Vector3(0.0, 0.2, 0.0))
-	_cylinder(1.7, 5.2, glass, at + Vector3(0.0, 2.8, 0.0))
-	_cylinder(1.5, 2.6, drink, at + Vector3(0.0, 2.0, 0.0))
+	_cylinder(1.3, 0.24, glass, at + Vector3(0.0, 0.12, 0.0))
+	_cylinder(1.0, 3.0, glass, at + Vector3(0.0, 1.6, 0.0))
+	_cylinder(0.88, 1.5, drink, at + Vector3(0.0, 1.15, 0.0))
 
 
 # --- what is standing about the yard -----------------------------------------

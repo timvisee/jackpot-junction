@@ -119,3 +119,60 @@ aggregate = octaves([2.5, 7.0], [1.0, 0.6])
 patches = octaves([220.0, 70.0], [1.0, 0.55])
 save(grey(patches * 0.8 + aggregate * 0.35 - joint * 0.9, 1.0, 0.06), "stone_albedo.png")
 save(normal_map(aggregate * 0.3 - joint * 1.0, 4.0), "stone_normal.png")
+
+
+# --- playing cards -----------------------------------------------------------
+#
+# Not a material but a picture: the card room leaves cards lying about, and a card the size of a
+# kart that is a white rectangle reads as a white rectangle. These are drawn rather than filtered
+# -- a field, a border, a pip in the middle and one in the corner -- at a size that survives being
+# looked at from forty metres up, which is all the detail a card at that distance can carry.
+
+CARD = (356, 256)
+
+
+def card_grid():
+    """Coordinates across a card, each running 0 to 1."""
+    down = np.linspace(0.0, 1.0, CARD[0])[:, None]
+    across = np.linspace(0.0, 1.0, CARD[1])[None, :]
+    return down + np.zeros_like(across), across + np.zeros_like(down)
+
+
+def diamond(down, across, at, size):
+    """A pip: the diamond, which is the one suit that reads at any size."""
+    tall = np.abs(down - at[0]) / size[0]
+    wide = np.abs(across - at[1]) / size[1]
+    return tall + wide <= 1.0
+
+
+def paint(field, mask, color):
+    for channel in range(3):
+        field[..., channel] = np.where(mask, color[channel] / 255.0, field[..., channel])
+
+
+def border(down, across, margin):
+    edge = np.minimum(np.minimum(down, 1.0 - down), np.minimum(across, 1.0 - across))
+    return edge < margin
+
+
+down, across = card_grid()
+face = np.ones(CARD + (3,))
+paint(face, np.ones(CARD, dtype=bool), (247, 243, 234))
+paint(face, border(down, across, 0.045), (222, 214, 198))
+paint(face, border(down, across, 0.03), (247, 243, 234))
+paint(face, diamond(down, across, (0.5, 0.5), (0.26, 0.2)), (196, 69, 60))
+paint(face, diamond(down, across, (0.12, 0.13), (0.07, 0.055)), (196, 69, 60))
+paint(face, diamond(down, across, (0.88, 0.87), (0.07, 0.055)), (196, 69, 60))
+save(Image.fromarray((face * 255.0).astype(np.uint8), mode="RGB"), "card_face.png")
+
+# The back: the house's own lattice, which is what a deck left face down looks like.
+back = np.zeros(CARD + (3,))
+paint(back, np.ones(CARD, dtype=bool), (158, 32, 38))
+lattice = np.zeros(CARD, dtype=bool)
+for shift in np.linspace(-1.0, 2.0, 26):
+    lattice |= np.abs(down + across - shift) < 0.012
+    lattice |= np.abs(down - across - shift + 0.5) < 0.012
+paint(back, lattice, (196, 74, 78))
+paint(back, border(down, across, 0.055), (247, 243, 234))
+paint(back, border(down, across, 0.04), (140, 26, 32))
+save(Image.fromarray((back * 255.0).astype(np.uint8), mode="RGB"), "card_back.png")

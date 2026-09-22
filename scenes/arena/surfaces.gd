@@ -18,6 +18,10 @@ const PAINT_ALBEDO := preload("res://assets/textures/paint_albedo.png")
 const PAINT_NORMAL := preload("res://assets/textures/paint_normal.png")
 const STONE_ALBEDO := preload("res://assets/textures/stone_albedo.png")
 const STONE_NORMAL := preload("res://assets/textures/stone_normal.png")
+## The two pictures a card room is made of, GAME.md 8.1. Pictures rather than materials: they
+## have a right way up and are mapped off a mesh's own UVs.
+const CARD_FACE := preload("res://assets/textures/card_face.png")
+const CARD_BACK := preload("res://assets/textures/card_back.png")
 
 ## How many metres one tile of each texture covers. Set by what the thing is rather than by the
 ## texture: a table is boards a metre and a half wide, a yard is slabs two metres across, and the
@@ -90,6 +94,20 @@ func metal(color: Color) -> StandardMaterial3D:
 	steel.metallic_specular = 0.6
 	steel.roughness = 0.32
 	return _keep("metal", color, steel)
+
+
+## Something that carries its own picture: the face of a card, the back of one. Mapped off the
+## mesh's own UVs rather than triplanar, because a picture has a right way up and a wrong one.
+func printed(image: Texture2D) -> StandardMaterial3D:
+	var key := "print:" + image.resource_path
+	if _cache.has(key):
+		return _cache[key]
+	var card := StandardMaterial3D.new()
+	card.albedo_texture = image
+	card.roughness = 0.78
+	card.metallic_specular = 0.3
+	_cache[key] = card
+	return card
 
 
 ## Neon: lit from inside, so it blooms in a dark room and still reads in a bright one.
