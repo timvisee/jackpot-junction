@@ -13,6 +13,11 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The Vault deals in four suits.** The cards it leaves about are hearts, diamonds,
+  spades and clubs, its chips and dice carry their own markings, the rope line is a
+  row of brass stanchions with a velvet rope, and there is a little of it dropped on
+  the floor of the arena itself.
+
 - **Chips and mult have a colour each.** The pot on the HUD is now two pills, blue
   chips and red mult with the multiply between them, rather than a line of
   arithmetic.

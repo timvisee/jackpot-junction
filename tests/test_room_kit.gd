@@ -92,3 +92,30 @@ func test_the_block_and_its_step_share_no_plane() -> void:
 				var high := absf(one.end[axis] - two.end[axis])
 				assert_float(low).override_failure_message(flat).is_greater(SLACK)
 				assert_float(high).override_failure_message(flat).is_greater(SLACK)
+
+
+## What is dropped on the floor of the arena stays flat and stays on the floor, GAME.md 8.1: a
+## card lying on the baize is scenery, and anything standing up out there is an obstacle nobody
+## put in the layout.
+func test_the_litter_lies_flat_on_empty_floor() -> void:
+	for map: String in MAPS:
+		var arena := _arena(map)
+		var litter := arena.get_node("Litter")
+		assert_int(litter.get_child_count()).is_greater(0)
+		var grid := arena.grid
+		for part: MeshInstance3D in litter.get_children():
+			var box := part.transform * part.mesh.get_aabb()
+			var tall := "%s: something on the floor stands %.2fm tall" % [map, box.size.y]
+			assert_float(box.end.y).override_failure_message(tall).is_less_equal(RoomKit.LITTER)
+			assert_float(box.position.y).is_greater_equal(-0.01)
+			# On floor the karts drive on rather than on a pad, in a pit or under a wall.
+			var cell := Vector2i(
+				int((box.get_center().x + grid.world_size().x * 0.5) / grid.cell_size),
+				int((box.get_center().z + grid.world_size().y * 0.5) / grid.cell_size)
+			)
+			var where := "%s: litter on a %s" % [map, grid.glyph(cell)]
+			(
+				assert_bool(grid.glyph(cell) == ArenaGrid.FLOOR)
+				. override_failure_message(where)
+				. is_true()
+			)

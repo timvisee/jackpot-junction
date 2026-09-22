@@ -339,18 +339,41 @@ func _drape(back: float) -> void:
 		_dim(_box(Vector3(3.6, _height, 3.2), fold, at))
 
 
-## The rope line behind the crowd: brass posts with a rope between them, so the room the onlookers
-## are standing in has a front to it.
+## The rope line behind the crowd: cast bases, brass posts with a ball on top and a rope slung
+## between them, the way a room that charges for the table keeps the rest of the room off it.
 func _rope_line() -> void:
 	var half := arena.world_size() * 0.5
-	var rope := surfaces.painted(Color(0.44, 0.09, 0.15))
 	var post := surfaces.metal(room.trim)
 	var span := (half.x + NEAR) * 2.0 / 10.0
 	for i: int in 11:
 		var stand := Vector3(-(half.x + NEAR) + float(i) * span, TOP, -(half.y + NEAR * 0.75))
-		_cylinder(0.22, 2.2, post, stand + Vector3(0.0, 1.1, 0.0))
+		_stanchion(stand, post)
 		if i < 10:
-			_box(Vector3(span, 0.3, 0.3), rope, stand + Vector3(span * 0.5, 1.9, 0.0))
+			_rope(stand, stand + Vector3(span, 0.0, 0.0))
+
+
+## One post of it: a weighted base, a column, a collar and a ball.
+func _stanchion(at: Vector3, brass: Material) -> void:
+	_taper(0.62, 0.46, 0.16, brass, at + Vector3(0.0, 0.08, 0.0))
+	_cylinder(0.12, 2.3, brass, at + Vector3(0.0, 1.15, 0.0))
+	_cylinder(0.2, 0.18, brass, at + Vector3(0.0, 1.9, 0.0))
+	_taper(0.24, 0.0, 0.34, brass, at + Vector3(0.0, 2.47, 0.0))
+
+
+## The rope between two of them, hung rather than stretched: three lengths, the middle one lower,
+## which is all it takes for a rope to read as a rope rather than as a rail.
+func _rope(from: Vector3, to: Vector3) -> void:
+	var velvet := surfaces.painted(Color(0.46, 0.07, 0.12))
+	var along := to - from
+	var lengths := 3
+	var dips: Array[float] = [0.12, 0.3, 0.12]
+	for i: int in lengths:
+		var a := from + along * (float(i) / float(lengths))
+		var b := from + along * (float(i + 1) / float(lengths))
+		var middle := (a + b) * 0.5 + Vector3(0.0, 1.78 - dips[i], 0.0)
+		var run := b - a
+		var rope := _box(Vector3(run.length() * 1.04, 0.14, 0.14), velvet, middle)
+		rope.rotation.z = -0.22 if i == 0 else (0.22 if i == 2 else 0.0)
 
 
 ## The warehouse the yard backs onto: a band of windows across the wall and two roller doors
@@ -697,7 +720,7 @@ func _chip_stack(at: Vector3) -> void:
 	var count := _rng.randi_range(2, 3)
 	for stack: int in count:
 		var ink: Color = colors[_rng.randi_range(0, colors.size() - 1)]
-		var chips := surfaces.painted(ink)
+		var chips := surfaces.printed(Surfaces.CHIP_FACE, ink)
 		var foot := at + side * (float(stack) - float(count - 1) * 0.5) * 2.4
 		for i: int in _rng.randi_range(5, 11):
 			_cylinder(1.0, 0.28, chips, foot + Vector3(0.0, 0.14 + float(i) * 0.28, 0.0))
@@ -715,9 +738,13 @@ func _card_deck(at: Vector3) -> void:
 ## A hand fanned out and left. Flat pictures rather than boxes: a card is a card face, and the
 ## thickness of one is a tenth of the mesh it would take to carry it.
 func _fanned_cards(at: Vector3) -> void:
-	var face := surfaces.printed(Surfaces.CARD_FACE)
 	var turn := _rng.randf_range(0.0, TAU)
 	for i: int in 4:
+		# A suit each. A hand of four of the same card is not a hand.
+		var suit: Texture2D = Surfaces.CARD_FACES[_rng.randi_range(
+			0, Surfaces.CARD_FACES.size() - 1
+		)]
+		var face := surfaces.printed(suit)
 		var card := PlaneMesh.new()
 		card.size = Vector2(2.6, 3.6)
 		# Each one a finger higher than the last. Four pictures in one plane is four pictures
@@ -728,7 +755,7 @@ func _fanned_cards(at: Vector3) -> void:
 
 
 func _dice(at: Vector3) -> void:
-	var ivory := surfaces.painted(Palette.CHIP_WHITE)
+	var ivory := surfaces.printed(Surfaces.DIE_FACE, Palette.CHIP_WHITE)
 	for i: int in 2:
 		var spot := at + Vector3(_rng.randf_range(-1.4, 1.4), 0.45, _rng.randf_range(-1.4, 1.4))
 		_turned(_box(Vector3.ONE * 0.9, ivory, spot), _rng.randf_range(0.0, TAU))

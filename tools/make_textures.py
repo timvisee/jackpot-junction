@@ -123,10 +123,11 @@ save(normal_map(aggregate * 0.3 - joint * 1.0, 4.0), "stone_normal.png")
 
 # --- playing cards -----------------------------------------------------------
 #
-# Not a material but a picture: the card room leaves cards lying about, and a card the size of a
+# Not materials but pictures: the card room leaves cards lying about, and a card the size of a
 # kart that is a white rectangle reads as a white rectangle. These are drawn rather than filtered
 # -- a field, a border, a pip in the middle and one in the corner -- at a size that survives being
-# looked at from forty metres up, which is all the detail a card at that distance can carry.
+# looked at from forty metres up, which is all the detail a card at that distance can carry. One
+# per suit, because a hand of four identical cards is not a hand.
 
 CARD = (356, 256)
 
@@ -138,11 +139,40 @@ def card_grid():
     return down + np.zeros_like(across), across + np.zeros_like(down)
 
 
+def disc(down, across, at, radius):
+    tall = (down - at[0]) / radius[0]
+    wide = (across - at[1]) / radius[1]
+    return tall ** 2 + wide ** 2 <= 1.0
+
+
 def diamond(down, across, at, size):
-    """A pip: the diamond, which is the one suit that reads at any size."""
     tall = np.abs(down - at[0]) / size[0]
     wide = np.abs(across - at[1]) / size[1]
     return tall + wide <= 1.0
+
+
+def heart(down, across, at, size):
+    """Two lobes and a point, which is a heart at any size that matters here."""
+    lobes = disc(down, across, (at[0] - size[0] * 0.3, at[1] - size[1] * 0.42), (size[0] * 0.44, size[1] * 0.5))
+    lobes |= disc(down, across, (at[0] - size[0] * 0.3, at[1] + size[1] * 0.42), (size[0] * 0.44, size[1] * 0.5))
+    point = diamond(down, across, (at[0] + size[0] * 0.25, at[1]), (size[0] * 0.78, size[1]))
+    return lobes | (point & (down >= at[0] - size[0] * 0.3))
+
+
+def spade(down, across, at, size):
+    """A heart turned over, with a stem under it."""
+    body = heart(1.0 - down, across, (1.0 - at[0] + size[0] * 0.1, at[1]), (size[0] * 0.9, size[1]))
+    stem = diamond(down, across, (at[0] + size[0] * 0.74, at[1]), (size[0] * 0.4, size[1] * 0.4))
+    return body | stem
+
+
+def club(down, across, at, size):
+    """Three lobes and a stem."""
+    leaves = disc(down, across, (at[0] - size[0] * 0.42, at[1]), (size[0] * 0.42, size[1] * 0.5))
+    leaves |= disc(down, across, (at[0] + size[0] * 0.18, at[1] - size[1] * 0.56), (size[0] * 0.42, size[1] * 0.5))
+    leaves |= disc(down, across, (at[0] + size[0] * 0.18, at[1] + size[1] * 0.56), (size[0] * 0.42, size[1] * 0.5))
+    stem = diamond(down, across, (at[0] + size[0] * 0.72, at[1]), (size[0] * 0.42, size[1] * 0.38))
+    return leaves | stem
 
 
 def paint(field, mask, color):
@@ -155,15 +185,23 @@ def border(down, across, margin):
     return edge < margin
 
 
+SUITS = {
+    "hearts": (heart, (196, 69, 60)),
+    "diamonds": (diamond, (196, 69, 60)),
+    "spades": (spade, (38, 38, 44)),
+    "clubs": (club, (38, 38, 44)),
+}
+
 down, across = card_grid()
-face = np.ones(CARD + (3,))
-paint(face, np.ones(CARD, dtype=bool), (247, 243, 234))
-paint(face, border(down, across, 0.045), (222, 214, 198))
-paint(face, border(down, across, 0.03), (247, 243, 234))
-paint(face, diamond(down, across, (0.5, 0.5), (0.26, 0.2)), (196, 69, 60))
-paint(face, diamond(down, across, (0.12, 0.13), (0.07, 0.055)), (196, 69, 60))
-paint(face, diamond(down, across, (0.88, 0.87), (0.07, 0.055)), (196, 69, 60))
-save(Image.fromarray((face * 255.0).astype(np.uint8), mode="RGB"), "card_face.png")
+for name, (shape, ink) in SUITS.items():
+    face = np.ones(CARD + (3,))
+    paint(face, np.ones(CARD, dtype=bool), (247, 243, 234))
+    paint(face, border(down, across, 0.045), (222, 214, 198))
+    paint(face, border(down, across, 0.03), (247, 243, 234))
+    paint(face, shape(down, across, (0.5, 0.5), (0.26, 0.2)), ink)
+    paint(face, shape(down, across, (0.12, 0.13), (0.07, 0.055)), ink)
+    paint(face, shape(down, across, (0.88, 0.87), (0.07, 0.055)), ink)
+    save(Image.fromarray((face * 255.0).astype(np.uint8), mode="RGB"), "card_%s.png" % name)
 
 # The back: the house's own lattice, which is what a deck left face down looks like.
 back = np.zeros(CARD + (3,))
@@ -176,3 +214,35 @@ paint(back, lattice, (196, 74, 78))
 paint(back, border(down, across, 0.055), (247, 243, 234))
 paint(back, border(down, across, 0.04), (140, 26, 32))
 save(Image.fromarray((back * 255.0).astype(np.uint8), mode="RGB"), "card_back.png")
+
+# --- chips and dice ----------------------------------------------------------
+#
+# Both are wrapped round a shape rather than laid on a flat one, and both are greyscale so that
+# the chip takes its stack's colour and the die stays ivory. A chip is known by the notches round
+# its edge and the ring inside its face; a die by its pips.
+
+SQUARE = 256
+square = np.linspace(0.0, 1.0, SQUARE, endpoint=False)
+chip_u = np.tile(square[None, :], (SQUARE, 1))
+chip_v = np.tile(square[:, None], (1, SQUARE))
+
+chip = np.ones((SQUARE, SQUARE))
+# Notches: eight pale blocks round the rim, which is the one thing that says poker chip.
+notch = (np.floor(chip_u * 8.0) % 2 == 0) & (np.minimum(chip_v, 1.0 - chip_v) < 0.34)
+chip = np.where(notch, 1.0, 0.82)
+# And the ring inside the face, for the top of a stack.
+chip = np.where(np.abs(chip_v - 0.5) < 0.06, 0.9, chip)
+save(Image.fromarray((chip * 255.0).astype(np.uint8), mode="L"), "chip_face.png")
+
+die = np.ones((SQUARE, SQUARE))
+pips = np.zeros((SQUARE, SQUARE), dtype=bool)
+for row in [0.25, 0.5, 0.75]:
+    for column in [0.25, 0.5, 0.75]:
+        if row == 0.5 and column != 0.5:
+            continue
+        if column == 0.5 and row != 0.5:
+            continue
+        pips |= (chip_v - row) ** 2 + (chip_u - column) ** 2 < 0.0075
+die = np.where(pips, 0.12, die)
+die = np.where(border(chip_v, chip_u, 0.04), 0.86, die)
+save(Image.fromarray((die * 255.0).astype(np.uint8), mode="L"), "die_face.png")

@@ -22,6 +22,11 @@ const STEP_BITE := 0.02
 ## How often a wall carries something on top of it, and how long a wall has to be to qualify.
 const DRESSED_WALLS := 3
 const LONG_ENOUGH := 2.0
+## How high something dropped on the floor of the arena may stand. Below this it is litter: a card
+## face down on the baize, a washer on the bench, a scrap of paper in the yard. Nothing this low
+## is in anybody's way, and a floor with nothing at all on it reads as a floor rather than as a
+## place somebody has been.
+const LITTER := 0.12
 
 var room: RoomLook
 var surfaces: Surfaces
@@ -77,6 +82,75 @@ func wall(size: Vector3, index: int) -> Node3D:
 		_:
 			_bolts(holder, at)
 	return holder
+
+
+## A few small things dropped on the floor the karts drive on, GAME.md 8.1. Flat enough to be
+## driven over without noticing and small enough to be missed at a glance, which is the point.
+## Only empty floor takes any: nothing lands on a pad, in a pit or under a wall.
+func litter(into: Node3D, grid: ArenaGrid, count: int) -> void:
+	var dropped := 0
+	for attempt: int in count * 14:
+		if dropped >= count:
+			return
+		var cell := Vector2i(
+			_rng.randi_range(1, grid.width - 2), _rng.randi_range(1, grid.height - 2)
+		)
+		if grid.glyph(cell) != ArenaGrid.FLOOR:
+			continue
+		var at := grid.cell_center(cell)
+		at.y = 0.0
+		at += Vector3(_rng.randf_range(-0.3, 0.3), 0.0, _rng.randf_range(-0.3, 0.3))
+		_dropped(into, at)
+		dropped += 1
+
+
+## What a room leaves on its own floor.
+func _dropped(into: Node3D, at: Vector3) -> void:
+	match room.id:
+		&"after_hours":
+			if _rng.randf() < 0.6:
+				_stray_card(into, at)
+			else:
+				_stray_chip(into, at)
+		&"the_yard":
+			_stray_scrap(into, at)
+		_:
+			_stray_washer(into, at)
+
+
+## A card somebody dropped, face up or face down.
+func _stray_card(into: Node3D, at: Vector3) -> void:
+	var faces := Surfaces.CARD_FACES
+	var picture: Texture2D = faces[_rng.randi_range(0, faces.size() - 1)]
+	if _rng.randf() < 0.35:
+		picture = Surfaces.CARD_BACK
+	var card := PlaneMesh.new()
+	card.size = Vector2(0.44, 0.62)
+	var lying := _put(into, card, surfaces.printed(picture), at + Vector3(0.0, 0.012, 0.0))
+	lying.rotation.y = _rng.randf_range(0.0, TAU)
+
+
+func _stray_chip(into: Node3D, at: Vector3) -> void:
+	var colors: Array[Color] = [Palette.CHIP_RED, Palette.CHIP_WHITE, room.trim]
+	var ink: Color = colors[_rng.randi_range(0, colors.size() - 1)]
+	var chips := surfaces.printed(Surfaces.CHIP_FACE, ink)
+	_cylinder(into, 0.17, 0.05, chips, at + Vector3(0.0, 0.025, 0.0))
+
+
+## A scrap of paper, blown against something and left there.
+func _stray_scrap(into: Node3D, at: Vector3) -> void:
+	var paper := surfaces.painted(Color(0.78, 0.76, 0.7))
+	var scrap := _box(into, Vector3(0.4, 0.03, 0.3), paper, at + Vector3(0.0, 0.015, 0.0))
+	scrap.rotation.y = _rng.randf_range(0.0, TAU)
+
+
+func _stray_washer(into: Node3D, at: Vector3) -> void:
+	var steel := surfaces.metal(Color(0.66, 0.68, 0.72))
+	if _rng.randf() < 0.5:
+		_cylinder(into, 0.13, 0.04, steel, at + Vector3(0.0, 0.02, 0.0))
+		return
+	var screw := _cylinder(into, 0.05, 0.42, steel, at + Vector3(0.0, 0.05, 0.0))
+	screw.rotation = Vector3(PI * 0.5, _rng.randf_range(0.0, TAU), 0.0)
 
 
 # --- the boxes ---------------------------------------------------------------

@@ -15,6 +15,8 @@ const TABLE_OVERHANG := 38.0
 ## are not, and on the edge the camera has behind the table rather than out at the sides, which
 ## is off the screen.
 const BILLBOARD_STANDOFF := 3.6
+## How many small things are left lying on the floor of the arena itself, GAME.md 8.1.
+const LITTER_COUNT := 12
 const BILLBOARD_ALONG := 0.85
 const PAD_HEIGHT := 0.05
 const PIT_COLOR := Color("#0B0B0E")
@@ -125,6 +127,7 @@ func build_steps() -> Array[Callable]:
 		_add_portals,
 		_add_turbo_pads,
 		_add_crates,
+		_add_litter,
 		_add_pits,
 		_add_junction,
 		_add_jackpots,
@@ -645,6 +648,17 @@ func _add_crates() -> void:
 		# one thing. Across boxes it cannot be: they are broken one at a time.
 		if bake_scenery:
 			Bake.merge(crate)
+
+
+## What has been dropped on the floor and left there, GAME.md 8.1. Baked as it is built: a card
+## lying on the baize is two triangles, and there is no reason for any of them to be a draw call.
+func _add_litter() -> void:
+	var dropped := Node3D.new()
+	dropped.name = "Litter"
+	add_child(dropped)
+	kit.litter(dropped, grid, LITTER_COUNT)
+	if bake_scenery:
+		Bake.merge(dropped)
 
 
 func _add_pits() -> void:

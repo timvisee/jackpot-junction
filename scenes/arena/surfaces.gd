@@ -18,10 +18,20 @@ const PAINT_ALBEDO := preload("res://assets/textures/paint_albedo.png")
 const PAINT_NORMAL := preload("res://assets/textures/paint_normal.png")
 const STONE_ALBEDO := preload("res://assets/textures/stone_albedo.png")
 const STONE_NORMAL := preload("res://assets/textures/stone_normal.png")
-## The two pictures a card room is made of, GAME.md 8.1. Pictures rather than materials: they
-## have a right way up and are mapped off a mesh's own UVs.
-const CARD_FACE := preload("res://assets/textures/card_face.png")
+## The pictures a card room is made of, GAME.md 8.1. Pictures rather than materials: they have a
+## right way up and are mapped off a mesh's own UVs. Four suits, because a hand of four identical
+## cards is not a hand.
+const CARD_FACES: Array[Texture2D] = [
+	preload("res://assets/textures/card_hearts.png"),
+	preload("res://assets/textures/card_diamonds.png"),
+	preload("res://assets/textures/card_spades.png"),
+	preload("res://assets/textures/card_clubs.png"),
+]
 const CARD_BACK := preload("res://assets/textures/card_back.png")
+## The other two things a card room is made of, greyscale so that a chip takes the colour of the
+## stack it is in and a die stays ivory.
+const CHIP_FACE := preload("res://assets/textures/chip_face.png")
+const DIE_FACE := preload("res://assets/textures/die_face.png")
 
 ## How many metres one tile of each texture covers. Set by what the thing is rather than by the
 ## texture: a table is boards a metre and a half wide, a yard is slabs two metres across, and the
@@ -96,14 +106,16 @@ func metal(color: Color) -> StandardMaterial3D:
 	return _keep("metal", color, steel)
 
 
-## Something that carries its own picture: the face of a card, the back of one. Mapped off the
-## mesh's own UVs rather than triplanar, because a picture has a right way up and a wrong one.
-func printed(image: Texture2D) -> StandardMaterial3D:
-	var key := "print:" + image.resource_path
+## Something that carries its own picture: the face of a card, the notches round a chip, the pips
+## on a die. Mapped off the mesh's own UVs rather than triplanar, because a picture has a right
+## way up and a wrong one, and tinted, so that one picture of a chip serves a rack of them.
+func printed(image: Texture2D, tint := Color.WHITE) -> StandardMaterial3D:
+	var key := "print:%s:%s" % [image.resource_path, tint.to_html()]
 	if _cache.has(key):
 		return _cache[key]
 	var card := StandardMaterial3D.new()
 	card.albedo_texture = image
+	card.albedo_color = tint
 	card.roughness = 0.78
 	card.metallic_specular = 0.3
 	_cache[key] = card

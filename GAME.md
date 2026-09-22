@@ -1134,7 +1134,8 @@ does the rest: past the stands everything thins into the room's own colour.
 
 Then what is in it. The workbench has a backboard with a pegboard on it and the
 tools of whoever built the thing lying where they were put down; the card room has
-a rope line behind the crowd and what the house plays with left out on the baize;
+a line of brass stanchions with a velvet rope slung between them behind the crowd,
+and what the house plays with left out on the baize, in all four suits;
 the yard has a fence behind the crowd, hazard stripes painted where the plant
 works, hoarding along the back, floodlights over it, a truck and the things a yard
 has standing about in it. Two of the rooms are models on a real table, so
@@ -1250,6 +1251,12 @@ measurement reads three times slower than the same build warm.
   letters it goes behind whatever is parked on top of it rather than being drawn
   through it. It does sit clear of the tile's own gold trim, since a marking buried
   in the floor is a marking nobody sees. See 3.5.
+- **On the floor itself**: a dozen small things dropped and left there, flat enough
+  to drive over without noticing -- a card face up on the baize, a chip, a washer on
+  the bench, a scrap of paper in the yard. Only empty floor takes any, so nothing
+  lands on a pad or in a pit, and nothing stands more than a hand's width tall. A
+  floor with nothing at all on it reads as a floor rather than as a place somebody
+  has been.
 - **Chips**: poker chips, standing on their edge, with pale notches cut round the
   rim. The edge is what the camera looks at, and a notched edge is the one thing
   that says poker chip at twenty pixels across. Gold for the gold chip, which is
