@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The fireworks are louder.** The bangs sit over the fanfare now rather than
+  behind it.
+
 - **The camera looks ahead of the kart you are driving.** The aim slides the way you
   are travelling, so there is more road in front of you than behind.
 

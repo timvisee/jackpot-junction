@@ -19,6 +19,10 @@ const BREAK_HIGH := 13.5
 const FOOTPRINT := 0.45
 ## One shell in this many is gold rather than the winner's colour.
 const GOLD_EVERY := 4
+## How loud a shell is when it breaks. Over the fanfare and the standings music running under it
+## rather than tucked in behind them: the display is what is on the screen, and at the level it
+## was first given the bang was part of the mix rather than the thing making it.
+const BANG_DB := -4.5
 
 ## The winner's colour, which most of the shells are.
 var color := Color.WHITE
@@ -148,7 +152,7 @@ class Shell:
 		_glow.omni_range = LIGHT_RANGE
 		_glow.shadow_enabled = false
 		add_child(_glow)
-		Audio.play_sfx(&"firework", -8.0, 0.12, 0.7)
+		Audio.play_sfx(&"firework", BANG_DB, 0.12, 0.7)
 
 	## The sparks the climb leaves behind it, thin and short-lived so they read as a tail.
 	func _build_trail() -> GPUParticles3D:

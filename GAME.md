@@ -1363,8 +1363,9 @@ measurement reads three times slower than the same build warm.
   The flash holds still for anybody who has asked for fewer of them in 8.5.
 - **The fireworks**: a match that has been won is seen off with a display over the
   table. Shells go up off the felt and break overhead in the winner's colour, with
-  the odd gold one among them, each lighting the room as it goes, through the pause
-  the podium waits out in 3.8 and on under the standings. The room decides nothing
+  the odd gold one among them, each lighting the room and banging over the fanfare
+  as it goes, through the pause the podium waits out in 3.8 and on under the
+  standings. The room decides nothing
   by it: it is the last thing the match does, and it is for whoever won rather than
   for their kart, which may well be lying in a pit at the whistle.
 - **The crowd wears the room.** Where everybody stands, how tall they are, which
