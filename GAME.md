@@ -1482,8 +1482,9 @@ kart puts the middle of all of them in the middle of the screen, which for the
 player at the wheel is as much screen behind their kart as in front, and what a
 driver needs is the road ahead. The aim slides the way they are travelling -- the
 travel rather than the facing, so a kart sliding out of a corner leads the way it
-is really going -- by as far as they would get in two thirds of a second, up to 8 m.
-Standing still it is nothing, so a kart waiting on the grid sits in the middle.
+is really going -- by as far as they would get in a little under half a second, up
+to 6 m. Standing still it is nothing, so a kart waiting on the grid sits in the
+middle.
 Only the karts somebody is driving here get it: a rival's kart is something to
 watch rather than somewhere to look, and leading for all four would be four leads
 cancelling each other out.
@@ -1523,7 +1524,7 @@ match is over, so the last thing it does is hand the room back.
 | Framing          | Every tracked kart plus 4 m of floor fits the 16:9 view, between 24 m and the distance that holds the whole arena plus a 1 m margin |
 | Opening shot     | The whole arena plus 3 m of the room round it, centred, placed as the map finishes building and moved in from at once |
 | Pan              | Target is the middle of the box all alive karts are in, clamped to half the arena so the look-at point stays over the table |
-| Look-ahead       | The aim slides the way the karts being driven on this machine are travelling, two thirds of a second of it and at most 8 m. Paid for out of the trailing margin first, up to 70% of it, and then out of the distance, up to 12% more. Applied before the pan clamp, so a player already driving at the wall gets none of it: there is nothing out there to look ahead at |
+| Look-ahead       | The aim slides the way the karts being driven on this machine are travelling, 0.45 s of it and at most 6 m, which is about a fifth of the width of the screen at the distance the rig usually sits. Paid for out of the trailing margin first, up to 70% of it, and then out of the distance, up to 12% more. Applied before the pan clamp, so a player already driving at the wall gets none of it: there is nothing out there to look ahead at |
 | Aim              | Slid along the camera's own up axis so that what is framed sits as far below the middle of the screen as it does above. The camera is tilted, so the near edge of a thing lands lower than the far edge lands high; a fit that only picks a distance puts whichever binds hard against its edge and piles all the slack on the other side |
 | Zoom             | Fixed. The distance does the framing, so a kart the same size on screen is the same distance away wherever it is standing. The fit is worked out against a view 7% narrower than the real one, which is the margin that keeps a kart off the very edge |
 | Smoothing        | Exponential, 0.6 s time constant for the pan and 1.2 s for the distance, applied every drawn frame. The distance is slower on purpose: a camera that pumps in and out with every bump is worse than one that is too far off. The rig opts out of the engine's physics interpolation for that reason: it follows karts that move on the physics tick, but the following is what this smoothing is, and having both would smooth an already smoothed camera |

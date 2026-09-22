@@ -46,8 +46,8 @@ const ROOM_MARGIN := 3.0
 ## How far ahead of the karts being driven on this machine the camera looks: seconds of travel at
 ## whatever speed they are doing, and the most that is ever worth in metres, so a turbo does not
 ## fling the aim off across the floor. Zero looks straight at them.
-@export var lead_seconds := 0.65
-@export var lead_limit := 8.0
+@export var lead_seconds := 0.45
+@export var lead_limit := 6.0
 ## And what the look-ahead may cost, as a fraction of the distance the rig would be at without it.
 ## Sliding the aim ahead pushes whatever is behind towards the edge of the screen and the fit
 ## answers by pulling back: given its head, seven metres of lead took the camera half again as far
