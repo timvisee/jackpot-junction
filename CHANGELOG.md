@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **There is something at the bottom of a pit now.** Rusted rebar in the yard,
+  nails on the workbench, something dark under the card table, and black and yellow
+  painted round the rim of the yard's.
+
 - **Crossfire gets a forklift, and its fence comes down.** The fence behind the
   crowd is half the height it was, the painted hazard stripes are one area at the
   back rather than three patches, black and yellow tape is strung across what is

@@ -10,6 +10,16 @@ const SLACK := 0.002
 
 
 ## Unbaked: after the merge of 8.1 there is no wall left to look at, only the result.
+## Every mesh under [param node], however deep it is hung.
+func _meshes(node: Node, into: Array[MeshInstance3D] = []) -> Array[MeshInstance3D]:
+	for child: Node in node.get_children():
+		_meshes(child, into)
+		var part := child as MeshInstance3D
+		if part != null and part.mesh != null:
+			into.append(part)
+	return into
+
+
 func _arena(map: String) -> Arena:
 	var arena: Arena = auto_free(Arena.new())
 	arena.layout = load("res://data/maps/%s.tres" % map)
@@ -119,3 +129,20 @@ func test_the_litter_lies_flat_on_empty_floor() -> void:
 				. override_failure_message(where)
 				. is_true()
 			)
+
+
+## What is at the bottom of a pit stays at the bottom of it, GAME.md 8.1. A spike standing proud
+## of the floor would be something to drive into rather than something to look down at.
+func test_the_spikes_stay_in_the_pit() -> void:
+	for map: String in MAPS:
+		var arena := _arena(map)
+		assert_int(arena.pits.size()).is_greater(0)
+		for pit: Pit in arena.pits:
+			var parts := _meshes(pit)
+			assert_int(parts.size()).is_greater(1)
+			for part: MeshInstance3D in parts:
+				var box := part.transform * part.mesh.get_aabb()
+				var proud := (
+					"%s: something in a pit stands %.2fm above the floor" % [map, box.end.y]
+				)
+				assert_float(box.end.y).override_failure_message(proud).is_less_equal(0.02)

@@ -1251,6 +1251,12 @@ measurement reads three times slower than the same build warm.
   is set in the same way: a coin pad and a power-up pad wear a rim, and a turbo
   pad is a lit face in a dark frame. A disc of colour lying on felt reads as a
   sticker; the same disc with a rim round it reads as a fitting.
+- **Pits**: a hole in the floor with something waiting at the bottom of it, because
+  a hole with nothing in it is a hole. What is down there is the room's: rusted
+  rebar in the yard, bright nails on the bench, something dark under the card table.
+  The yard paints black and yellow round the rim of its own, which is the one
+  marking on a floor that is a warning rather than a decoration. None of it is in
+  the way -- a pit kills whatever falls in long before any of it is touched.
 - **Jackpot zone**: a vault floor tile with a chip pile that grows, a traffic light
   for its state, and its chip count painted on the floor of the zone, the way
   a Royal Flush pad wears its letter. The number belongs to the square a kart has to

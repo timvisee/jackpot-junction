@@ -84,6 +84,72 @@ func wall(size: Vector3, index: int) -> Node3D:
 	return holder
 
 
+## What is waiting at the bottom of a pit, GAME.md 8.1, and what the room paints round the top of
+## it. A hole in the floor with nothing in it is a hole; a hole with something in it is a reason
+## to stay out of it, which is what a pit is for.
+##
+## Nothing here is in the way. The pit kills whatever falls in before any of it is touched, and
+## all of it sits below the floor.
+func pit(into: Node3D, size: Vector2) -> void:
+	var spike := _spike_ink()
+	var rows := maxi(int(size.y / 0.42), 3)
+	var columns := maxi(int(size.x / 0.42), 3)
+	for row: int in rows:
+		for column: int in columns:
+			var at := Vector3(
+				(float(column) - float(columns - 1) * 0.5) * size.x / float(columns),
+				-Arena.PIT_DEPTH,
+				(float(row) - float(rows - 1) * 0.5) * size.y / float(rows)
+			)
+			var tall := _rng.randf_range(0.5, 0.78) * Arena.PIT_DEPTH
+			var mesh := CylinderMesh.new()
+			mesh.top_radius = 0.0
+			mesh.bottom_radius = _rng.randf_range(0.08, 0.12)
+			mesh.height = tall
+			mesh.radial_segments = 6
+			mesh.rings = 1
+			_put(into, mesh, spike, at + Vector3(0.0, tall * 0.5, 0.0))
+	if room.id == &"the_yard":
+		_pit_hazard(into, size)
+
+
+## What a room's spikes are made of: rusted rebar in the yard, bright nails on the bench, and
+## whatever the dark under a card table is made of in the card room.
+func _spike_ink() -> Material:
+	match room.id:
+		&"after_hours":
+			return surfaces.painted(Color(0.16, 0.12, 0.13))
+		&"the_yard":
+			return surfaces.painted(Color(0.46, 0.26, 0.16))
+		_:
+			return surfaces.metal(Color(0.62, 0.64, 0.68))
+
+
+## The black and yellow round the top of a yard's pit, painted on the floor rather than standing
+## on it: the one marking on the floor that is a warning rather than a decoration.
+func _pit_hazard(into: Node3D, size: Vector2) -> void:
+	var black := surfaces.marking(Color(0.11, 0.11, 0.12))
+	var yellow := surfaces.marking(Color(0.93, 0.76, 0.12))
+	var band := 0.34
+	var step := 0.44
+	for side: int in 4:
+		var along := side % 2 == 0
+		var span := (size.x if along else size.y) + band * 2.0
+		var count := maxi(int(span / step), 2)
+		for i: int in count:
+			var offset := (float(i) + 0.5) * span / float(count) - span * 0.5
+			var out := (
+				((size.y if along else size.x) * 0.5 + band * 0.5) * (1.0 if side < 2 else -1.0)
+			)
+			var at := Vector3(offset, 0.006, out) if along else Vector3(out, 0.006, offset)
+			var size3 := (
+				Vector3(span / float(count), 0.01, band)
+				if along
+				else Vector3(band, 0.01, span / float(count))
+			)
+			_box(into, size3, black if i % 2 == 0 else yellow, at)
+
+
 ## A few small things dropped on the floor the karts drive on, GAME.md 8.1. Flat enough to be
 ## driven over without noticing and small enough to be missed at a glance, which is the point.
 ## Only empty floor takes any: nothing lands on a pad, in a pit or under a wall.

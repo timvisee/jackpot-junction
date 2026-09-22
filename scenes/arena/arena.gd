@@ -678,8 +678,12 @@ func _add_pits() -> void:
 		shape.position = Vector3(0.0, 0.5, 0.0)
 		pit.add_child(shape)
 		pit.add_child(_pit_shaft(size2))
+		# And whatever the room keeps at the bottom of one, GAME.md 8.1.
+		kit.pit(pit, size2)
 		holes.add_child(pit)
 		pits.append(pit)
+	if bake_scenery:
+		Bake.merge(holes)
 
 
 ## The inside of a pit: four walls shading from the felt's edge into black, a black bottom well
