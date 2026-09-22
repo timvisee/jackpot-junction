@@ -1968,7 +1968,10 @@ for.
 
 ### 8.5 Settings and accessibility
 
-All settings are saved between sessions, see 10.2.
+All settings are saved between sessions, see 10.2. Anything that is on or off is a
+switch rather than a tick box, drawn by the game rather than taken from the engine's
+theme: an empty tick box is a dark outline on a dark menu, and a row that was off
+showed nothing at all beside it.
 
 - **Controls**: rebinding per player for gamepad and keyboard, stick dead
   zone, rumble on or off.

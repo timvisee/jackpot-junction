@@ -289,16 +289,14 @@ func _video_tab() -> Control:
 	var column := VBoxContainer.new()
 	column.name = "Video"
 	column.add_theme_constant_override("separation", 12)
-	var fullscreen := CheckBox.new()
-	fullscreen.button_pressed = _settings.fullscreen
+	var fullscreen := MenuTheme.toggle(_settings.fullscreen)
 	fullscreen.toggled.connect(
 		func(on: bool) -> void:
 			_settings.fullscreen = on
 			_settings.apply_video(get_tree())
 	)
 	column.add_child(MenuTheme.row("Fullscreen", fullscreen))
-	var vsync := CheckBox.new()
-	vsync.button_pressed = _settings.vsync
+	var vsync := MenuTheme.toggle(_settings.vsync)
 	vsync.toggled.connect(
 		func(on: bool) -> void:
 			_settings.vsync = on
@@ -319,16 +317,14 @@ func _video_tab() -> Control:
 	column.add_child(MenuTheme.row("Render scale", scale))
 	# The two passes over the whole screen, GAME.md 8.5. Both take effect at once: the smoothing
 	# on the viewport, the bloom the next time a room is lit.
-	var bloom := CheckBox.new()
-	bloom.button_pressed = _settings.bloom
+	var bloom := MenuTheme.toggle(_settings.bloom)
 	bloom.toggled.connect(
 		func(on: bool) -> void:
 			_settings.bloom = on
 			ArenaEnvironment.relight(get_tree())
 	)
 	column.add_child(MenuTheme.row("Bloom", bloom))
-	var smoothing := CheckBox.new()
-	smoothing.button_pressed = _settings.antialiasing
+	var smoothing := MenuTheme.toggle(_settings.antialiasing)
 	smoothing.toggled.connect(
 		func(on: bool) -> void:
 			_settings.antialiasing = on
@@ -395,9 +391,8 @@ func _accessibility_tab() -> Control:
 	return column
 
 
-func _check(value: bool, setter: Callable) -> CheckBox:
-	var box := CheckBox.new()
-	box.button_pressed = value
+func _check(value: bool, setter: Callable) -> CheckButton:
+	var box := MenuTheme.toggle(value)
 	box.toggled.connect(func(on: bool) -> void: setter.call(on))
 	return box
 

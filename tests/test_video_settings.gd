@@ -69,3 +69,27 @@ func test_both_are_remembered() -> void:
 	assert_bool(read.bloom).is_false()
 	assert_bool(read.antialiasing).is_false()
 	DirAccess.remove_absolute(settings.path)
+
+
+## A setting that is off looks like a setting that is off, GAME.md 8.5. The engine's empty tick
+## box is a dark outline on a dark menu: a row that was off showed nothing beside it at all.
+func test_a_switch_can_be_seen_either_way() -> void:
+	var off := MenuTheme.toggle(false)
+	var on := MenuTheme.toggle(true)
+	var empty: Texture2D = off.get_theme_icon("unchecked")
+	var full: Texture2D = on.get_theme_icon("checked")
+	assert_object(empty).is_not_null()
+	assert_object(full).is_not_null()
+	assert_bool(empty == full).is_false()
+	# Both are drawn rather than blank, and the one that is on carries the house's gold.
+	var dark := empty.get_image()
+	var lit := full.get_image()
+	var drawn := 0
+	for x: int in dark.get_width():
+		if dark.get_pixel(x, dark.get_height() / 2).a > 0.5:
+			drawn += 1
+	assert_int(drawn).is_greater(dark.get_width() / 2)
+	var middle := lit.get_pixel(4, lit.get_height() / 2)
+	assert_float(middle.r).is_greater(middle.b)
+	off.free()
+	on.free()

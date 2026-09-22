@@ -19,6 +19,12 @@ const BUTTON_RADIUS := 8
 ## The edge a button wears when nothing is on it: enough to say it is a button and not enough
 ## to compete with the one that has the cursor.
 const BUTTON_RIM := Color(1.0, 1.0, 1.0, 0.1)
+## How big a switch is drawn, in pixels.
+const SWITCH := Vector2i(48, 24)
+
+## The two pictures of one, drawn the first time one is asked for.
+static var _switch_on: ImageTexture
+static var _switch_off: ImageTexture
 
 
 static func background(parent: Control) -> void:
@@ -88,6 +94,59 @@ static func button(text: String, size: int = Type.LARGE) -> Button:
 	control.pressed.connect(func() -> void: Audio.play_sfx(&"ui_click", -6.0, 0.0))
 	control.focus_entered.connect(func() -> void: Audio.play_sfx(&"ui_move", -12.0, 0.0))
 	return control
+
+
+## A switch for a setting that is on or off, GAME.md 8.5, drawn here rather than taken from the
+## engine's theme: its empty tick box is a dark outline on a dark menu, so a row that was off
+## showed nothing at all beside it. This one is a track with a knob in it -- dark with the knob
+## at the near end when it is off, the house's gold with the knob at the far end when it is on --
+## which reads across the room either way.
+static func toggle(on: bool) -> CheckButton:
+	var switch := CheckButton.new()
+	switch.button_pressed = on
+	for state: String in ["unchecked", "unchecked_mirrored", "unchecked_disabled"]:
+		switch.add_theme_icon_override(state, _switch(false))
+	for state: String in ["checked", "checked_mirrored", "checked_disabled"]:
+		switch.add_theme_icon_override(state, _switch(true))
+	switch.add_theme_color_override("icon_normal_color", Color.WHITE)
+	switch.add_theme_color_override("icon_pressed_color", Color.WHITE)
+	switch.add_theme_color_override("icon_hover_color", Color.WHITE)
+	switch.add_theme_color_override("icon_hover_pressed_color", Color.WHITE)
+	switch.add_theme_color_override("icon_focus_color", Color.WHITE)
+	return switch
+
+
+## The picture of a switch in one of its two states, drawn once and kept.
+static func _switch(on: bool) -> ImageTexture:
+	if on and _switch_on != null:
+		return _switch_on
+	if not on and _switch_off != null:
+		return _switch_off
+	var image := Image.create(SWITCH.x, SWITCH.y, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0.0, 0.0, 0.0, 0.0))
+	var radius := float(SWITCH.y) * 0.5
+	var track := Palette.CHIP_GOLD.darkened(0.15) if on else Color(0.2, 0.2, 0.25)
+	var rim := Color(0.86, 0.86, 0.92, 0.85)
+	var knob := Vector2(float(SWITCH.x) - radius if on else radius, radius)
+	for y: int in SWITCH.y:
+		for x: int in SWITCH.x:
+			var at := Vector2(float(x) + 0.5, float(y) + 0.5)
+			var spine := Vector2(clampf(at.x, radius, float(SWITCH.x) - radius), radius)
+			var edge := at.distance_to(spine)
+			if edge > radius:
+				continue
+			if at.distance_to(knob) <= radius - 3.0:
+				image.set_pixel(x, y, Color(0.96, 0.96, 0.98))
+			elif edge > radius - 1.6:
+				image.set_pixel(x, y, rim)
+			else:
+				image.set_pixel(x, y, track)
+	var drawn := ImageTexture.create_from_image(image)
+	if on:
+		_switch_on = drawn
+	else:
+		_switch_off = drawn
+	return drawn
 
 
 static func option(values: Array, selected: int) -> OptionButton:

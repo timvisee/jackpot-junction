@@ -44,6 +44,10 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A setting that is off can be seen.** The empty tick boxes in Settings were
+  invisible against the dark menu; every on-or-off setting is now a switch with a
+  dark track and a pale knob, gold when it is on.
+
 - **The speed readout is not clipped.** At three digits the h of km/h was half a
   letter.
 
