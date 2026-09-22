@@ -2263,7 +2263,11 @@ the floor rather than held on a grid for a race that is not being run.
 ################################
 ```
 
-Everything the game does is somewhere on the floor, and a sign names each one:
+Everything the game does is somewhere on the floor. Signs name the four things a
+player could not name by looking at them -- the Junction, the Jackpot zones, the
+joker pad and the item pads -- and nothing else: a turbo pad, a crate, a target, a
+pit, a coin and a royal flush pad are each the thing they are called, and a label
+over every one of them made a room to be read rather than driven.
 
 - A long clear straight along the top and the bottom to wind the kart out on,
   with a turbo pad at either end of the top one pointing the other way.

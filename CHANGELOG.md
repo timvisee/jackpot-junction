@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Fewer signs in the Garage.** Only the Junction, the Jackpots, the joker pad and
+  the item pads are labelled now; the rest name themselves.
+
 - **The Swivel Cannon is named once on the HUD.** It was listed twice, as an effect
   and as a loaded cannon, counting down alongside itself.
 
