@@ -1979,7 +1979,10 @@ for.
 All settings are saved between sessions, see 10.2. Anything that is on or off is a
 switch rather than a tick box, drawn by the game rather than taken from the engine's
 theme: an empty tick box is a dark outline on a dark menu, and a row that was off
-showed nothing at all beside it.
+showed nothing at all beside it. The picture is drawn at four times the size it is
+shown at, with soft edges rather than stepped ones, so a big display scaling the menu
+up has something to scale: a switch drawn at its own size is a staircase round every
+curve of it.
 
 - **Controls**: rebinding per player for gamepad and keyboard, stick dead
   zone, rumble on or off.

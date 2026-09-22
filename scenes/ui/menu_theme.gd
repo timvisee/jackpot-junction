@@ -19,8 +19,9 @@ const BUTTON_RADIUS := 8
 ## The edge a button wears when nothing is on it: enough to say it is a button and not enough
 ## to compete with the one that has the cursor.
 const BUTTON_RIM := Color(1.0, 1.0, 1.0, 0.1)
-## How big a switch is drawn, in pixels.
+## How big a switch is shown, in pixels, and how many times that it is drawn at.
 const SWITCH := Vector2i(48, 24)
+const SWITCH_DETAIL := 4
 
 ## The two pictures of one, drawn the first time one is asked for.
 static var _switch_on: ImageTexture
@@ -113,34 +114,47 @@ static func toggle(on: bool) -> CheckButton:
 	switch.add_theme_color_override("icon_hover_color", Color.WHITE)
 	switch.add_theme_color_override("icon_hover_pressed_color", Color.WHITE)
 	switch.add_theme_color_override("icon_focus_color", Color.WHITE)
+	# Shown at the size it was designed at whatever the picture's own size is, so the four times
+	# detail goes into how it looks rather than into how big it is.
+	switch.add_theme_constant_override("icon_max_width", SWITCH.x)
 	return switch
 
 
 ## The picture of a switch in one of its two states, drawn once and kept.
+##
+## Drawn four times the size it is shown at, with soft edges rather than stepped ones, so that a
+## screen that scales the menu up has something to scale up: a switch drawn at its own size is a
+## staircase round every curve on a big display.
 static func _switch(on: bool) -> ImageTexture:
 	if on and _switch_on != null:
 		return _switch_on
 	if not on and _switch_off != null:
 		return _switch_off
-	var image := Image.create(SWITCH.x, SWITCH.y, false, Image.FORMAT_RGBA8)
+	var wide := SWITCH.x * SWITCH_DETAIL
+	var high := SWITCH.y * SWITCH_DETAIL
+	var image := Image.create(wide, high, true, Image.FORMAT_RGBA8)
 	image.fill(Color(0.0, 0.0, 0.0, 0.0))
-	var radius := float(SWITCH.y) * 0.5
+	var radius := float(high) * 0.5
 	var track := Palette.CHIP_GOLD.darkened(0.15) if on else Color(0.2, 0.2, 0.25)
-	var rim := Color(0.86, 0.86, 0.92, 0.85)
-	var knob := Vector2(float(SWITCH.x) - radius if on else radius, radius)
-	for y: int in SWITCH.y:
-		for x: int in SWITCH.x:
+	var rim := Color(0.86, 0.86, 0.92)
+	var ball := Color(0.96, 0.96, 0.98)
+	var knob := Vector2(float(wide) - radius if on else radius, radius)
+	var knob_radius := radius - 3.0 * SWITCH_DETAIL
+	for y: int in high:
+		for x: int in wide:
 			var at := Vector2(float(x) + 0.5, float(y) + 0.5)
-			var spine := Vector2(clampf(at.x, radius, float(SWITCH.x) - radius), radius)
-			var edge := at.distance_to(spine)
-			if edge > radius:
+			var spine := Vector2(clampf(at.x, radius, float(wide) - radius), radius)
+			# How far inside the track's own edge this pixel is, which is also how much of it is
+			# covered: half a pixel either side of the edge is the whole of the softness.
+			var inside := radius - at.distance_to(spine)
+			var covered := clampf(inside + 0.5, 0.0, 1.0)
+			if covered <= 0.0:
 				continue
-			if at.distance_to(knob) <= radius - 3.0:
-				image.set_pixel(x, y, Color(0.96, 0.96, 0.98))
-			elif edge > radius - 1.6:
-				image.set_pixel(x, y, rim)
-			else:
-				image.set_pixel(x, y, track)
+			var edged := clampf(1.4 * SWITCH_DETAIL - inside, 0.0, 1.0)
+			var on_knob := clampf(knob_radius - at.distance_to(knob) + 0.5, 0.0, 1.0)
+			var ink := track.lerp(rim, edged).lerp(ball, on_knob)
+			image.set_pixel(x, y, Color(ink.r, ink.g, ink.b, covered))
+	image.generate_mipmaps()
 	var drawn := ImageTexture.create_from_image(image)
 	if on:
 		_switch_on = drawn

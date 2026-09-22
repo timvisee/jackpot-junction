@@ -89,7 +89,9 @@ func test_a_switch_can_be_seen_either_way() -> void:
 		if dark.get_pixel(x, dark.get_height() / 2).a > 0.5:
 			drawn += 1
 	assert_int(drawn).is_greater(dark.get_width() / 2)
-	var middle := lit.get_pixel(4, lit.get_height() / 2)
+	# A quarter of the way across, which is the track itself: clear of the soft edge round it and
+	# clear of the knob, which sits at the far end while it is on.
+	var middle := lit.get_pixel(lit.get_width() / 4, lit.get_height() / 2)
 	assert_float(middle.r).is_greater(middle.b)
 	off.free()
 	on.free()

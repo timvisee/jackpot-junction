@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The settings switches are drawn smoothly.** They are painted at four times
+  their size with soft edges, so they stay round on a big display.
+
 - **The Vault keeps its cards nearer the camera.** More of the hands are fanned out
   on the near apron, and the apron itself starts closer in.
 
