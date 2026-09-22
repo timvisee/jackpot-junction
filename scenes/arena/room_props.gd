@@ -67,6 +67,7 @@ const PATCH := {
 	&"cones": [Rect2(-4.0, -0.8, 8.0, 1.6), Turned.SQUARE],
 	&"pallets": [Rect2(-2.1, -1.7, 4.2, 3.4), Turned.SQUARE],
 	&"barrels": [Rect2(-3.2, -1.1, 6.4, 2.2), Turned.SQUARE],
+	&"barrel_row": [Rect2(-1.1, -3.2, 2.2, 6.4), Turned.FLAT],
 	&"scaffold": [Rect2(-3.1, -1.6, 6.2, 3.2), Turned.LOOSE],
 	&"container": [Rect2(-4.2, -1.8, 8.4, 3.6), Turned.SQUARE],
 	&"bricks": [Rect2(-1.4, -3.0, 2.8, 6.0), Turned.SQUARE],
@@ -253,6 +254,22 @@ func _yard() -> void:
 			true
 		)
 	# Down the far flank rather than the near one, which is where the truck is parked.
+	# A stack in against the fence on either flank, and side-on to it. Barrels are the one thing
+	# in a yard a player wants to see and the one the dealing kept pushing out past the crowd: a
+	# row of them broadside is six metres across, which is three more table than there is between
+	# the back of the stands and where the clutter is allowed to start, so the only place one
+	# could be dealt was out where nobody looks. Turned along the fence it is two metres across
+	# and fits in beside the truck and the forklift.
+	for drums: Vector3 in [
+		Vector3(-(half.x + 9.5), TOP, -half.y * 1.05),
+		Vector3(half.x + 9.5, TOP, -half.y * 1.25),
+	]:
+		_lay(
+			&"barrel_row",
+			drums,
+			func(at: Vector3, _turn: float) -> void: _barrels(at, PI * 0.5, rust, steel),
+			true
+		)
 	var across := Vector3(half.x + 7.0, TOP, half.y * 0.55)
 	_lay(
 		&"tape_across",

@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The Yard keeps barrels where you can see them.** A stack now stands in against
+  the fence on either flank instead of only turning up out past the crowd.
+
 - **The standings rank by banked coins.** A carried pot is still shown beside the
   score, but it no longer moves anyone up the board.
 

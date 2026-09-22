@@ -1175,9 +1175,14 @@ Each room also has a handful of things that are placed rather than scattered,
 because they are the ones a player will see every match: the lamp on its arm over
 the bench, with the vice on the bench edge and the calendar nobody turned over on
 the board behind it; the two shades hung over the far side of the card room and the
-pictures on its wall; the lit sign over the warehouse doors in the yard and the
-paint on the apron under them. A room reads as somewhere because of these rather
-than because of the clutter, which is what fills the space between them.
+pictures on its wall; the lit sign over the warehouse doors in the yard, the paint
+on the apron under them, and a stack of barrels in against the fence on either
+flank of it, turned along the fence rather than across it so that it fits in the
+three metres there are between the back of the stands and where the clutter is
+allowed to start. Dealt, barrels are too wide to go anywhere but out past the
+crowd, which is a yard whose barrels nobody ever sees. A room reads as somewhere
+because of these rather than because of the clutter, which is what fills the space
+between them.
 
 What a room puts where is dealt rather than rolled: the kinds of thing it has are
 shuffled into a deck and dealt one to a place, so it gets one of everything before
