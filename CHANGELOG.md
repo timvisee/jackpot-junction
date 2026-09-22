@@ -47,6 +47,9 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The Vault's hoardings are clear of the clock.** One stood a few metres off the
+  clock board and read as a second board stuck behind it.
+
 - **The dice are dice.** Every one was showing five on the top and nothing on any
   other face; they are thrown now, with pips on every side a camera can see and
   opposite faces coming to seven.

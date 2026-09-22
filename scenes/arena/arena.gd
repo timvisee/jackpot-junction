@@ -345,7 +345,9 @@ func _billboard_spot(index: int) -> Vector3:
 	var side := -1.0 if index == 0 else 1.0
 	match room.id:
 		&"after_hours":
-			var along := half.x * 0.45 * side
+			# Well out from the middle: the clock board of 8.3 hangs near the centre of this edge,
+			# and a hoarding a few metres off it stands in the shot behind it.
+			var along := half.x * 0.82 * side
 			return Vector3(along, 0.0, -(half.y + BILLBOARD_STANDOFF))
 		&"the_yard":
 			var wide := half.x * 0.98 * side
