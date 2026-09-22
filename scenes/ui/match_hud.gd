@@ -455,16 +455,14 @@ func _update_blocks() -> void:
 		var slot := match_node.slots[index]
 		var block := _blocks[index]
 		var banked: Label = block["banked"]
-		var pot: Label = block["pot"]
+		var pot: ScorePills = block["pot"]
 		var stats: Label = block["stats"]
 		banked.text = str(slot.banked)
 		var kart := slot.kart
 		if kart.alive:
-			pot.text = (
-				"%d × %s = %d" % [kart.pot.coins, _format_mult(kart.pot.mult), kart.pot.value()]
-			)
+			pot.show_pot(kart.pot.coins, kart.pot.mult, kart.pot.value())
 		else:
-			pot.text = "respawning %.1f" % maxf(slot.respawn_left, 0.0)
+			pot.say("respawning %.1f" % maxf(slot.respawn_left, 0.0))
 		stats.text = "K %d  D %d" % [slot.kills, slot.deaths]
 		var pips: Array = block["lives"]
 		for i: int in pips.size():
@@ -770,9 +768,7 @@ func _bar(size: Vector2, ink: Color) -> ProgressBar:
 
 
 func _format_mult(mult: float) -> String:
-	if is_equal_approx(mult, roundf(mult)):
-		return str(int(roundf(mult)))
-	return "%.1f" % mult
+	return ScorePills.mult_text(mult)
 
 
 func _label(size: int, preset: int) -> Label:
@@ -816,9 +812,6 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	# The banked score is the number a player checks mid-corner, so it is set the largest and
 	# in the heaviest cut there is, GAME.md 8.3.
 	Type.numbers(banked, Type.SCORE)
-	var pot := Label.new()
-	Type.set_font(pot, Type.numbers_text_font(), Type.LARGE)
-	pot.add_theme_color_override("font_color", Color(0.94, 0.94, 0.97))
 	var stats := Label.new()
 	Type.set_font(stats, Type.numbers_text_font(), Type.LABEL)
 	stats.add_theme_color_override("font_color", Color(0.72, 0.72, 0.78))
@@ -888,7 +881,7 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 	else:
 		item.add_child(item_art)
 		item.add_child(item_name)
-	for label: Label in [name_label, banked, pot, stats]:
+	for label: Label in [name_label, banked, stats]:
 		label.horizontal_alignment = (
 			HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
 		)
@@ -897,6 +890,9 @@ func _make_block(slot: PlayerSlot, corner: int) -> Dictionary:
 		label.clip_text = true
 		HudText.shadowed(label)
 		box.add_child(label)
+	# The pot goes between the banked score and the kill count, GAME.md 8.3.
+	var pot := ScorePills.add_to(box, right)
+	box.move_child(pot, 2)
 	box.add_child(item)
 	box.add_child(lives)
 	box.add_child(nitro)

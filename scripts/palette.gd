@@ -12,6 +12,11 @@ const TABLE := Color("#8A5A3C")
 const CHIP_GOLD := Color("#F2C14E")
 const CHIP_WHITE := Color("#F7F3EA")
 const CHIP_RED := Color("#C4453C")
+## The two halves of a score, GAME.md 3.2: the chips a lap is worth and the mult they are
+## multiplied by. One colour each, the same two everywhere either half is shown, so a glance says
+## which of the two is moving.
+const CHIPS := Color("#3FA9F5")
+const MULT := Color("#F2564B")
 const NEON_MAGENTA := Color("#FF4FA3")
 const NEON_CYAN := Color("#35D0FF")
 

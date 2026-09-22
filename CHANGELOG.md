@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Chips and mult have a colour each.** The pot on the HUD is now two pills, blue
+  chips and red mult with the multiply between them, rather than a line of
+  arithmetic.
+
 - **Crossfire is fenced and marked out.** A fence runs behind the crowd on three
   sides, hazard stripes are painted where the plant works, and the barriers wear
   black and yellow rather than traffic orange.

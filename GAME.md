@@ -1479,7 +1479,12 @@ and shrinks again at the next corner never stops moving, and the eye follows
 movement: the one thing a corner block must not do is ask to be looked at.
 
 - **Banked score**, large.
-- **Pot** as `coins × mult = value`, updating live.
+- **Pot** as `chips × mult = value`, updating live, with each half in a pill of
+  its own colour: chips in blue and mult in red, the same two colours wherever
+  either half is shown. A pot is one number made of two, and which of the two is
+  moving is the whole of what a player is deciding about -- another lap for more
+  chips, or the Junction for the mult before somebody takes it off them. Written
+  as one line of text it read as arithmetic.
 - **Joker hand**: the held jokers as a row of overlapping cards along the bottom
   of the screen, one hand per local player, each card framed in its kind's
   colour with the joker's own picture and its name, and one, two or three pips
