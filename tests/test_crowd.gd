@@ -97,9 +97,11 @@ func test_some_of_them_are_standing_on_a_tribune() -> void:
 	assert_int(on_a_stand).is_greater(20)
 	# And most of the house is still on the table: a stand is somewhere, not everywhere.
 	assert_int(on_a_stand).is_less(crowd.count() / 2)
-	# The steps themselves are there, and they are not nine hundred nodes either.
+	# The steps themselves are there, and they are not nine hundred nodes either. One step per
+	# tiered row and a wall across the back of each stand; the rows behind the tiers stand on the
+	# flat, GAME.md 8.1.
 	var stands: Node3D = crowd.get_node("Stands")
-	assert_int(stands.get_child_count()).is_equal(crowd._footprints.size() * Crowd.ROWS)
+	assert_int(stands.get_child_count()).is_equal(crowd._footprints.size() * Crowd.TIERS)
 
 
 func test_a_kill_gets_them_up_and_so_does_a_hot_room() -> void:
@@ -179,3 +181,28 @@ func test_nobody_is_watching_in_the_garage() -> void:
 	var match_node: Match = garage.get_node("Match")
 	assert_bool(match_node.arena.crowd.enabled).is_false()
 	assert_bool(match_node.arena.crowd.visible).is_false()
+
+
+## The house is packed at the rail and thins out behind it, GAME.md 8.1: a front row shoulder to
+## shoulder and a back row of knots of people with space around them.
+func test_the_house_thins_out_the_further_back_it_goes() -> void:
+	var arena := _arena()
+	var crowd := arena.crowd
+	var half := arena.world_size() * 0.5
+	var near := 0
+	var far := 0
+	var middle := Crowd._row_out(Crowd.ROWS / 2)
+	for spot: Transform3D in crowd._spots:
+		var out := maxf(absf(spot.origin.x) - half.x, absf(spot.origin.z) - half.y)
+		if out < middle:
+			near += 1
+		else:
+			far += 1
+	# The band behind the halfway line is the deeper half of the two and still holds fewer people.
+	assert_int(far).is_greater(20)
+	assert_int(near).is_greater(far)
+	# And the rows themselves spread as they go back.
+	assert_float(Crowd._row_out(1) - Crowd._row_out(0)).is_less(
+		Crowd._row_out(Crowd.ROWS - 1) - Crowd._row_out(Crowd.ROWS - 2)
+	)
+	assert_float(Crowd._row_density(0)).is_greater(Crowd._row_density(Crowd.ROWS - 1) * 2.0)

@@ -13,14 +13,14 @@ const TOP := -Arena.FLOOR_THICKNESS
 ## How far past the arena wall the clutter starts and how far out it may go: right behind the
 ## crowd, and not much further. A room reads as somewhere from what is close enough to make out,
 ## and the camera of 8.2 sees very little past the stands while a match is being played.
-const NEAR := 6.0
-const FAR := 13.0
+const NEAR := 8.0
+const FAR := 14.0
 ## How far the clutter behind the arena goes, which is shorter, and how far past the last of it
 ## the wall of the room stands. The camera looks down at the table, so what is further back is
 ## higher up rather than further off: a wall much past this is a wall above the top of the
 ## picture, which is a wall nobody sees.
-const BACK_FAR := 8.0
-const BACK_WALL := 2.5
+const BACK_FAR := 11.0
+const BACK_WALL := 2.0
 ## How far past the edge of the table the wall round the room stands, and how thick it is.
 const ROOM_CLEAR := 2.0
 const WALL_THICKNESS := 2.0

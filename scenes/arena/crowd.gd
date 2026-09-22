@@ -19,17 +19,27 @@ extends Node3D
 ## Everything here is scenery: no collision, nothing to drive into, nothing that decides
 ## anything. A client runs its own crowd off the same events, GAME.md 10.3.
 
-## Metres between two places along a row, between rows, and between the wall and the front row.
-const SPACING := 0.62
-const ROW_DEPTH := 0.92
-const ROWS := 4
-const STANDOFF := 1.15
+## Metres between two places along a row, between the first rows, and between the wall and the
+## front row. A house is packed at the rail and thins out behind it, so both the gap along a row
+## and the gap to the next one grow by [constant SPREAD] a row as they go back: the front rows
+## are shoulder to shoulder and the back ones are knots of people with space around them.
+const SPACING := 0.6
+const ROW_DEPTH := 0.7
+const ROWS := 8
+const SPREAD := 0.12
+const STANDOFF := 1.1
+## How many rows the tribunes are stepped over. The rest of the house stands on the flat behind
+## them, which is what a stand at the front of a crowd looks like from outside it.
+const TIERS := 4
 ## How far off their spot somebody may stand, and how often a place is taken at all: a gap in a
 ## crowd is what makes the rest of it look like people rather than like a pattern.
 const JITTER := 0.28
-const DENSITY := 0.86
 ## The shortest and the tallest of them, as a share of the usual size.
 const SIZE_RANGE := Vector2(0.82, 1.18)
+## How full the front row is and how full the back one is. Everything between is taken across the
+## rows, so the house fades out rather than ending in a line.
+const PACKED := 0.94
+const THINNED := 0.3
 ## The stands: how long one stretch of tribune is, how far each row of it is lifted over the row
 ## in front, how far one keeps off a corner, and how far its steps run past the last person on
 ## them so that nobody is standing on the edge of one.
@@ -37,11 +47,12 @@ const STAND_LENGTH := Vector2(7.0, 13.0)
 const TIER := 0.4
 const CORNER_CLEARANCE := 2.5
 const STAND_MARGIN := 0.7
-## How far out into the band the booth stands, in rows, and the patch of table it is given: the
+## How far out into the band the booth stands, in metres, and the patch of table it is given: the
 ## booth is in the crowd rather than behind it, so people who would be standing where it is go
-## somewhere else instead.
-const BOOTH_ROW := 1.5
-const BOOTH_CLEARANCE := Vector2(7.4, 1.9)
+## somewhere else instead. In metres rather than in rows, because the rows are not evenly spaced:
+## it has to leave a couple of them in front of it whatever the spacing behind it does.
+const BOOTH_OUT := 2.9
+const BOOTH_CLEARANCE := Vector2(7.4, 1.5)
 ## How many places a stand is allowed to try before it gives up on that side, so a stand never
 ## ends up built through the booth.
 const STAND_TRIES := 8
@@ -293,17 +304,17 @@ func _build(size: Vector2) -> void:
 	var kept := _clear.duplicate()
 	_clear.clear()
 	var half := size * 0.5
-	var outer := half + Vector2.ONE * (STANDOFF + (ROWS - 1) * ROW_DEPTH)
+	var outer := half + Vector2.ONE * _row_out(ROWS - 1)
 	# The booth goes down first because everything else is placed around it: it stands a couple
 	# of rows into the crowd, with people in front of it and people behind it, rather than out on
 	# its own behind the back row where it read as a thing parked next to the party.
-	_booth(Vector3(0.0, TABLE_TOP, -(half.y + STANDOFF + BOOTH_ROW * ROW_DEPTH)))
+	_booth(Vector3(0.0, TABLE_TOP, -(half.y + BOOTH_OUT)))
 	for area: Rect2 in kept:
 		if not _clear.has(area):
 			_clear.append(area)
 	_raise_stands(half)
 	for row: int in ROWS:
-		_ring(half + Vector2.ONE * (STANDOFF + row * ROW_DEPTH), row)
+		_ring(half + Vector2.ONE * _row_out(row), row)
 	_raise_house(outer)
 
 
@@ -320,8 +331,26 @@ func _ring(half: Vector2, row: int) -> void:
 		_line(corners[i], corners[(i + 1) % 4], row)
 
 
+## How far out from the arena wall row [param row] stands, and how far apart the people in it
+## are. Both grow with the row: a house is packed at the rail and thins out behind it.
+static func _row_out(row: int) -> float:
+	var out := STANDOFF
+	for i: int in row:
+		out += ROW_DEPTH * (1.0 + float(i) * SPREAD)
+	return out
+
+
+static func _row_spacing(row: int) -> float:
+	return SPACING * (1.0 + float(row) * SPREAD)
+
+
+## How full a row is: the front one is shoulder to shoulder and the back one is a scattering.
+static func _row_density(row: int) -> float:
+	return lerpf(PACKED, THINNED, float(row) / maxf(float(ROWS - 1), 1.0))
+
+
 func _line(from: Vector3, to: Vector3, row: int) -> void:
-	var steps := maxi(int(from.distance_to(to) / SPACING), 1)
+	var steps := maxi(int(from.distance_to(to) / _row_spacing(row)), 1)
 	for i: int in steps:
 		_stand(from.lerp(to, float(i) / float(steps)), row)
 
@@ -331,7 +360,7 @@ func _stand(at: Vector3, row: int) -> void:
 	# Grown by the jitter, since the spot is rolled off this point and could wander in.
 	if _blocked(Vector2(at.x, at.z), JITTER):
 		return
-	if _rng.randf() > DENSITY:
+	if _rng.randf() > _row_density(row):
 		return
 	var spot := Vector3(
 		at.x + _rng.randf_range(-JITTER, JITTER),
@@ -363,7 +392,7 @@ func _tier_at(at: Vector3, row: int) -> float:
 		return 0.0
 	for stand: Rect2 in _footprints:
 		if stand.has_point(Vector2(at.x, at.z)):
-			return row * TIER
+			return mini(row, TIERS - 1) * TIER
 	return 0.0
 
 
@@ -403,7 +432,7 @@ func _raise_stands(half: Vector2) -> void:
 ## The footprint of one stand, flat on the table, which is what decides who is standing on it.
 static func _footprint(near: Vector3, out: Vector3, sideways: Vector3, run: float) -> Rect2:
 	var corner := near - sideways * (run * 0.5)
-	var far := near + out * (ROWS * ROW_DEPTH) + sideways * (run * 0.5)
+	var far := near + out * _row_out(TIERS) + sideways * (run * 0.5)
 	return Rect2(
 		Vector2(minf(corner.x, far.x), minf(corner.z, far.z)),
 		Vector2(absf(far.x - corner.x), absf(far.z - corner.z))
@@ -416,7 +445,7 @@ func _step_up(
 	near: Vector3, out: Vector3, run: float, parent: Node3D, tread: Material, back: Material
 ) -> void:
 	var wide := run + STAND_MARGIN
-	for row: int in range(1, ROWS):
+	for row: int in range(1, TIERS):
 		var high := row * TIER
 		var step := MeshInstance3D.new()
 		step.mesh = _slab(_spread(out, wide, ROW_DEPTH, high))
@@ -426,10 +455,10 @@ func _step_up(
 		)
 		parent.add_child(step)
 	var wall := MeshInstance3D.new()
-	var high := (ROWS - 1) * TIER + 0.55
+	var high := (TIERS - 1) * TIER + 0.55
 	wall.mesh = _slab(_spread(out, wide, 0.3, high))
 	wall.material_override = back
-	wall.position = near + out * (ROWS * ROW_DEPTH + 0.15) + Vector3.UP * (TABLE_TOP + high * 0.5)
+	wall.position = near + out * (_row_out(TIERS) + 0.15) + Vector3.UP * (TABLE_TOP + high * 0.5)
 	parent.add_child(wall)
 
 

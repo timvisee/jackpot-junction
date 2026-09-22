@@ -1354,9 +1354,13 @@ measurement reads three times slower than the same build warm.
   edges After Hours, muted workwear in the Yard. Random bright hues over a
   thousand people read as confetti, and confetti next to the table is the loudest
   thing on the screen while the karts are the smallest.
-- **The crowd**: a band of small figures four rows deep standing on the table all
-  the way round the arena, and a DJ booth a couple of rows into it along the top
-  edge, with a pair of speakers that pulse on the beat. The booth stands in the
+- **The crowd**: a band of small figures eight rows deep standing on the table all
+  the way round the arena, and a DJ booth a few metres into it along the top edge,
+  with a pair of speakers that pulse on the beat. The band fades outward: the rows
+  at the rail are shoulder to shoulder and each one behind is a little further back,
+  a little further apart along its length and a little emptier, so the house ends in
+  knots of people with space around them rather than in a line. The tribunes are
+  stepped over the front four rows only; the rest stand on the flat behind them. The booth stands in the
   crowd rather than behind it, with people in front of it and people behind it,
   because a booth out on its own past the back row reads as a thing parked next
   to the party rather than as the middle of one. The people who would be standing

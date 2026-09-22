@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The crowd fades out the further back it goes.** Eight rows now instead of four:
+  packed at the rail, and thinner and further apart with every row behind it.
+
 - **There is something at the bottom of a pit now.** Rusted rebar in the yard,
   nails on the workbench, something dark under the card table, and black and yellow
   painted round the rim of the yard's.

@@ -18,7 +18,7 @@ extends RoomBuild
 ## two thirds of it in the first half.
 const CROWDING := 1.7
 ## How far out a prop has to be before it is allowed to be one of the big ones.
-const CLOSE := 10.0
+const CLOSE := 12.0
 ## The grid the clutter is set out on. Things put down by somebody line up with the edge of the
 ## table and roughly with each other; things dropped at random read as a spill whatever they are.
 const SPACING := 4.0
