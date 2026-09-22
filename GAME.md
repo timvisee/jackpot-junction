@@ -1121,6 +1121,12 @@ crate: sealed packs of cards two by two and three high, offcuts of board stacked
 crossways, or cement sacks on a pallet. All of it stays inside the cube the
 collider is, so cover is the shape it looks like, and a test says so.
 
+A room is built in three parts: what it is put together from, the room itself --
+the floor under the table, the walls round it, the board at the back and what hangs
+on that board -- and the clutter lying about in it. The first is shared, the second
+is the shell and the third is the props, and each of the last two is baked into as
+few meshes as it will go.
+
 **The room round the table.** A table standing in the dark is a table standing in
 the dark: the eye finds the edge of it as soon as the camera moves. So each room is
 built as a room. The table has a skirt and legs, it stands on a floor, and three
@@ -1136,9 +1142,10 @@ Then what is in it. The workbench has a backboard with a pegboard on it and the
 tools of whoever built the thing lying where they were put down; the card room has
 a line of brass stanchions with a velvet rope slung between them behind the crowd,
 and what the house plays with left out on the baize, in all four suits;
-the yard has a fence behind the crowd, hazard stripes painted where the plant
-works, hoarding along the back, floodlights over it, a truck and the things a yard
-has standing about in it. Two of the rooms are models on a real table, so
+the yard has a low fence behind the crowd, one painted hazard area where the plant
+is kept and tape strung across whatever else is cordoned off, hoarding along the
+back with a hard hat hung on it, floodlights over the lot, a truck, a forklift and
+the rest of what a yard has standing about. Two of the rooms are models on a real table, so
 everything round them is the size it would be next to a model -- a hammer left on
 the bench is a third as long as the arena is wide -- and the yard is a place rather
 than a model, so a scaffold tower there is the size of a scaffold tower. All of it

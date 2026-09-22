@@ -26,10 +26,13 @@ func _play_box(arena: Arena) -> AABB:
 	return AABB(Vector3(-half.x, 0.0, -half.y), Vector3(half.x * 2.0, PLAY_HEIGHT, half.y * 2.0))
 
 
+## Everything a room is dressed with: the clutter lying about in it and the shell it stands in,
+## which are two nodes now but one set of rules.
 func _parts(arena: Arena) -> Array[MeshInstance3D]:
 	var out: Array[MeshInstance3D] = []
-	for part: Node in arena.get_node("Props").get_children():
-		out.append(part as MeshInstance3D)
+	for holder: String in ["Props", "Shell"]:
+		for part: Node in arena.get_node(holder).get_children():
+			out.append(part as MeshInstance3D)
 	return out
 
 
@@ -39,8 +42,11 @@ func test_every_room_is_dressed() -> void:
 	for map: String in MAPS:
 		var arena := _arena(map)
 		var props := arena.get_node_or_null("Props")
+		var shell := arena.get_node_or_null("Shell")
 		assert_object(props).override_failure_message("%s has no props" % map).is_not_null()
-		assert_int(props.get_child_count()).is_greater(60)
+		assert_object(shell).override_failure_message("%s has no shell" % map).is_not_null()
+		assert_int(props.get_child_count()).is_greater(40)
+		assert_int(shell.get_child_count()).is_greater(20)
 
 
 ## None of it collides and none of it moves: a room is scenery, so it is meshes and nothing else.

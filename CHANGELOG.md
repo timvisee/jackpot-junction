@@ -13,6 +13,11 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Crossfire gets a forklift, and its fence comes down.** The fence behind the
+  crowd is half the height it was, the painted hazard stripes are one area at the
+  back rather than three patches, black and yellow tape is strung across what is
+  cordoned off, and there is a hard hat hung on the hoarding.
+
 - **The Vault deals in four suits.** The cards it leaves about are hearts, diamonds,
   spades and clubs, its chips and dice carry their own markings, the rope line is a
   row of brass stanchions with a velvet rope, and there is a little of it dropped on

@@ -1,9 +1,8 @@
 class_name RoomProps
-extends Node3D
-## What a room has in it besides the table, GAME.md 8.1: the walls it stands in and the clutter
-## lying about outside the arena. The workbench has a workshop wall behind it and the tools of
-## whoever built the thing left on the bench; the card room has chips and decks out on the baize;
-## the yard has scaffolding, barriers and a truck.
+extends RoomBuild
+## What is lying about in a room, GAME.md 8.1. The room itself is [RoomShell]; this is the tools
+## of whoever built the thing left on the bench, the chips and decks out on the baize, and the
+## scaffolding, barriers and the truck standing about the yard.
 ##
 ## Two of the rooms are models standing on a real table, so everything around them is the size it
 ## would be next to a model: a hammer left on the bench is a quarter as long as the arena is wide.
@@ -15,18 +14,6 @@ extends Node3D
 ## it, and the near side of the room is kept flat on purpose: the camera of 8.2 looks down the
 ## table from there, so anything standing up on that side is between the player and the game.
 
-## How far past the arena wall the clutter starts and how far out it may go: right behind the
-## crowd, and not much further. A room reads as somewhere because of what is close enough to make
-## out, and the camera of 8.2 sees very little past the stands while a match is being played, so
-## a prop twenty-five metres out is a prop nobody has ever seen.
-const NEAR := 6.0
-const FAR := 13.0
-## How far the clutter behind the arena goes, which is shorter, and how far past the last of it
-## the wall of the room stands. The camera of 8.2 looks down at the table, so what is further
-## back is higher up rather than further off: a wall much past this is a wall above the top of
-## the picture, which is a wall nobody sees.
-const BACK_FAR := 8.0
-const BACK_WALL := 2.5
 ## How much the clutter crowds the near end of that range: the square of a flat random, which puts
 ## two thirds of it in the first half.
 const CROWDING := 1.7
@@ -46,39 +33,20 @@ const BIG_BAY := 13.0
 const TRIES := 12
 ## How much further out the near apron starts than the flanks do.
 const APRON_CLEAR := 3.0
-## The table's own surface, a little under the arena floor. Everything outside the wall stands on
-## this rather than on the floor the karts drive on.
-const TOP := -Arena.FLOOR_THICKNESS
-## How far past the edge of the table the wall round the room stands, and how thick it is. Close
-## enough to be seen: a wall sixty metres behind the crowd is a wall nobody ever knew was there,
-## and the point of a room having one is that the table is in a room.
-const ROOM_CLEAR := 2.0
-const WALL_THICKNESS := 2.0
 
-var arena: Arena
-var room: RoomLook
-var surfaces: Surfaces
+## The room this clutter is lying about in, built alongside it.
+var shell: RoomShell
 
-## Its own generator, seeded off the room, so a room is dressed the same way every time it is
-## built and two rooms are not dressed the same way.
-var _rng := RandomNumberGenerator.new()
 ## What is already standing out here: the booth, the hoardings and whatever else asked the crowd
 ## for a patch, plus every prop put down since. Nothing is placed on top of anything in it.
 var _taken: Array[Rect2] = []
-## Where the floor of the room is and how tall its walls are, for whatever is hung on them. Both
-## are set by [method _room], which every room builds first.
-var _ground := 0.0
-var _height := 0.0
 
 
 ## Dresses [param for_arena]'s room and returns the holder everything went into.
 static func add_to(for_arena: Arena) -> RoomProps:
 	var props := RoomProps.new()
-	props.name = "Props"
-	props.arena = for_arena
-	props.room = for_arena.room
-	props.surfaces = for_arena.surfaces
-	for_arena.add_child(props)
+	props._stand_in(for_arena, "Props")
+	props.shell = RoomShell.add_to(for_arena)
 	props._build()
 	return props
 
@@ -97,10 +65,12 @@ func _build() -> void:
 			_yard()
 		_:
 			_workbench()
-	# And the lot of it goes into as few meshes as it will go, GAME.md 8.1: none of it moves and
-	# none of it is ever hidden on its own, so a chip does not need a draw call of its own.
+	# And the lot of it, the room it stands in as well, goes into as few meshes as it will go,
+	# GAME.md 8.1: none of it moves and none of it is ever hidden on its own, so a chip does not
+	# need a draw call of its own.
 	if arena.bake_scenery:
 		Bake.merge(self)
+		Bake.merge(shell)
 
 
 # --- the rooms ---------------------------------------------------------------
@@ -109,14 +79,14 @@ func _build() -> void:
 ## A bench against a workshop wall: the table's own edge and legs, a pegboard over it, and the
 ## tools of whoever built the thing lying where they were put down.
 func _workbench() -> void:
-	_room(Color(0.15, 0.13, 0.12), Color(0.26, 0.22, 0.18), 32.0, 80.0)
-	_skirt(room.table.darkened(0.32), 2.4)
-	_legs(room.table.darkened(0.42))
+	shell.enclose(Color(0.15, 0.13, 0.12), Color(0.26, 0.22, 0.18), 32.0, 80.0)
+	shell.skirt(room.table.darkened(0.32), 2.4)
+	shell.legs(room.table.darkened(0.42))
 	# A painted wall rather than more of the bench. A board in the table's own colour is a board
 	# nobody can tell is there, which is what the back of this room was.
-	var board := _backboard(24.0, Color(0.4, 0.38, 0.34))
-	_pegboard(board)
-	_calendar(board)
+	var board := shell.backboard(24.0, Color(0.4, 0.38, 0.34))
+	shell.pegboard(board)
+	shell.calendar(board)
 	var half := arena.world_size() * 0.5
 	_bench_lamp(Vector3(-(half.x + 12.0), TOP, -(half.y + 10.0)))
 	_vice(Vector3(-(half.x + 9.0), TOP, half.y * 0.25))
@@ -158,12 +128,12 @@ func _workbench() -> void:
 ## A card room after hours: the baize is the floor, a rope line runs behind the crowd, and what
 ## the house plays with is left out around the table.
 func _card_room() -> void:
-	var wall := _room(Color(0.1, 0.045, 0.06), Color(0.17, 0.06, 0.09), 32.0, 80.0)
-	_drape(wall)
-	_pictures(wall)
-	_skirt(room.table.darkened(0.34), 2.4)
-	_legs(room.table.darkened(0.46))
-	_rope_line()
+	var wall := shell.enclose(Color(0.1, 0.045, 0.06), Color(0.17, 0.06, 0.09), 32.0, 80.0)
+	shell.drape(wall)
+	shell.pictures(wall)
+	shell.skirt(room.table.darkened(0.34), 2.4)
+	shell.legs(room.table.darkened(0.46))
+	shell.rope_line()
 	var half := arena.world_size() * 0.5
 	for side: float in [-1.0, 1.0]:
 		_pendant(Vector3(side * half.x * 0.62, TOP, -(half.y + 10.0)))
@@ -194,19 +164,23 @@ func _card_room() -> void:
 ## A yard between warehouse walls: an apron of concrete, hoarding along the back, floodlights over
 ## it and the things a yard has standing about in it.
 func _yard() -> void:
-	var wall := _room(Color(0.13, 0.13, 0.12), Color(0.25, 0.24, 0.22), 3.4, 46.0)
-	_facade(wall)
-	_sign(wall)
-	_skirt(room.table.darkened(0.22), 3.2)
-	_hoarding()
-	_crowd_fence()
-	_apron_markings()
+	var wall := shell.enclose(Color(0.13, 0.13, 0.12), Color(0.25, 0.24, 0.22), 3.4, 46.0)
+	shell.facade(wall)
+	shell.sign(wall)
+	shell.skirt(room.table.darkened(0.22), 3.2)
+	shell.hoarding()
+	shell.crowd_fence()
+	shell.apron_markings()
 	var steel := surfaces.metal(Color(0.72, 0.74, 0.78))
 	var timber := surfaces.painted(room.table.lightened(0.26))
 	var half := arena.world_size() * 0.5
 	for side: float in [-1.0, 1.0]:
 		_floodlight(Vector3(side * half.x * 0.8, TOP, -(half.y + 11.0)), steel)
 	_truck(Vector3(-(half.x + 9.0), TOP, half.y * 0.1), steel)
+	_forklift(Vector3(half.x + 8.0, TOP, -half.y * 0.45))
+	for side: float in [-1.0, 1.0]:
+		_hazard_tape(Vector3(side * half.x * 0.55, TOP, -(half.y + 6.5)), 6.0, 0.0)
+	_hazard_tape(Vector3(-(half.x + 7.0), TOP, half.y * 0.55), 5.0, PI * 0.5)
 	for at: Vector3 in _ring(14):
 		if _close(at):
 			match _rng.randi_range(0, 2):
@@ -236,179 +210,6 @@ func _yard() -> void:
 # --- the shell ---------------------------------------------------------------
 
 
-## The edge of the table: a skirt round the top, so the room stands on something with a thickness
-## rather than on a plane with an edge.
-func _skirt(ink: Color, depth: float) -> void:
-	var half := _table()
-	var paint := surfaces.painted(ink)
-	for side: int in 4:
-		var along := side % 2 == 0
-		var size := (
-			Vector3(half.x * 2.0, depth, 1.2) if along else Vector3(1.2, depth, half.y * 2.0)
-		)
-		var at := Vector3(
-			0.0 if along else (half.x - 0.6) * (1.0 if side == 1 else -1.0),
-			TOP - depth * 0.5,
-			(half.y - 0.6) * (1.0 if side == 2 else -1.0) if along else 0.0
-		)
-		_dim(_box(size, paint, at))
-
-
-## The legs under it, going down out of sight. A table with no legs is a floor.
-##
-## They stand well in from the corners rather than under them. A leg under the near corner is a
-## dark column up the side of the screen as soon as the camera looks across the table, and the
-## table is wide enough that one set in is still a table.
-func _legs(ink: Color) -> void:
-	var half := _table() * 0.6
-	var paint := surfaces.painted(ink)
-	for corner: Vector2 in [Vector2(-1, -1), Vector2(1, -1), Vector2(-1, 1), Vector2(1, 1)]:
-		var at := Vector3(half.x * corner.x, TOP - 17.0, half.y * corner.y)
-		_dim(_box(Vector3(3.2, 30.0, 3.2), paint, at))
-
-
-## The room the table stands in: a floor under it and walls round it, far enough out that the
-## table is still what the eye lands on. Without them the table is an island in the dark, and the
-## camera only has to move a little to find the edge of the world.
-##
-## [param drop] is how far under the table the floor lies -- a bench stands on legs, a yard is the
-## ground -- and the walls rise from it. Returns where the far wall is, for whatever the room
-## hangs on it.
-##
-## There is no wall on the near side. The camera sits there while the match is played, and a wall
-## behind the camera is a wall in front of it the moment the view pulls out over the winner.
-func _room(floor_ink: Color, wall_ink: Color, drop: float, height: float) -> float:
-	var half := _room_half()
-	_ground = TOP - drop
-	_height = height
-	var ground := Vector3(half.x * 2.0, 3.0, half.y * 2.0)
-	_dim(_box(ground, surfaces.painted(floor_ink), Vector3(0.0, _ground - 1.5, 0.0)))
-	var paint := surfaces.painted(wall_ink)
-	var middle := _ground + height * 0.5
-	var back := -(half.y + WALL_THICKNESS * 0.5)
-	var across := Vector3(half.x * 2.0 + WALL_THICKNESS * 2.0, height, WALL_THICKNESS)
-	_dim(_box(across, paint, Vector3(0.0, middle, back)))
-	for side: float in [-1.0, 1.0]:
-		var down := Vector3(WALL_THICKNESS, height, half.y * 2.0)
-		_dim(_box(down, paint, Vector3(side * (half.x + WALL_THICKNESS * 0.5), middle, 0.0)))
-	return back
-
-
-## The board at the back of a bench: the wall the room actually has, rather than the one at the
-## edge of the table that nothing but the opening shot ever sees. It stands just past the last of
-## the clutter, which is close enough that a player looking down the table looks at it. Returns
-## its front face.
-func _backboard(height: float, ink: Color) -> float:
-	var half := Vector2(_table().x, arena.world_size().y * 0.5 + BACK_FAR + BACK_WALL)
-	var back := -half.y
-	var board := Vector3(half.x * 2.0, height, 2.0)
-	_dim(_box(board, surfaces.painted(ink), Vector3(0.0, TOP - 2.0 + height * 0.5, back)))
-	return back + 1.0
-
-
-## The pegboard over a workbench with the long tools hung on it: a saw, a square and a level,
-## which is what the back of a workshop looks like from across the room.
-func _pegboard(face: float) -> void:
-	var half := _table()
-	var z := face + 0.4
-	# Low on the wall. The camera looks down at the table, so anything much above head height on
-	# a wall this close to the crowd is above the top of the picture.
-	var hang := TOP + 4.6
-	var panel := surfaces.painted(room.table.darkened(0.34))
-	_dim(_box(Vector3(half.x * 0.9, 8.4, 0.6), panel, Vector3(0.0, hang, z)))
-	var steel := surfaces.metal(Color(0.66, 0.68, 0.72))
-	var timber := surfaces.painted(room.table.lightened(0.22))
-	_dim(_box(Vector3(0.9, 5.6, 0.5), steel, Vector3(-half.x * 0.3, hang - 0.6, z + 0.6)))
-	_dim(_box(Vector3(4.0, 2.6, 0.4), steel, Vector3(-half.x * 0.3 + 1.8, hang + 1.8, z + 0.6)))
-	_dim(_box(Vector3(1.2, 6.4, 0.6), timber, Vector3(half.x * 0.26, hang, z + 0.6)))
-	_dim(_box(Vector3(5.0, 1.2, 0.6), timber, Vector3(half.x * 0.26 + 2.2, hang - 2.6, z + 0.6)))
-	for i: int in 7:
-		var x := -half.x * 0.36 + float(i) * (half.x * 0.72 / 6.0)
-		_dim(_box(Vector3(0.4, 0.4, 1.4), steel, Vector3(x, hang + 3.0, z + 0.9)))
-
-
-## The folds in the drape behind a card room: a row of pleats down the far wall, which is what
-## stops eighty metres of flat colour reading as a backdrop.
-func _drape(back: float) -> void:
-	var half := _room_half()
-	var fold := surfaces.painted(Color(0.24, 0.08, 0.12))
-	var count := 21
-	for i: int in count:
-		var x := -half.x + float(i) * (half.x * 2.0 / float(count - 1))
-		var at := Vector3(x, _ground + _height * 0.5, back + WALL_THICKNESS * 0.5 + 1.6)
-		_dim(_box(Vector3(3.6, _height, 3.2), fold, at))
-
-
-## The rope line behind the crowd: cast bases, brass posts with a ball on top and a rope slung
-## between them, the way a room that charges for the table keeps the rest of the room off it.
-func _rope_line() -> void:
-	var half := arena.world_size() * 0.5
-	var post := surfaces.metal(room.trim)
-	var span := (half.x + NEAR) * 2.0 / 10.0
-	for i: int in 11:
-		var stand := Vector3(-(half.x + NEAR) + float(i) * span, TOP, -(half.y + NEAR * 0.75))
-		_stanchion(stand, post)
-		if i < 10:
-			_rope(stand, stand + Vector3(span, 0.0, 0.0))
-
-
-## One post of it: a weighted base, a column, a collar and a ball.
-func _stanchion(at: Vector3, brass: Material) -> void:
-	_taper(0.62, 0.46, 0.16, brass, at + Vector3(0.0, 0.08, 0.0))
-	_cylinder(0.12, 2.3, brass, at + Vector3(0.0, 1.15, 0.0))
-	_cylinder(0.2, 0.18, brass, at + Vector3(0.0, 1.9, 0.0))
-	_taper(0.24, 0.0, 0.34, brass, at + Vector3(0.0, 2.47, 0.0))
-
-
-## The rope between two of them, hung rather than stretched: three lengths, the middle one lower,
-## which is all it takes for a rope to read as a rope rather than as a rail.
-func _rope(from: Vector3, to: Vector3) -> void:
-	var velvet := surfaces.painted(Color(0.46, 0.07, 0.12))
-	var along := to - from
-	var lengths := 3
-	var dips: Array[float] = [0.12, 0.3, 0.12]
-	for i: int in lengths:
-		var a := from + along * (float(i) / float(lengths))
-		var b := from + along * (float(i + 1) / float(lengths))
-		var middle := (a + b) * 0.5 + Vector3(0.0, 1.78 - dips[i], 0.0)
-		var run := b - a
-		var rope := _box(Vector3(run.length() * 1.04, 0.14, 0.14), velvet, middle)
-		rope.rotation.z = -0.22 if i == 0 else (0.22 if i == 2 else 0.0)
-
-
-## The warehouse the yard backs onto: a band of windows across the wall and two roller doors
-## under it.
-func _facade(back: float) -> void:
-	var half := _room_half()
-	var z := back + WALL_THICKNESS * 0.5 + 0.3
-	var glass := surfaces.painted(Color(0.16, 0.19, 0.24))
-	var door := surfaces.painted(Color(0.27, 0.28, 0.29))
-	for i: int in 11:
-		var x := -half.x * 0.9 + float(i) * (half.x * 1.8 / 10.0)
-		_dim(_box(Vector3(14.0, 7.0, 0.5), glass, Vector3(x, _ground + 26.0, z)))
-	for side: float in [-1.0, 1.0]:
-		var at := Vector3(side * half.x * 0.4, _ground + 7.5, z)
-		_dim(_box(Vector3(20.0, 15.0, 0.6), door, at))
-
-
-## The hoarding round the back of a yard: corrugated panels on posts, at the edge of the apron
-## rather than against the wall.
-func _hoarding() -> void:
-	var half := arena.world_size() * 0.5
-	var panel := surfaces.metal(Color(0.62, 0.66, 0.6))
-	var post := surfaces.metal(Color(0.4, 0.42, 0.44))
-	var z := -(half.y + BACK_FAR + BACK_WALL)
-	# The panels meet edge to edge. A hoarding with daylight between its boards is a fence, and a
-	# yard is hoarded off so that what is in it cannot be seen from the road.
-	var count := 15
-	var wide := half.x + FAR
-	var span := wide * 2.0 / float(count)
-	for i: int in count:
-		var x := -wide + (float(i) + 0.5) * span
-		_box(Vector3(span, 6.4, 0.35), panel, Vector3(x, TOP + 3.2, z))
-		_box(Vector3(0.5, 7.0, 0.8), post, Vector3(x - span * 0.5, TOP + 3.5, z))
-
-
 ## The lamp the workbench is lit by, standing at the back corner of the bench: a base, a column,
 ## an arm out over the table and a shade with the bulb under it. The room says there is a lamp
 ## over the table, GAME.md 8.1, and this is the thing saying so.
@@ -436,16 +237,6 @@ func _vice(at: Vector3) -> void:
 	_box(Vector3(4.4, 0.5, 0.5), brass, at + Vector3(0.0, 2.6, 4.6))
 
 
-## The calendar nobody has turned over, hung on the board at the back of the bench.
-func _calendar(face: float) -> void:
-	var half := _table()
-	var at := Vector3(half.x * 0.62, TOP + 13.0, face + 0.5)
-	var paper := surfaces.painted(Color(0.88, 0.86, 0.8))
-	var band := surfaces.painted(Color(0.72, 0.24, 0.2))
-	_dim(_box(Vector3(7.0, 9.0, 0.3), paper, at))
-	_dim(_box(Vector3(7.0, 2.4, 0.4), band, at + Vector3(0.0, 3.3, 0.1)))
-
-
 ## Two lamps hung over the far side of a card room, out past the rope. They are what the room is
 ## dressed with rather than what it is lit by -- the light over the table is the table's own --
 ## but a bulb in the dark is worth having where the eye has nothing else to land on.
@@ -457,80 +248,25 @@ func _pendant(at: Vector3) -> void:
 	_cylinder(3.4, 0.4, surfaces.neon(room.lamp_color, 0.45), at + Vector3(0.0, high - 1.6, 0.0))
 
 
-## Pictures on the wall of a card room: a frame, and something dark in it. What they are of is
-## eighty metres from the table and nobody's business.
-func _pictures(back: float) -> void:
-	var half := _room_half()
-	var frame := surfaces.painted(room.trim.darkened(0.4))
-	var print := surfaces.painted(Color(0.12, 0.08, 0.1))
-	for side: float in [-1.0, 1.0]:
-		var at := Vector3(side * half.x * 0.42, _ground + 26.0, back + WALL_THICKNESS * 0.5 + 0.6)
-		_dim(_box(Vector3(16.0, 11.0, 0.6), frame, at))
-		_dim(_box(Vector3(14.0, 9.0, 0.7), print, at))
-
-
-## The board over the warehouse doors, lit the way a yard's sign is at the end of the day.
-func _sign(back: float) -> void:
-	var half := _room_half()
-	var at := Vector3(0.0, _ground + 34.0, back + WALL_THICKNESS * 0.5 + 0.5)
-	var board := surfaces.painted(Color(0.16, 0.17, 0.18))
-	var lit := surfaces.neon(room.trim, 0.5)
-	_dim(_box(Vector3(46.0, 9.0, 0.8), board, at))
-	for row: float in [-1.0, 1.0]:
-		_dim(_box(Vector3(40.0, 1.2, 0.4), lit, at + Vector3(0.0, row * 2.6, 0.4)))
-
-
-## The fence behind the crowd, which is what keeps a yard's onlookers off a yard's forklifts:
-## posts and two rails, along the back and the two flanks. Never the near side -- that is the one
-## the camera looks across, and a rail through the middle of the picture is a rail in the way.
-func _crowd_fence() -> void:
-	var half := arena.world_size() * 0.5 + Vector2.ONE * (NEAR - 0.8)
-	var steel := surfaces.metal(Color(0.56, 0.58, 0.56))
-	_fence_run(Vector3(0.0, TOP, -half.y), Vector3(1.0, 0.0, 0.0), half.x, steel)
-	for side: float in [-1.0, 1.0]:
-		_fence_run(Vector3(side * half.x, TOP, 0.0), Vector3(0.0, 0.0, 1.0), half.y, steel)
-
-
-## One straight run of it, [param reach] each way from [param at] along [param along].
-func _fence_run(at: Vector3, along: Vector3, reach: float, steel: Material) -> void:
-	var tall := 2.2
-	var span := 4.0
-	var posts := int(reach * 2.0 / span) + 1
-	for i: int in posts:
-		var where := at + along * (float(i) - float(posts - 1) * 0.5) * span
-		_box(Vector3(0.16, tall, 0.16), steel, where + Vector3(0.0, tall * 0.5, 0.0))
-	var bar := Vector3(reach * 2.0, 0.1, 0.1) if along.x != 0.0 else Vector3(0.1, 0.1, reach * 2.0)
-	for lift: float in [0.55, 0.95]:
-		_box(bar, steel, at + Vector3(0.0, tall * lift, 0.0))
-
-
-## Hazard stripes, black and yellow, the way a yard marks anything that could be walked into.
-## Painted on the concrete rather than standing on it.
-func _hazard_paint(at: Vector3, length: float, turn: float) -> void:
-	var black := surfaces.marking(Color(0.11, 0.11, 0.12))
-	var yellow := surfaces.marking(Color(0.93, 0.76, 0.12))
-	var count := maxi(int(length / 1.3), 2)
+## Tape across something nobody should walk into: two posts and a run of black and yellow between
+## them, the way a yard cordons off whatever it has just dropped.
+func _hazard_tape(at: Vector3, length: float, turn: float) -> void:
+	var post := surfaces.metal(Color(0.5, 0.52, 0.5))
+	var black := surfaces.painted(Color(0.12, 0.12, 0.13))
+	var yellow := surfaces.painted(Color(0.93, 0.76, 0.12))
 	var out := Vector3(cos(turn), 0.0, -sin(turn))
+	var tall := 1.15
+	for side: float in [-1.0, 1.0]:
+		_cylinder(0.08, tall, post, at + Vector3(0.0, tall * 0.5, 0.0) + out * side * length * 0.5)
+	var count := maxi(int(length / 0.9), 3)
 	for i: int in count:
 		var skin := black if i % 2 == 0 else yellow
-		var where := at + Vector3(0.0, 0.04, 0.0) + out * (float(i) - float(count - 1) * 0.5) * 1.3
-		var slab := _box(Vector3(1.3, 0.08, 2.4), skin, where)
-		slab.rotation.y = turn
-		_dim(slab)
-
-
-## Paint on the apron: hazard bands where the plant works, a walkway across the back and a hatched
-## box where nothing should be left.
-func _apron_markings() -> void:
-	var half := arena.world_size() * 0.5
-	var paint := surfaces.marking(room.marking)
-	for side: float in [-1.0, 1.0]:
-		_hazard_paint(Vector3(side * half.x * 0.8, TOP, -(half.y + 9.0)), 11.0, 0.0)
-	_hazard_paint(Vector3(half.x + 9.0, TOP, half.y * 0.15), 9.0, PI * 0.5)
-	var lane := -(half.y + FAR + 4.0)
-	for i: int in 9:
-		var x := -half.x * 0.8 + float(i) * (half.x * 1.6 / 8.0)
-		_dim(_box(Vector3(4.0, 0.08, 0.6), paint, Vector3(x, TOP + 0.04, lane)))
+		var span := length / float(count)
+		var where := (
+			at + Vector3(0.0, tall * 0.92, 0.0) + out * ((float(i) + 0.5) * span - length * 0.5)
+		)
+		var strip := _box(Vector3(span, 0.16, 0.05), skin, where)
+		strip.rotation.y = turn
 
 
 # --- where the clutter goes --------------------------------------------------
@@ -875,6 +611,24 @@ func _floodlight(at: Vector3, steel: Material) -> void:
 		lamp.rotation.x = 0.35
 
 
+## The forklift, parked nose out the way a yard parks one: a counterweight body, a mast with two
+## uprights, forks on the floor in front of it and a cage over the seat.
+func _forklift(at: Vector3) -> void:
+	var paint := surfaces.painted(Color(0.92, 0.64, 0.1))
+	var steel := surfaces.metal(Color(0.5, 0.52, 0.54))
+	var rubber := surfaces.painted(Color(0.13, 0.13, 0.15))
+	_box(Vector3(2.2, 1.5, 3.4), paint, at + Vector3(0.0, 1.05, 0.6))
+	_box(Vector3(1.8, 0.9, 1.2), paint, at + Vector3(0.0, 1.9, 1.5))
+	for side: float in [-1.0, 1.0]:
+		_box(Vector3(0.18, 3.4, 0.18), steel, at + Vector3(side * 0.8, 1.7, -1.2))
+		_box(Vector3(0.14, 2.6, 0.14), steel, at + Vector3(side * 0.95, 2.9, 1.3))
+		_box(Vector3(0.28, 0.14, 2.0), steel, at + Vector3(side * 0.55, 0.12, -2.2))
+		for z: float in [-0.6, 1.9]:
+			var wheel := _cylinder(0.5, 0.42, rubber, at + Vector3(side * 1.0, 0.5, z))
+			wheel.rotation.z = PI * 0.5
+	_box(Vector3(2.0, 0.12, 2.0), steel, at + Vector3(0.0, 4.2, 1.3))
+
+
 func _truck(at: Vector3, steel: Material) -> void:
 	var paint := surfaces.painted(Color(0.72, 0.24, 0.2))
 	var glass := surfaces.painted(Color(0.16, 0.2, 0.26))
@@ -889,60 +643,3 @@ func _truck(at: Vector3, steel: Material) -> void:
 		for z: float in [-5.0, 2.0, 4.6]:
 			var wheel := _cylinder(1.3, 0.9, rubber, at + Vector3(side * 2.1, 1.3, z))
 			wheel.rotation.z = PI * 0.5
-
-
-# --- the parts everything is made of ----------------------------------------
-
-
-## Half the table: the arena and its overhang together.
-func _table() -> Vector2:
-	return (arena.world_size() + Vector2.ONE * Arena.TABLE_OVERHANG) * 0.5
-
-
-## Half the room: the table and the clearance round it that the walls stand in.
-func _room_half() -> Vector2:
-	return _table() + Vector2.ONE * ROOM_CLEAR
-
-
-func _box(size: Vector3, skin: Material, at: Vector3) -> MeshInstance3D:
-	var mesh := BoxMesh.new()
-	mesh.size = size
-	return _put(mesh, skin, at)
-
-
-func _cylinder(radius: float, height: float, skin: Material, at: Vector3) -> MeshInstance3D:
-	return _taper(radius, radius, height, skin, at)
-
-
-func _taper(
-	bottom: float, top: float, height: float, skin: Material, at: Vector3
-) -> MeshInstance3D:
-	var mesh := CylinderMesh.new()
-	mesh.top_radius = top
-	mesh.bottom_radius = bottom
-	mesh.height = height
-	mesh.radial_segments = 10
-	mesh.rings = 1
-	return _put(mesh, skin, at)
-
-
-func _put(mesh: Mesh, skin: Material, at: Vector3) -> MeshInstance3D:
-	var node := MeshInstance3D.new()
-	node.mesh = mesh
-	node.material_override = skin
-	node.position = at
-	add_child(node)
-	return node
-
-
-## Turns a prop about its own upright, which is what makes one hammer different from the next.
-func _turned(node: MeshInstance3D, turn: float) -> MeshInstance3D:
-	node.rotation.y = turn
-	return node
-
-
-## The shell casts no shadows. A wall thirty metres tall standing in a directional light throws
-## the whole room into the dark, and the shadow map has the table to be spending itself on.
-func _dim(node: MeshInstance3D) -> MeshInstance3D:
-	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	return node
