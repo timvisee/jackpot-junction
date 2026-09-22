@@ -5,6 +5,21 @@ extends GdUnitTestSuite
 const BOUNDS := AABB(Vector3(-20.0, 0.0, -11.25), Vector3(40.0, 1.0, 22.5))
 const RIG_SCENE := preload("res://scenes/camera/camera_rig.tscn")
 
+## The fixed camera is a setting on the one shared [Settings], so a test that turns it on puts it
+## back afterwards rather than at the end of itself. A test that gives up half way through leaves
+## an inline restore unrun, and the next thing to save the settings writes what it left behind to
+## the player's own file: that is how this suite once left every rig in the run refusing to
+## follow anything.
+var _was_fixed := false
+
+
+func before_test() -> void:
+	_was_fixed = Game.settings.fixed_camera
+
+
+func after_test() -> void:
+	Game.settings.fixed_camera = _was_fixed
+
 
 ## A rig watching karts parked at [param places], settled.
 func _watching(places: Array) -> CameraRig:
@@ -334,11 +349,14 @@ func test_looking_ahead_still_keeps_every_kart_on_screen() -> void:
 ## karts go. It is for a player who would rather have a picture that never moves than one that
 ## comes in on the action.
 func test_the_fixed_camera_holds_the_arena_and_follows_nobody() -> void:
-	var was := Game.settings.fixed_camera
 	Game.settings.fixed_camera = true
 	var rig := _watching([Vector3(4.0, 0.0, 2.0), Vector3(6.0, 0.0, 3.0)])
-	assert_float(rig._distance).is_equal_approx(rig._arena_distance, 0.01)
+	assert_float(rig._distance).is_equal_approx(rig._fixed_distance, 0.01)
 	assert_float(rig._pan.length()).is_less(0.01)
+	# A shade closer than the framing the rig waits at, which keeps a metre of floor round the
+	# arena for karts to arrive into. A shot held all match knows where they are.
+	assert_float(rig._distance).is_less(rig._arena_distance)
+	assert_float(rig._distance).is_greater(rig._arena_distance * 0.9)
 	# And every corner of the floor is on screen, which is the whole of what it promises.
 	await await_idle_frame()
 	rig.camera.fov = rig.base_fov * rig.zoom_min
@@ -350,14 +368,12 @@ func test_the_fixed_camera_holds_the_arena_and_follows_nobody() -> void:
 				. override_failure_message("corner %s not visible" % corner)
 				. is_true()
 			)
-	Game.settings.fixed_camera = was
 
 
 ## It still opens on the room and still comes in from there. That move is the map being shown
 ## rather than the karts being chased, and a fixed camera that refused to arrive would sit every
 ## match three metres further out than it belongs.
 func test_the_fixed_camera_still_comes_in_at_the_start() -> void:
-	var was := Game.settings.fixed_camera
 	Game.settings.fixed_camera = true
 	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())
 	add_child(rig)
@@ -368,9 +384,8 @@ func test_the_fixed_camera_still_comes_in_at_the_start() -> void:
 	rig.targets.assign([kart] as Array[Node3D])
 	rig.open_on_the_room()
 	var opening := rig._distance
-	assert_float(opening).is_greater(rig._arena_distance * 1.05)
+	assert_float(opening).is_greater(rig._fixed_distance * 1.05)
 	for i: int in 400:
 		rig._process(0.05)
 	assert_float(rig._distance).is_less(opening)
-	assert_float(rig._distance).is_equal_approx(rig._arena_distance, 0.01)
-	Game.settings.fixed_camera = was
+	assert_float(rig._distance).is_equal_approx(rig._fixed_distance, 0.01)

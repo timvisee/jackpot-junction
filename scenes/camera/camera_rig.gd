@@ -89,6 +89,11 @@ var _arena_lift := 0.0
 ## The same, with the room round the arena in it as well: the shot a match opens on.
 var _room_distance := 40.0
 var _room_lift := 0.0
+## And the same with the margin given back, which is where the fixed camera of 8.5 sits. The
+## framing the rig waits at leaves a metre of floor round the arena because it is a shot waiting
+## for karts to arrive into; one held for a whole match knows where they are and can spare it.
+var _fixed_distance := 40.0
+var _fixed_lift := 0.0
 var _pan := Vector3.ZERO
 var _zoom := 1.0
 var _shake := 0.0
@@ -152,6 +157,9 @@ func frame_arena(bounds: AABB) -> void:
 	var wider := _fit_arena(ROOM_MARGIN)
 	_room_distance = wider.x
 	_room_lift = wider.y
+	var tighter := _fit_arena(-margin)
+	_fixed_distance = tighter.x
+	_fixed_lift = tighter.y
 	_opened = false
 	_distance = _arena_distance
 	_lift = _arena_lift
@@ -213,6 +221,9 @@ func _refit() -> void:
 		var wider := _fit_arena(ROOM_MARGIN)
 		_room_distance = wider.x
 		_room_lift = wider.y
+		var tighter := _fit_arena(-margin)
+		_fixed_distance = tighter.x
+		_fixed_lift = tighter.y
 
 
 ## Kicks the camera; the offset decays on its own. Nothing kicks it once the whistle has gone:
@@ -363,8 +374,12 @@ func _afforded(want: Vector3, alive: Array[Node3D], at: Vector3) -> Vector3:
 func _target_framing() -> Vector2:
 	if not _framed:
 		return Vector2(_distance, 0.0)
+	# Before the whistle's own framing as well as before the karts': opening back out at the end
+	# is a move, and a camera that was asked not to move should not make one.
+	if _fixed():
+		return Vector2(_fixed_distance, _fixed_lift)
 	var alive := _alive_targets()
-	if _opening_up or _fixed() or alive.is_empty():
+	if _opening_up or alive.is_empty():
 		return Vector2(_arena_distance, _arena_lift)
 	var corners := _framed_corners(alive, _led)
 	# The aim is worked out at the distance actually used, since a clamp changes what sits where.
