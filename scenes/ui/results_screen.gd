@@ -33,7 +33,10 @@ var _podium: ResultsPodium
 var _rows: VBoxContainer
 ## The two ways on from here, kept so the screen can point at one when it comes up.
 var _rematch: Button
+var _lobby: Button
 var _quit: Button
+## Tells a client who takes everybody back to the waiting room, since it is not them.
+var _host_decides: Label
 
 
 ## Builds the screen for [param for_match] and hangs it off [param parent], hidden until the
@@ -68,7 +71,15 @@ func fill_in() -> void:
 	# This is the one screen nobody asked for: it arrives on its own at the whistle, so it points
 	# at what most people want next rather than waiting to be found. Rematch, or the way out for
 	# a client, which does not get to decide there is another match.
-	var first := _rematch if _rematch.visible else _quit
+	# Online or not is asked now rather than when the screen was built, which was the start of the
+	# match: who is hosting is a question about who is still here at the end of it.
+	_lobby.visible = not match_node.puppet and Net.hosting()
+	_host_decides.visible = match_node.puppet and Net.online()
+	var first := _quit
+	if _lobby.visible:
+		first = _lobby
+	elif _rematch.visible:
+		first = _rematch
 	first.grab_focus()
 
 
@@ -194,13 +205,22 @@ func _build() -> void:
 	_rows.add_theme_constant_override("separation", 10)
 	column.add_child(_rows)
 	column.add_child(_buttons())
+	_host_decides = MenuTheme.subtitle("The host takes everybody back to the lobby.", Type.LABEL)
+	_host_decides.visible = false
+	column.add_child(_host_decides)
 
 
-## Play again, or go back. A client is not the one who decides there is another match.
+## Play again, or go back. A client is not the one who decides there is another match. The host
+## of an online match can also take everybody back to the waiting room of GAME.md 9.6, where the
+## next one is chosen and whoever wants to leave can.
 func _buttons() -> HBoxContainer:
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 24)
+	_lobby = MenuTheme.button("Back to lobby", 26)
+	_lobby.pressed.connect(func() -> void: Game.back_to_the_room())
+	_lobby.visible = false
+	buttons.add_child(_lobby)
 	_rematch = MenuTheme.button("Rematch", 26)
 	_rematch.pressed.connect(func() -> void: match_node.rematch())
 	_rematch.visible = not match_node.puppet

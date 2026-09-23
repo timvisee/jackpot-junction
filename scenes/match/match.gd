@@ -250,15 +250,14 @@ func join_human(device: int) -> PlayerSlot:
 	return _join_with_input(PlayerInput.new(device))
 
 
-func _join_with_input(input: KartInput) -> PlayerSlot:
-	for slot: PlayerSlot in slots:
-		# A bot's seat is there to be taken. A practice dummy's is not: it is furniture.
-		if not slot.is_human() and not slot.is_dummy():
-			_make_human(slot, input)
-			return slot
+func _join_with_input(input: KartInput, colour := -1) -> PlayerSlot:
+	var seat := PlayerSlot.bot_seat(slots, colour)
+	if seat != null:
+		_make_human(seat, input)
+		return seat
 	if slots.size() >= rules.max_players or arena == null:
 		return null
-	var slot := PlayerSlot.new(slots.size(), input, _free_color())
+	var slot := PlayerSlot.new(slots.size(), input, _free_color(colour))
 	slot.player_name = _name_for(slot.index, input)
 	slot.style = _style_for(slot.index)
 	slots.append(slot)
@@ -348,10 +347,12 @@ func _style_for(index: int) -> KartStyle:
 	return KartStyle.from_array(_styles[index] if index < _styles.size() else null)
 
 
-func _free_color() -> int:
+func _free_color(wanted := -1) -> int:
 	var taken: Array[int] = []
 	for slot: PlayerSlot in slots:
 		taken.append(slot.color_index)
+	if wanted >= 0 and wanted not in taken:
+		return wanted
 	var index := 0
 	while index in taken:
 		index += 1
@@ -429,8 +430,8 @@ func kart_of(slot_index: int) -> Kart:
 
 
 ## A remote player joins through the network session: like a local join, with a [NetInput].
-func join_network(input: NetInput) -> PlayerSlot:
-	return _join_with_input(input)
+func join_network(input: NetInput, colour := -1) -> PlayerSlot:
+	return _join_with_input(input, colour)
 
 
 ## Builds a client-side match: the arena, camera and HUD without simulation. Slots, karts,

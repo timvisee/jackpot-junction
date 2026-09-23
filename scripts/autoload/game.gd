@@ -177,6 +177,15 @@ func start_match(config: MatchConfig) -> void:
 ## The room everybody waits in before a match, GAME.md 9.6. The configuration it was given is the
 ## one the arena is built from once everybody in the room is ready, so it is kept rather than
 ## asked for again.
+## After an online match, the host takes everybody back to the waiting room, GAME.md 9.6: the
+## clients are told first, and this machine follows with the configuration the match was built
+## from, so its own players come back with it and the host's choices are where they were left.
+func back_to_the_room() -> void:
+	if Net.hosting():
+		Net.session.back_to_the_room()
+	go_to_waiting(pending_config if pending_config != null else MatchConfig.new())
+
+
 func go_to_waiting(config: MatchConfig) -> void:
 	pending_config = config
 	get_tree().paused = false

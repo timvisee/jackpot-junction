@@ -92,6 +92,19 @@ func is_local_human() -> bool:
 	return input is PlayerInput
 
 
+## The bot's seat a newcomer takes over, GAME.md 9.2: the one in [param colour] if there is one,
+## so a player coming back from another room keeps theirs, and otherwise the first. A practice
+## dummy's seat is not there to be taken: it is furniture.
+static func bot_seat(slots: Array[PlayerSlot], colour := -1) -> PlayerSlot:
+	var seat: PlayerSlot = null
+	for slot: PlayerSlot in slots:
+		if slot.is_human() or slot.is_dummy():
+			continue
+		if seat == null or (slot.color_index == colour and seat.color_index != colour):
+			seat = slot
+	return seat
+
+
 ## Whether this is somebody at this machine playing on [param device]. A player who came in on
 ## any device is playing on the one they last drove with, so their own join press is theirs
 ## rather than somebody new sitting down beside them.

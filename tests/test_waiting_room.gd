@@ -319,6 +319,19 @@ func test_the_host_chooses_the_match_on_opening_the_room() -> void:
 	assert_str(Game.settings.map).is_equal(String(ArenaMaps.IDS[1]))
 
 
+## Back from a match with everybody still connected, the host's room takes over the connection
+## that is already open rather than opening another, and puts the match settings up again: the
+## next match is chosen here, the same as the first one was.
+func test_the_host_comes_back_to_the_room_on_the_same_connection() -> void:
+	var open := Net.open(null)
+	assert_int(open.host(HOST_PORT)).is_equal(OK)
+	var room := await _host()
+	assert_object(Net.session).is_same(open)
+	assert_object(room.session).is_same(open)
+	assert_object(open.match_node).is_same(room.get_node("Match"))
+	assert_bool(room.host_settings.is_open()).is_true()
+
+
 ## And the host can open it again from the pause menu, which only the host's has.
 func test_the_host_opens_the_choosing_again_from_the_pause_menu() -> void:
 	var room := await _host()

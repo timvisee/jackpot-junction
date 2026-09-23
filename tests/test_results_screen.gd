@@ -9,6 +9,12 @@ const RULES: MatchRules = preload("res://data/match/default.tres")
 var _runner: GdUnitSceneRunner
 
 
+## A test that hosts is on its own connection, and it goes with the test rather than being left
+## open for the next one.
+func after_test() -> void:
+	Net.close()
+
+
 func _finished_match() -> Match:
 	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
@@ -165,3 +171,22 @@ func test_the_podium_points_at_the_rematch_button() -> void:
 	await _skip_the_pause(match_node)
 	var screen: ResultsScreen = match_node.hud._results
 	assert_object(screen._rematch.get_viewport().gui_get_focus_owner()).is_equal(screen._rematch)
+
+
+## The host of an online match can take everybody back to the waiting room from the podium, and
+## the cursor starts there, since that is where a room of people wanting another go goes next.
+## Nobody else is offered it: a match on one machine has no waiting room to go back to.
+func test_only_an_online_host_is_offered_the_way_back_to_the_lobby() -> void:
+	var match_node := _finished_match()
+	await _runner.simulate_frames(12, 17)
+	var session := Net.open(match_node)
+	assert_int(session.host(7799)).is_equal(OK)
+	match_node.time_left = 0.02
+	await _runner.simulate_frames(10, 17)
+	await _skip_the_pause(match_node)
+	var screen: ResultsScreen = match_node.hud._results
+	assert_bool(screen._lobby.visible).is_true()
+	assert_object(screen._lobby.get_viewport().gui_get_focus_owner()).is_equal(screen._lobby)
+	Net.close()
+	screen.fill_in()
+	assert_bool(screen._lobby.visible).is_false()

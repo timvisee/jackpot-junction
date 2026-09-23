@@ -15,6 +15,8 @@ signal rules_applied
 signal pause_agreed(on: bool)
 ## The host has left the waiting room of GAME.md 9.6 for the arena, and everybody goes with it.
 signal match_beginning
+## The match is over and the host is taking everybody back to the waiting room, GAME.md 9.6.
+signal back_to_room
 
 const DEFAULT_PORT := 7777
 ## What an unfocused window runs at while this machine is in an online room, GAME.md 9.3. Fast
@@ -103,6 +105,15 @@ var paused := false
 
 var _tick := 0
 var _peer_slots: Dictionary[int, int] = {}
+## On the host: whether the room it is in can seat anybody yet. False from the moment it says it
+## is going until it has arrived and called [method re_seat], see GAME.md 10.3.
+var _room_up := true
+## On the host: who has asked for a seat while there was no room to put them in, in the order
+## they asked, to be seated as soon as there is.
+var _waiting_to_sit: Array[int] = []
+## On the host: the colour each client had in the room it is leaving, so it can be seated in that
+## colour on the other side.
+var _colour_of: Dictionary[int, int] = {}
 var _relaying := false
 ## Whether this machine is asking for a pause, and which of the host's clients are.
 var _asking := false
@@ -203,12 +214,63 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 ## client driving round a lobby the host has already left.
 func begin_the_match() -> void:
 	if is_host and _connected():
+		_leaving()
 		_match_beginning.rpc()
 
 
 @rpc("authority", "call_remote", "reliable")
 func _match_beginning() -> void:
 	match_beginning.emit()
+
+
+## The match is over and the host is taking everybody back to the waiting room, GAME.md 9.6. Said
+## before the host goes, the same as going the other way.
+func back_to_the_room() -> void:
+	if is_host and _connected():
+		_leaving()
+		_back_to_room.rpc()
+
+
+@rpc("authority", "call_remote", "reliable")
+func _back_to_room() -> void:
+	back_to_room.emit()
+
+
+## The host is about to change room. Nobody can be seated until it has arrived, and it notes the
+## colour everybody is in so they get it back there.
+func _leaving() -> void:
+	_room_up = false
+	_colour_of.clear()
+	for peer: int in _peer_slots:
+		var index: int = _peer_slots[peer]
+		if index < match_node.slots.size():
+			_colour_of[peer] = match_node.slots[index].color_index
+
+
+## A client that has followed the host into another room asks for its seat there, once the room
+## is built and pointed at this session. Asking rather than being told is what makes the change
+## safe: a seat and a set of rules sent the moment the host arrived could reach a client that was
+## still in the old room, and be applied to a match that is about to be taken down.
+func ready_for_seat() -> void:
+	if not is_host and _connected():
+		_seat_me.rpc_id(1)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _seat_me() -> void:
+	if not is_host:
+		return
+	var peer := multiplayer.get_remote_sender_id()
+	# Between rooms the seats on record are the old room's, and everybody is still in them, so
+	# the asking is only queued; it is checked against the seats once there is a room to sit in.
+	if not _room_up:
+		if peer not in _waiting_to_sit:
+			_waiting_to_sit.append(peer)
+		return
+	if _peer_slots.has(peer):
+		return
+	_seat(peer, false)
+	_settle_pause()
 
 
 ## Seats everybody who is already here in the match this session has just been pointed at.
@@ -220,20 +282,39 @@ func _match_beginning() -> void:
 ## peers, in the order [method peer_seats] lists them, each taking the next seat the new match
 ## has free for somebody: the seats the waiting room kept for them, see GAME.md 9.6.
 func re_seat() -> void:
-	if not is_host or not _connected():
+	if not is_host:
 		return
-	var peers := _peer_slots.keys()
 	_peer_slots.clear()
+	_room_up = true
 	# Nobody has any of the new floor, so the next snapshot carries all of it.
 	_floor.start_again()
-	for peer: int in peers:
-		var slot := match_node.join_network(NetInput.new())
-		if slot == null:
-			continue
-		_peer_slots[peer] = slot.index
-		_set_rules.rpc_id(peer, match_node.rules.to_wire())
-		_assign_slot.rpc_id(peer, slot.index, match_node.rng.seed)
+	var connected := multiplayer.get_peers() if _connected() else PackedInt32Array()
+	for peer: int in _waiting_to_sit:
+		if peer in connected:
+			_seat(peer, false)
+	_waiting_to_sit.clear()
 	_settle_pause()
+
+
+## Gives [param peer] a seat in the match this session is pointed at, in the colour it had in the
+## room before if it had one, and tells it the rules and the seat. A newcomer the match has no
+## room for is turned away; somebody coming back from another room is left connected, in case a
+## seat comes free.
+func _seat(peer: int, fresh: bool) -> void:
+	var slot := match_node.join_network(NetInput.new(), _colour_of.get(peer, -1))
+	if slot == null:
+		if fresh:
+			multiplayer.multiplayer_peer.disconnect_peer(peer)
+		return
+	_peer_slots[peer] = slot.index
+	# Somebody who has just sat down has none of the floor, so the next snapshot carries all of it
+	# rather than the difference since a moment they were not here for.
+	_floor.start_again()
+	# The rules go first. A client arrives with whatever its own lobby was set to, and until it
+	# is told otherwise it reads its own clock, its own target score and its own number of lives
+	# off them, none of which is the match it has just joined.
+	_set_rules.rpc_id(peer, match_node.rules.to_wire())
+	_assign_slot.rpc_id(peer, slot.index, match_node.rng.seed)
 
 
 ## The seats the connected clients hold, in the order [method re_seat] seats them again. The
@@ -305,25 +386,19 @@ func _physics_process(delta: float) -> void:
 func _on_peer_connected(peer: int) -> void:
 	if not is_host:
 		return
-	var slot := match_node.join_network(NetInput.new())
-	if slot == null:
-		multiplayer.multiplayer_peer.disconnect_peer(peer)
+	# Arriving while the host is between rooms: seated in the one it is going to, once it is up.
+	if not _room_up:
+		_waiting_to_sit.append(peer)
 		return
-	_peer_slots[peer] = slot.index
-	# Somebody who has just arrived has none of the floor, so the next snapshot carries all of it
-	# rather than the difference since a moment they were not here for.
-	_floor.start_again()
-	# The rules go first. A client arrives with whatever its own lobby was set to, and until it
-	# is told otherwise it reads its own clock, its own target score and its own number of lives
-	# off them, none of which is the match it has just joined.
-	_set_rules.rpc_id(peer, match_node.rules.to_wire())
-	_assign_slot.rpc_id(peer, slot.index, match_node.rng.seed)
+	_seat(peer, true)
 	# Somebody who has only just sat down is not asking for a pause, so a room that was stopped
 	# starts playing again.
 	_settle_pause()
 
 
 func _on_peer_disconnected(peer: int) -> void:
+	_waiting_to_sit.erase(peer)
+	_colour_of.erase(peer)
 	if not is_host or not _peer_slots.has(peer):
 		return
 	var index: int = _peer_slots[peer]

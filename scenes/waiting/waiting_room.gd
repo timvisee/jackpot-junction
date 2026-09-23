@@ -69,25 +69,43 @@ func _take_seats() -> void:
 
 
 func _host() -> void:
-	session = Net.open(match_node)
-	var error := session.host(config.port)
-	if error != OK:
-		ready_room_hint("Could not host on port %d: %s" % [config.port, error_string(error)])
-		return
+	if Net.online():
+		# Back from a match with everybody still connected, GAME.md 9.6. The same connection, a
+		# different room: everybody who follows is seated in here as they ask.
+		session = Net.session
+		Net.attach(match_node)
+		session.re_seat()
+	else:
+		session = Net.open(match_node)
+		var error := session.host(config.port)
+		if error != OK:
+			ready_room_hint("Could not host on port %d: %s" % [config.port, error_string(error)])
+			return
 	ready_room_hint("Friends join on port %d at %s" % [config.port, ", ".join(_local_addresses())])
 
 
 func _join() -> void:
-	session = Net.open(match_node)
-	session.local_input = PlayerInput.new()
-	session.player_name = config.human_names[0] if not config.human_names.is_empty() else ""
+	var back := Net.online()
+	if back:
+		# Followed the host back from a match: the connection is the one already open.
+		session = Net.session
+		Net.attach(match_node)
+	else:
+		session = Net.open(match_node)
+		session.local_input = PlayerInput.new()
+		session.player_name = config.human_names[0] if not config.human_names.is_empty() else ""
 	session.match_beginning.connect(_follow_the_host, CONNECT_ONE_SHOT)
 	session.disconnected.connect(func() -> void: Game.go_to_title())
-	var error := session.join(config.address, config.port)
-	if error != OK:
-		Game.go_to_title()
-		return
+	if not back:
+		var error := session.join(config.address, config.port)
+		if error != OK:
+			Game.go_to_title()
+			return
 	match_node.start_puppet()
+	if back:
+		# Asked for rather than waited for: the host seats whoever asks once its room is up, and
+		# this room is now up at this end to hear the answer.
+		session.ready_for_seat()
 
 
 ## Everybody is ready: through to the arena, with everybody who is here. The word goes out before

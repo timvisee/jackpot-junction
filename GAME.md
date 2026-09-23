@@ -2584,6 +2584,13 @@ The bots are on top of everybody in the room, as many as the arena has seats lef
 room holds no more people than the arena can seat, so nobody who got in is left standing when
 the match begins.
 
+**After the match.** The podium of 3.8 offers the host of an online match a way back: Back to
+lobby, first in the row, with the cursor on it. It takes everybody back to this room together,
+still connected, the same people in the same colours, and the host's match settings come up
+again, since the next match is chosen here the same as the first one was. A client's podium
+says the host takes everybody back, rather than offering a button that could only take one
+of them. Whoever wants to stop there leaves from the room, the way anybody does.
+
 ## 10. Technology
 
 ### 10.1 Engine and project settings
@@ -2692,21 +2699,27 @@ nobody to look at -- is separate work and untouched by this.
 #### Leaving the room together
 
 The waiting room and the arena are two matches on one connection, and the changeover is the
-host's to call. The room everybody is ready in is not the room they play in, so the host says it
-is going before it goes, and everybody who is connected changes room on the word rather than on
-their own clock. A client that changed when it felt like it would be driving round a lobby the
-host had already left, or standing on an arena floor being simulated by nobody.
+host's to call, in both directions: into the arena when everybody is ready, and back to the room
+after the podium. The room everybody is in is not the room they are going to, so the host says
+it is going before it goes, and everybody who is connected changes room on the word rather than
+on their own clock. A client that changed when it felt like it would be driving round a lobby
+the host had already left, or standing on an arena floor being simulated by nobody.
 
 Arriving is the other half. The rules and the seat are sent once, when a peer connects, and both
 of them belong to the match that was up at the time -- a match that has since been taken down.
-So the host seats everybody again on the other side: the same peers, in seats the arena kept for
-them after the players at the host's machine and ahead of the bots, and this time with the
-arena's rules and the arena's seed. The seats are kept rather than taken from the bots, because
-the bots are what the host asked for on top of everybody in the room. A client's name and colour
-go with it: the name because the client says it again the moment it is seated, the colour
-because the host keeps each seat the colour its player had in the room. Being seated again is
-what puts a `NetInput` in the arena's slot, so the kart a client has been driving is still the
-kart it drives.
+So everybody is seated again on the other side, and it is the client that asks. Once its own
+new room is built and listening, it asks the host for a seat; the host seats whoever has asked
+once its own room is up, and keeps anybody who asked early until then. Told rather than asked,
+a seat and a set of rules sent the moment the host arrived could reach a client still in the
+old room and be applied to the match being taken down -- which the arena's loading screen hid,
+and the room, which is up in a frame, would not. In the arena the seats were kept for them,
+after the players at the host's machine and ahead of the bots, and come with the arena's rules
+and the arena's seed. They are kept rather than taken from the bots, because the bots are what
+the host asked for on top of everybody in the room. A client's name and colour go with it either
+way: the name because the client says it again the moment it is seated, the colour because the
+host seats each of them in the colour they had in the room they came from. Being seated again
+is what puts a `NetInput` in the new match's slot, so the kart a client has been driving is
+still the kart it drives.
 
 #### Who decides what
 

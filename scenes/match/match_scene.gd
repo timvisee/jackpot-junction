@@ -72,10 +72,15 @@ func _ready() -> void:
 			)
 			session.disconnected.connect(func() -> void: _fail("The host disconnected"))
 			session.slot_assigned.connect(func(_index: int) -> void: _status_panel.visible = false)
+			# When the match is over the host takes everybody back to the waiting room, GAME.md
+			# 9.6, and this machine goes with it.
+			session.back_to_room.connect(func() -> void: Game.go_to_waiting(config))
 			if already:
-				# Already through the door: the waiting room opened this connection, and the
-				# host is re-seating everybody as it starts the match.
+				# Already through the door: the waiting room opened this connection. The host
+				# seats whoever asks once its arena is up, so this machine asks now that its own
+				# end is listening for the answer.
 				_show_status("Starting the match...")
+				session.ready_for_seat()
 			else:
 				var error := session.join(config.address, config.port)
 				if error != OK:
