@@ -19,6 +19,9 @@ extends Node
 ## Everybody has been ready for [constant GO_DELAY]: the ring has gone green and the room is
 ## going. Not the moment the last player readies up, since the room says so before it goes.
 signal everybody_ready
+## Another block of the ring lit for a player at this screen as they charge, the [param step]th of
+## [param of] in their arc. Heard as a soft tick climbing in pitch, see [method _on_charged].
+signal charged(seat: int, step: int, of: int)
 
 ## How long a kart has to hold the pad. Leaving it does not fade: the charge is gone and so is the
 ## ready, on the frame the kart rolls off.
@@ -30,6 +33,10 @@ const CHARGE_TIME := 2.5
 const GREEN_GLOW := 1.2
 const GREEN_BODY := 0.6
 const GO_DELAY := 1.0
+## How loud the charging ticks and the ready chime are, both well under the room's other sounds:
+## they are for the player on the pad, not a fanfare for the room.
+const CHARGE_VOLUME := -17.0
+const READY_VOLUME := -9.0
 ## The ring that fills: how many blocks it is made of, how far out they sit as a share of the
 ## pad's radius, and how big each one is.
 const SEGMENTS := 24
@@ -66,6 +73,8 @@ var charge: Dictionary[int, float] = {}
 var ready_slots: Dictionary[int, bool] = {}
 
 var _segments: Array[MeshInstance3D] = []
+## Seat to how many blocks of its arc were lit last frame, to hear each new one as it lights.
+var _lit: Dictionary[int, int] = {}
 var _ticks: Dictionary[int, Node3D] = {}
 ## Seconds the room has been full, or -1 while somebody is still to ready up. Somebody rolling off
 ## in the second before the room goes puts it back to -1: ready lasts as long as the standing does,
@@ -90,6 +99,7 @@ static func add_to(in_match: Match) -> ReadyRoom:
 	room.deciding = not in_match.puppet
 	room._build()
 	Events.player_ready.connect(room._on_player_ready)
+	room.charged.connect(room._on_charged)
 	Events.match_planned.connect(room._on_match_planned)
 	return room
 
@@ -102,7 +112,14 @@ func _on_player_ready(slot: int, ready: bool) -> void:
 	ready_slots[slot] = ready
 	charge[slot] = 1.0 if ready else 0.0
 	if ready:
-		Audio.play_sfx(&"pad_claim", -4.0)
+		Audio.play_sfx(&"ready", READY_VOLUME, 0.02)
+
+
+## A step of a player's own charge, heard. Quiet, and climbing in pitch as the arc fills, so it
+## reads as the pad filling up rather than as a clock ticking.
+func _on_charged(_seat: int, step: int, of: int) -> void:
+	var climb := float(step) / float(maxi(of, 1))
+	Audio.play_sfx(&"ready_charge", CHARGE_VOLUME, 0.0, lerpf(0.85, 1.6, climb))
 
 
 ## How many of the players in the room have readied up, and how many there are to ready. Bots are
@@ -237,6 +254,11 @@ func _paint_ring() -> void:
 		for k: int in span:
 			if from + k < inks.size() and k < full:
 				inks[from + k] = seats[s].color()
+		# A block more than last frame, for a player at this screen, is a step of their own
+		# charge: the player on the pad hears it filling. Anybody else's is seen, not heard.
+		if seats[s].is_local_human() and full > _lit.get(index, 0) and not ready:
+			charged.emit(index, full, span)
+		_lit[index] = full
 	var green := all_green()
 	for i: int in _segments.size():
 		var skin := _segments[i].material_override as StandardMaterial3D

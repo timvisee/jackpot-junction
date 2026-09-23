@@ -2531,6 +2531,12 @@ When everybody in the room has one, the whole ring turns green and the match beg
 later. The room says it is going before it goes: a cut to the arena on the frame the last
 tick lit would take the last player's own moment of readying away from them.
 
+It is heard as well, quietly. A player charging the pad hears a soft tick for every block of
+their arc as it lights, each a little higher than the last, and a chime when the tick goes up
+over their kart. Only a player at this screen hears their own charge -- somebody else's is seen
+and not heard, or a room of four charging at once would be a clatter -- while anybody readying
+up is heard by everybody.
+
 Ready lasts exactly as long as the standing does. Roll off the pad and the charge and the tick
 go with it, on the frame the kart leaves. That is the honest reading of a pad nobody is on: a
 room that started because everybody was ready a moment ago would start without them. It holds

@@ -110,6 +110,10 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"turret_place": ["impactSoft_heavy_000.ogg"],
 	&"explosion": ["impactPunch_heavy_000.ogg"],
 	&"pad_claim": ["select_001.ogg"],
+	# The waiting room's pad, GAME.md 9.6: a soft tick per block of the charge, and a chime once
+	# ready.
+	&"ready_charge": ["tick_002.ogg"],
+	&"ready": ["confirmation_001.ogg"],
 	&"oil": ["kart/spin_out.ogg"],
 	&"bounty": ["question_001.ogg"],
 	&"target": ["select_002.ogg"],

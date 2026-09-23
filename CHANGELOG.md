@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **The ready pad can be heard.** A soft tick climbs as you charge it, and a chime
+  plays when somebody is ready.
+
 - **A lighter HUD in the waiting room.** Your corner shows your name, lives and
   nitro, without banked chips, pot, mult, kills or deaths.
 

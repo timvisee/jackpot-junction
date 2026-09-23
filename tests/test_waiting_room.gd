@@ -621,6 +621,32 @@ func test_the_blocks_in_the_room_leave_the_scoring_out() -> void:
 	assert_bool((block["lives"][0] as Control).visible).is_true()
 
 
+## A player here charging the pad hears it: a tick for every block of their arc as it lights,
+## each one higher than the last. Somebody at another machine charging it is seen, not heard, or
+## a room of four would be a clatter.
+func test_charging_the_pad_is_heard_by_the_player_on_it() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var ready_room: ReadyRoom = room.ready_room
+	var visitor := match_node.join_network(NetInput.new())
+	await _runner.simulate_frames(3, 17)
+	var heard := {"steps": [], "seats": {}}
+	ready_room.charged.connect(
+		func(seat: int, step: int, _of: int) -> void:
+			heard["steps"].append(step)
+			heard["seats"][seat] = true
+	)
+	var pad := match_node.arena.junction.global_position
+	match_node.kart_of(0).global_position = pad + Vector3(-1.0, 0.0, 0.0)
+	visitor.kart.global_position = pad + Vector3(1.0, 0.0, 0.0)
+	await _runner.simulate_frames(int(ReadyRoom.CHARGE_TIME * 70.0), 17)
+	var steps: Array = heard["steps"]
+	assert_int(steps.size()).is_greater(ReadyRoom.SEGMENTS / 2 - 3)
+	for i: int in range(1, steps.size()):
+		assert_int(steps[i]).is_greater(steps[i - 1])
+	assert_bool((heard["seats"] as Dictionary).has(visitor.index)).is_false()
+
+
 ## An empty room is not a ready room: a match with nobody in it has nothing to start.
 func test_a_room_with_nobody_in_it_is_never_ready() -> void:
 	var room := await _open()
