@@ -142,6 +142,8 @@ func test_menu_scenes_build() -> void:
 	var title: Control = auto_free(TITLE_SCENE.instantiate())
 	add_child(title)
 	assert_object(title.play_button).is_not_null()
+	assert_str(title.play_button.text).is_equal("Play")
+	assert_str(title.quick_play_button.text).is_equal("Quick play")
 	var lobby: Control = auto_free(load("res://scenes/ui/lobby.tscn").instantiate())
 	add_child(lobby)
 	lobby.options.bots_option.selected = 1

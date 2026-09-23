@@ -21,6 +21,9 @@ below, and hands the notes to the release workflow.
   score, bots and the rest come up when you open the room and again from the pause
   menu, and everybody waiting is told what is coming next.
 
+- **Quick play on the title screen.** Setting up and playing a single map moves to
+  its own button, next to Play.
+
 - **Back to lobby after an online match.** The host's podium has a button that
   takes everybody back to the waiting room together, where the match settings come
   up again for the next one.

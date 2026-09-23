@@ -362,7 +362,9 @@ else's results screen, see 10.3.
   control hints with it. There is nothing left in that room to answer, and a card
   pick left open under the notice would be asking for a choice about a match that
   is not there any more.
-- The title screen offers Play, Settings and Quit. There is no tutorial. At
+- The title screen offers Play, Quick play, Play online, the Garage, Settings and
+  Quit. Play is a Grand Prix of several maps and Quick play is one map, see 9.7;
+  each opens the lobby headed with its own name. There is no tutorial. At
   the start of a match the drive and fire controls are shown next to each
   human player's kart, from the countdown until that player has both driven
   and fired, or for 10 s at most.

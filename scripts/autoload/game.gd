@@ -4,6 +4,10 @@ extends Node
 ## Registers the input map before any scene runs, owns the saved settings, and moves between
 ## the title, the lobby, the settings and the match.
 
+## What the lobby is setting up, GAME.md 9.7: Play, a Grand Prix of several maps, or Quick play,
+## one map.
+enum LobbyFor { PLAY, QUICK_PLAY }
+
 const TITLE_SCENE := "res://scenes/ui/title.tscn"
 const LOBBY_SCENE := "res://scenes/ui/lobby.tscn"
 const SETTINGS_SCENE := "res://scenes/ui/settings_screen.tscn"
@@ -28,6 +32,8 @@ var pending_config: MatchConfig
 var settings_return := TITLE_SCENE
 ## Which of the two practice rooms the Garage scene builds.
 var garage_room := ROOM_GARAGE
+## What the lobby is setting up, see [method go_to_lobby].
+var lobby_for := LobbyFor.QUICK_PLAY
 
 var _screenshot_path := ""
 var _screenshot_frames := 8
@@ -130,8 +136,11 @@ func go_to_title() -> void:
 	get_tree().change_scene_to_file(TITLE_SCENE)
 
 
-func go_to_lobby() -> void:
+## Into the lobby for [param purpose]: Play or Quick play, GAME.md 9.7. The lobby reads it to
+## know what it is setting up.
+func go_to_lobby(purpose: LobbyFor = LobbyFor.QUICK_PLAY) -> void:
 	Net.close()
+	lobby_for = purpose
 	get_tree().change_scene_to_file(LOBBY_SCENE)
 
 

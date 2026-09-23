@@ -38,7 +38,8 @@ var _steer_was_down: Dictionary[String, bool] = {}
 
 func _ready() -> void:
 	var column := MenuTheme.screen(self, 16)
-	column.add_child(MenuTheme.title("Lobby", 64))
+	var playing := Game.lobby_for == Game.LobbyFor.PLAY
+	column.add_child(MenuTheme.title("Play" if playing else "Quick play", 64))
 	_players_label = RichTextLabel.new()
 	_players_label.bbcode_enabled = true
 	_players_label.fit_content = true
