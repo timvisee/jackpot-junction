@@ -11,6 +11,19 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **The Garage is a garage.** The practice rooms are set in a concrete workshop bay
+  now, with tyres, tool chests, cans and a two-post lift round the outside of it.
+
+### Changed
+
+- **The Vault's wheel has more pockets.** Twenty-eight red and black ones rather
+  than eighteen, which read as a pie chart.
+
+- **Crossfire's Junction drops its two painted bay lines.** The hazard border round
+  the edge says what the pad is; the lines argued with it.
+
 ## [0.4.0] - 2026-09-22
 
 ### Added

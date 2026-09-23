@@ -72,6 +72,11 @@ const PATCH := {
 	&"container": [Rect2(-4.2, -1.8, 8.4, 3.6), Turned.SQUARE],
 	&"bricks": [Rect2(-1.4, -3.0, 2.8, 6.0), Turned.SQUARE],
 	&"barrier": [Rect2(-3.2, -0.9, 6.4, 1.8), Turned.SQUARE],
+	&"tyres": [Rect2(-1.7, -1.7, 3.4, 3.4), Turned.SQUARE],
+	&"chest": [Rect2(-1.9, -1.0, 3.8, 2.0), Turned.SQUARE],
+	&"jerry": [Rect2(-1.6, -0.9, 3.2, 1.8), Turned.SQUARE],
+	&"work_bench": [Rect2(-5.5, -1.4, 11.0, 2.8), Turned.FLAT],
+	&"lift": [Rect2(-2.6, -4.2, 5.2, 8.4), Turned.FLAT],
 }
 ## How much further out the near apron starts than the flanks do. Small on purpose: the apron is
 ## the one band of table the camera looks straight across, so what is put there is the closest
@@ -110,6 +115,8 @@ func _build() -> void:
 			_card_room()
 		&"the_yard":
 			_yard()
+		&"garage":
+			_garage()
 		_:
 			_workbench()
 	# And the lot of it, the room it stands in as well, goes into as few meshes as it will go,
@@ -300,6 +307,122 @@ func _yard() -> void:
 	)
 
 
+## The workshop the practice rooms of GAME.md 9.4 are in: a bay marked out on the floor of a place
+## that fixes karts, with the doors at the back of it and the trade's own clutter round the walls.
+##
+## A floor rather than a table, and the one room with nobody watching, so its clutter comes right
+## up to the bay. The eight metres the other rooms keep clear is the room the stands need; with no
+## stands in it that band is bare concrete, and a room nobody is in reads as a room somebody has
+## been cleared out of.
+func _garage() -> void:
+	clutter_from = 3.0
+	# And the crowd's own patches go with it. It is built and then switched off in here, so what
+	# it asked for is ground kept clear for people who never arrive.
+	_boxes.clear()
+	var wall := shell.enclose(Color(0.12, 0.125, 0.14), Color(0.28, 0.29, 0.31), 3.0, 40.0)
+	shell.facade(wall)
+	shell.sign(wall)
+	shell.skirt(room.table.darkened(0.2), 2.6)
+	var steel := surfaces.metal(Color(0.66, 0.68, 0.72))
+	var timber := surfaces.painted(room.table.lightened(0.3))
+	var rubber := surfaces.painted(Color(0.1, 0.1, 0.11))
+	var rust := surfaces.painted(Color(0.74, 0.4, 0.13))
+	var stock := surfaces.painted(Color(0.7, 0.72, 0.76))
+	var tinplate := surfaces.painted(Color(0.78, 0.8, 0.84))
+	var paint := surfaces.painted(Color(0.72, 0.18, 0.16))
+	var half := arena.world_size() * 0.5
+	# The bench along the back of the bay and the lift beside it: the two things a garage is built
+	# round, and the two a player will see every time they come in here.
+	_lay(
+		&"work_bench",
+		Vector3(0.0, TOP, -(half.y + 6.0)),
+		func(at: Vector3, _turn: float) -> void: _work_bench(at, timber, steel, tinplate),
+		true
+	)
+	_lay(
+		&"lift",
+		Vector3(half.x + 6.5, TOP, -(half.y + 4.0)),
+		func(at: Vector3, _turn: float) -> void: _lift(at, steel, paint),
+		true
+	)
+	_ring(
+		20,
+		{
+			&"tyres": func(at: Vector3, turn: float) -> void: _tyres(at, turn, rubber, steel),
+			&"chest": func(at: Vector3, turn: float) -> void: _chest(at, turn, paint, steel),
+			&"jerry": func(at: Vector3, turn: float) -> void: _jerry(at, turn, rust, tinplate),
+		},
+		{
+			&"barrels": func(at: Vector3, turn: float) -> void: _barrels(at, turn, rust, steel),
+			&"pallets": func(at: Vector3, turn: float) -> void: _pallets(at, turn, timber),
+			&"rods": func(at: Vector3, turn: float) -> void: _rods(at, turn, stock),
+			&"tyres": func(at: Vector3, turn: float) -> void: _tyres(at, turn, rubber, steel),
+		}
+	)
+	_apron(4, {&"jerry": func(at: Vector3, turn: float) -> void: _jerry(at, turn, rust, tinplate)})
+
+
+## A stack of tyres, which is the one shape that says garage on its own. Worn down to the rim on
+## the top one, the way a stack waiting to go out for scrap is.
+func _tyres(at: Vector3, turn: float, rubber: Material, steel: Material) -> void:
+	var high := _rng.randi_range(3, 5)
+	for i: int in high:
+		var lift := 0.34 + float(i) * 0.62
+		_turned(_cylinder(1.5, 0.6, rubber, at + Vector3(0.0, lift, 0.0)), turn)
+	_turned(
+		_cylinder(0.78, 0.66, steel, at + Vector3(0.0, 0.34 + float(high - 1) * 0.62, 0.0)), turn
+	)
+
+
+## A rolling tool chest: a box of drawers on castors with a lid that has been left up.
+func _chest(at: Vector3, turn: float, paint: Material, steel: Material) -> void:
+	_turned(_box(Vector3(3.4, 2.6, 1.6), paint, at + Vector3(0.0, 1.5, 0.0)), turn)
+	var out := Vector3(sin(turn), 0.0, cos(turn))
+	for i: int in 3:
+		var line := at + Vector3(0.0, 0.8 + float(i) * 0.72, 0.0) + out * 0.82
+		_turned(_box(Vector3(3.0, 0.14, 0.12), steel, line), turn)
+	_turned(_box(Vector3(3.6, 0.22, 1.8), steel, at + Vector3(0.0, 2.9, 0.0)), turn)
+	for side: float in [-1.0, 1.0]:
+		var across := Vector3(cos(turn), 0.0, -sin(turn)) * side * 1.3
+		_turned(_cylinder(0.2, 0.2, steel, at + Vector3(0.0, 0.2, 0.0) + across), turn)
+
+
+## A can or three of oil, squared off against something the way cans are left.
+func _jerry(at: Vector3, turn: float, tin: Material, cap: Material) -> void:
+	var across := Vector3(cos(turn), 0.0, -sin(turn))
+	var count := _rng.randi_range(2, 3)
+	for i: int in count:
+		var foot := at + across * (float(i) - float(count - 1) * 0.5) * 1.15
+		_turned(_box(Vector3(0.95, 1.5, 0.6), tin, foot + Vector3(0.0, 0.75, 0.0)), turn)
+		_turned(_cylinder(0.16, 0.3, cap, foot + Vector3(0.0, 1.62, 0.0)), turn)
+
+
+## The bench along the back of the bay: a top on legs with a vice on one end and tins along it.
+func _work_bench(at: Vector3, timber: Material, steel: Material, tin: Material) -> void:
+	_box(Vector3(11.0, 0.45, 2.4), timber, at + Vector3(0.0, 2.4, 0.0))
+	for side: float in [-1.0, 1.0]:
+		for depth: float in [-1.0, 1.0]:
+			var leg := at + Vector3(side * 4.9, 1.1, depth * 0.9)
+			_box(Vector3(0.35, 2.2, 0.35), steel, leg)
+	_box(Vector3(11.0, 1.1, 0.25), timber, at + Vector3(0.0, 3.2, -1.1))
+	for i: int in 3:
+		var tin_at := at + Vector3(-3.4 + float(i) * 1.5, 3.05, 0.2)
+		_cylinder(0.42, 0.85, tin, tin_at)
+	_box(Vector3(1.4, 0.9, 1.0), steel, at + Vector3(4.2, 3.05, 0.0))
+
+
+## The two-post lift a garage is built round, with nothing on it: the posts, the arms folded in
+## and the plate they stand on.
+func _lift(at: Vector3, steel: Material, paint: Material) -> void:
+	_box(Vector3(4.6, 0.3, 7.6), steel, at + Vector3(0.0, 0.15, 0.0))
+	for side: float in [-1.0, 1.0]:
+		_box(Vector3(0.9, 6.4, 0.9), paint, at + Vector3(side * 1.9, 3.2, 0.0))
+		for depth: float in [-1.0, 1.0]:
+			var arm := at + Vector3(side * 1.9, 1.3, depth * 1.7)
+			_box(Vector3(0.45, 0.4, 3.0), steel, arm)
+	_box(Vector3(4.6, 0.5, 0.7), paint, at + Vector3(0.0, 6.4, 0.0))
+
+
 # --- the shell ---------------------------------------------------------------
 
 
@@ -403,14 +526,14 @@ func _ring(count: int, near: Dictionary, far: Dictionary) -> void:
 ## A place to try: behind the arena for the first three of every five and down a flank for the
 ## other two, and out past [constant CLOSE] if it is one of the big ones.
 func _spot(half: Vector2, index: int, big: bool) -> Vector3:
-	var away := NEAR + (FAR - NEAR) * pow(_rng.randf(), CROWDING)
+	var away := clutter_from + (FAR - clutter_from) * pow(_rng.randf(), CROWDING)
 	if big:
 		away = CLOSE + (FAR - CLOSE) * _rng.randf()
 	if index % 5 < 3:
 		var along := _rng.randf_range(-0.95, 0.95)
 		return Vector3(_lined(along * half.x), TOP, -(half.y + minf(away, BACK_FAR)))
 	var side := 1.0 if index % 5 == 3 else -1.0
-	return Vector3(side * (half.x + away), TOP, _lined(_flank() * (half.y + NEAR)))
+	return Vector3(side * (half.x + away), TOP, _lined(_flank() * (half.y + clutter_from)))
 
 
 ## How far down a flank a prop may stand. The back of the table is fair game and the middle of
@@ -511,7 +634,9 @@ func _apron(count: int, kinds: Dictionary) -> void:
 			var along := _lined(_rng.randf_range(-1.0, 1.0) * (half.x + FAR))
 			# Further out than the flanks: a pencil is longer than it is far from the wall.
 			var away := (
-				NEAR + APRON_CLEAR + (FAR - NEAR - APRON_CLEAR) * pow(_rng.randf(), CROWDING)
+				clutter_from
+				+ APRON_CLEAR
+				+ (FAR - clutter_from - APRON_CLEAR) * pow(_rng.randf(), CROWDING)
 			)
 			var spot := Vector3(along, TOP, half.y + _lined(away))
 			if _lay(kind, spot, kinds[kind]):

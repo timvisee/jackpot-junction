@@ -28,6 +28,10 @@ const WALL_THICKNESS := 2.0
 var arena: Arena
 var room: RoomLook
 var surfaces: Surfaces
+## How far out this room's clutter starts. [constant NEAR] for a room with a crowd in it, which
+## is where the stands end; a room with nobody watching has nothing to stand behind, and eight
+## metres of bare floor round the arena reads as a room somebody has been cleared out of.
+var clutter_from := NEAR
 
 ## Its own generator, seeded off the room, so a room is dressed the same way every time it is
 ## built and two rooms are not dressed the same way.

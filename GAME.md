@@ -1067,7 +1067,7 @@ built well enough that it looks like one on purpose.
 
 **The rooms.** A map is a place rather than a floor plan. Each one names a
 `RoomLook`, and the room decides the light, the colour of every surface, how the
-crowd is dressed and how much of the room behind the table is in focus. Three of
+crowd is dressed and how much of the room behind the table is in focus. Four of
 them:
 
 | Room | Map | What it is |
@@ -1075,6 +1075,7 @@ them:
 | The Workbench | Lucky Crossing | Warm and close. A tungsten key across the table, a cool fill from the far side and a soft lamp over the felt, with the room falling away into the dark past the stands. The home table. |
 | After Hours | The Vault | The room is dark and the table is the only lit thing in it: one lamp hung over the felt, the sun down to a hint, the crowd a band of shapes in the dark with the neon on their edges. |
 | The Yard | Crossfire | Late afternoon, no lamp. A low warm sun across the concrete, soft long shadows, dust in the air over the far side and no glow at all: the same game played outdoors with the day nearly done. |
+| The Garage | The practice rooms of 9.4 | Cool strip light on a concrete bay, no sun and no weather. The place the karts are fixed in: tyres, chests, cans and a two-post lift round a bay marked out on the floor. The one room with nobody in it, so its clutter comes right up to the bay rather than standing behind stands that are not there. |
 
 The lobby names the room under the arena it belongs to, so picking a map reads as
 picking a place rather than a floor plan.
@@ -2297,7 +2298,10 @@ it had the moment it comes back.
 ### 9.4 The Garage
 
 A practice room reached straight from the title screen, before anybody starts a
-real match. Nobody is playing against you in it: no bots, no clock, no score to
+real match. It is set in The Garage of 8.1, which both practice rooms share: a
+concrete bay in the place the karts are fixed in, with the trade's own clutter
+round the walls of it. Nobody watches in here, so the band of floor the stands
+would stand on is filled with what a garage has in it instead of left bare. Nobody is playing against you in it: no bots, no clock, no score to
 protect, only two dummy karts standing about to be shot at. It
 runs an ordinary match on its own map with the timer switched off, so nothing
 ever ends and the player can take as long as they like. There is no countdown

@@ -69,6 +69,8 @@ func crate(size: Vector3) -> Node3D:
 			_deck_packs(holder, size)
 		&"the_yard":
 			_sacks(holder, size)
+		&"garage":
+			_part_boxes(holder, size)
 		_:
 			_offcuts(holder, size)
 	return holder
@@ -139,6 +141,8 @@ func _spike_ink() -> Material:
 			return surfaces.painted(Color(0.16, 0.12, 0.13))
 		&"the_yard":
 			return surfaces.painted(Color(0.46, 0.26, 0.16))
+		&"garage":
+			return surfaces.metal(Color(0.34, 0.33, 0.3))
 		_:
 			return surfaces.metal(Color(0.62, 0.64, 0.68))
 
@@ -261,6 +265,21 @@ func _deck_packs(into: Node3D, size: Vector3) -> void:
 
 
 ## A workshop's cover: offcuts of the same board the table is made of, stacked and squared off.
+## Boxes of parts, taped shut and stacked the way a delivery is left against a wall: what the
+## garage takes cover behind is whatever came in last week and has not been put away.
+func _part_boxes(into: Node3D, size: Vector3) -> void:
+	var card := surfaces.painted(Color(0.62, 0.48, 0.34))
+	var tape := surfaces.painted(Color(0.84, 0.78, 0.62))
+	var rows := 3
+	for i: int in rows:
+		var deep := size.z * (0.94 - float(i) * 0.12)
+		var wide := size.x * (0.94 - float(i) * 0.12)
+		var lift := -size.y * 0.5 + size.y * (float(i) + 0.5) / float(rows)
+		var box := Vector3(wide, size.y / float(rows) * 0.9, deep)
+		_box(into, box, card, Vector3(0.0, lift, 0.0))
+		_box(into, Vector3(wide * 0.16, box.y * 1.02, deep), tape, Vector3(0.0, lift, 0.0))
+
+
 func _offcuts(into: Node3D, size: Vector3) -> void:
 	var count := 4
 	var thick := size.y / float(count)
