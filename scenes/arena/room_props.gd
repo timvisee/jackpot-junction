@@ -282,6 +282,9 @@ func _garage() -> void:
 	var timber := surfaces.painted(Color(0.55, 0.42, 0.28))
 	var rubber := surfaces.painted(Color(0.1, 0.1, 0.11))
 	var rust := surfaces.painted(Color(0.74, 0.4, 0.13))
+	# The drums are not the cans' orange. Five of one beside eight of the other is a bay that has
+	# been painted one colour, and a drum of oil comes in whatever the last lot came in.
+	var drum := surfaces.painted(Color(0.22, 0.35, 0.44))
 	var stock := surfaces.painted(Color(0.7, 0.72, 0.76))
 	var tinplate := surfaces.painted(Color(0.78, 0.8, 0.84))
 	var paint := surfaces.painted(Color(0.72, 0.18, 0.16))
@@ -306,9 +309,10 @@ func _garage() -> void:
 			&"tyres": func(at: Vector3, turn: float) -> void: _tyres(at, turn, rubber, steel),
 			&"chest": func(at: Vector3, turn: float) -> void: _chest(at, turn, paint, steel),
 			&"jerry": func(at: Vector3, turn: float) -> void: _jerry(at, turn, rust, tinplate),
+			&"barrels": func(at: Vector3, turn: float) -> void: _barrels(at, turn, drum, steel),
 		},
 		{
-			&"barrels": func(at: Vector3, turn: float) -> void: _barrels(at, turn, rust, steel),
+			&"barrels": func(at: Vector3, turn: float) -> void: _barrels(at, turn, drum, steel),
 			&"pallets": func(at: Vector3, turn: float) -> void: _pallets(at, turn, timber),
 			&"rods": func(at: Vector3, turn: float) -> void: _rods(at, turn, stock),
 			&"tyres": func(at: Vector3, turn: float) -> void: _tyres(at, turn, rubber, steel),
@@ -568,10 +572,11 @@ func _turn_of(style: int, at: Vector3) -> float:
 		Turned.LOOSE:
 			return _rng.randf_range(-0.5, 0.5)
 		Turned.FACING:
-			# A thing with drawers in it is opened from the front, and the front belongs to the
-			# floor somebody works on: it looks at the arena from wherever it is standing, a
-			# degree or two off, rather than at whichever quarter of the room it was dealt.
-			return atan2(-at.x, -at.z) + _rng.randf_range(-0.05, 0.05)
+			# Square with the room like everything else, but the quarter it stands in is chosen
+			# rather than rolled: a thing with drawers in it is opened from the front, and the
+			# front belongs to the floor somebody works on. Snapped, because a chest set at
+			# whatever angle happens to point at the middle reads as a chest somebody shoved.
+			return snappedf(atan2(-at.x, -at.z), PI * 0.5) + _rng.randf_range(-0.05, 0.05)
 		Turned.FLAT:
 			return 0.0
 		_:
