@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A version check when joining online.** Games with a different major or minor
+  version are told which version the host has and sent back; patch releases still
+  play together.
+
 - **Arrows on the Grand Prix podium.** Green for anybody who climbed the standings
   on the last map, red for anybody who fell.
 

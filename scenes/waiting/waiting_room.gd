@@ -106,7 +106,9 @@ func _join() -> void:
 	# cannot be freed while it is in the middle of saying something.
 	session.disconnected.connect(func() -> void: Game.go_to_title.call_deferred())
 	# A host that never answers is said so, rather than left for the player to work out alone in
-	# an empty room. The reason is up long enough to be read.
+	# an empty room, and so is one that answers with a version this game cannot play, GAME.md
+	# 10.3. The reason is up long enough to be read.
+	session.refused.connect(_fail)
 	session.connection_failed.connect(
 		func() -> void: _fail("Could not connect to %s:%d" % [config.address, config.port])
 	)

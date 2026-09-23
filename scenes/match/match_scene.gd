@@ -79,6 +79,7 @@ func _ready() -> void:
 				func() -> void: _fail("Could not connect to %s:%d" % [config.address, config.port])
 			)
 			session.disconnected.connect(func() -> void: _fail("The host disconnected"))
+			session.refused.connect(_fail)
 			session.slot_assigned.connect(func(_index: int) -> void: _pane().visible = false)
 			# When the match is over the host takes everybody back to the waiting room, GAME.md
 			# 9.6, and this machine goes with it.

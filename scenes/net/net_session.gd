@@ -19,8 +19,13 @@ signal match_beginning
 signal back_to_room
 ## Where the host says the waiting room's football is, see [RoomBall].
 signal ball_moved(state: Array)
+## The host has turned this machine away, and why, for the player to be told, GAME.md 10.3.
+signal refused(reason: String)
 
 const DEFAULT_PORT := 7777
+## How long the two ends of a new connection have to agree on a version, in seconds. A machine
+## that says nothing in that time, or says something the host turns down, is dropped.
+const HANDSHAKE_TIMEOUT := 5.0
 ## What an unfocused window runs at while this machine is in an online room, GAME.md 9.3. Fast
 ## enough that nobody can tell, slow enough that a game nobody is looking at is not spinning a
 ## graphics card flat out.
@@ -117,6 +122,9 @@ var local_input: KartInput = PlayerInput.new()
 ## leaves the host's funny name standing, GAME.md 3.8.
 var player_name := ""
 var is_host := false
+## The version this machine gives when it connects, and on the host the one it holds everybody
+## else to, GAME.md 10.3. The game's own unless a test says otherwise.
+var version := ""
 ## Whether the window is in the background right now. A room does not stop for it, see
 ## [method _run_unfocused].
 var unfocused := false
@@ -161,17 +169,40 @@ var _focused_max_fps := 0
 ## On the host: the lamps of the map it has just arrived at, held for whoever is still building
 ## the room, GAME.md 10.3. Null once they have gone, and in every room that holds nothing.
 var _gate: StartGate
+## On a client the host has turned away: the connection going after that is what was asked for,
+## not a failure to tell the player about on top of the reason they have already been given.
+var _turned_away := false
 
 
 func _ready() -> void:
+	if version.is_empty():
+		version = Game.version()
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.connected_to_server.connect(func() -> void: connected.emit())
-	multiplayer.connection_failed.connect(func() -> void: connection_failed.emit())
-	multiplayer.server_disconnected.connect(func() -> void: disconnected.emit())
+	multiplayer.connection_failed.connect(
+		func() -> void:
+			if not _turned_away:
+				connection_failed.emit()
+	)
+	multiplayer.server_disconnected.connect(
+		func() -> void:
+			if not _turned_away:
+				disconnected.emit()
+	)
+	var scene := multiplayer as SceneMultiplayer
+	if scene != null:
+		scene.auth_callback = _on_handshake
+		scene.auth_timeout = HANDSHAKE_TIMEOUT
+		scene.peer_authenticating.connect(_on_authenticating)
 
 
 func _exit_tree() -> void:
+	var scene := multiplayer as SceneMultiplayer
+	if scene != null and scene.auth_callback == _on_handshake:
+		scene.auth_callback = Callable()
+	if scene != null and scene.peer_authenticating.is_connected(_on_authenticating):
+		scene.peer_authenticating.disconnect(_on_authenticating)
 	_run_unfocused(false)
 	if multiplayer.multiplayer_peer != null:
 		multiplayer.multiplayer_peer.close()
@@ -230,7 +261,57 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 	_compress(peer)
 	multiplayer.multiplayer_peer = peer
 	is_host = false
+	_turned_away = false
 	return OK
+
+
+## Whether a game at [param theirs] can play with one at [param mine], GAME.md 10.3: the same
+## major and minor version, whatever the patch. A patch release fixes things without changing
+## what goes over the wire; anything else may well change it, and two games that disagree about
+## what a snapshot says do not fail politely.
+static func compatible(mine: String, theirs: String) -> bool:
+	var a := mine.split(".")
+	var b := theirs.split(".")
+	if a.size() < 2 or b.size() < 2:
+		return mine == theirs
+	return a[0] == b[0] and a[1] == b[1]
+
+
+## A new connection, before anything else is said on it, GAME.md 10.3. The client opens by
+## saying which version it is; the host waits to hear it.
+func _on_authenticating(peer: int) -> void:
+	if not is_host:
+		(multiplayer as SceneMultiplayer).send_auth(peer, var_to_bytes({"version": version}))
+
+
+## The other end of the handshake. The host answers every client with its own version and whether
+## the two can play, and lets in the ones that can; a client turned away is left to run out of
+## [constant HANDSHAKE_TIMEOUT], which drops it, so a client too old to understand the answer
+## still goes. A client that is let in lets the host in; one that is not says why.
+func _on_handshake(peer: int, data: PackedByteArray) -> void:
+	var scene := multiplayer as SceneMultiplayer
+	var said: Variant = bytes_to_var(data) if not data.is_empty() else null
+	var words: Dictionary = said if said is Dictionary else {}
+	var theirs := str(words.get("version", "?"))
+	if is_host:
+		var welcome := compatible(version, theirs)
+		scene.send_auth(peer, var_to_bytes({"version": version, "welcome": welcome}))
+		if welcome:
+			scene.complete_auth(peer)
+		return
+	if bool(words.get("welcome", false)):
+		scene.complete_auth(peer)
+		return
+	_turned_away = true
+	# After the handshake has returned rather than inside it: hanging up in the middle of the
+	# peer's own poll pulls the connection out from under it.
+	_hang_up.call_deferred("Wrong version: the host has %s, you have %s" % [theirs, version])
+
+
+func _hang_up(reason: String) -> void:
+	if multiplayer.multiplayer_peer != null:
+		multiplayer.multiplayer_peer.close()
+	refused.emit(reason)
 
 
 ## Everybody in the waiting room is ready and the host is going through to the arena, GAME.md

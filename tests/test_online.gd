@@ -249,6 +249,80 @@ func test_the_host_holds_the_match_in_a_lobby_until_it_begins() -> void:
 	assert_bool(host_match.kart_of(0).frozen).is_false()
 
 
+## GAME.md 10.3: two games play together on the same major and minor version, whatever the patch.
+func test_only_the_patch_may_differ_between_games_that_play_together() -> void:
+	assert_bool(NetSession.compatible("0.5.0", "0.5.3")).is_true()
+	assert_bool(NetSession.compatible("0.5.2", "0.5.0")).is_true()
+	assert_bool(NetSession.compatible("0.5.0", "0.6.0")).is_false()
+	assert_bool(NetSession.compatible("1.5.0", "0.5.0")).is_false()
+	assert_bool(NetSession.compatible("0.5.0", "?")).is_false()
+
+
+## A host and a client over a real socket, on the versions given, and what the client was told.
+func _meet(host_version: String, client_version: String) -> Dictionary:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	host_match.offer_size = 0
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.version = host_version
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(PORT)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.version = client_version
+	client_session.match_node = client_match
+	client_session.local_input = KartInput.new()
+	_client_root.add_child(client_session)
+	var told: Array[String] = []
+	client_session.refused.connect(func(reason: String) -> void: told.append(reason))
+	var failed: Array[bool] = []
+	client_session.connection_failed.connect(func() -> void: failed.append(true))
+	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	return {"host": host_match, "client": client_session, "told": told, "failed": failed}
+
+
+## A client on another minor version is told which one the host has, and never gets a seat.
+func test_a_client_on_another_version_is_turned_away() -> void:
+	var met := await _meet("0.6.1", "0.5.4")
+	var told: Array[String] = met["told"]
+	var client: NetSession = met["client"]
+	var host_match: Match = met["host"]
+	var heard := await _wait_until(func() -> bool: return not told.is_empty(), 4000)
+	assert_bool(heard).override_failure_message("the client was never told").is_true()
+	assert_str(told[0]).contains("0.6.1").contains("0.5.4")
+	await await_millis(300)
+	assert_int(client.local_slot).is_equal(-1)
+	assert_bool(host_match.slots[1].is_human()).is_false()
+	assert_object(client.multiplayer.multiplayer_peer).is_not_null()
+	assert_bool(client._connected()).is_false()
+	# The reason is the whole story: a connection that failed as well would say it twice.
+	assert_array(met["failed"]).is_empty()
+
+
+## And one that differs only in the patch is let in and seated as usual.
+func test_a_client_on_another_patch_is_let_in() -> void:
+	var met := await _meet("0.6.1", "0.6.3")
+	var client: NetSession = met["client"]
+	var host_match: Match = met["host"]
+	var seated := await _wait_until(func() -> bool: return client.local_slot >= 0, 4000)
+	assert_bool(seated).override_failure_message("client never got a slot").is_true()
+	assert_bool(host_match.slots[1].is_human()).is_true()
+	assert_array(met["told"]).is_empty()
+
+
 ## GAME.md 10.3: arriving at a map, the host holds the lamps until every client has the room up,
 ## and every screen says how many players it is waiting on.
 func test_the_lamps_wait_for_every_client_to_have_the_room_up() -> void:

@@ -2812,6 +2812,17 @@ server runs room after room with the same clients connected throughout, which a 
 a scene can never do. The second half -- a match with no local seat, and no HUD or camera for
 nobody to look at -- is separate work and untouched by this.
 
+#### Versions
+
+Two games only play together on the same major and minor version: 0.5.0 and 0.5.3 do, 0.5.3
+and 0.6.0 do not. A patch release fixes things without changing what goes over the wire;
+anything bigger may well change it, and two games that disagree about what a snapshot says do
+not fail politely. So before anything else is said on a new connection, the client gives its
+version and the host answers with its own and whether the two can play. A client it turns away
+is never seated: it is told which version the host has and which it has itself, and goes back to
+the menu. The handshake has 5 s to finish, so a client too old to know about it is dropped rather
+than left waiting for a seat that never comes.
+
 #### Leaving the room together
 
 The waiting room and the arena are two matches on one connection, and the changeover is the
