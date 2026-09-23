@@ -47,6 +47,11 @@ var _host_decides: Label
 var _caption: Label
 ## Whether the last map's podium has moved on to the run's, see [method _show_run].
 var _showing_run := false
+## What happens to everybody's jokers on the way to the next map, under the caption.
+var _keep_note: Label
+## Seat to the joker a player here chose to keep, so the choice outlives the screen being filled
+## in again when the run's points arrive.
+var _kept: Dictionary[int, StringName] = {}
 
 
 ## Builds the screen for [param for_match] and hangs it off [param parent], hidden until the
@@ -128,6 +133,21 @@ func _ways_on() -> void:
 		_caption.text = "%s \u00b7 map %d of %d" % [named, rules.round, rules.rounds]
 		if run_up:
 			_caption.text = "Final standings after %d maps" % rules.rounds
+	_keep_note.visible = more
+	if more:
+		_keep_note.text = _keeping_words(rules.keep_jokers)
+
+
+## What happens to everybody's jokers on the way to the next map, said the once under the caption.
+func _keeping_words(keep: int) -> String:
+	match keep:
+		GrandPrix.Keep.NONE:
+			return "Nobody takes their jokers on to the next map."
+		GrandPrix.Keep.CHOOSE:
+			return "Choose a joker to keep for the next map, or one is kept for you at random."
+		GrandPrix.Keep.ALL:
+			return "Everybody takes all their jokers on to the next map."
+	return "Everybody keeps one of their jokers for the next map, at random."
 
 
 ## From the last map's podium to the run's, GAME.md 9.7. The arena's board names the champion from
@@ -166,6 +186,7 @@ func _entry(
 	row.add_child(box)
 	box.add_child(_headline(slot, rank))
 	var awards := _award_chips(slot, everyone)
+	var keeping := _keep_row(slot) if run != null else null
 	if run != null:
 		if awards == null:
 			awards = HBoxContainer.new()
@@ -179,7 +200,50 @@ func _entry(
 		awards.move_child(chip, 0)
 	if awards != null:
 		box.add_child(awards)
+	if keeping != null:
+		box.add_child(keeping)
 	return row
+
+
+## For a Grand Prix that lets everybody choose a joker to keep, GAME.md 9.7: on the row of each
+## player at this screen, the jokers they end the map holding, one button each, the chosen one
+## lit. Null for anybody else, and for a map that is not followed by another.
+func _keep_row(slot: PlayerSlot) -> HBoxContainer:
+	var rules := match_node.rules
+	if rules.keep_jokers != GrandPrix.Keep.CHOOSE or rules.round >= rules.rounds:
+		return null
+	if not _is_mine(slot) or slot.kart == null or slot.kart.jokers.jokers.is_empty():
+		return null
+	var line := HBoxContainer.new()
+	line.add_theme_constant_override("separation", 8)
+	line.add_child(_label("Keep for the next map", 15, FAINT))
+	var group := ButtonGroup.new()
+	for joker: Joker in slot.kart.jokers.jokers:
+		var button := MenuTheme.button(joker.display_name, 15)
+		button.custom_minimum_size = Vector2.ZERO
+		for state: String in ["normal", "hover", "pressed", "focus"]:
+			var style := button.get_theme_stylebox(state).duplicate() as StyleBoxFlat
+			style.content_margin_left = 10.0
+			style.content_margin_right = 10.0
+			style.content_margin_top = 3.0
+			style.content_margin_bottom = 3.0
+			button.add_theme_stylebox_override(state, style)
+		button.toggle_mode = true
+		button.button_group = group
+		button.button_pressed = _kept.get(slot.index, &"") == joker.id
+		button.pressed.connect(_keep.bind(slot.index, joker.id))
+		line.add_child(button)
+	return line
+
+
+## A player here chose which joker to keep. The host holds the run, so a client tells it.
+func _keep(seat: int, id: StringName) -> void:
+	_kept[seat] = id
+	if match_node.puppet:
+		if Net.session != null:
+			Net.session.keep_joker(id)
+	elif Game.grand_prix != null:
+		Game.grand_prix.choose(seat, id)
 
 
 ## One player at the end of a Grand Prix: place and name, how many maps they won, and their points
@@ -317,6 +381,9 @@ func _build() -> void:
 	_caption = MenuTheme.subtitle("", Type.LABEL)
 	_caption.visible = false
 	column.add_child(_caption)
+	_keep_note = MenuTheme.subtitle("", Type.LABEL)
+	_keep_note.visible = false
+	column.add_child(_keep_note)
 	var rule := ColorRect.new()
 	rule.color = RULE
 	rule.custom_minimum_size = Vector2(WIDTH, 1.0)
@@ -345,7 +412,7 @@ func _buttons() -> HBoxContainer:
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 24)
 	_next = MenuTheme.button("Next map", 26)
-	_next.pressed.connect(func() -> void: Game.next_map())
+	_next.pressed.connect(func() -> void: Game.next_map(match_node))
 	_next.visible = false
 	buttons.add_child(_next)
 	_standings = MenuTheme.button("Grand Prix results", 26)

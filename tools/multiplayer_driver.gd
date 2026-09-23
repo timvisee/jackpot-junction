@@ -39,6 +39,10 @@ var _clients := 1
 var _locals := 1
 ## The colour this client had in the waiting room, to find it in again in the arena.
 var _room_colour := -1
+## What of their jokers everybody keeps between maps, one of GrandPrix.Keep, and on the host
+## the jokers it handed every seat on the first map, to find the right ones again on the second.
+var _keep := 2
+var _given: Dictionary = {}
 
 
 func _ready() -> void:
@@ -51,6 +55,8 @@ func _ready() -> void:
 			_clients = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--locals="):
 			_locals = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--jokers="):
+			_keep = ["none", "choose", "random", "all"].find(arg.get_slice("=", 1))
 	_run.call_deferred()
 
 
@@ -110,6 +116,7 @@ func _host_opens_the_room() -> Node:
 	pane.options.maps_option.selected = MatchOptions.MAPS.find(MAPS)
 	pane.options.bots_option.selected = MatchOptions.BOTS.find(BOTS)
 	pane.options.minutes_option.selected = 0
+	pane.options.jokers_option.selected = _keep
 	pane.close()
 	_check(room.ready_room._plan.text.contains("Match of %d maps" % MAPS), "the room says a match")
 	var match_node: Match = room.match_node
@@ -188,7 +195,14 @@ func _host_plays(first: Node) -> ResultsScreen:
 	_check(podium._next.visible and not podium._rematch.visible, "map 1's podium offers Next map")
 	_check(Game.grand_prix.scored_round == 0, "map 1 is scored")
 	_say("SCORES 1 %s" % _scores(one))
+	_choose_on(podium, one, 0)
 	await _seconds(READING)
+	# Every choice made at another machine has reached the run before it moves on: the joker a
+	# client takes on is the host's to hand it, and the host can only hand what it was told.
+	if _keep == GrandPrix.Keep.CHOOSE:
+		for seat: int in _colours(one):
+			var told: StringName = Game.grand_prix.chosen.get(seat, &"")
+			_check(told == _given[seat][1], "seat %d's choice reached the host" % seat)
 	podium._next.pressed.emit()
 	var second := await _map(2)
 	if second == null:
@@ -203,6 +217,7 @@ func _host_plays(first: Node) -> ResultsScreen:
 	if _locals > 1:
 		_check(two.slots[1].is_local_human(), "the second player here plays map 2")
 	_check(two.rules.map != first_arena, "map 2 is a different arena")
+	_check_kept(two)
 	var last := await _end(second)
 	if last == null:
 		return null
@@ -297,6 +312,8 @@ func _client_after_map_1(first: Node) -> Node:
 		return null
 	_check(_scene_has_points(podium), "its podium shows what each place paid")
 	_say("SCORES 1 %s" % _scores(one))
+	await _frames(3)
+	_choose_on(podium, one, one.local_slot)
 	return await _map(2)
 
 
@@ -358,6 +375,7 @@ func _local_readies_up() -> Node:
 	config.rounds = MAPS
 	config.bot_count = BOTS
 	config.duration = 60.0
+	config.keep_jokers = _keep
 	Game.go_to_waiting(config)
 	var room := await _room()
 	if room == null:
@@ -400,6 +418,7 @@ func _local_plays(first: Node) -> ResultsScreen:
 	_check(two.slots.size() == 2 + BOTS, "map 2 has the same players and bot")
 	_check(two.slots[1].is_local_human() and two.slots[1].color_index == 2, "the second carried on")
 	_check(bot >= 0 and String(two.slots[bot].bot_trait.id) == bot_trait, "the same bot on map 2")
+	_check_kept(two)
 	var last := await _end(second)
 	if last == null:
 		return null
@@ -460,6 +479,8 @@ func _map(round: int) -> Node:
 ## for its podium.
 func _end(scene: Node) -> ResultsScreen:
 	await _seconds(READING)
+	if scene.match_node.rules.round == 1:
+		_give_jokers(scene.match_node)
 	# Different fortunes on every map, so the run's standings are not simply the seats in order
 	# and the two ends have something to disagree about if they are going to.
 	var match_node: Match = scene.match_node
@@ -469,6 +490,59 @@ func _end(scene: Node) -> ResultsScreen:
 		slot.banked = 100 * (turn + 1)
 	match_node._finish()
 	return await _podium(scene, 15.0)
+
+
+## Two jokers for every seat before the first whistle, different for every seat, for the rule
+## about keeping them to have something to keep.
+func _give_jokers(match_node: Match) -> void:
+	var catalog := match_node.joker_catalog.jokers
+	for slot: PlayerSlot in match_node.slots:
+		var given: Array[StringName] = []
+		for i: int in 2:
+			var joker: Joker = catalog[(slot.index * 2 + i) % catalog.size()]
+			slot.kart.jokers.add(joker)
+			given.append(joker.id)
+		_given[slot.index] = given
+
+
+## When everybody chooses a joker to keep, presses the button for the second one on the row of
+## [param seat], the way the player in it would.
+func _choose_on(podium: ResultsScreen, match_node: Match, seat: int) -> void:
+	if match_node.rules.keep_jokers != GrandPrix.Keep.CHOOSE:
+		return
+	var hand := match_node.slots[seat].kart.jokers.jokers
+	if not _check(hand.size() == 2, "seat %d holds its two jokers at the whistle" % seat):
+		return
+	var wanted := hand[1].display_name
+	for node: Node in podium.find_children("*", "Button", true, false):
+		var button := node as Button
+		if button.toggle_mode and button.text == wanted:
+			button.pressed.emit()
+			_say("KEPT %s" % hand[1].id)
+			return
+	_fail("no button to keep %s on the podium" % wanted)
+
+
+## Every seat on the second map holds what the rule says it takes from the first: nothing, the
+## second joker for the people who chose it, one of its two for a bot or at random, or both.
+func _check_kept(match_node: Match) -> void:
+	for slot: PlayerSlot in match_node.slots:
+		var given: Array = _given.get(slot.index, [])
+		var held := slot.kart.jokers.ids()
+		var right := false
+		match _keep:
+			GrandPrix.Keep.NONE:
+				right = held.is_empty()
+			GrandPrix.Keep.ALL:
+				right = held.size() == 2 and held.has(given[0]) and held.has(given[1])
+			GrandPrix.Keep.CHOOSE:
+				right = (
+					held.size() == 1
+					and (held[0] == given[1] if slot.is_human() else given.has(held[0]))
+				)
+			_:
+				right = held.size() == 1 and given.has(held[0])
+		_check(right, "seat %d took on the jokers it should: %s of %s" % [slot.index, held, given])
 
 
 ## The last map's podium is the map's, like every other; the run's is one press on from it.

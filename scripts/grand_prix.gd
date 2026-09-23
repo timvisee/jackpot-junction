@@ -10,6 +10,9 @@ extends RefCounted
 ## won on points. A seat is somebody for the whole run -- the same people and bots sit in the same
 ## seats on every map -- so the points are kept by seat.
 
+## What each seat takes on to the next map of its jokers, GAME.md 9.7.
+enum Keep { NONE, CHOOSE, RANDOM, ALL }
+
 ## Points for each place on a map, first to last.
 const POINTS: Array[int] = [10, 7, 5, 3, 2, 1]
 
@@ -30,12 +33,22 @@ var scored_round := -1
 ## Whether this screen has moved on from the last map's podium to the run's. Each machine's own:
 ## it says what is being looked at here, not how the run stands.
 var revealed := false
+## What every seat takes on to the next map of the jokers it ends a map holding.
+var keep := Keep.RANDOM
+## Seat to the joker its player chose to keep, for [enum Keep] CHOOSE. Cleared once used.
+var chosen: Dictionary[int, StringName] = {}
+## Seat to the jokers it takes on to the map about to start, worked out as the run moves on.
+var carried: Dictionary[int, Array] = {}
 
 
-## A Grand Prix of [param rounds] maps, dealt with [param rng].
-static func start(rounds: int, rng: RandomNumberGenerator) -> GrandPrix:
+## A Grand Prix of [param rounds] maps, dealt with [param rng], carrying [param keeping] of its
+## jokers from each map to the next.
+static func start(
+	rounds: int, rng: RandomNumberGenerator, keeping: Keep = Keep.RANDOM
+) -> GrandPrix:
 	var run := GrandPrix.new()
 	run.playlist = deal(rounds, rng)
+	run.keep = keeping
 	return run
 
 
@@ -86,10 +99,52 @@ func bot_table(table: BotTraitTable) -> BotTraitTable:
 	return FixedTraits.of(table if table != null else load("res://data/ai/traits.tres"), bots)
 
 
+## A player's choice of which joker to keep, for [enum Keep] CHOOSE. Only the latest counts, and
+## only if it is still in their hand when the run moves on.
+func choose(seat: int, id: StringName) -> void:
+	chosen[seat] = id
+
+
+## Works out what every seat takes on to the next map from what it ends this one holding: nothing,
+## the one its player chose, one at random, or all of it. A seat that was to choose and did not,
+## or chose a joker it no longer holds, is dealt one at random, since a choice nobody made is not
+## the same as a choice to keep nothing; so is every bot, which has nobody to choose for it.
+func hold_over(slots: Array[PlayerSlot], rng: RandomNumberGenerator) -> void:
+	carried.clear()
+	for slot: PlayerSlot in slots:
+		var held: Array[StringName] = []
+		if slot.kart != null:
+			held = slot.kart.jokers.ids()
+		var going: Array = []
+		match keep:
+			Keep.ALL:
+				going.assign(held)
+			Keep.CHOOSE, Keep.RANDOM:
+				var pick: StringName = chosen.get(slot.index, &"")
+				if keep != Keep.CHOOSE or not held.has(pick):
+					pick = held[rng.randi_range(0, held.size() - 1)] if not held.is_empty() else &""
+				if pick != &"":
+					going.append(pick)
+		carried[slot.index] = going
+	chosen.clear()
+
+
+## Hands every seat of a map that has just started the jokers it carried on from the one before.
+func deal_jokers(match_node: Match) -> void:
+	for slot: PlayerSlot in match_node.slots:
+		if slot.kart == null:
+			continue
+		for id: StringName in carried.get(slot.index, []):
+			var joker := match_node.joker_catalog.by_id(id)
+			if joker != null and not slot.kart.jokers.is_full():
+				slot.kart.jokers.add(joker)
+
+
 ## Tells a match which map of how many it is, see [member MatchRules.round].
 func label(rules: MatchRules) -> void:
 	rules.round = round + 1
 	rules.rounds = playlist.size()
+	rules.keep_jokers = keep
 
 
 ## Scores the map being played from its [param standings], best first. Once per map: the host says

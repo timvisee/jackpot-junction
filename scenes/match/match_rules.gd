@@ -22,6 +22,7 @@ const WIRE_FIELDS: Array[StringName] = [
 	&"map",
 	&"round",
 	&"rounds",
+	&"keep_jokers",
 ]
 
 @export_group("Coins")
@@ -186,6 +187,9 @@ const WIRE_FIELDS: Array[StringName] = [
 ## another map or to the end.
 @export var round := 0
 @export var rounds := 0
+## What of their jokers each player takes on to the next map of a Grand Prix, one of
+## [enum GrandPrix.Keep]. On the wire, so a client knows whether its podium is to ask it.
+@export var keep_jokers := 2
 
 
 func to_wire() -> Dictionary:

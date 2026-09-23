@@ -29,6 +29,9 @@ below, and hands the notes to the release workflow.
 - **A match is won on points.** Each map pays points by place, and after the last
   map's own podium a Grand Prix podium ranks everybody on points over the whole match.
 
+- **Jokers can carry over between the maps of a match.** Keep none, choose one on
+  the podium, keep one at random (the default), or keep all.
+
 - **Quick play on the title screen.** Setting up and playing a single map moves to
   its own button, next to Play.
 

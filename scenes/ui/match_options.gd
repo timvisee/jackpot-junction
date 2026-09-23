@@ -31,6 +31,9 @@ const OWN_BULLETS: Array[bool] = [false, true]
 const OVERTIME: Array[bool] = [true, false]
 ## How many maps a Grand Prix can run, GAME.md 9.7.
 const MAPS: Array[int] = [2, 3, 4, 5, 6]
+## What of their jokers players take from one map of a Grand Prix to the next, in the order of
+## [enum GrandPrix.Keep].
+const KEEPS: Array[String] = ["Keep none", "Choose one to keep", "Keep one at random", "Keep all"]
 
 var map_option: OptionButton
 var minutes_option: OptionButton
@@ -43,6 +46,7 @@ var overtime_option: OptionButton
 ## The host's choice between a Grand Prix and a single map, [enum Mode] EITHER only.
 var mode_option: OptionButton
 var maps_option: OptionButton
+var jokers_option: OptionButton
 var mode := Mode.QUICK_PLAY
 
 ## Names the room the chosen map is played in, under the arena row.
@@ -51,6 +55,7 @@ var _room_label: Label
 ## of the length row, which is per map in one and for the match in the other.
 var _arena_row: Control
 var _maps_row: Control
+var _jokers_row: Control
 var _length_label: Label
 
 
@@ -104,6 +109,7 @@ static func describe(config: MatchConfig) -> String:
 func apply_to(config: MatchConfig) -> void:
 	config.map = ArenaMaps.id_at(map_option.selected)
 	config.rounds = MAPS[maps_option.selected] if is_grand_prix() else 0
+	config.keep_jokers = jokers_option.selected as GrandPrix.Keep
 	config.duration = match_lengths()[minutes_option.selected] * 60.0
 	config.target_score = TARGETS[target_option.selected]
 	config.bot_count = BOTS[bots_option.selected]
@@ -125,6 +131,7 @@ func remember(settings: Settings) -> void:
 	settings.own_bullets_hurt = OWN_BULLETS[own_bullets_option.selected]
 	settings.overtime = OVERTIME[overtime_option.selected]
 	settings.grand_prix_maps = MAPS[maps_option.selected]
+	settings.grand_prix_jokers = jokers_option.selected
 	if mode == Mode.EITHER:
 		settings.online_grand_prix = is_grand_prix()
 
@@ -162,6 +169,10 @@ func _build(column: Container, settings: Settings) -> void:
 		column.add_child(MenuTheme.row("Play", mode_option))
 	_maps_row = MenuTheme.row("Maps", maps_option)
 	column.add_child(_maps_row)
+	# Only a Grand Prix has a next map to take anything on to.
+	jokers_option = MenuTheme.option(KEEPS, clampi(settings.grand_prix_jokers, 0, KEEPS.size() - 1))
+	_jokers_row = MenuTheme.row("Jokers between maps", jokers_option)
+	column.add_child(_jokers_row)
 	var arena := VBoxContainer.new()
 	arena.add_child(MenuTheme.row("Arena", map_option))
 	# Which room that map is played in, GAME.md 8.1: three of them, and a player picking a map
@@ -197,6 +208,7 @@ func _show_mode() -> void:
 	var several := is_grand_prix()
 	_arena_row.visible = not several
 	_maps_row.visible = several
+	_jokers_row.visible = several
 	_length_label.text = "Time per map" if several else "Match length"
 
 

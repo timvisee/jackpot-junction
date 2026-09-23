@@ -5,11 +5,22 @@ const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const LOBBY_SCENE := preload("res://scenes/ui/lobby.tscn")
 const RULES: MatchRules = preload("res://data/match/default.tres")
 
+## The player's own settings, put aside so a lobby opened here starts from the defaults rather
+## than from whatever the player last chose, and nothing chosen here is ever theirs.
+var _settings_were: Settings
+
+
+func before_test() -> void:
+	_settings_were = Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_grand_prix.cfg"
+
 
 func after_test() -> void:
 	Game.grand_prix = null
 	Game.pending_config = null
 	Game.lobby_for = Game.LobbyFor.QUICK_PLAY
+	Game.settings = _settings_were
 
 
 func _rng(seed: int) -> RandomNumberGenerator:
@@ -203,6 +214,103 @@ func test_the_match_scene_scores_a_map_at_the_whistle() -> void:
 	assert_int((said["run"] as Dictionary).get("scored", -1)).is_equal(0)
 
 
+## A seat on a started match holding [param count] jokers off the catalogue, from [param first].
+func _holding(match_node: Match, seat: int, first: int, count: int) -> Array[StringName]:
+	var given: Array[StringName] = []
+	var catalog := match_node.joker_catalog.jokers
+	for i: int in count:
+		var joker: Joker = catalog[(first + i) % catalog.size()]
+		match_node.slots[seat].kart.jokers.add(joker)
+		given.append(joker.id)
+	return given
+
+
+## Each way of keeping jokers between maps keeps what it says: none, the one chosen, one at random,
+## or all. A bot, or a player who chose nothing, or chose a joker they no longer hold, is dealt one
+## at random rather than nothing.
+func test_each_way_of_keeping_jokers_keeps_what_it_says() -> void:
+	var run := GrandPrix.start(3, _rng(21))
+	var match_node := _map_of(run, 5)
+	var mine := _holding(match_node, 0, 0, 3)
+	var bots := _holding(match_node, 1, 4, 2)
+	for keep: GrandPrix.Keep in [
+		GrandPrix.Keep.NONE, GrandPrix.Keep.CHOOSE, GrandPrix.Keep.RANDOM, GrandPrix.Keep.ALL
+	]:
+		run.keep = keep
+		run.choose(0, mine[2])
+		run.choose(2, &"not_held")
+		run.hold_over(match_node.slots, _rng(22))
+		var kept_mine: Array = run.carried[0]
+		var kept_bot: Array = run.carried[1]
+		match keep:
+			GrandPrix.Keep.NONE:
+				assert_array(kept_mine).is_empty()
+				assert_array(kept_bot).is_empty()
+			GrandPrix.Keep.CHOOSE:
+				assert_array(kept_mine).contains_exactly([mine[2]])
+				assert_int(kept_bot.size()).is_equal(1)
+				assert_bool(bots.has(kept_bot[0])).is_true()
+			GrandPrix.Keep.RANDOM:
+				assert_int(kept_mine.size()).is_equal(1)
+				assert_bool(mine.has(kept_mine[0])).is_true()
+			GrandPrix.Keep.ALL:
+				assert_array(kept_mine).contains_exactly(mine)
+				assert_array(kept_bot).contains_exactly(bots)
+		# A choice counts for the one map it was made on.
+		assert_bool(run.chosen.is_empty()).is_true()
+	# Nothing held, nothing carried, whatever the rule.
+	assert_array(run.carried[2]).is_empty()
+
+
+## What was carried is in everybody's hands when the next map starts.
+func test_the_carried_jokers_are_dealt_into_the_next_map() -> void:
+	var run := GrandPrix.start(2, _rng(23))
+	var first := _map_of(run, 6)
+	var mine := _holding(first, 0, 0, 2)
+	run.keep = GrandPrix.Keep.ALL
+	run.hold_over(first.slots, _rng(24))
+	var second := _map_of(run, 7)
+	run.deal_jokers(second)
+	assert_array(second.slots[0].kart.jokers.ids()).contains_exactly(mine)
+	assert_int(second.slots[1].kart.jokers.count()).is_equal(0)
+
+
+## Play's lobby has the row for it, and a single map does not, having no next map.
+func test_the_joker_rule_is_a_grand_prix_row() -> void:
+	Game.lobby_for = Game.LobbyFor.PLAY
+	var playing: Control = auto_free(LOBBY_SCENE.instantiate())
+	add_child(playing)
+	assert_bool(playing.options._jokers_row.visible).is_true()
+	assert_int(playing.options.jokers_option.selected).is_equal(GrandPrix.Keep.RANDOM)
+	playing.options.jokers_option.selected = GrandPrix.Keep.ALL
+	assert_int(playing.config().keep_jokers).is_equal(GrandPrix.Keep.ALL)
+	Game.lobby_for = Game.LobbyFor.QUICK_PLAY
+	var quick: Control = auto_free(LOBBY_SCENE.instantiate())
+	add_child(quick)
+	assert_bool(quick.options._jokers_row.visible).is_false()
+
+
+## When everybody chooses, each row of a player at this screen offers their jokers, and pressing
+## one is the choice. Nobody else's row does, and the last map has nothing to choose for.
+func test_choosing_a_joker_to_keep_on_the_podium() -> void:
+	_run_at(1, 3)
+	Game.grand_prix.keep = GrandPrix.Keep.CHOOSE
+	var screen := await _podium_after(1, 3, GrandPrix.Keep.CHOOSE)
+	var match_node := screen.match_node
+	var given := _holding(match_node, 0, 1, 2)
+	_holding(match_node, 1, 3, 1)
+	screen.fill_in()
+	var buttons: Array[Button] = []
+	for node: Node in screen.find_children("*", "Button", true, false):
+		if (node as Button).toggle_mode:
+			buttons.append(node)
+	# The player here, two jokers; the bot, none offered.
+	assert_int(buttons.size()).is_equal(2)
+	buttons[1].pressed.emit()
+	assert_str(String(Game.grand_prix.chosen.get(0, &""))).is_equal(String(given[1]))
+	assert_str(screen._keep_note.text).contains("Choose")
+
+
 ## Play's lobby asks how many maps rather than which arena, and says its length is per map. Quick
 ## play's asks which arena and no number of maps.
 func test_play_asks_how_many_maps_and_quick_play_which_arena() -> void:
@@ -227,12 +335,13 @@ func test_play_asks_how_many_maps_and_quick_play_which_arena() -> void:
 
 ## A finished map in the middle of a run: the podium leads to the next map and nowhere else.
 ## Scored as the match scene would score it, when there is a run to score it in.
-func _podium_after(round: int, rounds: int) -> ResultsScreen:
+func _podium_after(round: int, rounds: int, keep := GrandPrix.Keep.RANDOM) -> ResultsScreen:
 	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
 	rules.overtime = false
 	rules.round = round
 	rules.rounds = rounds
+	rules.keep_jokers = keep
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = rules
 	match_node.with_hud = true

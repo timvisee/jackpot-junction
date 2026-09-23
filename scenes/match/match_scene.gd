@@ -40,6 +40,7 @@ func _ready() -> void:
 		"host":
 			await _put_the_room_up()
 			match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles())
+			_deal_carried_jokers()
 			if Net.online():
 				# Arrived from the waiting room of 9.6 with everybody already here and already
 				# ready. Nothing is held: the waiting was the waiting room's job.
@@ -97,11 +98,19 @@ func _ready() -> void:
 		_:
 			await _put_the_room_up()
 			match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles())
+			_deal_carried_jokers()
 	DebugOverlay.add_to(self, match_node, session)
 	PauseMenu.add_to(self, session)
 	Events.match_state_changed.connect(_on_state_changed)
 	Events.grand_prix_scored.connect(_on_grand_prix_scored)
 	loaded.emit()
+
+
+## Whatever jokers everybody carried on from the map before, GAME.md 9.7, back in their hands
+## before the lamps go. A seat kept for a client holds them until the client sits in it.
+func _deal_carried_jokers() -> void:
+	if Game.grand_prix != null:
+		Game.grand_prix.deal_jokers(match_node)
 
 
 ## At the whistle of a Grand Prix map the host scores it, GAME.md 9.7, and says how the run stands

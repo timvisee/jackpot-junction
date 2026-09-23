@@ -190,8 +190,11 @@ func start_match(config: MatchConfig) -> void:
 
 
 ## On to the next map of the Grand Prix, GAME.md 9.7: the same people, the same bots and the same
-## settings on the next arena in the playlist. Online the host says so first and everybody goes.
-func next_map() -> void:
+## settings on the next arena in the playlist, and whatever jokers the run lets everybody take on
+## from [param from], the map just finished. Online the host says so first and everybody goes.
+func next_map(from: Match = null) -> void:
+	if grand_prix != null and from != null and not grand_prix.is_last():
+		grand_prix.hold_over(from.slots, from.rng)
 	var next := next_map_config()
 	if next == null:
 		return

@@ -265,6 +265,23 @@ func _leaving() -> void:
 			_colour_of[peer] = match_node.slots[index].color_index
 
 
+## Which joker this client keeps for the next map of a Grand Prix, GAME.md 9.7. The host holds
+## the run, so it is told; a choice that arrives after the run has moved on counts for nothing,
+## and the joker kept is dealt at random as for anybody who did not choose.
+func keep_joker(id: StringName) -> void:
+	if not is_host and _connected():
+		_keep_joker.rpc_id(1, String(id))
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _keep_joker(id: String) -> void:
+	if not is_host or Game.grand_prix == null:
+		return
+	var peer := multiplayer.get_remote_sender_id()
+	if _peer_slots.has(peer):
+		Game.grand_prix.choose(_peer_slots[peer], StringName(id))
+
+
 ## A client that has followed the host into another room asks for its seat there, once the room
 ## is built and pointed at this session. Asking rather than being told is what makes the change
 ## safe: a seat and a set of rules sent the moment the host arrived could reach a client that was

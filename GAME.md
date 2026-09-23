@@ -2627,6 +2627,24 @@ Online the host moves everybody on, the same way it moved everybody out of the w
 a client's podium says so. The next map is the same match on the next arena: the same people,
 in the same colours, with the same settings.
 
+**Jokers between maps.** Play's lobby, and the host's match settings online, have a row for what
+everybody takes on from one map to the next of the jokers they end it holding:
+
+| Choice              | What goes on to the next map                                        |
+|---------------------|---------------------------------------------------------------------|
+| Keep none           | Nothing: every map starts from an empty hand                        |
+| Choose one to keep  | The one each player picks on the podium                             |
+| Keep one at random  | One of each hand, drawn at random -- the choice to start with       |
+| Keep all            | The whole hand                                                      |
+
+Choosing is done on the podium of the map just finished, under a line saying which rule the run
+is on: on the row of every player at that screen, a button for each joker they hold, the chosen
+one lit. A client's choice goes to the host, which holds the run. Somebody who does not choose
+before the host moves on, or whose choice is no longer in their hand, is dealt one at random, the
+same as every bot, which has nobody to choose for it: a choice nobody made is not a choice to keep
+nothing. The kept jokers are in everybody's hands before the next map's lamps go, a seat kept for
+a client holding them until the client sits in it. Nothing is carried out of the last map.
+
 **The same bots.** The bots are chosen once, when the playlist is dealt, and drive every map of
 it: the same number, in the same seats and colours, each with the same way of driving and so the
 same name. The Hunter in the second seat on the first map is the Hunter in the second seat on the
