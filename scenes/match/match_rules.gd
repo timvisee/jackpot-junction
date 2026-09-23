@@ -36,6 +36,9 @@ const WIRE_FIELDS: Array[StringName] = [
 
 @export_group("Items")
 @export var power_pad_respawn := 15.0
+## Seconds a broken crate stays broken. The waiting room of GAME.md 9.6 brings its one box back
+## quickly, since the box is there to be driven round rather than to be cover.
+@export var crate_respawn := 30.0
 ## Coins a shooting target pays the kart that knocks it down.
 @export var target_coins := 3
 @export var item_reveal_time := 0.5

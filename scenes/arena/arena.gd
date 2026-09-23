@@ -188,6 +188,7 @@ func start_economy(
 	for pad: PowerUpPad in power_pads:
 		pad.start(rules, rng, pickups, items)
 	for crate: Crate in crates:
+		crate.respawn_delay = rules.crate_respawn
 		if not crate.destroyed.is_connected(_on_crate_destroyed):
 			crate.destroyed.connect(_on_crate_destroyed.bind(crate))
 	if junction != null:

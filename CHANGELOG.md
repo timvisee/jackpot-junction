@@ -27,6 +27,10 @@ below, and hands the notes to the release workflow.
   charges your own arc of it in your own kart colour, so it is clear who the pad
   has taken and who it is still waiting on.
 
+- **A box to weave round in the waiting room.** A destructible crate now stands
+  opposite the drum down one side of the room, close enough to run a figure of
+  eight between the two, and it comes back a few seconds after you break it.
+
 - **The waiting room's ready count is on a sign you can read.** It was on a
   hoarding set back behind the room, above the shot and too far off; it is a low
   pavement board on the floor at the back now.

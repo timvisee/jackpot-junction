@@ -2495,8 +2495,11 @@ that is driven in.
 
 It is the corner of the garage of 9.4 -- the same concrete bay, the same light, the same things
 round the walls -- and it is deliberately almost empty: a pad in the middle, four spawns and
-three things standing on the floor to drift round while the last player finds their seat. A
-stack of wheels, a drum and a cone. They are solid, unlike the clutter in every other room,
+four things standing on the floor to drift round while the last player finds their seat. A
+stack of wheels, a cone, and a drum with a box opposite it down one side of the room -- two marks
+a few lengths apart, which is a figure of eight for anybody who wants one. The box is the only
+thing in here that breaks, and it comes back in seconds rather than the half minute a box takes
+in a match: it is there to be driven round, not to be hidden behind. They are solid, unlike the clutter in every other room,
 because driving through the one thing there is to drive round is worse than having nothing
 there. Nothing else is in it. There is no clock, nothing to shoot, nothing to collect and no
 score: the room asks one thing of anybody in it.

@@ -36,12 +36,33 @@ func test_the_waiting_room_is_not_a_match() -> void:
 	var room := await _open()
 	var match_node: Match = room.get_node("Match")
 	assert_bool(match_node.rules.timed).is_false()
-	assert_int(match_node.arena.crates.size()).is_equal(0)
 	assert_int(match_node.arena.targets.size()).is_equal(0)
 	assert_object(match_node.arena.junction).is_not_null()
-	# And it has the three things to drive round that are the only reason to drive in here.
+	# And it has the things to drive round that are the only reason to drive in here: three
+	# standing props and one box, which comes back quickly because it is there to be driven round
+	# rather than to be hidden behind.
 	var props: Node3D = match_node.arena.get_node("WaitingProps")
 	assert_int(props.get_child_count()).is_equal(3)
+	assert_int(match_node.arena.crates.size()).is_equal(1)
+	assert_float(match_node.arena.crates[0].respawn_delay).is_less(10.0)
+
+
+## The box and the drum stand opposite one another on the same side of the room, which is what
+## makes a figure eight round the pair of them possible: two marks a few lengths apart with a
+## clear run between and clear floor to swing round the outside of each.
+func test_the_box_and_the_drum_are_a_pair_to_weave_between() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var box := match_node.arena.crates[0].global_position
+	var drum: Node3D = match_node.arena.get_node("WaitingProps/Drum")
+	assert_float(absf(box.x - drum.global_position.x)).is_less(1.0)
+	var apart := absf(box.z - drum.global_position.z)
+	assert_float(apart).is_greater(4.0)
+	assert_float(apart).is_less(9.0)
+	# Both to one side of the pad, so the weave is not run through the middle of the room where
+	# everybody else is trying to park.
+	assert_float(absf(box.x)).is_greater(5.0)
+	assert_float(signf(box.x)).is_equal(signf(drum.global_position.x))
 
 
 ## The sign that says how many are ready is a low stand on the floor at the back of the room,
