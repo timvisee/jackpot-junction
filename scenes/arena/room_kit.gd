@@ -41,8 +41,9 @@ const LAYER := 0.006
 ## edge hidden by the one part of the pad that is not the room's to decide.
 const RIM := 0.25
 ## How many pockets the wheel After Hours has and how many stripes go round the Yard's border.
-## A real wheel has thirty-seven, which from where the camera of 8.2 sits is a grey ring.
-const POCKETS := 16
+## A real wheel has thirty-seven; this is short of that and well past the dozen and a half it
+## started at, which read as a pie chart rather than as a wheel.
+const POCKETS := 28
 const STRIPES := 20
 
 var room: RoomLook
@@ -353,15 +354,19 @@ func _wheel(into: Node3D, radius: float) -> void:
 	var green := surfaces.marking(Color(0.1, 0.44, 0.26))
 	var brass := surfaces.metal(room.trim)
 	_disc(into, radius, timber, PAD * 0.5, PAD)
+	var deep := radius * 0.44
+	var out := radius - RIM - deep * 0.5
 	for i: int in POCKETS:
 		var turn := TAU * float(i) / float(POCKETS)
 		var ink := green if i == 0 else (red if i % 2 == 1 else black)
 		# One pocket a hair over the next, so that where two of them meet on the circle there is
 		# a lip rather than two flat faces in one plane fighting over the same pixels.
 		var lift := PAD + LAYER + (LAYER * 0.25 if i % 2 == 1 else 0.0)
-		var deep := radius * 0.44
-		var at := Vector3(sin(turn), 0.0, cos(turn)) * (radius - RIM - deep * 0.5)
-		var pocket := _box(into, Vector3(radius * 0.31, 0.01, deep), ink, at + _up(lift))
+		var at := Vector3(sin(turn), 0.0, cos(turn)) * out
+		# Cut from the arc it sits on rather than from the radius, so the ring stays closed
+		# whatever it is divided into.
+		var wide := TAU * out / float(POCKETS) * 1.12
+		var pocket := _box(into, Vector3(wide, 0.01, deep), ink, at + _up(lift))
 		pocket.rotation.y = turn
 	_disc(into, radius * 0.48, surfaces.marking(room.trim.darkened(0.55)), PAD + LAYER * 2.0)
 	# The spindle: a cross of brass over the middle, which is the shape that says wheel.
