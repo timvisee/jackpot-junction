@@ -185,22 +185,20 @@ func _fill(room: Node3D) -> ReadyRoom:
 	return ready_room
 
 
-## A full house blinks the whole ring green once and the room goes a second later, not the moment
-## the last player readies: the room says it is going before it goes.
-func test_a_full_room_blinks_green_and_goes_a_second_later() -> void:
+## A full house turns the whole ring green and holds it, and the room goes a second later, not
+## the moment the last player readies: the room says it is going before it goes.
+func test_a_full_room_turns_green_and_goes_a_second_later() -> void:
 	var room := await _open()
 	var went := {"count": 0}
 	room.ready_room.everybody_ready.connect(func() -> void: went["count"] += 1)
 	var ready_room: ReadyRoom = await _fill(room)
-	await _runner.simulate_frames(2, 17)
-	for piece: MeshInstance3D in ready_room._segments:
-		var glow := (piece.material_override as StandardMaterial3D).emission
-		assert_bool(glow.is_equal_approx(ReadyRoom.READY_INK)).is_true()
-	assert_int(went["count"]).is_equal(0)
-	# Once: the blink is over well before the room goes, and the ring is back to whose it is.
-	await _runner.simulate_frames(30, 17)
-	assert_float(ready_room.blink()).is_equal(0.0)
-	assert_int(went["count"]).is_equal(0)
+	for wait: int in [2, 30]:
+		await _runner.simulate_frames(wait, 17)
+		assert_bool(ready_room.all_green()).is_true()
+		for piece: MeshInstance3D in ready_room._segments:
+			var glow := (piece.material_override as StandardMaterial3D).emission
+			assert_bool(glow.is_equal_approx(ReadyRoom.READY_INK)).is_true()
+		assert_int(went["count"]).is_equal(0)
 	await _runner.simulate_frames(40, 17)
 	assert_int(went["count"]).is_equal(1)
 	# And only once, however long the room stands full afterwards.
@@ -220,7 +218,7 @@ func test_driving_off_in_the_last_second_calls_it_off() -> void:
 	await _runner.simulate_frames(90, 17)
 	assert_int(went["count"]).is_equal(0)
 	assert_bool(ready_room.all_ready()).is_false()
-	assert_float(ready_room.blink()).is_equal(0.0)
+	assert_bool(ready_room.all_green()).is_false()
 
 
 ## Ready lasts as long as the standing does. Driving off the pad takes it back on the spot, along
@@ -352,7 +350,7 @@ func test_a_full_room_waits_for_the_host_to_finish_choosing() -> void:
 	var ready_room: ReadyRoom = await _fill(room)
 	await _runner.simulate_frames(90, 17)
 	assert_int(went["count"]).is_equal(0)
-	assert_float(ready_room.blink()).is_equal(0.0)
+	assert_bool(ready_room.all_green()).is_false()
 	room.host_settings.close()
 	await _runner.simulate_frames(90, 17)
 	assert_int(went["count"]).is_equal(1)
@@ -414,23 +412,28 @@ func test_a_client_fills_the_ring_and_waits_for_the_host_to_call_it() -> void:
 	var match_node: Match = room.get_node("Match")
 	var ready_room: ReadyRoom = room.ready_room
 	ready_room.deciding = false
+	# Somebody else in the room who stays off the pad, so it never fills and the arcs are read
+	# as arcs rather than as the whole ring going green.
+	match_node.join_human(DeviceInput.KEYBOARD + 1)
+	await _runner.simulate_frames(2, 17)
+	var arc := ReadyRoom.SEGMENTS / 2
 	var slot: PlayerSlot = match_node.slots[0]
 	match_node.kart_of(0).global_position = match_node.arena.junction.global_position
 	await _runner.simulate_frames(int(ReadyRoom.CHARGE_TIME * 30.0), 17)
 	var part_way := _lit_for(ready_room, slot)
 	assert_int(part_way).is_greater(0)
-	assert_int(part_way).is_less(ReadyRoom.SEGMENTS)
+	assert_int(part_way).is_less(arc)
 	# Long past the charge time, and still not called: one short, no tick, nobody ready.
 	await _runner.simulate_frames(int(ReadyRoom.CHARGE_TIME * 80.0), 17)
-	assert_int(_lit_for(ready_room, slot)).is_equal(ReadyRoom.SEGMENTS - 1)
-	assert_bool(ready_room.all_ready()).is_false()
+	assert_int(_lit_for(ready_room, slot)).is_equal(arc - 1)
+	assert_int(ready_room.ready_count()).is_equal(0)
 	assert_bool(ready_room._ticks.has(0)).is_false()
-	# The host calls it. The room is full then, so the ring blinks first; counted after that.
+	# The host calls it: the arc is whole and the tick goes up.
 	Events.player_ready.emit(0, true)
-	await _runner.simulate_frames(35, 17)
-	assert_float(ready_room.blink()).is_equal(0.0)
-	assert_int(_lit_for(ready_room, slot)).is_equal(ReadyRoom.SEGMENTS)
+	await _runner.simulate_frames(2, 17)
+	assert_int(_lit_for(ready_room, slot)).is_equal(arc)
 	assert_bool(ready_room._ticks.has(0)).is_true()
+	assert_bool(ready_room.all_green()).is_false()
 
 
 ## Presses and lets go of Start on [param pad], the way a hand on a real pad does.

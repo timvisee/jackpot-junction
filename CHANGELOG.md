@@ -39,8 +39,8 @@ below, and hands the notes to the release workflow.
   hoarding set back behind the room, above the shot and too far off; it is a low
   pavement board on the floor at the back now.
 
-- **The waiting room blinks green before it goes.** Once everybody is ready the
-  ring round the pad flashes green and the match starts a second later, instead of
+- **The waiting room turns green before it goes.** Once everybody is ready the
+  ring round the pad goes green and the match starts a second later, instead of
   cutting away the instant the last player readies.
 
 - **The waiting room shows the pad's join button too.** The line under the ready

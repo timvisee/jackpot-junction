@@ -2512,14 +2512,14 @@ score: the room asks one thing of anybody in it.
 
 **Readying up.** The cash-out pad is the ready marker. Driving onto it charges it, a ring of
 blocks round it fills as it charges, and after a couple of seconds a tick lights over the kart.
-When everybody in the room has one, the whole ring blinks green once and the match begins a
-second later. The room says it is going before it goes: a cut to the arena on the frame the last
+When everybody in the room has one, the whole ring turns green and the match begins a second
+later. The room says it is going before it goes: a cut to the arena on the frame the last
 tick lit would take the last player's own moment of readying away from them.
 
 Ready lasts exactly as long as the standing does. Roll off the pad and the charge and the tick
 go with it, on the frame the kart leaves. That is the honest reading of a pad nobody is on: a
 room that started because everybody was ready a moment ago would start without them. It holds
-in the second after the blink as well -- somebody knocked off the pad, or somebody new taking a
+in the second the ring is green as well: somebody knocked off the pad, or somebody new taking a
 seat, calls the start off until the room is full again.
 
 The ring of blocks round the pad is split between whoever is in the room -- an arc each, in
@@ -2553,7 +2553,7 @@ standing on it.
 Who is ready is the host's to decide, see 10.3. The host simulates every kart, so it is the only
 machine that can see who is standing on the pad; a client is told, the same way it is told
 everything else about somebody else's kart, and draws the same ticks, the same count and the
-same blink from what arrives. A client fills the ring itself, off the karts it can see on the
+same green ring from what arrives. A client fills the ring itself, off the karts it can see on the
 pad, so the arcs move on every screen; an arc stops one block short of full until the host has
 said that player is ready, so a client never shows somebody as ready before the host has.
 
