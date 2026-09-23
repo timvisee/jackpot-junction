@@ -244,6 +244,8 @@ func _dress_the_room() -> void:
 	match_node.arena.disco.enabled = false
 	match_node.arena.crowd.enabled = false
 	match_node.arena.billboards.visible = false
+	if match_node.hud != null:
+		match_node.hud.waiting = true
 	match_node.camera_rig.show_the_room(0.8)
 	WaitingProps.add_to(match_node.arena)
 	# The host, or this machine alone, kicks the ball and a client is told where it went.

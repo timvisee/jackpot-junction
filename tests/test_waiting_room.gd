@@ -585,6 +585,25 @@ func test_a_client_draws_the_ball_where_it_was_told() -> void:
 	assert_float(told.global_position.distance_to(Vector3(4.0, RoomBall.RADIUS, -2.0))).is_less(0.1)
 
 
+## Down the side is who is in the room: a name each, in the order they arrived, with no place and
+## no score, since nothing in here is being played for.
+func test_the_side_list_is_who_is_in_the_room() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	match_node.join_human(DeviceInput.KEYBOARD + 1)
+	await _runner.simulate_frames(3, 17)
+	var list: Scoreboard = match_node.hud._scoreboard
+	assert_bool(list.visible).is_true()
+	assert_bool(list.roster).is_true()
+	assert_int(list.get_child_count()).is_equal(2)
+	for index: int in 2:
+		var row: Dictionary = list._rows[index]
+		assert_int((row["panel"] as Control).get_index()).is_equal(index)
+		assert_str((row["name"] as Label).text).is_equal(match_node.slots[index].display_name())
+		assert_bool((row["place"] as Label).visible).is_false()
+		assert_bool((row["score"] as Label).visible).is_false()
+
+
 ## An empty room is not a ready room: a match with nobody in it has nothing to start.
 func test_a_room_with_nobody_in_it_is_never_ready() -> void:
 	var room := await _open()

@@ -14,8 +14,13 @@ const RISK_FONT := 15
 const DIM := Color(0.82, 0.82, 0.86)
 ## Blinks a second of the carried pot that would end the match.
 const WIN_BLINK := 3.2
+## How big a name is on the roster of the waiting room, where nobody is ahead of anybody.
+const ROSTER_FONT := 22
 
 var match_node: Match
+## A list of who is in the room rather than a running order, GAME.md 9.6: everybody at one size,
+## in the order they arrived, with no place and no score, since nothing is being played for.
+var roster := false
 
 ## Slot index to its row's parts.
 var _rows: Dictionary[int, Dictionary] = {}
@@ -37,7 +42,8 @@ func _ready() -> void:
 ## by the tie-breaks the match uses. Highest first.
 func order() -> Array[PlayerSlot]:
 	var ranked := match_node.slots.duplicate()
-	ranked.sort_custom(PlayerSlot.by_banked)
+	if not roster:
+		ranked.sort_custom(PlayerSlot.by_banked)
 	return ranked
 
 
@@ -55,7 +61,7 @@ func _process(delta: float) -> void:
 
 func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, count: int) -> void:
 	var share := 0.0 if count < 2 else float(rank) / float(count - 1)
-	var size := roundi(lerpf(TOP_FONT, BOTTOM_FONT, share))
+	var size := ROSTER_FONT if roster else roundi(lerpf(TOP_FONT, BOTTOM_FONT, share))
 	var local := slot.is_local_human()
 	var color := slot.color()
 	var place: Label = row["place"]
@@ -69,6 +75,9 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, count: int) -> vo
 	risk.text = "+%d" % unbanked if unbanked > 0 else ""
 	var hunted := match_node.bounty_slot == slot.index
 	(row["bounty"] as Label).visible = hunted
+	place.visible = not roster
+	score.visible = not roster
+	risk.visible = not roster
 	for label: Label in [place, name_label, score]:
 		Type.set_font(label, Type.numbers_text_font(), size)
 	Type.set_font(risk, Type.numbers_text_font(), maxi(size - 8, RISK_FONT))

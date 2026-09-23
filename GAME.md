@@ -2552,6 +2552,10 @@ same thing, but it does not put the player who is waiting anywhere in particular
 not show the room who it is waiting on. A kart parked on the pad does both, in the one place
 everybody is already looking.
 
+**Who is here.** Down the right-hand side, where a match keeps its running order, the room
+keeps a list of who is in it: a name each in their own color, in the order they arrived, with
+no place and no score, since nothing in here is being played for.
+
 **What it says.** The count is written twice: at the top of the screen for the player at this
 machine, as `1 / 2 PLAYERS READY`, and on a sign standing on top of the back wall, as `1 / 2`
 with `PLAYERS READY` under it.

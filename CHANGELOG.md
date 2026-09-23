@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Who is in the waiting room, down the side.** A list of everybody there, where a
+  match keeps its running order, without places or scores.
+
 ### Fixed
 
 - **No stray gap before the buttons in a hint.** A line like "Press J or Menu on
