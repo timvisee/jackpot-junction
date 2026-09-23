@@ -35,6 +35,10 @@ below, and hands the notes to the release workflow.
   hoarding set back behind the room, above the shot and too far off; it is a low
   pavement board on the floor at the back now.
 
+- **The waiting room shows the pad's join button too.** The line under the ready
+  count used to draw only the key or only the pad button, whichever this machine
+  was last touched with; it draws both now.
+
 - **Crashing in the waiting room costs nothing.** You come straight back with no
   respawn wait, and no joker pick comes up over the screen while everybody else is
   waiting on you.

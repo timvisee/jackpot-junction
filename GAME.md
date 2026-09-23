@@ -2536,17 +2536,20 @@ set back over a crowd and read from anywhere on the floor while a match is being
 no crowd here, the camera is holding the whole room, and up there it sat outside the shot. So it
 is low, leaning back so the face turns up toward a camera looking down at it, standing on the
 concrete against the back wall where nothing else is. It is solid, like the drum and the wheels:
-a kart driving through the room's own sign is worse than one bouncing off it. The camera holds the whole room rather than following anybody,
-since what matters in here is the pad and who is standing on it.
+a kart driving through the room's own sign is worse than one bouncing off it. The camera holds
+the whole room rather than following anybody, since what matters in here is the pad and who is
+standing on it.
 
 Who is ready is the host's to decide, see 10.3. The host simulates every kart, so it is the only
 machine that can see who is standing on the pad; a client is told, the same way it is told
 everything else about somebody else's kart, and draws the same ticks and the same count from
 what arrives.
 
-**Getting more people in.** Under the count is how to do it: the button that takes a seat at
-this machine, drawn as the button rather than named, and -- when there is a host to join -- the
-address and port somebody at another machine connects to. The room is where both questions get
+**Getting more people in.** Under the count is how to do it: the buttons that take a seat at
+this machine, the key and the pad's both, drawn as the buttons rather than named, and -- when
+there is a host to join -- the address and port somebody at another machine connects to. Both
+buttons, because the line is for somebody who has not pressed anything yet: the device this
+machine last heard from is the one the player already driving is holding. The room is where both questions get
 asked, so it is where they are answered; anywhere else and a player has to leave the room to
 find out how to let their friend in.
 

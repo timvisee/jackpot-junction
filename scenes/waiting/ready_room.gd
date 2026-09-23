@@ -319,9 +319,17 @@ func _build_counter() -> void:
 	_hints.add_theme_constant_override("separation", 6)
 	layer.add_child(_hints)
 	_hints.add_child(_counter)
+	# Both ways in, drawn as the buttons they are, the way the lobby says it. Whoever is about to
+	# take a seat has not pressed anything yet, so the device this machine last heard from says
+	# which one the player already driving is holding, not which one the newcomer has picked up.
+	var ways: Array = []
+	for keyboard: bool in [true, false]:
+		var button := InputHint.glyph(InputActions.JOIN, keyboard, HINT_INK, Type.LABEL)
+		if button != null:
+			ways.append(button)
 	var seat := InputHint.row(
-		"%s to take a seat",
-		[InputHint.glyph(InputActions.JOIN, Game.last_input_keyboard, HINT_INK, Type.LABEL)],
+		"%s or %s to take a seat" if ways.size() > 1 else "%s to take a seat",
+		ways,
 		HINT_INK,
 		Type.LABEL
 	)

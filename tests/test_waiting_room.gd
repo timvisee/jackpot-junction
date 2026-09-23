@@ -182,6 +182,25 @@ func test_dying_in_the_room_brings_you_straight_back_with_no_cards() -> void:
 	assert_bool(match_node.kart_of(0).alive).is_true()
 
 
+## The line saying how to take a seat draws both buttons, the key and the pad's, whichever this
+## machine was last touched with: the player it is for has not touched anything yet.
+func test_the_seat_hint_shows_the_key_and_the_pad_button() -> void:
+	var was := Game.last_input_keyboard
+	for keyboard: bool in [true, false]:
+		Game.last_input_keyboard = keyboard
+		var room := await _open()
+		var hints: VBoxContainer = room.ready_room._hints
+		var seat := hints.get_child(1) as HBoxContainer
+		var captions: Array[String] = []
+		for part: Node in seat.get_children():
+			if part is InputGlyph:
+				captions.append((part as InputGlyph).caption)
+		assert_int(captions.size()).is_equal(2)
+		assert_str(captions[0]).is_equal("J")
+		assert_str(captions[1]).is_not_equal("J")
+	Game.last_input_keyboard = was
+
+
 ## An empty room is not a ready room: a match with nobody in it has nothing to start.
 func test_a_room_with_nobody_in_it_is_never_ready() -> void:
 	var room := await _open()
