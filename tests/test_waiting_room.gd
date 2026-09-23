@@ -532,7 +532,7 @@ func test_the_room_has_a_ball_on_the_floor() -> void:
 		)
 		. is_less(0.1)
 	)
-	assert_int(ball.collision_layer).is_equal(0)
+	assert_int(ball.collision_layer).is_equal(Layers.BALL)
 	assert_int(ball.collision_mask).is_equal(Layers.WORLD)
 
 
@@ -554,6 +554,29 @@ func test_a_kart_driving_into_the_ball_kicks_it() -> void:
 	assert_float(ball.linear_velocity.x).is_greater(0.5)
 	assert_float(kart.global_position.x).is_greater(start.x - 4.0 + 2.0)
 	assert_float(ball.global_position.y).is_equal_approx(RoomBall.RADIUS, 0.01)
+
+
+## A shot kicks the ball on the way the shot was going, and is spent on it.
+func test_a_shot_kicks_the_ball_on() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var ball: RoomBall = room.ball
+	var kart := match_node.kart_of(0)
+	kart.global_position = ball.global_position + Vector3(0.0, 0.0, 6.0)
+	var start := ball.global_position
+	var shot := match_node.bullets.spawn(
+		0,
+		Vector3(start.x - 3.0, Bullet.HEIGHT, start.z),
+		Vector3.RIGHT,
+		kart.cannon.stats,
+		Color.WHITE
+	)
+	shot.assist_enabled = false
+	await _runner.simulate_frames(30, 17)
+	assert_bool(is_instance_valid(shot) and not shot.is_dead()).is_false()
+	assert_float(ball.linear_velocity.x).is_greater(2.0)
+	assert_float(absf(ball.linear_velocity.z)).is_less(0.5)
+	assert_float(ball.global_position.x - start.x).is_greater(0.5)
 
 
 ## A kart on nitro kicks the ball twice as hard as the same kart coming at it the same way off

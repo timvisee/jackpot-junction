@@ -10,6 +10,9 @@ extends RigidBody3D
 ## the kart it met, with however fast that side was coming at it. That is a football: the kart is
 ## the heavy thing.
 ##
+## A shot kicks it too, the way the shot was going, and is spent on it: something to aim at in a
+## room where there is nobody to shoot.
+##
 ## Online the host kicks it and says where it is; a client draws it where it was told, running on
 ## at the speed it was told between one telling and the next.
 
@@ -24,6 +27,8 @@ const RESTITUTION := 0.55
 const MAX_SPEED := 16.0
 ## A kart on nitro kicks twice as hard, and the ball may go twice as fast for it.
 const NITRO_KICK := 2.0
+## How much speed a shot puts on it, the way the shot was going.
+const SHOT_KICK := 9.0
 ## How fast it rolls to a stop on the concrete, and how hard walls and props throw it back.
 const ROLLING_DAMP := 0.6
 const BOUNCE := 0.7
@@ -53,6 +58,8 @@ var _told_velocity := Vector3.ZERO
 ## The part that turns as it rolls. The body itself never turns: its rotation is locked with its
 ## height, and the roll is drawn.
 var _look: Node3D
+## Speed from shots that landed since the last physics step, put on in the next one.
+var _shot := Vector3.ZERO
 
 
 ## Puts a ball on [param in_match]'s floor at [param at], kicked here when [param kicked_here]
@@ -80,8 +87,8 @@ func _ready() -> void:
 	linear_damp_mode = RigidBody3D.DAMP_MODE_REPLACE
 	linear_damp = ROLLING_DAMP
 	# Walls and props, and nothing else: not a kart, not a trigger, so it never stands anybody on
-	# the pad and never gets in a kart's way.
-	collision_layer = 0
+	# the pad and never gets in a kart's way. Bullets see it on a layer of its own.
+	collision_layer = Layers.BALL
 	collision_mask = Layers.WORLD
 	var surface := PhysicsMaterial.new()
 	surface.bounce = BOUNCE
@@ -98,6 +105,19 @@ func _ready() -> void:
 		freeze = true
 
 
+## A shot has landed on it: kicked on the way the shot was going, and the shot is spent. A client
+## runs no bullets of its own, and its ball goes where the host says.
+func take_hit(bullet: Bullet) -> bool:
+	if not simulating:
+		return false
+	var going := Vector3(bullet.velocity.x, 0.0, bullet.velocity.z)
+	if going.is_zero_approx():
+		return true
+	_shot += going.normalized() * SHOT_KICK
+	sleeping = false
+	return true
+
+
 ## Where the host last said it is: [x, z, velocity x, velocity z].
 func follow(state: Array) -> void:
 	if state.size() < 4:
@@ -110,7 +130,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if not simulating or match_node == null:
 		return
 	var at := state.transform.origin
-	var velocity := state.linear_velocity
+	var velocity := state.linear_velocity + _shot
+	_shot = Vector3.ZERO
 	for slot: PlayerSlot in match_node.slots:
 		var kart := slot.kart
 		if kart == null or not kart.alive or kart.falling or not kart.is_inside_tree():

@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Shoot the football.** A bullet that hits the ball in the waiting room kicks it
+  the way the shot was going.
+
 - **Everybody ready has a sound.** When the ring turns green, the ready chime runs up
   to its octave.
 

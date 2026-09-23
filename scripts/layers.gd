@@ -18,3 +18,6 @@ const BOMB := 1 << 8
 ## other match's karts and triggers would be shoved about by a room it is not in.
 
 const PUPPET := 1 << 9
+## The waiting room's football, see [RoomBall]: like a bomb, bullets hit it and karts drive
+## through it, but on a bit of its own so that nothing looking for a bomb ever finds a ball.
+const BALL := 1 << 10

@@ -268,7 +268,7 @@ func _move(delta: float) -> void:
 	previous_position = from
 	var space := get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.create(
-		from, to, Layers.WORLD | Layers.KART | Layers.TURRET | Layers.BOMB
+		from, to, Layers.WORLD | Layers.KART | Layers.TURRET | Layers.BOMB | Layers.BALL
 	)
 	var hit := space.intersect_ray(ray)
 	if hit.is_empty():
@@ -297,7 +297,9 @@ func _check_spawn_path() -> void:
 		return
 	var space := get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.create(
-		spawn_from, global_position, Layers.WORLD | Layers.KART | Layers.TURRET | Layers.BOMB
+		spawn_from,
+		global_position,
+		Layers.WORLD | Layers.KART | Layers.TURRET | Layers.BOMB | Layers.BALL
 	)
 	var hit := space.intersect_ray(ray)
 	if hit.is_empty():
