@@ -47,6 +47,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Online maps start together.** The countdown waits until everybody has the map
+  loaded, showing how many players it is waiting on, for 15 seconds at most.
+
 - **One Play button.** The lobby's first row picks a Grand Prix or a quick match,
   instead of the title screen asking with two buttons.
 

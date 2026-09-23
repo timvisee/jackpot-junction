@@ -39,13 +39,17 @@ func _ready() -> void:
 	match config.online:
 		"host":
 			await _put_the_room_up()
+			var arriving := Net.online()
+			match_node.hold_start = arriving
 			match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles())
 			_deal_carried_jokers()
-			if Net.online():
-				# Arrived from the waiting room of 9.6 with everybody already here and already
-				# ready. Nothing is held: the waiting was the waiting room's job.
+			if arriving:
+				# Arrived from the waiting room of 9.6, or from the map before, with everybody
+				# already here and ready. The lamps still wait for all of them to have this room
+				# up as well, GAME.md 10.3, or a slow machine arrives to a match already going.
 				_adopt_session()
 				session.re_seat()
+				session.hold_the_start()
 			else:
 				_start_session()
 				var error := session.host(config.port)
@@ -148,6 +152,8 @@ func _build_puppet_arena() -> void:
 	match_node.arena_layout = ArenaMaps.layout(match_node.rules.map)
 	await _put_the_room_up()
 	match_node.start_puppet()
+	# The host is holding the lamps for this, GAME.md 10.3.
+	session.room_built()
 	loaded.emit()
 
 

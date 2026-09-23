@@ -32,6 +32,7 @@ static func build(match_node: Match, wire: PickupWire = null) -> Dictionary:
 		"state": match_node.state,
 		"time": match_node.time_left,
 		"countdown": match_node.countdown_left,
+		"loading": [match_node.loading.x, match_node.loading.y],
 		"payout":
 		match_node.arena.junction.payout_multiplier if match_node.arena.junction != null else 1.0,
 		"slots": _slots(match_node),
@@ -301,6 +302,8 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 	match_node.state = data["state"]
 	match_node.time_left = data["time"]
 	match_node.countdown_left = data["countdown"]
+	var loading: Array = data.get("loading", [0, 0])
+	match_node.loading = Vector2i(loading[0], loading[1])
 	if match_node.arena.junction != null:
 		match_node.arena.junction.payout_multiplier = data["payout"]
 	if match_node.state != previous_state and match_node.hud != null:

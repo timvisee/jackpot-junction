@@ -208,6 +208,74 @@ func test_the_host_holds_the_match_in_a_lobby_until_it_begins() -> void:
 	assert_bool(host_match.kart_of(0).frozen).is_false()
 
 
+## GAME.md 10.3: arriving at a map, the host holds the lamps until every client has the room up,
+## and every screen says how many players it is waiting on.
+func test_the_lamps_wait_for_every_client_to_have_the_room_up() -> void:
+	var ticks: Array[int] = []
+	var count_ticks := func(lamps: int) -> void: ticks.append(lamps)
+	Events.countdown_tick.connect(count_ticks)
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = true
+	host_match.offer_size = 0
+	host_match.hold_start = true
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	assert_int(host_match.state).is_equal(Match.State.LOBBY)
+	assert_bool(host_match.kart_of(0).frozen).is_true()
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(PORT)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = true
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client_match
+	client_session.local_input = KartInput.new()
+	_client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
+	assert_bool(assigned).override_failure_message("client never got a slot").is_true()
+	host_session.hold_the_start()
+	assert_that(host_match.loading).is_equal(Vector2i(1, 2))
+	await await_millis(300)
+	# Held: the lamps are not lit and nothing is counting down while the client builds the room.
+	assert_int(host_match.state).is_equal(Match.State.LOBBY)
+	assert_array(ticks).is_empty()
+	assert_bool(host_match.hud._start_wait.visible).is_true()
+	assert_bool(host_match.hud._lobby.visible).is_false()
+	assert_str(host_match.hud._start_wait._label.text).is_equal("Waiting on 1 out of 2 players")
+	var told := await _wait_until(
+		func() -> bool: return client_match.loading == Vector2i(1, 2), 4000
+	)
+	assert_bool(told).override_failure_message("the client never heard the count").is_true()
+	await await_millis(80)
+	assert_bool(client_match.hud._start_wait.visible).is_true()
+	assert_bool(client_match.hud._lobby.visible).is_false()
+	client_session.room_built()
+	var started := await _wait_until(
+		func() -> bool: return host_match.state != Match.State.LOBBY, 4000
+	)
+	assert_bool(started).override_failure_message("the lamps never went").is_true()
+	assert_that(host_match.loading).is_equal(Vector2i.ZERO)
+	assert_array(ticks).is_not_empty()
+	var cleared := await _wait_until(
+		func() -> bool: return client_match.loading == Vector2i.ZERO, 4000
+	)
+	assert_bool(cleared).is_true()
+	await await_millis(80)
+	assert_bool(client_match.hud._start_wait.visible).is_false()
+	Events.countdown_tick.disconnect(count_ticks)
+
+
 func test_puppets_glide_toward_new_snapshot_positions_instead_of_jumping() -> void:
 	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
 	host_match.rules = _quick_rules()

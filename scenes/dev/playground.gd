@@ -21,6 +21,7 @@ extends Node3D
 ##   --banked=1           spread some banked score across the field, for the score tanks
 ##   --results=1          end the match at once with made-up stats, to see the results screen
 ##   --fireworks=1        the winner's fireworks over the open-out camera, for screenshots
+##   --loading=1          hold the lamps as if two players were still building the room
 ##   --wide=1             hold the camera on the whole room, so two shots can be compared
 ##   --back=200           hold the camera that many meters back, to look at the room itself
 ##   --map=vault          which map to play, by id (default lucky_crossing)
@@ -49,6 +50,7 @@ var _bounty := false
 var _banked := false
 var _results := false
 var _fireworks := false
+var _loading := false
 var _wide := false
 var _back := 0.0
 var _map := &"lucky_crossing"
@@ -74,7 +76,11 @@ func _ready() -> void:
 	# Dressed as the settings say, GAME.md 4.4, so a screenshot of this room shows what a player
 	# actually drives rather than the kart as it comes.
 	var styles: Array = [Game.settings.kart_styles[0]]
+	match_node.hold_start = _loading
 	match_node.start(inputs, 0, [], [], styles)
+	if _loading:
+		# What the host shows while it holds the lamps, GAME.md 10.3, without a network.
+		match_node.loading = Vector2i(2, 4)
 	var player := match_node.kart_of(0)
 	for i: int in _jokers:
 		_deal_joker(player)
@@ -242,6 +248,8 @@ func _parse_user_args() -> void:
 			_results = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--fireworks="):
 			_fireworks = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--loading="):
+			_loading = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--wide="):
 			_wide = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--back="):

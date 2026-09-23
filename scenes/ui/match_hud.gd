@@ -103,6 +103,7 @@ var _results: ResultsScreen
 var _lobby: PanelContainer
 var _lobby_rows: RichTextLabel
 var _lobby_hint: Label
+var _start_wait: StartWait
 var _lobby_start: Button
 var _go_left := 0.0
 
@@ -137,6 +138,7 @@ func _ready() -> void:
 	add_child(_kill_feed)
 	_results = ResultsScreen.create(self, match_node)
 	_build_lobby()
+	_start_wait = StartWait.add_to(self, match_node)
 	Events.kart_corrected.connect(_on_corrected)
 	Events.grazed.connect(_on_grazed)
 	Events.mult_gained.connect(_on_mult_gained)
@@ -935,7 +937,9 @@ func _build_lobby() -> void:
 
 
 func _update_lobby() -> void:
-	var in_lobby := match_node.state == Match.State.LOBBY
+	# Held on the grid for somebody still building the room is not the lobby, GAME.md 10.3: there
+	# is nothing to start, and [StartWait] says what is being waited for.
+	var in_lobby := match_node.state == Match.State.LOBBY and match_node.loading.y == 0
 	if _lobby.visible != in_lobby:
 		_lobby.visible = in_lobby
 		if in_lobby and not match_node.puppet:

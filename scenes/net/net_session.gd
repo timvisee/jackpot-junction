@@ -150,6 +150,9 @@ var _input_seq := 0
 ## while the window has the focus and nothing has been taken over.
 var _focused_vsync := -1
 var _focused_max_fps := 0
+## On the host: the lamps of the map it has just arrived at, held for whoever is still building
+## the room, GAME.md 10.3. Null once they have gone, and in every room that holds nothing.
+var _gate: StartGate
 
 
 func _ready() -> void:
@@ -252,6 +255,7 @@ func _back_to_room() -> void:
 ## The match has left the tree, with the room it was in. Held again when the next room attaches.
 func _let_go() -> void:
 	match_node = null
+	_gate = null
 
 
 ## The host is about to change room. Nobody can be seated until it has arrived, and it notes the
@@ -345,6 +349,49 @@ func re_seat() -> void:
 	_settle_pause()
 
 
+## Holds the countdown of the map the host has just arrived at until every client has the room up
+## as well, or until [constant StartGate.DEADLINE] runs out, GAME.md 10.3. For a match started
+## held on the grid, see [member Match.hold_start]; the lamps go when the gate opens.
+func hold_the_start() -> void:
+	if not is_host or match_node == null:
+		return
+	var here := 0
+	for slot: PlayerSlot in match_node.slots:
+		if slot.is_local_human():
+			here += 1
+	_gate = StartGate.new(_peers(), here)
+	_step_gate(0.0)
+
+
+## A client has its copy of the room up and is ready for the lamps, GAME.md 10.3. The host only
+## counts it while it is holding them; a client arriving in the middle of a match says it too.
+func room_built() -> void:
+	if not is_host and _connected():
+		_room_built.rpc_id(1)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _room_built() -> void:
+	if is_host and _gate != null:
+		_gate.arrived(multiplayer.get_remote_sender_id())
+
+
+## Where the gate is, for every screen to show, and the lamps once it opens.
+func _step_gate(delta: float) -> void:
+	if _gate == null or match_node == null:
+		return
+	var done := _gate.step(delta, _peers())
+	match_node.loading = Vector2i.ZERO if done else _gate.count()
+	if done:
+		_gate = null
+		match_node.begin_from_lobby()
+
+
+## The clients connected just now, or nobody when there is no connection left to have any.
+func _peers() -> PackedInt32Array:
+	return multiplayer.get_peers() if _connected() else PackedInt32Array()
+
+
 ## Gives [param peer] a seat in the match this session is pointed at, in the color it had in the
 ## room before if it had one, and tells it the rules and the seat. A newcomer the match has no
 ## room for is turned away; somebody coming back from another room is left connected, in case a
@@ -391,6 +438,10 @@ static func _compress(peer: ENetMultiplayerPeer) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	# Ahead of the checks on the connection: a gate with nobody left on the other end of it has
+	# nobody to wait for, and opens.
+	if is_host:
+		_step_gate(delta)
 	if match_node == null or multiplayer.multiplayer_peer == null:
 		return
 	if multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:

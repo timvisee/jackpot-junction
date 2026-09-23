@@ -39,6 +39,13 @@ var slots: Array[PlayerSlot] = []
 var puppet := false
 ## Shown on the lobby panel, for example the host's address and port.
 var lobby_hint := ""
+## Whether the next [method start] holds the field on the grid rather than going into the
+## countdown: online, while the host waits for everybody to have the room up, GAME.md 10.3. Once:
+## a rematch is played by the people who are already here.
+var hold_start := false
+## How many players have the room up, out of how many are playing, while the lamps are held for
+## the rest. Zero while nobody is being waited for.
+var loading := Vector2i.ZERO
 ## The slot the local player controls in a puppet match, -1 until assigned.
 var local_slot := -1
 ## On a client, the input its session is polling and sending to the host. The local player's kart
@@ -183,7 +190,11 @@ func start(
 	time_left = rules.duration
 	_bounty_wait = rules.bounty_first_delay
 	_set_frozen(true)
-	_begin_countdown()
+	if hold_start:
+		hold_start = false
+		hold_in_lobby()
+	else:
+		_begin_countdown()
 
 
 ## Tears everything down and starts again with the same players and a fresh seed.

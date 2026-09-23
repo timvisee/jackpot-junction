@@ -2835,6 +2835,15 @@ host seats each of them in the color they had in the room they came from. Being 
 is what puts a `NetInput` in the new match's slot, so the kart a client has been driving is
 still the kart it drives.
 
+Seated is not the same as there. A client still has the room to build once it knows which one
+it is, and a slower machine than the host's used to arrive to a countdown already running, or to
+a match already going. So on arriving at a map the host holds the field on the grid, lamps dark,
+until every client has said it has the room up. Every screen shows how many players it is still
+waiting on, out of everybody playing, over a bar that fills as they arrive. Nobody is waited for
+longer than 15 s: a machine that slow, or one that has stopped answering, holds up everybody
+else for that long and no longer, and the lamps go without it. A player who leaves while
+everybody waits is not waited for. The waiting room holds nothing, since nobody is racing in it.
+
 #### Who decides what
 
 One rule underneath all of it: **a client may decide where its own kart is and
