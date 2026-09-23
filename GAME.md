@@ -2486,6 +2486,37 @@ two of them apart: the same corner, half a second later. The sets it walks throu
 | `feel_snapdrift`  | the kart with the drift ramp off, so the instant drift can be compared    |
 | `feel_grip`       | the rejected tire model, kept so that experiment need not be written twice |
 
+### 9.6 The waiting room
+
+Where everybody stands before a match starts. A menu is a poor place to wait: there is nothing
+to do in one, and it cannot tell four people which of them everybody is waiting for or whether
+the one who has pressed nothing is thinking or has walked off. So the waiting is done in a room
+that is driven in.
+
+It is the corner of the garage of 9.4 -- the same concrete bay, the same light, the same things
+round the walls -- and it is deliberately almost empty: a pad in the middle, four spawns and
+three things standing on the floor to drift round while the last player finds their seat. A
+stack of wheels, a drum and a cone. They are solid, unlike the clutter in every other room,
+because driving through the one thing there is to drive round is worse than having nothing
+there. Nothing else is in it. There is no clock, nothing to shoot, nothing to collect and no
+score: the room asks one thing of anybody in it.
+
+**Readying up.** The cash-out pad is the ready marker. Driving onto it charges it, a ring of
+blocks round it fills as it charges, and after a couple of seconds a tick lights over the kart
+and stays there. Ready is sticky: rolling off afterwards does not take it back, so the last
+player in does not find that the first has drifted away and undone it. The match begins when
+everybody in the room has one.
+
+Saying it by driving rather than by pressing is the whole point. A button on a menu says the
+same thing, but it does not put the player who is waiting anywhere in particular, and it does
+not show the room who it is waiting on. A kart parked on the pad does both, in the one place
+everybody is already looking.
+
+**What it says.** The count is written twice: at the top of the screen for the player at this
+machine, and on a board at the back of the room, where a room that has a clock hangs its clock.
+Both read `1 / 2 PLAYERS READY`. The camera holds the whole room rather than following anybody,
+since what matters in here is the pad and who is standing on it.
+
 ## 10. Technology
 
 ### 10.1 Engine and project settings

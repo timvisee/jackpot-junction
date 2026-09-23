@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/waiting/waiting_room.gd" id="1_waiting"]
+
+[node name="WaitingRoom" type="Node3D"]
+script = ExtResource("1_waiting")
