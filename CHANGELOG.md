@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Shoulder buttons switch settings tabs.** On a gamepad, LB and RB step through
+  Controls, Audio, Video and Accessibility.
+
 - **Join a match already under way.** Connecting to a host mid-match takes you
   into the map being played, or its podium, in a free seat; a full match says so.
 

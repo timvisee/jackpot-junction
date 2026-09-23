@@ -30,6 +30,12 @@ const REBINDABLE: Array[StringName] = [
 ## How the bindings themselves are drawn on the two buttons of a row, GAME.md 8.3.
 const BINDING_SIZE := 18
 const BINDING_INK := Color(0.90, 0.90, 0.94)
+## The shoulder buttons step through the tabs, GAME.md 8.5: on a pad the tab bar is otherwise a
+## long way round by focus. And how the line saying so is drawn.
+const TAB_BACK := JOY_BUTTON_LEFT_SHOULDER
+const TAB_ON := JOY_BUTTON_RIGHT_SHOULDER
+const TAB_HINT_INK := Color(0.60, 0.60, 0.63)
+const TAB_HINT_SIZE := 18
 
 var tabs: TabContainer
 var status: Label
@@ -63,9 +69,13 @@ func _ready() -> void:
 	tabs.add_child(_audio_tab())
 	tabs.add_child(_video_tab())
 	tabs.add_child(_accessibility_tab())
+	var foot := HBoxContainer.new()
+	column.add_child(foot)
 	status = Label.new()
 	status.add_theme_font_size_override("font_size", 20)
-	column.add_child(status)
+	status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	foot.add_child(status)
+	foot.add_child(_tab_hint())
 	var back := MenuTheme.button("Back", 28)
 	back.pressed.connect(_back)
 	column.add_child(back)
@@ -74,8 +84,14 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _listening_action == &"":
-		# B on a pad, or Escape, is the Back button, GAME.md 4.2. While a rebind is listening it
-		# is a binding like any other button, which the rest of this handles.
+		# The shoulders turn the pages and B on a pad, or Escape, is the Back button, GAME.md 4.2.
+		# While a rebind is listening each is a binding like any other button, which the rest of
+		# this handles.
+		var pad := event as InputEventJoypadButton
+		if pad != null and pad.pressed and pad.button_index in [TAB_BACK, TAB_ON]:
+			switch_tab(-1 if pad.button_index == TAB_BACK else 1)
+			get_viewport().set_input_as_handled()
+			return
 		if event.is_action_pressed(&"ui_cancel"):
 			_back()
 			get_viewport().set_input_as_handled()
@@ -98,6 +114,39 @@ func _unhandled_input(event: InputEvent) -> void:
 	_refresh_bindings()
 	_stop_listening("Bound %s" % event.as_text())
 	get_viewport().set_input_as_handled()
+
+
+## Steps [param step] tabs on, wrapping round at the ends. Focus left behind in the tab being
+## left goes to the first thing in the new one, or it would be on a control nobody can see.
+func switch_tab(step: int) -> void:
+	tabs.current_tab = posmod(tabs.current_tab + step, tabs.get_tab_count())
+	var focus := get_viewport().gui_get_focus_owner()
+	if focus != null and focus.is_visible_in_tree():
+		return
+	var first := _first_focusable(tabs.get_current_tab_control())
+	if first != null:
+		first.grab_focus()
+
+
+static func _first_focusable(node: Node) -> Control:
+	var control := node as Control
+	if control != null and control.focus_mode != Control.FOCUS_NONE and control.visible:
+		return control
+	for child: Node in node.get_children():
+		var found := _first_focusable(child)
+		if found != null:
+			return found
+	return null
+
+
+## The shoulder buttons, drawn, and what they do here.
+func _tab_hint() -> HBoxContainer:
+	var parts: Array = []
+	for button: int in [TAB_BACK, TAB_ON]:
+		var press := InputEventJoypadButton.new()
+		press.button_index = button as JoyButton
+		parts.append(InputGlyph.of_event(press, TAB_HINT_INK, TAB_HINT_SIZE))
+	return InputHint.row("%s %s switch tabs", parts, TAB_HINT_INK, TAB_HINT_SIZE)
 
 
 func _is_bindable_press(event: InputEvent) -> bool:

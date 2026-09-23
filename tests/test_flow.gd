@@ -189,6 +189,47 @@ func test_the_title_screen_turns_behind_its_words() -> void:
 	assert_float(back._spin).is_not_equal(turned)
 
 
+## GAME.md 8.5: on a pad the shoulder buttons step through the settings tabs, round at the ends,
+## unless a rebind is listening, when a shoulder button is a binding like any other.
+func test_the_shoulder_buttons_step_through_the_settings_tabs() -> void:
+	var real := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = TEST_SETTINGS_PATH
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	await await_idle_frame()
+	var shoulder := func(button: JoyButton) -> InputEventJoypadButton:
+		var press := InputEventJoypadButton.new()
+		press.button_index = button
+		press.pressed = true
+		return press
+	assert_int(screen.tabs.current_tab).is_equal(0)
+	screen._unhandled_input(shoulder.call(JOY_BUTTON_RIGHT_SHOULDER))
+	assert_int(screen.tabs.current_tab).is_equal(1)
+	screen._unhandled_input(shoulder.call(JOY_BUTTON_LEFT_SHOULDER))
+	screen._unhandled_input(shoulder.call(JOY_BUTTON_LEFT_SHOULDER))
+	assert_int(screen.tabs.current_tab).is_equal(screen.tabs.get_tab_count() - 1)
+	# Focus left in a tab that has gone goes to the first thing in the one that has come.
+	screen.tabs.current_tab = 1
+	await await_idle_frame()
+	var slider := SettingsScreen._first_focusable(screen.tabs.get_current_tab_control())
+	slider.grab_focus()
+	screen.switch_tab(1)
+	var focus := screen.get_viewport().gui_get_focus_owner()
+	assert_object(focus).is_not_null()
+	assert_bool(focus.is_visible_in_tree()).is_true()
+	# Listening for a binding, a shoulder is what is being bound, and the page stays put.
+	screen.tabs.current_tab = 0
+	screen._listening_action = InputActions.NITRO
+	screen._listening_keyboard = false
+	screen._unhandled_input(shoulder.call(JOY_BUTTON_RIGHT_SHOULDER))
+	assert_int(screen.tabs.current_tab).is_equal(0)
+	InputActions.register_defaults()
+	Game.settings = real
+	# The glyphs the rebind replaced go at the end of the frame.
+	await await_idle_frame()
+
+
 ## GAME.md 8.5: Settings from the pause menu opens over the room, and Back comes back to the menu
 ## over the same match. It used to change scene, and coming back built a fresh match from the
 ## lobby's settings, throwing away the one being played.
