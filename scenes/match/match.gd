@@ -936,7 +936,7 @@ func _respawn(slot: PlayerSlot) -> void:
 			enemies.append(other.kart.global_position)
 	var point := pick_spawn(arena.spawn_points, enemies)
 	slot.kart.respawn(point, arena.junction_position - point, rules.spawn_protection)
-	Events.kart_respawned.emit(slot.index)
+	Events.kart_respawned.emit(slot.index, point)
 
 
 func _on_bank_started(kart: Kart) -> void:

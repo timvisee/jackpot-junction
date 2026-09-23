@@ -349,6 +349,40 @@ func test_a_kart_coming_back_opens_a_ring_in_its_own_color() -> void:
 	assert_array(_rings(match_node)).is_empty()
 
 
+## A client hears that a kart is back before the snapshot that puts it there, so the ring opens
+## where the host put the kart, not over the spot it died on.
+func test_a_client_opens_the_ring_where_the_kart_came_back() -> void:
+	var rules: MatchRules = RULES.duplicate()
+	rules.countdown = 0.1
+	rules.lives = 1
+	rules.duration = 60.0
+	rules.respawn_delay = 0.2
+	var host: Match = auto_free(MATCH_SCENE.instantiate())
+	host.rules = rules
+	host.with_hud = false
+	host.offer_size = 0
+	_runner = scene_runner(host)
+	host.start([KartInput.new(), KartInput.new()] as Array[KartInput], 11)
+	await _runner.simulate_frames(12, 17)
+	var client: Match = auto_free(MATCH_SCENE.instantiate())
+	client.rules = rules
+	add_child(client)
+	client.start_puppet()
+	var victim := host.kart_of(1)
+	victim.global_position = LANE
+	victim.die(&"shot", 0)
+	client.apply_snapshot(host.build_snapshot())
+	var died_at := client.kart_of(1).global_position
+	await _runner.simulate_frames(20, 17)
+	assert_bool(victim.alive).is_true()
+	var back := victim.global_position
+	assert_float(Vector2(back.x - died_at.x, back.z - died_at.z).length()).is_greater(2.0)
+	var rings := _rings(client)
+	assert_int(rings.size()).is_equal(1)
+	var at: Vector3 = (rings[0] as SpawnRing).global_position
+	assert_vector(Vector2(at.x, at.z)).is_equal_approx(Vector2(back.x, back.z), Vector2.ONE * 0.01)
+
+
 func _rings(match_node: Match) -> Array:
 	var found: Array = []
 	for child: Node in match_node.get_children():

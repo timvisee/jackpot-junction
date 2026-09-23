@@ -10,7 +10,9 @@ signal grazed(slot: int)
 signal kart_killed(victim_slot: int, killer_slot: int, cause: StringName)
 signal kart_wounded(victim_slot: int, by_slot: int, cause: StringName)
 signal life_restored(slot: int)
-signal kart_respawned(slot: int)
+## Back on the floor, and where: a client hears this before the snapshot that puts the kart
+## there, so anything drawn where it came back has to be told the place rather than look at it.
+signal kart_respawned(slot: int, at: Vector3)
 ## The floor has gone from under a kart. The kill follows when it reaches the bottom.
 signal kart_fell(slot: int)
 signal death_banked(slot: int, amount: int)

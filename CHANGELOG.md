@@ -30,6 +30,9 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Respawns flare where the kart comes back online.** Joining somebody else's game,
+  the ring opened over the spot a kart had died on instead of where it reappeared.
+
 - **The crowd dances online.** Joining somebody else's game, the crowd stood still
   however loud the room got; it gets up with the music now, and the camera thumps
   on the beat at the top level too.

@@ -192,11 +192,12 @@ func _on_kart_wounded(slot: int, _by_slot: int, _cause: StringName) -> void:
 
 
 ## Somebody is back on the floor, GAME.md 3.6. A blinking kart says something to whoever
-## happens to be looking at that kart; this says it to the whole room at once.
-func _on_kart_respawned(slot: int) -> void:
-	var kart := _kart(slot)
-	if kart != null:
-		SpawnRing.spawn(match_node, kart.global_position, _slot_color(slot))
+## happens to be looking at that kart; this says it to the whole room at once. Where the host put
+## them rather than where their kart is: on a client this arrives before the snapshot that moves
+## the kart there, and the ring used to open over the spot they had died on.
+func _on_kart_respawned(slot: int, at: Vector3) -> void:
+	if _kart(slot) != null:
+		SpawnRing.spawn(match_node, at, _slot_color(slot))
 
 
 func _on_life_restored(slot: int) -> void:

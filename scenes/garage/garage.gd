@@ -161,7 +161,7 @@ static func _track_glyphs(actions: Array, keyboard: bool) -> Array:
 
 ## A dummy that has been shot comes back with something new in it, so the next one is worth
 ## shooting too.
-func _on_kart_respawned(slot: int) -> void:
+func _on_kart_respawned(slot: int, _at: Vector3) -> void:
 	if slot < match_node.slots.size() and match_node.slots[slot].is_dummy():
 		_stock(match_node.slots[slot])
 
