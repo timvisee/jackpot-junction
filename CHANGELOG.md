@@ -23,7 +23,8 @@ below, and hands the notes to the release workflow.
 
 - **Play is a match of several maps.** Choose how many, drive into the waiting room,
   and once everybody is ready the maps are dealt at random and played one after
-  another, with Next map on each podium. Works on one screen and online.
+  another with Next map on each podium, the same bots on every one of them. Works on
+  one screen and online.
 
 - **Quick play on the title screen.** Setting up and playing a single map moves to
   its own button, next to Play.

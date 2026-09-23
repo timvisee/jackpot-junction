@@ -3,6 +3,7 @@ extends GdUnitTestSuite
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const LOBBY_SCENE := preload("res://scenes/ui/lobby.tscn")
+const RULES: MatchRules = preload("res://data/match/default.tres")
 
 
 func after_test() -> void:
@@ -80,6 +81,35 @@ func test_the_next_map_is_the_same_match_on_the_next_arena() -> void:
 	assert_object(Game.next_map_config()).is_null()
 
 
+## A map of a run, started the way the match scene starts one: bots drawn from the run's table.
+func _map_of(run: GrandPrix, seed: int) -> Match:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = RULES.duplicate()
+	match_node.bot_traits = run.bot_table(match_node.bot_traits)
+	add_child(match_node)
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(), BotInput.new(), BotInput.new(), BotInput.new()
+	]
+	match_node.start(inputs, seed)
+	return match_node
+
+
+## The bots are dealt once, at the start of the run, and every map of it has the same ones in
+## the same seats: the same way of driving and so the same name, however each map's own draw
+## would have fallen.
+func test_every_map_of_a_run_has_the_same_bots() -> void:
+	var run := GrandPrix.start(3, _rng(11))
+	run.deal_bots(load("res://data/ai/traits.tres"), 3, _rng(12))
+	assert_int(run.bots.size()).is_equal(3)
+	var first := _map_of(run, 101)
+	var second := _map_of(run, 202)
+	for seat: int in range(1, 4):
+		var dealt: BotTrait = run.bots[seat - 1]
+		assert_str(String(first.slots[seat].bot_trait.id)).is_equal(String(dealt.id))
+		assert_str(String(second.slots[seat].bot_trait.id)).is_equal(String(dealt.id))
+		assert_str(second.slots[seat].display_name()).is_equal(first.slots[seat].display_name())
+
+
 ## Play's lobby asks how many maps rather than which arena, and says its length is per map. Quick
 ## play's asks which arena and no number of maps.
 func test_play_asks_how_many_maps_and_quick_play_which_arena() -> void:
@@ -104,7 +134,7 @@ func test_play_asks_how_many_maps_and_quick_play_which_arena() -> void:
 
 ## A finished map in the middle of a run: the podium leads to the next map and nowhere else.
 func _podium_after(round: int, rounds: int) -> ResultsScreen:
-	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
 	rules.overtime = false
 	rules.round = round

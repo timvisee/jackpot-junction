@@ -131,6 +131,10 @@ func first_map_config() -> MatchConfig:
 		rng.randomize()
 		Game.grand_prix = GrandPrix.start(first.rounds, rng)
 		first.map = Game.grand_prix.current_map()
+		# And its bots, once: the same ones drive every map of it.
+		Game.grand_prix.deal_bots(
+			load("res://data/ai/traits.tres"), first.network_seats + first.bot_count, rng
+		)
 	return first
 
 

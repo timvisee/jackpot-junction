@@ -347,6 +347,8 @@ func test_the_host_can_choose_a_grand_prix() -> void:
 	assert_object(Game.grand_prix).is_not_null()
 	assert_int(Game.grand_prix.playlist.size()).is_equal(4)
 	assert_str(String(first.map)).is_equal(String(Game.grand_prix.playlist[0]))
+	# The bots for the whole run are dealt now too, one for every seat nobody here is in.
+	assert_int(Game.grand_prix.bots.size()).is_equal(first.network_seats + first.bot_count)
 	Game.grand_prix = null
 
 

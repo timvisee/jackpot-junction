@@ -2627,6 +2627,12 @@ Online the host moves everybody on, the same way it moved everybody out of the w
 a client's podium says so. The next map is the same match on the next arena: the same people,
 in the same colours, with the same settings.
 
+**The same bots.** The bots are chosen once, when the playlist is dealt, and drive every map of
+it: the same number, in the same seats and colours, each with the same way of driving and so the
+same name. The Hunter in the second seat on the first map is the Hunter in the second seat on the
+last. A seat kept for a player at another machine is dealt a way of driving too, for the maps it
+spends as a bot -- before its player has sat down, or after they have left.
+
 **The end.** The last map's podium ends the run: Back to lobby, to the waiting room online and
 to Play's lobby on one machine, or back to the title.
 

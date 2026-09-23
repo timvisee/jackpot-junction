@@ -34,6 +34,7 @@ func _ready() -> void:
 	# the rest of the rules.
 	if Game.grand_prix != null and config.online != "join":
 		Game.grand_prix.label(match_node.rules)
+		match_node.bot_traits = Game.grand_prix.bot_table(match_node.bot_traits)
 	add_child(match_node)
 	match config.online:
 		"host":
