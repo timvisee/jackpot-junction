@@ -163,45 +163,70 @@ func score(standings: Array[PlayerSlot]) -> void:
 		banked[seat].append(standings[place].banked)
 
 
-## Points [param seat] has so far.
-func total(seat: int) -> int:
+## Points [param seat] has so far, or over the first [param maps] maps of the run.
+func total(seat: int, maps := -1) -> int:
 	var sum := 0
-	for earned: int in points.get(seat, []):
+	for earned: int in _first(points, seat, maps):
 		sum += earned
 	return sum
 
 
-## Maps [param seat] has won so far.
-func wins(seat: int) -> int:
-	return places.get(seat, []).count(1)
+## Maps [param seat] has won so far, or over the first [param maps] maps.
+func wins(seat: int, maps := -1) -> int:
+	return _first(places, seat, maps).count(1)
 
 
-## [param slots] best first on points so far. Level on points, the one who won more maps is ahead,
-## then the one who banked more over the whole run: a tie on points between a player who won a map
-## and one who never did is not a tie anybody watching would call even.
-func standings(slots: Array[PlayerSlot]) -> Array[PlayerSlot]:
+## [param slots] best first on points so far, or on the first [param maps] maps. Level on points,
+## the one who won more maps is ahead, then the one who banked more over the whole run: a tie on
+## points between a player who won a map and one who never did is not a tie anybody watching
+## would call even.
+func standings(slots: Array[PlayerSlot], maps := -1) -> Array[PlayerSlot]:
 	var ranked := slots.duplicate()
-	ranked.sort_custom(_ahead)
+	ranked.sort_custom(func(a: PlayerSlot, b: PlayerSlot) -> bool: return _ahead(a, b, maps))
 	return ranked
 
 
-func _ahead(a: PlayerSlot, b: PlayerSlot) -> bool:
-	if total(a.index) != total(b.index):
-		return total(a.index) > total(b.index)
-	if wins(a.index) != wins(b.index):
-		return wins(a.index) > wins(b.index)
-	var a_banked := _banked(a.index)
-	var b_banked := _banked(b.index)
+## How many places [param seat] has gone up the standings on the last map scored: positive for up,
+## negative for down, 0 for neither or when there is no map before it to have moved from.
+func moved(seat: int, slots: Array[PlayerSlot]) -> int:
+	var scored := scored_round + 1
+	if scored < 2:
+		return 0
+	var now := _place_of(seat, standings(slots, scored))
+	var before := _place_of(seat, standings(slots, scored - 1))
+	return before - now
+
+
+func _place_of(seat: int, ranked: Array[PlayerSlot]) -> int:
+	for place: int in ranked.size():
+		if ranked[place].index == seat:
+			return place
+	return ranked.size()
+
+
+func _ahead(a: PlayerSlot, b: PlayerSlot, maps: int) -> bool:
+	if total(a.index, maps) != total(b.index, maps):
+		return total(a.index, maps) > total(b.index, maps)
+	if wins(a.index, maps) != wins(b.index, maps):
+		return wins(a.index, maps) > wins(b.index, maps)
+	var a_banked := _banked(a.index, maps)
+	var b_banked := _banked(b.index, maps)
 	if a_banked != b_banked:
 		return a_banked > b_banked
 	return a.index < b.index
 
 
-func _banked(seat: int) -> int:
+func _banked(seat: int, maps := -1) -> int:
 	var sum := 0
-	for chips: int in banked.get(seat, []):
+	for chips: int in _first(banked, seat, maps):
 		sum += chips
 	return sum
+
+
+## A seat's record for the first [param maps] maps of the run, or all of it for -1.
+func _first(record: Dictionary[int, Array], seat: int, maps: int) -> Array:
+	var all: Array = record.get(seat, [])
+	return all if maps < 0 else all.slice(0, maps)
 
 
 ## The run as a client needs it for its podiums: the playlist, where it has got to, and the scores.

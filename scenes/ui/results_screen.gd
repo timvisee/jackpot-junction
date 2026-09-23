@@ -256,6 +256,11 @@ func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix) -> PanelContainer:
 	var line := HBoxContainer.new()
 	line.add_theme_constant_override("separation", 16)
 	line.add_child(_label("%d" % rank, 30, FAINT))
+	# Up or down since the map before, beside the place it changed.
+	var moved := run.moved(slot.index, match_node.slots)
+	var marker: Control = RankArrow.create(moved > 0) if moved != 0 else Control.new()
+	marker.custom_minimum_size = RankArrow.SIZE
+	line.add_child(marker)
 	var name_label := _label(slot.display_name(), 30, slot.color())
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	line.add_child(name_label)

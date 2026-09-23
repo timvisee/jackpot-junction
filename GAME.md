@@ -2696,7 +2696,8 @@ Prix results, which is everybody's to press, a client's as much as the host's, s
 changes what that screen shows. That brings up the run's podium, headed Grand Prix over Final
 standings after however many maps it was: the top three of the run on the steps, then everybody
 ranked on points, each with how many maps they won, their points in gold, and a chip for every
-map saying where they finished it and what it paid. Only then does the board in the arena, which
+map saying where they finished it and what it paid. Beside the place of anybody the last map
+moved is an arrow: green and up for a climb, red and down for a fall. Only then does the board in the arena, which
 names the winner at every whistle, name the champion of the run instead of the last map's
 winner. The run's podium's ways on are Back to lobby, to the waiting room online and to Play's
 lobby on one machine, or back to the title.

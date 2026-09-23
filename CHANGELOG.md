@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Arrows on the Grand Prix podium.** Green for anybody who climbed the standings
+  on the last map, red for anybody who fell.
+
 - **Nitro kicks the football twice as hard.** Hit the ball in the waiting room with
   nitro on and it flies.
 

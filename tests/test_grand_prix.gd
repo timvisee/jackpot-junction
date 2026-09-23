@@ -174,6 +174,49 @@ func test_level_on_points_goes_to_wins_then_banked() -> void:
 	assert_int(ranked[2].index).is_equal(1)
 
 
+## Who went up and who went down on the last map: the places now held against the places before
+## it, the same tie-breaks both times.
+func test_the_run_knows_who_moved_on_the_last_map() -> void:
+	var run := GrandPrix.start(2, _rng(31))
+	var a := _seat(0, 0)
+	var b := _seat(1, 0)
+	var c := _seat(2, 0)
+	var seats: Array[PlayerSlot] = [a, b, c]
+	var first: Array[PlayerSlot] = [a, b, c]
+	run.score(first)
+	# One map in: nobody has moved from anywhere yet.
+	assert_int(run.moved(c.index, seats)).is_equal(0)
+	run.advance()
+	var second: Array[PlayerSlot] = [c, b, a]
+	run.score(second)
+	# a 15, c 15 and ahead of b on 14 by a map won each and the seat order after that.
+	assert_int(run.moved(a.index, seats)).is_equal(0)
+	assert_int(run.moved(c.index, seats)).is_equal(1)
+	assert_int(run.moved(b.index, seats)).is_equal(-1)
+	assert_array(run.standings(seats, 1)).is_equal([a, b, c])
+
+
+## The run's podium marks who moved: an arrow up for a climb, down for a fall, nothing for neither.
+## Here the first seat wins the last map by enough to go from second to first, and the second
+## seat falls the other way.
+func test_the_grand_prix_podium_shows_who_moved() -> void:
+	_run_at(2, 2)
+	var screen := await _podium_after(2, 2, GrandPrix.Keep.RANDOM, [100, 0])
+	screen._standings.pressed.emit()
+	var run := Game.grand_prix
+	assert_int(run.moved(0, screen.match_node.slots)).is_equal(1)
+	assert_int(run.moved(1, screen.match_node.slots)).is_equal(-1)
+	var ups := 0
+	var downs := 0
+	for arrow: Node in screen.find_children("*", "RankArrow", true, false):
+		if (arrow as RankArrow).up:
+			ups += 1
+		else:
+			downs += 1
+	assert_int(ups).is_equal(1)
+	assert_int(downs).is_equal(1)
+
+
 ## A client is told the run as it stands and draws the same podium from it.
 func test_the_run_survives_the_wire() -> void:
 	var run := GrandPrix.start(2, _rng(4))
@@ -342,7 +385,9 @@ func test_the_lobby_asks_grand_prix_or_quick_match_first() -> void:
 
 ## A finished map in the middle of a run: the podium leads to the next map and nowhere else.
 ## Scored as the match scene would score it, when there is a run to score it in.
-func _podium_after(round: int, rounds: int, keep := GrandPrix.Keep.RANDOM) -> ResultsScreen:
+func _podium_after(
+	round: int, rounds: int, keep := GrandPrix.Keep.RANDOM, fortunes: Array = []
+) -> ResultsScreen:
 	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
 	rules.overtime = false
@@ -357,6 +402,8 @@ func _podium_after(round: int, rounds: int, keep := GrandPrix.Keep.RANDOM) -> Re
 	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
 	match_node.start(inputs, 5)
 	await runner.simulate_frames(12, 17)
+	for seat: int in fortunes.size():
+		match_node.slots[seat].banked = fortunes[seat]
 	match_node.time_left = 0.02
 	await runner.simulate_frames(10, 17)
 	if Game.grand_prix != null:
