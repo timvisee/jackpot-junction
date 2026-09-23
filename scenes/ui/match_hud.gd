@@ -85,6 +85,9 @@ var _hands: Dictionary[int, JokerHand] = {}
 ## Seconds left of the pause between the whistle and the podium, and whether one is running.
 var _podium_wait := 0.0
 var _podium_pending := false
+## Whether the podium is up. A joker pick is a question about a match still being played, so once
+## this one is decided the pickers go and are not offered anything again.
+var _podium_up := false
 var _pickers: Dictionary[int, JokerPicker] = {}
 var _kill_feed: KillFeed
 ## When each slot last felt a knock, so a scrape along a wall is one nudge rather than a buzz.
@@ -476,7 +479,8 @@ func _update_blocks() -> void:
 		hand.avoid = bottom_blocks
 		hand.keyboard = DeviceInput.uses_keyboard(slot.device())
 		_pickers[index].keyboard = hand.keyboard
-		_pickers[index].show_offer(slot.offer, kart)
+		var offer: JokerOffer = null if _podium_up else slot.offer
+		_pickers[index].show_offer(offer, kart)
 
 
 ## The announcer's call, GAME.md 3.12: the player's name and what they just did, in their own
@@ -551,11 +555,16 @@ func _on_state_changed(state: int) -> void:
 ## The end of the pause: the music steps back and the podium comes up into the room it leaves.
 func _show_podium() -> void:
 	Audio.duck_music(true)
+	_podium_up = true
 	_results.fill_in()
 	# The hand of cards is for a match being played. Once the podium is up it is a row of jokers
 	# lying across the bottom of the standings, for a match that is already decided.
 	for hand: JokerHand in _hands.values():
 		hand.visible = false
+	# And a pick left open over the standings is a question about nothing: the match it was going
+	# to matter in is the one that has just finished.
+	for picker: JokerPicker in _pickers.values():
+		picker.show_offer(null, null)
 
 
 func _on_grazed(slot: int) -> void:

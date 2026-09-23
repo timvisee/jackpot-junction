@@ -488,6 +488,11 @@ counting anything.
 - Nobody respawns. A kart that goes down in overtime is out, and is offered no
   joker, because there is no respawn for it to be for. They keep their controls
   for the one thing left to do with them: reading their hand, see 3.7.
+- A kart that dies after the whistle is offered no joker pick either. A bomb
+  already in the air or a fall already begun still lands once the match is over,
+  and the pick that made sat open over the podium: a question about a match that
+  has already been decided. The podium takes any pick still on screen down with
+  it as well, whatever put it there.
 - The Junction still pays. A player who would rather keep what they are carrying
   than bet it on staying alive can drive in and bank it, the same as ever.
 - The last kart standing banks its whole pot, at full value, and the whistle goes.

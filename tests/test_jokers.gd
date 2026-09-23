@@ -939,3 +939,22 @@ func test_a_shared_screen_keeps_the_joker_pick_out_of_the_arena() -> void:
 	assert_float(alone._detail.position.y).is_greater(alone_card.position.y)
 	# And it keeps to its own half of the screen.
 	assert_float(shared._detail.position.x + shared._detail.size.x).is_less(960.0)
+
+
+## And a kart that dies after the whistle is offered nothing either, GAME.md 4.4. A bomb already
+## in the air or a fall already begun still lands once the match is over, and the pick it made
+## sat open over the podium: a question about a match that has already been decided.
+func test_a_death_after_the_whistle_offers_no_joker_pick() -> void:
+	var seats: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
+	var match_node := _start_match(seats, 3, 21, true)
+	match_node.rules.overtime = false
+	match_node.time_left = 0.0
+	await _runner.simulate_frames(6, 17)
+	assert_int(match_node.state).is_equal(Match.State.RESULTS)
+	var slot := match_node.slots[0]
+	slot.kart.die(&"pit", -1)
+	await _runner.simulate_frames(4, 17)
+	assert_object(slot.offer).is_null()
+	# And the picker with it: nothing feeds one once the podium is up.
+	var picker: JokerPicker = match_node.hud._pickers[0]
+	assert_bool(picker.visible).is_false()

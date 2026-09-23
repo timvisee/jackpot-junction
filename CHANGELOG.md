@@ -20,6 +20,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The podium no longer comes up over a joker pick.** A kart killed after the
+  whistle was still offered one, and the cards sat over the standings unusable.
+
 - **The Vault's wheel has more pockets.** Twenty-eight red and black ones rather
   than eighteen, which read as a pie chart.
 

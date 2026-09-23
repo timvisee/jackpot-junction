@@ -42,8 +42,12 @@ static func resolve(
 	kart.pot.reset()
 	slot.deaths += 1
 	slot.respawn_left = match_node.rules.respawn_delay
-	# Nobody comes back out of sudden death, so there is nothing to pick a joker for.
-	slot.offer = null if match_node.state == Match.State.OVERTIME else _offer(match_node, slot)
+	# Nobody comes back out of sudden death, and nobody comes back out of the results either, so
+	# in both there is nothing to pick a joker for. A kart can still die after the whistle -- a
+	# bomb already in the air, a fall already begun -- and the pick that made left itself open
+	# over the podium, which is a question about a match that is already over.
+	var over := match_node.state == Match.State.OVERTIME or match_node.state == Match.State.RESULTS
+	slot.offer = null if over else _offer(match_node, slot)
 	Events.kart_killed.emit(slot.index, killer_slot, cause)
 	if behind:
 		_announce_overtake(match_node, slot, killer)
