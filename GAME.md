@@ -2554,9 +2554,12 @@ since what it is told is who is ready and not how far along anybody else is.
 this machine, the key and the pad's both, drawn as the buttons rather than named, and -- when
 there is a host to join -- the address and port somebody at another machine connects to. Both
 buttons, because the line is for somebody who has not pressed anything yet: the device this
-machine last heard from is the one the player already driving is holding. The room is where both questions get
-asked, so it is where they are answered; anywhere else and a player has to leave the room to
-find out how to let their friend in.
+machine last heard from is the one the player already driving is holding. The room is where
+both questions get asked, so it is where they are answered; anywhere else and a player has to
+leave the room to find out how to let their friend in.
+
+A seat taken in here goes through to the arena with everybody else, and as who it was in the
+room: the same colour, the same name, the same dress.
 
 ## 10. Technology
 

@@ -253,6 +253,22 @@ func test_the_seat_hint_shows_the_key_and_the_pad_button() -> void:
 	Game.last_input_keyboard = was
 
 
+## Somebody who took a seat in the room goes through to the arena with everybody else, as who
+## they were in the room: the same device, colour, name and dress.
+func test_a_seat_taken_in_the_room_goes_through_to_the_arena() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var second := match_node.join_human(DeviceInput.KEYBOARD + 1)
+	assert_object(second).is_not_null()
+	var config: MatchConfig = room.arena_config()
+	assert_int(config.human_devices.size()).is_equal(2)
+	assert_int(config.human_devices[1]).is_equal(DeviceInput.KEYBOARD + 1)
+	assert_int(config.human_colors[1]).is_equal(second.color_index)
+	assert_str(config.human_names[1]).is_equal(second.player_name)
+	assert_array(config.human_styles[1]).is_equal(second.style.to_array())
+	assert_int(config.inputs().size()).is_equal(2 + config.bot_count)
+
+
 ## An empty room is not a ready room: a match with nobody in it has nothing to start.
 func test_a_room_with_nobody_in_it_is_never_ready() -> void:
 	var room := await _open()

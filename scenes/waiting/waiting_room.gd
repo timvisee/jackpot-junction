@@ -90,7 +90,31 @@ func _join() -> void:
 func _begin() -> void:
 	if session != null:
 		session.begin_the_match()
-	Game.start_match(config)
+	Game.start_match(arena_config())
+
+
+## What the arena is built from: the configuration the room was opened with, and everybody at
+## this machine as the room has them now. A seat taken in here is as much a part of the match as
+## the one that came in through the door, and the arena keeps the colour, the name and the dress
+## each of them had in the room rather than handing out new ones on the way across.
+func arena_config() -> MatchConfig:
+	var devices: Array[int] = []
+	var colors: Array[int] = []
+	var names: Array[String] = []
+	var styles: Array = []
+	for slot: PlayerSlot in match_node.slots:
+		if not slot.is_local_human():
+			continue
+		devices.append(slot.device())
+		colors.append(slot.color_index)
+		names.append(slot.player_name)
+		styles.append(slot.style.to_array())
+	if not devices.is_empty():
+		config.human_devices = devices
+		config.human_colors = colors
+		config.human_names = names
+		config.human_styles = styles
+	return config
 
 
 ## The host has gone through. A client follows into the same arena; which one it is arrives on
