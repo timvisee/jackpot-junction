@@ -2,6 +2,18 @@
 # Runs the Godot 4.7 binary for this project. Set GODOT to point at a specific binary.
 set -euo pipefail
 
+# A wrapper that finds itself as the binary to run would run itself forever: every level starts
+# the next one to ask its version before it can exec anything, and a make target that runs a
+# dozen of these at once turns that into a fork bomb. So it never takes itself as a candidate,
+# and if GODOT leads back here some other way -- through another wrapper that calls this one --
+# the second time in stops rather than going round again.
+if [[ -n ${JACKPOT_GODOT_WRAPPER:-} ]]; then
+	echo "tools/godot: GODOT leads back to tools/godot; set GODOT to the Godot binary itself" >&2
+	exit 1
+fi
+export JACKPOT_GODOT_WRAPPER=1
+self=$(realpath "$0")
+
 candidates=(
 	"${GODOT:-}"
 	"$HOME/.local/share/Steam/steamapps/common/Godot Engine/godot.x11.opt.tools.64"
@@ -10,8 +22,11 @@ candidates=(
 )
 for candidate in "${candidates[@]}"; do
 	[[ -n "$candidate" && -x "$candidate" ]] || continue
+	[[ "$(realpath "$candidate")" != "$self" ]] || continue
 	if "$candidate" --version 2>/dev/null | grep -q '^4\.7\.'; then
-		exec "$candidate" "$@"
+		# The guard is for this wrapper, not for the game: anything Godot starts in turn starts
+		# with a clean slate.
+		exec env -u JACKPOT_GODOT_WRAPPER "$candidate" "$@"
 	fi
 done
 echo "No Godot 4.7 binary found. Set GODOT=/path/to/godot" >&2
