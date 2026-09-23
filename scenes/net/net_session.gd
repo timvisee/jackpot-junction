@@ -13,6 +13,8 @@ signal slot_assigned(index: int)
 signal rules_applied
 ## The whole room has agreed to stop, or somebody has started playing again. GAME.md 3.8.
 signal pause_agreed(on: bool)
+## The host has left the waiting room of GAME.md 9.6 for the arena, and everybody goes with it.
+signal match_beginning
 
 const DEFAULT_PORT := 7777
 ## What an unfocused window runs at while this machine is in an online room, GAME.md 9.3. Fast
@@ -193,6 +195,43 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 	multiplayer.multiplayer_peer = peer
 	is_host = false
 	return OK
+
+
+## Everybody in the waiting room is ready and the host is going through to the arena, GAME.md
+## 9.6. Says so to everybody who is here, so the rooms change together rather than leaving a
+## client driving round a lobby the host has already left.
+func begin_the_match() -> void:
+	if is_host and _connected():
+		_match_beginning.rpc()
+
+
+@rpc("authority", "call_remote", "reliable")
+func _match_beginning() -> void:
+	match_beginning.emit()
+
+
+## Seats everybody who is already here in the match this session has just been pointed at.
+##
+## The rules and the seat are sent once, as a peer arrives, which is all a match that runs from
+## beginning to end in one room ever needs. The waiting room and the arena are two matches: a
+## client told the first one's rules on the way in knows nothing about the second, and the slot
+## it was given belongs to a match that has been taken down. So it is all said again, to the same
+## peers, in the same order, which hands each of them the same seat it had before.
+func re_seat() -> void:
+	if not is_host or not _connected():
+		return
+	var peers := _peer_slots.keys()
+	_peer_slots.clear()
+	# Nobody has any of the new floor, so the next snapshot carries all of it.
+	_floor.start_again()
+	for peer: int in peers:
+		var slot := match_node.join_network(NetInput.new())
+		if slot == null:
+			continue
+		_peer_slots[peer] = slot.index
+		_set_rules.rpc_id(peer, match_node.rules.to_wire())
+		_assign_slot.rpc_id(peer, slot.index, match_node.rng.seed)
+	_settle_pause()
 
 
 ## Snapshots are mostly the same words over and over, GAME.md 10.3: every dictionary key of

@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Online matches start in a waiting room.** Hosting or joining now opens a small
+  garage bay where everybody drives around while the rest arrive, and the match
+  begins when all of you have parked on the pad in the middle.
+
 ## [0.4.1] - 2026-09-23
 
 ### Added

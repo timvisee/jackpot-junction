@@ -10,6 +10,7 @@ const SETTINGS_SCENE := "res://scenes/ui/settings_screen.tscn"
 const MATCH_SCENE := "res://scenes/match/match_scene.tscn"
 const ONLINE_SCENE := "res://scenes/ui/online.tscn"
 const GARAGE_SCENE := "res://scenes/garage/garage.tscn"
+const WAITING_SCENE := "res://scenes/waiting/waiting_room.tscn"
 ## The two practice rooms, GAME.md 9.4. They are one scene on two maps, a portal apart.
 const ROOM_GARAGE := &"garage"
 const ROOM_TRACK := &"test_track"
@@ -171,3 +172,12 @@ func go_to_settings(return_to: String = TITLE_SCENE) -> void:
 func start_match(config: MatchConfig) -> void:
 	pending_config = config
 	get_tree().change_scene_to_file(MATCH_SCENE)
+
+
+## The room everybody waits in before a match, GAME.md 9.6. The configuration it was given is the
+## one the arena is built from once everybody in the room is ready, so it is kept rather than
+## asked for again.
+func go_to_waiting(config: MatchConfig) -> void:
+	pending_config = config
+	get_tree().paused = false
+	get_tree().change_scene_to_file(WAITING_SCENE)

@@ -1,6 +1,7 @@
 extends Control
-## Host or join an online match by address and port, GAME.md 9.3. The host plays with the last
-## lobby options against bots until friends join and take the bots' karts.
+## Host or join an online match by address and port, GAME.md 9.3. Either one opens into the
+## waiting room of 9.6, which is where the connection is made and where everybody says they are
+## ready before a kart turns a wheel in anger.
 ##
 ## The name box is here as well as in the local lobby, GAME.md 3.8, because somebody joining a
 ## friend's match never passes through the lobby: without it every visitor would be playing
@@ -88,4 +89,7 @@ func _start(mode: String) -> void:
 	Game.settings.last_port = result.port
 	Game.settings.player_names[0] = result.human_names[0]
 	Game.settings.save_to_disk()
-	Game.start_match(result)
+	# Into the waiting room of GAME.md 9.6 rather than straight onto the felt. Hosting and
+	# joining both open the connection in there, and the arena is built once everybody in the
+	# room has readied up.
+	Game.go_to_waiting(result)

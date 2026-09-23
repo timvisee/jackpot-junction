@@ -2633,6 +2633,21 @@ server runs room after room with the same clients connected throughout, which a 
 a scene can never do. The second half -- a match with no local seat, and no HUD or camera for
 nobody to look at -- is separate work and untouched by this.
 
+#### Leaving the room together
+
+The waiting room and the arena are two matches on one connection, and the changeover is the
+host's to call. The room everybody is ready in is not the room they play in, so the host says it
+is going before it goes, and everybody who is connected changes room on the word rather than on
+their own clock. A client that changed when it felt like it would be driving round a lobby the
+host had already left, or standing on an arena floor being simulated by nobody.
+
+Arriving is the other half. The rules and the seat are sent once, when a peer connects, and both
+of them belong to the match that was up at the time -- a match that has since been taken down.
+So the host seats everybody again on the other side: same peers, same slot numbers, and this
+time the arena's rules and the arena's seed. Keeping the slot numbers is what keeps a player's
+colour and name across the change; being seated again is what puts a `NetInput` in the arena's
+slot, so the kart a client has been driving is still the kart it drives.
+
 #### Who decides what
 
 One rule underneath all of it: **a client may decide where its own kart is and

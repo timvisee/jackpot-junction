@@ -35,35 +35,53 @@ func _ready() -> void:
 		"host":
 			await _put_the_room_up()
 			match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles())
-			_start_session()
-			var error := session.host(config.port)
-			if error != OK:
-				_fail("Could not host on port %d: %s" % [config.port, error_string(error)])
+			if Net.online():
+				# Arrived from the waiting room of 9.6 with everybody already here and already
+				# ready. Nothing is held: the waiting was the waiting room's job.
+				_adopt_session()
+				session.re_seat()
 			else:
-				match_node.lobby_hint = (
-					"Friends join on port %d at %s" % [config.port, ", ".join(_local_addresses())]
-				)
-				match_node.hold_in_lobby()
+				_start_session()
+				var error := session.host(config.port)
+				if error != OK:
+					_fail("Could not host on port %d: %s" % [config.port, error_string(error)])
+				else:
+					match_node.lobby_hint = (
+						"Friends join on port %d at %s"
+						% [config.port, ", ".join(_local_addresses())]
+					)
+					match_node.hold_in_lobby()
 		"join":
 			# Nothing is built until the host has said which arena this is, GAME.md 6.3. It
 			# arrives in the first message a client is sent, before its seat and long before a
 			# snapshot; a client that guessed from its own lobby would be driving a kart round
 			# the wrong room.
-			_start_session()
+			var already := Net.online()
+			if already:
+				_adopt_session()
+			else:
+				_start_session()
+				session.local_input = PlayerInput.new()
+				# This machine's seat is the first one in the lobby's list, GAME.md 3.8.
+				session.player_name = (
+					config.human_names[0] if not config.human_names.is_empty() else ""
+				)
 			session.rules_applied.connect(_build_puppet_arena, CONNECT_ONE_SHOT)
-			session.local_input = PlayerInput.new()
-			# This machine's seat is the first one in the lobby's list, GAME.md 3.8.
-			session.player_name = config.human_names[0] if not config.human_names.is_empty() else ""
 			session.connection_failed.connect(
 				func() -> void: _fail("Could not connect to %s:%d" % [config.address, config.port])
 			)
 			session.disconnected.connect(func() -> void: _fail("The host disconnected"))
 			session.slot_assigned.connect(func(_index: int) -> void: _status_panel.visible = false)
-			var error := session.join(config.address, config.port)
-			if error != OK:
-				_fail("Could not connect: %s" % error_string(error))
+			if already:
+				# Already through the door: the waiting room opened this connection, and the
+				# host is re-seating everybody as it starts the match.
+				_show_status("Starting the match...")
 			else:
-				_show_status("Connecting to %s:%d..." % [config.address, config.port])
+				var error := session.join(config.address, config.port)
+				if error != OK:
+					_fail("Could not connect: %s" % error_string(error))
+				else:
+					_show_status("Connecting to %s:%d..." % [config.address, config.port])
 		_:
 			await _put_the_room_up()
 			match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles())
@@ -106,6 +124,13 @@ func _local_addresses() -> PackedStringArray:
 ## was waited in.
 func _start_session() -> void:
 	session = Net.open(match_node)
+
+
+## Takes over the connection the waiting room opened, GAME.md 9.6. It is the same peers and the
+## same people; what has changed is the room they are in.
+func _adopt_session() -> void:
+	Net.attach(match_node)
+	session = Net.session
 
 
 ## Pressing the join button on a device nobody plays with adds that player mid-match.
