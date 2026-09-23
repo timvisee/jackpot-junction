@@ -18,11 +18,15 @@ extends Node3D
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const LAYOUT: ArenaLayout = preload("res://data/maps/waiting_room.tres")
 const RULES: MatchRules = preload("res://data/match/waiting_room.tres")
+## The rules the arena is built on, for how many seats it has.
+const ARENA_RULES: MatchRules = preload("res://data/match/default.tres")
 
 var match_node: Match
 var ready_room: ReadyRoom
 var config: MatchConfig
 var session: NetSession
+## The host's choice of match, null on any other machine.
+var host_settings: HostSettings
 
 
 func _ready() -> void:
@@ -47,7 +51,9 @@ func _ready() -> void:
 	if config.online != "join":
 		ready_room.everybody_ready.connect(_begin, CONNECT_ONE_SHOT)
 	DebugOverlay.add_to(self, match_node, session)
-	PauseMenu.add_to(self, session)
+	var menu := PauseMenu.add_to(self, session)
+	if config.online == "host":
+		_offer_the_settings(menu)
 
 
 ## The people at this machine, and nobody else. Bots do not wait for anybody and cannot drive
@@ -93,6 +99,55 @@ func _begin() -> void:
 	Game.start_match(arena_config())
 
 
+## The host chooses the match in here, GAME.md 9.6: first thing on opening the room, and again
+## from the pause menu. The room is open the whole time, so friends join while it is chosen.
+func _offer_the_settings(menu: PauseMenu) -> void:
+	host_settings = HostSettings.add_to(self)
+	host_settings.closed.connect(_chosen)
+	menu.add_entry("Match settings", choose)
+	Events.player_joined.connect(_on_player_joined)
+	choose()
+
+
+## Opens the choosing. The host's own karts wait where they are while it is open: the controls
+## are working the menu, and a kart that drove off on them would be a kart nobody was driving.
+func choose() -> void:
+	host_settings.open()
+	_hold(true)
+	_say_the_plan()
+
+
+## Held for as long as the choosing is open rather than once when it opens: the room opens it on
+## the first frame, before the match has finished starting, and a match that starts lets every
+## kart go.
+func _process(_delta: float) -> void:
+	if host_settings != null and host_settings.is_open():
+		_hold(true)
+
+
+func _chosen() -> void:
+	host_settings.options.apply_to(config)
+	_hold(false)
+	_say_the_plan()
+
+
+func _hold(held: bool) -> void:
+	for slot: PlayerSlot in match_node.slots:
+		if slot.is_local_human() and slot.kart != null:
+			slot.kart.frozen = held
+
+
+## Tells the room what the next match is, or that it is still being chosen. The host's own room
+## hears it the same way the clients' rooms do.
+func _say_the_plan() -> void:
+	Events.match_planned.emit(MatchOptions.describe(config), host_settings.is_open())
+
+
+## Somebody arrived. They were not here to hear the plan the first time, so it is said again.
+func _on_player_joined(_slot: int) -> void:
+	_say_the_plan()
+
+
 ## What the arena is built from: the configuration the room was opened with, and everybody at
 ## this machine as the room has them now. A seat taken in here is as much a part of the match as
 ## the one that came in through the door, and the arena keeps the colour, the name and the dress
@@ -114,6 +169,15 @@ func arena_config() -> MatchConfig:
 		config.human_colors = colors
 		config.human_names = names
 		config.human_styles = styles
+	# Everybody connected from elsewhere is kept a seat, and the bots the host asked for are on
+	# top of everybody here, as many of them as the arena has seats left for.
+	var remote := 0
+	for slot: PlayerSlot in match_node.slots:
+		if slot.input is NetInput:
+			remote += 1
+	config.network_seats = remote
+	var free := ARENA_RULES.max_players - config.human_devices.size() - remote
+	config.bot_count = clampi(config.bot_count, 0, maxi(free, 0))
 	return config
 
 

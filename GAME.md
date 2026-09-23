@@ -2561,6 +2561,22 @@ leave the room to find out how to let their friend in.
 A seat taken in here goes through to the arena with everybody else, and as who it was in the
 room: the same colour, the same name, the same dress.
 
+**Choosing the match.** Online, the host chooses what the match is going to be in here, from the
+same rows the lobby puts in front of a local one: the arena, how long, the target, how many bots
+and how hard, the items, own bullets and what the clock running out does. They come up over the
+room the moment it is opened, again from the host's pause menu, and start on whatever the host
+chose last time. The room is open while they are up -- friends join and drive around -- and the
+host's own karts wait where they are, since the controls are working the menu.
+
+Everybody in the room is told what is coming, under the count:
+`Next: Crossfire · 5 min · first to 3000 · 2 bots`, or that the host is still choosing. The room
+does not go while the host is choosing, however ready everybody else is: a match that started
+halfway through the menu would be the one that was set before they began.
+
+The bots are on top of everybody in the room, as many as the arena has seats left for, and the
+room holds no more people than the arena can seat, so nobody who got in is left standing when
+the match begins.
+
 ## 10. Technology
 
 ### 10.1 Engine and project settings
@@ -2676,10 +2692,13 @@ host had already left, or standing on an arena floor being simulated by nobody.
 
 Arriving is the other half. The rules and the seat are sent once, when a peer connects, and both
 of them belong to the match that was up at the time -- a match that has since been taken down.
-So the host seats everybody again on the other side: same peers, same slot numbers, and this
-time the arena's rules and the arena's seed. Keeping the slot numbers is what keeps a player's
-colour and name across the change; being seated again is what puts a `NetInput` in the arena's
-slot, so the kart a client has been driving is still the kart it drives.
+So the host seats everybody again on the other side: the same peers, in seats the arena kept for
+them after the players at the host's machine and ahead of the bots, and this time with the
+arena's rules and the arena's seed. The seats are kept rather than taken from the bots, because
+the bots are what the host asked for on top of everybody in the room. A client's name goes with
+it, since the client says it again the moment it is seated; being seated again is what puts a
+`NetInput` in the arena's slot, so the kart a client has been driving is still the kart it
+drives.
 
 #### Who decides what
 

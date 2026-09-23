@@ -17,6 +17,10 @@ below, and hands the notes to the release workflow.
   garage bay where everybody drives around while the rest arrive, and the match
   begins when all of you have parked on the pad in the middle.
 
+- **The host chooses the online match in the waiting room.** Arena, length, target
+  score, bots and the rest come up when you open the room and again from the pause
+  menu, and everybody waiting is told what is coming next.
+
 ### Changed
 
 - **Driving off the ready pad unreadies you.** Ready used to stick once the pad had

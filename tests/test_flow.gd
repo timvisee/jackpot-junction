@@ -199,3 +199,19 @@ func test_a_freed_control_hint_leaves_no_connection_behind() -> void:
 	assert_int(kart.fired.get_connections().size()).is_equal(0)
 	var none: Array[Bullet] = []
 	kart.fired.emit(none)
+
+
+## Seats kept for players connected from elsewhere come after the people at this machine and
+## before the bots, and are not counted as bots: the bots are what the host asked for on top.
+func test_seats_kept_for_remote_players_sit_between_the_humans_and_the_bots() -> void:
+	var config := MatchConfig.new()
+	var devices: Array[int] = [DeviceInput.KEYBOARD]
+	config.human_devices = devices
+	config.network_seats = 2
+	config.bot_count = 1
+	var inputs := config.inputs()
+	assert_int(inputs.size()).is_equal(4)
+	assert_bool(inputs[0] is PlayerInput).is_true()
+	for i: int in range(1, 4):
+		assert_bool(inputs[i] is BotInput).is_true()
+	assert_int(config.colors().size()).is_equal(4)

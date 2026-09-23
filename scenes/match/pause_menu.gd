@@ -62,6 +62,19 @@ func _ready() -> void:
 	column.add_child(quit)
 
 
+## Another thing the menu can do in this room, put under Resume. The waiting room of GAME.md 9.6
+## adds the host's match settings, which are only a thing in there and only for the host.
+func add_entry(text: String, action: Callable) -> Button:
+	var button := MenuTheme.button(text)
+	button.pressed.connect(
+		func() -> void:
+			set_paused(false)
+			action.call()
+	)
+	_resume.add_sibling(button)
+	return button
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(InputActions.PAUSE):
 		set_paused(not _panel.visible)

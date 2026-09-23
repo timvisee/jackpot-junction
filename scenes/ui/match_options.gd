@@ -53,6 +53,24 @@ static func match_lengths() -> Array[int]:
 	return with_short
 
 
+## One line saying what a match is going to be: where, how long, to how many points, and how
+## many bots. What somebody waiting to play it wants to know, and nothing they do not.
+static func describe(config: MatchConfig) -> String:
+	var parts: PackedStringArray = [
+		ArenaMaps.NAMES[ArenaMaps.index_of(config.map)],
+		"%d min" % roundi(config.duration / 60.0),
+		"first to %d" % config.target_score if config.target_score > 0 else "no target",
+	]
+	match config.bot_count:
+		0:
+			parts.append("no bots")
+		1:
+			parts.append("1 bot")
+		_:
+			parts.append("%d bots" % config.bot_count)
+	return " \u00b7 ".join(parts)
+
+
 ## Writes the choices into [param config]. The bots are the number asked for; how many of them
 ## there is room for is the caller's to say, since only it knows who else is playing.
 func apply_to(config: MatchConfig) -> void:

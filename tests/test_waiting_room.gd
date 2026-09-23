@@ -4,8 +4,12 @@ extends GdUnitTestSuite
 ## and staying there.
 
 const WAITING_SCENE := preload("res://scenes/waiting/waiting_room.tscn")
+## A port of this suite's own for the host's room, clear of the ones the other network suites use.
+const HOST_PORT := 7795
 
 var _runner: GdUnitSceneRunner
+## The player's own settings, put aside while a test that saves them runs on a scratch copy.
+var _settings_were: Settings
 
 
 ## The room reads the configuration it was opened with off [Game], which is a global: a test that
@@ -16,6 +20,21 @@ func before_test() -> void:
 
 func after_test() -> void:
 	Game.pending_config = null
+	Net.close()
+	if _settings_were != null:
+		Game.settings = _settings_were
+		_settings_were = null
+
+
+## Hosts a room, on settings of the test's own: closing the host's choices saves them, and a test
+## that saved into the player's real settings would be deciding their next match for them.
+func _host() -> Node3D:
+	_settings_were = Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_waiting_host.cfg"
+	Game.pending_config.online = "host"
+	Game.pending_config.port = HOST_PORT
+	return await _open()
 
 
 ## A room, with the way out of it unhooked. Readying up in here is the whole subject of this
@@ -242,7 +261,10 @@ func test_the_seat_hint_shows_the_key_and_the_pad_button() -> void:
 		Game.last_input_keyboard = keyboard
 		var room := await _open()
 		var hints: VBoxContainer = room.ready_room._hints
-		var seat := hints.get_child(1) as HBoxContainer
+		var seat: HBoxContainer = null
+		for line: Node in hints.get_children():
+			if line is HBoxContainer:
+				seat = line
 		var captions: Array[String] = []
 		for part: Node in seat.get_children():
 			if part is InputGlyph:
@@ -267,6 +289,93 @@ func test_a_seat_taken_in_the_room_goes_through_to_the_arena() -> void:
 	assert_str(config.human_names[1]).is_equal(second.player_name)
 	assert_array(config.human_styles[1]).is_equal(second.style.to_array())
 	assert_int(config.inputs().size()).is_equal(2 + config.bot_count)
+
+
+## The host chooses the match first thing, with their kart waiting while they do, and the room
+## says what was chosen once they are done.
+func test_the_host_chooses_the_match_on_opening_the_room() -> void:
+	var room := await _host()
+	var match_node: Match = room.get_node("Match")
+	var pane: HostSettings = room.host_settings
+	assert_bool(pane.is_open()).is_true()
+	assert_bool(match_node.kart_of(0).frozen).is_true()
+	assert_bool(room.ready_room.held).is_true()
+	assert_str(room.ready_room._plan.text).is_equal("The host is choosing the match")
+	pane.options.map_option.selected = 1
+	pane.options.bots_option.selected = 1
+	pane.options.minutes_option.selected = MatchOptions.match_lengths().find(8)
+	pane.close()
+	await _runner.simulate_frames(2, 17)
+	assert_bool(match_node.kart_of(0).frozen).is_false()
+	assert_bool(room.ready_room.held).is_false()
+	var config: MatchConfig = room.arena_config()
+	assert_str(String(config.map)).is_equal(String(ArenaMaps.IDS[1]))
+	assert_int(config.bot_count).is_equal(1)
+	assert_float(config.duration).is_equal(480.0)
+	assert_str(room.ready_room._plan.text).contains(ArenaMaps.NAMES[1])
+	assert_str(room.ready_room._plan.text).contains("1 bot")
+	# Kept for next time, the way the lobby keeps what it was last set to.
+	assert_int(Game.settings.bot_count).is_equal(1)
+	assert_str(Game.settings.map).is_equal(String(ArenaMaps.IDS[1]))
+
+
+## And the host can open it again from the pause menu, which only the host's has.
+func test_the_host_opens_the_choosing_again_from_the_pause_menu() -> void:
+	var room := await _host()
+	room.host_settings.close()
+	var menu: PauseMenu = room.get_node("PauseMenu")
+	var entry: Button = null
+	for button: Node in menu.find_children("*", "Button", true, false):
+		if (button as Button).text == "Match settings":
+			entry = button
+	assert_object(entry).override_failure_message("no Match settings in the menu").is_not_null()
+	entry.pressed.emit()
+	assert_bool(room.host_settings.is_open()).is_true()
+	assert_bool(room.ready_room.held).is_true()
+
+
+## Nobody but a host is asked. A room that is not hosting has nothing to choose and no entry for it.
+func test_only_the_host_is_asked() -> void:
+	var room := await _open()
+	assert_object(room.host_settings).is_null()
+	var menu: PauseMenu = room.get_node("PauseMenu")
+	for button: Node in menu.find_children("*", "Button", true, false):
+		assert_str((button as Button).text).is_not_equal("Match settings")
+
+
+## A full room does not go while the host is choosing, and goes once they are done.
+func test_a_full_room_waits_for_the_host_to_finish_choosing() -> void:
+	var room := await _host()
+	var went := {"count": 0}
+	room.ready_room.everybody_ready.connect(func() -> void: went["count"] += 1)
+	var ready_room: ReadyRoom = await _fill(room)
+	await _runner.simulate_frames(90, 17)
+	assert_int(went["count"]).is_equal(0)
+	assert_float(ready_room.blink()).is_equal(0.0)
+	room.host_settings.close()
+	await _runner.simulate_frames(90, 17)
+	assert_int(went["count"]).is_equal(1)
+
+
+## The bots the host asks for are on top of everybody here, as many as the arena has seats left.
+func test_the_bots_fill_the_seats_nobody_is_in() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	room.config.bot_count = 3
+	assert_int(room.arena_config().bot_count).is_equal(3)
+	match_node.join_human(DeviceInput.KEYBOARD + 1)
+	room.config.bot_count = 3
+	var config: MatchConfig = room.arena_config()
+	assert_int(config.bot_count).is_equal(2)
+	assert_int(config.inputs().size()).is_equal(room.ARENA_RULES.max_players)
+
+
+## And the room holds no more people than the arena can seat, so nobody who got in is left
+## standing when the match begins.
+func test_the_room_holds_as_many_as_the_arena_seats() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	assert_int(match_node.rules.max_players).is_equal(room.ARENA_RULES.max_players)
 
 
 ## An empty room is not a ready room: a match with nobody in it has nothing to start.

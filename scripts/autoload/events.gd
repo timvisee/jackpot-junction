@@ -71,3 +71,7 @@ signal player_left(slot: int)
 ## that simulates every kart; clients are told, so the tick over a kart and the count at the top
 ## of the screen say the same thing in every room at once.
 signal player_ready(slot: int, ready: bool)
+## The host of a waiting room has said what the next match is going to be, in words, or that they
+## are still choosing it, GAME.md 9.6. Said again whenever somebody joins, so nobody who arrives
+## while it is being chosen is left not knowing.
+signal match_planned(summary: String, choosing: bool)

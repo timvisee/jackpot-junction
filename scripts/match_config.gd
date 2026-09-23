@@ -14,6 +14,11 @@ var human_names: Array[String] = []
 ## Which arena to play in, GAME.md 6.3.
 var map := &"lucky_crossing"
 var bot_count := 3
+## Seats kept for players connected from other machines, GAME.md 9.6. They are started as bots and
+## taken over as the host seats everybody again on the other side of the waiting room, see 10.3,
+## so they are not counted in [member bot_count]: that is the bots the host asked for, on top of
+## everybody who is here.
+var network_seats := 0
 var difficulty := "normal"
 var duration := 300.0
 ## 0 disables the early finish.
@@ -34,7 +39,7 @@ func inputs() -> Array[KartInput]:
 	var result: Array[KartInput] = []
 	for device: int in human_devices:
 		result.append(PlayerInput.new(device))
-	for i: int in bot_count:
+	for i: int in network_seats + bot_count:
 		result.append(BotInput.new())
 	return result
 
@@ -45,7 +50,7 @@ func colors() -> Array[int]:
 	for i: int in human_devices.size():
 		result.append(human_colors[i] if i < human_colors.size() else i)
 	var next := 0
-	for i: int in bot_count:
+	for i: int in network_seats + bot_count:
 		while next in result:
 			next += 1
 		result.append(next)

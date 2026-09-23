@@ -61,6 +61,11 @@ var pad: JunctionPad
 ## else about somebody else's kart, GAME.md 10.3.
 var deciding := true
 
+## Whether the room is kept from going: the host is choosing the match, GAME.md 9.6. A room that
+## went while its host was halfway through the menu would go to whatever was set before they
+## started, and would take the host with it mid-choice.
+var held := false
+
 ## Slot index to how far that player has charged, 0 to 1, and whether they have finished.
 var charge: Dictionary[int, float] = {}
 var ready_slots: Dictionary[int, bool] = {}
@@ -75,6 +80,8 @@ var _board: ReadyStand
 var _counter: Label
 var _hints: VBoxContainer
 var _online_hint: Label
+## What the next match is, as the host last said it.
+var _plan: Label
 var _said := ""
 
 
@@ -88,6 +95,7 @@ static func add_to(in_match: Match) -> ReadyRoom:
 	room.deciding = not in_match.puppet
 	room._build()
 	Events.player_ready.connect(room._on_player_ready)
+	Events.match_planned.connect(room._on_match_planned)
 	return room
 
 
@@ -160,7 +168,7 @@ func _process(delta: float) -> void:
 ## has been told, so the ring blinks on every screen and not only on the host's; only the host's
 ## going is acted on, and a client follows when told to, see 10.3.
 func _count_down(delta: float) -> void:
-	if not all_ready():
+	if held or not all_ready():
 		_full_for = -1.0
 		return
 	var was := _full_for
@@ -190,6 +198,15 @@ func _say_the_count() -> void:
 		_counter.text = words
 	if _board != null:
 		_board.say(words)
+
+
+## The host has said what the next match is, or that they are still choosing. Either way it goes
+## under the count, because what is about to be played is the other thing a room of people
+## waiting to play it wants to know.
+func _on_match_planned(summary: String, choosing: bool) -> void:
+	held = choosing
+	_plan.text = "The host is choosing the match" if choosing else "Next: %s" % summary
+	_plan.visible = true
 
 
 ## What to say about getting more people into the room: how somebody at this machine takes a
@@ -353,6 +370,13 @@ func _build_counter() -> void:
 	_hints.add_theme_constant_override("separation", 6)
 	layer.add_child(_hints)
 	_hints.add_child(_counter)
+	_plan = Label.new()
+	_plan.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_plan.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_plan.visible = false
+	Type.text(_plan, Type.LABEL, READY_INK)
+	HudText.shadowed(_plan)
+	_hints.add_child(_plan)
 	# Both ways in, drawn as the buttons they are, the way the lobby says it. Whoever is about to
 	# take a seat has not pressed anything yet, so the device this machine last heard from says
 	# which one the player already driving is holding, not which one the newcomer has picked up.

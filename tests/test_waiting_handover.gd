@@ -96,9 +96,11 @@ func test_the_host_takes_everybody_through_to_the_arena() -> void:
 	var heard := await _wait_until(func() -> bool: return seen["told"], 4000)
 	assert_bool(heard).override_failure_message("the client was not told to follow").is_true()
 
-	# Both change room. The connection is the same one; the match under it is not.
+	# Both change room. The connection is the same one; the match under it is not. The arena
+	# keeps a seat for the client and has the one bot the host asked for after it.
 	var host_arena := _arena_match(_host_root, "Arena")
-	host_arena.start(inputs, 23)
+	var seats: Array[KartInput] = [inputs[0], BotInput.new(), BotInput.new()]
+	host_arena.start(seats, 23)
 	host.match_node = host_arena
 	var client_arena := _arena_match(_client_root, "Arena")
 	client_arena.start_puppet()
@@ -115,6 +117,9 @@ func test_the_host_takes_everybody_through_to_the_arena() -> void:
 	assert_bool(again).override_failure_message("the client was not seated again").is_true()
 	assert_int(client.local_slot).is_equal(was)
 	assert_bool(host_arena.slots[client.local_slot].input is NetInput).is_true()
+	# The seat kept for the client is the one it took; the bot asked for is still a bot.
+	assert_int(host_arena.slots.size()).is_equal(3)
+	assert_bool(host_arena.slots[2].input is BotInput).is_true()
 
 
 ## Nobody is told to follow by a client, and a host with nobody connected says nothing to
