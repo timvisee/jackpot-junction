@@ -19,6 +19,10 @@ enum Mode { QUICK_PLAY, PLAY, EITHER }
 ## How long a map runs, in seconds. A minute is a quick one, for a Grand Prix of several maps
 ## as much as for a short game.
 const LENGTHS: Array[int] = [60, 180, 300, 480]
+## Five seconds, for a map somebody is testing rather than playing: straight through to the
+## podium, to check what comes after it. Only in a debug build, because it is not a length
+## anybody wants a real game to be.
+const DEBUG_LENGTH := 5
 const TARGETS: Array[int] = [0, 2000, 3000, 5000]
 const BOTS: Array[int] = [0, 1, 2, 3]
 const DIFFICULTIES: Array[String] = ["easy", "normal", "hard"]
@@ -68,9 +72,14 @@ static func add_to(
 	return options
 
 
-## The map lengths on offer in seconds, shortest first.
+## The map lengths on offer in seconds, shortest first. A debug build gets the five-second one
+## in front of the real ones, where somebody testing will find it without hunting.
 static func match_lengths() -> Array[int]:
-	return LENGTHS
+	if not OS.is_debug_build():
+		return LENGTHS
+	var with_short: Array[int] = [DEBUG_LENGTH]
+	with_short.append_array(LENGTHS)
+	return with_short
 
 
 ## A length said the way the row says it: seconds under a minute, minutes from there.

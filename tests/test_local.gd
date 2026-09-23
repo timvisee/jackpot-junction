@@ -101,14 +101,23 @@ func test_joining_without_bots_spawns_a_fresh_slot_until_the_match_is_full() -> 
 	assert_int(match_node.camera_rig.targets.size()).is_equal(4)
 
 
-## GAME.md 3.8: a minute is on offer in every build, a quick map for a quick Grand Prix, not
-## only for somebody testing.
+## GAME.md 3.8: a minute is on offer in every build, and a debug build offers five seconds in
+## front of it, straight through to the podium for somebody testing what comes after it. A real
+## build does not, because it is not a length anybody wants a game to be.
 func test_a_debug_build_offers_a_short_match() -> void:
 	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
 	add_child(lobby)
 	var lengths: Array[int] = MatchOptions.match_lengths()
-	assert_array(lengths).is_equal(MatchOptions.LENGTHS)
-	assert_int(lengths[0]).is_equal(60)
+	assert_bool(lengths.has(60)).is_true()
+	if OS.is_debug_build():
+		(
+			assert_int(lengths[0])
+			. override_failure_message("a debug build did not offer the short match first")
+			. is_equal(MatchOptions.DEBUG_LENGTH)
+		)
+		assert_int(lengths.size()).is_equal(MatchOptions.LENGTHS.size() + 1)
+	else:
+		assert_array(lengths).is_equal(MatchOptions.LENGTHS)
 	assert_str(MatchOptions.length_words(5.0)).is_equal("5 s")
 	assert_str(MatchOptions.length_words(180.0)).is_equal("3 min")
 	# Whichever it is, picking one gives a match that long and nothing else.

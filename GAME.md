@@ -371,7 +371,9 @@ else's results screen, see 10.3.
 - The lobby exposes match length, target score, bot count, one global bot
   difficulty, the item set (basic items or all items) and whether a kart's own
   bullets hurt it, with the values in this document as defaults. Every choice is
-  remembered for the next match. A map runs 1, 3, 5 or 8 minutes.
+  remembered for the next match. A map runs 1, 3, 5 or 8 minutes; a debug build
+  also offers 5 seconds, first in the list, straight through to the podium for
+  somebody testing what comes after it.
 - Pausing in single-player and local play freezes the match for everyone.
   Online it takes the whole room: opening the menu shows it at once and asks
   the others, and the match only stops once every machine has its menu open.
