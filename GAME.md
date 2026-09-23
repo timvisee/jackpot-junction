@@ -369,7 +369,7 @@ else's results screen, see 10.3.
   human player's kart, from the countdown until that player has both driven
   and fired, or for 10 s at most.
 - The lobby exposes match length, target score, bot count, one global bot
-  difficulty, the item set (first set or all items) and whether a kart's own
+  difficulty, the item set (basic items or all items) and whether a kart's own
   bullets hurt it, with the values in this document as defaults. Every choice is
   remembered for the next match.
 - Pausing in single-player and local play freezes the match for everyone.
@@ -2643,8 +2643,8 @@ everybody takes on from one map to the next of the jokers they end it holding:
 
 | Choice              | What goes on to the next map                                        |
 |---------------------|---------------------------------------------------------------------|
-| Keep none           | Nothing: every map starts from an empty hand                        |
-| Choose one to keep  | The one each player picks on the podium                             |
+| Discard all         | Nothing: every map starts from an empty hand                        |
+| Pick one to keep    | The one each player picks on the podium                             |
 | Keep one at random  | One of each hand, drawn at random -- the choice to start with       |
 | Keep all            | The whole hand                                                      |
 

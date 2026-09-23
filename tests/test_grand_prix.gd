@@ -308,7 +308,7 @@ func test_choosing_a_joker_to_keep_on_the_podium() -> void:
 	assert_int(buttons.size()).is_equal(2)
 	buttons[1].pressed.emit()
 	assert_str(String(Game.grand_prix.chosen.get(0, &""))).is_equal(String(given[1]))
-	assert_str(screen._keep_note.text).contains("Choose")
+	assert_str(screen._keep_note.text).contains("Pick")
 
 
 ## Play's lobby asks how many maps rather than which arena, and says its length is per map. Quick

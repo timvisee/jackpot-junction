@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **Clearer names in the match settings.** Basic items, Harmless and Deadly own
+  bullets, and Discard all or Pick one to keep for jokers between maps.
+
 ## [0.5.0] - 2026-09-23
 
 ### Added

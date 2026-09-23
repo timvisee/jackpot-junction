@@ -33,7 +33,7 @@ const OVERTIME: Array[bool] = [true, false]
 const MAPS: Array[int] = [2, 3, 4, 5, 6]
 ## What of their jokers players take from one map of a Grand Prix to the next, in the order of
 ## [enum GrandPrix.Keep].
-const KEEPS: Array[String] = ["Keep none", "Choose one to keep", "Keep one at random", "Keep all"]
+const KEEPS: Array[String] = ["Discard all", "Pick one to keep", "Keep one at random", "Keep all"]
 
 var map_option: OptionButton
 var minutes_option: OptionButton
@@ -156,7 +156,7 @@ func _build(column: Container, settings: Settings) -> void:
 	difficulty_option = MenuTheme.option(
 		["Easy", "Normal", "Hard"], DIFFICULTIES.find(settings.difficulty)
 	)
-	items_option = MenuTheme.option(["First set", "All items"], ITEM_SETS.find(settings.item_set))
+	items_option = MenuTheme.option(["Basic items", "All items"], ITEM_SETS.find(settings.item_set))
 	map_option = MenuTheme.option(ArenaMaps.NAMES, ArenaMaps.index_of(StringName(settings.map)))
 	maps_option = MenuTheme.option(
 		_labels(MAPS, "%d maps"), maxi(MAPS.find(settings.grand_prix_maps), 0)
@@ -193,7 +193,7 @@ func _build(column: Container, settings: Settings) -> void:
 	column.add_child(MenuTheme.row("Bot difficulty", difficulty_option))
 	column.add_child(MenuTheme.row("Items", items_option))
 	own_bullets_option = MenuTheme.option(
-		["Stop harmlessly", "Are deadly"], OWN_BULLETS.find(settings.own_bullets_hurt)
+		["Harmless", "Deadly"], OWN_BULLETS.find(settings.own_bullets_hurt)
 	)
 	column.add_child(MenuTheme.row("Your own bullets", own_bullets_option))
 	overtime_option = MenuTheme.option(

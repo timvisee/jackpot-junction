@@ -144,7 +144,7 @@ func _keeping_words(keep: int) -> String:
 		GrandPrix.Keep.NONE:
 			return "Nobody takes their jokers on to the next map."
 		GrandPrix.Keep.CHOOSE:
-			return "Choose a joker to keep for the next map, or one is kept for you at random."
+			return "Pick a joker to keep for the next map, or one is kept for you at random."
 		GrandPrix.Keep.ALL:
 			return "Everybody takes all their jokers on to the next map."
 	return "Everybody keeps one of their jokers for the next map, at random."
