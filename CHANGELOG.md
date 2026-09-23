@@ -30,6 +30,9 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Joining a host that isn't there says so.** The waiting room used to sit empty
+  when the connection failed; now it tells you and goes back to the menu.
+
 - **The respawn countdown shows.** Your corner says how long until you are back on
   the floor; the line was there all along but had no room to be drawn in.
 

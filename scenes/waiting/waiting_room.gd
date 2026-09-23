@@ -105,6 +105,11 @@ func _join() -> void:
 	# After the signal rather than inside it: going to the title hangs the session up, and a session
 	# cannot be freed while it is in the middle of saying something.
 	session.disconnected.connect(func() -> void: Game.go_to_title.call_deferred())
+	# A host that never answers is said so, rather than left for the player to work out alone in
+	# an empty room. The reason is up long enough to be read.
+	session.connection_failed.connect(
+		func() -> void: _fail("Could not connect to %s:%d" % [config.address, config.port])
+	)
 	if not back:
 		var error := session.join(config.address, config.port)
 		if error != OK:
@@ -115,6 +120,13 @@ func _join() -> void:
 		# Asked for rather than waited for: the host seats whoever asks once its room is up, and
 		# this room is now up at this end to hear the answer.
 		session.ready_for_seat()
+
+
+## The room is being left before it was ever joined, and the player is told why.
+func _fail(message: String) -> void:
+	if match_node.hud != null:
+		match_node.hud.stand_down()
+	StatusPane.add_to(self).fail(message)
 
 
 ## Everybody is ready: through to the arena, with everybody who is here. The word goes out before
