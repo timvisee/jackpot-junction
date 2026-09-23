@@ -308,6 +308,7 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 	_ensure_slots(match_node, (data["slots"] as Array).size())
 	_apply_karts(match_node, data["karts"])
 	_apply_slots(match_node, data["slots"])
+	_hear_own_kart(match_node)
 	_apply_bullets(match_node, data["bullets"])
 	_apply_pickups(match_node, data["pickups"], data.get("gone", []), bool(data.get("whole", true)))
 	# The few that are going somewhere: pulled in by a Coin Magnet, or still in the air from
@@ -484,6 +485,19 @@ static func _item_by_id(id: String) -> PowerUp:
 		if item.id == StringName(id):
 			return item
 	return null
+
+
+## The ears over the kart this player drives, GAME.md 8.4. On the host they are put there as the
+## kart is built; here a snapshot builds it, and which one is ours arrives in a message of its
+## own, so it is looked at every snapshot. Without it they stayed in the middle of the room, and
+## the one kart that should be loudest was as far off as anybody's.
+static func _hear_own_kart(match_node: Match) -> void:
+	var index := match_node.local_slot
+	if match_node.camera_rig == null or index < 0 or index >= match_node.slots.size():
+		return
+	var own := match_node.kart_of(index)
+	if own != null and not match_node.camera_rig.listener_targets.has(own):
+		match_node.refresh_listener()
 
 
 static func _apply_karts(match_node: Match, entries: Array) -> void:

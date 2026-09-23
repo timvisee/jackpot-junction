@@ -371,6 +371,38 @@ func test_a_client_draws_the_aim_guide_on_the_kart_its_player_drives() -> void:
 	Game.settings.aim_guide = true
 
 
+## GAME.md 8.4: the ears sit over the kart driven here, on a client as on the host. They used to
+## stay in the middle of the room there, where a client's own engine was as far off as anybody's.
+func test_a_client_hears_its_own_kart_up_close() -> void:
+	var host: Match = auto_free(MATCH_SCENE.instantiate())
+	host.rules = _rules()
+	host.with_hud = false
+	host.offer_size = 0
+	var runner := scene_runner(host)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new(), KartInput.new()]
+	host.start(inputs, 29)
+	await runner.simulate_frames(20, 17)
+	var client: Match = auto_free(MATCH_SCENE.instantiate())
+	client.rules = _rules()
+	client.with_hud = false
+	add_child(client)
+	client.start_puppet()
+	# The karts are built before the host has said which one is ours, which is how it goes.
+	client.apply_snapshot(host.build_snapshot())
+	assert_array(client.camera_rig.listener_targets).is_empty()
+	client.set_local_slot(2, PlayerInput.new())
+	client.apply_snapshot(host.build_snapshot())
+	var ours: Kart = client.slots[2].kart
+	assert_array(client.camera_rig.listener_targets).contains_exactly([ours])
+	assert_bool(ours.sound.lean).is_false()
+	assert_bool(client.slots[0].kart.sound.lean).is_true()
+	await await_millis(60)
+	var ears := client.camera_rig.listener.global_position
+	assert_vector(Vector2(ears.x, ears.z)).is_equal_approx(
+		Vector2(ours.global_position.x, ours.global_position.z), Vector2.ONE * 0.01
+	)
+
+
 ## GAME.md 8.3: a kart bursting or a crate breaking throws what it was carrying clear of itself
 ## rather than having it appear on the floor. A client used to get only the second half of that,
 ## because a pickup's position is where it lands from the first snapshot it appears in and the

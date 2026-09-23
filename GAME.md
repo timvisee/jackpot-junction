@@ -2053,7 +2053,8 @@ for.
 - **Where the ears are**: the camera frames the whole room from well outside it,
   so a listener up there would put every kart at the same distance. The ears sit
   over the karts being driven here instead, two and a half meters up, facing the
-  way the camera does, so left on screen is left in the mix. The engine goes to
+  way the camera does, so left on screen is left in the mix. On a client that is
+  its own kart, found as soon as the host says which one it is. The engine goes to
   its own bus under SFX so it can be balanced against the one-shots.
 - The F3 overlay shows the needle, what it does to the loop, the load and the
   three tire levels.

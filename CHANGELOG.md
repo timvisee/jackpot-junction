@@ -30,6 +30,10 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Your own kart is heard online.** Joining somebody else's game, your engine and
+  tires sounded as far off as everybody else's and the camera did not look ahead of
+  you; both work as they do for the host now.
+
 - **No stray gap before the buttons in a hint.** A line like "Press J or Menu on
   another device to join" had a wide space in front of each button; it reads as a
   sentence now.

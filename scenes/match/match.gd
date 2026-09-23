@@ -181,7 +181,7 @@ func start(
 		_spawn_kart(slot, arena.spawn_points[i % arena.spawn_points.size()])
 		karts.append(slot.kart)
 	camera_rig.targets = karts
-	_refresh_listener()
+	refresh_listener()
 	if not Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
 		Input.joy_connection_changed.connect(_on_joy_connection_changed)
 	_build_hud()
@@ -270,7 +270,7 @@ func _join_with_input(input: KartInput, wanted_color := -1) -> PlayerSlot:
 	slot.kart.protection_left = rules.spawn_protection
 	slot.kart.collision_layer = Layers.PROTECTED
 	camera_rig.targets.append(slot.kart)
-	_refresh_listener()
+	refresh_listener()
 	if hud != null:
 		hud.add_block(slot)
 	Events.player_joined.emit(slot.index)
@@ -286,7 +286,7 @@ func leave_human(slot: PlayerSlot) -> void:
 	slot.kart.rebuild_stats()
 	slot.kart.enable_sound(true, true)
 	_attach_brain(slot)
-	_refresh_listener()
+	refresh_listener()
 	if hud != null:
 		hud.remove_block(slot)
 	Events.player_left.emit(slot.index)
@@ -313,7 +313,7 @@ func _make_human(slot: PlayerSlot, input: KartInput) -> void:
 	slot.bot_trait = null
 	slot.kart.rebuild_stats()
 	slot.kart.enable_sound(true, not slot.is_local_human())
-	_refresh_listener()
+	refresh_listener()
 	if hud != null:
 		hud.add_block(slot)
 	Events.player_joined.emit(slot.index)
@@ -534,7 +534,7 @@ func _set_frozen(frozen: bool) -> void:
 
 
 ## Points the ears at whoever is playing on this machine, GAME.md 8.4.
-func _refresh_listener() -> void:
+func refresh_listener() -> void:
 	if camera_rig == null:
 		return
 	var here: Array[Node3D] = []
