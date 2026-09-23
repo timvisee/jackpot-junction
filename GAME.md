@@ -2857,6 +2857,17 @@ longer than 15 s: a machine that slow, or one that has stopped answering, holds 
 else for that long and no longer, and the lamps go without it. A player who leaves while
 everybody waits is not waited for. The waiting room holds nothing, since nobody is racing in it.
 
+Somebody who connects in the middle of a match comes in through the waiting room, since that is
+where joining opens, and the host may well be somewhere else. So a newcomer is shown in. With the
+host in the waiting room it is seated at once; with the host in an arena it is given the same word
+everybody else followed on the way in, follows it, and asks for its seat from there, taking over a
+bot or adding a kart. It arrives in whatever the match is doing, the podium included, which it
+is shown at once rather than after the pause of 3.8, since it has no whistle to wait out. In a
+Grand Prix it is sent the run as it stands. A match with no bot to take over and no room for
+another kart turns it away in the handshake, saying the match is full. Snapshots only go to
+clients that are seated, so one still on its way in never draws the arena's karts in the room it
+is leaving.
+
 #### Who decides what
 
 One rule underneath all of it: **a client may decide where its own kart is and

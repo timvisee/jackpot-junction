@@ -81,6 +81,7 @@ func _host() -> void:
 		# different room: everybody who follows is seated in here as they ask.
 		session = Net.session
 		Net.attach(match_node)
+		session.in_arena = false
 		session.re_seat()
 	else:
 		session = Net.open(match_node)

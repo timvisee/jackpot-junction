@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Join a match already under way.** Connecting to a host mid-match takes you
+  into the map being played, or its podium, in a free seat; a full match says so.
+
 - **A version check when joining online.** Games with a different major or minor
   version are told which version the host has and sent back; patch releases still
   play together.

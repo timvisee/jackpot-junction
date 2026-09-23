@@ -318,7 +318,7 @@ Known bugs parked for later. Each one is described well enough to pick up cold.
       settings as an overlay over the room instead of a scene change, or at
       least return to the scene that opened it and never leave an online room
       this way.
-- [ ] **A client that connects while the host is mid-match lands in the wrong
+- [x] **A client that connects while the host is mid-match lands in the wrong
       room.** Found by reading the code, not reproduced yet. Joining always opens
       the waiting room (`online.gd` goes to `Game.go_to_waiting`), and the client's
       room builds the waiting-room layout before it has heard anything from the
@@ -331,6 +331,10 @@ Known bugs parked for later. Each one is described well enough to pick up cold.
       room after the podium it is left behind, unseated. Likely fix: the host tells
       a newcomer which kind of room it is in on arrival, and a client in the wrong
       one follows the same way the others did.
+      Fixed: a host in an arena no longer seats a newcomer on connecting. It sends
+      it the `match_beginning` everybody else followed, and seats it once it asks
+      from the match scene, which listens for `back_to_room`. A full match refuses
+      it in the handshake, and snapshots only go to seated clients.
 
 ## Working method
 

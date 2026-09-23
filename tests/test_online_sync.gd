@@ -329,6 +329,37 @@ func test_the_rig_swings_onto_the_winner_on_a_client_too() -> void:
 	assert_object(client.arena.disco._focus).is_equal(client.slots[1].kart)
 
 
+## GAME.md 10.3: a client that watched the match waits out the whistle like the host does, and one
+## that joins while the podium is up has nothing to wait out and is shown it at once.
+func test_a_client_joining_on_the_podium_is_shown_it_at_once() -> void:
+	var host: Match = auto_free(MATCH_SCENE.instantiate())
+	host.rules = _rules()
+	host.with_hud = false
+	host.offer_size = 0
+	var runner := scene_runner(host)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	host.start(inputs, 23)
+	await runner.simulate_frames(20, 17)
+	var watching: Match = auto_free(MATCH_SCENE.instantiate())
+	watching.rules = _rules()
+	add_child(watching)
+	watching.start_puppet()
+	watching.set_local_slot(0, PlayerInput.new())
+	watching.apply_snapshot(host.build_snapshot())
+	host._finish()
+	watching.apply_snapshot(host.build_snapshot())
+	var arriving: Match = auto_free(MATCH_SCENE.instantiate())
+	arriving.rules = _rules()
+	add_child(arriving)
+	arriving.start_puppet()
+	arriving.set_local_slot(1, PlayerInput.new())
+	arriving.apply_snapshot(host.build_snapshot())
+	await runner.simulate_frames(6, 17)
+	assert_int(arriving.state).is_equal(Match.State.RESULTS)
+	assert_bool(arriving.hud._podium_up).is_true()
+	assert_bool(watching.hud._podium_up).is_false()
+
+
 ## GAME.md 8.5: the aim guide is drawn for the player driving. Online the kart they drive is a
 ## puppet moved by the host, which is not the same thing as a kart they are not driving.
 func test_a_client_draws_the_aim_guide_on_the_kart_its_player_drives() -> void:

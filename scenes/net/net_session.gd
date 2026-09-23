@@ -122,6 +122,10 @@ var local_input: KartInput = PlayerInput.new()
 ## leaves the host's funny name standing, GAME.md 3.8.
 var player_name := ""
 var is_host := false
+## On the host: whether the room it is in is an arena rather than the waiting room of GAME.md 9.6,
+## which is what a newcomer is shown into, see [method _welcome]. Said by each room as it takes the
+## session over.
+var in_arena := false
 ## The version this machine gives when it connects, and on the host the one it holds everybody
 ## else to, GAME.md 10.3. The game's own unless a test says otherwise.
 var version := ""
@@ -143,6 +147,10 @@ var _waiting_to_sit: Array[int] = []
 ## On the host: the color each client had in the room it is leaving, so it can be seated in that
 ## color on the other side.
 var _color_of: Dictionary[int, int] = {}
+## On the host: the clients that have connected and not yet been seated anywhere. A newcomer the
+## match has no room for is turned away; one that has played here before is kept on in case a seat
+## comes free.
+var _newcomers: Array[int] = []
 var _relaying := false
 ## Whether this machine is asking for a pause, and which of the host's clients are.
 var _asking := false
@@ -285,17 +293,21 @@ func _on_authenticating(peer: int) -> void:
 
 
 ## The other end of the handshake. The host answers every client with its own version and whether
-## the two can play, and lets in the ones that can; a client turned away is left to run out of
-## [constant HANDSHAKE_TIMEOUT], which drops it, so a client too old to understand the answer
-## still goes. A client that is let in lets the host in; one that is not says why.
+## it can come in, which it can on a version this one plays with and with a seat for it; a client
+## turned away is left to run out of [constant HANDSHAKE_TIMEOUT], which drops it, so a client too
+## old to understand the answer still goes. A client that is let in lets the host in; one that is
+## not says why.
 func _on_handshake(peer: int, data: PackedByteArray) -> void:
 	var scene := multiplayer as SceneMultiplayer
 	var said: Variant = bytes_to_var(data) if not data.is_empty() else null
 	var words: Dictionary = said if said is Dictionary else {}
 	var theirs := str(words.get("version", "?"))
 	if is_host:
-		var welcome := compatible(version, theirs)
-		scene.send_auth(peer, var_to_bytes({"version": version, "welcome": welcome}))
+		var playable := compatible(version, theirs)
+		# Full is only known while there is a room to be full: between rooms nobody is refused.
+		var full := _room_up and match_node != null and not _has_seat(match_node)
+		var welcome := playable and not full
+		scene.send_auth(peer, var_to_bytes({"version": version, "welcome": welcome, "full": full}))
 		if welcome:
 			scene.complete_auth(peer)
 		return
@@ -303,9 +315,12 @@ func _on_handshake(peer: int, data: PackedByteArray) -> void:
 		scene.complete_auth(peer)
 		return
 	_turned_away = true
+	var reason := "Wrong version: the host has %s, you have %s" % [theirs, version]
+	if compatible(version, theirs) and bool(words.get("full", false)):
+		reason = "The match is full"
 	# After the handshake has returned rather than inside it: hanging up in the middle of the
 	# peer's own poll pulls the connection out from under it.
-	_hang_up.call_deferred("Wrong version: the host has %s, you have %s" % [theirs, version])
+	_hang_up.call_deferred(reason)
 
 
 func _hang_up(reason: String) -> void:
@@ -411,7 +426,7 @@ func _seat_me() -> void:
 		return
 	if _peer_slots.has(peer):
 		return
-	_seat(peer, false)
+	_seat(peer, _newcomers.has(peer))
 	_settle_pause()
 
 
@@ -430,11 +445,16 @@ func re_seat() -> void:
 	_room_up = true
 	# Nobody has any of the new floor, so the next snapshot carries all of it.
 	_floor.start_again()
-	var connected := multiplayer.get_peers() if _connected() else PackedInt32Array()
-	for peer: int in _waiting_to_sit:
-		if peer in connected:
-			_seat(peer, false)
+	var connected := _peers()
+	var waiting := _waiting_to_sit.duplicate()
 	_waiting_to_sit.clear()
+	for peer: int in waiting:
+		if peer not in connected:
+			continue
+		if peer in _newcomers:
+			_welcome(peer)
+		else:
+			_seat(peer, false)
 	_settle_pause()
 
 
@@ -491,8 +511,9 @@ func _seat(peer: int, fresh: bool) -> void:
 	var slot := match_node.join_network(NetInput.new(), _color_of.get(peer, -1))
 	if slot == null:
 		if fresh:
-			multiplayer.multiplayer_peer.disconnect_peer(peer)
+			_turn_away(peer)
 		return
+	_newcomers.erase(peer)
 	_peer_slots[peer] = slot.index
 	# Somebody who has just sat down has none of the floor, so the next snapshot carries all of it
 	# rather than the difference since a moment they were not here for.
@@ -502,6 +523,37 @@ func _seat(peer: int, fresh: bool) -> void:
 	# off them, none of which is the match it has just joined.
 	_set_rules.rpc_id(peer, match_node.rules.to_wire())
 	_assign_slot.rpc_id(peer, slot.index, match_node.rng.seed)
+	# How the run stands, GAME.md 9.7. Everybody else was told at each whistle; somebody who has
+	# just sat down in the middle of a Grand Prix, or on its podium, was not there to hear it.
+	if Game.grand_prix != null:
+		_relay_event.rpc_id(peer, &"grand_prix_scored", [Game.grand_prix.to_wire()])
+
+
+## A newcomer, into whichever room the host is in, GAME.md 10.3. Joining always opens the waiting
+## room, so a host there seats it on the spot. Anywhere else it is given the word everybody else
+## was given on their way in, follows it the same way, and is seated once it asks from the other
+## side. A match with no seat for it turns it away now rather than after it has built the room.
+func _welcome(peer: int) -> void:
+	if not in_arena:
+		_seat(peer, true)
+		return
+	if match_node == null or not _has_seat(match_node):
+		_turn_away(peer)
+		return
+	_match_beginning.rpc_id(peer)
+
+
+## Whether [param in_match] has somewhere for one more player: a bot to take over, or room for
+## another kart.
+static func _has_seat(in_match: Match) -> bool:
+	if PlayerSlot.bot_seat(in_match.slots) != null:
+		return true
+	return in_match.slots.size() < in_match.rules.max_players
+
+
+func _turn_away(peer: int) -> void:
+	_newcomers.erase(peer)
+	multiplayer.multiplayer_peer.disconnect_peer(peer)
 
 
 ## The seats the connected clients hold, in the order [method re_seat] seats them again. The
@@ -537,8 +589,12 @@ func _physics_process(delta: float) -> void:
 		return
 	if is_host:
 		_tick += 1
-		if _tick % SNAPSHOT_EVERY_TICKS == 0 and not multiplayer.get_peers().is_empty():
-			_receive_snapshot.rpc(var_to_bytes(match_node.build_snapshot(_floor)))
+		if _tick % SNAPSHOT_EVERY_TICKS == 0 and not _peer_slots.is_empty():
+			# To the seated only. A client still on its way in from another room would draw this
+			# match in that one: the arena's karts driving round the waiting room.
+			var bytes := var_to_bytes(match_node.build_snapshot(_floor))
+			for peer: int in _peer_slots:
+				_receive_snapshot.rpc_id(peer, bytes)
 			_send_authority()
 	elif local_slot >= 0:
 		adopt_own_kart()
@@ -577,11 +633,12 @@ func _physics_process(delta: float) -> void:
 func _on_peer_connected(peer: int) -> void:
 	if not is_host:
 		return
-	# Arriving while the host is between rooms: seated in the one it is going to, once it is up.
+	_newcomers.append(peer)
+	# Arriving while the host is between rooms: shown into the one it is going to, once it is up.
 	if not _room_up:
 		_waiting_to_sit.append(peer)
 		return
-	_seat(peer, true)
+	_welcome(peer)
 	# Somebody who has only just sat down is not asking for a pause, so a room that was stopped
 	# starts playing again.
 	_settle_pause()
@@ -589,6 +646,7 @@ func _on_peer_connected(peer: int) -> void:
 
 func _on_peer_disconnected(peer: int) -> void:
 	_waiting_to_sit.erase(peer)
+	_newcomers.erase(peer)
 	_color_of.erase(peer)
 	if not is_host or not _peer_slots.has(peer):
 		return

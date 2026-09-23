@@ -46,10 +46,13 @@ func _ready() -> void:
 				# already here and ready. The lamps still wait for all of them to have this room
 				# up as well, GAME.md 10.3, or a slow machine arrives to a match already going.
 				_adopt_session()
+				# Anybody who connects from here on is shown in here, GAME.md 10.3.
+				session.in_arena = true
 				session.re_seat()
 				session.hold_the_start()
 			else:
 				_start_session()
+				session.in_arena = true
 				var error := session.host(config.port)
 				if error != OK:
 					_fail("Could not host on port %d: %s" % [config.port, error_string(error)])

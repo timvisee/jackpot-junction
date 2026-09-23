@@ -416,6 +416,12 @@ func _process(delta: float) -> void:
 	_update_lobby()
 
 
+## A podium that was already up when this screen arrived at it, GAME.md 10.3: there is no whistle
+## to wait out, and the host may press on at any moment.
+func skip_the_whistle() -> void:
+	_podium_wait = 0.0
+
+
 func _step_podium(delta: float) -> void:
 	if not _podium_pending:
 		return

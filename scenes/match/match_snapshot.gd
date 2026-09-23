@@ -308,6 +308,9 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 		match_node.arena.junction.payout_multiplier = data["payout"]
 	if match_node.state != previous_state and match_node.hud != null:
 		match_node.hud.call("_on_state_changed", match_node.state)
+		# Straight from nothing to the whistle is a client that has joined on the podium.
+		if match_node.state == Match.State.RESULTS and previous_state == Match.State.LOBBY:
+			match_node.hud.skip_the_whistle()
 	_ensure_slots(match_node, (data["slots"] as Array).size())
 	_apply_karts(match_node, data["karts"])
 	_apply_slots(match_node, data["slots"])
