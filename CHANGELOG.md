@@ -14,8 +14,8 @@ below, and hands the notes to the release workflow.
 ### Added
 
 - **The Garage is a garage.** The practice rooms are set in a concrete workshop bay
-  now, with tyres, tool chests, cans and a two-post lift stacked right up against
-  the walls of it.
+  now, with tyres, tool chests, cans, pallets and a two-post lift stacked against
+  the walls all the way round it.
 
 ### Changed
 

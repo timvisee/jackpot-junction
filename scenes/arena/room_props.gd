@@ -277,7 +277,9 @@ func _garage() -> void:
 	shell.sign(wall)
 	shell.skirt(room.table.darkened(0.2), 2.6)
 	var steel := surfaces.metal(Color(0.66, 0.68, 0.72))
-	var timber := surfaces.painted(room.table.lightened(0.3))
+	# Timber rather than the room's own grey: a pallet is wood wherever it is standing, and the
+	# one warm thing in a concrete bay is worth having.
+	var timber := surfaces.painted(Color(0.55, 0.42, 0.28))
 	var rubber := surfaces.painted(Color(0.1, 0.1, 0.11))
 	var rust := surfaces.painted(Color(0.74, 0.4, 0.13))
 	var stock := surfaces.painted(Color(0.7, 0.72, 0.76))
@@ -299,7 +301,7 @@ func _garage() -> void:
 		true
 	)
 	_ring(
-		20,
+		28,
 		{
 			&"tyres": func(at: Vector3, turn: float) -> void: _tyres(at, turn, rubber, steel),
 			&"chest": func(at: Vector3, turn: float) -> void: _chest(at, turn, paint, steel),
@@ -313,10 +315,11 @@ func _garage() -> void:
 		}
 	)
 	_apron(
-		5,
+		9,
 		{
 			&"jerry": func(at: Vector3, turn: float) -> void: _jerry(at, turn, rust, tinplate),
 			&"rods": func(at: Vector3, turn: float) -> void: _rods(at, turn, stock),
+			&"pallets": func(at: Vector3, turn: float) -> void: _pallets(at, turn, timber),
 		}
 	)
 
@@ -544,7 +547,7 @@ func _ground(patch: Rect2, at: Vector3, turn: float) -> Rect2:
 ## list says it has. A dealt prop that finds the table taken is left out rather than put down in
 ## something else; [param by_hand] is for the handful a room places itself and means to have.
 func _lay(kind: StringName, at: Vector3, build: Callable, by_hand := false) -> bool:
-	var turn := _turn_of(PATCH[kind][1])
+	var turn := _turn_of(PATCH[kind][1], at)
 	var box := _ground(PATCH[kind][0], at, turn)
 	if not by_hand and not _free(box):
 		return false
@@ -555,8 +558,8 @@ func _lay(kind: StringName, at: Vector3, build: Callable, by_hand := false) -> b
 	return true
 
 
-## The angle a prop of [param style] is turned to.
-func _turn_of(style: int) -> float:
+## The angle a prop of [param style] standing at [param at] is turned to.
+func _turn_of(style: int, at: Vector3) -> float:
 	match style:
 		Turned.THROWN:
 			return _rng.randf_range(0.0, TAU)
@@ -564,6 +567,11 @@ func _turn_of(style: int) -> float:
 			return PI * 0.5 + _rng.randf_range(-0.28, 0.28)
 		Turned.LOOSE:
 			return _rng.randf_range(-0.5, 0.5)
+		Turned.FACING:
+			# A thing with drawers in it is opened from the front, and the front belongs to the
+			# floor somebody works on: it looks at the arena from wherever it is standing, a
+			# degree or two off, rather than at whichever quarter of the room it was dealt.
+			return atan2(-at.x, -at.z) + _rng.randf_range(-0.05, 0.05)
 		Turned.FLAT:
 			return 0.0
 		_:

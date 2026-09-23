@@ -10,8 +10,9 @@ extends Node3D
 ## How a prop is turned where it stands: square with the table a degree or two off, which is what
 ## says somebody put it there rather than dropped it; thrown, for the things that were thrown;
 ## along the front edge of the bench, for what lies on the near apron; loose, for a tower run up
-## in a hurry; and not turned at all, for what a room places by hand.
-enum Turned { SQUARE, THROWN, ALONG, LOOSE, FLAT }
+## in a hurry; facing, for the things with a front on them, which is turned to the arena wherever
+## it is standing; and not turned at all, for what a room places by hand.
+enum Turned { SQUARE, THROWN, ALONG, LOOSE, FACING, FLAT }
 
 ## The table's own surface, a little under the arena floor. Everything outside the wall stands on
 ## this rather than on the floor the karts drive on.
@@ -71,7 +72,7 @@ const PATCH := {
 	&"bricks": [Rect2(-1.4, -3.0, 2.8, 6.0), Turned.SQUARE],
 	&"barrier": [Rect2(-3.2, -0.9, 6.4, 1.8), Turned.SQUARE],
 	&"tyres": [Rect2(-1.7, -1.7, 3.4, 3.4), Turned.SQUARE],
-	&"chest": [Rect2(-1.9, -1.0, 3.8, 2.0), Turned.SQUARE],
+	&"chest": [Rect2(-1.9, -1.0, 3.8, 2.0), Turned.FACING],
 	&"jerry": [Rect2(-1.6, -0.9, 3.2, 1.8), Turned.SQUARE],
 	&"work_bench": [Rect2(-5.5, -1.4, 11.0, 2.8), Turned.FLAT],
 	&"lift": [Rect2(-2.6, -4.2, 5.2, 8.4), Turned.FLAT],
