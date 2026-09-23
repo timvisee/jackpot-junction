@@ -674,6 +674,31 @@ func test_charging_the_pad_is_heard_by_the_player_on_it() -> void:
 	assert_bool((heard["seats"] as Dictionary).has(visitor.index)).is_false()
 
 
+## GAME.md 9.6: readying up is heard at the machine that decides it, not only at the ones it tells.
+## Whoever fills the room is heard as the ring going green, which is a run rather than the chime.
+func test_readying_up_is_heard_and_filling_the_room_is_heard_louder() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var ready_room: ReadyRoom = room.ready_room
+	var visitor := match_node.join_network(NetInput.new())
+	await _runner.simulate_frames(3, 17)
+	var heard := {"readied": [], "filled": 0}
+	ready_room.readied.connect(func(seat: int) -> void: heard["readied"].append(seat))
+	ready_room.filled.connect(func() -> void: heard["filled"] += 1)
+	var pad := match_node.arena.junction.global_position
+	match_node.kart_of(0).global_position = pad + Vector3(-1.0, 0.0, 0.0)
+	visitor.kart.global_position = pad + Vector3(4.0, 0.0, 4.0)
+	await _runner.simulate_frames(int(ReadyRoom.CHARGE_TIME * 70.0), 17)
+	assert_bool(ready_room.ready_slots.get(0, false)).is_true()
+	assert_array(heard["readied"]).is_equal([0])
+	assert_int(heard["filled"]).is_equal(0)
+	visitor.kart.global_position = pad + Vector3(1.0, 0.0, 0.0)
+	await _runner.simulate_frames(int(ReadyRoom.CHARGE_TIME * 70.0), 17)
+	assert_bool(ready_room.all_green()).is_true()
+	assert_array(heard["readied"]).is_equal([0])
+	assert_int(heard["filled"]).is_equal(1)
+
+
 ## An empty room is not a ready room: a match with nobody in it has nothing to start.
 func test_a_room_with_nobody_in_it_is_never_ready() -> void:
 	var room := await _open()

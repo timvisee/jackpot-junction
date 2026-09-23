@@ -22,6 +22,12 @@ signal everybody_ready
 ## Another block of the ring lit for a player at this screen as they charge, the [param step]th of
 ## [param of] in their arc. Heard as a soft tick climbing in pitch, see [method _on_charged].
 signal charged(seat: int, step: int, of: int)
+## Somebody has readied up and the room is still waiting on somebody else. Heard as the ready chime,
+## at every machine, see [method _on_readied].
+signal readied(seat: int)
+## The ring has just gone green all the way round. Heard as the ready chime run up to its octave,
+## see [method _on_filled]: the room filling is a bigger moment than one more player in it.
+signal filled
 
 ## How long a kart has to hold the pad. Leaving it does not fade: the charge is gone and so is the
 ## ready, on the frame the kart rolls off.
@@ -37,6 +43,12 @@ const GO_DELAY := 1.0
 ## they are for the player on the pad, not a fanfare for the room.
 const CHARGE_VOLUME := -17.0
 const READY_VOLUME := -9.0
+## The run the ring going green is heard as: the chime at the root, the third, the fifth and the
+## octave, a note every [constant GREEN_STEP] seconds, the last of them [constant GREEN_LIFT] dB
+## over the rest.
+const GREEN_RUN: Array[float] = [1.0, 1.26, 1.5, 2.0]
+const GREEN_STEP := 0.09
+const GREEN_LIFT := 3.0
 ## The ring that fills: how many blocks it is made of, how far out they sit as a share of the
 ## pad's radius, and how big each one is.
 const SEGMENTS := 24
@@ -100,6 +112,8 @@ static func add_to(in_match: Match) -> ReadyRoom:
 	room._build()
 	Events.player_ready.connect(room._on_player_ready)
 	room.charged.connect(room._on_charged)
+	room.readied.connect(room._on_readied)
+	room.filled.connect(room._on_filled)
 	Events.match_planned.connect(room._on_match_planned)
 	return room
 
@@ -111,8 +125,24 @@ func _on_player_ready(slot: int, ready: bool) -> void:
 		return
 	ready_slots[slot] = ready
 	charge[slot] = 1.0 if ready else 0.0
-	if ready:
-		Audio.play_sfx(&"ready", READY_VOLUME, 0.02)
+	# Whoever fills the room is heard in the ring going green instead: the chime and the run on
+	# top of each other would be neither.
+	if ready and not (all_ready() and not held):
+		readied.emit(slot)
+
+
+func _on_readied(_seat: int) -> void:
+	Audio.play_sfx(&"ready", READY_VOLUME, 0.02)
+
+
+func _on_filled() -> void:
+	for i: int in GREEN_RUN.size():
+		var loud := READY_VOLUME + (GREEN_LIFT if i == GREEN_RUN.size() - 1 else 0.0)
+		var note := Audio.play_sfx.bind(&"ready", loud, 0.0, GREEN_RUN[i])
+		if i == 0:
+			note.call()
+		else:
+			get_tree().create_timer(GREEN_STEP * i).timeout.connect(note)
 
 
 ## A step of a player's own charge, heard. Quiet, and climbing in pitch as the arc fills, so it
@@ -162,8 +192,10 @@ func _process(delta: float) -> void:
 		var now := clampf(was + delta / CHARGE_TIME, 0.0, 1.0) if on_it else 0.0
 		charge[index] = now
 		var already: bool = ready_slots.get(index, false)
+		# Said, and taken in from the saying like any other machine does, see
+		# [method _on_player_ready]. Written down here first it was news to nobody, and the machine
+		# that decided it was the one that never heard the chime.
 		if deciding and (now >= 1.0) != already:
-			ready_slots[index] = now >= 1.0
 			Events.player_ready.emit(index, now >= 1.0)
 		_show_tick(slot)
 	_count_down(delta)
@@ -180,6 +212,8 @@ func _count_down(delta: float) -> void:
 		return
 	var was := _full_for
 	_full_for = maxf(_full_for, 0.0) + (delta if was >= 0.0 else 0.0)
+	if was < 0.0:
+		filled.emit()
 	if was < GO_DELAY and _full_for >= GO_DELAY:
 		everybody_ready.emit()
 

@@ -2546,7 +2546,10 @@ It is heard as well, quietly. A player charging the pad hears a soft tick for ev
 their arc as it lights, each a little higher than the last, and a chime when the tick goes up
 over their kart. Only a player at this screen hears their own charge -- somebody else's is seen
 and not heard, or a room of four charging at once would be a clatter -- while anybody readying
-up is heard by everybody.
+up is heard by everybody. The ring going green is a bigger moment than one more player in it, and
+is heard as one: the same chime run up through its third and fifth to the octave, a note every
+0.09 s, the last a little louder. The player who fills the room hears that run instead of their
+own chime, since the two on top of each other would be neither.
 
 Ready lasts exactly as long as the standing does. Roll off the pad and the charge and the tick
 go with it, on the frame the kart leaves. That is the honest reading of a pad nobody is on: a

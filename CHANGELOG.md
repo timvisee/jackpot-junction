@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Everybody ready has a sound.** When the ring turns green, the ready chime runs up
+  to its octave.
+
 - **Shoulder buttons switch settings tabs.** On a gamepad, LB and RB step through
   Controls, Audio, Video and Accessibility.
 
@@ -39,6 +42,9 @@ below, and hands the notes to the release workflow.
   match keeps its running order, without places or scores.
 
 ### Fixed
+
+- **The ready chime plays on your own machine.** Playing alone or hosting, readying
+  up on the pad was silent; only players who joined a host heard it.
 
 - **Settings no longer restart the match.** Opening them from the pause menu lays
   them over the game, and Back takes you back to the menu with the match as it was.
