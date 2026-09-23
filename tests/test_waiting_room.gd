@@ -342,7 +342,7 @@ func test_the_host_can_choose_a_grand_prix() -> void:
 	pane.options.maps_option.selected = MatchOptions.MAPS.find(4)
 	pane.close()
 	await _runner.simulate_frames(2, 17)
-	assert_str(room.ready_room._plan.text).contains("Match of 4 maps")
+	assert_str(room.ready_room._plan.text).contains("Grand Prix of 4 maps")
 	var first: MatchConfig = room.first_map_config()
 	assert_object(Game.grand_prix).is_not_null()
 	assert_int(Game.grand_prix.playlist.size()).is_equal(4)

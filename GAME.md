@@ -362,9 +362,9 @@ else's results screen, see 10.3.
   control hints with it. There is nothing left in that room to answer, and a card
   pick left open under the notice would be asking for a choice about a match that
   is not there any more.
-- The title screen offers Play, Quick play, Play online, the Garage, Settings and
-  Quit. Play is a Grand Prix of several maps and Quick play is one map, see 9.7;
-  each opens the lobby headed with its own name. There is no tutorial. At
+- The title screen offers Play, Play online, the Garage, Settings and Quit. Play
+  opens the lobby, whose first question is whether it is a Grand Prix of several
+  maps or a quick match on one, see 9.7. There is no tutorial. At
   the start of a match the drive and fire controls are shown next to each
   human player's kart, from the countdown until that player has both driven
   and fired, or for 10 s at most.
@@ -2584,8 +2584,8 @@ A seat taken in here goes through to the arena with everybody else, and as who i
 room: the same color, the same name, the same dress.
 
 **Choosing the match.** Online, the host chooses what the match is going to be in here, from the
-same rows the lobby puts in front of a local one: a match of several maps or a single one, see
-9.7, then how many maps or which arena, how long, the target, how many bots and how hard, the
+same rows the lobby puts in front of a local one: a Grand Prix or a quick match, see 9.7, then
+how many maps or which arena, how long, the target, how many bots and how hard, the
 items, own bullets and what the clock running out does. They come up over the
 room the moment it is opened, again from the host's pause menu, and start on whatever the host
 chose last time. The room is open while they are up -- friends join and drive around -- and the
@@ -2593,7 +2593,7 @@ host's own karts wait where they are, since the controls are working the menu.
 
 Everybody in the room is told what is coming, under the count:
 `Next: Crossfire · 5 min · first to 3000 · 2 bots`, or for a Grand Prix
-`Next: Match of 3 maps · 5 min each · first to 3000 · 2 bots`, or that the host is still
+`Next: Grand Prix of 3 maps · 5 min each · first to 3000 · 2 bots`, or that the host is still
 choosing. On one machine the room says what the lobby chose on the way in. The room
 does not go while the host is choosing, however ready everybody else is: a match that started
 halfway through the menu would be the one that was set before they began.
@@ -2611,16 +2611,15 @@ of them. Whoever wants to stop there leaves from the room, the way anybody does.
 
 ### 9.7 Play: a Grand Prix
 
-Play is a run of several maps with the same people in it, one after another. This document
-calls it a Grand Prix, to keep it apart from the single map that "match" means everywhere else
-here; the screens call it a match of however many maps it is. Quick play is the single map, set
-up and played on its own, the way Play used to be.
+A Grand Prix is a run of several maps with the same people in it, one after another. A quick
+match is the single map, set up and played on its own.
 
-**Setting up.** Play's lobby is Quick play's with one row swapped: instead of which arena, how
-many maps, 2 to 6, 3 to start with. The arenas are not chosen, they are dealt. The length row
-reads Time per map, since it is. Online, the host's match settings of 9.6 start with a row that
-chooses between the two, a match of several maps or a single one, and show the rows that go
-with it.
+**Setting up.** Play has one lobby, and its first row asks which: Grand Prix or Quick match. The
+rows under it follow the answer. A quick match picks its arena; a Grand Prix asks instead how
+many maps, 2 to 6, 3 to start with, since its arenas are not chosen, they are dealt, and what
+jokers carry between them. The length row reads Time per map, since it is. The host's match
+settings online, 9.6, are the same rows with the same first question. Whichever was chosen last
+is where the row starts next time.
 
 **The waiting room first.** Starting a Grand Prix does not start a map. Everybody goes to the
 waiting room of 9.6, and the first map begins when everybody playing is parked on the pad --
@@ -2640,8 +2639,8 @@ Online the host moves everybody on, the same way it moved everybody out of the w
 a client's podium says so. The next map is the same match on the next arena: the same people,
 in the same colors, with the same settings.
 
-**Jokers between maps.** Play's lobby, and the host's match settings online, have a row for what
-everybody takes on from one map to the next of the jokers they end it holding:
+**Jokers between maps.** A Grand Prix has a row for what everybody takes on from one map to
+the next of the jokers they end it holding, in the lobby and in the host's settings alike:
 
 | Choice              | What goes on to the next map                                        |
 |---------------------|---------------------------------------------------------------------|

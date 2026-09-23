@@ -117,6 +117,6 @@ static func from_settings(settings: Settings) -> MatchConfig:
 	config.human_names = settings.player_names.duplicate()
 	config.human_styles = settings.kart_styles.duplicate()
 	config.map = StringName(settings.map)
-	config.rounds = settings.grand_prix_maps if settings.online_grand_prix else 0
+	config.rounds = settings.grand_prix_maps if settings.grand_prix else 0
 	config.keep_jokers = settings.grand_prix_jokers
 	return config

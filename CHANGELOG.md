@@ -19,6 +19,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **One Play button.** The lobby's first row picks a Grand Prix or a quick match,
+  instead of the title screen asking with two buttons.
+
 - **American English throughout.** Color, center, gray, tires and a checkered flag,
   on every screen.
 

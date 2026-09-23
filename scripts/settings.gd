@@ -58,7 +58,7 @@ var overtime := true
 ## How many maps Play runs, GAME.md 9.7, and whether the host of an online room last chose a
 ## Grand Prix over a single map.
 var grand_prix_maps := 3
-var online_grand_prix := true
+var grand_prix := true
 ## What of their jokers players take from one map of a Grand Prix to the next, one of
 ## [enum GrandPrix.Keep]: one at random unless somebody chooses otherwise.
 var grand_prix_jokers := 2
@@ -121,7 +121,9 @@ func load_from_disk() -> void:
 	own_bullets_hurt = file.get_value("lobby", "own_bullets_hurt", own_bullets_hurt)
 	overtime = file.get_value("lobby", "overtime", overtime)
 	grand_prix_maps = file.get_value("lobby", "grand_prix_maps", grand_prix_maps)
-	online_grand_prix = file.get_value("lobby", "online_grand_prix", online_grand_prix)
+	grand_prix = file.get_value(
+		"lobby", "grand_prix", file.get_value("lobby", "online_grand_prix", grand_prix)
+	)
 	grand_prix_jokers = file.get_value("lobby", "grand_prix_jokers", grand_prix_jokers)
 	var stored: Array = file.get_value("lobby", "player_names", [])
 	for i: int in mini(stored.size(), player_names.size()):
@@ -166,7 +168,7 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "own_bullets_hurt", own_bullets_hurt)
 	file.set_value("lobby", "overtime", overtime)
 	file.set_value("lobby", "grand_prix_maps", grand_prix_maps)
-	file.set_value("lobby", "online_grand_prix", online_grand_prix)
+	file.set_value("lobby", "grand_prix", grand_prix)
 	file.set_value("lobby", "grand_prix_jokers", grand_prix_jokers)
 	file.set_value("lobby", "player_names", player_names)
 	file.set_value("lobby", "kart_styles", kart_styles)

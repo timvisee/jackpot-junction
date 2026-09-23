@@ -38,8 +38,7 @@ var _steer_was_down: Dictionary[String, bool] = {}
 
 func _ready() -> void:
 	var column := MenuTheme.screen(self, 16)
-	var playing := Game.lobby_for == Game.LobbyFor.PLAY
-	column.add_child(MenuTheme.title("Play" if playing else "Quick play", 64))
+	column.add_child(MenuTheme.title("Play", 64))
 	_players_label = RichTextLabel.new()
 	_players_label.bbcode_enabled = true
 	_players_label.fit_content = true
@@ -56,13 +55,12 @@ func _ready() -> void:
 	player_names[0] = _remembered_name(0)
 	_build_name_rows(column)
 	_build_style_rows(column)
-	options = MatchOptions.add_to(
-		column, settings, MatchOptions.Mode.PLAY if playing else MatchOptions.Mode.QUICK_PLAY
-	)
+	# A Grand Prix or a quick match is the first row rather than a screen of its own, GAME.md 9.7.
+	options = MatchOptions.add_to(column, settings)
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0.0, 24.0)
 	column.add_child(spacer)
-	start_button = MenuTheme.button("Start" if playing else "Start match")
+	start_button = MenuTheme.button("Start")
 	start_button.pressed.connect(_start)
 	column.add_child(start_button)
 	var back := MenuTheme.button("Back", 24)

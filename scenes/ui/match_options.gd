@@ -9,12 +9,9 @@ extends RefCounted
 ## of an online one. They are the same questions with the same answers, so they are one piece
 ## rather than two copies that drift apart the first time one of them grows an option.
 ##
-## What is being set up changes one row, GAME.md 9.7. Quick play picks the arena. Play is a Grand
-## Prix, whose arenas are dealt when it starts, so it asks how many maps instead. The host of an
-## online room chooses between the two, so they get both, and a row that says which.
-
-## What the rows are setting up: one map, a Grand Prix, or the host's choice of either.
-enum Mode { QUICK_PLAY, PLAY, EITHER }
+## The first row says what is being set up, GAME.md 9.7: a Grand Prix or a quick match. It
+## changes one row under it. A quick match picks its arena; a Grand Prix, whose arenas are dealt
+## when it starts, asks how many maps instead, and what jokers carry between them.
 
 ## How long a map runs, in seconds. A minute is a quick one, for a Grand Prix of several maps
 ## as much as for a short game.
@@ -45,11 +42,10 @@ var difficulty_option: OptionButton
 var items_option: OptionButton
 var own_bullets_option: OptionButton
 var overtime_option: OptionButton
-## The host's choice between a Grand Prix and a single map, [enum Mode] EITHER only.
+## The choice between a Grand Prix and a quick match.
 var mode_option: OptionButton
 var maps_option: OptionButton
 var jokers_option: OptionButton
-var mode := Mode.QUICK_PLAY
 
 ## Names the room the chosen map is played in, under the arena row.
 var _room_label: Label
@@ -61,13 +57,9 @@ var _jokers_row: Control
 var _length_label: Label
 
 
-## Puts the rows into [param column], each set to what [param settings] last had, for setting up
-## [param for_mode].
-static func add_to(
-	column: Container, settings: Settings, for_mode: Mode = Mode.QUICK_PLAY
-) -> MatchOptions:
+## Puts the rows into [param column], each set to what [param settings] last had.
+static func add_to(column: Container, settings: Settings) -> MatchOptions:
 	var options := MatchOptions.new()
-	options.mode = for_mode
 	options._build(column, settings)
 	return options
 
@@ -95,7 +87,7 @@ static func describe(config: MatchConfig) -> String:
 	var length := length_words(config.duration)
 	var parts: PackedStringArray = [
 		(
-			"Match of %d maps" % config.rounds
+			"Grand Prix of %d maps" % config.rounds
 			if config.rounds > 0
 			else ArenaMaps.NAMES[ArenaMaps.index_of(config.map)]
 		),
@@ -140,18 +132,12 @@ func remember(settings: Settings) -> void:
 	settings.overtime = OVERTIME[overtime_option.selected]
 	settings.grand_prix_maps = MAPS[maps_option.selected]
 	settings.grand_prix_jokers = jokers_option.selected
-	if mode == Mode.EITHER:
-		settings.online_grand_prix = is_grand_prix()
+	settings.grand_prix = is_grand_prix()
 
 
-## Whether these rows are setting up a Grand Prix rather than a single map.
+## Whether these rows are setting up a Grand Prix rather than a quick match.
 func is_grand_prix() -> bool:
-	match mode:
-		Mode.PLAY:
-			return true
-		Mode.EITHER:
-			return mode_option.selected == 0
-	return false
+	return mode_option.selected == 0
 
 
 func _build(column: Container, settings: Settings) -> void:
@@ -170,12 +156,9 @@ func _build(column: Container, settings: Settings) -> void:
 	maps_option = MenuTheme.option(
 		_labels(MAPS, "%d maps"), maxi(MAPS.find(settings.grand_prix_maps), 0)
 	)
-	if mode == Mode.EITHER:
-		mode_option = MenuTheme.option(
-			["Match of several maps", "Quick play, one map"], 0 if settings.online_grand_prix else 1
-		)
-		mode_option.item_selected.connect(func(_index: int) -> void: _show_mode())
-		column.add_child(MenuTheme.row("Play", mode_option))
+	mode_option = MenuTheme.option(["Grand Prix", "Quick match"], 0 if settings.grand_prix else 1)
+	mode_option.item_selected.connect(func(_index: int) -> void: _show_mode())
+	column.add_child(MenuTheme.row("Game", mode_option))
 	_maps_row = MenuTheme.row("Maps", maps_option)
 	column.add_child(_maps_row)
 	# Only a Grand Prix has a next map to take anything on to.

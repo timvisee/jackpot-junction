@@ -143,7 +143,9 @@ func test_menu_scenes_build() -> void:
 	add_child(title)
 	assert_object(title.play_button).is_not_null()
 	assert_str(title.play_button.text).is_equal("Play")
-	assert_str(title.quick_play_button.text).is_equal("Quick play")
+	# One way in to playing: which kind is the lobby's first question, GAME.md 9.7.
+	for button: Node in title.find_children("*", "Button", true, false):
+		assert_str((button as Button).text).is_not_equal("Quick play")
 	var lobby: Control = auto_free(load("res://scenes/ui/lobby.tscn").instantiate())
 	add_child(lobby)
 	lobby.options.bots_option.selected = 1

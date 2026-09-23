@@ -19,7 +19,6 @@ func before_test() -> void:
 func after_test() -> void:
 	Game.grand_prix = null
 	Game.pending_config = null
-	Game.lobby_for = Game.LobbyFor.QUICK_PLAY
 	Game.settings = _settings_were
 
 
@@ -275,19 +274,15 @@ func test_the_carried_jokers_are_dealt_into_the_next_map() -> void:
 	assert_int(second.slots[1].kart.jokers.count()).is_equal(0)
 
 
-## Play's lobby has the row for it, and a single map does not, having no next map.
+## A Grand Prix has the row for it, and a quick match does not, having no next map.
 func test_the_joker_rule_is_a_grand_prix_row() -> void:
-	Game.lobby_for = Game.LobbyFor.PLAY
-	var playing: Control = auto_free(LOBBY_SCENE.instantiate())
-	add_child(playing)
-	assert_bool(playing.options._jokers_row.visible).is_true()
-	assert_int(playing.options.jokers_option.selected).is_equal(GrandPrix.Keep.RANDOM)
-	playing.options.jokers_option.selected = GrandPrix.Keep.ALL
-	assert_int(playing.config().keep_jokers).is_equal(GrandPrix.Keep.ALL)
-	Game.lobby_for = Game.LobbyFor.QUICK_PLAY
-	var quick: Control = auto_free(LOBBY_SCENE.instantiate())
-	add_child(quick)
-	assert_bool(quick.options._jokers_row.visible).is_false()
+	var lobby := _lobby(true)
+	assert_bool(lobby.options._jokers_row.visible).is_true()
+	assert_int(lobby.options.jokers_option.selected).is_equal(GrandPrix.Keep.RANDOM)
+	lobby.options.jokers_option.selected = GrandPrix.Keep.ALL
+	assert_int(lobby.config().keep_jokers).is_equal(GrandPrix.Keep.ALL)
+	_choose(lobby, false)
+	assert_bool(lobby.options._jokers_row.visible).is_false()
 
 
 ## When everybody chooses, each row of a player at this screen offers their jokers, and pressing
@@ -311,26 +306,38 @@ func test_choosing_a_joker_to_keep_on_the_podium() -> void:
 	assert_str(screen._keep_note.text).contains("Pick")
 
 
-## Play's lobby asks how many maps rather than which arena, and says its length is per map. Quick
-## play's asks which arena and no number of maps.
-func test_play_asks_how_many_maps_and_quick_play_which_arena() -> void:
-	Game.lobby_for = Game.LobbyFor.PLAY
-	var playing: Control = auto_free(LOBBY_SCENE.instantiate())
-	add_child(playing)
-	var options: MatchOptions = playing.options
+## The lobby, opened on [param grand_prix] as its first row's answer.
+func _lobby(grand_prix: bool) -> Control:
+	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
+	add_child(lobby)
+	_choose(lobby, grand_prix)
+	return lobby
+
+
+## The lobby's first row set to a Grand Prix or a quick match, the way a player choosing it does.
+func _choose(lobby: Control, grand_prix: bool) -> void:
+	lobby.options.mode_option.select(0 if grand_prix else 1)
+	lobby.options.mode_option.item_selected.emit(0 if grand_prix else 1)
+
+
+## Play's lobby asks first whether it is a Grand Prix or a quick match. A Grand Prix asks how many
+## maps rather than which arena, and says its length is per map; a quick match asks which arena
+## and no number of maps.
+func test_the_lobby_asks_grand_prix_or_quick_match_first() -> void:
+	var lobby := _lobby(true)
+	var options: MatchOptions = lobby.options
 	assert_bool(options.is_grand_prix()).is_true()
 	assert_bool(options._maps_row.visible).is_true()
 	assert_bool(options._arena_row.visible).is_false()
 	assert_str(options._length_label.text).is_equal("Time per map")
 	options.maps_option.selected = MatchOptions.MAPS.find(5)
-	assert_int(playing.config().rounds).is_equal(5)
-	Game.lobby_for = Game.LobbyFor.QUICK_PLAY
-	var quick: Control = auto_free(LOBBY_SCENE.instantiate())
-	add_child(quick)
-	assert_bool(quick.options.is_grand_prix()).is_false()
-	assert_bool(quick.options._maps_row.visible).is_false()
-	assert_bool(quick.options._arena_row.visible).is_true()
-	assert_int(quick.config().rounds).is_equal(0)
+	assert_int(lobby.config().rounds).is_equal(5)
+	_choose(lobby, false)
+	assert_bool(options.is_grand_prix()).is_false()
+	assert_bool(options._maps_row.visible).is_false()
+	assert_bool(options._arena_row.visible).is_true()
+	assert_str(options._length_label.text).is_equal("Match length")
+	assert_int(lobby.config().rounds).is_equal(0)
 
 
 ## A finished map in the middle of a run: the podium leads to the next map and nowhere else.

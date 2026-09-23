@@ -1,9 +1,8 @@
 extends Control
-## The title screen from GAME.md 3.8: Play, Quick play, the Garage practice room, Settings, Quit,
-## over the turning sunburst of [TitleBackground].
+## The title screen from GAME.md 3.8: Play, the Garage practice room, Settings, Quit, over the
+## turning sunburst of [TitleBackground].
 
 var play_button: Button
-var quick_play_button: Button
 
 
 func _ready() -> void:
@@ -26,13 +25,10 @@ func _ready() -> void:
 	spacer.custom_minimum_size = Vector2(0.0, 32.0)
 	column.add_child(spacer)
 	play_button = MenuTheme.button("Play")
-	play_button.pressed.connect(func() -> void: Game.go_to_lobby(Game.LobbyFor.PLAY))
+	# One way in to playing. Whether it is a Grand Prix or a quick match is the lobby's first
+	# question, GAME.md 9.7, asked with the rest rather than a screen early.
+	play_button.pressed.connect(func() -> void: Game.go_to_lobby())
 	column.add_child(play_button)
-	# One map, set up and played, GAME.md 9.7: what Play used to be, for a player who wants a
-	# match rather than an evening.
-	quick_play_button = MenuTheme.button("Quick play")
-	quick_play_button.pressed.connect(func() -> void: Game.go_to_lobby(Game.LobbyFor.QUICK_PLAY))
-	column.add_child(quick_play_button)
 	var online := MenuTheme.button("Play online")
 	online.pressed.connect(func() -> void: Game.go_to_online())
 	column.add_child(online)

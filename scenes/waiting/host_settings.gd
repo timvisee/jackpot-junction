@@ -44,7 +44,7 @@ func _ready() -> void:
 	pane.add_child(column)
 	column.add_child(MenuTheme.title("Match settings", 44))
 	column.add_child(MenuTheme.subtitle("Friends can join and drive while you choose.", Type.LABEL))
-	options = MatchOptions.add_to(column, Game.settings, MatchOptions.Mode.EITHER)
+	options = MatchOptions.add_to(column, Game.settings)
 	_done = MenuTheme.button("Done")
 	_done.pressed.connect(close)
 	column.add_child(_done)

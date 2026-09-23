@@ -118,7 +118,7 @@ func _host_opens_the_room() -> Node:
 	pane.options.minutes_option.selected = MatchOptions.match_lengths().find(60)
 	pane.options.jokers_option.selected = _keep
 	pane.close()
-	_check(room.ready_room._plan.text.contains("Match of %d maps" % MAPS), "the room says a match")
+	_check(room.ready_room._plan.text.contains("Grand Prix of %d maps" % MAPS), "the room says so")
 	var match_node: Match = room.match_node
 	if not await _until(
 		func() -> bool: return _remote(match_node) == _clients,
@@ -396,7 +396,6 @@ func _local() -> void:
 		10.0,
 		"back in Play's lobby"
 	)
-	_check(Game.lobby_for == Game.LobbyFor.PLAY, "it is Play's lobby")
 	_finished = true
 
 

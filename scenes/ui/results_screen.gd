@@ -439,4 +439,4 @@ func _back_to_lobby() -> void:
 	if Net.online():
 		Game.back_to_the_room()
 	else:
-		Game.go_to_lobby(Game.LobbyFor.PLAY)
+		Game.go_to_lobby()
