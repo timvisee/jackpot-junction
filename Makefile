@@ -4,7 +4,7 @@ GDLINT ?= gdlint
 GDFORMAT ?= gdformat
 GD_DIRS := scenes scripts tests
 
-.PHONY: import test lint format format-check smoke run drive jokers logo textures bench bots changelog check export
+.PHONY: import test lint format format-check smoke run drive jokers logo textures bench bots multiplayer changelog check export
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -78,11 +78,16 @@ jokers: | $(CACHE)
 bots: | $(CACHE)
 	tools/bot_arena
 
+# A whole Grand Prix played through the real scenes three ways: an online host and client as two
+# processes on this machine, and two players on one screen. About a minute.
+multiplayer: | $(CACHE)
+	tools/multiplayer_check
+
 # The changelog parses, and the version the game reports has notes to go with it.
 changelog:
 	tools/changelog
 
-check: import lint format-check changelog test smoke
+check: import lint format-check changelog test smoke multiplayer
 
 export: | $(CACHE)
 	mkdir -p build/linux build/windows build/macos

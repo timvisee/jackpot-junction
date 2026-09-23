@@ -1,0 +1,558 @@
+extends Node
+## Development harness: plays a whole Grand Prix of GAME.md 9.7 through the real scenes, the way a
+## player would, and says at every step whether what should have happened did. Started by
+## tools/multiplayer_check.gd, which tools/multiplayer_check runs as a host and a client, two
+## processes on one machine, and as two players on one screen, so "does it work in multiplayer"
+## is a yes or a no rather than an impression.
+##
+## Each run is a role: host, client or local. The host and the client find each other on a port
+## on this machine; nothing else is shared between them, so what each one checks is what that
+## machine really saw. Every step prints a line starting MPCHECK, and a step that does not happen
+## in time fails the run with the reason.
+
+const WAITING_SCENE := "res://scenes/waiting/waiting_room.tscn"
+const MATCH_SCENE := "res://scenes/match/match_scene.tscn"
+const LOBBY_SCENE := "res://scenes/ui/lobby.tscn"
+## How many maps the checked Grand Prix runs, and how many bots it asks for.
+const MAPS := 2
+const BOTS := 1
+## How far a client walks its kart toward the pad in a frame, and where on the pad each seat
+## parks, see [method _park].
+const STEP := 0.05
+## How long the host reads a podium before pressing on, the way a person does. It is also what
+## gives the client time to have its own podium up before the host has moved everybody on.
+const READING := 2.0
+const SPOTS: Array[Vector3] = [
+	Vector3(-1.1, 0.0, 0.0), Vector3(1.1, 0.0, 0.0), Vector3(0.0, 0.0, -1.1), Vector3(0.0, 0.0, 1.1)
+]
+
+var _role := ""
+var _port := 7811
+var _failed := false
+## The colour this client had on the first map, to find it in again on the second.
+var _colour := -1
+## Whether the role got to its last step.
+var _finished := false
+
+
+func _ready() -> void:
+	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--role="):
+			_role = arg.get_slice("=", 1)
+		elif arg.begins_with("--port="):
+			_port = int(arg.get_slice("=", 1))
+	_run.call_deferred()
+
+
+func _run() -> void:
+	multiplayer.peer_connected.connect(func(peer: int) -> void: _say("peer %d connected" % peer))
+	multiplayer.peer_disconnected.connect(
+		func(peer: int) -> void: _say("peer %d disconnected" % peer)
+	)
+	multiplayer.server_disconnected.connect(func() -> void: _say("the server hung up"))
+	# Settings of its own, so a check never decides anybody's next match.
+	Game.settings = Settings.new()
+	Game.settings.path = "user://multiplayer_check_%s.cfg" % _role
+	match _role:
+		"host":
+			await _host()
+		"client":
+			await _client()
+		"local":
+			await _local()
+		_:
+			_fail("no --role=host, client or local")
+	# A step that gave up without saying why is a failure too: a script error inside one is how
+	# that happens, and it should not read as a pass.
+	if not _failed and not _finished:
+		_fail("stopped before the end")
+	if not _failed:
+		_say("PASSED")
+	get_tree().quit(1 if _failed else 0)
+
+
+## The host of an online Grand Prix: opens the room, chooses a match of two maps, waits for the
+## client, readies up, plays both maps, and takes everybody back to the room.
+func _host() -> void:
+	var first := await _host_opens_the_room()
+	if first == null:
+		return
+	var last := await _host_plays(first)
+	if last == null:
+		return
+	await _host_goes_back(last)
+
+
+## Up to the first map: the room, the choice of a match, the client, and readying up.
+func _host_opens_the_room() -> Node:
+	var config := MatchConfig.from_settings(Game.settings)
+	config.online = "host"
+	config.port = _port
+	config.human_names = ["Host"] as Array[String]
+	Game.go_to_waiting(config)
+	var room := await _room()
+	if room == null:
+		return null
+	var pane: HostSettings = room.host_settings
+	if not _check(pane != null and pane.is_open(), "the match settings are up in the room"):
+		return null
+	pane.options.mode_option.selected = 0
+	pane.options.maps_option.selected = MatchOptions.MAPS.find(MAPS)
+	pane.options.bots_option.selected = MatchOptions.BOTS.find(BOTS)
+	pane.options.minutes_option.selected = 0
+	pane.close()
+	_check(room.ready_room._plan.text.contains("Match of %d maps" % MAPS), "the room says a match")
+	var match_node: Match = room.match_node
+	if not await _until(
+		func() -> bool: return _remote(match_node) == 1, 30.0, "the client sat down"
+	):
+		return null
+	# Not ready while only the host is on the pad: the room waits for everybody.
+	_park(match_node, 0)
+	await _frames(150)
+	if not _check(_scene() == room, "the room waits while the client is not on the pad"):
+		return null
+	var ready_room: ReadyRoom = room.ready_room
+	if not await _until(
+		func() -> bool: return _park(match_node, 0) and _scene() != room, 30.0, "the room went"
+	):
+		if is_instance_valid(ready_room):
+			_say(_readout(match_node, ready_room))
+		return null
+	return await _map(1)
+
+
+## What the host's room sees of who is where, for a room that has not gone when it should have.
+func _readout(match_node: Match, ready_room: ReadyRoom) -> String:
+	var pad := match_node.arena.junction.global_position
+	var parts: PackedStringArray = [
+		(
+			"ready %d/%d held=%s"
+			% [ready_room.ready_count(), ready_room.player_count(), ready_room.held]
+		)
+	]
+	for slot: PlayerSlot in match_node.slots:
+		var kart := slot.kart
+		(
+			parts
+			. append(
+				(
+					"seat %d %s at %.1f m charge %.2f alive %s"
+					% [
+						slot.index,
+						slot.input.get_class() if slot.input != null else "none",
+						kart.global_position.distance_to(pad) if kart != null else -1.0,
+						ready_room.charge.get(slot.index, 0.0),
+						kart.alive if kart != null else false,
+					]
+				)
+			)
+		)
+	var on := ready_room._karts_on_the_pad()
+	parts.append("on the pad %s" % str(on.keys()))
+	return " | ".join(parts)
+
+
+## Both maps, checking the second has the same people, bot and colours as the first. Returns the
+## run's podium.
+func _host_plays(first: Node) -> ResultsScreen:
+	var one: Match = first.match_node
+	var first_arena := one.rules.map
+	var bot := _bot_seat(one)
+	var bot_trait := String(one.slots[bot].bot_trait.id) if bot >= 0 else ""
+	var guest := _remote_seat(one)
+	var colour: int = one.slots[guest].color_index if guest >= 0 else -1
+	_check(one.slots.size() == 1 + 1 + BOTS, "map 1 seats the host, the client and a bot")
+	var podium := await _end(first)
+	if podium == null:
+		return null
+	_check(podium._next.visible and not podium._rematch.visible, "map 1's podium offers Next map")
+	_check(Game.grand_prix.scored_round == 0, "map 1 is scored")
+	_say("SCORES 1 %s" % _scores(one))
+	await _seconds(READING)
+	podium._next.pressed.emit()
+	var second := await _map(2)
+	if second == null:
+		return null
+	var two: Match = second.match_node
+	_check(two.slots.size() == 1 + 1 + BOTS, "map 2 seats the same people")
+	_check(
+		bot >= 0 and String(two.slots[bot].bot_trait.id) == bot_trait,
+		"map 2 has the same bot in the same seat"
+	)
+	_check(
+		_remote_seat(two) == guest and two.slots[guest].color_index == colour,
+		"the client is in the same seat and colour on map 2"
+	)
+	_check(two.rules.map != first_arena, "map 2 is a different arena")
+	var last := await _end(second)
+	if last == null:
+		return null
+	_check(last._title.text == ResultsScreen.GRAND_PRIX_TITLE, "the last podium is the Grand Prix")
+	_check(last._lobby.visible and not last._next.visible, "it offers Back to lobby")
+	_say("SCORES 2 %s" % _scores(two))
+	return last
+
+
+## Back to the room with everybody, the settings up again for the next one.
+func _host_goes_back(last: ResultsScreen) -> void:
+	await _seconds(READING)
+	last._lobby.pressed.emit()
+	var again := await _room()
+	if again == null:
+		return
+	_check(again.host_settings != null and again.host_settings.is_open(), "settings are up again")
+	var match_node: Match = again.match_node
+	await _until(func() -> bool: return _remote(match_node) == 1, 30.0, "the client is back")
+	# Give the client its moment to see the room before this end hangs up.
+	await _until(func() -> bool: return multiplayer_peers() == 0, 20.0, "the client finished")
+	_finished = true
+
+
+## The client of the same Grand Prix: joins, readies up, follows the host through both maps and
+## back to the room, checking at each step what it was told.
+func _client() -> void:
+	var first := await _client_joins()
+	if first == null:
+		return
+	var second := await _client_after_map_1(first)
+	if second == null:
+		return
+	await _client_after_map_2(second)
+
+
+## Into the room, seated, parked on the pad, and following the host to the first map.
+func _client_joins() -> Node:
+	var config := MatchConfig.new()
+	config.online = "join"
+	config.address = "127.0.0.1"
+	config.port = _port
+	config.human_names = ["Client"] as Array[String]
+	# The host may still be opening its room.
+	await _frames(60)
+	Game.go_to_waiting(config)
+	var room := await _room()
+	if room == null:
+		return null
+	var session: NetSession = room.session
+	var match_node: Match = room.match_node
+	if not await _until(func() -> bool: return session.local_slot >= 0, 30.0, "seated in the room"):
+		return null
+	if not await _until(
+		func() -> bool: return _park(match_node, session.local_slot) and _scene() != room,
+		60.0,
+		"followed the host to map 1"
+	):
+		return null
+	return await _map(1)
+
+
+## Map 1's podium as a client sees it, then on to map 2.
+func _client_after_map_1(first: Node) -> Node:
+	var one: Match = first.match_node
+	_colour = one.slots[one.local_slot].color_index
+	var podium := await _podium(first, 60.0)
+	if podium == null:
+		return null
+	_check(not podium._next.visible, "a client has no Next map of its own")
+	_check(podium._host_decides.text == "The host starts the next map.", "and is told who does")
+	_check(podium._caption.text.contains("map 1 of %d" % MAPS), "its podium says map 1 of 2")
+	if not await _until(
+		func() -> bool: return Game.grand_prix != null and Game.grand_prix.scored_round == 0,
+		10.0,
+		"told how the run stands after map 1"
+	):
+		return null
+	_check(_scene_has_points(podium), "its podium shows what each place paid")
+	_say("SCORES 1 %s" % _scores(one))
+	return await _map(2)
+
+
+## Map 2 in the same colour, the run's podium, and back to the room.
+func _client_after_map_2(second: Node) -> void:
+	var two: Match = second.match_node
+	_check(two.slots[two.local_slot].color_index == _colour, "the same colour on map 2")
+	var last := await _podium(second, 60.0)
+	if last == null:
+		return
+	await _until(
+		func() -> bool: return Game.grand_prix != null and Game.grand_prix.scored_round == 1,
+		10.0,
+		"told how the run ended"
+	)
+	await _frames(5)
+	_check(last._title.text == ResultsScreen.GRAND_PRIX_TITLE, "the last podium is the Grand Prix")
+	_check(last._host_decides.text.contains("back to the lobby"), "told the host takes it back")
+	_say("SCORES 2 %s" % _scores(two))
+	var again := await _room()
+	if again == null:
+		return
+	var session: NetSession = again.session
+	if not await _until(
+		func() -> bool: return session.local_slot >= 0, 30.0, "seated in the room again"
+	):
+		return
+	# Stays a moment, the way a player would, so the host sees it back in the room before it goes.
+	await _seconds(READING * 2.0)
+	_finished = true
+
+
+## Two players on one machine: Play, the waiting room, both maps, and back to Play's lobby.
+func _local() -> void:
+	var first := await _local_readies_up()
+	if first == null:
+		return
+	var last := await _local_plays(first)
+	if last == null:
+		return
+	last._lobby.pressed.emit()
+	await _until(
+		func() -> bool: return _scene() != null and _scene().scene_file_path == LOBBY_SCENE,
+		10.0,
+		"back in Play's lobby"
+	)
+	_check(Game.lobby_for == Game.LobbyFor.PLAY, "it is Play's lobby")
+	_finished = true
+
+
+## Both players into the room, and the room waiting until both are on the pad.
+func _local_readies_up() -> Node:
+	var config := MatchConfig.from_settings(Game.settings)
+	config.online = ""
+	config.human_devices = [DeviceInput.KEYBOARD, 0] as Array[int]
+	config.human_colors = [0, 2] as Array[int]
+	config.human_names = ["Left", "Right"] as Array[String]
+	config.rounds = MAPS
+	config.bot_count = BOTS
+	config.duration = 60.0
+	Game.go_to_waiting(config)
+	var room := await _room()
+	if room == null:
+		return null
+	var match_node: Match = room.match_node
+	_check(match_node.slots.size() == 2, "both players are seated in the room")
+	# One on the pad is not everybody.
+	_park(match_node, 0)
+	await _frames(150)
+	if not _check(_scene() == room, "the room waits for the second player"):
+		return null
+	if not await _until(
+		func() -> bool: return _park(match_node, 0) and _park(match_node, 1) and _scene() != room,
+		30.0,
+		"the room went with both on the pad"
+	):
+		return null
+	return await _map(1)
+
+
+## Both maps, the second with the same players and bot as the first. Returns the run's podium.
+func _local_plays(first: Node) -> ResultsScreen:
+	var one: Match = first.match_node
+	_check(one.slots.size() == 2 + BOTS, "map 1 has both players and the bot")
+	_check(one.slots[0].is_local_human() and one.slots[1].is_local_human(), "both play here")
+	_check(
+		one.slots[1].color_index == 2 and one.slots[1].player_name == "Right", "as they were set up"
+	)
+	var bot := _bot_seat(one)
+	var bot_trait := String(one.slots[bot].bot_trait.id) if bot >= 0 else ""
+	var podium := await _end(first)
+	if podium == null:
+		return null
+	_check(podium._next.visible, "map 1's podium offers Next map")
+	podium._next.pressed.emit()
+	var second := await _map(2)
+	if second == null:
+		return null
+	var two: Match = second.match_node
+	_check(two.slots.size() == 2 + BOTS, "map 2 has the same players and bot")
+	_check(two.slots[1].is_local_human() and two.slots[1].color_index == 2, "the second carried on")
+	_check(bot >= 0 and String(two.slots[bot].bot_trait.id) == bot_trait, "the same bot on map 2")
+	var last := await _end(second)
+	if last == null:
+		return null
+	_check(last._title.text == ResultsScreen.GRAND_PRIX_TITLE, "the last podium is the Grand Prix")
+	_say("SCORES 2 %s" % _scores(two))
+	return last
+
+
+## Waits for the waiting room to be up, and returns it.
+func _room() -> Node:
+	var up := await _until(
+		func() -> bool:
+			var scene := _scene()
+			return (
+				scene != null
+				and scene.scene_file_path == WAITING_SCENE
+				and scene.ready_room != null
+			),
+		30.0,
+		"the waiting room is up"
+	)
+	return _scene() if up else null
+
+
+## Waits for map [param round] of the run to be up and this machine seated in it, and returns
+## its scene.
+func _map(round: int) -> Node:
+	var up := await _until(
+		func() -> bool:
+			var scene := _scene()
+			if scene == null or scene.scene_file_path != MATCH_SCENE or scene.match_node == null:
+				return false
+			var match_node: Match = scene.match_node
+			# The arena goes up a phase at a time behind a loading screen, GAME.md 8.6, and a map
+			# is only up once there are seats in it.
+			if match_node.arena == null or match_node.rules.round != round:
+				return false
+			if match_node.slots.is_empty() or match_node.hud == null:
+				return false
+			if match_node.puppet:
+				return (
+					match_node.local_slot >= 0 and match_node.slots.size() > match_node.local_slot
+				)
+			# The host's map is up when the client is seated in it.
+			return _role != "host" or _remote(match_node) == 1,
+		60.0,
+		"map %d is up and everybody is seated" % round
+	)
+	if not up:
+		return null
+	var scene := _scene()
+	_check(scene.match_node.rules.rounds == MAPS, "map %d knows it is one of %d" % [round, MAPS])
+	return scene
+
+
+## Blows the whistle on a map this machine runs, after a moment of it being played, and waits
+## for its podium.
+func _end(scene: Node) -> ResultsScreen:
+	await _seconds(READING)
+	scene.match_node._finish()
+	return await _podium(scene, 15.0)
+
+
+func _podium(scene: Node, seconds: float) -> ResultsScreen:
+	var up := await _until(
+		func() -> bool:
+			return (
+				is_instance_valid(scene)
+				and scene.match_node.hud != null
+				and scene.match_node.hud._results.visible
+			),
+		seconds,
+		"the podium came up"
+	)
+	return scene.match_node.hud._results if up else null
+
+
+## Brings the kart in [param seat] to the pad and keeps it there. True, so it can sit in a
+## condition. On a client it is walked there a step a frame rather than put there: the host only
+## believes a client about where its kart is while the kart stays within reach of where the host
+## had it, NetInput.CLAIM_REACH, and a kart that jumped the room is one it would take back.
+func _park(match_node: Match, seat: int) -> bool:
+	if not is_instance_valid(match_node) or seat < 0 or seat >= match_node.slots.size():
+		return true
+	var kart := match_node.slots[seat].kart
+	if kart == null or not kart.is_inside_tree() or match_node.arena == null:
+		return true
+	if match_node.arena.junction == null:
+		return true
+	# A spot of its own on the pad for every seat: two karts parked on the same point are two
+	# karts shoving each other off it.
+	var pad := match_node.arena.junction.global_position + SPOTS[seat % SPOTS.size()]
+	var step := STEP if match_node.puppet else INF
+	var to := pad - kart.global_position
+	to.y = 0.0
+	kart.global_position += to if to.length() <= step else to.normalized() * step
+	return true
+
+
+func _remote(match_node: Match) -> int:
+	if not is_instance_valid(match_node):
+		return 0
+	var count := 0
+	for slot: PlayerSlot in match_node.slots:
+		if slot.input is NetInput:
+			count += 1
+	return count
+
+
+func _remote_seat(match_node: Match) -> int:
+	for slot: PlayerSlot in match_node.slots:
+		if slot.input is NetInput:
+			return slot.index
+	return -1
+
+
+func _bot_seat(match_node: Match) -> int:
+	for slot: PlayerSlot in match_node.slots:
+		if slot.input is BotInput and slot.bot_trait != null:
+			return slot.index
+	return -1
+
+
+## Whether a podium has the points chips on it that a map of a run pays.
+func _scene_has_points(podium: ResultsScreen) -> bool:
+	for label: Node in podium.find_children("*", "Label", true, false):
+		if (label as Label).text.begins_with("+") and (label as Label).text.ends_with(" points"):
+			return true
+	return false
+
+
+## Everybody's points so far, by seat, for the two ends to be held against each other.
+func _scores(match_node: Match) -> String:
+	var parts: PackedStringArray = []
+	for slot: PlayerSlot in match_node.slots:
+		parts.append("%d=%d" % [slot.index, Game.grand_prix.total(slot.index)])
+	return " ".join(parts)
+
+
+func multiplayer_peers() -> int:
+	if not Net.online() or multiplayer.multiplayer_peer == null:
+		return 0
+	return multiplayer.get_peers().size()
+
+
+func _scene() -> Node:
+	var scene := get_tree().current_scene
+	return scene if is_instance_valid(scene) else null
+
+
+func _until(condition: Callable, seconds: float, what: String) -> bool:
+	var ends := Time.get_ticks_msec() + int(seconds * 1000.0)
+	while Time.get_ticks_msec() < ends:
+		if _failed:
+			return false
+		if condition.call():
+			_say("ok: %s" % what)
+			return true
+		await get_tree().process_frame
+	_fail("timed out: %s" % what)
+	return false
+
+
+func _seconds(seconds: float) -> void:
+	await get_tree().create_timer(seconds).timeout
+
+
+func _frames(count: int) -> void:
+	for i: int in count:
+		await get_tree().process_frame
+
+
+func _check(passed: bool, what: String) -> bool:
+	if passed:
+		_say("ok: %s" % what)
+	else:
+		_fail(what)
+	return passed
+
+
+func _fail(what: String) -> void:
+	if _failed:
+		return
+	_failed = true
+	printerr("MPCHECK %s FAIL: %s" % [_role, what])
+
+
+func _say(what: String) -> void:
+	print("MPCHECK %s %s (%.1f s)" % [_role, what, Time.get_ticks_msec() / 1000.0])

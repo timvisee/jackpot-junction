@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Plays a whole Grand Prix through the real scenes three ways and says whether each worked: an
+# online host and client, as two processes talking over a port on this machine, and two players
+# on one machine. See tools/multiplayer_check.gd for what each step checks.
+#
+# Usage: tools/multiplayer_check          (about a minute)
+set -uo pipefail
+cd "$(dirname "$0")/.."
+port="${MPCHECK_PORT:-7811}"
+# MPCHECK_LOGS keeps the whole of each run's output there, for a failure that needs reading.
+if [[ -n ${MPCHECK_LOGS:-} ]]; then
+	logs=$MPCHECK_LOGS
+	mkdir -p "$logs"
+else
+	logs=$(mktemp -d)
+	trap 'rm -rf "$logs"' EXIT
+fi
+run() {
+	timeout 240 tools/godot --headless --path . -s tools/multiplayer_check.gd -- \
+		--role="$1" --port="$port" >"$logs/$1.log" 2>&1
+}
+run host &
+host=$!
+run client &
+client=$!
+wait "$host"
+host_status=$?
+wait "$client"
+client_status=$?
+run local
+local_status=$?
+failed=0
+for role in host client local; do
+	grep -h '^MPCHECK' "$logs/$role.log"
+	# A script error anywhere is a failure, even in a run that got to its end: the game carried
+	# on past something that went wrong.
+	if grep -hE 'SCRIPT ERROR|USER ERROR' "$logs/$role.log" | sed "s/^/$role: /" >&2; then
+		echo "multiplayer check: $role raised script errors" >&2
+		failed=1
+	fi
+done
+for pair in "host:$host_status" "client:$client_status" "local:$local_status"; do
+	if [[ ${pair#*:} -ne 0 ]]; then
+		echo "multiplayer check: ${pair%%:*} failed" >&2
+		failed=1
+	fi
+done
+# The two ends of the wire must agree on how the run stood after every map.
+for round in 1 2; do
+	a=$(grep -h "^MPCHECK host SCORES $round " "$logs/host.log" | cut -d' ' -f5- | sed 's/ ([0-9.]* s)$//')
+	b=$(grep -h "^MPCHECK client SCORES $round " "$logs/client.log" | cut -d' ' -f5- | sed 's/ ([0-9.]* s)$//')
+	if [[ -z $a || $a != "$b" ]]; then
+		echo "multiplayer check: host and client disagree after map $round: '$a' against '$b'" >&2
+		failed=1
+	fi
+done
+if [[ $failed -eq 0 ]]; then
+	echo "multiplayer check ok"
+fi
+exit "$failed"
