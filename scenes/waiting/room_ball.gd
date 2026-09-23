@@ -22,6 +22,8 @@ const KART_HALF := Vector2(0.5, 0.8)
 ## How much of a kart's run at it the ball bounces off with, and the most it ever goes.
 const RESTITUTION := 0.55
 const MAX_SPEED := 16.0
+## A kart on nitro kicks twice as hard, and the ball may go twice as fast for it.
+const NITRO_KICK := 2.0
 ## How fast it rolls to a stop on the concrete, and how hard walls and props throw it back.
 const ROLLING_DAMP := 0.6
 const BOUNCE := 0.7
@@ -42,6 +44,9 @@ var simulating := true
 var home := Vector3.ZERO
 
 var _tick := 0
+## The fastest the ball may go just now: [constant MAX_SPEED], or more straight after a kick on
+## nitro, coming back down as it slows.
+var _cap := MAX_SPEED
 ## On a client: where it was last told the ball is, and how fast it was going then.
 var _told := Vector3.ZERO
 var _told_velocity := Vector3.ZERO
@@ -113,9 +118,12 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		var kicked := _kick(at, velocity, kart)
 		at = kicked[0]
 		velocity = kicked[1]
+		if kicked[2]:
+			_cap = MAX_SPEED * NITRO_KICK
 	velocity.y = 0.0
-	if velocity.length() > MAX_SPEED:
-		velocity = velocity.normalized() * MAX_SPEED
+	if velocity.length() > _cap:
+		velocity = velocity.normalized() * _cap
+	_cap = maxf(MAX_SPEED, minf(_cap, velocity.length()))
 	# A ball found outside the room -- through a gap, or pushed through a wall by a kart pinning it
 	# there -- goes back to where it started rather than rolling on under the crowd.
 	var half := match_node.arena.world_size() * 0.5
@@ -128,7 +136,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 
 
 ## The ball off one kart: if it is inside the kart's box, out to its edge and away, bouncing off
-## the side it met with the speed that side was coming at it. Returns [where, how fast].
+## the side it met with the speed that side was coming at it, twice as hard off a kart on nitro.
+## Returns [where, how fast, whether it was a kick on nitro].
 func _kick(at: Vector3, velocity: Vector3, kart: Kart) -> Array:
 	var center := Vector3(kart.global_position.x, 0.0, kart.global_position.z)
 	var flat := Vector3(at.x, 0.0, at.z)
@@ -142,7 +151,7 @@ func _kick(at: Vector3, velocity: Vector3, kart: Kart) -> Array:
 	var away := flat - touch
 	var gap := away.length()
 	if gap >= RADIUS:
-		return [at, velocity]
+		return [at, velocity, false]
 	# Its middle inside the kart: straight out from the kart's own middle.
 	var normal := away / gap if gap > 0.001 else (flat - center).normalized()
 	if normal.is_zero_approx():
@@ -150,9 +159,10 @@ func _kick(at: Vector3, velocity: Vector3, kart: Kart) -> Array:
 	var out := touch + normal * RADIUS
 	var coming := velocity - Vector3(kart.velocity.x, 0.0, kart.velocity.z)
 	var into := coming.dot(normal)
+	var hard := kart.nitro_active and into < 0.0
 	if into < 0.0:
-		velocity -= (1.0 + RESTITUTION) * into * normal
-	return [Vector3(out.x, at.y, out.z), velocity]
+		velocity -= (1.0 + RESTITUTION) * into * normal * (NITRO_KICK if hard else 1.0)
+	return [Vector3(out.x, at.y, out.z), velocity, hard]
 
 
 func _physics_process(delta: float) -> void:

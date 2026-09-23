@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Nitro kicks the football twice as hard.** Hit the ball in the waiting room with
+  nitro on and it flies.
+
 - **The ready pad can be heard.** A soft tick climbs as you charge it, and a chime
   plays when somebody is ready.
 

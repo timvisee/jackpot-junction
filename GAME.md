@@ -2517,7 +2517,8 @@ And a football, in front of the pad, to knock about. It rolls on the floor and n
 height is held, so no kick lifts it, and the walls and props throw it back the way they throw
 back a kart. It is not solid to karts. A kart that meets it is not stopped by it as by a wall; the
 ball is kicked out of its way instead, off whichever side of the kart it met, with however fast
-that side was coming at it, and rolls to a stop on the concrete. The kart is the heavy thing. It
+that side was coming at it, and rolls to a stop on the concrete. The kart is the heavy thing.
+A kart on nitro kicks it twice as hard, and the ball may go twice as fast for it. It
 is nobody's on the pad, and a ball ever found outside the room goes back to where it started.
 Online the host kicks it and tells everybody where it went, often and without waiting for an
 answer; a client draws it rolling on between one telling and the next.

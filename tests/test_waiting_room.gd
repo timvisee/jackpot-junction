@@ -556,6 +556,31 @@ func test_a_kart_driving_into_the_ball_kicks_it() -> void:
 	assert_float(ball.global_position.y).is_equal_approx(RoomBall.RADIUS, 0.01)
 
 
+## A kart on nitro kicks the ball twice as hard as the same kart coming at it the same way off
+## nitro, and the ball may go faster than its usual most for it.
+func test_a_kick_on_nitro_is_twice_as_hard() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var ball: RoomBall = room.ball
+	var kart := match_node.kart_of(0)
+	var at := ball.global_position
+	kart.global_position = Vector3(at.x - 1.1, 0.0, at.z)
+	kart.face(Vector3.RIGHT)
+	kart.velocity = Vector3(8.0, 0.0, 0.0)
+	kart.nitro_active = false
+	var plain: Array = ball._kick(at, Vector3.ZERO, kart)
+	kart.nitro_active = true
+	var hard: Array = ball._kick(at, Vector3.ZERO, kart)
+	kart.nitro_active = false
+	assert_bool(plain[2]).is_false()
+	assert_bool(hard[2]).is_true()
+	var soft_speed := (plain[1] as Vector3).length()
+	assert_float(soft_speed).is_greater(1.0)
+	assert_float((hard[1] as Vector3).length()).is_equal_approx(
+		soft_speed * RoomBall.NITRO_KICK, 0.01
+	)
+
+
 ## However hard it is sent, it stays on the floor and inside the room: no height to go up into,
 ## and walls that throw it back.
 func test_the_ball_never_leaves_the_floor_or_the_room() -> void:
@@ -563,8 +588,10 @@ func test_the_ball_never_leaves_the_floor_or_the_room() -> void:
 	var match_node: Match = room.get_node("Match")
 	var ball: RoomBall = room.ball
 	var half := match_node.arena.world_size() * 0.5
+	# Including as fast as a kick on nitro sends it.
 	for heading: Vector3 in [Vector3(0, 0, -1), Vector3(1, 0, 0.6), Vector3(-1, 0.8, 1)]:
-		ball.linear_velocity = heading.normalized() * RoomBall.MAX_SPEED
+		ball._cap = RoomBall.MAX_SPEED * RoomBall.NITRO_KICK
+		ball.linear_velocity = heading.normalized() * ball._cap
 		for i: int in 180:
 			await _runner.simulate_frames(1, 17)
 			var at := ball.global_position
