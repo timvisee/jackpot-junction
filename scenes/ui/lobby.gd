@@ -12,29 +12,10 @@ extends Control
 ##
 ## Beside the name is how that player's kart is dressed, GAME.md 4.4, remembered the same way.
 
-const MINUTES: Array[int] = [3, 5, 8]
-## A minute, for a match somebody is testing rather than playing: long enough to reach the
-## Junction and the results screen, short enough to do it again straight away. Only in a debug
-## build, because it is not a length anybody wants a real game to be.
-const DEBUG_MINUTES := 1
-const TARGETS: Array[int] = [0, 2000, 3000, 5000]
-const BOTS: Array[int] = [0, 1, 2, 3]
-const DIFFICULTIES: Array[String] = ["easy", "normal", "hard"]
-const ITEM_SETS: Array[String] = ["first", "all"]
-## Index order of the own-bullets option: off first, so it is the default.
-const OWN_BULLETS: Array[bool] = [false, true]
-## Index order of the overtime option: on first, so it is the default.
-const OVERTIME: Array[bool] = [true, false]
 const MAX_HUMANS := 4
 
-var map_option: OptionButton
-var minutes_option: OptionButton
-var target_option: OptionButton
-var bots_option: OptionButton
-var difficulty_option: OptionButton
-var items_option: OptionButton
-var own_bullets_option: OptionButton
-var overtime_option: OptionButton
+## What the match is going to be, the same rows the waiting room of 9.6 puts in front of a host.
+var options: MatchOptions
 var start_button: Button
 ## Devices of the joined players in slot order; the first entry may be ANY until claimed.
 var devices: Array[int] = [DeviceInput.ANY]
@@ -43,8 +24,6 @@ var colors: Array[int] = [0]
 ## the match hands it, GAME.md 3.8.
 var player_names: Array[String] = [""]
 
-## Names the room the chosen map is played in, under the arena row.
-var _room_label: Label
 var _players_label: RichTextLabel
 var _join_hint: HBoxContainer
 ## One name box per seat, built once and shown as far down as the roster reaches.
@@ -55,13 +34,6 @@ var _name_rows: Array[HBoxContainer] = []
 var _style_rows: Array[HBoxContainer] = []
 var _style_pickers: Array[Array] = []
 var _steer_was_down: Dictionary[String, bool] = {}
-
-
-## The room behind the chosen map, named under the row that chose it.
-func _show_room() -> void:
-	var layout := ArenaMaps.layout(ArenaMaps.id_at(map_option.selected))
-	var room := layout.room if layout.room != null else RoomLook.fallback()
-	_room_label.text = "Played in %s" % room.display_name
 
 
 func _ready() -> void:
@@ -83,38 +55,7 @@ func _ready() -> void:
 	player_names[0] = _remembered_name(0)
 	_build_name_rows(column)
 	_build_style_rows(column)
-	var lengths := _match_lengths()
-	minutes_option = MenuTheme.option(
-		_labels(lengths, "%d min"), maxi(lengths.find(settings.match_minutes), 0)
-	)
-	target_option = MenuTheme.option(_target_labels(), TARGETS.find(settings.target_score))
-	bots_option = MenuTheme.option(BOTS, BOTS.find(settings.bot_count))
-	difficulty_option = MenuTheme.option(
-		["Easy", "Normal", "Hard"], DIFFICULTIES.find(settings.difficulty)
-	)
-	items_option = MenuTheme.option(["First set", "All items"], ITEM_SETS.find(settings.item_set))
-	map_option = MenuTheme.option(ArenaMaps.NAMES, ArenaMaps.index_of(StringName(settings.map)))
-	column.add_child(MenuTheme.row("Arena", map_option))
-	# Which room that map is played in, GAME.md 8.1: three of them, and a player picking a map
-	# is picking a place as much as a floor plan.
-	_room_label = MenuTheme.subtitle("", Type.LABEL)
-	_room_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	column.add_child(_room_label)
-	map_option.item_selected.connect(func(_index: int) -> void: _show_room())
-	_show_room()
-	column.add_child(MenuTheme.row("Match length", minutes_option))
-	column.add_child(MenuTheme.row("Target score", target_option))
-	column.add_child(MenuTheme.row("Bots", bots_option))
-	column.add_child(MenuTheme.row("Bot difficulty", difficulty_option))
-	column.add_child(MenuTheme.row("Items", items_option))
-	own_bullets_option = MenuTheme.option(
-		["Stop harmlessly", "Are deadly"], OWN_BULLETS.find(settings.own_bullets_hurt)
-	)
-	column.add_child(MenuTheme.row("Your own bullets", own_bullets_option))
-	overtime_option = MenuTheme.option(
-		["Last one standing", "Match ends"], OVERTIME.find(settings.overtime)
-	)
-	column.add_child(MenuTheme.row("Out of time", overtime_option))
+	options = MatchOptions.add_to(column, settings)
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0.0, 24.0)
 	column.add_child(spacer)
@@ -196,14 +137,8 @@ func config() -> MatchConfig:
 	result.human_colors = colors.duplicate()
 	result.human_names = names()
 	result.human_styles = styles()
-	result.map = ArenaMaps.id_at(map_option.selected)
-	result.duration = _match_lengths()[minutes_option.selected] * 60.0
-	result.target_score = TARGETS[target_option.selected]
-	result.bot_count = mini(BOTS[bots_option.selected], MAX_HUMANS - devices.size())
-	result.difficulty = DIFFICULTIES[difficulty_option.selected]
-	result.item_set = ITEM_SETS[items_option.selected]
-	result.own_bullets_hurt = OWN_BULLETS[own_bullets_option.selected]
-	result.overtime = OVERTIME[overtime_option.selected]
+	options.apply_to(result)
+	result.bot_count = mini(result.bot_count, MAX_HUMANS - devices.size())
 	return result
 
 
@@ -234,14 +169,7 @@ func _start() -> void:
 	var dressed := styles()
 	for i: int in mini(dressed.size(), settings.kart_styles.size()):
 		settings.kart_styles[i] = dressed[i]
-	settings.map = String(ArenaMaps.id_at(map_option.selected))
-	settings.match_minutes = _match_lengths()[minutes_option.selected]
-	settings.target_score = TARGETS[target_option.selected]
-	settings.bot_count = BOTS[bots_option.selected]
-	settings.difficulty = DIFFICULTIES[difficulty_option.selected]
-	settings.item_set = ITEM_SETS[items_option.selected]
-	settings.own_bullets_hurt = OWN_BULLETS[own_bullets_option.selected]
-	settings.overtime = OVERTIME[overtime_option.selected]
+	options.remember(settings)
 	settings.save_to_disk()
 	Game.start_match(config())
 
@@ -354,27 +282,3 @@ func _just_pressed(action: StringName, device: int) -> bool:
 	var was: bool = _steer_was_down.get(key, false)
 	_steer_was_down[key] = down
 	return down and not was
-
-
-## The match lengths on offer, shortest first. A debug build gets the one-minute match in front
-## of the real ones, where somebody testing will find it without hunting.
-func _match_lengths() -> Array[int]:
-	if not OS.is_debug_build():
-		return MINUTES
-	var with_short: Array[int] = [DEBUG_MINUTES]
-	with_short.append_array(MINUTES)
-	return with_short
-
-
-func _labels(values: Array[int], format: String) -> Array:
-	var result: Array = []
-	for value: int in values:
-		result.append(format % value)
-	return result
-
-
-func _target_labels() -> Array:
-	var result: Array = ["Off"]
-	for value: int in TARGETS.slice(1):
-		result.append(str(value))
-	return result

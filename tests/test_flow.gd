@@ -125,8 +125,8 @@ func test_menu_scenes_build() -> void:
 	assert_object(title.play_button).is_not_null()
 	var lobby: Control = auto_free(load("res://scenes/ui/lobby.tscn").instantiate())
 	add_child(lobby)
-	lobby.bots_option.selected = 1
-	lobby.difficulty_option.selected = 2
+	lobby.options.bots_option.selected = 1
+	lobby.options.difficulty_option.selected = 2
 	var config: MatchConfig = lobby.config()
 	assert_int(config.bot_count).is_equal(1)
 	assert_str(config.difficulty).is_equal("hard")

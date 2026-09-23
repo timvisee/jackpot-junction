@@ -39,7 +39,7 @@ func test_lobby_join_claims_p1_then_adds_and_drops_players_with_distinct_colours
 	assert_int(lobby.devices.size()).is_equal(2)
 	lobby.toggle_join(0)
 	assert_int(lobby.devices.size()).is_equal(2)
-	lobby.bots_option.selected = 3
+	lobby.options.bots_option.selected = 3
 	var config: MatchConfig = lobby.config()
 	assert_int(config.human_devices.size()).is_equal(2)
 	assert_int(config.bot_count).is_equal(2)
@@ -107,19 +107,19 @@ func test_joining_without_bots_spawns_a_fresh_slot_until_the_match_is_full() -> 
 func test_a_debug_build_offers_a_short_match() -> void:
 	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
 	add_child(lobby)
-	var lengths: Array[int] = lobby._match_lengths()
+	var lengths: Array[int] = MatchOptions.match_lengths()
 	assert_array(lengths).is_not_empty()
 	if OS.is_debug_build():
 		(
 			assert_int(lengths[0])
 			. override_failure_message("a debug build did not offer the short match first")
-			. is_equal(lobby.DEBUG_MINUTES)
+			. is_equal(MatchOptions.DEBUG_MINUTES)
 		)
-		assert_int(lengths.size()).is_equal(lobby.MINUTES.size() + 1)
+		assert_int(lengths.size()).is_equal(MatchOptions.MINUTES.size() + 1)
 	else:
-		assert_array(lengths).is_equal(lobby.MINUTES)
+		assert_array(lengths).is_equal(MatchOptions.MINUTES)
 	# Whichever it is, picking one gives a match that long and nothing else.
-	lobby.minutes_option.selected = 0
+	lobby.options.minutes_option.selected = 0
 	var config: MatchConfig = lobby.config()
 	assert_float(config.duration).is_equal_approx(float(lengths[0]) * 60.0, 0.001)
 

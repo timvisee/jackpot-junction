@@ -85,8 +85,8 @@ func test_the_map_rides_the_wire_with_the_rest_of_the_settings() -> void:
 func test_the_lobby_picks_one_and_a_match_is_played_in_it() -> void:
 	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
 	add_child(lobby)
-	assert_int(lobby.map_option.item_count).is_equal(ArenaMaps.IDS.size())
-	lobby.map_option.selected = 1
+	assert_int(lobby.options.map_option.item_count).is_equal(ArenaMaps.IDS.size())
+	lobby.options.map_option.selected = 1
 	var config: MatchConfig = lobby.config()
 	assert_str(String(config.map)).is_equal(String(ArenaMaps.IDS[1]))
 	var rules := config.rules(DEFAULT_RULES)
