@@ -47,7 +47,7 @@ static func hint_row(for_device: int) -> HBoxContainer:
 		InputHint.pair(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, keyboard, INK, FONT_SIZE),
 		InputHint.glyph(InputActions.FIRE, keyboard, INK, FONT_SIZE),
 	]
-	return InputHint.row("%s drive %s steer %s fire", parts, INK, FONT_SIZE)
+	return InputHint.row("%s drive   %s steer   %s fire", parts, INK, FONT_SIZE)
 
 
 ## What the drawn line depends on, so a rebuild happens when the player picks up a pad and not on

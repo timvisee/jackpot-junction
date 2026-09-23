@@ -188,5 +188,7 @@ func _hint_row(choosing: bool) -> Control:
 		InputHint.glyph(InputActions.FIRE, keyboard, ink, size),
 		InputHint.glyph(InputActions.JOKER_DESTROY, keyboard, ink, size),
 	]
-	var template := "%s choose %s take %s skip" if choosing else "%s choose %s destroy %s back"
+	var template := (
+		"%s choose   %s take   %s skip" if choosing else "%s choose   %s destroy   %s back"
+	)
 	return InputHint.row(template, parts, ink, size)

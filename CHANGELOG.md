@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **No stray gap before the buttons in a hint.** A line like "Press J or Menu on
+  another device to join" had a wide space in front of each button; it reads as a
+  sentence now.
+
 ### Changed
 
 - **One-minute maps in every build.** A short map is on offer outside debug builds

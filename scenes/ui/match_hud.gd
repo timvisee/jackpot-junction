@@ -700,7 +700,7 @@ func _update_hints(block: Dictionary, kart: Kart, device: int) -> void:
 	var template := ""
 	for action: StringName in wanted:
 		parts.append(InputHint.glyph(action, keyboard, HINT_INK, HINT_SIZE))
-		template += "%s " + HINT_WORDS[action] + " "
+		template += "%s " + HINT_WORDS[action] + "   "
 	holder.add_child(InputHint.row(template, parts, HINT_INK, HINT_SIZE))
 
 

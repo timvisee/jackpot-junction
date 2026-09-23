@@ -200,5 +200,5 @@ func _show_detail(joker: Joker) -> void:
 	if kart != null and kart.alive:
 		parts.append(InputHint.glyph(InputActions.JOKER_DROP, keyboard, ink, size))
 		parts.append(InputHint.glyph(InputActions.JOKER_DESTROY, keyboard, ink, size))
-		line += " %s drop %s destroy"
+		line += "   %s drop   %s destroy"
 	_detail.set_hints(InputHint.row(line, parts, ink, size))

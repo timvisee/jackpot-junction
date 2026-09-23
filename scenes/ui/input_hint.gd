@@ -52,6 +52,11 @@ static func pair(
 ## A line of hint: [param template] split on its gaps with [param parts] dropped into them. A gap
 ## with nothing bound to it is left out along with the words that went with it, rather than
 ## printed as a dash.
+##
+## A run of spaces in the template is where one group ends and the next begins, and gets the wide
+## gap: "%s drift   %s nitro". A single space is a single space, so a sentence with a button in
+## the middle of it -- "Press %s or %s to join" -- reads as a sentence, not as a list with a hole
+## in front of every button.
 static func row(template: String, parts: Array, ink: Color, size: int) -> HBoxContainer:
 	var box := HBoxContainer.new()
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -60,7 +65,7 @@ static func row(template: String, parts: Array, ink: Color, size: int) -> HBoxCo
 	for i: int in chunks.size():
 		var part: Control = parts[i - 1] if i > 0 and i <= parts.size() else null
 		if part != null:
-			if box.get_child_count() > 0:
+			if box.get_child_count() > 0 and chunks[i - 1].ends_with("  "):
 				box.add_child(_gap())
 			box.add_child(part)
 		var words: String = chunks[i].strip_edges()

@@ -400,3 +400,32 @@ func test_a_swivel_cannon_is_named_once() -> void:
 		if (line["row"] as Control).visible and label.text == swivel.display_name:
 			said += 1
 	assert_int(said).override_failure_message("the swivel cannon is on the HUD twice").is_equal(1)
+
+
+## How many wide group gaps a hint row has: the bare spacers between its pictures and words.
+func _gaps(row: HBoxContainer) -> int:
+	var count := 0
+	for child: Node in row.get_children():
+		if not (child is Label or child is InputGlyph) and child is Control:
+			count += 1
+	return count
+
+
+## A button in the middle of a sentence sits in it like a word, with no wide gap in front: only a
+## run of spaces in the template says one group has ended and the next begins.
+func test_a_button_in_a_sentence_has_no_gap_in_front_of_it() -> void:
+	var ink := Color.WHITE
+	var parts: Array = [
+		InputHint.glyph(InputActions.JOIN, true, ink, 15),
+		InputHint.glyph(InputActions.JOIN, false, ink, 15),
+	]
+	var sentence: HBoxContainer = auto_free(
+		InputHint.row("Press %s or %s on another device to join.", parts, ink, 15)
+	)
+	assert_int(_gaps(sentence)).is_equal(0)
+	var groups: Array = [
+		InputHint.glyph(InputActions.THROTTLE, true, ink, 15),
+		InputHint.glyph(InputActions.FIRE, true, ink, 15),
+	]
+	var listed: HBoxContainer = auto_free(InputHint.row("%s drive   %s fire", groups, ink, 15))
+	assert_int(_gaps(listed)).is_equal(1)
