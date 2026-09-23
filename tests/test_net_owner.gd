@@ -64,3 +64,19 @@ func test_the_session_can_be_pointed_at_another_room() -> void:
 	Net.attach(second)
 	assert_object(session.match_node).is_same(second)
 	assert_object(Net.session).is_same(session)
+
+
+## A match that leaves the tree, with the room it was in, is let go of on the spot. Between one
+## room going and the next attaching, a session still holding it would be feeding a freed match
+## every input, snapshot and seat that arrived.
+func test_the_session_lets_go_of_a_match_that_leaves() -> void:
+	var first := _match()
+	var session := Net.open(first)
+	assert_object(session.match_node).is_same(first)
+	remove_child(first)
+	assert_object(session.match_node).is_null()
+	# And holds the next one as before.
+	var second := _match()
+	Net.attach(second)
+	assert_object(session.match_node).is_same(second)
+	first.free()

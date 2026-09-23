@@ -2755,7 +2755,9 @@ happened to be called and both ends had to agree.
 
 The cost of a longer life is that nothing is cleaned up by a scene change any more. Whatever the
 session holds is held until it is closed, so closing is somebody's job rather than something
-that happens by itself. It is also the first half of what a dedicated server would need: such a
+that happens by itself. The one thing it lets go of on its own is the match it was playing: the
+moment that match leaves with its room, the session holds nothing until the next room takes it
+over, and ignores whatever arrives in between rather than handing it to a match that is gone. It is also the first half of what a dedicated server would need: such a
 server runs room after room with the same clients connected throughout, which a session owned by
 a scene can never do. The second half -- a match with no local seat, and no HUD or camera for
 nobody to look at -- is separate work and untouched by this.

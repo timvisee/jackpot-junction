@@ -88,7 +88,17 @@ const LOCAL_EVENTS: Array[StringName] = [
 	&"kart_corrected",
 ]
 
-var match_node: Match
+## The match this session is playing, or null while it is between rooms. Let go of the moment the
+## match leaves the tree: a session outlives the rooms it is played in, see GAME.md 10.3, and in
+## the frames between one room going and the next one taking over, a session still holding the
+## old match would be feeding a freed one every input, snapshot and seat that arrived.
+var match_node: Match:
+	set(value):
+		if is_instance_valid(match_node) and match_node.tree_exiting.is_connected(_let_go):
+			match_node.tree_exiting.disconnect(_let_go)
+		match_node = value
+		if value != null and not value.tree_exiting.is_connected(_let_go):
+			value.tree_exiting.connect(_let_go)
 ## The slot this client plays, -1 until the host assigns one.
 var local_slot := -1
 ## The input the client sends; tests may swap it.
@@ -237,11 +247,18 @@ func _back_to_room() -> void:
 	back_to_room.emit()
 
 
+## The match has left the tree, with the room it was in. Held again when the next room attaches.
+func _let_go() -> void:
+	match_node = null
+
+
 ## The host is about to change room. Nobody can be seated until it has arrived, and it notes the
 ## colour everybody is in so they get it back there.
 func _leaving() -> void:
 	_room_up = false
 	_colour_of.clear()
+	if match_node == null:
+		return
 	for peer: int in _peer_slots:
 		var index: int = _peer_slots[peer]
 		if index < match_node.slots.size():
@@ -302,6 +319,8 @@ func re_seat() -> void:
 ## room for is turned away; somebody coming back from another room is left connected, in case a
 ## seat comes free.
 func _seat(peer: int, fresh: bool) -> void:
+	if match_node == null:
+		return
 	var slot := match_node.join_network(NetInput.new(), _colour_of.get(peer, -1))
 	if slot == null:
 		if fresh:
@@ -407,7 +426,7 @@ func _on_peer_disconnected(peer: int) -> void:
 	# Whoever is left may be the whole room now, and they may all be waiting in the menu.
 	_peer_asking.erase(peer)
 	_settle_pause()
-	if index < match_node.slots.size():
+	if match_node != null and index < match_node.slots.size():
 		match_node.leave_human(match_node.slots[index])
 
 
@@ -473,6 +492,8 @@ func _set_rules(data: Dictionary) -> void:
 
 @rpc("authority", "call_remote", "reliable")
 func _assign_slot(index: int, _seed: int) -> void:
+	if match_node == null:
+		return
 	local_slot = index
 	match_node.set_local_slot(index, local_input)
 	# The host made this seat before it could ask who was sitting in it, GAME.md 3.8, so the
@@ -494,7 +515,7 @@ func _claim_name(claimed: String) -> void:
 		return
 	var index: int = _peer_slots[peer]
 	var name := PlayerNames.clean(claimed)
-	if name.is_empty() or index >= match_node.slots.size():
+	if name.is_empty() or match_node == null or index >= match_node.slots.size():
 		return
 	match_node.slots[index].player_name = name
 
@@ -503,7 +524,7 @@ func _claim_name(claimed: String) -> void:
 ## snapshot rather than once, the same as the kart's voice is: which slot is ours arrives in a
 ## message of its own, and the karts may well have been built before it did.
 func adopt_own_kart() -> void:
-	if is_host or local_slot < 0 or local_slot >= match_node.slots.size():
+	if is_host or match_node == null or local_slot < 0 or local_slot >= match_node.slots.size():
 		return
 	var kart := match_node.slots[local_slot].kart
 	if kart == null:
@@ -516,7 +537,7 @@ func adopt_own_kart() -> void:
 @rpc("authority", "call_remote", "unreliable")
 func _receive_snapshot(bytes: PackedByteArray) -> void:
 	var data: Variant = bytes_to_var(bytes)
-	if data is Dictionary:
+	if data is Dictionary and match_node != null:
 		match_node.apply_snapshot(data)
 
 
@@ -526,7 +547,7 @@ func _send_input(state: Array, seq: int = 0, claim: Array = []) -> void:
 	if not _peer_slots.has(peer):
 		return
 	var index: int = _peer_slots[peer]
-	if index >= match_node.slots.size():
+	if match_node == null or index >= match_node.slots.size():
 		return
 	var input := match_node.slots[index].input as NetInput
 	if input != null:
