@@ -8,6 +8,12 @@ extends RefCounted
 ## and the camera somewhere else is the same match. It is here so that the presentation of a
 ## room is one thing in one place, and so the file that runs the rules stays about the rules.
 
+## How hard the top excitement level thumps the camera on the beat, and how much harder on
+## the first beat of the bar. This is the only effect that moves what the player is aiming
+## through, so it is kept to a thump rather than a shake.
+const BEAT_TREMBLE := 2.0
+const BEAT_DOWNBEAT := 1.4
+
 
 ## Puts the stage up around [param match_node]'s arena and hands the pieces back to it.
 static func build(match_node: Match, camera_scene: PackedScene) -> void:
@@ -44,3 +50,27 @@ static func watch(match_node: Match, state: Match.State) -> void:
 		return
 	if state == Match.State.LOBBY or state == Match.State.COUNTDOWN:
 		match_node.camera_rig.open_on_the_room()
+
+
+## The room answering the excitement meter, GAME.md 8.4: the lights, the crowd and the thump in
+## the camera, every tick. A client runs a meter of its own off the same events the host's runs
+## off, so it steps its room here too rather than waiting to be told; it used to set the lights
+## alone, and its crowd stood still through the loudest match.
+static func step(match_node: Match) -> void:
+	if match_node.arena == null or match_node.intensity == null or match_node.camera_rig == null:
+		return
+	var level := match_node.intensity.level
+	match_node.arena.disco.level = level
+	match_node.arena.crowd.level = level
+	match_node.camera_rig.tremble = beat_tremble(level)
+
+
+## The camera's share of the top excitement level, GAME.md 8.4: at level 6 and nowhere else
+## the room is felt as well as heard. A thump on every beat and a harder one on the first of
+## the bar, each shaped so it has fallen away before the next arrives. The accessibility
+## toggle in 8.5 turns all of it off, since this is the one effect that moves the whole view.
+static func beat_tremble(level: int) -> float:
+	if level < MatchIntensity.LEVELS:
+		return 0.0
+	var downbeat := BEAT_DOWNBEAT if Audio.music_beat_index() == 0 else 1.0
+	return BEAT_TREMBLE * downbeat * pow(1.0 - Audio.music_beat(), 5.0)

@@ -30,6 +30,10 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The crowd dances online.** Joining somebody else's game, the crowd stood still
+  however loud the room got; it gets up with the music now, and the camera thumps
+  on the beat at the top level too.
+
 - **Your own kart is heard online.** Joining somebody else's game, your engine and
   tires sounded as far off as everybody else's and the camera did not look ahead of
   you; both work as they do for the host now.

@@ -355,7 +355,6 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 	# and the snapshot has just said what every pot is worth, so a client works them out itself.
 	match_node.arena.junction.hint = match_node.junction_hint()
 	match_node.arena.junction.winning = match_node.junction_wins_it()
-	match_node.arena.disco.level = match_node.intensity.level
 	# The whistle, GAME.md 8.1. A client never runs one, so the rig would keep sweeping while the
 	# standings sat on the screen. Asked after the slots are in, since who won is read off them.
 	if match_node.state != previous_state:

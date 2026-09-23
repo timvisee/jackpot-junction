@@ -156,6 +156,26 @@ func test_the_match_tells_the_crowd_how_the_room_is_going() -> void:
 	assert_int(match_node.arena.crowd.level).is_equal(6)
 
 
+## And a client's match keeps its own crowd up to date from its own meter, GAME.md 10.3. It used
+## to set the lights alone, so a client's crowd stood still while the host's was on its feet.
+func test_a_client_tells_its_crowd_how_the_room_is_going() -> void:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = RULES.duplicate()
+	match_node.with_hud = false
+	_runner = scene_runner(match_node)
+	match_node.start_puppet()
+	await _runner.simulate_frames(4, 17)
+	match_node.intensity.level = 6
+	await _runner.simulate_frames(4, 17)
+	assert_int(match_node.arena.crowd.level).is_equal(6)
+	assert_int(match_node.arena.disco.level).is_equal(6)
+	assert_float(match_node.camera_rig.tremble).is_greater_equal(0.0)
+	match_node.intensity.level = 2
+	await _runner.simulate_frames(4, 17)
+	assert_int(match_node.arena.crowd.level).is_equal(2)
+	assert_float(match_node.camera_rig.tremble).is_equal(0.0)
+
+
 ## Anybody who would rather have the table to themselves empties the stands, GAME.md 8.5, and
 ## keeps the booth: it is the thousand moving things that the setting is about.
 func test_the_stands_can_be_emptied() -> void:

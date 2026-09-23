@@ -2861,7 +2861,7 @@ award itself anything, hurt anybody, or decide that it picked something up.
 | Statistics and awards | the host | the snapshot |
 | The clock, the state, Last Call, overtime | the host | the snapshot |
 | Jackpot, Royal Flush pads, the bounty | the host | the snapshot |
-| Excitement, music, lights, the announcer | every machine, for itself | nothing is sent; the same events arrive at both |
+| Excitement, music, lights, the crowd, the announcer | every machine, for itself | nothing is sent; the same events arrive at both |
 | Match rules: clock, target, lives | the host | sent once, before a slot is handed out |
 | Pausing | every machine has to agree | asked and answered both ways |
 

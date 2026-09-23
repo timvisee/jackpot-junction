@@ -9,11 +9,6 @@ enum State { LOBBY, COUNTDOWN, PLAYING, LAST_CALL, OVERTIME, RESULTS }
 const ARENA_SCENE := preload("res://scenes/arena/arena.tscn")
 const KART_SCENE := preload("res://scenes/kart/kart.tscn")
 const CAMERA_SCENE := preload("res://scenes/camera/camera_rig.tscn")
-## How hard the top excitement level thumps the camera on the beat, and how much harder on
-## the first beat of the bar. This is the only effect that moves what the player is aiming
-## through, so it is kept to a thump rather than a shake.
-const BEAT_TREMBLE := 2.0
-const BEAT_DOWNBEAT := 1.4
 ## Lamps on the start gantry, GAME.md 8.3. The rack and the start tones are one countdown: a
 ## lamp lights and a tone plays together, so however long the countdown is set to, there are
 ## this many of both. Three of them over the usual three seconds is a lamp a second, which is
@@ -572,6 +567,7 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 
 func _physics_process(delta: float) -> void:
 	if puppet:
+		MatchStage.step(self)
 		return
 	match state:
 		State.COUNTDOWN:
@@ -607,20 +603,7 @@ func _physics_process(delta: float) -> void:
 			if arena.junction != null:
 				arena.junction.hint = junction_hint()
 				arena.junction.winning = junction_wins_it()
-			arena.disco.level = intensity.level
-			arena.crowd.level = intensity.level
-			camera_rig.tremble = _beat_tremble()
-
-
-## The camera's share of the top excitement level, GAME.md 8.4: at level 6 and nowhere else
-## the room is felt as well as heard. A thump on every beat and a harder one on the first of
-## the bar, each shaped so it has fallen away before the next arrives. The accessibility
-## toggle in 8.5 turns all of it off, since this is the one effect that moves the whole view.
-func _beat_tremble() -> float:
-	if intensity.level < MatchIntensity.LEVELS:
-		return 0.0
-	var downbeat := BEAT_DOWNBEAT if Audio.music_beat_index() == 0 else 1.0
-	return BEAT_TREMBLE * downbeat * pow(1.0 - Audio.music_beat(), 5.0)
+			MatchStage.step(self)
 
 
 ## How loudly the Junction should blink: from the biggest pot a local player is carrying,

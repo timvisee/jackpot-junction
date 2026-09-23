@@ -90,13 +90,11 @@ func test_only_the_top_level_puts_the_beat_in_the_camera() -> void:
 	await _runner.simulate_frames(12, 17)
 	await _settle(match_node)
 	for level: int in range(1, MatchIntensity.LEVELS):
-		match_node.intensity.level = level
-		assert_float(match_node._beat_tremble()).is_equal(0.0)
+		assert_float(MatchStage.beat_tremble(level)).is_equal(0.0)
 	var peak := 0.0
 	var trough := 1.0
 	for i: int in 40:
-		match_node.intensity.level = MatchIntensity.LEVELS
-		var nudge := match_node._beat_tremble()
+		var nudge := MatchStage.beat_tremble(MatchIntensity.LEVELS)
 		peak = maxf(peak, nudge)
 		trough = minf(trough, nudge)
 		await _runner.simulate_frames(1, 17)
