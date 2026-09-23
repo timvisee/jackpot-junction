@@ -1,7 +1,7 @@
 class_name Turret
 extends StaticBody3D
 ## A deployed turret, GAME.md 7.1 and 7.2. Turns toward the nearest enemy kart and fires default
-## bullets in its owner's colour, so kills credit the owner. One hit or the end of its life
+## bullets in its owner's color, so kills credit the owner. One hit or the end of its life
 ## removes it.
 
 signal destroyed(turret: Turret)

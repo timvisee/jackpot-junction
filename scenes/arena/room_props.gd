@@ -85,7 +85,7 @@ func _workbench() -> void:
 	shell.enclose(Color(0.15, 0.13, 0.12), Color(0.26, 0.22, 0.18), 32.0, 80.0)
 	shell.skirt(room.table.darkened(0.32), 2.4)
 	shell.legs(room.table.darkened(0.42))
-	# A painted wall rather than more of the bench. A board in the table's own colour is a board
+	# A painted wall rather than more of the bench. A board in the table's own color is a board
 	# nobody can tell is there, which is what the back of this room was.
 	var board := shell.backboard(24.0, Color(0.4, 0.38, 0.34))
 	shell.pegboard(board)
@@ -212,9 +212,9 @@ func _yard() -> void:
 	# Down the far flank rather than the near one, which is where the truck is parked.
 	# A stack in against the fence on either flank, and side-on to it. Barrels are the one thing
 	# in a yard a player wants to see and the one the dealing kept pushing out past the crowd: a
-	# row of them broadside is six metres across, which is three more table than there is between
+	# row of them broadside is six meters across, which is three more table than there is between
 	# the back of the stands and where the clutter is allowed to start, so the only place one
-	# could be dealt was out where nobody looks. Turned along the fence it is two metres across
+	# could be dealt was out where nobody looks. Turned along the fence it is two meters across
 	# and fits in beside the truck and the forklift.
 	for drums: Vector3 in [
 		Vector3(-(half.x + 9.5), TOP, -half.y * 1.05),
@@ -260,7 +260,7 @@ func _yard() -> void:
 ## that fixes karts, with the doors at the back of it and the trade's own clutter round the walls.
 ##
 ## A floor rather than a table, and the one room with nobody watching, so its clutter comes right
-## up to the bay. The eight metres the other rooms keep clear is the room the stands need; with no
+## up to the bay. The eight meters the other rooms keep clear is the room the stands need; with no
 ## stands in it that band is bare concrete, and a room nobody is in reads as a room somebody has
 ## been cleared out of.
 func _garage() -> void:
@@ -277,13 +277,13 @@ func _garage() -> void:
 	shell.sign(wall)
 	shell.skirt(room.table.darkened(0.2), 2.6)
 	var steel := surfaces.metal(Color(0.66, 0.68, 0.72))
-	# Timber rather than the room's own grey: a pallet is wood wherever it is standing, and the
+	# Timber rather than the room's own gray: a pallet is wood wherever it is standing, and the
 	# one warm thing in a concrete bay is worth having.
 	var timber := surfaces.painted(Color(0.55, 0.42, 0.28))
 	var rubber := surfaces.painted(Color(0.1, 0.1, 0.11))
 	var rust := surfaces.painted(Color(0.74, 0.4, 0.13))
 	# The drums are not the cans' orange. Five of one beside eight of the other is a bay that has
-	# been painted one colour, and a drum of oil comes in whatever the last lot came in.
+	# been painted one color, and a drum of oil comes in whatever the last lot came in.
 	var drum := surfaces.painted(Color(0.22, 0.35, 0.44))
 	var stock := surfaces.painted(Color(0.7, 0.72, 0.76))
 	var tinplate := surfaces.painted(Color(0.78, 0.8, 0.84))
@@ -306,7 +306,7 @@ func _garage() -> void:
 	_ring(
 		28,
 		{
-			&"tyres": func(at: Vector3, turn: float) -> void: _tyres(at, turn, rubber, steel),
+			&"tires": func(at: Vector3, turn: float) -> void: _tires(at, turn, rubber, steel),
 			&"chest": func(at: Vector3, turn: float) -> void: _chest(at, turn, paint, steel),
 			&"jerry": func(at: Vector3, turn: float) -> void: _jerry(at, turn, rust, tinplate),
 			&"barrels": func(at: Vector3, turn: float) -> void: _barrels(at, turn, drum, steel),
@@ -315,7 +315,7 @@ func _garage() -> void:
 			&"barrels": func(at: Vector3, turn: float) -> void: _barrels(at, turn, drum, steel),
 			&"pallets": func(at: Vector3, turn: float) -> void: _pallets(at, turn, timber),
 			&"rods": func(at: Vector3, turn: float) -> void: _rods(at, turn, stock),
-			&"tyres": func(at: Vector3, turn: float) -> void: _tyres(at, turn, rubber, steel),
+			&"tires": func(at: Vector3, turn: float) -> void: _tires(at, turn, rubber, steel),
 		}
 	)
 	_apron(
@@ -328,9 +328,9 @@ func _garage() -> void:
 	)
 
 
-## A stack of tyres, which is the one shape that says garage on its own. Worn down to the rim on
+## A stack of tires, which is the one shape that says garage on its own. Worn down to the rim on
 ## the top one, the way a stack waiting to go out for scrap is.
-func _tyres(at: Vector3, turn: float, rubber: Material, steel: Material) -> void:
+func _tires(at: Vector3, turn: float, rubber: Material, steel: Material) -> void:
 	var high := _rng.randi_range(3, 5)
 	for i: int in high:
 		var lift := 0.34 + float(i) * 0.62
@@ -474,7 +474,7 @@ func _ring(count: int, near: Dictionary, far: Dictionary) -> void:
 		# Three out of five go behind the arena. The camera looks down the table, so that is the
 		# side a player sees for most of a match; the flanks are only ever glimpsed. Which band a
 		# prop belongs to is settled before the prop is, because the band is what decides whether
-		# it may be one of the big ones: behind the arena is all within ten metres of the wall by
+		# it may be one of the big ones: behind the arena is all within ten meters of the wall by
 		# the time it clears the crowd, so the big things go down a flank and out past that.
 		var behind := i % 5 < 3
 		var big := not behind and i % 2 == 1
@@ -504,13 +504,13 @@ func _spot(half: Vector2, index: int, big: bool) -> Vector3:
 
 ## How far down a flank a prop may stand. The back of the table is fair game and the middle of
 ## it is fine, but the near corners are beside the camera rather than behind it, and something
-## five metres tall there is in the corner of the picture the whole match.
+## five meters tall there is in the corner of the picture the whole match.
 func _flank() -> float:
 	return _rng.randf_range(-1.0, 0.25)
 
 
 ## Keeps the floor the karts drive on out of the clutter's hands. A prop is placed by its middle
-## and the longest of them are six metres end to end, so in a room whose clutter starts at the
+## and the longest of them are six meters end to end, so in a room whose clutter starts at the
 ## wall one turned the wrong way would otherwise lie across it.
 func _keep_the_floor() -> void:
 	var half := arena.world_size() * 0.5

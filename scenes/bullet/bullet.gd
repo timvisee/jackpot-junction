@@ -2,7 +2,7 @@ class_name Bullet
 extends Node3D
 ## One bullet, GAME.md 5.1 and 5.2. Moves by ray each physics tick so it cannot tunnel, bounces
 ## off walls while it has bounces left, bends slightly toward targets until its first bounce,
-## and kills what it touches. Its first step checks the way from the shooter's centre to the
+## and kills what it touches. Its first step checks the way from the shooter's center to the
 ## muzzle, so a shot fired with the muzzle inside a wall or crate stops there instead of passing
 ## through.
 ## Bullet against bullet is resolved by the [BulletSystem].
@@ -31,7 +31,7 @@ var assist_turn_rate := 0.5
 var assist_after_bounce := false
 ## Where this tick's movement started, for sweeps against other bullets.
 var previous_position := Vector3.ZERO
-## The shooter's centre; anything solid between it and the muzzle stops the bullet at once.
+## The shooter's center; anything solid between it and the muzzle stops the bullet at once.
 var spawn_from := Vector3.ZERO
 
 ## On a client: dead-reckons between snapshots, never collides.
@@ -166,7 +166,7 @@ func _steer(delta: float) -> void:
 
 
 ## Rotates [param velocity] about the up axis toward [param target], by at most [param max_step]
-## radians, and only when the target is within [param cone] radians and [param range] metres.
+## radians, and only when the target is within [param cone] radians and [param range] meters.
 static func steer_toward(
 	velocity: Vector3, from: Vector3, target: Vector3, cone: float, range: float, max_step: float
 ) -> Vector3:
@@ -290,7 +290,7 @@ func _move(delta: float) -> void:
 
 
 ## A kart or turret pressed against a wall or crate has its muzzle inside it. Cast from the
-## shooter's centre to the muzzle: a crate in the way breaks, a kart takes the hit, a wall
+## shooter's center to the muzzle: a crate in the way breaks, a kart takes the hit, a wall
 ## simply eats the bullet. Nothing bounces back into the shooter.
 func _check_spawn_path() -> void:
 	if spawn_from.is_equal_approx(global_position):

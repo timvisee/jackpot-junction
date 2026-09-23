@@ -54,7 +54,7 @@ const BANK_TICK_INTERVAL := 0.07
 ## The least time between two cash-out chimes for one player.
 const BANK_CHIME_GAP := 1.6
 ## Every track is a steady four to the bar, so the beat can be read straight off the playback
-## position rather than analysed. The tempo itself is the current track's, see [member track].
+## position rather than analyzed. The tempo itself is the current track's, see [member track].
 const BEATS_PER_BAR := 4
 
 ## The swell that leads into a nitro burn runs backwards into its own hit, so it is played

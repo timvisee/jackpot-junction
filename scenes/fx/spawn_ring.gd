@@ -1,7 +1,7 @@
 class_name SpawnRing
 extends Node3D
 ## The flare a kart comes back with, GAME.md 3.6: a ring that opens out across the floor in the
-## player's colour with a column of light standing in the middle of it, both gone inside a
+## player's color with a column of light standing in the middle of it, both gone inside a
 ## second. A kart that has just respawned is untouchable for a moment and blinking, which says
 ## something about that kart to whoever is looking at it; this says, to everybody at once and
 ## from anywhere on the floor, that somebody is back and where they came back.

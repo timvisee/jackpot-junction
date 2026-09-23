@@ -4,7 +4,7 @@ extends RefCounted
 
 ## Devices of the human players, see [DeviceInput]. One human on any device by default.
 var human_devices: Array[int] = [DeviceInput.ANY]
-## Colour index per human, in the same order; empty means slot order.
+## Color index per human, in the same order; empty means slot order.
 var human_colors: Array[int] = []
 ## How each human dressed their kart, in the same order, as the four numbers of a [KartStyle].
 var human_styles: Array = []
@@ -23,8 +23,8 @@ var bot_count := 3
 ## so they are not counted in [member bot_count]: that is the bots the host asked for, on top of
 ## everybody who is here.
 var network_seats := 0
-## The colour each of those seats had in the waiting room, in the same order, so a client drives
-## the arena in the colour it drove the room in.
+## The color each of those seats had in the waiting room, in the same order, so a client drives
+## the arena in the color it drove the room in.
 var network_colors: Array[int] = []
 var difficulty := "normal"
 var duration := 300.0
@@ -51,9 +51,9 @@ func inputs() -> Array[KartInput]:
 	return result
 
 
-## Colour indices for every slot: the humans' picks, then the colours the kept seats had in the
-## waiting room, then the first free colours for bots. A kept colour somebody here already has
-## gives way to a free one, so no two karts are ever the same colour.
+## Color indices for every slot: the humans' picks, then the colors the kept seats had in the
+## waiting room, then the first free colors for bots. A kept color somebody here already has
+## gives way to a free one, so no two karts are ever the same color.
 func colors() -> Array[int]:
 	var result: Array[int] = []
 	for i: int in human_devices.size():

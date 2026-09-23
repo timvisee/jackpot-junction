@@ -5,16 +5,16 @@ extends PanelContainer
 ## being destroyed, so wherever a player is reading about a joker it reads the same way.
 ##
 ## Laid out like a standings row so the two read as the same game: a dark translucent card with
-## room to breathe and a bar of the joker's own kind colour along the top. The name, how rare the
+## room to breathe and a bar of the joker's own kind color along the top. The name, how rare the
 ## joker is and what kind it is share the first line, a rule separates them from what the joker
-## actually does, and the keys for it sit at the foot in grey, so they are told apart at a glance
+## actually does, and the keys for it sit at the foot in gray, so they are told apart at a glance
 ## rather than run together in one paragraph.
 
 const WIDTH := 400.0
 const BG := Color(0.07, 0.07, 0.09, 0.92)
 const RULE := Color(1.0, 1.0, 1.0, 0.13)
 const HINT := Color(0.62, 0.62, 0.68)
-## The colour bar along the top edge, thick enough to be the pane's heading rather than a line.
+## The color bar along the top edge, thick enough to be the pane's heading rather than a line.
 const EDGE := 6
 
 var _style: StyleBoxFlat
@@ -71,7 +71,7 @@ func _init() -> void:
 	box.add_child(_body)
 
 
-## Fills the pane for one joker and paints the top edge in its kind's colour.
+## Fills the pane for one joker and paints the top edge in its kind's color.
 func show_joker(joker: Joker) -> void:
 	var color := JokerCard.kind_color(joker)
 	_style.border_color = color
@@ -94,7 +94,7 @@ func set_hints(line: Control) -> void:
 		_box.add_child(_hints)
 
 
-## The colour the hint row is drawn in, so whoever builds one matches the pane it goes in.
+## The color the hint row is drawn in, so whoever builds one matches the pane it goes in.
 static func hint_ink() -> Color:
 	return HINT
 

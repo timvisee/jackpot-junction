@@ -2,12 +2,12 @@ extends Control
 ## The lobby from GAME.md 3.8 and 9.2: match options with the document's values as defaults and
 ## the last choice remembered, and local joining. The first join press claims a device for P1;
 ## further presses on other devices add players, and a second press on a joined device drops
-## that player again. Steering left or right on a device cycles that player's colour.
+## that player again. Steering left or right on a device cycles that player's color.
 ##
 ## Every player who has joined also gets a box to type a name into, remembered between sessions
 ## for that seat. Left empty, the match hands out a name off the funny list in [PlayerNames], so
 ## a gamepad player with no keyboard to type on is still somebody rather than P3. Steering does
-## not cycle colours while a box has the focus, since the letters somebody is typing are also
+## not cycle colors while a box has the focus, since the letters somebody is typing are also
 ## the keys that steer.
 ##
 ## Beside the name is how that player's kart is dressed, GAME.md 4.4, remembered the same way.
@@ -87,7 +87,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _process(_delta: float) -> void:
 	# The letters somebody is typing are the same keys that steer, so a name being typed is not
-	# also a colour being cycled.
+	# also a color being cycled.
 	if get_viewport().gui_get_focus_owner() is LineEdit:
 		return
 	for i: int in devices.size():
@@ -121,7 +121,7 @@ func toggle_join(device: int) -> void:
 	_refresh_players()
 
 
-## Moves a player's colour to the next one nobody else uses.
+## Moves a player's color to the next one nobody else uses.
 func cycle_color(player: int, direction: int) -> void:
 	var candidate := colors[player]
 	for i: int in Palette.PLAYER_COLORS.size():
@@ -206,7 +206,7 @@ func _refresh_join_hint() -> void:
 	]
 	_join_hint.add_child(
 		InputHint.row(
-			"Press %s or %s on another device to join. Steer to change colour.", parts, ink, size
+			"Press %s or %s on another device to join. Steer to change color.", parts, ink, size
 		)
 	)
 

@@ -4,7 +4,7 @@ extends Control
 ## be. Consistency is the whole point of the vocabulary they are built from, and consistency
 ## is not something that can be judged one card at a time.
 ##
-## Reads the catalogue off disk rather than from a list here, so a joker added tomorrow turns up
+## Reads the catalog off disk rather than from a list here, so a joker added tomorrow turns up
 ## on the sheet without this being touched.
 
 ## How many cards to a row, and the air between them.
@@ -34,8 +34,8 @@ func _ready() -> void:
 		slot.custom_minimum_size = JokerCard.SIZE
 		slot.add_child(_item_card(item))
 		grid.add_child(slot)
-	for joker: Joker in _catalogue():
-		# The card positions itself from its bottom centre, so it is hung in a slot of its own
+	for joker: Joker in _catalog():
+		# The card positions itself from its bottom center, so it is hung in a slot of its own
 		# size rather than handed to the grid, which would place its top left corner instead.
 		var slot := Control.new()
 		slot.custom_minimum_size = JokerCard.SIZE
@@ -44,7 +44,7 @@ func _ready() -> void:
 
 
 ## One power-up shown the way a card is, so the two sets can be judged against each other: the
-## picture in the item's own colour with its name under it.
+## picture in the item's own color with its name under it.
 static func _item_card(item: PowerUp) -> PanelContainer:
 	var card := PanelContainer.new()
 	var style := StyleBoxFlat.new()
@@ -84,7 +84,7 @@ static func _items() -> Array[PowerUp]:
 
 
 ## Every joker in the game, by name, so the sheet reads in the order the folder does.
-static func _catalogue() -> Array[Joker]:
+static func _catalog() -> Array[Joker]:
 	var found: Array[Joker] = []
 	var files := DirAccess.get_files_at("res://data/jokers/")
 	files.sort()

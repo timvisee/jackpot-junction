@@ -71,7 +71,7 @@ func _ready() -> void:
 
 ## The blink: off below the hint threshold, then brighter and quicker the more is at stake. A
 ## winning pot is not more of the same thing, so it gets a note of its own rather than the top
-## of the same scale: no colour left to travel, no rate left to climb, just gold on and off.
+## of the same scale: no color left to travel, no rate left to climb, just gold on and off.
 func _process(delta: float) -> void:
 	if ring_material == null:
 		return

@@ -272,16 +272,16 @@ func test_drops_scatter_wide_and_anything_over_a_pit_falls_in() -> void:
 	var match_node := _start_match(inputs, _quick_rules())
 	await _runner.simulate_frames(20, 17)
 	var arena := match_node.arena
-	var centre := Vector3(0.0, 0.0, 6.0)
-	var chips := arena.spawn_chips(centre, 12, 0.0, 0.0, true)
+	var center := Vector3(0.0, 0.0, 6.0)
+	var chips := arena.spawn_chips(center, 12, 0.0, 0.0, true)
 	var furthest := 0.0
 	for chip: Chip in chips:
-		furthest = maxf(furthest, chip.global_position.distance_to(centre))
+		furthest = maxf(furthest, chip.global_position.distance_to(center))
 	assert_float(furthest).is_greater(2.0)
 	# The hole in the floor swallows whatever lands on it.
 	var pit := arena.pits[0].global_position
 	assert_bool(arena.is_over_pit(pit)).is_true()
-	assert_bool(arena.is_over_pit(centre)).is_false()
+	assert_bool(arena.is_over_pit(center)).is_false()
 	var doomed := ItemBox.new()
 	doomed.fixed_item = load("res://data/powerups/boost.tres")
 	arena.place_drop(doomed, pit)

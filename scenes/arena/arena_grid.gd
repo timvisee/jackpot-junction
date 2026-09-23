@@ -3,7 +3,7 @@ extends RefCounted
 ## A parsed arena layout: wall rectangles and element positions in grid cells, plus cell to
 ## world conversion. Produced by [method ArenaLayout.parse].
 ##
-## World space: x runs along columns, z along rows, the grid centre sits at the origin and row 0
+## World space: x runs along columns, z along rows, the grid center sits at the origin and row 0
 ## is at negative z, which is the top of the screen.
 
 const WALL := "#"
@@ -80,17 +80,17 @@ func is_wall(cell: Vector2i) -> bool:
 	return glyph(cell) == WALL
 
 
-## World position of the centre of a cell, on the floor plane.
+## World position of the center of a cell, on the floor plane.
 func cell_center(cell: Vector2i) -> Vector3:
 	return Vector3(
 		(cell.x + 0.5 - width * 0.5) * cell_size, 0.0, (cell.y + 0.5 - height * 0.5) * cell_size
 	)
 
 
-## World position of the centre of a rectangle of cells, on the floor plane.
+## World position of the center of a rectangle of cells, on the floor plane.
 func rect_center(rect: Rect2i) -> Vector3:
-	var centre := Vector2(rect.position) + Vector2(rect.size) * 0.5
-	return Vector3((centre.x - width * 0.5) * cell_size, 0.0, (centre.y - height * 0.5) * cell_size)
+	var center := Vector2(rect.position) + Vector2(rect.size) * 0.5
+	return Vector3((center.x - width * 0.5) * cell_size, 0.0, (center.y - height * 0.5) * cell_size)
 
 
 func rect_size(rect: Rect2i) -> Vector2:

@@ -1,10 +1,10 @@
 class_name Surfaces
 extends RefCounted
-## What a room is made of, GAME.md 8.1. One of these per arena: it holds the room's colours and
+## What a room is made of, GAME.md 8.1. One of these per arena: it holds the room's colors and
 ## hands out the materials everything in it is built from, so a slab of felt and a crate are the
 ## same felt and the same paint wherever they are made.
 ##
-## The textures are greyscale detail maps around white, multiplied by the room's own colour: one
+## The textures are grayscale detail maps around white, multiplied by the room's own color: one
 ## felt serves a green table and a slate one, and a room is a palette rather than a set of
 ## pictures. They are mapped in world space rather than by UV, because the meshes here are built
 ## in code and a slab the size of a table has no unwrap worth the name -- and because two crates
@@ -28,11 +28,11 @@ const CARD_FACES: Array[Texture2D] = [
 	preload("res://assets/textures/card_clubs.png"),
 ]
 const CARD_BACK := preload("res://assets/textures/card_back.png")
-## The notches round a chip, greyscale so that a chip takes the colour of the stack it is in.
+## The notches round a chip, grayscale so that a chip takes the color of the stack it is in.
 const CHIP_FACE := preload("res://assets/textures/chip_face.png")
 
-## How many metres one tile of each texture covers. Set by what the thing is rather than by the
-## texture: a table is boards a metre and a half wide, a yard is slabs two metres across, and the
+## How many meters one tile of each texture covers. Set by what the thing is rather than by the
+## texture: a table is boards a meter and a half wide, a yard is slabs two meters across, and the
 ## worn patches in a felt are about as wide as a kart is long.
 const FELT_TILE := 3.0
 const WOOD_TILE := 6.4
@@ -41,7 +41,7 @@ const STONE_TILE := 6.0
 
 var room: RoomLook
 
-## Materials already built, by what they are and what colour: a room is a few hundred meshes
+## Materials already built, by what they are and what color: a room is a few hundred meshes
 ## sharing a dozen materials.
 var _cache: Dictionary[String, StandardMaterial3D] = {}
 

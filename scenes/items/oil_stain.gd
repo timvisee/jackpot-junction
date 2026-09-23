@@ -1,6 +1,6 @@
 class_name OilStain
 extends Area3D
-## A slick of oil dropped on the floor, GAME.md 7.1. A kart whose centre crosses it loses its
+## A slick of oil dropped on the floor, GAME.md 7.1. A kart whose center crosses it loses its
 ## tires: the nose whips around and the kart skids on, out of control, until it straightens out.
 ## The stain stays until its life runs out and catches anyone, the kart that dropped it included.
 ## It never kills; it costs control, position and a line of skid marks.
@@ -11,7 +11,7 @@ const RADIUS := 0.85
 ## Karts hit before this may drive over the stain without spinning again.
 const REARM_TIME := 1.6
 ## How high the slick lies. The floor of this arena is not flat: the Junction, the Jackpot tiles
-## and every pad stand a few centimetres proud of it, and a slick at floor level simply vanishes
+## and every pad stand a few centimeters proud of it, and a slick at floor level simply vanishes
 ## inside whichever one it was dropped on. It rides above the tallest of them instead, which
 ## reads as oil lying on top of what it was spilled on.
 const LIFT := 0.09

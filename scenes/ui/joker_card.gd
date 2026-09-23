@@ -2,15 +2,15 @@ class_name JokerCard
 extends Panel
 ## One joker drawn as a playing card, GAME.md 8.3. The hand along the bottom of the screen and
 ## the pick-a-joker cards in the middle are both made of these, so a joker looks the same
-## wherever it turns up: framed in its kind's colour, with its own picture in the middle of it
+## wherever it turns up: framed in its kind's color, with its own picture in the middle of it
 ## and its name under that. Highlighting swaps the frame for a bright gold one, or a red one
 ## when the card is the one about to be destroyed.
 ##
-## Under the name sit one, two or three pips for how rare the joker is. Count and colour say the
-## same thing twice on purpose: colour alone is not something every player can read, and a card
-## already spends its colour on saying what kind of joker it is.
+## Under the name sit one, two or three pips for how rare the joker is. Count and color say the
+## same thing twice on purpose: color alone is not something every player can read, and a card
+## already spends its color on saying what kind of joker it is.
 ##
-## Cards are pivoted at their bottom centre, so a fan tilt or a scale turns about the point the
+## Cards are pivoted at their bottom center, so a fan tilt or a scale turns about the point the
 ## hand is held at rather than about a corner.
 
 const SIZE := Vector2(120.0, 168.0)
@@ -22,7 +22,7 @@ const KIND_NAMES: Dictionary[int, String] = {
 const RARITY_NAMES: Dictionary[int, String] = {
 	Joker.Rarity.COMMON: "Common", Joker.Rarity.UNCOMMON: "Uncommon", Joker.Rarity.RARE: "Rare"
 }
-## Steel, then the two neon colours of the room, kept clear of the kind colours so that a card
+## Steel, then the two neon colors of the room, kept clear of the kind colors so that a card
 ## says two different things rather than one thing twice over.
 const RARITY_COLORS: Dictionary[int, Color] = {
 	Joker.Rarity.COMMON: Color("#9AA3AD"),
@@ -48,7 +48,7 @@ static func create(for_joker: Joker) -> JokerCard:
 	return card
 
 
-## The colour that stands for a joker's kind, shared by the cards and the HUD text.
+## The color that stands for a joker's kind, shared by the cards and the HUD text.
 static func kind_color(for_joker: Joker) -> Color:
 	match for_joker.kind:
 		Joker.Kind.STAT:
@@ -62,7 +62,7 @@ static func kind_name(for_joker: Joker) -> String:
 	return KIND_NAMES[for_joker.kind]
 
 
-## The colour that stands for how rare a joker is, shared by the cards and the detail pane.
+## The color that stands for how rare a joker is, shared by the cards and the detail pane.
 static func rarity_color(for_joker: Joker) -> Color:
 	return RARITY_COLORS[for_joker.rarity]
 
@@ -126,7 +126,7 @@ func _build() -> void:
 	kind.text = kind_name(joker).to_upper()
 	Type.set_font(kind, Type.STRONG, 13)
 	kind.add_theme_color_override("font_color", color)
-	# The joker's own picture rather than its initials: a card is recognised across the table by
+	# The joker's own picture rather than its initials: a card is recognized across the table by
 	# its shape, and two letters at that size are a shape you have to read first, GAME.md 8.3.
 	var art := JokerArt.picture(joker.id, color)
 	art.size_flags_vertical = Control.SIZE_EXPAND_FILL

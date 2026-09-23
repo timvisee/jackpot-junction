@@ -12,7 +12,7 @@ extends Node3D
 ## From level 3 the heads also flash on the beat of the music, harder on the first beat of the
 ## bar, faintly at first and hardest at level 6.
 ##
-## No head keeps one look. Each walks its own way through the palette, fading from one colour to
+## No head keeps one look. Each walks its own way through the palette, fading from one color to
 ## the next on its own clock, and each opens and closes its cone around the width its level asks
 ## for. Both go quicker the hotter the match is, so the rig keeps changing even when the level
 ## has been standing for a while.
@@ -43,13 +43,13 @@ const SKY_RISE := 13.0
 ## down: nothing at levels 1 and 2, halfway at level 3, all the way from level 4.
 const TIP_START := 0.25
 const TIP_FULL := 0.58
-## How brightly a lit head's lens shows, and the colour a dark one's takes instead.
+## How brightly a lit head's lens shows, and the color a dark one's takes instead.
 const LENS_GLOW := 2.0
 const LENS_DARK := Color(0.16, 0.16, 0.19)
 ## How far the light reaches. Comfortably past the far corner of the floor, so a beam thrown
 ## right across the table still lands.
 const LIGHT_RANGE := 40.0
-## Colours the heads walk through, each starting on its own and stepping to the next in turn.
+## Colors the heads walk through, each starting on its own and stepping to the next in turn.
 const COLORS: Array[Color] = [
 	Color("#FF4FA3"),
 	Color("#35D0FF"),
@@ -63,8 +63,8 @@ const COLORS: Array[Color] = [
 const LEVEL_FOLLOW := 0.35
 ## The level from which the heads start flashing on the beat.
 const FLASH_FROM := 3
-## Seconds a head keeps a colour, at rest and at the top, and how long it takes to fade over to
-## the next one. Well apart from the beat: a light that changed colour on the beat would read as
+## Seconds a head keeps a color, at rest and at the top, and how long it takes to fade over to
+## the next one. Well apart from the beat: a light that changed color on the beat would read as
 ## a strobe rather than as a rig working the room.
 const COLOR_HOLD_SLOW := 9.0
 const COLOR_HOLD_FAST := 3.5
@@ -100,14 +100,14 @@ var _focus: Node3D
 var _swing := 0.0
 
 
-## Builds the heads above an arena of [param floor_size] metres.
+## Builds the heads above an arena of [param floor_size] meters.
 func setup(floor_size: Vector2) -> void:
 	_floor = floor_size * 0.5
 	for i: int in COUNT:
 		_heads.append(_build_head(i))
 
 
-## Points every head at [param target] and keeps them there, for the winner's lap of honour.
+## Points every head at [param target] and keeps them there, for the winner's lap of honor.
 func focus(target: Node3D) -> void:
 	_focus = target
 	_swing = 0.0
@@ -172,9 +172,9 @@ func _climb() -> float:
 	return float(lit_heads() - 1) / float(COUNT - 1)
 
 
-## A head's own slow walk through the palette: it keeps a colour for a while, then fades over to
+## A head's own slow walk through the palette: it keeps a color for a while, then fades over to
 ## the next one in the list. Dark heads walk on too, so a head coming back on is not still
-## wearing the colour it went out with.
+## wearing the color it went out with.
 func _step_color(head: Dictionary, delta: float) -> void:
 	head["color_left"] = head["color_left"] - delta
 	if head["color_left"] <= 0.0:
@@ -348,7 +348,7 @@ func _build_head(index: int) -> Dictionary:
 		"color_to": color,
 		"color_index": index % COLORS.size(),
 		"color_fade": 1.0,
-		# Staggered, so the rig never changes colour all at once.
+		# Staggered, so the rig never changes color all at once.
 		"color_left": COLOR_HOLD_SLOW * (0.3 + 0.12 * float(index)),
 		"lit": false,
 		"inward": -side,
@@ -359,7 +359,7 @@ func _build_head(index: int) -> Dictionary:
 	}
 
 
-## The head itself: a dark housing with a lens the colour of its beam, so the rig reads as a row
+## The head itself: a dark housing with a lens the color of its beam, so the rig reads as a row
 ## of lamps rather than as beams from nowhere. Parented to the light, so it swings with it.
 static func _fixture(dark: StandardMaterial3D, lens_material: StandardMaterial3D) -> Node3D:
 	var housing := MeshInstance3D.new()

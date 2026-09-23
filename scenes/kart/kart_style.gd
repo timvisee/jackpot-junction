@@ -2,14 +2,14 @@ class_name KartStyle
 extends RefCounted
 ## How a kart is dressed, GAME.md 4.4: a paint pattern, a hat, a flag and what it leaves behind
 ## it. All four are the player's to pick, none of them changes how the kart drives, and the
-## player's colour is still the player's colour underneath all of it.
+## player's color is still the player's color underneath all of it.
 ##
 ## Four small numbers rather than four resources, because a kart has to look the same on every
 ## screen and these ride the wire with the rest of the roster, GAME.md 10.3.
 
 const PAINTS: Array[String] = ["Solid", "Stripes", "Checks", "Spots"]
 const HATS: Array[String] = ["None", "Cap", "Top hat", "Crown", "Party"]
-const FLAGS: Array[String] = ["None", "Pennant", "Banner", "Chequered"]
+const FLAGS: Array[String] = ["None", "Pennant", "Banner", "Checkered"]
 const TRAILS: Array[String] = ["Smoke", "Sparks", "Confetti", "None"]
 ## The four in the order they are asked for, offered and sent.
 const CHOICES: Array[Array] = [PAINTS, HATS, FLAGS, TRAILS]

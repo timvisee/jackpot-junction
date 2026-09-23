@@ -3,7 +3,7 @@ extends RefCounted
 ## Shared helpers for the menu screens: the screen itself, a title, rows of options, buttons, and
 ## the pane every panel in the game is cut from.
 
-## The pane, GAME.md 8.3: a dark translucent card with room to breathe and a bar of colour along
+## The pane, GAME.md 8.3: a dark translucent card with room to breathe and a bar of color along
 ## the top of it. The joker detail pane was the first thing built this way and everything since
 ## has followed it, so the shape lives here rather than being written out again per screen.
 const PANE_BG := Color(0.07, 0.07, 0.09, 0.94)
@@ -40,12 +40,12 @@ static func background(parent: Control) -> void:
 ## every menu in the game has. Returns the column to fill.
 static func screen(parent: Control, separation: int = 16) -> VBoxContainer:
 	background(parent)
-	var centre := CenterContainer.new()
-	centre.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	parent.add_child(centre)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	parent.add_child(center)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", separation)
-	centre.add_child(column)
+	center.add_child(column)
 	return column
 
 
@@ -185,7 +185,7 @@ static func field(text: String, hint: String, max_length: int) -> LineEdit:
 
 
 ## The look of a pane, with [param edge] painted along its top. Handed out as a style rather
-## than as a panel so that a screen which changes its own edge colour, such as the podium
+## than as a panel so that a screen which changes its own edge color, such as the podium
 ## wearing the winner's, can keep hold of it.
 static func pane_style(edge: Color = Palette.CHIP_GOLD) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()

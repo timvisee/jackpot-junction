@@ -7,7 +7,7 @@ extends Node3D
 ## words have to be read, and a player who is reading is not driving.
 ##
 ## The shapes arrive as polygons in the unit box and are built into one flat mesh, billboarded
-## and unshaded, so it faces the camera and stays its own colour under the disco lights.
+## and unshaded, so it faces the camera and stays its own color under the disco lights.
 
 ## How fast it rises, and the share of its life it spends fading rather than holding.
 const RISE := 1.2
@@ -18,7 +18,7 @@ var _age := 0.0
 var _material: StandardMaterial3D
 
 
-## Puts one up at [param at], made of [param shapes] in the unit box and [param span] metres
+## Puts one up at [param at], made of [param shapes] in the unit box and [param span] meters
 ## across. Returns null when the shapes are empty, which is nothing worth a node.
 static func spawn(
 	parent: Node,
@@ -50,7 +50,7 @@ static func spawn(
 	return icon
 
 
-## One flat mesh out of every polygon handed in, centred on itself and [param span] metres wide.
+## One flat mesh out of every polygon handed in, centered on itself and [param span] meters wide.
 ## The unit box has y downwards and the world has it up, so it is flipped on the way through.
 static func _mesh(shapes: Array[PackedVector2Array], span: float) -> ArrayMesh:
 	var points := PackedVector3Array()

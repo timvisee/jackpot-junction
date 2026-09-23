@@ -7,7 +7,7 @@ extends PanelContainer
 ## played. This is about the match once it is over, and it is the last thing anybody looks at.
 ##
 ## Built like the joker detail pane in 8.3, so the two read as the same game: a dark translucent
-## card with room to breathe and a bar of colour along the top, here the winner's. The top three
+## card with room to breathe and a bar of color along the top, here the winner's. The top three
 ## stand on a podium at the head of it, see [ResultsPodium], and under that each player is a row
 ## of their own rather than a line of text, with the place and the name on the left, the score
 ## on the right, and the awards underneath as separate chips rather than run together into one
@@ -279,7 +279,7 @@ func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix) -> PanelContainer:
 	return row
 
 
-## The card a player's row sits on, their colour down its leading edge the way the standings wear
+## The card a player's row sits on, their color down its leading edge the way the standings wear
 ## it, and lifted a shade when it is the player reading it.
 func _row(slot: PlayerSlot) -> PanelContainer:
 	var row := PanelContainer.new()

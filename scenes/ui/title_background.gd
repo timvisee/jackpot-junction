@@ -3,7 +3,7 @@ extends Control
 ## What is behind the title screen, GAME.md 8.1: a slow carnival sunburst turning behind the
 ## name, and poker chips drifting up past it.
 ##
-## Drawn rather than modelled. The menu is a flat screen and the game behind it is not running,
+## Drawn rather than modeled. The menu is a flat screen and the game behind it is not running,
 ## so a scene would be a scene loaded to be looked at once; this is a few polygons a frame and
 ## nothing to load. Dark on purpose: the point of the screen is the words on it.
 
@@ -12,8 +12,8 @@ const WEDGES := 18
 const TURN_SECONDS := 90.0
 const DARK := Color(0.10, 0.10, 0.13)
 const LIGHT := Color(0.13, 0.13, 0.17)
-## Where the burst is centred, as a share of the screen: behind the title rather than the middle.
-const CENTRE := Vector2(0.5, 0.34)
+## Where the burst is centered, as a share of the screen: behind the title rather than the middle.
+const CENTER := Vector2(0.5, 0.34)
 ## How many chips drift past, how big they are, and how long one takes to cross the screen.
 const CHIPS := 16
 const CHIP_RADIUS := Vector2(18.0, 46.0)
@@ -29,7 +29,7 @@ static func add_to(screen: Control) -> TitleBackground:
 	var back := TitleBackground.new()
 	back.name = "Background"
 	screen.add_child(back)
-	# Over the flat colour the menu lays down, under everything anybody came here to read.
+	# Over the flat color the menu lays down, under everything anybody came here to read.
 	screen.move_child(back, 1)
 	return back
 
@@ -62,7 +62,7 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	var centre := size * CENTRE
+	var center := size * CENTER
 	var reach := size.length()
 	for i: int in WEDGES:
 		var from := _spin + TAU * i / WEDGES
@@ -70,9 +70,9 @@ func _draw() -> void:
 		draw_colored_polygon(
 			PackedVector2Array(
 				[
-					centre,
-					centre + Vector2(cos(from), sin(from)) * reach,
-					centre + Vector2(cos(to), sin(to)) * reach
+					center,
+					center + Vector2(cos(from), sin(from)) * reach,
+					center + Vector2(cos(to), sin(to)) * reach
 				]
 			),
 			LIGHT if i % 2 == 0 else DARK

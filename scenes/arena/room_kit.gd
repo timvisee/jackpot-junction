@@ -1,7 +1,7 @@
 class_name RoomKit
 extends RefCounted
 ## What the things inside the arena are made of, GAME.md 8.1: the walls the karts drive between
-## and the boxes they shoot. The shapes are the room's to decide, the way the colours are.
+## and the boxes they shoot. The shapes are the room's to decide, the way the colors are.
 ##
 ## The rule is that the play is untouched. A wall is the same block it always was and a box is
 ## the same cube: what a room adds is the top of the wall, which nothing drives through, and the
@@ -16,7 +16,7 @@ extends RefCounted
 
 ## The step on top of a wall: how much of the wall's height it takes and how far in from the side
 ## it stands. It is a shape rather than a line -- a block with a smaller block on it, the way a
-## toy brick is moulded -- because a strip laid into the top face of a wall shares a plane with
+## toy brick is molded -- because a strip laid into the top face of a wall shares a plane with
 ## the side of it and the two flicker against each other from every angle.
 const STEP := 0.26
 const STEP_INSET := 0.09
@@ -428,7 +428,7 @@ func _hazard_pad(into: Node3D, radius: float) -> void:
 
 
 ## A steel inspection plate let into the bench: a machined face, a ring of bolt heads round it and
-## a turned centre, which is what a workshop puts on the floor where something is meant to stand.
+## a turned center, which is what a workshop puts on the floor where something is meant to stand.
 func _plate(into: Node3D, radius: float) -> void:
 	var steel := surfaces.metal(Color(0.3, 0.31, 0.34))
 	var bright := surfaces.metal(Color(0.78, 0.8, 0.84))
@@ -446,7 +446,7 @@ func _plate(into: Node3D, radius: float) -> void:
 
 
 ## The rim that blinks, and the material that drives it. Built here rather than asked of the room,
-## whose neon is cached and shared by colour: this one changes colour and brightness every frame,
+## whose neon is cached and shared by color: this one changes color and brightness every frame,
 ## and anything else wearing the same neon would blink along with it.
 func _blinking_rim(into: Node3D, radius: float) -> StandardMaterial3D:
 	var lit := StandardMaterial3D.new()
@@ -483,10 +483,10 @@ func _disc(
 # --- the parts ---------------------------------------------------------------
 
 
-## What the step on top of a wall is made of: the wall's own edge colour, except in the card
+## What the step on top of a wall is made of: the wall's own edge color, except in the card
 ## room, where the rail round a table is brass.
 ##
-## It is never the colour of the floor, whatever the room is. A wall is cover and the floor is
+## It is never the color of the floor, whatever the room is. A wall is cover and the floor is
 ## not, and the first thing a player reads at speed is which is which.
 func _step_ink() -> Color:
 	if room.id == &"after_hours":

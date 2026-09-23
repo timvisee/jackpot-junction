@@ -15,9 +15,9 @@ func _ready() -> void:
 	var mark := LogoArt.new()
 	mark.plate = false
 	mark.custom_minimum_size = Vector2(132.0, 132.0)
-	var centred := CenterContainer.new()
-	centred.add_child(mark)
-	column.add_child(centred)
+	var centered := CenterContainer.new()
+	centered.add_child(mark)
+	column.add_child(centered)
 	column.add_child(MenuTheme.title("Jackpot Junction", Type.HERO))
 	column.add_child(
 		MenuTheme.subtitle("Collect chips. Build your mult. Cash out before they get you.")

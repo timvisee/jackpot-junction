@@ -5,7 +5,7 @@ extends VBoxContainer
 ## banked alone, which is the order the match is actually won in: a pot is worth nothing until it
 ## reaches the Junction, and a board that counted it had a leader who had won nothing yet and
 ## dropped three places on being shot. The leader's row is the biggest and the last place the
-## smallest, and the players on this screen are boxed in their own colour. A carried pot big
+## smallest, and the players on this screen are boxed in their own color. A carried pot big
 ## enough to win the match on the next cash-out blinks, GAME.md 3.4, whoever is carrying it.
 
 const TOP_FONT := 30

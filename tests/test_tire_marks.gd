@@ -21,10 +21,10 @@ func _start_match() -> Match:
 	return match_node
 
 
-## The rear axle is taken from the middle of the tyres on the model rather than from a fraction
+## The rear axle is taken from the middle of the tires on the model rather than from a fraction
 ## of the kart's length or from the point the model hangs a wheel from, either of which puts the
 ## marks somewhere the rubber is not.
-func test_the_marks_are_laid_at_the_middle_of_the_rear_tyres() -> void:
+func test_the_marks_are_laid_at_the_middle_of_the_rear_tires() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)
 	var kart := match_node.kart_of(0)

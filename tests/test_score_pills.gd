@@ -1,5 +1,5 @@
 extends GdUnitTestSuite
-## The two halves of a pot on the HUD, GAME.md 8.3: chips in one colour, mult in another, the
+## The two halves of a pot on the HUD, GAME.md 8.3: chips in one color, mult in another, the
 ## multiply between them and what they come to after it.
 
 const CHIPS := 0
@@ -12,7 +12,7 @@ func _pills() -> ScorePills:
 	return ScorePills.add_to(holder, false)
 
 
-## A pot is shown as its two halves and their product, and the halves keep their own colours.
+## A pot is shown as its two halves and their product, and the halves keep their own colors.
 func test_a_pot_is_shown_as_two_halves_and_what_they_come_to() -> void:
 	var pills := _pills()
 	pills.show_pot(1250, 3.0, 3750)
@@ -22,7 +22,7 @@ func test_a_pot_is_shown_as_two_halves_and_what_they_come_to() -> void:
 	var chip_ink := pills.chips.get_theme_color("font_color")
 	var mult_ink := pills.mult.get_theme_color("font_color")
 	assert_bool(chip_ink.is_equal_approx(mult_ink)).is_false()
-	# Each pill is a panel in its own half's colour rather than a number on the scrim.
+	# Each pill is a panel in its own half's color rather than a number on the scrim.
 	for at: int in [CHIPS, MULT]:
 		var pill: PanelContainer = pills.get_child(at)
 		var skin: StyleBoxFlat = pill.get_theme_stylebox("panel")

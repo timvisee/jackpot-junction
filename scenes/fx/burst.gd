@@ -1,7 +1,7 @@
 class_name Burst
 extends Node3D
 ## The scatter left behind when something is destroyed, GAME.md 8.3: a brief flash and a handful
-## of tumbling chunks in the thing's own colour. Deliberately small — a kart popping is a puff of
+## of tumbling chunks in the thing's own color. Deliberately small — a kart popping is a puff of
 ## debris, not a bomb blast, which stays reserved for the Bomb item's [Explosion].
 
 const FLASH_TIME := 0.16

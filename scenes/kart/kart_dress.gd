@@ -5,14 +5,14 @@ extends RefCounted
 ##
 ## The paint patterns are tiny generated textures laid on by triplanar mapping, so the model needs
 ## no seams or unwrapping for them and the pattern sits on the kart rather than on the world. The
-## player's colour multiplies through them, so a striped red kart is still unmistakably the red
+## player's color multiplies through them, so a striped red kart is still unmistakably the red
 ## one.
 
 ## Side of a pattern texture, in pixels. Big enough that a stripe has a clean edge rather than a
 ## staircase: the kart is a hand's width on screen but the camera comes right down to it on the
 ## podium, and a sixteen-pixel pattern looked like a sixteen-pixel pattern there.
 const PATTERN := 128
-## The darker of the two tones a pattern is made of. The lighter one is the colour itself.
+## The darker of the two tones a pattern is made of. The lighter one is the color itself.
 const SHADE := 0.55
 ## How many times a pattern wraps around the kart.
 const PATTERN_SCALE := 1.6
@@ -31,16 +31,16 @@ const FLAG := Vector3(0.0, 0.95, 0.5)
 const POLE := 1.0
 
 static var _patterns: Dictionary[int, Texture2D] = {}
-## The chequered flag's squares, built once and shared by everybody flying one.
-static var _chequers: Texture2D
+## The checkered flag's squares, built once and shared by everybody flying one.
+static var _checkers: Texture2D
 
 
-## The tint a kart's body wears: its colour, with the pattern its owner picked laid over it.
+## The tint a kart's body wears: its color, with the pattern its owner picked laid over it.
 static func paint(color: Color, style: KartStyle) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
 	# Painted and lacquered, GAME.md 8.1: a kart is a toy off a shelf rather than a block of
-	# colour, and the coat is what catches the room's lamp as it turns.
+	# color, and the coat is what catches the room's lamp as it turns.
 	material.roughness = 0.34
 	material.metallic_specular = 0.6
 	material.clearcoat_enabled = true
@@ -78,7 +78,7 @@ static func pattern_texture(paint_index: int) -> Texture2D:
 	return texture
 
 
-## Whether one pixel of a pattern is the light tone: diagonal bands, a chequerboard, or a dot in
+## Whether one pixel of a pattern is the light tone: diagonal bands, a checkerboard, or a dot in
 ## the middle of every quarter.
 static func _lit(paint_index: int, x: int, y: int) -> bool:
 	var quarter := PATTERN / 4
@@ -130,7 +130,7 @@ static func hat(index: int, color: Color) -> Node3D:
 
 
 ## The flag a player picked, on its pole at the back of the kart, or null for none. All of them
-## are the player's colour except the chequered one, which is the colour a chequered flag is.
+## are the player's color except the checkered one, which is the color a checkered flag is.
 static func flag(index: int, color: Color) -> Node3D:
 	if index <= 0 or index >= KartStyle.FLAGS.size():
 		return null
@@ -151,31 +151,31 @@ static func flag(index: int, color: Color) -> Node3D:
 	else:
 		var banner := _block(Vector3(0.52, 0.34, 0.03), color)
 		if index == 3:
-			banner.material_override = _chequered()
+			banner.material_override = _checkered()
 		banner.position = Vector3(0.28, POLE * 0.3, 0.0)
 		flown.add_child(banner)
 	return flown
 
 
-## The chequered flag: the one flag in the game that is not the player's colour, because a
-## chequered flag that is red and a darker red is not a chequered flag.
-static func _chequered() -> StandardMaterial3D:
+## The checkered flag: the one flag in the game that is not the player's color, because a
+## checkered flag that is red and a darker red is not a checkered flag.
+static func _checkered() -> StandardMaterial3D:
 	var material := _flat(Color.WHITE)
-	material.albedo_texture = _chequer_texture()
+	material.albedo_texture = _checker_texture()
 	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 	material.uv1_scale = Vector3(3.0, 2.0, 1.0)
 	return material
 
 
-static func _chequer_texture() -> Texture2D:
-	if _chequers != null:
-		return _chequers
+static func _checker_texture() -> Texture2D:
+	if _checkers != null:
+		return _checkers
 	var image := Image.create_empty(2, 2, false, Image.FORMAT_RGB8)
 	for y: int in 2:
 		for x: int in 2:
 			image.set_pixel(x, y, Color.WHITE if (x + y) % 2 == 0 else Color(0.06, 0.06, 0.07))
-	_chequers = ImageTexture.create_from_image(image)
-	return _chequers
+	_checkers = ImageTexture.create_from_image(image)
+	return _checkers
 
 
 static func _pennant_mesh() -> PrismMesh:

@@ -27,11 +27,11 @@ func test_start_spawns_a_kart_per_input_facing_the_junction() -> void:
 	assert_int(match_node.state).is_equal(Match.State.COUNTDOWN)
 	for slot: PlayerSlot in match_node.slots:
 		assert_bool(slot.kart.alive).is_true()
-		var to_centre := (
+		var to_center := (
 			(match_node.arena.junction_position - slot.kart.global_position).normalized()
 		)
 		var forward := -slot.kart.global_basis.z
-		assert_float(forward.dot(to_centre)).is_greater(0.99)
+		assert_float(forward.dot(to_center)).is_greater(0.99)
 
 
 func test_a_bullet_kills_the_kart_ahead_and_the_victim_respawns_protected() -> void:

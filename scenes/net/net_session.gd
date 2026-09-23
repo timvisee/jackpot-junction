@@ -124,9 +124,9 @@ var _room_up := true
 ## On the host: who has asked for a seat while there was no room to put them in, in the order
 ## they asked, to be seated as soon as there is.
 var _waiting_to_sit: Array[int] = []
-## On the host: the colour each client had in the room it is leaving, so it can be seated in that
-## colour on the other side.
-var _colour_of: Dictionary[int, int] = {}
+## On the host: the color each client had in the room it is leaving, so it can be seated in that
+## color on the other side.
+var _color_of: Dictionary[int, int] = {}
 var _relaying := false
 ## Whether this machine is asking for a pause, and which of the host's clients are.
 var _asking := false
@@ -255,16 +255,16 @@ func _let_go() -> void:
 
 
 ## The host is about to change room. Nobody can be seated until it has arrived, and it notes the
-## colour everybody is in so they get it back there.
+## color everybody is in so they get it back there.
 func _leaving() -> void:
 	_room_up = false
-	_colour_of.clear()
+	_color_of.clear()
 	if match_node == null:
 		return
 	for peer: int in _peer_slots:
 		var index: int = _peer_slots[peer]
 		if index < match_node.slots.size():
-			_colour_of[peer] = match_node.slots[index].color_index
+			_color_of[peer] = match_node.slots[index].color_index
 
 
 ## Where the waiting room's football is, from the host that kicks it to everybody watching it,
@@ -345,14 +345,14 @@ func re_seat() -> void:
 	_settle_pause()
 
 
-## Gives [param peer] a seat in the match this session is pointed at, in the colour it had in the
+## Gives [param peer] a seat in the match this session is pointed at, in the color it had in the
 ## room before if it had one, and tells it the rules and the seat. A newcomer the match has no
 ## room for is turned away; somebody coming back from another room is left connected, in case a
 ## seat comes free.
 func _seat(peer: int, fresh: bool) -> void:
 	if match_node == null:
 		return
-	var slot := match_node.join_network(NetInput.new(), _colour_of.get(peer, -1))
+	var slot := match_node.join_network(NetInput.new(), _color_of.get(peer, -1))
 	if slot == null:
 		if fresh:
 			multiplayer.multiplayer_peer.disconnect_peer(peer)
@@ -369,7 +369,7 @@ func _seat(peer: int, fresh: bool) -> void:
 
 
 ## The seats the connected clients hold, in the order [method re_seat] seats them again. The
-## waiting room reads it on the way out, to keep each of them a seat in the arena in the colour
+## waiting room reads it on the way out, to keep each of them a seat in the arena in the color
 ## they had in the room.
 func peer_seats() -> Array[int]:
 	var seats: Array[int] = []
@@ -449,7 +449,7 @@ func _on_peer_connected(peer: int) -> void:
 
 func _on_peer_disconnected(peer: int) -> void:
 	_waiting_to_sit.erase(peer)
-	_colour_of.erase(peer)
+	_color_of.erase(peer)
 	if not is_host or not _peer_slots.has(peer):
 		return
 	var index: int = _peer_slots[peer]

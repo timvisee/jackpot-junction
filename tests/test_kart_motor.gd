@@ -104,7 +104,7 @@ func test_the_turn_on_the_spot_blends_into_the_turn_on_the_wheels() -> void:
 		assert_float(rates[i]).is_greater(rates[i - 1])
 		assert_float(rates[i] - rates[i - 1]).is_less(rates[-1] - rates[0])
 	assert_float(rates[0]).is_equal_approx(_stats.turn_in_place_rate_deg, 1.0)
-	# Switched instead of blended, the old way steps: a fifth of a metre a second either side of
+	# Switched instead of blended, the old way steps: a fifth of a meter a second either side of
 	# the threshold changes the turn rate by more than the whole blended range does.
 	var widest := 0.0
 	for i: int in range(1, rates.size()):
@@ -513,7 +513,7 @@ func test_a_turbo_shove_can_be_steered_and_drifted() -> void:
 	assert_bool(_motor.turboing()).is_true()
 	assert_float(absf(_motor.heading - heading)).is_greater(deg_to_rad(20.0))
 	assert_float(_motor.speed()).is_greater(_stats.top_speed)
-	# And the handbrake still starts a drift rather than cancelling the pad.
+	# And the handbrake still starts a drift rather than canceling the pad.
 	_motor.apply_turbo(Vector3(0.0, 0.0, -1.0))
 	_input.handbrake = true
 	_run(0.1)

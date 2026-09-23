@@ -9,7 +9,7 @@ var style := KartStyle.new()
 ## What this player calls themselves, GAME.md 3.8. Empty for a bot or a dummy, which are named
 ## after what they are; every human has one, their own or one off the funny list.
 var player_name := ""
-## Which of the player colours this slot uses; defaults to the slot index.
+## Which of the player colors this slot uses; defaults to the slot index.
 var color_index := 0
 var input: KartInput
 var kart: Kart
@@ -92,15 +92,15 @@ func is_local_human() -> bool:
 	return input is PlayerInput
 
 
-## The bot's seat a newcomer takes over, GAME.md 9.2: the one in [param colour] if there is one,
-## so a player coming back from another room keeps theirs, and otherwise the first. A practice
-## dummy's seat is not there to be taken: it is furniture.
-static func bot_seat(slots: Array[PlayerSlot], colour := -1) -> PlayerSlot:
+## The bot's seat a newcomer takes over, GAME.md 9.2: the one in [param wanted_color] if there is
+## one, so a player coming back from another room keeps theirs, and otherwise the first. A
+## practice dummy's seat is not there to be taken: it is furniture.
+static func bot_seat(slots: Array[PlayerSlot], wanted_color := -1) -> PlayerSlot:
 	var seat: PlayerSlot = null
 	for slot: PlayerSlot in slots:
 		if slot.is_human() or slot.is_dummy():
 			continue
-		if seat == null or (slot.color_index == colour and seat.color_index != colour):
+		if seat == null or (slot.color_index == wanted_color and seat.color_index != wanted_color):
 			seat = slot
 	return seat
 

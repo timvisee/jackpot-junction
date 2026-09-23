@@ -91,15 +91,15 @@ scene, plus the repository basics.
 Verify: import, lint, tests and the smoke run all pass headless; CI is green
 on the first push.
 
-## M0: grey-box, camera, kart feel
+## M0: gray-box, camera, kart feel
 
 Goal: drive a kart around Lucky Crossing and enjoy it. Everything here is a
-grey box.
+gray box.
 
 - [x] `ArenaLayout` resource and parser: grid validation, element positions,
       wall segment merging, symmetry check. `data/maps/lucky_crossing.tres`.
 - [x] `ArenaBuilder`: floor, merged wall segments as StaticBody3D with box
-      shapes and meshes, placeholder pads and zones as flat coloured discs,
+      shapes and meshes, placeholder pads and zones as flat colored discs,
       spawn markers, pits as holes with a trigger, turbo pads with an arrow
       mesh and direction.
 - [x] `KartStats` resource with every handling number from GAME.md 4.1;
@@ -235,7 +235,7 @@ audio and art, published as a GitHub Release.
 - [x] `BotBrain`: utility goals from GAME.md 9.1, path following, bullet dodge
       prediction, firing with lead, reaction delay and aim error, traits and
       difficulty resources, `BotInput`.
-- [x] Title screen, lobby with options and colour picking, countdown, control
+- [x] Title screen, lobby with options and color picking, countdown, control
       hints at match start, results with podium, settings with rebinding,
       audio, video and accessibility, persistence with ConfigFile.
 - [x] `Audio` autoload with Master, Music and SFX buses; music loop and the
@@ -273,8 +273,8 @@ exports, and the `v0.1.0` tag itself, which is the user's call.
 
 Verify: four devices on one machine, join and leave during a match.
 
-Status: built and checked headless. Tests cover lobby joining and colour
-cycling, colours reaching karts, mid-match takeover of a bot with the
+Status: built and checked headless. Tests cover lobby joining and color
+cycling, colors reaching karts, mid-match takeover of a bot with the
 any-device player settling on a device, fresh slots when no bot is free,
 and handing a kart back to a bot. The four-device session is still open.
 
@@ -282,7 +282,7 @@ and handing a kart back to a bot. The four-device session is still open.
 
 - [x] Host and join screens with IP and port, ENet peer.
 - [x] Replication by 30 Hz state snapshots instead of MultiplayerSpawner and
-      MultiplayerSynchronizer: the host serialises karts, bullets, pickups,
+      MultiplayerSynchronizer: the host serializes karts, bullets, pickups,
       turrets, zones, slots and offers; clients render puppets and dead-reckon
       bullets. Chosen because every gameplay node is built in code.
 - [x] `NetInput`: clients send input state per tick by unreliable ordered RPC;

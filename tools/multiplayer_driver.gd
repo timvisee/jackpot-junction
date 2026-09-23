@@ -29,16 +29,16 @@ const SPOTS: Array[Vector3] = [
 var _role := ""
 var _port := 7811
 var _failed := false
-## The colour this client had on the first map, to find it in again on the second.
-var _colour := -1
+## The color this client had on the first map, to find it in again on the second.
+var _color := -1
 ## Whether the role got to its last step.
 var _finished := false
 ## On the host: how many clients to wait for, and how many players sit at the host's own
 ## machine, the host and whoever takes the second seat there.
 var _clients := 1
 var _locals := 1
-## The colour this client had in the waiting room, to find it in again in the arena.
-var _room_colour := -1
+## The color this client had in the waiting room, to find it in again in the arena.
+var _room_color := -1
 ## What of their jokers everybody keeps between maps, one of GrandPrix.Keep, and on the host
 ## the jokers it handed every seat on the first map, to find the right ones again on the second.
 var _keep := 2
@@ -184,14 +184,14 @@ func _readout(match_node: Match, ready_room: ReadyRoom) -> String:
 	return " | ".join(parts)
 
 
-## Both maps, checking the second has the same people, bot and colours as the first. Returns the
+## Both maps, checking the second has the same people, bot and colors as the first. Returns the
 ## run's podium.
 func _host_plays(first: Node) -> ResultsScreen:
 	var one: Match = first.match_node
 	var first_arena := one.rules.map
 	var bot := _bot_seat(one)
 	var bot_trait := String(one.slots[bot].bot_trait.id) if bot >= 0 else ""
-	var guests := _colours(one)
+	var guests := _colors(one)
 	var seats := _locals + _clients + BOTS
 	_check(one.slots.size() == seats, "map 1 seats everybody and a bot, %d in all" % seats)
 	_check(guests.size() == _clients, "every client has a seat on map 1")
@@ -208,7 +208,7 @@ func _host_plays(first: Node) -> ResultsScreen:
 	# Every choice made at another machine has reached the run before it moves on: the joker a
 	# client takes on is the host's to hand it, and the host can only hand what it was told.
 	if _keep == GrandPrix.Keep.CHOOSE:
-		for seat: int in _colours(one):
+		for seat: int in _colors(one):
 			var told: StringName = Game.grand_prix.chosen.get(seat, &"")
 			_check(told == _given[seat][1], "seat %d's choice reached the host" % seat)
 	podium._next.pressed.emit()
@@ -221,7 +221,7 @@ func _host_plays(first: Node) -> ResultsScreen:
 		bot >= 0 and String(two.slots[bot].bot_trait.id) == bot_trait,
 		"map 2 has the same bot in the same seat"
 	)
-	_check(_colours(two) == guests, "every client is in the same seat and colour on map 2")
+	_check(_colors(two) == guests, "every client is in the same seat and color on map 2")
 	if _locals > 1:
 		_check(two.slots[1].is_local_human(), "the second player here plays map 2")
 	_check(two.rules.map != first_arena, "map 2 is a different arena")
@@ -291,7 +291,7 @@ func _client_joins() -> Node:
 		"seated in the room"
 	):
 		return null
-	_room_colour = match_node.slots[session.local_slot].color_index
+	_room_color = match_node.slots[session.local_slot].color_index
 	# The first client drives through the football on the way to the pad, from a little short of
 	# it to a little past it, and the ball this machine draws has to have gone somewhere too. Only
 	# the first: two karts making for the same ball meet each other, and the host takes the wheel
@@ -331,8 +331,8 @@ func _client_joins() -> Node:
 ## Map 1's podium as a client sees it, then on to map 2.
 func _client_after_map_1(first: Node) -> Node:
 	var one: Match = first.match_node
-	_colour = one.slots[one.local_slot].color_index
-	_check(_colour == _room_colour, "the same colour on map 1 as in the room")
+	_color = one.slots[one.local_slot].color_index
+	_check(_color == _room_color, "the same color on map 1 as in the room")
 	var podium := await _podium(first, 60.0)
 	if podium == null:
 		return null
@@ -352,10 +352,10 @@ func _client_after_map_1(first: Node) -> Node:
 	return await _map(2)
 
 
-## Map 2 in the same colour, the run's podium, and back to the room.
+## Map 2 in the same color, the run's podium, and back to the room.
 func _client_after_map_2(second: Node) -> void:
 	var two: Match = second.match_node
-	_check(two.slots[two.local_slot].color_index == _colour, "the same colour on map 2")
+	_check(two.slots[two.local_slot].color_index == _color, "the same color on map 2")
 	var last := await _podium(second, 60.0)
 	if last == null:
 		return
@@ -643,8 +643,8 @@ func _remote(match_node: Match) -> int:
 	return count
 
 
-## Seat to colour for every client's seat.
-func _colours(match_node: Match) -> Dictionary:
+## Seat to color for every client's seat.
+func _colors(match_node: Match) -> Dictionary:
 	var found := {}
 	for slot: PlayerSlot in match_node.slots:
 		if slot.input is NetInput:

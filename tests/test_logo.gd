@@ -46,7 +46,7 @@ func test_the_icon_is_the_mark_rather_than_a_picture_of_something_else() -> void
 
 
 ## One pixel of the icon, named so a failure says which part of the mark moved. Compared to
-## within a step of eight-bit colour, which is all a PNG keeps.
+## within a step of eight-bit color, which is all a PNG keeps.
 func _assert_ink(got: Color, wanted: Color, part: String) -> void:
 	var off := maxf(maxf(absf(got.r - wanted.r), absf(got.g - wanted.g)), absf(got.b - wanted.b))
 	(

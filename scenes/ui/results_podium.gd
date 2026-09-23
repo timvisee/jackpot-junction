@@ -9,7 +9,7 @@ extends SubViewportContainer
 ## does. Its own world too, so none of the arena the match was played in leaks into it.
 
 const SIZE := Vector2(940.0, 272.0)
-## Where each place stands and how tall its step is, in metres: the winner in the middle, second
+## Where each place stands and how tall its step is, in meters: the winner in the middle, second
 ## to the left a little lower, third to the right and lowest of all.
 const PLACES: Array[Vector2] = [Vector2(0.0, 1.15), Vector2(-2.3, 0.88), Vector2(2.3, 0.66)]
 const STEP_WIDTH := 1.9
@@ -20,9 +20,9 @@ const SPIN_SECONDS := 7.0
 ## being mostly sky for everybody who is not wearing one.
 const KART_SCALE := 1.05
 const STEP_COLOR := Color(0.14, 0.14, 0.18)
-## The band of the player's own colour round the top of their step, and how far it stands proud
-## of it. Level with the step, the two faces fight over the same pixels and the grey shows
-## through the colour in patches.
+## The band of the player's own color round the top of their step, and how far it stands proud
+## of it. Level with the step, the two faces fight over the same pixels and the gray shows
+## through the color in patches.
 const BAND_HEIGHT := 0.09
 const BAND_LIFT := 0.03
 const NUMBER_SIZE := 72
@@ -49,7 +49,7 @@ func show_top(standings: Array[PlayerSlot]) -> void:
 	var shown := mini(standings.size(), PLACES.size())
 	for place: int in shown:
 		_add_step(standings[place], place)
-	# A full podium is already centred on the winner. A short one is not, so the whole thing is
+	# A full podium is already centered on the winner. A short one is not, so the whole thing is
 	# slid over until what is standing on it sits in the middle of the picture.
 	var middle := 0.0
 	for place: int in shown:

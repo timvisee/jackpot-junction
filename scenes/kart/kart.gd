@@ -33,7 +33,7 @@ const RING_RADIUS_FULL := 1.4
 @export var rules: MatchRules
 ## Player slot, 0 to 3, decides who gets the credit.
 @export var slot := 0
-## Which player colour the kart and its bullets use.
+## Which player color the kart and its bullets use.
 @export var color_index := 0
 ## How this kart is dressed, GAME.md 4.4. Set before the kart enters the tree; the body is built
 ## from it once.

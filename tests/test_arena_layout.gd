@@ -68,7 +68,7 @@ func test_walls_are_merged_into_few_rectangles() -> void:
 	assert_int(_grid.walls.size()).is_less_equal(10)
 
 
-func test_cell_and_rect_centres_are_around_the_origin() -> void:
+func test_cell_and_rect_centers_are_around_the_origin() -> void:
 	assert_vector(_grid.cell_center(Vector2i(16, 9))).is_equal_approx(
 		Vector3(0.625, 0.0, 0.625), Vector3.ONE * 0.001
 	)

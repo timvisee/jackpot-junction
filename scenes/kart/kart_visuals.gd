@@ -13,7 +13,7 @@ const MARKER_HEIGHT := 1.75
 const CROWN_HEIGHT := MARKER_HEIGHT + 0.42
 
 
-## The body: the model tinted in the player's colour, the wheels picked out so they can be spun,
+## The body: the model tinted in the player's color, the wheels picked out so they can be spun,
 ## and the roof marker. Returns the body node, the shared tint and the wheels.
 static func build_body(kart: Kart) -> Dictionary:
 	var body := Node3D.new()
@@ -38,7 +38,7 @@ static func build_body(kart: Kart) -> Dictionary:
 	return {"body": body, "tint": tint, "wheels": wheels}
 
 
-## The kart as something to look at rather than to drive: the model in a player's colour, with
+## The kart as something to look at rather than to drive: the model in a player's color, with
 ## nothing hanging off it and no kart under it. The results podium stands one on each step.
 static func display_model(color_index: int, style: KartStyle = null) -> Node3D:
 	# A holder rather than the model itself: the model is turned round and scaled to sit on the
@@ -58,7 +58,7 @@ static func display_model(color_index: int, style: KartStyle = null) -> Node3D:
 	return holder
 
 
-## Paints every part of a model but the driver in one colour, and collects the wheels on the way
+## Paints every part of a model but the driver in one color, and collects the wheels on the way
 ## past, since those are turned rather than tinted.
 static func paint(model: Node3D, tint: StandardMaterial3D, wheels: Array[MeshInstance3D]) -> void:
 	for node: Node in model.find_children("*", "MeshInstance3D", true, false):
@@ -82,11 +82,11 @@ static func _model() -> Node3D:
 
 ## Where the rear wheels sit on the model, as (half track, distance behind the middle). The tire
 ## marks are laid here rather than at a fraction of the kart's length that was nearly right: the
-## marks were coming down a quarter of a metre behind the wheels meant to be making them. The
+## marks were coming down a quarter of a meter behind the wheels meant to be making them. The
 ## rear wheels do not steer, so one measurement stands for the whole match.
 ##
-## Measured from the middle of the tyre itself rather than from the point the model hangs it
-## from. On this model the wheel's own origin sits at its inner face, a tyre's width inboard of
+## Measured from the middle of the tire itself rather than from the point the model hangs it
+## from. On this model the wheel's own origin sits at its inner face, a tire's width inboard of
 ## where the rubber actually meets the floor, which laid the marks between the wheels.
 static func rear_axle(kart: Kart, wheels: Array[MeshInstance3D]) -> Vector2:
 	var found := Vector2.ZERO
@@ -179,7 +179,7 @@ static func build_attachments(kart: Kart) -> Dictionary:
 	}
 
 
-## A distinct shape per slot above the driver, so colours are not the only way to tell karts apart.
+## A distinct shape per slot above the driver, so colors are not the only way to tell karts apart.
 static func roof_marker(slot: int, color_index: int) -> MeshInstance3D:
 	var marker := MeshInstance3D.new()
 	marker.name = "RoofMarker"

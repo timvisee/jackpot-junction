@@ -36,7 +36,7 @@ signal wild_joker_dropped(joker_id: StringName)
 signal announced(slot: int, call: String)
 signal bullet_fired(slot: int)
 signal bullet_bounced
-## A bullet landed on a wall, GAME.md 8.3, with the surface normal and the shooter's colour, so
+## A bullet landed on a wall, GAME.md 8.3, with the surface normal and the shooter's color, so
 ## the arena can leave a mark there. An event rather than something the bullet does itself
 ## because a client's bullets are dead reckoned and never touch anything, GAME.md 10.3.
 signal bullet_struck(at: Vector3, normal: Vector3, color: Color)
@@ -51,7 +51,7 @@ signal drift_boosted(slot: int)
 ## This machine's own kart was put back where the host had it, GAME.md 10.3: how far it moved and
 ## whether it was too far to hide. Never leaves the machine it happened on; nobody else's picture
 ## changed and nobody else needs telling.
-signal kart_corrected(metres: float, snapped: bool)
+signal kart_corrected(meters: float, snapped: bool)
 signal nitro_started(slot: int)
 signal nitro_gained(slot: int)
 signal pad_claimed(slot: int)

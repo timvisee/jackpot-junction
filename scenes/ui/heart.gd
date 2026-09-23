@@ -2,7 +2,7 @@ class_name Heart
 extends Control
 ## A heart, for the lives under each player's name, GAME.md 8.3.
 ##
-## Drawn rather than loaded, like everything else on this HUD: it takes the player's colour for
+## Drawn rather than loaded, like everything else on this HUD: it takes the player's color for
 ## free, it is sharp at any size, and it weighs nothing. The outline is the usual heart curve
 ## rather than two circles over a triangle, which gives it the dip at the top and the point at
 ## the bottom that make the shape read at eighteen pixels.
@@ -25,7 +25,7 @@ const BREAK_DEGREES := 12.0
 const HINGE := Vector2(0.5, 0.78)
 const BREAK_GAP := 0.05
 
-## The curve normalised into the unit box, worked out once and shared: every heart on the screen
+## The curve normalized into the unit box, worked out once and shared: every heart on the screen
 ## is the same shape at a different size.
 static var _unit: PackedVector2Array = []
 

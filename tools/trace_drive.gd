@@ -1,5 +1,5 @@
 extends SceneTree
-## Development aid: runs [KartMotor] headless against a scripted driving programme and prints a
+## Development aid: runs [KartMotor] headless against a scripted driving program and prints a
 ## CSV trace of the motor and [KartRev] state, so sound models can be prototyped offline against
 ## the real handling and checked against what the game will actually play.
 ## Usage: tools/godot --headless --path . -s tools/trace_drive.gd ++ --out=trace.csv
@@ -9,12 +9,12 @@ const STEP := 1.0 / 60.0
 
 func _initialize() -> void:
 	var out := "trace.csv"
-	var programme := "lap"
+	var program := "lap"
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			out = arg.get_slice("=", 1)
-		elif arg.begins_with("--programme="):
-			programme = arg.get_slice("=", 1)
+		elif arg.begins_with("--program="):
+			program = arg.get_slice("=", 1)
 	var stats: KartStats = load("res://data/kart/default.tres")
 	var sound: KartSoundStats = load("res://data/kart/sound.tres")
 	var motor := KartMotor.new(stats)
@@ -26,7 +26,7 @@ func _initialize() -> void:
 			+ "boost,turbo,rev,pitch,load,engine_db"
 		)
 	]
-	var script := _programme(programme)
+	var script := _program(program)
 	var duration: float = script[script.size() - 1]["until"]
 	var t := 0.0
 	while t < duration:
@@ -84,7 +84,7 @@ func _at(script: Array, t: float) -> Dictionary:
 	return script[script.size() - 1]
 
 
-func _programme(name: String) -> Array:
+func _program(name: String) -> Array:
 	match name:
 		"launch":
 			# Sitting still, a blip of throttle, then a standing start to the limiter and back.

@@ -70,7 +70,7 @@ func _arena_match(into: Node, called: String) -> Match:
 
 
 ## Both ends in the waiting room over a real connection on [param port], with the client seated.
-## The client's seat is given a colour the arena would not hand out by itself, so a test that
+## The client's seat is given a color the arena would not hand out by itself, so a test that
 ## finds it again on the other side knows it was kept rather than dealt.
 func _both_in_the_room(port: int) -> void:
 	_host_waiting = _waiting_match(_host_root, "Waiting")
@@ -95,7 +95,7 @@ func _both_in_the_room(port: int) -> void:
 
 
 ## The host says it is going to the arena and both ends build one. The arena keeps a seat for the
-## client, in the colour it had in the room, and has the one bot the host asked for after it.
+## client, in the color it had in the room, and has the one bot the host asked for after it.
 ## Nobody is seated in it yet: the client has to ask.
 func _both_go_to_the_arena() -> void:
 	var seen := {"told": false}
@@ -123,7 +123,7 @@ func _both_go_to_the_arena() -> void:
 
 ## The whole handover: a client waits in the room with the host, the host says it is going, and
 ## the client, once its own arena is up and it asks, is seated in the host's with that arena's
-## rules, in the seat kept for it and the colour it had.
+## rules, in the seat kept for it and the color it had.
 func test_the_host_takes_everybody_through_to_the_arena() -> void:
 	await _both_in_the_room(PORT)
 	var was := _client.local_slot
@@ -163,7 +163,7 @@ func test_a_client_that_asks_early_is_seated_when_the_host_arrives() -> void:
 
 
 ## After the match the host takes everybody back to the waiting room: the client is told, both
-## ends build a room, and the client is seated in the host's with the room's rules and the colour
+## ends build a room, and the client is seated in the host's with the room's rules and the color
 ## it drove the arena in.
 func test_the_host_takes_everybody_back_to_the_room() -> void:
 	await _both_in_the_room(PORT + 3)

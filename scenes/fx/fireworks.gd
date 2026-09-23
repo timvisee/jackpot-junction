@@ -1,12 +1,12 @@
 class_name Fireworks
 extends Node3D
 ## The display over the arena once a match is won, GAME.md 8.3. Shells go up off the table and
-## break overhead in the winner's colour, through the pause the podium waits out and on under
+## break overhead in the winner's color, through the pause the podium waits out and on under
 ## the standings, so the room the match was played in is still celebrating behind them.
 ##
 ## Every shell is the two parts a real one has: a comet that climbs trailing sparks, and the
-## break at the top of the climb. The winner's colour carries the show, with the odd gold shell
-## among them so the sky is not one flat colour.
+## break at the top of the climb. The winner's color carries the show, with the odd gold shell
+## among them so the sky is not one flat color.
 
 ## Seconds between shells going up, give or take [constant SPACING_SPREAD].
 const SPACING := 0.42
@@ -17,14 +17,14 @@ const BREAK_LOW := 9.0
 const BREAK_HIGH := 13.5
 ## Shells go up from inside this share of the arena footprint, so none breaks off the screen.
 const FOOTPRINT := 0.45
-## One shell in this many is gold rather than the winner's colour.
+## One shell in this many is gold rather than the winner's color.
 const GOLD_EVERY := 4
 ## How loud a shell is when it breaks. Over the fanfare and the standings music running under it
 ## rather than tucked in behind them: the display is what is on the screen, and at the level it
 ## was first given the bang was part of the mix rather than the thing making it.
 const BANG_DB := -4.5
 
-## The winner's colour, which most of the shells are.
+## The winner's color, which most of the shells are.
 var color := Color.WHITE
 
 var _left := 0.0
@@ -132,7 +132,7 @@ class Shell:
 				_break()
 			return
 		# The comet blooms into the flash of the break and goes out with it, and the room is lit
-		# in the shell's colour for as long as that lasts.
+		# in the shell's color for as long as that lasts.
 		var flash := clampf((_age - CLIMB) / FLASH, 0.0, 1.0)
 		_head.visible = flash < 1.0
 		_head.scale = Vector3.ONE * (1.0 + 9.0 * flash)
@@ -209,7 +209,7 @@ class Shell:
 		particles.emitting = true
 		return particles
 
-	## One spark: a small ball, lit by nothing and coloured by the ramp, the way the sparks off
+	## One spark: a small ball, lit by nothing and colored by the ramp, the way the sparks off
 	## a drift are drawn.
 	func _spark_mesh(radius: float) -> SphereMesh:
 		var mesh := SphereMesh.new()
@@ -221,7 +221,7 @@ class Shell:
 		return mesh
 
 	## The streak a spark is drawn as: a tapered ribbon, thickest where the spark is and drawn
-	## out behind it along the way it is travelling.
+	## out behind it along the way it is traveling.
 	func _streak_mesh() -> RibbonTrailMesh:
 		var mesh := RibbonTrailMesh.new()
 		mesh.shape = RibbonTrailMesh.SHAPE_FLAT
@@ -236,12 +236,12 @@ class Shell:
 		mesh.material = ParticleLook.material()
 		return mesh
 
-	## White-hot at the break, the shell's colour for most of the fall, and gone before it
+	## White-hot at the break, the shell's color for most of the fall, and gone before it
 	## lands. A spark that starts fading the moment it is born is a puff of smoke.
 	func _spark_ramp() -> GradientTexture1D:
 		var gradient := Gradient.new()
 		gradient.offsets = PackedFloat32Array([0.0, 0.08, 0.7, 1.0])
-		# Written linear: what goes into a ramp is used as it is, so a colour picked by eye has
+		# Written linear: what goes into a ramp is used as it is, so a color picked by eye has
 		# to be converted or it comes out washed out.
 		var lit := tint.srgb_to_linear()
 		var colors: PackedColorArray = [Color.WHITE, lit, lit, Color(lit.r, lit.g, lit.b, 0.0)]

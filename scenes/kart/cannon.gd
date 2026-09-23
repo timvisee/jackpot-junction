@@ -6,7 +6,7 @@ extends RefCounted
 
 var stats: CannonStats
 var cooldown_left := 0.0
-## What the power-up that set the override was called, what colour it is drawn in and how many
+## What the power-up that set the override was called, what color it is drawn in and how many
 ## shots it started with, so the HUD of 8.3 can say what is loaded without knowing what any one
 ## power-up does. Filled in by the kart as the item is played.
 var override_name := ""

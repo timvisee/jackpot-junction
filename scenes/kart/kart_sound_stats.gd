@@ -1,7 +1,7 @@
 class_name KartSoundStats
 extends Resource
 ## Every number the kart's sound uses, GAME.md 8.4. The levels are in dB against the shipped
-## files in assets/audio/kart/, which are all peak normalised, so changing one changes only
+## files in assets/audio/kart/, which are all peak normalized, so changing one changes only
 ## that voice's place in the mix.
 
 @export_group("Rev counter")
@@ -95,7 +95,7 @@ extends Resource
 @export var bot_detune := 0.055
 
 @export_group("Placement")
-## Metres at which a kart plays at exactly the level written above. It has to be the distance
+## Meters at which a kart plays at exactly the level written above. It has to be the distance
 ## the ears sit at, [member CameraRig.listener_height], or the attenuation at that distance is
 ## added to every level here and none of them mean what they say. It also sets the falloff:
 ## a kart twice this far off is 6 dB down.

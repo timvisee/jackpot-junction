@@ -35,7 +35,7 @@ const WALL_THICKNESS := 2.0
 ## off the parts the prop is built from, in the prop's own frame: across it is the rectangle's
 ## width and along it -- the way a hammer's handle points -- is its height.
 ##
-## Every place is found with these, so a hammer fifteen metres long asks for fifteen metres of
+## Every place is found with these, so a hammer fifteen meters long asks for fifteen meters of
 ## bench and a glass asks for three. One patch of the same size for every prop is what left rod
 ## stock lying through a stack of chips and barrels standing in each other however many places
 ## were tried, and a round patch big enough to hold a prop whichever way it was turned costs nine
@@ -71,7 +71,7 @@ const PATCH := {
 	&"container": [Rect2(-4.2, -1.8, 8.4, 3.6), Turned.SQUARE],
 	&"bricks": [Rect2(-1.4, -3.0, 2.8, 6.0), Turned.SQUARE],
 	&"barrier": [Rect2(-3.2, -0.9, 6.4, 1.8), Turned.SQUARE],
-	&"tyres": [Rect2(-1.7, -1.7, 3.4, 3.4), Turned.SQUARE],
+	&"tires": [Rect2(-1.7, -1.7, 3.4, 3.4), Turned.SQUARE],
 	&"chest": [Rect2(-1.9, -1.0, 3.8, 2.0), Turned.FACING],
 	&"jerry": [Rect2(-1.6, -0.9, 3.2, 1.8), Turned.SQUARE],
 	&"work_bench": [Rect2(-5.5, -1.4, 11.0, 2.8), Turned.FLAT],
@@ -83,7 +83,7 @@ var room: RoomLook
 var surfaces: Surfaces
 ## How far out this room's clutter starts. [constant NEAR] for a room with a crowd in it, which
 ## is where the stands end; a room with nobody watching has nothing to stand behind, and eight
-## metres of bare floor round the arena reads as a room somebody has been cleared out of.
+## meters of bare floor round the arena reads as a room somebody has been cleared out of.
 var clutter_from := NEAR
 
 ## Its own generator, seeded off the room, so a room is dressed the same way every time it is
@@ -170,7 +170,7 @@ func _turned(node: MeshInstance3D, turn: float) -> MeshInstance3D:
 	return node
 
 
-## Casts no shadow. A wall thirty metres tall standing in a directional light throws the whole
+## Casts no shadow. A wall thirty meters tall standing in a directional light throws the whole
 ## room into the dark, and the shadow map has the table to be spending itself on.
 func _dim(node: MeshInstance3D) -> MeshInstance3D:
 	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

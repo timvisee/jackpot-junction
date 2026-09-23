@@ -19,6 +19,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **American English throughout.** Color, center, gray, tires and a checkered flag,
+  on every screen.
+
 - **One-minute maps in every build.** A short map is on offer outside debug builds
   too, handy for a quick Grand Prix.
 

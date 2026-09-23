@@ -114,9 +114,9 @@ func _layout(picked: int) -> void:
 	var card_size := JokerCard.SIZE * factor
 	var gap := GAP * factor
 	var width := size.x / columns
-	var centre := width * (column + 0.5)
+	var center := width * (column + 0.5)
 	var row := card_size.x * count + gap * maxf(count - 1, 0.0)
-	var left := centre - row * 0.5
+	var left := center - row * 0.5
 	var baseline := size.y * (SHARED_BASELINE if shared else LONE_BASELINE)
 	for i: int in count:
 		var card := _cards[i]
@@ -127,7 +127,7 @@ func _layout(picked: int) -> void:
 		)
 		var scale_to := factor * (PICKED_SCALE if chosen else 1.0)
 		card.scale = card.scale.lerp(Vector2.ONE * scale_to, 0.4)
-		# The pivot is the card's bottom centre, so scaling already happens about that point and
+		# The pivot is the card's bottom center, so scaling already happens about that point and
 		# the offset must not be scaled again. Scaling it moved the picked card left by half of
 		# what it had grown by, which is the sideways drift on a row that is otherwise straight.
 		card.position = anchor - card.pivot_offset
@@ -145,10 +145,10 @@ func _layout(picked: int) -> void:
 	# Sharing, everything stacks upward off the bottom of the column; alone, the pane hangs
 	# under the cards where there is room for it.
 	var pane_y := baseline - card_size.y - detail.y - 16.0 if shared else baseline + 24.0
-	_detail.position = Vector2(centre - detail.x * 0.5, pane_y)
+	_detail.position = Vector2(center - detail.x * 0.5, pane_y)
 	_title.size = Vector2(width, 0.0)
 	var title_y := pane_y - 52.0 if shared else baseline - card_size.y - 86.0
-	_title.position = Vector2(centre - width * 0.5, title_y)
+	_title.position = Vector2(center - width * 0.5, title_y)
 
 
 ## Rebuilds the row when the offered jokers or the stage change, and leaves it alone otherwise so

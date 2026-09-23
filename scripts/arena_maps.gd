@@ -11,7 +11,7 @@ const IDS: Array[StringName] = [&"lucky_crossing", &"vault", &"crossfire"]
 const NAMES: Array[String] = ["Lucky Crossing", "The Vault", "Crossfire"]
 
 
-## The layout for a map, or the first map for anything unrecognised.
+## The layout for a map, or the first map for anything unrecognized.
 static func layout(id: StringName) -> ArenaLayout:
 	return load("res://data/maps/%s.tres" % String(IDS[index_of(id)]))
 

@@ -1,13 +1,13 @@
 class_name ScorePills
 extends HBoxContainer
 ## The two halves of a pot on the HUD, GAME.md 8.3: the chips a lap is worth and the mult they
-## are multiplied by, each in a pill of its own colour with the multiply sign between them and
+## are multiplied by, each in a pill of its own color with the multiply sign between them and
 ## what the two come to after it.
 ##
 ## A pot is one number made of two, and which of the two is moving is the whole of what a player
 ## is deciding about: another lap for more chips, or the Junction for the mult before somebody
-## takes it off them. Written as one line of text it read as arithmetic. Written as two coloured
-## pills it reads as two things, and the colours are the same two everywhere the halves are
+## takes it off them. Written as one line of text it read as arithmetic. Written as two colored
+## pills it reads as two things, and the colors are the same two everywhere the halves are
 ## shown, see [Palette].
 
 ## How wide each pill is at its narrowest. A floor rather than a fixed size: the pane round the
@@ -16,7 +16,7 @@ extends HBoxContainer
 ## lost its last digit, which is the one that says how much the pot is worth.
 const CHIP_WIDTH := 62.0
 const MULT_WIDTH := 46.0
-## The pill itself: how much of its colour is behind the number, how bright the rim is, and how
+## The pill itself: how much of its color is behind the number, how bright the rim is, and how
 ## much room the number has inside it.
 const FILL := 0.22
 const RIM := 0.75
@@ -85,7 +85,7 @@ func _build() -> void:
 	add_child(_note)
 
 
-## One half of the pot: a number in a pill of its own colour.
+## One half of the pot: a number in a pill of its own color.
 func _pill(ink: Color, width: float) -> Label:
 	var box := PanelContainer.new()
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE

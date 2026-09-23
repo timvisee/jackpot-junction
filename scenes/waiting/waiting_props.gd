@@ -9,11 +9,11 @@ extends RefCounted
 ## are the only reason to drive at all while the last player finds their pad.
 ##
 ## They are solid, unlike the clutter outside: driving through a drum is worse than having no
-## drum. They are the room's own colours, so the waiting room reads as the corner of the garage
+## drum. They are the room's own colors, so the waiting room reads as the corner of the garage
 ## that it is.
 
 ## Where each one stands, as a share of the arena's half size, and how far it reaches. The three
-## sit off the middle so the pad in the centre is left clear and the line to it from any spawn is
+## sit off the middle so the pad in the center is left clear and the line to it from any spawn is
 ## not blocked by one.
 const PLACES: Array[Vector2] = [Vector2(-0.52, -0.42), Vector2(0.55, 0.3), Vector2(-0.3, 0.52)]
 ## How far a kart is held off each of them, which is what a drift round one is measured against.

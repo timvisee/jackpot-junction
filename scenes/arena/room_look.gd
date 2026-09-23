@@ -7,8 +7,8 @@ extends Resource
 ## Everything here is read at build time and nothing here decides anything about play: two rooms
 ## differ in what a player sees and in nothing else, which is why the room can be data.
 
-## How the crowd in this room is dressed, GAME.md 8.1: a carnival of colour, a dark band with a
-## rim of light on it, or a working crowd in a few muted colours. Named Dress rather than Crowd
+## How the crowd in this room is dressed, GAME.md 8.1: a carnival of color, a dark band with a
+## rim of light on it, or a working crowd in a few muted colors. Named Dress rather than Crowd
 ## because [Crowd] is the band of people itself.
 enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR }
 
@@ -46,7 +46,7 @@ enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR }
 @export var fog_density := 0.012
 
 @export_group("Film")
-## How far past whatever the camera is looking at the room starts going soft, in metres, and how
+## How far past whatever the camera is looking at the room starts going soft, in meters, and how
 ## soft it goes. A table reads as a model when what is behind it is out of focus, and the margin
 ## follows the camera so the table stays sharp however close the rig comes in, GAME.md 8.2.
 @export var focus_from := 12.0

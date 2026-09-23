@@ -1,7 +1,7 @@
 class_name Arena
 extends Node3D
 ## Builds the arena from an [ArenaLayout]: table, floor, walls, pads, zones and spawn points.
-## Everything is a grey box for now; the art pass replaces meshes and materials, not structure.
+## Everything is a gray box for now; the art pass replaces meshes and materials, not structure.
 
 ## A crate broke; [param by_slot] gets the credit, -1 for nobody.
 signal crate_broken(by_slot: int)
@@ -257,9 +257,9 @@ func spawn_floor_joker(origin: Vector3, joker: Joker, lifetime: float) -> FloorJ
 ## True when a point on the floor is over one of the holes, so anything dropped there falls in.
 func is_over_pit(point: Vector3) -> bool:
 	for rect: Rect2i in grid.pits:
-		var centre := grid.rect_center(rect)
+		var center := grid.rect_center(rect)
 		var half := grid.rect_size(rect) * 0.5
-		if absf(point.x - centre.x) <= half.x and absf(point.z - centre.z) <= half.y:
+		if absf(point.x - center.x) <= half.x and absf(point.z - center.z) <= half.y:
 			return true
 	return false
 
@@ -345,8 +345,8 @@ func _billboard_spot(index: int) -> Vector3:
 	var side := -1.0 if index == 0 else 1.0
 	match room.id:
 		&"after_hours":
-			# Well out from the middle: the clock board of 8.3 hangs near the centre of this edge,
-			# and a hoarding a few metres off it stands in the shot behind it.
+			# Well out from the middle: the clock board of 8.3 hangs near the center of this edge,
+			# and a hoarding a few meters off it stands in the shot behind it.
 			var along := half.x * 0.82 * side
 			return Vector3(along, 0.0, -(half.y + BILLBOARD_STANDOFF))
 		&"the_yard":
@@ -379,13 +379,13 @@ func _add_floor() -> void:
 func _pit_rects() -> Array[Rect2]:
 	var result: Array[Rect2] = []
 	for rect: Rect2i in grid.pits:
-		var centre := grid.rect_center(rect)
+		var center := grid.rect_center(rect)
 		var size2 := grid.rect_size(rect)
-		result.append(Rect2(Vector2(centre.x, centre.z) - size2 * 0.5, size2))
+		result.append(Rect2(Vector2(center.x, center.z) - size2 * 0.5, size2))
 	return result
 
 
-## A slab centred on the origin whose top face at [param top] has [param holes] cut out, with
+## A slab centered on the origin whose top face at [param top] has [param holes] cut out, with
 ## sides down to [param thickness] below and no bottom. The top is split along every hole edge
 ## into cells; cells inside a hole are left out.
 func _slab_with_holes(
@@ -408,10 +408,10 @@ func _slab_with_holes(
 			var z1 := zs[j + 1]
 			if x1 - x0 < 0.001 or z1 - z0 < 0.001:
 				continue
-			var centre := Vector2((x0 + x1) * 0.5, (z0 + z1) * 0.5)
+			var center := Vector2((x0 + x1) * 0.5, (z0 + z1) * 0.5)
 			var inside := false
 			for hole: Rect2 in holes:
-				if hole.has_point(centre):
+				if hole.has_point(center):
 					inside = true
 					break
 			if inside:
@@ -445,7 +445,7 @@ func _slab_with_holes(
 
 ## Two triangles for the quad a, b, c, d with one normal; both faces render, so winding is free.
 ##
-## Each corner carries a UV taken from where it is on the table, in metres, so the felt and the
+## Each corner carries a UV taken from where it is on the table, in meters, so the felt and the
 ## boards are mapped flat and in world scale without the three texture reads a triplanar costs,
 ## GAME.md 8.1. Everything here lies flat or stands on an edge, which is what makes that work.
 func _quad(
@@ -457,7 +457,7 @@ func _quad(
 		st.add_vertex(vertex)
 
 
-## Where a point sits on its own surface, in metres: along the floor for anything flat, and along
+## Where a point sits on its own surface, in meters: along the floor for anything flat, and along
 ## the edge for the sides of a slab.
 static func _world_uv(vertex: Vector3, normal: Vector3) -> Vector2:
 	if absf(normal.y) > 0.5:
@@ -467,7 +467,7 @@ static func _world_uv(vertex: Vector3, normal: Vector3) -> Vector2:
 	return Vector2(vertex.x, vertex.y)
 
 
-## Two triangles for a quad with a colour per corner, for the shaded pit shafts.
+## Two triangles for a quad with a color per corner, for the shaded pit shafts.
 func _colored_quad(
 	st: SurfaceTool, corners: Array[Vector3], colors: Array[Color], normal: Vector3
 ) -> void:
@@ -764,7 +764,7 @@ func _add_junction() -> void:
 	# Hours, a hazard border in the Yard, a machined plate on the bench. The rim that blinks is
 	# not, since the hint of 3.4 says the same thing wherever it is said.
 	pad.ring_material = kit.junction(pad, junction_radius)
-	# A face made of twenty flat pieces is twenty things to draw for a disc two metres across,
+	# A face made of twenty flat pieces is twenty things to draw for a disc two meters across,
 	# and none of it moves or is ever hidden on its own.
 	if bake_scenery:
 		Bake.merge(pad)
@@ -802,7 +802,7 @@ func _add_jackpots() -> void:
 
 
 ## Painted, which is what nearly everything in an arena is. The felt and the table ask the room
-## for their own materials; everything else is a block of colour with paint on it.
+## for their own materials; everything else is a block of color with paint on it.
 func _material(color: Color) -> StandardMaterial3D:
 	return surfaces.painted(color)
 
@@ -816,7 +816,7 @@ func _box_mesh(size: Vector3, color: Color) -> MeshInstance3D:
 	return instance
 
 
-## A thin ring of the room's metal, laid round a pad at [param radius]. A disc of colour on the
+## A thin ring of the room's metal, laid round a pad at [param radius]. A disc of color on the
 ## felt reads as a sticker; the same disc with a rim round it reads as something set into the
 ## table, GAME.md 8.1.
 func _pad_rim(radius: float, thickness := 0.06) -> MeshInstance3D:

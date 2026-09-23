@@ -23,11 +23,11 @@ const FRAME := 0.15
 const DEPTH := 0.15
 const STEEL := Color(0.17, 0.17, 0.2)
 const FACE := Color(0.07, 0.07, 0.09)
-## Text is drawn at this size and scaled down to metres, and kept this far clear of the frame.
+## Text is drawn at this size and scaled down to meters, and kept this far clear of the frame.
 const FONT_SIZE := 64
 const MARGIN := 0.35
 
-## What the boards say: a headline, the line under it, and the colour both are in. Two are
+## What the boards say: a headline, the line under it, and the color both are in. Two are
 ## drawn at random as the room goes up, GAME.md 8.1, so a run of matches is not the same two
 ## posters over and over. Written the way the hoardings in a real hall are: a trade nobody in
 ## the room needs, sold in a voice nobody in the room believes.
@@ -39,7 +39,7 @@ const ADS: Array[Array] = [
 	["FULL HOUSE", "ENGINE OIL BY THE BARREL", Palette.NEON_CYAN],
 	["ROYAL FLUSH", "PLUMBING, DAY OR NIGHT", Palette.NEON_MAGENTA],
 	["PIT STOP", "OPEN ALL NIGHT", Palette.CHIP_GOLD],
-	["DOUBLE DOWN", "TWICE THE TYRE", Palette.NEON_CYAN],
+	["DOUBLE DOWN", "TWICE THE TIRE", Palette.NEON_CYAN],
 	["LUCKY SEVEN", "SPARK PLUGS AND SIDE BETS", Palette.CHIP_GOLD],
 	["HIGH ROLLER", "SUSPENSION KITS", Palette.NEON_MAGENTA],
 	["CASH OUT", "WHILE YOU STILL CAN", Palette.CHIP_GOLD],
@@ -95,8 +95,8 @@ static func add_to(
 	return board
 
 
-## A panel of colour across the face, for an ad to be built out of. [param at] and [param size]
-## are in metres from the middle of the face.
+## A panel of color across the face, for an ad to be built out of. [param at] and [param size]
+## are in meters from the middle of the face.
 func panel(at: Vector2, size: Vector2, color: Color, lit := false) -> MeshInstance3D:
 	var mesh := BoxMesh.new()
 	mesh.size = Vector3(size.x, size.y, 0.04)
@@ -118,7 +118,7 @@ func words(text: String, at: Vector2, size: float, color: Color) -> Label3D:
 	label.font_size = FONT_SIZE
 	label.pixel_size = fitted(text, size) / float(FONT_SIZE)
 	# Signs are lit, GAME.md 8.1: in a dark room the words carry their own light, and in a
-	# bright one this is the colour it was asked for.
+	# bright one this is the color it was asked for.
 	label.modulate = color * (0.85 + 0.35 * room.neon)
 	label.outline_size = 10
 	label.outline_modulate = Color(0.03, 0.03, 0.04, 0.9)
@@ -158,7 +158,7 @@ func _build() -> void:
 	var frame := _box(Vector3(WIDTH + FRAME * 2.0, HEIGHT + FRAME * 2.0, DEPTH), STEEL)
 	frame.position = Vector3(0.0, stand, 0.0)
 	_mount.add_child(frame)
-	# What holds a board up never moves and is all one colour, so it is one mesh, GAME.md 8.1.
+	# What holds a board up never moves and is all one color, so it is one mesh, GAME.md 8.1.
 	# A tower of scaffold is fifteen boxes otherwise, and every board in the room has one.
 	Bake.merge(_mount)
 	face = Node3D.new()
@@ -245,8 +245,8 @@ func _box(size: Vector3, color: Color) -> MeshInstance3D:
 	return node
 
 
-## A coat of paint, one instance per colour rather than one per box. Two boxes wearing the same
-## colour can be baked into one mesh, and a board's mount is fifteen of them.
+## A coat of paint, one instance per color rather than one per box. Two boxes wearing the same
+## color can be baked into one mesh, and a board's mount is fifteen of them.
 func _paint(color: Color, lit: bool) -> StandardMaterial3D:
 	var key := "%s%d" % [color.to_html(), 1 if lit else 0]
 	if _paints.has(key):

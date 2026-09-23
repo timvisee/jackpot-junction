@@ -1,5 +1,5 @@
 extends GdUnitTestSuite
-## Turbo pads launch a kart once its centre is on the pad, not when its bumper touches the edge,
+## Turbo pads launch a kart once its center is on the pad, not when its bumper touches the edge,
 ## GAME.md 4.1, and arm again after the kart has left.
 
 
@@ -35,14 +35,14 @@ func _pad() -> TurboPad:
 	return pad
 
 
-func test_the_pad_waits_until_the_karts_centre_is_on_it_and_arms_again_after_leaving() -> void:
+func test_the_pad_waits_until_the_karts_center_is_on_it_and_arms_again_after_leaving() -> void:
 	var root: Node3D = auto_free(Node3D.new())
 	var runner: GdUnitSceneRunner = scene_runner(root)
 	var pad := _pad()
 	root.add_child(pad)
 	var kart := StubKart.new()
 	root.add_child(kart)
-	# The bumper overlaps the pad but the centre is still 1.2 m out: no launch yet.
+	# The bumper overlaps the pad but the center is still 1.2 m out: no launch yet.
 	kart.global_position = Vector3(0.0, 0.0, 1.2)
 	await runner.simulate_frames(3, 17)
 	assert_int(kart.launches.size()).is_equal(0)

@@ -17,7 +17,7 @@ extends RefCounted
 
 ## How many snapshots a change is repeated in before it is taken as heard.
 const REPEATS := 4
-## How far a pickup has to have moved, in metres, to be worth mentioning again. Almost all of them
+## How far a pickup has to have moved, in meters, to be worth mentioning again. Almost all of them
 ## never move at all; the ones that do are being pulled in by a Coin Magnet or are still in the
 ## air from whatever dropped them, and a client that was never told stares at a chip sitting where
 ## it first saw it and then watches it blink out from there.

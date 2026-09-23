@@ -1,11 +1,11 @@
 class_name InputGlyph
 extends Control
 ## One binding drawn rather than written, GAME.md 8.3: a key as a key cap with the key on it, a
-## gamepad face button as a round button in its own colour, a shoulder or a trigger as a pill,
+## gamepad face button as a round button in its own color, a shoulder or a trigger as a pill,
 ## a stick as a stick and the D-pad as a D-pad.
 ##
 ## "Shift drift   Ctrl nitro" is a sentence to be read. The same line with the two keys drawn as
-## keys is a picture to be recognised, which is what a hint glanced at mid-corner has to be. The
+## keys is a picture to be recognized, which is what a hint glanced at mid-corner has to be. The
 ## shapes are drawn rather than loaded, because the bindings belong to the player: any key on the
 ## keyboard can end up in one of these, and no set of pictures can cover that in advance.
 
@@ -18,7 +18,7 @@ const SIDE_PAD := 6.0
 ## never smaller than this or the cap says nothing.
 const CAPTION_DROP := 3
 const MIN_CAPTION := 11
-## The face buttons in the colours everybody's pad has on them, so A reads as A before it is read.
+## The face buttons in the colors everybody's pad has on them, so A reads as A before it is read.
 const FACE_COLORS: Dictionary[String, Color] = {
 	"A": Color("#5FBF5F"),
 	"B": Color("#D9534F"),
@@ -26,8 +26,8 @@ const FACE_COLORS: Dictionary[String, Color] = {
 	"Y": Color("#E8C33D"),
 }
 ## The chip every glyph is drawn on. Solid and dark, with a soft black edge around it and a
-## rim in the colour of the line it sits in: dark against the felt, the crowd and a light wall,
-## rimmed against the night sky of a menu. It started out as a 16% wash of the text colour, which
+## rim in the color of the line it sits in: dark against the felt, the crowd and a light wall,
+## rimmed against the night sky of a menu. It started out as a 16% wash of the text color, which
 ## is a chip you have to find before you can read it, and a hint you have to find has already
 ## cost the corner you were reading it in.
 const CHIP := Color(0.05, 0.05, 0.07, 0.92)
@@ -35,7 +35,7 @@ const CHIP_EDGE := Color(0.0, 0.0, 0.0, 0.55)
 const CHIP_SHADOW := 3
 const EDGE_ALPHA := 0.92
 const EDGE_WIDTH := 1.6
-## How dark the letter on a gamepad's own coloured button is, which is how it is on the pad.
+## How dark the letter on a gamepad's own colored button is, which is how it is on the pad.
 const FACE_INK := Color(0.06, 0.06, 0.08)
 ## How much wider than tall a stick is drawn. The letter goes inside the ring, so the ring has to
 ## hold a letter, and the arrows still have to fit outside it: in a square chip the two fight and
@@ -45,13 +45,13 @@ const STICK_WIDE := 1.55
 var kind := Kind.KEY
 ## What is written on the glyph: the key, the button, or the stick's side.
 var caption := ""
-## The colour of the line the glyph sits in, which everything but a face button is drawn in.
+## The color of the line the glyph sits in, which everything but a face button is drawn in.
 var ink := Color.WHITE
 var font_size := 15
 ## Which way a stick is moved or a D-pad is pressed, as a unit vector on the screen.
 var along := Vector2.RIGHT
 ## Whether this is a stick that moves both ways along its axis. One binding is half a stick and
-## is drawn pushed that way; a pair of them, GAME.md 8.3, is the whole stick and is drawn centred.
+## is drawn pushed that way; a pair of them, GAME.md 8.3, is the whole stick and is drawn centered.
 var both_ways := false
 
 
@@ -88,7 +88,7 @@ static func _kind_of(event: InputEvent) -> Kind:
 		):
 			return Kind.DPAD
 		# Only the four under the thumb are round: they are the ones with a single letter on them
-		# and a colour everybody knows. Start, Back and the stick clicks carry a word, and a word
+		# and a color everybody knows. Start, Back and the stick clicks carry a word, and a word
 		# squeezed into a circle is a smudge, so they take the same pill the shoulders do.
 		if button.button_index in [JOY_BUTTON_A, JOY_BUTTON_B, JOY_BUTTON_X, JOY_BUTTON_Y]:
 			return Kind.FACE
@@ -189,16 +189,16 @@ func _draw_chip(box: Rect2) -> void:
 	draw_style_box(style, box)
 
 
-## A face button: the round one under the thumb, solid, in the colour it is on the pad and with
+## A face button: the round one under the thumb, solid, in the color it is on the pad and with
 ## the letter on it in the dark the pad prints it in. Its own dark rim rather than the chip, so
-## the colour is the whole of the picture.
+## the color is the whole of the picture.
 func _draw_face(box: Rect2) -> void:
 	var tone: Color = FACE_COLORS.get(caption, ink)
-	var centre := box.size * 0.5
+	var center := box.size * 0.5
 	var radius := minf(box.size.x, box.size.y) * 0.5 - 1.0
-	draw_circle(centre, radius + 1.5, CHIP_EDGE)
-	draw_circle(centre, radius, Color(tone.r, tone.g, tone.b, 0.95))
-	draw_arc(centre, radius, 0.0, TAU, 28, CHIP, EDGE_WIDTH)
+	draw_circle(center, radius + 1.5, CHIP_EDGE)
+	draw_circle(center, radius, Color(tone.r, tone.g, tone.b, 0.95))
+	draw_arc(center, radius, 0.0, TAU, 28, CHIP, EDGE_WIDTH)
 	_draw_caption(box, FACE_INK)
 
 
@@ -213,13 +213,13 @@ func _draw_face(box: Rect2) -> void:
 ## once, at a size that fits a corner, which is a size nothing is legible at.
 func _draw_stick(box: Rect2) -> void:
 	var edge := Color(ink.r, ink.g, ink.b, EDGE_ALPHA)
-	var centre := box.size * 0.5
+	var center := box.size * 0.5
 	# The same circle a face button is, so the two sit together in a line without one of them
 	# looking like the small one.
 	var radius := box.size.y * 0.5 - EDGE_WIDTH
-	draw_circle(centre, radius + EDGE_WIDTH, CHIP_EDGE)
-	draw_circle(centre, radius, CHIP)
-	draw_arc(centre, radius, 0.0, TAU, 28, edge, EDGE_WIDTH)
+	draw_circle(center, radius + EDGE_WIDTH, CHIP_EDGE)
+	draw_circle(center, radius, CHIP)
+	draw_arc(center, radius, 0.0, TAU, 28, edge, EDGE_WIDTH)
 	# Built rather than written as a conditional literal: an untyped array assigned to a typed
 	# one throws, and a throw halfway through a draw is a glyph with its gate and nothing in it.
 	var ways: Array[float] = [1.0]
@@ -227,7 +227,7 @@ func _draw_stick(box: Rect2) -> void:
 		ways.append(-1.0)
 	var span := radius * 0.5
 	for way: float in ways:
-		var at := centre + along * (radius * way * 1.35)
+		var at := center + along * (radius * way * 1.35)
 		_draw_head(at, along * way, span + EDGE_WIDTH * 1.6, CHIP_EDGE)
 		_draw_head(at, along * way, span, edge)
 	# Cut to the gate rather than to the line the glyph sits in: a letter that overflows the ring
@@ -240,7 +240,7 @@ func _draw_stick(box: Rect2) -> void:
 func _draw_dpad(box: Rect2) -> void:
 	var edge := Color(ink.r, ink.g, ink.b, EDGE_ALPHA)
 	var faint := Color(ink.r, ink.g, ink.b, 0.30)
-	var centre := box.size * 0.5
+	var center := box.size * 0.5
 	var reach := minf(box.size.x, box.size.y) * 0.44
 	var thick := reach * 0.62
 	# A dark rim first, as one cross slightly larger than the other, so it reads over felt with
@@ -248,23 +248,23 @@ func _draw_dpad(box: Rect2) -> void:
 	var rim := EDGE_WIDTH
 	draw_rect(
 		Rect2(
-			centre - Vector2(thick * 0.5 + rim, reach + rim),
+			center - Vector2(thick * 0.5 + rim, reach + rim),
 			Vector2(thick + rim * 2.0, reach * 2.0 + rim * 2.0)
 		),
 		CHIP_EDGE
 	)
 	draw_rect(
 		Rect2(
-			centre - Vector2(reach + rim, thick * 0.5 + rim),
+			center - Vector2(reach + rim, thick * 0.5 + rim),
 			Vector2(reach * 2.0 + rim * 2.0, thick + rim * 2.0)
 		),
 		CHIP_EDGE
 	)
-	draw_rect(Rect2(centre - Vector2(thick * 0.5, reach), Vector2(thick, reach * 2.0)), faint)
-	draw_rect(Rect2(centre - Vector2(reach, thick * 0.5), Vector2(reach * 2.0, thick)), faint)
-	var arm := Rect2(centre - Vector2(thick, thick) * 0.5, Vector2(thick, thick))
+	draw_rect(Rect2(center - Vector2(thick * 0.5, reach), Vector2(thick, reach * 2.0)), faint)
+	draw_rect(Rect2(center - Vector2(reach, thick * 0.5), Vector2(reach * 2.0, thick)), faint)
+	var arm := Rect2(center - Vector2(thick, thick) * 0.5, Vector2(thick, thick))
 	draw_rect(
-		arm.merge(Rect2(centre + along * reach - Vector2(thick, thick) * 0.5, arm.size)), edge
+		arm.merge(Rect2(center + along * reach - Vector2(thick, thick) * 0.5, arm.size)), edge
 	)
 
 

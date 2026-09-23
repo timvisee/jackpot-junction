@@ -14,7 +14,7 @@ the game, update it here.
 Jackpot Junction is a top-down arena kart game for 1 to 4 players in which
 every life is a hand of cards. You drive a small, drifty kart through a
 bullet-filled toy diorama, collect poker-chip coins and multipliers, and decide
-when to drive to the Junction in the centre of the arena to cash your pot out.
+when to drive to the Junction in the center of the arena to cash your pot out.
 Cashing out takes up to a few seconds, during which you are exposed. Dying banks
 only half.
 
@@ -26,7 +26,7 @@ multiplayer, then online multiplayer.
 
 1. **Push your luck.** Everything you hold can be lost. Banking is a decision,
    not an event, and bigger pots take longer to bank.
-2. **Readable chaos.** One screen, muted floor, bright colour-coded bullets.
+2. **Readable chaos.** One screen, muted floor, bright color-coded bullets.
    You should always be able to see why you died.
 3. **Drive like a toy.** Karts are agile, drift satisfyingly, leave tire marks
    and smoke. Aim is forward-only, so driving is the core skill.
@@ -94,7 +94,7 @@ Each player has:
 |---------------------------------|-----------------------------------------|
 | Coin pads in the first map      | 12                                      |
 | Coin pad respawn                | 5 s after pickup                        |
-| Pickup radius                   | 0.9 m from kart centre                  |
+| Pickup radius                   | 0.9 m from kart center                  |
 | Crates in the first map         | 8                                       |
 | Crate                           | destroyed by 1 bullet, drops 2 to 4 chips, respawns after 30 s |
 
@@ -113,7 +113,7 @@ as grazes.
 
 ### 3.4 The Junction: cashing out
 
-The Junction is a pad in the centre of the arena. Banking is a channel with a
+The Junction is a pad in the center of the arena. Banking is a channel with a
 ramping drain. While a kart is inside the pad, its pot value drains into its
 banked score at a rate that grows the longer the kart stays:
 
@@ -207,7 +207,7 @@ uncontrollable, and dies whatever its lives. On death, in this order:
 2. **Drop coins**: `floor(0.3 * coins)` chips, at most 10, scatter up to 3.2 m
    around the death spot and vanish after 15 s.
 3. **Drop items**: 20% chance that one random held joker drops. 50% chance
-   that the held power-up drops, both a couple of metres clear of the wreck.
+   that the held power-up drops, both a couple of meters clear of the wreck.
    Floor items vanish after 15 s.
 4. **Mind the holes**: anything that lands over a pit, chips and items alike,
    drops into it, shrinking as it goes, and is gone. It cannot be picked up on
@@ -219,7 +219,7 @@ uncontrollable, and dies whatever its lives. On death, in this order:
 7. **Respawn** after 3 s at the spawn point farthest from any enemy, with 2 s
    of spawn protection: invulnerable, cannot fire, bullets pass through. Picking
    up coins and items is allowed. Coming back opens a ring across the floor in
-   the player's colour with a column of light standing in it, gone inside a
+   the player's color with a column of light standing in it, gone inside a
    second. The blinking says something about that kart to whoever is already
    looking at it; the flare says to the whole room that somebody is back, and
    where.
@@ -278,7 +278,7 @@ Jokers are passive rule modifiers held for the rest of the match.
   destroy button goes back.
 - Offer weights by rarity: common 60%, uncommon 30%, rare 10%.
 
-The joker catalogue is in section 7.3.
+The joker catalog is in section 7.3.
 
 ### 3.8 Match
 
@@ -297,7 +297,7 @@ Flow: Title screen, Lobby, Countdown, Playing, Last Call, Overtime, Results. At 
 whistle nobody is stopped dead: every driver lets go of the wheel and the karts
 roll to a halt on their own, out of anyone's control and out of reach of pits,
 hazards and the Junction alike, while the rig swings onto the winner and
-fireworks go up over the table in their colour. That is the
+fireworks go up over the table in their color. That is the
 end of the match and it is left to itself: the podium waits two and a half seconds
 before it comes up, and the hand of cards stays where it is until it does, because
 a scoreboard thrown over the top of a kart still rolling takes the ending away from
@@ -317,9 +317,9 @@ two fills two steps.
 
 Below it, with air between the picture and the list, the screen is built like the
 joker detail pane in 8.3, so the two read as the same game: a dark translucent card
-with room to breathe and a bar of colour along the top, here the winner's. Each player gets a row of their own rather than a line of
-text, with their place and name on the left in their own colour, their colour down
-the leading edge of the row, their kills and deaths in grey, and what they banked
+with room to breathe and a bar of color along the top, here the winner's. Each player gets a row of their own rather than a line of
+text, with their place and name on the left in their own color, their color down
+the leading edge of the row, their kills and deaths in gray, and what they banked
 on the right in gold. The row of whoever is reading the screen is lifted a shade
 out of the rest. Under each player up to three awards pick out what they did most
 compared with the others, as separate chips rather than run together into one
@@ -342,7 +342,7 @@ else's results screen, see 10.3.
 
 - **Names.** Every player may set one in the lobby, 1 to 16 characters, in a box
   of their own beside the player list, remembered between sessions per seat.
-  Steering does not cycle colours while a box has the focus, since the letters
+  Steering does not cycle colors while a box has the focus, since the letters
   somebody is typing are the same keys that steer. A seat that never sets one is handed a name off a
   list of silly ones when the match starts, and no two players in a room are ever
   handed the same one, because a results screen listing P1, P2, P3 and P4 says
@@ -384,19 +384,19 @@ else's results screen, see 10.3.
 ### 3.9 Royal Flush pads
 
 Four pads spread around the arena, marked A, K, Q and J. Driving over a pad
-paints its frame in your colour and takes it from whoever held it.
+paints its frame in your color and takes it from whoever held it.
 
 - Every pad you hold pays you 1 coin a second into your pot, for as long as you
   hold it, so a single pad is worth taking and worth defending. The rate runs with
   the excitement level in 8.4: three times as fast at level 6 as at level 1, so
   the pads pay best exactly when the room is worth being out in. A holder who is
   dead, falling or rolling out the end of the match earns nothing while they are;
-  the pad keeps their colour and waits for them.
+  the pad keeps their color and waits for them.
 - The whole board pays on one beat rather than four. A single clock decides when a
   coin is due, and every pad that owes somebody one hands it over on that tick, so
   a player holding three pads is paid three coins at once instead of a stutter of
   singles and the rings go up together across the table.
-- Every coin paid throws a ring of light off the pad in its holder's colour,
+- Every coin paid throws a ring of light off the pad in its holder's color,
   growing outward and fading over 0.7 s, so four pads ticking over read as four
   pads ticking over from anywhere on the table. The ring is square like the pad
   and lined up with it, not stood on a corner. Coins landing in the same instant
@@ -409,14 +409,14 @@ paints its frame in your colour and takes it from whoever held it.
   is still being paid for most of it and everyone starts again from nothing when
   the board comes back. Announced to everyone with a fanfare.
 - While a flush is still paying, the resting pads throw their rings in the winner's
-  colour, since a pad wearing nobody's colour is still handing somebody coins.
+  color, since a pad wearing nobody's color is still handing somebody coins.
 - A claim lapses on its own after 30 s, the frame dimming over the last 12 s of it,
   and driving over your own pad again renews it for another 30 s. A flush has to be
   put together inside that window and then kept up; three pads cannot be banked for
   the whole match while their holder waits for a chance at the fourth.
 - All four pads clear and stay disabled for 20 s after a flush, then come back
   neutral.
-- Pads keep their colour when their holder dies, so a flush can be finished
+- Pads keep their color when their holder dies, so a flush can be finished
   after a respawn, and stolen pads have to be won back.
 - Decoys cannot claim pads. Bots claim pads only by driving over them.
 
@@ -460,7 +460,7 @@ over and how fast it arrives, never how the kart answers the wheel.
 ### 3.12 The announcer
 
 Some kills are worth more than a line in the feed. The room calls those out in big
-letters under the middle of the screen, in the player's own colour, for a couple of
+letters under the middle of the screen, in the player's own color, for a couple of
 seconds.
 
 | Call         | When                                                              |
@@ -545,7 +545,7 @@ then hooks up and launches when the handbrake is released.
 | Coast deceleration            | 4 m/s² with no input                                  |
 | Yaw rate at low speed         | 200°/s                                                |
 | Yaw rate at top speed         | 138°/s, interpolated linearly by speed: 4.4 m of turning circle flat out. 5.5 m would not place the kart in a lane, 4.2 m turned in on itself, and of the two either side of that 4.4 m was the one that placed it best |
-| Minimum speed to steer        | none: turning on the spot at 170°/s and turning on the wheels are one control, mixed by speed and fully on the wheels by 2.2 m/s. That leaves the turn rate near enough flat from a standstill to walking pace, 170 to 187°/s, which is what manoeuvring in a corner wants. The old hard switch at 0.5 m/s stepped from 70 to 195°/s every time it was crossed, and a kart shuffling about crosses it over and over |
+| Minimum speed to steer        | none: turning on the spot at 170°/s and turning on the wheels are one control, mixed by speed and fully on the wheels by 2.2 m/s. That leaves the turn rate near enough flat from a standstill to walking pace, 170 to 187°/s, which is what maneuvering in a corner wants. The old hard switch at 0.5 m/s stepped from 70 to 195°/s every time it was crossed, and a kart shuffling about crosses it over and over |
 | Grip, normal                  | travel direction turns toward the nose at 30 rad/s, so the kart goes where it is pointed within about 33 ms |
 | Grip, drifting                | 4.8 rad/s, 35 to 55° of slip depending on speed       |
 | Drift entry                   | handbrake held while steering, at over 40% of top speed; steering alone never drifts, and straightening up mid-drift turns it into a stop. The slide arrives over 0.18 s and hooks back up over 0.12 s rather than switching on: a drift that lands in one tick reads as the kart teleporting sideways. A switch turns the ramp off and puts that instant drift back |
@@ -561,9 +561,9 @@ then hooks up and launches when the handbrake is released.
 | Wounded                       | one life left: top speed 85%, body tinted darker until a cash-out or a kill restores the life |
 | Spin-out                      | crossing an oil stain: the nose whips around at 420°/s for 1.1 s while grip drops to 0.8 rad/s, so the kart keeps its line and skids; steering and throttle do nothing and speed bleeds at 3 m/s² |
 | Wall glance                   | hitting a wall within 35° of it turns the nose 60% of the way along the wall, nudges the kart 1.2 m/s off it and costs at most 15% speed; steeper hits are stopped by the wall and cost 30% speed above half of top speed |
-| Turbo pad                     | fires once the kart's centre is on the pad, not when its bumper touches the edge. The kart is turned to point down the pad's arrow and sent along it at 150% top speed, and for the next 1.0 s the throttle is held down for the driver and the speed limit stays raised, so the shove lands whatever their finger was doing when they crossed the pad. Nothing else is taken: the wheel, the handbrake and the brake all work at full authority the whole time, so a shove is something to steer and to drift with, and braking through one slows the kart the way it does through nitro. It used to be a rail the kart was locked onto, which could only be escaped by asking for the kart back, and the result was a pad that either drove for you or, once you could steer out of it, did nothing at all |
+| Turbo pad                     | fires once the kart's center is on the pad, not when its bumper touches the edge. The kart is turned to point down the pad's arrow and sent along it at 150% top speed, and for the next 1.0 s the throttle is held down for the driver and the speed limit stays raised, so the shove lands whatever their finger was doing when they crossed the pad. Nothing else is taken: the wheel, the handbrake and the brake all work at full authority the whole time, so a shove is something to steer and to drift with, and braking through one slows the kart the way it does through nitro. It used to be a rail the kart was locked onto, which could only be escaped by asking for the kart back, and the result was a pad that either drove for you or, once you could steer out of it, did nothing at all |
 | Sideways slip friction        | outside a drift, sliding more than 10° sideways brakes at up to 7 m/s² at a right angle; past 20° of slip the grip fades to 4 rad/s. Both were harsher, and both read as the kart fighting the driver rather than as weight |
-| Wall contact                  | velocity into the wall is cancelled; if that component exceeded 50% of top speed, total speed drops by 30% |
+| Wall contact                  | velocity into the wall is canceled; if that component exceeded 50% of top speed, total speed drops by 30% |
 | Kart to kart bump             | both karts pushed apart at 6 m/s along the contact normal and lose 20% speed |
 
 Ramming only kills when the rammer has the Boost power-up active, see 7.1, or
@@ -611,7 +611,7 @@ Rubber spent holding a corner cannot also drive, so a corner taken at the limit 
 Two things about it matter more than the rest. The turn radius comes from the wheel instead of
 from the speed, so half the lock is about twice the circle whatever the kart is doing, and a
 crawling kart turns at a rate that comes from how fast it is rolling rather than whipping round
-at 191 deg/s while it travels a few centimetres. Below walking pace it hands over to plain
+at 191 deg/s while it travels a few centimeters. Below walking pace it hands over to plain
 geometry, and stopped it still pivots at 70 deg/s to line up a shot.
 
 One set of numbers for it is kept, `data/kart/feel_grip.tres`, so the comparison can be made
@@ -684,8 +684,8 @@ would leave skipping unreachable.
   are laid where the model's own rear wheels are, measured off it rather than
   guessed from the kart's length, so they come down under the wheels making them
   instead of trailing a hand's width behind the kart. What is measured is the
-  middle of each tyre, not the point the model hangs the wheel from: that sits at
-  the inner face, a tyre's width inboard of where the rubber meets the floor, and
+  middle of each tire, not the point the model hangs the wheel from: that sits at
+  the inner face, a tire's width inboard of where the rubber meets the floor, and
   taking it for the contact patch drew the marks between the wheels rather than
   under them.
 - **Smoke**: a faint exhaust particle trail whose rate scales with throttle,
@@ -705,24 +705,24 @@ would leave skipping unreachable.
   thick plume of smoke thrown backward that swells as it drifts, much heavier than
   the faint exhaust trail of ordinary driving.
 
-### 4.4 Customisation
+### 4.4 Customization
 
-- One kart body. Player colour is a material tint on the body and the bullets.
-- 8 player colours, see 8.1. Each colour also has a distinct roof marker shape
-  for colour-blind readability.
+- One kart body. Player color is a material tint on the body and the bullets.
+- 8 player colors, see 8.1. Each color also has a distinct roof marker shape
+  for color-blind readability.
 - Four more things a player picks in the lobby, beside their name, remembered per
   seat between sessions. None of them changes how the kart drives, and the player
-  colour is still the player colour underneath all of it: these say whose kart it
+  color is still the player color underneath all of it: these say whose kart it
   is a second time rather than instead.
 
 | Choice | Options                                                            |
 |--------|--------------------------------------------------------------------|
 | Paint  | Solid, Stripes, Checks, Spots                                      |
 | Hat    | None, Cap, Top hat, Crown, Party                                   |
-| Flag   | None, Pennant, Banner, Chequered                                   |
+| Flag   | None, Pennant, Banner, Checkered                                   |
 | Trail  | Smoke, Sparks, Confetti, None                                      |
 
-- **Paint** is a pattern laid over the colour rather than a second colour: a
+- **Paint** is a pattern laid over the color rather than a second color: a
   generated texture mapped triplanar, so the model needs no unwrapping and the
   pattern sits on the kart rather than on the world. Smoothed and mip-mapped
   rather than snapped to the pixel, since a kart is a painted toy and not a
@@ -731,9 +731,9 @@ would leave skipping unreachable.
 - **Hats** sit on the crown of the driver's helmet, and the roof marker moves up
   over whichever one is worn rather than through it.
 - **Flags** fly from a pole at the back, clear of the bodywork and streaming
-  behind the kart rather than out of its side. All of them are the player's colour
-  except the chequered one, which is the colour a chequered flag is.
-- **Trails** replace the exhaust smoke: sparks or confetti in the player's colour,
+  behind the kart rather than out of its side. All of them are the player's color
+  except the checkered one, which is the color a checkered flag is.
+- **Trails** replace the exhaust smoke: sparks or confetti in the player's color,
   or nothing at all. Whatever it is still thickens with the throttle and in a
   drift, see 4.3. Confetti is thrown as tumbling blocks rather than flat squares,
   which spend half a tumble edge-on and invisible, and there is twice as much of
@@ -742,7 +742,7 @@ would leave skipping unreachable.
   in the snapshot, see 10.3, and a choice a machine has never heard of is the
   plain one rather than a crash.
 - A Decoy Kart wears what its owner wears, hat and flag included. It is only worth
-  anything for as long as somebody takes it for you, and a kart in your colour
+  anything for as long as somebody takes it for you, and a kart in your color
   with none of your things on it is not you.
 - The podium at the end of a match shows each kart as its owner dressed it, see
   3.8, and so does the Garage.
@@ -761,7 +761,7 @@ would leave skipping unreachable.
 | Bullet radius                  | 0.15 m                                             |
 | Bounces                        | 0 by default, destroyed on wall contact; Rubber Bumpers and the Ricochet Cannon add one each |
 | Lifetime                       | 3 s                                                |
-| Muzzle                         | 1.0 m ahead of the kart centre                     |
+| Muzzle                         | 1.0 m ahead of the kart center                     |
 | Own bullets                    | Stopped by the owner and destroyed either way, harmless by default and deadly with the lobby option in 3.8 turned on. A kart's turret and decoy shoot its own bullets, so the same answer covers those |
 | Bullet vs bullet               | Both destroyed, unless they came from the same cannon, which lets a spread leave the barrel |
 | Bullet vs crate                | Both destroyed, crate drops its chips              |
@@ -771,11 +771,11 @@ would leave skipping unreachable.
 
 Bullets are Area3D nodes moved by raycast every physics tick so they cannot
 tunnel through walls or karts at any speed. Every bullet knows its owner and is
-tinted in the owner's colour with a short trail. Cannon types and jokers may
+tinted in the owner's color with a short trail. Cannon types and jokers may
 change any value in this table.
 
 A shot whose muzzle sits inside a wall or a crate, because the kart or turret
-is pressed against it, is checked from the shooter's centre: a crate in the
+is pressed against it, is checked from the shooter's center: a crate in the
 way still breaks, a wall just eats the bullet, and nothing passes through or
 bounces back into the shooter.
 
@@ -836,8 +836,8 @@ protection makes the kart untouchable.
 
 - The whole arena fits on one 16:9 screen with the fixed camera. Playable area
   of the first map: 37.5 m by 20 m, surrounded by walls, 40 m by 22.5 m total.
-- The layout has two-fold rotational symmetry so that no spawn is favoured.
-- The Junction is in the centre and reachable from all sides, with hazards or
+- The layout has two-fold rotational symmetry so that no spawn is favored.
+- The Junction is in the center and reachable from all sides, with hazards or
   cover near it so that banking is never a free walk.
 - Cover is partial. Bullets only bounce with Rubber Bumpers or a Ricochet Cannon,
   so cover is worth something, but no spot is safe from every angle.
@@ -848,7 +848,7 @@ protection makes the kart untouchable.
 
 ### 6.2 Elements
 
-| Element        | Behaviour                                                              |
+| Element        | Behavior                                                              |
 |----------------|------------------------------------------------------------------------|
 | Wall           | Solid, bounces bullets, stops karts                                    |
 | Crate          | Destructible cover, see 3.2                                            |
@@ -856,7 +856,7 @@ protection makes the kart untouchable.
 | Turbo pad      | Directional speed boost, see 4.1                                       |
 | Coin pad       | Spawns chips, gold chips and mult dice, see 3.2                        |
 | Power-up pad   | Spawns a held item, see 7.1                                            |
-| Flush pad      | Takes the colour of the last kart over it; all four in one colour score a Royal Flush, see 3.9 |
+| Flush pad      | Takes the color of the last kart over it; all four in one color score a Royal Flush, see 3.9 |
 | Target         | A shooting-gallery plate at bullet height. A bullet knocks it down and pays the shooter 3 coins; it comes back after 4 s. Karts bump into the post |
 | Joker pad      | Keeps a joker lying on it, another one 6 s after it is taken. Used by the Garage in 9.4 |
 | Junction pad   | Cash-out zone, circle of radius 2.5 m, see 3.4                         |
@@ -878,7 +878,7 @@ lobby and driving round the wrong room.
 #### Lucky Crossing
 
 The open one. Long lanes top and bottom, short walls screening the Jackpots from
-the centre, and the pits directly above and below the Junction.
+the center, and the pits directly above and below the Junction.
 
 ```
 ################################
@@ -915,7 +915,7 @@ it and nothing to bank.
 - The pits sit directly above and below the Junction, so approaching from the
   top or bottom means going around them, while the coin pads next to the pits
   reward the risk.
-- The short vertical walls screen the Jackpot zones from the centre, so a kart
+- The short vertical walls screen the Jackpot zones from the center, so a kart
   collecting the Jackpot can only be shot from the top or bottom lane, or by a
   bouncing bullet.
 - The four Royal Flush pads sit on a ring: two on the top and bottom lanes and
@@ -1001,14 +1001,14 @@ First set:
 | Turret          | 15     | Deploys a turret at your position. Rotates at 180°/s toward the nearest enemy, fires 1 default bullet per second. Lives 20 s or 1 hit. Kills credit you. Can hit you |
 | Ricochet Cannon | 20     | Next 8 shots bounce off walls once more and fly 25% faster                      |
 | Coin Magnet     | 15     | 8 s: pickup radius times 3, chips within it drift toward you at 6 m/s           |
-| Oil Stain       | 20     | Leaves a slick 1.8 m behind you for 25 s. Any kart whose centre crosses it, you included, spins out. It never kills. The slick lies a little above the floor, clear of the Junction, the Jackpot tiles and every pad: those all stand proud of the floor, and a slick at floor level vanishes inside whichever one it was dropped on, which is exactly where somebody wants to drop one |
+| Oil Stain       | 20     | Leaves a slick 1.8 m behind you for 25 s. Any kart whose center crosses it, you included, spins out. It never kills. The slick lies a little above the floor, clear of the Junction, the Jackpot tiles and every pad: those all stand proud of the floor, and a slick at floor level vanishes inside whichever one it was dropped on, which is exactly where somebody wants to drop one |
 | Bomb            | 20     | Drops a bomb 1.8 m behind you. It arms after 0.6 s and blows up when any kart, you included, drives over it, when a bullet hits it, or after 30 s. The 2.6 m blast kills karts, breaks crates and turrets and sets off other bombs. Kills credit you |
 
 Later set, off by default and switched on per match in the lobby:
 
 | Power-up        | Effect                                                                          |
 |-----------------|---------------------------------------------------------------------------------|
-| Decoy Kart      | Spawns a bot kart in your colour with a random trait, see 9.1. Lives 20 s or 1 hit. Its kills and coins credit you. Can hit you |
+| Decoy Kart      | Spawns a bot kart in your color with a random trait, see 9.1. Lives 20 s or 1 hit. Its kills and coins credit you. Can hit you |
 | Spread Cannon   | Next 6 shots fire 3 bullets in a 20° fan. The live bullet allowance triples with the fan, so the fan counts as one shot |
 | Swivel Cannon   | 12 s of free aim with the right stick or mouse, no aim assist                   |
 | Bullet Wipe     | Erases every bullet within 8 m                                                  |
@@ -1026,7 +1026,7 @@ Later set, off by default and switched on per match in the lobby:
 - Decoys collide with karts like karts do. Ramming a decoy or a turret with
   Boost destroys it; without Boost it is only a bump.
 
-### 7.3 Joker catalogue
+### 7.3 Joker catalog
 
 Mostly rule benders, some stat tweaks, a few cursed jokers with a big upside and
 a real downside. Starting set; balance is untested.
@@ -1075,7 +1075,7 @@ the lighting and the surfaces, not the shapes: the game is still a toy diorama,
 built well enough that it looks like one on purpose.
 
 **The rooms.** A map is a place rather than a floor plan. Each one names a
-`RoomLook`, and the room decides the light, the colour of every surface, how the
+`RoomLook`, and the room decides the light, the color of every surface, how the
 crowd is dressed and how much of the room behind the table is in focus. Four of
 them:
 
@@ -1084,7 +1084,7 @@ them:
 | The Workbench | Lucky Crossing | Warm and close. A tungsten key across the table, a cool fill from the far side and a soft lamp over the felt, with the room falling away into the dark past the stands. The home table. |
 | After Hours | The Vault | The room is dark and the table is the only lit thing in it: one lamp hung over the felt, the sun down to a hint, the crowd a band of shapes in the dark with the neon on their edges. |
 | The Yard | Crossfire | Late afternoon, no lamp. A low warm sun across the concrete, soft long shadows, dust in the air over the far side and no glow at all: the same game played outdoors with the day nearly done. |
-| The Garage | The practice rooms of 9.4 | Cool strip light on a concrete bay, no sun and no weather. The place the karts are fixed in: tyres, chests, cans and a two-post lift round a bay marked out on the floor. The one room with nobody in it, so its clutter is stacked against the wall of the bay rather than standing behind stands that are not there. |
+| The Garage | The practice rooms of 9.4 | Cool strip light on a concrete bay, no sun and no weather. The place the karts are fixed in: tires, chests, cans and a two-post lift round a bay marked out on the floor. The one room with nobody in it, so its clutter is stacked against the wall of the bay rather than standing behind stands that are not there. |
 
 The lobby names the room under the arena it belongs to, so picking a map reads as
 picking a place rather than a floor plan.
@@ -1104,17 +1104,17 @@ soft: a toy on a table is lit by the room it is in as much as by the lamp over i
 so a shadow is a dark side rather than a hole cut in the floor. Past the table the air thickens, so the far side of the
 room is dimmer than the near side even before anything is in the way.
 
-**Surfaces.** Nothing in a room is a flat colour. Everything is built from six
+**Surfaces.** Nothing in a room is a flat color. Everything is built from six
 materials -- felt, wood, paint, marking, metal and neon -- and a room says what
-colour each of them is. The detail maps are greyscale and are multiplied by that
-colour, so one felt serves a green card table and a slate yard, and a room is a
+color each of them is. The detail maps are grayscale and are multiplied by that
+color, so one felt serves a green card table and a slate yard, and a room is a
 palette rather than a set of pictures. They are mapped in world space rather than
 by UV: the meshes are built in code, a slab the size of a table has no unwrap
 worth the name, and two crates side by side should not show the same knot in the
 same place.
 
 The scale that matters is the one the camera actually sees, see 8.2. From forty
-metres up a two-centimetre weave is nothing, so every map carries something coarse
+meters up a two-centimeter weave is nothing, so every map carries something coarse
 enough to survive the distance -- the boards in the table, the worn patches in the
 felt, the joints between slabs in the yard -- with the fine grain riding on top of
 it for the times something is looked at closely. `make textures` generates the lot:
@@ -1123,7 +1123,7 @@ table can be tiled out of one without a seam.
 
 **What is inside the arena.** The walls and the boxes are the room's too. A wall
 keeps the block it always was -- it is the thing a kart bounces off -- and gains a
-capping strip round the top of it, which is what stops thirty metres of wall
+capping strip round the top of it, which is what stops thirty meters of wall
 reading as one flat slab; every third long one carries something small up there,
 out of the way of the driving: a stack of chips in the card room, a cone in the
 yard, bolts on the bench. A breakable box is built out of what its room has by the
@@ -1142,11 +1142,11 @@ the dark: the eye finds the edge of it as soon as the camera moves. So each room
 built as a room. The table has a skirt and legs, it stands on a floor, and three
 walls go up round it -- the far one and the two sides, never the near one, because
 the camera sits there and a wall behind the camera is a wall in front of it the
-moment the view pulls out over the winner. The walls stand a couple of metres past
-the edge of the table, which is a couple of metres past the furthest clutter: a
-wall sixty metres behind the crowd is a wall nobody ever knew was there, and the
+moment the view pulls out over the winner. The walls stand a couple of meters past
+the edge of the table, which is a couple of meters past the furthest clutter: a
+wall sixty meters behind the crowd is a wall nobody ever knew was there, and the
 whole point of a room having one is that the table is in a room. The air of 8.1
-does the rest: past the stands everything thins into the room's own colour.
+does the rest: past the stands everything thins into the room's own color.
 
 Then what is in it. The workbench has a backboard with a pegboard on it and the
 tools of whoever built the thing lying where they were put down; the card room has
@@ -1163,20 +1163,20 @@ is boxes and cylinders in the room's own materials, which is what keeps a hammer
 and a stack of chips looking like they came out of the same game.
 
 Three rules keep the clutter out of the game. It starts right behind the crowd and
-goes back nine metres from there, because a room reads as somewhere from what is
+goes back nine meters from there, because a room reads as somewhere from what is
 close enough to make out and the camera sees very little past the stands; nothing
-big is allowed nearer than twelve metres to the wall, which puts the big things down
+big is allowed nearer than twelve meters to the wall, which puts the big things down
 the flanks, and the flanks keep off the near corners; and the near apron carries only
 things that lie flat, since that is the side the camera looks across. Which band a
 prop belongs to is settled before the prop is, so that a room deals its big things as
 well as its small ones rather than only reaching for them where they will not fit. None of it collides with anything,
 and a test holds the line: no prop's box may touch the arena's own, and nothing in
-front of the table may stand more than three metres tall.
+front of the table may stand more than three meters tall.
 
 The wall behind the arena is nearer than the rest of it, and lower. The camera
 looks down at the table, so anything far behind the crowd is high up on the screen
 rather than far off, and anything tall and near is above the top of it: a wall the
-player can see has to stand about ten metres past the crowd, be painted a colour
+player can see has to stand about ten meters past the crowd, be painted a color
 the table is not, and carry its pegboard and its notices at head height rather than
 where a wall would really have them. The clutter behind the arena stops short of it
 so that it is the backdrop rather than something behind the backdrop.
@@ -1188,7 +1188,7 @@ the board behind it; the two shades hung over the far side of the card room and 
 pictures on its wall; the lit sign over the warehouse doors in the yard, the paint
 on the apron under them, and a stack of barrels in against the fence on either
 flank of it, turned along the fence rather than across it so that it fits in the
-three metres there are between the back of the stands and where the clutter is
+three meters there are between the back of the stands and where the clutter is
 allowed to start. Dealt, barrels are too wide to go anywhere but out past the
 crowd, which is a yard whose barrels nobody ever sees. A room reads as somewhere
 because of these rather than because of the clutter, which is what fills the space
@@ -1202,12 +1202,12 @@ five stacks of barrels in one corner and no bricks in it at all.
 The floor the karts drive on is kept for them, and the clutter is told so rather
 than kept away by the width of the band: the arena's own footprint is the first
 patch spoken for in every room. A prop is placed by its middle and the longest of
-them are six metres end to end, so in a room whose clutter starts at the wall one
+them are six meters end to end, so in a room whose clutter starts at the wall one
 turned the wrong way would otherwise lie across it.
 
 Nothing is put down on top of anything else, either. Every kind of prop carries the
 patch of table it covers, measured off the parts it is built from and turned with it:
-a hammer asks for fifteen metres of bench and a glass asks for three. Before anything
+a hammer asks for fifteen meters of bench and a glass asks for three. Before anything
 is built the patch is checked against the crowd's own -- the booth, the hoardings, the
 tanks -- against the runs the room itself has put down, and against every prop placed
 so far; a prop that finds nowhere of its own after forty tries is left out rather than
@@ -1219,7 +1219,7 @@ costs nine times the table a hammer lying on it does. Two tests hold the line: n
 patches may touch, and no prop may reach outside its own.
 
 A fourth rule is about how it looks rather than where it is: it was put there by
-somebody. Everything sits on a five-metre grid a hand's width off and square with
+somebody. Everything sits on a five-meter grid a hand's width off and square with
 the table a degree or two off, and anything that comes in more than one is stacked
 rather than strewn -- rod stock three down and two on top, barrels in a row with
 one over them, cones in a line, chips in stacks squared off next to each other, a
@@ -1276,7 +1276,7 @@ made. The warm-up matters: the first run of a scene compiles shaders, and a cold
 measurement reads three times slower than the same build warm.
 
 - **Floor**: dark green felt with asphalt lanes and painted road markings.
-- **Walls and crates**: sand-coloured wooden toy blocks.
+- **Walls and crates**: sand-colored wooden toy blocks.
 - **Beyond the walls**: the table the arena stands on, and past that the room it
   stands in -- the table's edge and legs, a floor under it, walls round it and the
   room's own clutter in between.
@@ -1292,7 +1292,7 @@ measurement reads three times slower than the same build warm.
   paints stops short of it. A traffic light over the pad turns green during a
   cash-out. Everything else on the floor is set in the same way: a coin pad and a
   power-up pad wear a rim, and a turbo pad is a lit face in a dark frame. A disc of
-  colour lying on felt reads as a sticker; the same disc with a rim round it reads
+  color lying on felt reads as a sticker; the same disc with a rim round it reads
   as a fitting.
 - **Pits**: a hole in the floor with something waiting at the bottom of it, because
   a hole with nothing in it is a hole. What is down there is the room's: rusted
@@ -1320,12 +1320,12 @@ measurement reads three times slower than the same build warm.
 - **Item boxes**: gold crates with black bands, a big question mark and a beam of
   light, glowing and pulsing so they read at a glance.
 - **Karts**: toy go-karts with a simple driver figure, body tinted in the
-  player colour, a roof marker shape per colour. Painted and lacquered: the body
-  takes a coat of clear over the colour, so the lamp over the table runs along it
+  player color, a roof marker shape per color. Painted and lacquered: the body
+  takes a coat of clear over the color, so the lamp over the table runs along it
   as the kart turns, and a little of the light wraps round the edge so a kart still
   reads against a dark felt.
-- **Bullets**: glowing spheres in the owner's colour with a short trail. A shot
-  that lands on a wall leaves a small round dark mark of the shooter's colour lying
+- **Bullets**: glowing spheres in the owner's color with a short trail. A shot
+  that lands on a wall leaves a small round dark mark of the shooter's color lying
   flat against it, soft at the edge rather than cut out, which fades out over about
   seven seconds. A room wears 60 of them at
   once and the oldest goes to make room, so a long firefight against one wall does
@@ -1352,13 +1352,13 @@ measurement reads three times slower than the same build warm.
   being pointed at, so the focused state and the hovered state are the same state.
 - **The title screen** wears the mark of 8.1 over the name, and has a carnival
   sunburst turning slowly behind it,
-  with poker chips drifting up past it. Drawn rather than modelled: the menu is a
+  with poker chips drifting up past it. Drawn rather than modeled: the menu is a
   flat screen with no match running behind it, so a scene would be a scene loaded
   to be looked at once. Dark on purpose; the point of the screen is the words on
   it.
 - **The score tanks**: a glass tank per player standing on the table just outside
   the arena wall, off to one side of the far edge, filling with that player's own
-  colour as they bank and brim-full at the target score of 3.8. The standings say
+  color as they bank and brim-full at the target score of 3.8. The standings say
   who is ahead in numbers; this says how close anybody is to being done, which is
   the question that decides whether a pot is worth carrying another lap. Four a
   third full is a match with a way to go; one brimming is somebody about to take
@@ -1371,7 +1371,7 @@ measurement reads three times slower than the same build warm.
   keeps the same clock in its corner, but a hall has a clock on the wall, and a
   player watching the table rather than the corner still knows how long is left.
   How hard a sign is lit comes from the room: a hall that turns its lights down
-  does not turn its signs off, so After Hours the words and the colour bars carry
+  does not turn its signs off, so After Hours the words and the color bars carry
   their own light and the clock is the brightest thing off the table, while in
   daylight a sign is paint on a board.
   They stand on the far edge rather than out at the sides because that is the edge
@@ -1382,10 +1382,10 @@ measurement reads three times slower than the same build warm.
   smaller rather than run off the edge of it. The clock board has something better
   than a number to say at the two moments it has one: READY and SET with the
   gantry lamps of 8.3, GO! in green as the flag drops, OVERTIME flashing red
-  through sudden death, and the winner's name in their own colour at the whistle.
+  through sudden death, and the winner's name in their own color at the whistle.
   The flash holds still for anybody who has asked for fewer of them in 8.5.
 - **The fireworks**: a match that has been won is seen off with a display over the
-  table. Shells go up off the felt and break overhead in the winner's colour, with
+  table. Shells go up off the felt and break overhead in the winner's color, with
   the odd gold one among them, each lighting the room and banging over the fanfare
   as it goes, through the pause the podium waits out in 3.8 and on under the
   standings. The room decides nothing
@@ -1393,13 +1393,13 @@ measurement reads three times slower than the same build warm.
   for their kart, which may well be lying in a pit at the whistle.
 - **The crowd wears the room.** Where everybody stands, how tall they are, which
   way they face and where in the beat they are is rolled per person, but what they
-  are wearing comes from the room's own wardrobe: a carnival of deepened colours
+  are wearing comes from the room's own wardrobe: a carnival of deepened colors
   at the Workbench, a band of near-black shapes with the room's neon along their
   edges After Hours, muted workwear in the Yard. Random bright hues over a
   thousand people read as confetti, and confetti next to the table is the loudest
   thing on the screen while the karts are the smallest.
 - **The crowd**: a band of small figures eight rows deep standing on the table all
-  the way round the arena, and a DJ booth a few metres into it along the top edge,
+  the way round the arena, and a DJ booth a few meters into it along the top edge,
   with a pair of speakers that pulse on the beat. The band fades outward: the rows
   at the rail are shoulder to shoulder and each one behind is a little further back,
   a little further apart along its length and a little emptier, so the house ends in
@@ -1431,7 +1431,7 @@ measurement reads three times slower than the same build warm.
 
 Starting palette:
 
-| Use                  | Colour                                        |
+| Use                  | Color                                        |
 |----------------------|-----------------------------------------------|
 | Felt floor           | `#2F5D45`                                     |
 | Asphalt lanes        | `#3A3A40`                                     |
@@ -1441,7 +1441,7 @@ Starting palette:
 | Chips                | `#F2C14E` gold, `#F7F3EA` and `#C4453C` stripes |
 | Junction neon        | `#FF4FA3` magenta, `#35D0FF` cyan             |
 | Disco heads          | magenta, cyan, white, gold, violet, green     |
-| Player colours       | red `#E23D3D`, blue `#3D6FE2`, yellow `#F2D23D`, green `#43C463`, purple `#9B4FE2`, orange `#F28C3D`, cyan `#3DD9E2`, pink `#F26BB8` |
+| Player colors       | red `#E23D3D`, blue `#3D6FE2`, yellow `#F2D23D`, green `#43C463`, purple `#9B4FE2`, orange `#F28C3D`, cyan `#3DD9E2`, pink `#F26BB8` |
 
 - **Disco lights**: six moving-head spot lights stand on posts along the long
   edges of the table, working through magenta, cyan, white, gold, violet and
@@ -1471,12 +1471,12 @@ Starting palette:
 - Each beam is cut to the distance it actually has to cross and widened to its
   own spot angle every frame, so however far across the table a head is
   pointing its cone ends in a lit pool on the floor rather than in mid-air.
-- No head keeps one look. Each walks its own way through the six colours, holding
+- No head keeps one look. Each walks its own way through the six colors, holding
   one for 9 s at rest down to 3.5 s at the top and fading over to the next in 0.8 s,
-  on its own staggered clock so the rig never changes colour all at once. Dark heads
-  walk on too, so a head coming back on is not still wearing the colour it went out
-  with. The colour changes are kept well away from the beat: a head that changed
-  colour on the beat would read as a strobe rather than as a rig working the room.
+  on its own staggered clock so the rig never changes color all at once. Dark heads
+  walk on too, so a head coming back on is not still wearing the color it went out
+  with. The color changes are kept well away from the beat: a head that changed
+  color on the beat would read as a strobe rather than as a rig working the room.
 - Each head also opens and closes its cone, 30% either side of the width its level
   asks for, each on its own clock and quicker the hotter the match is, so the beams
   keep working even while the level has been standing for a while. The winner's
@@ -1504,14 +1504,14 @@ also where it waits when there is nobody to follow.
 It also looks a little ahead of whoever is driving on this machine. Framing every
 kart puts the middle of all of them in the middle of the screen, which for the
 player at the wheel is as much screen behind their kart as in front, and what a
-driver needs is the road ahead. The aim slides the way they are travelling -- the
+driver needs is the road ahead. The aim slides the way they are traveling -- the
 travel rather than the facing, so a kart sliding out of a corner leads the way it
 is really going -- by as far as they would get in a little under half a second, up
 to 6 m. Standing still it is nothing, so a kart waiting on the grid sits in the
 middle.
 Only the karts somebody is driving here get it: a rival's kart is something to
 watch rather than somewhere to look, and leading for all four would be four leads
-cancelling each other out.
+canceling each other out.
 
 Sliding the aim has to be paid for, because the fit still has to hold every kart on
 screen from wherever the aim ends up. Most of it is free: the margin of floor behind
@@ -1521,11 +1521,11 @@ up exactly as far from the aim as it was before the aim moved. Past that the lea
 costs distance, and it may cost at most 12% before it gives up the rest. A camera
 that pulls back to look ahead has made everything smaller in order to show more of
 it, which is the trade the wrong way round; left to take what it wanted, seven
-metres of lead pulled the camera half again as far out in a close fight.
+meters of lead pulled the camera half again as far out in a close fight.
 
 A match opens on the room it is played in: the moment the map is built the camera
-is placed to hold the arena, the crowd round it and three metres of the floor past
-that, centred. The start of a match is the one moment a player has to look at the
+is placed to hold the arena, the crowd round it and three meters of the floor past
+that, centered. The start of a match is the one moment a player has to look at the
 place they are about to drive in, and a rig already in tight on four karts parked
 at their spawns shows them a map they cannot see.
 
@@ -1536,9 +1536,9 @@ opens once, so a match that sits in a lobby and then counts down does not jump b
 out as the countdown begins.
 
 A player can stop it following at all. The fixed camera of 8.5 holds the whole
-arena, centred, for the length of the match, so nothing on screen moves except the
+arena, centered, for the length of the match, so nothing on screen moves except the
 karts. It sits a little closer than the framing the rig waits at when there is
-nobody to follow: that shot keeps a metre of floor round the arena because it is
+nobody to follow: that shot keeps a meter of floor round the arena because it is
 waiting for karts to arrive into it, and one held all match knows where they are.
 It does not open out at the whistle either, since opening out is a move and this is
 the camera that was asked not to make any. It costs
@@ -1549,7 +1549,7 @@ the trade is worth making.
 
 The opening shot still happens and the rig still comes in from it. That move is
 the map being shown rather than the karts being chased, and a fixed camera that
-refused to arrive would sit every match three metres further out than it belongs.
+refused to arrive would sit every match three meters further out than it belongs.
 The driving rooms of 9.4a are unaffected: they have no arena to hold and are
 following a kart down a road on purpose.
 
@@ -1564,10 +1564,10 @@ match is over, so the last thing it does is hand the room back.
 | Projection       | Perspective, FOV 35°                                              |
 | Pitch            | 55° below horizontal                                              |
 | Framing          | Every tracked kart plus 4 m of floor fits the 16:9 view, between 24 m and the distance that holds the whole arena plus a 1 m margin |
-| Opening shot     | The whole arena plus 3 m of the room round it, centred, placed as the map finishes building and moved in from at once |
+| Opening shot     | The whole arena plus 3 m of the room round it, centered, placed as the map finishes building and moved in from at once |
 | Pan              | Target is the middle of the box all alive karts are in, clamped to half the arena so the look-at point stays over the table |
 | Fixed camera     | Off by default, in the accessibility settings of 8.5. Holds the arena exactly, without the 1 m margin the waiting framing keeps, for the whole match: no pan, no coming in, no look-ahead, and no opening out at the whistle. The opening shot and the move in from it still happen |
-| Look-ahead       | The aim slides the way the karts being driven on this machine are travelling, 0.45 s of it and at most 6 m, which is about a fifth of the width of the screen at the distance the rig usually sits. Paid for out of the trailing margin first, up to 70% of it, and then out of the distance, up to 12% more. Applied before the pan clamp, so a player already driving at the wall gets none of it: there is nothing out there to look ahead at |
+| Look-ahead       | The aim slides the way the karts being driven on this machine are traveling, 0.45 s of it and at most 6 m, which is about a fifth of the width of the screen at the distance the rig usually sits. Paid for out of the trailing margin first, up to 70% of it, and then out of the distance, up to 12% more. Applied before the pan clamp, so a player already driving at the wall gets none of it: there is nothing out there to look ahead at |
 | Aim              | Slid along the camera's own up axis so that what is framed sits as far below the middle of the screen as it does above. The camera is tilted, so the near edge of a thing lands lower than the far edge lands high; a fit that only picks a distance puts whichever binds hard against its edge and piles all the slack on the other side |
 | Zoom             | Fixed. The distance does the framing, so a kart the same size on screen is the same distance away wherever it is standing. The fit is worked out against a view 7% narrower than the real one, which is the margin that keeps a kart off the very edge |
 | Smoothing        | Exponential, 0.6 s time constant for the pan and 1.2 s for the distance, applied every drawn frame. The distance is slower on purpose: a camera that pumps in and out with every bump is worse than one that is too far off. The rig opts out of the engine's physics interpolation for that reason: it follows karts that move on the physics tick, but the following is what this smoothing is, and having both would smooth an already smoothed camera |
@@ -1599,7 +1599,7 @@ movement: the one thing a corner block must not do is ask to be looked at.
 
 - **Banked score**, large.
 - **Pot** as `chips × mult = value`, updating live, with each half in a pill of
-  its own colour: chips in blue and mult in red, the same two colours wherever
+  its own color: chips in blue and mult in red, the same two colors wherever
   either half is shown. A cell grows to fit the number in it -- a mult clipped at
   24.5 loses the digit that says what the pot is worth -- and the block round them
   is wide enough that they grow into it rather than out of it, so the pane itself
@@ -1609,7 +1609,7 @@ movement: the one thing a corner block must not do is ask to be looked at.
   as one line of text it read as arithmetic.
 - **The item in hand**, with its own picture beside its name, and under it whatever
   that item started and has still to finish: a power-up that runs for a few seconds
-  gets a line of its own, named the same and in the same colour, with a bar counting
+  gets a line of its own, named the same and in the same color, with a bar counting
   the time down, and a cannon power-up gets one counting its shots down instead,
   since the spread and the ricochet are loaded rather than timed. One power-up is
   one line: the Swivel Cannon is free aim for a while and holds the cannon open for
@@ -1618,11 +1618,11 @@ movement: the one thing a corner block must not do is ask to be looked at.
   to see it is still working without counting in their head.
 - **Joker hand**: the held jokers as a row of overlapping cards along the bottom
   of the screen, one hand per local player, each card framed in its kind's
-  colour with the joker's own picture and its name, and one, two or three pips
+  color with the joker's own picture and its name, and one, two or three pips
   under the name for how rare it is: steel for common, cyan for uncommon,
   magenta for rare.
-  Count and colour say it twice on purpose, since the card already spends its
-  colour on saying what kind of joker it is and colour alone is not something
+  Count and color say it twice on purpose, since the card already spends its
+  color on saying what kind of joker it is and color alone is not something
   every player can read. Three or more cards fan out, the
   middle riding higher and the ends tipping away, like a hand held in a fist.
   While the joker menu is open the selected card lifts straight up out of the
@@ -1634,12 +1634,12 @@ movement: the one thing a corner block must not do is ask to be looked at.
   the standings of a match that is already decided. A count beside the hand reads how many of
   the slots are taken, out of however many the hand has room for, turning gold
   once the hand is full.
-- **Lives**: two hearts in the player colour under the kill count, drawn off the
+- **Lives**: two hearts in the player color under the kill count, drawn off the
   heart curve so they have the dip and the point that tell the shape apart at
   nineteen pixels. A square said one of something and left you to work out what.
   A lost life goes dark.
 - **Held power-up**: the item's own picture beside its name, both in the item's
-  colour, see 8.3a. While the box is still opening the picture flicks through the
+  color, see 8.3a. While the box is still opening the picture flicks through the
   other items, which says "not yet" in the same language as the rest of the row.
 - **The type.** Everything in the game is set in Inter, in three cuts and on one
   scale. Weight carries the role rather than size carrying the importance:
@@ -1654,7 +1654,7 @@ movement: the one thing a corner block must not do is ask to be looked at.
   on it reads as nine screens. Display lines are tracked out a little: a heavy
   face set tight reads as a shout.
 - **The pane** is the shape every panel in the game is cut from: a dark translucent
-  card with room to breathe, rounded corners, a shadow under it and a bar of colour
+  card with room to breathe, rounded corners, a shadow under it and a bar of color
   along the top. The joker pane below was the first thing built this way; the
   podium screen, the pause menu and the online lobby all wear it too, so a panel
   looks like this game's panel wherever it turns up.
@@ -1663,13 +1663,13 @@ movement: the one thing a corner block must not do is ask to be looked at.
   out of the fan, and under the row for the respawn pick and again for the card
   being destroyed. It is built like a standings row so the two read as the same
   game: a dark translucent card with room to breathe and a bar of the joker's own
-  kind colour along the top of it. The name, how rare the joker is and what kind it
+  kind color along the top of it. The name, how rare the joker is and what kind it
   is share the first line, a rule separates them from what the joker actually does,
-  and the buttons for whatever can be done from there sit at the foot in grey,
+  and the buttons for whatever can be done from there sit at the foot in gray,
   drawn as buttons. Things told apart beats one paragraph they were all run into.
 - **The respawn pick** shows the offered cards in a straight row, the one under
   the cursor risen and grown and nothing else: it grows about its own bottom
-  centre, so it stays where it was along the row rather than drifting sideways as
+  center, so it stays where it was along the row rather than drifting sideways as
   it swells. It takes the middle of the screen when one player is on it:
   they are dead, and there is nobody else to block. With somebody else sharing the
   screen it shrinks and drops to the bottom of its own share, with the pane above
@@ -1677,10 +1677,10 @@ movement: the one thing a corner block must not do is ask to be looked at.
   off the arena the others are still driving in.
 - **Nitro tank** as a thin bar, lit while burning.
 - **Speedometer** under it: a thin dial and a number in km/h, both turning the
-  nitro colour while the bottle is lit. The dial is full at a kart flat out on
+  nitro color while the bottle is lit. The dial is full at a kart flat out on
   nitro, so the needle still has somewhere to go when it lights. The number is the
   kart's real speed scaled by 20, which puts a kart at about 210 km/h flat out and
-  400 on nitro: the honest metres a second is a single figure and says nothing
+  400 on nitro: the honest meters a second is a single figure and says nothing
   about how the driving feels. A dead kart reads zero.
 - **Control hints**, on by default and switchable in 8.5: a line under each
   player's block showing the button that drifts, the one that burns nitro and
@@ -1691,14 +1691,14 @@ movement: the one thing a corner block must not do is ask to be looked at.
   Driving and firing are left out: they already have the hint beside the kart at
   the start of a match.
 - **Joker pictures**: every joker has a flat pictogram of its own, drawn in its
-  kind's colour on the dark of the card. A card is recognised across the table by
+  kind's color on the dark of the card. A card is recognized across the table by
   its shape; two letters at that size are a shape that has to be read first. How
   they are built, and how to add one, is 8.3a.
 - **Bindings are drawn, not written.** Everywhere the game names a control -- the
   hints above, the joker hand and pick, the signs on the test track in 9.4a, the
   hint beside the kart, the join line in the lobby and the rebinding rows in 8.5
   -- the binding is a picture of the thing being pressed. A key is a key cap with
-  the key on it. A gamepad face button is the round one in the colour everybody's
+  the key on it. A gamepad face button is the round one in the color everybody's
   pad has it in: A green, B red, X blue, Y yellow, with the letter on it in the
   dark the pad prints it in. A shoulder, a trigger, Start and the stick clicks
   are pills with their name on. A stick is the gate seen from above with an L or
@@ -1709,11 +1709,11 @@ movement: the one thing a corner block must not do is ask to be looked at.
   a box around a button; everything else is a word, and a word needs something to
   be written on.
   Everything but a face button sits on a solid dark chip with a soft black edge
-  and a rim in the colour of the line it is in, so it is dark against the felt,
+  and a rim in the color of the line it is in, so it is dark against the felt,
   the crowd and a light wall and rimmed against a dark menu. A picture you have to
   pick out of the background first is a picture that has already cost the corner
   you were reading it in. "Shift drift   Ctrl nitro" is a sentence to be read; the same line with
-  the keys drawn as keys is a picture to be recognised, which is what a hint
+  the keys drawn as keys is a picture to be recognized, which is what a hint
   glanced at mid-corner has to be. The shapes are drawn rather than loaded from a
   set of pictures, because the bindings belong to the player: any key on the board
   can end up in one of them.
@@ -1722,7 +1722,7 @@ movement: the one thing a corner block must not do is ask to be looked at.
   game tracks from the input events themselves. The joker hand, the respawn
   picker and the start-of-match hint follow the same rule, so a player who picks
   up a pad mid-match sees gamepad buttons everywhere.
-- **Match timer** at the top centre, turning red during Last Call.
+- **Match timer** at the top center, turning red during Last Call.
 - **Start gantry**: the countdown is a horizontal rack of three lamps hung over the
   middle of the screen, the way a racing track starts a field, rather than a number.
   They fill up red left to right and the whole row turns green on the drop, under the
@@ -1735,7 +1735,7 @@ movement: the one thing a corner block must not do is ask to be looked at.
 - **Kill feed** in the top right: the last five kills, newest first, reading as
   "P1 shot P2", "P1 rammed P2", "P1 bombed P2", "P1 shoved P2 in" for a pit
   shove, "P2 fell in" for a fall nobody caused and "P2 wrecked itself" for a
-  self kill. Names are in the players' colours. Lines hold for 6 s and fade.
+  self kill. Names are in the players' colors. Lines hold for 6 s and fade.
   The feed drops below a player block that owns that corner.
 - **Standings**: a ranked list down the right-hand side, one row per kart with
   its banked score and, in gold beside it, whatever it is still carrying around
@@ -1745,7 +1745,7 @@ movement: the one thing a corner block must not do is ask to be looked at.
   three places for being shot. The carried pot is still shown beside the score,
   so a hot lap is plain to read without being scored. The leader's
   row is the largest and last place the smallest, and the players on this screen
-  are boxed in their own colour. A carried pot that would win the match blinks,
+  are boxed in their own color. A carried pot that would win the match blinks,
   see 3.4. It stands down in three- and four-player shared-screen games, where
   every player already has a corner block.
 - **Dropping something**: a kart that bursts, or a crate that breaks, throws what
@@ -1765,7 +1765,7 @@ movement: the one thing a corner block must not do is ask to be looked at.
   is plain who got what. Online it happens on every screen: the host does not say
   who took a pickup, so the kart standing on it is credited with it.
 - **Destruction**: a kart, turret or crate that is destroyed leaves a burst of
-  tumbling chunks in its own colour with a brief flash. A kart lost down a pit
+  tumbling chunks in its own color with a brief flash. A kart lost down a pit
   shrinks away instead. The Bomb keeps the one real explosion, see 7.1.
 - A cash-out shows one tally that counts up to what it paid. A player parked on the
   Junction while their Royal Flush pads trickle finishes a cash-out of a single coin
@@ -1779,7 +1779,7 @@ movement: the one thing a corner block must not do is ask to be looked at.
   local player is whoever is steering the kart, which online is a kart the host
   moves: the guide is for the hand on the stick, not for the machine running the
   physics.
-  Royal Flush pad frames glow and pulse in their holder's colour; a flush shows
+  Royal Flush pad frames glow and pulse in their holder's color; a flush shows
   ROYAL FLUSH over the kart.
   A life going shows a heart breaking over the kart and one handed back shows a
   whole one, rather than the words that were there before: two words have to be
@@ -1789,7 +1789,7 @@ The tally is the payoff moment and gets the polish budget. On a completed
 cash-out, chips fly from the kart into the pad while a counter above the kart
 counts up with rising slot-machine ticks: `coins × mult`, then `= total`, in
 about 0.8 s. Cash-outs of 500 or more add a fanfare, confetti and screen shake.
-Death shows a smaller grey tally marked as half. The in-world tally plays for
+Death shows a smaller gray tally marked as half. The in-world tally plays for
 every kart, so everyone sees when an opponent cashes out.
 
 ### 8.3a Icons
@@ -1801,7 +1801,7 @@ hand's work; the recipes themselves are `scenes/ui/joker_art.gd` and
 `scenes/ui/power_up_art.gd`, one `match` arm per id.
 
 They are drawn rather than loaded: a folder of PNGs would weigh something, would
-be cut for one size, and would have to be recoloured for every kind and every
+be cut for one size, and would have to be recolored for every kind and every
 item. `make jokers` puts every icon in the game on one screen, the power-ups
 first and then the cards, which is the only way to judge a set that is meant to
 look like a set.
@@ -1813,7 +1813,7 @@ matching the others before anybody can say why.
   glance from a hand of five, not studied, and an item is picked up and played
   inside a couple of seconds.
 - No text. The name is already beside or under the picture.
-- No third colour, no gradients, no outlines drawn around fills.
+- No third color, no gradients, no outlines drawn around fills.
 - Nothing outside 0.06 to 0.94 of the box, so the picture never touches the frame.
 - Do not reuse a silhouette another card already owns. A round thing with a hole
   in it is Aimbot's; a five-pointed star is Wild Card's; a burst is Road Rage's.
@@ -1824,14 +1824,14 @@ spans and stroke widths are fractions of the box's shorter side. Nothing is in
 pixels, which is what lets the same recipe serve the card in the hand, the larger
 one in the respawn pick and anything else that asks for one.
 
-**The two colours.** A picture gets exactly two, both handed in:
+**The two colors.** A picture gets exactly two, both handed in:
 
 - `ink` is the subject: the thing the icon is about.
-- `dim` is the same colour at 40% alpha, from `IconShapes.behind`, for whatever
+- `dim` is the same color at 40% alpha, from `IconShapes.behind`, for whatever
   the subject sits on, in or behind -- the die under its pips, the pipe behind the
   flame, the road under the arrow.
 
-The colour arrives from outside, so a picture never names one itself: a joker's is
+The color arrives from outside, so a picture never names one itself: a joker's is
 its kind's, a power-up's is the item's own. That is what keeps a Stat card steel,
 a Rule card gold and a Cursed card red without forty places having to know it.
 
@@ -1846,7 +1846,7 @@ which the examples below leave out for brevity.
 | Arc | `_arc(x, y, r, from, to, ink)` | part of a circle, in degrees clockwise from east with y down: a guard, a wing, a skid, a sweep |
 | Line | `_line(x1, y1, x2, y2, ink)` | a stroke between two points |
 | Bar | `_bar(x, y, w, h, ink)` | a rounded rectangle from its top left: a body, a panel, a block, a slab |
-| Triangle | `_tri(x, y, span, facing, ink)` | a solid triangle centred on x, y, facing in degrees clockwise from up: an arrow head, a bullet tip, a beak |
+| Triangle | `_tri(x, y, span, facing, ink)` | a solid triangle centered on x, y, facing in degrees clockwise from up: an arrow head, a bullet tip, a beak |
 | Flame | `_flame(x, y, span, turn, ink)` | a teardrop standing on x, y with its tip `span` away, blowing `turn` degrees off straight up |
 | Shield | `_shield(x, y, span, ink)` | square shoulders tapering to a point |
 | Bolt | `_bolt(x, y, span, ink)` | a lightning bolt, for speed rather than for a thing |
@@ -1892,7 +1892,7 @@ bottom of it:
 ```
 
 Three shapes, two of them `dim` and one `ink`, everything between 0.12 and 0.84 of
-the box, and the only thing drawn in full colour is the thing the card is named
+the box, and the only thing drawn in full color is the thing the card is named
 for.
 
 ### 8.4 Audio
@@ -2052,7 +2052,7 @@ for.
   never changes and squeals that snap in at full voice.
 - **Where the ears are**: the camera frames the whole room from well outside it,
   so a listener up there would put every kart at the same distance. The ears sit
-  over the karts being driven here instead, two and a half metres up, facing the
+  over the karts being driven here instead, two and a half meters up, facing the
   way the camera does, so left on screen is left in the mix. The engine goes to
   its own bus under SFX so it can be balanced against the one-shots.
 - The F3 overlay shows the needle, what it does to the loop, the load and the
@@ -2096,7 +2096,7 @@ curve of it.
   being able to stop. The fixed camera is off by default and is described in 8.2:
   a camera that never goes anywhere is a smaller picture of the karts, which is a
   real cost, and a still one, which for some players is worth more.
-  Colour-blind roof markers are always on.
+  Color-blind roof markers are always on.
 
 ### 8.6 Loading a map
 
@@ -2168,7 +2168,7 @@ answers differently from one frame to the next and each answer is a different wa
 to aim.
 
 **Arriving**: waypoints get a bot to the right part of the arena, but the last few
-metres are their own problem. Flat out, a kart turns in a wider circle than the pad
+meters are their own problem. Flat out, a kart turns in a wider circle than the pad
 it is aiming for, so it sails past and comes round again, forever. Inside 6 m of the
 goal itself a bot eases off, down to a quarter throttle at the goal, and stops
 drifting, which shrinks the circle to something that fits. With the goal behind it
@@ -2205,7 +2205,7 @@ third of a second. Standing still is not the only way to arrive nowhere: a kart
 scrubbing along a wall or grinding on a corner keeps a speed on the clock the whole
 time, so a bot also watches the ground it has actually covered and gives up on
 anything that has moved less than 2 m in two seconds. The turn is picked once and
-held for the whole manoeuvre, and alternates, so a bot that backs into the same
+held for the whole maneuver, and alternates, so a bot that backs into the same
 corner twice tries the other way out rather than rocking on the spot.
 
 **Pits**: paths already go around them, but a pit stops nothing and blocks no
@@ -2238,7 +2238,7 @@ nothing else to fire at may as well be paid.
 
 **Traits**: each bot gets one trait that shifts its goal weights.
 
-| Trait    | Weight | Behaviour                                                              |
+| Trait    | Weight | Behavior                                                              |
 |----------|--------|------------------------------------------------------------------------|
 | Balanced | 40     | Default weights, banks at a pot value of 120                           |
 | Greedy   | 15     | Banks at 200 or during Last Call, prefers the Jackpot                  |
@@ -2281,7 +2281,7 @@ bots come after them before they reach the Junction.
 
 Shared screen, up to 4 players, gamepads plus one keyboard and mouse player.
 Players join in the lobby by pressing the join button on their device, Start
-on a gamepad or J on the keyboard, and pick a colour by steering left or
+on a gamepad or J on the keyboard, and pick a color by steering left or
 right. The first join press claims that device for P1; until then P1 plays on
 any device. Bots fill empty slots if wanted. The second release.
 
@@ -2381,7 +2381,7 @@ every one of them made a room to be read rather than driven.
   matches, and a room for finding out what the button does is the one place it
   gets in the way.
 - The camera holds the bay tighter than it holds an arena. It frames the same
-  three karts it always does, with one metre of floor round them instead of four:
+  three karts it always does, with one meter of floor round them instead of four:
   that band is the room a crowd sits in, and there is no crowd in here to look at,
   so the karts may as well be bigger.
 - The disco lights from 8.1 stay off in here: it is a place to look at the
@@ -2538,7 +2538,7 @@ in the second the ring is green as well: somebody knocked off the pad, or somebo
 seat, calls the start off until the room is full again.
 
 The ring of blocks round the pad is split between whoever is in the room -- an arc each, in
-their own colour, filling as they hold it. One ring showing whoever had got furthest read as a
+their own color, filling as they hold it. One ring showing whoever had got furthest read as a
 single pad filling, which in a room of four says nothing about which of them it has taken.
 
 **Crashing.** Nothing in here costs anything, so dying costs nothing either. A kart that falls
@@ -2581,7 +2581,7 @@ both questions get asked, so it is where they are answered; anywhere else and a 
 leave the room to find out how to let their friend in.
 
 A seat taken in here goes through to the arena with everybody else, and as who it was in the
-room: the same colour, the same name, the same dress.
+room: the same color, the same name, the same dress.
 
 **Choosing the match.** Online, the host chooses what the match is going to be in here, from the
 same rows the lobby puts in front of a local one: a match of several maps or a single one, see
@@ -2604,7 +2604,7 @@ the match begins.
 
 **After the match.** The podium of 3.8 offers the host of an online match a way back: Back to
 lobby, first in the row, with the cursor on it. It takes everybody back to this room together,
-still connected, the same people in the same colours, and the host's match settings come up
+still connected, the same people in the same colors, and the host's match settings come up
 again, since the next match is chosen here the same as the first one was. A client's podium
 says the host takes everybody back, rather than offering a button that could only take one
 of them. Whoever wants to stop there leaves from the room, the way anybody does.
@@ -2638,7 +2638,7 @@ on: Next map. There is no rematch of a map in the middle of a run and no leaving
 podium -- the pause menu is still the way out. The podium says which map of how many it was.
 Online the host moves everybody on, the same way it moved everybody out of the waiting room;
 a client's podium says so. The next map is the same match on the next arena: the same people,
-in the same colours, with the same settings.
+in the same colors, with the same settings.
 
 **Jokers between maps.** Play's lobby, and the host's match settings online, have a row for what
 everybody takes on from one map to the next of the jokers they end it holding:
@@ -2659,7 +2659,7 @@ nothing. The kept jokers are in everybody's hands before the next map's lamps go
 a client holding them until the client sits in it. Nothing is carried out of the last map.
 
 **The same bots.** The bots are chosen once, when the playlist is dealt, and drive every map of
-it: the same number, in the same seats and colours, each with the same way of driving and so the
+it: the same number, in the same seats and colors, each with the same way of driving and so the
 same name. The Hunter in the second seat on the first map is the Hunter in the second seat on the
 last. A seat kept for a player at another machine is dealt a way of driving too, for the maps it
 spends as a bot -- before its player has sat down, or after they have left.
@@ -2815,9 +2815,9 @@ old room and be applied to the match being taken down -- which the arena's loadi
 and the room, which is up in a frame, would not. In the arena the seats were kept for them,
 after the players at the host's machine and ahead of the bots, and come with the arena's rules
 and the arena's seed. They are kept rather than taken from the bots, because the bots are what
-the host asked for on top of everybody in the room. A client's name and colour go with it either
-way: the name because the client says it again the moment it is seated, the colour because the
-host seats each of them in the colour they had in the room they came from. Being seated again
+the host asked for on top of everybody in the room. A client's name and color go with it either
+way: the name because the client says it again the moment it is seated, the color because the
+host seats each of them in the color they had in the room they came from. Being seated again
 is what puts a `NetInput` in the new match's slot, so the kart a client has been driving is
 still the kart it drives.
 
@@ -2856,7 +2856,7 @@ What this is meant to guarantee:
 - A client never watches its own kart lag its controls. Driving, nitro, the
   trigger and the joker cursor all answer on the tick.
 - A client can never give itself a coin, a kill, a life or a point.
-- A client can never move its kart further than a couple of metres from where the
+- A client can never move its kart further than a couple of meters from where the
   host's own simulation put it. Past that the host keeps the wheel and says so.
 - Anything a client guesses at is settled by the host within a round trip, and
   every guess has a way of being put back: a box comes back solid, a kart is put
@@ -3045,12 +3045,12 @@ who hit whom, what was collected and what anything is worth.
   fresh correction adds to whatever is still outstanding rather than replacing
   it, which matters: replacing would put the picture back by however much was
   left, and a jump on every correction is the thing this exists to avoid.
-- **The tolerance is deliberately loose.** A disagreement under ten centimetres
+- **The tolerance is deliberately loose.** A disagreement under ten centimeters
   or a degree and a half is not worth replaying a second of driving over. Nobody
   can see it, and the host decides everything that would actually turn on it. The
   offset is capped at about a kart's length, because past that the picture would
   be somewhere the kart is not, which is worse than the correction it is hiding.
-- **A big enough disagreement simply lands.** Past six metres nothing is being
+- **A big enough disagreement simply lands.** Past six meters nothing is being
   hidden: that is a respawn, a death, a blast or a pit, and gliding the kart
   across the room would be stranger to watch than arriving.
 - **Corrections happen on the physics tick.** The host's answer arrives whenever
@@ -3139,7 +3139,7 @@ The number that matters most is how far a correction moves the kart somebody is
 looking at, because that is the whole of what a player can see of any of this. On
 a wire losing a packet in five, the kart is put right ten times in a second and a
 half of driving and not one of those moves it: the corrections are absorbed
-whole. Knocked four metres out of place by hand, which nothing in the game does,
+whole. Knocked four meters out of place by hand, which nothing in the game does,
 it lands 2.8 m and walks off the rest.
 
 ### 10.4 Conventions
@@ -3219,13 +3219,13 @@ deadline. The task-level plan with files and verification steps is in
 
 | Milestone | Scope                                                                                   | Done when                                                                 |
 |-----------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
-| M0 Grey-box  | Lucky Crossing blockout, camera, kart handling, drift, trails, turbo pads, walls     | The kart feels good on gamepad and keyboard, crossing takes about 3.6 s   |
+| M0 Gray-box  | Lucky Crossing blockout, camera, kart handling, drift, trails, turbo pads, walls     | The kart feels good on gamepad and keyboard, crossing takes about 3.6 s   |
 | M1 Combat    | Cannon, bullets, bounce and cancel, aim assist, death, respawn, spawn protection, crates, pits | Two local karts can fight, every death is attributable                 |
 | M2 Economy   | Chips, coin pads, mult, graze, Junction drain, Jackpot zones, death split, HUD, tally, timer, Last Call, results | A full 5 minute solo match plays end to end with a score |
-| M3 Items     | Power-up pads, first set power-ups, turret ownership, joker pick, hold, drop and destroy, floor drops, the joker catalogue | Items and jokers work in a solo match, scoring tests pass |
+| M3 Items     | Power-up pads, first set power-ups, turret ownership, joker pick, hold, drop and destroy, floor drops, the joker catalog | Items and jokers work in a solo match, scoring tests pass |
 | M4 Bots and flow | Bot brain, traits, difficulty, title screen, control hints at match start, lobby with options, settings with rebinding, countdown, results, audio pass, art pass | First release: single-player against 3 bots, start to finish, looks and sounds like the game |
-| M5 Local     | Input router, join in lobby and mid-match, 4 HUD blocks, colour picking                            | 4 players on one screen                                                   |
-| M6 Online    | ENet, spawners and synchronisers, host-authoritative rules                           | 4 players over direct IP                                                  |
+| M5 Local     | Input router, join in lobby and mid-match, 4 HUD blocks, color picking                            | 4 players on one screen                                                   |
+| M6 Online    | ENet, spawners and synchronizers, host-authoritative rules                           | 4 players over direct IP                                                  |
 
 ## 12. Open questions and idea backlog
 

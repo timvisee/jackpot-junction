@@ -195,7 +195,7 @@ func _on_player_joined(_slot: int) -> void:
 
 ## What the arena is built from: the configuration the room was opened with, and everybody at
 ## this machine as the room has them now. A seat taken in here is as much a part of the match as
-## the one that came in through the door, and the arena keeps the colour, the name and the dress
+## the one that came in through the door, and the arena keeps the color, the name and the dress
 ## each of them had in the room rather than handing out new ones on the way across.
 func arena_config() -> MatchConfig:
 	var devices: Array[int] = []
@@ -214,7 +214,7 @@ func arena_config() -> MatchConfig:
 		config.human_colors = colors
 		config.human_names = names
 		config.human_styles = styles
-	# Everybody connected from elsewhere is kept a seat, in the colour they had in here and in the
+	# Everybody connected from elsewhere is kept a seat, in the color they had in here and in the
 	# order the host will seat them again, and the bots the host asked for are on top of everybody
 	# here, as many of them as the arena has seats left for.
 	var kept: Array[int] = []

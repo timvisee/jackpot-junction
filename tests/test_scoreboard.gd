@@ -1,6 +1,6 @@
 extends GdUnitTestSuite
 ## The running order on the left, GAME.md 8.3: ordered by what is banked, the leader largest, the
-## players on this screen boxed in their own colour.
+## players on this screen boxed in their own color.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 

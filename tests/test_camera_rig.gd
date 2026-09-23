@@ -42,7 +42,7 @@ func _watching(places: Array) -> CameraRig:
 	return rig
 
 
-func test_framing_distance_is_sensible_and_the_camera_looks_down_at_the_centre() -> void:
+func test_framing_distance_is_sensible_and_the_camera_looks_down_at_the_center() -> void:
 	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())
 	add_child(rig)
 	rig.frame_arena(BOUNDS)
@@ -53,7 +53,7 @@ func test_framing_distance_is_sensible_and_the_camera_looks_down_at_the_centre()
 
 
 ## A match opens on the room it is played in, GAME.md 8.2: further back than the arena's own
-## framing, centred, with every corner of the floor in the shot and room to spare.
+## framing, centered, with every corner of the floor in the shot and room to spare.
 func test_a_match_opens_on_the_room() -> void:
 	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())
 	add_child(rig)
@@ -246,13 +246,13 @@ func test_what_is_framed_sits_in_the_middle_of_the_frame() -> void:
 	for i: int in 200:
 		rig._process(0.05)
 	rig._place(rig._distance, rig._pan, rig.zoom_min)
-	var centred := _imbalance(rig)
+	var centered := _imbalance(rig)
 	# Against the same distance with the aim left where it was, which is what it used to do.
 	rig._lift = 0.0
 	rig._place(rig._distance, rig._pan, rig.zoom_min)
 	var lopsided := _imbalance(rig)
-	assert_float(centred).is_less(0.05)
-	assert_float(lopsided).is_greater(centred * 3.0)
+	assert_float(centered).is_less(0.05)
+	assert_float(lopsided).is_greater(centered * 3.0)
 
 
 ## How lopsided the arena sits in the frame: 0 when the room's corners straddle the middle of the
@@ -357,7 +357,7 @@ func test_the_fixed_camera_holds_the_arena_and_follows_nobody() -> void:
 	var rig := _watching([Vector3(4.0, 0.0, 2.0), Vector3(6.0, 0.0, 3.0)])
 	assert_float(rig._distance).is_equal_approx(rig._fixed_distance, 0.01)
 	assert_float(rig._pan.length()).is_less(0.01)
-	# A shade closer than the framing the rig waits at, which keeps a metre of floor round the
+	# A shade closer than the framing the rig waits at, which keeps a meter of floor round the
 	# arena for karts to arrive into. A shot held all match knows where they are.
 	assert_float(rig._distance).is_less(rig._arena_distance)
 	assert_float(rig._distance).is_greater(rig._arena_distance * 0.9)
@@ -376,7 +376,7 @@ func test_the_fixed_camera_holds_the_arena_and_follows_nobody() -> void:
 
 ## It still opens on the room and still comes in from there. That move is the map being shown
 ## rather than the karts being chased, and a fixed camera that refused to arrive would sit every
-## match three metres further out than it belongs.
+## match three meters further out than it belongs.
 func test_the_fixed_camera_still_comes_in_at_the_start() -> void:
 	Game.settings.fixed_camera = true
 	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())

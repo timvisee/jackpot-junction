@@ -4,7 +4,7 @@ extends Area3D
 
 signal kart_entered(body: Node3D)
 
-## How far outside the hole still counts as being at it, in metres. Comfortably more than a kart
+## How far outside the hole still counts as being at it, in meters. Comfortably more than a kart
 ## is long, so nothing that is really falling in is turned away.
 const NEAR := 2.0
 

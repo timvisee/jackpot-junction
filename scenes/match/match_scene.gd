@@ -194,8 +194,8 @@ func _input(event: InputEvent) -> void:
 
 ## Something the player has to be told, in the middle of the screen, on a pane built the way the
 ## joker detail pane is so the two read as the same game rather than as a label dropped on the
-## floor. [param colour] is the bar along its top edge.
-func _show_status(text: String, colour: Color = Palette.NEON_CYAN) -> void:
+## floor. [param color] is the bar along its top edge.
+func _show_status(text: String, color: Color = Palette.NEON_CYAN) -> void:
 	if _status == null:
 		var layer := CanvasLayer.new()
 		layer.name = "Status"
@@ -221,7 +221,7 @@ func _show_status(text: String, colour: Color = Palette.NEON_CYAN) -> void:
 	style.content_margin_top = 22.0
 	style.content_margin_bottom = 22.0
 	style.border_width_top = JokerDetail.EDGE
-	style.border_color = colour
+	style.border_color = color
 	_status_panel.add_theme_stylebox_override("panel", style)
 	_status.text = text
 	_status_panel.visible = true

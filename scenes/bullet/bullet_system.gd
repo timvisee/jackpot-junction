@@ -13,7 +13,7 @@ func _ready() -> void:
 	add_to_group(&"bullet_system")
 
 
-## [param from] is the shooter's centre; the bullet checks the way from there to the muzzle.
+## [param from] is the shooter's center; the bullet checks the way from there to the muzzle.
 func spawn(
 	owner_slot: int,
 	origin: Vector3,

@@ -27,7 +27,7 @@ func test_a_kart_pressed_against_a_crate_breaks_it_instead_of_shooting_through()
 	await _runner.simulate_frames(12, 17)
 	var kart := match_node.kart_of(0)
 	var crate: Crate = match_node.arena.crates[0]
-	# The crate is 1 m wide; the muzzle, 1 m ahead of the centre, ends up inside it.
+	# The crate is 1 m wide; the muzzle, 1 m ahead of the center, ends up inside it.
 	kart.global_position = crate.global_position + Vector3(-1.32, 0.0, 0.0)
 	kart.face(Vector3(1.0, 0.0, 0.0))
 	await _runner.simulate_frames(2, 17)

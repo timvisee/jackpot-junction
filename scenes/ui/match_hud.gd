@@ -5,7 +5,7 @@ extends CanvasLayer
 ## grazes and mult, the tally on cash-out, and the results panel. Reads the match; never changes
 ## it except through the results and lobby buttons.
 
-## What a metre a second reads as on the speedometer. The karts are small and the arena is a
+## What a meter a second reads as on the speedometer. The karts are small and the arena is a
 ## table, so the honest number is a single figure and says nothing; scaled like this a kart
 ## tops out around 210 and nitro takes it to 400, which is what the driving feels like.
 const SPEED_SCALE := 20.0
@@ -27,8 +27,8 @@ const CALL_DROP := 120.0
 const CALL_TIME := 2.2
 const CALL_FADE := 0.6
 ## The line under each player's block that says what is worth pressing right now, GAME.md 8.3:
-## how big the buttons in it are drawn, what colour it is, and the word that goes with each one.
-## A life, under the name: how big one heart is drawn and the grey a spent one goes.
+## how big the buttons in it are drawn, what color it is, and the word that goes with each one.
+## A life, under the name: how big one heart is drawn and the gray a spent one goes.
 ## How wide a player's corner block is, whatever is in it. A pane that grows when the speed goes
 ## from 99 to 100 and shrinks again at the next corner is a pane that never stops moving, and the
 ## eye follows movement.
@@ -40,11 +40,11 @@ const BLOCK_WIDTH := 336.0
 const LIFE_SIZE := 19.0
 const LIFE_LOST := Color(0.22, 0.22, 0.26, 0.9)
 ## How big a heart is when it floats off a kart that has just lost or been given a life, in
-## metres. It started at the width of the words it replaced, which as a shape rather than a line
+## meters. It started at the width of the words it replaced, which as a shape rather than a line
 ## of text came out wider than the kart is long and buried it.
 const LIFE_ICON := 0.65
 ## The held item's picture: how big it is drawn, how fast the roulette flicks through the others
-## while the box is still opening, and the grey it flicks in.
+## while the box is still opening, and the gray it flicks in.
 const HINT_SIZE := 17
 const HINT_INK := Color(0.82, 0.82, 0.88)
 const HINT_WORDS: Dictionary[StringName, String] = {
@@ -116,7 +116,7 @@ func _ready() -> void:
 	_banner.visible = false
 	_light = StartLight.new()
 	_light.name = "StartLight"
-	# Above the middle of the screen, so the GO that follows it has the centre to itself.
+	# Above the middle of the screen, so the GO that follows it has the center to itself.
 	_light.hang(50.0)
 	_light.visible = false
 	add_child(_light)
@@ -375,18 +375,18 @@ func stand_down() -> void:
 ## where the two disagree; this says when that happened and how far it moved the kart, so a
 ## player can tell a bad connection from a bad kart. Nothing shows it in a match played here,
 ## because nothing corrects a kart nobody is predicting.
-func _on_corrected(metres: float, snapped: bool) -> void:
+func _on_corrected(meters: float, snapped: bool) -> void:
 	_sync_count += 1
 	_sync_left = SYNC_TIME
 	_sync.text = (
-		"RESYNC %.2f m  (%d)" % [metres, _sync_count]
-		if snapped or metres >= SYNC_SNAP
-		else "sync %.2f m  (%d)" % [metres, _sync_count]
+		"RESYNC %.2f m  (%d)" % [meters, _sync_count]
+		if snapped or meters >= SYNC_SNAP
+		else "sync %.2f m  (%d)" % [meters, _sync_count]
 	)
 	# A nudge is worth seeing and not worth worrying about; a snap moved the kart somewhere a
 	# player was not expecting and is the one they want to know about.
 	_sync.add_theme_color_override(
-		"font_color", Palette.CHIP_RED if snapped or metres >= SYNC_SNAP else Palette.CHIP_GOLD
+		"font_color", Palette.CHIP_RED if snapped or meters >= SYNC_SNAP else Palette.CHIP_GOLD
 	)
 
 
@@ -488,7 +488,7 @@ func _update_blocks() -> void:
 
 
 ## The announcer's call, GAME.md 3.12: the player's name and what they just did, in their own
-## colour, under the middle of the screen where the eye already is. It holds and then goes.
+## color, under the middle of the screen where the eye already is. It holds and then goes.
 func _on_announced(slot: int, call: String) -> void:
 	var name_of := _slot_name(slot)
 	_call.text = call if name_of.is_empty() else "%s  %s" % [name_of, call]
@@ -656,7 +656,7 @@ func _on_death_banked(slot: int, amount: int) -> void:
 
 ## The reminder row under a player's block, GAME.md 8.3: which button drifts, which burns
 ## The speedometer, GAME.md 8.3: the needle and the number both read whatever the kart is
-## actually doing, and both turn the nitro colour while the bottle is lit. A dead kart reads
+## actually doing, and both turn the nitro color while the bottle is lit. A dead kart reads
 ## zero rather than keeping the speed it died at.
 func _update_speed(block: Dictionary, kart: Kart) -> void:
 	var dial: ProgressBar = block["speed_dial"]
@@ -743,7 +743,7 @@ func _scrim() -> StyleBoxFlat:
 
 
 ## One of the slim bars in a block: the nitro tank and the speedometer. Rounded, thin, and in
-## the colour of whatever it is measuring.
+## the color of whatever it is measuring.
 func _bar(size: Vector2, ink: Color) -> ProgressBar:
 	var bar := ProgressBar.new()
 	bar.min_value = 0.0

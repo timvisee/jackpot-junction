@@ -1,5 +1,5 @@
 extends GdUnitTestSuite
-## The score tanks, GAME.md 8.1: one on the table per player, filling with their colour as they
+## The score tanks, GAME.md 8.1: one on the table per player, filling with their color as they
 ## bank and full at the score that wins.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")

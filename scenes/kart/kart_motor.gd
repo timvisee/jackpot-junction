@@ -51,7 +51,7 @@ var stats: KartStats
 var heading := 0.0
 ## World-space velocity on the XZ plane.
 var velocity := Vector3.ZERO
-## Signed speed: positive when travelling roughly nose first, negative in reverse.
+## Signed speed: positive when traveling roughly nose first, negative in reverse.
 var forward_speed := 0.0
 ## The steering actually applied this tick: the input shaped by the stick curve and smoothed.
 var steer := 0.0
@@ -227,7 +227,7 @@ func step(input: KartInput, delta: float) -> void:
 ## The tires will not let the nose get further than [member KartStats.slide_max_deg] from where
 ## the kart is going. Bleeding the slide off at the limit is not enough: the rear is swinging at
 ## 370°/s by the time it gets there and carries straight through, and past a right angle the kart
-## counts as travelling backwards, which inverts its steering. So the rotation is arrested there.
+## counts as traveling backwards, which inverts its steering. So the rotation is arrested there.
 func _hold_the_slide_angle() -> void:
 	if not _oversteering() or spinning() or velocity.length() < 0.5:
 		return

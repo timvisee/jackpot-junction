@@ -1,11 +1,11 @@
 extends Joker
-## Tailslide: a coin for every eight metres driven sideways.
+## Tailslide: a coin for every eight meters driven sideways.
 ##
-## The same metres the results screen counts as drifted, GAME.md 3.8, and they come at a price:
+## The same meters the results screen counts as drifted, GAME.md 3.8, and they come at a price:
 ## a drift is slower than a straight line and has to be held through a corner to be worth
 ## anything. So they are worth more than ordinary ones.
 
-## Metres drifted per coin.
+## Meters drifted per coin.
 const PER_COIN := 8.0
 
 var _drifted := 0.0

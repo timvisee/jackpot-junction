@@ -123,7 +123,7 @@ func test_the_hud_deals_the_jokers_as_cards_and_lifts_the_one_picked_in_the_menu
 			said.append(word.text)
 	assert_str(" ".join(said)).contains("drop")
 	assert_int(hand._detail._hints.get_child_count()).is_greater(3)
-	# The colour bar runs along the top of the pane rather than down its side.
+	# The color bar runs along the top of the pane rather than down its side.
 	var style: StyleBoxFlat = hand._detail.get_theme_stylebox("panel")
 	assert_int(style.border_width_top).is_equal(JokerDetail.EDGE)
 	assert_int(style.border_width_left).is_equal(0)
@@ -248,14 +248,14 @@ func test_the_destroy_step_crosses_the_card_out() -> void:
 	var doomed := picker._cards[offer.selected]
 	assert_vector(picker._cross.position).is_equal(doomed.position)
 	assert_vector(picker._cross.scale).is_equal(doomed.scale)
-	# Backing out puts the claim colours back.
+	# Backing out puts the claim colors back.
 	offer.cancel_replace()
 	picker.show_offer(offer, kart)
 	assert_bool(picker._cross.visible).is_false()
 
 
 ## GAME.md 8.3: the card under the cursor rises and grows and does nothing else. It grows about
-## its own bottom centre, so scaling that offset again slid it left by half of what it had grown
+## its own bottom center, so scaling that offset again slid it left by half of what it had grown
 ## by, on a row that is otherwise dead straight.
 func test_the_picked_card_rises_without_sliding_sideways() -> void:
 	var match_node := _start_match(_bots())
@@ -330,7 +330,7 @@ func test_every_power_up_has_a_picture_and_every_picture_has_a_power_up() -> voi
 
 
 ## And the card puts it on: one picture node in the middle of every card, drawn in the kind's
-## colour, rather than the initials that used to be there.
+## color, rather than the initials that used to be there.
 func test_a_card_carries_its_joker_s_picture() -> void:
 	var joker: Joker = load("res://data/jokers/aimbot.tres")
 	var card: JokerCard = auto_free(JokerCard.create(joker))
@@ -544,9 +544,9 @@ func test_deep_pockets_widens_the_hand_and_stacks() -> void:
 	assert_bool(kart.jokers.is_full()).is_true()
 
 
-## GAME.md 8.3: a card says how rare its joker is in pips as well as in colour, and the pane
-## says it in a word. Count as well as colour, because colour alone is not readable by everybody
-## and the card is already spending its colour on the joker's kind.
+## GAME.md 8.3: a card says how rare its joker is in pips as well as in color, and the pane
+## says it in a word. Count as well as color, because color alone is not readable by everybody
+## and the card is already spending its color on the joker's kind.
 func test_a_card_wears_its_rarity_in_pips_and_the_pane_names_it() -> void:
 	var common: Joker = load("res://data/jokers/big_tank.tres")
 	var uncommon: Joker = load("res://data/jokers/getaway_driver.tres")

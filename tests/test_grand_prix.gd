@@ -214,7 +214,7 @@ func test_the_match_scene_scores_a_map_at_the_whistle() -> void:
 	assert_int((said["run"] as Dictionary).get("scored", -1)).is_equal(0)
 
 
-## A seat on a started match holding [param count] jokers off the catalogue, from [param first].
+## A seat on a started match holding [param count] jokers off the catalog, from [param first].
 func _holding(match_node: Match, seat: int, first: int, count: int) -> Array[StringName]:
 	var given: Array[StringName] = []
 	var catalog := match_node.joker_catalog.jokers

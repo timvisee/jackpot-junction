@@ -1,7 +1,7 @@
 class_name ScoreTanks
 extends Node3D
 ## The race to the target score, standing on the table at the far edge of the arena, GAME.md 8.1:
-## a glass tank per player that fills with their own colour as they bank, and is full at the
+## a glass tank per player that fills with their own color as they bank, and is full at the
 ## score that wins the match.
 ##
 ## The standings say who is ahead in numbers. This says how close anybody is to being done, which
@@ -12,7 +12,7 @@ extends Node3D
 ## Scenery, like the crowd: no collision, nothing decided here. A room with no clock and nothing
 ## to reach has no tanks, since a tank that can never fill is furniture.
 
-## How big one tank is and how far apart they stand, in metres.
+## How big one tank is and how far apart they stand, in meters.
 const RADIUS := 0.45
 const HEIGHT := 2.4
 const SPACING := 1.7
@@ -98,7 +98,7 @@ func _target_level(index: int) -> float:
 	)
 
 
-## A tank per player, in a row centred on the far edge of the arena. Rebuilt rather than added to
+## A tank per player, in a row centered on the far edge of the arena. Rebuilt rather than added to
 ## when the table changes size, since that only happens between matches or as somebody joins.
 func _rebuild(count: int) -> void:
 	for child: Node in get_children():
@@ -139,7 +139,7 @@ func _tank(at: Vector3, color: Color, glass: Material, fitting: Material) -> Mes
 		var ring := _tube(RADIUS * 1.16, 0.12, fitting)
 		ring.position.y = 0.06 if foot else HEIGHT + CAP_LIFT
 		tank.add_child(ring)
-	# The player's own colour on the foot, so an empty tank still says whose it is.
+	# The player's own color on the foot, so an empty tank still says whose it is.
 	var band := _tube(RADIUS * 1.22, 0.07, _paint(color))
 	band.position.y = 0.155
 	tank.add_child(band)

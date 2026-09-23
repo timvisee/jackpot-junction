@@ -141,7 +141,7 @@ func calendar(face: float) -> void:
 
 
 ## The folds in the drape behind a card room: a row of pleats down the far wall, which is what
-## stops eighty metres of flat colour reading as a backdrop.
+## stops eighty meters of flat color reading as a backdrop.
 func drape(back: float) -> void:
 	var half := _room_half()
 	var fold := surfaces.painted(Color(0.24, 0.08, 0.12))
@@ -153,7 +153,7 @@ func drape(back: float) -> void:
 
 
 ## Pictures on the wall of a card room: a frame, and something dark in it. What they are of is
-## eighty metres from the table and nobody's business.
+## eighty meters from the table and nobody's business.
 func pictures(back: float) -> void:
 	var half := _room_half()
 	var frame := surfaces.painted(room.trim.darkened(0.4))

@@ -38,7 +38,7 @@ const NAMES: Array[String] = [
 	"Bank Run Bob",
 	"Spin Cycle",
 	"Ricochet Rita",
-	"Tyre Fire",
+	"Tire Fire",
 	"Curb Feeler",
 	"Wager Wendy",
 	"Ante Up Annie",

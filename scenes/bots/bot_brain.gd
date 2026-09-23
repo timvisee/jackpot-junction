@@ -57,7 +57,7 @@ const PAD_RENEW_VALUE := 2.5
 ## and the widest that sum is allowed to get.
 const FIRE_CONE := 0.14
 const FIRE_CONE_MAX := 1.1
-## Half the width of what is being shot at, near enough: a kart is a metre across and a box is
+## Half the width of what is being shot at, near enough: a kart is a meter across and a box is
 ## about the same.
 const TARGET_HALF_WIDTH := 0.6
 const DODGE_RANGE := 8.0
@@ -165,7 +165,7 @@ var _turn_rate := 0.0
 var _stuck_time := 0.0
 var _reverse_left := 0.0
 var _swing_left := 0.0
-## Which way the wheel goes while backing out, held for the whole manoeuvre.
+## Which way the wheel goes while backing out, held for the whole maneuver.
 var _reverse_steer := 1.0
 ## Where the kart was when the ground it has covered was last looked at, and how long ago.
 var _progress_mark := Vector3.INF
@@ -715,7 +715,7 @@ func _should_hold_position() -> bool:
 ## steering toward a target on the far side of it only holds it harder, so a bot that is going
 ## nowhere backs up with the wheel over, swings its nose clear and drives out on the heading it
 ## ends up with before the navigator gets the kart back. The turn is picked once and held for
-## the whole manoeuvre, and it alternates, so a bot that backs into the same corner twice tries
+## the whole maneuver, and it alternates, so a bot that backs into the same corner twice tries
 ## the other way out rather than rocking on the spot.
 func _step_stuck(delta: float) -> void:
 	if _reverse_left > 0.0:
@@ -741,7 +741,7 @@ func _step_stuck(delta: float) -> void:
 		_begin_backing_out()
 
 
-## Starts the manoeuvre on the tick it is decided, not the one after: the frame it would wait
+## Starts the maneuver on the tick it is decided, not the one after: the frame it would wait
 ## is a frame it spends pushing at the wall.
 func _begin_backing_out() -> void:
 	_stuck_time = 0.0
@@ -872,7 +872,7 @@ func _shoot(delta: float) -> void:
 
 ## How far off the nose a shot at something [param distance] away is still worth taking,
 ## GAME.md 9.1. A fixed angle says less and less about a miss the nearer the target is: a kart
-## being shoved along is half a metre from the muzzle and forty degrees off the nose, and a bot
+## being shoved along is half a meter from the muzzle and forty degrees off the nose, and a bot
 ## that only fired within eight degrees would keep bumping it rather than shoot it. What the
 ## target is worth in angle at that distance is added, so the question asked is whether the shot
 ## goes through it rather than whether it leaves along the nose.

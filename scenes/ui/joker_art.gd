@@ -2,14 +2,14 @@ class_name JokerArt
 extends RefCounted
 ## A picture for every joker, GAME.md 8.3a, drawn rather than loaded.
 ##
-## One flat pictogram per card, in the kind's own colour on the dark of the card, built from the
+## One flat pictogram per card, in the kind's own color on the dark of the card, built from the
 ## shared vocabulary of [IconShapes]. Keeping them all to that vocabulary is what makes thirty of
 ## them look like one set rather than thirty drawings, and the whole thing weighs nothing and
 ## scales to any size, which a folder of PNGs cut for one card size would not.
 
 
 ## A control that draws one joker's picture, to drop into a card. It keeps the picture square
-## and centred in whatever room it is given, so a tall slot does not stretch the drawing.
+## and centered in whatever room it is given, so a tall slot does not stretch the drawing.
 class Picture:
 	extends Control
 
@@ -165,7 +165,7 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 			IconShapes.star(on, box, 0.5, 0.5, 0.4, ink)
 
 
-## Every id this knows a picture for, so a test can hold the set to the catalogue.
+## Every id this knows a picture for, so a test can hold the set to the catalog.
 static func known() -> Array[StringName]:
 	var ids: Array[StringName] = [
 		&"aimbot",

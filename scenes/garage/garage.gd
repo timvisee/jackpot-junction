@@ -23,7 +23,7 @@ const TRACK: ArenaLayout = preload("res://data/maps/test_track.tres")
 const RULES: MatchRules = preload("res://data/match/garage.tres")
 const SIGN_HEIGHT := 2.7
 ## The test track's signs, which are drawn pictures on a card rather than floating words: how big
-## the lettering is, how big that picture is in the world, and what colour the line under the
+## the lettering is, how big that picture is in the world, and what color the line under the
 ## heading is.
 const SIGN_TITLE_SIZE := 34
 const SIGN_SIZE := 26
@@ -34,7 +34,7 @@ const SIGN_INK := Color(0.86, 0.86, 0.90)
 ## so the camera comes down onto the player the way the driving room's does in 9.5.
 const TRACK_CAMERA := 26.0
 ## How much floor the camera leaves round the karts in the garage. The rig frames every one of
-## them with four metres of floor round it, which is the band a crowd sits in; there is none in
+## them with four meters of floor round it, which is the band a crowd sits in; there is none in
 ## here, so the bay is held tighter and the karts come out bigger for it, GAME.md 9.4. What is
 ## framed is unchanged: both dummies stay in the shot, since driving up to one is half of what
 ## the room is for.

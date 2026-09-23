@@ -8,7 +8,7 @@ extends Node3D
 ## Scenery: it reads the match and decides nothing. A room with no clock to keep, such as the
 ## garage, has no board.
 
-## The digits and the gap between them, in metres.
+## The digits and the gap between them, in meters.
 const DIGIT := Vector2(0.5, 0.96)
 const SEGMENT := 0.11
 const SPACING := 0.69
@@ -133,7 +133,7 @@ func _caption_now() -> String:
 			return "START"
 
 
-## Amber to hold the field, green for the drop, the winner's own colour at the whistle, and red
+## Amber to hold the field, green for the drop, the winner's own color at the whistle, and red
 ## for sudden death, which flashes. The flash stands still for anybody who has asked for fewer
 ## of them, GAME.md 8.5.
 func _word_color() -> Color:

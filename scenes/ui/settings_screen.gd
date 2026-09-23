@@ -71,7 +71,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	var key := event as InputEventKey
 	if key != null and key.pressed and key.physical_keycode == KEY_ESCAPE:
-		_stop_listening("Rebind cancelled")
+		_stop_listening("Rebind canceled")
 		get_viewport().set_input_as_handled()
 		return
 	if not _is_bindable_press(event):

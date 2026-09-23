@@ -1,14 +1,14 @@
 class_name BulletMark
 extends MeshInstance3D
 ## A scorch left where a bullet struck a wall, GAME.md 8.3: a small round mark in the shooter's
-## colour lying flat against the surface, fading out over a few seconds. Bullets are the loudest
+## color lying flat against the surface, fading out over a few seconds. Bullets are the loudest
 ## thing in the room and they used to vanish without trace; a wall that has been shot at looks
 ## like a wall that has been shot at, which is most of the reason for shooting one.
 ##
 ## The arena owns them rather than the bullets do, so a room wears only so many at once and the
 ## oldest goes when a new one arrives.
 
-## Side of the disc, in metres.
+## Side of the disc, in meters.
 const SIZE := 0.3
 const LIFETIME := 7.0
 ## The share of a mark's life spent fading out.

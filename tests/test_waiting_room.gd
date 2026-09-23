@@ -145,7 +145,7 @@ func test_standing_on_the_pad_readies_a_player() -> void:
 	assert_bool(ready_room._ticks.has(0)).is_true()
 
 
-## Two people charging the pad are two arcs of the ring, each in their own colour, rather than one
+## Two people charging the pad are two arcs of the ring, each in their own color, rather than one
 ## bar showing whichever of them is furthest along. A room of four otherwise cannot tell who the
 ## pad has taken and who it is still waiting on.
 func test_each_player_charges_their_own_arc_of_the_ring() -> void:
@@ -155,7 +155,7 @@ func test_each_player_charges_their_own_arc_of_the_ring() -> void:
 	match_node.join_human(DeviceInput.KEYBOARD + 1)
 	await _runner.simulate_frames(5, 17)
 	assert_int(ready_room.player_count()).is_equal(2)
-	# Only the second player drives on. Half the ring lights, in that player's colour, and the
+	# Only the second player drives on. Half the ring lights, in that player's color, and the
 	# other half stays dark.
 	match_node.kart_of(1).global_position = match_node.arena.junction.global_position
 	await _runner.simulate_frames(int(ReadyRoom.CHARGE_TIME * 80.0), 17)
@@ -276,7 +276,7 @@ func test_the_seat_hint_shows_the_key_and_the_pad_button() -> void:
 
 
 ## Somebody who took a seat in the room goes through to the arena with everybody else, as who
-## they were in the room: the same device, colour, name and dress.
+## they were in the room: the same device, color, name and dress.
 func test_a_seat_taken_in_the_room_goes_through_to_the_arena() -> void:
 	var room := await _open()
 	var match_node: Match = room.get_node("Match")
@@ -412,9 +412,9 @@ func test_the_bots_fill_the_seats_nobody_is_in() -> void:
 	assert_int(config.inputs().size()).is_equal(room.ARENA_RULES.max_players)
 
 
-## A client keeps the colour it had in the room: the arena keeps its seat in that colour, in the
+## A client keeps the color it had in the room: the arena keeps its seat in that color, in the
 ## order the host will seat the clients again.
-func test_a_client_keeps_its_colour_into_the_arena() -> void:
+func test_a_client_keeps_its_color_into_the_arena() -> void:
 	var room := await _open()
 	var match_node: Match = room.get_node("Match")
 	var visitor := match_node.join_network(NetInput.new())
@@ -437,7 +437,7 @@ func test_the_room_holds_as_many_as_the_arena_seats() -> void:
 	assert_int(match_node.rules.max_players).is_equal(room.ARENA_RULES.max_players)
 
 
-## How many blocks of the ring are lit in [param slot]'s colour.
+## How many blocks of the ring are lit in [param slot]'s color.
 func _lit_for(ready_room: ReadyRoom, slot: PlayerSlot) -> int:
 	var lit := 0
 	for piece: MeshInstance3D in ready_room._segments:

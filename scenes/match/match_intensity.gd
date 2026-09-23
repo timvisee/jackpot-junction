@@ -262,7 +262,7 @@ func _on_blast(_slot: int) -> void:
 	add(BLAST)
 
 
-## A price going on the leader's head is an announcement, not a rumour: the room goes up a
+## A price going on the leader's head is an announcement, not a rumor: the room goes up a
 ## level for it whatever the meter thinks, and the usual hold keeps it there.
 func _on_bounty(_slot: int) -> void:
 	add(BOUNTY)

@@ -1,7 +1,7 @@
 class_name FlushPad
 extends Area3D
 ## One of the four Royal Flush pads, GAME.md 3.9. A kart driving over it paints the frame in its
-## colour and takes the pad from whoever held it. A held pad pays its holder a slow trickle of
+## color and takes the pad from whoever held it. A held pad pays its holder a slow trickle of
 ## coins for as long as they keep it, so taking one is worth something on its own; the match
 ## watches the claims as well, and holding all four at once scores the flush, after which every
 ## pad clears and sits disabled for a while. Each pad carries a card letter so players can talk
@@ -49,7 +49,7 @@ var _halo: MeshInstance3D
 var _halo_material: StandardMaterial3D
 ## How far through its life the last ring is, 1 the moment a coin lands and 0 once it is gone.
 var _halo_left := 0.0
-## The colour of the ring in the air right now, which outlives the claim that threw it.
+## The color of the ring in the air right now, which outlives the claim that threw it.
 var _halo_color := NEUTRAL
 
 
@@ -70,9 +70,9 @@ func is_disabled() -> bool:
 	return disabled_left > 0.0
 
 
-## Throws a ring of light off the pad, for a coin landing in somebody's pot. The colour is
+## Throws a ring of light off the pad, for a coin landing in somebody's pot. The color is
 ## given rather than taken from the pad, since a pad resting after a flush is wearing nobody's
-## colour and is still paying out the flush that cleared it.
+## color and is still paying out the flush that cleared it.
 func pop_halo(color: Color = Color.TRANSPARENT) -> void:
 	_halo_left = 1.0
 	_halo_color = owner_color if color.a <= 0.0 else color
@@ -109,7 +109,7 @@ func _physics_process(delta: float) -> void:
 		return
 
 
-## The last ring thrown off the pad: it grows outward and fades as it goes, in whatever colour
+## The last ring thrown off the pad: it grows outward and fades as it goes, in whatever color
 ## the pad is wearing, and takes itself off the table when it is spent.
 func _step_halo(delta: float) -> void:
 	if _halo_left <= 0.0:
@@ -126,7 +126,7 @@ func _can_claim(kart: Kart) -> bool:
 	return kart.is_active() and not kart.is_decoy()
 
 
-## Hands the pad to a slot, painting the frame in its colour.
+## Hands the pad to a slot, painting the frame in its color.
 func claim(slot: int, color: Color) -> void:
 	owner_slot = slot
 	held_left = decay if slot >= 0 else 0.0

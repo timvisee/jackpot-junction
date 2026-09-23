@@ -16,8 +16,8 @@ extends RefCounted
 ## Ticks of history kept, a little over two seconds at 60 Hz. A correction older than the buffer
 ## cannot be replayed, so the kart takes the host's word for it and snaps.
 const HISTORY := 140
-## Disagreements below this, in metres, are not worth replaying a second of driving over. Ten
-## centimetres is a tenth of a kart and nobody can see it, and the host decides everything that
+## Disagreements below this, in meters, are not worth replaying a second of driving over. Ten
+## centimeters is a tenth of a kart and nobody can see it, and the host decides everything that
 ## would actually turn on it anyway: what was collected, who was hit, what it was worth. Being
 ## relaxed here is the difference between correcting constantly and correcting when it matters.
 const IGNORE := 0.10
@@ -32,7 +32,7 @@ const EASE_RATE := 0.2
 const EASE_MAX := 1.2
 ## How many times an offset is halved looking for room to draw the kart in before giving up.
 const EASE_TRIES := 4
-## Past this, in metres, nothing is being hidden: the kart is simply put where the host says. A
+## Past this, in meters, nothing is being hidden: the kart is simply put where the host says. A
 ## disagreement this size is a respawn, a death, a blast or a pit, not a difference of opinion
 ## about driving, and easing it in would send the kart gliding across the room.
 const SNAP := 6.0

@@ -11,7 +11,7 @@ signal struck(target: Target, by_slot: int)
 
 const FACE_HEIGHT := 0.75
 const RESPAWN_DELAY := 4.0
-## Ring colours from the outside in.
+## Ring colors from the outside in.
 const RINGS: Array[Color] = [Palette.CHIP_WHITE, Palette.CHIP_RED, Palette.CHIP_GOLD]
 
 ## Coins the shooter collects, set by the arena from the rules.

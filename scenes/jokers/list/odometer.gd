@@ -1,10 +1,10 @@
 extends Joker
-## Odometer: a coin for every twenty metres driven.
+## Odometer: a coin for every twenty meters driven.
 ##
 ## Measured the same way the results screen measures it, GAME.md 3.8: ground speed times the
 ## tick, so reversing counts and sitting still does not.
 
-## Metres per coin.
+## Meters per coin.
 const PER_COIN := 20.0
 
 var _driven := 0.0

@@ -20,7 +20,7 @@ extends Node3D
 const FACE := Vector2(4.2, 1.5)
 const LIFT := 0.22
 const TILT := 30.0
-## The two lines it says, as heights asked for in metres: the count, which is the news, and what
+## The two lines it says, as heights asked for in meters: the count, which is the news, and what
 ## is being counted under it. One long line across a letterbox was all width and no height.
 const COUNT_SIZE := 0.78
 const WORDS_SIZE := 0.34
@@ -31,7 +31,7 @@ const FRAME := 0.09
 const DEPTH := 0.08
 const LEG := 0.12
 const FOOT := Vector3(3.0, 0.1, 0.6)
-## Text is drawn at this size and scaled down to metres, and kept this far clear of the frame.
+## Text is drawn at this size and scaled down to meters, and kept this far clear of the frame.
 const FONT_SIZE := 64
 const MARGIN := 0.24
 const STEEL := Color(0.17, 0.17, 0.2)

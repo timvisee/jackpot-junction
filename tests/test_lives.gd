@@ -322,7 +322,7 @@ func test_lives_reach_puppets_through_snapshots() -> void:
 
 ## GAME.md 3.6: coming back is announced to the room rather than only to whoever happened to be
 ## watching that kart blink.
-func test_a_kart_coming_back_opens_a_ring_in_its_own_colour() -> void:
+func test_a_kart_coming_back_opens_a_ring_in_its_own_color() -> void:
 	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
 	rules.lives = 1

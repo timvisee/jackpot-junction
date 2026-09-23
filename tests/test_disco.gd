@@ -172,9 +172,9 @@ func test_a_hot_match_sweeps_wider_brighter_and_faster() -> void:
 	assert_float((lights._heads[0]["tint"] as StandardMaterial3D).albedo_color.a).is_less(0.2)
 
 
-## GAME.md 8.1: a head does not keep one colour, and the light, the lens and the beam all wear
+## GAME.md 8.1: a head does not keep one color, and the light, the lens and the beam all wear
 ## whatever it has walked on to.
-func test_a_head_walks_through_the_palette_and_dresses_itself_in_the_new_colour() -> void:
+func test_a_head_walks_through_the_palette_and_dresses_itself_in_the_new_color() -> void:
 	var lights := _lights()
 	lights.level = DiscoLights.COUNT
 	_run(lights, 0.5)
@@ -185,7 +185,7 @@ func test_a_head_walks_through_the_palette_and_dresses_itself_in_the_new_colour(
 	var later: Color = head["color"]
 	(
 		assert_bool(later.is_equal_approx(first))
-		. override_failure_message("the colour never moved")
+		. override_failure_message("the color never moved")
 		. is_false()
 	)
 	var light: SpotLight3D = head["light"]
@@ -196,7 +196,7 @@ func test_a_head_walks_through_the_palette_and_dresses_itself_in_the_new_colour(
 	assert_object(lens.emission).is_equal(later)
 	assert_float(tint.albedo_color.r).is_equal_approx(later.r, 0.001)
 	assert_float(tint.albedo_color.b).is_equal_approx(later.b, 0.001)
-	# The rig does not change colour all at once: the heads are on staggered clocks.
+	# The rig does not change color all at once: the heads are on staggered clocks.
 	var lefts: Array[float] = []
 	for other: Dictionary in lights._heads:
 		lefts.append(other["color_left"])

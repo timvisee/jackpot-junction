@@ -63,7 +63,7 @@ func test_the_pads_all_pay_on_the_same_beat() -> void:
 	for pad: FlushPad in pads:
 		await _park(kart, pad)
 	# Taking the fourth scores the flush, which clears the board, so the lock is what is paying
-	# now: all four pads at once, in the winner's colour.
+	# now: all four pads at once, in the winner's color.
 	kart.global_position = match_node.arena.spawn_points[0]
 	assert_float(match_node.flush_lock_left).is_greater(0.0)
 	var paid: Array[int] = []
@@ -86,7 +86,7 @@ func test_the_pads_all_pay_on_the_same_beat() -> void:
 	assert_int(rings).is_equal(pads.size())
 
 
-## GAME.md 3.9: a paid coin throws a ring off the pad, in the holder's colour, so the trickle can
+## GAME.md 3.9: a paid coin throws a ring off the pad, in the holder's color, so the trickle can
 ## be seen from across the table.
 ## GAME.md 3.9: the trickle runs with the room, so a pad pays faster at level 6 than at level 1.
 func test_a_hot_room_pays_the_pads_faster() -> void:

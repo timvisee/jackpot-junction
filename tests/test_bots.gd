@@ -289,7 +289,7 @@ func test_a_bot_nosed_against_a_wall_backs_out_of_it() -> void:
 	assert_float(brain.input.brake).is_equal(1.0)
 	assert_float(brain.input.throttle).is_equal(0.0)
 	assert_float(absf(brain.input.steer)).is_equal(1.0)
-	# The wheel stays where it was put for the whole manoeuvre rather than sawing at it.
+	# The wheel stays where it was put for the whole maneuver rather than sawing at it.
 	var first_way := signf(brain.input.steer)
 	for i: int in 20:
 		brain._step_stuck(1.0 / 60.0)
@@ -405,7 +405,7 @@ func _gets_stuck(brain: BotBrain, seconds: float) -> bool:
 	return false
 
 
-## Lets the whole manoeuvre finish, backing out and driving out again, with nobody asking for
+## Lets the whole maneuver finish, backing out and driving out again, with nobody asking for
 ## anything.
 func _run_out_reverse(brain: BotBrain) -> void:
 	for i: int in 240:
@@ -631,7 +631,7 @@ func test_a_bot_shoots_the_kart_it_is_bumping_into() -> void:
 	brain._willing_to_fire = true
 	brain._aim_error = 0.0
 	brain._aim_error_left = 99.0
-	# Up against the bot's front corner: nineteen degrees off the nose and a metre and a half
+	# Up against the bot's front corner: nineteen degrees off the nose and a meter and a half
 	# away, which is a shot that cannot miss and used to be one the bot would not take.
 	assert_bool(_fires_at(brain, enemy, Vector3(1.3, 0.0, 0.45))).is_true()
 	# Out at that angle across the room the same shot goes nowhere near, and is not taken.

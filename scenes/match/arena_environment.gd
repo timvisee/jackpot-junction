@@ -116,7 +116,7 @@ func _build() -> void:
 	add_child(fill)
 	lamp = SpotLight3D.new()
 	lamp.name = "Lamp"
-	# Straight down over the middle of the table, which is where every map is centred.
+	# Straight down over the middle of the table, which is where every map is centered.
 	lamp.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
 	lamp.shadow_blur = 1.5
 	add_child(lamp)

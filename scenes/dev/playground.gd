@@ -22,7 +22,7 @@ extends Node3D
 ##   --results=1          end the match at once with made-up stats, to see the results screen
 ##   --fireworks=1        the winner's fireworks over the open-out camera, for screenshots
 ##   --wide=1             hold the camera on the whole room, so two shots can be compared
-##   --back=200           hold the camera that many metres back, to look at the room itself
+##   --back=200           hold the camera that many meters back, to look at the room itself
 ##   --map=vault          which map to play, by id (default lucky_crossing)
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
 ## on an unused device to join mid-match; F6 deals the player a random joker.

@@ -1,12 +1,12 @@
 class_name TurboPad
 extends Area3D
-## A directional speed boost pad. A kart is launched along [member direction] once its centre is
+## A directional speed boost pad. A kart is launched along [member direction] once its center is
 ## well onto the pad, not the moment its bumper touches the edge, so the shove reads as coming
 ## from the pad itself. A kart that leaves and comes back is launched again.
 
 signal triggered(body: Node3D)
 
-## The kart's centre must be within this fraction of the pad's half width, on both axes.
+## The kart's center must be within this fraction of the pad's half width, on both axes.
 const INNER_FRACTION := 0.8
 
 @export var direction := Vector3.FORWARD

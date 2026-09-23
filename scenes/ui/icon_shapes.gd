@@ -16,7 +16,7 @@ const FAINT := 0.4
 const PIP := 0.055
 
 
-## The dimmer of the two colours a picture is drawn in: whatever the subject sits on, in or
+## The dimmer of the two colors a picture is drawn in: whatever the subject sits on, in or
 ## behind.
 static func behind(ink: Color) -> Color:
 	return Color(ink.r, ink.g, ink.b, ink.a * FAINT)
@@ -68,12 +68,12 @@ static func bar(
 static func tri(
 	on: CanvasItem, box: Rect2, x: float, y: float, span: float, facing: float, ink: Color
 ) -> void:
-	var centre := at(box, x, y)
+	var center := at(box, x, y)
 	var reach := span(box, span) * 0.5
 	var points := PackedVector2Array()
 	for i: int in 3:
 		var angle := deg_to_rad(facing + i * 120.0) - PI * 0.5
-		points.append(centre + Vector2(cos(angle), sin(angle)) * reach)
+		points.append(center + Vector2(cos(angle), sin(angle)) * reach)
 	on.draw_colored_polygon(points, ink)
 
 
@@ -105,16 +105,16 @@ static func flame(
 
 ## A shield: shoulders square, sides tapering to a point.
 static func shield(on: CanvasItem, box: Rect2, x: float, y: float, span: float, ink: Color) -> void:
-	var centre := at(box, x, y)
+	var center := at(box, x, y)
 	var reach := span(box, span)
 	on.draw_colored_polygon(
 		PackedVector2Array(
 			[
-				centre + Vector2(-reach * 0.8, -reach),
-				centre + Vector2(reach * 0.8, -reach),
-				centre + Vector2(reach * 0.8, reach * 0.25),
-				centre + Vector2(0.0, reach),
-				centre + Vector2(-reach * 0.8, reach * 0.25)
+				center + Vector2(-reach * 0.8, -reach),
+				center + Vector2(reach * 0.8, -reach),
+				center + Vector2(reach * 0.8, reach * 0.25),
+				center + Vector2(0.0, reach),
+				center + Vector2(-reach * 0.8, reach * 0.25)
 			]
 		),
 		ink
@@ -129,7 +129,7 @@ static func burst(on: CanvasItem, box: Rect2, x: float, y: float, span: float, i
 ## A lightning bolt, for the one picture in the set that is about speed rather than about a
 ## thing. Nothing else here is a bolt, so it reads on its own.
 static func bolt(on: CanvasItem, box: Rect2, x: float, y: float, span: float, ink: Color) -> void:
-	var centre := at(box, x, y)
+	var center := at(box, x, y)
 	var reach := span(box, span)
 	var outline: Array[Vector2] = [
 		Vector2(0.24, -1.0),
@@ -141,7 +141,7 @@ static func bolt(on: CanvasItem, box: Rect2, x: float, y: float, span: float, in
 	]
 	var points := PackedVector2Array()
 	for step: Vector2 in outline:
-		points.append(centre + step * reach)
+		points.append(center + step * reach)
 	on.draw_colored_polygon(points, ink)
 
 
@@ -162,11 +162,11 @@ static func spiked(
 	inner: float,
 	ink: Color
 ) -> void:
-	var centre := at(box, x, y)
+	var center := at(box, x, y)
 	var reach := span(box, span)
 	var shape := PackedVector2Array()
 	for i: int in points * 2:
 		var angle := TAU * i / float(points * 2) - PI * 0.5
 		var out := reach if i % 2 == 0 else reach * inner
-		shape.append(centre + Vector2(cos(angle), sin(angle)) * out)
+		shape.append(center + Vector2(cos(angle), sin(angle)) * out)
 	on.draw_colored_polygon(shape, ink)

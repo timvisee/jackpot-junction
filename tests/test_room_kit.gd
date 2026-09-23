@@ -150,7 +150,7 @@ func test_the_spikes_stay_in_the_pit() -> void:
 
 ## Every room paints its own face on the cash-out pad, GAME.md 8.1: a roulette wheel After Hours,
 ## a hazard border in the Yard, a machined plate on the bench. No two of them are the same set of
-## colours, which is the whole of what "map specific" means here.
+## colors, which is the whole of what "map specific" means here.
 func test_every_room_paints_its_own_cash_out_pad() -> void:
 	var seen: Array[String] = []
 	for map: String in MAPS:

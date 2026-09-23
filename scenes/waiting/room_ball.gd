@@ -130,21 +130,21 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 ## The ball off one kart: if it is inside the kart's box, out to its edge and away, bouncing off
 ## the side it met with the speed that side was coming at it. Returns [where, how fast].
 func _kick(at: Vector3, velocity: Vector3, kart: Kart) -> Array:
-	var centre := Vector3(kart.global_position.x, 0.0, kart.global_position.z)
+	var center := Vector3(kart.global_position.x, 0.0, kart.global_position.z)
 	var flat := Vector3(at.x, 0.0, at.z)
 	var basis := kart.global_basis.orthonormalized()
-	var local := basis.inverse() * (flat - centre)
+	var local := basis.inverse() * (flat - center)
 	var edge := Vector3(
 		clampf(local.x, -KART_HALF.x, KART_HALF.x), 0.0, clampf(local.z, -KART_HALF.y, KART_HALF.y)
 	)
-	var touch := centre + basis * edge
+	var touch := center + basis * edge
 	touch.y = 0.0
 	var away := flat - touch
 	var gap := away.length()
 	if gap >= RADIUS:
 		return [at, velocity]
 	# Its middle inside the kart: straight out from the kart's own middle.
-	var normal := away / gap if gap > 0.001 else (flat - centre).normalized()
+	var normal := away / gap if gap > 0.001 else (flat - center).normalized()
 	if normal.is_zero_approx():
 		normal = Vector3.RIGHT
 	var out := touch + normal * RADIUS

@@ -6,7 +6,7 @@ extends RefCounted
 var id: StringName
 var time_left := 0.0
 var finished := false
-## What the power-up that started this was called and what colour it is drawn in, so the HUD can
+## What the power-up that started this was called and what color it is drawn in, so the HUD can
 ## say what is running without knowing what any of them do, GAME.md 8.3. Filled in by the kart as
 ## an item is played; an effect nobody asked for has neither and is not shown.
 var display_name := ""

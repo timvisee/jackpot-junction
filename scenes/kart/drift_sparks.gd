@@ -5,7 +5,7 @@ extends Node3D
 ## quiet before it: the sparks are the news that the drift is worth something, so they say
 ## nothing until it is. Spending the boost throws gold off the back with a flash of light.
 ##
-## Two colours, two meanings, and nothing on the HUD: white is ready, gold is gone.
+## Two colors, two meanings, and nothing on the HUD: white is ready, gold is gone.
 
 ## The sparks a charged drift throws, and the gold of the boost being spent.
 const READY := Color(0.85, 0.87, 0.95)

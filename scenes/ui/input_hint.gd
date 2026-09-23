@@ -75,7 +75,7 @@ static func row(template: String, parts: Array, ink: Color, size: int) -> HBoxCo
 
 
 ## The same row on a dark card, for a hint that hangs in the world, where what is behind it is
-## whatever colour that stretch of the arena happens to be.
+## whatever color that stretch of the arena happens to be.
 static func card(content: Control) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE

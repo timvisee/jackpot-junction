@@ -21,7 +21,7 @@ const THROW_HEIGHT := 0.7
 var lifetime := 0.0
 ## Set when the pickup landed over a pit: it drops out of sight instead of settling.
 var falling := false
-## Height the visual hovers at, the centre of its bob. Subclasses set it in [method
+## Height the visual hovers at, the center of its bob. Subclasses set it in [method
 ## _build_visual] so the mesh clears the floor instead of sinking into it.
 var hover := 0.35
 
@@ -168,7 +168,7 @@ func _apply(_kart: Kart) -> void:
 	pass
 
 
-## What a thing lying on the floor is made of, GAME.md 8.1: moulded plastic, or metal for the
+## What a thing lying on the floor is made of, GAME.md 8.1: molded plastic, or metal for the
 ## gold ones. A little of the room's light comes back off the edge of it, which is what keeps a
 ## chip readable on a dark felt without it having to glow like a lamp.
 static func _paint(color: Color, metal := 0.0) -> StandardMaterial3D:

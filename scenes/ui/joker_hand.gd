@@ -8,7 +8,7 @@ extends Control
 ## taking, dropping or destroying a joker reads at a glance. Initials and names sit at the left
 ## edge, the strip of each card the next one leaves uncovered.
 ##
-## Every card is positioned by its bottom centre, which is also its pivot, so the fan tilt and the
+## Every card is positioned by its bottom center, which is also its pivot, so the fan tilt and the
 ## per-player scale both turn about the point the hand is held at. A key cap to the left of the
 ## hand names the button that opens the joker menu, while cards are held and the control hints
 ## setting is on, and a count on the other side says how many of the slots are taken, out of
@@ -141,7 +141,7 @@ func _place_count(right: float, baseline: float, card: Vector2) -> void:
 
 
 ## A picture of the button that opens the hand, sitting just left of it, GAME.md 8.3: a key cap
-## on a keyboard and the round coloured button on a pad. Rebuilt rather than relabelled, since a
+## on a keyboard and the round colored button on a pad. Rebuilt rather than relabeled, since a
 ## player who picks up a pad mid-match is looking at a different shape and not only a different
 ## word.
 func _place_cap(left: float, baseline: float, card: Vector2) -> void:

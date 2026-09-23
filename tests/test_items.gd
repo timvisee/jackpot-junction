@@ -117,7 +117,7 @@ func test_a_kart_at_ramming_speed_goes_through_a_crate() -> void:
 	var kart := match_node.kart_of(0)
 	await _runner.simulate_frames(12, 17)
 	var crate: Crate = match_node.arena.crates[0]
-	# Lined up a couple of metres short of the crate, pointed at it, flat out.
+	# Lined up a couple of meters short of the crate, pointed at it, flat out.
 	var at := crate.global_position
 	var approach := match_node.arena.junction_position - at
 	approach.y = 0.0
@@ -130,7 +130,7 @@ func test_a_kart_at_ramming_speed_goes_through_a_crate() -> void:
 	# Without ramming speed the box stands and the kart is stopped by it.
 	await _runner.simulate_frames(20, 17)
 	assert_bool(crate.alive).is_true()
-	# Boosting, the same run takes it out and the kart is still travelling.
+	# Boosting, the same run takes it out and the kart is still traveling.
 	var boost: BoostPowerUp = _item("boost").duplicate()
 	boost.duration = 3.0
 	boost.activate(kart)

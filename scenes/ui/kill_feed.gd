@@ -8,7 +8,7 @@ const MAX_ROWS := 5
 const HOLD := 6.0
 const FADE := 1.2
 const FONT_SIZE := 18
-## Colour for the verb between the two names, and for a death nobody gets credit for.
+## Color for the verb between the two names, and for a death nobody gets credit for.
 const NEUTRAL := Color(0.78, 0.78, 0.82)
 
 ## How a death reads, by the cause the match reports.
@@ -59,7 +59,7 @@ func add_kill(
 	label.add_theme_font_size_override("normal_font_size", FONT_SIZE)
 	label.add_theme_font_size_override("bold_font_size", FONT_SIZE)
 	label.add_theme_color_override("default_color", NEUTRAL)
-	# A line of coloured names over a bright table is a line nobody can read, GAME.md 8.3, so
+	# A line of colored names over a bright table is a line nobody can read, GAME.md 8.3, so
 	# every one of them carries its own scrim rather than trusting the felt to be dark.
 	label.add_theme_constant_override("outline_size", 6)
 	label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.75))

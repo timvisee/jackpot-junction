@@ -22,7 +22,7 @@ const QUEUE_MAX := 6
 ## and the client is corrected for it. Two ticks of slack is a thirtieth of a second of delay
 ## for everyone watching, and nothing at all for the player driving, who is not waiting on this.
 const QUEUE_REFILL := 2
-## How far a client's kart may be from where the host had it and still be believed, in metres. A
+## How far a client's kart may be from where the host had it and still be believed, in meters. A
 ## tick of driving is a fifth of this at top speed, so anything past it is not a difference of
 ## opinion about physics: it is a kart somewhere else, and the host drives it itself instead.
 const CLAIM_REACH := 2.0

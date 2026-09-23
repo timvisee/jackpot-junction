@@ -133,9 +133,9 @@ func test_hints_are_named_for_the_scheme_in_use() -> void:
 	assert_int(pad_glyph.kind).is_equal(InputGlyph.Kind.SHOULDER)
 
 
-## GAME.md 8.3: a life is a heart, in the player's colour while it is theirs and grey once it
+## GAME.md 8.3: a life is a heart, in the player's color while it is theirs and gray once it
 ## is spent. A square said "one of something" and left you to work out what.
-func test_lives_are_hearts_that_grey_out_as_they_are_lost() -> void:
+func test_lives_are_hearts_that_gray_out_as_they_are_lost() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(20, 17)
 	var hud := match_node.hud
@@ -147,7 +147,7 @@ func test_lives_are_hearts_that_grey_out_as_they_are_lost() -> void:
 		assert_object(pip).is_instanceof(Heart)
 	hud._update_blocks()
 	assert_object((pips[0] as Heart).color).is_equal(match_node.slots[0].color())
-	# A life short: the last heart goes grey while the rest keep their colour.
+	# A life short: the last heart goes gray while the rest keep their color.
 	kart.lives = match_node.rules.lives - 1
 	hud._update_blocks()
 	assert_object((pips[0] as Heart).color).is_equal(match_node.slots[0].color())
@@ -336,7 +336,7 @@ func test_a_running_power_up_says_what_it_is_and_how_long_is_left() -> void:
 	# Nothing running: no line for it.
 	hud._update_blocks()
 	assert_bool(row.running.get_parent().visible).is_false()
-	# One playing: its own name, in its own colour, with the time left beside it.
+	# One playing: its own name, in its own color, with the time left beside it.
 	kart.held_item = BOOST
 	kart.item_reveal_left = 0.0
 	kart.use_item()

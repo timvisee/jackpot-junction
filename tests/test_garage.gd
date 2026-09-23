@@ -10,7 +10,7 @@ const RULES: MatchRules = preload("res://data/match/garage.tres")
 var _runner: GdUnitSceneRunner
 
 
-func test_the_map_has_one_of_everything_to_practise_on() -> void:
+func test_the_map_has_one_of_everything_to_practice_on() -> void:
 	assert_array(LAYOUT.validate()).is_empty()
 	var grid := LAYOUT.parse()
 	# Four spawn points: two for players and two for the dummies to stand on.

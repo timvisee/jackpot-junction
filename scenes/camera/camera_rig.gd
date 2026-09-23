@@ -16,12 +16,12 @@ const TREMBLE_SHAKE := 0.2
 ## a pixel on any screen anybody has.
 const AIM_STEPS := 24
 ## And how many the look-ahead is trimmed in, see [method _afforded]. Fewer, because the answer is
-## a lead in metres rather than a position on the screen: a tenth of a metre is nobody's business.
+## a lead in meters rather than a position on the screen: a tenth of a meter is nobody's business.
 const LEAD_STEPS := 10
-## How wide the band between sharp and soft is, in metres: wide enough that nothing snaps into
+## How wide the band between sharp and soft is, in meters: wide enough that nothing snaps into
 ## focus as the rig comes in or pulls out.
 const FOCUS_BAND := 22.0
-## Metres of floor left round the arena in the shot a match opens on, on top of the margin the
+## Meters of floor left round the arena in the shot a match opens on, on top of the margin the
 ## rig always leaves. A player who has just picked a map should see the map, and a little of the
 ## room round it, before the rig comes in and makes the karts the subject.
 const ROOM_MARGIN := 3.0
@@ -35,7 +35,7 @@ const ROOM_MARGIN := 3.0
 ## the margin that keeps a kart off the very edge of the screen.
 @export var zoom_min := 0.93
 @export var smoothing := 0.6
-## Metres of floor left around the karts when the camera comes in on them, and the closest it is
+## Meters of floor left around the karts when the camera comes in on them, and the closest it is
 ## ever allowed to get however tightly they are packed.
 @export var follow_margin := 4.0
 @export var follow_min_distance := 24.0
@@ -44,18 +44,18 @@ const ROOM_MARGIN := 3.0
 @export var distance_smoothing := 1.2
 @export var shake_decay := 4.0
 ## How far ahead of the karts being driven on this machine the camera looks: seconds of travel at
-## whatever speed they are doing, and the most that is ever worth in metres, so a turbo does not
+## whatever speed they are doing, and the most that is ever worth in meters, so a turbo does not
 ## fling the aim off across the floor. Zero looks straight at them.
 @export var lead_seconds := 0.45
 @export var lead_limit := 6.0
 ## And what the look-ahead may cost, as a fraction of the distance the rig would be at without it.
 ## Sliding the aim ahead pushes whatever is behind towards the edge of the screen and the fit
-## answers by pulling back: given its head, seven metres of lead took the camera half again as far
+## answers by pulling back: given its head, seven meters of lead took the camera half again as far
 ## out in a close fight, which is a worse picture than the one it was fixing.
 @export var lead_cost := 0.12
 ## And how much of the margin of floor behind the karts it may take while it is at it. Floor
 ## behind a kart is floor nobody is looking at: handed to the road ahead it comes off the trailing
-## side of what is framed rather than out of the distance, so the first few metres of lead are
+## side of what is framed rather than out of the distance, so the first few meters of lead are
 ## free rather than merely cheap.
 @export var lead_margin := 0.7
 ## How far above the floor the ears sit, so a kart right under them is not at zero distance.
@@ -90,7 +90,7 @@ var _arena_lift := 0.0
 var _room_distance := 40.0
 var _room_lift := 0.0
 ## And the same with the margin given back, which is where the fixed camera of 8.5 sits. The
-## framing the rig waits at leaves a metre of floor round the arena because it is a shot waiting
+## framing the rig waits at leaves a meter of floor round the arena because it is a shot waiting
 ## for karts to arrive into; one held for a whole match knows where they are and can spare it.
 var _fixed_distance := 40.0
 var _fixed_lift := 0.0
@@ -172,7 +172,7 @@ func frame_arena(bounds: AABB) -> void:
 
 
 ## Opens back out to the whole arena over [param seconds] and stays there, for the lap of
-## honour at the whistle, GAME.md 8.2. A slow pull rather than a cut: the match is over, and the
+## honor at the whistle, GAME.md 8.2. A slow pull rather than a cut: the match is over, and the
 ## last thing it does is hand the room back.
 func show_the_room(seconds: float) -> void:
 	_opening_up = true
@@ -255,14 +255,14 @@ func _process(delta: float) -> void:
 func _place_listener() -> void:
 	if listener == null:
 		return
-	var centre := _center + _pan
+	var center := _center + _pan
 	var alive := _valid(listener_targets)
 	if not alive.is_empty():
-		centre = Vector3.ZERO
+		center = Vector3.ZERO
 		for target: Node3D in alive:
-			centre += target.global_position
-		centre /= alive.size()
-	listener.global_position = Vector3(centre.x, listener_height, centre.z)
+			center += target.global_position
+		center /= alive.size()
+	listener.global_position = Vector3(center.x, listener_height, center.z)
 	listener.global_basis = camera.global_basis
 
 
@@ -272,7 +272,7 @@ func _place_listener() -> void:
 ##
 ## The opening shot of 8.2 still happens and the rig still comes in from it. That move is the map
 ## being shown rather than the karts being chased, and a fixed camera that also refused to arrive
-## would leave every match three metres further out than it belongs. What it never does is go
+## would leave every match three meters further out than it belongs. What it never does is go
 ## anywhere the karts go.
 ##
 ## Off in the driving rooms of 9.4a, which have no arena to hold and are following a kart down a
@@ -317,13 +317,13 @@ func _target_pan() -> Vector3:
 ##
 ## The rig frames every kart, which puts the middle of all of them in the middle of the screen; for
 ## the player at the wheel that is as much screen behind their kart as in front, and what a driver
-## needs is the road ahead. This slides the aim the way they are actually travelling -- travel
+## needs is the road ahead. This slides the aim the way they are actually traveling -- travel
 ## rather than facing, so a kart sliding out of a corner leads the way it is really going -- by
 ## however far they would get in [member lead_seconds]. Standing still it is nothing, so a kart
 ## waiting on the grid still sits in the middle.
 ##
 ## Only the karts somebody is driving here get it. A rival's kart is something to watch, not
-## somewhere to look, and leading for all four would be four leads cancelling each other out.
+## somewhere to look, and leading for all four would be four leads canceling each other out.
 func _lead(alive: Array[Node3D], at: Vector3) -> Vector3:
 	var driven := _valid(listener_targets)
 	if lead_seconds <= 0.0 or driven.is_empty():
@@ -393,7 +393,7 @@ func _target_framing() -> Vector2:
 ##
 ## With a [param lead] on, up to [member lead_margin] of that margin comes off the trailing side.
 ## Floor behind a kart is floor nobody is looking at, and taking it there rather than out of the
-## distance is what makes the first few metres of look-ahead free: the trailing corner ends up
+## distance is what makes the first few meters of look-ahead free: the trailing corner ends up
 ## exactly as far from the aim as it was before the aim moved.
 func _framed_corners(alive: Array[Node3D], lead: Vector3) -> Array[Vector3]:
 	var box := _target_box(alive).grow(follow_margin)

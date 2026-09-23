@@ -4,12 +4,12 @@ Run with `make textures`, which writes assets/textures. Needs numpy and pillow.
 
 Everything here is periodic: the noise is built by filtering white noise in the
 frequency domain, which wraps by construction, so a slab the size of a table can
-be tiled out of it without a seam. Albedo maps are greyscale around 1.0 and are
-multiplied by the room's own colour, so one felt serves a green table and a slate
+be tiled out of it without a seam. Albedo maps are grayscale around 1.0 and are
+multiplied by the room's own color, so one felt serves a green table and a slate
 one; normal maps carry what little relief there is.
 
 Two things decide how these look. The first is the distance they are seen from:
-from forty metres up a two-centimetre weave is nothing, so each map carries
+from forty meters up a two-centimeter weave is nothing, so each map carries
 something coarse enough to survive that -- the boards in the table, the wear in
 the felt, the joints between slabs -- with finer grain under it. The second is
 that a surface should read as the thing it is rather than as noise: baize is an
@@ -51,8 +51,8 @@ def octaves(scales, weights, stretch=1.0):
     return out / peak if peak > 0 else out
 
 
-def grey(field, middle=1.0, spread=0.06):
-    """A greyscale albedo map: `middle` with `spread` of variation either way."""
+def gray(field, middle=1.0, spread=0.06):
+    """A grayscale albedo map: `middle` with `spread` of variation either way."""
     values = np.clip(middle + field * spread, 0.0, 1.0)
     return Image.fromarray((values * 255.0).astype(np.uint8), mode="L")
 
@@ -94,7 +94,7 @@ def band_index(count):
 # --- felt: baize. An even nap with the table's own unevenness under it -------
 nap = octaves([2.0, 4.0], [1.0, 0.5])
 wear = octaves([260.0, 110.0], [1.0, 0.5])
-save(grey(wear * 0.85 + nap * 0.3, 1.0, 0.055), "felt_albedo.png")
+save(gray(wear * 0.85 + nap * 0.3, 1.0, 0.055), "felt_albedo.png")
 save(normal_map(nap, 3.0), "felt_normal.png")
 
 # --- wood: finished boards. Long straight grain, seams you can just see ------
@@ -104,20 +104,20 @@ tone = np.take(RNG.uniform(-1.0, 1.0, PLANKS), band_index(PLANKS))
 grain = octaves([3.0, 9.0, 30.0], [0.6, 1.0, 0.7], stretch=26.0)
 figure = octaves([90.0], [1.0], stretch=8.0)
 wood = grain * 0.55 + figure * 0.5 + tone * 0.35
-save(grey(wood - seam * 0.9, 1.0, 0.075), "wood_albedo.png")
+save(gray(wood - seam * 0.9, 1.0, 0.075), "wood_albedo.png")
 save(normal_map(grain * 0.25 - seam * 0.8, 3.0), "wood_normal.png")
 
 # --- paint: a coat rolled onto a block. Nearly flat, a little uneven ---------
 coat = octaves([9.0], [1.0])
 uneven = octaves([200.0], [1.0])
-save(grey(uneven * 0.9 + coat * 0.25, 1.0, 0.04), "paint_albedo.png")
+save(gray(uneven * 0.9 + coat * 0.25, 1.0, 0.04), "paint_albedo.png")
 save(normal_map(coat, 1.6), "paint_normal.png")
 
 # --- stone: poured concrete. Fine aggregate, soft joints, the odd patch ------
 joint = np.maximum(seams(3, 0.008), seams(3, 0.008, along_x=True))
 aggregate = octaves([2.5, 7.0], [1.0, 0.6])
 patches = octaves([220.0, 70.0], [1.0, 0.55])
-save(grey(patches * 0.8 + aggregate * 0.35 - joint * 0.9, 1.0, 0.06), "stone_albedo.png")
+save(gray(patches * 0.8 + aggregate * 0.35 - joint * 0.9, 1.0, 0.06), "stone_albedo.png")
 save(normal_map(aggregate * 0.3 - joint * 1.0, 4.0), "stone_normal.png")
 
 
@@ -126,7 +126,7 @@ save(normal_map(aggregate * 0.3 - joint * 1.0, 4.0), "stone_normal.png")
 # Not materials but pictures: the card room leaves cards lying about, and a card the size of a
 # kart that is a white rectangle reads as a white rectangle. These are drawn rather than filtered
 # -- a field, a border, a pip in the middle and one in the corner -- at a size that survives being
-# looked at from forty metres up, which is all the detail a card at that distance can carry. One
+# looked at from forty meters up, which is all the detail a card at that distance can carry. One
 # per suit, because a hand of four identical cards is not a hand.
 
 CARD = (356, 256)
@@ -234,8 +234,8 @@ save(Image.fromarray((back * 255.0).astype(np.uint8), mode="RGB"), "card_back.pn
 
 # --- chips and dice ----------------------------------------------------------
 #
-# Both are wrapped round a shape rather than laid on a flat one, and both are greyscale so that
-# the chip takes its stack's colour and the die stays ivory. A chip is known by the notches round
+# Both are wrapped round a shape rather than laid on a flat one, and both are grayscale so that
+# the chip takes its stack's color and the die stays ivory. A chip is known by the notches round
 # its edge and the ring inside its face. A die is not here: a box maps one picture across its six
 # faces in pieces, so the pips on one are drawn as pips rather than printed.
 

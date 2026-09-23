@@ -1,6 +1,6 @@
 class_name DecoyKartPowerUp
 extends PowerUp
-## Decoy Kart: a bot-driven copy of your kart in your colour. Its kills and coins credit you; it
+## Decoy Kart: a bot-driven copy of your kart in your color. Its kills and coins credit you; it
 ## lives a while or until it takes one hit, and it can hit you.
 
 @export var lifetime := 20.0
@@ -16,7 +16,7 @@ func activate(kart: Kart) -> void:
 	decoy.slot = kart.slot
 	decoy.color_index = kart.color_index
 	# Dressed the same, GAME.md 4.4. A decoy is only worth anything for as long as somebody takes
-	# it for you, and a kart in your colour with none of your things on it is not you.
+	# it for you, and a kart in your color with none of your things on it is not you.
 	decoy.style = kart.style
 	decoy.rules = kart.rules
 	decoy.rng = kart.rng

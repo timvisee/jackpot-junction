@@ -6,7 +6,7 @@ extends GPUParticles3D
 
 const BASE_RATIO := 0.15
 
-## The player's colour, for the trails that are made of it.
+## The player's color, for the trails that are made of it.
 var color := Color.WHITE
 ## Which of [constant KartStyle.TRAILS] this kart leaves.
 var trail := 0
@@ -36,7 +36,7 @@ func _build() -> void:
 	var mesh: Mesh = null
 	match trail:
 		1:
-			# Sparks: small, bright, in the player's colour, thrown up and gone quickly.
+			# Sparks: small, bright, in the player's color, thrown up and gone quickly.
 			lifetime = 0.7
 			process.spread = 25.0
 			process.initial_velocity_min = 1.2

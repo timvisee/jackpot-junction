@@ -39,7 +39,7 @@ var _corrections := 0
 var _worst_correction := 0.0
 var _deepest_replay := 0
 ## The worst single tick of movement the kart made that its own speed does not account for: what
-## a correction actually looks like from the seat, in metres. A kart driving smoothly reads zero
+## a correction actually looks like from the seat, in meters. A kart driving smoothly reads zero
 ## here however much it is being corrected underneath.
 var _worst_jump := 0.0
 var _worst_turn := 0.0
@@ -230,7 +230,7 @@ func _report() -> String:
 
 ## The whole point, as a number: how many ticks pass between the throttle going down and the
 ## kart moving. On this machine it has to be the same tick. On the host it cannot be, because the
-## packet is still travelling, and that gap is exactly what a player used to sit through.
+## packet is still traveling, and that gap is exactly what a player used to sit through.
 func test_your_own_kart_answers_the_stick_at_once() -> void:
 	await _connect()
 	await _drive(10)
@@ -320,7 +320,7 @@ func test_a_predicted_kart_stays_where_the_host_has_it() -> void:
 
 
 ## What the report asked for last: when the two do end up disagreeing, the host's word puts it
-## right. Nothing in the game moves a kart four metres sideways, so this does it by hand, which
+## right. Nothing in the game moves a kart four meters sideways, so this does it by hand, which
 ## is a harsher test than anything a dropped packet could manage.
 func test_a_kart_knocked_out_of_step_is_put_back() -> void:
 	await _connect()
@@ -337,7 +337,7 @@ func test_a_kart_knocked_out_of_step_is_put_back() -> void:
 	prints("MEASURE knocked out of step:", _report())
 	(
 		assert_int(_corrections)
-		. override_failure_message("nothing noticed the kart was four metres out")
+		. override_failure_message("nothing noticed the kart was four meters out")
 		. is_greater(0)
 	)
 	(
@@ -345,7 +345,7 @@ func test_a_kart_knocked_out_of_step_is_put_back() -> void:
 		. override_failure_message(_report())
 		. is_less(1.5)
 	)
-	# This one is meant to show. Four metres out is a kart somewhere it is not, and gliding it
+	# This one is meant to show. Four meters out is a kart somewhere it is not, and gliding it
 	# back across the room would be stranger to watch than arriving. Some of it is still walked
 	# off rather than all of it landing at once.
 	assert_float(_worst_jump).override_failure_message(_report()).is_greater(1.0)
@@ -492,7 +492,7 @@ func test_a_kart_falls_down_a_hole_when_it_drives_into_one() -> void:
 
 ## A box taken at ramming speed, GAME.md 6.2. Passing through one is right, but the box has to go
 ## with it: a client that drove through a box still standing on its own screen is a kart seen
-## ploughing through solid scenery until the snapshot catches up.
+## plowing through solid scenery until the snapshot catches up.
 func test_a_box_driven_through_goes_off_the_floor_here() -> void:
 	await _connect()
 	var crate: Crate = _client.arena.crates[0]
@@ -581,7 +581,7 @@ func test_a_claim_from_nowhere_is_refused() -> void:
 	_running = false
 	(
 		assert_float(_host.kart_of(0).global_position.distance_to(was_at))
-		. override_failure_message("a kart was moved twelve metres by asking")
+		. override_failure_message("a kart was moved twelve meters by asking")
 		. is_less(3.0)
 	)
 	(
@@ -649,8 +649,8 @@ func test_a_correction_lights_the_sync_indicator() -> void:
 	await _drive(30)
 	var seen: Array[float] = []
 	var snapped: Array[bool] = []
-	var listener := func(metres: float, was_snap: bool) -> void:
-		seen.append(metres)
+	var listener := func(meters: float, was_snap: bool) -> void:
+		seen.append(meters)
 		snapped.append(was_snap)
 	Events.kart_corrected.connect(listener)
 	# Knocked well out of place, which is the loud kind.

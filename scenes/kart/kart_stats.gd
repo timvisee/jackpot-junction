@@ -39,16 +39,16 @@ enum Model {
 @export var yaw_rate_low_deg := 200.0
 @export var yaw_rate_high_deg := 110.0
 @export var min_steer_speed := 0.5
-## Seconds for the applied steering to go from centre to full lock; 0 is instant.
+## Seconds for the applied steering to go from center to full lock; 0 is instant.
 @export var steer_ramp_up := 0.0
-## Seconds for the applied steering to return to centre; 0 is instant.
+## Seconds for the applied steering to return to center; 0 is instant.
 @export var steer_ramp_down := 0.0
-## Exponent on the stick deflection; 1 is linear, higher gives finer control near centre.
+## Exponent on the stick deflection; 1 is linear, higher gives finer control near center.
 @export var stick_curve := 1.0
 ## Turning speed while standing still, to line up a shot; 0 disables it.
 @export var turn_in_place_rate_deg := 70.0
 ## Speed by which the turn on the spot has faded out entirely and the kart is turning on its
-## wheels alone. Manoeuvring in a corner crosses this range constantly, and a hard switch
+## wheels alone. Maneuvering in a corner crosses this range constantly, and a hard switch
 ## between the two rates is felt every time; 0 keeps that switch, at [member min_steer_speed].
 @export var pivot_blend_speed := 2.2
 

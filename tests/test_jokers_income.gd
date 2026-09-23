@@ -1,6 +1,6 @@
 extends GdUnitTestSuite
-## The jokers that pay their holder of their own accord, GAME.md 7.3: a tick of time, a metre
-## driven or a metre drifted turned into coins, mult or banked points. [JokerTick] is called
+## The jokers that pay their holder of their own accord, GAME.md 7.3: a tick of time, a meter
+## driven or a meter drifted turned into coins, mult or banked points. [JokerTick] is called
 ## directly where a figure has to be exact, since a match running underneath the test is paying
 ## the same jokers on its own clock.
 
@@ -58,7 +58,7 @@ func test_hot_streak_climbs_the_mult_on_its_own() -> void:
 	assert_float(kart.pot.mult).is_equal(start + 2.0)
 
 
-func test_the_odometer_pays_by_the_metre() -> void:
+func test_the_odometer_pays_by_the_meter() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)
 	var kart := _armed(match_node, "odometer")
@@ -74,7 +74,7 @@ func test_the_odometer_pays_by_the_metre() -> void:
 	assert_int(kart.pot.coins).is_equal(4)
 
 
-func test_tailslide_pays_only_for_metres_driven_sideways() -> void:
+func test_tailslide_pays_only_for_meters_driven_sideways() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)
 	var kart := _armed(match_node, "tailslide")

@@ -47,8 +47,8 @@ func test_four_numbers_survive_a_round_trip_and_nonsense_is_dropped() -> void:
 	assert_array(Array(KartStyle.from_array(null).to_array())).contains_exactly([0, 0, 0, 0])
 
 
-## The paint is a pattern laid over the player's colour, not instead of it.
-func test_paint_keeps_the_player_colour_and_only_the_plain_one_has_no_pattern() -> void:
+## The paint is a pattern laid over the player's color, not instead of it.
+func test_paint_keeps_the_player_color_and_only_the_plain_one_has_no_pattern() -> void:
 	var plain := KartDress.paint(Palette.player_color(0), KartStyle.new())
 	assert_object(plain.albedo_color).is_equal(Palette.player_color(0))
 	assert_object(plain.albedo_texture).is_null()

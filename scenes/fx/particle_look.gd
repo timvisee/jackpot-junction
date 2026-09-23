@@ -3,7 +3,7 @@ extends RefCounted
 ## How the particles in this game are drawn, GAME.md 8.1. Sparks, smoke and flame all want the
 ## same three things of their material: no lighting, because a puff of smoke lit by the room's
 ## lamps reads as a solid object; alpha, because they fade rather than vanish; and the particle's
-## own colour taken from its vertex colours, which is what carries the colour ramp. The chunks a
+## own color taken from its vertex colors, which is what carries the color ramp. The chunks a
 ## [Burst] throws are the exception and are lit, since they are meant to read as solid.
 ##
 ## Named here because a particle that misses one of the three does not fail, it simply looks

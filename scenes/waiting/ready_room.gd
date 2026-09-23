@@ -13,7 +13,7 @@ extends Node
 ## once, which is the honest reading of a pad somebody is not on: a room that starts because
 ## everybody was ready a moment ago starts without them.
 ##
-## Each player charges their own arc of the ring, in their own colour, so that a room with four
+## Each player charges their own arc of the ring, in their own color, so that a room with four
 ## people in it can see which of them the pad has taken and which of them it is waiting for.
 
 ## Everybody has been ready for [constant GO_DELAY]: the ring has gone green and the room is
@@ -25,7 +25,7 @@ signal everybody_ready
 const CHARGE_TIME := 2.5
 ## A full house turns the whole ring green and holds it, and the room goes a second after it
 ## filled. Green all the way round is the room saying everybody is in, for as long as that is
-## true: somebody rolling off takes the green away with them. The glow carries the colour over a
+## true: somebody rolling off takes the green away with them. The glow carries the color over a
 ## darker body, since a block lit on both counts on the bright garage floor reads as mint.
 const GREEN_GLOW := 1.2
 const GREEN_BODY := 0.6
@@ -216,7 +216,7 @@ func _karts_on_the_pad() -> Dictionary[int, bool]:
 	return standing
 
 
-## The ring, split between whoever is in the room: an arc each, in their own colour, filling as
+## The ring, split between whoever is in the room: an arc each, in their own color, filling as
 ## they hold the pad. One ring showing the furthest anybody had got read as one pad filling, which
 ## in a room of four says nothing about which of them it has taken.
 func _paint_ring() -> void:

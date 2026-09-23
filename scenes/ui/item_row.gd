@@ -5,7 +5,7 @@ extends VBoxContainer
 ## Three lines in one place, because they are one question: an item is picked up, held, played,
 ## and then it is doing something. The first is the item in hand, with its own picture beside its
 ## name. Under it is whatever that item started and has still to finish -- an effect counting down
-## in seconds, a cannon counting down in shots -- named the same and in the same colour. None of
+## in seconds, a cannon counting down in shots -- named the same and in the same color. None of
 ## the lines is there when there is nothing for it to say.
 
 ## The picture beside the name, and how fast the picture flicks through the others while the box

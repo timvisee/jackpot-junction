@@ -119,7 +119,7 @@ func _ready() -> void:
 
 
 ## Builds the arena, spawns one kart per input and starts the countdown. A zero seed picks a
-## random one; [param colors] gives each slot its colour index, slot order when empty.
+## random one; [param colors] gives each slot its color index, slot order when empty.
 func start(
 	inputs: Array[KartInput],
 	seed: int = 0,
@@ -250,14 +250,14 @@ func join_human(device: int) -> PlayerSlot:
 	return _join_with_input(PlayerInput.new(device))
 
 
-func _join_with_input(input: KartInput, colour := -1) -> PlayerSlot:
-	var seat := PlayerSlot.bot_seat(slots, colour)
+func _join_with_input(input: KartInput, wanted_color := -1) -> PlayerSlot:
+	var seat := PlayerSlot.bot_seat(slots, wanted_color)
 	if seat != null:
 		_make_human(seat, input)
 		return seat
 	if slots.size() >= rules.max_players or arena == null:
 		return null
-	var slot := PlayerSlot.new(slots.size(), input, _free_color(colour))
+	var slot := PlayerSlot.new(slots.size(), input, _free_color(wanted_color))
 	slot.player_name = _name_for(slot.index, input)
 	slot.style = _style_for(slot.index)
 	slots.append(slot)
@@ -430,8 +430,8 @@ func kart_of(slot_index: int) -> Kart:
 
 
 ## A remote player joins through the network session: like a local join, with a [NetInput].
-func join_network(input: NetInput, colour := -1) -> PlayerSlot:
-	return _join_with_input(input, colour)
+func join_network(input: NetInput, wanted_color := -1) -> PlayerSlot:
+	return _join_with_input(input, wanted_color)
 
 
 ## Builds a client-side match: the arena, camera and HUD without simulation. Slots, karts,
@@ -726,16 +726,16 @@ func _finish() -> void:
 
 
 ## GAME.md 8.1: at the whistle every head leaves its sweep and swings onto whoever won, so the
-## winner takes their lap of honour in the spotlight. Whoever that is: a bot that has out-driven
+## winner takes their lap of honor in the spotlight. Whoever that is: a bot that has out-driven
 ## the room gets the rig the same as a player, and a leader lying in a pit at the whistle is
 ## still where the beams go, since what the rig follows is the top of the standings rather than
 ## whoever happens to be on their wheels. Public because a client reaches the whistle by being
-## told about it rather than by running one, and the lap of honour is for everybody.
+## told about it rather than by running one, and the lap of honor is for everybody.
 func spotlight_winner() -> void:
 	var winner := standings()[0]
 	if winner.kart != null:
 		arena.disco.focus(winner.kart)
-	# And the room throws fireworks in their colour, GAME.md 8.3. For whoever won rather than
+	# And the room throws fireworks in their color, GAME.md 8.3. For whoever won rather than
 	# for the kart, which may well be lying in a pit at the whistle.
 	Fireworks.celebrate(self, arena.bounds(), winner.color(), CELEBRATION)
 	# And the camera lets the room back in, GAME.md 8.2, over the same pause the podium waits out
@@ -806,7 +806,7 @@ func _step_flush_income(delta: float) -> void:
 		if kart == null or not kart.is_active():
 			continue
 		kart.collect_coins(coins, null)
-		# While a flush is resting the pads wear nobody's colour, so the rings say whose flush
+		# While a flush is resting the pads wear nobody's color, so the rings say whose flush
 		# is still being paid out.
 		pad.pop_halo(slots[slot].color() if locked >= 0 else Color.TRANSPARENT)
 

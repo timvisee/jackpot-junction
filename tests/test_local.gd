@@ -1,5 +1,5 @@
 extends GdUnitTestSuite
-## Local multiplayer from GAME.md 9.2: joining in the lobby, colours, joining mid-match by taking
+## Local multiplayer from GAME.md 9.2: joining in the lobby, colors, joining mid-match by taking
 ## over a bot or a free slot, and handing a kart back to a bot.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
@@ -21,7 +21,7 @@ func _start_match(inputs: Array[KartInput], colors: Array[int] = []) -> Match:
 	return match_node
 
 
-func test_lobby_join_claims_p1_then_adds_and_drops_players_with_distinct_colours() -> void:
+func test_lobby_join_claims_p1_then_adds_and_drops_players_with_distinct_colors() -> void:
 	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
 	add_child(lobby)
 	assert_int(lobby.devices[0]).is_equal(DeviceInput.ANY)
@@ -46,7 +46,7 @@ func test_lobby_join_claims_p1_then_adds_and_drops_players_with_distinct_colours
 	assert_array(config.colors()).contains_exactly([0, 3, 1, 2])
 
 
-func test_colours_reach_karts_and_slots() -> void:
+func test_colors_reach_karts_and_slots() -> void:
 	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
 	var match_node := _start_match(inputs, [5, 2])
 	assert_int(match_node.slots[0].color_index).is_equal(5)

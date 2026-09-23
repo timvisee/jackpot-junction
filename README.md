@@ -15,7 +15,7 @@ Three arenas, three rooms to play them in.
 
 *Lucky Crossing, on The Workbench.*
 
-![A dark card room with a green baize arena on the table in the middle of it, the only lit thing in the room. A roulette wheel of red and black pockets is let into the baize at the centre, with stacks of red chips and fanned playing cards round the walls and dice on the cloth beyond them. Neon signs hang over a crowd reduced to shapes with light along their edges, and the match clock glows orange above the far edge](docs/the-vault.png)
+![A dark card room with a green baize arena on the table in the middle of it, the only lit thing in the room. A roulette wheel of red and black pockets is let into the baize at the center, with stacks of red chips and fanned playing cards round the walls and dice on the cloth beyond them. Neon signs hang over a crowd reduced to shapes with light along their edges, and the match clock glows orange above the far edge](docs/the-vault.png)
 
 *The Vault, After Hours.*
 
@@ -28,7 +28,7 @@ Three arenas, three rooms to play them in.
 - **Single-player**: Play, pick an arena, match length, target score, bots and
   difficulty, start. Bots use the same karts, items and jokers you do.
 - **Local multiplayer**: in the lobby or mid-match, press Start on a gamepad or
-  J on the keyboard to join. Steer left or right in the lobby to change colour,
+  J on the keyboard to join. Steer left or right in the lobby to change color,
   and give each seat a name and a kart to dress.
 - **Online**: Play online, host on a port or join a friend's address directly.
   The host runs the match; joining players take over bot karts.

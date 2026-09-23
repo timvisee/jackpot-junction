@@ -1,7 +1,7 @@
 class_name ArenaNav
 extends RefCounted
 ## Pathfinding over the arena grid with AStarGrid2D: walls, crates and pits are solid, crates
-## come and go. Paths are lists of cell centres in world space.
+## come and go. Paths are lists of cell centers in world space.
 ##
 ## Pits need more than being solid. A wall stops a kart that cuts a corner; a pit swallows it,
 ## and nothing on the way to one gets in the way of a raycast, so anything taking a short cut
@@ -45,9 +45,9 @@ func is_pit_at(point: Vector3) -> bool:
 ## here" has to ask about a body rather than about a point.
 func is_pit_within(point: Vector3, margin: float) -> bool:
 	for rect: Rect2i in grid.pits:
-		var centre := grid.rect_center(rect)
+		var center := grid.rect_center(rect)
 		var half := grid.rect_size(rect) * 0.5 + Vector2.ONE * margin
-		if absf(point.x - centre.x) <= half.x and absf(point.z - centre.z) <= half.y:
+		if absf(point.x - center.x) <= half.x and absf(point.z - center.z) <= half.y:
 			return true
 	return false
 

@@ -3,12 +3,12 @@ extends RefCounted
 ## A picture for every power-up, GAME.md 8.3a, drawn from the same vocabulary as the joker
 ## pictures so the two sets read as one hand's work.
 ##
-## Each is drawn in the item's own colour, which the item carries, so the picture never names a
-## colour itself. An item is picked up, held and played in a second or two, and a name read off
+## Each is drawn in the item's own color, which the item carries, so the picture never names a
+## color itself. An item is picked up, held and played in a second or two, and a name read off
 ## the HUD in that time is a name read instead of a corner taken.
 
 
-## A control that draws one power-up's picture, square and centred in whatever room it is given.
+## A control that draws one power-up's picture, square and centered in whatever room it is given.
 class Picture:
 	extends Control
 

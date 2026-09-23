@@ -19,7 +19,7 @@ extends Node3D
 ## Everything here is scenery: no collision, nothing to drive into, nothing that decides
 ## anything. A client runs its own crowd off the same events, GAME.md 10.3.
 
-## Metres between two places along a row, between the first rows, and between the wall and the
+## Meters between two places along a row, between the first rows, and between the wall and the
 ## front row. A house is packed at the rail and thins out behind it, so both the gap along a row
 ## and the gap to the next one grow by [constant SPREAD] a row as they go back: the front rows
 ## are shoulder to shoulder and the back ones are knots of people with space around them.
@@ -47,9 +47,9 @@ const STAND_LENGTH := Vector2(7.0, 13.0)
 const TIER := 0.4
 const CORNER_CLEARANCE := 2.5
 const STAND_MARGIN := 0.7
-## How far out into the band the booth stands, in metres, and the patch of table it is given: the
+## How far out into the band the booth stands, in meters, and the patch of table it is given: the
 ## booth is in the crowd rather than behind it, so people who would be standing where it is go
-## somewhere else instead. In metres rather than in rows, because the rows are not evenly spaced:
+## somewhere else instead. In meters rather than in rows, because the rows are not evenly spaced:
 ## it has to leave a couple of them in front of it whatever the spacing behind it does.
 const BOOTH_OUT := 2.9
 const BOOTH_CLEARANCE := Vector2(7.4, 1.5)
@@ -117,10 +117,10 @@ void vertex() {
 	VERTEX.xy = vec2(VERTEX.x * c - VERTEX.y * s, VERTEX.x * s + VERTEX.y * c);
 }
 """
-## The shirt takes the colour rolled for that figure; the face takes its alpha, which is how dark
-## this one is, so both surfaces are told apart by one instance colour. Both are written straight
-## to albedo, which is read as light rather than as a colour off a screen, so the values here and
-## the ones in the instance buffer are the linear ones: an sRGB colour put in raw comes out of a
+## The shirt takes the color rolled for that figure; the face takes its alpha, which is how dark
+## this one is, so both surfaces are told apart by one instance color. Both are written straight
+## to albedo, which is read as light rather than as a color off a screen, so the values here and
+## the ones in the instance buffer are the linear ones: an sRGB color put in raw comes out of a
 ## crowd of a thousand as a wash of pastel.
 ## A crowd is lit by its room rather than by itself: [code]dim[/code] is how brightly it is lit
 ## against the table, and the rim is the light along the edges of everybody, which is what makes
@@ -149,7 +149,7 @@ void fragment() {
 """
 
 ## The room this crowd is standing in, GAME.md 8.1: what they are wearing, how brightly they
-## are lit and what colour the light on their edges is.
+## are lit and what color the light on their edges is.
 var room: RoomLook
 ## The excitement level of the match, 0 to 6. The match keeps it up to date.
 var level := 0
@@ -183,7 +183,7 @@ var _lean := RESTING_LEAN
 var _rng := RandomNumberGenerator.new()
 
 
-## Fills the table around an arena of [param size] metres with onlookers.
+## Fills the table around an arena of [param size] meters with onlookers.
 static func add_to(parent: Node3D, size: Vector2, in_room: RoomLook = null) -> Crowd:
 	var crowd := Crowd.new()
 	crowd.name = "Crowd"
@@ -374,7 +374,7 @@ func _stand(at: Vector3, row: int) -> void:
 	_spots.append(Transform3D(turned.scaled(Vector3.ONE * size), spot))
 	var shirt := _wardrobe().srgb_to_linear()
 	# The alpha is not transparency: it is how dark this one's face is, carried along with the
-	# shirt so that one instance colour dresses both surfaces.
+	# shirt so that one instance color dresses both surfaces.
 	shirt.a = _rng.randf_range(0.0, 1.0)
 	_shirts.append(shirt)
 	_traits.append(
@@ -540,7 +540,7 @@ static func _lifted(arrays: Array, by: float) -> Array:
 	return arrays
 
 
-## What this one is wearing: a colour from the room's own wardrobe, GAME.md 8.1, or from the
+## What this one is wearing: a color from the room's own wardrobe, GAME.md 8.1, or from the
 ## carnival when the room names none.
 func _wardrobe() -> Color:
 	if room.crowd_colors.is_empty():

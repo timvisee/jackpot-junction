@@ -178,7 +178,7 @@ func test_the_title_screen_turns_behind_its_words() -> void:
 	await runner.simulate_frames(4, 17)
 	var back: TitleBackground = title.get_node("Background")
 	assert_object(back).is_not_null()
-	# Over the flat colour, under the menu: everything a player came here to read is on top.
+	# Over the flat color, under the menu: everything a player came here to read is on top.
 	assert_int(back.get_index()).is_equal(1)
 	assert_int(back.mouse_filter).is_equal(Control.MOUSE_FILTER_IGNORE)
 	var turned := back._spin
@@ -238,9 +238,9 @@ func test_seats_kept_for_remote_players_sit_between_the_humans_and_the_bots() ->
 	assert_int(config.colors().size()).is_equal(4)
 
 
-## A kept seat keeps the colour its player had in the waiting room, and the bots take what is left.
-## A kept colour somebody here already has gives way, so no two karts share one.
-func test_kept_seats_keep_their_colours_and_the_bots_take_the_rest() -> void:
+## A kept seat keeps the color its player had in the waiting room, and the bots take what is left.
+## A kept color somebody here already has gives way, so no two karts share one.
+func test_kept_seats_keep_their_colors_and_the_bots_take_the_rest() -> void:
 	var config := MatchConfig.new()
 	var devices: Array[int] = [DeviceInput.KEYBOARD]
 	var picked: Array[int] = [2]

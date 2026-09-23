@@ -634,7 +634,7 @@ static func _take_pickup(match_node: Match, id: int) -> void:
 
 ## Whose kart took it, judged by who was near enough to. Each kart is asked about its own reach
 ## rather than a flat distance, because the Coin Magnet triples it: a chip pulled in from three
-## metres away was outside the old answer, so nothing flew and the chip simply blinked out, which
+## meters away was outside the old answer, so nothing flew and the chip simply blinked out, which
 ## is the one thing GAME.md 8.3 says a pickup never does.
 ##
 ## The slack on top is for the moment between the snapshot being built and it being read here,
