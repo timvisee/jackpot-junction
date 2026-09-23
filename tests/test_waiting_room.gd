@@ -8,10 +8,26 @@ const WAITING_SCENE := preload("res://scenes/waiting/waiting_room.tscn")
 var _runner: GdUnitSceneRunner
 
 
+## The room reads the configuration it was opened with off [Game], which is a global: a test that
+## left one behind would be handing its own settings to whatever opened a room next.
+func before_test() -> void:
+	Game.pending_config = MatchConfig.new()
+
+
+func after_test() -> void:
+	Game.pending_config = null
+
+
+## A room, with the way out of it unhooked. Readying up in here is the whole subject of this
+## suite, and a room left to itself answers a full house by changing the scene to the arena --
+## which in a test run means swapping the tree out from under the runner and leaving a match
+## ticking away underneath every test that comes after. The handover has its own suite.
 func _open() -> Node3D:
 	var room: Node3D = auto_free(WAITING_SCENE.instantiate())
 	_runner = scene_runner(room)
 	await _runner.simulate_frames(20, 17)
+	if room.ready_room.everybody_ready.is_connected(room._begin):
+		room.ready_room.everybody_ready.disconnect(room._begin)
 	return room
 
 
