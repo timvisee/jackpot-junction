@@ -280,6 +280,9 @@ func _decide() -> void:
 func _may_switch(wanted: StringName, context: Dictionary) -> bool:
 	if wanted == &"flee" or goal == &"wander":
 		return true
+	# Danger on the Jackpot is danger now, not after the dwell.
+	if goal == &"jackpot" and BotGoals.in_danger(context):
+		return true
 	if not _goal_still_on(context):
 		return true
 	# An errand the bot is standing on is finished, whatever the clock says. Holding one of
@@ -324,6 +327,15 @@ func _context() -> Dictionary:
 			context["jackpot_chips"] = zone.whole_chips()
 			context["jackpot_contested"] = zone.occupant_count(kart) > 0
 			context["jackpot_position"] = zone.global_position
+			# Came for it, standing in it, and alone there, so the pile is running into its pot.
+			context["collecting_jackpot"] = (
+				goal == &"jackpot" and zone.holds(kart) and not context["jackpot_contested"]
+			)
+	if context.get("collecting_jackpot", false) and kart.is_wounded():
+		var near := _nearest_enemy()
+		if near != null:
+			context["near_enemy_distance"] = kart.global_position.distance_to(near.global_position)
+			context["near_enemy_visible"] = _has_line_of_sight(near.global_position)
 	var best_pickup: Pickup = null
 	var best_score := 0.0
 	var best_item: Pickup = null

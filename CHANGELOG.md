@@ -78,6 +78,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Bots finish the Jackpot.** A bot collecting it stays until the pile is empty,
+  and leaves early only when it is in danger.
+
 - **Pick which joker to keep as the next map starts.** Under "Pick one to keep" the
   joker pick opens on the grid with the jokers you held, and the lamps wait for it.
 

@@ -113,6 +113,11 @@ func _on_body_exited(body: Node3D) -> void:
 		_inside.erase(kart)
 
 
+## Whether [param kart] is standing in here and counts as collecting, see [method _collectors].
+func holds(kart: Kart) -> bool:
+	return kart in _collectors()
+
+
 ## Alive karts inside other than [param except].
 func occupant_count(except: Kart = null) -> int:
 	var count := 0

@@ -2142,10 +2142,21 @@ NavigationAgent3D, plus reactive bullet dodging.
 | Collect         | Default. Nearest coin pad or dropped chips, weighted by value over distance    |
 | Hunt            | An enemy is within 18 m and can be brought in front of the cannon, or within 26 m carrying a pot of 150 or more and this bot reads the board |
 | Bank            | Pot value above the trait's threshold, or under 20 s left with a non-empty pot. A wounded bot halves its threshold, since a full cash-out is also its second life back, see 3.4 |
-| Jackpot         | The active Jackpot has 20 or more chips and nobody is inside                  |
+| Jackpot         | The active Jackpot has 20 or more chips and nobody is inside; and once collecting it, until the pile is gone, see below |
 | Flush pad       | A Royal Flush pad is worth the detour: a pad held by nobody or by somebody else counts as 4 chips, the one that would complete the set as 24, and a pad of the bot's own with under 10 s left on its claim as 2.5, each divided by the distance to it |
 | Grab item       | Holding nothing and a power-up pad is near                                    |
 | Flee            | A Boosting enemy is within 6 m                                                |
+
+**Staying on the Jackpot**: a bot that has come for the Jackpot and is collecting it
+alone stays until the pile is gone, whatever its pot has grown to on the way. It
+used to break off for the Junction the moment the pile had filled its pot past its
+banking threshold, leaving half of it for whoever drove on next. What moves it is
+danger: a Boosting enemy about to ram it, under 20 s left, when an unbanked pot is
+about to be lost anyway, or, wounded, an enemy it can see within 10 m, since one
+more hit loses everything. Danger is acted on at once, not after the usual dwell. A
+second kart driving on pauses the pile for everybody, see 3.5, so it is no longer
+collecting and chooses as it otherwise would, which with a rival that close is
+usually a fight.
 
 **Hunting a pot**: a pot is coins somebody else has already collected and has not
 yet made safe, see 3.6, so on hard the bots go after whoever is carrying one.

@@ -139,6 +139,68 @@ func test_a_wounded_bot_settles_for_a_smaller_pot() -> void:
 
 
 ## A running match of two bots, for the tests that need a brain in a real arena.
+## GAME.md 9.1: collecting the Jackpot, a bot stays on it until the pile is gone, whatever its pot
+## has grown to, and leaves only for danger: a kart about to ram it, the clock about to take the pot
+## anyway, or, wounded, somebody close enough to land the hit that loses everything.
+func test_a_bot_collecting_the_jackpot_stays_unless_in_danger() -> void:
+	var balanced := _trait("balanced")
+	var on_it := {"collecting_jackpot": true, "pot_value": 900, "jackpot_chips": 2}
+	assert_str(BotGoals.choose(on_it, balanced)).is_equal("jackpot")
+	# Not collecting, the same pot goes to the bank and the same few chips are not worth the trip.
+	var passing := on_it.duplicate()
+	passing["collecting_jackpot"] = false
+	assert_str(BotGoals.choose(passing, balanced)).is_equal("bank")
+	var rammed := on_it.duplicate()
+	rammed["boost_enemy_distance"] = 3.0
+	assert_str(BotGoals.choose(rammed, balanced)).is_equal("flee")
+	var late := on_it.duplicate()
+	late["time_left"] = 10.0
+	assert_str(BotGoals.choose(late, balanced)).is_equal("bank")
+	var wounded := on_it.duplicate()
+	wounded["wounded"] = true
+	wounded["near_enemy_distance"] = 20.0
+	wounded["near_enemy_visible"] = true
+	assert_str(BotGoals.choose(wounded, balanced)).is_equal("jackpot")
+	wounded["near_enemy_distance"] = 6.0
+	assert_str(BotGoals.choose(wounded, balanced)).is_equal("bank")
+	# Seen through a wall is not somebody about to land a hit.
+	wounded["near_enemy_visible"] = false
+	assert_str(BotGoals.choose(wounded, balanced)).is_equal("jackpot")
+
+
+## And in a match: a bot carrying far more than it would usually bank stays on the pile to the
+## last chip. It used to break off for the Junction as soon as the pile had filled its pot.
+func test_a_bot_drains_the_jackpot_before_it_banks() -> void:
+	var match_node := _match()
+	match_node.rules.jackpot_accrual = 0.0
+	await _runner.simulate_frames(12, 17)
+	var other := match_node.kart_of(1)
+	other.get_node("Brain").queue_free()
+	other.input = KartInput.new()
+	var zone: JackpotZone = null
+	for candidate: JackpotZone in match_node.arena.jackpot_zones:
+		if candidate.active:
+			zone = candidate
+	zone.chips = 60.0
+	other.global_position = zone.global_position + Vector3(0.0, 0.0, 14.0)
+	var kart := match_node.kart_of(0)
+	var brain: BotBrain = kart.get_node("Brain")
+	kart.global_position = zone.global_position
+	kart.pot.add_coins(400)
+	brain.goal = &"jackpot"
+	brain.target = zone.global_position
+	var left_early := false
+	for i: int in 300:
+		await _runner.simulate_frames(1, 17)
+		if zone.chips > 0.0 and brain.goal != &"jackpot":
+			left_early = true
+		if zone.chips <= 0.0:
+			break
+	assert_bool(left_early).override_failure_message("left the pile half collected").is_false()
+	assert_float(zone.chips).is_equal(0.0)
+	assert_int(kart.pot.coins).is_greater(450)
+
+
 func _match() -> Match:
 	var rules: MatchRules = DEFAULT_RULES.duplicate()
 	rules.countdown = 0.1

@@ -5,11 +5,23 @@ extends RefCounted
 ## situation, so it is tested with a plain dictionary; [BotBrain] builds the description and does
 ## the driving. The ranges and values it weighs things by are the brain's own.
 
+## Seconds left on the clock under which any pot at all goes to the bank: whatever is not banked at
+## the whistle is lost.
+const LATE := 20.0
+## How close a visible enemy has to be to a wounded bot on the Jackpot for it to leave the pile:
+## one more hit loses everything it is carrying.
+const WOUNDED_DANGER := 10.0
+
 
 ## Picks a goal from the situation. Pure, so it can be tested with a plain dictionary.
 static func choose(context: Dictionary, personality: BotTrait) -> StringName:
 	if float(context.get("boost_enemy_distance", INF)) <= personality.flee_distance:
 		return &"flee"
+	# Collecting the Jackpot, a bot stays until the pile is gone, GAME.md 9.1, whatever its pot has
+	# grown to on the way: leaving half a pile is leaving it to whoever drives on next. What moves
+	# it is danger -- a kart about to ram it, above, or one of those in [method in_danger].
+	if bool(context.get("collecting_jackpot", false)) and not in_danger(context):
+		return &"jackpot"
 	var pot := int(context.get("pot_value", 0))
 	# A bot that is behind settles for a smaller pot; one that is ahead can afford to hoard.
 	var threshold := roundi(personality.bank_threshold / float(context.get("bank_urgency", 1.0)))
@@ -17,7 +29,7 @@ static func choose(context: Dictionary, personality: BotTrait) -> StringName:
 		threshold = personality.last_call_bank_threshold
 	if bool(context.get("wounded", false)):
 		threshold = maxi(roundi(float(threshold) * BotBrain.WOUNDED_BANK_SHARE), 1)
-	if pot > 0 and (pot >= threshold or float(context.get("time_left", INF)) < 20.0):
+	if pot > 0 and (pot >= threshold or float(context.get("time_left", INF)) < LATE):
 		return &"bank"
 	var jackpot_chips := int(context.get("jackpot_chips", 0))
 	if (
@@ -73,3 +85,16 @@ static func choose(context: Dictionary, personality: BotTrait) -> StringName:
 	if collect > 0.0:
 		return &"collect"
 	return &"wander"
+
+
+## Danger enough to leave the Jackpot for, short of a kart about to ram: the clock about to take
+## the pot anyway, or a wounded bot with somebody close enough to land the hit that loses it.
+static func in_danger(context: Dictionary) -> bool:
+	if float(context.get("time_left", INF)) < LATE:
+		return true
+	if not bool(context.get("wounded", false)):
+		return false
+	return (
+		bool(context.get("near_enemy_visible", false))
+		and float(context.get("near_enemy_distance", INF)) <= WOUNDED_DANGER
+	)
