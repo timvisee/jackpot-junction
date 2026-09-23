@@ -222,8 +222,10 @@ func _local_addresses() -> PackedStringArray:
 
 
 ## Pressing the join button on a device nobody is playing with adds that player, the same as it
-## does in a match. This is the room that is for, so the HUD says so out loud.
-func _unhandled_input(event: InputEvent) -> void:
+## does in a match, and heard first for the same reason: a pad's join button is its pause button,
+## and a pad nobody is driving pressing it is somebody sitting down. This is the room that is for,
+## so the HUD says so out loud.
+func _input(event: InputEvent) -> void:
 	if not event.is_action_pressed(InputActions.JOIN) or get_tree().paused:
 		return
 	if config.online == "join":

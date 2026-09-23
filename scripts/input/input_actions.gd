@@ -36,6 +36,8 @@ const AIM_DOWN := &"aim_down"
 const PAUSE := &"pause"
 ## Claims a device for a player in the lobby or joins a running match.
 const JOIN := &"join"
+## The device id the input map reads as every device at once.
+const ALL_PADS := -1
 ## Toggles the music bus at once.
 const MUTE_MUSIC := &"mute_music"
 
@@ -139,7 +141,10 @@ static func _add_ui_buttons() -> void:
 				InputMap.action_add_event(action, event)
 
 
-## Builds an InputEvent from a binding descriptor.
+## Builds an InputEvent from a binding descriptor. A pad's binding is for every pad: an event
+## made in code belongs to the first pad unless told otherwise, and then only the first pad in
+## the room could take a seat, pause or work a menu. Which pad is whose is the players' business,
+## see [DeviceInput]; the bindings only say which button.
 static func make_event(descriptor: Dictionary) -> InputEvent:
 	if descriptor.has("key"):
 		var key := InputEventKey.new()
@@ -152,10 +157,12 @@ static func make_event(descriptor: Dictionary) -> InputEvent:
 	if descriptor.has("button"):
 		var button := InputEventJoypadButton.new()
 		button.button_index = descriptor["button"]
+		button.device = ALL_PADS
 		return button
 	var motion := InputEventJoypadMotion.new()
 	motion.axis = descriptor["axis"]
 	motion.axis_value = descriptor["value"]
+	motion.device = ALL_PADS
 	return motion
 
 

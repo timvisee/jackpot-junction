@@ -244,7 +244,7 @@ func _exit_tree() -> void:
 ## jokers and item, or spawn fresh in a free slot. Returns null when nobody can join.
 func join_human(device: int) -> PlayerSlot:
 	for slot: PlayerSlot in slots:
-		if slot.is_local_human() and slot.device() == device:
+		if slot.plays_on(device):
 			return null
 	_resolve_any_device(device)
 	return _join_with_input(PlayerInput.new(device))

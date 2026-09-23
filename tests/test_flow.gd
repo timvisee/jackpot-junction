@@ -119,6 +119,25 @@ func test_the_menu_actions_carry_a_gamepad_as_well_as_a_key() -> void:
 	assert_int(InputMap.action_get_events(&"ui_accept").size()).is_equal(accepts)
 
 
+## Every pad's buttons are the bindings, not only the first pad's. A binding made in code belongs
+## to the first pad unless it is told otherwise, and then a second pad could not take a seat, pause
+## or work a menu, GAME.md 3.8.
+func test_every_pad_presses_the_bound_buttons() -> void:
+	InputActions.register_defaults()
+	for pad: int in 4:
+		var start := InputEventJoypadButton.new()
+		start.device = pad
+		start.button_index = JOY_BUTTON_START
+		start.pressed = true
+		assert_bool(InputMap.event_is_action(start, InputActions.JOIN)).is_true()
+		assert_bool(InputMap.event_is_action(start, InputActions.PAUSE)).is_true()
+		var accept := InputEventJoypadButton.new()
+		accept.device = pad
+		accept.button_index = JOY_BUTTON_A
+		accept.pressed = true
+		assert_bool(InputMap.event_is_action(accept, &"ui_accept")).is_true()
+
+
 func test_menu_scenes_build() -> void:
 	var title: Control = auto_free(TITLE_SCENE.instantiate())
 	add_child(title)

@@ -133,8 +133,11 @@ func _adopt_session() -> void:
 	session = Net.session
 
 
-## Pressing the join button on a device nobody plays with adds that player mid-match.
-func _unhandled_input(event: InputEvent) -> void:
+## Pressing the join button on a device nobody plays with adds that player mid-match. Heard before
+## the pause menu is: on a pad the join button is also the pause button, and a pad nobody is
+## driving pressing it is somebody sitting down. A pad somebody is driving is let through, and
+## pauses.
+func _input(event: InputEvent) -> void:
 	if (
 		not event.is_action_pressed(InputActions.JOIN)
 		or get_tree().paused

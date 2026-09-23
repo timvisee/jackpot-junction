@@ -70,12 +70,13 @@ func close() -> void:
 	closed.emit()
 
 
-## Back and pause both close it. Caught before anything else sees them, so the pause menu under it
-## does not open on the same press; an open list of choices is a window of its own and closes
-## itself first.
+## Back closes it, caught before anything else sees it so the pause menu does not open on the same
+## press of Escape; an open list of choices is a window of its own and closes itself first. A
+## pad's Start is left alone: it is also how somebody new takes a seat, and a friend sitting down
+## should not close the host's menu for them.
 func _input(event: InputEvent) -> void:
 	if not _panel.visible:
 		return
-	if event.is_action_pressed(&"ui_cancel") or event.is_action_pressed(InputActions.PAUSE):
+	if event.is_action_pressed(&"ui_cancel"):
 		close()
 		get_viewport().set_input_as_handled()

@@ -51,6 +51,13 @@ below, and hands the notes to the release workflow.
   respawn wait, and no joker pick comes up over the screen while everybody else is
   waiting on you.
 
+### Fixed
+
+- **Every pad can join and pause.** Only the first pad plugged in answered to Start
+  and to the menu buttons; the others could drive but not take a seat, pause or
+  work a menu. And Start on a pad nobody is driving now takes a seat instead of
+  opening the pause menu.
+
 ## [0.4.1] - 2026-09-23
 
 ### Added

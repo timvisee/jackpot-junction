@@ -2287,6 +2287,12 @@ score, pot, jokers and item, so the match stays at 4 karts. Otherwise the joiner
 spawns fresh with an empty pot and 0 banked score. With 4 humans present nobody
 else can join. A player who leaves mid-match hands the kart back to a bot.
 
+On a pad, Start is both the join button and the pause button, and which one a
+press is depends on whose pad it is: on a pad nobody is driving it takes a seat,
+on a pad somebody is driving it pauses. A P1 still playing on any device is
+driving whichever device they last drove with. Every pad answers to the
+bindings, not only the first one plugged in.
+
 ### 9.3 Online multiplayer
 
 The third release. Godot's high-level multiplayer over ENet with a

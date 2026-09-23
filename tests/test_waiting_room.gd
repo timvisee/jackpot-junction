@@ -20,6 +20,7 @@ func before_test() -> void:
 
 func after_test() -> void:
 	Game.pending_config = null
+	get_tree().paused = false
 	Net.close()
 	if _settings_were != null:
 		Game.settings = _settings_were
@@ -376,6 +377,46 @@ func test_the_room_holds_as_many_as_the_arena_seats() -> void:
 	var room := await _open()
 	var match_node: Match = room.get_node("Match")
 	assert_int(match_node.rules.max_players).is_equal(room.ARENA_RULES.max_players)
+
+
+## Presses and lets go of Start on [param pad], the way a hand on a real pad does.
+func _press_start(pad: int) -> void:
+	for down: bool in [true, false]:
+		var event := InputEventJoypadButton.new()
+		event.device = pad
+		event.button_index = JOY_BUTTON_START
+		event.pressed = down
+		Input.parse_input_event(event)
+		await _runner.simulate_frames(2, 17)
+
+
+## A pad nobody is driving takes a seat with Start, as the line under the count says, and the
+## pause menu does not open on the same press. The pad somebody is driving pauses with it.
+func test_start_on_a_new_pad_takes_a_seat_and_on_a_seated_one_pauses() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var menu: PauseMenu = room.get_node("PauseMenu")
+	await _press_start(1)
+	assert_int(match_node.slots.size()).is_equal(2)
+	assert_bool(match_node.slots[1].plays_on(1)).is_true()
+	assert_bool(menu._panel.visible).is_false()
+	await _press_start(1)
+	assert_int(match_node.slots.size()).is_equal(2)
+	assert_bool(menu._panel.visible).is_true()
+	menu.set_paused(false)
+
+
+## Somebody who came in on any device and has been driving with a pad is playing on that pad:
+## their Start pauses, rather than seating a second player on it beside them.
+func test_the_any_device_player_pauses_with_the_pad_they_drive() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var menu: PauseMenu = room.get_node("PauseMenu")
+	(match_node.slots[0].input as PlayerInput).last_device = 0
+	await _press_start(0)
+	assert_int(match_node.slots.size()).is_equal(1)
+	assert_bool(menu._panel.visible).is_true()
+	menu.set_paused(false)
 
 
 ## An empty room is not a ready room: a match with nobody in it has nothing to start.
