@@ -11,6 +11,8 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-09-23
+
 ### Added
 
 - **The Garage is a garage.** The practice rooms are set in a concrete workshop bay
@@ -31,7 +33,6 @@ below, and hands the notes to the release workflow.
 
 - **Crossfire's Junction drops its two painted bay lines.** The hazard border round
   the edge says what the pad is; the lines argued with it.
-
 ## [0.4.0] - 2026-09-22
 
 ### Added
@@ -830,7 +831,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.4.1
 [0.4.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.4.0
 [0.3.3]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.3.3
 [0.3.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.3.2
