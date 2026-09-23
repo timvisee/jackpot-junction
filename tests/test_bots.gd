@@ -38,23 +38,20 @@ func test_paths_avoid_walls_and_reopen_when_a_crate_dies() -> void:
 
 func test_goal_choice_follows_the_design_priorities() -> void:
 	var balanced := _trait("balanced")
-	(
-		assert_str(BotBrain.choose_goal({"boost_enemy_distance": 4.0, "pot_value": 500}, balanced))
-		. is_equal("flee")
+	assert_str(BotGoals.choose({"boost_enemy_distance": 4.0, "pot_value": 500}, balanced)).is_equal(
+		"flee"
 	)
-	assert_str(BotBrain.choose_goal({"pot_value": 130}, balanced)).is_equal("bank")
-	assert_str(BotBrain.choose_goal({"pot_value": 5, "time_left": 10.0}, balanced)).is_equal("bank")
+	assert_str(BotGoals.choose({"pot_value": 130}, balanced)).is_equal("bank")
+	assert_str(BotGoals.choose({"pot_value": 5, "time_left": 10.0}, balanced)).is_equal("bank")
 	(
 		assert_str(
-			BotBrain.choose_goal(
-				{"pot_value": 5, "time_left": 100.0, "jackpot_chips": 25}, balanced
-			)
+			BotGoals.choose({"pot_value": 5, "time_left": 100.0, "jackpot_chips": 25}, balanced)
 		)
 		. is_equal("jackpot")
 	)
 	(
 		assert_str(
-			BotBrain.choose_goal(
+			BotGoals.choose(
 				{
 					"jackpot_chips": 25,
 					"jackpot_contested": true,
@@ -68,7 +65,7 @@ func test_goal_choice_follows_the_design_priorities() -> void:
 	)
 	(
 		assert_str(
-			BotBrain.choose_goal(
+			BotGoals.choose(
 				{
 					"enemy_distance": 17.0,
 					"enemy_visible": true,
@@ -82,25 +79,21 @@ func test_goal_choice_follows_the_design_priorities() -> void:
 	)
 	(
 		assert_str(
-			BotBrain.choose_goal(
+			BotGoals.choose(
 				{"pickup_distance": 30.0, "pickup_value": 1.0, "item_distance": 4.0}, balanced
 			)
 		)
 		. is_equal("item")
 	)
-	assert_str(BotBrain.choose_goal({}, balanced)).is_equal("wander")
+	assert_str(BotGoals.choose({}, balanced)).is_equal("wander")
 	var greedy := _trait("greedy")
-	assert_str(BotBrain.choose_goal({"pot_value": 130, "time_left": 100.0}, greedy)).is_equal(
-		"wander"
-	)
+	assert_str(BotGoals.choose({"pot_value": 130, "time_left": 100.0}, greedy)).is_equal("wander")
 	(
-		assert_str(
-			BotBrain.choose_goal({"pot_value": 3, "time_left": 25.0, "last_call": true}, greedy)
-		)
+		assert_str(BotGoals.choose({"pot_value": 3, "time_left": 25.0, "last_call": true}, greedy))
 		. is_equal("bank")
 	)
 	var cautious := _trait("cautious")
-	assert_str(BotBrain.choose_goal({"pot_value": 70}, cautious)).is_equal("bank")
+	assert_str(BotGoals.choose({"pot_value": 70}, cautious)).is_equal("bank")
 
 
 ## GAME.md 3.9 and 9.1: the pads pay while they are held, so a bot goes and takes one when it is
@@ -108,7 +101,7 @@ func test_goal_choice_follows_the_design_priorities() -> void:
 func test_a_bot_goes_for_a_flush_pad_when_it_is_worth_the_detour() -> void:
 	var balanced := _trait("balanced")
 	var near := {"flush_distance": 6.0, "flush_value": BotBrain.PAD_VALUE}
-	assert_str(BotBrain.choose_goal(near, balanced)).is_equal("flush")
+	assert_str(BotGoals.choose(near, balanced)).is_equal("flush")
 	# A chip under its nose beats a pad across the arena.
 	var far := {
 		"flush_distance": 22.0,
@@ -116,7 +109,7 @@ func test_a_bot_goes_for_a_flush_pad_when_it_is_worth_the_detour() -> void:
 		"pickup_distance": 3.0,
 		"pickup_value": 1.0,
 	}
-	assert_str(BotBrain.choose_goal(far, balanced)).is_equal("collect")
+	assert_str(BotGoals.choose(far, balanced)).is_equal("collect")
 	# The one that completes the flush is worth crossing the arena for, chip or no chip.
 	var completing := {
 		"flush_distance": 22.0,
@@ -124,10 +117,10 @@ func test_a_bot_goes_for_a_flush_pad_when_it_is_worth_the_detour() -> void:
 		"pickup_distance": 3.0,
 		"pickup_value": 1.0,
 	}
-	assert_str(BotBrain.choose_goal(completing, balanced)).is_equal("flush")
+	assert_str(BotGoals.choose(completing, balanced)).is_equal("flush")
 	# A fat pot still comes first: a flush is no use to a bot that is about to lose its pot.
 	var loaded := {"pot_value": 500, "flush_distance": 6.0, "flush_value": BotBrain.PAD_FLUSH_VALUE}
-	assert_str(BotBrain.choose_goal(loaded, balanced)).is_equal("bank")
+	assert_str(BotGoals.choose(loaded, balanced)).is_equal("bank")
 
 
 ## GAME.md 3.4: a full cash-out is what gives a wounded kart its second life back, so a wounded
@@ -135,14 +128,12 @@ func test_a_bot_goes_for_a_flush_pad_when_it_is_worth_the_detour() -> void:
 func test_a_wounded_bot_settles_for_a_smaller_pot() -> void:
 	var balanced := _trait("balanced")
 	var pot := {"pot_value": balanced.bank_threshold / 2, "time_left": 100.0}
-	assert_str(BotBrain.choose_goal(pot, balanced)).is_not_equal("bank")
+	assert_str(BotGoals.choose(pot, balanced)).is_not_equal("bank")
 	pot["wounded"] = true
-	assert_str(BotBrain.choose_goal(pot, balanced)).is_equal("bank")
+	assert_str(BotGoals.choose(pot, balanced)).is_equal("bank")
 	# An empty pot still buys nothing, so there is nothing to go to the Junction for.
 	(
-		assert_str(
-			BotBrain.choose_goal({"pot_value": 0, "time_left": 100.0, "wounded": true}, balanced)
-		)
+		assert_str(BotGoals.choose({"pot_value": 0, "time_left": 100.0, "wounded": true}, balanced))
 		. is_equal("wander")
 	)
 
@@ -589,18 +580,18 @@ func test_a_hard_bot_goes_after_a_fat_pot() -> void:
 		"pickup_value": 4.0,
 	}
 	# Out of reach and carrying nothing anybody cares about: the errand wins.
-	assert_str(BotBrain.choose_goal(context, balanced)).is_equal("collect")
+	assert_str(BotGoals.choose(context, balanced)).is_equal("collect")
 	# The same kart, the same distance, with 900 points on board and a bot that reads pots.
 	context["enemy_pot"] = 900
 	context["pot_greed"] = 1.0
-	assert_str(BotBrain.choose_goal(context, balanced)).is_equal("hunt")
+	assert_str(BotGoals.choose(context, balanced)).is_equal("hunt")
 	# A bot that does not read pots never notices.
 	context["pot_greed"] = 0.0
-	assert_str(BotBrain.choose_goal(context, balanced)).is_equal("collect")
+	assert_str(BotGoals.choose(context, balanced)).is_equal("collect")
 	# Nor does a pot too small to be worth the detour move anybody far.
 	context["pot_greed"] = 1.0
 	context["enemy_pot"] = 30
-	assert_str(BotBrain.choose_goal(context, balanced)).is_equal("collect")
+	assert_str(BotGoals.choose(context, balanced)).is_equal("collect")
 
 
 ## Only the hard bots read the board, which is what makes them hard.

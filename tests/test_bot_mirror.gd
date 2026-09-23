@@ -97,24 +97,24 @@ func test_a_bot_behind_on_points_goes_hunting() -> void:
 		"pickup_value": 4.0,
 		"hunt_urgency": BotMirror.EFFORT_MIN,
 	}
-	assert_str(BotBrain.choose_goal(context, TRAIT)).is_equal("collect")
+	assert_str(BotGoals.choose(context, TRAIT)).is_equal("collect")
 	context["hunt_urgency"] = BotMirror.EFFORT_MAX
-	assert_str(BotBrain.choose_goal(context, TRAIT)).is_equal("hunt")
+	assert_str(BotGoals.choose(context, TRAIT)).is_equal("hunt")
 
 
 func test_the_item_goal_follows_the_appetite_but_a_trait_still_counts() -> void:
 	var context: Dictionary = {
 		"pot_value": 0, "has_item": false, "item_distance": 5.0, "item_appetite": 1.5
 	}
-	assert_str(BotBrain.choose_goal(context, TRAIT)).is_equal("item")
+	assert_str(BotGoals.choose(context, TRAIT)).is_equal("item")
 	context["item_appetite"] = 0.15
 	context["pickup_distance"] = 9.0
 	context["pickup_value"] = 2.0
-	assert_str(BotBrain.choose_goal(context, TRAIT)).is_equal("collect")
+	assert_str(BotGoals.choose(context, TRAIT)).is_equal("collect")
 
 
 func test_a_bot_behind_on_points_settles_for_a_smaller_pot() -> void:
 	var context: Dictionary = {"pot_value": 100, "bank_urgency": 1.0}
-	assert_str(BotBrain.choose_goal(context, TRAIT)).is_equal("wander")
+	assert_str(BotGoals.choose(context, TRAIT)).is_equal("wander")
 	context["bank_urgency"] = BotMirror.EFFORT_MAX
-	assert_str(BotBrain.choose_goal(context, TRAIT)).is_equal("bank")
+	assert_str(BotGoals.choose(context, TRAIT)).is_equal("bank")
