@@ -11,6 +11,8 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-23
+
 ### Added
 
 - **Online matches start in a waiting room.** Hosting or joining now opens a small
@@ -78,7 +80,6 @@ below, and hands the notes to the release workflow.
   and to the menu buttons; the others could drive but not take a seat, pause or
   work a menu. And Start on a pad nobody is driving now takes a seat instead of
   opening the pause menu.
-
 ## [0.4.1] - 2026-09-23
 
 ### Added
@@ -899,7 +900,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.5.0
 [0.4.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.4.1
 [0.4.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.4.0
 [0.3.3]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.3.3
