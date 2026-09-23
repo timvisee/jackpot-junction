@@ -2517,6 +2517,12 @@ machine, and on a board at the back of the room, where a room that has a clock h
 Both read `1 / 2 PLAYERS READY`. The camera holds the whole room rather than following anybody,
 since what matters in here is the pad and who is standing on it.
 
+**Getting more people in.** Under the count is how to do it: the button that takes a seat at
+this machine, drawn as the button rather than named, and -- when there is a host to join -- the
+address and port somebody at another machine connects to. The room is where both questions get
+asked, so it is where they are answered; anywhere else and a player has to leave the room to
+find out how to let their friend in.
+
 ## 10. Technology
 
 ### 10.1 Engine and project settings

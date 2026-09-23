@@ -38,6 +38,8 @@ const WAITING_INK := Color(0.16, 0.17, 0.2)
 ## How high the count is lettered on the board, and how far behind the room the board stands.
 const BOARD_SIZE := 0.9
 const BOARD_BACK := 5.0
+## The ink the joining lines under the count are written in.
+const HINT_INK := Color(0.82, 0.83, 0.88)
 
 var match_node: Match
 var pad: JunctionPad
@@ -52,6 +54,8 @@ var _announced := false
 var _board: Billboard
 var _board_words: Label3D
 var _counter: Label
+var _hints: VBoxContainer
+var _online_hint: Label
 var _said := ""
 
 
@@ -129,6 +133,16 @@ func _say_the_count() -> void:
 	if _board != null and _board_words != null:
 		_board_words.text = words
 		_board_words.pixel_size = _board.fitted(words, BOARD_SIZE) / float(Billboard.FONT_SIZE)
+
+
+## What to say about getting more people into the room: how somebody at this machine takes a
+## seat, and, when there is a host to join, how somebody at another machine does.
+##
+## The room is the place both of those questions get asked, so it is the place they are answered.
+## Anywhere else and a player has to leave the room to find out how to let their friend in.
+func say_how_to_join(online: String) -> void:
+	_online_hint.text = online
+	_online_hint.visible = not online.is_empty()
 
 
 ## Which players are standing on the pad this frame.
@@ -247,4 +261,27 @@ func _build_counter() -> void:
 	_counter.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.set_font(_counter, Type.numbers_font(), Type.HEADING)
 	HudText.shadowed(_counter)
-	layer.add_child(_counter)
+	_hints = VBoxContainer.new()
+	_hints.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	_hints.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_hints.offset_top = 18.0
+	_hints.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hints.alignment = BoxContainer.ALIGNMENT_CENTER
+	_hints.add_theme_constant_override("separation", 6)
+	layer.add_child(_hints)
+	_hints.add_child(_counter)
+	var seat := InputHint.row(
+		"%s to take a seat",
+		[InputHint.glyph(InputActions.JOIN, Game.last_input_keyboard, HINT_INK, Type.LABEL)],
+		HINT_INK,
+		Type.LABEL
+	)
+	seat.alignment = BoxContainer.ALIGNMENT_CENTER
+	_hints.add_child(seat)
+	_online_hint = Label.new()
+	_online_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_online_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_online_hint.visible = false
+	Type.text(_online_hint, Type.LABEL, HINT_INK)
+	HudText.shadowed(_online_hint)
+	_hints.add_child(_online_hint)
