@@ -1596,7 +1596,10 @@ movement: the one thing a corner block must not do is ask to be looked at.
 - **Banked score**, large.
 - **Pot** as `chips × mult = value`, updating live, with each half in a pill of
   its own colour: chips in blue and mult in red, the same two colours wherever
-  either half is shown. A pot is one number made of two, and which of the two is
+  either half is shown. A cell grows to fit the number in it -- a mult clipped at
+  24.5 loses the digit that says what the pot is worth -- and the block round them
+  is wide enough that they grow into it rather than out of it, so the pane itself
+  still never moves. A pot is one number made of two, and which of the two is
   moving is the whole of what a player is deciding about -- another lap for more
   chips, or the Junction for the mult before somebody takes it off them. Written
   as one line of text it read as arithmetic.

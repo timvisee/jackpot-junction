@@ -58,3 +58,33 @@ func test_the_line_can_say_something_else_instead() -> void:
 	pills.show_pot(10, 2.0, 20)
 	assert_bool(pills.chips.get_parent().visible).is_true()
 	assert_bool(pills.total.visible).is_true()
+
+
+## A pill grows to fit the number in it, GAME.md 8.3. Clipped at a fixed width, a mult of 24.5
+## lost its last digit -- the one that says how much the pot is actually worth -- and a chip count
+## in five figures lost its leading one.
+func test_a_pill_grows_when_its_number_outgrows_it() -> void:
+	var pills := _pills()
+	pills.show_pot(4, 2.0, 8)
+	await await_idle_frame()
+	var small := (pills.mult.get_parent() as Control).get_combined_minimum_size().x
+	pills.show_pot(4, 24.5, 98)
+	await await_idle_frame()
+	var grown := (pills.mult.get_parent() as Control).get_combined_minimum_size().x
+	assert_float(grown).is_greater(small)
+	# Wide enough for the whole of it: the number asks for its own width rather than being cut.
+	assert_float(pills.mult.get_minimum_size().x).is_greater_equal(
+		(
+			pills
+			. mult
+			. get_theme_font("font")
+			. get_string_size(
+				"24.5", HORIZONTAL_ALIGNMENT_LEFT, -1.0, pills.mult.get_theme_font_size("font_size")
+			)
+			. x
+		)
+	)
+	# And it never goes under the width it was drawn at.
+	pills.show_pot(4, 2.0, 8)
+	await await_idle_frame()
+	assert_float(pills.mult.get_combined_minimum_size().x).is_greater_equal(ScorePills.MULT_WIDTH)

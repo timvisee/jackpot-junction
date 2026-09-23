@@ -10,8 +10,10 @@ extends HBoxContainer
 ## pills it reads as two things, and the colours are the same two everywhere the halves are
 ## shown, see [Palette].
 
-## How wide each pill is. Fixed, so the line does not shuffle sideways as a pot grows, and wide
-## enough for the biggest either half gets to in a match.
+## How wide each pill is at its narrowest. A floor rather than a fixed size: the pane round the
+## line is the thing that must not shuffle, GAME.md 8.3, and it is a fixed width of its own, so a
+## pill is free to grow into it when the number outgrows the pill. Clipped instead, a mult of 24.5
+## lost its last digit, which is the one that says how much the pot is worth.
 const CHIP_WIDTH := 62.0
 const MULT_WIDTH := 46.0
 ## The pill itself: how much of its colour is behind the number, how bright the rim is, and how
@@ -74,6 +76,7 @@ func _build() -> void:
 	mult = _pill(Palette.MULT, MULT_WIDTH)
 	_sign("=")
 	total = _text(Color(0.94, 0.94, 0.97))
+	total.clip_text = false
 	total.custom_minimum_size = Vector2(76.0, 0.0)
 	add_child(total)
 	_parts.append(total)
@@ -89,6 +92,9 @@ func _pill(ink: Color, width: float) -> Label:
 	box.add_theme_stylebox_override("panel", _skin(ink))
 	var label := _text(ink.lightened(0.5))
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	# Measured rather than clipped, so the pill asks for the room its number needs and the
+	# minimum below is only the width it never goes under.
+	label.clip_text = false
 	label.custom_minimum_size = Vector2(width, 0.0)
 	box.add_child(label)
 	add_child(box)

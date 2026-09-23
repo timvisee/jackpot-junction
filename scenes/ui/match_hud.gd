@@ -31,8 +31,12 @@ const CALL_FADE := 0.6
 ## A life, under the name: how big one heart is drawn and the grey a spent one goes.
 ## How wide a player's corner block is, whatever is in it. A pane that grows when the speed goes
 ## from 99 to 100 and shrinks again at the next corner is a pane that never stops moving, and the
-## eye follows movement. Everything in it is clipped to this rather than measured from its text.
-const BLOCK_WIDTH := 316.0
+## eye follows movement.
+##
+## Wide enough that the line inside it never asks for more: the pot's own cells do grow to fit
+## their numbers, since a mult clipped at 24.5 loses the digit that says what the pot is worth,
+## and this is the room they grow into rather than out of.
+const BLOCK_WIDTH := 336.0
 const LIFE_SIZE := 19.0
 const LIFE_LOST := Color(0.22, 0.22, 0.26, 0.9)
 ## How big a heart is when it floats off a kart that has just lost or been given a life, in

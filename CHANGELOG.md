@@ -20,6 +20,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The pot's cells grow to fit their numbers.** A mult of 24.5 was losing its last
+  digit. The HUD pane around them is a constant width as before.
+
 - **The podium no longer comes up over a joker pick.** A kart killed after the
   whistle was still offered one, and the cards sat over the standings unusable.
 
