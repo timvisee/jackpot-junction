@@ -398,15 +398,10 @@ func _hazard_pad(into: Node3D, radius: float) -> void:
 			into, Vector3(wide, 0.01, band), black if i % 2 == 0 else yellow, at + _up(lift)
 		)
 		stripe.rotation.y = turn
+	# Bare concrete inside the border. Two painted bay lines were tried across it and read as a
+	# parking space rather than as the one square of floor everybody is driving at: the border is
+	# what says that, and the lines argued with it.
 	_disc(into, out - band * 0.5, surfaces.marking(Color(0.36, 0.35, 0.33)), PAD + LAYER * 2.0)
-	# The bay lines, painted the way a loading bay is: two of them, pointing in.
-	for side: float in [-1.0, 1.0]:
-		_box(
-			into,
-			Vector3(radius * 0.09, 0.01, radius * 1.2),
-			yellow,
-			Vector3(side * radius * 0.42, PAD + LAYER * 3.0, 0.0)
-		)
 
 
 ## A steel inspection plate let into the bench: a machined face, a ring of bolt heads round it and
