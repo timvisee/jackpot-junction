@@ -16,11 +16,21 @@ extends Node
 ## Each player charges their own arc of the ring, in their own colour, so that a room with four
 ## people in it can see which of them the pad has taken and which of them it is waiting for.
 
+## Everybody has been ready for [constant GO_DELAY]: the ring has blinked and the room is
+## going. Not the moment the last player readies up, since the room says so before it goes.
 signal everybody_ready
 
 ## How long a kart has to hold the pad. Leaving it does not fade: the charge is gone and so is the
 ## ready, on the frame the kart rolls off.
 const CHARGE_TIME := 2.5
+## A full house blinks the whole ring green once, and the room goes a second after it filled. The
+## blink is on at once, holds, and fades over the last part of its time, so it reads as one flash
+## rather than as the ring turning green and then changing its mind.
+const BLINK_TIME := 0.45
+const BLINK_FADE := 0.4
+const BLINK_GLOW := 1.2
+const BLINK_BODY := 0.6
+const GO_DELAY := 1.0
 ## The ring that fills: how many blocks it is made of, how far out they sit as a share of the
 ## pad's radius, and how big each one is.
 const SEGMENTS := 24
@@ -57,7 +67,10 @@ var ready_slots: Dictionary[int, bool] = {}
 
 var _segments: Array[MeshInstance3D] = []
 var _ticks: Dictionary[int, Node3D] = {}
-var _announced := false
+## Seconds the room has been full, or -1 while somebody is still to ready up. Somebody rolling off
+## in the second before the room goes puts it back to -1: ready lasts as long as the standing does,
+## and that is as true in the last second as in any other.
+var _full_for := -1.0
 var _board: ReadyStand
 var _counter: Label
 var _hints: VBoxContainer
@@ -117,10 +130,12 @@ func _process(delta: float) -> void:
 	if pad == null:
 		return
 	if not deciding:
-		_say_the_count()
 		for slot: PlayerSlot in match_node.slots:
 			if slot.kart != null:
 				_show_tick(slot)
+		_count_down(delta)
+		_paint_ring()
+		_say_the_count()
 		return
 	var standing := _karts_on_the_pad()
 	for slot: PlayerSlot in match_node.slots:
@@ -136,14 +151,30 @@ func _process(delta: float) -> void:
 			ready_slots[index] = now >= 1.0
 			Events.player_ready.emit(index, now >= 1.0)
 		_show_tick(slot)
+	_count_down(delta)
 	_paint_ring()
 	_say_the_count()
-	# Announced once per full house, and armed again if somebody rolls off before the room has
-	# changed: a room that emptied and filled again is a room that is ready again.
-	var full := all_ready()
-	if full and not _announced:
+
+
+## The second between the room filling and the room going. A client runs it as well, off what it
+## has been told, so the ring blinks on every screen and not only on the host's; only the host's
+## going is acted on, and a client follows when told to, see 10.3.
+func _count_down(delta: float) -> void:
+	if not all_ready():
+		_full_for = -1.0
+		return
+	var was := _full_for
+	_full_for = maxf(_full_for, 0.0) + (delta if was >= 0.0 else 0.0)
+	if was < GO_DELAY and _full_for >= GO_DELAY:
 		everybody_ready.emit()
-	_announced = full
+
+
+## How far through the blink the ring is: 1 while it is lit, falling to 0 over the fade, and 0 the
+## rest of the time.
+func blink() -> float:
+	if _full_for < 0.0:
+		return 0.0
+	return clampf((BLINK_TIME - _full_for) / (BLINK_TIME * BLINK_FADE), 0.0, 1.0)
 
 
 ## How many are ready, said twice: once at the top of the screen for the player at this machine,
@@ -197,12 +228,15 @@ func _paint_ring() -> void:
 		for k: int in span:
 			if from + k < inks.size() and k < full:
 				inks[from + k] = seats[s].color()
+	var flash := blink()
 	for i: int in _segments.size():
 		var skin := _segments[i].material_override as StandardMaterial3D
 		var on := inks[i] != WAITING_INK
-		skin.albedo_color = inks[i]
-		skin.emission = inks[i]
-		skin.emission_energy_multiplier = 1.4 if on else 0.0
+		# The flash is carried by the glow over a darker body. Lit on both counts, a block lying on a
+		# bright floor goes past green to mint, and it is green the room is meant to see.
+		skin.albedo_color = inks[i].lerp(READY_INK.darkened(BLINK_BODY), flash)
+		skin.emission = inks[i].lerp(READY_INK, flash)
+		skin.emission_energy_multiplier = lerpf(1.4 if on else 0.0, BLINK_GLOW, flash)
 
 
 ## The players the ring is divided between, in slot order so that an arc stays where it was as

@@ -151,6 +151,58 @@ func test_each_player_charges_their_own_arc_of_the_ring() -> void:
 	assert_int(lit).is_equal(ReadyRoom.SEGMENTS / 2)
 
 
+## Parks the one player on the pad and runs frames until the room is full, a frame at a time so
+## the test knows the moment it filled rather than landing somewhere in the second after it.
+func _fill(room: Node3D) -> ReadyRoom:
+	var match_node: Match = room.get_node("Match")
+	var ready_room: ReadyRoom = room.ready_room
+	match_node.kart_of(0).global_position = match_node.arena.junction.global_position
+	for i: int in 400:
+		if ready_room.all_ready():
+			break
+		await _runner.simulate_frames(1, 17)
+	assert_bool(ready_room.all_ready()).is_true()
+	return ready_room
+
+
+## A full house blinks the whole ring green once and the room goes a second later, not the moment
+## the last player readies: the room says it is going before it goes.
+func test_a_full_room_blinks_green_and_goes_a_second_later() -> void:
+	var room := await _open()
+	var went := {"count": 0}
+	room.ready_room.everybody_ready.connect(func() -> void: went["count"] += 1)
+	var ready_room: ReadyRoom = await _fill(room)
+	await _runner.simulate_frames(2, 17)
+	for piece: MeshInstance3D in ready_room._segments:
+		var glow := (piece.material_override as StandardMaterial3D).emission
+		assert_bool(glow.is_equal_approx(ReadyRoom.READY_INK)).is_true()
+	assert_int(went["count"]).is_equal(0)
+	# Once: the blink is over well before the room goes, and the ring is back to whose it is.
+	await _runner.simulate_frames(30, 17)
+	assert_float(ready_room.blink()).is_equal(0.0)
+	assert_int(went["count"]).is_equal(0)
+	await _runner.simulate_frames(40, 17)
+	assert_int(went["count"]).is_equal(1)
+	# And only once, however long the room stands full afterwards.
+	await _runner.simulate_frames(30, 17)
+	assert_int(went["count"]).is_equal(1)
+
+
+## Rolling off the pad in the second before the room goes calls it off. Ready lasts as long as the
+## standing does, in the last second as much as in any other.
+func test_driving_off_in_the_last_second_calls_it_off() -> void:
+	var room := await _open()
+	var went := {"count": 0}
+	room.ready_room.everybody_ready.connect(func() -> void: went["count"] += 1)
+	var ready_room: ReadyRoom = await _fill(room)
+	await _runner.simulate_frames(20, 17)
+	room.get_node("Match").kart_of(0).global_position = Vector3(10.0, 0.0, 6.0)
+	await _runner.simulate_frames(90, 17)
+	assert_int(went["count"]).is_equal(0)
+	assert_bool(ready_room.all_ready()).is_false()
+	assert_float(ready_room.blink()).is_equal(0.0)
+
+
 ## Ready lasts as long as the standing does. Driving off the pad takes it back on the spot, along
 ## with the charge and the tick: a pad nobody is on does not speak for anybody.
 func test_ready_is_taken_back_by_driving_off() -> void:
