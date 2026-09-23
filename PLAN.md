@@ -318,6 +318,19 @@ Known bugs parked for later. Each one is described well enough to pick up cold.
       settings as an overlay over the room instead of a scene change, or at
       least return to the scene that opened it and never leave an online room
       this way.
+- [ ] **A client that connects while the host is mid-match lands in the wrong
+      room.** Found by reading the code, not reproduced yet. Joining always opens
+      the waiting room (`online.gd` goes to `Game.go_to_waiting`), and the client's
+      room builds the waiting-room layout before it has heard anything from the
+      host. `NetSession._on_peer_connected` then seats it straight into whatever
+      match the host is running, so a host in an arena seats it in the arena and
+      sends the arena's rules and snapshots, and the client drives round a garage
+      bay while the arena's karts are drawn in it. Nothing tells it to follow:
+      `match_beginning` went out before it arrived. It is also not listening for
+      `back_to_room` (only the match scene is), so when the host goes back to the
+      room after the podium it is left behind, unseated. Likely fix: the host tells
+      a newcomer which kind of room it is in on arrival, and a client in the wrong
+      one follows the same way the others did.
 
 ## Working method
 
