@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A lighter HUD in the waiting room.** Your corner shows your name, lives and
+  nitro, without banked chips, pot, mult, kills or deaths.
+
 - **Who is in the waiting room, down the side.** A list of everybody there, where a
   match keeps its running order, without places or scores.
 

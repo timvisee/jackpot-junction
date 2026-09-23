@@ -604,6 +604,23 @@ func test_the_side_list_is_who_is_in_the_room() -> void:
 		assert_bool((row["score"] as Label).visible).is_false()
 
 
+## A player's block in the room says nothing about scoring, since nothing is scored in here: no
+## banked chips, pot, mult, kills or deaths. The name, lives and nitro stay, since driving round
+## in here is still driving.
+func test_the_blocks_in_the_room_leave_the_scoring_out() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var block: Dictionary = match_node.hud._blocks[0]
+	for scoring: String in ["banked", "pot", "stats"]:
+		(
+			assert_bool((block[scoring] as Control).visible)
+			. override_failure_message(scoring)
+			. is_false()
+		)
+	assert_bool((block["nitro"] as Control).visible).is_true()
+	assert_bool((block["lives"][0] as Control).visible).is_true()
+
+
 ## An empty room is not a ready room: a match with nobody in it has nothing to start.
 func test_a_room_with_nobody_in_it_is_never_ready() -> void:
 	var room := await _open()

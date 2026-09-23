@@ -466,6 +466,11 @@ func _update_blocks() -> void:
 		var banked: Label = block["banked"]
 		var pot: ScorePills = block["pot"]
 		var stats: Label = block["stats"]
+		# The waiting room scores nothing, so a block there says nothing about scoring: no banked
+		# chips, no pot, no mult, no kills and deaths. The name, lives, nitro and speed stay, since
+		# driving round in there is still driving.
+		for scoring: Control in [banked, pot, stats]:
+			scoring.visible = not waiting
 		banked.text = str(slot.banked)
 		var kart := slot.kart
 		if kart.alive:

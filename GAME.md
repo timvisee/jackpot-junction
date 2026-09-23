@@ -2554,7 +2554,9 @@ everybody is already looking.
 
 **Who is here.** Down the right-hand side, where a match keeps its running order, the room
 keeps a list of who is in it: a name each in their own color, in the order they arrived, with
-no place and no score, since nothing in here is being played for.
+no place and no score, since nothing in here is being played for. Each player's own block in
+the corner is cut down the same way: their name, their lives, their nitro and their speed, and
+nothing about scoring -- no banked chips, pot, mult, kills or deaths.
 
 **What it says.** The count is written twice: at the top of the screen for the player at this
 machine, as `1 / 2 PLAYERS READY`, and on a sign standing on top of the back wall, as `1 / 2`
