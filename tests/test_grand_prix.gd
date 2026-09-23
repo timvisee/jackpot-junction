@@ -269,11 +269,15 @@ func test_the_podium_in_the_middle_of_a_run_says_what_each_place_paid() -> void:
 	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
 
 
-## After the last map the podium is the run's: headed Grand Prix, everybody ranked on points over
-## the whole run, and a chip for each map saying where they finished it.
+## After the last map's own podium comes the run's: headed Grand Prix, everybody ranked on points
+## over the whole run, and a chip for each map saying where they finished it.
 func test_the_podium_after_the_last_map_is_the_grand_prix() -> void:
 	_run_at(2, 2)
 	var screen := await _podium_after(2, 2)
+	# The last map's results come first, with what each place paid, as on every map.
+	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
+	assert_bool(_texts(screen).has("+%d points" % GrandPrix.POINTS[0])).is_true()
+	screen._standings.pressed.emit()
 	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
 	var run := Game.grand_prix
 	var ranked := run.standings(screen.match_node.slots)
@@ -306,11 +310,23 @@ func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
 
 ## And the last map ends the run: no next map and no rematch, back to the lobby or the title.
 func test_the_podium_after_the_last_map_ends_the_run() -> void:
+	_run_at(3, 3)
 	var screen := await _podium_after(3, 3)
+	# The last map's own podium first, with one way on: the run's.
+	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
+	assert_bool(screen._standings.visible).is_true()
 	assert_bool(screen._next.visible).is_false()
 	assert_bool(screen._rematch.visible).is_false()
+	assert_bool(screen._lobby.visible).is_false()
+	assert_bool(screen._quit.visible).is_false()
+	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._standings)
+	# And the run's podium ends it: back to the lobby or the title.
+	screen._standings.pressed.emit()
+	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	assert_bool(screen._standings.visible).is_false()
 	assert_bool(screen._lobby.visible).is_true()
 	assert_bool(screen._quit.visible).is_true()
+	assert_bool(Game.grand_prix.revealed).is_true()
 
 
 ## A single map is as it was: rematch or the title, and no talk of maps.

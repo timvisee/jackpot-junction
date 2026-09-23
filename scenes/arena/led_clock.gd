@@ -155,13 +155,13 @@ func _winner() -> String:
 	return match_node.standings()[0].display_name()
 
 
-## Whoever won the Grand Prix this was the last map of, GAME.md 9.7, once its result is in, or
-## null. At the end of a run the board names the run's winner rather than the last map's: the
-## last map is one of several, and the run is what everybody has been playing.
+## Whoever won the Grand Prix this was the last map of, GAME.md 9.7, once the run's podium is up,
+## or null. Until then the board names the last map's winner like any map's: the last map has its
+## own podium first. From then on it names the run's, which is what everybody has been playing.
 func _champion() -> PlayerSlot:
 	var rules := match_node.rules
 	var run := Game.grand_prix
-	if rules.rounds <= 0 or rules.round < rules.rounds or run == null:
+	if rules.rounds <= 0 or rules.round < rules.rounds or run == null or not run.revealed:
 		return null
 	if run.scored_round < rules.round - 1:
 		return null

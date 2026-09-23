@@ -37,6 +37,7 @@ var _podium: ResultsPodium
 var _rows: VBoxContainer
 ## The two ways on from here, kept so the screen can point at one when it comes up.
 var _next: Button
+var _standings: Button
 var _rematch: Button
 var _lobby: Button
 var _quit: Button
@@ -44,6 +45,8 @@ var _quit: Button
 var _host_decides: Label
 ## Which map of a Grand Prix this was, GAME.md 9.7, under the title.
 var _caption: Label
+## Whether the last map's podium has moved on to the run's, see [method _show_run].
+var _showing_run := false
 
 
 ## Builds the screen for [param for_match] and hangs it off [param parent], hidden until the
@@ -70,9 +73,10 @@ func fill_in() -> void:
 	for slot: PlayerSlot in match_node.slots:
 		everyone.append(slot.stats)
 	# The end of a Grand Prix, GAME.md 9.7, is its own podium: everybody ranked on the points of
-	# the whole run rather than on what they banked on its last map.
+	# the whole run rather than on what they banked on its last map. The last map gets its own
+	# podium first, like every map before it, and the run's comes after it.
 	var run := _run()
-	var final := run != null and match_node.rules.round >= match_node.rules.rounds
+	var final := run != null and _showing_run
 	var standings := run.standings(match_node.slots) if final else match_node.standings()
 	if not standings.is_empty():
 		_style.border_color = standings[0].color()
@@ -86,7 +90,7 @@ func fill_in() -> void:
 	_ways_on()
 	# This is the one screen nobody asked for: it arrives on its own at the whistle, so it points
 	# at what most people want next rather than waiting to be found.
-	for first: Button in [_next, _lobby, _rematch, _quit]:
+	for first: Button in [_next, _standings, _lobby, _rematch, _quit]:
 		if first.visible:
 			first.grab_focus()
 			break
@@ -105,22 +109,34 @@ func _ways_on() -> void:
 	var decides := not match_node.puppet
 	var grand_prix := rules.rounds > 0
 	var more := grand_prix and rules.round < rules.rounds
+	var last := grand_prix and not more
+	var run_up := last and _showing_run
 	_next.visible = decides and more
+	# Looking at the run is only looking, so it is everybody's to do, a client's as much as the
+	# host's; it is there once the run's points are in.
+	_standings.visible = last and not _showing_run and _run() != null
 	_rematch.visible = decides and not grand_prix
-	_lobby.visible = decides and not more and (grand_prix or Net.hosting())
-	_quit.visible = not more
-	_host_decides.visible = match_node.puppet and Net.online()
+	_lobby.visible = decides and (run_up or (not grand_prix and Net.hosting()))
+	_quit.visible = not grand_prix or run_up
+	_host_decides.visible = match_node.puppet and Net.online() and (not last or run_up)
 	_host_decides.text = (
 		"The host starts the next map." if more else "The host takes everybody back to the lobby."
 	)
 	_caption.visible = grand_prix
 	if grand_prix:
 		var named := ArenaMaps.NAMES[ArenaMaps.index_of(rules.map)]
-		_caption.text = (
-			"%s \u00b7 map %d of %d" % [named, rules.round, rules.rounds]
-			if more
-			else "Final standings after %d maps" % rules.rounds
-		)
+		_caption.text = "%s \u00b7 map %d of %d" % [named, rules.round, rules.rounds]
+		if run_up:
+			_caption.text = "Final standings after %d maps" % rules.rounds
+
+
+## From the last map's podium to the run's, GAME.md 9.7. The arena's board names the champion from
+## here on, not before: until the run's podium is up, what is being looked at is the last map.
+func _show_run() -> void:
+	_showing_run = true
+	if Game.grand_prix != null:
+		Game.grand_prix.revealed = true
+	fill_in()
 
 
 ## The Grand Prix this map belongs to, with this map's result in, or null: a single map, or a
@@ -332,6 +348,10 @@ func _buttons() -> HBoxContainer:
 	_next.pressed.connect(func() -> void: Game.next_map())
 	_next.visible = false
 	buttons.add_child(_next)
+	_standings = MenuTheme.button("Grand Prix results", 26)
+	_standings.pressed.connect(_show_run)
+	_standings.visible = false
+	buttons.add_child(_standings)
 	_lobby = MenuTheme.button("Back to lobby", 26)
 	_lobby.pressed.connect(_back_to_lobby)
 	_lobby.visible = false

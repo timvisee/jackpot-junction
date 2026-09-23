@@ -2647,13 +2647,16 @@ win and two lasts. Every podium in the middle of a run says, on each row, what t
 and what it makes over the run so far. The host scores each map at its whistle and tells the
 room how the run stands, and every screen draws its podium from that.
 
-**The end.** The last map ends on the run's own podium rather than the map's. It is headed Grand
-Prix, over Final standings after however many maps it was: the top three of the run on the
-steps, then everybody ranked on points, each with how many maps they won, their points in gold,
-and a chip for every map saying where they finished it and what it paid. The board in the arena
-that names the winner at every other whistle names the champion of the run instead. Its ways on
-are Back to lobby, to the waiting room online and to Play's lobby on one machine, or back to the
-title.
+**The end.** The last map ends on its own podium first, the same as every map before it: the
+map's results, what each place paid and where that leaves everybody. Its one way on is Grand
+Prix results, which is everybody's to press, a client's as much as the host's, since it only
+changes what that screen shows. That brings up the run's podium, headed Grand Prix over Final
+standings after however many maps it was: the top three of the run on the steps, then everybody
+ranked on points, each with how many maps they won, their points in gold, and a chip for every
+map saying where they finished it and what it paid. Only then does the board in the arena, which
+names the winner at every whistle, name the champion of the run instead of the last map's
+winner. The run's podium's ways on are Back to lobby, to the waiting room online and to Play's
+lobby on one machine, or back to the title.
 
 ## 10. Technology
 

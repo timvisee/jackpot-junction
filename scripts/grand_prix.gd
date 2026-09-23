@@ -27,6 +27,9 @@ var points: Dictionary[int, Array] = {}
 var banked: Dictionary[int, Array] = {}
 ## The last map whose result is in, so a result said twice is counted once.
 var scored_round := -1
+## Whether this screen has moved on from the last map's podium to the run's. Each machine's own:
+## it says what is being looked at here, not how the run stands.
+var revealed := false
 
 
 ## A Grand Prix of [param rounds] maps, dealt with [param rng].

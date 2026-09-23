@@ -206,7 +206,8 @@ func _host_plays(first: Node) -> ResultsScreen:
 	var last := await _end(second)
 	if last == null:
 		return null
-	_check(last._title.text == ResultsScreen.GRAND_PRIX_TITLE, "the last podium is the Grand Prix")
+	if not await _to_the_run(last):
+		return null
 	_check(last._lobby.visible and not last._next.visible, "it offers Back to lobby")
 	_say("SCORES 2 %s" % _scores(two))
 	return last
@@ -312,7 +313,8 @@ func _client_after_map_2(second: Node) -> void:
 		"told how the run ended"
 	)
 	await _frames(5)
-	_check(last._title.text == ResultsScreen.GRAND_PRIX_TITLE, "the last podium is the Grand Prix")
+	if not await _to_the_run(last):
+		return
 	_check(last._host_decides.text.contains("back to the lobby"), "told the host takes it back")
 	_say("SCORES 2 %s" % _scores(two))
 	var again := await _room()
@@ -401,7 +403,8 @@ func _local_plays(first: Node) -> ResultsScreen:
 	var last := await _end(second)
 	if last == null:
 		return null
-	_check(last._title.text == ResultsScreen.GRAND_PRIX_TITLE, "the last podium is the Grand Prix")
+	if not await _to_the_run(last):
+		return null
 	_say("SCORES 2 %s" % _scores(two))
 	return last
 
@@ -466,6 +469,16 @@ func _end(scene: Node) -> ResultsScreen:
 		slot.banked = 100 * (turn + 1)
 	match_node._finish()
 	return await _podium(scene, 15.0)
+
+
+## The last map's podium is the map's, like every other; the run's is one press on from it.
+func _to_the_run(last: ResultsScreen) -> bool:
+	if not _check(last._title.text == ResultsScreen.TITLE, "the last map has its own podium"):
+		return false
+	await _until(func() -> bool: return last._standings.visible, 10.0, "it offers the run's")
+	await _seconds(READING / 2.0)
+	last._standings.pressed.emit()
+	return _check(last._title.text == ResultsScreen.GRAND_PRIX_TITLE, "then the Grand Prix's")
 
 
 func _podium(scene: Node, seconds: float) -> ResultsScreen:
