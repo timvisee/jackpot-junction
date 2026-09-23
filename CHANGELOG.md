@@ -26,6 +26,9 @@ below, and hands the notes to the release workflow.
   another with Next map on each podium, the same bots on every one of them. Works on
   one screen and online.
 
+- **A match is won on points.** Each map pays points by place, and after the last one
+  a Grand Prix podium ranks everybody on points over the whole match.
+
 - **Quick play on the title screen.** Setting up and playing a single map moves to
   its own button, next to Play.
 

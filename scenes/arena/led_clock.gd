@@ -128,7 +128,7 @@ func _caption_now() -> String:
 		Match.State.OVERTIME:
 			return "SUDDEN DEATH"
 		Match.State.RESULTS:
-			return "WINNER"
+			return "CHAMPION" if _champion() != null else "WINNER"
 		_:
 			return "START"
 
@@ -138,7 +138,8 @@ func _caption_now() -> String:
 ## of them, GAME.md 8.5.
 func _word_color() -> Color:
 	if match_node.state == Match.State.RESULTS:
-		return match_node.standings()[0].color()
+		var champion := _champion()
+		return champion.color() if champion != null else match_node.standings()[0].color()
 	if match_node.state == Match.State.OVERTIME:
 		var lit := Game.settings.flash_reduction or fmod(_now, FLASH) < FLASH * 0.5
 		return LIT_LAST_CALL if lit else LIT_LAST_CALL.darkened(0.75)
@@ -148,7 +149,23 @@ func _word_color() -> Color:
 ## Whoever won it, for the board to name. A player who set no name still has one to be called
 ## by, the same one the standings and the podium use.
 func _winner() -> String:
+	var champion := _champion()
+	if champion != null:
+		return champion.display_name()
 	return match_node.standings()[0].display_name()
+
+
+## Whoever won the Grand Prix this was the last map of, GAME.md 9.7, once its result is in, or
+## null. At the end of a run the board names the run's winner rather than the last map's: the
+## last map is one of several, and the run is what everybody has been playing.
+func _champion() -> PlayerSlot:
+	var rules := match_node.rules
+	var run := Game.grand_prix
+	if rules.rounds <= 0 or rules.round < rules.rounds or run == null:
+		return null
+	if run.scored_round < rules.round - 1:
+		return null
+	return run.standings(match_node.slots)[0]
 
 
 ## Puts a word on the board, or takes it off again and gives the digits back. Refitted every time

@@ -99,7 +99,26 @@ func _ready() -> void:
 			match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles())
 	DebugOverlay.add_to(self, match_node, session)
 	PauseMenu.add_to(self, session)
+	Events.match_state_changed.connect(_on_state_changed)
+	Events.grand_prix_scored.connect(_on_grand_prix_scored)
 	loaded.emit()
+
+
+## At the whistle of a Grand Prix map the host scores it, GAME.md 9.7, and says how the run stands
+## so every podium can show it. A client's whistle is the host's word arriving; it scores nothing.
+func _on_state_changed(state: int) -> void:
+	if state != Match.State.RESULTS or match_node.puppet or Game.grand_prix == null:
+		return
+	if match_node.state != Match.State.RESULTS:
+		return
+	Game.grand_prix.score(match_node.standings())
+	Events.grand_prix_scored.emit(Game.grand_prix.to_wire())
+
+
+## The run as the host has scored it. A client keeps it as its own; the host already has it.
+func _on_grand_prix_scored(run: Dictionary) -> void:
+	if match_node.puppet:
+		Game.grand_prix = GrandPrix.from_wire(run)
 
 
 ## Builds the room a phase at a time with a loading screen over it, GAME.md 8.6. A room takes

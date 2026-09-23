@@ -110,6 +110,99 @@ func test_every_map_of_a_run_has_the_same_bots() -> void:
 		assert_str(second.slots[seat].display_name()).is_equal(first.slots[seat].display_name())
 
 
+## A slot standing in for a player, for scoring by hand.
+func _seat(index: int, banked: int) -> PlayerSlot:
+	var slot := PlayerSlot.new(index, KartInput.new(), index)
+	slot.banked = banked
+	return slot
+
+
+## Each map pays by place, best banked first, and only once however often the result is said.
+func test_a_map_pays_points_by_place_once() -> void:
+	var run := GrandPrix.start(3, _rng(1))
+	var standings: Array[PlayerSlot] = [_seat(2, 900), _seat(0, 600), _seat(1, 100), _seat(3, 0)]
+	run.score(standings)
+	run.score(standings)
+	assert_int(run.total(2)).is_equal(GrandPrix.POINTS[0])
+	assert_int(run.total(0)).is_equal(GrandPrix.POINTS[1])
+	assert_int(run.total(1)).is_equal(GrandPrix.POINTS[2])
+	assert_int(run.total(3)).is_equal(GrandPrix.POINTS[3])
+	assert_int(run.wins(2)).is_equal(1)
+	assert_array(run.places[2]).contains_exactly([1])
+
+
+## The run is won on points, whatever was banked on any one map: second on every map beats a
+## win and two lasts, and beats two players who won a map each.
+func test_the_run_is_won_on_points() -> void:
+	var run := GrandPrix.start(3, _rng(2))
+	var a := _seat(0, 0)
+	var b := _seat(1, 0)
+	var c := _seat(2, 0)
+	var d := _seat(3, 0)
+	for order: Array in [[a, b, c, d], [c, b, d, a], [d, b, c, a]]:
+		var standings: Array[PlayerSlot] = []
+		standings.assign(order)
+		run.score(standings)
+		run.advance()
+	assert_int(run.wins(b.index)).is_equal(0)
+	var ranked := run.standings([a, b, c, d] as Array[PlayerSlot])
+	assert_int(ranked[0].index).is_equal(b.index)
+
+
+## Level on points, more map wins is ahead, then more banked over the whole run.
+func test_level_on_points_goes_to_wins_then_banked() -> void:
+	var run := GrandPrix.new()
+	run.playlist = [&"vault", &"crossfire"]
+	run.points = {0: [10, 5], 1: [7, 8], 2: [7, 8]}
+	run.places = {0: [1, 3], 1: [2, 2], 2: [2, 2]}
+	run.banked = {0: [100, 100], 1: [500, 500], 2: [400, 900]}
+	var seats: Array[PlayerSlot] = [_seat(1, 0), _seat(2, 0), _seat(0, 0)]
+	var ranked := run.standings(seats)
+	# All on 15: the one with a win first, then the one who banked more.
+	assert_int(ranked[0].index).is_equal(0)
+	assert_int(ranked[1].index).is_equal(2)
+	assert_int(ranked[2].index).is_equal(1)
+
+
+## A client is told the run as it stands and draws the same podium from it.
+func test_the_run_survives_the_wire() -> void:
+	var run := GrandPrix.start(2, _rng(4))
+	var standings: Array[PlayerSlot] = [_seat(1, 300), _seat(0, 200)]
+	run.score(standings)
+	var theirs := GrandPrix.from_wire(run.to_wire())
+	assert_array(theirs.playlist).is_equal(run.playlist)
+	assert_int(theirs.scored_round).is_equal(0)
+	assert_int(theirs.total(1)).is_equal(run.total(1))
+	assert_int(theirs.total(0)).is_equal(run.total(0))
+	assert_array(theirs.banked[1]).contains_exactly([300])
+
+
+## A map of a run, played by the match scene to its whistle: the host scores it and says so.
+func test_the_match_scene_scores_a_map_at_the_whistle() -> void:
+	var config := MatchConfig.new()
+	config.bot_count = 1
+	config.rounds = 2
+	Game.grand_prix = GrandPrix.start(2, _rng(5))
+	config.map = Game.grand_prix.current_map()
+	Game.pending_config = config
+	var said := {"run": {}}
+	Events.grand_prix_scored.connect(func(run: Dictionary) -> void: said["run"] = run)
+	var scene: Node3D = auto_free(load("res://scenes/match/match_scene.tscn").instantiate())
+	add_child(scene)
+	await assert_signal(scene).is_emitted("loaded")
+	var match_node: Match = scene.get_node("Match")
+	assert_int(match_node.rules.round).is_equal(1)
+	assert_int(match_node.rules.rounds).is_equal(2)
+	match_node._finish()
+	await get_tree().process_frame
+	assert_int(Game.grand_prix.scored_round).is_equal(0)
+	var paid := 0
+	for slot: PlayerSlot in match_node.slots:
+		paid += Game.grand_prix.total(slot.index)
+	assert_int(paid).is_equal(GrandPrix.POINTS[0] + GrandPrix.POINTS[1])
+	assert_int((said["run"] as Dictionary).get("scored", -1)).is_equal(0)
+
+
 ## Play's lobby asks how many maps rather than which arena, and says its length is per map. Quick
 ## play's asks which arena and no number of maps.
 func test_play_asks_how_many_maps_and_quick_play_which_arena() -> void:
@@ -133,6 +226,7 @@ func test_play_asks_how_many_maps_and_quick_play_which_arena() -> void:
 
 
 ## A finished map in the middle of a run: the podium leads to the next map and nowhere else.
+## Scored as the match scene would score it, when there is a run to score it in.
 func _podium_after(round: int, rounds: int) -> ResultsScreen:
 	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
@@ -149,9 +243,55 @@ func _podium_after(round: int, rounds: int) -> ResultsScreen:
 	await runner.simulate_frames(12, 17)
 	match_node.time_left = 0.02
 	await runner.simulate_frames(10, 17)
+	if Game.grand_prix != null:
+		Game.grand_prix.score(match_node.standings())
 	match_node.hud._podium_wait = 0.0
 	await runner.simulate_frames(2, 17)
 	return match_node.hud._results
+
+
+## A run of [param rounds] maps on its [param round]th, with the maps before it already scored.
+func _run_at(round: int, rounds: int) -> void:
+	Game.grand_prix = GrandPrix.start(rounds, _rng(9))
+	for i: int in round - 1:
+		var standings: Array[PlayerSlot] = [_seat(1, 50), _seat(0, 40)]
+		Game.grand_prix.score(standings)
+		Game.grand_prix.advance()
+
+
+## In the middle of a run each row says what its place paid and where that leaves them.
+func test_the_podium_in_the_middle_of_a_run_says_what_each_place_paid() -> void:
+	_run_at(1, 3)
+	var screen := await _podium_after(1, 3)
+	var texts := _texts(screen)
+	assert_bool(texts.has("+%d points" % GrandPrix.POINTS[0])).is_true()
+	assert_bool(texts.has("+%d points" % GrandPrix.POINTS[1])).is_true()
+	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
+
+
+## After the last map the podium is the run's: headed Grand Prix, everybody ranked on points over
+## the whole run, and a chip for each map saying where they finished it.
+func test_the_podium_after_the_last_map_is_the_grand_prix() -> void:
+	_run_at(2, 2)
+	var screen := await _podium_after(2, 2)
+	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	var run := Game.grand_prix
+	var ranked := run.standings(screen.match_node.slots)
+	var texts := _texts(screen)
+	assert_bool(texts.has("%d pts" % run.total(ranked[0].index))).is_true()
+	for map: StringName in run.playlist:
+		assert_bool(texts.has(ArenaMaps.NAMES[ArenaMaps.index_of(map)])).is_true()
+	assert_bool(run.total(ranked[0].index) >= run.total(ranked[1].index)).is_true()
+
+
+## Every label under [param node], for asking what a screen says without walking its boxes.
+func _texts(node: Node) -> PackedStringArray:
+	var found: PackedStringArray = []
+	if node is Label:
+		found.append((node as Label).text)
+	for child: Node in node.get_children():
+		found.append_array(_texts(child))
+	return found
 
 
 func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:

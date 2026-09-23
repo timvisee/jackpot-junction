@@ -2633,8 +2633,27 @@ same name. The Hunter in the second seat on the first map is the Hunter in the s
 last. A seat kept for a player at another machine is dealt a way of driving too, for the maps it
 spends as a bot -- before its player has sat down, or after they have left.
 
-**The end.** The last map's podium ends the run: Back to lobby, to the waiting room online and
-to Play's lobby on one machine, or back to the title.
+**Points.** Each map is won the way a single one is, on banked chips, and pays points by where
+everybody finished it:
+
+| Place  | 1st | 2nd | 3rd | 4th | 5th | 6th |
+|--------|-----|-----|-----|-----|-----|-----|
+| Points | 10  | 7   | 5   | 3   | 2   | 1   |
+
+The run is won on points, by a bot as readily as by anybody. Level on points, whoever won more
+maps is ahead, then whoever banked more over the whole run: a tie between a player who won a map
+and one who never did is not one anybody watching would call even. Second on every map beats a
+win and two lasts. Every podium in the middle of a run says, on each row, what that place paid
+and what it makes over the run so far. The host scores each map at its whistle and tells the
+room how the run stands, and every screen draws its podium from that.
+
+**The end.** The last map ends on the run's own podium rather than the map's. It is headed Grand
+Prix, over Final standings after however many maps it was: the top three of the run on the
+steps, then everybody ranked on points, each with how many maps they won, their points in gold,
+and a chip for every map saying where they finished it and what it paid. The board in the arena
+that names the winner at every other whistle names the champion of the run instead. Its ways on
+are Back to lobby, to the waiting room online and to Play's lobby on one machine, or back to the
+title.
 
 ## 10. Technology
 

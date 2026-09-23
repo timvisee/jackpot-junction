@@ -14,8 +14,11 @@ extends PanelContainer
 ## sentence.
 
 ## What the screen is headed. A podium is what is on it and what the last minute of a match is
-## about; "Results" is the name of a state machine's last state.
+## about; "Results" is the name of a state machine's last state. The end of a Grand Prix is headed
+## with the name of what has just been won.
 const TITLE := "Podium"
+const GRAND_PRIX_TITLE := "Grand Prix"
+const PLACES: Array[String] = ["1st", "2nd", "3rd", "4th", "5th", "6th"]
 const WIDTH := 980.0
 const RULE := Color(1.0, 1.0, 1.0, 0.13)
 const FAINT := Color(0.62, 0.62, 0.68)
@@ -29,6 +32,7 @@ const PODIUM_GAP := 10.0
 var match_node: Match
 
 var _style: StyleBoxFlat
+var _title: Label
 var _podium: ResultsPodium
 var _rows: VBoxContainer
 ## The two ways on from here, kept so the screen can point at one when it comes up.
@@ -50,6 +54,9 @@ static func create(parent: Node, for_match: Match) -> ResultsScreen:
 	screen.match_node = for_match
 	parent.add_child(screen)
 	screen._build()
+	# A client hears how a Grand Prix stands a moment after it hears the whistle, so a podium
+	# already up is filled in again with the points once they are here.
+	Events.grand_prix_scored.connect(screen._on_grand_prix_scored)
 	return screen
 
 
@@ -62,13 +69,18 @@ func fill_in() -> void:
 	var everyone: Array[PlayerStats] = []
 	for slot: PlayerSlot in match_node.slots:
 		everyone.append(slot.stats)
-	var standings := match_node.standings()
+	# The end of a Grand Prix, GAME.md 9.7, is its own podium: everybody ranked on the points of
+	# the whole run rather than on what they banked on its last map.
+	var run := _run()
+	var final := run != null and match_node.rules.round >= match_node.rules.rounds
+	var standings := run.standings(match_node.slots) if final else match_node.standings()
 	if not standings.is_empty():
 		_style.border_color = standings[0].color()
 	_podium.show_top(standings)
+	_title.text = GRAND_PRIX_TITLE if final else TITLE
 	var rank := 1
 	for slot: PlayerSlot in standings:
-		_rows.add_child(_entry(slot, rank, everyone))
+		_rows.add_child(_run_entry(slot, rank, run) if final else _entry(slot, rank, everyone, run))
 		rank += 1
 	visible = true
 	_ways_on()
@@ -104,12 +116,92 @@ func _ways_on() -> void:
 	_caption.visible = grand_prix
 	if grand_prix:
 		var named := ArenaMaps.NAMES[ArenaMaps.index_of(rules.map)]
-		_caption.text = "%s \u00b7 map %d of %d" % [named, rules.round, rules.rounds]
+		_caption.text = (
+			"%s \u00b7 map %d of %d" % [named, rules.round, rules.rounds]
+			if more
+			else "Final standings after %d maps" % rules.rounds
+		)
+
+
+## The Grand Prix this map belongs to, with this map's result in, or null: a single map, or a
+## client that has not been told the points yet.
+func _run() -> GrandPrix:
+	var rules := match_node.rules
+	var run := Game.grand_prix
+	if rules.rounds <= 0 or run == null or run.scored_round < rules.round - 1:
+		return null
+	return run
+
+
+func _on_grand_prix_scored(_run_now: Dictionary) -> void:
+	if visible:
+		fill_in()
 
 
 ## One player: their place and name on the left, what they banked on the right, and what they
-## did most of underneath.
-func _entry(slot: PlayerSlot, rank: int, everyone: Array[PlayerStats]) -> PanelContainer:
+## did most of underneath. In a Grand Prix, what the place paid in points and where that leaves
+## them over the run comes first under the name.
+func _entry(
+	slot: PlayerSlot, rank: int, everyone: Array[PlayerStats], run: GrandPrix
+) -> PanelContainer:
+	var row := _row(slot)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 6)
+	row.add_child(box)
+	box.add_child(_headline(slot, rank))
+	var awards := _award_chips(slot, everyone)
+	if run != null:
+		if awards == null:
+			awards = HBoxContainer.new()
+			awards.add_theme_constant_override("separation", 8)
+		var paid: Array = run.points.get(slot.index, [])
+		var earned: int = (
+			paid[match_node.rules.round - 1] if paid.size() >= match_node.rules.round else 0
+		)
+		var chip := _chip("+%d points" % earned, "%d in all" % run.total(slot.index))
+		awards.add_child(chip)
+		awards.move_child(chip, 0)
+	if awards != null:
+		box.add_child(awards)
+	return row
+
+
+## One player at the end of a Grand Prix: place and name, how many maps they won, and their points
+## over the whole run, with a chip for each map saying where they finished it and what it paid.
+func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix) -> PanelContainer:
+	var row := _row(slot)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 6)
+	row.add_child(box)
+	var line := HBoxContainer.new()
+	line.add_theme_constant_override("separation", 16)
+	line.add_child(_label("%d" % rank, 30, FAINT))
+	var name_label := _label(slot.display_name(), 30, slot.color())
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	line.add_child(name_label)
+	var won := run.wins(slot.index)
+	line.add_child(_label("%d %s" % [won, "win" if won == 1 else "wins"], 18, FAINT))
+	var total := _label("%d pts" % run.total(slot.index), 34, Palette.CHIP_GOLD)
+	total.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	total.custom_minimum_size = Vector2(150.0, 0.0)
+	line.add_child(total)
+	box.add_child(line)
+	var maps := HBoxContainer.new()
+	maps.add_theme_constant_override("separation", 8)
+	var places: Array = run.places.get(slot.index, [])
+	var paid: Array = run.points.get(slot.index, [])
+	for i: int in mini(places.size(), run.playlist.size()):
+		var named := ArenaMaps.NAMES[ArenaMaps.index_of(run.playlist[i])]
+		var place: int = places[i]
+		var ordinal := PLACES[place - 1] if place <= PLACES.size() else "%dth" % place
+		maps.add_child(_chip(named, "%s \u00b7 %d" % [ordinal, paid[i]]))
+	box.add_child(maps)
+	return row
+
+
+## The card a player's row sits on, their colour down its leading edge the way the standings wear
+## it, and lifted a shade when it is the player reading it.
+func _row(slot: PlayerSlot) -> PanelContainer:
 	var row := PanelContainer.new()
 	var style := StyleBoxFlat.new()
 	style.bg_color = ROW_MINE if _is_mine(slot) else ROW_BG
@@ -118,17 +210,9 @@ func _entry(slot: PlayerSlot, rank: int, everyone: Array[PlayerStats]) -> PanelC
 	style.content_margin_right = 16.0
 	style.content_margin_top = 10.0
 	style.content_margin_bottom = 10.0
-	# The player's own colour down the leading edge, the way the standings wear it.
 	style.border_width_left = 5
 	style.border_color = slot.color()
 	row.add_theme_stylebox_override("panel", style)
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 6)
-	row.add_child(box)
-	box.add_child(_headline(slot, rank))
-	var awards := _award_chips(slot, everyone)
-	if awards != null:
-		box.add_child(awards)
 	return row
 
 
@@ -208,12 +292,12 @@ func _build() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 18)
 	add_child(column)
-	var title := Label.new()
-	title.text = TITLE
-	Type.set_font(title, Type.display_font(), Type.TITLE)
-	title.add_theme_color_override("font_color", Palette.CHIP_GOLD)
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	column.add_child(title)
+	_title = Label.new()
+	_title.text = TITLE
+	Type.set_font(_title, Type.display_font(), Type.TITLE)
+	_title.add_theme_color_override("font_color", Palette.CHIP_GOLD)
+	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(_title)
 	_caption = MenuTheme.subtitle("", Type.LABEL)
 	_caption.visible = false
 	column.add_child(_caption)

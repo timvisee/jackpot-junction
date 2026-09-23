@@ -64,6 +64,7 @@ const RELAYED_EVENTS: Array[StringName] = [
 	&"player_joined",
 	&"player_ready",
 	&"match_planned",
+	&"grand_prix_scored",
 	&"player_left",
 	&"countdown_tick",
 	&"countdown_done",

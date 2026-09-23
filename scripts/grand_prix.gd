@@ -5,6 +5,13 @@ extends RefCounted
 ## Dealt when the waiting room fills rather than when the lobby is left, so the maps are not known
 ## until everybody who is playing them is there. The host keeps it; every map is told which one of
 ## how many it is, so a client knows as well as the host whether a podium leads on or ends it.
+##
+## Each map is won the way a single one is, on banked chips, and pays points by place. The run is
+## won on points. A seat is somebody for the whole run -- the same people and bots sit in the same
+## seats on every map -- so the points are kept by seat.
+
+## Points for each place on a map, first to last.
+const POINTS: Array[int] = [10, 7, 5, 3, 2, 1]
 
 ## The maps in the order they are played.
 var playlist: Array[StringName] = []
@@ -13,6 +20,13 @@ var round := 0
 ## How every seat nobody is sitting in drives, in seat order, dealt once at the start and kept
 ## for every map: the same bots all the way through, see [FixedTraits].
 var bots: Array[BotTrait] = []
+## Seat to what that seat did on each map so far, in playlist order: the place it finished, the
+## points that paid, and what it banked.
+var places: Dictionary[int, Array] = {}
+var points: Dictionary[int, Array] = {}
+var banked: Dictionary[int, Array] = {}
+## The last map whose result is in, so a result said twice is counted once.
+var scored_round := -1
 
 
 ## A Grand Prix of [param rounds] maps, dealt with [param rng].
@@ -73,3 +87,86 @@ func bot_table(table: BotTraitTable) -> BotTraitTable:
 func label(rules: MatchRules) -> void:
 	rules.round = round + 1
 	rules.rounds = playlist.size()
+
+
+## Scores the map being played from its [param standings], best first. Once per map: the host says
+## the match is over more than once, and a map is only worth its points the one time.
+func score(standings: Array[PlayerSlot]) -> void:
+	if scored_round >= round:
+		return
+	scored_round = round
+	for place: int in standings.size():
+		var seat := standings[place].index
+		for record: Dictionary in [places, points, banked]:
+			if not record.has(seat):
+				record[seat] = []
+		places[seat].append(place + 1)
+		points[seat].append(POINTS[place] if place < POINTS.size() else 0)
+		banked[seat].append(standings[place].banked)
+
+
+## Points [param seat] has so far.
+func total(seat: int) -> int:
+	var sum := 0
+	for earned: int in points.get(seat, []):
+		sum += earned
+	return sum
+
+
+## Maps [param seat] has won so far.
+func wins(seat: int) -> int:
+	return places.get(seat, []).count(1)
+
+
+## [param slots] best first on points so far. Level on points, the one who won more maps is ahead,
+## then the one who banked more over the whole run: a tie on points between a player who won a map
+## and one who never did is not a tie anybody watching would call even.
+func standings(slots: Array[PlayerSlot]) -> Array[PlayerSlot]:
+	var ranked := slots.duplicate()
+	ranked.sort_custom(_ahead)
+	return ranked
+
+
+func _ahead(a: PlayerSlot, b: PlayerSlot) -> bool:
+	if total(a.index) != total(b.index):
+		return total(a.index) > total(b.index)
+	if wins(a.index) != wins(b.index):
+		return wins(a.index) > wins(b.index)
+	var a_banked := _banked(a.index)
+	var b_banked := _banked(b.index)
+	if a_banked != b_banked:
+		return a_banked > b_banked
+	return a.index < b.index
+
+
+func _banked(seat: int) -> int:
+	var sum := 0
+	for chips: int in banked.get(seat, []):
+		sum += chips
+	return sum
+
+
+## The run as a client needs it for its podiums: the playlist, where it has got to, and the scores.
+func to_wire() -> Dictionary:
+	return {
+		"playlist": playlist,
+		"round": round,
+		"scored": scored_round,
+		"places": places,
+		"points": points,
+		"banked": banked,
+	}
+
+
+static func from_wire(data: Dictionary) -> GrandPrix:
+	var run := GrandPrix.new()
+	for id: Variant in data.get("playlist", []):
+		run.playlist.append(StringName(id))
+	run.round = int(data.get("round", 0))
+	run.scored_round = int(data.get("scored", -1))
+	for field: String in ["places", "points", "banked"]:
+		var record: Dictionary[int, Array] = run.get(field)
+		var sent: Dictionary = data.get(field, {})
+		for seat: Variant in sent:
+			record[int(seat)] = Array(sent[seat])
+	return run
