@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+"""Runs the unit tests a suite per process, several processes at once.
+
+gdUnit4 runs the suites of one process one after another, and the whole suite takes minutes
+that way. Every suite here stands on its own -- its own scene tree, its own ports, its own
+scratch files -- so they can run side by side instead: a pool of Godot processes, each taking the
+next suite off the list as it finishes one, longest first so the long ones do not come last.
+
+Usage: tools/test_parallel [--jobs N] [suite ...]
+
+A suite is a path such as tests/test_flow.gd; with none given, every suite in tests/ runs. The
+number of processes defaults to the number of cores, at most 12, or $JOBS. Each process writes
+its report to reports/parallel/<suite>, and the output of any suite that failed is printed in
+full at the end. The exit status is non-zero if any suite failed.
+"""
+
+import argparse
+import concurrent.futures
+import os
+import pathlib
+import re
+import subprocess
+import sys
+import time
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+GODOT = os.environ.get("GODOT", str(ROOT / "tools" / "godot"))
+SUMMARY = re.compile(
+    r"Overall Summary:.*?(\d+) test cases \| (\d+) errors \| (\d+) failures \| (\d+) flaky"
+    r" \| (\d+) skipped \| (\d+) orphans"
+)
+ANSI = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def run_suite(suite: pathlib.Path) -> dict:
+    # Relative to the project: gdUnit4 reads the report directory that way, and an absolute path
+    # handed to it is rebuilt inside the project as home/<user>/... instead.
+    report = pathlib.Path("reports") / "parallel" / suite.stem
+    (ROOT / report).mkdir(parents=True, exist_ok=True)
+    command = [
+        GODOT, "--headless", "--path", str(ROOT), "-s", "addons/gdUnit4/bin/GdUnitCmdTool.gd",
+        "-a", "res://" + str(suite.relative_to(ROOT)), "-c", "--ignoreHeadlessMode",
+        "-rd", str(report), "-rc", "1",
+    ]
+    started = time.monotonic()
+    done = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, errors="replace")
+    output = ANSI.sub("", done.stdout + done.stderr)
+    found = SUMMARY.search(output)
+    counts = [int(n) for n in found.groups()] if found else None
+    return {
+        "suite": suite.stem,
+        "status": done.returncode,
+        "counts": counts,
+        "seconds": time.monotonic() - started,
+        "output": output,
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--jobs", type=int, default=int(os.environ.get("JOBS", "0")))
+    parser.add_argument("suites", nargs="*")
+    args = parser.parse_args()
+    jobs = args.jobs or min(os.cpu_count() or 4, 12)
+    suites = [ROOT / s for s in args.suites] or sorted((ROOT / "tests").glob("test_*.gd"))
+    # Longest first: a big suite started last is the whole run waiting on one process. Size is
+    # a fair guess at length when nothing better is known.
+    suites.sort(key=lambda s: s.stat().st_size, reverse=True)
+    started = time.monotonic()
+    results = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
+        for result in pool.map(run_suite, suites):
+            results.append(result)
+            mark = "ok" if result["status"] == 0 else "FAILED"
+            print(f"{mark:6} {result['suite']} ({result['seconds']:.0f} s)", flush=True)
+    totals = [0] * 6
+    failed = []
+    for result in results:
+        if result["counts"] is None:
+            failed.append(result)
+            continue
+        totals = [a + b for a, b in zip(totals, result["counts"])]
+        if result["status"] != 0:
+            failed.append(result)
+    for result in failed:
+        print(f"\n===== {result['suite']} (exit {result['status']}) =====")
+        print(result["output"][-6000:])
+    print(
+        "\n%d suites in %d processes, %.0f s: %d test cases | %d errors | %d failures | %d flaky |"
+        " %d skipped | %d orphans"
+        % (len(results), jobs, time.monotonic() - started, *totals)
+    )
+    if failed:
+        print("failed: " + ", ".join(r["suite"] for r in failed))
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

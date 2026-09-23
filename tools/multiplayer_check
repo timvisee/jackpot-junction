@@ -11,7 +11,7 @@
 # Usage: tools/multiplayer_check          (about a minute and a half)
 set -uo pipefail
 cd "$(dirname "$0")/.."
-port="${MPCHECK_PORT:-7811}"
+port="${MPCHECK_PORT:-7851}"
 # MPCHECK_LOGS keeps the whole of each run's output there, for a failure that needs reading.
 if [[ -n ${MPCHECK_LOGS:-} ]]; then
 	logs=$MPCHECK_LOGS

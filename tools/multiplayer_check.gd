@@ -3,7 +3,7 @@ extends SceneTree
 ## before the game's autoloads are there to be named, so this only waits for them and hands over
 ## to the driver, which is compiled once they are.
 ##
-##   godot --headless --path . -s tools/multiplayer_check.gd -- --role=host --port=7811
+##   godot --headless --path . -s tools/multiplayer_check.gd -- --role=host --port=7851
 
 
 func _initialize() -> void:

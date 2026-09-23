@@ -5,7 +5,7 @@ extends GdUnitTestSuite
 
 const WAITING_SCENE := preload("res://scenes/waiting/waiting_room.tscn")
 ## A port of this suite's own for the host's room, clear of the ones the other network suites use.
-const HOST_PORT := 7795
+const HOST_PORT := 7821
 
 var _runner: GdUnitSceneRunner
 ## The player's own settings, put aside while a test that saves them runs on a scratch copy.

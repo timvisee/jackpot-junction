@@ -4,7 +4,7 @@ GDLINT ?= gdlint
 GDFORMAT ?= gdformat
 GD_DIRS := scenes scripts tests
 
-.PHONY: import test lint format format-check smoke run drive jokers logo textures bench bots multiplayer changelog check export
+.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench bots multiplayer changelog check export
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -20,7 +20,12 @@ $(CACHE):
 import:
 	$(GODOT) --headless --path . --import
 
+# A suite per process, several at once: about a minute rather than several. JOBS=n sets how
+# many; test-serial runs the lot in one process, as a tie-breaker for a result that differs.
 test: | $(CACHE)
+	GODOT=$(GODOT) tools/test_parallel
+
+test-serial: | $(CACHE)
 	$(GODOT) --headless --path . -s addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests -c --ignoreHeadlessMode
 
 lint:

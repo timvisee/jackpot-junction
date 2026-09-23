@@ -7,7 +7,9 @@ extends GdUnitTestSuite
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const WAITING_RULES: MatchRules = preload("res://data/match/waiting_room.tres")
 const WAITING_MAP: ArenaLayout = preload("res://data/maps/waiting_room.tres")
-const PORT := 7793
+## The first of a block of ports of this suite's own, so it can run beside the other network
+## suites.
+const PORT := 7811
 const PATIENCE := 3
 
 var _host_root: Node

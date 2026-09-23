@@ -27,7 +27,7 @@ const SPOTS: Array[Vector3] = [
 ]
 
 var _role := ""
-var _port := 7811
+var _port := 7851
 var _failed := false
 ## The color this client had on the first map, to find it in again on the second.
 var _color := -1
