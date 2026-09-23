@@ -22,6 +22,10 @@ var taken: Joker
 ## allowed from the first frame: which card somebody is looking at was never the problem. Set to
 ## zero to open a pick that answers at once.
 var answer_at := 0.0
+## A pick of which of last map's jokers to keep, see [JokerKeep], rather than of a new one. It
+## cannot be skipped, and it runs out: [member keep_left] seconds are left to answer it.
+var keeping := false
+var keep_left := 0.0
 
 var _kart: Kart
 var _was_down: Dictionary[StringName, bool] = {}
@@ -62,7 +66,7 @@ func take(index: int) -> void:
 
 
 func skip() -> void:
-	if stage == Stage.CHOOSING:
+	if stage == Stage.CHOOSING and not keeping:
 		stage = Stage.DONE
 
 

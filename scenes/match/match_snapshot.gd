@@ -100,6 +100,7 @@ static func _offer(offer: JokerOffer) -> Dictionary:
 		"selected": offer.selected,
 		"choices": ids,
 		"chosen": String(offer.chosen.id) if offer.chosen != null else "",
+		"keep": offer.keeping,
 	}
 
 
@@ -464,6 +465,7 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 			if slot.offer == null or slot.offer.is_done():
 				slot.offer = JokerOffer.new(slot.kart, choices)
 				slot.offer.choices = choices
+				slot.offer.keeping = offer_data.get("keep", false)
 			elif i != match_node.local_slot:
 				# Somebody else's pick, watched rather than made: the host says where their
 				# cursor is and what they have taken.

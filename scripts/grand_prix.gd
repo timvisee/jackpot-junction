@@ -35,8 +35,10 @@ var scored_round := -1
 var revealed := false
 ## What every seat takes on to the next map of the jokers it ends a map holding.
 var keep := Keep.RANDOM
-## Seat to the joker its player chose to keep, for [enum Keep] CHOOSE. Cleared once used.
-var chosen: Dictionary[int, StringName] = {}
+## Seat to the jokers a player held at the end of the map before, for [enum Keep] CHOOSE: the ones
+## they choose from as the next map starts, see [JokerKeep]. A bot, and a player with only one,
+## keeps theirs there and then instead.
+var choosing: Dictionary[int, Array] = {}
 ## Seat to the jokers it takes on to the map about to start, worked out as the run moves on.
 var carried: Dictionary[int, Array] = {}
 
@@ -99,18 +101,13 @@ func bot_table(table: BotTraitTable) -> BotTraitTable:
 	return FixedTraits.of(table if table != null else load("res://data/ai/traits.tres"), bots)
 
 
-## A player's choice of which joker to keep, for [enum Keep] CHOOSE. Only the latest counts, and
-## only if it is still in their hand when the run moves on.
-func choose(seat: int, id: StringName) -> void:
-	chosen[seat] = id
-
-
 ## Works out what every seat takes on to the next map from what it ends this one holding: nothing,
-## the one its player chose, one at random, or all of it. A seat that was to choose and did not,
-## or chose a joker it no longer holds, is dealt one at random, since a choice nobody made is not
-## the same as a choice to keep nothing; so is every bot, which has nobody to choose for it.
+## one at random, all of it, or, for a player choosing, the jokers to choose from as the next map
+## starts. A bot choosing keeps one at random, having nobody to choose for it, and a player with
+## one joker keeps that one: a choice of one is not a choice.
 func hold_over(slots: Array[PlayerSlot], rng: RandomNumberGenerator) -> void:
 	carried.clear()
+	choosing.clear()
 	for slot: PlayerSlot in slots:
 		var held: Array[StringName] = []
 		if slot.kart != null:
@@ -120,16 +117,21 @@ func hold_over(slots: Array[PlayerSlot], rng: RandomNumberGenerator) -> void:
 			Keep.ALL:
 				going.assign(held)
 			Keep.CHOOSE, Keep.RANDOM:
-				var pick: StringName = chosen.get(slot.index, &"")
-				if keep != Keep.CHOOSE or not held.has(pick):
-					pick = held[rng.randi_range(0, held.size() - 1)] if not held.is_empty() else &""
-				if pick != &"":
-					going.append(pick)
+				if keep == Keep.CHOOSE and slot.is_human() and held.size() > 1:
+					choosing[slot.index] = held.duplicate()
+				elif not held.is_empty():
+					going.append(held[rng.randi_range(0, held.size() - 1)])
 		carried[slot.index] = going
-	chosen.clear()
 
 
-## Hands every seat of a map that has just started the jokers it carried on from the one before.
+## Whether anybody starts the next map choosing which joker to keep.
+func has_choices() -> bool:
+	return not choosing.is_empty()
+
+
+## Hands every seat of a map that has just started the jokers it carried on from the one before,
+## and opens the pick for anybody who is to choose which of theirs to keep, see [JokerKeep]. A seat
+## kept for a client is still a bot here; its pick waits for the client to sit down in it.
 func deal_jokers(match_node: Match) -> void:
 	for slot: PlayerSlot in match_node.slots:
 		if slot.kart == null:
@@ -138,6 +140,15 @@ func deal_jokers(match_node: Match) -> void:
 			var joker := match_node.joker_catalog.by_id(id)
 			if joker != null and not slot.kart.jokers.is_full():
 				slot.kart.jokers.add(joker)
+		var options: Array[Joker] = []
+		for id: StringName in choosing.get(slot.index, []):
+			var joker := match_node.joker_catalog.by_id(id)
+			if joker != null:
+				options.append(joker)
+		if options.size() > 1:
+			JokerKeep.open(slot, options)
+		elif options.size() == 1 and not slot.kart.jokers.is_full():
+			slot.kart.jokers.add(options[0])
 
 
 ## Tells a match which map of how many it is, see [member MatchRules.round].

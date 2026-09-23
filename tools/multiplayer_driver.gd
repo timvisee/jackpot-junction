@@ -203,19 +203,21 @@ func _host_plays(first: Node) -> ResultsScreen:
 	_check(podium._next.visible and not podium._rematch.visible, "map 1's podium offers Next map")
 	_check(Game.grand_prix.scored_round == 0, "map 1 is scored")
 	_say("SCORES 1 %s" % _scores(one))
-	_choose_on(podium, one, 0)
 	await _seconds(READING)
-	# Every choice made at another machine has reached the run before it moves on: the joker a
-	# client takes on is the host's to hand it, and the host can only hand what it was told.
-	if _keep == GrandPrix.Keep.CHOOSE:
-		for seat: int in _colors(one):
-			var told: StringName = Game.grand_prix.chosen.get(seat, &"")
-			_check(told == _given[seat][1], "seat %d's choice reached the host" % seat)
 	podium._next.pressed.emit()
 	var second := await _map(2)
 	if second == null:
 		return null
 	var two: Match = second.match_node
+	# Everybody choosing which joker to keep does it on this map's grid, and the lamps wait for
+	# them: the host for the player here, each client for its own, the host deciding for all.
+	await _keep_on(second, 0)
+	if _keep == GrandPrix.Keep.CHOOSE:
+		await _until(
+			func() -> bool: return two.state != Match.State.LOBBY,
+			30.0,
+			"the lamps went once everybody had chosen"
+		)
 	_check(two.slots.size() == seats, "map 2 seats the same people")
 	_check(
 		bot >= 0 and String(two.slots[bot].bot_trait.id) == bot_trait,
@@ -347,9 +349,12 @@ func _client_after_map_1(first: Node) -> Node:
 		return null
 	_check(_scene_has_points(podium), "its podium shows what each place paid")
 	_say("SCORES 1 %s" % _scores(one))
-	await _frames(3)
-	_choose_on(podium, one, one.local_slot)
-	return await _map(2)
+	# What it held at the whistle, as the host told it, to be offered again on the next map.
+	_given[one.local_slot] = one.slots[one.local_slot].kart.jokers.ids()
+	var second := await _map(2)
+	if second != null:
+		await _keep_on(second, second.match_node.local_slot)
+	return second
 
 
 ## Map 2 in the same color, the run's podium, and back to the room.
@@ -539,22 +544,38 @@ func _give_jokers(match_node: Match) -> void:
 		_given[slot.index] = given
 
 
-## When everybody chooses a joker to keep, presses the button for the second one on the row of
-## [param seat], the way the player in it would.
-func _choose_on(podium: ResultsScreen, match_node: Match, seat: int) -> void:
+## When everybody chooses a joker to keep, GAME.md 9.7: waits for the pick to be up for
+## [param seat] as the map starts, with the two jokers it held on the last one, and takes the
+## second by pressing the key for it, the way the player in it would.
+func _keep_on(scene: Node, seat: int) -> void:
+	var match_node: Match = scene.match_node
+	# The rule as the host set it: a client is told it with the rest of the rules.
 	if match_node.rules.keep_jokers != GrandPrix.Keep.CHOOSE:
 		return
-	var hand := match_node.slots[seat].kart.jokers.jokers
-	if not _check(hand.size() == 2, "seat %d holds its two jokers at the whistle" % seat):
+	var slot := match_node.slots[seat]
+	if not await _until(
+		func() -> bool: return JokerKeep.choosing(slot) and slot.offer.is_settled(),
+		20.0,
+		"seat %d is asked which joker to keep" % seat
+	):
 		return
-	var wanted := hand[1].display_name
-	for node: Node in podium.find_children("*", "Button", true, false):
-		var button := node as Button
-		if button.toggle_mode and button.text == wanted:
-			button.pressed.emit()
-			_say("KEPT %s" % hand[1].id)
-			return
-	_fail("no button to keep %s on the podium" % wanted)
+	var offered: Array[StringName] = []
+	for joker: Joker in slot.offer.choices:
+		offered.append(joker.id)
+	_check(offered == _given.get(seat, []), "it is offered the two it held: %s" % [offered])
+	var press: InputEventKey = null
+	for event: InputEvent in InputMap.action_get_events(InputActions.JOKER_SELECTS[1]):
+		if event is InputEventKey:
+			press = (event as InputEventKey).duplicate()
+	if not _check(press != null, "there is a key for the second card"):
+		return
+	press.pressed = true
+	Input.parse_input_event(press)
+	await _frames(6)
+	var release: InputEventKey = press.duplicate()
+	release.pressed = false
+	Input.parse_input_event(release)
+	_say("KEPT %s" % offered[1])
 
 
 ## Every seat on the second map holds what the rule says it takes from the first: nothing, the

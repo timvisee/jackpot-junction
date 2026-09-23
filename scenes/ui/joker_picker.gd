@@ -77,11 +77,13 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 	_sync(jokers, offer.stage)
 	var picked := clampi(offer.selected, 0, maxi(_cards.size() - 1, 0))
 	_title.text = (
-		"Pick a joker" if choosing else "Destroy which joker for %s?" % offer.chosen.display_name
+		("Keep which joker for this map?" if offer.keeping else "Pick a joker")
+		if choosing
+		else "Destroy which joker for %s?" % offer.chosen.display_name
 	)
 	if picked < jokers.size():
 		_detail.show_joker(jokers[picked])
-		_detail.set_hints(_hint_row(choosing))
+		_detail.set_hints(_hint_row(choosing, offer.keeping))
 	_layout(picked)
 
 
@@ -178,7 +180,7 @@ func _clear() -> void:
 
 
 ## What the player can do from here, drawn as the buttons themselves, GAME.md 8.3.
-func _hint_row(choosing: bool) -> Control:
+func _hint_row(choosing: bool, keeping := false) -> Control:
 	var ink := JokerDetail.hint_ink()
 	var size := InputHint.FONT_SIZE
 	var parts: Array = [
@@ -191,4 +193,8 @@ func _hint_row(choosing: bool) -> Control:
 	var template := (
 		"%s choose   %s take   %s skip" if choosing else "%s choose   %s destroy   %s back"
 	)
+	# Keeping one of last map's is not a card that can be turned down: the rule is keep one.
+	if keeping:
+		parts.pop_back()
+		template = "%s choose   %s keep"
 	return InputHint.row(template, parts, ink, size)

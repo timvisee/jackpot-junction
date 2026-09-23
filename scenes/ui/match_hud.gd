@@ -947,9 +947,11 @@ func _build_lobby() -> void:
 
 
 func _update_lobby() -> void:
-	# Held on the grid for somebody still building the room is not the lobby, GAME.md 10.3: there
-	# is nothing to start, and [StartWait] says what is being waited for.
-	var in_lobby := match_node.state == Match.State.LOBBY and match_node.loading.y == 0
+	# Held on the grid for somebody still building the room, or still choosing which joker to
+	# keep, is not the lobby, GAME.md 9.7 and 10.3: there is nothing to start, and [StartWait] and
+	# the pick say what is being waited for.
+	var held := match_node.loading.y > 0 or JokerKeep.pending(match_node)
+	var in_lobby := match_node.state == Match.State.LOBBY and not held
 	if _lobby.visible != in_lobby:
 		_lobby.visible = in_lobby
 		if in_lobby and not match_node.puppet:

@@ -49,9 +49,6 @@ var _caption: Label
 var _showing_run := false
 ## What happens to everybody's jokers on the way to the next map, under the caption.
 var _keep_note: Label
-## Seat to the joker a player here chose to keep, so the choice outlives the screen being filled
-## in again when the run's points arrive.
-var _kept: Dictionary[int, StringName] = {}
 
 
 ## Builds the screen for [param for_match] and hangs it off [param parent], hidden until the
@@ -144,7 +141,7 @@ func _keeping_words(keep: int) -> String:
 		GrandPrix.Keep.NONE:
 			return "Nobody takes their jokers on to the next map."
 		GrandPrix.Keep.CHOOSE:
-			return "Pick a joker to keep for the next map, or one is kept for you at random."
+			return "As the next map starts, everybody picks which of their jokers to keep."
 		GrandPrix.Keep.ALL:
 			return "Everybody takes all their jokers on to the next map."
 	return "Everybody keeps one of their jokers for the next map, at random."
@@ -186,7 +183,6 @@ func _entry(
 	row.add_child(box)
 	box.add_child(_headline(slot, rank))
 	var awards := _award_chips(slot, everyone)
-	var keeping := _keep_row(slot) if run != null else null
 	if run != null:
 		if awards == null:
 			awards = HBoxContainer.new()
@@ -200,50 +196,7 @@ func _entry(
 		awards.move_child(chip, 0)
 	if awards != null:
 		box.add_child(awards)
-	if keeping != null:
-		box.add_child(keeping)
 	return row
-
-
-## For a Grand Prix that lets everybody choose a joker to keep, GAME.md 9.7: on the row of each
-## player at this screen, the jokers they end the map holding, one button each, the chosen one
-## lit. Null for anybody else, and for a map that is not followed by another.
-func _keep_row(slot: PlayerSlot) -> HBoxContainer:
-	var rules := match_node.rules
-	if rules.keep_jokers != GrandPrix.Keep.CHOOSE or rules.round >= rules.rounds:
-		return null
-	if not _is_mine(slot) or slot.kart == null or slot.kart.jokers.jokers.is_empty():
-		return null
-	var line := HBoxContainer.new()
-	line.add_theme_constant_override("separation", 8)
-	line.add_child(_label("Keep for the next map", 15, FAINT))
-	var group := ButtonGroup.new()
-	for joker: Joker in slot.kart.jokers.jokers:
-		var button := MenuTheme.button(joker.display_name, 15)
-		button.custom_minimum_size = Vector2.ZERO
-		for state: String in ["normal", "hover", "pressed", "focus"]:
-			var style := button.get_theme_stylebox(state).duplicate() as StyleBoxFlat
-			style.content_margin_left = 10.0
-			style.content_margin_right = 10.0
-			style.content_margin_top = 3.0
-			style.content_margin_bottom = 3.0
-			button.add_theme_stylebox_override(state, style)
-		button.toggle_mode = true
-		button.button_group = group
-		button.button_pressed = _kept.get(slot.index, &"") == joker.id
-		button.pressed.connect(_keep.bind(slot.index, joker.id))
-		line.add_child(button)
-	return line
-
-
-## A player here chose which joker to keep. The host holds the run, so a client tells it.
-func _keep(seat: int, id: StringName) -> void:
-	_kept[seat] = id
-	if match_node.puppet:
-		if Net.session != null:
-			Net.session.keep_joker(id)
-	elif Game.grand_prix != null:
-		Game.grand_prix.choose(seat, id)
 
 
 ## One player at the end of a Grand Prix: place and name, how many maps they won, and their points

@@ -91,6 +91,8 @@ var puppet_turrets: Dictionary[int, Turret] = {}
 var puppet_bombs: Dictionary[int, Bomb] = {}
 var puppet_stains: Dictionary[int, OilStain] = {}
 
+## Whether the lobby has been told to begin and is waiting on a joker pick first.
+var _starting := false
 var _inputs: Array[KartInput] = []
 var _colors: Array[int] = []
 ## What the lobby called each seat, in slot order; an empty entry is handed a funny name.
@@ -474,11 +476,14 @@ func hold_in_lobby() -> void:
 	_set_state(State.LOBBY)
 
 
-## Leaves the lobby into the countdown.
+## Leaves the lobby into the countdown, once nobody is still choosing which joker to keep: the
+## lamps wait for them, GAME.md 9.7, see [JokerKeep].
 func begin_from_lobby() -> void:
 	if state != State.LOBBY or puppet:
 		return
-	_begin_countdown()
+	_starting = JokerKeep.pending(self)
+	if not _starting:
+		_begin_countdown()
 
 
 ## How many lamps of the start gantry are lit, GAME.md 8.3, first one the moment the field is
@@ -581,6 +586,10 @@ func _physics_process(delta: float) -> void:
 		MatchStage.step(self)
 		return
 	match state:
+		State.LOBBY:
+			if JokerKeep.step(self, delta) and _starting:
+				_starting = false
+				_begin_countdown()
 		State.COUNTDOWN:
 			var before := countdown_lamps()
 			countdown_left -= delta

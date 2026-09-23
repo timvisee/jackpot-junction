@@ -48,12 +48,22 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	var count := match_node.loading if match_node != null else Vector2i.ZERO
-	visible = count.y > 0 and match_node.state == Match.State.LOBBY
+	if match_node == null or match_node.state != Match.State.LOBBY:
+		visible = false
+		return
+	var count := match_node.loading
+	# Somebody else still choosing a joker to keep holds the lamps too, GAME.md 9.7. Somebody here
+	# choosing has the pick on the screen instead, which says it better.
+	var keeping := JokerKeep.pending(match_node)
+	visible = (count.y > 0 or keeping) and not JokerKeep.choosing_here(match_node)
 	if not visible:
 		return
-	_label.text = "Waiting on %d out of %d players" % [count.y - count.x, count.y]
-	_bar.value = float(count.x) / float(count.y)
+	_bar.visible = count.y > 0
+	if count.y > 0:
+		_label.text = "Waiting on %d out of %d players" % [count.y - count.x, count.y]
+		_bar.value = float(count.x) / float(count.y)
+	else:
+		_label.text = "Waiting for everybody to keep a joker"
 
 
 func _bar_style(fill: Color) -> StyleBoxFlat:

@@ -103,8 +103,12 @@ func _ready() -> void:
 					_show_status("Connecting to %s:%d..." % [config.address, config.port])
 		_:
 			await _put_the_room_up()
+			# Anybody choosing which joker to keep does it on the grid, with the lamps waiting for
+			# them, GAME.md 9.7.
+			match_node.hold_start = Game.grand_prix != null and Game.grand_prix.has_choices()
 			match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles())
 			_deal_carried_jokers()
+			match_node.begin_from_lobby()
 	DebugOverlay.add_to(self, match_node, session)
 	PauseMenu.add_to(self, session)
 	Events.match_state_changed.connect(_on_state_changed)

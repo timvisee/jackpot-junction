@@ -267,9 +267,9 @@ func _holding(match_node: Match, seat: int, first: int, count: int) -> Array[Str
 	return given
 
 
-## Each way of keeping jokers between maps keeps what it says: none, the one chosen, one at random,
-## or all. A bot, or a player who chose nothing, or chose a joker they no longer hold, is dealt one
-## at random rather than nothing.
+## Each way of keeping jokers between maps keeps what it says: none, one at random, all, or, for
+## a player choosing, the jokers to choose from on the next map. A bot choosing keeps one at
+## random, having nobody to choose for it.
 func test_each_way_of_keeping_jokers_keeps_what_it_says() -> void:
 	var run := GrandPrix.start(3, _rng(21))
 	var match_node := _map_of(run, 5)
@@ -279,17 +279,18 @@ func test_each_way_of_keeping_jokers_keeps_what_it_says() -> void:
 		GrandPrix.Keep.NONE, GrandPrix.Keep.CHOOSE, GrandPrix.Keep.RANDOM, GrandPrix.Keep.ALL
 	]:
 		run.keep = keep
-		run.choose(0, mine[2])
-		run.choose(2, &"not_held")
 		run.hold_over(match_node.slots, _rng(22))
 		var kept_mine: Array = run.carried[0]
 		var kept_bot: Array = run.carried[1]
+		assert_bool(run.has_choices()).is_equal(keep == GrandPrix.Keep.CHOOSE)
 		match keep:
 			GrandPrix.Keep.NONE:
 				assert_array(kept_mine).is_empty()
 				assert_array(kept_bot).is_empty()
 			GrandPrix.Keep.CHOOSE:
-				assert_array(kept_mine).contains_exactly([mine[2]])
+				assert_array(kept_mine).is_empty()
+				assert_array(run.choosing[0]).contains_exactly(mine)
+				assert_bool(run.choosing.has(1)).is_false()
 				assert_int(kept_bot.size()).is_equal(1)
 				assert_bool(bots.has(kept_bot[0])).is_true()
 			GrandPrix.Keep.RANDOM:
@@ -298,8 +299,6 @@ func test_each_way_of_keeping_jokers_keeps_what_it_says() -> void:
 			GrandPrix.Keep.ALL:
 				assert_array(kept_mine).contains_exactly(mine)
 				assert_array(kept_bot).contains_exactly(bots)
-		# A choice counts for the one map it was made on.
-		assert_bool(run.chosen.is_empty()).is_true()
 	# Nothing held, nothing carried, whatever the rule.
 	assert_array(run.carried[2]).is_empty()
 
@@ -328,25 +327,100 @@ func test_the_joker_rule_is_a_grand_prix_row() -> void:
 	assert_bool(lobby.options._jokers_row.visible).is_false()
 
 
-## When everybody chooses, each row of a player at this screen offers their jokers, and pressing
-## one is the choice. Nobody else's row does, and the last map has nothing to choose for.
-func test_choosing_a_joker_to_keep_on_the_podium() -> void:
+## The next map of a run, started the way the match scene starts it: held on the grid while
+## anybody is choosing which joker to keep, then begun.
+func _next_map_of(run: GrandPrix, seed: int) -> Match:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = RULES.duplicate()
+	match_node.rules.countdown = 0.1
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	match_node.bot_traits = run.bot_table(match_node.bot_traits)
+	add_child(match_node)
+	var inputs: Array[KartInput] = [PlayerInput.new(), BotInput.new()]
+	match_node.hold_start = run.has_choices()
+	match_node.start(inputs, seed)
+	run.deal_jokers(match_node)
+	match_node.begin_from_lobby()
+	return match_node
+
+
+## GAME.md 9.7: choosing which joker to keep is done as the next map starts, on the joker pick,
+## with the jokers the player held at the whistle. The lamps wait for it, and it cannot be skipped.
+func test_choosing_which_joker_to_keep_opens_the_next_map() -> void:
+	var run := GrandPrix.start(2, _rng(25))
+	run.keep = GrandPrix.Keep.CHOOSE
+	var first := _map_of(run, 8)
+	var mine := _holding(first, 0, 0, 2)
+	_holding(first, 1, 3, 2)
+	run.hold_over(first.slots, _rng(26))
+	var second := _next_map_of(run, 9)
+	var offer := second.slots[0].offer
+	assert_object(offer).is_not_null()
+	assert_bool(offer.keeping).is_true()
+	assert_array(_ids(offer.choices)).contains_exactly(mine)
+	assert_int(second.slots[0].kart.jokers.count()).is_equal(0)
+	# The bot kept one of its two there and then.
+	assert_int(second.slots[1].kart.jokers.count()).is_equal(1)
+	await await_millis(300)
+	assert_int(second.state).is_equal(Match.State.LOBBY)
+	assert_bool(second.kart_of(0).frozen).is_true()
+	offer.skip()
+	assert_bool(offer.is_done()).is_false()
+	offer.take(1)
+	await await_millis(100)
+	assert_int(second.state).is_not_equal(Match.State.LOBBY)
+	assert_array(second.slots[0].kart.jokers.ids()).contains_exactly([mine[1]])
+	assert_object(second.slots[0].offer).is_null()
+
+
+## Nobody holds up the lamps for ever: a pick still open at the deadline keeps one at random.
+func test_a_pick_left_open_keeps_a_joker_at_random() -> void:
+	var run := GrandPrix.start(2, _rng(27))
+	run.keep = GrandPrix.Keep.CHOOSE
+	var first := _map_of(run, 10)
+	var mine := _holding(first, 0, 0, 3)
+	run.hold_over(first.slots, _rng(28))
+	var second := _next_map_of(run, 11)
+	second.slots[0].offer.keep_left = 0.05
+	await await_millis(300)
+	assert_int(second.state).is_not_equal(Match.State.LOBBY)
+	var kept := second.slots[0].kart.jokers.ids()
+	assert_int(kept.size()).is_equal(1)
+	assert_bool(mine.has(kept[0])).is_true()
+
+
+## A choice of one is not a choice: a player holding one joker keeps it without being asked.
+func test_one_joker_is_kept_without_asking() -> void:
+	var run := GrandPrix.start(2, _rng(29))
+	run.keep = GrandPrix.Keep.CHOOSE
+	var first := _map_of(run, 12)
+	var mine := _holding(first, 0, 0, 1)
+	run.hold_over(first.slots, _rng(30))
+	assert_bool(run.has_choices()).is_false()
+	var second := _next_map_of(run, 13)
+	assert_object(second.slots[0].offer).is_null()
+	assert_array(second.slots[0].kart.jokers.ids()).contains_exactly(mine)
+	assert_int(second.state).is_equal(Match.State.COUNTDOWN)
+
+
+## The podium says when the choosing happens, and offers nothing to choose on it.
+func test_the_podium_says_the_choosing_is_on_the_next_map() -> void:
 	_run_at(1, 3)
 	Game.grand_prix.keep = GrandPrix.Keep.CHOOSE
 	var screen := await _podium_after(1, 3, GrandPrix.Keep.CHOOSE)
-	var match_node := screen.match_node
-	var given := _holding(match_node, 0, 1, 2)
-	_holding(match_node, 1, 3, 1)
+	_holding(screen.match_node, 0, 1, 2)
 	screen.fill_in()
-	var buttons: Array[Button] = []
 	for node: Node in screen.find_children("*", "Button", true, false):
-		if (node as Button).toggle_mode:
-			buttons.append(node)
-	# The player here, two jokers; the bot, none offered.
-	assert_int(buttons.size()).is_equal(2)
-	buttons[1].pressed.emit()
-	assert_str(String(Game.grand_prix.chosen.get(0, &""))).is_equal(String(given[1]))
-	assert_str(screen._keep_note.text).contains("Pick")
+		assert_bool((node as Button).toggle_mode).is_false()
+	assert_str(screen._keep_note.text).contains("next map starts")
+
+
+func _ids(jokers: Array[Joker]) -> Array[StringName]:
+	var ids: Array[StringName] = []
+	for joker: Joker in jokers:
+		ids.append(joker.id)
+	return ids
 
 
 ## The lobby, opened on [param grand_prix] as its first row's answer.

@@ -2675,17 +2675,21 @@ the next of the jokers they end it holding, in the lobby and in the host's setti
 | Choice              | What goes on to the next map                                        |
 |---------------------|---------------------------------------------------------------------|
 | Discard all         | Nothing: every map starts from an empty hand                        |
-| Pick one to keep    | The one each player picks on the podium                             |
+| Pick one to keep    | The one each player picks as the next map starts                    |
 | Keep one at random  | One of each hand, drawn at random -- the choice to start with       |
 | Keep all            | The whole hand                                                      |
 
-Choosing is done on the podium of the map just finished, under a line saying which rule the run
-is on: on the row of every player at that screen, a button for each joker they hold, the chosen
-one lit. A client's choice goes to the host, which holds the run. Somebody who does not choose
-before the host moves on, or whose choice is no longer in their hand, is dealt one at random, the
-same as every bot, which has nobody to choose for it: a choice nobody made is not a choice to keep
-nothing. The kept jokers are in everybody's hands before the next map's lamps go, a seat kept for
-a client holding them until the client sits in it. Nothing is carried out of the last map.
+The podium of the map just finished says which rule the run is on. Choosing is done where a card
+is always chosen: on the joker pick of 3.7, as the next map starts, with the jokers the player held
+at the whistle, under "Keep which joker for this map?". It cannot be skipped, since the rule is
+keep one. The karts are frozen on the grid and the lamps wait for everybody's pick, so the stick
+that steers moves the cursor and nothing is driving while somebody reads. Nobody is waited for
+past 15 s: a pick still open then keeps one of its jokers at random. A player with only one joker
+keeps it without being asked, since a choice of one is not a choice, and every bot keeps one at
+random, having nobody to choose for it. Online a client works its own pick the way it does a
+respawn's and the host's answer is the one that counts; a seat kept for a client holds its pick
+open until the client sits in it. Everybody else sees who the lamps are waiting on. The other
+rules' jokers are in everybody's hands before the lamps go. Nothing is carried out of the last map.
 
 **The same bots.** The bots are chosen once, when the playlist is dealt, and drive every map of
 it: the same number, in the same seats and colors, each with the same way of driving and so the
