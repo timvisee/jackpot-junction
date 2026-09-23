@@ -23,6 +23,10 @@ below, and hands the notes to the release workflow.
   charged, so a room could start without somebody who had wandered off; it now
   lasts exactly as long as you stay parked.
 
+- **The ready pad's ring is split between the players in the room.** Each of you
+  charges your own arc of it in your own kart colour, so it is clear who the pad
+  has taken and who it is still waiting on.
+
 ## [0.4.1] - 2026-09-23
 
 ### Added

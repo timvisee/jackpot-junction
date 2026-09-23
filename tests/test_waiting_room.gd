@@ -84,6 +84,33 @@ func test_standing_on_the_pad_readies_a_player() -> void:
 	assert_bool(ready_room._ticks.has(0)).is_true()
 
 
+## Two people charging the pad are two arcs of the ring, each in their own colour, rather than one
+## bar showing whichever of them is furthest along. A room of four otherwise cannot tell who the
+## pad has taken and who it is still waiting on.
+func test_each_player_charges_their_own_arc_of_the_ring() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var ready_room: ReadyRoom = room.ready_room
+	match_node.join_human(DeviceInput.KEYBOARD + 1)
+	await _runner.simulate_frames(5, 17)
+	assert_int(ready_room.player_count()).is_equal(2)
+	# Only the second player drives on. Half the ring lights, in that player's colour, and the
+	# other half stays dark.
+	match_node.kart_of(1).global_position = match_node.arena.junction.global_position
+	await _runner.simulate_frames(int(ReadyRoom.CHARGE_TIME * 80.0), 17)
+	assert_float(ready_room.charge[0]).is_equal(0.0)
+	assert_bool(ready_room.ready_slots.get(1, false)).is_true()
+	var theirs := match_node.slots[1].color()
+	var lit := 0
+	for piece: MeshInstance3D in ready_room._segments:
+		var ink := (piece.material_override as StandardMaterial3D).albedo_color
+		if ink.is_equal_approx(theirs):
+			lit += 1
+		else:
+			assert_bool(ink.is_equal_approx(ReadyRoom.WAITING_INK)).is_true()
+	assert_int(lit).is_equal(ReadyRoom.SEGMENTS / 2)
+
+
 ## Ready lasts as long as the standing does. Driving off the pad takes it back on the spot, along
 ## with the charge and the tick: a pad nobody is on does not speak for anybody.
 func test_ready_is_taken_back_by_driving_off() -> void:

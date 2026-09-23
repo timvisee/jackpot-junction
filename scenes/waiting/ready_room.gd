@@ -12,6 +12,9 @@ extends Node
 ## Ready lasts exactly as long as the standing does. Roll off the pad and it is taken back at
 ## once, which is the honest reading of a pad somebody is not on: a room that starts because
 ## everybody was ready a moment ago starts without them.
+##
+## Each player charges their own arc of the ring, in their own colour, so that a room with four
+## people in it can see which of them the pad has taken and which of them it is waiting for.
 
 signal everybody_ready
 
@@ -179,20 +182,38 @@ func _karts_on_the_pad() -> Dictionary[int, bool]:
 	return standing
 
 
-## The ring: dark all the way round, and lit as far round as the furthest charge has got. It
-## reads as one pad filling rather than as four, which is what a player standing on it is asking
-## about -- whether the pad has taken them yet.
+## The ring, split between whoever is in the room: an arc each, in their own colour, filling as
+## they hold the pad. One ring showing the furthest anybody had got read as one pad filling, which
+## in a room of four says nothing about which of them it has taken.
 func _paint_ring() -> void:
-	var most := 0.0
+	var seats := _seated()
+	var inks: Array[Color] = []
+	for i: int in _segments.size():
+		inks.append(WAITING_INK)
+	for s: int in seats.size():
+		var from := int(round(float(s) * float(SEGMENTS) / float(seats.size())))
+		var to := int(round(float(s + 1) * float(SEGMENTS) / float(seats.size())))
+		var span := maxi(to - from, 1)
+		var full := int(round(charge.get(seats[s].index, 0.0) * float(span)))
+		for k: int in span:
+			if from + k < inks.size() and k < full:
+				inks[from + k] = seats[s].color()
+	for i: int in _segments.size():
+		var skin := _segments[i].material_override as StandardMaterial3D
+		var on := inks[i] != WAITING_INK
+		skin.albedo_color = inks[i]
+		skin.emission = inks[i]
+		skin.emission_energy_multiplier = 1.4 if on else 0.0
+
+
+## The players the ring is divided between, in slot order so that an arc stays where it was as
+## somebody else readies up.
+func _seated() -> Array[PlayerSlot]:
+	var seats: Array[PlayerSlot] = []
 	for slot: PlayerSlot in match_node.slots:
 		if slot.is_human():
-			most = maxf(most, charge.get(slot.index, 0.0))
-	var lit := int(round(most * float(SEGMENTS)))
-	for i: int in _segments.size():
-		var on := i < lit
-		var skin := _segments[i].material_override as StandardMaterial3D
-		skin.albedo_color = READY_INK if on else WAITING_INK
-		skin.emission_energy_multiplier = 1.4 if on else 0.0
+			seats.append(slot)
+	return seats
 
 
 ## The tick over a kart that has readied up, kept over its head as it drives, and taken away the

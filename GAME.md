@@ -2509,6 +2509,10 @@ Ready lasts exactly as long as the standing does. Roll off the pad and the charg
 go with it, on the frame the kart leaves. That is the honest reading of a pad nobody is on: a
 room that started because everybody was ready a moment ago would start without them.
 
+The ring of blocks round the pad is split between whoever is in the room -- an arc each, in
+their own colour, filling as they hold it. One ring showing whoever had got furthest read as a
+single pad filling, which in a room of four says nothing about which of them it has taken.
+
 Saying it by driving rather than by pressing is the whole point. A button on a menu says the
 same thing, but it does not put the player who is waiting anywhere in particular, and it does
 not show the room who it is waiting on. A kart parked on the pad does both, in the one place
