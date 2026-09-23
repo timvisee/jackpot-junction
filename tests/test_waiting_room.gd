@@ -44,6 +44,25 @@ func test_the_waiting_room_is_not_a_match() -> void:
 	assert_int(props.get_child_count()).is_equal(3)
 
 
+## The sign that says how many are ready is a low stand on the floor at the back of the room,
+## where a camera holding the whole room holds it too. A hoarding over a crowd stood outside the
+## shot, and one behind the wall competed with the benches and chests along it.
+func test_the_ready_sign_is_a_low_stand_inside_the_room() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var stand: ReadyStand = match_node.arena.get_node("ReadyStand")
+	assert_float(stand.global_position.y + ReadyStand.LIFT + ReadyStand.FACE.y).is_less(2.0)
+	# On the floor, against the back wall, and clear of the pad in the middle.
+	var half := match_node.arena.world_size() * 0.5
+	assert_float(absf(stand.global_position.z)).is_less(half.y)
+	assert_float(half.y - absf(stand.global_position.z)).is_less(3.0)
+	assert_float(stand.global_position.z).is_less(0.0)
+	# Solid, like the drum and the wheels: a kart driving through the room's own sign is worse
+	# than one bouncing off it.
+	var solid: StaticBody3D = stand.get_node("Solid")
+	assert_int(solid.collision_layer).is_equal(Layers.WORLD)
+
+
 ## The props are solid. Clutter everywhere else in the game is scenery a kart drives through;
 ## these are the ones a kart is meant to drift round, which it cannot do through them.
 func test_the_things_in_the_room_are_solid() -> void:

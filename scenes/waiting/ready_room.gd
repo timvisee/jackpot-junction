@@ -37,9 +37,10 @@ const STROKES: Array[Array] = [
 ]
 const READY_INK := Color(0.26, 0.86, 0.42)
 const WAITING_INK := Color(0.16, 0.17, 0.2)
-## How high the count is lettered on the board, and how far behind the room the board stands.
-const BOARD_SIZE := 0.9
-const BOARD_BACK := 5.0
+## How far in from the back wall the sign stands. Inside the room rather than behind it: out
+## there it competed with the benches and chests along the wall, and here the floor is the
+## karts' and nothing else is standing on it.
+const BOARD_IN := 1.9
 ## The ink the joining lines under the count are written in.
 const HINT_INK := Color(0.82, 0.83, 0.88)
 
@@ -57,8 +58,7 @@ var ready_slots: Dictionary[int, bool] = {}
 var _segments: Array[MeshInstance3D] = []
 var _ticks: Dictionary[int, Node3D] = {}
 var _announced := false
-var _board: Billboard
-var _board_words: Label3D
+var _board: ReadyStand
 var _counter: Label
 var _hints: VBoxContainer
 var _online_hint: Label
@@ -157,9 +157,8 @@ func _say_the_count() -> void:
 	_said = words
 	if _counter != null:
 		_counter.text = words
-	if _board != null and _board_words != null:
-		_board_words.text = words
-		_board_words.pixel_size = _board.fitted(words, BOARD_SIZE) / float(Billboard.FONT_SIZE)
+	if _board != null:
+		_board.say(words)
 
 
 ## What to say about getting more people into the room: how somebody at this machine takes a
@@ -286,13 +285,14 @@ func _build() -> void:
 	_build_counter()
 
 
-## The board at the back of the room, where the clock hangs in a room that has one. A waiting
-## room has no clock and this is the one thing anybody in it wants to know.
+## The sign standing at the top of the room. A room that has a clock hangs it on a hoarding over
+## the crowd; there is no crowd in here and the camera is holding the whole floor, so the count
+## goes on a pavement sign standing on the concrete instead, inside the shot and out of the way
+## against the back wall.
 func _build_board() -> void:
 	var half := match_node.arena.world_size() * 0.5
-	var at := Vector3(0.0, 0.0, -(half.y + BOARD_BACK))
-	_board = Billboard.add_to(match_node.arena, at, Vector3.ZERO, match_node.arena.room)
-	_board_words = _board.words("", Vector2(0.0, 0.1), BOARD_SIZE, READY_INK)
+	var at := Vector3(0.0, 0.0, -(half.y - BOARD_IN))
+	_board = ReadyStand.add_to(match_node.arena, at, Vector3.ZERO, match_node.arena.room)
 
 
 ## And the same count at the top of the screen, for the player who is looking at their own kart
