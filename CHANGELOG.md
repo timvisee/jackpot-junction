@@ -50,6 +50,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Out in Sudden Death, your corner says so.** It reads "waiting on other players"
+  instead of a respawn countdown that was never going to finish.
+
 - **Online maps start together.** The countdown waits until everybody has the map
   loaded, showing how many players it is waiting on, for 15 seconds at most.
 

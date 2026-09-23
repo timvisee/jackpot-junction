@@ -56,6 +56,30 @@ func test_nobody_respawns_in_overtime() -> void:
 	assert_int(match_node.state).is_equal(Match.State.OVERTIME)
 
 
+## A player who is out says so, rather than counting down to a respawn that is not coming.
+func test_a_player_out_in_overtime_is_told_to_wait_for_the_rest() -> void:
+	var match_node := _start_match(true)
+	match_node.slots[0].input = PlayerInput.new(DeviceInput.KEYBOARD)
+	match_node.kart_of(0).input = match_node.slots[0].input
+	match_node.hud = MatchHud.new()
+	match_node.hud.match_node = match_node
+	match_node.add_child(match_node.hud)
+	await _runner.simulate_frames(12, 17)
+	var pot: ScorePills = match_node.hud._blocks[0]["pot"]
+	match_node.kart_of(0).die(&"test", 1)
+	await _runner.simulate_frames(3, 17)
+	assert_str(pot._note.text).starts_with("respawning")
+	await _runner.simulate_frames(40, 17)
+	match_node.time_left = 0.02
+	await _runner.simulate_frames(6, 17)
+	assert_int(match_node.state).is_equal(Match.State.OVERTIME)
+	match_node.kart_of(0).die(&"test", 1)
+	await _runner.simulate_frames(3, 17)
+	assert_bool(match_node.kart_of(0).alive).is_false()
+	assert_bool(pot._note.visible).is_true()
+	assert_str(pot._note.text).is_equal("waiting on other players")
+
+
 ## The last one left takes everything it is still carrying, and that ends it.
 func test_the_last_kart_standing_banks_the_lot() -> void:
 	var match_node := _start_match(true)
