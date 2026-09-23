@@ -2076,6 +2076,11 @@ shown at, with soft edges rather than stepped ones, so a big display scaling the
 up has something to scale: a switch drawn at its own size is a staircase round every
 curve of it.
 
+From the title the settings are a screen of their own. From the pause menu of a room they open
+over the room instead, and Back comes back to the pause menu: the match, and online the
+connection and everybody on it, carries on underneath untouched, and a room that goes while they
+are open keeps whatever was changed in them.
+
 - **Controls**: rebinding per player for gamepad and keyboard, stick dead
   zone, rumble on or off.
 - **Audio**: master, music, effects and kart volume. The karts have their own

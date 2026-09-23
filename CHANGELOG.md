@@ -37,6 +37,9 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Settings no longer restart the match.** Opening them from the pause menu lays
+  them over the game, and Back takes you back to the menu with the match as it was.
+
 - **Joining a host that isn't there says so.** The waiting room used to sit empty
   when the connection failed; now it tells you and goes back to the menu.
 

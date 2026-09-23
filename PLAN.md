@@ -304,7 +304,7 @@ own latency.
 
 Known bugs parked for later. Each one is described well enough to pick up cold.
 
-- [ ] **Settings from the pause menu does not come back to the room it left.**
+- [x] **Settings from the pause menu does not come back to the room it left.**
       `PauseMenu` sends Settings to `Game.go_to_settings(Game.MATCH_SCENE)`, and
       the settings screen's Back changes scene to that path. Every room that
       hangs a pause menu (match, garage, waiting room, the dev driving scene) is
@@ -318,6 +318,9 @@ Known bugs parked for later. Each one is described well enough to pick up cold.
       settings as an overlay over the room instead of a scene change, or at
       least return to the scene that opened it and never leave an online room
       this way.
+      Fixed: the pause menu opens the settings screen as an overlay over the
+      room, and its Back closes it and brings the menu back. Only the title still
+      changes scene for it.
 - [x] **A client that connects while the host is mid-match lands in the wrong
       room.** Found by reading the code, not reproduced yet. Joining always opens
       the waiting room (`online.gd` goes to `Game.go_to_waiting`), and the client's

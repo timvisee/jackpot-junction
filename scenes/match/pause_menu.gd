@@ -4,6 +4,12 @@ extends CanvasLayer
 ## the whole room: the menu opens straight away, and the match stops once everybody has opened
 ## theirs. Resume, Settings, or back to the title.
 ##
+## Settings opens over the room, and Back from it comes back here. It used to change scene, and
+## coming back built the room again from scratch: a match in progress was thrown away for a new
+## one, and online the room came back re-seating a match nobody else was in.
+
+const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
+##
 ## Built on the pane every panel in the game is cut from, GAME.md 8.3, over a shade of the arena
 ## it is holding up.
 
@@ -12,6 +18,8 @@ var session: NetSession
 
 var _panel: CenterContainer
 var _resume: Button
+## The settings while they are open over the room, null otherwise.
+var _settings: SettingsScreen
 
 
 ## Hangs one over a room. An online room passes its session, which is what decides whether the
@@ -47,11 +55,7 @@ func _ready() -> void:
 	_resume.pressed.connect(set_paused.bind(false))
 	column.add_child(_resume)
 	var settings := MenuTheme.button("Settings")
-	settings.pressed.connect(
-		func() -> void:
-			set_paused(false)
-			Game.go_to_settings(Game.MATCH_SCENE)
-	)
+	settings.pressed.connect(open_settings)
 	column.add_child(settings)
 	var quit := MenuTheme.button("Back to title")
 	quit.pressed.connect(
@@ -75,7 +79,34 @@ func add_entry(text: String, action: Callable) -> Button:
 	return button
 
 
+## The settings, over the room, with the menu waiting underneath for Back. The match stays paused
+## while they are open, as far as this machine has any say in it, GAME.md 3.8.
+func open_settings() -> void:
+	if _settings != null:
+		return
+	_panel.visible = false
+	_settings = SETTINGS_SCENE.instantiate()
+	_settings.overlay = true
+	_settings.closed.connect(_settings_closed)
+	add_child(_settings)
+
+
+## Whether the settings are open over the room.
+func settings_open() -> bool:
+	return _settings != null
+
+
+func _settings_closed() -> void:
+	_settings = null
+	_panel.visible = true
+	_resume.grab_focus()
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	# The settings have the controls while they are up: Escape there is their Back, and a rebind
+	# of the pause button is a binding, not a request to close the menu.
+	if _settings != null:
+		return
 	if event.is_action_pressed(InputActions.PAUSE):
 		set_paused(not _panel.visible)
 		get_viewport().set_input_as_handled()

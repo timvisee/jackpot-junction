@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 const TEST_SETTINGS_PATH := "user://test_settings.cfg"
 const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
 const TITLE_SCENE := preload("res://scenes/ui/title.tscn")
+const MATCH_SCENE := preload("res://scenes/match/match_scene.tscn")
 
 
 func after_test() -> void:
@@ -188,13 +189,54 @@ func test_the_title_screen_turns_behind_its_words() -> void:
 	assert_float(back._spin).is_not_equal(turned)
 
 
+## GAME.md 8.5: Settings from the pause menu opens over the room, and Back comes back to the menu
+## over the same match. It used to change scene, and coming back built a fresh match from the
+## lobby's settings, throwing away the one being played.
+func test_settings_from_the_pause_menu_come_back_to_the_same_match() -> void:
+	var real := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = TEST_SETTINGS_PATH
+	Game.pending_config = MatchConfig.new()
+	var scene: Node3D = auto_free(MATCH_SCENE.instantiate())
+	add_child(scene)
+	await assert_signal(scene).is_emitted("loaded")
+	var match_node: Match = scene.get_node("Match")
+	var kart := match_node.kart_of(0)
+	var menu: PauseMenu = scene.get_node("PauseMenu")
+	menu.set_paused(true)
+	menu.open_settings()
+	await await_idle_frame()
+	assert_bool(menu.settings_open()).is_true()
+	assert_bool(get_tree().paused).is_true()
+	# The settings have the controls: the pause button there is not a request to close the menu.
+	var pause := InputEventAction.new()
+	pause.action = InputActions.PAUSE
+	pause.pressed = true
+	menu._unhandled_input(pause)
+	assert_bool(menu.settings_open()).is_true()
+	var screen: SettingsScreen = menu._settings
+	screen._back()
+	await await_idle_frame()
+	assert_bool(menu.settings_open()).is_false()
+	assert_bool(menu._panel.visible).is_true()
+	assert_object(get_tree().current_scene).is_not_equal(null)
+	# The same room and the same match, still paused on the menu it was opened from.
+	assert_object(scene.get_node("Match")).is_same(match_node)
+	assert_object(match_node.kart_of(0)).is_same(kart)
+	assert_bool(get_tree().paused).is_true()
+	menu.set_paused(false)
+	assert_bool(get_tree().paused).is_false()
+	Game.pending_config = null
+	Game.settings = real
+
+
 func test_match_scene_starts_from_the_pending_configuration() -> void:
 	var config := MatchConfig.new()
 	config.bot_count = 1
 	config.difficulty = "easy"
 	config.duration = 120.0
 	Game.pending_config = config
-	var scene: Node3D = auto_free(load("res://scenes/match/match_scene.tscn").instantiate())
+	var scene: Node3D = auto_free(MATCH_SCENE.instantiate())
 	add_child(scene)
 	# The room goes up a phase at a time behind a loading screen now, GAME.md 8.6, so the scene
 	# says when it is playable rather than being playable the moment it is added.

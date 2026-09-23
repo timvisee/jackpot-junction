@@ -1,6 +1,14 @@
+class_name SettingsScreen
 extends Control
 ## The settings screen from GAME.md 8.5: controls with rebinding, audio, video and
 ## accessibility. Changes apply at once and are saved on Back.
+##
+## From the title it is a screen of its own. From a room's pause menu it is laid over the room
+## instead, see [member overlay], so the match, and online the connection and everybody on it,
+## carries on underneath rather than being thrown away and built again from the lobby's settings.
+
+## Back, from a screen laid over a room: it has gone, and the room is the pause menu's again.
+signal closed
 
 const REBINDABLE: Array[StringName] = [
 	InputActions.THROTTLE,
@@ -25,6 +33,9 @@ const BINDING_INK := Color(0.90, 0.90, 0.94)
 
 var tabs: TabContainer
 var status: Label
+## Laid over the room it was opened from rather than a scene of its own. Back closes it instead of
+## changing scene.
+var overlay := false
 
 var _settings: Settings
 var _listening_action := &""
@@ -405,4 +416,15 @@ func _check(value: bool, setter: Callable) -> CheckButton:
 
 func _back() -> void:
 	_settings.save_to_disk()
+	if overlay:
+		closed.emit()
+		queue_free()
+		return
 	get_tree().change_scene_to_file(Game.settings_return)
+
+
+## A room that goes while its settings are open, online when the host moves everybody on, takes
+## them with it. What was changed has already been applied, and is kept.
+func _exit_tree() -> void:
+	if overlay and not is_queued_for_deletion():
+		_settings.save_to_disk()
