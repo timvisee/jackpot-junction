@@ -18,6 +18,10 @@ extends RigidBody3D
 
 ## The ball sends where it is, and how fast it is going, for the host to pass on.
 signal moved(state: Array)
+## Something has hit the ball hard enough to hear: a kart, [code]&"kick"[/code], or anything else,
+## a wall, a prop or a shot, [code]&"knock"[/code]. [param strength] is how much it changed the
+## ball's speed, in m/s. See [method _listen].
+signal struck(kind: StringName, strength: float)
 
 const RADIUS := 0.5
 ## The kart as the ball meets it: a box, half as wide and half as long as the kart's own.
@@ -34,6 +38,18 @@ const ROLLING_DAMP := 0.6
 const BOUNCE := 0.7
 ## Physics ticks between tellings of where it is, a third of the snapshot rate's worth of words.
 const SHARE_EVERY := 3
+## A change of speed from one tick to the next of more than this is something hitting the ball,
+## and is heard; rolling to a stop on the concrete takes off far less than that a tick. At
+## [constant LOUD_JOLT] it is heard at [constant LOUD_DB], and quieter below that.
+const HEARD_JOLT := 1.5
+const LOUD_JOLT := 14.0
+const LOUD_DB := -8.0
+const QUIET_DB := -24.0
+## How close a kart has to be for a hit to be a kick rather than a knock off something else.
+const KICK_REACH := 1.6
+## Seconds after a sound in which the ball makes no other, so a ball a kart has pinned to a wall is
+## a knock and not a buzz.
+const SOUND_GAP := 0.08
 ## How far a client closes on where it was told each tick: most of the way, not all, so a telling
 ## that arrives late is walked to rather than jumped to.
 const FOLLOW := 0.35
@@ -60,6 +76,11 @@ var _told_velocity := Vector3.ZERO
 var _look: Node3D
 ## Speed from shots that landed since the last physics step, put on in the next one.
 var _shot := Vector3.ZERO
+## What the ball was doing last tick, as this machine sees it, to hear it being hit; unset until the
+## first look, so a ball already rolling when a client arrives is not heard being hit.
+var _was := Vector3.ZERO
+var _looked := false
+var _quiet_left := 0.0
 
 
 ## Puts a ball on [param in_match]'s floor at [param at], kicked here when [param kicked_here]
@@ -188,15 +209,50 @@ func _kick(at: Vector3, velocity: Vector3, kart: Kart) -> Array:
 
 func _physics_process(delta: float) -> void:
 	if simulating:
+		_listen(linear_velocity, delta)
 		_tick += 1
 		if _tick % SHARE_EVERY == 0:
 			var at := global_position
 			moved.emit([at.x, at.z, linear_velocity.x, linear_velocity.z])
 		return
 	# Run on at the speed it was told between tellings, and close on it.
+	_listen(_told_velocity, delta)
 	_told += _told_velocity * delta
 	_told_velocity *= maxf(1.0 - ROLLING_DAMP * delta, 0.0)
 	global_position = global_position.lerp(_told, FOLLOW)
+
+
+## Hears the ball being hit, on every machine the same way: from how suddenly its speed changed. A
+## client knows nothing of what hit it, only where the host says it is going, so it is that which
+## is listened to. A kart close by is a kick; anything else is a knock.
+func _listen(going: Vector3, delta: float) -> void:
+	_quiet_left = maxf(_quiet_left - delta, 0.0)
+	var jolt := (going - _was).length()
+	_was = going
+	if not _looked:
+		_looked = true
+		return
+	if jolt < HEARD_JOLT or _quiet_left > 0.0:
+		return
+	_quiet_left = SOUND_GAP
+	var kind := &"kick" if _kart_near() else &"knock"
+	struck.emit(kind, jolt)
+	var loud := lerpf(QUIET_DB, LOUD_DB, clampf(jolt / LOUD_JOLT, 0.0, 1.0))
+	Audio.play_sfx(&"ball_kick" if kind == &"kick" else &"ball_knock", loud)
+
+
+func _kart_near() -> bool:
+	if match_node == null:
+		return false
+	for slot: PlayerSlot in match_node.slots:
+		var kart := slot.kart
+		if (
+			kart != null
+			and kart.alive
+			and kart.global_position.distance_to(global_position) < KICK_REACH
+		):
+			return true
+	return false
 
 
 ## The roll, drawn: the look turns about the line across its way of travel, as far as it rolled.

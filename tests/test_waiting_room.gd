@@ -635,6 +635,56 @@ func test_a_client_draws_the_ball_where_it_was_told() -> void:
 	assert_float(told.global_position.distance_to(Vector3(4.0, RoomBall.RADIUS, -2.0))).is_less(0.1)
 
 
+## The ball is heard being hit: a thump off a kart, a knock off a wall, and nothing at all while it
+## only rolls.
+func test_the_ball_is_heard_being_hit_and_not_rolling() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var ball: RoomBall = room.ball
+	var heard: Array[StringName] = []
+	ball.struck.connect(func(kind: StringName, _strength: float) -> void: heard.append(kind))
+	var kart := match_node.kart_of(0)
+	var start := ball.global_position
+	kart.global_position = Vector3(start.x - 4.0, 0.0, start.z)
+	kart.face(Vector3.RIGHT)
+	var driver := KartInput.new()
+	driver.throttle = 1.0
+	kart.input = driver
+	await _runner.simulate_frames(90, 17)
+	assert_array(heard).contains([&"kick"])
+	# Away from every kart, and sent at the back wall: rolling there is quiet, the wall is not.
+	kart.input = KartInput.new()
+	kart.global_position = Vector3(start.x, 0.0, start.z + 8.0)
+	heard.clear()
+	ball.linear_velocity = Vector3.ZERO
+	ball.global_position = Vector3(0.0, RoomBall.RADIUS, 0.0)
+	await _runner.simulate_frames(5, 17)
+	ball.linear_velocity = Vector3(0.0, 0.0, -8.0)
+	# The test setting it going is a hit like any other; what comes after it is only rolling.
+	await _runner.simulate_frames(3, 17)
+	heard.clear()
+	await _runner.simulate_frames(6, 17)
+	assert_array(heard).is_empty()
+	await _runner.simulate_frames(120, 17)
+	assert_array(heard).contains([&"knock"])
+	assert_bool(heard.has(&"kick")).is_false()
+
+
+## A client hears the ball being hit from what it is told, since it is told nothing else.
+func test_a_client_hears_the_ball_it_is_told_about() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var told := RoomBall.add_to(match_node, Vector3(-6.0, 0.0, 3.0), false)
+	var heard: Array[StringName] = []
+	told.struck.connect(func(kind: StringName, _strength: float) -> void: heard.append(kind))
+	told.follow([-6.0, 3.0, 0.0, 0.0])
+	await _runner.simulate_frames(10, 17)
+	assert_array(heard).is_empty()
+	told.follow([-6.0, 3.0, 9.0, 0.0])
+	await _runner.simulate_frames(3, 17)
+	assert_array(heard).is_equal([&"knock"])
+
+
 ## Down the side is who is in the room: a name each, in the order they arrived, with no place and
 ## no score, since nothing in here is being played for.
 func test_the_side_list_is_who_is_in_the_room() -> void:

@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **The football can be heard.** A soft thump when a kart kicks it and a knock off
+  walls and shots, louder the harder it is hit.
+
 - **Shoot the football.** A bullet that hits the ball in the waiting room kicks it
   the way the shot was going.
 

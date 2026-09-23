@@ -2529,7 +2529,10 @@ back a kart. It is not solid to karts. A kart that meets it is not stopped by it
 ball is kicked out of its way instead, off whichever side of the kart it met, with however fast
 that side was coming at it, and rolls to a stop on the concrete. The kart is the heavy thing.
 A kart on nitro kicks it twice as hard, and the ball may go twice as fast for it. A shot kicks
-it too: 9 m/s on the way the shot was going, and the shot is spent on it. It
+it too: 9 m/s on the way the shot was going, and the shot is spent on it. It is heard being hit,
+by how suddenly its speed changes, which every machine can see the same way: a soft thump when a
+kart is close enough to have kicked it and a knock off anything else, louder the harder the hit,
+and nothing while it only rolls. It
 is nobody's on the pad, and a ball ever found outside the room goes back to where it started.
 Online the host kicks it and tells everybody where it went, often and without waiting for an
 answer; a client draws it rolling on between one telling and the next.

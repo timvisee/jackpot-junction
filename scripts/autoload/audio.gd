@@ -114,6 +114,23 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	# ready.
 	&"ready_charge": ["tick_002.ogg"],
 	&"ready": ["confirmation_001.ogg"],
+	# Its football: a soft thump off a kart, and a knock off a wall, a prop or a shot.
+	&"ball_kick":
+	[
+		"impactSoft_medium_000.ogg",
+		"impactSoft_medium_001.ogg",
+		"impactSoft_medium_002.ogg",
+		"impactSoft_medium_003.ogg",
+		"impactSoft_medium_004.ogg",
+	],
+	&"ball_knock":
+	[
+		"impactGeneric_light_000.ogg",
+		"impactGeneric_light_001.ogg",
+		"impactGeneric_light_002.ogg",
+		"impactGeneric_light_003.ogg",
+		"impactGeneric_light_004.ogg",
+	],
 	&"oil": ["kart/spin_out.ogg"],
 	&"bounty": ["question_001.ogg"],
 	&"target": ["select_002.ogg"],
