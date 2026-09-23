@@ -66,8 +66,8 @@ signal bomb_exploded(slot: int)
 signal oil_hit(slot: int)
 signal player_joined(slot: int)
 signal player_left(slot: int)
-## A player in the waiting room of GAME.md 9.6 has held the pad long enough to say they are
-## ready. The host works this out, since it is the host that simulates every kart; clients are
-## told, so the tick over a kart and the count at the top of the screen say the same thing in
-## every room at once.
-signal player_ready(slot: int)
+## A player in the waiting room of GAME.md 9.6 has said they are ready, by holding the pad long
+## enough, or has taken it back by driving off it. The host works this out, since it is the host
+## that simulates every kart; clients are told, so the tick over a kart and the count at the top
+## of the screen say the same thing in every room at once.
+signal player_ready(slot: int, ready: bool)

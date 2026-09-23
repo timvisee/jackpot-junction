@@ -2502,10 +2502,12 @@ there. Nothing else is in it. There is no clock, nothing to shoot, nothing to co
 score: the room asks one thing of anybody in it.
 
 **Readying up.** The cash-out pad is the ready marker. Driving onto it charges it, a ring of
-blocks round it fills as it charges, and after a couple of seconds a tick lights over the kart
-and stays there. Ready is sticky: rolling off afterwards does not take it back, so the last
-player in does not find that the first has drifted away and undone it. The match begins when
-everybody in the room has one.
+blocks round it fills as it charges, and after a couple of seconds a tick lights over the kart.
+The match begins when everybody in the room has one.
+
+Ready lasts exactly as long as the standing does. Roll off the pad and the charge and the tick
+go with it, on the frame the kart leaves. That is the honest reading of a pad nobody is on: a
+room that started because everybody was ready a moment ago would start without them.
 
 Saying it by driving rather than by pressing is the whole point. A button on a menu says the
 same thing, but it does not put the player who is waiting anywhere in particular, and it does

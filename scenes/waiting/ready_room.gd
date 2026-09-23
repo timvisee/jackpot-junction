@@ -4,21 +4,20 @@ extends Node
 ##
 ## A match starts when everybody says they are ready, and the saying is done by driving. Standing
 ## on the pad charges it, a ring round it fills as it charges, and when it is full a tick floats
-## over the kart and stays there. A button on a menu would do the same job, but it would not tell
-## the four people in the room which of them everybody is waiting for, and it would not put the
-## player who is waiting anywhere in particular. The pad does both: a kart parked on the pad is a
-## player who has said yes, in the one place everybody is already looking.
+## over the kart. A button on a menu would do the same job, but it would not tell the four people
+## in the room which of them everybody is waiting for, and it would not put the player who is
+## waiting anywhere in particular. The pad does both: a kart parked on the pad is a player who has
+## said yes, in the one place everybody is already looking.
 ##
-## Ready is sticky. Rolling off the pad afterwards does not take it back, so the last player in
-## does not find the first has drifted off and undone it.
+## Ready lasts exactly as long as the standing does. Roll off the pad and it is taken back at
+## once, which is the honest reading of a pad somebody is not on: a room that starts because
+## everybody was ready a moment ago starts without them.
 
 signal everybody_ready
 
-## How long a kart has to hold the pad, and how fast the charge runs back out when it leaves. It
-## runs out slower than it goes in, so clipping a corner of the pad and coming straight back does
-## not start again from nothing.
+## How long a kart has to hold the pad. Leaving it does not fade: the charge is gone and so is the
+## ready, on the frame the kart rolls off.
 const CHARGE_TIME := 2.5
-const FADE_RATE := 0.6
 ## The ring that fills: how many blocks it is made of, how far out they sit as a share of the
 ## pad's radius, and how big each one is.
 const SEGMENTS := 24
@@ -76,14 +75,15 @@ static func add_to(in_match: Match) -> ReadyRoom:
 	return room
 
 
-## Somebody has readied up. On the host this is its own word coming back to it; on a client it is
-## the first it has heard of it, and the only thing it has to go on.
-func _on_player_ready(slot: int) -> void:
-	if ready_slots.get(slot, false):
+## Somebody has readied up, or taken it back. On the host this is its own word coming back to it;
+## on a client it is the first it has heard of it, and the only thing it has to go on.
+func _on_player_ready(slot: int, ready: bool) -> void:
+	if ready_slots.get(slot, false) == ready:
 		return
-	ready_slots[slot] = true
-	charge[slot] = 1.0
-	Audio.play_sfx(&"pad_claim", -4.0)
+	ready_slots[slot] = ready
+	charge[slot] = 1.0 if ready else 0.0
+	if ready:
+		Audio.play_sfx(&"pad_claim", -4.0)
 
 
 ## How many of the players in the room have readied up, and how many there are to ready. Bots are
@@ -126,19 +126,21 @@ func _process(delta: float) -> void:
 		var index := slot.index
 		var on_it := standing.has(index)
 		var was: float = charge.get(index, 0.0)
-		var now := clampf(
-			was + (delta / CHARGE_TIME if on_it else -delta * FADE_RATE / CHARGE_TIME), 0.0, 1.0
-		)
+		var now := clampf(was + delta / CHARGE_TIME, 0.0, 1.0) if on_it else 0.0
 		charge[index] = now
-		if now >= 1.0 and not ready_slots.get(index, false):
-			ready_slots[index] = true
-			Events.player_ready.emit(index)
+		var already: bool = ready_slots.get(index, false)
+		if (now >= 1.0) != already:
+			ready_slots[index] = now >= 1.0
+			Events.player_ready.emit(index, now >= 1.0)
 		_show_tick(slot)
 	_paint_ring()
 	_say_the_count()
-	if all_ready() and not _announced:
-		_announced = true
+	# Announced once per full house, and armed again if somebody rolls off before the room has
+	# changed: a room that emptied and filled again is a room that is ready again.
+	var full := all_ready()
+	if full and not _announced:
 		everybody_ready.emit()
+	_announced = full
 
 
 ## How many are ready, said twice: once at the top of the screen for the player at this machine,
@@ -193,10 +195,14 @@ func _paint_ring() -> void:
 		skin.emission_energy_multiplier = 1.4 if on else 0.0
 
 
-## The tick over a kart that has readied up, kept over its head as it drives.
+## The tick over a kart that has readied up, kept over its head as it drives, and taken away the
+## moment the pad is left.
 func _show_tick(slot: PlayerSlot) -> void:
 	var done: bool = ready_slots.get(slot.index, false)
 	if not done:
+		if _ticks.has(slot.index):
+			(_ticks[slot.index] as Node3D).queue_free()
+			_ticks.erase(slot.index)
 		return
 	if not _ticks.has(slot.index):
 		_ticks[slot.index] = _build_tick()

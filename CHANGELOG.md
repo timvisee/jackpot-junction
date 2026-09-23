@@ -17,6 +17,12 @@ below, and hands the notes to the release workflow.
   garage bay where everybody drives around while the rest arrive, and the match
   begins when all of you have parked on the pad in the middle.
 
+### Changed
+
+- **Driving off the ready pad unreadies you.** Ready used to stick once the pad had
+  charged, so a room could start without somebody who had wandered off; it now
+  lasts exactly as long as you stay parked.
+
 ## [0.4.1] - 2026-09-23
 
 ### Added

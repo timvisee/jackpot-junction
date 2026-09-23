@@ -84,9 +84,9 @@ func test_standing_on_the_pad_readies_a_player() -> void:
 	assert_bool(ready_room._ticks.has(0)).is_true()
 
 
-## Ready sticks. The last player in should not find that the first has drifted off the pad and
-## undone it while they were driving over.
-func test_ready_is_not_taken_back_by_driving_off() -> void:
+## Ready lasts as long as the standing does. Driving off the pad takes it back on the spot, along
+## with the charge and the tick: a pad nobody is on does not speak for anybody.
+func test_ready_is_taken_back_by_driving_off() -> void:
 	var room := await _open()
 	var match_node: Match = room.get_node("Match")
 	var ready_room: ReadyRoom = room.ready_room
@@ -95,8 +95,11 @@ func test_ready_is_not_taken_back_by_driving_off() -> void:
 	await _runner.simulate_frames(int(ReadyRoom.CHARGE_TIME * 80.0), 17)
 	assert_bool(ready_room.all_ready()).is_true()
 	kart.global_position = Vector3(10.0, 0.0, 6.0)
-	await _runner.simulate_frames(60, 17)
-	assert_bool(ready_room.all_ready()).is_true()
+	await _runner.simulate_frames(10, 17)
+	assert_bool(ready_room.all_ready()).is_false()
+	assert_int(ready_room.ready_count()).is_equal(0)
+	assert_float(ready_room.charge[0]).is_equal(0.0)
+	assert_bool(ready_room._ticks.has(0)).is_false()
 
 
 ## An empty room is not a ready room: a match with nobody in it has nothing to start.
