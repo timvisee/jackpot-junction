@@ -81,6 +81,9 @@ func _build() -> void:
 	add_child(total)
 	_parts.append(total)
 	_note = _text(Color(0.82, 0.82, 0.88))
+	# Measured, like the signs: clipped, with nothing else on the line asking for room, it was
+	# nought pixels wide, and a player waiting to come back was never shown how long for.
+	_note.clip_text = false
 	_note.visible = false
 	add_child(_note)
 

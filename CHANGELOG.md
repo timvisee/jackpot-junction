@@ -30,6 +30,9 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The respawn countdown shows.** Your corner says how long until you are back on
+  the floor; the line was there all along but had no room to be drawn in.
+
 - **Respawns flare where the kart comes back online.** Joining somebody else's game,
   the ring opened over the spot a kart had died on instead of where it reappeared.
 
