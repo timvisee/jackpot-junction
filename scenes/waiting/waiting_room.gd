@@ -98,7 +98,9 @@ func _join() -> void:
 		session.local_input = PlayerInput.new()
 		session.player_name = config.human_names[0] if not config.human_names.is_empty() else ""
 	session.match_beginning.connect(_follow_the_host, CONNECT_ONE_SHOT)
-	session.disconnected.connect(func() -> void: Game.go_to_title())
+	# After the signal rather than inside it: going to the title hangs the session up, and a session
+	# cannot be freed while it is in the middle of saying something.
+	session.disconnected.connect(func() -> void: Game.go_to_title.call_deferred())
 	if not back:
 		var error := session.join(config.address, config.port)
 		if error != OK:
