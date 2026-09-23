@@ -300,6 +300,25 @@ and the kart goes back to a bot when the client leaves. The LAN and WAN
 sessions are still open. Prediction is not implemented; the client feels its
 own latency.
 
+## Pending
+
+Known bugs parked for later. Each one is described well enough to pick up cold.
+
+- [ ] **Settings from the pause menu does not come back to the room it left.**
+      `PauseMenu` sends Settings to `Game.go_to_settings(Game.MATCH_SCENE)`, and
+      the settings screen's Back changes scene to that path. Every room that
+      hangs a pause menu (match, garage, waiting room, the dev driving scene) is
+      freed on the way out and a fresh match scene is built from
+      `Game.pending_config` on the way back. In a match that throws the match
+      away and starts a new one; from the garage it lands in a match. Online it
+      is worse, because the connection outlives the scene (`Net`): a host in the
+      waiting room comes back into an arena that re-seats every client without
+      having told them to follow, and a client comes back to "Starting the
+      match..." waiting for a host that never sends it. Likely fix: open the
+      settings as an overlay over the room instead of a scene change, or at
+      least return to the scene that opened it and never leave an online room
+      this way.
+
 ## Working method
 
 - **One milestone per branch**, small commits, GAME.md updated in the same
