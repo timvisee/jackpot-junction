@@ -7,6 +7,12 @@ extends Node3D
 ## boxes and cylinders in the room's own materials, and both need to know how far out the crowd
 ## and the clutter go, so both are built from here.
 
+## How a prop is turned where it stands: square with the table a degree or two off, which is what
+## says somebody put it there rather than dropped it; thrown, for the things that were thrown;
+## along the front edge of the bench, for what lies on the near apron; loose, for a tower run up
+## in a hurry; and not turned at all, for what a room places by hand.
+enum Turned { SQUARE, THROWN, ALONG, LOOSE, FLAT }
+
 ## The table's own surface, a little under the arena floor. Everything outside the wall stands on
 ## this rather than on the floor the karts drive on.
 const TOP := -Arena.FLOOR_THICKNESS
@@ -24,6 +30,52 @@ const BACK_WALL := 2.0
 ## How far past the edge of the table the wall round the room stands, and how thick it is.
 const ROOM_CLEAR := 2.0
 const WALL_THICKNESS := 2.0
+## The patch of table each kind of prop covers and how it is turned on it. The patch is measured
+## off the parts the prop is built from, in the prop's own frame: across it is the rectangle's
+## width and along it -- the way a hammer's handle points -- is its height.
+##
+## Every place is found with these, so a hammer fifteen metres long asks for fifteen metres of
+## bench and a glass asks for three. One patch of the same size for every prop is what left rod
+## stock lying through a stack of chips and barrels standing in each other however many places
+## were tried, and a round patch big enough to hold a prop whichever way it was turned costs nine
+## times the table a hammer lying on it does.
+const PATCH := {
+	&"lamp": [Rect2(-3.4, -3.4, 6.8, 15.8), Turned.FLAT],
+	&"vice": [Rect2(-2.2, -2.3, 4.4, 7.4), Turned.FLAT],
+	&"rods": [Rect2(-1.3, -3.2, 2.6, 6.4), Turned.SQUARE],
+	&"tape": [Rect2(-2.2, -1.3, 4.4, 6.5), Turned.SQUARE],
+	&"tin": [Rect2(-3.4, -3.4, 6.8, 6.8), Turned.FLAT],
+	&"hammer": [Rect2(-1.4, -5.8, 2.8, 14.7), Turned.SQUARE],
+	&"planks": [Rect2(-3.1, -5.5, 6.2, 11.0), Turned.SQUARE],
+	&"drill": [Rect2(-1.8, -4.5, 3.6, 14.0), Turned.SQUARE],
+	&"mug": [Rect2(-2.6, -2.6, 5.2, 5.9), Turned.SQUARE],
+	&"pencil": [Rect2(-0.5, -3.8, 1.0, 8.7), Turned.ALONG],
+	&"rule": [Rect2(-5.0, -0.5, 10.0, 1.0), Turned.ALONG],
+	&"pendant": [Rect2(-4.2, -4.2, 8.4, 8.4), Turned.FLAT],
+	&"dice": [Rect2(-1.5, -0.7, 3.0, 1.4), Turned.THROWN],
+	&"cards": [Rect2(-3.4, -3.4, 6.8, 6.8), Turned.THROWN],
+	&"chips": [Rect2(-3.4, -1.1, 6.8, 2.2), Turned.SQUARE],
+	&"deck": [Rect2(-1.4, -1.9, 2.8, 3.8), Turned.SQUARE],
+	&"glass": [Rect2(-1.3, -1.3, 2.6, 2.6), Turned.FLAT],
+	&"floodlight": [Rect2(-3.5, -2.5, 7.0, 5.0), Turned.FLAT],
+	&"truck": [Rect2(-2.8, -6.4, 5.6, 12.8), Turned.FLAT],
+	&"forklift": [Rect2(-2.0, -3.8, 4.0, 6.6), Turned.FLAT],
+	&"tape_along": [Rect2(-3.2, -0.4, 6.4, 0.8), Turned.FLAT],
+	&"tape_across": [Rect2(-0.4, -2.7, 0.8, 5.4), Turned.FLAT],
+	&"cones": [Rect2(-4.0, -0.8, 8.0, 1.6), Turned.SQUARE],
+	&"pallets": [Rect2(-2.1, -1.7, 4.2, 3.4), Turned.SQUARE],
+	&"barrels": [Rect2(-3.2, -1.1, 6.4, 2.2), Turned.SQUARE],
+	&"barrel_row": [Rect2(-1.1, -3.2, 2.2, 6.4), Turned.FLAT],
+	&"scaffold": [Rect2(-3.1, -1.6, 6.2, 3.2), Turned.LOOSE],
+	&"container": [Rect2(-4.2, -1.8, 8.4, 3.6), Turned.SQUARE],
+	&"bricks": [Rect2(-1.4, -3.0, 2.8, 6.0), Turned.SQUARE],
+	&"barrier": [Rect2(-3.2, -0.9, 6.4, 1.8), Turned.SQUARE],
+	&"tyres": [Rect2(-1.7, -1.7, 3.4, 3.4), Turned.SQUARE],
+	&"chest": [Rect2(-1.9, -1.0, 3.8, 2.0), Turned.SQUARE],
+	&"jerry": [Rect2(-1.6, -0.9, 3.2, 1.8), Turned.SQUARE],
+	&"work_bench": [Rect2(-5.5, -1.4, 11.0, 2.8), Turned.FLAT],
+	&"lift": [Rect2(-2.6, -4.2, 5.2, 8.4), Turned.FLAT],
+}
 
 var arena: Arena
 var room: RoomLook
