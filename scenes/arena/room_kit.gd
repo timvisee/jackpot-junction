@@ -277,7 +277,11 @@ func _part_boxes(into: Node3D, size: Vector3) -> void:
 		var lift := -size.y * 0.5 + size.y * (float(i) + 0.5) / float(rows)
 		var box := Vector3(wide, size.y / float(rows) * 0.9, deep)
 		_box(into, box, card, Vector3(0.0, lift, 0.0))
-		_box(into, Vector3(wide * 0.16, box.y * 1.02, deep), tape, Vector3(0.0, lift, 0.0))
+		# The tape stands a whisker proud of the carton on every face it crosses. Flush with the
+		# sides it shared a plane with them, and two faces in one plane fight over the same
+		# pixels: a pale line down the side of every box, flickering as the camera moved.
+		var strip := Vector3(wide * 0.16, box.y * 1.04, deep * 1.04)
+		_box(into, strip, tape, Vector3(0.0, lift, 0.0))
 
 
 func _offcuts(into: Node3D, size: Vector3) -> void:
