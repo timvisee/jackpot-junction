@@ -108,6 +108,7 @@ static func add_to(for_arena: Arena) -> RoomProps:
 
 func _build() -> void:
 	_rng.seed = hash(room.id)
+	_keep_the_floor()
 	if arena.crowd != null:
 		_boxes.append_array(arena.crowd.taken_bays())
 	match room.id:
@@ -315,10 +316,14 @@ func _yard() -> void:
 ## stands in it that band is bare concrete, and a room nobody is in reads as a room somebody has
 ## been cleared out of.
 func _garage() -> void:
-	clutter_from = 3.0
-	# And the crowd's own patches go with it. It is built and then switched off in here, so what
-	# it asked for is ground kept clear for people who never arrive.
+	# Right up against the bay. The band the other rooms leave is the room the stands need, and
+	# with nobody in here to fill it the clutter takes it: what keeps a prop off the floor is the
+	# floor asking for itself, not the distance.
+	clutter_from = 1.0
+	# The crowd's patches go, along with the crowd. It is built and then switched off in here, so
+	# what it asked for is ground kept clear for people who never arrive.
 	_boxes.clear()
+	_keep_the_floor()
 	var wall := shell.enclose(Color(0.12, 0.125, 0.14), Color(0.28, 0.29, 0.31), 3.0, 40.0)
 	shell.facade(wall)
 	shell.sign(wall)
@@ -359,7 +364,13 @@ func _garage() -> void:
 			&"tyres": func(at: Vector3, turn: float) -> void: _tyres(at, turn, rubber, steel),
 		}
 	)
-	_apron(4, {&"jerry": func(at: Vector3, turn: float) -> void: _jerry(at, turn, rust, tinplate)})
+	_apron(
+		5,
+		{
+			&"jerry": func(at: Vector3, turn: float) -> void: _jerry(at, turn, rust, tinplate),
+			&"rods": func(at: Vector3, turn: float) -> void: _rods(at, turn, stock),
+		}
+	)
 
 
 ## A stack of tyres, which is the one shape that says garage on its own. Worn down to the rim on
@@ -541,6 +552,14 @@ func _spot(half: Vector2, index: int, big: bool) -> Vector3:
 ## five metres tall there is in the corner of the picture the whole match.
 func _flank() -> float:
 	return _rng.randf_range(-1.0, 0.25)
+
+
+## Keeps the floor the karts drive on out of the clutter's hands. A prop is placed by its middle
+## and the longest of them are six metres end to end, so in a room whose clutter starts at the
+## wall one turned the wrong way would otherwise lie across it.
+func _keep_the_floor() -> void:
+	var half := arena.world_size() * 0.5
+	_boxes.append(Rect2(-half.x, -half.y, half.x * 2.0, half.y * 2.0))
 
 
 ## Whether [param box] is table nothing has spoken for. The shell's own runs and the patches the
