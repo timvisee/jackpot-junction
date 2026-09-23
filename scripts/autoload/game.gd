@@ -120,16 +120,22 @@ static func is_headless() -> bool:
 	return DisplayServer.get_name() == "headless"
 
 
+## Leaving for a menu hangs up. The connection outlives a scene now, GAME.md 10.3, so walking
+## out of a match no longer takes it down by itself: somebody has to say so, and these three are
+## every way out there is.
 func go_to_title() -> void:
+	Net.close()
 	get_tree().paused = false
 	get_tree().change_scene_to_file(TITLE_SCENE)
 
 
 func go_to_lobby() -> void:
+	Net.close()
 	get_tree().change_scene_to_file(LOBBY_SCENE)
 
 
 func go_to_online() -> void:
+	Net.close()
 	get_tree().change_scene_to_file(ONLINE_SCENE)
 
 

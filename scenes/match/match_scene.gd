@@ -101,11 +101,11 @@ func _local_addresses() -> PackedStringArray:
 	return result
 
 
+## The connection is the [Net] autoload's rather than this scene's, GAME.md 10.3: a scene that
+## owned it would take it down with itself, and the room a match is played in is not the room it
+## was waited in.
 func _start_session() -> void:
-	session = NetSession.new()
-	session.name = "Session"
-	session.match_node = match_node
-	add_child(session)
+	session = Net.open(match_node)
 
 
 ## Pressing the join button on a device nobody plays with adds that player mid-match.

@@ -2608,6 +2608,26 @@ Key pieces:
 Designed in from the start so that M6 is an addition, not a rewrite: all rules
 run in one place, the Match, and karts are driven by a KartInput interface.
 
+#### Who owns the connection
+
+The `Net` autoload, not the scene being played. A session used to hang off the match scene, so
+the wire went down with the scene: the peer closed as the scene was freed and every client was
+dropped the moment the host changed rooms. That was survivable while a match was one scene from
+beginning to end. It is not survivable with the waiting room of 9.6 in front of it, where the
+host and everybody who has joined move from one room to another and expect to still be talking.
+
+So the connection outlives any one room. Scenes come and go under it; the peer, the slots and
+the clients stay until somebody leaves on purpose, which is every way back to a menu. It also
+fixes the path the RPCs travel on at `/root/Net/Session`, where before it was whatever the scene
+happened to be called and both ends had to agree.
+
+The cost of a longer life is that nothing is cleaned up by a scene change any more. Whatever the
+session holds is held until it is closed, so closing is somebody's job rather than something
+that happens by itself. It is also the first half of what a dedicated server would need: such a
+server runs room after room with the same clients connected throughout, which a session owned by
+a scene can never do. The second half -- a match with no local seat, and no HUD or camera for
+nobody to look at -- is separate work and untouched by this.
+
 #### Who decides what
 
 One rule underneath all of it: **a client may decide where its own kart is and

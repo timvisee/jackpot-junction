@@ -25,6 +25,7 @@ config/icon="res://icon.png"
 Game="*res://scripts/autoload/game.gd"
 Events="*res://scripts/autoload/events.gd"
 Audio="*res://scripts/autoload/audio.gd"
+Net="*res://scripts/autoload/net.gd"
 
 [debug]
 
