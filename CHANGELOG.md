@@ -21,6 +21,10 @@ below, and hands the notes to the release workflow.
   score, bots and the rest come up when you open the room and again from the pause
   menu, and everybody waiting is told what is coming next.
 
+- **Play is a match of several maps.** Choose how many, drive into the waiting room,
+  and once everybody is ready the maps are dealt at random and played one after
+  another, with Next map on each podium. Works on one screen and online.
+
 - **Quick play on the title screen.** Setting up and playing a single map moves to
   its own button, next to Play.
 

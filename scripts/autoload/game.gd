@@ -34,6 +34,9 @@ var settings_return := TITLE_SCENE
 var garage_room := ROOM_GARAGE
 ## What the lobby is setting up, see [method go_to_lobby].
 var lobby_for := LobbyFor.QUICK_PLAY
+## The Grand Prix being played, GAME.md 9.7, or null for a single map. Kept here because it runs
+## across scenes: every map is a scene of its own.
+var grand_prix: GrandPrix
 
 var _screenshot_path := ""
 var _screenshot_frames := 8
@@ -132,6 +135,7 @@ static func is_headless() -> bool:
 ## every way out there is.
 func go_to_title() -> void:
 	Net.close()
+	grand_prix = null
 	get_tree().paused = false
 	get_tree().change_scene_to_file(TITLE_SCENE)
 
@@ -140,12 +144,14 @@ func go_to_title() -> void:
 ## know what it is setting up.
 func go_to_lobby(purpose: LobbyFor = LobbyFor.QUICK_PLAY) -> void:
 	Net.close()
+	grand_prix = null
 	lobby_for = purpose
 	get_tree().change_scene_to_file(LOBBY_SCENE)
 
 
 func go_to_online() -> void:
 	Net.close()
+	grand_prix = null
 	get_tree().change_scene_to_file(ONLINE_SCENE)
 
 
@@ -183,6 +189,26 @@ func start_match(config: MatchConfig) -> void:
 	get_tree().change_scene_to_file(MATCH_SCENE)
 
 
+## On to the next map of the Grand Prix, GAME.md 9.7: the same people, the same bots and the same
+## settings on the next arena in the playlist. Online the host says so first and everybody goes.
+func next_map() -> void:
+	var next := next_map_config()
+	if next == null:
+		return
+	if Net.hosting():
+		Net.session.begin_the_match()
+	start_match(next)
+
+
+## The configuration the next map is built from, or null when there is no next map to build.
+func next_map_config() -> MatchConfig:
+	if grand_prix == null or grand_prix.is_last() or pending_config == null:
+		return null
+	grand_prix.advance()
+	pending_config.map = grand_prix.current_map()
+	return pending_config
+
+
 ## The room everybody waits in before a match, GAME.md 9.6. The configuration it was given is the
 ## one the arena is built from once everybody in the room is ready, so it is kept rather than
 ## asked for again.
@@ -196,6 +222,8 @@ func back_to_the_room() -> void:
 
 
 func go_to_waiting(config: MatchConfig) -> void:
+	# A Grand Prix starts in the waiting room and ends before anybody is back in it.
+	grand_prix = null
 	pending_config = config
 	get_tree().paused = false
 	get_tree().change_scene_to_file(WAITING_SCENE)

@@ -32,11 +32,14 @@ var _style: StyleBoxFlat
 var _podium: ResultsPodium
 var _rows: VBoxContainer
 ## The two ways on from here, kept so the screen can point at one when it comes up.
+var _next: Button
 var _rematch: Button
 var _lobby: Button
 var _quit: Button
-## Tells a client who takes everybody back to the waiting room, since it is not them.
+## Tells a client what happens next and who decides it, since it is not them.
 var _host_decides: Label
+## Which map of a Grand Prix this was, GAME.md 9.7, under the title.
+var _caption: Label
 
 
 ## Builds the screen for [param for_match] and hangs it off [param parent], hidden until the
@@ -68,19 +71,40 @@ func fill_in() -> void:
 		_rows.add_child(_entry(slot, rank, everyone))
 		rank += 1
 	visible = true
+	_ways_on()
 	# This is the one screen nobody asked for: it arrives on its own at the whistle, so it points
-	# at what most people want next rather than waiting to be found. Rematch, or the way out for
-	# a client, which does not get to decide there is another match.
-	# Online or not is asked now rather than when the screen was built, which was the start of the
-	# match: who is hosting is a question about who is still here at the end of it.
-	_lobby.visible = not match_node.puppet and Net.hosting()
+	# at what most people want next rather than waiting to be found.
+	for first: Button in [_next, _lobby, _rematch, _quit]:
+		if first.visible:
+			first.grab_focus()
+			break
+
+
+## Which ways on the screen offers. Asked at the whistle rather than when the screen was built,
+## which was the start of the match: who is hosting is a question about who is still here at the
+## end of it.
+##
+## In a Grand Prix, GAME.md 9.7, a map that is not the last leads to the next one and nowhere else:
+## there is no rematch of a map in the middle of a run, and no leaving from the podium, which is
+## for the next map (the pause menu is still the way out). The last map ends the run, and leads
+## back to the lobby. A client decides none of it, and is told who does.
+func _ways_on() -> void:
+	var rules := match_node.rules
+	var decides := not match_node.puppet
+	var grand_prix := rules.rounds > 0
+	var more := grand_prix and rules.round < rules.rounds
+	_next.visible = decides and more
+	_rematch.visible = decides and not grand_prix
+	_lobby.visible = decides and not more and (grand_prix or Net.hosting())
+	_quit.visible = not more
 	_host_decides.visible = match_node.puppet and Net.online()
-	var first := _quit
-	if _lobby.visible:
-		first = _lobby
-	elif _rematch.visible:
-		first = _rematch
-	first.grab_focus()
+	_host_decides.text = (
+		"The host starts the next map." if more else "The host takes everybody back to the lobby."
+	)
+	_caption.visible = grand_prix
+	if grand_prix:
+		var named := ArenaMaps.NAMES[ArenaMaps.index_of(rules.map)]
+		_caption.text = "%s \u00b7 map %d of %d" % [named, rules.round, rules.rounds]
 
 
 ## One player: their place and name on the left, what they banked on the right, and what they
@@ -190,6 +214,9 @@ func _build() -> void:
 	title.add_theme_color_override("font_color", Palette.CHIP_GOLD)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(title)
+	_caption = MenuTheme.subtitle("", Type.LABEL)
+	_caption.visible = false
+	column.add_child(_caption)
 	var rule := ColorRect.new()
 	rule.color = RULE
 	rule.custom_minimum_size = Vector2(WIDTH, 1.0)
@@ -210,15 +237,19 @@ func _build() -> void:
 	column.add_child(_host_decides)
 
 
-## Play again, or go back. A client is not the one who decides there is another match. The host
-## of an online match can also take everybody back to the waiting room of GAME.md 9.6, where the
-## next one is chosen and whoever wants to leave can.
+## The ways on from here, all built and shown as they apply, see [method _ways_on]. The host of
+## an online match can take everybody back to the waiting room of GAME.md 9.6, where the next one
+## is chosen and whoever wants to leave can.
 func _buttons() -> HBoxContainer:
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 24)
+	_next = MenuTheme.button("Next map", 26)
+	_next.pressed.connect(func() -> void: Game.next_map())
+	_next.visible = false
+	buttons.add_child(_next)
 	_lobby = MenuTheme.button("Back to lobby", 26)
-	_lobby.pressed.connect(func() -> void: Game.back_to_the_room())
+	_lobby.pressed.connect(_back_to_lobby)
 	_lobby.visible = false
 	buttons.add_child(_lobby)
 	_rematch = MenuTheme.button("Rematch", 26)
@@ -229,3 +260,12 @@ func _buttons() -> HBoxContainer:
 	_quit.pressed.connect(func() -> void: Game.go_to_title())
 	buttons.add_child(_quit)
 	return buttons
+
+
+## Online, back to the waiting room with everybody; on one machine, back to the lobby a Grand
+## Prix was set up in, since that is where the next one is.
+func _back_to_lobby() -> void:
+	if Net.online():
+		Game.back_to_the_room()
+	else:
+		Game.go_to_lobby(Game.LobbyFor.PLAY)

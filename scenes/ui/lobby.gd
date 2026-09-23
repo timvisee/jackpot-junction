@@ -56,11 +56,13 @@ func _ready() -> void:
 	player_names[0] = _remembered_name(0)
 	_build_name_rows(column)
 	_build_style_rows(column)
-	options = MatchOptions.add_to(column, settings)
+	options = MatchOptions.add_to(
+		column, settings, MatchOptions.Mode.PLAY if playing else MatchOptions.Mode.QUICK_PLAY
+	)
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0.0, 24.0)
 	column.add_child(spacer)
-	start_button = MenuTheme.button("Start match")
+	start_button = MenuTheme.button("Start" if playing else "Start match")
 	start_button.pressed.connect(_start)
 	column.add_child(start_button)
 	var back := MenuTheme.button("Back", 24)
@@ -172,7 +174,12 @@ func _start() -> void:
 		settings.kart_styles[i] = dressed[i]
 	options.remember(settings)
 	settings.save_to_disk()
-	Game.start_match(config())
+	# Play starts in the waiting room of GAME.md 9.6, and its first map is dealt once everybody
+	# there is ready, see 9.7. Quick play goes straight onto the map it chose.
+	if options.is_grand_prix():
+		Game.go_to_waiting(config())
+	else:
+		Game.start_match(config())
 
 
 func _refresh_players() -> void:

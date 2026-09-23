@@ -301,6 +301,7 @@ func test_the_host_chooses_the_match_on_opening_the_room() -> void:
 	assert_bool(match_node.kart_of(0).frozen).is_true()
 	assert_bool(room.ready_room.held).is_true()
 	assert_str(room.ready_room._plan.text).is_equal("The host is choosing the match")
+	pane.options.mode_option.selected = 1
 	pane.options.map_option.selected = 1
 	pane.options.bots_option.selected = 1
 	pane.options.minutes_option.selected = MatchOptions.match_lengths().find(8)
@@ -330,6 +331,32 @@ func test_the_host_comes_back_to_the_room_on_the_same_connection() -> void:
 	assert_object(room.session).is_same(open)
 	assert_object(open.match_node).is_same(room.get_node("Match"))
 	assert_bool(room.host_settings.is_open()).is_true()
+
+
+## The host can choose a Grand Prix instead, GAME.md 9.7: how many maps rather than which, and
+## the maps are dealt when the room goes, the first of them being the one the room goes to.
+func test_the_host_can_choose_a_grand_prix() -> void:
+	var room := await _host()
+	var pane: HostSettings = room.host_settings
+	pane.options.mode_option.selected = 0
+	pane.options.maps_option.selected = MatchOptions.MAPS.find(4)
+	pane.close()
+	await _runner.simulate_frames(2, 17)
+	assert_str(room.ready_room._plan.text).contains("Match of 4 maps")
+	var first: MatchConfig = room.first_map_config()
+	assert_object(Game.grand_prix).is_not_null()
+	assert_int(Game.grand_prix.playlist.size()).is_equal(4)
+	assert_str(String(first.map)).is_equal(String(Game.grand_prix.playlist[0]))
+	Game.grand_prix = null
+
+
+## A single map deals no Grand Prix, and clears one left over from before.
+func test_a_single_map_is_not_a_grand_prix() -> void:
+	var room := await _open()
+	Game.grand_prix = GrandPrix.start(3, RandomNumberGenerator.new())
+	room.config.rounds = 0
+	room.first_map_config()
+	assert_object(Game.grand_prix).is_null()
 
 
 ## And the host can open it again from the pause menu, which only the host's has.

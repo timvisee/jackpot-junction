@@ -30,6 +30,10 @@ func _ready() -> void:
 	match_node.bot_difficulty = load("res://data/ai/%s.tres" % config.difficulty)
 	match_node.power_ups = config.power_ups()
 	match_node.arena_layout = ArenaMaps.layout(match_node.rules.map)
+	# Which map of a Grand Prix this is, GAME.md 9.7. The host's to say; a client is told it with
+	# the rest of the rules.
+	if Game.grand_prix != null and config.online != "join":
+		Game.grand_prix.label(match_node.rules)
 	add_child(match_node)
 	match config.online:
 		"host":
@@ -75,6 +79,8 @@ func _ready() -> void:
 			# When the match is over the host takes everybody back to the waiting room, GAME.md
 			# 9.6, and this machine goes with it.
 			session.back_to_room.connect(func() -> void: Game.go_to_waiting(config))
+			# And in a Grand Prix the host goes on to the next map, and everybody goes with it.
+			session.match_beginning.connect(func() -> void: Game.start_match(config))
 			if already:
 				# Already through the door: the waiting room opened this connection. The host
 				# seats whoever asks once its arena is up, so this machine asks now that its own

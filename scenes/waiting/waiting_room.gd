@@ -54,6 +54,9 @@ func _ready() -> void:
 	var menu := PauseMenu.add_to(self, session)
 	if config.online == "host":
 		_offer_the_settings(menu)
+	elif config.online == "":
+		# Chosen in the lobby on the way in, so the room only has to say what it was.
+		Events.match_planned.emit(MatchOptions.describe(config), false)
 
 
 ## The people at this machine, and nobody else. Bots do not wait for anybody and cannot drive
@@ -112,9 +115,23 @@ func _join() -> void:
 ## this machine changes room, so the rooms change together rather than leaving a client driving
 ## round a lobby the host has already left.
 func _begin() -> void:
+	var first := first_map_config()
 	if session != null:
 		session.begin_the_match()
-	Game.start_match(arena_config())
+	Game.start_match(first)
+
+
+## What the first map is built from: [method arena_config], and for Play the Grand Prix dealt
+## now that everybody playing it is here, GAME.md 9.7, with the first of its maps.
+func first_map_config() -> MatchConfig:
+	var first := arena_config()
+	Game.grand_prix = null
+	if first.rounds > 0:
+		var rng := RandomNumberGenerator.new()
+		rng.randomize()
+		Game.grand_prix = GrandPrix.start(first.rounds, rng)
+		first.map = Game.grand_prix.current_map()
+	return first
 
 
 ## The host chooses the match in here, GAME.md 9.6: first thing on opening the room, and again

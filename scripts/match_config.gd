@@ -11,8 +11,10 @@ var human_styles: Array = []
 ## What each human calls themselves, in the same order. An empty entry is handed a funny name
 ## when the match starts, GAME.md 3.8.
 var human_names: Array[String] = []
-## Which arena to play in, GAME.md 6.3.
+## Which arena to play in, GAME.md 6.3. In a Grand Prix, the one the playlist is on.
 var map := &"lucky_crossing"
+## How many maps a Grand Prix runs, GAME.md 9.7, or 0 for a single map.
+var rounds := 0
 var bot_count := 3
 ## Seats kept for players connected from other machines, GAME.md 9.6. They are started as bots and
 ## taken over as the host seats everybody again on the other side of the waiting room, see 10.3,
@@ -113,4 +115,5 @@ static func from_settings(settings: Settings) -> MatchConfig:
 	config.human_names = settings.player_names.duplicate()
 	config.human_styles = settings.kart_styles.duplicate()
 	config.map = StringName(settings.map)
+	config.rounds = settings.grand_prix_maps if settings.online_grand_prix else 0
 	return config

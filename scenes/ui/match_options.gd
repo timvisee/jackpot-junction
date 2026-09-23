@@ -8,6 +8,13 @@ extends RefCounted
 ## The lobby puts them in front of a local match and the waiting room of 9.6 in front of the host
 ## of an online one. They are the same questions with the same answers, so they are one piece
 ## rather than two copies that drift apart the first time one of them grows an option.
+##
+## What is being set up changes one row, GAME.md 9.7. Quick play picks the arena. Play is a Grand
+## Prix, whose arenas are dealt when it starts, so it asks how many maps instead. The host of an
+## online room chooses between the two, so they get both, and a row that says which.
+
+## What the rows are setting up: one map, a Grand Prix, or the host's choice of either.
+enum Mode { QUICK_PLAY, PLAY, EITHER }
 
 const MINUTES: Array[int] = [3, 5, 8]
 ## A minute, for a match somebody is testing rather than playing: long enough to reach the
@@ -22,6 +29,8 @@ const ITEM_SETS: Array[String] = ["first", "all"]
 const OWN_BULLETS: Array[bool] = [false, true]
 ## Index order of the overtime option: on first, so it is the default.
 const OVERTIME: Array[bool] = [true, false]
+## How many maps a Grand Prix can run, GAME.md 9.7.
+const MAPS: Array[int] = [2, 3, 4, 5, 6]
 
 var map_option: OptionButton
 var minutes_option: OptionButton
@@ -31,14 +40,27 @@ var difficulty_option: OptionButton
 var items_option: OptionButton
 var own_bullets_option: OptionButton
 var overtime_option: OptionButton
+## The host's choice between a Grand Prix and a single map, [enum Mode] EITHER only.
+var mode_option: OptionButton
+var maps_option: OptionButton
+var mode := Mode.QUICK_PLAY
 
 ## Names the room the chosen map is played in, under the arena row.
 var _room_label: Label
+## The rows that come and go with the choice between a Grand Prix and a single map, and the label
+## of the length row, which is per map in one and for the match in the other.
+var _arena_row: Control
+var _maps_row: Control
+var _length_label: Label
 
 
-## Puts the rows into [param column], each set to what [param settings] last had.
-static func add_to(column: Container, settings: Settings) -> MatchOptions:
+## Puts the rows into [param column], each set to what [param settings] last had, for setting up
+## [param for_mode].
+static func add_to(
+	column: Container, settings: Settings, for_mode: Mode = Mode.QUICK_PLAY
+) -> MatchOptions:
 	var options := MatchOptions.new()
+	options.mode = for_mode
 	options._build(column, settings)
 	return options
 
@@ -54,11 +76,17 @@ static func match_lengths() -> Array[int]:
 
 
 ## One line saying what a match is going to be: where, how long, to how many points, and how
-## many bots. What somebody waiting to play it wants to know, and nothing they do not.
+## many bots. What somebody waiting to play it wants to know, and nothing they do not. A Grand
+## Prix says how many maps rather than which, since which is not dealt until it starts.
 static func describe(config: MatchConfig) -> String:
+	var minutes := roundi(config.duration / 60.0)
 	var parts: PackedStringArray = [
-		ArenaMaps.NAMES[ArenaMaps.index_of(config.map)],
-		"%d min" % roundi(config.duration / 60.0),
+		(
+			"Match of %d maps" % config.rounds
+			if config.rounds > 0
+			else ArenaMaps.NAMES[ArenaMaps.index_of(config.map)]
+		),
+		"%d min each" % minutes if config.rounds > 0 else "%d min" % minutes,
 		"first to %d" % config.target_score if config.target_score > 0 else "no target",
 	]
 	match config.bot_count:
@@ -75,6 +103,7 @@ static func describe(config: MatchConfig) -> String:
 ## there is room for is the caller's to say, since only it knows who else is playing.
 func apply_to(config: MatchConfig) -> void:
 	config.map = ArenaMaps.id_at(map_option.selected)
+	config.rounds = MAPS[maps_option.selected] if is_grand_prix() else 0
 	config.duration = match_lengths()[minutes_option.selected] * 60.0
 	config.target_score = TARGETS[target_option.selected]
 	config.bot_count = BOTS[bots_option.selected]
@@ -95,6 +124,19 @@ func remember(settings: Settings) -> void:
 	settings.item_set = ITEM_SETS[items_option.selected]
 	settings.own_bullets_hurt = OWN_BULLETS[own_bullets_option.selected]
 	settings.overtime = OVERTIME[overtime_option.selected]
+	settings.grand_prix_maps = MAPS[maps_option.selected]
+	if mode == Mode.EITHER:
+		settings.online_grand_prix = is_grand_prix()
+
+
+## Whether these rows are setting up a Grand Prix rather than a single map.
+func is_grand_prix() -> bool:
+	match mode:
+		Mode.PLAY:
+			return true
+		Mode.EITHER:
+			return mode_option.selected == 0
+	return false
 
 
 func _build(column: Container, settings: Settings) -> void:
@@ -109,15 +151,32 @@ func _build(column: Container, settings: Settings) -> void:
 	)
 	items_option = MenuTheme.option(["First set", "All items"], ITEM_SETS.find(settings.item_set))
 	map_option = MenuTheme.option(ArenaMaps.NAMES, ArenaMaps.index_of(StringName(settings.map)))
-	column.add_child(MenuTheme.row("Arena", map_option))
+	maps_option = MenuTheme.option(
+		_labels(MAPS, "%d maps"), maxi(MAPS.find(settings.grand_prix_maps), 0)
+	)
+	if mode == Mode.EITHER:
+		mode_option = MenuTheme.option(
+			["Match of several maps", "Quick play, one map"], 0 if settings.online_grand_prix else 1
+		)
+		mode_option.item_selected.connect(func(_index: int) -> void: _show_mode())
+		column.add_child(MenuTheme.row("Play", mode_option))
+	_maps_row = MenuTheme.row("Maps", maps_option)
+	column.add_child(_maps_row)
+	var arena := VBoxContainer.new()
+	arena.add_child(MenuTheme.row("Arena", map_option))
 	# Which room that map is played in, GAME.md 8.1: three of them, and a player picking a map
 	# is picking a place as much as a floor plan.
 	_room_label = MenuTheme.subtitle("", Type.LABEL)
 	_room_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	column.add_child(_room_label)
+	arena.add_child(_room_label)
+	_arena_row = arena
+	column.add_child(_arena_row)
 	map_option.item_selected.connect(func(_index: int) -> void: _show_room())
 	_show_room()
-	column.add_child(MenuTheme.row("Match length", minutes_option))
+	var length := MenuTheme.row("Match length", minutes_option)
+	_length_label = length.get_child(0) as Label
+	column.add_child(length)
+	_show_mode()
 	column.add_child(MenuTheme.row("Target score", target_option))
 	column.add_child(MenuTheme.row("Bots", bots_option))
 	column.add_child(MenuTheme.row("Bot difficulty", difficulty_option))
@@ -130,6 +189,15 @@ func _build(column: Container, settings: Settings) -> void:
 		["Last one standing", "Match ends"], OVERTIME.find(settings.overtime)
 	)
 	column.add_child(MenuTheme.row("Out of time", overtime_option))
+
+
+## Shows the rows that go with what is being set up: the arena for a single map, the number of
+## maps for a Grand Prix, and a length that says it is per map when there are several.
+func _show_mode() -> void:
+	var several := is_grand_prix()
+	_arena_row.visible = not several
+	_maps_row.visible = several
+	_length_label.text = "Time per map" if several else "Match length"
 
 
 ## The room behind the chosen map, named under the row that chose it.

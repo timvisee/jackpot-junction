@@ -303,8 +303,8 @@ before it comes up, and the hand of cards stays where it is until it does, becau
 a scoreboard thrown over the top of a kart still rolling takes the ending away from
 the people who were in it. The music steps back 9 dB over 0.8 s as the screen
 arrives and comes back up when the room does. Results show every player's banked
-score and kills, ranked, then offer a rematch or a return to the lobby, with the
-cursor already on Rematch: the screen arrives on its own rather than being opened,
+score and kills, ranked, then offer a rematch or a return to the lobby (in a Grand
+Prix, the next map instead, see 9.7), with the cursor already on Rematch: the screen arrives on its own rather than being opened,
 so it points at what most people want next instead of waiting to be found. A client,
 which does not get to decide there is another match, is pointed at the way out.
 
@@ -2571,14 +2571,17 @@ A seat taken in here goes through to the arena with everybody else, and as who i
 room: the same colour, the same name, the same dress.
 
 **Choosing the match.** Online, the host chooses what the match is going to be in here, from the
-same rows the lobby puts in front of a local one: the arena, how long, the target, how many bots
-and how hard, the items, own bullets and what the clock running out does. They come up over the
+same rows the lobby puts in front of a local one: a match of several maps or a single one, see
+9.7, then how many maps or which arena, how long, the target, how many bots and how hard, the
+items, own bullets and what the clock running out does. They come up over the
 room the moment it is opened, again from the host's pause menu, and start on whatever the host
 chose last time. The room is open while they are up -- friends join and drive around -- and the
 host's own karts wait where they are, since the controls are working the menu.
 
 Everybody in the room is told what is coming, under the count:
-`Next: Crossfire · 5 min · first to 3000 · 2 bots`, or that the host is still choosing. The room
+`Next: Crossfire · 5 min · first to 3000 · 2 bots`, or for a Grand Prix
+`Next: Match of 3 maps · 5 min each · first to 3000 · 2 bots`, or that the host is still
+choosing. On one machine the room says what the lobby chose on the way in. The room
 does not go while the host is choosing, however ready everybody else is: a match that started
 halfway through the menu would be the one that was set before they began.
 
@@ -2592,6 +2595,40 @@ still connected, the same people in the same colours, and the host's match setti
 again, since the next match is chosen here the same as the first one was. A client's podium
 says the host takes everybody back, rather than offering a button that could only take one
 of them. Whoever wants to stop there leaves from the room, the way anybody does.
+
+### 9.7 Play: a Grand Prix
+
+Play is a run of several maps with the same people in it, one after another. This document
+calls it a Grand Prix, to keep it apart from the single map that "match" means everywhere else
+here; the screens call it a match of however many maps it is. Quick play is the single map, set
+up and played on its own, the way Play used to be.
+
+**Setting up.** Play's lobby is Quick play's with one row swapped: instead of which arena, how
+many maps, 2 to 6, 3 to start with. The arenas are not chosen, they are dealt. The length row
+reads Time per map, since it is. Online, the host's match settings of 9.6 start with a row that
+chooses between the two, a match of several maps or a single one, and show the rows that go
+with it.
+
+**The waiting room first.** Starting a Grand Prix does not start a map. Everybody goes to the
+waiting room of 9.6, and the first map begins when everybody playing is parked on the pad --
+on one machine as much as online, since a room of four people on one screen has the same
+question of who is ready. Only then is the playlist dealt, when everybody who is going to play
+it is there.
+
+**The playlist.** Every arena comes round once before any comes round again, and no arena is
+played twice running, so a run of three plays each of the three once and a run of six plays
+each twice, never back to back. The run is the host's; each map is told which one of how many
+it is, so a client knows as well as the host whether its podium leads on.
+
+**Between maps.** A map that is not the last ends on its podium as any map does, with one way
+on: Next map. There is no rematch of a map in the middle of a run and no leaving from its
+podium -- the pause menu is still the way out. The podium says which map of how many it was.
+Online the host moves everybody on, the same way it moved everybody out of the waiting room;
+a client's podium says so. The next map is the same match on the next arena: the same people,
+in the same colours, with the same settings.
+
+**The end.** The last map's podium ends the run: Back to lobby, to the waiting room online and
+to Play's lobby on one machine, or back to the title.
 
 ## 10. Technology
 

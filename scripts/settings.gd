@@ -54,6 +54,10 @@ var map := "lucky_crossing"
 var own_bullets_hurt := false
 ## Whether a match that runs out of clock goes to sudden death, GAME.md 3.13.
 var overtime := true
+## How many maps Play runs, GAME.md 9.7, and whether the host of an online room last chose a
+## Grand Prix over a single map.
+var grand_prix_maps := 3
+var online_grand_prix := true
 ## What each local seat calls itself, GAME.md 3.8. An empty entry is a seat that never gave a
 ## name and will be handed a funny one when the match starts.
 var player_names: Array[String] = ["", "", "", ""]
@@ -109,6 +113,8 @@ func load_from_disk() -> void:
 	map = file.get_value("lobby", "map", map)
 	own_bullets_hurt = file.get_value("lobby", "own_bullets_hurt", own_bullets_hurt)
 	overtime = file.get_value("lobby", "overtime", overtime)
+	grand_prix_maps = file.get_value("lobby", "grand_prix_maps", grand_prix_maps)
+	online_grand_prix = file.get_value("lobby", "online_grand_prix", online_grand_prix)
 	var stored: Array = file.get_value("lobby", "player_names", [])
 	for i: int in mini(stored.size(), player_names.size()):
 		player_names[i] = PlayerNames.clean(str(stored[i]))
@@ -151,6 +157,8 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "map", map)
 	file.set_value("lobby", "own_bullets_hurt", own_bullets_hurt)
 	file.set_value("lobby", "overtime", overtime)
+	file.set_value("lobby", "grand_prix_maps", grand_prix_maps)
+	file.set_value("lobby", "online_grand_prix", online_grand_prix)
 	file.set_value("lobby", "player_names", player_names)
 	file.set_value("lobby", "kart_styles", kart_styles)
 	file.set_value("progress", "seen_test_track", seen_test_track)

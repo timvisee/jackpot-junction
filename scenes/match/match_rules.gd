@@ -20,6 +20,8 @@ const WIRE_FIELDS: Array[StringName] = [
 	&"countdown",
 	&"max_players",
 	&"map",
+	&"round",
+	&"rounds",
 ]
 
 @export_group("Coins")
@@ -179,6 +181,11 @@ const WIRE_FIELDS: Array[StringName] = [
 @export var last_call_duration := 30.0
 @export var countdown := 3.0
 @export var max_players := 4
+## Which map of a Grand Prix this is, counting from 1, and how many it runs, GAME.md 9.7. Both 0
+## for a single map. On the wire, so a client knows as well as the host whether a podium leads to
+## another map or to the end.
+@export var round := 0
+@export var rounds := 0
 
 
 func to_wire() -> Dictionary:
