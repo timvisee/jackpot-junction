@@ -61,7 +61,7 @@ make jokers     # every joker and power-up icon on one screen, to see them as a 
 make run        # start the game scene
 make check      # import, lint, format check, changelog, unit tests, smoke runs, multiplayer
 make test       # unit tests only (gdUnit4, headless)
-make multiplayer  # a whole Grand Prix online (host and client) and on one screen
+make multiplayer  # a whole Grand Prix online (two games, up to two clients) and on one screen
 make export     # release builds for Linux, Windows and macOS in build/
 ```
 

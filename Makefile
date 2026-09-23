@@ -78,8 +78,8 @@ jokers: | $(CACHE)
 bots: | $(CACHE)
 	tools/bot_arena
 
-# A whole Grand Prix played through the real scenes three ways: an online host and client as two
-# processes on this machine, and two players on one screen. About a minute.
+# A whole Grand Prix played through the real scenes: two online games, the host and its clients
+# as processes on this machine, and two players on one screen. About a minute and a half.
 multiplayer: | $(CACHE)
 	tools/multiplayer_check
 

@@ -33,6 +33,12 @@ var _failed := false
 var _colour := -1
 ## Whether the role got to its last step.
 var _finished := false
+## On the host: how many clients to wait for, and how many players sit at the host's own
+## machine, the host and whoever takes the second seat there.
+var _clients := 1
+var _locals := 1
+## The colour this client had in the waiting room, to find it in again in the arena.
+var _room_colour := -1
 
 
 func _ready() -> void:
@@ -41,6 +47,10 @@ func _ready() -> void:
 			_role = arg.get_slice("=", 1)
 		elif arg.begins_with("--port="):
 			_port = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--clients="):
+			_clients = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--locals="):
+			_locals = int(arg.get_slice("=", 1))
 	_run.call_deferred()
 
 
@@ -104,17 +114,23 @@ func _host_opens_the_room() -> Node:
 	_check(room.ready_room._plan.text.contains("Match of %d maps" % MAPS), "the room says a match")
 	var match_node: Match = room.match_node
 	if not await _until(
-		func() -> bool: return _remote(match_node) == 1, 30.0, "the client sat down"
+		func() -> bool: return _remote(match_node) == _clients,
+		30.0,
+		"%d client(s) sat down" % _clients
 	):
 		return null
-	# Not ready while only the host is on the pad: the room waits for everybody.
-	_park(match_node, 0)
+	# A second player at the host's own machine takes a seat on a pad, the way the room tells
+	# them to, once the others are in.
+	if _locals > 1:
+		_check(match_node.join_human(0) != null, "a second player here took a seat")
+	# Not ready while only the host's end is on the pad: the room waits for everybody.
+	_park_mine(match_node)
 	await _frames(150)
-	if not _check(_scene() == room, "the room waits while the client is not on the pad"):
+	if not _check(_scene() == room, "the room waits while the clients are not on the pad"):
 		return null
 	var ready_room: ReadyRoom = room.ready_room
 	if not await _until(
-		func() -> bool: return _park(match_node, 0) and _scene() != room, 30.0, "the room went"
+		func() -> bool: return _park_mine(match_node) and _scene() != room, 30.0, "the room went"
 	):
 		if is_instance_valid(ready_room):
 			_say(_readout(match_node, ready_room))
@@ -160,9 +176,12 @@ func _host_plays(first: Node) -> ResultsScreen:
 	var first_arena := one.rules.map
 	var bot := _bot_seat(one)
 	var bot_trait := String(one.slots[bot].bot_trait.id) if bot >= 0 else ""
-	var guest := _remote_seat(one)
-	var colour: int = one.slots[guest].color_index if guest >= 0 else -1
-	_check(one.slots.size() == 1 + 1 + BOTS, "map 1 seats the host, the client and a bot")
+	var guests := _colours(one)
+	var seats := _locals + _clients + BOTS
+	_check(one.slots.size() == seats, "map 1 seats everybody and a bot, %d in all" % seats)
+	_check(guests.size() == _clients, "every client has a seat on map 1")
+	if _locals > 1:
+		_check(one.slots[1].is_local_human(), "the second player here plays map 1")
 	var podium := await _end(first)
 	if podium == null:
 		return null
@@ -175,15 +194,14 @@ func _host_plays(first: Node) -> ResultsScreen:
 	if second == null:
 		return null
 	var two: Match = second.match_node
-	_check(two.slots.size() == 1 + 1 + BOTS, "map 2 seats the same people")
+	_check(two.slots.size() == seats, "map 2 seats the same people")
 	_check(
 		bot >= 0 and String(two.slots[bot].bot_trait.id) == bot_trait,
 		"map 2 has the same bot in the same seat"
 	)
-	_check(
-		_remote_seat(two) == guest and two.slots[guest].color_index == colour,
-		"the client is in the same seat and colour on map 2"
-	)
+	_check(_colours(two) == guests, "every client is in the same seat and colour on map 2")
+	if _locals > 1:
+		_check(two.slots[1].is_local_human(), "the second player here plays map 2")
 	_check(two.rules.map != first_arena, "map 2 is a different arena")
 	var last := await _end(second)
 	if last == null:
@@ -203,7 +221,11 @@ func _host_goes_back(last: ResultsScreen) -> void:
 		return
 	_check(again.host_settings != null and again.host_settings.is_open(), "settings are up again")
 	var match_node: Match = again.match_node
-	await _until(func() -> bool: return _remote(match_node) == 1, 30.0, "the client is back")
+	await _until(
+		func() -> bool: return _remote(match_node) == _clients, 30.0, "every client is back"
+	)
+	if _locals > 1:
+		_check(match_node.slots[1].is_local_human(), "and the second player here too")
 	# Give the client its moment to see the room before this end hangs up.
 	await _until(func() -> bool: return multiplayer_peers() == 0, 20.0, "the client finished")
 	_finished = true
@@ -236,8 +258,16 @@ func _client_joins() -> Node:
 		return null
 	var session: NetSession = room.session
 	var match_node: Match = room.match_node
-	if not await _until(func() -> bool: return session.local_slot >= 0, 30.0, "seated in the room"):
+	# Seated once the seat is known and the snapshot has built it: the seat's number and the
+	# seats themselves arrive separately.
+	if not await _until(
+		func() -> bool:
+			return session.local_slot >= 0 and match_node.slots.size() > session.local_slot,
+		30.0,
+		"seated in the room"
+	):
 		return null
+	_room_colour = match_node.slots[session.local_slot].color_index
 	if not await _until(
 		func() -> bool: return _park(match_node, session.local_slot) and _scene() != room,
 		60.0,
@@ -251,6 +281,7 @@ func _client_joins() -> Node:
 func _client_after_map_1(first: Node) -> Node:
 	var one: Match = first.match_node
 	_colour = one.slots[one.local_slot].color_index
+	_check(_colour == _room_colour, "the same colour on map 1 as in the room")
 	var podium := await _podium(first, 60.0)
 	if podium == null:
 		return null
@@ -410,8 +441,8 @@ func _map(round: int) -> Node:
 				return (
 					match_node.local_slot >= 0 and match_node.slots.size() > match_node.local_slot
 				)
-			# The host's map is up when the client is seated in it.
-			return _role != "host" or _remote(match_node) == 1,
+			# The host's map is up when every client is seated in it.
+			return _role != "host" or _remote(match_node) == _clients,
 		60.0,
 		"map %d is up and everybody is seated" % round
 	)
@@ -426,7 +457,14 @@ func _map(round: int) -> Node:
 ## for its podium.
 func _end(scene: Node) -> ResultsScreen:
 	await _seconds(READING)
-	scene.match_node._finish()
+	# Different fortunes on every map, so the run's standings are not simply the seats in order
+	# and the two ends have something to disagree about if they are going to.
+	var match_node: Match = scene.match_node
+	var count := match_node.slots.size()
+	for slot: PlayerSlot in match_node.slots:
+		var turn := (slot.index + match_node.rules.round) % count
+		slot.banked = 100 * (turn + 1)
+	match_node._finish()
 	return await _podium(scene, 15.0)
 
 
@@ -476,11 +514,23 @@ func _remote(match_node: Match) -> int:
 	return count
 
 
-func _remote_seat(match_node: Match) -> int:
+## Seat to colour for every client's seat.
+func _colours(match_node: Match) -> Dictionary:
+	var found := {}
 	for slot: PlayerSlot in match_node.slots:
 		if slot.input is NetInput:
-			return slot.index
-	return -1
+			found[slot.index] = slot.color_index
+	return found
+
+
+## Brings every kart played at this machine to the pad. True, so it can sit in a condition.
+func _park_mine(match_node: Match) -> bool:
+	if not is_instance_valid(match_node):
+		return true
+	for slot: PlayerSlot in match_node.slots:
+		if slot.is_local_human():
+			_park(match_node, slot.index)
+	return true
 
 
 func _bot_seat(match_node: Match) -> int:

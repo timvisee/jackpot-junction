@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
-# Plays a whole Grand Prix through the real scenes three ways and says whether each worked: an
-# online host and client, as two processes talking over a port on this machine, and two players
-# on one machine. See tools/multiplayer_check.gd for what each step checks.
+# Plays a whole Grand Prix through the real scenes and says whether each run worked: online, with
+# the host and its clients as separate processes talking over a port on this machine, and on one
+# screen. See tools/multiplayer_driver.gd for what each step checks.
 #
-# Usage: tools/multiplayer_check          (about a minute)
+#   online a: the host and a second player at its machine, one client, one bot
+#   online b: the host, two clients, one bot
+#   local:    two players on one machine, one bot
+#
+# Usage: tools/multiplayer_check          (about a minute and a half)
 set -uo pipefail
 cd "$(dirname "$0")/.."
 port="${MPCHECK_PORT:-7811}"
@@ -15,45 +19,80 @@ else
 	logs=$(mktemp -d)
 	trap 'rm -rf "$logs"' EXIT
 fi
-run() {
-	timeout 240 tools/godot --headless --path . -s tools/multiplayer_check.gd -- \
-		--role="$1" --port="$port" >"$logs/$1.log" 2>&1
-}
-run host &
-host=$!
-run client &
-client=$!
-wait "$host"
-host_status=$?
-wait "$client"
-client_status=$?
-run local
-local_status=$?
 failed=0
-for role in host client local; do
-	grep -h '^MPCHECK' "$logs/$role.log"
-	# A script error anywhere is a failure, even in a run that got to its end: the game carried
-	# on past something that went wrong.
-	if grep -hE 'SCRIPT ERROR|USER ERROR' "$logs/$role.log" | sed "s/^/$role: /" >&2; then
-		echo "multiplayer check: $role raised script errors" >&2
+
+# One process: a log name, then the driver's own arguments.
+run() {
+	local name=$1
+	shift
+	timeout 240 tools/godot --headless --path . -s tools/multiplayer_check.gd -- "$@" \
+		>"$logs/$name.log" 2>&1
+}
+
+# A run's output, and a failure for a run that failed or raised a script error anywhere, even
+# one that reached its end: the game carried on past something that went wrong.
+report() {
+	local name=$1 status=$2
+	grep -h '^MPCHECK' "$logs/$name.log" | sed "s/^MPCHECK [a-z]* /$name: /"
+	if grep -hE 'SCRIPT ERROR|USER ERROR' "$logs/$name.log" | sed "s/^/$name: /" >&2; then
+		echo "multiplayer check: $name raised script errors" >&2
 		failed=1
 	fi
-done
-for pair in "host:$host_status" "client:$client_status" "local:$local_status"; do
-	if [[ ${pair#*:} -ne 0 ]]; then
-		echo "multiplayer check: ${pair%%:*} failed" >&2
+	if [[ $status -ne 0 ]]; then
+		echo "multiplayer check: $name failed" >&2
 		failed=1
 	fi
-done
+}
+
 # The two ends of the wire must agree on how the run stood after every map.
-for round in 1 2; do
-	a=$(grep -h "^MPCHECK host SCORES $round " "$logs/host.log" | cut -d' ' -f5- | sed 's/ ([0-9.]* s)$//')
-	b=$(grep -h "^MPCHECK client SCORES $round " "$logs/client.log" | cut -d' ' -f5- | sed 's/ ([0-9.]* s)$//')
-	if [[ -z $a || $a != "$b" ]]; then
-		echo "multiplayer check: host and client disagree after map $round: '$a' against '$b'" >&2
-		failed=1
-	fi
-done
+agree() {
+	local host=$1 client=$2
+	for round in 1 2; do
+		a=$(grep -h "^MPCHECK host SCORES $round " "$logs/$host.log" | cut -d' ' -f5- |
+			sed 's/ ([0-9.]* s)$//')
+		b=$(grep -h "^MPCHECK client SCORES $round " "$logs/$client.log" | cut -d' ' -f5- |
+			sed 's/ ([0-9.]* s)$//')
+		if [[ -z $a || $a != "$b" ]]; then
+			echo "multiplayer check: $host and $client disagree after map $round: '$a' against '$b'" >&2
+			failed=1
+		fi
+	done
+}
+
+run host_a --role=host --port="$port" --locals=2 --clients=1 &
+host_a=$!
+run client_a --role=client --port="$port" &
+client_a=$!
+wait "$host_a"
+host_a_status=$?
+wait "$client_a"
+client_a_status=$?
+
+run host_b --role=host --port="$((port + 1))" --locals=1 --clients=2 &
+host_b=$!
+run client_b1 --role=client --port="$((port + 1))" &
+client_b1=$!
+run client_b2 --role=client --port="$((port + 1))" &
+client_b2=$!
+wait "$host_b"
+host_b_status=$?
+wait "$client_b1"
+client_b1_status=$?
+wait "$client_b2"
+client_b2_status=$?
+
+run local --role=local
+local_status=$?
+
+report host_a "$host_a_status"
+report client_a "$client_a_status"
+report host_b "$host_b_status"
+report client_b1 "$client_b1_status"
+report client_b2 "$client_b2_status"
+report local "$local_status"
+agree host_a client_a
+agree host_b client_b1
+agree host_b client_b2
 if [[ $failed -eq 0 ]]; then
 	echo "multiplayer check ok"
 fi
