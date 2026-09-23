@@ -2507,10 +2507,21 @@ four things standing on the floor to drift round while the last player finds the
 stack of wheels, a cone, and a drum with a box opposite it down one side of the room -- two marks
 a few lengths apart, which is a figure of eight for anybody who wants one. The box is the only
 thing in here that breaks, and it comes back in seconds rather than the half minute a box takes
-in a match: it is there to be driven round, not to be hidden behind. They are solid, unlike the clutter in every other room,
-because driving through the one thing there is to drive round is worse than having nothing
-there. Nothing else is in it. There is no clock, nothing to shoot, nothing to collect and no
-score: the room asks one thing of anybody in it.
+in a match: it is there to be driven round, not to be hidden behind. They are solid, unlike the
+clutter in every other room, because driving through the one thing there is to drive round is
+worse than having nothing there.
+
+And a football, in front of the pad, to knock about. It rolls on the floor and nowhere else: its
+height is held, so no kick lifts it, and the walls and props throw it back the way they throw
+back a kart. It is not solid to karts. A kart that meets it is not stopped by it as by a wall; the
+ball is kicked out of its way instead, off whichever side of the kart it met, with however fast
+that side was coming at it, and rolls to a stop on the concrete. The kart is the heavy thing. It
+is nobody's on the pad, and a ball ever found outside the room goes back to where it started.
+Online the host kicks it and tells everybody where it went, often and without waiting for an
+answer; a client draws it rolling on between one telling and the next.
+
+Nothing else is in it. There is no clock, nothing to shoot, nothing to collect and no score: the
+room asks one thing of anybody in it.
 
 **Readying up.** The cash-out pad is the ready marker. Driving onto it charges it, a ring of
 blocks round it fills as it charges, and after a couple of seconds a tick lights over the kart.

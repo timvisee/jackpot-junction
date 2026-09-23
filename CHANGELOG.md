@@ -17,6 +17,9 @@ below, and hands the notes to the release workflow.
   garage bay where everybody drives around while the rest arrive, and the match
   begins when all of you have parked on the pad in the middle.
 
+- **A football in the waiting room.** Drive into it to kick it about while everybody
+  gets ready; it stays on the floor and inside the walls.
+
 - **The host chooses the online match in the waiting room.** Arena, length, target
   score, bots and the rest come up when you open the room and again from the pause
   menu, and everybody waiting is told what is coming next.

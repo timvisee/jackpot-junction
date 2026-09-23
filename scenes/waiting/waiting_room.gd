@@ -17,6 +17,8 @@ extends Node3D
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const LAYOUT: ArenaLayout = preload("res://data/maps/waiting_room.tres")
+## Where the football starts: in front of the pad, on open floor, clear of every prop and spawn.
+const BALL_SPOT := Vector3(0.0, 0.0, 5.0)
 const RULES: MatchRules = preload("res://data/match/waiting_room.tres")
 ## The rules the arena is built on, for how many seats it has.
 const ARENA_RULES: MatchRules = preload("res://data/match/default.tres")
@@ -27,6 +29,8 @@ var config: MatchConfig
 var session: NetSession
 ## The host's choice of match, null on any other machine.
 var host_settings: HostSettings
+## Something to knock about while waiting, GAME.md 9.6.
+var ball: RoomBall
 
 
 func _ready() -> void:
@@ -242,6 +246,14 @@ func _dress_the_room() -> void:
 	match_node.arena.billboards.visible = false
 	match_node.camera_rig.show_the_room(0.8)
 	WaitingProps.add_to(match_node.arena)
+	# The host, or this machine alone, kicks the ball and a client is told where it went.
+	var joining := config.online == "join"
+	ball = RoomBall.add_to(match_node, BALL_SPOT, not joining)
+	if session != null:
+		if joining:
+			session.ball_moved.connect(ball.follow)
+		else:
+			ball.moved.connect(session.share_ball)
 
 
 ## The line under the ready count that says how somebody at another machine gets in. Held until

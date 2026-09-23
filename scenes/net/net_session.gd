@@ -17,6 +17,8 @@ signal pause_agreed(on: bool)
 signal match_beginning
 ## The match is over and the host is taking everybody back to the waiting room, GAME.md 9.6.
 signal back_to_room
+## Where the host says the waiting room's football is, see [RoomBall].
+signal ball_moved(state: Array)
 
 const DEFAULT_PORT := 7777
 ## What an unfocused window runs at while this machine is in an online room, GAME.md 9.3. Fast
@@ -263,6 +265,18 @@ func _leaving() -> void:
 		var index: int = _peer_slots[peer]
 		if index < match_node.slots.size():
 			_colour_of[peer] = match_node.slots[index].color_index
+
+
+## Where the waiting room's football is, from the host that kicks it to everybody watching it,
+## GAME.md 9.6. Sent often and unreliably: a telling that goes missing is overtaken by the next.
+func share_ball(state: Array) -> void:
+	if is_host and _connected() and not multiplayer.get_peers().is_empty():
+		_ball_state.rpc(state)
+
+
+@rpc("authority", "call_remote", "unreliable_ordered")
+func _ball_state(state: Array) -> void:
+	ball_moved.emit(state)
 
 
 ## Which joker this client keeps for the next map of a Grand Prix, GAME.md 9.7. The host holds

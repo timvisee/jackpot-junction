@@ -519,6 +519,72 @@ func test_the_any_device_player_pauses_with_the_pad_they_drive() -> void:
 	menu.set_paused(false)
 
 
+## There is a football on the floor, in front of the pad, touching nothing but walls and props: no
+## kart runs into it as into a wall, and it never stands anybody on the pad.
+func test_the_room_has_a_ball_on_the_floor() -> void:
+	var room := await _open()
+	var ball: RoomBall = room.ball
+	assert_object(ball).is_not_null()
+	assert_float(ball.global_position.y).is_equal_approx(RoomBall.RADIUS, 0.01)
+	(
+		assert_float(
+			ball.global_position.distance_to(room.BALL_SPOT + Vector3.UP * RoomBall.RADIUS)
+		)
+		. is_less(0.1)
+	)
+	assert_int(ball.collision_layer).is_equal(0)
+	assert_int(ball.collision_mask).is_equal(Layers.WORLD)
+
+
+## A kart driven into the ball kicks it on ahead of it, and goes on itself: the kart is the heavy
+## thing, and the ball is what gets out of the way.
+func test_a_kart_driving_into_the_ball_kicks_it() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var ball: RoomBall = room.ball
+	var kart := match_node.kart_of(0)
+	var start := ball.global_position
+	kart.global_position = Vector3(start.x - 4.0, 0.0, start.z)
+	kart.face(Vector3.RIGHT)
+	var driver := KartInput.new()
+	driver.throttle = 1.0
+	kart.input = driver
+	await _runner.simulate_frames(60, 17)
+	assert_float(ball.global_position.x - start.x).is_greater(1.0)
+	assert_float(ball.linear_velocity.x).is_greater(0.5)
+	assert_float(kart.global_position.x).is_greater(start.x - 4.0 + 2.0)
+	assert_float(ball.global_position.y).is_equal_approx(RoomBall.RADIUS, 0.01)
+
+
+## However hard it is sent, it stays on the floor and inside the room: no height to go up into,
+## and walls that throw it back.
+func test_the_ball_never_leaves_the_floor_or_the_room() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var ball: RoomBall = room.ball
+	var half := match_node.arena.world_size() * 0.5
+	for heading: Vector3 in [Vector3(0, 0, -1), Vector3(1, 0, 0.6), Vector3(-1, 0.8, 1)]:
+		ball.linear_velocity = heading.normalized() * RoomBall.MAX_SPEED
+		for i: int in 180:
+			await _runner.simulate_frames(1, 17)
+			var at := ball.global_position
+			assert_float(at.y).is_equal_approx(RoomBall.RADIUS, 0.01)
+			assert_float(absf(at.x)).is_less(half.x)
+			assert_float(absf(at.z)).is_less(half.y)
+
+
+## A client does not kick the ball, it is told where it is, and draws it there.
+func test_a_client_draws_the_ball_where_it_was_told() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var told := RoomBall.add_to(match_node, Vector3(-6.0, 0.0, 3.0), false)
+	await _runner.simulate_frames(2, 17)
+	assert_bool(told.freeze).is_true()
+	told.follow([4.0, -2.0, 0.0, 0.0])
+	await _runner.simulate_frames(30, 17)
+	assert_float(told.global_position.distance_to(Vector3(4.0, RoomBall.RADIUS, -2.0))).is_less(0.1)
+
+
 ## An empty room is not a ready room: a match with nobody in it has nothing to start.
 func test_a_room_with_nobody_in_it_is_never_ready() -> void:
 	var room := await _open()

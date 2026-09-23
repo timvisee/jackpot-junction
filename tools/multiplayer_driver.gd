@@ -126,6 +126,14 @@ func _host_opens_the_room() -> Node:
 		"%d client(s) sat down" % _clients
 	):
 		return null
+	# The clients drive through the football on their way to the pad. The host kicks it, so it is
+	# on the host that it has to move.
+	var ball: RoomBall = room.ball
+	await _until(
+		func() -> bool: return ball.global_position.distance_to(ball.home) > 1.0,
+		30.0,
+		"a client kicked the football"
+	)
 	# A second player at the host's own machine takes a seat on a pad, the way the room tells
 	# them to, once the others are in.
 	if _locals > 1:
@@ -284,6 +292,33 @@ func _client_joins() -> Node:
 	):
 		return null
 	_room_colour = match_node.slots[session.local_slot].color_index
+	# The first client drives through the football on the way to the pad, from a little short of
+	# it to a little past it, and the ball this machine draws has to have gone somewhere too. Only
+	# the first: two karts making for the same ball meet each other, and the host takes the wheel
+	# off both for a moment, which is the game working and not what is being checked here.
+	var ball: RoomBall = room.ball
+	var seat := session.local_slot
+	var first := true
+	for slot: PlayerSlot in match_node.slots:
+		if slot.index > 0 and slot.index < seat and slot.is_human():
+			first = false
+	if first:
+		await _until(
+			func() -> bool: return _walk(match_node, seat, ball.home - Vector3(1.8, 0.0, 0.0)),
+			30.0,
+			"up to the ball"
+		)
+		await _until(
+			func() -> bool: return _walk(match_node, seat, ball.home + Vector3(1.5, 0.0, 0.0)),
+			30.0,
+			"through the ball"
+		)
+		await _until(
+			func() -> bool: return ball.global_position.distance_to(ball.home) > 0.5,
+			10.0,
+			"the football it kicked moved on its screen too"
+		)
+		_check(absf(ball.global_position.y - RoomBall.RADIUS) < 0.01, "and stayed on the floor")
 	if not await _until(
 		func() -> bool: return _park(match_node, session.local_slot) and _scene() != room,
 		60.0,
@@ -584,11 +619,18 @@ func _park(match_node: Match, seat: int) -> bool:
 	# A spot of its own on the pad for every seat: two karts parked on the same point are two
 	# karts shoving each other off it.
 	var pad := match_node.arena.junction.global_position + SPOTS[seat % SPOTS.size()]
+	return _walk(match_node, seat, pad)
+
+
+## Moves the kart in [param seat] toward [param to], a step a frame on a client and at once on
+## the host. True once it is there.
+func _walk(match_node: Match, seat: int, to: Vector3) -> bool:
+	var kart := match_node.slots[seat].kart
 	var step := STEP if match_node.puppet else INF
-	var to := pad - kart.global_position
-	to.y = 0.0
-	kart.global_position += to if to.length() <= step else to.normalized() * step
-	return true
+	var way := to - kart.global_position
+	way.y = 0.0
+	kart.global_position += way if way.length() <= step else way.normalized() * step
+	return way.length() <= step
 
 
 func _remote(match_node: Match) -> int:
