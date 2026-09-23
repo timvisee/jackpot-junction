@@ -129,6 +129,19 @@ func test_ready_is_taken_back_by_driving_off() -> void:
 	assert_bool(ready_room._ticks.has(0)).is_false()
 
 
+## Dying in here costs nothing and takes no time. There is no run to build, so there is no hand
+## of cards to pick from, and no reason to sit out a wait for a kart that was only messing about.
+func test_dying_in_the_room_brings_you_straight_back_with_no_cards() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var slot: PlayerSlot = match_node.slots[0]
+	match_node.kart_of(0).die(&"pit", -1)
+	assert_object(slot.offer).override_failure_message("a joker was offered").is_null()
+	assert_float(slot.respawn_left).is_equal(0.0)
+	await _runner.simulate_frames(5, 17)
+	assert_bool(match_node.kart_of(0).alive).is_true()
+
+
 ## An empty room is not a ready room: a match with nobody in it has nothing to start.
 func test_a_room_with_nobody_in_it_is_never_ready() -> void:
 	var room := await _open()

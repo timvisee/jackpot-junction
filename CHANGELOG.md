@@ -27,6 +27,10 @@ below, and hands the notes to the release workflow.
   charges your own arc of it in your own kart colour, so it is clear who the pad
   has taken and who it is still waiting on.
 
+- **Crashing in the waiting room costs nothing.** You come straight back with no
+  respawn wait, and no joker pick comes up over the screen while everybody else is
+  waiting on you.
+
 ## [0.4.1] - 2026-09-23
 
 ### Added

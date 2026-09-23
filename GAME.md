@@ -2513,6 +2513,12 @@ The ring of blocks round the pad is split between whoever is in the room -- an a
 their own colour, filling as they hold it. One ring showing whoever had got furthest read as a
 single pad filling, which in a room of four says nothing about which of them it has taken.
 
+**Crashing.** Nothing in here costs anything, so dying costs nothing either. A kart that falls
+down a hole or gets rammed off the pad is back on the floor on the next tick, with no wait to
+sit through and no hand of cards to pick from: there is no run being built in a waiting room, and
+a joker pick over the screen is a player who cannot see the pad they are meant to be driving
+onto, at the moment everybody else is waiting for them to.
+
 Saying it by driving rather than by pressing is the whole point. A button on a menu says the
 same thing, but it does not put the player who is waiting anywhere in particular, and it does
 not show the room who it is waiting on. A kart parked on the pad does both, in the one place

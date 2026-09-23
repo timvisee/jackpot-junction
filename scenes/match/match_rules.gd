@@ -116,6 +116,10 @@ const WIRE_FIELDS: Array[StringName] = [
 @export var flush_disable_time := 20.0
 
 @export_group("Death and respawn")
+## Whether dying hands the player a joker to pick, GAME.md 3.7. Off in the waiting room of 9.6,
+## where there is no run to build and a hand of cards over the screen is a player who cannot see
+## the pad they are meant to be driving onto.
+@export var offer_jokers := true
 @export var death_bank_fraction := 0.5
 ## What a ram that does not kill knocks out of the victim's pot, and the most it can ever be,
 ## GAME.md 4.1. Driving nitro into somebody carrying a fortune should cost them something even
