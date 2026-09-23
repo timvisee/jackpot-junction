@@ -85,23 +85,24 @@ func test_the_box_and_the_drum_are_a_pair_to_weave_between() -> void:
 	assert_float(signf(box.x)).is_equal(signf(drum.global_position.x))
 
 
-## The sign that says how many are ready is a low stand on the floor at the back of the room,
-## where a camera holding the whole room holds it too. A hoarding over a crowd stood outside the
-## shot, and one behind the wall competed with the benches and chests along it.
-func test_the_ready_sign_is_a_low_stand_inside_the_room() -> void:
+## The sign that says how many are ready stands on top of the back wall, over the middle of it:
+## inside the shot of a camera holding the whole room, and off the floor the karts drive on. It
+## says the count on a line of its own, over what it is counting.
+func test_the_ready_sign_stands_on_the_back_wall() -> void:
 	var room := await _open()
 	var match_node: Match = room.get_node("Match")
 	var stand: ReadyStand = match_node.arena.get_node("ReadyStand")
-	assert_float(stand.global_position.y + ReadyStand.LIFT + ReadyStand.FACE.y).is_less(2.0)
-	# On the floor, against the back wall, and clear of the pad in the middle.
+	var layout := match_node.arena.layout
 	var half := match_node.arena.world_size() * 0.5
-	assert_float(absf(stand.global_position.z)).is_less(half.y)
-	assert_float(half.y - absf(stand.global_position.z)).is_less(3.0)
-	assert_float(stand.global_position.z).is_less(0.0)
-	# Solid, like the drum and the wheels: a kart driving through the room's own sign is worse
-	# than one bouncing off it.
-	var solid: StaticBody3D = stand.get_node("Solid")
-	assert_int(solid.collision_layer).is_equal(Layers.WORLD)
+	assert_float(stand.global_position.y).is_equal_approx(layout.wall_height, 0.001)
+	assert_float(stand.global_position.x).is_equal_approx(0.0, 0.001)
+	assert_float(stand.global_position.z).is_less(-(half.y - layout.cell_size))
+	assert_float(stand.global_position.z).is_greater(-half.y)
+	assert_float(ReadyStand.height()).is_less(2.0)
+	# Leaning back, toward the camera over the room, rather than down at the floor.
+	assert_float(stand.face.global_basis.z.y).is_greater(0.3)
+	assert_str(stand._count.text).is_equal("0 / 1")
+	assert_str(stand._words.text).is_equal("PLAYERS READY")
 
 
 ## The props are solid. Clutter everywhere else in the game is scenery a kart drives through;

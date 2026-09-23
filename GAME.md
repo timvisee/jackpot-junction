@@ -2538,15 +2538,15 @@ not show the room who it is waiting on. A kart parked on the pad does both, in t
 everybody is already looking.
 
 **What it says.** The count is written twice: at the top of the screen for the player at this
-machine, and on a sign standing on the floor at the back of the room. Both read
-`1 / 2 PLAYERS READY`.
+machine, as `1 / 2 PLAYERS READY`, and on a sign standing on top of the back wall, as `1 / 2`
+with `PLAYERS READY` under it.
 
-The sign is a pavement board rather than the hoarding a room hangs its clock on. A hoarding is
-set back over a crowd and read from anywhere on the floor while a match is being played; there is
-no crowd here, the camera is holding the whole room, and up there it sat outside the shot. So it
-is low, leaning back so the face turns up toward a camera looking down at it, standing on the
-concrete against the back wall where nothing else is. It is solid, like the drum and the wheels:
-a kart driving through the room's own sign is worse than one bouncing off it. The camera holds
+The sign is a small board rather than the hoarding a room hangs its clock on. A hoarding is set
+back over a crowd and read from anywhere on the floor while a match is being played; there is no
+crowd here, the camera is holding the whole room, and up there it sat outside the shot. So it
+stands on the wall over the middle of the room, off the floor the karts drive on, leaning back so
+the face turns up toward a camera looking down at it. The count gets a line of its own, because
+it is the news: one long line across a letterbox was all width and no height. The camera holds
 the whole room rather than following anybody, since what matters in here is the pad and who is
 standing on it.
 

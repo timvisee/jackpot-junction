@@ -46,10 +46,6 @@ const STROKES: Array[Array] = [
 ]
 const READY_INK := Color(0.26, 0.86, 0.42)
 const WAITING_INK := Color(0.16, 0.17, 0.2)
-## How far in from the back wall the sign stands. Inside the room rather than behind it: out
-## there it competed with the benches and chests along the wall, and here the floor is the
-## karts' and nothing else is standing on it.
-const BOARD_IN := 1.9
 ## The ink the joining lines under the count are written in.
 const HINT_INK := Color(0.82, 0.83, 0.88)
 
@@ -188,7 +184,7 @@ func _say_the_count() -> void:
 	if _counter != null:
 		_counter.text = words
 	if _board != null:
-		_board.say(words)
+		_board.say("%d / %d" % [ready_count(), player_count()], "PLAYERS READY")
 
 
 ## The host has said what the next match is, or that they are still choosing. Either way it goes
@@ -330,13 +326,13 @@ func _build() -> void:
 	_build_counter()
 
 
-## The sign standing at the top of the room. A room that has a clock hangs it on a hoarding over
-## the crowd; there is no crowd in here and the camera is holding the whole floor, so the count
-## goes on a pavement sign standing on the concrete instead, inside the shot and out of the way
-## against the back wall.
+## The sign on top of the back wall, over the middle of it. A room that has a clock hangs it on a
+## hoarding over the crowd; there is no crowd in here and the camera is holding the whole room,
+## so the count stands on the wall instead, inside the shot and off the karts' floor.
 func _build_board() -> void:
+	var layout := match_node.arena.layout
 	var half := match_node.arena.world_size() * 0.5
-	var at := Vector3(0.0, 0.0, -(half.y - BOARD_IN))
+	var at := Vector3(0.0, layout.wall_height, -(half.y - layout.cell_size * 0.5))
 	_board = ReadyStand.add_to(match_node.arena, at, Vector3.ZERO, match_node.arena.room)
 
 

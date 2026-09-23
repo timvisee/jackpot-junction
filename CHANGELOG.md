@@ -36,8 +36,8 @@ below, and hands the notes to the release workflow.
   eight between the two, and it comes back a few seconds after you break it.
 
 - **The waiting room's ready count is on a sign you can read.** It was on a
-  hoarding set back behind the room, above the shot and too far off; it is a low
-  pavement board on the floor at the back now.
+  hoarding set back behind the room, above the shot and too far off; it is a small
+  board on top of the back wall now, with the count on a line of its own.
 
 - **The waiting room turns green before it goes.** Once everybody is ready the
   ring round the pad goes green and the match starts a second later, instead of
