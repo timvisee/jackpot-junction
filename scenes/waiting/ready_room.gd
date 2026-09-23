@@ -137,14 +137,9 @@ func all_ready() -> bool:
 func _process(delta: float) -> void:
 	if pad == null:
 		return
-	if not deciding:
-		for slot: PlayerSlot in match_node.slots:
-			if slot.kart != null:
-				_show_tick(slot)
-		_count_down(delta)
-		_paint_ring()
-		_say_the_count()
-		return
+	# Every machine charges the ring off the karts it can see, so the arcs fill on a client's
+	# screen as they do on the host's. Only the host says who is ready, see 10.3: a client's arc
+	# stops one block short of full until it is told, and its tick waits for the word too.
 	var standing := _karts_on_the_pad()
 	for slot: PlayerSlot in match_node.slots:
 		if not slot.is_human() or slot.kart == null:
@@ -155,7 +150,7 @@ func _process(delta: float) -> void:
 		var now := clampf(was + delta / CHARGE_TIME, 0.0, 1.0) if on_it else 0.0
 		charge[index] = now
 		var already: bool = ready_slots.get(index, false)
-		if (now >= 1.0) != already:
+		if deciding and (now >= 1.0) != already:
 			ready_slots[index] = now >= 1.0
 			Events.player_ready.emit(index, now >= 1.0)
 		_show_tick(slot)
@@ -241,7 +236,12 @@ func _paint_ring() -> void:
 		var from := int(round(float(s) * float(SEGMENTS) / float(seats.size())))
 		var to := int(round(float(s + 1) * float(SEGMENTS) / float(seats.size())))
 		var span := maxi(to - from, 1)
-		var full := int(round(charge.get(seats[s].index, 0.0) * float(span)))
+		var index := seats[s].index
+		var ready: bool = ready_slots.get(index, false)
+		var shown: float = 1.0 if ready else charge.get(index, 0.0)
+		var full := int(round(shown * float(span)))
+		if not ready:
+			full = mini(full, span - 1)
 		for k: int in span:
 			if from + k < inks.size() and k < full:
 				inks[from + k] = seats[s].color()

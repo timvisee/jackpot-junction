@@ -2553,8 +2553,9 @@ standing on it.
 Who is ready is the host's to decide, see 10.3. The host simulates every kart, so it is the only
 machine that can see who is standing on the pad; a client is told, the same way it is told
 everything else about somebody else's kart, and draws the same ticks, the same count and the
-same blink from what arrives. A client's ring shows an arc as full or empty rather than filling,
-since what it is told is who is ready and not how far along anybody else is.
+same blink from what arrives. A client fills the ring itself, off the karts it can see on the
+pad, so the arcs move on every screen; an arc stops one block short of full until the host has
+said that player is ready, so a client never shows somebody as ready before the host has.
 
 **Getting more people in.** Under the count is how to do it: the buttons that take a seat at
 this machine, the key and the pad's both, drawn as the buttons rather than named, and -- when

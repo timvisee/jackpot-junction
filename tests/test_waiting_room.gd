@@ -379,6 +379,43 @@ func test_the_room_holds_as_many_as_the_arena_seats() -> void:
 	assert_int(match_node.rules.max_players).is_equal(room.ARENA_RULES.max_players)
 
 
+## How many blocks of the ring are lit in [param slot]'s colour.
+func _lit_for(ready_room: ReadyRoom, slot: PlayerSlot) -> int:
+	var lit := 0
+	for piece: MeshInstance3D in ready_room._segments:
+		var ink := (piece.material_override as StandardMaterial3D).albedo_color
+		if ink.is_equal_approx(slot.color()):
+			lit += 1
+	return lit
+
+
+## A client fills its ring off the karts it can see, so the arcs move on every screen and not only
+## on the host's. Who is ready is still the host's word: the arc stops one block short of full,
+## and no tick goes up, until the host says so.
+func test_a_client_fills_the_ring_and_waits_for_the_host_to_call_it() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var ready_room: ReadyRoom = room.ready_room
+	ready_room.deciding = false
+	var slot: PlayerSlot = match_node.slots[0]
+	match_node.kart_of(0).global_position = match_node.arena.junction.global_position
+	await _runner.simulate_frames(int(ReadyRoom.CHARGE_TIME * 30.0), 17)
+	var part_way := _lit_for(ready_room, slot)
+	assert_int(part_way).is_greater(0)
+	assert_int(part_way).is_less(ReadyRoom.SEGMENTS)
+	# Long past the charge time, and still not called: one short, no tick, nobody ready.
+	await _runner.simulate_frames(int(ReadyRoom.CHARGE_TIME * 80.0), 17)
+	assert_int(_lit_for(ready_room, slot)).is_equal(ReadyRoom.SEGMENTS - 1)
+	assert_bool(ready_room.all_ready()).is_false()
+	assert_bool(ready_room._ticks.has(0)).is_false()
+	# The host calls it. The room is full then, so the ring blinks first; counted after that.
+	Events.player_ready.emit(0, true)
+	await _runner.simulate_frames(35, 17)
+	assert_float(ready_room.blink()).is_equal(0.0)
+	assert_int(_lit_for(ready_room, slot)).is_equal(ReadyRoom.SEGMENTS)
+	assert_bool(ready_room._ticks.has(0)).is_true()
+
+
 ## Presses and lets go of Start on [param pad], the way a hand on a real pad does.
 func _press_start(pad: int) -> void:
 	for down: bool in [true, false]:
