@@ -371,6 +371,23 @@ func test_the_bots_fill_the_seats_nobody_is_in() -> void:
 	assert_int(config.inputs().size()).is_equal(room.ARENA_RULES.max_players)
 
 
+## A client keeps the colour it had in the room: the arena keeps its seat in that colour, in the
+## order the host will seat the clients again.
+func test_a_client_keeps_its_colour_into_the_arena() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var visitor := match_node.join_network(NetInput.new())
+	visitor.color_index = 3
+	var session: NetSession = auto_free(NetSession.new())
+	session._peer_slots[7] = visitor.index
+	room.session = session
+	var config: MatchConfig = room.arena_config()
+	room.session = null
+	assert_int(config.network_seats).is_equal(1)
+	assert_array(config.network_colors).contains_exactly([3])
+	assert_int(config.colors()[config.human_devices.size()]).is_equal(3)
+
+
 ## And the room holds no more people than the arena can seat, so nobody who got in is left
 ## standing when the match begins.
 func test_the_room_holds_as_many_as_the_arena_seats() -> void:

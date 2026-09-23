@@ -86,6 +86,8 @@ func test_the_host_takes_everybody_through_to_the_arena() -> void:
 	var seated := await _wait_until(func() -> bool: return client.local_slot >= 0, 4000)
 	assert_bool(seated).override_failure_message("the client never got into the room").is_true()
 	var was := client.local_slot
+	# A colour the arena would not hand out by itself, so keeping it is the room's doing.
+	host_waiting.slots[was].color_index = 3
 
 	# The host is told everybody is ready and goes. The word goes out first. The flags are kept
 	# in a dictionary rather than in a local: a lambda captures a local by value, so setting one
@@ -99,8 +101,16 @@ func test_the_host_takes_everybody_through_to_the_arena() -> void:
 	# Both change room. The connection is the same one; the match under it is not. The arena
 	# keeps a seat for the client and has the one bot the host asked for after it.
 	var host_arena := _arena_match(_host_root, "Arena")
-	var seats: Array[KartInput] = [inputs[0], BotInput.new(), BotInput.new()]
-	host_arena.start(seats, 23)
+	var plan := MatchConfig.new()
+	var devices: Array[int] = [DeviceInput.KEYBOARD]
+	var kept: Array[int] = []
+	for index: int in host.peer_seats():
+		kept.append(host_waiting.slots[index].color_index)
+	plan.human_devices = devices
+	plan.network_seats = kept.size()
+	plan.network_colors = kept
+	plan.bot_count = 1
+	host_arena.start(plan.inputs(), 23, plan.colors())
 	host.match_node = host_arena
 	var client_arena := _arena_match(_client_root, "Arena")
 	client_arena.start_puppet()
@@ -117,8 +127,10 @@ func test_the_host_takes_everybody_through_to_the_arena() -> void:
 	assert_bool(again).override_failure_message("the client was not seated again").is_true()
 	assert_int(client.local_slot).is_equal(was)
 	assert_bool(host_arena.slots[client.local_slot].input is NetInput).is_true()
-	# The seat kept for the client is the one it took; the bot asked for is still a bot.
+	# The seat kept for the client is the one it took, in the colour it had in the room; the bot
+	# asked for is still a bot.
 	assert_int(host_arena.slots.size()).is_equal(3)
+	assert_int(host_arena.slots[client.local_slot].color_index).is_equal(3)
 	assert_bool(host_arena.slots[2].input is BotInput).is_true()
 
 

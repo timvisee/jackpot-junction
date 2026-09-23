@@ -2702,10 +2702,11 @@ of them belong to the match that was up at the time -- a match that has since be
 So the host seats everybody again on the other side: the same peers, in seats the arena kept for
 them after the players at the host's machine and ahead of the bots, and this time with the
 arena's rules and the arena's seed. The seats are kept rather than taken from the bots, because
-the bots are what the host asked for on top of everybody in the room. A client's name goes with
-it, since the client says it again the moment it is seated; being seated again is what puts a
-`NetInput` in the arena's slot, so the kart a client has been driving is still the kart it
-drives.
+the bots are what the host asked for on top of everybody in the room. A client's name and colour
+go with it: the name because the client says it again the moment it is seated, the colour
+because the host keeps each seat the colour its player had in the room. Being seated again is
+what puts a `NetInput` in the arena's slot, so the kart a client has been driving is still the
+kart it drives.
 
 #### Who decides what
 

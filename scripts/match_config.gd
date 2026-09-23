@@ -19,6 +19,9 @@ var bot_count := 3
 ## so they are not counted in [member bot_count]: that is the bots the host asked for, on top of
 ## everybody who is here.
 var network_seats := 0
+## The colour each of those seats had in the waiting room, in the same order, so a client drives
+## the arena in the colour it drove the room in.
+var network_colors: Array[int] = []
 var difficulty := "normal"
 var duration := 300.0
 ## 0 disables the early finish.
@@ -44,18 +47,26 @@ func inputs() -> Array[KartInput]:
 	return result
 
 
-## Colour indices for every slot: the humans' picks, then the first free colours for bots.
+## Colour indices for every slot: the humans' picks, then the colours the kept seats had in the
+## waiting room, then the first free colours for bots. A kept colour somebody here already has
+## gives way to a free one, so no two karts are ever the same colour.
 func colors() -> Array[int]:
 	var result: Array[int] = []
 	for i: int in human_devices.size():
 		result.append(human_colors[i] if i < human_colors.size() else i)
-	var next := 0
-	for i: int in network_seats + bot_count:
-		while next in result:
-			next += 1
-		result.append(next)
-		next += 1
+	for i: int in network_seats:
+		var kept: int = network_colors[i] if i < network_colors.size() else -1
+		result.append(kept if kept >= 0 and kept not in result else _first_free(result))
+	for i: int in bot_count:
+		result.append(_first_free(result))
 	return result
+
+
+static func _first_free(taken: Array[int]) -> int:
+	var next := 0
+	while next in taken:
+		next += 1
+	return next
 
 
 ## Names for every slot: what the humans gave, then nothing for the bots, which are named after

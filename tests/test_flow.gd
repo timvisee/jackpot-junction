@@ -234,3 +234,18 @@ func test_seats_kept_for_remote_players_sit_between_the_humans_and_the_bots() ->
 	for i: int in range(1, 4):
 		assert_bool(inputs[i] is BotInput).is_true()
 	assert_int(config.colors().size()).is_equal(4)
+
+
+## A kept seat keeps the colour its player had in the waiting room, and the bots take what is left.
+## A kept colour somebody here already has gives way, so no two karts share one.
+func test_kept_seats_keep_their_colours_and_the_bots_take_the_rest() -> void:
+	var config := MatchConfig.new()
+	var devices: Array[int] = [DeviceInput.KEYBOARD]
+	var picked: Array[int] = [2]
+	var kept: Array[int] = [0, 2]
+	config.human_devices = devices
+	config.human_colors = picked
+	config.network_seats = 2
+	config.network_colors = kept
+	config.bot_count = 1
+	assert_array(config.colors()).contains_exactly([2, 0, 1, 3])

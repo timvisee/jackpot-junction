@@ -217,7 +217,8 @@ func _match_beginning() -> void:
 ## beginning to end in one room ever needs. The waiting room and the arena are two matches: a
 ## client told the first one's rules on the way in knows nothing about the second, and the slot
 ## it was given belongs to a match that has been taken down. So it is all said again, to the same
-## peers, in the same order, which hands each of them the same seat it had before.
+## peers, in the order [method peer_seats] lists them, each taking the next seat the new match
+## has free for somebody: the seats the waiting room kept for them, see GAME.md 9.6.
 func re_seat() -> void:
 	if not is_host or not _connected():
 		return
@@ -233,6 +234,16 @@ func re_seat() -> void:
 		_set_rules.rpc_id(peer, match_node.rules.to_wire())
 		_assign_slot.rpc_id(peer, slot.index, match_node.rng.seed)
 	_settle_pause()
+
+
+## The seats the connected clients hold, in the order [method re_seat] seats them again. The
+## waiting room reads it on the way out, to keep each of them a seat in the arena in the colour
+## they had in the room.
+func peer_seats() -> Array[int]:
+	var seats: Array[int] = []
+	for peer: int in _peer_slots:
+		seats.append(_peer_slots[peer])
+	return seats
 
 
 ## Snapshots are mostly the same words over and over, GAME.md 10.3: every dictionary key of

@@ -169,13 +169,17 @@ func arena_config() -> MatchConfig:
 		config.human_colors = colors
 		config.human_names = names
 		config.human_styles = styles
-	# Everybody connected from elsewhere is kept a seat, and the bots the host asked for are on
-	# top of everybody here, as many of them as the arena has seats left for.
-	var remote := 0
-	for slot: PlayerSlot in match_node.slots:
-		if slot.input is NetInput:
-			remote += 1
+	# Everybody connected from elsewhere is kept a seat, in the colour they had in here and in the
+	# order the host will seat them again, and the bots the host asked for are on top of everybody
+	# here, as many of them as the arena has seats left for.
+	var kept: Array[int] = []
+	if session != null:
+		for index: int in session.peer_seats():
+			if index < match_node.slots.size():
+				kept.append(match_node.slots[index].color_index)
+	var remote := kept.size()
 	config.network_seats = remote
+	config.network_colors = kept
 	var free := ARENA_RULES.max_players - config.human_devices.size() - remote
 	config.bot_count = clampi(config.bot_count, 0, maxi(free, 0))
 	return config
