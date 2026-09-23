@@ -90,6 +90,14 @@ const LOCAL_EVENTS: Array[StringName] = [
 	&"kart_corrected",
 ]
 
+## Whether this process is in the middle of raising an event a host relayed to it, which is never
+## relayed again. Shared by every session in the process: in a test that runs a host and a client
+## side by side, both hearing the one [Events], the client raising the host's player_joined was
+## the host hearing it again, and the two passed it back and forth a hundred and fifty times a
+## second. A game has one session, and a host is never relayed anything, so it changes nothing
+## there.
+static var _replaying := false
+
 ## The match this session is playing, or null while it is between rooms. Let go of the moment the
 ## match leaves the tree: a session outlives the rooms it is played in, see GAME.md 10.3, and in
 ## the frames between one room going and the next one taking over, a session still holding the
@@ -716,7 +724,9 @@ func _settle_authority(delta: float) -> void:
 func _relay_event(name: StringName, args: Array) -> void:
 	if _already_heard(name, args):
 		return
+	_replaying = true
 	Events.callv("emit_signal", [name] + args)
+	_replaying = false
 
 
 ## Whether this machine already raised this for itself. A client pulls its own trigger on the tick
@@ -756,7 +766,7 @@ func _signal_arity(name: StringName) -> int:
 
 
 func _relay(name: StringName, args: Array) -> void:
-	if not _connected():
+	if _replaying or not _connected():
 		return
 	if not multiplayer.get_peers().is_empty():
 		_relay_event.rpc(name, args)

@@ -168,6 +168,47 @@ func test_client_joins_takes_over_a_bot_drives_it_and_hands_it_back_on_leaving()
 	assert_object(host_match.slots[1].bot_trait).is_not_null()
 
 
+## An event a host relays is raised once on the client and not relayed again. Run side by side in
+## one process, as here, the two sessions hear the one [Events], and the client raising what the
+## host told it was the host hearing it afresh: the pair passed it back and forth for as long as
+## they were connected, which buried everything else going down the wire.
+func test_a_relayed_event_is_not_relayed_back() -> void:
+	var heard: Array[int] = []
+	var count_joins := func(slot: int) -> void: heard.append(slot)
+	Events.player_joined.connect(count_joins)
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	host_match.offer_size = 0
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(PORT)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client_match
+	client_session.local_input = KartInput.new()
+	_client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
+	assert_bool(assigned).is_true()
+	await await_millis(500)
+	Events.player_joined.disconnect(count_joins)
+	# Once where the host seated them, once where the client was told.
+	assert_array(heard).is_equal([1, 1])
+
+
 func test_the_host_holds_the_match_in_a_lobby_until_it_begins() -> void:
 	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
 	host_match.rules = _quick_rules()
