@@ -9,7 +9,19 @@ Made with Godot 4.7 and GDScript. `GAME.md` holds the design, `PLAN.md` the
 implementation plan with the status of every milestone, and `CHANGELOG.md` what
 has changed in each release.
 
-![A green felt arena on a workbench, lit by a lamp over it, with karts driving between low blocks and a steel plate set into the felt in the middle of it. Bundles of rod stock and stacks of planks lie about the bench around the table, and a crowd of onlookers rings the arena, packed at the rail and thinning outward. A row of glass tanks filled to different levels, a DJ booth, two lit hoardings and a board keeping the match clock stand at the far edge; the player's score sits on a dark card in the top left, the standings run down the right and a hand of joker cards along the bottom of the screen](docs/screenshot.png)
+Three arenas, three rooms to play them in.
+
+![A green felt arena on a workbench, lit by a lamp over it, with karts driving between low blocks and a machined steel plate set into the felt in the middle of it. Bundles of rod stock and stacks of planks lie about the bench around the table, and a crowd of onlookers rings the arena, packed at the rail and thinning outward. Glass tanks filled to different levels, a DJ booth, two lit hoardings and a board keeping the match clock stand at the far edge; the player's score sits on a dark card in the top left, the standings run down the right and a hand of joker cards along the bottom of the screen](docs/lucky-crossing.png)
+
+*Lucky Crossing, on The Workbench.*
+
+![A dark card room with a green baize arena on the table in the middle of it, the only lit thing in the room. A roulette wheel of red and black pockets is let into the baize at the centre, with stacks of red chips and fanned playing cards round the walls and dice on the cloth beyond them. Neon signs hang over a crowd reduced to shapes with light along their edges, and the match clock glows orange above the far edge](docs/the-vault.png)
+
+*The Vault, After Hours.*
+
+![A concrete yard in late afternoon light, with an arena marked out on it and karts driving between pale blocks. A disc in the middle is bordered in black and yellow hazard stripes, hazard tape runs across the floor at the back, and the crowd stands on stepped tribunes behind a low fence, with lit hoardings and the match clock along the far edge](docs/crossfire.png)
+
+*Crossfire, in The Yard.*
 
 ## Playing
 

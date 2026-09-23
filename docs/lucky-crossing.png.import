@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cmu1f3f04hqq3"
-path="res://.godot/imported/screenshot.png-5c854034f77817cfff9777cb4fcabae4.ctex"
+uid="uid://3al07kmjt1xy"
+path="res://.godot/imported/lucky-crossing.png-23eb72e2094ee1c1458caa50e81626a0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://docs/screenshot.png"
-dest_files=["res://.godot/imported/screenshot.png-5c854034f77817cfff9777cb4fcabae4.ctex"]
+source_file="res://docs/lucky-crossing.png"
+dest_files=["res://.godot/imported/lucky-crossing.png-23eb72e2094ee1c1458caa50e81626a0.ctex"]
 
 [params]
 
