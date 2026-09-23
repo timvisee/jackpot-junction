@@ -115,7 +115,7 @@ func _host_opens_the_room() -> Node:
 	pane.options.mode_option.selected = 0
 	pane.options.maps_option.selected = MatchOptions.MAPS.find(MAPS)
 	pane.options.bots_option.selected = MatchOptions.BOTS.find(BOTS)
-	pane.options.minutes_option.selected = 0
+	pane.options.minutes_option.selected = MatchOptions.match_lengths().find(60)
 	pane.options.jokers_option.selected = _keep
 	pane.close()
 	_check(room.ready_room._plan.text.contains("Match of %d maps" % MAPS), "the room says a match")

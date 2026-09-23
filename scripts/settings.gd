@@ -43,7 +43,8 @@ var fixed_camera := false
 var stick_deadzone := 0.15
 ## Action name to the descriptors that replace its defaults.
 var bindings: Dictionary = {}
-var match_minutes := 5
+## How long a map runs, in seconds, GAME.md 3.8.
+var match_seconds := 300
 var target_score := 3000
 var bot_count := 3
 var difficulty := "normal"
@@ -108,7 +109,10 @@ func load_from_disk() -> void:
 	fixed_camera = file.get_value("accessibility", "fixed_camera", fixed_camera)
 	stick_deadzone = file.get_value("controls", "stick_deadzone", stick_deadzone)
 	bindings = file.get_value("controls", "bindings", {})
-	match_minutes = file.get_value("lobby", "match_minutes", match_minutes)
+	# Kept in minutes until a map could be shorter than one; a file from then is read in minutes.
+	match_seconds = file.get_value(
+		"lobby", "match_seconds", int(file.get_value("lobby", "match_minutes", 5)) * 60
+	)
 	target_score = file.get_value("lobby", "target_score", target_score)
 	bot_count = file.get_value("lobby", "bot_count", bot_count)
 	difficulty = file.get_value("lobby", "difficulty", difficulty)
@@ -153,7 +157,7 @@ func save_to_disk() -> Error:
 	file.set_value("accessibility", "fixed_camera", fixed_camera)
 	file.set_value("controls", "stick_deadzone", stick_deadzone)
 	file.set_value("controls", "bindings", bindings)
-	file.set_value("lobby", "match_minutes", match_minutes)
+	file.set_value("lobby", "match_seconds", match_seconds)
 	file.set_value("lobby", "target_score", target_score)
 	file.set_value("lobby", "bot_count", bot_count)
 	file.set_value("lobby", "difficulty", difficulty)

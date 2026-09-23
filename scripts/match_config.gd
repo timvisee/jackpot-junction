@@ -109,7 +109,7 @@ static func from_settings(settings: Settings) -> MatchConfig:
 	var config := MatchConfig.new()
 	config.bot_count = settings.bot_count
 	config.difficulty = settings.difficulty
-	config.duration = settings.match_minutes * 60.0
+	config.duration = float(settings.match_seconds)
 	config.target_score = settings.target_score
 	config.item_set = settings.item_set
 	config.own_bullets_hurt = settings.own_bullets_hurt

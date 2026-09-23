@@ -304,7 +304,7 @@ func test_the_host_chooses_the_match_on_opening_the_room() -> void:
 	pane.options.mode_option.selected = 1
 	pane.options.map_option.selected = 1
 	pane.options.bots_option.selected = 1
-	pane.options.minutes_option.selected = MatchOptions.match_lengths().find(8)
+	pane.options.minutes_option.selected = MatchOptions.match_lengths().find(480)
 	pane.close()
 	await _runner.simulate_frames(2, 17)
 	assert_bool(match_node.kart_of(0).frozen).is_false()

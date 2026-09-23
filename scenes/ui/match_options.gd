@@ -16,11 +16,9 @@ extends RefCounted
 ## What the rows are setting up: one map, a Grand Prix, or the host's choice of either.
 enum Mode { QUICK_PLAY, PLAY, EITHER }
 
-const MINUTES: Array[int] = [3, 5, 8]
-## A minute, for a match somebody is testing rather than playing: long enough to reach the
-## Junction and the results screen, short enough to do it again straight away. Only in a debug
-## build, because it is not a length anybody wants a real game to be.
-const DEBUG_MINUTES := 1
+## How long a map runs, in seconds. A minute is a quick one, for a Grand Prix of several maps
+## as much as for a short game.
+const LENGTHS: Array[int] = [60, 180, 300, 480]
 const TARGETS: Array[int] = [0, 2000, 3000, 5000]
 const BOTS: Array[int] = [0, 1, 2, 3]
 const DIFFICULTIES: Array[String] = ["easy", "normal", "hard"]
@@ -70,28 +68,29 @@ static func add_to(
 	return options
 
 
-## The match lengths on offer, shortest first. A debug build gets the one-minute match in front
-## of the real ones, where somebody testing will find it without hunting.
+## The map lengths on offer in seconds, shortest first.
 static func match_lengths() -> Array[int]:
-	if not OS.is_debug_build():
-		return MINUTES
-	var with_short: Array[int] = [DEBUG_MINUTES]
-	with_short.append_array(MINUTES)
-	return with_short
+	return LENGTHS
+
+
+## A length said the way the row says it: seconds under a minute, minutes from there.
+static func length_words(seconds: float) -> String:
+	var whole := roundi(seconds)
+	return "%d s" % whole if whole < 60 else "%d min" % roundi(whole / 60.0)
 
 
 ## One line saying what a match is going to be: where, how long, to how many points, and how
 ## many bots. What somebody waiting to play it wants to know, and nothing they do not. A Grand
 ## Prix says how many maps rather than which, since which is not dealt until it starts.
 static func describe(config: MatchConfig) -> String:
-	var minutes := roundi(config.duration / 60.0)
+	var length := length_words(config.duration)
 	var parts: PackedStringArray = [
 		(
 			"Match of %d maps" % config.rounds
 			if config.rounds > 0
 			else ArenaMaps.NAMES[ArenaMaps.index_of(config.map)]
 		),
-		"%d min each" % minutes if config.rounds > 0 else "%d min" % minutes,
+		"%s each" % length if config.rounds > 0 else length,
 		"first to %d" % config.target_score if config.target_score > 0 else "no target",
 	]
 	match config.bot_count:
@@ -110,7 +109,7 @@ func apply_to(config: MatchConfig) -> void:
 	config.map = ArenaMaps.id_at(map_option.selected)
 	config.rounds = MAPS[maps_option.selected] if is_grand_prix() else 0
 	config.keep_jokers = jokers_option.selected as GrandPrix.Keep
-	config.duration = match_lengths()[minutes_option.selected] * 60.0
+	config.duration = float(match_lengths()[minutes_option.selected])
 	config.target_score = TARGETS[target_option.selected]
 	config.bot_count = BOTS[bots_option.selected]
 	config.difficulty = DIFFICULTIES[difficulty_option.selected]
@@ -123,7 +122,7 @@ func apply_to(config: MatchConfig) -> void:
 ## whatever else it has to keep.
 func remember(settings: Settings) -> void:
 	settings.map = String(ArenaMaps.id_at(map_option.selected))
-	settings.match_minutes = match_lengths()[minutes_option.selected]
+	settings.match_seconds = match_lengths()[minutes_option.selected]
 	settings.target_score = TARGETS[target_option.selected]
 	settings.bot_count = BOTS[bots_option.selected]
 	settings.difficulty = DIFFICULTIES[difficulty_option.selected]
@@ -148,9 +147,10 @@ func is_grand_prix() -> bool:
 
 func _build(column: Container, settings: Settings) -> void:
 	var lengths := match_lengths()
-	minutes_option = MenuTheme.option(
-		_labels(lengths, "%d min"), maxi(lengths.find(settings.match_minutes), 0)
-	)
+	var named: Array = []
+	for seconds: int in lengths:
+		named.append(length_words(seconds))
+	minutes_option = MenuTheme.option(named, maxi(lengths.find(settings.match_seconds), 0))
 	target_option = MenuTheme.option(_target_labels(), TARGETS.find(settings.target_score))
 	bots_option = MenuTheme.option(BOTS, BOTS.find(settings.bot_count))
 	difficulty_option = MenuTheme.option(
