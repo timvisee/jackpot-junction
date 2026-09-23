@@ -2517,6 +2517,11 @@ machine, and on a board at the back of the room, where a room that has a clock h
 Both read `1 / 2 PLAYERS READY`. The camera holds the whole room rather than following anybody,
 since what matters in here is the pad and who is standing on it.
 
+Who is ready is the host's to decide, see 10.3. The host simulates every kart, so it is the only
+machine that can see who is standing on the pad; a client is told, the same way it is told
+everything else about somebody else's kart, and draws the same ticks and the same count from
+what arrives.
+
 **Getting more people in.** Under the count is how to do it: the button that takes a seat at
 this machine, drawn as the button rather than named, and -- when there is a host to join -- the
 address and port somebody at another machine connects to. The room is where both questions get

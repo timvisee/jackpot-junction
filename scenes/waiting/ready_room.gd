@@ -43,6 +43,10 @@ const HINT_INK := Color(0.82, 0.83, 0.88)
 
 var match_node: Match
 var pad: JunctionPad
+## Whether this machine decides who is ready. The host simulates every kart, so it is the one
+## that can see who is standing on the pad; a client is told, the same way it is told everything
+## else about somebody else's kart, GAME.md 10.3.
+var deciding := true
 
 ## Slot index to how far that player has charged, 0 to 1, and whether they have finished.
 var charge: Dictionary[int, float] = {}
@@ -66,8 +70,20 @@ static func add_to(in_match: Match) -> ReadyRoom:
 	room.name = "ReadyRoom"
 	room.match_node = in_match
 	in_match.add_child(room)
+	room.deciding = not in_match.puppet
 	room._build()
+	Events.player_ready.connect(room._on_player_ready)
 	return room
+
+
+## Somebody has readied up. On the host this is its own word coming back to it; on a client it is
+## the first it has heard of it, and the only thing it has to go on.
+func _on_player_ready(slot: int) -> void:
+	if ready_slots.get(slot, false):
+		return
+	ready_slots[slot] = true
+	charge[slot] = 1.0
+	Audio.play_sfx(&"pad_claim", -4.0)
 
 
 ## How many of the players in the room have readied up, and how many there are to ready. Bots are
@@ -97,6 +113,12 @@ func all_ready() -> bool:
 func _process(delta: float) -> void:
 	if pad == null:
 		return
+	if not deciding:
+		_say_the_count()
+		for slot: PlayerSlot in match_node.slots:
+			if slot.kart != null:
+				_show_tick(slot)
+		return
 	var standing := _karts_on_the_pad()
 	for slot: PlayerSlot in match_node.slots:
 		if not slot.is_human() or slot.kart == null:
@@ -110,7 +132,7 @@ func _process(delta: float) -> void:
 		charge[index] = now
 		if now >= 1.0 and not ready_slots.get(index, false):
 			ready_slots[index] = true
-			Audio.play_sfx(&"pad_claim", -4.0)
+			Events.player_ready.emit(index)
 		_show_tick(slot)
 	_paint_ring()
 	_say_the_count()
