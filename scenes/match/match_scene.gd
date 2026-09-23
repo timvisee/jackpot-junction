@@ -106,8 +106,11 @@ func _ready() -> void:
 
 ## At the whistle of a Grand Prix map the host scores it, GAME.md 9.7, and says how the run stands
 ## so every podium can show it. A client's whistle is the host's word arriving; it scores nothing.
+## Which of the two this machine is comes from the configuration rather than from the match: a
+## client's match is only a puppet once the host's rules have built its arena, and the host's
+## word can arrive before that.
 func _on_state_changed(state: int) -> void:
-	if state != Match.State.RESULTS or match_node.puppet or Game.grand_prix == null:
+	if state != Match.State.RESULTS or config.online == "join" or Game.grand_prix == null:
 		return
 	if match_node.state != Match.State.RESULTS:
 		return
@@ -117,7 +120,7 @@ func _on_state_changed(state: int) -> void:
 
 ## The run as the host has scored it. A client keeps it as its own; the host already has it.
 func _on_grand_prix_scored(run: Dictionary) -> void:
-	if match_node.puppet:
+	if config.online == "join":
 		Game.grand_prix = GrandPrix.from_wire(run)
 
 
