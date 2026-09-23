@@ -15,7 +15,8 @@ below, and hands the notes to the release workflow.
 
 - **The Garage is a garage.** The practice rooms are set in a concrete workshop bay
   now, with tyres, tool chests, drums, cans, pallets and a two-post lift stacked
-  against the walls all the way round it.
+  against the walls all the way round it, and the camera sits closer than it does
+  in a match, since there is no crowd out there to look at.
 
 ### Changed
 

@@ -33,6 +33,12 @@ const SIGN_INK := Color(0.86, 0.86, 0.90)
 ## framing all 65 m of it at once leaves the kart too small to learn a control from, GAME.md 9.4a,
 ## so the camera comes down onto the player the way the driving room's does in 9.5.
 const TRACK_CAMERA := 26.0
+## How much floor the camera leaves round the karts in the garage. The rig frames every one of
+## them with four metres of floor round it, which is the band a crowd sits in; there is none in
+## here, so the bay is held tighter and the karts come out bigger for it, GAME.md 9.4. What is
+## framed is unchanged: both dummies stay in the shot, since driving up to one is half of what
+## the room is for.
+const BAY_MARGIN := 1.0
 ## The test track's signs: the cell one stands on, the name of the lesson, the line under it, and
 ## the actions whose bindings fill that line in. A word and a key named the button a stretch was
 ## about but never said what it did, so each line is an instruction instead. Still short on
@@ -91,9 +97,16 @@ func _ready() -> void:
 		match_node.camera_rig.follow_close(TRACK_CAMERA)
 		_add_track_signs()
 	else:
+		_close_the_shot()
 		_add_signs()
 	DebugOverlay.add_to(self, match_node)
 	PauseMenu.add_to(self)
+
+
+## Brings the camera in, by leaving less floor round what it is framing rather than by framing
+## less of it.
+func _close_the_shot() -> void:
+	match_node.camera_rig.follow_margin = BAY_MARGIN
 
 
 ## Every portal leads to the other room, GAME.md 9.4, which is the only place there is to go.
