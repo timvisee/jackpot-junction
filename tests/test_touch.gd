@@ -10,18 +10,21 @@ const SPREAD: PowerUp = preload("res://data/powerups/spread_cannon.tres")
 
 var _was_enabled := false
 var _was_layout := Settings.TOUCH_SLIDER
+var _was_driving: Array[String] = []
 var _runner: GdUnitSceneRunner
 
 
 func before_test() -> void:
 	_was_enabled = TouchInput.enabled
 	_was_layout = Game.settings.touch_layout
+	_was_driving = Game.settings.drive_modes.duplicate()
 	Game.settings.touch_layout = Settings.TOUCH_SLIDER
 
 
 func after_test() -> void:
 	TouchInput.enabled = _was_enabled
 	Game.settings.touch_layout = _was_layout
+	Game.settings.drive_modes = _was_driving
 	TouchInput.release()
 	Input.emulate_touch_from_mouse = false
 	get_tree().paused = false
@@ -37,7 +40,8 @@ func _controls() -> TouchControls:
 
 
 ## A match with a player at this screen on a touch screen, and the controls the HUD put up for them.
-func _driving(jokers: Array[String] = []) -> TouchControls:
+## [param seat] is the local seat whose way to drive they follow, or -1 for the wheel and pedals.
+func _driving(jokers: Array[String] = [], seat := -1) -> TouchControls:
 	TouchInput.enabled = true
 	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
@@ -46,7 +50,7 @@ func _driving(jokers: Array[String] = []) -> TouchControls:
 	match_node.with_hud = true
 	match_node.offer_size = 0
 	var runner := scene_runner(match_node)
-	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.ANY, seat), KartInput.new()]
 	match_node.start(inputs, 5)
 	for id: String in jokers:
 		match_node.kart_of(0).jokers.add(load("res://data/jokers/%s.tres" % id))
@@ -758,6 +762,58 @@ func test_the_four_buttons_drive_as_the_slider_does() -> void:
 	assert_object(controls.pad(TouchSlider.GAS)).is_null()
 	_touch(controls, 2, controls.slider.zone_rect(TouchSlider.GAS).get_center(), true)
 	assert_float(TouchInput.throttle).is_equal(1.0)
+
+
+## In simple driving the stick points the way, every way round, and the right thumb has nitro over
+## drift, on a shorter slider, GAME.md 4.2.
+func test_simple_driving_frees_the_stick_and_keeps_nitro_and_drift() -> void:
+	Game.settings.drive_modes[0] = Settings.DRIVE_SIMPLE
+	var controls := await _driving([], 0)
+	assert_bool(controls.simple()).is_true()
+	assert_bool(controls.stick.free).is_true()
+	assert_array(controls.slider.zones).is_equal(TouchSlider.SIMPLE_ZONES)
+	assert_float(controls.slider.rect.size.y).is_equal(TouchSlider.SIMPLE_SIZE.y)
+	var down := Vector2(controls.size.x * 0.2, controls.size.y * 0.7)
+	_touch(controls, 0, down, true)
+	_drag(controls, 0, down + Vector2(0.0, -TouchStick.RADIUS * 2.0))
+	assert_float(TouchInput.stick.y).is_equal_approx(-1.0, 0.001)
+	assert_float(TouchInput.stick.x).is_equal(0.0)
+	_drag(controls, 0, down + Vector2(TouchStick.RADIUS, TouchStick.RADIUS))
+	assert_float(TouchInput.stick.angle()).is_equal_approx(PI * 0.25, 0.001)
+	_touch(controls, 0, down, false)
+	assert_vector(TouchInput.stick).is_equal(Vector2.ZERO)
+	_touch(controls, 1, controls.slider.zone_rect(TouchSlider.NITRO).get_center(), true)
+	assert_bool(TouchInput.nitro).is_true()
+	_drag(controls, 1, controls.slider.zone_rect(TouchSlider.DRIFT).get_center())
+	assert_bool(TouchInput.handbrake).is_true()
+	assert_bool(TouchInput.nitro).is_false()
+	# And back to the wheel and pedals, put up the next frame.
+	Game.settings.drive_modes[0] = Settings.DRIVE_ADVANCED
+	await _runner.simulate_frames(1, 17)
+	assert_bool(controls.stick.free).is_false()
+	assert_array(controls.slider.zones).is_equal(TouchSlider.ZONES)
+
+
+## Without the slider, simple driving has no gas or brake to press, and fire takes the corner.
+func test_simple_driving_on_the_buttons_leaves_out_the_pedals() -> void:
+	Game.settings.drive_modes[0] = Settings.DRIVE_SIMPLE
+	Game.settings.touch_layout = Settings.TOUCH_BUTTONS
+	var controls := await _driving([], 0)
+	assert_object(controls.pad(TouchSlider.GAS)).is_null()
+	assert_object(controls.pad(TouchSlider.BRAKE)).is_null()
+	for id: StringName in [TouchControls.FIRE, TouchSlider.NITRO, TouchSlider.DRIFT]:
+		assert_object(controls.pad(id)).is_not_null()
+	_touch(controls, 0, controls.pad(TouchSlider.NITRO).center, true)
+	assert_bool(TouchInput.nitro).is_true()
+	# Every button on the screen, and nothing on top of another.
+	var ids := controls.driving_buttons().keys()
+	for i: int in ids.size():
+		for j: int in range(i + 1, ids.size()):
+			var a := controls.pad(ids[i])
+			var b := controls.pad(ids[j])
+			assert_float(a.center.distance_to(b.center)).is_greater(
+				(a.radius + b.radius) * TouchControls.REACH
+			)
 
 
 ## The choice is remembered with the rest of the controls.

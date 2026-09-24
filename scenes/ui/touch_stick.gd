@@ -2,7 +2,8 @@ class_name TouchStick
 extends RefCounted
 ## The stick under the left thumb on a touch screen, GAME.md 4.2. It comes to wherever a thumb goes
 ## down in the lower left of the screen and waits in that corner while nobody has a thumb on it.
-## [TouchControls] hands it the finger on it; this says how far it is pushed, and draws it.
+## [TouchControls] hands it the finger on it; this says how far it is pushed, and draws it. It only
+## steers, side to side, unless it is [member free], for simple driving, where it points the way.
 
 ## How big its ring is, where it waits from the bottom left corner, how far its knob goes to reach
 ## full lock, and how far from the middle a thumb has to be before it steers at all. It comes to
@@ -14,6 +15,9 @@ const HOME := Vector2(230.0, -230.0)
 const ZONE := Vector2(0.42, 0.62)
 const DEAD := 0.1
 
+## Whether it goes every way rather than only side to side: simple driving, GAME.md 4.2, where the
+## way it is pushed is the way on the screen the kart goes.
+var free := false
 ## The finger on it, or -1, where it came to and where the finger is now.
 var finger := -1
 var center := Vector2.ZERO
@@ -48,26 +52,31 @@ func grab(by: int, point: Vector2, screen: Vector2) -> void:
 	knob = point
 
 
-## How far over the wheel is, -1 to 1, past the dead middle.
-func steer() -> float:
+## Which way it is pushed and how far, x right and y down, at most 1 long, past the dead middle all
+## the way round. Side to side only, unless it is [member free].
+func push() -> Vector2:
 	if finger < 0:
-		return 0.0
-	var push := clampf((knob.x - center.x) / RADIUS, -1.0, 1.0)
-	if absf(push) <= DEAD:
-		return 0.0
-	return signf(push) * (absf(push) - DEAD) / (1.0 - DEAD)
+		return Vector2.ZERO
+	var offset := (knob - center) / RADIUS
+	if not free:
+		offset.y = 0.0
+	var length := minf(offset.length(), 1.0)
+	if length <= DEAD:
+		return Vector2.ZERO
+	return offset.normalized() * (length - DEAD) / (1.0 - DEAD)
 
 
 ## The ring where it is and the knob where the thumb is onto [param canvas] at [param strength],
-## the knob kept inside the ring and on its level: the stick only steers, so it only moves side to
-## side.
+## the knob kept inside the ring, and on its level while the stick only steers.
 func draw(canvas: CanvasItem, strength: float) -> void:
 	var rim := Color(TouchControls.RIM, TouchControls.RIM.a * strength)
 	var fill := TouchControls.FILL
 	canvas.draw_circle(center, RADIUS, Color(fill, fill.a * strength))
 	canvas.draw_arc(center, RADIUS, 0.0, TAU, 64, rim, TouchControls.RIM_WIDTH, true)
-	var reach := clampf(knob.x - center.x, -RADIUS, RADIUS)
-	var at := center + Vector2(reach, 0.0)
+	var reach := (knob - center).limit_length(RADIUS)
+	if not free:
+		reach = Vector2(clampf(knob.x - center.x, -RADIUS, RADIUS), 0.0)
+	var at := center + reach
 	var lit := TouchControls.FILL_DOWN if finger >= 0 else Color(1.0, 1.0, 1.0, 0.16)
 	canvas.draw_circle(at, KNOB, Color(lit, lit.a * strength))
 	canvas.draw_arc(at, KNOB, 0.0, TAU, 40, rim, TouchControls.RIM_WIDTH, true)

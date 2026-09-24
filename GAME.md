@@ -767,6 +767,14 @@ both. The item button is further in, fire being at the bottom edge already, and 
 is a ring round the rim of its button. The four click, are grayed and say reverse as they do on
 the slider.
 
+Both drive the simple way too, for a player who drives it, and change over the next frame when
+the choice does. The stick points the way rather than turning the wheel: its knob goes every way
+round inside the ring, how far it is pushed past the dead middle is how much gas, and the pedals
+are its, so the right thumb has neither. The slider is a shorter pill of nitro over drift, two
+halves of it, with fire and the item beside it where they were; without the slider fire takes
+the corner, being the button pressed most, with drift beside it along the bottom, nitro over it,
+and the item between the two.
+
 The hand of jokers is read by holding a finger on a card. The hand opens on that card, lifted
 out of the fan with what it does over it, for as long as the finger stays, and sliding the
 finger along the hand reads the others; the card still answers where it rose from, so the finger

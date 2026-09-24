@@ -16,7 +16,8 @@ extends Control
 ## grid for the countdown or waiting to come back, the stick and every driving button are grayed
 ## out and press nothing: a thumb resting on fire after a death would otherwise take a card of
 ## the respawn pick it has not read. Held through the last lamp, the gas takes the kart away on
-## the green.
+## the green. In simple driving the stick points the way and works the pedals, and the right thumb
+## has only nitro and drift.
 ##
 ## A finger held on one of the jokers in the hand opens it on that card, with what it does over
 ## it, for as long as it stays there, and sliding it along the hand reads the others, GAME.md
@@ -58,6 +59,15 @@ const ITEM := &"item"
 const SLIDER_BUTTONS: Dictionary[StringName, Array] = {
 	FIRE: [76.0, Vector2(-248.0, -260.0), "FIRE"],
 	ITEM: [58.0, Vector2(-248.0, -100.0), ""],
+}
+## In simple driving, GAME.md 4.2, the stick works the pedals, and without the slider the corner is
+## fire's, the button pressed most, with drift beside it along the bottom, nitro over it and the
+## item between the two.
+const SIMPLE_BUTTONS: Dictionary[StringName, Array] = {
+	FIRE: [82.0, Vector2(-160.0, -168.0), "FIRE"],
+	TouchSlider.DRIFT: [60.0, Vector2(-345.0, -110.0), "DRIFT"],
+	TouchSlider.NITRO: [60.0, Vector2(-150.0, -365.0), "NITRO"],
+	ITEM: [58.0, Vector2(-320.0, -290.0), ""],
 }
 const ROUND_BUTTONS: Dictionary[StringName, Array] = {
 	TouchSlider.GAS: [86.0, Vector2(-160.0, -168.0), "GAS"],
@@ -133,8 +143,10 @@ var clicks := 0
 var slider := TouchSlider.new()
 var stick := TouchStick.new()
 
-## Which of the two ways to drive the buttons were last put up for, see [method uses_slider].
+## Which of the two ways to drive the buttons were last put up for, see [method uses_slider], and
+## whether for simple driving, see [method simple].
 var _layout_name := ""
+var _simple_built := false
 
 var _pads: Array[Pad] = []
 ## Which pads each finger is on, by the finger's index. The stick's finger is not among them.
@@ -210,11 +222,25 @@ func uses_slider() -> bool:
 
 ## The round driving buttons of the way the screen drives now.
 func driving_buttons() -> Dictionary[StringName, Array]:
-	return SLIDER_BUTTONS if uses_slider() else ROUND_BUTTONS
+	if uses_slider():
+		return SLIDER_BUTTONS
+	return SIMPLE_BUTTONS if _simple_built else ROUND_BUTTONS
+
+
+## Whether the player here drives the simple way, GAME.md 4.2: the stick points the way, and the
+## pedals are the stick's rather than the right thumb's. Their own choice, which can be changed
+## with a match under way, and is put up the next frame the way the layout is.
+func simple() -> bool:
+	var slot := _slot()
+	var player := slot.input as PlayerInput if slot != null else null
+	return player != null and player.simple()
 
 
 func _build_pads() -> void:
 	_layout_name = Game.settings.touch_layout
+	_simple_built = simple()
+	slider.go_simple(_simple_built)
+	stick.free = _simple_built
 	_pads.clear()
 	_pads.append(Pad.new(MENU, MENU_RADIUS))
 	var buttons := driving_buttons()
@@ -473,7 +499,7 @@ func _screen(at: Vector2) -> Vector2:
 
 func _process(_delta: float) -> void:
 	# The other way to drive, chosen in the settings over the room: put up at once.
-	if Game.settings.touch_layout != _layout_name:
+	if Game.settings.touch_layout != _layout_name or simple() != _simple_built:
 		_let_go()
 		_build_pads()
 	# The room's menu takes the screen while it is up, and a finger that was down when it opened
@@ -833,7 +859,8 @@ func _publish() -> void:
 		TouchInput.handbrake = live and _held(TouchSlider.DRIFT)
 	TouchInput.fire = live and (pad(FIRE).held > 0 or _rolled_onto_fire())
 	TouchInput.use_item = live and pad(ITEM).held > 0
-	TouchInput.steer = stick.steer() if live else 0.0
+	TouchInput.stick = stick.push() if live else Vector2.ZERO
+	TouchInput.steer = TouchInput.stick.x
 	queue_redraw()
 
 

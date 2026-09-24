@@ -2,7 +2,8 @@ class_name TouchSlider
 extends RefCounted
 ## The slider under the right thumb on a touch screen, GAME.md 4.2: one tall pill in the bottom
 ## right corner with nitro, gas, brake and drift down it, top to bottom. [TouchControls] hands it
-## the finger on it; this says which zone that finger is on, what each zone says, and draws it.
+## the finger on it; this says which zone that finger is on, what each zone says, and draws it. In
+## simple driving the stick works the pedals, and it is a shorter pill of nitro over drift.
 
 ## The zones, top to bottom, and each one's share of the height: the gas, where the thumb rests,
 ## the biggest, and the two at the ends, which a thumb reaches for, a little over the brake. Nitro
@@ -14,12 +15,15 @@ const BRAKE := &"brake"
 const DRIFT := &"drift"
 const ZONES: Array[StringName] = [NITRO, GAS, BRAKE, DRIFT]
 const ZONE_SHARES: Array[float] = [1.15, 1.5, 1.0, 1.15]
+const SIMPLE_ZONES: Array[StringName] = [NITRO, DRIFT]
+const SIMPLE_SHARES: Array[float] = [1.0, 1.0]
 const ZONE_WORDS: Dictionary[StringName, String] = {
 	NITRO: "NITRO", GAS: "GAS", BRAKE: "BRAKE", DRIFT: "DRIFT"
 }
 ## How big the slider is, how far in from the right and the bottom edges it stands, and how far off
 ## its sides a thumb going down still takes it.
 const SIZE := Vector2(124.0, 384.0)
+const SIMPLE_SIZE := Vector2(124.0, 260.0)
 const INSET := Vector2(34.0, 28.0)
 const SLACK := 24.0
 const ZONE_LINE := Color(1.0, 1.0, 1.0, 0.22)
@@ -30,6 +34,10 @@ const STILL_SPEED := 0.5
 ## The nitro tank is a bar across the bottom of the nitro, this far in from its edges.
 const TANK_INSET := 16.0
 
+## The zones down it just now, and each one's share of the height: the four, or the two of simple
+## driving, see [method go_simple].
+var zones: Array[StringName] = ZONES
+var shares: Array[float] = ZONE_SHARES
 ## Where it stands on the screen.
 var rect := Rect2()
 ## The finger on it, or -1, and where that finger is.
@@ -39,7 +47,15 @@ var at := Vector2.ZERO
 
 ## Stands it in the bottom right corner of a screen [param screen] big.
 func place(screen: Vector2) -> void:
-	rect = Rect2(screen - INSET - SIZE, SIZE)
+	var tall := SIMPLE_SIZE if zones == SIMPLE_ZONES else SIZE
+	rect = Rect2(screen - INSET - tall, tall)
+
+
+## The two zones of simple driving, GAME.md 4.2, or all four when [param on] is false. Placed again
+## after, since the two make a shorter pill.
+func go_simple(on: bool) -> void:
+	zones = SIMPLE_ZONES if on else ZONES
+	shares = SIMPLE_SHARES if on else ZONE_SHARES
 
 
 ## Whether a finger going down at [param point] takes it: on it, or a little off either side.
@@ -50,12 +66,12 @@ func takes(point: Vector2) -> bool:
 ## The stretch of it [param zone] takes up.
 func zone_rect(zone: StringName) -> Rect2:
 	var total := 0.0
-	for share: float in ZONE_SHARES:
+	for share: float in shares:
 		total += share
 	var top := rect.position.y
-	for i: int in ZONES.size():
-		var tall := rect.size.y * ZONE_SHARES[i] / total
-		if ZONES[i] == zone:
+	for i: int in zones.size():
+		var tall := rect.size.y * shares[i] / total
+		if zones[i] == zone:
 			return Rect2(rect.position.x, top, rect.size.x, tall)
 		top += tall
 	return Rect2()
@@ -63,10 +79,10 @@ func zone_rect(zone: StringName) -> Rect2:
 
 ## The zone at the height [param y]: the top one above it, the bottom one below.
 func zone_at(y: float) -> StringName:
-	for zone: StringName in ZONES:
+	for zone: StringName in zones:
 		if y < zone_rect(zone).end.y:
 			return zone
-	return ZONES[-1]
+	return zones[-1]
 
 
 ## The zone the thumb is on, or an empty name while none is.
@@ -127,8 +143,8 @@ func draw(canvas: CanvasItem, strength: float, kart: Kart) -> void:
 	canvas.draw_style_box(pill, rect)
 	var on := slid()
 	var size := TouchControls.LABEL_SIZE
-	for i: int in ZONES.size():
-		var zone := ZONES[i]
+	for i: int in zones.size():
+		var zone := zones[i]
 		var area := zone_rect(zone)
 		var dim := strength if zone_ready(zone, kart) else strength * TouchControls.GRAYED
 		var ink := TouchControls.INK if dim >= 1.0 else TouchControls.GRAY_INK
@@ -138,8 +154,8 @@ func draw(canvas: CanvasItem, strength: float, kart: Kart) -> void:
 			lit.anti_aliasing = true
 			lit.corner_radius_top_left = round if i == 0 else 0
 			lit.corner_radius_top_right = round if i == 0 else 0
-			lit.corner_radius_bottom_left = round if i == ZONES.size() - 1 else 0
-			lit.corner_radius_bottom_right = round if i == ZONES.size() - 1 else 0
+			lit.corner_radius_bottom_left = round if i == zones.size() - 1 else 0
+			lit.corner_radius_bottom_right = round if i == zones.size() - 1 else 0
 			canvas.draw_style_box(lit, area)
 		if i > 0:
 			var line := Color(ZONE_LINE, ZONE_LINE.a * strength)
