@@ -794,14 +794,15 @@ being read, smaller and half below the edge, and comes up to its full size as a 
 kept open.
 
 The slider is one of two ways to drive, and the settings' Controls, first there on a touch
-screen, have the other: Touch driving, Slider or Buttons, put up at once, a match under way or
-not. Buttons is a round button each for gas, brake, nitro and drift in an arc round the bottom
-right corner with fire, the gas the biggest and nearest the corner, each only itself: drift is
-the handbrake alone and nitro the nitro alone. A thumb sliding from one button to the next lets
-go of the first and presses the second, and one resting on the seam between gas and fire presses
-both. The item button is further in, fire being at the bottom edge already, and the nitro tank
-is a ring round the rim of its button. The four click, are grayed and say reverse as they do on
-the slider.
+screen, have the other: Touch driving, Slider or Buttons, each a button with its picture as the
+ways to drive have, a tall pill cut into zones and a big round button with three round it, put
+up at once, a match under way or not. Buttons is a round button each for gas, brake, nitro and
+drift in an arc round the bottom right corner with fire, the gas the biggest and nearest the
+corner, each only itself: drift is the handbrake alone and nitro the nitro alone. A thumb
+sliding from one button to the next lets go of the first and presses the second, and one resting
+on the seam between gas and fire presses both. The item button is further in, fire being at the
+bottom edge already, and the nitro tank is a ring round the rim of its button. The four click,
+are grayed and say reverse as they do on the slider.
 
 Both drive the simple way too, for a player who drives it, and change over the next frame when
 the choice does. The stick points the way rather than turning the wheel: its knob goes every way

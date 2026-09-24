@@ -189,11 +189,8 @@ func _controls_tab() -> Control:
 	column.add_child(MenuTheme.row("Driving", driving))
 	# How a touch screen drives, GAME.md 4.2, first where it is the controls in the player's hand.
 	if TouchInput.enabled:
-		var layouts := [Settings.TOUCH_SLIDER, Settings.TOUCH_BUTTONS]
-		var touch := MenuTheme.option(["Slider", "Buttons"], layouts.find(_settings.touch_layout))
-		touch.item_selected.connect(
-			func(index: int) -> void: _settings.touch_layout = layouts[index]
-		)
+		var touch := DrivePicker.make(_settings.touch_layout, Settings.TOUCH_LAYOUTS)
+		touch.chosen.connect(func(layout: String) -> void: _settings.touch_layout = layout)
 		column.add_child(MenuTheme.row("Touch driving", touch))
 	var header := HBoxContainer.new()
 	for text: String in ["Action", "Keyboard / mouse", "Gamepad"]:

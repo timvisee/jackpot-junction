@@ -1,7 +1,8 @@
 class_name DrivePicker
 extends HBoxContainer
 ## The two ways to drive side by side, GAME.md 4.2, each a button with its picture on it, and the
-## one chosen lit in the house's gold. Pressing the other chooses it.
+## one chosen lit in the house's gold. Pressing the other chooses it. The two ways a touch screen
+## drives are picked the same way.
 
 signal chosen(mode: String)
 
@@ -9,6 +10,8 @@ signal chosen(mode: String)
 const WORDS: Dictionary[String, String] = {
 	Settings.DRIVE_SIMPLE: "Simple",
 	Settings.DRIVE_ADVANCED: "Advanced",
+	Settings.TOUCH_SLIDER: "Slider",
+	Settings.TOUCH_BUTTONS: "Buttons",
 }
 const ICON := 34.0
 const INK := Color(0.88, 0.88, 0.92)
@@ -23,11 +26,11 @@ var _buttons: Dictionary[String, Button] = {}
 var _pictures: Dictionary[String, DriveArt.Picture] = {}
 
 
-## A picker with [param selected] chosen.
-static func make(selected: String) -> DrivePicker:
+## A picker of [param modes], the ways to drive unless told otherwise, with [param selected] chosen.
+static func make(selected: String, modes: Array[String] = Settings.DRIVE_MODES) -> DrivePicker:
 	var picker := DrivePicker.new()
 	picker.add_theme_constant_override("separation", 10)
-	for each: String in Settings.DRIVE_MODES:
+	for each: String in modes:
 		picker._add(each)
 	picker.mode = selected
 	return picker

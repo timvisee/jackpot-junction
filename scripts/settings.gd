@@ -10,6 +10,7 @@ const AIM_ASSIST_MAX := 1.0
 const UI_SCALES: Array[float] = [0.75, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0]
 const TOUCH_SLIDER := "slider"
 const TOUCH_BUTTONS := "buttons"
+const TOUCH_LAYOUTS: Array[String] = [TOUCH_SLIDER, TOUCH_BUTTONS]
 ## The two ways to drive, GAME.md 4.2: simple, where the stick says which way on the screen to go
 ## and the kart takes itself there, and advanced, a wheel and two pedals.
 const DRIVE_SIMPLE := "simple"

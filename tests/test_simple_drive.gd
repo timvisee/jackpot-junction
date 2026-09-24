@@ -306,6 +306,23 @@ func test_the_settings_ask_the_question_again_for_the_first_player() -> void:
 	DirAccess.remove_absolute(Game.settings.path)
 
 
+func test_the_settings_pick_the_touch_controls_by_their_pictures() -> void:
+	var was_touch := TouchInput.enabled
+	TouchInput.enabled = true
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	var pickers := screen.find_children("*", "DrivePicker", true, false)
+	var touch: DrivePicker = null
+	for each: Node in pickers:
+		if (each as DrivePicker).button(Settings.TOUCH_SLIDER) != null:
+			touch = each
+	assert_object(touch).is_not_null()
+	assert_str(touch.mode).is_equal(Settings.TOUCH_SLIDER)
+	touch.button(Settings.TOUCH_BUTTONS).pressed.emit()
+	assert_str(Game.settings.touch_layout).is_equal(Settings.TOUCH_BUTTONS)
+	TouchInput.enabled = was_touch
+
+
 func test_back_puts_the_question_away_unanswered() -> void:
 	var holder: Control = auto_free(Control.new())
 	add_child(holder)

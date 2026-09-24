@@ -26,6 +26,11 @@ below, and hands the notes to the release workflow.
 - **Hints for simple driving.** The hint over the kart and the test track's first
   signs name the way to go: WASD, or the stick with an arrow each way.
 
+### Changed
+
+- **Touch driving shows its two layouts as pictures.** Slider and Buttons are picked
+  in Settings the way the driving is.
+
 ## [0.6.1] - 2026-09-24
 
 A Grand Prix asks everybody which joker to keep between maps, to start with, and
