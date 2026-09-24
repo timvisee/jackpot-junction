@@ -30,6 +30,8 @@ const CHIP_BG := Color(1.0, 1.0, 1.0, 0.07)
 const PODIUM_GAP := 10.0
 ## The least room kept between the pane and the edges of the screen.
 const EDGE := 12.0
+## How long a watcher's podium is up before it goes on to how the run stands, in seconds.
+const WATCHER_WAIT := 6.0
 
 var match_node: Match
 
@@ -49,6 +51,8 @@ var _host_decides: Label
 var _caption: Label
 ## Whether a map's podium has moved on to the run's standings, see [method _show_run].
 var _showing_run := false
+## Seconds until a watcher's podium goes on to the run's by itself, see [method _process].
+var _watcher_left := WATCHER_WAIT
 ## What happens to everybody's jokers on the way to the next map, under the caption.
 var _keep_note: Label
 
@@ -70,6 +74,7 @@ static func create(parent: Node, for_match: Match) -> ResultsScreen:
 ## Fills the screen in and shows it. Called at the whistle, and again on a client every time the
 ## host says the match is over, so it is built to be filled in more than once.
 func fill_in() -> void:
+	_watcher_left = WATCHER_WAIT
 	for child: Node in _rows.get_children():
 		_rows.remove_child(child)
 		child.free()
@@ -153,6 +158,21 @@ func _ways_on() -> void:
 	_keep_note.visible = more
 	if more:
 		_keep_note.text = _keeping_words(rules.keep_jokers)
+
+
+## Somebody watching has nothing to press and nobody to press it for them, GAME.md 10.3: a map's
+## podium goes on to how the run stands by itself, once it has been up long enough to be read.
+func _process(delta: float) -> void:
+	if not visible or not _standings.visible or not _watching():
+		return
+	_watcher_left -= delta
+	if _watcher_left <= 0.0:
+		_watcher_left = WATCHER_WAIT
+		_on_standings()
+
+
+static func _watching() -> bool:
+	return Net.online() and Net.session != null and Net.session.watching
 
 
 ## What happens to everybody's jokers on the way to the next map, said the once under the caption.

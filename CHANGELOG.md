@@ -26,7 +26,7 @@ below, and hands the notes to the release workflow.
 - **Emotes.** Flick the right stick, or press 7 to 0, to put GG, a smile, a scowl or
   a heart over your kart, online too.
 - **Watch a LAN game.** Watch, beside Join, lets somebody in with no kart, even when
-  every seat is taken.
+  every seat is taken, and the podiums go on by themselves.
 
 ### Changed
 

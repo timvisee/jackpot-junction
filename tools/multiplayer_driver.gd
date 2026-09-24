@@ -434,6 +434,26 @@ func _watcher() -> void:
 		):
 			return
 		_check(session.local_slot == -1, "map %d watched with no kart" % round)
+		# Nobody watching presses anything: the podium goes on to the run's standings itself.
+		# After the first map this host goes on sooner than a watcher's podium does, which is the
+		# host's to do, so it is asked after the last, which the host stays on for the finale.
+		if round < MAPS:
+			continue
+		if not await _until(
+			func() -> bool:
+				var scene := _scene()
+				if scene == null or scene.scene_file_path != MATCH_SCENE:
+					return false
+				# After the last map that is the finale first, and the standings over it once the
+				# camera is there, which this host does not stay for.
+				var hud: MatchHud = scene.match_node.hud
+				return (
+					hud != null and (hud._results._showing_run or scene.match_node.finale != null)
+				),
+			120.0,
+			"the run's standings came up after map %d with no press" % round
+		):
+			return
 	var back := await _until(
 		func() -> bool: return _scene() != null and _scene().scene_file_path == WAITING_SCENE,
 		180.0,
