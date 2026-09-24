@@ -674,6 +674,14 @@ destroys. Destroy cannot share with use, because the respawn pick puts taking a
 joker and skipping it on one screen and reads taking first, so a shared button
 would leave skipping unreachable.
 
+On a touch screen the controls are drawn over the room instead. They come on by themselves on
+a phone or a tablet; `++ --touch=1` turns them on anywhere, with the mouse standing in for a
+finger, and `++ --touch=0` turns them off. Every finger is answered on its own, so one thumb can
+steer while the other presses, and a finger belongs to whatever it went down on until it comes
+up. A menu button in the top right corner opens the room's menu of 3.8, which is the way back to
+the title and out of the game for a player with no Escape key. It opens as the finger comes up
+on it, and not if the finger slid off it first.
+
 ### 4.3 Trails
 
 - **Tire marks**: a ribbon mesh per rear wheel, drawn while the kart moves,

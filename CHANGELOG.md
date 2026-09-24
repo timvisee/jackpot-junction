@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Touch screens get a menu button.** On a phone or a tablet a button in the top
+  right corner opens the menu, the way back to the title.
+
 ## [0.5.2] - 2026-09-24
 
 A Grand Prix now ends in a party on a podium, hushed until the music drops into

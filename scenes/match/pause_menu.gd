@@ -9,6 +9,9 @@ extends CanvasLayer
 ## one, and online the room came back re-seating a match nobody else was in.
 
 const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
+## Every room's menu is in this group, so something with no way to press Escape, such as the menu
+## button on a touch screen, GAME.md 4.2, can open it.
+const GROUP := &"pause_menu"
 ##
 ## Built on the pane every panel in the game is cut from, GAME.md 8.3, over a shade of the arena
 ## it is holding up.
@@ -35,6 +38,7 @@ static func add_to(parent: Node, net: NetSession = null) -> PauseMenu:
 func _ready() -> void:
 	layer = 20
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_to_group(GROUP)
 	if session != null:
 		session.pause_agreed.connect(_freeze)
 	_panel = CenterContainer.new()
@@ -94,6 +98,25 @@ func open_settings() -> void:
 ## Whether the settings are open over the room.
 func settings_open() -> bool:
 	return _settings != null
+
+
+## Whether the menu or the settings from it are up, which is when nothing else in the room is
+## listening.
+func is_open() -> bool:
+	return _panel.visible or _settings != null
+
+
+## Opens the menu of the room [param tree] is running, if it has one.
+static func open_in(tree: SceneTree) -> void:
+	tree.call_group(GROUP, &"set_paused", true)
+
+
+## Whether the room [param tree] is running has its menu up.
+static func is_open_in(tree: SceneTree) -> bool:
+	for menu: Node in tree.get_nodes_in_group(GROUP):
+		if (menu as PauseMenu).is_open():
+			return true
+	return false
 
 
 func _settings_closed() -> void:

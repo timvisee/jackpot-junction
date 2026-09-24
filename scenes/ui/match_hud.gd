@@ -139,6 +139,8 @@ func _ready() -> void:
 	_kill_feed.name = "KillFeed"
 	add_child(_kill_feed)
 	_results = ResultsScreen.create(self, match_node)
+	if TouchInput.enabled:
+		TouchControls.attach(self)
 	_build_lobby()
 	_start_wait = StartWait.add_to(self, match_node)
 	Events.kart_corrected.connect(_on_corrected)

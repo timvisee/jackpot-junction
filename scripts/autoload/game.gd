@@ -45,6 +45,7 @@ var _bench_started := 0
 func _init() -> void:
 	InputActions.register_defaults()
 	settings.load_from_disk()
+	TouchInput.detect(OS.get_cmdline_user_args())
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--screenshot="):
 			_screenshot_path = arg.get_slice("=", 1)
