@@ -924,25 +924,7 @@ func _start_relaying() -> void:
 		return
 	_relaying = true
 	for name: StringName in NetEvents.RELAYED:
-		var count := _signal_arity(name)
-		match count:
-			0:
-				Events.connect(name, _relay0.bind(name))
-			1:
-				Events.connect(name, _relay1.bind(name))
-			2:
-				Events.connect(name, _relay2.bind(name))
-			3:
-				Events.connect(name, _relay3.bind(name))
-			_:
-				Events.connect(name, _relay4.bind(name))
-
-
-func _signal_arity(name: StringName) -> int:
-	for info: Dictionary in Events.get_signal_list():
-		if info["name"] == String(name):
-			return (info["args"] as Array).size()
-	return 0
+		Events.connect(name, _relay_any.bind(name))
 
 
 func _relay(name: StringName, args: Array) -> void:
@@ -952,21 +934,7 @@ func _relay(name: StringName, args: Array) -> void:
 		_relay_event.rpc(name, args)
 
 
-func _relay0(name: StringName) -> void:
-	_relay(name, [])
-
-
-func _relay1(a: Variant, name: StringName) -> void:
-	_relay(name, [a])
-
-
-func _relay2(a: Variant, b: Variant, name: StringName) -> void:
-	_relay(name, [a, b])
-
-
-func _relay3(a: Variant, b: Variant, c: Variant, name: StringName) -> void:
-	_relay(name, [a, b, c])
-
-
-func _relay4(a: Variant, b: Variant, c: Variant, d: Variant, name: StringName) -> void:
-	_relay(name, [a, b, c, d])
+## Whatever [Events] signal it is, with however many arguments: the name comes last, bound.
+func _relay_any(...raised: Array) -> void:
+	var name: StringName = raised.pop_back()
+	_relay(name, raised)
