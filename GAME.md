@@ -387,7 +387,11 @@ else's results screen, see 10.3.
   over their own corner of the HUD for how they drive, see 4.2. Online, Back to
   title asks first, in place of the menu: the host is told that everybody who
   has joined will be disconnected, and a client that it leaves the room and the
-  others play on. The cursor starts on Stay, and Back is Stay too.
+  others play on. The cursor starts on Stay, and Back is Stay too. A map also
+  has Back to lobby, over Back to title, for whoever decides where the room
+  goes: this machine offline, which goes back to Play, and the host online,
+  which takes everybody back to the waiting room of 9.6 still connected. It asks
+  first, since the map ends there, and so does the Grand Prix it is part of.
 
 ### 3.9 Royal Flush pads
 

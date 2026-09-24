@@ -27,6 +27,8 @@ below, and hands the notes to the release workflow.
   signs name the way to go: WASD, or the stick with an arrow each way.
 - **Leaving an online game asks first.** The host is told that everybody who
   joined will be disconnected.
+- **Back to lobby from the pause menu.** It ends the map and the Grand Prix, and
+  online the host takes everybody back with them, still connected.
 
 ### Changed
 

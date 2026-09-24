@@ -118,7 +118,11 @@ func _ready() -> void:
 			_deal_carried_jokers()
 			match_node.begin_from_lobby()
 	DebugOverlay.add_to(self, match_node, session)
-	PauseMenu.add_to(self, session)
+	var menu := PauseMenu.add_to(self, session)
+	# The way back to the lobby is whoever decides where the room goes: this machine alone, or
+	# the host, GAME.md 3.8.
+	if session == null or session.is_host:
+		menu.offer_the_lobby()
 	Events.match_state_changed.connect(_on_state_changed)
 	Events.grand_prix_scored.connect(_on_grand_prix_scored)
 	loaded.emit()

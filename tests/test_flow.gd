@@ -380,6 +380,33 @@ func test_a_menu_over_the_room_darkens_all_of_it() -> void:
 	Game.settings = real
 
 
+## GAME.md 3.8: a map has a way back to the lobby for whoever decides where the room goes, and it
+## asks first, since it ends the map and any Grand Prix it is part of. No, or Back, is the menu.
+func test_back_to_lobby_asks_before_ending_the_grand_prix() -> void:
+	var holder: Control = auto_free(Control.new())
+	add_child(holder)
+	var menu := PauseMenu.add_to(holder)
+	var lobby := menu.offer_the_lobby()
+	assert_int(lobby.get_index()).is_equal(menu._quit.get_index() - 1)
+	var was := Game.grand_prix
+	Game.grand_prix = GrandPrix.new()
+	lobby.pressed.emit()
+	assert_bool(menu.asking()).is_true()
+	assert_str(menu._confirm.said()).contains("Grand Prix ends here")
+	assert_bool(menu._main.visible).is_false()
+	var back := InputEventAction.new()
+	back.action = &"ui_cancel"
+	back.pressed = true
+	menu._panel.visible = true
+	menu._unhandled_input(back)
+	assert_bool(menu.asking()).is_false()
+	assert_bool(menu._main.visible).is_true()
+	assert_bool(menu._panel.visible).is_true()
+	Game.grand_prix = was
+	assert_str(PauseMenu.lobby_words(false, false)[1]).is_equal("This match ends here.")
+	assert_str(PauseMenu.lobby_words(true, true)[1]).contains("stays connected")
+
+
 ## GAME.md 3.8: online, the way back to the title asks first. The host is told everybody who has
 ## joined goes with it; a client only leaves. Offline nothing is asked: nobody else is there.
 func test_back_to_title_online_asks_and_says_who_it_disconnects() -> void:

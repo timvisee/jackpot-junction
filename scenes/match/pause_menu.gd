@@ -3,8 +3,9 @@ extends CanvasLayer
 ## Pausing freezes the whole match in single-player and local play, GAME.md 3.8. Online it takes
 ## the whole room: the menu opens straight away, and the match stops once everybody has opened
 ## theirs. Resume, Settings, or back to the title, and over each local player's corner of the HUD
-## a switch for how they drive, see [DriveSwitches]. Online the way back to the title asks first,
-## since it ends something for other people, see [ConfirmPane].
+## a switch for how they drive, see [DriveSwitches]. A map adds a way back to the lobby for whoever
+## decides where the room goes: the one machine offline, the host online. Both ways out that end
+## something for other people, or a Grand Prix, ask first, see [ConfirmPane].
 ##
 ## Settings opens over the room, and Back from it comes back here. It used to change scene, and
 ## coming back built the room again from scratch: a match in progress was thrown away for a new
@@ -110,6 +111,35 @@ func add_entry(text: String, action: Callable) -> Button:
 	return button
 
 
+## Back to the lobby from a map, over Back to title, for whoever decides where the room goes: the
+## one machine offline, back to Play, and the host online, back to the waiting room of GAME.md 9.6
+## with everybody still connected. Either way it asks first, since it ends the map and any Grand
+## Prix it is part of.
+func offer_the_lobby() -> Button:
+	var button := MenuTheme.button("Back to lobby")
+	button.pressed.connect(
+		func() -> void:
+			var words := lobby_words(session != null, Game.grand_prix != null)
+			ask(words, _leave_to_lobby, button)
+	)
+	_quit.add_sibling(button)
+	_quit.get_parent().move_child(button, _quit.get_index())
+	return button
+
+
+## What is asked before going back to the lobby: the question, the line under it and the button
+## that goes. Online, with everybody still connected; either way, the end of what is being played.
+static func lobby_words(online: bool, grand_prix: bool) -> Array[String]:
+	var line := "The Grand Prix ends here." if grand_prix else "This match ends here."
+	if online:
+		var what := "the Grand Prix" if grand_prix else "this match"
+		line = (
+			"Everybody comes back to the lobby with you and stays connected, but %s ends here."
+			% what
+		)
+	return ["Back to the lobby?", line, "Back to lobby"]
+
+
 ## What is asked before leaving for the title online, and not offline, where nobody else is in
 ## it: the host takes everybody's room away with it, and a client only leaves.
 static func leave_words(hosting: bool) -> Array[String]:
@@ -134,6 +164,14 @@ func _back_to_title() -> void:
 func _leave_to_title() -> void:
 	set_paused(false)
 	Game.go_to_title()
+
+
+func _leave_to_lobby() -> void:
+	set_paused(false)
+	if session != null:
+		Game.back_to_the_room()
+	else:
+		Game.go_to_lobby()
 
 
 ## Puts [param words], a question, the line under it and the button that goes ahead, in place of
