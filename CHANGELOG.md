@@ -13,8 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
-- **Touch screens get a menu button.** On a phone or a tablet a button in the top
-  right corner opens the menu, the way back to the title.
+- **Touch controls.** On a phone or a tablet a stick steers and buttons for gas,
+  brake, fire, drift and nitro drive the kart, with a menu button in the corner.
 
 ## [0.5.2] - 2026-09-24
 

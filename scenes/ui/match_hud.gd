@@ -322,7 +322,7 @@ func add_block(slot: PlayerSlot) -> void:
 	add_child(picker)
 	_pickers[slot.index] = picker
 	_layout_hands()
-	if match_node.with_kart_hints:
+	if match_node.with_kart_hints and not TouchInput.enabled:
 		ControlHint.attach(slot.kart, slot.device())
 
 
@@ -714,7 +714,8 @@ func _update_speed(block: Dictionary, kart: Kart) -> void:
 ## pressing, and they are named for whichever scheme that player last used.
 func _update_hints(block: Dictionary, kart: Kart, device: int) -> void:
 	var holder: Control = block["hints"]
-	if not Game.settings.control_hints or not kart.alive:
+	# A touch screen's buttons say what they are on them, GAME.md 4.2; keys would be no help.
+	if not Game.settings.control_hints or not kart.alive or TouchInput.enabled:
 		holder.visible = false
 		return
 	var keyboard := DeviceInput.uses_keyboard(device)

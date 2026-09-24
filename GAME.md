@@ -682,6 +682,18 @@ up. A menu button in the top right corner opens the room's menu of 3.8, which is
 the title and out of the game for a player with no Escape key. It opens as the finger comes up
 on it, and not if the finger slid off it first.
 
+The left thumb steers with a stick that comes to wherever it goes down in the lower left of the
+screen, and waits in that corner while nobody has a thumb on it. It only steers, so its knob only
+moves side to side, and how far it is pushed is how far the wheel is turned. The right thumb has
+the rest in an arc round the bottom right corner: gas the biggest and nearest the corner, fire
+beside it, brake beyond that, and drift and nitro above them, with the nitro tank drawn round the
+rim of its button. A thumb sliding from one button to the next lets go of the first and presses
+the second, and one resting on the seam between gas and fire presses both, which is how one
+thumb drives and shoots at once. Drifting is a flick of the handbrake rather than a hold, so the
+same thumb can leave the gas for it and come back. The driving buttons go while the podium is up,
+where they would sit over its own. The hints that name keys, in the corner and beside the kart,
+are not shown on a touch screen: the buttons say what they are on them.
+
 ### 4.3 Trails
 
 - **Tire marks**: a ribbon mesh per rear wheel, drawn while the kart moves,

@@ -27,6 +27,15 @@ func poll(_delta: float) -> void:
 	brake = DeviceInput.strength(InputActions.BRAKE, device)
 	handbrake = DeviceInput.pressed(InputActions.HANDBRAKE, device)
 	nitro = DeviceInput.pressed(InputActions.NITRO, device)
+	# A touch screen is one more device, GAME.md 4.2, for the one player at it: the one who reads
+	# every device rather than a pad of their own.
+	var touch := TouchInput.enabled and device == DeviceInput.ANY
+	if touch:
+		steer = clampf(steer + TouchInput.steer, -1.0, 1.0)
+		throttle = maxf(throttle, TouchInput.throttle)
+		brake = maxf(brake, TouchInput.brake)
+		handbrake = handbrake or TouchInput.handbrake
+		nitro = nitro or TouchInput.nitro
 	aim = Vector2(
 		(
 			DeviceInput.strength(InputActions.AIM_RIGHT, device)
@@ -37,7 +46,7 @@ func poll(_delta: float) -> void:
 			- DeviceInput.strength(InputActions.AIM_UP, device)
 		)
 	)
-	fire = DeviceInput.pressed(InputActions.FIRE, device)
+	fire = DeviceInput.pressed(InputActions.FIRE, device) or (touch and TouchInput.fire)
 	fire_pressed = fire and not _fire_was_down
 	_fire_was_down = fire
 	var use_down := DeviceInput.pressed(InputActions.USE_ITEM, device)
