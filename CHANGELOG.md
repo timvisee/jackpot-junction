@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-09-24
+
+A Grand Prix now ends in a party on a podium, hushed until the music drops into
+fireworks. The standings between maps fit their pane again.
+
 ### Added
 
 - **A party at the end of a Grand Prix.** The top three float over a podium on a
@@ -1019,7 +1024,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.5.2...HEAD
+[0.5.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.5.2
 [0.5.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.5.1
 [0.5.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.5.0
 [0.4.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.4.1
