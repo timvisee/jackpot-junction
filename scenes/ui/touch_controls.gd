@@ -12,11 +12,11 @@ extends Control
 ## gas, brake and drift down it, top to bottom: a thumb goes down anywhere on it and slides
 ## between them, and belongs to it until it comes up, however far off the side it strays. Fire is
 ## beside it at the height of the gas, and a thumb rolled across off the slider onto fire fires
-## as well as driving; the item button is over fire. While the kart cannot be driven, on the grid
-## for the countdown or waiting to come back, the stick and every driving button are grayed out
-## and press nothing: a thumb resting on fire after a death would otherwise take a card of the
-## respawn pick it has not read. Held through the last lamp, the gas takes the kart away on the
-## green.
+## as well as driving; the item button is under fire. While the kart cannot be driven, on the
+## grid for the countdown or waiting to come back, the stick and every driving button are grayed
+## out and press nothing: a thumb resting on fire after a death would otherwise take a card of
+## the respawn pick it has not read. Held through the last lamp, the gas takes the kart away on
+## the green.
 ##
 ## A finger held on one of the jokers in the hand opens it on that card, with what it does over
 ## it, for as long as it stays there, and sliding it along the hand reads the others, GAME.md
@@ -44,12 +44,13 @@ const MENU := &"menu"
 const MENU_RADIUS := 34.0
 const MENU_INSET := Vector2(64.0, 62.0)
 ## The round driving buttons, each with its size and where its middle is from the bottom right
-## corner: fire beside the slider at the height of its gas, and the item button over fire.
+## corner: fire beside the slider at the height of its gas, and the item button under fire, far
+## enough under that a thumb between the two presses one of them and not both.
 const FIRE := &"fire"
 const ITEM := &"item"
 const DRIVING: Dictionary[StringName, Array] = {
 	FIRE: [76.0, Vector2(-248.0, -260.0), "FIRE"],
-	ITEM: [58.0, Vector2(-248.0, -414.0), ""],
+	ITEM: [58.0, Vector2(-248.0, -100.0), ""],
 }
 ## The slider's zones, top to bottom, and each one's share of its height: the gas, where the thumb
 ## rests, the biggest, and the two at the ends, which a thumb reaches for, a little over the brake.

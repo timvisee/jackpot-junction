@@ -665,3 +665,15 @@ func test_the_slider_says_what_it_does() -> void:
 	kart.motor.forward_speed = 6.0
 	assert_str(controls.zone_word(TouchControls.BRAKE)).is_equal("BRAKE")
 	assert_str(controls.zone_word(TouchControls.GAS)).is_equal("GAS")
+
+
+## The item button is under fire, and far enough under it that a thumb between the two presses one
+## of them and not both.
+func test_the_item_button_is_under_fire() -> void:
+	var controls := await _driving()
+	var fire := controls.pad(TouchControls.FIRE)
+	var item := controls.pad(TouchControls.ITEM)
+	assert_float(item.center.y).is_greater(fire.center.y)
+	assert_float(item.center.y + item.radius * TouchControls.REACH).is_less_equal(controls.size.y)
+	var between := fire.center.lerp(item.center, fire.radius / (fire.radius + item.radius))
+	assert_bool(fire.reaches(between) and item.reaches(between)).is_false()
