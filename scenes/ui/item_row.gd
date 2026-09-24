@@ -55,7 +55,7 @@ func show_kart(kart: Kart) -> void:
 			art.ink = kart.held_item.color
 			label.text = kart.held_item.display_name
 			label.add_theme_color_override("font_color", kart.held_item.color)
-	var going := _going_on(kart)
+	var going := going_on(kart)
 	for i: int in _lines.size():
 		var line: Dictionary = _lines[i]
 		var row: HBoxContainer = line["row"]
@@ -75,7 +75,7 @@ func show_kart(kart: Kart) -> void:
 ## still running, and whatever is loaded in the cannon. A cannon power-up runs out in shots rather
 ## than in seconds -- the spread and the ricochet are loaded, not timed -- so the bar under it is
 ## the shots left rather than the time.
-func _going_on(kart: Kart) -> Array[Dictionary]:
+static func going_on(kart: Kart) -> Array[Dictionary]:
 	var going: Array[Dictionary] = []
 	var best: KartEffect = null
 	for effect: KartEffect in kart.effects:
@@ -86,6 +86,7 @@ func _going_on(kart: Kart) -> Array[Dictionary]:
 	if best != null:
 		var timed := {
 			"name": best.display_name,
+			"id": best.item_id,
 			"color": best.color,
 			"left": best.time_left / maxf(best.duration, 0.001),
 		}
@@ -99,6 +100,7 @@ func _going_on(kart: Kart) -> Array[Dictionary]:
 	if shots > 0 and not loaded_name.is_empty() and not already:
 		var loaded := {
 			"name": loaded_name,
+			"id": kart.cannon.override_item,
 			"color": kart.cannon.override_color,
 			"left": float(shots) / maxf(float(kart.cannon.override_total), 1.0),
 		}

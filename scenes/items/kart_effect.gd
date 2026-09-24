@@ -11,6 +11,8 @@ var finished := false
 ## an item is played; an effect nobody asked for has neither and is not shown.
 var display_name := ""
 var color := Color.WHITE
+## The power-up that started it, for its picture on the item button of a touch screen, GAME.md 4.2.
+var item_id := &""
 ## How long it started with, for the bar that counts it down.
 var duration := 0.0
 

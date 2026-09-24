@@ -5,6 +5,8 @@ extends GdUnitTestSuite
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const RULES: MatchRules = preload("res://data/match/default.tres")
 const BOOST: PowerUp = preload("res://data/powerups/boost.tres")
+const SHIELD: PowerUp = preload("res://data/powerups/shield.tres")
+const SPREAD: PowerUp = preload("res://data/powerups/spread_cannon.tres")
 
 var _was_enabled := false
 var _runner: GdUnitSceneRunner
@@ -446,3 +448,26 @@ func test_the_driving_controls_gray_out_while_the_kart_cannot_drive() -> void:
 	await _runner.simulate_frames(1, 17)
 	assert_bool(TouchInput.fire).is_false()
 	assert_float(TouchInput.steer).is_equal(0.0)
+
+
+## Once played, what an item started keeps its picture on the button, with how much of it is left:
+## a shield counting down in time, a loaded cannon in shots.
+func test_the_item_button_shows_what_is_still_running() -> void:
+	var controls := await _driving()
+	var kart := controls.match_node.kart_of(0)
+	assert_bool(controls.running().is_empty()).is_true()
+	kart.held_item = SHIELD
+	kart.use_item()
+	var shield := controls.running()
+	assert_str(String(shield["id"])).is_equal("shield")
+	assert_float(shield["left"]).is_greater(0.9)
+	await _runner.simulate_frames(30, 17)
+	assert_float(controls.running()["left"]).is_less(shield["left"])
+	for effect: KartEffect in kart.effects:
+		effect.finished = true
+	await _runner.simulate_frames(2, 17)
+	kart.held_item = SPREAD
+	kart.use_item()
+	var loaded := controls.running()
+	assert_str(String(loaded["id"])).is_equal("spread_cannon")
+	assert_float(loaded["left"]).is_equal(1.0)

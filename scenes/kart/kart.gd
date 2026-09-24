@@ -769,9 +769,11 @@ func use_item() -> void:
 	for i: int in range(running, effects.size()):
 		effects[i].display_name = item.display_name
 		effects[i].color = item.color
+		effects[i].item_id = item.id
 	if cannon.override_shots_left() > loaded:
 		cannon.override_name = item.display_name
 		cannon.override_color = item.color
+		cannon.override_item = item.id
 	item_used.emit(item)
 	Events.item_used.emit(slot, item.id)
 

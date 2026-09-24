@@ -77,6 +77,12 @@ const GRAY_INK := Color(0.62, 0.62, 0.66, 0.7)
 ## while a box is still opening the pictures flick past as they do in the corner, GAME.md 8.3.
 const FAINT := 0.3
 const ITEM_ART := 0.62
+## Something an item started and has still to finish, a shield up or shots loaded, keeps its
+## picture on the button after the item has gone from the hand, with a bar inside counting it down
+## the way the one in the corner does. The picture moves up to make room.
+const RUNNING_BAR := Vector2(1.1, 7.0)
+const RUNNING_BACK := Color(0.0, 0.0, 0.0, 0.55)
+const RUNNING_LIFT := 0.14
 
 
 ## One round button.
@@ -625,6 +631,14 @@ func _draw_disc(each: Pad, strength := 1.0) -> void:
 	draw_arc(each.center, each.radius, 0.0, TAU, 48, Color(RIM, RIM.a * strength), RIM_WIDTH, true)
 
 
+## What an item started and has still to finish on the kart here, as the corner shows it, or an
+## empty dictionary: its name, the item's id, its color and how much of it is left, 0 to 1.
+func running() -> Dictionary:
+	var kart := _kart()
+	var going := ItemRow.going_on(kart) if kart != null else []
+	return going[0] if not going.is_empty() else {}
+
+
 ## Whether the kart has an item it can play right now.
 func has_item() -> bool:
 	var kart := _kart()
@@ -633,17 +647,32 @@ func has_item() -> bool:
 
 func _draw_item(each: Pad, kart: Kart) -> void:
 	var holding := kart != null and kart.held_item != null
+	var going := running()
 	_draw_disc(each, 1.0 if has_item() and can_drive() else FAINT)
-	if not holding:
-		return
 	var side := each.radius * 2.0 * ITEM_ART
-	var box := Rect2(each.center - Vector2(side, side) * 0.5, Vector2(side, side))
-	if kart.item_reveal_left > 0.0:
+	var middle := each.center
+	if not going.is_empty():
+		middle.y -= each.radius * RUNNING_LIFT
+		_draw_running(each, going)
+	var box := Rect2(middle - Vector2(side, side) * 0.5, Vector2(side, side))
+	# The item in hand first, being the one the button plays; what is running is under it.
+	if holding and kart.item_reveal_left > 0.0:
 		var spin := PowerUpArt.known()
 		var shown := spin[int(kart.item_reveal_left / ItemRow.SPIN) % spin.size()]
 		PowerUpArt.draw_into(self, box, shown, Color(ItemRow.SPINNING, FAINT * 2.0))
-		return
-	PowerUpArt.draw_into(self, box, kart.held_item.id, kart.held_item.color)
+	elif holding:
+		PowerUpArt.draw_into(self, box, kart.held_item.id, kart.held_item.color)
+	elif going.get("id", &"") != &"":
+		PowerUpArt.draw_into(self, box, going["id"], going["color"])
+
+
+## The bar counting down what is running, across the lower part of the button.
+func _draw_running(each: Pad, going: Dictionary) -> void:
+	var width := each.radius * RUNNING_BAR.x
+	var at := each.center + Vector2(-width * 0.5, each.radius * 0.5)
+	draw_rect(Rect2(at, Vector2(width, RUNNING_BAR.y)), RUNNING_BACK)
+	var left := clampf(float(going["left"]), 0.0, 1.0)
+	draw_rect(Rect2(at, Vector2(width * left, RUNNING_BAR.y)), going["color"])
 
 
 func _draw_label(each: Pad, ink: Color) -> void:

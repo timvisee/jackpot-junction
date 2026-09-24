@@ -11,6 +11,7 @@ var cooldown_left := 0.0
 ## power-up does. Filled in by the kart as the item is played.
 var override_name := ""
 var override_color := Color.WHITE
+var override_item := &""
 var override_total := 0
 
 var _live: Array[Bullet] = []
@@ -52,6 +53,7 @@ func clear_override() -> void:
 	_override = null
 	_override_shots = 0
 	override_name = ""
+	override_item = &""
 	override_total = 0
 
 
