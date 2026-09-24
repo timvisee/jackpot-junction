@@ -125,6 +125,9 @@ var _pinned_id := &""
 ## The finger on the drop or destroy button of an open card's pane, or -1, and which of the two.
 var _pane_finger := -1
 var _pane_action := &""
+## The buttons those two fingers went down on, lit up while the finger is still on them.
+var _back_button: Button
+var _pane_button: Button
 ## The finger on a card of the respawn pick, or -1, which card it went down on, when, and whether
 ## it has been along to another since, which is reading rather than tapping.
 var _pick_finger := -1
@@ -372,6 +375,8 @@ func _down_on_pick(finger: int, at: Vector2) -> bool:
 		return true
 	if _back_finger < 0 and _on_back(picker, at):
 		_back_finger = finger
+		_back_button = picker.touch_button()
+		MenuTheme.hold(_back_button, true)
 		return true
 	return false
 
@@ -383,6 +388,8 @@ func _down_on_pane(finger: int, at: Vector2) -> bool:
 		return false
 	_pane_finger = finger
 	_pane_action = action
+	_pane_button = _hand().touch_buttons()[action]
+	MenuTheme.hold(_pane_button, true)
 	return true
 
 
@@ -441,7 +448,11 @@ func _finger_moved(finger: int, at: Vector2) -> void:
 		_publish()
 	elif _fingers.has(finger):
 		_slide(finger, at)
-	elif finger != _back_finger and finger != _pane_finger:
+	elif finger == _back_finger:
+		MenuTheme.hold(_back_button, _on_back(_picker(), at))
+	elif finger == _pane_finger:
+		MenuTheme.hold(_pane_button, _pane_button_at(at) == _pane_action)
+	else:
 		return
 	get_viewport().set_input_as_handled()
 
@@ -471,6 +482,7 @@ func _finger_up(finger: int, at: Vector2) -> void:
 		_up_from_pick(at)
 	elif finger == _back_finger:
 		_back_finger = -1
+		MenuTheme.hold(_back_button, false)
 		if _on_back(_picker(), at):
 			TouchInput.press_back()
 	elif finger == _inspect_finger:
@@ -516,6 +528,7 @@ func _up_from_hand(at: Vector2) -> void:
 ## the pane goes with it.
 func _up_from_pane(at: Vector2) -> void:
 	_pane_finger = -1
+	MenuTheme.hold(_pane_button, false)
 	if _pane_button_at(at) != _pane_action or _pinned < 0:
 		return
 	if _pane_action == &"drop":
@@ -574,6 +587,8 @@ func _let_go() -> void:
 	_pick_finger = -1
 	_back_finger = -1
 	_pane_finger = -1
+	MenuTheme.hold(_back_button, false)
+	MenuTheme.hold(_pane_button, false)
 	_unpin()
 	TouchInput.joker_inspect = -1
 	TouchInput.joker_pinned = false

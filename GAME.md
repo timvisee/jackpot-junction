@@ -727,7 +727,10 @@ while a quick tap of under 0.3 s takes the card tapped, or destroys it on the de
 pick's usual wait before it can be answered holds for a tap as it does for a key. The pane says
 "Tap a card to take it, hold it to read it" in place of naming buttons, and a button under it
 skips the pick, or goes back from the destroying to the choosing; keeping one of last map's has
-nothing to skip to and no button.
+nothing to skip to and no button. That button and the drop and destroy buttons of the hand are
+pressed by the touch controls rather than the mouse, so there is no pointer to light them up:
+while a finger is on one it wears the pressed look with the gold edge, as every other button
+does under the cursor, and loses it if the finger slides off.
 
 ### 4.3 Trails
 

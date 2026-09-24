@@ -99,6 +99,16 @@ static func button(text: String, size: int = Type.LARGE) -> Button:
 	return control
 
 
+## Shows [param button] held down or not, for a button a touch screen presses rather than the
+## mouse, GAME.md 4.2. It has no pointer over it to light it up, so while a finger is on it it
+## wears the pressed look, gold edge and all, the way every other button does under the cursor.
+static func hold(button: Button, held: bool) -> void:
+	if button == null or not is_instance_valid(button):
+		return
+	button.toggle_mode = true
+	button.set_pressed_no_signal(held)
+
+
 ## A switch for a setting that is on or off, GAME.md 8.5, drawn here rather than taken from the
 ## engine's theme: its empty tick box is a dark outline on a dark menu, so a row that was off
 ## showed nothing at all beside it. This one is a track with a knob in it -- dark with the knob
