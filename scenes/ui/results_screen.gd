@@ -28,6 +28,8 @@ const ROW_MINE := Color(1.0, 1.0, 1.0, 0.09)
 const CHIP_BG := Color(1.0, 1.0, 1.0, 0.07)
 ## Air between the podium and the table of players: one is a picture and the other a list.
 const PODIUM_GAP := 10.0
+## The least room kept between the pane and the edges of the screen.
+const EDGE := 12.0
 
 var match_node: Match
 
@@ -95,6 +97,12 @@ func fill_in() -> void:
 	# cleared out -- and when the rows came back it was the size it had been before, so nothing
 	# measured it again and the run's standings hung out of the bottom of a pane without them.
 	set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	# And shrunk about its middle to the screen when it will not fit on it, which four players
+	# with their awards do on a short screen under a big UI scale, GAME.md 8.5.
+	var room := get_parent_area_size() - Vector2.ONE * EDGE * 2.0
+	var fit := minf(room.y / maxf(size.y, 1.0), room.x / maxf(size.x, 1.0))
+	pivot_offset = size * 0.5
+	scale = Vector2.ONE * clampf(fit, 0.1, 1.0)
 	# This is the one screen nobody asked for: it arrives on its own at the whistle, so it points
 	# at what most people want next rather than waiting to be found.
 	for first: Button in [_next, _standings, _lobby, _rematch, _quit]:

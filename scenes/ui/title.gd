@@ -2,7 +2,15 @@ extends Control
 ## The title screen from GAME.md 3.8: Play, the Garage practice room, Settings, Quit, over the
 ## turning sunburst of [TitleBackground].
 
+## Room kept under the buttons for the credits along the bottom of the screen.
+const CREDITS_ROOM := 48.0
+
 var play_button: Button
+
+var _column: VBoxContainer
+## The mark over the name, which goes on a screen too short for it and the buttons both: a big UI
+## scale on a short screen, GAME.md 8.5. The buttons are what the screen is for.
+var _mark: Control
 
 
 func _ready() -> void:
@@ -17,6 +25,8 @@ func _ready() -> void:
 	var centered := CenterContainer.new()
 	centered.add_child(mark)
 	column.add_child(centered)
+	_column = column
+	_mark = centered
 	column.add_child(MenuTheme.title("Jackpot Junction", Type.HERO))
 	column.add_child(
 		MenuTheme.subtitle("Collect chips. Build your mult. Cash out before they get you.")
@@ -61,3 +71,15 @@ func _ready() -> void:
 	version.offset_bottom = -12.0
 	add_child(version)
 	play_button.grab_focus()
+	resized.connect(_fit)
+	_fit()
+
+
+func _fit() -> void:
+	if _mark == null:
+		return
+	var tall := _column.get_combined_minimum_size().y
+	var mark := _mark.get_combined_minimum_size().y + _column.get_theme_constant("separation")
+	if not _mark.visible:
+		tall += mark
+	_mark.visible = tall + CREDITS_ROOM <= size.y

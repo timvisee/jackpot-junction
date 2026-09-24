@@ -40,11 +40,22 @@ static func background(parent: Control) -> void:
 
 ## A screen: the background behind it and a column down the middle of it, which is the shape
 ## every menu in the game has. Returns the column to fill.
+##
+## A column taller than the window scrolls, following the cursor as it goes down the list, and
+## sits in the middle of the window when it fits. A big UI scale on a short screen, GAME.md 8.5,
+## makes a long list of settings longer than the window it is in.
 static func screen(parent: Control, separation: int = 16) -> VBoxContainer:
 	background(parent)
+	var scroll := ScrollContainer.new()
+	scroll.name = "Scroll"
+	scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
+	parent.add_child(scroll)
 	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	parent.add_child(center)
+	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	center.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.add_child(center)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", separation)
 	center.add_child(column)

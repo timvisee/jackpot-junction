@@ -708,10 +708,12 @@ func test_the_standings_in_the_middle_of_a_run_fit_their_pane() -> void:
 	assert_float(screen.size.y).is_equal_approx(screen.get_combined_minimum_size().y, 0.5)
 	var column: Control = screen.get_child(0)
 	assert_float(screen.size.y).is_greater_equal(column.get_combined_minimum_size().y)
-	# Still in the middle of the screen, however tall it has become.
+	# Still in the middle of the screen, however tall it has become, and never taller than it.
 	var middle := screen.position.y + screen.size.y * 0.5
 	var screen_middle := screen.get_parent_area_size().y * 0.5
 	assert_float(middle).is_equal_approx(screen_middle, 1.0)
+	var shown := screen.size.y * screen.scale.y
+	assert_float(shown).is_less_equal(screen.get_parent_area_size().y)
 
 
 ## And the last map ends the run: no next map and no rematch, back to the lobby or the title.
