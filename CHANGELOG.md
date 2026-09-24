@@ -31,6 +31,11 @@ below, and hands the notes to the release workflow.
 - **Touch driving shows its two layouts as pictures.** Slider and Buttons are picked
   in Settings the way the driving is.
 
+### Fixed
+
+- **The pause menu darkens the room behind it.** So does the host's Match settings
+  pane; both meant to, and neither did.
+
 ## [0.6.1] - 2026-09-24
 
 A Grand Prix asks everybody which joker to keep between maps, to start with, and

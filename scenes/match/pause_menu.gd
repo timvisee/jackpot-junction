@@ -20,7 +20,7 @@ const GROUP := &"pause_menu"
 ## The session to ask online, null in a room where this machine is the only one.
 var session: NetSession
 
-var _panel: CenterContainer
+var _panel: Control
 var _resume: Button
 var _switches: DriveSwitches
 ## The settings while they are open over the room, null otherwise.
@@ -49,16 +49,23 @@ func _ready() -> void:
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
-	_panel = CenterContainer.new()
+	_panel = Control.new()
 	_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_panel.visible = false
 	root.add_child(_panel)
+	# The shade beside the pane rather than in with it: a container centering the pane would
+	# center the shade too, at the nothing it asks for, and the room would never go dark.
 	var shade := ColorRect.new()
 	shade.color = Color(0.0, 0.0, 0.0, 0.55)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_panel.add_child(shade)
+	var middle := CenterContainer.new()
+	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	middle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_panel.add_child(middle)
 	var pane := MenuTheme.pane()
-	_panel.add_child(pane)
+	middle.add_child(pane)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 16)
 	pane.add_child(column)

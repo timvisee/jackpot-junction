@@ -352,3 +352,29 @@ func test_a_status_before_the_room_stands_on_the_menu_background() -> void:
 	assert_bool(pane._backdrop.visible).is_true()
 	assert_object(pane._backdrop.color).is_equal(MenuTheme.BACKGROUND)
 	assert_int(pane._backdrop.get_index()).is_less(pane._panel.get_index())
+
+
+## GAME.md 3.8: a menu over a room darkens the whole of it, the pause menu and the host's match
+## settings both. The shade used to be centered along with the pane, at the nothing it asks for.
+func test_a_menu_over_the_room_darkens_all_of_it() -> void:
+	# Closing the host's pane keeps what it was showing, which is not the player's to have written.
+	var real := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = TEST_SETTINGS_PATH
+	var holder: Control = auto_free(Control.new())
+	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(holder)
+	var menu := PauseMenu.add_to(holder)
+	menu.set_paused(true)
+	var host := HostSettings.add_to(holder)
+	host.open()
+	await await_idle_frame()
+	var screen := get_viewport().get_visible_rect().size
+	for shade: ColorRect in [menu._panel.get_child(0), host._panel.get_child(0)]:
+		assert_vector(shade.size).is_equal(screen)
+		assert_float(shade.color.a).is_greater(0.3)
+	menu.set_paused(false)
+	host.close()
+	get_tree().paused = false
+	DirAccess.remove_absolute(Game.settings.path)
+	Game.settings = real

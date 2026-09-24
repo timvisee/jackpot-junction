@@ -382,8 +382,9 @@ else's results screen, see 10.3.
   While anybody is still playing the match runs on, and the moment one of them
   closes their menu it starts again for everyone. Somebody joining a stopped
   room starts it again, and somebody leaving can be the last one holding it up.
-  While the menu is up, each player at this screen has a switch over their own
-  corner of the HUD for how they drive, see 4.2.
+  The menu comes up over the room darkened behind it, as the host's match
+  settings of 9.6 do, and while it is up each player at this screen has a switch
+  over their own corner of the HUD for how they drive, see 4.2.
 
 ### 3.9 Royal Flush pads
 

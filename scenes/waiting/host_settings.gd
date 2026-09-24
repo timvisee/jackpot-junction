@@ -14,7 +14,7 @@ signal closed
 
 var options: MatchOptions
 
-var _panel: CenterContainer
+var _panel: Control
 var _done: Button
 
 
@@ -29,16 +29,24 @@ func _ready() -> void:
 	# Under the pause menu and over the HUD: it is a menu, but not the one that stops the room.
 	layer = 18
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_panel = CenterContainer.new()
+	_panel = Control.new()
 	_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_panel.visible = false
 	add_child(_panel)
+	# Beside the pane rather than in with it, as the pause menu's is, or the centering would shrink
+	# it to nothing. The room carries on under it, so it lets everything through.
 	var shade := ColorRect.new()
 	shade.color = Color(0.0, 0.0, 0.0, 0.45)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_panel.add_child(shade)
+	var middle := CenterContainer.new()
+	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	middle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_panel.add_child(middle)
 	var pane := MenuTheme.pane()
-	_panel.add_child(pane)
+	middle.add_child(pane)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
 	pane.add_child(column)
