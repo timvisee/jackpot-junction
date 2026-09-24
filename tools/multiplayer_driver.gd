@@ -630,7 +630,12 @@ func _to_the_run(last: ResultsScreen) -> bool:
 	await _until(func() -> bool: return last._standings.visible, 10.0, "it offers the run's")
 	await _seconds(READING / 2.0)
 	last._standings.pressed.emit()
-	return _check(last._title.text == ResultsScreen.GRAND_PRIX_TITLE, "then the Grand Prix's")
+	# After the last map the finale in the room comes first, and the standings go up over it.
+	return await _until(
+		func() -> bool: return last.visible and last._title.text == ResultsScreen.GRAND_PRIX_TITLE,
+		10.0,
+		"then the Grand Prix's"
+	)
 
 
 func _podium(scene: Node, seconds: float) -> ResultsScreen:

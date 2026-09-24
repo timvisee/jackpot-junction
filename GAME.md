@@ -2736,7 +2736,19 @@ room how the run stands, and every screen draws its podium from that.
 **The end.** The last map ends on its own podium first, the same as every map before it: the
 map's results, what each place paid and where that leaves everybody. Its one way on is Grand
 Prix results, which is everybody's to press, a client's as much as the host's, since it only
-changes what that screen shows. That brings up the run's podium, the same one every map before
+changes what that screen shows.
+
+After the last map that first turns the room into a party. A podium goes up on the Junction
+with the top three of the run on it, in their own colors and dress, turning on their steps,
+the winner bouncing on the tallest, with their name and GRAND PRIX CHAMPION over it and a light
+on it. The karts that played the map and everything on the floor are cleared away, the HUD goes,
+and the room goes to the top of its meter and stays there: the crowd on its feet, the lights on
+the winner, the music at its loudest. Fireworks go up in all three colors and confetti bursts off
+the steps. The camera leaves the rig and comes down in front of the podium over 2.6 s, with the
+room and the DJ booth behind it, and holds for a second; the accept button skips the move. Each
+machine stages it for itself from what it already knows, so nothing about it goes over the wire.
+
+Then the run's podium comes up over it, the same one every map before
 it led to, headed Grand Prix over Final
 standings after however many maps it was: the top three of the run on the steps, then everybody
 ranked on points, each with how many maps they won, their points in gold, and a chip for every

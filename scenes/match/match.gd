@@ -46,6 +46,8 @@ var hold_start := false
 ## How many players have the room up, out of how many are playing, while the lamps are held for
 ## the rest. Zero while nobody is being waited for.
 var loading := Vector2i.ZERO
+## The closing party of a Grand Prix while it is on, see [GrandPrixFinale], null otherwise.
+var finale: GrandPrixFinale
 ## The slot the local player controls in a puppet match, -1 until assigned.
 var local_slot := -1
 ## On a client, the input its session is polling and sending to the host. The local player's kart

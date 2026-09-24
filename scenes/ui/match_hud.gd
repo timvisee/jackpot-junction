@@ -105,6 +105,8 @@ var _lobby_rows: RichTextLabel
 var _lobby_hint: Label
 var _start_wait: StartWait
 var _lobby_start: Button
+## Set while the end of a Grand Prix has the screen, see [method stand_aside].
+var _aside := false
 var _go_left := 0.0
 
 
@@ -364,6 +366,16 @@ func _layout_hands() -> void:
 ## something anybody can answer: the host has gone and this room is closing. A joker pick left
 ## open under the notice would be asking a player to choose a card for a match that is not there
 ## any more, and the standings would be a scoreboard for a game nobody is playing.
+## The end of a Grand Prix, GAME.md 9.7: everything but the results screen goes, and stays gone,
+## so the podium in the room has the screen to itself until the run's standings come up over it.
+func stand_aside() -> void:
+	_aside = true
+	for child: Node in get_children():
+		var shown := child as CanvasItem
+		if shown != null and child != _results:
+			shown.visible = false
+
+
 func stand_down() -> void:
 	dismissed = true
 	# The whole layer goes, rather than each thing on it. Anything that shows itself later from a
@@ -408,7 +420,7 @@ func _update_sync(delta: float) -> void:
 
 
 func _process(delta: float) -> void:
-	if dismissed:
+	if dismissed or _aside:
 		return
 	_step_podium(delta)
 	_update_sync(delta)

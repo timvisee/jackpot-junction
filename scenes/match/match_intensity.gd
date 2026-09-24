@@ -191,9 +191,9 @@ func _set_level(to: int) -> void:
 
 
 ## The finale, which sudden death is a continuation of rather than an interruption: neither
-## winds the room back down, GAME.md 8.4.
+## winds the room back down, GAME.md 8.4. Nor does the party at the end of a Grand Prix.
 func _last_call() -> bool:
-	return match_node != null and match_node.in_the_finale()
+	return match_node != null and (match_node.in_the_finale() or match_node.finale != null)
 
 
 ## The part that does not fade.

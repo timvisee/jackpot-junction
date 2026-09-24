@@ -202,7 +202,7 @@ func test_the_run_knows_who_moved_on_the_last_map() -> void:
 func test_the_grand_prix_podium_shows_who_moved() -> void:
 	_run_at(2, 2)
 	var screen := await _podium_after(2, 2, GrandPrix.Keep.RANDOM, [100, 0])
-	screen._standings.pressed.emit()
+	await _to_the_run(screen)
 	var run := Game.grand_prix
 	assert_int(run.moved(0, screen.match_node.slots)).is_equal(1)
 	assert_int(run.moved(1, screen.match_node.slots)).is_equal(-1)
@@ -514,7 +514,7 @@ func test_the_podium_after_the_last_map_is_the_grand_prix() -> void:
 	# The last map's results come first, with what each place paid, as on every map.
 	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
 	assert_bool(_texts(screen).has("+%d points" % GrandPrix.POINTS[0])).is_true()
-	screen._standings.pressed.emit()
+	await _to_the_run(screen)
 	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
 	var run := Game.grand_prix
 	var ranked := run.standings(screen.match_node.slots)
@@ -523,6 +523,78 @@ func test_the_podium_after_the_last_map_is_the_grand_prix() -> void:
 	for map: StringName in run.playlist:
 		assert_bool(texts.has(ArenaMaps.NAMES[ArenaMaps.index_of(map)])).is_true()
 	assert_bool(run.total(ranked[0].index) >= run.total(ranked[1].index)).is_true()
+
+
+## Grand Prix results pressed on the last map's podium, the way a player presses it: the finale in
+## the room comes first, and is skipped here the way a player skips it, straight to the standings.
+func _to_the_run(screen: ResultsScreen) -> void:
+	screen._standings.pressed.emit()
+	var finale := screen.match_node.finale
+	if finale != null:
+		finale.skip()
+		# The frame's signal comes before the finale's own turn in it.
+		await await_idle_frame()
+		await await_idle_frame()
+
+
+## GAME.md 9.7: after the last map, Grand Prix results first turns the room into a party. The top
+## of the run stands on a podium on the Junction, the floor is cleared, the room goes to the top of
+## its meter and a camera of its own comes down onto the podium; the standings go up once it has
+## arrived and held there.
+func test_the_end_of_a_run_is_a_party_on_a_podium() -> void:
+	_run_at(2, 2)
+	var screen := await _podium_after(2, 2)
+	var match_node := screen.match_node
+	var champion := Game.grand_prix.standings(match_node.slots)[0]
+	screen._standings.pressed.emit()
+	var finale := match_node.finale
+	assert_object(finale).is_not_null()
+	assert_bool(screen.visible).is_false()
+	assert_int(finale._karts.size()).is_equal(match_node.slots.size())
+	assert_str((finale.get_node("Champion") as Label3D).text).is_equal(champion.display_name())
+	assert_bool(match_node.kart_of(0).visible).is_false()
+	assert_bool(match_node.hud._scoreboard.visible).is_false()
+	assert_bool(finale._camera.is_current()).is_true()
+	assert_int(match_node.intensity.level).is_equal(MatchIntensity.LEVELS)
+	assert_int(match_node.arena.crowd.level).is_equal(MatchIntensity.LEVELS)
+	# Still on its way down a second in, with nothing over it yet.
+	await await_millis(1000)
+	assert_bool(screen.visible).is_false()
+	var up := false
+	for i: int in 60:
+		await await_millis(100)
+		if screen.visible:
+			up = true
+			break
+	assert_bool(up).override_failure_message("the standings never came up").is_true()
+	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	assert_bool(finale.is_shown()).is_true()
+	var shot := finale.global_position + GrandPrixFinale.SHOT_FROM
+	assert_float(finale._camera.global_position.distance_to(shot)).is_less(0.05)
+	# And the room stays at the top of its meter under the standings.
+	await await_millis(600)
+	assert_int(match_node.intensity.level).is_equal(MatchIntensity.LEVELS)
+
+
+## A player who has seen it can skip straight to the standings, and a map in the middle of a run
+## has no party at all: the run is not over.
+func test_the_party_can_be_skipped_and_only_ends_a_run() -> void:
+	_run_at(2, 2)
+	var screen := await _podium_after(2, 2)
+	screen._standings.pressed.emit()
+	var accept := InputEventAction.new()
+	accept.action = &"ui_accept"
+	accept.pressed = true
+	screen.match_node.finale._unhandled_input(accept)
+	await await_idle_frame()
+	await await_idle_frame()
+	assert_bool(screen.visible).is_true()
+	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	_run_at(1, 3)
+	var early := await _podium_after(1, 3)
+	early._standings.pressed.emit()
+	assert_object(early.match_node.finale).is_null()
+	assert_str(early._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
 
 
 ## Every label under [param node], for asking what a screen says without walking its boxes.
@@ -573,7 +645,7 @@ func test_the_podium_after_the_last_map_ends_the_run() -> void:
 	assert_bool(screen._quit.visible).is_false()
 	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._standings)
 	# And the run's podium ends it: back to the lobby or the title.
-	screen._standings.pressed.emit()
+	await _to_the_run(screen)
 	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
 	assert_bool(screen._standings.visible).is_false()
 	assert_bool(screen._lobby.visible).is_true()

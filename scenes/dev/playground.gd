@@ -22,6 +22,7 @@ extends Node3D
 ##   --results=1          end the match at once with made-up stats, to see the results screen
 ##   --fireworks=1        the winner's fireworks over the open-out camera, for screenshots
 ##   --loading=1          hold the lamps as if two players were still building the room
+##   --finale=1           end a made-up two-map Grand Prix and stage its finale
 ##   --wide=1             hold the camera on the whole room, so two shots can be compared
 ##   --back=200           hold the camera that many meters back, to look at the room itself
 ##   --map=vault          which map to play, by id (default lucky_crossing)
@@ -51,6 +52,7 @@ var _banked := false
 var _results := false
 var _fireworks := false
 var _loading := false
+var _finale := false
 var _wide := false
 var _back := 0.0
 var _map := &"lucky_crossing"
@@ -143,6 +145,8 @@ func _ready() -> void:
 			slot.banked = 900 - slot.index * 250
 			slot.kills = 3 - slot.index
 		match_node._finish()
+	if _finale:
+		_stage_the_finale()
 	if _explosion >= 0.0:
 		var blast := Explosion.spawn(
 			match_node, player.global_position + Vector3(3.0, 0.0, 2.0), Bomb.RADIUS, Color.WHITE
@@ -250,9 +254,28 @@ func _parse_user_args() -> void:
 			_fireworks = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--loading="):
 			_loading = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--finale="):
+			_finale = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--wide="):
 			_wide = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--back="):
 			_back = float(arg.get_slice("=", 1))
 		elif arg.begins_with("--map="):
 			_map = StringName(arg.get_slice("=", 1))
+
+
+## The last map of a made-up Grand Prix of two, scored, whistled and on to its finale the way the
+## podium's Grand Prix results button goes there, GAME.md 9.7.
+func _stage_the_finale() -> void:
+	var run := GrandPrix.start(2, match_node.rng)
+	for map: int in 2:
+		for slot: PlayerSlot in match_node.slots:
+			slot.banked = 300 * (slot.index + 1) if map == 0 else 900 - slot.index * 200
+		run.score(match_node.standings())
+		if map == 0:
+			run.advance()
+	Game.grand_prix = run
+	match_node.rules.rounds = 2
+	match_node.rules.round = 2
+	match_node._finish()
+	match_node.hud._results._on_standings()

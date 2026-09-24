@@ -154,6 +154,18 @@ func _keeping_words(keep: int) -> String:
 	return "Everybody keeps one of their jokers for the next map, at random."
 
 
+## The last map's podium hands over to the party in the room first, GAME.md 9.7, and the run's
+## standings come up over it once the camera is there. Any other map's go straight up.
+func _on_standings() -> void:
+	var rules := match_node.rules
+	var run := _run()
+	if rules.round < rules.rounds or run == null or match_node.arena == null:
+		_show_run()
+		return
+	visible = false
+	GrandPrixFinale.stage(match_node, run.standings(match_node.slots), _show_run)
+
+
 ## From a map's podium to the run's, GAME.md 9.7. After the last map the arena's board names the
 ## champion from here on, not before: until the run's podium is up, what is being looked at is the
 ## last map. After any other map there is no champion yet to name.
@@ -383,7 +395,7 @@ func _buttons() -> HBoxContainer:
 	_next.visible = false
 	buttons.add_child(_next)
 	_standings = MenuTheme.button("Grand Prix results", 26)
-	_standings.pressed.connect(_show_run)
+	_standings.pressed.connect(_on_standings)
 	_standings.visible = false
 	buttons.add_child(_standings)
 	_lobby = MenuTheme.button("Back to lobby", 26)
