@@ -43,10 +43,16 @@ func _ready() -> void:
 	add_to_group(GROUP)
 	if session != null:
 		session.pause_agreed.connect(_freeze)
+	# The menu and the switches over the corners share one root, since a pad's cursor only looks for
+	# the next button inside the tree it is in, and they are to be one screen to it.
+	var root := Control.new()
+	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(root)
 	_panel = CenterContainer.new()
 	_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_panel.visible = false
-	add_child(_panel)
+	root.add_child(_panel)
 	var shade := ColorRect.new()
 	shade.color = Color(0.0, 0.0, 0.0, 0.55)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -72,7 +78,7 @@ func _ready() -> void:
 	column.add_child(quit)
 	_switches = DriveSwitches.new()
 	_switches.visible = false
-	add_child(_switches)
+	root.add_child(_switches)
 
 
 ## Another thing the menu can do in this room, put under Resume. The waiting room of GAME.md 9.6
@@ -130,7 +136,7 @@ func _settings_closed() -> void:
 	_panel.visible = true
 	# Up again as they now are: the settings may have changed how the first player drives.
 	_switches.visible = true
-	_switches.put_up()
+	_switches.put_up(_buttons())
 	_resume.grab_focus()
 
 
@@ -156,7 +162,7 @@ func set_paused(paused: bool) -> void:
 	_panel.visible = paused
 	_switches.visible = paused
 	if paused:
-		_switches.put_up()
+		_switches.put_up(_buttons())
 	else:
 		_switches.take_down()
 	if session == null:
@@ -165,6 +171,15 @@ func set_paused(paused: bool) -> void:
 		session.want_pause(paused)
 	if paused:
 		_resume.grab_focus()
+
+
+## The menu's own buttons, top to bottom, for the switches to be reached from.
+func _buttons() -> Array[Button]:
+	var found: Array[Button] = []
+	for child: Node in _resume.get_parent().get_children():
+		if child is Button:
+			found.append(child)
+	return found
 
 
 func _freeze(on: bool) -> void:

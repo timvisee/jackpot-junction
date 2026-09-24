@@ -345,8 +345,17 @@ func test_the_pause_menu_has_a_switch_over_each_players_corner() -> void:
 	assert_bool((inputs[1] as PlayerInput).simple()).is_true()
 	menu._switches.button(1).pressed.emit()
 	assert_str(Game.settings.drive_mode(1)).is_equal(Settings.DRIVE_ADVANCED)
+	# A pad's cursor goes out to them from the menu, to the side each is on, and back.
+	var resume := menu._resume
+	assert_object(resume.find_valid_focus_neighbor(SIDE_LEFT)).is_same(menu._switches.button(0))
+	assert_object(resume.find_valid_focus_neighbor(SIDE_RIGHT)).is_same(menu._switches.button(1))
+	var left := menu._switches.button(0)
+	assert_object(left.find_valid_focus_neighbor(SIDE_RIGHT)).is_same(resume)
+	assert_object(left.find_valid_focus_neighbor(SIDE_LEFT)).is_same(left)
 	menu.set_paused(false)
 	assert_object(menu._switches.button(0)).is_null()
+	assert_bool(resume.focus_neighbor_left.is_empty()).is_true()
+	get_tree().paused = false
 	DirAccess.remove_absolute(Game.settings.path)
 
 
