@@ -141,3 +141,8 @@ func test_the_ui_scale_sizes_the_menus_and_the_hud() -> void:
 	read.load_from_disk()
 	assert_float(read.ui_scale).is_equal(1.75)
 	DirAccess.remove_absolute(settings.path)
+
+
+## A phone plays full screen to start with, and a desktop in a window.
+func test_a_phone_starts_full_screen() -> void:
+	assert_bool(Settings.new().fullscreen).is_equal(OS.has_feature("mobile"))

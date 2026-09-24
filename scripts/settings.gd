@@ -23,7 +23,9 @@ var kart_volume := 1.0
 var music_muted := false
 ## Whether the music goes under water for a moment when a player at this screen dies, GAME.md 8.4.
 var muffle_on_death := true
-var fullscreen := false
+## A phone or a tablet plays full screen to start with, the system's own bars out of the way, since
+## a game in a window is a game with the clock and the notifications over the top of it.
+var fullscreen := OS.has_feature("mobile")
 var vsync := true
 var render_scale := 1.0
 ## One of [constant UI_SCALES]. A phone is held close, and a HUD laid out for a monitor across a

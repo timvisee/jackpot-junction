@@ -2185,25 +2185,27 @@ like any other button.
   The kart bus is under the effects bus, so the effects slider still scopes it.
   A switch turns off the music going under water when a player here dies, see 8.4,
   on by default.
-- **Video**: window mode, vsync, render scale, UI scale, bloom and edge smoothing. The last
-  two are the passes over the whole screen a room pays for, and they are the two
-  things worth handing back on a card that cannot spare them: at 1080p on a mid
-  card the bloom is about a tenth of The Vault's frame and the smoothing about a
-  twentieth, and turning both off is most of the difference between that room and
-  the others. Both are on by default, both take effect at once, and the smoothing
-  falls back to the cheap screen-space pass rather than to nothing, since a room
-  made of straight lines crawls without it.
-  The UI scale draws every menu and the HUD bigger or smaller, from 75% to 200% of
-  the size they were laid out at for a screen 1080 lines high, and leaves the room
-  behind them as sharp as it was. It starts at 100% on a desktop and at 150% on a
-  phone or a tablet, which is held close enough that a HUD laid out for a monitor
-  across a desk is a HUD of things too small to press. It is picked from a list
-  rather than slid, since a slider would grow and shrink the screen under the
-  pointer dragging it, and it takes effect at once. `++ --ui-scale=1.5` on the
-  command line uses a size for that run alone and saves nothing. A screen drawn
-  bigger than the window has room for still fits: a menu taller than the window
-  scrolls, the podium shrinks to it, the title leaves out the mark over its name,
-  and on a touch screen the pieces of the HUD keep off each other, see 4.2.
+- **Video**: window mode, vsync, render scale, UI scale, bloom and edge smoothing.
+  A phone or a tablet starts full screen, with the system's own bars out of the
+  way; a desktop starts in a window. Bloom and edge smoothing are the passes over
+  the whole screen a room pays for, and they are the two things worth handing back
+  on a card that cannot spare them: at 1080p on a mid card the bloom is about a
+  tenth of The Vault's frame and the smoothing about a twentieth, and turning both
+  off is most of the difference between that room and the others. Both are on by
+  default, both take effect at once, and the smoothing falls back to the cheap
+  screen-space pass rather than to nothing, since a room made of straight lines
+  crawls without it. The UI scale draws every menu and the HUD bigger or smaller,
+  from 75% to 200% of the size they were laid out at for a screen 1080 lines high,
+  and leaves the room behind them as sharp as it was. It starts at 100% on a
+  desktop and at 150% on a phone or a tablet, which is held close enough that a
+  HUD laid out for a monitor across a desk is a HUD of things too small to press.
+  It is picked from a list rather than slid, since a slider would grow and shrink
+  the screen under the pointer dragging it, and it takes effect at once. `++
+  --ui-scale=1.5` on the command line uses a size for that run alone and saves
+  nothing. A screen drawn bigger than the window has room for still fits: a menu
+  taller than the window scrolls, the podium shrinks to it, the title leaves out
+  the mark over its name, and on a touch screen the pieces of the HUD keep off
+  each other, see 4.2.
 - **Accessibility**: screen shake on or off, flash reduction, aim assist
   strength from 0% to 100% of the default and never above it, per player, the
   aim guide on or off, the disco lights on or off, the control hints on or off,
