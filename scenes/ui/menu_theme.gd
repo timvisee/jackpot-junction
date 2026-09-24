@@ -3,6 +3,8 @@ extends RefCounted
 ## Shared helpers for the menu screens: the screen itself, a title, rows of options, buttons, and
 ## the pane every panel in the game is cut from.
 
+## What is behind every menu screen.
+const BACKGROUND := Color("#1E1E24")
 ## The pane, GAME.md 8.3: a dark translucent card with room to breathe and a bar of color along
 ## the top of it. The joker detail pane was the first thing built this way and everything since
 ## has followed it, so the shape lives here rather than being written out again per screen.
@@ -30,7 +32,7 @@ static var _switch_off: ImageTexture
 
 static func background(parent: Control) -> void:
 	var back := ColorRect.new()
-	back.color = Color("#1E1E24")
+	back.color = BACKGROUND
 	back.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	parent.add_child(back)
 	parent.move_child(back, 0)

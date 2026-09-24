@@ -52,6 +52,9 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Joining shows the menu background while it waits.** "Connecting..." and "Starting
+  the match..." no longer sit over an empty world.
+
 - **The ready chime plays on your own machine.** Playing alone or hosting, readying
   up on the pad was silent; only players who joined a host heard it.
 

@@ -83,7 +83,11 @@ func _ready() -> void:
 			)
 			session.disconnected.connect(func() -> void: _fail("The host disconnected"))
 			session.refused.connect(_fail)
-			session.slot_assigned.connect(func(_index: int) -> void: _pane().visible = false)
+			session.slot_assigned.connect(
+				func(_index: int) -> void:
+					_pane().visible = false
+					_pane().backdrop = false
+			)
 			# When the match is over the host takes everybody back to the waiting room, GAME.md
 			# 9.6, and this machine goes with it.
 			session.back_to_room.connect(func() -> void: Game.go_to_waiting(config))
@@ -93,6 +97,9 @@ func _ready() -> void:
 				# Already through the door: the waiting room opened this connection. The host
 				# seats whoever asks once its arena is up, so this machine asks now that its own
 				# end is listening for the answer.
+				# Nothing is built until the host has seated this machine, so the words stand on
+				# the menus' background rather than on an empty world.
+				_pane().backdrop = true
 				_show_status("Starting the match...")
 				session.ready_for_seat()
 			else:
@@ -100,6 +107,7 @@ func _ready() -> void:
 				if error != OK:
 					_fail("Could not connect: %s" % error_string(error))
 				else:
+					_pane().backdrop = true
 					_show_status("Connecting to %s:%d..." % [config.address, config.port])
 		_:
 			await _put_the_room_up()

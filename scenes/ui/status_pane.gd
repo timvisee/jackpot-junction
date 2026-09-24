@@ -9,8 +9,17 @@ const LAYER := 30
 ## How long a room that has failed stays up to be read before it goes back to the menu.
 const RETURN_DELAY := 2.5
 
+## Whether the pane stands on the menus' background rather than over the room: for what is said
+## before there is any room to stand over, such as a client waiting for the host to seat it.
+var backdrop := false:
+	set(on):
+		backdrop = on
+		if _backdrop != null:
+			_backdrop.visible = on
+
 var _panel: PanelContainer
 var _label: Label
+var _backdrop: ColorRect
 
 
 ## A pane over [param parent], empty and hidden until it has something to say.
@@ -52,6 +61,12 @@ func text() -> String:
 
 
 func _build() -> void:
+	_backdrop = ColorRect.new()
+	_backdrop.color = MenuTheme.BACKGROUND
+	_backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_backdrop.visible = backdrop
+	add_child(_backdrop)
 	_panel = PanelContainer.new()
 	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
