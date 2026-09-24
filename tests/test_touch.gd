@@ -506,3 +506,34 @@ func test_the_pick_and_the_hand_are_read_apart() -> void:
 	assert_bool(kart.menu_open).is_true()
 	assert_int(kart.menu_index).is_equal(1)
 	assert_int(offer.selected).is_equal(2)
+
+
+## Whichever of the pick and the hand was touched last is drawn over the other, so the pane being
+## read is never under the other's cards; a pick coming up comes up in front, and without one both
+## go back to where the HUD put them.
+func test_the_last_touched_of_the_pick_and_the_hand_is_on_top() -> void:
+	var controls := await _driving(["hair_trigger", "rubber_bumpers"])
+	var hand: JokerHand = controls.match_node.hud._hands[0]
+	var picker: JokerPicker = controls.match_node.hud._pickers[0]
+	await _runner.simulate_frames(20, 17)
+	assert_int(hand.z_index).is_equal(0)
+	assert_int(picker.z_index).is_equal(0)
+	var offer := await _pick(controls)
+	assert_str(String(controls.front())).is_equal("pick")
+	assert_int(picker.z_index).is_greater(hand.z_index)
+	# Into the hand: the hand and its pane come over the pick, and stay there while kept open.
+	_tap(controls, 0, _hand_card(hand, 1))
+	await _runner.simulate_frames(2, 17)
+	assert_str(String(controls.front())).is_equal("hand")
+	assert_int(hand.z_index).is_greater(picker.z_index)
+	assert_bool(controls.match_node.kart_of(0).menu_open).is_true()
+	# Back to the pick: it comes over the hand again.
+	_touch(controls, 1, _card_center(picker, 0), true)
+	await _runner.simulate_frames(2, 17)
+	assert_int(picker.z_index).is_greater(hand.z_index)
+	controls._pick_since -= 1.0
+	_touch(controls, 1, _card_center(picker, 0), false)
+	offer.skip()
+	await _runner.simulate_frames(3, 17)
+	assert_int(hand.z_index).is_equal(0)
+	assert_int(picker.z_index).is_equal(0)

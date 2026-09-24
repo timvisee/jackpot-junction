@@ -23,6 +23,8 @@ extends Control
 ## destroying it, until it is tapped again or the finger comes down on nothing. There is no button
 ## to open the hand with. The respawn pick is read the same way, except that a quick tap on one of
 ## its cards answers it with that card, and its own button under the pane skips it or goes back.
+## Whichever of the two was touched last is drawn over the other, so the pane being read is never
+## under the cards of the other: on a small screen the two meet.
 
 ## The round buttons: a dark disc with a light rim, lit up while a finger is on it.
 const FILL := Color(0.05, 0.05, 0.07, 0.45)
@@ -62,6 +64,11 @@ const STICK_KNOB := 52.0
 const STICK_HOME := Vector2(230.0, -230.0)
 const STICK_ZONE := Vector2(0.42, 0.62)
 const STICK_DEAD := 0.1
+## What the pick or the hand in front is lifted to, past anything either stacks inside itself: the
+## lifted card of a full hand, the pick's title over its cards.
+const FRONT := 20
+const HAND := &"hand"
+const PICK := &"pick"
 ## How long a finger can be on a card of the respawn pick and still have tapped it rather than
 ## held it, in seconds. Longer is reading it, and letting go after reading takes nothing.
 const TAP_SECONDS := 0.3
@@ -128,6 +135,10 @@ var _pane_action := &""
 ## The buttons those two fingers went down on, lit up while the finger is still on them.
 var _back_button: Button
 var _pane_button: Button
+## Which of the pick and the hand was touched last, and whether the pick was up last frame: a pick
+## coming up comes up in front, being the thing on the screen that wants reading.
+var _front := PICK
+var _was_picking := false
 ## The finger on a card of the respawn pick, or -1, which card it went down on, when, and whether
 ## it has been along to another since, which is reading rather than tapping.
 var _pick_finger := -1
@@ -281,8 +292,36 @@ func _show_pinned() -> void:
 	TouchInput.joker_pinned = _pinned >= 0
 
 
-## A card kept open closes when the hand changes under it, and when the respawn pick comes up
-## over it, which has the middle of the screen and the player's attention.
+## The pick and the hand in the order they were last touched, the last on top. Without a pick
+## up there is nothing for the hand to be under, and both go back to where the HUD put them.
+func _stack_the_jokers() -> void:
+	var slot := _slot()
+	if slot == null or get_parent() == null:
+		return
+	var hand := get_parent().get_node_or_null("Hand%d" % slot.index) as Control
+	var picker := get_parent().get_node_or_null("Picker%d" % slot.index) as Control
+	if hand == null or picker == null:
+		return
+	var picking := picker.visible
+	if picking and not _was_picking:
+		_front = PICK
+		# A card of the hand left open closes as a pick comes up; one opened over it stays.
+		if _pinned >= 0:
+			_unpin()
+			_show_pinned()
+	_was_picking = picking
+	var hand_first := picking and _front == HAND
+	hand.z_index = FRONT if hand_first else 0
+	picker.z_index = FRONT if picking and not hand_first else 0
+
+
+## Which of the pick and the hand is drawn over the other just now.
+func front() -> StringName:
+	return _front if _was_picking else &""
+
+
+## A card kept open closes when the hand changes under it. The respawn pick coming up closes it
+## too, see [method _stack_the_jokers].
 func _check_pinned() -> void:
 	if _pinned < 0:
 		return
@@ -290,7 +329,7 @@ func _check_pinned() -> void:
 	var gone := kart == null or _pinned >= kart.jokers.count()
 	if not gone and kart.jokers.jokers[_pinned].id != _pinned_id:
 		gone = true
-	if gone or _picker() != null:
+	if gone:
 		_unpin()
 		_show_pinned()
 
@@ -308,6 +347,7 @@ func _process(_delta: float) -> void:
 	if shut and (not _fingers.is_empty() or held):
 		_let_go()
 	_check_pinned()
+	_stack_the_jokers()
 	# Again every frame, not only as fingers move: the lamps going green under a thumb already on
 	# the gas is the kart setting off.
 	_publish()
@@ -366,6 +406,8 @@ func _down_on_pick(finger: int, at: Vector2) -> bool:
 	if picker == null:
 		return false
 	var picked := _card_in(picker, at) if _pick_finger < 0 else -1
+	if picked >= 0 or (_back_finger < 0 and _on_back(picker, at)):
+		_front = PICK
 	if picked >= 0:
 		_pick_finger = finger
 		_pick_card = picked
@@ -386,6 +428,7 @@ func _down_on_pane(finger: int, at: Vector2) -> bool:
 	var action := _pane_button_at(at) if _pane_finger < 0 else &""
 	if action == &"":
 		return false
+	_front = HAND
 	_pane_finger = finger
 	_pane_action = action
 	_pane_button = _hand().touch_buttons()[action]
@@ -399,6 +442,7 @@ func _down_on_hand(finger: int, at: Vector2) -> bool:
 	var card := _card_in(hand, at) if hand != null and _inspect_finger < 0 else -1
 	if card < 0:
 		return false
+	_front = HAND
 	_inspect_finger = finger
 	_inspect_card = card
 	_inspect_since = _now()

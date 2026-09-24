@@ -715,7 +715,7 @@ nothing at all; the stick and the driving buttons leave it be, so the kart can b
 the card is read. The pane says which of those it is: a card only held says how to keep it open,
 and one kept open how to close it. A kart waiting to come back can keep a card open to read it
 but gets neither button, as on a keyboard. A card kept open closes when the hand changes under
-it and when the respawn pick comes up. Either way the other thumb stays on the stick and steers
+it and when a respawn pick comes up. Either way the other thumb stays on the stick and steers
 the kart rather than walking the cursor off the card. There is no button to open the hand with,
 so none is drawn beside it. The card a finger rests on goes over the wire with the rest of a
 client's controls, as one more field at the end that a client from before it never sends, and a
@@ -727,13 +727,17 @@ while a quick tap of under 0.3 s takes the card tapped, or destroys it on the de
 pick's usual wait before it can be answered holds for a tap as it does for a key. The pick and
 the hand under it answer their own fingers: reading a card of the pick leaves the hand shut, and
 reading the hand leaves the pick's cursor where it was. The card of the pick a finger rests on
-stays on this machine; only a tap goes over the wire, as the number key. The pane says "Tap a
-card to take it, hold it to read it" in place of naming buttons, and a button under it skips the
-pick, or goes back from the destroying to the choosing; keeping one of last map's has nothing to
-skip to and no button. That button and the drop and destroy buttons of the hand are pressed by
-the touch controls rather than the mouse, so there is no pointer to light them up: while a
-finger is on one it wears the pressed look with the gold edge, as every other button does under
-the cursor, and loses it if the finger slides off.
+stays on this machine; only a tap goes over the wire, as the number key. Whichever of the two
+was touched last is drawn over the other, pane and all, so the description being read is never
+under the other's cards, which on a small screen they meet. A pick coming up comes up in front,
+being the thing on the screen that wants reading, and closes a card of the hand left open; one
+opened over the pick stays open. The pane says "Tap a card to take it, hold it to read it" in
+place of naming buttons, and a button under it skips the pick, or goes back from the destroying
+to the choosing; keeping one of last map's has nothing to skip to and no button. That button and
+the drop and destroy buttons of the hand are pressed by the touch controls rather than the
+mouse, so there is no pointer to light them up: while a finger is on one it wears the pressed
+look with the gold edge, as every other button does under the cursor, and loses it if the finger
+slides off.
 
 ### 4.3 Trails
 
