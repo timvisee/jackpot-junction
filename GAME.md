@@ -724,7 +724,14 @@ the right-hand side, which is the slider's and the item button's, and the kill f
 them and stops short of the buttons and the slider, dropping its oldest lines. The hand of
 jokers keeps to the stretch between the stick's ring and the nearest button or the slider,
 shrinking its cards when that is narrower than the hand, and the respawn pick moves up, and
-shrinks its own cards a little if it has to, to keep its button above the hand.
+shrinks its own cards a little if it has to, to keep its button above the hand. A phone is drawn
+big so its buttons can be pressed, see the UI scale of 8.5, and what is only read does not need
+the size: on a touch screen the player's corner, the standings and the kill feed are drawn at
+three quarters of the rest of the UI, each shrunk toward the corner or edge it hangs from, and
+the round buttons, the slider and the stick are see-through, so the arena under a thumb is still
+there to be seen. The hand of jokers is tucked into the bottom edge while none of its cards is
+being read, smaller and half below the edge, and comes up to its full size as a card is held or
+kept open.
 
 The slider is one of two ways to drive, and the settings' Controls, first there on a touch
 screen, have the other: Touch driving, Slider or Buttons, put up at once, a match under way or

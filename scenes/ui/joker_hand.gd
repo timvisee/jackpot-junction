@@ -28,6 +28,11 @@ const CAP_SIZE := 18
 ## The least a hand shrinks to in its lane, and the room kept either side of it for the count.
 const NARROWEST := 0.55
 const COUNT_ROOM := 64.0
+## How big a tucked hand is against its full size, the least it is ever drawn at, and how much of
+## a card's height it is tucked below the bottom edge.
+const TUCKED := 0.6
+const TUCKED_LEAST := 0.4
+const TUCK := 0.45
 ## The drop and destroy buttons a touch screen puts on the pane of a card tapped to keep it open,
 ## GAME.md 4.2: how big they are.
 const TOUCH_BUTTON := Vector2(150.0, 46.0)
@@ -44,6 +49,10 @@ var avoid: Array[Rect2] = []
 ## the whole share. A hand wider than it shrinks to fit, down to [constant NARROWEST]: the touch
 ## screen's stick and buttons stand either side of it, GAME.md 4.2.
 var lane := Vector2.ZERO
+## Tucked into the bottom edge while no card of it is being read: smaller, and half below the edge,
+## rising to its full size as a card is held or kept open. The touch screen's, GAME.md 4.2, where
+## a hand of cards across the bottom of a phone is a hand of cards over the arena.
+var tucked := false
 
 var _cards: Array[JokerCard] = []
 var _ids: Array[StringName] = []
@@ -122,12 +131,15 @@ func _process(delta: float) -> void:
 		var full := JokerCard.SIZE.x * (1.0 + (1.0 - OVERLAP) * maxf(count - 1, 0.0))
 		var room := to - from - COUNT_ROOM * 2.0
 		factor = clampf(room / full, NARROWEST, factor)
+	var resting := tucked and picked < 0
+	if resting:
+		factor = maxf(factor * TUCKED, minf(TUCKED_LEAST, factor))
 	var card := JokerCard.SIZE * factor
 	var lift := LIFT * factor
 	var step := card.x * (1.0 - OVERLAP)
 	var hand_width := card.x + step * (count - 1)
 	var left := (from + to) * 0.5 - hand_width * 0.5
-	var bottom := size.y - MARGIN
+	var bottom := size.y - MARGIN + (card.y * TUCK if resting else 0.0)
 	var span := Rect2(left, bottom - card.y - lift - ARC, hand_width, card.y + lift + ARC)
 	for rect: Rect2 in avoid:
 		if rect.intersects(span):
@@ -149,7 +161,7 @@ func _process(delta: float) -> void:
 		var anchor := Vector2(left + step * i + card.x * 0.5, height)
 		if lifted:
 			picked_anchor = anchor
-		panel.scale = Vector2.ONE * factor
+		panel.scale = panel.scale.lerp(Vector2.ONE * factor, blend)
 		# The pivot is the card's bottom center, so scaling already happens about that point and the
 		# offset is not scaled again: scaled, a card smaller than its own size stood below its place
 		# and to the right of it, by as much as it had shrunk.

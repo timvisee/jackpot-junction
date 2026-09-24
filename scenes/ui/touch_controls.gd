@@ -29,10 +29,11 @@ extends Control
 ## picked out at a time: going to the hand leaves the pick with none and no pane, and going to the
 ## pick closes the hand.
 
-## The round buttons: a dark disc with a light rim, lit up while a finger is on it.
-const FILL := Color(0.05, 0.05, 0.07, 0.45)
+## The round buttons: a dark disc with a light rim, lit up while a finger is on it. See-through, so
+## the arena under a thumb is still there to be seen.
+const FILL := Color(0.05, 0.05, 0.07, 0.3)
 const FILL_DOWN := Color(1.0, 1.0, 1.0, 0.3)
-const RIM := Color(1.0, 1.0, 1.0, 0.55)
+const RIM := Color(1.0, 1.0, 1.0, 0.45)
 const INK := Color(1.0, 1.0, 1.0, 0.92)
 const RIM_WIDTH := 3.0
 const LABEL_SIZE := 22
@@ -85,6 +86,11 @@ const STICK_DEAD := 0.1
 ## top of the hand the respawn pick keeps, GAME.md 4.2.
 const LANE_GAP := 16.0
 const FLOOR_GAP := 10.0
+## How much smaller than the rest of the UI the pieces of the HUD that are only read are drawn on a
+## touch screen, GAME.md 4.2: the player's corner, the standings and the kill feed. A phone is
+## drawn big so that its buttons can be pressed; what is only looked at does not need the size,
+## and on a phone's short screen it was the arena it took the room from.
+const COMPACT := 0.75
 ## What the pick or the hand in front is lifted to, past anything either stacks inside itself: the
 ## lifted card of a full hand, the pick's title over its cards.
 const FRONT := 20
@@ -400,6 +406,8 @@ func _stack_the_jokers() -> void:
 	# And the hand between the stick and the buttons rather than under either, with the pick
 	# above it rather than over it, however big the UI scale makes them, GAME.md 8.5.
 	(hand as JokerHand).lane = _hand_lane()
+	# Tucked into the bottom edge until a card of it is being read, see [member JokerHand.tucked].
+	(hand as JokerHand).tucked = true
 	(picker as JokerPicker).floor_y = (hand as JokerHand).top() - FLOOR_GAP
 	var feed := get_parent().get_node_or_null("KillFeed") as KillFeed
 	if feed != null:
@@ -414,6 +422,26 @@ func _buttons_top() -> float:
 		var each := pad(id)
 		top = minf(top, each.center.y - each.radius * REACH)
 	return top
+
+
+## The player's corner, the standings and the kill feed, drawn [constant COMPACT] of their size,
+## each shrunk toward the corner or the edge it hangs from.
+func _compact_the_hud() -> void:
+	var slot := _slot()
+	var hud := get_parent()
+	if hud == null:
+		return
+	var names: Array[String] = ["Scoreboard", "KillFeed"]
+	if slot != null:
+		names.append("Block%d" % slot.index)
+	for named: String in names:
+		var piece := hud.get_node_or_null(named) as Control
+		if piece == null:
+			continue
+		piece.pivot_offset = Vector2(
+			piece.size.x * piece.anchor_left, piece.size.y * piece.anchor_top
+		)
+		piece.scale = Vector2.ONE * COMPACT
 
 
 ## The stretch of the bottom of the screen between the stick's ring and the nearest button.
@@ -475,6 +503,7 @@ func _process(_delta: float) -> void:
 		_let_go()
 	_check_pinned()
 	_stack_the_jokers()
+	_compact_the_hud()
 	# Again every frame, not only as fingers move: the lamps going green under a thumb already on
 	# the gas is the kart setting off.
 	_publish()

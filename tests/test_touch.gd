@@ -609,6 +609,7 @@ func test_the_touch_hud_keeps_its_pieces_apart() -> void:
 	# A narrow lane shrinks the hand rather than letting it spill out of it. The controls set the
 	# lane every frame, so they are held still while this one is tried.
 	controls.set_process(false)
+	hand.tucked = false
 	var middle := (lane.x + lane.y) * 0.5
 	hand.lane = Vector2(middle - 220.0, middle + 220.0)
 	await _runner.simulate_frames(20, 17)
@@ -795,3 +796,27 @@ func test_hints_name_the_buttons_on_the_screen() -> void:
 	TouchInput.enabled = false
 	var key: InputGlyph = auto_free(InputHint.glyph(InputActions.THROTTLE, true, ink, 15))
 	assert_str(key.caption).is_not_equal("GAS")
+
+
+## On a touch screen what is only read takes less of the arena: the player's corner, the standings
+## and the kill feed are drawn smaller than the rest of the UI, and the hand of jokers is tucked
+## into the bottom edge until one of its cards is being read, when it comes up to its full size.
+func test_the_touch_hud_gives_the_arena_room() -> void:
+	var controls := await _driving(["hair_trigger", "rubber_bumpers", "curve_ball"])
+	var hud := controls.match_node.hud
+	await _runner.simulate_frames(20, 17)
+	for named: String in ["Block0", "Scoreboard", "KillFeed"]:
+		var piece: Control = hud.get_node(named)
+		assert_float(piece.scale.x).is_equal(TouchControls.COMPACT)
+	var hand: JokerHand = hud._hands[0]
+	assert_bool(hand.tucked).is_true()
+	var card: JokerCard = hand._cards[1]
+	var tucked_scale := card.scale.x
+	var tucked_bottom := card.get_global_rect().end.y
+	assert_float(tucked_scale).is_less(1.0)
+	assert_float(tucked_bottom).is_greater(controls.size.y)
+	_touch(controls, 0, card.get_global_rect().get_center(), true)
+	await _runner.simulate_frames(30, 17)
+	assert_float(card.scale.x).is_greater(tucked_scale)
+	assert_float(card.get_global_rect().end.y).is_less_equal(controls.size.y)
+	_touch(controls, 0, card.get_global_rect().get_center(), false)
