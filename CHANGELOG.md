@@ -87,7 +87,7 @@ below, and hands the notes to the release workflow.
 - **Pick which joker to keep as the next map starts.** Under "Pick one to keep" the
   joker pick opens on the grid with the jokers you held, and the lamps wait for it.
 
-- **Out in Sudden Death, your corner says so.** It reads "waiting on other players"
+- **Out in Sudden Death, your corner says so.** It reads "waiting on players"
   instead of a respawn countdown that was never going to finish.
 
 - **Online maps start together.** The countdown waits until everybody has the map

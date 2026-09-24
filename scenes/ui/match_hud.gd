@@ -491,7 +491,7 @@ func _update_blocks() -> void:
 		elif match_node.state == Match.State.OVERTIME:
 			# Nobody comes back in sudden death, GAME.md 3.13, so a count would be a count to
 			# nothing: it stood still at whatever it had reached when the clock ran out.
-			pot.say("waiting on other players")
+			pot.say("waiting on players")
 		else:
 			pot.say("respawning %.1f" % maxf(slot.respawn_left, 0.0))
 		stats.text = "K %d  D %d" % [slot.kills, slot.deaths]

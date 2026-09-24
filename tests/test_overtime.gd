@@ -77,7 +77,7 @@ func test_a_player_out_in_overtime_is_told_to_wait_for_the_rest() -> void:
 	await _runner.simulate_frames(3, 17)
 	assert_bool(match_node.kart_of(0).alive).is_false()
 	assert_bool(pot._note.visible).is_true()
-	assert_str(pot._note.text).is_equal("waiting on other players")
+	assert_str(pot._note.text).is_equal("waiting on players")
 
 
 ## The last one left takes everything it is still carrying, and that ends it.

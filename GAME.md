@@ -490,8 +490,8 @@ there. It goes to sudden death instead, and the timer says OVERTIME rather than
 counting anything.
 
 - Nobody respawns. A kart that goes down in overtime is out, and is offered no
-  joker, because there is no respawn for it to be for. Their corner says they are
-  waiting on the other players rather than counting down to a respawn. They keep
+  joker, because there is no respawn for it to be for. Their corner says "waiting
+  on players" rather than counting down to a respawn. They keep
   their controls for the one thing left to do with them: reading their hand, see
   3.7.
 - A kart that dies after the whistle is offered no joker pick either. A bomb
