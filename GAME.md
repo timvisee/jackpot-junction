@@ -2615,7 +2615,8 @@ the rules, the run and the snapshots of the room the host is in, follows the hos
 to room as everybody does and is let in again in each, and the camera frames the karts as it
 does for anybody. Nobody waits for a watcher: not the ready pad, not the lamps of a map held
 for everybody still building it, and not a pause, which the room agrees without them. The line
-under the ready count says they are watching, since there is no seat for them to take.
+under the ready count says they are watching, in place of the one that says how to take a seat,
+since there is no seat for them to take.
 
 A window in the background keeps playing. A window the desktop has stopped
 drawing can hold the main loop up on the frame it is waiting to present, and on

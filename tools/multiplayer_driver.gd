@@ -417,6 +417,8 @@ func _watcher() -> void:
 	):
 		return
 	_check(session.local_slot == -1, "in the room with no seat")
+	await _frames(5)
+	_check(not room.ready_room._seat_hint.visible, "not told how to take a seat")
 	for round: int in [1, 2]:
 		if not await _until(
 			func() -> bool:

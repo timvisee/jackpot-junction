@@ -95,6 +95,8 @@ var _full_for := -1.0
 var _board: ReadyStand
 var _counter: Label
 var _hints: VBoxContainer
+## How to take a seat here, which is nothing to somebody only watching, GAME.md 10.3.
+var _seat_hint: Control
 var _online_hint: Label
 ## What the next match is, as the host last said it.
 var _plan: Label
@@ -253,6 +255,13 @@ func _on_match_planned(summary: String, choosing: bool) -> void:
 ##
 ## The room is the place both of those questions get asked, so it is the place they are answered.
 ## Anywhere else and a player has to leave the room to find out how to let their friend in.
+## The line that says how to take a seat, put away for a machine that is only watching, where
+## there is no seat to take, GAME.md 10.3.
+func hide_how_to_sit_down() -> void:
+	if _seat_hint != null:
+		_seat_hint.visible = false
+
+
 func say_how_to_join(online: String) -> void:
 	_online_hint.text = online
 	_online_hint.visible = not online.is_empty()
@@ -440,6 +449,7 @@ func _build_counter() -> void:
 	)
 	seat.alignment = BoxContainer.ALIGNMENT_CENTER
 	_hints.add_child(seat)
+	_seat_hint = seat
 	_online_hint = Label.new()
 	_online_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_online_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE

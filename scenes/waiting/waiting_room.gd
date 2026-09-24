@@ -137,7 +137,12 @@ func _join() -> void:
 	match_node.start_puppet()
 	if session.watching:
 		# Nobody here takes a seat, so the line that says how to has nothing to say.
-		session.watching_started.connect(func() -> void: ready_room_hint("You are watching"))
+		session.watching_started.connect(
+			func() -> void:
+				ready_room_hint("You are watching")
+				if ready_room != null:
+					ready_room.hide_how_to_sit_down()
+		)
 	if back:
 		# Asked for rather than waited for: the host seats whoever asks once its room is up, and
 		# this room is now up at this end to hear the answer.
