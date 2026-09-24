@@ -19,6 +19,11 @@ below, and hands the notes to the release workflow.
 - **A UI scale setting.** The menus and the HUD can be drawn from 75% to 200% of
   their size, and a phone or a tablet starts at 150%.
 
+### Changed
+
+- **Menu buttons are much quieter.** The tick of the cursor landing on a button and
+  the click of pressing it, both on every tap on a touch screen, are well down.
+
 ### Fixed
 
 - **Jokers sit where they should with three or four players on one screen.** Each

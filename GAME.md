@@ -2155,6 +2155,10 @@ for.
 - **Pits**: a tone dropping away as the floor goes from under a kart, pitched well
   down so it reads as going somewhere rather than arriving. What it lands on is the
   death sound, which follows on its own when the fall runs out.
+- **Menus**: a button ticks as the cursor lands on it and clicks as it is pressed,
+  both well under everything else, at -26 and -20 dB. On a touch screen a tap is
+  both at once, and at the level they used to be a tick and a click on every tap
+  was noise over the music rather than an answer.
 
 ### 8.5 Settings and accessibility
 

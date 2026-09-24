@@ -18,6 +18,10 @@ const BUTTON_BG := Color(0.12, 0.12, 0.15, 0.92)
 const BUTTON_HOVER := Color(0.17, 0.17, 0.21, 0.96)
 const BUTTON_DOWN := Color(0.09, 0.09, 0.11, 0.98)
 const BUTTON_RADIUS := 8
+## How loud a button is as it is pressed and as the cursor lands on it, GAME.md 8.4: well under
+## everything else, since on a touch screen a tap is both at once.
+const CLICK_DB := -20.0
+const MOVE_DB := -26.0
 ## The edge a button wears when nothing is on it: enough to say it is a button and not enough
 ## to compete with the one that has the cursor.
 const BUTTON_RIM := Color(1.0, 1.0, 1.0, 0.1)
@@ -105,8 +109,8 @@ static func button(text: String, size: int = Type.LARGE) -> Button:
 	control.add_theme_color_override("font_hover_color", Color.WHITE)
 	control.add_theme_color_override("font_focus_color", Color.WHITE)
 	control.custom_minimum_size = Vector2(320.0, 56.0)
-	control.pressed.connect(func() -> void: Audio.play_sfx(&"ui_click", -6.0, 0.0))
-	control.focus_entered.connect(func() -> void: Audio.play_sfx(&"ui_move", -12.0, 0.0))
+	control.pressed.connect(func() -> void: Audio.play_sfx(&"ui_click", CLICK_DB, 0.0))
+	control.focus_entered.connect(func() -> void: Audio.play_sfx(&"ui_move", MOVE_DB, 0.0))
 	return control
 
 
