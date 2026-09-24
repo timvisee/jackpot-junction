@@ -647,7 +647,8 @@ func test_the_slider_clicks_from_zone_to_zone() -> void:
 
 
 ## The slider says what it does: its nitro is grayed while the tank is short of a burn, though it
-## still holds the gas, and its brake says reverse on a kart standing still or rolling back.
+## still holds the gas, its brake says reverse on a kart standing still or rolling back, and its
+## drift is grayed there.
 func test_the_slider_says_what_it_does() -> void:
 	var controls := await _driving()
 	var kart := controls.match_node.kart_of(0)
@@ -665,6 +666,12 @@ func test_the_slider_says_what_it_does() -> void:
 	kart.motor.forward_speed = 6.0
 	assert_str(controls.zone_word(TouchControls.BRAKE)).is_equal("BRAKE")
 	assert_str(controls.zone_word(TouchControls.GAS)).is_equal("GAS")
+	# And drift is grayed on a kart standing still, there being nothing to slide.
+	assert_bool(controls.zone_ready(TouchControls.DRIFT)).is_true()
+	kart.motor.forward_speed = 0.0
+	assert_bool(controls.zone_ready(TouchControls.DRIFT)).is_false()
+	assert_bool(controls.zone_ready(TouchControls.GAS)).is_true()
+	assert_bool(controls.zone_ready(TouchControls.BRAKE)).is_true()
 
 
 ## The item button is under fire, and far enough under it that a thumb between the two presses one

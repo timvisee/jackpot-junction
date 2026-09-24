@@ -77,7 +77,8 @@ const ZONE_LINE := Color(1.0, 1.0, 1.0, 0.22)
 const CLICK_MS := 10
 const CLICK_STRENGTH := 0.3
 ## Below this speed forward the brake is the reverse, and says so: a kart standing still or rolling
-## back goes backwards on it, and one that is going forward stops.
+## back goes backwards on it, and one that is going forward stops. And the drift is grayed, there
+## being nothing to slide.
 const STILL_SPEED := 0.5
 ## The stick: how big its ring is, where it waits from the bottom left corner, how far its knob
 ## goes to reach full lock, and how far from the middle a thumb has to be before it steers at all.
@@ -441,12 +442,29 @@ func zone_at(y: float) -> StringName:
 ## What [param zone] of the slider says on it. The brake says reverse while that is what it does,
 ## on a kart standing still or rolling back, and shortens it where the whole word does not fit.
 func zone_word(zone: StringName) -> String:
-	var kart := _kart()
-	if zone != BRAKE or kart == null or kart.motor.forward_speed >= STILL_SPEED:
+	if zone != BRAKE or not standing_still():
 		return ZONE_WORDS[zone]
 	var room := zone_rect(zone).size.x - TANK_INSET
 	var wide := Type.STRONG.get_string_size("REVERSE", HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
 	return "REVERSE" if wide <= room else "REV"
+
+
+## Whether the kart here is standing still or rolling back, where the brake is the reverse and
+## there is no drifting to be had.
+func standing_still() -> bool:
+	var kart := _kart()
+	return kart != null and kart.motor.forward_speed < STILL_SPEED
+
+
+## Whether a zone of the slider is drawn as live: nitro while there is a burn in the tank, drift
+## while the kart is moving, and the other two always. A grayed one still does what it does.
+func zone_ready(zone: StringName) -> bool:
+	match zone:
+		NITRO:
+			return nitro_ready()
+		DRIFT:
+			return not standing_still()
+	return true
 
 
 ## Whether there is nitro enough to burn: a burn under way, or a tank past what it takes to start
@@ -939,7 +957,7 @@ func _draw_slider(strength: float, kart: Kart) -> void:
 	for i: int in ZONES.size():
 		var zone := ZONES[i]
 		var area := zone_rect(zone)
-		var dim := strength if zone != NITRO or nitro_ready() else strength * GRAYED
+		var dim := strength if zone_ready(zone) else strength * GRAYED
 		var ink := INK if dim >= 1.0 else GRAY_INK
 		if zone == on:
 			var lit := StyleBoxFlat.new()
