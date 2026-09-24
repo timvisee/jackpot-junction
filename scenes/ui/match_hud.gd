@@ -477,7 +477,7 @@ func _update_scoreboard() -> void:
 
 func _update_blocks() -> void:
 	var bottom_blocks: Array[Rect2] = []
-	var feed_top := 16.0
+	var feed_top := TouchControls.feed_top(_scoreboard) if TouchInput.enabled else 16.0
 	for index: int in _blocks:
 		var corner: int = _blocks[index]["corner"]
 		var rect := (_blocks[index]["box"] as Control).get_global_rect()

@@ -66,6 +66,10 @@ const STICK_KNOB := 52.0
 const STICK_HOME := Vector2(230.0, -230.0)
 const STICK_ZONE := Vector2(0.42, 0.62)
 const STICK_DEAD := 0.1
+## How far in from the stick and the buttons the hand of jokers keeps, and the least room over the
+## top of the hand the respawn pick keeps, GAME.md 4.2.
+const LANE_GAP := 16.0
+const FLOOR_GAP := 10.0
 ## What the pick or the hand in front is lifted to, past anything either stacks inside itself: the
 ## lifted card of a full hand, the pick's title over its cards.
 const FRONT := 20
@@ -149,6 +153,19 @@ var _pick_since := 0.0
 var _pick_moved := false
 ## The finger on the pick's skip or back button, or -1.
 var _back_finger := -1
+
+
+## Where the top right corner is clear from, under the menu button, for the board and the feed
+## that hang from it on a touch screen.
+static func below_menu() -> float:
+	return MENU_INSET.y + MENU_RADIUS + 18.0
+
+
+## Where the kill feed starts on a touch screen: under the board, which is under the menu button.
+static func feed_top(board: Control) -> float:
+	if board == null or not board.visible:
+		return below_menu()
+	return board.get_global_rect().end.y + 12.0
 
 
 ## Hangs the controls over [param hud].
@@ -336,6 +353,32 @@ func _stack_the_jokers() -> void:
 	hand.z_index = FRONT if hand_first else 0
 	picker.z_index = FRONT if picking and not hand_first else 0
 	(picker as JokerPicker).quiet = picking and _pick_quiet
+	# And the hand between the stick and the buttons rather than under either, with the pick
+	# above it rather than over it, however big the UI scale makes them, GAME.md 8.5.
+	(hand as JokerHand).lane = _hand_lane()
+	(picker as JokerPicker).floor_y = (hand as JokerHand).top() - FLOOR_GAP
+	var feed := get_parent().get_node_or_null("KillFeed") as KillFeed
+	if feed != null:
+		var board := get_parent().get_node_or_null("Scoreboard") as Control
+		feed.room = maxf(_buttons_top() - LANE_GAP - feed_top(board), 1.0)
+
+
+## Where the highest of the driving buttons reaches up to.
+func _buttons_top() -> float:
+	var top := size.y
+	for id: StringName in DRIVING:
+		var each := pad(id)
+		top = minf(top, each.center.y - each.radius * REACH)
+	return top
+
+
+## The stretch of the bottom of the screen between the stick's ring and the nearest button.
+func _hand_lane() -> Vector2:
+	var right := size.x
+	for id: StringName in DRIVING:
+		var each := pad(id)
+		right = minf(right, each.center.x - each.radius * REACH)
+	return Vector2(STICK_HOME.x + STICK_RADIUS + LANE_GAP, right - LANE_GAP)
 
 
 ## Which of the pick and the hand is drawn over the other just now.

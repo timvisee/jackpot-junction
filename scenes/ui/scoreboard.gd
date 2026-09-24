@@ -34,6 +34,14 @@ func _ready() -> void:
 	grow_vertical = Control.GROW_DIRECTION_BOTH
 	grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	offset_right = -16.0
+	# The middle of the right-hand side is the drift and nitro buttons' on a touch screen, GAME.md
+	# 4.2, so there the board hangs from the top right corner instead, under the menu button.
+	if TouchInput.enabled:
+		set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+		grow_vertical = Control.GROW_DIRECTION_END
+		grow_horizontal = Control.GROW_DIRECTION_BEGIN
+		offset_right = -16.0
+		offset_top = TouchControls.below_menu()
 	add_theme_constant_override("separation", 4)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 

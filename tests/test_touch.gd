@@ -570,3 +570,38 @@ func test_only_one_of_the_pick_and_the_hand_has_a_card_out() -> void:
 	_touch(controls, 1, _card_center(picker, 2), false)
 	await _runner.simulate_frames(3, 17)
 	assert_bool(offer.is_done()).is_false()
+
+
+## However big the UI is drawn, the touch HUD keeps its pieces off each other: the board hangs
+## under the menu button, the hand stays between the stick and the buttons, shrinking to fit a
+## narrow lane, the pick's button stays above the hand, and the feed stops short of the buttons.
+func test_the_touch_hud_keeps_its_pieces_apart() -> void:
+	var controls := await _driving(["hair_trigger", "rubber_bumpers", "curve_ball", "odometer"])
+	var hud := controls.match_node.hud
+	var board: Control = hud.get_node("Scoreboard")
+	assert_float(board.offset_top).is_equal(TouchControls.below_menu())
+	assert_float(board.anchor_top).is_equal(0.0)
+	var hand: JokerHand = hud._hands[0]
+	await _runner.simulate_frames(20, 17)
+	var lane := hand.lane
+	assert_float(lane.x).is_greater(TouchControls.STICK_HOME.x + TouchControls.STICK_RADIUS)
+	for card: JokerCard in hand._cards:
+		var rect := card.get_global_rect()
+		assert_float(rect.position.x).is_greater_equal(lane.x - 1.0)
+		assert_float(rect.end.x).is_less_equal(lane.y + 1.0)
+	# A narrow lane shrinks the hand rather than letting it spill out of it. The controls set the
+	# lane every frame, so they are held still while this one is tried.
+	controls.set_process(false)
+	var middle := (lane.x + lane.y) * 0.5
+	hand.lane = Vector2(middle - 220.0, middle + 220.0)
+	await _runner.simulate_frames(20, 17)
+	assert_float((hand._cards[0] as JokerCard).scale.x).is_less(1.0)
+	controls.set_process(true)
+	var feed: KillFeed = hud.get_node("KillFeed")
+	assert_float(feed.room).is_greater(0.0)
+	assert_float(TouchControls.feed_top(board) + feed.room).is_less(controls._buttons_top())
+	await _pick(controls)
+	var picker: JokerPicker = hud._pickers[0]
+	await _runner.simulate_frames(4, 17)
+	var skip := picker.touch_button()
+	assert_float(skip.get_global_rect().end.y).is_less_equal(hand.top())

@@ -17,6 +17,11 @@ below, and hands the notes to the release workflow.
   brake, fire, drift, nitro and your item drive the kart. Hold a joker to read it,
   tap it to drop or destroy it, and tap one in the respawn pick to take it.
 
+### Fixed
+
+- **Jokers sit where they should with three or four players on one screen.** Each
+  hand of cards stood a little below its place and off to the right of it.
+
 ## [0.5.2] - 2026-09-24
 
 A Grand Prix now ends in a party on a podium, hushed until the music drops into

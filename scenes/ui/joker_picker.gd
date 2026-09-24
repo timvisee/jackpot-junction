@@ -31,6 +31,11 @@ const LONE_BASELINE := 0.52
 ## How thick the bars of the destroy cross are, and how far they reach over the card.
 const CROSS_WIDTH := 11.0
 const CROSS_REACH := 0.82
+## The least room kept over the title for the timer at the top of the screen, when the pick moves
+## up to keep clear of the hand, see [member floor_y], and the least its cards shrink to when
+## moving up is not enough on its own.
+const TOP_ROOM := 64.0
+const NARROWEST := 0.7
 
 ## This picker takes share [member column] of [member columns] of the screen.
 var column := 0
@@ -41,6 +46,10 @@ var keyboard := true
 ## touch screen, GAME.md 4.2: the pane being read is the hand's, and one card of each lifted at
 ## once is two things asking to be read. The title and the button under the row stay.
 var quiet := false
+## How far down the pick may reach, 0 for the bottom of its share: the top of the hand of cards
+## under it on a touch screen, where it has a button under its pane, GAME.md 4.2. Alone on the
+## screen it moves up to stay above that, as far as the top of the screen lets it.
+var floor_y := 0.0
 
 var _title: Label
 var _cards: Array[JokerCard] = []
@@ -164,13 +173,21 @@ func _layout(picked: int) -> void:
 	var destroying := _stage == JokerOffer.Stage.REPLACING
 	var shared := columns > 1
 	var factor := SHARED_SCALE if shared else 1.0
+	var baseline := size.y * (SHARED_BASELINE if shared else LONE_BASELINE)
+	var detail := _detail.get_combined_minimum_size()
+	var button := _touch_button.get_combined_minimum_size()
+	if not shared and floor_y > 0.0:
+		var under := 24.0 + detail.y + (18.0 + button.y if _touch_button.visible else 0.0)
+		var tall := floor_y - under - 86.0 - TOP_ROOM
+		factor = clampf(tall / JokerCard.SIZE.y, NARROWEST, factor)
+		var highest := JokerCard.SIZE.y * factor + 86.0 + TOP_ROOM
+		baseline = clampf(floor_y - under, minf(highest, baseline), baseline)
 	var card_size := JokerCard.SIZE * factor
 	var gap := GAP * factor
 	var width := size.x / columns
 	var center := width * (column + 0.5)
 	var row := card_size.x * count + gap * maxf(count - 1, 0.0)
 	var left := center - row * 0.5
-	var baseline := size.y * (SHARED_BASELINE if shared else LONE_BASELINE)
 	for i: int in count:
 		var card := _cards[i]
 		var chosen := i == picked
@@ -195,7 +212,6 @@ func _layout(picked: int) -> void:
 		_cross.scale = doomed.scale
 		_cross.position = doomed.position
 		_cross.z_index = 2
-	var detail := _detail.get_combined_minimum_size()
 	_detail.size = detail
 	# Sharing, everything stacks upward off the bottom of the column; alone, the pane hangs
 	# under the cards where there is room for it.
@@ -205,7 +221,6 @@ func _layout(picked: int) -> void:
 	var title_y := pane_y - 52.0 if shared else baseline - card_size.y - 86.0
 	_title.position = Vector2(center - width * 0.5, title_y)
 	if _touch_button.visible:
-		var button := _touch_button.get_combined_minimum_size()
 		_touch_button.size = button
 		var below := pane_y + detail.y + 18.0
 		_touch_button.position = Vector2(center - button.x * 0.5, below)

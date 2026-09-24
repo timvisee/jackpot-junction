@@ -19,6 +19,11 @@ const VERBS: Dictionary[StringName, String] = {
 	&"pit": "shoved",
 }
 
+## How tall the feed may grow, or 0 for as tall as its rows make it. On a touch screen it hangs over
+## the corner the driving buttons are in and stops short of them, GAME.md 4.2, dropping its oldest
+## lines first.
+var room := 0.0
+
 ## Row labels newest first, each with the seconds it has been up.
 var _rows: Array[RichTextLabel] = []
 var _ages: PackedFloat32Array = []
@@ -82,6 +87,8 @@ func _push(label: RichTextLabel, line: String) -> void:
 
 
 func _process(delta: float) -> void:
+	while room > 0.0 and _rows.size() > 1 and get_combined_minimum_size().y > room:
+		_drop(_rows.size() - 1)
 	for i: int in range(_rows.size() - 1, -1, -1):
 		_ages[i] += delta
 		var over := _ages[i] - HOLD

@@ -25,6 +25,9 @@ const TILT_DEG := 6.0
 const DIMMED := Color(0.55, 0.55, 0.6, 0.9)
 ## How big the picture of the joker-menu button beside the hand is drawn.
 const CAP_SIZE := 18
+## The least a hand shrinks to in its lane, and the room kept either side of it for the count.
+const NARROWEST := 0.55
+const COUNT_ROOM := 64.0
 ## The drop and destroy buttons a touch screen puts on the pane of a card tapped to keep it open,
 ## GAME.md 4.2: how big they are.
 const TOUCH_BUTTON := Vector2(150.0, 46.0)
@@ -37,6 +40,10 @@ var columns := 1
 var keyboard := true
 ## Screen rectangles the hand stays clear of, such as a HUD block in a bottom corner.
 var avoid: Array[Rect2] = []
+## The stretch of the bottom edge the hand keeps to, from and to, inside its own share; zero for
+## the whole share. A hand wider than it shrinks to fit, down to [constant NARROWEST]: the touch
+## screen's stick and buttons stand either side of it, GAME.md 4.2.
+var lane := Vector2.ZERO
 
 var _cards: Array[JokerCard] = []
 var _ids: Array[StringName] = []
@@ -49,6 +56,8 @@ var _count_label: Label
 ## and its two buttons while it has them.
 var _touch_shown := ""
 var _touch_buttons: Dictionary[StringName, Button] = {}
+## Where the tops of the cards are, at rest, for what has to stay above them.
+var _top := 0.0
 
 
 func _ready() -> void:
@@ -63,6 +72,11 @@ func _ready() -> void:
 
 func card_count() -> int:
 	return _cards.size()
+
+
+## Where the tops of the cards are while none is lifted, or the bottom of the screen with none.
+func top() -> float:
+	return _top if not _cards.is_empty() else size.y
 
 
 ## The card under [param point], in the hand's own coordinates, or -1. The one on top wins where
@@ -100,11 +114,19 @@ func _process(delta: float) -> void:
 	var count := _cards.size()
 	var picked := selected()
 	var factor := 1.0 if columns <= 2 else 0.8
+	var from := size.x * column / columns
+	var to := size.x * (column + 1) / columns
+	if lane != Vector2.ZERO:
+		from = maxf(from, lane.x)
+		to = minf(to, lane.y)
+		var full := JokerCard.SIZE.x * (1.0 + (1.0 - OVERLAP) * maxf(count - 1, 0.0))
+		var room := to - from - COUNT_ROOM * 2.0
+		factor = clampf(room / full, NARROWEST, factor)
 	var card := JokerCard.SIZE * factor
 	var lift := LIFT * factor
 	var step := card.x * (1.0 - OVERLAP)
 	var hand_width := card.x + step * (count - 1)
-	var left := size.x * (column + 0.5) / columns - hand_width * 0.5
+	var left := (from + to) * 0.5 - hand_width * 0.5
 	var bottom := size.y - MARGIN
 	var span := Rect2(left, bottom - card.y - lift - ARC, hand_width, card.y + lift + ARC)
 	for rect: Rect2 in avoid:
@@ -112,6 +134,10 @@ func _process(delta: float) -> void:
 			bottom = minf(bottom, rect.position.y - 8.0)
 	# One or two cards stay flat; the fan comes in as the hand fills up.
 	var fan := clampf(float(count - 2) / 3.0, 0.0, 1.0)
+	# The highest of the fan is its middle, raised by the arc, or the inner corner of a card
+	# tipped at its end, whichever is the higher.
+	var tipped := card.x * sin(deg_to_rad(TILT_DEG)) * fan
+	_top = bottom - card.y - maxf(ARC * factor * fan, tipped) if count > 0 else size.y
 	var blend := 1.0 - exp(-GLIDE * delta)
 	var picked_anchor := Vector2.ZERO
 	for i: int in count:
@@ -124,7 +150,10 @@ func _process(delta: float) -> void:
 		if lifted:
 			picked_anchor = anchor
 		panel.scale = Vector2.ONE * factor
-		panel.position = panel.position.lerp(anchor - panel.pivot_offset * factor, blend)
+		# The pivot is the card's bottom center, so scaling already happens about that point and the
+		# offset is not scaled again: scaled, a card smaller than its own size stood below its place
+		# and to the right of it, by as much as it had shrunk.
+		panel.position = panel.position.lerp(anchor - panel.pivot_offset, blend)
 		# The lifted card keeps its place in the fan rather than straightening up. The cards
 		# turn about their bottom corner, so un-tilting one swings its body sideways, and a card
 		# picked out of the hand slid left or right as well as rising.
