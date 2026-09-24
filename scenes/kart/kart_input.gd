@@ -29,6 +29,10 @@ var joker_destroy_pressed := false
 ## The card a finger is resting on, on a touch screen, GAME.md 4.2, or -1. It holds the hand open on
 ## that card, and the steering stays the kart's rather than walking the cursor off it.
 var joker_inspect := -1
+## The card of the respawn pick a finger is resting on, or -1: the pick's cursor goes there and
+## nothing is answered. Kept apart from [member joker_inspect], so reading the pick leaves the hand
+## shut, and the other way round.
+var pick_inspect := -1
 
 
 func poll(_delta: float) -> void:
@@ -65,3 +69,4 @@ func clear() -> void:
 	joker_drop_pressed = false
 	joker_destroy_pressed = false
 	joker_inspect = -1
+	pick_inspect = -1

@@ -724,13 +724,16 @@ drop or a destroy goes with the card it was for.
 The respawn pick of 3.7 is read the same way, and answered with a tap: a finger held on one of
 its cards moves the cursor there and shows what it does, and nothing is taken when it comes up,
 while a quick tap of under 0.3 s takes the card tapped, or destroys it on the destroy step. The
-pick's usual wait before it can be answered holds for a tap as it does for a key. The pane says
-"Tap a card to take it, hold it to read it" in place of naming buttons, and a button under it
-skips the pick, or goes back from the destroying to the choosing; keeping one of last map's has
-nothing to skip to and no button. That button and the drop and destroy buttons of the hand are
-pressed by the touch controls rather than the mouse, so there is no pointer to light them up:
-while a finger is on one it wears the pressed look with the gold edge, as every other button
-does under the cursor, and loses it if the finger slides off.
+pick's usual wait before it can be answered holds for a tap as it does for a key. The pick and
+the hand under it answer their own fingers: reading a card of the pick leaves the hand shut, and
+reading the hand leaves the pick's cursor where it was. The card of the pick a finger rests on
+stays on this machine; only a tap goes over the wire, as the number key. The pane says "Tap a
+card to take it, hold it to read it" in place of naming buttons, and a button under it skips the
+pick, or goes back from the destroying to the choosing; keeping one of last map's has nothing to
+skip to and no button. That button and the drop and destroy buttons of the hand are pressed by
+the touch controls rather than the mouse, so there is no pointer to light them up: while a
+finger is on one it wears the pressed look with the gold edge, as every other button does under
+the cursor, and loses it if the finger slides off.
 
 ### 4.3 Trails
 

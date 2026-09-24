@@ -20,6 +20,9 @@ static var use_item := false
 ## it open, which [member joker_pinned] says.
 static var joker_inspect := -1
 static var joker_pinned := false
+## Which card of the respawn pick a finger is resting on, or -1: the pick's own, apart from the
+## hand's, so reading one leaves the other alone.
+static var pick_inspect := -1
 ## A card of the respawn pick tapped, or -1, and whether its skip or back button was: each is
 ## answered once, by the first look at it, see [method take_tap] and [method take_back].
 static var _tapped := -1
@@ -55,6 +58,7 @@ static func release() -> void:
 	use_item = false
 	joker_inspect = -1
 	joker_pinned = false
+	pick_inspect = -1
 	_tapped = -1
 	_back = false
 	_drop_card = -1

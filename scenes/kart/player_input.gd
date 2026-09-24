@@ -62,6 +62,7 @@ func poll(_delta: float) -> void:
 		_just_pressed(InputActions.JOKER_DESTROY) or (touch and TouchInput.take_back())
 	)
 	joker_inspect = TouchInput.joker_inspect if touch else -1
+	pick_inspect = TouchInput.pick_inspect if touch else -1
 	joker_select = -1
 	for i: int in InputActions.JOKER_SELECTS.size():
 		if _just_pressed(InputActions.JOKER_SELECTS[i]):

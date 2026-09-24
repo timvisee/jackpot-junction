@@ -481,3 +481,28 @@ func test_the_item_button_shows_what_is_still_running() -> void:
 	var loaded := controls.running()
 	assert_str(String(loaded["id"])).is_equal("spread_cannon")
 	assert_float(loaded["left"]).is_equal(1.0)
+
+
+## The pick and the hand under it answer their own fingers: reading a card of the pick leaves the
+## hand shut, and reading the hand leaves the pick's cursor where it was.
+func test_the_pick_and_the_hand_are_read_apart() -> void:
+	var controls := await _driving(["hair_trigger", "rubber_bumpers"])
+	var kart := controls.match_node.kart_of(0)
+	var hand: JokerHand = controls.match_node.hud._hands[0]
+	await _runner.simulate_frames(20, 17)
+	var offer := await _pick(controls)
+	var picker: JokerPicker = controls.match_node.hud._pickers[0]
+	offer.selected = 0
+	_touch(controls, 0, _card_center(picker, 2), true)
+	await _runner.simulate_frames(3, 17)
+	assert_int(offer.selected).is_equal(2)
+	assert_bool(kart.menu_open).is_false()
+	controls._pick_since -= 1.0
+	_touch(controls, 0, _card_center(picker, 2), false)
+	await _runner.simulate_frames(3, 17)
+	assert_bool(offer.is_done()).is_false()
+	_touch(controls, 1, _hand_card(hand, 1), true)
+	await _runner.simulate_frames(3, 17)
+	assert_bool(kart.menu_open).is_true()
+	assert_int(kart.menu_index).is_equal(1)
+	assert_int(offer.selected).is_equal(2)

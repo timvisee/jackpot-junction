@@ -371,7 +371,7 @@ func _down_on_pick(finger: int, at: Vector2) -> bool:
 		_pick_card = picked
 		_pick_since = _now()
 		_pick_moved = false
-		TouchInput.joker_inspect = picked
+		TouchInput.pick_inspect = picked
 		return true
 	if _back_finger < 0 and _on_back(picker, at):
 		_back_finger = finger
@@ -436,7 +436,7 @@ func _finger_moved(finger: int, at: Vector2) -> void:
 		if card >= 0:
 			_pick_card = card
 			_pick_moved = true
-			TouchInput.joker_inspect = card
+			TouchInput.pick_inspect = card
 	elif finger == _inspect_finger:
 		var card := _along(_hand(), at, _inspect_card)
 		if card >= 0:
@@ -504,7 +504,7 @@ func _finger_up(finger: int, at: Vector2) -> void:
 ## A quick tap on the one card of the pick, still on it as it comes up, answers the pick with it.
 func _up_from_pick(at: Vector2) -> void:
 	_pick_finger = -1
-	TouchInput.joker_inspect = -1
+	TouchInput.pick_inspect = -1
 	var picker := _picker()
 	var quick := _now() - _pick_since <= TAP_SECONDS and not _pick_moved
 	if quick and picker != null and _card_in(picker, at) == _pick_card:
@@ -592,6 +592,7 @@ func _let_go() -> void:
 	_unpin()
 	TouchInput.joker_inspect = -1
 	TouchInput.joker_pinned = false
+	TouchInput.pick_inspect = -1
 	_publish()
 
 

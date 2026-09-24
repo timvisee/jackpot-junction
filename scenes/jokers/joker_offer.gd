@@ -136,8 +136,8 @@ func poll_input(input: KartInput) -> void:
 		return
 	# A finger resting on a card, GAME.md 4.2, is reading it: the cursor goes there, and nothing is
 	# answered until the finger comes up. A tap is a quick one, and arrives as the number key.
-	if input.joker_inspect >= 0:
-		selected = clampi(input.joker_inspect, 0, options - 1)
+	if input.pick_inspect >= 0:
+		selected = clampi(input.pick_inspect, 0, options - 1)
 		_steer_was = 0
 		return
 	var steer := 0
