@@ -2326,6 +2326,12 @@ like any other button.
   a camera that never goes anywhere is a smaller picture of the karts, which is a
   real cost, and a still one, which for some players is worth more.
   Color-blind roof markers are always on.
+- **About**: the game's mark, its name and its version, and that it is an
+  experiment in what an AI model can make: everything in it not credited there
+  was made by Anthropic's Claude, whose models are named in the order they worked
+  on it. Then everybody else whose work is in it, what, by whom, on what terms and
+  where, which a test holds to THIRD_PARTY.md, a link to the game's GitHub page,
+  and Godot's own license, which a game made with it has to carry.
 
 ### 8.6 Loading a map
 

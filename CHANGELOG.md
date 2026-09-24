@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **An About page in Settings.** It says the game was made by AI as an experiment,
+  by which models, credits everybody else whose work is in it and links to GitHub.
+
 ## [0.6.2] - 2026-09-24
 
 A simple way to drive: push the way on the screen you want to go and the kart takes

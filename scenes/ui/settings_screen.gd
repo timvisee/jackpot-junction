@@ -71,6 +71,7 @@ func _ready() -> void:
 	tabs.add_child(_audio_tab())
 	tabs.add_child(_video_tab())
 	tabs.add_child(_accessibility_tab())
+	tabs.add_child(AboutTab.new())
 	var foot := HBoxContainer.new()
 	column.add_child(foot)
 	status = Label.new()
