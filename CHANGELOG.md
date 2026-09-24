@@ -23,6 +23,8 @@ below, and hands the notes to the release workflow.
   protanopia, deuteranopia and tritanopia, chosen to keep all eight players apart.
 - **Dress your kart at the stalls.** The lobby and the Garage have a pad each for
   paint, hat, flag and trail; drive onto one to put the next one on.
+- **Emotes.** Flick the right stick, or press 7 to 0, to put GG, a smile, a scowl or
+  a heart over your kart, online too.
 
 ### Changed
 

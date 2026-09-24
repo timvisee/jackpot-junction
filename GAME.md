@@ -358,6 +358,18 @@ else's results screen, see 10.3.
   assigned and the name reaches every screen in the snapshot, see 10.3. The
   first seat's box is on the online screen as well, since that is the name a
   machine gives when it connects.
+- **Emotes.** A player can put one of four up over their kart: GG, a smile, a
+  scowl or a heart, each on a round white bubble rimmed in their color so it
+  says who as well as what. On a pad the right stick flicked up, right, down or
+  left from the middle picks them in that order, once per flick, and not while
+  the stick is aiming a cannon that aims freely, which is what it is for then; on
+  a keyboard they are 7, 8, 9 and 0. The bubble pops up over the kart, above the
+  ready tick of 9.6, stays about two seconds and fades, and the next one waits a
+  second, so each can be read before it is replaced. The machine that runs the
+  karts decides, the host online, and says so to every machine, so it comes up on
+  every screen at once, a client's own included; the ask goes over the wire as
+  one more field at the end of a client's controls. A kart that is down has
+  nothing to put one over.
 - A room that has lost its host says so on a pane in the middle of the screen,
   built like the joker detail pane in 8.3, and has the screen to itself: the HUD
   stands down and takes any open joker pick, the standings, the blocks and the
@@ -664,6 +676,7 @@ assigns physical devices to player slots, see 10.2.
 | Joker menu: drop            | A                   | E                         |
 | Joker menu: destroy         | B                   | Q                         |
 | Free aim, Swivel Cannon only| Right stick         | Mouse position on the arena plane |
+| Emote                       | Right stick, flicked | 7, 8, 9 or 0             |
 | Pause                       | Start               | Esc                       |
 | Join, in lobby or mid-match | Start               | J                         |
 | Mute music                  |                     | M                         |

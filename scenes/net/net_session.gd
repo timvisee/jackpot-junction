@@ -80,6 +80,7 @@ const RELAYED_EVENTS: Array[StringName] = [
 	&"nitro_started",
 	&"drift_boosted",
 	&"kart_dressed",
+	&"emoted",
 ]
 ## The events that stay on the machine that raised them. Between this and [constant
 ## RELAYED_EVENTS] every signal [Events] has is accounted for, and a test says so, so a new one

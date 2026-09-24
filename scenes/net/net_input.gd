@@ -50,6 +50,7 @@ var _pending_next := false
 var _pending_select := -1
 var _pending_drop := false
 var _pending_destroy := false
+var _pending_emote := -1
 
 
 ## What the far end says it did with this tick, for the host to follow rather than second-guess.
@@ -83,6 +84,7 @@ static func encode(source: KartInput) -> Array:
 		source.nitro,
 		source.joker_inspect,
 		source.cursor,
+		source.emote,
 	]
 
 
@@ -121,6 +123,7 @@ func poll(delta: float) -> void:
 	joker_select = _pending_select
 	joker_drop_pressed = _pending_drop
 	joker_destroy_pressed = _pending_destroy
+	emote = _pending_emote
 	_pending_fire_pressed = false
 	_pending_use = false
 	_pending_prev = false
@@ -128,6 +131,7 @@ func poll(delta: float) -> void:
 	_pending_select = -1
 	_pending_drop = false
 	_pending_destroy = false
+	_pending_emote = -1
 
 
 ## How many ticks of the client's driving are waiting. The host reports it so a client can see
@@ -166,3 +170,6 @@ func _merge_presses(state: Array) -> void:
 		_pending_select = int(state[10])
 	_pending_drop = _pending_drop or bool(state[11])
 	_pending_destroy = _pending_destroy or bool(state[12])
+	# An emote, GAME.md 3.8, which a client from before them never sends.
+	if state.size() > FIELDS + 4 and int(state[FIELDS + 4]) >= 0:
+		_pending_emote = int(state[FIELDS + 4])

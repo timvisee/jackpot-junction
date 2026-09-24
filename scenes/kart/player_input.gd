@@ -3,6 +3,11 @@ extends KartInput
 ## Reads the input map for one device. [constant DeviceInput.ANY] lets every device drive the
 ## kart, which suits single-player; local multiplayer gives each slot its own device.
 
+## How far the right stick has to be pushed for a flick of it to be an emote, and how far back in
+## the middle it has to have been first, so holding it over asks once.
+const FLICK := 0.8
+const FLICK_BACK := 0.4
+
 var device := DeviceInput.ANY
 ## For an any-device player, the device that last produced input; ANY until something moved.
 var last_device := DeviceInput.ANY
@@ -13,6 +18,8 @@ var seat := -1
 ## kart sets it itself when it is handed them.
 var kart: Kart
 
+## How far over the right stick was last tick, for a flick of it to be an emote.
+var _aim_was := 0.0
 var _fire_was_down := false
 var _use_was_down := false
 var _was_down: Dictionary[StringName, bool] = {}
@@ -81,6 +88,7 @@ func poll(delta: float) -> void:
 	joker_destroy_pressed = (
 		_just_pressed(InputActions.JOKER_DESTROY) or (touch and TouchInput.take_back())
 	)
+	_poll_emote()
 	joker_inspect = TouchInput.joker_inspect if touch else -1
 	pick_inspect = TouchInput.pick_inspect if touch else -1
 	joker_select = -1
@@ -131,6 +139,24 @@ func _drive_simply(touch: bool, delta: float) -> void:
 	if pedals != Vector2.ZERO:
 		throttle = pedals.x
 		brake = pedals.y
+
+
+## An emote, GAME.md 3.8: a key each, or the right stick flicked up, right, down or left, in
+## that order, from the middle. Not while the stick is aiming a cannon that aims freely, which is
+## what it is for then.
+func _poll_emote() -> void:
+	emote = -1
+	for i: int in InputActions.EMOTES.size():
+		if _just_pressed(InputActions.EMOTES[i]):
+			emote = i
+	var pushed := aim.length()
+	var flicked := pushed > FLICK and _aim_was <= FLICK_BACK
+	_aim_was = pushed
+	var here := kart if kart != null and is_instance_valid(kart) else null
+	if not flicked or (here != null and KartAim.free_aim(here)):
+		return
+	var angle := rad_to_deg(atan2(aim.x, -aim.y))
+	emote = posmod(roundi(angle / 90.0), 4)
 
 
 ## How far the pad's own gas and brake are down, as x and y: the triggers, unless rebound.

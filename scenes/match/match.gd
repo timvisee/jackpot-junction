@@ -112,6 +112,7 @@ var _bounty_wait := 0.0
 
 func _ready() -> void:
 	add_to_group(&"match")
+	Emotes.add_to(self)
 	if rules == null:
 		rules = load("res://data/match/default.tres")
 	if power_ups == null:

@@ -41,6 +41,12 @@ static func pointed_flat(kart: Kart) -> Vector2:
 ## Whether this kart is aiming freely rather than down its nose. A puppet holds no cannon
 ## override of its own, since the host is the one shooting, but the arrow that shows for exactly
 ## as long as free aim lasts rides the snapshot, so on a client that is the answer.
+## Whether [param kart]'s cannon is aimed freely right now, by the right stick or the mouse, which
+## is then not free for anything else to use, such as the emotes of GAME.md 3.8.
+static func free_aim(kart: Kart) -> bool:
+	return _free_aim(kart)
+
+
 static func _free_aim(kart: Kart) -> bool:
 	if kart.puppet:
 		return kart.aim_arrow_visible

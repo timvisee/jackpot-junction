@@ -37,6 +37,13 @@ const AIM_LEFT := &"aim_left"
 const AIM_RIGHT := &"aim_right"
 const AIM_UP := &"aim_up"
 const AIM_DOWN := &"aim_down"
+## The four emotes, GAME.md 3.8, on keys of their own; on a pad they are a flick of the right
+## stick, see [method PlayerInput.poll].
+const EMOTE_1 := &"emote_1"
+const EMOTE_2 := &"emote_2"
+const EMOTE_3 := &"emote_3"
+const EMOTE_4 := &"emote_4"
+const EMOTES: Array[StringName] = [EMOTE_1, EMOTE_2, EMOTE_3, EMOTE_4]
 const PAUSE := &"pause"
 ## Claims a device for a player in the lobby or joins a running match.
 const JOIN := &"join"
@@ -103,6 +110,10 @@ const DEFAULTS: Dictionary[StringName, Array] = {
 	AIM_RIGHT: [{"axis": JOY_AXIS_RIGHT_X, "value": 1.0}],
 	AIM_UP: [{"axis": JOY_AXIS_RIGHT_Y, "value": -1.0}],
 	AIM_DOWN: [{"axis": JOY_AXIS_RIGHT_Y, "value": 1.0}],
+	EMOTE_1: [{"key": KEY_7}],
+	EMOTE_2: [{"key": KEY_8}],
+	EMOTE_3: [{"key": KEY_9}],
+	EMOTE_4: [{"key": KEY_0}],
 	PAUSE: [{"key": KEY_ESCAPE}, {"button": JOY_BUTTON_START}],
 	JOIN: [{"key": KEY_J}, {"button": JOY_BUTTON_START}],
 	MUTE_MUSIC: [{"key": KEY_M}],

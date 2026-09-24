@@ -33,6 +33,8 @@ var joker_destroy_pressed := false
 ## The card a finger is resting on, on a touch screen, GAME.md 4.2, or -1. It holds the hand open on
 ## that card, and the steering stays the kart's rather than walking the cursor off it.
 var joker_inspect := -1
+## The emote asked for on this tick, GAME.md 3.8, an index into [constant EmoteArt.EMOTES], or -1.
+var emote := -1
 ## The card of the respawn pick a finger is resting on, or -1: the pick's cursor goes there and
 ## nothing is answered. Kept apart from [member joker_inspect], so reading the pick leaves the hand
 ## shut, and the other way round.
@@ -75,3 +77,4 @@ func clear() -> void:
 	joker_destroy_pressed = false
 	joker_inspect = -1
 	pick_inspect = -1
+	emote = -1
