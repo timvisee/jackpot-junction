@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Simple driving.** Push the way on the screen you want to go and the kart turns
+  and drives there, and brakes when you let go; pick it under Settings, Controls.
+
 ## [0.6.1] - 2026-09-24
 
 A Grand Prix asks everybody which joker to keep between maps, to start with, and

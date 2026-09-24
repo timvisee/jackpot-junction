@@ -140,9 +140,10 @@ func poll_input(input: KartInput) -> void:
 		selected = clampi(input.pick_inspect, 0, options - 1)
 		_steer_was = 0
 		return
+	# The push rather than the wheel, which simple driving turns on its own, GAME.md 4.2.
 	var steer := 0
-	if absf(input.steer) > STEER_STEP:
-		steer = signi(roundi(input.steer))
+	if absf(input.cursor) > STEER_STEP:
+		steer = signi(roundi(input.cursor))
 	var stepped := steer != 0 and steer != _steer_was
 	_steer_was = steer
 	if input.joker_next_pressed or (stepped and steer > 0):

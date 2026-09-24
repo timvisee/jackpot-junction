@@ -39,7 +39,14 @@ const RING_RADIUS_FULL := 1.4
 ## from it once.
 var style := KartStyle.new()
 
-var input: KartInput = KartInput.new()
+var input: KartInput = KartInput.new():
+	set(value):
+		input = value
+		# Simple driving works the wheel for the player, GAME.md 4.2, so their controls have to
+		# know which kart it is they are turning.
+		var player := value as PlayerInput
+		if player != null:
+			player.kart = self
 var motor: KartMotor
 var cannon: Cannon
 var bullet_system: BulletSystem

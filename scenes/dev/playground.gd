@@ -68,11 +68,11 @@ func _ready() -> void:
 	add_child(match_node)
 	var inputs: Array[KartInput] = []
 	if _players >= 2:
-		inputs.append(PlayerInput.new(DeviceInput.KEYBOARD))
+		inputs.append(PlayerInput.new(DeviceInput.KEYBOARD, 0))
 		for joypad: int in range(0, _players - 1):
-			inputs.append(PlayerInput.new(joypad))
+			inputs.append(PlayerInput.new(joypad, joypad + 1))
 	else:
-		inputs.append(PlayerInput.new())
+		inputs.append(PlayerInput.new(DeviceInput.ANY, 0))
 	for i: int in _bots:
 		inputs.append(BotInput.new())
 	# Dressed as the settings say, GAME.md 4.4, so a screenshot of this room shows what a player

@@ -6,25 +6,37 @@ extends KartInput
 var device := DeviceInput.ANY
 ## For an any-device player, the device that last produced input; ANY until something moved.
 var last_device := DeviceInput.ANY
+## The local seat this player sits in, whose way to drive in the settings they follow, GAME.md 4.2,
+## or -1 for one that works the wheel and pedals whatever the settings say: a tool, or a test.
+var seat := -1
+## The kart these controls drive, for simple driving, which has to know which way it points. The
+## kart sets it itself when it is handed them.
+var kart: Kart
 
 var _fire_was_down := false
 var _use_was_down := false
 var _was_down: Dictionary[StringName, bool] = {}
+var _simple := SimpleDrive.new()
 
 
-func _init(input_device: int = DeviceInput.ANY) -> void:
+func _init(input_device: int = DeviceInput.ANY, local_seat := -1) -> void:
 	device = input_device
+	seat = local_seat
 
 
-func poll(_delta: float) -> void:
+## Whether this player drives the simple way, GAME.md 4.2: a way on the screen to go, rather than a
+## wheel and pedals.
+func simple() -> bool:
+	return seat >= 0 and Game.settings.drive_mode(seat) == Settings.DRIVE_SIMPLE
+
+
+func poll(delta: float) -> void:
 	if device == DeviceInput.ANY:
 		_detect_device()
 	steer = (
 		DeviceInput.strength(InputActions.STEER_RIGHT, device)
 		- DeviceInput.strength(InputActions.STEER_LEFT, device)
 	)
-	throttle = DeviceInput.strength(InputActions.THROTTLE, device)
-	brake = DeviceInput.strength(InputActions.BRAKE, device)
 	handbrake = DeviceInput.pressed(InputActions.HANDBRAKE, device)
 	nitro = DeviceInput.pressed(InputActions.NITRO, device)
 	# A touch screen is one more device, GAME.md 4.2, for the one player at it: the one who reads
@@ -32,10 +44,18 @@ func poll(_delta: float) -> void:
 	var touch := TouchInput.enabled and device == DeviceInput.ANY
 	if touch:
 		steer = clampf(steer + TouchInput.steer, -1.0, 1.0)
-		throttle = maxf(throttle, TouchInput.throttle)
-		brake = maxf(brake, TouchInput.brake)
 		handbrake = handbrake or TouchInput.handbrake
 		nitro = nitro or TouchInput.nitro
+	cursor = steer
+	if simple():
+		_drive_simply(touch, delta)
+	else:
+		_simple.wanted = Vector3.ZERO
+		throttle = DeviceInput.strength(InputActions.THROTTLE, device)
+		brake = DeviceInput.strength(InputActions.BRAKE, device)
+		if touch:
+			throttle = maxf(throttle, TouchInput.throttle)
+			brake = maxf(brake, TouchInput.brake)
 	aim = Vector2(
 		(
 			DeviceInput.strength(InputActions.AIM_RIGHT, device)
@@ -82,6 +102,31 @@ func poll(_delta: float) -> void:
 		joker_destroy_pressed = true
 
 
+## The wheel and the pedals worked for the player from the way they push, GAME.md 4.2: left and
+## right as they steer, up and down the screen as the two keys or the stick's other half, and the
+## touch screen's stick either way.
+func _drive_simply(touch: bool, delta: float) -> void:
+	var push := Vector2(
+		steer,
+		(
+			DeviceInput.strength(InputActions.DRIVE_DOWN, device)
+			- DeviceInput.strength(InputActions.DRIVE_UP, device)
+		)
+	)
+	if touch:
+		push.y += TouchInput.stick.y
+	var here := kart if kart != null and is_instance_valid(kart) else null
+	# A kart that is down comes back somewhere else facing another way, and is not to be turned
+	# round to face whichever way its player pushed last before it went.
+	if here != null and not here.alive:
+		_simple.wanted = Vector3.ZERO
+	var camera: Camera3D = null
+	if here != null and here.is_inside_tree():
+		camera = here.get_viewport().get_camera_3d()
+	var motor := here.motor if here != null else null
+	_simple.drive(self, push.limit_length(1.0), SimpleDrive.screen_axes(camera), motor, delta)
+
+
 ## Which device is active right now, checked on the driving and firing actions.
 func _detect_device() -> void:
 	var actions: Array[StringName] = [
@@ -89,6 +134,8 @@ func _detect_device() -> void:
 		InputActions.BRAKE,
 		InputActions.STEER_LEFT,
 		InputActions.STEER_RIGHT,
+		InputActions.DRIVE_UP,
+		InputActions.DRIVE_DOWN,
 		InputActions.FIRE
 	]
 	for joypad: int in Input.get_connected_joypads():

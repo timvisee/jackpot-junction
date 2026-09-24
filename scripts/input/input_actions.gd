@@ -8,6 +8,10 @@ extends RefCounted
 
 const STEER_LEFT := &"steer_left"
 const STEER_RIGHT := &"steer_right"
+## Up and down the screen, for simple driving, GAME.md 4.2, where steering left and right is left
+## and right on the screen and these are the other two ways to go.
+const DRIVE_UP := &"drive_up"
+const DRIVE_DOWN := &"drive_down"
 const THROTTLE := &"throttle"
 const BRAKE := &"brake"
 const FIRE := &"fire"
@@ -77,6 +81,8 @@ const KEY_SYMBOLS: Dictionary[String, String] = {
 const DEFAULTS: Dictionary[StringName, Array] = {
 	STEER_LEFT: [{"key": KEY_A}, {"key": KEY_LEFT}, {"axis": JOY_AXIS_LEFT_X, "value": -1.0}],
 	STEER_RIGHT: [{"key": KEY_D}, {"key": KEY_RIGHT}, {"axis": JOY_AXIS_LEFT_X, "value": 1.0}],
+	DRIVE_UP: [{"key": KEY_W}, {"key": KEY_UP}, {"axis": JOY_AXIS_LEFT_Y, "value": -1.0}],
+	DRIVE_DOWN: [{"key": KEY_S}, {"key": KEY_DOWN}, {"axis": JOY_AXIS_LEFT_Y, "value": 1.0}],
 	THROTTLE: [{"key": KEY_W}, {"key": KEY_UP}, {"axis": JOY_AXIS_TRIGGER_RIGHT, "value": 1.0}],
 	BRAKE: [{"key": KEY_S}, {"key": KEY_DOWN}, {"axis": JOY_AXIS_TRIGGER_LEFT, "value": 1.0}],
 	FIRE: [{"key": KEY_SPACE}, {"button": JOY_BUTTON_A}],
@@ -104,7 +110,7 @@ const DEFAULTS: Dictionary[StringName, Array] = {
 
 ## Actions driven by an analog stick get a smaller deadzone.
 const STICK_ACTIONS: Array[StringName] = [
-	STEER_LEFT, STEER_RIGHT, AIM_LEFT, AIM_RIGHT, AIM_UP, AIM_DOWN
+	STEER_LEFT, STEER_RIGHT, DRIVE_UP, DRIVE_DOWN, AIM_LEFT, AIM_RIGHT, AIM_UP, AIM_DOWN
 ]
 
 

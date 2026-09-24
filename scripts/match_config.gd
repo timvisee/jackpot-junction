@@ -44,8 +44,8 @@ var port := NetSession.DEFAULT_PORT
 
 func inputs() -> Array[KartInput]:
 	var result: Array[KartInput] = []
-	for device: int in human_devices:
-		result.append(PlayerInput.new(device))
+	for i: int in human_devices.size():
+		result.append(PlayerInput.new(human_devices[i], i))
 	for i: int in network_seats + bot_count:
 		result.append(BotInput.new())
 	return result

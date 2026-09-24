@@ -72,7 +72,7 @@ func _ready() -> void:
 				_adopt_session()
 			else:
 				_start_session()
-				session.local_input = PlayerInput.new()
+				session.local_input = PlayerInput.new(DeviceInput.ANY, 0)
 				# This machine's seat is the first one in the lobby's list, GAME.md 3.8.
 				session.player_name = (
 					config.human_names[0] if not config.human_names.is_empty() else ""

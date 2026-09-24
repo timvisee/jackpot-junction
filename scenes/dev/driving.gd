@@ -56,7 +56,7 @@ func _ready() -> void:
 	match_node.with_hud = false
 	match_node.offer_size = 0
 	add_child(match_node)
-	var inputs: Array[KartInput] = [PlayerInput.new()]
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.ANY, 0)]
 	match_node.start(inputs)
 	# A room for feeling the kart, not a nightclub.
 	match_node.arena.disco.enabled = false

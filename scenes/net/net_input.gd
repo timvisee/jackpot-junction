@@ -82,6 +82,7 @@ static func encode(source: KartInput) -> Array:
 		source.aim,
 		source.nitro,
 		source.joker_inspect,
+		source.cursor,
 	]
 
 
@@ -148,6 +149,9 @@ func _apply(state: Array) -> void:
 		nitro = bool(state[FIELDS + 1])
 	# A card a finger rests on, GAME.md 4.2, which a client from before touch never sends.
 	joker_inspect = int(state[FIELDS + 2]) if state.size() > FIELDS + 2 else -1
+	# The push that walks the joker cursor, GAME.md 4.2, which a client from before simple driving
+	# never sends: for it, the push was the wheel.
+	cursor = clampf(float(state[FIELDS + 3]), -1.0, 1.0) if state.size() > FIELDS + 3 else steer
 	_merge_presses(state)
 
 

@@ -10,6 +10,9 @@ static var enabled := false
 ## player's controls alongside the keyboard and the pads, see [method PlayerInput.poll]. There is
 ## one screen and one player at it, so there is one of each.
 static var steer := 0.0
+## The whole of the stick's push, x right and y down, for simple driving, GAME.md 4.2, where the
+## stick says which way on the screen to go rather than only how far to turn.
+static var stick := Vector2.ZERO
 static var throttle := 0.0
 static var brake := 0.0
 static var handbrake := false
@@ -50,6 +53,7 @@ static func detect(args: PackedStringArray) -> void:
 ## Every finger off the glass, for when the controls go.
 static func release() -> void:
 	steer = 0.0
+	stick = Vector2.ZERO
 	throttle = 0.0
 	brake = 0.0
 	handbrake = false

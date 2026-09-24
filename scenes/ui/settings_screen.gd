@@ -15,6 +15,8 @@ const REBINDABLE: Array[StringName] = [
 	InputActions.BRAKE,
 	InputActions.STEER_LEFT,
 	InputActions.STEER_RIGHT,
+	InputActions.DRIVE_UP,
+	InputActions.DRIVE_DOWN,
 	InputActions.FIRE,
 	InputActions.HANDBRAKE,
 	InputActions.NITRO,
@@ -172,6 +174,11 @@ func _controls_tab() -> Control:
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_theme_constant_override("separation", 8)
 	scroll.add_child(column)
+	# How the first player drives, GAME.md 4.2. Everybody else says in the lobby, or in the pause
+	# menu over their own corner.
+	var driving := DrivePicker.make(_settings.drive_mode(0))
+	driving.chosen.connect(func(mode: String) -> void: _settings.drive_modes[0] = mode)
+	column.add_child(MenuTheme.row("Driving", driving))
 	# How a touch screen drives, GAME.md 4.2, first where it is the controls in the player's hand.
 	if TouchInput.enabled:
 		var layouts := [Settings.TOUCH_SLIDER, Settings.TOUCH_BUTTONS]

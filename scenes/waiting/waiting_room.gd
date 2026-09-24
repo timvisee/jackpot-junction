@@ -75,10 +75,10 @@ func _ready() -> void:
 ## number of them is added.
 func _take_seats() -> void:
 	var inputs: Array[KartInput] = []
-	for device: int in config.human_devices:
-		inputs.append(PlayerInput.new(device))
+	for i: int in config.human_devices.size():
+		inputs.append(PlayerInput.new(config.human_devices[i], i))
 	if inputs.is_empty():
-		inputs.append(PlayerInput.new())
+		inputs.append(PlayerInput.new(DeviceInput.ANY, 0))
 	match_node.start(inputs, 0, config.colors(), config.names(), config.styles())
 
 
@@ -107,7 +107,7 @@ func _join() -> void:
 		Net.attach(match_node)
 	else:
 		session = Net.open(match_node)
-		session.local_input = PlayerInput.new()
+		session.local_input = PlayerInput.new(DeviceInput.ANY, 0)
 		session.player_name = config.human_names[0] if not config.human_names.is_empty() else ""
 	session.match_beginning.connect(_follow_the_host, CONNECT_ONE_SHOT)
 	# After the signal rather than inside it: going to the title hangs the session up, and a session

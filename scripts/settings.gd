@@ -10,6 +10,11 @@ const AIM_ASSIST_MAX := 1.0
 const UI_SCALES: Array[float] = [0.75, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0]
 const TOUCH_SLIDER := "slider"
 const TOUCH_BUTTONS := "buttons"
+## The two ways to drive, GAME.md 4.2: simple, where the stick says which way on the screen to go
+## and the kart takes itself there, and advanced, a wheel and two pedals.
+const DRIVE_SIMPLE := "simple"
+const DRIVE_ADVANCED := "advanced"
+const DRIVE_MODES: Array[String] = [DRIVE_SIMPLE, DRIVE_ADVANCED]
 
 ## A UI scale for this run of the game alone, from `++ --ui-scale=1.5` on the command line, and 0
 ## for none: for trying a size out, or a phone's on a desktop, without it being saved over the
@@ -63,6 +68,9 @@ var stick_deadzone := 0.15
 ## How a touch screen drives, GAME.md 4.2: [constant TOUCH_SLIDER], one slider under the right thumb
 ## for nitro, gas, brake and drift, or [constant TOUCH_BUTTONS], a round button for each.
 var touch_layout := TOUCH_SLIDER
+## How each local seat drives, GAME.md 4.2, one of [constant DRIVE_MODES], or empty for a seat
+## nobody has asked yet, which drives the advanced way until somebody does.
+var drive_modes: Array[String] = ["", "", "", ""]
 ## Action name to the descriptors that replace its defaults.
 var bindings: Dictionary = {}
 ## How long a map runs, in seconds, GAME.md 3.8.
@@ -135,6 +143,9 @@ func load_from_disk() -> void:
 	touch_layout = file.get_value("controls", "touch_layout", touch_layout)
 	if touch_layout not in [TOUCH_SLIDER, TOUCH_BUTTONS]:
 		touch_layout = TOUCH_SLIDER
+	var driving: Array = file.get_value("controls", "drive_modes", [])
+	for i: int in mini(driving.size(), drive_modes.size()):
+		drive_modes[i] = str(driving[i]) if str(driving[i]) in DRIVE_MODES else ""
 	bindings = file.get_value("controls", "bindings", {})
 	# Kept in minutes until a map could be shorter than one; a file from then is read in minutes.
 	match_seconds = file.get_value(
@@ -188,6 +199,7 @@ func save_to_disk() -> Error:
 	file.set_value("accessibility", "fixed_camera", fixed_camera)
 	file.set_value("controls", "stick_deadzone", stick_deadzone)
 	file.set_value("controls", "touch_layout", touch_layout)
+	file.set_value("controls", "drive_modes", drive_modes)
 	file.set_value("controls", "bindings", bindings)
 	file.set_value("lobby", "match_seconds", match_seconds)
 	file.set_value("lobby", "target_score", target_score)
@@ -206,6 +218,25 @@ func save_to_disk() -> Error:
 	file.set_value("online", "address", last_address)
 	file.set_value("online", "port", last_port)
 	return file.save(path)
+
+
+## How the local seat [param seat] drives, one of [constant DRIVE_MODES].
+func drive_mode(seat: int) -> String:
+	if seat < 0 or seat >= drive_modes.size() or drive_modes[seat].is_empty():
+		return DRIVE_ADVANCED
+	return drive_modes[seat]
+
+
+## Whether the first seat has said how it drives yet, which the first Play asks, GAME.md 4.2.
+func has_chosen_driving() -> bool:
+	return not drive_modes[0].is_empty()
+
+
+## The first answer to how to drive, for every seat that has not given one of its own.
+func choose_driving(mode: String) -> void:
+	for i: int in drive_modes.size():
+		if drive_modes[i].is_empty():
+			drive_modes[i] = mode
 
 
 ## Pushes every setting into the engine: buses, window, input map.

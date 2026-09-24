@@ -41,11 +41,12 @@ static func step(kart: Kart, can_change: bool = true) -> void:
 ## Which way the steering wants to walk the cursor, one card per push. Whatever the player
 ## steers with picks cards too, so the arrow keys work on a keyboard and the stick or the
 ## D-pad works on a pad, with no second set of keys to learn. Holding a direction moves one
-## card and then waits, so a card is never skipped past while the wheel is held over.
+## card and then waits, so a card is never skipped past while the wheel is held over. It is the
+## push that walks it rather than the wheel, which simple driving turns on its own, GAME.md 4.2.
 static func _steer_step(kart: Kart) -> int:
 	var pushed := 0
-	if absf(kart.input.steer) > STEER_STEP:
-		pushed = signi(roundi(kart.input.steer))
+	if absf(kart.input.cursor) > STEER_STEP:
+		pushed = signi(roundi(kart.input.cursor))
 	var stepped := pushed if pushed != kart.menu_steer else 0
 	kart.menu_steer = pushed
 	return stepped

@@ -480,23 +480,23 @@ func test_the_offer_is_a_row_of_cards_that_steering_walks_along() -> void:
 	assert_int(picker.card_count()).is_equal(0)
 
 
-## A remote player's steering arrives as an axis, so the picker turns it back into single steps.
+## A remote player's push arrives as an axis, so the picker turns it back into single steps.
 func test_a_remote_players_stick_steps_the_cursor_once_per_push() -> void:
 	var match_node := _start_match(_bots())
 	var kart := match_node.kart_of(0)
 	var offer := JokerOffer.new(kart, CATALOG.offer(match_node.rng, 3, []))
 	var input := KartInput.new()
-	input.steer = 1.0
+	input.cursor = 1.0
 	offer.poll_input(input)
 	assert_int(offer.selected).is_equal(1)
 	offer.poll_input(input)
 	assert_int(offer.selected).is_equal(1)
-	input.steer = 0.0
+	input.cursor = 0.0
 	offer.poll_input(input)
-	input.steer = 1.0
+	input.cursor = 1.0
 	offer.poll_input(input)
 	assert_int(offer.selected).is_equal(2)
-	input.steer = -1.0
+	input.cursor = -1.0
 	offer.poll_input(input)
 	assert_int(offer.selected).is_equal(1)
 
@@ -875,7 +875,7 @@ func test_the_pick_cannot_be_answered_for_half_a_second() -> void:
 	assert_bool(offer.is_done()).is_false()
 	# The cursor still walks, throughout.
 	var steering := KartInput.new()
-	steering.steer = 1.0
+	steering.cursor = 1.0
 	offer.poll_input(steering)
 	assert_int(offer.selected).is_equal(1)
 	# And once the moment has passed the same press is answered.

@@ -257,7 +257,7 @@ func join_human(device: int) -> PlayerSlot:
 		if slot.plays_on(device):
 			return null
 	_resolve_any_device(device)
-	return _join_with_input(PlayerInput.new(device))
+	return _join_with_input(PlayerInput.new(device, _free_seat()))
 
 
 func _join_with_input(input: KartInput, wanted_color := -1) -> PlayerSlot:
@@ -300,6 +300,20 @@ func leave_human(slot: PlayerSlot) -> void:
 	if hud != null:
 		hud.remove_block(slot)
 	Events.player_left.emit(slot.index)
+
+
+## The first local seat nobody here is sitting in, for somebody joining, so they drive the way that
+## seat drives, GAME.md 4.2.
+func _free_seat() -> int:
+	var taken: Array[int] = []
+	for slot: PlayerSlot in slots:
+		var player := slot.input as PlayerInput
+		if player != null:
+			taken.append(player.seat)
+	var seat := 0
+	while seat in taken:
+		seat += 1
+	return seat
 
 
 ## An any-device player settles on one device once someone else joins on another.

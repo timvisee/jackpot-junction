@@ -409,7 +409,7 @@ static func _ensure_slots(match_node: Match, count: int) -> void:
 ## slot holds a player's input either way, which is what says somebody is here to play.
 static func _local_input(match_node: Match) -> PlayerInput:
 	if match_node.local_input == null:
-		match_node.local_input = PlayerInput.new()
+		match_node.local_input = PlayerInput.new(DeviceInput.ANY, 0)
 	return match_node.local_input
 
 

@@ -5,6 +5,10 @@ extends RefCounted
 
 ## -1 is full left, 1 is full right.
 var steer := 0.0
+## Left or right as pushed, -1 to 1, which walks the cursor of the joker menu, GAME.md 3.7. The same
+## as the steering when the player works the wheel; in simple driving, GAME.md 4.2, the wheel is
+## worked for them, and the cursor goes by the push rather than by what the kart does with it.
+var cursor := 0.0
 ## 0 to 1.
 var throttle := 0.0
 ## 0 to 1. Brakes while moving forward, reverses once stopped.
@@ -54,6 +58,7 @@ func deny_claim(_seconds: float) -> void:
 
 func clear() -> void:
 	steer = 0.0
+	cursor = 0.0
 	throttle = 0.0
 	brake = 0.0
 	handbrake = false

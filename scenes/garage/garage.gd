@@ -79,7 +79,7 @@ func _ready() -> void:
 	add_child(match_node)
 	# Put up behind a loading screen, the way a map is.
 	await LoadingScreen.put_up(self, match_node, "Test Track" if on_track else "Garage")
-	var inputs: Array[KartInput] = [PlayerInput.new()]
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.ANY, 0)]
 	# Nobody is standing about on the test track: it is a road, and a kart parked on it is in
 	# the way of the one lesson each stretch is there to teach.
 	for i: int in 0 if on_track else DUMMIES:

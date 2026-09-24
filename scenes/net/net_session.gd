@@ -117,7 +117,7 @@ var match_node: Match:
 ## The slot this client plays, -1 until the host assigns one.
 var local_slot := -1
 ## The input the client sends; tests may swap it.
-var local_input: KartInput = PlayerInput.new()
+var local_input: KartInput = PlayerInput.new(DeviceInput.ANY, 0)
 ## What this machine's player calls themselves, sent to the host once a seat is assigned. Empty
 ## leaves the host's funny name standing, GAME.md 3.8.
 var player_name := ""

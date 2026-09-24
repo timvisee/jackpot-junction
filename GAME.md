@@ -621,8 +621,10 @@ again without writing it twice.
 
 ### 4.2 Controls
 
-Steering is kart-relative: left and right turn the nose, throttle and brake
-work along the heading. Aiming is forward-only by default. All bindings are
+There are two ways to drive, and each player picks their own. Advanced is
+kart-relative: left and right turn the nose, throttle and brake work along the
+heading. Simple is screen-relative: the way pushed is the way on the screen the
+kart goes, see below. Aiming is forward-only by default. All bindings are
 remappable. Every action exists once in the Godot input map; an input router
 assigns physical devices to player slots, see 10.2.
 
@@ -631,6 +633,7 @@ assigns physical devices to player slots, see 10.2.
 | Steer                       | Left stick X        | A / D, or Left / Right    |
 | Throttle                    | Right trigger       | W, or Up                  |
 | Brake, reverse              | Left trigger        | S, or Down                |
+| Up and down, simple driving | Left stick Y        | W / S, or Up / Down       |
 | Fire                        | A                   | Space                     |
 | Handbrake, drift            | Left bumper         | Shift                     |
 | Nitro                       | RB                  | Ctrl                      |
@@ -646,6 +649,27 @@ assigns physical devices to player slots, see 10.2.
 | Mute music                  |                     | M                         |
 | Menus: press the button under the cursor | A      | Enter or Space            |
 | Menus: back out                          | B      | Esc                       |
+
+In simple driving left, right, up and down are ways on the screen rather than things to do with
+the wheel, and the kart is driven there for the player. Pushing any way puts the gas down as far
+as the push and turns the kart toward that way as it goes: the wheel is full over 25° or more off
+it and less by as much nearer, so the nose comes round without sawing either side of it. A kart
+facing more than 120° away turns before it goes, the gas coming in as the nose comes round and
+all the way down within 60°. Letting go brakes the kart to a stop and no further; nothing
+reverses it. The kart turns to the way last pushed even after it has been let go of, so a flick
+of the stick is enough to turn it and fire that way. A way pushed from nothing counts however
+quick the push; a way that changes while held counts once held for 0.08 s, since two keys held
+for a diagonal never come up at the same moment and the one left down between is not the way
+anybody meant. Once within a degree of it the kart has got there, and a bump or a wall that turns
+it afterwards is not turned back against. A kart that goes down comes back with nothing to turn
+to. In a slide it is the travel that is turned toward the way rather than the nose, which leads.
+Up and down have bindings of their own, which the gas and the brake share on the keyboard; the
+triggers do nothing in it. Nitro and the handbrake are as they are, except that nitro lit when
+let go drives on rather than braking. The joker cursor of 3.7 and the respawn pick walk by the
+push rather than by what the wheel does with it, which goes over the wire as one more field at the
+end of a client's controls; a client from before it sends the wheel alone, which for it was the
+push. Which way a player drives is kept per local seat, and a seat nobody has asked drives the
+advanced way.
 
 The pad is knocked as well as the speaker: taking a life, dying, a big cash-out,
 hitting a wall and running into another kart all come through the hands, as hard
@@ -2201,8 +2225,10 @@ are open keeps whatever was changed in them. On a pad the shoulder buttons step 
 round at the ends, and a line beside Back says so; while a rebind is listening they are bindings
 like any other button.
 
-- **Controls**: rebinding per player for gamepad and keyboard, stick dead
-  zone, rumble on or off, and on a touch screen, first, how it drives: by the
+- **Controls**: how the first player drives, simple or advanced, each a button
+  with its picture on it, a kart with an arrow each way round it and a steering
+  wheel; rebinding per player for gamepad and keyboard, stick dead zone, rumble on
+  or off, and on a touch screen, first after the driving, how it drives: by the
   slider or by a button each, see 4.2.
 - **Audio**: master, music, effects and kart volume. The karts have their own
   because their engine and tires run the whole time rather than in bursts, so
