@@ -18,7 +18,7 @@ below, and hands the notes to the release workflow.
 - **A Marksman award for accuracy.** How many of a player's shots landed on another
   kart is counted now, once they have fired ten.
 - **The host can pause everybody at once.** Online the room still waits for everybody
-  to pause, unless the host presses Pause everybody now.
+  to pause, unless the host presses Pause game.
 - **Kart colors for color blindness.** Accessibility has a palette each for
   protanopia, deuteranopia and tritanopia, chosen to keep all eight players apart.
 - **Dress your kart at the stalls.** The lobby and the Garage have a pad each for

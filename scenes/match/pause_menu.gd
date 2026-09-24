@@ -28,7 +28,7 @@ var _quit: Button
 ## Online, on the host: stopping the match for everybody now rather than waiting for them all to
 ## ask. On a client: the line saying the host has done that, for a player with no menu open.
 var _force: Button
-var _held: Label
+var _held: Control
 var _switches: DriveSwitches
 ## The menu's own pane, and the question that takes its place while it is being asked.
 var _main: PanelContainer
@@ -91,7 +91,7 @@ func _ready() -> void:
 	_resume = MenuTheme.button("Resume")
 	_resume.pressed.connect(set_paused.bind(false))
 	column.add_child(_resume)
-	_force = MenuTheme.button("Pause everybody now")
+	_force = MenuTheme.button("Pause game")
 	_force.pressed.connect(_force_pause)
 	_force.visible = false
 	column.add_child(_force)
@@ -104,14 +104,20 @@ func _ready() -> void:
 	_switches = DriveSwitches.new()
 	_switches.visible = false
 	root.add_child(_switches)
-	_held = Label.new()
-	_held.text = "The host has paused the game"
-	Type.strong(_held, Type.HEADING, Palette.CHIP_WHITE)
-	_held.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
-	_held.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	_held.offset_top = 120.0
-	_held.visible = false
-	root.add_child(_held)
+	# In the middle of the screen, on a pane of its own: a client that has not opened its menu is
+	# looking at the room, and a line of text over the arena is a line nobody reads.
+	var held := CenterContainer.new()
+	held.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	held.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	held.visible = false
+	root.add_child(held)
+	var held_pane := MenuTheme.pane()
+	held.add_child(held_pane)
+	var words := Label.new()
+	words.text = "The host paused the game"
+	Type.strong(words, Type.HEADING, Palette.CHIP_WHITE)
+	held_pane.add_child(words)
+	_held = held
 
 
 ## Another thing the menu can do in this room, put under Resume. The waiting room of GAME.md 9.6

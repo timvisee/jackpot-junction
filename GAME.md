@@ -398,10 +398,10 @@ else's results screen, see 10.3.
   While anybody is still playing the match runs on, and the moment one of them
   closes their menu it starts again for everyone. Somebody joining a stopped
   room starts it again, and somebody leaving can be the last one holding it up.
-  The host does not have to wait: Pause everybody now, under Resume on its menu
-  while the room is still running, stops it for everybody at once, and a client
-  with no menu of its own open is told the host has paused the game. It holds
-  until the host closes its menu.
+  The host does not have to wait: Pause game, under Resume on its menu while the
+  room is still running, stops it for everybody at once, and a client with no
+  menu of its own open is told the host paused the game, on a pane in the middle
+  of the screen. It holds until the host closes its menu.
   The menu comes up over the room darkened behind it, as the host's match
   settings of 9.6 do, and while it is up each player at this screen has a switch
   over their own corner of the HUD for how they drive, see 4.2. Online, Back to
@@ -2371,7 +2371,8 @@ like any other button.
 - **About**: the game's mark, its name and its version, and that it is an
   experiment in what an AI model can make: everything in it not credited there
   was made by Anthropic's Claude, whose models are named in the order they worked
-  on it. Then everybody else whose work is in it, what, by whom, on what terms and
+  on it, with the help of a human, who played it as it grew and prompted it in the
+  right direction. Then everybody else whose work is in it, what, by whom, on what terms and
   where, which a test holds to THIRD_PARTY.md, a link to the game's GitHub page,
   and Godot's own license, which a game made with it has to carry.
 
