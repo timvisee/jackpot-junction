@@ -168,15 +168,23 @@ func pictures(back: float) -> void:
 ## between them, the way a room that charges for the table keeps the rest of the room off it.
 func rope_line() -> void:
 	var half := arena.world_size() * 0.5
-	var post := surfaces.metal(room.trim)
-	var span := (half.x + NEAR) * 2.0 / 10.0
 	var line := -(half.y + NEAR * 0.75)
-	_keep(Vector3(-half.x - NEAR, TOP, line), Vector3(half.x + NEAR, TOP, line), 2.6)
-	for i: int in 11:
-		var stand := Vector3(-(half.x + NEAR) + float(i) * span, TOP, -(half.y + NEAR * 0.75))
+	var from := Vector3(-half.x - NEAR, TOP, line)
+	var to := Vector3(half.x + NEAR, TOP, line)
+	_keep(from, to, 2.6)
+	rope_run(from, to, 10)
+
+
+## A run of it anywhere: a post at each end and [param spans] lengths of rope between, the posts
+## evenly along the way. The end of a Grand Prix fences its dance floor with it, GAME.md 9.7.
+func rope_run(from: Vector3, to: Vector3, spans: int) -> void:
+	var post := surfaces.metal(room.trim)
+	var step := (to - from) / float(maxi(spans, 1))
+	for i: int in spans + 1:
+		var stand := from + step * float(i)
 		_stanchion(stand, post)
-		if i < 10:
-			_rope(stand, stand + Vector3(span, 0.0, 0.0))
+		if i < spans:
+			_rope(stand, stand + step)
 
 
 ## One post of it: a weighted base, a column, a collar and a ball.
@@ -200,6 +208,8 @@ func _rope(from: Vector3, to: Vector3) -> void:
 		var middle := (a + b) * 0.5 + Vector3(0.0, 1.78 - dips[i], 0.0)
 		var run := b - a
 		var rope := _box(Vector3(run.length() * 1.04, 0.14, 0.14), velvet, middle)
+		# Turned to lie along the run, whichever way it goes, and dipped toward the middle of it.
+		rope.rotation.y = -atan2(run.z, run.x)
 		rope.rotation.z = -0.22 if i == 0 else (0.22 if i == 2 else 0.0)
 
 
