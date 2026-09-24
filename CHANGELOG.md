@@ -20,7 +20,7 @@ below, and hands the notes to the release workflow.
 - **The first Play asks how you want to drive.** Simple or advanced, each with its
   picture; Settings can change it later or ask again.
 - **Switch how you drive from the pause menu.** Each player has a switch over their
-  own corner.
+  own corner, and on a touch screen one for the slider or the buttons too.
 - **Every player picks how they drive on the Play screen.** It sits under their name
   and kart.
 - **Hints for simple driving.** The hint over the kart and the test track's first

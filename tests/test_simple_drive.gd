@@ -306,6 +306,33 @@ func test_the_settings_ask_the_question_again_for_the_first_player() -> void:
 	DirAccess.remove_absolute(Game.settings.path)
 
 
+func test_the_player_at_a_touch_screen_can_switch_its_controls_there_too() -> void:
+	var was_touch := TouchInput.enabled
+	TouchInput.enabled = true
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.with_hud = true
+	match_node.offer_size = 0
+	var runner := scene_runner(match_node)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.ANY, 0), KartInput.new()]
+	match_node.start(inputs, 5)
+	await runner.simulate_frames(3, 17)
+	var menu := PauseMenu.add_to(match_node)
+	menu.set_paused(true)
+	await await_idle_frame()
+	var buttons: Array[Button] = menu._switches._up[0]["buttons"]
+	assert_int(buttons.size()).is_equal(2)
+	buttons[1].pressed.emit()
+	assert_str(Game.settings.touch_layout).is_equal(Settings.TOUCH_BUTTONS)
+	assert_str(Game.settings.drive_mode(0)).is_equal(Settings.DRIVE_ADVANCED)
+	# The two are one column to a pad: down from the one is the other.
+	assert_object(buttons[0].find_valid_focus_neighbor(SIDE_BOTTOM)).is_same(buttons[1])
+	menu.set_paused(false)
+	get_tree().paused = false
+	TouchInput.enabled = was_touch
+	TouchInput.release()
+	DirAccess.remove_absolute(Game.settings.path)
+
+
 func test_the_settings_pick_the_touch_controls_by_their_pictures() -> void:
 	var was_touch := TouchInput.enabled
 	TouchInput.enabled = true

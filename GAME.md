@@ -691,7 +691,9 @@ of their own corner of the HUD, so four people at one screen each find theirs wh
 look: a pane edged in their color with their name, and a button with the way they drive on it,
 picture and all, that changes it to the other. It is kept on the screen whatever size the corner
 is drawn at, is saved at once, and the kart drives the new way the moment the menu closes, the
-touch controls changing with it. Online only the players at this machine have one. A pad's
+touch controls changing with it. The player at a touch screen has a second button under the
+first, for its controls, Slider or Buttons with their pictures, changed over the same way. Online
+only the players at this machine have one. A pad's
 cursor goes out to them from the menu: sideways from any of its buttons is the top switch on that
 side, back toward the middle from a switch is Resume, and up and down go between the switches on
 one side.

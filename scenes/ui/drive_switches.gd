@@ -3,7 +3,8 @@ extends Control
 ## A switch over each local player's corner of the HUD while the pause menu is up, GAME.md 3.8 and
 ## 4.2: their name, and a button with the way they drive on it, simple or advanced, that changes
 ## it to the other. Each player's is over their own corner, so four people at one screen each
-## find theirs where they already look, and it is saved at once. A pad's cursor goes out to them
+## find theirs where they already look, and it is saved at once. The player at a touch screen has
+## a second button under it, for the slider or the buttons. A pad's cursor goes out to them
 ## from the menu sideways and back toward the middle, and up and down between those on one side.
 
 ## How far in from the edges of the screen a switch keeps, whatever its corner.
@@ -12,10 +13,16 @@ const ICON := 30.0
 const WORDS: Dictionary[String, String] = {
 	Settings.DRIVE_SIMPLE: "Simple driving",
 	Settings.DRIVE_ADVANCED: "Advanced driving",
+	Settings.TOUCH_SLIDER: "Slider controls",
+	Settings.TOUCH_BUTTONS: "Button controls",
 }
+## The two things a switch can have a button for: how its player drives, and how the touch screen
+## does, which only the player at a touch screen has.
+const DRIVING := &"driving"
+const TOUCH := &"touch"
 
-## Each switch up, with what it is for: the pane, its button, its picture, the player's controls
-## and their corner of the HUD.
+## Each switch up, with what it is for: the pane, its buttons top to bottom and what each shows,
+## the player's controls and their corner of the HUD.
 var _up: Array[Dictionary] = []
 ## The menu's buttons the switches were joined to, for letting go of them again.
 var _menu: Array[Button] = []
@@ -110,6 +117,22 @@ func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control) -> Dictiona
 	name_label.text = slot.display_name()
 	Type.strong(name_label, Type.BODY, slot.color())
 	column.add_child(name_label)
+	var buttons: Array[Button] = []
+	var each := {
+		"pane": pane, "buttons": buttons, "toggles": [], "player": player, "corner": corner
+	}
+	each["button"] = _toggle(column, each, DRIVING)
+	# And how the touch screen drives, for the player at it, GAME.md 4.2: the one reading every
+	# device rather than a pad of their own.
+	if TouchInput.enabled and player.device == DeviceInput.ANY:
+		_toggle(column, each, TOUCH)
+	add_child(pane)
+	_show(each)
+	return each
+
+
+## One button of a switch, for [param kind]: [constant DRIVING] or [constant TOUCH].
+func _toggle(column: VBoxContainer, each: Dictionary, kind: StringName) -> Button:
 	var pressable := MenuTheme.button("", Type.BODY)
 	var inside := HBoxContainer.new()
 	inside.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -126,37 +149,41 @@ func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control) -> Dictiona
 	pressable.add_child(inside)
 	pressable.custom_minimum_size = Vector2(280.0, 52.0)
 	column.add_child(pressable)
-	add_child(pane)
-	var buttons: Array[Button] = [pressable]
-	var each := {
-		"pane": pane,
-		"button": pressable,
-		"buttons": buttons,
-		"picture": picture,
-		"word": word,
-		"player": player,
-		"corner": corner
-	}
-	pressable.pressed.connect(_flip.bind(each))
-	_show(each)
-	return each
+	pressable.pressed.connect(_flip.bind(each, kind))
+	var buttons: Array[Button] = each["buttons"]
+	buttons.append(pressable)
+	var toggles: Array = each["toggles"]
+	toggles.append({"kind": kind, "picture": picture, "word": word})
+	return pressable
 
 
-## Over to the other way to drive, for the player whose switch it is.
-func _flip(each: Dictionary) -> void:
+## Over to the other one of [param kind] for the player whose switch it is, and saved at once.
+func _flip(each: Dictionary, kind: StringName) -> void:
 	var settings := Game.settings
-	var seat := (each["player"] as PlayerInput).seat
-	var now := settings.drive_mode(seat)
-	var other := Settings.DRIVE_ADVANCED if now == Settings.DRIVE_SIMPLE else Settings.DRIVE_SIMPLE
-	settings.drive_modes[seat] = other
+	var now := _now(each, kind)
+	if kind == TOUCH:
+		var layout := Settings.TOUCH_SLIDER
+		settings.touch_layout = Settings.TOUCH_BUTTONS if now == layout else layout
+	else:
+		var seat := (each["player"] as PlayerInput).seat
+		var simple := Settings.DRIVE_SIMPLE
+		settings.drive_modes[seat] = Settings.DRIVE_ADVANCED if now == simple else simple
 	settings.save_to_disk()
 	_show(each)
 
 
+## What [param kind] is just now for the player whose switch it is.
+static func _now(each: Dictionary, kind: StringName) -> String:
+	if kind == TOUCH:
+		return Game.settings.touch_layout
+	return Game.settings.drive_mode((each["player"] as PlayerInput).seat)
+
+
 func _show(each: Dictionary) -> void:
-	var mode := Game.settings.drive_mode((each["player"] as PlayerInput).seat)
-	(each["picture"] as DriveArt.Picture).mode = mode
-	(each["word"] as Label).text = WORDS[mode]
+	for toggle: Dictionary in each["toggles"]:
+		var now := _now(each, toggle["kind"])
+		(toggle["picture"] as DriveArt.Picture).mode = now
+		(toggle["word"] as Label).text = WORDS[now]
 
 
 static func _corner_at(each: Dictionary) -> Rect2:
