@@ -73,15 +73,6 @@ const ROUND_BUTTONS: Dictionary[StringName, Array] = {
 ## The rumble setting of GAME.md 8.5 turns it off with the rest.
 const CLICK_MS := 10
 const CLICK_STRENGTH := 0.3
-## The stick: how big its ring is, where it waits from the bottom left corner, how far its knob
-## goes to reach full lock, and how far from the middle a thumb has to be before it steers at all.
-## It comes to wherever a thumb goes down inside [constant STICK_ZONE], the share of the screen
-## from the left and from the bottom, so nobody has to find it by looking.
-const STICK_RADIUS := 120.0
-const STICK_KNOB := 52.0
-const STICK_HOME := Vector2(230.0, -230.0)
-const STICK_ZONE := Vector2(0.42, 0.62)
-const STICK_DEAD := 0.1
 ## How far in from the stick and the buttons the hand of jokers keeps, and the least room over the
 ## top of the hand the respawn pick keeps, GAME.md 4.2.
 const LANE_GAP := 16.0
@@ -138,8 +129,9 @@ class Pad:
 var match_node: Match
 ## How many clicks the slider has given, for asking whether it did.
 var clicks := 0
-## The slider under the right thumb, with the finger on it.
+## The slider under the right thumb, and the stick under the left, each with the finger on it.
 var slider := TouchSlider.new()
+var stick := TouchStick.new()
 
 ## Which of the two ways to drive the buttons were last put up for, see [method uses_slider].
 var _layout_name := ""
@@ -147,10 +139,6 @@ var _layout_name := ""
 var _pads: Array[Pad] = []
 ## Which pads each finger is on, by the finger's index. The stick's finger is not among them.
 var _fingers: Dictionary[int, Array] = {}
-## The finger on the stick, or -1, where the stick came to and where the finger is now.
-var _stick_finger := -1
-var _stick_at := Vector2.ZERO
-var _knob_at := Vector2.ZERO
 ## The finger resting on a card in the hand, or -1, the card it is on, since when, and whether it
 ## has been along to another since, which is reading rather than tapping.
 var _inspect_finger := -1
@@ -247,20 +235,14 @@ func pad(id: StringName) -> Pad:
 	return null
 
 
-## Where the stick waits when nobody has a thumb on it.
-func stick_home() -> Vector2:
-	return Vector2(STICK_HOME.x, size.y + STICK_HOME.y)
-
-
 func _layout() -> void:
 	pad(MENU).center = Vector2(size.x - MENU_INSET.x, MENU_INSET.y)
 	var buttons := driving_buttons()
 	for id: StringName in buttons:
 		pad(id).center = size + (buttons[id][1] as Vector2)
 	slider.place(size)
-	if _stick_finger < 0:
-		_stick_at = stick_home()
-		_knob_at = _stick_at
+	if stick.finger < 0:
+		stick.rest(size)
 	queue_redraw()
 
 
@@ -450,7 +432,7 @@ func _hand_lane() -> Vector2:
 	for id: StringName in driving_buttons():
 		var each := pad(id)
 		right = minf(right, each.center.x - each.radius * REACH)
-	return Vector2(STICK_HOME.x + STICK_RADIUS + LANE_GAP, right - LANE_GAP)
+	return Vector2(TouchStick.HOME.x + TouchStick.RADIUS + LANE_GAP, right - LANE_GAP)
 
 
 ## The click of the slider under the thumb, felt through the phone.
@@ -497,7 +479,7 @@ func _process(_delta: float) -> void:
 	# The room's menu takes the screen while it is up, and a finger that was down when it opened
 	# has let go of everything as far as the room is concerned.
 	var shut := PauseMenu.is_open_in(get_tree()) or not driving()
-	var held := _stick_finger >= 0 or _inspect_finger >= 0 or _pick_finger >= 0
+	var held := stick.finger >= 0 or _inspect_finger >= 0 or _pick_finger >= 0
 	held = held or _back_finger >= 0 or _pane_finger >= 0 or _pinned >= 0
 	if shut and (not _fingers.is_empty() or held):
 		_let_go()
@@ -537,10 +519,8 @@ func _finger_down(finger: int, at: Vector2) -> void:
 		_fingers.erase(finger)
 	if finger == slider.finger:
 		slider.finger = -1
-	if finger == _stick_finger:
-		_stick_finger = -1
-		_stick_at = stick_home()
-		_knob_at = _stick_at
+	if finger == stick.finger:
+		stick.rest(size)
 	var taken := false
 	if pad(MENU).reaches(at):
 		_hold(finger, [MENU])
@@ -639,14 +619,9 @@ func _down_on_pads(finger: int, at: Vector2) -> bool:
 
 ## The stick comes to the thumb, anywhere in its corner of the screen.
 func _down_on_stick(finger: int, at: Vector2) -> bool:
-	var inside := at.x < size.x * STICK_ZONE.x and at.y > size.y * (1.0 - STICK_ZONE.y)
-	if _stick_finger >= 0 or not inside:
+	if not stick.takes(at, size):
 		return false
-	_stick_finger = finger
-	# Kept far enough in from the edges that the whole ring is on the screen.
-	var margin := Vector2(STICK_RADIUS, STICK_RADIUS)
-	_stick_at = at.clamp(margin, size - margin)
-	_knob_at = at
+	stick.grab(finger, at, size)
 	_publish()
 	return true
 
@@ -673,8 +648,8 @@ func _finger_moved(finger: int, at: Vector2) -> void:
 		if slider.slid() != was or (_rolled_onto_fire() and not rolled):
 			_click()
 		_publish()
-	elif finger == _stick_finger:
-		_knob_at = at
+	elif finger == stick.finger:
+		stick.knob = at
 		_publish()
 	elif _fingers.has(finger):
 		_slide(finger, at)
@@ -727,10 +702,8 @@ func _finger_up(finger: int, at: Vector2) -> void:
 	elif finger == slider.finger:
 		slider.finger = -1
 		_publish()
-	elif finger == _stick_finger:
-		_stick_finger = -1
-		_stick_at = stick_home()
-		_knob_at = _stick_at
+	elif finger == stick.finger:
+		stick.rest(size)
 		_publish()
 	elif _fingers.has(finger):
 		_up_from_pads(finger, at)
@@ -823,9 +796,7 @@ func _let_go() -> void:
 	for each: Pad in _pads:
 		each.held = 0
 	slider.finger = -1
-	_stick_finger = -1
-	_stick_at = stick_home()
-	_knob_at = _stick_at
+	stick.rest(size)
 	_inspect_finger = -1
 	_pick_finger = -1
 	_back_finger = -1
@@ -862,11 +833,7 @@ func _publish() -> void:
 		TouchInput.handbrake = live and _held(TouchSlider.DRIFT)
 	TouchInput.fire = live and (pad(FIRE).held > 0 or _rolled_onto_fire())
 	TouchInput.use_item = live and pad(ITEM).held > 0
-	TouchInput.steer = 0.0
-	if live and _stick_finger >= 0:
-		var push := clampf((_knob_at.x - _stick_at.x) / STICK_RADIUS, -1.0, 1.0)
-		if absf(push) > STICK_DEAD:
-			TouchInput.steer = signf(push) * (absf(push) - STICK_DEAD) / (1.0 - STICK_DEAD)
+	TouchInput.steer = stick.steer() if live else 0.0
 	queue_redraw()
 
 
@@ -901,7 +868,7 @@ func _draw() -> void:
 			draw_arc(each.center, ring, start, start + tank, 40, ink, TANK_WIDTH)
 	if uses_slider():
 		slider.draw(self, strength, kart)
-	_draw_stick(strength)
+	stick.draw(self, strength)
 
 
 func _draw_disc(each: Pad, strength := 1.0, lit := false) -> void:
@@ -956,17 +923,3 @@ func _draw_label(each: Pad, ink: Color) -> void:
 	var width := font.get_string_size(each.label, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
 	var baseline := each.center + Vector2(-width * 0.5, LABEL_SIZE * 0.36)
 	draw_string(font, baseline, each.label, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, ink)
-
-
-## The ring where the stick is and the knob where the thumb is, the knob kept inside the ring and
-## on its level: the stick only steers, so it only moves side to side.
-func _draw_stick(strength: float) -> void:
-	var held := _stick_finger >= 0
-	var rim := Color(RIM, RIM.a * strength)
-	draw_circle(_stick_at, STICK_RADIUS, Color(FILL, FILL.a * strength))
-	draw_arc(_stick_at, STICK_RADIUS, 0.0, TAU, 64, rim, RIM_WIDTH, true)
-	var reach := clampf(_knob_at.x - _stick_at.x, -STICK_RADIUS, STICK_RADIUS)
-	var knob := _stick_at + Vector2(reach, 0.0)
-	var fill := FILL_DOWN if held else Color(1.0, 1.0, 1.0, 0.16)
-	draw_circle(knob, STICK_KNOB, Color(fill, fill.a * strength))
-	draw_arc(knob, STICK_KNOB, 0.0, TAU, 40, rim, RIM_WIDTH, true)

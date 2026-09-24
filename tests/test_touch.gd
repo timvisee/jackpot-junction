@@ -179,12 +179,12 @@ func test_the_stick_steers_where_the_thumb_goes_down() -> void:
 	var controls := await _driving()
 	var down := Vector2(controls.size.x * 0.2, controls.size.y * 0.7)
 	_touch(controls, 0, down, true)
-	assert_vector(controls._stick_at).is_equal(down)
+	assert_vector(controls.stick.center).is_equal(down)
 	assert_float(TouchInput.steer).is_equal(0.0)
 	_touch(controls, 1, controls.slider.zone_rect(TouchSlider.GAS).get_center(), true)
-	_drag(controls, 0, down + Vector2(TouchControls.STICK_RADIUS * 0.5, 40.0))
+	_drag(controls, 0, down + Vector2(TouchStick.RADIUS * 0.5, 40.0))
 	assert_float(TouchInput.steer).is_between(0.3, 0.6)
-	_drag(controls, 0, down + Vector2(-TouchControls.STICK_RADIUS * 3.0, 0.0))
+	_drag(controls, 0, down + Vector2(-TouchStick.RADIUS * 3.0, 0.0))
 	assert_float(TouchInput.steer).is_equal(-1.0)
 	var here := PlayerInput.new()
 	here.poll(0.016)
@@ -193,10 +193,10 @@ func test_the_stick_steers_where_the_thumb_goes_down() -> void:
 	_touch(controls, 0, down, false)
 	assert_float(TouchInput.steer).is_equal(0.0)
 	assert_float(TouchInput.throttle).is_equal(1.0)
-	assert_vector(controls._stick_at).is_equal(controls.stick_home())
+	assert_vector(controls.stick.center).is_equal(TouchStick.home(controls.size))
 	# The top of the screen is the corner of the HUD, not the stick's.
 	_touch(controls, 2, Vector2(controls.size.x * 0.2, controls.size.y * 0.2), true)
-	assert_int(controls._stick_finger).is_equal(-1)
+	assert_int(controls.stick.finger).is_equal(-1)
 
 
 ## Over the podium there is nothing to drive, and the buttons go rather than sit over its own.
@@ -246,7 +246,7 @@ func test_holding_a_card_reads_it() -> void:
 	assert_int(TouchInput.joker_inspect).is_equal(1)
 	var stick := Vector2(controls.size.x * 0.2, controls.size.y * 0.7)
 	_touch(controls, 1, stick, true)
-	_drag(controls, 1, stick + Vector2(TouchControls.STICK_RADIUS, 0.0))
+	_drag(controls, 1, stick + Vector2(TouchStick.RADIUS, 0.0))
 	await _runner.simulate_frames(12, 17)
 	assert_bool(kart.menu_open).is_true()
 	assert_int(kart.menu_index).is_equal(1)
@@ -382,7 +382,7 @@ func test_a_tapped_card_stays_open_until_tapped_again() -> void:
 	assert_str(_said(hand._detail._hints)).contains("Tap it again to close it")
 	var stick := Vector2(controls.size.x * 0.2, controls.size.y * 0.7)
 	_touch(controls, 1, stick, true)
-	_drag(controls, 1, stick + Vector2(TouchControls.STICK_RADIUS, 0.0))
+	_drag(controls, 1, stick + Vector2(TouchStick.RADIUS, 0.0))
 	await _runner.simulate_frames(4, 17)
 	assert_bool(kart.menu_open).is_true()
 	assert_int(kart.menu_index).is_equal(0)
@@ -471,7 +471,7 @@ func test_the_driving_controls_gray_out_while_the_kart_cannot_drive() -> void:
 	_touch(controls, 1, controls.pad(TouchControls.FIRE).center, true)
 	var stick := Vector2(controls.size.x * 0.2, controls.size.y * 0.7)
 	_touch(controls, 2, stick, true)
-	_drag(controls, 2, stick + Vector2(TouchControls.STICK_RADIUS, 0.0))
+	_drag(controls, 2, stick + Vector2(TouchStick.RADIUS, 0.0))
 	await _runner.simulate_frames(1, 17)
 	assert_bool(TouchInput.fire).is_false()
 	assert_float(TouchInput.steer).is_equal(0.0)
@@ -601,7 +601,7 @@ func test_the_touch_hud_keeps_its_pieces_apart() -> void:
 	var hand: JokerHand = hud._hands[0]
 	await _runner.simulate_frames(20, 17)
 	var lane := hand.lane
-	assert_float(lane.x).is_greater(TouchControls.STICK_HOME.x + TouchControls.STICK_RADIUS)
+	assert_float(lane.x).is_greater(TouchStick.HOME.x + TouchStick.RADIUS)
 	for card: JokerCard in hand._cards:
 		var rect := card.get_global_rect()
 		assert_float(rect.position.x).is_greater_equal(lane.x - 1.0)
