@@ -105,6 +105,29 @@ func power_ups() -> PowerUpTable:
 	return load("res://data/powerups/%s.tres" % ("all" if item_set == "all" else "first_set"))
 
 
+## Everybody playing at this machine in [param match_node], as the people this configuration is
+## for: their devices, colors, names and dress, in slot order. A room seats them as who they were
+## in the last one, GAME.md 9.6. Nobody here leaves it as it was.
+func take_locals(match_node: Match) -> void:
+	var devices: Array[int] = []
+	var colors: Array[int] = []
+	var names: Array[String] = []
+	var styles: Array = []
+	for slot: PlayerSlot in match_node.slots:
+		if not slot.is_local_human():
+			continue
+		devices.append(slot.device())
+		colors.append(slot.color_index)
+		names.append(slot.player_name)
+		styles.append(slot.style.to_array())
+	if devices.is_empty():
+		return
+	human_devices = devices
+	human_colors = colors
+	human_names = names
+	human_styles = styles
+
+
 static func from_settings(settings: Settings) -> MatchConfig:
 	var config := MatchConfig.new()
 	config.bot_count = settings.bot_count

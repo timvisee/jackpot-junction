@@ -2,7 +2,6 @@ extends GdUnitTestSuite
 ## Play, GAME.md 9.7: a Grand Prix of several maps, played one after another by the same people.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
-const LOBBY_SCENE := preload("res://scenes/ui/lobby.tscn")
 const RULES: MatchRules = preload("res://data/match/default.tres")
 
 ## The player's own settings, put aside so a lobby opened here starts from the defaults rather
@@ -325,7 +324,7 @@ func test_the_joker_rule_is_a_grand_prix_row() -> void:
 	assert_int(lobby.options.jokers_option.selected).is_equal(GrandPrix.Keep.CHOOSE)
 	assert_int(Settings.new().grand_prix_jokers).is_equal(GrandPrix.Keep.CHOOSE)
 	lobby.options.jokers_option.selected = GrandPrix.Keep.ALL
-	assert_int(lobby.config().keep_jokers).is_equal(GrandPrix.Keep.ALL)
+	assert_int(_config(lobby).keep_jokers).is_equal(GrandPrix.Keep.ALL)
 	_choose(lobby, false)
 	assert_bool(lobby.options._jokers_row.visible).is_false()
 
@@ -426,18 +425,25 @@ func _ids(jokers: Array[Joker]) -> Array[StringName]:
 	return ids
 
 
-## The lobby, opened on [param grand_prix] as its first row's answer.
-func _lobby(grand_prix: bool) -> Control:
-	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
-	add_child(lobby)
-	_choose(lobby, grand_prix)
-	return lobby
+## The match settings over the lobby room, GAME.md 9.6, opened on [param grand_prix] as their first
+## row's answer.
+func _lobby(grand_prix: bool) -> HostSettings:
+	var pane: HostSettings = auto_free(HostSettings.add_to(self, true))
+	_choose(pane, grand_prix)
+	return pane
 
 
-## The lobby's first row set to a Grand Prix or a quick match, the way a player choosing it does.
-func _choose(lobby: Control, grand_prix: bool) -> void:
-	lobby.options.mode_option.select(0 if grand_prix else 1)
-	lobby.options.mode_option.item_selected.emit(0 if grand_prix else 1)
+## The first row set to a Grand Prix or a quick match, the way a player choosing it does.
+func _choose(pane: HostSettings, grand_prix: bool) -> void:
+	pane.options.mode_option.select(0 if grand_prix else 1)
+	pane.options.mode_option.item_selected.emit(0 if grand_prix else 1)
+
+
+## What the rows describe, as the room builds its match from them.
+func _config(pane: HostSettings) -> MatchConfig:
+	var config := MatchConfig.from_settings(Game.settings)
+	pane.options.apply_to(config)
+	return config
 
 
 ## Play's lobby asks first whether it is a Grand Prix or a quick match. A Grand Prix asks how many
@@ -451,13 +457,13 @@ func test_the_lobby_asks_grand_prix_or_quick_match_first() -> void:
 	assert_bool(options._arena_row.visible).is_false()
 	assert_str(options._length_label.text).is_equal("Time per map")
 	options.maps_option.selected = MatchOptions.MAPS.find(5)
-	assert_int(lobby.config().rounds).is_equal(5)
+	assert_int(_config(lobby).rounds).is_equal(5)
 	_choose(lobby, false)
 	assert_bool(options.is_grand_prix()).is_false()
 	assert_bool(options._maps_row.visible).is_false()
 	assert_bool(options._arena_row.visible).is_true()
 	assert_str(options._length_label.text).is_equal("Match length")
-	assert_int(lobby.config().rounds).is_equal(0)
+	assert_int(_config(lobby).rounds).is_equal(0)
 
 
 ## A finished map in the middle of a run: the podium leads to the next map and nowhere else.

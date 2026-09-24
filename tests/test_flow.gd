@@ -149,16 +149,17 @@ func test_menu_scenes_build() -> void:
 	# One way in to playing: which kind is the lobby's first question, GAME.md 9.7.
 	for button: Node in title.find_children("*", "Button", true, false):
 		assert_str((button as Button).text).is_not_equal("Quick play")
-	var lobby: Control = auto_free(load("res://scenes/ui/lobby.tscn").instantiate())
-	add_child(lobby)
-	lobby.options.bots_option.selected = 1
-	lobby.options.difficulty_option.selected = 2
-	var config: MatchConfig = lobby.config()
+	# The match is chosen over the lobby room rather than on a screen of its own, GAME.md 9.6.
+	var pane: HostSettings = auto_free(HostSettings.add_to(self, true))
+	pane.options.bots_option.selected = 1
+	pane.options.difficulty_option.selected = 2
+	var config := MatchConfig.new()
+	pane.options.apply_to(config)
 	assert_int(config.bot_count).is_equal(1)
 	assert_str(config.difficulty).is_equal("hard")
 	var settings: Control = auto_free(SETTINGS_SCENE.instantiate())
 	add_child(settings)
-	assert_int(settings.tabs.get_tab_count()).is_equal(5)
+	assert_int(settings.tabs.get_tab_count()).is_equal(6)
 
 
 ## GAME.md 3.8: somebody joining a friend's match never passes through the local lobby, so the

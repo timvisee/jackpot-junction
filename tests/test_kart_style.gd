@@ -4,7 +4,6 @@ extends GdUnitTestSuite
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const RULES: MatchRules = preload("res://data/match/default.tres")
-const LOBBY_SCENE := preload("res://scenes/ui/lobby.tscn")
 
 var _runner: GdUnitSceneRunner
 
@@ -129,23 +128,3 @@ func test_a_decoy_is_dressed_like_its_owner() -> void:
 	assert_array(Array(decoy.style.to_array())).contains_exactly([2, 3, 1, 1])
 	assert_object(_named(decoy, "Hat")).is_not_null()
 	assert_object(_named(decoy, "Flag")).is_not_null()
-
-
-## The lobby asks for none of the four: a kart is dressed at the stalls, GAME.md 4.4. It hands
-## each seat what it last wore to the match.
-func test_the_lobby_hands_each_seat_what_it_last_wore() -> void:
-	var saved := _plain_settings()
-	Game.settings.kart_styles[0] = PackedInt32Array([1, 2, 2, 1])
-	Game.settings.kart_styles[1] = PackedInt32Array([0, 0, 0, 1])
-	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
-	add_child(lobby)
-	for option: Node in lobby.find_children("*", "OptionButton", true, false):
-		for i: int in (option as OptionButton).item_count:
-			assert_str((option as OptionButton).get_item_text(i)).is_not_equal("Top hat")
-	lobby.toggle_join(0)
-	lobby.toggle_join(1)
-	var config: MatchConfig = lobby.config()
-	Game.settings.kart_styles = saved
-	assert_int(config.human_styles.size()).is_equal(2)
-	assert_array(Array(config.human_styles[0])).contains_exactly([1, 2, 2, 1])
-	assert_array(Array(config.human_styles[1])).contains_exactly([0, 0, 0, 1])

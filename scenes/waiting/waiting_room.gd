@@ -67,11 +67,10 @@ func _ready() -> void:
 		ready_room.everybody_ready.connect(_begin, CONNECT_ONE_SHOT)
 	DebugOverlay.add_to(self, match_node, session)
 	var menu := PauseMenu.add_to(self, session)
-	if config.online == "host":
+	# Whoever decides where the room goes chooses the match in here, GAME.md 9.6: the host online,
+	# and on one machine the machine itself.
+	if config.online != "join":
 		_offer_the_settings(menu)
-	elif config.online == "":
-		# Chosen in the lobby on the way in, so the room only has to say what it was.
-		Events.match_planned.emit(MatchOptions.describe(config), false)
 	loaded.emit()
 
 
@@ -84,7 +83,9 @@ func _take_seats() -> void:
 		inputs.append(PlayerInput.new(config.human_devices[i], i))
 	if inputs.is_empty():
 		inputs.append(PlayerInput.new(DeviceInput.ANY, 0))
-	match_node.start(inputs, 0, config.colors(), config.names(), config.styles())
+	# Every seat's name and dress rather than only those sitting down now: somebody taking a seat
+	# in here takes theirs with it.
+	match_node.start(inputs, 0, config.colors(), config.human_names, config.human_styles)
 
 
 func _host() -> void:
@@ -176,7 +177,7 @@ func first_map_config() -> MatchConfig:
 ## The host chooses the match in here, GAME.md 9.6: first thing on opening the room, and again
 ## from the pause menu. The room is open the whole time, so friends join while it is chosen.
 func _offer_the_settings(menu: PauseMenu) -> void:
-	host_settings = HostSettings.add_to(self)
+	host_settings = HostSettings.add_to(self, config.online == "")
 	host_settings.closed.connect(_chosen)
 	menu.add_entry("Match settings", choose)
 	Events.player_joined.connect(_on_player_joined)
@@ -227,22 +228,7 @@ func _on_player_joined(_slot: int) -> void:
 ## the one that came in through the door, and the arena keeps the color, the name and the dress
 ## each of them had in the room rather than handing out new ones on the way across.
 func arena_config() -> MatchConfig:
-	var devices: Array[int] = []
-	var colors: Array[int] = []
-	var names: Array[String] = []
-	var styles: Array = []
-	for slot: PlayerSlot in match_node.slots:
-		if not slot.is_local_human():
-			continue
-		devices.append(slot.device())
-		colors.append(slot.color_index)
-		names.append(slot.player_name)
-		styles.append(slot.style.to_array())
-	if not devices.is_empty():
-		config.human_devices = devices
-		config.human_colors = colors
-		config.human_names = names
-		config.human_styles = styles
+	config.take_locals(match_node)
 	# Everybody connected from elsewhere is kept a seat, in the color they had in here and in the
 	# order the host will seat them again, and the bots the host asked for are on top of everybody
 	# here, as many of them as the arena has seats left for.

@@ -68,6 +68,7 @@ func _ready() -> void:
 	tabs.add_theme_font_size_override("font_size", 22)
 	column.add_child(tabs)
 	tabs.add_child(_controls_tab())
+	tabs.add_child(_players_tab())
 	tabs.add_child(_audio_tab())
 	tabs.add_child(_video_tab())
 	tabs.add_child(_accessibility_tab())
@@ -308,6 +309,25 @@ static func _clear(button: Button) -> void:
 	for child: Node in button.get_children():
 		button.remove_child(child)
 		child.queue_free()
+
+
+## What each seat at this machine is called, GAME.md 3.8, a box per seat. Anybody who leaves theirs
+## empty is handed a name off the funny list when they sit down. Online the first seat's name is
+## the one this machine gives, and the online screen shows the same box.
+func _players_tab() -> Control:
+	var column := VBoxContainer.new()
+	column.name = "Players"
+	column.add_theme_constant_override("separation", 12)
+	for seat: int in _settings.player_names.size():
+		var field := MenuTheme.field(
+			_settings.player_names[seat], PlayerNames.PLACEHOLDER, PlayerNames.MAX_LENGTH
+		)
+		field.custom_minimum_size = Vector2(360.0, 44.0)
+		field.text_changed.connect(
+			func(text: String) -> void: _settings.player_names[seat] = PlayerNames.clean(text)
+		)
+		column.add_child(MenuTheme.row("P%d name" % (seat + 1), field))
+	return column
 
 
 func _audio_tab() -> Control:

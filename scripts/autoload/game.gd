@@ -5,7 +5,6 @@ extends Node
 ## the title, the lobby, the settings and the match.
 
 const TITLE_SCENE := "res://scenes/ui/title.tscn"
-const LOBBY_SCENE := "res://scenes/ui/lobby.tscn"
 const SETTINGS_SCENE := "res://scenes/ui/settings_screen.tscn"
 const MATCH_SCENE := "res://scenes/match/match_scene.tscn"
 const ONLINE_SCENE := "res://scenes/ui/online.tscn"
@@ -137,10 +136,19 @@ func go_to_title() -> void:
 	get_tree().change_scene_to_file(TITLE_SCENE)
 
 
-func go_to_lobby() -> void:
+## Play on this machine, GAME.md 3.8: straight into the lobby, the waiting room of 9.6, with the
+## match settings up over it and anybody else here joining in it with their join button. Back
+## from [param from], a map, everybody who was playing it here comes with it, as who they were.
+func go_to_lobby(from: Match = null) -> void:
 	Net.close()
-	grand_prix = null
-	get_tree().change_scene_to_file(LOBBY_SCENE)
+	var config := MatchConfig.from_settings(settings)
+	if from != null:
+		config.take_locals(from)
+		# And every seat past theirs keeps its own name and dress for whoever sits down in it.
+		for seat: int in range(config.human_names.size(), settings.player_names.size()):
+			config.human_names.append(settings.player_names[seat])
+			config.human_styles.append(settings.kart_styles[seat])
+	go_to_waiting(config)
 
 
 func go_to_online() -> void:

@@ -14,8 +14,14 @@ var _settings_were: Settings
 
 ## The room reads the configuration it was opened with off [Game], which is a global: a test that
 ## left one behind would be handing its own settings to whatever opened a room next.
+##
+## A room on one machine puts its match settings up too, GAME.md 9.6, and closing them saves them,
+## so every test runs on settings of its own, not the player's.
 func before_test() -> void:
 	Game.pending_config = MatchConfig.new()
+	_settings_were = Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_waiting_room.cfg"
 
 
 func after_test() -> void:
@@ -23,6 +29,7 @@ func after_test() -> void:
 	get_tree().paused = false
 	Net.close()
 	if _settings_were != null:
+		DirAccess.remove_absolute(Game.settings.path)
 		Game.settings = _settings_were
 		_settings_were = null
 
@@ -30,8 +37,6 @@ func after_test() -> void:
 ## Hosts a room, on settings of the test's own: closing the host's choices saves them, and a test
 ## that saved into the player's real settings would be deciding their next match for them.
 func _host() -> Node3D:
-	_settings_were = Game.settings
-	Game.settings = Settings.new()
 	Game.settings.path = "user://test_waiting_host.cfg"
 	Game.pending_config.online = "host"
 	Game.pending_config.port = HOST_PORT
@@ -49,6 +54,10 @@ func _open() -> Node3D:
 	await _runner.simulate_frames(45, 17)
 	if room.ready_room.everybody_ready.is_connected(room._begin):
 		room.ready_room.everybody_ready.disconnect(room._begin)
+	# On one machine the match settings come up over the room as it opens, and it waits on them;
+	# these tests are about everything after they are put away.
+	if Game.pending_config.online == "" and room.host_settings != null:
+		room.host_settings.close()
 	return room
 
 
@@ -377,13 +386,25 @@ func test_the_host_opens_the_choosing_again_from_the_pause_menu() -> void:
 	assert_bool(room.ready_room.held).is_true()
 
 
-## Nobody but a host is asked. A room that is not hosting has nothing to choose and no entry for it.
-func test_only_the_host_is_asked() -> void:
-	var room := await _open()
-	assert_object(room.host_settings).is_null()
+## A room on one machine is asked as a host's is, GAME.md 9.6: Play goes straight into it with the
+## match settings up, which say who can join while they are, and are in the pause menu after.
+func test_a_room_on_one_machine_chooses_its_match_in_the_room() -> void:
+	var room: Node3D = auto_free(WAITING_SCENE.instantiate())
+	_runner = scene_runner(room)
+	await _runner.simulate_frames(45, 17)
+	var pane: HostSettings = room.host_settings
+	assert_object(pane).is_not_null()
+	assert_bool(pane.is_open()).is_true()
+	assert_bool(pane.alone).is_true()
+	assert_bool(room.ready_room.held).is_true()
+	pane.close()
+	assert_bool(room.ready_room.held).is_false()
 	var menu: PauseMenu = room.get_node("PauseMenu")
+	var entry: Button = null
 	for button: Node in menu.find_children("*", "Button", true, false):
-		assert_str((button as Button).text).is_not_equal("Match settings")
+		if (button as Button).text == "Match settings":
+			entry = button
+	assert_object(entry).is_not_null()
 
 
 ## A full room does not go while the host is choosing, and goes once they are done.

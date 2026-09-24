@@ -12,15 +12,24 @@ extends CanvasLayer
 ## The host has finished choosing. What they chose is in [member options].
 signal closed
 
+## How far in from the edges of the screen the pane keeps, when it has to be shrunk to fit.
+const FIT_EDGE := 12.0
+
 var options: MatchOptions
+## Whether this is a room on one machine rather than an online one, which is only a matter of who
+## it says can join while the choosing goes on.
+var alone := false
 
 var _panel: Control
+var _middle: CenterContainer
+var _pane: PanelContainer
 var _done: Button
 
 
-static func add_to(parent: Node) -> HostSettings:
+static func add_to(parent: Node, on_one_machine := false) -> HostSettings:
 	var pane := HostSettings.new()
 	pane.name = "HostSettings"
+	pane.alone = on_one_machine
 	parent.add_child(pane)
 	return pane
 
@@ -47,11 +56,22 @@ func _ready() -> void:
 	_panel.add_child(middle)
 	var pane := MenuTheme.pane()
 	middle.add_child(pane)
+	_pane = pane
+	_middle = middle
+	# Drawn smaller on a screen too short for it, a phone's under a big UI scale, GAME.md 8.5,
+	# rather than running off the top and the bottom with Done out of reach.
+	pane.resized.connect(_fit)
+	middle.resized.connect(_fit)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
 	pane.add_child(column)
 	column.add_child(MenuTheme.title("Match settings", 44))
-	column.add_child(MenuTheme.subtitle("Friends can join and drive while you choose.", Type.LABEL))
+	var joining := (
+		"Anybody else here joins with J or Start while you choose."
+		if alone
+		else "Friends can join and drive while you choose."
+	)
+	column.add_child(MenuTheme.subtitle(joining, Type.LABEL))
 	options = MatchOptions.add_to(column, Game.settings)
 	_done = MenuTheme.button("Done")
 	_done.pressed.connect(close)
@@ -60,6 +80,20 @@ func _ready() -> void:
 
 func is_open() -> bool:
 	return _panel.visible
+
+
+## The pane at its own size where the screen has room for it, and shrunk about the middle of the
+## screen where it has not. What is shrunk is the holder that centers it: a container lays its
+## children out at their own scale every time it sorts them, so the pane itself would not stay
+## small.
+func _fit() -> void:
+	var room := _panel.size - Vector2.ONE * FIT_EDGE * 2.0
+	var need := _pane.get_combined_minimum_size()
+	if need.x <= 0.0 or need.y <= 0.0:
+		return
+	var fit := minf(room.x / need.x, room.y / need.y)
+	_middle.pivot_offset = _middle.size * 0.5
+	_middle.scale = Vector2.ONE * clampf(fit, 0.3, 1.0)
 
 
 func open() -> void:

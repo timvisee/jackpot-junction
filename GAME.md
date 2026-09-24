@@ -343,10 +343,9 @@ gets a line here, and a line here is counted the same on every machine in the
 match. A statistic that only adds up on the host is a wrong number on somebody
 else's results screen, see 10.3.
 
-- **Names.** Every player may set one in the lobby, 1 to 16 characters, in a box
-  of their own beside the player list, remembered between sessions per seat.
-  Steering does not cycle colors while a box has the focus, since the letters
-  somebody is typing are the same keys that steer. A seat that never sets one is handed a name off a
+- **Names.** Every seat at a machine may set one, 1 to 16 characters, in a box of
+  its own on the Players tab of the settings, 8.5, remembered between sessions.
+  A seat that never sets one is handed a name off a
   list of silly ones when the match starts, and no two players in a room are ever
   handed the same one, because a results screen listing P1, P2, P3 and P4 says
   nothing about anybody. A name is trimmed, cut to length and stripped of square
@@ -356,9 +355,9 @@ else's results screen, see 10.3.
   practice dummies after what they are, so neither takes a name off anybody.
   Online the host owns every name in the room, as it owns everything else that
   decides what a player sees: a client says what it is called once its seat is
-  assigned and the name reaches every screen in the snapshot, see 10.3. The box
-  is on the online screen as well as in the lobby, since somebody joining a
-  friend's match never passes through the lobby.
+  assigned and the name reaches every screen in the snapshot, see 10.3. The
+  first seat's box is on the online screen as well, since that is the name a
+  machine gives when it connects.
 - A room that has lost its host says so on a pane in the middle of the screen,
   built like the joker detail pane in 8.3, and has the screen to itself: the HUD
   stands down and takes any open joker pick, the standings, the blocks and the
@@ -366,13 +365,16 @@ else's results screen, see 10.3.
   pick left open under the notice would be asking for a choice about a match that
   is not there any more.
 - The title screen offers Play, Play LAN, the Garage, Settings and Quit. Play
-  opens the lobby, whose first question is whether it is a Grand Prix of several
-  maps or a quick match on one, see 9.7. There is no tutorial. At
+  goes straight into the lobby, the waiting room of 9.6, the way hosting a LAN
+  game does, with the match settings up over it, whose first question is whether
+  it is a Grand Prix of several maps or a quick match on one, see 9.7; anybody
+  else at the machine joins in there. There is no screen of rules of its own
+  before it. There is no tutorial. At
   the start of a match the drive and fire controls are shown next to each
   human player's kart, from the countdown until that player has both driven
   and fired, or for 10 s at most. For a player who drives the simple way, see
   4.2, it is the way to go and fire.
-- The lobby exposes match length, target score, bot count, one global bot
+- The match settings offer match length, target score, bot count, one global bot
   difficulty, the item set (basic items or all items) and whether a kart's own
   bullets hurt it, with the values in this document as defaults. Every choice is
   remembered for the next match. A map runs 1, 3, 5 or 8 minutes; a debug build
@@ -711,10 +713,6 @@ only the players at this machine have one. A pad's
 cursor goes out to them from the menu: sideways from any of its buttons is the top switch on that
 side, back toward the middle from a switch is Resume, and up and down go between the switches on
 one side.
-
-Play's lobby of 3.8 asks each seat too, as it asks for a name and a kart: a row each for the
-players who have joined, with the same pair of buttons as the settings, starting on what the
-seat said last and kept for it on Start.
 
 A hint that names the push of simple driving draws it as the one control it is: on a pad the
 stick with a head on each of its four sides, square rather than wide; on a touch screen the same
@@ -2306,6 +2304,8 @@ like any other button.
   4.2; rebinding per player for gamepad and keyboard, stick dead zone, rumble on
   or off, and on a touch screen, first after the driving, how it drives: by the
   slider or by a button each, see 4.2.
+- **Players**: a box each for what the four seats at this machine are called,
+  see 3.8, with the funny-name hint in an empty one.
 - **Audio**: master, music, effects and kart volume. The karts have their own
   because their engine and tires run the whole time rather than in bursts, so
   how loud that bed should sit is a matter of taste in a way the rest is not.
@@ -2558,10 +2558,13 @@ bots come after them before they reach the Junction.
 ### 9.2 Local multiplayer
 
 Shared screen, up to 4 players, gamepads plus one keyboard and mouse player.
-Players join in the lobby by pressing the join button on their device, Start
-on a gamepad or J on the keyboard, and pick a color by steering left or
-right. The first join press claims that device for P1; until then P1 plays on
-any device. Bots fill empty slots if wanted. The second release.
+Players join in the lobby, the waiting room of 9.6, by pressing the join button on
+their device, Start on a gamepad or J on the keyboard, which seats them in a color
+nobody else has, with their seat's name and dress. Until somebody joins on another
+device P1 plays on any device, and then settles on the one they last drove with.
+Bots fill empty slots if wanted, as many as the match settings ask for. Back to
+the lobby from a map, everybody who played it at this machine comes back with it,
+in the colors, names and dress they had.
 
 Joining mid-match is allowed: a press on an unused device during a match adds
 the player. If a bot kart exists, the joiner takes it over and inherits its
@@ -2883,8 +2886,9 @@ leave the room to find out how to let their friend in.
 A seat taken in here goes through to the arena with everybody else, and as who it was in the
 room: the same color, the same name, the same dress.
 
-**Choosing the match.** Online, the host chooses what the match is going to be in here, from the
-same rows the lobby puts in front of a local one: a Grand Prix or a quick match, see 9.7, then
+**Choosing the match.** Whoever decides where the room goes chooses what the match is going to
+be in here: the host online, and on one machine the machine itself, which is where Play goes
+straight to. The rows are a Grand Prix or a quick match, see 9.7, then
 how many maps or which arena, how long, the target, how many bots and how hard, the
 items, own bullets and what the clock running out does. They come up over the
 room the moment it is opened, again from the host's pause menu, and start on whatever the host
@@ -2894,7 +2898,10 @@ host's own karts wait where they are, since the controls are working the menu.
 Everybody in the room is told what is coming, under the count:
 `Next: Crossfire · 5 min · first to 3000 · 2 bots`, or for a Grand Prix
 `Next: Grand Prix of 3 maps · 5 min each · first to 3000 · 2 bots`, or that the host is still
-choosing. On one machine the room says what the lobby chose on the way in. The room
+choosing, or on one machine that it is still being chosen. The pane says who can join while it
+is up: friends online, and on one machine anybody else there, with J or Start. On a screen too
+short for it, a phone's under a big UI scale, it is drawn smaller rather than running off the
+top and the bottom. The room
 does not go while the host is choosing, however ready everybody else is: a match that started
 halfway through the menu would be the one that was set before they began.
 

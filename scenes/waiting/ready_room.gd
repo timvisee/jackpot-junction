@@ -243,7 +243,8 @@ func _say_the_count() -> void:
 ## waiting to play it wants to know.
 func _on_match_planned(summary: String, choosing: bool) -> void:
 	held = choosing
-	_plan.text = "The host is choosing the match" if choosing else "Next: %s" % summary
+	var who := "The host is" if Net.online() else "Still"
+	_plan.text = "%s choosing the match" % who if choosing else "Next: %s" % summary
 	_plan.visible = true
 
 

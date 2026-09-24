@@ -26,8 +26,11 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
-- **The Play screen no longer dresses karts.** That is done at the stalls, and
-  online a client's kart now looks the way its player dressed it on every screen.
+- **Play goes straight into the lobby.** The match settings come up over it the way
+  they do for a LAN host, and anybody else joins in the room with J or Start.
+- **Names are in Settings.** A Players tab has a box for each seat.
+- **Karts are dressed at the stalls rather than on a menu.** Online a client's kart
+  now looks the way its player dressed it on every screen.
 
 ## [0.6.2] - 2026-09-24
 

@@ -187,7 +187,7 @@ func _leave_to_lobby() -> void:
 	if session != null:
 		Game.back_to_the_room()
 	else:
-		Game.go_to_lobby()
+		Game.go_to_lobby(get_tree().get_first_node_in_group(&"match") as Match)
 
 
 ## Puts [param words], a question, the line under it and the button that goes ahead, in place of

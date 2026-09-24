@@ -12,7 +12,6 @@ extends Node
 
 const WAITING_SCENE := "res://scenes/waiting/waiting_room.tscn"
 const MATCH_SCENE := "res://scenes/match/match_scene.tscn"
-const LOBBY_SCENE := "res://scenes/ui/lobby.tscn"
 ## How many maps the checked Grand Prix runs, and how many bots it asks for.
 const MAPS := 2
 const BOTS := 1
@@ -397,7 +396,8 @@ func _client_after_map_2(second: Node) -> void:
 	_finished = true
 
 
-## Two players on one machine: Play, the waiting room, both maps, and back to Play's lobby.
+## Two players on one machine: Play, the waiting room, both maps, and back to the lobby with the
+## same two players in it and the match settings up again.
 func _local() -> void:
 	var first := await _local_readies_up()
 	if first == null:
@@ -406,11 +406,11 @@ func _local() -> void:
 	if last == null:
 		return
 	last._lobby.pressed.emit()
-	await _until(
-		func() -> bool: return _scene() != null and _scene().scene_file_path == LOBBY_SCENE,
-		10.0,
-		"back in Play's lobby"
-	)
+	var again := await _room()
+	if again == null:
+		return
+	_check(again.match_node.slots.size() == 2, "back in the lobby with both players")
+	_check(again.host_settings != null and again.host_settings.is_open(), "settings are up again")
 	_finished = true
 
 
@@ -429,6 +429,16 @@ func _local_readies_up() -> Node:
 	var room := await _room()
 	if room == null:
 		return null
+	# The match is chosen over the room, on one machine as online, GAME.md 9.6.
+	var pane: HostSettings = room.host_settings
+	if not _check(pane != null and pane.is_open(), "the match settings are up in the room"):
+		return null
+	pane.options.mode_option.selected = 0
+	pane.options.maps_option.selected = MatchOptions.MAPS.find(MAPS)
+	pane.options.bots_option.selected = MatchOptions.BOTS.find(BOTS)
+	pane.options.minutes_option.selected = MatchOptions.match_lengths().find(60)
+	pane.options.jokers_option.selected = _keep
+	pane.close()
 	var match_node: Match = room.match_node
 	_check(match_node.slots.size() == 2, "both players are seated in the room")
 	# One on the pad is not everybody.

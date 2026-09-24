@@ -3,7 +3,6 @@ extends GdUnitTestSuite
 ## host's pick is the one everybody plays in.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
-const LOBBY_SCENE := preload("res://scenes/ui/lobby.tscn")
 const DEFAULT_RULES: MatchRules = preload("res://data/match/default.tres")
 
 var _runner: GdUnitSceneRunner
@@ -83,11 +82,11 @@ func test_the_map_rides_the_wire_with_the_rest_of_the_settings() -> void:
 
 
 func test_the_lobby_picks_one_and_a_match_is_played_in_it() -> void:
-	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
-	add_child(lobby)
-	assert_int(lobby.options.map_option.item_count).is_equal(ArenaMaps.IDS.size())
-	lobby.options.map_option.selected = 1
-	var config: MatchConfig = lobby.config()
+	var pane: HostSettings = auto_free(HostSettings.add_to(self, true))
+	assert_int(pane.options.map_option.item_count).is_equal(ArenaMaps.IDS.size())
+	pane.options.map_option.selected = 1
+	var config := MatchConfig.new()
+	pane.options.apply_to(config)
 	assert_str(String(config.map)).is_equal(String(ArenaMaps.IDS[1]))
 	var rules := config.rules(DEFAULT_RULES)
 	rules.countdown = 0.1

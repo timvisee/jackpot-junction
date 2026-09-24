@@ -3,7 +3,6 @@ extends GdUnitTestSuite
 ## over a bot or a free slot, and handing a kart back to a bot.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
-const LOBBY_SCENE := preload("res://scenes/ui/lobby.tscn")
 
 var _runner: GdUnitSceneRunner
 
@@ -19,31 +18,6 @@ func _start_match(inputs: Array[KartInput], colors: Array[int] = []) -> Match:
 	_runner = scene_runner(match_node)
 	match_node.start(inputs, 17, colors)
 	return match_node
-
-
-func test_lobby_join_claims_p1_then_adds_and_drops_players_with_distinct_colors() -> void:
-	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
-	add_child(lobby)
-	assert_int(lobby.devices[0]).is_equal(DeviceInput.ANY)
-	lobby.toggle_join(0)
-	assert_int(lobby.devices[0]).is_equal(0)
-	lobby.toggle_join(DeviceInput.KEYBOARD)
-	lobby.toggle_join(1)
-	assert_int(lobby.devices.size()).is_equal(3)
-	assert_array(lobby.colors).contains_exactly([0, 1, 2])
-	lobby.cycle_color(1, 1)
-	assert_int(lobby.colors[1]).is_equal(3)
-	lobby.cycle_color(2, -1)
-	assert_int(lobby.colors[2]).is_equal(1)
-	lobby.toggle_join(1)
-	assert_int(lobby.devices.size()).is_equal(2)
-	lobby.toggle_join(0)
-	assert_int(lobby.devices.size()).is_equal(2)
-	lobby.options.bots_option.selected = 3
-	var config: MatchConfig = lobby.config()
-	assert_int(config.human_devices.size()).is_equal(2)
-	assert_int(config.bot_count).is_equal(2)
-	assert_array(config.colors()).contains_exactly([0, 3, 1, 2])
 
 
 func test_colors_reach_karts_and_slots() -> void:
@@ -105,8 +79,7 @@ func test_joining_without_bots_spawns_a_fresh_slot_until_the_match_is_full() -> 
 ## front of it, straight through to the podium for somebody testing what comes after it. A real
 ## build does not, because it is not a length anybody wants a game to be.
 func test_a_debug_build_offers_a_short_match() -> void:
-	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
-	add_child(lobby)
+	var pane: HostSettings = auto_free(HostSettings.add_to(self, true))
 	var lengths: Array[int] = MatchOptions.match_lengths()
 	assert_bool(lengths.has(60)).is_true()
 	if OS.is_debug_build():
@@ -121,42 +94,40 @@ func test_a_debug_build_offers_a_short_match() -> void:
 	assert_str(MatchOptions.length_words(5.0)).is_equal("5 s")
 	assert_str(MatchOptions.length_words(180.0)).is_equal("3 min")
 	# Whichever it is, picking one gives a match that long and nothing else.
-	lobby.options.minutes_option.selected = 0
-	var config: MatchConfig = lobby.config()
+	pane.options.minutes_option.selected = 0
+	var config := MatchConfig.new()
+	pane.options.apply_to(config)
 	assert_float(config.duration).is_equal_approx(float(lengths[0]), 0.001)
 
 
-## GAME.md 3.8: every player who has joined gets a box to type a name into, and what is typed
-## stays with that player through anybody else joining or leaving.
-func test_the_lobby_gives_every_joined_player_a_name_box() -> void:
-	# Blank seats, so this is a test of the lobby rather than of whatever the person at this
-	# keyboard last called themselves.
-	var saved := Game.settings.player_names
-	Game.settings.player_names = ["", "", "", ""] as Array[String]
-	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
-	add_child(lobby)
-	Game.settings.player_names = saved
-	# A box per seat, shown as far down as the roster reaches.
-	assert_int(lobby._name_fields.size()).is_equal(lobby.MAX_HUMANS)
-	assert_bool(lobby._name_rows[0].visible).is_true()
-	assert_bool(lobby._name_rows[1].visible).is_false()
-	lobby.toggle_join(0)
-	lobby.toggle_join(1)
-	lobby.toggle_join(2)
-	assert_bool(lobby._name_rows[2].visible).is_true()
-	assert_bool(lobby._name_rows[3].visible).is_false()
-	lobby._name_fields[0].text = "Ada"
-	lobby._name_fields[0].text_changed.emit("Ada")
-	lobby._name_fields[2].text = "Grace"
-	lobby._name_fields[2].text_changed.emit("Grace")
-	assert_array(lobby.names()).contains_exactly(["Ada", "", "Grace"])
-	# The middle player leaves; the names that are left belong to the people who are left.
-	lobby.toggle_join(1)
-	assert_array(lobby.names()).contains_exactly(["Ada", "Grace"])
-	assert_str(lobby._name_fields[1].text).is_equal("Grace")
-	assert_bool(lobby._name_rows[2].visible).is_false()
-	# And they reach the match the lobby describes, cleaned up on the way.
-	lobby._name_fields[1].text = "[b]Grace[/b]"
-	lobby._name_fields[1].text_changed.emit("[b]Grace[/b]")
-	var config: MatchConfig = lobby.config()
-	assert_array(config.human_names).contains_exactly(["Ada", "bGrace/b"])
+## GAME.md 9.6: back to the lobby from a map, everybody who played it at this machine comes too,
+## as who they were in it, and a bot does not.
+func test_the_players_here_are_carried_back_to_the_lobby() -> void:
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.KEYBOARD, 0), PlayerInput.new(0, 1), BotInput.new()
+	]
+	var match_node := _start_match(inputs, [4, 1, 2])
+	match_node.slots[1].player_name = "Grace"
+	match_node.slots[1].style = KartStyle.from_array([1, 2, 0, 0])
+	var config := MatchConfig.new()
+	config.take_locals(match_node)
+	assert_array(config.human_devices).contains_exactly([DeviceInput.KEYBOARD, 0])
+	assert_array(config.human_colors).contains_exactly([4, 1])
+	assert_str(config.human_names[1]).is_equal("Grace")
+	assert_array(Array(config.human_styles[1])).contains_exactly([1, 2, 0, 0])
+
+
+## GAME.md 3.8: the names of the seats at this machine are in the settings, a box each.
+func test_the_seats_are_named_in_the_settings() -> void:
+	var real := Game.settings
+	Game.settings = Settings.new()
+	var screen: SettingsScreen = auto_free(
+		load("res://scenes/ui/settings_screen.tscn").instantiate()
+	)
+	add_child(screen)
+	var players: Control = screen.tabs.get_node("Players")
+	var boxes := players.find_children("*", "LineEdit", true, false)
+	assert_int(boxes.size()).is_equal(4)
+	(boxes[2] as LineEdit).text_changed.emit("  [b]Grace[/b]  ")
+	assert_str(Game.settings.player_names[2]).is_equal("bGrace/b")
+	Game.settings = real

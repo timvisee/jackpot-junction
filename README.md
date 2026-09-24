@@ -25,11 +25,12 @@ Three arenas, three rooms to play them in.
 
 ## Playing
 
-- **Single-player**: Play, pick an arena, match length, target score, bots and
-  difficulty, start. Bots use the same karts, items and jokers you do.
+- **Single-player**: Play opens the lobby with the match settings over it: a Grand
+  Prix or one arena, match length, target score, bots and difficulty. Drive onto
+  the pad in the middle to start. Bots use the same karts, items and jokers you do.
 - **Local multiplayer**: in the lobby or mid-match, press Start on a gamepad or
-  J on the keyboard to join. Steer left or right in the lobby to change color,
-  and give each seat a name and a kart to dress.
+  J on the keyboard to join. Dress your kart at the stalls along the lobby's back
+  wall, and name each seat in Settings, Players.
 - **LAN**: Play LAN, host on a port or join a friend's address directly.
   The host runs the match; joining players take over bot karts.
 - **Garage**: a practice room with one of everything in it and two dummy karts to
