@@ -140,6 +140,7 @@ func _ready() -> void:
 	add_child(_kill_feed)
 	_results = ResultsScreen.create(self, match_node)
 	EmoteWheel.add_to(self, match_node)
+	WatcherEmotes.add_to(self)
 	if TouchInput.enabled:
 		TouchControls.attach(self)
 		TouchEmotes.attach(self)

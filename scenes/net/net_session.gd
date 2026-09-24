@@ -110,6 +110,8 @@ var _relaying := false
 ## On the host: the clients that came to watch, GAME.md 10.3, and of them the ones watching the
 ## room it is in now, which are the ones sent its snapshots.
 var _watchers: Dictionary[int, bool] = {}
+## On the host: when each watcher may put up their next emote, in engine ticks of milliseconds.
+var _watcher_next: Dictionary[int, int] = {}
 var _watching_here: Dictionary[int, bool] = {}
 ## Whether this machine is asking for a pause, and which of the host's clients are.
 var _asking := false
@@ -580,6 +582,12 @@ func _physics_process(delta: float) -> void:
 			for peer: int in _watching_here:
 				_receive_snapshot.rpc_id(peer, bytes)
 			_send_authority()
+	elif watching:
+		# Somebody watching has no kart, but has emotes, GAME.md 3.8: asked of the host, which puts
+		# them up on every screen.
+		local_input.poll(delta)
+		if local_input.emote >= 0:
+			_watcher_emote.rpc_id(1, local_input.emote, player_name)
 	elif local_slot >= 0:
 		adopt_own_kart()
 		_settle_authority(delta)
@@ -633,6 +641,7 @@ func _on_peer_disconnected(peer: int) -> void:
 	_newcomers.erase(peer)
 	_color_of.erase(peer)
 	_watchers.erase(peer)
+	_watcher_next.erase(peer)
 	_watching_here.erase(peer)
 	if not is_host or not _peer_slots.has(peer):
 		return
@@ -788,6 +797,20 @@ func _claim_color(color: int) -> void:
 	var index: int = _peer_slots.get(multiplayer.get_remote_sender_id(), -1)
 	if index >= 0 and index < match_node.slots.size():
 		SeatIdentity.paint(match_node, match_node.slots[index], color)
+
+
+## An emote from somebody watching, put up on every screen as the karts' are, at most as often.
+@rpc("any_peer", "call_remote", "reliable")
+func _watcher_emote(emote: int, watcher: String) -> void:
+	var peer := multiplayer.get_remote_sender_id()
+	if not is_host or not _watchers.has(peer) or emote < 0 or emote >= EmoteArt.EMOTES.size():
+		return
+	var now := Time.get_ticks_msec()
+	if now < _watcher_next.get(peer, 0):
+		return
+	_watcher_next[peer] = now + roundi(Emotes.COOLDOWN * 1000.0)
+	var named := PlayerNames.clean(watcher)
+	Events.watcher_emoted.emit(named if not named.is_empty() else "Watcher", emote)
 
 
 ## Takes over the driving of this client's own kart once the snapshot has built it. Called every

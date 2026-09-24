@@ -445,6 +445,20 @@ func _watcher() -> void:
 	_check(session.local_slot == -1, "in the room with no seat")
 	await _frames(5)
 	_check(not room.ready_room._seat_hint.visible, "not told how to take a seat")
+	# An emote with no kart to put it over, GAME.md 3.8: asked of the host, and back from it, up the
+	# bottom of this screen as of every other.
+	var heard: Array[String] = []
+	var hear := func(watcher: String, _emote: int) -> void: heard.append(watcher)
+	Events.watcher_emoted.connect(hear)
+	Input.action_press(InputActions.EMOTE_1)
+	await _frames(3)
+	Input.action_release(InputActions.EMOTE_1)
+	await _until(
+		func() -> bool: return not heard.is_empty(), 10.0, "its emote came back from the host"
+	)
+	var bubble: Node = room.match_node.hud.find_child("WatcherEmote", true, false)
+	_check(bubble != null, "and floats up this screen")
+	Events.watcher_emoted.disconnect(hear)
 	for round: int in [1, 2]:
 		if not await _until(
 			func() -> bool:

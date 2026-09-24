@@ -156,6 +156,28 @@ func test_the_wheel_comes_up_round_the_kart() -> void:
 	assert_bool(root.visible).is_false()
 
 
+## Somebody watching has no kart: their emote floats up from the bottom of the screen in gray,
+## with their name under it, and goes.
+func test_a_watchers_emote_floats_up_the_screen() -> void:
+	var holder: CanvasLayer = auto_free(CanvasLayer.new())
+	add_child(holder)
+	var emotes := WatcherEmotes.add_to(holder)
+	await await_idle_frame()
+	Events.watcher_emoted.emit("Ann", 2)
+	var bubble: Control = emotes.get_node("WatcherEmote")
+	var label: Label = bubble.get_child(1)
+	assert_str(label.text).is_equal("Ann")
+	var picture: EmoteArt.Picture = bubble.get_child(0)
+	assert_int(picture.emote).is_equal(2)
+	assert_that(picture.ink).is_equal(WatcherEmotes.INK)
+	var start := bubble.position.y
+	assert_float(start).is_greater(emotes.size.y * 0.5)
+	await get_tree().create_timer(0.5).timeout
+	assert_float(bubble.position.y).is_less(start)
+	await get_tree().create_timer(WatcherEmotes.SHOWN).timeout
+	assert_bool(is_instance_valid(bubble)).is_false()
+
+
 func _tap(on: Control, at: Vector2) -> InputEventScreenTouch:
 	var touch := InputEventScreenTouch.new()
 	touch.pressed = true

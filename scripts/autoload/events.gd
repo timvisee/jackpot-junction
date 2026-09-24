@@ -39,6 +39,8 @@ signal announced(slot: int, call: String)
 signal bullet_fired(slot: int)
 ## A player put up an emote over their kart, GAME.md 3.8: an index into [constant EmoteArt.EMOTES].
 signal emoted(slot: int, emote: int)
+## Somebody watching put one up, with no kart to put it over: what they are called and which.
+signal watcher_emoted(watcher: String, emote: int)
 ## A kart has been dressed on one of the lobby's stalls, GAME.md 9.6: the [param part] of it that
 ## changed, in [constant KartStyle.CHOICES] order, and all four as they now are.
 signal kart_dressed(slot: int, part: int, style: PackedInt32Array)

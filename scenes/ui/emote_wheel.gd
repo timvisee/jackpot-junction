@@ -5,7 +5,8 @@ extends Control
 ## for a few seconds after the wheel's key, V, with the key for each way beside it. Only while one
 ## is being chosen: once it is asked for, it is up over the kart, and the wheel saying so again
 ## would be saying it twice. One for each player at this screen, round their own kart, in their
-## own color.
+## own color; and for somebody watching, who has no kart, one in gray at the bottom of the screen,
+## where theirs float up from, see [WatcherEmotes].
 
 ## How far out from the middle of the kart each emote sits, and how big it is, in pixels at a UI
 ## scale of 100%.
@@ -20,10 +21,14 @@ const KEY_SIZE := 16
 const KEY_INK := Color(0.93, 0.93, 0.95)
 ## Where each of the four sits, up, right, down and left, in [constant EmoteArt.EMOTES] order.
 const WAYS: Array[Vector2] = [Vector2.UP, Vector2.RIGHT, Vector2.DOWN, Vector2.LEFT]
+## How far up from the bottom of the screen the middle of a watcher's wheel is, past its reach.
+const WATCHER_LIFT := 60.0
+## The key a watcher's wheel is kept under, which no slot has.
+const WATCHER := -1
 
 var match_node: Match
 
-## Slot to its wheel: the node, its four pictures and its keys.
+## Slot to its wheel, or [constant WATCHER]: the node, its four pictures and its keys.
 var _wheels: Dictionary[int, Dictionary] = {}
 
 
@@ -42,11 +47,20 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	var camera := get_viewport().get_camera_3d()
+	var session := Net.session if Net.online() else null
+	if session != null and session.watching:
+		var watcher := session.local_input as PlayerInput
+		var wheel := _wheel_for(WATCHER, WatcherEmotes.INK)
+		var root: Control = wheel["root"]
+		root.visible = watcher != null and (watcher.wheel_by_keys or watcher.wheel_pointing >= 0)
+		if root.visible:
+			root.position = Vector2(size.x * 0.5, size.y - REACH - SIDE - WATCHER_LIFT)
+			_show(wheel, watcher.wheel_pointing, watcher.wheel_by_keys)
 	for slot: PlayerSlot in match_node.slots:
 		var player := slot.input as PlayerInput
 		if player == null:
 			continue
-		var wheel := _wheel_for(slot)
+		var wheel := _wheel_for(slot.index, slot.color())
 		var root: Control = wheel["root"]
 		var kart := slot.kart
 		var up := player.wheel_by_keys or player.wheel_pointing >= 0
@@ -63,10 +77,11 @@ func _process(_delta: float) -> void:
 
 
 ## Four emotes round the middle, each with the key for its way beside it, hidden unless it was the
-## key that opened the wheel. Colored in [param slot]'s color, and made again if that changes.
-func _wheel_for(slot: PlayerSlot) -> Dictionary:
-	var wheel: Dictionary = _wheels.get(slot.index, {})
-	if not wheel.is_empty() and wheel["color"] == slot.color_index:
+## key that opened the wheel. The wheel kept under [param kept_as], rimmed in [param ink], and
+## made again if that changes.
+func _wheel_for(kept_as: int, ink: Color) -> Dictionary:
+	var wheel: Dictionary = _wheels.get(kept_as, {})
+	if not wheel.is_empty() and wheel["color"] == ink:
 		return wheel
 	if not wheel.is_empty():
 		(wheel["root"] as Control).queue_free()
@@ -76,7 +91,7 @@ func _wheel_for(slot: PlayerSlot) -> Dictionary:
 	var pictures: Array[Control] = []
 	var keys: Array[Control] = []
 	for i: int in WAYS.size():
-		var picture := EmoteArt.picture(i, slot.color(), SIDE)
+		var picture := EmoteArt.picture(i, ink, SIDE)
 		picture.position = WAYS[i] * REACH - picture.size * 0.5
 		picture.pivot_offset = picture.size * 0.5
 		root.add_child(picture)
@@ -93,9 +108,9 @@ func _wheel_for(slot: PlayerSlot) -> Dictionary:
 		"root": root,
 		"pictures": pictures,
 		"keys": keys,
-		"color": slot.color_index,
+		"color": ink,
 	}
-	_wheels[slot.index] = wheel
+	_wheels[kept_as] = wheel
 	return wheel
 
 

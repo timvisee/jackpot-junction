@@ -5,7 +5,8 @@ extends Control
 ## screen where nothing else is: under it are the board, and the driving buttons further down. A
 ## tap on one of them puts it up over the kart and shuts the row again; a tap on the button shuts
 ## it too, and so does one anywhere else, which goes on to whatever it landed on. Only with somebody
-## else in the match to see it: against bots alone it is a button for talking to nobody.
+## else in the match to see it: against bots alone it is a button for talking to nobody. Somebody
+## watching has it too, whose emotes float up from the bottom in gray, see [WatcherEmotes].
 
 ## How big the button is, and how far it keeps from the menu button.
 const RADIUS := 27.0
@@ -65,9 +66,15 @@ func _anybody_else(mine: PlayerSlot) -> bool:
 	return false
 
 
+## Whether this machine is only watching, with emotes but no kart.
+func _watching() -> bool:
+	return Net.online() and Net.session.watching
+
+
 func _process(_delta: float) -> void:
 	var mine := _player_slot()
-	var shown := not PauseMenu.is_open_in(get_tree()) and mine != null and _anybody_else(mine)
+	var anybody := _anybody_else(mine) if mine != null else _watching() and _anybody_else(null)
+	var shown := not PauseMenu.is_open_in(get_tree()) and anybody
 	if shown != visible:
 		visible = shown
 		open = false
@@ -107,7 +114,7 @@ func _draw() -> void:
 	if not open:
 		return
 	var slot := _player_slot()
-	var color := slot.color() if slot != null else Palette.CHIP_WHITE
+	var color := slot.color() if slot != null else WatcherEmotes.INK
 	for i: int in EmoteArt.EMOTES.size():
 		var box := Rect2(emote_center(i) - Vector2.ONE * SIDE * 0.5, Vector2.ONE * SIDE)
 		EmoteArt.draw_into(self, box, i, color)

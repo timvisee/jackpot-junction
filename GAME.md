@@ -383,7 +383,13 @@ else's results screen, see 10.3.
   karts decides, the host online, and says so to every machine, so it comes up
   on every screen at once, a client's own included; the ask goes over the wire
   as one more field at the end of a client's controls. A kart that is down has
-  nothing to put one over.
+  nothing to put one over. Somebody watching, 10.3, has the same emotes and the
+  same ways to them, the touch screen's button included, and no kart: theirs
+  floats up from the bottom of every screen at a spot of its own and fades, the
+  way a reaction rises up a live stream, on a bubble rimmed in gray rather than
+  in a player's color, with their name under it; their wheel is in gray at the
+  bottom of their own screen, where those rise from. They ask the host, which
+  puts it up for everybody as often as a player may.
 - A room that has lost its host says so on a pane in the middle of the screen,
   built like the joker detail pane in 8.3, and has the screen to itself: the HUD
   stands down and takes any open joker pick, the standings, the blocks and the

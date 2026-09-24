@@ -31,6 +31,8 @@ below, and hands the notes to the release workflow.
   name box and a button for your color in the lobby and the Garage, online too.
 - **Watch a LAN game.** Watch, beside Join, lets somebody in with no kart, even when
   every seat is taken, and the podiums go on by themselves.
+- **Watchers can emote.** Theirs float up from the bottom of every screen in gray,
+  with their name under them.
 
 ### Changed
 
