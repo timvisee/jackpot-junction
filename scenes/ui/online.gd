@@ -60,8 +60,10 @@ func _ready() -> void:
 ## B on a pad, or Escape, is the Back button, GAME.md 4.2.
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"ui_cancel"):
-		Game.go_to_title()
+		# Handled before going: the scene change takes this screen out of the tree, and its
+		# viewport with it.
 		get_viewport().set_input_as_handled()
+		Game.go_to_title()
 
 
 ## The configuration for hosting or joining with the current fields.
