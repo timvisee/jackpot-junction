@@ -62,7 +62,9 @@ func text() -> String:
 
 func _build() -> void:
 	_backdrop = ColorRect.new()
-	_backdrop.color = MenuTheme.BACKGROUND
+	# The loading screen's, which is what comes up after the words on the way to a map: the
+	# menus' own slate there was a second screen flashing up between two dark ones.
+	_backdrop.color = LoadingScreen.BACKDROP
 	_backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_backdrop.visible = backdrop

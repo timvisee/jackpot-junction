@@ -38,6 +38,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Going to the next map online is one dark screen.** Starting the match was said on
+  the menus' gray and then the loading screen cut in on black.
 - **The start lamps always go after the countdown.** A match that went straight into
   anything but ordinary play kept them up.
 - **Joining an address nobody is at says so.** It said it was waiting for the host

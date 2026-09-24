@@ -10,6 +10,9 @@ extends CanvasLayer
 ## phases are the ones in [method Arena.build_steps], so a room that takes longer to build shows
 ## a bar that takes longer to fill rather than one that lies faster.
 
+## What a room is put up in front of, and what anything said while one is on its way is said on,
+## so the words and the loading screen after them are one dark screen rather than two.
+const BACKDROP := Color(0.04, 0.04, 0.05)
 ## Over everything, including the match's own HUD.
 const LAYER := 100
 ## How long the screen stays up after the last phase, so the bar is seen full rather than seen
@@ -43,7 +46,7 @@ static func add_to(parent: Node, room: String) -> LoadingScreen:
 
 func _ready() -> void:
 	var back := ColorRect.new()
-	back.color = Color(0.04, 0.04, 0.05)
+	back.color = BACKDROP
 	back.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(back)
 	var column := VBoxContainer.new()

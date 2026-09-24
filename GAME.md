@@ -2395,6 +2395,10 @@ between the maps go up the same way under their own names: the Garage, the test
 track and the waiting room, the last whether it is hosted, joined or followed back
 into from a match.
 
+What a client is told while it waits to be let into a map, starting the match or connecting, is
+said on the loading screen's own dark, so the words and the loading screen after them read as
+one screen rather than a gray one flashing up between two dark ones.
+
 Anything that cannot wait a frame -- the tests, the dev scenes -- builds the room
 in one go as before, which is the same room by the time it is finished.
 
