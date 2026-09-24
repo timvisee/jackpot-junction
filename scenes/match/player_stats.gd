@@ -33,7 +33,16 @@ const FIELDS: Array[StringName] = [
 	&"pads_taken",
 	&"oil_spins",
 	&"overtakes",
+	&"hits",
 ]
+## Worked out from the others rather than counted, and so not on the wire: of the shots fired,
+## how many landed on somebody, as a percentage.
+const DERIVED: Array[StringName] = [&"accuracy"]
+## Counted only for one of those, and no award of its own: a hit is a shot on target.
+const BEHIND_DERIVED: Array[StringName] = [&"hits"]
+## How many shots a player has to have fired before their accuracy says anything. One lucky shot
+## is not a marksman.
+const ACCURACY_SHOTS := 10
 
 ## Award title and value format per field.
 const AWARDS: Dictionary[StringName, Array] = {
@@ -64,6 +73,7 @@ const AWARDS: Dictionary[StringName, Array] = {
 	&"pads_taken": ["Card Counter", "%d flush pads taken"],
 	&"oil_spins": ["Banana Skin", "%d spins on oil"],
 	&"overtakes": ["Last Word", "%d places taken in sudden death"],
+	&"accuracy": ["Marksman", "%.0f%% of shots on target"],
 }
 
 var values: Dictionary[StringName, float] = {}
@@ -83,6 +93,9 @@ func peak(field: StringName, value: float) -> void:
 
 
 func value(field: StringName) -> float:
+	if field == &"accuracy":
+		var fired := values[&"bullets"]
+		return 100.0 * values[&"hits"] / fired if fired >= ACCURACY_SHOTS else 0.0
 	return values[field]
 
 
@@ -112,8 +125,10 @@ func from_array(data: Variant) -> void:
 ## are not enough of those, the stats they come closest to leading fill the rest.
 static func awards(mine: PlayerStats, everyone: Array[PlayerStats], count: int = 3) -> Array:
 	var scored: Array = []
-	for field: StringName in FIELDS:
-		var value := mine.values[field]
+	for field: StringName in FIELDS + DERIVED:
+		if field in BEHIND_DERIVED:
+			continue
+		var value := mine.value(field)
 		if value <= 0.0:
 			continue
 		var best_other := 0.0
@@ -122,8 +137,8 @@ static func awards(mine: PlayerStats, everyone: Array[PlayerStats], count: int =
 		for other: PlayerStats in everyone:
 			if other == mine:
 				continue
-			best_other = maxf(best_other, other.values[field])
-			total_others += other.values[field]
+			best_other = maxf(best_other, other.value(field))
+			total_others += other.value(field)
 			others += 1
 		var mean_others := total_others / maxf(others, 1)
 		var leads := others == 0 or value > best_other

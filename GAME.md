@@ -334,7 +334,9 @@ Demolition Crew (crates), Sharpshooter (targets), Pyrotechnician (bomb kills),
 Royal Flush (flushes), Bounty Hunter (bounties collected), Comeback Kid (lives
 restored), Spelunker (pit falls), Own Goal (self kills), Crash Test Dummy
 (deaths), Vault Cracker (chips out of the Jackpot), Power Slide (drifts carried
-to the boost), Card Counter (flush pads taken) and Banana Skin (spins on oil).
+to the boost), Card Counter (flush pads taken), Banana Skin (spins on oil) and
+Marksman (accuracy: the share of shots fired that landed on another kart, shield
+or not, once 10 or more have been fired, so one lucky shot is not an award).
 Stats with a value of zero never earn an award. The list follows the game: a
 mechanic worth playing around is worth counting, so anything added to the floor
 gets a line here, and a line here is counted the same on every machine in the

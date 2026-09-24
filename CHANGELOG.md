@@ -15,6 +15,8 @@ below, and hands the notes to the release workflow.
 
 - **An About page in Settings.** It says the game was made by AI as an experiment,
   by which models, credits everybody else whose work is in it and links to GitHub.
+- **A Marksman award for accuracy.** How many of a player's shots landed on another
+  kart is counted now, once they have fired ten.
 
 ## [0.6.2] - 2026-09-24
 

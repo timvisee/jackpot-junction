@@ -37,6 +37,9 @@ signal wild_joker_dropped(joker_id: StringName)
 ## The announcer called something, GAME.md 3.12: a run of kills, a streak or a trade.
 signal announced(slot: int, call: String)
 signal bullet_fired(slot: int)
+## A shot landed on a kart that was there to be hit, shield or not: the shooter's, for their
+## accuracy on the results screen, GAME.md 3.8. The shooter's own harmless shot is not one.
+signal kart_shot(victim_slot: int, by_slot: int)
 signal bullet_bounced
 ## A bullet landed on a wall, GAME.md 8.3, with the surface normal and the shooter's color, so
 ## the arena can leave a mark there. An event rather than something the bullet does itself

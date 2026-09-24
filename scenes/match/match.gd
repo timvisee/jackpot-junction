@@ -170,6 +170,8 @@ func start(
 		Events.oil_hit.connect(_on_stat_oil)
 	if not Events.kart_wounded.is_connected(_on_kart_wounded):
 		Events.kart_wounded.connect(_on_kart_wounded)
+	if not Events.kart_shot.is_connected(_on_stat_hit):
+		Events.kart_shot.connect(_on_stat_hit)
 	for zone: JackpotZone in arena.jackpot_zones:
 		zone.filled.connect(
 			func(filled: JackpotZone) -> void: Events.jackpot_full.emit(filled.index)
@@ -246,6 +248,8 @@ func _exit_tree() -> void:
 		Events.oil_hit.disconnect(_on_stat_oil)
 	if Events.kart_wounded.is_connected(_on_kart_wounded):
 		Events.kart_wounded.disconnect(_on_kart_wounded)
+	if Events.kart_shot.is_connected(_on_stat_hit):
+		Events.kart_shot.disconnect(_on_stat_hit)
 	if Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
 		Input.joy_connection_changed.disconnect(_on_joy_connection_changed)
 
@@ -880,6 +884,12 @@ func _on_target_struck(by_slot: int, coins: int) -> void:
 	slot.stats.add(&"targets")
 	if slot.kart != null and slot.kart.alive:
 		slot.kart.collect_coins(coins, null)
+
+
+## A shot on somebody else is a hit, for the shooter's accuracy.
+func _on_stat_hit(victim_slot: int, by_slot: int) -> void:
+	if by_slot != victim_slot:
+		MatchStats.count(self, by_slot, &"hits")
 
 
 func _on_stat_crate(by_slot: int) -> void:

@@ -73,6 +73,8 @@ func test_the_match_counts_shots_distance_coins_and_deaths() -> void:
 	assert_float(stats.value(&"bullets")).is_greater_equal(1.0)
 	await _runner.simulate_frames(30, 17)
 	assert_bool(victim.alive).is_false()
+	# The shot that killed it landed, and is the shooter's hit.
+	assert_float(stats.value(&"hits")).is_equal(1.0)
 	var lost := match_node.slots[1].stats
 	assert_float(lost.value(&"deaths")).is_equal(1.0)
 	assert_float(lost.value(&"coins_lost")).is_equal(9.0)
@@ -81,6 +83,32 @@ func test_the_match_counts_shots_distance_coins_and_deaths() -> void:
 	copy.from_array(data["slots"][1]["stats"])
 	assert_float(copy.value(&"coins_lost")).is_equal(9.0)
 	assert_float(copy.value(&"deaths")).is_equal(1.0)
+
+
+## GAME.md 3.8: accuracy is the share of a player's shots that landed on somebody, and only says
+## anything past a handful of shots, so one lucky one is not an award.
+func test_accuracy_is_worked_out_from_the_shots_and_is_an_award() -> void:
+	var sharp := PlayerStats.new()
+	sharp.add(&"bullets", 20.0)
+	sharp.add(&"hits", 15.0)
+	assert_float(sharp.value(&"accuracy")).is_equal(75.0)
+	var lucky := PlayerStats.new()
+	lucky.add(&"bullets", 1.0)
+	lucky.add(&"hits", 1.0)
+	assert_float(lucky.value(&"accuracy")).is_equal(0.0)
+	var wild := PlayerStats.new()
+	wild.add(&"bullets", 40.0)
+	wild.add(&"hits", 4.0)
+	var everyone: Array[PlayerStats] = [sharp, lucky, wild]
+	var titles: Array = []
+	for award: Array in PlayerStats.awards(sharp, everyone):
+		titles.append(award[0])
+		if award[0] == "Marksman":
+			assert_str(award[1]).is_equal("75% of shots on target")
+	assert_bool("Marksman" in titles).is_true()
+	# The hits themselves are only counted for the accuracy's sake.
+	for award: Array in PlayerStats.awards(wild, everyone):
+		assert_str(award[1]).not_contains("hits")
 
 
 ## GAME.md 3.8: the awards follow the game. The Jackpot, the drift boost, the Royal Flush pads
@@ -104,8 +132,10 @@ func test_the_newer_mechanics_are_counted_too() -> void:
 	kart.global_position = match_node.arena.flush_pads[0].global_position
 	await _runner.simulate_frames(6, 17)
 	assert_float(stats.value(&"pads_taken")).is_greater_equal(1.0)
-	# And every one of them can be named on the results screen.
-	for field: StringName in PlayerStats.FIELDS:
+	# And every one of them can be named on the results screen, or is behind one that can.
+	for field: StringName in PlayerStats.FIELDS + PlayerStats.DERIVED:
+		if field in PlayerStats.BEHIND_DERIVED:
+			continue
 		(
 			assert_bool(PlayerStats.AWARDS.has(field))
 			. override_failure_message("%s has no award" % field)

@@ -88,11 +88,13 @@ const RELAYED_EVENTS: Array[StringName] = [
 ## so relaying it would say everything twice. [code]wild_joker_dropped[/code] has nothing
 ## listening to it on any machine; the card it names arrives as a pickup like any other.
 ## [code]kart_corrected[/code] is about this machine's own guess being put right, which is news
-## to nobody else: their picture of that kart never changed.
+## to nobody else: their picture of that kart never changed. [code]kart_shot[/code] is counted
+## by the host alone, and the counts reach everybody in the snapshot.
 const LOCAL_EVENTS: Array[StringName] = [
 	&"announced",
 	&"wild_joker_dropped",
 	&"kart_corrected",
+	&"kart_shot",
 ]
 
 ## Whether this process is in the middle of raising an event a host relayed to it, which is never

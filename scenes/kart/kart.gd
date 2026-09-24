@@ -665,6 +665,7 @@ func take_hit(bullet: Bullet) -> bool:
 		# Your own shot stops on you rather than carrying on through: it simply does no harm,
 		# and it does not cost a shield either.
 		return true
+	Events.kart_shot.emit(slot, bullet.owner_slot)
 	if shielded:
 		pop_shield()
 		return true
