@@ -62,6 +62,9 @@ const SIMPLE_SIGNS: Array[Array] = [
 	[Vector2i(6, 3), "DRIVE", "push %s the way to go", [WAY]],
 	[Vector2i(21, 3), "TURN", "flick %s to face that way", [WAY]],
 ]
+## Where the stalls for dressing the kart start, GAME.md 4.4: the top left cell of the first of
+## them, on the open floor along the front wall.
+const STALLS := Vector2i(10, 15)
 ## Karts nobody is driving, parked on the floor as practice targets.
 const DUMMIES := 2
 ## The pot a dummy carries, so a kill drops chips worth picking up.
@@ -112,6 +115,8 @@ func _ready() -> void:
 	else:
 		_close_the_shot()
 		_add_signs()
+		# The kart is dressed in here as it is in the lobby, GAME.md 9.4, along the front wall.
+		StyleStalls.add_to(match_node, STALLS)
 	DebugOverlay.add_to(self, match_node)
 	PauseMenu.add_to(self)
 	loaded.emit()

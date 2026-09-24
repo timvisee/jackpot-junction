@@ -514,6 +514,13 @@ static func _apply_karts(match_node: Match, entries: Array) -> void:
 		var id: int = entry["id"]
 		seen[id] = true
 		var kart: Kart = match_node.puppet_karts.get(id)
+		if kart != null and entry.has("style"):
+			# Dressed again since it was built, on one of the lobby's stalls, GAME.md 9.6.
+			var style := PackedInt32Array(entry["style"])
+			if style != kart.style.to_array():
+				var was := kart.style
+				kart.style = KartStyle.from_array(style)
+				KartVisuals.redress(kart, was)
 		if kart == null:
 			kart = match_node.KART_SCENE.instantiate()
 			kart.name = "Puppet%d" % id

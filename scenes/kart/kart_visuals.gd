@@ -38,6 +38,39 @@ static func build_body(kart: Kart) -> Dictionary:
 	return {"body": body, "tint": tint, "wheels": wheels}
 
 
+## Dresses [param kart] again in its [member Kart.style], which has just been changed from [param
+## was]: the lobby's stalls, GAME.md 9.6, do it to a kart already built. The body keeps its tint,
+## darker on a wounded kart, and takes the new pattern; the hat, the flag and the trail are made
+## again, and the roof marker moves to stand over the new hat.
+static func redress(kart: Kart, was: KartStyle) -> void:
+	var body := kart.get_node_or_null("Body") as Node3D
+	if body == null:
+		return
+	var color := Palette.player_color(kart.color_index)
+	var fresh := KartDress.paint(color, kart.style)
+	var tint: StandardMaterial3D = kart._tint
+	if tint != null:
+		tint.albedo_texture = fresh.albedo_texture
+		tint.texture_filter = fresh.texture_filter
+		tint.uv1_triplanar = fresh.uv1_triplanar
+		tint.uv1_scale = fresh.uv1_scale
+	for part: String in ["Hat", "Flag"]:
+		var old := body.get_node_or_null(part)
+		if old != null:
+			body.remove_child(old)
+			old.queue_free()
+	for worn: Node3D in [
+		KartDress.hat(kart.style.hat, color), KartDress.flag(kart.style.flag, color)
+	]:
+		if worn != null:
+			body.add_child(worn)
+	var marker := body.get_node_or_null("RoofMarker") as Node3D
+	if marker != null:
+		marker.position.y += KartDress.HAT_LIFT[kart.style.hat] - KartDress.HAT_LIFT[was.hat]
+	if kart.smoke != null:
+		kart.smoke.dress(color, kart.style.trail)
+
+
 ## The kart as something to look at rather than to drive: the model in a player's color, with
 ## nothing hanging off it and no kart under it. The results podium stands one on each step.
 static func display_model(color_index: int, style: KartStyle = null) -> Node3D:

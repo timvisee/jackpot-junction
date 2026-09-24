@@ -10,8 +10,9 @@ extends Control
 ## not cycle colors while a box has the focus, since the letters somebody is typing are also
 ## the keys that steer.
 ##
-## Beside the name is how that player's kart is dressed, GAME.md 4.4, and how they drive, simple or
-## advanced, GAME.md 4.2, each remembered the same way.
+## Beside the name is how that player drives, simple or advanced, GAME.md 4.2, remembered the same
+## way. How their kart is dressed is not asked here: it is done at the stalls in the waiting room
+## and the garage, GAME.md 4.4, by driving onto them.
 
 const MAX_HUMANS := 4
 
@@ -30,10 +31,6 @@ var _join_hint: HBoxContainer
 ## One name box per seat, built once and shown as far down as the roster reaches.
 var _name_fields: Array[LineEdit] = []
 var _name_rows: Array[HBoxContainer] = []
-## One row of dress choices per seat, each a list of option buttons in [constant
-## KartStyle.CHOICES] order.
-var _style_rows: Array[HBoxContainer] = []
-var _style_pickers: Array[Array] = []
 ## One choice of how to drive per seat, built up front like the rest.
 var _drive_rows: Array[HBoxContainer] = []
 var _drive_pickers: Array[DrivePicker] = []
@@ -58,7 +55,6 @@ func _ready() -> void:
 	var settings := Game.settings
 	player_names[0] = _remembered_name(0)
 	_build_name_rows(column)
-	_build_style_rows(column)
 	_build_drive_rows(column)
 	# A Grand Prix or a quick match is the first row rather than a screen of its own, GAME.md 9.7.
 	options = MatchOptions.add_to(column, settings)
@@ -150,14 +146,13 @@ func config() -> MatchConfig:
 	return result
 
 
-## How each joined player dressed their kart, in slot order.
+## How each joined player dressed their kart, in slot order: what their seat last wore, which
+## the stalls of GAME.md 4.4 are where it changes.
 func styles() -> Array:
 	var result: Array = []
+	var stored := Game.settings.kart_styles
 	for i: int in devices.size():
-		var picked := PackedInt32Array()
-		for option: OptionButton in _style_pickers[i]:
-			picked.append(option.selected)
-		result.append(picked)
+		result.append(PackedInt32Array(stored[i]) if i < stored.size() else PackedInt32Array())
 	return result
 
 
@@ -183,9 +178,6 @@ func remember_seats(settings: Settings) -> void:
 	var typed := names()
 	for i: int in mini(typed.size(), settings.player_names.size()):
 		settings.player_names[i] = typed[i]
-	var dressed := styles()
-	for i: int in mini(dressed.size(), settings.kart_styles.size()):
-		settings.kart_styles[i] = dressed[i]
 	var driving := drive_modes()
 	for i: int in mini(driving.size(), settings.drive_modes.size()):
 		settings.drive_modes[i] = driving[i]
@@ -250,26 +242,7 @@ func _build_name_rows(column: VBoxContainer) -> void:
 		column.add_child(row)
 
 
-## A row of dress choices per seat, built up front like the name boxes and shown with them. The
-## kart is the thing a player looks at for the whole match, so the choices are here rather than
-## behind a screen of their own.
-func _build_style_rows(column: VBoxContainer) -> void:
-	for i: int in MAX_HUMANS:
-		var pickers: Array = []
-		var line := HBoxContainer.new()
-		line.add_theme_constant_override("separation", 8)
-		for choice: int in KartStyle.CHOICES.size():
-			var option := MenuTheme.option(KartStyle.CHOICES[choice], _remembered_style(i, choice))
-			option.custom_minimum_size = Vector2(150.0, 40.0)
-			pickers.append(option)
-			line.add_child(option)
-		_style_pickers.append(pickers)
-		var row := MenuTheme.row("P%d kart" % (i + 1), line)
-		_style_rows.append(row)
-		column.add_child(row)
-
-
-## A choice of how to drive per seat, built up front and shown with the name and the kart. It is
+## A choice of how to drive per seat, built up front and shown with the name. It is
 ## the seat's, like the rest: whoever sits there drives the way it says in the arena.
 func _build_drive_rows(column: VBoxContainer) -> void:
 	for i: int in MAX_HUMANS:
@@ -280,20 +253,11 @@ func _build_drive_rows(column: VBoxContainer) -> void:
 		column.add_child(row)
 
 
-func _remembered_style(seat: int, choice: int) -> int:
-	var stored := Game.settings.kart_styles
-	if seat >= stored.size():
-		return 0
-	var packed := PackedInt32Array(stored[seat])
-	return packed[choice] if choice < packed.size() else 0
-
-
 ## Shows as many boxes as there are players, each holding whatever its player is called.
 func _refresh_names() -> void:
 	for i: int in _name_rows.size():
 		_name_rows[i].visible = i < devices.size()
 		_name_fields[i].text = player_names[i] if i < player_names.size() else ""
-		_style_rows[i].visible = i < devices.size()
 		_drive_rows[i].visible = i < devices.size()
 
 

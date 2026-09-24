@@ -37,6 +37,9 @@ signal wild_joker_dropped(joker_id: StringName)
 ## The announcer called something, GAME.md 3.12: a run of kills, a streak or a trade.
 signal announced(slot: int, call: String)
 signal bullet_fired(slot: int)
+## A kart has been dressed on one of the lobby's stalls, GAME.md 9.6: the [param part] of it that
+## changed, in [constant KartStyle.CHOICES] order, and all four as they now are.
+signal kart_dressed(slot: int, part: int, style: PackedInt32Array)
 ## A shot landed on a kart that was there to be hit, shield or not: the shooter's, for their
 ## accuracy on the results screen, GAME.md 3.8. The shooter's own harmless shot is not one.
 signal kart_shot(victim_slot: int, by_slot: int)

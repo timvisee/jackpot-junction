@@ -131,32 +131,21 @@ func test_a_decoy_is_dressed_like_its_owner() -> void:
 	assert_object(_named(decoy, "Flag")).is_not_null()
 
 
-## The lobby asks for all four, per seat, and hands them to the match.
-func test_the_lobby_offers_the_four_choices_per_seat() -> void:
-	var saved := _plain_settings()
-	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
-	add_child(lobby)
-	Game.settings.kart_styles = saved
-	assert_int(lobby._style_pickers.size()).is_equal(lobby.MAX_HUMANS)
-	assert_int(lobby._style_pickers[0].size()).is_equal(KartStyle.CHOICES.size())
-	assert_bool(lobby._style_rows[0].visible).is_true()
-	assert_bool(lobby._style_rows[1].visible).is_false()
-	lobby.toggle_join(0)
-	lobby.toggle_join(1)
-	assert_bool(lobby._style_rows[1].visible).is_true()
-	lobby._style_pickers[0][1].selected = 2
-	lobby._style_pickers[1][3].selected = 1
-	var config: MatchConfig = lobby.config()
-	assert_int(config.human_styles.size()).is_equal(2)
-	assert_array(Array(config.human_styles[0])).contains_exactly([0, 2, 0, 0])
-	assert_array(Array(config.human_styles[1])).contains_exactly([0, 0, 0, 1])
-
-
-## What a seat was dressed in last time is what its boxes come up showing.
-func test_the_lobby_starts_from_what_was_remembered() -> void:
+## The lobby asks for none of the four: a kart is dressed at the stalls, GAME.md 4.4. It hands
+## each seat what it last wore to the match.
+func test_the_lobby_hands_each_seat_what_it_last_wore() -> void:
 	var saved := _plain_settings()
 	Game.settings.kart_styles[0] = PackedInt32Array([1, 2, 2, 1])
+	Game.settings.kart_styles[1] = PackedInt32Array([0, 0, 0, 1])
 	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
 	add_child(lobby)
+	for option: Node in lobby.find_children("*", "OptionButton", true, false):
+		for i: int in (option as OptionButton).item_count:
+			assert_str((option as OptionButton).get_item_text(i)).is_not_equal("Top hat")
+	lobby.toggle_join(0)
+	lobby.toggle_join(1)
+	var config: MatchConfig = lobby.config()
 	Game.settings.kart_styles = saved
-	assert_array(Array(lobby.styles()[0])).contains_exactly([1, 2, 2, 1])
+	assert_int(config.human_styles.size()).is_equal(2)
+	assert_array(Array(config.human_styles[0])).contains_exactly([1, 2, 2, 1])
+	assert_array(Array(config.human_styles[1])).contains_exactly([0, 0, 0, 1])

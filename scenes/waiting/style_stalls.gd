@@ -1,0 +1,183 @@
+class_name StyleStalls
+extends Node3D
+## Where a player dresses their kart, GAME.md 4.4 and 9.6: a pad on the floor for each of the four
+## things a kart wears, its paint, its hat, its flag and its trail, with the word on it. Driving
+## onto one puts the next of that thing on the kart, with its name over the kart, and staying on
+## it goes on through them one every [constant STEP_TIME] seconds, so a player stops on the one
+## they want. The pad lights in the color of whoever is on it.
+##
+## The host decides, as it decides who is on the ready pad, GAME.md 10.3: it can see every kart,
+## and says so with [signal Events.kart_dressed], which every machine answers. What a player
+## picks is theirs to keep. A player at this machine has it written to their seat in the
+## settings; a client keeps its own, and says it again when it is seated in the next room.
+
+## The four, in [constant KartStyle.CHOICES] order, and what each pad says.
+const WORDS: Array[String] = ["PAINT", "HAT", "FLAG", "TRAIL"]
+## How long a kart has to stay on a pad before it steps on again, in seconds.
+const STEP_TIME := 1.2
+## How big a pad is, in cells of the room's grid, and how far in from the cell edges it stops.
+const CELLS := 2
+const INSET := 0.15
+const PAD_INK := Color(0.2, 0.21, 0.24)
+const WORD_INK := Color(0.93, 0.93, 0.95)
+## How the name of what was just put on is shown over the kart: its size and for how long.
+const NAME_SIZE := 64
+const NAME_TIME := 1.1
+
+var match_node: Match
+## Whether this machine decides who is on a pad: the host, or a machine playing alone.
+var deciding := true
+
+## Each pad's floor, as a rectangle on the floor plane, and its slab, lit while somebody is on it.
+var _areas: Array[Rect2] = []
+var _slabs: Array[MeshInstance3D] = []
+## Slot to the pad its kart is on, and how long until it steps on again there.
+var _on: Dictionary[int, int] = {}
+var _wait: Dictionary[int, float] = {}
+
+
+## Four pads in [param in_match]'s room, the first of them with its top left corner in [param
+## first], the next ones along to the right with a cell between each.
+static func add_to(in_match: Match, first: Vector2i) -> StyleStalls:
+	var stalls := StyleStalls.new()
+	stalls.name = "StyleStalls"
+	stalls.match_node = in_match
+	stalls.deciding = not in_match.puppet
+	in_match.arena.add_child(stalls)
+	for i: int in WORDS.size():
+		stalls._build(i, first + Vector2i(i * (CELLS + 1), 0))
+	Events.kart_dressed.connect(stalls._on_kart_dressed)
+	return stalls
+
+
+func _exit_tree() -> void:
+	if Events.kart_dressed.is_connected(_on_kart_dressed):
+		Events.kart_dressed.disconnect(_on_kart_dressed)
+
+
+## The pad [param kart] is standing on, or -1.
+func pad_under(kart: Kart) -> int:
+	var at := Vector2(kart.global_position.x, kart.global_position.z)
+	for i: int in _areas.size():
+		if _areas[i].has_point(at):
+			return i
+	return -1
+
+
+func _physics_process(delta: float) -> void:
+	for i: int in _slabs.size():
+		(_slabs[i].material_override as StandardMaterial3D).emission_energy_multiplier = 0.0
+	for slot: PlayerSlot in match_node.slots:
+		var kart := slot.kart
+		if kart == null or not kart.alive or not slot.is_human():
+			_on.erase(slot.index)
+			continue
+		var pad := pad_under(kart)
+		if pad < 0:
+			_on.erase(slot.index)
+			continue
+		var skin := _slabs[pad].material_override as StandardMaterial3D
+		skin.emission = slot.color()
+		skin.emission_energy_multiplier = 0.9
+		if not deciding:
+			continue
+		if _on.get(slot.index, -1) != pad:
+			_on[slot.index] = pad
+			_wait[slot.index] = STEP_TIME
+			_step(slot, pad)
+			continue
+		_wait[slot.index] -= delta
+		if _wait[slot.index] <= 0.0:
+			_wait[slot.index] = STEP_TIME
+			_step(slot, pad)
+
+
+## The next of [param part] on [param slot]'s kart, said to every machine.
+func _step(slot: PlayerSlot, part: int) -> void:
+	var values := slot.style.to_array()
+	values[part] = (values[part] + 1) % KartStyle.CHOICES[part].size()
+	Events.kart_dressed.emit(slot.index, part, values)
+
+
+## Somebody's kart has been dressed, here or on the host: it wears it, its name floats over it,
+## and whoever it belongs to keeps it.
+func _on_kart_dressed(index: int, part: int, values: PackedInt32Array) -> void:
+	if index < 0 or index >= match_node.slots.size():
+		return
+	var slot := match_node.slots[index]
+	StyleStalls.dress(slot, values)
+	var kart := slot.kart
+	if kart != null and part >= 0 and part < KartStyle.CHOICES.size():
+		var named: String = KartStyle.CHOICES[part][values[part]]
+		FloatingText.spawn(
+			match_node, kart.global_position, named, slot.color(), NAME_SIZE, NAME_TIME
+		)
+	StyleStalls.keep(slot)
+
+
+## Puts [param values] on [param slot] and on its kart, if it has one and it is not already
+## wearing them.
+static func dress(slot: PlayerSlot, values: PackedInt32Array) -> void:
+	var style := KartStyle.from_array(values)
+	slot.style = style
+	var kart := slot.kart
+	if kart == null or kart.style.to_array() == style.to_array():
+		if kart != null:
+			kart.style = style
+		return
+	var was := kart.style
+	kart.style = style
+	KartVisuals.redress(kart, was)
+
+
+## Writes [param slot]'s dress down for whoever at this machine it belongs to: a player here in
+## their seat of the settings, and this machine's own player online in the session as well, which
+## is what it says when it is seated in the next room.
+static func keep(slot: PlayerSlot) -> void:
+	var settings := Game.settings
+	var player := slot.input as PlayerInput
+	var seat := -1
+	if player != null and player.seat >= 0:
+		seat = player.seat
+	var session := Net.session if Net.online() else null
+	if session != null and not session.is_host and session.local_slot == slot.index:
+		session.player_style = slot.style.to_array()
+		seat = 0
+	if seat < 0 or seat >= settings.kart_styles.size():
+		return
+	settings.kart_styles[seat] = slot.style.to_array()
+	settings.save_to_disk()
+
+
+func _build(index: int, corner: Vector2i) -> void:
+	var grid := match_node.arena.grid
+	var near := grid.cell_center(corner)
+	var far := grid.cell_center(corner + Vector2i(CELLS - 1, CELLS - 1))
+	var middle := (near + far) * 0.5
+	var side := grid.cell_size * CELLS - INSET * 2.0
+	_areas.append(Rect2(middle.x - side * 0.5, middle.z - side * 0.5, side, side))
+	var slab := MeshInstance3D.new()
+	slab.name = "Stall%d" % index
+	var mesh := BoxMesh.new()
+	mesh.size = Vector3(side, 0.04, side)
+	slab.mesh = mesh
+	var skin := StandardMaterial3D.new()
+	skin.albedo_color = PAD_INK
+	skin.roughness = 0.8
+	skin.emission_enabled = true
+	skin.emission_energy_multiplier = 0.0
+	slab.material_override = skin
+	slab.position = Vector3(middle.x, 0.02, middle.z)
+	add_child(slab)
+	_slabs.append(slab)
+	# The word lies on the pad, the top of it away from the camera, which is the way up it reads.
+	var word := Label3D.new()
+	word.text = WORDS[index]
+	word.font = Type.STRONG
+	word.font_size = 80
+	word.pixel_size = 0.008
+	word.modulate = WORD_INK
+	word.outline_size = 0
+	word.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
+	word.position = Vector3(middle.x, 0.05, middle.z)
+	add_child(word)

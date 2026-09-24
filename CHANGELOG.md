@@ -21,6 +21,13 @@ below, and hands the notes to the release workflow.
   to pause, unless the host presses Pause everybody now.
 - **Kart colors for color blindness.** Accessibility has a palette each for
   protanopia, deuteranopia and tritanopia, chosen to keep all eight players apart.
+- **Dress your kart at the stalls.** The lobby and the Garage have a pad each for
+  paint, hat, flag and trail; drive onto one to put the next one on.
+
+### Changed
+
+- **The Play screen no longer dresses karts.** That is done at the stalls, and
+  online a client's kart now looks the way its player dressed it on every screen.
 
 ## [0.6.2] - 2026-09-24
 

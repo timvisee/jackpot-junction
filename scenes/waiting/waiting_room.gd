@@ -23,6 +23,9 @@ const LAYOUT: ArenaLayout = preload("res://data/maps/waiting_room.tres")
 ## Where the football starts: in front of the pad, on open floor, clear of every prop and spawn.
 const BALL_SPOT := Vector3(0.0, 0.0, 5.0)
 const RULES: MatchRules = preload("res://data/match/waiting_room.tres")
+## Where the stalls for dressing the kart start, GAME.md 4.4: the top left cell of the first of
+## them, along the back wall on either side of the middle.
+const STALLS := Vector2i(8, 1)
 ## The rules the arena is built on, for how many seats it has.
 const ARENA_RULES: MatchRules = preload("res://data/match/default.tres")
 
@@ -34,6 +37,8 @@ var session: NetSession
 var host_settings: HostSettings
 ## Something to knock about while waiting, GAME.md 9.6.
 var ball: RoomBall
+## Where everybody dresses their kart while they wait, GAME.md 4.4.
+var stalls: StyleStalls
 
 
 func _ready() -> void:
@@ -109,6 +114,8 @@ func _join() -> void:
 		session = Net.open(match_node)
 		session.local_input = PlayerInput.new(DeviceInput.ANY, 0)
 		session.player_name = config.human_names[0] if not config.human_names.is_empty() else ""
+		if not config.human_styles.is_empty():
+			session.player_style = PackedInt32Array(config.human_styles[0])
 	session.match_beginning.connect(_follow_the_host, CONNECT_ONE_SHOT)
 	# After the signal rather than inside it: going to the title hangs the session up, and a session
 	# cannot be freed while it is in the middle of saying something.
@@ -270,6 +277,7 @@ func _dress_the_room() -> void:
 		match_node.hud.waiting = true
 	match_node.camera_rig.show_the_room(0.8)
 	WaitingProps.add_to(match_node.arena)
+	stalls = StyleStalls.add_to(match_node, STALLS)
 	# The host, or this machine alone, kicks the ball and a client is told where it went.
 	var joining := config.online == "join"
 	ball = RoomBall.add_to(match_node, BALL_SPOT, not joining)

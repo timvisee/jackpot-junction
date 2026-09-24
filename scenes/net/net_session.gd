@@ -79,6 +79,7 @@ const RELAYED_EVENTS: Array[StringName] = [
 	&"kart_fell",
 	&"nitro_started",
 	&"drift_boosted",
+	&"kart_dressed",
 ]
 ## The events that stay on the machine that raised them. Between this and [constant
 ## RELAYED_EVENTS] every signal [Events] has is accounted for, and a test says so, so a new one
@@ -123,6 +124,9 @@ var local_input: KartInput = PlayerInput.new(DeviceInput.ANY, 0)
 ## What this machine's player calls themselves, sent to the host once a seat is assigned. Empty
 ## leaves the host's funny name standing, GAME.md 3.8.
 var player_name := ""
+## How this machine's player dressed their kart, GAME.md 4.4, sent to the host with the name.
+## Empty leaves the plain kart the host made.
+var player_style := PackedInt32Array()
 var is_host := false
 ## On the host: whether the room it is in is an arena rather than the waiting room of GAME.md 9.6,
 ## which is what a newcomer is shown into, see [method _welcome]. Said by each room as it takes the
@@ -731,6 +735,8 @@ func _assign_slot(index: int, _seed: int) -> void:
 	# answer follows the moment the seat is known. An empty one leaves the funny name the host
 	# already handed out standing.
 	_claim_name.rpc_id(1, PlayerNames.clean(player_name))
+	if not player_style.is_empty():
+		_claim_style.rpc_id(1, player_style)
 	slot_assigned.emit(index)
 
 
@@ -749,6 +755,20 @@ func _claim_name(claimed: String) -> void:
 	if name.is_empty() or match_node == null or index >= match_node.slots.size():
 		return
 	match_node.slots[index].player_name = name
+
+
+## How the client at the other end dressed its kart, GAME.md 4.4. Its own to say, as its name is;
+## the host puts it on, and it reaches the other screens in the snapshot.
+@rpc("any_peer", "call_remote", "reliable")
+func _claim_style(claimed: PackedInt32Array) -> void:
+	if not is_host:
+		return
+	var peer := multiplayer.get_remote_sender_id()
+	if not _peer_slots.has(peer) or match_node == null:
+		return
+	var index: int = _peer_slots[peer]
+	if index < match_node.slots.size():
+		StyleStalls.dress(match_node.slots[index], claimed)
 
 
 ## Takes over the driving of this client's own kart once the snapshot has built it. Called every

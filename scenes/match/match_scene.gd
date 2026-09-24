@@ -77,6 +77,8 @@ func _ready() -> void:
 				session.player_name = (
 					config.human_names[0] if not config.human_names.is_empty() else ""
 				)
+				if not config.human_styles.is_empty():
+					session.player_style = PackedInt32Array(config.human_styles[0])
 			session.rules_applied.connect(_build_puppet_arena, CONNECT_ONE_SHOT)
 			session.connection_failed.connect(
 				func() -> void: _fail("Could not connect to %s:%d" % [config.address, config.port])
