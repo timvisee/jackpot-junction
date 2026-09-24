@@ -50,6 +50,14 @@ const OPEN_FOLLOW := 0.8
 ## drops away and the screen comes up into the space that leaves.
 const PODIUM_DUCK_DB := -9.0
 const PODIUM_DUCK_SECONDS := 0.8
+## A hush is the build before a drop, GAME.md 9.7: the music heard as if from outside the room,
+## the low-pass down to [constant HUSH_HZ] and the level [constant HUSH_DB] under, in
+## [constant HUSH_DOWN_SECONDS]. On the drop the filter is swept open and the level comes back up
+## over [constant HUSH_SWEEP_SECONDS].
+const HUSH_HZ := 450.0
+const HUSH_DB := -6.0
+const HUSH_DOWN_SECONDS := 0.35
+const HUSH_SWEEP_SECONDS := 0.4
 ## A player at this screen dying puts the music under water: the low-pass sweeps down from
 ## wherever the meter has it to [constant MUFFLE_HZ] in [constant MUFFLE_ATTACK] seconds, stays
 ## there [constant MUFFLE_HOLD] seconds, and opens back up over [constant MUFFLE_RELEASE].
@@ -171,6 +179,10 @@ var _open := 0.0
 ## Where the podium duck has got to, and where it is heading.
 var _duck_db := 0.0
 var _duck_target := 0.0
+## How far into a hush the music is, 0 not at all and 1 all the way down to [constant HUSH_HZ],
+## and whether it is on its way there.
+var _hush := 0.0
+var _hushing := false
 var _filter: AudioEffectLowPassFilter
 var _amplify: AudioEffectAmplify
 ## How far under water the music is, 0 not at all and 1 all the way down to [constant MUFFLE_HZ],
@@ -256,10 +268,17 @@ func _step_music_effects(delta: float) -> void:
 	# as the meter opens it up and as a death pulls it down from there.
 	var open_hz := FILTER_CLOSED_HZ * pow(FILTER_OPEN_HZ / FILTER_CLOSED_HZ, _open)
 	var under := smoothstep(0.0, 1.0, _muffle)
-	_filter.cutoff_hz = open_hz * pow(MUFFLE_HZ / open_hz, under)
+	var going := HUSH_DOWN_SECONDS if _hushing else HUSH_SWEEP_SECONDS
+	_hush = move_toward(_hush, 1.0 if _hushing else 0.0, delta / maxf(going, 0.001))
+	var hushed := smoothstep(0.0, 1.0, _hush)
+	# A death and a hush both pull the cutoff down; whichever pulls it further has it.
+	_filter.cutoff_hz = minf(
+		open_hz * pow(MUFFLE_HZ / open_hz, under), open_hz * pow(HUSH_HZ / open_hz, hushed)
+	)
 	var fade := absf(PODIUM_DUCK_DB) / maxf(PODIUM_DUCK_SECONDS, 0.001)
 	_duck_db = move_toward(_duck_db, _duck_target, fade * delta)
-	_amplify.volume_db = lerpf(COLD_GAIN_DB, HOT_GAIN_DB, _open) + _duck_db
+	var level := lerpf(COLD_GAIN_DB, HOT_GAIN_DB, _open) + _duck_db
+	_amplify.volume_db = level + HUSH_DB * hushed
 
 
 ## A player at this screen has died, GAME.md 8.4: the music goes under water at once and comes
@@ -289,9 +308,28 @@ func duck_music(on: bool) -> void:
 	_duck_target = PODIUM_DUCK_DB if on else 0.0
 
 
+## Muffles the music and takes it down for the build before a drop, and sweeps it open again as
+## the drop, GAME.md 9.7. See [method seconds_to_bar] for when to let it go.
+func hush_music(on: bool) -> void:
+	_hushing = on
+
+
+func is_music_hushed() -> bool:
+	return _hushing
+
+
 func is_music_muted() -> bool:
 	var music := AudioServer.get_bus_index(Buses.MUSIC)
 	return music >= 0 and AudioServer.is_bus_mute(music)
+
+
+## Seconds from now to the first beat of the first bar of the music that starts at least
+## [param at_least] seconds from now: where a drop lands.
+func seconds_to_bar(at_least: float) -> float:
+	var per_beat := 60.0 / bpm()
+	var now := _beats()
+	var bar := ceilf((now + at_least / per_beat) / BEATS_PER_BAR) * BEATS_PER_BAR
+	return (bar - now) * per_beat
 
 
 ## Where the music is within the current beat: 0 right on it, rising to 1 just before the next.
@@ -669,6 +707,7 @@ func _on_state_changed(state: int) -> void:
 	if state != Match.State.RESULTS:
 		# A rematch, or a room going back to the lobby: whatever the podium took, give it back.
 		duck_music(false)
+		hush_music(false)
 	match state:
 		Match.State.COUNTDOWN:
 			# The start tones come from the clock, one per lamp, and the flag from the countdown

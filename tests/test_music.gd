@@ -20,6 +20,8 @@ func after_test() -> void:
 	Audio._muffle = 0.0
 	Audio._muffling = false
 	Audio._muffle_hold = 0.0
+	Audio.hush_music(false)
+	Audio._hush = 0.0
 
 
 ## Every track has all three intensities, they loop, and each is a whole number of bars long at
@@ -195,6 +197,41 @@ func test_a_death_here_puts_the_music_under_water_and_back() -> void:
 		assert_float(cutoffs[i]).is_greater_equal(cutoffs[i - 1])
 	assert_float(cutoffs.back()).is_equal_approx(Audio.FILTER_OPEN_HZ, 20.0)
 	assert_str(Audio.music_debug()).not_contains("under")
+
+
+## GAME.md 9.7: a hush muffles the music and takes it down for the build, and on the drop the
+## filter is swept open and the level comes back up, quickly but not at once.
+func test_a_hush_muffles_the_music_and_the_drop_sweeps_it_open() -> void:
+	Audio._open = 1.0
+	Audio.excitement_share = 1.0
+	Audio._step_music_effects(0.0)
+	Audio.hush_music(true)
+	assert_bool(Audio.is_music_hushed()).is_true()
+	for i: int in ceili(Audio.HUSH_DOWN_SECONDS * 20.0):
+		Audio._excitement_age = 0.0
+		Audio._step_music_effects(0.05)
+	assert_float(Audio._filter.cutoff_hz).is_equal_approx(Audio.HUSH_HZ, 1.0)
+	assert_float(Audio._amplify.volume_db).is_equal_approx(Audio.HOT_GAIN_DB + Audio.HUSH_DB, 0.01)
+	Audio.hush_music(false)
+	assert_bool(Audio.is_music_hushed()).is_false()
+	Audio._step_music_effects(Audio.HUSH_SWEEP_SECONDS * 0.5)
+	assert_float(Audio._filter.cutoff_hz).is_between(
+		Audio.HUSH_HZ * 2.0, Audio.FILTER_OPEN_HZ * 0.5
+	)
+	Audio._step_music_effects(Audio.HUSH_SWEEP_SECONDS * 0.5)
+	assert_float(Audio._filter.cutoff_hz).is_equal_approx(Audio.FILTER_OPEN_HZ, 20.0)
+	assert_float(Audio._amplify.volume_db).is_equal_approx(Audio.HOT_GAIN_DB, 0.01)
+
+
+## A drop lands on the first beat of a bar, and never sooner than asked.
+func test_the_next_bar_is_the_first_one_far_enough_off() -> void:
+	var per_beat := 60.0 / Audio.bpm()
+	for at_least: float in [0.0, 0.5, 1.7, 3.0]:
+		var wait := Audio.seconds_to_bar(at_least)
+		assert_float(wait).is_greater_equal(at_least)
+		assert_float(wait).is_less(at_least + per_beat * Audio.BEATS_PER_BAR + 0.05)
+		var landing := fposmod(Audio._beats() + wait / per_beat, Audio.BEATS_PER_BAR)
+		assert_float(minf(landing, Audio.BEATS_PER_BAR - landing)).is_less(0.05)
 
 
 ## Only a death at this screen does it: a bot, or anybody at another machine, going down is heard
