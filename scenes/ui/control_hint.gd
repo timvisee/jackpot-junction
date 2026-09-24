@@ -9,7 +9,8 @@ extends Node3D
 
 const MAX_SECONDS := 10.0
 ## How big the buttons are drawn and how big that picture is in the world. Together these are
-## about the size the line of text they replaced was.
+## about the size the line of text they replaced was, at a UI scale of 100%: it is drawn bigger with
+## the rest of the UI, GAME.md 8.5, and drawn bigger rather than stretched, so it stays sharp.
 const FONT_SIZE := 26
 const PIXEL_SIZE := 0.010
 const INK := Palette.CHIP_WHITE
@@ -40,14 +41,14 @@ static func attach(target: Kart, for_device: int) -> ControlHint:
 
 ## The hint for one device, as a keyboard line or a gamepad line but never both: a player reading
 ## this has one set of controls in their hands.
-static func hint_row(for_device: int) -> HBoxContainer:
+static func hint_row(for_device: int, size := FONT_SIZE) -> HBoxContainer:
 	var keyboard := DeviceInput.uses_keyboard(for_device)
 	var parts: Array = [
-		InputHint.glyph(InputActions.THROTTLE, keyboard, INK, FONT_SIZE),
-		InputHint.pair(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, keyboard, INK, FONT_SIZE),
-		InputHint.glyph(InputActions.FIRE, keyboard, INK, FONT_SIZE),
+		InputHint.glyph(InputActions.THROTTLE, keyboard, INK, size),
+		InputHint.pair(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, keyboard, INK, size),
+		InputHint.glyph(InputActions.FIRE, keyboard, INK, size),
 	]
-	return InputHint.row("%s drive   %s steer   %s fire", parts, INK, FONT_SIZE)
+	return InputHint.row("%s drive   %s steer   %s fire", parts, INK, size)
 
 
 ## What the drawn line depends on, so a rebuild happens when the player picks up a pad and not on
@@ -69,14 +70,21 @@ func _on_fired(_bullets: Array[Bullet]) -> void:
 	_fired = true
 
 
+## How big the hint is drawn: [constant FONT_SIZE] at the UI scale the screen has now.
+func drawn_size() -> int:
+	var scale := get_tree().root.content_scale_factor if is_inside_tree() else 1.0
+	return roundi(FONT_SIZE * scale)
+
+
 func _rebuild() -> void:
-	var wanted := stamp(device)
+	var size := drawn_size()
+	var wanted := "%s|%d" % [stamp(device), size]
 	if wanted == _shown:
 		return
 	_shown = wanted
 	if _row != null:
 		_row.queue_free()
-	_row = InputHint.billboard(InputHint.card(hint_row(device)), PIXEL_SIZE)
+	_row = InputHint.billboard(InputHint.card(hint_row(device, size)), PIXEL_SIZE)
 	add_child(_row)
 
 

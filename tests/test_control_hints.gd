@@ -429,3 +429,18 @@ func test_a_button_in_a_sentence_has_no_gap_in_front_of_it() -> void:
 	]
 	var listed: HBoxContainer = auto_free(InputHint.row("%s drive   %s fire", groups, ink, 15))
 	assert_int(_gaps(listed)).is_equal(1)
+
+
+## GAME.md 8.5: the hint over the kart at the start of a match is drawn bigger with the rest of the
+## UI, and at that size rather than stretched to it, so it stays sharp.
+func test_the_kart_hint_grows_with_the_ui_scale() -> void:
+	var kart: Kart = auto_free(load("res://scenes/kart/kart.tscn").instantiate())
+	add_child(kart)
+	var hint := ControlHint.attach(kart, DeviceInput.KEYBOARD)
+	assert_int(hint.drawn_size()).is_equal(ControlHint.FONT_SIZE)
+	get_tree().root.content_scale_factor = 1.5
+	hint._process(0.0)
+	var bigger := roundi(ControlHint.FONT_SIZE * 1.5)
+	assert_int(hint.drawn_size()).is_equal(bigger)
+	assert_str(hint._shown).ends_with("|%d" % bigger)
+	get_tree().root.content_scale_factor = 1.0

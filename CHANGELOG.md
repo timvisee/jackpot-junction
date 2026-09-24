@@ -25,6 +25,7 @@ below, and hands the notes to the release workflow.
 - **The Garage, the test track and the lobby load like a map.** They go up behind
   the same screen with its progress bar rather than freezing the last one.
 - **The waiting room is called the Lobby.**
+- **The driving hint over your kart grows with the UI scale.**
 - **Menu buttons are much quieter.** The tick of the cursor landing on a button and
   the click of pressing it, both on every tap on a touch screen, are well down.
 

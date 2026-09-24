@@ -2230,7 +2230,8 @@ like any other button.
   nothing. A screen drawn bigger than the window has room for still fits: a menu
   taller than the window scrolls, the podium shrinks to it, the title leaves out
   the mark over its name, and on a touch screen the pieces of the HUD keep off
-  each other, see 4.2.
+  each other, see 4.2. The hint over a kart at the start of a match grows with it
+  too, drawn at the bigger size rather than stretched to it, so it stays sharp.
 - **Accessibility**: screen shake on or off, flash reduction, aim assist
   strength from 0% to 100% of the default and never above it, per player, the
   aim guide on or off, the disco lights on or off, the control hints on or off,
