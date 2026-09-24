@@ -676,7 +676,7 @@ would leave skipping unreachable.
 
 On a touch screen the controls are drawn over the room instead. They come on by themselves on
 a phone or a tablet; `++ --touch=1` turns them on anywhere, with the mouse standing in for a
-finger, and `++ --touch=0` turns them off. Every finger is answered on its own, so one thumb can
+finger, and `++ --touch=0` turns them off. `make run ARGS=--touch=1` is the first of those. Every finger is answered on its own, so one thumb can
 steer while the other presses, and a finger belongs to whatever it went down on until it comes
 up. A menu button in the top right corner opens the room's menu of 3.8, which is the way back to
 the title and out of the game for a player with no Escape key. It opens as the finger comes up

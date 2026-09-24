@@ -65,6 +65,9 @@ make multiplayer  # a whole Grand Prix online (two games, up to two clients) and
 make export     # release builds for Linux, Windows and macOS in build/
 ```
 
+`make run`, `make dev` and `make drive` hand `ARGS` to the game: `make run ARGS=--touch=1`
+plays with the touch controls on, the mouse standing in for a finger.
+
 `.godot` is a build cache, not source: Godot keeps its imported assets and its
 register of every `class_name` there. The game cannot write it -- only an import
 or the editor can -- so a fresh clone or a cleared `.godot` looks thoroughly

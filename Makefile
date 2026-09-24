@@ -3,6 +3,9 @@ GODOT ?= tools/godot
 GDLINT ?= gdlint
 GDFORMAT ?= gdformat
 GD_DIRS := scenes scripts tests
+# Handed to the game after `--`, for the targets that start it: `make run ARGS=--touch=1` plays with
+# the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
+ARGS ?=
 
 .PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench bots multiplayer changelog check export
 
@@ -50,13 +53,13 @@ smoke: | $(CACHE)
 	tools/smoke res://scenes/dev/joker_sheet.tscn 30
 
 dev: | $(CACHE)
-	$(GODOT) --path . res://scenes/dev/playground.tscn
+	$(GODOT) --path . res://scenes/dev/playground.tscn -- $(ARGS)
 
 run: | $(CACHE)
-	$(GODOT) --path . res://scenes/ui/title.tscn
+	$(GODOT) --path . res://scenes/ui/title.tscn -- $(ARGS)
 
 drive: | $(CACHE)
-	$(GODOT) --path . res://scenes/dev/driving.tscn
+	$(GODOT) --path . res://scenes/dev/driving.tscn -- $(ARGS)
 
 # What the game runs at, as a number: a match of four bots on each map, 600 frames after the
 # warm-up. A change that costs frames should be caught here rather than in a play session.
