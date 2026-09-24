@@ -155,6 +155,11 @@ var room: RoomLook
 var level := 0
 ## Scenery can be switched off: the Garage in 9.4 is not a party, GAME.md 8.1.
 var enabled := true
+## How far up the booth stands, on a riser somebody else puts under it, and how much bigger than
+## usual it is. A room is played in with the booth at table height; the end of a Grand Prix puts
+## it up on a stage where it can be seen over the podium, GAME.md 9.7.
+var booth_lift := 0.0
+var booth_scale := 1.0
 
 ## Where everybody is standing, kept after the build because it is the record of the house.
 var _spots: Array[Transform3D] = []
@@ -184,10 +189,14 @@ var _rng := RandomNumberGenerator.new()
 
 
 ## Fills the table around an arena of [param size] meters with onlookers.
-static func add_to(parent: Node3D, size: Vector2, in_room: RoomLook = null) -> Crowd:
+static func add_to(
+	parent: Node3D, size: Vector2, in_room: RoomLook = null, booth_lift := 0.0, booth_scale := 1.0
+) -> Crowd:
 	var crowd := Crowd.new()
 	crowd.name = "Crowd"
 	crowd.room = in_room if in_room != null else RoomLook.fallback()
+	crowd.booth_lift = booth_lift
+	crowd.booth_scale = booth_scale
 	parent.add_child(crowd)
 	crowd._build(size)
 	return crowd
@@ -565,10 +574,12 @@ func _skin(fragment: String) -> ShaderMaterial:
 ## The booth at the top: a desk, a pair of speakers that pulse on the beat, and somebody behind
 ## it who never stops dancing.
 func _booth(at: Vector3) -> void:
-	_clear.append(Rect2(Vector2(at.x, at.z) - BOOTH_CLEARANCE * 0.5, BOOTH_CLEARANCE))
+	var clearance := BOOTH_CLEARANCE * booth_scale
+	_clear.append(Rect2(Vector2(at.x, at.z) - clearance * 0.5, clearance))
 	var booth := Node3D.new()
 	booth.name = "DjBooth"
-	booth.position = at
+	booth.position = at + Vector3(0.0, booth_lift, 0.0)
+	booth.scale = Vector3.ONE * booth_scale
 	add_child(booth)
 	var desk := MeshInstance3D.new()
 	var box := BoxMesh.new()
