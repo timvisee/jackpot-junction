@@ -71,9 +71,9 @@ const SLIDER := Vector2(124.0, 384.0)
 const SLIDER_INSET := Vector2(34.0, 28.0)
 const SLIDER_SLACK := 24.0
 const ZONE_LINE := Color(1.0, 1.0, 1.0, 0.22)
-## The click a thumb feels crossing from one zone of the slider into the next, or rolling across
-## onto fire: the shortest, lightest buzz the phone makes, so a wrong zone is felt rather than seen.
-## The rumble setting of GAME.md 8.5 turns it off with the rest.
+## The click a thumb feels going down on the slider, crossing from one zone of it into the next,
+## or rolling across onto fire: the shortest, lightest buzz the phone makes, so a wrong zone is
+## felt rather than seen. The rumble setting of GAME.md 8.5 turns it off with the rest.
 const CLICK_MS := 10
 const CLICK_STRENGTH := 0.3
 ## Below this speed forward the brake is the reverse, and says so: a kart standing still or rolling
@@ -643,6 +643,8 @@ func _down_on_slider(finger: int, at: Vector2) -> bool:
 		return false
 	_slider_finger = finger
 	_slider_at = at
+	# Clicked on the way down as well as from zone to zone, so the thumb knows it has it.
+	_click()
 	_publish()
 	return true
 

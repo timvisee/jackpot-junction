@@ -620,25 +620,25 @@ func test_the_touch_hud_keeps_its_pieces_apart() -> void:
 	assert_float(skip.get_global_rect().end.y).is_less_equal(hand.top())
 
 
-## Crossing from one zone of the slider into the next clicks, and so does rolling onto fire, so a
-## wrong zone is felt without looking; staying in one does not.
+## Going down on the slider clicks, crossing from one of its zones into the next clicks, and so
+## does rolling onto fire, so a wrong zone is felt without looking; staying in one does not.
 func test_the_slider_clicks_from_zone_to_zone() -> void:
 	var controls := await _driving()
 	var gas := controls.zone_rect(TouchControls.GAS)
 	_touch(controls, 0, gas.get_center(), true)
-	assert_int(controls.clicks).is_equal(0)
-	_drag(controls, 0, gas.get_center() + Vector2(0.0, gas.size.y * 0.3))
-	assert_int(controls.clicks).is_equal(0)
-	_drag(controls, 0, controls.zone_rect(TouchControls.BRAKE).get_center())
 	assert_int(controls.clicks).is_equal(1)
-	_drag(controls, 0, controls.zone_rect(TouchControls.DRIFT).get_center())
+	_drag(controls, 0, gas.get_center() + Vector2(0.0, gas.size.y * 0.3))
+	assert_int(controls.clicks).is_equal(1)
+	_drag(controls, 0, controls.zone_rect(TouchControls.BRAKE).get_center())
 	assert_int(controls.clicks).is_equal(2)
-	_drag(controls, 0, controls.zone_rect(TouchControls.NITRO).get_center())
+	_drag(controls, 0, controls.zone_rect(TouchControls.DRIFT).get_center())
 	assert_int(controls.clicks).is_equal(3)
-	_drag(controls, 0, gas.get_center())
+	_drag(controls, 0, controls.zone_rect(TouchControls.NITRO).get_center())
 	assert_int(controls.clicks).is_equal(4)
-	_drag(controls, 0, controls.pad(TouchControls.FIRE).center)
+	_drag(controls, 0, gas.get_center())
 	assert_int(controls.clicks).is_equal(5)
+	_drag(controls, 0, controls.pad(TouchControls.FIRE).center)
+	assert_int(controls.clicks).is_equal(6)
 	# The two ends are a little bigger than the brake, for the thumb that reaches for them.
 	var brake := controls.zone_rect(TouchControls.BRAKE).size.y
 	assert_float(controls.zone_rect(TouchControls.NITRO).size.y).is_greater(brake)
