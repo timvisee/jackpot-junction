@@ -771,3 +771,27 @@ func test_the_way_to_drive_is_remembered() -> void:
 	read.load_from_disk()
 	assert_str(read.touch_layout).is_equal(Settings.TOUCH_BUTTONS)
 	DirAccess.remove_absolute(settings.path)
+
+
+## A hint on a touch screen names the button on the screen rather than a key: the gas as GAS, fire
+## as FIRE, and steering as the stick under the left thumb. An action the screen has no button for
+## has no picture.
+func test_hints_name_the_buttons_on_the_screen() -> void:
+	TouchInput.enabled = true
+	var ink := Color.WHITE
+	var gas: InputGlyph = auto_free(InputHint.glyph(InputActions.THROTTLE, true, ink, 15))
+	assert_str(gas.caption).is_equal("GAS")
+	var fire: InputGlyph = auto_free(InputHint.glyph(InputActions.FIRE, false, ink, 15))
+	assert_str(fire.caption).is_equal("FIRE")
+	var drift: InputGlyph = auto_free(InputHint.glyph(InputActions.HANDBRAKE, true, ink, 15))
+	assert_str(drift.caption).is_equal("DRIFT")
+	var steer: InputGlyph = auto_free(
+		InputHint.pair(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, true, ink, 15)
+	)
+	assert_int(steer.kind).is_equal(InputGlyph.Kind.STICK)
+	assert_bool(steer.both_ways).is_true()
+	assert_str(steer.caption).is_equal("")
+	assert_object(InputHint.glyph(InputActions.JOKER_MENU, true, ink, 15)).is_null()
+	TouchInput.enabled = false
+	var key: InputGlyph = auto_free(InputHint.glyph(InputActions.THROTTLE, true, ink, 15))
+	assert_str(key.caption).is_not_equal("GAS")

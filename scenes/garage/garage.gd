@@ -214,7 +214,9 @@ func _add_signs() -> void:
 	_sign("JUNCTION\nbank your pot here", arena.junction_position, Palette.NEON_MAGENTA)
 	for position: Vector3 in arena.jackpot_positions:
 		_sign("JACKPOT\ndrive in and wait", position, Palette.CHIP_GOLD)
-	_sign_at("JOKERS\ntake one, TAB to manage", arena.joker_pads, Palette.NEON_MAGENTA)
+	# The hand is opened by holding one of its cards on a touch screen, GAME.md 4.2.
+	var manage := "hold one to read it" if TouchInput.enabled else "TAB to manage"
+	_sign_at("JOKERS\ntake one, %s" % manage, arena.joker_pads, Palette.NEON_MAGENTA)
 
 
 ## Puts one sign over the first of a group of things, so a row of targets gets a single label.

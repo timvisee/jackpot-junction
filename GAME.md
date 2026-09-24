@@ -715,13 +715,16 @@ grayed out and press nothing: a thumb resting on fire after a death would otherw
 of the respawn pick it has not read. The gas held through the last lamp takes the kart away on
 the green. The driving buttons go while the podium is up, where they would sit over its own. The
 hints that name keys, in the corner and beside the kart, are not shown on a touch screen: the
-buttons say what they are on them. The standings hang from the top right corner under the menu
-button rather than down the middle of the right-hand side, which is the slider's and the item
-button's, and the kill feed hangs under them and stops short of the buttons and the slider,
-dropping its oldest lines. The hand of jokers keeps to the stretch between the stick's ring and
-the nearest button or the slider, shrinking its cards when that is narrower than the hand, and
-the respawn pick moves up, and shrinks its own cards a little if it has to, to keep its button
-above the hand.
+buttons say what they are on them. A hint that is shown, such as the signs along the test track
+of 9.4a, names the button on the screen instead of a key: gas, fire, nitro, drift and the item
+as a pill with the button's word on it, and steering as the stick under the left thumb. The
+Garage's sign over the jokers says to hold one to read it rather than to press Tab. The
+standings hang from the top right corner under the menu button rather than down the middle of
+the right-hand side, which is the slider's and the item button's, and the kill feed hangs under
+them and stops short of the buttons and the slider, dropping its oldest lines. The hand of
+jokers keeps to the stretch between the stick's ring and the nearest button or the slider,
+shrinking its cards when that is narrower than the hand, and the respawn pick moves up, and
+shrinks its own cards a little if it has to, to keep its button above the hand.
 
 The slider is one of two ways to drive, and the settings' Controls, first there on a touch
 screen, have the other: Touch driving, Slider or Buttons, put up at once, a match under way or

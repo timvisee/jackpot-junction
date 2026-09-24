@@ -21,8 +21,11 @@ const CARD_BG := Color(0.05, 0.05, 0.07, 0.72)
 const CARD_PAD := 12.0
 
 
-## One action as a picture, or null when nothing is bound to it on that device.
+## One action as a picture, or null when nothing is bound to it on that device. On a touch screen
+## it is the button on the screen, GAME.md 4.2, whatever the keys and the pads have it bound to.
 static func glyph(action: StringName, keyboard: bool, ink: Color, size: int) -> Control:
+	if TouchInput.enabled:
+		return InputGlyph.of_touch(action, ink, size)
 	return InputGlyph.of_action(action, keyboard, ink, size)
 
 
@@ -31,6 +34,9 @@ static func glyph(action: StringName, keyboard: bool, ink: Color, size: int) -> 
 static func pair(
 	left: StringName, right: StringName, keyboard: bool, ink: Color, size: int
 ) -> Control:
+	# Steering on a touch screen is the one stick under the left thumb.
+	if TouchInput.enabled:
+		return glyph(left, keyboard, ink, size)
 	if not keyboard and not InputActions.shared_stick(left, right).is_empty():
 		var stick := glyph(left, keyboard, ink, size) as InputGlyph
 		if stick != null:

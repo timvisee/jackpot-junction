@@ -41,6 +41,17 @@ const FACE_INK := Color(0.06, 0.06, 0.08)
 ## hold a letter, and the arrows still have to fit outside it: in a square chip the two fight and
 ## the arrows lose, coming out as nicks in the border.
 const STICK_WIDE := 1.55
+## What a touch screen's own buttons are called on them, GAME.md 4.2, for the hint that names one:
+## a pill with the word on it, the way the screen has it. Steering is the stick under the left
+## thumb, drawn as a stick with nothing written in it.
+const TOUCH_WORDS: Dictionary[StringName, String] = {
+	InputActions.THROTTLE: "GAS",
+	InputActions.BRAKE: "BRAKE",
+	InputActions.NITRO: "NITRO",
+	InputActions.HANDBRAKE: "DRIFT",
+	InputActions.FIRE: "FIRE",
+	InputActions.USE_ITEM: "ITEM",
+}
 
 var kind := Kind.KEY
 ## What is written on the glyph: the key, the button, or the stick's side.
@@ -60,6 +71,24 @@ var both_ways := false
 static func of_action(action: StringName, keyboard: bool, ink: Color, font_size: int) -> InputGlyph:
 	var event := InputActions.first_event(action, keyboard)
 	return null if event == null else of_event(event, ink, font_size)
+
+
+## [param action] as the touch screen has it: a pill with the word on its button, or the stick for
+## steering, both ways at once. Null for an action the screen has no button for.
+static func of_touch(action: StringName, ink: Color, font_size: int) -> InputGlyph:
+	var steering := action in [InputActions.STEER_LEFT, InputActions.STEER_RIGHT]
+	if not steering and not TOUCH_WORDS.has(action):
+		return null
+	var glyph := InputGlyph.new()
+	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	glyph.ink = ink
+	glyph.font_size = font_size
+	glyph.kind = Kind.STICK if steering else Kind.SHOULDER
+	glyph.caption = "" if steering else TOUCH_WORDS[action]
+	glyph.both_ways = steering
+	glyph.along = Vector2.RIGHT
+	glyph.custom_minimum_size = glyph._wanted()
+	return glyph
 
 
 static func of_event(event: InputEvent, ink: Color, font_size: int) -> InputGlyph:
