@@ -633,7 +633,7 @@ func _to_the_run(last: ResultsScreen) -> bool:
 	# After the last map the finale in the room comes first, and the standings go up over it.
 	return await _until(
 		func() -> bool: return last.visible and last._title.text == ResultsScreen.GRAND_PRIX_TITLE,
-		10.0,
+		20.0,
 		"then the Grand Prix's"
 	)
 

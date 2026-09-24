@@ -537,10 +537,10 @@ func _to_the_run(screen: ResultsScreen) -> void:
 		await await_idle_frame()
 
 
-## GAME.md 9.7: after the last map, Grand Prix results first turns the room into a party. The top
-## of the run stands on a podium on the Junction, the floor is cleared, the room goes to the top of
-## its meter and a camera of its own comes down onto the podium; the standings go up once it has
-## arrived and held there.
+## GAME.md 9.7: after the last map, Grand Prix results first puts up a party in a room of its own.
+## The top of the run stands on a podium on a dance floor, the arena is hidden, the room goes to
+## the top of its meter, and a camera of its own flies in onto the podium; the standings go up once
+## it has arrived and held there.
 func test_the_end_of_a_run_is_a_party_on_a_podium() -> void:
 	_run_at(2, 2)
 	var screen := await _podium_after(2, 2)
@@ -551,17 +551,29 @@ func test_the_end_of_a_run_is_a_party_on_a_podium() -> void:
 	assert_object(finale).is_not_null()
 	assert_bool(screen.visible).is_false()
 	assert_int(finale._karts.size()).is_equal(match_node.slots.size())
-	assert_str((finale.get_node("Champion") as Label3D).text).is_equal(champion.display_name())
+	assert_str(finale._champion.text).is_equal(champion.display_name())
+	assert_object(finale._champion.get_parent().get_parent()).is_instanceof(Billboard)
+	# A room of its own: the arena the map was played in and everything in it goes for it.
+	assert_bool(match_node.arena.visible).is_false()
 	assert_bool(match_node.kart_of(0).visible).is_false()
 	assert_bool(match_node.hud._scoreboard.visible).is_false()
+	assert_float(finale.global_position.distance_to(match_node.arena.global_position)).is_greater(
+		100.0
+	)
 	assert_bool(finale._camera.is_current()).is_true()
 	assert_int(match_node.intensity.level).is_equal(MatchIntensity.LEVELS)
-	assert_int(match_node.arena.crowd.level).is_equal(MatchIntensity.LEVELS)
+	assert_int(finale.crowd.level).is_equal(MatchIntensity.LEVELS)
+	assert_int(finale.disco.level).is_equal(MatchIntensity.LEVELS)
+	# The booth stands on its riser, half again its size, to be seen over the podium.
+	var booth: Node3D = finale.crowd.get_node("DjBooth")
+	var riser_top := Crowd.TABLE_TOP + GrandPrixFinale.RISER_HEIGHT
+	assert_float(booth.position.y).is_equal_approx(riser_top, 0.001)
+	assert_float(booth.scale.x).is_equal_approx(GrandPrixFinale.BOOTH_SCALE, 0.001)
 	# Still on its way down a second in, with nothing over it yet.
 	await await_millis(1000)
 	assert_bool(screen.visible).is_false()
 	var up := false
-	for i: int in 60:
+	for i: int in 150:
 		await await_millis(100)
 		if screen.visible:
 			up = true

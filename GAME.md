@@ -2738,15 +2738,27 @@ map's results, what each place paid and where that leaves everybody. Its one way
 Prix results, which is everybody's to press, a client's as much as the host's, since it only
 changes what that screen shows.
 
-After the last map that first turns the room into a party. A podium goes up on the Junction
-with the top three of the run on it, in their own colors and dress, turning on their steps,
-the winner bouncing on the tallest, with their name and GRAND PRIX CHAMPION over it and a light
-on it. The karts that played the map and everything on the floor are cleared away, the HUD goes,
-and the room goes to the top of its meter and stays there: the crowd on its feet, the lights on
-the winner, the music at its loudest. Fireworks go up in all three colors and confetti bursts off
-the steps. The camera leaves the rig and comes down in front of the podium over 2.6 s, with the
-room and the DJ booth behind it, and holds for a second; the accept button skips the move. Each
-machine stages it for itself from what it already knows, so nothing about it goes over the wire.
+After the last map that first goes to a room of its own, put up for the party rather than for
+playing in: nothing of any map is in it, and it is laid out so that everything in it can be seen
+from where the camera ends up. A dance floor of dark tiles, a few of them lit on every beat in
+the colors of the top three, fenced down both sides and across the front with the card room's
+velvet rope on brass posts, a gap left in it in front of the podium. At its back corners stand
+stacks of chips the size of the card room's in the same three colors. On the floor, forward of
+the middle, a podium with the three on it in their own colors and dress, turning on their steps,
+the winner bouncing on the tallest, a light on it. Behind them the DJ booth, half again its
+usual size, up on a riser with neon along its front so it is seen over the podium rather than
+behind it. Behind the booth a hoarding of the room's own kind, bigger than the ones over a
+crowd, reading GRAND PRIX CHAMPION over the winner's name in their color. The crowd all the way
+round, on its feet; the disco rig over the floor with every light on the winner; the music at
+its loudest; confetti off the steps; and fireworks in all three colors going up behind the
+board, framing it rather than covering it. It is built in the materials of the room the run
+ended in, well away from its arena, which is hidden, with the HUD, while it is on. It stands in
+a hall of its own, a floor that runs on past the camera and dark walls at the back and sides
+with a line of neon along them in the three colors, so nowhere in the shot does the world stop.
+The places on the steps are painted the same size on all three, sized to the lowest. The camera
+starts high over the room and flies in slowly over 6 s to look down on the podium from in front
+of it, holds there for two seconds, and the accept button skips the move. Each machine stages it
+for itself from what it already knows, so nothing about it goes over the wire.
 
 Then the run's podium comes up over it, the same one every map before
 it led to, headed Grand Prix over Final
