@@ -80,8 +80,8 @@ var overtime := true
 var grand_prix_maps := 3
 var grand_prix := true
 ## What of their jokers players take from one map of a Grand Prix to the next, one of
-## [enum GrandPrix.Keep]: one at random unless somebody chooses otherwise.
-var grand_prix_jokers := 2
+## [enum GrandPrix.Keep]: the one each player picks, unless somebody chooses otherwise.
+var grand_prix_jokers: int = GrandPrix.Keep.CHOOSE
 ## What each local seat calls itself, GAME.md 3.8. An empty entry is a seat that never gave a
 ## name and will be handed a funny one when the match starts.
 var player_names: Array[String] = ["", "", "", ""]

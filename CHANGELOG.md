@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **A Grand Prix asks which joker to keep, to start with.** Jokers between maps
+  starts on Pick one to keep rather than Keep one at random.
+
 ## [0.6.0] - 2026-09-24
 
 Jackpot Junction plays on a touch screen: a stick, a slider for the pedals and a

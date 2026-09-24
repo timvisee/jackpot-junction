@@ -321,7 +321,9 @@ func test_the_carried_jokers_are_dealt_into_the_next_map() -> void:
 func test_the_joker_rule_is_a_grand_prix_row() -> void:
 	var lobby := _lobby(true)
 	assert_bool(lobby.options._jokers_row.visible).is_true()
-	assert_int(lobby.options.jokers_option.selected).is_equal(GrandPrix.Keep.RANDOM)
+	# Picking one to keep is the choice to start with.
+	assert_int(lobby.options.jokers_option.selected).is_equal(GrandPrix.Keep.CHOOSE)
+	assert_int(Settings.new().grand_prix_jokers).is_equal(GrandPrix.Keep.CHOOSE)
 	lobby.options.jokers_option.selected = GrandPrix.Keep.ALL
 	assert_int(lobby.config().keep_jokers).is_equal(GrandPrix.Keep.ALL)
 	_choose(lobby, false)

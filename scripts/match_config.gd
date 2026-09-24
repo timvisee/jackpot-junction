@@ -16,7 +16,7 @@ var map := &"lucky_crossing"
 ## How many maps a Grand Prix runs, GAME.md 9.7, or 0 for a single map.
 var rounds := 0
 ## What of their jokers each player takes on to the next map, one of [enum GrandPrix.Keep].
-var keep_jokers := GrandPrix.Keep.RANDOM
+var keep_jokers := GrandPrix.Keep.CHOOSE
 var bot_count := 3
 ## Seats kept for players connected from other machines, GAME.md 9.6. They are started as bots and
 ## taken over as the host seats everybody again on the other side of the waiting room, see 10.3,

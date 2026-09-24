@@ -2827,8 +2827,8 @@ the next of the jokers they end it holding, in the lobby and in the host's setti
 | Choice              | What goes on to the next map                                        |
 |---------------------|---------------------------------------------------------------------|
 | Discard all         | Nothing: every map starts from an empty hand                        |
-| Pick one to keep    | The one each player picks as the next map starts                    |
-| Keep one at random  | One of each hand, drawn at random -- the choice to start with       |
+| Pick one to keep    | The one each player picks as the next map starts -- the choice to start with |
+| Keep one at random  | One of each hand, drawn at random                                   |
 | Keep all            | The whole hand                                                      |
 
 The podium of the map just finished says which rule the run is on. Choosing is done where a card
