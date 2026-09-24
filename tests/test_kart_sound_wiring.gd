@@ -132,6 +132,37 @@ func test_the_ears_follow_the_player_rather_than_the_camera() -> void:
 	assert_float(ears.distance_to(match_node.camera_rig.camera.global_position)).is_greater(10.0)
 
 
+## Two players at one screen, the ears between them: each still hears their own kart as close as
+## one player alone does, and a kart near either of them as near as it is to them, GAME.md 8.4.
+func test_two_players_here_each_hear_their_own_kart_up_close() -> void:
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.KEYBOARD, 0), PlayerInput.new(0, 1), KartInput.new()
+	]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var rig := match_node.camera_rig
+	var one := match_node.kart_of(0)
+	var two := match_node.kart_of(1)
+	var other := match_node.kart_of(2)
+	one.global_position = Vector3(-12.0, 0.0, 0.0)
+	two.global_position = Vector3(12.0, 0.0, 0.0)
+	other.global_position = Vector3(15.0, 0.0, 4.0)
+	await _runner.simulate_frames(2, 17)
+	var ears := rig.listener.global_position
+	for kart: Kart in [one, two]:
+		var heard := kart.sound.global_position.distance_to(ears)
+		assert_float(heard).is_equal_approx(rig.listener_height, 0.3)
+	var near := other.global_position - two.global_position
+	var from_two := Vector3(near.x, -rig.listener_height, near.z).length()
+	var heard := other.sound.global_position.distance_to(ears)
+	assert_float(heard).is_equal_approx(from_two, 0.3)
+	# One of them gone, the ears are over the other again and every voice goes back on its kart.
+	match_node.leave_human(match_node.slots[1])
+	await _runner.simulate_frames(2, 17)
+	assert_bool(other.sound.top_level).is_false()
+	assert_that(other.sound.position).is_equal(Vector3.ZERO)
+
+
 func test_the_engine_revs_with_the_throttle_and_settles_when_it_is_let_go() -> void:
 	# A bare input so the test holds the pedals itself, with the voices attached by hand: a
 	# PlayerInput would overwrite them from the input map on every poll.

@@ -44,6 +44,9 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Every player at one screen hears their own kart.** With two or more, each kart
+  was heard from halfway between them, so a player far from the others barely heard
+  their own.
 - **Going to the next map online is one dark screen.** Starting the match was said on
   the menus' gray and then the loading screen cut in on black.
 - **The start lamps always go after the countdown.** A match that went straight into

@@ -2319,8 +2319,13 @@ for.
   so a listener up there would put every kart at the same distance. The ears sit
   over the karts being driven here instead, two and a half meters up, facing the
   way the camera does, so left on screen is left in the mix. On a client that is
-  its own kart, found as soon as the host says which one it is. The engine goes to
-  its own bus under SFX so it can be balanced against the one-shots.
+  its own kart, found as soon as the host says which one it is. With two or more
+  players at one screen the ears sit in the middle of them, and there is only
+  the one pair: so every kart's voice is heard as it would be from over
+  whichever kart driven here is nearest it. Each player hears their own kart as
+  close as one player alone does, and a kart beside them as beside them, rather
+  than everything from halfway across the room. The engine goes to its own bus
+  under SFX so it can be balanced against the one-shots.
 - The F3 overlay shows the needle, what it does to the loop, the load and the
   three tire levels.
 - **Combat**: soft pop on fire, ricochet tick on bounce, thud and a short
