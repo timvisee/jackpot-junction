@@ -514,6 +514,9 @@ static func _apply_karts(match_node: Match, entries: Array) -> void:
 		var id: int = entry["id"]
 		seen[id] = true
 		var kart: Kart = match_node.puppet_karts.get(id)
+		if kart != null and kart.color_index != entry["color"]:
+			# In another color since it was built, picked in the lobby, GAME.md 4.4.
+			KartVisuals.recolor(kart, entry["color"])
 		if kart != null and entry.has("style"):
 			# Dressed again since it was built, on one of the lobby's stalls, GAME.md 9.6.
 			var style := PackedInt32Array(entry["style"])

@@ -118,7 +118,7 @@ func _ready() -> void:
 		# The kart is dressed in here as it is in the lobby, GAME.md 9.4, along the front wall.
 		StyleStalls.add_to(match_node, STALLS)
 	DebugOverlay.add_to(self, match_node)
-	PauseMenu.add_to(self)
+	PauseMenu.add_to(self).names_and_colors = true
 	loaded.emit()
 
 

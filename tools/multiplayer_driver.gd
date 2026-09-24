@@ -38,6 +38,8 @@ var _clients := 1
 var _locals := 1
 ## The color this client had in the waiting room, to find it in again in the arena.
 var _room_color := -1
+## The name it took in the room, for map 1 to be checked against.
+var _room_name := ""
 ## What of their jokers everybody keeps between maps, one of GrandPrix.Keep, and on the host
 ## the jokers it handed every seat on the first map, to find the right ones again on the second.
 var _keep := 2
@@ -307,6 +309,29 @@ func _client_joins() -> Node:
 	for slot: PlayerSlot in match_node.slots:
 		if slot.index > 0 and slot.index < seat and slot.is_human():
 			first = false
+	# A new name, and for the first client the next color nobody is in, asked of the host from here
+	# and brought back in the snapshot, GAME.md 4.4. Only the first: two asking for the same free
+	# color at once is one of them told no, which is the host working rather than what is checked.
+	_room_name = "Renamed %d" % seat
+	SeatIdentity.rename(match_node.slots[seat], _room_name)
+	if first:
+		var wanted := SeatIdentity.next_color(match_node, match_node.slots[seat])
+		SeatIdentity.recolor(match_node, match_node.slots[seat])
+		if not await _until(
+			func() -> bool:
+				var mine := match_node.slots[seat]
+				return (
+					mine.color_index == wanted
+					and mine.kart != null
+					and (mine.kart.color_index == wanted)
+				),
+			10.0,
+			"the host put it in the next free color"
+		):
+			return null
+		_room_color = wanted
+	await _seconds(1.0)
+	_check(match_node.slots[seat].player_name == _room_name, "the host gave it its new name")
 	if first:
 		await _until(
 			func() -> bool: return _walk(match_node, seat, ball.home - Vector3(1.8, 0.0, 0.0)),
@@ -338,6 +363,7 @@ func _client_after_map_1(first: Node) -> Node:
 	var one: Match = first.match_node
 	_color = one.slots[one.local_slot].color_index
 	_check(_color == _room_color, "the same color on map 1 as in the room")
+	_check(one.slots[one.local_slot].player_name == _room_name, "and the same name")
 	var podium := await _podium(first, 60.0)
 	if podium == null:
 		return null

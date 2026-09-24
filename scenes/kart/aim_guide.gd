@@ -37,6 +37,13 @@ func _build(color: Color) -> void:
 		_dots.append(dot)
 
 
+## The dots in [param color] instead, for a player who has picked another one.
+func paint(color: Color) -> void:
+	if not _dots.is_empty():
+		var material := _dots[0].material_override as StandardMaterial3D
+		material.albedo_color = Color(color.r, color.g, color.b, ALPHA)
+
+
 ## Places the dots along the aim from the muzzle.
 func update_line(muzzle: Vector3, direction: Vector3) -> void:
 	for i: int in _dots.size():

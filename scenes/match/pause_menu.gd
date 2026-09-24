@@ -3,7 +3,8 @@ extends CanvasLayer
 ## Pausing freezes the whole match in single-player and local play, GAME.md 3.8. Online it takes
 ## the whole room: the menu opens straight away, and the match stops once everybody has opened
 ## theirs. Resume, Settings, or back to the title, and over each local player's corner of the HUD
-## a switch for how they drive, see [DriveSwitches]. A map adds a way back to the lobby for whoever
+## a switch for how they drive, and in the lobby and the Garage for their name and color too, see
+## [DriveSwitches]. A map adds a way back to the lobby for whoever
 ## decides where the room goes: the one machine offline, the host online. Both ways out that end
 ## something for other people, or a Grand Prix, ask first, see [ConfirmPane].
 ##
@@ -21,6 +22,13 @@ const GROUP := &"pause_menu"
 
 ## The session to ask online, null in a room where this machine is the only one.
 var session: NetSession
+## Whether the players here can change their names and colors from their switches: in the lobby
+## and the Garage, GAME.md 4.4, and not in the middle of a map.
+var names_and_colors := false:
+	set(value):
+		names_and_colors = value
+		if _switches != null:
+			_switches.names_and_colors = value
 
 var _panel: Control
 var _resume: Button
@@ -102,6 +110,7 @@ func _ready() -> void:
 	_quit.pressed.connect(_back_to_title)
 	column.add_child(_quit)
 	_switches = DriveSwitches.new()
+	_switches.names_and_colors = names_and_colors
 	_switches.visible = false
 	root.add_child(_switches)
 	# In the middle of the screen, on a pane of its own: a client that has not opened its menu is

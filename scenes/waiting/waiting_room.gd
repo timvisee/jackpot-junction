@@ -69,6 +69,7 @@ func _ready() -> void:
 		ready_room.everybody_ready.connect(_begin, CONNECT_ONE_SHOT)
 	DebugOverlay.add_to(self, match_node, session)
 	var menu := PauseMenu.add_to(self, session)
+	menu.names_and_colors = true
 	# Whoever decides where the room goes chooses the match in here, GAME.md 9.6: the host online,
 	# and on one machine the machine itself.
 	if config.online != "join":
@@ -327,7 +328,7 @@ func _local_addresses() -> PackedStringArray:
 ## and a pad nobody is driving pressing it is somebody sitting down. This is the room that is for,
 ## so the HUD says so out loud.
 func _input(event: InputEvent) -> void:
-	if not event.is_action_pressed(InputActions.JOIN) or get_tree().paused:
+	if not event.is_action_pressed(InputActions.JOIN) or get_tree().paused or PlayerInput.typing:
 		return
 	if config.online == "join":
 		return

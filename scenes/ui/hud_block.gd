@@ -102,6 +102,7 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	box.add_child(hints)
 	return {
 		"box": card,
+		"name": name_label,
 		"corner": corner,
 		"banked": banked,
 		"pot": pot,
@@ -115,7 +116,22 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 		"item_name": item.label,
 		"hints": hints,
 		"hint_stamp": "",
+		"worn": "%d|%s" % [slot.color_index, slot.display_name()],
 	}
+
+
+## Keeps [param block] in [param slot]'s name and color, which a player can change in the lobby
+## and the Garage, GAME.md 4.4, and a client hears about from the host. Only on a change.
+static func follow(block: Dictionary, slot: PlayerSlot) -> void:
+	var worn := "%d|%s" % [slot.color_index, slot.display_name()]
+	if block["worn"] == worn:
+		return
+	block["worn"] = worn
+	var name_label: Label = block["name"]
+	name_label.text = slot.display_name()
+	name_label.add_theme_color_override("font_color", slot.color())
+	var fill := (block["nitro"] as ProgressBar).get_theme_stylebox("fill") as StyleBoxFlat
+	fill.bg_color = slot.color()
 
 
 ## The scrim behind a player's corner: a dark card with rounded corners and no edge, soft enough

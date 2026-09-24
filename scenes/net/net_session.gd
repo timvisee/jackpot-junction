@@ -767,6 +767,29 @@ func _claim_style(claimed: PackedInt32Array) -> void:
 		StyleStalls.dress(match_node.slots[index], claimed)
 
 
+## This client's player has changed their name or their color in the room, GAME.md 4.4: said to
+## the host, which decides, and the snapshot brings the answer back to every screen.
+func claim_name(claimed: String) -> void:
+	player_name = PlayerNames.clean(claimed)
+	if not is_host and _connected() and not player_name.is_empty():
+		_claim_name.rpc_id(1, player_name)
+
+
+func claim_color(color: int) -> void:
+	if not is_host and _connected():
+		_claim_color.rpc_id(1, color)
+
+
+## A client asking for another color, which it gets if nobody else in the room is in it.
+@rpc("any_peer", "call_remote", "reliable")
+func _claim_color(color: int) -> void:
+	if not is_host or match_node == null:
+		return
+	var index: int = _peer_slots.get(multiplayer.get_remote_sender_id(), -1)
+	if index >= 0 and index < match_node.slots.size():
+		SeatIdentity.paint(match_node, match_node.slots[index], color)
+
+
 ## Takes over the driving of this client's own kart once the snapshot has built it. Called every
 ## snapshot rather than once, the same as the kart's voice is: which slot is ours arrives in a
 ## message of its own, and the karts may well have been built before it did.

@@ -71,6 +71,25 @@ static func redress(kart: Kart, was: KartStyle) -> void:
 		kart.smoke.dress(color, kart.style.trail)
 
 
+## Paints [param kart] over in the player color [param color_index], for a player who has picked
+## another in the lobby or the Garage, GAME.md 4.4: the body, darker while it is wounded, the roof
+## marker, the hat, the flag, the trail and the aim guide. Its shots are in whatever it is in when
+## they are fired.
+static func recolor(kart: Kart, color_index: int) -> void:
+	kart.color_index = color_index
+	var color := Palette.player_color(color_index)
+	var tint: StandardMaterial3D = kart._tint
+	if tint != null:
+		tint.albedo_color = color.darkened(0.5) if kart.is_wounded() else color
+	var marker := kart.get_node_or_null("Body/RoofMarker") as MeshInstance3D
+	if marker != null:
+		(marker.material_override as StandardMaterial3D).albedo_color = color
+	var guide := kart.get_node_or_null("AimGuide") as AimGuide
+	if guide != null:
+		guide.paint(color)
+	redress(kart, kart.style)
+
+
 ## The kart as something to look at rather than to drive: the model in a player's color, with
 ## nothing hanging off it and no kart under it. The results podium stands one on each step.
 static func display_model(color_index: int, style: KartStyle = null) -> Node3D:

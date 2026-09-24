@@ -8,6 +8,11 @@ extends KartInput
 const FLICK := 0.8
 const FLICK_BACK := 0.4
 
+## Whether somebody at this machine is typing into a box, their name in the pause menu, GAME.md
+## 4.4. The keys are the box's then: a player on the keyboard sits still rather than driving round
+## the room with the letters of their name, online, where the room goes on under the menu.
+static var typing := false
+
 var device := DeviceInput.ANY
 ## For an any-device player, the device that last produced input; ANY until something moved.
 var last_device := DeviceInput.ANY
@@ -38,6 +43,9 @@ func simple() -> bool:
 
 
 func poll(delta: float) -> void:
+	if typing and device in [DeviceInput.KEYBOARD, DeviceInput.ANY]:
+		clear()
+		return
 	if device == DeviceInput.ANY:
 		_detect_device()
 	steer = (

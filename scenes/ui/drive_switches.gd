@@ -6,10 +6,17 @@ extends Control
 ## find theirs where they already look, and it is saved at once. The player at a touch screen has
 ## a second button under it, for the slider or the buttons. A pad's cursor goes out to them
 ## from the menu sideways and back toward the middle, and up and down between those on one side.
+##
+## In the lobby and the Garage there is more to it, GAME.md 4.4: a box with the player's name in
+## it, to type another, and a button in their color that moves them on to the next one nobody else
+## is in. See [SeatIdentity], which does it, online too.
 
 ## How far in from the edges of the screen a switch keeps, whatever its corner.
 const EDGE := 12.0
 const ICON := 30.0
+## How wide the things in a switch are, and how big its color swatch is.
+const WIDTH := 280.0
+const SWATCH := 26.0
 const WORDS: Dictionary[String, String] = {
 	Settings.DRIVE_SIMPLE: "Simple driving",
 	Settings.DRIVE_ADVANCED: "Advanced driving",
@@ -21,8 +28,11 @@ const WORDS: Dictionary[String, String] = {
 const DRIVING := &"driving"
 const TOUCH := &"touch"
 
-## Each switch up, with what it is for: the pane, its buttons top to bottom and what each shows,
-## the player's controls and their corner of the HUD.
+## Whether the players can change their names and colors here: in the lobby and the Garage.
+var names_and_colors := false
+
+## Each switch up, with what it is for: the pane, its controls top to bottom and what each shows,
+## the player's controls and slot, their corner of the HUD, and the name and color it was drawn in.
 var _up: Array[Dictionary] = []
 ## The menu's buttons the switches were joined to, for letting go of them again.
 var _menu: Array[Button] = []
@@ -53,9 +63,13 @@ func put_up(menu: Array[Button] = []) -> void:
 
 func take_down() -> void:
 	for each: Dictionary in _up:
+		# A name still being typed when the menu goes is the name they typed.
+		if each.has("box"):
+			_keep_name(each)
 		(each["pane"] as Control).queue_free()
 	_up.clear()
 	_link([])
+	PlayerInput.typing = false
 
 
 ## Joins the switches to [param menu] for a pad's cursor: out to either side from any of the
@@ -89,7 +103,7 @@ func _link(menu: Array[Button]) -> void:
 			func(a: Dictionary, b: Dictionary) -> bool:
 				return _corner_at(a).position.y < _corner_at(b).position.y
 		)
-		var side: Array[Button] = []
+		var side: Array[Control] = []
 		for each: Dictionary in panes:
 			side.append_array(each["buttons"])
 		for i: int in side.size():
@@ -125,10 +139,20 @@ func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control) -> Dictiona
 	name_label.text = slot.display_name()
 	Type.strong(name_label, Type.BODY, slot.color())
 	column.add_child(name_label)
-	var buttons: Array[Button] = []
+	var buttons: Array[Control] = []
 	var each := {
-		"pane": pane, "buttons": buttons, "toggles": [], "player": player, "corner": corner
+		"pane": pane,
+		"buttons": buttons,
+		"toggles": [],
+		"player": player,
+		"slot": slot,
+		"corner": corner,
+		"name": name_label,
+		"worn": "",
 	}
+	if names_and_colors:
+		each["box"] = _name_box(column, each)
+		each["swatch"] = _color_button(column, each)
 	each["button"] = _toggle(column, each, DRIVING)
 	# And how the touch screen drives, for the player at it, GAME.md 4.2: the one reading every
 	# device rather than a pad of their own.
@@ -137,6 +161,78 @@ func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control) -> Dictiona
 	add_child(pane)
 	_show(each)
 	return each
+
+
+## The box a player types their name into: the one in their seat's settings, or empty with the
+## funny name they were handed showing faintly in it, the way the Players tab shows it. What is
+## typed is kept once they are done with it: on Enter, on leaving the box, or on the menu going.
+## While it has the cursor the keys are the box's, not the kart's.
+func _name_box(column: VBoxContainer, each: Dictionary) -> LineEdit:
+	var slot: PlayerSlot = each["slot"]
+	var player: PlayerInput = each["player"]
+	var box := LineEdit.new()
+	box.max_length = PlayerNames.MAX_LENGTH
+	box.custom_minimum_size = Vector2(WIDTH, 48.0)
+	box.select_all_on_focus = true
+	var kept := ""
+	if player.seat < Game.settings.player_names.size():
+		kept = Game.settings.player_names[player.seat]
+	box.text = kept
+	box.placeholder_text = slot.display_name() if kept.is_empty() else PlayerNames.PLACEHOLDER
+	each["shown"] = kept
+	Type.set_font(box, Type.TEXT, Type.BODY)
+	box.text_submitted.connect(func(_typed: String) -> void: _keep_name(each))
+	box.focus_entered.connect(func() -> void: PlayerInput.typing = true)
+	box.focus_exited.connect(
+		func() -> void:
+			PlayerInput.typing = false
+			_keep_name(each)
+	)
+	column.add_child(box)
+	var buttons: Array[Control] = each["buttons"]
+	buttons.append(box)
+	return box
+
+
+## The name in [param each]'s box for its player, if it is not the one it started with.
+func _keep_name(each: Dictionary) -> void:
+	var box: LineEdit = each["box"]
+	if not is_instance_valid(box) or box.text == each["shown"]:
+		return
+	each["shown"] = box.text
+	SeatIdentity.rename(each["slot"], box.text)
+
+
+## The button that moves the player on to the next color nobody else is in, with theirs on it.
+func _color_button(column: VBoxContainer, each: Dictionary) -> ColorRect:
+	var pressable := MenuTheme.button("", Type.BODY)
+	var inside := HBoxContainer.new()
+	inside.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	inside.alignment = BoxContainer.ALIGNMENT_CENTER
+	inside.add_theme_constant_override("separation", 10)
+	inside.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var swatch := ColorRect.new()
+	swatch.custom_minimum_size = Vector2(SWATCH, SWATCH)
+	swatch.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	swatch.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	inside.add_child(swatch)
+	var word := Label.new()
+	word.text = "Next color"
+	word.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Type.set_font(word, Type.STRONG, Type.BODY)
+	inside.add_child(word)
+	pressable.add_child(inside)
+	pressable.custom_minimum_size = Vector2(WIDTH, 52.0)
+	column.add_child(pressable)
+	pressable.pressed.connect(
+		func() -> void:
+			var match_node := get_tree().get_first_node_in_group(&"match") as Match
+			if match_node != null:
+				SeatIdentity.recolor(match_node, each["slot"])
+	)
+	var buttons: Array[Control] = each["buttons"]
+	buttons.append(pressable)
+	return swatch
 
 
 ## One button of a switch, for [param kind]: [constant DRIVING] or [constant TOUCH].
@@ -155,10 +251,10 @@ func _toggle(column: VBoxContainer, each: Dictionary, kind: StringName) -> Butto
 	Type.set_font(word, Type.STRONG, Type.BODY)
 	inside.add_child(word)
 	pressable.add_child(inside)
-	pressable.custom_minimum_size = Vector2(280.0, 52.0)
+	pressable.custom_minimum_size = Vector2(WIDTH, 52.0)
 	column.add_child(pressable)
 	pressable.pressed.connect(_flip.bind(each, kind))
-	var buttons: Array[Button] = each["buttons"]
+	var buttons: Array[Control] = each["buttons"]
 	buttons.append(pressable)
 	var toggles: Array = each["toggles"]
 	toggles.append({"kind": kind, "picture": picture, "word": word})
@@ -192,6 +288,26 @@ func _show(each: Dictionary) -> void:
 		var now := _now(each, toggle["kind"])
 		(toggle["picture"] as DriveArt.Picture).mode = now
 		(toggle["word"] as Label).text = WORDS[now]
+	_follow(each)
+
+
+## The switch in its player's name and color, which they may just have changed, or which the host
+## has just said they are in. Only on a change.
+func _follow(each: Dictionary) -> void:
+	var slot: PlayerSlot = each["slot"]
+	var worn := "%d|%s" % [slot.color_index, slot.display_name()]
+	if each["worn"] == worn:
+		return
+	each["worn"] = worn
+	var color := slot.color()
+	var name_label: Label = each["name"]
+	name_label.text = slot.display_name()
+	name_label.add_theme_color_override("font_color", color)
+	(each["pane"] as PanelContainer).add_theme_stylebox_override(
+		"panel", MenuTheme.pane_style(color)
+	)
+	if each.has("swatch"):
+		(each["swatch"] as ColorRect).color = color
 
 
 static func _corner_at(each: Dictionary) -> Rect2:
@@ -206,6 +322,7 @@ func _process(_delta: float) -> void:
 
 func _place() -> void:
 	for each: Dictionary in _up:
+		_follow(each)
 		var pane := each["pane"] as Control
 		var corner := each["corner"] as Control
 		if not is_instance_valid(corner):

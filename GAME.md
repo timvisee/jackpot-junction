@@ -344,7 +344,9 @@ match. A statistic that only adds up on the host is a wrong number on somebody
 else's results screen, see 10.3.
 
 - **Names.** Every seat at a machine may set one, 1 to 16 characters, in a box of
-  its own on the Players tab of the settings, 8.5, remembered between sessions.
+  its own on the Players tab of the settings, 8.5, remembered between sessions,
+  or in the lobby and the Garage from its switch in the pause menu, 4.2 and 4.4,
+  which keeps it in the same place.
   A seat that never sets one is handed a name off a
   list of silly ones when the match starts, and no two players in a room are ever
   handed the same one, because a results screen listing P1, P2, P3 and P4 says
@@ -404,7 +406,8 @@ else's results screen, see 10.3.
   of the screen. It holds until the host closes its menu.
   The menu comes up over the room darkened behind it, as the host's match
   settings of 9.6 do, and while it is up each player at this screen has a switch
-  over their own corner of the HUD for how they drive, see 4.2. Online, Back to
+  over their own corner of the HUD for how they drive, see 4.2, and in the lobby
+  and the Garage for their name and color, see 4.4. Online, Back to
   title asks first, in place of the menu: the host is told that everybody who
   has joined will be disconnected, and a client that it leaves the room and the
   others play on. The cursor starts on Stay, and Back is Stay too. A map also
@@ -721,9 +724,10 @@ look: a pane edged in their color with their name, and a button with the way the
 picture and all, that changes it to the other. It is kept on the screen whatever size the corner
 is drawn at, is saved at once, and the kart drives the new way the moment the menu closes, the
 touch controls changing with it. The player at a touch screen has a second button under the
-first, for its controls, Slider or Buttons with their pictures, changed over the same way. Online
-only the players at this machine have one. A pad's
-cursor goes out to them from the menu: sideways from any of its buttons is the top switch on that
+first, for its controls, Slider or Buttons with their pictures, changed over the same way. In the
+lobby and the Garage there are two more over those, see 4.4: a box to type another name in, and
+Next color. Online only the players at this machine have one. A pad's cursor goes out to them
+from the menu: sideways from any of its buttons is the top switch on that
 side, and only sideways, up off the top of the menu and down off the bottom staying in it; back
 toward the middle from a switch is Resume, and up and down go between the switches on one side.
 
@@ -915,6 +919,22 @@ short buzz the slider gives, so reading along the row is felt card by card.
 - One kart body. Player color is a material tint on the body and the bullets.
 - 8 player colors, see 8.1. Each color also has a distinct roof marker shape
   for color-blind readability.
+- A player picks another name and another color in the lobby and the Garage,
+  from their switch in the pause menu, 4.2: a box with their name in it, empty
+  with the funny name they were handed showing faintly if they never set one,
+  and Next color, a button with a swatch of theirs on it that moves them on to
+  the next one nobody else in the room is in, since no two karts are ever the
+  same color. The kart is painted over at once, body, marker, hat, flag, trail
+  and aim guide, and so are their corner of the HUD and the switch. A name is
+  kept once they are done typing, in their seat's settings, where the Players
+  tab of 8.5 keeps it; emptied, the seat is handed a funny name again from the
+  next match. A color goes on with them from room to room the way the one they
+  were given always has. While the box has the cursor the keys are the box's,
+  so a player on the keyboard sits still rather than driving round the room
+  with the letters of their name, online, where the room goes on under the
+  menu. Online a client asks the host for both, which decides, as it owns every
+  name and color in the room, and the snapshot brings the answer back to every
+  screen, the client's own included.
 - Four more things a player picks, remembered per seat between sessions. None of
   them changes how the kart drives, and the player color is still the player
   color underneath all of it: these say whose kart it is a second time rather

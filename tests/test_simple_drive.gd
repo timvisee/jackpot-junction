@@ -318,9 +318,9 @@ func test_the_player_at_a_touch_screen_can_switch_its_controls_there_too() -> vo
 	var menu := PauseMenu.add_to(match_node)
 	menu.set_paused(true)
 	await await_idle_frame()
-	var buttons: Array[Button] = menu._switches._up[0]["buttons"]
+	var buttons: Array[Control] = menu._switches._up[0]["buttons"]
 	assert_int(buttons.size()).is_equal(2)
-	buttons[1].pressed.emit()
+	(buttons[1] as Button).pressed.emit()
 	assert_str(Game.settings.touch_layout).is_equal(Settings.TOUCH_BUTTONS)
 	assert_str(Game.settings.drive_mode(0)).is_equal(Settings.DRIVE_ADVANCED)
 	# The two are one column to a pad: down from the one is the other.
