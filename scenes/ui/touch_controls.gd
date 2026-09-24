@@ -87,11 +87,8 @@ const GRAY_INK := Color(0.62, 0.62, 0.66, 0.7)
 const FAINT := 0.3
 const ITEM_ART := 0.62
 ## Something an item started and has still to finish, a shield up or shots loaded, keeps its
-## picture on the button after the item has gone from the hand, with a bar inside counting it down
-## the way the one in the corner does. The picture moves up to make room.
-const RUNNING_BAR := Vector2(1.1, 7.0)
-const RUNNING_BACK := Color(0.0, 0.0, 0.0, 0.55)
-const RUNNING_LIFT := 0.14
+## picture on the button after the item has gone from the hand, with a ring round the inside of
+## the rim counting it down, in the item's color, the way the nitro button's tank does.
 
 
 ## One round button.
@@ -736,11 +733,9 @@ func _draw_item(each: Pad, kart: Kart) -> void:
 	var going := running()
 	_draw_disc(each, 1.0 if has_item() and can_drive() else FAINT)
 	var side := each.radius * 2.0 * ITEM_ART
-	var middle := each.center
 	if not going.is_empty():
-		middle.y -= each.radius * RUNNING_LIFT
 		_draw_running(each, going)
-	var box := Rect2(middle - Vector2(side, side) * 0.5, Vector2(side, side))
+	var box := Rect2(each.center - Vector2(side, side) * 0.5, Vector2(side, side))
 	# The item in hand first, being the one the button plays; what is running is under it.
 	if holding and kart.item_reveal_left > 0.0:
 		var spin := PowerUpArt.known()
@@ -752,13 +747,12 @@ func _draw_item(each: Pad, kart: Kart) -> void:
 		PowerUpArt.draw_into(self, box, going["id"], going["color"])
 
 
-## The bar counting down what is running, across the lower part of the button.
+## The ring counting down what is running, from the top round, as the nitro tank is drawn.
 func _draw_running(each: Pad, going: Dictionary) -> void:
-	var width := each.radius * RUNNING_BAR.x
-	var at := each.center + Vector2(-width * 0.5, each.radius * 0.5)
-	draw_rect(Rect2(at, Vector2(width, RUNNING_BAR.y)), RUNNING_BACK)
-	var left := clampf(float(going["left"]), 0.0, 1.0)
-	draw_rect(Rect2(at, Vector2(width * left, RUNNING_BAR.y)), going["color"])
+	var sweep := TAU * clampf(float(going["left"]), 0.0, 1.0)
+	var start := -PI * 0.5
+	var ink: Color = going["color"]
+	draw_arc(each.center, each.radius - TANK_WIDTH, start, start + sweep, 40, ink, TANK_WIDTH)
 
 
 func _draw_label(each: Pad, ink: Color) -> void:
