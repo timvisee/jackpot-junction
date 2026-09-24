@@ -362,7 +362,7 @@ else's results screen, see 10.3.
   control hints with it. There is nothing left in that room to answer, and a card
   pick left open under the notice would be asking for a choice about a match that
   is not there any more.
-- The title screen offers Play, Play online, the Garage, Settings and Quit. Play
+- The title screen offers Play, Play LAN, the Garage, Settings and Quit. Play
   opens the lobby, whose first question is whether it is a Grand Prix of several
   maps or a quick match on one, see 9.7. There is no tutorial. At
   the start of a match the drive and fire controls are shown next to each

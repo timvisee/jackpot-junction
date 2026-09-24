@@ -17,7 +17,7 @@ var status: Label
 
 func _ready() -> void:
 	var column := MenuTheme.screen(self, 16)
-	column.add_child(MenuTheme.title("Play online", 64))
+	column.add_child(MenuTheme.title("Play LAN", 64))
 	column.add_child(
 		MenuTheme.subtitle(
 			"Host a match on your port, or join a friend's address. Direct connection, no relay."

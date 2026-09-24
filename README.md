@@ -30,7 +30,7 @@ Three arenas, three rooms to play them in.
 - **Local multiplayer**: in the lobby or mid-match, press Start on a gamepad or
   J on the keyboard to join. Steer left or right in the lobby to change color,
   and give each seat a name and a kart to dress.
-- **Online**: Play online, host on a port or join a friend's address directly.
+- **LAN**: Play LAN, host on a port or join a friend's address directly.
   The host runs the match; joining players take over bot karts.
 - **Garage**: a practice room with one of everything in it and two dummy karts to
   shoot at. The first visit goes to a test track that teaches the controls, and

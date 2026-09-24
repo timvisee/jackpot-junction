@@ -81,6 +81,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Play online is now Play LAN.** The title button and its screen say what it is:
+  play with friends on the same network.
+
 - **Grand Prix standings after every map.** Each map's podium leads to how the run
   stands, and Next map is started from there.
 

@@ -29,7 +29,7 @@ func _ready() -> void:
 	# question, GAME.md 9.7, asked with the rest rather than a screen early.
 	play_button.pressed.connect(func() -> void: Game.go_to_lobby())
 	column.add_child(play_button)
-	var online := MenuTheme.button("Play online")
+	var online := MenuTheme.button("Play LAN")
 	online.pressed.connect(func() -> void: Game.go_to_online())
 	column.add_child(online)
 	var garage := MenuTheme.button("Garage")
