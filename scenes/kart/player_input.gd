@@ -125,6 +125,20 @@ func _drive_simply(touch: bool, delta: float) -> void:
 		camera = here.get_viewport().get_camera_3d()
 	var motor := here.motor if here != null else null
 	_simple.drive(self, push.limit_length(1.0), SimpleDrive.screen_axes(camera), motor, delta)
+	# A pad's own gas and brake, the triggers, still work the pedals while either is pressed, over
+	# what the push asked for. Only the pad's: on a keyboard the same keys are up and down.
+	var pedals := _pad_pedals()
+	if pedals != Vector2.ZERO:
+		throttle = pedals.x
+		brake = pedals.y
+
+
+## How far the pad's own gas and brake are down, as x and y: the triggers, unless rebound.
+func _pad_pedals() -> Vector2:
+	return Vector2(
+		DeviceInput.pad_strength(InputActions.THROTTLE, device),
+		DeviceInput.pad_strength(InputActions.BRAKE, device)
+	)
 
 
 ## Which device is active right now, checked on the driving and firing actions.

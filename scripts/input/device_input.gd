@@ -28,6 +28,26 @@ static func strength(action: StringName, device: int) -> float:
 	return best
 
 
+## How far [param action] is pushed on a gamepad alone, its keys and mouse buttons left out: on the
+## pad [param device] is, on any pad for [constant ANY], and not at all for the keyboard.
+static func pad_strength(action: StringName, device: int) -> float:
+	if device == KEYBOARD:
+		return 0.0
+	var pads: Array[int] = []
+	if device == ANY:
+		pads.assign(Input.get_connected_joypads())
+	else:
+		pads.append(device)
+	var deadzone := InputMap.action_get_deadzone(action)
+	var best := 0.0
+	for event: InputEvent in InputMap.action_get_events(action):
+		if not (event is InputEventJoypadButton or event is InputEventJoypadMotion):
+			continue
+		for pad: int in pads:
+			best = maxf(best, _event_strength(event, pad, deadzone))
+	return best
+
+
 static func pressed(action: StringName, device: int) -> bool:
 	if device == ANY:
 		return Input.is_action_pressed(action)

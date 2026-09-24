@@ -667,8 +667,10 @@ for a diagonal never come up at the same moment and the one left down between is
 anybody meant. Once within a degree of it the kart has got there, and a bump or a wall that turns
 it afterwards is not turned back against. A kart that goes down comes back with nothing to turn
 to. In a slide it is the travel that is turned toward the way rather than the nose, which leads.
-Up and down have bindings of their own, which the gas and the brake share on the keyboard; the
-triggers do nothing in it. Nitro and the handbrake are as they are, except that nitro lit when
+Up and down have bindings of their own, which the gas and the brake share on the keyboard. A
+pad's own gas and brake, the triggers unless rebound, still work the pedals while either is
+pressed, over whatever the push asked for; nothing says so, since the push is the way to drive
+here. The keyboard's never do, being the up and down of the push. Nitro and the handbrake are as they are, except that nitro lit when
 let go drives on rather than braking. The joker cursor of 3.7 and the respawn pick walk by the
 push rather than by what the wheel does with it, which goes over the wire as one more field at the
 end of a client's controls; a client from before it sends the wheel alone, which for it was the

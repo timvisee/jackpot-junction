@@ -173,6 +173,41 @@ func test_simple_driving_leaves_the_pedals_to_the_push() -> void:
 	assert_float(player.cursor).is_equal(1.0)
 
 
+func test_a_pads_triggers_still_work_the_pedals_over_the_push() -> void:
+	Game.settings.drive_modes[0] = Settings.DRIVE_SIMPLE
+	var player := PadPlayer.new()
+	Input.action_press(InputActions.DRIVE_UP)
+	player.poll(DT)
+	assert_float(player.throttle).is_equal(1.0)
+	player.pedals = Vector2(0.0, 1.0)
+	player.poll(DT)
+	assert_float(player.throttle).is_equal(0.0)
+	assert_float(player.brake).is_equal(1.0)
+	Input.action_release(InputActions.DRIVE_UP)
+	player.pedals = Vector2(0.5, 0.0)
+	player.poll(DT)
+	assert_float(player.throttle).is_equal(0.5)
+	player.pedals = Vector2.ZERO
+	player.poll(DT)
+	assert_float(player.throttle).is_equal(0.0)
+
+
+func test_the_keyboards_brake_is_the_way_down_in_simple_driving() -> void:
+	Game.settings.drive_modes[0] = Settings.DRIVE_SIMPLE
+	var player := PlayerInput.new(DeviceInput.ANY, 0)
+	Input.action_press(InputActions.BRAKE)
+	Input.action_press(InputActions.DRIVE_DOWN)
+	player.poll(DT)
+	# S is down the screen here, and the kart goes that way rather than braking: a key is never a
+	# pad's pedal.
+	assert_float(player.throttle).is_equal(1.0)
+	assert_float(player.brake).is_equal(0.0)
+	assert_float(DeviceInput.pad_strength(InputActions.BRAKE, DeviceInput.ANY)).is_equal(0.0)
+	assert_float(DeviceInput.pad_strength(InputActions.BRAKE, DeviceInput.KEYBOARD)).is_equal(0.0)
+	Input.action_release(InputActions.BRAKE)
+	Input.action_release(InputActions.DRIVE_DOWN)
+
+
 func test_the_kart_is_known_to_the_controls_it_is_handed() -> void:
 	var kart: Kart = KART_SCENE.instantiate()
 	var player := PlayerInput.new(DeviceInput.ANY, 0)
@@ -305,3 +340,16 @@ func test_the_play_screen_asks_every_seat_how_it_drives() -> void:
 	assert_str(Game.settings.drive_mode(1)).is_equal(Settings.DRIVE_SIMPLE)
 	# A seat nobody sat in is left as it was.
 	assert_str(Game.settings.drive_modes[3]).is_equal("")
+
+
+## A player on a pad whose triggers are wherever the test puts them.
+class PadPlayer:
+	extends PlayerInput
+
+	var pedals := Vector2.ZERO
+
+	func _init() -> void:
+		super(DeviceInput.ANY, 0)
+
+	func _pad_pedals() -> Vector2:
+		return pedals
