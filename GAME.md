@@ -3382,6 +3382,16 @@ nothing written on it.
 Tagging is a person's decision, not a step in a script: it says a build is worth
 other people's time.
 
+Android has an export preset of its own, `com.timvisee.jackpotjunction`, for
+phones and tablets played by touch, 4.2: a 64-bit ARM build from Godot's own
+template, landscape either way up, full screen, with the network permissions
+online play needs. `make android` builds a debug APK in `build/android` and
+`make android-install` puts it on the phone adb can see. It is signed with the
+debug keystore the Godot editor's own settings name, and built with the Android
+SDK and the JDK they name, all three on the machine rather than in the project,
+so the release workflow does not build it and the preset holds no keys. Its
+version code stays at 1 until a build goes anywhere but a phone on a desk.
+
 ### 10.6 Assets and licensing
 
 - Use free resources: CC0 and similarly licensed models, textures, music and

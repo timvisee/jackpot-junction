@@ -64,6 +64,8 @@ make check      # import, lint, format check, changelog, unit tests, smoke runs,
 make test       # unit tests only (gdUnit4, headless, a suite per process in parallel)
 make multiplayer  # a whole Grand Prix online (two games, up to two clients) and on one screen
 make export     # release builds for Linux, Windows and macOS in build/
+make android    # a debug build for Android in build/android, see GAME.md 10.5
+make android-install  # that build, installed on the phone adb can see
 ```
 
 `make run`, `make dev` and `make drive` hand `ARGS` to the game, after `--`.

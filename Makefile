@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench bots multiplayer changelog check export
+.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench bots multiplayer changelog check export android android-install
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -102,3 +102,14 @@ export: | $(CACHE)
 	$(GODOT) --headless --path . --export-release "Linux" build/linux/jackpot-junction.x86_64
 	$(GODOT) --headless --path . --export-release "Windows" build/windows/jackpot-junction.exe
 	$(GODOT) --headless --path . --export-release "macOS" build/macos/jackpot-junction.zip
+
+# A debug build for Android phones and tablets in build/android, signed with the debug keystore
+# the Godot editor's own settings name, next to the Android SDK and the JDK it builds with,
+# GAME.md 10.5. Those live on this machine and not in the project, which is why the release
+# workflow does not build it. The second puts it on whatever phone adb can see.
+android: | $(CACHE)
+	mkdir -p build/android
+	$(GODOT) --headless --path . --export-debug "Android" build/android/jackpot-junction.apk
+
+android-install: android
+	adb install -r build/android/jackpot-junction.apk
