@@ -586,13 +586,17 @@ func test_the_end_of_a_run_is_a_party_on_a_podium() -> void:
 	await await_millis(1000)
 	assert_bool(screen.visible).is_false()
 	assert_bool(finale.has_dropped()).is_false()
-	# The rising sound comes in before the drop.
+	# The rising sound comes in before the drop, with the two smoke machines spitting under it
+	# together, and only under it.
+	assert_int(finale._smoke.size()).is_equal(2)
+	assert_int(_spitting(finale)).is_equal(2 if finale._rising else 0)
 	for i: int in 60:
 		if finale._rising:
 			break
 		await await_millis(50)
 	assert_bool(finale._rising).is_true()
 	assert_bool(finale.has_dropped()).is_false()
+	assert_int(_spitting(finale)).is_equal(2)
 	var up := false
 	for i: int in 150:
 		await await_millis(100)
@@ -609,6 +613,7 @@ func test_the_end_of_a_run_is_a_party_on_a_podium() -> void:
 	assert_bool(Audio.is_music_hushed()).is_false()
 	assert_bool(finale.crowd.still).is_false()
 	assert_int(finale.disco.level).is_equal(MatchIntensity.LEVELS)
+	assert_int(_spitting(finale)).is_equal(0)
 	# Floating over their steps, still facing the same way.
 	for i: int in finale._karts.size():
 		var kart := finale._karts[i]
@@ -618,6 +623,15 @@ func test_the_end_of_a_run_is_a_party_on_a_podium() -> void:
 	# And the room stays at the top of its meter under the standings.
 	await await_millis(600)
 	assert_int(match_node.intensity.level).is_equal(MatchIntensity.LEVELS)
+
+
+## How many of the finale's smoke machines are spitting.
+func _spitting(finale: GrandPrixFinale) -> int:
+	var count := 0
+	for machine: SmokeMachine in finale._smoke:
+		if machine.is_spitting():
+			count += 1
+	return count
 
 
 ## A player who has seen it can skip straight to the standings, and a map in the middle of a run

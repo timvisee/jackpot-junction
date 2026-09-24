@@ -14,11 +14,12 @@ extends Node3D
 ## is on.
 ##
 ## It opens hushed: the music muffled as if from outside the room, the crowd and the DJ standing
-## still, the floor dark, and a rising sound. Then it drops, on a downbeat, into all of it at
-## once, the music swept open. The camera starts high over the room and flies in slowly to look
-## down on the podium, holds there, and only then do the run's standings come up over it.
-## Everybody's own: each machine puts it up when its player asks for the run's results, from what
-## it already knows, so nothing about it goes over the wire.
+## still, the floor dark, and a rising sound with smoke machines spitting across the floor under
+## it. Then it drops, on a downbeat, into all of it at once, the music swept open. The camera
+## starts high over the room and flies in slowly to look down on the podium, holds there, and
+## only then do the run's standings come up over it. Everybody's own: each machine puts it up
+## when its player asks for the run's results, from what it already knows, so nothing about it
+## goes over the wire.
 
 const SCENE := preload("res://scenes/finale/grand_prix_finale.tscn")
 ## How far from the arena the room goes up: out of sight of it, and out of reach of anything still
@@ -47,6 +48,11 @@ const CHIPS_IN := Vector2(1.6, 1.4)
 const CHIP_RADIUS := 0.62
 const CHIP_HEIGHT := 0.18
 const CHIP_STACKS: Array[int] = [9, 6, 12, 7]
+## Two smoke machines on the floor behind the podium, one each side of it, both spitting down the
+## floor past it for as long as the rising sound runs: where they stand, and how far out from
+## straight ahead they point, so the smoke runs past the steps rather than into them.
+const SMOKE_AT := Vector2(4.6, -3.8)
+const SMOKE_OUT := 0.22
 ## The hall the party is in, GAME.md 8.1: how far out its walls stand from the middle of the floor,
 ## how tall they are, and a line of neon along them. There is no wall on the near side, where the
 ## camera is, and the floor runs on past it, so nowhere in the shot does the world stop.
@@ -125,6 +131,7 @@ var _beat := -1
 var _age := 0.0
 var _confetti_left := 0.0
 var _drop_at := HUSH_SECONDS
+var _smoke: Array[SmokeMachine] = []
 var _rising := false
 var _dropped := false
 var _shown := false
@@ -188,6 +195,8 @@ func _process(delta: float) -> void:
 	if not _rising and not _dropped and _age >= _drop_at - RISER_PEAK / RISER_PITCH:
 		_rising = true
 		Audio.play_sfx(&"nitro_swell", RISER_DB, 0.0, RISER_PITCH)
+		for machine: SmokeMachine in _smoke:
+			machine.spit(true)
 	if not _dropped and _age >= _drop_at:
 		_drop()
 	if _dropped:
@@ -229,6 +238,7 @@ func _build(standings: Array[PlayerSlot]) -> void:
 	_lay_the_floor(surfaces)
 	_fence_the_floor(room, surfaces)
 	_stack_the_chips(surfaces)
+	_place_the_smoke()
 	crowd = Crowd.add_to(self, FLOOR_SIZE, room, RISER_HEIGHT, BOOTH_SCALE)
 	_raise_the_riser()
 	var podium := Node3D.new()
@@ -391,6 +401,18 @@ func _stack_the_chips(surfaces: Surfaces) -> void:
 			add_child(piece)
 
 
+## The two smoke machines, one each side of the podium and behind it, pointed down the floor.
+func _place_the_smoke() -> void:
+	for side: float in [-1.0, 1.0]:
+		var machine := SmokeMachine.new()
+		machine.name = "SmokeMachine%s" % ("Left" if side < 0.0 else "Right")
+		machine.position = Vector3(side * SMOKE_AT.x, 0.0, SMOKE_AT.y)
+		# Toward the camera and a little out. A machine's nozzle is along its -Z.
+		machine.rotation.y = atan2(-side * sin(SMOKE_OUT), -cos(SMOKE_OUT))
+		add_child(machine)
+		_smoke.append(machine)
+
+
 ## The stage the booth stands on, at the back of the floor where the crowd puts it, with a line of
 ## neon along its front edge.
 func _raise_the_riser() -> void:
@@ -504,6 +526,8 @@ func _hush_the_room() -> void:
 func _drop() -> void:
 	_dropped = true
 	Audio.hush_music(false)
+	for machine: SmokeMachine in _smoke:
+		machine.spit(false)
 	crowd.still = false
 	disco.level = MatchIntensity.LEVELS
 	if not _karts.is_empty():
