@@ -2607,6 +2607,12 @@ host's lobby settings: a joining client is sent the clock, the target score,
 the number of lives and the rest of the numbers its own lobby could have moved,
 and drops its own. Everybody says what they are called on the way in, see 3.8.
 
+Joining says so while it is tried: Connecting to the address and port, on a pane over the room,
+until the host answers. An address nobody answers at is given up on after a few seconds rather
+than the half a minute ENet waits by itself, and the pane says it could not connect before the
+title comes back; once connected the connection has its usual patience again. The lobby room is
+never shown the match's own lobby panel, which is for a match held on its grid.
+
 Somebody can join to watch instead of to play: Watch on the online screen, beside Join. They
 say so in the handshake, and the host lets them in even with every seat taken, up to four of
 them on top of the three clients who play; a fifth is told as many are watching as the match

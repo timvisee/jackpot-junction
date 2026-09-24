@@ -29,6 +29,14 @@ const DEFAULT_PORT := 7777
 ## How long the two ends of a new connection have to agree on a version, in seconds. A machine
 ## that says nothing in that time, or says something the host turns down, is dropped.
 const HANDSHAKE_TIMEOUT := 5.0
+## How long a client tries an address nobody answers at before giving up, in milliseconds, and
+## the patience the connection is given back once it is made. Left to itself ENet keeps trying
+## for half a minute, which is half a minute of a player looking at a room that is not coming.
+const CONNECT_TIMEOUT_MIN := 1000
+const CONNECT_TIMEOUT_MAX := 5000
+const TIMEOUT_LIMIT := 32
+const TIMEOUT_MIN := 5000
+const TIMEOUT_MAX := 30000
 ## What an unfocused window runs at while this machine is in an online room, GAME.md 9.3. Fast
 ## enough that nobody can tell, slow enough that a game nobody is looking at is not spinning a
 ## graphics card flat out.
@@ -142,7 +150,7 @@ func _ready() -> void:
 		version = Game.version()
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
-	multiplayer.connected_to_server.connect(func() -> void: connected.emit())
+	multiplayer.connected_to_server.connect(_on_connected)
 	multiplayer.connection_failed.connect(
 		func() -> void:
 			if not _turned_away:
@@ -216,12 +224,25 @@ func host(port: int = DEFAULT_PORT) -> Error:
 	return OK
 
 
+## Made it to the host: the connection gets its usual patience back, which a moment of a busy
+## network should not cost anybody.
+func _on_connected() -> void:
+	var enet := multiplayer.multiplayer_peer as ENetMultiplayerPeer
+	var server := enet.get_peer(1) if enet != null else null
+	if server != null:
+		server.set_timeout(TIMEOUT_LIMIT, TIMEOUT_MIN, TIMEOUT_MAX)
+	connected.emit()
+
+
 func join(address: String, port: int = DEFAULT_PORT) -> Error:
 	var peer := ENetMultiplayerPeer.new()
 	var error := peer.create_client(address, port)
 	if error != OK:
 		return error
 	_compress(peer)
+	var server := peer.get_peer(1)
+	if server != null:
+		server.set_timeout(TIMEOUT_LIMIT, CONNECT_TIMEOUT_MIN, CONNECT_TIMEOUT_MAX)
 	multiplayer.multiplayer_peer = peer
 	is_host = false
 	_turned_away = false

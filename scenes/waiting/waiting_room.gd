@@ -39,6 +39,8 @@ var host_settings: HostSettings
 var ball: RoomBall
 ## Where everybody dresses their kart while they wait, GAME.md 4.4.
 var stalls: StyleStalls
+## Up while a client is trying the host's address, saying so, GAME.md 9.3.
+var _connecting: StatusPane
 
 
 func _ready() -> void:
@@ -134,6 +136,11 @@ func _join() -> void:
 		if error != OK:
 			Game.go_to_title()
 			return
+		# Said while it is being tried, and put away once the host has answered: a room with
+		# nobody in it yet is not a room to be looking at without knowing why.
+		_connecting = StatusPane.add_to(self)
+		_connecting.say("Connecting to %s:%d..." % [config.address, config.port])
+		session.rules_applied.connect(_connected, CONNECT_ONE_SHOT)
 	match_node.start_puppet()
 	if session.watching:
 		# Nobody here takes a seat, so the line that says how to has nothing to say.
@@ -149,8 +156,18 @@ func _join() -> void:
 		session.ready_for_seat()
 
 
+## The host has answered with the room's rules: through the door.
+func _connected() -> void:
+	if _connecting != null:
+		_connecting.queue_free()
+		_connecting = null
+
+
 ## The room is being left before it was ever joined, and the player is told why.
 func _fail(message: String) -> void:
+	if _connecting != null:
+		_connecting.queue_free()
+		_connecting = null
 	if match_node.hud != null:
 		match_node.hud.stand_down()
 	StatusPane.add_to(self).fail(message)

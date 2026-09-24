@@ -36,6 +36,11 @@ below, and hands the notes to the release workflow.
 - **Karts are dressed at the stalls rather than on a menu.** Online a client's kart
   now looks the way its player dressed it on every screen.
 
+### Fixed
+
+- **Joining an address nobody is at says so.** It said it was waiting for the host
+  for half a minute; it says it is connecting, and gives up after a few seconds.
+
 ## [0.6.2] - 2026-09-24
 
 A simple way to drive: push the way on the screen you want to go and the kart takes
