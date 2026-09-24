@@ -380,6 +380,8 @@ else's results screen, see 10.3.
   While anybody is still playing the match runs on, and the moment one of them
   closes their menu it starts again for everyone. Somebody joining a stopped
   room starts it again, and somebody leaving can be the last one holding it up.
+  While the menu is up, each player at this screen has a switch over their own
+  corner of the HUD for how they drive, see 4.2.
 
 ### 3.9 Royal Flush pads
 
@@ -677,6 +679,13 @@ a line, over a word that the settings can change it later. The cursor starts on 
 on the two. The answer is every seat's that has not given one of its own, and is saved at once.
 Back puts the question away unanswered and leaves the title as it was, and it is asked again
 until it has been answered.
+
+While the pause menu of 3.8 is up, each player at this screen has a switch held over the middle
+of their own corner of the HUD, so four people at one screen each find theirs where they already
+look: a pane edged in their color with their name, and a button with the way they drive on it,
+picture and all, that changes it to the other. It is kept on the screen whatever size the corner
+is drawn at, is saved at once, and the kart drives the new way the moment the menu closes, the
+touch controls changing with it. Online only the players at this machine have one.
 
 The pad is knocked as well as the speaker: taking a life, dying, a big cash-out,
 hitting a wall and running into another kart all come through the hands, as hard

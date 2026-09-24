@@ -2,7 +2,8 @@ class_name PauseMenu
 extends CanvasLayer
 ## Pausing freezes the whole match in single-player and local play, GAME.md 3.8. Online it takes
 ## the whole room: the menu opens straight away, and the match stops once everybody has opened
-## theirs. Resume, Settings, or back to the title.
+## theirs. Resume, Settings, or back to the title, and over each local player's corner of the HUD
+## a switch for how they drive, see [DriveSwitches].
 ##
 ## Settings opens over the room, and Back from it comes back here. It used to change scene, and
 ## coming back built the room again from scratch: a match in progress was thrown away for a new
@@ -21,6 +22,7 @@ var session: NetSession
 
 var _panel: CenterContainer
 var _resume: Button
+var _switches: DriveSwitches
 ## The settings while they are open over the room, null otherwise.
 var _settings: SettingsScreen
 
@@ -68,6 +70,9 @@ func _ready() -> void:
 			Game.go_to_title()
 	)
 	column.add_child(quit)
+	_switches = DriveSwitches.new()
+	_switches.visible = false
+	add_child(_switches)
 
 
 ## Another thing the menu can do in this room, put under Resume. The waiting room of GAME.md 9.6
@@ -89,6 +94,7 @@ func open_settings() -> void:
 	if _settings != null:
 		return
 	_panel.visible = false
+	_switches.visible = false
 	_settings = SETTINGS_SCENE.instantiate()
 	_settings.overlay = true
 	_settings.closed.connect(_settings_closed)
@@ -122,6 +128,9 @@ static func is_open_in(tree: SceneTree) -> bool:
 func _settings_closed() -> void:
 	_settings = null
 	_panel.visible = true
+	# Up again as they now are: the settings may have changed how the first player drives.
+	_switches.visible = true
+	_switches.put_up()
 	_resume.grab_focus()
 
 
@@ -145,6 +154,11 @@ func _unhandled_input(event: InputEvent) -> void:
 ## stopping the match; online it is a request, and the match stops when the last player makes it.
 func set_paused(paused: bool) -> void:
 	_panel.visible = paused
+	_switches.visible = paused
+	if paused:
+		_switches.put_up()
+	else:
+		_switches.take_down()
 	if session == null:
 		_freeze(paused)
 	else:

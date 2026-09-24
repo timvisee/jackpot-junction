@@ -19,6 +19,8 @@ below, and hands the notes to the release workflow.
   the buttons keep only nitro and drift.
 - **The first Play asks how you want to drive.** Simple or advanced, each with its
   picture; Settings can change it later.
+- **Switch how you drive from the pause menu.** Each player has a switch over their
+  own corner.
 
 ## [0.6.1] - 2026-09-24
 

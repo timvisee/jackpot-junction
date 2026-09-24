@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 
 const DT := 1.0 / 60.0
 const KART_SCENE := preload("res://scenes/kart/kart.tscn")
+const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 ## The camera of 8.2, looking up the floor toward -Z: up the screen is -Z and right is +X.
 const AXES: Array[Vector3] = [Vector3.FORWARD, Vector3.RIGHT]
 const UP := Vector2(0.0, -1.0)
@@ -254,3 +255,32 @@ func test_back_puts_the_question_away_unanswered() -> void:
 	assert_bool(is_instance_valid(choice)).is_false()
 	assert_int(went[0]).is_equal(0)
 	assert_bool(Game.settings.has_chosen_driving()).is_false()
+
+
+func test_the_pause_menu_has_a_switch_over_each_players_corner() -> void:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.with_hud = true
+	match_node.offer_size = 0
+	var runner := scene_runner(match_node)
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.KEYBOARD, 0), PlayerInput.new(0, 1), KartInput.new()
+	]
+	match_node.start(inputs, 5)
+	await runner.simulate_frames(3, 17)
+	var menu := PauseMenu.add_to(match_node)
+	menu.set_paused(true)
+	await await_idle_frame()
+	for seat: int in 2:
+		var corner: Control = match_node.hud.get_node("Block%d" % seat)
+		var switch := menu._switches.button(seat)
+		assert_object(switch).is_not_null()
+		assert_bool(switch.get_global_rect().intersects(corner.get_global_rect())).is_true()
+	menu._switches.button(1).pressed.emit()
+	assert_str(Game.settings.drive_mode(1)).is_equal(Settings.DRIVE_SIMPLE)
+	assert_str(Game.settings.drive_mode(0)).is_equal(Settings.DRIVE_ADVANCED)
+	assert_bool((inputs[1] as PlayerInput).simple()).is_true()
+	menu._switches.button(1).pressed.emit()
+	assert_str(Game.settings.drive_mode(1)).is_equal(Settings.DRIVE_ADVANCED)
+	menu.set_paused(false)
+	assert_object(menu._switches.button(0)).is_null()
+	DirAccess.remove_absolute(Game.settings.path)
