@@ -29,15 +29,17 @@ var muffle_on_death := true
 ## a game in a window is a game with the clock and the notifications over the top of it.
 var fullscreen := OS.has_feature("mobile")
 var vsync := true
-var render_scale := 1.0
+## A phone or a tablet draws its room at four fifths of the screen's size to start with, and
+## without the two passes below: a phone's card is the one that cannot spare them.
+var render_scale := 0.8 if OS.has_feature("mobile") else 1.0
 ## One of [constant UI_SCALES]. A phone is held close, and a HUD laid out for a monitor across a
 ## desk is a HUD of things too small to press there, so a handheld starts at half as big again.
 var ui_scale := 1.5 if OS.has_feature("mobile") else 1.0
 ## The two passes over the whole screen a room pays for, GAME.md 8.5. Both are worth what they
 ## cost on a card that can spare it and both are the first thing to give up on one that cannot:
 ## the bloom is about a tenth of the frame in The Vault, and the smoothing about a twentieth.
-var bloom := true
-var antialiasing := true
+var bloom := not OS.has_feature("mobile")
+var antialiasing := not OS.has_feature("mobile")
 var screen_shake := true
 var flash_reduction := false
 ## 0 to 1 of the default aim assist, never more.

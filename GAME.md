@@ -2217,21 +2217,23 @@ like any other button.
   on a card that cannot spare them: at 1080p on a mid card the bloom is about a
   tenth of The Vault's frame and the smoothing about a twentieth, and turning both
   off is most of the difference between that room and the others. Both are on by
-  default, both take effect at once, and the smoothing falls back to the cheap
-  screen-space pass rather than to nothing, since a room made of straight lines
-  crawls without it. The UI scale draws every menu and the HUD bigger or smaller,
-  from 75% to 200% of the size they were laid out at for a screen 1080 lines high,
-  and leaves the room behind them as sharp as it was. It starts at 100% on a
-  desktop and at 150% on a phone or a tablet, which is held close enough that a
-  HUD laid out for a monitor across a desk is a HUD of things too small to press.
-  It is picked from a list rather than slid, since a slider would grow and shrink
-  the screen under the pointer dragging it, and it takes effect at once. `++
-  --ui-scale=1.5` on the command line uses a size for that run alone and saves
-  nothing. A screen drawn bigger than the window has room for still fits: a menu
-  taller than the window scrolls, the podium shrinks to it, the title leaves out
-  the mark over its name, and on a touch screen the pieces of the HUD keep off
-  each other, see 4.2. The hint over a kart at the start of a match grows with it
-  too, drawn at the bigger size rather than stretched to it, so it stays sharp.
+  default on a desktop and off on a phone or a tablet, whose card is the one that
+  cannot spare them, and a phone or a tablet also starts at a render scale of 80%.
+  Both take effect at once, and the smoothing falls back to the cheap screen-space
+  pass rather than to nothing, since a room made of straight lines crawls without
+  it. The UI scale draws every menu and the HUD bigger or smaller, from 75% to
+  200% of the size they were laid out at for a screen 1080 lines high, and leaves
+  the room behind them as sharp as it was. It starts at 100% on a desktop and at
+  150% on a phone or a tablet, which is held close enough that a HUD laid out for
+  a monitor across a desk is a HUD of things too small to press. It is picked from
+  a list rather than slid, since a slider would grow and shrink the screen under
+  the pointer dragging it, and it takes effect at once. `++ --ui-scale=1.5` on the
+  command line uses a size for that run alone and saves nothing. A screen drawn
+  bigger than the window has room for still fits: a menu taller than the window
+  scrolls, the podium shrinks to it, the title leaves out the mark over its name,
+  and on a touch screen the pieces of the HUD keep off each other, see 4.2. The
+  hint over a kart at the start of a match grows with it too, drawn at the bigger
+  size rather than stretched to it, so it stays sharp.
 - **Accessibility**: screen shake on or off, flash reduction, aim assist
   strength from 0% to 100% of the default and never above it, per player, the
   aim guide on or off, the disco lights on or off, the control hints on or off,

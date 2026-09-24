@@ -146,3 +146,13 @@ func test_the_ui_scale_sizes_the_menus_and_the_hud() -> void:
 ## A phone plays full screen to start with, and a desktop in a window.
 func test_a_phone_starts_full_screen() -> void:
 	assert_bool(Settings.new().fullscreen).is_equal(OS.has_feature("mobile"))
+
+
+## A phone or a tablet starts without bloom or the multisampled smoothing and at four fifths of the
+## render scale, its card being the one that cannot spare them; a desktop starts with the lot.
+func test_a_phone_starts_on_the_lighter_picture() -> void:
+	var fresh := Settings.new()
+	var phone := OS.has_feature("mobile")
+	assert_bool(fresh.bloom).is_equal(not phone)
+	assert_bool(fresh.antialiasing).is_equal(not phone)
+	assert_float(fresh.render_scale).is_equal(0.8 if phone else 1.0)

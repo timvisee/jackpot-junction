@@ -15,6 +15,8 @@ below, and hands the notes to the release workflow.
 
 - **A Grand Prix asks which joker to keep, to start with.** Jokers between maps
   starts on Pick one to keep rather than Keep one at random.
+- **Phones start on a lighter picture.** Bloom and edge smoothing are off and the
+  render scale is 80% to begin with, which the settings can change.
 
 ## [0.6.0] - 2026-09-24
 
