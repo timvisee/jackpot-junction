@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-09-24
+
+Online play holds together: you can join a match already under way, every map waits
+for everybody to load, and games check each other's version. A Grand Prix shows its
+standings after every map and lets you pick which joker to keep as the next starts.
+
 ### Added
 
 - **The music goes under when you die.** It drops to a muffled rumble for a moment
@@ -32,8 +38,8 @@ below, and hands the notes to the release workflow.
   into the map being played, or its podium, in a free seat; a full match says so.
 
 - **A version check when joining online.** Games with a different major or minor
-  version are told which version the host has and sent back; patch releases still
-  play together.
+  version are told which version the host has and sent back; patch releases from
+  0.5.1 on still play together.
 
 - **Arrows on the Grand Prix podium.** Green for anybody who climbed the standings
   on the last map, red for anybody who fell.
@@ -113,7 +119,6 @@ below, and hands the notes to the release workflow.
 
 - **Clearer names in the match settings.** Basic items, Harmless and Deadly own
   bullets, and Discard all or Pick one to keep for jokers between maps.
-
 ## [0.5.0] - 2026-09-23
 
 ### Added
@@ -1003,7 +1008,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.5.1
 [0.5.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.5.0
 [0.4.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.4.1
 [0.4.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.4.0
