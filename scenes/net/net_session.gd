@@ -37,10 +37,6 @@ const CONNECT_TIMEOUT_MAX := 5000
 const TIMEOUT_LIMIT := 32
 const TIMEOUT_MIN := 5000
 const TIMEOUT_MAX := 30000
-## What an unfocused window runs at while this machine is in an online room, GAME.md 9.3. Fast
-## enough that nobody can tell, slow enough that a game nobody is looking at is not spinning a
-## graphics card flat out.
-const UNFOCUSED_FPS := 60
 const MAX_CLIENTS := 3
 ## How many may watch on top of them, GAME.md 10.3, with no kart of their own.
 const MAX_WATCHERS := 4
@@ -87,8 +83,10 @@ var in_arena := false
 ## else to, GAME.md 10.3. The game's own unless a test says otherwise.
 var version := ""
 ## Whether the window is in the background right now. A room does not stop for it, see
-## [method _run_unfocused].
-var unfocused := false
+## [BackgroundRun].
+var unfocused: bool:
+	get:
+		return _background.on
 ## Whether every machine in the match currently has its pause menu open. One player alone cannot
 ## stop the others playing, GAME.md 3.8, so this is the agreement rather than what anyone asked.
 var paused := false
@@ -133,10 +131,7 @@ var _floor := PickupWire.new()
 ## grid for the flag, is still pressing buttons the host has to hear, and a host that only ever
 ## accepts a higher number than the last would throw away everything they pressed.
 var _input_seq := 0
-## What the window was set to before it went into the background, so it can be put back. -1
-## while the window has the focus and nothing has been taken over.
-var _focused_vsync := -1
-var _focused_max_fps := 0
+var _background := BackgroundRun.new()
 ## On the host: the lamps of the map it has just arrived at, held for whoever is still building
 ## the room, GAME.md 10.3. Null once they have gone, and in every room that holds nothing.
 var _gate: StartGate
@@ -174,7 +169,7 @@ func _exit_tree() -> void:
 		scene.auth_callback = Callable()
 	if scene != null and scene.peer_authenticating.is_connected(_on_authenticating):
 		scene.peer_authenticating.disconnect(_on_authenticating)
-	_run_unfocused(false)
+	_background.run(false)
 	if multiplayer.multiplayer_peer != null:
 		multiplayer.multiplayer_peer.close()
 		multiplayer.multiplayer_peer = null
@@ -182,34 +177,9 @@ func _exit_tree() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
-		_run_unfocused(true)
+		_background.run(true)
 	elif what == NOTIFICATION_APPLICATION_FOCUS_IN:
-		_run_unfocused(false)
-
-
-## Keeps the match running while somebody has alt-tabbed away from it, GAME.md 9.3.
-##
-## A window the desktop has stopped putting on screen can block the frame it is waiting to
-## present for a long time, and everything else waits behind it: physics, the wire, the lot. On
-## the host that stops the whole room, and every client sits looking at a frozen arena until
-## somebody clicks back. So a window in the background stops waiting for the desktop and runs
-## free at a fixed rate instead, and is given back whatever it had the moment it returns.
-func _run_unfocused(on: bool) -> void:
-	if on == unfocused:
-		return
-	unfocused = on
-	if DisplayServer.get_name() == "headless":
-		return
-	if on:
-		_focused_vsync = DisplayServer.window_get_vsync_mode()
-		_focused_max_fps = Engine.max_fps
-		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
-		Engine.max_fps = UNFOCUSED_FPS
-		return
-	if _focused_vsync >= 0:
-		DisplayServer.window_set_vsync_mode(_focused_vsync)
-		Engine.max_fps = _focused_max_fps
-		_focused_vsync = -1
+		_background.run(false)
 
 
 func host(port: int = DEFAULT_PORT) -> Error:
