@@ -20,7 +20,10 @@ class Emoting:
 
 
 func after_test() -> void:
-	for action: StringName in InputActions.EMOTES + [InputActions.AIM_RIGHT, InputActions.AIM_UP]:
+	var held: Array[StringName] = InputActions.EMOTES + InputActions.WHEEL_WAYS
+	held.append_array([InputActions.AIM_RIGHT, InputActions.AIM_UP, InputActions.EMOTE_WHEEL])
+	held.append(InputActions.THROTTLE)
+	for action: StringName in held:
 		Input.action_release(action)
 
 
@@ -43,6 +46,67 @@ func test_a_key_or_a_flick_of_the_right_stick_asks_for_an_emote_once() -> void:
 	Input.action_press(InputActions.AIM_UP)
 	player.poll(DT)
 	assert_int(player.emote).is_equal(0)
+
+
+## V opens the wheel, and the four ways pick from it rather than drive, GAME.md 3.8.
+func test_the_wheels_key_opens_it_and_a_way_picks_from_it() -> void:
+	var player := PlayerInput.new(DeviceInput.ANY, -1)
+	# Already on the gas when it opens: that is driving, not a pick.
+	Input.action_press(InputActions.THROTTLE)
+	player.poll(DT)
+	Input.action_press(InputActions.EMOTE_WHEEL)
+	player.poll(DT)
+	Input.action_release(InputActions.EMOTE_WHEEL)
+	assert_bool(player.wheel_by_keys).is_true()
+	assert_int(player.emote).is_equal(-1)
+	assert_float(player.throttle).is_equal(0.0)
+	Input.action_press(InputActions.STEER_RIGHT)
+	player.poll(DT)
+	assert_int(player.emote).is_equal(1)
+	assert_int(player.take_asked()).is_equal(1)
+	assert_int(player.take_asked()).is_equal(-1)
+	assert_bool(player.wheel_by_keys).is_false()
+	Input.action_release(InputActions.STEER_RIGHT)
+	# Open again and nothing picked, it shuts by itself.
+	Input.action_press(InputActions.EMOTE_WHEEL)
+	player.poll(DT)
+	Input.action_release(InputActions.EMOTE_WHEEL)
+	for i: int in int(PlayerInput.WHEEL_TIME / DT) + 2:
+		player.poll(DT)
+	assert_bool(player.wheel_by_keys).is_false()
+
+
+## Pushed short of a flick, the right stick points at one on the wheel and asks for nothing.
+func test_the_right_stick_points_at_one_before_it_flicks() -> void:
+	var player := PlayerInput.new(DeviceInput.ANY, -1)
+	Input.action_press(InputActions.AIM_UP, 0.5)
+	player.poll(DT)
+	assert_int(player.wheel_pointing).is_equal(0)
+	assert_int(player.emote).is_equal(-1)
+	Input.action_release(InputActions.AIM_UP)
+	player.poll(DT)
+	assert_int(player.wheel_pointing).is_equal(-1)
+
+
+## The wheel is round the kart of whoever has it open, with the keys for the ways on it.
+func test_the_wheel_comes_up_round_the_kart() -> void:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	var player := PlayerInput.new(DeviceInput.ANY, 0)
+	match_node.start([player] as Array[KartInput], 3)
+	await _runner.simulate_frames(3, 17)
+	var wheel: EmoteWheel = match_node.hud.get_node("EmoteWheel")
+	var root: Control = wheel._wheels[0]["root"]
+	assert_bool(root.visible).is_false()
+	player._wheel_left = PlayerInput.WHEEL_TIME
+	await _runner.simulate_frames(2, 17)
+	assert_bool(root.visible).is_true()
+	assert_bool((wheel._wheels[0]["keys"] as Array)[0].visible).is_true()
+	var camera := wheel.get_viewport().get_camera_3d()
+	var kart := match_node.slots[0].kart
+	var over := camera.unproject_position(kart.global_position + Vector3.UP * EmoteWheel.LIFT)
+	assert_float(root.position.distance_to(over)).is_less(1.0)
 
 
 func test_an_emote_pops_up_over_the_kart_and_goes() -> void:

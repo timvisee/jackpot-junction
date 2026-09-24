@@ -364,14 +364,22 @@ else's results screen, see 10.3.
   scowl or a heart, each on a round white bubble rimmed in their color so it
   says who as well as what. On a pad the right stick flicked up, right, down or
   left from the middle picks them in that order, once per flick, and not while
-  the stick is aiming a cannon that aims freely, which is what it is for then; on
-  a keyboard they are 7, 8, 9 and 0. The bubble pops up over the kart, above the
-  ready tick of 9.6, stays about two seconds and fades, and the next one waits a
-  second, so each can be read before it is replaced. The machine that runs the
-  karts decides, the host online, and says so to every machine, so it comes up on
-  every screen at once, a client's own included; the ask goes over the wire as
-  one more field at the end of a client's controls. A kart that is down has
-  nothing to put one over.
+  the stick is aiming a cannon that aims freely, which is what it is for then;
+  on a keyboard they are 7, 8, 9 and 0, or V and then a way, W, D, S or A or the
+  arrows.
+  The wheel shows what there is: the four round the player's own kart, up,
+  right, down and left, in their color. It comes up while the right stick is
+  pushed, with the one it points at bigger and the others faint, so the flick is
+  aimed rather than guessed; for three seconds after V, with the key for each
+  way beside it, the four ways picking from it rather than driving while it is
+  up and V again shutting it; and for a moment after an emote is asked for,
+  however it was asked, with that one picked out. The bubble pops up over the
+  kart, above the ready tick of 9.6, stays about two seconds and fades, and the
+  next one waits a second, so each can be read before it is replaced. The
+  machine that runs the karts decides, the host online, and says so to every
+  machine, so it comes up on every screen at once, a client's own included; the
+  ask goes over the wire as one more field at the end of a client's controls. A
+  kart that is down has nothing to put one over.
 - A room that has lost its host says so on a pane in the middle of the screen,
   built like the joker detail pane in 8.3, and has the screen to itself: the HUD
   stands down and takes any open joker pick, the standings, the blocks and the
@@ -680,6 +688,7 @@ assigns physical devices to player slots, see 10.2.
 | Joker menu: destroy         | B                   | Q                         |
 | Free aim, Swivel Cannon only| Right stick         | Mouse position on the arena plane |
 | Emote                       | Right stick, flicked | 7, 8, 9 or 0             |
+| Emote wheel, then a way     |                     | V, then W, D, S or A      |
 | Pause                       | Start               | Esc                       |
 | Join, in lobby or mid-match | Start               | J                         |
 | Mute music                  |                     | M                         |

@@ -139,6 +139,7 @@ func _ready() -> void:
 	_kill_feed.name = "KillFeed"
 	add_child(_kill_feed)
 	_results = ResultsScreen.create(self, match_node)
+	EmoteWheel.add_to(self, match_node)
 	if TouchInput.enabled:
 		TouchControls.attach(self)
 	_build_lobby()

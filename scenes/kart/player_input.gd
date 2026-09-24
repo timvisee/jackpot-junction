@@ -7,6 +7,10 @@ extends KartInput
 ## the middle it has to have been first, so holding it over asks once.
 const FLICK := 0.8
 const FLICK_BACK := 0.4
+## How far the right stick has to be pushed for the emote wheel to come up, short of a flick, and
+## how long the wheel stays open after the key for it if nothing is picked, GAME.md 3.8.
+const WHEEL_PUSH := 0.35
+const WHEEL_TIME := 3.0
 
 ## Whether somebody at this machine is typing into a box, their name in the pause menu, GAME.md
 ## 4.4. The keys are the box's then: a player on the keyboard sits still rather than driving round
@@ -14,6 +18,11 @@ const FLICK_BACK := 0.4
 static var typing := false
 
 var device := DeviceInput.ANY
+## The emote wheel as this player has it, for [EmoteWheel] to draw, GAME.md 3.8: whether the key
+## for it has opened it, when the four ways pick rather than drive, and which of the four the
+## right stick points at, or -1.
+var wheel_by_keys := false
+var wheel_pointing := -1
 ## For an any-device player, the device that last produced input; ANY until something moved.
 var last_device := DeviceInput.ANY
 ## The local seat this player sits in, whose way to drive in the settings they follow, GAME.md 4.2,
@@ -25,6 +34,10 @@ var kart: Kart
 
 ## How far over the right stick was last tick, for a flick of it to be an emote.
 var _aim_was := 0.0
+## How long the wheel stays open, and the emote last asked for, however it was, for the wheel to
+## show being picked; taken once, see [method take_asked].
+var _wheel_left := 0.0
+var _asked := -1
 var _fire_was_down := false
 var _use_was_down := false
 var _was_down: Dictionary[StringName, bool] = {}
@@ -96,7 +109,13 @@ func poll(delta: float) -> void:
 	joker_destroy_pressed = (
 		_just_pressed(InputActions.JOKER_DESTROY) or (touch and TouchInput.take_back())
 	)
-	_poll_emote()
+	_poll_emote(delta)
+	# While the wheel is open the four ways are its, not the kart's.
+	if wheel_by_keys:
+		steer = 0.0
+		cursor = 0.0
+		throttle = 0.0
+		brake = 0.0
 	joker_inspect = TouchInput.joker_inspect if touch else -1
 	pick_inspect = TouchInput.pick_inspect if touch else -1
 	joker_select = -1
@@ -152,19 +171,45 @@ func _drive_simply(touch: bool, delta: float) -> void:
 ## An emote, GAME.md 3.8: a key each, or the right stick flicked up, right, down or left, in
 ## that order, from the middle. Not while the stick is aiming a cannon that aims freely, which is
 ## what it is for then.
-func _poll_emote() -> void:
+## The emote last asked for since the last look, or -1, forgotten once looked at: the wheel
+## showing it picked, whether it came from a key, the wheel, a flick or a finger.
+func take_asked() -> int:
+	var asked := _asked
+	_asked = -1
+	return asked
+
+
+## An emote from its key, from the wheel's key and then a way, or from a flick of the right stick;
+## and the wheel for the right stick while it is pushed.
+func _poll_emote(delta: float) -> void:
 	emote = -1
 	for i: int in InputActions.EMOTES.size():
 		if _just_pressed(InputActions.EMOTES[i]):
 			emote = i
+	# Every tick, whether the wheel is open or not, so a way already held when it opens is not a
+	# pick of it.
+	var ways: Array[bool] = []
+	for way: StringName in InputActions.WHEEL_WAYS:
+		ways.append(_just_pressed(way))
+	if _just_pressed(InputActions.EMOTE_WHEEL):
+		_wheel_left = 0.0 if _wheel_left > 0.0 else WHEEL_TIME
+	elif _wheel_left > 0.0:
+		_wheel_left -= delta
+		if ways.has(true):
+			emote = ways.find(true)
+			_wheel_left = 0.0
+	wheel_by_keys = _wheel_left > 0.0
 	var pushed := aim.length()
 	var flicked := pushed > FLICK and _aim_was <= FLICK_BACK
 	_aim_was = pushed
 	var here := kart if kart != null and is_instance_valid(kart) else null
-	if not flicked or (here != null and KartAim.free_aim(here)):
-		return
+	var stick := here == null or not KartAim.free_aim(here)
 	var angle := rad_to_deg(atan2(aim.x, -aim.y))
-	emote = posmod(roundi(angle / 90.0), 4)
+	wheel_pointing = posmod(roundi(angle / 90.0), 4) if stick and pushed > WHEEL_PUSH else -1
+	if flicked and stick:
+		emote = posmod(roundi(angle / 90.0), 4)
+	if emote >= 0:
+		_asked = emote
 
 
 ## How far the pad's own gas and brake are down, as x and y: the triggers, unless rebound.

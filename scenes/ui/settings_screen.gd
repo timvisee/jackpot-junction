@@ -29,6 +29,7 @@ const REBINDABLE: Array[StringName] = [
 	InputActions.EMOTE_2,
 	InputActions.EMOTE_3,
 	InputActions.EMOTE_4,
+	InputActions.EMOTE_WHEEL,
 	InputActions.PAUSE,
 	InputActions.JOIN,
 	InputActions.MUTE_MUSIC,

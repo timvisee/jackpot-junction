@@ -44,6 +44,11 @@ const EMOTE_2 := &"emote_2"
 const EMOTE_3 := &"emote_3"
 const EMOTE_4 := &"emote_4"
 const EMOTES: Array[StringName] = [EMOTE_1, EMOTE_2, EMOTE_3, EMOTE_4]
+## Opens the emote wheel on a keyboard, and the four ways pick from it, see [EmoteWheel].
+const EMOTE_WHEEL := &"emote_wheel"
+## The four ways that pick an emote from the wheel, in [constant EMOTES] order: up, right, down,
+## left.
+const WHEEL_WAYS: Array[StringName] = [DRIVE_UP, STEER_RIGHT, DRIVE_DOWN, STEER_LEFT]
 const PAUSE := &"pause"
 ## Claims a device for a player in the lobby or joins a running match.
 const JOIN := &"join"
@@ -114,6 +119,7 @@ const DEFAULTS: Dictionary[StringName, Array] = {
 	EMOTE_2: [{"key": KEY_8}],
 	EMOTE_3: [{"key": KEY_9}],
 	EMOTE_4: [{"key": KEY_0}],
+	EMOTE_WHEEL: [{"key": KEY_V}],
 	PAUSE: [{"key": KEY_ESCAPE}, {"button": JOY_BUTTON_START}],
 	JOIN: [{"key": KEY_J}, {"button": JOY_BUTTON_START}],
 	MUTE_MUSIC: [{"key": KEY_M}],
