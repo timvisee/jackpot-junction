@@ -2692,7 +2692,8 @@ for everybody still building it, and not a pause, which the room agrees without 
 under the ready count says they are watching, in place of the one that says how to take a seat,
 since there is no seat for them to take. Nor is there anything for them to press: a map's
 podium goes on to how the run stands by itself after six seconds, the finale first after the
-last map, and the host still decides when the next map starts.
+last map, and the host still decides when the next map starts. A thin gold bar the width of the
+pane, at the bottom of it, empties over those six seconds, so it going on is no surprise.
 
 A window in the background keeps playing. A window the desktop has stopped
 drawing can hold the main loop up on the frame it is waiting to present, and on

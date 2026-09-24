@@ -30,8 +30,10 @@ const CHIP_BG := Color(1.0, 1.0, 1.0, 0.07)
 const PODIUM_GAP := 10.0
 ## The least room kept between the pane and the edges of the screen.
 const EDGE := 12.0
-## How long a watcher's podium is up before it goes on to how the run stands, in seconds.
+## How long a watcher's podium is up before it goes on to how the run stands, in seconds, and how
+## the bar under it that counts that down is drawn.
 const WATCHER_WAIT := 6.0
+const WATCHER_BAR := Vector2(WIDTH, 6.0)
 
 var match_node: Match
 
@@ -51,8 +53,10 @@ var _host_decides: Label
 var _caption: Label
 ## Whether a map's podium has moved on to the run's standings, see [method _show_run].
 var _showing_run := false
-## Seconds until a watcher's podium goes on to the run's by itself, see [method _process].
+## Seconds until a watcher's podium goes on to the run's by itself, see [method _process], and the
+## bar at the bottom of the pane that empties as they run out, so it is not a surprise.
 var _watcher_left := WATCHER_WAIT
+var _watcher_bar: ProgressBar
 ## What happens to everybody's jokers on the way to the next map, under the caption.
 var _keep_note: Label
 
@@ -163,9 +167,12 @@ func _ways_on() -> void:
 ## Somebody watching has nothing to press and nobody to press it for them, GAME.md 10.3: a map's
 ## podium goes on to how the run stands by itself, once it has been up long enough to be read.
 func _process(delta: float) -> void:
-	if not visible or not _standings.visible or not _watching():
+	var counting := visible and _standings.visible and _watching()
+	_watcher_bar.visible = counting
+	if not counting:
 		return
 	_watcher_left -= delta
+	_watcher_bar.value = clampf(_watcher_left / WATCHER_WAIT, 0.0, 1.0) * 100.0
 	if _watcher_left <= 0.0:
 		_watcher_left = WATCHER_WAIT
 		_on_standings()
@@ -414,6 +421,11 @@ func _build() -> void:
 	_host_decides = MenuTheme.subtitle("The host takes everybody back to the lobby.", Type.LABEL)
 	_host_decides.visible = false
 	column.add_child(_host_decides)
+	_watcher_bar = HudBlock.bar(WATCHER_BAR, Palette.CHIP_GOLD)
+	_watcher_bar.value = 100.0
+	_watcher_bar.visible = false
+	_watcher_bar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	column.add_child(_watcher_bar)
 
 
 ## The ways on from here, all built and shown as they apply, see [method _ways_on]. The host of

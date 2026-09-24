@@ -702,6 +702,31 @@ func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
 	assert_bool(Game.grand_prix.revealed).is_false()
 
 
+## Somebody watching has nothing to press, GAME.md 10.3: a map's podium goes on to how the run
+## stands by itself, and a bar at the bottom of it counts down to that, so it is no surprise.
+func test_a_watchers_podium_counts_down_to_the_standings() -> void:
+	_run_at(1, 3)
+	var screen := await _podium_after(1, 3)
+	screen._process(0.0)
+	assert_bool(screen._watcher_bar.visible).is_false()
+	var watching := NetSession.new()
+	watching.watching = true
+	Net.session = watching
+	screen._process(ResultsScreen.WATCHER_WAIT * 0.5)
+	var bar_up := screen._watcher_bar.visible
+	var left := screen._watcher_bar.value
+	screen._process(ResultsScreen.WATCHER_WAIT)
+	var shown := screen._showing_run
+	screen._process(0.0)
+	var bar_after := screen._watcher_bar.visible
+	Net.session = null
+	watching.free()
+	assert_bool(bar_up).is_true()
+	assert_float(left).is_equal_approx(50.0, 0.5)
+	assert_bool(shown).is_true()
+	assert_bool(bar_after).is_false()
+
+
 ## The standings after a map in the middle of a run replace that map's podium on a screen that is
 ## already up, and the pane holds all of them rather than keeping the size it measured while the
 ## map's rows were cleared out, with the run's hanging out of the bottom of it.
