@@ -106,9 +106,13 @@ func test_a_touch_screen_taps_an_emote_from_its_button() -> void:
 	match_node.offer_size = 0
 	_runner = scene_runner(match_node)
 	var player := PlayerInput.new(DeviceInput.ANY, 0)
-	match_node.start([player] as Array[KartInput], 3)
+	match_node.start([player, KartInput.new()] as Array[KartInput], 3)
 	await _runner.simulate_frames(3, 17)
 	var emotes: TouchEmotes = match_node.hud.get_node("TouchEmotes")
+	# Against bots alone there is nobody to put one up for; with a friend on the wire there is.
+	assert_bool(emotes.visible).is_false()
+	match_node.slots[1].input = NetInput.new()
+	await _runner.simulate_frames(2, 17)
 	assert_bool(emotes.visible).is_true()
 	emotes._input(_tap(emotes, emotes.button_center()))
 	assert_bool(emotes.open).is_true()

@@ -4,7 +4,8 @@ extends Control
 ## button, with a smile on it, that opens the four emotes in a row beside it, along the top of the
 ## screen where nothing else is: under it are the board, and the driving buttons further down. A
 ## tap on one of them puts it up over the kart and shuts the row again; a tap on the button shuts
-## it too, and so does one anywhere else, which goes on to whatever it landed on.
+## it too, and so does one anywhere else, which goes on to whatever it landed on. Only with somebody
+## else in the match to see it: against bots alone it is a button for talking to nobody.
 
 ## How big the button is, and how far it keeps from the menu button.
 const RADIUS := 27.0
@@ -56,8 +57,17 @@ func _player_slot() -> PlayerSlot:
 	return null
 
 
+## Whether anybody but [param mine] in the match is a person, here or on another machine.
+func _anybody_else(mine: PlayerSlot) -> bool:
+	for slot: PlayerSlot in match_node.slots:
+		if slot != mine and slot.is_human():
+			return true
+	return false
+
+
 func _process(_delta: float) -> void:
-	var shown := not PauseMenu.is_open_in(get_tree()) and _player_slot() != null
+	var mine := _player_slot()
+	var shown := not PauseMenu.is_open_in(get_tree()) and mine != null and _anybody_else(mine)
 	if shown != visible:
 		visible = shown
 		open = false

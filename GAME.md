@@ -787,7 +787,8 @@ the title and out of the game for a player with no Escape key. It opens as the f
 on it, and not if the finger slid off it first. A smaller button beside it, with a smile on it,
 opens the four emotes of 3.8 in a row along the top of the screen, clear of the board and the
 driving buttons under it; a tap on one puts it up and shuts the row, and a tap anywhere else
-shuts it too and goes on to whatever it landed on.
+shuts it too and goes on to whatever it landed on. It is only there with another person in the
+match, at this screen or another: against bots alone it would be a button for talking to nobody.
 
 The left thumb steers with a stick that comes to wherever it goes down in the lower left of the
 screen, and waits in that corner while nobody has a thumb on it. It only steers, so its knob
