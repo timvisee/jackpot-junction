@@ -349,6 +349,25 @@ func test_the_settings_pick_the_touch_controls_by_their_pictures() -> void:
 	TouchInput.enabled = was_touch
 
 
+## Each seat's name on the Players tab has a small switch after it for how that seat drives, and
+## the first seat's is the same setting as the Driving row of the Controls tab.
+func test_each_seat_on_the_players_tab_has_a_driving_switch() -> void:
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	var second: Button = screen.find_child("Driving1", true, false)
+	assert_object(second).is_not_null()
+	second.pressed.emit()
+	assert_str(Game.settings.drive_mode(1)).is_equal(Settings.DRIVE_SIMPLE)
+	assert_str(second.tooltip_text).is_equal("Simple driving")
+	second.pressed.emit()
+	assert_str(Game.settings.drive_mode(1)).is_equal(Settings.DRIVE_ADVANCED)
+	var first: Button = screen.find_child("Driving0", true, false)
+	first.pressed.emit()
+	assert_str(screen._first_driving.mode).is_equal(Settings.DRIVE_SIMPLE)
+	screen._first_driving.button(Settings.DRIVE_ADVANCED).pressed.emit()
+	assert_str(first.tooltip_text).is_equal("Advanced driving")
+
+
 func test_back_puts_the_question_away_unanswered() -> void:
 	var holder: Control = auto_free(Control.new())
 	add_child(holder)

@@ -2362,7 +2362,10 @@ like any other button.
   or off, and on a touch screen, first after the driving, how it drives: by the
   slider or by a button each, see 4.2.
 - **Players**: a box each for what the four seats at this machine are called,
-  see 3.8, with the funny-name hint in an empty one.
+  see 3.8, with the funny-name hint in an empty one, and after each a small
+  button with the picture of how that seat drives, simple or advanced, that
+  changes it to the other, see 4.2. The first seat's is the Driving row of
+  Controls, and each shows what the other was changed to.
 - **Audio**: master, music, effects and kart volume. The karts have their own
   because their engine and tires run the whole time rather than in bursts, so
   how loud that bed should sit is a matter of taste in a way the rest is not.

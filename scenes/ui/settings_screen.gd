@@ -54,6 +54,10 @@ var _settings: Settings
 var _listening_action := &""
 var _listening_keyboard := true
 var _binding_labels: Dictionary[StringName, Array] = {}
+## How the first seat drives, on the Controls tab, and the small switch after each seat's name on
+## the Players tab: the first seat's is on both, so each says so when the other changes it.
+var _first_driving: DrivePicker
+var _seat_driving: Array[Callable] = []
 
 
 func _ready() -> void:
@@ -184,12 +188,18 @@ func _controls_tab() -> Control:
 	# How the first player drives, GAME.md 4.2. Everybody else says in the lobby, or in the pause
 	# menu over their own corner.
 	var driving := DrivePicker.make(_settings.drive_mode(0))
-	driving.chosen.connect(func(mode: String) -> void: _settings.drive_modes[0] = mode)
+	_first_driving = driving
+	driving.chosen.connect(
+		func(mode: String) -> void:
+			_settings.drive_modes[0] = mode
+			_show_seat_driving()
+	)
 	# And the question the first Play asked, again, for the two side by side with what each is.
 	var again := MenuTheme.button("Help me choose", Type.BODY)
 	again.custom_minimum_size = Vector2(0.0, 52.0)
 	var answered := func() -> void:
 		driving.mode = _settings.drive_mode(0)
+		_show_seat_driving()
 		again.grab_focus()
 	again.pressed.connect(func() -> void: DriveChoice.ask(self, answered, 0))
 	driving.add_child(again)
@@ -318,7 +328,8 @@ static func _clear(button: Button) -> void:
 
 ## What each seat at this machine is called, GAME.md 3.8, a box per seat. Anybody who leaves theirs
 ## empty is handed a name off the funny list when they sit down. Online the first seat's name is
-## the one this machine gives, and the online screen shows the same box.
+## the one this machine gives, and the online screen shows the same box. After each box, a small
+## switch for how that seat drives, GAME.md 4.2.
 func _players_tab() -> Control:
 	var column := VBoxContainer.new()
 	column.name = "Players"
@@ -331,8 +342,46 @@ func _players_tab() -> Control:
 		field.text_changed.connect(
 			func(text: String) -> void: _settings.player_names[seat] = PlayerNames.clean(text)
 		)
-		column.add_child(MenuTheme.row("P%d name" % (seat + 1), field))
+		var row := MenuTheme.row("P%d name" % (seat + 1), field)
+		row.add_child(_drive_switch(seat))
+		column.add_child(row)
 	return column
+
+
+## A small button with the way [param seat] drives on it, simple or advanced, that changes it to
+## the other: the switch over their corner in the pause menu, without the words.
+func _drive_switch(seat: int) -> Button:
+	var toggle := MenuTheme.button("", Type.BODY)
+	toggle.name = "Driving%d" % seat
+	toggle.custom_minimum_size = Vector2(48.0, 44.0)
+	var picture := DriveArt.picture(_settings.drive_mode(seat), Palette.CHIP_GOLD, 34.0)
+	picture.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	for side: int in [SIDE_LEFT, SIDE_TOP]:
+		picture.set_offset(side, 5.0)
+	for side: int in [SIDE_RIGHT, SIDE_BOTTOM]:
+		picture.set_offset(side, -5.0)
+	toggle.add_child(picture)
+	var shown := func() -> void:
+		picture.mode = _settings.drive_mode(seat)
+		toggle.tooltip_text = DriveSwitches.WORDS[picture.mode]
+	shown.call()
+	_seat_driving.append(shown)
+	toggle.pressed.connect(
+		func() -> void:
+			var simple := _settings.drive_mode(seat) == Settings.DRIVE_SIMPLE
+			_settings.drive_modes[seat] = (
+				Settings.DRIVE_ADVANCED if simple else Settings.DRIVE_SIMPLE
+			)
+			shown.call()
+			if seat == 0 and _first_driving != null:
+				_first_driving.mode = _settings.drive_mode(0)
+	)
+	return toggle
+
+
+func _show_seat_driving() -> void:
+	for shown: Callable in _seat_driving:
+		shown.call()
 
 
 func _audio_tab() -> Control:
