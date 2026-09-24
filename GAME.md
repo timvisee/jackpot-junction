@@ -697,6 +697,15 @@ same thumb can leave the gas for it and come back. The driving buttons go while 
 where they would sit over its own. The hints that name keys, in the corner and beside the kart,
 are not shown on a touch screen: the buttons say what they are on them.
 
+The hand of jokers is read by holding a finger on a card. The hand opens on that card, lifted
+out of the fan with what it does over it, for as long as the finger stays, and sliding the
+finger along the hand reads the others; the card still answers where it rose from, so the
+finger holding it is not left behind. The other thumb stays on the stick and steers the kart
+rather than walking the cursor off the card. There is no button to open the hand with, so none
+is drawn beside it, and the pane names no buttons: dropping and destroying are for the keys and
+the pads. The card a finger rests on goes over the wire with the rest of a client's controls, as
+one more field at the end that a client from before it never sends.
+
 ### 4.3 Trails
 
 - **Tire marks**: a ribbon mesh per rear wheel, drawn while the kart moves,

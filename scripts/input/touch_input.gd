@@ -16,6 +16,8 @@ static var handbrake := false
 static var nitro := false
 static var fire := false
 static var use_item := false
+## Which of the jokers a finger is resting on, or -1.
+static var joker_inspect := -1
 
 
 ## Decides from the platform and [param args], the command line after `++`.
@@ -41,3 +43,4 @@ static func release() -> void:
 	nitro = false
 	fire = false
 	use_item = false
+	joker_inspect = -1

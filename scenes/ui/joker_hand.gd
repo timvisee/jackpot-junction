@@ -58,6 +58,27 @@ func card_count() -> int:
 	return _cards.size()
 
 
+## The card under [param point], in the hand's own coordinates, or -1. The one on top wins where
+## two overlap, which is the one whose face is showing there. The lifted card still answers where
+## it rose from, so a finger holding it is not left behind as it rises out from under it.
+func card_at(point: Vector2) -> int:
+	var best := -1
+	var picked := selected()
+	for i: int in _cards.size():
+		var card := _cards[i]
+		var face := Rect2(Vector2.ZERO, card.size)
+		var local := card.get_transform().affine_inverse() * point
+		var under := face.has_point(local)
+		if i == picked and not under:
+			var risen := point - Vector2(0.0, LIFT * card.scale.y)
+			under = face.has_point(card.get_transform().affine_inverse() * risen)
+		if not under:
+			continue
+		if best < 0 or card.z_index >= _cards[best].z_index:
+			best = i
+	return best
+
+
 ## Index of the lifted card, or -1 while the joker menu is closed.
 func selected() -> int:
 	if kart == null or not kart.menu_open or _cards.is_empty():
@@ -145,7 +166,8 @@ func _place_count(right: float, baseline: float, card: Vector2) -> void:
 ## player who picks up a pad mid-match is looking at a different shape and not only a different
 ## word.
 func _place_cap(left: float, baseline: float, card: Vector2) -> void:
-	var shown := not _cards.is_empty() and Game.settings.control_hints
+	# A touch screen opens the hand by holding a card, GAME.md 4.2, so there is no button to name.
+	var shown := not _cards.is_empty() and Game.settings.control_hints and not TouchInput.enabled
 	var wanted := (
 		InputActions.short_binding_text(InputActions.JOKER_MENU, keyboard) if shown else ""
 	)
@@ -188,6 +210,10 @@ func _sync_cards() -> void:
 ## to say anything about.
 func _show_detail(joker: Joker) -> void:
 	_detail.show_joker(joker)
+	# On a touch screen the hand is only read, by holding a card, and there are no buttons to name.
+	if TouchInput.enabled:
+		_detail.set_hints(null)
+		return
 	var ink := JokerDetail.hint_ink()
 	var size := InputHint.FONT_SIZE
 	var parts: Array = [

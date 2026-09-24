@@ -7,6 +7,7 @@ const RULES: MatchRules = preload("res://data/match/default.tres")
 const BOOST: PowerUp = preload("res://data/powerups/boost.tres")
 
 var _was_enabled := false
+var _runner: GdUnitSceneRunner
 
 
 func before_test() -> void:
@@ -30,7 +31,7 @@ func _controls() -> TouchControls:
 
 
 ## A match with a player at this screen on a touch screen, and the controls the HUD put up for them.
-func _driving() -> TouchControls:
+func _driving(jokers: Array[String] = []) -> TouchControls:
 	TouchInput.enabled = true
 	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
@@ -41,6 +42,9 @@ func _driving() -> TouchControls:
 	var runner := scene_runner(match_node)
 	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
 	match_node.start(inputs, 5)
+	for id: String in jokers:
+		match_node.kart_of(0).jokers.add(load("res://data/jokers/%s.tres" % id))
+	_runner = runner
 	await runner.simulate_frames(12, 17)
 	return match_node.hud.get_node("TouchControls")
 
@@ -195,3 +199,53 @@ func test_the_item_button_plays_what_is_in_hand() -> void:
 	assert_bool(here.use_item_pressed).is_false()
 	_touch(controls, 0, controls.pad(TouchControls.ITEM).center, false)
 	assert_bool(TouchInput.use_item).is_false()
+
+
+## A finger held on a card opens the hand on it for as long as it stays, and the other thumb on the
+## stick steers the kart rather than walking the cursor off the card; sliding along the hand reads
+## the next one. Nothing on the pane names a button, and nothing beside the hand does either.
+func test_holding_a_card_reads_it() -> void:
+	var controls := await _driving(["hair_trigger", "rubber_bumpers", "curve_ball"])
+	var kart := controls.match_node.kart_of(0)
+	var hand: JokerHand = controls.match_node.hud._hands[0]
+	await _runner.simulate_frames(20, 17)
+	assert_int(hand.card_count()).is_equal(3)
+	assert_object(hand._cap).is_null()
+	var middle: JokerCard = hand._cards[1]
+	var on_it := middle.get_global_rect().get_center()
+	_touch(controls, 0, on_it, true)
+	assert_int(TouchInput.joker_inspect).is_equal(1)
+	var stick := Vector2(controls.size.x * 0.2, controls.size.y * 0.7)
+	_touch(controls, 1, stick, true)
+	_drag(controls, 1, stick + Vector2(TouchControls.STICK_RADIUS, 0.0))
+	await _runner.simulate_frames(12, 17)
+	assert_bool(kart.menu_open).is_true()
+	assert_int(kart.menu_index).is_equal(1)
+	assert_int(hand.selected()).is_equal(1)
+	assert_bool(hand._detail.visible).is_true()
+	assert_object(hand._detail._hints).is_null()
+	# The card has lifted out from under the finger; the finger still holds it.
+	assert_int(controls._card_in(hand, on_it)).is_equal(1)
+	_drag(controls, 0, (hand._cards[2] as JokerCard).get_global_rect().get_center())
+	await _runner.simulate_frames(4, 17)
+	assert_int(kart.menu_index).is_equal(2)
+	_touch(controls, 0, on_it, false)
+	await _runner.simulate_frames(4, 17)
+	assert_bool(kart.menu_open).is_false()
+	assert_int(TouchInput.joker_inspect).is_equal(-1)
+
+
+## A client's finger on a card goes over the wire with the rest of its controls, so the host holds
+## the hand open on the same card, and a client from before touch sends none.
+func test_the_card_a_finger_rests_on_goes_over_the_wire() -> void:
+	var sent := KartInput.new()
+	sent.joker_inspect = 2
+	var got := NetInput.new()
+	got._apply(NetInput.encode(sent))
+	assert_int(got.joker_inspect).is_equal(2)
+	var old := NetInput.encode(KartInput.new())
+	old.resize(NetInput.FIELDS + 2)
+	var older := NetInput.new()
+	older.joker_inspect = 1
+	older._apply(old)
+	assert_int(older.joker_inspect).is_equal(-1)

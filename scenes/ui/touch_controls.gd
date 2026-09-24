@@ -13,6 +13,10 @@ extends Control
 ## nitro above, with the item button further in. A thumb sliding from one to another lets go of
 ## the first and presses the second, and one resting on the seam between throttle and fire presses
 ## both.
+##
+## A finger held on one of the jokers in the hand opens it on that card, with what it does over
+## it, for as long as it stays there, and sliding it along the hand reads the others, GAME.md
+## 3.7. The hand is only read this way: there is no button to open it with.
 
 ## The round buttons: a dark disc with a light rim, lit up while a finger is on it.
 const FILL := Color(0.05, 0.05, 0.07, 0.45)
@@ -89,6 +93,8 @@ var _fingers: Dictionary[int, Array] = {}
 var _stick_finger := -1
 var _stick_at := Vector2.ZERO
 var _knob_at := Vector2.ZERO
+## The finger resting on a card in the hand, or -1.
+var _inspect_finger := -1
 
 
 ## Hangs the controls over [param hud].
@@ -146,19 +152,43 @@ func driving() -> bool:
 
 
 func _kart() -> Kart:
+	var slot := _slot()
+	return slot.kart if slot != null else null
+
+
+func _slot() -> PlayerSlot:
 	if match_node == null:
 		return null
 	for slot: PlayerSlot in match_node.slots:
 		if slot.is_local_human() and slot.kart != null:
-			return slot.kart
+			return slot
 	return null
+
+
+## The hand of cards the HUD keeps for the player here, while it is on the screen.
+func _hand() -> JokerHand:
+	var slot := _slot()
+	if slot == null or get_parent() == null:
+		return null
+	var hand := get_parent().get_node_or_null("Hand%d" % slot.index) as JokerHand
+	return hand if hand != null and hand.is_visible_in_tree() else null
+
+
+## The card of [param hand] under [param at], a point in these controls' own coordinates.
+func _card_in(hand: Control, at: Vector2) -> int:
+	var point := hand.get_global_transform_with_canvas().affine_inverse() * _screen(at)
+	return (hand as JokerHand).card_at(point)
+
+
+func _screen(at: Vector2) -> Vector2:
+	return get_global_transform_with_canvas() * at
 
 
 func _process(_delta: float) -> void:
 	# The room's menu takes the screen while it is up, and a finger that was down when it opened
 	# has let go of everything as far as the room is concerned.
 	var shut := PauseMenu.is_open_in(get_tree()) or not driving()
-	if shut and (not _fingers.is_empty() or _stick_finger >= 0):
+	if shut and (not _fingers.is_empty() or _stick_finger >= 0 or _inspect_finger >= 0):
 		_let_go()
 	# The tank round the nitro button empties and fills as the kart's own does.
 	queue_redraw()
@@ -195,6 +225,14 @@ func _finger_down(finger: int, at: Vector2) -> void:
 		return
 	if not driving():
 		return
+	var hand := _hand()
+	if hand != null and _inspect_finger < 0:
+		var card := _card_in(hand, at)
+		if card >= 0:
+			_inspect_finger = finger
+			TouchInput.joker_inspect = card
+			get_viewport().set_input_as_handled()
+			return
 	var on := _driving_pads_at(at)
 	if not on.is_empty():
 		_hold(finger, on)
@@ -210,6 +248,14 @@ func _finger_down(finger: int, at: Vector2) -> void:
 
 
 func _finger_moved(finger: int, at: Vector2) -> void:
+	if finger == _inspect_finger:
+		# Along the hand to read the next card; off the end of it keeps the last one read.
+		var hand := _hand()
+		var card := _card_in(hand, at) if hand != null else -1
+		if card >= 0:
+			TouchInput.joker_inspect = card
+		get_viewport().set_input_as_handled()
+		return
 	if finger == _stick_finger:
 		_knob_at = at
 		_publish()
@@ -230,6 +276,11 @@ func _finger_moved(finger: int, at: Vector2) -> void:
 
 
 func _finger_up(finger: int, at: Vector2) -> void:
+	if finger == _inspect_finger:
+		_inspect_finger = -1
+		TouchInput.joker_inspect = -1
+		get_viewport().set_input_as_handled()
+		return
 	if finger == _stick_finger:
 		_stick_finger = -1
 		_stick_at = stick_home()
@@ -284,6 +335,8 @@ func _let_go() -> void:
 	_stick_finger = -1
 	_stick_at = stick_home()
 	_knob_at = _stick_at
+	_inspect_finger = -1
+	TouchInput.joker_inspect = -1
 	_publish()
 
 

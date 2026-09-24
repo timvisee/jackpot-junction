@@ -26,6 +26,9 @@ var joker_next_pressed := false
 var joker_select := -1
 var joker_drop_pressed := false
 var joker_destroy_pressed := false
+## The card a finger is resting on, on a touch screen, GAME.md 4.2, or -1. It holds the hand open on
+## that card, and the steering stays the kart's rather than walking the cursor off it.
+var joker_inspect := -1
 
 
 func poll(_delta: float) -> void:
@@ -61,3 +64,4 @@ func clear() -> void:
 	joker_select = -1
 	joker_drop_pressed = false
 	joker_destroy_pressed = false
+	joker_inspect = -1

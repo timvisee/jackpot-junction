@@ -14,8 +14,8 @@ below, and hands the notes to the release workflow.
 ### Added
 
 - **Touch controls.** On a phone or a tablet a stick steers and buttons for gas,
-  brake, fire, drift, nitro and your item drive the kart, with a menu button in
-  the corner.
+  brake, fire, drift, nitro and your item drive the kart, and holding a joker
+  reads it.
 
 ## [0.5.2] - 2026-09-24
 

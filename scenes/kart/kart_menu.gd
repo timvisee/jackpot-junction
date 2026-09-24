@@ -11,12 +11,19 @@ const STEER_STEP := 0.6
 ## may only be looked through, which is what a dead kart's hand is.
 static func step(kart: Kart, can_change: bool = true) -> void:
 	var input := kart.input
-	kart.menu_open = input.joker_menu and kart.jokers.count() > 0
+	var looking := input.joker_inspect
+	kart.menu_open = (input.joker_menu or looking >= 0) and kart.jokers.count() > 0
 	if not kart.menu_open:
 		kart.menu_index = 0
 		kart.menu_steer = 0
 		return
 	var count := kart.jokers.count()
+	# A finger resting on a card, GAME.md 4.2, holds the hand open on that card and nothing else:
+	# the other thumb is on the stick, and there the stick drives rather than walking the cursor.
+	if looking >= 0:
+		kart.menu_index = clampi(looking, 0, count - 1)
+		kart.menu_steer = 0
+		return
 	var steered := _steer_step(kart)
 	if input.joker_next_pressed or steered > 0:
 		kart.menu_index = (kart.menu_index + 1) % count

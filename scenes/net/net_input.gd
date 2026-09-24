@@ -81,6 +81,7 @@ static func encode(source: KartInput) -> Array:
 		source.joker_destroy_pressed,
 		source.aim,
 		source.nitro,
+		source.joker_inspect,
 	]
 
 
@@ -145,6 +146,8 @@ func _apply(state: Array) -> void:
 		aim = state[FIELDS]
 	if state.size() > FIELDS + 1:
 		nitro = bool(state[FIELDS + 1])
+	# A card a finger rests on, GAME.md 4.2, which a client from before touch never sends.
+	joker_inspect = int(state[FIELDS + 2]) if state.size() > FIELDS + 2 else -1
 	_merge_presses(state)
 
 
