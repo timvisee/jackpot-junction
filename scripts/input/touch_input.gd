@@ -34,6 +34,9 @@ static var _back := false
 ## is, see [method take_drop] and [method take_destroy].
 static var _drop_card := -1
 static var _destroy_card := -1
+## An emote tapped on the emote button's menu, GAME.md 3.8, or -1, answered once, see [method
+## take_emote].
+static var _emote := -1
 
 
 ## Decides from the platform and [param args], the command line after `++`.
@@ -67,6 +70,7 @@ static func release() -> void:
 	_back = false
 	_drop_card = -1
 	_destroy_card = -1
+	_emote = -1
 
 
 static func tap(card: int) -> void:
@@ -111,3 +115,14 @@ static func take_destroy() -> int:
 	var card := _destroy_card
 	_destroy_card = -1
 	return card
+
+
+static func emote(index: int) -> void:
+	_emote = index
+
+
+## The emote tapped since the last look, or -1, forgotten once looked at.
+static func take_emote() -> int:
+	var tapped := _emote
+	_emote = -1
+	return tapped

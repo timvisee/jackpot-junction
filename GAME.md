@@ -366,7 +366,8 @@ else's results screen, see 10.3.
   left from the middle picks them in that order, once per flick, and not while
   the stick is aiming a cannon that aims freely, which is what it is for then;
   on a keyboard they are 7, 8, 9 and 0, or V and then a way, W, D, S or A or the
-  arrows.
+  arrows, and on a touch screen a small button with a smile on it beside the
+  menu button, 4.2, which opens a row of the four along the top of the screen.
   The wheel shows what there is: the four round the player's own kart, up,
   right, down and left, in their color. It comes up while the right stick is
   pushed, with the one it points at bigger and the others faint, so the flick is
@@ -780,7 +781,10 @@ finger, and `++ --touch=0` turns them off. `make run ARGS=--touch=1` is the firs
 steer while the other presses, and a finger belongs to whatever it went down on until it comes
 up. A menu button in the top right corner opens the room's menu of 3.8, which is the way back to
 the title and out of the game for a player with no Escape key. It opens as the finger comes up
-on it, and not if the finger slid off it first.
+on it, and not if the finger slid off it first. A smaller button beside it, with a smile on it,
+opens the four emotes of 3.8 in a row along the top of the screen, clear of the board and the
+driving buttons under it; a tap on one puts it up and shuts the row, and a tap anywhere else
+shuts it too and goes on to whatever it landed on.
 
 The left thumb steers with a stick that comes to wherever it goes down in the lower left of the
 screen, and waits in that corner while nobody has a thumb on it. It only steers, so its knob

@@ -142,6 +142,7 @@ func _ready() -> void:
 	EmoteWheel.add_to(self, match_node)
 	if TouchInput.enabled:
 		TouchControls.attach(self)
+		TouchEmotes.attach(self)
 	_build_lobby()
 	_start_wait = StartWait.add_to(self, match_node)
 	Events.kart_corrected.connect(_on_corrected)

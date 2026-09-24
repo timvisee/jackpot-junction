@@ -109,7 +109,7 @@ func poll(delta: float) -> void:
 	joker_destroy_pressed = (
 		_just_pressed(InputActions.JOKER_DESTROY) or (touch and TouchInput.take_back())
 	)
-	_poll_emote(delta)
+	_poll_emote(delta, touch)
 	# While the wheel is open the four ways are its, not the kart's.
 	if wheel_by_keys:
 		steer = 0.0
@@ -179,9 +179,9 @@ func take_asked() -> int:
 	return asked
 
 
-## An emote from its key, from the wheel's key and then a way, or from a flick of the right stick;
-## and the wheel for the right stick while it is pushed.
-func _poll_emote(delta: float) -> void:
+## An emote from its key, from the wheel's key and then a way, from a flick of the right stick or
+## from the touch screen's menu of them; and the wheel for the right stick while it is pushed.
+func _poll_emote(delta: float, touch: bool) -> void:
 	emote = -1
 	for i: int in InputActions.EMOTES.size():
 		if _just_pressed(InputActions.EMOTES[i]):
@@ -199,6 +199,9 @@ func _poll_emote(delta: float) -> void:
 			emote = ways.find(true)
 			_wheel_left = 0.0
 	wheel_by_keys = _wheel_left > 0.0
+	var tapped := TouchInput.take_emote() if touch else -1
+	if tapped >= 0:
+		emote = tapped
 	var pushed := aim.length()
 	var flicked := pushed > FLICK and _aim_was <= FLICK_BACK
 	_aim_was = pushed

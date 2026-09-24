@@ -6,6 +6,7 @@ const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const DT := 1.0 / 60.0
 
 var _runner: GdUnitSceneRunner
+var _touch_was := TouchInput.enabled
 
 
 ## A player whose emotes are whatever the test asks for.
@@ -25,6 +26,8 @@ func after_test() -> void:
 	held.append(InputActions.THROTTLE)
 	for action: StringName in held:
 		Input.action_release(action)
+	TouchInput.enabled = _touch_was
+	TouchInput.release()
 
 
 func test_a_key_or_a_flick_of_the_right_stick_asks_for_an_emote_once() -> void:
@@ -88,6 +91,31 @@ func test_the_right_stick_points_at_one_before_it_flicks() -> void:
 	assert_int(player.wheel_pointing).is_equal(-1)
 
 
+## A touch screen has a button for them beside the menu button, and a row of the four out of it.
+func test_a_touch_screen_taps_an_emote_from_its_button() -> void:
+	TouchInput.enabled = true
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	var player := PlayerInput.new(DeviceInput.ANY, 0)
+	match_node.start([player] as Array[KartInput], 3)
+	await _runner.simulate_frames(3, 17)
+	var emotes: TouchEmotes = match_node.hud.get_node("TouchEmotes")
+	assert_bool(emotes.visible).is_true()
+	emotes._input(_tap(emotes, emotes.button_center()))
+	assert_bool(emotes.open).is_true()
+	emotes._input(_tap(emotes, emotes.emote_center(3)))
+	assert_bool(emotes.open).is_false()
+	player.poll(DT)
+	assert_int(player.emote).is_equal(3)
+	# Out, and a tap somewhere else shuts it without asking for any.
+	emotes._input(_tap(emotes, emotes.button_center()))
+	emotes._input(_tap(emotes, Vector2(40.0, 400.0)))
+	assert_bool(emotes.open).is_false()
+	player.poll(DT)
+	assert_int(player.emote).is_equal(-1)
+
+
 ## The wheel is round the kart of whoever has it open, with the keys for the ways on it.
 func test_the_wheel_comes_up_round_the_kart() -> void:
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
@@ -107,6 +135,13 @@ func test_the_wheel_comes_up_round_the_kart() -> void:
 	var kart := match_node.slots[0].kart
 	var over := camera.unproject_position(kart.global_position + Vector3.UP * EmoteWheel.LIFT)
 	assert_float(root.position.distance_to(over)).is_less(1.0)
+
+
+func _tap(on: Control, at: Vector2) -> InputEventScreenTouch:
+	var touch := InputEventScreenTouch.new()
+	touch.pressed = true
+	touch.position = on.get_global_transform_with_canvas() * at
+	return touch
 
 
 func test_an_emote_pops_up_over_the_kart_and_goes() -> void:
