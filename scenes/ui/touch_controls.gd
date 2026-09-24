@@ -53,8 +53,9 @@ const DRIVING: Dictionary[StringName, Array] = {
 	ITEM: [58.0, Vector2(-248.0, -100.0), ""],
 }
 ## The click a thumb feels going down on the slider, crossing from one zone of it into the next,
-## or rolling across onto fire: the shortest, lightest buzz the phone makes, so a wrong zone is
-## felt rather than seen. The rumble setting of GAME.md 8.5 turns it off with the rest.
+## rolling across onto fire, or going down on a joker and along from one to the next: the
+## shortest, lightest buzz the phone makes, so a wrong zone or a new card is felt rather than seen.
+## The rumble setting of GAME.md 8.5 turns it off with the rest.
 const CLICK_MS := 10
 const CLICK_STRENGTH := 0.3
 ## The stick: how big its ring is, where it waits from the bottom left corner, how far its knob
@@ -506,6 +507,7 @@ func _down_on_pick(finger: int, at: Vector2) -> bool:
 		_pick_since = _now()
 		_pick_moved = false
 		TouchInput.pick_inspect = picked
+		_click()
 		return true
 	if _back_finger < 0 and _on_back(picker, at):
 		_back_finger = finger
@@ -541,6 +543,7 @@ func _down_on_hand(finger: int, at: Vector2) -> bool:
 	_inspect_moved = false
 	TouchInput.joker_inspect = card
 	TouchInput.joker_pinned = false
+	_click()
 	return true
 
 
@@ -585,12 +588,14 @@ func _finger_moved(finger: int, at: Vector2) -> void:
 			_pick_card = card
 			_pick_moved = true
 			TouchInput.pick_inspect = card
+			_click()
 	elif finger == _inspect_finger:
 		var card := _along(_hand(), at, _inspect_card)
 		if card >= 0:
 			_inspect_card = card
 			_inspect_moved = true
 			TouchInput.joker_inspect = card
+			_click()
 	elif finger == slider.finger:
 		var was := slider.slid()
 		var rolled := _rolled_onto_fire()

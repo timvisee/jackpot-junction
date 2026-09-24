@@ -757,7 +757,9 @@ it skips the pick, or goes back from the destroying to the choosing; keeping one
 has nothing to skip to and no button. That button and the drop and destroy buttons of the hand
 are pressed by the touch controls rather than the mouse, so there is no pointer to light them
 up: while a finger is on one it wears the pressed look with the gold edge, as every other button
-does under the cursor, and loses it if the finger slides off.
+does under the cursor, and loses it if the finger slides off. A finger going down on a joker
+clicks, in the hand and in the pick, and so does each card it is swiped along onto, the same
+short buzz the slider gives, so reading along the row is felt card by card.
 
 ### 4.3 Trails
 

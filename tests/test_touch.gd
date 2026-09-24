@@ -684,3 +684,25 @@ func test_the_item_button_is_under_fire() -> void:
 	assert_float(item.center.y + item.radius * TouchControls.REACH).is_less_equal(controls.size.y)
 	var between := fire.center.lerp(item.center, fire.radius / (fire.radius + item.radius))
 	assert_bool(fire.reaches(between) and item.reaches(between)).is_false()
+
+
+## A finger going down on a joker clicks, and so does each card it is swiped along onto, in the
+## hand and in the respawn pick alike, the same click the slider gives.
+func test_swiping_along_the_jokers_clicks() -> void:
+	var controls := await _driving(["hair_trigger", "rubber_bumpers", "curve_ball"])
+	var hand: JokerHand = controls.match_node.hud._hands[0]
+	await _runner.simulate_frames(20, 17)
+	_touch(controls, 0, _hand_card(hand, 0), true)
+	assert_int(controls.clicks).is_equal(1)
+	_drag(controls, 0, _hand_card(hand, 1))
+	assert_int(controls.clicks).is_equal(2)
+	_drag(controls, 0, _hand_card(hand, 1) + Vector2(2.0, 0.0))
+	assert_int(controls.clicks).is_equal(2)
+	_touch(controls, 0, _hand_card(hand, 1), false)
+	await _pick(controls)
+	var picker: JokerPicker = controls.match_node.hud._pickers[0]
+	var before := controls.clicks
+	_touch(controls, 1, _card_center(picker, 0), true)
+	assert_int(controls.clicks).is_equal(before + 1)
+	_drag(controls, 1, _card_center(picker, 2))
+	assert_int(controls.clicks).is_equal(before + 2)
