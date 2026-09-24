@@ -549,6 +549,13 @@ func _update_call(delta: float) -> void:
 
 
 func _update_banner(delta: float) -> void:
+	# The gantry is up for the countdown and the moment after it, whatever the match goes on to:
+	# a map whose Last Call starts as the flag drops goes straight past playing, and the lamps
+	# were only ever put away from there.
+	if match_node.state != Match.State.COUNTDOWN:
+		_go_left -= delta
+		_light.visible = _go_left > 0.0
+		_light.set_go()
 	match match_node.state:
 		Match.State.COUNTDOWN:
 			# A room with no countdown, like the Garage, holds nobody on a grid and gets no
@@ -558,11 +565,8 @@ func _update_banner(delta: float) -> void:
 			_light.set_countdown(match_node.countdown_lamps())
 			_go_left = 0.8 if match_node.rules.countdown > 0.0 else 0.0
 		Match.State.PLAYING:
-			_go_left -= delta
 			_banner.visible = _go_left > 0.0
 			_banner.text = "GO"
-			_light.visible = _go_left > 0.0
-			_light.set_go()
 		Match.State.LAST_CALL:
 			var pulse := (
 				Game.settings.flash_reduction or fmod(Time.get_ticks_msec() * 0.001, 1.0) < 0.5
@@ -573,7 +577,6 @@ func _update_banner(delta: float) -> void:
 			_banner.text = "LAST CALL"
 		_:
 			_banner.visible = false
-			_light.visible = false
 
 
 func _on_state_changed(state: int) -> void:

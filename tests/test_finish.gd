@@ -3,12 +3,13 @@ extends GdUnitTestSuite
 ## disco rig swings onto the winner.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const RULES: MatchRules = preload("res://data/match/default.tres")
 
 var _runner: GdUnitSceneRunner
 
 
 func _start_match() -> Match:
-	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
 	rules.duration = 60.0
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
@@ -98,3 +99,24 @@ func test_the_rig_takes_the_winner_even_when_they_are_down() -> void:
 	assert_object(match_node.arena.disco._focus).is_same(winner)
 	await _runner.simulate_frames(120, 17)
 	assert_int(match_node.arena.disco.lit_count()).is_equal(DiscoLights.COUNT)
+
+
+## GAME.md 8.3: the start gantry is up for the countdown and the moment after it, whatever the
+## match goes on to. A map whose Last Call starts as the flag drops went straight past playing,
+## which was the only state that ever put the lamps away.
+func test_the_start_lamps_go_whatever_the_match_goes_on_to() -> void:
+	var rules: MatchRules = RULES.duplicate()
+	rules.countdown = 0.3
+	rules.duration = 20.0
+	rules.last_call_duration = 30.0
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.with_hud = true
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	match_node.start([PlayerInput.new(), KartInput.new()] as Array[KartInput], 5)
+	await _runner.simulate_frames(5, 17)
+	assert_bool(match_node.hud._light.visible).is_true()
+	await _runner.simulate_frames(90, 17)
+	assert_int(match_node.state).is_equal(Match.State.LAST_CALL)
+	assert_bool(match_node.hud._light.visible).is_false()

@@ -38,6 +38,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The start lamps always go after the countdown.** A match that went straight into
+  anything but ordinary play kept them up.
 - **Joining an address nobody is at says so.** It said it was waiting for the host
   for half a minute; it says it is connecting, and gives up after a few seconds.
 

@@ -1950,7 +1950,9 @@ movement: the one thing a corner block must not do is ask to be looked at.
   field is held, each of the rest lights with its own, and the higher tone comes with
   the green. However long the countdown is set to, there are three of each, so what a
   player sees and what they hear never disagree; over the usual three seconds that is
-  a lamp a second, which is the pace anyone counting a field down counts at.
+  a lamp a second, which is the pace anyone counting a field down counts at. The rack
+  goes a moment after the drop whatever the match goes on to, a Last Call that starts
+  with the flag included, on every screen.
 - **Kill feed** in the top right: the last five kills, newest first, reading as
   "P1 shot P2", "P1 rammed P2", "P1 bombed P2", "P1 shoved P2 in" for a pit
   shove, "P2 fell in" for a fall nobody caused and "P2 wrecked itself" for a
