@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-09-24
+
+A Grand Prix asks everybody which joker to keep between maps, to start with, and
+phones start on a lighter picture.
+
 ### Changed
 
 - **A Grand Prix asks which joker to keep, to start with.** Jokers between maps
@@ -1060,7 +1065,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.6.1
 [0.6.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.6.0
 [0.5.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.5.2
 [0.5.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.5.1
