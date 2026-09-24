@@ -310,27 +310,31 @@ func _client_joins() -> Node:
 		if slot.index > 0 and slot.index < seat and slot.is_human():
 			first = false
 	# A new name, and for the first client the next color nobody is in, asked of the host from here
-	# and brought back in the snapshot, GAME.md 4.4. Only the first: two asking for the same free
-	# color at once is one of them told no, which is the host working rather than what is checked.
+	# and brought back in the snapshot, GAME.md 4.4. Only the first, though the snapshot saying who
+	# else is a person can be late enough for two to think they are it: two asking for the same free
+	# color at once is one of them told no, which is the host working, so it is asked again until
+	# the host has moved it on to one.
 	_room_name = "Renamed %d" % seat
 	SeatIdentity.rename(match_node.slots[seat], _room_name)
 	if first:
-		var wanted := SeatIdentity.next_color(match_node, match_node.slots[seat])
-		SeatIdentity.recolor(match_node, match_node.slots[seat])
+		var from := match_node.slots[seat].color_index
+		var again := [0]
 		if not await _until(
 			func() -> bool:
 				var mine := match_node.slots[seat]
-				return (
-					mine.color_index == wanted
-					and mine.kart != null
-					and (mine.kart.color_index == wanted)
-				),
+				if mine.color_index != from and mine.kart != null:
+					return mine.kart.color_index == mine.color_index
+				var now := Time.get_ticks_msec()
+				if now >= again[0]:
+					again[0] = now + 500
+					SeatIdentity.recolor(match_node, mine)
+				return false,
 			10.0,
 			"the host put it in the next free color"
 		):
 			return null
-		_room_color = wanted
 	await _seconds(1.0)
+	_room_color = match_node.slots[seat].color_index
 	_check(match_node.slots[seat].player_name == _room_name, "the host gave it its new name")
 	if first:
 		await _until(
