@@ -31,7 +31,7 @@ static func next_color(match_node: Match, slot: PlayerSlot) -> int:
 	var count := Palette.PLAYER_COLORS.size()
 	for step: int in range(1, count):
 		var color := posmod(slot.color_index + step, count)
-		if _free(match_node, slot, color):
+		if is_free(match_node, slot, color):
 			return color
 	return slot.color_index
 
@@ -52,16 +52,18 @@ static func recolor(match_node: Match, slot: PlayerSlot) -> void:
 ## Puts [param slot] and its kart in [param color], unless somebody else in the room is already in
 ## it: no two karts are ever the same color.
 static func paint(match_node: Match, slot: PlayerSlot, color: int) -> void:
-	if color < 0 or color >= Palette.PLAYER_COLORS.size() or not _free(match_node, slot, color):
+	if color < 0 or color >= Palette.PLAYER_COLORS.size() or not is_free(match_node, slot, color):
 		return
 	slot.color_index = color
 	if slot.kart != null and is_instance_valid(slot.kart):
 		KartVisuals.recolor(slot.kart, color)
 
 
-static func _free(match_node: Match, slot: PlayerSlot, color: int) -> bool:
+## Whether nobody in [param match_node] but [param slot] is in [param color]. An emptied seat,
+## see [VacantSeat], is nobody: whoever sits down in it next is put in a free one.
+static func is_free(match_node: Match, slot: PlayerSlot, color: int) -> bool:
 	for other: PlayerSlot in match_node.slots:
-		if other != slot and other.color_index == color:
+		if other != slot and other.color_index == color and not other.input is VacantSeat:
 			return false
 	return true
 

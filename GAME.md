@@ -2663,7 +2663,12 @@ shows the address to join at, and presses Start when everyone is there;
 players may still join a running match. Up to 4 players, bots run on the
 host, and a joining client takes over a bot's kart. Design details in 10.3. A join code needs a relay
 service and Steam integration needs GodotSteam; both are backlog items.
-Joining mid-match follows the local rule in 9.2. Pausing an online match takes
+Joining mid-match follows the local rule in 9.2, and so does leaving one. Leaving the waiting
+room of 9.6 does not: nothing is played for in there, so there is no score for a bot to keep, and
+the bots come in with the match. The seat is emptied instead. Its kart goes out of the room with a
+puff in its color on every screen, nothing counted, and stays out until somebody new sits down in
+it, when it comes back in for them as a kart does after dying, in a free color if its own was
+taken while it stood empty. Pausing an online match takes
 every machine in the room asking for it, see 3.8. The match is played by the
 host's lobby settings: a joining client is sent the clock, the target score,
 the number of lives and the rest of the numbers its own lobby could have moved,

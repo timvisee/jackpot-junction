@@ -650,8 +650,14 @@ func _on_peer_disconnected(peer: int) -> void:
 	# Whoever is left may be the whole room now, and they may all be waiting in the menu.
 	_peer_asking.erase(peer)
 	_settle_pause()
-	if match_node != null and index < match_node.slots.size():
+	if match_node == null or index >= match_node.slots.size():
+		return
+	# In the waiting room the seat is emptied rather than handed to a bot, GAME.md 9.6: a room
+	# with no end has no score for one to keep, and the bots come in with the match.
+	if match_node.rules.timed:
 		match_node.leave_human(match_node.slots[index])
+	else:
+		VacantSeat.leave(match_node, match_node.slots[index])
 
 
 ## Says whether this machine wants the match stopped. The host adds up the answers; online the

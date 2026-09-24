@@ -48,6 +48,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Leaving the LAN lobby takes the kart out.** A bot took it over and drove round
+  the room; bots only join when the match starts.
 - **The match settings scroll on a small phone.** On a short screen they ran off the
   top and the bottom, with Done out of reach.
 - **Every player at one screen hears their own kart.** With two or more, each kart

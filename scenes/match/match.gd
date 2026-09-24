@@ -334,6 +334,8 @@ func _resolve_any_device(joiner: int) -> void:
 
 
 func _make_human(slot: PlayerSlot, input: KartInput) -> void:
+	if slot.input is VacantSeat:
+		VacantSeat.fill(self, slot)
 	var brain := slot.kart.get_node_or_null("Brain")
 	if brain != null:
 		brain.queue_free()
