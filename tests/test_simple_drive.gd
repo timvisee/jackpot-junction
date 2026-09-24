@@ -219,3 +219,38 @@ func test_the_push_that_walks_the_cursor_goes_over_the_wire() -> void:
 	old.receive(packet, 2)
 	old.poll(DT)
 	assert_float(old.cursor).is_equal(-0.4)
+
+
+func test_the_first_play_asks_how_to_drive_and_goes_on_once_answered() -> void:
+	var holder: Control = auto_free(Control.new())
+	add_child(holder)
+	var went := [0]
+	var choice := DriveChoice.first(holder, func() -> void: went[0] += 1)
+	assert_object(choice).is_not_null()
+	assert_int(went[0]).is_equal(0)
+	# The cursor starts on a card and stays on the two.
+	await await_idle_frame()
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(choice.card(Settings.DRIVE_SIMPLE))
+	choice.card(Settings.DRIVE_ADVANCED).pressed.emit()
+	assert_int(went[0]).is_equal(1)
+	assert_str(Game.settings.drive_mode(0)).is_equal(Settings.DRIVE_ADVANCED)
+	assert_str(Game.settings.drive_mode(3)).is_equal(Settings.DRIVE_ADVANCED)
+	# Answered once, it is never asked again.
+	assert_object(DriveChoice.first(holder, func() -> void: went[0] += 1)).is_null()
+	assert_int(went[0]).is_equal(2)
+	DirAccess.remove_absolute(Game.settings.path)
+
+
+func test_back_puts_the_question_away_unanswered() -> void:
+	var holder: Control = auto_free(Control.new())
+	add_child(holder)
+	var went := [0]
+	var choice := DriveChoice.first(holder, func() -> void: went[0] += 1)
+	var back := InputEventAction.new()
+	back.action = &"ui_cancel"
+	back.pressed = true
+	choice._unhandled_input(back)
+	await await_idle_frame()
+	assert_bool(is_instance_valid(choice)).is_false()
+	assert_int(went[0]).is_equal(0)
+	assert_bool(Game.settings.has_chosen_driving()).is_false()

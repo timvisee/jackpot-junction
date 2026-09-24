@@ -37,13 +37,14 @@ func _ready() -> void:
 	play_button = MenuTheme.button("Play")
 	# One way in to playing. Whether it is a Grand Prix or a quick match is the lobby's first
 	# question, GAME.md 9.7, asked with the rest rather than a screen early.
-	play_button.pressed.connect(func() -> void: Game.go_to_lobby())
+	# Asked first, the first time, how to drive, GAME.md 4.2, whichever way in to driving it is.
+	play_button.pressed.connect(func() -> void: DriveChoice.first(self, Game.go_to_lobby))
 	column.add_child(play_button)
 	var online := MenuTheme.button("Play LAN")
-	online.pressed.connect(func() -> void: Game.go_to_online())
+	online.pressed.connect(func() -> void: DriveChoice.first(self, Game.go_to_online))
 	column.add_child(online)
 	var garage := MenuTheme.button("Garage")
-	garage.pressed.connect(func() -> void: Game.enter_garage())
+	garage.pressed.connect(func() -> void: DriveChoice.first(self, Game.enter_garage))
 	column.add_child(garage)
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(func() -> void: Game.go_to_settings(Game.TITLE_SCENE))

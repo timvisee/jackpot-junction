@@ -671,6 +671,13 @@ end of a client's controls; a client from before it sends the wheel alone, which
 push. Which way a player drives is kept per local seat, and a seat nobody has asked drives the
 advanced way.
 
+The first way into driving from the title, whether Play, Play LAN or the Garage, asks first how
+to drive: a big button each for simple and advanced, with its picture, its name and what it is in
+a line, over a word that the settings can change it later. The cursor starts on simple and stays
+on the two. The answer is every seat's that has not given one of its own, and is saved at once.
+Back puts the question away unanswered and leaves the title as it was, and it is asked again
+until it has been answered.
+
 The pad is knocked as well as the speaker: taking a life, dying, a big cash-out,
 hitting a wall and running into another kart all come through the hands, as hard
 as the thing that caused them. Knocks are held to one every 0.3 s per player, since
