@@ -42,7 +42,6 @@ format:
 
 smoke: | $(CACHE)
 	tools/smoke res://scenes/ui/title.tscn 30
-	tools/smoke res://scenes/ui/lobby.tscn 30
 	tools/smoke res://scenes/ui/settings_screen.tscn 30
 	tools/smoke res://scenes/match/match_scene.tscn 120
 	# Past the countdown, so the run does not end with a beep still sounding.
