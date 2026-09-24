@@ -46,7 +46,8 @@ func _ready() -> void:
 	match_node.power_ups = load("res://data/powerups/all.tres")
 	add_child(match_node)
 	# Put up behind a loading screen, the way a map is, whoever is hosting.
-	await LoadingScreen.put_up(self, match_node, "Waiting Room")
+	# Called the Lobby on the screen, GAME.md 9.6.
+	await LoadingScreen.put_up(self, match_node, "Lobby")
 	match config.online:
 		"host":
 			_take_seats()

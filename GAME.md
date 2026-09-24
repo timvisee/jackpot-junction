@@ -2656,7 +2656,8 @@ two of them apart: the same corner, half a second later. The sets it walks throu
 
 ### 9.6 The waiting room
 
-Where everybody stands before a match starts. A menu is a poor place to wait: there is nothing
+Where everybody stands before a match starts. On the screen it is called the Lobby: its loading
+screen says so, whatever the code and this document go on calling it. A menu is a poor place to wait: there is nothing
 to do in one, and it cannot tell four people which of them everybody is waiting for or whether
 the one who has pressed nothing is thinking or has walked off. So the waiting is done in a room
 that is driven in.
