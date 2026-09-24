@@ -138,6 +138,11 @@ func test_everyone_down_calms_the_music_at_once() -> void:
 
 
 func test_the_mute_toggle_flips_the_music_bus_and_the_setting() -> void:
+	# The toggle saves what it flipped, and that is not the player's file to be writing: their own
+	# game may be running beside the tests and have saved something since this one read it.
+	var real := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_music_mute.cfg"
 	var muted_before := Game.settings.music_muted
 	Audio.toggle_music_mute()
 	assert_bool(Game.settings.music_muted).is_not_equal(muted_before)
@@ -145,6 +150,9 @@ func test_the_mute_toggle_flips_the_music_bus_and_the_setting() -> void:
 	Audio.toggle_music_mute()
 	assert_bool(Game.settings.music_muted).is_equal(muted_before)
 	assert_bool(Audio.is_music_muted()).is_equal(muted_before)
+	DirAccess.remove_absolute(Game.settings.path)
+	Game.settings = real
+	Game.settings.apply_audio()
 
 
 ## GAME.md 8.4: the music bus opens up as the levels climb and closes again as they drop back.
