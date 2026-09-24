@@ -16,7 +16,9 @@ extends Control
 ##
 ## A finger held on one of the jokers in the hand opens it on that card, with what it does over
 ## it, for as long as it stays there, and sliding it along the hand reads the others, GAME.md
-## 3.7. The hand is only read this way: there is no button to open it with.
+## 3.7. The hand is only read this way: there is no button to open it with. The respawn pick is
+## the same, except that a quick tap on one of its cards answers it with that card, and its own
+## button under the pane skips it or goes back.
 
 ## The round buttons: a dark disc with a light rim, lit up while a finger is on it.
 const FILL := Color(0.05, 0.05, 0.07, 0.45)
@@ -56,6 +58,9 @@ const STICK_KNOB := 52.0
 const STICK_HOME := Vector2(230.0, -230.0)
 const STICK_ZONE := Vector2(0.42, 0.62)
 const STICK_DEAD := 0.1
+## How long a finger can be on a card of the respawn pick and still have tapped it rather than
+## held it, in seconds. Longer is reading it, and letting go after reading takes nothing.
+const TAP_SECONDS := 0.3
 ## The nitro tank round the rim of its button.
 const TANK := Color(1.0, 0.75, 0.3, 0.95)
 const TANK_WIDTH := 6.0
@@ -95,6 +100,14 @@ var _stick_at := Vector2.ZERO
 var _knob_at := Vector2.ZERO
 ## The finger resting on a card in the hand, or -1.
 var _inspect_finger := -1
+## The finger on a card of the respawn pick, or -1, which card it went down on, when, and whether
+## it has been along to another since, which is reading rather than tapping.
+var _pick_finger := -1
+var _pick_card := -1
+var _pick_since := 0.0
+var _pick_moved := false
+## The finger on the pick's skip or back button, or -1.
+var _back_finger := -1
 
 
 ## Hangs the controls over [param hud].
@@ -174,10 +187,30 @@ func _hand() -> JokerHand:
 	return hand if hand != null and hand.is_visible_in_tree() else null
 
 
+## The respawn pick the HUD keeps for the player here, while it is up.
+func _picker() -> JokerPicker:
+	var slot := _slot()
+	if slot == null or get_parent() == null:
+		return null
+	var picker := get_parent().get_node_or_null("Picker%d" % slot.index) as JokerPicker
+	return picker if picker != null and picker.is_visible_in_tree() else null
+
+
 ## The card of [param hand] under [param at], a point in these controls' own coordinates.
 func _card_in(hand: Control, at: Vector2) -> int:
 	var point := hand.get_global_transform_with_canvas().affine_inverse() * _screen(at)
-	return (hand as JokerHand).card_at(point)
+	var picker := hand as JokerPicker
+	return picker.card_at(point) if picker != null else (hand as JokerHand).card_at(point)
+
+
+## Whether [param at] is on the pick's skip or back button.
+func _on_back(picker: JokerPicker, at: Vector2) -> bool:
+	var button := picker.touch_button() if picker != null else null
+	return button != null and button.get_global_rect().has_point(_screen(at))
+
+
+static func _now() -> float:
+	return Time.get_ticks_msec() * 0.001
 
 
 func _screen(at: Vector2) -> Vector2:
@@ -188,7 +221,8 @@ func _process(_delta: float) -> void:
 	# The room's menu takes the screen while it is up, and a finger that was down when it opened
 	# has let go of everything as far as the room is concerned.
 	var shut := PauseMenu.is_open_in(get_tree()) or not driving()
-	if shut and (not _fingers.is_empty() or _stick_finger >= 0 or _inspect_finger >= 0):
+	var held := _stick_finger >= 0 or _inspect_finger >= 0 or _pick_finger >= 0
+	if shut and (not _fingers.is_empty() or held or _back_finger >= 0):
 		_let_go()
 	# The tank round the nitro button empties and fills as the kart's own does.
 	queue_redraw()
@@ -225,6 +259,21 @@ func _finger_down(finger: int, at: Vector2) -> void:
 		return
 	if not driving():
 		return
+	var picker := _picker()
+	if picker != null and _pick_finger < 0:
+		var picked := _card_in(picker, at)
+		if picked >= 0:
+			_pick_finger = finger
+			_pick_card = picked
+			_pick_since = _now()
+			_pick_moved = false
+			TouchInput.joker_inspect = picked
+			get_viewport().set_input_as_handled()
+			return
+	if _on_back(picker, at):
+		_back_finger = finger
+		get_viewport().set_input_as_handled()
+		return
 	var hand := _hand()
 	if hand != null and _inspect_finger < 0:
 		var card := _card_in(hand, at)
@@ -248,6 +297,18 @@ func _finger_down(finger: int, at: Vector2) -> void:
 
 
 func _finger_moved(finger: int, at: Vector2) -> void:
+	if finger == _pick_finger:
+		var picker := _picker()
+		var card := _card_in(picker, at) if picker != null else -1
+		if card >= 0 and card != _pick_card:
+			_pick_card = card
+			_pick_moved = true
+			TouchInput.joker_inspect = card
+		get_viewport().set_input_as_handled()
+		return
+	if finger == _back_finger:
+		get_viewport().set_input_as_handled()
+		return
 	if finger == _inspect_finger:
 		# Along the hand to read the next card; off the end of it keeps the last one read.
 		var hand := _hand()
@@ -276,6 +337,22 @@ func _finger_moved(finger: int, at: Vector2) -> void:
 
 
 func _finger_up(finger: int, at: Vector2) -> void:
+	if finger == _pick_finger:
+		_pick_finger = -1
+		TouchInput.joker_inspect = -1
+		# A quick tap on the one card, still on it as it comes up, answers the pick with it.
+		var picker := _picker()
+		var quick := _now() - _pick_since <= TAP_SECONDS and not _pick_moved
+		if quick and picker != null and _card_in(picker, at) == _pick_card:
+			TouchInput.tap(_pick_card)
+		get_viewport().set_input_as_handled()
+		return
+	if finger == _back_finger:
+		_back_finger = -1
+		if _on_back(_picker(), at):
+			TouchInput.press_back()
+		get_viewport().set_input_as_handled()
+		return
 	if finger == _inspect_finger:
 		_inspect_finger = -1
 		TouchInput.joker_inspect = -1
@@ -336,6 +413,8 @@ func _let_go() -> void:
 	_stick_at = stick_home()
 	_knob_at = _stick_at
 	_inspect_finger = -1
+	_pick_finger = -1
+	_back_finger = -1
 	TouchInput.joker_inspect = -1
 	_publish()
 

@@ -18,6 +18,10 @@ static var fire := false
 static var use_item := false
 ## Which of the jokers a finger is resting on, or -1.
 static var joker_inspect := -1
+## A card of the respawn pick tapped, or -1, and whether its skip or back button was: each is
+## answered once, by the first look at it, see [method take_tap] and [method take_back].
+static var _tapped := -1
+static var _back := false
 
 
 ## Decides from the platform and [param args], the command line after `++`.
@@ -44,3 +48,27 @@ static func release() -> void:
 	fire = false
 	use_item = false
 	joker_inspect = -1
+	_tapped = -1
+	_back = false
+
+
+static func tap(card: int) -> void:
+	_tapped = card
+
+
+static func press_back() -> void:
+	_back = true
+
+
+## The card tapped since the last look, or -1, and forgotten once looked at.
+static func take_tap() -> int:
+	var tapped := _tapped
+	_tapped = -1
+	return tapped
+
+
+## Whether the skip or back button was pressed since the last look, forgotten once looked at.
+static func take_back() -> bool:
+	var back := _back
+	_back = false
+	return back

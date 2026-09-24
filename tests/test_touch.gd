@@ -249,3 +249,70 @@ func test_the_card_a_finger_rests_on_goes_over_the_wire() -> void:
 	older.joker_inspect = 1
 	older._apply(old)
 	assert_int(older.joker_inspect).is_equal(-1)
+
+
+## A pick open in front of the player here, answerable at once, on a kart waiting to come back.
+func _pick(controls: TouchControls) -> JokerOffer:
+	var slot := controls.match_node.slots[0]
+	slot.kart.die(&"pit", -1)
+	await _runner.simulate_frames(2, 17)
+	var choices: Array[Joker] = []
+	for id: String in ["hair_trigger", "rubber_bumpers", "curve_ball"]:
+		choices.append(load("res://data/jokers/%s.tres" % id))
+	slot.offer = JokerOffer.new(slot.kart, choices)
+	slot.offer.answer_at = 0.0
+	slot.respawn_left = 30.0
+	await _runner.simulate_frames(4, 17)
+	return slot.offer
+
+
+func _card_center(picker: JokerPicker, index: int) -> Vector2:
+	return (picker._cards[index] as JokerCard).get_global_rect().get_center()
+
+
+## Holding a card of the pick reads it, and letting go after reading takes nothing; a quick tap
+## takes the card tapped. The pane says so rather than naming buttons.
+func test_a_tap_takes_a_card_of_the_pick_and_a_hold_reads_it() -> void:
+	var controls := await _driving()
+	var offer := await _pick(controls)
+	var picker: JokerPicker = controls.match_node.hud._pickers[0]
+	assert_bool(picker.visible).is_true()
+	assert_str((picker._detail._hints as Label).text).contains("Tap a card to take it")
+	var second := _card_center(picker, 1)
+	_touch(controls, 0, second, true)
+	await _runner.simulate_frames(3, 17)
+	assert_int(offer.selected).is_equal(1)
+	controls._pick_since -= 1.0
+	_touch(controls, 0, second, false)
+	await _runner.simulate_frames(3, 17)
+	assert_bool(offer.is_done()).is_false()
+	var third := _card_center(picker, 2)
+	_touch(controls, 0, third, true)
+	await _runner.simulate_frames(1, 17)
+	_touch(controls, 0, third, false)
+	await _runner.simulate_frames(3, 17)
+	assert_bool(offer.is_done()).is_true()
+	assert_str(String(offer.taken.id)).is_equal("curve_ball")
+
+
+## The button under the pane skips the pick, with the stick held by the other thumb; keeping one
+## of last map's has nothing to skip to, and no button.
+func test_the_button_under_the_pick_skips_it() -> void:
+	var controls := await _driving()
+	var offer := await _pick(controls)
+	var picker: JokerPicker = controls.match_node.hud._pickers[0]
+	var button := picker.touch_button()
+	assert_object(button).is_not_null()
+	assert_str(button.text).is_equal("Skip")
+	var stick := Vector2(controls.size.x * 0.2, controls.size.y * 0.7)
+	_touch(controls, 0, stick, true)
+	var on_it := button.get_global_rect().get_center()
+	_touch(controls, 1, on_it, true)
+	_touch(controls, 1, on_it, false)
+	await _runner.simulate_frames(3, 17)
+	assert_bool(offer.is_done()).is_true()
+	assert_object(offer.taken).is_null()
+	offer.stage = JokerOffer.Stage.CHOOSING
+	offer.keeping = true
+	await _runner.simulate_frames(2, 17)
+	assert_object(picker.touch_button()).is_null()

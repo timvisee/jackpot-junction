@@ -706,6 +706,14 @@ is drawn beside it, and the pane names no buttons: dropping and destroying are f
 the pads. The card a finger rests on goes over the wire with the rest of a client's controls, as
 one more field at the end that a client from before it never sends.
 
+The respawn pick of 3.7 is read the same way, and answered with a tap: a finger held on one of
+its cards moves the cursor there and shows what it does, and nothing is taken when it comes up,
+while a quick tap of under 0.3 s takes the card tapped, or destroys it on the destroy step. The
+pick's usual wait before it can be answered holds for a tap as it does for a key. The pane says
+"Tap a card to take it, hold it to read it" in place of naming buttons, and a button under it
+skips the pick, or goes back from the destroying to the choosing; keeping one of last map's has
+nothing to skip to and no button.
+
 ### 4.3 Trails
 
 - **Tire marks**: a ribbon mesh per rear wheel, drawn while the kart moves,

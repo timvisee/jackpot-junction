@@ -9,6 +9,10 @@ extends Control
 ##
 ## Each local player picks inside their own share of the screen, the same share their hand of
 ## cards uses, so two players choosing at once never overlap.
+##
+## On a touch screen, GAME.md 4.2, a card is tapped to be taken and held to be read, the pane says
+## so in place of naming buttons, and a button under it skips the pick, or goes back from the
+## destroying to the choosing. The fingers themselves are answered by [TouchControls].
 
 ## How far a picked card rises. It was 26 while the growing card was quietly carrying another
 ## twenty of it, so the number here is now the whole of the lift rather than most of it.
@@ -39,10 +43,37 @@ var _detail: JokerDetail
 var _cross: Control
 var _shown: Array[StringName] = []
 var _stage := JokerOffer.Stage.DONE
+## Skip or back, on a touch screen, while there is either to do.
+var _touch_button: Button
 
 
 func card_count() -> int:
 	return _cards.size()
+
+
+## The card under [param point], in the picker's own coordinates, or -1. The picked card still
+## answers where it rose from, so a finger holding it is not left behind as it lifts.
+func card_at(point: Vector2) -> int:
+	if not visible:
+		return -1
+	var best := -1
+	for i: int in _cards.size():
+		var card := _cards[i]
+		var face := Rect2(Vector2.ZERO, card.size)
+		var under := face.has_point(card.get_transform().affine_inverse() * point)
+		if not under and card.z_index > 0:
+			var risen := point - Vector2(0.0, LIFT * card.scale.y)
+			under = face.has_point(card.get_transform().affine_inverse() * risen)
+		if not under:
+			continue
+		if best < 0 or card.z_index >= _cards[best].z_index:
+			best = i
+	return best
+
+
+## The skip or back button of a touch screen, while it is up, or null.
+func touch_button() -> Button:
+	return _touch_button if visible and _touch_button.visible else null
 
 
 func _ready() -> void:
@@ -63,6 +94,14 @@ func _ready() -> void:
 	_detail.name = "Detail"
 	add_child(_detail)
 	_build_cross()
+	# Drawn as a button and pressed by [TouchControls], which answers every finger on the screen
+	# on its own; left to the mouse the engine makes of the first finger, it would not answer a
+	# second one while a thumb is resting on the stick.
+	_touch_button = MenuTheme.button("Skip")
+	_touch_button.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_touch_button.focus_mode = Control.FOCUS_NONE
+	_touch_button.visible = false
+	add_child(_touch_button)
 
 
 ## Shows the offer for one slot, or hides the picker when there is nothing to choose.
@@ -83,7 +122,13 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 	)
 	if picked < jokers.size():
 		_detail.show_joker(jokers[picked])
-		_detail.set_hints(_hint_row(choosing, offer.keeping))
+		if TouchInput.enabled:
+			_detail.set_hints(_touch_row(choosing, offer.keeping))
+		else:
+			_detail.set_hints(_hint_row(choosing, offer.keeping))
+	# Keeping one of last map's has nothing to skip to: the rule is keep one.
+	_touch_button.visible = TouchInput.enabled and not (choosing and offer.keeping)
+	_touch_button.text = "Skip" if choosing else "Back"
 	_layout(picked)
 
 
@@ -151,6 +196,11 @@ func _layout(picked: int) -> void:
 	_title.size = Vector2(width, 0.0)
 	var title_y := pane_y - 52.0 if shared else baseline - card_size.y - 86.0
 	_title.position = Vector2(center - width * 0.5, title_y)
+	if _touch_button.visible:
+		var button := _touch_button.get_combined_minimum_size()
+		_touch_button.size = button
+		var below := pane_y + detail.y + 18.0
+		_touch_button.position = Vector2(center - button.x * 0.5, below)
 
 
 ## Rebuilds the row when the offered jokers or the stage change, and leaves it alone otherwise so
@@ -177,6 +227,18 @@ func _clear() -> void:
 	_cards.clear()
 	_shown = []
 	_stage = JokerOffer.Stage.DONE
+
+
+## What a finger does with the cards, said in place of the buttons, GAME.md 4.2.
+func _touch_row(choosing: bool, keeping := false) -> Control:
+	var doing := "take" if choosing else "destroy"
+	if keeping:
+		doing = "keep"
+	var line := Label.new()
+	line.text = "Tap a card to %s it, hold it to read it" % doing
+	Type.text(line, InputHint.FONT_SIZE, JokerDetail.hint_ink())
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return line
 
 
 ## What the player can do from here, drawn as the buttons themselves, GAME.md 8.3.

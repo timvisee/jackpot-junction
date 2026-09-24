@@ -58,12 +58,18 @@ func poll(_delta: float) -> void:
 	joker_prev_pressed = _just_pressed(InputActions.JOKER_PREV)
 	joker_next_pressed = _just_pressed(InputActions.JOKER_NEXT)
 	joker_drop_pressed = _just_pressed(InputActions.JOKER_DROP)
-	joker_destroy_pressed = _just_pressed(InputActions.JOKER_DESTROY)
+	joker_destroy_pressed = (
+		_just_pressed(InputActions.JOKER_DESTROY) or (touch and TouchInput.take_back())
+	)
 	joker_inspect = TouchInput.joker_inspect if touch else -1
 	joker_select = -1
 	for i: int in InputActions.JOKER_SELECTS.size():
 		if _just_pressed(InputActions.JOKER_SELECTS[i]):
 			joker_select = i
+	# A card of the respawn pick tapped is the number key for it.
+	var tapped := TouchInput.take_tap() if touch else -1
+	if tapped >= 0:
+		joker_select = tapped
 
 
 ## Which device is active right now, checked on the driving and firing actions.
