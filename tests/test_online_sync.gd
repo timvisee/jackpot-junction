@@ -610,7 +610,9 @@ func test_a_new_match_puts_down_what_a_client_was_carrying() -> void:
 	client.arena.disco.focus(client.slots[0].kart)
 	await runner.simulate_frames(4, 17)
 	assert_int(client.intensity.level).is_greater(1)
-	# The host plays it again, and the countdown for the new one reaches this machine.
+	# The host plays it again, and the countdown for the new one reaches this machine. A long one,
+	# so a slow machine is not already past it by the time the snapshot is taken.
+	host.rules.countdown = 5.0
 	host.rematch()
 	await runner.simulate_frames(4, 17)
 	assert_int(host.state).is_equal(Match.State.COUNTDOWN)
