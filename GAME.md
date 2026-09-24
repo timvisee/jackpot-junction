@@ -371,16 +371,19 @@ else's results screen, see 10.3.
   The wheel shows what there is: the four round the player's own kart, up,
   right, down and left, in their color. It comes up while the right stick is
   pushed, with the one it points at bigger and the others faint, so the flick is
-  aimed rather than guessed; for three seconds after V, with the key for each
-  way beside it, the four ways picking from it rather than driving while it is
-  up and V again shutting it; and for a moment after an emote is asked for,
-  however it was asked, with that one picked out. The bubble pops up over the
-  kart, above the ready tick of 9.6, stays about two seconds and fades, and the
-  next one waits a second, so each can be read before it is replaced. The
-  machine that runs the karts decides, the host online, and says so to every
-  machine, so it comes up on every screen at once, a client's own included; the
-  ask goes over the wire as one more field at the end of a client's controls. A
-  kart that is down has nothing to put one over.
+  aimed rather than guessed, and however slowly the stick gets past the flick it
+  asks; and for three seconds after V, with the key for each way beside it, the
+  four ways picking from it rather than driving while it is up and V again
+  shutting it. Only while one is being chosen: once it is asked for, it is up
+  over the kart and the wheel goes, the stick's until the stick is back in the
+  middle, and a number key or the touch screen's row, which say which already,
+  never bring it up at all. The bubble pops up over the kart, above the ready
+  tick of 9.6, stays about two seconds and fades, and the next one waits a
+  second, so each can be read before it is replaced. The machine that runs the
+  karts decides, the host online, and says so to every machine, so it comes up
+  on every screen at once, a client's own included; the ask goes over the wire
+  as one more field at the end of a client's controls. A kart that is down has
+  nothing to put one over.
 - A room that has lost its host says so on a pane in the middle of the screen,
   built like the joker detail pane in 8.3, and has the screen to itself: the HUD
   stands down and takes any open joker pick, the standings, the blocks and the

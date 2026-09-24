@@ -4,7 +4,8 @@ extends KartInput
 ## kart, which suits single-player; local multiplayer gives each slot its own device.
 
 ## How far the right stick has to be pushed for a flick of it to be an emote, and how far back in
-## the middle it has to have been first, so holding it over asks once.
+## the middle it has to come before the next, so holding it over asks once. However slowly it got
+## there: the wheel shows which one it points at on the way, and invites a slow push.
 const FLICK := 0.8
 const FLICK_BACK := 0.4
 ## How far the right stick has to be pushed for the emote wheel to come up, short of a flick, and
@@ -32,12 +33,11 @@ var seat := -1
 ## kart sets it itself when it is handed them.
 var kart: Kart
 
-## How far over the right stick was last tick, for a flick of it to be an emote.
-var _aim_was := 0.0
-## How long the wheel stays open, and the emote last asked for, however it was, for the wheel to
-## show being picked; taken once, see [method take_asked].
+## Whether the right stick has been back in the middle since its last emote, so the next push of
+## it past [constant FLICK] asks for one and shows the wheel on the way.
+var _stick_ready := true
+## How long the wheel stays open after its key.
 var _wheel_left := 0.0
-var _asked := -1
 var _fire_was_down := false
 var _use_was_down := false
 var _was_down: Dictionary[StringName, bool] = {}
@@ -171,16 +171,9 @@ func _drive_simply(touch: bool, delta: float) -> void:
 ## An emote, GAME.md 3.8: a key each, or the right stick flicked up, right, down or left, in
 ## that order, from the middle. Not while the stick is aiming a cannon that aims freely, which is
 ## what it is for then.
-## The emote last asked for since the last look, or -1, forgotten once looked at: the wheel
-## showing it picked, whether it came from a key, the wheel, a flick or a finger.
-func take_asked() -> int:
-	var asked := _asked
-	_asked = -1
-	return asked
-
-
 ## An emote from its key, from the wheel's key and then a way, from a flick of the right stick or
-## from the touch screen's menu of them; and the wheel for the right stick while it is pushed.
+## from the touch screen's menu of them; and the wheel for the right stick while it is pushed
+## toward one, until it has asked for it.
 func _poll_emote(delta: float, touch: bool) -> void:
 	emote = -1
 	for i: int in InputActions.EMOTES.size():
@@ -203,16 +196,17 @@ func _poll_emote(delta: float, touch: bool) -> void:
 	if tapped >= 0:
 		emote = tapped
 	var pushed := aim.length()
-	var flicked := pushed > FLICK and _aim_was <= FLICK_BACK
-	_aim_was = pushed
+	if pushed <= FLICK_BACK:
+		_stick_ready = true
 	var here := kart if kart != null and is_instance_valid(kart) else null
 	var stick := here == null or not KartAim.free_aim(here)
-	var angle := rad_to_deg(atan2(aim.x, -aim.y))
-	wheel_pointing = posmod(roundi(angle / 90.0), 4) if stick and pushed > WHEEL_PUSH else -1
-	if flicked and stick:
-		emote = posmod(roundi(angle / 90.0), 4)
-	if emote >= 0:
-		_asked = emote
+	var way := posmod(roundi(rad_to_deg(atan2(aim.x, -aim.y)) / 90.0), 4)
+	var pointing := stick and _stick_ready and pushed > WHEEL_PUSH
+	wheel_pointing = way if pointing else -1
+	if pointing and pushed > FLICK:
+		emote = way
+		_stick_ready = false
+		wheel_pointing = -1
 
 
 ## How far the pad's own gas and brake are down, as x and y: the triggers, unless rebound.

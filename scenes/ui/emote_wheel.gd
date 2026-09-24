@@ -1,10 +1,11 @@
 class_name EmoteWheel
 extends Control
 ## The four emotes round a player's kart, GAME.md 3.8, so they can see what there is to put up and
-## which way is which: while the right stick is pushed, with the one it points at picked out; for
-## a few seconds after the wheel's key, V, with the key for each way beside it; and for a moment
-## after one is asked for, however it was asked, with that one picked out. One for each player at
-## this screen, round their own kart, in their own color.
+## which way is which: while the right stick is pushed toward one, with that one picked out, and
+## for a few seconds after the wheel's key, V, with the key for each way beside it. Only while one
+## is being chosen: once it is asked for, it is up over the kart, and the wheel saying so again
+## would be saying it twice. One for each player at this screen, round their own kart, in their
+## own color.
 
 ## How far out from the middle of the kart each emote sits, and how big it is, in pixels at a UI
 ## scale of 100%.
@@ -13,8 +14,6 @@ const SIDE := 54.0
 ## How much bigger the picked one is drawn, and how faint the others go beside it.
 const PICKED := 1.3
 const FAINT := 0.5
-## How long an emote asked for stays picked out on the wheel, in seconds.
-const FLASH := 0.7
 ## How high over the kart the middle of the wheel is, in meters, and how the keys are drawn.
 const LIFT := 0.6
 const KEY_SIZE := 16
@@ -24,7 +23,7 @@ const WAYS: Array[Vector2] = [Vector2.UP, Vector2.RIGHT, Vector2.DOWN, Vector2.L
 
 var match_node: Match
 
-## Slot to its wheel: the node, its four pictures, its keys, and what is being picked out.
+## Slot to its wheel: the node, its four pictures and its keys.
 var _wheels: Dictionary[int, Dictionary] = {}
 
 
@@ -41,22 +40,16 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	var camera := get_viewport().get_camera_3d()
 	for slot: PlayerSlot in match_node.slots:
 		var player := slot.input as PlayerInput
 		if player == null:
 			continue
 		var wheel := _wheel_for(slot)
-		var asked := player.take_asked()
-		if asked >= 0:
-			wheel["flash"] = FLASH
-			wheel["picked"] = asked
-		var flash: float = maxf(wheel["flash"] - delta, 0.0)
-		wheel["flash"] = flash
 		var root: Control = wheel["root"]
 		var kart := slot.kart
-		var up := player.wheel_by_keys or player.wheel_pointing >= 0 or flash > 0.0
+		var up := player.wheel_by_keys or player.wheel_pointing >= 0
 		if kart == null or not kart.alive or camera == null or not up:
 			root.visible = false
 			continue
@@ -66,10 +59,7 @@ func _process(delta: float) -> void:
 			continue
 		root.visible = true
 		root.position = camera.unproject_position(over)
-		var picked: int = player.wheel_pointing
-		if picked < 0 and flash > 0.0:
-			picked = wheel["picked"]
-		_show(wheel, picked, player.wheel_by_keys)
+		_show(wheel, player.wheel_pointing, player.wheel_by_keys)
 
 
 ## Four emotes round the middle, each with the key for its way beside it, hidden unless it was the
@@ -104,8 +94,6 @@ func _wheel_for(slot: PlayerSlot) -> Dictionary:
 		"pictures": pictures,
 		"keys": keys,
 		"color": slot.color_index,
-		"flash": 0.0,
-		"picked": -1,
 	}
 	_wheels[slot.index] = wheel
 	return wheel

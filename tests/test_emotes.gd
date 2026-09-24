@@ -66,8 +66,6 @@ func test_the_wheels_key_opens_it_and_a_way_picks_from_it() -> void:
 	Input.action_press(InputActions.STEER_RIGHT)
 	player.poll(DT)
 	assert_int(player.emote).is_equal(1)
-	assert_int(player.take_asked()).is_equal(1)
-	assert_int(player.take_asked()).is_equal(-1)
 	assert_bool(player.wheel_by_keys).is_false()
 	Input.action_release(InputActions.STEER_RIGHT)
 	# Open again and nothing picked, it shuts by itself.
@@ -79,16 +77,26 @@ func test_the_wheels_key_opens_it_and_a_way_picks_from_it() -> void:
 	assert_bool(player.wheel_by_keys).is_false()
 
 
-## Pushed short of a flick, the right stick points at one on the wheel and asks for nothing.
+## Pushed short of a flick, the right stick points at one on the wheel and asks for nothing. On
+## past it, however slowly, it asks, and the wheel goes until the stick is back in the middle.
 func test_the_right_stick_points_at_one_before_it_flicks() -> void:
 	var player := PlayerInput.new(DeviceInput.ANY, -1)
 	Input.action_press(InputActions.AIM_UP, 0.5)
 	player.poll(DT)
 	assert_int(player.wheel_pointing).is_equal(0)
 	assert_int(player.emote).is_equal(-1)
-	Input.action_release(InputActions.AIM_UP)
+	Input.action_press(InputActions.AIM_UP, 0.9)
+	player.poll(DT)
+	assert_int(player.emote).is_equal(0)
+	assert_int(player.wheel_pointing).is_equal(-1)
+	Input.action_press(InputActions.AIM_UP, 0.5)
 	player.poll(DT)
 	assert_int(player.wheel_pointing).is_equal(-1)
+	Input.action_release(InputActions.AIM_UP)
+	player.poll(DT)
+	Input.action_press(InputActions.AIM_UP, 0.5)
+	player.poll(DT)
+	assert_int(player.wheel_pointing).is_equal(0)
 
 
 ## A touch screen has a button for them beside the menu button, and a row of the four out of it.
@@ -135,6 +143,13 @@ func test_the_wheel_comes_up_round_the_kart() -> void:
 	var kart := match_node.slots[0].kart
 	var over := camera.unproject_position(kart.global_position + Vector3.UP * EmoteWheel.LIFT)
 	assert_float(root.position.distance_to(over)).is_less(1.0)
+	# Its own key, or a finger on the touch screen's button, asks for one without it.
+	player._wheel_left = 0.0
+	await _runner.simulate_frames(2, 17)
+	Input.action_press(InputActions.EMOTE_2)
+	await _runner.simulate_frames(2, 17)
+	assert_object(kart.get_node_or_null("Emote")).is_not_null()
+	assert_bool(root.visible).is_false()
 
 
 func _tap(on: Control, at: Vector2) -> InputEventScreenTouch:
