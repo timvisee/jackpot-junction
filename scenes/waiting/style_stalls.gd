@@ -191,7 +191,7 @@ func _hint(slot: PlayerSlot, pad: int) -> void:
 	var size := _hint_size()
 	var ink := ControlHint.INK
 	var parts: Array = [InputHint.glyph(InputActions.FIRE, keyboard, ink, size)]
-	var words := "%%s change the %s" % WORDS[pad].to_lower()
+	var words := "%%s change %s" % WORDS[pad].to_lower()
 	var hint := InputHint.billboard(
 		InputHint.card(InputHint.row(words, parts, ink, size)), ControlHint.PIXEL_SIZE
 	)
