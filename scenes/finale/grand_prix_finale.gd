@@ -5,12 +5,13 @@ extends Node3D
 ##
 ## Not the room the last map was played in, which is full of everything that map needed and has
 ## its DJ booth tucked behind the far rail with the boards in front of it. This one is a dance floor
-## lit on the beat in the colors of the top three, with the podium on it and the three standing on
-## it; the booth up on a riser behind them, bigger than usual, so it is seen over the podium rather
-## than hidden behind it; a hoarding behind the booth saying who won; the crowd all the way round;
-## the disco rig over it at the top of the meter with every light on the winner; and fireworks in
-## the three colors going up behind the board, where they frame it rather than cover it. It is
-## built in the room's own materials, well away from the arena, which is hidden while it is on.
+## lit on the beat in the colors of the top three, with the podium on it and the three floating
+## over it; the booth up on a riser behind them, bigger than usual, so it is seen over the podium
+## rather than hidden behind it; a hoarding behind the booth saying who won; the crowd all the way
+## round; the disco rig over it at the top of the meter with every light on the winner; and
+## fireworks in the three colors going up behind the board, where they frame it rather than cover
+## it. It is built in the room's own materials, well away from the arena, which is hidden while it
+## is on.
 ##
 ## The camera starts high over the room and flies in slowly to look down on the podium, holds there,
 ## and only then do the run's standings come up over it. Everybody's own: each machine puts it up
@@ -67,10 +68,11 @@ const NUMBER_HEIGHT := 0.46
 const BAND_HEIGHT := 0.12
 const BAND_LIFT := 0.03
 const KART_SCALE := 1.4
-## Seconds for a kart on the podium to turn all the way round, and how high the winner bounces.
-const SPIN_SECONDS := 6.0
-const BOUNCE := 0.18
-const BOUNCE_RATE := 5.0
+## The karts on the podium face the camera and float over their steps rather than stand on them:
+## the least they are off it, how far further they rise, and how long one rise and fall takes.
+const FLOAT_LIFT := 0.1
+const FLOAT_HEIGHT := 0.14
+const FLOAT_SECONDS := 2.6
 ## The booth: how high the riser under it is, how much bigger than usual it is, and the riser's
 ## footprint.
 const RISER_HEIGHT := 1.6
@@ -156,11 +158,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _process(delta: float) -> void:
 	_age += delta
+	# Each a third of a rise behind the one before, so the three never move as one.
 	for i: int in _karts.size():
-		var kart := _karts[i]
-		kart.rotate_y(TAU * delta / SPIN_SECONDS * (1.0 if i != 1 else -1.0))
-		if i == 0:
-			kart.position.y = PLACES[0].y + BAND_LIFT + absf(sin(_age * BOUNCE_RATE)) * BOUNCE
+		var rise := 0.5 - 0.5 * cos(TAU * (_age / FLOAT_SECONDS - float(i) / 3.0))
+		_karts[i].position.y = PLACES[i].y + BAND_LIFT + FLOAT_LIFT + rise * FLOAT_HEIGHT
 	_confetti_left -= delta
 	if _confetti_left <= 0.0 and not _karts.is_empty():
 		_confetti_left = CONFETTI_EVERY
@@ -429,8 +430,11 @@ func _add_step(podium: Node3D, slot: PlayerSlot, place: int) -> void:
 	podium.add_child(number)
 	var kart := Node3D.new()
 	kart.name = "Kart%d" % place
-	kart.position = Vector3(at.x, at.y + BAND_LIFT, 0.0)
+	kart.position = Vector3(at.x, at.y + BAND_LIFT + FLOAT_LIFT, 0.0)
 	kart.scale = Vector3.ONE * KART_SCALE
+	# Nose toward where the camera ends up. A kart's nose is along its -Z.
+	var toward := Vector2(SHOT_FROM.x - at.x, SHOT_FROM.z - PODIUM_Z)
+	kart.rotation.y = atan2(-toward.x, -toward.y)
 	kart.add_child(KartVisuals.display_model(slot.color_index, slot.style))
 	podium.add_child(kart)
 	_karts.append(kart)

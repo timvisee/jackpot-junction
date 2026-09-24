@@ -2744,21 +2744,22 @@ from where the camera ends up. A dance floor of dark tiles, a few of them lit on
 the colors of the top three, fenced down both sides and across the front with the card room's
 velvet rope on brass posts, a gap left in it in front of the podium. At its back corners stand
 stacks of chips the size of the card room's in the same three colors. On the floor, forward of
-the middle, a podium with the three on it in their own colors and dress, turning on their steps,
-the winner bouncing on the tallest, a light on it. Behind them the DJ booth, half again its
-usual size, up on a riser with neon along its front so it is seen over the podium rather than
-behind it. Behind the booth a hoarding of the room's own kind, bigger than the ones over a
-crowd, reading GRAND PRIX CHAMPION over the winner's name in their color. The crowd all the way
-round, on its feet; the disco rig over the floor with every light on the winner; the music at
-its loudest; confetti off the steps; and fireworks in all three colors going up behind the
-board, framing it rather than covering it. It is built in the materials of the room the run
-ended in, well away from its arena, which is hidden, with the HUD, while it is on. It stands in
-a hall of its own, a floor that runs on past the camera and dark walls at the back and sides
-with a line of neon along them in the three colors, so nowhere in the shot does the world stop.
-The places on the steps are painted the same size on all three, sized to the lowest. The camera
-starts high over the room and flies in slowly over 6 s to look down on the podium from in front
-of it, holds there for two seconds, and the accept button skips the move. Each machine stages it
-for itself from what it already knows, so nothing about it goes over the wire.
+the middle, a podium with the three on it in their own colors and dress, facing the camera and
+floating a little up and down over their steps, each a little behind the next, a light on it.
+Behind them the DJ booth, half again its usual size, up on a riser with neon along its front so
+it is seen over the podium rather than behind it. Behind the booth a hoarding of the room's own
+kind, bigger than the ones over a crowd, reading GRAND PRIX CHAMPION over the winner's name in
+their color. The crowd all the way round, on its feet; the disco rig over the floor with every
+light on the winner; the music at its loudest; confetti off the steps; and fireworks in all
+three colors going up behind the board, framing it rather than covering it. It is built in the
+materials of the room the run ended in, well away from its arena, which is hidden, with the HUD,
+while it is on. It stands in a hall of its own, a floor that runs on past the camera and dark
+walls at the back and sides with a line of neon along them in the three colors, so nowhere in
+the shot does the world stop. The places on the steps are painted the same size on all three,
+sized to the lowest. The camera starts high over the room and flies in slowly over 6 s to look
+down on the podium from in front of it, holds there for two seconds, and the accept button skips
+the move. Each machine stages it for itself from what it already knows, so nothing about it goes
+over the wire.
 
 Then the run's podium comes up over it, the same one every map before
 it led to, headed Grand Prix over Final

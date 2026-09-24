@@ -538,7 +538,7 @@ func _to_the_run(screen: ResultsScreen) -> void:
 
 
 ## GAME.md 9.7: after the last map, Grand Prix results first puts up a party in a room of its own.
-## The top of the run stands on a podium on a dance floor, the arena is hidden, the room goes to
+## The top of the run floats over a podium on a dance floor, the arena is hidden, the room goes to
 ## the top of its meter, and a camera of its own flies in onto the podium; the standings go up once
 ## it has arrived and held there.
 func test_the_end_of_a_run_is_a_party_on_a_podium() -> void:
@@ -564,6 +564,14 @@ func test_the_end_of_a_run_is_a_party_on_a_podium() -> void:
 	assert_int(match_node.intensity.level).is_equal(MatchIntensity.LEVELS)
 	assert_int(finale.crowd.level).is_equal(MatchIntensity.LEVELS)
 	assert_int(finale.disco.level).is_equal(MatchIntensity.LEVELS)
+	# The three face where the camera ends up, rather than turn.
+	var facing: Array[float] = []
+	for kart: Node3D in finale._karts:
+		var nose := -kart.global_basis.z
+		var shot_at := finale.global_position + GrandPrixFinale.SHOT_FROM - kart.global_position
+		var flat := Vector2(shot_at.x, shot_at.z).normalized()
+		assert_float(Vector2(nose.x, nose.z).normalized().dot(flat)).is_greater(0.999)
+		facing.append(kart.rotation.y)
 	# The booth stands on its riser, half again its size, to be seen over the podium.
 	var booth: Node3D = finale.crowd.get_node("DjBooth")
 	var riser_top := Crowd.TABLE_TOP + GrandPrixFinale.RISER_HEIGHT
@@ -583,6 +591,12 @@ func test_the_end_of_a_run_is_a_party_on_a_podium() -> void:
 	assert_bool(finale.is_shown()).is_true()
 	var shot := finale.global_position + GrandPrixFinale.SHOT_FROM
 	assert_float(finale._camera.global_position.distance_to(shot)).is_less(0.05)
+	# Floating over their steps, still facing the same way.
+	for i: int in finale._karts.size():
+		var kart := finale._karts[i]
+		assert_float(kart.rotation.y).is_equal_approx(facing[i], 0.0001)
+		var top := GrandPrixFinale.PLACES[i].y + GrandPrixFinale.BAND_LIFT
+		assert_float(kart.position.y).is_greater(top)
 	# And the room stays at the top of its meter under the standings.
 	await await_millis(600)
 	assert_int(match_node.intensity.level).is_equal(MatchIntensity.LEVELS)

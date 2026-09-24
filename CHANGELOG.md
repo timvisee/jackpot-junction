@@ -13,7 +13,7 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
-- **A party at the end of a Grand Prix.** The top three stand on a podium on a
+- **A party at the end of a Grand Prix.** The top three float over a podium on a
   dance floor, with the DJ, fireworks and the crowd on its feet, before the final
   standings come up.
 
