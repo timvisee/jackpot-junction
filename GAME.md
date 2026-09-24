@@ -736,7 +736,7 @@ is drawn at, is saved at once, and the kart drives the new way the moment the me
 touch controls changing with it. The player at a touch screen has a second button under the
 first, for its controls, Slider or Buttons with their pictures, changed over the same way. In the
 lobby and the Garage there are two more over those, see 4.4: a box to type another name in, and
-Next color. Online only the players at this machine have one. A pad's cursor goes out to them
+their color by name. Online only the players at this machine have one. A pad's cursor goes out to them
 from the menu: sideways from any of its buttons is the top switch on that
 side, and only sideways, up off the top of the menu and down off the bottom staying in it; back
 toward the middle from a switch is Resume, and up and down go between the switches on one side.
@@ -935,9 +935,10 @@ short buzz the slider gives, so reading along the row is felt card by card.
 - A player picks another name and another color in the lobby and the Garage,
   from their switch in the pause menu, 4.2: a box with their name in it, empty
   with the funny name they were handed showing faintly if they never set one,
-  and Next color, a button with a swatch of theirs on it that moves them on to
-  the next one nobody else in the room is in, since no two karts are ever the
-  same color. The kart is painted over at once, body, marker, hat, flag, trail
+  and a button with a swatch of their color and its name on it, Red or Blue,
+  that moves them on to the next one nobody else in the room is in, since no two
+  karts are ever the same color. The name is the color's own in the palette
+  worn, 8.5, not the one it stands in for: a white is White. The kart is painted over at once, body, marker, hat, flag, trail
   and aim guide, and so are their corner of the HUD and the switch. A name is
   kept once they are done typing, in their seat's settings, where the Players
   tab of 8.5 keeps it; emptied, the seat is handed a funny name again from the

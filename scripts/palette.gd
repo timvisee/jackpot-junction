@@ -73,6 +73,18 @@ const VISION_COLORS: Dictionary[String, Array] = {
 	],
 }
 
+## What each color is called where it is written out, for the colors above and for each palette
+## that stands in for them: the name of the color it is, not of the one it stands in for, since
+## the second slot for deuteranopia is a white and calling it orange would be no help to anybody.
+const COLOR_NAMES: Array[String] = [
+	"Red", "Blue", "Yellow", "Green", "Purple", "Orange", "Cyan", "Pink"
+]
+const VISION_NAMES: Dictionary[String, Array] = {
+	"protanopia": ["Red", "Blue", "Yellow", "Mint", "Purple", "Apricot", "Sky", "Magenta"],
+	"deuteranopia": ["Red", "Periwinkle", "Lime", "Green", "Blue", "White", "Cyan", "Rose"],
+	"tritanopia": ["Red", "Violet", "Yellow", "Green", "Purple", "Orange", "Blue", "Pink"],
+}
+
 ## Which of [constant VISION_COLORS] the karts wear here, or empty for the colors above. The
 ## player's setting, put here by [method Settings.apply]; each machine shows its own.
 static var vision := ""
@@ -81,3 +93,9 @@ static var vision := ""
 static func player_color(slot: int) -> Color:
 	var colors: Array = VISION_COLORS.get(vision, PLAYER_COLORS)
 	return colors[posmod(slot, colors.size())]
+
+
+## What player color [param index] is called in the palette worn here.
+static func color_name(index: int) -> String:
+	var names: Array = VISION_NAMES.get(vision, COLOR_NAMES)
+	return names[posmod(index, names.size())]

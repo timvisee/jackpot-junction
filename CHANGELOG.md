@@ -28,7 +28,7 @@ below, and hands the notes to the release workflow.
 - **An emote button on touch screens.** It sits beside the menu button and opens a
   row of the four.
 - **Change your name and color in the lobby.** Your pane in the pause menu has a
-  name box and a Next color button in the lobby and the Garage, online too.
+  name box and a button for your color in the lobby and the Garage, online too.
 - **Watch a LAN game.** Watch, beside Join, lets somebody in with no kart, even when
   every seat is taken, and the podiums go on by themselves.
 

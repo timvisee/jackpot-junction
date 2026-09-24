@@ -8,8 +8,8 @@ extends Control
 ## from the menu sideways and back toward the middle, and up and down between those on one side.
 ##
 ## In the lobby and the Garage there is more to it, GAME.md 4.4: a box with the player's name in
-## it, to type another, and a button in their color that moves them on to the next one nobody else
-## is in. See [SeatIdentity], which does it, online too.
+## it, to type another, and a button with their color and its name on it that moves them on to the
+## next one nobody else is in. See [SeatIdentity], which does it, online too.
 
 ## How far in from the edges of the screen a switch keeps, whatever its corner.
 const EDGE := 12.0
@@ -203,7 +203,8 @@ func _keep_name(each: Dictionary) -> void:
 	SeatIdentity.rename(each["slot"], box.text)
 
 
-## The button that moves the player on to the next color nobody else is in, with theirs on it.
+## The button that moves the player on to the next color nobody else is in, with theirs on it and
+## what it is called.
 func _color_button(column: VBoxContainer, each: Dictionary) -> ColorRect:
 	var pressable := MenuTheme.button("", Type.BODY)
 	var inside := HBoxContainer.new()
@@ -217,10 +218,10 @@ func _color_button(column: VBoxContainer, each: Dictionary) -> ColorRect:
 	swatch.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	inside.add_child(swatch)
 	var word := Label.new()
-	word.text = "Next color"
 	word.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.set_font(word, Type.STRONG, Type.BODY)
 	inside.add_child(word)
+	each["color_word"] = word
 	pressable.add_child(inside)
 	pressable.custom_minimum_size = Vector2(WIDTH, 52.0)
 	column.add_child(pressable)
@@ -308,6 +309,7 @@ func _follow(each: Dictionary) -> void:
 	)
 	if each.has("swatch"):
 		(each["swatch"] as ColorRect).color = color
+		(each["color_word"] as Label).text = Palette.color_name(slot.color_index)
 
 
 static func _corner_at(each: Dictionary) -> Rect2:

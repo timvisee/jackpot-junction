@@ -84,9 +84,11 @@ func test_the_switch_in_the_lobby_has_the_name_and_the_color_on_it() -> void:
 	assert_str(box.placeholder_text).is_equal(slot.display_name())
 	var buttons: Array[Control] = each["buttons"]
 	assert_int(buttons.size()).is_equal(3)
+	assert_str((each["color_word"] as Label).text).is_equal("Red")
 	(buttons[1] as Button).pressed.emit()
 	assert_int(slot.color_index).is_equal(1)
 	await await_idle_frame()
+	assert_str((each["color_word"] as Label).text).is_equal("Blue")
 	var label: Label = each["name"]
 	assert_that(label.get_theme_color("font_color")).is_equal(Palette.player_color(1))
 	# The keys are the box's while it has the cursor.

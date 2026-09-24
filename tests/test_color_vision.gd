@@ -42,6 +42,24 @@ func test_each_kind_has_a_palette_of_the_same_size() -> void:
 		assert_int(Palette.VISION_COLORS[vision].size()).is_equal(Palette.PLAYER_COLORS.size())
 
 
+## Every color has a name in every palette, and no two in one palette share it: the name is what
+## the button a player changes color with says, GAME.md 4.4.
+func test_every_color_of_every_palette_has_a_name_of_its_own() -> void:
+	var palettes: Dictionary[String, Array] = {"": Palette.COLOR_NAMES}
+	palettes.merge(Palette.VISION_NAMES)
+	for vision: String in Settings.VISIONS:
+		var names: Array = palettes[vision]
+		assert_int(names.size()).is_equal(Palette.PLAYER_COLORS.size())
+		var seen: Dictionary[String, bool] = {}
+		for each: String in names:
+			seen[each] = true
+		assert_int(seen.size()).is_equal(names.size())
+	Palette.vision = "deuteranopia"
+	assert_str(Palette.color_name(5)).is_equal("White")
+	Palette.vision = ""
+	assert_str(Palette.color_name(5)).is_equal("Orange")
+
+
 func test_the_karts_wear_the_palette_the_setting_says() -> void:
 	Palette.vision = ""
 	assert_object(Palette.player_color(1)).is_equal(Palette.PLAYER_COLORS[1])
