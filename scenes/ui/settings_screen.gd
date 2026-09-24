@@ -445,9 +445,14 @@ static func _ui_scale_index(size: float) -> int:
 
 
 func _accessibility_tab() -> Control:
+	var scroll := ScrollContainer.new()
+	scroll.name = "Accessibility"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	var column := VBoxContainer.new()
-	column.name = "Accessibility"
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_theme_constant_override("separation", 12)
+	scroll.add_child(column)
+	column.add_child(_vision_row())
 	column.add_child(
 		MenuTheme.row(
 			"Screen shake",
@@ -504,7 +509,42 @@ func _accessibility_tab() -> Control:
 	assist.custom_minimum_size = Vector2(320.0, 0.0)
 	assist.value_changed.connect(func(v: float) -> void: _settings.aim_assist = v)
 	column.add_child(MenuTheme.row("Aim assist strength", assist))
-	return column
+	return scroll
+
+
+## The player colors for a kind of color blindness, GAME.md 8.5, with the eight they come out as
+## beside the choice. The karts already in a room keep theirs, so from over one it says when the
+## new ones arrive.
+func _vision_row() -> HBoxContainer:
+	var words := [
+		"Off", "Protanopia (red-weak)", "Deuteranopia (green-weak)", "Tritanopia (blue-weak)"
+	]
+	var choice := MenuTheme.option(words, Settings.VISIONS.find(_settings.color_vision))
+	choice.custom_minimum_size = Vector2(340.0, 44.0)
+	var swatches := HBoxContainer.new()
+	swatches.add_theme_constant_override("separation", 6)
+	for slot: int in Palette.PLAYER_COLORS.size():
+		var swatch := ColorRect.new()
+		swatch.custom_minimum_size = Vector2(26.0, 26.0)
+		swatch.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		swatches.add_child(swatch)
+	var paint := func() -> void:
+		for slot: int in swatches.get_child_count():
+			(swatches.get_child(slot) as ColorRect).color = Palette.player_color(slot)
+	paint.call()
+	choice.item_selected.connect(
+		func(index: int) -> void:
+			_settings.color_vision = Settings.VISIONS[index]
+			Palette.vision = _settings.color_vision
+			paint.call()
+			if overlay:
+				status.text = "The karts change color from the next map"
+	)
+	var both := HBoxContainer.new()
+	both.add_theme_constant_override("separation", 16)
+	both.add_child(choice)
+	both.add_child(swatches)
+	return MenuTheme.row("Color blindness", both)
 
 
 func _check(value: bool, setter: Callable) -> CheckButton:

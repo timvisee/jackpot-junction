@@ -2331,7 +2331,16 @@ like any other button.
   being able to stop. The fixed camera is off by default and is described in 8.2:
   a camera that never goes anywhere is a smaller picture of the karts, which is a
   real cost, and a still one, which for some players is worth more.
-  Color-blind roof markers are always on.
+  Color-blind roof markers are always on. First on the tab, the player colors
+  can be drawn for color blindness: off, protanopia, deuteranopia or
+  tritanopia, with the eight colors it gives beside the choice. Each is a palette
+  of its own in the same slots, each color as near the hue it stands in for as it
+  can be, chosen by simulating that kind of color blindness (Machado 2009) and
+  keeping all eight at least 28 apart in CIELAB under it and under normal vision,
+  and clear of the felt; the usual palette has blue and purple 7 apart for a
+  player without red or green cones. It is every machine's own, since it is about
+  whose eyes are looking, and what is already in a room keeps its colors: from
+  over one the settings say the karts change from the next map.
 - **About**: the game's mark, its name and its version, and that it is an
   experiment in what an AI model can make: everything in it not credited there
   was made by Anthropic's Claude, whose models are named in the order they worked

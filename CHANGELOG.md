@@ -19,6 +19,8 @@ below, and hands the notes to the release workflow.
   kart is counted now, once they have fired ten.
 - **The host can pause everybody at once.** Online the room still waits for everybody
   to pause, unless the host presses Pause everybody now.
+- **Kart colors for color blindness.** Accessibility has a palette each for
+  protanopia, deuteranopia and tritanopia, chosen to keep all eight players apart.
 
 ## [0.6.2] - 2026-09-24
 
