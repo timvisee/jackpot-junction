@@ -49,6 +49,16 @@ func _driving(jokers: Array[String] = []) -> TouchControls:
 	return match_node.hud.get_node("TouchControls")
 
 
+## Every word under [param node], for asking what a pane says without walking its boxes.
+func _said(node: Node) -> String:
+	var words: PackedStringArray = []
+	if node is Label:
+		words.append((node as Label).text)
+	for child: Node in node.get_children():
+		words.append(_said(child))
+	return " ".join(words)
+
+
 func _drag(controls: TouchControls, finger: int, at: Vector2) -> void:
 	var drag := InputEventScreenDrag.new()
 	drag.index = finger
@@ -223,7 +233,8 @@ func test_holding_a_card_reads_it() -> void:
 	assert_int(kart.menu_index).is_equal(1)
 	assert_int(hand.selected()).is_equal(1)
 	assert_bool(hand._detail.visible).is_true()
-	assert_object(hand._detail._hints).is_null()
+	assert_str(_said(hand._detail._hints)).contains("Tap the card to keep it open")
+	assert_bool(hand.touch_buttons().is_empty()).is_true()
 	# The card has lifted out from under the finger; the finger still holds it.
 	assert_int(controls._card_in(hand, on_it)).is_equal(1)
 	_drag(controls, 0, (hand._cards[2] as JokerCard).get_global_rect().get_center())
@@ -316,3 +327,94 @@ func test_the_button_under_the_pick_skips_it() -> void:
 	offer.keeping = true
 	await _runner.simulate_frames(2, 17)
 	assert_object(picker.touch_button()).is_null()
+
+
+func _hand_card(hand: JokerHand, index: int) -> Vector2:
+	return (hand._cards[index] as JokerCard).get_global_rect().get_center()
+
+
+func _tap(controls: TouchControls, finger: int, at: Vector2) -> void:
+	_touch(controls, finger, at, true)
+	_touch(controls, finger, at, false)
+
+
+## A quick tap keeps a card open, with a button each on its pane for dropping and destroying it,
+## while the stick still drives; tapping it again closes it, and so does a finger on nothing.
+func test_a_tapped_card_stays_open_until_tapped_again() -> void:
+	var controls := await _driving(["hair_trigger", "rubber_bumpers", "curve_ball"])
+	var kart := controls.match_node.kart_of(0)
+	var hand: JokerHand = controls.match_node.hud._hands[0]
+	await _runner.simulate_frames(20, 17)
+	var first := _hand_card(hand, 0)
+	_tap(controls, 0, first)
+	await _runner.simulate_frames(4, 17)
+	assert_bool(kart.menu_open).is_true()
+	assert_int(kart.menu_index).is_equal(0)
+	assert_bool(TouchInput.joker_pinned).is_true()
+	assert_int(hand.touch_buttons().size()).is_equal(2)
+	assert_str(_said(hand._detail._hints)).contains("Tap it again to close it")
+	var stick := Vector2(controls.size.x * 0.2, controls.size.y * 0.7)
+	_touch(controls, 1, stick, true)
+	_drag(controls, 1, stick + Vector2(TouchControls.STICK_RADIUS, 0.0))
+	await _runner.simulate_frames(4, 17)
+	assert_bool(kart.menu_open).is_true()
+	assert_int(kart.menu_index).is_equal(0)
+	_touch(controls, 1, stick, false)
+	_tap(controls, 0, _hand_card(hand, 0))
+	await _runner.simulate_frames(4, 17)
+	assert_bool(kart.menu_open).is_false()
+	# Open again, and closed by a finger coming down in the middle of the room.
+	_tap(controls, 0, _hand_card(hand, 1))
+	await _runner.simulate_frames(4, 17)
+	assert_int(kart.menu_index).is_equal(1)
+	_tap(controls, 0, controls.size * Vector2(0.5, 0.35))
+	await _runner.simulate_frames(4, 17)
+	assert_bool(kart.menu_open).is_false()
+	# Held rather than tapped is only reading it, and letting go closes it.
+	_touch(controls, 0, _hand_card(hand, 2), true)
+	controls._inspect_since -= 1.0
+	_touch(controls, 0, _hand_card(hand, 2), false)
+	await _runner.simulate_frames(4, 17)
+	assert_bool(kart.menu_open).is_false()
+
+
+## The pane's buttons drop and destroy the card it is open on, and the pane goes with it.
+func test_the_open_card_can_be_dropped_or_destroyed() -> void:
+	var controls := await _driving(["hair_trigger", "rubber_bumpers", "curve_ball"])
+	var kart := controls.match_node.kart_of(0)
+	var hand: JokerHand = controls.match_node.hud._hands[0]
+	await _runner.simulate_frames(20, 17)
+	_tap(controls, 0, _hand_card(hand, 1))
+	await _runner.simulate_frames(4, 17)
+	var drop: Button = hand.touch_buttons()[&"drop"]
+	_tap(controls, 0, drop.get_global_rect().get_center())
+	await _runner.simulate_frames(4, 17)
+	assert_int(kart.jokers.count()).is_equal(2)
+	assert_bool(kart.jokers.ids().has(&"rubber_bumpers")).is_false()
+	assert_bool(kart.menu_open).is_false()
+	await _runner.simulate_frames(12, 17)
+	_tap(controls, 0, _hand_card(hand, 0))
+	await _runner.simulate_frames(4, 17)
+	var destroy: Button = hand.touch_buttons()[&"destroy"]
+	_tap(controls, 0, destroy.get_global_rect().get_center())
+	await _runner.simulate_frames(4, 17)
+	assert_int(kart.jokers.count()).is_equal(1)
+	assert_bool(kart.jokers.ids().has(&"hair_trigger")).is_false()
+	assert_bool(kart.menu_open).is_false()
+
+
+## A kart waiting to come back can keep a card open to read it, and throw none of its hand away.
+func test_a_dead_kart_reads_an_open_card_without_the_buttons() -> void:
+	var controls := await _driving(["hair_trigger", "rubber_bumpers"])
+	var kart := controls.match_node.kart_of(0)
+	var hand: JokerHand = controls.match_node.hud._hands[0]
+	await _runner.simulate_frames(20, 17)
+	kart.die(&"pit", -1)
+	controls.match_node.slots[0].respawn_left = 30.0
+	await _runner.simulate_frames(4, 17)
+	_tap(controls, 0, _hand_card(hand, 0))
+	await _runner.simulate_frames(4, 17)
+	assert_bool(kart.menu_open).is_true()
+	assert_bool(hand.touch_buttons().is_empty()).is_true()
+	assert_str(_said(hand._detail._hints)).contains("Tap it again to close it")
+	assert_int(kart.jokers.count()).is_equal(2)

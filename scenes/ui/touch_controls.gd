@@ -16,9 +16,10 @@ extends Control
 ##
 ## A finger held on one of the jokers in the hand opens it on that card, with what it does over
 ## it, for as long as it stays there, and sliding it along the hand reads the others, GAME.md
-## 3.7. The hand is only read this way: there is no button to open it with. The respawn pick is
-## the same, except that a quick tap on one of its cards answers it with that card, and its own
-## button under the pane skips it or goes back.
+## 3.7. A quick tap keeps the card open instead, with a button each on its pane for dropping and
+## destroying it, until it is tapped again or the finger comes down on nothing. There is no button
+## to open the hand with. The respawn pick is read the same way, except that a quick tap on one of
+## its cards answers it with that card, and its own button under the pane skips it or goes back.
 
 ## The round buttons: a dark disc with a light rim, lit up while a finger is on it.
 const FILL := Color(0.05, 0.05, 0.07, 0.45)
@@ -98,8 +99,19 @@ var _fingers: Dictionary[int, Array] = {}
 var _stick_finger := -1
 var _stick_at := Vector2.ZERO
 var _knob_at := Vector2.ZERO
-## The finger resting on a card in the hand, or -1.
+## The finger resting on a card in the hand, or -1, the card it is on, since when, and whether it
+## has been along to another since, which is reading rather than tapping.
 var _inspect_finger := -1
+var _inspect_card := -1
+var _inspect_since := 0.0
+var _inspect_moved := false
+## The card of the hand tapped to keep it open, or -1, and which joker it was, so a hand that
+## changes under it closes it rather than leaving another card open in its place.
+var _pinned := -1
+var _pinned_id := &""
+## The finger on the drop or destroy button of an open card's pane, or -1, and which of the two.
+var _pane_finger := -1
+var _pane_action := &""
 ## The finger on a card of the respawn pick, or -1, which card it went down on, when, and whether
 ## it has been along to another since, which is reading rather than tapping.
 var _pick_finger := -1
@@ -213,6 +225,53 @@ static func _now() -> float:
 	return Time.get_ticks_msec() * 0.001
 
 
+## Which of the open card's pane buttons is under [param at], or an empty name.
+func _pane_button_at(at: Vector2) -> StringName:
+	var hand := _hand()
+	if hand == null or _pinned < 0:
+		return &""
+	var buttons := hand.touch_buttons()
+	for id: StringName in buttons:
+		if buttons[id].get_global_rect().has_point(_screen(at)):
+			return id
+	return &""
+
+
+func _pin(card: int) -> void:
+	var kart := _kart()
+	if kart == null or card < 0 or card >= kart.jokers.count():
+		return
+	_pinned = card
+	_pinned_id = kart.jokers.jokers[card].id
+
+
+func _unpin() -> void:
+	_pinned = -1
+	_pinned_id = &""
+
+
+## The hand shows the card kept open, if there is one and no finger is on another.
+func _show_pinned() -> void:
+	if _inspect_finger >= 0:
+		return
+	TouchInput.joker_inspect = _pinned
+	TouchInput.joker_pinned = _pinned >= 0
+
+
+## A card kept open closes when the hand changes under it, and when the respawn pick comes up
+## over it, which has the middle of the screen and the player's attention.
+func _check_pinned() -> void:
+	if _pinned < 0:
+		return
+	var kart := _kart()
+	var gone := kart == null or _pinned >= kart.jokers.count()
+	if not gone and kart.jokers.jokers[_pinned].id != _pinned_id:
+		gone = true
+	if gone or _picker() != null:
+		_unpin()
+		_show_pinned()
+
+
 func _screen(at: Vector2) -> Vector2:
 	return get_global_transform_with_canvas() * at
 
@@ -222,8 +281,10 @@ func _process(_delta: float) -> void:
 	# has let go of everything as far as the room is concerned.
 	var shut := PauseMenu.is_open_in(get_tree()) or not driving()
 	var held := _stick_finger >= 0 or _inspect_finger >= 0 or _pick_finger >= 0
-	if shut and (not _fingers.is_empty() or held or _back_finger >= 0):
+	held = held or _back_finger >= 0 or _pane_finger >= 0 or _pinned >= 0
+	if shut and (not _fingers.is_empty() or held):
 		_let_go()
+	_check_pinned()
 	# The tank round the nitro button empties and fills as the kart's own does.
 	queue_redraw()
 
@@ -254,78 +315,127 @@ func _finger_down(finger: int, at: Vector2) -> void:
 	if _fingers.has(finger):
 		_release(_fingers[finger])
 		_fingers.erase(finger)
+	var taken := false
 	if pad(MENU).reaches(at):
 		_hold(finger, [MENU])
-		return
-	if not driving():
-		return
+		taken = true
+	elif driving():
+		taken = (
+			_down_on_pick(finger, at)
+			or _down_on_pane(finger, at)
+			or _down_on_hand(finger, at)
+			or _down_on_pads(finger, at)
+			or _down_on_stick(finger, at)
+		)
+		# Down on nothing at all: a card kept open closes. The stick and the buttons leave it be,
+		# so the kart can be driven while it is read.
+		if not taken and _pinned >= 0:
+			_unpin()
+			_show_pinned()
+	if taken:
+		get_viewport().set_input_as_handled()
+
+
+## A card of the respawn pick, which is read while it is held, or the pick's own button.
+func _down_on_pick(finger: int, at: Vector2) -> bool:
 	var picker := _picker()
-	if picker != null and _pick_finger < 0:
-		var picked := _card_in(picker, at)
-		if picked >= 0:
-			_pick_finger = finger
-			_pick_card = picked
-			_pick_since = _now()
-			_pick_moved = false
-			TouchInput.joker_inspect = picked
-			get_viewport().set_input_as_handled()
-			return
-	if _on_back(picker, at):
+	if picker == null:
+		return false
+	var picked := _card_in(picker, at) if _pick_finger < 0 else -1
+	if picked >= 0:
+		_pick_finger = finger
+		_pick_card = picked
+		_pick_since = _now()
+		_pick_moved = false
+		TouchInput.joker_inspect = picked
+		return true
+	if _back_finger < 0 and _on_back(picker, at):
 		_back_finger = finger
-		get_viewport().set_input_as_handled()
-		return
+		return true
+	return false
+
+
+## The drop or destroy button on the pane of a card kept open.
+func _down_on_pane(finger: int, at: Vector2) -> bool:
+	var action := _pane_button_at(at) if _pane_finger < 0 else &""
+	if action == &"":
+		return false
+	_pane_finger = finger
+	_pane_action = action
+	return true
+
+
+## A card in the hand, which is read while it is held and kept open by a quick tap.
+func _down_on_hand(finger: int, at: Vector2) -> bool:
 	var hand := _hand()
-	if hand != null and _inspect_finger < 0:
-		var card := _card_in(hand, at)
-		if card >= 0:
-			_inspect_finger = finger
-			TouchInput.joker_inspect = card
-			get_viewport().set_input_as_handled()
-			return
+	var card := _card_in(hand, at) if hand != null and _inspect_finger < 0 else -1
+	if card < 0:
+		return false
+	_inspect_finger = finger
+	_inspect_card = card
+	_inspect_since = _now()
+	_inspect_moved = false
+	TouchInput.joker_inspect = card
+	TouchInput.joker_pinned = false
+	return true
+
+
+func _down_on_pads(finger: int, at: Vector2) -> bool:
 	var on := _driving_pads_at(at)
-	if not on.is_empty():
-		_hold(finger, on)
-		return
-	if _stick_finger < 0 and at.x < size.x * STICK_ZONE.x and at.y > size.y * (1.0 - STICK_ZONE.y):
-		_stick_finger = finger
-		# Kept far enough in from the edges that the whole ring is on the screen.
-		var margin := Vector2(STICK_RADIUS, STICK_RADIUS)
-		_stick_at = at.clamp(margin, size - margin)
-		_knob_at = at
-		_publish()
-		get_viewport().set_input_as_handled()
+	if on.is_empty():
+		return false
+	_hold(finger, on)
+	return true
+
+
+## The stick comes to the thumb, anywhere in its corner of the screen.
+func _down_on_stick(finger: int, at: Vector2) -> bool:
+	var inside := at.x < size.x * STICK_ZONE.x and at.y > size.y * (1.0 - STICK_ZONE.y)
+	if _stick_finger >= 0 or not inside:
+		return false
+	_stick_finger = finger
+	# Kept far enough in from the edges that the whole ring is on the screen.
+	var margin := Vector2(STICK_RADIUS, STICK_RADIUS)
+	_stick_at = at.clamp(margin, size - margin)
+	_knob_at = at
+	_publish()
+	return true
 
 
 func _finger_moved(finger: int, at: Vector2) -> void:
 	if finger == _pick_finger:
-		var picker := _picker()
-		var card := _card_in(picker, at) if picker != null else -1
-		if card >= 0 and card != _pick_card:
+		var card := _along(_picker(), at, _pick_card)
+		if card >= 0:
 			_pick_card = card
 			_pick_moved = true
 			TouchInput.joker_inspect = card
-		get_viewport().set_input_as_handled()
-		return
-	if finger == _back_finger:
-		get_viewport().set_input_as_handled()
-		return
-	if finger == _inspect_finger:
-		# Along the hand to read the next card; off the end of it keeps the last one read.
-		var hand := _hand()
-		var card := _card_in(hand, at) if hand != null else -1
+	elif finger == _inspect_finger:
+		var card := _along(_hand(), at, _inspect_card)
 		if card >= 0:
+			_inspect_card = card
+			_inspect_moved = true
 			TouchInput.joker_inspect = card
-		get_viewport().set_input_as_handled()
-		return
-	if finger == _stick_finger:
+	elif finger == _stick_finger:
 		_knob_at = at
 		_publish()
-		get_viewport().set_input_as_handled()
+	elif _fingers.has(finger):
+		_slide(finger, at)
+	elif finger != _back_finger and finger != _pane_finger:
 		return
-	if not _fingers.has(finger):
-		return
+	get_viewport().set_input_as_handled()
+
+
+## The card of [param board] a finger has moved on to from [param card], or -1 for the same one
+## or none: along a row reads the next card, and off the end of it keeps the last one read.
+func _along(board: Control, at: Vector2, card: int) -> int:
+	var now := _card_in(board, at) if board != null else -1
+	return now if now != card else -1
+
+
+## A thumb sliding across the driving buttons lets go of what it has left and presses what it
+## is on now. The menu is a tap: a finger that went down on it answers to it alone.
+func _slide(finger: int, at: Vector2) -> void:
 	var on: Array = _fingers[finger]
-	# The menu is a tap: a finger that went down on it answers to it alone.
 	if on.has(MENU):
 		return
 	_release(on)
@@ -333,49 +443,77 @@ func _finger_moved(finger: int, at: Vector2) -> void:
 	_press(now)
 	_fingers[finger] = now
 	_publish()
-	get_viewport().set_input_as_handled()
 
 
 func _finger_up(finger: int, at: Vector2) -> void:
 	if finger == _pick_finger:
-		_pick_finger = -1
-		TouchInput.joker_inspect = -1
-		# A quick tap on the one card, still on it as it comes up, answers the pick with it.
-		var picker := _picker()
-		var quick := _now() - _pick_since <= TAP_SECONDS and not _pick_moved
-		if quick and picker != null and _card_in(picker, at) == _pick_card:
-			TouchInput.tap(_pick_card)
-		get_viewport().set_input_as_handled()
-		return
-	if finger == _back_finger:
+		_up_from_pick(at)
+	elif finger == _back_finger:
 		_back_finger = -1
 		if _on_back(_picker(), at):
 			TouchInput.press_back()
-		get_viewport().set_input_as_handled()
-		return
-	if finger == _inspect_finger:
-		_inspect_finger = -1
-		TouchInput.joker_inspect = -1
-		get_viewport().set_input_as_handled()
-		return
-	if finger == _stick_finger:
+	elif finger == _inspect_finger:
+		_up_from_hand(at)
+	elif finger == _pane_finger:
+		_up_from_pane(at)
+	elif finger == _stick_finger:
 		_stick_finger = -1
 		_stick_at = stick_home()
 		_knob_at = _stick_at
 		_publish()
-		get_viewport().set_input_as_handled()
+	elif _fingers.has(finger):
+		_up_from_pads(finger, at)
+	else:
 		return
-	if not _fingers.has(finger):
+	get_viewport().set_input_as_handled()
+
+
+## A quick tap on the one card of the pick, still on it as it comes up, answers the pick with it.
+func _up_from_pick(at: Vector2) -> void:
+	_pick_finger = -1
+	TouchInput.joker_inspect = -1
+	var picker := _picker()
+	var quick := _now() - _pick_since <= TAP_SECONDS and not _pick_moved
+	if quick and picker != null and _card_in(picker, at) == _pick_card:
+		TouchInput.tap(_pick_card)
+
+
+## A quick tap on the one card of the hand keeps it open, or closes it if it already was.
+func _up_from_hand(at: Vector2) -> void:
+	_inspect_finger = -1
+	var hand := _hand()
+	var quick := _now() - _inspect_since <= TAP_SECONDS and not _inspect_moved
+	if quick and hand != null and _card_in(hand, at) == _inspect_card:
+		if _pinned == _inspect_card:
+			_unpin()
+		else:
+			_pin(_inspect_card)
+	_show_pinned()
+
+
+## Still on the button it went down on as it comes up: the open card is dropped or destroyed, and
+## the pane goes with it.
+func _up_from_pane(at: Vector2) -> void:
+	_pane_finger = -1
+	if _pane_button_at(at) != _pane_action or _pinned < 0:
 		return
+	if _pane_action == &"drop":
+		TouchInput.drop(_pinned)
+	else:
+		TouchInput.destroy(_pinned)
+	_unpin()
+	_show_pinned()
+
+
+## A button that does something once does it as the finger comes up, and only if it comes up still
+## on it: sliding off is how a thumb changes its mind.
+func _up_from_pads(finger: int, at: Vector2) -> void:
 	var on: Array = _fingers[finger]
 	_fingers.erase(finger)
 	_release(on)
-	# A button that does something once does it as the finger comes up, and only if it comes up
-	# still on it: sliding off is how a thumb changes its mind.
 	if on.has(MENU) and pad(MENU).reaches(at):
 		PauseMenu.open_in(get_tree())
 	_publish()
-	get_viewport().set_input_as_handled()
 
 
 func _driving_pads_at(at: Vector2) -> Array[StringName]:
@@ -390,7 +528,6 @@ func _hold(finger: int, on: Array[StringName]) -> void:
 	_fingers[finger] = on
 	_press(on)
 	_publish()
-	get_viewport().set_input_as_handled()
 
 
 func _press(on: Array) -> void:
@@ -415,7 +552,10 @@ func _let_go() -> void:
 	_inspect_finger = -1
 	_pick_finger = -1
 	_back_finger = -1
+	_pane_finger = -1
+	_unpin()
 	TouchInput.joker_inspect = -1
+	TouchInput.joker_pinned = false
 	_publish()
 
 

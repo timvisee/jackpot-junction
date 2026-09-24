@@ -16,12 +16,18 @@ static var handbrake := false
 static var nitro := false
 static var fire := false
 static var use_item := false
-## Which of the jokers a finger is resting on, or -1.
+## Which of the jokers is open, or -1: the one a finger is resting on, or the one tapped to keep
+## it open, which [member joker_pinned] says.
 static var joker_inspect := -1
+static var joker_pinned := false
 ## A card of the respawn pick tapped, or -1, and whether its skip or back button was: each is
 ## answered once, by the first look at it, see [method take_tap] and [method take_back].
 static var _tapped := -1
 static var _back := false
+## A joker in the hand dropped or destroyed from its pane, or -1: answered once, as [member _tapped]
+## is, see [method take_drop] and [method take_destroy].
+static var _drop_card := -1
+static var _destroy_card := -1
 
 
 ## Decides from the platform and [param args], the command line after `++`.
@@ -48,8 +54,11 @@ static func release() -> void:
 	fire = false
 	use_item = false
 	joker_inspect = -1
+	joker_pinned = false
 	_tapped = -1
 	_back = false
+	_drop_card = -1
+	_destroy_card = -1
 
 
 static func tap(card: int) -> void:
@@ -72,3 +81,25 @@ static func take_back() -> bool:
 	var back := _back
 	_back = false
 	return back
+
+
+static func drop(card: int) -> void:
+	_drop_card = card
+
+
+static func destroy(card: int) -> void:
+	_destroy_card = card
+
+
+## The joker dropped since the last look, or -1, forgotten once looked at.
+static func take_drop() -> int:
+	var card := _drop_card
+	_drop_card = -1
+	return card
+
+
+## The joker destroyed since the last look, or -1, forgotten once looked at.
+static func take_destroy() -> int:
+	var card := _destroy_card
+	_destroy_card = -1
+	return card

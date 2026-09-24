@@ -14,8 +14,8 @@ below, and hands the notes to the release workflow.
 ### Added
 
 - **Touch controls.** On a phone or a tablet a stick steers and buttons for gas,
-  brake, fire, drift, nitro and your item drive the kart; hold a joker to read it
-  and tap one in the respawn pick to take it.
+  brake, fire, drift, nitro and your item drive the kart. Hold a joker to read it,
+  tap it to drop or destroy it, and tap one in the respawn pick to take it.
 
 ## [0.5.2] - 2026-09-24
 

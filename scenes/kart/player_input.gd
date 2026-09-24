@@ -70,6 +70,15 @@ func poll(_delta: float) -> void:
 	var tapped := TouchInput.take_tap() if touch else -1
 	if tapped >= 0:
 		joker_select = tapped
+	# A joker dropped or destroyed from its pane is the key for it, on the card the pane was for.
+	var dropped := TouchInput.take_drop() if touch else -1
+	var destroyed := TouchInput.take_destroy() if touch else -1
+	if dropped >= 0:
+		joker_inspect = dropped
+		joker_drop_pressed = true
+	elif destroyed >= 0:
+		joker_inspect = destroyed
+		joker_destroy_pressed = true
 
 
 ## Which device is active right now, checked on the driving and firing actions.

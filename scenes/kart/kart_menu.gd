@@ -18,19 +18,19 @@ static func step(kart: Kart, can_change: bool = true) -> void:
 		kart.menu_steer = 0
 		return
 	var count := kart.jokers.count()
-	# A finger resting on a card, GAME.md 4.2, holds the hand open on that card and nothing else:
-	# the other thumb is on the stick, and there the stick drives rather than walking the cursor.
+	# A card held open on a touch screen, GAME.md 4.2, keeps the hand on that card: the other thumb
+	# is on the stick, and there the stick drives rather than walking the cursor off it.
 	if looking >= 0:
 		kart.menu_index = clampi(looking, 0, count - 1)
 		kart.menu_steer = 0
-		return
-	var steered := _steer_step(kart)
-	if input.joker_next_pressed or steered > 0:
-		kart.menu_index = (kart.menu_index + 1) % count
-	if input.joker_prev_pressed or steered < 0:
-		kart.menu_index = posmod(kart.menu_index - 1, count)
-	if input.joker_select >= 0 and input.joker_select < count:
-		kart.menu_index = input.joker_select
+	else:
+		var steered := _steer_step(kart)
+		if input.joker_next_pressed or steered > 0:
+			kart.menu_index = (kart.menu_index + 1) % count
+		if input.joker_prev_pressed or steered < 0:
+			kart.menu_index = posmod(kart.menu_index - 1, count)
+		if input.joker_select >= 0 and input.joker_select < count:
+			kart.menu_index = input.joker_select
 	if can_change and input.joker_drop_pressed:
 		kart.drop_joker(kart.menu_index)
 	elif can_change and input.joker_destroy_pressed:

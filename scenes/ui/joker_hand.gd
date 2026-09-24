@@ -25,6 +25,9 @@ const TILT_DEG := 6.0
 const DIMMED := Color(0.55, 0.55, 0.6, 0.9)
 ## How big the picture of the joker-menu button beside the hand is drawn.
 const CAP_SIZE := 18
+## The drop and destroy buttons a touch screen puts on the pane of a card tapped to keep it open,
+## GAME.md 4.2: how big they are.
+const TOUCH_BUTTON := Vector2(150.0, 46.0)
 
 var kart: Kart
 ## This hand takes share [member column] of [member columns] of the bottom edge.
@@ -42,6 +45,10 @@ var _cap: Control
 ## What the cap is currently a picture of, so it is only rebuilt when the button changes.
 var _cap_shown := ""
 var _count_label: Label
+## What the pane under a card says on a touch screen, so it is only built again when that changes,
+## and its two buttons while it has them.
+var _touch_shown := ""
+var _touch_buttons: Dictionary[StringName, Button] = {}
 
 
 func _ready() -> void:
@@ -210,9 +217,8 @@ func _sync_cards() -> void:
 ## to say anything about.
 func _show_detail(joker: Joker) -> void:
 	_detail.show_joker(joker)
-	# On a touch screen the hand is only read, by holding a card, and there are no buttons to name.
 	if TouchInput.enabled:
-		_detail.set_hints(null)
+		_show_touch_hints()
 		return
 	var ink := JokerDetail.hint_ink()
 	var size := InputHint.FONT_SIZE
@@ -228,3 +234,49 @@ func _show_detail(joker: Joker) -> void:
 		parts.append(InputHint.glyph(InputActions.JOKER_DESTROY, keyboard, ink, size))
 		line += "   %s drop   %s destroy"
 	_detail.set_hints(InputHint.row(line, parts, ink, size))
+
+
+## The drop and destroy buttons on the pane, by name, while a card tapped open on a touch screen
+## has them, for [TouchControls] to press. Empty otherwise.
+func touch_buttons() -> Dictionary[StringName, Button]:
+	if not _detail.visible:
+		return {}
+	return _touch_buttons
+
+
+## What the pane says on a touch screen, GAME.md 4.2, in place of the buttons it names on a
+## keyboard or a pad. A card only held is being read, and is told how to keep it open; one tapped
+## open says how to close it, and while the kart is in play it has a button each for dropping and
+## destroying it. A kart waiting to come back cannot throw any of its hand away, GAME.md 3.7.
+func _show_touch_hints() -> void:
+	var pinned := TouchInput.joker_pinned
+	var acting := pinned and kart != null and kart.alive
+	var wanted := "acting" if acting else ("pinned" if pinned else "held")
+	if wanted == _touch_shown:
+		return
+	_touch_shown = wanted
+	_touch_buttons.clear()
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 8)
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if acting:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 12)
+		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		for id: StringName in [&"drop", &"destroy"]:
+			var button := MenuTheme.button(String(id).capitalize(), Type.BODY)
+			button.custom_minimum_size = TOUCH_BUTTON
+			# Pressed by the touch controls, which answer every finger on its own, GAME.md 4.2.
+			button.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			button.focus_mode = Control.FOCUS_NONE
+			if id == &"destroy":
+				button.add_theme_color_override("font_color", JokerCard.DOOMED)
+			row.add_child(button)
+			_touch_buttons[id] = button
+		column.add_child(row)
+	var line := Label.new()
+	line.text = "Tap the card to keep it open" if not pinned else "Tap it again to close it"
+	Type.text(line, InputHint.FONT_SIZE, JokerDetail.hint_ink())
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(line)
+	_detail.set_hints(column)

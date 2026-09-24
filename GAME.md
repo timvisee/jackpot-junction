@@ -699,12 +699,19 @@ are not shown on a touch screen: the buttons say what they are on them.
 
 The hand of jokers is read by holding a finger on a card. The hand opens on that card, lifted
 out of the fan with what it does over it, for as long as the finger stays, and sliding the
-finger along the hand reads the others; the card still answers where it rose from, so the
-finger holding it is not left behind. The other thumb stays on the stick and steers the kart
-rather than walking the cursor off the card. There is no button to open the hand with, so none
-is drawn beside it, and the pane names no buttons: dropping and destroying are for the keys and
-the pads. The card a finger rests on goes over the wire with the rest of a client's controls, as
-one more field at the end that a client from before it never sends.
+finger along the hand reads the others; the card still answers where it rose from, so the finger
+holding it is not left behind. A quick tap of under 0.3 s keeps the card open instead, and its
+pane has a button each for dropping it and destroying it, the destroy in red. It stays open
+until the card is tapped again, a button on its pane is pressed, or a finger comes down on
+nothing at all; the stick and the driving buttons leave it be, so the kart can be driven while
+the card is read. The pane says which of those it is: a card only held says how to keep it open,
+and one kept open how to close it. A kart waiting to come back can keep a card open to read it
+but gets neither button, as on a keyboard. A card kept open closes when the hand changes under
+it and when the respawn pick comes up. Either way the other thumb stays on the stick and steers
+the kart rather than walking the cursor off the card. There is no button to open the hand with,
+so none is drawn beside it. The card a finger rests on goes over the wire with the rest of a
+client's controls, as one more field at the end that a client from before it never sends, and a
+drop or a destroy goes with the card it was for.
 
 The respawn pick of 3.7 is read the same way, and answered with a tap: a finger held on one of
 its cards moves the cursor there and shows what it does, and nothing is taken when it comes up,
