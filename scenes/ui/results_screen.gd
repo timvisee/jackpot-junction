@@ -90,6 +90,11 @@ func fill_in() -> void:
 		rank += 1
 	visible = true
 	_ways_on()
+	# Sized and centered on what it now holds, every time. Left to size itself, a screen already
+	# up measured itself partway through being filled in again -- the new title with the rows
+	# cleared out -- and when the rows came back it was the size it had been before, so nothing
+	# measured it again and the run's standings hung out of the bottom of a pane without them.
+	set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	# This is the one screen nobody asked for: it arrives on its own at the whistle, so it points
 	# at what most people want next rather than waiting to be found.
 	for first: Button in [_next, _standings, _lobby, _rematch, _quit]:

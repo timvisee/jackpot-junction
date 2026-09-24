@@ -693,6 +693,27 @@ func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
 	assert_bool(Game.grand_prix.revealed).is_false()
 
 
+## The standings after a map in the middle of a run replace that map's podium on a screen that is
+## already up, and the pane holds all of them rather than keeping the size it measured while the
+## map's rows were cleared out, with the run's hanging out of the bottom of it.
+func test_the_standings_in_the_middle_of_a_run_fit_their_pane() -> void:
+	_run_at(1, 3)
+	var screen := await _podium_after(1, 3)
+	await await_idle_frame()
+	var podium_height := screen.size.y
+	assert_float(podium_height).is_equal_approx(screen.get_combined_minimum_size().y, 0.5)
+	screen._standings.pressed.emit()
+	await await_idle_frame()
+	await await_idle_frame()
+	assert_float(screen.size.y).is_equal_approx(screen.get_combined_minimum_size().y, 0.5)
+	var column: Control = screen.get_child(0)
+	assert_float(screen.size.y).is_greater_equal(column.get_combined_minimum_size().y)
+	# Still in the middle of the screen, however tall it has become.
+	var middle := screen.position.y + screen.size.y * 0.5
+	var screen_middle := screen.get_parent_area_size().y * 0.5
+	assert_float(middle).is_equal_approx(screen_middle, 1.0)
+
+
 ## And the last map ends the run: no next map and no rematch, back to the lobby or the title.
 func test_the_podium_after_the_last_map_ends_the_run() -> void:
 	_run_at(3, 3)

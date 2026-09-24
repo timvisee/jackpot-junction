@@ -17,6 +17,11 @@ below, and hands the notes to the release workflow.
   hushed, smoky dance floor until the muffled music drops, the crowd dances and
   the fireworks go up, before the final standings come up.
 
+### Fixed
+
+- **The Grand Prix standings between maps fit their pane again.** The pane no longer
+  comes up too small with the players' rows spilling out of the bottom of it.
+
 ## [0.5.1] - 2026-09-24
 
 Online play holds together: you can join a match already under way, every map waits
