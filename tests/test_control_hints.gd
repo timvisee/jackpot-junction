@@ -315,6 +315,22 @@ func test_a_stick_is_drawn_once_rather_than_as_two_axis_halves() -> void:
 	assert_int(apart.get_child_count()).is_equal(2)
 
 
+## GAME.md 4.2: in simple driving the way to go is one control, the stick pushed every way on a
+## pad and the four keys on a keyboard, and the hint over the kart says that and fire.
+func test_simple_driving_is_drawn_as_the_way_to_go() -> void:
+	InputActions.register_defaults()
+	var ink := Color.WHITE
+	var pad: Control = auto_free(InputHint.way(false, ink, 15))
+	assert_object(pad).is_instanceof(InputGlyph)
+	assert_bool((pad as InputGlyph).every_way).is_true()
+	assert_float(pad.custom_minimum_size.x).is_equal(pad.custom_minimum_size.y)
+	var keys: Control = auto_free(InputHint.way(true, ink, 15))
+	assert_str(_reads(keys)).is_equal("W A S D")
+	var row: HBoxContainer = auto_free(ControlHint.hint_row(DeviceInput.KEYBOARD, 15, true))
+	assert_str(_reads(row)).is_equal("W A S D drive Space fire")
+	assert_str(ControlHint.stamp(0, true)).is_not_equal(ControlHint.stamp(0, false))
+
+
 ## And the joker screens use it, which is where a player reads it.
 func test_the_joker_screens_draw_the_stick_once() -> void:
 	var picker: JokerPicker = auto_free(JokerPicker.new())

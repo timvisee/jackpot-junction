@@ -55,6 +55,36 @@ static func pair(
 	return both
 
 
+## The push of simple driving, GAME.md 4.2, as the one control it is: the stick pushed every way on
+## a pad or a touch screen, and on a keyboard the four keys, up, left, down and right, the way
+## WASD is written. A pad whose two halves are on different sticks gets both pairs.
+static func way(keyboard: bool, ink: Color, size: int) -> Control:
+	var left := InputActions.STEER_LEFT
+	var right := InputActions.STEER_RIGHT
+	var up := InputActions.DRIVE_UP
+	var down := InputActions.DRIVE_DOWN
+	var across := InputActions.shared_stick(left, right)
+	var one_stick := not across.is_empty() and across == InputActions.shared_stick(up, down)
+	if TouchInput.enabled or (not keyboard and one_stick):
+		var stick := glyph(left, keyboard, ink, size) as InputGlyph
+		if stick != null:
+			stick.every_way = true
+		return stick
+	var keys := HBoxContainer.new()
+	keys.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	keys.add_theme_constant_override("separation", 3)
+	var actions: Array[StringName] = [up, left, down, right]
+	if not keyboard:
+		keys.add_child(pair(left, right, keyboard, ink, size))
+		keys.add_child(pair(up, down, keyboard, ink, size))
+		return keys
+	for action: StringName in actions:
+		var one := glyph(action, keyboard, ink, size)
+		if one != null:
+			keys.add_child(one)
+	return keys
+
+
 ## A line of hint: [param template] split on its gaps with [param parts] dropped into them. A gap
 ## with nothing bound to it is left out along with the words that went with it, rather than
 ## printed as a dash.

@@ -64,6 +64,13 @@ var along := Vector2.RIGHT
 ## Whether this is a stick that moves both ways along its axis. One binding is half a stick and
 ## is drawn pushed that way; a pair of them, GAME.md 8.3, is the whole stick and is drawn centered.
 var both_ways := false
+## Whether this is a stick pushed every way at once, a head on each of its four sides: the way to
+## go in simple driving, GAME.md 4.2, rather than one axis of it. Square, being as tall as wide.
+var every_way := false:
+	set(value):
+		every_way = value
+		custom_minimum_size = _wanted()
+		queue_redraw()
 
 
 ## The first binding of [param action] for one device kind, as a glyph. Null when nothing is
@@ -169,7 +176,7 @@ static func _along(event: InputEvent) -> Vector2:
 func _wanted() -> Vector2:
 	var tall := HEIGHT * maxf(float(font_size) / 15.0, 1.0)
 	if kind == Kind.STICK:
-		return Vector2(tall * STICK_WIDE, tall)
+		return Vector2(tall * STICK_WIDE, tall * (STICK_WIDE if every_way else 1.0))
 	if kind == Kind.FACE or kind == Kind.DPAD:
 		return Vector2(tall, tall)
 	var run := _font().get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1.0, _caption_size()).x
@@ -245,20 +252,22 @@ func _draw_stick(box: Rect2) -> void:
 	var center := box.size * 0.5
 	# The same circle a face button is, so the two sit together in a line without one of them
 	# looking like the small one.
-	var radius := box.size.y * 0.5 - EDGE_WIDTH
+	var radius := box.size.x / STICK_WIDE * 0.5 - EDGE_WIDTH
 	draw_circle(center, radius + EDGE_WIDTH, CHIP_EDGE)
 	draw_circle(center, radius, CHIP)
 	draw_arc(center, radius, 0.0, TAU, 28, edge, EDGE_WIDTH)
 	# Built rather than written as a conditional literal: an untyped array assigned to a typed
 	# one throws, and a throw halfway through a draw is a glyph with its gate and nothing in it.
-	var ways: Array[float] = [1.0]
+	var ways: Array[Vector2] = [along]
 	if both_ways:
-		ways.append(-1.0)
+		ways.append(-along)
+	if every_way:
+		ways.assign([Vector2.RIGHT, Vector2.LEFT, Vector2.DOWN, Vector2.UP])
 	var span := radius * 0.5
-	for way: float in ways:
-		var at := center + along * (radius * way * 1.35)
-		_draw_head(at, along * way, span + EDGE_WIDTH * 1.6, CHIP_EDGE)
-		_draw_head(at, along * way, span, edge)
+	for way: Vector2 in ways:
+		var at := center + way * (radius * 1.35)
+		_draw_head(at, way, span + EDGE_WIDTH * 1.6, CHIP_EDGE)
+		_draw_head(at, way, span, edge)
 	# Cut to the gate rather than to the line the glyph sits in: a letter that overflows the ring
 	# it is written in reads as a letter with a circle drawn through it.
 	_draw_caption(box, edge, mini(_caption_size(), roundi(box.size.y * 0.55)))

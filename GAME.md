@@ -368,7 +368,8 @@ else's results screen, see 10.3.
   maps or a quick match on one, see 9.7. There is no tutorial. At
   the start of a match the drive and fire controls are shown next to each
   human player's kart, from the countdown until that player has both driven
-  and fired, or for 10 s at most.
+  and fired, or for 10 s at most. For a player who drives the simple way, see
+  4.2, it is the way to go and fire.
 - The lobby exposes match length, target score, bot count, one global bot
   difficulty, the item set (basic items or all items) and whether a kart's own
   bullets hurt it, with the values in this document as defaults. Every choice is
@@ -691,6 +692,13 @@ touch controls changing with it. Online only the players at this machine have on
 Play's lobby of 3.8 asks each seat too, as it asks for a name and a kart: a row each for the
 players who have joined, with the same pair of buttons as the settings, starting on what the
 seat said last and kept for it on Start.
+
+A hint that names the push of simple driving draws it as the one control it is: on a pad the
+stick with a head on each of its four sides, square rather than wide; on a touch screen the same
+stick, empty, since it is the one under the left thumb; and on a keyboard the four keys, up,
+left, down and right, the way WASD is written. A pad with the two halves on different sticks gets
+both pairs. The hint over the kart at the start of a match, see 3.8, is the way to go and fire,
+and changes over if the player switches.
 
 The pad is knocked as well as the speaker: taking a life, dying, a big cash-out,
 hitting a wall and running into another kart all come through the hands, as hard
@@ -2665,7 +2673,8 @@ framed end to end puts the kart too far away to see what a control did.
 
 1. **Drive and steer.** A straight out of the start with DRIVE and STEER on it,
    then a corner, a lane back the other way and a second corner. None of them
-   tight.
+   tight. For the first player driving the simple way, see 4.2, the two say to
+   push the way to go and to flick it to face that way, TURN rather than STEER.
 2. **Shoot.** A wall of boxes across the third lane, which cannot be driven
    through. SHOOT, and the way on is where they were.
 3. **Nitro.** The long straight after the boxes, 45 m of it, with NITRO at the

@@ -6,6 +6,7 @@ extends Node3D
 ##
 ## The buttons are drawn rather than written, GAME.md 8.3, so the line is the same shape on both
 ## schemes: the throttle, the steering and the fire button, whatever they happen to be bound to.
+## In simple driving, GAME.md 4.2, the way to go is all there is to driving, and it says so.
 
 const MAX_SECONDS := 10.0
 ## How big the buttons are drawn and how big that picture is in the world. Together these are
@@ -40,9 +41,15 @@ static func attach(target: Kart, for_device: int) -> ControlHint:
 
 
 ## The hint for one device, as a keyboard line or a gamepad line but never both: a player reading
-## this has one set of controls in their hands.
-static func hint_row(for_device: int, size := FONT_SIZE) -> HBoxContainer:
+## this has one set of controls in their hands. [param simple] is simple driving's line.
+static func hint_row(for_device: int, size := FONT_SIZE, simple := false) -> HBoxContainer:
 	var keyboard := DeviceInput.uses_keyboard(for_device)
+	if simple:
+		var ways: Array = [
+			InputHint.way(keyboard, INK, size),
+			InputHint.glyph(InputActions.FIRE, keyboard, INK, size)
+		]
+		return InputHint.row("%s drive   %s fire", ways, INK, size)
 	var parts: Array = [
 		InputHint.glyph(InputActions.THROTTLE, keyboard, INK, size),
 		InputHint.pair(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, keyboard, INK, size),
@@ -53,12 +60,21 @@ static func hint_row(for_device: int, size := FONT_SIZE) -> HBoxContainer:
 
 ## What the drawn line depends on, so a rebuild happens when the player picks up a pad and not on
 ## every frame of the ten seconds this is up for.
-static func stamp(for_device: int) -> String:
+static func stamp(for_device: int, simple := false) -> String:
 	var keyboard := DeviceInput.uses_keyboard(for_device)
 	var named: Array[String] = []
-	for action: StringName in [InputActions.THROTTLE, InputActions.STEER_LEFT, InputActions.FIRE]:
+	var actions: Array[StringName] = [
+		InputActions.THROTTLE, InputActions.STEER_LEFT, InputActions.DRIVE_UP, InputActions.FIRE
+	]
+	for action: StringName in actions:
 		named.append(InputActions.short_binding_text(action, keyboard))
-	return "%s|%s" % [keyboard, "/".join(named)]
+	return "%s|%s|%s" % [keyboard, simple, "/".join(named)]
+
+
+## Whether the player this hint is for drives the simple way.
+func _simple() -> bool:
+	var player := kart.input as PlayerInput if kart != null and is_instance_valid(kart) else null
+	return player != null and player.simple()
 
 
 func _exit_tree() -> void:
@@ -78,13 +94,14 @@ func drawn_size() -> int:
 
 func _rebuild() -> void:
 	var size := drawn_size()
-	var wanted := "%s|%d" % [stamp(device), size]
+	var simple := _simple()
+	var wanted := "%s|%d" % [stamp(device, simple), size]
 	if wanted == _shown:
 		return
 	_shown = wanted
 	if _row != null:
 		_row.queue_free()
-	_row = InputHint.billboard(InputHint.card(hint_row(device, size)), PIXEL_SIZE)
+	_row = InputHint.billboard(InputHint.card(hint_row(device, size, simple)), PIXEL_SIZE)
 	add_child(_row)
 
 

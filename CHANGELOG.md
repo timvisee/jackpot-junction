@@ -23,6 +23,8 @@ below, and hands the notes to the release workflow.
   own corner.
 - **Every player picks how they drive on the Play screen.** It sits under their name
   and kart.
+- **Hints for simple driving.** The hint over the kart and the test track's first
+  signs name the way to go: WASD, or the stick with an arrow each way.
 
 ## [0.6.1] - 2026-09-24
 

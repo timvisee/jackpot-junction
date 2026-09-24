@@ -54,6 +54,14 @@ const TRACK_SIGNS: Array[Array] = [
 	[Vector2i(49, 23), "HANDBRAKE", "%s to lock the wheels", [InputActions.HANDBRAKE]],
 	[Vector2i(50, 26), "DRIFT", "handbrake and turn", []],
 ]
+## What a sign names for the push of simple driving, which is no one action.
+const WAY := &"way"
+## The first two in simple driving, GAME.md 4.2, where the way pushed is the way the kart goes, and
+## a flick of it on its own is how to face somewhere, to aim.
+const SIMPLE_SIGNS: Array[Array] = [
+	[Vector2i(6, 3), "DRIVE", "push %s the way to go", [WAY]],
+	[Vector2i(21, 3), "TURN", "flick %s to face that way", [WAY]],
+]
 ## Karts nobody is driving, parked on the floor as practice targets.
 const DUMMIES := 2
 ## The pot a dummy carries, so a kill drops chips worth picking up.
@@ -131,7 +139,11 @@ func _wire_portals() -> void:
 func _add_track_signs() -> void:
 	var grid := match_node.arena.grid
 	var keyboard := Game.last_input_keyboard
-	for entry: Array in TRACK_SIGNS:
+	var signs := TRACK_SIGNS.duplicate()
+	if Game.settings.drive_mode(0) == Settings.DRIVE_SIMPLE:
+		for i: int in SIMPLE_SIGNS.size():
+			signs[i] = SIMPLE_SIGNS[i]
+	for entry: Array in signs:
 		var at: Vector3 = grid.cell_center(entry[0])
 		var sign := InputHint.billboard(InputHint.card(_track_board(entry, keyboard)), SIGN_PIXEL)
 		sign.position = Vector3(at.x, SIGN_HEIGHT, at.z)
@@ -160,6 +172,8 @@ static func _track_board(entry: Array, keyboard: bool) -> VBoxContainer:
 ## The buttons one sign names. Two actions are the two ends of a single control and are drawn as
 ## one, GAME.md 8.3, so steering is a stick on a pad rather than two halves of one.
 static func _track_glyphs(actions: Array, keyboard: bool) -> Array:
+	if actions == [WAY]:
+		return [InputHint.way(keyboard, SIGN_INK, SIGN_SIZE)]
 	if actions.size() >= 2:
 		return [InputHint.pair(actions[0], actions[1], keyboard, SIGN_INK, SIGN_SIZE)]
 	if actions.size() == 1:
