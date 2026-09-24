@@ -5,7 +5,8 @@
 #
 #   online a: the host and a second player at its machine, one client, one bot;
 #             every seat keeps one joker at random between the maps
-#   online b: the host, two clients, one bot; everybody chooses a joker to keep
+#   online b: the host, two clients, one bot and somebody watching; everybody chooses a joker
+#             to keep
 #   local:    two players on one machine, one bot; everybody keeps all their jokers
 #
 # Usage: tools/multiplayer_check          (about a minute and a half)
@@ -75,12 +76,16 @@ run client_b1 --role=client --port="$((port + 1))" &
 client_b1=$!
 run client_b2 --role=client --port="$((port + 1))" &
 client_b2=$!
+run watcher_b --role=watcher --port="$((port + 1))" &
+watcher_b=$!
 wait "$host_b"
 host_b_status=$?
 wait "$client_b1"
 client_b1_status=$?
 wait "$client_b2"
 client_b2_status=$?
+wait "$watcher_b"
+watcher_b_status=$?
 
 run local --role=local --jokers=all
 local_status=$?
@@ -90,6 +95,7 @@ report client_a "$client_a_status"
 report host_b "$host_b_status"
 report client_b1 "$client_b1_status"
 report client_b2 "$client_b2_status"
+report watcher_b "$watcher_b_status"
 report local "$local_status"
 agree host_a client_a
 agree host_b client_b1

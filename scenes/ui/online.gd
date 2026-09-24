@@ -12,6 +12,7 @@ var address_field: LineEdit
 var port_field: LineEdit
 var host_button: Button
 var join_button: Button
+var watch_button: Button
 var status: Label
 
 
@@ -47,6 +48,10 @@ func _ready() -> void:
 	join_button = MenuTheme.button("Join")
 	join_button.pressed.connect(func() -> void: _start("join"))
 	column.add_child(join_button)
+	# Join to watch, GAME.md 10.3: in the room with everybody, with no kart of your own.
+	watch_button = MenuTheme.button("Watch")
+	watch_button.pressed.connect(func() -> void: _start("watch"))
+	column.add_child(watch_button)
 	var back := MenuTheme.button("Back", 24)
 	back.pressed.connect(func() -> void: Game.go_to_title())
 	column.add_child(back)
@@ -69,7 +74,8 @@ func _unhandled_input(event: InputEvent) -> void:
 ## The configuration for hosting or joining with the current fields.
 func config(mode: String) -> MatchConfig:
 	var result := MatchConfig.from_settings(Game.settings)
-	result.online = mode
+	result.online = "join" if mode == "watch" else mode
+	result.watching = mode == "watch"
 	var named: Array[String] = [PlayerNames.clean(name_field.text)]
 	result.human_names = named
 	result.address = address_field.text.strip_edges()
@@ -84,7 +90,7 @@ func _start(mode: String) -> void:
 	if result.port <= 0 or result.port > 65535:
 		status.text = "Port must be between 1 and 65535"
 		return
-	if mode == "join" and result.address.is_empty():
+	if result.online == "join" and result.address.is_empty():
 		status.text = "Enter the host's address"
 		return
 	Game.settings.last_address = result.address

@@ -113,6 +113,7 @@ func _join() -> void:
 		Net.attach(match_node)
 	else:
 		session = Net.open(match_node)
+		session.watching = config.watching
 		session.local_input = PlayerInput.new(DeviceInput.ANY, 0)
 		session.player_name = config.human_names[0] if not config.human_names.is_empty() else ""
 		if not config.human_styles.is_empty():
@@ -134,6 +135,9 @@ func _join() -> void:
 			Game.go_to_title()
 			return
 	match_node.start_puppet()
+	if session.watching:
+		# Nobody here takes a seat, so the line that says how to has nothing to say.
+		session.watching_started.connect(func() -> void: ready_room_hint("You are watching"))
 	if back:
 		# Asked for rather than waited for: the host seats whoever asks once its room is up, and
 		# this room is now up at this end to hear the answer.

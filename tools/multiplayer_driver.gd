@@ -75,8 +75,10 @@ func _run() -> void:
 			await _client()
 		"local":
 			await _local()
+		"watcher":
+			await _watcher()
 		_:
-			_fail("no --role=host, client or local")
+			_fail("no --role=host, client, watcher or local")
 	# A step that gave up without saying why is a failure too: a script error inside one is how
 	# that happens, and it should not read as a pass.
 	if not _failed and not _finished:
@@ -394,6 +396,49 @@ func _client_after_map_2(second: Node) -> void:
 	# Stays a moment, the way a player would, so the host sees it back in the room before it goes.
 	await _seconds(READING * 2.0)
 	_finished = true
+
+
+## Somebody who came to watch, GAME.md 10.3: into the room with no seat, the host's maps as it
+## plays them with the karts in view, and back into the room with everybody when the run is over.
+func _watcher() -> void:
+	var config := MatchConfig.new()
+	config.online = "join"
+	config.watching = true
+	config.address = "127.0.0.1"
+	config.port = _port
+	await _frames(60)
+	Game.go_to_waiting(config)
+	var room := await _room()
+	if room == null:
+		return
+	var session: NetSession = room.session
+	if not await _until(
+		func() -> bool: return room.match_node.puppet_karts.size() > 0, 30.0, "watching the room"
+	):
+		return
+	_check(session.local_slot == -1, "in the room with no seat")
+	for round: int in [1, 2]:
+		if not await _until(
+			func() -> bool:
+				var scene := _scene()
+				if scene == null or scene.scene_file_path != MATCH_SCENE:
+					return false
+				var match_node: Match = scene.match_node
+				if match_node == null or match_node.rules.round != round:
+					return false
+				return match_node.puppet_karts.size() >= 2,
+			120.0,
+			"watching map %d" % round
+		):
+			return
+		_check(session.local_slot == -1, "map %d watched with no kart" % round)
+	var back := await _until(
+		func() -> bool: return _scene() != null and _scene().scene_file_path == WAITING_SCENE,
+		180.0,
+		"followed the host back to the room"
+	)
+	if back:
+		_finished = true
 
 
 ## Two players on one machine: Play, the waiting room, both maps, and back to the lobby with the

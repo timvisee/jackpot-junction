@@ -90,6 +90,13 @@ func _ready() -> void:
 					_pane().visible = false
 					_pane().backdrop = false
 			)
+			# Somebody watching is never given a seat, and is in once the host says so, GAME.md
+			# 10.3.
+			session.watching_started.connect(
+				func() -> void:
+					_pane().visible = false
+					_pane().backdrop = false
+			)
 			# When the match is over the host takes everybody back to the waiting room, GAME.md
 			# 9.6, and this machine goes with it.
 			session.back_to_room.connect(func() -> void: Game.go_to_waiting(config))

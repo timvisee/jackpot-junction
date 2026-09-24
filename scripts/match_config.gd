@@ -38,6 +38,8 @@ var own_bullets_hurt := false
 var overtime := true
 ## "", "host" or "join".
 var online := ""
+## Joining to watch rather than to play, GAME.md 10.3: no kart, and a seat at nobody's expense.
+var watching := false
 var address := "127.0.0.1"
 var port := NetSession.DEFAULT_PORT
 

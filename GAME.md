@@ -2606,6 +2606,16 @@ host's lobby settings: a joining client is sent the clock, the target score,
 the number of lives and the rest of the numbers its own lobby could have moved,
 and drops its own. Everybody says what they are called on the way in, see 3.8.
 
+Somebody can join to watch instead of to play: Watch on the online screen, beside Join. They
+say so in the handshake, and the host lets them in even with every seat taken, up to four of
+them on top of the three clients who play; a fifth is told as many are watching as the match
+can take. A watcher is never given a seat or a kart and nothing it sends is heard: it is sent
+the rules, the run and the snapshots of the room the host is in, follows the host from room
+to room as everybody does and is let in again in each, and the camera frames the karts as it
+does for anybody. Nobody waits for a watcher: not the ready pad, not the lamps of a map held
+for everybody still building it, and not a pause, which the room agrees without them. The line
+under the ready count says they are watching, since there is no seat for them to take.
+
 A window in the background keeps playing. A window the desktop has stopped
 drawing can hold the main loop up on the frame it is waiting to present, and on
 the host that is the whole room frozen until somebody clicks back into the game.

@@ -812,3 +812,50 @@ func test_a_client_aims_its_swivel_cannon_itself() -> void:
 		. override_failure_message("the host is aiming somewhere the client is not")
 		. is_equal_approx(pointing, Vector2.ONE * 0.15)
 	)
+
+
+## GAME.md 10.3: somebody can join to watch. They are let in with no seat, the match goes on as it
+## was, they see it in the snapshots, and a room stops without waiting for them.
+func test_a_client_can_watch_without_a_kart() -> void:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	host_match.offer_size = 0
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(PORT)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client_match
+	client_session.local_input = KartInput.new()
+	client_session.watching = true
+	var let_in := [false]
+	client_session.watching_started.connect(func() -> void: let_in[0] = true)
+	_client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	var watching := await _wait_until(func() -> bool: return let_in[0], 4000)
+	assert_bool(watching).override_failure_message("the watcher was never let in").is_true()
+	assert_int(client_session.local_slot).is_equal(-1)
+	# Nobody lost a kart to them: the bot is still the bot.
+	assert_int(host_match.slots.size()).is_equal(2)
+	assert_bool(host_match.slots[1].is_human()).is_false()
+	var seen := await _wait_until(
+		func() -> bool: return client_match.puppet_karts.size() == 2, 4000
+	)
+	assert_bool(seen).override_failure_message("the watcher never saw the karts").is_true()
+	# The host asking is the whole room: somebody watching has nothing to stop.
+	host_session.want_pause(true)
+	assert_bool(host_session.paused).is_true()
+	host_session.want_pause(false)
