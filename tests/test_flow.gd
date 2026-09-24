@@ -342,8 +342,9 @@ func test_kept_seats_keep_their_colors_and_the_bots_take_the_rest() -> void:
 
 
 ## A client's "Starting the match..." is said before there is any room to stand it over, so it
-## stands on the menus' own background instead of on an empty world.
-func test_a_status_before_the_room_stands_on_the_menu_background() -> void:
+## stands on the loading screen's dark instead of on an empty world: the same dark the loading
+## screen that follows it is, so going to the next map is one dark screen.
+func test_a_status_before_the_room_stands_on_the_loading_screens_dark() -> void:
 	var holder: Node = auto_free(Node.new())
 	add_child(holder)
 	var pane := StatusPane.add_to(holder)
@@ -351,7 +352,7 @@ func test_a_status_before_the_room_stands_on_the_menu_background() -> void:
 	assert_bool(pane._backdrop.visible).is_false()
 	pane.backdrop = true
 	assert_bool(pane._backdrop.visible).is_true()
-	assert_object(pane._backdrop.color).is_equal(MenuTheme.BACKGROUND)
+	assert_object(pane._backdrop.color).is_equal(LoadingScreen.BACKDROP)
 	assert_int(pane._backdrop.get_index()).is_less(pane._panel.get_index())
 
 
