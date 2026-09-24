@@ -40,7 +40,9 @@ func _ready() -> void:
 					(
 						"Jackpot Junction is an experiment in what an AI model can make. Everything in it "
 						+ "that is not credited below, its design, its code, the pictures it draws and how "
-						+ "it all fits together, was made by Anthropic's Claude: %s."
+						+ "it all fits together, was made by Anthropic's Claude: %s. It was made with "
+						+ "the help of a human, who played it as it grew and prompted it in the right "
+						+ "direction."
 					)
 					% Credits.models_in_words()
 				)
