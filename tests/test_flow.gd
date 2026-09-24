@@ -382,6 +382,17 @@ func test_a_menu_over_the_room_darkens_all_of_it() -> void:
 	Game.settings = real
 
 
+## GAME.md 3.8: the host's Pause game is straight under Resume, over the match settings the
+## waiting room adds, since stopping everybody is the first thing a host reaches for.
+func test_pause_game_is_over_the_match_settings() -> void:
+	var holder: Node = auto_free(Node.new())
+	add_child(holder)
+	var menu := PauseMenu.add_to(holder)
+	var entry := menu.add_entry("Match settings", func() -> void: pass)
+	assert_int(menu._force.get_index()).is_equal(menu._resume.get_index() + 1)
+	assert_int(entry.get_index()).is_equal(menu._force.get_index() + 1)
+
+
 ## GAME.md 9.6: on a screen too short for the match settings, a phone's under a big UI scale, the
 ## rows scroll between the title and Done, which stay on the screen; on a tall one nothing does.
 func test_the_match_settings_scroll_on_a_short_screen() -> void:
