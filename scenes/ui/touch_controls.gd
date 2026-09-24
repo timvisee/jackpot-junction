@@ -73,8 +73,11 @@ const ZONE_LINE := Color(1.0, 1.0, 1.0, 0.22)
 ## The click a thumb feels crossing from one zone of the slider into the next, or rolling across
 ## onto fire: the shortest, lightest buzz the phone makes, so a wrong zone is felt rather than seen.
 ## The rumble setting of GAME.md 8.5 turns it off with the rest.
-const CLICK_MS := 12
-const CLICK_STRENGTH := 0.4
+const CLICK_MS := 10
+const CLICK_STRENGTH := 0.3
+## Below this speed forward the brake is the reverse, and says so: a kart standing still or rolling
+## back goes backwards on it, and one that is going forward stops.
+const STILL_SPEED := 0.5
 ## The stick: how big its ring is, where it waits from the bottom left corner, how far its knob
 ## goes to reach full lock, and how far from the middle a thumb has to be before it steers at all.
 ## It comes to wherever a thumb goes down inside [constant STICK_ZONE], the share of the screen
@@ -432,6 +435,24 @@ func zone_at(y: float) -> StringName:
 		if y < zone_rect(zone).end.y:
 			return zone
 	return ZONES[-1]
+
+
+## What [param zone] of the slider says on it. The brake says reverse while that is what it does,
+## on a kart standing still or rolling back, and shortens it where the whole word does not fit.
+func zone_word(zone: StringName) -> String:
+	var kart := _kart()
+	if zone != BRAKE or kart == null or kart.motor.forward_speed >= STILL_SPEED:
+		return ZONE_WORDS[zone]
+	var room := zone_rect(zone).size.x - TANK_INSET
+	var wide := Type.STRONG.get_string_size("REVERSE", HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
+	return "REVERSE" if wide <= room else "REV"
+
+
+## Whether there is nitro enough to burn: a burn under way, or a tank past what it takes to start
+## one. Short of that the slider's nitro is drawn grayed, and is only the gas.
+func nitro_ready() -> bool:
+	var kart := _kart()
+	return kart != null and (kart.nitro_active or kart.nitro_charge >= kart.stats.nitro_min_start)
 
 
 ## The zone the slider's thumb is on, or an empty name while none is.
@@ -914,10 +935,11 @@ func _draw_slider(strength: float, kart: Kart) -> void:
 	pill.anti_aliasing = true
 	draw_style_box(pill, rect)
 	var on := slid()
-	var ink := INK if strength >= 1.0 else GRAY_INK
 	for i: int in ZONES.size():
 		var zone := ZONES[i]
 		var area := zone_rect(zone)
+		var dim := strength if zone != NITRO or nitro_ready() else strength * GRAYED
+		var ink := INK if dim >= 1.0 else GRAY_INK
 		if zone == on:
 			var lit := StyleBoxFlat.new()
 			lit.bg_color = Color(FILL_DOWN, FILL_DOWN.a * strength)
@@ -930,7 +952,7 @@ func _draw_slider(strength: float, kart: Kart) -> void:
 		if i > 0:
 			var line := Color(ZONE_LINE, ZONE_LINE.a * strength)
 			draw_line(area.position, Vector2(area.end.x, area.position.y), line, 2.0)
-		var word: String = ZONE_WORDS[zone]
+		var word := zone_word(zone)
 		var font := Type.STRONG
 		var width := font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
 		var baseline := area.get_center() + Vector2(-width * 0.5, LABEL_SIZE * 0.36)

@@ -644,3 +644,24 @@ func test_the_slider_clicks_from_zone_to_zone() -> void:
 	assert_float(controls.zone_rect(TouchControls.NITRO).size.y).is_greater(brake)
 	assert_float(controls.zone_rect(TouchControls.DRIFT).size.y).is_greater(brake)
 	assert_float(gas.size.y).is_greater(controls.zone_rect(TouchControls.NITRO).size.y)
+
+
+## The slider says what it does: its nitro is grayed while the tank is short of a burn, though it
+## still holds the gas, and its brake says reverse on a kart standing still or rolling back.
+func test_the_slider_says_what_it_does() -> void:
+	var controls := await _driving()
+	var kart := controls.match_node.kart_of(0)
+	kart.nitro_charge = 1.0
+	assert_bool(controls.nitro_ready()).is_true()
+	kart.nitro_charge = kart.stats.nitro_min_start * 0.5
+	assert_bool(controls.nitro_ready()).is_false()
+	_touch(controls, 0, controls.zone_rect(TouchControls.NITRO).get_center(), true)
+	assert_float(TouchInput.throttle).is_equal(1.0)
+	_touch(controls, 0, controls.zone_rect(TouchControls.NITRO).get_center(), false)
+	kart.motor.forward_speed = 0.0
+	assert_str(controls.zone_word(TouchControls.BRAKE)).starts_with("REV")
+	kart.motor.forward_speed = -2.0
+	assert_str(controls.zone_word(TouchControls.BRAKE)).starts_with("REV")
+	kart.motor.forward_speed = 6.0
+	assert_str(controls.zone_word(TouchControls.BRAKE)).is_equal("BRAKE")
+	assert_str(controls.zone_word(TouchControls.GAS)).is_equal("GAS")
