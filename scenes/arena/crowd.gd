@@ -160,6 +160,9 @@ var enabled := true
 ## it up on a stage where it can be seen over the podium, GAME.md 9.7.
 var booth_lift := 0.0
 var booth_scale := 1.0
+## Everybody holding their breath, the DJ too: the moment before a drop, GAME.md 9.7. Stands the
+## whole house still whatever the meter says, and lets it go again where the meter has it.
+var still := false
 
 ## Where everybody is standing, kept after the build because it is the record of the house.
 var _spots: Array[Transform3D] = []
@@ -233,9 +236,10 @@ func _process(delta: float) -> void:
 	_cheer = maxf(_cheer - delta, 0.0)
 	var dancing := level >= DANCING_LEVEL or _cheer > 0.0
 	var blend := 1.0 - exp(-delta * SETTLE)
-	_rate = lerpf(_rate, DANCING_RATE if dancing else RESTING_RATE, blend)
-	_lift = lerpf(_lift, JUMP if dancing else RESTING_LIFT, blend)
-	_lean = lerpf(_lean, DANCING_LEAN if dancing else RESTING_LEAN, blend)
+	var hold := 0.0 if still else 1.0
+	_rate = lerpf(_rate, (DANCING_RATE if dancing else RESTING_RATE) * hold, blend)
+	_lift = lerpf(_lift, (JUMP if dancing else RESTING_LIFT) * hold, blend)
+	_lean = lerpf(_lean, (DANCING_LEAN if dancing else RESTING_LEAN) * hold, blend)
 	_beat = fmod(_beat + delta * _rate, PERIOD)
 	if watching:
 		for skin: ShaderMaterial in _skins:

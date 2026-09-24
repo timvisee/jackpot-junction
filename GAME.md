@@ -2751,15 +2751,21 @@ it is seen over the podium rather than behind it. Behind the booth a hoarding of
 kind, bigger than the ones over a crowd, reading GRAND PRIX CHAMPION over the winner's name in
 their color. The crowd all the way round, on its feet; the disco rig over the floor with every
 light on the winner; the music at its loudest; confetti off the steps; and fireworks in all
-three colors going up behind the board, framing it rather than covering it. It is built in the
-materials of the room the run ended in, well away from its arena, which is hidden, with the HUD,
-while it is on. It stands in a hall of its own, a floor that runs on past the camera and dark
-walls at the back and sides with a line of neon along them in the three colors, so nowhere in
-the shot does the world stop. The places on the steps are painted the same size on all three,
-sized to the lowest. The camera starts high over the room and flies in slowly over 6 s to look
-down on the podium from in front of it, holds there for two seconds, and the accept button skips
-the move. Each machine stages it for itself from what it already knows, so nothing about it goes
-over the wire.
+three colors going up behind the board, framing it rather than covering it. None of that is on
+at first: the room opens hushed, the music muffled as if heard from outside the room and a
+little down, the crowd and the DJ standing still, the floor dark and one light drifting over it,
+while the nitro's swell, slowed and deepened, rises under it. It drops on the first bar of the
+music at least 1.7 s in: the filter is swept open and the music is back at full within half a
+second, the crowd starts dancing, the floor lights, the rig comes up with every light on the
+winner, confetti goes off every step and the fireworks start. It is built in the materials of
+the room the run ended in, well away from its arena, which is hidden, with the HUD, while it is
+on. It stands in a hall of its own, a floor that runs on past the camera and dark walls at the
+back and sides with a line of neon along them in the three colors, so nowhere in the shot does
+the world stop. The places on the steps are painted the same size on all three, sized to the
+lowest. The camera starts high over the room and flies in slowly over 6 s to look down on the
+podium from in front of it, holds there for two seconds, and the accept button skips the move,
+and the hush with it. Each machine stages it for itself from what it already knows, so nothing
+about it goes over the wire.
 
 Then the run's podium comes up over it, the same one every map before
 it led to, headed Grand Prix over Final

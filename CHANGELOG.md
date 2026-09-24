@@ -14,8 +14,8 @@ below, and hands the notes to the release workflow.
 ### Added
 
 - **A party at the end of a Grand Prix.** The top three float over a podium on a
-  dance floor, with the DJ, fireworks and the crowd on its feet, before the final
-  standings come up.
+  hushed dance floor until the muffled music drops, the crowd dances and the
+  fireworks go up, before the final standings come up.
 
 ## [0.5.1] - 2026-09-24
 

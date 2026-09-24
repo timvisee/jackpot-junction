@@ -17,6 +17,7 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	Audio.hush_music(false)
 	Game.grand_prix = null
 	Game.pending_config = null
 	Game.settings = _settings_were
@@ -538,9 +539,9 @@ func _to_the_run(screen: ResultsScreen) -> void:
 
 
 ## GAME.md 9.7: after the last map, Grand Prix results first puts up a party in a room of its own.
-## The top of the run floats over a podium on a dance floor, the arena is hidden, the room goes to
-## the top of its meter, and a camera of its own flies in onto the podium; the standings go up once
-## it has arrived and held there.
+## The top of the run floats over a podium on a dance floor, the arena is hidden, the room opens
+## hushed and drops to the top of its meter, and a camera of its own flies in onto the podium; the
+## standings go up once it has arrived and held there.
 func test_the_end_of_a_run_is_a_party_on_a_podium() -> void:
 	_run_at(2, 2)
 	var screen := await _podium_after(2, 2)
@@ -561,9 +562,13 @@ func test_the_end_of_a_run_is_a_party_on_a_podium() -> void:
 		100.0
 	)
 	assert_bool(finale._camera.is_current()).is_true()
+	# It opens hushed, on a meter already at the top: the music muffled, the house still, one light.
 	assert_int(match_node.intensity.level).is_equal(MatchIntensity.LEVELS)
 	assert_int(finale.crowd.level).is_equal(MatchIntensity.LEVELS)
-	assert_int(finale.disco.level).is_equal(MatchIntensity.LEVELS)
+	assert_bool(finale.has_dropped()).is_false()
+	assert_bool(Audio.is_music_hushed()).is_true()
+	assert_bool(finale.crowd.still).is_true()
+	assert_int(finale.disco.level).is_equal(1)
 	# The three face where the camera ends up, rather than turn.
 	var facing: Array[float] = []
 	for kart: Node3D in finale._karts:
@@ -577,9 +582,17 @@ func test_the_end_of_a_run_is_a_party_on_a_podium() -> void:
 	var riser_top := Crowd.TABLE_TOP + GrandPrixFinale.RISER_HEIGHT
 	assert_float(booth.position.y).is_equal_approx(riser_top, 0.001)
 	assert_float(booth.scale.x).is_equal_approx(GrandPrixFinale.BOOTH_SCALE, 0.001)
-	# Still on its way down a second in, with nothing over it yet.
+	# Still on its way down a second in, with nothing over it yet, and still holding its breath.
 	await await_millis(1000)
 	assert_bool(screen.visible).is_false()
+	assert_bool(finale.has_dropped()).is_false()
+	# The rising sound comes in before the drop.
+	for i: int in 60:
+		if finale._rising:
+			break
+		await await_millis(50)
+	assert_bool(finale._rising).is_true()
+	assert_bool(finale.has_dropped()).is_false()
 	var up := false
 	for i: int in 150:
 		await await_millis(100)
@@ -591,6 +604,11 @@ func test_the_end_of_a_run_is_a_party_on_a_podium() -> void:
 	assert_bool(finale.is_shown()).is_true()
 	var shot := finale.global_position + GrandPrixFinale.SHOT_FROM
 	assert_float(finale._camera.global_position.distance_to(shot)).is_less(0.05)
+	# Dropped long before: the music back, the house dancing, every light on the winner.
+	assert_bool(finale.has_dropped()).is_true()
+	assert_bool(Audio.is_music_hushed()).is_false()
+	assert_bool(finale.crowd.still).is_false()
+	assert_int(finale.disco.level).is_equal(MatchIntensity.LEVELS)
 	# Floating over their steps, still facing the same way.
 	for i: int in finale._karts.size():
 		var kart := finale._karts[i]
@@ -616,6 +634,9 @@ func test_the_party_can_be_skipped_and_only_ends_a_run() -> void:
 	await await_idle_frame()
 	assert_bool(screen.visible).is_true()
 	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	# Skipped straight through the drop, so the music is back.
+	assert_bool(screen.match_node.finale.has_dropped()).is_true()
+	assert_bool(Audio.is_music_hushed()).is_false()
 	_run_at(1, 3)
 	var early := await _podium_after(1, 3)
 	early._standings.pressed.emit()

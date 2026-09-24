@@ -13,10 +13,12 @@ extends Node3D
 ## it. It is built in the room's own materials, well away from the arena, which is hidden while it
 ## is on.
 ##
-## The camera starts high over the room and flies in slowly to look down on the podium, holds there,
-## and only then do the run's standings come up over it. Everybody's own: each machine puts it up
-## when its player asks for the run's results, from what it already knows, so nothing about it goes
-## over the wire.
+## It opens hushed: the music muffled as if from outside the room, the crowd and the DJ standing
+## still, the floor dark, and a rising sound. Then it drops, on a downbeat, into all of it at
+## once, the music swept open. The camera starts high over the room and flies in slowly to look
+## down on the podium, holds there, and only then do the run's standings come up over it.
+## Everybody's own: each machine puts it up when its player asks for the run's results, from what
+## it already knows, so nothing about it goes over the wire.
 
 const SCENE := preload("res://scenes/finale/grand_prix_finale.tscn")
 ## How far from the arena the room goes up: out of sight of it, and out of reach of anything still
@@ -92,9 +94,16 @@ const OPEN_AT := Vector3(0.0, 0.0, -2.0)
 const SHOT_FROM := Vector3(0.0, 8.0, 15.5)
 const SHOT_AT := Vector3(0.0, 3.0, -3.0)
 const SHOT_FOV := 40.0
-## Confetti off the steps, a burst every so often in one of the three colors; how long the
-## fireworks keep going, which is longer than anybody reads the standings for; and how far behind
-## the board and how wide they go up.
+## How long the room holds its breath before the drop at the least: it drops on the first bar of
+## the music after that. And the rise under it: the nitro swell, slowed and deepened, played so
+## that its loudest, [constant RISER_PEAK] seconds into it at its own speed, lands on the drop.
+const HUSH_SECONDS := 1.7
+const RISER_PITCH := 0.75
+const RISER_PEAK := 1.27
+const RISER_DB := -3.0
+## Confetti off the steps, a burst every so often in one of the three colors after one off every
+## step on the drop; how long the fireworks keep going, which is longer than anybody reads the
+## standings for; and how far behind the board and how wide they go up.
 const CONFETTI_EVERY := 0.3
 const FIREWORK_SECONDS := 90.0
 const FIREWORKS_BEHIND := 5.0
@@ -115,6 +124,9 @@ var _tile_lit: Array[StandardMaterial3D] = []
 var _beat := -1
 var _age := 0.0
 var _confetti_left := 0.0
+var _drop_at := HUSH_SECONDS
+var _rising := false
+var _dropped := false
 var _shown := false
 var _done: Callable
 var _rng := RandomNumberGenerator.new()
@@ -135,7 +147,7 @@ static func stage(in_match: Match, standings: Array[PlayerSlot], done: Callable)
 	finale.global_position = in_match.arena.global_position + AWAY
 	finale._build(standings)
 	finale._leave_the_arena()
-	finale._raise_the_room()
+	finale._hush_the_room()
 	finale._take_the_shot()
 	return finale
 
@@ -145,7 +157,12 @@ func is_shown() -> bool:
 	return _shown
 
 
-## Skips the camera's move for a player who has seen it, straight to the standings.
+## Whether the room has dropped yet.
+func has_dropped() -> bool:
+	return _dropped
+
+
+## Skips the camera's move for a player who has seen it, straight to the drop and the standings.
 func skip() -> void:
 	_age = maxf(_age, PAN_SECONDS + HOLD_SECONDS)
 
@@ -156,19 +173,30 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+func _exit_tree() -> void:
+	# Gone before it dropped, back to a lobby or into a rematch: the music comes back regardless.
+	if not _dropped:
+		Audio.hush_music(false)
+
+
 func _process(delta: float) -> void:
 	_age += delta
 	# Each a third of a rise behind the one before, so the three never move as one.
 	for i: int in _karts.size():
 		var rise := 0.5 - 0.5 * cos(TAU * (_age / FLOAT_SECONDS - float(i) / 3.0))
 		_karts[i].position.y = PLACES[i].y + BAND_LIFT + FLOAT_LIFT + rise * FLOAT_HEIGHT
-	_confetti_left -= delta
-	if _confetti_left <= 0.0 and not _karts.is_empty():
-		_confetti_left = CONFETTI_EVERY
-		var place := _rng.randi() % _karts.size()
-		var over := _karts[place].global_position + Vector3(0.0, 1.2, 0.0)
-		Burst.spawn(self, over, _colors[place], 1.1, 18)
-	_light_the_floor()
+	if not _rising and not _dropped and _age >= _drop_at - RISER_PEAK / RISER_PITCH:
+		_rising = true
+		Audio.play_sfx(&"nitro_swell", RISER_DB, 0.0, RISER_PITCH)
+	if not _dropped and _age >= _drop_at:
+		_drop()
+	if _dropped:
+		_confetti_left -= delta
+		if _confetti_left <= 0.0 and not _karts.is_empty():
+			_confetti_left = CONFETTI_EVERY
+			var place := _rng.randi() % _karts.size()
+			_confetti(place, 1.1, 18)
+		_light_the_floor()
 	var t := smoothstep(0.0, 1.0, clampf(_age / PAN_SECONDS, 0.0, 1.0))
 	if _camera != null:
 		_camera.global_transform = _from.interpolate_with(_to, t)
@@ -456,22 +484,45 @@ func _leave_the_arena() -> void:
 		match_node.hud.stand_aside()
 
 
-## The room at the top of its meter for the party, GAME.md 8.4: the crowd on its feet, the lights
-## on the winner, the music at its loudest and fireworks in all three colors behind the board.
-func _raise_the_room() -> void:
+## The room holding its breath before the drop: the music muffled, the crowd and the DJ still, the
+## floor dark and one light drifting over it. The meter is already at the top, so what comes back
+## is the full track and a crowd on its feet.
+func _hush_the_room() -> void:
 	match_node.intensity.level = MatchIntensity.LEVELS
 	match_node.intensity.value = 1.0
-	disco.level = MatchIntensity.LEVELS
 	crowd.level = MatchIntensity.LEVELS
+	crowd.still = true
+	disco.level = 1
+	Audio.duck_music(false)
+	Audio.hush_music(true)
+	_drop_at = Audio.seconds_to_bar(HUSH_SECONDS)
+
+
+## The drop, the room at the top of its meter for the party, GAME.md 8.4: the music swept open to
+## its loudest, the crowd dancing, the floor lit, the lights on the winner, confetti off every step
+## and fireworks in all three colors behind the board.
+func _drop() -> void:
+	_dropped = true
+	Audio.hush_music(false)
+	crowd.still = false
+	disco.level = MatchIntensity.LEVELS
 	if not _karts.is_empty():
 		disco.focus(_karts[0])
-	Audio.duck_music(false)
 	Audio.play_sfx(&"fanfare", -4.0, 0.0)
+	for place: int in _karts.size():
+		_confetti(place, 1.6, 36)
+	_confetti_left = CONFETTI_EVERY
 	var span := Vector3(FIREWORKS_SPAN.x, 1.0, FIREWORKS_SPAN.y)
 	var behind := FLOOR_SIZE.y * 0.5 + Crowd.BOOTH_OUT + BOARD_BEHIND + FIREWORKS_BEHIND
 	var sky := AABB(global_position + Vector3(0.0, 0.0, -behind) - span * 0.5, span)
 	for color: Color in _colors:
 		Fireworks.celebrate(self, sky, color, FIREWORK_SECONDS)
+
+
+## A burst of confetti off [param place]'s step, in its color.
+func _confetti(place: int, size: float, count: int) -> void:
+	var over := _karts[place].global_position + Vector3(0.0, 1.2, 0.0)
+	Burst.spawn(self, over, _colors[place], size, count)
 
 
 ## The camera of its own that the move is made with: high over the room to begin with, looking
