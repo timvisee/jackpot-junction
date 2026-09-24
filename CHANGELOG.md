@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-09-24
+
+Dress your kart at the stalls, change your name and color, and emote at each other in
+the lobby, and watch a LAN game from the side. Everybody in an online game needs 0.7.
+
 ### Added
 
 - **An About page in Settings.** It says the game was made by AI as an experiment,
@@ -61,7 +66,6 @@ below, and hands the notes to the release workflow.
   anything but ordinary play kept them up.
 - **Joining an address nobody is at says so.** It said it was waiting for the host
   for half a minute; it says it is connecting, and gives up after a few seconds.
-
 ## [0.6.2] - 2026-09-24
 
 A simple way to drive: push the way on the screen you want to go and the kart takes
@@ -1151,7 +1155,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.6.2...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.7.0
 [0.6.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.6.2
 [0.6.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.6.1
 [0.6.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.6.0
