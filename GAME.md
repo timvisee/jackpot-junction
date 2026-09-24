@@ -686,14 +686,18 @@ The left thumb steers with a stick that comes to wherever it goes down in the lo
 screen, and waits in that corner while nobody has a thumb on it. It only steers, so its knob
 only moves side to side, and how far it is pushed is how far the wheel is turned. The right
 thumb has a slider in the bottom right corner: one tall pill with nitro, gas, brake and drift
-down it, top to bottom, the gas the tallest, since the thumb rests there most. A thumb goes down
+down it, top to bottom, the gas the tallest, since the thumb rests there most, and the two at
+the ends a little taller than the brake, since a thumb reaches for them. A thumb goes down
 anywhere on it and slides from zone to zone, and belongs to the slider until it comes up,
 however far off its ends or its side it strays. Nitro holds the gas as well, for when the tank
 runs dry under it, and so does drift, so a slide keeps its power; brake is the brake alone, and
-reverses once stopped. Sliding from the gas down to drift crosses the brake on the way. The
-nitro tank is a bar across the bottom of the nitro. Fire is a round button beside the slider at
-the height of the gas, and a thumb rolled across off the slider onto it fires as well as
-driving, which is how one thumb drives and shoots at once; the item button is over fire. The
+reverses once stopped. Sliding from the gas down to drift crosses the brake on the way. Crossing
+from one zone into the next clicks: the phone gives the shortest, lightest buzz it has, and so
+it does as the thumb rolls onto fire, so a wrong zone is felt rather than seen. The rumble
+switch of 8.5 turns it off with the rest, and the Android build asks for leave to vibrate for
+it. The nitro tank is a bar across the bottom of the nitro. Fire is a round button beside the
+slider at the height of the gas, and a thumb rolled across off the slider onto it fires as well
+as driving, which is how one thumb drives and shoots at once; the item button is over fire. The
 item button is always there, and faint while there is nothing in hand to play, so a thumb knows
 where it is before it is needed; with an item it wears the item's own picture, and while a box
 is still opening the pictures flick past the way they do in the corner. Something an item

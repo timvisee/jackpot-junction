@@ -48,27 +48,33 @@ const MENU_INSET := Vector2(64.0, 62.0)
 const FIRE := &"fire"
 const ITEM := &"item"
 const DRIVING: Dictionary[StringName, Array] = {
-	FIRE: [76.0, Vector2(-248.0, -248.0), "FIRE"],
-	ITEM: [58.0, Vector2(-248.0, -402.0), ""],
+	FIRE: [76.0, Vector2(-248.0, -260.0), "FIRE"],
+	ITEM: [58.0, Vector2(-248.0, -414.0), ""],
 }
 ## The slider's zones, top to bottom, and each one's share of its height: the gas, where the thumb
-## rests, the biggest. Nitro holds the gas too, for when the tank runs dry under it, and so does
-## drift, so a slide keeps its power; brake is the brake alone, and reverses once stopped.
+## rests, the biggest, and the two at the ends, which a thumb reaches for, a little over the brake.
+## Nitro holds the gas too, for when the tank runs dry under it, and so does drift, so a slide
+## keeps its power; brake is the brake alone, and reverses once stopped.
 const NITRO := &"nitro"
 const GAS := &"gas"
 const BRAKE := &"brake"
 const DRIFT := &"drift"
 const ZONES: Array[StringName] = [NITRO, GAS, BRAKE, DRIFT]
-const ZONE_SHARES: Array[float] = [1.0, 1.5, 1.0, 1.0]
+const ZONE_SHARES: Array[float] = [1.15, 1.5, 1.0, 1.15]
 const ZONE_WORDS: Dictionary[StringName, String] = {
 	NITRO: "NITRO", GAS: "GAS", BRAKE: "BRAKE", DRIFT: "DRIFT"
 }
 ## How big the slider is, how far in from the right and the bottom edges it stands, and how far off
 ## its sides a thumb going down still takes it.
-const SLIDER := Vector2(124.0, 360.0)
+const SLIDER := Vector2(124.0, 384.0)
 const SLIDER_INSET := Vector2(34.0, 28.0)
 const SLIDER_SLACK := 24.0
 const ZONE_LINE := Color(1.0, 1.0, 1.0, 0.22)
+## The click a thumb feels crossing from one zone of the slider into the next, or rolling across
+## onto fire: the shortest, lightest buzz the phone makes, so a wrong zone is felt rather than seen.
+## The rumble setting of GAME.md 8.5 turns it off with the rest.
+const CLICK_MS := 12
+const CLICK_STRENGTH := 0.4
 ## The stick: how big its ring is, where it waits from the bottom left corner, how far its knob
 ## goes to reach full lock, and how far from the middle a thumb has to be before it steers at all.
 ## It comes to wherever a thumb goes down inside [constant STICK_ZONE], the share of the screen
@@ -128,6 +134,8 @@ class Pad:
 
 
 var match_node: Match
+## How many clicks the slider has given, for asking whether it did.
+var clicks := 0
 
 var _pads: Array[Pad] = []
 ## Which pads each finger is on, by the finger's index. The stick's finger is not among them.
@@ -431,6 +439,13 @@ func slid() -> StringName:
 	return zone_at(_slider_at.y) if _slider_finger >= 0 else &""
 
 
+## The click of the slider under the thumb, felt through the phone.
+func _click() -> void:
+	clicks += 1
+	if Game.settings.rumble:
+		Input.vibrate_handheld(CLICK_MS, CLICK_STRENGTH)
+
+
 ## Whether the slider's thumb has rolled across onto fire.
 func _rolled_onto_fire() -> bool:
 	var fire := pad(FIRE)
@@ -628,7 +643,11 @@ func _finger_moved(finger: int, at: Vector2) -> void:
 			_inspect_moved = true
 			TouchInput.joker_inspect = card
 	elif finger == _slider_finger:
+		var was := slid()
+		var rolled := _rolled_onto_fire()
 		_slider_at = at
+		if slid() != was or (_rolled_onto_fire() and not rolled):
+			_click()
 		_publish()
 	elif finger == _stick_finger:
 		_knob_at = at
