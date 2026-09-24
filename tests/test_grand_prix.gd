@@ -536,13 +536,28 @@ func _texts(node: Node) -> PackedStringArray:
 
 
 func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
+	_run_at(1, 3)
 	var screen := await _podium_after(1, 3)
-	assert_bool(screen._next.visible).is_true()
+	# The map's own podium first, with one way on: how the run stands.
+	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
+	assert_str(screen._caption.text).contains("map 1 of 3")
+	assert_bool(screen._standings.visible).is_true()
+	assert_bool(screen._next.visible).is_false()
 	assert_bool(screen._rematch.visible).is_false()
 	assert_bool(screen._quit.visible).is_false()
 	assert_bool(screen._lobby.visible).is_false()
+	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._standings)
+	# Then the standings so far, and from them the next map and nowhere else.
+	screen._standings.pressed.emit()
+	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	assert_str(screen._caption.text).is_equal("Standings after map 1 of 3")
+	assert_bool(screen._standings.visible).is_false()
+	assert_bool(screen._next.visible).is_true()
+	assert_bool(screen._lobby.visible).is_false()
+	assert_bool(screen._quit.visible).is_false()
 	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._next)
-	assert_str(screen._caption.text).contains("map 1 of 3")
+	# Nobody is champion of a run that is still going.
+	assert_bool(Game.grand_prix.revealed).is_false()
 
 
 ## And the last map ends the run: no next map and no rematch, back to the lobby or the title.

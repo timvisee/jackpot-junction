@@ -2683,11 +2683,13 @@ each twice, never back to back. The run is the host's; each map is told which on
 it is, so a client knows as well as the host whether its podium leads on.
 
 **Between maps.** A map that is not the last ends on its podium as any map does, with one way
-on: Next map. There is no rematch of a map in the middle of a run and no leaving from its
-podium -- the pause menu is still the way out. The podium says which map of how many it was.
-Online the host moves everybody on, the same way it moved everybody out of the waiting room;
-a client's podium says so. The next map is the same match on the next arena: the same people,
-in the same colors, with the same settings.
+on: Grand Prix results, the run's standings so far, see The end below, headed Standings after
+map so many of so many. Those have one way on: Next map. There is no rematch of a map in the
+middle of a run and no leaving from its podium -- the pause menu is still the way out. The
+podium says which map of how many it was. Online the host moves everybody on, the same way it
+moved everybody out of the waiting room; a client's podium says so, and a client can look at the
+standings as well. The next map is the same match on the next arena: the same people, in the
+same colors, with the same settings.
 
 **Jokers between maps.** A Grand Prix has a row for what everybody takes on from one map to
 the next of the jokers they end it holding, in the lobby and in the host's settings alike:
@@ -2734,7 +2736,8 @@ room how the run stands, and every screen draws its podium from that.
 **The end.** The last map ends on its own podium first, the same as every map before it: the
 map's results, what each place paid and where that leaves everybody. Its one way on is Grand
 Prix results, which is everybody's to press, a client's as much as the host's, since it only
-changes what that screen shows. That brings up the run's podium, headed Grand Prix over Final
+changes what that screen shows. That brings up the run's podium, the same one every map before
+it led to, headed Grand Prix over Final
 standings after however many maps it was: the top three of the run on the steps, then everybody
 ranked on points, each with how many maps they won, their points in gold, and a chip for every
 map saying where they finished it and what it paid. Beside the place of anybody the last map

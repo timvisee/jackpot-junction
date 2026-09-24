@@ -200,9 +200,11 @@ func _host_plays(first: Node) -> ResultsScreen:
 	var podium := await _end(first)
 	if podium == null:
 		return null
-	_check(podium._next.visible and not podium._rematch.visible, "map 1's podium offers Next map")
+	_check(not podium._next.visible and not podium._rematch.visible, "map 1's podium goes on")
 	_check(Game.grand_prix.scored_round == 0, "map 1 is scored")
 	_say("SCORES 1 %s" % _scores(one))
+	if not await _on_to_the_standings(podium, 1):
+		return null
 	await _seconds(READING)
 	podium._next.pressed.emit()
 	var second := await _map(2)
@@ -349,6 +351,14 @@ func _client_after_map_1(first: Node) -> Node:
 		return null
 	_check(_scene_has_points(podium), "its podium shows what each place paid")
 	_say("SCORES 1 %s" % _scores(one))
+	# The run's standings are everybody's to look at, and the host still decides when to go on.
+	if not await _until(
+		func() -> bool: return podium._standings.visible, 10.0, "it offers the run's"
+	):
+		return null
+	podium._standings.pressed.emit()
+	_check(podium._title.text == ResultsScreen.GRAND_PRIX_TITLE, "then the run's standings")
+	_check(not podium._next.visible and podium._host_decides.visible, "still the host's to go on")
 	# What it held at the whistle, as the host told it, to be offered again on the next map.
 	_given[one.local_slot] = one.slots[one.local_slot].kart.jokers.ids()
 	var second := await _map(2)
@@ -448,7 +458,8 @@ func _local_plays(first: Node) -> ResultsScreen:
 	var podium := await _end(first)
 	if podium == null:
 		return null
-	_check(podium._next.visible, "map 1's podium offers Next map")
+	if not await _on_to_the_standings(podium, 1):
+		return null
 	podium._next.pressed.emit()
 	var second := await _map(2)
 	if second == null:
@@ -598,6 +609,18 @@ func _check_kept(match_node: Match) -> void:
 			_:
 				right = held.size() == 1 and given.has(held[0])
 		_check(right, "seat %d took on the jokers it should: %s of %s" % [slot.index, held, given])
+
+
+## A map's podium in the middle of the run, then how the run stands, which is where the next map
+## is started from.
+func _on_to_the_standings(podium: ResultsScreen, round: int) -> bool:
+	if not await _to_the_run(podium):
+		return false
+	_check(
+		podium._caption.text.contains("after map %d of %d" % [round, MAPS]),
+		"saying how it stands after map %d" % round
+	)
+	return _check(podium._next.visible, "and they offer Next map")
 
 
 ## The last map's podium is the map's, like every other; the run's is one press on from it.

@@ -45,7 +45,7 @@ var _quit: Button
 var _host_decides: Label
 ## Which map of a Grand Prix this was, GAME.md 9.7, under the title.
 var _caption: Label
-## Whether the last map's podium has moved on to the run's, see [method _show_run].
+## Whether a map's podium has moved on to the run's standings, see [method _show_run].
 var _showing_run := false
 ## What happens to everybody's jokers on the way to the next map, under the caption.
 var _keep_note: Label
@@ -74,9 +74,9 @@ func fill_in() -> void:
 	var everyone: Array[PlayerStats] = []
 	for slot: PlayerSlot in match_node.slots:
 		everyone.append(slot.stats)
-	# The end of a Grand Prix, GAME.md 9.7, is its own podium: everybody ranked on the points of
-	# the whole run rather than on what they banked on its last map. The last map gets its own
-	# podium first, like every map before it, and the run's comes after it.
+	# How a Grand Prix stands, GAME.md 9.7, is a podium of its own: everybody ranked on the points
+	# of the run so far rather than on what they banked on the map just played. Every map gets
+	# its own podium first, and the run's comes after it, the last map's as its final standings.
 	var run := _run()
 	var final := run != null and _showing_run
 	var standings := run.standings(match_node.slots) if final else match_node.standings()
@@ -102,21 +102,26 @@ func fill_in() -> void:
 ## which was the start of the match: who is hosting is a question about who is still here at the
 ## end of it.
 ##
-## In a Grand Prix, GAME.md 9.7, a map that is not the last leads to the next one and nowhere else:
-## there is no rematch of a map in the middle of a run, and no leaving from the podium, which is
-## for the next map (the pause menu is still the way out). The last map ends the run, and leads
-## back to the lobby. A client decides none of it, and is told who does.
+## In a Grand Prix, GAME.md 9.7, every map's podium leads to how the run stands, and that leads
+## on: to the next map, from a map that is not the last, and nowhere else -- there is no rematch of
+## a map in the middle of a run, and no leaving from the podium, which is for the next map (the
+## pause menu is still the way out). The last map's standings end the run, and lead back to the
+## lobby. A client decides none of it, and is told who does.
 func _ways_on() -> void:
 	var rules := match_node.rules
 	var decides := not match_node.puppet
 	var grand_prix := rules.rounds > 0
 	var more := grand_prix and rules.round < rules.rounds
 	var last := grand_prix and not more
-	var run_up := last and _showing_run
-	_next.visible = decides and more
+	var standing := grand_prix and _showing_run
+	var run_up := last and standing
+	# A run whose points have not arrived has no standings to show, and the map goes on from its
+	# own podium rather than from nowhere.
+	var scored := _run() != null
+	_next.visible = decides and more and (standing or not scored)
 	# Looking at the run is only looking, so it is everybody's to do, a client's as much as the
 	# host's; it is there once the run's points are in.
-	_standings.visible = last and not _showing_run and _run() != null
+	_standings.visible = grand_prix and not _showing_run and scored
 	_rematch.visible = decides and not grand_prix
 	_lobby.visible = decides and (run_up or (not grand_prix and Net.hosting()))
 	_quit.visible = not grand_prix or run_up
@@ -130,6 +135,8 @@ func _ways_on() -> void:
 		_caption.text = "%s \u00b7 map %d of %d" % [named, rules.round, rules.rounds]
 		if run_up:
 			_caption.text = "Final standings after %d maps" % rules.rounds
+		elif standing:
+			_caption.text = "Standings after map %d of %d" % [rules.round, rules.rounds]
 	_keep_note.visible = more
 	if more:
 		_keep_note.text = _keeping_words(rules.keep_jokers)
@@ -147,11 +154,13 @@ func _keeping_words(keep: int) -> String:
 	return "Everybody keeps one of their jokers for the next map, at random."
 
 
-## From the last map's podium to the run's, GAME.md 9.7. The arena's board names the champion from
-## here on, not before: until the run's podium is up, what is being looked at is the last map.
+## From a map's podium to the run's, GAME.md 9.7. After the last map the arena's board names the
+## champion from here on, not before: until the run's podium is up, what is being looked at is the
+## last map. After any other map there is no champion yet to name.
 func _show_run() -> void:
 	_showing_run = true
-	if Game.grand_prix != null:
+	var rules := match_node.rules
+	if Game.grand_prix != null and rules.round >= rules.rounds:
 		Game.grand_prix.revealed = true
 	fill_in()
 

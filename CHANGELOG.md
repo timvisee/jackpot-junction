@@ -81,6 +81,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Grand Prix standings after every map.** Each map's podium leads to how the run
+  stands, and Next map is started from there.
+
 - **Bots finish the Jackpot.** A bot collecting it stays until the pile is empty,
   and leaves early only when it is in danger.
 
