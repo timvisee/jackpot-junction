@@ -12,8 +12,10 @@ extends CanvasLayer
 ## The host has finished choosing. What they chose is in [member options].
 signal closed
 
-## How far in from the edges of the screen the pane keeps, when it has to be shrunk to fit.
+## How far in from the edges of the screen the pane keeps, when it has to be fitted to it, and
+## the least of the rows it shows however short the screen.
 const FIT_EDGE := 12.0
+const LEAST_ROWS := 160.0
 
 var options: MatchOptions
 ## Whether this is a room on one machine rather than an online one, which is only a matter of who
@@ -23,6 +25,8 @@ var alone := false
 var _panel: Control
 var _middle: CenterContainer
 var _pane: PanelContainer
+var _scroll: ScrollContainer
+var _rows: VBoxContainer
 var _done: Button
 
 
@@ -58,9 +62,8 @@ func _ready() -> void:
 	middle.add_child(pane)
 	_pane = pane
 	_middle = middle
-	# Drawn smaller on a screen too short for it, a phone's under a big UI scale, GAME.md 8.5,
-	# rather than running off the top and the bottom with Done out of reach.
-	pane.resized.connect(_fit)
+	# Scrolled on a screen too short for it, a phone's under a big UI scale, GAME.md 8.5, rather
+	# than running off the top and the bottom with Done out of reach.
 	middle.resized.connect(_fit)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
@@ -72,7 +75,16 @@ func _ready() -> void:
 		else "Friends can join and drive while you choose."
 	)
 	column.add_child(MenuTheme.subtitle(joining, Type.LABEL))
-	options = MatchOptions.add_to(column, Game.settings)
+	_scroll = ScrollContainer.new()
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.follow_focus = true
+	column.add_child(_scroll)
+	_rows = VBoxContainer.new()
+	_rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_rows.add_theme_constant_override("separation", 12)
+	_scroll.add_child(_rows)
+	options = MatchOptions.add_to(_rows, Game.settings)
+	_rows.minimum_size_changed.connect(_fit)
 	_done = MenuTheme.button("Done")
 	_done.pressed.connect(close)
 	column.add_child(_done)
@@ -82,18 +94,23 @@ func is_open() -> bool:
 	return _panel.visible
 
 
-## The pane at its own size where the screen has room for it, and shrunk about the middle of the
-## screen where it has not. What is shrunk is the holder that centers it: a container lays its
-## children out at their own scale every time it sorts them, so the pane itself would not stay
-## small.
+## The pane at its own size where the screen has room for it. Where it is too tall the rows scroll
+## between the title and Done, which stay put; where it is too wide it is shrunk about the middle
+## of the screen. What is shrunk is the holder that centers it: a container lays its children out
+## at their own scale every time it sorts them, so the pane itself would not stay small.
 func _fit() -> void:
 	var room := _panel.size - Vector2.ONE * FIT_EDGE * 2.0
-	var need := _pane.get_combined_minimum_size()
-	if need.x <= 0.0 or need.y <= 0.0:
+	var rows := _rows.get_combined_minimum_size()
+	var around := _pane.get_combined_minimum_size().y - _scroll.custom_minimum_size.y
+	var tall := clampf(room.y - around, minf(LEAST_ROWS, rows.y), rows.y)
+	var wanted := Vector2(rows.x, tall)
+	if _scroll.custom_minimum_size != wanted:
+		_scroll.custom_minimum_size = wanted
+	var need := _pane.get_combined_minimum_size().x
+	if need <= 0.0:
 		return
-	var fit := minf(room.x / need.x, room.y / need.y)
 	_middle.pivot_offset = _middle.size * 0.5
-	_middle.scale = Vector2.ONE * clampf(fit, 0.3, 1.0)
+	_middle.scale = Vector2.ONE * clampf(room.x / need, 0.3, 1.0)
 
 
 func open() -> void:

@@ -382,6 +382,27 @@ func test_a_menu_over_the_room_darkens_all_of_it() -> void:
 	Game.settings = real
 
 
+## GAME.md 9.6: on a screen too short for the match settings, a phone's under a big UI scale, the
+## rows scroll between the title and Done, which stay on the screen; on a tall one nothing does.
+func test_the_match_settings_scroll_on_a_short_screen() -> void:
+	var holder: Node = auto_free(Node.new())
+	add_child(holder)
+	var host := HostSettings.add_to(holder, true)
+	host.open()
+	await await_idle_frame()
+	var rows := host._rows.get_combined_minimum_size().y
+	host._panel.size = Vector2(1600.0, 480.0)
+	host._fit()
+	assert_float(host._scroll.custom_minimum_size.y).is_less(rows)
+	var need := host._pane.get_combined_minimum_size().y
+	assert_float(need).is_less_equal(480.0 - HostSettings.FIT_EDGE * 2.0)
+	assert_vector(host._middle.scale).is_equal(Vector2.ONE)
+	host._panel.size = Vector2(1600.0, 2000.0)
+	host._fit()
+	assert_float(host._scroll.custom_minimum_size.y).is_equal_approx(rows, 0.5)
+	host._panel.visible = false
+
+
 ## GAME.md 3.8: a map has a way back to the lobby for whoever decides where the room goes, and it
 ## asks first, since it ends the map and any Grand Prix it is part of. No, or Back, is the menu.
 func test_back_to_lobby_asks_before_ending_the_grand_prix() -> void:

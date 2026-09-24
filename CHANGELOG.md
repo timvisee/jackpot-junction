@@ -46,6 +46,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The match settings scroll on a small phone.** They used to be shrunk to fit,
+  which on a short screen was too small to read.
 - **Every player at one screen hears their own kart.** With two or more, each kart
   was heard from halfway between them, so a player far from the others barely heard
   their own.

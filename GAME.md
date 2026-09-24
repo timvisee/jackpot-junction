@@ -2984,9 +2984,10 @@ Everybody in the room is told what is coming, under the count:
 `Next: Grand Prix of 3 maps · 5 min each · first to 3000 · 2 bots`, or that the host is still
 choosing, or on one machine that it is still being chosen. The pane says who can join while it
 is up: friends online, and on one machine anybody else there, with J or Start. On a screen too
-short for it, a phone's under a big UI scale, it is drawn smaller rather than running off the
-top and the bottom. The room
-does not go while the host is choosing, however ready everybody else is: a match that started
+short for it, a phone's under a big UI scale, the rows scroll between the title and Done, which
+stay where they are, rather than the whole pane running off the top and the bottom or being drawn
+too small to read; a pad's cursor takes the rows with it. The room does not go while the host is
+choosing, however ready everybody else is: a match that started
 halfway through the menu would be the one that was set before they began.
 
 The bots are on top of everybody in the room, as many as the arena has seats left for, and the
