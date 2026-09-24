@@ -172,6 +172,14 @@ func _controls_tab() -> Control:
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_theme_constant_override("separation", 8)
 	scroll.add_child(column)
+	# How a touch screen drives, GAME.md 4.2, first where it is the controls in the player's hand.
+	if TouchInput.enabled:
+		var layouts := [Settings.TOUCH_SLIDER, Settings.TOUCH_BUTTONS]
+		var touch := MenuTheme.option(["Slider", "Buttons"], layouts.find(_settings.touch_layout))
+		touch.item_selected.connect(
+			func(index: int) -> void: _settings.touch_layout = layouts[index]
+		)
+		column.add_child(MenuTheme.row("Touch driving", touch))
 	var header := HBoxContainer.new()
 	for text: String in ["Action", "Keyboard / mouse", "Gamepad"]:
 		var label := Label.new()

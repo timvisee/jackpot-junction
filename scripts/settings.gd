@@ -8,6 +8,8 @@ const AIM_ASSIST_MAX := 1.0
 ## How big the menus and the HUD can be drawn, GAME.md 8.5, as a share of the size they were laid
 ## out at for a screen 1080 lines high. The 3D picture is not touched by it.
 const UI_SCALES: Array[float] = [0.75, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0]
+const TOUCH_SLIDER := "slider"
+const TOUCH_BUTTONS := "buttons"
 
 ## A UI scale for this run of the game alone, from `++ --ui-scale=1.5` on the command line, and 0
 ## for none: for trying a size out, or a phone's on a desktop, without it being saved over the
@@ -56,6 +58,9 @@ var control_hints := true
 ## rather have a picture that never moves than one that is close.
 var fixed_camera := false
 var stick_deadzone := 0.15
+## How a touch screen drives, GAME.md 4.2: [constant TOUCH_SLIDER], one slider under the right thumb
+## for nitro, gas, brake and drift, or [constant TOUCH_BUTTONS], a round button for each.
+var touch_layout := TOUCH_SLIDER
 ## Action name to the descriptors that replace its defaults.
 var bindings: Dictionary = {}
 ## How long a map runs, in seconds, GAME.md 3.8.
@@ -125,6 +130,9 @@ func load_from_disk() -> void:
 	control_hints = file.get_value("accessibility", "control_hints", control_hints)
 	fixed_camera = file.get_value("accessibility", "fixed_camera", fixed_camera)
 	stick_deadzone = file.get_value("controls", "stick_deadzone", stick_deadzone)
+	touch_layout = file.get_value("controls", "touch_layout", touch_layout)
+	if touch_layout not in [TOUCH_SLIDER, TOUCH_BUTTONS]:
+		touch_layout = TOUCH_SLIDER
 	bindings = file.get_value("controls", "bindings", {})
 	# Kept in minutes until a map could be shorter than one; a file from then is read in minutes.
 	match_seconds = file.get_value(
@@ -177,6 +185,7 @@ func save_to_disk() -> Error:
 	file.set_value("accessibility", "control_hints", control_hints)
 	file.set_value("accessibility", "fixed_camera", fixed_camera)
 	file.set_value("controls", "stick_deadzone", stick_deadzone)
+	file.set_value("controls", "touch_layout", touch_layout)
 	file.set_value("controls", "bindings", bindings)
 	file.set_value("lobby", "match_seconds", match_seconds)
 	file.set_value("lobby", "target_score", target_score)

@@ -36,6 +36,8 @@ const RIM := Color(1.0, 1.0, 1.0, 0.55)
 const INK := Color(1.0, 1.0, 1.0, 0.92)
 const RIM_WIDTH := 3.0
 const LABEL_SIZE := 22
+## How much narrower than a button the word on it must be.
+const LABEL_ROOM := 16.0
 ## A finger a little off the edge of a button is still on it: a thumb is not a point.
 const REACH := 1.15
 ## The menu button in the top right corner, which opens the room's menu: the way back to the title
@@ -43,14 +45,26 @@ const REACH := 1.15
 const MENU := &"menu"
 const MENU_RADIUS := 34.0
 const MENU_INSET := Vector2(64.0, 62.0)
-## The round driving buttons, each with its size and where its middle is from the bottom right
-## corner: fire beside the slider at the height of its gas, and the item button under fire, far
-## enough under that a thumb between the two presses one of them and not both.
+## The round driving buttons of each of the two ways a touch screen drives, GAME.md 4.2, each with
+## its size and where its middle is from the bottom right corner. With the slider, fire stands
+## beside it at the height of its gas, and the item button under fire, far enough under that a
+## thumb between the two presses one of them and not both. Without it, the slider's four are a
+## button each in an arc round the corner with fire, the gas the biggest and nearest the corner, a
+## thumb on the seam between gas and fire pressing both; the item button is further in, fire
+## being at the bottom edge already.
 const FIRE := &"fire"
 const ITEM := &"item"
-const DRIVING: Dictionary[StringName, Array] = {
+const SLIDER_BUTTONS: Dictionary[StringName, Array] = {
 	FIRE: [76.0, Vector2(-248.0, -260.0), "FIRE"],
 	ITEM: [58.0, Vector2(-248.0, -100.0), ""],
+}
+const ROUND_BUTTONS: Dictionary[StringName, Array] = {
+	TouchSlider.GAS: [86.0, Vector2(-160.0, -168.0), "GAS"],
+	FIRE: [74.0, Vector2(-322.0, -118.0), "FIRE"],
+	TouchSlider.BRAKE: [60.0, Vector2(-470.0, -92.0), "BRAKE"],
+	TouchSlider.DRIFT: [56.0, Vector2(-340.0, -306.0), "DRIFT"],
+	TouchSlider.NITRO: [56.0, Vector2(-150.0, -370.0), "NITRO"],
+	ITEM: [58.0, Vector2(-500.0, -262.0), ""],
 }
 ## The click a thumb feels going down on the slider, crossing from one zone of it into the next,
 ## rolling across onto fire, or going down on a joker and along from one to the next: the
@@ -121,6 +135,9 @@ var clicks := 0
 ## The slider under the right thumb, with the finger on it.
 var slider := TouchSlider.new()
 
+## Which of the two ways to drive the buttons were last put up for, see [method uses_slider].
+var _layout_name := ""
+
 var _pads: Array[Pad] = []
 ## Which pads each finger is on, by the finger's index. The stick's finger is not among them.
 var _fingers: Dictionary[int, Array] = {}
@@ -186,10 +203,29 @@ static func attach(hud: MatchHud) -> TouchControls:
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_pads.append(Pad.new(MENU, MENU_RADIUS))
-	for id: StringName in DRIVING:
-		_pads.append(Pad.new(id, DRIVING[id][0], DRIVING[id][2]))
 	resized.connect(_layout)
+	_build_pads()
+
+
+## Whether the screen drives by the slider, or by a button each for its four, GAME.md 4.2: the
+## player's own choice in the settings, which can be changed with a match under way. What is up is
+## what answers until the next frame puts the other up, see [method _process].
+func uses_slider() -> bool:
+	return _layout_name != Settings.TOUCH_BUTTONS
+
+
+## The round driving buttons of the way the screen drives now.
+func driving_buttons() -> Dictionary[StringName, Array]:
+	return SLIDER_BUTTONS if uses_slider() else ROUND_BUTTONS
+
+
+func _build_pads() -> void:
+	_layout_name = Game.settings.touch_layout
+	_pads.clear()
+	_pads.append(Pad.new(MENU, MENU_RADIUS))
+	var buttons := driving_buttons()
+	for id: StringName in buttons:
+		_pads.append(Pad.new(id, buttons[id][0], buttons[id][2]))
 	_layout()
 
 
@@ -212,8 +248,9 @@ func stick_home() -> Vector2:
 
 func _layout() -> void:
 	pad(MENU).center = Vector2(size.x - MENU_INSET.x, MENU_INSET.y)
-	for id: StringName in DRIVING:
-		pad(id).center = size + (DRIVING[id][1] as Vector2)
+	var buttons := driving_buttons()
+	for id: StringName in buttons:
+		pad(id).center = size + (buttons[id][1] as Vector2)
 	slider.place(size)
 	if _stick_finger < 0:
 		_stick_at = stick_home()
@@ -372,8 +409,8 @@ func _stack_the_jokers() -> void:
 
 ## Where the highest of the driving buttons and the slider reaches up to.
 func _buttons_top() -> float:
-	var top := slider.rect.position.y
-	for id: StringName in DRIVING:
+	var top := slider.rect.position.y if uses_slider() else size.y
+	for id: StringName in driving_buttons():
 		var each := pad(id)
 		top = minf(top, each.center.y - each.radius * REACH)
 	return top
@@ -381,8 +418,8 @@ func _buttons_top() -> float:
 
 ## The stretch of the bottom of the screen between the stick's ring and the nearest button.
 func _hand_lane() -> Vector2:
-	var right := slider.rect.position.x
-	for id: StringName in DRIVING:
+	var right := slider.rect.position.x if uses_slider() else size.x
+	for id: StringName in driving_buttons():
 		var each := pad(id)
 		right = minf(right, each.center.x - each.radius * REACH)
 	return Vector2(STICK_HOME.x + STICK_RADIUS + LANE_GAP, right - LANE_GAP)
@@ -425,6 +462,10 @@ func _screen(at: Vector2) -> Vector2:
 
 
 func _process(_delta: float) -> void:
+	# The other way to drive, chosen in the settings over the room: put up at once.
+	if Game.settings.touch_layout != _layout_name:
+		_let_go()
+		_build_pads()
 	# The room's menu takes the screen while it is up, and a finger that was down when it opened
 	# has let go of everything as far as the room is concerned.
 	var shut := PauseMenu.is_open_in(get_tree()) or not driving()
@@ -549,7 +590,7 @@ func _down_on_hand(finger: int, at: Vector2) -> bool:
 
 ## The slider, anywhere on it or a little off either side.
 func _down_on_slider(finger: int, at: Vector2) -> bool:
-	if slider.finger >= 0 or not slider.takes(at):
+	if not uses_slider() or slider.finger >= 0 or not slider.takes(at):
 		return false
 	slider.finger = finger
 	slider.at = at
@@ -634,6 +675,11 @@ func _slide(finger: int, at: Vector2) -> void:
 	var now := _driving_pads_at(at)
 	_press(now)
 	_fingers[finger] = now
+	# On to one of the four from off it clicks, as the slider does from zone to zone.
+	for id: StringName in now:
+		if id in TouchSlider.ZONES and id not in on:
+			_click()
+			break
 	_publish()
 
 
@@ -715,7 +761,7 @@ func _up_from_pads(finger: int, at: Vector2) -> void:
 
 func _driving_pads_at(at: Vector2) -> Array[StringName]:
 	var on: Array[StringName] = []
-	for id: StringName in DRIVING:
+	for id: StringName in driving_buttons():
 		if pad(id).reaches(at):
 			on.append(id)
 	return on
@@ -724,6 +770,10 @@ func _driving_pads_at(at: Vector2) -> Array[StringName]:
 func _hold(finger: int, on: Array[StringName]) -> void:
 	_fingers[finger] = on
 	_press(on)
+	for id: StringName in on:
+		if id in TouchSlider.ZONES:
+			_click()
+			break
 	_publish()
 
 
@@ -760,15 +810,27 @@ func _let_go() -> void:
 	_publish()
 
 
+func _held(id: StringName) -> bool:
+	var each := pad(id)
+	return each != null and each.held > 0
+
+
 ## Hands what the fingers are holding to [TouchInput], for the player's controls to read.
 func _publish() -> void:
 	var live := can_drive()
-	var zone := slider.slid() if live else &""
-	var gas := [TouchSlider.NITRO, TouchSlider.GAS, TouchSlider.DRIFT]
-	TouchInput.throttle = 1.0 if zone in gas else 0.0
-	TouchInput.brake = 1.0 if zone == TouchSlider.BRAKE else 0.0
-	TouchInput.nitro = zone == TouchSlider.NITRO
-	TouchInput.handbrake = zone == TouchSlider.DRIFT
+	if uses_slider():
+		var zone := slider.slid() if live else &""
+		var gas := [TouchSlider.NITRO, TouchSlider.GAS, TouchSlider.DRIFT]
+		TouchInput.throttle = 1.0 if zone in gas else 0.0
+		TouchInput.brake = 1.0 if zone == TouchSlider.BRAKE else 0.0
+		TouchInput.nitro = zone == TouchSlider.NITRO
+		TouchInput.handbrake = zone == TouchSlider.DRIFT
+	else:
+		# A button each, each only itself, the way they always were.
+		TouchInput.throttle = 1.0 if live and _held(TouchSlider.GAS) else 0.0
+		TouchInput.brake = 1.0 if live and _held(TouchSlider.BRAKE) else 0.0
+		TouchInput.nitro = live and _held(TouchSlider.NITRO)
+		TouchInput.handbrake = live and _held(TouchSlider.DRIFT)
 	TouchInput.fire = live and (pad(FIRE).held > 0 or _rolled_onto_fire())
 	TouchInput.use_item = live and pad(ITEM).held > 0
 	TouchInput.steer = 0.0
@@ -791,14 +853,25 @@ func _draw() -> void:
 		return
 	var kart := _kart()
 	var strength := 1.0 if can_drive() else GRAYED
-	for id: StringName in DRIVING:
+	for id: StringName in driving_buttons():
 		var each := pad(id)
 		if id == ITEM:
 			_draw_item(each, kart)
 			continue
-		_draw_disc(each, strength, id == FIRE and _rolled_onto_fire())
-		_draw_label(each, INK if strength >= 1.0 else GRAY_INK)
-	slider.draw(self, strength, kart)
+		# One of the slider's four on a button of its own is grayed as it would be on the slider.
+		var dim := strength if TouchSlider.zone_ready(id, kart) else strength * GRAYED
+		_draw_disc(each, dim, id == FIRE and _rolled_onto_fire())
+		if id in TouchSlider.ZONES:
+			each.label = TouchSlider.word_for(id, kart, each.radius * 2.0 - LABEL_ROOM)
+		_draw_label(each, INK if dim >= 1.0 else GRAY_INK)
+		if id == TouchSlider.NITRO and kart != null:
+			var tank := TAU * clampf(kart.nitro_charge, 0.0, 1.0)
+			var ink := Color(TANK, TANK.a * dim)
+			var start := -PI * 0.5
+			var ring := each.radius - TANK_WIDTH
+			draw_arc(each.center, ring, start, start + tank, 40, ink, TANK_WIDTH)
+	if uses_slider():
+		slider.draw(self, strength, kart)
 	_draw_stick(strength)
 
 

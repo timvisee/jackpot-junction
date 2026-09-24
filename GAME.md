@@ -723,6 +723,16 @@ the nearest button or the slider, shrinking its cards when that is narrower than
 the respawn pick moves up, and shrinks its own cards a little if it has to, to keep its button
 above the hand.
 
+The slider is one of two ways to drive, and the settings' Controls, first there on a touch
+screen, have the other: Touch driving, Slider or Buttons, put up at once, a match under way or
+not. Buttons is a round button each for gas, brake, nitro and drift in an arc round the bottom
+right corner with fire, the gas the biggest and nearest the corner, each only itself: drift is
+the handbrake alone and nitro the nitro alone. A thumb sliding from one button to the next lets
+go of the first and presses the second, and one resting on the seam between gas and fire presses
+both. The item button is further in, fire being at the bottom edge already, and the nitro tank
+is a ring round the rim of its button. The four click, are grayed and say reverse as they do on
+the slider.
+
 The hand of jokers is read by holding a finger on a card. The hand opens on that card, lifted
 out of the fan with what it does over it, for as long as the finger stays, and sliding the
 finger along the hand reads the others; the card still answers where it rose from, so the finger
@@ -2182,7 +2192,8 @@ round at the ends, and a line beside Back says so; while a rebind is listening t
 like any other button.
 
 - **Controls**: rebinding per player for gamepad and keyboard, stick dead
-  zone, rumble on or off.
+  zone, rumble on or off, and on a touch screen, first, how it drives: by the
+  slider or by a button each, see 4.2.
 - **Audio**: master, music, effects and kart volume. The karts have their own
   because their engine and tires run the whole time rather than in bursts, so
   how loud that bed should sit is a matter of taste in a way the rest is not.

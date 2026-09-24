@@ -77,9 +77,13 @@ func slid() -> StringName:
 ## What [param zone] says on it. The brake says reverse while that is what it does, on a kart
 ## standing still or rolling back, and shortens it where the whole word does not fit.
 func word(zone: StringName, kart: Kart) -> String:
+	return word_for(zone, kart, zone_rect(zone).size.x - TANK_INSET)
+
+
+## What [param zone] says in [param room] of width, on the slider or on a button of its own.
+static func word_for(zone: StringName, kart: Kart, room: float) -> String:
 	if zone != BRAKE or not standing_still(kart):
 		return ZONE_WORDS[zone]
-	var room := zone_rect(zone).size.x - TANK_INSET
 	var font := Type.STRONG
 	var wide := font.get_string_size(
 		"REVERSE", HORIZONTAL_ALIGNMENT_LEFT, -1, TouchControls.LABEL_SIZE

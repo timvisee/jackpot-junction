@@ -9,15 +9,19 @@ const SHIELD: PowerUp = preload("res://data/powerups/shield.tres")
 const SPREAD: PowerUp = preload("res://data/powerups/spread_cannon.tres")
 
 var _was_enabled := false
+var _was_layout := Settings.TOUCH_SLIDER
 var _runner: GdUnitSceneRunner
 
 
 func before_test() -> void:
 	_was_enabled = TouchInput.enabled
+	_was_layout = Game.settings.touch_layout
+	Game.settings.touch_layout = Settings.TOUCH_SLIDER
 
 
 func after_test() -> void:
 	TouchInput.enabled = _was_enabled
+	Game.settings.touch_layout = _was_layout
 	TouchInput.release()
 	Input.emulate_touch_from_mouse = false
 	get_tree().paused = false
@@ -706,3 +710,64 @@ func test_swiping_along_the_jokers_clicks() -> void:
 	assert_int(controls.clicks).is_equal(before + 1)
 	_drag(controls, 1, _card_center(picker, 2))
 	assert_int(controls.clicks).is_equal(before + 2)
+
+
+## The other way to drive, chosen in the settings and put up at once, a match under way or not: a
+## round button each for gas, brake, nitro and drift, each only itself, the seam between gas and
+## fire pressing both. Each of the four clicks as a thumb goes down on it or slides on to it, is
+## grayed as it would be on the slider, and the brake says reverse on a kart standing still.
+func test_the_four_buttons_drive_as_the_slider_does() -> void:
+	var controls := await _driving()
+	var kart := controls.match_node.kart_of(0)
+	Game.settings.touch_layout = Settings.TOUCH_BUTTONS
+	await _runner.simulate_frames(1, 17)
+	assert_bool(controls.uses_slider()).is_false()
+	assert_object(controls.pad(TouchSlider.GAS)).is_not_null()
+	var gas := controls.pad(TouchSlider.GAS)
+	var fire := controls.pad(TouchControls.FIRE)
+	# The slider is gone with it, and a thumb where it stood is not on it.
+	_touch(controls, 9, controls.slider.zone_rect(TouchSlider.DRIFT).get_center(), true)
+	assert_int(controls.slider.finger).is_equal(-1)
+	_touch(controls, 9, controls.slider.zone_rect(TouchSlider.DRIFT).get_center(), false)
+	var before := controls.clicks
+	_touch(controls, 0, gas.center, true)
+	assert_float(TouchInput.throttle).is_equal(1.0)
+	assert_int(controls.clicks).is_equal(before + 1)
+	var seam := gas.center.lerp(fire.center, gas.radius / (gas.radius + fire.radius))
+	_drag(controls, 0, seam)
+	assert_bool(TouchInput.fire).is_true()
+	assert_float(TouchInput.throttle).is_equal(1.0)
+	_touch(controls, 0, seam, false)
+	_touch(controls, 1, controls.pad(TouchSlider.DRIFT).center, true)
+	assert_bool(TouchInput.handbrake).is_true()
+	assert_float(TouchInput.throttle).is_equal(0.0)
+	_drag(controls, 1, controls.pad(TouchSlider.BRAKE).center)
+	assert_float(TouchInput.brake).is_equal(1.0)
+	assert_bool(TouchInput.handbrake).is_false()
+	assert_int(controls.clicks).is_equal(before + 3)
+	_touch(controls, 1, controls.pad(TouchSlider.BRAKE).center, false)
+	kart.motor.forward_speed = 0.0
+	assert_bool(TouchSlider.zone_ready(TouchSlider.DRIFT, kart)).is_false()
+	var room := controls.pad(TouchSlider.BRAKE).radius * 2.0 - TouchControls.LABEL_ROOM
+	assert_str(TouchSlider.word_for(TouchSlider.BRAKE, kart, room)).starts_with("REV")
+	# And back to the slider, the buttons of it going with it.
+	Game.settings.touch_layout = Settings.TOUCH_SLIDER
+	await _runner.simulate_frames(1, 17)
+	assert_bool(controls.uses_slider()).is_true()
+	assert_object(controls.pad(TouchSlider.GAS)).is_null()
+	_touch(controls, 2, controls.slider.zone_rect(TouchSlider.GAS).get_center(), true)
+	assert_float(TouchInput.throttle).is_equal(1.0)
+
+
+## The choice is remembered with the rest of the controls.
+func test_the_way_to_drive_is_remembered() -> void:
+	assert_str(Settings.new().touch_layout).is_equal(Settings.TOUCH_SLIDER)
+	var settings := Settings.new()
+	settings.path = "user://test_touch_layout.cfg"
+	settings.touch_layout = Settings.TOUCH_BUTTONS
+	assert_int(settings.save_to_disk()).is_equal(OK)
+	var read := Settings.new()
+	read.path = settings.path
+	read.load_from_disk()
+	assert_str(read.touch_layout).is_equal(Settings.TOUCH_BUTTONS)
+	DirAccess.remove_absolute(settings.path)
