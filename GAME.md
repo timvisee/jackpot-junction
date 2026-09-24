@@ -2423,8 +2423,9 @@ like any other button.
   keeping all eight at least 28 apart in CIELAB under it and under normal vision,
   and clear of the felt; the usual palette has blue and purple 7 apart for a
   player without red or green cones. It is every machine's own, since it is about
-  whose eyes are looking, and what is already in a room keeps its colors: from
-  over one the settings say the karts change from the next map.
+  whose eyes are looking. Changed from over a room, everything in it changes
+  there and then: every kart, a client's and the decoys included, the corners of
+  the HUD and the switches, each still the slot of the palette it was.
 - **About**: the game's mark, its name and its version, and that it is an
   experiment in what an AI model can make: everything in it not credited there
   was made by Anthropic's Claude, whose models are named in the order they worked

@@ -90,6 +90,16 @@ static func recolor(kart: Kart, color_index: int) -> void:
 	redress(kart, kart.style)
 
 
+## Every kart in [param match_node] painted over in the palette worn now, GAME.md 8.5, for a
+## player who has just changed it in the settings over the room: the karts driven, the ones of a
+## client's screen and the decoys, each in the color it already was.
+static func repaint_all(match_node: Match) -> void:
+	for node: Node in match_node.find_children("*", "CharacterBody3D", true, false):
+		var kart := node as Kart
+		if kart != null:
+			recolor(kart, kart.color_index)
+
+
 ## The kart as something to look at rather than to drive: the model in a player's color, with
 ## nothing hanging off it and no kart under it. The results podium stands one on each step.
 static func display_model(color_index: int, style: KartStyle = null) -> Node3D:

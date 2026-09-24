@@ -296,7 +296,7 @@ func _show(each: Dictionary) -> void:
 ## has just said they are in. Only on a change.
 func _follow(each: Dictionary) -> void:
 	var slot: PlayerSlot = each["slot"]
-	var worn := "%d|%s" % [slot.color_index, slot.display_name()]
+	var worn := "%d|%s|%s" % [slot.color_index, Palette.vision, slot.display_name()]
 	if each["worn"] == worn:
 		return
 	each["worn"] = worn

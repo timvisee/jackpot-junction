@@ -68,6 +68,43 @@ func test_the_karts_wear_the_palette_the_setting_says() -> void:
 	assert_object(Palette.player_color(9)).is_equal(Palette.VISION_COLORS["deuteranopia"][1])
 
 
+## Changed in the settings over a room, the karts in it change there and then rather than from the
+## next map, and so does the corner of the HUD that says whose they are.
+func test_the_karts_in_the_room_change_with_the_setting() -> void:
+	var real := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_color_vision.cfg"
+	Palette.vision = ""
+	var match_node: Match = auto_free(load("res://scenes/match/match.tscn").instantiate())
+	match_node.offer_size = 0
+	var runner := scene_runner(match_node)
+	match_node.start([PlayerInput.new(DeviceInput.ANY, 0), KartInput.new()] as Array[KartInput], 3)
+	await runner.simulate_frames(3, 17)
+	var kart := match_node.slots[1].kart
+	var screen: SettingsScreen = auto_free(
+		load("res://scenes/ui/settings_screen.tscn").instantiate()
+	)
+	screen.overlay = true
+	add_child(screen)
+	var choice: OptionButton = null
+	for each: Node in screen.find_children("*", "OptionButton", true, false):
+		var option := each as OptionButton
+		if option.item_count == Settings.VISIONS.size() and option.get_item_text(0) == "Off":
+			choice = option
+	var deuteranopia := Settings.VISIONS.find("deuteranopia")
+	choice.select(deuteranopia)
+	choice.item_selected.emit(deuteranopia)
+	var wanted: Color = Palette.VISION_COLORS["deuteranopia"][1]
+	assert_that(kart._tint.albedo_color).is_equal(wanted)
+	await runner.simulate_frames(2, 17)
+	var corner: Label = match_node.hud._blocks[0]["name"]
+	assert_that(corner.get_theme_color("font_color")).is_equal(
+		Palette.VISION_COLORS["deuteranopia"][0]
+	)
+	DirAccess.remove_absolute(Game.settings.path)
+	Game.settings = real
+
+
 func test_the_setting_is_kept_and_put_into_effect() -> void:
 	var settings := Settings.new()
 	settings.path = "user://test_color_vision.cfg"

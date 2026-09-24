@@ -116,14 +116,15 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 		"item_name": item.label,
 		"hints": hints,
 		"hint_stamp": "",
-		"worn": "%d|%s" % [slot.color_index, slot.display_name()],
+		"worn": _worn(slot),
 	}
 
 
 ## Keeps [param block] in [param slot]'s name and color, which a player can change in the lobby
-## and the Garage, GAME.md 4.4, and a client hears about from the host. Only on a change.
+## and the Garage, GAME.md 4.4, and a client hears about from the host, and in the palette, which
+## the settings over the room can change, 8.5. Only on a change.
 static func follow(block: Dictionary, slot: PlayerSlot) -> void:
-	var worn := "%d|%s" % [slot.color_index, slot.display_name()]
+	var worn := _worn(slot)
 	if block["worn"] == worn:
 		return
 	block["worn"] = worn
@@ -165,3 +166,8 @@ static func bar(size: Vector2, ink: Color) -> ProgressBar:
 	bar.add_theme_stylebox_override("background", back)
 	bar.add_theme_stylebox_override("fill", fill)
 	return bar
+
+
+## What a block was drawn for: the name, the color and the palette it is in, GAME.md 8.5.
+static func _worn(slot: PlayerSlot) -> String:
+	return "%d|%s|%s" % [slot.color_index, Palette.vision, slot.display_name()]

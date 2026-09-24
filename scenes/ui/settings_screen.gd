@@ -611,8 +611,10 @@ func _vision_row() -> HBoxContainer:
 			_settings.color_vision = Settings.VISIONS[index]
 			Palette.vision = _settings.color_vision
 			paint.call()
-			if overlay:
-				status.text = "The karts change color from the next map"
+			# Over a room, the karts in it change there and then, under the settings.
+			var room := get_tree().get_first_node_in_group(&"match") as Match
+			if room != null:
+				KartVisuals.repaint_all(room)
 	)
 	var both := HBoxContainer.new()
 	both.add_theme_constant_override("separation", 16)
