@@ -52,6 +52,7 @@ func test_settings_round_trip_through_disk() -> void:
 	saved.path = TEST_SETTINGS_PATH
 	saved.music_volume = 0.25
 	saved.kart_volume = 0.35
+	saved.muffle_on_death = false
 	saved.fullscreen = true
 	saved.aim_assist = 0.4
 	saved.bot_count = 2
@@ -63,6 +64,7 @@ func test_settings_round_trip_through_disk() -> void:
 	loaded.load_from_disk()
 	assert_float(loaded.music_volume).is_equal(0.25)
 	assert_float(loaded.kart_volume).is_equal(0.35)
+	assert_bool(loaded.muffle_on_death).is_false()
 	assert_bool(loaded.fullscreen).is_true()
 	assert_float(loaded.aim_assist).is_equal_approx(0.4, 0.0001)
 	assert_int(loaded.bot_count).is_equal(2)

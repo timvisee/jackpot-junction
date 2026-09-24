@@ -1956,6 +1956,13 @@ for.
   gain from -7.5 dB to +1.5, so an opening lap sounds like a bar with music on
   somewhere and the finale sounds like the music. The early levels are meant to
   sit under the room rather than lead it. Both sit after the bus volume, so the audio settings keep full control.
+- **Going under**: a player at this screen dying pulls the same filter down from
+  wherever the levels have it to 380 Hz in 0.2 s, as if the music were heard from
+  under water, holds it there 1.5 s and sweeps it back up over 3 s. Only the
+  player's own screen does it: online a client goes under for its own death and
+  nobody else's, and a bot going down is only heard as a death. Dying again on the
+  way back up takes it straight back down. The audio settings of 8.5 can turn it
+  off.
   A kill shakes the camera by 0.2 plus half of that same share. At level 6 the camera thumps on every
   beat and harder on the first of the bar, each shaped so it has fallen away before the
   next arrives, which is the one place the room is felt as well as heard. A beat hits
@@ -2089,6 +2096,8 @@ like any other button.
   because their engine and tires run the whole time rather than in bursts, so
   how loud that bed should sit is a matter of taste in a way the rest is not.
   The kart bus is under the effects bus, so the effects slider still scopes it.
+  A switch turns off the music going under water when a player here dies, see 8.4,
+  on by default.
 - **Video**: window mode, vsync, render scale, bloom and edge smoothing. The last
   two are the passes over the whole screen a room pays for, and they are the two
   things worth handing back on a card that cannot spare them: at 1080p on a mid

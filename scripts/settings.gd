@@ -13,6 +13,8 @@ var sfx_volume := 1.0
 var kart_volume := 1.0
 ## Music switched off entirely, toggled with the mute key.
 var music_muted := false
+## Whether the music goes under water for a moment when a player at this screen dies, GAME.md 8.4.
+var muffle_on_death := true
 var fullscreen := false
 var vsync := true
 var render_scale := 1.0
@@ -91,6 +93,7 @@ func load_from_disk() -> void:
 	sfx_volume = file.get_value("audio", "sfx", sfx_volume)
 	kart_volume = file.get_value("audio", "kart", kart_volume)
 	music_muted = file.get_value("audio", "music_muted", music_muted)
+	muffle_on_death = file.get_value("audio", "muffle_on_death", muffle_on_death)
 	fullscreen = file.get_value("video", "fullscreen", fullscreen)
 	vsync = file.get_value("video", "vsync", vsync)
 	render_scale = file.get_value("video", "render_scale", render_scale)
@@ -143,6 +146,7 @@ func save_to_disk() -> Error:
 	file.set_value("audio", "sfx", sfx_volume)
 	file.set_value("audio", "kart", kart_volume)
 	file.set_value("audio", "music_muted", music_muted)
+	file.set_value("audio", "muffle_on_death", muffle_on_death)
 	file.set_value("video", "fullscreen", fullscreen)
 	file.set_value("video", "vsync", vsync)
 	file.set_value("video", "render_scale", render_scale)

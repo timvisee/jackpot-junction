@@ -322,6 +322,14 @@ func _audio_tab() -> Control:
 		)
 	)
 	column.add_child(MenuTheme.row("Music muted", _check(_settings.music_muted, _set_music_muted)))
+	column.add_child(
+		MenuTheme.row(
+			"Muffle music on death",
+			_check(
+				_settings.muffle_on_death, func(on: bool) -> void: _settings.muffle_on_death = on
+			)
+		)
+	)
 	return column
 
 

@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 ## and the same position kept across switches.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const RULES: MatchRules = preload("res://data/match/default.tres")
 
 
 func before_test() -> void:
@@ -16,6 +17,9 @@ func after_test() -> void:
 	Audio.set_track(0)
 	Audio.set_excitement(1, 0.0)
 	Audio.set_layer(Audio.LAYER_CALM)
+	Audio._muffle = 0.0
+	Audio._muffling = false
+	Audio._muffle_hold = 0.0
 
 
 ## Every track has all three intensities, they loop, and each is a whole number of bars long at
@@ -59,7 +63,7 @@ func test_the_beat_is_read_at_the_tempo_of_whatever_is_playing() -> void:
 ## GAME.md 8.4: a record goes on as the room is built, so a run of matches is not one loop over
 ## and over.
 func test_building_a_match_puts_a_record_on() -> void:
-	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
 	var seen: Dictionary[int, bool] = {}
 	for i: int in 30:
@@ -162,3 +166,70 @@ func test_the_music_bus_sweeps_open_with_the_excitement() -> void:
 	for i: int in 40:
 		Audio._step_music_effects(0.05)
 	assert_float(Audio._filter.cutoff_hz).is_equal_approx(Audio.FILTER_CLOSED_HZ, 1.0)
+
+
+## GAME.md 8.4: a player at this screen dying puts the music under water at once, holds it there
+## for a moment and brings it back up slowly, from wherever the meter had it.
+func test_a_death_here_puts_the_music_under_water_and_back() -> void:
+	Audio._open = 1.0
+	Audio.excitement_share = 1.0
+	Audio._step_music_effects(0.0)
+	assert_float(Audio._filter.cutoff_hz).is_equal_approx(Audio.FILTER_OPEN_HZ, 20.0)
+	Audio.muffle_music()
+	var cutoffs: Array[float] = []
+	for i: int in int((Audio.MUFFLE_ATTACK + Audio.MUFFLE_HOLD + Audio.MUFFLE_RELEASE) * 20.0) + 4:
+		Audio._excitement_age = 0.0
+		Audio._step_music_effects(0.05)
+		cutoffs.append(Audio._filter.cutoff_hz)
+	# Down as soon as the attack is over, and not all the way down before it.
+	var down := ceili(Audio.MUFFLE_ATTACK * 20.0)
+	assert_float(cutoffs[0]).is_greater(Audio.MUFFLE_HZ * 2.0)
+	assert_float(cutoffs[down]).is_equal_approx(Audio.MUFFLE_HZ, 1.0)
+	# Still down at the end of the hold, and on its way back up a second into the release.
+	var held := int((Audio.MUFFLE_ATTACK + Audio.MUFFLE_HOLD) * 20.0) - 1
+	assert_float(cutoffs[held]).is_equal_approx(Audio.MUFFLE_HZ, 1.0)
+	var rising := held + 20
+	assert_float(cutoffs[rising]).is_between(Audio.MUFFLE_HZ * 2.0, Audio.FILTER_OPEN_HZ * 0.5)
+	# And all the way back, climbing the whole time.
+	for i: int in range(held + 1, cutoffs.size()):
+		assert_float(cutoffs[i]).is_greater_equal(cutoffs[i - 1])
+	assert_float(cutoffs.back()).is_equal_approx(Audio.FILTER_OPEN_HZ, 20.0)
+	assert_str(Audio.music_debug()).not_contains("under")
+
+
+## Only a death at this screen does it: a bot, or anybody at another machine, going down is heard
+## as a death and not in the music.
+func test_only_a_player_here_dying_puts_the_music_under() -> void:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	var rules: MatchRules = RULES.duplicate()
+	rules.countdown = 0.1
+	rules.duration = 60.0
+	match_node.rules = rules
+	match_node.offer_size = 0
+	var runner := scene_runner(match_node)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), KartInput.new()]
+	match_node.start(inputs, 3)
+	await runner.simulate_frames(12, 17)
+	match_node.kart_of(1).die(&"test", 0)
+	await runner.simulate_frames(2, 17)
+	assert_float(Audio._muffle).is_equal(0.0)
+	assert_bool(Audio._muffling).is_false()
+	match_node.kart_of(0).die(&"test", 1)
+	await runner.simulate_frames(2, 17)
+	assert_float(Audio._muffle).is_greater(0.0)
+
+
+## GAME.md 8.5: the switch in the audio settings turns it off, and it is on to start with.
+func test_the_audio_settings_can_turn_going_under_off() -> void:
+	assert_bool(Settings.new().muffle_on_death).is_true()
+	var real := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.muffle_on_death = false
+	Audio.muffle_music()
+	Audio._step_music_effects(0.1)
+	assert_float(Audio._muffle).is_equal(0.0)
+	Game.settings.muffle_on_death = true
+	Audio.muffle_music()
+	Audio._step_music_effects(0.1)
+	assert_float(Audio._muffle).is_greater(0.0)
+	Game.settings = real

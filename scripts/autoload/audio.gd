@@ -50,6 +50,13 @@ const OPEN_FOLLOW := 0.8
 ## drops away and the screen comes up into the space that leaves.
 const PODIUM_DUCK_DB := -9.0
 const PODIUM_DUCK_SECONDS := 0.8
+## A player at this screen dying puts the music under water: the low-pass sweeps down from
+## wherever the meter has it to [constant MUFFLE_HZ] in [constant MUFFLE_ATTACK] seconds, stays
+## there [constant MUFFLE_HOLD] seconds, and opens back up over [constant MUFFLE_RELEASE].
+const MUFFLE_HZ := 380.0
+const MUFFLE_ATTACK := 0.2
+const MUFFLE_HOLD := 1.5
+const MUFFLE_RELEASE := 3.0
 const BANK_TICK_INTERVAL := 0.07
 ## The least time between two cash-out chimes for one player.
 const BANK_CHIME_GAP := 1.6
@@ -166,6 +173,11 @@ var _duck_db := 0.0
 var _duck_target := 0.0
 var _filter: AudioEffectLowPassFilter
 var _amplify: AudioEffectAmplify
+## How far under water the music is, 0 not at all and 1 all the way down to [constant MUFFLE_HZ],
+## whether it is still going down, and how much longer it stays down once it is there.
+var _muffle := 0.0
+var _muffling := false
+var _muffle_hold := 0.0
 ## The file each effect played last, so an effect with several never plays the same one twice
 ## running. Hearing one sound over and over is what makes a repeated effect wearing.
 var _last_pick: Dictionary[StringName, int] = {}
@@ -239,11 +251,35 @@ func _step_music_effects(delta: float) -> void:
 	if _filter == null:
 		return
 	_open = move_toward(_open, excitement_share, OPEN_FOLLOW * delta)
-	# Cutoff by ear rather than by number: an octave is a doubling, so sweep it that way.
-	_filter.cutoff_hz = FILTER_CLOSED_HZ * pow(FILTER_OPEN_HZ / FILTER_CLOSED_HZ, _open)
+	_step_muffle(delta)
+	# Cutoff by ear rather than by number: an octave is a doubling, so sweep it that way, both
+	# as the meter opens it up and as a death pulls it down from there.
+	var open_hz := FILTER_CLOSED_HZ * pow(FILTER_OPEN_HZ / FILTER_CLOSED_HZ, _open)
+	var under := smoothstep(0.0, 1.0, _muffle)
+	_filter.cutoff_hz = open_hz * pow(MUFFLE_HZ / open_hz, under)
 	var fade := absf(PODIUM_DUCK_DB) / maxf(PODIUM_DUCK_SECONDS, 0.001)
 	_duck_db = move_toward(_duck_db, _duck_target, fade * delta)
 	_amplify.volume_db = lerpf(COLD_GAIN_DB, HOT_GAIN_DB, _open) + _duck_db
+
+
+## A player at this screen has died, GAME.md 8.4: the music goes under water at once and comes
+## back up slowly. Dying again on the way back up takes it straight back down. The audio
+## settings of 8.5 can turn it off.
+func muffle_music() -> void:
+	if not Game.settings.muffle_on_death:
+		return
+	_muffling = true
+	_muffle_hold = MUFFLE_HOLD
+
+
+func _step_muffle(delta: float) -> void:
+	if _muffling:
+		_muffle = move_toward(_muffle, 1.0, delta / MUFFLE_ATTACK)
+		_muffling = _muffle < 1.0
+	elif _muffle_hold > 0.0:
+		_muffle_hold -= delta
+	else:
+		_muffle = move_toward(_muffle, 0.0, delta / MUFFLE_RELEASE)
 
 
 ## Pulls the music down under the podium and lets it back up afterwards, GAME.md 3.8. The
@@ -298,6 +334,8 @@ func music_debug() -> String:
 		else:
 			parts.append("%s%s off" % [mark, file])
 	parts.append("open %3.0f%%" % (_open * 100.0))
+	if _muffle > 0.0:
+		parts.append("under %3.0f%%" % (_muffle * 100.0))
 	if is_music_muted():
 		parts.append("MUTED")
 	elif not music_enabled:

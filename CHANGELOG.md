@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **The music goes under when you die.** It drops to a muffled rumble for a moment
+  and slowly comes back; a switch in the audio settings turns it off.
+
 - **The football can be heard.** A soft thump when a kart kicks it and a knock off
   walls and shots, louder the harder it is hit.
 

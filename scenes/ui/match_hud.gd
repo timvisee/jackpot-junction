@@ -229,6 +229,10 @@ func _on_nitro_gained(slot: int) -> void:
 
 func _on_kart_killed(victim_slot: int, killer_slot: int, cause: StringName) -> void:
 	_rumble(victim_slot, 1.0, 0.4)
+	# Somebody at this screen going down is heard as the music going under, GAME.md 8.4. Only
+	# here: a client hears its own player's death that way, nobody else's.
+	if _blocks.has(victim_slot):
+		Audio.muffle_music()
 	var victim := _slot_name(victim_slot)
 	if victim.is_empty():
 		return
