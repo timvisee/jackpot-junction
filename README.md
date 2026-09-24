@@ -60,6 +60,7 @@ make drive      # start the driving room, for handling work
 make jokers     # every joker and power-up icon on one screen, to see them as a set
 make run        # start the game scene
 make run ARGS=--touch=1  # the game with the touch controls, the mouse standing in for a finger
+make run ARGS="--touch=1 --ui-scale=1.5"  # the same at a phone's UI scale, saving nothing
 make check      # import, lint, format check, changelog, unit tests, smoke runs, multiplayer
 make test       # unit tests only (gdUnit4, headless, a suite per process in parallel)
 make multiplayer  # a whole Grand Prix online (two games, up to two clients) and on one screen

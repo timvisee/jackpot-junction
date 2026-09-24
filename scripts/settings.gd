@@ -5,6 +5,14 @@ extends RefCounted
 
 const DEFAULT_PATH := "user://settings.cfg"
 const AIM_ASSIST_MAX := 1.0
+## How big the menus and the HUD can be drawn, GAME.md 8.5, as a share of the size they were laid
+## out at for a screen 1080 lines high. The 3D picture is not touched by it.
+const UI_SCALES: Array[float] = [0.75, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0]
+
+## A UI scale for this run of the game alone, from `++ --ui-scale=1.5` on the command line, and 0
+## for none: for trying a size out, or a phone's on a desktop, without it being saved over the
+## player's own.
+static var ui_scale_for_now := 0.0
 
 var master_volume := 1.0
 var music_volume := 0.8
@@ -18,6 +26,9 @@ var muffle_on_death := true
 var fullscreen := false
 var vsync := true
 var render_scale := 1.0
+## One of [constant UI_SCALES]. A phone is held close, and a HUD laid out for a monitor across a
+## desk is a HUD of things too small to press there, so a handheld starts at half as big again.
+var ui_scale := 1.5 if OS.has_feature("mobile") else 1.0
 ## The two passes over the whole screen a room pays for, GAME.md 8.5. Both are worth what they
 ## cost on a card that can spare it and both are the first thing to give up on one that cannot:
 ## the bloom is about a tenth of the frame in The Vault, and the smoothing about a twentieth.
@@ -97,6 +108,7 @@ func load_from_disk() -> void:
 	fullscreen = file.get_value("video", "fullscreen", fullscreen)
 	vsync = file.get_value("video", "vsync", vsync)
 	render_scale = file.get_value("video", "render_scale", render_scale)
+	ui_scale = clampf(file.get_value("video", "ui_scale", ui_scale), UI_SCALES[0], UI_SCALES[-1])
 	bloom = file.get_value("video", "bloom", bloom)
 	antialiasing = file.get_value("video", "antialiasing", antialiasing)
 	screen_shake = file.get_value("accessibility", "screen_shake", screen_shake)
@@ -150,6 +162,7 @@ func save_to_disk() -> Error:
 	file.set_value("video", "fullscreen", fullscreen)
 	file.set_value("video", "vsync", vsync)
 	file.set_value("video", "render_scale", render_scale)
+	file.set_value("video", "ui_scale", ui_scale)
 	file.set_value("video", "bloom", bloom)
 	file.set_value("video", "antialiasing", antialiasing)
 	file.set_value("accessibility", "screen_shake", screen_shake)
@@ -211,6 +224,8 @@ func apply_video(tree: SceneTree) -> void:
 		DisplayServer.window_set_vsync_mode(wanted)
 	if tree != null and tree.root != null:
 		tree.root.scaling_3d_scale = clampf(render_scale, 0.5, 1.0)
+		# Every menu and the HUD, drawn bigger or smaller; the room behind them stays as sharp.
+		tree.root.content_scale_factor = ui_scale_for_now if ui_scale_for_now > 0.0 else ui_scale
 		tree.root.msaa_3d = Viewport.MSAA_2X if antialiasing else Viewport.MSAA_DISABLED
 		# Something has to keep the edges of a room of straight lines from crawling. Off the
 		# multisampling, the cheap screen-space pass does it for about a third of the price.

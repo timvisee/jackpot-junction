@@ -7,17 +7,23 @@ const ROOM: RoomLook = preload("res://data/rooms/after_hours.tres")
 
 var _was_bloom := true
 var _was_smoothing := true
+var _was_ui_scale := 1.0
 
 
 func before_test() -> void:
 	_was_bloom = Game.settings.bloom
 	_was_smoothing = Game.settings.antialiasing
+	_was_ui_scale = Game.settings.ui_scale
 
 
 func after_test() -> void:
 	Game.settings.bloom = _was_bloom
 	Game.settings.antialiasing = _was_smoothing
+	Game.settings.ui_scale = _was_ui_scale
+	Settings.ui_scale_for_now = 0.0
 	Game.settings.apply_video(get_tree())
+	# The tests run at the size things were laid out at, whatever this machine's setting is.
+	get_tree().root.content_scale_factor = 1.0
 
 
 ## The card room asks for bloom and gets it, until the player says otherwise.
@@ -109,3 +115,29 @@ func test_a_switch_can_be_seen_either_way() -> void:
 	assert_float(middle.r).is_greater(middle.b)
 	off.free()
 	on.free()
+
+
+## GAME.md 8.5: the UI scale draws every menu and the HUD bigger or smaller: as laid out on a
+## desktop to start with, half as big again on a phone, and remembered. One given on the command
+## line is used for the run and never saved over the player's own.
+func test_the_ui_scale_sizes_the_menus_and_the_hud() -> void:
+	var fresh := Settings.new()
+	assert_float(fresh.ui_scale).is_equal(1.5 if OS.has_feature("mobile") else 1.0)
+	assert_bool(Settings.UI_SCALES.has(fresh.ui_scale)).is_true()
+	Game.settings.ui_scale = 1.5
+	Game.settings.apply_video(get_tree())
+	assert_float(get_tree().root.content_scale_factor).is_equal(1.5)
+	Settings.ui_scale_for_now = 1.25
+	Game.settings.apply_video(get_tree())
+	assert_float(get_tree().root.content_scale_factor).is_equal(1.25)
+	Settings.ui_scale_for_now = 0.0
+	var settings := Settings.new()
+	settings.path = "user://test_video_settings.cfg"
+	settings.ui_scale = 1.75
+	Settings.ui_scale_for_now = 1.25
+	assert_int(settings.save_to_disk()).is_equal(OK)
+	var read := Settings.new()
+	read.path = settings.path
+	read.load_from_disk()
+	assert_float(read.ui_scale).is_equal(1.75)
+	DirAccess.remove_absolute(settings.path)
