@@ -178,6 +178,14 @@ func _controls_tab() -> Control:
 	# menu over their own corner.
 	var driving := DrivePicker.make(_settings.drive_mode(0))
 	driving.chosen.connect(func(mode: String) -> void: _settings.drive_modes[0] = mode)
+	# And the question the first Play asked, again, for the two side by side with what each is.
+	var again := MenuTheme.button("Help me choose", Type.BODY)
+	again.custom_minimum_size = Vector2(0.0, 52.0)
+	var answered := func() -> void:
+		driving.mode = _settings.drive_mode(0)
+		again.grab_focus()
+	again.pressed.connect(func() -> void: DriveChoice.ask(self, answered, 0))
+	driving.add_child(again)
 	column.add_child(MenuTheme.row("Driving", driving))
 	# How a touch screen drives, GAME.md 4.2, first where it is the controls in the player's hand.
 	if TouchInput.enabled:

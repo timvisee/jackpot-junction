@@ -6,6 +6,7 @@ const DT := 1.0 / 60.0
 const KART_SCENE := preload("res://scenes/kart/kart.tscn")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const LOBBY_SCENE := preload("res://scenes/ui/lobby.tscn")
+const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
 ## The camera of 8.2, looking up the floor toward -Z: up the screen is -Z and right is +X.
 const AXES: Array[Vector3] = [Vector3.FORWARD, Vector3.RIGHT]
 const UP := Vector2(0.0, -1.0)
@@ -275,6 +276,33 @@ func test_the_first_play_asks_how_to_drive_and_goes_on_once_answered() -> void:
 	# Answered once, it is never asked again.
 	assert_object(DriveChoice.first(holder, func() -> void: went[0] += 1)).is_null()
 	assert_int(went[0]).is_equal(2)
+	DirAccess.remove_absolute(Game.settings.path)
+
+
+func test_the_settings_ask_the_question_again_for_the_first_player() -> void:
+	Game.settings.drive_modes = [
+		Settings.DRIVE_SIMPLE, Settings.DRIVE_ADVANCED, Settings.DRIVE_SIMPLE, ""
+	]
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	var again: Button = null
+	for button: Node in screen.find_children("*", "Button", true, false):
+		if (button as Button).text == "Help me choose":
+			again = button
+	again.pressed.emit()
+	var choice: DriveChoice = screen.get_node("DriveChoice")
+	await await_idle_frame()
+	# The cursor starts on what the first player drives now.
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(choice.card(Settings.DRIVE_SIMPLE))
+	choice.card(Settings.DRIVE_ADVANCED).pressed.emit()
+	await await_idle_frame()
+	# The first player's alone, whatever the others said, and the row shows it.
+	assert_array(Game.settings.drive_modes).is_equal(
+		[Settings.DRIVE_ADVANCED, Settings.DRIVE_ADVANCED, Settings.DRIVE_SIMPLE, ""]
+	)
+	var picker: DrivePicker = again.get_parent()
+	assert_str(picker.mode).is_equal(Settings.DRIVE_ADVANCED)
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(again)
 	DirAccess.remove_absolute(Game.settings.path)
 
 

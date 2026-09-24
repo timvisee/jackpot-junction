@@ -18,7 +18,7 @@ below, and hands the notes to the release workflow.
 - **Simple driving on a touch screen.** The stick points the way, and the slider or
   the buttons keep only nitro and drift.
 - **The first Play asks how you want to drive.** Simple or advanced, each with its
-  picture; Settings can change it later.
+  picture; Settings can change it later or ask again.
 - **Switch how you drive from the pause menu.** Each player has a switch over their
   own corner.
 - **Every player picks how they drive on the Play screen.** It sits under their name

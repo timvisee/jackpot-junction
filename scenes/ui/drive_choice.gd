@@ -3,7 +3,8 @@ extends Control
 ## The question the first Play asks, GAME.md 4.2: simple driving or advanced, each a big button with
 ## its picture, what it is in a line, and a word that it can be changed in the settings later. It
 ## is asked before the first way into driving from the title, whichever of the three it is, and
-## only until it has been answered; Back leaves the title as it was and asks again next time.
+## only until it has been answered; Back leaves the title as it was and asks again next time. The
+## settings ask it again on request, for the first player alone.
 
 ## What each way is, in a line under its name.
 const WHAT: Dictionary[String, String] = {
@@ -18,6 +19,8 @@ const INK := Color(0.88, 0.88, 0.92)
 
 ## What to do once answered.
 var then: Callable
+## The seat the answer is for, or -1 for the first answer, which is every seat's that has none.
+var seat := -1
 
 var _cards: Dictionary[String, Button] = {}
 ## What had the cursor before the question came up, for Back to give it back to.
@@ -30,9 +33,16 @@ static func first(parent: Control, next: Callable) -> DriveChoice:
 	if Game.settings.has_chosen_driving():
 		next.call()
 		return null
+	return ask(parent, next)
+
+
+## Asks, over [param parent], whatever was answered before, and does [param next] once answered.
+## [param for_seat] is the one seat the answer is for; -1 is the first answer, see [method first].
+static func ask(parent: Control, next: Callable, for_seat := -1) -> DriveChoice:
 	var choice := DriveChoice.new()
 	choice.name = "DriveChoice"
 	choice.then = next
+	choice.seat = for_seat
 	parent.add_child(choice)
 	return choice
 
@@ -64,10 +74,15 @@ func _ready() -> void:
 	column.add_child(cards)
 	for mode: String in Settings.DRIVE_MODES:
 		cards.add_child(_card(mode))
-	column.add_child(MenuTheme.subtitle("You can change this later in Settings.", Type.BODY))
+	# Asked again, it is being asked from the settings, where saying so would be telling the player
+	# where they already are.
+	if seat < 0:
+		column.add_child(MenuTheme.subtitle("You can change this later in Settings.", Type.BODY))
 	_confine()
 	_was_focused = get_viewport().gui_get_focus_owner()
-	_cards[Settings.DRIVE_SIMPLE].grab_focus()
+	# Asked again, the cursor starts on what it says now; the first time, on simple.
+	var now := Game.settings.drive_mode(seat) if seat >= 0 else Settings.DRIVE_SIMPLE
+	_cards[now].grab_focus()
 
 
 func _card(mode: String) -> Button:
@@ -118,9 +133,12 @@ func _confine() -> void:
 		each.focus_previous = other.get_path()
 
 
-## Answers with [param mode], for every seat that has not said, and goes on.
+## Answers with [param mode], for the seat asked or for every seat that has not said, and goes on.
 func choose(mode: String) -> void:
-	Game.settings.choose_driving(mode)
+	if seat >= 0:
+		Game.settings.drive_modes[seat] = mode
+	else:
+		Game.settings.choose_driving(mode)
 	Game.settings.save_to_disk()
 	var next := then
 	queue_free()

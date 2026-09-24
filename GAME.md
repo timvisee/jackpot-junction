@@ -682,7 +682,9 @@ to drive: a big button each for simple and advanced, with its picture, its name 
 a line, over a word that the settings can change it later. The cursor starts on simple and stays
 on the two. The answer is every seat's that has not given one of its own, and is saved at once.
 Back puts the question away unanswered and leaves the title as it was, and it is asked again
-until it has been answered.
+until it has been answered. Help me choose, beside the Driving row of the settings, asks it again,
+for the first player alone and without the word about the settings, the cursor starting on what
+they drive now; the row shows the answer.
 
 While the pause menu of 3.8 is up, each player at this screen has a switch held over the middle
 of their own corner of the HUD, so four people at one screen each find theirs where they already
@@ -2266,7 +2268,8 @@ like any other button.
 
 - **Controls**: how the first player drives, simple or advanced, each a button
   with its picture on it, a kart with an arrow each way round it and a steering
-  wheel; rebinding per player for gamepad and keyboard, stick dead zone, rumble on
+  wheel, and Help me choose beside them for the question the first Play asks, see
+  4.2; rebinding per player for gamepad and keyboard, stick dead zone, rumble on
   or off, and on a touch screen, first after the driving, how it drives: by the
   slider or by a button each, see 4.2.
 - **Audio**: master, music, effects and kart volume. The karts have their own
