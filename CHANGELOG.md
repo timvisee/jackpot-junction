@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-24
+
+Jackpot Junction plays on a touch screen: a stick, a slider for the pedals and a
+UI scale to make it all big enough to press. The rooms between the maps load
+like maps.
+
 ### Added
 
 - **Touch controls.** On a phone or a tablet a stick steers and one slider runs
@@ -1047,7 +1053,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.5.2...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.6.0
 [0.5.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.5.2
 [0.5.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.5.1
 [0.5.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.5.0
