@@ -1,10 +1,11 @@
 class_name StyleStalls
 extends Node3D
 ## Where a player dresses their kart, GAME.md 4.4 and 9.6: a pad on the floor for each of the four
-## things a kart wears, its paint, its hat, its flag and its trail, with the word on it. Driving
-## onto one puts the next of that thing on the kart, with its name over the kart, and staying on
-## it goes on through them one every [constant STEP_TIME] seconds, so a player stops on the one
-## they want. The pad lights in the color of whoever is on it.
+## things a kart wears, its paint, its hat, its flag and its trail, with the word on it. On one,
+## the fire button puts the next of that thing on the kart, with its name over the kart, rather
+## than a shot out of the cannon, so a player goes through them at their own pace and stops on the
+## one they want. The pad lights in the color of whoever is on it, and until a player has changed
+## something once, a hint over their kart names the button.
 ##
 ## The host decides, as it decides who is on the ready pad, GAME.md 10.3: it can see every kart,
 ## and says so with [signal Events.kart_dressed], which every machine answers. What a player
@@ -13,8 +14,6 @@ extends Node3D
 
 ## The four, in [constant KartStyle.CHOICES] order, and what each pad says.
 const WORDS: Array[String] = ["PAINT", "HAT", "FLAG", "TRAIL"]
-## How long a kart has to stay on a pad before it steps on again, in seconds.
-const STEP_TIME := 1.2
 ## How big a pad is, in cells of the room's grid, and how far in from the cell edges it stops.
 const CELLS := 2
 const INSET := 0.15
@@ -23,6 +22,16 @@ const WORD_INK := Color(0.93, 0.93, 0.95)
 ## How the name of what was just put on is shown over the kart: its size and for how long.
 const NAME_SIZE := 64
 const NAME_TIME := 1.1
+## How high over the kart the hint hangs, where the drive and fire hint does, which it replaces,
+## and how big it is drawn: bigger than that one, since the room is seen from further off.
+const HINT_HEIGHT := 2.2
+const HINT_SIZE := 48
+## How long the cannon is held for, in seconds, each tick a kart is on a pad: past the next tick.
+const HOLD := 0.1
+
+## The seats at this machine whose players have changed something at a pad since the game was
+## started, and need telling no more.
+static var learned: Dictionary[int, bool] = {}
 
 var match_node: Match
 ## Whether this machine decides who is on a pad: the host, or a machine playing alone.
@@ -31,9 +40,9 @@ var deciding := true
 ## Each pad's floor, as a rectangle on the floor plane, and its slab, lit while somebody is on it.
 var _areas: Array[Rect2] = []
 var _slabs: Array[MeshInstance3D] = []
-## Slot to the pad its kart is on, and how long until it steps on again there.
-var _on: Dictionary[int, int] = {}
-var _wait: Dictionary[int, float] = {}
+## Slot to the hint hanging over its kart, and what the hint was drawn for.
+var _hints: Dictionary[int, Node3D] = {}
+var _drawn: Dictionary[int, String] = {}
 
 
 ## Four pads in [param in_match]'s room, the first of them with its top left corner in [param
@@ -64,31 +73,24 @@ func pad_under(kart: Kart) -> int:
 	return -1
 
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
 	for i: int in _slabs.size():
 		(_slabs[i].material_override as StandardMaterial3D).emission_energy_multiplier = 0.0
 	for slot: PlayerSlot in match_node.slots:
 		var kart := slot.kart
-		if kart == null or not kart.alive or not slot.is_human():
-			_on.erase(slot.index)
-			continue
-		var pad := pad_under(kart)
+		var pad := -1
+		if kart != null and kart.alive and slot.is_human():
+			pad = pad_under(kart)
+		_hint(slot, pad)
 		if pad < 0:
-			_on.erase(slot.index)
 			continue
 		var skin := _slabs[pad].material_override as StandardMaterial3D
 		skin.emission = slot.color()
 		skin.emission_energy_multiplier = 0.9
-		if not deciding:
-			continue
-		if _on.get(slot.index, -1) != pad:
-			_on[slot.index] = pad
-			_wait[slot.index] = STEP_TIME
-			_step(slot, pad)
-			continue
-		_wait[slot.index] -= delta
-		if _wait[slot.index] <= 0.0:
-			_wait[slot.index] = STEP_TIME
+		# The trigger is the pad's while the kart is on it, on every machine, a client's own kart
+		# included: nothing comes out of the cannon, and it makes no sound of trying.
+		kart.cannon.cooldown_left = maxf(kart.cannon.cooldown_left, HOLD)
+		if deciding and slot.input != null and slot.input.fire_pressed:
 			_step(slot, pad)
 
 
@@ -112,6 +114,10 @@ func _on_kart_dressed(index: int, part: int, values: PackedInt32Array) -> void:
 		FloatingText.spawn(
 			match_node, kart.global_position, named, slot.color(), NAME_SIZE, NAME_TIME
 		)
+	var player := _player_here(slot)
+	if player != null and part >= 0:
+		learned[player.seat] = true
+		_hint(slot, -1)
 	StyleStalls.keep(slot)
 
 
@@ -147,6 +153,56 @@ static func keep(slot: PlayerSlot) -> void:
 		return
 	settings.kart_styles[seat] = slot.style.to_array()
 	settings.save_to_disk()
+
+
+## The player at this machine who drives [param slot], or null: the one in the seat here, or on a
+## client the one this machine is.
+func _player_here(slot: PlayerSlot) -> PlayerInput:
+	if match_node.puppet:
+		return match_node.local_input if slot.index == match_node.local_slot else null
+	return slot.input as PlayerInput
+
+
+## Puts the hint up over [param slot]'s kart for [param pad], or takes it down for -1. It is only
+## for a player at this machine who has not changed anything yet, and is drawn for whichever device
+## they last touched.
+func _hint(slot: PlayerSlot, pad: int) -> void:
+	var player := _player_here(slot)
+	var wanted := ""
+	if pad >= 0 and player != null and not learned.has(player.seat):
+		var keyboard := DeviceInput.uses_keyboard(player.device)
+		var named := InputActions.short_binding_text(InputActions.FIRE, keyboard)
+		wanted = "%d|%s|%s|%d" % [pad, keyboard, named, _hint_size()]
+	if wanted == _drawn.get(slot.index, ""):
+		return
+	_drawn[slot.index] = wanted
+	var old: Node3D = _hints.get(slot.index)
+	if old != null and is_instance_valid(old):
+		old.queue_free()
+	_hints.erase(slot.index)
+	if wanted.is_empty():
+		return
+	var kart := slot.kart
+	# The drive and fire hint is where this one goes, and this one names the fire button too.
+	var other := kart.get_node_or_null("ControlHint")
+	if other != null:
+		other.queue_free()
+	var keyboard := DeviceInput.uses_keyboard(player.device)
+	var size := _hint_size()
+	var ink := ControlHint.INK
+	var parts: Array = [InputHint.glyph(InputActions.FIRE, keyboard, ink, size)]
+	var words := "%%s change the %s" % WORDS[pad].to_lower()
+	var hint := InputHint.billboard(
+		InputHint.card(InputHint.row(words, parts, ink, size)), ControlHint.PIXEL_SIZE
+	)
+	hint.name = "StallHint"
+	hint.position = Vector3(0.0, HINT_HEIGHT, 0.0)
+	kart.add_child(hint)
+	_hints[slot.index] = hint
+
+
+func _hint_size() -> int:
+	return roundi(HINT_SIZE * get_tree().root.content_scale_factor)
 
 
 func _build(index: int, corner: Vector2i) -> void:

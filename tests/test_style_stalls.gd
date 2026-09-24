@@ -1,7 +1,7 @@
 extends GdUnitTestSuite
 ## The stalls a kart is dressed at, GAME.md 4.4 and 9.6: a pad each for the paint, the hat, the
-## flag and the trail, driven onto rather than picked from a menu, in the lobby and the garage,
-## at this machine and across the wire.
+## flag and the trail, driven onto rather than picked from a menu and changed with the fire button,
+## in the lobby and the garage, at this machine and across the wire.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const LAYOUT: ArenaLayout = preload("res://data/maps/waiting_room.tres")
@@ -11,7 +11,20 @@ var _runner: GdUnitSceneRunner
 var _settings_were: Settings
 
 
+## A player who presses fire, once, when the test says so.
+class Pressing:
+	extends PlayerInput
+
+	var press := false
+
+	func poll(_delta: float) -> void:
+		fire = press
+		fire_pressed = press
+		press = false
+
+
 func before_test() -> void:
+	StyleStalls.learned.clear()
 	_settings_were = Game.settings
 	Game.settings = Settings.new()
 	Game.settings.path = "user://test_style_stalls.cfg"
@@ -38,30 +51,54 @@ func _park(kart: Kart, on: Rect2) -> void:
 	kart.motor.velocity = Vector3.ZERO
 
 
-func test_a_stall_puts_the_next_one_on_and_goes_on_while_the_kart_stays() -> void:
-	var player := PlayerInput.new(DeviceInput.KEYBOARD, 0)
+func test_the_fire_button_on_a_stall_puts_the_next_one_on_instead_of_a_shot() -> void:
+	var player := Pressing.new(DeviceInput.KEYBOARD, 0)
 	var match_node := _room([player])
 	await _runner.simulate_frames(10, 17)
 	var stalls := StyleStalls.add_to(match_node, Vector2i(8, 1))
 	var slot := match_node.slots[0]
 	var kart := slot.kart
+	var shots := [0]
+	var count := func(_slot: int) -> void: shots[0] += 1
+	Events.bullet_fired.connect(count)
 	_park(kart, stalls._areas[1])
+	await _runner.simulate_frames(3, 17)
+	# On it and waiting is nothing but the hint, which names the button.
+	assert_int(slot.style.hat).is_equal(0)
+	assert_object(kart.get_node_or_null("StallHint")).is_not_null()
+	await _runner.simulate_frames(90, 17)
+	assert_int(slot.style.hat).is_equal(0)
+	player.press = true
 	await _runner.simulate_frames(3, 17)
 	assert_int(slot.style.hat).is_equal(1)
 	assert_int(kart.style.hat).is_equal(1)
 	assert_object(kart.get_node("Body").get_node_or_null("Hat")).is_not_null()
+	assert_int(shots[0]).is_equal(0)
 	# Kept in the seat's settings, for the next room and the next time.
 	assert_int(PackedInt32Array(Game.settings.kart_styles[0])[1]).is_equal(1)
-	# Held there, the next one comes round, and the one after.
-	await _runner.simulate_frames(int(StyleStalls.STEP_TIME * 60.0) + 6, 17)
+	# Once is enough to have learned it: the hint does not come back, on this pad or another.
+	await _runner.simulate_frames(2, 17)
+	assert_object(kart.get_node_or_null("StallHint")).is_null()
+	player.press = true
+	await _runner.simulate_frames(3, 17)
 	assert_int(slot.style.hat).is_equal(2)
-	# Off and on again is one more, whatever the wait.
 	kart.global_position = Vector3(0.0, 0.0, 5.0)
 	await _runner.simulate_frames(3, 17)
 	_park(kart, stalls._areas[3])
 	await _runner.simulate_frames(3, 17)
+	assert_int(slot.style.trail).is_equal(0)
+	assert_object(kart.get_node_or_null("StallHint")).is_null()
+	player.press = true
+	await _runner.simulate_frames(3, 17)
 	assert_int(slot.style.trail).is_equal(1)
 	assert_int(slot.style.hat).is_equal(2)
+	# Off the pads the button is the cannon's again.
+	kart.global_position = Vector3(0.0, 0.0, 5.0)
+	await _runner.simulate_frames(12, 17)
+	player.press = true
+	await _runner.simulate_frames(3, 17)
+	assert_int(shots[0]).is_equal(1)
+	Events.bullet_fired.disconnect(count)
 
 
 func test_a_dressed_kart_changes_on_a_clients_screen_too() -> void:

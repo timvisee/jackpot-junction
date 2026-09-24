@@ -922,17 +922,19 @@ short buzz the slider gives, so reading along the row is felt card by card.
 - They are picked by driving rather than from a menu, at the stalls: a pad on the
   floor for each of the four, with PAINT, HAT, FLAG and TRAIL on it, along the
   back wall of the waiting room of 9.6 and the front wall of the Garage of 9.4.
-  Driving onto one puts the next of that thing on the kart, with its name
-  floating up over it, and staying on it goes on through them one every 1.2 s,
-  so a player stops on the one they want; rolling off and on again is one more.
-  The pad lights in the color of whoever is on it. The host decides who is on a
-  stall, as it decides who is on the ready pad, and says so to every machine, so
-  the kart changes on every screen at once, and the snapshot carries it to a
-  machine that was not there to hear it. A player at this machine keeps what they
-  picked in their seat's settings. Online a client keeps its own and says it to
-  the host whenever it is seated, alongside its name, so it arrives dressed in
-  every room it goes to; before the stalls, a client's kart was plain on every
-  screen but its own settings.
+  On one, the fire button puts the next of that thing on the kart, with its name
+  floating up over it, rather than a shot out of the cannon, so a player goes
+  through them at their own pace and stops on the one they want. Until a player
+  has changed something once, a hint hangs over their kart on a pad naming the
+  button, in place of the drive and fire hint of 3.8 and drawn bigger, since the
+  room is seen from further off. The pad lights in the color of whoever is on it.
+  The host decides who is on a stall, as it decides who is on the ready pad, and
+  says so to every machine, so the kart changes on every screen at once, and the
+  snapshot carries it to a machine that was not there to hear it. A player at
+  this machine keeps what they picked in their seat's settings. Online a client
+  keeps its own and says it to the host whenever it is seated, alongside its
+  name, so it arrives dressed in every room it goes to; before the stalls, a
+  client's kart was plain on every screen but its own settings.
 
 | Choice | Options                                                            |
 |--------|--------------------------------------------------------------------|

@@ -22,7 +22,7 @@ below, and hands the notes to the release workflow.
 - **Kart colors for color blindness.** Accessibility has a palette each for
   protanopia, deuteranopia and tritanopia, chosen to keep all eight players apart.
 - **Dress your kart at the stalls.** The lobby and the Garage have a pad each for
-  paint, hat, flag and trail; drive onto one to put the next one on.
+  paint, hat, flag and trail; drive onto one and press fire to put the next one on.
 - **Emotes.** Flick the right stick, or press 7 to 0, to put GG, a smile, a scowl or
   a heart over your kart, online too.
 - **Watch a LAN game.** Watch, beside Join, lets somebody in with no kart, even when
