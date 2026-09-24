@@ -13,9 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
-- **Touch controls.** On a phone or a tablet a stick steers and buttons for gas,
-  brake, fire, drift, nitro and your item drive the kart. Hold a joker to read it,
-  tap it to drop or destroy it, and tap one in the respawn pick to take it.
+- **Touch controls.** On a phone or a tablet a stick steers and one slider runs
+  nitro, gas, brake and drift, beside buttons for fire and your item. Hold a joker
+  to read it, tap it to drop or destroy it, and tap one in the respawn pick to take it.
 - **A UI scale setting.** The menus and the HUD can be drawn from 75% to 200% of
   their size, and a phone or a tablet starts at 150%.
 

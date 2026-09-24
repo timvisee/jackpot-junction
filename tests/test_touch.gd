@@ -113,13 +113,17 @@ func test_the_menu_button_opens_the_rooms_menu() -> void:
 	assert_int(button.held).is_equal(0)
 
 
-## The pedals and the buttons are held for as long as a finger is on them, and the player at this
-## screen reads them with everything else; a player on a pad of their own does not.
-func test_the_pedals_and_buttons_drive_the_player_here() -> void:
+## The slider under the right thumb drives: a thumb down on it is on the zone under it, sliding
+## takes it from zone to zone, and it answers to the slider until it comes up, off the ends and the
+## side of it too. Nitro and drift hold the gas as well, and brake is the brake alone. Rolled across
+## onto fire it fires as well. The player at this screen reads it with everything else; a player on
+## a pad of their own does not.
+func test_the_slider_drives_the_player_here() -> void:
 	var controls := await _driving()
 	assert_bool(controls.driving()).is_true()
-	var gas := controls.pad(TouchControls.THROTTLE)
-	_touch(controls, 0, gas.center, true)
+	var gas := controls.zone_rect(TouchControls.GAS).get_center()
+	_touch(controls, 0, gas, true)
+	assert_str(String(controls.slid())).is_equal("gas")
 	assert_float(TouchInput.throttle).is_equal(1.0)
 	var here := PlayerInput.new()
 	here.poll(0.016)
@@ -127,33 +131,42 @@ func test_the_pedals_and_buttons_drive_the_player_here() -> void:
 	var pinned := PlayerInput.new(DeviceInput.KEYBOARD)
 	pinned.poll(0.016)
 	assert_float(pinned.throttle).is_equal(0.0)
-	# A thumb sliding on to fire lets go of the gas and fires.
-	_drag(controls, 0, controls.pad(TouchControls.FIRE).center)
+	_drag(controls, 0, controls.zone_rect(TouchControls.NITRO).get_center())
+	assert_bool(TouchInput.nitro).is_true()
+	assert_float(TouchInput.throttle).is_equal(1.0)
+	_drag(controls, 0, controls.slider_rect().position - Vector2(0.0, 80.0))
+	assert_bool(TouchInput.nitro).is_true()
+	_drag(controls, 0, controls.zone_rect(TouchControls.BRAKE).get_center())
+	assert_float(TouchInput.brake).is_equal(1.0)
 	assert_float(TouchInput.throttle).is_equal(0.0)
+	assert_bool(TouchInput.nitro).is_false()
+	var drift := controls.zone_rect(TouchControls.DRIFT).get_center()
+	_drag(controls, 0, drift + Vector2(-60.0, 200.0))
+	assert_bool(TouchInput.handbrake).is_true()
+	assert_float(TouchInput.throttle).is_equal(1.0)
+	assert_float(TouchInput.brake).is_equal(0.0)
+	# Rolled across onto fire at the height of the gas: driving and firing both.
+	_drag(controls, 0, controls.pad(TouchControls.FIRE).center)
+	assert_str(String(controls.slid())).is_equal("gas")
+	assert_float(TouchInput.throttle).is_equal(1.0)
 	assert_bool(TouchInput.fire).is_true()
 	here.poll(0.016)
 	assert_bool(here.fire_pressed).is_true()
-	# And one on the seam between the two presses both.
-	var fire := controls.pad(TouchControls.FIRE)
-	var seam := gas.center.lerp(fire.center, gas.radius / (gas.radius + fire.radius))
-	_drag(controls, 0, seam)
-	assert_float(TouchInput.throttle).is_equal(1.0)
-	assert_bool(TouchInput.fire).is_true()
-	_touch(controls, 0, seam, false)
+	_touch(controls, 0, controls.pad(TouchControls.FIRE).center, false)
 	assert_float(TouchInput.throttle).is_equal(0.0)
 	assert_bool(TouchInput.fire).is_false()
+	assert_str(String(controls.slid())).is_equal("")
 	# A finger that comes down again without having been seen to come up is the one finger, and
 	# lets go of whatever it was on first.
-	_touch(controls, 3, controls.pad(TouchControls.DRIFT).center, true)
-	_touch(controls, 3, controls.pad(TouchControls.BRAKE).center, true)
-	assert_float(TouchInput.brake).is_equal(1.0)
-	assert_bool(TouchInput.handbrake).is_false()
-	_touch(controls, 3, controls.pad(TouchControls.BRAKE).center, false)
-	_touch(controls, 4, controls.pad(TouchControls.DRIFT).center, true)
-	_touch(controls, 5, controls.pad(TouchControls.NITRO).center, true)
-	here.poll(0.016)
-	assert_bool(here.handbrake).is_true()
-	assert_bool(here.nitro).is_true()
+	_touch(controls, 3, controls.zone_rect(TouchControls.BRAKE).get_center(), true)
+	_touch(controls, 3, gas, true)
+	assert_str(String(controls.slid())).is_equal("gas")
+	assert_float(TouchInput.brake).is_equal(0.0)
+	_touch(controls, 3, gas, false)
+	# Fire on its own, by another finger.
+	_touch(controls, 4, controls.pad(TouchControls.FIRE).center, true)
+	assert_bool(TouchInput.fire).is_true()
+	assert_float(TouchInput.throttle).is_equal(0.0)
 
 
 ## The stick comes to wherever the left thumb goes down in the lower left and steers by how far it
@@ -164,7 +177,7 @@ func test_the_stick_steers_where_the_thumb_goes_down() -> void:
 	_touch(controls, 0, down, true)
 	assert_vector(controls._stick_at).is_equal(down)
 	assert_float(TouchInput.steer).is_equal(0.0)
-	_touch(controls, 1, controls.pad(TouchControls.THROTTLE).center, true)
+	_touch(controls, 1, controls.zone_rect(TouchControls.GAS).get_center(), true)
 	_drag(controls, 0, down + Vector2(TouchControls.STICK_RADIUS * 0.5, 40.0))
 	assert_float(TouchInput.steer).is_between(0.3, 0.6)
 	_drag(controls, 0, down + Vector2(-TouchControls.STICK_RADIUS * 3.0, 0.0))
@@ -187,7 +200,7 @@ func test_the_driving_buttons_go_when_the_match_is_over() -> void:
 	var controls := await _driving()
 	controls.match_node.state = Match.State.RESULTS
 	assert_bool(controls.driving()).is_false()
-	_touch(controls, 0, controls.pad(TouchControls.THROTTLE).center, true)
+	_touch(controls, 0, controls.zone_rect(TouchControls.GAS).get_center(), true)
 	assert_float(TouchInput.throttle).is_equal(0.0)
 
 
@@ -441,12 +454,12 @@ func test_the_driving_controls_gray_out_while_the_kart_cannot_drive() -> void:
 	assert_bool(controls.can_drive()).is_true()
 	kart.frozen = true
 	assert_bool(controls.can_drive()).is_false()
-	_touch(controls, 0, controls.pad(TouchControls.THROTTLE).center, true)
+	_touch(controls, 0, controls.zone_rect(TouchControls.GAS).get_center(), true)
 	assert_float(TouchInput.throttle).is_equal(0.0)
 	kart.frozen = false
 	await _runner.simulate_frames(1, 17)
 	assert_float(TouchInput.throttle).is_equal(1.0)
-	_touch(controls, 0, controls.pad(TouchControls.THROTTLE).center, false)
+	_touch(controls, 0, controls.zone_rect(TouchControls.GAS).get_center(), false)
 	kart.die(&"pit", -1)
 	controls.match_node.slots[0].respawn_left = 30.0
 	await _runner.simulate_frames(1, 17)

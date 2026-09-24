@@ -685,31 +685,34 @@ on it, and not if the finger slid off it first.
 The left thumb steers with a stick that comes to wherever it goes down in the lower left of the
 screen, and waits in that corner while nobody has a thumb on it. It only steers, so its knob
 only moves side to side, and how far it is pushed is how far the wheel is turned. The right
-thumb has the rest in an arc round the bottom right corner: gas the biggest and nearest the
-corner, fire beside it, brake beyond that, and drift and nitro above them, with the nitro tank
-drawn round the rim of its button, and the item button further in. The item button is always
-there, and faint while there is nothing in hand to play, so a thumb knows where it is before it
-is needed; with an item it wears the item's own picture, and while a box is still opening the
-pictures flick past the way they do in the corner. Something an item started and has still to
-finish, a shield up or shots loaded, keeps its picture on the button after the item has left the
-hand, with a ring round the inside of its rim counting down in time or in shots, in the item's
-color, the way the nitro button's tank does; an item picked up meanwhile takes the picture,
-being the one the button plays, and the ring stays round it. A thumb sliding from one button to
-the next lets go of the first and presses the second, and one resting on the seam between gas
-and fire presses both, which is how one thumb drives and shoots at once. Drifting is a flick of
-the handbrake rather than a hold, so the same thumb can leave the gas for it and come back.
-While the kart cannot be driven, on the grid for the countdown or waiting to come back, the
-stick and every driving button are grayed out and press nothing: a thumb resting on fire after a
-death would otherwise take a card of the respawn pick it has not read. The gas held through the
-last lamp takes the kart away on the green. The driving buttons go while the podium is up, where
-they would sit over its own. The hints that name keys, in the corner and beside the kart, are
-not shown on a touch screen: the buttons say what they are on them. The standings hang from the
-top right corner under the menu button rather than down the middle of the right-hand side, which
-is the drift and nitro buttons', and the kill feed hangs under them and stops short of the
-buttons, dropping its oldest lines. The hand of jokers keeps to the stretch between the stick's
-ring and the nearest button, shrinking its cards when that is narrower than the hand, and the
-respawn pick moves up, and shrinks its own cards a little if it has to, to keep its button above
-the hand.
+thumb has a slider in the bottom right corner: one tall pill with nitro, gas, brake and drift
+down it, top to bottom, the gas the tallest, since the thumb rests there most. A thumb goes down
+anywhere on it and slides from zone to zone, and belongs to the slider until it comes up,
+however far off its ends or its side it strays. Nitro holds the gas as well, for when the tank
+runs dry under it, and so does drift, so a slide keeps its power; brake is the brake alone, and
+reverses once stopped. Sliding from the gas down to drift crosses the brake on the way. The
+nitro tank is a bar across the bottom of the nitro. Fire is a round button beside the slider at
+the height of the gas, and a thumb rolled across off the slider onto it fires as well as
+driving, which is how one thumb drives and shoots at once; the item button is over fire. The
+item button is always there, and faint while there is nothing in hand to play, so a thumb knows
+where it is before it is needed; with an item it wears the item's own picture, and while a box
+is still opening the pictures flick past the way they do in the corner. Something an item
+started and has still to finish, a shield up or shots loaded, keeps its picture on the button
+after the item has left the hand, with a ring round the inside of its rim counting down in time
+or in shots, in the item's color, the way the nitro button's tank does; an item picked up
+meanwhile takes the picture, being the one the button plays, and the ring stays round it. While
+the kart cannot be driven, on the grid for the countdown or waiting to come back, the stick, the
+slider and every driving button are grayed out and press nothing: a thumb resting on fire after
+a death would otherwise take a card of the respawn pick it has not read. The gas held through
+the last lamp takes the kart away on the green. The driving buttons go while the podium is up,
+where they would sit over its own. The hints that name keys, in the corner and beside the kart,
+are not shown on a touch screen: the buttons say what they are on them. The standings hang from
+the top right corner under the menu button rather than down the middle of the right-hand side,
+which is the slider's and the item button's, and the kill feed hangs under them and stops short
+of the buttons and the slider, dropping its oldest lines. The hand of jokers keeps to the
+stretch between the stick's ring and the nearest button or the slider, shrinking its cards when
+that is narrower than the hand, and the respawn pick moves up, and shrinks its own cards a
+little if it has to, to keep its button above the hand.
 
 The hand of jokers is read by holding a finger on a card. The hand opens on that card, lifted
 out of the fan with what it does over it, for as long as the finger stays, and sliding the

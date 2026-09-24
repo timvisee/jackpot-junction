@@ -7,15 +7,16 @@ extends Control
 ## other is two fingers at once, and a mouse is only ever one of them. What the fingers hold goes
 ## into [TouchInput], which the player's controls read alongside the keyboard and the pads.
 ##
-## The left thumb steers with a stick that comes to wherever it goes down in the lower left of the
-## screen. The right thumb has the pedals and the buttons in an arc round the bottom right corner:
-## throttle the biggest and nearest the corner, fire beside it, brake beyond that, and drift and
-## nitro above, with the item button further in. A thumb sliding from one to another lets go of
-## the first and presses the second, and one resting on the seam between throttle and fire presses
-## both. While the kart cannot be driven, on the grid for the countdown or waiting to come back,
-## the stick and every driving button are grayed out and press nothing: a thumb resting on fire
-## after a death would otherwise take a card of the respawn pick it has not read. Held through the
-## last lamp, the gas takes the kart away on the green.
+## The left thumb steers with a stick that comes to wherever it goes down in the lower left of
+## the screen. The right thumb has a slider in the bottom right corner, one tall pill with nitro,
+## gas, brake and drift down it, top to bottom: a thumb goes down anywhere on it and slides
+## between them, and belongs to it until it comes up, however far off the side it strays. Fire is
+## beside it at the height of the gas, and a thumb rolled across off the slider onto fire fires
+## as well as driving; the item button is over fire. While the kart cannot be driven, on the grid
+## for the countdown or waiting to come back, the stick and every driving button are grayed out
+## and press nothing: a thumb resting on fire after a death would otherwise take a card of the
+## respawn pick it has not read. Held through the last lamp, the gas takes the kart away on the
+## green.
 ##
 ## A finger held on one of the jokers in the hand opens it on that card, with what it does over
 ## it, for as long as it stays there, and sliding it along the hand reads the others, GAME.md
@@ -42,21 +43,32 @@ const REACH := 1.15
 const MENU := &"menu"
 const MENU_RADIUS := 34.0
 const MENU_INSET := Vector2(64.0, 62.0)
-## The driving buttons, each with its size and where its middle is from the bottom right corner.
-const THROTTLE := &"throttle"
+## The round driving buttons, each with its size and where its middle is from the bottom right
+## corner: fire beside the slider at the height of its gas, and the item button over fire.
 const FIRE := &"fire"
-const BRAKE := &"brake"
-const DRIFT := &"drift"
-const NITRO := &"nitro"
 const ITEM := &"item"
 const DRIVING: Dictionary[StringName, Array] = {
-	THROTTLE: [86.0, Vector2(-160.0, -168.0), "GAS"],
-	FIRE: [74.0, Vector2(-322.0, -118.0), "FIRE"],
-	BRAKE: [60.0, Vector2(-470.0, -92.0), "BRAKE"],
-	DRIFT: [56.0, Vector2(-340.0, -306.0), "DRIFT"],
-	NITRO: [56.0, Vector2(-150.0, -370.0), "NITRO"],
-	ITEM: [58.0, Vector2(-500.0, -262.0), ""],
+	FIRE: [76.0, Vector2(-248.0, -248.0), "FIRE"],
+	ITEM: [58.0, Vector2(-248.0, -402.0), ""],
 }
+## The slider's zones, top to bottom, and each one's share of its height: the gas, where the thumb
+## rests, the biggest. Nitro holds the gas too, for when the tank runs dry under it, and so does
+## drift, so a slide keeps its power; brake is the brake alone, and reverses once stopped.
+const NITRO := &"nitro"
+const GAS := &"gas"
+const BRAKE := &"brake"
+const DRIFT := &"drift"
+const ZONES: Array[StringName] = [NITRO, GAS, BRAKE, DRIFT]
+const ZONE_SHARES: Array[float] = [1.0, 1.5, 1.0, 1.0]
+const ZONE_WORDS: Dictionary[StringName, String] = {
+	NITRO: "NITRO", GAS: "GAS", BRAKE: "BRAKE", DRIFT: "DRIFT"
+}
+## How big the slider is, how far in from the right and the bottom edges it stands, and how far off
+## its sides a thumb going down still takes it.
+const SLIDER := Vector2(124.0, 360.0)
+const SLIDER_INSET := Vector2(34.0, 28.0)
+const SLIDER_SLACK := 24.0
+const ZONE_LINE := Color(1.0, 1.0, 1.0, 0.22)
 ## The stick: how big its ring is, where it waits from the bottom left corner, how far its knob
 ## goes to reach full lock, and how far from the middle a thumb has to be before it steers at all.
 ## It comes to wherever a thumb goes down inside [constant STICK_ZONE], the share of the screen
@@ -78,9 +90,11 @@ const PICK := &"pick"
 ## How long a finger can be on a card of the respawn pick and still have tapped it rather than
 ## held it, in seconds. Longer is reading it, and letting go after reading takes nothing.
 const TAP_SECONDS := 0.3
-## The nitro tank round the rim of its button.
+## The nitro tank, a bar across the bottom of the slider's nitro, and the ring an item counts down
+## in round the rim of its button.
 const TANK := Color(1.0, 0.75, 0.3, 0.95)
 const TANK_WIDTH := 6.0
+const TANK_INSET := 16.0
 ## How strongly the stick and the driving buttons are drawn while the kart cannot be driven, and
 ## the gray their words go.
 const GRAYED := 0.35
@@ -118,6 +132,9 @@ var match_node: Match
 var _pads: Array[Pad] = []
 ## Which pads each finger is on, by the finger's index. The stick's finger is not among them.
 var _fingers: Dictionary[int, Array] = {}
+## The finger on the slider, or -1, and where it is.
+var _slider_finger := -1
+var _slider_at := Vector2.ZERO
 ## The finger on the stick, or -1, where the stick came to and where the finger is now.
 var _stick_finger := -1
 var _stick_at := Vector2.ZERO
@@ -363,9 +380,9 @@ func _stack_the_jokers() -> void:
 		feed.room = maxf(_buttons_top() - LANE_GAP - feed_top(board), 1.0)
 
 
-## Where the highest of the driving buttons reaches up to.
+## Where the highest of the driving buttons and the slider reaches up to.
 func _buttons_top() -> float:
-	var top := size.y
+	var top := slider_rect().position.y
 	for id: StringName in DRIVING:
 		var each := pad(id)
 		top = minf(top, each.center.y - each.radius * REACH)
@@ -374,11 +391,50 @@ func _buttons_top() -> float:
 
 ## The stretch of the bottom of the screen between the stick's ring and the nearest button.
 func _hand_lane() -> Vector2:
-	var right := size.x
+	var right := slider_rect().position.x
 	for id: StringName in DRIVING:
 		var each := pad(id)
 		right = minf(right, each.center.x - each.radius * REACH)
 	return Vector2(STICK_HOME.x + STICK_RADIUS + LANE_GAP, right - LANE_GAP)
+
+
+## Where the slider stands.
+func slider_rect() -> Rect2:
+	return Rect2(size - SLIDER_INSET - SLIDER, SLIDER)
+
+
+## The stretch of the slider [param zone] takes up.
+func zone_rect(zone: StringName) -> Rect2:
+	var rect := slider_rect()
+	var total := 0.0
+	for share: float in ZONE_SHARES:
+		total += share
+	var top := rect.position.y
+	for i: int in ZONES.size():
+		var tall := rect.size.y * ZONE_SHARES[i] / total
+		if ZONES[i] == zone:
+			return Rect2(rect.position.x, top, rect.size.x, tall)
+		top += tall
+	return Rect2()
+
+
+## The zone of the slider at the height [param y]: the top one above it, the bottom one below.
+func zone_at(y: float) -> StringName:
+	for zone: StringName in ZONES:
+		if y < zone_rect(zone).end.y:
+			return zone
+	return ZONES[-1]
+
+
+## The zone the slider's thumb is on, or an empty name while none is.
+func slid() -> StringName:
+	return zone_at(_slider_at.y) if _slider_finger >= 0 else &""
+
+
+## Whether the slider's thumb has rolled across onto fire.
+func _rolled_onto_fire() -> bool:
+	var fire := pad(FIRE)
+	return _slider_finger >= 0 and fire.center.distance_to(_slider_at) <= fire.radius
 
 
 ## Which of the pick and the hand is drawn over the other just now.
@@ -445,6 +501,12 @@ func _finger_down(finger: int, at: Vector2) -> void:
 	if _fingers.has(finger):
 		_release(_fingers[finger])
 		_fingers.erase(finger)
+	if finger == _slider_finger:
+		_slider_finger = -1
+	if finger == _stick_finger:
+		_stick_finger = -1
+		_stick_at = stick_home()
+		_knob_at = _stick_at
 	var taken := false
 	if pad(MENU).reaches(at):
 		_hold(finger, [MENU])
@@ -454,6 +516,7 @@ func _finger_down(finger: int, at: Vector2) -> void:
 			_down_on_pick(finger, at)
 			or _down_on_pane(finger, at)
 			or _down_on_hand(finger, at)
+			or _down_on_slider(finger, at)
 			or _down_on_pads(finger, at)
 			or _down_on_stick(finger, at)
 		)
@@ -518,6 +581,17 @@ func _down_on_hand(finger: int, at: Vector2) -> bool:
 	return true
 
 
+## The slider, anywhere on it or a little off either side.
+func _down_on_slider(finger: int, at: Vector2) -> bool:
+	var reach := slider_rect().grow_individual(SLIDER_SLACK, 0.0, SLIDER_SLACK, 0.0)
+	if _slider_finger >= 0 or not reach.has_point(at):
+		return false
+	_slider_finger = finger
+	_slider_at = at
+	_publish()
+	return true
+
+
 func _down_on_pads(finger: int, at: Vector2) -> bool:
 	var on := _driving_pads_at(at)
 	if on.is_empty():
@@ -553,6 +627,9 @@ func _finger_moved(finger: int, at: Vector2) -> void:
 			_inspect_card = card
 			_inspect_moved = true
 			TouchInput.joker_inspect = card
+	elif finger == _slider_finger:
+		_slider_at = at
+		_publish()
 	elif finger == _stick_finger:
 		_knob_at = at
 		_publish()
@@ -599,6 +676,9 @@ func _finger_up(finger: int, at: Vector2) -> void:
 		_up_from_hand(at)
 	elif finger == _pane_finger:
 		_up_from_pane(at)
+	elif finger == _slider_finger:
+		_slider_finger = -1
+		_publish()
 	elif finger == _stick_finger:
 		_stick_finger = -1
 		_stick_at = stick_home()
@@ -690,6 +770,7 @@ func _let_go() -> void:
 	_fingers.clear()
 	for each: Pad in _pads:
 		each.held = 0
+	_slider_finger = -1
 	_stick_finger = -1
 	_stick_at = stick_home()
 	_knob_at = _stick_at
@@ -709,11 +790,12 @@ func _let_go() -> void:
 ## Hands what the fingers are holding to [TouchInput], for the player's controls to read.
 func _publish() -> void:
 	var live := can_drive()
-	TouchInput.throttle = 1.0 if live and pad(THROTTLE).held > 0 else 0.0
-	TouchInput.brake = 1.0 if live and pad(BRAKE).held > 0 else 0.0
-	TouchInput.fire = live and pad(FIRE).held > 0
-	TouchInput.handbrake = live and pad(DRIFT).held > 0
-	TouchInput.nitro = live and pad(NITRO).held > 0
+	var zone := slid() if live else &""
+	TouchInput.throttle = 1.0 if zone in [NITRO, GAS, DRIFT] else 0.0
+	TouchInput.brake = 1.0 if zone == BRAKE else 0.0
+	TouchInput.nitro = zone == NITRO
+	TouchInput.handbrake = zone == DRIFT
+	TouchInput.fire = live and (pad(FIRE).held > 0 or _rolled_onto_fire())
 	TouchInput.use_item = live and pad(ITEM).held > 0
 	TouchInput.steer = 0.0
 	if live and _stick_finger >= 0:
@@ -740,19 +822,14 @@ func _draw() -> void:
 		if id == ITEM:
 			_draw_item(each, kart)
 			continue
-		_draw_disc(each, strength)
+		_draw_disc(each, strength, id == FIRE and _rolled_onto_fire())
 		_draw_label(each, INK if strength >= 1.0 else GRAY_INK)
-	if kart != null:
-		var nitro := pad(NITRO)
-		var tank := TAU * clampf(kart.nitro_charge, 0.0, 1.0)
-		var start := -PI * 0.5
-		var ink := Color(TANK, TANK.a * strength)
-		draw_arc(nitro.center, nitro.radius - TANK_WIDTH, start, start + tank, 40, ink, TANK_WIDTH)
+	_draw_slider(strength, kart)
 	_draw_stick(strength)
 
 
-func _draw_disc(each: Pad, strength := 1.0) -> void:
-	var fill := FILL_DOWN if each.held > 0 else FILL
+func _draw_disc(each: Pad, strength := 1.0, lit := false) -> void:
+	var fill := FILL_DOWN if each.held > 0 or lit else FILL
 	draw_circle(each.center, each.radius, Color(fill, fill.a * strength))
 	draw_arc(each.center, each.radius, 0.0, TAU, 48, Color(RIM, RIM.a * strength), RIM_WIDTH, true)
 
@@ -803,6 +880,48 @@ func _draw_label(each: Pad, ink: Color) -> void:
 	var width := font.get_string_size(each.label, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
 	var baseline := each.center + Vector2(-width * 0.5, LABEL_SIZE * 0.36)
 	draw_string(font, baseline, each.label, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, ink)
+
+
+## The slider: a pill with its zones down it, the one under the thumb lit, a line between each and
+## the next, and the nitro tank across the bottom of the nitro.
+func _draw_slider(strength: float, kart: Kart) -> void:
+	var rect := slider_rect()
+	var round := int(rect.size.x * 0.5)
+	var pill := StyleBoxFlat.new()
+	pill.bg_color = Color(FILL, FILL.a * strength)
+	pill.border_color = Color(RIM, RIM.a * strength)
+	pill.set_border_width_all(int(RIM_WIDTH))
+	pill.set_corner_radius_all(round)
+	pill.anti_aliasing = true
+	draw_style_box(pill, rect)
+	var on := slid()
+	var ink := INK if strength >= 1.0 else GRAY_INK
+	for i: int in ZONES.size():
+		var zone := ZONES[i]
+		var area := zone_rect(zone)
+		if zone == on:
+			var lit := StyleBoxFlat.new()
+			lit.bg_color = Color(FILL_DOWN, FILL_DOWN.a * strength)
+			lit.anti_aliasing = true
+			lit.corner_radius_top_left = round if i == 0 else 0
+			lit.corner_radius_top_right = round if i == 0 else 0
+			lit.corner_radius_bottom_left = round if i == ZONES.size() - 1 else 0
+			lit.corner_radius_bottom_right = round if i == ZONES.size() - 1 else 0
+			draw_style_box(lit, area)
+		if i > 0:
+			var line := Color(ZONE_LINE, ZONE_LINE.a * strength)
+			draw_line(area.position, Vector2(area.end.x, area.position.y), line, 2.0)
+		var word: String = ZONE_WORDS[zone]
+		var font := Type.STRONG
+		var width := font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
+		var baseline := area.get_center() + Vector2(-width * 0.5, LABEL_SIZE * 0.36)
+		draw_string(font, baseline, word, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, ink)
+	if kart != null:
+		var nitro := zone_rect(NITRO)
+		var full := nitro.size.x - TANK_INSET * 2.0
+		var at := Vector2(nitro.position.x + TANK_INSET, nitro.end.y - TANK_INSET)
+		var tank := full * clampf(kart.nitro_charge, 0.0, 1.0)
+		draw_rect(Rect2(at, Vector2(tank, TANK_WIDTH)), Color(TANK, TANK.a * strength))
 
 
 ## The ring where the stick is and the knob where the thumb is, the knob kept inside the ring and
