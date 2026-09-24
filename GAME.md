@@ -2247,7 +2247,10 @@ room, a bar, and what is being built. The phases are the real ones -- the same l
 the room builds itself from -- so the bar moves when something has actually
 happened, and a room that takes longer to build shows a bar that takes longer to
 fill rather than one that lies faster. It is the same screen whether the match is
-local, hosted, or a client waiting on the host to say which room it is.
+local, hosted, or a client waiting on the host to say which room it is. The rooms
+between the maps go up the same way under their own names: the Garage, the test
+track and the waiting room, the last whether it is hosted, joined or followed back
+into from a match.
 
 Anything that cannot wait a frame -- the tests, the dev scenes -- builds the room
 in one go as before, which is the same room by the time it is finished.

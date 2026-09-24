@@ -15,6 +15,9 @@ extends Node3D
 ## The host seats everybody here and seats them again in the arena; a client drives in here, is
 ## told when the host leaves, and follows.
 
+## Given once the room is up and everybody in it is seated, GAME.md 8.6.
+signal loaded
+
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const LAYOUT: ArenaLayout = preload("res://data/maps/waiting_room.tres")
 ## Where the football starts: in front of the pad, on open floor, clear of every prop and spawn.
@@ -42,6 +45,8 @@ func _ready() -> void:
 	match_node.arena_layout = LAYOUT
 	match_node.power_ups = load("res://data/powerups/all.tres")
 	add_child(match_node)
+	# Put up behind a loading screen, the way a map is, whoever is hosting.
+	await LoadingScreen.put_up(self, match_node, "Waiting Room")
 	match config.online:
 		"host":
 			_take_seats()
@@ -61,6 +66,7 @@ func _ready() -> void:
 	elif config.online == "":
 		# Chosen in the lobby on the way in, so the room only has to say what it was.
 		Events.match_planned.emit(MatchOptions.describe(config), false)
+	loaded.emit()
 
 
 ## The people at this machine, and nobody else. Bots do not wait for anybody and cannot drive

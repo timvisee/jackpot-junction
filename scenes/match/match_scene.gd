@@ -155,10 +155,8 @@ func _on_grand_prix_scored(run: Dictionary) -> void:
 ## about a sixth of a second to put up and bake, which is ten frames of a screen that has stopped
 ## if it is done in one go.
 func _put_the_room_up() -> void:
-	var arena := match_node.prepare_arena(true)
 	var named := ArenaMaps.NAMES[ArenaMaps.index_of(match_node.rules.map)]
-	var screen := LoadingScreen.add_to(self, named)
-	await screen.run(arena.build_steps(), "Building the room")
+	await LoadingScreen.put_up(self, match_node, named)
 
 
 ## Builds the client's match once the host's settings are in, including which map it is.

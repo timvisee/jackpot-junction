@@ -45,7 +45,8 @@ func _host() -> Node3D:
 func _open() -> Node3D:
 	var room: Node3D = auto_free(WAITING_SCENE.instantiate())
 	_runner = scene_runner(room)
-	await _runner.simulate_frames(20, 17)
+	# Past the loading screen the room is put up behind, GAME.md 8.6.
+	await _runner.simulate_frames(45, 17)
 	if room.ready_room.everybody_ready.is_connected(room._begin):
 		room.ready_room.everybody_ready.disconnect(room._begin)
 	return room

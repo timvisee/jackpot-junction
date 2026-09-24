@@ -22,6 +22,15 @@ var _bar: ProgressBar
 var _phase: Label
 
 
+## Puts [param match_node]'s room up a phase at a time with a loading screen over [param parent]
+## saying [param named], and comes back once it is up. Every room is put up this way, the maps and
+## the rooms between them alike: the Garage, the test track and the waiting room, GAME.md 8.6.
+static func put_up(parent: Node, match_node: Match, named: String) -> void:
+	var arena := match_node.prepare_arena(true)
+	var screen := add_to(parent, named)
+	await screen.run(arena.build_steps(), "Building the room")
+
+
 ## Puts a loading screen up over [param parent] for the room called [param room].
 static func add_to(parent: Node, room: String) -> LoadingScreen:
 	var screen := LoadingScreen.new()

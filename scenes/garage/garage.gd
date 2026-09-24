@@ -17,6 +17,9 @@ extends Node3D
 ## Either room runs an ordinary match with no bots and no clock, so there is nothing to lose and
 ## nothing to win.
 
+## Given once the room is up and the match in it started, GAME.md 8.6.
+signal loaded
+
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const LAYOUT: ArenaLayout = preload("res://data/maps/garage.tres")
 const TRACK: ArenaLayout = preload("res://data/maps/test_track.tres")
@@ -74,6 +77,8 @@ func _ready() -> void:
 	match_node.with_kart_hints = not on_track
 	match_node.power_ups = load("res://data/powerups/all.tres")
 	add_child(match_node)
+	# Put up behind a loading screen, the way a map is.
+	await LoadingScreen.put_up(self, match_node, "Test Track" if on_track else "Garage")
 	var inputs: Array[KartInput] = [PlayerInput.new()]
 	# Nobody is standing about on the test track: it is a road, and a kart parked on it is in
 	# the way of the one lesson each stretch is there to teach.
@@ -101,6 +106,7 @@ func _ready() -> void:
 		_add_signs()
 	DebugOverlay.add_to(self, match_node)
 	PauseMenu.add_to(self)
+	loaded.emit()
 
 
 ## Brings the camera in, by leaving less floor round what it is framing rather than by framing
