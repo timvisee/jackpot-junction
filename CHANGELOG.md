@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-09-24
+
+A simple way to drive: push the way on the screen you want to go and the kart takes
+itself there. The pause menu gains a way back to the lobby, and asks before anybody
+leaves an online game.
+
 ### Added
 
 - **Simple driving.** Push the way on the screen you want to go and the kart turns
@@ -1094,7 +1100,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.6.1...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.6.2...HEAD
+[0.6.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.6.2
 [0.6.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.6.1
 [0.6.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.6.0
 [0.5.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.5.2
