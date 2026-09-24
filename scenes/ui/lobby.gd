@@ -10,7 +10,8 @@ extends Control
 ## not cycle colors while a box has the focus, since the letters somebody is typing are also
 ## the keys that steer.
 ##
-## Beside the name is how that player's kart is dressed, GAME.md 4.4, remembered the same way.
+## Beside the name is how that player's kart is dressed, GAME.md 4.4, and how they drive, simple or
+## advanced, GAME.md 4.2, each remembered the same way.
 
 const MAX_HUMANS := 4
 
@@ -33,6 +34,9 @@ var _name_rows: Array[HBoxContainer] = []
 ## KartStyle.CHOICES] order.
 var _style_rows: Array[HBoxContainer] = []
 var _style_pickers: Array[Array] = []
+## One choice of how to drive per seat, built up front like the rest.
+var _drive_rows: Array[HBoxContainer] = []
+var _drive_pickers: Array[DrivePicker] = []
 var _steer_was_down: Dictionary[String, bool] = {}
 
 
@@ -55,6 +59,7 @@ func _ready() -> void:
 	player_names[0] = _remembered_name(0)
 	_build_name_rows(column)
 	_build_style_rows(column)
+	_build_drive_rows(column)
 	# A Grand Prix or a quick match is the first row rather than a screen of its own, GAME.md 9.7.
 	options = MatchOptions.add_to(column, settings)
 	var spacer := Control.new()
@@ -164,14 +169,31 @@ func names() -> Array[String]:
 	return result
 
 
-func _start() -> void:
-	var settings := Game.settings
+## How each joined player drives, in slot order, one of [constant Settings.DRIVE_MODES].
+func drive_modes() -> Array[String]:
+	var result: Array[String] = []
+	for i: int in devices.size():
+		result.append(_drive_pickers[i].mode)
+	return result
+
+
+## Keeps what every joined seat said about itself for next time: its name, its kart and how it
+## drives.
+func remember_seats(settings: Settings) -> void:
 	var typed := names()
 	for i: int in mini(typed.size(), settings.player_names.size()):
 		settings.player_names[i] = typed[i]
 	var dressed := styles()
 	for i: int in mini(dressed.size(), settings.kart_styles.size()):
 		settings.kart_styles[i] = dressed[i]
+	var driving := drive_modes()
+	for i: int in mini(driving.size(), settings.drive_modes.size()):
+		settings.drive_modes[i] = driving[i]
+
+
+func _start() -> void:
+	var settings := Game.settings
+	remember_seats(settings)
 	options.remember(settings)
 	settings.save_to_disk()
 	# Play starts in the waiting room of GAME.md 9.6, and its first map is dealt once everybody
@@ -247,6 +269,17 @@ func _build_style_rows(column: VBoxContainer) -> void:
 		column.add_child(row)
 
 
+## A choice of how to drive per seat, built up front and shown with the name and the kart. It is
+## the seat's, like the rest: whoever sits there drives the way it says in the arena.
+func _build_drive_rows(column: VBoxContainer) -> void:
+	for i: int in MAX_HUMANS:
+		var picker := DrivePicker.make(Game.settings.drive_mode(i))
+		_drive_pickers.append(picker)
+		var row := MenuTheme.row("P%d driving" % (i + 1), picker)
+		_drive_rows.append(row)
+		column.add_child(row)
+
+
 func _remembered_style(seat: int, choice: int) -> int:
 	var stored := Game.settings.kart_styles
 	if seat >= stored.size():
@@ -261,6 +294,7 @@ func _refresh_names() -> void:
 		_name_rows[i].visible = i < devices.size()
 		_name_fields[i].text = player_names[i] if i < player_names.size() else ""
 		_style_rows[i].visible = i < devices.size()
+		_drive_rows[i].visible = i < devices.size()
 
 
 func _remembered_name(seat: int) -> String:

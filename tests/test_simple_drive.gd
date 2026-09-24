@@ -5,6 +5,7 @@ extends GdUnitTestSuite
 const DT := 1.0 / 60.0
 const KART_SCENE := preload("res://scenes/kart/kart.tscn")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const LOBBY_SCENE := preload("res://scenes/ui/lobby.tscn")
 ## The camera of 8.2, looking up the floor toward -Z: up the screen is -Z and right is +X.
 const AXES: Array[Vector3] = [Vector3.FORWARD, Vector3.RIGHT]
 const UP := Vector2(0.0, -1.0)
@@ -284,3 +285,23 @@ func test_the_pause_menu_has_a_switch_over_each_players_corner() -> void:
 	menu.set_paused(false)
 	assert_object(menu._switches.button(0)).is_null()
 	DirAccess.remove_absolute(Game.settings.path)
+
+
+func test_the_play_screen_asks_every_seat_how_it_drives() -> void:
+	Game.settings.drive_modes = [
+		Settings.DRIVE_ADVANCED, Settings.DRIVE_SIMPLE, Settings.DRIVE_ADVANCED, ""
+	]
+	var lobby: Control = auto_free(LOBBY_SCENE.instantiate())
+	add_child(lobby)
+	lobby.toggle_join(DeviceInput.KEYBOARD)
+	lobby.toggle_join(0)
+	# As far down as the roster reaches, each showing what its seat said last.
+	assert_bool(lobby._drive_rows[1].visible).is_true()
+	assert_bool(lobby._drive_rows[2].visible).is_false()
+	assert_array(lobby.drive_modes()).is_equal([Settings.DRIVE_ADVANCED, Settings.DRIVE_SIMPLE])
+	lobby._drive_pickers[0].button(Settings.DRIVE_SIMPLE).pressed.emit()
+	lobby.remember_seats(Game.settings)
+	assert_str(Game.settings.drive_mode(0)).is_equal(Settings.DRIVE_SIMPLE)
+	assert_str(Game.settings.drive_mode(1)).is_equal(Settings.DRIVE_SIMPLE)
+	# A seat nobody sat in is left as it was.
+	assert_str(Game.settings.drive_modes[3]).is_equal("")

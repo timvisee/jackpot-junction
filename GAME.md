@@ -292,6 +292,7 @@ The joker catalog is in section 7.3.
 | Players         | 1 to 4 humans, bots fill the remaining slots to 4         |
 | Tie-break       | Most kills, then fewest deaths                            |
 | Names           | 1 to 16 characters each, or one off the funny list for anybody who does not set one |
+| Driving         | Simple or advanced per player, see 4.2                    |
 
 Flow: Title screen, Lobby, Countdown, Playing, Last Call, Overtime, Results. At the
 whistle nobody is stopped dead: every driver lets go of the wheel and the karts
@@ -686,6 +687,10 @@ look: a pane edged in their color with their name, and a button with the way the
 picture and all, that changes it to the other. It is kept on the screen whatever size the corner
 is drawn at, is saved at once, and the kart drives the new way the moment the menu closes, the
 touch controls changing with it. Online only the players at this machine have one.
+
+Play's lobby of 3.8 asks each seat too, as it asks for a name and a kart: a row each for the
+players who have joined, with the same pair of buttons as the settings, starting on what the
+seat said last and kept for it on Start.
 
 The pad is knocked as well as the speaker: taking a life, dying, a big cash-out,
 hitting a wall and running into another kart all come through the hands, as hard

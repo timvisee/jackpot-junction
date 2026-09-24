@@ -21,6 +21,8 @@ below, and hands the notes to the release workflow.
   picture; Settings can change it later.
 - **Switch how you drive from the pause menu.** Each player has a switch over their
   own corner.
+- **Every player picks how they drive on the Play screen.** It sits under their name
+  and kart.
 
 ## [0.6.1] - 2026-09-24
 
