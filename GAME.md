@@ -384,7 +384,10 @@ else's results screen, see 10.3.
   room starts it again, and somebody leaving can be the last one holding it up.
   The menu comes up over the room darkened behind it, as the host's match
   settings of 9.6 do, and while it is up each player at this screen has a switch
-  over their own corner of the HUD for how they drive, see 4.2.
+  over their own corner of the HUD for how they drive, see 4.2. Online, Back to
+  title asks first, in place of the menu: the host is told that everybody who
+  has joined will be disconnected, and a client that it leaves the room and the
+  others play on. The cursor starts on Stay, and Back is Stay too.
 
 ### 3.9 Royal Flush pads
 

@@ -378,3 +378,29 @@ func test_a_menu_over_the_room_darkens_all_of_it() -> void:
 	get_tree().paused = false
 	DirAccess.remove_absolute(Game.settings.path)
 	Game.settings = real
+
+
+## GAME.md 3.8: online, the way back to the title asks first. The host is told everybody who has
+## joined goes with it; a client only leaves. Offline nothing is asked: nobody else is there.
+func test_back_to_title_online_asks_and_says_who_it_disconnects() -> void:
+	var holder: Control = auto_free(Control.new())
+	add_child(holder)
+	var session: NetSession = auto_free(NetSession.new())
+	session.is_host = true
+	var menu := PauseMenu.add_to(holder, session)
+	menu._quit.pressed.emit()
+	assert_bool(menu.asking()).is_true()
+	assert_str(menu._confirm.said()).contains("will be disconnected")
+	menu._confirm.no_button().pressed.emit()
+	assert_bool(menu.asking()).is_false()
+	session.is_host = false
+	menu._quit.pressed.emit()
+	assert_str(menu._confirm.said()).contains("You leave the room")
+	menu._confirm.no_button().pressed.emit()
+	# Yes goes ahead with whatever the question was asked before.
+	var went := [0]
+	var words: Array[String] = ["Sure?", "Really.", "Yes"]
+	menu.ask(words, func() -> void: went[0] += 1, menu._quit)
+	menu._confirm.yes_button().pressed.emit()
+	assert_int(went[0]).is_equal(1)
+	assert_bool(menu.asking()).is_false()

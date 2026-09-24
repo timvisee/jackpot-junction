@@ -3,7 +3,8 @@ extends CanvasLayer
 ## Pausing freezes the whole match in single-player and local play, GAME.md 3.8. Online it takes
 ## the whole room: the menu opens straight away, and the match stops once everybody has opened
 ## theirs. Resume, Settings, or back to the title, and over each local player's corner of the HUD
-## a switch for how they drive, see [DriveSwitches].
+## a switch for how they drive, see [DriveSwitches]. Online the way back to the title asks first,
+## since it ends something for other people, see [ConfirmPane].
 ##
 ## Settings opens over the room, and Back from it comes back here. It used to change scene, and
 ## coming back built the room again from scratch: a match in progress was thrown away for a new
@@ -22,7 +23,14 @@ var session: NetSession
 
 var _panel: Control
 var _resume: Button
+var _quit: Button
 var _switches: DriveSwitches
+## The menu's own pane, and the question that takes its place while it is being asked.
+var _main: PanelContainer
+var _confirm: ConfirmPane
+## What the question is asked before, and the button that asked it, for the cursor to go back to.
+var _on_yes: Callable
+var _asked_by: Button
 ## The settings while they are open over the room, null otherwise.
 var _settings: SettingsScreen
 
@@ -66,6 +74,11 @@ func _ready() -> void:
 	_panel.add_child(middle)
 	var pane := MenuTheme.pane()
 	middle.add_child(pane)
+	_main = pane
+	_confirm = ConfirmPane.new()
+	_confirm.visible = false
+	_confirm.answered.connect(_answered)
+	middle.add_child(_confirm)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 16)
 	pane.add_child(column)
@@ -76,13 +89,9 @@ func _ready() -> void:
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(open_settings)
 	column.add_child(settings)
-	var quit := MenuTheme.button("Back to title")
-	quit.pressed.connect(
-		func() -> void:
-			set_paused(false)
-			Game.go_to_title()
-	)
-	column.add_child(quit)
+	_quit = MenuTheme.button("Back to title")
+	_quit.pressed.connect(_back_to_title)
+	column.add_child(_quit)
 	_switches = DriveSwitches.new()
 	_switches.visible = false
 	root.add_child(_switches)
@@ -99,6 +108,62 @@ func add_entry(text: String, action: Callable) -> Button:
 	)
 	_resume.add_sibling(button)
 	return button
+
+
+## What is asked before leaving for the title online, and not offline, where nobody else is in
+## it: the host takes everybody's room away with it, and a client only leaves.
+static func leave_words(hosting: bool) -> Array[String]:
+	if hosting:
+		return [
+			"Back to the title?",
+			"Everybody who has joined will be disconnected.",
+			"Disconnect everybody"
+		]
+	return [
+		"Back to the title?", "You leave the room, and the others play on without you.", "Leave"
+	]
+
+
+func _back_to_title() -> void:
+	if session == null:
+		_leave_to_title()
+		return
+	ask(leave_words(session.is_host), _leave_to_title, _quit)
+
+
+func _leave_to_title() -> void:
+	set_paused(false)
+	Game.go_to_title()
+
+
+## Puts [param words], a question, the line under it and the button that goes ahead, in place of
+## the menu, and does [param action] if the answer is yes. No, or Back, is the menu again with the
+## cursor on [param from], the button that asked.
+func ask(words: Array[String], action: Callable, from: Button) -> void:
+	_on_yes = action
+	_asked_by = from
+	_main.visible = false
+	_switches.visible = false
+	_confirm.ask(words[0], words[1], words[2])
+
+
+## Whether a question is up in place of the menu.
+func asking() -> bool:
+	return _confirm.visible
+
+
+func _answered(yes: bool) -> void:
+	_put_the_question_away()
+	if yes:
+		_on_yes.call()
+	elif _asked_by != null and is_instance_valid(_asked_by):
+		_asked_by.grab_focus()
+
+
+func _put_the_question_away() -> void:
+	_confirm.visible = false
+	_main.visible = true
+	_switches.visible = _panel.visible
 
 
 ## The settings, over the room, with the menu waiting underneath for Back. The match stays paused
@@ -157,15 +222,22 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	# B on a pad backs out of the menu, GAME.md 4.2. It only closes: a menu nobody has opened is
-	# not something to back out of, and B is a button a player will be leaning on anyway.
+	# not something to back out of, and B is a button a player will be leaning on anyway. Out of a
+	# question it is no, and back to the menu.
 	if _panel.visible and event.is_action_pressed(&"ui_cancel"):
-		set_paused(false)
+		if asking():
+			_answered(false)
+		else:
+			set_paused(false)
 		get_viewport().set_input_as_handled()
 
 
 ## Opens or closes the menu for whoever is at this screen. Alone that is the same thing as
 ## stopping the match; online it is a request, and the match stops when the last player makes it.
 func set_paused(paused: bool) -> void:
+	# A question left up is not there the next time the menu opens.
+	if asking():
+		_put_the_question_away()
 	_panel.visible = paused
 	_switches.visible = paused
 	if paused:

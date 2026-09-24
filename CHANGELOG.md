@@ -25,6 +25,8 @@ below, and hands the notes to the release workflow.
   and kart.
 - **Hints for simple driving.** The hint over the kart and the test track's first
   signs name the way to go: WASD, or the stick with an arrow each way.
+- **Leaving an online game asks first.** The host is told that everybody who
+  joined will be disconnected.
 
 ### Changed
 
