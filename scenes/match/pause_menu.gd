@@ -25,6 +25,10 @@ var session: NetSession
 var _panel: Control
 var _resume: Button
 var _quit: Button
+## Online, on the host: stopping the match for everybody now rather than waiting for them all to
+## ask. On a client: the line saying the host has done that, for a player with no menu open.
+var _force: Button
+var _held: Label
 var _switches: DriveSwitches
 ## The menu's own pane, and the question that takes its place while it is being asked.
 var _main: PanelContainer
@@ -87,6 +91,10 @@ func _ready() -> void:
 	_resume = MenuTheme.button("Resume")
 	_resume.pressed.connect(set_paused.bind(false))
 	column.add_child(_resume)
+	_force = MenuTheme.button("Pause everybody now")
+	_force.pressed.connect(_force_pause)
+	_force.visible = false
+	column.add_child(_force)
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(open_settings)
 	column.add_child(settings)
@@ -96,6 +104,14 @@ func _ready() -> void:
 	_switches = DriveSwitches.new()
 	_switches.visible = false
 	root.add_child(_switches)
+	_held = Label.new()
+	_held.text = "The host has paused the game"
+	Type.strong(_held, Type.HEADING, Palette.CHIP_WHITE)
+	_held.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	_held.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_held.offset_top = 120.0
+	_held.visible = false
+	root.add_child(_held)
 
 
 ## Another thing the menu can do in this room, put under Resume. The waiting room of GAME.md 9.6
@@ -285,6 +301,9 @@ func set_paused(paused: bool) -> void:
 	if session == null:
 		_freeze(paused)
 	else:
+		# The host closing its menu lets go of a pause it made everybody take.
+		if not paused:
+			session.force_pause(false)
 		session.want_pause(paused)
 	if paused:
 		_resume.grab_focus()
@@ -297,6 +316,35 @@ func _buttons() -> Array[Button]:
 		if child is Button:
 			found.append(child)
 	return found
+
+
+## The match stopped for everybody, from the host's menu, GAME.md 3.8. Online a room only stops
+## once everybody has asked, which is the right thing to wait for until somebody has to answer
+## the door; this is the host not waiting. Closing the menu lets go of it.
+func _force_pause() -> void:
+	if session == null or not session.is_host:
+		return
+	session.force_pause(true)
+	_resume.grab_focus()
+
+
+## Whether the host's button to stop everybody is worth showing: online, on the host, while the
+## room is still running because somebody has not asked.
+func _can_force() -> bool:
+	return session != null and session.is_host and not session.paused
+
+
+## The host's button comes and goes as the room stops and starts, and a client that has not opened
+## its own menu is told why nothing is moving.
+func _process(_delta: float) -> void:
+	_force.visible = _panel.visible and _can_force()
+	_held.visible = (
+		session != null
+		and not session.is_host
+		and session.paused
+		and not _panel.visible
+		and _settings == null
+	)
 
 
 func _freeze(on: bool) -> void:

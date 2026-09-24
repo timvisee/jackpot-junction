@@ -431,3 +431,28 @@ func test_back_to_title_online_asks_and_says_who_it_disconnects() -> void:
 	menu._confirm.yes_button().pressed.emit()
 	assert_int(went[0]).is_equal(1)
 	assert_bool(menu.asking()).is_false()
+
+
+## GAME.md 3.8: online, the host can stop the room for everybody from its menu, and a client that
+## has no menu open is told why nothing is moving. Closing the host's menu lets go of it.
+func test_the_host_can_pause_everybody_and_a_client_is_told() -> void:
+	var holder: Control = auto_free(Control.new())
+	add_child(holder)
+	var session: NetSession = auto_free(NetSession.new())
+	session.is_host = true
+	var menu := PauseMenu.add_to(holder, session)
+	menu._panel.visible = true
+	menu._process(0.0)
+	assert_bool(menu._force.visible).is_true()
+	session.paused = true
+	menu._process(0.0)
+	assert_bool(menu._force.visible).is_false()
+	var client: NetSession = auto_free(NetSession.new())
+	var theirs := PauseMenu.add_to(holder, client)
+	client.paused = true
+	theirs._process(0.0)
+	assert_bool(theirs._held.visible).is_true()
+	theirs._panel.visible = true
+	theirs._process(0.0)
+	assert_bool(theirs._held.visible).is_false()
+	get_tree().paused = false

@@ -17,6 +17,8 @@ below, and hands the notes to the release workflow.
   by which models, credits everybody else whose work is in it and links to GitHub.
 - **A Marksman award for accuracy.** How many of a player's shots landed on another
   kart is counted now, once they have fired ten.
+- **The host can pause everybody at once.** Online the room still waits for everybody
+  to pause, unless the host presses Pause everybody now.
 
 ## [0.6.2] - 2026-09-24
 

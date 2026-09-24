@@ -384,6 +384,10 @@ else's results screen, see 10.3.
   While anybody is still playing the match runs on, and the moment one of them
   closes their menu it starts again for everyone. Somebody joining a stopped
   room starts it again, and somebody leaving can be the last one holding it up.
+  The host does not have to wait: Pause everybody now, under Resume on its menu
+  while the room is still running, stops it for everybody at once, and a client
+  with no menu of its own open is told the host has paused the game. It holds
+  until the host closes its menu.
   The menu comes up over the room darkened behind it, as the host's match
   settings of 9.6 do, and while it is up each player at this screen has a switch
   over their own corner of the HUD for how they drive, see 4.2. Online, Back to

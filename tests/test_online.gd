@@ -413,6 +413,13 @@ func test_a_match_stops_only_once_every_machine_has_asked_it_to() -> void:
 	var running := await _wait_until(func() -> bool: return not client_session.paused, 4000)
 	assert_bool(running).override_failure_message("the room never started again").is_true()
 	assert_bool(host_session.paused).is_false()
+	# The host can stop it for everybody without waiting for them, and letting go starts it again.
+	host_session.force_pause(true)
+	var forced := await _wait_until(func() -> bool: return client_session.paused, 4000)
+	assert_bool(forced).override_failure_message("the host could not stop the room").is_true()
+	host_session.force_pause(false)
+	var let_go := await _wait_until(func() -> bool: return not client_session.paused, 4000)
+	assert_bool(let_go).override_failure_message("the room stayed stopped").is_true()
 	# The host is still holding its own answer, so the client asking again is enough on its own.
 	client_session.want_pause(true)
 	var again := await _wait_until(func() -> bool: return client_session.paused, 4000)

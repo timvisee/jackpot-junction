@@ -156,6 +156,8 @@ var _newcomers: Array[int] = []
 var _relaying := false
 ## Whether this machine is asking for a pause, and which of the host's clients are.
 var _asking := false
+## On the host: whether it has stopped the match for everybody without waiting to be asked.
+var _forcing := false
 var _peer_asking: Dictionary[int, bool] = {}
 ## On a client: its own kart, driven here and corrected by the host, GAME.md 10.3.
 var _prediction: KartPrediction
@@ -657,14 +659,29 @@ func want_pause(wanted: bool) -> void:
 		_agree_pause(wanted)
 
 
-## The host's count: the match stops when it and every client are asking, and starts again the
-## moment one of them is not.
+## The host stopping the match for everybody at once, GAME.md 3.8, rather than waiting for each
+## of them to ask. It holds until the host lets go of it, which closing its menu does.
+func force_pause(on: bool) -> void:
+	if not is_host:
+		return
+	_forcing = on
+	_settle_pause()
+
+
+## Whether the host is holding the match stopped for everybody.
+func forcing_pause() -> bool:
+	return _forcing
+
+
+## The host's count: the match stops when it and every client are asking, or when the host says
+## so, and starts again the moment one of them is not.
 func _settle_pause() -> void:
 	if not is_host:
 		return
 	var all := _asking
 	for peer: int in multiplayer.get_peers():
 		all = all and bool(_peer_asking.get(peer, false))
+	all = all or _forcing
 	_agree_pause(all)
 	if not multiplayer.get_peers().is_empty():
 		_settled_pause.rpc(all)
