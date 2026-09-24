@@ -199,7 +199,7 @@ func test_every_event_is_either_relayed_or_named_as_local() -> void:
 	# The script's own signals, not the ones every Node has.
 	for info: Dictionary in Events.get_script().get_script_signal_list():
 		var name := StringName(info["name"])
-		if not NetSession.RELAYED_EVENTS.has(name) and not NetSession.LOCAL_EVENTS.has(name):
+		if not NetEvents.RELAYED.has(name) and not NetEvents.LOCAL.has(name):
 			unaccounted.append(String(name))
 	unaccounted.sort()
 	(
@@ -210,8 +210,8 @@ func test_every_event_is_either_relayed_or_named_as_local() -> void:
 		. is_empty()
 	)
 	# And nothing is claimed twice, which would be a quiet way of saying two different things.
-	for name: StringName in NetSession.LOCAL_EVENTS:
-		assert_bool(NetSession.RELAYED_EVENTS.has(name)).is_false()
+	for name: StringName in NetEvents.LOCAL:
+		assert_bool(NetEvents.RELAYED.has(name)).is_false()
 
 
 ## A client hears the room the host hears, GAME.md 10.3: the countdown, a kart hitting something,
