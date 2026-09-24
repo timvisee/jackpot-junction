@@ -433,10 +433,9 @@ func _lobby(grand_prix: bool) -> HostSettings:
 	return pane
 
 
-## The first row set to a Grand Prix or a quick match, the way a player choosing it does.
+## A Grand Prix or a quick match chosen, the way a player choosing it does: its button pressed.
 func _choose(pane: HostSettings, grand_prix: bool) -> void:
-	pane.options.mode_option.select(0 if grand_prix else 1)
-	pane.options.mode_option.item_selected.emit(0 if grand_prix else 1)
+	pane.options.mode_picker.button(grand_prix).pressed.emit()
 
 
 ## What the rows describe, as the room builds its match from them.
@@ -446,9 +445,9 @@ func _config(pane: HostSettings) -> MatchConfig:
 	return config
 
 
-## Play's lobby asks first whether it is a Grand Prix or a quick match. A Grand Prix asks how many
-## maps rather than which arena, and says its length is per map; a quick match asks which arena
-## and no number of maps.
+## Play's lobby asks first whether it is a Grand Prix or a quick match, with a button each. A
+## Grand Prix asks how many maps rather than which arena, and says its length is per map; a quick
+## match asks which arena and no number of maps.
 func test_the_lobby_asks_grand_prix_or_quick_match_first() -> void:
 	var lobby := _lobby(true)
 	var options: MatchOptions = lobby.options
@@ -460,6 +459,8 @@ func test_the_lobby_asks_grand_prix_or_quick_match_first() -> void:
 	assert_int(_config(lobby).rounds).is_equal(5)
 	_choose(lobby, false)
 	assert_bool(options.is_grand_prix()).is_false()
+	assert_bool(options.mode_picker.button(false).button_pressed).is_true()
+	assert_bool(options.mode_picker.button(true).button_pressed).is_false()
 	assert_bool(options._maps_row.visible).is_false()
 	assert_bool(options._arena_row.visible).is_true()
 	assert_str(options._length_label.text).is_equal("Match length")

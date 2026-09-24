@@ -33,6 +33,8 @@ below, and hands the notes to the release workflow.
 - **Play goes straight into the lobby.** The match settings come up over it the way
   they do for a LAN host, and anybody else joins in the room with J or Start.
 - **Names are in Settings.** A Players tab has a box for each seat.
+- **Grand Prix or Quick match is two big buttons.** They sit at the top of the match
+  settings, with a trophy and a stopwatch on them.
 - **Karts are dressed at the stalls rather than on a menu.** Online a client's kart
   now looks the way its player dressed it on every screen.
 

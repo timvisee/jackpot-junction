@@ -113,7 +113,7 @@ func _host_opens_the_room() -> Node:
 	var pane: HostSettings = room.host_settings
 	if not _check(pane != null and pane.is_open(), "the match settings are up in the room"):
 		return null
-	pane.options.mode_option.selected = 0
+	pane.options.choose(true)
 	pane.options.maps_option.selected = MatchOptions.MAPS.find(MAPS)
 	pane.options.bots_option.selected = MatchOptions.BOTS.find(BOTS)
 	pane.options.minutes_option.selected = MatchOptions.match_lengths().find(60)
@@ -500,7 +500,7 @@ func _local_readies_up() -> Node:
 	var pane: HostSettings = room.host_settings
 	if not _check(pane != null and pane.is_open(), "the match settings are up in the room"):
 		return null
-	pane.options.mode_option.selected = 0
+	pane.options.choose(true)
 	pane.options.maps_option.selected = MatchOptions.MAPS.find(MAPS)
 	pane.options.bots_option.selected = MatchOptions.BOTS.find(BOTS)
 	pane.options.minutes_option.selected = MatchOptions.match_lengths().find(60)

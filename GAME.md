@@ -2929,9 +2929,9 @@ room: the same color, the same name, the same dress.
 
 **Choosing the match.** Whoever decides where the room goes chooses what the match is going to
 be in here: the host online, and on one machine the machine itself, which is where Play goes
-straight to. The rows are a Grand Prix or a quick match, see 9.7, then
-how many maps or which arena, how long, the target, how many bots and how hard, the
-items, own bullets and what the clock running out does. They come up over the
+straight to. They are a Grand Prix or a quick match, a big button each, see 9.7, then rows for
+how many maps or which arena, how long, the target, how many bots and how hard, the items, own
+bullets and what the clock running out does. They come up over the
 room the moment it is opened, again from the host's pause menu, and start on whatever the host
 chose last time. The room is open while they are up -- friends join and drive around -- and the
 host's own karts wait where they are, since the controls are working the menu.
@@ -2962,12 +2962,14 @@ of them. Whoever wants to stop there leaves from the room, the way anybody does.
 A Grand Prix is a run of several maps with the same people in it, one after another. A quick
 match is the single map, set up and played on its own.
 
-**Setting up.** Play has one lobby, and its first row asks which: Grand Prix or Quick match. The
-rows under it follow the answer. A quick match picks its arena; a Grand Prix asks instead how
-many maps, 2 to 6, 3 to start with, since its arenas are not chosen, they are dealt, and what
-jokers carry between them. The length row reads Time per map, since it is. The host's match
-settings online, 9.6, are the same rows with the same first question. Whichever was chosen last
-is where the row starts next time.
+**Setting up.** Play has one lobby, and the first thing its match settings ask is which: two
+big buttons side by side at the top, Grand Prix with a trophy on it and Quick match with a
+stopwatch, each with a line under its name saying what it is, and the chosen one lit in gold the
+way the ways to drive are, 4.2. The rows under them follow the answer. A quick match picks its
+arena; a Grand Prix asks instead how many maps, 2 to 6, 3 to start with, since its arenas are
+not chosen, they are dealt, and what jokers carry between them. The length row reads Time per
+map, since it is. The host's match settings online, 9.6, are the same rows with the same first
+question. Whichever was chosen last is chosen again next time.
 
 **The waiting room first.** Starting a Grand Prix does not start a map. Everybody goes to the
 waiting room of 9.6, and the first map begins when everybody playing is parked on the pad --

@@ -9,9 +9,10 @@ extends RefCounted
 ## of an online one. They are the same questions with the same answers, so they are one piece
 ## rather than two copies that drift apart the first time one of them grows an option.
 ##
-## The first row says what is being set up, GAME.md 9.7: a Grand Prix or a quick match. It
-## changes one row under it. A quick match picks its arena; a Grand Prix, whose arenas are dealt
-## when it starts, asks how many maps instead, and what jokers carry between them.
+## The two big buttons over the rows say what is being set up, GAME.md 9.7: a Grand Prix or a
+## quick match. Which of them is chosen changes the rows under them. A quick match picks its
+## arena; a Grand Prix, whose arenas are dealt when it starts, asks how many maps instead, and what
+## jokers carry between them.
 
 ## How long a map runs, in seconds. A minute is a quick one, for a Grand Prix of several maps
 ## as much as for a short game.
@@ -43,7 +44,7 @@ var items_option: OptionButton
 var own_bullets_option: OptionButton
 var overtime_option: OptionButton
 ## The choice between a Grand Prix and a quick match.
-var mode_option: OptionButton
+var mode_picker: GameModePicker
 var maps_option: OptionButton
 var jokers_option: OptionButton
 
@@ -137,7 +138,13 @@ func remember(settings: Settings) -> void:
 
 ## Whether these rows are setting up a Grand Prix rather than a quick match.
 func is_grand_prix() -> bool:
-	return mode_option.selected == 0
+	return mode_picker.grand_prix
+
+
+## Sets up a Grand Prix, or a quick match, as pressing its button does.
+func choose(grand_prix: bool) -> void:
+	mode_picker.grand_prix = grand_prix
+	_show_mode()
 
 
 func _build(column: Container, settings: Settings) -> void:
@@ -156,9 +163,9 @@ func _build(column: Container, settings: Settings) -> void:
 	maps_option = MenuTheme.option(
 		_labels(MAPS, "%d maps"), maxi(MAPS.find(settings.grand_prix_maps), 0)
 	)
-	mode_option = MenuTheme.option(["Grand Prix", "Quick match"], 0 if settings.grand_prix else 1)
-	mode_option.item_selected.connect(func(_index: int) -> void: _show_mode())
-	column.add_child(MenuTheme.row("Game", mode_option))
+	mode_picker = GameModePicker.make(settings.grand_prix)
+	mode_picker.chosen.connect(func(_grand_prix: bool) -> void: _show_mode())
+	column.add_child(mode_picker)
 	_maps_row = MenuTheme.row("Maps", maps_option)
 	column.add_child(_maps_row)
 	# Only a Grand Prix has a next map to take anything on to.
