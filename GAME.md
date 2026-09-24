@@ -724,8 +724,8 @@ touch controls changing with it. The player at a touch screen has a second butto
 first, for its controls, Slider or Buttons with their pictures, changed over the same way. Online
 only the players at this machine have one. A pad's
 cursor goes out to them from the menu: sideways from any of its buttons is the top switch on that
-side, back toward the middle from a switch is Resume, and up and down go between the switches on
-one side.
+side, and only sideways, up off the top of the menu and down off the bottom staying in it; back
+toward the middle from a switch is Resume, and up and down go between the switches on one side.
 
 A hint that names the push of simple driving draws it as the one control it is: on a pad the
 stick with a head on each of its four sides, square rather than wide; on a touch screen the same

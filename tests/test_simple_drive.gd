@@ -392,6 +392,10 @@ func test_the_pause_menu_has_a_switch_over_each_players_corner() -> void:
 	var resume := menu._resume
 	assert_object(resume.find_valid_focus_neighbor(SIDE_LEFT)).is_same(menu._switches.button(0))
 	assert_object(resume.find_valid_focus_neighbor(SIDE_RIGHT)).is_same(menu._switches.button(1))
+	# Up and down stay in the menu: only sideways goes out to them.
+	assert_object(resume.find_valid_focus_neighbor(SIDE_TOP)).is_same(resume)
+	var last: Button = menu._buttons()[-1]
+	assert_object(last.find_valid_focus_neighbor(SIDE_BOTTOM)).is_same(last)
 	var left := menu._switches.button(0)
 	assert_object(left.find_valid_focus_neighbor(SIDE_RIGHT)).is_same(resume)
 	assert_object(left.find_valid_focus_neighbor(SIDE_LEFT)).is_same(left)

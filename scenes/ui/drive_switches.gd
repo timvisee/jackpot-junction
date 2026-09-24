@@ -59,18 +59,26 @@ func take_down() -> void:
 
 
 ## Joins the switches to [param menu] for a pad's cursor: out to either side from any of the
-## menu's buttons is the top switch on that side, back toward the middle from a switch is the
-## menu's first button, and up and down go between the switches on one side. Joined afresh each
-## time, and let go of when they come down, so the menu never points at a switch that has gone.
+## menu's buttons is the top switch on that side, and only that; back toward the middle from a
+## switch is the menu's first button, and up and down go between the switches on one side.
+## Joined afresh each time, and let go of when they come down, so the menu never points at a
+## switch that has gone.
 func _link(menu: Array[Button]) -> void:
 	for button: Button in _menu:
 		if is_instance_valid(button):
 			button.focus_neighbor_left = NodePath()
 			button.focus_neighbor_right = NodePath()
+			button.focus_neighbor_top = NodePath()
+			button.focus_neighbor_bottom = NodePath()
 	_menu = menu
 	if menu.is_empty():
 		return
 	var home := menu[0].get_path()
+	# Up off the top of the menu and down off the bottom of it stay in the menu: the switches are
+	# out to the sides, and a cursor that went up into a corner looking for the next button has
+	# left the menu without being asked to.
+	menu[0].focus_neighbor_top = home
+	menu[-1].focus_neighbor_bottom = menu[-1].get_path()
 	for left: bool in [true, false]:
 		var panes: Array[Dictionary] = []
 		for each: Dictionary in _up:
