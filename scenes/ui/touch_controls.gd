@@ -24,7 +24,9 @@ extends Control
 ## to open the hand with. The respawn pick is read the same way, except that a quick tap on one of
 ## its cards answers it with that card, and its own button under the pane skips it or goes back.
 ## Whichever of the two was touched last is drawn over the other, so the pane being read is never
-## under the cards of the other: on a small screen the two meet.
+## under the cards of the other: on a small screen the two meet. And only one of them has a card
+## picked out at a time: going to the hand leaves the pick with none and no pane, and going to the
+## pick closes the hand.
 
 ## The round buttons: a dark disc with a light rim, lit up while a finger is on it.
 const FILL := Color(0.05, 0.05, 0.07, 0.45)
@@ -139,6 +141,9 @@ var _pane_button: Button
 ## coming up comes up in front, being the thing on the screen that wants reading.
 var _front := PICK
 var _was_picking := false
+## Whether the pick has been left with no card picked out, for the hand, see
+## [member JokerPicker.quiet].
+var _pick_quiet := false
 ## The finger on a card of the respawn pick, or -1, which card it went down on, when, and whether
 ## it has been along to another since, which is reading rather than tapping.
 var _pick_finger := -1
@@ -292,6 +297,25 @@ func _show_pinned() -> void:
 	TouchInput.joker_pinned = _pinned >= 0
 
 
+## A finger gone to the pick: it comes in front, and the hand closes, card, pane and all, even
+## under a finger still resting on it.
+func _to_the_pick() -> void:
+	_front = PICK
+	_pick_quiet = false
+	_inspect_finger = -1
+	_unpin()
+	_show_pinned()
+
+
+## A finger gone to the hand: it comes in front, and the pick is left with no card picked out
+## and no pane. A finger still on a card of the pick lets go of it without taking it.
+func _to_the_hand() -> void:
+	_front = HAND
+	_pick_quiet = true
+	_pick_finger = -1
+	TouchInput.pick_inspect = -1
+
+
 ## The pick and the hand in the order they were last touched, the last on top. Without a pick
 ## up there is nothing for the hand to be under, and both go back to where the HUD put them.
 func _stack_the_jokers() -> void:
@@ -305,6 +329,7 @@ func _stack_the_jokers() -> void:
 	var picking := picker.visible
 	if picking and not _was_picking:
 		_front = PICK
+		_pick_quiet = false
 		# A card of the hand left open closes as a pick comes up; one opened over it stays.
 		if _pinned >= 0:
 			_unpin()
@@ -313,6 +338,7 @@ func _stack_the_jokers() -> void:
 	var hand_first := picking and _front == HAND
 	hand.z_index = FRONT if hand_first else 0
 	picker.z_index = FRONT if picking and not hand_first else 0
+	(picker as JokerPicker).quiet = picking and _pick_quiet
 
 
 ## Which of the pick and the hand is drawn over the other just now.
@@ -407,7 +433,7 @@ func _down_on_pick(finger: int, at: Vector2) -> bool:
 		return false
 	var picked := _card_in(picker, at) if _pick_finger < 0 else -1
 	if picked >= 0 or (_back_finger < 0 and _on_back(picker, at)):
-		_front = PICK
+		_to_the_pick()
 	if picked >= 0:
 		_pick_finger = finger
 		_pick_card = picked
@@ -428,7 +454,7 @@ func _down_on_pane(finger: int, at: Vector2) -> bool:
 	var action := _pane_button_at(at) if _pane_finger < 0 else &""
 	if action == &"":
 		return false
-	_front = HAND
+	_to_the_hand()
 	_pane_finger = finger
 	_pane_action = action
 	_pane_button = _hand().touch_buttons()[action]
@@ -442,7 +468,7 @@ func _down_on_hand(finger: int, at: Vector2) -> bool:
 	var card := _card_in(hand, at) if hand != null and _inspect_finger < 0 else -1
 	if card < 0:
 		return false
-	_front = HAND
+	_to_the_hand()
 	_inspect_finger = finger
 	_inspect_card = card
 	_inspect_since = _now()

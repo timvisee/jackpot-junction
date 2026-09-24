@@ -13,6 +13,7 @@ extends Control
 ## On a touch screen, GAME.md 4.2, a card is tapped to be taken and held to be read, the pane says
 ## so in place of naming buttons, and a button under it skips the pick, or goes back from the
 ## destroying to the choosing. The fingers themselves are answered by [TouchControls].
+## A finger gone to the hand of jokers under the pick leaves it [member quiet].
 
 ## How far a picked card rises. It was 26 while the growing card was quietly carrying another
 ## twenty of it, so the number here is now the whole of the lift rather than most of it.
@@ -36,6 +37,10 @@ var column := 0
 var columns := 1
 ## Whether the control hints name keys or gamepad buttons.
 var keyboard := true
+## With no card picked out and no pane, while the player is reading their own hand instead on a
+## touch screen, GAME.md 4.2: the pane being read is the hand's, and one card of each lifted at
+## once is two things asking to be read. The title and the button under the row stay.
+var quiet := false
 
 var _title: Label
 var _cards: Array[JokerCard] = []
@@ -114,13 +119,14 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 	var choosing := offer.stage == JokerOffer.Stage.CHOOSING
 	var jokers: Array[Joker] = offer.choices if choosing else kart.jokers.jokers
 	_sync(jokers, offer.stage)
-	var picked := clampi(offer.selected, 0, maxi(_cards.size() - 1, 0))
+	var picked := clampi(offer.selected, 0, maxi(_cards.size() - 1, 0)) if not quiet else -1
+	_detail.visible = not quiet
 	_title.text = (
 		("Keep which joker for this map?" if offer.keeping else "Pick a joker")
 		if choosing
 		else "Destroy which joker for %s?" % offer.chosen.display_name
 	)
-	if picked < jokers.size():
+	if picked >= 0 and picked < jokers.size():
 		_detail.show_joker(jokers[picked])
 		if TouchInput.enabled:
 			_detail.set_hints(_touch_row(choosing, offer.keeping))
@@ -178,10 +184,12 @@ func _layout(picked: int) -> void:
 		# the offset must not be scaled again. Scaling it moved the picked card left by half of
 		# what it had grown by, which is the sideways drift on a row that is otherwise straight.
 		card.position = anchor - card.pivot_offset
-		card.modulate = Color.WHITE if chosen else Color(0.66, 0.66, 0.72, 0.95)
+		# With none picked out none is set back behind another.
+		var lit := chosen or picked < 0
+		card.modulate = Color.WHITE if lit else Color(0.66, 0.66, 0.72, 0.95)
 		card.z_index = 1 if chosen else 0
 		card.set_highlighted(chosen, chosen and destroying)
-	_cross.visible = destroying and picked < count
+	_cross.visible = destroying and picked >= 0 and picked < count
 	if _cross.visible:
 		var doomed := _cards[picked]
 		_cross.scale = doomed.scale

@@ -537,3 +537,36 @@ func test_the_last_touched_of_the_pick_and_the_hand_is_on_top() -> void:
 	await _runner.simulate_frames(3, 17)
 	assert_int(hand.z_index).is_equal(0)
 	assert_int(picker.z_index).is_equal(0)
+
+
+## Only one of the pick and the hand has a card picked out: going to the hand leaves the pick with
+## none lifted and no pane, and going back to the pick closes the hand.
+func test_only_one_of_the_pick_and_the_hand_has_a_card_out() -> void:
+	var controls := await _driving(["hair_trigger", "rubber_bumpers"])
+	var kart := controls.match_node.kart_of(0)
+	var hand: JokerHand = controls.match_node.hud._hands[0]
+	var picker: JokerPicker = controls.match_node.hud._pickers[0]
+	await _runner.simulate_frames(20, 17)
+	var offer := await _pick(controls)
+	assert_bool(picker._detail.visible).is_true()
+	assert_int((picker._cards[offer.selected] as JokerCard).z_index).is_equal(1)
+	_tap(controls, 0, _hand_card(hand, 1))
+	await _runner.simulate_frames(3, 17)
+	assert_bool(kart.menu_open).is_true()
+	assert_bool(picker.quiet).is_true()
+	assert_bool(picker._detail.visible).is_false()
+	for card: JokerCard in picker._cards:
+		assert_int(card.z_index).is_equal(0)
+	assert_object(picker.touch_button()).is_not_null()
+	# Back to the pick: its card comes out again and the hand shuts.
+	_touch(controls, 1, _card_center(picker, 2), true)
+	await _runner.simulate_frames(3, 17)
+	assert_bool(picker.quiet).is_false()
+	assert_bool(picker._detail.visible).is_true()
+	assert_int(offer.selected).is_equal(2)
+	assert_bool(kart.menu_open).is_false()
+	assert_bool(TouchInput.joker_pinned).is_false()
+	controls._pick_since -= 1.0
+	_touch(controls, 1, _card_center(picker, 2), false)
+	await _runner.simulate_frames(3, 17)
+	assert_bool(offer.is_done()).is_false()

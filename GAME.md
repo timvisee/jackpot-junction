@@ -729,15 +729,17 @@ the hand under it answer their own fingers: reading a card of the pick leaves th
 reading the hand leaves the pick's cursor where it was. The card of the pick a finger rests on
 stays on this machine; only a tap goes over the wire, as the number key. Whichever of the two
 was touched last is drawn over the other, pane and all, so the description being read is never
-under the other's cards, which on a small screen they meet. A pick coming up comes up in front,
-being the thing on the screen that wants reading, and closes a card of the hand left open; one
-opened over the pick stays open. The pane says "Tap a card to take it, hold it to read it" in
-place of naming buttons, and a button under it skips the pick, or goes back from the destroying
-to the choosing; keeping one of last map's has nothing to skip to and no button. That button and
-the drop and destroy buttons of the hand are pressed by the touch controls rather than the
-mouse, so there is no pointer to light them up: while a finger is on one it wears the pressed
-look with the gold edge, as every other button does under the cursor, and loses it if the finger
-slides off.
+under the other's cards, which on a small screen they meet. Only one of them has a card picked
+out at a time, too: going to the hand leaves the pick with no card lifted and no pane, its title
+and its button staying, until a finger goes back to it, and going to the pick closes the hand,
+card, pane and all. A pick coming up comes up in front, being the thing on the screen that wants
+reading, and closes a card of the hand left open; one opened over the pick stays open. The pane
+says "Tap a card to take it, hold it to read it" in place of naming buttons, and a button under
+it skips the pick, or goes back from the destroying to the choosing; keeping one of last map's
+has nothing to skip to and no button. That button and the drop and destroy buttons of the hand
+are pressed by the touch controls rather than the mouse, so there is no pointer to light them
+up: while a finger is on one it wears the pressed look with the gold edge, as every other button
+does under the cursor, and loses it if the finger slides off.
 
 ### 4.3 Trails
 
