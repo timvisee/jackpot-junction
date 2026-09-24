@@ -418,3 +418,31 @@ func test_a_dead_kart_reads_an_open_card_without_the_buttons() -> void:
 	assert_bool(hand.touch_buttons().is_empty()).is_true()
 	assert_str(_said(hand._detail._hints)).contains("Tap it again to close it")
 	assert_int(kart.jokers.count()).is_equal(2)
+
+
+## On the grid and while waiting to come back the kart cannot be driven: the stick and the driving
+## buttons gray out and press nothing, so a thumb left on fire after a death takes no card of the
+## pick, and the gas held through the lamps takes the kart away as they go green.
+func test_the_driving_controls_gray_out_while_the_kart_cannot_drive() -> void:
+	var controls := await _driving()
+	var kart := controls.match_node.kart_of(0)
+	assert_bool(controls.can_drive()).is_true()
+	kart.frozen = true
+	assert_bool(controls.can_drive()).is_false()
+	_touch(controls, 0, controls.pad(TouchControls.THROTTLE).center, true)
+	assert_float(TouchInput.throttle).is_equal(0.0)
+	kart.frozen = false
+	await _runner.simulate_frames(1, 17)
+	assert_float(TouchInput.throttle).is_equal(1.0)
+	_touch(controls, 0, controls.pad(TouchControls.THROTTLE).center, false)
+	kart.die(&"pit", -1)
+	controls.match_node.slots[0].respawn_left = 30.0
+	await _runner.simulate_frames(1, 17)
+	assert_bool(controls.can_drive()).is_false()
+	_touch(controls, 1, controls.pad(TouchControls.FIRE).center, true)
+	var stick := Vector2(controls.size.x * 0.2, controls.size.y * 0.7)
+	_touch(controls, 2, stick, true)
+	_drag(controls, 2, stick + Vector2(TouchControls.STICK_RADIUS, 0.0))
+	await _runner.simulate_frames(1, 17)
+	assert_bool(TouchInput.fire).is_false()
+	assert_float(TouchInput.steer).is_equal(0.0)

@@ -12,7 +12,10 @@ extends Control
 ## throttle the biggest and nearest the corner, fire beside it, brake beyond that, and drift and
 ## nitro above, with the item button further in. A thumb sliding from one to another lets go of
 ## the first and presses the second, and one resting on the seam between throttle and fire presses
-## both.
+## both. While the kart cannot be driven, on the grid for the countdown or waiting to come back,
+## the stick and every driving button are grayed out and press nothing: a thumb resting on fire
+## after a death would otherwise take a card of the respawn pick it has not read. Held through the
+## last lamp, the gas takes the kart away on the green.
 ##
 ## A finger held on one of the jokers in the hand opens it on that card, with what it does over
 ## it, for as long as it stays there, and sliding it along the hand reads the others, GAME.md
@@ -65,6 +68,10 @@ const TAP_SECONDS := 0.3
 ## The nitro tank round the rim of its button.
 const TANK := Color(1.0, 0.75, 0.3, 0.95)
 const TANK_WIDTH := 6.0
+## How strongly the stick and the driving buttons are drawn while the kart cannot be driven, and
+## the gray their words go.
+const GRAYED := 0.35
+const GRAY_INK := Color(0.62, 0.62, 0.66, 0.7)
 ## The item button is always there, and this faint while there is nothing in hand to play, so a
 ## thumb knows where it is before it is needed. With an item it wears the item's own picture, and
 ## while a box is still opening the pictures flick past as they do in the corner, GAME.md 8.3.
@@ -166,6 +173,13 @@ func _layout() -> void:
 		_stick_at = stick_home()
 		_knob_at = _stick_at
 	queue_redraw()
+
+
+## Whether the kart here can be driven right now: not on the grid waiting for the lamps, not down,
+## not falling and not rolling out the end of the match.
+func can_drive() -> bool:
+	var kart := _kart()
+	return kart != null and kart.is_active() and driving()
 
 
 ## Whether there is a kart here to drive. The driving buttons go while the match is over, when
@@ -285,8 +299,9 @@ func _process(_delta: float) -> void:
 	if shut and (not _fingers.is_empty() or held):
 		_let_go()
 	_check_pinned()
-	# The tank round the nitro button empties and fills as the kart's own does.
-	queue_redraw()
+	# Again every frame, not only as fingers move: the lamps going green under a thumb already on
+	# the gas is the kart setting off.
+	_publish()
 
 
 func _input(event: InputEvent) -> void:
@@ -561,14 +576,15 @@ func _let_go() -> void:
 
 ## Hands what the fingers are holding to [TouchInput], for the player's controls to read.
 func _publish() -> void:
-	TouchInput.throttle = 1.0 if pad(THROTTLE).held > 0 else 0.0
-	TouchInput.brake = 1.0 if pad(BRAKE).held > 0 else 0.0
-	TouchInput.fire = pad(FIRE).held > 0
-	TouchInput.handbrake = pad(DRIFT).held > 0
-	TouchInput.nitro = pad(NITRO).held > 0
-	TouchInput.use_item = pad(ITEM).held > 0
+	var live := can_drive()
+	TouchInput.throttle = 1.0 if live and pad(THROTTLE).held > 0 else 0.0
+	TouchInput.brake = 1.0 if live and pad(BRAKE).held > 0 else 0.0
+	TouchInput.fire = live and pad(FIRE).held > 0
+	TouchInput.handbrake = live and pad(DRIFT).held > 0
+	TouchInput.nitro = live and pad(NITRO).held > 0
+	TouchInput.use_item = live and pad(ITEM).held > 0
 	TouchInput.steer = 0.0
-	if _stick_finger >= 0:
+	if live and _stick_finger >= 0:
 		var push := clampf((_knob_at.x - _stick_at.x) / STICK_RADIUS, -1.0, 1.0)
 		if absf(push) > STICK_DEAD:
 			TouchInput.steer = signf(push) * (absf(push) - STICK_DEAD) / (1.0 - STICK_DEAD)
@@ -586,19 +602,21 @@ func _draw() -> void:
 	if not driving():
 		return
 	var kart := _kart()
+	var strength := 1.0 if can_drive() else GRAYED
 	for id: StringName in DRIVING:
 		var each := pad(id)
 		if id == ITEM:
 			_draw_item(each, kart)
 			continue
-		_draw_disc(each)
-		_draw_label(each)
+		_draw_disc(each, strength)
+		_draw_label(each, INK if strength >= 1.0 else GRAY_INK)
 	if kart != null:
 		var nitro := pad(NITRO)
 		var tank := TAU * clampf(kart.nitro_charge, 0.0, 1.0)
 		var start := -PI * 0.5
-		draw_arc(nitro.center, nitro.radius - TANK_WIDTH, start, start + tank, 40, TANK, TANK_WIDTH)
-	_draw_stick()
+		var ink := Color(TANK, TANK.a * strength)
+		draw_arc(nitro.center, nitro.radius - TANK_WIDTH, start, start + tank, 40, ink, TANK_WIDTH)
+	_draw_stick(strength)
 
 
 func _draw_disc(each: Pad, strength := 1.0) -> void:
@@ -615,7 +633,7 @@ func has_item() -> bool:
 
 func _draw_item(each: Pad, kart: Kart) -> void:
 	var holding := kart != null and kart.held_item != null
-	_draw_disc(each, 1.0 if has_item() else FAINT)
+	_draw_disc(each, 1.0 if has_item() and can_drive() else FAINT)
 	if not holding:
 		return
 	var side := each.radius * 2.0 * ITEM_ART
@@ -628,20 +646,22 @@ func _draw_item(each: Pad, kart: Kart) -> void:
 	PowerUpArt.draw_into(self, box, kart.held_item.id, kart.held_item.color)
 
 
-func _draw_label(each: Pad) -> void:
+func _draw_label(each: Pad, ink: Color) -> void:
 	var font := Type.STRONG
 	var width := font.get_string_size(each.label, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
 	var baseline := each.center + Vector2(-width * 0.5, LABEL_SIZE * 0.36)
-	draw_string(font, baseline, each.label, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, INK)
+	draw_string(font, baseline, each.label, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, ink)
 
 
 ## The ring where the stick is and the knob where the thumb is, the knob kept inside the ring and
 ## on its level: the stick only steers, so it only moves side to side.
-func _draw_stick() -> void:
+func _draw_stick(strength: float) -> void:
 	var held := _stick_finger >= 0
-	draw_circle(_stick_at, STICK_RADIUS, FILL)
-	draw_arc(_stick_at, STICK_RADIUS, 0.0, TAU, 64, RIM, RIM_WIDTH, true)
+	var rim := Color(RIM, RIM.a * strength)
+	draw_circle(_stick_at, STICK_RADIUS, Color(FILL, FILL.a * strength))
+	draw_arc(_stick_at, STICK_RADIUS, 0.0, TAU, 64, rim, RIM_WIDTH, true)
 	var reach := clampf(_knob_at.x - _stick_at.x, -STICK_RADIUS, STICK_RADIUS)
 	var knob := _stick_at + Vector2(reach, 0.0)
-	draw_circle(knob, STICK_KNOB, FILL_DOWN if held else Color(1.0, 1.0, 1.0, 0.16))
-	draw_arc(knob, STICK_KNOB, 0.0, TAU, 40, RIM, RIM_WIDTH, true)
+	var fill := FILL_DOWN if held else Color(1.0, 1.0, 1.0, 0.16)
+	draw_circle(knob, STICK_KNOB, Color(fill, fill.a * strength))
+	draw_arc(knob, STICK_KNOB, 0.0, TAU, 40, rim, RIM_WIDTH, true)

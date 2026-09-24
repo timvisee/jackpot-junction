@@ -683,19 +683,23 @@ the title and out of the game for a player with no Escape key. It opens as the f
 on it, and not if the finger slid off it first.
 
 The left thumb steers with a stick that comes to wherever it goes down in the lower left of the
-screen, and waits in that corner while nobody has a thumb on it. It only steers, so its knob only
-moves side to side, and how far it is pushed is how far the wheel is turned. The right thumb has
-the rest in an arc round the bottom right corner: gas the biggest and nearest the corner, fire
-beside it, brake beyond that, and drift and nitro above them, with the nitro tank drawn round the
-rim of its button, and the item button further in. The item button is always there, and faint
-while there is nothing in hand to play, so a thumb knows where it is before it is needed; with
-an item it wears the item's own picture, and while a box is still opening the pictures flick past
-the way they do in the corner. A thumb sliding from one button to the next lets go of the first and presses
-the second, and one resting on the seam between gas and fire presses both, which is how one
-thumb drives and shoots at once. Drifting is a flick of the handbrake rather than a hold, so the
-same thumb can leave the gas for it and come back. The driving buttons go while the podium is up,
-where they would sit over its own. The hints that name keys, in the corner and beside the kart,
-are not shown on a touch screen: the buttons say what they are on them.
+screen, and waits in that corner while nobody has a thumb on it. It only steers, so its knob
+only moves side to side, and how far it is pushed is how far the wheel is turned. The right
+thumb has the rest in an arc round the bottom right corner: gas the biggest and nearest the
+corner, fire beside it, brake beyond that, and drift and nitro above them, with the nitro tank
+drawn round the rim of its button, and the item button further in. The item button is always
+there, and faint while there is nothing in hand to play, so a thumb knows where it is before it
+is needed; with an item it wears the item's own picture, and while a box is still opening the
+pictures flick past the way they do in the corner. A thumb sliding from one button to the next
+lets go of the first and presses the second, and one resting on the seam between gas and fire
+presses both, which is how one thumb drives and shoots at once. Drifting is a flick of the
+handbrake rather than a hold, so the same thumb can leave the gas for it and come back. While
+the kart cannot be driven, on the grid for the countdown or waiting to come back, the stick and
+every driving button are grayed out and press nothing: a thumb resting on fire after a death
+would otherwise take a card of the respawn pick it has not read. The gas held through the last
+lamp takes the kart away on the green. The driving buttons go while the podium is up, where they
+would sit over its own. The hints that name keys, in the corner and beside the kart, are not
+shown on a touch screen: the buttons say what they are on them.
 
 The hand of jokers is read by holding a finger on a card. The hand opens on that card, lifted
 out of the fan with what it does over it, for as long as the finger stays, and sliding the
