@@ -119,7 +119,9 @@ func _close_the_shot() -> void:
 func _wire_portals() -> void:
 	var other := Game.ROOM_GARAGE if on_track else Game.ROOM_TRACK
 	for portal: Portal in match_node.arena.portals:
-		portal.entered.connect(func(_kart: Kart) -> void: Game.go_to_garage(other))
+		# Once the physics step that saw the kart arrive is over: the room it takes down is made of
+		# the bodies that step is in the middle of.
+		portal.entered.connect(func(_kart: Kart) -> void: Game.go_to_garage.call_deferred(other))
 		_sign("GARAGE" if on_track else "TRACK", portal.global_position, Palette.NEON_CYAN)
 
 
