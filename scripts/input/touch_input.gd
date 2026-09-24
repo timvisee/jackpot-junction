@@ -15,6 +15,7 @@ static var brake := 0.0
 static var handbrake := false
 static var nitro := false
 static var fire := false
+static var use_item := false
 
 
 ## Decides from the platform and [param args], the command line after `++`.
@@ -39,3 +40,4 @@ static func release() -> void:
 	handbrake = false
 	nitro = false
 	fire = false
+	use_item = false

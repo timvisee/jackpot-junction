@@ -687,7 +687,10 @@ screen, and waits in that corner while nobody has a thumb on it. It only steers,
 moves side to side, and how far it is pushed is how far the wheel is turned. The right thumb has
 the rest in an arc round the bottom right corner: gas the biggest and nearest the corner, fire
 beside it, brake beyond that, and drift and nitro above them, with the nitro tank drawn round the
-rim of its button. A thumb sliding from one button to the next lets go of the first and presses
+rim of its button, and the item button further in. The item button is always there, and faint
+while there is nothing in hand to play, so a thumb knows where it is before it is needed; with
+an item it wears the item's own picture, and while a box is still opening the pictures flick past
+the way they do in the corner. A thumb sliding from one button to the next lets go of the first and presses
 the second, and one resting on the seam between gas and fire presses both, which is how one
 thumb drives and shoots at once. Drifting is a flick of the handbrake rather than a hold, so the
 same thumb can leave the gas for it and come back. The driving buttons go while the podium is up,

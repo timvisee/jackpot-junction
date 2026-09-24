@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const RULES: MatchRules = preload("res://data/match/default.tres")
+const BOOST: PowerUp = preload("res://data/powerups/boost.tres")
 
 var _was_enabled := false
 
@@ -172,3 +173,25 @@ func test_the_driving_buttons_go_when_the_match_is_over() -> void:
 	assert_bool(controls.driving()).is_false()
 	_touch(controls, 0, controls.pad(TouchControls.THROTTLE).center, true)
 	assert_float(TouchInput.throttle).is_equal(0.0)
+
+
+## The item button is always there and faint with nothing to play; with an item in hand, and the
+## box it came in open, it plays it.
+func test_the_item_button_plays_what_is_in_hand() -> void:
+	var controls := await _driving()
+	var kart := controls.match_node.kart_of(0)
+	kart.held_item = null
+	assert_bool(controls.has_item()).is_false()
+	kart.held_item = BOOST
+	kart.item_reveal_left = 0.5
+	assert_bool(controls.has_item()).is_false()
+	kart.item_reveal_left = 0.0
+	assert_bool(controls.has_item()).is_true()
+	var here := PlayerInput.new()
+	_touch(controls, 0, controls.pad(TouchControls.ITEM).center, true)
+	here.poll(0.016)
+	assert_bool(here.use_item_pressed).is_true()
+	here.poll(0.016)
+	assert_bool(here.use_item_pressed).is_false()
+	_touch(controls, 0, controls.pad(TouchControls.ITEM).center, false)
+	assert_bool(TouchInput.use_item).is_false()

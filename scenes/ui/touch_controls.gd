@@ -10,8 +10,9 @@ extends Control
 ## The left thumb steers with a stick that comes to wherever it goes down in the lower left of the
 ## screen. The right thumb has the pedals and the buttons in an arc round the bottom right corner:
 ## throttle the biggest and nearest the corner, fire beside it, brake beyond that, and drift and
-## nitro above. A thumb sliding from one to another lets go of the first and presses the second,
-## and one resting on the seam between throttle and fire presses both.
+## nitro above, with the item button further in. A thumb sliding from one to another lets go of
+## the first and presses the second, and one resting on the seam between throttle and fire presses
+## both.
 
 ## The round buttons: a dark disc with a light rim, lit up while a finger is on it.
 const FILL := Color(0.05, 0.05, 0.07, 0.45)
@@ -33,12 +34,14 @@ const FIRE := &"fire"
 const BRAKE := &"brake"
 const DRIFT := &"drift"
 const NITRO := &"nitro"
+const ITEM := &"item"
 const DRIVING: Dictionary[StringName, Array] = {
 	THROTTLE: [86.0, Vector2(-160.0, -168.0), "GAS"],
 	FIRE: [74.0, Vector2(-322.0, -118.0), "FIRE"],
 	BRAKE: [60.0, Vector2(-470.0, -92.0), "BRAKE"],
 	DRIFT: [56.0, Vector2(-340.0, -306.0), "DRIFT"],
 	NITRO: [56.0, Vector2(-150.0, -370.0), "NITRO"],
+	ITEM: [58.0, Vector2(-500.0, -262.0), ""],
 }
 ## The stick: how big its ring is, where it waits from the bottom left corner, how far its knob
 ## goes to reach full lock, and how far from the middle a thumb has to be before it steers at all.
@@ -52,6 +55,11 @@ const STICK_DEAD := 0.1
 ## The nitro tank round the rim of its button.
 const TANK := Color(1.0, 0.75, 0.3, 0.95)
 const TANK_WIDTH := 6.0
+## The item button is always there, and this faint while there is nothing in hand to play, so a
+## thumb knows where it is before it is needed. With an item it wears the item's own picture, and
+## while a box is still opening the pictures flick past as they do in the corner, GAME.md 8.3.
+const FAINT := 0.3
+const ITEM_ART := 0.62
 
 
 ## One round button.
@@ -286,6 +294,7 @@ func _publish() -> void:
 	TouchInput.fire = pad(FIRE).held > 0
 	TouchInput.handbrake = pad(DRIFT).held > 0
 	TouchInput.nitro = pad(NITRO).held > 0
+	TouchInput.use_item = pad(ITEM).held > 0
 	TouchInput.steer = 0.0
 	if _stick_finger >= 0:
 		var push := clampf((_knob_at.x - _stick_at.x) / STICK_RADIUS, -1.0, 1.0)
@@ -304,11 +313,14 @@ func _draw() -> void:
 		draw_line(Vector2(menu.center.x - half, y), Vector2(menu.center.x + half, y), INK, 4.0)
 	if not driving():
 		return
+	var kart := _kart()
 	for id: StringName in DRIVING:
 		var each := pad(id)
+		if id == ITEM:
+			_draw_item(each, kart)
+			continue
 		_draw_disc(each)
 		_draw_label(each)
-	var kart := _kart()
 	if kart != null:
 		var nitro := pad(NITRO)
 		var tank := TAU * clampf(kart.nitro_charge, 0.0, 1.0)
@@ -317,9 +329,31 @@ func _draw() -> void:
 	_draw_stick()
 
 
-func _draw_disc(each: Pad) -> void:
-	draw_circle(each.center, each.radius, FILL_DOWN if each.held > 0 else FILL)
-	draw_arc(each.center, each.radius, 0.0, TAU, 48, RIM, RIM_WIDTH, true)
+func _draw_disc(each: Pad, strength := 1.0) -> void:
+	var fill := FILL_DOWN if each.held > 0 else FILL
+	draw_circle(each.center, each.radius, Color(fill, fill.a * strength))
+	draw_arc(each.center, each.radius, 0.0, TAU, 48, Color(RIM, RIM.a * strength), RIM_WIDTH, true)
+
+
+## Whether the kart has an item it can play right now.
+func has_item() -> bool:
+	var kart := _kart()
+	return kart != null and kart.held_item != null and kart.item_reveal_left <= 0.0
+
+
+func _draw_item(each: Pad, kart: Kart) -> void:
+	var holding := kart != null and kart.held_item != null
+	_draw_disc(each, 1.0 if has_item() else FAINT)
+	if not holding:
+		return
+	var side := each.radius * 2.0 * ITEM_ART
+	var box := Rect2(each.center - Vector2(side, side) * 0.5, Vector2(side, side))
+	if kart.item_reveal_left > 0.0:
+		var spin := PowerUpArt.known()
+		var shown := spin[int(kart.item_reveal_left / ItemRow.SPIN) % spin.size()]
+		PowerUpArt.draw_into(self, box, shown, Color(ItemRow.SPINNING, FAINT * 2.0))
+		return
+	PowerUpArt.draw_into(self, box, kart.held_item.id, kart.held_item.color)
 
 
 func _draw_label(each: Pad) -> void:

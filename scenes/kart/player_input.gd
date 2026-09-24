@@ -49,7 +49,9 @@ func poll(_delta: float) -> void:
 	fire = DeviceInput.pressed(InputActions.FIRE, device) or (touch and TouchInput.fire)
 	fire_pressed = fire and not _fire_was_down
 	_fire_was_down = fire
-	var use_down := DeviceInput.pressed(InputActions.USE_ITEM, device)
+	var use_down := (
+		DeviceInput.pressed(InputActions.USE_ITEM, device) or (touch and TouchInput.use_item)
+	)
 	use_item_pressed = use_down and not _use_was_down
 	_use_was_down = use_down
 	joker_menu = DeviceInput.pressed(InputActions.JOKER_MENU, device)
