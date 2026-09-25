@@ -29,6 +29,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Phones no longer show Fullscreen or V-sync.** A phone decides both itself; the Video
+  page offers only what it can change.
 - **Matches run faster, most of all on phones.** The tire marks were built again whole
   every frame; now only the newest stretch of them is.
 - **With three or four players, each hand of jokers sits by its owner's corner.** The top

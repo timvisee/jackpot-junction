@@ -4,16 +4,41 @@ extends ScrollContainer
 ## UI are drawn, and what a room pays for on the card. Every change takes effect at once; the
 ## settings screen saves them on Back. It scrolls, as the Accessibility page does, for a phone's
 ## short screen under a big UI scale.
+##
+## What a platform has no use for is not there, GAME.md 8.5: a phone or a tablet plays full screen
+## and in step with its own screen whatever it is told, so it has no Fullscreen and no V-sync, and
+## a renderer without FSR 2 is not offered it.
+
+## The upscalers the Upscaler box offers, see [constant Settings.UPSCALERS], by name.
+const UPSCALER_NAMES: Array[String] = ["Bilinear", "FSR 1", "FSR 2"]
 
 var _settings: Settings
 var _column: VBoxContainer
+## Whether this is a phone or a tablet, and whether the renderer is the desktop's, for the tests to
+## build the page as another platform would.
+var _handheld := false
+var _full_renderer := true
 
 
-static func make(settings: Settings) -> VideoTab:
+static func make(
+	settings: Settings,
+	handheld := OS.has_feature("mobile"),
+	full_renderer := Settings.full_renderer()
+) -> VideoTab:
 	var tab := VideoTab.new()
 	tab.name = "Video"
 	tab._settings = settings
+	tab._handheld = handheld
+	tab._full_renderer = full_renderer
 	return tab
+
+
+## The upscalers this renderer can offer, in the order the box lists them.
+func upscalers() -> Array[String]:
+	var offered: Array[String] = Settings.UPSCALERS.duplicate()
+	if not _full_renderer:
+		offered.erase(Settings.UPSCALE_FSR2)
+	return offered
 
 
 func _ready() -> void:
@@ -22,20 +47,8 @@ func _ready() -> void:
 	_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_column.add_theme_constant_override("separation", 12)
 	add_child(_column)
-	var fullscreen := MenuTheme.toggle(_settings.fullscreen)
-	fullscreen.toggled.connect(
-		func(on: bool) -> void:
-			_settings.fullscreen = on
-			_apply()
-	)
-	_add("Fullscreen", fullscreen)
-	var vsync := MenuTheme.toggle(_settings.vsync)
-	vsync.toggled.connect(
-		func(on: bool) -> void:
-			_settings.vsync = on
-			_apply()
-	)
-	_add("V-sync", vsync)
+	if not _handheld:
+		_add_window()
 	var limits: Array = []
 	for limit: int in Settings.FRAME_LIMITS:
 		limits.append("Unlimited" if limit == 0 else str(limit))
@@ -63,15 +76,21 @@ func _ready() -> void:
 			_apply()
 	)
 	_add("Render scale", scale)
-	var upscalers := MenuTheme.option(
-		["Bilinear", "FSR 1", "FSR 2"], maxi(Settings.UPSCALERS.find(_settings.upscaler), 0)
-	)
-	upscalers.item_selected.connect(
+	var offered := upscalers()
+	var names: Array = []
+	for each: String in offered:
+		names.append(UPSCALER_NAMES[Settings.UPSCALERS.find(each)])
+	# FSR 2 kept from another renderer is drawn as FSR 1 here, see [method Settings.scaling_mode].
+	var shown := _settings.upscaler
+	if not shown in offered:
+		shown = Settings.UPSCALE_FSR
+	var upscaling := MenuTheme.option(names, maxi(offered.find(shown), 0))
+	upscaling.item_selected.connect(
 		func(index: int) -> void:
-			_settings.upscaler = Settings.UPSCALERS[index]
+			_settings.upscaler = offered[index]
 			_apply()
 	)
-	_add("Upscaler", upscalers)
+	_add("Upscaler", upscaling)
 	# Picked from a list rather than slid: a slider would grow and shrink the screen it is on under
 	# the pointer dragging it, GAME.md 8.5.
 	var sizes: Array = []
@@ -124,6 +143,24 @@ func _ready() -> void:
 	var marks := MenuTheme.toggle(_settings.tire_marks)
 	marks.toggled.connect(func(on: bool) -> void: _settings.tire_marks = on)
 	_add("Tire marks", marks)
+
+
+## The window mode and V-sync, which a desktop has and a phone does not.
+func _add_window() -> void:
+	var fullscreen := MenuTheme.toggle(_settings.fullscreen)
+	fullscreen.toggled.connect(
+		func(on: bool) -> void:
+			_settings.fullscreen = on
+			_apply()
+	)
+	_add("Fullscreen", fullscreen)
+	var vsync := MenuTheme.toggle(_settings.vsync)
+	vsync.toggled.connect(
+		func(on: bool) -> void:
+			_settings.vsync = on
+			_apply()
+	)
+	_add("V-sync", vsync)
 
 
 ## The entry of [constant Settings.UI_SCALES] nearest [param size].

@@ -2473,7 +2473,11 @@ like any other button.
   since a frame rate held at the player's limit measures nothing. Show FPS, off
   to start with, puts the frame rate in the top left corner of every screen, small
   and faint in the strip above the first player's block, for a player finding out
-  what their settings cost. All of it takes effect at once. The UI scale draws every menu and the HUD bigger or smaller, from 75% to
+  what their settings cost. All of it takes effect at once. What a platform has no
+  use for is not on the page: a phone or a tablet plays full screen and in step
+  with its own screen whatever it is told, so it has no window mode and no vsync,
+  and a renderer without FSR 2 does not offer it. The page scrolls on a short
+  screen. The UI scale draws every menu and the HUD bigger or smaller, from 75% to
   200% of the size they were laid out at for a screen 1080 lines high, and leaves
   the room behind them as sharp as it was. It starts at 100% on a desktop and at
   150% on a phone or a tablet, which is held close enough that a HUD laid out for
