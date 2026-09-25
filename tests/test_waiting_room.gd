@@ -311,6 +311,14 @@ func test_the_host_chooses_the_match_on_opening_the_room() -> void:
 	assert_bool(match_node.kart_of(0).frozen).is_true()
 	assert_bool(room.ready_room.held).is_true()
 	assert_str(room.ready_room._plan.text).is_equal("The host is choosing the match")
+	# Who may come in first, then the match: Next on the lobby's settings goes on to it.
+	assert_bool(pane.on_lobby()).is_true()
+	assert_bool(pane._pane.visible).is_false()
+	assert_str(pane._lobby._back.text).is_equal("Next")
+	pane._lobby._back.pressed.emit()
+	assert_bool(pane.on_lobby()).is_false()
+	assert_bool(pane._pane.visible).is_true()
+	assert_bool(pane.is_open()).is_true()
 	pane.options.choose(false)
 	pane.options.map_option.selected = 1
 	pane.options.bots_option.selected = 1
@@ -396,6 +404,8 @@ func test_a_room_on_one_machine_chooses_its_match_in_the_room() -> void:
 	assert_object(pane).is_not_null()
 	assert_bool(pane.is_open()).is_true()
 	assert_bool(pane.alone).is_true()
+	# Nobody knocks on one machine: straight to the match.
+	assert_bool(pane.on_lobby()).is_false()
 	assert_bool(room.ready_room.held).is_true()
 	pane.close()
 	assert_bool(room.ready_room.held).is_false()

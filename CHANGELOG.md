@@ -19,7 +19,7 @@ below, and hands the notes to the release workflow.
 - **The LAN screen finds games on your network.** Each one found says whose it is,
   how many play and whether it wants a password, with Join and Watch.
 - **Lobby settings for the host.** The most players the game takes, a password for
-  joining, and whether anybody may watch, with or without the password.
+  joining, and whether anybody may watch; hosting shows them first, then the match.
 - **The host can kick players.** Manage players, in the host's pause menu, lists
   everybody else in the game with Kick beside each; they can join again.
 - **One of several players at a screen can leave.** Their pane in the pause menu has

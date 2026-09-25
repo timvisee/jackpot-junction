@@ -11,6 +11,9 @@ extends PanelContainer
 signal closed
 
 var session: NetSession
+## Up as the first step of opening a hosted room, before the match settings, GAME.md 9.6: its
+## button goes on to them rather than back to a menu.
+var onward := false
 
 var _players: OptionButton
 var _password: LineEdit
@@ -60,6 +63,7 @@ func _ready() -> void:
 ## Up, showing what the door is set to now, with the cursor on the number of players.
 func open() -> void:
 	visible = true
+	_back.text = "Next" if onward else "Back"
 	var door := session.door if session != null else NetDoor.new()
 	var count := clampi(door.max_players, NetDoor.FEWEST_PLAYERS, NetDoor.MOST_PLAYERS)
 	_players.select(count - NetDoor.FEWEST_PLAYERS)

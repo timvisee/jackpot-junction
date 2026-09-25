@@ -225,17 +225,18 @@ func first_map_config() -> MatchConfig:
 ## The host chooses the match in here, GAME.md 9.6: first thing on opening the room, and again
 ## from the pause menu. The room is open the whole time, so friends join while it is chosen.
 func _offer_the_settings(menu: PauseMenu) -> void:
-	host_settings = HostSettings.add_to(self, config.online == "")
+	host_settings = HostSettings.add_to(self, config.online == "", session)
 	host_settings.closed.connect(_chosen)
 	menu.add_entry("Match settings", choose)
 	Events.player_joined.connect(_on_player_joined)
-	choose()
+	# Hosting, who may come in first, then what the match is, GAME.md 9.6.
+	choose(true)
 
 
 ## Opens the choosing. The host's own karts wait where they are while it is open: the controls
 ## are working the menu, and a kart that drove off on them would be a kart nobody was driving.
-func choose() -> void:
-	host_settings.open()
+func choose(lobby_first := false) -> void:
+	host_settings.open(lobby_first)
 	_hold(true)
 	_say_the_plan()
 

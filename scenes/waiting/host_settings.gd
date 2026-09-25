@@ -8,6 +8,10 @@ extends CanvasLayer
 ## still choosing, and a host who has made up their mind closes it and drives too. It comes up
 ## when the room is first opened, since that is when the choosing is done, and again from the
 ## pause menu for a host who changes their mind.
+##
+## Hosting a LAN game, the first time it comes up it starts one step earlier, on the lobby's own
+## settings, who may come in, see [LobbySettings], since friends are knocking from the moment the
+## room is open: Next goes on from there to the match.
 
 ## The host has finished choosing. What they chose is in [member options].
 signal closed
@@ -28,10 +32,17 @@ var _pane: PanelContainer
 var _scroll: ScrollContainer
 var _rows: VBoxContainer
 var _done: Button
+## Online, the host's session, whose door the first step sets; null on one machine.
+var _session: NetSession
+## The step before the match settings, while it is up.
+var _lobby: LobbySettings
 
 
-static func add_to(parent: Node, on_one_machine := false) -> HostSettings:
+static func add_to(
+	parent: Node, on_one_machine := false, hosting: NetSession = null
+) -> HostSettings:
 	var pane := HostSettings.new()
+	pane._session = hosting
 	pane.name = "HostSettings"
 	pane.alone = on_one_machine
 	parent.add_child(pane)
@@ -113,8 +124,37 @@ func _fit() -> void:
 	_middle.scale = Vector2.ONE * clampf(room.x / need, 0.3, 1.0)
 
 
-func open() -> void:
+## Up, on the match settings, or with [param lobby_first] on the lobby's settings first when there
+## is a hosted game for them to be the settings of.
+func open(lobby_first := false) -> void:
 	_panel.visible = true
+	if lobby_first and _session != null and _session.is_host:
+		_show_lobby()
+		return
+	_done.grab_focus()
+
+
+## Whether it is on the step before the match settings.
+func on_lobby() -> bool:
+	return _lobby != null and _lobby.visible
+
+
+func _show_lobby() -> void:
+	if _lobby == null:
+		_lobby = LobbySettings.new()
+		_lobby.session = _session
+		_lobby.onward = true
+		_lobby.closed.connect(_show_match)
+		_middle.add_child(_lobby)
+	_pane.visible = false
+	_lobby.open()
+
+
+## On from the lobby's settings to the match's.
+func _show_match() -> void:
+	if _lobby != null:
+		_lobby.visible = false
+	_pane.visible = true
 	_done.grab_focus()
 
 
@@ -123,19 +163,23 @@ func open() -> void:
 func close() -> void:
 	if not _panel.visible:
 		return
+	_show_match()
 	_panel.visible = false
 	options.remember(Game.settings)
 	Game.settings.save_to_disk()
 	closed.emit()
 
 
-## Back closes it, caught before anything else sees it so the pause menu does not open on the same
-## press of Escape; an open list of choices is a window of its own and closes itself first. A
-## pad's Start is left alone: it is also how somebody new takes a seat, and a friend sitting down
-## should not close the host's menu for them.
+## Back closes it, or on the lobby's settings goes on to the match's, caught before anything else
+## sees it so the pause menu does not open on the same press of Escape; an open list of choices
+## is a window of its own and closes itself first. A pad's Start is left alone: it is also how
+## somebody new takes a seat, and a friend sitting down should not close the host's menu for them.
 func _input(event: InputEvent) -> void:
 	if not _panel.visible:
 		return
 	if event.is_action_pressed(&"ui_cancel"):
-		close()
+		if on_lobby():
+			_show_match()
+		else:
+			close()
 		get_viewport().set_input_as_handled()
