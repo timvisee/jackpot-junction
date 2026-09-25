@@ -144,6 +144,8 @@ func _ready() -> void:
 	if TouchInput.enabled:
 		TouchControls.attach(self)
 		TouchEmotes.attach(self)
+	else:
+		MouseJokers.attach(self)
 	_build_lobby()
 	_start_wait = StartWait.add_to(self, match_node)
 	Events.kart_corrected.connect(_on_corrected)

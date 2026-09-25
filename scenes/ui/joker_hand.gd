@@ -258,9 +258,10 @@ func _sync_cards() -> void:
 ## to say anything about.
 func _show_detail(joker: Joker) -> void:
 	_detail.show_joker(joker)
-	if TouchInput.enabled:
+	if _pointed():
 		_show_touch_hints()
 		return
+	_touch_shown = ""
 	var ink := JokerDetail.hint_ink()
 	var size := InputHint.FONT_SIZE
 	var parts: Array = [
@@ -277,22 +278,32 @@ func _show_detail(joker: Joker) -> void:
 	_detail.set_hints(InputHint.row(line, parts, ink, size))
 
 
-## The drop and destroy buttons on the pane, by name, while a card tapped open on a touch screen
-## has them, for [TouchControls] to press. Empty otherwise.
+## Whether the card up is a finger's or the mouse's, which the pane says how to keep open or close,
+## rather than one opened with the joker menu's key.
+func _pointed() -> bool:
+	if TouchInput.enabled:
+		return true
+	return MouseJokers.pointing and MouseJokers.player != null and MouseJokers.player.kart == kart
+
+
+## The drop and destroy buttons on the pane, by name, while a card tapped or clicked open has them,
+## for [TouchControls], or [MouseJokers], to press. Empty otherwise.
 func touch_buttons() -> Dictionary[StringName, Button]:
 	if not _detail.visible:
 		return {}
 	return _touch_buttons
 
 
-## What the pane says on a touch screen, GAME.md 4.2, in place of the buttons it names on a
-## keyboard or a pad. A card only held is being read, and is told how to keep it open; one tapped
-## open says how to close it, and while the kart is in play it has a button each for dropping and
-## destroying it. A kart waiting to come back cannot throw any of its hand away, GAME.md 3.7.
+## What the pane says on a touch screen, GAME.md 4.2, or for a card the mouse is on, in place of the
+## buttons it names on a keyboard or a pad. A card only held, or pointed at, is being read, and is
+## told how to keep it open; one tapped or clicked open says how to close it, and while the kart is
+## in play it has a button each for dropping and destroying it. A kart waiting to come back cannot
+## throw any of its hand away, GAME.md 3.7.
 func _show_touch_hints() -> void:
 	var pinned := TouchInput.joker_pinned
 	var acting := pinned and kart != null and kart.alive
-	var wanted := "acting" if acting else ("pinned" if pinned else "held")
+	var verb := "Tap" if TouchInput.enabled else "Click"
+	var wanted := "%s %s" % [verb, "acting" if acting else ("pinned" if pinned else "held")]
 	if wanted == _touch_shown:
 		return
 	_touch_shown = wanted
@@ -316,7 +327,9 @@ func _show_touch_hints() -> void:
 			_touch_buttons[id] = button
 		column.add_child(row)
 	var line := Label.new()
-	line.text = "Tap the card to keep it open" if not pinned else "Tap it again to close it"
+	line.text = (
+		"%s the card to keep it open" % verb if not pinned else "%s it again to close it" % verb
+	)
 	Type.text(line, InputHint.FONT_SIZE, JokerDetail.hint_ink())
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(line)

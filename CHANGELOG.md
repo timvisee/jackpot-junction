@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Jokers by mouse.** Hover a card to read it; click a pick card to take it, or a hand
+  card to keep it open with Drop and Destroy on its pane.
+
 ### Changed
 
 - **On a touch screen the fire button shows what a stall changes.** A roller, a hat, a

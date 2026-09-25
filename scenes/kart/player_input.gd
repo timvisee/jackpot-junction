@@ -116,19 +116,22 @@ func poll(delta: float) -> void:
 		cursor = 0.0
 		throttle = 0.0
 		brake = 0.0
-	joker_inspect = TouchInput.joker_inspect if touch else -1
+	# The jokers are pointed at by a finger on a touch screen, and by the mouse for the player on
+	# the keyboard anywhere else, see [MouseJokers]: the same cards, kept open the same way.
+	var pointer := touch or MouseJokers.player == self
+	joker_inspect = TouchInput.joker_inspect if pointer else -1
 	pick_inspect = TouchInput.pick_inspect if touch else -1
 	joker_select = -1
 	for i: int in InputActions.JOKER_SELECTS.size():
 		if _just_pressed(InputActions.JOKER_SELECTS[i]):
 			joker_select = i
 	# A card of the respawn pick tapped is the number key for it.
-	var tapped := TouchInput.take_tap() if touch else -1
+	var tapped := TouchInput.take_tap() if pointer else -1
 	if tapped >= 0:
 		joker_select = tapped
 	# A joker dropped or destroyed from its pane is the key for it, on the card the pane was for.
-	var dropped := TouchInput.take_drop() if touch else -1
-	var destroyed := TouchInput.take_destroy() if touch else -1
+	var dropped := TouchInput.take_drop() if pointer else -1
+	var destroyed := TouchInput.take_destroy() if pointer else -1
 	if dropped >= 0:
 		joker_inspect = dropped
 		joker_drop_pressed = true

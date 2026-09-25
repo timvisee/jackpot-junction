@@ -708,6 +708,7 @@ assigns physical devices to player slots, see 10.2.
 | Respawn pick: take          | Fire or use power-up | Space or E                |
 | Joker menu: drop            | A                   | E                         |
 | Joker menu: destroy         | B                   | Q                         |
+| Jokers by mouse             |                     | Over a card to read it, click to keep a hand card open or take a pick card |
 | Free aim, Swivel Cannon only| Right stick         | Mouse position on the arena plane |
 | Emote                       | Right stick, flicked | 7, 8, 9 or 0             |
 | Emote wheel, then a way     |                     | V, then W, D, S or A      |
@@ -898,6 +899,16 @@ the kart rather than walking the cursor off the card. There is no button to open
 so none is drawn beside it. The card a finger rests on goes over the wire with the rest of a
 client's controls, as one more field at the end that a client from before it never sends, and a
 drop or a destroy goes with the card it was for.
+
+Without a touch screen the mouse does for the player on the keyboard what a finger does here.
+Over a card of the hand, that card opens with its pane, and off it the hand closes again; a
+click keeps it open, with the same Drop and Destroy buttons on its pane, which are clicked, and
+the pane says to click it again to close it, which a click anywhere else does too. Over a card of
+the respawn pick the pick's cursor goes to it, and a click takes it. The pick is not held still
+under the mouse the way it is under a finger, so its keys and the fire button go on answering
+the card the cursor is on. A mouse only points at anything once it has moved in the match: one
+left lying over the bottom of the screen by somebody on the keys alone would hold the hand open,
+and a hand held open keeps its player from playing their item.
 
 The respawn pick of 3.7 is read the same way, and answered with a tap: a finger held on one of
 its cards moves the cursor there and shows what it does, and nothing is taken when it comes up,
