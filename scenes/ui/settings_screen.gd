@@ -79,7 +79,7 @@ func _ready() -> void:
 	tabs.add_child(_controls_tab())
 	tabs.add_child(_players_tab())
 	tabs.add_child(_audio_tab())
-	tabs.add_child(_video_tab())
+	tabs.add_child(VideoTab.make(_settings))
 	tabs.add_child(_accessibility_tab())
 	tabs.add_child(AboutTab.new())
 	var foot := HBoxContainer.new()
@@ -451,79 +451,6 @@ func _volume_slider(value: float, setter: Callable) -> HSlider:
 			_settings.apply_audio()
 	)
 	return slider
-
-
-func _video_tab() -> Control:
-	var column := VBoxContainer.new()
-	column.name = "Video"
-	column.add_theme_constant_override("separation", 12)
-	var fullscreen := MenuTheme.toggle(_settings.fullscreen)
-	fullscreen.toggled.connect(
-		func(on: bool) -> void:
-			_settings.fullscreen = on
-			_settings.apply_video(get_tree())
-	)
-	column.add_child(MenuTheme.row("Fullscreen", fullscreen))
-	var vsync := MenuTheme.toggle(_settings.vsync)
-	vsync.toggled.connect(
-		func(on: bool) -> void:
-			_settings.vsync = on
-			_settings.apply_video(get_tree())
-	)
-	column.add_child(MenuTheme.row("V-sync", vsync))
-	var scale := HSlider.new()
-	scale.min_value = 0.5
-	scale.max_value = 1.0
-	scale.step = 0.05
-	scale.value = _settings.render_scale
-	scale.custom_minimum_size = Vector2(320.0, 0.0)
-	scale.value_changed.connect(
-		func(v: float) -> void:
-			_settings.render_scale = v
-			_settings.apply_video(get_tree())
-	)
-	column.add_child(MenuTheme.row("Render scale", scale))
-	# Picked from a list rather than slid: a slider would grow and shrink the screen it is on under
-	# the pointer dragging it, GAME.md 8.5.
-	var sizes: Array = []
-	for size: float in Settings.UI_SCALES:
-		sizes.append("%d%%" % roundi(size * 100.0))
-	var ui := MenuTheme.option(sizes, _ui_scale_index(_settings.ui_scale))
-	ui.item_selected.connect(
-		func(index: int) -> void:
-			_settings.ui_scale = Settings.UI_SCALES[index]
-			_settings.apply_video(get_tree())
-	)
-	column.add_child(MenuTheme.row("UI scale", ui))
-	# The two passes over the whole screen, GAME.md 8.5. Both take effect at once: the smoothing
-	# on the viewport, the bloom the next time a room is lit.
-	var bloom := MenuTheme.toggle(_settings.bloom)
-	bloom.toggled.connect(
-		func(on: bool) -> void:
-			_settings.bloom = on
-			ArenaEnvironment.relight(get_tree())
-	)
-	column.add_child(MenuTheme.row("Bloom", bloom))
-	var smoothing := MenuTheme.toggle(_settings.antialiasing)
-	smoothing.toggled.connect(
-		func(on: bool) -> void:
-			_settings.antialiasing = on
-			_settings.apply_video(get_tree())
-	)
-	column.add_child(MenuTheme.row("Edge smoothing", smoothing))
-	var marks := MenuTheme.toggle(_settings.tire_marks)
-	marks.toggled.connect(func(on: bool) -> void: _settings.tire_marks = on)
-	column.add_child(MenuTheme.row("Tire marks", marks))
-	return column
-
-
-## The entry of [constant Settings.UI_SCALES] nearest [param size].
-static func _ui_scale_index(size: float) -> int:
-	var best := 0
-	for i: int in Settings.UI_SCALES.size():
-		if absf(Settings.UI_SCALES[i] - size) < absf(Settings.UI_SCALES[best] - size):
-			best = i
-	return best
 
 
 func _accessibility_tab() -> Control:
