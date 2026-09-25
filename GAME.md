@@ -1933,7 +1933,13 @@ movement: the one thing a corner block must not do is ask to be looked at.
   to a match being played, and under the podium it is a row of cards lying across
   the standings of a match that is already decided. A count beside the hand reads how many of
   the slots are taken, out of however many the hand has room for, turning gold
-  once the hand is full.
+  once the hand is full. With three or four players at the screen each hand keeps
+  to its owner's corner instead, beside their block on the same edge. The two top
+  players' hands hang from the top edge, between their block and the clock: the
+  cards stay upright to be read, but the fan bows down, the card being read drops
+  out of it and its pane opens under it. Shared out along the bottom edge, a hand
+  was nobody's in particular, and one pushed up off a bottom block looked like
+  that block's.
 - **Lives**: two hearts in the player color under the kill count, drawn off the
   heart curve so they have the dip and the point that tell the shape apart at
   nineteen pixels. A square said one of something and left you to work out what.
@@ -1960,7 +1966,7 @@ movement: the one thing a corner block must not do is ask to be looked at.
   looks like this game's panel wherever it turns up.
 - **The joker pane** describes whichever card is under the cursor, and is the same
   pane everywhere a player reads about a joker: above the hand for the card lifted
-  out of the fan, and under the row for the respawn pick and again for the card
+  out of the fan (under it, for a hand hanging from the top edge), and under the row for the respawn pick and again for the card
   being destroyed. It is built like a standings row so the two read as the same
   game: a dark translucent card with room to breathe and a bar of the joker's own
   kind color along the top of it. The name, how rare the joker is and what kind it
@@ -1974,7 +1980,9 @@ movement: the one thing a corner block must not do is ask to be looked at.
   they are dead, and there is nobody else to block. With somebody else sharing the
   screen it shrinks and drops to the bottom of its own share, with the pane above
   the cards rather than below, so it stacks off the bottom edge instead of walling
-  off the arena the others are still driving in.
+  off the arena the others are still driving in. With three or four players it
+  keeps to its owner's corner, as the hand does: above a bottom player's hand, and
+  under a top player's, stacking down from it with the pane under the cards.
 - **Nitro tank** as a thin bar, lit while burning.
 - **Speedometer** under it: a thin dial and a number in km/h, both turning the
   nitro color while the bottle is lit. The dial is full at a kart flat out on

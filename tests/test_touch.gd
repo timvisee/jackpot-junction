@@ -626,7 +626,7 @@ func test_the_touch_hud_keeps_its_pieces_apart() -> void:
 	var picker: JokerPicker = hud._pickers[0]
 	await _runner.simulate_frames(4, 17)
 	var skip := picker.touch_button()
-	assert_float(skip.get_global_rect().end.y).is_less_equal(hand.top())
+	assert_float(skip.get_global_rect().end.y).is_less_equal(hand.reach())
 
 
 ## Going down on the slider clicks, crossing from one of its zones into the next clicks, and so

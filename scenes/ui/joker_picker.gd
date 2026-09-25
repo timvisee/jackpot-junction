@@ -36,10 +36,19 @@ const CROSS_REACH := 0.82
 ## moving up is not enough on its own.
 const TOP_ROOM := 64.0
 const NARROWEST := 0.7
+## How much room the title takes over the cards of a pick in a top corner, see [member corner].
+const HUNG_TITLE := 52.0
 
-## This picker takes share [member column] of [member columns] of the screen.
+## This picker takes share [member column] of [member columns] of the screen. With three or four
+## players on this screen it keeps to its owner's corner instead, as the hand does, see
+## [member JokerHand.corner]: [member lane] is the stretch of the screen it keeps to, from and to,
+## and one for a top corner stacks down from [member ceiling_y], under the hand hanging there,
+## with its pane under its cards.
 var column := 0
 var columns := 1
+var corner := -1
+var lane := Vector2.ZERO
+var ceiling_y := 0.0
 ## Whether the control hints name keys or gamepad buttons.
 var keyboard := true
 ## With no card picked out and no pane, while the player is reading their own hand instead on a
@@ -186,6 +195,12 @@ func _layout(picked: int) -> void:
 	var gap := GAP * factor
 	var width := size.x / columns
 	var center := width * (column + 0.5)
+	if corner >= 0:
+		width = lane.y - lane.x
+		center = (lane.x + lane.y) * 0.5
+	var hangs := corner == 0 or corner == 1
+	if hangs:
+		baseline = ceiling_y + HUNG_TITLE + LIFT * factor + card_size.y
 	var row := card_size.x * count + gap * maxf(count - 1, 0.0)
 	var left := center - row * 0.5
 	for i: int in count:
@@ -216,9 +231,13 @@ func _layout(picked: int) -> void:
 	# Sharing, everything stacks upward off the bottom of the column; alone, the pane hangs
 	# under the cards where there is room for it.
 	var pane_y := baseline - card_size.y - detail.y - 16.0 if shared else baseline + 24.0
+	if hangs:
+		pane_y = baseline + 24.0
 	_detail.position = Vector2(center - detail.x * 0.5, pane_y)
 	_title.size = Vector2(width, 0.0)
 	var title_y := pane_y - 52.0 if shared else baseline - card_size.y - 86.0
+	if hangs:
+		title_y = ceiling_y
 	_title.position = Vector2(center - width * 0.5, title_y)
 	if _touch_button.visible:
 		_touch_button.size = button

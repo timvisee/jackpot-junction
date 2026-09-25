@@ -20,6 +20,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **With three or four players, each hand of jokers sits by its owner's corner.** The top
+  two hang from the top edge, and a respawn pick comes up in its owner's corner too.
 - **On a touch screen the fire button shows what a stall changes.** A roller, a hat, a
   flag or a trail in place of FIRE while you stand on one, and the hint shows it too.
 

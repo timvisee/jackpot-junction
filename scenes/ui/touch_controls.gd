@@ -422,7 +422,7 @@ func _stack_the_jokers() -> void:
 	(hand as JokerHand).lane = _hand_lane()
 	# Tucked into the bottom edge until a card of it is being read, see [member JokerHand.tucked].
 	(hand as JokerHand).tucked = true
-	(picker as JokerPicker).floor_y = (hand as JokerHand).top() - FLOOR_GAP
+	(picker as JokerPicker).floor_y = (hand as JokerHand).reach() - FLOOR_GAP
 	var feed := get_parent().get_node_or_null("KillFeed") as KillFeed
 	if feed != null:
 		var board := get_parent().get_node_or_null("Scoreboard") as Control

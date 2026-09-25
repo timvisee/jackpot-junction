@@ -68,6 +68,12 @@ const BLOCK_ANCHORS: Array[int] = [
 	Control.PRESET_BOTTOM_RIGHT
 ]
 
+## With three or four players here, each hand keeps to its owner's corner, beside the block and
+## clear of the clock, see [method _corner_lane]: how much of the top middle the clock keeps, either
+## side of the middle, at its widest, and the room kept between a hand and what it stands beside.
+const CLOCK_ROOM := 130.0
+const LANE_GAP := 16.0
+
 var match_node: Match
 ## Set once the room is closing, see [method stand_down]. Nothing is drawn or updated after it.
 var dismissed := false
@@ -482,10 +488,12 @@ func _update_scoreboard() -> void:
 
 func _update_blocks() -> void:
 	var bottom_blocks: Array[Rect2] = []
+	var all_blocks: Array[Rect2] = []
 	var feed_top := TouchControls.feed_top(_scoreboard) if TouchInput.enabled else 16.0
 	for index: int in _blocks:
 		var corner: int = _blocks[index]["corner"]
 		var rect := (_blocks[index]["box"] as Control).get_global_rect()
+		all_blocks.append(rect)
 		if corner >= 2:
 			bottom_blocks.append(rect)
 		elif corner == 1:
@@ -528,10 +536,34 @@ func _update_blocks() -> void:
 		var hand := _hands[index]
 		hand.kart = kart
 		hand.avoid = bottom_blocks
+		# A touch screen's hand keeps to the lane between the stick and the buttons, GAME.md 4.2.
+		if not hand.tucked:
+			var cornered := _blocks.size() > 2
+			hand.corner = block["corner"] if cornered else -1
+			hand.lane = _corner_lane(block, hand.size.x) if cornered else Vector2.ZERO
+			if cornered:
+				# A lane too narrow for the hand, at a big UI scale, leaves it off every block
+				# rather than over its own: under a top one, over a bottom one.
+				hand.avoid = all_blocks
+			_pickers[index].corner = hand.corner
+			_pickers[index].lane = hand.lane
+			_pickers[index].ceiling_y = hand.reach() + LANE_GAP
 		hand.keyboard = DeviceInput.uses_keyboard(slot.device())
 		_pickers[index].keyboard = hand.keyboard
 		var offer: JokerOffer = null if _podium_up else slot.offer
 		_pickers[index].show_offer(offer, kart)
+
+
+## The stretch of its edge a cornered hand keeps to, from and to: from its owner's block to the
+## middle, or at the top to the clock.
+func _corner_lane(block: Dictionary, width: float) -> Vector2:
+	var corner: int = block["corner"]
+	var rect := (block["box"] as Control).get_global_rect()
+	var middle := width * 0.5
+	var inner := CLOCK_ROOM if corner < 2 else 0.0
+	if corner % 2 == 0:
+		return Vector2(rect.end.x + LANE_GAP, middle - inner - LANE_GAP)
+	return Vector2(middle + inner + LANE_GAP, rect.position.x - LANE_GAP)
 
 
 ## The announcer's call, GAME.md 3.12: the player's name and what they just did, in their own
