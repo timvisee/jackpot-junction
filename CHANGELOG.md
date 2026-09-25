@@ -15,6 +15,8 @@ below, and hands the notes to the release workflow.
 
 - **Joining a LAN game with a password works.** After typing it you were left in an
   empty lobby, never connected to the host.
+- **LAN players keep their funny names.** A client that set no name lost the one it
+  was handed in the lobby as the match started.
 - **A wrong password goes back to Play LAN.** It says so there, and Back on the
   password prompt goes there too rather than to the title.
 

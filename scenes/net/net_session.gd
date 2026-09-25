@@ -104,9 +104,9 @@ var _room_up := true
 ## On the host: who has asked for a seat while there was no room to put them in, in the order
 ## they asked, to be seated as soon as there is.
 var _waiting_to_sit: Array[int] = []
-## On the host: the color each client had in the room it is leaving, so it can be seated in that
-## color on the other side.
-var _color_of: Dictionary[int, int] = {}
+## On the host: the color and the name each client had in the room it is leaving, so it can be
+## seated in that color and under that name on the other side.
+var _kept_of: Dictionary[int, Dictionary] = {}
 ## On the host: the clients that have connected and not yet been seated anywhere. A newcomer the
 ## match has no room for is turned away; one that has played here before is kept on in case a seat
 ## comes free.
@@ -319,14 +319,15 @@ func _let_go() -> void:
 ## color everybody is in so they get it back there.
 func _leaving() -> void:
 	_room_up = false
-	_color_of.clear()
+	_kept_of.clear()
 	_watching_here.clear()
 	if match_node == null:
 		return
 	for peer: int in _peer_slots:
 		var index: int = _peer_slots[peer]
 		if index < match_node.slots.size():
-			_color_of[peer] = match_node.slots[index].color_index
+			var slot := match_node.slots[index]
+			_kept_of[peer] = {"color": slot.color_index, "name": slot.player_name}
 
 
 ## Where the waiting room's football is, from the host that kicks it to everybody watching it,
@@ -458,11 +459,15 @@ func _seat(peer: int, fresh: bool) -> void:
 	if _watchers.has(peer):
 		_watch(peer)
 		return
-	var slot := match_node.join_network(NetInput.new(), _color_of.get(peer, -1))
+	var kept: Dictionary = _kept_of.get(peer, {})
+	var slot := match_node.join_network(NetInput.new(), kept.get("color", -1))
 	if slot == null:
 		if fresh:
 			_turn_away(peer)
 		return
+	# The name it had in the last room, the funny one it was handed there among them, GAME.md 3.8.
+	if not str(kept.get("name", "")).is_empty():
+		slot.player_name = kept["name"]
 	_newcomers.erase(peer)
 	_peer_slots[peer] = slot.index
 	# Somebody who has just sat down has none of the floor, so the next snapshot carries all of it
@@ -633,7 +638,7 @@ func _on_peer_connected(peer: int) -> void:
 func _on_peer_disconnected(peer: int) -> void:
 	_waiting_to_sit.erase(peer)
 	_newcomers.erase(peer)
-	_color_of.erase(peer)
+	_kept_of.erase(peer)
 	_watchers.erase(peer)
 	_watcher_next.erase(peer)
 	door.names.erase(peer)

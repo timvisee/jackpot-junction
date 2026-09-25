@@ -357,7 +357,10 @@ else's results screen, see 10.3.
   practice dummies after what they are, so neither takes a name off anybody.
   Online the host owns every name in the room, as it owns everything else that
   decides what a player sees: a client says what it is called once its seat is
-  assigned and the name reaches every screen in the snapshot, see 10.3. The
+  assigned and the name reaches every screen in the snapshot, see 10.3. A client
+  that says nothing is handed a funny name as it sits down in the lobby, and the
+  host keeps it for them from room to room with their color, so the name they
+  were called in the lobby is the name on every map and every podium. The
   first seat's box is on the online screen as well, since that is the name a
   machine gives when it connects.
 - **Emotes.** A player can put one of four up over their kart: GG, a smile, a

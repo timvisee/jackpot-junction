@@ -342,6 +342,8 @@ func _make_human(slot: PlayerSlot, input: KartInput) -> void:
 	slot.input = input
 	slot.kart.input = slot.input
 	slot.bot_trait = null
+	if slot.player_name.is_empty():
+		slot.player_name = _name_for(slot.index, input)
 	slot.kart.rebuild_stats()
 	slot.kart.enable_sound(true, not slot.is_local_human())
 	refresh_listener()

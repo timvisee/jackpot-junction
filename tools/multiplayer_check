@@ -4,7 +4,8 @@
 # screen. See tools/multiplayer_driver.gd for what each step checks.
 #
 #   online a: the host and a second player at its machine, one client, one bot;
-#             every seat keeps one joker at random between the maps
+#             every seat keeps one joker at random between the maps, and the client gives
+#             no name and keeps the one the host hands it
 #   online b: the host, two clients, one bot and somebody watching; everybody chooses a joker
 #             to keep, and the game has a password, which each client is asked for and
 #             gives, the first a wrong one before it, and the watcher is let in without
@@ -64,7 +65,7 @@ agree() {
 
 run host_a --role=host --port="$port" --locals=2 --clients=1 --jokers=random &
 host_a=$!
-run client_a --role=client --port="$port" &
+run client_a --role=client --port="$port" --nameless &
 client_a=$!
 wait "$host_a"
 host_a_status=$?

@@ -52,6 +52,9 @@ var _password := ""
 ## Whether a client gives a wrong password first, and is sent back to Play LAN for it, before it
 ## joins from there with the right one.
 var _wrong_first := false
+## Whether a client gives no name at all, and plays under the funny one the host hands it, which
+## it keeps from room to room, GAME.md 3.8.
+var _nameless := false
 
 
 func _ready() -> void:
@@ -70,6 +73,8 @@ func _ready() -> void:
 			_password = arg.get_slice("=", 1)
 		elif arg == "--wrong-first":
 			_wrong_first = true
+		elif arg == "--nameless":
+			_nameless = true
 	_run.call_deferred()
 
 
@@ -295,7 +300,7 @@ func _client_joins() -> Node:
 	config.online = "join"
 	config.address = "127.0.0.1"
 	config.port = _port
-	config.human_names = ["Client"] as Array[String]
+	config.human_names = ["" if _nameless else "Client"] as Array[String]
 	# The host may still be opening its room.
 	await _frames(60)
 	Game.go_to_waiting(config)
@@ -332,7 +337,8 @@ func _client_joins() -> Node:
 	# color at once is one of them told no, which is the host working, so it is asked again until
 	# the host has moved it on to one.
 	_room_name = "Renamed %d" % seat
-	SeatIdentity.rename(match_node.slots[seat], _room_name)
+	if not _nameless:
+		SeatIdentity.rename(match_node.slots[seat], _room_name)
 	if first:
 		var from := match_node.slots[seat].color_index
 		var again := [0]
@@ -352,7 +358,11 @@ func _client_joins() -> Node:
 			return null
 	await _seconds(1.0)
 	_room_color = match_node.slots[seat].color_index
-	_check(match_node.slots[seat].player_name == _room_name, "the host gave it its new name")
+	if _nameless:
+		_room_name = match_node.slots[seat].player_name
+		_check(_room_name in PlayerNames.NAMES, "the host handed it a name: %s" % _room_name)
+	else:
+		_check(match_node.slots[seat].player_name == _room_name, "the host gave it its new name")
 	if first:
 		await _until(
 			func() -> bool: return _walk(match_node, seat, ball.home - Vector3(1.8, 0.0, 0.0)),
@@ -419,6 +429,7 @@ func _client_after_map_1(first: Node) -> Node:
 func _client_after_map_2(second: Node) -> void:
 	var two: Match = second.match_node
 	_check(two.slots[two.local_slot].color_index == _color, "the same color on map 2")
+	_check(two.slots[two.local_slot].player_name == _room_name, "and the same name on map 2")
 	var last := await _podium(second, 60.0)
 	if last == null:
 		return
@@ -916,7 +927,7 @@ func _back_for_a_wrong_password() -> bool:
 		return false
 	var lan := _scene()
 	_check(lan.status.text == "Wrong password", "and said it was wrong")
-	lan.name_field.text = "Client"
+	lan.name_field.text = "" if _nameless else "Client"
 	lan.address_field.text = "127.0.0.1"
 	lan.port_field.text = str(_port)
 	lan.join_button.pressed.emit()
