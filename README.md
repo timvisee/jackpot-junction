@@ -23,6 +23,10 @@ Three arenas, three rooms to play them in.
 
 *Crossfire, in The Yard.*
 
+![A wide phone screen showing Crossfire in The Yard from above, the whole arena in view, with the touch controls drawn over it: a round stick in the lower left for the left thumb, and on the right a round Fire button beside a tall slider cut into Nitro, Gas, Reverse and Drift. The menu button sits in the top right corner with the standings under it, the player's score card is in the top left, and their hand of joker cards is along the bottom edge](docs/mobile.png)
+
+*On a phone: the stick under the left thumb, Fire and the slider under the right.*
+
 ## Playing
 
 - **Single-player**: Play opens the lobby with the match settings over it: a Grand
