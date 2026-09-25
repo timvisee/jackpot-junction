@@ -55,11 +55,11 @@ func _wait_until(condition: Callable, max_millis: int) -> bool:
 
 ## GAME.md 10.3: two games play together on the same major and minor version, whatever the patch.
 func test_only_the_patch_may_differ_between_games_that_play_together() -> void:
-	assert_bool(NetSession.compatible("0.5.0", "0.5.3")).is_true()
-	assert_bool(NetSession.compatible("0.5.2", "0.5.0")).is_true()
-	assert_bool(NetSession.compatible("0.5.0", "0.6.0")).is_false()
-	assert_bool(NetSession.compatible("1.5.0", "0.5.0")).is_false()
-	assert_bool(NetSession.compatible("0.5.0", "?")).is_false()
+	assert_bool(NetDoor.compatible("0.5.0", "0.5.3")).is_true()
+	assert_bool(NetDoor.compatible("0.5.2", "0.5.0")).is_true()
+	assert_bool(NetDoor.compatible("0.5.0", "0.6.0")).is_false()
+	assert_bool(NetDoor.compatible("1.5.0", "0.5.0")).is_false()
+	assert_bool(NetDoor.compatible("0.5.0", "?")).is_false()
 
 
 ## A host and a client over a real socket, on the versions given, and what the client was told.

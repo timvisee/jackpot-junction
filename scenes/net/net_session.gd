@@ -37,9 +37,6 @@ const CONNECT_TIMEOUT_MAX := 5000
 const TIMEOUT_LIMIT := 32
 const TIMEOUT_MIN := 5000
 const TIMEOUT_MAX := 30000
-const MAX_CLIENTS := 3
-## How many may watch on top of them, GAME.md 10.3, with no kart of their own.
-const MAX_WATCHERS := 4
 const SNAPSHOT_EVERY_TICKS := 2
 
 ## Whether this process is in the middle of raising an event a host relayed to it, which is never
@@ -186,7 +183,7 @@ func _notification(what: int) -> void:
 
 func host(port: int = DEFAULT_PORT) -> Error:
 	var peer := ENetMultiplayerPeer.new()
-	var error := peer.create_server(port, MAX_CLIENTS + MAX_WATCHERS)
+	var error := peer.create_server(port, NetDoor.MAX_CLIENTS + NetDoor.MAX_WATCHERS)
 	if error != OK:
 		return error
 	_compress(peer)
@@ -221,23 +218,11 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 	return OK
 
 
-## Whether a game at [param theirs] can play with one at [param mine], GAME.md 10.3: the same
-## major and minor version, whatever the patch. A patch release fixes things without changing
-## what goes over the wire; anything else may well change it, and two games that disagree about
-## what a snapshot says do not fail politely.
-static func compatible(mine: String, theirs: String) -> bool:
-	var a := mine.split(".")
-	var b := theirs.split(".")
-	if a.size() < 2 or b.size() < 2:
-		return mine == theirs
-	return a[0] == b[0] and a[1] == b[1]
-
-
 ## A new connection, before anything else is said on it, GAME.md 10.3. The client opens by
 ## saying which version it is; the host waits to hear it.
 func _on_authenticating(peer: int) -> void:
 	if not is_host:
-		var words := {"version": version, "watch": watching}
+		var words := NetDoor.knock(version, watching)
 		(multiplayer as SceneMultiplayer).send_auth(peer, var_to_bytes(words))
 
 
@@ -250,21 +235,14 @@ func _on_handshake(peer: int, data: PackedByteArray) -> void:
 	var scene := multiplayer as SceneMultiplayer
 	var said: Variant = bytes_to_var(data) if not data.is_empty() else null
 	var words: Dictionary = said if said is Dictionary else {}
-	var theirs := str(words.get("version", "?"))
 	if is_host:
-		var playable := compatible(version, theirs)
-		var watch := bool(words.get("watch", false))
 		# Full is only known while there is a room to be full: between rooms nobody is refused.
-		# Somebody who has come to watch needs no seat, only a place in the stands.
-		var full := _room_up and match_node != null and not _has_seat(match_node)
-		full = full or _player_peers().size() >= MAX_CLIENTS
-		if watch:
-			full = _watchers.size() >= MAX_WATCHERS
-		var welcome := playable and not full
-		var answer := {"version": version, "welcome": welcome, "full": full, "watch": watch}
+		var no_seat := _room_up and match_node != null and not _has_seat(match_node)
+		var players := _player_peers().size()
+		var answer := NetDoor.answer(version, words, no_seat, players, _watchers.size())
 		scene.send_auth(peer, var_to_bytes(answer))
-		if welcome:
-			if watch:
+		if answer["welcome"]:
+			if answer["watch"]:
 				_watchers[peer] = true
 			scene.complete_auth(peer)
 		return
@@ -272,14 +250,9 @@ func _on_handshake(peer: int, data: PackedByteArray) -> void:
 		scene.complete_auth(peer)
 		return
 	_turned_away = true
-	var reason := "Wrong version: the host has %s, you have %s" % [theirs, version]
-	if compatible(version, theirs) and bool(words.get("full", false)):
-		reason = "The match is full"
-		if bool(words.get("watch", false)):
-			reason = "As many are watching as the match can take"
 	# After the handshake has returned rather than inside it: hanging up in the middle of the
 	# peer's own poll pulls the connection out from under it.
-	_hang_up.call_deferred(reason)
+	_hang_up.call_deferred(NetDoor.refusal(version, words))
 
 
 func _hang_up(reason: String) -> void:
