@@ -3770,7 +3770,9 @@ signed with the debug keystore the editor's settings name, for trying things on
 a phone on the desk; `make android-install` puts it on the phone adb can see.
 `make android-release` is the APK a release publishes: the release template,
 signed with the release key, and checked by `tools/android-signed` to be signed
-with that key and nothing else. The key is a keystore of its own, kept out of
+with that key and nothing else, read by the newest `apksigner` that can read it:
+the newest build tools can want a newer Java than the export's, and then read no
+signer at all, which failed the first release run to have the check. The key is a keystore of its own, kept out of
 the project and meant for other Android apps as well, since Android only
 installs an update over an app signed with the same key and losing it means no
 app signed with it can ever be updated again. On the machine it was made on it
