@@ -7,6 +7,17 @@ const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const DEFAULT_RULES: MatchRules = preload("res://data/match/default.tres")
 
 var _runner: GdUnitSceneRunner
+var _settings_were: Settings
+
+
+func before_test() -> void:
+	_settings_were = Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_tire_marks.cfg"
+
+
+func after_test() -> void:
+	Game.settings = _settings_were
 
 
 func _start_match() -> Match:
@@ -115,3 +126,21 @@ func test_a_faded_stretch_goes() -> void:
 	marks._process(0.0)
 	var now: float = TireMarks.look().get_shader_parameter(&"now")
 	assert_float(now).is_equal_approx(Time.get_ticks_msec() * 0.001, 1.0)
+
+
+## Turned off in the settings, GAME.md 8.5, no marks are laid and those down go at once.
+func test_turned_off_there_are_no_marks() -> void:
+	var marks := _marks()
+	_drive(marks, 0.0, TireMarks.STRETCH + 10, 1.0)
+	assert_int(marks.stretch_count()).is_equal(2)
+	Game.settings.tire_marks = false
+	marks._process(0.0)
+	assert_int(marks.stretch_count()).is_equal(1)
+	assert_int((marks._open_drawn.mesh as ImmediateMesh).get_surface_count()).is_equal(0)
+	_drive(marks, 100.0, 20, 2.0)
+	assert_bool(marks._open[0].is_empty() and marks._open[1].is_empty()).is_true()
+	# And on again, they are laid again.
+	Game.settings.tire_marks = true
+	_drive(marks, 200.0, 20, 3.0)
+	marks._process(0.0)
+	assert_int((marks._open_drawn.mesh as ImmediateMesh).get_surface_count()).is_equal(1)

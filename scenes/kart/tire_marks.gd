@@ -78,6 +78,8 @@ func stretch_count() -> int:
 ## Records the contact point of one rear wheel. [param side] is the wheel's lateral axis in world
 ## space, [param intensity] 0 to 1 darkens and widens the mark.
 func add_sample(wheel: int, contact: Vector3, side: Vector3, intensity: float, now: float) -> void:
+	if not Game.settings.tire_marks:
+		return
 	var samples: Array = _open[wheel]
 	var start := true
 	if not samples.is_empty():
@@ -104,6 +106,11 @@ func add_sample(wheel: int, contact: Vector3, side: Vector3, intensity: float, n
 
 
 func _process(_delta: float) -> void:
+	# Turned off in the settings, GAME.md 8.5, what is down goes at once rather than fading out.
+	if not Game.settings.tire_marks:
+		if _dirty or not _closed.is_empty() or not (_open[0].is_empty() and _open[1].is_empty()):
+			_clear()
+		return
 	var now := Time.get_ticks_msec() * 0.001
 	look().set_shader_parameter(&"now", now)
 	_expire(now)
@@ -141,6 +148,16 @@ func _close() -> void:
 	_closed.append([_open_drawn, newest])
 	_open = carried
 	_open_drawn = _stretch()
+	_dirty = false
+
+
+## Takes every mark off the floor.
+func _clear() -> void:
+	for stretch: Array in _closed:
+		(stretch[0] as Node).queue_free()
+	_closed.clear()
+	_open = [[], []]
+	(_open_drawn.mesh as ImmediateMesh).clear_surfaces()
 	_dirty = false
 
 

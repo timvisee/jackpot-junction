@@ -2444,7 +2444,8 @@ like any other button.
   at +40%, Normal at the +87% it starts at, and Strong at the top. A switch turns
   off the music going under water when a player here dies, see 8.4, on by
   default.
-- **Video**: window mode, vsync, render scale, UI scale, bloom and edge smoothing.
+- **Video**: window mode, vsync, render scale, UI scale, bloom, edge smoothing and
+  tire marks.
   A phone or a tablet starts full screen, with the system's own bars out of the
   way; a desktop starts in a window. Bloom and edge smoothing are the passes over
   the whole screen a room pays for, and they are the two things worth handing back
@@ -2467,7 +2468,9 @@ like any other button.
   scrolls, the podium shrinks to it, the title leaves out the mark over its name,
   and on a touch screen the pieces of the HUD keep off each other, see 4.2. The
   hint over a kart at the start of a match grows with it too, drawn at the bigger
-  size rather than stretched to it, so it stays sharp.
+  size rather than stretched to it, so it stays sharp. Tire marks, 4.3, are on by
+  default; off, none are laid, and whatever is down goes at once rather than
+  fading out.
 - **Accessibility**: screen shake on or off, flash reduction, aim assist
   strength from 0% to 100% of the default and never above it, per player, the
   aim guide on or off, the disco lights on or off, the control hints on or off,

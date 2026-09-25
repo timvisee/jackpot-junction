@@ -51,6 +51,9 @@ var ui_scale := 1.5 if OS.has_feature("mobile") else 1.0
 ## the bloom is about a tenth of the frame in The Vault, and the smoothing about a twentieth.
 var bloom := not OS.has_feature("mobile")
 var antialiasing := not OS.has_feature("mobile")
+## The marks the rear wheels leave on the floor, GAME.md 4.3. Off, none are laid, and whatever is
+## down already goes at once.
+var tire_marks := true
 var screen_shake := true
 var flash_reduction := false
 ## 0 to 1 of the default aim assist, never more.
@@ -145,6 +148,7 @@ func load_from_disk() -> void:
 	ui_scale = clampf(file.get_value("video", "ui_scale", ui_scale), UI_SCALES[0], UI_SCALES[-1])
 	bloom = file.get_value("video", "bloom", bloom)
 	antialiasing = file.get_value("video", "antialiasing", antialiasing)
+	tire_marks = file.get_value("video", "tire_marks", tire_marks)
 	screen_shake = file.get_value("accessibility", "screen_shake", screen_shake)
 	flash_reduction = file.get_value("accessibility", "flash_reduction", flash_reduction)
 	aim_assist = clampf(
@@ -216,6 +220,7 @@ func save_to_disk() -> Error:
 	file.set_value("video", "ui_scale", ui_scale)
 	file.set_value("video", "bloom", bloom)
 	file.set_value("video", "antialiasing", antialiasing)
+	file.set_value("video", "tire_marks", tire_marks)
 	file.set_value("accessibility", "screen_shake", screen_shake)
 	file.set_value("accessibility", "flash_reduction", flash_reduction)
 	file.set_value("accessibility", "aim_assist", aim_assist)

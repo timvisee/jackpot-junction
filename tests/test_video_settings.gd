@@ -62,18 +62,22 @@ func test_the_edges_are_smoothed_one_way_or_the_other() -> void:
 	assert_int(get_tree().root.screen_space_aa).is_equal(Viewport.SCREEN_SPACE_AA_FXAA)
 
 
-## Both survive a trip through the settings file.
+## Both survive a trip through the settings file, and so do the tire marks of GAME.md 4.3, which
+## are on until somebody turns them off.
 func test_both_are_remembered() -> void:
 	var settings := Settings.new()
 	settings.path = "user://test_video_settings.cfg"
+	assert_bool(settings.tire_marks).is_true()
 	settings.bloom = false
 	settings.antialiasing = false
+	settings.tire_marks = false
 	assert_int(settings.save_to_disk()).is_equal(OK)
 	var read := Settings.new()
 	read.path = settings.path
 	read.load_from_disk()
 	assert_bool(read.bloom).is_false()
 	assert_bool(read.antialiasing).is_false()
+	assert_bool(read.tire_marks).is_false()
 	DirAccess.remove_absolute(settings.path)
 
 

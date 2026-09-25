@@ -511,6 +511,9 @@ func _video_tab() -> Control:
 			_settings.apply_video(get_tree())
 	)
 	column.add_child(MenuTheme.row("Edge smoothing", smoothing))
+	var marks := MenuTheme.toggle(_settings.tire_marks)
+	marks.toggled.connect(func(on: bool) -> void: _settings.tire_marks = on)
+	column.add_child(MenuTheme.row("Tire marks", marks))
 	return column
 
 
