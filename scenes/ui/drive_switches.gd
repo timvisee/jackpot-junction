@@ -11,6 +11,10 @@ extends Control
 ## touch screen, and the keys or the stick they drive with there, the way they drive: a player
 ## who does not know which of the four corners is theirs finds out from what is in their hands.
 ##
+## With more than one player at this screen each switch ends in Leave, for one of them to get up
+## and go while the others play on, GAME.md 9.2: in the lobby and the Garage their seat is emptied,
+## and on a map a bot takes the kart and the score on, as it does for a pad unplugged.
+##
 ## In the lobby and the Garage there is more to it, GAME.md 4.4: a box with the player's name in
 ## it, to type another, and a button with their color and its name on it that moves them on to the
 ## next one nobody else is in. See [SeatIdentity], which does it, online too.
@@ -58,14 +62,23 @@ func put_up(menu: Array[Button] = []) -> void:
 	var match_node := get_tree().get_first_node_in_group(&"match") as Match
 	if match_node == null or match_node.hud == null:
 		return
-	for slot: PlayerSlot in match_node.slots:
-		var player := slot.input as PlayerInput
+	var here := _players_here(match_node)
+	for slot: PlayerSlot in here:
 		var corner := match_node.hud.get_node_or_null("Block%d" % slot.index) as Control
-		if player == null or player.seat < 0 or corner == null:
-			continue
-		_up.append(_switch(slot, player, corner))
+		if corner != null:
+			_up.append(_switch(slot, slot.input as PlayerInput, corner, here.size() > 1))
 	_place()
 	_link(menu)
+
+
+## Everybody playing at this screen in [param match_node], in slot order.
+static func _players_here(match_node: Match) -> Array[PlayerSlot]:
+	var here: Array[PlayerSlot] = []
+	for slot: PlayerSlot in match_node.slots:
+		var player := slot.input as PlayerInput
+		if player != null and player.seat >= 0:
+			here.append(slot)
+	return here
 
 
 func take_down() -> void:
@@ -137,7 +150,7 @@ func button(seat: int) -> Button:
 	return null
 
 
-func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control) -> Dictionary:
+func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control, can_leave: bool) -> Dictionary:
 	var holder := VBoxContainer.new()
 	holder.add_theme_constant_override("separation", 6)
 	var pane := MenuTheme.pane(slot.color())
@@ -176,9 +189,33 @@ func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control) -> Dictiona
 	# device rather than a pad of their own.
 	if TouchInput.enabled and player.device == DeviceInput.ANY:
 		_toggle(column, each, TOUCH)
+	if can_leave:
+		var leave := MenuTheme.button("Leave", Type.BODY)
+		leave.custom_minimum_size = Vector2(WIDTH, 52.0)
+		leave.pressed.connect(_leave.bind(each))
+		column.add_child(leave)
+		each["leave"] = leave
+		buttons.append(leave)
 	add_child(holder)
 	_show(each)
 	return each
+
+
+## [param each]'s player gets up and goes, and the switches are put up again for whoever is left,
+## the cursor back on the menu.
+func _leave(each: Dictionary) -> void:
+	var match_node := get_tree().get_first_node_in_group(&"match") as Match
+	if match_node == null:
+		return
+	var slot: PlayerSlot = each["slot"]
+	if match_node.rules.timed:
+		match_node.leave_human(slot)
+	else:
+		VacantSeat.leave(match_node, slot)
+	var menu := _menu.duplicate()
+	put_up(menu)
+	if not menu.is_empty():
+		menu[0].grab_focus()
 
 
 ## What [param player] is playing on, as the card under their switch says it.

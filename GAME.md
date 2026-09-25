@@ -2652,6 +2652,13 @@ score, pot, jokers and item, so the match stays at 4 karts. Otherwise the joiner
 spawns fresh with an empty pot and 0 banked score. With 4 humans present nobody
 else can join. A player who leaves mid-match hands the kart back to a bot.
 
+With more than one player at a screen, each of their switches in the pause menu, 4.2, ends in
+Leave, for one of them to get up and go while the others play on; with one there is nothing to
+leave from, and no button. On a map a bot takes the kart and its score on, as it does for a pad
+that is unplugged. In the lobby and the Garage the seat is emptied the way a seat left online is,
+9.3, its kart gone until somebody sits down in it. On a LAN host it is the host's own players
+this is for; the other machines see the kart go the way they see any other.
+
 On a pad, Start is both the join button and the pause button, and which one a
 press is depends on whose pad it is: on a pad nobody is driving it takes a seat,
 on a pad somebody is driving it pauses. A P1 still playing on any device is

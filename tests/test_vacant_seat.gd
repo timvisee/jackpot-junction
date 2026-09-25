@@ -80,3 +80,43 @@ func test_the_host_empties_a_seat_in_the_room_and_hands_one_in_a_match_to_a_bot(
 		var input := match_node.slots[1].input
 		assert_bool(input is VacantSeat).is_equal(not timed)
 		assert_bool(input is BotInput).is_equal(timed)
+
+
+## Two at one screen, and one gets up: Leave in their switch. In the room their seat empties, on a
+## map a bot takes it on; either way the other plays on, with no Leave of their own any more.
+func test_one_of_two_players_here_leaves_the_room_from_the_pause_menu() -> void:
+	await _leave_one_of_two(false)
+
+
+func test_one_of_two_players_here_leaves_a_map_from_the_pause_menu() -> void:
+	await _leave_one_of_two(true)
+
+
+func _leave_one_of_two(timed: bool) -> void:
+	var rules: MatchRules = RULES.duplicate()
+	rules.timed = timed
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.arena_layout = LAYOUT
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD, 0), PlayerInput.new(0, 1)]
+	match_node.start(inputs, 3)
+	await _runner.simulate_frames(3, 17)
+	var menu := PauseMenu.add_to(match_node)
+	menu.set_paused(true)
+	await await_idle_frame()
+	var switches := menu._switches
+	var before := switches._up.size()
+	if before == 2:
+		(switches._up[1]["leave"] as Button).pressed.emit()
+	var input := match_node.slots[1].input
+	var after := switches._up.size()
+	var still := after == 1 and switches._up[0].has("leave")
+	menu.set_paused(false)
+	get_tree().paused = false
+	assert_int(before).is_equal(2)
+	assert_bool(input is VacantSeat).is_equal(not timed)
+	assert_bool(input is BotInput).is_equal(timed)
+	assert_int(after).is_equal(1)
+	assert_bool(still).is_false()
