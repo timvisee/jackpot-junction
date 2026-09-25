@@ -15,6 +15,8 @@ below, and hands the notes to the release workflow.
 
 - **Joining a LAN game with a password works.** After typing it you were left in an
   empty lobby, never connected to the host.
+- **A wrong password goes back to Play LAN.** It says so there, and Back on the
+  password prompt goes there too rather than to the title.
 
 ## [0.8.0] - 2026-09-25
 

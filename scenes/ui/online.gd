@@ -77,6 +77,13 @@ func _ready() -> void:
 	status.add_theme_font_size_override("font_size", 20)
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(status)
+	# Back from a game that turned this machine away, GAME.md 9.6: why, and the cursor on Join,
+	# which is what the player was doing.
+	if not Game.online_note.is_empty():
+		status.text = Game.online_note
+		status.add_theme_color_override("font_color", Palette.CHIP_RED)
+		Game.online_note = ""
+		join_button.grab_focus.call_deferred()
 	host_button.grab_focus()
 
 

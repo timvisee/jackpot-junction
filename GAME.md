@@ -2736,10 +2736,13 @@ watchers are kept for next time. The password is kept for as long as the game is
 longer, so one forgotten never locks a later lobby without anybody knowing.
 
 A client knocks with its version, whether it has come to watch, its name and the password it was
-given, which to start with is none. A host with a password that is given none, or the wrong one,
-says so and nothing else is wrong: the client is asked for it rather than sent back, on a pane
-of its own on the loading screen's dark that says the game needs a password, or that the last
-one was wrong. Join knocks again with what was typed; Back to title goes.
+given, which to start with is none. A host with a password that is given none says so and
+nothing else is wrong: the client is asked for it rather than sent back, on a pane of its own on
+the loading screen's dark that says the game needs a password. Join knocks again with what was
+typed, on a connection of its own: the one turned away is done with, and a room that thought it
+was still talking to the host would sit in an empty lobby. A wrong one goes back to Play LAN,
+which says the password was wrong and has the cursor on Join; so does Back, or B, which says
+nothing, since nothing went wrong.
 
 The host can show anybody out. Manage players, on the host's pause menu wherever the room is,
 comes up in place of the menu: everybody else in the game, each player by the name and color of

@@ -30,6 +30,8 @@ var garage_room := ROOM_GARAGE
 ## The Grand Prix being played, GAME.md 9.7, or null for a single map. Kept here because it runs
 ## across scenes: every map is a scene of its own.
 var grand_prix: GrandPrix
+## What the Play LAN screen says as it comes up, once, see [method go_to_online].
+var online_note := ""
 
 var _screenshot_path := ""
 var _screenshot_frames := 8
@@ -151,9 +153,13 @@ func go_to_lobby(from: Match = null) -> void:
 	go_to_waiting(config)
 
 
-func go_to_online() -> void:
+## Play LAN, GAME.md 9.3, saying [param note] on it if there is something to say about why it is
+## up again: a wrong password, say.
+func go_to_online(note := "") -> void:
 	Net.close()
 	grand_prix = null
+	online_note = note
+	get_tree().paused = false
 	get_tree().change_scene_to_file(ONLINE_SCENE)
 
 

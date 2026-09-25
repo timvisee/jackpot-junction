@@ -172,14 +172,20 @@ func _connected() -> void:
 
 ## The room is being left before it was ever joined, and the player is told why.
 ## The host wants a password, GAME.md 9.6: asked for, over the room, and knocked again with. A
-## wrong one says so and asks again; Back is the title.
+## wrong one goes back to Play LAN saying so, and so does Back, without saying anything.
 func _ask_password(wrong: bool) -> void:
 	if _connecting != null:
 		_connecting.queue_free()
 		_connecting = null
 	if match_node.hud != null:
 		match_node.hud.stand_down()
-	var pane := PasswordPane.add_to(self, wrong)
+	if wrong:
+		# After the session has finished saying so: going hangs it up, and a session cannot be
+		# freed in the middle of saying something.
+		Game.go_to_online.call_deferred("Wrong password")
+		return
+	var pane := PasswordPane.add_to(self)
+	pane.left.connect(func() -> void: Game.go_to_online())
 	pane.entered.connect(
 		func(typed: String) -> void:
 			config.password = typed

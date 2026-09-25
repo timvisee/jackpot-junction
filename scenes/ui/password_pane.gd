@@ -2,28 +2,31 @@ class_name PasswordPane
 extends CanvasLayer
 ## The host's lobby wants a password, GAME.md 9.6, and asks for it here: over the room, on the
 ## loading screen's dark, since there is no room yet to stand over. A box to type it into, Join to
-## knock again with it, and Back to the title. Asked again, it says the last one was wrong.
+## knock again with it, and Back, or B, to give up on it and go back to Play LAN.
 
 ## Join, with what was typed.
 signal entered(password: String)
+## Back: not this game after all.
+signal left
 
 const WIDTH := 520.0
 
 var _box: LineEdit
 var _join: Button
+var _back: Button
 
 
-## A pane over [param parent], asking for the password, [param wrong] if the last one was not it.
-static func add_to(parent: Node, wrong := false) -> PasswordPane:
+## A pane over [param parent], asking for the password.
+static func add_to(parent: Node) -> PasswordPane:
 	var pane := PasswordPane.new()
 	pane.name = "Password"
 	pane.layer = StatusPane.LAYER
 	parent.add_child(pane)
-	pane._build(wrong)
+	pane._build()
 	return pane
 
 
-func _build(wrong: bool) -> void:
+func _build() -> void:
 	var backdrop := ColorRect.new()
 	backdrop.color = LoadingScreen.BACKDROP
 	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -37,10 +40,7 @@ func _build(wrong: bool) -> void:
 	column.add_theme_constant_override("separation", 16)
 	pane.add_child(column)
 	column.add_child(MenuTheme.title("Password", Type.TITLE))
-	var line := MenuTheme.subtitle(
-		"Wrong password, try again." if wrong else "This game needs a password.", Type.BODY
-	)
-	column.add_child(line)
+	column.add_child(MenuTheme.subtitle("This game needs a password.", Type.BODY))
 	_box = MenuTheme.field("", "Password", 64)
 	_box.secret = true
 	_box.custom_minimum_size = Vector2(WIDTH, 48.0)
@@ -49,11 +49,18 @@ func _build(wrong: bool) -> void:
 	_join = MenuTheme.button("Join")
 	_join.pressed.connect(_knock)
 	column.add_child(_join)
-	var back := MenuTheme.button("Back to title")
-	back.pressed.connect(func() -> void: Game.go_to_title())
-	column.add_child(back)
+	_back = MenuTheme.button("Back")
+	_back.pressed.connect(func() -> void: left.emit())
+	column.add_child(_back)
 	_box.grab_focus()
 
 
 func _knock() -> void:
 	entered.emit(_box.text)
+
+
+## B on a pad, or Escape, is Back, caught before the room's pause menu hears it.
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"ui_cancel"):
+		get_viewport().set_input_as_handled()
+		left.emit()

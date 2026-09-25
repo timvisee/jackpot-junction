@@ -12,6 +12,7 @@ extends Node
 
 const WAITING_SCENE := "res://scenes/waiting/waiting_room.tscn"
 const MATCH_SCENE := "res://scenes/match/match_scene.tscn"
+const ONLINE_SCENE := "res://scenes/ui/online.tscn"
 ## How many maps the checked Grand Prix runs, and how many bots it asks for.
 const MAPS := 2
 const BOTS := 1
@@ -48,6 +49,9 @@ var _given: Dictionary = {}
 ## it types when asked. A client with one knocks without it first, the way a player who has not
 ## been told does, and goes in through the question.
 var _password := ""
+## Whether a client gives a wrong password first, and is sent back to Play LAN for it, before it
+## joins from there with the right one.
+var _wrong_first := false
 
 
 func _ready() -> void:
@@ -64,6 +68,8 @@ func _ready() -> void:
 			_keep = ["none", "choose", "random", "all"].find(arg.get_slice("=", 1))
 		elif arg.begins_with("--password="):
 			_password = arg.get_slice("=", 1)
+		elif arg == "--wrong-first":
+			_wrong_first = true
 	_run.call_deferred()
 
 
@@ -293,7 +299,7 @@ func _client_joins() -> Node:
 	# The host may still be opening its room.
 	await _frames(60)
 	Game.go_to_waiting(config)
-	if not _password.is_empty() and not await _through_the_password(_password):
+	if not await _through_the_door():
 		return null
 	var room := await _room()
 	if room == null:
@@ -871,6 +877,16 @@ func multiplayer_peers() -> int:
 	return multiplayer.get_peers().size()
 
 
+## However the host's door is got through: with a wrong password first and back from Play LAN
+## for it, then with the right one when it is asked for, or straight in with no password at all.
+func _through_the_door() -> bool:
+	if _wrong_first and not await _back_for_a_wrong_password():
+		return false
+	if _password.is_empty():
+		return true
+	return await _through_the_password(_password)
+
+
 ## The host wants a password: the room this client knocked from asks for it, [param typed] is
 ## given, and a room of its own is opened to knock again with it.
 func _through_the_password(typed: String) -> bool:
@@ -885,6 +901,26 @@ func _through_the_password(typed: String) -> bool:
 	return await _until(
 		func() -> bool: return _scene() != asked, 10.0, "it knocked again with the password"
 	)
+
+
+## A wrong password given when asked: back on Play LAN, told so, and joining again from there
+## the way a player would, with the address in the boxes.
+func _back_for_a_wrong_password() -> bool:
+	if not await _through_the_password(_password + " not"):
+		return false
+	if not await _until(
+		func() -> bool: return _scene() != null and _scene().scene_file_path == ONLINE_SCENE,
+		10.0,
+		"a wrong password went back to Play LAN"
+	):
+		return false
+	var lan := _scene()
+	_check(lan.status.text == "Wrong password", "and said it was wrong")
+	lan.name_field.text = "Client"
+	lan.address_field.text = "127.0.0.1"
+	lan.port_field.text = str(_port)
+	lan.join_button.pressed.emit()
+	return true
 
 
 func _password_pane() -> PasswordPane:

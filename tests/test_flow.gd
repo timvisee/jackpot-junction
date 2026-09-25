@@ -5,6 +5,7 @@ const TEST_SETTINGS_PATH := "user://test_settings.cfg"
 const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
 const TITLE_SCENE := preload("res://scenes/ui/title.tscn")
 const MATCH_SCENE := preload("res://scenes/match/match_scene.tscn")
+const ONLINE_SCENE := preload("res://scenes/ui/online.tscn")
 
 
 func after_test() -> void:
@@ -165,7 +166,7 @@ func test_menu_scenes_build() -> void:
 ## GAME.md 3.8: somebody joining a friend's match never passes through the local lobby, so the
 ## screen they do pass through asks what they are called.
 func test_the_online_screen_carries_the_name_you_type() -> void:
-	var online: Control = auto_free(load("res://scenes/ui/online.tscn").instantiate())
+	var online: Control = auto_free(ONLINE_SCENE.instantiate())
 	add_child(online)
 	online.name_field.text = "  [b]Bartholomew Winterbottom[/b]  "
 	var config: MatchConfig = online.config("join")
@@ -403,20 +404,40 @@ func test_the_hosts_menu_manages_its_players() -> void:
 	assert_bool(menu._manage.visible).is_false()
 
 
-## GAME.md 9.6: a lobby that wants a password asks for it, says when the last one was wrong, and
-## knocks again with what was typed.
+## GAME.md 9.6: a lobby that wants a password asks for it and knocks again with what was typed;
+## Back, or B, gives up on it. That it then goes to Play LAN, and a wrong password does too, is
+## played through by the multiplayer check, which changes scenes as a test here cannot.
 func test_the_password_pane_asks_and_knocks_again() -> void:
 	var holder: Node = auto_free(Node.new())
 	add_child(holder)
-	var pane := PasswordPane.add_to(holder, true)
-	var texts := _texts(pane)
-	assert_array(texts).contains(["Wrong password, try again."])
+	var pane := PasswordPane.add_to(holder)
+	assert_array(_texts(pane)).contains(["This game needs a password."])
 	var typed := [""]
 	pane.entered.connect(func(password: String) -> void: typed[0] = password)
 	pane._box.text = "sesame"
 	pane._join.pressed.emit()
 	assert_str(typed[0]).is_equal("sesame")
 	assert_bool(pane._box.secret).is_true()
+	var left := [0]
+	pane.left.connect(func() -> void: left[0] += 1)
+	pane._back.pressed.emit()
+	var back := InputEventAction.new()
+	back.action = &"ui_cancel"
+	back.pressed = true
+	pane._input(back)
+	assert_int(left[0]).is_equal(2)
+
+
+## GAME.md 9.6: Play LAN come back to from a game that turned this machine away says why, once.
+func test_play_lan_says_why_it_is_back() -> void:
+	Game.online_note = "Wrong password"
+	var screen: Control = auto_free(ONLINE_SCENE.instantiate())
+	add_child(screen)
+	assert_str(screen.status.text).is_equal("Wrong password")
+	assert_str(Game.online_note).is_empty()
+	var again: Control = auto_free(ONLINE_SCENE.instantiate())
+	add_child(again)
+	assert_str(again.status.text).is_empty()
 
 
 ## GAME.md 9.6: the host's Lobby settings set how many may play and a password, at once; the
