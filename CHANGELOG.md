@@ -20,6 +20,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Matches run faster, most of all on phones.** The tire marks were built again whole
+  every frame; now only the newest stretch of them is.
 - **With three or four players, each hand of jokers sits by its owner's corner.** The top
   two hang from the top edge, and a respawn pick comes up in its owner's corner too.
 - **With three or four players, the hands tuck half off the screen.** As on a phone, a

@@ -940,8 +940,11 @@ short buzz the slider gives, so reading along the row is felt card by card.
   straight line is barely there, a hard turn and a brake not much more. A full
   drift leaves a clear skid at just under half opacity, and a straight handbrake
   stop leaves the darkest mark of all.
-  Marks fade out over 20 s. Segments are capped per kart to bound the cost. They
-  are laid where the model's own rear wheels are, measured off it rather than
+  Marks fade out over 20 s, faded by their shader, and are laid a stretch of
+  about thirty meters at a time: a finished stretch is never built again, both
+  wheels are one thing to draw in it, and it goes once it has faded, so marks
+  cost next to nothing to keep on the floor. Built whole again every frame, the
+  marks of four karts were most of what a match cost to run. They are laid where the model's own rear wheels are, measured off it rather than
   guessed from the kart's length, so they come down under the wheels making them
   instead of trailing a hand's width behind the kart. What is measured is the
   middle of each tire, not the point the model hangs the wheel from: that sits at
