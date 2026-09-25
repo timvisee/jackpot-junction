@@ -33,7 +33,7 @@ func _ready() -> void:
 		counts.append("%d players" % count)
 	_players = MenuTheme.option(counts, 0)
 	_players.item_selected.connect(_on_players)
-	column.add_child(MenuTheme.row("Most players", _players))
+	column.add_child(MenuTheme.row("Player limit", _players))
 	_password = MenuTheme.field("", "None", 64)
 	_password.custom_minimum_size = Vector2(300.0, 44.0)
 	_password.text_changed.connect(

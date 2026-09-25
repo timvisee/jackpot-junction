@@ -18,6 +18,11 @@ below, and hands the notes to the release workflow.
 - **A wrong password goes back to Play LAN.** It says so there, and Back on the
   password prompt goes there too rather than to the title.
 
+### Changed
+
+- **Most players is now Player limit.** The same setting in Lobby settings, named
+  more plainly.
+
 ## [0.8.0] - 2026-09-25
 
 LAN games find each other now, and the host decides who comes in: a password, a player
