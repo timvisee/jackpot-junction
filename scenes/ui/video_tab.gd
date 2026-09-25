@@ -48,6 +48,15 @@ func _ready() -> void:
 			_apply()
 	)
 	_add("Render scale", scale)
+	var upscalers := MenuTheme.option(
+		["Bilinear", "FSR 1", "FSR 2"], maxi(Settings.UPSCALERS.find(_settings.upscaler), 0)
+	)
+	upscalers.item_selected.connect(
+		func(index: int) -> void:
+			_settings.upscaler = Settings.UPSCALERS[index]
+			_apply()
+	)
+	_add("Upscaler", upscalers)
 	# Picked from a list rather than slid: a slider would grow and shrink the screen it is on under
 	# the pointer dragging it, GAME.md 8.5.
 	var sizes: Array = []

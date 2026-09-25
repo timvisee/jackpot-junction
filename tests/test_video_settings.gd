@@ -191,3 +191,26 @@ func test_a_phone_starts_on_the_lighter_picture() -> void:
 		Settings.SMOOTH_FXAA if phone else Settings.SMOOTH_OFF
 	)
 	assert_float(fresh.render_scale).is_equal(0.8 if phone else 1.0)
+
+
+## GAME.md 8.5: a room drawn under the screen's size is brought up to it the way the Upscaler box
+## says, the plain stretch unless somebody asks for more. FSR 2 needs the desktop's renderer, and
+## anywhere else is FSR 1.
+func test_the_room_is_brought_up_to_size_the_way_the_box_says() -> void:
+	var settings := Settings.new()
+	assert_str(settings.upscaler).is_equal(Settings.UPSCALE_BILINEAR)
+	assert_int(settings.scaling_mode()).is_equal(Viewport.SCALING_3D_MODE_BILINEAR)
+	settings.upscaler = Settings.UPSCALE_FSR
+	assert_int(settings.scaling_mode()).is_equal(Viewport.SCALING_3D_MODE_FSR)
+	settings.upscaler = Settings.UPSCALE_FSR2
+	var wanted := (
+		Viewport.SCALING_3D_MODE_FSR2 if Settings.full_renderer() else Viewport.SCALING_3D_MODE_FSR
+	)
+	assert_int(settings.scaling_mode()).is_equal(wanted)
+	settings.path = "user://test_video_settings.cfg"
+	assert_int(settings.save_to_disk()).is_equal(OK)
+	var read := Settings.new()
+	read.path = settings.path
+	read.load_from_disk()
+	assert_str(read.upscaler).is_equal(Settings.UPSCALE_FSR2)
+	DirAccess.remove_absolute(settings.path)

@@ -15,6 +15,13 @@ const SMOOTH_OFF := "off"
 const SMOOTH_FXAA := "fxaa"
 const SMOOTH_SMAA := "smaa"
 const SMOOTHINGS: Array[String] = [SMOOTH_OFF, SMOOTH_FXAA, SMOOTH_SMAA]
+## How a room drawn under the screen's size, at a render scale below 100%, is brought up to it: the
+## plain stretch, or AMD's FSR 1 or FSR 2. FSR 2 needs the desktop's renderer; a phone's gets
+## FSR 1 in its place.
+const UPSCALE_BILINEAR := "bilinear"
+const UPSCALE_FSR := "fsr"
+const UPSCALE_FSR2 := "fsr2"
+const UPSCALERS: Array[String] = [UPSCALE_BILINEAR, UPSCALE_FSR, UPSCALE_FSR2]
 const TOUCH_SLIDER := "slider"
 const TOUCH_BUTTONS := "buttons"
 const TOUCH_LAYOUTS: Array[String] = [TOUCH_SLIDER, TOUCH_BUTTONS]
@@ -50,6 +57,8 @@ var vsync := true
 ## A phone or a tablet draws its room at four fifths of the screen's size to start with, and
 ## without the two passes below: a phone's card is the one that cannot spare them.
 var render_scale := 0.8 if OS.has_feature("mobile") else 1.0
+## One of [constant UPSCALERS].
+var upscaler := UPSCALE_BILINEAR
 ## One of [constant UI_SCALES]. A phone is held close, and a HUD laid out for a monitor across a
 ## desk is a HUD of things too small to press there, so a handheld starts at half as big again.
 var ui_scale := 1.5 if OS.has_feature("mobile") else 1.0
@@ -157,6 +166,8 @@ func load_from_disk() -> void:
 	fullscreen = file.get_value("video", "fullscreen", fullscreen)
 	vsync = file.get_value("video", "vsync", vsync)
 	render_scale = file.get_value("video", "render_scale", render_scale)
+	var upscaled := str(file.get_value("video", "upscaler", upscaler))
+	upscaler = upscaled if upscaled in UPSCALERS else upscaler
 	ui_scale = clampf(file.get_value("video", "ui_scale", ui_scale), UI_SCALES[0], UI_SCALES[-1])
 	bloom = file.get_value("video", "bloom", bloom)
 	# Kept as one switch, Edge smoothing, until the multisampling and the pass over the picture
@@ -238,6 +249,7 @@ func save_to_disk() -> Error:
 	file.set_value("video", "fullscreen", fullscreen)
 	file.set_value("video", "vsync", vsync)
 	file.set_value("video", "render_scale", render_scale)
+	file.set_value("video", "upscaler", upscaler)
 	file.set_value("video", "ui_scale", ui_scale)
 	file.set_value("video", "bloom", bloom)
 	file.set_value("video", "msaa", msaa)
@@ -328,6 +340,7 @@ func apply_video(tree: SceneTree) -> void:
 		DisplayServer.window_set_vsync_mode(wanted)
 	if tree != null and tree.root != null:
 		tree.root.scaling_3d_scale = clampf(render_scale, 0.5, 1.0)
+		tree.root.scaling_3d_mode = scaling_mode()
 		# Every menu and the HUD, drawn bigger or smaller; the room behind them stays as sharp.
 		tree.root.content_scale_factor = ui_scale_for_now if ui_scale_for_now > 0.0 else ui_scale
 		var multisampled: Array[Viewport.MSAA] = [
@@ -340,6 +353,25 @@ func apply_video(tree: SceneTree) -> void:
 			Viewport.SCREEN_SPACE_AA_SMAA,
 		]
 		tree.root.screen_space_aa = passes[maxi(SMOOTHINGS.find(screen_smoothing), 0)]
+
+
+## How the room is brought up to the screen's size, from [member upscaler]: FSR 2 only where the
+## renderer has it, the desktop's, and FSR 1 in its place anywhere else.
+func scaling_mode() -> Viewport.Scaling3DMode:
+	match upscaler:
+		UPSCALE_FSR:
+			return Viewport.SCALING_3D_MODE_FSR
+		UPSCALE_FSR2:
+			if full_renderer():
+				return Viewport.SCALING_3D_MODE_FSR2
+			return Viewport.SCALING_3D_MODE_FSR
+	return Viewport.SCALING_3D_MODE_BILINEAR
+
+
+## Whether the room is drawn by the desktop's renderer, Forward+, rather than the lighter one a
+## phone or a tablet has, which has no FSR 2, no ambient occlusion and no temporal smoothing.
+static func full_renderer() -> bool:
+	return RenderingServer.get_current_rendering_method() == "forward_plus"
 
 
 ## Registers the default input map, then the player's rebindings and dead zone on top.

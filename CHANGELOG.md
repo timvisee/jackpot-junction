@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **An Upscaler setting.** FSR 1 or FSR 2 in place of the plain stretch, for a render
+  scale below 100%.
 - **MSAA and Screen smoothing settings.** MSAA from Off to 8x, and FXAA or SMAA over the
   picture, in place of Edge smoothing; yours carries over.
 - **A Tire marks setting.** Under Video; off, karts leave no marks on the floor.

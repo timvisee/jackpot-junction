@@ -2444,8 +2444,8 @@ like any other button.
   at +40%, Normal at the +87% it starts at, and Strong at the top. A switch turns
   off the music going under water when a player here dies, see 8.4, on by
   default.
-- **Video**: window mode, vsync, render scale, UI scale, bloom, MSAA, screen
-  smoothing and tire marks.
+- **Video**: window mode, vsync, render scale, upscaler, UI scale, bloom, MSAA,
+  screen smoothing and tire marks.
   A phone or a tablet starts full screen, with the system's own bars out of the
   way; a desktop starts in a window. Bloom and the multisampled edges are the
   passes a room pays for most, and they are the two things worth handing back on
@@ -2459,7 +2459,11 @@ like any other button.
   starts with neither and with FXAA instead, since a room made of straight lines
   crawls with nothing smoothing it, and at a render scale of 80%. A settings file
   from when the two were one switch, Edge smoothing, reads as what it did: on was
-  2x MSAA, off was FXAA. All of it takes effect at once. The UI scale draws every menu and the HUD bigger or smaller, from 75% to
+  2x MSAA, off was FXAA. The upscaler is how a room drawn under the screen's
+  size, at a render scale below 100%, is brought up to it: the plain stretch,
+  which it starts on, or AMD's FSR 1 or FSR 2, sharper for a little more of the
+  card. FSR 2 needs the desktop's renderer, and a phone's has FSR 1 in its place.
+  All of it takes effect at once. The UI scale draws every menu and the HUD bigger or smaller, from 75% to
   200% of the size they were laid out at for a screen 1080 lines high, and leaves
   the room behind them as sharp as it was. It starts at 100% on a desktop and at
   150% on a phone or a tablet, which is held close enough that a HUD laid out for
