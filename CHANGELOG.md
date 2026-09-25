@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-09-25
+
+Fixes for LAN play: joining with a password works, names stay put, and a client no longer
+loses the game for seconds at a time. Every release now comes with a signed Android APK.
+
 ### Added
 
 - **An Android APK with every release.** Built and signed by the release itself, so
@@ -34,7 +39,6 @@ below, and hands the notes to the release workflow.
 - **Manage players shows the host too.** Marked Me, at the top, with no Kick.
 - **Most players is now Player limit.** The same setting in Lobby settings, named
   more plainly.
-
 ## [0.8.0] - 2026-09-25
 
 LAN games find each other now, and the host decides who comes in: a password, a player
@@ -1198,7 +1202,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.8.1
 [0.8.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.8.0
 [0.7.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.7.0
 [0.6.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.6.2
