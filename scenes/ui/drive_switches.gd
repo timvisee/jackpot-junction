@@ -7,9 +7,11 @@ extends Control
 ## a second button under it, for the slider or the buttons. A pad's cursor goes out to them
 ## from the menu sideways and back toward the middle, and up and down between those on one side.
 ##
-## Under each switch a small card says what that player is playing on, a keyboard, a pad or the
+## Beside each switch a small card says what that player is playing on, a keyboard, a pad or the
 ## touch screen, and the keys or the stick they drive with there, the way they drive: a player
 ## who does not know which of the four corners is theirs finds out from what is in their hands.
+## It is on the side toward the middle of the screen: under the switch of a player in a top
+## corner and over the switch of one in a bottom corner, where under it would be off the screen.
 ##
 ## With more than one player at this screen each switch ends in Leave, for one of them to get up
 ## and go while the others play on, GAME.md 9.2: in the lobby and the Garage their seat is emptied,
@@ -417,6 +419,17 @@ func _follow(each: Dictionary) -> void:
 		(each["color_word"] as Label).text = Palette.color_name(slot.color_index)
 
 
+## The card over [param each]'s switch for a corner in the bottom half of the screen, and under
+## it for one in the top half.
+func _card_toward_the_middle(each: Dictionary, corner: Control) -> void:
+	var holder: Control = each["holder"]
+	var card: Control = each["card"]
+	var bottom := corner.get_global_rect().get_center().y > size.y * 0.5
+	var wanted := 0 if bottom else holder.get_child_count() - 1
+	if card.get_index() != wanted:
+		holder.move_child(card, wanted)
+
+
 static func _corner_at(each: Dictionary) -> Rect2:
 	return (each["corner"] as Control).get_global_rect()
 
@@ -435,6 +448,7 @@ func _place() -> void:
 		if not is_instance_valid(corner):
 			pane.visible = false
 			continue
+		_card_toward_the_middle(each, corner)
 		pane.size = pane.get_combined_minimum_size()
 		var room := size - pane.size - Vector2(EDGE, EDGE)
 		var middle := corner.get_global_rect().get_center() - pane.size * 0.5

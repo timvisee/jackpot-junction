@@ -431,6 +431,40 @@ func test_the_pause_menu_has_a_switch_over_each_players_corner() -> void:
 	DirAccess.remove_absolute(Game.settings.path)
 
 
+## The card saying what a player drives with is toward the middle of the screen: under the switch
+## of a player in a top corner, over the switch of the third, in a bottom one.
+func test_a_bottom_corner_has_its_card_over_the_switch() -> void:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.with_hud = true
+	match_node.offer_size = 0
+	var runner := scene_runner(match_node)
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.KEYBOARD, 0), PlayerInput.new(0, 1), PlayerInput.new(1, 2)
+	]
+	match_node.start(inputs, 5)
+	await runner.simulate_frames(3, 17)
+	var menu := PauseMenu.add_to(match_node)
+	menu.set_paused(true)
+	await await_idle_frame()
+	var up: Array[Dictionary] = menu._switches._up
+	assert_int(up.size()).is_equal(3)
+	for each: Dictionary in up:
+		var card: Control = each["card"]
+		var pane: Control = each["pane"]
+		var corner: Control = each["corner"]
+		var bottom := corner.get_global_rect().get_center().y > menu._switches.size.y * 0.5
+		assert_bool(card.get_index() < pane.get_index()).is_equal(bottom)
+	var third: Dictionary = up[2]
+	var third_corner: Control = third["corner"]
+	(
+		assert_bool(third_corner.get_global_rect().get_center().y > menu._switches.size.y * 0.5)
+		. is_true()
+	)
+	menu.set_paused(false)
+	get_tree().paused = false
+	DirAccess.remove_absolute(Game.settings.path)
+
+
 ## A player on a pad whose triggers are wherever the test puts them.
 class PadPlayer:
 	extends PlayerInput
