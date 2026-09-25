@@ -490,6 +490,8 @@ func _watcher() -> void:
 	)
 	var bubble: Node = room.match_node.hud.find_child("WatcherEmote", true, false)
 	_check(bubble != null, "and floats up this screen")
+	# It gave no name, and is called a funny one the host handed it.
+	_check(heard[0] in PlayerNames.NAMES, "under a name of its own: %s" % heard[0])
 	Events.watcher_emoted.disconnect(hear)
 	for round: int in [1, 2]:
 		if not await _until(

@@ -251,6 +251,7 @@ func _on_handshake(peer: int, data: PackedByteArray) -> void:
 			"players": _player_peers().size(),
 			"humans": _player_peers().size() + NetDoor.locals(match_node),
 			"watchers": _watchers.size(),
+			"match": match_node,
 		}
 		var answer := door.answer(version, peer, words, room)
 		scene.send_auth(peer, var_to_bytes(answer))
@@ -641,7 +642,7 @@ func _on_peer_disconnected(peer: int) -> void:
 	_kept_of.erase(peer)
 	_watchers.erase(peer)
 	_watcher_next.erase(peer)
-	door.names.erase(peer)
+	door.forget(peer)
 	_watching_here.erase(peer)
 	if not is_host or not _peer_slots.has(peer):
 		return
@@ -841,7 +842,8 @@ func _watcher_emote(emote: int, watcher: String) -> void:
 	if now < _watcher_next.get(peer, 0):
 		return
 	_watcher_next[peer] = now + roundi(Emotes.COOLDOWN * 1000.0)
-	var named := PlayerNames.clean(watcher)
+	# Under the name the host gave them, which is theirs to be seen by, not what they sent.
+	var named: String = door.names.get(peer, PlayerNames.clean(watcher))
 	Events.watcher_emoted.emit(named if not named.is_empty() else "Watcher", emote)
 
 

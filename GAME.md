@@ -360,7 +360,12 @@ else's results screen, see 10.3.
   assigned and the name reaches every screen in the snapshot, see 10.3. A client
   that says nothing is handed a funny name as it sits down in the lobby, and the
   host keeps it for them from room to room with their color, so the name they
-  were called in the lobby is the name on every map and every podium. The
+  were called in the lobby is the name on every map and every podium. Somebody
+  watching, 10.3, is named by the host as they knock: what they gave if nobody
+  else in the game has it, and otherwise, or with nothing given, a funny name
+  nobody else has. It is kept off the list while they watch, so nobody sitting
+  down is handed it, and it is the name under their emotes and on the host's
+  Manage players, whatever their own machine sends. The
   first seat's box is on the online screen as well, since that is the name a
   machine gives when it connects.
 - **Emotes.** A player can put one of four up over their kart: GG, a smile, a
@@ -2749,7 +2754,7 @@ nothing, since nothing went wrong.
 
 The host can show anybody out. Manage players, on the host's pause menu wherever the room is,
 comes up in place of the menu: everybody else in the game, each player by the name and color of
-their seat and each watcher by the name they gave as they knocked, with Kick beside every one.
+their seat and each watcher by the name the host gave them, with Kick beside every one.
 Somebody kicked is told the host removed them from the game, on the pane a refusal comes up on,
 and goes back to the title from it; the host lets go of the connection half a second later
 whatever they do with that, so nobody stays by not listening. They may join again. Their seat

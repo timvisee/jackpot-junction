@@ -27,9 +27,25 @@ var password := ""
 ## to the people it told.
 var watchers_allowed := true
 var watchers_need_password := true
-## What each client said it was called as it knocked, for somebody watching, who has no seat to be
-## named in.
+## What each client said it was called as it knocked, and for somebody watching, who has no seat
+## to be named in, what the host calls them: their own name if nobody else has it, and otherwise,
+## or with none given, a funny one off the list that nobody else has, GAME.md 3.8.
 var names: Dictionary[int, String] = {}
+
+var _rng := RandomNumberGenerator.new()
+## The watchers' names this door has kept off the list, by who has them.
+var _held: Dictionary[int, String] = {}
+
+
+func _init() -> void:
+	_rng.randomize()
+
+
+## Gone, the watchers' names go back to the list with them.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE:
+		for named: String in _held.values():
+			PlayerNames.held_elsewhere.erase(named)
 
 
 ## Whether a game at [param theirs] can play with one at [param mine], GAME.md 10.3: the same
@@ -73,6 +89,8 @@ func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> 
 	var welcome := playable and not full and not closed and locked.is_empty()
 	if welcome:
 		names[peer] = PlayerNames.clean(str(words.get("name", "")))
+		if watch:
+			_name_watcher(peer, room.get("match"))
 	return {
 		"version": version,
 		"welcome": welcome,
@@ -87,6 +105,33 @@ func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> 
 ## network to say so.
 func watchers_locked() -> bool:
 	return not password.is_empty() and watchers_need_password
+
+
+## Somebody come to watch is called what they gave if nobody in [param match_node] or in the stands
+## has it, and otherwise a funny name that nobody has, which is kept off the list for anybody who
+## sits down after them.
+func _name_watcher(peer: int, match_node: Match) -> void:
+	var taken: Array[String] = []
+	if match_node != null:
+		for slot: PlayerSlot in match_node.slots:
+			taken.append(slot.display_name())
+	for other: int in names:
+		if other != peer:
+			taken.append(names[other])
+	var named := names[peer]
+	if named.is_empty() or named in taken:
+		named = PlayerNames.pick(_rng, taken)
+	names[peer] = named
+	_held[peer] = named
+	PlayerNames.held_elsewhere.append(named)
+
+
+## [param peer] has gone, and a watcher's name goes back to the list.
+func forget(peer: int) -> void:
+	names.erase(peer)
+	if _held.has(peer):
+		PlayerNames.held_elsewhere.erase(_held[peer])
+		_held.erase(peer)
 
 
 ## How many play at the host's own machine in [param match_node], which the lobby's limit on

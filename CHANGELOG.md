@@ -22,6 +22,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Every watcher has a name of their own.** One who gives none, or one somebody else
+  has, is handed a funny name nobody in the game has.
 - **Most players is now Player limit.** The same setting in Lobby settings, named
   more plainly.
 

@@ -55,6 +55,10 @@ const NAMES: Array[String] = [
 	"Penny Pincher",
 ]
 
+## Names held by people who are in the game but not in its match, a LAN game's watchers, GAME.md
+## 10.3, so nobody who sits down is handed one of them. Kept by [NetDoor].
+static var held_elsewhere: Array[String] = []
+
 
 ## A name as it will be shown: trimmed, on one line, no markup, and no longer than the limit.
 ## Returns an empty string for anything that was only whitespace, which counts as no name given.
@@ -72,7 +76,7 @@ static func clean(text: String) -> String:
 static func pick(rng: RandomNumberGenerator, taken: Array[String] = []) -> String:
 	var free: Array[String] = []
 	for name: String in NAMES:
-		if name not in taken:
+		if name not in taken and name not in held_elsewhere:
 			free.append(name)
 	if free.is_empty():
 		return "Player %d" % (taken.size() + 1)

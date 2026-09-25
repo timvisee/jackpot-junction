@@ -187,3 +187,48 @@ func test_a_watcher_may_come_in_without_the_password() -> void:
 	player.locked.connect(func(wrong: bool) -> void: asked.append(wrong))
 	var heard := await _wait_until(func() -> bool: return not asked.is_empty(), 4000)
 	assert_bool(heard).override_failure_message("the player was not asked").is_true()
+
+
+## Somebody watching is called what they gave if nobody else has it, and otherwise, or with nothing
+## given, a funny name nobody else has, which nobody who sits down later is handed either.
+func test_every_watcher_has_a_name_of_their_own() -> void:
+	PlayerNames.held_elsewhere.clear()
+	var door := NetDoor.new()
+	var room := {"no_seat": false, "players": 0, "humans": 1, "watchers": 0, "match": null}
+	var version := Game.version()
+	var knock := func(peer: int, named: String) -> String:
+		door.answer(version, peer, NetDoor.knock(version, true, named, ""), room)
+		return door.names[peer]
+	var first: String = knock.call(2, "")
+	var second: String = knock.call(3, "")
+	assert_array(PlayerNames.NAMES).contains([first, second])
+	assert_str(first).is_not_equal(second)
+	assert_str(knock.call(4, "Couch Kim")).is_equal("Couch Kim")
+	var clash: String = knock.call(5, "Couch Kim")
+	assert_str(clash).is_not_equal("Couch Kim")
+	assert_array(PlayerNames.NAMES).contains([clash])
+	# Nobody sitting down is handed a name somebody watching has.
+	var others: Array[String] = []
+	for name: String in PlayerNames.NAMES:
+		if name != first:
+			others.append(name)
+	var rng := RandomNumberGenerator.new()
+	assert_str(PlayerNames.pick(rng, others)).is_not_equal(first)
+	# Gone, their name is free again.
+	door.forget(2)
+	assert_array(PlayerNames.held_elsewhere).not_contains([first])
+	assert_str(PlayerNames.pick(rng, others)).is_equal(first)
+	door.forget(3)
+	door.forget(4)
+	door.forget(5)
+	assert_array(PlayerNames.held_elsewhere).is_empty()
+	# And a door that goes, as a session's does, takes its watchers' names with it.
+	_name_a_watcher_and_go()
+	assert_array(PlayerNames.held_elsewhere).is_empty()
+
+
+func _name_a_watcher_and_go() -> void:
+	var door := NetDoor.new()
+	var room := {"no_seat": false, "players": 0, "humans": 1, "watchers": 0, "match": null}
+	door.answer(Game.version(), 9, NetDoor.knock(Game.version(), true, "", ""), room)
+	assert_int(PlayerNames.held_elsewhere.size()).is_equal(1)
