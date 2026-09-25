@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Joining a LAN game with a password works.** After typing it you were left in an
+  empty lobby, never connected to the host.
+
 ## [0.8.0] - 2026-09-25
 
 LAN games find each other now, and the host decides who comes in: a password, a player

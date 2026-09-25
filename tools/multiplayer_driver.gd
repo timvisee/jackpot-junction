@@ -44,6 +44,10 @@ var _room_name := ""
 ## the jokers it handed every seat on the first map, to find the right ones again on the second.
 var _keep := 2
 var _given: Dictionary = {}
+## The lobby's password, GAME.md 9.6: on the host the one its door wants, and on a client the one
+## it types when asked. A client with one knocks without it first, the way a player who has not
+## been told does, and goes in through the question.
+var _password := ""
 
 
 func _ready() -> void:
@@ -58,6 +62,8 @@ func _ready() -> void:
 			_locals = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--jokers="):
 			_keep = ["none", "choose", "random", "all"].find(arg.get_slice("=", 1))
+		elif arg.begins_with("--password="):
+			_password = arg.get_slice("=", 1)
 	_run.call_deferred()
 
 
@@ -108,6 +114,9 @@ func _host_opens_the_room() -> Node:
 	config.online = "host"
 	config.port = _port
 	config.human_names = ["Host"] as Array[String]
+	config.password = _password
+	# Somebody watching is let in without it, so the one watching this game needs none.
+	Game.settings.lobby_watch_free = true
 	Game.go_to_waiting(config)
 	var room := await _room()
 	if room == null:
@@ -284,6 +293,8 @@ func _client_joins() -> Node:
 	# The host may still be opening its room.
 	await _frames(60)
 	Game.go_to_waiting(config)
+	if not _password.is_empty() and not await _through_the_password(_password):
+		return null
 	var room := await _room()
 	if room == null:
 		return null
@@ -858,6 +869,29 @@ func multiplayer_peers() -> int:
 	if not Net.online() or multiplayer.multiplayer_peer == null:
 		return 0
 	return multiplayer.get_peers().size()
+
+
+## The host wants a password: the room this client knocked from asks for it, [param typed] is
+## given, and a room of its own is opened to knock again with it.
+func _through_the_password(typed: String) -> bool:
+	if not await _until(
+		func() -> bool: return _password_pane() != null, 20.0, "the host asked for a password"
+	):
+		return false
+	var asked := _scene()
+	var pane := _password_pane()
+	pane._box.text = typed
+	pane._join.pressed.emit()
+	return await _until(
+		func() -> bool: return _scene() != asked, 10.0, "it knocked again with the password"
+	)
+
+
+func _password_pane() -> PasswordPane:
+	var scene := _scene()
+	if scene == null:
+		return null
+	return scene.get_node_or_null("Password") as PasswordPane
 
 
 func _scene() -> Node:

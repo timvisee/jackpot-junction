@@ -104,6 +104,7 @@ func _host() -> void:
 		session.door.max_players = Game.settings.lobby_players
 		session.door.watchers_allowed = Game.settings.lobby_watchers
 		session.door.watchers_need_password = not Game.settings.lobby_watch_free
+		session.door.password = config.password
 		var error := session.host(config.port)
 		if error != OK:
 			ready_room_hint("Could not host on port %d: %s" % [config.port, error_string(error)])
@@ -182,6 +183,10 @@ func _ask_password(wrong: bool) -> void:
 	pane.entered.connect(
 		func(typed: String) -> void:
 			config.password = typed
+			# The session that was turned away hung up but is still the one the game holds, and a
+			# room opened with a session held is a room that has followed the host back from a
+			# match: it would sit on the dead connection in an empty lobby rather than knock.
+			Net.close()
 			Game.go_to_waiting(config)
 	)
 

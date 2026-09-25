@@ -40,7 +40,8 @@ var overtime := true
 var online := ""
 ## Joining to watch rather than to play, GAME.md 10.3: no kart, and a seat at nobody's expense.
 var watching := false
-## The password to knock with, GAME.md 9.6: empty until the host has asked for one.
+## The password to knock with, GAME.md 9.6: empty until the host has asked for one. Hosting, the
+## password the door starts with, which only a tool sets: the host's own is set in the room.
 var password := ""
 var address := "127.0.0.1"
 var port := NetSession.DEFAULT_PORT
