@@ -31,14 +31,6 @@ const DEFAULT_PORT := 7777
 ## How long the two ends of a new connection have to agree on a version, in seconds. A machine
 ## that says nothing in that time, or says something the host turns down, is dropped.
 const HANDSHAKE_TIMEOUT := 5.0
-## How long a client tries an address nobody answers at before giving up, in milliseconds, and
-## the patience the connection is given back once it is made. Left to itself ENet keeps trying
-## for half a minute, which is half a minute of a player looking at a room that is not coming.
-const CONNECT_TIMEOUT_MIN := 1000
-const CONNECT_TIMEOUT_MAX := 5000
-const TIMEOUT_LIMIT := 32
-const TIMEOUT_MIN := 5000
-const TIMEOUT_MAX := 30000
 const SNAPSHOT_EVERY_TICKS := 2
 ## How long a kicked client has to hear why before the host lets go of it, in seconds.
 const KICK_GRACE := 0.5
@@ -194,7 +186,7 @@ func host(port: int = DEFAULT_PORT) -> Error:
 	var error := peer.create_server(port, NetDoor.MAX_CLIENTS + NetDoor.MAX_WATCHERS)
 	if error != OK:
 		return error
-	_compress(peer)
+	NetLine.compress(peer)
 	multiplayer.multiplayer_peer = peer
 	is_host = true
 	_start_relaying()
@@ -208,7 +200,7 @@ func _on_connected() -> void:
 	var enet := multiplayer.multiplayer_peer as ENetMultiplayerPeer
 	var server := enet.get_peer(1) if enet != null else null
 	if server != null:
-		server.set_timeout(TIMEOUT_LIMIT, TIMEOUT_MIN, TIMEOUT_MAX)
+		NetLine.made(server)
 	connected.emit()
 
 
@@ -217,10 +209,10 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 	var error := peer.create_client(address, port)
 	if error != OK:
 		return error
-	_compress(peer)
+	NetLine.compress(peer)
 	var server := peer.get_peer(1)
 	if server != null:
-		server.set_timeout(TIMEOUT_LIMIT, CONNECT_TIMEOUT_MIN, CONNECT_TIMEOUT_MAX)
+		NetLine.trying(server)
 	multiplayer.multiplayer_peer = peer
 	is_host = false
 	_turned_away = false
@@ -546,18 +538,6 @@ func peer_seats() -> Array[int]:
 	for peer: int in _peer_slots:
 		seats.append(_peer_slots[peer])
 	return seats
-
-
-## Snapshots are mostly the same words over and over, GAME.md 10.3: every dictionary key of
-## every kart, bullet and pickup, thirty times a second. A busy one runs to about fourteen
-## kilobytes written out and a tenth of that packed, so it is worth packing.
-##
-## This does not stop a big snapshot being broken up: the packet is split against the MTU before
-## the datagrams carrying it are compressed, which is what the engine warns about. Fitting one
-## in a single datagram means a smaller snapshot, not a smaller wire. Both ends have to agree on
-## the compressor, so both are set from here.
-static func _compress(peer: ENetMultiplayerPeer) -> void:
-	peer.host.compress(ENetConnection.COMPRESS_RANGE_CODER)
 
 
 func _physics_process(delta: float) -> void:
