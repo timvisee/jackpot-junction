@@ -3,8 +3,9 @@ extends RefCounted
 ## Who a host lets into its game, GAME.md 10.3, and what somebody it turns away is told. A client
 ## knocks with its version, whether it has come to watch, its name and a password if it has one;
 ## the host lets it in on a version it plays with, with a seat for it or a place in the stands for
-## somebody watching, and with the lobby's password if the host has set one, GAME.md 9.6. Kept
-## apart from [NetSession] so that file stays about the connection rather than the door.
+## somebody watching, and with the lobby's password if the host has set one, GAME.md 9.6. The host
+## can keep watchers out altogether, or let them in without the password. Kept apart from
+## [NetSession] so that file stays about the connection rather than the door.
 
 ## How many clients may play, on top of the host, and how many may watch on top of them, with no
 ## kart of their own.
@@ -21,6 +22,11 @@ const WRONG := "wrong"
 ## included, and the password anybody knocking has to give, empty for none.
 var max_players := MOST_PLAYERS
 var password := ""
+## Whether anybody may come to watch, and whether they have to give the password to: somebody
+## watching can only look, so a host may be happy to let anybody look at a game it keeps its seats
+## to the people it told.
+var watchers_allowed := true
+var watchers_need_password := true
 ## What each client said it was called as it knocked, for somebody watching, who has no seat to be
 ## named in.
 var names: Dictionary[int, String] = {}
@@ -55,17 +61,32 @@ func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> 
 	full = full or room["humans"] >= max_players
 	if watch:
 		full = room["watchers"] >= MAX_WATCHERS
+	var closed := watch and not watchers_allowed
 	var locked := ""
-	if not password.is_empty():
+	var asks := not password.is_empty() and not (watch and not watchers_need_password)
+	if asks and not closed:
 		var given := str(words.get("password", ""))
 		if given.is_empty():
 			locked = NEEDED
 		elif given != password:
 			locked = WRONG
-	var welcome := playable and not full and locked.is_empty()
+	var welcome := playable and not full and not closed and locked.is_empty()
 	if welcome:
 		names[peer] = PlayerNames.clean(str(words.get("name", "")))
-	return {"version": version, "welcome": welcome, "full": full, "watch": watch, "locked": locked}
+	return {
+		"version": version,
+		"welcome": welcome,
+		"full": full,
+		"watch": watch,
+		"locked": locked,
+		"closed": closed,
+	}
+
+
+## Whether somebody coming to watch is asked for the password, for the list of games found on the
+## network to say so.
+func watchers_locked() -> bool:
+	return not password.is_empty() and watchers_need_password
 
 
 ## How many play at the host's own machine in [param match_node], which the lobby's limit on
@@ -101,7 +122,8 @@ func guests(
 static func wants_password(version: String, words: Dictionary) -> bool:
 	var locked := str(words.get("locked", ""))
 	var theirs := str(words.get("version", "?"))
-	return not locked.is_empty() and compatible(version, theirs) and not words.get("full", false)
+	var shut: bool = words.get("full", false) or words.get("closed", false)
+	return not locked.is_empty() and compatible(version, theirs) and not shut
 
 
 ## What a client with [param version] turned away with the host's [param words] is told.
@@ -109,6 +131,8 @@ static func refusal(version: String, words: Dictionary) -> String:
 	var theirs := str(words.get("version", "?"))
 	if not compatible(version, theirs):
 		return "Wrong version: the host has %s, you have %s" % [theirs, version]
+	if bool(words.get("closed", false)):
+		return "This game is not open to watchers"
 	if bool(words.get("full", false)):
 		if bool(words.get("watch", false)):
 			return "As many are watching as the match can take"

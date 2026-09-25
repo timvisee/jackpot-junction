@@ -445,6 +445,16 @@ func test_the_hosts_lobby_settings_set_the_door() -> void:
 	read.path = TEST_SETTINGS_PATH
 	read.load_from_disk()
 	assert_int(read.lobby_players).is_equal(3)
+	# Watching: free of the password, then shut altogether, which makes the first moot.
+	assert_bool(menu._door._watch_free.disabled).is_false()
+	menu._door._watch_free.button_pressed = true
+	assert_bool(session.door.watchers_need_password).is_false()
+	menu._door._watchers.button_pressed = false
+	assert_bool(session.door.watchers_allowed).is_false()
+	assert_bool(menu._door._watch_free.disabled).is_true()
+	read.load_from_disk()
+	assert_bool(read.lobby_watchers).is_false()
+	assert_bool(read.lobby_watch_free).is_true()
 	menu._door._back.pressed.emit()
 	assert_bool(menu._main.visible).is_true()
 	Game.settings = real

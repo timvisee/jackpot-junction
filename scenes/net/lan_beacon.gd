@@ -71,5 +71,7 @@ func answer() -> Dictionary:
 		"players": playing,
 		"most": session.door.max_players,
 		"password": not session.door.password.is_empty(),
+		"watching": session.door.watchers_allowed,
+		"watch_password": session.door.watchers_locked(),
 		"lobby": not session.in_arena,
 	}

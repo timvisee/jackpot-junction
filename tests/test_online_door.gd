@@ -155,3 +155,35 @@ func test_a_lobby_turns_away_players_past_its_limit() -> void:
 	var seen := await _wait_until(func() -> bool: return _host.guests().size() == 1, 4000)
 	assert_bool(seen).is_true()
 	assert_bool(watcher.watching).is_true()
+
+
+## A host that lets nobody watch says so to somebody who comes to, and nothing else about them.
+func test_a_lobby_closed_to_watchers_turns_them_away() -> void:
+	_open_host()
+	_host.door.watchers_allowed = false
+	var watcher := _client(true, "Couch Kim")
+	var told := [""]
+	watcher.refused.connect(func(reason: String) -> void: told[0] = reason)
+	var heard := await _wait_until(func() -> bool: return not told[0].is_empty(), 4000)
+	assert_bool(heard).override_failure_message("the watcher was never turned away").is_true()
+	assert_str(told[0]).is_equal("This game is not open to watchers")
+
+
+## With watching free of the password, somebody who comes to watch is let in without it, and
+## somebody who comes to play is still asked for it.
+func test_a_watcher_may_come_in_without_the_password() -> void:
+	_open_host()
+	_host.door.password = "sesame"
+	_host.door.watchers_need_password = false
+	assert_bool(_host.door.watchers_locked()).is_false()
+	var watcher := _client(true, "Couch Kim")
+	var seen := await _wait_until(func() -> bool: return _host.guests().size() == 1, 4000)
+	assert_bool(seen).override_failure_message("the watcher was not let in").is_true()
+	# One client at a time: the two of them share this process's end of the wire.
+	watcher.queue_free()
+	await await_idle_frame()
+	var player := _client(false, "Guest")
+	var asked: Array = []
+	player.locked.connect(func(wrong: bool) -> void: asked.append(wrong))
+	var heard := await _wait_until(func() -> bool: return not asked.is_empty(), 4000)
+	assert_bool(heard).override_failure_message("the player was not asked").is_true()

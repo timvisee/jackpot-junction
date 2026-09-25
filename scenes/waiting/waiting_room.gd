@@ -102,6 +102,8 @@ func _host() -> void:
 	else:
 		session = Net.open(match_node)
 		session.door.max_players = Game.settings.lobby_players
+		session.door.watchers_allowed = Game.settings.lobby_watchers
+		session.door.watchers_need_password = not Game.settings.lobby_watch_free
 		var error := session.host(config.port)
 		if error != OK:
 			ready_room_hint("Could not host on port %d: %s" % [config.port, error_string(error)])

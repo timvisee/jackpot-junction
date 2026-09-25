@@ -1,9 +1,11 @@
 class_name LobbySettings
 extends PanelContainer
 ## The host's settings for who may come into its game, GAME.md 9.6, from its pause menu in place of
-## the menu itself: how many may play, its own players included, and a password to keep the game
-## to the people who were told it. Changed at once; nobody already in is shown out by either, they
-## only answer the next knock. The number is kept for next time and the password is not.
+## the menu itself: how many may play, its own players included, a password to keep the game to
+## the people who were told it, whether anybody may come to watch, and whether a watcher has to
+## give the password too. Changed at once; nobody already in is shown out by any of them, they
+## only answer the next knock. The number and the two about watchers are kept for next time; the
+## password is not.
 
 ## Back: the menu is up again in its place.
 signal closed
@@ -12,6 +14,8 @@ var session: NetSession
 
 var _players: OptionButton
 var _password: LineEdit
+var _watchers: CheckButton
+var _watch_free: CheckButton
 var _back: Button
 
 
@@ -38,8 +42,14 @@ func _ready() -> void:
 	_password.focus_entered.connect(func() -> void: PlayerInput.typing = true)
 	_password.focus_exited.connect(func() -> void: PlayerInput.typing = false)
 	column.add_child(MenuTheme.row("Password", _password))
+	_watchers = MenuTheme.toggle(true)
+	_watchers.toggled.connect(_on_watchers)
+	column.add_child(MenuTheme.row("Allow watchers", _watchers))
+	_watch_free = MenuTheme.toggle(false)
+	_watch_free.toggled.connect(_on_watch_free)
+	column.add_child(MenuTheme.row("Watch without password", _watch_free))
 	var note := MenuTheme.subtitle(
-		"Anybody joining is asked for it. Nobody already here is shown out.", Type.LABEL
+		"These only change who can join next. Nobody already here is shown out.", Type.LABEL
 	)
 	column.add_child(note)
 	_back = MenuTheme.button("Back")
@@ -54,6 +64,9 @@ func open() -> void:
 	var count := clampi(door.max_players, NetDoor.FEWEST_PLAYERS, NetDoor.MOST_PLAYERS)
 	_players.select(count - NetDoor.FEWEST_PLAYERS)
 	_password.text = door.password
+	_watchers.set_pressed_no_signal(door.watchers_allowed)
+	_watch_free.set_pressed_no_signal(not door.watchers_need_password)
+	_show_watching()
 	_players.grab_focus()
 
 
@@ -63,6 +76,26 @@ func _on_players(index: int) -> void:
 		session.door.max_players = count
 	Game.settings.lobby_players = count
 	Game.settings.save_to_disk()
+
+
+func _on_watchers(on: bool) -> void:
+	if session != null:
+		session.door.watchers_allowed = on
+	Game.settings.lobby_watchers = on
+	Game.settings.save_to_disk()
+	_show_watching()
+
+
+func _on_watch_free(on: bool) -> void:
+	if session != null:
+		session.door.watchers_need_password = not on
+	Game.settings.lobby_watch_free = on
+	Game.settings.save_to_disk()
+
+
+## Watching without the password is only a question while anybody may watch at all.
+func _show_watching() -> void:
+	_watch_free.disabled = not _watchers.button_pressed
 
 
 func _exit_tree() -> void:

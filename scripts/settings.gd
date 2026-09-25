@@ -116,6 +116,9 @@ var last_port := 7777
 ## How many may play in a LAN game this machine hosts, its own players included, GAME.md 9.6.
 ## Kept for next time; the password is not, so one forgotten is never a later lobby locked.
 var lobby_players := NetDoor.MOST_PLAYERS
+## Whether anybody may come to watch such a game, and whether they may without its password.
+var lobby_watchers := true
+var lobby_watch_free := false
 
 var path := DEFAULT_PATH
 
@@ -188,6 +191,8 @@ func load_from_disk() -> void:
 		NetDoor.FEWEST_PLAYERS,
 		NetDoor.MOST_PLAYERS
 	)
+	lobby_watchers = bool(file.get_value("online", "lobby_watchers", lobby_watchers))
+	lobby_watch_free = bool(file.get_value("online", "lobby_watch_free", lobby_watch_free))
 
 
 func save_to_disk() -> Error:
@@ -235,6 +240,8 @@ func save_to_disk() -> Error:
 	file.set_value("online", "address", last_address)
 	file.set_value("online", "port", last_port)
 	file.set_value("online", "lobby_players", lobby_players)
+	file.set_value("online", "lobby_watchers", lobby_watchers)
+	file.set_value("online", "lobby_watch_free", lobby_watch_free)
 	return file.save(path)
 
 
