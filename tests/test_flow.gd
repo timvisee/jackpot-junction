@@ -403,6 +403,53 @@ func test_the_hosts_menu_manages_its_players() -> void:
 	assert_bool(menu._manage.visible).is_false()
 
 
+## GAME.md 9.6: a lobby that wants a password asks for it, says when the last one was wrong, and
+## knocks again with what was typed.
+func test_the_password_pane_asks_and_knocks_again() -> void:
+	var holder: Node = auto_free(Node.new())
+	add_child(holder)
+	var pane := PasswordPane.add_to(holder, true)
+	var texts := _texts(pane)
+	assert_array(texts).contains(["Wrong password, try again."])
+	var typed := [""]
+	pane.entered.connect(func(password: String) -> void: typed[0] = password)
+	pane._box.text = "sesame"
+	pane._join.pressed.emit()
+	assert_str(typed[0]).is_equal("sesame")
+	assert_bool(pane._box.secret).is_true()
+
+
+## GAME.md 9.6: the host's Lobby settings set how many may play and a password, at once; the
+## number is kept for next time and the password is not.
+func test_the_hosts_lobby_settings_set_the_door() -> void:
+	var real := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = TEST_SETTINGS_PATH
+	var holder: Node = auto_free(Node.new())
+	add_child(holder)
+	var session: NetSession = auto_free(NetSession.new())
+	session.is_host = true
+	var menu := PauseMenu.add_to(holder, session)
+	await await_idle_frame()
+	assert_bool(menu._door_button.visible).is_true()
+	menu._door_button.pressed.emit()
+	assert_bool(menu._door.visible).is_true()
+	menu._door._players.select(1)
+	menu._door._players.item_selected.emit(1)
+	assert_int(session.door.max_players).is_equal(3)
+	assert_int(Game.settings.lobby_players).is_equal(3)
+	menu._door._password.text = " sesame "
+	menu._door._password.text_changed.emit(menu._door._password.text)
+	assert_str(session.door.password).is_equal("sesame")
+	var read := Settings.new()
+	read.path = TEST_SETTINGS_PATH
+	read.load_from_disk()
+	assert_int(read.lobby_players).is_equal(3)
+	menu._door._back.pressed.emit()
+	assert_bool(menu._main.visible).is_true()
+	Game.settings = real
+
+
 ## GAME.md 3.8: the host's Pause game is straight under Resume, over the match settings the
 ## waiting room adds, since stopping everybody is the first thing a host reaches for.
 func test_pause_game_is_over_the_match_settings() -> void:
@@ -511,3 +558,13 @@ func test_the_host_can_pause_everybody_and_a_client_is_told() -> void:
 	theirs._process(0.0)
 	assert_bool(theirs._held.visible).is_false()
 	get_tree().paused = false
+
+
+func _texts(node: Node) -> Array[String]:
+	var found: Array[String] = []
+	var label := node as Label
+	if label != null:
+		found.append(label.text)
+	for child: Node in node.get_children():
+		found.append_array(_texts(child))
+	return found

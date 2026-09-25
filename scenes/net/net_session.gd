@@ -24,6 +24,8 @@ signal back_to_room
 signal ball_moved(state: Array)
 ## The host has turned this machine away, and why, for the player to be told, GAME.md 10.3.
 signal refused(reason: String)
+## The host wants a password this client did not give, or not the one it gave, GAME.md 9.6.
+signal locked(wrong: bool)
 
 const DEFAULT_PORT := 7777
 ## How long the two ends of a new connection have to agree on a version, in seconds. A machine
@@ -70,6 +72,10 @@ var player_name := ""
 ## On a client: whether it came to watch rather than to play, GAME.md 10.3. Said in the handshake,
 ## and the host never gives it a seat.
 var watching := false
+## On a client, the password it knocks with, GAME.md 9.6; on the host, the door itself: who may
+## come in, its lobby's limit on players and its password among it.
+var password := ""
+var door := NetDoor.new()
 ## How this machine's player dressed their kart, GAME.md 4.4, sent to the host with the name.
 ## Empty leaves the plain kart the host made.
 var player_style := PackedInt32Array()
@@ -111,9 +117,6 @@ var _relaying := false
 var _watchers: Dictionary[int, bool] = {}
 ## On the host: when each watcher may put up their next emote, in engine ticks of milliseconds.
 var _watcher_next: Dictionary[int, int] = {}
-## On the host: what each client said it was called as it knocked, for somebody watching, who has
-## no seat to be named in.
-var _names_of: Dictionary[int, String] = {}
 var _watching_here: Dictionary[int, bool] = {}
 ## Whether this machine is asking for a pause, and which of the host's clients are.
 var _asking := false
@@ -227,7 +230,7 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 ## saying which version it is; the host waits to hear it.
 func _on_authenticating(peer: int) -> void:
 	if not is_host:
-		var words := NetDoor.knock(version, watching, PlayerNames.clean(player_name))
+		var words := NetDoor.knock(version, watching, PlayerNames.clean(player_name), password)
 		(multiplayer as SceneMultiplayer).send_auth(peer, var_to_bytes(words))
 
 
@@ -242,12 +245,15 @@ func _on_handshake(peer: int, data: PackedByteArray) -> void:
 	var words: Dictionary = said if said is Dictionary else {}
 	if is_host:
 		# Full is only known while there is a room to be full: between rooms nobody is refused.
-		var no_seat := _room_up and match_node != null and not _has_seat(match_node)
-		var players := _player_peers().size()
-		var answer := NetDoor.answer(version, words, no_seat, players, _watchers.size())
+		var room := {
+			"no_seat": _room_up and match_node != null and not _has_seat(match_node),
+			"players": _player_peers().size(),
+			"humans": _player_peers().size() + NetDoor.locals(match_node),
+			"watchers": _watchers.size(),
+		}
+		var answer := door.answer(version, peer, words, room)
 		scene.send_auth(peer, var_to_bytes(answer))
 		if answer["welcome"]:
-			_names_of[peer] = PlayerNames.clean(str(words.get("name", "")))
 			if answer["watch"]:
 				_watchers[peer] = true
 			scene.complete_auth(peer)
@@ -258,13 +264,21 @@ func _on_handshake(peer: int, data: PackedByteArray) -> void:
 	_turned_away = true
 	# After the handshake has returned rather than inside it: hanging up in the middle of the
 	# peer's own poll pulls the connection out from under it.
-	_hang_up.call_deferred(NetDoor.refusal(version, words))
+	if NetDoor.wants_password(version, words):
+		_hang_up.call_deferred("", str(words["locked"]) == NetDoor.WRONG)
+	else:
+		_hang_up.call_deferred(NetDoor.refusal(version, words))
 
 
-func _hang_up(reason: String) -> void:
+## Closes the connection and says why: [param reason], or the password it wants, [param wrong] if
+## this one gave one it was not.
+func _hang_up(reason: String, wrong := false) -> void:
 	if multiplayer.multiplayer_peer != null:
 		multiplayer.multiplayer_peer.close()
-	refused.emit(reason)
+	if reason.is_empty():
+		locked.emit(wrong)
+	else:
+		refused.emit(reason)
 
 
 ## Everybody in the waiting room is ready and the host is going through to the arena, GAME.md
@@ -621,7 +635,7 @@ func _on_peer_disconnected(peer: int) -> void:
 	_color_of.erase(peer)
 	_watchers.erase(peer)
 	_watcher_next.erase(peer)
-	_names_of.erase(peer)
+	door.names.erase(peer)
 	_watching_here.erase(peer)
 	if not is_host or not _peer_slots.has(peer):
 		return
@@ -788,16 +802,7 @@ func _claim_color(color: int) -> void:
 ## Everybody else in the host's game, for its Manage players, GAME.md 10.3: each client that plays,
 ## by the name and color of its seat, and each that watches, by the name it gave.
 func guests() -> Array[Dictionary]:
-	var found: Array[Dictionary] = []
-	for peer: int in _peer_slots:
-		var index: int = _peer_slots[peer]
-		if match_node != null and index < match_node.slots.size():
-			var slot := match_node.slots[index]
-			found.append({"peer": peer, "name": slot.display_name(), "color": slot.color()})
-	for peer: int in _watchers:
-		var named: String = _names_of.get(peer, "")
-		found.append({"peer": peer, "name": named if not named.is_empty() else "Watcher"})
-	return found
+	return door.guests(match_node, _peer_slots, _watchers)
 
 
 ## Shows [param peer] out of the game: told why, and let go of a moment later whatever it does

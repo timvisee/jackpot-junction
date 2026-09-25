@@ -101,6 +101,7 @@ func _host() -> void:
 		session.re_seat()
 	else:
 		session = Net.open(match_node)
+		session.door.max_players = Game.settings.lobby_players
 		var error := session.host(config.port)
 		if error != OK:
 			ready_room_hint("Could not host on port %d: %s" % [config.port, error_string(error)])
@@ -117,6 +118,7 @@ func _join() -> void:
 	else:
 		session = Net.open(match_node)
 		session.watching = config.watching
+		session.password = config.password
 		session.local_input = PlayerInput.new(DeviceInput.ANY, 0)
 		session.player_name = config.human_names[0] if not config.human_names.is_empty() else ""
 		if not config.human_styles.is_empty():
@@ -129,6 +131,7 @@ func _join() -> void:
 	# an empty room, and so is one that answers with a version this game cannot play, GAME.md
 	# 10.3. The reason is up long enough to be read.
 	session.refused.connect(_fail)
+	session.locked.connect(_ask_password)
 	session.connection_failed.connect(
 		func() -> void: _fail("Could not connect to %s:%d" % [config.address, config.port])
 	)
@@ -165,6 +168,22 @@ func _connected() -> void:
 
 
 ## The room is being left before it was ever joined, and the player is told why.
+## The host wants a password, GAME.md 9.6: asked for, over the room, and knocked again with. A
+## wrong one says so and asks again; Back is the title.
+func _ask_password(wrong: bool) -> void:
+	if _connecting != null:
+		_connecting.queue_free()
+		_connecting = null
+	if match_node.hud != null:
+		match_node.hud.stand_down()
+	var pane := PasswordPane.add_to(self, wrong)
+	pane.entered.connect(
+		func(typed: String) -> void:
+			config.password = typed
+			Game.go_to_waiting(config)
+	)
+
+
 func _fail(message: String) -> void:
 	if _connecting != null:
 		_connecting.queue_free()

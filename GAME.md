@@ -2705,6 +2705,20 @@ podium goes on to how the run stands by itself after six seconds, the finale fir
 last map, and the host still decides when the next map starts. A thin gold bar the width of the
 pane, at the bottom of it, empties over those six seconds, so it going on is no surprise.
 
+The host says who may come in. Lobby settings, on the host's pause menu beside Manage players,
+comes up in place of the menu with two things on it: the most players the game takes, 2, 3 or 4
+with the host's own players counted, and a password, none to start with. Both are the door's and
+change at once; neither shows anybody out who is already in, they answer the next knock. A
+player past the number is told the match is full, and somebody watching takes no seat and is
+let in whatever it is. The number is kept for next time. The password is kept for as long as the
+game is hosted and no longer, so one forgotten never locks a later lobby without anybody knowing.
+
+A client knocks with its version, whether it has come to watch, its name and the password it was
+given, which to start with is none. A host with a password that is given none, or the wrong one,
+says so and nothing else is wrong: the client is asked for it rather than sent back, on a pane
+of its own on the loading screen's dark that says the game needs a password, or that the last
+one was wrong. Join knocks again with what was typed; Back to title goes.
+
 The host can show anybody out. Manage players, on the host's pause menu wherever the room is,
 comes up in place of the menu: everybody else in the game, each player by the name and color of
 their seat and each watcher by the name they gave as they knocked, with Kick beside every one.

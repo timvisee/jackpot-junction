@@ -50,6 +50,9 @@ var _settings: SettingsScreen
 ## button that opens it. Up in place of the menu while it is open, as a question is.
 var _players: ManagePlayers
 var _manage: Button
+## And who may come in: how many may play, and the password, GAME.md 9.6.
+var _door: LobbySettings
+var _door_button: Button
 ## Whatever is up in place of the menu just now, and the button that put it there.
 var _aside: Control
 var _aside_from: Button
@@ -119,6 +122,15 @@ func _ready() -> void:
 	_manage.pressed.connect(func() -> void: _open_aside(_players, _manage))
 	_manage.visible = false
 	column.add_child(_manage)
+	_door = LobbySettings.new()
+	_door.session = session
+	_door.visible = false
+	_door.closed.connect(_put_away_aside)
+	middle.add_child(_door)
+	_door_button = MenuTheme.button("Lobby settings")
+	_door_button.pressed.connect(func() -> void: _open_aside(_door, _door_button))
+	_door_button.visible = false
+	column.add_child(_door_button)
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(open_settings)
 	column.add_child(settings)
@@ -397,6 +409,7 @@ func _put_away_aside() -> void:
 func _process(_delta: float) -> void:
 	_force.visible = _panel.visible and _can_force()
 	_manage.visible = session != null and session.is_host
+	_door_button.visible = _manage.visible
 	_held.visible = (
 		session != null
 		and not session.is_host

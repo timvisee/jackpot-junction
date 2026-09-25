@@ -53,8 +53,9 @@ func _open_host() -> void:
 	assert_int(_host.host(PORT)).is_equal(OK)
 
 
-## A client knocking at the host opened by [method _open_host], [param watching] or to play.
-func _client(watching := false, named := "Guest") -> NetSession:
+## A client knocking at the host opened by [method _open_host], [param watching] or to play, with
+## [param given] for a password.
+func _client(watching := false, named := "Guest", given := "") -> NetSession:
 	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
 	client_match.name = "Match"
 	client_match.rules = _rules()
@@ -67,6 +68,7 @@ func _client(watching := false, named := "Guest") -> NetSession:
 	session.local_input = KartInput.new()
 	session.watching = watching
 	session.player_name = named
+	session.password = given
 	_client_root.add_child(session)
 	assert_int(session.join("127.0.0.1", PORT)).is_equal(OK)
 	return session
@@ -114,3 +116,42 @@ func test_a_watcher_is_named_and_can_be_kicked() -> void:
 	_host.kick(guest["peer"])
 	var gone := await _wait_until(func() -> bool: return not told[0].is_empty(), 4000)
 	assert_bool(gone).is_true()
+
+
+## A lobby with a password asks for it: none given is asked for, a wrong one is said to be wrong,
+## and the right one is let in. Only the password: nothing else about the knock was wrong.
+func test_a_lobby_with_a_password_asks_for_it() -> void:
+	_open_host()
+	_host.door.password = "sesame"
+	for given: String in ["", "open up"]:
+		var client := _client(false, "Guest", given)
+		var asked: Array = []
+		client.locked.connect(func(wrong: bool) -> void: asked.append(wrong))
+		var heard := await _wait_until(func() -> bool: return not asked.is_empty(), 4000)
+		assert_bool(heard).override_failure_message("never asked for %s" % given).is_true()
+		assert_bool(asked[0]).is_equal(not given.is_empty())
+		client.queue_free()
+		await await_idle_frame()
+	var right := _client(false, "Guest", "sesame")
+	var seated := await _wait_until(func() -> bool: return _host.guests().size() == 1, 4000)
+	assert_bool(seated).override_failure_message("the right password was not let in").is_true()
+	assert_int(right.local_slot).is_greater_equal(0)
+
+
+## However many seats the arena has, a lobby set to fewer players turns the next one away as full.
+func test_a_lobby_turns_away_players_past_its_limit() -> void:
+	_open_host()
+	_host.door.max_players = 1
+	var client := _client()
+	var told := [""]
+	client.refused.connect(func(reason: String) -> void: told[0] = reason)
+	var heard := await _wait_until(func() -> bool: return not told[0].is_empty(), 4000)
+	assert_bool(heard).override_failure_message("the client was never turned away").is_true()
+	assert_str(told[0]).is_equal("The match is full")
+	client.queue_free()
+	await await_idle_frame()
+	# Somebody watching takes no seat, and is let in all the same.
+	var watcher := _client(true, "Couch Kim")
+	var seen := await _wait_until(func() -> bool: return _host.guests().size() == 1, 4000)
+	assert_bool(seen).is_true()
+	assert_bool(watcher.watching).is_true()

@@ -1,14 +1,29 @@
 class_name NetDoor
 extends RefCounted
 ## Who a host lets into its game, GAME.md 10.3, and what somebody it turns away is told. A client
-## knocks with its version and whether it has come to watch; the host lets it in on a version it
-## plays with and with a seat for it, or a place in the stands for somebody watching. Kept apart
-## from [NetSession] so that file stays about the connection rather than the door.
+## knocks with its version, whether it has come to watch, its name and a password if it has one;
+## the host lets it in on a version it plays with, with a seat for it or a place in the stands for
+## somebody watching, and with the lobby's password if the host has set one, GAME.md 9.6. Kept
+## apart from [NetSession] so that file stays about the connection rather than the door.
 
 ## How many clients may play, on top of the host, and how many may watch on top of them, with no
 ## kart of their own.
 const MAX_CLIENTS := 3
 const MAX_WATCHERS := 4
+## The most players a room can be set to, the host's own included, and the fewest.
+const MOST_PLAYERS := 4
+const FEWEST_PLAYERS := 2
+## What an answer says about the password: asked for with none given, and given wrong.
+const NEEDED := "needed"
+const WRONG := "wrong"
+
+## The host's lobby settings: how many may play in the room at most, the host's own players
+## included, and the password anybody knocking has to give, empty for none.
+var max_players := MOST_PLAYERS
+var password := ""
+## What each client said it was called as it knocked, for somebody watching, who has no seat to be
+## named in.
+var names: Dictionary[int, String] = {}
 
 
 ## Whether a game at [param theirs] can play with one at [param mine], GAME.md 10.3: the same
@@ -23,24 +38,70 @@ static func compatible(mine: String, theirs: String) -> bool:
 	return a[0] == b[0] and a[1] == b[1]
 
 
-## What a client says about itself as it knocks: its version, whether it has come to watch, and
-## what it is called, which is all the host has to go on for somebody watching.
-static func knock(version: String, watching: bool, named: String) -> Dictionary:
-	return {"version": version, "watch": watching, "name": named}
+## What a client says about itself as it knocks: its version, whether it has come to watch, what
+## it is called, which is all the host has to go on for somebody watching, and the password it was
+## given, empty until the host has said there is one.
+static func knock(version: String, watching: bool, named: String, given: String) -> Dictionary:
+	return {"version": version, "watch": watching, "name": named, "password": given}
 
 
-## The host's answer to a client that said [param words]. [param no_seat] is whether the room it is
-## in has no seat left, [param players] how many clients play here already and [param watchers]
-## how many watch.
-static func answer(
-	version: String, words: Dictionary, no_seat: bool, players: int, watchers: int
-) -> Dictionary:
+## The host's answer to [param peer], which said [param words]. [param room] says how the room
+## stands: whether it has no seat left, how many clients play in it and how many people
+## altogether, and how many watch.
+func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> Dictionary:
 	var playable := compatible(version, str(words.get("version", "?")))
 	var watch := bool(words.get("watch", false))
-	var full := no_seat or players >= MAX_CLIENTS
+	var full: bool = room["no_seat"] or room["players"] >= MAX_CLIENTS
+	full = full or room["humans"] >= max_players
 	if watch:
-		full = watchers >= MAX_WATCHERS
-	return {"version": version, "welcome": playable and not full, "full": full, "watch": watch}
+		full = room["watchers"] >= MAX_WATCHERS
+	var locked := ""
+	if not password.is_empty():
+		var given := str(words.get("password", ""))
+		if given.is_empty():
+			locked = NEEDED
+		elif given != password:
+			locked = WRONG
+	var welcome := playable and not full and locked.is_empty()
+	if welcome:
+		names[peer] = PlayerNames.clean(str(words.get("name", "")))
+	return {"version": version, "welcome": welcome, "full": full, "watch": watch, "locked": locked}
+
+
+## How many play at the host's own machine in [param match_node], which the lobby's limit on
+## players counts as well as the clients.
+static func locals(match_node: Match) -> int:
+	var here := 0
+	if match_node != null:
+		for slot: PlayerSlot in match_node.slots:
+			here += 1 if slot.is_local_human() else 0
+	return here
+
+
+## Everybody else in the host's game, for its Manage players: each client of [param seats] that
+## plays, by the name and color of its seat in [param match_node], and each of [param watchers] by
+## the name it gave.
+func guests(
+	match_node: Match, seats: Dictionary[int, int], watchers: Dictionary[int, bool]
+) -> Array[Dictionary]:
+	var found: Array[Dictionary] = []
+	for peer: int in seats:
+		var index: int = seats[peer]
+		if match_node != null and index < match_node.slots.size():
+			var slot := match_node.slots[index]
+			found.append({"peer": peer, "name": slot.display_name(), "color": slot.color()})
+	for peer: int in watchers:
+		var named: String = names.get(peer, "")
+		found.append({"peer": peer, "name": named if not named.is_empty() else "Watcher"})
+	return found
+
+
+## Whether a client with [param version] was turned away with the host's [param words] for the
+## password alone: wanting one, or not the right one. It is asked for it, not sent back.
+static func wants_password(version: String, words: Dictionary) -> bool:
+	var locked := str(words.get("locked", ""))
+	var theirs := str(words.get("version", "?"))
+	return not locked.is_empty() and compatible(version, theirs) and not words.get("full", false)
 
 
 ## What a client with [param version] turned away with the host's [param words] is told.

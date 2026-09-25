@@ -40,6 +40,8 @@ var overtime := true
 var online := ""
 ## Joining to watch rather than to play, GAME.md 10.3: no kart, and a seat at nobody's expense.
 var watching := false
+## The password to knock with, GAME.md 9.6: empty until the host has asked for one.
+var password := ""
 var address := "127.0.0.1"
 var port := NetSession.DEFAULT_PORT
 
