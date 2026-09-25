@@ -2756,8 +2756,9 @@ which says the password was wrong and has the cursor on Join; so does Back, or B
 nothing, since nothing went wrong.
 
 The host can show anybody out. Manage players, on the host's pause menu wherever the room is,
-comes up in place of the menu: everybody else in the game, each player by the name and color of
-their seat and each watcher by the name the host gave them, with Kick beside every one.
+comes up in place of the menu: everybody in the game, the host's own players first, marked Me
+and with nothing beside them, then each other player by the name and color of their seat and
+each watcher by the name the host gave them, with Kick beside every one of those.
 Somebody kicked is told the host removed them from the game, on the pane a refusal comes up on,
 and goes back to the title from it; the host lets go of the connection half a second later
 whatever they do with that, so nobody stays by not listening. They may join again. Their seat

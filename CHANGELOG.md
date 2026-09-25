@@ -24,6 +24,7 @@ below, and hands the notes to the release workflow.
 
 - **Every watcher has a name of their own.** One who gives none, or one somebody else
   has, is handed a watcher's name nobody has, like Couch Potato or Stool Pigeon.
+- **Manage players shows the host too.** Marked Me, at the top, with no Kick.
 - **Most players is now Player limit.** The same setting in Lobby settings, named
   more plainly.
 

@@ -1,15 +1,17 @@
 class_name ManagePlayers
 extends PanelContainer
-## The host's list of everybody else in its game, GAME.md 10.3, from its pause menu in place of the
-## menu itself: each player by the name and color of their seat, each watcher by the name they
-## gave, and Kick beside every one. Somebody kicked goes back to the title, told why, and may join
-## again; in the lobby their seat is emptied, and on a map a bot takes their kart on, as for anybody
-## who leaves. The list follows whoever comes and goes while it is up.
+## The host's list of everybody in its game, GAME.md 10.3, from its pause menu in place of the menu
+## itself: the host's own players first, marked Me, then each other player by the name and color
+## of their seat and each watcher by the name the host gave them, with Kick beside every one of
+## those. Somebody kicked goes back to the title, told why, and may join again; in the lobby their
+## seat is emptied, and on a map a bot takes their kart on, as for anybody who leaves. The list
+## follows whoever comes and goes while it is up.
 
 ## Back: the menu is up again in its place.
 signal closed
 
 const NAME_WIDTH := 320.0
+const KICK_SIZE := Vector2(120.0, 44.0)
 const TAG_INK := Color(0.66, 0.66, 0.72)
 
 var session: NetSession
@@ -54,7 +56,8 @@ func _process(_delta: float) -> void:
 
 func _redraw() -> void:
 	var guests := session.guests() if session != null else []
-	var drawn := str(guests)
+	var mine := _mine()
+	var drawn := str(mine) + str(guests)
 	if drawn == _drawn:
 		return
 	_drawn = drawn
@@ -63,12 +66,26 @@ func _redraw() -> void:
 	for row: Node in _rows.get_children():
 		_rows.remove_child(row)
 		row.queue_free()
+	for here: Dictionary in mine:
+		_rows.add_child(_row(here))
 	if guests.is_empty():
 		_rows.add_child(MenuTheme.subtitle("Nobody else is here.", Type.BODY))
 	for guest: Dictionary in guests:
 		_rows.add_child(_row(guest))
 	if lost:
 		_back.grab_focus()
+
+
+## The host's own players, at this machine: there is nobody to show them out but themselves.
+func _mine() -> Array[Dictionary]:
+	var found: Array[Dictionary] = []
+	var match_node := session.match_node if session != null else null
+	if match_node == null:
+		return found
+	for slot: PlayerSlot in match_node.slots:
+		if slot.is_local_human():
+			found.append({"name": slot.display_name(), "color": slot.color(), "me": true})
+	return found
 
 
 func _row(guest: Dictionary) -> HBoxContainer:
@@ -85,8 +102,15 @@ func _row(guest: Dictionary) -> HBoxContainer:
 	tag.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	Type.text(tag, Type.LABEL, TAG_INK)
 	row.add_child(tag)
+	if guest.get("me", false):
+		tag.text = "Me"
+		# Where the button would be, so every row is the same height and the names line up.
+		var room := Control.new()
+		room.custom_minimum_size = KICK_SIZE
+		row.add_child(room)
+		return row
 	var kick := MenuTheme.button("Kick", Type.BODY)
-	kick.custom_minimum_size = Vector2(120.0, 44.0)
+	kick.custom_minimum_size = KICK_SIZE
 	var peer: int = guest["peer"]
 	kick.pressed.connect(func() -> void: session.kick(peer))
 	row.add_child(kick)

@@ -6,6 +6,7 @@ const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
 const TITLE_SCENE := preload("res://scenes/ui/title.tscn")
 const MATCH_SCENE := preload("res://scenes/match/match_scene.tscn")
 const ONLINE_SCENE := preload("res://scenes/ui/online.tscn")
+const ROOM_SCENE := preload("res://scenes/match/match.tscn")
 
 
 func after_test() -> void:
@@ -388,14 +389,28 @@ func test_a_menu_over_the_room_darkens_all_of_it() -> void:
 func test_the_hosts_menu_manages_its_players() -> void:
 	var holder: Node = auto_free(Node.new())
 	add_child(holder)
+	var room: Match = auto_free(ROOM_SCENE.instantiate())
+	room.with_hud = false
+	room.offer_size = 0
+	holder.add_child(room)
+	room.start([PlayerInput.new(DeviceInput.ANY, 0), BotInput.new()] as Array[KartInput], 3)
 	var session: NetSession = auto_free(NetSession.new())
 	session.is_host = true
+	session.match_node = room
 	var menu := PauseMenu.add_to(holder, session)
 	await await_idle_frame()
 	assert_bool(menu._manage.visible).is_true()
 	menu._manage.pressed.emit()
 	assert_bool(menu._players.visible).is_true()
 	assert_bool(menu._main.visible).is_false()
+	# The host itself is on it, marked Me, with nothing to kick; the bot is nobody's to kick.
+	var rows := menu._players._rows
+	var mine := rows.get_child(0) as HBoxContainer
+	assert_str((mine.get_child(0) as Label).text).is_equal(room.slots[0].display_name())
+	assert_str((mine.get_child(1) as Label).text).is_equal("Me")
+	assert_int(mine.find_children("*", "Button", true, false).size()).is_equal(0)
+	assert_int(rows.find_children("*", "Button", true, false).size()).is_equal(0)
+	assert_str((rows.get_child(1) as Label).text).is_equal("Nobody else is here.")
 	menu._players._back.pressed.emit()
 	assert_bool(menu._players.visible).is_false()
 	assert_bool(menu._main.visible).is_true()
