@@ -3477,7 +3477,12 @@ other before it will pass.
   one datagram: it is split against the MTU of 1392 bytes *before* the datagrams
   are compressed, and an unreliable packet in pieces is lost whenever any piece
   is. Fitting one in a single datagram is a job for a smaller snapshot, not a
-  smaller wire, and is open. Measured on a four-bot match, a busy snapshot is
+  smaller wire, and is open. Neither end lets ENet throttle what goes
+  unreliably: left to itself it drops unreliable packets before they go whenever
+  the round trip wobbles, and with a snapshot in five pieces that was every
+  snapshot lost for seconds at a time. A client saw 3 of 168 through one such
+  wobble, its own kart going down a hole it never heard it had died in and
+  falling on below the floor. Measured on a four-bot match, a busy snapshot is
   about 6.4 KB, or five fragments:
 
   | Section  | Bytes | Of what                                  |

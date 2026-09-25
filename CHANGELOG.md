@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A LAN client no longer loses the game for seconds at a time.** ENet dropped whole
+  snapshots whenever the connection wobbled, so a kart could fall through the floor.
 - **Joining a LAN game with a password works.** After typing it you were left in an
   empty lobby, never connected to the host.
 - **LAN players keep their funny names.** A client that set no name lost the one it

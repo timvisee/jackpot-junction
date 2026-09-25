@@ -605,6 +605,9 @@ func _physics_process(delta: float) -> void:
 func _on_peer_connected(peer: int) -> void:
 	if not is_host:
 		return
+	var enet := multiplayer.multiplayer_peer as ENetMultiplayerPeer
+	if enet != null and enet.get_peer(peer) != null:
+		NetLine.made(enet.get_peer(peer))
 	_newcomers.append(peer)
 	# Arriving while the host is between rooms: shown into the one it is going to, once it is up.
 	if not _room_up:

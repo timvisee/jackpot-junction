@@ -232,3 +232,19 @@ func _name_a_watcher_and_go() -> void:
 	var room := {"no_seat": false, "players": 0, "humans": 1, "watchers": 0, "match": null}
 	door.answer(Game.version(), 9, NetDoor.knock(Game.version(), true, "", ""), room)
 	assert_int(PlayerNames.held_elsewhere.size()).is_equal(1)
+
+
+## Neither end of a connection lets ENet throttle what it sends unreliably, GAME.md 10.3: the
+## snapshots are several packets each, and a throttle letting some of them go lost all of them
+## for seconds at a time, a client's own kart falling down a hole it was never told it had died in.
+func test_neither_end_throttles_the_snapshots() -> void:
+	_open_host()
+	var client := _client()
+	var seated := await _wait_until(func() -> bool: return _host.guests().size() == 1, 4000)
+	assert_bool(seated).is_true()
+	var host_end := _host.multiplayer.multiplayer_peer as ENetMultiplayerPeer
+	var client_end := client.multiplayer.multiplayer_peer as ENetMultiplayerPeer
+	var peer: int = _host.guests()[0]["peer"]
+	for connection: ENetPacketPeer in [host_end.get_peer(peer), client_end.get_peer(1)]:
+		var down := connection.get_statistic(ENetPacketPeer.PEER_PACKET_THROTTLE_DECELERATION)
+		assert_float(down).is_equal(0.0)
