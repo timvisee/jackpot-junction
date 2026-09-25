@@ -6,14 +6,10 @@ extends Node3D
 ##
 ## The buttons are drawn rather than written, GAME.md 8.3, so the line is the same shape on both
 ## schemes: the throttle, the steering and the fire button, whatever they happen to be bound to.
+## It hangs over the kart as a [ScreenHint], the same size on the screen wherever the camera is.
 ## In simple driving, GAME.md 4.2, the way to go is all there is to driving, and it says so.
 
 const MAX_SECONDS := 10.0
-## How big the buttons are drawn and how big that picture is in the world. Together these are
-## about the size the line of text they replaced was, at a UI scale of 100%: it is drawn bigger with
-## the rest of the UI, GAME.md 8.5, and drawn bigger rather than stretched, so it stays sharp.
-const FONT_SIZE := 26
-const PIXEL_SIZE := 0.010
 const INK := Palette.CHIP_WHITE
 
 var kart: Kart
@@ -24,7 +20,7 @@ var _fired := false
 var _age := 0.0
 ## Which scheme is currently drawn, so the picture is only rebuilt when the player switches.
 var _shown := ""
-var _row: Node3D
+var _row: ScreenHint
 
 
 static func attach(target: Kart, for_device: int) -> ControlHint:
@@ -32,7 +28,6 @@ static func attach(target: Kart, for_device: int) -> ControlHint:
 	hint.name = "ControlHint"
 	hint.kart = target
 	hint.device = for_device
-	hint.position = Vector3(0.0, 2.2, 0.0)
 	target.add_child(hint)
 	# A method connection, not a lambda: it is dropped automatically when the hint is freed.
 	target.fired.connect(hint._on_fired)
@@ -42,7 +37,9 @@ static func attach(target: Kart, for_device: int) -> ControlHint:
 
 ## The hint for one device, as a keyboard line or a gamepad line but never both: a player reading
 ## this has one set of controls in their hands. [param simple] is simple driving's line.
-static func hint_row(for_device: int, size := FONT_SIZE, simple := false) -> HBoxContainer:
+static func hint_row(
+	for_device: int, size := ScreenHint.FONT_SIZE, simple := false
+) -> HBoxContainer:
 	var keyboard := DeviceInput.uses_keyboard(for_device)
 	if simple:
 		var ways: Array = [
@@ -86,10 +83,9 @@ func _on_fired(_bullets: Array[Bullet]) -> void:
 	_fired = true
 
 
-## How big the hint is drawn: [constant FONT_SIZE] at the UI scale the screen has now.
+## How big the hint is drawn, see [method ScreenHint.drawn_size].
 func drawn_size() -> int:
-	var scale := get_tree().root.content_scale_factor if is_inside_tree() else 1.0
-	return roundi(FONT_SIZE * scale)
+	return ScreenHint.drawn_size(get_tree() if is_inside_tree() else null)
 
 
 func _rebuild() -> void:
@@ -101,8 +97,7 @@ func _rebuild() -> void:
 	_shown = wanted
 	if _row != null:
 		_row.queue_free()
-	_row = InputHint.billboard(InputHint.card(hint_row(device, size, simple)), PIXEL_SIZE)
-	add_child(_row)
+	_row = ScreenHint.hang(self, hint_row(device, size, simple), "Row")
 
 
 func _process(delta: float) -> void:

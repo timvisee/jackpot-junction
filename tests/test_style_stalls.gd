@@ -51,6 +51,41 @@ func _park(kart: Kart, on: Rect2) -> void:
 	kart.motor.velocity = Vector3.ZERO
 
 
+## The picture a hint over a kart is drawn on, and the sprite showing it.
+static func _drawn(hint: Node) -> Array:
+	return [hint.find_child("Render", true, false), hint.find_child("Face", true, false)]
+
+
+## GAME.md 8.3: a stall's hint is the size of the drive and fire hint it takes over from, and both
+## are the same size on the screen however far off the camera is: a pixel of the drawing to a pixel
+## of the screen, for the camera there is.
+func test_a_stall_hint_is_the_size_of_the_drive_and_fire_hint() -> void:
+	var match_node := _room([PlayerInput.new(DeviceInput.KEYBOARD, 0)])
+	await _runner.simulate_frames(10, 17)
+	var kart := match_node.slots[0].kart
+	var drive := kart.get_node_or_null("ControlHint") as ControlHint
+	if drive == null:
+		drive = ControlHint.attach(kart, DeviceInput.KEYBOARD)
+	await _runner.simulate_frames(3, 17)
+	var camera := match_node.get_viewport().get_camera_3d()
+	var screen := match_node.get_viewport().get_visible_rect().size.y
+	var pixel := 2.0 * tan(deg_to_rad(camera.fov) * 0.5) / screen
+	var drive_drawn := _drawn(drive)
+	var drive_tall: int = (drive_drawn[0] as SubViewport).size.y
+	var drive_face: Sprite3D = drive_drawn[1]
+	assert_bool(drive_face.fixed_size).is_true()
+	assert_float(drive_face.pixel_size).is_equal_approx(pixel, 0.000001)
+	# The stall's hint takes its place, at its size.
+	var stalls := StyleStalls.add_to(match_node, Vector2i(8, 1))
+	_park(kart, stalls._areas[0])
+	await _runner.simulate_frames(3, 17)
+	var stall_drawn := _drawn(kart.get_node("StallHint"))
+	var stall_face: Sprite3D = stall_drawn[1]
+	assert_int((stall_drawn[0] as SubViewport).size.y).is_equal(drive_tall)
+	assert_bool(stall_face.fixed_size).is_true()
+	assert_float(stall_face.pixel_size).is_equal_approx(pixel, 0.000001)
+
+
 func test_the_fire_button_on_a_stall_puts_the_next_one_on_instead_of_a_shot() -> void:
 	var player := Pressing.new(DeviceInput.KEYBOARD, 0)
 	var match_node := _room([player])

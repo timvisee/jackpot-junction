@@ -22,10 +22,6 @@ const WORD_INK := Color(0.93, 0.93, 0.95)
 ## How the name of what was just put on is shown over the kart: its size and for how long.
 const NAME_SIZE := 64
 const NAME_TIME := 1.1
-## How high over the kart the hint hangs, where the drive and fire hint does, which it replaces,
-## and how big it is drawn: bigger than that one, since the room is seen from further off.
-const HINT_HEIGHT := 2.2
-const HINT_SIZE := 48
 ## How long the cannon is held for, in seconds, each tick a kart is on a pad: past the next tick.
 const HOLD := 0.1
 
@@ -212,13 +208,9 @@ func _hint(slot: PlayerSlot, pad: int) -> void:
 	)
 	var parts: Array = [button]
 	var words := "%%s change %s" % WORDS[pad].to_lower()
-	var hint := InputHint.billboard(
-		InputHint.card(InputHint.row(words, parts, ink, size)), ControlHint.PIXEL_SIZE
-	)
-	hint.name = "StallHint"
-	hint.position = Vector3(0.0, HINT_HEIGHT, 0.0)
-	kart.add_child(hint)
-	_hints[slot.index] = hint
+	# Where the drive and fire hint hangs, which it replaces, and as big.
+	var row := InputHint.row(words, parts, ink, size)
+	_hints[slot.index] = ScreenHint.hang(kart, row, "StallHint")
 
 
 ## Whether [param player] plays on the touch screen, whose fire button is on the screen.
@@ -227,7 +219,7 @@ static func _on_touch(player: PlayerInput) -> bool:
 
 
 func _hint_size() -> int:
-	return roundi(HINT_SIZE * get_tree().root.content_scale_factor)
+	return ScreenHint.drawn_size(get_tree())
 
 
 func _build(index: int, corner: Vector2i) -> void:

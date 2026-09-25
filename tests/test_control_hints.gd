@@ -453,10 +453,10 @@ func test_the_kart_hint_grows_with_the_ui_scale() -> void:
 	var kart: Kart = auto_free(load("res://scenes/kart/kart.tscn").instantiate())
 	add_child(kart)
 	var hint := ControlHint.attach(kart, DeviceInput.KEYBOARD)
-	assert_int(hint.drawn_size()).is_equal(ControlHint.FONT_SIZE)
+	assert_int(hint.drawn_size()).is_equal(ScreenHint.FONT_SIZE)
 	get_tree().root.content_scale_factor = 1.5
 	hint._process(0.0)
-	var bigger := roundi(ControlHint.FONT_SIZE * 1.5)
+	var bigger := roundi(ScreenHint.FONT_SIZE * 1.5)
 	assert_int(hint.drawn_size()).is_equal(bigger)
 	assert_str(hint._shown).ends_with("|%d" % bigger)
 	get_tree().root.content_scale_factor = 1.0

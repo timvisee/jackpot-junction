@@ -999,8 +999,7 @@ short buzz the slider gives, so reading along the row is felt card by card.
   goes through them at their own pace and stops on the one they want. Until a
   player has changed something once, a hint hangs over their kart on a pad
   naming the button, short as it can be, Space change hat, in place of the drive
-  and fire hint of 3.8 and drawn bigger, since the room is seen from further
-  off. On a touch screen the fire button itself shows what it does there: while
+  and fire hint of 3.8 and the same size as it, see 8.3. On a touch screen the fire button itself shows what it does there: while
   the kart stands on a stall it carries a picture of that stall's thing in place
   of FIRE, a paint roller, a top hat, a flag on its pole or the puffs of a
   trail, and the hint draws the button the same way, the picture on a round
@@ -2000,7 +1999,11 @@ movement: the one thing a corner block must not do is ask to be looked at.
   rolling in its roulette shows none. The button that opens the joker menu is
   drawn to the left of the joker hand, and shows only while cards are held.
   Driving and firing are left out: they already have the hint beside the kart at
-  the start of a match.
+  the start of a match. That hint, and every hint hung over a kart, is the same
+  size on the screen wherever the camera is, as big as the HUD's own words. Sized
+  in the world, it shrank to a smudge whenever the camera pulled out to frame a
+  whole room, and a stall's hint drawn bigger to make up for that was twice its
+  size over the same kart a moment later.
 - **Joker pictures**: every joker has a flat pictogram of its own, drawn in its
   kind's color on the dark of the card. A card is recognized across the table by
   its shape; two letters at that size are a shape that has to be read first. How

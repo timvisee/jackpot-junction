@@ -27,6 +27,11 @@ below, and hands the notes to the release workflow.
 - **On a touch screen the fire button shows what a stall changes.** A roller, a hat, a
   flag or a trail in place of FIRE while you stand on one, and the hint shows it too.
 
+### Fixed
+
+- **Hints over a kart are all one size.** The drive and fire hint and a stall's hint
+  look the same size on screen, whatever the map and however far off the camera is.
+
 ## [0.8.1] - 2026-09-25
 
 Fixes for LAN play: joining with a password works, names stay put, and a client no longer
