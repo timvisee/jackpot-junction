@@ -60,7 +60,7 @@ func _ready() -> void:
 			_apply()
 	)
 	_add("UI scale", ui)
-	# The two passes over the whole screen, GAME.md 8.5. Both take effect at once: the smoothing
+	# What a room pays for on the card, GAME.md 8.5. All of it takes effect at once: the smoothing
 	# on the viewport, the bloom the next time a room is lit.
 	var bloom := MenuTheme.toggle(_settings.bloom)
 	bloom.toggled.connect(
@@ -69,13 +69,24 @@ func _ready() -> void:
 			ArenaEnvironment.relight(get_tree())
 	)
 	_add("Bloom", bloom)
-	var smoothing := MenuTheme.toggle(_settings.antialiasing)
-	smoothing.toggled.connect(
-		func(on: bool) -> void:
-			_settings.antialiasing = on
+	var samples := MenuTheme.option(
+		["Off", "2x", "4x", "8x"], maxi(Settings.MSAA_SAMPLES.find(_settings.msaa), 0)
+	)
+	samples.item_selected.connect(
+		func(index: int) -> void:
+			_settings.msaa = Settings.MSAA_SAMPLES[index]
 			_apply()
 	)
-	_add("Edge smoothing", smoothing)
+	_add("MSAA", samples)
+	var smoothing := MenuTheme.option(
+		["Off", "FXAA", "SMAA"], maxi(Settings.SMOOTHINGS.find(_settings.screen_smoothing), 0)
+	)
+	smoothing.item_selected.connect(
+		func(index: int) -> void:
+			_settings.screen_smoothing = Settings.SMOOTHINGS[index]
+			_apply()
+	)
+	_add("Screen smoothing", smoothing)
 	var marks := MenuTheme.toggle(_settings.tire_marks)
 	marks.toggled.connect(func(on: bool) -> void: _settings.tire_marks = on)
 	_add("Tire marks", marks)

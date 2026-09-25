@@ -1,24 +1,27 @@
 extends GdUnitTestSuite
-## The two passes a player can hand back, GAME.md 8.5: the bloom over a room and the smoothing
-## on its edges. Both are worth what they cost on a card that can spare it, and both are the
-## first thing to give up on one that cannot.
+## What a player can hand back of the picture, GAME.md 8.5: the bloom over a room and the
+## smoothing on its edges above all. Both are worth what they cost on a card that can spare it,
+## and both are the first thing to give up on one that cannot.
 
 const ROOM: RoomLook = preload("res://data/rooms/after_hours.tres")
 
 var _was_bloom := true
-var _was_smoothing := true
+var _was_msaa := 2
+var _was_smoothing := Settings.SMOOTH_OFF
 var _was_ui_scale := 1.0
 
 
 func before_test() -> void:
 	_was_bloom = Game.settings.bloom
-	_was_smoothing = Game.settings.antialiasing
+	_was_msaa = Game.settings.msaa
+	_was_smoothing = Game.settings.screen_smoothing
 	_was_ui_scale = Game.settings.ui_scale
 
 
 func after_test() -> void:
 	Game.settings.bloom = _was_bloom
-	Game.settings.antialiasing = _was_smoothing
+	Game.settings.msaa = _was_msaa
+	Game.settings.screen_smoothing = _was_smoothing
 	Game.settings.ui_scale = _was_ui_scale
 	Settings.ui_scale_for_now = 0.0
 	Game.settings.apply_video(get_tree())
@@ -49,34 +52,58 @@ func test_a_lit_room_takes_the_setting_at_once() -> void:
 	assert_bool(lighting.world.environment.glow_enabled).is_false()
 
 
-## Edge smoothing is multisampling or, when that is handed back, the cheap screen-space pass.
-## Something has to smooth a room made of straight lines.
-func test_the_edges_are_smoothed_one_way_or_the_other() -> void:
-	Game.settings.antialiasing = true
-	Game.settings.apply_video(get_tree())
-	assert_int(get_tree().root.msaa_3d).is_equal(Viewport.MSAA_2X)
-	assert_int(get_tree().root.screen_space_aa).is_equal(Viewport.SCREEN_SPACE_AA_DISABLED)
-	Game.settings.antialiasing = false
-	Game.settings.apply_video(get_tree())
-	assert_int(get_tree().root.msaa_3d).is_equal(Viewport.MSAA_DISABLED)
-	assert_int(get_tree().root.screen_space_aa).is_equal(Viewport.SCREEN_SPACE_AA_FXAA)
+## The edges are multisampled at as many samples as the MSAA box says, and the finished picture
+## smoothed by whichever pass the Screen smoothing box says, each on its own.
+func test_the_edges_are_smoothed_as_the_two_boxes_say() -> void:
+	var cases: Array[Array] = [
+		[2, Settings.SMOOTH_OFF, Viewport.MSAA_2X, Viewport.SCREEN_SPACE_AA_DISABLED],
+		[0, Settings.SMOOTH_FXAA, Viewport.MSAA_DISABLED, Viewport.SCREEN_SPACE_AA_FXAA],
+		[4, Settings.SMOOTH_SMAA, Viewport.MSAA_4X, Viewport.SCREEN_SPACE_AA_SMAA],
+		[8, Settings.SMOOTH_OFF, Viewport.MSAA_8X, Viewport.SCREEN_SPACE_AA_DISABLED],
+	]
+	for case: Array in cases:
+		Game.settings.msaa = case[0]
+		Game.settings.screen_smoothing = case[1]
+		Game.settings.apply_video(get_tree())
+		assert_int(get_tree().root.msaa_3d).is_equal(case[2])
+		assert_int(get_tree().root.screen_space_aa).is_equal(case[3])
 
 
-## Both survive a trip through the settings file, and so do the tire marks of GAME.md 4.3, which
-## are on until somebody turns them off.
-func test_both_are_remembered() -> void:
+## A settings file from when the two were one switch, Edge smoothing, reads as what that switch
+## did: on was the multisampling, off the cheap pass over the picture.
+func test_the_old_edge_smoothing_switch_carries_over() -> void:
+	var path := "user://test_video_settings_old.cfg"
+	for smoothed: bool in [true, false]:
+		var old := ConfigFile.new()
+		old.set_value("video", "antialiasing", smoothed)
+		assert_int(old.save(path)).is_equal(OK)
+		var read := Settings.new()
+		read.path = path
+		read.load_from_disk()
+		assert_int(read.msaa).is_equal(2 if smoothed else 0)
+		assert_str(read.screen_smoothing).is_equal(
+			Settings.SMOOTH_OFF if smoothed else Settings.SMOOTH_FXAA
+		)
+	DirAccess.remove_absolute(path)
+
+
+## The bloom, the two smoothings and the tire marks of GAME.md 4.3 survive a trip through the
+## settings file. The marks are on until somebody turns them off.
+func test_the_picture_is_remembered() -> void:
 	var settings := Settings.new()
 	settings.path = "user://test_video_settings.cfg"
 	assert_bool(settings.tire_marks).is_true()
 	settings.bloom = false
-	settings.antialiasing = false
+	settings.msaa = 4
+	settings.screen_smoothing = Settings.SMOOTH_SMAA
 	settings.tire_marks = false
 	assert_int(settings.save_to_disk()).is_equal(OK)
 	var read := Settings.new()
 	read.path = settings.path
 	read.load_from_disk()
 	assert_bool(read.bloom).is_false()
-	assert_bool(read.antialiasing).is_false()
+	assert_int(read.msaa).is_equal(4)
+	assert_str(read.screen_smoothing).is_equal(Settings.SMOOTH_SMAA)
 	assert_bool(read.tire_marks).is_false()
 	DirAccess.remove_absolute(settings.path)
 
@@ -152,11 +179,15 @@ func test_a_phone_starts_full_screen() -> void:
 	assert_bool(Settings.new().fullscreen).is_equal(OS.has_feature("mobile"))
 
 
-## A phone or a tablet starts without bloom or the multisampled smoothing and at four fifths of the
-## render scale, its card being the one that cannot spare them; a desktop starts with the lot.
+## A phone or a tablet starts without bloom or the multisampled smoothing, on the cheap pass over
+## the picture instead, and at four fifths of the render scale, its card being the one that cannot
+## spare them; a desktop starts with the lot.
 func test_a_phone_starts_on_the_lighter_picture() -> void:
 	var fresh := Settings.new()
 	var phone := OS.has_feature("mobile")
 	assert_bool(fresh.bloom).is_equal(not phone)
-	assert_bool(fresh.antialiasing).is_equal(not phone)
+	assert_int(fresh.msaa).is_equal(0 if phone else 2)
+	assert_str(fresh.screen_smoothing).is_equal(
+		Settings.SMOOTH_FXAA if phone else Settings.SMOOTH_OFF
+	)
 	assert_float(fresh.render_scale).is_equal(0.8 if phone else 1.0)

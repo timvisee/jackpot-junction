@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **MSAA and Screen smoothing settings.** MSAA from Off to 8x, and FXAA or SMAA over the
+  picture, in place of Edge smoothing; yours carries over.
 - **A Tire marks setting.** Under Video; off, karts leave no marks on the floor.
 - **An Intense music setting.** How much louder the music gets as a match heats up,
   from Off to Strong; it starts where the music always was.

@@ -8,6 +8,13 @@ const AIM_ASSIST_MAX := 1.0
 ## How big the menus and the HUD can be drawn, GAME.md 8.5, as a share of the size they were laid
 ## out at for a screen 1080 lines high. The 3D picture is not touched by it.
 const UI_SCALES: Array[float] = [0.75, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0]
+## How many samples the edges of a room are taken at, GAME.md 8.5, none among them.
+const MSAA_SAMPLES: Array[int] = [0, 2, 4, 8]
+## The smoothing pass over the whole finished picture: none, FXAA or SMAA.
+const SMOOTH_OFF := "off"
+const SMOOTH_FXAA := "fxaa"
+const SMOOTH_SMAA := "smaa"
+const SMOOTHINGS: Array[String] = [SMOOTH_OFF, SMOOTH_FXAA, SMOOTH_SMAA]
 const TOUCH_SLIDER := "slider"
 const TOUCH_BUTTONS := "buttons"
 const TOUCH_LAYOUTS: Array[String] = [TOUCH_SLIDER, TOUCH_BUTTONS]
@@ -46,11 +53,16 @@ var render_scale := 0.8 if OS.has_feature("mobile") else 1.0
 ## One of [constant UI_SCALES]. A phone is held close, and a HUD laid out for a monitor across a
 ## desk is a HUD of things too small to press there, so a handheld starts at half as big again.
 var ui_scale := 1.5 if OS.has_feature("mobile") else 1.0
-## The two passes over the whole screen a room pays for, GAME.md 8.5. Both are worth what they
-## cost on a card that can spare it and both are the first thing to give up on one that cannot:
-## the bloom is about a tenth of the frame in The Vault, and the smoothing about a twentieth.
+## The two passes over the whole screen a room pays for, GAME.md 8.5, the bloom and the
+## multisampled edges. Both are worth what they cost on a card that can spare it and both are the
+## first thing to give up on one that cannot: the bloom is about a tenth of the frame in The Vault,
+## and the multisampling about a twentieth. A phone or a tablet smooths its edges with the cheap
+## pass over the finished picture instead, for about a third of the price: something has to keep a
+## room of straight lines from crawling.
 var bloom := not OS.has_feature("mobile")
-var antialiasing := not OS.has_feature("mobile")
+## One of [constant MSAA_SAMPLES], and one of [constant SMOOTHINGS].
+var msaa := 0 if OS.has_feature("mobile") else 2
+var screen_smoothing := SMOOTH_FXAA if OS.has_feature("mobile") else SMOOTH_OFF
 ## The marks the rear wheels leave on the floor, GAME.md 4.3. Off, none are laid, and whatever is
 ## down already goes at once.
 var tire_marks := true
@@ -147,7 +159,16 @@ func load_from_disk() -> void:
 	render_scale = file.get_value("video", "render_scale", render_scale)
 	ui_scale = clampf(file.get_value("video", "ui_scale", ui_scale), UI_SCALES[0], UI_SCALES[-1])
 	bloom = file.get_value("video", "bloom", bloom)
-	antialiasing = file.get_value("video", "antialiasing", antialiasing)
+	# Kept as one switch, Edge smoothing, until the multisampling and the pass over the picture
+	# could each be picked: on was the multisampling, off the pass.
+	if file.has_section_key("video", "antialiasing"):
+		var smoothed: bool = file.get_value("video", "antialiasing")
+		msaa = 2 if smoothed else 0
+		screen_smoothing = SMOOTH_OFF if smoothed else SMOOTH_FXAA
+	var samples := int(file.get_value("video", "msaa", msaa))
+	msaa = samples if samples in MSAA_SAMPLES else msaa
+	var smoothing := str(file.get_value("video", "screen_smoothing", screen_smoothing))
+	screen_smoothing = smoothing if smoothing in SMOOTHINGS else screen_smoothing
 	tire_marks = file.get_value("video", "tire_marks", tire_marks)
 	screen_shake = file.get_value("accessibility", "screen_shake", screen_shake)
 	flash_reduction = file.get_value("accessibility", "flash_reduction", flash_reduction)
@@ -219,7 +240,8 @@ func save_to_disk() -> Error:
 	file.set_value("video", "render_scale", render_scale)
 	file.set_value("video", "ui_scale", ui_scale)
 	file.set_value("video", "bloom", bloom)
-	file.set_value("video", "antialiasing", antialiasing)
+	file.set_value("video", "msaa", msaa)
+	file.set_value("video", "screen_smoothing", screen_smoothing)
 	file.set_value("video", "tire_marks", tire_marks)
 	file.set_value("accessibility", "screen_shake", screen_shake)
 	file.set_value("accessibility", "flash_reduction", flash_reduction)
@@ -308,12 +330,16 @@ func apply_video(tree: SceneTree) -> void:
 		tree.root.scaling_3d_scale = clampf(render_scale, 0.5, 1.0)
 		# Every menu and the HUD, drawn bigger or smaller; the room behind them stays as sharp.
 		tree.root.content_scale_factor = ui_scale_for_now if ui_scale_for_now > 0.0 else ui_scale
-		tree.root.msaa_3d = Viewport.MSAA_2X if antialiasing else Viewport.MSAA_DISABLED
-		# Something has to keep the edges of a room of straight lines from crawling. Off the
-		# multisampling, the cheap screen-space pass does it for about a third of the price.
-		tree.root.screen_space_aa = (
-			Viewport.SCREEN_SPACE_AA_DISABLED if antialiasing else Viewport.SCREEN_SPACE_AA_FXAA
-		)
+		var multisampled: Array[Viewport.MSAA] = [
+			Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X, Viewport.MSAA_8X
+		]
+		tree.root.msaa_3d = multisampled[maxi(MSAA_SAMPLES.find(msaa), 0)]
+		var passes: Array[Viewport.ScreenSpaceAA] = [
+			Viewport.SCREEN_SPACE_AA_DISABLED,
+			Viewport.SCREEN_SPACE_AA_FXAA,
+			Viewport.SCREEN_SPACE_AA_SMAA,
+		]
+		tree.root.screen_space_aa = passes[maxi(SMOOTHINGS.find(screen_smoothing), 0)]
 
 
 ## Registers the default input map, then the player's rebindings and dead zone on top.
