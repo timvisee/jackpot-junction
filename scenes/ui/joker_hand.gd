@@ -57,7 +57,9 @@ var avoid: Array[Rect2] = []
 var lane := Vector2.ZERO
 ## Tucked into the bottom edge while no card of it is being read: smaller, and half below the edge,
 ## rising to its full size as a card is held or kept open. The touch screen's, GAME.md 4.2, where
-## a hand of cards across the bottom of a phone is a hand of cards over the arena.
+## a hand of cards across the bottom of a phone is a hand of cards over the arena. A hand in a
+## corner, see [member corner], is tucked into its own edge the same way, GAME.md 8.3: four hands
+## at full size are four hands over the arena too.
 var tucked := false
 
 var _cards: Array[JokerCard] = []
@@ -157,7 +159,7 @@ func _process(delta: float) -> void:
 		var full := JokerCard.SIZE.x * (1.0 + (1.0 - OVERLAP) * maxf(count - 1, 0.0))
 		var room := to - from - COUNT_ROOM * 2.0
 		factor = clampf(room / full, NARROWEST, factor)
-	var resting := tucked and picked < 0
+	var resting := (tucked or corner >= 0) and picked < 0
 	if resting:
 		factor = maxf(factor * TUCKED, minf(TUCKED_LEAST, factor))
 	var card := JokerCard.SIZE * factor

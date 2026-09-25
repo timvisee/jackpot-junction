@@ -22,6 +22,8 @@ below, and hands the notes to the release workflow.
 
 - **With three or four players, each hand of jokers sits by its owner's corner.** The top
   two hang from the top edge, and a respawn pick comes up in its owner's corner too.
+- **With three or four players, the hands tuck half off the screen.** As on a phone, a
+  hand comes out to full size while you read it.
 - **On a touch screen the fire button shows what a stall changes.** A roller, a hat, a
   flag or a trail in place of FIRE while you stand on one, and the hint shows it too.
 

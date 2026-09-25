@@ -1,7 +1,8 @@
 extends GdUnitTestSuite
 ## The hands of three or four players at one screen, GAME.md 8.3: each keeps to its owner's corner,
 ## beside their block on the same edge, the two top players' hanging from the top edge with the
-## pane of the card being read under it. A respawn pick keeps to its owner's corner as well.
+## pane of the card being read under it, and each tucked into its edge until a card of it is read.
+## A respawn pick keeps to its owner's corner as well.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 
@@ -83,6 +84,30 @@ func test_a_top_hand_opens_its_pane_under_the_card() -> void:
 	assert_float(pane.position.y).is_greater(_center(picked).y)
 	for rect: Rect2 in _block_rects(hud):
 		assert_bool(rect.intersects(pane)).is_false()
+	Input.action_release(InputActions.JOKER_MENU)
+	await _runner.simulate_frames(2, 17)
+
+
+## At rest a cornered hand is tucked into its edge, smaller and half past it, as a touch screen's
+## is, and comes out to its full size as a card of it is read.
+func test_a_cornered_hand_is_tucked_until_it_is_read() -> void:
+	var match_node := await _start_match(4)
+	var hud := match_node.hud
+	for index: int in hud._hands:
+		var hand: JokerHand = hud._hands[index]
+		for card: JokerCard in hand._cards:
+			var face := card.get_global_rect()
+			assert_float(card.scale.y).is_less(0.6)
+			if hand.hangs():
+				assert_float(face.position.y).is_less(0.0)
+			else:
+				assert_float(face.end.y).is_greater(hand.size.y)
+	var top: JokerHand = hud._hands[0]
+	Input.action_press(InputActions.JOKER_MENU)
+	await _runner.simulate_frames(30, 17)
+	for card: JokerCard in top._cards:
+		assert_float(card.scale.y).is_equal_approx(0.8, 0.01)
+		assert_float(card.get_global_rect().position.y).is_greater_equal(0.0)
 	Input.action_release(InputActions.JOKER_MENU)
 	await _runner.simulate_frames(2, 17)
 

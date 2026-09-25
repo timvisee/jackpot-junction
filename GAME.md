@@ -1939,7 +1939,10 @@ movement: the one thing a corner block must not do is ask to be looked at.
   cards stay upright to be read, but the fan bows down, the card being read drops
   out of it and its pane opens under it. Shared out along the bottom edge, a hand
   was nobody's in particular, and one pushed up off a bottom block looked like
-  that block's.
+  that block's. A cornered hand is tucked into its edge as a touch screen's is
+  (4.2): smaller and half past the edge while none of its cards is being read,
+  coming out to its full size as the joker menu opens or the mouse comes onto
+  it. Four hands at full size are four hands over the arena.
 - **Lives**: two hearts in the player color under the kill count, drawn off the
   heart curve so they have the dip and the point that tell the shape apart at
   nineteen pixels. A square said one of something and left you to work out what.
