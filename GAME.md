@@ -1060,7 +1060,8 @@ fades away while one stands about and comes straight back when it drives off.
 
 Everything worth shooting counts as a target, not only karts: a box broken is cover gone and
 coins on the floor, a bomb set off from across the room does more than a bullet ever does, and
-a shooting target pays. But none of that wins a match, so a kart always comes first: it is
+a shooting target pays. So is the waiting room's football of 9.6, which is all there is to aim
+at in there. But none of that wins a match, so a kart always comes first: it is
 weighed as though it were much nearer than it is, and a box has to be well inside one before
 the shot goes to the box instead.
 
@@ -2948,7 +2949,8 @@ back a kart. It is not solid to karts. A kart that meets it is not stopped by it
 ball is kicked out of its way instead, off whichever side of the kart it met, with however fast
 that side was coming at it, and rolls to a stop on the concrete. The kart is the heavy thing.
 A kart on nitro kicks it twice as hard, and the ball may go twice as fast for it. A shot kicks
-it too: 9 m/s on the way the shot was going, and the shot is spent on it. It is heard being hit,
+it too: 9 m/s on the way the shot was going, and the shot is spent on it. It is a target for the
+aim assist of 5.2 the way a box is, so a shot at it leans onto it. It is heard being hit,
 by how suddenly its speed changes, which every machine can see the same way: a soft thump when a
 kart is close enough to have kicked it and a knock off anything else, louder the harder the hit,
 and nothing while it only rolls. It

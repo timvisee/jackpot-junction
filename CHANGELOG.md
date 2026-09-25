@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Aim assist finds the lobby's football.** A shot at it leans onto it the way one
+  at a kart does.
+
 - **The LAN screen finds games on your network.** Each one found is a button that
   joins it, saying whose it is, how many play and whether it wants a password.
 - **Lobby settings for the host.** The most players the game takes, and a password

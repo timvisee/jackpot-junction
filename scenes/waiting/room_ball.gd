@@ -11,7 +11,8 @@ extends RigidBody3D
 ## the heavy thing.
 ##
 ## A shot kicks it too, the way the shot was going, and is spent on it: something to aim at in a
-## room where there is nobody to shoot.
+## room where there is nobody to shoot. Aim assist leans a shot onto it the way it does onto a kart,
+## GAME.md 5.2, so a shot at the ball goes where it was meant to.
 ##
 ## Online the host kicks it and says where it is; a client draws it where it was told, running on
 ## at the speed it was told between one telling and the next.
@@ -121,9 +122,16 @@ func _ready() -> void:
 	shape.shape = sphere
 	add_child(shape)
 	_build_look()
+	# A target, the way a box or a kart is, for aim assist to find.
+	add_to_group(Bullet.TARGET_GROUP)
 	if not simulating:
 		freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
 		freeze = true
+
+
+## Always there to aim at: nothing takes the ball off the floor.
+func is_targetable() -> bool:
+	return true
 
 
 ## A shot has landed on it: kicked on the way the shot was going, and the shot is spent. A client

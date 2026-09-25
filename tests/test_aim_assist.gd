@@ -103,6 +103,28 @@ func test_bombs_and_shooting_targets_are_worth_bending_toward() -> void:
 	assert_object(_best(match_node)).is_null()
 
 
+## The lobby's football, GAME.md 9.6: something to shoot at in a room with nobody to shoot, and a
+## shot at it leans onto it the way one at a kart does.
+func test_the_football_is_worth_bending_toward() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	_clear_floor(match_node)
+	match_node.kart_of(0).global_position = BEHIND
+	match_node.kart_of(1).global_position = BEHIND * Vector3(1.0, 1.0, -1.0)
+	var ball := RoomBall.add_to(match_node, Vector3(5.0, 0.0, 0.0))
+	await _runner.simulate_frames(2, 17)
+	assert_object(_best(match_node)).is_same(ball)
+	# And a shot fired a little off it, inside the cone the default cannon's assist looks in, is
+	# bent onto it the way it would be onto a kart.
+	var shot: Bullet = auto_free(Bullet.new())
+	var off := Vector3(1.0, 0.0, 0.0).rotated(Vector3.UP, CANNON.aim_assist_cone_deg * 0.01)
+	shot.setup(0, Vector3.ZERO, off, CANNON, Color.WHITE)
+	var before := shot.velocity.angle_to(ball.global_position)
+	match_node.add_child(shot)
+	shot._steer(0.1)
+	assert_float(shot.velocity.angle_to(ball.global_position)).is_less(before)
+
+
 func test_nothing_behind_the_shot_takes_the_aim() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)
