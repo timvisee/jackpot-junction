@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.8.2] - 2026-09-25
+
+Matches run much faster the longer they go, and the Video settings gain MSAA, shadows, an
+upscaler, a frame rate limit and more. With three or four players each hand of jokers sits by
+its owner's corner, and it still plays over LAN with 0.8.0 and 0.8.1.
+
 ### Added
 
 - **A Show FPS setting.** The frame rate in the top left corner of every screen.
@@ -46,7 +52,6 @@ below, and hands the notes to the release workflow.
 
 - **Hints over a kart are all one size.** The drive and fire hint and a stall's hint
   look the same size on screen, whatever the map and however far off the camera is.
-
 ## [0.8.1] - 2026-09-25
 
 Fixes for LAN play: joining with a password works, names stay put, and a client no longer
@@ -1238,7 +1243,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.8.1...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.8.2...HEAD
+[0.8.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.8.2
 [0.8.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.8.1
 [0.8.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.8.0
 [0.7.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.7.0
