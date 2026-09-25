@@ -2255,7 +2255,10 @@ for.
   1 at level 6. The filter sweeps from a muffled 1.7 kHz up to fully open and the
   gain from -7.5 dB to +1.5, so an opening lap sounds like a bar with music on
   somewhere and the finale sounds like the music. The early levels are meant to
-  sit under the room rather than lead it. Both sit after the bus volume, so the audio settings keep full control.
+  sit under the room rather than lead it. Both sit after the bus volume, so the
+  audio settings keep full control. How far the gain comes up is the player's,
+  see Intense music in 8.5: those 9 dB are where it starts, and Off leaves the
+  music at the level 1 gain all the way up while the filter still opens.
 - **Going under**: a player at this screen dying pulls the same filter down from
   wherever the levels have it to 380 Hz in 0.2 s, as if the music were heard from
   under water, holds it there 1.5 s and sweeps it back up over 3 s. Only the
@@ -2414,8 +2417,16 @@ like any other button.
   because their engine and tires run the whole time rather than in bursts, so
   how loud that bed should sit is a matter of taste in a way the rest is not.
   The kart bus is under the effects bus, so the effects slider still scopes it.
-  A switch turns off the music going under water when a player here dies, see 8.4,
-  on by default.
+  Under Music, Intense music says how much louder the music gets at the hottest
+  the room gets, see 8.4, on top of the level it plays at on a quiet table: Off
+  leaves it there, and above that it is how much louder it sounds, up to +150%,
+  counted as loudness rather than signal, so +100% is twice as loud and ten
+  decibels. It starts at +87%, the 9 dB the music always came up by, and it can
+  never make the hottest music quieter than the calm. The setting is written
+  beside the slider, and under it are four marks with their names: Off, Gentle
+  at +40%, Normal at the +87% it starts at, and Strong at the top. A switch turns
+  off the music going under water when a player here dies, see 8.4, on by
+  default.
 - **Video**: window mode, vsync, render scale, UI scale, bloom and edge smoothing.
   A phone or a tablet starts full screen, with the system's own bars out of the
   way; a desktop starts in a window. Bloom and edge smoothing are the passes over

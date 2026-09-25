@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **An Intense music setting.** How much louder the music gets as a match heats up,
+  from Off to Strong; it starts where the music always was.
 - **Jokers by mouse.** Hover a card to read it; click a pick card to take it, or a hand
   card to keep it open with Drop and Destroy on its pane.
 

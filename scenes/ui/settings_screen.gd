@@ -404,6 +404,11 @@ func _audio_tab() -> Control:
 			)
 		)
 	)
+	# How much louder the music gets as the room heats up, on top of the level above, GAME.md 8.5.
+	var swell := SwellSlider.make(_settings.music_swell)
+	swell.name = "IntenseMusic"
+	swell.changed.connect(func(v: float) -> void: _settings.music_swell = v)
+	column.add_child(MenuTheme.row("Intense music", swell))
 	column.add_child(
 		MenuTheme.row(
 			"Effects",

@@ -164,18 +164,69 @@ func test_the_music_bus_sweeps_open_with_the_excitement() -> void:
 	# Level 1: muffled, and well under the room rather than leading it.
 	assert_float(Audio._filter.cutoff_hz).is_equal_approx(Audio.FILTER_CLOSED_HZ, 1.0)
 	assert_float(Audio._amplify.volume_db).is_equal_approx(Audio.COLD_GAIN_DB, 0.01)
-	assert_float(Audio.COLD_GAIN_DB).is_less(Audio.HOT_GAIN_DB - 5.0)
+	# The swell it always had, which is the setting to start from: +1.5 dB at the top.
+	assert_float(Audio.COLD_GAIN_DB + MusicSwell.db(MusicSwell.NORMAL)).is_equal_approx(1.5, 0.01)
 	Audio.set_excitement(6, 1.0)
 	for i: int in 40:
 		Audio._step_music_effects(0.05)
 	assert_float(Audio._open).is_equal_approx(1.0, 0.01)
 	assert_float(Audio._filter.cutoff_hz).is_equal_approx(Audio.FILTER_OPEN_HZ, 20.0)
-	assert_float(Audio._amplify.volume_db).is_equal_approx(Audio.HOT_GAIN_DB, 0.01)
+	assert_float(Audio._amplify.volume_db).is_equal_approx(Audio.hot_gain_db(), 0.01)
 	assert_str(Audio.music_debug()).contains("open 100%")
 	Audio.set_excitement(1, 0.0)
 	for i: int in 40:
 		Audio._step_music_effects(0.05)
 	assert_float(Audio._filter.cutoff_hz).is_equal_approx(Audio.FILTER_CLOSED_HZ, 1.0)
+
+
+## GAME.md 8.5: Intense music says how much louder the music gets at the top. Off, it stays at the
+## level of a quiet table; more is louder there, in loudness rather than signal, and it is kept.
+func test_intense_music_sets_how_much_louder_the_top_gets() -> void:
+	var real := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_music_swell.cfg"
+	assert_float(Game.settings.music_swell).is_equal(MusicSwell.NORMAL)
+	Game.settings.music_swell = MusicSwell.OFF
+	assert_float(Audio.hot_gain_db()).is_equal_approx(Audio.COLD_GAIN_DB, 0.001)
+	# Twice as loud is ten decibels, and the words say how much louder.
+	Game.settings.music_swell = 1.0
+	assert_float(Audio.hot_gain_db()).is_equal_approx(Audio.COLD_GAIN_DB + 10.0, 0.001)
+	assert_str(MusicSwell.words(1.0)).is_equal("+100%")
+	assert_str(MusicSwell.words(0.0)).is_equal("Off")
+	assert_str(MusicSwell.words(MusicSwell.NORMAL)).is_equal("+87%")
+	Game.settings.music_swell = MusicSwell.GENTLE
+	Game.settings.save_to_disk()
+	var read := Settings.new()
+	read.path = Game.settings.path
+	read.load_from_disk()
+	assert_float(read.music_swell).is_equal_approx(MusicSwell.GENTLE, 0.0001)
+	DirAccess.remove_absolute(Game.settings.path)
+	Game.settings = real
+
+
+## The slider on the Audio tab, with its value beside it and its four marks under it, in order
+## along the track, the one the game always had among them.
+func test_the_intense_music_slider_has_its_marks() -> void:
+	var real := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_music_swell.cfg"
+	var screen: SettingsScreen = auto_free(
+		load("res://scenes/ui/settings_screen.tscn").instantiate()
+	)
+	add_child(screen)
+	await await_idle_frame()
+	var swell: SwellSlider = screen.find_child("IntenseMusic", true, false)
+	assert_object(swell).is_not_null()
+	assert_str(swell._value.text).is_equal("+87%")
+	swell.slider.value = 0.0
+	assert_float(Game.settings.music_swell).is_equal(0.0)
+	assert_str(swell._value.text).is_equal("Off")
+	var along: Array[float] = []
+	for named: String in ["Off", "Gentle", "Normal", "Strong"]:
+		along.append(swell.mark_x(MusicSwell.MARKS[named]))
+	for i: int in range(1, along.size()):
+		assert_float(along[i]).is_greater(along[i - 1])
+	Game.settings = real
 
 
 ## GAME.md 8.4: a player at this screen dying puts the music under water at once, holds it there
@@ -219,7 +270,9 @@ func test_a_hush_muffles_the_music_and_the_drop_sweeps_it_open() -> void:
 		Audio._excitement_age = 0.0
 		Audio._step_music_effects(0.05)
 	assert_float(Audio._filter.cutoff_hz).is_equal_approx(Audio.HUSH_HZ, 1.0)
-	assert_float(Audio._amplify.volume_db).is_equal_approx(Audio.HOT_GAIN_DB + Audio.HUSH_DB, 0.01)
+	assert_float(Audio._amplify.volume_db).is_equal_approx(
+		Audio.hot_gain_db() + Audio.HUSH_DB, 0.01
+	)
 	Audio.hush_music(false)
 	assert_bool(Audio.is_music_hushed()).is_false()
 	Audio._step_music_effects(Audio.HUSH_SWEEP_SECONDS * 0.5)
@@ -228,7 +281,7 @@ func test_a_hush_muffles_the_music_and_the_drop_sweeps_it_open() -> void:
 	)
 	Audio._step_music_effects(Audio.HUSH_SWEEP_SECONDS * 0.5)
 	assert_float(Audio._filter.cutoff_hz).is_equal_approx(Audio.FILTER_OPEN_HZ, 20.0)
-	assert_float(Audio._amplify.volume_db).is_equal_approx(Audio.HOT_GAIN_DB, 0.01)
+	assert_float(Audio._amplify.volume_db).is_equal_approx(Audio.hot_gain_db(), 0.01)
 
 
 ## A drop lands on the first beat of a bar, and never sooner than asked.

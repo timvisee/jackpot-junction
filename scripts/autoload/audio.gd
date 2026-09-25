@@ -40,9 +40,9 @@ const EXCITEMENT_TIMEOUT := 0.5
 ## table should sound like a bar with the music on, not like the music.
 const FILTER_CLOSED_HZ := 1700.0
 const FILTER_OPEN_HZ := 20500.0
-## Decibels at level 1 and at the top, against the bus's own setting.
+## Decibels at level 1, against the bus's own setting. At the top it is as much louder again as
+## the player's Intense music setting says, see [method hot_gain_db].
 const COLD_GAIN_DB := -7.5
-const HOT_GAIN_DB := 1.5
 ## How fast the filter follows the meter, per second, so it sweeps rather than snaps.
 const OPEN_FOLLOW := 0.8
 ## How far the music is pulled down under the podium, and how long it takes to get there and to
@@ -277,8 +277,15 @@ func _step_music_effects(delta: float) -> void:
 	)
 	var fade := absf(PODIUM_DUCK_DB) / maxf(PODIUM_DUCK_SECONDS, 0.001)
 	_duck_db = move_toward(_duck_db, _duck_target, fade * delta)
-	var level := lerpf(COLD_GAIN_DB, HOT_GAIN_DB, _open) + _duck_db
+	var level := lerpf(COLD_GAIN_DB, hot_gain_db(), _open) + _duck_db
 	_amplify.volume_db = level + HUSH_DB * hushed
+
+
+## Decibels at the top of the meter, against the bus's own setting: the level at the bottom, and as
+## much louder as the player's Intense music setting says, GAME.md 8.5. Off, it is the bottom's.
+## The setting it starts at is the +1.5 dB the music always came up to.
+static func hot_gain_db() -> float:
+	return COLD_GAIN_DB + MusicSwell.db(Game.settings.music_swell)
 
 
 ## A player at this screen has died, GAME.md 8.4: the music goes under water at once and comes
