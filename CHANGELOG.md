@@ -13,6 +13,7 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A Show FPS setting.** The frame rate in the top left corner of every screen.
 - **A Frame rate limit setting.** Unlimited, or 30 to 144 frames a second; 30 saves a
   phone's battery.
 - **A Shadows setting.** Off, Low or High; a phone starts on Low, as it always drew them.

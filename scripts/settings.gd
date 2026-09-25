@@ -69,6 +69,8 @@ var fullscreen := OS.has_feature("mobile")
 var vsync := true
 ## One of [constant FRAME_LIMITS].
 var frame_limit := 0
+## The frame rate in the corner of every screen, see [FrameCounter].
+var show_fps := false
 ## A phone or a tablet draws its room at four fifths of the screen's size to start with, and
 ## without the two passes below: a phone's card is the one that cannot spare them.
 var render_scale := 0.8 if OS.has_feature("mobile") else 1.0
@@ -184,6 +186,7 @@ func load_from_disk() -> void:
 	vsync = file.get_value("video", "vsync", vsync)
 	var limit := int(file.get_value("video", "frame_limit", frame_limit))
 	frame_limit = limit if limit in FRAME_LIMITS else frame_limit
+	show_fps = file.get_value("video", "show_fps", show_fps)
 	render_scale = file.get_value("video", "render_scale", render_scale)
 	var upscaled := str(file.get_value("video", "upscaler", upscaler))
 	upscaler = upscaled if upscaled in UPSCALERS else upscaler
@@ -270,6 +273,7 @@ func save_to_disk() -> Error:
 	file.set_value("video", "fullscreen", fullscreen)
 	file.set_value("video", "vsync", vsync)
 	file.set_value("video", "frame_limit", frame_limit)
+	file.set_value("video", "show_fps", show_fps)
 	file.set_value("video", "render_scale", render_scale)
 	file.set_value("video", "upscaler", upscaler)
 	file.set_value("video", "shadows", shadows)

@@ -48,6 +48,9 @@ func _ready() -> void:
 			_apply()
 	)
 	_add("Frame rate limit", limit)
+	var counter := MenuTheme.toggle(_settings.show_fps)
+	counter.toggled.connect(func(on: bool) -> void: _settings.show_fps = on)
+	_add("Show FPS", counter)
 	var scale := HSlider.new()
 	scale.min_value = 0.5
 	scale.max_value = 1.0

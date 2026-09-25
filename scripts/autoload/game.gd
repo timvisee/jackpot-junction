@@ -61,6 +61,7 @@ func _init() -> void:
 
 func _ready() -> void:
 	settings.apply(get_tree())
+	add_child(FrameCounter.new())
 
 
 ## Watches every event, without swallowing any, purely to know which scheme to draw hints in.
