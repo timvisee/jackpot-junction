@@ -201,23 +201,23 @@ func test_every_watcher_has_a_name_of_their_own() -> void:
 		return door.names[peer]
 	var first: String = knock.call(2, "")
 	var second: String = knock.call(3, "")
-	assert_array(PlayerNames.NAMES).contains([first, second])
+	assert_array(PlayerNames.WATCHER_NAMES).contains([first, second])
 	assert_str(first).is_not_equal(second)
 	assert_str(knock.call(4, "Couch Kim")).is_equal("Couch Kim")
 	var clash: String = knock.call(5, "Couch Kim")
 	assert_str(clash).is_not_equal("Couch Kim")
-	assert_array(PlayerNames.NAMES).contains([clash])
-	# Nobody sitting down is handed a name somebody watching has.
+	assert_array(PlayerNames.WATCHER_NAMES).contains([clash])
+	# Nobody who comes after is handed a name somebody watching has.
 	var others: Array[String] = []
-	for name: String in PlayerNames.NAMES:
+	for name: String in PlayerNames.WATCHER_NAMES:
 		if name != first:
 			others.append(name)
 	var rng := RandomNumberGenerator.new()
-	assert_str(PlayerNames.pick(rng, others)).is_not_equal(first)
+	assert_str(PlayerNames.pick_watcher(rng, others)).is_not_equal(first)
 	# Gone, their name is free again.
 	door.forget(2)
 	assert_array(PlayerNames.held_elsewhere).not_contains([first])
-	assert_str(PlayerNames.pick(rng, others)).is_equal(first)
+	assert_str(PlayerNames.pick_watcher(rng, others)).is_equal(first)
 	door.forget(3)
 	door.forget(4)
 	door.forget(5)

@@ -29,7 +29,7 @@ var watchers_allowed := true
 var watchers_need_password := true
 ## What each client said it was called as it knocked, and for somebody watching, who has no seat
 ## to be named in, what the host calls them: their own name if nobody else has it, and otherwise,
-## or with none given, a funny one off the list that nobody else has, GAME.md 3.8.
+## or with none given, a funny one off the watchers' list that nobody else has, GAME.md 3.8.
 var names: Dictionary[int, String] = {}
 
 var _rng := RandomNumberGenerator.new()
@@ -108,8 +108,8 @@ func watchers_locked() -> bool:
 
 
 ## Somebody come to watch is called what they gave if nobody in [param match_node] or in the stands
-## has it, and otherwise a funny name that nobody has, which is kept off the list for anybody who
-## sits down after them.
+## has it, and otherwise a funny name off the watchers' own list that nobody has, which is kept off
+## the lists for anybody who comes after them.
 func _name_watcher(peer: int, match_node: Match) -> void:
 	var taken: Array[String] = []
 	if match_node != null:
@@ -120,7 +120,7 @@ func _name_watcher(peer: int, match_node: Match) -> void:
 			taken.append(names[other])
 	var named := names[peer]
 	if named.is_empty() or named in taken:
-		named = PlayerNames.pick(_rng, taken)
+		named = PlayerNames.pick_watcher(_rng, taken)
 	names[peer] = named
 	_held[peer] = named
 	PlayerNames.held_elsewhere.append(named)

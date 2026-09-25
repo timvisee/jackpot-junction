@@ -363,8 +363,11 @@ else's results screen, see 10.3.
   were called in the lobby is the name on every map and every podium. Somebody
   watching, 10.3, is named by the host as they knock: what they gave if nobody
   else in the game has it, and otherwise, or with nothing given, a funny name
-  nobody else has. It is kept off the list while they watch, so nobody sitting
-  down is handed it, and it is the name under their emotes and on the host's
+  off a list of their own that nobody else has, from the furniture they are sat
+  on and the seat they have in the stands: Couch Potato, Stool Pigeon, Front Row
+  Fran. So a name under an emote floating up the screen says it is somebody
+  watching before anybody reads the rim. It is kept off the lists while they
+  watch, so nobody who comes after is handed it, and it is the name under their emotes and on the host's
   Manage players, whatever their own machine sends. The
   first seat's box is on the online screen as well, since that is the name a
   machine gives when it connects.

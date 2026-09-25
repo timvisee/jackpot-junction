@@ -54,6 +54,44 @@ const NAMES: Array[String] = [
 	"Donut Duchess",
 	"Penny Pincher",
 ]
+## Handed out to somebody watching a LAN game, GAME.md 10.3, who is not driving anything: names
+## from the furniture they are sat on and the seat they have in the stands, so a name under an
+## emote floating up the screen says it is from somebody watching before anybody reads the rim.
+const WATCHER_NAMES: Array[String] = [
+	"Couch Potato",
+	"Couch Critic",
+	"Couch Surfer",
+	"Sofa So Good",
+	"Sofa Sofia",
+	"Cushion Carl",
+	"Armchair Ace",
+	"Recliner Rita",
+	"Beanbag Barry",
+	"Ottoman Otto",
+	"Loveseat Lou",
+	"Futon Fred",
+	"Settee Betty",
+	"Chaise Chase",
+	"Deckchair Dee",
+	"Lawn Chair Lars",
+	"Hammock Hank",
+	"Stool Pigeon",
+	"Barstool Bill",
+	"Stool Stu",
+	"Bench Warmer",
+	"Bleacher Bob",
+	"Seat Filler",
+	"Front Row Fran",
+	"Nosebleed Ned",
+	"Back Seat Betty",
+	"Box Seat Boris",
+	"Cheap Seats Chad",
+	"Ringside Rosa",
+	"Popcorn Pam",
+	"Snack Stacker",
+	"Remote Hogger",
+	"Pillow Fort Phil",
+]
 
 ## Names held by people who are in the game but not in its match, a LAN game's watchers, GAME.md
 ## 10.3, so nobody who sits down is handed one of them. Kept by [NetDoor].
@@ -74,10 +112,21 @@ static func clean(text: String) -> String:
 ## match seeded the same way names everybody the same way. Falls back to a numbered one in the
 ## impossible case that the whole list is in use.
 static func pick(rng: RandomNumberGenerator, taken: Array[String] = []) -> String:
+	return _pick_from(NAMES, "Player", rng, taken)
+
+
+## One of [constant WATCHER_NAMES] that nobody in [param taken] has, for somebody watching.
+static func pick_watcher(rng: RandomNumberGenerator, taken: Array[String] = []) -> String:
+	return _pick_from(WATCHER_NAMES, "Watcher", rng, taken)
+
+
+static func _pick_from(
+	names: Array[String], fallback: String, rng: RandomNumberGenerator, taken: Array[String]
+) -> String:
 	var free: Array[String] = []
-	for name: String in NAMES:
+	for name: String in names:
 		if name not in taken and name not in held_elsewhere:
 			free.append(name)
 	if free.is_empty():
-		return "Player %d" % (taken.size() + 1)
+		return "%s %d" % [fallback, taken.size() + 1]
 	return free[rng.randi_range(0, free.size() - 1)]

@@ -38,9 +38,22 @@ func test_a_name_is_trimmed_shortened_and_stripped_of_markup() -> void:
 
 
 func test_every_name_on_the_list_fits_the_limit() -> void:
-	for name: String in PlayerNames.NAMES:
+	for name: String in PlayerNames.NAMES + PlayerNames.WATCHER_NAMES:
 		assert_int(name.length()).is_between(1, PlayerNames.MAX_LENGTH)
 		assert_str(PlayerNames.clean(name)).is_equal(name)
+
+
+## The two lists are apart: a name says whether it is somebody driving or somebody watching, and
+## nobody is ever handed a name off one that is on the other.
+func test_the_watchers_list_is_its_own() -> void:
+	for name: String in PlayerNames.WATCHER_NAMES:
+		assert_array(PlayerNames.NAMES).not_contains([name])
+	var seen: Dictionary[String, bool] = {}
+	for name: String in PlayerNames.WATCHER_NAMES:
+		seen[name] = true
+	assert_int(seen.size()).is_equal(PlayerNames.WATCHER_NAMES.size())
+	var rng := RandomNumberGenerator.new()
+	assert_array(PlayerNames.WATCHER_NAMES).contains([PlayerNames.pick_watcher(rng)])
 
 
 func test_a_drawn_name_is_never_one_somebody_already_has() -> void:
