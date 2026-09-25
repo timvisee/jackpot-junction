@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Says whether an APK is signed with the release key, and by nothing else: its signer's certificate
+# against the one in the keystore, by their SHA-256 digests. GAME.md 10.5. The key is read from
+# ANDROID_KEYSTORE, ANDROID_KEYSTORE_ALIAS and ANDROID_KEYSTORE_PASSWORD; apksigner from the newest
+# build tools under ANDROID_HOME, or from the path.
+#
+# Usage: tools/android-signed build/android/jackpot-junction.apk
+set -euo pipefail
+apk="${1:?APK path required}"
+apksigner=apksigner
+if [[ -n ${ANDROID_HOME:-} && -d $ANDROID_HOME/build-tools ]]; then
+	newest=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -printf "%f\n" | sort -V | tail -1)
+	apksigner="$ANDROID_HOME/build-tools/$newest/apksigner"
+fi
+wanted=$(keytool -list -v -keystore "$ANDROID_KEYSTORE" -alias "$ANDROID_KEYSTORE_ALIAS" \
+	-storepass:env ANDROID_KEYSTORE_PASSWORD | sed -n 's/^[[:space:]]*SHA256: //p' |
+	tr -d ':' | tr 'A-F' 'a-f')
+signed=$("$apksigner" verify --print-certs "$apk" |
+	sed -n 's/^Signer #1 certificate SHA-256 digest: //p')
+signers=$("$apksigner" verify --print-certs "$apk" | grep -c '^Signer #[0-9]* certificate DN' || true)
+if [[ -z $wanted || $wanted != "$signed" || $signers -ne 1 ]]; then
+	echo "$apk is not signed with the release key alone" >&2
+	exit 1
+fi
+echo "$apk is signed with the release key ($signed)"

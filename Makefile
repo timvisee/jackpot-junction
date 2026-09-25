@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench bots multiplayer changelog check export android android-install
+.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench bots multiplayer changelog check export android android-install android-release
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -104,11 +104,36 @@ export: | $(CACHE)
 
 # A debug build for Android phones and tablets in build/android, signed with the debug keystore
 # the Godot editor's own settings name, next to the Android SDK and the JDK it builds with,
-# GAME.md 10.5. Those live on this machine and not in the project, which is why the release
-# workflow does not build it. The second puts it on whatever phone adb can see.
+# GAME.md 10.5. Those live on this machine and not in the project. The second puts it on whatever
+# phone adb can see.
 android: | $(CACHE)
 	mkdir -p build/android
 	$(GODOT) --headless --path . --export-debug "Android" build/android/jackpot-junction.apk
 
 android-install: android
 	adb install -r build/android/jackpot-junction.apk
+
+# The release build for Android in build/android, the APK every release publishes, GAME.md 10.5:
+# Godot's release template, signed with the release key and checked to be. The key is named by
+# ANDROID_KEYSTORE, ANDROID_KEYSTORE_ALIAS and ANDROID_KEYSTORE_PASSWORD, which the release
+# workflow sets from the repository's secrets and which on a machine of your own come from
+# ANDROID_SIGNING, a file of the three kept beside the keystore and out of the project. The SDK
+# and the JDK are the editor's, or ANDROID_HOME's and JAVA_HOME's where it has none.
+ANDROID_SIGNING ?= $(HOME)/.android/release-keystore.env
+
+android-release: | $(CACHE)
+	mkdir -p build/android
+	@set -e; \
+	if [ -z "$${ANDROID_KEYSTORE:-}" ] && [ -f "$(ANDROID_SIGNING)" ]; then \
+		set -a; . "$(ANDROID_SIGNING)"; set +a; \
+	fi; \
+	if [ -z "$${ANDROID_KEYSTORE:-}" ]; then \
+		echo "No release key: set ANDROID_KEYSTORE, ANDROID_KEYSTORE_ALIAS and" \
+			"ANDROID_KEYSTORE_PASSWORD, or put them in $(ANDROID_SIGNING)" >&2; \
+		exit 1; \
+	fi; \
+	GODOT_ANDROID_KEYSTORE_RELEASE_PATH="$$ANDROID_KEYSTORE" \
+	GODOT_ANDROID_KEYSTORE_RELEASE_USER="$$ANDROID_KEYSTORE_ALIAS" \
+	GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD="$$ANDROID_KEYSTORE_PASSWORD" \
+		$(GODOT) --headless --path . --export-release "Android" build/android/jackpot-junction.apk; \
+	tools/android-signed build/android/jackpot-junction.apk

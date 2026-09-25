@@ -7,7 +7,8 @@
 # Usage:
 #   tools/changelog              check the file, and that project.godot's version has a section
 #   tools/changelog extract 1.2.3   print one version's notes, for the release workflow
-#   tools/changelog release 1.2.3   move Unreleased into a dated 1.2.3 and set project.godot
+#   tools/changelog release 1.2.3   move Unreleased into a dated 1.2.3, set project.godot, and
+#                                   count the Android version code up by one
 set -euo pipefail
 cd "$(dirname "$0")/.."
 python3 - "${1:-check}" "${2:-}" <<'PY'
@@ -19,6 +20,7 @@ import sys
 command, version = sys.argv[1], sys.argv[2]
 path = pathlib.Path("CHANGELOG.md")
 project = pathlib.Path("project.godot")
+presets = pathlib.Path("export_presets.cfg")
 SEMVER = r"\d+\.\d+\.\d+"
 HEADING = re.compile(r"^## \[(Unreleased|%s)\](?: - (\d{4}-\d{2}-\d{2}))?\s*$" % SEMVER)
 
@@ -135,7 +137,20 @@ if command == "release":
     project.write_text(
         re.sub(r'^config/version=".*"$', 'config/version="%s"' % version, project.read_text(), flags=re.M)
     )
-    print("cut %s, and set project.godot to it." % version)
+    # Android only installs an APK over one with a lower version code, GAME.md 10.5, so every
+    # release counts the Android preset's up by one, whatever its version number did.
+    text = presets.read_text()
+    android = re.search(r'^\[preset\.(\d+)\]\n(?:(?!\[).*\n)*?platform="Android"$', text, re.M)
+    if android is None:
+        fail("export_presets.cfg has no Android preset to count the version code of")
+    options = re.search(
+        r"^\[preset\.%s\.options\]\n(?:(?!\[).*\n)*?version/code=(\d+)$" % android.group(1), text, re.M
+    )
+    if options is None:
+        fail("the Android preset has no version/code")
+    code = int(options.group(1))
+    presets.write_text(text[: options.start(1)] + str(code + 1) + text[options.end(1) :])
+    print("cut %s, set project.godot to it, and the Android version code to %d." % (version, code + 1))
     print("Check it over, commit, then tag: git tag -a v%s -m 'Jackpot Junction %s'" % (version, version))
     sys.exit(0)
 PY

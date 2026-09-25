@@ -4,6 +4,9 @@ on:
   push:
     tags:
       - "v*"
+  # A dry run, from the Actions tab: everything a release builds, the Android APK and its signature
+  # among it, kept as the run's artifact rather than published, GAME.md 10.5.
+  workflow_dispatch:
 
 env:
   GODOT_VERSION: 4.7.2
@@ -49,6 +52,31 @@ jobs:
       - name: Export
         run: make export
 
+      # The Android APK, GAME.md 10.5: Godot's release template, signed with the release key the
+      # repository keeps as three secrets. The runner comes with an Android SDK, which Godot finds
+      # through ANDROID_HOME; the JDK is set up here so JAVA_HOME is one it can use.
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Export Android
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_ALIAS: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          set -e
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "The ANDROID_KEYSTORE_BASE64 secret is not set, see GAME.md 10.5" >&2
+            exit 1
+          fi
+          export ANDROID_KEYSTORE="$RUNNER_TEMP/release.keystore"
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$ANDROID_KEYSTORE"
+          make android-release
+          rm -f "$ANDROID_KEYSTORE"
+
       - name: Package
         run: |
           set -e
@@ -56,16 +84,31 @@ jobs:
           zip -qr "../jackpot-junction-${GITHUB_REF_NAME}-linux.zip" linux
           zip -qr "../jackpot-junction-${GITHUB_REF_NAME}-windows.zip" windows
           cp macos/jackpot-junction.zip "../jackpot-junction-${GITHUB_REF_NAME}-macos.zip"
+          cp android/jackpot-junction.apk "../jackpot-junction-${GITHUB_REF_NAME}-android.apk"
+
+      - name: Keep the dry run's builds
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: jackpot-junction-dry-run
+          path: |
+            jackpot-junction-*.zip
+            jackpot-junction-*.apk
+          retention-days: 7
 
       # The tag's own section of the changelog becomes the release notes. A tag with no section
       # fails here rather than publishing a release with nothing on it.
       - name: Release notes
+        if: startsWith(github.ref, 'refs/tags/')
         run: tools/changelog extract "${GITHUB_REF_NAME#v}" > release-notes.md
 
       - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: jackpot-junction-*.zip
+          files: |
+            jackpot-junction-*.zip
+            jackpot-junction-*.apk
           body_path: release-notes.md
           # GitHub appends its own list of commits and contributors under the notes above.
           generate_release_notes: true

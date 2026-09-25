@@ -3742,15 +3742,18 @@ it is done. `tools/changelog` is the only thing that edits either:
 | Command                        | What it does                                                        |
 |--------------------------------|---------------------------------------------------------------------|
 | `tools/changelog`              | Checks the file parses and that `project.godot`'s version has a section. `make check` and CI run it |
-| `tools/changelog release X.Y.Z` | Turns `Unreleased` into a dated `X.Y.Z`, sets `project.godot`, and fixes up the links at the foot |
+| `tools/changelog release X.Y.Z` | Turns `Unreleased` into a dated `X.Y.Z`, sets `project.godot`, counts the Android version code up by one, and fixes up the links at the foot |
 | `tools/changelog extract X.Y.Z` | Prints one version's notes. The release workflow uses it            |
 
 A release is therefore: cut it, read it over, commit, then tag `vX.Y.Z` and push
 the tag. The tag starts the release workflow, which exports Linux, Windows and
-macOS builds and publishes them with that version's changelog section as the
-release notes, GitHub's own list of commits appended underneath. A tag whose
-version has no section fails the workflow rather than publishing a release with
-nothing written on it.
+macOS builds and the Android APK and publishes them with that version's
+changelog section as the release notes, GitHub's own list of commits appended
+underneath. A tag whose version has no section fails the workflow rather than
+publishing a release with nothing written on it, and so does an APK that is not
+signed with the release key: nothing is published until everything is built.
+The workflow can also be run by hand from the Actions tab, as a dry run: the
+same builds, kept as the run's artifact for a week instead of published.
 
 Tagging is a person's decision, not a step in a script: it says a build is worth
 other people's time.
@@ -3758,12 +3761,32 @@ other people's time.
 Android has an export preset of its own, `com.timvisee.jackpotjunction`, for
 phones and tablets played by touch, 4.2: a 64-bit ARM build from Godot's own
 template, landscape either way up, full screen, with the network permissions
-online play needs. `make android` builds a debug APK in `build/android` and
-`make android-install` puts it on the phone adb can see. It is signed with the
-debug keystore the Godot editor's own settings name, and built with the Android
-SDK and the JDK they name, all three on the machine rather than in the project,
-so the release workflow does not build it and the preset holds no keys. Its
-version code stays at 1 until a build goes anywhere but a phone on a desk.
+online play needs. It needs no Gradle and no NDK, only an Android SDK for
+`apksigner` and `zipalign` and a JDK: the editor's settings name them on a
+machine of one's own, and in CI `ANDROID_HOME` and `JAVA_HOME` do.
+
+There are two builds of it. `make android` is a debug APK in `build/android`,
+signed with the debug keystore the editor's settings name, for trying things on
+a phone on the desk; `make android-install` puts it on the phone adb can see.
+`make android-release` is the APK a release publishes: the release template,
+signed with the release key, and checked by `tools/android-signed` to be signed
+with that key and nothing else. The key is a keystore of its own, kept out of
+the project and meant for other Android apps as well, since Android only
+installs an update over an app signed with the same key and losing it means no
+app signed with it can ever be updated again. On the machine it was made on it
+is `~/.android/release.keystore`, alias `timvisee`, with its alias and password
+in `~/.android/release-keystore.env`, which `make android-release` reads; both
+belong in a backup together. The release workflow has it from three repository
+secrets: `ANDROID_KEYSTORE_BASE64`, the keystore itself in base64,
+`ANDROID_KEYSTORE_ALIAS` and `ANDROID_KEYSTORE_PASSWORD`. Another app's
+repository takes the same three.
+
+The version code is counted, not worked out: Android refuses an APK whose code
+is lower than the one installed, so every release counts it up by one, and
+`tools/changelog release` does that as it cuts the version, so a release never
+has to remember to. 0.8.0 was 1, the first APK anybody could install, from the
+debug key; every release after it is one more, whatever its version number. The
+preset's `version/name` is left empty, so the APK takes the game's own version.
 
 ### 10.6 Assets and licensing
 

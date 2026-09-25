@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **An Android APK with every release.** Built and signed by the release itself, so
+  each one installs over the last; uninstall the 0.8.0 APK once first.
+
 ### Fixed
 
 - **A LAN client no longer loses the game for seconds at a time.** ENet dropped whole

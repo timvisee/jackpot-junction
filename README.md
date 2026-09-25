@@ -72,6 +72,7 @@ make multiplayer  # a whole Grand Prix online (two games, up to two clients) and
 make export     # release builds for Linux, Windows and macOS in build/
 make android    # a debug build for Android in build/android, see GAME.md 10.5
 make android-install  # that build, installed on the phone adb can see
+make android-release  # the release APK, signed with the release key, see GAME.md 10.5
 ```
 
 `make run`, `make dev` and `make drive` hand `ARGS` to the game, after `--`.
