@@ -22,6 +22,13 @@ const UPSCALE_BILINEAR := "bilinear"
 const UPSCALE_FSR := "fsr"
 const UPSCALE_FSR2 := "fsr2"
 const UPSCALERS: Array[String] = [UPSCALE_BILINEAR, UPSCALE_FSR, UPSCALE_FSR2]
+## The shadows the room's sun and lamp cast: none, or drawn into smaller maps with hard edges, or
+## into the big ones with soft edges. Low is what a phone's renderer does of its own accord, and
+## high what a desktop's does.
+const SHADOWS_OFF := "off"
+const SHADOWS_LOW := "low"
+const SHADOWS_HIGH := "high"
+const SHADOW_LEVELS: Array[String] = [SHADOWS_OFF, SHADOWS_LOW, SHADOWS_HIGH]
 const TOUCH_SLIDER := "slider"
 const TOUCH_BUTTONS := "buttons"
 const TOUCH_LAYOUTS: Array[String] = [TOUCH_SLIDER, TOUCH_BUTTONS]
@@ -59,6 +66,8 @@ var vsync := true
 var render_scale := 0.8 if OS.has_feature("mobile") else 1.0
 ## One of [constant UPSCALERS].
 var upscaler := UPSCALE_BILINEAR
+## One of [constant SHADOW_LEVELS].
+var shadows := SHADOWS_LOW if OS.has_feature("mobile") else SHADOWS_HIGH
 ## One of [constant UI_SCALES]. A phone is held close, and a HUD laid out for a monitor across a
 ## desk is a HUD of things too small to press there, so a handheld starts at half as big again.
 var ui_scale := 1.5 if OS.has_feature("mobile") else 1.0
@@ -168,6 +177,8 @@ func load_from_disk() -> void:
 	render_scale = file.get_value("video", "render_scale", render_scale)
 	var upscaled := str(file.get_value("video", "upscaler", upscaler))
 	upscaler = upscaled if upscaled in UPSCALERS else upscaler
+	var shadowed := str(file.get_value("video", "shadows", shadows))
+	shadows = shadowed if shadowed in SHADOW_LEVELS else shadows
 	ui_scale = clampf(file.get_value("video", "ui_scale", ui_scale), UI_SCALES[0], UI_SCALES[-1])
 	bloom = file.get_value("video", "bloom", bloom)
 	# Kept as one switch, Edge smoothing, until the multisampling and the pass over the picture
@@ -250,6 +261,7 @@ func save_to_disk() -> Error:
 	file.set_value("video", "vsync", vsync)
 	file.set_value("video", "render_scale", render_scale)
 	file.set_value("video", "upscaler", upscaler)
+	file.set_value("video", "shadows", shadows)
 	file.set_value("video", "ui_scale", ui_scale)
 	file.set_value("video", "bloom", bloom)
 	file.set_value("video", "msaa", msaa)
@@ -341,6 +353,7 @@ func apply_video(tree: SceneTree) -> void:
 	if tree != null and tree.root != null:
 		tree.root.scaling_3d_scale = clampf(render_scale, 0.5, 1.0)
 		tree.root.scaling_3d_mode = scaling_mode()
+		_apply_shadows(tree)
 		# Every menu and the HUD, drawn bigger or smaller; the room behind them stays as sharp.
 		tree.root.content_scale_factor = ui_scale_for_now if ui_scale_for_now > 0.0 else ui_scale
 		var multisampled: Array[Viewport.MSAA] = [
@@ -353,6 +366,22 @@ func apply_video(tree: SceneTree) -> void:
 			Viewport.SCREEN_SPACE_AA_SMAA,
 		]
 		tree.root.screen_space_aa = passes[maxi(SMOOTHINGS.find(screen_smoothing), 0)]
+
+
+## How big the shadow maps are and how soft their edges, from [member shadows]. Off, the lights
+## cast none at all, see [method ArenaEnvironment.dress], and the maps are left at their smaller
+## size.
+func _apply_shadows(tree: SceneTree) -> void:
+	var high := shadows == SHADOWS_HIGH
+	var size := 4096 if high else 2048
+	var edges := (
+		RenderingServer.SHADOW_QUALITY_SOFT_LOW if high else RenderingServer.SHADOW_QUALITY_HARD
+	)
+	if tree.root.positional_shadow_atlas_size != size:
+		RenderingServer.directional_shadow_atlas_set_size(size, true)
+		tree.root.positional_shadow_atlas_size = size
+	RenderingServer.directional_soft_shadow_filter_set_quality(edges)
+	RenderingServer.positional_soft_shadow_filter_set_quality(edges)
 
 
 ## How the room is brought up to the screen's size, from [member upscaler]: FSR 2 only where the

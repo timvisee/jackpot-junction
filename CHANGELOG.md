@@ -13,6 +13,7 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A Shadows setting.** Off, Low or High; a phone starts on Low, as it always drew them.
 - **An Upscaler setting.** FSR 1 or FSR 2 in place of the plain stretch, for a render
   scale below 100%.
 - **MSAA and Screen smoothing settings.** MSAA from Off to 8x, and FXAA or SMAA over the

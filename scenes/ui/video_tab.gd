@@ -78,6 +78,16 @@ func _ready() -> void:
 			ArenaEnvironment.relight(get_tree())
 	)
 	_add("Bloom", bloom)
+	var shadows := MenuTheme.option(
+		["Off", "Low", "High"], maxi(Settings.SHADOW_LEVELS.find(_settings.shadows), 0)
+	)
+	shadows.item_selected.connect(
+		func(index: int) -> void:
+			_settings.shadows = Settings.SHADOW_LEVELS[index]
+			_apply()
+			ArenaEnvironment.relight(get_tree())
+	)
+	_add("Shadows", shadows)
 	var samples := MenuTheme.option(
 		["Off", "2x", "4x", "8x"], maxi(Settings.MSAA_SAMPLES.find(_settings.msaa), 0)
 	)

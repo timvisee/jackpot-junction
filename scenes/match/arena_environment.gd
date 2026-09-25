@@ -65,7 +65,9 @@ func dress(room: RoomLook) -> void:
 	key.rotation_degrees = room.key_angle
 	# A sun that is only a hint casts no shadows: the lamp over the table is doing that work, and
 	# two shadow maps over one room is the second one paid for and not seen.
-	key.shadow_enabled = room.key_energy >= SUN_SHADOWS
+	# And none at all for a player who has turned them off, GAME.md 8.5.
+	var shadowed := Game.settings == null or Game.settings.shadows != Settings.SHADOWS_OFF
+	key.shadow_enabled = room.key_energy >= SUN_SHADOWS and shadowed
 	key.shadow_opacity = room.shadow_depth
 	key.shadow_blur = room.shadow_softness
 	fill.light_color = room.fill_color
@@ -78,7 +80,7 @@ func dress(room: RoomLook) -> void:
 	lamp.spot_range = room.lamp_reach
 	lamp.spot_angle = room.lamp_angle
 	lamp.spot_angle_attenuation = room.lamp_fade
-	lamp.shadow_enabled = room.lamp_shadow
+	lamp.shadow_enabled = room.lamp_shadow and shadowed
 	lamp.shadow_opacity = room.shadow_depth
 	lamp.shadow_blur = room.shadow_softness
 	var air := world.environment

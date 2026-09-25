@@ -9,6 +9,7 @@ var _was_bloom := true
 var _was_msaa := 2
 var _was_smoothing := Settings.SMOOTH_OFF
 var _was_ui_scale := 1.0
+var _was_shadows := Settings.SHADOWS_HIGH
 
 
 func before_test() -> void:
@@ -16,6 +17,7 @@ func before_test() -> void:
 	_was_msaa = Game.settings.msaa
 	_was_smoothing = Game.settings.screen_smoothing
 	_was_ui_scale = Game.settings.ui_scale
+	_was_shadows = Game.settings.shadows
 
 
 func after_test() -> void:
@@ -23,6 +25,7 @@ func after_test() -> void:
 	Game.settings.msaa = _was_msaa
 	Game.settings.screen_smoothing = _was_smoothing
 	Game.settings.ui_scale = _was_ui_scale
+	Game.settings.shadows = _was_shadows
 	Settings.ui_scale_for_now = 0.0
 	Game.settings.apply_video(get_tree())
 	# The tests run at the size things were laid out at, whatever this machine's setting is.
@@ -213,4 +216,37 @@ func test_the_room_is_brought_up_to_size_the_way_the_box_says() -> void:
 	read.path = settings.path
 	read.load_from_disk()
 	assert_str(read.upscaler).is_equal(Settings.UPSCALE_FSR2)
+	DirAccess.remove_absolute(settings.path)
+
+
+## GAME.md 8.5: the room's sun and lamp cast their shadows into big maps with soft edges, smaller
+## ones with hard edges, or not at all. A desktop starts on the big ones and a phone on the small,
+## which is what each renderer does of its own accord.
+func test_the_shadows_follow_the_setting() -> void:
+	var phone := OS.has_feature("mobile")
+	assert_str(Settings.new().shadows).is_equal(
+		Settings.SHADOWS_LOW if phone else Settings.SHADOWS_HIGH
+	)
+	var lighting: ArenaEnvironment = auto_free(ArenaEnvironment.new())
+	add_child(lighting)
+	Game.settings.shadows = Settings.SHADOWS_HIGH
+	Game.settings.apply_video(get_tree())
+	lighting.dress(ROOM)
+	assert_int(get_tree().root.positional_shadow_atlas_size).is_equal(4096)
+	assert_bool(lighting.lamp.shadow_enabled).is_equal(ROOM.lamp_shadow)
+	Game.settings.shadows = Settings.SHADOWS_LOW
+	Game.settings.apply_video(get_tree())
+	assert_int(get_tree().root.positional_shadow_atlas_size).is_equal(2048)
+	Game.settings.shadows = Settings.SHADOWS_OFF
+	ArenaEnvironment.relight(get_tree())
+	assert_bool(lighting.key.shadow_enabled).is_false()
+	assert_bool(lighting.lamp.shadow_enabled).is_false()
+	var settings := Settings.new()
+	settings.path = "user://test_video_settings.cfg"
+	settings.shadows = Settings.SHADOWS_OFF
+	assert_int(settings.save_to_disk()).is_equal(OK)
+	var read := Settings.new()
+	read.path = settings.path
+	read.load_from_disk()
+	assert_str(read.shadows).is_equal(Settings.SHADOWS_OFF)
 	DirAccess.remove_absolute(settings.path)
