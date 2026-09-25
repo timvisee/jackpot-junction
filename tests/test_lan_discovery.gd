@@ -3,6 +3,7 @@ extends GdUnitTestSuite
 ## whose game it is and how it stands. Both ends in this one process, on ports of their own.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const ONLINE_SCENE := preload("res://scenes/ui/online.tscn")
 const PORT := 7871
 const LISTEN := 7879
 
@@ -55,6 +56,29 @@ func test_the_lan_screen_finds_a_hosted_game_and_what_it_is() -> void:
 	assert_str(game["address"]).is_not_empty()
 	var line := preload("res://scenes/ui/online.gd").describe(game)
 	assert_str(line).is_equal("Ann's game · in the lobby · 1/3 players · password")
+	assert_bool(game["watching"]).is_true()
+	assert_bool(game["watch_password"]).is_true()
+	# On the Play LAN screen it is a row: the button that joins it, and Watch beside it.
+	var screen: Control = auto_free(ONLINE_SCENE.instantiate())
+	add_child(screen)
+	screen.finder.queue_free()
+	screen.finder = finder
+	finder.changed.connect(screen._show_found)
+	screen._show_found()
+	var id := int(game["id"])
+	var watch: Button = screen._found.find_child("Watch%d" % id, true, false)
+	assert_object(watch).is_not_null()
+	assert_bool(watch.disabled).is_false()
+	assert_object(screen._found.find_child("Join%d" % id, true, false)).is_not_null()
+	# Shut to watchers, Watch cannot be pressed.
+	session.door.watchers_allowed = false
+	waited = 0
+	while finder.games()[0]["watching"] and waited < 6000:
+		await await_millis(50)
+		waited += 50
+	watch = screen._found.find_child("Watch%d" % id, true, false)
+	assert_bool(watch.disabled).is_true()
+	screen.queue_free()
 	# Gone quiet, it is forgotten.
 	session.queue_free()
 	await await_millis(int(LanFinder.FORGET_AFTER * 1000.0) + 600)

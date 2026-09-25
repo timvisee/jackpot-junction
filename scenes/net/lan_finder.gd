@@ -80,8 +80,11 @@ func _process(delta: float) -> void:
 		changed.emit()
 
 
+## Whether a game says anything different from last time, whatever it is: everything but when it
+## was heard, so a field a host starts sending is never one the list misses.
 static func _changed(was: Dictionary, now: Dictionary) -> bool:
-	for key: String in ["name", "players", "most", "password", "lobby", "address", "version"]:
-		if was.get(key) != now.get(key):
-			return true
-	return false
+	var before := was.duplicate()
+	var after := now.duplicate()
+	before.erase("seen")
+	after.erase("seen")
+	return before != after

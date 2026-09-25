@@ -2687,10 +2687,12 @@ the number of lives and the rest of the numbers its own lobby could have moved,
 and drops its own. Everybody says what they are called on the way in, see 3.8.
 
 The Play LAN screen finds the games on the network by itself. Over the boxes for an address and a
-port it lists every game that answers, a button each: whose it is, whether it is still in the
-lobby, how many play in it of how many may, and whether it wants a password, and pressing it
-joins. A game on a version this one cannot play says which version it is on and cannot be
-pressed. Finding is asking rather than being called to: about once a second the screen asks on
+port it lists every game that answers, a row each: a button saying whose it is, whether it is
+still in the lobby, how many play in it of how many may, and whether it wants a password, which
+joins it, and Watch beside it, which watches it instead, see 10.3. Watch cannot be pressed on a
+game whose host lets nobody watch. A game on a version this one cannot play says which version
+it is on and neither can be pressed. The list is made again as games come, go and change, and a
+pad's cursor stays on the button it was on. Finding is asking rather than being called to: about once a second the screen asks on
 port 7779 of every machine the network reaches, and of its own, which a broadcast does not always
 reach, and a host answers from there to whoever asked. That is what lets several copies of the
 game on one machine all look at once; only the host needs the port to itself, and a second host

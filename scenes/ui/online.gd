@@ -7,9 +7,9 @@ extends Control
 ## friend's match never passes through the lobby: without it every visitor would be playing
 ## under whatever name this machine last set, or under one the table handed them.
 ##
-## Over the boxes, the games on the network, found by asking, see [LanFinder]: one button each,
-## whose it is and how it stands, which joins it. The address is for a game the asking does not
-## reach.
+## Over the boxes, the games on the network, found by asking, see [LanFinder]: a row each, with
+## whose it is and how it stands on the button that joins it, and Watch beside it to watch it
+## instead, if its host lets anybody watch. The address is for a game the asking does not reach.
 
 var name_field: LineEdit
 var address_field: LineEdit
@@ -80,11 +80,16 @@ func _ready() -> void:
 	host_button.grab_focus()
 
 
-## A button for each game found, which joins it, and the line saying none are while none are.
-## A game this version cannot play says which it is, and cannot be pressed.
+## A row for each game found, see [method _found_row], and the line saying none are while none
+## are.
+##
+## Made again whenever a game comes, goes or changes, which is while a pad's cursor may be on one:
+## the cursor stays on the same button of the same game if it is still there.
 func _show_found() -> void:
 	var had := get_viewport().gui_get_focus_owner()
-	var lost := had != null and _found.is_ancestor_of(had)
+	var kept := ""
+	if had != null and _found.is_ancestor_of(had):
+		kept = String(had.name)
 	for old: Node in _found.get_children():
 		_found.remove_child(old)
 		old.queue_free()
@@ -93,13 +98,37 @@ func _show_found() -> void:
 		"Looking for games on your network..." if games.is_empty() else "Games on your network"
 	)
 	for game: Dictionary in games:
-		var button := MenuTheme.button(describe(game), Type.BODY)
-		button.custom_minimum_size = Vector2(0.0, 52.0)
-		button.disabled = not NetDoor.compatible(Game.version(), str(game["version"]))
-		button.pressed.connect(_join_found.bind(game))
-		_found.add_child(button)
-	if lost:
+		_found.add_child(_found_row(game))
+	if kept.is_empty():
+		return
+	var again := _found.find_child(kept, true, false) as Button
+	if again != null and not again.disabled:
+		again.grab_focus()
+	else:
 		host_button.grab_focus()
+
+
+## One found game: the button that joins it, saying what it is, and Watch beside it. A game this
+## version cannot play can be neither; one whose host lets nobody watch cannot be watched.
+func _found_row(game: Dictionary) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var playable := NetDoor.compatible(Game.version(), str(game["version"]))
+	var join := MenuTheme.button(describe(game), Type.BODY)
+	join.name = "Join%d" % int(game["id"])
+	join.custom_minimum_size = Vector2(0.0, 52.0)
+	join.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	join.disabled = not playable
+	join.pressed.connect(_join_found.bind(game, "join"))
+	row.add_child(join)
+	var watch := MenuTheme.button("Watch", Type.BODY)
+	watch.name = "Watch%d" % int(game["id"])
+	watch.custom_minimum_size = Vector2(150.0, 52.0)
+	watch.disabled = not playable or not bool(game.get("watching", true))
+	watch.tooltip_text = ("Watch without a kart" if not watch.disabled else "Not open to watchers")
+	watch.pressed.connect(_join_found.bind(game, "watch"))
+	row.add_child(watch)
+	return row
 
 
 ## A found game in a line: whose, how it stands, how many play in it and may, and the rest.
@@ -116,10 +145,11 @@ static func describe(game: Dictionary) -> String:
 	return " \u00b7 ".join(parts)
 
 
-func _join_found(game: Dictionary) -> void:
+## Into [param game], to play in it or, with [param mode] "watch", to watch it.
+func _join_found(game: Dictionary, mode: String) -> void:
 	address_field.text = str(game["address"])
 	port_field.text = str(game["port"])
-	_start("join")
+	_start(mode)
 
 
 ## B on a pad, or Escape, is the Back button, GAME.md 4.2.

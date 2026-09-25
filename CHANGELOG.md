@@ -16,8 +16,8 @@ below, and hands the notes to the release workflow.
 - **Aim assist finds the lobby's football.** A shot at it leans onto it the way one
   at a kart does.
 
-- **The LAN screen finds games on your network.** Each one found is a button that
-  joins it, saying whose it is, how many play and whether it wants a password.
+- **The LAN screen finds games on your network.** Each one found says whose it is,
+  how many play and whether it wants a password, with Join and Watch.
 - **Lobby settings for the host.** The most players the game takes, a password for
   joining, and whether anybody may watch, with or without the password.
 - **The host can kick players.** Manage players, in the host's pause menu, lists
