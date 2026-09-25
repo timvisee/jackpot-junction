@@ -29,6 +29,9 @@ const SHADOWS_OFF := "off"
 const SHADOWS_LOW := "low"
 const SHADOWS_HIGH := "high"
 const SHADOW_LEVELS: Array[String] = [SHADOWS_OFF, SHADOWS_LOW, SHADOWS_HIGH]
+## The most frames a second the game draws, GAME.md 8.5, 0 for as many as it can: 30 for a phone
+## to last longer on its battery, and the refresh rates screens come in.
+const FRAME_LIMITS: Array[int] = [0, 30, 60, 120, 144]
 const TOUCH_SLIDER := "slider"
 const TOUCH_BUTTONS := "buttons"
 const TOUCH_LAYOUTS: Array[String] = [TOUCH_SLIDER, TOUCH_BUTTONS]
@@ -44,6 +47,9 @@ const VISIONS: Array[String] = ["", "protanopia", "deuteranopia", "tritanopia"]
 ## for none: for trying a size out, or a phone's on a desktop, without it being saved over the
 ## player's own.
 static var ui_scale_for_now := 0.0
+## Whether this run draws as many frames as it can whatever the limit says, for `++ --bench`: a
+## measurement of the frame rate is no measurement held at the player's limit.
+static var uncapped_for_now := false
 
 var master_volume := 1.0
 var music_volume := 0.8
@@ -61,6 +67,8 @@ var muffle_on_death := true
 ## a game in a window is a game with the clock and the notifications over the top of it.
 var fullscreen := OS.has_feature("mobile")
 var vsync := true
+## One of [constant FRAME_LIMITS].
+var frame_limit := 0
 ## A phone or a tablet draws its room at four fifths of the screen's size to start with, and
 ## without the two passes below: a phone's card is the one that cannot spare them.
 var render_scale := 0.8 if OS.has_feature("mobile") else 1.0
@@ -174,6 +182,8 @@ func load_from_disk() -> void:
 	muffle_on_death = file.get_value("audio", "muffle_on_death", muffle_on_death)
 	fullscreen = file.get_value("video", "fullscreen", fullscreen)
 	vsync = file.get_value("video", "vsync", vsync)
+	var limit := int(file.get_value("video", "frame_limit", frame_limit))
+	frame_limit = limit if limit in FRAME_LIMITS else frame_limit
 	render_scale = file.get_value("video", "render_scale", render_scale)
 	var upscaled := str(file.get_value("video", "upscaler", upscaler))
 	upscaler = upscaled if upscaled in UPSCALERS else upscaler
@@ -259,6 +269,7 @@ func save_to_disk() -> Error:
 	file.set_value("audio", "muffle_on_death", muffle_on_death)
 	file.set_value("video", "fullscreen", fullscreen)
 	file.set_value("video", "vsync", vsync)
+	file.set_value("video", "frame_limit", frame_limit)
 	file.set_value("video", "render_scale", render_scale)
 	file.set_value("video", "upscaler", upscaler)
 	file.set_value("video", "shadows", shadows)
@@ -347,6 +358,7 @@ func apply_video(tree: SceneTree) -> void:
 	)
 	if DisplayServer.window_get_mode() != mode:
 		DisplayServer.window_set_mode(mode)
+	Engine.max_fps = 0 if uncapped_for_now else frame_limit
 	var wanted := DisplayServer.VSYNC_ENABLED if vsync else DisplayServer.VSYNC_DISABLED
 	if DisplayServer.window_get_vsync_mode() != wanted:
 		DisplayServer.window_set_vsync_mode(wanted)

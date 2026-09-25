@@ -54,6 +54,7 @@ func _init() -> void:
 			_screenshot_frames = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--bench="):
 			_bench_frames = int(arg.get_slice("=", 1))
+			Settings.uncapped_for_now = true
 		elif arg.begins_with("--ui-scale="):
 			Settings.ui_scale_for_now = clampf(float(arg.get_slice("=", 1)), 0.5, 3.0)
 

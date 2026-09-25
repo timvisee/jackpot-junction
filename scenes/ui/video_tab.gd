@@ -36,6 +36,18 @@ func _ready() -> void:
 			_apply()
 	)
 	_add("V-sync", vsync)
+	var limits: Array = []
+	for limit: int in Settings.FRAME_LIMITS:
+		limits.append("Unlimited" if limit == 0 else str(limit))
+	var limit := MenuTheme.option(
+		limits, maxi(Settings.FRAME_LIMITS.find(_settings.frame_limit), 0)
+	)
+	limit.item_selected.connect(
+		func(index: int) -> void:
+			_settings.frame_limit = Settings.FRAME_LIMITS[index]
+			_apply()
+	)
+	_add("Frame rate limit", limit)
 	var scale := HSlider.new()
 	scale.min_value = 0.5
 	scale.max_value = 1.0

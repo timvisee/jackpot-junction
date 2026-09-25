@@ -109,7 +109,8 @@ Read on every scene, so they work in any build.
 | `--bench=<n>`          | Runs n frames, prints the frame rate, draw calls and objects, and quits | Yes   | Yes     |
 
 `--bench` leaves its first 120 frames out of the count, as the warm-up, so shader
-compiles and the arena being built do not count against the frame rate.
+compiles and the arena being built do not count against the frame rate, and it
+ignores the Frame rate limit setting.
 
 ### The development scene
 

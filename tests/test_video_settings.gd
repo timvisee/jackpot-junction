@@ -250,3 +250,25 @@ func test_the_shadows_follow_the_setting() -> void:
 	read.load_from_disk()
 	assert_str(read.shadows).is_equal(Settings.SHADOWS_OFF)
 	DirAccess.remove_absolute(settings.path)
+
+
+## GAME.md 8.5: the game draws no more frames a second than the limit says, as many as it can to
+## start with, and as many as it can for a `--bench` whatever the limit.
+func test_the_frame_rate_keeps_to_the_limit() -> void:
+	var settings := Settings.new()
+	assert_int(settings.frame_limit).is_equal(0)
+	settings.frame_limit = 30
+	settings.apply_video(get_tree())
+	assert_int(Engine.max_fps).is_equal(30)
+	Settings.uncapped_for_now = true
+	settings.apply_video(get_tree())
+	assert_int(Engine.max_fps).is_equal(0)
+	Settings.uncapped_for_now = false
+	settings.path = "user://test_video_settings.cfg"
+	assert_int(settings.save_to_disk()).is_equal(OK)
+	var read := Settings.new()
+	read.path = settings.path
+	read.load_from_disk()
+	assert_int(read.frame_limit).is_equal(30)
+	DirAccess.remove_absolute(settings.path)
+	Engine.max_fps = 0

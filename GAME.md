@@ -2444,8 +2444,8 @@ like any other button.
   at +40%, Normal at the +87% it starts at, and Strong at the top. A switch turns
   off the music going under water when a player here dies, see 8.4, on by
   default.
-- **Video**: window mode, vsync, render scale, upscaler, UI scale, bloom,
-  shadows, MSAA, screen smoothing and tire marks.
+- **Video**: window mode, vsync, frame rate limit, render scale, upscaler, UI
+  scale, bloom, shadows, MSAA, screen smoothing and tire marks.
   A phone or a tablet starts full screen, with the system's own bars out of the
   way; a desktop starts in a window. Bloom and the multisampled edges are the
   passes a room pays for most, and they are the two things worth handing back on
@@ -2466,8 +2466,12 @@ like any other button.
   Shadows are what the room's sun and lamp cast: off, low, into smaller maps with
   hard edges, or high, into the big ones with soft edges. A desktop starts on
   high and a phone or a tablet on low, which is what each renderer does of its own
-  accord, and low or off is the thing to try on a phone that struggles. All of it
-  takes effect at once. The UI scale draws every menu and the HUD bigger or smaller, from 75% to
+  accord, and low or off is the thing to try on a phone that struggles. The frame
+  rate limit is the most frames a second the game draws: unlimited to start
+  with, or 30, for a phone to last longer on its battery, 60, 120 or 144. A window
+  run in the background, 9.3, keeps under it too, and `++ --bench` ignores it,
+  since a frame rate held at the player's limit measures nothing. All of it takes
+  effect at once. The UI scale draws every menu and the HUD bigger or smaller, from 75% to
   200% of the size they were laid out at for a screen 1080 lines high, and leaves
   the room behind them as sharp as it was. It starts at 100% on a desktop and at
   150% on a phone or a tablet, which is held close enough that a HUD laid out for

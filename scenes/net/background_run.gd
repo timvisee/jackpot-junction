@@ -34,7 +34,8 @@ func run(background: bool) -> void:
 		_vsync = DisplayServer.window_get_vsync_mode()
 		_max_fps = Engine.max_fps
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
-		Engine.max_fps = FPS
+		# Never faster than the player asked for with the window in front, GAME.md 8.5.
+		Engine.max_fps = FPS if _max_fps <= 0 else mini(_max_fps, FPS)
 		return
 	if _vsync >= 0:
 		DisplayServer.window_set_vsync_mode(_vsync)

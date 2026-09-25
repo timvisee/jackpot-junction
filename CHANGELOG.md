@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A Frame rate limit setting.** Unlimited, or 30 to 144 frames a second; 30 saves a
+  phone's battery.
 - **A Shadows setting.** Off, Low or High; a phone starts on Low, as it always drew them.
 - **An Upscaler setting.** FSR 1 or FSR 2 in place of the plain stretch, for a render
   scale below 100%.
