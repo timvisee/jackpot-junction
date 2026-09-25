@@ -6,6 +6,10 @@ extends Control
 ## The name box is here as well as in the local lobby, GAME.md 3.8, because somebody joining a
 ## friend's match never passes through the lobby: without it every visitor would be playing
 ## under whatever name this machine last set, or under one the table handed them.
+##
+## Over the boxes, the games on the network, found by asking, see [LanFinder]: one button each,
+## whose it is and how it stands, which joins it. The address is for a game the asking does not
+## reach.
 
 var name_field: LineEdit
 var address_field: LineEdit
@@ -14,6 +18,11 @@ var host_button: Button
 var join_button: Button
 var watch_button: Button
 var status: Label
+var finder: LanFinder
+
+## The found games' buttons, and the line over them while there are none.
+var _found: VBoxContainer
+var _looking: Label
 
 
 func _ready() -> void:
@@ -24,6 +33,15 @@ func _ready() -> void:
 			"Host a match on your port, or join a friend's address. Direct connection, no relay."
 		)
 	)
+	_looking = MenuTheme.subtitle("Looking for games on your network...", Type.LABEL)
+	column.add_child(_looking)
+	_found = VBoxContainer.new()
+	_found.add_theme_constant_override("separation", 8)
+	column.add_child(_found)
+	finder = LanFinder.new()
+	finder.name = "LanFinder"
+	finder.changed.connect(_show_found)
+	add_child(finder)
 	name_field = MenuTheme.field(
 		Game.settings.player_names[0], PlayerNames.PLACEHOLDER, PlayerNames.MAX_LENGTH
 	)
@@ -60,6 +78,48 @@ func _ready() -> void:
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(status)
 	host_button.grab_focus()
+
+
+## A button for each game found, which joins it, and the line saying none are while none are.
+## A game this version cannot play says which it is, and cannot be pressed.
+func _show_found() -> void:
+	var had := get_viewport().gui_get_focus_owner()
+	var lost := had != null and _found.is_ancestor_of(had)
+	for old: Node in _found.get_children():
+		_found.remove_child(old)
+		old.queue_free()
+	var games := finder.games()
+	_looking.text = (
+		"Looking for games on your network..." if games.is_empty() else "Games on your network"
+	)
+	for game: Dictionary in games:
+		var button := MenuTheme.button(describe(game), Type.BODY)
+		button.custom_minimum_size = Vector2(0.0, 52.0)
+		button.disabled = not NetDoor.compatible(Game.version(), str(game["version"]))
+		button.pressed.connect(_join_found.bind(game))
+		_found.add_child(button)
+	if lost:
+		host_button.grab_focus()
+
+
+## A found game in a line: whose, how it stands, how many play in it and may, and the rest.
+static func describe(game: Dictionary) -> String:
+	var parts: PackedStringArray = [
+		"%s's game" % game["name"],
+		"in the lobby" if game["lobby"] else "playing",
+		"%d/%d players" % [game["players"], game["most"]],
+	]
+	if game["password"]:
+		parts.append("password")
+	if not NetDoor.compatible(Game.version(), str(game["version"])):
+		parts.append("version %s" % game["version"])
+	return " \u00b7 ".join(parts)
+
+
+func _join_found(game: Dictionary) -> void:
+	address_field.text = str(game["address"])
+	port_field.text = str(game["port"])
+	_start("join")
 
 
 ## B on a pad, or Escape, is the Back button, GAME.md 4.2.

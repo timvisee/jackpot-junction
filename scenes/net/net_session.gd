@@ -198,6 +198,7 @@ func host(port: int = DEFAULT_PORT) -> Error:
 	multiplayer.multiplayer_peer = peer
 	is_host = true
 	_start_relaying()
+	LanBeacon.open(self, port)
 	return OK
 
 

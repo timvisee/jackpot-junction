@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **The LAN screen finds games on your network.** Each one found is a button that
+  joins it, saying whose it is, how many play and whether it wants a password.
 - **Lobby settings for the host.** The most players the game takes, and a password
   that anybody joining is asked for.
 - **The host can kick players.** Manage players, in the host's pause menu, lists

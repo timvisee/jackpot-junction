@@ -2685,6 +2685,18 @@ host's lobby settings: a joining client is sent the clock, the target score,
 the number of lives and the rest of the numbers its own lobby could have moved,
 and drops its own. Everybody says what they are called on the way in, see 3.8.
 
+The Play LAN screen finds the games on the network by itself. Over the boxes for an address and a
+port it lists every game that answers, a button each: whose it is, whether it is still in the
+lobby, how many play in it of how many may, and whether it wants a password, and pressing it
+joins. A game on a version this one cannot play says which version it is on and cannot be
+pressed. Finding is asking rather than being called to: about once a second the screen asks on
+port 7779 of every machine the network reaches, and of its own, which a broadcast does not always
+reach, and a host answers from there to whoever asked. That is what lets several copies of the
+game on one machine all look at once; only the host needs the port to itself, and a second host
+on the same machine is reached by its address. A game that stops answering drops off the list
+after a few seconds. The address boxes stay for a game the asking does not reach: another
+network, or a router that keeps broadcasts in.
+
 Joining says so while it is tried: Connecting to the address and port, on a pane over the room,
 until the host answers. An address nobody answers at is given up on after a few seconds rather
 than the half a minute ENet waits by itself, and the pane says it could not connect before the
