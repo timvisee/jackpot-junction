@@ -287,6 +287,12 @@ func driving() -> bool:
 	return _kart() != null
 
 
+## Which of the four the fire button changes rather than firing, GAME.md 4.4: what the stall the
+## kart here is standing on is for, or -1 off the stalls, where it fires.
+func fire_dresses() -> int:
+	return StyleStalls.part_under(match_node, _kart())
+
+
 func _kart() -> Kart:
 	var slot := _slot()
 	return slot.kart if slot != null else null
@@ -886,7 +892,15 @@ func _draw() -> void:
 		_draw_disc(each, dim, id == FIRE and _rolled_onto_fire())
 		if id in TouchSlider.ZONES:
 			each.label = TouchSlider.word_for(id, kart, each.radius * 2.0 - LABEL_ROOM)
-		_draw_label(each, INK if dim >= 1.0 else GRAY_INK)
+		# On a stall the button puts the next of that thing on rather than firing, GAME.md 4.4, and
+		# shows which of the four rather than saying fire.
+		var dressing := fire_dresses() if id == FIRE else -1
+		if dressing >= 0:
+			var side := Vector2.ONE * each.radius * DressArt.ON_BUTTON
+			var box := Rect2(each.center - side * 0.5, side)
+			DressArt.draw_into(self, box, dressing, INK if dim >= 1.0 else GRAY_INK)
+		else:
+			_draw_label(each, INK if dim >= 1.0 else GRAY_INK)
 		if id == TouchSlider.NITRO and kart != null:
 			var tank := TAU * clampf(kart.nitro_charge, 0.0, 1.0)
 			var ink := Color(TANK, TANK.a * dim)

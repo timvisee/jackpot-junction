@@ -989,12 +989,17 @@ short buzz the slider gives, so reading along the row is felt card by card.
   player has changed something once, a hint hangs over their kart on a pad
   naming the button, short as it can be, Space change hat, in place of the drive
   and fire hint of 3.8 and drawn bigger, since the room is seen from further
-  off. The pad lights in the color of whoever is on it. The host decides who is
-  on a stall, as it decides who is on the ready pad, and says so to every
-  machine, so the kart changes on every screen at once, and the snapshot carries
-  it to a machine that was not there to hear it. A player at this machine keeps
-  what they picked in their seat's settings. Online a client keeps its own and
-  says it to the host whenever it is seated, alongside its name, so it arrives
+  off. On a touch screen the fire button itself shows what it does there: while
+  the kart stands on a stall it carries a picture of that stall's thing in place
+  of FIRE, a paint roller, a top hat, a flag on its pole or the puffs of a
+  trail, and the hint draws the button the same way, the picture on a round
+  chip, rather than naming a fire button that is not what it is for just then.
+  The pad lights in the color of whoever is on it. The host decides who is on a
+  stall, as it decides who is on the ready pad, and says so to every machine, so
+  the kart changes on every screen at once, and the snapshot carries it to a
+  machine that was not there to hear it. A player at this machine keeps what
+  they picked in their seat's settings. Online a client keeps its own and says
+  it to the host whenever it is seated, alongside its name, so it arrives
   dressed in every room it goes to; before the stalls, a client's kart was plain
   on every screen but its own settings.
 

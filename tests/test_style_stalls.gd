@@ -133,3 +133,37 @@ func test_dressing_again_moves_the_marker_over_the_new_hat() -> void:
 	assert_float(marker.position.y).is_equal_approx(bare, 0.001)
 	assert_object(kart.get_node("Body").get_node_or_null("Hat")).is_null()
 	assert_object(kart._tint.albedo_texture).is_not_null()
+
+
+## On a touch screen the fire button, and the hint that names it, show which of the four a stall
+## changes rather than saying fire, GAME.md 4.4; off the stalls it fires, and says so.
+func test_a_touch_screens_fire_button_shows_what_a_stall_changes() -> void:
+	var was_touch := TouchInput.enabled
+	TouchInput.enabled = true
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = RULES
+	match_node.arena_layout = LAYOUT
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	match_node.start([PlayerInput.new(DeviceInput.ANY, 0)] as Array[KartInput], 3)
+	await _runner.simulate_frames(10, 17)
+	var stalls := StyleStalls.add_to(match_node, Vector2i(8, 1))
+	var kart := match_node.slots[0].kart
+	var controls: TouchControls = match_node.hud.get_node("TouchControls")
+	assert_int(controls.fire_dresses()).is_equal(-1)
+	for part: int in StyleStalls.WORDS.size():
+		_park(kart, stalls._areas[part])
+		await _runner.simulate_frames(2, 17)
+		assert_int(StyleStalls.part_under(match_node, kart)).is_equal(part)
+		assert_int(controls.fire_dresses()).is_equal(part)
+		var hint: Node = kart.get_node("StallHint")
+		var badges := hint.find_children("*", "Control", true, false).filter(
+			func(node: Node) -> bool: return node is DressArt.Badge
+		)
+		assert_int(badges.size()).is_equal(1)
+		assert_int((badges[0] as DressArt.Badge).part).is_equal(part)
+	kart.global_position = Vector3(0.0, 0.0, 5.0)
+	await _runner.simulate_frames(2, 17)
+	assert_int(controls.fire_dresses()).is_equal(-1)
+	TouchInput.enabled = was_touch
+	TouchInput.release()

@@ -64,6 +64,15 @@ func _exit_tree() -> void:
 		Events.kart_dressed.disconnect(_on_kart_dressed)
 
 
+## Which of the four [param kart] is standing on in [param match_node]'s room, or -1: there are no
+## stalls anywhere but the lobby and the Garage, and a kart that is down is standing on nothing.
+static func part_under(match_node: Match, kart: Kart) -> int:
+	if match_node == null or match_node.arena == null or kart == null or not kart.alive:
+		return -1
+	var stalls := match_node.arena.get_node_or_null("StyleStalls") as StyleStalls
+	return stalls.pad_under(kart) if stalls != null else -1
+
+
 ## The pad [param kart] is standing on, or -1.
 func pad_under(kart: Kart) -> int:
 	var at := Vector2(kart.global_position.x, kart.global_position.z)
@@ -172,12 +181,17 @@ func _hint(slot: PlayerSlot, pad: int) -> void:
 	if pad >= 0 and player != null and not learned.has(player.seat):
 		var keyboard := DeviceInput.uses_keyboard(player.device)
 		var named := InputActions.short_binding_text(InputActions.FIRE, keyboard)
+		if _on_touch(player):
+			named = "touch"
 		wanted = "%d|%s|%s|%d" % [pad, keyboard, named, _hint_size()]
 	if wanted == _drawn.get(slot.index, ""):
 		return
 	_drawn[slot.index] = wanted
 	var old: Node3D = _hints.get(slot.index)
 	if old != null and is_instance_valid(old):
+		# Out of the kart at once, so the one drawn for the next pad has the name to itself.
+		if old.get_parent() != null:
+			old.get_parent().remove_child(old)
 		old.queue_free()
 	_hints.erase(slot.index)
 	if wanted.is_empty():
@@ -190,7 +204,13 @@ func _hint(slot: PlayerSlot, pad: int) -> void:
 	var keyboard := DeviceInput.uses_keyboard(player.device)
 	var size := _hint_size()
 	var ink := ControlHint.INK
-	var parts: Array = [InputHint.glyph(InputActions.FIRE, keyboard, ink, size)]
+	# On a touch screen the button shows what it changes here, and so does the hint that names it.
+	var button: Control = (
+		DressArt.button(pad, ink, size)
+		if _on_touch(player)
+		else InputHint.glyph(InputActions.FIRE, keyboard, ink, size)
+	)
+	var parts: Array = [button]
 	var words := "%%s change %s" % WORDS[pad].to_lower()
 	var hint := InputHint.billboard(
 		InputHint.card(InputHint.row(words, parts, ink, size)), ControlHint.PIXEL_SIZE
@@ -199,6 +219,11 @@ func _hint(slot: PlayerSlot, pad: int) -> void:
 	hint.position = Vector3(0.0, HINT_HEIGHT, 0.0)
 	kart.add_child(hint)
 	_hints[slot.index] = hint
+
+
+## Whether [param player] plays on the touch screen, whose fire button is on the screen.
+static func _on_touch(player: PlayerInput) -> bool:
+	return TouchInput.enabled and player.device == DeviceInput.ANY
 
 
 func _hint_size() -> int:
