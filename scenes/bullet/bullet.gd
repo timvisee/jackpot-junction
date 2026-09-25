@@ -16,6 +16,10 @@ const TARGET_GROUP := &"targets"
 ## player is always the better thing to hit, so a box has to be well inside one to win the shot.
 const PLAYER_PULL := 0.4
 
+## The ray every shot looks along to see whether a target is in the open, set up once and pointed
+## again each time, as each bullet's own [member _ray] is.
+static var _sight := PhysicsRayQueryParameters3D.new()
+
 var owner_slot := -1
 var velocity := Vector3.ZERO
 var radius := 0.15
@@ -43,6 +47,9 @@ var _dead := false
 var _spawn_checked := false
 var _shape := SphereShape3D.new()
 var _shape_query := PhysicsShapeQueryParameters3D.new()
+## The ray a bullet moves along each tick, set up once and pointed again each time: a query made
+## new for every bullet on every tick is thousands of them a second in a busy match.
+var _ray := PhysicsRayQueryParameters3D.new()
 ## Kart instance id to whether the bullet was inside that kart's graze distance last tick.
 var _graze_inside: Dictionary[int, bool] = {}
 
@@ -106,6 +113,7 @@ func _ready() -> void:
 	_shape.radius = radius
 	_shape_query.shape = _shape
 	_shape_query.collision_mask = Layers.KART | Layers.TURRET
+	_ray.collision_mask = Layers.WORLD | Layers.KART | Layers.TURRET | Layers.BOMB | Layers.BALL
 	_build_visuals()
 	_orient()
 
@@ -252,14 +260,13 @@ static func in_the_open(space: PhysicsDirectSpaceState3D, from: Vector3, target:
 	if space == null:
 		return true
 	var to := target.global_position
-	var ray := PhysicsRayQueryParameters3D.create(
-		Vector3(from.x, HEIGHT, from.z), Vector3(to.x, HEIGHT, to.z), Layers.WORLD
-	)
+	_sight.from = Vector3(from.x, HEIGHT, from.z)
+	_sight.to = Vector3(to.x, HEIGHT, to.z)
+	_sight.collision_mask = Layers.WORLD
 	var body := target as CollisionObject3D
-	if body != null:
-		# The target itself is on the wall layer when it is a box, a bomb or a shooting target.
-		ray.exclude = [body.get_rid()]
-	return space.intersect_ray(ray).is_empty()
+	# The target itself is on the wall layer when it is a box, a bomb or a shooting target.
+	_sight.exclude = [body.get_rid()] if body != null else []
+	return space.intersect_ray(_sight).is_empty()
 
 
 func _move(delta: float) -> void:
@@ -267,10 +274,9 @@ func _move(delta: float) -> void:
 	var to := from + velocity * delta
 	previous_position = from
 	var space := get_world_3d().direct_space_state
-	var ray := PhysicsRayQueryParameters3D.create(
-		from, to, Layers.WORLD | Layers.KART | Layers.TURRET | Layers.BOMB | Layers.BALL
-	)
-	var hit := space.intersect_ray(ray)
+	_ray.from = from
+	_ray.to = to
+	var hit := space.intersect_ray(_ray)
 	if hit.is_empty():
 		global_position = to
 		_hit_overlapping_targets(space)
