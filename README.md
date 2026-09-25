@@ -87,6 +87,83 @@ on a fresh clone works; `make import` does it on its own.
 Anything a player would notice gets a line in the `## [Unreleased]` section of
 `CHANGELOG.md` in the same commit, see GAME.md 10.4.
 
+## Startup arguments
+
+The game's own arguments go after `--` (or `++`), past Godot's:
+`make run ARGS="--touch=1"`, or `./jackpot-junction.x86_64 -- --touch=1` for an
+exported build. *Debug* is the game run from this checkout (`make run`, `make dev`,
+the editor) or a debug export (`make android`); *release* is a release export
+(`make export`, `make android-release`, and every published release).
+
+### The game
+
+Read on every scene, so they work in any build.
+
+| Argument               | What it does                                                            | Debug | Release |
+|------------------------|-------------------------------------------------------------------------|-------|---------|
+| `--touch`, `--touch=1` | The touch controls on a desktop, the mouse standing in for a finger     | Yes   | Yes     |
+| `--touch=0`            | No touch controls, even on a phone                                      | Yes   | Yes     |
+| `--ui-scale=<scale>`   | The UI at this scale for this run alone, 0.5 to 3; saves nothing        | Yes   | Yes     |
+| `--screenshot=<png>`   | Saves the screen after `--frames` frames and quits; needs a display     | Yes   | Yes     |
+| `--frames=<n>`         | How many frames `--screenshot` waits, 8 unless given                    | Yes   | Yes     |
+| `--bench=<n>`          | Runs n frames, prints the frame rate, draw calls and objects, and quits | Yes   | Yes     |
+
+`--bench` leaves its first 120 frames out of the count, as the warm-up, so shader
+compiles and the arena being built do not count against the frame rate.
+
+### The development scene
+
+`make dev ARGS="..."` starts `scenes/dev/playground.tscn`, a match on Lucky
+Crossing with the debug overlay (F3) and the tuning panel (F4). The scene is left
+out of every export, so these work from this checkout only: debug yes, release no.
+
+| Argument            | What it does                                                    |
+|---------------------|-----------------------------------------------------------------|
+| `--players=<n>`     | Human players: the keyboard drives the first, gamepads the rest |
+| `--bots=<n>`        | Bot karts after the humans, 1 unless given                      |
+| `--difficulty=<d>`  | Bot difficulty: `easy`, `normal` or `hard`                      |
+| `--map=<id>`        | Which map, by id (`lucky_crossing` unless given)                |
+| `--jokers=<n>`      | Deals the first player this many random jokers                  |
+| `--menu=<card>`     | Holds the first player's joker menu open on this card           |
+| `--offer=1`         | Opens the respawn joker pick                                    |
+| `--destroy=1`       | Opens the pick with a full hand, on the destroy step            |
+| `--explosion=<s>`   | A bomb blast next to the player, this many seconds in           |
+| `--flame=1`         | Shows the player's nitro flame                                  |
+| `--oil=1`           | Drops an oil stain next to the player                           |
+| `--burst=1`         | Pops a destruction burst next to the player                     |
+| `--feed=1`          | Puts a few made-up kills in the kill feed                       |
+| `--bounty=1`        | Puts a bounty on the second seat                                |
+| `--banked=1`        | Spreads some banked score across the field                      |
+| `--disco=<level>`   | Holds the excitement at this level, 1 to 6                      |
+| `--results=1`       | Ends the match at once with made-up stats                       |
+| `--fireworks=1`     | The winner's fireworks over the open-out camera                 |
+| `--loading=1`       | Holds the lamps as if two players were still building the room  |
+| `--finale=1`        | Ends a made-up two-map Grand Prix and stages its finale         |
+| `--wide=1`          | Holds the camera on the whole room                              |
+| `--back=<m>`        | Holds the camera this many meters back                          |
+| `--clean=1`         | Hides the debug overlay, for screenshots of the game itself     |
+
+### The tools
+
+From this checkout only. `tools/godot` finds Godot through `$GODOT` first.
+
+- `tools/trace_drive.gd`: `--out=<csv>`, `trace.csv` unless given, and
+  `--program=launch`, `drift` or `nitro`, a lap unless given.
+- `tools/multiplayer_check` takes none. `MPCHECK_PORT` picks the first port it
+  uses, and `MPCHECK_LOGS=<dir>` keeps each role's whole log there.
+- `tools/multiplayer_driver.gd` is started by `tools/multiplayer_check`, with
+  `--role`, `--port`, `--clients`, `--locals`, `--jokers`, `--password`,
+  `--wrong-first` and `--nameless`.
+
+### Godot's own
+
+Everything the recipes here use works in a release export too: `--path`,
+`--resolution <W>x<H>`, `--fullscreen`, `--headless`, `--fixed-fps <fps>`,
+`--max-fps <fps>`, `--disable-vsync`, `--time-scale <scale>`, `--print-fps` and
+`-s <script>`. The debug drawing options, such as `--debug-collisions`,
+`--debug-paths` and `--debug-navigation`, are for debug builds only. A template's
+`--help` marks each option with R (every build) or D (debug only).
+
 ## Releasing
 
 ```
