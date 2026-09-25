@@ -138,7 +138,9 @@ static func card(content: Control) -> PanelContainer:
 
 
 ## The same row hung in the world instead of on the screen: rendered by a viewport of its own and
-## shown on a sprite that always faces the camera, the way the labels it replaces did.
+## shown on a sprite that always faces the camera, the way the labels it replaces did. The picture
+## is drawn once, and again only when the row changes size: nothing on it moves, and a viewport
+## drawn every frame is a whole pass of the renderer each frame for each sign and hint up.
 static func billboard(content: Control, pixel_size: float) -> Node3D:
 	var holder := Node3D.new()
 	holder.name = "Hint"
@@ -147,7 +149,7 @@ static func billboard(content: Control, pixel_size: float) -> Node3D:
 	viewport.transparent_bg = true
 	viewport.disable_3d = true
 	viewport.gui_disable_input = true
-	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	holder.add_child(viewport)
 	viewport.add_child(content)
 	# Sized after a layout pass rather than now: a container works out how big it is when it is
@@ -168,7 +170,7 @@ static func billboard(content: Control, pixel_size: float) -> Node3D:
 	return holder
 
 
-## Cuts the viewport to whatever the row turned out to be.
+## Cuts the viewport to whatever the row turned out to be, and draws it again.
 static func _fit(viewport: SubViewport, content: Control) -> void:
 	if not is_instance_valid(viewport) or not is_instance_valid(content):
 		return
@@ -178,6 +180,8 @@ static func _fit(viewport: SubViewport, content: Control) -> void:
 		return
 	viewport.size = cut
 	content.size = Vector2(cut)
+	# Drawn again at the new size, once.
+	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 
 static func _gap() -> Control:

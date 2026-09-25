@@ -5,6 +5,7 @@ extends GdUnitTestSuite
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const BOOST: PowerUp = preload("res://data/powerups/boost.tres")
+const KART_SCENE := preload("res://scenes/kart/kart.tscn")
 
 var _runner: GdUnitSceneRunner
 var _hints_were := true
@@ -450,7 +451,7 @@ func test_a_button_in_a_sentence_has_no_gap_in_front_of_it() -> void:
 ## GAME.md 8.5: the hint over the kart at the start of a match is drawn bigger with the rest of the
 ## UI, and at that size rather than stretched to it, so it stays sharp.
 func test_the_kart_hint_grows_with_the_ui_scale() -> void:
-	var kart: Kart = auto_free(load("res://scenes/kart/kart.tscn").instantiate())
+	var kart: Kart = auto_free(KART_SCENE.instantiate())
 	add_child(kart)
 	var hint := ControlHint.attach(kart, DeviceInput.KEYBOARD)
 	assert_int(hint.drawn_size()).is_equal(ScreenHint.FONT_SIZE)
@@ -460,3 +461,17 @@ func test_the_kart_hint_grows_with_the_ui_scale() -> void:
 	assert_int(hint.drawn_size()).is_equal(bigger)
 	assert_str(hint._shown).ends_with("|%d" % bigger)
 	get_tree().root.content_scale_factor = 1.0
+
+
+## A hint's picture is drawn once, and again only when it changes size, rather than every frame:
+## nothing on it moves, and a viewport drawn every frame is a pass of the renderer for each hint.
+func test_a_hints_picture_is_not_drawn_every_frame() -> void:
+	var kart: Kart = auto_free(KART_SCENE.instantiate())
+	add_child(kart)
+	var hint := ControlHint.attach(kart, DeviceInput.KEYBOARD)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var render := hint.find_child("Render", true, false) as SubViewport
+	assert_object(render).is_not_null()
+	assert_int(render.render_target_update_mode).is_not_equal(SubViewport.UPDATE_ALWAYS)
+	assert_int(render.size.x).is_greater(1)
