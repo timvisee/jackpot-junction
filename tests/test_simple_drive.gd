@@ -401,6 +401,12 @@ func test_the_pause_menu_has_a_switch_over_each_players_corner() -> void:
 		var switch := menu._switches.button(seat)
 		assert_object(switch).is_not_null()
 		assert_bool(switch.get_global_rect().intersects(corner.get_global_rect())).is_true()
+	# Under each, what that player is playing on and the keys or the stick they drive with.
+	var cards: Array[String] = []
+	for each: Dictionary in menu._switches._up:
+		var words: Label = (each["card"] as Control).get_child(0).get_child(0)
+		cards.append(words.text)
+	assert_array(cards).contains_exactly(["Keyboard", "Gamepad 1"])
 	menu._switches.button(1).pressed.emit()
 	assert_str(Game.settings.drive_mode(1)).is_equal(Settings.DRIVE_SIMPLE)
 	assert_str(Game.settings.drive_mode(0)).is_equal(Settings.DRIVE_ADVANCED)

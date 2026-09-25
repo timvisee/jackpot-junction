@@ -7,6 +7,10 @@ extends Control
 ## a second button under it, for the slider or the buttons. A pad's cursor goes out to them
 ## from the menu sideways and back toward the middle, and up and down between those on one side.
 ##
+## Under each switch a small card says what that player is playing on, a keyboard, a pad or the
+## touch screen, and the keys or the stick they drive with there, the way they drive: a player
+## who does not know which of the four corners is theirs finds out from what is in their hands.
+##
 ## In the lobby and the Garage there is more to it, GAME.md 4.4: a box with the player's name in
 ## it, to type another, and a button with their color and its name on it that moves them on to the
 ## next one nobody else is in. See [SeatIdentity], which does it, online too.
@@ -17,6 +21,9 @@ const ICON := 30.0
 ## How wide the things in a switch are, and how big its color swatch is.
 const WIDTH := 280.0
 const SWATCH := 26.0
+## How the card under a switch is drawn.
+const CARD_SIZE := 16
+const CARD_INK := Color(0.86, 0.86, 0.9)
 const WORDS: Dictionary[String, String] = {
 	Settings.DRIVE_SIMPLE: "Simple driving",
 	Settings.DRIVE_ADVANCED: "Advanced driving",
@@ -66,7 +73,7 @@ func take_down() -> void:
 		# A name still being typed when the menu goes is the name they typed.
 		if each.has("box"):
 			_keep_name(each)
-		(each["pane"] as Control).queue_free()
+		(each["holder"] as Control).queue_free()
 	_up.clear()
 	_link([])
 	PlayerInput.typing = false
@@ -131,7 +138,15 @@ func button(seat: int) -> Button:
 
 
 func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control) -> Dictionary:
+	var holder := VBoxContainer.new()
+	holder.add_theme_constant_override("separation", 6)
 	var pane := MenuTheme.pane(slot.color())
+	holder.add_child(pane)
+	var card := PanelContainer.new()
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_theme_stylebox_override("panel", HudBlock.scrim())
+	card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	holder.add_child(card)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 10)
 	pane.add_child(column)
@@ -141,7 +156,10 @@ func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control) -> Dictiona
 	column.add_child(name_label)
 	var buttons: Array[Control] = []
 	var each := {
+		"holder": holder,
 		"pane": pane,
+		"card": card,
+		"controls": "",
 		"buttons": buttons,
 		"toggles": [],
 		"player": player,
@@ -158,9 +176,58 @@ func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control) -> Dictiona
 	# device rather than a pad of their own.
 	if TouchInput.enabled and player.device == DeviceInput.ANY:
 		_toggle(column, each, TOUCH)
-	add_child(pane)
+	add_child(holder)
 	_show(each)
 	return each
+
+
+## What [param player] is playing on, as the card under their switch says it.
+static func device_words(player: PlayerInput) -> String:
+	if TouchInput.enabled and player.device == DeviceInput.ANY:
+		return "Touch screen"
+	if player.device >= 0:
+		return "Gamepad %d" % (player.device + 1)
+	return "Keyboard" if DeviceInput.uses_keyboard(player.device) else "Gamepad"
+
+
+## The card under [param each]'s switch, made again when what it says changes: the player picks
+## up a pad, or is switched to the other way to drive.
+func _show_controls(each: Dictionary) -> void:
+	var player: PlayerInput = each["player"]
+	var simple := player.simple()
+	var said := "%s|%s" % [device_words(player), ControlHint.stamp(player.device, simple)]
+	if each["controls"] == said:
+		return
+	each["controls"] = said
+	var card: PanelContainer = each["card"]
+	for old: Node in card.get_children():
+		card.remove_child(old)
+		old.queue_free()
+	var column := VBoxContainer.new()
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_theme_constant_override("separation", 4)
+	card.add_child(column)
+	var device := Label.new()
+	device.text = device_words(player)
+	device.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	Type.strong(device, CARD_SIZE, CARD_INK)
+	column.add_child(device)
+	var keyboard := DeviceInput.uses_keyboard(player.device)
+	var row: HBoxContainer
+	if simple:
+		row = InputHint.row(
+			"%s drive", [InputHint.way(keyboard, CARD_INK, CARD_SIZE)], CARD_INK, CARD_SIZE
+		)
+	else:
+		var parts: Array = [
+			InputHint.glyph(InputActions.THROTTLE, keyboard, CARD_INK, CARD_SIZE),
+			InputHint.pair(
+				InputActions.STEER_LEFT, InputActions.STEER_RIGHT, keyboard, CARD_INK, CARD_SIZE
+			),
+		]
+		row = InputHint.row("%s throttle   %s steer", parts, CARD_INK, CARD_SIZE)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	column.add_child(row)
 
 
 ## The box a player types their name into: the one in their seat's settings, or empty with the
@@ -295,6 +362,7 @@ func _show(each: Dictionary) -> void:
 ## The switch in its player's name and color, which they may just have changed, or which the host
 ## has just said they are in. Only on a change.
 func _follow(each: Dictionary) -> void:
+	_show_controls(each)
 	var slot: PlayerSlot = each["slot"]
 	var worn := "%d|%s|%s" % [slot.color_index, Palette.vision, slot.display_name()]
 	if each["worn"] == worn:
@@ -325,7 +393,7 @@ func _process(_delta: float) -> void:
 func _place() -> void:
 	for each: Dictionary in _up:
 		_follow(each)
-		var pane := each["pane"] as Control
+		var pane := each["holder"] as Control
 		var corner := each["corner"] as Control
 		if not is_instance_valid(corner):
 			pane.visible = false

@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **The pause menu says what each player is playing on.** Under their pane: keyboard,
+  gamepad or touch screen, and what they throttle and steer with.
+
 ## [0.7.0] - 2026-09-24
 
 Dress your kart at the stalls, change your name and color, and emote at each other in

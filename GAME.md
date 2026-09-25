@@ -746,7 +746,10 @@ is drawn at, is saved at once, and the kart drives the new way the moment the me
 touch controls changing with it. The player at a touch screen has a second button under the
 first, for its controls, Slider or Buttons with their pictures, changed over the same way. In the
 lobby and the Garage there are two more over those, see 4.4: a box to type another name in, and
-their color by name. Online only the players at this machine have one. A pad's cursor goes out to them
+their color by name. Under each switch a small card on the HUD's scrim says what that player is
+playing on, Keyboard, Gamepad 1 or Touch screen, and draws what they drive with there the way
+they drive: the throttle and the steering, or in simple driving the way to push. A player who
+picks up a pad sees it change. Online only the players at this machine have one. A pad's cursor goes out to them
 from the menu: sideways from any of its buttons is the top switch on that
 side, and only sideways, up off the top of the menu and down off the bottom staying in it; back
 toward the middle from a switch is Resume, and up and down go between the switches on one side.
