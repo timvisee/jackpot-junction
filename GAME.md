@@ -2410,7 +2410,14 @@ theme: an empty tick box is a dark outline on a dark menu, and a row that was of
 showed nothing at all beside it. The picture is drawn at four times the size it is
 shown at, with soft edges rather than stepped ones, so a big display scaling the menu
 up has something to scale: a switch drawn at its own size is a staircase round every
-curve of it.
+curve of it. Anything picked from a list is a box the height of the buttons round it,
+52 pixels and 60 on a touch screen, cut from the same card as a button with the same
+gold under the cursor, and the list it opens is a solid pane of entries as big as
+the box, spaced out further for a finger, the one under the cursor lit like a button
+and the one picked marked with a gold dot. The engine's own was a grey strip of
+small print, the smallest thing on any screen it opened over. The settings' tabs
+are cards too, padded like buttons and taller for a finger, the page showing lit
+with gold along its top.
 
 From the title the settings are a screen of their own. From the pause menu of a room they open
 over the room instead, and Back comes back to the pause menu: the match, and online the

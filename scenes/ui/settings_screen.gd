@@ -74,7 +74,7 @@ func _ready() -> void:
 	column.add_child(MenuTheme.title("Settings", 56))
 	tabs = TabContainer.new()
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	tabs.add_theme_font_size_override("font_size", 22)
+	MenuTheme.tabs(tabs)
 	column.add_child(tabs)
 	tabs.add_child(_controls_tab())
 	tabs.add_child(_players_tab())

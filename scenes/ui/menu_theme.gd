@@ -28,10 +28,19 @@ const BUTTON_RIM := Color(1.0, 1.0, 1.0, 0.1)
 ## How big a switch is shown, in pixels, and how many times that it is drawn at.
 const SWITCH := Vector2i(48, 24)
 const SWITCH_DETAIL := 4
+## How tall a box to pick from or type into is, for a pointer and for a finger, GAME.md 4.2: about
+## the height of the buttons round it, and a thumb's width on a touch screen.
+const BOX_HEIGHT := 52.0
+const BOX_HEIGHT_TOUCH := 60.0
+## How big the mark beside each entry of an option's list is shown, in pixels.
+const MARK := 16
 
-## The two pictures of one, drawn the first time one is asked for.
+## The two pictures of a switch, and of the mark on an option's list, drawn the first time one is
+## asked for.
 static var _switch_on: ImageTexture
 static var _switch_off: ImageTexture
+static var _mark_on: ImageTexture
+static var _mark_off: ImageTexture
 
 
 static func background(parent: Control) -> void:
@@ -101,6 +110,15 @@ static func button(text: String, size: int = Type.LARGE) -> Button:
 	var control := Button.new()
 	control.text = text
 	Type.set_font(control, Type.STRONG, size)
+	_dress(control)
+	control.custom_minimum_size = Vector2(320.0, 56.0)
+	control.pressed.connect(func() -> void: Audio.play_sfx(&"ui_click", CLICK_DB, 0.0))
+	control.focus_entered.connect(func() -> void: Audio.play_sfx(&"ui_move", MOVE_DB, 0.0))
+	return control
+
+
+## The button's card in its four states, and its words lit under the cursor.
+static func _dress(control: Button) -> void:
 	control.add_theme_stylebox_override("normal", button_style(BUTTON_BG, BUTTON_RIM))
 	control.add_theme_stylebox_override("hover", button_style(BUTTON_HOVER, Palette.CHIP_GOLD))
 	control.add_theme_stylebox_override("pressed", button_style(BUTTON_DOWN, Palette.CHIP_GOLD))
@@ -108,10 +126,12 @@ static func button(text: String, size: int = Type.LARGE) -> Button:
 	control.add_theme_color_override("font_color", Color(0.88, 0.88, 0.92))
 	control.add_theme_color_override("font_hover_color", Color.WHITE)
 	control.add_theme_color_override("font_focus_color", Color.WHITE)
-	control.custom_minimum_size = Vector2(320.0, 56.0)
-	control.pressed.connect(func() -> void: Audio.play_sfx(&"ui_click", CLICK_DB, 0.0))
-	control.focus_entered.connect(func() -> void: Audio.play_sfx(&"ui_move", MOVE_DB, 0.0))
-	return control
+	control.add_theme_color_override("font_pressed_color", Color.WHITE)
+
+
+## How tall a box to pick from or type into is here, see [constant BOX_HEIGHT].
+static func box_height() -> float:
+	return BOX_HEIGHT_TOUCH if TouchInput.enabled else BOX_HEIGHT
 
 
 ## Shows [param button] held down or not, for a button a touch screen presses rather than the
@@ -145,6 +165,39 @@ static func toggle(on: bool) -> CheckButton:
 	# detail goes into how it looks rather than into how big it is.
 	switch.add_theme_constant_override("icon_max_width", SWITCH.x)
 	return switch
+
+
+## The mark beside an entry of an option's list: a gold dot on the one picked, and a faint ring on
+## each of the others so the list reads as a choice of one. Drawn finer than it is shown, as the
+## switch is, and shown at [constant MARK] pixels.
+static func _mark(on: bool) -> ImageTexture:
+	if on and _mark_on != null:
+		return _mark_on
+	if not on and _mark_off != null:
+		return _mark_off
+	var side := MARK * SWITCH_DETAIL
+	var image := Image.create(side, side, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0.0, 0.0, 0.0, 0.0))
+	var middle := Vector2(side, side) * 0.5
+	var radius := float(side) * 0.5 - 1.0
+	var ring := 1.5 * SWITCH_DETAIL
+	for y: int in side:
+		for x: int in side:
+			var inside := radius - (Vector2(x, y) + Vector2.ONE * 0.5).distance_to(middle)
+			var covered := clampf(inside + 0.5, 0.0, 1.0)
+			if not on:
+				covered *= clampf(ring - inside + 0.5, 0.0, 1.0) * 0.35
+			if covered <= 0.0:
+				continue
+			var ink := Palette.CHIP_GOLD if on else Color(0.86, 0.86, 0.92)
+			image.set_pixel(x, y, Color(ink.r, ink.g, ink.b, covered))
+	var drawn := ImageTexture.create_from_image(image)
+	drawn.set_size_override(Vector2i(MARK, MARK))
+	if on:
+		_mark_on = drawn
+	else:
+		_mark_off = drawn
+	return drawn
 
 
 ## The picture of a switch in one of its two states, drawn once and kept.
@@ -190,14 +243,87 @@ static func _switch(on: bool) -> ImageTexture:
 	return drawn
 
 
+## A box to pick one of [param values] from, GAME.md 8.5: the same card as a button, and the list it
+## opens the same card as a pane, see [method list].
 static func option(values: Array, selected: int) -> OptionButton:
 	var control := OptionButton.new()
 	for value: Variant in values:
 		control.add_item(str(value))
 	control.selected = clampi(selected, 0, maxi(values.size() - 1, 0))
-	control.custom_minimum_size = Vector2(220.0, 44.0)
+	control.custom_minimum_size = Vector2(240.0, box_height())
 	Type.set_font(control, Type.STRONG, Type.BODY)
+	_dress(control)
+	control.add_theme_constant_override("arrow_margin", 16)
+	list(control.get_popup())
 	return control
+
+
+## The list an option opens: a pane with its entries as big as the box they drop from, spaced out
+## further for a finger, GAME.md 4.2, the one under the cursor lit the way a button is and the one
+## picked marked in the house's gold. The engine's own was a grey strip of small print, the
+## smallest thing on any screen it opened over.
+static func list(popup: PopupMenu) -> void:
+	var finger := TouchInput.enabled
+	# A window rather than a control, so the font goes on by hand.
+	popup.add_theme_font_override("font", Type.TEXT)
+	popup.add_theme_font_size_override("font_size", Type.LARGE if finger else Type.BODY)
+	var card := StyleBoxFlat.new()
+	# Solid, unlike a pane: what it drops over is the next row of the same menu, words and all.
+	card.bg_color = Color(PANE_BG, 1.0)
+	card.set_corner_radius_all(BUTTON_RADIUS)
+	card.set_border_width_all(2)
+	card.border_color = BUTTON_RIM
+	card.set_content_margin_all(10.0 if finger else 8.0)
+	card.shadow_color = Color(0.0, 0.0, 0.0, 0.5)
+	card.shadow_size = 12
+	popup.add_theme_stylebox_override("panel", card)
+	var lit := button_style(BUTTON_HOVER, Palette.CHIP_GOLD)
+	lit.set_content_margin_all(0.0)
+	popup.add_theme_stylebox_override("hover", lit)
+	popup.add_theme_constant_override("v_separation", 28 if finger else 18)
+	popup.add_theme_constant_override("h_separation", 12)
+	popup.add_theme_constant_override("item_start_padding", 16)
+	popup.add_theme_constant_override("item_end_padding", 28)
+	popup.add_theme_color_override("font_color", Color(0.86, 0.86, 0.9))
+	popup.add_theme_color_override("font_hover_color", Color.WHITE)
+	for state: String in ["radio_checked", "checked"]:
+		popup.add_theme_icon_override(state, _mark(true))
+	for state: String in ["radio_unchecked", "unchecked"]:
+		popup.add_theme_icon_override(state, _mark(false))
+
+
+## A row of tabs, GAME.md 8.5, each a card like the buttons under them and padded like one, the
+## page showing lit with the house's gold along its top, and taller for a finger.
+static func tabs(container: TabContainer) -> void:
+	var finger := TouchInput.enabled
+	Type.set_font(container, Type.STRONG, Type.BODY)
+	container.add_theme_stylebox_override("tab_unselected", _tab(BUTTON_BG, BUTTON_RIM, finger))
+	container.add_theme_stylebox_override("tab_hovered", _tab(BUTTON_HOVER, BUTTON_RIM, finger))
+	container.add_theme_stylebox_override("tab_disabled", _tab(BUTTON_DOWN, BUTTON_RIM, finger))
+	container.add_theme_stylebox_override(
+		"tab_selected", _tab(BUTTON_HOVER, Palette.CHIP_GOLD, finger)
+	)
+	var focus := _tab(Color.TRANSPARENT, Palette.CHIP_GOLD, finger)
+	focus.draw_center = false
+	focus.set_border_width_all(2)
+	container.add_theme_stylebox_override("tab_focus", focus)
+	container.add_theme_color_override("font_unselected_color", Color(0.72, 0.72, 0.78))
+	container.add_theme_color_override("font_hovered_color", Color.WHITE)
+	container.add_theme_color_override("font_selected_color", Color.WHITE)
+
+
+static func _tab(fill: Color, edge: Color, finger: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.corner_radius_top_left = BUTTON_RADIUS
+	style.corner_radius_top_right = BUTTON_RADIUS
+	style.border_width_top = 3
+	style.border_color = edge
+	style.content_margin_left = 24.0
+	style.content_margin_right = 24.0
+	style.content_margin_top = 16.0 if finger else 11.0
+	style.content_margin_bottom = 16.0 if finger else 11.0
+	return style
 
 
 ## A box to type something short into, sized like the option buttons beside it.
@@ -206,7 +332,7 @@ static func field(text: String, hint: String, max_length: int) -> LineEdit:
 	control.text = text
 	control.placeholder_text = hint
 	control.max_length = max_length
-	control.custom_minimum_size = Vector2(220.0, 44.0)
+	control.custom_minimum_size = Vector2(240.0, box_height())
 	Type.set_font(control, Type.TEXT, Type.BODY)
 	return control
 

@@ -29,6 +29,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Bigger option boxes, lists and tabs.** Every box you pick from is button-sized, and
+  the list it opens has big entries, spaced further apart on a touch screen.
 - **Phones no longer show Fullscreen or V-sync.** A phone decides both itself; the Video
   page offers only what it can change.
 - **Matches run faster, most of all on phones.** The tire marks were built again whole
