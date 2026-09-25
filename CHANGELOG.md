@@ -11,10 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
-### Added
+## [0.8.0] - 2026-09-25
 
-- **Aim assist finds the lobby's football.** A shot at it leans onto it the way one
-  at a kart does.
+LAN games find each other now, and the host decides who comes in: a password, a player
+limit, watchers or not, and a kick. Everybody in an online game needs 0.8.
+
+### Added
 
 - **The LAN screen finds games on your network.** Each one found says whose it is,
   how many play and whether it wants a password, with Join and Watch.
@@ -26,7 +28,8 @@ below, and hands the notes to the release workflow.
   Leave; on a map a bot takes their kart on.
 - **The pause menu says what each player is playing on.** Beside their pane: keyboard,
   gamepad or touch screen, and what they throttle and steer with.
-
+- **Aim assist finds the lobby's football.** A shot at it leans onto it the way one
+  at a kart does.
 ## [0.7.0] - 2026-09-24
 
 Dress your kart at the stalls, change your name and color, and emote at each other in
@@ -1171,7 +1174,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.8.0
 [0.7.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.7.0
 [0.6.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.6.2
 [0.6.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.6.1
