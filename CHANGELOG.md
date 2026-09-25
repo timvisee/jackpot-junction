@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **The host can kick players.** Manage players, in the host's pause menu, lists
+  everybody else in the game with Kick beside each; they can join again.
 - **One of several players at a screen can leave.** Their pane in the pause menu has
   Leave; on a map a bot takes their kart on.
 - **The pause menu says what each player is playing on.** Under their pane: keyboard,

@@ -23,9 +23,10 @@ static func compatible(mine: String, theirs: String) -> bool:
 	return a[0] == b[0] and a[1] == b[1]
 
 
-## What a client says about itself as it knocks.
-static func knock(version: String, watching: bool) -> Dictionary:
-	return {"version": version, "watch": watching}
+## What a client says about itself as it knocks: its version, whether it has come to watch, and
+## what it is called, which is all the host has to go on for somebody watching.
+static func knock(version: String, watching: bool, named: String) -> Dictionary:
+	return {"version": version, "watch": watching, "name": named}
 
 
 ## The host's answer to a client that said [param words]. [param no_seat] is whether the room it is

@@ -1,0 +1,93 @@
+class_name ManagePlayers
+extends PanelContainer
+## The host's list of everybody else in its game, GAME.md 10.3, from its pause menu in place of the
+## menu itself: each player by the name and color of their seat, each watcher by the name they
+## gave, and Kick beside every one. Somebody kicked goes back to the title, told why, and may join
+## again; in the lobby their seat is emptied, and on a map a bot takes their kart on, as for anybody
+## who leaves. The list follows whoever comes and goes while it is up.
+
+## Back: the menu is up again in its place.
+signal closed
+
+const NAME_WIDTH := 320.0
+const TAG_INK := Color(0.66, 0.66, 0.72)
+
+var session: NetSession
+
+var _rows: VBoxContainer
+var _back: Button
+## Who the rows were drawn for, so they are only made again when somebody comes or goes.
+var _drawn := ""
+
+
+func _ready() -> void:
+	add_theme_stylebox_override("panel", MenuTheme.pane_style())
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 16)
+	add_child(column)
+	column.add_child(MenuTheme.title("Players", Type.TITLE))
+	var note := MenuTheme.subtitle(
+		"Somebody kicked goes back to the title, and can join again.", Type.LABEL
+	)
+	column.add_child(note)
+	_rows = VBoxContainer.new()
+	_rows.add_theme_constant_override("separation", 10)
+	column.add_child(_rows)
+	_back = MenuTheme.button("Back")
+	_back.pressed.connect(func() -> void: closed.emit())
+	column.add_child(_back)
+
+
+## Up, drawn afresh, with the cursor on the first Kick, or on Back with nobody to kick.
+func open() -> void:
+	visible = true
+	_drawn = ""
+	_redraw()
+	var first := _rows.find_children("*", "Button", true, false)
+	(first[0] as Button if not first.is_empty() else _back).grab_focus()
+
+
+func _process(_delta: float) -> void:
+	if visible:
+		_redraw()
+
+
+func _redraw() -> void:
+	var guests := session.guests() if session != null else []
+	var drawn := str(guests)
+	if drawn == _drawn:
+		return
+	_drawn = drawn
+	var had_focus := get_viewport().gui_get_focus_owner()
+	var lost := had_focus != null and _rows.is_ancestor_of(had_focus)
+	for row: Node in _rows.get_children():
+		_rows.remove_child(row)
+		row.queue_free()
+	if guests.is_empty():
+		_rows.add_child(MenuTheme.subtitle("Nobody else is here.", Type.BODY))
+	for guest: Dictionary in guests:
+		_rows.add_child(_row(guest))
+	if lost:
+		_back.grab_focus()
+
+
+func _row(guest: Dictionary) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 16)
+	var named := Label.new()
+	named.text = guest["name"]
+	named.custom_minimum_size = Vector2(NAME_WIDTH, 0.0)
+	named.clip_text = true
+	Type.strong(named, Type.BODY, guest.get("color", TAG_INK))
+	row.add_child(named)
+	var tag := Label.new()
+	tag.text = "Watching" if not guest.has("color") else "Playing"
+	tag.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	Type.text(tag, Type.LABEL, TAG_INK)
+	row.add_child(tag)
+	var kick := MenuTheme.button("Kick", Type.BODY)
+	kick.custom_minimum_size = Vector2(120.0, 44.0)
+	var peer: int = guest["peer"]
+	kick.pressed.connect(func() -> void: session.kick(peer))
+	row.add_child(kick)
+	return row

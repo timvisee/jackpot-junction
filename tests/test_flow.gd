@@ -382,6 +382,27 @@ func test_a_menu_over_the_room_darkens_all_of_it() -> void:
 	Game.settings = real
 
 
+## GAME.md 10.3: the host's menu has Manage players, which comes up in place of the menu and goes
+## again on Back; nobody else's menu has it.
+func test_the_hosts_menu_manages_its_players() -> void:
+	var holder: Node = auto_free(Node.new())
+	add_child(holder)
+	var session: NetSession = auto_free(NetSession.new())
+	session.is_host = true
+	var menu := PauseMenu.add_to(holder, session)
+	await await_idle_frame()
+	assert_bool(menu._manage.visible).is_true()
+	menu._manage.pressed.emit()
+	assert_bool(menu._players.visible).is_true()
+	assert_bool(menu._main.visible).is_false()
+	menu._players._back.pressed.emit()
+	assert_bool(menu._players.visible).is_false()
+	assert_bool(menu._main.visible).is_true()
+	session.is_host = false
+	await await_idle_frame()
+	assert_bool(menu._manage.visible).is_false()
+
+
 ## GAME.md 3.8: the host's Pause game is straight under Resume, over the match settings the
 ## waiting room adds, since stopping everybody is the first thing a host reaches for.
 func test_pause_game_is_over_the_match_settings() -> void:

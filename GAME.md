@@ -2705,6 +2705,14 @@ podium goes on to how the run stands by itself after six seconds, the finale fir
 last map, and the host still decides when the next map starts. A thin gold bar the width of the
 pane, at the bottom of it, empties over those six seconds, so it going on is no surprise.
 
+The host can show anybody out. Manage players, on the host's pause menu wherever the room is,
+comes up in place of the menu: everybody else in the game, each player by the name and color of
+their seat and each watcher by the name they gave as they knocked, with Kick beside every one.
+Somebody kicked is told the host removed them from the game, on the pane a refusal comes up on,
+and goes back to the title from it; the host lets go of the connection half a second later
+whatever they do with that, so nobody stays by not listening. They may join again. Their seat
+goes the way a seat does when anybody leaves: emptied in the waiting room, a bot's on a map.
+
 A window in the background keeps playing. A window the desktop has stopped
 drawing can hold the main loop up on the frame it is waiting to present, and on
 the host that is the whole room frozen until somebody clicks back into the game.

@@ -38,6 +38,8 @@ const TIMEOUT_LIMIT := 32
 const TIMEOUT_MIN := 5000
 const TIMEOUT_MAX := 30000
 const SNAPSHOT_EVERY_TICKS := 2
+## How long a kicked client has to hear why before the host lets go of it, in seconds.
+const KICK_GRACE := 0.5
 
 ## Whether this process is in the middle of raising an event a host relayed to it, which is never
 ## relayed again. Shared by every session in the process: in a test that runs a host and a client
@@ -109,6 +111,9 @@ var _relaying := false
 var _watchers: Dictionary[int, bool] = {}
 ## On the host: when each watcher may put up their next emote, in engine ticks of milliseconds.
 var _watcher_next: Dictionary[int, int] = {}
+## On the host: what each client said it was called as it knocked, for somebody watching, who has
+## no seat to be named in.
+var _names_of: Dictionary[int, String] = {}
 var _watching_here: Dictionary[int, bool] = {}
 ## Whether this machine is asking for a pause, and which of the host's clients are.
 var _asking := false
@@ -222,7 +227,7 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 ## saying which version it is; the host waits to hear it.
 func _on_authenticating(peer: int) -> void:
 	if not is_host:
-		var words := NetDoor.knock(version, watching)
+		var words := NetDoor.knock(version, watching, PlayerNames.clean(player_name))
 		(multiplayer as SceneMultiplayer).send_auth(peer, var_to_bytes(words))
 
 
@@ -242,6 +247,7 @@ func _on_handshake(peer: int, data: PackedByteArray) -> void:
 		var answer := NetDoor.answer(version, words, no_seat, players, _watchers.size())
 		scene.send_auth(peer, var_to_bytes(answer))
 		if answer["welcome"]:
+			_names_of[peer] = PlayerNames.clean(str(words.get("name", "")))
 			if answer["watch"]:
 				_watchers[peer] = true
 			scene.complete_auth(peer)
@@ -615,6 +621,7 @@ func _on_peer_disconnected(peer: int) -> void:
 	_color_of.erase(peer)
 	_watchers.erase(peer)
 	_watcher_next.erase(peer)
+	_names_of.erase(peer)
 	_watching_here.erase(peer)
 	if not is_host or not _peer_slots.has(peer):
 		return
@@ -776,6 +783,41 @@ func _claim_color(color: int) -> void:
 	var index: int = _peer_slots.get(multiplayer.get_remote_sender_id(), -1)
 	if index >= 0 and index < match_node.slots.size():
 		SeatIdentity.paint(match_node, match_node.slots[index], color)
+
+
+## Everybody else in the host's game, for its Manage players, GAME.md 10.3: each client that plays,
+## by the name and color of its seat, and each that watches, by the name it gave.
+func guests() -> Array[Dictionary]:
+	var found: Array[Dictionary] = []
+	for peer: int in _peer_slots:
+		var index: int = _peer_slots[peer]
+		if match_node != null and index < match_node.slots.size():
+			var slot := match_node.slots[index]
+			found.append({"peer": peer, "name": slot.display_name(), "color": slot.color()})
+	for peer: int in _watchers:
+		var named: String = _names_of.get(peer, "")
+		found.append({"peer": peer, "name": named if not named.is_empty() else "Watcher"})
+	return found
+
+
+## Shows [param peer] out of the game: told why, and let go of a moment later whatever it does
+## with that, so it cannot stay by not listening. It may knock again.
+func kick(peer: int) -> void:
+	if not is_host or not multiplayer.get_peers().has(peer):
+		return
+	_kicked.rpc_id(peer)
+	get_tree().create_timer(KICK_GRACE).timeout.connect(_let_go_of.bind(peer))
+
+
+func _let_go_of(peer: int) -> void:
+	if multiplayer.multiplayer_peer != null and multiplayer.get_peers().has(peer):
+		multiplayer.multiplayer_peer.disconnect_peer(peer)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _kicked() -> void:
+	_turned_away = true
+	_hang_up.call_deferred("The host removed you from the game")
 
 
 ## An emote from somebody watching, put up on every screen as the karts' are, at most as often.

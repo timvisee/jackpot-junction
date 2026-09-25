@@ -46,6 +46,13 @@ var _on_yes: Callable
 var _asked_by: Button
 ## The settings while they are open over the room, null otherwise.
 var _settings: SettingsScreen
+## Online, on the host: who else is in the game, with a way to show any of them out, and the
+## button that opens it. Up in place of the menu while it is open, as a question is.
+var _players: ManagePlayers
+var _manage: Button
+## Whatever is up in place of the menu just now, and the button that put it there.
+var _aside: Control
+var _aside_from: Button
 
 
 ## Hangs one over a room. An online room passes its session, which is what decides whether the
@@ -103,6 +110,15 @@ func _ready() -> void:
 	_force.pressed.connect(_force_pause)
 	_force.visible = false
 	column.add_child(_force)
+	_players = ManagePlayers.new()
+	_players.session = session
+	_players.visible = false
+	_players.closed.connect(_put_away_aside)
+	middle.add_child(_players)
+	_manage = MenuTheme.button("Manage players")
+	_manage.pressed.connect(func() -> void: _open_aside(_players, _manage))
+	_manage.visible = false
+	column.add_child(_manage)
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(open_settings)
 	column.add_child(settings)
@@ -299,6 +315,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _panel.visible and event.is_action_pressed(&"ui_cancel"):
 		if asking():
 			_answered(false)
+		elif _aside != null:
+			_put_away_aside()
 		else:
 			set_paused(false)
 		get_viewport().set_input_as_handled()
@@ -307,9 +325,10 @@ func _unhandled_input(event: InputEvent) -> void:
 ## Opens or closes the menu for whoever is at this screen. Alone that is the same thing as
 ## stopping the match; online it is a request, and the match stops when the last player makes it.
 func set_paused(paused: bool) -> void:
-	# A question left up is not there the next time the menu opens.
+	# A question left up is not there the next time the menu opens, nor anything else in its place.
 	if asking():
 		_put_the_question_away()
+	_put_away_aside()
 	_panel.visible = paused
 	_switches.visible = paused
 	if paused:
@@ -352,10 +371,32 @@ func _can_force() -> bool:
 	return session != null and session.is_host and not session.paused
 
 
+## Puts [param pane] up in place of the menu, with the cursor in it; its Back, or B, is the menu
+## again with the cursor on [param from].
+func _open_aside(pane: Control, from: Button) -> void:
+	_aside = pane
+	_aside_from = from
+	_main.visible = false
+	_switches.visible = false
+	pane.call(&"open")
+
+
+func _put_away_aside() -> void:
+	if _aside == null:
+		return
+	_aside.visible = false
+	_aside = null
+	_main.visible = true
+	_switches.visible = _panel.visible
+	if _panel.visible and is_instance_valid(_aside_from) and _aside_from.visible:
+		_aside_from.grab_focus()
+
+
 ## The host's button comes and goes as the room stops and starts, and a client that has not opened
 ## its own menu is told why nothing is moving.
 func _process(_delta: float) -> void:
 	_force.visible = _panel.visible and _can_force()
+	_manage.visible = session != null and session.is_host
 	_held.visible = (
 		session != null
 		and not session.is_host
