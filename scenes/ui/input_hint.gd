@@ -110,6 +110,16 @@ static func row(template: String, parts: Array, ink: Color, size: int) -> HBoxCo
 	return box
 
 
+## What a row of [param actions] drawn for [param keyboard] depends on: the scheme and what each
+## is bound to. A row built again only when this changes is not rebuilt, node by node, every frame
+## it is up.
+static func stamp(actions: Array[StringName], keyboard: bool) -> String:
+	var bound: Array[String] = []
+	for action: StringName in actions:
+		bound.append(InputActions.short_binding_text(action, keyboard))
+	return "%s|%s" % [keyboard, "/".join(bound)]
+
+
 ## The same row on a dark card, for a hint that hangs in the world, where what is behind it is
 ## whatever color that stretch of the arena happens to be.
 static func card(content: Control) -> PanelContainer:

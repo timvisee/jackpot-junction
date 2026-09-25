@@ -68,6 +68,9 @@ var _shown: Array[StringName] = []
 var _stage := JokerOffer.Stage.DONE
 ## Skip or back, on a touch screen, while there is either to do.
 var _touch_button: Button
+## What the pane's hint row says now, so it is built again only when that changes: the HUD shows
+## the offer every frame.
+var _hints_shown := ""
 
 
 func card_count() -> int:
@@ -146,10 +149,22 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 	)
 	if picked >= 0 and picked < jokers.size():
 		_detail.show_joker(jokers[picked])
-		if TouchInput.enabled:
-			_detail.set_hints(_touch_row(choosing, offer.keeping))
-		else:
-			_detail.set_hints(_hint_row(choosing, offer.keeping))
+		var actions: Array[StringName] = [
+			InputActions.STEER_LEFT,
+			InputActions.STEER_RIGHT,
+			InputActions.FIRE,
+			InputActions.JOKER_DESTROY,
+		]
+		var wanted := (
+			"%s|%s|%s|%s"
+			% [TouchInput.enabled, choosing, offer.keeping, InputHint.stamp(actions, keyboard)]
+		)
+		if wanted != _hints_shown:
+			_hints_shown = wanted
+			if TouchInput.enabled:
+				_detail.set_hints(_touch_row(choosing, offer.keeping))
+			else:
+				_detail.set_hints(_hint_row(choosing, offer.keeping))
 	# Keeping one of last map's has nothing to skip to: the rule is keep one.
 	_touch_button.visible = TouchInput.enabled and not (choosing and offer.keeping)
 	_touch_button.text = "Skip" if choosing else "Back"

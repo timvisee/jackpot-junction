@@ -24,6 +24,9 @@ var _kind: Label
 var _body: RichTextLabel
 var _box: VBoxContainer
 var _hints: Control
+## The joker the pane is filled in for, so filling it in again for the same one is nothing: the
+## hand and the pick ask every frame, and painting the top edge again is a new layout each time.
+var _joker: Joker
 
 
 func _init() -> void:
@@ -73,6 +76,9 @@ func _init() -> void:
 
 ## Fills the pane for one joker and paints the top edge in its kind's color.
 func show_joker(joker: Joker) -> void:
+	if joker == _joker:
+		return
+	_joker = joker
 	var color := JokerCard.kind_color(joker)
 	_style.border_color = color
 	_name.text = joker.display_name

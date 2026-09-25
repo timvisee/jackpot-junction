@@ -95,3 +95,44 @@ func test_a_player_out_in_sudden_death_can_still_read_their_hand() -> void:
 	assert_bool(kart.menu_open).is_false()
 	# And they are still out: reading the hand is not a way back into the match.
 	assert_bool(kart.alive).is_false()
+
+
+## The pane is filled in when what it says changes rather than every frame it is up: the hand and
+## the pick are asked every frame, and a row of drawn buttons built again each time is a dozen
+## nodes made and thrown away sixty times a second.
+func test_the_pane_is_not_built_again_every_frame() -> void:
+	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	var kart := match_node.kart_of(0)
+	_attach(kart, "hair_trigger")
+	_attach(kart, "rubber_bumpers")
+	await _runner.simulate_frames(12, 17)
+	var hand: JokerHand = match_node.hud._hands[0]
+	Input.action_press(InputActions.JOKER_MENU)
+	await _runner.simulate_frames(4, 17)
+	var row := hand._detail._hints
+	assert_object(row).is_not_null()
+	await _runner.simulate_frames(6, 17)
+	assert_object(hand._detail._hints).is_same(row)
+	# Down, the pane stops offering to throw anything away, which is a new row.
+	kart.die(&"pit", -1)
+	await _runner.simulate_frames(3, 17)
+	assert_object(hand._detail._hints).is_not_same(row)
+	Input.action_release(InputActions.JOKER_MENU)
+	await _runner.simulate_frames(2, 17)
+	# And the pick, which the HUD shows every frame it is up.
+	var slot := match_node.slots[0]
+	var choices: Array[Joker] = []
+	for id: String in ["big_tank", "toll_booth", "road_rage"]:
+		choices.append(load("res://data/jokers/%s.tres" % id))
+	slot.offer = JokerOffer.new(kart, choices)
+	slot.respawn_left = 30.0
+	await _runner.simulate_frames(4, 17)
+	var picker: JokerPicker = match_node.hud._pickers[0]
+	assert_bool(picker.visible).is_true()
+	var pick_row := picker._detail._hints
+	assert_object(pick_row).is_not_null()
+	slot.offer.selected = 2
+	await _runner.simulate_frames(6, 17)
+	assert_object(picker._detail._hints).is_same(pick_row)
+	assert_str(picker._detail._name.text).is_equal(choices[2].display_name)

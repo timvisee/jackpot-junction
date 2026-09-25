@@ -72,6 +72,8 @@ var _count_label: Label
 ## What the pane under a card says on a touch screen, so it is only built again when that changes,
 ## and its two buttons while it has them.
 var _touch_shown := ""
+## And what it says on a keyboard or a pad, the same way.
+var _keys_shown := ""
 var _touch_buttons: Dictionary[StringName, Button] = {}
 ## How far into the screen the cards come, at rest, see [method reach].
 var _reach := 0.0
@@ -308,9 +310,21 @@ func _sync_cards() -> void:
 func _show_detail(joker: Joker) -> void:
 	_detail.show_joker(joker)
 	if _pointed():
+		_keys_shown = ""
 		_show_touch_hints()
 		return
 	_touch_shown = ""
+	var alive := kart != null and kart.alive
+	var actions: Array[StringName] = [
+		InputActions.STEER_LEFT,
+		InputActions.STEER_RIGHT,
+		InputActions.JOKER_DROP,
+		InputActions.JOKER_DESTROY,
+	]
+	var wanted := "%s|%s" % [alive, InputHint.stamp(actions, keyboard)]
+	if wanted == _keys_shown:
+		return
+	_keys_shown = wanted
 	var ink := JokerDetail.hint_ink()
 	var size := InputHint.FONT_SIZE
 	var parts: Array = [
@@ -320,7 +334,7 @@ func _show_detail(joker: Joker) -> void:
 	# A player waiting to come back can read their hand but not throw any of it away, GAME.md
 	# 3.7, so the pane stops offering the two buttons that would. A hint for a button that does
 	# nothing is worse than no hint: it reads as the game having stopped listening.
-	if kart != null and kart.alive:
+	if alive:
 		parts.append(InputHint.glyph(InputActions.JOKER_DROP, keyboard, ink, size))
 		parts.append(InputHint.glyph(InputActions.JOKER_DESTROY, keyboard, ink, size))
 		line += "   %s drop   %s destroy"
