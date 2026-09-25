@@ -19,7 +19,10 @@ signed=$("$apksigner" verify --print-certs "$apk" |
 	sed -n 's/^Signer #1 certificate SHA-256 digest: //p')
 signers=$("$apksigner" verify --print-certs "$apk" | grep -c '^Signer #[0-9]* certificate DN' || true)
 if [[ -z $wanted || $wanted != "$signed" || $signers -ne 1 ]]; then
+	# What was compared, which is no secret: a certificate's digest is on every copy of the APK.
 	echo "$apk is not signed with the release key alone" >&2
+	echo "  the key's certificate:  ${wanted:-none read from the keystore}" >&2
+	echo "  the APK's first signer: ${signed:-none}, of $signers signer(s), by $apksigner" >&2
 	exit 1
 fi
 echo "$apk is signed with the release key ($signed)"
