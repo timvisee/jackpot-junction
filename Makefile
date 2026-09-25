@@ -114,26 +114,9 @@ android-install: android
 	adb install -r build/android/jackpot-junction.apk
 
 # The release build for Android in build/android, the APK every release publishes, GAME.md 10.5:
-# Godot's release template, signed with the release key and checked to be. The key is named by
-# ANDROID_KEYSTORE, ANDROID_KEYSTORE_ALIAS and ANDROID_KEYSTORE_PASSWORD, which the release
-# workflow sets from the repository's secrets and which on a machine of your own come from
-# ANDROID_SIGNING, a file of the three kept beside the keystore and out of the project. The SDK
-# and the JDK are the editor's, or ANDROID_HOME's and JAVA_HOME's where it has none.
-ANDROID_SIGNING ?= $(HOME)/.android/release-keystore.env
-
+# Godot's release template, signed with the release key and checked to be, see
+# tools/android-release. At a terminal it asks for the key's password; the release workflow sets
+# it, with the rest of the key, from the repository's secrets. The SDK and the JDK are the
+# editor's, or ANDROID_HOME's and JAVA_HOME's where it has none.
 android-release: | $(CACHE)
-	mkdir -p build/android
-	@set -e; \
-	if [ -z "$${ANDROID_KEYSTORE:-}" ] && [ -f "$(ANDROID_SIGNING)" ]; then \
-		set -a; . "$(ANDROID_SIGNING)"; set +a; \
-	fi; \
-	if [ -z "$${ANDROID_KEYSTORE:-}" ]; then \
-		echo "No release key: set ANDROID_KEYSTORE, ANDROID_KEYSTORE_ALIAS and" \
-			"ANDROID_KEYSTORE_PASSWORD, or put them in $(ANDROID_SIGNING)" >&2; \
-		exit 1; \
-	fi; \
-	GODOT_ANDROID_KEYSTORE_RELEASE_PATH="$$ANDROID_KEYSTORE" \
-	GODOT_ANDROID_KEYSTORE_RELEASE_USER="$$ANDROID_KEYSTORE_ALIAS" \
-	GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD="$$ANDROID_KEYSTORE_PASSWORD" \
-		$(GODOT) --headless --path . --export-release "Android" build/android/jackpot-junction.apk; \
-	tools/android-signed build/android/jackpot-junction.apk
+	GODOT="$(GODOT)" tools/android-release

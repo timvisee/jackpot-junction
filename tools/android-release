@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# The release APK in build/android, the one every release publishes, GAME.md 10.5: Godot's release
+# template, signed with the release key and checked to be. `make android-release` runs it.
+#
+# The key is ANDROID_KEYSTORE, ~/.android/release.keystore unless said otherwise, with the key
+# ANDROID_KEYSTORE_ALIAS in it, timvisee unless said otherwise, and its password is
+# ANDROID_KEYSTORE_PASSWORD. The release workflow sets all three from the repository's secrets. At
+# a terminal with no password set, it is asked for, and nothing it is told is kept anywhere.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+godot="${GODOT:-tools/godot}"
+export ANDROID_KEYSTORE="${ANDROID_KEYSTORE:-$HOME/.android/release.keystore}"
+export ANDROID_KEYSTORE_ALIAS="${ANDROID_KEYSTORE_ALIAS:-timvisee}"
+if [[ ! -f $ANDROID_KEYSTORE ]]; then
+	echo "No release keystore at $ANDROID_KEYSTORE: set ANDROID_KEYSTORE to where it is" >&2
+	exit 1
+fi
+if [[ -z ${ANDROID_KEYSTORE_PASSWORD:-} ]]; then
+	if [[ ! -t 0 ]]; then
+		echo "No password for the release key: set ANDROID_KEYSTORE_PASSWORD, or run this at" \
+			"a terminal to be asked for it" >&2
+		exit 1
+	fi
+	read -rsp "Password of the release key in $ANDROID_KEYSTORE: " ANDROID_KEYSTORE_PASSWORD
+	echo
+fi
+export ANDROID_KEYSTORE_PASSWORD
+# Tried before a minute of exporting rather than after it.
+if ! keytool -list -keystore "$ANDROID_KEYSTORE" -alias "$ANDROID_KEYSTORE_ALIAS" \
+	-storepass:env ANDROID_KEYSTORE_PASSWORD >/dev/null 2>&1; then
+	echo "That is not the password of $ANDROID_KEYSTORE, or it has no key" \
+		"$ANDROID_KEYSTORE_ALIAS in it" >&2
+	exit 1
+fi
+mkdir -p build/android
+GODOT_ANDROID_KEYSTORE_RELEASE_PATH="$ANDROID_KEYSTORE" \
+	GODOT_ANDROID_KEYSTORE_RELEASE_USER="$ANDROID_KEYSTORE_ALIAS" \
+	GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD="$ANDROID_KEYSTORE_PASSWORD" \
+	"$godot" --headless --path . --export-release "Android" build/android/jackpot-junction.apk
+tools/android-signed build/android/jackpot-junction.apk

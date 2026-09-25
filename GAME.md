@@ -3774,10 +3774,14 @@ with that key and nothing else. The key is a keystore of its own, kept out of
 the project and meant for other Android apps as well, since Android only
 installs an update over an app signed with the same key and losing it means no
 app signed with it can ever be updated again. On the machine it was made on it
-is `~/.android/release.keystore`, alias `timvisee`, with its alias and password
-in `~/.android/release-keystore.env`, which `make android-release` reads; both
-belong in a backup together. The release workflow has it from three repository
-secrets: `ANDROID_KEYSTORE_BASE64`, the keystore itself in base64,
+is `~/.android/release.keystore`, alias `timvisee`, and its password is kept in
+nothing on that machine: `make android-release` asks for it at the terminal,
+tries it on the keystore before a minute of exporting rather than after, and
+keeps nothing it is told. `ANDROID_KEYSTORE`, `ANDROID_KEYSTORE_ALIAS` and
+`ANDROID_KEYSTORE_PASSWORD` in the environment name a keystore, a key and a
+password instead of those two and the question. The keystore and its password
+belong in a backup together. The release workflow has the key from three
+repository secrets: `ANDROID_KEYSTORE_BASE64`, the keystore itself in base64,
 `ANDROID_KEYSTORE_ALIAS` and `ANDROID_KEYSTORE_PASSWORD`. Another app's
 repository takes the same three.
 
