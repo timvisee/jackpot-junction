@@ -3153,9 +3153,10 @@ come up first. The room is open while they are up -- friends join and drive arou
 host's own karts wait where they are, since the controls are working the menu.
 
 Everybody in the room is told what is coming, under the count:
-`Next: Crossfire · 5 min · first to 3000 · 2 bots`, or for a Grand Prix
-`Next: Grand Prix of 3 maps · 5 min each · first to 3000 · 2 bots`, or that the host is still
-choosing, or on one machine that it is still being chosen. The pane says who can join while it
+`Next: Crossfire · 5 min · first to 3000`, or for a Grand Prix
+`Next: Grand Prix of 3 maps · 5 min each · first to 3000`, or that the host is still
+choosing, or on one machine that it is still being chosen. The bots are left to the count
+above it, which says how many will really come in rather than how many were asked for. The pane says who can join while it
 is up: friends online, and on one machine anybody else there, with J or Start. On a screen too
 short for it, a phone's under a big UI scale, the rows scroll between the title and Done, which
 stay where they are, rather than the whole pane running off the top and the bottom or being drawn

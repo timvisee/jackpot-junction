@@ -360,7 +360,10 @@ func test_the_host_chooses_the_match_on_opening_the_room() -> void:
 	assert_int(config.bot_count).is_equal(1)
 	assert_float(config.duration).is_equal(480.0)
 	assert_str(room.ready_room._plan.text).contains(ArenaMaps.NAMES[1])
-	assert_str(room.ready_room._plan.text).contains("1 bot")
+	# The bots are the count's to say, not the plan's.
+	assert_str(room.ready_room._plan.text).not_contains("bot")
+	assert_int(room.ready_room.bots_asked).is_equal(1)
+	assert_str(room.ready_room._counter.text).ends_with("+ 1 BOT")
 	# Kept for next time, the way the lobby keeps what it was last set to.
 	assert_int(Game.settings.bot_count).is_equal(1)
 	assert_str(Game.settings.map).is_equal(String(ArenaMaps.IDS[1]))

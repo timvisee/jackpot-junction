@@ -81,9 +81,10 @@ static func length_words(seconds: float) -> String:
 	return "%d s" % whole if whole < 60 else "%d min" % roundi(whole / 60.0)
 
 
-## One line saying what a match is going to be: where, how long, to how many points, and how
-## many bots. What somebody waiting to play it wants to know, and nothing they do not. A Grand
-## Prix says how many maps rather than which, since which is not dealt until it starts.
+## One line saying what a match is going to be: where, how long and to how many points. What
+## somebody waiting to play it wants to know, and nothing they do not. A Grand Prix says how many
+## maps rather than which, since which is not dealt until it starts. The bots are the ready count's
+## to say, GAME.md 9.6: how many come in depends on who is in the room, which this line cannot know.
 static func describe(config: MatchConfig) -> String:
 	var length := length_words(config.duration)
 	var parts: PackedStringArray = [
@@ -95,13 +96,6 @@ static func describe(config: MatchConfig) -> String:
 		"%s each" % length if config.rounds > 0 else length,
 		"first to %d" % config.target_score if config.target_score > 0 else "no target",
 	]
-	match config.bot_count:
-		0:
-			parts.append("no bots")
-		1:
-			parts.append("1 bot")
-		_:
-			parts.append("%d bots" % config.bot_count)
 	return " \u00b7 ".join(parts)
 
 
