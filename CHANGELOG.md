@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The lobby says how many bots are coming.** "1 / 2 PLAYERS READY + 2 BOTS", at the top
+  of the screen and on the board.
 - **The kill feed says when a turret made the kill.** "P1's turret shot P2" rather than
   "P1 shot P2".
 

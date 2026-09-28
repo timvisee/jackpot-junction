@@ -3107,7 +3107,11 @@ nothing about scoring -- no banked chips, pot, mult, kills or deaths.
 
 **What it says.** The count is written twice: at the top of the screen for the player at this
 machine, as `1 / 2 PLAYERS READY`, and on a sign standing on top of the back wall, as `1 / 2`
-with `PLAYERS READY` under it.
+with `PLAYERS READY` under it. Both say how many bots come in with the players too, `1 / 2
+PLAYERS READY + 2 BOTS`, so nobody expecting a match of two finds four karts on the grid: as
+many as the host asked for that the arena has seats left for, and nothing when that is none. The
+host says the number it asked for with the plan, and each machine takes off the seats its room
+has filled; a client of a host too old to say shows the plain count.
 
 The sign is a small board rather than the hoarding a room hangs its clock on. A hoarding is set
 back over a crowd and read from anywhere on the floor while a match is being played; there is no

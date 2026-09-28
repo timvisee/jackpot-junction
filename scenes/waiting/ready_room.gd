@@ -83,6 +83,10 @@ var held := false
 ## Slot index to how far that player has charged, 0 to 1, and whether they have finished.
 var charge: Dictionary[int, float] = {}
 var ready_slots: Dictionary[int, bool] = {}
+## How many seats the arena has, and how many bots the host last asked for, -1 until it says: the
+## bots that come in are as many of those as there are seats left over, see [method bots_joining].
+var seats := 4
+var bots_asked := -1
 
 var _segments: Array[MeshInstance3D] = []
 ## Seat to how many blocks of its arc were lit last frame, to hear each new one as it lights.
@@ -117,6 +121,7 @@ static func add_to(in_match: Match) -> ReadyRoom:
 	room.readied.connect(room._on_readied)
 	room.filled.connect(room._on_filled)
 	Events.match_planned.connect(room._on_match_planned)
+	Events.bots_planned.connect(room._on_bots_planned)
 	return room
 
 
@@ -162,6 +167,19 @@ func ready_count() -> int:
 		if slot.is_human() and ready_slots.get(slot.index, false):
 			done += 1
 	return done
+
+
+## How many bots will come into the arena with the players in the room: as many as the host asked
+## for that there are seats left for, GAME.md 9.6. -1 while the host has not said, as an older
+## one never does.
+func bots_joining() -> int:
+	if bots_asked < 0:
+		return -1
+	return clampi(bots_asked, 0, maxi(seats - player_count(), 0))
+
+
+func _on_bots_planned(bots: int) -> void:
+	bots_asked = bots
 
 
 func player_count() -> int:
@@ -226,18 +244,29 @@ func all_green() -> bool:
 
 
 ## How many are ready, said twice: once at the top of the screen for the player at this machine,
-## and once on a board in the room for everybody looking at it. Both are rewritten only when the
-## count changes -- a board refits its lettering to the words, which is not work for every frame
-## of a room where nothing is happening.
+## and once on a board in the room for everybody looking at it, and how many bots are coming in
+## with them, so nobody expecting a match of two finds four karts on the grid. Both are rewritten
+## only when the count changes -- a board refits its lettering to the words, which is not work for
+## every frame of a room where nothing is happening.
 func _say_the_count() -> void:
-	var words := "%d / %d PLAYERS READY" % [ready_count(), player_count()]
+	var counted := "PLAYERS READY" + bot_words()
+	var words := "%d / %d %s" % [ready_count(), player_count(), counted]
 	if words == _said:
 		return
 	_said = words
 	if _counter != null:
 		_counter.text = words
 	if _board != null:
-		_board.say("%d / %d" % [ready_count(), player_count()], "PLAYERS READY")
+		_board.say("%d / %d" % [ready_count(), player_count()], counted)
+
+
+## The bots coming in, as the count says them after the players: " + 2 BOTS", or nothing when
+## none are, or while the host has not said.
+func bot_words() -> String:
+	var bots := bots_joining()
+	if bots <= 0:
+		return ""
+	return " + %d BOT%s" % [bots, "" if bots == 1 else "S"]
 
 
 ## The host has said what the next match is, or that they are still choosing. Either way it goes

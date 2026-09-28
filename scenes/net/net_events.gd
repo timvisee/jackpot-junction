@@ -44,6 +44,7 @@ const RELAYED: Array[StringName] = [
 	&"player_joined",
 	&"player_ready",
 	&"match_planned",
+	&"bots_planned",
 	&"grand_prix_scored",
 	&"player_left",
 	&"countdown_tick",

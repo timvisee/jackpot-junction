@@ -65,6 +65,7 @@ func _ready() -> void:
 			_take_seats()
 	_dress_the_room()
 	ready_room = ReadyRoom.add_to(match_node)
+	ready_room.seats = ARENA_RULES.max_players
 	if config.online != "join":
 		ready_room.everybody_ready.connect(_begin, CONNECT_ONE_SHOT)
 	DebugOverlay.add_to(self, match_node, session)
@@ -275,6 +276,7 @@ func _hold(held: bool) -> void:
 ## Tells the room what the next match is, or that it is still being chosen. The host's own room
 ## hears it the same way the clients' rooms do.
 func _say_the_plan() -> void:
+	Events.bots_planned.emit(config.bot_count)
 	Events.match_planned.emit(MatchOptions.describe(config), host_settings.is_open())
 
 

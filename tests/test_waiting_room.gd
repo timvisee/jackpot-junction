@@ -112,7 +112,8 @@ func test_the_ready_sign_stands_on_the_back_wall() -> void:
 	# Leaning back, toward the camera over the room, rather than down at the floor.
 	assert_float(stand.face.global_basis.z.y).is_greater(0.3)
 	assert_str(stand._count.text).is_equal("0 / 1")
-	assert_str(stand._words.text).is_equal("PLAYERS READY")
+	# And the bots coming in with them, see test_the_count_says_how_many_bots_come_in.
+	assert_str(stand._words.text).is_equal("PLAYERS READY" + room.ready_room.bot_words())
 
 
 ## The props are solid. Clutter everywhere else in the game is scenery a kart drives through;
@@ -153,6 +154,33 @@ func test_standing_on_the_pad_readies_a_player() -> void:
 	await assert_signal(called).is_emitted("everybody_ready")
 	# And a tick is floating over the kart that said so.
 	assert_bool(ready_room._ticks.has(0)).is_true()
+
+
+## GAME.md 9.6: the count says how many bots come in with the players, at the top of the screen
+## and on the board, so nobody expecting a match of two finds four karts on the grid. As many as
+## the host asked for that there are seats left for; nothing while the host has not said.
+func test_the_count_says_how_many_bots_come_in() -> void:
+	var room := await _open()
+	var ready_room: ReadyRoom = room.ready_room
+	await _runner.simulate_frames(2, 17)
+	# Closing the choosing said the plan, and the bots with it.
+	assert_int(ready_room.bots_asked).is_equal(room.config.bot_count)
+	ready_room.bots_asked = 3
+	await _runner.simulate_frames(2, 17)
+	assert_int(ready_room.bots_joining()).is_equal(3)
+	assert_str(ready_room._counter.text).is_equal("0 / 1 PLAYERS READY + 3 BOTS")
+	assert_str(ready_room._board._words.text).is_equal("PLAYERS READY + 3 BOTS")
+	# No more than there are seats for, and one is one bot.
+	ready_room.bots_asked = 9
+	assert_int(ready_room.bots_joining()).is_equal(ready_room.seats - 1)
+	ready_room.bots_asked = 1
+	await _runner.simulate_frames(2, 17)
+	assert_str(ready_room._counter.text).ends_with("+ 1 BOT")
+	# None, or none said, is the plain count.
+	for none: int in [0, -1]:
+		ready_room.bots_asked = none
+		await _runner.simulate_frames(2, 17)
+		assert_str(ready_room._counter.text).is_equal("0 / 1 PLAYERS READY")
 
 
 ## Two people charging the pad are two arcs of the ring, each in their own color, rather than one
