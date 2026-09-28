@@ -113,15 +113,6 @@ func _ready() -> void:
 	_force.pressed.connect(_force_pause)
 	_force.visible = false
 	column.add_child(_force)
-	_players = ManagePlayers.new()
-	_players.session = session
-	_players.visible = false
-	_players.closed.connect(_put_away_aside)
-	middle.add_child(_players)
-	_manage = MenuTheme.button("Manage players")
-	_manage.pressed.connect(func() -> void: _open_aside(_players, _manage))
-	_manage.visible = false
-	column.add_child(_manage)
 	_door = LobbySettings.new()
 	_door.session = session
 	_door.visible = false
@@ -131,6 +122,15 @@ func _ready() -> void:
 	_door_button.pressed.connect(func() -> void: _open_aside(_door, _door_button))
 	_door_button.visible = false
 	column.add_child(_door_button)
+	_players = ManagePlayers.new()
+	_players.session = session
+	_players.visible = false
+	_players.closed.connect(_put_away_aside)
+	middle.add_child(_players)
+	_manage = MenuTheme.button("Manage players")
+	_manage.pressed.connect(func() -> void: _open_aside(_players, _manage))
+	_manage.visible = false
+	column.add_child(_manage)
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(open_settings)
 	column.add_child(settings)

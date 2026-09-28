@@ -2824,7 +2824,7 @@ who goes back to the map's podium is looking at it, and it stays. A small gold r
 line saying the host starts the next map empties over those six seconds, so it going on is no
 surprise.
 
-The host says who may come in. Lobby settings, on the host's pause menu beside Manage players,
+The host says who may come in. Lobby settings, on the host's pause menu over Manage players,
 comes up in place of the menu with four things on it: Player limit, the most players the game
 takes, 2, 3 or 4 with the host's own players counted; a password, none to start with; Allow
 watchers, on to start with; and Watch without password, off, which lets somebody who has come to

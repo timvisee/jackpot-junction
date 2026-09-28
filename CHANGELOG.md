@@ -27,6 +27,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Manage players sits under Lobby settings.** On the host's pause menu the two are now the
+  other way round.
 - **A spectator's countdown to the standings is a small ring.** It sits beside the line saying
   the host starts the next map, in place of the bar across the pane.
 - **Back in a LAN lobby, only the match settings come up.** The lobby settings were set when
