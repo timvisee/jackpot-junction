@@ -433,6 +433,11 @@ func _peers() -> PackedInt32Array:
 	return multiplayer.get_peers() if _connected() else PackedInt32Array()
 
 
+## Whether anybody is connected, to play or to watch: who a host leaving would disconnect.
+func anybody_connected() -> bool:
+	return not _peers().is_empty()
+
+
 ## The clients connected to play, leaving out anybody who came to watch, GAME.md 10.3.
 func _player_peers() -> PackedInt32Array:
 	var players := PackedInt32Array()

@@ -555,14 +555,30 @@ func test_back_to_lobby_asks_before_ending_the_grand_prix() -> void:
 	assert_str(PauseMenu.lobby_words(true, true)[1]).contains("stays connected")
 
 
+## A session somebody has joined, or has not, without a connection to have them on.
+class Joined:
+	extends NetSession
+
+	var joined := true
+
+	func anybody_connected() -> bool:
+		return joined
+
+
 ## GAME.md 3.8: online, the way back to the title asks first. The host is told everybody who has
-## joined goes with it; a client only leaves. Offline nothing is asked: nobody else is there.
+## joined goes with it; a client only leaves. Offline nothing is asked: nobody else is there, and
+## nor is it of a host nobody has joined yet, to play or to watch.
 func test_back_to_title_online_asks_and_says_who_it_disconnects() -> void:
 	var holder: Control = auto_free(Control.new())
 	add_child(holder)
-	var session: NetSession = auto_free(NetSession.new())
+	var session: Joined = auto_free(Joined.new())
 	session.is_host = true
 	var menu := PauseMenu.add_to(holder, session)
+	assert_bool(PauseMenu.add_to(holder, null).asks_before_leaving()).is_false()
+	session.joined = false
+	assert_bool(menu.asks_before_leaving()).is_false()
+	session.joined = true
+	assert_bool(menu.asks_before_leaving()).is_true()
 	menu._quit.pressed.emit()
 	assert_bool(menu.asking()).is_true()
 	assert_str(menu._confirm.said()).contains("will be disconnected")

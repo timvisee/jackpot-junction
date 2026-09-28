@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A host nobody has joined leaves without being asked.** Back to title only warns about
+  disconnecting everybody when somebody is connected, to play or to watch.
 - **The lobby says how many bots are coming.** "1 / 2 PLAYERS READY + 2 BOTS", at the top
   of the screen and on the board, in place of the number on the green plan line.
 - **The kill feed says when a turret made the kill.** "P1's turret shot P2" rather than

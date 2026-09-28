@@ -217,10 +217,19 @@ static func leave_words(hosting: bool) -> Array[String]:
 
 
 func _back_to_title() -> void:
-	if session == null:
+	if not asks_before_leaving():
 		_leave_to_title()
 		return
 	ask(leave_words(session.is_host), _leave_to_title, _quit)
+
+
+## Whether the way back to the title asks first, see [method leave_words]: online, except for a
+## host nobody has joined yet, player or watcher. There is nobody to disconnect, and a question
+## about them would be a question about nothing.
+func asks_before_leaving() -> bool:
+	if session == null:
+		return false
+	return not session.is_host or session.anybody_connected()
 
 
 func _leave_to_title() -> void:
