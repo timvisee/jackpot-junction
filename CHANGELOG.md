@@ -13,8 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
-- **Page between a map's podium and the standings.** In a Grand Prix, arrows turn between the
-  two, with a dot marking the page, and go back to the podium until the last map.
+- **Page between a map's podium and the standings.** In a Grand Prix, arrows on the left turn
+  between the two, with a dot marking the page, and Next map on the right is on both.
 - **Several players at a LAN client.** A client takes another player with J or Start, the
   way the host does, up to the lobby's limit; it won't play with 0.8.x.
 
@@ -25,6 +25,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A spectator's countdown to the standings is a small ring.** It sits beside the line saying
+  the host starts the next map, in place of the bar across the pane.
 - **Back in a LAN lobby, only the match settings come up.** The lobby settings were set when
   the game was hosted, and are still on the pause menu.
 - **A host nobody has joined leaves without being asked.** Back to title only warns about

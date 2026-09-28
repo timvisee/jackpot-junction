@@ -30,10 +30,11 @@ const CHIP_BG := Color(1.0, 1.0, 1.0, 0.07)
 const PODIUM_GAP := 10.0
 ## The least room kept between the pane and the edges of the screen.
 const EDGE := 12.0
-## How long a watcher's podium is up before it goes on to how the run stands, in seconds, and how
-## the bar under it that counts that down is drawn.
+## How long a watcher's podium is up before it goes on to how the run stands, in seconds.
 const WATCHER_WAIT := 6.0
-const WATCHER_BAR := Vector2(WIDTH, 6.0)
+## How wide the buttons along the foot are at the least: narrower than a menu's, since the arrows
+## and the host's word share the row with them.
+const WAY_WIDTH := 240.0
 
 var match_node: Match
 
@@ -48,8 +49,12 @@ var _next: Button
 var _pager: ResultsPager
 var _standings: Button
 var _map_podium: Button
-## The row the ways on sit in, put away when none of them is there so it leaves no gap.
-var _button_row: HBoxContainer
+## The foot of the pane, in three: the arrows on the left, who decides in the middle, and the
+## ways on on the right, see [method _ways_on].
+var _foot: HBoxContainer
+var _left: HBoxContainer
+var _middle: HBoxContainer
+var _right: HBoxContainer
 var _rematch: Button
 var _lobby: Button
 var _quit: Button
@@ -63,9 +68,9 @@ var _showing_run := false
 ## the once: one they went back from is one they are looking at.
 var _run_seen := false
 ## Seconds until a watcher's podium goes on to the run's by itself, see [method _process], and the
-## bar at the bottom of the pane that empties as they run out, so it is not a surprise.
+## ring beside the host's word that empties as they run out, so it is not a surprise.
 var _watcher_left := WATCHER_WAIT
-var _watcher_bar: ProgressBar
+var _watcher_ring: CountdownRing
 ## What happens to everybody's jokers on the way to the next map, under the caption.
 var _keep_note: Label
 
@@ -123,10 +128,26 @@ func fill_in() -> void:
 	scale = Vector2.ONE * clampf(fit, 0.1, 1.0)
 	# This is the one screen nobody asked for: it arrives on its own at the whistle, so it points
 	# at what most people want next rather than waiting to be found.
-	for first: Button in [_next, _standings, _map_podium, _lobby, _rematch, _quit]:
-		if first.visible and first.get_parent().visible and not first.disabled:
+	# On a map's podium that is the run's standings, with Next map beside them for a host in a
+	# hurry; on the standings it is the next map.
+	var order: Array[Button] = [_next, _standings, _map_podium, _lobby, _rematch, _quit]
+	if not _showing_run:
+		order.push_front(_standings)
+	for first: Button in order:
+		if _can_press(first):
 			first.grab_focus()
 			break
+
+
+## Whether [param button] is up on this screen to be pressed: shown, in a part of the foot that is
+## shown, and not dimmed. Asked of the screen rather than the tree, which may be hidden yet.
+func _can_press(button: Button) -> bool:
+	var node: Node = button
+	while node != self and node is CanvasItem:
+		if not (node as CanvasItem).visible:
+			return false
+		node = node.get_parent()
+	return not button.disabled
 
 
 ## Which ways on the screen offers. Asked at the whistle rather than when the screen was built,
@@ -150,7 +171,9 @@ func _ways_on() -> void:
 	# A run whose points have not arrived has no standings to show, and the map goes on from its
 	# own podium rather than from nowhere.
 	var scored := _run() != null
-	_next.visible = decides and more and (standing or not scored)
+	# On either page, for whoever decides: looking at the run is not a step on the way to the next
+	# map, and a host who has seen enough goes on from the podium.
+	_next.visible = decides and more
 	# Looking at the run is only looking, so it is everybody's to do, a client's as much as the
 	# host's; it is there once the run's points are in.
 	_pager.visible = grand_prix and scored
@@ -159,13 +182,11 @@ func _ways_on() -> void:
 	_rematch.visible = decides and not grand_prix
 	_lobby.visible = decides and (run_up or (not grand_prix and Net.hosting()))
 	_quit.visible = not grand_prix or run_up
-	_button_row.visible = false
-	for way: Button in [_next, _lobby, _rematch, _quit]:
-		_button_row.visible = _button_row.visible or way.visible
 	_host_decides.visible = match_node.puppet and Net.online() and (not last or run_up)
 	_host_decides.text = (
 		"The host starts the next map." if more else "The host takes everybody back to the lobby."
 	)
+	_lay_out_the_foot(grand_prix)
 	_caption.visible = grand_prix
 	if grand_prix:
 		var named := ArenaMaps.NAMES[ArenaMaps.index_of(rules.map)]
@@ -184,14 +205,31 @@ func _ways_on() -> void:
 func _process(delta: float) -> void:
 	var counting := visible and _pager.visible and not _showing_run and not _run_seen
 	counting = counting and _watching()
-	_watcher_bar.visible = counting
+	_watcher_ring.visible = counting
 	if not counting:
 		return
 	_watcher_left -= delta
-	_watcher_bar.value = clampf(_watcher_left / WATCHER_WAIT, 0.0, 1.0) * 100.0
+	_watcher_ring.value = _watcher_left / WATCHER_WAIT
 	if _watcher_left <= 0.0:
 		_watcher_left = WATCHER_WAIT
 		_on_standings()
+
+
+## The foot's three parts, each as wide as the others so the middle is the middle of the pane. A
+## single map has no pages and its ways on are the whole row, centered, as a menu's are.
+func _lay_out_the_foot(grand_prix: bool) -> void:
+	_left.visible = grand_prix
+	_middle.visible = grand_prix or _host_decides.visible
+	_right.visible = false
+	for way: Button in [_next, _lobby, _rematch, _quit]:
+		_right.visible = _right.visible or way.visible
+	_right.alignment = (
+		BoxContainer.ALIGNMENT_END if _middle.visible else BoxContainer.ALIGNMENT_CENTER
+	)
+	# A part with nothing in it still holds its third, so the others stay where they are.
+	if grand_prix:
+		_right.visible = true
+	_foot.visible = _left.visible or _middle.visible or _right.visible
 
 
 static func _watching() -> bool:
@@ -440,32 +478,48 @@ func _build() -> void:
 	_rows = VBoxContainer.new()
 	_rows.add_theme_constant_override("separation", 10)
 	column.add_child(_rows)
+	column.add_child(_build_the_foot())
+
+
+## The foot's three parts, see [method _lay_out_the_foot].
+func _build_the_foot() -> HBoxContainer:
+	_foot = HBoxContainer.new()
+	_foot.add_theme_constant_override("separation", 24)
+	_left = _part(BoxContainer.ALIGNMENT_BEGIN)
 	_pager = ResultsPager.create()
 	_pager.visible = false
 	_standings = _pager.on
 	_standings.pressed.connect(_on_standings)
 	_map_podium = _pager.back
 	_map_podium.pressed.connect(_show_map)
-	column.add_child(_pager)
-	_button_row = _buttons()
-	column.add_child(_button_row)
+	_left.add_child(_pager)
+	_middle = _part(BoxContainer.ALIGNMENT_CENTER)
+	_middle.add_theme_constant_override("separation", 12)
 	_host_decides = MenuTheme.subtitle("The host takes everybody back to the lobby.", Type.LABEL)
 	_host_decides.visible = false
-	column.add_child(_host_decides)
-	_watcher_bar = HudBlock.bar(WATCHER_BAR, Palette.CHIP_GOLD)
-	_watcher_bar.value = 100.0
-	_watcher_bar.visible = false
-	_watcher_bar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	column.add_child(_watcher_bar)
+	_middle.add_child(_host_decides)
+	_watcher_ring = CountdownRing.create()
+	_watcher_ring.visible = false
+	_middle.add_child(_watcher_ring)
+	_right = _buttons()
+	for part: HBoxContainer in [_left, _middle, _right]:
+		_foot.add_child(part)
+	return _foot
+
+
+static func _part(alignment: BoxContainer.AlignmentMode) -> HBoxContainer:
+	var part := HBoxContainer.new()
+	part.alignment = alignment
+	part.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	part.add_theme_constant_override("separation", 24)
+	return part
 
 
 ## The ways on from here, all built and shown as they apply, see [method _ways_on]. The host of
 ## an online match can take everybody back to the waiting room of GAME.md 9.6, where the next one
 ## is chosen and whoever wants to leave can.
 func _buttons() -> HBoxContainer:
-	var buttons := HBoxContainer.new()
-	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
-	buttons.add_theme_constant_override("separation", 24)
+	var buttons := _part(BoxContainer.ALIGNMENT_END)
 	_next = MenuTheme.button("Next map", 26)
 	_next.pressed.connect(func() -> void: Game.next_map(match_node))
 	_next.visible = false
@@ -481,6 +535,8 @@ func _buttons() -> HBoxContainer:
 	_quit = MenuTheme.button("Back to title", 26)
 	_quit.pressed.connect(func() -> void: Game.go_to_title())
 	buttons.add_child(_quit)
+	for way: Button in [_next, _lobby, _rematch, _quit]:
+		way.custom_minimum_size.x = WAY_WIDTH
 	return buttons
 
 

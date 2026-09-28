@@ -687,7 +687,8 @@ func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
 	assert_int(screen._pager.page).is_equal(0)
 	assert_bool(screen._standings.disabled).is_false()
 	assert_bool(screen._map_podium.disabled).is_true()
-	assert_bool(screen._next.visible).is_false()
+	# The next map is there from the podium too, for whoever has seen enough.
+	assert_bool(screen._next.visible).is_true()
 	assert_bool(screen._rematch.visible).is_false()
 	assert_bool(screen._quit.visible).is_false()
 	assert_bool(screen._lobby.visible).is_false()
@@ -712,7 +713,7 @@ func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
 	assert_int(screen._pager.page).is_equal(0)
 	assert_bool(screen._map_podium.disabled).is_true()
 	assert_bool(screen._standings.disabled).is_false()
-	assert_bool(screen._next.visible).is_false()
+	assert_bool(screen._next.visible).is_true()
 	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._standings)
 	screen._standings.pressed.emit()
 	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
@@ -720,32 +721,32 @@ func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
 
 
 ## Somebody watching has nothing to press, GAME.md 10.3: a map's podium goes on to how the run
-## stands by itself, and a bar at the bottom of it counts down to that, so it is no surprise.
+## stands by itself, and a ring beside the host's word counts down to that, so it is no surprise.
 func test_a_watchers_podium_counts_down_to_the_standings() -> void:
 	_run_at(1, 3)
 	var screen := await _podium_after(1, 3)
 	screen._process(0.0)
-	assert_bool(screen._watcher_bar.visible).is_false()
+	assert_bool(screen._watcher_ring.visible).is_false()
 	var watching := NetSession.new()
 	watching.watching = true
 	Net.session = watching
 	screen._process(ResultsScreen.WATCHER_WAIT * 0.5)
-	var bar_up := screen._watcher_bar.visible
-	var left := screen._watcher_bar.value
+	var ring_up := screen._watcher_ring.visible
+	var left := screen._watcher_ring.value
 	screen._process(ResultsScreen.WATCHER_WAIT)
 	var shown := screen._showing_run
 	screen._process(0.0)
-	var bar_after := screen._watcher_bar.visible
+	var ring_after := screen._watcher_ring.visible
 	# Gone back to the map's podium, the watcher is looking at it, and it stays.
 	screen._map_podium.pressed.emit()
 	screen._process(ResultsScreen.WATCHER_WAIT * 2.0)
-	var stayed := not screen._showing_run and not screen._watcher_bar.visible
+	var stayed := not screen._showing_run and not screen._watcher_ring.visible
 	Net.session = null
 	watching.free()
-	assert_bool(bar_up).is_true()
-	assert_float(left).is_equal_approx(50.0, 0.5)
+	assert_bool(ring_up).is_true()
+	assert_float(left).is_equal_approx(0.5, 0.01)
 	assert_bool(shown).is_true()
-	assert_bool(bar_after).is_false()
+	assert_bool(ring_after).is_false()
 	assert_bool(stayed).is_true()
 
 

@@ -237,7 +237,8 @@ func _host_plays(first: Node) -> ResultsScreen:
 	var podium := await _end(first)
 	if podium == null:
 		return null
-	_check(not podium._next.visible and not podium._rematch.visible, "map 1's podium goes on")
+	# Next map is there from the podium as well as from the standings, GAME.md 9.7.
+	_check(podium._next.visible and not podium._rematch.visible, "map 1's podium goes on")
 	_check(Game.grand_prix.scored_round == 0, "map 1 is scored")
 	_say("SCORES 1 %s" % _scores(one))
 	if not await _on_to_the_standings(podium, 1):

@@ -2820,8 +2820,9 @@ under the ready count says they are watching, in place of the one that says how 
 since there is no seat for them to take. Nor is there anything for them to press: a map's
 podium goes on to how the run stands by itself after six seconds, the finale first after the
 last map, and the host still decides when the next map starts. It does so the once: a watcher
-who goes back to the map's podium is looking at it, and it stays. A thin gold bar the width of the
-pane, at the bottom of it, empties over those six seconds, so it going on is no surprise.
+who goes back to the map's podium is looking at it, and it stays. A small gold ring beside the
+line saying the host starts the next map empties over those six seconds, so it going on is no
+surprise.
 
 The host says who may come in. Lobby settings, on the host's pause menu beside Manage players,
 comes up in place of the menu with four things on it: Player limit, the most players the game
@@ -3230,13 +3231,16 @@ it is, so a client knows as well as the host whether its podium leads on.
 
 **Between maps.** A map that is not the last ends on its podium as any map does, and the run's
 standings so far, see The end below, headed Standings after map so many of so many, are the page
-after it. The two are turned with a pair of arrow buttons under the rows, drawn rather than
-lettered, with a dot for each page between them and the page being looked at lit in gold; an
-arrow with no page that way is dimmed and the cursor passes it by. The podium's one way on is the
-right arrow, which the cursor starts on. The standings' is Next map, under the arrows, and the
-left arrow goes back to the podium: the two can be looked at in turn for as long as the host
-leaves them up. After the last map the right arrow goes on to the party in the room and then the
-final standings, and there is no going back to its podium, which has handed over to the party.
+after it. The foot of the pane is in three, each a third of its width. On the left are the arrows
+that turn the two pages, drawn rather than lettered, with a dot for each page between them and
+the page being looked at lit in gold; an arrow with no page that way is dimmed and the cursor
+passes it by. On the right is Next map, on both pages, for whoever moves everybody on. In the
+middle a client is told who does, and a watcher's countdown sits beside that, see 9.3. The cursor
+starts on the right arrow on the podium and on Next map on the standings, so going on is a press
+at a time; the two can be looked at in turn for as long as the host leaves them up. After the
+last map the right arrow goes on to the party in the room and then the final standings, whose
+ways on take the right of the foot, and there is no going back to its podium, which has handed
+over to the party. A single map has no pages, and its ways on are the whole row, centered.
 There is no rematch of a map in the
 middle of a run and no leaving from its podium -- the pause menu is still the way out. The
 podium says which map of how many it was. Online the host moves everybody on, the same way it
