@@ -2054,7 +2054,10 @@ movement: the one thing a corner block must not do is ask to be looked at.
 - **Kill feed** in the top right: the last five kills, newest first, reading as
   "P1 shot P2", "P1 rammed P2", "P1 bombed P2", "P1 shoved P2 in" for a pit
   shove, "P2 fell in" for a fall nobody caused and "P2 wrecked itself" for a
-  self kill. Names are in the players' colors. Lines hold for 6 s and fade.
+  self kill. A turret's kill is its owner's and says whose turret made it, "P1's
+  turret shot P2", or "P1 was shot by their own turret" with own bullets deadly:
+  a player shot from across the room wants to know it was the turret that got
+  them, not the kart they can see nowhere near. Names are in the players' colors. Lines hold for 6 s and fade.
   The feed drops below a player block that owns that corner.
 - **Standings**: a ranked list down the right-hand side, one row per kart with
   its banked score and, in gold beside it, whatever it is still carrying around

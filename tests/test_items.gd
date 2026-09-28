@@ -207,9 +207,16 @@ func test_a_turret_kills_the_enemy_ahead_and_credits_its_owner() -> void:
 	assert_int(turrets.size()).is_equal(1)
 	var turret: Turret = turrets[0]
 	assert_int(turret.owner_slot).is_equal(0)
+	var kills: Array[Array] = []
+	var heard := func(victim: int, killer: int, cause: StringName) -> void:
+		kills.append([victim, killer, cause])
+	Events.kart_killed.connect(heard)
 	await _runner.simulate_frames(90, 17)
+	Events.kart_killed.disconnect(heard)
 	assert_int(match_node.slots[1].deaths).is_equal(1)
 	assert_int(match_node.slots[0].kills).is_equal(1)
+	# The owner's kill, and the turret's doing, which the kill feed says, GAME.md 8.3.
+	assert_array(kills).is_equal([[1, 0, &"turret"]])
 	assert_float(owner.pot.mult).is_equal(2.0)
 	var stats: CannonStats = load("res://data/cannons/default.tres")
 	var from := turret.global_position + Vector3(3.0, 0.0, 0.0)

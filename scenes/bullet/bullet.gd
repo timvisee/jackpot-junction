@@ -21,6 +21,9 @@ const PLAYER_PULL := 0.4
 static var _sight := PhysicsRayQueryParameters3D.new()
 
 var owner_slot := -1
+## Fired by the owner's turret rather than by the owner's kart, for the kill feed to say so,
+## GAME.md 8.3. The kill is the owner's either way.
+var from_turret := false
 var velocity := Vector3.ZERO
 var radius := 0.15
 var bounces_left := 0

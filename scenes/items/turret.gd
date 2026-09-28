@@ -85,7 +85,7 @@ func _physics_process(delta: float) -> void:
 	):
 		_fire_left = fire_interval
 		var direction := -global_basis.z
-		bullet_system.spawn(
+		var shot := bullet_system.spawn(
 			owner_slot,
 			global_position + direction * 0.9,
 			direction,
@@ -93,6 +93,7 @@ func _physics_process(delta: float) -> void:
 			color,
 			global_position
 		)
+		shot.from_turret = true
 
 
 func _nearest_enemy() -> Kart:

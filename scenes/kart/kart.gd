@@ -669,7 +669,7 @@ func take_hit(bullet: Bullet) -> bool:
 	if shielded:
 		pop_shield()
 		return true
-	_take_lethal(&"bullet", bullet.owner_slot)
+	_take_lethal(&"turret" if bullet.from_turret else &"bullet", bullet.owner_slot)
 	return true
 
 

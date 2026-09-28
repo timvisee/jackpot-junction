@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **The kill feed says when a turret made the kill.** "P1's turret shot P2" rather than
+  "P1 shot P2".
+
 ## [0.8.2] - 2026-09-25
 
 Matches run much faster the longer they go, and the Video settings gain MSAA, shadows, an

@@ -105,7 +105,9 @@ func _drop(index: int) -> void:
 
 
 ## The wording. Without a killer the kart wrecked itself, and a pit is a fall unless someone
-## bumped the victim into it.
+## bumped the victim into it. A turret's kill is its owner's, and says whose turret it was: a
+## player who was shot by somebody on the far side of the room wants to know it was the turret
+## that got them, not the kart they can see nowhere near.
 func _line(
 	victim: String, victim_color: Color, killer: String, killer_color: Color, cause: StringName
 ) -> String:
@@ -115,11 +117,19 @@ func _line(
 	if killer.is_empty():
 		return "%s %s" % [red, "fell in" if cause == &"pit" else "wrecked itself"]
 	if killer == victim:
-		return "%s wrecked itself" % red
-	var verb: String = VERBS.get(cause, "took out")
-	if cause == &"pit":
-		return "%s shoved %s in" % [_tag(killer, killer_color), red]
-	return "%s %s %s" % [_tag(killer, killer_color), verb, red]
+		var own := "was shot by their own turret" if cause == &"turret" else "wrecked itself"
+		return "%s %s" % [red, own]
+	return _by(_tag(killer, killer_color), red, cause)
+
+
+## A kill somebody else made, by [param cause]: [param blue] did it to [param red].
+static func _by(blue: String, red: String, cause: StringName) -> String:
+	match cause:
+		&"pit":
+			return "%s shoved %s in" % [blue, red]
+		&"turret":
+			return "%s's turret shot %s" % [blue, red]
+	return "%s %s %s" % [blue, VERBS.get(cause, "took out"), red]
 
 
 func _tag(text: String, color: Color) -> String:

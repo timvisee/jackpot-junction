@@ -111,7 +111,10 @@ func _ready() -> void:
 		slot.offer = JokerOffer.new(slot.kart, choices)
 		slot.offer.selected = 1
 	if _feed:
-		for pair: Array in [[1, 0, &"bullet"], [2, 1, &"ram"], [3, -1, &"pit"], [0, 3, &"bomb"]]:
+		var made_up: Array[Array] = [
+			[1, 0, &"bullet"], [2, 1, &"ram"], [3, -1, &"pit"], [0, 3, &"bomb"], [1, 2, &"turret"]
+		]
+		for pair: Array in made_up:
 			Events.kart_killed.emit(pair[0], pair[1], pair[2])
 	if _burst:
 		Burst.spawn(
