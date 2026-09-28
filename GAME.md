@@ -2819,7 +2819,8 @@ for everybody still building it, and not a pause, which the room agrees without 
 under the ready count says they are watching, in place of the one that says how to take a seat,
 since there is no seat for them to take. Nor is there anything for them to press: a map's
 podium goes on to how the run stands by itself after six seconds, the finale first after the
-last map, and the host still decides when the next map starts. A thin gold bar the width of the
+last map, and the host still decides when the next map starts. It does so the once: a watcher
+who goes back to the map's podium is looking at it, and it stays. A thin gold bar the width of the
 pane, at the bottom of it, empties over those six seconds, so it going on is no surprise.
 
 The host says who may come in. Lobby settings, on the host's pause menu beside Manage players,
@@ -3229,7 +3230,10 @@ it is, so a client knows as well as the host whether its podium leads on.
 
 **Between maps.** A map that is not the last ends on its podium as any map does, with one way
 on: Grand Prix results, the run's standings so far, see The end below, headed Standings after
-map so many of so many. Those have one way on: Next map. There is no rematch of a map in the
+map so many of so many. Those have one way on, Next map, and one way back, Map podium, to the
+map's podium again, which still leads to them: the two can be looked at in turn for as long as
+the host leaves them up. After the last map there is no going back to its podium, which has
+handed over to the party in the room. There is no rematch of a map in the
 middle of a run and no leaving from its podium -- the pause menu is still the way out. The
 podium says which map of how many it was. Online the host moves everybody on, the same way it
 moved everybody out of the waiting room; a client's podium says so, and a client can look at the

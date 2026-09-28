@@ -700,6 +700,18 @@ func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
 	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._next)
 	# Nobody is champion of a run that is still going.
 	assert_bool(Game.grand_prix.revealed).is_false()
+	# And back to the map's podium, and on to the standings again, as often as anybody likes.
+	assert_bool(screen._map_podium.visible).is_true()
+	screen._map_podium.pressed.emit()
+	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
+	assert_str(screen._caption.text).contains("map 1 of 3")
+	assert_bool(screen._map_podium.visible).is_false()
+	assert_bool(screen._standings.visible).is_true()
+	assert_bool(screen._next.visible).is_false()
+	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._standings)
+	screen._standings.pressed.emit()
+	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	assert_bool(screen._next.visible).is_true()
 
 
 ## Somebody watching has nothing to press, GAME.md 10.3: a map's podium goes on to how the run
@@ -719,12 +731,17 @@ func test_a_watchers_podium_counts_down_to_the_standings() -> void:
 	var shown := screen._showing_run
 	screen._process(0.0)
 	var bar_after := screen._watcher_bar.visible
+	# Gone back to the map's podium, the watcher is looking at it, and it stays.
+	screen._map_podium.pressed.emit()
+	screen._process(ResultsScreen.WATCHER_WAIT * 2.0)
+	var stayed := not screen._showing_run and not screen._watcher_bar.visible
 	Net.session = null
 	watching.free()
 	assert_bool(bar_up).is_true()
 	assert_float(left).is_equal_approx(50.0, 0.5)
 	assert_bool(shown).is_true()
 	assert_bool(bar_after).is_false()
+	assert_bool(stayed).is_true()
 
 
 ## The standings after a map in the middle of a run replace that map's podium on a screen that is

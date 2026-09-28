@@ -41,9 +41,11 @@ var _style: StyleBoxFlat
 var _title: Label
 var _podium: ResultsPodium
 var _rows: VBoxContainer
-## The two ways on from here, kept so the screen can point at one when it comes up.
+## The ways on from here, kept so the screen can point at one when it comes up.
 var _next: Button
 var _standings: Button
+## Back from the run's standings to the map's podium in the middle of a run, [method _show_map].
+var _map_podium: Button
 var _rematch: Button
 var _lobby: Button
 var _quit: Button
@@ -53,6 +55,9 @@ var _host_decides: Label
 var _caption: Label
 ## Whether a map's podium has moved on to the run's standings, see [method _show_run].
 var _showing_run := false
+## Whether the run's standings have been up at all, which a watcher's podium goes on to by itself
+## the once: one they went back from is one they are looking at.
+var _run_seen := false
 ## Seconds until a watcher's podium goes on to the run's by itself, see [method _process], and the
 ## bar at the bottom of the pane that empties as they run out, so it is not a surprise.
 var _watcher_left := WATCHER_WAIT
@@ -114,7 +119,7 @@ func fill_in() -> void:
 	scale = Vector2.ONE * clampf(fit, 0.1, 1.0)
 	# This is the one screen nobody asked for: it arrives on its own at the whistle, so it points
 	# at what most people want next rather than waiting to be found.
-	for first: Button in [_next, _standings, _lobby, _rematch, _quit]:
+	for first: Button in [_next, _standings, _map_podium, _lobby, _rematch, _quit]:
 		if first.visible:
 			first.grab_focus()
 			break
@@ -127,7 +132,8 @@ func fill_in() -> void:
 ## In a Grand Prix, GAME.md 9.7, every map's podium leads to how the run stands, and that leads
 ## on: to the next map, from a map that is not the last, and nowhere else -- there is no rematch of
 ## a map in the middle of a run, and no leaving from the podium, which is for the next map (the
-## pause menu is still the way out). The last map's standings end the run, and lead back to the
+## pause menu is still the way out). Until then the two can be looked at in turn, the standings
+## leading back to the map's podium. The last map's standings end the run, and lead back to the
 ## lobby. A client decides none of it, and is told who does.
 func _ways_on() -> void:
 	var rules := match_node.rules
@@ -144,6 +150,8 @@ func _ways_on() -> void:
 	# Looking at the run is only looking, so it is everybody's to do, a client's as much as the
 	# host's; it is there once the run's points are in.
 	_standings.visible = grand_prix and not _showing_run and scored
+	# Not after the last map, whose podium has handed over to the party in the room.
+	_map_podium.visible = more and standing
 	_rematch.visible = decides and not grand_prix
 	_lobby.visible = decides and (run_up or (not grand_prix and Net.hosting()))
 	_quit.visible = not grand_prix or run_up
@@ -167,7 +175,7 @@ func _ways_on() -> void:
 ## Somebody watching has nothing to press and nobody to press it for them, GAME.md 10.3: a map's
 ## podium goes on to how the run stands by itself, once it has been up long enough to be read.
 func _process(delta: float) -> void:
-	var counting := visible and _standings.visible and _watching()
+	var counting := visible and _standings.visible and not _run_seen and _watching()
 	_watcher_bar.visible = counting
 	if not counting:
 		return
@@ -211,9 +219,16 @@ func _on_standings() -> void:
 ## last map. After any other map there is no champion yet to name.
 func _show_run() -> void:
 	_showing_run = true
+	_run_seen = true
 	var rules := match_node.rules
 	if Game.grand_prix != null and rules.round >= rules.rounds:
 		Game.grand_prix.revealed = true
+	fill_in()
+
+
+## Back from the run's standings to the podium of the map just played, in the middle of a run.
+func _show_map() -> void:
+	_showing_run = false
 	fill_in()
 
 
@@ -443,6 +458,10 @@ func _buttons() -> HBoxContainer:
 	_standings.pressed.connect(_on_standings)
 	_standings.visible = false
 	buttons.add_child(_standings)
+	_map_podium = MenuTheme.button("Map podium", 26)
+	_map_podium.pressed.connect(_show_map)
+	_map_podium.visible = false
+	buttons.add_child(_map_podium)
 	_lobby = MenuTheme.button("Back to lobby", 26)
 	_lobby.pressed.connect(_back_to_lobby)
 	_lobby.visible = false
