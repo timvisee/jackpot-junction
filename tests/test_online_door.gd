@@ -89,10 +89,14 @@ func test_the_host_kicks_a_client_out_of_its_game() -> void:
 	var client := _client()
 	var told := [""]
 	client.refused.connect(func(reason: String) -> void: told[0] = reason)
-	var seated := await _wait_until(func() -> bool: return _host.guests().size() == 1, 4000)
-	assert_bool(seated).override_failure_message("the client never sat down").is_true()
+	# Sat down, and by the name it gave: that follows the seat a moment later, and until it arrives
+	# the guest is listed under the one the host handed it.
+	var named := func() -> bool:
+		var guests := _host.guests()
+		return guests.size() == 1 and guests[0]["name"] == "Guest"
+	var seated := await _wait_until(named, 4000)
+	assert_bool(seated).override_failure_message("the client never sat down as Guest").is_true()
 	var guest: Dictionary = _host.guests()[0]
-	assert_str(guest["name"]).is_equal("Guest")
 	_host.kick(guest["peer"])
 	var gone := await _wait_until(func() -> bool: return not told[0].is_empty(), 4000)
 	assert_bool(gone).override_failure_message("the client was never told").is_true()
