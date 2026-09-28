@@ -285,6 +285,7 @@ func _host_goes_back(last: ResultsScreen) -> void:
 	if again == null:
 		return
 	_check(again.host_settings != null and again.host_settings.is_open(), "settings are up again")
+	_check(not again.host_settings.on_lobby(), "on the match's rather than the lobby's")
 	var match_node: Match = again.match_node
 	await _until(
 		func() -> bool: return _remote(match_node) == _guests, 30.0, "every client is back"

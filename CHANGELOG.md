@@ -23,6 +23,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Back in a LAN lobby, only the match settings come up.** The lobby settings were set when
+  the game was hosted, and are still on the pause menu.
 - **A host nobody has joined leaves without being asked.** Back to title only warns about
   disconnecting everybody when somebody is connected, to play or to watch.
 - **The lobby says how many bots are coming.** "1 / 2 PLAYERS READY + 2 BOTS", at the top

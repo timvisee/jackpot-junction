@@ -406,7 +406,8 @@ func test_the_host_chooses_the_match_on_opening_the_room() -> void:
 
 ## Back from a match with everybody still connected, the host's room takes over the connection
 ## that is already open rather than opening another, and puts the match settings up again: the
-## next match is chosen here, the same as the first one was.
+## next match is chosen here, the same as the first one was. Only the match's, though: who may come
+## in was settled when the game was hosted.
 func test_the_host_comes_back_to_the_room_on_the_same_connection() -> void:
 	var open := Net.open(null)
 	assert_int(open.host(HOST_PORT)).is_equal(OK)
@@ -414,7 +415,10 @@ func test_the_host_comes_back_to_the_room_on_the_same_connection() -> void:
 	assert_object(Net.session).is_same(open)
 	assert_object(room.session).is_same(open)
 	assert_object(open.match_node).is_same(room.get_node("Match"))
-	assert_bool(room.host_settings.is_open()).is_true()
+	var pane: HostSettings = room.host_settings
+	assert_bool(pane.is_open()).is_true()
+	assert_bool(pane.on_lobby()).is_false()
+	assert_bool(pane._pane.visible).is_true()
 
 
 ## The host can choose a Grand Prix instead, GAME.md 9.7: how many maps rather than which, and

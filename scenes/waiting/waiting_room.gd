@@ -43,6 +43,9 @@ var stalls: StyleStalls
 var _connecting: StatusPane
 ## The room's limit on players as it was last said, to say it again when the host changes it.
 var _said_limit := -1
+## Whether the host came back to this room from a match, on a connection that was already open.
+## Who may come in was settled when it was opened, so only the match is asked again, GAME.md 9.6.
+var _came_back := false
 
 
 func _ready() -> void:
@@ -99,6 +102,7 @@ func _host() -> void:
 		# Back from a match with everybody still connected, GAME.md 9.6. The same connection, a
 		# different room: everybody who follows is seated in here as they ask.
 		session = Net.session
+		_came_back = true
 		Net.attach(match_node)
 		session.in_arena = false
 		session.re_seat()
@@ -244,8 +248,9 @@ func _offer_the_settings(menu: PauseMenu) -> void:
 	host_settings.closed.connect(_chosen)
 	menu.add_entry("Match settings", choose)
 	Events.player_joined.connect(_on_player_joined)
-	# Hosting, who may come in first, then what the match is, GAME.md 9.6.
-	choose(true)
+	# Hosting, who may come in first, then what the match is, GAME.md 9.6. Back from a match only
+	# the match: the lobby's are on the pause menu for a host who wants them.
+	choose(not _came_back)
 
 
 ## Opens the choosing. The host's own karts wait where they are while it is open: the controls

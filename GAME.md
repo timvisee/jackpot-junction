@@ -3173,8 +3173,10 @@ bullets and what the clock running out does. They come up over the
 room the moment it is opened, again from the host's pause menu, and start on whatever the host
 chose last time. Hosting online they come up one step later: first the lobby's own settings of
 10.3, who may come in, since friends are knocking from the moment the room is open, with Next
-on them, and Back or B, going on to the match's. On one machine nobody knocks, and the match's
-come up first. The room is open while they are up -- friends join and drive around -- and the
+on them, and Back or B, going on to the match's. That is on hosting only: back in the room after
+a match with everybody still connected, who may come in has been settled, so the match's come up
+alone, and Lobby settings on the pause menu is there for a host who wants to change it. On one
+machine nobody knocks, and the match's come up first. The room is open while they are up -- friends join and drive around -- and the
 host's own karts wait where they are, since the controls are working the menu.
 
 Everybody in the room is told what is coming, under the count:
