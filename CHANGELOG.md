@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Several players at a LAN client.** A client takes another player with J or Start, the
+  way the host does, up to the lobby's limit; it won't play with 0.8.x.
+
 ### Fixed
 
 - **A full LAN lobby turns away another seat.** Pressing J at the host past the lobby's

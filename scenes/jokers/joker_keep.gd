@@ -34,7 +34,7 @@ static func pending(match_node: Match) -> bool:
 ## Whether anybody at this machine is still choosing, and has the pick on their screen.
 static func choosing_here(match_node: Match) -> bool:
 	for slot: PlayerSlot in match_node.slots:
-		var here := slot.is_local_human() or slot.index == match_node.local_slot
+		var here := slot.is_local_human() or match_node.is_local_seat(slot.index)
 		if here and choosing(slot):
 			return true
 	return false

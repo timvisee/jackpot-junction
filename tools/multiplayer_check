@@ -6,9 +6,10 @@
 #   online a: the host and a second player at its machine, one client, one bot;
 #             every seat keeps one joker at random between the maps, and the client gives
 #             no name and keeps the one the host hands it
-#   online b: the host, two clients, one bot and somebody watching; everybody chooses a joker
-#             to keep, and the game has a password, which each client is asked for and
-#             gives, the first a wrong one before it, and the watcher is let in without
+#   online b: the host, two clients, the second with two players at it, and somebody
+#             watching, which fills the arena with no bot; everybody chooses a joker to keep,
+#             and the game has a password, which each client is asked for and gives, the
+#             first a wrong one before it, and the watcher is let in without
 #   local:    two players on one machine, one bot; everybody keeps all their jokers
 #
 # Usage: tools/multiplayer_check          (about a minute and a half)
@@ -72,12 +73,12 @@ host_a_status=$?
 wait "$client_a"
 client_a_status=$?
 
-run host_b --role=host --port="$((port + 1))" --locals=1 --clients=2 --jokers=choose \
+run host_b --role=host --port="$((port + 1))" --locals=1 --clients=2 --guests=3 --jokers=choose \
 	--password=sesame &
 host_b=$!
 run client_b1 --role=client --port="$((port + 1))" --password=sesame --wrong-first &
 client_b1=$!
-run client_b2 --role=client --port="$((port + 1))" --password=sesame &
+run client_b2 --role=client --port="$((port + 1))" --password=sesame --seats=2 &
 client_b2=$!
 run watcher_b --role=watcher --port="$((port + 1))" &
 watcher_b=$!

@@ -85,6 +85,7 @@ func _ready() -> void:
 			)
 			session.disconnected.connect(func() -> void: _fail("The host disconnected"))
 			session.refused.connect(_fail)
+			session.seat_refused.connect(_on_seat_refused)
 			session.slot_assigned.connect(
 				func(_index: int) -> void:
 					_pane().visible = false
@@ -212,18 +213,16 @@ func _adopt_session() -> void:
 ## driving pressing it is somebody sitting down. A pad somebody is driving is let through, and
 ## pauses.
 func _input(event: InputEvent) -> void:
-	if (
-		not event.is_action_pressed(InputActions.JOIN)
-		or get_tree().paused
-		or config.online == "join"
-	):
+	if not event.is_action_pressed(InputActions.JOIN) or get_tree().paused:
 		return
 	var device := DeviceInput.KEYBOARD if event is InputEventKey else event.device
-	if SeatLimit.turns_away(self, match_node, session, device):
+	if SeatLimit.join(self, match_node, session, device):
 		get_viewport().set_input_as_handled()
-		return
-	if match_node.join_human(device) != null:
-		get_viewport().set_input_as_handled()
+
+
+## Another player here asked the host for a seat and the game had none, GAME.md 10.3.
+func _on_seat_refused(_seat: int) -> void:
+	SeatLimit.say_full(self, SeatLimit.limit(match_node, session))
 
 
 ## Something the player has to be told, in the middle of the screen, see [StatusPane].

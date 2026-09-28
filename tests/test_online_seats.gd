@@ -1,0 +1,163 @@
+extends GdUnitTestSuite
+## Several players at one client, GAME.md 10.3: a second sits down on a device of their own, is
+## seated by the host in a seat of their own, drives it, and gets up again, the rest of that
+## machine playing on. The host holds them to its lobby's limit, and can show one out without the
+## other.
+
+const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const PORT := 7837
+## How much slack every wait in this suite gets, see test_online.gd.
+const PATIENCE := 3
+
+var _host_root: Node
+var _client_root: Node
+var _host: NetSession
+var _host_match: Match
+var _client: NetSession
+var _client_match: Match
+var _settings_were: Settings
+
+
+func before_test() -> void:
+	_settings_were = Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_online_seats.cfg"
+	Game.settings.player_names[1] = "Second Seat"
+	_host_root = auto_free(Node.new())
+	_host_root.name = "HostRoot"
+	add_child(_host_root)
+	_client_root = auto_free(Node.new())
+	_client_root.name = "ClientRoot"
+	add_child(_client_root)
+	get_tree().set_multiplayer(SceneMultiplayer.new(), _host_root.get_path())
+	get_tree().set_multiplayer(SceneMultiplayer.new(), _client_root.get_path())
+
+
+func after_test() -> void:
+	get_tree().set_multiplayer(null, _host_root.get_path())
+	get_tree().set_multiplayer(null, _client_root.get_path())
+	Game.settings = _settings_were
+
+
+func _wait_until(condition: Callable, max_millis: int) -> bool:
+	var waited := 0
+	var budget := max_millis * PATIENCE
+	while not condition.call() and waited < budget:
+		await await_millis(25)
+		waited += 25
+	return condition.call()
+
+
+func _rules() -> MatchRules:
+	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	rules.countdown = 0.1
+	rules.lives = 3
+	rules.duration = 120.0
+	return rules
+
+
+## A host with a player of its own and two bots, and a client seated in the first bot's kart.
+func _seated() -> void:
+	_host_match = auto_free(MATCH_SCENE.instantiate())
+	_host_match.name = "Match"
+	_host_match.rules = _rules()
+	_host_match.with_hud = false
+	_host_match.offer_size = 0
+	_host_root.add_child(_host_match)
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new(), BotInput.new()
+	]
+	_host_match.start(inputs, 23)
+	_host = auto_free(NetSession.new())
+	_host.name = "Session"
+	_host.match_node = _host_match
+	_host_root.add_child(_host)
+	assert_int(_host.host(PORT)).is_equal(OK)
+	_client_match = auto_free(MATCH_SCENE.instantiate())
+	_client_match.name = "Match"
+	_client_match.rules = _rules()
+	_client_match.with_hud = true
+	_client_root.add_child(_client_match)
+	_client_match.start_puppet()
+	_client = auto_free(NetSession.new())
+	_client.name = "Session"
+	_client.match_node = _client_match
+	_client.local_input = KartInput.new()
+	_client_root.add_child(_client)
+	assert_int(_client.join("127.0.0.1", PORT)).is_equal(OK)
+	var seated := await _wait_until(func() -> bool: return _client.local_slot >= 0, 4000)
+	assert_bool(seated).override_failure_message("the client never sat down").is_true()
+
+
+## Asks for a second seat at the client and waits for the host's answer either way.
+func _sit_another_down() -> bool:
+	_client.add_seat(0)
+	return await _wait_until(
+		func() -> bool: return _client.seats.size() == 2 and _client.seats[1].slot >= 0, 4000
+	)
+
+
+func test_a_second_player_at_a_client_sits_down_drives_and_leaves() -> void:
+	await _seated()
+	assert_bool(await _sit_another_down()).override_failure_message("no second seat").is_true()
+	var second := _client.seats[1]
+	assert_int(second.seat).is_equal(1)
+	assert_int(second.slot).is_not_equal(_client.local_slot)
+	# On the host: a seat of its own, somebody else's to drive, and under the name that seat of the
+	# client's settings keeps.
+	var hosted := _host_match.slots[second.slot]
+	assert_bool(hosted.input is NetInput).is_true()
+	var named := await _wait_until(func() -> bool: return hosted.player_name == "Second Seat", 4000)
+	assert_bool(named).override_failure_message("the second seat kept the host's name").is_true()
+	assert_int(_host.guests().size()).is_equal(2)
+	# On the client: played here, with a corner and a kart of its own.
+	assert_bool(_client_match.is_local_seat(second.slot)).is_true()
+	var blocks := await _wait_until(
+		func() -> bool: return _client_match.hud._blocks.size() == 2, 4000
+	)
+	assert_bool(blocks).override_failure_message("the second player has no corner").is_true()
+	# Driven from here, on its own controls.
+	var controls := KartInput.new()
+	second.input = controls
+	var kart := _host_match.kart_of(second.slot)
+	var start := kart.global_position
+	controls.throttle = 1.0
+	await await_millis(1500)
+	assert_float(kart.global_position.distance_to(start)).is_greater(2.0)
+	controls.throttle = 0.0
+	# Up and gone: the seat is the host's to empty, the first player plays on.
+	var index := second.slot
+	_client.leave_seat(index)
+	assert_int(_client.seats.size()).is_equal(1)
+	assert_bool(_client_match.is_local_seat(index)).is_false()
+	var emptied := await _wait_until(func() -> bool: return not hosted.input is NetInput, 4000)
+	assert_bool(emptied).override_failure_message("the host kept the seat").is_true()
+	assert_bool(_host_match.slots[_client.local_slot].input is NetInput).is_true()
+
+
+## GAME.md 9.6: a lobby for two holds two, whichever machine the third sits down at.
+func test_the_host_refuses_a_seat_past_its_limit() -> void:
+	await _seated()
+	_host.door.max_players = 2
+	var refused := [false]
+	_client.seat_refused.connect(func(_seat: int) -> void: refused[0] = true)
+	_client.add_seat(0)
+	var told := await _wait_until(func() -> bool: return refused[0], 4000)
+	assert_bool(told).override_failure_message("the client was never told").is_true()
+	assert_int(_client.seats.size()).is_equal(1)
+	assert_int(SeatLimit.players(_host_match)).is_equal(2)
+
+
+## One of two players at a client shown out, and the other left playing.
+func test_the_host_shows_out_one_of_two_players_at_a_client() -> void:
+	await _seated()
+	assert_bool(await _sit_another_down()).is_true()
+	var peer: int = _host.guests()[0]["peer"]
+	var index := _client.seats[1].slot
+	_host.kick(peer, 1)
+	var gone := await _wait_until(func() -> bool: return _client.seats.size() == 1, 4000)
+	assert_bool(gone).override_failure_message("the client kept the player").is_true()
+	assert_bool(_client_match.is_local_seat(index)).is_false()
+	assert_bool(_client.local_slot >= 0).is_true()
+	assert_bool(_host.anybody_connected()).is_true()
+	assert_int(_host.guests().size()).is_equal(1)

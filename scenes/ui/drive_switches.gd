@@ -220,7 +220,11 @@ func _leave(each: Dictionary) -> void:
 	if match_node == null:
 		return
 	var slot: PlayerSlot = each["slot"]
-	if match_node.rules.timed:
+	var session := Net.session if Net.online() else null
+	if session != null and not session.is_host:
+		# One of several players at a client: their seat is the host's to empty, GAME.md 10.3.
+		session.leave_seat(slot.index)
+	elif match_node.rules.timed:
 		match_node.leave_human(slot)
 	else:
 		VacantSeat.leave(match_node, slot)

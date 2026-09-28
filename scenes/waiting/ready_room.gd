@@ -127,7 +127,7 @@ static func add_to(in_match: Match) -> ReadyRoom:
 	room.readied.connect(room._on_readied)
 	room.filled.connect(room._on_filled)
 	Events.match_planned.connect(room._on_match_planned)
-	Events.bots_planned.connect(room._on_bots_planned)
+	Events.room_planned.connect(room._on_room_planned)
 	return room
 
 
@@ -184,8 +184,9 @@ func bots_joining() -> int:
 	return clampi(bots_asked, 0, maxi(seats - player_count(), 0))
 
 
-func _on_bots_planned(bots: int) -> void:
+func _on_room_planned(bots: int, most: int) -> void:
 	bots_asked = bots
+	seat_limit = most
 
 
 func player_count() -> int:

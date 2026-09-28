@@ -26,6 +26,8 @@ signal ball_moved(state: Array)
 signal refused(reason: String)
 ## The host wants a password this client did not give, or not the one it gave, GAME.md 9.6.
 signal locked(wrong: bool)
+## On a client: the host had no room for another of its players, GAME.md 10.3.
+signal seat_refused(seat: int)
 
 const DEFAULT_PORT := 7777
 ## How long the two ends of a new connection have to agree on a version, in seconds. A machine
@@ -54,12 +56,12 @@ var match_node: Match:
 		match_node = value
 		if value != null and not value.tree_exiting.is_connected(_let_go):
 			value.tree_exiting.connect(_let_go)
-## The slot this client plays, -1 until the host assigns one.
+## The slot this client's first player plays, -1 until the host assigns one.
 var local_slot := -1
-## The input the client sends; tests may swap it.
+## The input the client's first player plays on; tests may swap it.
 var local_input: KartInput = PlayerInput.new(DeviceInput.ANY, 0)
-## What this machine's player calls themselves, sent to the host once a seat is assigned. Empty
-## leaves the host's funny name standing, GAME.md 3.8.
+## What this machine's first player calls themselves, sent to the host once a seat is assigned.
+## Empty leaves the host's funny name standing, GAME.md 3.8.
 var player_name := ""
 ## On a client: whether it came to watch rather than to play, GAME.md 10.3. Said in the handshake,
 ## and the host never gives it a seat.
@@ -88,17 +90,22 @@ var unfocused: bool:
 ## stop the others playing, GAME.md 3.8, so this is the agreement rather than what anyone asked.
 var paused := false
 
+## On a client: its players, each a seat of its own, the first of them [member local_slot]'s,
+## GAME.md 10.3. Made for the first as it is first seated; more as more sit down.
+var seats: Array[ClientSeat]:
+	get:
+		return _here.seats
+
 var _tick := 0
-var _peer_slots: Dictionary[int, int] = {}
+## On the host: the seats its clients hold, see [PeerSeats].
+var _peer_slots := PeerSeats.new()
+var _here := LocalSeats.new()
 ## On the host: whether the room it is in can seat anybody yet. False from the moment it says it
 ## is going until it has arrived and called [method re_seat], see GAME.md 10.3.
 var _room_up := true
 ## On the host: who has asked for a seat while there was no room to put them in, in the order
 ## they asked, to be seated as soon as there is.
 var _waiting_to_sit: Array[int] = []
-## On the host: the color and the name each client had in the room it is leaving, so it can be
-## seated in that color and under that name on the other side.
-var _kept_of: Dictionary[int, Dictionary] = {}
 ## On the host: the clients that have connected and not yet been seated anywhere. A newcomer the
 ## match has no room for is turned away; one that has played here before is kept on in case a seat
 ## comes free.
@@ -115,21 +122,9 @@ var _asking := false
 ## On the host: whether it has stopped the match for everybody without waiting to be asked.
 var _forcing := false
 var _peer_asking: Dictionary[int, bool] = {}
-## On a client: its own kart, driven here and corrected by the host, GAME.md 10.3.
-var _prediction: KartPrediction
-## The host's latest word on this client's kart, waiting for the physics step to act on it. An
-## RPC lands in the idle frame, and a body moved there is a body moved between physics ticks:
-## the engine interpolates the picture from one tick to the next, and a correction applied in
-## the gap is drawn as a swerve through somewhere the kart never was. So it waits its turn.
-var _authority: Array = []
 ## On the host: what it has told its clients is lying on the floor, so the next snapshot can
 ## carry what changed instead of all of it, GAME.md 10.3.
 var _floor := PickupWire.new()
-## The number this client puts on the next set of controls it sends. Every tick gets one whether
-## or not the kart is being driven: a player who is dead and picking a joker, or waiting on the
-## grid for the flag, is still pressing buttons the host has to hear, and a host that only ever
-## accepts a higher number than the last would throw away everything they pressed.
-var _input_seq := 0
 var _background := BackgroundRun.new()
 ## On the host: the lamps of the map it has just arrived at, held for whoever is still building
 ## the room, GAME.md 10.3. Null once they have gone, and in every room that holds nothing.
@@ -137,6 +132,7 @@ var _gate: StartGate
 ## On a client the host has turned away: the connection going after that is what was asked for,
 ## not a failure to tell the player about on top of the reason they have already been given.
 var _turned_away := false
+var _handshake := NetHandshake.of(self)
 
 
 func _ready() -> void:
@@ -155,19 +151,22 @@ func _ready() -> void:
 			if not _turned_away:
 				disconnected.emit()
 	)
+	# A client is told how many players the host's room holds, for its own to say when it is full
+	# and to know when to stop asking for seats, GAME.md 9.6.
+	Events.room_planned.connect(_on_room_planned)
 	var scene := multiplayer as SceneMultiplayer
 	if scene != null:
-		scene.auth_callback = _on_handshake
+		scene.auth_callback = _handshake.answer
 		scene.auth_timeout = HANDSHAKE_TIMEOUT
-		scene.peer_authenticating.connect(_on_authenticating)
+		scene.peer_authenticating.connect(_handshake.knock)
 
 
 func _exit_tree() -> void:
 	var scene := multiplayer as SceneMultiplayer
-	if scene != null and scene.auth_callback == _on_handshake:
+	if scene != null and scene.auth_callback == _handshake.answer:
 		scene.auth_callback = Callable()
-	if scene != null and scene.peer_authenticating.is_connected(_on_authenticating):
-		scene.peer_authenticating.disconnect(_on_authenticating)
+	if scene != null and scene.peer_authenticating.is_connected(_handshake.knock):
+		scene.peer_authenticating.disconnect(_handshake.knock)
 	_background.run(false)
 	if multiplayer.multiplayer_peer != null:
 		multiplayer.multiplayer_peer.close()
@@ -219,49 +218,9 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 	return OK
 
 
-## A new connection, before anything else is said on it, GAME.md 10.3. The client opens by
-## saying which version it is; the host waits to hear it.
-func _on_authenticating(peer: int) -> void:
+func _on_room_planned(_bots: int, most: int) -> void:
 	if not is_host:
-		var words := NetDoor.knock(version, watching, PlayerNames.clean(player_name), password)
-		(multiplayer as SceneMultiplayer).send_auth(peer, var_to_bytes(words))
-
-
-## The other end of the handshake. The host answers every client with its own version and whether
-## it can come in, which it can on a version this one plays with and with a seat for it; a client
-## turned away is left to run out of [constant HANDSHAKE_TIMEOUT], which drops it, so a client too
-## old to understand the answer still goes. A client that is let in lets the host in; one that is
-## not says why.
-func _on_handshake(peer: int, data: PackedByteArray) -> void:
-	var scene := multiplayer as SceneMultiplayer
-	var said: Variant = bytes_to_var(data) if not data.is_empty() else null
-	var words: Dictionary = said if said is Dictionary else {}
-	if is_host:
-		# Full is only known while there is a room to be full: between rooms nobody is refused.
-		var room := {
-			"no_seat": _room_up and match_node != null and not _has_seat(match_node),
-			"players": _player_peers().size(),
-			"humans": _player_peers().size() + NetDoor.locals(match_node),
-			"watchers": _watchers.size(),
-			"match": match_node,
-		}
-		var answer := door.answer(version, peer, words, room)
-		scene.send_auth(peer, var_to_bytes(answer))
-		if answer["welcome"]:
-			if answer["watch"]:
-				_watchers[peer] = true
-			scene.complete_auth(peer)
-		return
-	if bool(words.get("welcome", false)):
-		scene.complete_auth(peer)
-		return
-	_turned_away = true
-	# After the handshake has returned rather than inside it: hanging up in the middle of the
-	# peer's own poll pulls the connection out from under it.
-	if NetDoor.wants_password(version, words):
-		_hang_up.call_deferred("", str(words["locked"]) == NetDoor.WRONG)
-	else:
-		_hang_up.call_deferred(NetDoor.refusal(version, words))
+		door.max_players = most
 
 
 ## Closes the connection and says why: [param reason], or the password it wants, [param wrong] if
@@ -312,15 +271,8 @@ func _let_go() -> void:
 ## color everybody is in so they get it back there.
 func _leaving() -> void:
 	_room_up = false
-	_kept_of.clear()
 	_watching_here.clear()
-	if match_node == null:
-		return
-	for peer: int in _peer_slots:
-		var index: int = _peer_slots[peer]
-		if index < match_node.slots.size():
-			var slot := match_node.slots[index]
-			_kept_of[peer] = {"color": slot.color_index, "name": slot.player_name}
+	_peer_slots.keep_room(match_node)
 
 
 ## Where the waiting room's football is, from the host that kicks it to everybody watching it,
@@ -341,14 +293,21 @@ func _ball_state(state: Array) -> void:
 ## still in the old room, and be applied to a match that is about to be taken down.
 func ready_for_seat() -> void:
 	if not is_host and _connected():
-		_seat_me.rpc_id(1)
+		var numbers: Array[int] = []
+		for each: ClientSeat in _players():
+			each.forget_room()
+			numbers.append(each.seat)
+		_seat_me.rpc_id(1, numbers)
 
 
+## Asked for every player at this client, by its numbers for them: the first, and anybody who sat
+## down beside them, GAME.md 10.3.
 @rpc("any_peer", "call_remote", "reliable")
-func _seat_me() -> void:
+func _seat_me(numbers: Array = [0]) -> void:
 	if not is_host:
 		return
 	var peer := multiplayer.get_remote_sender_id()
+	_peer_slots.ask(peer, numbers)
 	# Between rooms the seats on record are the old room's, and everybody is still in them, so
 	# the asking is only queued; it is checked against the seats once there is a room to sit in.
 	if not _room_up:
@@ -357,8 +316,34 @@ func _seat_me() -> void:
 		return
 	if _peer_slots.has(peer) or _watching_here.has(peer):
 		return
-	_seat(peer, _newcomers.has(peer))
+	_seat_all(peer, _newcomers.has(peer))
 	_settle_pause()
+
+
+## Seats every player [param peer] asked for, the first as a newcomer when [param fresh].
+func _seat_all(peer: int, fresh: bool) -> void:
+	var numbers: Array = _peer_slots.asked_of(peer)
+	for i: int in numbers.size():
+		_seat(peer, fresh and i == 0, int(numbers[i]))
+
+
+## Another player at a client sits down, GAME.md 10.3: seated if the game has room for them, and
+## told it has not otherwise, the way somebody at the host's own machine is, see [SeatLimit].
+@rpc("any_peer", "call_remote", "reliable")
+func _seat_another(number: int) -> void:
+	if not is_host:
+		return
+	var peer := multiplayer.get_remote_sender_id()
+	if not _peer_slots.has(peer) or match_node == null or not _room_up:
+		_seat_refused.rpc_id(peer, number)
+		return
+	if _peer_slots.slot_of(peer, number) >= 0:
+		return
+	if SeatLimit.full(match_node, self):
+		_seat_refused.rpc_id(peer, number)
+		return
+	_peer_slots.ask_one_more(peer, number)
+	_seat(peer, false, number)
 
 
 ## Seats everybody who is already here in the match this session has just been pointed at.
@@ -372,7 +357,7 @@ func _seat_me() -> void:
 func re_seat() -> void:
 	if not is_host:
 		return
-	_peer_slots.clear()
+	_peer_slots.held.clear()
 	_room_up = true
 	# Nobody has any of the new floor, so the next snapshot carries all of it.
 	_floor.start_again()
@@ -385,7 +370,7 @@ func re_seat() -> void:
 		if peer in _newcomers:
 			_welcome(peer)
 		else:
-			_seat(peer, false)
+			_seat_all(peer, false)
 	_settle_pause()
 
 
@@ -451,34 +436,37 @@ func _player_peers() -> PackedInt32Array:
 ## room before if it had one, and tells it the rules and the seat. A newcomer the match has no
 ## room for is turned away; somebody coming back from another room is left connected, in case a
 ## seat comes free.
-func _seat(peer: int, fresh: bool) -> void:
+func _seat(peer: int, fresh: bool, number := 0) -> void:
 	if match_node == null:
 		return
 	if _watchers.has(peer):
 		_watch(peer)
 		return
-	var kept: Dictionary = _kept_of.get(peer, {})
+	var kept := _peer_slots.kept_for(peer, number)
 	var slot := match_node.join_network(NetInput.new(), kept.get("color", -1))
 	if slot == null:
 		if fresh:
 			_turn_away(peer)
+		elif number != 0:
+			_seat_refused.rpc_id(peer, number)
 		return
 	# The name it had in the last room, the funny one it was handed there among them, GAME.md 3.8.
 	if not str(kept.get("name", "")).is_empty():
 		slot.player_name = kept["name"]
 	_newcomers.erase(peer)
-	_peer_slots[peer] = slot.index
+	var first := _peer_slots.put(peer, number, slot.index)
 	# Somebody who has just sat down has none of the floor, so the next snapshot carries all of it
 	# rather than the difference since a moment they were not here for.
 	_floor.start_again()
 	# The rules go first. A client arrives with whatever its own lobby was set to, and until it
 	# is told otherwise it reads its own clock, its own target score and its own number of lives
 	# off them, none of which is the match it has just joined.
-	_set_rules.rpc_id(peer, match_node.rules.to_wire())
-	_assign_slot.rpc_id(peer, slot.index, match_node.rng.seed)
+	if first:
+		_set_rules.rpc_id(peer, match_node.rules.to_wire())
+	_assign_slot.rpc_id(peer, slot.index, match_node.rng.seed, number)
 	# How the run stands, GAME.md 9.7. Everybody else was told at each whistle; somebody who has
 	# just sat down in the middle of a Grand Prix, or on its podium, was not there to hear it.
-	if Game.grand_prix != null:
+	if first and Game.grand_prix != null:
 		_relay_event.rpc_id(peer, &"grand_prix_scored", [Game.grand_prix.to_wire()])
 
 
@@ -497,7 +485,7 @@ func _welcome(peer: int) -> void:
 	if not in_arena:
 		_seat(peer, true)
 		return
-	if match_node == null or not _has_seat(match_node):
+	if match_node == null or not SeatLimit.has_seat(match_node):
 		_turn_away(peer)
 		return
 	_match_beginning.rpc_id(peer)
@@ -522,14 +510,6 @@ func _start_watching() -> void:
 	watching_started.emit()
 
 
-## Whether [param in_match] has somewhere for one more player: a bot to take over, or room for
-## another kart.
-static func _has_seat(in_match: Match) -> bool:
-	if PlayerSlot.bot_seat(in_match.slots) != null:
-		return true
-	return in_match.slots.size() < in_match.rules.max_players
-
-
 func _turn_away(peer: int) -> void:
 	_newcomers.erase(peer)
 	multiplayer.multiplayer_peer.disconnect_peer(peer)
@@ -539,10 +519,7 @@ func _turn_away(peer: int) -> void:
 ## waiting room reads it on the way out, to keep each of them a seat in the arena in the color
 ## they had in the room.
 func peer_seats() -> Array[int]:
-	var seats: Array[int] = []
-	for peer: int in _peer_slots:
-		seats.append(_peer_slots[peer])
-	return seats
+	return _peer_slots.all_slots()
 
 
 func _physics_process(delta: float) -> void:
@@ -562,7 +539,7 @@ func _physics_process(delta: float) -> void:
 			# from another room would draw this match in that one: the arena's karts driving round
 			# the waiting room.
 			var bytes := var_to_bytes(match_node.build_snapshot(_floor))
-			for peer: int in _peer_slots:
+			for peer: int in _peer_slots.peers():
 				_receive_snapshot.rpc_id(peer, bytes)
 			for peer: int in _watching_here:
 				_receive_snapshot.rpc_id(peer, bytes)
@@ -573,38 +550,17 @@ func _physics_process(delta: float) -> void:
 		local_input.poll(delta)
 		if local_input.emote >= 0:
 			_watcher_emote.rpc_id(1, local_input.emote, player_name)
-	elif local_slot >= 0:
-		adopt_own_kart()
-		_settle_authority(delta)
-		local_input.poll(delta)
-		# Driven here first and sent second, GAME.md 10.3. The kart answers the stick on this
-		# frame; the packet carries the number of the tick it answered, so the host's reply can
-		# be held against what this machine thought at the time.
-		_step_own_offer()
-		_input_seq += 1
-		var claim: Array = []
-		if _prediction != null and is_instance_valid(_prediction.kart):
-			var driving := _drivable()
-			if driving != _prediction.kart.predicted:
-				# Killed, frozen on the grid or handed back: stop driving and forget the ticks
-				# in hand, since nobody will be asking about them. Or the other way round.
-				if driving:
-					_prediction.resume()
-				else:
-					_prediction.suspend()
-			if driving:
-				_prediction.predict(local_input, delta, _input_seq)
-				# What this machine made of the tick goes with the controls that made it. The
-				# host follows it rather than second-guessing it, GAME.md 10.3, which is what
-				# keeps a kart from being corrected for driving perfectly well.
-				claim = KartPrediction.capture(_prediction.kart)
-		var packet := NetInput.encode(local_input)
-		if _prediction != null and is_instance_valid(_prediction.kart):
-			# The aim goes out as a direction rather than as whatever the stick happened to read,
-			# because a mouse reads nothing at all: the pointer is on this screen and the host
-			# has one of its own, GAME.md 10.3.
-			packet[NetInput.FIELDS] = KartAim.pointed_flat(_prediction.kart)
-		_send_input.rpc_id(1, packet, _input_seq, claim)
+	else:
+		# Every player here, each driven here first and sent second, GAME.md 10.3. The kart
+		# answers the stick on this frame; the packet carries the number of the tick it answered,
+		# so the host's reply can be held against what this machine thought at the time.
+		for each: ClientSeat in seats:
+			if each.slot < 0:
+				continue
+			each.adopt(match_node)
+			each.settle(delta)
+			var sent := each.step(match_node, delta)
+			_send_input.rpc_id(1, sent[0], sent[1], sent[2], each.seat)
 
 
 func _on_peer_connected(peer: int) -> void:
@@ -627,26 +583,31 @@ func _on_peer_connected(peer: int) -> void:
 func _on_peer_disconnected(peer: int) -> void:
 	_waiting_to_sit.erase(peer)
 	_newcomers.erase(peer)
-	_kept_of.erase(peer)
+	_peer_slots.kept.erase(peer)
 	_watchers.erase(peer)
 	_watcher_next.erase(peer)
 	door.forget(peer)
 	_watching_here.erase(peer)
 	if not is_host or not _peer_slots.has(peer):
 		return
-	var index: int = _peer_slots[peer]
-	_peer_slots.erase(peer)
+	var held := _peer_slots.take_all(peer)
 	# Whoever is left may be the whole room now, and they may all be waiting in the menu.
 	_peer_asking.erase(peer)
 	_settle_pause()
-	if match_node == null or index >= match_node.slots.size():
-		return
-	# In the waiting room the seat is emptied rather than handed to a bot, GAME.md 9.6: a room
-	# with no end has no score for one to keep, and the bots come in with the match.
-	if match_node.rules.timed:
-		match_node.leave_human(match_node.slots[index])
-	else:
-		VacantSeat.leave(match_node, match_node.slots[index])
+	for number: int in held:
+		PeerSeats.vacate(match_node, held[number])
+
+
+## One of [param peer]'s players gets up and goes, and the rest of them stay.
+func _empty_seat(peer: int, number: int) -> void:
+	PeerSeats.vacate(match_node, _peer_slots.take(peer, number))
+
+
+## A player at a client has left from their switch in the pause menu, GAME.md 10.3.
+@rpc("any_peer", "call_remote", "reliable")
+func _leave_seat(number: int) -> void:
+	if is_host:
+		_empty_seat(multiplayer.get_remote_sender_id(), number)
 
 
 ## Says whether this machine wants the match stopped. The host adds up the answers; online the
@@ -726,17 +687,26 @@ func _set_rules(data: Dictionary) -> void:
 
 
 @rpc("authority", "call_remote", "reliable")
-func _assign_slot(index: int, _seed: int) -> void:
+func _assign_slot(index: int, _seed: int, number := 0) -> void:
 	if match_node == null:
 		return
-	local_slot = index
-	match_node.set_local_slot(index, local_input)
+	var each := _here.numbered(number)
+	if each == null:
+		if number != 0:
+			return
+		each = _players()[0]
+	each.slot = index
+	if each == seats[0]:
+		local_slot = index
+		match_node.set_local_slot(index, each.input)
+	else:
+		match_node.add_local_seat(index, each.input as PlayerInput)
 	# The host made this seat before it could ask who was sitting in it, GAME.md 3.8, so the
 	# answer follows the moment the seat is known. An empty one leaves the funny name the host
 	# already handed out standing.
-	_claim_name.rpc_id(1, PlayerNames.clean(player_name))
-	if not player_style.is_empty():
-		_claim_style.rpc_id(1, player_style)
+	_claim_name.rpc_id(1, PlayerNames.clean(each.player_name), number)
+	if not each.style.is_empty():
+		_claim_style.rpc_id(1, each.style, number)
 	slot_assigned.emit(index)
 
 
@@ -744,15 +714,14 @@ func _assign_slot(index: int, _seed: int) -> void:
 ## owns everything else that decides what a player sees, and it reaches the other screens in the
 ## snapshot like the rest of the roster.
 @rpc("any_peer", "call_remote", "reliable")
-func _claim_name(claimed: String) -> void:
+func _claim_name(claimed: String, number := 0) -> void:
 	if not is_host:
 		return
-	var peer := multiplayer.get_remote_sender_id()
-	if not _peer_slots.has(peer):
-		return
-	var index: int = _peer_slots[peer]
+	var index := _peer_slots.slot_of(multiplayer.get_remote_sender_id(), number)
 	var name := PlayerNames.clean(claimed)
 	if name.is_empty() or match_node == null or index >= match_node.slots.size():
+		return
+	if index < 0:
 		return
 	match_node.slots[index].player_name = name
 
@@ -760,36 +729,42 @@ func _claim_name(claimed: String) -> void:
 ## How the client at the other end dressed its kart, GAME.md 4.4. Its own to say, as its name is;
 ## the host puts it on, and it reaches the other screens in the snapshot.
 @rpc("any_peer", "call_remote", "reliable")
-func _claim_style(claimed: PackedInt32Array) -> void:
-	if not is_host:
+func _claim_style(claimed: PackedInt32Array, number := 0) -> void:
+	if not is_host or match_node == null:
 		return
-	var peer := multiplayer.get_remote_sender_id()
-	if not _peer_slots.has(peer) or match_node == null:
-		return
-	var index: int = _peer_slots[peer]
-	if index < match_node.slots.size():
+	var index := _peer_slots.slot_of(multiplayer.get_remote_sender_id(), number)
+	if index >= 0 and index < match_node.slots.size():
 		StyleStalls.dress(match_node.slots[index], claimed)
 
 
-## This client's player has changed their name or their color in the room, GAME.md 4.4: said to
-## the host, which decides, and the snapshot brings the answer back to every screen.
-func claim_name(claimed: String) -> void:
-	player_name = PlayerNames.clean(claimed)
-	if not is_host and _connected() and not player_name.is_empty():
-		_claim_name.rpc_id(1, player_name)
+## A player at this client has changed their name or their color in the room, GAME.md 4.4, the
+## one in [param index] or the first: said to the host, which decides, and the snapshot brings the
+## answer back to every screen.
+func claim_name(claimed: String, index := -1) -> void:
+	var each := _here.at(index)
+	if each == null:
+		each = _players()[0]
+	each.player_name = PlayerNames.clean(claimed)
+	if each == seats[0]:
+		player_name = each.player_name
+	if not is_host and _connected() and not each.player_name.is_empty():
+		_claim_name.rpc_id(1, each.player_name, each.seat)
 
 
-func claim_color(color: int) -> void:
+func claim_color(color: int, index := -1) -> void:
+	var each := _here.at(index)
+	if each == null:
+		each = _players()[0]
 	if not is_host and _connected():
-		_claim_color.rpc_id(1, color)
+		_claim_color.rpc_id(1, color, each.seat)
 
 
 ## A client asking for another color, which it gets if nobody else in the room is in it.
 @rpc("any_peer", "call_remote", "reliable")
-func _claim_color(color: int) -> void:
+func _claim_color(color: int, number := 0) -> void:
 	if not is_host or match_node == null:
 		return
-	var index: int = _peer_slots.get(multiplayer.get_remote_sender_id(), -1)
+	var index := _peer_slots.slot_of(multiplayer.get_remote_sender_id(), number)
 	if index >= 0 and index < match_node.slots.size():
 		SeatIdentity.paint(match_node, match_node.slots[index], color)
 
@@ -797,13 +772,19 @@ func _claim_color(color: int) -> void:
 ## Everybody else in the host's game, for its Manage players, GAME.md 10.3: each client that plays,
 ## by the name and color of its seat, and each that watches, by the name it gave.
 func guests() -> Array[Dictionary]:
-	return door.guests(match_node, _peer_slots, _watchers)
+	return door.guests(match_node, _peer_slots.held, _watchers)
 
 
 ## Shows [param peer] out of the game: told why, and let go of a moment later whatever it does
-## with that, so it cannot stay by not listening. It may knock again.
-func kick(peer: int) -> void:
+## with that, so it cannot stay by not listening. It may knock again. With [param number], one of
+## several players at it, only that one goes, and the rest of them play on.
+func kick(peer: int, number := -1) -> void:
 	if not is_host or not multiplayer.get_peers().has(peer):
+		return
+	var held: Dictionary = _peer_slots.held.get(peer, {})
+	if number >= 0 and held.size() > 1 and held.has(number):
+		_empty_seat(peer, number)
+		_seat_dropped.rpc_id(peer, number)
 		return
 	_kicked.rpc_id(peer)
 	get_tree().create_timer(KICK_GRACE).timeout.connect(_let_go_of.bind(peer))
@@ -835,18 +816,68 @@ func _watcher_emote(emote: int, watcher: String) -> void:
 	Events.watcher_emoted.emit(named if not named.is_empty() else "Watcher", emote)
 
 
-## Takes over the driving of this client's own kart once the snapshot has built it. Called every
-## snapshot rather than once, the same as the kart's voice is: which slot is ours arrives in a
-## message of its own, and the karts may well have been built before it did.
-func adopt_own_kart() -> void:
-	if is_host or match_node == null or local_slot < 0 or local_slot >= match_node.slots.size():
+## This client's players, the first made for it from [member local_input], [member player_name]
+## and [member player_style] the first time it is asked for.
+func _players() -> Array[ClientSeat]:
+	return _here.here(local_input, player_name, player_style)
+
+
+## The player at this client in [param index], or null for a seat played elsewhere.
+func seat_at(index: int) -> ClientSeat:
+	return _here.at(index)
+
+
+## Another player at this client sits down on [param device], GAME.md 10.3, the way somebody at
+## the host does: asked of the host, which seats them if the game has room and says it has not
+## otherwise, see [method LocalSeats.sit_down].
+func add_seat(device: int) -> void:
+	if is_host or watching or not _connected():
 		return
-	var kart := match_node.slots[local_slot].kart
-	if kart == null:
+	_players()
+	_seat_another.rpc_id(1, _here.sit_down(device).seat)
+
+
+## One of this client's players gets up and goes, from their switch in the pause menu, GAME.md
+## 10.3: their seat is the host's to empty, and they go from this machine at once.
+func leave_seat(index: int) -> void:
+	var each := _here.at(index)
+	if each == null or is_host:
 		return
-	if _prediction != null and is_instance_valid(_prediction.kart) and _prediction.kart == kart:
+	if _connected():
+		_leave_seat.rpc_id(1, each.seat)
+	_drop_here(each)
+
+
+## Takes [param each] off this machine: its seat is somebody else's now, or nobody's. If it was the
+## first, whoever sat down after it is the first now.
+func _drop_here(each: ClientSeat) -> void:
+	_here.stand_up(each, match_node)
+	if seats.is_empty() or each.slot != local_slot:
 		return
-	_prediction = KartPrediction.new(kart)
+	var first := seats[0]
+	local_slot = first.slot
+	local_input = first.input
+	player_name = first.player_name
+	player_style = first.style
+	if match_node != null and first.slot >= 0:
+		match_node.set_local_slot(first.slot, first.input)
+
+
+## On a client: the host had no room for the player it asked it to seat.
+@rpc("authority", "call_remote", "reliable")
+func _seat_refused(number: int) -> void:
+	var each := _here.numbered(number)
+	if each != null and each.slot < 0:
+		seats.erase(each)
+	seat_refused.emit(number)
+
+
+## On a client: the host has shown one of its several players out, GAME.md 10.3.
+@rpc("authority", "call_remote", "reliable")
+func _seat_dropped(number: int) -> void:
+	var each := _here.numbered(number)
+	if each != null:
+		_drop_here(each)
 
 
 @rpc("authority", "call_remote", "unreliable")
@@ -857,92 +888,56 @@ func _receive_snapshot(bytes: PackedByteArray) -> void:
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered")
-func _send_input(state: Array, seq: int = 0, claim: Array = []) -> void:
-	var peer := multiplayer.get_remote_sender_id()
-	if not _peer_slots.has(peer):
-		return
-	var index: int = _peer_slots[peer]
-	if match_node == null or index >= match_node.slots.size():
+func _send_input(state: Array, seq: int = 0, claim: Array = [], number := 0) -> void:
+	var index := _peer_slots.slot_of(multiplayer.get_remote_sender_id(), number)
+	if match_node == null or index < 0 or index >= match_node.slots.size():
 		return
 	var input := match_node.slots[index].input as NetInput
 	if input != null:
 		input.receive(state, seq, claim)
 
 
-## One line about this client's own kart for the debug overlay, empty on a host or before a slot
-## has been handed out.
+## One line about this client's first player's kart for the debug overlay, empty on a host or
+## before a slot has been handed out.
 func prediction_debug() -> String:
-	if _prediction == null or not is_instance_valid(_prediction.kart):
-		return ""
-	return _prediction.debug_text()
-
-
-## The joker pick in front of this player, answered here, GAME.md 10.3. The host is running the
-## same pick off the same controls and its answer is the one that counts, but waiting a round
-## trip to see the cursor move, and another to see a card taken, is the whole of what made
-## picking a joker on a client feel broken. The snapshot leaves this one alone while it is open.
-func _step_own_offer() -> void:
-	if local_slot < 0 or local_slot >= match_node.slots.size():
-		return
-	var slot := match_node.slots[local_slot]
-	if slot.offer != null and not slot.offer.is_done():
-		slot.offer.poll_input(local_input)
-
-
-## Whether this client is driving its own kart rather than watching it, GAME.md 10.3. A kart the
-## host has frozen on the grid, killed or sent rolling out the end of the match is none of this
-## machine's business to move, so it goes back to following the snapshot until it is again.
-func _drivable() -> bool:
-	if _prediction == null or not is_instance_valid(_prediction.kart):
-		return false
-	return _prediction.kart.alive and match_node.is_running()
+	return seats[0].debug_text() if not seats.is_empty() else ""
 
 
 ## Each client is told what the host made of its own kart, and only its own: everybody else's
 ## pose is already in the snapshot that went to everybody. The reply carries the whole motor, not
 ## just a position, because a kart mid-drift is most of what it is about to do.
 func _send_authority() -> void:
-	for peer: int in _peer_slots:
-		var index: int = _peer_slots[peer]
-		if index >= match_node.slots.size():
-			continue
-		var slot := match_node.slots[index]
-		var input := slot.input as NetInput
-		if input == null or slot.kart == null:
-			continue
-		# Whether the host drove this kart itself this tick. While it did not, the client's own
-		# answer is the one that stands and there is nothing here to put right.
-		var host_drove := input.claimed_state().is_empty()
-		_receive_authority.rpc_id(
-			peer,
-			input.applied_seq,
-			KartPrediction.capture(slot.kart),
-			host_drove,
-			slot.kart.cannon.live_count()
-		)
+	for peer: int in _peer_slots.held:
+		for number: int in _peer_slots.held[peer]:
+			var index: int = _peer_slots.held[peer][number]
+			if index >= match_node.slots.size():
+				continue
+			var slot := match_node.slots[index]
+			var input := slot.input as NetInput
+			if input == null or slot.kart == null:
+				continue
+			# Whether the host drove this kart itself this tick. While it did not, the client's
+			# own answer is the one that stands and there is nothing here to put right.
+			var host_drove := input.claimed_state().is_empty()
+			_receive_authority.rpc_id(
+				peer,
+				input.applied_seq,
+				KartPrediction.capture(slot.kart),
+				host_drove,
+				slot.kart.cannon.live_count(),
+				number
+			)
 
 
-## Kept rather than acted on, see [member _authority]. Only the newest is worth anything: an
-## older one describes a tick the newer has already answered for.
+## Kept for the physics step rather than acted on, see [method ClientSeat.hold]. An RPC lands in
+## the idle frame, and a body moved there is a body moved between physics ticks: the engine
+## interpolates the picture from one tick to the next, and a correction applied in the gap is
+## drawn as a swerve through somewhere the kart never was. So it waits its turn.
 @rpc("authority", "call_remote", "unreliable")
-func _receive_authority(ack: int, state: Array, host_drove := true, live := 0) -> void:
-	if _authority.is_empty() or ack >= int(_authority[0]):
-		_authority = [ack, state, host_drove, live]
-
-
-func _settle_authority(delta: float) -> void:
-	if _authority.is_empty():
-		return
-	if _prediction != null and is_instance_valid(_prediction.kart) and _prediction.kart.predicted:
-		_prediction.host_live = int(_authority[3])
-		if bool(_authority[2]):
-			_prediction.reconcile(int(_authority[0]), _authority[1], delta)
-		else:
-			# The host followed this machine's own answer for that tick, so there is nothing to
-			# put right. The history is trimmed and the kart carries on undisturbed, which is
-			# most ticks of most matches and the whole point of claiming at all.
-			_prediction.accept(int(_authority[0]))
-	_authority = []
+func _receive_authority(ack: int, state: Array, host_drove := true, live := 0, number := 0) -> void:
+	var each := _here.numbered(number)
+	if each != null:
+		each.hold(ack, state, host_drove, live)
 
 
 @rpc("authority", "call_remote", "reliable")
@@ -958,9 +953,12 @@ func _relay_event(name: StringName, args: Array) -> void:
 ## the button goes down, GAME.md 10.3, so the host's word for that same shot, arriving a round trip
 ## later, would be the same shot heard twice.
 func _already_heard(name: StringName, args: Array) -> bool:
-	if name != &"bullet_fired" or _prediction == null or args.is_empty():
+	if name != &"bullet_fired" or args.is_empty():
 		return false
-	return int(args[0]) == local_slot and _prediction.kart.predicted
+	for each: ClientSeat in seats:
+		if each.fired_first(int(args[0])):
+			return true
+	return false
 
 
 ## The host forwards gameplay events so clients' HUD and audio react like the host's.

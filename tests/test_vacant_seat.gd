@@ -75,7 +75,7 @@ func test_the_host_empties_a_seat_in_the_room_and_hands_one_in_a_match_to_a_bot(
 		add_child(session)
 		session.is_host = true
 		session.match_node = match_node
-		session._peer_slots[7] = 1
+		session._peer_slots.put(7, 0, 1)
 		session._on_peer_disconnected(7)
 		var input := match_node.slots[1].input
 		assert_bool(input is VacantSeat).is_equal(not timed)

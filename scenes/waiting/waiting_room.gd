@@ -41,6 +41,8 @@ var ball: RoomBall
 var stalls: StyleStalls
 ## Up while a client is trying the host's address, saying so, GAME.md 9.3.
 var _connecting: StatusPane
+## The room's limit on players as it was last said, to say it again when the host changes it.
+var _said_limit := -1
 
 
 func _ready() -> void:
@@ -128,6 +130,7 @@ func _join() -> void:
 		if not config.human_styles.is_empty():
 			session.player_style = PackedInt32Array(config.human_styles[0])
 	session.match_beginning.connect(_follow_the_host, CONNECT_ONE_SHOT)
+	session.seat_refused.connect(_on_seat_refused)
 	# After the signal rather than inside it: going to the title hangs the session up, and a session
 	# cannot be freed while it is in the middle of saying something.
 	session.disconnected.connect(func() -> void: Game.go_to_title.call_deferred())
@@ -259,9 +262,10 @@ func choose(lobby_first := false) -> void:
 func _process(_delta: float) -> void:
 	if host_settings != null and host_settings.is_open():
 		_hold(true)
-	# The host's lobby may be made smaller or bigger while everybody waits in it, GAME.md 9.6.
-	if ready_room != null and config.online != "join":
-		ready_room.seat_limit = SeatLimit.limit(match_node, session)
+	# The host's lobby may be made smaller or bigger while everybody waits in it, GAME.md 9.6, and
+	# everybody in it is told.
+	if host_settings != null and SeatLimit.limit(match_node, session) != _said_limit:
+		_say_the_plan()
 
 
 func _chosen() -> void:
@@ -276,10 +280,16 @@ func _hold(held: bool) -> void:
 			slot.kart.frozen = held
 
 
+## Another player here asked the host for a seat and the game had none, GAME.md 10.3.
+func _on_seat_refused(_seat: int) -> void:
+	SeatLimit.say_full(self, SeatLimit.limit(match_node, session))
+
+
 ## Tells the room what the next match is, or that it is still being chosen. The host's own room
 ## hears it the same way the clients' rooms do.
 func _say_the_plan() -> void:
-	Events.bots_planned.emit(config.bot_count)
+	_said_limit = SeatLimit.limit(match_node, session)
+	Events.room_planned.emit(config.bot_count, _said_limit)
 	Events.match_planned.emit(MatchOptions.describe(config), host_settings.is_open())
 
 
@@ -368,11 +378,6 @@ func _local_addresses() -> PackedStringArray:
 func _input(event: InputEvent) -> void:
 	if not event.is_action_pressed(InputActions.JOIN) or get_tree().paused or PlayerInput.typing:
 		return
-	if config.online == "join":
-		return
 	var device := DeviceInput.KEYBOARD if event is InputEventKey else event.device
-	if SeatLimit.turns_away(self, match_node, session, device):
-		get_viewport().set_input_as_handled()
-		return
-	if match_node.join_human(device) != null:
+	if SeatLimit.join(self, match_node, session, device):
 		get_viewport().set_input_as_handled()

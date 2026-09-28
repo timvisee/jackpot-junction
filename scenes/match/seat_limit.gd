@@ -7,10 +7,10 @@ extends RefCounted
 
 
 ## How many players [param match_node] may have: its seats, and no more than the lobby the host of
-## [param session] keeps.
+## [param session] keeps, which a client is told, see [signal Events.room_planned].
 static func limit(match_node: Match, session: NetSession) -> int:
 	var most := match_node.rules.max_players
-	if session != null and session.is_host:
+	if session != null:
 		most = mini(most, session.door.max_players)
 	return most
 
@@ -22,6 +22,14 @@ static func players(match_node: Match) -> int:
 		if slot.is_human():
 			count += 1
 	return count
+
+
+## Whether [param match_node] has somewhere for one more player: a bot to take over, or room for
+## another kart.
+static func has_seat(match_node: Match) -> bool:
+	if PlayerSlot.bot_seat(match_node.slots) != null:
+		return true
+	return match_node.slots.size() < match_node.rules.max_players
 
 
 static func full(match_node: Match, session: NetSession) -> bool:
@@ -37,10 +45,31 @@ static func turns_away(parent: Node, match_node: Match, session: NetSession, dev
 			return false
 	if not full(match_node, session):
 		return false
-	var most := limit(match_node, session)
+	say_full(parent, limit(match_node, session))
+	return true
+
+
+## Says over [param parent] that the game, with room for [param most], is full.
+static func say_full(parent: Node, most: int) -> void:
 	NoticePane.tell(
 		parent,
 		"Maximum number of players reached",
 		"This game has room for %d player%s." % [most, "" if most == 1 else "s"]
 	)
-	return true
+
+
+## A press of join on [param device] at this machine, GAME.md 9.2 and 10.3: turned away while the
+## game is full, and otherwise another player, sat down here or, on a client, asked of the host.
+## Returns whether it was taken as somebody sitting down, which a device already playing is not.
+static func join(parent: Node, match_node: Match, session: NetSession, device: int) -> bool:
+	for slot: PlayerSlot in match_node.slots:
+		if slot.plays_on(device):
+			return false
+	if turns_away(parent, match_node, session, device):
+		return true
+	if session != null and not session.is_host:
+		if session.watching:
+			return false
+		session.add_seat(device)
+		return true
+	return match_node.join_human(device) != null

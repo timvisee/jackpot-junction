@@ -398,9 +398,8 @@ static func own_nodes(match_node: Match, group: StringName) -> Array[Node]:
 static func _ensure_slots(match_node: Match, count: int) -> void:
 	while match_node.slots.size() < count:
 		var index := match_node.slots.size()
-		var input: KartInput = (
-			_local_input(match_node) if index == match_node.local_slot else KartInput.new()
-		)
+		var here := _input_here(match_node, index)
+		var input: KartInput = here if here != null else KartInput.new()
 		match_node.slots.append(PlayerSlot.new(index, input))
 
 
@@ -413,12 +412,21 @@ static func _local_input(match_node: Match) -> PlayerInput:
 	return match_node.local_input
 
 
+## The input [param index] is played on at this machine, or null for a seat played elsewhere: the
+## first player's, or that of another who sat down beside them, GAME.md 10.3.
+static func _input_here(match_node: Match, index: int) -> PlayerInput:
+	if match_node.local_seats.has(index):
+		return match_node.local_seats[index]
+	return _local_input(match_node) if index == match_node.local_slot else null
+
+
 static func _apply_slots(match_node: Match, entries: Array) -> void:
 	for i: int in entries.size():
 		var entry: Dictionary = entries[i]
 		var slot := match_node.slots[i]
-		if i == match_node.local_slot and not slot.is_local_human():
-			slot.input = _local_input(match_node)
+		var here := _input_here(match_node, i)
+		if here != null and slot.input != here:
+			slot.input = here
 		slot.banked = entry["banked"]
 		slot.kills = entry["kills"]
 		slot.deaths = entry["deaths"]
@@ -434,7 +442,7 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 		)
 		if entry["human"] and not slot.is_human():
 			slot.input = NetInput.new()
-		elif not entry["human"] and slot.is_human() and i != match_node.local_slot:
+		elif not entry["human"] and slot.is_human() and not match_node.is_local_seat(i):
 			slot.input = KartInput.new()
 		if slot.kart != null:
 			slot.kart.pot.coins = entry["coins"]
@@ -466,7 +474,7 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 				slot.offer = JokerOffer.new(slot.kart, choices)
 				slot.offer.choices = choices
 				slot.offer.keeping = offer_data.get("keep", false)
-			elif i != match_node.local_slot:
+			elif not match_node.is_local_seat(i):
 				# Somebody else's pick, watched rather than made: the host says where their
 				# cursor is and what they have taken.
 				slot.offer.choices = choices
@@ -499,12 +507,15 @@ static func _item_by_id(id: String) -> PowerUp:
 ## own, so it is looked at every snapshot. Without it they stayed in the middle of the room, and
 ## the one kart that should be loudest was as far off as anybody's.
 static func _hear_own_kart(match_node: Match) -> void:
-	var index := match_node.local_slot
-	if match_node.camera_rig == null or index < 0 or index >= match_node.slots.size():
+	if match_node.camera_rig == null:
 		return
-	var own := match_node.kart_of(index)
-	if own != null and not match_node.camera_rig.listener_targets.has(own):
-		match_node.refresh_listener()
+	for index: int in match_node.slots.size():
+		if not match_node.is_local_seat(index):
+			continue
+		var own := match_node.kart_of(index)
+		if own != null and not match_node.camera_rig.listener_targets.has(own):
+			match_node.refresh_listener()
+			return
 
 
 static func _apply_karts(match_node: Match, entries: Array) -> void:
@@ -545,19 +556,15 @@ static func _apply_karts(match_node: Match, entries: Array) -> void:
 		# snapshot rather than once at the kart's birth: the host says which slot is ours in a
 		# message of its own, which arrives after the first karts have already been built, so a
 		# kart that settled its voice on the way in would keep somebody else's all match.
-		kart.enable_sound(true, entry["slot"] != match_node.local_slot)
+		var mine: bool = match_node.is_local_seat(entry["slot"])
+		kart.enable_sound(true, not mine)
 		# The kart this player steers reads the input this machine is polling, even though the
 		# host is the one moving it. Everything drawn from where they are pointing — the aim
 		# guide, the swivel cannon's arrow — then points where their shot is going to go.
-		if entry["slot"] == match_node.local_slot and entry["slot"] < match_node.slots.size():
+		if mine and entry["slot"] < match_node.slots.size():
 			kart.input = match_node.slots[entry["slot"]].input
-		if (
-			match_node.hud != null
-			and not entry["decoy"]
-			and entry["slot"] == match_node.local_slot
-			and entry["slot"] < match_node.slots.size()
-		):
-			match_node.hud.add_block(match_node.slots[entry["slot"]])
+			if match_node.hud != null and not entry["decoy"]:
+				match_node.hud.add_block(match_node.slots[entry["slot"]])
 		kart.apply_puppet_state(entry, delta)
 	for id: int in match_node.puppet_karts.keys():
 		if not seen.has(id):

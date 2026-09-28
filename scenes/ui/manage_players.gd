@@ -112,6 +112,7 @@ func _row(guest: Dictionary) -> HBoxContainer:
 	var kick := MenuTheme.button("Kick", Type.BODY)
 	kick.custom_minimum_size = KICK_SIZE
 	var peer: int = guest["peer"]
-	kick.pressed.connect(func() -> void: session.kick(peer))
+	var seat: int = guest.get("seat", -1)
+	kick.pressed.connect(func() -> void: session.kick(peer, seat))
 	row.add_child(kick)
 	return row

@@ -151,7 +151,14 @@ static func keep(slot: PlayerSlot) -> void:
 	if player != null and player.seat >= 0:
 		seat = player.seat
 	var session := Net.session if Net.online() else null
-	if session != null and not session.is_host and session.local_slot == slot.index:
+	var mine := session.seat_at(slot.index) if session != null and not session.is_host else null
+	if mine != null:
+		# Said again as this player is seated in the next room, GAME.md 10.3.
+		mine.style = slot.style.to_array()
+		if slot.index == session.local_slot:
+			session.player_style = mine.style
+		seat = mine.seat
+	elif session != null and not session.is_host and session.local_slot == slot.index:
 		session.player_style = slot.style.to_array()
 		seat = 0
 	if seat < 0 or seat >= settings.kart_styles.size():
@@ -164,6 +171,8 @@ static func keep(slot: PlayerSlot) -> void:
 ## client the one this machine is.
 func _player_here(slot: PlayerSlot) -> PlayerInput:
 	if match_node.puppet:
+		if match_node.local_seats.has(slot.index):
+			return match_node.local_seats[slot.index]
 		return match_node.local_input if slot.index == match_node.local_slot else null
 	return slot.input as PlayerInput
 

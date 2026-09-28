@@ -367,7 +367,7 @@ func _chip(title: String, value: String) -> PanelContainer:
 ## Whether this row belongs to somebody sitting at this screen, so theirs stands out of the list.
 func _is_mine(slot: PlayerSlot) -> bool:
 	if match_node.puppet:
-		return slot.index == match_node.local_slot
+		return match_node.is_local_seat(slot.index)
 	return slot.is_local_human()
 
 

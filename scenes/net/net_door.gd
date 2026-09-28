@@ -144,18 +144,29 @@ static func locals(match_node: Match) -> int:
 	return here
 
 
-## Everybody else in the host's game, for its Manage players: each client of [param seats] that
-## plays, by the name and color of its seat in [param match_node], and each of [param watchers] by
-## the name it gave.
+## Everybody else in the host's game, for its Manage players: each player of each client of
+## [param seats] that plays, by the name and color of their seat in [param match_node], and each
+## of [param watchers] by the name it gave. A client with two players at it is two rows.
 func guests(
-	match_node: Match, seats: Dictionary[int, int], watchers: Dictionary[int, bool]
+	match_node: Match, seats: Dictionary[int, Dictionary], watchers: Dictionary[int, bool]
 ) -> Array[Dictionary]:
 	var found: Array[Dictionary] = []
 	for peer: int in seats:
-		var index: int = seats[peer]
-		if match_node != null and index < match_node.slots.size():
-			var slot := match_node.slots[index]
-			found.append({"peer": peer, "name": slot.display_name(), "color": slot.color()})
+		for number: int in seats[peer]:
+			var index: int = seats[peer][number]
+			if match_node != null and index < match_node.slots.size():
+				var slot := match_node.slots[index]
+				(
+					found
+					. append(
+						{
+							"peer": peer,
+							"seat": number,
+							"name": slot.display_name(),
+							"color": slot.color(),
+						}
+					)
+				)
 	for peer: int in watchers:
 		var named: String = names.get(peer, "")
 		found.append({"peer": peer, "name": named if not named.is_empty() else "Watcher"})

@@ -518,7 +518,7 @@ func test_a_client_keeps_its_color_into_the_arena() -> void:
 	var visitor := match_node.join_network(NetInput.new())
 	visitor.color_index = 3
 	var session: NetSession = auto_free(NetSession.new())
-	session._peer_slots[7] = visitor.index
+	session._peer_slots.put(7, 0, visitor.index)
 	room.session = session
 	var config: MatchConfig = room.arena_config()
 	room.session = null

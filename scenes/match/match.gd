@@ -56,6 +56,9 @@ var local_slot := -1
 ## player at this machine is what that type means, here and everywhere else, and the corner block
 ## and the joker hand are hung on the local slot holding one.
 var local_input: PlayerInput
+## On a client, every seat played at this machine, by slot, with the input it is played on: the
+## first, [member local_slot], and any other player who sat down beside them, GAME.md 10.3.
+var local_seats: Dictionary[int, PlayerInput] = {}
 var arena: Arena
 var camera_rig: CameraRig
 ## The row of tanks on the table that fill as players bank, GAME.md 8.1.
@@ -476,6 +479,20 @@ func set_local_slot(index: int, input: KartInput = null) -> void:
 	var player := input as PlayerInput
 	if player != null:
 		local_input = player
+		local_seats[index] = player
+
+
+## Another player at this client, in [param index] on [param input], or one of them gone again.
+func add_local_seat(index: int, input: PlayerInput) -> void:
+	local_seats[index] = input
+
+
+func drop_local_seat(index: int) -> void:
+	local_seats.erase(index)
+
+
+func is_local_seat(index: int) -> bool:
+	return index >= 0 and (index == local_slot or local_seats.has(index))
 
 
 ## Parks a started match in the lobby, karts frozen and the clock stopped, until the host begins.

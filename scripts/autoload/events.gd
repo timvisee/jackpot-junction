@@ -87,9 +87,10 @@ signal player_ready(slot: int, ready: bool)
 ## are still choosing it, GAME.md 9.6. Said again whenever somebody joins, so nobody who arrives
 ## while it is being chosen is left not knowing.
 signal match_planned(summary: String, choosing: bool)
-## And how many bots the host has asked for in it, before the seats left in the arena cap it: the
-## room says how many will come in with the players, GAME.md 9.6. Said alongside the plan.
-signal bots_planned(bots: int)
+## And how many bots the host has asked for in it, before the seats left in the arena cap it, and
+## how many players the room may hold, GAME.md 9.6: the room says how many bots will come in with
+## the players, and whether there is a seat left to take. Said alongside the plan.
+signal room_planned(bots: int, seats: int)
 ## A map of a Grand Prix has been scored, GAME.md 9.7, and this is the whole run as it stands.
 ## The host scores it; a client is told, and draws its podiums from what it is told.
 signal grand_prix_scored(run: Dictionary)

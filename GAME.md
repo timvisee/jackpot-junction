@@ -2750,8 +2750,8 @@ With more than one player at a screen, each of their switches in the pause menu,
 Leave, for one of them to get up and go while the others play on; with one there is nothing to
 leave from, and no button. On a map a bot takes the kart and its score on, as it does for a pad
 that is unplugged. In the lobby and the Garage the seat is emptied the way a seat left online is,
-9.3, its kart gone until somebody sits down in it. On a LAN host it is the host's own players
-this is for; the other machines see the kart go the way they see any other.
+9.3, its kart gone until somebody sits down in it. Online it is the players at this machine it
+is for, at a client as at the host; the other machines see the kart go the way they see any other.
 
 On a pad, Start is both the join button and the pause button, and which one a
 press is depends on whose pad it is: on a pad nobody is driving it takes a seat,
@@ -2778,6 +2778,15 @@ every machine in the room asking for it, see 3.8. The match is played by the
 host's lobby settings: a joining client is sent the clock, the target score,
 the number of lives and the rest of the numbers its own lobby could have moved,
 and drops its own. Everybody says what they are called on the way in, see 3.8.
+
+A client can have more than one player at it, the way one machine can, see 9.2: a press of join
+on another device there, Start or J, asks the host for another seat, in the lobby or in a match.
+The host seats them the way it seats somebody from another machine, in a color nobody has and
+under the name and dress of that seat of the client's settings, the second seat's for the second
+player, and they get a corner of their own on that screen. Each is driven, predicted and
+corrected on its own, and each can get up and Leave from their switches while the others play
+on. They go from room to room with the client, and are seated again on the other side. The
+lobby's player limit counts them as it counts everybody, see 9.6.
 
 The Play LAN screen finds the games on the network by itself. Over the boxes for an address and a
 port it lists every game that answers, a row each: a button saying whose it is, whether it is
@@ -2838,7 +2847,9 @@ nothing, since nothing went wrong.
 The host can show anybody out. Manage players, on the host's pause menu wherever the room is,
 comes up in place of the menu: everybody in the game, the host's own players first, marked Me
 and with nothing beside them, then each other player by the name and color of their seat and
-each watcher by the name the host gave them, with Kick beside every one of those.
+each watcher by the name the host gave them, with Kick beside every one of those. A client with
+two players at it is two rows: Kick on one of them takes that player's seat and leaves the
+client playing with the other, and Kick on the last shows the client out.
 Somebody kicked is told the host removed them from the game, on the pane a refusal comes up on,
 and goes back to the title from it; the host lets go of the connection half a second later
 whatever they do with that, so nobody stays by not listening. They may join again. Their seat
@@ -3113,7 +3124,7 @@ with `PLAYERS READY` under it. Both say how many bots come in with the players t
 PLAYERS READY + 2 BOTS`, so nobody expecting a match of two finds four karts on the grid: as
 many as the host asked for that the arena has seats left for, and nothing when that is none. The
 host says the number it asked for with the plan, and each machine takes off the seats its room
-has filled; a client of a host too old to say shows the plain count.
+has filled.
 
 The sign is a small board rather than the hoarding a room hangs its clock on. A hoarding is set
 back over a crowd and read from anywhere on the floor while a match is being played; there is no
@@ -3143,7 +3154,10 @@ A room holds no more players than it may: the arena's four seats, and online no 
 host's lobby lets in, see 10.3, whichever machine they sit at. Once it is full the line says
 `Maximum number of players reached` in place of how to take a seat, and a press of join at this
 machine is turned away with a notice saying so and how many the game has room for, in the lobby
-and in a match alike. The notice takes nobody's controls, since the players in the room are still
+and in a match alike. A client knows the limit because the host says it with the plan, and again
+whenever Lobby settings change it, so its line and its notice are the same as the host's. Two
+machines asking for the last seat at once is settled by the host, which seats one and turns the
+other away, and the one turned away gets the same notice. The notice takes nobody's controls, since the players in the room are still
 driving on the keys and pads a menu would take: it goes by itself after a few seconds, or at OK
 under the mouse or a finger. The door held the limit for somebody knocking from another machine
 and not for somebody at the host's own, which sat a third player down in a lobby for two.
@@ -3450,6 +3464,18 @@ way: the name because the client says it again the moment it is seated, the colo
 host seats each of them in the color they had in the room they came from. Being seated again
 is what puts a `NetInput` in the new match's slot, so the kart a client has been driving is
 still the kart it drives.
+
+A client with several players asks for all of them at once, by its own number for each, the
+first 0, and the host keeps their seats by client and by that number. Every message about a seat
+carries the number: the seat handed out, the name and the color it claims, the controls sent up
+and the host's word on the kart sent back. The first of them to sit down in a room is the one
+told the rules. One asked for later, somebody pressing join at the client, is checked against
+the lobby's limit on the host and turned away with a message of its own when there is no room,
+which the client shows as the notice of 9.6; the client does not guess, since two machines can
+ask for the last seat at the same time. Kept by number, the two players at one client stay
+apart: each claims its own name and color, each has its own history of predicted ticks, and
+leaving empties the one seat. This changed what the machines say to each other, which is why it
+came with 0.9.0 rather than a patch release.
 
 Seated is not the same as there. A client still has the room to build once it knows which one
 it is, and a slower machine than the host's used to arrive to a countdown already running, or to

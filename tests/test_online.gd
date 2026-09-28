@@ -156,7 +156,7 @@ func test_client_joins_takes_over_a_bot_drives_it_and_hands_it_back_on_leaving()
 	await await_millis(1200)
 	assert_float(kart.global_position.distance_to(start)).is_greater(2.0)
 	# The kart this player drives is driven here, GAME.md 10.3, not waited for.
-	assert_bool(client_session._prediction != null).is_true()
+	assert_bool(client_session.seats[0].prediction != null).is_true()
 	assert_bool(client_match.slots[1].kart.predicted).is_true()
 	var puppet: Kart = client_match.slots[1].kart
 	assert_float(puppet.global_position.distance_to(kart.global_position)).is_less(3.0)
@@ -564,7 +564,7 @@ func test_a_client_works_its_own_joker_pick_at_once() -> void:
 	# into the session's own step, because a real player's controls are read off the keyboard
 	# every tick and a flag set from a test is gone again before the tick comes round.
 	client_session.local_input.joker_next_pressed = true
-	client_session._step_own_offer()
+	client_session.seats[0]._step_offer(client_match)
 	assert_int(offer.selected).override_failure_message("the cursor waited for the host").is_equal(
 		1
 	)
