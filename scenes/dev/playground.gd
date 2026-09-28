@@ -268,7 +268,7 @@ func _parse_user_args() -> void:
 
 
 ## The last map of a made-up Grand Prix of two, scored, whistled and on to its finale the way the
-## podium's Grand Prix results button goes there, GAME.md 9.7.
+## podium's arrow on to the standings goes there, GAME.md 9.7.
 func _stage_the_finale() -> void:
 	var run := GrandPrix.start(2, match_node.rng)
 	for map: int in 2:

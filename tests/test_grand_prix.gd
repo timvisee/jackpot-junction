@@ -680,10 +680,13 @@ func _texts(node: Node) -> PackedStringArray:
 func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
 	_run_at(1, 3)
 	var screen := await _podium_after(1, 3)
-	# The map's own podium first, with one way on: how the run stands.
+	# The map's own podium first, the first of two pages, with one way on: how the run stands.
 	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
 	assert_str(screen._caption.text).contains("map 1 of 3")
-	assert_bool(screen._standings.visible).is_true()
+	assert_bool(screen._pager.visible).is_true()
+	assert_int(screen._pager.page).is_equal(0)
+	assert_bool(screen._standings.disabled).is_false()
+	assert_bool(screen._map_podium.disabled).is_true()
 	assert_bool(screen._next.visible).is_false()
 	assert_bool(screen._rematch.visible).is_false()
 	assert_bool(screen._quit.visible).is_false()
@@ -693,7 +696,8 @@ func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
 	screen._standings.pressed.emit()
 	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
 	assert_str(screen._caption.text).is_equal("Standings after map 1 of 3")
-	assert_bool(screen._standings.visible).is_false()
+	assert_int(screen._pager.page).is_equal(1)
+	assert_bool(screen._standings.disabled).is_true()
 	assert_bool(screen._next.visible).is_true()
 	assert_bool(screen._lobby.visible).is_false()
 	assert_bool(screen._quit.visible).is_false()
@@ -701,12 +705,13 @@ func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
 	# Nobody is champion of a run that is still going.
 	assert_bool(Game.grand_prix.revealed).is_false()
 	# And back to the map's podium, and on to the standings again, as often as anybody likes.
-	assert_bool(screen._map_podium.visible).is_true()
+	assert_bool(screen._map_podium.disabled).is_false()
 	screen._map_podium.pressed.emit()
 	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
 	assert_str(screen._caption.text).contains("map 1 of 3")
-	assert_bool(screen._map_podium.visible).is_false()
-	assert_bool(screen._standings.visible).is_true()
+	assert_int(screen._pager.page).is_equal(0)
+	assert_bool(screen._map_podium.disabled).is_true()
+	assert_bool(screen._standings.disabled).is_false()
 	assert_bool(screen._next.visible).is_false()
 	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._standings)
 	screen._standings.pressed.emit()
@@ -773,7 +778,8 @@ func test_the_podium_after_the_last_map_ends_the_run() -> void:
 	var screen := await _podium_after(3, 3)
 	# The last map's own podium first, with one way on: the run's.
 	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
-	assert_bool(screen._standings.visible).is_true()
+	assert_bool(screen._pager.visible).is_true()
+	assert_bool(screen._standings.disabled).is_false()
 	assert_bool(screen._next.visible).is_false()
 	assert_bool(screen._rematch.visible).is_false()
 	assert_bool(screen._lobby.visible).is_false()
@@ -782,7 +788,10 @@ func test_the_podium_after_the_last_map_ends_the_run() -> void:
 	# And the run's podium ends it: back to the lobby or the title.
 	await _to_the_run(screen)
 	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
-	assert_bool(screen._standings.visible).is_false()
+	# The second page, and the last: the podium it came from has handed over to the party.
+	assert_int(screen._pager.page).is_equal(1)
+	assert_bool(screen._standings.disabled).is_true()
+	assert_bool(screen._map_podium.disabled).is_true()
 	assert_bool(screen._lobby.visible).is_true()
 	assert_bool(screen._quit.visible).is_true()
 	assert_bool(Game.grand_prix.revealed).is_true()
@@ -792,6 +801,7 @@ func test_the_podium_after_the_last_map_ends_the_run() -> void:
 func test_a_single_map_podium_is_as_it_was() -> void:
 	var screen := await _podium_after(0, 0)
 	assert_bool(screen._next.visible).is_false()
+	assert_bool(screen._pager.visible).is_false()
 	assert_bool(screen._rematch.visible).is_true()
 	assert_bool(screen._quit.visible).is_true()
 	assert_bool(screen._caption.visible).is_false()

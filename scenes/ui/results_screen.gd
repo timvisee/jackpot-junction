@@ -43,9 +43,13 @@ var _podium: ResultsPodium
 var _rows: VBoxContainer
 ## The ways on from here, kept so the screen can point at one when it comes up.
 var _next: Button
+## In a Grand Prix, the map's podium and the run's standings as two pages, see [method _ways_on]:
+## on to the standings, and back from them to the podium in the middle of a run, [method _show_map].
+var _pager: ResultsPager
 var _standings: Button
-## Back from the run's standings to the map's podium in the middle of a run, [method _show_map].
 var _map_podium: Button
+## The row the ways on sit in, put away when none of them is there so it leaves no gap.
+var _button_row: HBoxContainer
 var _rematch: Button
 var _lobby: Button
 var _quit: Button
@@ -120,7 +124,7 @@ func fill_in() -> void:
 	# This is the one screen nobody asked for: it arrives on its own at the whistle, so it points
 	# at what most people want next rather than waiting to be found.
 	for first: Button in [_next, _standings, _map_podium, _lobby, _rematch, _quit]:
-		if first.visible:
+		if first.visible and first.get_parent().visible and not first.disabled:
 			first.grab_focus()
 			break
 
@@ -132,9 +136,9 @@ func fill_in() -> void:
 ## In a Grand Prix, GAME.md 9.7, every map's podium leads to how the run stands, and that leads
 ## on: to the next map, from a map that is not the last, and nowhere else -- there is no rematch of
 ## a map in the middle of a run, and no leaving from the podium, which is for the next map (the
-## pause menu is still the way out). Until then the two can be looked at in turn, the standings
-## leading back to the map's podium. The last map's standings end the run, and lead back to the
-## lobby. A client decides none of it, and is told who does.
+## pause menu is still the way out). The two are pages, turned with the arrows, and in the middle
+## of a run they can be looked at in turn. The last map's standings end the run, with no way back
+## to its podium, and lead back to the lobby. A client decides none of it, and is told who does.
 func _ways_on() -> void:
 	var rules := match_node.rules
 	var decides := not match_node.puppet
@@ -149,12 +153,15 @@ func _ways_on() -> void:
 	_next.visible = decides and more and (standing or not scored)
 	# Looking at the run is only looking, so it is everybody's to do, a client's as much as the
 	# host's; it is there once the run's points are in.
-	_standings.visible = grand_prix and not _showing_run and scored
-	# Not after the last map, whose podium has handed over to the party in the room.
-	_map_podium.visible = more and standing
+	_pager.visible = grand_prix and scored
+	# Not back after the last map, whose podium has handed over to the party in the room.
+	_pager.show_page(1 if standing else 0, more and standing, not standing)
 	_rematch.visible = decides and not grand_prix
 	_lobby.visible = decides and (run_up or (not grand_prix and Net.hosting()))
 	_quit.visible = not grand_prix or run_up
+	_button_row.visible = false
+	for way: Button in [_next, _lobby, _rematch, _quit]:
+		_button_row.visible = _button_row.visible or way.visible
 	_host_decides.visible = match_node.puppet and Net.online() and (not last or run_up)
 	_host_decides.text = (
 		"The host starts the next map." if more else "The host takes everybody back to the lobby."
@@ -175,7 +182,8 @@ func _ways_on() -> void:
 ## Somebody watching has nothing to press and nobody to press it for them, GAME.md 10.3: a map's
 ## podium goes on to how the run stands by itself, once it has been up long enough to be read.
 func _process(delta: float) -> void:
-	var counting := visible and _standings.visible and not _run_seen and _watching()
+	var counting := visible and _pager.visible and not _showing_run and not _run_seen
+	counting = counting and _watching()
 	_watcher_bar.visible = counting
 	if not counting:
 		return
@@ -432,7 +440,15 @@ func _build() -> void:
 	_rows = VBoxContainer.new()
 	_rows.add_theme_constant_override("separation", 10)
 	column.add_child(_rows)
-	column.add_child(_buttons())
+	_pager = ResultsPager.create()
+	_pager.visible = false
+	_standings = _pager.on
+	_standings.pressed.connect(_on_standings)
+	_map_podium = _pager.back
+	_map_podium.pressed.connect(_show_map)
+	column.add_child(_pager)
+	_button_row = _buttons()
+	column.add_child(_button_row)
 	_host_decides = MenuTheme.subtitle("The host takes everybody back to the lobby.", Type.LABEL)
 	_host_decides.visible = false
 	column.add_child(_host_decides)
@@ -454,14 +470,6 @@ func _buttons() -> HBoxContainer:
 	_next.pressed.connect(func() -> void: Game.next_map(match_node))
 	_next.visible = false
 	buttons.add_child(_next)
-	_standings = MenuTheme.button("Grand Prix results", 26)
-	_standings.pressed.connect(_on_standings)
-	_standings.visible = false
-	buttons.add_child(_standings)
-	_map_podium = MenuTheme.button("Map podium", 26)
-	_map_podium.pressed.connect(_show_map)
-	_map_podium.visible = false
-	buttons.add_child(_map_podium)
 	_lobby = MenuTheme.button("Back to lobby", 26)
 	_lobby.pressed.connect(_back_to_lobby)
 	_lobby.visible = false

@@ -13,8 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
-- **Back and forth between a map's podium and the standings.** In the middle of a Grand Prix
-  the standings have a Map podium button, and the podium still leads to them.
+- **Page between a map's podium and the standings.** In a Grand Prix, arrows turn between the
+  two, with a dot marking the page, and go back to the podium until the last map.
 - **Several players at a LAN client.** A client takes another player with J or Start, the
   way the host does, up to the lobby's limit; it won't play with 0.8.x.
 
