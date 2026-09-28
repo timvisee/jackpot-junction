@@ -87,6 +87,9 @@ var ready_slots: Dictionary[int, bool] = {}
 ## bots that come in are as many of those as there are seats left over, see [method bots_joining].
 var seats := 4
 var bots_asked := -1
+## How many players may be in the room, 0 while that is not this machine's to know: once it is
+## full, the line saying how to take a seat says there are none left, GAME.md 9.6.
+var seat_limit := 0
 
 var _segments: Array[MeshInstance3D] = []
 ## Seat to how many blocks of its arc were lit last frame, to hear each new one as it lights.
@@ -101,6 +104,9 @@ var _counter: Label
 var _hints: VBoxContainer
 ## How to take a seat here, which is nothing to somebody only watching, GAME.md 10.3.
 var _seat_hint: Control
+var _full_hint: Label
+## Whether the way to sit down is put away for good, on a machine that is only watching.
+var _no_seats_here := false
 var _online_hint: Label
 ## What the next match is, as the host last said it.
 var _plan: Label
@@ -221,6 +227,7 @@ func _process(delta: float) -> void:
 	_count_down(delta)
 	_paint_ring()
 	_say_the_count()
+	_show_the_way_in()
 
 
 ## The second between the room filling and the room going. A client runs it as well, off what it
@@ -260,6 +267,16 @@ func _say_the_count() -> void:
 		_board.say("%d / %d" % [ready_count(), player_count()], counted)
 
 
+## The way in, or that there is none left: once as many are playing as may, the line saying how
+## to take a seat gives way to one saying the room is full.
+func _show_the_way_in() -> void:
+	if _no_seats_here or _seat_hint == null:
+		return
+	var full := seat_limit > 0 and player_count() >= seat_limit
+	_seat_hint.visible = not full
+	_full_hint.visible = full
+
+
 ## The bots coming in, as the count says them after the players: " + 2 BOTS", or nothing when
 ## none are, or while the host has not said.
 func bot_words() -> String:
@@ -287,8 +304,11 @@ func _on_match_planned(summary: String, choosing: bool) -> void:
 ## The line that says how to take a seat, put away for a machine that is only watching, where
 ## there is no seat to take, GAME.md 10.3.
 func hide_how_to_sit_down() -> void:
+	_no_seats_here = true
 	if _seat_hint != null:
 		_seat_hint.visible = false
+	if _full_hint != null:
+		_full_hint.visible = false
 
 
 func say_how_to_join(online: String) -> void:
@@ -479,6 +499,14 @@ func _build_counter() -> void:
 	seat.alignment = BoxContainer.ALIGNMENT_CENTER
 	_hints.add_child(seat)
 	_seat_hint = seat
+	_full_hint = Label.new()
+	_full_hint.text = "Maximum number of players reached"
+	_full_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_full_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_full_hint.visible = false
+	Type.text(_full_hint, Type.LABEL, HINT_INK)
+	HudText.shadowed(_full_hint)
+	_hints.add_child(_full_hint)
 	_online_hint = Label.new()
 	_online_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_online_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE

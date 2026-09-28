@@ -259,6 +259,9 @@ func choose(lobby_first := false) -> void:
 func _process(_delta: float) -> void:
 	if host_settings != null and host_settings.is_open():
 		_hold(true)
+	# The host's lobby may be made smaller or bigger while everybody waits in it, GAME.md 9.6.
+	if ready_room != null and config.online != "join":
+		ready_room.seat_limit = SeatLimit.limit(match_node, session)
 
 
 func _chosen() -> void:
@@ -368,5 +371,8 @@ func _input(event: InputEvent) -> void:
 	if config.online == "join":
 		return
 	var device := DeviceInput.KEYBOARD if event is InputEventKey else event.device
+	if SeatLimit.turns_away(self, match_node, session, device):
+		get_viewport().set_input_as_handled()
+		return
 	if match_node.join_human(device) != null:
 		get_viewport().set_input_as_handled()

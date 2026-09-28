@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **A full LAN lobby turns away another seat.** Pressing J at the host past the lobby's
+  player limit says the game is full rather than adding a player.
+
 ### Changed
 
 - **A host nobody has joined leaves without being asked.** Back to title only warns about

@@ -183,6 +183,41 @@ func test_the_count_says_how_many_bots_come_in() -> void:
 		assert_str(ready_room._counter.text).is_equal("0 / 1 PLAYERS READY")
 
 
+## GAME.md 9.6: a lobby for two holds two. A third press of join at the host's own machine is
+## turned away with a notice saying why, where it used to sit a third player down past the limit
+## the door held for everybody knocking from elsewhere, and the line saying how to take a seat
+## says there is none left. A device already playing is let through, for its pause button.
+func test_a_full_lobby_turns_away_another_seat_and_says_so() -> void:
+	var room := await _host()
+	var match_node: Match = room.get_node("Match")
+	var session: NetSession = room.session
+	session.door.max_players = 2
+	await _runner.simulate_frames(2, 17)
+	var ready_room: ReadyRoom = room.ready_room
+	assert_int(ready_room.seat_limit).is_equal(2)
+	assert_bool(ready_room._seat_hint.visible).is_true()
+	assert_bool(ready_room._full_hint.visible).is_false()
+	assert_object(match_node.join_human(5)).is_not_null()
+	assert_bool(SeatLimit.full(match_node, session)).is_true()
+	assert_bool(SeatLimit.turns_away(room, match_node, session, 6)).is_true()
+	var notice := room.get_node("Notice") as NoticePane
+	assert_str(notice.said()).contains("Maximum number of players reached")
+	assert_str(notice.said()).contains("room for 2 players")
+	assert_bool(SeatLimit.turns_away(room, match_node, session, 5)).is_false()
+	assert_int(SeatLimit.players(match_node)).is_equal(2)
+	await _runner.simulate_frames(2, 17)
+	assert_bool(ready_room._seat_hint.visible).is_false()
+	assert_bool(ready_room._full_hint.visible).is_true()
+	# It goes by itself.
+	await _runner.simulate_frames(int(NoticePane.SHOWN_FOR * 60.0) + 10, 17)
+	assert_str(notice.said()).is_empty()
+	# Made bigger again, there is a seat, and the way to it.
+	session.door.max_players = 3
+	await _runner.simulate_frames(2, 17)
+	assert_bool(SeatLimit.full(match_node, session)).is_false()
+	assert_bool(ready_room._seat_hint.visible).is_true()
+
+
 ## Two people charging the pad are two arcs of the ring, each in their own color, rather than one
 ## bar showing whichever of them is furthest along. A room of four otherwise cannot tell who the
 ## pad has taken and who it is still waiting on.

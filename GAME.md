@@ -3139,6 +3139,15 @@ machine last heard from is the one the player already driving is holding. The ro
 both questions get asked, so it is where they are answered; anywhere else and a player has to
 leave the room to find out how to let their friend in.
 
+A room holds no more players than it may: the arena's four seats, and online no more than the
+host's lobby lets in, see 10.3, whichever machine they sit at. Once it is full the line says
+`Maximum number of players reached` in place of how to take a seat, and a press of join at this
+machine is turned away with a notice saying so and how many the game has room for, in the lobby
+and in a match alike. The notice takes nobody's controls, since the players in the room are still
+driving on the keys and pads a menu would take: it goes by itself after a few seconds, or at OK
+under the mouse or a finger. The door held the limit for somebody knocking from another machine
+and not for somebody at the host's own, which sat a third player down in a lobby for two.
+
 A seat taken in here goes through to the arena with everybody else, and as who it was in the
 room: the same color, the same name, the same dress.
 

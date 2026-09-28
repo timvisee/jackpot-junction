@@ -219,6 +219,9 @@ func _input(event: InputEvent) -> void:
 	):
 		return
 	var device := DeviceInput.KEYBOARD if event is InputEventKey else event.device
+	if SeatLimit.turns_away(self, match_node, session, device):
+		get_viewport().set_input_as_handled()
+		return
 	if match_node.join_human(device) != null:
 		get_viewport().set_input_as_handled()
 
