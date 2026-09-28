@@ -121,11 +121,13 @@ func test_a_rematch_rebuilds_the_room_without_connecting_anything_twice() -> voi
 	assert_int(_connections(match_node)).is_equal(2)
 
 
-## How many of the match's own handlers are hanging off the global event bus.
+## How many of the match's own handlers are hanging off the global event bus: its own, and those
+## of what it counts the results screen's figures with, see [MatchStats.Listener].
 func _connections(match_node: Match) -> int:
 	var mine := 0
 	for signal_name: StringName in [&"joker_taken", &"life_restored"]:
 		for entry: Dictionary in (Events.get(signal_name) as Signal).get_connections():
-			if (entry["callable"] as Callable).get_object() == match_node:
+			var owner := (entry["callable"] as Callable).get_object()
+			if owner == match_node or owner == match_node._counting:
 				mine += 1
 	return mine

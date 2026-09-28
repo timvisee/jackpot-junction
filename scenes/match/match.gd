@@ -108,6 +108,8 @@ var _names_rng := RandomNumberGenerator.new()
 var _seed := 0
 ## Seconds until the next bounty may be called.
 var _bounty_wait := 0.0
+## What the match counts off [Events] for the results screen, see [MatchStats.Listener].
+var _counting: MatchStats.Listener
 
 
 func _ready() -> void:
@@ -155,24 +157,14 @@ func start(
 	for pad: FlushPad in arena.flush_pads:
 		pad.decay = rules.flush_pad_decay
 		pad.claimed.connect(_on_pad_claimed)
-	arena.crate_broken.connect(_on_stat_crate)
-	arena.target_struck.connect(_on_target_struck)
-	# Guarded, because a rematch runs this again on the same node: the arena and the karts are
+	# Once, because a rematch runs this again on the same node: the arena and the karts are
 	# rebuilt but the match itself is not, and the engine refuses a connection it already has.
-	if not Events.joker_taken.is_connected(_on_stat_joker):
-		Events.joker_taken.connect(_on_stat_joker)
-	if not Events.life_restored.is_connected(_on_stat_life):
-		Events.life_restored.connect(_on_stat_life)
-	if not Events.jackpot_collected.is_connected(_on_stat_jackpot):
-		Events.jackpot_collected.connect(_on_stat_jackpot)
-	if not Events.drift_boosted.is_connected(_on_stat_drift_boost):
-		Events.drift_boosted.connect(_on_stat_drift_boost)
-	if not Events.oil_hit.is_connected(_on_stat_oil):
-		Events.oil_hit.connect(_on_stat_oil)
+	if _counting == null:
+		_counting = MatchStats.listen(self)
+	arena.crate_broken.connect(_counting.on_crate)
+	arena.target_struck.connect(_on_target_struck)
 	if not Events.kart_wounded.is_connected(_on_kart_wounded):
 		Events.kart_wounded.connect(_on_kart_wounded)
-	if not Events.kart_shot.is_connected(_on_stat_hit):
-		Events.kart_shot.connect(_on_stat_hit)
 	for zone: JackpotZone in arena.jackpot_zones:
 		zone.filled.connect(
 			func(filled: JackpotZone) -> void: Events.jackpot_full.emit(filled.index)
@@ -237,20 +229,11 @@ func rematch() -> void:
 
 
 func _exit_tree() -> void:
-	if Events.joker_taken.is_connected(_on_stat_joker):
-		Events.joker_taken.disconnect(_on_stat_joker)
-	if Events.life_restored.is_connected(_on_stat_life):
-		Events.life_restored.disconnect(_on_stat_life)
-	if Events.jackpot_collected.is_connected(_on_stat_jackpot):
-		Events.jackpot_collected.disconnect(_on_stat_jackpot)
-	if Events.drift_boosted.is_connected(_on_stat_drift_boost):
-		Events.drift_boosted.disconnect(_on_stat_drift_boost)
-	if Events.oil_hit.is_connected(_on_stat_oil):
-		Events.oil_hit.disconnect(_on_stat_oil)
+	if _counting != null:
+		_counting.stop()
+		_counting = null
 	if Events.kart_wounded.is_connected(_on_kart_wounded):
 		Events.kart_wounded.disconnect(_on_kart_wounded)
-	if Events.kart_shot.is_connected(_on_stat_hit):
-		Events.kart_shot.disconnect(_on_stat_hit)
 	if Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
 		Input.joy_connection_changed.disconnect(_on_joy_connection_changed)
 
@@ -889,36 +872,6 @@ func _on_target_struck(by_slot: int, coins: int) -> void:
 	slot.stats.add(&"targets")
 	if slot.kart != null and slot.kart.alive:
 		slot.kart.collect_coins(coins, null)
-
-
-## A shot on somebody else is a hit, for the shooter's accuracy.
-func _on_stat_hit(victim_slot: int, by_slot: int) -> void:
-	if by_slot != victim_slot:
-		MatchStats.count(self, by_slot, &"hits")
-
-
-func _on_stat_crate(by_slot: int) -> void:
-	MatchStats.count(self, by_slot, &"crates")
-
-
-func _on_stat_joker(slot: int, _joker: StringName) -> void:
-	MatchStats.count(self, slot, &"jokers")
-
-
-func _on_stat_life(slot: int) -> void:
-	MatchStats.count(self, slot, &"lives_restored")
-
-
-func _on_stat_jackpot(slot: int, chips: int) -> void:
-	MatchStats.count(self, slot, &"jackpot_chips", chips)
-
-
-func _on_stat_drift_boost(slot: int) -> void:
-	MatchStats.count(self, slot, &"drift_boosts")
-
-
-func _on_stat_oil(slot: int) -> void:
-	MatchStats.count(self, slot, &"oil_spins")
 
 
 ## A ram somebody lived through, GAME.md 4.1: it knocks a quarter of their coins out onto the
