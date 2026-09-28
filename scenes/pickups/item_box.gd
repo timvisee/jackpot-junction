@@ -72,10 +72,16 @@ func _build_visual(parent: Node3D) -> void:
 ## Spins and bobs like every pickup, and pulses its glow and size on top.
 func _process(delta: float) -> void:
 	super(delta)
+	# Taken, its look has gone into the kart with PickupFlight, GAME.md 8.3, and the box only has
+	# the rest of the frame to live.
+	if _visual == null:
+		return
 	_pulse += delta
 	var wave := 0.5 + 0.5 * sin(_pulse * 4.0)
 	_material.emission_energy_multiplier = 0.6 + 1.2 * wave
-	_visual.scale = Vector3.ONE * (0.94 + 0.12 * wave)
+	# Its size is the fall's and the throw's while either is under way.
+	if not falling and throw_state().is_empty():
+		_visual.scale = Vector3.ONE * (0.94 + 0.12 * wave)
 
 
 func _apply(kart: Kart) -> void:

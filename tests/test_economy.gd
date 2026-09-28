@@ -236,6 +236,28 @@ func test_pickups_hover_clear_of_the_floor_while_they_bob() -> void:
 	assert_float((chip.get_node("Visual") as Node3D).position.y).is_between(0.3, 0.5)
 
 
+## A box taken hands its look to the flight into the kart, GAME.md 8.3, and is freed at the end of
+## the frame; its pulse reached for the look that had gone, an error in every match. And a box
+## going down a hole kept its full size, the pulse writing over the shrink.
+func test_an_item_box_pulses_only_a_look_it_still_has() -> void:
+	var root: Node3D = auto_free(Node3D.new())
+	var runner: GdUnitSceneRunner = scene_runner(root)
+	var box := ItemBox.new()
+	root.add_child(box)
+	await runner.simulate_frames(2, 17)
+	box.fall_into_pit()
+	await runner.simulate_frames(12, 17)
+	var visual: Node3D = box.get_node("Visual")
+	assert_float(visual.scale.x).is_less(0.9)
+	# Taken: the look is gone, and the frame the box has left passes quietly.
+	var taken := ItemBox.new()
+	root.add_child(taken)
+	await runner.simulate_frames(2, 17)
+	taken.detach_visual().free()
+	await runner.simulate_frames(2, 17)
+	assert_object(taken.get_node_or_null("Visual")).is_null()
+
+
 ## GAME.md 3.4: the Junction ring blinks at a local player carrying a lot of unbanked value.
 func test_the_junction_blinks_when_a_local_player_carries_a_fortune() -> void:
 	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]

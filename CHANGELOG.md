@@ -20,6 +20,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Item boxes no longer throw an error when taken.** They also shrink down a hole and grow
+  in when thrown from a wreck, as other pickups do.
 - **A full LAN lobby turns away another seat.** Pressing J at the host past the lobby's
   player limit says the game is full rather than adding a player.
 
