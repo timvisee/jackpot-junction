@@ -61,7 +61,7 @@ func _ready() -> void:
 ## column of buttons, to join the switches to for a pad.
 func put_up(menu: Array[Button] = []) -> void:
 	take_down()
-	var match_node := get_tree().get_first_node_in_group(&"match") as Match
+	var match_node := _room()
 	if match_node == null or match_node.hud == null:
 		return
 	var here := _players_here(match_node)
@@ -71,6 +71,16 @@ func put_up(menu: Array[Button] = []) -> void:
 			_up.append(_switch(slot, slot.input as PlayerInput, corner, here.size() > 1))
 	_place()
 	_link(menu)
+
+
+## The room's match: the one still in the tree, not one on its way out. A room being left for
+## another, and a test starting on the heels of the last one, have both for a moment, and the one
+## going has the players it had, not the ones here now.
+func _room() -> Match:
+	for node: Node in get_tree().get_nodes_in_group(&"match"):
+		if not node.is_queued_for_deletion():
+			return node as Match
+	return null
 
 
 ## Everybody playing at this screen in [param match_node], in slot order.
@@ -206,7 +216,7 @@ func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control, can_leave: 
 ## [param each]'s player gets up and goes, and the switches are put up again for whoever is left,
 ## the cursor back on the menu.
 func _leave(each: Dictionary) -> void:
-	var match_node := get_tree().get_first_node_in_group(&"match") as Match
+	var match_node := _room()
 	if match_node == null:
 		return
 	var slot: PlayerSlot = each["slot"]
@@ -333,7 +343,7 @@ func _color_button(column: VBoxContainer, each: Dictionary) -> ColorRect:
 	column.add_child(pressable)
 	pressable.pressed.connect(
 		func() -> void:
-			var match_node := get_tree().get_first_node_in_group(&"match") as Match
+			var match_node := _room()
 			if match_node != null:
 				SeatIdentity.recolor(match_node, each["slot"])
 	)
