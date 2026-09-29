@@ -112,6 +112,19 @@ func _kicked() -> void:
 	session._hang_up.call_deferred("The host removed you from the game")
 
 
+## At a dedicated server, the game is over with somebody still in it, and [param reason] says why:
+## everybody left who was playing, leaving somebody watching nobody, GAME.md 9.3a.
+func end_the_game(reason: String) -> void:
+	if session.is_host and session._connected() and not multiplayer.get_peers().is_empty():
+		_ended.rpc(reason)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _ended(reason: String) -> void:
+	session._turned_away = true
+	session._hang_up.call_deferred(reason)
+
+
 ## The host stopping the match for everybody at once, GAME.md 3.8, rather than waiting for each
 ## of them to ask. It holds until the host lets go of it, which closing its menu does.
 func force_pause(on: bool) -> void:

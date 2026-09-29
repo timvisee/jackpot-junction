@@ -7,6 +7,10 @@ extends RefCounted
 ## can keep watchers out altogether, or let them in without the password. Kept apart from
 ## [NetSession] so that file stays about the connection rather than the door.
 
+## Somebody knocking was turned away, [param named] as they gave it, and [param why], in the words
+## they are told: for a dedicated server's log, GAME.md 9.3a.
+signal turned_away(named: String, why: String)
+
 ## How many clients may play, on top of the host, and how many may watch on top of them, with no
 ## kart of their own. A host nobody plays at seats one more client instead, see [method clients].
 const MAX_CLIENTS := 3
@@ -99,7 +103,7 @@ func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> 
 		names[peer] = PlayerNames.clean(str(words.get("name", "")))
 		if watch:
 			_name_watcher(peer, room.get("match"))
-	return {
+	var answered := {
 		"version": version,
 		"welcome": welcome,
 		"full": full,
@@ -107,6 +111,13 @@ func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> 
 		"locked": locked,
 		"closed": closed,
 	}
+	if not welcome:
+		var theirs := str(words.get("version", "?"))
+		var why := refusal(theirs, answered)
+		if wants_password(theirs, answered):
+			why = "The password was wrong" if locked == WRONG else "Asked for the password"
+		turned_away.emit(PlayerNames.clean(str(words.get("name", ""))), why)
+	return answered
 
 
 ## The four lobby settings, as they go over the wire between a dedicated server and the player

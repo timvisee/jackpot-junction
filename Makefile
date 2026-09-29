@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench bots multiplayer multiplayer-lag changelog check export android android-install android-release
+.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench bots multiplayer multiplayer-lag changelog check export android android-install android-release server
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -59,6 +59,11 @@ run: | $(CACHE)
 
 drive: | $(CACHE)
 	$(GODOT) --path . res://scenes/dev/driving.tscn -- $(ARGS)
+
+# A dedicated server, GAME.md 9.3a, headless on port 7780 and holding up to 8 games on the ports
+# after it: `make server ARGS="--port=7790 --games=4"` for others.
+server: | $(CACHE)
+	$(GODOT) --headless --path . -- --server $(ARGS)
 
 # What the game runs at, as a number: a match of four bots on each map, 600 frames after the
 # warm-up. A change that costs frames should be caught here rather than in a play session.

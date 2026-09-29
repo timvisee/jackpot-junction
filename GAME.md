@@ -3191,6 +3191,33 @@ seat is not heard. While they choose the match their karts wait where they are, 
 drive on, and the room does not go. Their Manage players lists everybody else, with their own
 players as Me; the players at one client share its say.
 
+**The server.** It is the game itself, started headless with `--server` after `--` on the
+command line: `./jackpot-junction.x86_64 --headless -- --server` from the Linux release, or `make
+server` from a checkout. Linux is what it is made for and tried on. It listens on port 7780 unless
+given `--port`, clear of a LAN game's 7777 and of the 7779 LAN games are found on, so a server and
+a LAN game can share a machine, and holds up to 8 games at once unless given `--games`, on the
+ports after its own: 7781 to 7788 to start with, so a server behind a router has 7780 to 7788 let
+through for UDP. Each game is a process of its own, the game started again headless as a host with
+nobody at it, from the waiting room on: a game is the whole game, its event bus and everything
+else it keeps among it, and two in one process would hear each other's every kill. That costs about
+a quarter of a gigabyte and a small part of a core a game. The server starts a game when somebody
+asks for one and tells them its port once it is up, lists it while anybody plays in it, and forgets
+it once its process has ended. A game ends itself once everybody who was playing in it has left,
+telling anybody still watching that it is over; once nobody has come to it in half a minute; or
+once it has heard nothing from the server for ten seconds, since a server that has gone has taken
+its list with it. The server stops a game that never says it is up, or says nothing for ten
+seconds.
+
+**The log.** The server writes a line to its output for everything worth knowing, with the date,
+the time and which game it was: the server opening; who comes to look at the games and leaves the
+list; who made which game, on which port; each game up; who came in to play or to watch and from
+where; who was turned away at the door and why; who has the host's say; Lobby settings changed;
+somebody shown out; the next match chosen; each room the game goes into, the lobby or a map; play
+starting, with everybody in it; Last call and Overtime; the results in order with what each player
+banked; and the end of each game and why. A game's own output is kept quiet and its lines come to
+the server to be written with the rest, so there is one log to read; an error a game raises still
+reaches it.
+
 ### 9.4 The Garage
 
 A practice room reached straight from the title screen, before anybody starts a
