@@ -421,10 +421,10 @@ func test_a_ram_that_does_not_kill_knocks_coins_loose() -> void:
 	loose = _chips(match_node)
 	victim.take_ram(0)
 	assert_int(_chips(match_node)).is_equal(loose)
-	# Insured, a pot keeps every coin, GAME.md 7.3.
+	# Held tight, a pot keeps every coin, GAME.md 7.3.
 	await _wait_out_immunity(victim)
 	victim.lives = 2
-	victim.jokers.add(load("res://data/jokers/insurance_policy.tres"))
+	victim.jokers.add(load("res://data/jokers/tight_grip.tres"))
 	victim.pot.add_coins(20)
 	victim.take_ram(0)
 	assert_bool(victim.is_wounded()).is_true()

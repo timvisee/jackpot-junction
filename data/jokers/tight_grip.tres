@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/tight_grip.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"tight_grip"
+display_name = "Tight Grip"
+description = "Your pot never spills: no coins dropped on death or knocked out by a ram."
+rarity = 1
+kind = 1

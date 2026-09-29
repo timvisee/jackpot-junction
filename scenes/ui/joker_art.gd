@@ -152,6 +152,10 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 		&"tailslide":
 			IconShapes.arc(on, box, 0.72, 0.28, 0.5, 90.0, 190.0, dim)
 			IconShapes.arc(on, box, 0.72, 0.28, 0.34, 90.0, 190.0, ink)
+		&"tight_grip":
+			IconShapes.disc(on, box, 0.5, 0.5, 0.3, dim)
+			IconShapes.ring(on, box, 0.5, 0.5, 0.3, ink)
+			IconShapes.bar(on, box, 0.12, 0.44, 0.76, 0.12, ink)
 		&"toll_booth":
 			IconShapes.bar(on, box, 0.14, 0.2, 0.12, 0.66, dim)
 			IconShapes.bar(on, box, 0.3, 0.42, 0.58, 0.12, ink)
@@ -195,6 +199,7 @@ static func known() -> Array[StringName]:
 		&"slipstream",
 		&"snake_eyes",
 		&"tailslide",
+		&"tight_grip",
 		&"toll_booth",
 		&"vulture",
 		&"wild_card"

@@ -44,7 +44,7 @@ func _chip(dropped := false, gold := false) -> Chip:
 
 func test_catalog_has_unique_jokers_and_offers_exclude_held_ones() -> void:
 	var catalog: JokerCatalog = CATALOG
-	assert_int(catalog.jokers.size()).is_equal(30)
+	assert_int(catalog.jokers.size()).is_equal(31)
 	var ids: Array[StringName] = []
 	for joker: Joker in catalog.jokers:
 		(
@@ -635,8 +635,9 @@ func test_high_roller_doubles_mult_gains_and_banks_nothing_on_death() -> void:
 	assert_int(match_node.slots[0].banked).is_equal(0)
 
 
-## The whole pot into the score, and none of it onto the floor for anybody else to pick up.
-func test_insurance_policy_banks_everything_on_death() -> void:
+## All that is left of the pot into the score: the chips a death spills still spill, and the rest
+## banks whole rather than halved.
+func test_insurance_policy_banks_all_that_is_left_on_death() -> void:
 	var match_node := _start_match(_bots())
 	var kart := match_node.kart_of(0)
 	_attach(kart, "insurance_policy")
@@ -644,7 +645,34 @@ func test_insurance_policy_banks_everything_on_death() -> void:
 	kart.pot.add_mult(1.0)
 	var loose := _chips_on_the_floor(match_node)
 	kart.die(&"pit", -1)
-	assert_int(match_node.slots[0].banked).is_equal(20)
+	# Three of the ten spill, and the seven left bank at 2x.
+	assert_int(_chips_on_the_floor(match_node) - loose).is_equal(3)
+	assert_int(match_node.slots[0].banked).is_equal(14)
+
+
+## Tight Grip lets none of the pot go: nothing spills and a killer takes nothing, and the death
+## banks its usual share of all of it; with Insurance Policy as well, all of all of it.
+func test_tight_grip_lets_none_of_the_pot_go() -> void:
+	var three: Array[KartInput] = [KartInput.new(), KartInput.new(), KartInput.new()]
+	var match_node := _start_match(three)
+	var kart := match_node.kart_of(0)
+	var thief := match_node.kart_of(1)
+	_attach(kart, "tight_grip")
+	_attach(thief, "pickpocket")
+	kart.pot.add_coins(10)
+	kart.pot.add_mult(1.0)
+	var loose := _chips_on_the_floor(match_node)
+	kart.die(&"bullet", 1)
+	assert_int(_chips_on_the_floor(match_node)).is_equal(loose)
+	assert_int(thief.pot.coins).is_equal(0)
+	assert_int(match_node.slots[0].banked).is_equal(10)
+	var both := match_node.kart_of(2)
+	_attach(both, "tight_grip")
+	_attach(both, "insurance_policy")
+	both.pot.add_coins(10)
+	both.pot.add_mult(1.0)
+	both.die(&"pit", -1)
+	assert_int(match_node.slots[2].banked).is_equal(20)
 	assert_int(_chips_on_the_floor(match_node)).is_equal(loose)
 
 

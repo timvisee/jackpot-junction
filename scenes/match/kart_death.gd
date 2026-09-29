@@ -1,9 +1,9 @@
 class_name KartDeath
 extends RefCounted
-## What happens when a kart dies, GAME.md 3.6: a share of the pot is banked, coins and maybe a
-## joker or the item hit the floor, whoever did it is paid in mult, nitro and a life back, and a
-## respawn is set running with a joker pick to make while it waits. Jokers bend every part of
-## it, which is what [DeathOutcome] is for.
+## What happens when a kart dies, GAME.md 3.6: coins and maybe a joker or the item hit the floor,
+## a share of what is left of the pot is banked, whoever did it is paid in mult, nitro and a life
+## back, and a respawn is set running with a joker pick to make while it waits. Jokers bend every
+## part of it, which is what [DeathOutcome] is for.
 ##
 ## Kept out of [Match] the way [MatchStats] and [MatchSnapshot] are, so that file stays about
 ## running a match rather than about the longest single thing that happens during one.
@@ -37,12 +37,16 @@ static func resolve(
 			joker.on_victim_death(killer.kart, kart, death)
 	# Read before the death moves any money, so that afterwards the two can be compared.
 	var behind := _behind(match_node, slot, killer)
-	var banked := Scoring.death_bank(kart.pot.coins, kart.pot.mult, death.bank_fraction)
-	var worth := Scoring.pot_value(kart.pot.coins, kart.pot.mult)
+	# What leaves the pot goes first, into the killer's pot and onto the floor, and the bank is a
+	# share of what is left of it: all of it with Insurance Policy, and all of the pot with Tight
+	# Grip as well, which lets none of it go.
+	var left := kart.pot.coins - _spill(match_node, slot, killer, death)
+	var banked := Scoring.death_bank(left, kart.pot.mult, death.bank_fraction)
+	var worth := Scoring.pot_value(left, kart.pot.mult)
 	slot.banked += banked
 	if worth > 0:
 		Events.death_banked.emit(slot.index, banked, worth - banked)
-	_scatter(match_node, slot, killer, death)
+	_scatter(match_node, slot, death)
 	_collect_bounty(match_node, slot, killer)
 	_pay_killer(match_node, cause, killer)
 	kart.pot.reset()
@@ -63,21 +67,32 @@ static func resolve(
 	match_node.check_target()
 
 
-## What the kart leaves on the floor where it died, and what the killer takes off it first.
-static func _scatter(
+## The coins that leave the pot before any of it is banked: what the killer takes off it, and
+## what spills onto the floor where it died. Returns how many, which [member DeathOutcome.sealed]
+## keeps at none.
+static func _spill(
 	match_node: Match, slot: PlayerSlot, killer: PlayerSlot, death: DeathOutcome
-) -> void:
+) -> int:
+	if death.sealed:
+		return 0
 	var kart := slot.kart
-	var rules := match_node.rules
-	var rng := match_node.rng
-	var position := kart.global_position
 	var stolen := 0
 	if killer != null and death.steal_fraction > 0.0 and killer.kart.alive:
 		stolen = floori(kart.pot.coins * death.steal_fraction)
 		killer.kart.collect_coins(stolen, null)
 	var drop := Scoring.death_drop(kart.pot.coins - stolen, death.drop_fraction, death.drop_max)
 	if drop > 0:
-		match_node.arena.spawn_chips(position, drop, rules.dropped_chip_lifetime, 0.0, true)
+		var lifetime := match_node.rules.dropped_chip_lifetime
+		match_node.arena.spawn_chips(kart.global_position, drop, lifetime, 0.0, true)
+	return stolen + drop
+
+
+## What else the kart leaves on the floor where it died: maybe a joker, and maybe its item.
+static func _scatter(match_node: Match, slot: PlayerSlot, death: DeathOutcome) -> void:
+	var kart := slot.kart
+	var rules := match_node.rules
+	var rng := match_node.rng
+	var position := kart.global_position
 	for i: int in death.joker_drop_count:
 		if kart.jokers.count() > 0 and rng.randf() < death.joker_drop_chance:
 			var dropped := kart.jokers.remove_at(rng.randi_range(0, kart.jokers.count() - 1))

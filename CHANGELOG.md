@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Tight Grip joker.** Your pot never spills: a death drops no coins, a killer takes none,
+  and a ram knocks none out.
 - **The Royal Flush pads you hold show under the clock.** A block per pad in its holder's color,
   outlines for the free ones, while you hold at least one.
 - **XL maps.** Lucky Crossing XL, The Vault XL and Crossfire XL are roomier versions with space
@@ -40,8 +42,6 @@ below, and hands the notes to the release workflow.
   plain kart, and a LAN player no longer borrows the host's own seats' names and dress.
 - **Nitro comes back quickly in a LAN lobby on a client too.** A client refilled at a match's
   pace there, and never felt a hot room's quicker nitro on a map either.
-- **Insurance Policy keeps the whole pot.** Dying with it drops no chips, and a ram you
-  live through knocks none out.
 - **Item boxes no longer throw an error when taken.** They also shrink down a hole and grow
   in when thrown from a wreck, as other pickups do.
 - **A full LAN lobby turns away another seat.** Pressing J at the host past the lobby's
@@ -49,6 +49,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A death banks a share of what is left of the pot.** The coins it drops leave the pot first;
+  Insurance Policy banks all that is left, and Tight Grip keeps them all to bank.
 - **The shoulder buttons turn a Grand Prix's podium pages.** On a pad, left goes back and right
   goes on, and the buttons are drawn beside the arrows.
 - **After a Grand Prix's last map, Continue goes on.** Its podium and the final standings are a

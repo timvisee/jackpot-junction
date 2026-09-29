@@ -11,6 +11,9 @@ var joker_drop_count := 1
 var item_drop_chance := 0.5
 ## Share of the victim's coins that go straight into the killer's pot.
 var steal_fraction := 0.0
+## Whether nothing leaves the pot but what banks, Tight Grip's: no coins onto the floor and none
+## into the killer's pot, whatever else says otherwise.
+var sealed := false
 
 
 static func from_rules(rules: MatchRules) -> DeathOutcome:

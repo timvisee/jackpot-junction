@@ -84,7 +84,8 @@ func test_the_death_sequence_banks_half_drops_chips_and_credits_the_killer() -> 
 	victim.global_position = Vector3(5.0, 0.0, 5.0)
 	var pickups_before := match_node.arena.pickups.get_child_count()
 	victim.die(&"bullet", 1)
-	assert_int(match_node.slots[0].banked).is_equal(10)
+	# Three of the ten spill first, and half of the seven left banks at 2x.
+	assert_int(match_node.slots[0].banked).is_equal(7)
 	assert_int(match_node.arena.pickups.get_child_count()).is_equal(pickups_before + 3)
 	assert_float(killer.pot.mult).is_equal(2.0)
 	assert_int(match_node.slots[1].kills).is_equal(1)
@@ -113,7 +114,8 @@ func test_a_death_says_what_its_pot_banked_and_lost() -> void:
 	gambler.pot.add_coins(10)
 	gambler.die(&"pit", -1)
 	Events.death_banked.disconnect(hear)
-	assert_array(said).is_equal([[0, 20, 20], [1, 0, 10]])
+	# What spills is on the floor and is neither: the rest is split.
+	assert_array(said).is_equal([[0, 14, 14], [1, 0, 7]])
 
 
 ## GAME.md 8.1: the chip count is a marking on the floor of the zone, so a kart parked on it is
