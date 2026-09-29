@@ -148,6 +148,24 @@ func test_the_spikes_stay_in_the_pit() -> void:
 				assert_float(box.end.y).override_failure_message(proud).is_less_equal(0.02)
 
 
+## GAME.md 8.1: a card room's pit is edged in red neon, since its one lamp leaves a dark hole in
+## dark felt out past the brightest of it, and The Vault XL's pits sat out there unseen.
+func test_a_card_room_pit_is_edged_in_neon() -> void:
+	for map: String in ["vault", "vault_xl"]:
+		var arena := _arena(map)
+		for pit: Pit in arena.pits:
+			var lit := _meshes(pit).filter(
+				func(part: MeshInstance3D) -> bool:
+					var paint := part.material_override as StandardMaterial3D
+					return paint != null and paint.emission_enabled
+			)
+			assert_int(lit.size()).override_failure_message("%s: an unlit pit" % map).is_equal(4)
+	for pit: Pit in _arena("lucky_crossing").pits:
+		for part: MeshInstance3D in _meshes(pit):
+			var paint := part.material_override as StandardMaterial3D
+			assert_bool(paint != null and paint.emission_enabled).is_false()
+
+
 ## Every room paints its own face on the cash-out pad, GAME.md 8.1: a roulette wheel After Hours,
 ## a hazard border in the Yard, a machined plate on the bench. No two of them are the same set of
 ## colors, which is the whole of what "map specific" means here.

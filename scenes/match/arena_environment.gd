@@ -14,8 +14,11 @@ extends Node3D
 ## is seen from further back, and draws them as much further out.
 const SHADOW_REACH := 80.0
 const FLOOR_WIDTH := 40.0
-## How far inside the edge of the lamp's cone the corners of the floor are kept, in degrees.
+## How far inside the edge of the lamp's cone the corners of the floor are kept, in degrees, and
+## the floor a room's lamp was set for, whose corners a bigger floor's are kept as far into the
+## cone as.
 const LAMP_SPARE := 4.0
+const USUAL_FLOOR := Vector2(40.0, 22.5)
 ## The light a room needs from its sun before that sun is worth a shadow map of its own.
 const SUN_SHADOWS := 0.8
 
@@ -89,9 +92,13 @@ func dress(room: RoomLook) -> void:
 	lamp.position = Vector3(0.0, room.lamp_height, 0.0)
 	lamp.spot_range = room.lamp_reach
 	# Never narrower than the room asks for, and wide enough to reach the corners of whatever
-	# floor it is over: an XL map's corners were out in the dark past the rim of its cone.
-	var corner := rad_to_deg(atan((floor_size * 0.5).length() / maxf(room.lamp_height, 1.0)))
-	lamp.spot_angle = minf(maxf(room.lamp_angle, corner + LAMP_SPARE), 89.0)
+	# floor it is over, as far inside the cone as the usual floor's are: an XL map's corners were
+	# out in the fringe past the brightest of it, where a dark room's pits could not be seen.
+	var height := maxf(room.lamp_height, 1.0)
+	var corner := rad_to_deg(atan((floor_size * 0.5).length() / height))
+	var usual := rad_to_deg(atan((USUAL_FLOOR * 0.5).length() / height))
+	var wide := maxf(room.lamp_angle * corner / usual, corner + LAMP_SPARE)
+	lamp.spot_angle = minf(maxf(room.lamp_angle, wide), 89.0)
 	lamp.spot_angle_attenuation = room.lamp_fade
 	lamp.shadow_enabled = room.lamp_shadow and shadowed
 	lamp.shadow_opacity = room.shadow_depth

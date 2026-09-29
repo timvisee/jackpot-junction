@@ -26,6 +26,9 @@ const STEP_BITE := 0.02
 ## How often a wall carries something on top of it, and how long a wall has to be to qualify.
 const DRESSED_WALLS := 3
 const LONG_ENOUGH := 2.0
+## The neon round the top of a card room's pit, see [method _pit_neon]: red, for the one thing on
+## the table that kills, where the room's own neon is its pink and its blue.
+const PIT_NEON := Color(1.0, 0.24, 0.22)
 ## How high something dropped on the floor of the arena may stand. Below this it is litter: a card
 ## face down on the baize, a washer on the bench, a scrap of paper in the yard. Nothing this low
 ## is in anybody's way, and a floor with nothing at all on it reads as a floor rather than as a
@@ -131,6 +134,8 @@ func pit(into: Node3D, size: Vector2) -> void:
 			_put(into, mesh, spike, at + Vector3(0.0, tall * 0.5, 0.0))
 	if room.id == &"the_yard":
 		_pit_hazard(into, size)
+	elif room.id == &"after_hours":
+		_pit_neon(into, size)
 
 
 ## What a room's spikes are made of: rusted rebar in the yard, bright nails on the bench, and
@@ -172,6 +177,22 @@ func _pit_hazard(into: Node3D, size: Vector2) -> void:
 				else Vector3(band, 0.01, span / float(count))
 			)
 			_box(into, size3, black if i % 2 == 0 else yellow, at)
+
+
+## A thin red neon round the top of a card room's pit. That room is lit by one lamp over a dark
+## table, and a dark hole in dark felt out past the lamp's brightest was a hole nobody could see
+## until they were in it; the room's own light, the neon, says where the edge is.
+func _pit_neon(into: Node3D, size: Vector2) -> void:
+	var lit := surfaces.neon(PIT_NEON, 1.4)
+	var band := 0.09
+	for side: int in 4:
+		var along := side % 2 == 0
+		var out := ((size.y if along else size.x) + band) * 0.5 * (1.0 if side < 2 else -1.0)
+		var at := Vector3(0.0, 0.008, out) if along else Vector3(out, 0.008, 0.0)
+		var run := (
+			Vector3(size.x + band * 2.0, 0.012, band) if along else Vector3(band, 0.012, size.y)
+		)
+		_box(into, run, lit, at)
 
 
 ## A few small things dropped on the floor the karts drive on, GAME.md 8.1. Flat enough to be
