@@ -1336,7 +1336,10 @@ few rules the usual maps were too cramped for:
   down.
 - Every turbo pad launches down at least eight cells of open lane with no hole in
   it, so it never drives a kart into a wall or a pit. Its pads are sections of two
-  side by side, so a section is easy to hit at speed.
+  side by side, so a section is easy to hit at speed. Pads side by side that point
+  the same way launch as one pad: as two, a kart driven down the line between them
+  had its center on the edge of both, well onto neither, and went through without
+  a launch.
 - No lane narrower than three cells.
 
 On a bigger floor the lamp over the table widens to take its corners in, the

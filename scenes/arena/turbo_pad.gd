@@ -3,15 +3,21 @@ extends Area3D
 ## A directional speed boost pad. A kart is launched along [member direction] once its center is
 ## well onto the pad, not the moment its bumper touches the edge, so the shove reads as coming
 ## from the pad itself. A kart that leaves and comes back is launched again.
+##
+## Pads side by side that point the same way are one pad, a section of them, see
+## [method ArenaGrid.turbo_sections]: as two, a kart driven down the line between them had its
+## center on the edge of both, well onto neither, and went through without a launch.
 
 signal triggered(body: Node3D)
 
-## The kart's center must be within this fraction of the pad's half width, on both axes.
+## How far in from the edge of the pad the kart's center must be, on both axes, as a fraction of
+## half the pad's narrower side: a single pad's is a fifth of its half width all round.
 const INNER_FRACTION := 0.8
 
 @export var direction := Vector3.FORWARD
-## Half the width of the pad's plate.
-@export var half_size := 0.625
+## Half the size of the pad, across in x and along in z: a single pad's is half a cell each way,
+## and a section's covers every pad in it.
+@export var half_extents := Vector2(0.625, 0.625)
 
 ## Karts overlapping the pad that have not been launched since they drove on.
 var _pending: Array[Node3D] = []
@@ -28,13 +34,14 @@ func _ready() -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	var reach := half_size * INNER_FRACTION
+	var edge := minf(half_extents.x, half_extents.y) * (1.0 - INNER_FRACTION)
+	var reach := half_extents - Vector2(edge, edge)
 	for body: Node3D in _pending.duplicate():
 		if not is_instance_valid(body):
 			_pending.erase(body)
 			continue
 		var offset := body.global_position - global_position
-		if absf(offset.x) <= reach and absf(offset.z) <= reach:
+		if absf(offset.x) <= reach.x and absf(offset.z) <= reach.y:
 			_pending.erase(body)
 			body.call("apply_turbo", direction)
 			triggered.emit(body)

@@ -597,36 +597,47 @@ func _add_turbo_pads() -> void:
 	var pads := Node3D.new()
 	pads.name = "TurboPads"
 	add_child(pads)
-	for i: int in grid.turbo_pads.size():
-		var cell := grid.turbo_pads[i]
+	# A section of pads side by side is one pad, so the line between two of them launches as
+	# surely as the middle of either, see [TurboPad]; each cell of it still wears a plate.
+	var sections := grid.turbo_sections()
+	for i: int in sections.size():
+		var section := sections[i]
 		var pad := TurboPad.new()
 		pad.name = "TurboPad%d" % i
-		pad.direction = grid.turbo_direction(cell)
-		pad.half_size = grid.cell_size * 0.5
-		pad.position = grid.cell_center(cell)
+		pad.direction = grid.turbo_direction(section.position)
+		pad.half_extents = grid.rect_size(section) * 0.5
+		pad.position = grid.rect_center(section)
 		var shape := CollisionShape3D.new()
 		var box := BoxShape3D.new()
-		box.size = Vector3(grid.cell_size, 1.0, grid.cell_size)
+		var extent := grid.rect_size(section)
+		box.size = Vector3(extent.x, 1.0, extent.y)
 		shape.shape = box
 		shape.position = Vector3(0.0, 0.5, 0.0)
 		pad.add_child(shape)
-		# A dark plate set into the felt with a lit face on it, rather than a flat cyan square:
-		# the frame is what makes it read as a fitting, GAME.md 8.1.
-		var frame := _box_mesh(Vector3(grid.cell_size, PAD_HEIGHT, grid.cell_size), room.lane)
-		frame.position = Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
-		pad.add_child(frame)
-		var plate := _box_mesh(
-			Vector3(grid.cell_size * 0.82, PAD_HEIGHT, grid.cell_size * 0.82), Palette.NEON_CYAN
-		)
-		plate.material_override = surfaces.neon(Palette.NEON_CYAN, 0.4)
-		plate.position = Vector3(0.0, PAD_HEIGHT * 0.9, 0.0)
-		pad.add_child(plate)
-		var arrow := _arrow_mesh(Palette.CHIP_WHITE)
-		arrow.position = Vector3(0.0, PAD_HEIGHT + 0.03, 0.0)
-		arrow.look_at_from_position(arrow.position, arrow.position + pad.direction, Vector3.UP)
-		pad.add_child(arrow)
+		for y: int in range(section.position.y, section.end.y):
+			for x: int in range(section.position.x, section.end.x):
+				_add_turbo_plate(pad, grid.cell_center(Vector2i(x, y)) - pad.position)
 		pads.add_child(pad)
 		turbo_pads.append(pad)
+
+
+## One cell of a turbo pad at [param at] on [param pad]: a dark plate set into the felt with a lit
+## face on it, rather than a flat cyan square, since the frame is what makes it read as a fitting,
+## GAME.md 8.1, and the arrow it launches along.
+func _add_turbo_plate(pad: TurboPad, at: Vector3) -> void:
+	var frame := _box_mesh(Vector3(grid.cell_size, PAD_HEIGHT, grid.cell_size), room.lane)
+	frame.position = at + Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
+	pad.add_child(frame)
+	var plate := _box_mesh(
+		Vector3(grid.cell_size * 0.82, PAD_HEIGHT, grid.cell_size * 0.82), Palette.NEON_CYAN
+	)
+	plate.material_override = surfaces.neon(Palette.NEON_CYAN, 0.4)
+	plate.position = at + Vector3(0.0, PAD_HEIGHT * 0.9, 0.0)
+	pad.add_child(plate)
+	var arrow := _arrow_mesh(Palette.CHIP_WHITE)
+	arrow.position = at + Vector3(0.0, PAD_HEIGHT + 0.03, 0.0)
+	arrow.look_at_from_position(arrow.position, arrow.position + pad.direction, Vector3.UP)
+	pad.add_child(arrow)
 
 
 func _add_crates() -> void:

@@ -112,6 +112,38 @@ func turbo_direction(cell: Vector2i) -> Vector3:
 	return Vector3(0.0, 0.0, 1.0) if cell.y < height / 2 else Vector3(0.0, 0.0, -1.0)
 
 
+## The turbo pads grouped into sections, GAME.md 6.3: pads side by side that fire the same way,
+## as the rectangle of cells they make up, so they launch as one pad. A group that is not a
+## rectangle stays a pad a cell.
+func turbo_sections() -> Array[Rect2i]:
+	var sections: Array[Rect2i] = []
+	var placed: Dictionary[Vector2i, bool] = {}
+	for start: Vector2i in turbo_pads:
+		if placed.has(start):
+			continue
+		var way := turbo_direction(start)
+		var group: Array[Vector2i] = [start]
+		placed[start] = true
+		var i := 0
+		while i < group.size():
+			for step: Vector2i in [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.UP, Vector2i.DOWN]:
+				var next := group[i] + step
+				if placed.has(next) or next not in turbo_pads or turbo_direction(next) != way:
+					continue
+				placed[next] = true
+				group.append(next)
+			i += 1
+		var bounds := Rect2i(start, Vector2i.ONE)
+		for cell: Vector2i in group:
+			bounds = bounds.merge(Rect2i(cell, Vector2i.ONE))
+		if bounds.get_area() == group.size():
+			sections.append(bounds)
+		else:
+			for cell: Vector2i in group:
+				sections.append(Rect2i(cell, Vector2i.ONE))
+	return sections
+
+
 ## True when the layout reads the same after a 180 degree rotation, ignoring arrow glyphs.
 func is_point_symmetric() -> bool:
 	for y: int in height:

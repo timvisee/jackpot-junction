@@ -24,6 +24,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Two turbo pads side by side always launch.** Driving down the line between them went
+  through without a turbo; they now work as one pad.
 - **A death after the whistle no longer changes the result.** A late bomb or fall banked half a
   pot after the Grand Prix points and the winner were already decided.
 - **Mouse buttons can be bound in Controls.** A click to bind went to the settings screen's
