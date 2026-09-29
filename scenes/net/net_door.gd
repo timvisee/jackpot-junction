@@ -146,9 +146,16 @@ static func locals(match_node: Match) -> int:
 
 ## Everybody else in the host's game, for its Manage players: each player of each client of
 ## [param seats] that plays, by the name and color of their seat in [param match_node], and each
-## of [param watchers] by the name it gave. A client with two players at it is two rows.
+## of [param watchers] by the name it gave, once [param here] says they are all the way in. A
+## client with two players at it is two rows.
+##
+## A watcher is let in at the host's end of the handshake a round trip before the connection is
+## theirs, and one listed in that time could not be shown out. With no [param here], every one is.
 func guests(
-	match_node: Match, seats: Dictionary[int, Dictionary], watchers: Dictionary[int, bool]
+	match_node: Match,
+	seats: Dictionary[int, Dictionary],
+	watchers: Dictionary[int, bool],
+	here: MultiplayerAPI = null
 ) -> Array[Dictionary]:
 	var found: Array[Dictionary] = []
 	for peer: int in seats:
@@ -168,6 +175,8 @@ func guests(
 					)
 				)
 	for peer: int in watchers:
+		if here != null and not here.get_peers().has(peer):
+			continue
 		var named: String = names.get(peer, "")
 		found.append({"peer": peer, "name": named if not named.is_empty() else "Watcher"})
 	return found
