@@ -4457,6 +4457,15 @@ with the numbers that put them there.
   `mipmaps/generate=true` in every import under `assets/textures`, and
   `compress/normal_map=1` on the normal maps, put them in the formats a card
   samples in a quarter of the bandwidth, ETC2 or ASTC on a phone.
+- **Many of the same thing that change one at a time are a MultiMesh.** The clock
+  board's thirty segments were thirty `MeshInstance3D`s with a material each, and
+  the seconds ticking over wrote three values into a dozen of them a second. They
+  are one `MultiMesh`: the same bar placed and sized per instance, its color in
+  the instance color and whether it is lit in the instance's custom data, drawn
+  by `led_segment.gdshader`. One draw call rather than thirty, and a digit is a
+  handful of buffer writes. Shaders live in `.gdshader` files beside the script
+  that uses them, not in strings, so the editor checks them and the phone's
+  shader baker sees them.
 
 ## 11. Roadmap
 

@@ -32,6 +32,8 @@ below, and hands the notes to the release workflow.
   bandwidth for the surfaces that cover most of the screen.
 - **Lights out when they are out.** The drift boost's glow and a firework's flash are hidden
   once they have faded, rather than left on at nothing.
+- **The clock board is one thing to draw.** Its thirty segments were thirty meshes with a
+  material each; they are one MultiMesh now, lit per segment by a shader of its own.
 
 ## [0.10.0] - 2026-09-29
 

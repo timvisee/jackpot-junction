@@ -7,6 +7,11 @@ extends Node3D
 ##
 ## Scenery: it reads the match and decides nothing. A room with no clock to keep, such as the
 ## garage, has no board.
+##
+## The thirty segments are one [MultiMesh], GAME.md 10.7: the same bar placed, sized and colored
+## per instance, with whether it is lit in its custom data, drawn by led_segment.gdshader. One
+## thing to draw rather than thirty, and lighting a digit is thirty small writes rather than
+## thirty materials changed.
 
 ## The digits and the gap between them, in meters.
 const DIGIT := Vector2(0.5, 0.96)
@@ -48,14 +53,17 @@ const NUMERALS: Dictionary[String, String] = {
 	"8": "abcdefg",
 	"9": "abcdfg",
 }
+const SEGMENT_SHADER: Shader = preload("res://scenes/arena/led_segment.gdshader")
 
 var match_node: Match
 
-## One entry per digit: segment name to the mesh that draws it.
+## One entry per digit: segment name to its instance in the segments' MultiMesh.
 var _digits: Array[Dictionary] = []
 var _board: Billboard
-var _colon: Array[MeshInstance3D] = []
+var _segments: MultiMeshInstance3D
+var _colon: Array[int] = []
 var _shown := ""
+var _shown_color := Color.TRANSPARENT
 ## The line the board reads when it has a word rather than a time on it, and the smaller line
 ## above it that says which of the two you are looking at.
 var _word: Label3D
@@ -172,14 +180,8 @@ func _champion() -> PlayerSlot:
 ## the words change, since how big a line can be drawn depends on how long it is.
 func _say(word: String, caption: String, color: Color) -> void:
 	var showing := not word.is_empty()
-	if showing != _word.visible:
-		# Thirty segments and two dots, switched only as the word comes and goes.
-		for digit: Dictionary in _digits:
-			for name: String in digit:
-				(digit[name] as MeshInstance3D).visible = not showing
-		for dot: MeshInstance3D in _colon:
-			dot.visible = not showing
-		_word.visible = showing
+	_segments.visible = not showing
+	_word.visible = showing
 	_word.modulate = color
 	if showing and _word.text != word:
 		_word.text = word
@@ -208,22 +210,23 @@ func _last_call() -> bool:
 ## Lights the segments the numerals want and leaves the rest showing dark.
 func _show(text: String, urgent: bool) -> void:
 	var color := LIT_LAST_CALL if urgent else LIT
-	if text == _shown and not urgent:
+	if text == _shown and color == _shown_color:
 		return
 	_shown = text
+	_shown_color = color
+	var bars := _segments.multimesh
+	# Instance colors are stored linear, where a material's own albedo is written in sRGB.
+	var ink := color.srgb_to_linear()
 	for i: int in _digits.size():
 		var on: String = NUMERALS.get(text.substr(i, 1), "") as String
 		for name: String in _digits[i]:
-			var segment: MeshInstance3D = _digits[i][name]
-			var material := segment.material_override as StandardMaterial3D
-			var lit := on.contains(name)
-			material.albedo_color = color if lit else DARK
-			material.emission = color
-			material.emission_energy_multiplier = 1.6 * _neon() if lit else 0.0
-	for dot: MeshInstance3D in _colon:
-		var material := dot.material_override as StandardMaterial3D
-		material.albedo_color = color
-		material.emission = color
+			var index: int = _digits[i][name]
+			bars.set_instance_color(index, ink)
+			bars.set_instance_custom_data(index, Color(1.0 if on.contains(name) else 0.0, 0, 0))
+	for index: int in _colon:
+		bars.set_instance_color(index, ink)
+		bars.set_instance_custom_data(index, Color(1.0, 0.0, 0.0))
+	(_segments.material_override as ShaderMaterial).set_shader_parameter(&"glow", 1.6 * _neon())
 
 
 ## The board, its legs and the display on it. Built once the match is running, since where it
@@ -236,16 +239,32 @@ func _build() -> void:
 	_board.name = "ClockBoard"
 	var run := SPACING * 4.0 + COLON
 	var left := -run * 0.5 + SPACING * 0.5
+	_segments = MultiMeshInstance3D.new()
+	_segments.name = "Segments"
+	var bars := MultiMesh.new()
+	bars.transform_format = MultiMesh.TRANSFORM_3D
+	bars.use_colors = true
+	bars.use_custom_data = true
+	bars.instance_count = 7 * 4 + 2
+	var bar := BoxMesh.new()
+	bar.size = Vector3(1.0, 1.0, 0.05)
+	bars.mesh = bar
+	_segments.multimesh = bars
+	var look := ShaderMaterial.new()
+	look.shader = SEGMENT_SHADER
+	look.set_shader_parameter(&"dark", DARK)
+	_segments.material_override = look
+	# Flat on the face of the board: nothing for it to throw a shadow on, GAME.md 10.7.
+	_segments.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_board.face.add_child(_segments)
 	for i: int in 4:
 		var x := left + i * SPACING + (COLON if i >= 2 else 0.0)
-		_digits.append(_digit(Vector2(x, -0.18)))
+		_digits.append(_digit(Vector2(x, -0.18), i * 7))
 	for high: bool in [true, false]:
-		var dot := _bar(Vector2(SEGMENT, SEGMENT))
-		dot.position = Vector3(
-			left + SPACING * 1.5 + COLON * 0.5, -0.18 + (0.24 if high else -0.24), 0.04
-		)
-		_board.face.add_child(dot)
-		_colon.append(dot)
+		var index := 7 * 4 + (0 if high else 1)
+		var dot := Vector2(left + SPACING * 1.5 + COLON * 0.5, -0.18 + (0.24 if high else -0.24))
+		_place(index, dot, Vector2(SEGMENT, SEGMENT))
+		_colon.append(index)
 	_caption = _board.words("TIME", Vector2(0.0, 0.74), CAPTION_SIZE, CAPTION_INK)
 	_word = _board.words("", Vector2(0.0, -0.2), WORD_SIZE, LIT)
 	_word.visible = false
@@ -255,8 +274,9 @@ func _build() -> void:
 		match_node.arena.crowd.keep_clear(keep)
 
 
-## One numeral: seven bars laid out the way a segment display lays them out.
-func _digit(at: Vector2) -> Dictionary:
+## One numeral: seven bars laid out the way a segment display lays them out, its instances
+## from [param first] on.
+func _digit(at: Vector2, first: int) -> Dictionary:
 	var half := Vector2(DIGIT.x * 0.5, DIGIT.y * 0.5)
 	var across := Vector2(DIGIT.x - SEGMENT, SEGMENT)
 	var upright := Vector2(SEGMENT, DIGIT.y * 0.5 - SEGMENT)
@@ -269,28 +289,20 @@ func _digit(at: Vector2) -> Dictionary:
 		"f": [Vector2(-half.x, half.y * 0.5), upright],
 		"g": [Vector2(0.0, 0.0), across],
 	}
-	var segments: Dictionary[String, MeshInstance3D] = {}
+	var segments: Dictionary[String, int] = {}
+	var index := first
 	for name: String in places:
 		var place: Array = places[name]
-		var bar := _bar(place[1] as Vector2)
-		bar.position = Vector3(at.x + (place[0] as Vector2).x, at.y + (place[0] as Vector2).y, 0.04)
-		_board.face.add_child(bar)
-		segments[name] = bar
+		_place(index, at + (place[0] as Vector2), place[1] as Vector2)
+		segments[name] = index
+		index += 1
 	return segments
 
 
-## One segment: a flat bar on the face, dark until it is lit.
-func _bar(size: Vector2) -> MeshInstance3D:
-	var mesh := BoxMesh.new()
-	mesh.size = Vector3(size.x, size.y, 0.05)
-	var node := MeshInstance3D.new()
-	node.mesh = mesh
-	# Flat on the face of the board: nothing for it to throw a shadow on, GAME.md 10.7.
-	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	var material := StandardMaterial3D.new()
-	material.albedo_color = DARK
-	material.emission_enabled = true
-	material.emission = LIT
-	material.emission_energy_multiplier = 0.0
-	node.material_override = material
-	return node
+## One segment: the bar at [param at] on the face, [param size] across, dark until it is lit.
+func _place(index: int, at: Vector2, size: Vector2) -> void:
+	var flat := Basis.from_scale(Vector3(size.x, size.y, 1.0))
+	var bars := _segments.multimesh
+	bars.set_instance_transform(index, Transform3D(flat, Vector3(at.x, at.y, 0.04)))
+	bars.set_instance_color(index, LIT.srgb_to_linear())
+	bars.set_instance_custom_data(index, Color(0.0, 0.0, 0.0))
