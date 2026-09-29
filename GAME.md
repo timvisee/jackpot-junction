@@ -3060,7 +3060,9 @@ a few lengths apart, which is a figure of eight for anybody who wants one. The b
 thing in here that breaks, and it comes back in seconds rather than the half minute a box takes
 in a match: it is there to be driven round, not to be hidden behind. They are solid, unlike the
 clutter in every other room, because driving through the one thing there is to drive round is
-worse than having nothing there.
+worse than having nothing there. Nitro comes back as fast as it does in the Garage, a tank in a
+few seconds, on every machine in the room: a client works its own tank out, see 10.3, and so
+works out the room's rate for it, and the room's heat on a map, from its own meter.
 
 And a football, in front of the pad, to knock about. It rolls on the floor and nowhere else: its
 height is held, so no kick lifts it, and the walls and props throw it back the way they throw

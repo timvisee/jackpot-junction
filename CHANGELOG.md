@@ -20,6 +20,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Nitro comes back quickly in a LAN lobby on a client too.** A client refilled at a match's
+  pace there, and never felt a hot room's quicker nitro on a map either.
 - **Insurance Policy keeps the whole pot.** Dying with it drops no chips, and a ram you
   live through knocks none out.
 - **Item boxes no longer throw an error when taken.** They also shrink down a hole and grow

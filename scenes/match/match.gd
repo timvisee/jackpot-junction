@@ -608,6 +608,7 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 
 func _physics_process(delta: float) -> void:
 	if puppet:
+		MatchHeat.nitro(self)
 		MatchStage.step(self)
 		return
 	match state:

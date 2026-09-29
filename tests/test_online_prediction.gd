@@ -261,6 +261,26 @@ func test_your_own_kart_answers_the_stick_at_once() -> void:
 ## Prediction is worth nothing if it wanders off. Driving hard for a few seconds, the kart on the
 ## client has to still be the kart on the host, and the corrections that keep it there have to be
 ## rare and small rather than a running argument.
+## GAME.md 9.6 and 10.3: a room that fills tanks quickly, the lobby's and the Garage's, fills a
+## client's quickly as well. The client drives its own tank and the host takes its word for it, so
+## a client left on the plain rate refilled at a match's pace wherever it was.
+func test_a_rooms_quick_tank_fills_on_the_client() -> void:
+	await _connect()
+	_host.rules.nitro_recharge_base = 25.0
+	_client.rules.nitro_recharge_base = 25.0
+	var here := _prediction.kart
+	var there := _host.kart_of(0)
+	here.nitro_charge = 0.0
+	there.nitro_charge = 0.0
+	# A second after the wait for the tank to start: 0.4 s at 25 times the rate of a 90 s tank is
+	# worth about 0.11 of one, and the plain rate about 0.004.
+	await _drive(60)
+	_running = false
+	assert_float(here.nitro_recharge_scale).is_equal(25.0)
+	assert_float(here.nitro_charge).override_failure_message(_report()).is_greater(0.05)
+	assert_float(there.nitro_charge).override_failure_message(_report()).is_greater(0.05)
+
+
 ## GAME.md 3.4 and 10.3: the Junction's faster tank is worked out on both machines, so a client
 ## cashing out watches its own tank fill as it waits rather than in steps as snapshots land.
 func test_the_junction_fills_a_clients_tank_on_the_client() -> void:

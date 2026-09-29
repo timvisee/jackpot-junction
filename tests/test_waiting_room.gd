@@ -61,6 +61,17 @@ func _open() -> Node3D:
 	return room
 
 
+## Nitro comes back in seconds in here, the way it does in the Garage, GAME.md 9.6: a tank is
+## something to play with while waiting, not something to save up for a match that has not begun.
+func test_nitro_comes_back_quickly_in_the_room() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var kart := match_node.kart_of(0)
+	kart.nitro_charge = 0.0
+	await _runner.simulate_frames(90, 17)
+	assert_float(kart.nitro_charge).is_greater(0.2)
+
+
 ## Nothing in here is a match: no clock to run out, nothing to shoot at and nothing to collect.
 func test_the_waiting_room_is_not_a_match() -> void:
 	var room := await _open()

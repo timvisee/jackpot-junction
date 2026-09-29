@@ -16,11 +16,21 @@ static func step(match_node: Match, delta: float) -> void:
 	for zone: JackpotZone in match_node.arena.jackpot_zones:
 		zone.accrual_multiplier = lerpf(1.0, rules.jackpot_accrual_hot, share) * last_call
 		zone.cap_multiplier = lerpf(1.0, rules.jackpot_cap_hot, share)
-	var nitro := rules.nitro_recharge_base * lerpf(1.0, rules.nitro_recharge_hot, share)
+	nitro(match_node)
+	_wild_jokers(match_node, delta)
+
+
+## How fast every tank comes back: the room's own rate, the Garage's and the lobby's quick, then
+## quicker the hotter the room. A client runs this for itself on its own meter, GAME.md 10.3: it
+## drives its own kart's tank and the host takes its word for it, so a client left on the plain
+## rate refilled at a match's pace in the lobby and never felt the room heat up.
+static func nitro(match_node: Match) -> void:
+	var rules := match_node.rules
+	var share := match_node.intensity.share() if match_node.intensity != null else 0.0
+	var rate := rules.nitro_recharge_base * lerpf(1.0, rules.nitro_recharge_hot, share)
 	for slot: PlayerSlot in match_node.slots:
 		if slot.kart != null:
-			slot.kart.nitro_recharge_scale = nitro
-	_wild_jokers(match_node, delta)
+			slot.kart.nitro_recharge_scale = rate
 
 
 ## Good cards turning up on the floor once the room is going, GAME.md 3.11. Nothing common is
