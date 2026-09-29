@@ -1794,7 +1794,10 @@ measurement reads three times slower than the same build warm.
   that says poker chip at twenty pixels across. Gold for the gold chip, which is
   metal rather than plastic, and a die for the mult die.
 - **Item boxes**: gold crates with black bands, a big question mark and a beam of
-  light, glowing and pulsing so they read at a glance.
+  light, glowing and pulsing so they read at a glance. One a wreck drops holds a
+  known item and says so: a crate in the item's color, its picture of 8.3a on a
+  dark chip hung over it where the question mark would be, and branded on its top
+  and sides.
 - **Karts**: toy go-karts with a simple driver figure, body tinted in the
   player color, a roof marker shape per color. Painted and lacquered: the body
   takes a coat of clear over the color, so the lamp over the table runs along it

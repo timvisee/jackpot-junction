@@ -111,6 +111,41 @@ func test_a_taken_pickup_flies_into_the_kart_that_took_it() -> void:
 	assert_bool(is_instance_valid(flight)).is_false()
 
 
+## GAME.md 7.1: a box dropped on a death wears the item it holds, over it and branded on its faces,
+## rather than a letter; a box from a pad keeps its question mark. Taken, the picture goes into the
+## kart with the rest of the box.
+func test_a_dropped_box_wears_its_item() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	var kart := match_node.kart_of(0)
+	await _runner.simulate_frames(12, 17)
+	var dropped := ItemBox.new()
+	dropped.fixed_item = _item("bomb")
+	match_node.arena.pickups.add_child(dropped)
+	dropped.global_position = kart.global_position + Vector3(6.0, 0.0, 0.0)
+	var visual := dropped._visual
+	assert_array(visual.find_children("*", "Label3D", false, false)).is_empty()
+	var render: SubViewport = visual.get_node("Brand")
+	var badge: ItemBox.Badge = render.get_child(0)
+	assert_object(badge.item).is_same(dropped.fixed_item)
+	var hung: Sprite3D = visual.get_node("Sign")
+	assert_object(hung.texture).is_same(render.get_texture())
+	assert_int(visual.find_children("Side*", "MeshInstance3D", false, false).size()).is_equal(5)
+	var from_pad := ItemBox.new()
+	from_pad.table = TABLE
+	from_pad.rng = match_node.rng
+	match_node.arena.pickups.add_child(from_pad)
+	var marks := from_pad._visual.find_children("*", "Label3D", false, false)
+	assert_int(marks.size()).is_equal(1)
+	assert_str((marks[0] as Label3D).text).is_equal("?")
+	assert_object(from_pad._visual.get_node_or_null("Brand")).is_null()
+	await _runner.simulate_frames(4, 17)
+	dropped.collect(kart)
+	assert_str(kart.held_item.id).is_equal("bomb")
+	assert_object(render.get_parent()).is_same(visual)
+	assert_bool(visual.get_parent() is PickupFlight).is_true()
+
+
 func test_a_kart_at_ramming_speed_goes_through_a_crate() -> void:
 	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
 	var match_node := _start_match(inputs)
