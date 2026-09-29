@@ -13,8 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
-- **Play Online, on a dedicated server.** A new title entry lists a server's games: make one and
-  host it from your machine, or join or watch somebody else's; it won't play with 0.9.x.
+- **Play Online, on a dedicated server.** A new title entry connects to a server, then lists its
+  games: make one and host it from your machine, or join or watch one; it won't play with 0.9.x.
 - **Dedicated servers.** `--server` runs the game headless as a server of several games at once on
   7777, logging who comes and goes; idle it takes about 90 MB, starting a game only when one is made.
 - **The host's say passes on.** On a dedicated server, whoever made a game hosts it from their own
