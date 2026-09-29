@@ -154,6 +154,30 @@ func test_a_game_is_made_listed_and_forgotten_when_its_process_ends() -> void:
 	assert_int(_hall.count()).is_equal(0)
 
 
+## Asking again while the game asked for has nobody in it yet makes nothing: its maker is on the
+## way into it, and a second would only stand empty holding a port.
+func test_a_second_game_waits_for_the_first_to_be_played_in() -> void:
+	_open_hall()
+	var ann := _visitor("Ann")
+	assert_bool(await _wait_until(ann._talking, 4000)).is_true()
+	ann.make_game()
+	ann.make_game()
+	assert_bool(await _wait_until(func() -> bool: return not _launched.is_empty(), 4000)).is_true()
+	_up(0, 0)
+	ann.make_game()
+	await await_millis(300)
+	assert_int(_launched.size()).is_equal(1)
+	_up(0, 1, "Ann")
+	await await_millis(100)
+	ann.make_game()
+	var another := await _wait_until(func() -> bool: return _launched.size() == 2, 4000)
+	(
+		assert_bool(another)
+		. override_failure_message("no second game once the first was played in")
+		. is_true()
+	)
+
+
 ## A server holding as many games as it may says so to anybody asking for another.
 func test_a_full_server_says_so() -> void:
 	_open_hall(1)

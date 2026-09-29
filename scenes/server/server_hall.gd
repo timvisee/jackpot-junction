@@ -144,10 +144,12 @@ func visitor_left(peer: int) -> void:
 
 
 ## [param peer] asks for a game of their own: started on the first free port, if there is room for
-## another, and they are told its port once it says it is up.
+## another, and they are told its port once it says it is up. Only one at a time that nobody plays
+## in yet: whoever asks goes into theirs the moment it is up, so a second is not for playing in.
 func make_game(peer: int) -> void:
 	for id: int in _games:
-		if _games[id]["maker"] == peer and not _games[id]["up"]:
+		var game := _games[id]
+		if game["maker"] == peer and int((game["state"] as Dictionary).get("players", 0)) == 0:
 			return
 	var port := _free_port()
 	if port == 0:
