@@ -22,7 +22,7 @@ extends Control
 ## filled with.
 const SUIT := 22.0
 const GAP := 4.0
-const OUTLINE := 1.6
+const OUTLINE := 0.9
 const EMPTY := Color(1.0, 1.0, 1.0, 0.28)
 const RIM := Color(0.0, 0.0, 0.0, 0.55)
 ## How far under the suits the bar of a flush still paying hangs, and how thick it is.
