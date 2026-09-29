@@ -3394,7 +3394,9 @@ standings so far, see The end below, headed Standings after map so many of so ma
 after it. The foot of the pane is in three, each a third of its width. On the left are the arrows
 that turn the two pages, drawn rather than lettered, with a dot for each page between them and
 the page being looked at lit in gold; an arrow with no page that way is dimmed and the cursor
-passes it by. On the right is Next map, on both pages, for whoever moves everybody on. In the
+passes it by. On a pad the shoulders turn them too, the left back and the right on, as they turn
+the tabs of the settings in 8.5, and are drawn outside the arrows while a pad is what is being
+played on. On the right is Next map, on both pages, for whoever moves everybody on. In the
 middle a client is told who does, and a watcher's countdown sits beside that, see 9.3. The cursor
 starts on the right arrow on the podium and on Next map on the standings, so going on is a press
 at a time; the two can be looked at in turn for as long as the host leaves them up. After the

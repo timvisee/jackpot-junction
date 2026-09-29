@@ -3,7 +3,8 @@ extends HBoxContainer
 ## The two pages of the screen after a map of a Grand Prix, GAME.md 9.7: the map's podium and the
 ## run's standings, turned with an arrow each way and a dot for each page, the page being looked
 ## at lit in gold. An arrow with no page that way is dimmed rather than taken away, so the arrows
-## stay where they are and the dots stay between them.
+## stay where they are and the dots stay between them. On a pad the shoulders turn them too, and
+## are drawn outside the arrows while a pad is what is being played on.
 
 const ARROW := Vector2(72.0, 56.0)
 ## The arrowhead drawn on each arrow's button, wide and tall.
@@ -12,6 +13,10 @@ const DOT := 10.0
 const DOT_GAP := 10.0
 const FAINT := Color(1.0, 1.0, 1.0, 0.25)
 const INK := Color(0.88, 0.88, 0.92)
+## The shoulders that turn the pages back and on, the ones that turn the settings' tabs.
+const BACK_BUTTON := JOY_BUTTON_LEFT_SHOULDER
+const ON_BUTTON := JOY_BUTTON_RIGHT_SHOULDER
+const HINT_SIZE := 18
 
 ## Back a page, and on a page.
 var back: Button
@@ -19,12 +24,16 @@ var on: Button
 var page := 0
 var pages := 2
 var _dots: Control
+var _back_hint: InputGlyph
+var _on_hint: InputGlyph
 
 
 static func create() -> ResultsPager:
 	var pager := ResultsPager.new()
 	pager.alignment = BoxContainer.ALIGNMENT_CENTER
 	pager.add_theme_constant_override("separation", 24)
+	pager._back_hint = _shoulder(BACK_BUTTON)
+	pager.add_child(pager._back_hint)
 	pager.back = pager._arrow(-1.0)
 	pager.add_child(pager.back)
 	pager._dots = Control.new()
@@ -36,7 +45,40 @@ static func create() -> ResultsPager:
 	pager.add_child(pager._dots)
 	pager.on = pager._arrow(1.0)
 	pager.add_child(pager.on)
+	pager._on_hint = _shoulder(ON_BUTTON)
+	pager.add_child(pager._on_hint)
 	return pager
+
+
+## A press of a shoulder that turns the page, the way the arrow on its side does. Returns whether
+## it did, which it does not with no page that way or while the pager is not up.
+func turn(event: InputEvent) -> bool:
+	var pad := event as InputEventJoypadButton
+	if pad == null or not pad.pressed or not is_visible_in_tree():
+		return false
+	var arrow: Button = null
+	if pad.button_index == BACK_BUTTON:
+		arrow = back
+	elif pad.button_index == ON_BUTTON:
+		arrow = on
+	if arrow == null or arrow.disabled:
+		return false
+	arrow.pressed.emit()
+	return true
+
+
+func _process(_delta: float) -> void:
+	var on_a_pad := not Game.last_input_keyboard
+	_back_hint.visible = on_a_pad
+	_on_hint.visible = on_a_pad
+
+
+static func _shoulder(button: JoyButton) -> InputGlyph:
+	var press := InputEventJoypadButton.new()
+	press.button_index = button
+	var glyph := InputGlyph.of_event(press, INK, HINT_SIZE)
+	glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return glyph
 
 
 ## On [param shown], with the arrows that can go anywhere lit and the others dimmed.

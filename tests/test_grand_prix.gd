@@ -822,3 +822,35 @@ func test_a_single_map_podium_is_as_it_was() -> void:
 	assert_bool(screen._rematch.visible).is_true()
 	assert_bool(screen._quit.visible).is_true()
 	assert_bool(screen._caption.visible).is_false()
+
+
+## GAME.md 9.7: on a pad the shoulders turn the pages in the middle of a run, the left back and the
+## right on, and do nothing with no page that way or once the run is over.
+func test_the_shoulders_turn_the_pages() -> void:
+	_run_at(1, 3)
+	var screen := await _podium_after(1, 3)
+	var shoulder := func(button: JoyButton) -> InputEventJoypadButton:
+		var press := InputEventJoypadButton.new()
+		press.button_index = button
+		press.pressed = true
+		return press
+	screen._unhandled_input(shoulder.call(JOY_BUTTON_LEFT_SHOULDER))
+	assert_int(screen._pager.page).is_equal(0)
+	screen._unhandled_input(shoulder.call(JOY_BUTTON_RIGHT_SHOULDER))
+	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	assert_int(screen._pager.page).is_equal(1)
+	screen._unhandled_input(shoulder.call(JOY_BUTTON_RIGHT_SHOULDER))
+	assert_int(screen._pager.page).is_equal(1)
+	screen._unhandled_input(shoulder.call(JOY_BUTTON_LEFT_SHOULDER))
+	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
+	# Drawn beside the arrows while a pad is what is being played on.
+	var was := Game.last_input_keyboard
+	Game.last_input_keyboard = false
+	screen._pager._process(0.0)
+	var shown := screen._pager._on_hint.visible
+	Game.last_input_keyboard = true
+	screen._pager._process(0.0)
+	var hidden := not screen._pager._on_hint.visible
+	Game.last_input_keyboard = was
+	assert_bool(shown).is_true()
+	assert_bool(hidden).is_true()

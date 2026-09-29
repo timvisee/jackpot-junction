@@ -238,6 +238,13 @@ func _lay_out_the_foot(grand_prix: bool) -> void:
 	_foot.visible = _left.visible or _middle.visible or _right.visible
 
 
+## The shoulders on a pad turn the pages, GAME.md 9.7, the left back and the right on, as they turn
+## the settings' tabs.
+func _unhandled_input(event: InputEvent) -> void:
+	if visible and _pager.turn(event):
+		get_viewport().set_input_as_handled()
+
+
 static func _watching() -> bool:
 	return Net.online() and Net.session != null and Net.session.watching
 

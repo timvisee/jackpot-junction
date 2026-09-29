@@ -43,6 +43,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The shoulder buttons turn a Grand Prix's podium pages.** On a pad, left goes back and right
+  goes on, and the buttons are drawn beside the arrows.
 - **After a Grand Prix's last map, Continue goes on.** Its podium and the final standings are a
   page each, so they show no page arrows.
 - **Lucky Crossing's pits sit a cell clear of the Junction.** A kart pushed off the pad's edge
