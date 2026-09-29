@@ -57,7 +57,10 @@ static func redress(kart: Kart, was: KartStyle) -> void:
 	for part: String in ["Hat", "Flag"]:
 		var old := body.get_node_or_null(part)
 		if old != null:
-			body.remove_child(old)
+			# Left in the tree until it goes, under another name so the new one can take its own:
+			# taken out first, it was a node belonging to nothing until the end of the frame.
+			old.name = "%sWorn" % part
+			old.visible = false
 			old.queue_free()
 	for worn: Node3D in [
 		KartDress.hat(kart.style.hat, color), KartDress.flag(kart.style.flag, color)
