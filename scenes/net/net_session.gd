@@ -896,7 +896,7 @@ func _seat_dropped(number: int) -> void:
 		_drop_here(each)
 
 
-@rpc("authority", "call_remote", "unreliable")
+@rpc("authority", "call_remote", "unreliable_ordered")
 func _receive_snapshot(bytes: PackedByteArray) -> void:
 	var data: Variant = bytes_to_var(bytes)
 	if data is Dictionary and match_node != null:

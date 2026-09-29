@@ -34,6 +34,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A late snapshot is never shown over a newer one.** A small one arriving out of order could
+  run a client's clock and karts back for a moment; now it is dropped, as big ones already were.
 - **A watcher can be shown out as soon as they arrive.** Kicked in the moment before their
   connection was complete, they stayed; they are now only listed once they are all the way in.
 - **The Vault's pits can be seen.** They are edged in a faint red neon, and the lamp over an

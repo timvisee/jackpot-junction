@@ -3856,6 +3856,10 @@ other before it will pass.
   is built in code.
 - Clients send their input state to the server every physics tick with an
   unreliable ordered RPC. The server simulates all karts.
+- Snapshots go unreliably but in order: one that arrives after a newer one is
+  dropped rather than shown, since shown it would run the clock back and the karts
+  back the way they came. ENet did that already for any snapshot big enough to go
+  in pieces, which it always sends in order, and now does it for a small one too.
 - The connection uses ENet's range coder both ends. A snapshot is still bigger than
   one datagram: it is split against the MTU of 1392 bytes *before* the datagrams
   are compressed, and an unreliable packet in pieces is lost whenever any piece
