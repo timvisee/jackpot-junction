@@ -2257,22 +2257,24 @@ movement: the one thing a corner block must not do is ask to be looked at.
   rather than fading and coming straight back, and goes as they drive away. The eyes are on the kart as it drives through the box, not
   on the corner of the screen. Nobody else's pickup puts one up.
 - **Royal Flush tally** under the timer, while a player at this screen holds a
-  Royal Flush pad, see 3.9: a block for each of the pads, one in its holder's
-  color for every pad held and an outline for every pad nobody holds, this
-  screen's players first and then whoever holds most. It says how close a flush
-  is without four frames to find round the table, and is gone the moment nobody
-  here holds one, since four outlines on every screen most of the match say
-  nothing. A flush a player here scored stays on it while it pays out: the pads
-  have cleared and wear nobody's color, but they are that player's for a while
-  yet, so all four blocks are in their color, with a bar under them that empties
-  as the payout runs out. The snapshot carries whose flush is paying and for how
-  long, so a client's tally shows it too. And it goes up on every screen, whoever
-  there holds what, while somebody else holds all the pads but one: a warning
-  rather than a count, that player's blocks pulsing, swelling and ringed in their
-  own color, with an exclamation mark in it at the end of the row, since the last
-  pad is the one to go and take off them. The blocks stand on their own, with no
-  panel behind them, each with a dark rim of its own. Its blocks stay solid rather than dimming as a claim runs down: a
-  client is not told when a holder renews one, so its dimming would be a guess.
+  Royal Flush pad, see 3.9: each pad's own card suit, filled in its holder's color
+  for every pad held and faint for every pad nobody holds. This screen's players
+  come first, whatever their suits, then whoever holds most, and the free suits
+  last, so a player's own count is the run on the left and the faint ones are the
+  suits still to get. It says how close a flush is without four frames to find
+  round the table, and is gone the moment nobody here holds one, since four faint
+  suits on every screen most of the match say nothing. A flush a player here scored
+  stays on it while it pays out: the pads have cleared and wear nobody's color, but
+  they are that player's for a while yet, so all four suits are in their color,
+  with a bar under them that empties as the payout runs out. The snapshot carries
+  whose flush is paying and for how long, so a client's tally shows it too. And it
+  goes up on every screen, whoever there holds what, while somebody else holds all
+  the pads but one: a warning rather than a count, that player's suits pulsing,
+  swelling and glowing in their own color, with an exclamation mark in it at the
+  end of the row, since the last pad is the one to go and take off them. The suits
+  stand on their own, with no panel behind them, each with a dark outline of its
+  own. They stay solid rather than dimming as a claim runs down: a client is not
+  told when a holder renews one, so its dimming would be a guess.
 - **Start gantry**: the countdown is a horizontal rack of three lamps hung over the
   middle of the screen, the way a racing track starts a field, rather than a number.
   They fill up red left to right and the whole row turns green on the drop, under the

@@ -254,9 +254,9 @@ func test_pads_replicate_to_puppets_through_snapshots() -> void:
 	assert_bool(client.arena.flush_pads[2].puppet).is_true()
 
 
-## GAME.md 8.3: while a player at this screen holds a Royal Flush pad, a block for each pad hangs
-## under the clock: the held ones in their holders' colors, this screen's player first, and the
-## rest as outlines. Nobody here holding one, it is not there at all.
+## GAME.md 8.3: while a player at this screen holds a Royal Flush pad, each pad's suit hangs under
+## the clock: the held ones in their holders' colors, this screen's player first whatever their
+## suits, and the free ones faint at the end. Nobody here holding one, it is not there at all.
 func test_the_pads_held_are_counted_under_the_clock() -> void:
 	var inputs: Array[KartInput] = [
 		PlayerInput.new(DeviceInput.KEYBOARD, 0), BotInput.new(), BotInput.new()
@@ -277,6 +277,9 @@ func test_the_pads_held_are_counted_under_the_clock() -> void:
 	assert_bool(tally.visible).is_true()
 	assert_int(tally.pads).is_equal(4)
 	assert_array(tally.held).is_equal([mine, theirs, theirs])
+	assert_array(tally.suits).is_equal(
+		[SuitArt.Suit.HEART, SuitArt.Suit.SPADE, SuitArt.Suit.DIAMOND, SuitArt.Suit.CLUB]
+	)
 	# Let go of, it goes again.
 	pads[1].claim(-1, FlushPad.NEUTRAL)
 	await _runner.simulate_frames(2, 17)
@@ -290,6 +293,7 @@ func test_the_pads_held_are_counted_under_the_clock() -> void:
 	tally._process(0.0)
 	assert_bool(tally.visible).is_true()
 	assert_array(tally.held).is_equal([mine, mine, mine, mine])
+	assert_array(tally.suits).is_equal([0, 1, 2, 3])
 	assert_float(tally.locked).is_equal_approx(0.5, 0.05)
 	match_node.flush_lock_slot = 1
 	tally._process(0.0)
@@ -297,7 +301,7 @@ func test_the_pads_held_are_counted_under_the_clock() -> void:
 
 
 ## GAME.md 8.3: somebody else one pad off the flush puts the tally up on every screen, whoever
-## there holds anything, as a warning: that player's blocks pulse and an exclamation mark stands
+## there holds anything, as a warning: that player's suits pulse and an exclamation mark stands
 ## at the end of the row. Two pads short of it is not a warning.
 func test_a_rival_one_pad_off_the_flush_is_warned_of() -> void:
 	var inputs: Array[KartInput] = [
@@ -318,6 +322,7 @@ func test_a_rival_one_pad_off_the_flush_is_warned_of() -> void:
 	assert_bool(tally.visible).is_true()
 	assert_int(tally.threat).is_equal(1)
 	assert_array(tally.held).is_equal([theirs, theirs, theirs])
+	assert_array(tally.suits).is_equal([0, 1, 2, 3])
 	# This screen's own player one pad off is no warning to themselves.
 	for pad: FlushPad in pads.slice(0, 3):
 		pad.claim(0, match_node.slots[0].color())

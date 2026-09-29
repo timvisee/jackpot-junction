@@ -21,8 +21,8 @@ below, and hands the notes to the release workflow.
   Items; Deep Pockets still adds two to it.
 - **Tight Grip joker.** Your pot never spills: a death drops no coins, a killer takes none,
   and a ram knocks none out.
-- **The Royal Flush pads you hold show under the clock.** A block per pad in its holder's color,
-  outlines for the free ones, while you hold one, your flush pays out, or a rival is one pad off.
+- **The Royal Flush pads you hold show under the clock.** Each pad's suit in its holder's color,
+  yours first and the free ones faint, while you hold one, your flush pays, or a rival is one off.
 - **XL maps.** Lucky Crossing XL, The Vault XL and Crossfire XL are roomier versions with space
   around the pits and turbos that never aim into a wall; a Grand Prix can deal normal, XL or both.
 - **A death shows where its pot went.** The banked share flies into the score as gold coins,

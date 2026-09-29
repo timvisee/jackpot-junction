@@ -21,7 +21,7 @@ const SPEED_FULL := 1.9
 ## clock it sits, under the Royal Flush tally, and the size past which one is called out as a snap
 ## rather than a nudge.
 const SYNC_TIME := 1.4
-const SYNC_DROP := 86.0
+const SYNC_DROP := 94.0
 ## How far under the top the Royal Flush tally hangs, just under the clock, see [FlushTally].
 const TALLY_DROP := 62.0
 const SYNC_SNAP := 1.0
