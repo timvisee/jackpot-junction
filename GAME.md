@@ -3189,7 +3189,11 @@ among them, and which takes it only from the player with the say and only as far
 could have said it: a map that is not one, a number of bots no row offers or a kick of their own
 seat is not heard. While they choose the match their karts wait where they are, sent nothing to
 drive on, and the room does not go. Their Manage players lists everybody else, with their own
-players as Me; the players at one client share its say.
+players as Me; the players at one client share its say. It can be handed on, too: beside Kick on
+the row of everybody else who plays is Make host, which gives that player the say at once and
+takes it from whoever pressed it, whose host's panes close. They are told who made them the host.
+Somebody watching has none, having no say to be given, and nor does a LAN game's Manage players,
+whose host is the machine the game runs on.
 
 **Play Online.** The title's way to a dedicated server, beside Play LAN, in two screens. The first
 connects: the player's name, the server's address and port, 7777 to start with, and Connect,

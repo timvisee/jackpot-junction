@@ -429,6 +429,9 @@ func _process(_delta: float) -> void:
 	_door_button.visible = _manage.visible
 	if _to_lobby != null:
 		_to_lobby.visible = says
+	# The say handed to somebody else at a dedicated server, GAME.md 9.3a, takes its panes with it.
+	if not says and (_aside == _players or _aside == _door):
+		_put_away_aside()
 	_held.visible = (
 		session != null
 		and not session.is_host

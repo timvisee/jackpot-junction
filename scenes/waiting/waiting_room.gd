@@ -355,7 +355,7 @@ func _take_the_say(arriving: bool) -> void:
 	elif arriving:
 		choose()
 	else:
-		HostSettings.tell_new_host(self)
+		HostSettings.tell_new_host(self, session.host_controls.given_by)
 
 
 func _hold(held: bool) -> void:

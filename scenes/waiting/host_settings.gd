@@ -106,11 +106,11 @@ func is_open() -> bool:
 
 
 ## Tells a player at a client of a dedicated server, over [param room], that the host's say has
-## just passed to them, GAME.md 9.3a: the host left, and the choosing is theirs now.
-static func tell_new_host(room: Node) -> void:
-	NoticePane.tell(
-		room, "You are the host", "The host left. You choose the match and who may join now."
-	)
+## just come to them, GAME.md 9.3a: handed over [param by] somebody, or the host having left, and
+## the choosing is theirs now.
+static func tell_new_host(room: Node, by := "") -> void:
+	var how := "%s made you the host." % by if not by.is_empty() else "The host left."
+	NoticePane.tell(room, "You are the host", how + " You choose the match and who may join now.")
 
 
 ## The pane at its own size where the screen has room for it. Where it is too tall the rows scroll

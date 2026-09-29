@@ -12,8 +12,10 @@ extends Node
 ## has to. Kept apart from [NetSession] so that file stays about the connection rather than the
 ## host.
 
-## At a dedicated server: the say has passed to [param player], 0 for nobody.
+## At a dedicated server: the say has passed to [param player], 0 for nobody, and the player with
+## it has handed it to [param player] themselves, from Manage players.
 signal changed_hands(player: int)
+signal handed(player: int)
 ## On a client: the say has come to this machine, or gone from it.
 signal granted_changed(mine: bool)
 ## At a dedicated server: the player with the say has said what the next match is, or that they
@@ -42,8 +44,10 @@ var forcing := false
 ## match, which holds the room, GAME.md 9.6.
 var peer := 0
 var choosing := false
-## On a client: whether the say is this machine's.
+## On a client: whether the say is this machine's, and who handed it over, as they are called in
+## the room: empty when it came with the game or passed on as its holder left.
 var granted := false
+var given_by := ""
 
 ## At a dedicated server: the players in the order they first sat down, for the say to pass down.
 var _order: Array[int] = []
@@ -156,6 +160,13 @@ func go(where: StringName) -> void:
 		_go.rpc_id(1, where)
 
 
+## Hands the say to [param player], another client playing in the game, GAME.md 9.3a: asked of the
+## server from the client with it.
+func make_host(player: int) -> void:
+	if not session.is_host and granted and session._connected():
+		_make_host.rpc_id(1, player)
+
+
 ## At a dedicated server: [param player] has sat down. The first of them has the say.
 func seated(player: int) -> void:
 	if not session.is_host or not session.dedicated:
@@ -181,15 +192,32 @@ func left(player: int) -> void:
 	_hand_to(next)
 
 
-func _hand_to(player: int) -> void:
+## Gives the say to [param player], or nobody, and takes it from whoever had it if they are still
+## here: from [param by], who handed it over, named to the new holder.
+func _hand_to(player: int, by := 0) -> void:
+	var was := peer
 	peer = player
 	choosing = false
 	_told = ""
 	_look_left = 0.0
+	if was != 0 and was != player and multiplayer.get_peers().has(was):
+		_granted.rpc_id(was, false)
 	if player != 0:
-		_granted.rpc_id(player, true)
+		_granted.rpc_id(player, true, _seat_name(by) if by != 0 else "")
 		_door_is.rpc_id(player, session.door.to_wire())
 	changed_hands.emit(player)
+
+
+## What [param player] is called in the room: their first seat's name, the one every screen shows.
+func _seat_name(player: int) -> String:
+	var match_node := session.match_node
+	var seats: Dictionary = session._peer_slots.held.get(player, {})
+	for number: int in seats:
+		var index: int = seats[number]
+		if match_node != null and index < match_node.slots.size():
+			return match_node.slots[index].display_name()
+	var named: String = session.door.names.get(player, "")
+	return named if not named.is_empty() else "The host"
 
 
 ## At a dedicated server, the player with the say is told whenever somebody else comes, goes or
@@ -255,9 +283,19 @@ func _go(where: StringName) -> void:
 		asked_to_go.emit(where)
 
 
+## Only to somebody else who plays in the game: a watcher has no say to have.
+@rpc("any_peer", "call_remote", "reliable")
+func _make_host(player: int) -> void:
+	if not _from_the_host() or player == peer or not session._player_peers().has(player):
+		return
+	handed.emit(player)
+	_hand_to(player, peer)
+
+
 @rpc("authority", "call_remote", "reliable")
-func _granted(on: bool) -> void:
+func _granted(on: bool, by := "") -> void:
 	granted = on
+	given_by = by if on else ""
 	if not on:
 		_guests.clear()
 	granted_changed.emit(on)

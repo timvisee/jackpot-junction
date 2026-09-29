@@ -359,3 +359,53 @@ func test_the_maker_of_a_game_chooses_it_in_the_waiting_room() -> void:
 	assert_bool(chosen).override_failure_message("the server never heard the choice").is_true()
 	assert_str(str(plans[-1][0]["map"])).is_equal(String(ArenaMaps.IDS[2]))
 	assert_bool(room.host_settings.is_open()).is_false()
+
+
+## Make host in the Manage players of the player with the say hands it to that player, who is told
+## who handed it over, and takes it from them. Somebody watching has no Make host beside them.
+func test_make_host_hands_the_say_to_another_player() -> void:
+	_open_host()
+	var clients := await _seat_in_turn(["Ann", "Bo"] as Array[String])
+	var ann := clients[0]
+	var bo := clients[1]
+	var watcher := _client("Kim", true)
+	await _wait_until(_says.bind(ann), 4000)
+	var both_listed := func() -> bool: return ann.host_controls.guests().size() == 2
+	(
+		assert_bool(await _wait_until(both_listed, 4000))
+		. override_failure_message("Ann never saw Bo and Kim")
+		. is_true()
+	)
+	var pane: ManagePlayers = auto_free(ManagePlayers.new())
+	pane.session = ann
+	add_child(pane)
+	pane.open()
+	var hands: Array[Button] = []
+	for button: Node in pane.find_children("*", "Button", true, false):
+		if (button as Button).text == "Make host":
+			hands.append(button)
+	assert_int(hands.size()).is_equal(1)
+	hands[0].pressed.emit()
+	var handed := await _wait_until(_says.bind(bo), 4000)
+	assert_bool(handed).override_failure_message("Bo was never handed the say").is_true()
+	assert_bool(_says(ann)).is_false()
+	assert_str(bo.host_controls.given_by).is_equal("Ann")
+	assert_int(_host.host_controls.peer).is_equal(bo.multiplayer.get_unique_id())
+	assert_bool(_says(watcher)).is_false()
+
+
+## The say is handed over by the player with it and nobody else, and only to somebody playing.
+func test_the_say_is_handed_only_by_its_holder_and_only_to_a_player() -> void:
+	_open_host()
+	var clients := await _seat_in_turn(["Ann", "Bo", "Cy"] as Array[String])
+	var watcher := _client("Kim", true)
+	await _wait_until(_says.bind(clients[0]), 4000)
+	var watching := await _wait_until(func() -> bool: return _host._watchers.size() == 1, 4000)
+	assert_bool(watching).is_true()
+	var cy := clients[2].multiplayer.get_unique_id()
+	clients[1].host_controls._make_host.rpc_id(1, cy)
+	clients[0].host_controls.make_host(watcher.multiplayer.get_unique_id())
+	await await_millis(400)
+	assert_bool(_says(clients[0])).is_true()
+	assert_bool(_says(clients[2])).is_false()
+	assert_bool(_says(watcher)).is_false()

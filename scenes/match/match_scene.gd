@@ -189,7 +189,7 @@ func _on_asked_to_go(where: StringName) -> void:
 
 func _on_granted(mine: bool) -> void:
 	if mine:
-		HostSettings.tell_new_host(self)
+		HostSettings.tell_new_host(self, session.host_controls.given_by)
 
 
 ## The run as the host has scored it. A client keeps it as its own; the host already has it.

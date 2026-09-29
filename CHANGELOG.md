@@ -18,7 +18,7 @@ below, and hands the notes to the release workflow.
 - **Dedicated servers.** `--server` runs the game headless as a server of several games at once on
   7777, logging who comes and goes; idle it takes about 90 MB, starting a game only when one is made.
 - **The host's say passes on.** On a dedicated server, whoever made a game hosts it from their own
-  machine, and when they leave, whoever has been in it longest does.
+  machine and can hand that on with Make host in Manage players; if they leave, the longest in does.
 
 ## [0.9.0] - 2026-09-29
 

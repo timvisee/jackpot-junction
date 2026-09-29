@@ -207,6 +207,11 @@ func _watch(session: NetSession) -> void:
 	session.host_controls.kicked.connect(
 		func(player: int) -> void: say("The host showed %s out" % _names.get(player, "somebody"))
 	)
+	session.host_controls.handed.connect(
+		func(player: int) -> void:
+			var from := _name_of(session.host_controls.peer)
+			say("%s made %s the host" % [from, _name_of(player)])
+	)
 	Events.match_state_changed.connect(_on_state_changed)
 
 
