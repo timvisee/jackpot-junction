@@ -142,8 +142,28 @@ R0 = 40 points per second, D = 0.5 s
   a different way rather than as more of the first. The same pot blinks as the
   `+N` beside its owner's score in the running order, for every player rather
   than only the ones on this screen: somebody else one cash-out from ending it is
-  worth knowing about. Last Call pays double, so the blink comes on no later than
-  it has to and never promises a win it cannot pay.
+  worth knowing about. It sets its owner alight as well. In their corner of the
+  HUD the chips pill and the mult pill each go solid in their own color, with a
+  pale rim and a glow of that color round them flickering with the fire, and
+  shiver, snapping to a new small tilt many times a second and now and then
+  jolting bigger and settling back, as if straining to hold the heat in, and a
+  sheet of fire in that color climbs off each, blue off
+  the chips and red off the mult, in four bands with clean, smooth edges between
+  them: a white heat deep in it, a pale core, a light shade of the pill's color
+  and a darker rim, every band brighter than the pill so the fire glows against
+  it. It
+  is cut from noise that rolls upward and folds over itself, finer across than up,
+  so it burns in tall narrow tongues that sway more the higher they reach, split,
+  and throw off scraps that rise and go out, with a few round sparks climbing out
+  of the top. It climbs up over the banked score above the pills, and a tongue
+  that climbs high burns out smoothly on the way rather than being cut off flat,
+  as it is kept clear of the sides it sways towards. The total goes gold. Their
+  kart lays gold tracks for everybody to see, see 4.3: a faint gold ribbon under
+  each rear wheel that holds for a moment and fades out a second and a half
+  behind the kart, a short trail rather than the table painted gold, leaving the
+  ordinary marks under it. Every machine works it out from the banked scores and pots it
+  already has, so nothing more goes over the wire for it. Last Call pays double, so the blink comes on no later than it has to and
+  never promises a win it cannot pay.
 - Standing on the Junction patches a wounded kart up to two lives, see 3.6, but a
   pot has to go in first: the life comes with the last coin of the cash-out, which
   is exactly when the kart is most worth shooting. A kart that rolls on with
@@ -1007,7 +1027,10 @@ short buzz the slider gives, so reading along the row is felt card by card.
   faint, since a floor covered in the marks of ordinary driving says nothing: a
   straight line is barely there, a hard turn and a brake not much more. A full
   drift leaves a clear skid at just under half opacity, and a straight handbrake
-  stop leaves the darkest mark of all.
+  stop leaves the darkest mark of all. A kart whose pot would win the match, see
+  3.4, lays its marks in gold over them, a little over half opaque, and the gold
+  holds for a moment and fades out over 1.5 s, leaving the ordinary mark under it
+  to fade over its 20 s.
   Marks fade out over 20 s, faded by their shader, and are laid a stretch of
   about thirty meters at a time: a finished stretch is never built again, both
   wheels are one thing to draw in it, and it goes once it has faded, so marks
@@ -2742,7 +2765,8 @@ like any other button.
   hint over a kart at the start of a match grows with it too, drawn at the bigger
   size rather than stretched to it, so it stays sharp. Tire marks, 4.3, are on by
   default; off, none are laid, and whatever is down goes at once rather than
-  fading out.
+  fading out. The gold tracks of a pot that would win are laid either way: they
+  say who is about to win rather than dressing the floor.
 - **Accessibility**: screen shake on or off, flash reduction, aim assist
   strength from 0% to 100% of the default and never above it, per player, the
   aim guide on or off, the disco lights on or off, the control hints on or off,

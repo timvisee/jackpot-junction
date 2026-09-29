@@ -529,6 +529,8 @@ func _update_blocks() -> void:
 			pot.say("waiting on players")
 		else:
 			pot.say("respawning %.1f" % maxf(slot.respawn_left, 0.0))
+		# A pot that would win the match on the next cash-out burns, GAME.md 3.4.
+		pot.set_burning(match_node.is_running() and slot.would_win(match_node.rules.target_score))
 		stats.text = "K %d  D %d" % [slot.kills, slot.deaths]
 		var pips: Array = block["lives"]
 		for i: int in pips.size():

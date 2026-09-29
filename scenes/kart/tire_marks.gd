@@ -4,12 +4,11 @@ extends Node3D
 ## while driving straight and a little darker in a drift. Lives in world space, so it is a
 ## top-level node. Feed it wheel positions every physics tick with [method add_sample].
 ##
-## Laid a stretch at a time. What a wheel puts down goes into the stretch still being laid, the
-## only mesh built again as the kart drives on, and once that holds [constant STRETCH] samples it is
-## closed and kept as a mesh of its own that nothing touches again. The fading is the shader's:
-## every vertex carries the time it was laid, so a closed stretch costs nothing a frame until it has
-## faded right out and goes. Built whole again every frame, the marks of four karts were tens of
-## thousands of vertices a frame in script, which was most of what a match cost to run.
+## A kart one cash-out from winning the match, GAME.md 3.4, lays them in gold instead, see
+## [member gold]: faint and gone again a second and a half later, a short trail behind it every
+## player can see rather than the table painted gold, leaving the ordinary marks under it. Laid
+## whatever the tire marks setting says, since they say who is about to win rather than dressing
+## the floor.
 
 const TRACK_WIDTH := 0.13
 const FADE_SECONDS := 20.0
@@ -22,25 +21,42 @@ const HEIGHT := 0.015
 ## Opacity of a fresh mark at zero and full intensity; drifting reaches the top of the range.
 const MIN_ALPHA := 0.03
 const MAX_ALPHA := 0.45
-const INK := Color(0.1, 0.09, 0.09)
-## Unshaded, both faces, blended by the alpha each vertex was laid with, less however much of the
-## fade it has been through: its time is in the first texture coordinate.
+## The color of a mark: all but black.
+const INK := Color(0.01, 0.0081, 0.0081)
+## A gold mark: its color, how solid it is, how wide at the least, as an intensity, and how many
+## seconds it takes to fade.
+const GOLD := Color("#FFC21F")
+const GOLD_ALPHA := 0.55
+const GOLD_INTENSITY := 0.25
+const GOLD_FADE := 1.5
+## Unshaded, both faces. Every vertex carries the time it was laid in its first texture
+## coordinate, and in its second the alpha of the ordinary mark there, which fades over
+## [constant FADE_SECONDS] from the moment it is laid. A gold one carries its gold in its color on
+## top of that, and a nonzero second coordinate for how long the gold lasts: it holds solid for
+## the first part of that and then goes, so the trail behind the kart reads as gold rather than as
+## a gold already going, and leaves the ordinary mark under it once it has.
 const LOOK := """
 shader_type spatial;
 render_mode unshaded, cull_disabled, blend_mix, depth_draw_opaque;
 
-uniform vec4 tint : source_color = vec4(0.1, 0.09, 0.09, 1.0);
 uniform float now = 0.0;
+uniform vec3 ink = vec3(0.01, 0.0081, 0.0081);
 uniform float fade_seconds = 20.0;
 
 void fragment() {
-	ALBEDO = tint.rgb * COLOR.rgb;
-	ALPHA = COLOR.a * clamp(1.0 - (now - UV.x) / fade_seconds, 0.0, 1.0);
+	float age = now - UV.x;
+	float mark = UV2.x * clamp(1.0 - age / fade_seconds, 0.0, 1.0);
+	float gold = UV.y > 0.0 ? 1.0 - smoothstep(0.45, 1.0, age / UV.y) : 0.0;
+	ALBEDO = mix(ink, COLOR.rgb, gold);
+	ALPHA = mix(mark, COLOR.a, gold);
 }
 """
 
 ## One look for every kart's marks, told the time once a frame.
 static var _look: ShaderMaterial
+
+## Whether the marks being laid are gold, for a kart whose pot would win the match.
+var gold := false
 
 ## The stretch still being laid: each wheel's samples in it, oldest first, each
 ## {"left": Vector3, "right": Vector3, "time": float, "alpha": float, "start": bool}, and the mesh
@@ -50,12 +66,15 @@ var _open_drawn: MeshInstance3D
 var _dirty := false
 ## The closed stretches, oldest first, each [MeshInstance3D, the time its newest sample was laid].
 var _closed: Array[Array] = []
+## Whether the tire marks setting was on last frame, to clear the floor the moment it goes off.
+var _shown := true
 
 
 func _ready() -> void:
 	top_level = true
 	global_transform = Transform3D.IDENTITY
 	_open_drawn = _stretch()
+	_shown = Game.settings.tire_marks
 
 
 ## The look every stretch is drawn with.
@@ -65,9 +84,18 @@ static func look() -> ShaderMaterial:
 		shader.code = LOOK
 		_look = ShaderMaterial.new()
 		_look.shader = shader
-		_look.set_shader_parameter(&"tint", INK)
+		_look.set_shader_parameter(&"ink", Color(INK.r, INK.g, INK.b))
 		_look.set_shader_parameter(&"fade_seconds", FADE_SECONDS)
 	return _look
+
+
+## Gilds the marks of the karts of [param match_node] whose pots would win it, GAME.md 3.4, and
+## no others'. On every machine alike, from the banked scores and pots each already has.
+static func gild(match_node: Match) -> void:
+	var running := match_node.is_running()
+	for slot: PlayerSlot in match_node.slots:
+		if slot.kart != null and slot.kart.tire_marks != null:
+			slot.kart.tire_marks.gold = (running and slot.would_win(match_node.rules.target_score))
 
 
 ## How many stretches are on the floor, closed or still being laid, for the tests.
@@ -78,7 +106,7 @@ func stretch_count() -> int:
 ## Records the contact point of one rear wheel. [param side] is the wheel's lateral axis in world
 ## space, [param intensity] 0 to 1 darkens and widens the mark.
 func add_sample(wheel: int, contact: Vector3, side: Vector3, intensity: float, now: float) -> void:
-	if not Game.settings.tire_marks:
+	if not Game.settings.tire_marks and not gold:
 		return
 	var samples: Array = _open[wheel]
 	var start := true
@@ -89,14 +117,22 @@ func add_sample(wheel: int, contact: Vector3, side: Vector3, intensity: float, n
 		if gap < MIN_SAMPLE_DISTANCE:
 			return
 		start = gap > BREAK_DISTANCE
-	var half := side.normalized() * TRACK_WIDTH * 0.5 * (1.0 + intensity)
+	# The ordinary mark, left once the gold over it has gone: none with the marks turned off.
+	var mark := lerpf(MIN_ALPHA, MAX_ALPHA, intensity) if Game.settings.tire_marks else 0.0
+	var half := (
+		side.normalized()
+		* TRACK_WIDTH
+		* 0.5
+		* (1.0 + maxf(intensity, GOLD_INTENSITY if gold else 0.0))
+	)
 	var flat := Vector3(contact.x, HEIGHT, contact.z)
 	samples.append(
 		{
 			"left": flat - half,
 			"right": flat + half,
 			"time": now,
-			"alpha": lerpf(MIN_ALPHA, MAX_ALPHA, intensity),
+			"alpha": mark,
+			"gold": gold,
 			"start": start
 		}
 	)
@@ -107,10 +143,10 @@ func add_sample(wheel: int, contact: Vector3, side: Vector3, intensity: float, n
 
 func _process(_delta: float) -> void:
 	# Turned off in the settings, GAME.md 8.5, what is down goes at once rather than fading out.
-	if not Game.settings.tire_marks:
-		if _dirty or not _closed.is_empty() or not (_open[0].is_empty() and _open[1].is_empty()):
-			_clear()
-		return
+	# Gold marks are laid all the same, see [member gold].
+	if _shown and not Game.settings.tire_marks:
+		_clear()
+	_shown = Game.settings.tire_marks
 	var now := Time.get_ticks_msec() * 0.001
 	look().set_shader_parameter(&"now", now)
 	_expire(now)
@@ -200,8 +236,10 @@ static func _build(mesh: ImmediateMesh, wheels: Array[Array]) -> void:
 
 
 static func _corner(mesh: ImmediateMesh, sample: Dictionary, edge: String) -> void:
-	mesh.surface_set_color(Color(INK, float(sample["alpha"])))
-	mesh.surface_set_uv(Vector2(float(sample["time"]), 0.0))
+	var gilded: bool = sample.get("gold", false)
+	mesh.surface_set_color(Color(GOLD, GOLD_ALPHA) if gilded else Color(INK, 0.0))
+	mesh.surface_set_uv(Vector2(float(sample["time"]), GOLD_FADE if gilded else 0.0))
+	mesh.surface_set_uv2(Vector2(float(sample["alpha"]), 0.0))
 	mesh.surface_set_normal(Vector3.UP)
 	mesh.surface_add_vertex(sample[edge])
 

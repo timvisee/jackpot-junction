@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A pot that would win catches fire.** Your pot's numbers burn in your corner, and your kart
+  lays gold tracks every player can see.
 - **The item you pick up shows by your kart.** Off its top right, it spins like the roulette,
   settles with its button and fades, but stays up near a box you can't take while holding it.
 - **Back to lobby after a quick match.** The podium offers it beside Rematch and Back to title,
