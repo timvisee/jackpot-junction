@@ -172,6 +172,8 @@ func _build_visuals() -> void:
 	asphalt.albedo_color = Palette.ASPHALT
 	plate.material_override = asphalt
 	plate.position = Vector3(0.0, PLATE_HEIGHT * 0.5, 0.0)
+	# A plate and a frame set into the felt throw no shadow anybody sees, GAME.md 10.7.
+	plate.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(plate)
 	_frame_material = StandardMaterial3D.new()
 	_frame_material.emission_enabled = true
@@ -185,6 +187,7 @@ func _build_visuals() -> void:
 		)
 		bar.mesh = bar_mesh
 		bar.material_override = _frame_material
+		bar.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		var offset := (size - thickness) * 0.5 * (1.0 if i % 2 == 0 else -1.0)
 		bar.position = Vector3(
 			0.0 if along else offset, FRAME_HEIGHT * 0.5, offset if along else 0.0
@@ -200,6 +203,7 @@ func _build_visuals() -> void:
 	# Flat on the plate, its top toward -Z, so it reads from the camera behind the arena.
 	suit.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
 	suit.position = Vector3(0.0, PLATE_HEIGHT + 0.01, 0.0)
+	suit.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(suit)
 	_build_halo()
 

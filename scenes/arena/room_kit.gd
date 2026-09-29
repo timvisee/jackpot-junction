@@ -481,7 +481,11 @@ func _blinking_rim(into: Node3D, radius: float) -> StandardMaterial3D:
 	var torus := TorusMesh.new()
 	torus.inner_radius = radius - 0.25
 	torus.outer_radius = radius
-	_put(into, torus, lit, _up(PAD + 0.02))
+	# A flat band on the plate: eight sides round its tube, GAME.md 10.7.
+	torus.rings = 48
+	torus.ring_segments = 8
+	var rim := _put(into, torus, lit, _up(PAD + 0.02))
+	rim.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	return lit
 
 

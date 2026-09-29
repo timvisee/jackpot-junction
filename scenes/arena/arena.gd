@@ -635,6 +635,9 @@ func _add_turbo_plate(pad: TurboPad, at: Vector3) -> void:
 	pad.add_child(plate)
 	var arrow := _arrow_mesh(Palette.CHIP_WHITE)
 	arrow.position = at + Vector3(0.0, PAD_HEIGHT + 0.03, 0.0)
+	# Fittings set into the felt throw no shadow anybody sees, GAME.md 10.7.
+	frame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	plate.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	arrow.look_at_from_position(arrow.position, arrow.position + pad.direction, Vector3.UP)
 	pad.add_child(arrow)
 
@@ -803,9 +806,11 @@ func _add_jackpots() -> void:
 		zone.position = position
 		var tile := _box_mesh(Vector3(size2.x, PAD_HEIGHT, size2.y), room.lane)
 		tile.position = Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
+		tile.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		zone.add_child(tile)
 		var trim := _box_mesh(Vector3(size2.x * 0.8, PAD_HEIGHT, size2.y * 0.8), room.trim)
 		trim.position = Vector3(0.0, PAD_HEIGHT * 1.1, 0.0)
+		trim.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		zone.add_child(trim)
 		zones.add_child(zone)
 		jackpot_zones.append(zone)
@@ -834,10 +839,14 @@ func _pad_rim(radius: float, thickness := 0.06) -> MeshInstance3D:
 	torus.inner_radius = radius - thickness
 	torus.outer_radius = radius
 	torus.rings = 24
+	# A tube a few centimeters thick: eight sides round it are as many as anybody sees, where
+	# the thirty-two a torus comes with were a thousand triangles a rim, GAME.md 10.7.
+	torus.ring_segments = 8
 	var rim := MeshInstance3D.new()
 	rim.mesh = torus
 	rim.material_override = surfaces.metal(room.trim)
 	rim.position = Vector3(0.0, PAD_HEIGHT * 0.9, 0.0)
+	rim.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	return rim
 
 
@@ -846,10 +855,13 @@ func _disc_mesh(radius: float, color: Color) -> MeshInstance3D:
 	mesh.top_radius = radius
 	mesh.bottom_radius = radius
 	mesh.height = PAD_HEIGHT
+	mesh.radial_segments = 32
+	mesh.rings = 1
 	var instance := MeshInstance3D.new()
 	instance.mesh = mesh
-	# A pad is paint on the floor rather than a thing standing on it.
+	# A pad is paint on the floor rather than a thing standing on it, and paint casts nothing.
 	instance.material_override = surfaces.marking(color)
+	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	return instance
 
 
@@ -860,6 +872,7 @@ func _arrow_mesh(color: Color) -> MeshInstance3D:
 	var instance := MeshInstance3D.new()
 	instance.mesh = mesh
 	instance.material_override = surfaces.marking(color)
+	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	# The prism points up along +Y; lay it flat so the tip points along -Z.
 	instance.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
 	var pivot := MeshInstance3D.new()

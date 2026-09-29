@@ -283,6 +283,8 @@ func _bar(size: Vector2) -> MeshInstance3D:
 	mesh.size = Vector3(size.x, size.y, 0.05)
 	var node := MeshInstance3D.new()
 	node.mesh = mesh
+	# Flat on the face of the board: nothing for it to throw a shadow on, GAME.md 10.7.
+	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var material := StandardMaterial3D.new()
 	material.albedo_color = DARK
 	material.emission_enabled = true

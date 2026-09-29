@@ -131,6 +131,11 @@ func _build() -> void:
 	key = DirectionalLight3D.new()
 	key.name = "Key"
 	key.directional_shadow_max_distance = SHADOW_REACH
+	# Two splits of the shadow map rather than the four a directional light comes with. Every
+	# split draws every caster in it again, and the whole table sits in the near one from where
+	# the camera stands, so the far three were the karts' shadows drawn three times more for
+	# the room behind the stands, GAME.md 10.7.
+	key.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
 	add_child(key)
 	fill = DirectionalLight3D.new()
 	fill.name = "Fill"

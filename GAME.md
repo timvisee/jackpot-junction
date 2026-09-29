@@ -4414,6 +4414,15 @@ with the numbers that put them there.
   hides its light: a spot light at zero energy is still a light to every surface
   in its range, and on a phone's renderer, which lights each mesh by the lights
   touching it, five dark heads were five passes over the table for nothing.
+- **Paint on the floor casts no shadow, and the sun's map has two splits.** A pad
+  disc, a rim, a turbo plate, a jackpot tile, a clock segment: each is a few
+  centimeters proud of the felt, and its shadow is a line nobody sees, drawn into
+  every split of the map. Sixty of them came out of the shadow pass. The
+  directional light draws two splits rather than four: from where the camera
+  stands the whole table is in the near ones, and the far two were the karts drawn
+  twice more for the room behind the stands. Rims and discs are also cut at eight
+  and thirty-two segments: a torus comes with two thousand triangles, and a rim
+  the width of a finger shows none of them.
 
 ## 11. Roadmap
 

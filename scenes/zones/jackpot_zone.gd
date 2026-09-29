@@ -269,6 +269,9 @@ func _build_signals() -> void:
 		var sphere := SphereMesh.new()
 		sphere.radius = 0.13
 		sphere.height = 0.26
+		# A bulb the size of a fist: twelve segments round it, not sixty-four, GAME.md 10.7.
+		sphere.radial_segments = 12
+		sphere.rings = 6
 		lamp.mesh = sphere
 		var material := StandardMaterial3D.new()
 		material.emission = colors[i]
