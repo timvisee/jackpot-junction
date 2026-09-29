@@ -74,6 +74,7 @@ make check      # import, lint, format check, changelog, unit tests, smoke runs,
 make test       # unit tests only (gdUnit4, headless, a suite per process in parallel)
 make bench      # the frame rate of a match on each map
 make profile    # where a frame goes: script functions, server and GPU passes, from the profilers
+make probe      # what a frame is made of: meshes, triangles, materials, lights, draw calls by pass
 make multiplayer  # a whole Grand Prix online (two games, up to two clients) and on one screen
 make server-check  # a game on a dedicated server, made, joined and watched by three clients
 make export     # release builds for Linux, Windows and macOS, and the Linux server, in build/
@@ -131,6 +132,12 @@ debug protocol, so no editor is needed. `PROFILE_GODOT_ARGS="--rendering-method
 mobile --resolution 2400x1080"` measures with a phone's renderer at its size, and
 `PROFILE_OUT=<file>` keeps the profile. Profiling slows the scripts down, so read
 the ranking rather than the numbers.
+
+`make probe` (`tools/scene_probe.gd`) says what a frame is made of: every mesh
+instance by the script that built it, with its triangles, the distinct meshes and
+materials, the lights and particle systems, and the draw calls and primitives of
+the visible pass, the shadow pass and the canvas. `make probe ARGS="--ablate"`
+then hides one group at a time and prints what each costs in every pass.
 
 ### The development scene
 

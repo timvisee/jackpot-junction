@@ -4400,9 +4400,10 @@ The frame budget in 10.1 is a phone's: an Android build draws the same room at t
 same rules, with a card a thirtieth of a desktop's and a processor a quarter as
 fast, so what is cheap on a desktop is measured as if it were not. Three tools say
 where a frame goes: `make bench` for the frame rate, `make profile` for the script
-functions, server passes and GPU passes behind it, and the render info split by
-pass, which says how many triangles and draw calls the visible pass, the shadow
-pass and the canvas each take. The rules below came out of those measurements,
+functions, server passes and GPU passes behind it, and `make probe` for what the
+frame is made of, with the render info split by pass, which says how many
+triangles and draw calls the visible pass, the shadow pass and the canvas each
+take, and with `--ablate` what every group of meshes costs in each. The rules below came out of those measurements,
 with the numbers that put them there.
 
 - **Particles cast no shadows, and are drawn as balls of six or eight segments.**
