@@ -8,13 +8,20 @@ extends Node3D
 ## side rather than a hole. Everything else is the camera: how the picture is tonemapped, how far
 ## out it goes soft, how much the neon blooms.
 
-## How far the shadows are drawn out from the camera. The table is small and the room around it
-## is not: past this there is nothing worth a shadow map, and the nearer it is drawn the more of
-## the map lands on the table.
+## How far the shadows are drawn out from the camera over a floor of [constant FLOOR_WIDTH]. The
+## table is small and the room around it is not: past this there is nothing worth a shadow map,
+## and the nearer it is drawn the more of the map lands on the table. A wider floor, an XL map's,
+## is seen from further back, and draws them as much further out.
 const SHADOW_REACH := 80.0
+const FLOOR_WIDTH := 40.0
+## How far inside the edge of the lamp's cone the corners of the floor are kept, in degrees.
+const LAMP_SPARE := 4.0
 ## The light a room needs from its sun before that sun is worth a shadow map of its own.
 const SUN_SHADOWS := 0.8
 
+## The floor lit, in meters, which a lamp over a bigger one than its room was set for widens to
+## take in, see [method dress].
+var floor_size := Vector2(40.0, 22.5)
 ## The room this is lit for, kept so a setting can ask for the same room again.
 var lit_by: RoomLook
 var key: DirectionalLight3D
@@ -37,8 +44,10 @@ static func add_to(parent: Node) -> ArenaEnvironment:
 
 ## Lights every room in [param tree] the way [param room] says. The scene puts the lighting in
 ## before it knows which map is coming; the match says so once it does.
-static func dress_all(tree: SceneTree, room: RoomLook) -> void:
+static func dress_all(tree: SceneTree, room: RoomLook, area := Vector2.ZERO) -> void:
 	for lighting: ArenaEnvironment in tree.get_nodes_in_group(&"arena_environment"):
+		if area != Vector2.ZERO:
+			lighting.floor_size = area
 		lighting.dress(room)
 
 
@@ -68,6 +77,7 @@ func dress(room: RoomLook) -> void:
 	# And none at all for a player who has turned them off, GAME.md 8.5.
 	var shadowed := Game.settings == null or Game.settings.shadows != Settings.SHADOWS_OFF
 	key.shadow_enabled = room.key_energy >= SUN_SHADOWS and shadowed
+	key.directional_shadow_max_distance = SHADOW_REACH * maxf(1.0, floor_size.x / FLOOR_WIDTH)
 	key.shadow_opacity = room.shadow_depth
 	key.shadow_blur = room.shadow_softness
 	fill.light_color = room.fill_color
@@ -78,7 +88,10 @@ func dress(room: RoomLook) -> void:
 	lamp.light_energy = room.lamp_energy
 	lamp.position = Vector3(0.0, room.lamp_height, 0.0)
 	lamp.spot_range = room.lamp_reach
-	lamp.spot_angle = room.lamp_angle
+	# Never narrower than the room asks for, and wide enough to reach the corners of whatever
+	# floor it is over: an XL map's corners were out in the dark past the rim of its cone.
+	var corner := rad_to_deg(atan((floor_size * 0.5).length() / maxf(room.lamp_height, 1.0)))
+	lamp.spot_angle = minf(maxf(room.lamp_angle, corner + LAMP_SPARE), 89.0)
 	lamp.spot_angle_attenuation = room.lamp_fade
 	lamp.shadow_enabled = room.lamp_shadow and shadowed
 	lamp.shadow_opacity = room.shadow_depth

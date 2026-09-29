@@ -267,7 +267,7 @@ func _decide() -> void:
 			target = _clamp_to_arena(
 				(
 					match_node.arena.junction_position
-					+ Vector3(rng.randf_range(-8.0, 8.0), 0.0, rng.randf_range(-5.0, 5.0))
+					+ Vector3(rng.randf_range(-8.0, 8.0), 0.0, rng.randf_range(-5.0, 5.0)) * _span()
 				)
 			)
 	_willing_to_fire = rng.randf() < bot_trait.fire_chance
@@ -413,13 +413,20 @@ func _pickup_value(pickup: Pickup) -> float:
 	return 1.0
 
 
+## How much further a bot goes looking on this floor than on a map of the usual size, GAME.md
+## 6.3: an XL map's is a third again as wide, and a bot that only ever looked as far as it does on
+## the usual one hung about the middle of it.
+func _span() -> float:
+	return maxf(1.0, match_node.arena.world_size().x / 40.0)
+
+
 ## Who to go after: whoever is carrying a bounty, when they are close enough to be worth the
 ## detour, then whoever is carrying a pot worth taking off them, and otherwise simply the
 ## nearest enemy.
 func _hunt_target() -> Kart:
 	var bounty := match_node.bounty_kart()
 	if bounty != null and bounty.slot != kart.slot and bounty.is_targetable():
-		if kart.global_position.distance_to(bounty.global_position) <= HUNT_RANGE:
+		if kart.global_position.distance_to(bounty.global_position) <= HUNT_RANGE * _span():
 			return bounty
 	var rich := _richest_enemy()
 	return rich if rich != null else _nearest_enemy()
@@ -437,7 +444,7 @@ func _richest_enemy() -> Kart:
 		var other := node as Kart
 		if other == null or other.slot == kart.slot or not other.is_targetable():
 			continue
-		if kart.global_position.distance_to(other.global_position) > POT_HUNT_RANGE:
+		if kart.global_position.distance_to(other.global_position) > POT_HUNT_RANGE * _span():
 			continue
 		if float(other.pot.value()) > best_pot:
 			best_pot = float(other.pot.value())

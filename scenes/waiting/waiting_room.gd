@@ -232,7 +232,8 @@ func first_map_config() -> MatchConfig:
 	if first.rounds > 0:
 		var rng := RandomNumberGenerator.new()
 		rng.randomize()
-		Game.grand_prix = GrandPrix.start(first.rounds, rng, first.keep_jokers)
+		var maps := ArenaMaps.pool(first.normal_maps, first.xl_maps)
+		Game.grand_prix = GrandPrix.start(first.rounds, rng, first.keep_jokers, maps)
 		first.map = Game.grand_prix.current_map()
 		# And its bots, once: the same ones drive every map of it.
 		Game.grand_prix.deal_bots(

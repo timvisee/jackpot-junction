@@ -145,6 +145,9 @@ var grand_prix := true
 ## What of their jokers players take from one map of a Grand Prix to the next, one of
 ## [enum GrandPrix.Keep]: the one each player picks, unless somebody chooses otherwise.
 var grand_prix_jokers: int = GrandPrix.Keep.CHOOSE
+## Which sizes of map a Grand Prix deals from, GAME.md 9.7: the usual ones, the XL ones, or both.
+var grand_prix_normal := true
+var grand_prix_xl := true
 ## What each local seat calls itself, GAME.md 3.8. An empty entry is a seat that never gave a
 ## name and will be handed a funny one when the match starts.
 var player_names: Array[String] = ["", "", "", ""]
@@ -245,6 +248,8 @@ func load_from_disk() -> void:
 		"lobby", "grand_prix", file.get_value("lobby", "online_grand_prix", grand_prix)
 	)
 	grand_prix_jokers = file.get_value("lobby", "grand_prix_jokers", grand_prix_jokers)
+	grand_prix_normal = file.get_value("lobby", "grand_prix_normal", grand_prix_normal)
+	grand_prix_xl = file.get_value("lobby", "grand_prix_xl", grand_prix_xl)
 	var stored: Array = file.get_value("lobby", "player_names", [])
 	for i: int in mini(stored.size(), player_names.size()):
 		player_names[i] = PlayerNames.clean(str(stored[i]))
@@ -309,6 +314,8 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "grand_prix_maps", grand_prix_maps)
 	file.set_value("lobby", "grand_prix", grand_prix)
 	file.set_value("lobby", "grand_prix_jokers", grand_prix_jokers)
+	file.set_value("lobby", "grand_prix_normal", grand_prix_normal)
+	file.set_value("lobby", "grand_prix_xl", grand_prix_xl)
 	file.set_value("lobby", "player_names", player_names)
 	file.set_value("lobby", "kart_styles", kart_styles)
 	file.set_value("progress", "seen_test_track", seen_test_track)

@@ -46,9 +46,11 @@ const TIP_FULL := 0.58
 ## How brightly a lit head's lens shows, and the color a dark one's takes instead.
 const LENS_GLOW := 2.0
 const LENS_DARK := Color(0.16, 0.16, 0.19)
-## How far the light reaches. Comfortably past the far corner of the floor, so a beam thrown
-## right across the table still lands.
+## How far the light reaches over a floor of [constant FLOOR_WIDTH]: comfortably past the far
+## corner, so a beam thrown right across the table still lands. A wider floor, an XL map's,
+## reaches as much further again, see [method setup].
 const LIGHT_RANGE := 40.0
+const FLOOR_WIDTH := 40.0
 ## Colors the heads walk through, each starting on its own and stepping to the next in turn.
 const COLORS: Array[Color] = [
 	Color("#FF4FA3"),
@@ -89,6 +91,7 @@ var enabled := true
 var _heads: Array[Dictionary] = []
 var _time := 0.0
 var _floor := Vector2(20.0, 11.25)
+var _range := LIGHT_RANGE
 ## How far through the levels the beams are, 0 at level 1 and 1 at the top, eased so a step up
 ## sweeps rather than snaps.
 var _smooth := 0.0
@@ -103,6 +106,7 @@ var _swing := 0.0
 ## Builds the heads above an arena of [param floor_size] meters.
 func setup(floor_size: Vector2) -> void:
 	_floor = floor_size * 0.5
+	_range = LIGHT_RANGE * maxf(1.0, floor_size.x / FLOOR_WIDTH)
 	for i: int in COUNT:
 		_heads.append(_build_head(i))
 
@@ -300,7 +304,7 @@ func _build_head(index: int) -> Dictionary:
 	light.name = "Head%d" % index
 	light.light_color = color
 	light.light_energy = 1.0
-	light.spot_range = LIGHT_RANGE
+	light.spot_range = _range
 	light.spot_angle = 16.0
 	light.spot_attenuation = 0.5
 	light.shadow_enabled = false

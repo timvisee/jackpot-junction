@@ -1207,7 +1207,8 @@ protection makes the kart untouchable.
 Three arenas, all 32 by 18 cells of 1.25 m, all holding the same furniture: a
 Junction in the middle, two Jackpot zones, two pits, four Royal Flush pads, four
 spawn points, four turbo pads, coin pads, item pads and crates. What differs is
-the shape of the room around them.
+the shape of the room around them. Each has an XL map as well, see The XL maps
+below: the same map made roomier, in the same room.
 
 The lobby picks one and remembers it. Online it is the host's pick: the map rides
 the wire with the rest of the host's settings, see 10.3, and a client builds
@@ -1316,6 +1317,113 @@ which makes collecting one a commitment rather than a detour.
 #.S...C.......KKKK.......C...S.#
 #.............KKKK..F..C.......#
 ################################
+```
+
+#### The XL maps
+
+Lucky Crossing XL, The Vault XL and Crossfire XL are their maps made roomier: 42 by
+24 cells rather than 32 by 18, so a third again each way and nearly twice the
+floor, in the same room as the map they are the XL of, lit, crowded and dressed the
+same way. They are maps of their own, picked from the same list as any other,
+since a map is a floor plan and some later maps may only come in one size.
+
+They keep the furniture of their maps, a little more of the coins and crates and
+the same number of everything else, spread over the bigger floor, and hold to a
+few rules the usual maps were too cramped for:
+
+- Every pit has two cells of open floor all the way round it, and four between it
+  and the Junction, so a kart pushed off the pad has somewhere to go that is not
+  down.
+- Every turbo pad launches down at least eight cells of open lane with no hole in
+  it, so it never drives a kart into a wall or a pit. Its pads are sections of two
+  side by side, so a section is easy to hit at speed.
+- No lane narrower than three cells.
+
+On a bigger floor the lamp over the table widens to take its corners in, the
+disco heads reach as far again across it and the shadows are drawn out as far as
+the camera now stands back, all only past the size the usual maps are; and the
+bots look as far again for somebody to hunt and wander as far round the Junction,
+where on the usual reach they hung about the middle.
+
+```
+##########################################
+#........................................#
+#.S......C......F...............C......S.#
+#..............B..........B..............#
+#......#####........XX........#####......#
+#..P.............C..XX..C.............P..#
+#..........B.TT............TT.B..........#
+#.....C............................C.....#
+#.......B........C......C........B.......#
+#.........#....................#.........#
+#.........#........JJJJ........#.......F.#
+#....KK...#........JJJJ........#...KK....#
+#....KK...#........JJJJ........#...KK....#
+#.F.......#........JJJJ........#.........#
+#.........#....................#.........#
+#.......B........C......C........B.......#
+#.....C............................C.....#
+#..........B.TT............TT.B..........#
+#..P.............C..XX..C.............P..#
+#......#####........XX........#####......#
+#..............B..........B..............#
+#.S......C...............F......C......S.#
+#........................................#
+##########################################
+```
+
+```
+##########################################
+#........................................#
+#.S...F.......>C.....P....C<.......F...S.#
+#.............>............<.............#
+#........B..........C...........B........#
+#...........######......######...........#
+#....XX.....#.CB..........BC.#...........#
+#.C..XX.....#................#...........#
+#...........#................#...B.....P.#
+#..C........#................#...B.......#
+#..................JJJJ..................#
+#....KK.......C....JJJJ............KK....#
+#....KK............JJJJ....C.......KK....#
+#..................JJJJ..................#
+#.......B...#................#........C..#
+#.P.....B...#................#...........#
+#...........#................#.....XX..C.#
+#...........#.CB..........BC.#.....XX....#
+#...........######......######...........#
+#........B...........C..........B........#
+#.............>............<.............#
+#.S...F.......>C....P.....C<.......F...S.#
+#........................................#
+##########################################
+```
+
+```
+##########################################
+#.........C...F....KKKK..................#
+#.S....C...........KKKK..........C.....S.#
+#.........B.........CC...................#
+#................########................#
+#.vv.P.#.....B....................#.P.vv.#
+#.......#......B..........B......#.......#
+#........#.....C..........C.....#........#
+#.........#.....B..............#.........#
+#..........#..................#..........#
+#...........#......JJJJ......#...........#
+#.C.F..XX...#...C..JJJJ......#...XX......#
+#......XX...#......JJJJ..C...#...XX..F.C.#
+#...........#......JJJJ......#...........#
+#..........#..................#..........#
+#.........#..............B.....#.........#
+#........#.....C..........C.....#........#
+#.......#......B..........B......#.......#
+#.^^.P.#....................B.....#.P.^^.#
+#................########................#
+#...................CC.........B.........#
+#.S.....C..........KKKK...........C....S.#
+#..................KKKK....F...C.........#
+##########################################
 ```
 
 ## 7. Power-ups and jokers
@@ -3260,7 +3368,10 @@ big buttons side by side at the top, Grand Prix with a trophy on it and Quick ma
 stopwatch, each with a line under its name saying what it is, and the chosen one lit in gold the
 way the ways to drive are, 4.2. The rows under them follow the answer. A quick match picks its
 arena; a Grand Prix asks instead how many maps, 2 to 6, 3 to start with, since its arenas are
-not chosen, they are dealt, and what jokers carry between them. The length row reads Time per
+not chosen, they are dealt, and what jokers carry between them. Under those, Normal maps and XL
+maps, a switch each and both on to start with, say which sizes of map it deals from, see 6.3;
+turning off the one left on turns the other on, since a run dealt from no maps has nowhere to
+go. A map and its XL are the same room, and a run never plays the same room twice running. The length row reads Time per
 map, since it is. The host's match settings online, 9.6, are the same rows with the same first
 question. Whichever was chosen last is chosen again next time.
 

@@ -1,6 +1,6 @@
 extends GdUnitTestSuite
-## The arenas a match can be played in, GAME.md 6.3: three of them, picked in the lobby, and the
-## host's pick is the one everybody plays in.
+## The arenas a match can be played in, GAME.md 6.3: three of them and an XL of each, picked in the
+## lobby, and the host's pick is the one everybody plays in.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const DEFAULT_RULES: MatchRules = preload("res://data/match/default.tres")
@@ -26,7 +26,7 @@ func _reachable(grid: ArenaGrid) -> int:
 
 
 func test_every_arena_is_the_same_room_in_a_different_shape() -> void:
-	assert_int(ArenaMaps.IDS.size()).is_equal(3)
+	assert_int(ArenaMaps.IDS.size()).is_equal(6)
 	assert_int(ArenaMaps.NAMES.size()).is_equal(ArenaMaps.IDS.size())
 	for id: StringName in ArenaMaps.IDS:
 		var layout := ArenaMaps.layout(id)
@@ -36,13 +36,15 @@ func test_every_arena_is_the_same_room_in_a_different_shape() -> void:
 			. is_empty()
 		)
 		var grid := layout.parse()
-		assert_vector(Vector2(grid.width, grid.height)).is_equal(Vector2(32.0, 18.0))
+		var size := Vector2(42.0, 24.0) if ArenaMaps.is_xl(id) else Vector2(32.0, 18.0)
+		assert_vector(Vector2(grid.width, grid.height)).is_equal(size)
 		assert_int(grid.spawns.size()).is_equal(4)
 		assert_object(grid.junction.size).is_equal(Vector2i(4, 4))
 		assert_int(grid.jackpots.size()).is_equal(2)
 		assert_int(grid.pits.size()).is_equal(2)
 		assert_int(grid.flush_pads.size()).is_equal(4)
-		assert_int(grid.turbo_pads.size()).is_equal(4)
+		# Four turbo sections; an XL map's are two pads wide, see below.
+		assert_int(grid.turbo_pads.size()).is_equal(8 if ArenaMaps.is_xl(id) else 4)
 		assert_int(grid.power_pads.size()).is_greater_equal(4)
 		assert_int(grid.coin_pads.size()).is_greater_equal(8)
 		assert_int(grid.crates.size()).is_greater_equal(6)
@@ -64,7 +66,78 @@ func test_an_unknown_map_falls_back_rather_than_leaving_no_arena() -> void:
 	assert_object(ArenaMaps.layout(&"a_map_from_the_future")).is_same(
 		ArenaMaps.layout(ArenaMaps.IDS[0])
 	)
-	assert_str(String(ArenaMaps.id_at(99))).is_equal(String(ArenaMaps.IDS[2]))
+	assert_str(String(ArenaMaps.id_at(99))).is_equal(String(ArenaMaps.IDS[-1]))
+
+
+## GAME.md 6.3: an XL map is its map made roomier, in the same room. Every pit has two cells of
+## open floor all round it and four between it and the Junction, and every turbo pad launches down
+## at least eight cells of open lane with no hole in it, so a turbo never drives a kart into a
+## wall or down a pit.
+func test_an_xl_map_has_room_to_drive() -> void:
+	for id: StringName in ArenaMaps.IDS:
+		if not ArenaMaps.is_xl(id):
+			continue
+		var layout := ArenaMaps.layout(id)
+		assert_object(layout.room).is_same(ArenaMaps.layout(ArenaMaps.family(id)).room)
+		var grid := layout.parse()
+		(
+			assert_bool(grid.is_point_symmetric())
+			. override_failure_message("%s lopsided" % id)
+			. is_true()
+		)
+		for pit: Rect2i in grid.pits:
+			var apart := maxi(
+				maxi(pit.position.x - grid.junction.end.x, grid.junction.position.x - pit.end.x),
+				maxi(pit.position.y - grid.junction.end.y, grid.junction.position.y - pit.end.y)
+			)
+			assert_int(apart).override_failure_message("%s pit %s" % [id, pit]).is_greater_equal(4)
+			var ring := pit.grow(2)
+			for y: int in range(ring.position.y, ring.end.y):
+				for x: int in range(ring.position.x, ring.end.x):
+					var glyph := grid.glyph(Vector2i(x, y))
+					(
+						assert_bool(glyph in [".", "C", "X"])
+						. override_failure_message(
+							"%s: %s beside a pit at %d,%d" % [id, glyph, x, y]
+						)
+						. is_true()
+					)
+		for pad: Vector2i in grid.turbo_pads:
+			var way := grid.turbo_direction(pad)
+			var step := Vector2i(roundi(way.x), roundi(way.z))
+			var cell := pad + step
+			while grid.glyph(cell) in ArenaGrid.TURBO_GLYPHS:
+				cell += step
+			var lane := 0
+			while not (grid.glyph(cell) in [ArenaGrid.WALL, ArenaGrid.CRATE, ArenaGrid.PIT]):
+				lane += 1
+				cell += step
+			(
+				assert_str(grid.glyph(cell))
+				. override_failure_message("%s turbo %s into a pit" % [id, pad])
+				. is_not_equal(ArenaGrid.PIT)
+			)
+			assert_int(lane).override_failure_message("%s turbo %s" % [id, pad]).is_greater_equal(8)
+
+
+## GAME.md 9.7: a Grand Prix deals from the sizes asked for, and never from none.
+func test_a_grand_prix_deals_from_the_sizes_asked_for() -> void:
+	for id: StringName in ArenaMaps.pool(true, false):
+		assert_bool(ArenaMaps.is_xl(id)).is_false()
+	for id: StringName in ArenaMaps.pool(false, true):
+		assert_bool(ArenaMaps.is_xl(id)).is_true()
+	assert_int(ArenaMaps.pool(true, true).size()).is_equal(ArenaMaps.IDS.size())
+	assert_int(ArenaMaps.pool(false, false).size()).is_equal(ArenaMaps.IDS.size())
+	assert_str(String(ArenaMaps.family(&"vault_xl"))).is_equal("vault")
+	# A map and its XL are the same room, which a run never plays twice running.
+	var rng := RandomNumberGenerator.new()
+	for seed: int in 40:
+		rng.seed = seed
+		var dealt := GrandPrix.deal(6, rng)
+		for i: int in range(1, dealt.size()):
+			assert_str(String(ArenaMaps.family(dealt[i]))).is_not_equal(
+				String(ArenaMaps.family(dealt[i - 1]))
+			)
 
 
 ## GAME.md 10.3: the map is one of the host's settings, so it travels with the rest of them and

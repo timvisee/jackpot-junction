@@ -19,7 +19,7 @@ const BEAT_DOWNBEAT := 1.4
 static func build(match_node: Match, camera_scene: PackedScene) -> void:
 	var room := match_node.arena.room
 	# A map is a place, GAME.md 8.1, and it says what it is lit by.
-	ArenaEnvironment.dress_all(match_node.get_tree(), room)
+	ArenaEnvironment.dress_all(match_node.get_tree(), room, match_node.arena.world_size())
 	var rig: CameraRig = camera_scene.instantiate()
 	rig.name = "CameraRig"
 	match_node.add_child(rig)

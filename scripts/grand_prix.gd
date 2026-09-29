@@ -45,34 +45,58 @@ var choosing: Dictionary[int, Array] = {}
 var carried: Dictionary[int, Array] = {}
 
 
-## A Grand Prix of [param rounds] maps, dealt with [param rng], carrying [param keeping] of its
-## jokers from each map to the next.
+## A Grand Prix of [param rounds] maps, dealt with [param rng] from [param maps], every map when
+## that is empty, carrying [param keeping] of its jokers from each map to the next.
 static func start(
-	rounds: int, rng: RandomNumberGenerator, keeping: Keep = Keep.RANDOM
+	rounds: int,
+	rng: RandomNumberGenerator,
+	keeping: Keep = Keep.RANDOM,
+	maps: Array[StringName] = []
 ) -> GrandPrix:
 	var run := GrandPrix.new()
-	run.playlist = deal(rounds, rng)
+	run.playlist = deal(rounds, rng, maps)
 	run.keep = keeping
 	return run
 
 
-## The maps for a run of [param rounds]: every map once before any of them comes round again, and
-## never the same one twice running, since the whole point of a run of maps is the change of room.
-static func deal(rounds: int, rng: RandomNumberGenerator) -> Array[StringName]:
+## The maps for a run of [param rounds] out of [param maps], every map when that is empty: every
+## map once before any of them comes round again, and never the same room twice running, since the
+## whole point of a run of maps is the change of room. A map and its XL are the same room.
+static func deal(
+	rounds: int, rng: RandomNumberGenerator, maps: Array[StringName] = []
+) -> Array[StringName]:
 	var dealt: Array[StringName] = []
 	var bag: Array[StringName] = []
 	while dealt.size() < rounds:
 		if bag.is_empty():
-			bag = ArenaMaps.IDS.duplicate()
+			bag = (maps if not maps.is_empty() else ArenaMaps.IDS).duplicate()
 			for i: int in range(bag.size() - 1, 0, -1):
 				var j := rng.randi_range(0, i)
 				var held := bag[i]
 				bag[i] = bag[j]
 				bag[j] = held
-			if not dealt.is_empty() and bag.size() > 1 and bag[0] == dealt[-1]:
-				bag.append(bag.pop_front())
-		dealt.append(bag.pop_front())
+		dealt.append(bag.pop_at(_next_in(bag, dealt)))
 	return dealt
+
+
+## Which map of [param bag] comes out next: one in another room than the last dealt, and of the
+## rooms left the one with the most maps still in the bag, so the end of it is never a map and its
+## XL with nowhere else to go. Otherwise the first of the bag, which is shuffled.
+static func _next_in(bag: Array[StringName], dealt: Array[StringName]) -> int:
+	if dealt.is_empty():
+		return 0
+	var last := ArenaMaps.family(dealt[-1])
+	var chosen := 0
+	var most := 0
+	for i: int in bag.size():
+		var room := ArenaMaps.family(bag[i])
+		if room == last:
+			continue
+		var left := bag.filter(func(id: StringName) -> bool: return ArenaMaps.family(id) == room)
+		if left.size() > most:
+			most = left.size()
+			chosen = i
+	return chosen
 
 
 func current_map() -> StringName:

@@ -47,6 +47,10 @@ var overtime_option: OptionButton
 var mode_picker: GameModePicker
 var maps_option: OptionButton
 var jokers_option: OptionButton
+## Which sizes of map a Grand Prix deals from, GAME.md 9.7. One of the two is always on: turning
+## off the last turns the other one on.
+var normal_toggle: CheckButton
+var xl_toggle: CheckButton
 
 ## Names the room the chosen map is played in, under the arena row.
 var _room_label: Label
@@ -55,6 +59,7 @@ var _room_label: Label
 var _arena_row: Control
 var _maps_row: Control
 var _jokers_row: Control
+var _sizes_rows: Array[Control] = []
 var _length_label: Label
 
 
@@ -105,6 +110,8 @@ func apply_to(config: MatchConfig) -> void:
 	config.map = ArenaMaps.id_at(map_option.selected)
 	config.rounds = MAPS[maps_option.selected] if is_grand_prix() else 0
 	config.keep_jokers = jokers_option.selected as GrandPrix.Keep
+	config.normal_maps = normal_toggle.button_pressed
+	config.xl_maps = xl_toggle.button_pressed
 	config.duration = float(match_lengths()[minutes_option.selected])
 	config.target_score = TARGETS[target_option.selected]
 	config.bot_count = BOTS[bots_option.selected]
@@ -127,6 +134,8 @@ func remember(settings: Settings) -> void:
 	settings.overtime = OVERTIME[overtime_option.selected]
 	settings.grand_prix_maps = MAPS[maps_option.selected]
 	settings.grand_prix_jokers = jokers_option.selected
+	settings.grand_prix_normal = normal_toggle.button_pressed
+	settings.grand_prix_xl = xl_toggle.button_pressed
 	settings.grand_prix = is_grand_prix()
 
 
@@ -166,10 +175,24 @@ func _build(column: Container, settings: Settings) -> void:
 	jokers_option = MenuTheme.option(KEEPS, clampi(settings.grand_prix_jokers, 0, KEEPS.size() - 1))
 	_jokers_row = MenuTheme.row("Jokers between maps", jokers_option)
 	column.add_child(_jokers_row)
+	normal_toggle = MenuTheme.toggle(settings.grand_prix_normal or not settings.grand_prix_xl)
+	xl_toggle = MenuTheme.toggle(settings.grand_prix_xl)
+	for pair: Array in [[normal_toggle, xl_toggle], [xl_toggle, normal_toggle]]:
+		var this: CheckButton = pair[0]
+		var other: CheckButton = pair[1]
+		this.toggled.connect(
+			func(on: bool) -> void:
+				if not on and not other.button_pressed:
+					other.button_pressed = true
+		)
+	for labeled: Array in [["Normal maps", normal_toggle], ["XL maps", xl_toggle]]:
+		var row := MenuTheme.row(labeled[0], labeled[1])
+		_sizes_rows.append(row)
+		column.add_child(row)
 	var arena := VBoxContainer.new()
 	arena.add_child(MenuTheme.row("Arena", map_option))
-	# Which room that map is played in, GAME.md 8.1: three of them, and a player picking a map
-	# is picking a place as much as a floor plan.
+	# Which room that map is played in, GAME.md 8.1: three of them, a map and its XL in the same
+	# one, and a player picking a map is picking a place as much as a floor plan.
 	_room_label = MenuTheme.subtitle("", Type.LABEL)
 	_room_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	arena.add_child(_room_label)
@@ -202,6 +225,8 @@ func _show_mode() -> void:
 	_arena_row.visible = not several
 	_maps_row.visible = several
 	_jokers_row.visible = several
+	for row: Control in _sizes_rows:
+		row.visible = several
 	_length_label.text = "Time per map" if several else "Match length"
 
 
