@@ -113,7 +113,7 @@ Read on every scene, so they work in any build.
 | `--frames=<n>`         | How many frames `--screenshot` waits, 8 unless given                    | Yes   | Yes     |
 | `--bench=<n>`          | Runs n frames, prints the frame rate, draw calls and objects, and quits | Yes   | Yes     |
 | `--server`             | Runs a dedicated server instead of the game, see Running a server       | Yes   | Yes     |
-| `--port=<port>`        | With `--server`: the port players connect to, 7780 unless given         | Yes   | Yes     |
+| `--port=<port>`        | With `--server`: the port players connect to, 7777 unless given         | Yes   | Yes     |
 | `--games=<n>`          | With `--server`: how many games it holds at once, 8 unless given        | Yes   | Yes     |
 
 `--bench` leaves its first 120 frames out of the count, as the warm-up, so shader
@@ -185,19 +185,20 @@ Linux:
 
 ```
 ./jackpot-junction.x86_64 --headless -- --server                      # from the Linux release
-./jackpot-junction.x86_64 --headless -- --server --port=7780 --games=8
+./jackpot-junction.x86_64 --headless -- --server --port=7777 --games=8
 make server ARGS="--games=4"                                          # from this checkout
 ```
 
 Players connect with Play Online, to the server's address and port. It
-listens on 7780 unless given `--port`, and runs each game in a process of its own on the ports after
-it, up to `--games` of them: 7781 to 7788 by default, so let UDP 7780 to 7788
-through a firewall or router. A game is about a quarter of a gigabyte of
-memory. Whoever makes a game has the host's say over it, passed on to whoever
-has been in it longest when they leave, and a game ends by itself once
-everybody playing has left it. The server logs every player coming and going
-and every game's state to its output, one line each, with the time and the
-game.
+listens on 7777, as a LAN game does, unless given `--port`, and runs each game
+in a process of its own on the ports after it, up to `--games` of them: 7778 to
+7785 by default, so let UDP 7777 to 7785 through a firewall or router. A LAN
+game on the same machine needs another port. A game is about a quarter of a
+gigabyte of memory. Whoever makes a game has the host's say over it, passed on
+to whoever has been in it longest when they leave, and a game ends by itself
+once everybody playing has left it. The server logs every player coming and
+going and every game's state to its output, one line each, with the time and
+the game.
 
 ## Releasing
 

@@ -307,7 +307,7 @@ own latency.
 - [x] The host's say over the wire, `HostControls`: the first player seated has
       it and it passes to whoever has been in longest; the match plan, the door,
       kicks, Pause game and where the room goes, each checked at the server.
-- [x] The server, `--server`: a hall on 7780 listing its games, each game a
+- [x] The server, `--server`: a hall on 7777 listing its games, each game a
       headless process of its own on the next port, reporting to the hall over
       loopback, and one log for all of it.
 - [x] Play Online: connect to a server, see its games, make, join or watch one.

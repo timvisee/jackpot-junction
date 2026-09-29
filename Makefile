@@ -60,7 +60,7 @@ run: | $(CACHE)
 drive: | $(CACHE)
 	$(GODOT) --path . res://scenes/dev/driving.tscn -- $(ARGS)
 
-# A dedicated server, GAME.md 9.3a, headless on port 7780 and holding up to 8 games on the ports
+# A dedicated server, GAME.md 9.3a, headless on port 7777 and holding up to 8 games on the ports
 # after it: `make server ARGS="--port=7790 --games=4"` for others. Players reach it with Play
 # Online.
 server: | $(CACHE)

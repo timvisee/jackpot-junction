@@ -282,8 +282,10 @@ func test_the_arguments() -> void:
 	assert_array(read.game_ports()).is_equal([9001, 9002, 9003] as Array[int])
 	assert_str(read.problem()).is_empty()
 	var plain := ServerArgs.read([])
-	assert_int(plain.port).is_equal(ServerArgs.PORT)
+	# Where a LAN game is hosted, and the games on the ports after it.
+	assert_int(plain.port).is_equal(7777)
 	assert_int(plain.games).is_equal(ServerArgs.GAMES)
+	assert_array(plain.game_ports()).is_equal([7778, 7779, 7780, 7781, 7782, 7783, 7784, 7785])
 	assert_str(ServerArgs.read(["--games=0"]).problem()).is_not_empty()
 	assert_str(ServerArgs.read(["--port=65530", "--games=8"]).problem()).is_not_empty()
 	assert_str(ServerArgs.read(["--port=many"]).problem()).is_not_empty()

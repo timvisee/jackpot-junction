@@ -5,9 +5,9 @@ extends RefCounted
 ## ports follow its own; and in a game the server has started, which one it is, the port it is
 ## played on and where the server hears from it.
 
-## The port players connect to unless told otherwise, clear of a LAN game's 7777 and the 7779 LAN
-## games are found on, so a server and a LAN game can share a machine.
-const PORT := 7780
+## The port players connect to unless told otherwise: the one a LAN game is hosted on, so a server
+## is found where players already look. A LAN game on the server's own machine takes another.
+const PORT := 7777
 ## How many games a server holds at once unless told otherwise. Each is a process of its own, a
 ## quarter of a gigabyte or so, see GAME.md 9.3a.
 const GAMES := 8

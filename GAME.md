@@ -3192,7 +3192,7 @@ drive on, and the room does not go. Their Manage players lists everybody else, w
 players as Me; the players at one client share its say.
 
 **Play Online.** The title's way to a dedicated server, beside Play LAN and laid out like it: the
-player's name, the server's address and port, 7780 to start with, and Connect. Connected, it says
+player's name, the server's address and port, 7777 to start with, and Connect. Connected, it says
 so and lists the server's games under it the way Play LAN lists the games on the network, a row
 each saying whose it is, whether it is still in the lobby, how many play in it of how many may
 and whether it wants a password, which joins it, with Watch beside it, and Make a game under them.
@@ -3206,22 +3206,21 @@ one of its games is coming back to its list. Anybody in the game's lobby is told
 find it, in Play Online at the server's address, in place of the line saying which port to join a
 LAN host on. A game that is over, or a player shown out, goes back to Play Online too, saying why.
 
-**The server.** It is the game itself, started headless with `--server` after `--` on the
-command line: `./jackpot-junction.x86_64 --headless -- --server` from the Linux release, or `make
-server` from a checkout. Linux is what it is made for and tried on. It listens on port 7780 unless
-given `--port`, clear of a LAN game's 7777 and of the 7779 LAN games are found on, so a server and
-a LAN game can share a machine, and holds up to 8 games at once unless given `--games`, on the
-ports after its own: 7781 to 7788 to start with, so a server behind a router has 7780 to 7788 let
-through for UDP. Each game is a process of its own, the game started again headless as a host with
-nobody at it, from the waiting room on: a game is the whole game, its event bus and everything
-else it keeps among it, and two in one process would hear each other's every kill. That costs about
-a quarter of a gigabyte and a small part of a core a game. The server starts a game when somebody
-asks for one and tells them its port once it is up, lists it while anybody plays in it, and forgets
-it once its process has ended. A game ends itself once everybody who was playing in it has left,
-telling anybody still watching that it is over; once nobody has come to it in half a minute; or
-once it has heard nothing from the server for ten seconds, since a server that has gone has taken
-its list with it. The server stops a game that never says it is up, or says nothing for ten
-seconds.
+**The server.** It is the game itself, started headless with `--server` after `--` on the command
+line: `./jackpot-junction.x86_64 --headless -- --server` from the Linux release, or `make server`
+from a checkout. Linux is what it is made for and tried on. It listens on port 7777, the port a LAN
+game is hosted on, unless given `--port`, so a LAN game on the same machine takes another one, and
+holds up to 8 games at once unless given `--games`, on the ports after its own: 7778 to 7785 to
+start with, so a server behind a router has 7777 to 7785 let through for UDP. Each game is a process
+of its own, the game started again headless as a host with nobody at it, from the waiting room on: a
+game is the whole game, its event bus and everything else it keeps among it, and two in one process
+would hear each other's every kill. That costs about a quarter of a gigabyte and a small part of a
+core a game. The server starts a game when somebody asks for one and tells them its port once it is
+up, lists it while anybody plays in it, and forgets it once its process has ended. A game ends
+itself once everybody who was playing in it has left, telling anybody still watching that it is
+over; once nobody has come to it in half a minute; or once it has heard nothing from the server for
+ten seconds, since a server that has gone has taken its list with it. The server stops a game that
+never says it is up, or says nothing for ten seconds.
 
 **The log.** The server writes a line to its output for everything worth knowing, with the date,
 the time and which game it was: the server opening; who comes to look at the games and leaves the
