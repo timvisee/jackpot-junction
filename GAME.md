@@ -3894,9 +3894,10 @@ other before it will pass.
   times the answer, settling each new time a third of the way into the last, and
   a knock gone unanswered counts for as long as it has been waiting, since a line
   gone quiet is at least as slow as the wait. The time goes on the seats that
-  client holds and out with the rest of each player in the snapshot. Past 150 ms
-  there and back, where a chip taken flat out starts to blink out rather than fly
-  into the kart that took it, the player sees an amber warning sign and the time
+  client holds and out with the rest of each player in the snapshot. Past 100 ms
+  there and back, which is already a lot for a game this quick and well short of
+  where a chip taken flat out starts to blink out rather than fly into the kart
+  that took it, the player sees an amber warning sign and the time
   beside their name in their corner, and everybody sees the sign beside their
   name in the standings. A client that has heard nothing from the host for longer
   than that while the match is running counts the silence as its round trip too,

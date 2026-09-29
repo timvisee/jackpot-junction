@@ -10,11 +10,12 @@ extends Node
 ## other has to.
 
 ## Seconds between two knocks, how far a new time moves the one kept towards it, and the round trip,
-## in milliseconds, past which a line is too slow to play on without being told so: past it,
+## in milliseconds, past which a line is too slow to play on without being told so. A tenth of a
+## second there and back is already a lot for a game this quick, well before the point where
 ## pickups taken at speed start to blink out rather than fly, see GAME.md 10.3.
 const EVERY := 0.5
 const SETTLE := 0.3
-const SLOW := 150.0
+const SLOW := 100.0
 ## Past this an answer is not believed, being more likely made up than that slow.
 const MOST := 60000.0
 

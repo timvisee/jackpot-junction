@@ -135,6 +135,9 @@ func test_a_slow_line_is_warned_of_on_both_screens() -> void:
 ## A line as quick as a LAN's is not warned of, but one gone quiet is, however quick it last was:
 ## a client that has heard nothing from the host for a while is as slow as the wait.
 func test_a_quick_line_is_not_warned_of_but_a_quiet_one_is() -> void:
+	# Quicker than the rest of this suite's line, well clear of the warning's edge.
+	NetLag.ping = 0.03
+	NetLag.jitter = 0.0
 	var pair := await _pair(null, true)
 	var client_match: Match = pair[1]
 	var client_session: NetSession = pair[2]
@@ -142,7 +145,7 @@ func test_a_quick_line_is_not_warned_of_but_a_quiet_one_is() -> void:
 	var timed := func() -> bool: return client_match.slots[seat].round_trip > 0.0
 	assert_bool(await _wait_until(timed, 3000)).is_true()
 	await await_millis(600)
-	assert_float(client_match.slots[seat].round_trip).is_between(40.0, NetPing.SLOW)
+	assert_float(client_match.slots[seat].round_trip).is_between(20.0, NetPing.SLOW)
 	var corner: LagWarning = client_match.hud._blocks[seat]["lag"]
 	assert_bool(corner.is_up()).is_false()
 	client_match.heard_at = Time.get_ticks_msec() - 900
