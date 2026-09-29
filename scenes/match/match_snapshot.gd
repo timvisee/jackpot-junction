@@ -362,8 +362,10 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 			slot.kart.set_bounty(slot.index == match_node.bounty_slot)
 	# Both blinks are about the karts on this screen rather than about anything the host knows,
 	# and the snapshot has just said what every pot is worth, so a client works them out itself.
-	match_node.arena.junction.hint = match_node.junction_hint()
-	match_node.arena.junction.winning = match_node.junction_wins_it()
+	# A map may have no Junction, GAME.md 6.3, and then there is nothing to blink.
+	if match_node.arena.junction != null:
+		match_node.arena.junction.hint = match_node.junction_hint()
+		match_node.arena.junction.winning = match_node.junction_wins_it()
 	# The whistle, GAME.md 8.1. A client never runs one, so the rig would keep sweeping while the
 	# standings sat on the screen. Asked after the slots are in, since who won is read off them.
 	if match_node.state != previous_state:
