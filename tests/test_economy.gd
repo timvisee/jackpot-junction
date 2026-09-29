@@ -119,7 +119,7 @@ func test_a_death_says_what_its_pot_banked_and_lost() -> void:
 
 
 ## GAME.md 8.1: the chip count is a marking on the floor of the zone, so a kart parked on it is
-## in front of it. It is painted the way a Royal Flush pad wears its letter, and neither is drawn
+## in front of it. It is painted the way a Royal Flush pad wears its crown, and neither is drawn
 ## through whatever is standing on it.
 func test_the_jackpot_count_is_painted_on_the_floor_rather_than_over_everything() -> void:
 	var rules := _quick_rules()
@@ -129,7 +129,8 @@ func test_the_jackpot_count_is_painted_on_the_floor_rather_than_over_everything(
 	await _runner.simulate_frames(12, 17)
 	var zone: JackpotZone = match_node.arena.jackpot_zones[0]
 	var pad: FlushPad = match_node.arena.flush_pads[0]
-	assert_bool(zone._label.no_depth_test).is_equal(pad._label.no_depth_test)
+	var crown: StandardMaterial3D = (pad.get_node("Crown") as MeshInstance3D).material_override
+	assert_bool(crown.no_depth_test).is_false()
 	assert_bool(zone._label.no_depth_test).is_false()
 	# And it clears the trim of the tile it is painted on, or nobody would see it at all.
 	assert_float(zone._label.position.y).is_greater(Arena.PAD_HEIGHT * 1.6)

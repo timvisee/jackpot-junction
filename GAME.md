@@ -483,8 +483,10 @@ else's results screen, see 10.3.
 
 ### 3.9 Royal Flush pads
 
-Four pads spread around the arena, marked A, K, Q and J. Driving over a pad
-paints its frame in your color and takes it from whoever held it.
+Four pads spread around the arena, each marked with a crown. Driving over a pad
+paints its frame and its crown in your color and takes it from whoever held it.
+The crown is the flush's mark and the same on all four: they once wore A, K, Q
+and J, which read as four different things to go for when they are one set.
 
 - Every pad you hold pays you 1 coin a second into your pot, for as long as you
   hold it, so a single pad is worth taking and worth defending. The rate runs with
@@ -1778,9 +1780,9 @@ measurement reads three times slower than the same build warm.
   the way -- a pit kills whatever falls in long before any of it is touched.
 - **Jackpot zone**: a vault floor tile with a chip pile that grows, a traffic light
   for its state, and its chip count painted on the floor of the zone, the way
-  a Royal Flush pad wears its letter. The number belongs to the square a kart has to
+  a Royal Flush pad wears its crown. The number belongs to the square a kart has to
   stand in, so it is on the square rather than floating over it, and like the pad
-  letters it goes behind whatever is parked on top of it rather than being drawn
+  crowns it goes behind whatever is parked on top of it rather than being drawn
   through it. It does sit clear of the tile's own gold trim, since a marking buried
   in the floor is a marking nobody sees. See 3.5.
 - **On the floor itself**: a dozen small things dropped and left there, flat enough
@@ -2316,7 +2318,8 @@ movement: the one thing a corner block must not do is ask to be looked at.
   local player is whoever is steering the kart, which online is a kart the host
   moves: the guide is for the hand on the stick, not for the machine running the
   physics.
-  Royal Flush pad frames glow and pulse in their holder's color; a flush shows
+  Royal Flush pad frames glow and pulse in their holder's color, the crown on the
+  plate in it too; a flush shows
   ROYAL FLUSH over the kart.
   A life going shows a heart breaking over the kart and one handed back shows a
   whole one, rather than the words that were there before: two words have to be

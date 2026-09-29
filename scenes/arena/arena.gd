@@ -586,7 +586,6 @@ func _add_flush_pads() -> void:
 		var pad := FlushPad.new()
 		pad.name = "FlushPad%d" % i
 		pad.index = i
-		pad.letter = FlushPad.LETTERS[i % FlushPad.LETTERS.size()]
 		pad.size = grid.cell_size
 		pad.position = grid.cell_center(grid.flush_pads[i])
 		pads.add_child(pad)
