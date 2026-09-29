@@ -27,7 +27,7 @@ const HALO_TIME := 0.7
 const HALO_GROWTH := 1.9
 const HALO_ALPHA := 0.75
 ## How big the suit is across the pad, and how finely it is drawn.
-const SUIT := 0.78
+const SUIT := 0.62
 const SUIT_PIXELS := 128
 
 var index := 0
