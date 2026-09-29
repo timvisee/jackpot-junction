@@ -366,7 +366,7 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 	# standings sat on the screen. Asked after the slots are in, since who won is read off them.
 	if match_node.state != previous_state:
 		if match_node.state == Match.State.RESULTS:
-			match_node.spotlight_winner()
+			MatchEnd.spotlight(match_node)
 		elif previous_state == Match.State.RESULTS:
 			match_node.arena.disco.clear_focus()
 		if match_node.state == Match.State.COUNTDOWN:

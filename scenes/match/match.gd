@@ -14,9 +14,6 @@ const CAMERA_SCENE := preload("res://scenes/camera/camera_rig.tscn")
 ## this many of both. Three of them over the usual three seconds is a lamp a second, which is
 ## the pace anyone counting a field down actually counts at.
 const COUNTDOWN_LAMPS := 3
-## How long the fireworks go up for once a match is won, GAME.md 8.3: the pause the podium waits
-## out and a while under the standings after it.
-const CELEBRATION := 8.0
 
 @export var rules: MatchRules
 @export var power_ups: PowerUpTable
@@ -667,7 +664,7 @@ func _physics_process(delta: float) -> void:
 					return
 			if state == State.OVERTIME:
 				_step_respawns(delta, false)
-				if _step_overtime():
+				if MatchEnd.step_overtime(self):
 					return
 			else:
 				_step_respawns(delta)
@@ -736,38 +733,11 @@ func _enter_last_call() -> void:
 ## everything it is carrying. Returns whether overtime was entered; if it was not, the match is
 ## over and the caller should stop.
 func _enter_overtime() -> bool:
-	if not rules.overtime or _alive_slots().size() < 2:
+	if not rules.overtime or MatchEnd.alive_slots(self).size() < 2:
 		_finish()
 		return false
 	_set_state(State.OVERTIME)
 	return true
-
-
-## Sudden death, GAME.md 3.13. Nobody respawns, so the field only shrinks; the last one left
-## banks the lot and the whistle goes. Returns whether the match ended on this tick.
-func _step_overtime() -> bool:
-	var standing := _alive_slots()
-	if standing.size() > 1:
-		return false
-	if standing.size() == 1:
-		var winner := standing[0]
-		var kart := winner.kart
-		var won := Scoring.pot_value(kart.pot.coins, kart.pot.mult)
-		if won > 0:
-			winner.banked += won
-			Events.death_banked.emit(winner.index, won)
-		kart.pot.reset()
-	_finish()
-	return true
-
-
-## Every slot whose kart is still in play. A kart on its way down a pit is already gone.
-func _alive_slots() -> Array[PlayerSlot]:
-	var standing: Array[PlayerSlot] = []
-	for slot: PlayerSlot in slots:
-		if slot.kart != null and slot.kart.alive and not slot.kart.falling:
-			standing.append(slot)
-	return standing
 
 
 ## Ends the match. Pots still unbanked are lost. The karts are not stopped dead: every driver
@@ -783,27 +753,7 @@ func _finish() -> void:
 		slot.offer = null
 	bullets.process_mode = Node.PROCESS_MODE_DISABLED
 	_set_state(State.RESULTS)
-	spotlight_winner()
-
-
-## GAME.md 8.1: at the whistle every head leaves its sweep and swings onto whoever won, so the
-## winner takes their lap of honor in the spotlight. Whoever that is: a bot that has out-driven
-## the room gets the rig the same as a player, and a leader lying in a pit at the whistle is
-## still where the beams go, since what the rig follows is the top of the standings rather than
-## whoever happens to be on their wheels. Public because a client reaches the whistle by being
-## told about it rather than by running one, and the lap of honor is for everybody.
-func spotlight_winner() -> void:
-	var winner := standings()[0]
-	if winner.kart != null:
-		arena.disco.focus(winner.kart)
-	# And the room throws fireworks in their color, GAME.md 8.3. For whoever won rather than
-	# for the kart, which may well be lying in a pit at the whistle.
-	Fireworks.celebrate(self, arena.bounds(), winner.color(), CELEBRATION)
-	# And the camera lets the room back in, GAME.md 8.2, over the same pause the podium waits out
-	# in 3.8: the karts have stopped being the subject, so the last thing the match does is open
-	# out to the table it was played on.
-	if camera_rig != null:
-		camera_rig.show_the_room(MatchHud.PODIUM_DELAY)
+	MatchEnd.spotlight(self)
 
 
 ## Whoever is waiting to come back, and in sudden death whoever is not: [param coming_back]
