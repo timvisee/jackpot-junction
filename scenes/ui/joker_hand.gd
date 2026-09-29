@@ -366,7 +366,14 @@ func _show_touch_hints() -> void:
 	var pinned := TouchInput.joker_pinned
 	var acting := pinned and kart != null and kart.alive
 	var verb := "Tap" if TouchInput.enabled else "Click"
-	var wanted := "%s %s" % [verb, "acting" if acting else ("pinned" if pinned else "held")]
+	var wanted := (
+		"%s %s %s"
+		% [
+			verb,
+			"acting" if acting else ("pinned" if pinned else "held"),
+			InputHint.stamp([InputActions.PAUSE], true),
+		]
+	)
 	if wanted == _touch_shown:
 		return
 	_touch_shown = wanted
@@ -389,11 +396,20 @@ func _show_touch_hints() -> void:
 			row.add_child(button)
 			_touch_buttons[id] = button
 		column.add_child(row)
+	var ink := JokerDetail.hint_ink()
+	if pinned and not TouchInput.enabled:
+		# The pause key closes it as well, before it would pause, see [MouseJokers].
+		var key := InputHint.glyph(InputActions.PAUSE, true, ink, InputHint.FONT_SIZE)
+		column.add_child(
+			InputHint.row("Click it again or %s to close it", [key], ink, InputHint.FONT_SIZE)
+		)
+		_detail.set_hints(column)
+		return
 	var line := Label.new()
 	line.text = (
 		"%s the card to keep it open" % verb if not pinned else "%s it again to close it" % verb
 	)
-	Type.text(line, InputHint.FONT_SIZE, JokerDetail.hint_ink())
+	Type.text(line, InputHint.FONT_SIZE, ink)
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(line)
 	_detail.set_hints(column)

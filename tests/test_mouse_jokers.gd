@@ -98,6 +98,39 @@ func test_the_mouse_reads_a_card_of_the_hand_keeps_it_open_and_drops_it() -> voi
 	assert_bool(kart.menu_open).is_false()
 
 
+## The pause key puts a card kept open away before it would pause the match, and the pane says
+## so; with no card kept open it pauses as it always has.
+func test_the_pause_key_closes_a_card_kept_open_before_it_pauses() -> void:
+	var mouse := await _playing(["hair_trigger", "rubber_bumpers"])
+	var menu := PauseMenu.add_to(mouse.match_node)
+	var kart := mouse.match_node.kart_of(0)
+	var hand: JokerHand = mouse.match_node.hud._hands[0]
+	var far := hand.get_global_rect().size * Vector2(0.5, 0.3)
+	await _rest(mouse, _center(hand._cards[1]))
+	_click(mouse, _center(hand._cards[1]))
+	await _rest(mouse, far)
+	assert_bool(kart.menu_open).is_true()
+	var said := hand._detail.find_children("*", "Label", true, false).map(
+		func(label: Label) -> String: return label.text
+	)
+	assert_array(said).contains(["to close it"])
+	_press_pause(mouse)
+	await _rest(mouse, far)
+	assert_bool(kart.menu_open).is_false()
+	assert_bool(menu.is_open()).is_false()
+	_press_pause(mouse)
+	assert_bool(menu.is_open()).is_true()
+
+
+func _press_pause(mouse: MouseJokers) -> void:
+	for down: bool in [true, false]:
+		var key := InputEventKey.new()
+		key.keycode = KEY_ESCAPE
+		key.physical_keycode = KEY_ESCAPE
+		key.pressed = down
+		mouse.get_viewport().push_input(key)
+
+
 ## A mouse nobody has moved is not pointing at anything, wherever it was left lying.
 func test_a_mouse_that_has_not_moved_opens_nothing() -> void:
 	var mouse := await _playing(["hair_trigger", "rubber_bumpers"])

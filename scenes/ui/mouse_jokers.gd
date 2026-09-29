@@ -5,8 +5,9 @@ extends Control
 ## respawn pick the pick's cursor goes to it, its pane saying what it does, and a click takes it.
 ## Over a card of the hand that card opens, pane and all; a click keeps it open, with a button on
 ## the pane for dropping it and one for destroying it, and a click on it again, or anywhere else,
-## closes it. It feeds the same state the touch controls do, see [TouchInput], so the hand answers
-## a mouse as it answers a finger, and a client's does online as well.
+## closes it, as does the pause key, before it would pause the match. It feeds the same state the
+## touch controls do, see [TouchInput], so the hand answers a mouse as it answers a finger, and a
+## client's does online as well.
 ##
 ## Only a mouse that has moved in the match points at anything: one left lying over the bottom of
 ## the screen by somebody who plays on the keys alone is not a player reading their hand, and a
@@ -97,6 +98,18 @@ func point(slot: PlayerSlot, at: Vector2) -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		_moved = true
+	# The pause key puts a card kept open away first, the way Back leaves a pane before it leaves
+	# the screen: the card is what the player is looking at. Only the keyboard's, whose player the
+	# mouse is for; Start on a pad at the same screen still pauses.
+	if (
+		player != null
+		and _pinned >= 0
+		and event is InputEventKey
+		and event.is_action_pressed(InputActions.PAUSE)
+	):
+		_unpin()
+		get_viewport().set_input_as_handled()
+		return
 	var click := event as InputEventMouseButton
 	if player == null or click == null or not click.pressed:
 		return

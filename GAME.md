@@ -957,7 +957,9 @@ drop or a destroy goes with the card it was for.
 Without a touch screen the mouse does for the player on the keyboard what a finger does here.
 Over a card of the hand, that card opens with its pane, and off it the hand closes again; a
 click keeps it open, with the same Drop and Destroy buttons on its pane, which are clicked, and
-the pane says to click it again to close it, which a click anywhere else does too. Over a card of
+the pane says to click it again or press the pause key to close it, which a click anywhere else
+does too. The pause key only closes the card, and pauses the match once no card is kept open:
+the card is what the player is looking at. Over a card of
 the respawn pick the pick's cursor goes to it, and a click takes it. The pick is not held still
 under the mouse the way it is under a finger, so its keys and the fire button go on answering
 the card the cursor is on. A mouse only points at anything once it has moved in the match: one

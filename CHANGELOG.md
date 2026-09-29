@@ -55,6 +55,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Escape closes a joker card you clicked open.** It puts the card away first, and pauses the
+  match only once no card is open.
 - **Royal Flush pads wear a crown.** The same crown on all four, in the holder's color, replaces
   the A, K, Q and J letters.
 - **Jokers on the floor show their picture.** The card is printed on both sides like a card in
