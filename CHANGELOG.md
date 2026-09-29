@@ -51,6 +51,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Chips go into the Junction the whole time you bank.** They used to fly only once the
+  cash-out was done.
 - **A death banks a share of what is left of the pot.** The coins it drops leave the pot first;
   Insurance Policy banks all that is left, and Tight Grip keeps them all to bank.
 - **The shoulder buttons turn a Grand Prix's podium pages.** On a pad, left goes back and right

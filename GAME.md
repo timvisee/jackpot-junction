@@ -2287,12 +2287,15 @@ movement: the one thing a corner block must not do is ask to be looked at.
   whole one, rather than the words that were there before: two words have to be
   read, and a player who is reading is not driving.
 
-The tally is the payoff moment and gets the polish budget. On a completed
-cash-out, chips fly from the kart into the pad while a counter above the kart
-counts up with rising slot-machine ticks: `coins × mult`, then `= total`, in
-about 0.8 s. Cash-outs of 500 or more add a fanfare, confetti and screen shake.
-Death shows a smaller gray tally marked as half. The in-world tally plays for
-every kart, so everyone sees when an opponent cashes out.
+The tally is the payoff moment and gets the polish budget. The whole time a pot
+is being banked, chips go from the kart into the pad at a steady beat, more of
+them at a time the faster it drains, so the bank reads as money going in for as
+long as it is rather than only once it is done. On a completed cash-out a burst
+of them follows while a counter above the kart counts up with rising slot-machine
+ticks: `coins × mult`, then `= total`, in about 0.8 s. Cash-outs of 500 or more
+add a fanfare, confetti and screen shake. A death shows where its pot went
+instead, see 3.6. The in-world tally and the chips play for every kart, so
+everyone sees when an opponent cashes out.
 
 ### 8.3a Icons
 

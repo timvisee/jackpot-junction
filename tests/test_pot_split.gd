@@ -79,3 +79,22 @@ func _ready_match() -> Match:
 	var match_node := _match()
 	await _runner.simulate_frames(20, 17)
 	return match_node
+
+
+## GAME.md 3.4: a pot being banked on the Junction sends chips into it the whole time it drains,
+## not only in the burst once the cash-out is done, and stops once the bank has.
+func test_chips_go_into_the_junction_the_whole_time_a_pot_banks() -> void:
+	var match_node := await _ready_match()
+	var bursts := func() -> int:
+		return match_node.find_children("*", "ChipBurst", false, false).size()
+	var before: int = bursts.call()
+	for i: int in 12:
+		Events.bank_tick.emit(0, 10)
+		await _runner.simulate_frames(1, 17)
+	var during: int = bursts.call()
+	assert_int(during - before).is_greater_equal(2)
+	# Once the ticks stop, so does the stream.
+	var stream: BankStream = match_node.hud.get_node("BankStream")
+	assert_bool(stream._banking.has(0)).is_true()
+	await _runner.simulate_frames(30, 17)
+	assert_bool(stream._banking.is_empty()).is_true()

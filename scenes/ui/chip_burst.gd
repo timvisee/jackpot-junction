@@ -1,6 +1,7 @@
 class_name ChipBurst
 extends Node3D
-## Chips that fly from a kart into the Junction pad when a cash-out completes, GAME.md 8.3.
+## Chips that fly from a kart into the Junction pad, GAME.md 8.3: a few at a time while a pot is
+## being banked, see [BankStream], and a burst when a cash-out completes.
 
 const DURATION := 0.7
 const STAGGER := 0.04
