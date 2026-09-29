@@ -113,6 +113,7 @@ var _start_wait: StartWait
 var _lobby_start: Button
 ## Set while the end of a Grand Prix has the screen, see [method stand_aside].
 var _aside := false
+var _pot_split: PotSplit
 var _go_left := 0.0
 
 
@@ -154,6 +155,7 @@ func _ready() -> void:
 		MouseJokers.attach(self)
 	_build_lobby()
 	_start_wait = StartWait.add_to(self, match_node)
+	_pot_split = PotSplit.attach(self)
 	Events.kart_corrected.connect(_on_corrected)
 	Events.grazed.connect(_on_grazed)
 	Events.mult_gained.connect(_on_mult_gained)
@@ -728,12 +730,38 @@ func _on_bank_completed(slot: int, coins: int, mult: float, total: int) -> void:
 	_rumble(slot, 0.6 if big else 0.3, 0.35)
 
 
-func _on_death_banked(slot: int, amount: int) -> void:
-	var kart := _kart(slot)
-	if kart != null:
-		FloatingText.spawn(
-			match_node, kart.global_position, "½  %d" % amount, Color(0.75, 0.75, 0.75), 56, 1.4
+## A pot split at a death or at the whistle, GAME.md 3.6: shown going where it went, see
+## [PotSplit].
+func _on_death_banked(slot: int, amount: int, lost: int) -> void:
+	_pot_split.play(slot, amount, lost)
+
+
+## Where [param slot]'s banked score is on this screen, GAME.md 8.3, in its player's corner or on
+## its row of the standings, and where a number said about it goes: beside it in the corner, and
+## off the side of the standings over the arena, clear of the names. Empty when it is on neither.
+func score_spot(slot: int) -> PackedVector2Array:
+	if _blocks.has(slot):
+		var banked: Label = _blocks[slot]["banked"]
+		if banked.is_visible_in_tree():
+			# The number as it is about to be written, which the label catches up with on its next
+			# frame, rather than the label round it, which runs the width of the corner; and
+			# through the corner's own scale, which a rect leaves out.
+			var font := banked.get_theme_font(&"font")
+			var size := banked.get_theme_font_size(&"font_size")
+			var written := str(match_node.slots[slot].banked)
+			var run := font.get_string_size(written, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+			var place := banked.get_global_transform()
+			var middle := place * Vector2(run * 0.5, banked.size.y * 0.5)
+			var beside := place * Vector2(run, banked.size.y * 0.5) + Vector2(48.0, 0.0)
+			return PackedVector2Array([middle, beside])
+	var score := _scoreboard.score_label(slot)
+	if score != null and score.is_visible_in_tree():
+		var panel := _scoreboard.row_panel(slot)
+		var off := panel.get_global_transform() * Vector2(0.0, panel.size.y * 0.5)
+		return PackedVector2Array(
+			[score.get_global_transform() * (score.size * 0.5), off - Vector2(44.0, 0.0)]
 		)
+	return PackedVector2Array()
 
 
 ## The reminder row under a player's block, GAME.md 8.3: which button drifts, which burns

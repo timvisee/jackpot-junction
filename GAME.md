@@ -226,6 +226,18 @@ uncontrollable, and dies whatever its lives. On death, in this order:
    looking at it; the flare says to the whole room that somebody is back, and
    where.
 
+Every screen shows how the pot split, since a number over a wreck saying half was
+banked left a player to work out what became of the rest. The share that banks
+leaves the wreck as a stream of gold coins, a coin for every 15 points or so and
+never fewer than 3 nor more than 12, drawn in toward that player's banked score,
+in their corner of the screen if they play at this one and on their row of the
+standings if not, and +N in gold says how much beside the score as the first coin
+lands. The share that is lost bursts out of the wreck in coins that go gray as they
+fall and crumble to dust, under −N in red. A death that banks everything, with
+Insurance Policy, has nothing to crumble, and one that banks nothing, with High
+Roller, sends nothing to the score. The chips dropped in step 2 are real chips on
+the floor, and scatter as ever.
+
 ### 3.7 Jokers
 
 Jokers are passive rule modifiers held for the rest of the match.
@@ -599,7 +611,9 @@ anything.
 With Match ends the whistle goes on the hour, and every pot still being carried
 banks what a death would bank of it, bent by the kart's jokers the way its death
 would be: half, all of it with Insurance Policy, nothing with High Roller.
-Nothing drops and nobody is paid for it, since nobody died. Nobody had the time
+Nothing drops and nobody is paid for it, since nobody died, and every screen
+shows the split as it shows a death's, see 3.6, in the pause before the podium, which the
+coins are done in. Nobody had the time
 to take it to the Junction, as the whistle came with no warning but the clock,
 and a pot carried to the end was still played for. With Last one standing nothing
 banks at the clock: the match plays on, and the last kart standing takes the lot.

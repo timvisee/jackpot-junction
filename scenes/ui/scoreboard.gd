@@ -110,6 +110,16 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, count: int) -> vo
 
 ## Builds a row the first time its slot shows up. Rows live as long as the scoreboard; only their
 ## order and their contents change.
+## The label [param slot]'s banked score is written in, or null while it has no row.
+func score_label(slot: int) -> Label:
+	return _rows[slot]["score"] if _rows.has(slot) else null
+
+
+## The panel [param slot]'s row is drawn on, or null while it has none.
+func row_panel(slot: int) -> Control:
+	return _rows[slot]["panel"] if _rows.has(slot) else null
+
+
 func _row(slot: PlayerSlot) -> Dictionary:
 	if _rows.has(slot.index):
 		return _rows[slot.index]

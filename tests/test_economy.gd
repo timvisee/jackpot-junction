@@ -93,6 +93,29 @@ func test_the_death_sequence_banks_half_drops_chips_and_credits_the_killer() -> 
 	assert_float(victim.pot.mult).is_equal(1.0)
 
 
+## GAME.md 3.6: a death says how its pot split, what banked and what went, for every screen to show
+## going where it went; a pot that banks nothing still says what it lost.
+func test_a_death_says_what_its_pot_banked_and_lost() -> void:
+	var rules := _quick_rules()
+	rules.duration = 60.0
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs, rules)
+	await _runner.simulate_frames(12, 17)
+	var said: Array = []
+	var hear := func(slot: int, banked: int, lost: int) -> void: said.append([slot, banked, lost])
+	Events.death_banked.connect(hear)
+	var victim := match_node.kart_of(0)
+	victim.pot.add_coins(20)
+	victim.pot.add_mult(1.0)
+	victim.die(&"pit", -1)
+	var gambler := match_node.kart_of(1)
+	gambler.jokers.add(load("res://data/jokers/high_roller.tres"))
+	gambler.pot.add_coins(10)
+	gambler.die(&"pit", -1)
+	Events.death_banked.disconnect(hear)
+	assert_array(said).is_equal([[0, 20, 20], [1, 0, 10]])
+
+
 ## GAME.md 8.1: the chip count is a marking on the floor of the zone, so a kart parked on it is
 ## in front of it. It is painted the way a Royal Flush pad wears its letter, and neither is drawn
 ## through whatever is standing on it.

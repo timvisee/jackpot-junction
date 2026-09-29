@@ -48,7 +48,7 @@ static func _bank_all(slot: PlayerSlot) -> void:
 	var won := Scoring.pot_value(kart.pot.coins, kart.pot.mult)
 	if won > 0:
 		slot.banked += won
-		Events.death_banked.emit(slot.index, won)
+		Events.death_banked.emit(slot.index, won, 0)
 	kart.pot.reset()
 
 
@@ -63,9 +63,10 @@ static func _bank_share(match_node: Match, slot: PlayerSlot) -> void:
 	for joker: Joker in kart.jokers.jokers:
 		joker.modify_death(kart, death)
 	var banked := Scoring.death_bank(kart.pot.coins, kart.pot.mult, death.bank_fraction)
-	if banked > 0:
-		slot.banked += banked
-		Events.death_banked.emit(slot.index, banked)
+	var worth := Scoring.pot_value(kart.pot.coins, kart.pot.mult)
+	slot.banked += banked
+	if worth > 0:
+		Events.death_banked.emit(slot.index, banked, worth - banked)
 	kart.pot.reset()
 
 

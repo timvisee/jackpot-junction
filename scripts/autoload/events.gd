@@ -15,7 +15,10 @@ signal life_restored(slot: int)
 signal kart_respawned(slot: int, at: Vector3)
 ## The floor has gone from under a kart. The kill follows when it reaches the bottom.
 signal kart_fell(slot: int)
-signal death_banked(slot: int, amount: int)
+## A pot split the way a death splits it, GAME.md 3.6, at a death or at the whistle, see 3.13:
+## [param amount] banked and [param lost] gone, in points. Raised for any pot that had something in
+## it, so a death that banks nothing still says what went.
+signal death_banked(slot: int, amount: int, lost: int)
 signal bank_started(slot: int)
 signal bank_tick(slot: int, points: int)
 signal bank_completed(slot: int, coins: int, mult: float, total: int)

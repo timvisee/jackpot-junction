@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A death shows where its pot went.** The banked share flies into the player's score as gold
+  coins and the lost share crumbles to gray dust, each with its number; the whistle does the same.
 - **Page between a map's podium and the standings.** In a Grand Prix, arrows on the left turn
   between the two, with a dot marking the page, and Next map on the right is on both.
 - **Several players at a LAN client.** A client takes another player with J or Start, the

@@ -38,9 +38,10 @@ static func resolve(
 	# Read before the death moves any money, so that afterwards the two can be compared.
 	var behind := _behind(match_node, slot, killer)
 	var banked := Scoring.death_bank(kart.pot.coins, kart.pot.mult, death.bank_fraction)
-	if banked > 0:
-		slot.banked += banked
-		Events.death_banked.emit(slot.index, banked)
+	var worth := Scoring.pot_value(kart.pot.coins, kart.pot.mult)
+	slot.banked += banked
+	if worth > 0:
+		Events.death_banked.emit(slot.index, banked, worth - banked)
 	_scatter(match_node, slot, killer, death)
 	_collect_bounty(match_node, slot, killer)
 	_pay_killer(match_node, cause, killer)
