@@ -33,10 +33,6 @@ const PULSE := 7.0
 const PULSE_GROW := 1.5
 const MARK_SIZE := 22
 const MARK_GAP := 8.0
-## The dark it all sits on, so a row of pale colors still reads over a light prop behind the clock,
-## and how far past the blocks it reaches.
-const BACKING := Color(0.04, 0.04, 0.06, 0.6)
-const BACKING_PAD := 7.0
 
 var match_node: Match
 
@@ -145,7 +141,6 @@ func _plays_here(slot: int) -> bool:
 
 
 func _draw() -> void:
-	_draw_backing()
 	var swell := (0.5 + 0.5 * sin(_beat * PULSE)) if threat >= 0 else 0.0
 	for i: int in pads:
 		var box := Rect2(Vector2(i * (BLOCK + GAP), 0.0), Vector2(BLOCK, BLOCK))
@@ -167,18 +162,6 @@ func _draw() -> void:
 		var bar := Rect2(Vector2(0.0, BLOCK + LOCK_DROP), Vector2(wide * locked, LOCK_BAR))
 		draw_rect(bar.grow(1.0), RIM)
 		draw_rect(bar, held[0])
-
-
-## A dark rounded panel under the row, and under the mark when there is one.
-func _draw_backing() -> void:
-	var wide := pads * BLOCK + maxf(pads - 1, 0) * GAP
-	if threat >= 0:
-		wide += MARK_GAP + MARK_SIZE * 0.5
-	var tall := BLOCK + (LOCK_DROP + LOCK_BAR if locked > 0.0 else 0.0)
-	var panel := StyleBoxFlat.new()
-	panel.bg_color = BACKING
-	panel.set_corner_radius_all(6)
-	draw_style_box(panel, Rect2(Vector2.ZERO, Vector2(wide, tall)).grow(BACKING_PAD))
 
 
 ## The exclamation mark past the end of the row, in the threatening player's color, pulsing with

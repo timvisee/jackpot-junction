@@ -2239,8 +2239,8 @@ movement: the one thing a corner block must not do is ask to be looked at.
   there holds what, while somebody else holds all the pads but one: a warning
   rather than a count, that player's blocks pulsing, swelling and ringed in their
   own color, with an exclamation mark in it at the end of the row, since the last
-  pad is the one to go and take off them. The row sits on a dark panel so a pale
-  color still reads over whatever is behind the clock. Its blocks stay solid rather than dimming as a claim runs down: a
+  pad is the one to go and take off them. The blocks stand on their own, with no
+  panel behind them, each with a dark rim of its own. Its blocks stay solid rather than dimming as a claim runs down: a
   client is not told when a holder renews one, so its dimming would be a guess.
 - **Start gantry**: the countdown is a horizontal rack of three lamps hung over the
   middle of the screen, the way a racing track starts a field, rather than a number.
