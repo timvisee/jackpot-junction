@@ -1217,23 +1217,23 @@ lobby and driving round the wrong room.
 #### Lucky Crossing
 
 The open one. Long lanes top and bottom, short walls screening the Jackpots from
-the center, and the pits directly above and below the Junction.
+the center, and the pits above and below the Junction, a lane's width clear of it.
 
 ```
 ################################
 #..............................#
 #.S....C.....F..........C....S.#
 #.....####..B......B..####.....#
-#..P......T..........T......P..#
+#..P......T....XX....T......P..#
 #....C.........XX.........C....#
-#.......B....C.XX.C....B.......#
+#.......B....C....C....B.......#
 #........#....JJJJ....#........#
 #...KK...#....JJJJ....#...KK.F.#
 #.F.KK...#....JJJJ....#...KK...#
 #........#....JJJJ....#........#
-#.......B....C.XX.C....B.......#
+#.......B....C....C....B.......#
 #....C.........XX.........C....#
-#..P......T..........T......P..#
+#..P......T....XX....T......P..#
 #.....####..B......B..####.....#
 #.S....C..........F.....C....S.#
 #..............................#
@@ -1251,9 +1251,10 @@ it and nothing to bank.
 
 - The four turbo pads point along the vertical lanes at columns 10 and 21,
   each toward the opposite pad, so karts can rocket past the Junction's flanks.
-- The pits sit directly above and below the Junction, so approaching from the
-  top or bottom means going around them, while the coin pads next to the pits
-  reward the risk.
+- The pits sit above and below the Junction, a cell of floor clear of it, so
+  approaching from the top or bottom means going around them, while the coin pads
+  beside that gap reward the risk. They sat right against the pad once, and a kart
+  pushed off the Junction's edge went straight down.
 - The short vertical walls screen the Jackpot zones from the center, so a kart
   collecting the Jackpot can only be shot from the top or bottom lane, or by a
   bouncing bullet.

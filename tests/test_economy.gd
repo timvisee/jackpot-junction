@@ -317,7 +317,7 @@ func test_drops_scatter_wide_and_anything_over_a_pit_falls_in() -> void:
 	var match_node := _start_match(inputs, _quick_rules())
 	await _runner.simulate_frames(20, 17)
 	var arena := match_node.arena
-	var center := Vector3(0.0, 0.0, 6.0)
+	var center := Vector3(0.0, 0.0, 8.0)
 	var chips := arena.spawn_chips(center, 12, 0.0, 0.0, true)
 	var furthest := 0.0
 	for chip: Chip in chips:
@@ -370,11 +370,11 @@ func test_a_near_miss_grazes_for_half_a_mult() -> void:
 	var runner := _runner
 	await runner.simulate_frames(12, 17)
 	var target := match_node.kart_of(1)
-	target.global_position = Vector3(0.0, 0.0, 6.0)
-	target.face(Vector3(0.0, 0.0, -1.0))
+	target.global_position = Vector3(0.0, 0.0, -3.0)
+	target.face(Vector3(0.0, 0.0, 1.0))
 	var stats: CannonStats = load("res://data/cannons/default.tres").duplicate()
 	stats.aim_assist = false
-	match_node.bullets.spawn(0, Vector3(0.9, 0.0, 9.5), Vector3(0.0, 0.0, -1.0), stats, Color.WHITE)
+	match_node.bullets.spawn(0, Vector3(0.9, 0.0, -6.5), Vector3(0.0, 0.0, 1.0), stats, Color.WHITE)
 	await runner.simulate_frames(40, 17)
 	assert_bool(target.alive).is_true()
 	assert_float(target.pot.mult).is_equal(1.5)

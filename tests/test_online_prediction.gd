@@ -480,8 +480,8 @@ func test_a_kart_is_never_drawn_inside_a_wall() -> void:
 func test_a_kart_falls_down_a_hole_when_it_drives_into_one() -> void:
 	await _connect()
 	var hole: Pit = _client.arena.pits[0]
-	# Put the kart on the lip of the hole and drive it in.
-	var at := hole.global_position + Vector3(0.0, 0.0, 3.0)
+	# Put the kart on the lip of the hole and drive it in, from above it.
+	var at := hole.global_position + Vector3(0.0, 0.0, -3.0)
 	KartPrediction.restore(_prediction.kart, KartPrediction.capture(_prediction.kart))
 	_prediction.kart.global_position = at
 	_host.kart_of(0).global_position = at

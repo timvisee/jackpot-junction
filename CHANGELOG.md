@@ -39,6 +39,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Lucky Crossing's pits sit a cell clear of the Junction.** A kart pushed off the pad's edge
+  no longer drops straight into one.
 - **The game starts at half volume.** A fresh install's master volume is 50% rather than 100%;
   one already set keeps its level.
 - **Pots bank at the whistle when time runs out.** With Match ends, every pot still carried

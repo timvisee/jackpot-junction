@@ -261,7 +261,7 @@ func test_a_bot_turns_out_of_a_pit_it_is_headed_for() -> void:
 		. is_true()
 	)
 	(
-		assert_bool(nav.crosses_pit(pit + Vector3(6.0, 0.0, 9.0), pit + Vector3(-6.0, 0.0, 9.0)))
+		assert_bool(nav.crosses_pit(pit + Vector3(6.0, 0.0, 7.0), pit + Vector3(-6.0, 0.0, 7.0)))
 		. is_false()
 	)
 	# Driven flat out straight at the hole, with the goal on the far side of it.

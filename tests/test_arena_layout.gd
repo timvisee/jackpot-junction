@@ -32,7 +32,7 @@ func test_element_counts_match_the_design() -> void:
 func test_areas_are_rectangles_at_the_designed_spots() -> void:
 	assert_that(_grid.junction).is_equal(Rect2i(14, 7, 4, 4))
 	assert_array(_grid.pits).contains_exactly_in_any_order(
-		[Rect2i(15, 5, 2, 2), Rect2i(15, 11, 2, 2)]
+		[Rect2i(15, 4, 2, 2), Rect2i(15, 12, 2, 2)]
 	)
 	assert_array(_grid.jackpots).contains_exactly_in_any_order(
 		[Rect2i(4, 8, 2, 2), Rect2i(26, 8, 2, 2)]
