@@ -3216,9 +3216,12 @@ knocking at a server is told it is a dedicated server whose games are in Play On
 Online knocking at a LAN game, or at one of a server's games by its own port, that it is a game to
 join from Play LAN. Neither is let in to wait for something that never comes.
 
-**The server.** It is the game itself, started headless with `--server` after `--` on the command
-line: `./jackpot-junction.x86_64 --headless -- --server` from the Linux release, or `make server`
-from a checkout. Linux is what it is made for and tried on. It listens on port 7777, the port a LAN
+**The server.** It is the game itself, exported for Linux as a server build of its own,
+`jackpot-junction-server`, in every release, see 10.5: started with no arguments at all, it is
+headless and a server, and it carries no sound and only the sizes of its pictures and models,
+about 75 MB against the game's 95. The game proper is a server too, started headless with
+`--server` after `--`: `./jackpot-junction.x86_64 --headless -- --server`, or `make server` from a
+checkout. Linux is what it is made for and tried on. It listens on port 7777, the port a LAN
 game is hosted on, unless given `--port`, so a LAN game on the same machine takes another one, and
 holds up to 8 games at once unless given `--games`, on the ports after its own: 7778 to 7785 to
 start with, so a server behind a router has 7777 to 7785 let through for UDP. Each game is a process
@@ -4310,13 +4313,20 @@ it is done. `tools/changelog` is the only thing that edits either:
 
 A release is therefore: cut it, read it over, commit, then tag `vX.Y.Z` and push
 the tag. The tag starts the release workflow, which exports Linux, Windows and
-macOS builds and the Android APK and publishes them with that version's
-changelog section as the release notes, GitHub's own list of commits appended
-underneath. A tag whose version has no section fails the workflow rather than
-publishing a release with nothing written on it, and so does an APK that is not
-signed with the release key: nothing is published until everything is built.
-The workflow can also be run by hand from the Actions tab, as a dry run: the
-same builds, kept as the run's artifact for a week instead of published.
+macOS builds, the Android APK and the Linux dedicated server build of 9.3a, and
+publishes them with that version's changelog section as the release notes,
+GitHub's own list of commits appended underneath. A tag whose version has no
+section fails the workflow rather than publishing a release with nothing written
+on it, and so does an APK that is not signed with the release key: nothing is
+published until everything is built. The server build is Godot's own dedicated
+server export, preset "Linux Server": every resource stripped of what only
+drawing needs, textures and meshes left as placeholders of the same size, since
+scripts and scenes still name them, and `assets/audio` left out altogether,
+since no sound is loaded but by name when it plays and a server plays none. Its
+`dedicated_server` feature is what makes it a server with no `--server` to give,
+and headless with no `--headless`. The workflow can also be run by hand from the
+Actions tab, as a dry run: the same builds, kept as the run's artifact for a
+week instead of published.
 
 Tagging is a person's decision, not a step in a script: it says a build is worth
 other people's time.

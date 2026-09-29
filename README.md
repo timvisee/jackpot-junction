@@ -74,7 +74,7 @@ make check      # import, lint, format check, changelog, unit tests, smoke runs,
 make test       # unit tests only (gdUnit4, headless, a suite per process in parallel)
 make multiplayer  # a whole Grand Prix online (two games, up to two clients) and on one screen
 make server-check  # a game on a dedicated server, made, joined and watched by three clients
-make export     # release builds for Linux, Windows and macOS in build/
+make export     # release builds for Linux, Windows and macOS, and the Linux server, in build/
 make android    # a debug build for Android in build/android, see GAME.md 10.5
 make android-install  # that build, installed on the phone adb can see
 make android-release  # the release APK, signed with the release key, see GAME.md 10.5
@@ -182,12 +182,15 @@ game's own first scene. The debug drawing options, such as `--debug-collisions`,
 ## Running a server
 
 A dedicated server holds games for players over the internet, so nobody's own
-machine has to host, see GAME.md 9.3a. It is the game itself, run headless on
-Linux:
+machine has to host, see GAME.md 9.3a. Every release has a Linux server build
+for it, `jackpot-junction-server`: the game exported as a server, headless and
+serving by itself, with its pictures and models stripped to their sizes and no
+sound at all. The game itself serves too, told to:
 
 ```
-./jackpot-junction.x86_64 --headless -- --server                      # from the Linux release
-./jackpot-junction.x86_64 --headless -- --server --port=7777 --games=8
+./jackpot-junction-server.x86_64                                      # the server build
+./jackpot-junction-server.x86_64 -- --port=7777 --games=8
+./jackpot-junction.x86_64 --headless -- --server                      # the game, as a server
 make server ARGS="--games=4"                                          # from this checkout
 ```
 
@@ -213,8 +216,8 @@ git tag -a v0.2.0 -m "Jackpot Junction 0.2.0" && git push --follow-tags
 ```
 
 The tag starts the release workflow, which exports Linux, Windows and macOS
-builds and publishes them with that version's changelog section as the release
-notes. A tag whose version has no section fails rather than publishing a release
+builds, the Linux server build and the Android APK, and publishes them with that
+version's changelog section as the release notes. A tag whose version has no section fails rather than publishing a release
 with nothing written on it. GAME.md 10.5 has the detail.
 
 ## License

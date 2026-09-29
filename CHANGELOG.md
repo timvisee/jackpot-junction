@@ -17,6 +17,8 @@ below, and hands the notes to the release workflow.
   games: make one and host it from your machine, or join or watch one; it won't play with 0.9.x.
 - **Dedicated servers.** `--server` runs the game headless as a server of several games at once on
   7777, logging who comes and goes; idle it takes about 90 MB, starting a game only when one is made.
+- **A server build for Linux.** Releases carry `jackpot-junction-server`, the game as a headless
+  server with no sound or pictures in it, 75 MB; it needs no flags to start.
 - **The host's say passes on.** On a dedicated server, whoever made a game hosts it from their own
   machine and can hand that on with Make host in Manage players; if they leave, the longest in does.
 

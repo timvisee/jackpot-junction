@@ -267,7 +267,9 @@ func _build(name: String, file: String, looping: bool) -> AudioStreamPlayer3D:
 static func _stream(file: String, looping: bool) -> AudioStream:
 	var path := AUDIO_DIR + file
 	if not ResourceLoader.exists(path):
-		push_warning("missing kart sound %s" % path)
+		# The dedicated server build carries no sound at all, GAME.md 10.5, and says nothing of it.
+		if not OS.has_feature("dedicated_server"):
+			push_warning("missing kart sound %s" % path)
 		return null
 	var stream := load(path) as AudioStream
 	if stream is AudioStreamOggVorbis:

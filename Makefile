@@ -113,9 +113,12 @@ changelog:
 
 check: import lint format-check changelog test smoke multiplayer multiplayer-lag server-check
 
+# The three desktop builds, and the dedicated server's for Linux, GAME.md 9.3a: the game exported as
+# a server, headless and serving by itself, its visual data stripped and its sound left out.
 export: | $(CACHE)
-	mkdir -p build/linux build/windows build/macos
+	mkdir -p build/linux build/linux-server build/windows build/macos
 	$(GODOT) --headless --path . --export-release "Linux" build/linux/jackpot-junction.x86_64
+	$(GODOT) --headless --path . --export-release "Linux Server" build/linux-server/jackpot-junction-server.x86_64
 	$(GODOT) --headless --path . --export-release "Windows" build/windows/jackpot-junction.exe
 	$(GODOT) --headless --path . --export-release "macOS" build/macos/jackpot-junction.zip
 

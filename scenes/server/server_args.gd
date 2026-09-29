@@ -12,8 +12,9 @@ const PORT := 7777
 ## quarter of a gigabyte or so, see GAME.md 9.3a.
 const GAMES := 8
 
-## Whether the game is to be a dedicated server at all.
-var server := false
+## Whether the game is to be a dedicated server at all: `--server`, or the dedicated server build,
+## GAME.md 10.5, which is nothing else.
+var server := OS.has_feature("dedicated_server")
 var port := PORT
 var games := GAMES
 ## In a game of the server's: its number, from 1, and where the server hears from it, a port on this
