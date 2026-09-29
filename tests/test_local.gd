@@ -7,7 +7,9 @@ const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 var _runner: GdUnitSceneRunner
 
 
-func _start_match(inputs: Array[KartInput], colors: Array[int] = []) -> Match:
+func _start_match(
+	inputs: Array[KartInput], colors: Array[int] = [], names: Array[String] = [], styles := []
+) -> Match:
 	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
 	rules.countdown = 0.1
 	rules.lives = 1
@@ -16,7 +18,7 @@ func _start_match(inputs: Array[KartInput], colors: Array[int] = []) -> Match:
 	match_node.rules = rules
 	match_node.offer_size = 0
 	_runner = scene_runner(match_node)
-	match_node.start(inputs, 17, colors)
+	match_node.start(inputs, 17, colors, names, styles)
 	return match_node
 
 
@@ -56,6 +58,29 @@ func test_joining_mid_match_takes_over_a_bot_and_settles_the_any_device_player()
 	var again := match_node.join_human(1)
 	await _runner.simulate_frames(2, 17)
 	assert_int(match_node.hud._blocks[again.index]["corner"]).is_equal(1)
+
+
+## GAME.md 4.4: somebody sitting down in a bot's kart is dressed and named for their own seat, not
+## left in the kart as the bot drove it; a player at another machine takes neither of this
+## machine's seats, since they say their own.
+func test_a_player_taking_over_a_bot_wears_their_own_seats_dress() -> void:
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.KEYBOARD, 0), BotInput.new(), BotInput.new()
+	]
+	var names: Array[String] = ["Ann", "Bea"]
+	var styles: Array = [PackedInt32Array([1, 1, 1, 1]), PackedInt32Array([2, 3, 1, 2])]
+	var match_node := _start_match(inputs, [], names, styles)
+	await _runner.simulate_frames(12, 17)
+	var joined := match_node.join_human(1)
+	assert_int(joined.index).is_equal(1)
+	assert_str(joined.player_name).is_equal("Bea")
+	assert_array(Array(joined.style.to_array())).is_equal([2, 3, 1, 2])
+	assert_array(Array(joined.kart.style.to_array())).is_equal([2, 3, 1, 2])
+	var visitor := match_node.join_network(NetInput.new())
+	assert_int(visitor.index).is_equal(2)
+	assert_str(visitor.player_name).is_not_equal("Ann")
+	assert_str(visitor.player_name).is_not_equal("Bea")
+	assert_array(Array(visitor.style.to_array())).is_equal([0, 0, 0, 0])
 
 
 func test_joining_without_bots_spawns_a_fresh_slot_until_the_match_is_full() -> void:

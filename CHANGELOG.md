@@ -20,6 +20,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A player taking over a bot's kart wears their own dress.** They were left in the bot's
+  plain kart, and a LAN player no longer borrows the host's own seats' names and dress.
 - **Nitro comes back quickly in a LAN lobby on a client too.** A client refilled at a match's
   pace there, and never felt a hot room's quicker nitro on a map either.
 - **Insurance Policy keeps the whole pot.** Dying with it drops no chips, and a ram you

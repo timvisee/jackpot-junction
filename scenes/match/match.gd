@@ -180,7 +180,7 @@ func start(
 	for i: int in mini(inputs.size(), rules.max_players):
 		var slot := PlayerSlot.new(i, inputs[i], colors[i] if i < colors.size() else -1)
 		slot.player_name = _name_for(i, inputs[i])
-		slot.style = _style_for(i)
+		slot.style = _style_for(i, inputs[i])
 		slots.append(slot)
 		_spawn_kart(slot, arena.spawn_points[i % arena.spawn_points.size()])
 		karts.append(slot.kart)
@@ -260,7 +260,7 @@ func _join_with_input(input: KartInput, wanted_color := -1) -> PlayerSlot:
 		return null
 	var slot := PlayerSlot.new(slots.size(), input, _free_color(wanted_color))
 	slot.player_name = _name_for(slot.index, input)
-	slot.style = _style_for(slot.index)
+	slot.style = _style_for(slot.index, input)
 	slots.append(slot)
 	var enemies: Array[Vector3] = []
 	for other: PlayerSlot in slots:
@@ -330,6 +330,9 @@ func _make_human(slot: PlayerSlot, input: KartInput) -> void:
 	slot.bot_trait = null
 	if slot.player_name.is_empty():
 		slot.player_name = _name_for(slot.index, input)
+	# In their own dress rather than the one the seat was left in, GAME.md 4.4: a bot drives the
+	# kart as it comes, and whoever left the seat took theirs with them.
+	StyleStalls.dress(slot, _style_for(slot.index, input).to_array())
 	slot.kart.rebuild_stats()
 	slot.kart.enable_sound(true, not slot.is_local_human())
 	refresh_listener()
@@ -350,7 +353,8 @@ func _attach_brain(slot: PlayerSlot) -> void:
 ## funny list that nobody in the room is already using. Bots and practice dummies are left
 ## nameless here and named after what they are instead.
 func _name_for(index: int, input: KartInput) -> String:
-	var given := PlayerNames.clean(_names[index] if index < _names.size() else "")
+	var seat := _seat_for(index, input)
+	var given := PlayerNames.clean(_names[seat] if seat >= 0 and seat < _names.size() else "")
 	if not given.is_empty():
 		return given
 	if not (input is PlayerInput or input is NetInput):
@@ -362,8 +366,22 @@ func _name_for(index: int, input: KartInput) -> String:
 
 
 ## How a seat dressed its kart, GAME.md 4.4, or the plain kart for a seat that said nothing.
-func _style_for(index: int) -> KartStyle:
-	return KartStyle.from_array(_styles[index] if index < _styles.size() else null)
+func _style_for(index: int, input: KartInput) -> KartStyle:
+	var seat := _seat_for(index, input)
+	return KartStyle.from_array(_styles[seat] if seat >= 0 and seat < _styles.size() else null)
+
+
+## Which seat's name and dress [param input] in [param index] takes, GAME.md 3.8 and 4.4: a player
+## here the seat of the settings they sat down in, and a player at another machine none, since
+## the seats here are this machine's own people's and they say their own. Anything else, a bot
+## or a player given no seat, goes by its slot.
+static func _seat_for(index: int, input: KartInput) -> int:
+	if input is NetInput:
+		return -1
+	var player := input as PlayerInput
+	if player != null and player.seat >= 0:
+		return player.seat
+	return index
 
 
 func _free_color(wanted := -1) -> int:

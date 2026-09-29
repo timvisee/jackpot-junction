@@ -2744,7 +2744,10 @@ in the colors, names and dress they had.
 
 Joining mid-match is allowed: a press on an unused device during a match adds
 the player. If a bot kart exists, the joiner takes it over and inherits its
-score, pot, jokers and item, so the match stays at 4 karts. Otherwise the joiner
+score, pot, jokers and item, so the match stays at 4 karts, in their own seat's
+name and dress rather than the kart as the bot drove it. A player from another
+machine takes no seat of this one's, since their name and dress are their own to
+say, see 10.3. Otherwise the joiner
 spawns fresh with an empty pot and 0 banked score. With 4 humans present nobody
 else can join. A player who leaves mid-match hands the kart back to a bot.
 
