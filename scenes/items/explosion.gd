@@ -82,6 +82,8 @@ func _build(tint: Color) -> void:
 	var torus := TorusMesh.new()
 	torus.inner_radius = 0.82
 	torus.outer_radius = 1.0
+	torus.rings = 32
+	torus.ring_segments = 6
 	_ring.mesh = torus
 	_ring_material = StandardMaterial3D.new()
 	_ring_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -101,6 +103,8 @@ func _build(tint: Color) -> void:
 	disc.top_radius = radius * 0.55
 	disc.bottom_radius = radius * 0.55
 	disc.height = 0.02
+	disc.radial_segments = 24
+	disc.rings = 1
 	scorch.mesh = disc
 	_scorch_material = StandardMaterial3D.new()
 	_scorch_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA

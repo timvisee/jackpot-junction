@@ -91,6 +91,8 @@ func _build() -> void:
 	var bulb := SphereMesh.new()
 	bulb.radius = 0.05
 	bulb.height = 0.1
+	bulb.radial_segments = 8
+	bulb.rings = 4
 	lamp.mesh = bulb
 	_lamp = StandardMaterial3D.new()
 	_lamp.emission_enabled = true

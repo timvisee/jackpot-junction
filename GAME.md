@@ -4440,6 +4440,15 @@ with the numbers that put them there.
   for pieces that share a material, an item box's straps and its five brands.
   The visible pass went from 381 draw calls to 271, the shadow pass from 238 to
   147, and the distinct materials in a frame from 234 to 146.
+- **A primitive is cut to what its size shows.** `SphereMesh` comes at sixty-four
+  segments by thirty-two rings, `TorusMesh` at sixty-four by thirty-two,
+  `CylinderMesh` at sixty-four by four: four thousand triangles for a bullet, an
+  aim dot, a bomb, a bulb, a marker on a roof. The rule is a segment count set
+  wherever one of these is made: six or eight round a spark, a dot or a bullet,
+  twelve round a bulb or a turret's head, sixteen round a bomb or a shield,
+  twenty-four round a disc, and six or eight round the tube of any torus. A shot
+  also builds nothing: bullets share their meshes by radius and their materials by
+  color. Four aim guides went from 16,900 triangles to 320.
 
 ## 11. Roadmap
 

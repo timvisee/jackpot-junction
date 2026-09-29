@@ -105,6 +105,8 @@ func _build_visuals() -> void:
 		disc.top_radius = 0.55 - 0.17 * i
 		disc.bottom_radius = disc.top_radius
 		disc.height = 0.06 if i == 0 else 0.03
+		disc.radial_segments = 24
+		disc.rings = 1
 		ring.mesh = disc
 		var material := StandardMaterial3D.new()
 		material.albedo_color = RINGS[i]

@@ -19,6 +19,12 @@ const PLAYER_PULL := 0.4
 ## The ray every shot looks along to see whether a target is in the open, set up once and pointed
 ## again each time, as each bullet's own [member _ray] is.
 static var _sight := PhysicsRayQueryParameters3D.new()
+## What a bullet is drawn with, by its radius and its color, shared by every bullet, GAME.md
+## 10.7: a shot builds nothing, and a ball of eight segments is all a bullet ever shows.
+static var _cores: Dictionary[float, SphereMesh] = {}
+static var _cones: Dictionary[float, CylinderMesh] = {}
+static var _glows: Dictionary[Color, StandardMaterial3D] = {}
+static var _trails: Dictionary[Color, StandardMaterial3D] = {}
 
 var owner_slot := -1
 ## Fired by the owner's turret rather than by the owner's kart, for the kill feed to say so,
@@ -373,34 +379,62 @@ func _orient() -> void:
 
 
 func _build_visuals() -> void:
-	var material := StandardMaterial3D.new()
-	material.albedo_color = color
-	material.emission_enabled = true
-	material.emission = color
-	material.emission_energy_multiplier = 2.0
-	var sphere := SphereMesh.new()
-	sphere.radius = radius
-	sphere.height = radius * 2.0
 	var core := MeshInstance3D.new()
 	core.name = "Core"
-	core.mesh = sphere
-	core.material_override = material
+	core.mesh = _core_mesh(radius)
+	core.material_override = _glow(color)
 	core.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(core)
-	var trail_material := StandardMaterial3D.new()
-	trail_material.albedo_color = Color(color.r, color.g, color.b, 0.45)
-	trail_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	trail_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	var cone := CylinderMesh.new()
-	cone.top_radius = radius * 0.8
-	cone.bottom_radius = 0.01
-	cone.height = 1.0
 	var trail := MeshInstance3D.new()
 	trail.name = "Trail"
-	trail.mesh = cone
-	trail.material_override = trail_material
+	trail.mesh = _cone_mesh(radius)
+	trail.material_override = _trail(color)
 	trail.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	# The cylinder's axis is Y; lay it along +Z, which is behind the bullet after look_at.
 	trail.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
 	trail.position = Vector3(0.0, 0.0, 0.5)
 	add_child(trail)
+
+
+static func _core_mesh(size: float) -> SphereMesh:
+	if not _cores.has(size):
+		var sphere := SphereMesh.new()
+		sphere.radius = size
+		sphere.height = size * 2.0
+		sphere.radial_segments = 8
+		sphere.rings = 4
+		_cores[size] = sphere
+	return _cores[size]
+
+
+static func _cone_mesh(size: float) -> CylinderMesh:
+	if not _cones.has(size):
+		var cone := CylinderMesh.new()
+		cone.top_radius = size * 0.8
+		cone.bottom_radius = 0.01
+		cone.height = 1.0
+		cone.radial_segments = 8
+		cone.rings = 1
+		_cones[size] = cone
+	return _cones[size]
+
+
+static func _glow(tint: Color) -> StandardMaterial3D:
+	if not _glows.has(tint):
+		var material := StandardMaterial3D.new()
+		material.albedo_color = tint
+		material.emission_enabled = true
+		material.emission = tint
+		material.emission_energy_multiplier = 2.0
+		_glows[tint] = material
+	return _glows[tint]
+
+
+static func _trail(tint: Color) -> StandardMaterial3D:
+	if not _trails.has(tint):
+		var material := StandardMaterial3D.new()
+		material.albedo_color = Color(tint.r, tint.g, tint.b, 0.45)
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_trails[tint] = material
+	return _trails[tint]

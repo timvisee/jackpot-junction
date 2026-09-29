@@ -57,6 +57,9 @@ func _build() -> void:
 	var torus := TorusMesh.new()
 	torus.inner_radius = 1.0 - THICKNESS
 	torus.outer_radius = 1.0
+	# A thin glowing band, gone in a second: coarse round its tube, GAME.md 10.7.
+	torus.rings = 32
+	torus.ring_segments = 6
 	_ring.mesh = torus
 	_ring_material = _glow(0.85)
 	_ring.material_override = _ring_material
@@ -68,6 +71,8 @@ func _build() -> void:
 	cylinder.top_radius = COLUMN_RADIUS * 0.6
 	cylinder.bottom_radius = COLUMN_RADIUS
 	cylinder.height = COLUMN_HEIGHT
+	cylinder.radial_segments = 24
+	cylinder.rings = 1
 	_column.mesh = cylinder
 	_column_material = _glow(0.5)
 	_column.material_override = _column_material

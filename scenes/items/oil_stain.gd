@@ -105,6 +105,8 @@ func _build_visuals() -> void:
 		mesh.top_radius = RADIUS * sizes[i]
 		mesh.bottom_radius = mesh.top_radius
 		mesh.height = 0.02
+		mesh.radial_segments = 24
+		mesh.rings = 1
 		blob.mesh = mesh
 		blob.material_override = _material
 		blob.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -115,6 +117,8 @@ func _build_visuals() -> void:
 	sheen_mesh.top_radius = RADIUS * 0.34
 	sheen_mesh.bottom_radius = sheen_mesh.top_radius
 	sheen_mesh.height = 0.02
+	sheen_mesh.radial_segments = 24
+	sheen_mesh.rings = 1
 	sheen.mesh = sheen_mesh
 	var sheen_material := StandardMaterial3D.new()
 	sheen_material.albedo_color = Color(0.45, 0.4, 0.6, 0.35)

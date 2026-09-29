@@ -23,6 +23,10 @@ below, and hands the notes to the release workflow.
   type and colors only when something changed, where they were restyling every row every frame.
 - **Chips and item boxes draw as one thing.** A chip was eight meshes with eight materials of
   its own; every chip of a kind now shares one, and a box's straps and brands are one mesh each.
+- **Fewer triangles in the small things.** Bullets, aim dots, roof markers, crowns, bombs,
+  turrets, oil stains and rings were built at a sphere's full sixty-four segments; they are cut
+  to what their size shows, and every bullet shares its meshes and materials rather than building
+  its own per shot.
 
 ## [0.10.0] - 2026-09-29
 

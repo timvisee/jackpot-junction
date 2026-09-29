@@ -17,6 +17,8 @@ func _build_visual(parent: Node3D) -> void:
 	var dot_mesh := SphereMesh.new()
 	dot_mesh.radius = 0.07
 	dot_mesh.height = 0.14
+	dot_mesh.radial_segments = 8
+	dot_mesh.rings = 4
 	dot.mesh = dot_mesh
 	dot.material_override = _paint(Color(0.1, 0.1, 0.12))
 	dot.position = Vector3(0.0, 0.3, 0.0)

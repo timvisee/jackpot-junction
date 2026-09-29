@@ -187,6 +187,10 @@ static func build_attachments(kart: Kart) -> Dictionary:
 	var torus := TorusMesh.new()
 	torus.inner_radius = 0.9
 	torus.outer_radius = 1.0
+	# Thin rings and small trinkets are cut coarse, GAME.md 10.7: a torus comes with four
+	# thousand triangles and a ring the width of a finger shows none of them.
+	torus.rings = 32
+	torus.ring_segments = 6
 	ring.mesh = torus
 	var ring_material := StandardMaterial3D.new()
 	ring_material.albedo_color = Palette.NEON_CYAN
@@ -200,6 +204,8 @@ static func build_attachments(kart: Kart) -> Dictionary:
 	var bubble := SphereMesh.new()
 	bubble.radius = 1.25
 	bubble.height = 2.5
+	bubble.radial_segments = 16
+	bubble.rings = 8
 	shield.mesh = bubble
 	var bubble_material := StandardMaterial3D.new()
 	bubble_material.albedo_color = Color(0.2, 0.8, 1.0, 0.3)
@@ -257,9 +263,12 @@ static func roof_marker(slot: int, color_index: int) -> MeshInstance3D:
 		CapsuleMesh.new()
 	]
 	var mesh: Mesh = shapes[posmod(slot, shapes.size())]
+	# Each a hand's width across, seen from the far end of the room: a dozen segments round.
 	if mesh is SphereMesh:
 		(mesh as SphereMesh).radius = 0.16
 		(mesh as SphereMesh).height = 0.32
+		(mesh as SphereMesh).radial_segments = 12
+		(mesh as SphereMesh).rings = 6
 	elif mesh is BoxMesh:
 		(mesh as BoxMesh).size = Vector3.ONE * 0.28
 	elif mesh is PrismMesh:
@@ -267,13 +276,19 @@ static func roof_marker(slot: int, color_index: int) -> MeshInstance3D:
 	elif mesh is TorusMesh:
 		(mesh as TorusMesh).inner_radius = 0.08
 		(mesh as TorusMesh).outer_radius = 0.18
+		(mesh as TorusMesh).rings = 16
+		(mesh as TorusMesh).ring_segments = 8
 	elif mesh is CylinderMesh:
 		(mesh as CylinderMesh).top_radius = 0.14
 		(mesh as CylinderMesh).bottom_radius = 0.14
 		(mesh as CylinderMesh).height = 0.26
+		(mesh as CylinderMesh).radial_segments = 16
+		(mesh as CylinderMesh).rings = 1
 	elif mesh is CapsuleMesh:
 		(mesh as CapsuleMesh).radius = 0.11
 		(mesh as CapsuleMesh).height = 0.36
+		(mesh as CapsuleMesh).radial_segments = 8
+		(mesh as CapsuleMesh).rings = 4
 	marker.mesh = mesh
 	var material := StandardMaterial3D.new()
 	material.albedo_color = Palette.player_color(color_index)
@@ -299,6 +314,8 @@ static func bounty_crown() -> Node3D:
 	var torus := TorusMesh.new()
 	torus.inner_radius = 0.26
 	torus.outer_radius = 0.38
+	torus.rings = 16
+	torus.ring_segments = 6
 	band.mesh = torus
 	band.material_override = gold
 	band.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -309,6 +326,8 @@ static func bounty_crown() -> Node3D:
 		cone.top_radius = 0.0
 		cone.bottom_radius = 0.07
 		cone.height = 0.24
+		cone.radial_segments = 6
+		cone.rings = 1
 		spike.mesh = cone
 		spike.material_override = gold
 		spike.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

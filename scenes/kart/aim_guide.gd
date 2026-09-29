@@ -28,6 +28,9 @@ func _build(color: Color) -> void:
 	var mesh := SphereMesh.new()
 	mesh.radius = RADIUS
 	mesh.height = RADIUS * 2.0
+	# A dot a few pixels across: eight segments round it, GAME.md 10.7.
+	mesh.radial_segments = 8
+	mesh.rings = 4
 	for i: int in DOTS:
 		var dot := MeshInstance3D.new()
 		dot.mesh = mesh

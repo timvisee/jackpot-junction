@@ -255,6 +255,8 @@ func _build_signals() -> void:
 	pole_mesh.top_radius = 0.05
 	pole_mesh.bottom_radius = 0.05
 	pole_mesh.height = 1.4
+	pole_mesh.radial_segments = 8
+	pole_mesh.rings = 1
 	pole.mesh = pole_mesh
 	var pole_material := StandardMaterial3D.new()
 	pole_material.albedo_color = Color(0.2, 0.2, 0.22)

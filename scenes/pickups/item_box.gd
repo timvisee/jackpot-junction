@@ -58,6 +58,8 @@ func _build_visual(parent: Node3D) -> void:
 	beam_mesh.top_radius = 0.04
 	beam_mesh.bottom_radius = 0.28
 	beam_mesh.height = 2.6
+	beam_mesh.radial_segments = 16
+	beam_mesh.rings = 1
 	beam.mesh = beam_mesh
 	var beam_material := StandardMaterial3D.new()
 	beam_material.albedo_color = Color(color.r, color.g, color.b, 0.22)

@@ -34,6 +34,8 @@ func _build(count: int, color: Color) -> void:
 	mesh.top_radius = 0.22
 	mesh.bottom_radius = 0.22
 	mesh.height = 0.08
+	mesh.radial_segments = 12
+	mesh.rings = 1
 	for i: int in count:
 		var chip := MeshInstance3D.new()
 		chip.mesh = mesh

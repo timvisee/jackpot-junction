@@ -126,6 +126,8 @@ func _build_visuals() -> void:
 	var head_mesh := SphereMesh.new()
 	head_mesh.radius = 0.3
 	head_mesh.height = 0.6
+	head_mesh.radial_segments = 12
+	head_mesh.rings = 6
 	head.mesh = head_mesh
 	head.material_override = tint
 	head.position = Vector3(0.0, 0.55, 0.0)
@@ -135,6 +137,8 @@ func _build_visuals() -> void:
 	barrel_mesh.top_radius = 0.08
 	barrel_mesh.bottom_radius = 0.08
 	barrel_mesh.height = 0.7
+	barrel_mesh.radial_segments = 10
+	barrel_mesh.rings = 1
 	_barrel.mesh = barrel_mesh
 	_barrel.material_override = dark
 	_barrel.rotation_degrees = Vector3(90.0, 0.0, 0.0)

@@ -159,6 +159,9 @@ func _build_visuals() -> void:
 	var sphere := SphereMesh.new()
 	sphere.radius = BODY_RADIUS
 	sphere.height = BODY_RADIUS * 2.0
+	# A ball the size of a hand, cut at sixteen segments rather than sixty-four, GAME.md 10.7.
+	sphere.radial_segments = 16
+	sphere.rings = 8
 	body.mesh = sphere
 	body.material_override = dark
 	body.position = Vector3(0.0, BODY_RADIUS, 0.0)
@@ -167,6 +170,8 @@ func _build_visuals() -> void:
 	var band_mesh := TorusMesh.new()
 	band_mesh.inner_radius = BODY_RADIUS - 0.02
 	band_mesh.outer_radius = BODY_RADIUS + 0.03
+	band_mesh.rings = 24
+	band_mesh.ring_segments = 6
 	band.mesh = band_mesh
 	var tint := StandardMaterial3D.new()
 	tint.albedo_color = color
@@ -181,6 +186,8 @@ func _build_visuals() -> void:
 	cap_mesh.top_radius = 0.09
 	cap_mesh.bottom_radius = 0.09
 	cap_mesh.height = 0.12
+	cap_mesh.radial_segments = 12
+	cap_mesh.rings = 1
 	cap.mesh = cap_mesh
 	cap.material_override = dark
 	cap.position = Vector3(0.0, BODY_RADIUS * 2.0, 0.0)
@@ -189,6 +196,8 @@ func _build_visuals() -> void:
 	var light_mesh := SphereMesh.new()
 	light_mesh.radius = 0.07
 	light_mesh.height = 0.14
+	light_mesh.radial_segments = 8
+	light_mesh.rings = 4
 	_fuse_light.mesh = light_mesh
 	var glow := StandardMaterial3D.new()
 	glow.albedo_color = Color(1.0, 0.25, 0.2)
