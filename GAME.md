@@ -2216,6 +2216,13 @@ movement: the one thing a corner block must not do is ask to be looked at.
   picker and the start-of-match hint follow the same rule, so a player who picks
   up a pad mid-match sees gamepad buttons everywhere.
 - **Match timer** at the top center, turning red during Last Call.
+- **Item beside the kart**: a player on this screen who picks an item up sees it
+  beside their kart as well as in their corner, small, on a dark chip level with
+  the kart and clear of the hints over it: it turns through the items the way the
+  roulette in the corner does while the box is opening, settles on the one they
+  got, holds a moment and fades slowly, the corner going on saying what they hold.
+  Used, it goes at once. The eyes are on the kart as it drives through the box, not
+  on the corner of the screen. Nobody else's pickup puts one up.
 - **Royal Flush tally** under the timer, while a player at this screen holds a
   Royal Flush pad, see 3.9: a block for each of the pads, one in its holder's
   color for every pad held and an outline for every pad nobody holds, this

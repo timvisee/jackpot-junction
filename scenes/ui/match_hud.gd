@@ -161,6 +161,7 @@ func _ready() -> void:
 	_start_wait = StartWait.add_to(self, match_node)
 	_pot_split = PotSplit.attach(self)
 	BankStream.add_to(self)
+	ItemTag.add_to(self)
 	Events.kart_corrected.connect(_on_corrected)
 	Events.grazed.connect(_on_grazed)
 	Events.mult_gained.connect(_on_mult_gained)

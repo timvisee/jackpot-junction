@@ -112,3 +112,25 @@ func test_only_this_screens_players_throw_their_loss_away() -> void:
 	assert_int(split._words.size()).is_equal(1)
 	assert_int(split.z_index).is_less(0)
 	assert_int(split._front.z_index + split.z_index).is_greater(0)
+
+
+## GAME.md 8.3: a player on this screen picking an item up sees it beside their kart, turning like
+## the roulette in their corner and then settled, until it fades; used, it goes at once. A bot's
+## pickup puts nothing up.
+func test_a_picked_item_is_shown_beside_the_kart() -> void:
+	var match_node := await _ready_match()
+	var tag: ItemTag = match_node.hud.get_node("ItemTag")
+	var boost: PowerUp = load("res://data/powerups/boost.tres")
+	match_node.kart_of(1).hold_item(boost, 0.5)
+	assert_bool(tag._tags.has(1)).is_false()
+	var kart := match_node.kart_of(0)
+	kart.hold_item(boost, 0.5)
+	assert_bool(tag._tags.has(0)).is_true()
+	await _runner.simulate_frames(40, 17)
+	assert_bool(tag._tags.has(0)).is_true()
+	await _runner.simulate_frames(120, 17)
+	assert_bool(tag._tags.has(0)).is_false()
+	kart.hold_item(boost, 0.0)
+	assert_bool(tag._tags.has(0)).is_true()
+	kart.use_item()
+	assert_bool(tag._tags.has(0)).is_false()
