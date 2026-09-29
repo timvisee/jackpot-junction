@@ -12,6 +12,8 @@ func _start_match() -> Match:
 	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
 	rules.countdown = 0.1
 	rules.duration = 300.0
+	# Out of reach of the scores these tests hand out, which are leads, not wins.
+	rules.target_score = 100000
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = rules
 	match_node.with_hud = false

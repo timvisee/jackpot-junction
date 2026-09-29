@@ -171,6 +171,14 @@ func _step_channel(kart: Kart, channel: Dictionary, delta: float) -> void:
 		_channels[kart.get_instance_id()] = _new_channel()
 
 
+## Whether [param kart] is in the middle of a cash-out here, with some of its pot still to go in.
+func is_banking(kart: Kart) -> bool:
+	var channel: Dictionary = _channels.get(kart.get_instance_id(), {})
+	return (
+		not channel.is_empty() and float(channel["start_value"]) > 0.0 and not kart.pot.is_empty()
+	)
+
+
 ## Patches a wounded kart up, unless the pad has given this one a life too recently to have
 ## another ready, GAME.md 3.4.
 func _patch_up(kart: Kart) -> void:

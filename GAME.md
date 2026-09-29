@@ -61,7 +61,11 @@ On death:
 2. During the respawn delay you pick 1 of 3 jokers, or skip.
 3. You respawn far from enemies with 2 s of protection.
 
-A match lasts 5 minutes or until someone banks the target score. The final 30 s
+A match lasts 5 minutes or until someone banks the target score. A cash-out that
+crosses the target runs to its last coin first, so its player collects the whole
+pot rather than whatever was in it at the moment it went over; the match carries
+on round them meanwhile, and ends the moment that cash-out is done or stops, the
+kart driven off the Junction or killed on it. The final 30 s
 are Last Call: the Junction pays double. When the timer ends, a pot still being
 carried banks what a death would bank of it, unless the match plays on for the
 last one standing, see 3.13. The highest banked score wins, counted once the
@@ -668,8 +672,9 @@ to take it to the Junction, as the whistle came with no warning but the clock,
 and a pot carried to the end was still played for. With Last one standing nothing
 banks at the clock: the match plays on, and the last kart standing takes the lot.
 Either way the places, the winner's lap of honor and a Grand Prix's points are
-counted once the last of it is in. A match won by reaching the target ends there,
-and banks nothing more: the target was the finish line.
+counted once the last of it is in. A match won by reaching the target ends once
+the cash-out that reached it is done, and banks nothing more after that: the
+target was the finish line.
 
 ## 4. Kart
 

@@ -137,3 +137,52 @@ func test_a_client_sees_the_same_kart_lay_gold() -> void:
 	TireMarks.gild(client)
 	assert_bool(client.slots[1].kart.tire_marks.gold).is_true()
 	assert_bool(client.slots[0].kart.tire_marks.gold).is_false()
+
+
+## GAME.md 3.4: a cash-out that crosses the target runs to its last coin before the match ends, so
+## its player collects all of it; driven off the Junction part way, the match ends there and then.
+func test_the_cash_out_that_wins_is_let_finish() -> void:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = _rules()
+	match_node.rules.target_score = 300
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	var runner := scene_runner(match_node)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	match_node.start(inputs, 5)
+	await runner.simulate_frames(20, 17)
+	var slot := match_node.slots[0]
+	var kart := slot.kart
+	slot.banked = 250
+	kart.pot.add_coins(400)
+	kart.global_position = match_node.arena.junction_position
+	var crossed := func() -> bool: return slot.banked >= 300
+	for i: int in 600:
+		await runner.simulate_frames(1, 17)
+		if crossed.call():
+			break
+	assert_bool(crossed.call()).override_failure_message("never crossed").is_true()
+	assert_int(match_node.state).is_not_equal(Match.State.RESULTS)
+	for i: int in 1200:
+		await runner.simulate_frames(1, 17)
+		if match_node.state == Match.State.RESULTS:
+			break
+	assert_int(match_node.state).is_equal(Match.State.RESULTS)
+	assert_int(slot.banked).is_equal(650)
+	# A second match: crossing, then driven off the pad with some of the pot still in it.
+	match_node.rematch()
+	await runner.simulate_frames(20, 17)
+	slot = match_node.slots[0]
+	kart = slot.kart
+	slot.banked = 250
+	kart.pot.add_coins(400)
+	kart.global_position = match_node.arena.junction_position
+	for i: int in 600:
+		await runner.simulate_frames(1, 17)
+		if slot.banked >= 300:
+			break
+	assert_int(match_node.state).is_not_equal(Match.State.RESULTS)
+	kart.global_position = match_node.arena.junction_position + Vector3(0.0, 0.0, 9.0)
+	await runner.simulate_frames(4, 17)
+	assert_int(match_node.state).is_equal(Match.State.RESULTS)
+	assert_int(slot.banked).is_less(650)

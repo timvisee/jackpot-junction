@@ -674,8 +674,10 @@ func _physics_process(delta: float) -> void:
 			bot_mirror.update(self)
 			Bounty.step(self, delta)
 			_step_flush_income(delta)
-			if JokerTick.step(slots, delta):
-				check_target()
+			JokerTick.step(slots, delta)
+			# Every tick rather than only when something banks, for a winner whose cash-out it
+			# was waiting on to stop, see [method check_target].
+			check_target()
 			MatchHeat.step(self, delta)
 			if arena.junction != null:
 				arena.junction.hint = junction_hint()
@@ -787,11 +789,20 @@ func _step_respawns(delta: float, coming_back := true) -> void:
 			_respawn(slot)
 
 
+## Ends the match once somebody has banked the target, GAME.md 3.4. A cash-out that crossed the
+## line is let run to its last coin first, so the player who won it collects all of it rather than
+## losing whatever was still in the pot at the moment it went over; the match carries on round
+## them meanwhile, and ends the moment that cash-out is done or stops.
 func check_target() -> void:
+	var reached := false
 	for slot: PlayerSlot in slots:
-		if slot.banked >= rules.target_score:
-			_finish()
+		if slot.banked < rules.target_score:
+			continue
+		reached = true
+		if slot.kart != null and arena.junction != null and arena.junction.is_banking(slot.kart):
 			return
+	if reached:
+		_finish()
 
 
 ## The death sequence, GAME.md 3.6. All of it lives in [KartDeath]: it is the longest single
