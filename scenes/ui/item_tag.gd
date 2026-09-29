@@ -6,6 +6,10 @@ extends Control
 ## what they hold. Once it can be used, the button that uses it sits on the chip's corner, drawn
 ## for the keys or the pad the player is on. Used, it goes at once. The eyes are on the kart when
 ## it drives through a box, not on the corner of the screen.
+##
+## And again while a player holding one drives up to another box: a box they cannot take, since
+## the slot is full, which they drove straight through wondering why. The item they hold comes up
+## beside the kart the nearer they get, and goes again as they leave the box behind.
 
 ## How big the picture is, the chip it sits on, how far to the side of the kart it hangs, level with
 ## it and clear of the hints over it, how long it stays once settled and how long it takes to fade.
@@ -17,6 +21,11 @@ const FADE := 1.2
 ## How long after the pickup a kart holding nothing still has its tag waiting for the item: on a
 ## client the word of the pickup can come a tick ahead of the snapshot that puts it in the kart.
 const GRACE := 0.4
+## How near another box the item held comes up, in meters, from nothing at the first to all of it
+## at the second, and how fast it comes and goes, a share a second.
+const FAR := 6.0
+const NEAR := 2.0
+const EASE := 2.5
 const CHIP := Color(0.04, 0.04, 0.06, 0.75)
 ## The button that uses the item, on the chip's lower corner: its size and ink.
 const BUTTON_SIZE := 13
@@ -55,6 +64,8 @@ func _exit_tree() -> void:
 
 func _on_picked(slot: int, _item: StringName) -> void:
 	if slot < match_node.slots.size() and match_node.slots[slot].is_local_human():
+		# A fresh pickup takes over from whatever was up, button and all.
+		_drop(slot)
 		_tags[slot] = {"age": 0.0, "settled": 0.0}
 
 
@@ -80,13 +91,54 @@ func _process(delta: float) -> void:
 		if kart == null or (kart.held_item == null and tag["age"] > GRACE):
 			_drop(slot)
 			continue
-		if kart.held_item != null and kart.item_reveal_left <= 0.0:
+		if tag.has("near"):
+			var wanted := _nearness(kart) if kart.held_item != null else 0.0
+			tag["near"] = move_toward(float(tag["near"]), wanted, EASE * delta)
+			if tag["near"] <= 0.0 and wanted <= 0.0:
+				_drop(slot)
+				continue
+		elif kart.held_item != null and kart.item_reveal_left <= 0.0:
 			tag["settled"] += delta
 			if tag["settled"] >= HOLD + FADE:
 				_drop(slot)
 				continue
 		_place_button(slot, kart)
+	_remind()
 	queue_redraw()
+
+
+## The item held, brought up for a player on this screen who is nearing a box they cannot take.
+func _remind() -> void:
+	for slot: PlayerSlot in match_node.slots:
+		if _tags.has(slot.index) or not slot.is_local_human() or slot.kart == null:
+			continue
+		var kart := slot.kart
+		if kart.held_item == null or kart.item_reveal_left > 0.0 or _nearness(kart) <= 0.0:
+			continue
+		_tags[slot.index] = {"age": GRACE, "settled": 0.0, "near": 0.0}
+
+
+## How near [param kart] is to a box on the floor it cannot take for holding an item already: 0
+## out past [constant FAR], 1 within [constant NEAR].
+func _nearness(kart: Kart) -> float:
+	if match_node.arena == null:
+		return 0.0
+	var nearest := INF
+	for node: Node in match_node.arena.pickups.get_children():
+		var box := node as ItemBox
+		if box == null or box.is_queued_for_deletion():
+			continue
+		var gap := box.global_position - kart.global_position
+		nearest = minf(nearest, Vector2(gap.x, gap.z).length())
+	return clampf((FAR - nearest) / (FAR - NEAR), 0.0, 1.0)
+
+
+## How much of [param tag] shows: all of it until it has been settled a while and then less and
+## less, or as near as the box it is there for.
+static func _fade(tag: Dictionary) -> float:
+	if tag.has("near"):
+		return float(tag["near"])
+	return 1.0 - clampf((float(tag["settled"]) - HOLD) / FADE, 0.0, 1.0)
 
 
 ## The button that uses the item, on the chip's lower corner once the item is usable: made for the
@@ -111,7 +163,7 @@ func _place_button(slot: int, kart: Kart) -> void:
 		add_child(button)
 		tag["button"] = button
 		tag["keyboard"] = keyboard
-	var fade := 1.0 - clampf((float(tag["settled"]) - HOLD) / FADE, 0.0, 1.0)
+	var fade := _fade(tag)
 	button.size = button.get_combined_minimum_size()
 	button.position = box.grow(PAD).end - button.size * 0.6
 	button.modulate.a = fade
@@ -136,7 +188,7 @@ func _draw() -> void:
 		var box := _box(kart)
 		if kart.held_item == null or not box.has_area():
 			continue
-		var fade := 1.0 - clampf((float(_tags[slot]["settled"]) - HOLD) / FADE, 0.0, 1.0)
+		var fade := _fade(_tags[slot])
 		var chip := StyleBoxFlat.new()
 		chip.bg_color = Color(CHIP, CHIP.a * fade)
 		chip.set_corner_radius_all(6)

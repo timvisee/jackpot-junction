@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 ## share crumbling where the kart was.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const BOOST: PowerUp = preload("res://data/powerups/boost.tres")
 
 var _runner: GdUnitSceneRunner
 
@@ -120,7 +121,8 @@ func test_only_this_screens_players_throw_their_loss_away() -> void:
 func test_a_picked_item_is_shown_beside_the_kart() -> void:
 	var match_node := await _ready_match()
 	var tag: ItemTag = match_node.hud.get_node("ItemTag")
-	var boost: PowerUp = load("res://data/powerups/boost.tres")
+	_clear_the_boxes(match_node)
+	var boost := BOOST
 	match_node.kart_of(1).hold_item(boost, 0.5)
 	assert_bool(tag._tags.has(1)).is_false()
 	var kart := match_node.kart_of(0)
@@ -144,3 +146,38 @@ func test_a_picked_item_is_shown_beside_the_kart() -> void:
 	kart.use_item()
 	assert_bool(tag._tags.has(0)).is_false()
 	assert_bool(shown.is_queued_for_deletion()).is_true()
+
+
+## GAME.md 8.3: a player on this screen holding an item who drives up to a box they cannot take is
+## shown the item they hold, more of it the nearer they get, and it goes again as they leave.
+func test_the_item_held_comes_up_by_a_box_that_cannot_be_taken() -> void:
+	var match_node := await _ready_match()
+	var tag: ItemTag = match_node.hud.get_node("ItemTag")
+	_clear_the_boxes(match_node)
+	var kart := match_node.kart_of(0)
+	kart.hold_item(BOOST, 0.0)
+	# Past the tag the pickup put up.
+	await _runner.simulate_frames(150, 17)
+	assert_bool(tag._tags.has(0)).is_false()
+	var box := ItemBox.new()
+	box.table = match_node.power_ups
+	box.rng = match_node.rng
+	match_node.arena.pickups.add_child(box)
+	box.global_position = kart.global_position + Vector3(1.0, 0.0, 0.0)
+	await _runner.simulate_frames(40, 17)
+	assert_bool(tag._tags.has(0)).is_true()
+	assert_float(ItemTag._fade(tag._tags[0])).is_greater(0.5)
+	assert_object(kart.held_item).is_not_null()
+	box.global_position = kart.global_position + Vector3(20.0, 0.0, 0.0)
+	await _runner.simulate_frames(60, 17)
+	assert_bool(tag._tags.has(0)).is_false()
+
+
+## No boxes on the floor but the ones a test puts there: the arena's pads have theirs near the
+## spawns, which would bring the item held up by themselves, and put new ones out straight away.
+func _clear_the_boxes(match_node: Match) -> void:
+	for pad: PowerUpPad in match_node.arena.power_pads:
+		pad.rules = null
+	for node: Node in match_node.arena.pickups.get_children():
+		if node is ItemBox:
+			node.free()
