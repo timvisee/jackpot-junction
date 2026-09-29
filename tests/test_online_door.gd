@@ -85,6 +85,26 @@ func _wait_until(condition: Callable, max_millis: int) -> bool:
 	return condition.call()
 
 
+## Play Online at a LAN game, which hosts on the port a server would have, GAME.md 9.3a, is told it
+## found a game rather than a server, and nobody is seated for it.
+func test_play_online_at_a_lan_game_is_told_it_is_one() -> void:
+	_open_host()
+	var net: Node = auto_free(Node.new())
+	net.name = "Net"
+	_client_root.add_child(net)
+	var link: ServerLink = auto_free(ServerLink.new())
+	link.name = ServerLink.NAME
+	link.player_name = "Looking"
+	net.add_child(link)
+	var reasons: Array[String] = []
+	link.refused.connect(func(reason: String) -> void: reasons.append(reason))
+	assert_int(link.reach("127.0.0.1", port)).is_equal(OK)
+	var told := await _wait_until(func() -> bool: return not reasons.is_empty(), 4000)
+	assert_bool(told).override_failure_message("Play Online was never told").is_true()
+	assert_str(reasons[0]).is_equal("That is a game rather than a server: join it from Play LAN")
+	assert_int(_host_match.slots.size()).is_equal(2)
+
+
 ## Kicked: told why, disconnected, and the seat it had is a bot's again, since this is a match.
 func test_the_host_kicks_a_client_out_of_its_game() -> void:
 	_open_host()

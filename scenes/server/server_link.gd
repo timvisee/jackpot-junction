@@ -24,6 +24,9 @@ signal not_made(reason: String)
 
 ## Where it hangs under [Net], at both ends.
 const NAME := "Server"
+## What a knock asking for a server's list says it is, so that a game knocked at the same way, a
+## LAN game on the port a server would have, says it is a game rather than seating a list.
+const LISTING := "list"
 ## How long the two ends of a new connection have to agree on a version, in seconds.
 const HANDSHAKE_TIMEOUT := 5.0
 
@@ -114,7 +117,7 @@ func _on_connected() -> void:
 func _knock(peer: int) -> void:
 	if hall != null:
 		return
-	var words := {"version": version, "name": PlayerNames.clean(player_name)}
+	var words := {"version": version, "name": PlayerNames.clean(player_name), LISTING: true}
 	(multiplayer as SceneMultiplayer).send_auth(peer, var_to_bytes(words))
 
 
@@ -126,9 +129,13 @@ func _answer(peer: int, data: PackedByteArray) -> void:
 	var words: Dictionary = said if said is Dictionary else {}
 	var theirs := str(words.get("version", "?"))
 	if hall != null:
-		var playable := NetDoor.compatible(version, theirs)
-		scene.send_auth(peer, var_to_bytes({"version": version, "welcome": playable}))
-		hall.knocked(peer, PlayerNames.clean(str(words.get("name", ""))), theirs, playable)
+		# Knocked at from Play LAN, which hosts on the same port: told this is a server, see
+		# [method NetDoor.refusal], rather than let in to wait for a seat nobody here hands out.
+		var listing := bool(words.get(LISTING, false))
+		var playable := listing and NetDoor.compatible(version, theirs)
+		var answer := {"version": version, "welcome": playable, "server": not listing}
+		scene.send_auth(peer, var_to_bytes(answer))
+		hall.knocked(peer, PlayerNames.clean(str(words.get("name", ""))), theirs, playable, listing)
 		if playable:
 			scene.complete_auth(peer)
 		return
@@ -136,7 +143,10 @@ func _answer(peer: int, data: PackedByteArray) -> void:
 		scene.complete_auth(peer)
 		return
 	_turned_away = true
-	_give_up.call_deferred("Wrong version: the server has %s, you have %s" % [theirs, version])
+	var why := "Wrong version: the server has %s, you have %s" % [theirs, version]
+	if bool(words.get("game", false)):
+		why = "That is a game rather than a server: join it from Play LAN"
+	_give_up.call_deferred(why)
 
 
 func _give_up(reason: String) -> void:

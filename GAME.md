@@ -3205,6 +3205,10 @@ server and its port are kept, and connected to again as the screen comes up, so 
 one of its games is coming back to its list. Anybody in the game's lobby is told where friends
 find it, in Play Online at the server's address, in place of the line saying which port to join a
 LAN host on. A game that is over, or a player shown out, goes back to Play Online too, saying why.
+A server and a LAN game are both found on 7777, so each says which it is at the door: Play LAN
+knocking at a server is told it is a dedicated server whose games are in Play Online, and Play
+Online knocking at a LAN game, or at one of a server's games by its own port, that it is a game to
+join from Play LAN. Neither is let in to wait for something that never comes.
 
 **The server.** It is the game itself, started headless with `--server` after `--` on the command
 line: `./jackpot-junction.x86_64 --headless -- --server` from the Linux release, or `make server`

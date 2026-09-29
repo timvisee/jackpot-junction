@@ -125,10 +125,14 @@ func count() -> int:
 	return _games.size()
 
 
-## Somebody has knocked, [param named], on [param version], and was let in if [param welcome].
-func knocked(peer: int, named: String, version: String, welcome: bool) -> void:
+## Somebody has knocked, [param named], on [param version], and was let in if [param welcome]:
+## from Play Online, [param listing], or from Play LAN, which found a server where it looked for a
+## game.
+func knocked(peer: int, named: String, version: String, welcome: bool, listing := true) -> void:
 	_visitors[peer] = named if not named.is_empty() else "Somebody"
-	if not welcome:
+	if not listing:
+		_say("Turned away %s: came from Play LAN, looking for a game" % _visitor(peer))
+	elif not welcome:
 		_say("Turned away %s: version %s" % [_visitor(peer), version])
 
 

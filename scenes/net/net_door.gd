@@ -232,6 +232,9 @@ static func wants_password(version: String, words: Dictionary) -> bool:
 
 ## What a client with [param version] turned away with the host's [param words] is told.
 static func refusal(version: String, words: Dictionary) -> String:
+	# A dedicated server on the port a LAN game is hosted on, GAME.md 9.3a.
+	if bool(words.get("server", false)):
+		return "That is a dedicated server: find its games in Play Online"
 	var theirs := str(words.get("version", "?"))
 	if not compatible(version, theirs):
 		return "Wrong version: the host has %s, you have %s" % [theirs, version]

@@ -34,6 +34,12 @@ func answer(peer: int, data: PackedByteArray) -> void:
 	var said: Variant = bytes_to_var(data) if not data.is_empty() else null
 	var words: Dictionary = said if said is Dictionary else {}
 	if session.is_host:
+		if bool(words.get(ServerLink.LISTING, false)):
+			# Play Online, looking for a server's list at a game's port.
+			var named := PlayerNames.clean(str(words.get("name", "")))
+			session.door.turned_away.emit(named, "Came from Play Online, looking for a server")
+			scene.send_auth(peer, var_to_bytes({"version": session.version, "game": true}))
+			return
 		var match_node := session.match_node
 		var players := session._player_peers().size()
 		# Full is only known while there is a room to be full: between rooms nobody is refused.
