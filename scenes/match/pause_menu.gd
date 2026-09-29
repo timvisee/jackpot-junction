@@ -361,7 +361,7 @@ func set_paused(paused: bool) -> void:
 	else:
 		# The host closing its menu lets go of a pause it made everybody take.
 		if not paused:
-			session.force_pause(false)
+			session.host_controls.force_pause(false)
 		session.want_pause(paused)
 	if paused:
 		_resume.grab_focus()
@@ -382,7 +382,7 @@ func _buttons() -> Array[Button]:
 func _force_pause() -> void:
 	if session == null or not session.is_host:
 		return
-	session.force_pause(true)
+	session.host_controls.force_pause(true)
 	_resume.grab_focus()
 
 

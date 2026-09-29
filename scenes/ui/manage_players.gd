@@ -55,7 +55,7 @@ func _process(_delta: float) -> void:
 
 
 func _redraw() -> void:
-	var guests := session.guests() if session != null else []
+	var guests := session.host_controls.guests() if session != null else []
 	var mine := _mine()
 	var drawn := str(mine) + str(guests)
 	if drawn == _drawn:
@@ -113,6 +113,6 @@ func _row(guest: Dictionary) -> HBoxContainer:
 	kick.custom_minimum_size = KICK_SIZE
 	var peer: int = guest["peer"]
 	var seat: int = guest.get("seat", -1)
-	kick.pressed.connect(func() -> void: session.kick(peer, seat))
+	kick.pressed.connect(func() -> void: session.host_controls.kick(peer, seat))
 	row.add_child(kick)
 	return row

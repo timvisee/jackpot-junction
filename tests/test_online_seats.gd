@@ -111,7 +111,7 @@ func test_a_second_player_at_a_client_sits_down_drives_and_leaves() -> void:
 	assert_bool(hosted.input is NetInput).is_true()
 	var named := await _wait_until(func() -> bool: return hosted.player_name == "Second Seat", 4000)
 	assert_bool(named).override_failure_message("the second seat kept the host's name").is_true()
-	assert_int(_host.guests().size()).is_equal(2)
+	assert_int(_host.host_controls.guests().size()).is_equal(2)
 	# On the client: played here, with a corner and a kart of its own.
 	assert_bool(_client_match.is_local_seat(second.slot)).is_true()
 	var blocks := await _wait_until(
@@ -154,15 +154,15 @@ func test_the_host_refuses_a_seat_past_its_limit() -> void:
 func test_the_host_shows_out_one_of_two_players_at_a_client() -> void:
 	await _seated()
 	assert_bool(await _sit_another_down()).is_true()
-	var peer: int = _host.guests()[0]["peer"]
+	var peer: int = _host.host_controls.guests()[0]["peer"]
 	var index := _client.seats[1].slot
-	_host.kick(peer, 1)
+	_host.host_controls.kick(peer, 1)
 	var gone := await _wait_until(func() -> bool: return _client.seats.size() == 1, 4000)
 	assert_bool(gone).override_failure_message("the client kept the player").is_true()
 	assert_bool(_client_match.is_local_seat(index)).is_false()
 	assert_bool(_client.local_slot >= 0).is_true()
 	assert_bool(_host.anybody_connected()).is_true()
-	assert_int(_host.guests().size()).is_equal(1)
+	assert_int(_host.host_controls.guests().size()).is_equal(1)
 
 
 ## A player shown out before any snapshot has built their slot is no longer played here: the seat
@@ -197,7 +197,7 @@ func test_a_second_press_on_the_same_pad_asks_for_nothing_more() -> void:
 ## second one and leaving the first to nobody.
 func test_asking_again_for_a_seat_finds_the_one_it_has() -> void:
 	await _seated()
-	var peer: int = _host.guests()[0]["peer"]
+	var peer: int = _host.host_controls.guests()[0]["peer"]
 	var index := _client.local_slot
 	assert_int(_host._peer_slots.seated_in(_host_match, peer, 0)).is_equal(index)
 	var karts := _host_match.slots.size()

@@ -94,16 +94,18 @@ func test_the_host_kicks_a_client_out_of_its_game() -> void:
 	# Sat down, and by the name it gave: that follows the seat a moment later, and until it arrives
 	# the guest is listed under the one the host handed it.
 	var named := func() -> bool:
-		var guests := _host.guests()
+		var guests := _host.host_controls.guests()
 		return guests.size() == 1 and guests[0]["name"] == "Guest"
 	var seated := await _wait_until(named, 4000)
 	assert_bool(seated).override_failure_message("the client never sat down as Guest").is_true()
-	var guest: Dictionary = _host.guests()[0]
-	_host.kick(guest["peer"])
+	var guest: Dictionary = _host.host_controls.guests()[0]
+	_host.host_controls.kick(guest["peer"])
 	var gone := await _wait_until(func() -> bool: return not told[0].is_empty(), 4000)
 	assert_bool(gone).override_failure_message("the client was never told").is_true()
 	assert_str(told[0]).is_equal("The host removed you from the game")
-	var empty := await _wait_until(func() -> bool: return _host.guests().is_empty(), 4000)
+	var empty := await _wait_until(
+		func() -> bool: return _host.host_controls.guests().is_empty(), 4000
+	)
 	assert_bool(empty).is_true()
 	assert_bool(_host_match.slots[1].is_human()).is_false()
 
@@ -114,12 +116,14 @@ func test_a_watcher_is_named_and_can_be_kicked() -> void:
 	var watcher := _client(true, "Couch Kim")
 	var told := [""]
 	watcher.refused.connect(func(reason: String) -> void: told[0] = reason)
-	var seen := await _wait_until(func() -> bool: return _host.guests().size() == 1, 4000)
+	var seen := await _wait_until(
+		func() -> bool: return _host.host_controls.guests().size() == 1, 4000
+	)
 	assert_bool(seen).override_failure_message("the watcher never came in").is_true()
-	var guest: Dictionary = _host.guests()[0]
+	var guest: Dictionary = _host.host_controls.guests()[0]
 	assert_str(guest["name"]).is_equal("Couch Kim")
 	assert_bool(guest.has("color")).is_false()
-	_host.kick(guest["peer"])
+	_host.host_controls.kick(guest["peer"])
 	var gone := await _wait_until(func() -> bool: return not told[0].is_empty(), 4000)
 	assert_bool(gone).is_true()
 
@@ -141,7 +145,7 @@ func test_a_lobby_with_a_password_asks_for_it() -> void:
 	var right := _client(false, "Guest", "sesame")
 	var seated := await _wait_until(func() -> bool: return right.local_slot >= 0, 4000)
 	assert_bool(seated).override_failure_message("the right password was not let in").is_true()
-	assert_int(_host.guests().size()).is_equal(1)
+	assert_int(_host.host_controls.guests().size()).is_equal(1)
 
 
 ## However many seats the arena has, a lobby set to fewer players turns the next one away as full.
@@ -158,7 +162,9 @@ func test_a_lobby_turns_away_players_past_its_limit() -> void:
 	await await_idle_frame()
 	# Somebody watching takes no seat, and is let in all the same.
 	var watcher := _client(true, "Couch Kim")
-	var seen := await _wait_until(func() -> bool: return _host.guests().size() == 1, 4000)
+	var seen := await _wait_until(
+		func() -> bool: return _host.host_controls.guests().size() == 1, 4000
+	)
 	assert_bool(seen).is_true()
 	assert_bool(watcher.watching).is_true()
 
@@ -183,7 +189,9 @@ func test_a_watcher_may_come_in_without_the_password() -> void:
 	_host.door.watchers_need_password = false
 	assert_bool(_host.door.watchers_locked()).is_false()
 	var watcher := _client(true, "Couch Kim")
-	var seen := await _wait_until(func() -> bool: return _host.guests().size() == 1, 4000)
+	var seen := await _wait_until(
+		func() -> bool: return _host.host_controls.guests().size() == 1, 4000
+	)
 	assert_bool(seen).override_failure_message("the watcher was not let in").is_true()
 	# One client at a time: the two of them share this process's end of the wire.
 	watcher.queue_free()
@@ -246,11 +254,13 @@ func _name_a_watcher_and_go() -> void:
 func test_neither_end_throttles_the_snapshots() -> void:
 	_open_host()
 	var client := _client()
-	var seated := await _wait_until(func() -> bool: return _host.guests().size() == 1, 4000)
+	var seated := await _wait_until(
+		func() -> bool: return _host.host_controls.guests().size() == 1, 4000
+	)
 	assert_bool(seated).is_true()
 	var host_end := NetLag.enet(_host.multiplayer.multiplayer_peer)
 	var client_end := NetLag.enet(client.multiplayer.multiplayer_peer)
-	var peer: int = _host.guests()[0]["peer"]
+	var peer: int = _host.host_controls.guests()[0]["peer"]
 	for connection: ENetPacketPeer in [host_end.get_peer(peer), client_end.get_peer(1)]:
 		var down := connection.get_statistic(ENetPacketPeer.PEER_PACKET_THROTTLE_DECELERATION)
 		assert_float(down).is_equal(0.0)

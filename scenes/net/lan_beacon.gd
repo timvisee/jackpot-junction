@@ -60,7 +60,7 @@ func answer() -> Dictionary:
 			if slot.is_local_human() and host_name.is_empty():
 				host_name = slot.display_name()
 	var playing := NetDoor.locals(match_node)
-	for guest: Dictionary in session.guests():
+	for guest: Dictionary in session.host_controls.guests():
 		playing += 1 if guest.has("color") else 0
 	return {
 		"game": ANSWER,
