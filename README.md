@@ -73,6 +73,7 @@ make run ARGS="--touch=1 --ui-scale=1.5"  # the same at a phone's UI scale, savi
 make check      # import, lint, format check, changelog, unit tests, smoke runs, multiplayer
 make test       # unit tests only (gdUnit4, headless, a suite per process in parallel)
 make multiplayer  # a whole Grand Prix online (two games, up to two clients) and on one screen
+make server-check  # a game on a dedicated server, made, joined and watched by three clients
 make export     # release builds for Linux, Windows and macOS in build/
 make android    # a debug build for Android in build/android, see GAME.md 10.5
 make android-install  # that build, installed on the phone adb can see
@@ -162,6 +163,10 @@ From this checkout only. `tools/godot` finds Godot through `$GODOT` first.
 - `tools/multiplayer_driver.gd` is started by `tools/multiplayer_check`, with
   `--role`, `--port`, `--clients`, `--locals`, `--jokers`, `--password`,
   `--wrong-first` and `--nameless`.
+- `tools/server_check` takes none. `SVCHECK_PORT` picks the server's port and
+  `SVCHECK_LOGS=<dir>` keeps every process's whole log there, the server's among
+  them. It starts `tools/server_driver.gd` with `--role` (`maker`, `joiner` or
+  `watcher`) and `--port`.
 
 ### Godot's own
 

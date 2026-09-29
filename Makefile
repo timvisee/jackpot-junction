@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench bots multiplayer multiplayer-lag changelog check export android android-install android-release server
+.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench bots multiplayer multiplayer-lag server-check changelog check export android android-install android-release server
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -100,11 +100,16 @@ multiplayer: | $(CACHE)
 multiplayer-lag: | $(CACHE)
 	MPCHECK_PING=50 tools/multiplayer_check
 
+# A game on a dedicated server, GAME.md 9.3a, played through the real scenes: the server and three
+# clients of it as processes on this machine, making, joining and watching one. About half a minute.
+server-check: | $(CACHE)
+	tools/server_check
+
 # The changelog parses, and the version the game reports has notes to go with it.
 changelog:
 	tools/changelog
 
-check: import lint format-check changelog test smoke multiplayer multiplayer-lag
+check: import lint format-check changelog test smoke multiplayer multiplayer-lag server-check
 
 export: | $(CACHE)
 	mkdir -p build/linux build/windows build/macos
