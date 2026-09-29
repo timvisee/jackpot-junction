@@ -935,12 +935,7 @@ func _send_authority() -> void:
 			# own answer is the one that stands and there is nothing here to put right.
 			var host_drove := input.claimed_state().is_empty()
 			_receive_authority.rpc_id(
-				peer,
-				input.applied_seq,
-				KartPrediction.capture(slot.kart),
-				host_drove,
-				slot.kart.cannon.live_count(),
-				number
+				peer, input.applied_seq, KartPrediction.capture(slot.kart), host_drove, number
 			)
 
 
@@ -949,10 +944,10 @@ func _send_authority() -> void:
 ## interpolates the picture from one tick to the next, and a correction applied in the gap is
 ## drawn as a swerve through somewhere the kart never was. So it waits its turn.
 @rpc("authority", "call_remote", "unreliable")
-func _receive_authority(ack: int, state: Array, host_drove := true, live := 0, number := 0) -> void:
+func _receive_authority(ack: int, state: Array, host_drove := true, number := 0) -> void:
 	var each := _here.numbered(number)
 	if each != null:
-		each.hold(ack, state, host_drove, live)
+		each.hold(ack, state, host_drove)
 
 
 @rpc("authority", "call_remote", "reliable")

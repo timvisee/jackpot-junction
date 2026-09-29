@@ -70,3 +70,29 @@ func test_a_clear_muzzle_fires_normally() -> void:
 	await _runner.simulate_frames(3, 17)
 	input.fire = false
 	assert_int(match_node.bullets.live_count()).is_equal(1)
+
+
+## GAME.md 5.1: the limit on bullets in the air never refuses a shot; one past it takes the oldest
+## of the kart's own bullets out of the air to make room.
+func test_a_shot_past_the_limit_takes_out_the_oldest() -> void:
+	var input := KartInput.new()
+	var match_node := _start_match(input)
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	var cap := kart.cannon.current_stats().max_live_bullets
+	var fired: Array[Bullet] = []
+	for i: int in cap + 1:
+		kart.cannon.cooldown_left = 0.0
+		assert_bool(kart.cannon.can_fire()).is_true()
+		var shot := kart.cannon.fire(
+			match_node.bullets,
+			kart.slot,
+			kart.global_position + Vector3(0.0, 0.5, 0.0),
+			Vector3.FORWARD,
+			Color.WHITE
+		)
+		fired.append_array(shot)
+	assert_int(kart.cannon.live_count()).is_equal(cap)
+	assert_bool(fired[0].is_dead()).is_true()
+	for i: int in range(1, fired.size()):
+		assert_bool(fired[i].is_dead()).is_false()

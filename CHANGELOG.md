@@ -65,6 +65,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The bullet limit never refuses a shot.** Firing with three bullets already in the air takes
+  your oldest one out instead of doing nothing.
 - **The cash-out that wins runs to its last coin.** Reaching the target mid-cash-out no longer
   ends the match there; it ends once the whole pot is in, or the cash-out stops.
 - **Bots go after a player about to win.** Every bot hunts, rams and shoots whoever is one

@@ -1162,7 +1162,7 @@ short buzz the slider gives, so reading along the row is felt card by card.
 | Aim                            | Forward-only along the kart heading                |
 | Trigger                        | Holding fire shoots at the cooldown rate           |
 | Fire cooldown                  | 0.4 s                                              |
-| Max live bullets per kart      | 3                                                  |
+| Max live bullets per kart      | 3; a shot past it takes the oldest out of the air rather than being refused |
 | Bullet speed                   | 17 m/s, about 1.6 times kart top speed             |
 | Bullet radius                  | 0.15 m                                             |
 | Bounces                        | 0 by default, destroyed on wall contact; Rubber Bumpers and the Ricochet Cannon add one each |
@@ -4127,11 +4127,12 @@ real ones and a machine announcing both would say everything twice.
   one. The host's own word for that same shot is dropped on the way in, so it is
   not heard twice.
 
-  The cap on bullets in the air is the host's count, which is a round trip old, so
-  a client counts the shots it has pulled since against the same limit. That makes
-  it cautious: held down against a full sky it stops answering and waits, because a
-  shot promised and not delivered is worse than one that arrives late. Firing at a
-  sky with room in it, which is how anybody actually plays, is answered at once.
+  The cap on bullets in the air never holds the trigger back: a shot past it takes
+  the kart's oldest bullet out of the air on the host instead. So a client answers
+  every pull its cooldown allows, with nothing to count against a limit it could
+  only know a round trip late, and the host never has more of a kart's bullets up
+  than the cap. It used to refuse the shot, and a trigger that did nothing while
+  three bullets were still bouncing about read as a cannon that had jammed.
 
 Two more things follow that are worth stating. The kart is predicted, not the
 world, and the world includes the bullets in it. And prediction assumes the two machines run the same code over the same

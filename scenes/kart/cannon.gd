@@ -3,6 +3,10 @@ extends RefCounted
 ## Fires bullets for one kart: cooldown, live bullet limit and spread. The [BulletSystem] owns
 ## the bullets; the cannon only keeps track of which of its shots are still flying. A cannon
 ## power-up can override the stats for a number of trigger pulls.
+##
+## The limit on bullets in the air never refuses a shot, GAME.md 5.1: a shot past it takes the
+## oldest of this kart's bullets out of the air to make room. A trigger that did nothing for as
+## long as three bullets were still bouncing about read as a cannon that had jammed.
 
 var stats: CannonStats
 var cooldown_left := 0.0
@@ -34,7 +38,7 @@ func live_count() -> int:
 
 
 func can_fire() -> bool:
-	return cooldown_left <= 0.0 and live_count() < current_stats().max_live_bullets
+	return cooldown_left <= 0.0
 
 
 ## The stats in force: a cannon power-up's override while it has shots left, else the kart's own.
@@ -73,6 +77,11 @@ func fire(
 	var active := current_stats()
 	cooldown_left = active.fire_cooldown
 	var count := maxi(active.spread_count, 1)
+	# Room for this shot, made by taking the oldest bullets out of the air.
+	_prune()
+	while not _live.is_empty() and _live.size() + count > active.max_live_bullets:
+		var oldest: Bullet = _live.pop_front()
+		oldest.destroy()
 	var bullets: Array[Bullet] = []
 	for i: int in count:
 		var angle := 0.0

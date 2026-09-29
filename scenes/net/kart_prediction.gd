@@ -52,10 +52,6 @@ var snaps := 0
 ## How many times the host simply took this machine's word for a tick, which is what most of a
 ## match should look like.
 var accepted := 0
-## How many of this kart's bullets the host last said were in the air. The cap on those is a rule
-## worth keeping honest, GAME.md 5.1, and this machine cannot count them itself: it has no
-## bullets of its own.
-var host_live := 0
 ## How many times this machine has pulled the trigger for itself, for the tests and the overlay.
 var pulls := 0
 ## How far the kart on screen actually moved because of the last correction, and how far it
@@ -68,9 +64,6 @@ var worst_jump := 0.0
 
 ## One entry per predicted tick: its number, the controls used, and the state it left the kart in.
 var _history: Array[Dictionary] = []
-## The ticks on which this machine pulled the trigger and the host has not answered for yet.
-## Counted against the bullet cap alongside what the host last said was in the air.
-var _shots: Array[int] = []
 
 ## What is left of a correction being eased in: where the picture still is relative to where the
 ## simulation says the kart is, and the same for which way it is pointing. Corrections add to
@@ -189,11 +182,10 @@ func predict(with: KartInput, delta: float, at: int) -> void:
 ## the tick the button went down; the bullet comes from the host a round trip later, because
 ## whether it lives depends on a bullet fired by somebody this machine only sees where they were.
 ## Everything about pulling a trigger that a player can feel is in the first half.
-func _pull_trigger(with: KartInput, delta: float, at: int) -> void:
+func _pull_trigger(with: KartInput, delta: float, _at: int) -> void:
 	kart.cannon.step(delta)
-	if not with.fire or kart.protection_left > 0.0 or not _can_fire():
+	if not with.fire or kart.protection_left > 0.0 or kart.cannon.cooldown_left > 0.0:
 		return
-	_shots.append(at)
 	pulls += 1
 	kart.cannon.pull_dry()
 	# The hint that names the fire key comes down, the same as it would for anybody driving here.
@@ -201,14 +193,6 @@ func _pull_trigger(with: KartInput, delta: float, at: int) -> void:
 	# Heard here rather than waited for. The host's own word for this shot is thrown away on the
 	# way in, see NetSession, so it is not heard twice.
 	Events.bullet_fired.emit(kart.slot)
-
-
-## Whether there is a shot to be had: the cannon is ready, and this kart is under the limit on
-## bullets in the air once the ones the host has not heard about yet are counted.
-func _can_fire() -> bool:
-	if kart.cannon.cooldown_left > 0.0:
-		return false
-	return host_live + _shots.size() < kart.cannon.current_stats().max_live_bullets
 
 
 ## Takes this tick's share off whatever correction is still being walked in, and draws the kart
@@ -262,7 +246,6 @@ func reconcile(ack: int, state: Array, delta: float) -> void:
 	kart.global_position -= _ease
 	var mine := _state_at(ack)
 	_forget_through(ack)
-	_forget_shots(ack)
 	if not mine.is_empty() and _matches(mine, state):
 		# The two machines drove the same tick the same way, which is the ordinary case and the
 		# one worth being cheap about: nothing to replay, nothing to move, nothing to see.
@@ -336,7 +319,6 @@ func accept(ack: int) -> void:
 	last_turn = 0.0
 	accepted += 1
 	_forget_through(ack)
-	_forget_shots(ack)
 
 
 ## Gives the kart the physics of something being driven here: the walls and the crates, which
@@ -359,7 +341,6 @@ func take_the_wheel() -> void:
 ## of, and the ticks in the buffer are about to become history nobody will ask about.
 func suspend() -> void:
 	kart.predicted = false
-	_shots.clear()
 	_history.clear()
 	_ease = Vector3.ZERO
 	_ease_heading = 0.0
@@ -375,12 +356,6 @@ func resume() -> void:
 	_history.clear()
 	_ease = Vector3.ZERO
 	_ease_heading = 0.0
-
-
-## Shots the host has now answered for: whatever it said is in the air already counts them.
-func _forget_shots(ack: int) -> void:
-	while not _shots.is_empty() and _shots[0] <= ack:
-		_shots.pop_front()
 
 
 func _state_at(ack: int) -> Array:

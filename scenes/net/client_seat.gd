@@ -17,7 +17,7 @@ var player_name := ""
 var style := PackedInt32Array()
 var prediction: KartPrediction
 ## The host's latest word on this seat's kart, waiting for the physics step to act on it, see
-## [method NetSession._receive_authority]: [ack, state, whether the host drove it, live shots].
+## [method NetSession._receive_authority]: [ack, state, whether the host drove it].
 var authority: Array = []
 ## The number put on the next set of controls sent, see [method step].
 var seq := 0
@@ -108,9 +108,9 @@ func _step_offer(match_node: Match) -> void:
 
 ## Keeps the host's word on this kart for the physics step, only the newest: an older one describes
 ## a tick the newer has already answered for.
-func hold(ack: int, state: Array, host_drove: bool, live: int) -> void:
+func hold(ack: int, state: Array, host_drove: bool) -> void:
 	if authority.is_empty() or ack >= int(authority[0]):
-		authority = [ack, state, host_drove, live]
+		authority = [ack, state, host_drove]
 
 
 ## Acts on the host's word, in the physics step where a correction belongs.
@@ -118,7 +118,6 @@ func settle(delta: float) -> void:
 	if authority.is_empty():
 		return
 	if prediction != null and is_instance_valid(prediction.kart) and prediction.kart.predicted:
-		prediction.host_live = int(authority[3])
 		if bool(authority[2]):
 			prediction.reconcile(int(authority[0]), authority[1], delta)
 		else:

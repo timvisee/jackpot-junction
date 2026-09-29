@@ -153,14 +153,12 @@ func _on_tick() -> void:
 					"ack": host_input.applied_seq,
 					"state": KartPrediction.capture(_host.kart_of(0)),
 					"drove": host_input.claimed_state().is_empty(),
-					"live": _host.kart_of(0).cannon.live_count(),
 					"snapshot": _host.build_snapshot(),
 				}
 			)
 		)
 	for packet: Dictionary in _down.duplicate():
 		if packet["at"] <= _tick:
-			_prediction.host_live = int(packet["live"])
 			_snapshots += 1
 			_client.apply_snapshot(packet["snapshot"])
 			if packet["drove"]:
@@ -725,18 +723,18 @@ func test_the_trigger_answers_at_once_and_the_bullet_comes_from_the_host() -> vo
 	)
 
 
-## The cap on bullets in the air is a rule worth keeping honest, GAME.md 5.1, and a client cannot
-## count them itself: it has no bullets of its own. So the host says how many are up and this
-## machine counts the ones it has pulled since against the same limit, which makes it cautious:
-## held down against a full sky it stops answering and waits for the host, because the count it
-## is working from is a round trip old and a shot promised and not delivered is worse than one
-## that arrives late. Firing at a sky with room in it, which is how anybody actually plays, is
-## answered on the tick — that is the test above this one.
-func test_a_client_holds_itself_to_the_bullet_limit() -> void:
+## The cap on bullets in the air never holds the trigger back, GAME.md 5.1: a shot past it takes
+## the oldest out of the air instead. So a client firing into a full sky is answered on every pull
+## the cannon is ready for, no more than a round trip's worth ahead of the host, and the host never
+## has more of its bullets up than the cap.
+func test_a_client_fires_through_the_bullet_limit() -> void:
 	await _connect()
 	await _drive(20)
 	var cap := _prediction.kart.cannon.current_stats().max_live_bullets
 	assert_int(cap).is_greater(0)
+	# The bot across the table is stood down: shot dead part way, the kart would stop firing on
+	# the host while this wire, which has no seat to suspend the prediction, went on pulling.
+	_host.kart_of(1).input = KartInput.new()
 	# Counted on the prediction itself. Both matches share one Events, so listening for the shot
 	# would hear the host's as well and this is about what this machine decided on its own.
 	_input.fire = true
@@ -753,7 +751,8 @@ func test_a_client_holds_itself_to_the_bullet_limit() -> void:
 			% [pulled, host_pulls, most_up, cap]
 		)
 	)
-	assert_int(pulled).override_failure_message("the trigger did nothing").is_greater(3)
+	# Three seconds held down against a cooldown well under a second: far more shots than the cap.
+	assert_int(pulled).override_failure_message("held back at the cap").is_greater(cap * 2)
 	(
 		assert_int(most_up)
 		. override_failure_message(
@@ -761,10 +760,10 @@ func test_a_client_holds_itself_to_the_bullet_limit() -> void:
 		)
 		. is_less_equal(cap)
 	)
-	# Never ahead of the host by more than the shots it has not answered for yet. Past that a
-	# player would hear a cannon their kart is not firing, which is the one thing this must not do.
+	# Never ahead of the host by more than the shots a round trip holds: past that a player would
+	# hear a cannon their kart is not firing, which is the one thing this must not do.
 	(
 		assert_int(pulled)
 		. override_failure_message("%d pulled here against %d on the host" % [pulled, host_pulls])
-		. is_less_equal(host_pulls + cap)
+		. is_less_equal(host_pulls + 2)
 	)
