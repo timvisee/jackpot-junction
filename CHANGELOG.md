@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-09-29
+
+XL versions of every map, several players at one LAN client, and a pot about to win now burns in
+your corner and lays gold tracks behind your kart. It changes the LAN protocol, so it doesn't play
+with 0.8.x.
+
 ### Added
 
 - **A stacked joker shows how many you hold.** A joker such as Rubber Bumpers held more than once
@@ -113,7 +119,6 @@ below, and hands the notes to the release workflow.
   of the screen and on the board, in place of the number on the green plan line.
 - **The kill feed says when a turret made the kill.** "P1's turret shot P2" rather than
   "P1 shot P2".
-
 ## [0.8.2] - 2026-09-25
 
 Matches run much faster the longer they go, and the Video settings gain MSAA, shadows, an
@@ -1346,7 +1351,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.8.2...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.9.0
 [0.8.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.8.2
 [0.8.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.8.1
 [0.8.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.8.0
