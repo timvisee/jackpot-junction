@@ -5,11 +5,11 @@ extends Node
 ## of a real server, each a process of its own on this machine: nothing is shared between them
 ## but the server, so what each checks is what that machine really saw.
 ##
-## The maker makes a game from Play Online and chooses a quick match, the joiner joins it from the
-## list and the watcher watches it. Both players drive onto the pad, the match is played to its
-## whistle, and the maker takes everybody back to the lobby from the podium. The maker leaves,
-## the host's say passes to the joiner, the joiner leaves, and the watcher is told the game is
-## over and is back on Play Online. Every step prints a line starting SVCHECK, and a step that
+## The maker makes a game from Play Online and chooses a Grand Prix of two maps, the joiner joins it
+## from the list and the watcher watches it. Both players drive onto the pad, each map is played to
+## its whistle, and from the podiums the maker goes on to the second map and then takes everybody
+## back to the lobby. The maker leaves, the host's say passes to the joiner, the joiner leaves, and
+## the watcher is told the game is over and is back on Play Online. Every step prints a line starting SVCHECK, and a step that
 ## does not happen in time fails the run with the reason.
 
 const WAITING_SCENE := "res://scenes/waiting/waiting_room.tscn"
@@ -24,6 +24,9 @@ const SPOTS: Array[Vector3] = [
 	Vector3(1.3, 0.0, -1.3),
 	Vector3(-1.3, 0.0, 1.3)
 ]
+
+## How many maps the Grand Prix runs.
+const MAPS := 2
 
 var _role := ""
 var _port := 7990
@@ -86,15 +89,15 @@ func _maker() -> void:
 		return
 	_check(pane.on_lobby(), "Lobby settings first, as a host's are")
 	pane._lobby._back.pressed.emit()
-	pane.options.choose(false)
-	pane.options.map_option.selected = 0
+	pane.options.choose(true)
+	pane.options.maps_option.selected = MatchOptions.MAPS.find(MAPS)
 	pane.options.bots_option.selected = MatchOptions.BOTS.find(1)
 	pane.options.minutes_option.selected = MatchOptions.match_lengths().find(_length)
 	pane.options.overtime_option.selected = MatchOptions.OVERTIME.find(false)
 	pane.close()
 	var ready_room: ReadyRoom = room.ready_room
 	if not await _until(
-		func() -> bool: return ready_room._plan.text.begins_with("Next: "),
+		func() -> bool: return ready_room._plan.text.begins_with("Next: Grand Prix of %d" % MAPS),
 		10.0,
 		"the server told the room what the match is"
 	):
@@ -104,13 +107,28 @@ func _maker() -> void:
 		func() -> bool: return SeatLimit.players(match_node) == 2, 60.0, "the joiner sat down"
 	):
 		return
-	var arena := await _play(room)
-	if arena == null:
+	var first := await _play(room)
+	if first == null:
 		return
-	var podium: ResultsScreen = arena.match_node.hud._results
-	if not _check(podium._lobby.visible, "the podium offers Back to lobby to the maker"):
+	var podium: ResultsScreen = first.match_node.hud._results
+	if not _check(podium._next.visible, "the first podium offers Next map to the maker"):
 		return
 	_check(not podium._host_decides.visible, "and does not say the host decides")
+	podium._next.pressed.emit()
+	var second := await _podium_of(2)
+	if second == null:
+		return
+	podium = second.match_node.hud._results
+	if not await _until(podium._continue.is_visible_in_tree, 20.0, "the last podium goes on"):
+		return
+	podium._continue.pressed.emit()
+	# After the last map the finale in the room comes first, and the standings go up over it.
+	if not await _until(
+		func() -> bool: return podium.visible and podium._lobby.visible,
+		30.0,
+		"and after the finale the run's standings offer Back to lobby"
+	):
+		return
 	podium._lobby.pressed.emit()
 	var back := await _room()
 	if back == null:
@@ -143,12 +161,15 @@ func _joiner() -> void:
 		room.ready_room._online_hint.text.begins_with("Friends find this game in Play Online"),
 		"the lobby says where friends find the game"
 	)
-	var arena := await _play(room)
-	if arena == null:
+	var first := await _play(room)
+	if first == null:
 		return
-	var podium: ResultsScreen = arena.match_node.hud._results
-	_check(not podium._lobby.visible, "the podium offers the joiner no way on")
+	var podium: ResultsScreen = first.match_node.hud._results
+	_check(not podium._next.visible, "the first podium offers the joiner no way on")
 	_check(podium._host_decides.visible, "and says the host decides")
+	_check(podium._host_decides.text == "The host starts the next map.", "which is the next map")
+	if await _podium_of(2) == null:
+		return
 	var back := await _room()
 	if back == null:
 		return
@@ -255,7 +276,7 @@ func _room() -> Node:
 	return _scene() if up else null
 
 
-## Onto the pad, into the arena when the room goes, and through the match to its podium.
+## Onto the pad, into the arena when the room goes, and through the first map to its podium.
 func _play(room: Node) -> Node:
 	var match_node: Match = room.match_node
 	var session: NetSession = room.session
@@ -269,6 +290,11 @@ func _play(room: Node) -> Node:
 		"everybody on the pad took the room to the arena"
 	):
 		return null
+	return await _podium_of(1)
+
+
+## Map [param round] of the run up and this machine seated in it, played to its podium.
+func _podium_of(round: int) -> Node:
 	if not await _until(
 		func() -> bool:
 			var scene := _scene()
@@ -276,10 +302,11 @@ func _play(room: Node) -> Node:
 				scene != null
 				and scene.scene_file_path == MATCH_SCENE
 				and scene.match_node != null
+				and scene.match_node.rules.round == round
 				and scene.match_node.local_slot >= 0
 			),
 		60.0,
-		"seated in the arena"
+		"seated on map %d" % round
 	):
 		return null
 	var arena := _scene()
@@ -291,7 +318,7 @@ func _play(room: Node) -> Node:
 				and arena.match_node.hud._results.visible
 			),
 		_length + 60.0,
-		"the match was played to its podium"
+		"map %d was played to its podium" % round
 	):
 		return null
 	return arena
