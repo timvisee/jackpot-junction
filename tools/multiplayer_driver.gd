@@ -17,13 +17,14 @@ const ONLINE_SCENE := "res://scenes/ui/online.tscn"
 const MAPS := 2
 const BOTS := 1
 ## How far a client walks its kart toward the pad in a frame, and where on the pad each seat
-## parks, see [method _park].
+## parks, see [method _park]: a corner each of its five meters, since four karts in a cross a meter
+## from the middle shoved each other, and the last one was forever being pushed back off its spot.
 const STEP := 0.05
 ## How long the host reads a podium before pressing on, the way a person does. It is also what
 ## gives the client time to have its own podium up before the host has moved everybody on.
 const READING := 2.0
 const SPOTS: Array[Vector3] = [
-	Vector3(-1.1, 0.0, 0.0), Vector3(1.1, 0.0, 0.0), Vector3(0.0, 0.0, -1.1), Vector3(0.0, 0.0, 1.1)
+	Vector3(-1.3, 0.0, -1.3), Vector3(1.3, 0.0, 1.3), Vector3(1.3, 0.0, -1.3), Vector3(-1.3, 0.0, 1.3)
 ]
 
 var _role := ""
