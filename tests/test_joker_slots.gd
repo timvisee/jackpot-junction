@@ -62,3 +62,24 @@ func test_deep_pockets_widens_the_hand_and_stacks() -> void:
 	kart.jokers.remove(second)
 	assert_int(kart.jokers.capacity()).is_equal(7)
 	assert_bool(kart.jokers.is_full()).is_true()
+
+
+## GAME.md 8.3: a joker that stacks, held more than once, says how many beside its name in the
+## pane, and one on offer says what taking it would make it. One that does not stack says nothing.
+func test_the_pane_says_how_many_of_a_stacking_joker_are_held() -> void:
+	var detail: JokerDetail = auto_free(JokerDetail.new())
+	add_child(detail)
+	var bumpers: Joker = load("res://data/jokers/rubber_bumpers.tres")
+	var glass: Joker = load("res://data/jokers/glass_jackpot.tres")
+	assert_bool(bumpers.stackable).is_true()
+	detail.show_joker(bumpers, 1)
+	assert_bool(detail._stack.visible).is_false()
+	detail.show_joker(bumpers, 3)
+	assert_bool(detail._stack.visible).is_true()
+	assert_str(detail._stack.text).is_equal("×3")
+	detail.show_joker(bumpers, 1, true)
+	assert_str(detail._stack.text).is_equal("makes ×2")
+	detail.show_joker(bumpers, 0, true)
+	assert_bool(detail._stack.visible).is_false()
+	detail.show_joker(glass, 2)
+	assert_bool(detail._stack.visible).is_false()

@@ -9,6 +9,9 @@ extends PanelContainer
 ## joker is and what kind it is share the first line, a rule separates them from what the joker
 ## actually does, and the keys for it sit at the foot in gray, so they are told apart at a glance
 ## rather than run together in one paragraph.
+##
+## A joker that stacks, held more than once, says how many beside its name, see [method
+## show_joker]: every copy applies its effect again, and each is its own card in the hand.
 
 const WIDTH := 400.0
 const BG := Color(0.07, 0.07, 0.09, 0.92)
@@ -16,17 +19,21 @@ const RULE := Color(1.0, 1.0, 1.0, 0.13)
 const HINT := Color(0.62, 0.62, 0.68)
 ## The color bar along the top edge, thick enough to be the pane's heading rather than a line.
 const EDGE := 6
+const STACK := Color(1.0, 0.84, 0.36)
 
 var _style: StyleBoxFlat
 var _name: Label
+var _stack: Label
 var _rarity: Label
 var _kind: Label
 var _body: RichTextLabel
 var _box: VBoxContainer
 var _hints: Control
-## The joker the pane is filled in for, so filling it in again for the same one is nothing: the
-## hand and the pick ask every frame, and painting the top edge again is a new layout each time.
+## The joker the pane is filled in for and the stack it said, so filling it in again for the same
+## is nothing: the hand and the pick ask every frame, and painting the top edge again is a new
+## layout each time.
 var _joker: Joker
+var _stack_said := ""
 
 
 func _init() -> void:
@@ -52,6 +59,10 @@ func _init() -> void:
 	_name = _line(24, Color(0.97, 0.97, 1.0))
 	_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_child(_name)
+	_stack = _line(20, STACK)
+	_stack.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_stack.visible = false
+	heading.add_child(_stack)
 	_rarity = _line(16, Color.WHITE)
 	_rarity.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	heading.add_child(_rarity)
@@ -74,11 +85,20 @@ func _init() -> void:
 	box.add_child(_body)
 
 
-## Fills the pane for one joker and paints the top edge in its kind's color.
-func show_joker(joker: Joker) -> void:
-	if joker == _joker:
+## Fills the pane for one joker and paints the top edge in its kind's color. [param held] is how
+## many copies of it the player holds; a joker that stacks, held more than once, says so beside
+## its name, and [param taking] says what taking one more would make it instead.
+func show_joker(joker: Joker, held := 1, taking := false) -> void:
+	var copies := held + 1 if taking else held
+	var said := ""
+	if joker.stackable and copies > 1:
+		said = ("makes ×%d" if taking else "×%d") % copies
+	if joker == _joker and said == _stack_said:
 		return
 	_joker = joker
+	_stack_said = said
+	_stack.text = said
+	_stack.visible = not said.is_empty()
 	var color := JokerCard.kind_color(joker)
 	_style.border_color = color
 	_name.text = joker.display_name

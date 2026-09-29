@@ -2209,6 +2209,10 @@ movement: the one thing a corner block must not do is ask to be looked at.
   is share the first line, a rule separates them from what the joker actually does,
   and the buttons for whatever can be done from there sit at the foot in gray,
   drawn as buttons. Things told apart beats one paragraph they were all run into.
+  A joker that stacks, held more than once, says how many beside its name in gold,
+  ×2 or ×3, since each copy is a card of its own in the hand and applies again; on
+  offer at the respawn pick, one already held says what taking it makes it,
+  "makes ×2".
 - **The respawn pick** shows the offered cards in a straight row, the one under
   the cursor risen and grown and nothing else: it grows about its own bottom
   center, so it stays where it was along the row rather than drifting sideways as

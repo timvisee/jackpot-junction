@@ -148,7 +148,8 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 		else "Destroy which joker for %s?" % offer.chosen.display_name
 	)
 	if picked >= 0 and picked < jokers.size():
-		_detail.show_joker(jokers[picked])
+		var held := kart.jokers.ids().count(jokers[picked].id)
+		_detail.show_joker(jokers[picked], held, choosing)
 		var actions: Array[StringName] = [
 			InputActions.STEER_LEFT,
 			InputActions.STEER_RIGHT,

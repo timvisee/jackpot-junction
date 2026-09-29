@@ -308,7 +308,7 @@ func _sync_cards() -> void:
 ## What the player can do with the lifted card, which is the only part of the pane the hand has
 ## to say anything about.
 func _show_detail(joker: Joker) -> void:
-	_detail.show_joker(joker)
+	_detail.show_joker(joker, kart.jokers.ids().count(joker.id))
 	if _pointed():
 		_keys_shown = ""
 		_show_touch_hints()
