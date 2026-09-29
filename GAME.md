@@ -4090,6 +4090,20 @@ half of driving and not one of those moves it: the corrections are absorbed
 whole. Knocked four meters out of place by hand, which nothing in the game does,
 it lands 2.8 m and walks off the rest.
 
+The rest of online play is held to a slow line too. `NetLag` sits under the
+connection when a test asks for it, and nothing in the game does: each end holds
+what it hears for half the round trip, with jitter on top for what goes
+unreliably, never puts out of order what goes reliably or in order, and hears a
+hang-up only after the last word said before it. The suites that play over a
+socket, the online match, several players at a client, arriving, the handover
+between rooms and the door, each run a second time over a 50 ms round trip with
+10 ms of jitter, and `make multiplayer-lag` plays the whole Grand Prix of
+`tools/multiplayer_check` over one; `make check` runs both. Over it, a chip a
+client drives through flat out still flies into its kart, and goes on doing so up
+to a round trip of about 150 ms. Past that the kart on the client is so far ahead
+of the host's by the time the word comes that the chip has gone that nobody is
+near enough to have taken it, and it blinks out.
+
 ### 10.4 Conventions
 
 - Static typing everywhere. The `untyped_declaration` warning is treated as an

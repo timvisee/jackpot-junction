@@ -186,7 +186,7 @@ func host(port: int = DEFAULT_PORT) -> Error:
 	if error != OK:
 		return error
 	NetLine.compress(peer)
-	multiplayer.multiplayer_peer = peer
+	multiplayer.multiplayer_peer = NetLag.over(peer)
 	is_host = true
 	_start_relaying()
 	LanBeacon.open(self, port)
@@ -196,7 +196,7 @@ func host(port: int = DEFAULT_PORT) -> Error:
 ## Made it to the host: the connection gets its usual patience back, which a moment of a busy
 ## network should not cost anybody.
 func _on_connected() -> void:
-	var enet := multiplayer.multiplayer_peer as ENetMultiplayerPeer
+	var enet := NetLag.enet(multiplayer.multiplayer_peer)
 	var server := enet.get_peer(1) if enet != null else null
 	if server != null:
 		NetLine.made(server)
@@ -212,7 +212,7 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 	var server := peer.get_peer(1)
 	if server != null:
 		NetLine.trying(server)
-	multiplayer.multiplayer_peer = peer
+	multiplayer.multiplayer_peer = NetLag.over(peer)
 	is_host = false
 	_turned_away = false
 	return OK
@@ -570,7 +570,7 @@ func _physics_process(delta: float) -> void:
 func _on_peer_connected(peer: int) -> void:
 	if not is_host:
 		return
-	var enet := multiplayer.multiplayer_peer as ENetMultiplayerPeer
+	var enet := NetLag.enet(multiplayer.multiplayer_peer)
 	if enet != null and enet.get_peer(peer) != null:
 		NetLine.made(enet.get_peer(peer))
 	_newcomers.append(peer)

@@ -9,9 +9,11 @@ const WAITING_RULES: MatchRules = preload("res://data/match/waiting_room.tres")
 const WAITING_MAP: ArenaLayout = preload("res://data/maps/waiting_room.tres")
 ## The first of a block of ports of this suite's own, so it can run beside the other network
 ## suites.
-const PORT := 7811
 const PATIENCE := 3
 
+## Its own, since the suites run side by side; a suite that runs these again over a slower line,
+## see [NetLag], takes another.
+var port := 7811
 var _host_root: Node
 var _client_root: Node
 var _host: NetSession
@@ -127,7 +129,7 @@ func _both_go_to_the_arena() -> void:
 ## the client, once its own arena is up and it asks, is seated in the host's with that arena's
 ## rules, in the seat kept for it and the color it had.
 func test_the_host_takes_everybody_through_to_the_arena() -> void:
-	await _both_in_the_room(PORT)
+	await _both_in_the_room(port)
 	var was := _client.local_slot
 	await _both_go_to_the_arena()
 	# The flag is kept in a dictionary rather than in a local: a lambda captures a local by
@@ -152,7 +154,7 @@ func test_the_host_takes_everybody_through_to_the_arena() -> void:
 ## A client that got there first, and asked before the host's arena was up, is not told a seat in
 ## a match that is being taken down. It is seated once the host arrives.
 func test_a_client_that_asks_early_is_seated_when_the_host_arrives() -> void:
-	await _both_in_the_room(PORT + 2)
+	await _both_in_the_room(port + 2)
 	await _both_go_to_the_arena()
 	_client.ready_for_seat()
 	for i: int in 20:
@@ -168,7 +170,7 @@ func test_a_client_that_asks_early_is_seated_when_the_host_arrives() -> void:
 ## ends build a room, and the client is seated in the host's with the room's rules and the color
 ## it drove the arena in.
 func test_the_host_takes_everybody_back_to_the_room() -> void:
-	await _both_in_the_room(PORT + 3)
+	await _both_in_the_room(port + 3)
 	await _both_go_to_the_arena()
 	_host.re_seat()
 	_client.ready_for_seat()
@@ -211,7 +213,7 @@ func test_only_a_host_with_company_says_it_is_going() -> void:
 	host.name = "Session"
 	host.match_node = alone
 	_host_root.add_child(host)
-	assert_int(host.host(PORT + 1)).is_equal(OK)
+	assert_int(host.host(port + 1)).is_equal(OK)
 	# No peers: nothing to say and nothing that throws for saying it.
 	host.begin_the_match()
 	host.re_seat()

@@ -6,10 +6,12 @@ extends GdUnitTestSuite
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 ## A port of this suite's own, so it can run beside the other network suites.
-const PORT := 7841
 ## How much slack every wait in this suite gets, see [method _wait_until].
 const PATIENCE := 3
 
+## Its own, since the suites run side by side; a suite that runs these again over a slower line,
+## see [NetLag], takes another.
+var port := 7841
 var _host_root: Node
 var _client_root: Node
 
@@ -77,7 +79,7 @@ func _meet(host_version: String, client_version: String) -> Dictionary:
 	host_session.version = host_version
 	host_session.match_node = host_match
 	_host_root.add_child(host_session)
-	assert_int(host_session.host(PORT)).is_equal(OK)
+	assert_int(host_session.host(port)).is_equal(OK)
 	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
 	client_match.name = "Match"
 	client_match.rules = _quick_rules()
@@ -94,7 +96,7 @@ func _meet(host_version: String, client_version: String) -> Dictionary:
 	client_session.refused.connect(func(reason: String) -> void: told.append(reason))
 	var failed: Array[bool] = []
 	client_session.connection_failed.connect(func() -> void: failed.append(true))
-	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(client_session.join("127.0.0.1", port)).is_equal(OK)
 	return {"host": host_match, "client": client_session, "told": told, "failed": failed}
 
 
@@ -145,7 +147,7 @@ func _arrive_mid_match(humans: int, with_hud := false) -> Dictionary:
 	host_session.in_arena = true
 	host_session.match_node = host_match
 	_host_root.add_child(host_session)
-	assert_int(host_session.host(PORT)).is_equal(OK)
+	assert_int(host_session.host(port)).is_equal(OK)
 	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
 	client_match.name = "Match"
 	client_match.rules = _quick_rules()
@@ -161,7 +163,7 @@ func _arrive_mid_match(humans: int, with_hud := false) -> Dictionary:
 	client_session.match_beginning.connect(func() -> void: followed.append(true))
 	var told: Array[String] = []
 	client_session.refused.connect(func(reason: String) -> void: told.append(reason))
-	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(client_session.join("127.0.0.1", port)).is_equal(OK)
 	return {
 		"host": host_match,
 		"client": client_session,
@@ -254,7 +256,7 @@ func test_the_lamps_wait_for_every_client_to_have_the_room_up() -> void:
 	host_session.name = "Session"
 	host_session.match_node = host_match
 	_host_root.add_child(host_session)
-	assert_int(host_session.host(PORT)).is_equal(OK)
+	assert_int(host_session.host(port)).is_equal(OK)
 	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
 	client_match.name = "Match"
 	client_match.rules = _quick_rules()
@@ -266,7 +268,7 @@ func test_the_lamps_wait_for_every_client_to_have_the_room_up() -> void:
 	client_session.match_node = client_match
 	client_session.local_input = KartInput.new()
 	_client_root.add_child(client_session)
-	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(client_session.join("127.0.0.1", port)).is_equal(OK)
 	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
 	assert_bool(assigned).override_failure_message("client never got a slot").is_true()
 	host_session.hold_the_start()

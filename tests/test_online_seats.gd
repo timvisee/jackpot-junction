@@ -5,10 +5,12 @@ extends GdUnitTestSuite
 ## other.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
-const PORT := 7837
 ## How much slack every wait in this suite gets, see test_online.gd.
 const PATIENCE := 3
 
+## Its own, since the suites run side by side; a suite that runs these again over a slower line,
+## see [NetLag], takes another.
+var port := 7837
 var _host_root: Node
 var _client_root: Node
 var _host: NetSession
@@ -72,7 +74,7 @@ func _seated() -> void:
 	_host.name = "Session"
 	_host.match_node = _host_match
 	_host_root.add_child(_host)
-	assert_int(_host.host(PORT)).is_equal(OK)
+	assert_int(_host.host(port)).is_equal(OK)
 	_client_match = auto_free(MATCH_SCENE.instantiate())
 	_client_match.name = "Match"
 	_client_match.rules = _rules()
@@ -84,7 +86,7 @@ func _seated() -> void:
 	_client.match_node = _client_match
 	_client.local_input = KartInput.new()
 	_client_root.add_child(_client)
-	assert_int(_client.join("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(_client.join("127.0.0.1", port)).is_equal(OK)
 	var seated := await _wait_until(func() -> bool: return _client.local_slot >= 0, 4000)
 	assert_bool(seated).override_failure_message("the client never sat down").is_true()
 

@@ -4,10 +4,12 @@ extends GdUnitTestSuite
 ## the host, and the kart goes back to a bot when the client leaves.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
-const PORT := 7791
 ## How much slack every wait in this suite gets, see [method _wait_until].
 const PATIENCE := 3
 
+## Its own, since the suites run side by side; a suite that runs these again over a slower line,
+## see [NetLag], takes another.
+var port := 7791
 var _host_root: Node
 var _client_root: Node
 
@@ -107,7 +109,7 @@ func test_client_joins_takes_over_a_bot_drives_it_and_hands_it_back_on_leaving()
 	host_session.name = "Session"
 	host_session.match_node = host_match
 	_host_root.add_child(host_session)
-	assert_int(host_session.host(PORT)).is_equal(OK)
+	assert_int(host_session.host(port)).is_equal(OK)
 	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
 	client_match.name = "Match"
 	client_match.rules = _quick_rules()
@@ -123,7 +125,7 @@ func test_client_joins_takes_over_a_bot_drives_it_and_hands_it_back_on_leaving()
 	client_session.match_node = client_match
 	client_session.local_input = KartInput.new()
 	_client_root.add_child(client_session)
-	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(client_session.join("127.0.0.1", port)).is_equal(OK)
 	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
 	assert_bool(assigned).override_failure_message("client never got a slot").is_true()
 	assert_int(client_session.local_slot).is_equal(1)
@@ -188,7 +190,7 @@ func test_a_relayed_event_is_not_relayed_back() -> void:
 	host_session.name = "Session"
 	host_session.match_node = host_match
 	_host_root.add_child(host_session)
-	assert_int(host_session.host(PORT)).is_equal(OK)
+	assert_int(host_session.host(port)).is_equal(OK)
 	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
 	client_match.name = "Match"
 	client_match.rules = _quick_rules()
@@ -200,7 +202,7 @@ func test_a_relayed_event_is_not_relayed_back() -> void:
 	client_session.match_node = client_match
 	client_session.local_input = KartInput.new()
 	_client_root.add_child(client_session)
-	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(client_session.join("127.0.0.1", port)).is_equal(OK)
 	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
 	assert_bool(assigned).is_true()
 	await await_millis(500)
@@ -383,7 +385,7 @@ func test_a_match_stops_only_once_every_machine_has_asked_it_to() -> void:
 	host_session.name = "Session"
 	host_session.match_node = host_match
 	_host_root.add_child(host_session)
-	assert_int(host_session.host(PORT)).is_equal(OK)
+	assert_int(host_session.host(port)).is_equal(OK)
 	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
 	client_match.name = "Match"
 	client_match.rules = _quick_rules()
@@ -395,7 +397,7 @@ func test_a_match_stops_only_once_every_machine_has_asked_it_to() -> void:
 	client_session.match_node = client_match
 	client_session.local_input = KartInput.new()
 	_client_root.add_child(client_session)
-	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(client_session.join("127.0.0.1", port)).is_equal(OK)
 	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
 	assert_bool(assigned).override_failure_message("client never got a slot").is_true()
 	# The host asking on its own leaves the client still playing, so the match runs on.
@@ -451,7 +453,7 @@ func test_a_dead_client_is_still_heard() -> void:
 	host_session.name = "Session"
 	host_session.match_node = host_match
 	_host_root.add_child(host_session)
-	assert_int(host_session.host(PORT)).is_equal(OK)
+	assert_int(host_session.host(port)).is_equal(OK)
 	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
 	client_match.name = "Match"
 	client_match.rules = _quick_rules()
@@ -463,7 +465,7 @@ func test_a_dead_client_is_still_heard() -> void:
 	client_session.match_node = client_match
 	client_session.local_input = PlayerInput.new()
 	_client_root.add_child(client_session)
-	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(client_session.join("127.0.0.1", port)).is_equal(OK)
 	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
 	assert_bool(assigned).override_failure_message("client never got a slot").is_true()
 	var host_input := host_match.slots[1].input as NetInput
@@ -536,7 +538,7 @@ func test_a_client_works_its_own_joker_pick_at_once() -> void:
 	host_session.name = "Session"
 	host_session.match_node = host_match
 	_host_root.add_child(host_session)
-	assert_int(host_session.host(PORT)).is_equal(OK)
+	assert_int(host_session.host(port)).is_equal(OK)
 	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
 	client_match.name = "Match"
 	client_match.rules = _quick_rules()
@@ -548,7 +550,7 @@ func test_a_client_works_its_own_joker_pick_at_once() -> void:
 	client_session.match_node = client_match
 	client_session.local_input = PlayerInput.new()
 	_client_root.add_child(client_session)
-	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(client_session.join("127.0.0.1", port)).is_equal(OK)
 	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
 	assert_bool(assigned).is_true()
 	host_match.kart_of(1).die(&"test", -1)
@@ -595,7 +597,7 @@ func test_a_client_kart_is_solid_again_after_coming_back() -> void:
 	host_session.name = "Session"
 	host_session.match_node = host_match
 	_host_root.add_child(host_session)
-	assert_int(host_session.host(PORT)).is_equal(OK)
+	assert_int(host_session.host(port)).is_equal(OK)
 	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
 	client_match.name = "Match"
 	client_match.rules = _quick_rules()
@@ -607,7 +609,7 @@ func test_a_client_kart_is_solid_again_after_coming_back() -> void:
 	client_session.match_node = client_match
 	client_session.local_input = PlayerInput.new()
 	_client_root.add_child(client_session)
-	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(client_session.join("127.0.0.1", port)).is_equal(OK)
 	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
 	assert_bool(assigned).is_true()
 	await await_millis(300)
@@ -649,7 +651,7 @@ func test_a_dead_kart_is_out_of_the_way_and_comes_back_properly() -> void:
 	host_session.name = "Session"
 	host_session.match_node = host_match
 	_host_root.add_child(host_session)
-	assert_int(host_session.host(PORT)).is_equal(OK)
+	assert_int(host_session.host(port)).is_equal(OK)
 	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
 	client_match.name = "Match"
 	client_match.rules = _quick_rules()
@@ -661,7 +663,7 @@ func test_a_dead_kart_is_out_of_the_way_and_comes_back_properly() -> void:
 	client_session.match_node = client_match
 	client_session.local_input = PlayerInput.new()
 	_client_root.add_child(client_session)
-	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(client_session.join("127.0.0.1", port)).is_equal(OK)
 	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
 	assert_bool(assigned).is_true()
 	await await_millis(300)
@@ -716,7 +718,7 @@ func test_a_rematch_keeps_the_players_who_are_here() -> void:
 	host_session.name = "Session"
 	host_session.match_node = host_match
 	_host_root.add_child(host_session)
-	assert_int(host_session.host(PORT)).is_equal(OK)
+	assert_int(host_session.host(port)).is_equal(OK)
 	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
 	client_match.name = "Match"
 	client_match.rules = _quick_rules()
@@ -728,7 +730,7 @@ func test_a_rematch_keeps_the_players_who_are_here() -> void:
 	client_session.match_node = client_match
 	client_session.local_input = PlayerInput.new()
 	_client_root.add_child(client_session)
-	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(client_session.join("127.0.0.1", port)).is_equal(OK)
 	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
 	assert_bool(assigned).is_true()
 	var slot := client_session.local_slot
@@ -772,7 +774,7 @@ func test_a_client_aims_its_swivel_cannon_itself() -> void:
 	host_session.name = "Session"
 	host_session.match_node = host_match
 	_host_root.add_child(host_session)
-	assert_int(host_session.host(PORT)).is_equal(OK)
+	assert_int(host_session.host(port)).is_equal(OK)
 	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
 	client_match.name = "Match"
 	client_match.rules = _quick_rules()
@@ -784,7 +786,7 @@ func test_a_client_aims_its_swivel_cannon_itself() -> void:
 	client_session.match_node = client_match
 	client_session.local_input = PlayerInput.new()
 	_client_root.add_child(client_session)
-	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(client_session.join("127.0.0.1", port)).is_equal(OK)
 	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
 	assert_bool(assigned).is_true()
 	await await_millis(300)
@@ -829,7 +831,7 @@ func test_a_client_can_watch_without_a_kart() -> void:
 	host_session.name = "Session"
 	host_session.match_node = host_match
 	_host_root.add_child(host_session)
-	assert_int(host_session.host(PORT)).is_equal(OK)
+	assert_int(host_session.host(port)).is_equal(OK)
 	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
 	client_match.name = "Match"
 	client_match.rules = _quick_rules()
@@ -844,7 +846,7 @@ func test_a_client_can_watch_without_a_kart() -> void:
 	var let_in := [false]
 	client_session.watching_started.connect(func() -> void: let_in[0] = true)
 	_client_root.add_child(client_session)
-	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(client_session.join("127.0.0.1", port)).is_equal(OK)
 	var watching := await _wait_until(func() -> bool: return let_in[0], 4000)
 	assert_bool(watching).override_failure_message("the watcher was never let in").is_true()
 	assert_int(client_session.local_slot).is_equal(-1)

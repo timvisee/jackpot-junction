@@ -13,9 +13,13 @@
 #   local:    two players on one machine, one bot; everybody keeps all their jokers
 #
 # Usage: tools/multiplayer_check          (about a minute and a half)
+#
+# MPCHECK_PING puts a round trip of that many milliseconds between every end of the online runs,
+# as a slow LAN or the internet would, see scenes/net/net_lag.gd: MPCHECK_PING=50.
 set -uo pipefail
 cd "$(dirname "$0")/.."
 port="${MPCHECK_PORT:-7851}"
+ping="${MPCHECK_PING:-0}"
 # MPCHECK_LOGS keeps the whole of each run's output there, for a failure that needs reading.
 if [[ -n ${MPCHECK_LOGS:-} ]]; then
 	logs=$MPCHECK_LOGS
@@ -64,23 +68,24 @@ agree() {
 	done
 }
 
-run host_a --role=host --port="$port" --locals=2 --clients=1 --jokers=random --style=1,1,1,1 &
+run host_a --role=host --port="$port" --ping="$ping" --locals=2 --clients=1 --jokers=random --style=1,1,1,1 &
 host_a=$!
-run client_a --role=client --port="$port" --nameless --style=2,2,0,1 --host-style=1,1,1,1 &
+run client_a --role=client --port="$port" --ping="$ping" --nameless --style=2,2,0,1 --host-style=1,1,1,1 &
 client_a=$!
 wait "$host_a"
 host_a_status=$?
 wait "$client_a"
 client_a_status=$?
 
-run host_b --role=host --port="$((port + 1))" --locals=1 --clients=2 --guests=3 --jokers=choose \
+run host_b --role=host --port="$((port + 1))" --ping="$ping" --locals=1 --clients=2 --guests=3 --jokers=choose \
 	--password=sesame &
 host_b=$!
-run client_b1 --role=client --port="$((port + 1))" --password=sesame --wrong-first &
+run client_b1 --role=client --port="$((port + 1))" --ping="$ping" --password=sesame \
+	--wrong-first &
 client_b1=$!
-run client_b2 --role=client --port="$((port + 1))" --password=sesame --seats=2 &
+run client_b2 --role=client --port="$((port + 1))" --ping="$ping" --password=sesame --seats=2 &
 client_b2=$!
-run watcher_b --role=watcher --port="$((port + 1))" &
+run watcher_b --role=watcher --port="$((port + 1))" --ping="$ping" &
 watcher_b=$!
 wait "$host_b"
 host_b_status=$?

@@ -98,6 +98,9 @@ func _ready() -> void:
 			_style = _ints(arg.get_slice("=", 1))
 		elif arg.begins_with("--host-style="):
 			_host_style = _ints(arg.get_slice("=", 1))
+		elif arg.begins_with("--ping="):
+			# The round trip in milliseconds, which every end is given, see [NetLag].
+			NetLag.ping = float(arg.get_slice("=", 1)) / 1000.0
 	if _guests < 0:
 		_guests = _clients
 	_run.call_deferred()

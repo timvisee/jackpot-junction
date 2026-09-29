@@ -3,11 +3,13 @@ extends GdUnitTestSuite
 ## over a real socket between two sessions in this one process.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
-const PORT := 7861
 ## Real time is slower in a long suite than on its own; every budget here is a budget, not a
 ## measurement, see test_online.gd.
 const PATIENCE := 3
 
+## Its own, since the suites run side by side; a suite that runs these again over a slower line,
+## see [NetLag], takes another.
+var port := 7861
 var _host_root: Node
 var _client_root: Node
 var _host: NetSession
@@ -50,7 +52,7 @@ func _open_host() -> void:
 	_host.name = "Session"
 	_host.match_node = _host_match
 	_host_root.add_child(_host)
-	assert_int(_host.host(PORT)).is_equal(OK)
+	assert_int(_host.host(port)).is_equal(OK)
 
 
 ## A client knocking at the host opened by [method _open_host], [param watching] or to play, with
@@ -70,7 +72,7 @@ func _client(watching := false, named := "Guest", given := "") -> NetSession:
 	session.player_name = named
 	session.password = given
 	_client_root.add_child(session)
-	assert_int(session.join("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(session.join("127.0.0.1", port)).is_equal(OK)
 	return session
 
 
@@ -137,9 +139,9 @@ func test_a_lobby_with_a_password_asks_for_it() -> void:
 		client.queue_free()
 		await await_idle_frame()
 	var right := _client(false, "Guest", "sesame")
-	var seated := await _wait_until(func() -> bool: return _host.guests().size() == 1, 4000)
+	var seated := await _wait_until(func() -> bool: return right.local_slot >= 0, 4000)
 	assert_bool(seated).override_failure_message("the right password was not let in").is_true()
-	assert_int(right.local_slot).is_greater_equal(0)
+	assert_int(_host.guests().size()).is_equal(1)
 
 
 ## However many seats the arena has, a lobby set to fewer players turns the next one away as full.
@@ -246,8 +248,8 @@ func test_neither_end_throttles_the_snapshots() -> void:
 	var client := _client()
 	var seated := await _wait_until(func() -> bool: return _host.guests().size() == 1, 4000)
 	assert_bool(seated).is_true()
-	var host_end := _host.multiplayer.multiplayer_peer as ENetMultiplayerPeer
-	var client_end := client.multiplayer.multiplayer_peer as ENetMultiplayerPeer
+	var host_end := NetLag.enet(_host.multiplayer.multiplayer_peer)
+	var client_end := NetLag.enet(client.multiplayer.multiplayer_peer)
 	var peer: int = _host.guests()[0]["peer"]
 	for connection: ENetPacketPeer in [host_end.get_peer(peer), client_end.get_peer(1)]:
 		var down := connection.get_statistic(ENetPacketPeer.PEER_PACKET_THROTTLE_DECELERATION)
