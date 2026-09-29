@@ -31,6 +31,8 @@ static var _unit: PackedVector2Array = []
 
 var color := Color.WHITE:
 	set(value):
+		if value == color:
+			return
 		color = value
 		queue_redraw()
 

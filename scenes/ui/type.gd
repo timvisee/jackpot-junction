@@ -29,31 +29,43 @@ const TABULAR := 0x746E756D
 ## How far apart the letters of a display line are set. Heavy uppercase wants air; text does not.
 const DISPLAY_TRACKING := 1.0
 
+## The three variations, made once and shared: nothing changes one after it is made, and a
+## scoreboard that asked for a new one on every row of every frame was making sixteen a frame,
+## GAME.md 10.7.
+static var _display: FontVariation
+static var _numbers: FontVariation
+static var _numbers_text: FontVariation
+
 
 ## The display cut, tracked out a little. A [FontVariation] rather than the file itself, because
 ## tracking is the one thing that makes a heavy face read as a heading rather than as a shout.
 static func display_font() -> FontVariation:
-	var font := FontVariation.new()
-	font.base_font = DISPLAY
-	font.spacing_glyph = int(DISPLAY_TRACKING)
-	return font
+	if _display == null:
+		_display = FontVariation.new()
+		_display.base_font = DISPLAY
+		_display.spacing_glyph = int(DISPLAY_TRACKING)
+	return _display
 
 
 ## The display cut with tabular figures: every digit the same width, so a score counting up or a
 ## clock counting down stays put instead of jittering sideways as the digits change. Anything
 ## that shows a number that changes is set in this.
 static func numbers_font() -> FontVariation:
-	var font := display_font()
-	font.opentype_features = {TABULAR: 1}
-	return font
+	if _numbers == null:
+		_numbers = FontVariation.new()
+		_numbers.base_font = DISPLAY
+		_numbers.spacing_glyph = int(DISPLAY_TRACKING)
+		_numbers.opentype_features = {TABULAR: 1}
+	return _numbers
 
 
 ## The middle weight with the same tabular figures, for the numbers that are not headlines.
 static func numbers_text_font() -> FontVariation:
-	var font := FontVariation.new()
-	font.base_font = STRONG
-	font.opentype_features = {TABULAR: 1}
-	return font
+	if _numbers_text == null:
+		_numbers_text = FontVariation.new()
+		_numbers_text.base_font = STRONG
+		_numbers_text.opentype_features = {TABULAR: 1}
+	return _numbers_text
 
 
 ## A number that changes: a score, a clock, a speed.
@@ -63,10 +75,25 @@ static func numbers(label: Label, size: int, ink: Color = Color.WHITE) -> Label:
 	return label
 
 
-## Sets [param node] in one of the three cuts at one of the sizes off the scale.
+## Sets [param node] in one of the three cuts at one of the sizes off the scale. Only on a
+## change: an override is a change whether or not the value is new, and every one has the label
+## shape its text and the box round it lay itself out again, so the HUD sets its type through
+## here every frame and pays for it only when something is different, GAME.md 10.7.
 static func set_font(node: Control, font: Font, size: int) -> void:
-	node.add_theme_font_override("font", font)
-	node.add_theme_font_size_override("font_size", size)
+	if node.get_theme_font(&"font") != font:
+		node.add_theme_font_override(&"font", font)
+	if node.get_theme_font_size(&"font_size") != size:
+		node.add_theme_font_size_override(&"font_size", size)
+
+
+## Sets [param node]'s text color, only on a change, for the same reason as [method set_font].
+static func ink(node: Control, color: Color) -> void:
+	if (
+		node.has_theme_color_override(&"font_color")
+		and node.get_theme_color(&"font_color") == color
+	):
+		return
+	node.add_theme_color_override(&"font_color", color)
 
 
 ## A heading, a score, a timer: something read at a glance.

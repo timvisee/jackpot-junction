@@ -30,6 +30,9 @@ var _pinned_id := &""
 var _over_pick := -1
 ## Whether the mouse has moved since the match was put up.
 var _moved := false
+## The hand and the pick of each seat, found once rather than by path every frame.
+var _hands: Dictionary[int, JokerHand] = {}
+var _pickers: Dictionary[int, JokerPicker] = {}
 
 
 static func attach(hud: MatchHud) -> MouseJokers:
@@ -142,12 +145,18 @@ func _input(event: InputEvent) -> void:
 
 
 func _hand(slot: PlayerSlot) -> JokerHand:
-	var hand := get_parent().get_node_or_null("Hand%d" % slot.index) as JokerHand
+	var hand := _hands.get(slot.index) as JokerHand
+	if hand == null or not is_instance_valid(hand) or hand.get_parent() != get_parent():
+		hand = get_parent().get_node_or_null("Hand%d" % slot.index) as JokerHand
+		_hands[slot.index] = hand
 	return hand if hand != null and hand.is_visible_in_tree() else null
 
 
 func _picker(slot: PlayerSlot) -> JokerPicker:
-	var picker := get_parent().get_node_or_null("Picker%d" % slot.index) as JokerPicker
+	var picker := _pickers.get(slot.index) as JokerPicker
+	if picker == null or not is_instance_valid(picker) or picker.get_parent() != get_parent():
+		picker = get_parent().get_node_or_null("Picker%d" % slot.index) as JokerPicker
+		_pickers[slot.index] = picker
 	return picker if picker != null and picker.is_visible_in_tree() else null
 
 

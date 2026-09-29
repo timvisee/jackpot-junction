@@ -19,6 +19,8 @@ below, and hands the notes to the release workflow.
   head's light is put out rather than left shining at nothing.
 - **Cheaper shadows.** The sun's shadow map is drawn in two splits rather than four, and the
   pads, rims, plates and clock segments set into the felt no longer cast shadows nobody saw.
+- **A lighter HUD.** The scoreboard, the corner blocks, the hearts and the clock write their
+  type and colors only when something changed, where they were restyling every row every frame.
 
 ## [0.10.0] - 2026-09-29
 

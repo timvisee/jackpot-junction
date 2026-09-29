@@ -4423,6 +4423,14 @@ with the numbers that put them there.
   twice more for the room behind the stands. Rims and discs are also cut at eight
   and thirty-two segments: a torus comes with two thousand triangles, and a rim
   the width of a finger shows none of them.
+- **The HUD writes on a change, not on a frame.** A theme override is a change
+  whether or not the value is new: every one has the label shape its text and its
+  container lay itself out again. The scoreboard was setting four fonts and five
+  colors on every row of every frame, each font a new `FontVariation`; the timer
+  and the speed readout their colors; every heart a redraw. `Type.set_font` and
+  `Type.ink` compare first, the three font variations are made once, and a
+  setter that redraws returns if it was told what it already had. Script time in
+  a frame went from 1.0 ms to 0.35 ms, under the profiler.
 
 ## 11. Roadmap
 

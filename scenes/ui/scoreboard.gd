@@ -56,14 +56,16 @@ func order() -> Array[PlayerSlot]:
 
 
 func _process(delta: float) -> void:
-	if match_node == null or match_node.slots.is_empty():
+	if match_node == null or match_node.slots.is_empty() or not visible:
 		return
 	_beat += delta
 	var ranked := order()
 	for rank: int in ranked.size():
 		var slot := ranked[rank]
 		var row := _row(slot)
-		move_child(row["panel"], rank)
+		var panel: PanelContainer = row["panel"]
+		if panel.get_index() != rank:
+			move_child(panel, rank)
 		_update_row(row, slot, rank, ranked.size())
 
 
@@ -87,26 +89,29 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, count: int) -> vo
 	place.visible = not roster
 	score.visible = not roster
 	risk.visible = not roster
+	# Every one of these is set only on a change, see [method Type.set_font]: this runs for every
+	# row of every frame, and a row that has not changed costs nothing.
 	for label: Label in [place, name_label, score]:
 		Type.set_font(label, Type.numbers_text_font(), size)
 	Type.set_font(risk, Type.numbers_text_font(), maxi(size - 8, RISK_FONT))
-	place.add_theme_color_override("font_color", DIM)
-	name_label.add_theme_color_override("font_color", color)
-	score.add_theme_color_override("font_color", Color.WHITE if local else DIM)
+	Type.ink(place, DIM)
+	Type.ink(name_label, color)
+	Type.ink(score, Color.WHITE if local else DIM)
 	# Enough in the pot to win by banking it: the number says so itself rather than waiting for
 	# the results screen to. Everyone's row blinks, so a rival about to finish it is as plain as
 	# your own chance to.
 	if match_node.would_win(slot):
 		var wave := 0.5 + 0.5 * sin(_beat * WIN_BLINK * TAU)
-		risk.add_theme_color_override("font_color", Palette.CHIP_GOLD.lerp(Color.WHITE, wave))
+		Type.ink(risk, Palette.CHIP_GOLD.lerp(Color.WHITE, wave))
 		risk.modulate = Color(1.0, 1.0, 1.0, lerpf(0.45, 1.0, wave))
 	else:
-		risk.add_theme_color_override("font_color", Palette.CHIP_GOLD)
+		Type.ink(risk, Palette.CHIP_GOLD)
 		risk.modulate = Color.WHITE
-	(row["panel"] as PanelContainer).add_theme_stylebox_override(
-		"panel", row["own"] if local else row["plain"]
-	)
-	(row["panel"] as Control).custom_minimum_size = Vector2(0.0, size + 8.0)
+	var panel: PanelContainer = row["panel"]
+	var skin: StyleBox = row["own"] if local else row["plain"]
+	if panel.get_theme_stylebox(&"panel") != skin:
+		panel.add_theme_stylebox_override(&"panel", skin)
+	panel.custom_minimum_size = Vector2(0.0, size + 8.0)
 
 
 ## Builds a row the first time its slot shows up. Rows live as long as the scoreboard; only their

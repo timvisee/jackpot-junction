@@ -172,12 +172,14 @@ func _champion() -> PlayerSlot:
 ## the words change, since how big a line can be drawn depends on how long it is.
 func _say(word: String, caption: String, color: Color) -> void:
 	var showing := not word.is_empty()
-	for digit: Dictionary in _digits:
-		for name: String in digit:
-			(digit[name] as MeshInstance3D).visible = not showing
-	for dot: MeshInstance3D in _colon:
-		dot.visible = not showing
-	_word.visible = showing
+	if showing != _word.visible:
+		# Thirty segments and two dots, switched only as the word comes and goes.
+		for digit: Dictionary in _digits:
+			for name: String in digit:
+				(digit[name] as MeshInstance3D).visible = not showing
+		for dot: MeshInstance3D in _colon:
+			dot.visible = not showing
+		_word.visible = showing
 	_word.modulate = color
 	if showing and _word.text != word:
 		_word.text = word

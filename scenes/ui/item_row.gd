@@ -54,7 +54,7 @@ func show_kart(kart: Kart) -> void:
 			art.id = kart.held_item.id
 			art.ink = kart.held_item.color
 			label.text = kart.held_item.display_name
-			label.add_theme_color_override("font_color", kart.held_item.color)
+			Type.ink(label, kart.held_item.color)
 	var going := going_on(kart)
 	for i: int in _lines.size():
 		var line: Dictionary = _lines[i]
@@ -66,7 +66,7 @@ func show_kart(kart: Kart) -> void:
 		var name_of_it: Label = line["name"]
 		var bar: ProgressBar = line["clock"]
 		name_of_it.text = what["name"]
-		name_of_it.add_theme_color_override("font_color", what["color"])
+		Type.ink(name_of_it, what["color"])
 		bar.modulate = what["color"]
 		bar.value = 100.0 * float(what["left"])
 

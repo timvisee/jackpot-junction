@@ -10,6 +10,9 @@ extends Node3D
 ## In simple driving, GAME.md 4.2, the way to go is all there is to driving, and it says so.
 
 const MAX_SECONDS := 10.0
+## How often the line is checked against what it should say: a rebinding or a pad picked up
+## shows within a quarter of a second, and the check is a string of every binding built.
+const RECHECK := 0.25
 const INK := Palette.CHIP_WHITE
 
 var kart: Kart
@@ -18,6 +21,7 @@ var device := DeviceInput.ANY
 var _driven := false
 var _fired := false
 var _age := 0.0
+var _recheck := 0.0
 ## Which scheme is currently drawn, so the picture is only rebuilt when the player switches.
 var _shown := ""
 var _row: ScreenHint
@@ -102,7 +106,10 @@ func _rebuild() -> void:
 
 func _process(delta: float) -> void:
 	_age += delta
-	_rebuild()
+	_recheck -= delta
+	if _recheck <= 0.0:
+		_recheck = RECHECK
+		_rebuild()
 	if kart != null and kart.motor.speed() > 2.0:
 		_driven = true
 	if (_driven and _fired) or _age >= MAX_SECONDS:

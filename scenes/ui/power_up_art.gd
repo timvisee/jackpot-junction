@@ -12,12 +12,17 @@ extends RefCounted
 class Picture:
 	extends Control
 
+	# Redrawn on a change and not on every frame it is told the same thing, GAME.md 10.7.
 	var id: StringName:
 		set(value):
+			if value == id:
+				return
 			id = value
 			queue_redraw()
 	var ink := Color.WHITE:
 		set(value):
+			if value == ink:
+				return
 			ink = value
 			queue_redraw()
 

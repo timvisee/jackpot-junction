@@ -251,9 +251,7 @@ func _place_count(right: float, middle: float) -> void:
 	var held := _cards.size()
 	var room := kart.jokers.capacity() if kart != null else JokerHolder.MAX_JOKERS
 	_count_label.text = "%d / %d" % [held, room]
-	_count_label.add_theme_color_override(
-		"font_color", Palette.CHIP_GOLD if held >= room else Color(0.82, 0.82, 0.88)
-	)
+	Type.ink(_count_label, Palette.CHIP_GOLD if held >= room else Color(0.82, 0.82, 0.88))
 	var label_size := _count_label.get_combined_minimum_size()
 	_count_label.size = label_size
 	_count_label.position = Vector2(right + 12.0, middle - label_size.y * 0.5)

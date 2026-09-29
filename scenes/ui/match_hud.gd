@@ -481,7 +481,7 @@ func _update_timer() -> void:
 		var seconds := ceili(match_node.time_left)
 		_timer.text = "%d:%02d" % [seconds / 60, seconds % 60]
 	var hot := overtime or match_node.state == Match.State.LAST_CALL
-	_timer.add_theme_color_override("font_color", Color(1.0, 0.35, 0.3) if hot else Color.WHITE)
+	Type.ink(_timer, Color(1.0, 0.35, 0.3) if hot else Color.WHITE)
 
 
 ## The running order is for the player watching this screen. In a four-corner shared-screen game
@@ -797,7 +797,7 @@ func _update_speed(block: Dictionary, kart: Kart) -> void:
 	readout.text = "%d km/h" % roundi(speed * SPEED_SCALE)
 	var lit := Color(1.0, 0.75, 0.3) if kart.nitro_active else Color(0.85, 0.85, 0.9)
 	dial.modulate = lit
-	readout.add_theme_color_override("font_color", lit)
+	Type.ink(readout, lit)
 
 
 ## nitro and which plays the item they are holding. Each one only appears while it is worth
