@@ -2221,7 +2221,9 @@ movement: the one thing a corner block must not do is ask to be looked at.
   the kart and clear of the hints over it: it turns through the items the way the
   roulette in the corner does while the box is opening, settles on the one they
   got, holds a moment and fades slowly, the corner going on saying what they hold.
-  Used, it goes at once. The eyes are on the kart as it drives through the box, not
+  Once it can be used the button that uses it sits on the chip's lower corner,
+  drawn for the keys or the pad that player is on, and fades with it. Used, it goes
+  at once. The eyes are on the kart as it drives through the box, not
   on the corner of the screen. Nobody else's pickup puts one up.
 - **Royal Flush tally** under the timer, while a player at this screen holds a
   Royal Flush pad, see 3.9: a block for each of the pads, one in its holder's
