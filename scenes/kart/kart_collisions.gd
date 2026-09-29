@@ -84,13 +84,37 @@ static func _bump(
 		kart.input.deny_claim(NetInput.CLAIM_DENIED)
 		other.input.deny_claim(NetInput.CLAIM_DENIED)
 		if kart.ram_kills():
-			other.take_ram(kart.slot)
+			ram(other, kart.slot)
 	kart.motor.apply_bump(normal)
 	kart.velocity = kart.motor.velocity
 	if pre.length() > BUMP_SPEED:
 		kart.motor.spoil_drift()
 		if not quiet:
 			Events.kart_bumped.emit(kart.slot)
+
+
+## A ramming kart reached [param victim], GAME.md 4.1: its shield pops, or it loses a life or dies.
+## One too freshly hurt, or too freshly back, to be hurt again is still knocked, and loses coins
+## rather than a life, which the match hears of through [signal Kart.rammed], as it does of a ram
+## the victim lives through. Two karts in touch meet on every tick of it, so a ram reaches nobody
+## again for [member MatchRules.ram_cooldown] after the last one, or one that never let go would
+## knock the pot out a handful a tick until nothing was left.
+static func ram(victim: Kart, by_slot: int) -> void:
+	if not victim.alive or victim.falling or victim.coasting or victim.ram_wait > 0.0:
+		return
+	victim.ram_wait = victim.rules.ram_cooldown
+	var shield := victim.shielded and victim.is_targetable()
+	victim.take_ram(by_slot)
+	if victim.alive and not shield:
+		victim.rammed.emit(by_slot)
+
+
+## Distance from a point on the floor plane to [param kart]'s body rectangle, 0 when inside.
+static func distance_to_body(kart: Kart, point: Vector3) -> float:
+	var local := kart.to_local(Vector3(point.x, kart.global_position.y, point.z))
+	var half := Vector3(kart.stats.width * 0.5, 0.0, kart.stats.length * 0.5)
+	var clamped := Vector3(clampf(local.x, -half.x, half.x), 0.0, clampf(local.z, -half.z, half.z))
+	return Vector3(local.x, 0.0, local.z).distance_to(clamped)
 
 
 ## One wall contact. Returns whether it was a square hit rather than a glance along the wall.

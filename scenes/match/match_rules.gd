@@ -137,6 +137,9 @@ const WIRE_FIELDS: Array[StringName] = [
 ## when they live through it.
 @export var ram_coin_fraction := 0.25
 @export var ram_coin_max := 8
+## Seconds after a ram before another can reach the same kart, GAME.md 4.1, so two karts stuck
+## together knock a pot out a handful at a time rather than a handful a tick.
+@export var ram_cooldown := 0.2
 @export var death_drop_fraction := 0.3
 @export var death_drop_max := 10
 @export var death_joker_drop_chance := 0.2

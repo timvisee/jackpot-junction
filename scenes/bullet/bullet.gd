@@ -360,7 +360,7 @@ func _update_grazes() -> void:
 		var id := kart.get_instance_id()
 		var inside := (
 			kart.is_targetable()
-			and kart.distance_to_body(global_position) < kart.rules.graze_distance
+			and KartCollisions.distance_to_body(kart, global_position) < kart.rules.graze_distance
 		)
 		if _graze_inside.get(id, false) and not inside:
 			kart.graze(owner_slot)

@@ -6,6 +6,7 @@ extends CharacterBody3D
 
 signal died(cause: StringName, killer_slot: int)
 signal wounded(cause: StringName, by_slot: int)
+signal rammed(by_slot: int)
 signal respawned
 signal fired(bullets: Array[Bullet])
 signal turbo_taken(direction: Vector3)
@@ -112,6 +113,8 @@ var last_bump_time := -INF
 ## tick, so leaning on one is heard once, and how long until it may be heard hitting one again.
 var touching_wall := false
 var crash_wait := 0.0
+## Seconds before a ram can reach this kart again, see [method KartCollisions.ram].
+var ram_wait := 0.0
 ## The engine and tire voices, only on karts somebody drives on this machine; null otherwise.
 var sound: KartSound
 ## Whether somebody sitting at this machine is driving this kart. Feedback meant for a driver
@@ -246,6 +249,7 @@ func _physics_process(delta: float) -> void:
 	_step_assist(delta)
 	_graze_cooldown_left = maxf(_graze_cooldown_left - delta, 0.0)
 	crash_wait = maxf(crash_wait - delta, 0.0)
+	ram_wait = maxf(ram_wait - delta, 0.0)
 	_step_effects(delta)
 	input.poll(delta)
 	_step_nitro(delta)
@@ -550,14 +554,6 @@ func destroy_joker(index: int) -> void:
 		jokers.remove_at(index)
 
 
-## Distance from a point on the floor plane to the kart's body rectangle, 0 when inside.
-func distance_to_body(point: Vector3) -> float:
-	var local := to_local(Vector3(point.x, global_position.y, point.z))
-	var half := Vector3(stats.width * 0.5, 0.0, stats.length * 0.5)
-	var clamped := Vector3(clampf(local.x, -half.x, half.x), 0.0, clampf(local.z, -half.z, half.z))
-	return Vector3(local.x, 0.0, local.z).distance_to(clamped)
-
-
 ## The sparks off the rear wheels, GAME.md 4.3: white while the drift is still earning its
 ## exit boost, gold once it has, and a flash off the back the moment the boost is taken.
 ##
@@ -673,7 +669,8 @@ func take_hit(bullet: Bullet) -> bool:
 	return true
 
 
-## A ramming kart reached this one: the shield pops or the kart dies.
+## A ramming kart reached this one: the shield pops or the kart dies. See [method
+## KartCollisions.ram] for the ram that finds it too freshly hurt for that.
 func take_ram(rammer_slot: int) -> void:
 	_take_through_shield(&"ram", rammer_slot)
 

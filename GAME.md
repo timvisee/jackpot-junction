@@ -199,7 +199,8 @@ are plain chips and multiply with your mult like any other.
 A kart has two lives. A bullet hit, a bomb blast or a ram by a kart with an
 active Boost or burning nitro takes one. With a life to spare the kart limps
 on: darker, at 85% top speed, blinking and untouchable for 1.2 s, so a burst of
-bullets cannot take both lives in the same moment. Standing on the Junction with
+bullets cannot take both lives in the same moment. Untouchable is for the lives
+only: a ram still knocks coins out of the pot, see 4.1. Standing on the Junction with
 an empty pot restores the lost life, and so does banking a pot dry there, see 3.4;
 so does taking somebody out.
 Losing the last life is death. A kart that drives into a pit falls for 0.4 s,
@@ -223,7 +224,8 @@ uncontrollable, and dies whatever its lives. On death, in this order:
    credit nobody.
 6. **Reset the pot**: coins 0, mult 1.
 7. **Respawn** after 3 s at the spawn point farthest from any enemy, with 2 s
-   of spawn protection: invulnerable, cannot fire, bullets pass through. Picking
+   of spawn protection: invulnerable, cannot fire, bullets pass through; a ram
+   still knocks coins loose, see 4.1, though a pot just reset has none. Picking
    up coins and items is allowed. Coming back opens a ring across the floor in
    the player's color with a column of light standing in it, gone inside a
    second. The blinking says something about that kart to whoever is already
@@ -695,6 +697,14 @@ scatters coins through the death sequence already; this is for the one that does
 not, which would otherwise cost a kart carrying a fortune nothing at all. Tight
 Grip, 7.3, keeps every coin in the pot: its death drops no chips and a killer takes
 none, and a ram it lives through knocks none out.
+
+A kart too freshly hurt to lose a life, blinking after a wound or just back from a
+death, is still knocked by a ram: it loses the same share of its coins, only not
+the life. Being untouchable was never meant to make a full pot safe to shove.
+A Shield still takes the whole ram, coins and all. A kart is rammed at most once
+every 0.2 s, since two karts in touch meet on every physics tick and a ram that
+did not let go would otherwise knock a pot out a handful a tick until nothing was
+left.
 
 A kart that can ram another kart to death goes through a crate as well, so a
 square hit while Boosting, burning nitro or under Road Rage breaks it and pays

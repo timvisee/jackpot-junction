@@ -394,6 +394,72 @@ func _rings(match_node: Match) -> Array:
 ## GAME.md 4.1: a ram somebody lives through knocks coins out of their pot onto the floor. A ram
 ## that kills scatters them through the death sequence already, so this is for the other one.
 func test_a_ram_that_does_not_kill_knocks_coins_loose() -> void:
+	var match_node := await _ram_match()
+	var victim := match_node.kart_of(1)
+	victim.pot.add_coins(20)
+	var loose := _chips(match_node)
+	KartCollisions.ram(victim, 0)
+	assert_bool(victim.alive).is_true()
+	assert_bool(victim.is_wounded()).is_true()
+	# A quarter of them, out of the pot and onto the floor.
+	assert_int(victim.pot.coins).is_equal(15)
+	assert_int(_chips(match_node) - loose).is_equal(5)
+	# A kart with nothing to lose loses nothing, and drops no empty handful.
+	await _wait_out_immunity(victim)
+	victim.pot.reset()
+	victim.lives = 2
+	loose = _chips(match_node)
+	KartCollisions.ram(victim, 0)
+	assert_int(_chips(match_node)).is_equal(loose)
+	# Held tight, a pot keeps every coin, GAME.md 7.3.
+	await _wait_out_immunity(victim)
+	victim.lives = 2
+	victim.jokers.add(load("res://data/jokers/tight_grip.tres"))
+	victim.pot.add_coins(20)
+	KartCollisions.ram(victim, 0)
+	assert_bool(victim.is_wounded()).is_true()
+	assert_int(victim.pot.coins).is_equal(20)
+	assert_int(_chips(match_node)).is_equal(loose)
+
+
+## GAME.md 4.1: a kart too freshly hurt to lose another life is still knocked by a ram, and loses
+## coins rather than a life. A ram reaches nobody twice inside the cooldown, so two karts stuck
+## together do not knock a pot out a handful a tick.
+func test_a_ram_knocks_coins_out_of_a_kart_it_cannot_hurt() -> void:
+	var match_node := await _ram_match()
+	var victim := match_node.kart_of(1)
+	KartCollisions.ram(victim, 0)
+	assert_int(victim.lives).is_equal(1)
+	victim.pot.add_coins(20)
+	var loose := _chips(match_node)
+	# Still blinking from that one, and past the cooldown.
+	await _runner.simulate_frames(15, 17)
+	assert_bool(victim.is_targetable()).is_false()
+	KartCollisions.ram(victim, 0)
+	assert_bool(victim.alive).is_true()
+	assert_int(victim.lives).is_equal(1)
+	assert_int(victim.pot.coins).is_equal(15)
+	assert_int(_chips(match_node) - loose).is_equal(5)
+	# Rammed again on the very next tick, it loses nothing more.
+	await _runner.simulate_frames(1, 17)
+	KartCollisions.ram(victim, 0)
+	assert_int(victim.pot.coins).is_equal(15)
+	await _runner.simulate_frames(15, 17)
+	KartCollisions.ram(victim, 0)
+	assert_int(victim.pot.coins).is_equal(11)
+	assert_int(victim.lives).is_equal(1)
+	# Just back on the floor, under the spawn's protection, it is knocked the same way.
+	victim.respawn(victim.global_position, Vector3.FORWARD, match_node.rules.spawn_protection)
+	victim.pot.reset()
+	victim.pot.add_coins(20)
+	await _runner.simulate_frames(15, 17)
+	KartCollisions.ram(victim, 0)
+	assert_int(victim.lives).is_equal(match_node.rules.lives)
+	assert_int(victim.pot.coins).is_equal(15)
+
+
+## A match of two for ramming in, under way.
+func _ram_match() -> Match:
 	var rules := RULES.duplicate()
 	rules.countdown = 0.1
 	rules.duration = 60.0
@@ -405,31 +471,7 @@ func test_a_ram_that_does_not_kill_knocks_coins_loose() -> void:
 	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
 	match_node.start(inputs, 11)
 	await _runner.simulate_frames(12, 17)
-	var victim := match_node.kart_of(1)
-	victim.pot.add_coins(20)
-	var loose := _chips(match_node)
-	victim.take_ram(0)
-	assert_bool(victim.alive).is_true()
-	assert_bool(victim.is_wounded()).is_true()
-	# A quarter of them, out of the pot and onto the floor.
-	assert_int(victim.pot.coins).is_equal(15)
-	assert_int(_chips(match_node) - loose).is_equal(5)
-	# A kart with nothing to lose loses nothing, and drops no empty handful.
-	await _wait_out_immunity(victim)
-	victim.pot.reset()
-	victim.lives = 2
-	loose = _chips(match_node)
-	victim.take_ram(0)
-	assert_int(_chips(match_node)).is_equal(loose)
-	# Held tight, a pot keeps every coin, GAME.md 7.3.
-	await _wait_out_immunity(victim)
-	victim.lives = 2
-	victim.jokers.add(load("res://data/jokers/tight_grip.tres"))
-	victim.pot.add_coins(20)
-	victim.take_ram(0)
-	assert_bool(victim.is_wounded()).is_true()
-	assert_int(victim.pot.coins).is_equal(20)
-	assert_int(_chips(match_node)).is_equal(loose)
+	return match_node
 
 
 func _chips(match_node: Match) -> int:

@@ -163,8 +163,6 @@ func start(
 		_counting = MatchStats.listen(self)
 	arena.crate_broken.connect(_counting.on_crate)
 	arena.target_struck.connect(_on_target_struck)
-	if not Events.kart_wounded.is_connected(_on_kart_wounded):
-		Events.kart_wounded.connect(_on_kart_wounded)
 	for zone: JackpotZone in arena.jackpot_zones:
 		zone.filled.connect(
 			func(filled: JackpotZone) -> void: Events.jackpot_full.emit(filled.index)
@@ -232,8 +230,6 @@ func _exit_tree() -> void:
 	if _counting != null:
 		_counting.stop()
 		_counting = null
-	if Events.kart_wounded.is_connected(_on_kart_wounded):
-		Events.kart_wounded.disconnect(_on_kart_wounded)
 	if Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
 		Input.joy_connection_changed.disconnect(_on_joy_connection_changed)
 
@@ -624,6 +620,7 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 	kart.face(arena.junction_position - point)
 	kart.died.connect(_on_kart_died.bind(slot))
 	kart.joker_dropped.connect(_on_joker_dropped.bind(slot))
+	kart.rammed.connect(_on_kart_rammed.bind(slot))
 	kart.fired.connect(func(shots: Array[Bullet]) -> void: slot.stats.add(&"bullets", shots.size()))
 	kart.coins_collected.connect(func(amount: int) -> void: slot.stats.add(&"coins", amount))
 	kart.item_used.connect(func(_item: PowerUp) -> void: slot.stats.add(&"items"))
@@ -875,13 +872,12 @@ func _on_target_struck(by_slot: int, coins: int) -> void:
 
 
 ## A ram somebody lived through, GAME.md 4.1: it knocks a quarter of their coins out onto the
-## floor. A ram that kills scatters coins through the death sequence already, so this is only
-## for the one that does not, which would otherwise cost a full pot nothing at all.
-func _on_kart_wounded(slot: int, _by_slot: int, cause: StringName) -> void:
-	if puppet or cause != &"ram" or slot < 0 or slot >= slots.size():
-		return
-	var kart := slots[slot].kart
-	if kart == null or kart.pot.coins <= 0:
+## floor, whether it cost them a life or found them too freshly hurt to lose one. A ram that kills
+## scatters coins through the death sequence already, so this is only for the one that does not,
+## which would otherwise cost a full pot nothing at all.
+func _on_kart_rammed(_by_slot: int, slot: PlayerSlot) -> void:
+	var kart := slot.kart
+	if puppet or kart == null or kart.pot.coins <= 0:
 		return
 	var fraction := rules.ram_coin_fraction
 	for joker: Joker in kart.jokers.jokers:
@@ -891,7 +887,7 @@ func _on_kart_wounded(slot: int, _by_slot: int, cause: StringName) -> void:
 	var knocked := clampi(roundi(kart.pot.coins * fraction), 1, rules.ram_coin_max)
 	knocked = mini(knocked, kart.pot.coins)
 	kart.pot.add_coins(-knocked)
-	slots[slot].stats.add(&"coins_lost", knocked)
+	slot.stats.add(&"coins_lost", knocked)
 	arena.spawn_chips(kart.global_position, knocked, rules.dropped_chip_lifetime, 0.0, true)
 
 
