@@ -8,6 +8,11 @@ extends RefCounted
 ## as one shape: the pieces are merged into a single outline first. Drawn see-through, as a suit
 ## nobody holds is under the clock, pieces drawn one over another showed the stem through the
 ## spade and every ball's edge through the club.
+##
+## The outline is a ring of its own round the shape rather than a thick line along its edge: the
+## shape grown outward, round at the corners, with the shape taken out of it. A line along the edge
+## stood out in a spike past every sharp point, and the half of it inside the shape showed through
+## a see-through fill as a second, grayer rim.
 
 enum Suit { SPADE, HEART, DIAMOND, CLUB }
 
@@ -16,20 +21,86 @@ const OUTLINE := Color(0.05, 0.05, 0.06)
 ## round each of a club's balls.
 const CURVE_POINTS := 64
 const BALL_POINTS := 40
+## How big a unit square is made while a suit is grown into its ring: the corners are rounded only
+## to a quarter of a unit, which in a unit square is no rounding at all.
+const WORK_SCALE := 100.0
+## How wide the line that softens the ring's edges is, in pixels.
+const SOFT_EDGE := 1.0
 
-## Each suit's single outline in a unit square, worked out the first time it is drawn.
+## Each suit's single outline in a unit square, worked out the first time it is drawn, and its
+## grown outline and ring for each width it has been drawn at.
 static var _outlines: Dictionary[int, PackedVector2Array] = {}
+static var _grown: Dictionary[Vector2i, PackedVector2Array] = {}
+static var _rings: Dictionary[Vector2i, Array] = {}
 
 
 ## Draws [param suit] into [param box] on [param on] in [param ink], outlined [param edge] wide in
 ## [constant OUTLINE], or with no outline at 0. Any number is a suit: the fifth is a spade again.
 static func draw_into(on: CanvasItem, box: Rect2, suit: int, ink: Color, edge := 0.0) -> void:
-	var placed := _placed(outline(suit % Suit.size()), box)
-	if edge > 0.0:
-		var closed := placed.duplicate()
-		closed.append(placed[0])
-		on.draw_polyline(closed, OUTLINE, edge * 2.0, true)
-	on.draw_colored_polygon(placed, ink)
+	suit %= Suit.size()
+	var shape := _placed(outline(suit), box)
+	on.draw_colored_polygon(shape, ink)
+	if edge <= 0.0:
+		return
+	var width := edge / box.size.x
+	for piece: PackedVector2Array in ring(suit, width):
+		on.draw_colored_polygon(_placed(piece, box), OUTLINE)
+	# A filled polygon has a hard, stepped edge, which at the size of a suit under the clock is
+	# most of what there is to see of it: a thin line down both edges of the ring softens them.
+	for edge_line: PackedVector2Array in [shape, _placed(grown(suit, width), box)]:
+		var closed := edge_line.duplicate()
+		closed.append(edge_line[0])
+		on.draw_polyline(closed, OUTLINE, SOFT_EDGE, true)
+
+
+## [param suit]'s outline grown outward by [param width] of a unit square, round at the corners.
+static func grown(suit: int, width: float) -> PackedVector2Array:
+	var key := Vector2i(suit, roundi(width * 100000.0))
+	if not _grown.has(key):
+		var work := _scaled(outline(suit), WORK_SCALE)
+		var out := Geometry2D.offset_polygon(
+			work, width * WORK_SCALE, Geometry2D.PolyJoinType.JOIN_ROUND
+		)
+		_grown[key] = _scaled(_largest(out), 1.0 / WORK_SCALE)
+	return _grown[key]
+
+
+## The ring round [param suit], [param width] of a unit square wide, as the pieces it is drawn in:
+## cut down the middle, so that each half, with the suit taken out of it, has no hole in it,
+## which is all a polygon can be drawn as.
+static func ring(suit: int, width: float) -> Array:
+	var key := Vector2i(suit, roundi(width * 100000.0))
+	if _rings.has(key):
+		return _rings[key]
+	var inner := _scaled(outline(suit), WORK_SCALE)
+	var outer := _scaled(grown(suit, width), WORK_SCALE)
+	var middle := WORK_SCALE * 0.5
+	var far := WORK_SCALE * 2.0
+	var pieces: Array[PackedVector2Array] = []
+	for half: Rect2 in [
+		Rect2(-far, -far, middle + far, far * 2.0 + WORK_SCALE),
+		Rect2(middle, -far, middle + far, far * 2.0 + WORK_SCALE),
+	]:
+		var cut := PackedVector2Array(
+			[
+				half.position,
+				Vector2(half.end.x, half.position.y),
+				half.end,
+				Vector2(half.position.x, half.end.y)
+			]
+		)
+		for part: PackedVector2Array in Geometry2D.intersect_polygons(outer, cut):
+			for piece: PackedVector2Array in Geometry2D.clip_polygons(part, inner):
+				pieces.append(_scaled(piece, 1.0 / WORK_SCALE))
+	_rings[key] = pieces
+	return pieces
+
+
+static func _scaled(polygon: PackedVector2Array, by: float) -> PackedVector2Array:
+	var scaled := PackedVector2Array()
+	for point: Vector2 in polygon:
+		scaled.append(point * by)
+	return scaled
 
 
 ## [param suit]'s outline in a unit square: its pieces merged into the one shape.

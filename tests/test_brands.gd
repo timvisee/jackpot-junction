@@ -59,3 +59,33 @@ func test_every_suit_is_one_shape() -> void:
 		assert_array(Geometry2D.triangulate_polygon(outline)).is_not_empty()
 		for point: Vector2 in outline:
 			assert_bool(Rect2(0.0, 0.0, 1.0, 1.0).has_point(point)).is_true()
+		# The ring round it lies all outside it: none of it is drawn over a see-through fill.
+		var ring := SuitArt.ring(suit, 0.07)
+		assert_array(ring).is_not_empty()
+		var grown := SuitArt.grown(suit, 0.07)
+		for piece: PackedVector2Array in ring:
+			assert_array(Geometry2D.triangulate_polygon(piece)).is_not_empty()
+			assert_array(Geometry2D.intersect_polygons(_shrunk(piece), outline)).is_empty()
+			for point: Vector2 in piece:
+				(
+					assert_bool(Geometry2D.is_point_in_polygon(point, grown) or _near(point, grown))
+					. is_true()
+				)
+
+
+## [param piece] a hair smaller all round, so pieces that only touch along an edge do not count
+## as overlapping.
+static func _shrunk(piece: PackedVector2Array) -> PackedVector2Array:
+	var up := Transform2D.IDENTITY.scaled(Vector2.ONE * 100.0)
+	var smaller := Geometry2D.offset_polygon(up * piece, -0.2)
+	return up.affine_inverse() * smaller[0] if not smaller.is_empty() else PackedVector2Array()
+
+
+static func _near(point: Vector2, polygon: PackedVector2Array) -> bool:
+	for i: int in polygon.size():
+		var on := Geometry2D.get_closest_point_to_segment(
+			point, polygon[i], polygon[(i + 1) % polygon.size()]
+		)
+		if on.distance_to(point) < 0.001:
+			return true
+	return false
