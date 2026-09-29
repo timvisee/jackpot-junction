@@ -8,8 +8,9 @@ extends Node
 ## The maker makes a game from Play Online and chooses a Grand Prix of two maps, the joiner joins it
 ## from the list and the watcher watches it. Both players drive onto the pad, each map is played to
 ## its whistle, and from the podiums the maker goes on to the second map and then takes everybody
-## back to the lobby. The maker leaves, the host's say passes to the joiner, the joiner leaves, and
-## the watcher is told the game is over and is back on Play Online. Every step prints a line starting SVCHECK, and a step that
+## back to the lobby. There the maker hands the host's say to the joiner with Make host, the joiner
+## leaves and the say passes back to the maker, the maker leaves, and the watcher is told the game is
+## over and is back on the server's games. Every step prints a line starting SVCHECK, and a step that
 ## does not happen in time fails the run with the reason.
 
 const WAITING_SCENE := "res://scenes/waiting/waiting_room.tscn"
@@ -137,14 +138,58 @@ func _maker() -> void:
 	if not await _until(back.host_settings.is_open, 20.0, "the match settings came up again"):
 		return
 	back.host_settings.close()
-	await _seconds(2.0)
+	if not await _hand_the_say_on(back):
+		return
+	# The joiner leaves, and the say comes back to whoever has been in the longest since.
+	if not await _until(session.host_controls.mine, 40.0, "the say came back once the joiner left"):
+		return
+	_check(_told(back, "The host left."), "and the maker was told it is the host again")
+	await _seconds(1.0)
 	_say("leaving")
 	Game.go_to_title()
 	_finished = true
 	await _seconds(1.0)
 
 
-## Joins the maker's game from the list, plays it, and is handed the say when the maker goes.
+## Make host on the joiner's row of Manage players, from the pause menu, the way a player hands the
+## say on, and the say gone from here with the pane.
+func _hand_the_say_on(room: Node) -> bool:
+	var session: NetSession = room.session
+	if not await _until(
+		func() -> bool: return session.host_controls.guests().size() >= 2,
+		10.0,
+		"Manage players has the joiner and the watcher to list"
+	):
+		return false
+	var menu: PauseMenu = room.get_node("PauseMenu")
+	menu.set_paused(true)
+	menu._manage.pressed.emit()
+	var hand: Button = null
+	for row: Node in menu._players._rows.get_children():
+		if row is HBoxContainer and (row.get_child(0) as Label).text == "Joiner":
+			for button: Node in row.get_children():
+				if button is Button and (button as Button).text == "Make host":
+					hand = button
+	if not _check(hand != null, "Manage players has Make host beside the joiner"):
+		return false
+	hand.pressed.emit()
+	if not await _until(
+		func() -> bool: return not session.host_controls.mine(), 10.0, "Make host handed it on"
+	):
+		return false
+	await _frames(2)
+	_check(not menu._players.visible, "and Manage players went with the say")
+	menu.set_paused(false)
+	return true
+
+
+## Whether the notice over [param room] says [param words] at the start of its message.
+func _told(room: Node, words: String) -> bool:
+	var notice := room.get_node_or_null("Notice") as NoticePane
+	return notice != null and notice.visible and notice._message.text.begins_with(words)
+
+
+## Joins the maker's game from the list, plays it, is handed the say with Make host, and leaves.
 func _joiner() -> void:
 	var screen := await _play_online()
 	if screen == null:
@@ -177,11 +222,10 @@ func _joiner() -> void:
 	if not await _until(
 		func() -> bool: return is_instance_valid(back) and session.host_controls.mine(),
 		40.0,
-		"the say passed to the joiner once the maker left"
+		"the maker handed the joiner the say"
 	):
 		return
-	var notice := back.get_node_or_null("Notice") as NoticePane
-	_check(notice != null and notice.visible, "and it was told it is the host")
+	_check(_told(back, "Maker made you the host."), "and it was told who made it the host")
 	await _seconds(2.0)
 	_say("leaving")
 	Game.go_to_title()

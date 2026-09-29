@@ -4,8 +4,9 @@
 # See tools/server_driver.gd for what each client checks; this checks what the server logged.
 #
 #   maker:   makes a game from Play Online, chooses a Grand Prix of two maps, plays it, goes on
-#            from the first podium and takes everybody back to the lobby from the last, and leaves
-#   joiner:  joins it from the list, plays it, and has the host's say once the maker has gone
+#            from the first podium and takes everybody back to the lobby from the last, hands the
+#            host's say to the joiner with Make host, has it back once the joiner has gone, and leaves
+#   joiner:  joins it from the list, plays it, is made the host, and leaves
 #   watcher: watches it, and is told the game is over once both players have left
 #
 # Usage: tools/server_check          (about a minute)
@@ -117,9 +118,11 @@ said=(
 	", map 2 of 2"
 	"game 1: Results: 1. "
 	"game 1: In the lobby"
-	"game 1: Maker left"
+	"game 1: Maker made Joiner the host"
 	"game 1: Joiner has the host's say"
 	"game 1: Joiner left"
+	"game 1: Maker has the host's say"
+	"game 1: Maker left"
 	"game 1: Everybody left, so the game is over"
 	"server: Game 1 is over"
 )
