@@ -3,31 +3,72 @@ extends RefCounted
 ## The four card suits, GAME.md 3.9: one on each Royal Flush pad, the four a flush collects. Drawn
 ## rather than taken from a font, so all four are the same size and weight, and each can carry an
 ## outline of its own to read on a pad in whatever color its holder has painted it.
+##
+## A spade is a heart turned over on a stem and a club is three balls on a foot, but each is drawn
+## as one shape: the pieces are merged into a single outline first. Drawn see-through, as a suit
+## nobody holds is under the clock, pieces drawn one over another showed the stem through the
+## spade and every ball's edge through the club.
 
 enum Suit { SPADE, HEART, DIAMOND, CLUB }
 
 const OUTLINE := Color(0.05, 0.05, 0.06)
-## How many points go round a heart's curve, and a spade's, which is a heart turned over.
+## How many points go round a heart's curve, and a spade's, which is a heart turned over, and
+## round each of a club's balls.
 const CURVE_POINTS := 64
+const BALL_POINTS := 40
+
+## Each suit's single outline in a unit square, worked out the first time it is drawn.
+static var _outlines: Dictionary[int, PackedVector2Array] = {}
 
 
 ## Draws [param suit] into [param box] on [param on] in [param ink], outlined [param edge] wide in
 ## [constant OUTLINE], or with no outline at 0. Any number is a suit: the fifth is a spade again.
 static func draw_into(on: CanvasItem, box: Rect2, suit: int, ink: Color, edge := 0.0) -> void:
-	var shape := _shape(suit % Suit.size())
-	var polygons: Array = shape[0]
-	var discs: Array = shape[1]
+	var placed := _placed(outline(suit % Suit.size()), box)
 	if edge > 0.0:
-		for polygon: PackedVector2Array in polygons:
-			var closed := _placed(polygon, box)
-			closed.append(closed[0])
-			on.draw_polyline(closed, OUTLINE, edge * 2.0, true)
-		for disc: Vector3 in discs:
-			on.draw_circle(_at(box, disc.x, disc.y), disc.z * box.size.x + edge, OUTLINE)
+		var closed := placed.duplicate()
+		closed.append(placed[0])
+		on.draw_polyline(closed, OUTLINE, edge * 2.0, true)
+	on.draw_colored_polygon(placed, ink)
+
+
+## [param suit]'s outline in a unit square: its pieces merged into the one shape.
+static func outline(suit: int) -> PackedVector2Array:
+	if _outlines.has(suit):
+		return _outlines[suit]
+	var shape := _shape(suit)
+	var pieces: Array = shape[0].duplicate()
+	for disc: Vector3 in shape[1]:
+		pieces.append(_ball(disc))
+	var whole: PackedVector2Array = pieces[0]
+	for piece: PackedVector2Array in pieces.slice(1):
+		whole = _largest(Geometry2D.merge_polygons(whole, piece))
+	_outlines[suit] = whole
+	return whole
+
+
+## The biggest of [param polygons], which is the outside of a merge: anything else it gives back
+## is a hole, and these suits have none worth drawing.
+static func _largest(polygons: Array[PackedVector2Array]) -> PackedVector2Array:
+	var best := PackedVector2Array()
+	var most := -1.0
 	for polygon: PackedVector2Array in polygons:
-		on.draw_colored_polygon(_placed(polygon, box), ink)
-	for disc: Vector3 in discs:
-		on.draw_circle(_at(box, disc.x, disc.y), disc.z * box.size.x, ink)
+		var area := 0.0
+		for i: int in polygon.size():
+			area += polygon[i].cross(polygon[(i + 1) % polygon.size()])
+		if absf(area) > most:
+			most = absf(area)
+			best = polygon
+	return best
+
+
+## A ball of [param disc], its center and radius, as a polygon.
+static func _ball(disc: Vector3) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	for i: int in BALL_POINTS:
+		var angle := TAU * i / BALL_POINTS
+		points.append(Vector2(disc.x, disc.y) + Vector2(cos(angle), sin(angle)) * disc.z)
+	return points
 
 
 ## [param suit] in a unit square: the polygons it is made of, and its discs as a center and a

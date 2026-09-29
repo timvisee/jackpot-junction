@@ -48,3 +48,14 @@ func test_each_flush_pad_wears_a_suit_of_its_own() -> void:
 	assert_array(suits).is_equal(
 		[SuitArt.Suit.SPADE, SuitArt.Suit.HEART, SuitArt.Suit.DIAMOND, SuitArt.Suit.CLUB]
 	)
+
+
+## Each suit is one shape, its pieces merged, so one drawn see-through, as a suit nobody holds is
+## under the clock, shows no piece's edge through another, GAME.md 8.3.
+func test_every_suit_is_one_shape() -> void:
+	for suit: int in SuitArt.Suit.size():
+		var outline := SuitArt.outline(suit)
+		assert_int(outline.size()).is_greater(3)
+		assert_array(Geometry2D.triangulate_polygon(outline)).is_not_empty()
+		for point: Vector2 in outline:
+			assert_bool(Rect2(0.0, 0.0, 1.0, 1.0).has_point(point)).is_true()
