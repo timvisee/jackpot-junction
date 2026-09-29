@@ -3346,8 +3346,8 @@ room: the same color, the same name, the same dress.
 **Choosing the match.** Whoever decides where the room goes chooses what the match is going to
 be in here: the host online, and on one machine the machine itself, which is where Play goes
 straight to. They are a Grand Prix or a quick match, a big button each, see 9.7, then rows for
-how many maps or which arena, how long, the target, how many bots and how hard, the items, own
-bullets, what the clock running out does and how many jokers a hand holds. They come up over the
+how many maps or which arena, how long, the target, how many bots and how hard, the items and
+how many jokers a hand holds, own bullets and what the clock running out does. They come up over the
 room the moment it is opened, again from the host's pause menu, and start on whatever the host
 chose last time. Hosting online they come up one step later: first the lobby's own settings of
 10.3, who may come in, since friends are knocking from the moment the room is open, with Next

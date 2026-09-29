@@ -213,6 +213,10 @@ func _build(column: Container, settings: Settings) -> void:
 	column.add_child(MenuTheme.row("Bots", bots_option))
 	column.add_child(MenuTheme.row("Bot difficulty", difficulty_option))
 	column.add_child(MenuTheme.row("Items", items_option))
+	slots_option = MenuTheme.option(
+		_labels(JOKER_SLOTS, "%d jokers"), maxi(JOKER_SLOTS.find(settings.joker_slots), 0)
+	)
+	column.add_child(MenuTheme.row("Joker slots", slots_option))
 	own_bullets_option = MenuTheme.option(
 		["Harmless", "Deadly"], OWN_BULLETS.find(settings.own_bullets_hurt)
 	)
@@ -221,10 +225,6 @@ func _build(column: Container, settings: Settings) -> void:
 		["Last one standing", "Match ends"], OVERTIME.find(settings.overtime)
 	)
 	column.add_child(MenuTheme.row("Out of time", overtime_option))
-	slots_option = MenuTheme.option(
-		_labels(JOKER_SLOTS, "%d jokers"), maxi(JOKER_SLOTS.find(settings.joker_slots), 0)
-	)
-	column.add_child(MenuTheme.row("Joker slots", slots_option))
 
 
 ## Shows the rows that go with what is being set up: the arena for a single map, the number of
