@@ -170,10 +170,12 @@ From this checkout only. `tools/godot` finds Godot through `$GODOT` first.
 
 ### Godot's own
 
-Everything the recipes here use works in a release export too: `--path`,
+Most of what the recipes here use works in a release export too:
 `--resolution <W>x<H>`, `--fullscreen`, `--headless`, `--fixed-fps <fps>`,
-`--max-fps <fps>`, `--disable-vsync`, `--time-scale <scale>`, `--print-fps` and
-`-s <script>`. The debug drawing options, such as `--debug-collisions`,
+`--max-fps <fps>`, `--disable-vsync`, `--time-scale <scale>` and `--print-fps`.
+`--path`, `--main-pack`, `-s <script>` and a scene given on the command line are
+the editor's alone: an export template refuses them, and always starts the
+game's own first scene. The debug drawing options, such as `--debug-collisions`,
 `--debug-paths` and `--debug-navigation`, are for debug builds only. A template's
 `--help` marks each option with R (every build) or D (debug only).
 
