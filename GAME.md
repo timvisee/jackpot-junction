@@ -4449,6 +4449,14 @@ with the numbers that put them there.
   twenty-four round a disc, and six or eight round the tube of any torus. A shot
   also builds nothing: bullets share their meshes by radius and their materials by
   color. Four aim guides went from 16,900 triangles to 320.
+- **Textures are VRAM-compressed with mipmaps.** The materials are built in code,
+  so the editor's "detect 3D" step, which would have switched a texture used on
+  a mesh to a compressed one with mipmaps, never ran, and every surface texture
+  was imported lossless and unmipped: six full-size reads per pixel of felt at
+  the far end of the table, with no mip to read from. `compress/mode=2` and
+  `mipmaps/generate=true` in every import under `assets/textures`, and
+  `compress/normal_map=1` on the normal maps, put them in the formats a card
+  samples in a quarter of the bandwidth, ETC2 or ASTC on a phone.
 
 ## 11. Roadmap
 

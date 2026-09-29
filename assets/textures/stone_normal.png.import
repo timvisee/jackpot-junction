@@ -3,27 +3,29 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://v1gpy6k63hj"
-path="res://.godot/imported/stone_normal.png-6c021c0696781f18b3f27adc00310a71.ctex"
+path.s3tc="res://.godot/imported/stone_normal.png-6c021c0696781f18b3f27adc00310a71.s3tc.ctex"
+path.etc2="res://.godot/imported/stone_normal.png-6c021c0696781f18b3f27adc00310a71.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/stone_normal.png"
-dest_files=["res://.godot/imported/stone_normal.png-6c021c0696781f18b3f27adc00310a71.ctex"]
+dest_files=["res://.godot/imported/stone_normal.png-6c021c0696781f18b3f27adc00310a71.s3tc.ctex", "res://.godot/imported/stone_normal.png-6c021c0696781f18b3f27adc00310a71.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=1
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

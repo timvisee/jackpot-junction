@@ -27,6 +27,9 @@ below, and hands the notes to the release workflow.
   turrets, oil stains and rings were built at a sphere's full sixty-four segments; they are cut
   to what their size shows, and every bullet shares its meshes and materials rather than building
   its own per shot.
+- **Textures with mipmaps, compressed for the card.** The felt, wood, paint, stone and card
+  textures are drawn from mipmaps and stored the way a phone's card reads them, a quarter of the
+  bandwidth for the surfaces that cover most of the screen.
 
 ## [0.10.0] - 2026-09-29
 
