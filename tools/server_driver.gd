@@ -209,7 +209,7 @@ func _watcher() -> void:
 		func() -> bool:
 			var scene := _scene()
 			return scene != null and scene.scene_file_path == PLAY_ONLINE_SCENE,
-		120.0,
+		_length * MAPS + 120.0,
 		"was told the game is over and went back to Play Online"
 	):
 		return
