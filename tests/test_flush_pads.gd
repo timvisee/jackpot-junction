@@ -294,3 +294,33 @@ func test_the_pads_held_are_counted_under_the_clock() -> void:
 	match_node.flush_lock_slot = 1
 	tally._process(0.0)
 	assert_bool(tally.visible).is_false()
+
+
+## GAME.md 8.3: somebody else one pad off the flush puts the tally up on every screen, whoever
+## there holds anything, as a warning: that player's blocks pulse and an exclamation mark stands
+## at the end of the row. Two pads short of it is not a warning.
+func test_a_rival_one_pad_off_the_flush_is_warned_of() -> void:
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.KEYBOARD, 0), BotInput.new(), BotInput.new()
+	]
+	var match_node := _start_match(inputs, true)
+	await _runner.simulate_frames(20, 17)
+	var tally: FlushTally = match_node.hud.get_node("FlushTally")
+	var pads := match_node.arena.flush_pads
+	var theirs := match_node.slots[1].color()
+	pads[0].claim(1, theirs)
+	pads[1].claim(1, theirs)
+	tally._process(0.0)
+	assert_bool(tally.visible).is_false()
+	assert_int(tally.threat).is_equal(-1)
+	pads[2].claim(1, theirs)
+	tally._process(0.1)
+	assert_bool(tally.visible).is_true()
+	assert_int(tally.threat).is_equal(1)
+	assert_array(tally.held).is_equal([theirs, theirs, theirs])
+	# This screen's own player one pad off is no warning to themselves.
+	for pad: FlushPad in pads.slice(0, 3):
+		pad.claim(0, match_node.slots[0].color())
+	tally._process(0.1)
+	assert_int(tally.threat).is_equal(-1)
+	assert_bool(tally.visible).is_true()
