@@ -35,6 +35,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Mouse buttons are drawn as a mouse.** A binding on the left, right or middle button shows
+  a mouse with that button lit, and a double click adds ×2.
 - **Bots dress their karts.** Each bot drives with its own paint, hat, flag and trail, and
   keeps them through a Grand Prix.
 - **Manage players sits under Lobby settings.** On the host's pause menu the two are now the

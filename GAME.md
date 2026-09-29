@@ -2029,8 +2029,11 @@ movement: the one thing a corner block must not do is ask to be looked at.
   are pills with their name on. A stick is the gate seen from above with an L or
   an R written inside it, and a solid head each way along the axis it reads, or
   one head when only half the axis is bound. The D-pad is a cross with the
-  pressed arm lit. A face button, a stick and the D-pad are drawn as buttons
-  rather than on one, since each is already a shape and a box around a button is
+  pressed arm lit. A mouse button is a mouse seen from above, its left or right
+  half filled in the ink, or its wheel for the middle button, and a double click
+  is the same mouse with ×2 beside it; any other mouse button, the wheel turned
+  say, is written on a key cap. A face button, a stick, the D-pad and a mouse are
+  drawn as buttons rather than on one, since each is already a shape and a box around a button is
   a box around a button; everything else is a word, and a word needs something to
   be written on.
   Everything but a face button sits on a solid dark chip with a soft black edge

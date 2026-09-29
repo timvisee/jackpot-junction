@@ -475,3 +475,29 @@ func test_a_hints_picture_is_not_drawn_every_frame() -> void:
 	assert_object(render).is_not_null()
 	assert_int(render.render_target_update_mode).is_not_equal(SubViewport.UPDATE_ALWAYS)
 	assert_int(render.size.x).is_greater(1)
+
+
+## GAME.md 8.3: a mouse button bound to something is drawn as a mouse with that button lit, the
+## left, the right or the wheel, and a double click as the same mouse with "×2" beside it. Any other
+## mouse button is written on a key cap, since there is no mouse to draw it on.
+func test_a_mouse_button_is_drawn_as_a_mouse() -> void:
+	var glyphs: Array[InputGlyph] = []
+	for double: bool in [false, true]:
+		for button: MouseButton in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE]:
+			var click := InputEventMouseButton.new()
+			click.button_index = button
+			click.double_click = double
+			var glyph: InputGlyph = auto_free(InputGlyph.of_event(click, Color.WHITE, 15))
+			assert_int(glyph.kind).is_equal(InputGlyph.Kind.MOUSE)
+			assert_int(glyph.mouse_button).is_equal(button)
+			assert_bool(glyph.double_click).is_equal(double)
+			assert_str(glyph.caption).is_equal(InputGlyph.DOUBLE_MARK if double else "")
+			glyphs.append(glyph)
+	# Narrower than it is tall, like a mouse, and wider by the mark for a double click.
+	assert_float(glyphs[0].custom_minimum_size.x).is_less(glyphs[0].custom_minimum_size.y)
+	assert_float(glyphs[3].custom_minimum_size.x).is_greater(glyphs[0].custom_minimum_size.x)
+	var wheel := InputEventMouseButton.new()
+	wheel.button_index = MOUSE_BUTTON_WHEEL_UP
+	var written: InputGlyph = auto_free(InputGlyph.of_event(wheel, Color.WHITE, 15))
+	assert_int(written.kind).is_equal(InputGlyph.Kind.KEY)
+	assert_str(written.caption).is_not_empty()

@@ -2,14 +2,14 @@ class_name InputGlyph
 extends Control
 ## One binding drawn rather than written, GAME.md 8.3: a key as a key cap with the key on it, a
 ## gamepad face button as a round button in its own color, a shoulder or a trigger as a pill,
-## a stick as a stick and the D-pad as a D-pad.
+## a stick as a stick, the D-pad as a D-pad and a mouse button as a mouse with that button lit.
 ##
 ## "Shift drift   Ctrl nitro" is a sentence to be read. The same line with the two keys drawn as
 ## keys is a picture to be recognized, which is what a hint glanced at mid-corner has to be. The
 ## shapes are drawn rather than loaded, because the bindings belong to the player: any key on the
 ## keyboard can end up in one of these, and no set of pictures can cover that in advance.
 
-enum Kind { KEY, FACE, SHOULDER, STICK, DPAD }
+enum Kind { KEY, FACE, SHOULDER, STICK, DPAD, MOUSE }
 
 ## How tall a glyph is by default and how much air sits either side of the caption inside one.
 const HEIGHT := 22.0
@@ -41,6 +41,14 @@ const FACE_INK := Color(0.06, 0.06, 0.08)
 ## hold a letter, and the arrows still have to fit outside it: in a square chip the two fight and
 ## the arrows lose, coming out as nicks in the border.
 const STICK_WIDE := 1.55
+## How wide a mouse is for how tall it is, and how much room the mark of a double click takes
+## beside it.
+const MOUSE_WIDE := 0.66
+const DOUBLE_MARK := "\u00d72"
+## The three buttons a mouse is drawn for; any other is written on a key cap.
+const MOUSE_BUTTONS: Array[MouseButton] = [
+	MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE
+]
 ## What a touch screen's own buttons are called on them, GAME.md 4.2, for the hint that names one:
 ## a pill with the word on it, the way the screen has it. Steering is the stick under the left
 ## thumb, drawn as a stick with nothing written in it.
@@ -66,6 +74,9 @@ var along := Vector2.RIGHT
 var both_ways := false
 ## Whether this is a stick pushed every way at once, a head on each of its four sides: the way to
 ## go in simple driving, GAME.md 4.2, rather than one axis of it. Square, being as tall as wide.
+## For a mouse: which of its buttons is pressed, and whether twice.
+var mouse_button := MOUSE_BUTTON_LEFT
+var double_click := false
 var every_way := false:
 	set(value):
 		every_way = value
@@ -104,6 +115,10 @@ static func of_event(event: InputEvent, ink: Color, font_size: int) -> InputGlyp
 	glyph.ink = ink
 	glyph.font_size = font_size
 	glyph.kind = _kind_of(event)
+	var click := event as InputEventMouseButton
+	if glyph.kind == Kind.MOUSE:
+		glyph.mouse_button = click.button_index
+		glyph.double_click = click.double_click
 	glyph.caption = _caption_of(event, glyph.kind)
 	glyph.along = _along(event)
 	glyph.custom_minimum_size = glyph._wanted()
@@ -133,6 +148,9 @@ static func _kind_of(event: InputEvent) -> Kind:
 	if motion != null:
 		var trigger := motion.axis in [JOY_AXIS_TRIGGER_LEFT, JOY_AXIS_TRIGGER_RIGHT]
 		return Kind.SHOULDER if trigger else Kind.STICK
+	var click := event as InputEventMouseButton
+	if click != null and click.button_index in MOUSE_BUTTONS:
+		return Kind.MOUSE
 	return Kind.KEY
 
 
@@ -142,6 +160,9 @@ static func _kind_of(event: InputEvent) -> Kind:
 static func _caption_of(event: InputEvent, kind: Kind) -> String:
 	if kind == Kind.DPAD:
 		return ""
+	if kind == Kind.MOUSE:
+		var click := event as InputEventMouseButton
+		return DOUBLE_MARK if click.double_click else ""
 	if kind == Kind.STICK:
 		var motion := event as InputEventJoypadMotion
 		var right := motion != null and motion.axis in [JOY_AXIS_RIGHT_X, JOY_AXIS_RIGHT_Y]
@@ -179,6 +200,14 @@ func _wanted() -> Vector2:
 		return Vector2(tall * STICK_WIDE, tall * (STICK_WIDE if every_way else 1.0))
 	if kind == Kind.FACE or kind == Kind.DPAD:
 		return Vector2(tall, tall)
+	if kind == Kind.MOUSE:
+		var mark := 0.0
+		if not caption.is_empty():
+			mark = (
+				_font().get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1, _caption_size()).x
+			)
+			mark += SIDE_PAD * 0.5
+		return Vector2(tall * MOUSE_WIDE + mark, tall)
 	var run := _font().get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1.0, _caption_size()).x
 	return Vector2(maxf(tall, run + SIDE_PAD * 2.0), tall)
 
@@ -206,6 +235,9 @@ func _draw() -> void:
 		return
 	if kind == Kind.DPAD:
 		_draw_dpad(box)
+		return
+	if kind == Kind.MOUSE:
+		_draw_mouse(box)
 		return
 	_draw_chip(box)
 	_draw_caption(box, ink)
@@ -304,6 +336,57 @@ func _draw_dpad(box: Rect2) -> void:
 	draw_rect(
 		arm.merge(Rect2(center + along * reach - Vector2(thick, thick) * 0.5, arm.size)), edge
 	)
+
+
+## A mouse seen from above, GAME.md 8.3: a rounded body split into its two buttons with the wheel
+## between them, and the one this binding is for filled in the ink, the left or the right half or
+## the wheel. A shape of its own, like a face button, so no chip round it: the body is dark with a
+## rim in the ink. A double click says so beside it, "×2", since a second picture of the same mouse
+## would read as two bindings.
+func _draw_mouse(box: Rect2) -> void:
+	var body := Rect2(
+		box.position + Vector2(1.0, 1.0), Vector2(box.size.y * MOUSE_WIDE - 2.0, box.size.y - 2.0)
+	)
+	var corner := roundi(body.size.x * 0.5)
+	var shell := StyleBoxFlat.new()
+	shell.bg_color = CHIP
+	shell.set_corner_radius_all(corner)
+	shell.shadow_color = CHIP_EDGE
+	shell.shadow_size = CHIP_SHADOW
+	draw_style_box(shell, body)
+	var split := body.size.y * 0.44
+	var half := body.size.x * 0.5
+	var lit := StyleBoxFlat.new()
+	lit.bg_color = Color(ink.r, ink.g, ink.b, 0.95)
+	if mouse_button == MOUSE_BUTTON_LEFT:
+		lit.corner_radius_top_left = corner
+		draw_style_box(lit, Rect2(body.position, Vector2(half, split)))
+	elif mouse_button == MOUSE_BUTTON_RIGHT:
+		lit.corner_radius_top_right = corner
+		draw_style_box(lit, Rect2(body.position + Vector2(half, 0.0), Vector2(half, split)))
+	var edge := Color(ink.r, ink.g, ink.b, EDGE_ALPHA)
+	var top := body.position
+	draw_line(top + Vector2(half, 0.0), top + Vector2(half, split), edge, EDGE_WIDTH)
+	draw_line(top + Vector2(0.0, split), top + Vector2(body.size.x, split), edge, EDGE_WIDTH)
+	var wheel := Rect2(
+		top + Vector2(half - body.size.x * 0.1, split * 0.22),
+		Vector2(body.size.x * 0.2, split * 0.56)
+	)
+	var roller := StyleBoxFlat.new()
+	roller.bg_color = lit.bg_color if mouse_button == MOUSE_BUTTON_MIDDLE else CHIP
+	roller.border_color = edge
+	roller.set_border_width_all(1)
+	roller.set_corner_radius_all(roundi(wheel.size.x * 0.5))
+	draw_style_box(roller, wheel)
+	var rim := StyleBoxFlat.new()
+	rim.draw_center = false
+	rim.border_color = edge
+	rim.set_border_width_all(2)
+	rim.set_corner_radius_all(corner)
+	draw_style_box(rim, body)
+	if not caption.is_empty():
+		var beside := body.end.x + SIDE_PAD * 0.5
+		_draw_caption(Rect2(beside, box.position.y, box.end.x - beside, box.size.y), ink)
 
 
 ## A small solid arrowhead at [param at], pointing [param way]. Drawn twice by its caller, once
