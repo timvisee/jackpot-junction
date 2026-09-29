@@ -173,6 +173,31 @@ func test_the_item_held_comes_up_by_a_box_that_cannot_be_taken() -> void:
 	assert_bool(tag._tags.has(0)).is_false()
 
 
+## GAME.md 8.3: an item taken with another box already underneath the kart, as off a pad that puts
+## its next one straight out, stays up rather than fading and coming back for that box, and goes
+## once the kart drives away.
+func test_an_item_taken_by_another_box_stays_up_until_the_kart_leaves() -> void:
+	var match_node := await _ready_match()
+	var tag: ItemTag = match_node.hud.get_node("ItemTag")
+	_clear_the_boxes(match_node)
+	var kart := match_node.kart_of(0)
+	var box := ItemBox.new()
+	box.table = match_node.power_ups
+	box.rng = match_node.rng
+	match_node.arena.pickups.add_child(box)
+	box.global_position = kart.global_position + Vector3(1.0, 0.0, 0.0)
+	kart.hold_item(BOOST, 0.0)
+	var least := 1.0
+	for i: int in 15:
+		await _runner.simulate_frames(10, 17)
+		assert_bool(tag._tags.has(0)).override_failure_message("gone at %d" % i).is_true()
+		least = minf(least, ItemTag._fade(tag._tags[0]))
+	assert_float(least).is_greater(0.9)
+	box.global_position = kart.global_position + Vector3(20.0, 0.0, 0.0)
+	await _runner.simulate_frames(60, 17)
+	assert_bool(tag._tags.has(0)).is_false()
+
+
 ## No boxes on the floor but the ones a test puts there: the arena's pads have theirs near the
 ## spawns, which would bring the item held up by themselves, and put new ones out straight away.
 func _clear_the_boxes(match_node: Match) -> void:

@@ -9,7 +9,8 @@ extends Control
 ##
 ## And again while a player holding one drives up to another box: a box they cannot take, since
 ## the slot is full, which they drove straight through wondering why. The item they hold comes up
-## beside the kart the nearer they get, and goes again as they leave the box behind.
+## beside the kart the nearer they get, and goes again as they leave the box behind. One taken
+## with another box already underneath the kart just stays up until they drive away from it.
 
 ## How big the picture is, the chip it sits on, the kart's top right corner that the chip's lower
 ## left one sits on, in meters up and to the right as the camera sees it, how long it stays once
@@ -99,10 +100,15 @@ func _process(delta: float) -> void:
 				_drop(slot)
 				continue
 		elif kart.held_item != null and kart.item_reveal_left <= 0.0:
-			tag["settled"] += delta
-			if tag["settled"] >= HOLD + FADE:
-				_drop(slot)
-				continue
+			if _nearness(kart) > 0.0:
+				# Taken with another box underneath, as off a pad that puts its next one straight
+				# out: it stays up for that box as it is, rather than fading and coming back.
+				tag["near"] = _fade(tag)
+			else:
+				tag["settled"] += delta
+				if tag["settled"] >= HOLD + FADE:
+					_drop(slot)
+					continue
 		_place_button(slot, kart)
 	_remind()
 	queue_redraw()

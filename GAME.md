@@ -2250,7 +2250,9 @@ movement: the one thing a corner block must not do is ask to be looked at.
   at once. It comes up again, fading in over the last few meters and out as they
   drive on, while a player holding an item nears another item box: a box they
   cannot take with the slot full, which they used to drive straight through
-  wondering why nothing happened. The eyes are on the kart as it drives through the box, not
+  wondering why nothing happened. One taken with another box already under the
+  kart, as off a pad that puts its next one straight out, stays up for that box
+  rather than fading and coming straight back, and goes as they drive away. The eyes are on the kart as it drives through the box, not
   on the corner of the screen. Nobody else's pickup puts one up.
 - **Royal Flush tally** under the timer, while a player at this screen holds a
   Royal Flush pad, see 3.9: a block for each of the pads, one in its holder's
