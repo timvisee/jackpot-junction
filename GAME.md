@@ -238,7 +238,8 @@ in their corner of the screen if they play at this one and on their row of the
 standings if not, and +N in gold says how much beside the score as the first coin
 lands. The share that is lost is thrown into a trash can that comes up beside the
 wreck, toward the middle of the screen: the coins go up and over one after another,
-going gray on the way, the can bumps as each lands, −N in red rises over it as the
+going gray on the way, and drop in behind the can's front, gone inside it rather than
+landing on top of it; the can bumps as each goes in, −N in red rises over it as the
 first goes in, and it shuts its lid once the last has and fades, a couple of seconds
 all told. Coins that crumbled to dust where they fell were gone before anybody saw
 they were lost. The can is for the players at this screen alone: one over every

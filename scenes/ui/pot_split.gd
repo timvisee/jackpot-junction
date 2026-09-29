@@ -122,7 +122,8 @@ func _throw_away(from: Vector2, lost: int) -> void:
 	_cans.append({"at": at, "age": 0.0, "full": last, "bump": 0.0})
 	var mouth := at + Vector2(0.0, -CAN_SIZE.y * 0.5)
 	for i: int in count:
-		var aim := mouth + Vector2(_rng.randf_range(-6.0, 6.0), 0.0)
+		# A little below the rim, so the last of the flight is behind the can's front.
+		var aim := mouth + Vector2(_rng.randf_range(-6.0, 6.0), CAN_SIZE.y * 0.3)
 		var bend := from.lerp(aim, 0.5) + Vector2(0.0, -TOSS)
 		(
 			_coins
@@ -198,8 +199,6 @@ func _process(delta: float) -> void:
 ## The lost share, under the rest of the HUD: the cans, the coins going into them, and the
 ## numbers over them.
 func _draw() -> void:
-	for can: Dictionary in _cans:
-		_draw_can(can)
 	for coin: Dictionary in _coins:
 		var age: float = coin["age"]
 		if coin["bank"] or age < 0.0:
@@ -212,6 +211,10 @@ func _draw() -> void:
 		var at := from.lerp(bend, t).lerp(bend.lerp(to, t), t)
 		var tone := Palette.CHIP_GOLD.lerp(GRAY, clampf(t / GRAY_BY, 0.0, 1.0))
 		_draw_coin(self, at, COIN * lerpf(1.0, 0.6, t * t), tone)
+	# The cans over the coins going into them, so a coin drops in behind the front of one and is
+	# gone inside it rather than landing on top of it.
+	for can: Dictionary in _cans:
+		_draw_can(can)
 	_draw_words(self, false)
 
 
