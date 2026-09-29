@@ -37,6 +37,8 @@ below, and hands the notes to the release workflow.
 - **Pads, stands and tanks baked.** The coin, power, turbo and flush pads, the spawn discs, the
   jackpot tiles, the tribune steps and the tanks' fittings are merged into a mesh a material as
   the map loads; a frame of Lucky Crossing is 344 draw calls where it was 713.
+- **Cheaper bullets.** Two shots are only measured against each other once they are near enough
+  to have met, and the karts and targets are looked up once a frame for every bullet in the room.
 
 ### Added
 

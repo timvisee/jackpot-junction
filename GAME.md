@@ -4490,6 +4490,14 @@ with the numbers that put them there.
   half as many onto the table, and a phone starts there. It is the only
   performance setting that is a picture of the room rather than a pass over the
   screen, and it is cosmetic either way: nobody in the crowd touches a kart.
+- **What is quadratic in the bullets is cheap per pair, and what every bullet
+  asks is asked once.** Every pair of live bullets is checked for a meeting every
+  tick, which is five thousand pairs at the budget's hundred bullets; the closest
+  points between two sweeps allocate, so a pair is first rejected by the distance
+  between the middles of the sweeps, which nearly every pair fails. The karts and
+  the targets are read off their groups once a frame and shared by every bullet,
+  rather than walked once a bullet a tick, and anything that reads the shared
+  list checks each node is still alive.
 
 What the rules bought, measured on the development machine (a desktop card and
 a fast processor, which is why the frame rate moves less than the counts: a phone

@@ -73,7 +73,16 @@ func _physics_process(_delta: float) -> void:
 
 
 ## True when the movement segments of two bullets this tick passed within their combined radius.
+## Two sweeps whose middles are further apart than half of each plus both radii cannot have
+## touched, and that is nearly every pair in a busy room: the closest points, which allocate,
+## are worked out only for the rest, GAME.md 10.7.
 static func sweeps_touch(a: Bullet, b: Bullet) -> bool:
+	var half_a := (a.global_position - a.previous_position) * 0.5
+	var half_b := (b.global_position - b.previous_position) * 0.5
+	var reach := half_a.length() + half_b.length() + a.radius + b.radius
+	var apart := (a.previous_position + half_a).distance_squared_to(b.previous_position + half_b)
+	if apart > reach * reach:
+		return false
 	var points := Geometry3D.get_closest_points_between_segments(
 		a.previous_position, a.global_position, b.previous_position, b.global_position
 	)
