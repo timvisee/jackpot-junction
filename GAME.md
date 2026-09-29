@@ -3177,6 +3177,20 @@ it. Every seat is for somebody at another machine, so it seats four clients wher
 player of its own seats three, and watchers on top of them as before. It has no pause menu to ask
 with, so the room stops once every player in it asks, see 3.8, and nobody waits on the host.
 
+**The host's say.** Nobody at the server can choose a match, answer the door or show anybody
+out, so a player at another machine has the host's say instead: whoever made the game, since
+they are the first to sit down in it, and when they leave, whoever has been in it the longest
+since, who is told they are the host now. Somebody watching never has it. It is the whole of what
+a host decides, from the same menus: Lobby settings and then the match settings as the room
+opens, the match settings again back from a match and from the pause menu, Manage players, Pause
+game and Back to lobby there, and Next map, Rematch and Back to lobby on the podium. None of it is
+done at their machine. It is asked of the server, which does it for everybody, the one who asked
+among them, and which takes it only from the player with the say and only as far as those menus
+could have said it: a map that is not one, a number of bots no row offers or a kick of their own
+seat is not heard. While they choose the match their karts wait where they are, sent nothing to
+drive on, and the room does not go. Their Manage players lists everybody else, with their own
+players as Me; the players at one client share its say.
+
 ### 9.4 The Garage
 
 A practice room reached straight from the title screen, before anybody starts a

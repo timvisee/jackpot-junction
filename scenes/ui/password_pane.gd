@@ -41,7 +41,7 @@ func _build() -> void:
 	pane.add_child(column)
 	column.add_child(MenuTheme.title("Password", Type.TITLE))
 	column.add_child(MenuTheme.subtitle("This game needs a password.", Type.BODY))
-	_box = MenuTheme.field("", "Password", 64)
+	_box = MenuTheme.field("", "Password", NetDoor.PASSWORD_LENGTH)
 	_box.secret = true
 	_box.custom_minimum_size = Vector2(WIDTH, 48.0)
 	_box.text_submitted.connect(func(_typed: String) -> void: _knock())

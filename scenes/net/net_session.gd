@@ -98,10 +98,11 @@ var seats: Array[ClientSeat]:
 	get:
 		return _here.seats
 
-## How slow the line to each client is, see [NetPing], and the host's say over its game, see
-## [HostControls]: made once the session is in the tree.
+## How slow the line to each client is, see [NetPing]: made once the session is in the tree.
 var ping: NetPing
-var host_controls: HostControls
+## The host's say over its game, see [HostControls]: made with the session, since the menus that
+## ask it are made for sessions that may not be in the tree.
+var host_controls := HostControls.of(self)
 
 var _tick := 0
 ## On the host: the seats its clients hold, see [PeerSeats].
@@ -140,6 +141,10 @@ var _turned_away := false
 var _handshake := NetHandshake.of(self)
 
 
+func _init() -> void:
+	add_child(host_controls)
+
+
 func _ready() -> void:
 	if version.is_empty():
 		version = Game.version()
@@ -162,8 +167,6 @@ func _ready() -> void:
 	ping = NetPing.new()
 	ping.name = "Ping"
 	add_child(ping)
-	host_controls = HostControls.of(self)
-	add_child(host_controls)
 	var scene := multiplayer as SceneMultiplayer
 	if scene != null:
 		scene.auth_callback = _handshake.answer
@@ -470,6 +473,7 @@ func _seat(peer: int, fresh: bool, number := 0) -> void:
 		slot.player_name = kept["name"]
 	_newcomers.erase(peer)
 	var first := _peer_slots.put(peer, number, slot.index)
+	host_controls.seated(peer)
 	# Somebody who has just sat down has none of the floor, so the next snapshot carries all of it
 	# rather than the difference since a moment they were not here for.
 	_floor.start_again()
@@ -603,6 +607,7 @@ func _on_peer_disconnected(peer: int) -> void:
 	_watcher_next.erase(peer)
 	door.forget(peer)
 	_watching_here.erase(peer)
+	host_controls.left(peer)
 	if not is_host or not _peer_slots.has(peer):
 		return
 	var held := _peer_slots.take_all(peer)

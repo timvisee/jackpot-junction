@@ -53,6 +53,8 @@ var _manage: Button
 ## And who may come in: how many may play, and the password, GAME.md 9.6.
 var _door: LobbySettings
 var _door_button: Button
+## Back to the lobby from a map, for whoever has the say, see [method offer_the_lobby].
+var _to_lobby: Button
 ## Whatever is up in place of the menu just now, and the button that put it there.
 var _aside: Control
 var _aside_from: Button
@@ -176,9 +178,11 @@ func add_entry(text: String, action: Callable) -> Button:
 ## Back to the lobby from a map, over Back to title, for whoever decides where the room goes: the
 ## one machine offline, back to Play, and the host online, back to the waiting room of GAME.md 9.6
 ## with everybody still connected. Either way it asks first, since it ends the map and any Grand
-## Prix it is part of.
+## Prix it is part of. Online it is only there while the host's say is this machine's, which at a
+## dedicated server may come to it in the middle of a map, GAME.md 9.3a.
 func offer_the_lobby() -> Button:
 	var button := MenuTheme.button("Back to lobby")
+	_to_lobby = button
 	button.pressed.connect(
 		func() -> void:
 			var words := lobby_words(session != null, Game.grand_prix != null)
@@ -380,16 +384,16 @@ func _buttons() -> Array[Button]:
 ## once everybody has asked, which is the right thing to wait for until somebody has to answer
 ## the door; this is the host not waiting. Closing the menu lets go of it.
 func _force_pause() -> void:
-	if session == null or not session.is_host:
+	if session == null or not session.host_controls.mine():
 		return
 	session.host_controls.force_pause(true)
 	_resume.grab_focus()
 
 
-## Whether the host's button to stop everybody is worth showing: online, on the host, while the
-## room is still running because somebody has not asked.
+## Whether the host's button to stop everybody is worth showing: online, with the host's say,
+## while the room is still running because somebody has not asked.
 func _can_force() -> bool:
-	return session != null and session.is_host and not session.paused
+	return session != null and session.host_controls.mine() and not session.paused
 
 
 ## Puts [param pane] up in place of the menu, with the cursor in it; its Back, or B, is the menu
@@ -417,8 +421,11 @@ func _put_away_aside() -> void:
 ## its own menu is told why nothing is moving.
 func _process(_delta: float) -> void:
 	_force.visible = _panel.visible and _can_force()
-	_manage.visible = session != null and session.is_host
+	var says := session == null or session.host_controls.mine()
+	_manage.visible = session != null and says
 	_door_button.visible = _manage.visible
+	if _to_lobby != null:
+		_to_lobby.visible = says
 	_held.visible = (
 		session != null
 		and not session.is_host

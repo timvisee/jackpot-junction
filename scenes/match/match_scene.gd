@@ -134,9 +134,12 @@ func _ready() -> void:
 	# Even with nobody here to open it: it is what stops the match once everybody asks.
 	var menu := PauseMenu.add_to(self, session)
 	# The way back to the lobby is whoever decides where the room goes: this machine alone, or
-	# the host, GAME.md 3.8.
-	if session == null or session.is_host:
+	# the host, GAME.md 3.8, which at a dedicated server is a player at a client, 9.3a. The menu
+	# shows it while the say is this machine's.
+	if session == null or not session.dedicated:
 		menu.offer_the_lobby()
+	if config.dedicated:
+		session.host_controls.asked_to_go.connect(_on_asked_to_go)
 	Events.match_state_changed.connect(_on_state_changed)
 	Events.grand_prix_scored.connect(_on_grand_prix_scored)
 	loaded.emit()
@@ -161,6 +164,22 @@ func _on_state_changed(state: int) -> void:
 		return
 	Game.grand_prix.score(match_node.standings())
 	Events.grand_prix_scored.emit(Game.grand_prix.to_wire())
+
+
+## At a dedicated server, the player with the say wants the room somewhere else, GAME.md 9.3a:
+## back to the waiting room at any time, as a host's pause menu takes it, and on to the next map or
+## into a rematch only from the podium, where a host's own buttons for them are.
+func _on_asked_to_go(where: StringName) -> void:
+	var over := match_node.state == Match.State.RESULTS
+	match where:
+		&"lobby":
+			Game.back_to_the_room()
+		&"next":
+			if over:
+				Game.next_map(match_node)
+		&"rematch":
+			if over and Game.grand_prix == null:
+				match_node.rematch()
 
 
 ## The run as the host has scored it. A client keeps it as its own; the host already has it.

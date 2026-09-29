@@ -203,6 +203,8 @@ func start_match(config: MatchConfig) -> void:
 ## settings on the next arena in the playlist, and whatever jokers the run lets everybody take on
 ## from [param from], the map just finished. Online the host says so first and everybody goes.
 func next_map(from: Match = null) -> void:
+	if _asked_of_the_server(&"next"):
+		return
 	if grand_prix != null and from != null and not grand_prix.is_last():
 		grand_prix.hold_over(from.slots, from.rng)
 	var next := next_map_config()
@@ -229,9 +231,26 @@ func next_map_config() -> MatchConfig:
 ## clients are told first, and this machine follows with the configuration the match was built
 ## from, so its own players come back with it and the host's choices are where they were left.
 func back_to_the_room() -> void:
+	if _asked_of_the_server(&"lobby"):
+		return
 	if Net.hosting():
 		Net.session.back_to_the_room()
 	go_to_waiting(pending_config if pending_config != null else MatchConfig.new())
+
+
+## The same people again on the same map, GAME.md 3.8, from the podium of [param match_node].
+func rematch(match_node: Match) -> void:
+	if not _asked_of_the_server(&"rematch"):
+		match_node.rematch()
+
+
+## At a client with the host's say, GAME.md 9.3a, the room is the dedicated server's to take
+## [param where], and it takes everybody, this machine with them: asked rather than gone.
+func _asked_of_the_server(where: StringName) -> bool:
+	if Net.session == null or Net.session.is_host:
+		return false
+	Net.session.host_controls.go(where)
+	return true
 
 
 func go_to_waiting(config: MatchConfig) -> void:

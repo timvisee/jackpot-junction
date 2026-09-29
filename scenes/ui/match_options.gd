@@ -107,6 +107,62 @@ static func describe(config: MatchConfig) -> String:
 	return " \u00b7 ".join(parts)
 
 
+## What the rows chose for [param config], as it goes over the wire from a player hosting a game of
+## a dedicated server to the server, GAME.md 9.3a.
+static func to_wire(config: MatchConfig) -> Dictionary:
+	return {
+		"map": String(config.map),
+		"rounds": config.rounds,
+		"keep_jokers": config.keep_jokers,
+		"normal_maps": config.normal_maps,
+		"xl_maps": config.xl_maps,
+		"duration": roundi(config.duration),
+		"target_score": config.target_score,
+		"bot_count": config.bot_count,
+		"difficulty": config.difficulty,
+		"item_set": config.item_set,
+		"own_bullets_hurt": config.own_bullets_hurt,
+		"overtime": config.overtime,
+		"joker_slots": config.joker_slots,
+	}
+
+
+## [param plan] off the wire into [param config], as far as the rows could have said it: the other
+## end sends what it likes, and a value no row offers leaves what [param config] had.
+static func from_wire(config: MatchConfig, plan: Dictionary) -> void:
+	var map := StringName(str(plan.get("map", "")))
+	if map in ArenaMaps.IDS:
+		config.map = map
+	var rounds := int(plan.get("rounds", -1))
+	if rounds == 0 or rounds in MAPS:
+		config.rounds = rounds
+	var keep := int(plan.get("keep_jokers", -1))
+	if keep >= 0 and keep < KEEPS.size():
+		config.keep_jokers = keep as GrandPrix.Keep
+	config.normal_maps = bool(plan.get("normal_maps", config.normal_maps))
+	config.xl_maps = bool(plan.get("xl_maps", config.xl_maps))
+	var seconds := int(plan.get("duration", -1))
+	if seconds in match_lengths():
+		config.duration = float(seconds)
+	var target := int(plan.get("target_score", -1))
+	if target in TARGETS:
+		config.target_score = target
+	var bots := int(plan.get("bot_count", -1))
+	if bots in BOTS:
+		config.bot_count = bots
+	var difficulty := str(plan.get("difficulty", ""))
+	if difficulty in DIFFICULTIES:
+		config.difficulty = difficulty
+	var items := str(plan.get("item_set", ""))
+	if items in ITEM_SETS:
+		config.item_set = items
+	config.own_bullets_hurt = bool(plan.get("own_bullets_hurt", config.own_bullets_hurt))
+	config.overtime = bool(plan.get("overtime", config.overtime))
+	var slots := int(plan.get("joker_slots", -1))
+	if slots in JOKER_SLOTS:
+		config.joker_slots = slots
+
+
 ## Writes the choices into [param config]. The bots are the number asked for; how many of them
 ## there is room for is the caller's to say, since only it knows who else is playing.
 func apply_to(config: MatchConfig) -> void:

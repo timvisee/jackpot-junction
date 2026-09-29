@@ -17,6 +17,8 @@ const FEWEST_PLAYERS := 2
 ## What an answer says about the password: asked for with none given, and given wrong.
 const NEEDED := "needed"
 const WRONG := "wrong"
+## The longest password the lobby's box takes.
+const PASSWORD_LENGTH := 64
 
 ## The host's lobby settings: how many may play in the room at most, the host's own players
 ## included, and the password anybody knocking has to give, empty for none.
@@ -105,6 +107,26 @@ func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> 
 		"locked": locked,
 		"closed": closed,
 	}
+
+
+## The four lobby settings, as they go over the wire between a dedicated server and the player
+## hosting at it, GAME.md 9.3a.
+func to_wire() -> Dictionary:
+	return {
+		"max_players": max_players,
+		"password": password,
+		"watchers_allowed": watchers_allowed,
+		"watchers_need_password": watchers_need_password,
+	}
+
+
+## [param state] off the wire, as far as Lobby settings could have said it.
+func from_wire(state: Dictionary) -> void:
+	var most := int(state.get("max_players", max_players))
+	max_players = clampi(most, FEWEST_PLAYERS, MOST_PLAYERS)
+	password = str(state.get("password", password)).strip_edges().left(PASSWORD_LENGTH)
+	watchers_allowed = bool(state.get("watchers_allowed", watchers_allowed))
+	watchers_need_password = bool(state.get("watchers_need_password", watchers_need_password))
 
 
 ## Whether somebody coming to watch is asked for the password, for the list of games found on the

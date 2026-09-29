@@ -128,7 +128,7 @@ func _fit() -> void:
 ## is a hosted game for them to be the settings of.
 func open(lobby_first := false) -> void:
 	_panel.visible = true
-	if lobby_first and _session != null and _session.is_host:
+	if lobby_first and _session != null and _session.host_controls.mine():
 		_show_lobby()
 		return
 	_done.grab_focus()
