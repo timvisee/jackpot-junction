@@ -95,19 +95,26 @@ func _ready() -> void:
 	back.grab_focus()
 
 
+## The shoulders turn the pages and B on a pad, or Escape, is the Back button, GAME.md 4.2.
+## While a rebind is listening each is a binding like any other button, see [method _input].
 func _unhandled_input(event: InputEvent) -> void:
+	if _listening_action != &"":
+		return
+	var pad := event as InputEventJoypadButton
+	if pad != null and pad.pressed and pad.button_index in [TAB_BACK, TAB_ON]:
+		switch_tab(-1 if pad.button_index == TAB_BACK else 1)
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_action_pressed(&"ui_cancel"):
+		_back()
+		get_viewport().set_input_as_handled()
+
+
+## A rebind listening takes the next press, whatever it is on. Heard before the buttons are, rather
+## than after: a mouse button pressed over this screen is a click on it, which the screen's own
+## controls took, so a mouse button could never be bound.
+func _input(event: InputEvent) -> void:
 	if _listening_action == &"":
-		# The shoulders turn the pages and B on a pad, or Escape, is the Back button, GAME.md 4.2.
-		# While a rebind is listening each is a binding like any other button, which the rest of
-		# this handles.
-		var pad := event as InputEventJoypadButton
-		if pad != null and pad.pressed and pad.button_index in [TAB_BACK, TAB_ON]:
-			switch_tab(-1 if pad.button_index == TAB_BACK else 1)
-			get_viewport().set_input_as_handled()
-			return
-		if event.is_action_pressed(&"ui_cancel"):
-			_back()
-			get_viewport().set_input_as_handled()
 		return
 	var key := event as InputEventKey
 	if key != null and key.pressed and key.physical_keycode == KEY_ESCAPE:

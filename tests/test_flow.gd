@@ -227,12 +227,44 @@ func test_the_shoulder_buttons_step_through_the_settings_tabs() -> void:
 	screen.tabs.current_tab = 0
 	screen._listening_action = InputActions.NITRO
 	screen._listening_keyboard = false
-	screen._unhandled_input(shoulder.call(JOY_BUTTON_RIGHT_SHOULDER))
+	screen._input(shoulder.call(JOY_BUTTON_RIGHT_SHOULDER))
 	assert_int(screen.tabs.current_tab).is_equal(0)
+	assert_str(String(screen._listening_action)).is_empty()
 	InputActions.register_defaults()
 	Game.settings = real
 	# The glyphs the rebind replaced go at the end of the frame.
 	await await_idle_frame()
+
+
+## GAME.md 8.5: a mouse button binds like a key, fire on the left button, say. The press is a
+## click on the screen, and it has to reach the rebind before the screen's own controls take it.
+func test_a_mouse_button_can_be_bound() -> void:
+	var real := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = TEST_SETTINGS_PATH
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	await await_idle_frame()
+	var row: Array = screen._binding_labels[InputActions.FIRE]
+	(row[0] as Button).pressed.emit()
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	click.position = (row[0] as Button).get_global_rect().get_center()
+	click.global_position = click.position
+	Input.parse_input_event(click)
+	await await_idle_frame()
+	await await_idle_frame()
+	var bound := false
+	for event: InputEvent in InputMap.action_get_events(InputActions.FIRE):
+		var mouse := event as InputEventMouseButton
+		bound = bound or (mouse != null and mouse.button_index == MOUSE_BUTTON_LEFT)
+	var listening := screen._listening_action
+	InputActions.register_defaults()
+	Game.settings = real
+	await await_idle_frame()
+	assert_bool(bound).override_failure_message("the left button was never bound").is_true()
+	assert_str(String(listening)).is_empty()
 
 
 ## GAME.md 8.5: Settings from the pause menu opens over the room, and Back comes back to the menu

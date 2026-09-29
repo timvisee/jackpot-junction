@@ -2436,7 +2436,8 @@ like any other button.
 - **Controls**: how the first player drives, simple or advanced, each a button
   with its picture on it, a kart with an arrow each way round it and a steering
   wheel, and Help me choose beside them for the question the first Play asks, see
-  4.2; rebinding per player for gamepad and keyboard, stick dead zone, rumble on
+  4.2; rebinding per player for gamepad and keyboard, the keyboard's side taking
+  a mouse button as well as a key, fire on the left button say, stick dead zone, rumble on
   or off, and on a touch screen, first after the driving, how it drives: by the
   slider or by a button each, see 4.2.
 - **Players**: a box each for what the four seats at this machine are called,
