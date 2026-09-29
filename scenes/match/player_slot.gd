@@ -42,12 +42,23 @@ func score() -> int:
 	return banked + (kart.pot.value() if kart != null else 0)
 
 
+## What cashing the pot in would bank here and now, GAME.md 3.4: its worth, times whatever the
+## kart's jokers pay on a cash-out, Glass Jackpot's half again for every copy held, and times
+## [param payout], the Junction's own, which Last Call doubles. Rounded down, as it is never more
+## than the Junction would pay.
+func cash_out_value(payout := 1.0) -> int:
+	if kart == null or kart.pot.is_empty():
+		return 0
+	return floori(kart.pot.exact_value() * payout * kart.bank_payout())
+
+
 ## Whether driving onto the Junction and cashing in would end the match here and now, GAME.md
-## 3.4. Banked plus pot is the sum, which is the number the running order already shows as a
-## score and a [code]+N[/code] beside it. Last Call pays double, so during it this says yes no
-## later than it has to rather than promising more than it knows.
-func would_win(target: int) -> bool:
-	return kart != null and kart.alive and not kart.pot.is_empty() and score() >= target
+## 3.4: what is banked and what the cash-out would bank, see [method cash_out_value], come to
+## [param target]. [method Match.would_win] says it with the Junction's payout as it is.
+func would_win(target: int, payout := 1.0) -> bool:
+	if kart == null or not kart.alive or kart.pot.is_empty():
+		return false
+	return banked + cash_out_value(payout) >= target
 
 
 ## Ranks two slots for the results, GAME.md 3.8: most banked, then most kills, then fewest

@@ -96,7 +96,7 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, count: int) -> vo
 	# Enough in the pot to win by banking it: the number says so itself rather than waiting for
 	# the results screen to. Everyone's row blinks, so a rival about to finish it is as plain as
 	# your own chance to.
-	if slot.would_win(match_node.rules.target_score):
+	if match_node.would_win(slot):
 		var wave := 0.5 + 0.5 * sin(_beat * WIN_BLINK * TAU)
 		risk.add_theme_color_override("font_color", Palette.CHIP_GOLD.lerp(Color.WHITE, wave))
 		risk.modulate = Color(1.0, 1.0, 1.0, lerpf(0.45, 1.0, wave))

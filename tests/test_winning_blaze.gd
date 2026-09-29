@@ -55,6 +55,34 @@ func test_a_pot_that_would_win_sets_its_numbers_and_its_kart_alight() -> void:
 	assert_bool(kart.tire_marks._open[0].back()["gold"]).is_false()
 
 
+## GAME.md 3.4: what would win is what a cash-out would bank, not the pot's bare worth. With a
+## target of 3000, a pot of 2000 wins with Glass Jackpot's half again on it, and wins without it
+## once Last Call doubles what the Junction pays.
+func test_would_win_counts_what_a_cash_out_would_pay() -> void:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = _rules()
+	match_node.rules.target_score = 3000
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	var runner := scene_runner(match_node)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	match_node.start(inputs, 5)
+	await runner.simulate_frames(20, 17)
+	var slot := match_node.slots[0]
+	slot.kart.pot.add_coins(2000)
+	assert_int(slot.cash_out_value()).is_equal(2000)
+	assert_bool(match_node.would_win(slot)).is_false()
+	slot.kart.jokers.add(load("res://data/jokers/glass_jackpot.tres"))
+	assert_int(slot.cash_out_value()).is_equal(3000)
+	assert_bool(match_node.would_win(slot)).is_true()
+	slot.kart.jokers.remove_at(0)
+	match_node.arena.junction.payout_multiplier = 2.0
+	assert_bool(match_node.would_win(slot)).is_true()
+	# Nothing in the pot is nothing to cash in, whatever it would pay.
+	slot.kart.pot.reset()
+	assert_bool(match_node.would_win(slot)).is_false()
+
+
 ## Gold tracks are laid with the tire marks turned off in the settings, GAME.md 8.5: they say who
 ## is about to win rather than dressing the floor. Ordinary ones are not.
 func test_gold_tracks_are_laid_with_the_tire_marks_off() -> void:

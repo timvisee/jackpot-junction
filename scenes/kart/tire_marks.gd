@@ -95,7 +95,7 @@ static func gild(match_node: Match) -> void:
 	var running := match_node.is_running()
 	for slot: PlayerSlot in match_node.slots:
 		if slot.kart != null and slot.kart.tire_marks != null:
-			slot.kart.tire_marks.gold = (running and slot.would_win(match_node.rules.target_score))
+			slot.kart.tire_marks.gold = (running and match_node.would_win(slot))
 
 
 ## How many stretches are on the floor, closed or still being laid, for the tests.

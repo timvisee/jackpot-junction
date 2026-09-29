@@ -38,6 +38,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A pot that would win counts what the cash-out pays.** Glass Jackpot and Last Call now count,
+  so a 2000 pot with Glass Jackpot shows as winning against a 3000 target.
 - **A late snapshot is never shown over a newer one.** A small one arriving out of order could
   run a client's clock and karts back for a moment; now it is dropped, as big ones already were.
 - **A watcher can be shown out as soon as they arrive.** Kicked in the moment before their

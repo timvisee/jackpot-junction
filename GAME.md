@@ -136,8 +136,13 @@ R0 = 40 points per second, D = 0.5 s
 - The neon ring blinks when a player on this screen is carrying an unbanked pot
   worth 250 or more, brighter and quicker the bigger the pot, up to a fortune of
   1200. It only nudges; the pad behaves the same either way.
-- A pot that would win the match takes the ring over: banked plus pot at or past
-  the target score, and it stops climbing the same scale and goes flat gold, on
+- A pot that would win the match takes the ring over: banked plus what cashing
+  the pot in would bank at or past the target score. That is what the Junction
+  would really pay, not the pot's bare worth: the pot times whatever the kart's
+  jokers pay on a cash-out, Glass Jackpot's half again for every copy, and times
+  the Junction's own payout, which Last Call doubles. With a target of 3000, a pot
+  of 2000 under Glass Jackpot already wins. The ring stops climbing the same scale
+  and goes flat gold, on
   and off three times a second. That is a different thing to say, so it is said
   a different way rather than as more of the first. The same pot blinks as the
   `+N` beside its owner's score in the running order, for every player rather

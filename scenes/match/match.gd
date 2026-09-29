@@ -699,9 +699,16 @@ func clear_bounty(lapsed: bool) -> void:
 ## Whether a player on this screen is one cash-out away from taking the match, GAME.md 3.4.
 func junction_wins_it() -> bool:
 	for slot: PlayerSlot in slots:
-		if slot.is_local_human() and slot.would_win(rules.target_score):
+		if slot.is_local_human() and would_win(slot):
 			return true
 	return false
+
+
+## Whether [param slot] cashing its pot in would take the match, counting everything a cash-out
+## pays: the kart's jokers, and the Junction's own payout, which Last Call doubles.
+func would_win(slot: PlayerSlot) -> bool:
+	var payout := arena.junction.payout_multiplier if arena != null and arena.junction else 1.0
+	return slot.would_win(rules.target_score, payout)
 
 
 func junction_hint() -> float:

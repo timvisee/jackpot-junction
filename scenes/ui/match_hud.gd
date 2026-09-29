@@ -531,7 +531,7 @@ func _update_blocks() -> void:
 			pot.say("respawning %.1f" % maxf(slot.respawn_left, 0.0))
 		(block["lag"] as LagWarning).show_trip(_round_trip(slot))
 		# A pot that would win the match on the next cash-out burns, GAME.md 3.4.
-		pot.set_burning(match_node.is_running() and slot.would_win(match_node.rules.target_score))
+		pot.set_burning(match_node.is_running() and match_node.would_win(slot))
 		stats.text = "K %d  D %d" % [slot.kills, slot.deaths]
 		var pips: Array = block["lives"]
 		for i: int in pips.size():
