@@ -300,6 +300,27 @@ and the kart goes back to a bot when the client leaves. The LAN and WAN
 sessions are still open. Prediction is not implemented; the client feels its
 own latency.
 
+## M7: dedicated server
+
+- [x] A host with nobody at it: the waiting room and the arena hosted with no
+      seat, HUD or say in pausing at the host, and four clients seated in it.
+- [x] The host's say over the wire, `HostControls`: the first player seated has
+      it and it passes to whoever has been in longest; the match plan, the door,
+      kicks, Pause game and where the room goes, each checked at the server.
+- [x] The server, `--server`: a hall on 7780 listing its games, each game a
+      headless process of its own on the next port, reporting to the hall over
+      loopback, and one log for all of it.
+- [x] Play Online: connect to a server, see its games, make, join or watch one.
+- [ ] Finding servers without typing an address, and join codes.
+
+Verify: `make server-check`, then a server on a machine of its own reached over
+the internet.
+
+Status: built and checked on one machine: suites for the hall, a game's
+process, the host's say and the screen, and `tools/server_check` with a real
+server and three clients making, joining and watching a game. Not yet tried
+over the internet, or with a server full of games at once.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.
