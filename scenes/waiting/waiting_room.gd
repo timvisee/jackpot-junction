@@ -56,6 +56,8 @@ func _ready() -> void:
 	match_node.rules = RULES
 	match_node.arena_layout = LAYOUT
 	match_node.power_ups = load("res://data/powerups/all.tres")
+	# Nobody looks at a room hosted with nobody at it, GAME.md 9.3a.
+	match_node.with_hud = not config.dedicated
 	add_child(match_node)
 	# Put up behind a loading screen, the way a map is, whoever is hosting.
 	# Called the Lobby on the screen, GAME.md 9.6.
@@ -73,7 +75,9 @@ func _ready() -> void:
 	ready_room.seats = ARENA_RULES.max_players
 	if config.online != "join":
 		ready_room.everybody_ready.connect(_begin, CONNECT_ONE_SHOT)
-	DebugOverlay.add_to(self, match_node, session)
+	if not config.dedicated:
+		DebugOverlay.add_to(self, match_node, session)
+	# Even with nobody here to open it: it is what stops the room once everybody asks.
 	var menu := PauseMenu.add_to(self, session)
 	menu.names_and_colors = true
 	# Whoever decides where the room goes chooses the match in here, GAME.md 9.6: the host online,
@@ -90,7 +94,7 @@ func _take_seats() -> void:
 	var inputs: Array[KartInput] = []
 	for i: int in config.human_devices.size():
 		inputs.append(PlayerInput.new(config.human_devices[i], i))
-	if inputs.is_empty():
+	if inputs.is_empty() and not config.dedicated:
 		inputs.append(PlayerInput.new(DeviceInput.ANY, 0))
 	# Every seat's name and dress rather than only those sitting down now: somebody taking a seat
 	# in here takes theirs with it.
@@ -108,6 +112,7 @@ func _host() -> void:
 		session.re_seat()
 	else:
 		session = Net.open(match_node)
+		session.dedicated = config.dedicated
 		session.door.max_players = Game.settings.lobby_players
 		session.door.watchers_allowed = Game.settings.lobby_watchers
 		session.door.watchers_need_password = not Game.settings.lobby_watch_free
@@ -116,7 +121,10 @@ func _host() -> void:
 		if error != OK:
 			ready_room_hint("Could not host on port %d: %s" % [config.port, error_string(error)])
 			return
-	ready_room_hint("Friends join on port %d at %s" % [config.port, ", ".join(_local_addresses())])
+	if not config.dedicated:
+		ready_room_hint(
+			"Friends join on port %d at %s" % [config.port, ", ".join(_local_addresses())]
+		)
 
 
 func _join() -> void:
@@ -245,10 +253,14 @@ func first_map_config() -> MatchConfig:
 ## The host chooses the match in here, GAME.md 9.6: first thing on opening the room, and again
 ## from the pause menu. The room is open the whole time, so friends join while it is chosen.
 func _offer_the_settings(menu: PauseMenu) -> void:
+	Events.player_joined.connect(_on_player_joined)
+	if config.dedicated:
+		# Nobody here chooses: the room goes to whatever it was last told, see 9.3a.
+		_say_the_plan()
+		return
 	host_settings = HostSettings.add_to(self, config.online == "", session)
 	host_settings.closed.connect(_chosen)
 	menu.add_entry("Match settings", choose)
-	Events.player_joined.connect(_on_player_joined)
 	# Hosting, who may come in first, then what the match is, GAME.md 9.6. Back from a match only
 	# the match: the lobby's are on the pause menu for a host who wants them.
 	choose(not _came_back)
@@ -270,7 +282,7 @@ func _process(_delta: float) -> void:
 		_hold(true)
 	# The host's lobby may be made smaller or bigger while everybody waits in it, GAME.md 9.6, and
 	# everybody in it is told.
-	if host_settings != null and SeatLimit.limit(match_node, session) != _said_limit:
+	if config.online != "join" and SeatLimit.limit(match_node, session) != _said_limit:
 		_say_the_plan()
 
 
@@ -296,7 +308,12 @@ func _on_seat_refused(_seat: int) -> void:
 func _say_the_plan() -> void:
 	_said_limit = SeatLimit.limit(match_node, session)
 	Events.room_planned.emit(config.bot_count, _said_limit)
-	Events.match_planned.emit(MatchOptions.describe(config), host_settings.is_open())
+	Events.match_planned.emit(MatchOptions.describe(config), _choosing())
+
+
+## Whether whoever decides where the room goes is still choosing the match.
+func _choosing() -> bool:
+	return host_settings != null and host_settings.is_open()
 
 
 ## Somebody arrived. They were not here to hear the plan the first time, so it is said again.

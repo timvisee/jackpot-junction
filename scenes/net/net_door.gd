@@ -8,7 +8,7 @@ extends RefCounted
 ## [NetSession] so that file stays about the connection rather than the door.
 
 ## How many clients may play, on top of the host, and how many may watch on top of them, with no
-## kart of their own.
+## kart of their own. A host nobody plays at seats one more client instead, see [method clients].
 const MAX_CLIENTS := 3
 const MAX_WATCHERS := 4
 ## The most players a room can be set to, the host's own included, and the fewest.
@@ -60,6 +60,12 @@ static func compatible(mine: String, theirs: String) -> bool:
 	return a[0] == b[0] and a[1] == b[1]
 
 
+## How many clients may play: [constant MAX_CLIENTS] on top of the host's own players, or with
+## nobody playing at the host, [param dedicated], a room's worth of them, GAME.md 9.3a.
+static func clients(dedicated: bool) -> int:
+	return MOST_PLAYERS if dedicated else MAX_CLIENTS
+
+
 ## What a client says about itself as it knocks: its version, whether it has come to watch, what
 ## it is called, which is all the host has to go on for somebody watching, and the password it was
 ## given, empty until the host has said there is one.
@@ -68,12 +74,12 @@ static func knock(version: String, watching: bool, named: String, given: String)
 
 
 ## The host's answer to [param peer], which said [param words]. [param room] says how the room
-## stands: whether it has no seat left, how many clients play in it and how many people
+## stands: whether it has no seat left, how many clients play in it and may, how many people
 ## altogether, and how many watch.
 func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> Dictionary:
 	var playable := compatible(version, str(words.get("version", "?")))
 	var watch := bool(words.get("watch", false))
-	var full: bool = room["no_seat"] or room["players"] >= MAX_CLIENTS
+	var full: bool = room["no_seat"] or room["players"] >= int(room.get("clients", MAX_CLIENTS))
 	full = full or room["humans"] >= max_players
 	if watch:
 		full = room["watchers"] >= MAX_WATCHERS

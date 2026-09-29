@@ -72,6 +72,10 @@ var door := NetDoor.new()
 ## Empty leaves the plain kart the host made.
 var player_style := PackedInt32Array()
 var is_host := false
+## On the host: whether nobody plays at it, GAME.md 9.3a, a game of a dedicated server whose
+## players are all at other machines. It never asks for a pause, so it never holds one up, and it
+## is found through the server that lists it rather than by asking the network.
+var dedicated := false
 ## On the host: whether the room it is in is an arena rather than the waiting room of GAME.md 9.6,
 ## which is what a newcomer is shown into, see [method _welcome]. Said by each room as it takes the
 ## session over.
@@ -188,14 +192,15 @@ func _notification(what: int) -> void:
 
 func host(port: int = DEFAULT_PORT) -> Error:
 	var peer := ENetMultiplayerPeer.new()
-	var error := peer.create_server(port, NetDoor.MAX_CLIENTS + NetDoor.MAX_WATCHERS)
+	var error := peer.create_server(port, NetDoor.clients(dedicated) + NetDoor.MAX_WATCHERS)
 	if error != OK:
 		return error
 	NetLine.compress(peer)
 	multiplayer.multiplayer_peer = NetLag.over(peer)
 	is_host = true
 	_start_relaying()
-	LanBeacon.open(self, port)
+	if not dedicated:
+		LanBeacon.open(self, port)
 	return OK
 
 
@@ -638,7 +643,8 @@ func want_pause(wanted: bool) -> void:
 func _settle_pause() -> void:
 	if not is_host:
 		return
-	var all := _asking
+	# A host nobody plays at has no menu to ask with, and leaves it to the players.
+	var all := _asking or dedicated
 	# Somebody watching has nothing to stop, and is not waited for.
 	for peer: int in _player_peers():
 		all = all and bool(_peer_asking.get(peer, false))

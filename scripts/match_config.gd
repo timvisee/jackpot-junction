@@ -43,6 +43,9 @@ var overtime := true
 var joker_slots := 5
 ## "", "host" or "join".
 var online := ""
+## Hosting a game of a dedicated server, GAME.md 9.3a: nobody plays at this machine, so it has no
+## devices to seat, and every player is at another machine. Only with [member online] "host".
+var dedicated := false
 ## Joining to watch rather than to play, GAME.md 10.3: no kart, and a seat at nobody's expense.
 var watching := false
 ## The password to knock with, GAME.md 9.6: empty until the host has asked for one. Hosting, the

@@ -33,6 +33,8 @@ func _ready() -> void:
 	if Game.grand_prix != null and config.online != "join":
 		Game.grand_prix.label(match_node.rules)
 		match_node.bot_traits = Game.grand_prix.bot_table(match_node.bot_traits)
+	# Nobody looks at a match hosted with nobody at it, GAME.md 9.3a.
+	match_node.with_hud = not config.dedicated
 	add_child(match_node)
 	match config.online:
 		"host":
@@ -127,7 +129,9 @@ func _ready() -> void:
 			match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles())
 			_deal_carried_jokers()
 			match_node.begin_from_lobby()
-	DebugOverlay.add_to(self, match_node, session)
+	if not config.dedicated:
+		DebugOverlay.add_to(self, match_node, session)
+	# Even with nobody here to open it: it is what stops the match once everybody asks.
 	var menu := PauseMenu.add_to(self, session)
 	# The way back to the lobby is whoever decides where the room goes: this machine alone, or
 	# the host, GAME.md 3.8.
@@ -199,6 +203,7 @@ func _local_addresses() -> PackedStringArray:
 ## was waited in.
 func _start_session() -> void:
 	session = Net.open(match_node)
+	session.dedicated = config.dedicated
 
 
 ## Takes over the connection the waiting room opened, GAME.md 9.6. It is the same peers and the

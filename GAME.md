@@ -3160,6 +3160,23 @@ While a machine is in an online room an unfocused window stops waiting for the
 desktop and runs free at 60 frames a second instead, and is given back whatever
 it had the moment it comes back.
 
+### 9.3a A dedicated server
+
+Play LAN has one of the players host: their machine runs the match and everybody else connects
+to it. That is the right thing on a LAN and a poor one over the internet, where the host's router
+has to be told to let everybody in and the whole game goes when the host does. So a game can also
+be hosted on a dedicated server: the game run headless on a machine of its own, with nobody
+playing at it, holding as many games at once as it is set up for. Players connect to the server,
+and each makes a game there or joins one somebody else made. Play LAN stays as it is, for a game
+hosted at one of the players' own machines.
+
+**A game with nobody at the host.** A game of the server is hosted the way a player's machine
+hosts one, the waiting room of 9.6 and the arena after it, with nobody at it: no seat, no HUD, no
+camera anybody looks at, and nobody finding it on the network by asking, since the server lists
+it. Every seat is for somebody at another machine, so it seats four clients where a host with a
+player of its own seats three, and watchers on top of them as before. It has no pause menu to ask
+with, so the room stops once every player in it asks, see 3.8, and nobody waits on the host.
+
 ### 9.4 The Garage
 
 A practice room reached straight from the title screen, before anybody starts a
@@ -3743,10 +3760,10 @@ The cost of a longer life is that nothing is cleaned up by a scene change any mo
 session holds is held until it is closed, so closing is somebody's job rather than something
 that happens by itself. The one thing it lets go of on its own is the match it was playing: the
 moment that match leaves with its room, the session holds nothing until the next room takes it
-over, and ignores whatever arrives in between rather than handing it to a match that is gone. It is also the first half of what a dedicated server would need: such a
-server runs room after room with the same clients connected throughout, which a session owned by
-a scene can never do. The second half -- a match with no local seat, and no HUD or camera for
-nobody to look at -- is separate work and untouched by this.
+over, and ignores whatever arrives in between rather than handing it to a match that is gone. It is also what a dedicated server needs, see 9.3a: such a server runs room
+after room with the same clients connected throughout, which a session owned by a scene can
+never do, and it is a session with nobody at it, no local seat and no HUD or camera for nobody to
+look at.
 
 #### Versions
 

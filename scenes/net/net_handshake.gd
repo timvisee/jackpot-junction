@@ -41,6 +41,7 @@ func answer(peer: int, data: PackedByteArray) -> void:
 			"no_seat":
 			session._room_up and match_node != null and not SeatLimit.has_seat(match_node),
 			"players": players,
+			"clients": NetDoor.clients(session.dedicated),
 			"humans": SeatLimit.players(match_node) if match_node != null else players,
 			"watchers": session._watchers.size(),
 			"match": match_node,
