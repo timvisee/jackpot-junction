@@ -4388,6 +4388,26 @@ preset's `version/name` is left empty, so the APK takes the game's own version.
   on tags. Builds are published as GitHub Releases only for now. Other channels
   such as itch.io and Steam are backlog items.
 
+### 10.7 Performance
+
+The frame budget in 10.1 is a phone's: an Android build draws the same room at the
+same rules, with a card a thirtieth of a desktop's and a processor a quarter as
+fast, so what is cheap on a desktop is measured as if it were not. Three tools say
+where a frame goes: `make bench` for the frame rate, `make profile` for the script
+functions, server passes and GPU passes behind it, and the render info split by
+pass, which says how many triangles and draw calls the visible pass, the shadow
+pass and the canvas each take. The rules below came out of those measurements,
+with the numbers that put them there.
+
+- **Particles cast no shadows, and are drawn as balls of six or eight segments.**
+  A spark or a puff of smoke is a few pixels of one flat color; a `SphereMesh`
+  comes with sixty-four segments and four thousand triangles, drawn once per
+  particle and again into every split of the shadow map. Before the rule, the
+  particles behind four karts were six of the seven million triangles in a frame:
+  the nitro flame's smoke alone was 2.8 million in the shadow pass. After it, a
+  frame is 430 thousand. `ParticleLook.ball` and `ParticleLook.no_shadows` are the
+  rule in code, and a trail set to "none" is not simulated at all.
+
 ## 11. Roadmap
 
 Milestones are built in order. M4 is the first release, a complete

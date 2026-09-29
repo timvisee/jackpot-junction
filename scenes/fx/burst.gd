@@ -49,6 +49,9 @@ func _build(color: Color, count: int) -> void:
 	var sphere := SphereMesh.new()
 	sphere.radius = 0.55
 	sphere.height = 1.1
+	# A flat glow for a few frames: sixteen segments round it are as many as anybody sees.
+	sphere.radial_segments = 16
+	sphere.rings = 8
 	_flash.mesh = sphere
 	_flash_material = StandardMaterial3D.new()
 	_flash_material.albedo_color = Color(color.lightened(0.6), 0.9)
@@ -98,6 +101,7 @@ func _chunks(color: Color, count: int) -> GPUParticles3D:
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mesh.material = material
 	particles.draw_pass_1 = mesh
+	ParticleLook.no_shadows(particles)
 	particles.position = Vector3(0.0, 0.45, 0.0)
 	particles.emitting = true
 	return particles

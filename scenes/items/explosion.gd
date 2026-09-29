@@ -65,6 +65,9 @@ func _build(tint: Color) -> void:
 	var sphere := SphereMesh.new()
 	sphere.radius = 1.0
 	sphere.height = 2.0
+	# One flat-colored ball, gone in a moment: a quarter of the segments a SphereMesh comes with.
+	sphere.radial_segments = 24
+	sphere.rings = 12
 	_fireball.mesh = sphere
 	_fire_material = StandardMaterial3D.new()
 	_fire_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -131,12 +134,8 @@ func _sparks(tint: Color) -> GPUParticles3D:
 		Color(1.0, 0.95, 0.6), tint.lerp(Color(1.0, 0.4, 0.1), 0.5)
 	)
 	particles.process_material = process
-	var mesh := SphereMesh.new()
-	mesh.radius = 0.07
-	mesh.height = 0.14
-	var material := ParticleLook.material()
-	mesh.material = material
-	particles.draw_pass_1 = mesh
+	particles.draw_pass_1 = ParticleLook.ball(0.07, 6)
+	ParticleLook.no_shadows(particles)
 	particles.position = Vector3(0.0, 0.4, 0.0)
 	particles.emitting = true
 	return particles
@@ -164,12 +163,8 @@ func _smoke() -> GPUParticles3D:
 		Color(0.3, 0.3, 0.32, 0.4), Color(0.5, 0.5, 0.52, 0.0)
 	)
 	particles.process_material = process
-	var mesh := SphereMesh.new()
-	mesh.radius = 0.35
-	mesh.height = 0.7
-	var material := ParticleLook.material()
-	mesh.material = material
-	particles.draw_pass_1 = mesh
+	particles.draw_pass_1 = ParticleLook.ball(0.35)
+	ParticleLook.no_shadows(particles)
 	particles.position = Vector3(0.0, 0.6, 0.0)
 	particles.emitting = true
 	return particles

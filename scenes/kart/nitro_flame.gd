@@ -107,12 +107,8 @@ func _build_smoke() -> GPUParticles3D:
 		Color(0.72, 0.78, 0.9, 0.55), Color(0.5, 0.55, 0.68, 0.0)
 	)
 	particles.process_material = process
-	var mesh := SphereMesh.new()
-	mesh.radius = 0.22
-	mesh.height = 0.44
-	var material := ParticleLook.material()
-	mesh.material = material
-	particles.draw_pass_1 = mesh
+	particles.draw_pass_1 = ParticleLook.ball(0.22)
+	ParticleLook.no_shadows(particles)
 	particles.position = Vector3(0.0, 0.05, 0.35)
 	return particles
 
@@ -150,11 +146,7 @@ func _build_sparks() -> GPUParticles3D:
 		Color(0.85, 0.95, 1.0, 1.0), Color(0.3, 0.6, 1.0, 0.0)
 	)
 	particles.process_material = process
-	var mesh := SphereMesh.new()
-	mesh.radius = 0.05
-	mesh.height = 0.1
-	var material := ParticleLook.material()
-	mesh.material = material
-	particles.draw_pass_1 = mesh
+	particles.draw_pass_1 = ParticleLook.ball(0.05, 6)
+	ParticleLook.no_shadows(particles)
 	particles.position = Vector3(0.0, 0.0, 0.2)
 	return particles

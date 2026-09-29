@@ -101,12 +101,6 @@ func _build_fountain() -> GPUParticles3D:
 	process.scale_max = 1.0
 	process.color = READY
 	sparks.process_material = process
-	var mesh := SphereMesh.new()
-	mesh.radius = 0.045
-	mesh.height = 0.09
-	mesh.radial_segments = 6
-	mesh.rings = 3
-	var material := ParticleLook.material()
-	mesh.material = material
-	sparks.draw_pass_1 = mesh
+	sparks.draw_pass_1 = ParticleLook.ball(0.045, 6)
+	ParticleLook.no_shadows(sparks)
 	return sparks

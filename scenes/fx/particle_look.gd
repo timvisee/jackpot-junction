@@ -19,6 +19,28 @@ static func material() -> StandardMaterial3D:
 	return material
 
 
+## Particles cast no shadows. A spark or a puff of smoke throwing a shadow is nothing anybody
+## sees, and a system of a hundred draws its mesh a hundred times over into every split of the
+## shadow map: before this was set, the particles behind four karts were six of the seven
+## million triangles in a frame, GAME.md 10.1.
+static func no_shadows(particles: GPUParticles3D) -> void:
+	particles.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+
+## A ball for a particle, [param radius] across and [param detail] segments round, in the shared
+## look. A SphereMesh comes at sixty-four segments and four thousand triangles, and a spark or a
+## puff is a few pixels of one flat color: six segments for a spark and eight for a puff draw
+## the same, at a fiftieth of the triangles.
+static func ball(radius: float, detail := 8) -> SphereMesh:
+	var mesh := SphereMesh.new()
+	mesh.radius = radius
+	mesh.height = radius * 2.0
+	mesh.radial_segments = detail
+	mesh.rings = maxi(detail >> 1, 2)
+	mesh.material = material()
+	return mesh
+
+
 ## A ramp from [param from] to [param to], ending transparent however [param to] was written:
 ## every one of these effects fades out rather than blinking off, so the end alpha is the rule
 ## rather than something each caller has to remember.

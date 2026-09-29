@@ -172,6 +172,7 @@ class Shell:
 		process.color_ramp = ParticleLook.fade_out(tint.lightened(0.5), tint)
 		particles.process_material = process
 		particles.draw_pass_1 = _spark_mesh(0.07)
+		ParticleLook.no_shadows(particles)
 		particles.emitting = true
 		return particles
 
@@ -206,19 +207,14 @@ class Shell:
 		particles.trail_enabled = true
 		particles.trail_lifetime = 0.3
 		particles.draw_pass_1 = _streak_mesh()
+		ParticleLook.no_shadows(particles)
 		particles.emitting = true
 		return particles
 
 	## One spark: a small ball, lit by nothing and colored by the ramp, the way the sparks off
 	## a drift are drawn.
 	func _spark_mesh(radius: float) -> SphereMesh:
-		var mesh := SphereMesh.new()
-		mesh.radius = radius
-		mesh.height = radius * 2.0
-		mesh.radial_segments = 6
-		mesh.rings = 3
-		mesh.material = ParticleLook.material()
-		return mesh
+		return ParticleLook.ball(radius, 6)
 
 	## The streak a spark is drawn as: a tapered ribbon, thickest where the spark is and drawn
 	## out behind it along the way it is traveling.

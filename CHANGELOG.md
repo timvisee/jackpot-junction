@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **Faster.** Smoke, sparks and flames cast no shadows and are drawn with a fiftieth of the
+  triangles: the particles behind four karts were six of every seven triangles in a frame.
+
 ## [0.10.0] - 2026-09-29
 
 Play Online, on a dedicated server you can run yourself from the new headless Linux build. It

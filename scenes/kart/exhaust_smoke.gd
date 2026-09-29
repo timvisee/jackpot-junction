@@ -15,6 +15,7 @@ var trail := 0
 func _ready() -> void:
 	local_coords = false
 	amount_ratio = BASE_RATIO
+	ParticleLook.no_shadows(self)
 	_build()
 
 
@@ -64,6 +65,7 @@ func _build() -> void:
 			process.color = Color(color.lightened(0.15), 1.0)
 			mesh = _block(0.17)
 		3:
+			# Nothing at all: a trail that is not there is not simulated either.
 			lifetime = 0.1
 			process.color = Color(1.0, 1.0, 1.0, 0.0)
 			mesh = _sphere(0.01)
@@ -79,14 +81,13 @@ func _build() -> void:
 			mesh = _sphere(0.12)
 	process_material = process
 	draw_pass_1 = mesh
+	emitting = trail != 3
 
 
+## Sparks are six segments round and smoke eight: a fleck of one flat color, at a fiftieth of
+## the triangles a SphereMesh comes with, see [method ParticleLook.ball].
 func _sphere(radius: float) -> SphereMesh:
-	var sphere := SphereMesh.new()
-	sphere.radius = radius
-	sphere.height = radius * 2.0
-	sphere.material = _look()
-	return sphere
+	return ParticleLook.ball(radius, 6 if trail == 1 else 8)
 
 
 func _block(side: float) -> BoxMesh:
@@ -104,6 +105,8 @@ func _look() -> StandardMaterial3D:
 
 ## Updates the emission density from the kart state.
 func update_state(throttle: float, drifting: bool, boosting: bool) -> void:
+	if trail == 3:
+		return
 	var ratio := BASE_RATIO + throttle * 0.45
 	if drifting:
 		ratio += 0.4

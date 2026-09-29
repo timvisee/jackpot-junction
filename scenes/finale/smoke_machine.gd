@@ -146,6 +146,7 @@ func _jet() -> GPUParticles3D:
 	look.albedo_texture = _soft()
 	puff.material = look
 	particles.draw_pass_1 = puff
+	ParticleLook.no_shadows(particles)
 	return particles
 
 
