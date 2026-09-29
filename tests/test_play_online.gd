@@ -186,3 +186,17 @@ func test_the_last_server_is_kept() -> void:
 	assert_str(again.last_server).is_equal("games.example.org")
 	assert_int(again.last_server_port).is_equal(9100)
 	DirAccess.remove_absolute(settings.path)
+
+
+## Back from one of the server's games with something to say, the screen says it, and goes on
+## saying it once it has connected again, which says something of its own.
+func test_why_the_screen_is_up_again_stays_said() -> void:
+	_open_hall()
+	Game.play_online_note = "Everybody left, so the game is over"
+	var screen := _screen()
+	assert_str(Game.play_online_note).is_empty()
+	var up := func() -> bool: return not screen.make_button.disabled
+	assert_bool(await _wait_until(up, 4000)).is_true()
+	assert_str(screen.status.text).is_equal("Connected to 127.0.0.1:%d" % port)
+	assert_bool(screen.note.visible).is_true()
+	assert_str(screen.note.text).is_equal("Everybody left, so the game is over")

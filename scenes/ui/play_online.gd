@@ -16,6 +16,8 @@ var port_field: LineEdit
 var connect_button: Button
 var make_button: Button
 var status: Label
+## Why the screen is up again, back from one of the server's games, kept over what connecting says.
+var note: Label
 ## The line to the server's list, see [ServerLink], while there is one.
 var link: ServerLink
 ## Goes into a game's lobby with the configuration for it: the waiting room, unless a test says
@@ -60,6 +62,12 @@ func _ready() -> void:
 	connect_button = MenuTheme.button("Connect")
 	connect_button.pressed.connect(_connect)
 	column.add_child(connect_button)
+	note = Label.new()
+	note.add_theme_font_size_override("font_size", 20)
+	note.add_theme_color_override("font_color", Palette.CHIP_RED)
+	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	note.visible = false
+	column.add_child(note)
 	status = Label.new()
 	status.add_theme_font_size_override("font_size", 20)
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -78,14 +86,13 @@ func _ready() -> void:
 	back.pressed.connect(func() -> void: Game.go_to_title())
 	column.add_child(back)
 	connect_button.grab_focus()
-	var note := Game.play_online_note
+	# Back from one of the server's games with something to say about why: a wrong password, a
+	# kick, a game that is over.
+	note.text = Game.play_online_note
+	note.visible = not note.text.is_empty()
 	Game.play_online_note = ""
 	if not address_field.text.strip_edges().is_empty():
 		_connect()
-	# Back from one of the server's games with something to say about why, a wrong password or a
-	# game that is over, said over what the connecting says.
-	if not note.is_empty():
-		_say(note, true)
 
 
 ## B on a pad, or Escape, is the Back button, GAME.md 4.2.

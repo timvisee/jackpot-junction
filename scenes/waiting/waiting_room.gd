@@ -325,20 +325,21 @@ func _on_hands_changed(_player: int) -> void:
 func _follow_the_say() -> void:
 	session.host_controls.granted_changed.connect(_on_granted)
 	if session.host_controls.mine():
-		_take_the_say()
+		_take_the_say(true)
 
 
 func _on_granted(mine: bool) -> void:
 	if mine:
-		_take_the_say()
+		_take_the_say(false)
 	elif host_settings != null and host_settings.is_open():
 		host_settings.close()
 
 
 ## The match settings for this machine, as a host has them: up at once for the game's maker, the
-## lobby's own first; again after a match; and for somebody the say has passed to, a word that it
-## has, and the pause menu for when they want them.
-func _take_the_say() -> void:
+## lobby's own first; again for one [param arriving] back from a match with the say; and for
+## somebody the say has just passed to, a word that it has, see [method HostSettings.tell_new_host],
+## and the pause menu for when they want them.
+func _take_the_say(arriving: bool) -> void:
 	if host_settings == null:
 		host_settings = HostSettings.add_to(self, false, session)
 		host_settings.closed.connect(_chosen)
@@ -346,12 +347,10 @@ func _take_the_say() -> void:
 	if config.creating:
 		config.creating = false
 		choose(true)
-	elif _came_back:
+	elif arriving:
 		choose()
 	else:
-		NoticePane.tell(
-			self, "You are the host", "The host left. You choose the match and who may join now."
-		)
+		HostSettings.tell_new_host(self)
 
 
 func _hold(held: bool) -> void:

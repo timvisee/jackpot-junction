@@ -103,6 +103,8 @@ func _ready() -> void:
 					_pane().visible = false
 					_pane().backdrop = false
 			)
+			# At a dedicated server the host's say can pass to this machine mid-match, 9.3a.
+			session.host_controls.granted_changed.connect(_on_granted)
 			# When the match is over the host takes everybody back to the waiting room, GAME.md
 			# 9.6, and this machine goes with it.
 			session.back_to_room.connect(func() -> void: Game.go_to_waiting(config))
@@ -183,6 +185,11 @@ func _on_asked_to_go(where: StringName) -> void:
 		&"rematch":
 			if over and Game.grand_prix == null:
 				match_node.rematch()
+
+
+func _on_granted(mine: bool) -> void:
+	if mine:
+		HostSettings.tell_new_host(self)
 
 
 ## The run as the host has scored it. A client keeps it as its own; the host already has it.
