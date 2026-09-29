@@ -143,6 +143,14 @@ func _ready() -> void:
 	var marks := MenuTheme.toggle(_settings.tire_marks)
 	marks.toggled.connect(func(on: bool) -> void: _settings.tire_marks = on)
 	_add("Tire marks", marks)
+	# The house stands up again at the new size a moment later, see [Crowd].
+	var house := MenuTheme.option(
+		["Full", "Half"], maxi(Settings.CROWD_SIZES.find(_settings.crowd_size), 0)
+	)
+	house.item_selected.connect(
+		func(index: int) -> void: _settings.crowd_size = Settings.CROWD_SIZES[index]
+	)
+	_add("Crowd size", house)
 
 
 ## The window mode and V-sync, which a desktop has and a phone does not.

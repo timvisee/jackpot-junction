@@ -21,6 +21,8 @@ const SMOOTHINGS: Array[String] = [SMOOTH_OFF, SMOOTH_FXAA, SMOOTH_SMAA]
 const UPSCALE_BILINEAR := "bilinear"
 const UPSCALE_FSR := "fsr"
 const UPSCALE_FSR2 := "fsr2"
+## The sizes of house the crowd setting offers, as a share of the people who would have come.
+const CROWD_SIZES: Array[float] = [1.0, 0.5]
 const UPSCALERS: Array[String] = [UPSCALE_BILINEAR, UPSCALE_FSR, UPSCALE_FSR2]
 ## The shadows the room's sun and lamp cast: none, or drawn into smaller maps with hard edges, or
 ## into the big ones with soft edges. Low is what a phone's renderer does of its own accord, and
@@ -96,6 +98,10 @@ var screen_smoothing := SMOOTH_FXAA if OS.has_feature("mobile") else SMOOTH_OFF
 ## The marks the rear wheels leave on the floor, GAME.md 4.3. Off, none are laid, and whatever is
 ## down already goes at once.
 var tire_marks := true
+## How full the house is, one of [constant CROWD_SIZES]: the whole crowd, or half of it. The
+## crowd is the most triangles on the screen by far and none of them are the match, GAME.md
+## 10.7, so a phone starts with half a house and a desktop with a full one.
+var crowd_size := 0.5 if OS.has_feature("mobile") else 1.0
 var screen_shake := true
 var flash_reduction := false
 ## 0 to 1 of the default aim assist, never more.
@@ -216,6 +222,8 @@ func load_from_disk() -> void:
 	var smoothing := str(file.get_value("video", "screen_smoothing", screen_smoothing))
 	screen_smoothing = smoothing if smoothing in SMOOTHINGS else screen_smoothing
 	tire_marks = file.get_value("video", "tire_marks", tire_marks)
+	var housed := float(file.get_value("video", "crowd_size", crowd_size))
+	crowd_size = housed if housed in CROWD_SIZES else crowd_size
 	screen_shake = file.get_value("accessibility", "screen_shake", screen_shake)
 	flash_reduction = file.get_value("accessibility", "flash_reduction", flash_reduction)
 	aim_assist = clampf(
@@ -298,6 +306,7 @@ func save_to_disk() -> Error:
 	file.set_value("video", "msaa", msaa)
 	file.set_value("video", "screen_smoothing", screen_smoothing)
 	file.set_value("video", "tire_marks", tire_marks)
+	file.set_value("video", "crowd_size", crowd_size)
 	file.set_value("accessibility", "screen_shake", screen_shake)
 	file.set_value("accessibility", "flash_reduction", flash_reduction)
 	file.set_value("accessibility", "aim_assist", aim_assist)

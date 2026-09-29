@@ -18,6 +18,22 @@ func _arena() -> Arena:
 	return arena
 
 
+## GAME.md 8.5: a phone starts with half a house, and the setting stands the house up again at
+## the new size a moment later rather than waiting for the next map.
+func test_half_a_house_is_half_the_people() -> void:
+	var was := Game.settings.crowd_size
+	Game.settings.crowd_size = 1.0
+	var arena := _arena()
+	var crowd := arena.crowd
+	var full := crowd.count()
+	Game.settings.crowd_size = 0.5
+	for i: int in Crowd.REBUILD_WAIT + 1:
+		crowd._process(1.0 / 60.0)
+	assert_int(crowd.count()).is_between(int(full * 0.35), int(full * 0.65))
+	assert_int(crowd._onlookers.multimesh.instance_count).is_equal(crowd.count())
+	Game.settings.crowd_size = was
+
+
 func test_the_table_is_ringed_with_onlookers_and_a_booth() -> void:
 	var arena := _arena()
 	var crowd := arena.crowd

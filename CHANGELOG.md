@@ -38,6 +38,12 @@ below, and hands the notes to the release workflow.
   jackpot tiles, the tribune steps and the tanks' fittings are merged into a mesh a material as
   the map loads; a frame of Lucky Crossing is 344 draw calls where it was 713.
 
+### Added
+
+- **Crowd size.** A Video setting for how full the house is, Full or Half; a phone starts with
+  half a house, since the crowd is the most triangles on the screen and none of them are the
+  match.
+
 ## [0.10.0] - 2026-09-29
 
 Play Online, on a dedicated server you can run yourself from the new headless Linux build. It

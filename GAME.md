@@ -2740,7 +2740,8 @@ like any other button.
   off the music going under water when a player here dies, see 8.4, on by
   default.
 - **Video**: window mode, vsync, frame rate limit, show FPS, render scale,
-  upscaler, UI scale, bloom, shadows, MSAA, screen smoothing and tire marks.
+  upscaler, UI scale, bloom, shadows, MSAA, screen smoothing, tire marks and
+  crowd size.
   A phone or a tablet starts full screen, with the system's own bars out of the
   way; a desktop starts in a window. Bloom and the multisampled edges are the
   passes a room pays for most, and they are the two things worth handing back on
@@ -2787,7 +2788,12 @@ like any other button.
   size rather than stretched to it, so it stays sharp. Tire marks, 4.3, are on by
   default; off, none are laid, and whatever is down goes at once rather than
   fading out. The gold tracks of a pot that would win are laid either way: they
-  say who is about to win rather than dressing the floor.
+  say who is about to win rather than dressing the floor. Crowd size, Full or
+  Half, is how many of the house came: the crowd is the most triangles on the
+  screen by far and none of them are the match, see 10.7, so a phone starts with
+  half a house and a desktop with a full one, and a change stands the house up
+  again at the new size a moment later. Neither the crowd nor its size changes
+  anything a kart can touch.
 - **Accessibility**: screen shake on or off, flash reduction, aim assist
   strength from 0% to 100% of the default and never above it, per player, the
   aim guide on or off, the disco lights on or off, the control hints on or off,
@@ -4476,6 +4482,29 @@ with the numbers that put them there.
   so the bake leaves them where they are and they go on being moved. A frame of
   Lucky Crossing with four karts is 344 draw calls: 713 before any of this, of
   which 306 were the shadow pass.
+- **The crowd is the one thing a phone thins.** Eight hundred onlookers at 156
+  triangles each are 132,000 of the 196,000 triangles in the visible pass, and
+  none of them are the match. They are already one `MultiMesh` in two draw
+  calls, so what is left to give is people: the crowd size setting of 8.5 rolls
+  half as many onto the table, and a phone starts there. It is the only
+  performance setting that is a picture of the room rather than a pass over the
+  screen, and it is cosmetic either way: nobody in the crowd touches a kart.
+
+What the rules bought, measured on the development machine (a desktop card and
+a fast processor, which is why the frame rate moves less than the counts: a phone
+pays for every one of these counts), Lucky Crossing with one player and three
+bots, `make bench` and `make profile` on 2026-09-30:
+
+| | Before | After |
+|---|---|---|
+| Draw calls a frame | 713 | 344 |
+| Primitives a frame | 7,100,000 | 240,000 |
+| Of which the shadow pass | 6,200,000 | 41,000 |
+| Distinct materials a frame | 226 | 137 |
+| Script time a frame, under the profiler | 1.0 ms | 0.34 ms |
+| Render server time a frame, on the CPU | 0.42 ms | 0.25 ms |
+| Frame rate, 1080p, Forward+ | 442 fps | 516 fps |
+| Frame rate, 2400 by 1080, the mobile renderer | 408 fps | 651 fps |
 
 ## 11. Roadmap
 

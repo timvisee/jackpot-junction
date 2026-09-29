@@ -140,6 +140,9 @@ var _dj: Node3D
 var _cheer := 0.0
 ## Frames left until the house goes up again, 0 when it is standing as it should be.
 var _rebuild_wait := 0
+## The share of the house that came, GAME.md 8.5, as it was when the house was built: a change
+## to the setting stands the house up again at the new size.
+var _built_size := 1.0
 var _beat := 0.0
 var _rate := RESTING_RATE
 var _lift := RESTING_LIFT
@@ -176,6 +179,8 @@ func count() -> int:
 
 
 func _process(delta: float) -> void:
+	if _rebuild_wait == 0 and _size != Vector2.ZERO and _built_size != Game.settings.crowd_size:
+		_rebuild_wait = REBUILD_WAIT
 	if _rebuild_wait > 0:
 		_rebuild_wait -= 1
 		if _rebuild_wait == 0:
@@ -257,6 +262,7 @@ func _overlaps(box: Rect2, slack: float) -> bool:
 func _build(size: Vector2) -> void:
 	_rng.seed = hash(size)
 	_size = size
+	_built_size = Game.settings.crowd_size
 	# A rebuild starts from an empty table: the booth puts its own patch back as it goes down.
 	# Freed on the spot rather than queued: a node taken out of the tree and left waiting for a
 	# queued free is a node with no parent, which is what Godot counts as an orphan, and a house
@@ -331,7 +337,7 @@ func _stand(at: Vector3, row: int) -> void:
 	# Grown by the jitter, since the spot is rolled off this point and could wander in.
 	if _blocked(Vector2(at.x, at.z), JITTER):
 		return
-	if _rng.randf() > _row_density(row):
+	if _rng.randf() > _row_density(row) * _built_size:
 		return
 	var spot := Vector3(
 		at.x + _rng.randf_range(-JITTER, JITTER),
