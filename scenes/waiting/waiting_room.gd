@@ -151,7 +151,9 @@ func _join() -> void:
 	session.seat_refused.connect(_on_seat_refused)
 	# After the signal rather than inside it: going to the title hangs the session up, and a session
 	# cannot be freed while it is in the middle of saying something.
-	session.disconnected.connect(func() -> void: Game.go_to_title.call_deferred())
+	session.disconnected.connect(
+		func() -> void: Game.back_to_the_menu.call_deferred("The connection to the game was lost")
+	)
 	# A host that never answers is said so, rather than left for the player to work out alone in
 	# an empty room, and so is one that answers with a version this game cannot play, GAME.md
 	# 10.3. The reason is up long enough to be read.
@@ -179,6 +181,9 @@ func _join() -> void:
 				if ready_room != null:
 					ready_room.hide_how_to_sit_down()
 		)
+	elif not config.server.is_empty():
+		# Anybody in a game of a dedicated server can tell a friend where it is, GAME.md 9.3a.
+		ready_room_hint("Friends find this game in Play Online, at %s" % config.server)
 	if back:
 		# Asked for rather than waited for: the host seats whoever asks once its room is up, and
 		# this room is now up at this end to hear the answer.
@@ -201,13 +206,15 @@ func _ask_password(wrong: bool) -> void:
 		_connecting = null
 	if match_node.hud != null:
 		match_node.hud.stand_down()
+	# Back to the screen the game was found on: Play LAN, or Play Online for a game of a server.
+	var found_on := Game.go_to_online if config.server.is_empty() else Game.go_to_play_online
 	if wrong:
 		# After the session has finished saying so: going hangs it up, and a session cannot be
 		# freed in the middle of saying something.
-		Game.go_to_online.call_deferred("Wrong password")
+		found_on.call_deferred("Wrong password")
 		return
 	var pane := PasswordPane.add_to(self)
-	pane.left.connect(func() -> void: Game.go_to_online())
+	pane.left.connect(func() -> void: found_on.call())
 	pane.entered.connect(
 		func(typed: String) -> void:
 			config.password = typed

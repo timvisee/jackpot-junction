@@ -207,24 +207,27 @@ static func lobby_words(online: bool, grand_prix: bool) -> Array[String]:
 
 
 ## What is asked before leaving for the title online, and not offline, where nobody else is in
-## it: the host takes everybody's room away with it, and a client only leaves.
-static func leave_words(hosting: bool) -> Array[String]:
+## it: the host takes everybody's room away with it, and a client only leaves, handing on the host's
+## say if it has it at a dedicated server, GAME.md 9.3a, [param saying].
+static func leave_words(hosting: bool, saying := false) -> Array[String]:
 	if hosting:
 		return [
 			"Back to the title?",
 			"Everybody who has joined will be disconnected.",
 			"Disconnect everybody"
 		]
-	return [
-		"Back to the title?", "You leave the room, and the others play on without you.", "Leave"
-	]
+	var line := "You leave the room, and the others play on without you."
+	if saying:
+		line = "You leave the room, the others play on without you, and the host's say passes on."
+	return ["Back to the title?", line, "Leave"]
 
 
 func _back_to_title() -> void:
 	if not asks_before_leaving():
 		_leave_to_title()
 		return
-	ask(leave_words(session.is_host), _leave_to_title, _quit)
+	var saying := not session.is_host and session.host_controls.mine()
+	ask(leave_words(session.is_host, saying), _leave_to_title, _quit)
 
 
 ## Whether the way back to the title asks first, see [method leave_words]: online, except for a

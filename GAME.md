@@ -471,10 +471,10 @@ else's results screen, see 10.3.
   control hints with it. There is nothing left in that room to answer, and a card
   pick left open under the notice would be asking for a choice about a match that
   is not there any more.
-- The title screen offers Play, Play LAN, the Garage, Settings and Quit. Play
-  goes straight into the lobby, the waiting room of 9.6, the way hosting a LAN
-  game does, with the match settings up over it, whose first question is whether
-  it is a Grand Prix of several maps or a quick match on one, see 9.7; anybody
+- The title screen offers Play, Play LAN, Play Online, the Garage, Settings and
+  Quit. Play goes straight into the lobby, the waiting room of 9.6, the way hosting
+  a LAN game does, with the match settings up over it, whose first question is
+  whether it is a Grand Prix of several maps or a quick match on one, see 9.7; anybody
   else at the machine joins in there. There is no screen of rules of its own
   before it. There is no tutorial. At
   the start of a match the drive and fire controls are shown next to each
@@ -837,10 +837,10 @@ end of a client's controls; a client from before it sends the wheel alone, which
 push. Which way a player drives is kept per local seat, and a seat nobody has asked drives the
 advanced way.
 
-The first way into driving from the title, whether Play, Play LAN or the Garage, asks first how
-to drive: a big button each for simple and advanced, with its picture, its name and what it is in
-a line, over a word that the settings can change it later. The cursor starts on simple and stays
-on the two. The answer is every seat's that has not given one of its own, and is saved at once.
+The first way into driving from the title, whether Play, Play LAN, Play Online or the Garage,
+asks first how to drive: a big button each for simple and advanced, with its picture, its name
+and what it is in a line, over a word that the settings can change it later. The cursor starts on
+simple and stays on the two. The answer is every seat's that has not given one of its own, and is saved at once.
 Back puts the question away unanswered and leaves the title as it was, and it is asked again
 until it has been answered. Help me choose, beside the Driving row of the settings, asks it again,
 for the first player alone and without the word about the settings, the cursor starting on what
@@ -3190,6 +3190,21 @@ could have said it: a map that is not one, a number of bots no row offers or a k
 seat is not heard. While they choose the match their karts wait where they are, sent nothing to
 drive on, and the room does not go. Their Manage players lists everybody else, with their own
 players as Me; the players at one client share its say.
+
+**Play Online.** The title's way to a dedicated server, beside Play LAN and laid out like it: the
+player's name, the server's address and port, 7780 to start with, and Connect. Connected, it says
+so and lists the server's games under it the way Play LAN lists the games on the network, a row
+each saying whose it is, whether it is still in the lobby, how many play in it of how many may
+and whether it wants a password, which joins it, with Watch beside it, and Make a game under them.
+A server on a version this one cannot play says which it has, and lists nothing. Make a game asks
+the server for one, says it is making it, and once it is up goes into its lobby, where the maker
+has the host's say and sets it up the way a host does, see 9.6: Lobby settings first, then the
+match. Join and Watch go into a game's lobby the way joining a LAN game does, the password asked
+for there if it has one; a wrong one, or Back, goes back to Play Online rather than Play LAN. The
+server and its port are kept, and connected to again as the screen comes up, so coming back from
+one of its games is coming back to its list. Anybody in the game's lobby is told where friends
+find it, in Play Online at the server's address, in place of the line saying which port to join a
+LAN host on. A game that is over, or a player shown out, goes back to Play Online too, saying why.
 
 **The server.** It is the game itself, started headless with `--server` after `--` on the
 command line: `./jackpot-junction.x86_64 --headless -- --server` from the Linux release, or `make

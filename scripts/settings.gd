@@ -166,6 +166,10 @@ var kart_styles: Array = [
 var seen_test_track := false
 var last_address := "127.0.0.1"
 var last_port := 7777
+## The dedicated server Play Online last connected to, GAME.md 9.3a, and connects to again as it
+## comes up. Empty until there has been one.
+var last_server := ""
+var last_server_port := ServerArgs.PORT
 ## How many may play in a LAN game this machine hosts, its own players included, GAME.md 9.6.
 ## Kept for next time; the password is not, so one forgotten is never a later lobby locked.
 var lobby_players := NetDoor.MOST_PLAYERS
@@ -262,6 +266,8 @@ func load_from_disk() -> void:
 	seen_test_track = file.get_value("progress", "seen_test_track", seen_test_track)
 	last_address = file.get_value("online", "address", last_address)
 	last_port = file.get_value("online", "port", last_port)
+	last_server = str(file.get_value("online", "server", last_server))
+	last_server_port = int(file.get_value("online", "server_port", last_server_port))
 	lobby_players = clampi(
 		int(file.get_value("online", "lobby_players", lobby_players)),
 		NetDoor.FEWEST_PLAYERS,
@@ -325,6 +331,8 @@ func save_to_disk() -> Error:
 	file.set_value("progress", "seen_test_track", seen_test_track)
 	file.set_value("online", "address", last_address)
 	file.set_value("online", "port", last_port)
+	file.set_value("online", "server", last_server)
+	file.set_value("online", "server_port", last_server_port)
 	file.set_value("online", "lobby_players", lobby_players)
 	file.set_value("online", "lobby_watchers", lobby_watchers)
 	file.set_value("online", "lobby_watch_free", lobby_watch_free)

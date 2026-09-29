@@ -57,6 +57,10 @@ var watching := false
 var password := ""
 var address := "127.0.0.1"
 var port := NetSession.DEFAULT_PORT
+## Joining a game of a dedicated server, GAME.md 9.3a: the server, as the address and port its list
+## was read at, for the room to say where friends find the game and to go back to when it is over.
+## Empty for a LAN game.
+var server := ""
 
 
 func inputs() -> Array[KartInput]:

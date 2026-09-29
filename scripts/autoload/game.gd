@@ -8,6 +8,7 @@ const TITLE_SCENE := "res://scenes/ui/title.tscn"
 const SETTINGS_SCENE := "res://scenes/ui/settings_screen.tscn"
 const MATCH_SCENE := "res://scenes/match/match_scene.tscn"
 const ONLINE_SCENE := "res://scenes/ui/online.tscn"
+const PLAY_ONLINE_SCENE := "res://scenes/ui/play_online.tscn"
 const GARAGE_SCENE := "res://scenes/garage/garage.tscn"
 const WAITING_SCENE := "res://scenes/waiting/waiting_room.tscn"
 ## A dedicated server, GAME.md 9.3a, which `--server` starts the game as.
@@ -32,8 +33,10 @@ var garage_room := ROOM_GARAGE
 ## The Grand Prix being played, GAME.md 9.7, or null for a single map. Kept here because it runs
 ## across scenes: every map is a scene of its own.
 var grand_prix: GrandPrix
-## What the Play LAN screen says as it comes up, once, see [method go_to_online].
+## What the Play LAN screen says as it comes up, once, see [method go_to_online], and the same for
+## Play Online, see [method go_to_play_online].
 var online_note := ""
+var play_online_note := ""
 
 var _screenshot_path := ""
 var _screenshot_frames := 8
@@ -168,6 +171,26 @@ func go_to_online(note := "") -> void:
 	online_note = note
 	get_tree().paused = false
 	get_tree().change_scene_to_file(ONLINE_SCENE)
+
+
+## Play Online, GAME.md 9.3a, the games on a dedicated server, saying [param note] on it if there is
+## something to say about why it is up again.
+func go_to_play_online(note := "") -> void:
+	Net.close()
+	grand_prix = null
+	play_online_note = note
+	get_tree().paused = false
+	get_tree().change_scene_to_file(PLAY_ONLINE_SCENE)
+
+
+## Back to the menu the room was reached from, once it is over for this machine, [param why] saying
+## why: Play Online for a game of a dedicated server, GAME.md 9.3a, where the server's other games
+## are, and the title for anything else.
+func back_to_the_menu(why := "") -> void:
+	if pending_config != null and not pending_config.server.is_empty():
+		go_to_play_online(why)
+	else:
+		go_to_title()
 
 
 ## The practice rooms, GAME.md 9.4. Called with a room by the portal in the other one.

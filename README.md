@@ -37,6 +37,9 @@ Three arenas, three rooms to play them in, and an XL version of each with room t
   wall, and name each seat in Settings, Players.
 - **LAN**: Play LAN, host on a port or join a friend's address directly.
   The host runs the match; joining players take over bot karts.
+- **Online**: Play Online, on a dedicated server: make a game there and host it
+  from your own machine, or join one somebody else made. See
+  [Running a server](#running-a-server).
 - **Garage**: a practice room with one of everything in it and two dummy karts to
   shoot at. The first visit goes to a test track that teaches the controls, and
   the two rooms have portals to each other.
@@ -181,8 +184,8 @@ Linux:
 make server ARGS="--games=4"                                          # from this checkout
 ```
 
-Players connect to the server's address and port. It listens on 7780 unless
-given `--port`, and runs each game in a process of its own on the ports after
+Players connect with Play Online, to the server's address and port. It
+listens on 7780 unless given `--port`, and runs each game in a process of its own on the ports after
 it, up to `--games` of them: 7781 to 7788 by default, so let UDP 7780 to 7788
 through a firewall or router. A game is about a quarter of a gigabyte of
 memory. Whoever makes a game has the host's say over it, passed on to whoever

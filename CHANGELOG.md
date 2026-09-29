@@ -11,6 +11,15 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Play Online, on a dedicated server.** A new title entry lists a server's games: make one and
+  host it from your machine, or join or watch somebody else's; it won't play with 0.9.x.
+- **Dedicated servers.** `--server` runs the game headless as a server of several games at once,
+  logging who comes and goes and how each game stands; a game ends once everybody has left.
+- **The host's say passes on.** On a dedicated server, whoever made a game hosts it from their own
+  machine, and when they leave, whoever has been in it longest does.
+
 ## [0.9.0] - 2026-09-29
 
 XL versions of every map, several players at one LAN client, and a pot about to win now burns in

@@ -85,7 +85,10 @@ func _ready() -> void:
 			session.connection_failed.connect(
 				func() -> void: _fail("Could not connect to %s:%d" % [config.address, config.port])
 			)
-			session.disconnected.connect(func() -> void: _fail("The host disconnected"))
+			var gone := "The host disconnected"
+			if not config.server.is_empty():
+				gone = "The connection to the game was lost"
+			session.disconnected.connect(func() -> void: _fail(gone))
 			session.refused.connect(_fail)
 			session.seat_refused.connect(_on_seat_refused)
 			session.slot_assigned.connect(

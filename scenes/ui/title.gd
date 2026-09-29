@@ -1,6 +1,6 @@
 extends Control
-## The title screen from GAME.md 3.8: Play, the Garage practice room, Settings, Quit, over the
-## turning sunburst of [TitleBackground].
+## The title screen from GAME.md 3.8: Play, Play LAN, Play Online, the Garage practice room,
+## Settings, Quit, over the turning sunburst of [TitleBackground].
 
 ## Room kept under the buttons for the credits along the bottom of the screen.
 const CREDITS_ROOM := 48.0
@@ -9,8 +9,10 @@ var play_button: Button
 
 var _column: VBoxContainer
 ## The mark over the name, which goes on a screen too short for it and the buttons both: a big UI
-## scale on a short screen, GAME.md 8.5. The buttons are what the screen is for.
+## scale on a short screen, GAME.md 8.5. The buttons are what the screen is for. And after it, on a
+## screen shorter still, the gap over the buttons and the line under the name, in that order.
 var _mark: Control
+var _spare: Array[Control] = []
 
 
 func _ready() -> void:
@@ -28,12 +30,12 @@ func _ready() -> void:
 	_column = column
 	_mark = centered
 	column.add_child(MenuTheme.title("Jackpot Junction", Type.HERO))
-	column.add_child(
-		MenuTheme.subtitle("Collect chips. Build your mult. Cash out before they get you.")
-	)
+	var line := MenuTheme.subtitle("Collect chips. Build your mult. Cash out before they get you.")
+	column.add_child(line)
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0.0, 32.0)
 	column.add_child(spacer)
+	_spare = [centered, spacer, line]
 	play_button = MenuTheme.button("Play")
 	# One way in to playing. Whether it is a Grand Prix or a quick match is the lobby's first
 	# question, GAME.md 9.7, asked with the rest rather than a screen early.
@@ -43,6 +45,10 @@ func _ready() -> void:
 	var online := MenuTheme.button("Play LAN")
 	online.pressed.connect(func() -> void: DriveChoice.first(self, Game.go_to_online))
 	column.add_child(online)
+	# The games on a dedicated server, GAME.md 9.3a, for playing over the internet.
+	var server := MenuTheme.button("Play Online")
+	server.pressed.connect(func() -> void: DriveChoice.first(self, Game.go_to_play_online))
+	column.add_child(server)
 	var garage := MenuTheme.button("Garage")
 	garage.pressed.connect(func() -> void: DriveChoice.first(self, Game.enter_garage))
 	column.add_child(garage)
@@ -76,11 +82,17 @@ func _ready() -> void:
 	_fit()
 
 
+## Shows as much of [member _spare] as the screen has room for over the credits, giving it up in
+## order until the rest fits.
 func _fit() -> void:
-	if _mark == null:
+	if _spare.is_empty():
 		return
+	var gap := _column.get_theme_constant("separation")
 	var tall := _column.get_combined_minimum_size().y
-	var mark := _mark.get_combined_minimum_size().y + _column.get_theme_constant("separation")
-	if not _mark.visible:
-		tall += mark
-	_mark.visible = tall + CREDITS_ROOM <= size.y
+	for each: Control in _spare:
+		if not each.visible:
+			tall += each.get_combined_minimum_size().y + gap
+	for each: Control in _spare:
+		each.visible = tall + CREDITS_ROOM <= size.y
+		if not each.visible:
+			tall -= each.get_combined_minimum_size().y + gap

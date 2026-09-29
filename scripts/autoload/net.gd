@@ -18,6 +18,9 @@ extends Node
 
 ## The open session, or null when this machine is not talking to anybody.
 var session: NetSession
+## Play Online's line to a dedicated server's list of games, GAME.md 9.3a, or null. At the same
+## place as the server's own, see [ServerLink], and closed with everything else.
+var link: ServerLink
 
 
 ## Opens a session for [param match_node], closing any that was left open. Returns it, so a caller
@@ -38,12 +41,26 @@ func attach(match_node: Match) -> void:
 		session.match_node = match_node
 
 
+## A line to a dedicated server's list, closing whatever was open.
+func open_link() -> ServerLink:
+	close()
+	link = ServerLink.new()
+	link.name = ServerLink.NAME
+	add_child(link)
+	return link
+
+
 ## Closes the connection and forgets it.
 ##
 ## Freed on the spot rather than queued: the peer is a single global, and a session that was
 ## still waiting to be freed would close the next one's peer out from under it the moment the
 ## queue ran.
 func close() -> void:
+	if link != null:
+		var line := link
+		link = null
+		remove_child(line)
+		line.free()
 	if session == null:
 		return
 	var going := session
