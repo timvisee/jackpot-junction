@@ -8,6 +8,11 @@ extends Control
 ## into it, shuts and goes. A number over a wreck saying half was banked left a player to work out
 ## what became of the rest, and coins that crumbled where they fell were gone before they were seen
 ## to be lost.
+##
+## The can is for the players at this screen alone: a can over every bot's wreck and every other
+## machine's was more telling than anybody wanted, and their banked share still flies to the
+## standings. It is drawn under the rest of the HUD, the corners, the standings and the joker
+## pick, where a flying coin going into a score is drawn over it.
 
 ## Seconds a banked coin takes from the wreck to the score, and between one coin leaving and the
 ## next, so they string out into a stream rather than arriving as one.
@@ -52,6 +57,8 @@ var _coins: Array[Dictionary] = []
 var _cans: Array[Dictionary] = []
 var _words: Array[Dictionary] = []
 var _rng := RandomNumberGenerator.new()
+## Where the banked share is drawn, over the rest of the HUD, see [method _draw_front].
+var _front: Control
 
 
 static func attach(owner: MatchHud) -> PotSplit:
@@ -60,9 +67,17 @@ static func attach(owner: MatchHud) -> PotSplit:
 	split.hud = owner
 	split.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	split.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	# Over the corners and the standings it flies into.
-	split.z_index = 10
+	# The can under the corners, the standings and the joker pick, and the coins that bank over
+	# them, since they fly into a score.
+	split.z_index = -1
 	owner.add_child(split)
+	split._front = Control.new()
+	split._front.name = "Banked"
+	split._front.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	split._front.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	split._front.z_index = 11
+	split._front.draw.connect(split._draw_front)
+	split.add_child(split._front)
 	split.set_process(false)
 	return split
 
@@ -87,7 +102,11 @@ func play(slot: int, banked: int, lost: int) -> void:
 			_say("+%d" % banked, beside, Palette.CHIP_GOLD, -FLIGHT)
 		else:
 			_say("+%d" % banked, from + Vector2(0.0, -40.0), Palette.CHIP_GOLD, 0.0)
-	if lost > 0:
+	if (
+		lost > 0
+		and slot < hud.match_node.slots.size()
+		and hud.match_node.slots[slot].is_local_human()
+	):
 		_throw_away(from, lost)
 	set_process(true)
 
@@ -119,7 +138,7 @@ func _throw_away(from: Vector2, lost: int) -> void:
 				}
 			)
 		)
-	_say("−%d" % lost, mouth + Vector2(0.0, -26.0), LOST, -THROW)
+	_say("−%d" % lost, mouth + Vector2(0.0, -26.0), LOST, -THROW, false)
 
 
 ## How many coins [param points] are drawn with.
@@ -141,9 +160,9 @@ func _wreck(slot: int) -> Vector2:
 
 
 ## A number that rises and fades at [param at], once [param wait] seconds have gone by: negative
-## ages count up to it.
-func _say(text: String, at: Vector2, color: Color, wait: float) -> void:
-	_words.append({"text": text, "at": at, "color": color, "age": wait})
+## ages count up to it. Over the rest of the HUD with [param front], under it otherwise.
+func _say(text: String, at: Vector2, color: Color, wait: float, front := true) -> void:
+	_words.append({"text": text, "at": at, "color": color, "age": wait, "front": front})
 
 
 func _process(delta: float) -> void:
@@ -171,39 +190,54 @@ func _process(delta: float) -> void:
 		said["age"] += delta
 	_words = _words.filter(func(said: Dictionary) -> bool: return said["age"] < WORDS_FOR)
 	queue_redraw()
+	_front.queue_redraw()
 	if _coins.is_empty() and _cans.is_empty() and _words.is_empty():
 		set_process(false)
 
 
+## The lost share, under the rest of the HUD: the cans, the coins going into them, and the
+## numbers over them.
 func _draw() -> void:
 	for can: Dictionary in _cans:
 		_draw_can(can)
 	for coin: Dictionary in _coins:
 		var age: float = coin["age"]
-		if age < 0.0:
+		if coin["bank"] or age < 0.0:
 			continue
-		var t := clampf(age / (FLIGHT if coin["bank"] else THROW), 0.0, 1.0)
+		# Tossed, so up and over at an even pace and down into the can, going gray on the way.
+		var t := clampf(age / THROW, 0.0, 1.0)
 		var from: Vector2 = coin["from"]
 		var bend: Vector2 = coin["bend"]
 		var to: Vector2 = coin["to"]
-		if coin["bank"]:
-			# Drawn in by the score rather than lobbed at it: slow off the wreck, quick at the end.
-			var along := t * t
-			var into := from.lerp(bend, along).lerp(bend.lerp(to, along), along)
-			_draw_coin(into, COIN * lerpf(1.0, 0.7, t), Palette.CHIP_GOLD)
-			continue
-		# Tossed, so up and over at an even pace and down into the can, going gray on the way.
 		var at := from.lerp(bend, t).lerp(bend.lerp(to, t), t)
 		var tone := Palette.CHIP_GOLD.lerp(GRAY, clampf(t / GRAY_BY, 0.0, 1.0))
-		_draw_coin(at, COIN * lerpf(1.0, 0.6, t * t), tone)
-	_draw_words()
+		_draw_coin(self, at, COIN * lerpf(1.0, 0.6, t * t), tone)
+	_draw_words(self, false)
 
 
-func _draw_words() -> void:
+## The banked share, over the rest of the HUD: the coins flying into a score and the number beside
+## it.
+func _draw_front() -> void:
+	for coin: Dictionary in _coins:
+		var age: float = coin["age"]
+		if not coin["bank"] or age < 0.0:
+			continue
+		# Drawn in by the score rather than lobbed at it: slow off the wreck, quick at the end.
+		var t := clampf(age / FLIGHT, 0.0, 1.0)
+		var along := t * t
+		var from: Vector2 = coin["from"]
+		var bend: Vector2 = coin["bend"]
+		var to: Vector2 = coin["to"]
+		var into := from.lerp(bend, along).lerp(bend.lerp(to, along), along)
+		_draw_coin(_front, into, COIN * lerpf(1.0, 0.7, t), Palette.CHIP_GOLD)
+	_draw_words(_front, true)
+
+
+func _draw_words(on: CanvasItem, front: bool) -> void:
 	var font := Type.display_font()
 	for said: Dictionary in _words:
 		var age: float = said["age"]
-		if age < 0.0:
+		if age < 0.0 or said["front"] != front:
 			continue
 		var t := age / WORDS_FOR
 		var fade := 1.0 - clampf((t - 0.6) / 0.4, 0.0, 1.0)
@@ -211,10 +245,12 @@ func _draw_words() -> void:
 		var text: String = said["text"]
 		var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, WORDS_SIZE).x
 		var at: Vector2 = said["at"] + Vector2(-width * 0.5, -WORDS_RISE * t)
-		draw_string_outline(
+		on.draw_string_outline(
 			font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, WORDS_SIZE, 8, Color(0.0, 0.0, 0.0, fade)
 		)
-		draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, WORDS_SIZE, Color(color, fade))
+		on.draw_string(
+			font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, WORDS_SIZE, Color(color, fade)
+		)
 
 
 ## The trash can: a tapered body with its ribs and rim, and a lid held up and open while coins go
@@ -266,7 +302,7 @@ func _draw_can(can: Dictionary) -> void:
 
 ## A coin: a disc with a dark rim and a glint, so it reads as a coin over the felt and over the
 ## dark of a corner alike.
-func _draw_coin(at: Vector2, radius: float, color: Color) -> void:
-	draw_circle(at, radius + 1.5, Color(0.0, 0.0, 0.0, 0.5))
-	draw_circle(at, radius, color)
-	draw_circle(at - Vector2(radius, radius) * 0.3, radius * 0.35, Color(1.0, 1.0, 1.0, 0.35))
+static func _draw_coin(on: CanvasItem, at: Vector2, radius: float, color: Color) -> void:
+	on.draw_circle(at, radius + 1.5, Color(0.0, 0.0, 0.0, 0.5))
+	on.draw_circle(at, radius, color)
+	on.draw_circle(at - Vector2(radius, radius) * 0.3, radius * 0.35, Color(1.0, 1.0, 1.0, 0.35))

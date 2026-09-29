@@ -241,7 +241,11 @@ wreck, toward the middle of the screen: the coins go up and over one after anoth
 going gray on the way, the can bumps as each lands, −N in red rises over it as the
 first goes in, and it shuts its lid once the last has and fades, a couple of seconds
 all told. Coins that crumbled to dust where they fell were gone before anybody saw
-they were lost. A death that banks all that is left,
+they were lost. The can is for the players at this screen alone: one over every
+bot's wreck and every other machine's player's said more than anybody wanted, and
+what those bank still flies to their rows of the standings. It is drawn under the
+rest of the HUD, the corners, the standings and the joker pick, where a coin flying
+into a score is drawn over it. A death that banks all that is left,
 with Insurance Policy, has nothing to crumble, and one that banks nothing, with
 High Roller, sends nothing to the score. The chips dropped in step 1 are real chips
 on the floor, and scatter as ever.

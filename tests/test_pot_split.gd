@@ -98,3 +98,17 @@ func test_chips_go_into_the_junction_the_whole_time_a_pot_banks() -> void:
 	assert_bool(stream._banking.has(0)).is_true()
 	await _runner.simulate_frames(30, 17)
 	assert_bool(stream._banking.is_empty()).is_true()
+
+
+## The can is for the players at this screen: a bot's loss, or another machine's player's, is not
+## thrown away on this screen, though what it banked still flies to its row of the standings. The
+## can is drawn under the rest of the HUD, and a coin flying into a score over it.
+func test_only_this_screens_players_throw_their_loss_away() -> void:
+	var match_node := await _ready_match()
+	var split: PotSplit = match_node.hud._pot_split
+	split.play(1, 30, 30)
+	assert_bool(split._cans.is_empty()).is_true()
+	assert_bool(split._coins.all(func(coin: Dictionary) -> bool: return coin["bank"])).is_true()
+	assert_int(split._words.size()).is_equal(1)
+	assert_int(split.z_index).is_less(0)
+	assert_int(split._front.z_index + split.z_index).is_greater(0)
