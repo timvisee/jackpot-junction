@@ -15,6 +15,8 @@ below, and hands the notes to the release workflow.
 
 - **Faster.** Smoke, sparks and flames cast no shadows and are drawn with a fiftieth of the
   triangles: the particles behind four karts were six of every seven triangles in a frame.
+- **Faster disco.** A beam is scaled to its throw rather than rebuilt every frame, and a dark
+  head's light is put out rather than left shining at nothing.
 
 ## [0.10.0] - 2026-09-29
 

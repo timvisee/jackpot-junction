@@ -32,6 +32,13 @@ extends Node3D
 ##
 ## Purely decorative: the lights cast no shadows and nothing reads them. The accessibility
 ## setting in GAME.md 8.5 leaves the lamps standing and stops them lighting.
+##
+## Each head is a pivot at the mount that is aimed, with the light, the housing and the beam
+## hung off it. The light of a dark head is hidden rather than left on at nothing, GAME.md 10.7:
+## a light that is on at nothing is still a light to every surface in its range, and on a phone
+## that is a pass over the whole table for each of the five dark heads of a quiet match. The
+## beam is a cone of unit height and unit width at its mouth, scaled to the throw and the angle
+## every frame, rather than a mesh rebuilt to them.
 
 const COUNT := 6
 ## Where a head sits: this high on its post, this far outside the wall along the table's edge.
@@ -213,7 +220,11 @@ func _step_head(head: Dictionary, on: bool, flash: float) -> void:
 		_darken(head)
 		return
 	var light: SpotLight3D = head["light"]
-	(head["beam"] as MeshInstance3D).visible = true
+	var pivot: Node3D = head["pivot"]
+	if head["dark"]:
+		head["dark"] = false
+		light.visible = true
+		(head["beam"] as MeshInstance3D).visible = true
 	var color: Color = head["color"]
 	light.light_color = color
 	var lens: StandardMaterial3D = head["lens"]
@@ -226,16 +237,16 @@ func _step_head(head: Dictionary, on: bool, flash: float) -> void:
 	width *= 1.0 + BREATH_DEPTH * sin(_time * BREATH_RATE + head["phase"])
 	light.spot_angle = lerpf(width, FOCUS_ANGLE, _swing)
 	var target := _aim_point(head)
-	if absf(target.x - light.position.x) < 0.02 and absf(target.z - light.position.z) < 0.02:
+	if absf(target.x - pivot.position.x) < 0.02 and absf(target.z - pivot.position.z) < 0.02:
 		target.x += 0.05
-	light.look_at(target, Vector3.UP)
+	pivot.look_at(target, Vector3.UP)
 	# The cone is cut to the distance it actually has to cross and widened to the light's own
 	# angle, so it always ends in a lit pool on the floor rather than stopping in mid-air.
-	var throw := light.global_position.distance_to(target)
-	var cone: CylinderMesh = head["cone"]
-	cone.height = throw
-	cone.top_radius = throw * tan(deg_to_rad(light.spot_angle))
-	(head["beam"] as MeshInstance3D).position.z = -throw * 0.5
+	var throw := pivot.global_position.distance_to(target)
+	var mouth := throw * tan(deg_to_rad(light.spot_angle))
+	var beam: MeshInstance3D = head["beam"]
+	beam.scale = Vector3(mouth, throw, mouth)
+	beam.position.z = -throw * 0.5
 	# Kept well short of washing the table out: at full heat every head is on, and six of them
 	# blazing would cost more in readability than it buys in atmosphere.
 	var pulse := 1.0 + (0.2 + 0.6 * _smooth) * flash
@@ -247,10 +258,16 @@ func _step_head(head: Dictionary, on: bool, flash: float) -> void:
 
 
 ## A head that is not taking its turn: the lamp stays where it is, pointing where it last
-## pointed, with no beam and a dead lens.
+## pointed, with no beam, a dead lens and its light put out. Once is enough: a head already
+## dark has nothing left to write.
 func _darken(head: Dictionary) -> void:
 	head["lit"] = false
-	(head["light"] as SpotLight3D).light_energy = 0.0
+	if head["dark"]:
+		return
+	head["dark"] = true
+	var light: SpotLight3D = head["light"]
+	light.light_energy = 0.0
+	light.visible = false
 	(head["beam"] as MeshInstance3D).visible = false
 	var lens: StandardMaterial3D = head["lens"]
 	lens.albedo_color = LENS_DARK
@@ -261,7 +278,7 @@ func _darken(head: Dictionary) -> void:
 ## the floor as the heat builds. Both ends of that blend keep moving, so a head sweeping the sky
 ## looks as alive as one raking the table.
 func _aim_point(head: Dictionary) -> Vector3:
-	var mount: Vector3 = (head["light"] as SpotLight3D).position
+	var mount: Vector3 = (head["pivot"] as Node3D).position
 	var inward: float = head["inward"]
 	var sway := sin(_time * head["rate_x"] + head["phase"]) * 3.2
 	var sky := mount + Vector3(sway, SKY_RISE, inward * 2.5)
@@ -296,30 +313,36 @@ func _build_head(index: int) -> Dictionary:
 	stem.top_radius = 0.07
 	stem.bottom_radius = 0.11
 	stem.height = MOUNT_HEIGHT
+	stem.radial_segments = 12
+	stem.rings = 1
 	post.mesh = stem
 	post.material_override = dark
 	post.position = Vector3(mount.x, MOUNT_HEIGHT * 0.5, mount.z)
 	add_child(post)
+	var pivot := Node3D.new()
+	pivot.name = "Head%d" % index
+	pivot.position = mount
+	add_child(pivot)
+	# Aimed over the table to start with, never straight along an axis: looking_at cannot pick a
+	# roll from a target directly above or below.
+	pivot.look_at(Vector3(across * 0.5, MOUNT_HEIGHT + SKY_RISE, mount.z * 0.5), Vector3.UP)
 	var light := SpotLight3D.new()
-	light.name = "Head%d" % index
+	light.name = "Light"
 	light.light_color = color
 	light.light_energy = 1.0
 	light.spot_range = _range
 	light.spot_angle = 16.0
 	light.spot_attenuation = 0.5
 	light.shadow_enabled = false
-	light.position = mount
-	add_child(light)
-	# Aimed over the table to start with, never straight along an axis: looking_at cannot pick a
-	# roll from a target directly above or below.
-	light.look_at(Vector3(across * 0.5, MOUNT_HEIGHT + SKY_RISE, mount.z * 0.5), Vector3.UP)
+	pivot.add_child(light)
 	var lens := StandardMaterial3D.new()
 	lens.albedo_color = LENS_DARK
 	lens.emission_enabled = true
 	lens.emission = color
 	lens.emission_energy_multiplier = 0.0
 	lens.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	light.add_child(_fixture(dark, lens))
+	var fixture := _fixture(dark, lens)
+	pivot.add_child(fixture)
 	var beam_material := StandardMaterial3D.new()
 	beam_material.albedo_color = Color(color.r, color.g, color.b, 0.03)
 	beam_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -330,23 +353,30 @@ func _build_head(index: int) -> Dictionary:
 	beam.name = "Beam"
 	var cone := CylinderMesh.new()
 	# The wide end lands where the beam does: after the tilt below, the mesh's top points away
-	# from the light along its beam. Both the length and that end are resized every frame.
-	cone.top_radius = 1.7
-	cone.bottom_radius = 0.1
-	cone.height = SKY_RISE
+	# from the light along its beam. A unit cone, a meter long and a meter across at its mouth,
+	# that the head scales to its throw and its angle every frame; twenty-four segments round
+	# rather than the sixty-four a cylinder comes with, which nobody tells apart at this alpha.
+	cone.top_radius = 1.0
+	cone.bottom_radius = 0.0
+	cone.height = 1.0
+	cone.radial_segments = 24
+	cone.rings = 1
 	beam.mesh = cone
 	beam.material_override = beam_material
 	beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	beam.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
 	beam.position = Vector3(0.0, 0.0, -SKY_RISE * 0.5)
-	light.add_child(beam)
+	beam.scale = Vector3(1.7, SKY_RISE, 1.7)
+	pivot.add_child(beam)
 	return {
+		"pivot": pivot,
 		"light": light,
 		"post": post,
+		"fixture": fixture,
 		"beam": beam,
-		"cone": cone,
 		"tint": beam_material,
 		"lens": lens,
+		"dark": false,
 		"color": color,
 		"color_from": color,
 		"color_to": color,
@@ -364,7 +394,7 @@ func _build_head(index: int) -> Dictionary:
 
 
 ## The head itself: a dark housing with a lens the color of its beam, so the rig reads as a row
-## of lamps rather than as beams from nowhere. Parented to the light, so it swings with it.
+## of lamps rather than as beams from nowhere. Parented to the pivot, so it swings with it.
 static func _fixture(dark: StandardMaterial3D, lens_material: StandardMaterial3D) -> Node3D:
 	var housing := MeshInstance3D.new()
 	housing.name = "Fixture"
@@ -378,6 +408,8 @@ static func _fixture(dark: StandardMaterial3D, lens_material: StandardMaterial3D
 	disc.top_radius = 0.13
 	disc.bottom_radius = 0.13
 	disc.height = 0.04
+	disc.radial_segments = 16
+	disc.rings = 1
 	lens.mesh = disc
 	lens.material_override = lens_material
 	lens.rotation_degrees = Vector3(90.0, 0.0, 0.0)

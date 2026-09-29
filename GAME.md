@@ -4407,6 +4407,13 @@ with the numbers that put them there.
   the nitro flame's smoke alone was 2.8 million in the shadow pass. After it, a
   frame is 430 thousand. `ParticleLook.ball` and `ParticleLook.no_shadows` are the
   rule in code, and a trail set to "none" is not simulated at all.
+- **Nothing is rebuilt every frame that can be scaled, and a light on at nothing
+  is hidden.** The disco beams were `CylinderMesh` cones given a new height and
+  mouth every frame, six meshes of sixty-four segments regenerated and uploaded
+  sixty times a second; they are unit cones now, scaled to the throw. A dark head
+  hides its light: a spot light at zero energy is still a light to every surface
+  in its range, and on a phone's renderer, which lights each mesh by the lights
+  touching it, five dark heads were five passes over the table for nothing.
 
 ## 11. Roadmap
 

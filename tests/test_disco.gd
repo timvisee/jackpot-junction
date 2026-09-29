@@ -22,7 +22,8 @@ func test_the_setting_switches_every_head_off() -> void:
 	assert_int(lights.lit_count()).is_equal(0)
 	# The lamps are still part of the room; they have simply stopped lighting.
 	assert_bool(lights.visible).is_true()
-	assert_bool((lights._heads[0]["light"] as SpotLight3D).visible).is_true()
+	assert_bool((lights._heads[0]["fixture"] as Node3D).visible).is_true()
+	assert_bool((lights._heads[0]["light"] as SpotLight3D).visible).is_false()
 	assert_float((lights._heads[0]["light"] as SpotLight3D).light_energy).is_equal(0.0)
 	Game.settings.disco_lights = was
 	lights._process(0.016)
@@ -57,7 +58,7 @@ func test_one_head_lights_up_per_excitement_level() -> void:
 
 
 ## A head that is not taking its turn goes dark where it stands: the lamp is part of the room,
-## the beam is not.
+## the beam is not, and its light is put out rather than left on at nothing, GAME.md 10.7.
 func test_a_dark_head_keeps_its_lamp_and_loses_only_its_beam() -> void:
 	var lights := _lights()
 	lights.level = 1
@@ -69,16 +70,18 @@ func test_a_dark_head_keeps_its_lamp_and_loses_only_its_beam() -> void:
 		var beam: MeshInstance3D = head["beam"]
 		var lens: StandardMaterial3D = head["lens"]
 		(
-			assert_bool(light.visible)
+			assert_bool((head["fixture"] as Node3D).is_visible_in_tree())
 			. override_failure_message("head %d vanished instead of going dark" % i)
 			. is_true()
 		)
 		assert_bool((head["post"] as MeshInstance3D).visible).is_true()
 		if lights.is_lit(i):
+			assert_bool(light.visible).is_true()
 			assert_float(light.light_energy).is_greater(0.0)
 			assert_bool(beam.visible).is_true()
 			assert_float(lens.emission_energy_multiplier).is_greater(0.0)
 		else:
+			assert_bool(light.visible).is_false()
 			assert_float(light.light_energy).is_equal(0.0)
 			assert_bool(beam.visible).is_false()
 			assert_float(lens.emission_energy_multiplier).is_equal(0.0)
@@ -90,11 +93,11 @@ func test_a_dark_head_keeps_its_lamp_and_loses_only_its_beam() -> void:
 func test_the_heads_stand_at_the_edges_and_tip_down_as_the_heat_builds() -> void:
 	var lights := _lights()
 	for head: Dictionary in lights._heads:
-		var light: SpotLight3D = head["light"]
-		assert_float(light.position.y).is_equal_approx(DiscoLights.MOUNT_HEIGHT, 0.01)
+		var pivot: Node3D = head["pivot"]
+		assert_float(pivot.position.y).is_equal_approx(DiscoLights.MOUNT_HEIGHT, 0.01)
 		# Just outside the long edges of a 40 by 22.5 m table, never over it.
-		assert_float(absf(light.position.z)).is_greater(11.2)
-		assert_float(absf(light.position.x)).is_less(20.0)
+		assert_float(absf(pivot.position.z)).is_greater(11.2)
+		assert_float(absf(pivot.position.x)).is_less(20.0)
 		assert_object(head["post"]).is_not_null()
 	# Levels 1 and 2 sweep the air above the room.
 	lights.level = 1
