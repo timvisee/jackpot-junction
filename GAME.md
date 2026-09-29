@@ -2192,6 +2192,14 @@ movement: the one thing a corner block must not do is ask to be looked at.
   picker and the start-of-match hint follow the same rule, so a player who picks
   up a pad mid-match sees gamepad buttons everywhere.
 - **Match timer** at the top center, turning red during Last Call.
+- **Royal Flush tally** under the timer, while a player at this screen holds a
+  Royal Flush pad, see 3.9: a block for each of the pads, one in its holder's
+  color for every pad held and an outline for every pad nobody holds, this
+  screen's players first and then whoever holds most. It says how close a flush
+  is without four frames to find round the table, and is gone the moment nobody
+  here holds one, since four outlines on every screen most of the match say
+  nothing. Its blocks stay solid rather than dimming as a claim runs down: a
+  client is not told when a holder renews one, so its dimming would be a guess.
 - **Start gantry**: the countdown is a horizontal rack of three lamps hung over the
   middle of the screen, the way a racing track starts a field, rather than a number.
   They fill up red left to right and the whole row turns green on the drop, under the

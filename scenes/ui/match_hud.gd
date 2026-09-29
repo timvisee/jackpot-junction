@@ -18,9 +18,12 @@ const SPEED_FULL := 1.9
 ## how much of that is the fade. It shares the middle with the start gantry and the GO, neither
 ## of which is up while anybody is being killed.
 ## The sync light, GAME.md 8.3: how long one correction stays on the screen, how far under the
-## clock it sits, and the size past which one is called out as a snap rather than a nudge.
+## clock it sits, under the Royal Flush tally, and the size past which one is called out as a snap
+## rather than a nudge.
 const SYNC_TIME := 1.4
-const SYNC_DROP := 58.0
+const SYNC_DROP := 86.0
+## How far under the top the Royal Flush tally hangs, just under the clock, see [FlushTally].
+const TALLY_DROP := 62.0
 const SYNC_SNAP := 1.0
 
 const CALL_DROP := 120.0
@@ -139,6 +142,7 @@ func _ready() -> void:
 	_sync = _label(19, Control.PRESET_CENTER_TOP)
 	_sync.offset_top = SYNC_DROP
 	_sync.visible = false
+	FlushTally.add_to(self, TALLY_DROP)
 	for slot: PlayerSlot in match_node.slots:
 		if slot.is_local_human():
 			add_block(slot)

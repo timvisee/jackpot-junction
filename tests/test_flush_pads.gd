@@ -6,16 +6,17 @@ const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 var _runner: GdUnitSceneRunner
 
 
-func _start_match() -> Match:
+func _start_match(inputs: Array[KartInput] = [], hud := false) -> Match:
 	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
 	rules.countdown = 0.1
 	rules.duration = 60.0
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = rules
-	match_node.with_hud = false
+	match_node.with_hud = hud
 	match_node.offer_size = 0
 	_runner = scene_runner(match_node)
-	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	if inputs.is_empty():
+		inputs = [KartInput.new(), KartInput.new()]
 	match_node.start(inputs, 9)
 	return match_node
 
@@ -251,3 +252,32 @@ func test_pads_replicate_to_puppets_through_snapshots() -> void:
 	assert_int(client.arena.flush_pads[2].owner_slot).is_equal(0)
 	assert_int(client.arena.flush_pads[0].owner_slot).is_equal(-1)
 	assert_bool(client.arena.flush_pads[2].puppet).is_true()
+
+
+## GAME.md 8.3: while a player at this screen holds a Royal Flush pad, a block for each pad hangs
+## under the clock: the held ones in their holders' colors, this screen's player first, and the
+## rest as outlines. Nobody here holding one, it is not there at all.
+func test_the_pads_held_are_counted_under_the_clock() -> void:
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.KEYBOARD, 0), BotInput.new(), BotInput.new()
+	]
+	var match_node := _start_match(inputs, true)
+	await _runner.simulate_frames(20, 17)
+	var tally: FlushTally = match_node.hud.get_node("FlushTally")
+	var pads := match_node.arena.flush_pads
+	var mine := match_node.slots[0].color()
+	var theirs := match_node.slots[1].color()
+	# Somebody else's pad is not this screen's business.
+	pads[0].claim(1, theirs)
+	await _runner.simulate_frames(2, 17)
+	assert_bool(tally.visible).is_false()
+	pads[1].claim(0, mine)
+	pads[2].claim(1, theirs)
+	await _runner.simulate_frames(2, 17)
+	assert_bool(tally.visible).is_true()
+	assert_int(tally.pads).is_equal(4)
+	assert_array(tally.held).is_equal([mine, theirs, theirs])
+	# Let go of, it goes again.
+	pads[1].claim(-1, FlushPad.NEUTRAL)
+	await _runner.simulate_frames(2, 17)
+	assert_bool(tally.visible).is_false()

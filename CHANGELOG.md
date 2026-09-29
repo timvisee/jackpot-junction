@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **The Royal Flush pads you hold show under the clock.** A block per pad in its holder's color,
+  outlines for the free ones, while you hold at least one.
 - **XL maps.** Lucky Crossing XL, The Vault XL and Crossfire XL are roomier versions with space
   around the pits and turbos that never aim into a wall; a Grand Prix can deal normal, XL or both.
 - **A death shows where its pot went.** The banked share flies into the player's score as gold
