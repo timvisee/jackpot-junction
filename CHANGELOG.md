@@ -34,6 +34,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A watcher can be shown out as soon as they arrive.** Kicked in the moment before their
+  connection was complete, they stayed; they are now only listed once they are all the way in.
 - **The Vault's pits can be seen.** They are edged in a faint red neon, and the lamp over an
   XL map lights its far corners as well as the usual map's.
 - **A second player at a LAN client leaves nothing behind.** Shown out quickly, or asked for twice,

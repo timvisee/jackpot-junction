@@ -779,7 +779,14 @@ func _claim_color(color: int, number := 0) -> void:
 ## Everybody else in the host's game, for its Manage players, GAME.md 10.3: each client that plays,
 ## by the name and color of its seat, and each that watches, by the name it gave.
 func guests() -> Array[Dictionary]:
-	return door.guests(match_node, _peer_slots.held, _watchers)
+	# Only those all the way in. A watcher is let in at the host's end of the handshake a round
+	# trip before the connection is theirs, and one listed in that time could not be shown out.
+	var here := Array(multiplayer.get_peers()) if multiplayer != null else _watchers.keys()
+	var watching: Dictionary[int, bool] = {}
+	for peer: int in _watchers:
+		if here.has(peer):
+			watching[peer] = true
+	return door.guests(match_node, _peer_slots.held, watching)
 
 
 ## Shows [param peer] out of the game: told why, and let go of a moment later whatever it does
