@@ -3755,7 +3755,7 @@ lobby on one machine, or back to the title.
 | Anti-aliasing       | MSAA 2x                                                      |
 | Lighting            | One directional light with soft shadows, SSAO on             |
 | Platforms           | Linux, Windows, macOS first. Consoles need a porting partner. Mobile with on-screen controls later |
-| Performance budget  | 60 fps on a mid-range laptop iGPU with 4 karts, 100 live bullets and full trails |
+| Performance budget  | 60 fps on a mid-range laptop iGPU, and on a mid-range phone at its render scale, with 4 karts, 100 live bullets and full trails; see 10.7 |
 
 ### 10.2 Architecture
 

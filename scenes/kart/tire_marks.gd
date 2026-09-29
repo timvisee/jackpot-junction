@@ -29,28 +29,8 @@ const GOLD := Color("#FFC21F")
 const GOLD_ALPHA := 0.55
 const GOLD_INTENSITY := 0.25
 const GOLD_FADE := 1.5
-## Unshaded, both faces. Every vertex carries the time it was laid in its first texture
-## coordinate, and in its second the alpha of the ordinary mark there, which fades over
-## [constant FADE_SECONDS] from the moment it is laid. A gold one carries its gold in its color on
-## top of that, and a nonzero second coordinate for how long the gold lasts: it holds solid for
-## the first part of that and then goes, so the trail behind the kart reads as gold rather than as
-## a gold already going, and leaves the ordinary mark under it once it has.
-const LOOK := """
-shader_type spatial;
-render_mode unshaded, cull_disabled, blend_mix, depth_draw_opaque;
-
-uniform float now = 0.0;
-uniform vec3 ink = vec3(0.01, 0.0081, 0.0081);
-uniform float fade_seconds = 20.0;
-
-void fragment() {
-	float age = now - UV.x;
-	float mark = UV2.x * clamp(1.0 - age / fade_seconds, 0.0, 1.0);
-	float gold = UV.y > 0.0 ? 1.0 - smoothstep(0.45, 1.0, age / UV.y) : 0.0;
-	ALBEDO = mix(ink, COLOR.rgb, gold);
-	ALPHA = mix(mark, COLOR.a, gold);
-}
-"""
+## The look every stretch is drawn with, see tire_marks.gdshader beside this script.
+const LOOK: Shader = preload("res://scenes/kart/tire_marks.gdshader")
 
 ## One look for every kart's marks, told the time once a frame.
 static var _look: ShaderMaterial
@@ -80,10 +60,8 @@ func _ready() -> void:
 ## The look every stretch is drawn with.
 static func look() -> ShaderMaterial:
 	if _look == null:
-		var shader := Shader.new()
-		shader.code = LOOK
 		_look = ShaderMaterial.new()
-		_look.shader = shader
+		_look.shader = LOOK
 		_look.set_shader_parameter(&"ink", Color(INK.r, INK.g, INK.b))
 		_look.set_shader_parameter(&"fade_seconds", FADE_SECONDS)
 	return _look

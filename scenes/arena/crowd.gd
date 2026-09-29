@@ -98,55 +98,11 @@ const SHIRTS: Array[Color] = [
 	Color("#F26BB8"),
 	Color("#E8D8A0"),
 ]
-## The animation, run on the figures themselves rather than on their transforms. Each one carries
-## its own place in the beat, its own share of the jump and its own share of the lean, so a
-## thousand people on one beat still move like a thousand people.
-const FIGURE_VERTEX := """
-shader_type spatial;
-
-uniform float beat = 0.0;
-uniform float lift = 0.0;
-uniform float lean = 0.0;
-
-void vertex() {
-	float own = beat + INSTANCE_CUSTOM.x;
-	VERTEX.y += abs(sin(own)) * lift * INSTANCE_CUSTOM.y;
-	float tip = sin(own * 0.5 + INSTANCE_CUSTOM.w) * lean * INSTANCE_CUSTOM.z;
-	float s = sin(tip);
-	float c = cos(tip);
-	VERTEX.xy = vec2(VERTEX.x * c - VERTEX.y * s, VERTEX.x * s + VERTEX.y * c);
-}
-"""
-## The shirt takes the color rolled for that figure; the face takes its alpha, which is how dark
-## this one is, so both surfaces are told apart by one instance color. Both are written straight
-## to albedo, which is read as light rather than as a color off a screen, so the values here and
-## the ones in the instance buffer are the linear ones: an sRGB color put in raw comes out of a
-## crowd of a thousand as a wash of pastel.
-## A crowd is lit by its room rather than by itself: [code]dim[/code] is how brightly it is lit
-## against the table, and the rim is the light along the edges of everybody, which is what makes
-## a band of dark figures read as people rather than as a wall. In a lit room the rim is nothing
-## and this costs a multiply.
-const CROWD_LIGHT := """
-uniform vec4 rim_color : source_color = vec4(1.0);
-uniform float rim_strength = 0.0;
-uniform float dim = 1.0;
-
-float rim_of(vec3 normal, vec3 view) {
-	return pow(1.0 - clamp(dot(normalize(normal), normalize(view)), 0.0, 1.0), 2.5);
-}
-"""
-const SHIRT_FRAGMENT := """
-void fragment() {
-	ALBEDO = COLOR.rgb * dim;
-	EMISSION = rim_color.rgb * rim_of(NORMAL, VIEW) * rim_strength;
-}
-"""
-const FACE_FRAGMENT := """
-void fragment() {
-	ALBEDO = vec3(0.890, 0.768, 0.604) * (1.0 - COLOR.a * 0.62) * dim;
-	EMISSION = rim_color.rgb * rim_of(NORMAL, VIEW) * rim_strength;
-}
-"""
+## What the figures are drawn by, see crowd_shirt.gdshader and crowd_face.gdshader beside this
+## script and crowd_figure.gdshaderinc, which is the part they share: the animation, run on the
+## figures themselves rather than on their transforms, and the room's light on them.
+const SHIRT_SHADER: Shader = preload("res://scenes/arena/crowd_shirt.gdshader")
+const FACE_SHADER: Shader = preload("res://scenes/arena/crowd_face.gdshader")
 
 ## The room this crowd is standing in, GAME.md 8.1: what they are wearing, how brightly they
 ## are lit and what color the light on their edges is.
@@ -498,8 +454,8 @@ static func _slab(size: Vector3) -> BoxMesh:
 ## instance buffer, which is written once and never touched again.
 func _raise_house(outer: Vector2) -> void:
 	var mesh := _figure_mesh()
-	mesh.surface_set_material(0, _skin(SHIRT_FRAGMENT))
-	mesh.surface_set_material(1, _skin(FACE_FRAGMENT))
+	mesh.surface_set_material(0, _skin(SHIRT_SHADER))
+	mesh.surface_set_material(1, _skin(FACE_SHADER))
 	var multimesh := MultiMesh.new()
 	multimesh.transform_format = MultiMesh.TRANSFORM_3D
 	multimesh.use_colors = true
@@ -564,9 +520,7 @@ func _wardrobe() -> Color:
 	return room.crowd_colors[_rng.randi_range(0, room.crowd_colors.size() - 1)]
 
 
-func _skin(fragment: String) -> ShaderMaterial:
-	var shader := Shader.new()
-	shader.code = FIGURE_VERTEX + CROWD_LIGHT + fragment
+func _skin(shader: Shader) -> ShaderMaterial:
 	var material := ShaderMaterial.new()
 	material.shader = shader
 	# A room in the dark puts a light on the edge of everybody standing in it, GAME.md 8.1.
