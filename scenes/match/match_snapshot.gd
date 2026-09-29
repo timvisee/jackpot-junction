@@ -49,6 +49,8 @@ static func build(match_node: Match, wire: PickupWire = null) -> Dictionary:
 		"crates": _crates(match_node),
 		"targets": _targets(match_node),
 		"flush": _flush(match_node),
+		# Whose flush is still paying and for how long, for the tally under the clock, GAME.md 8.3.
+		"flush_lock": [match_node.flush_lock_slot, match_node.flush_lock_left],
 		"bounty": match_node.bounty_slot,
 		"bounty_left": match_node.bounty_left,
 	}
@@ -382,6 +384,9 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 		match_node.arena.flush_pads[i].apply_puppet_state(
 			flush[i]["owner"], flush[i]["color"], flush[i]["disabled"]
 		)
+	var lock: Array = data.get("flush_lock", [-1, 0.0])
+	match_node.flush_lock_slot = int(lock[0])
+	match_node.flush_lock_left = float(lock[1])
 
 
 ## Members of a group that belong to this match. A host and a puppet match can share a scene

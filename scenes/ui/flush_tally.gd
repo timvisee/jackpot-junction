@@ -9,6 +9,10 @@ extends Control
 ## Up only while somebody at this screen holds a pad, and only while the match is being played: a
 ## row of four outlines on every screen of every match, most of the time, is four more things on
 ## the screen that say nothing, and after the whistle the flush is not there to be had.
+##
+## And while a flush a player here scored is still paying out, see [member Match.flush_lock_slot]:
+## the pads have cleared and wear nobody's color, but they are theirs for a while yet, so all four
+## blocks are, with a bar under them that empties as the payout runs out.
 
 ## How big a block is, how far apart two are, and how thick an empty one's outline.
 const BLOCK := 16.0
@@ -16,12 +20,17 @@ const GAP := 6.0
 const OUTLINE := 2.0
 const EMPTY := Color(1.0, 1.0, 1.0, 0.55)
 const RIM := Color(0.0, 0.0, 0.0, 0.55)
+## How far under the blocks the bar of a flush still paying hangs, and how thick it is.
+const LOCK_DROP := 5.0
+const LOCK_BAR := 3.0
 
 var match_node: Match
 
 ## The colors of the held pads, in the order they are drawn, and how many pads there are.
 var held: Array[Color] = []
 var pads := 0
+## How much of a flush this screen's player scored is still to pay, 0 when none is.
+var locked := 0.0
 
 
 static func add_to(hud: MatchHud, drop: float) -> FlushTally:
@@ -39,9 +48,11 @@ static func add_to(hud: MatchHud, drop: float) -> FlushTally:
 func _process(_delta: float) -> void:
 	var was := held.duplicate()
 	var count := pads
+	var had := locked
 	_tally()
-	visible = match_node != null and match_node.is_running() and _held_here()
-	if held != was or pads != count:
+	var shown := _held_here() or locked > 0.0
+	visible = match_node != null and match_node.is_running() and shown
+	if held != was or pads != count or locked != had:
 		var wide := pads * BLOCK + maxf(pads - 1, 0) * GAP
 		custom_minimum_size = Vector2(wide, BLOCK)
 		offset_left = -wide * 0.5
@@ -54,7 +65,16 @@ func _process(_delta: float) -> void:
 func _tally() -> void:
 	held.clear()
 	pads = 0
+	locked = 0.0
 	if match_node == null or match_node.arena == null:
+		return
+	var winner := match_node.flush_lock_slot
+	if match_node.flush_lock_left > 0.0 and winner >= 0 and _plays_here(winner):
+		pads = match_node.arena.flush_pads.size()
+		for i: int in pads:
+			held.append(match_node.slots[winner].color())
+		var lasts := maxf(match_node.rules.flush_lock_seconds, 0.001)
+		locked = clampf(match_node.flush_lock_left / lasts, 0.0, 1.0)
 		return
 	var by_slot: Dictionary[int, Array] = {}
 	for pad: FlushPad in match_node.arena.flush_pads:
@@ -105,3 +125,8 @@ func _draw() -> void:
 		else:
 			draw_rect(box.grow(1.0), RIM, false, OUTLINE + 1.0)
 			draw_rect(box.grow(-OUTLINE * 0.5), EMPTY, false, OUTLINE)
+	if locked > 0.0 and not held.is_empty():
+		var wide := pads * BLOCK + maxf(pads - 1, 0) * GAP
+		var bar := Rect2(Vector2(0.0, BLOCK + LOCK_DROP), Vector2(wide * locked, LOCK_BAR))
+		draw_rect(bar.grow(1.0), RIM)
+		draw_rect(bar, held[0])

@@ -281,3 +281,16 @@ func test_the_pads_held_are_counted_under_the_clock() -> void:
 	pads[1].claim(-1, FlushPad.NEUTRAL)
 	await _runner.simulate_frames(2, 17)
 	assert_bool(tally.visible).is_false()
+	# A flush this screen's player scored is theirs for as long as it pays: all four blocks, and a
+	# bar under them for how much of it is left. Somebody else's is not this screen's business.
+	for pad: FlushPad in pads:
+		pad.clear_and_disable(match_node.rules.flush_disable_time)
+	match_node.flush_lock_slot = 0
+	match_node.flush_lock_left = match_node.rules.flush_lock_seconds * 0.5
+	tally._process(0.0)
+	assert_bool(tally.visible).is_true()
+	assert_array(tally.held).is_equal([mine, mine, mine, mine])
+	assert_float(tally.locked).is_equal_approx(0.5, 0.05)
+	match_node.flush_lock_slot = 1
+	tally._process(0.0)
+	assert_bool(tally.visible).is_false()

@@ -29,6 +29,14 @@ func _differences(host: Match, client: Match) -> Array[String]:
 	check.call("state", host.state, client.state)
 	check.call("time_left", host.time_left, client.time_left)
 	check.call("bounty_slot", host.bounty_slot, client.bounty_slot)
+	check.call("flush lock", host.flush_lock_slot, client.flush_lock_slot)
+	if absf(host.flush_lock_left - client.flush_lock_left) > 0.2:
+		out.append(
+			(
+				"flush lock left: host %.2f, client %.2f"
+				% [host.flush_lock_left, client.flush_lock_left]
+			)
+		)
 	check.call("target_score", host.rules.target_score, client.rules.target_score)
 	check.call("lives rule", host.rules.lives, client.rules.lives)
 	check.call("duration rule", host.rules.duration, client.rules.duration)

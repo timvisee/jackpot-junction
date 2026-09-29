@@ -2210,7 +2210,11 @@ movement: the one thing a corner block must not do is ask to be looked at.
   screen's players first and then whoever holds most. It says how close a flush
   is without four frames to find round the table, and is gone the moment nobody
   here holds one, since four outlines on every screen most of the match say
-  nothing. Its blocks stay solid rather than dimming as a claim runs down: a
+  nothing. A flush a player here scored stays on it while it pays out: the pads
+  have cleared and wear nobody's color, but they are that player's for a while
+  yet, so all four blocks are in their color, with a bar under them that empties
+  as the payout runs out. The snapshot carries whose flush is paying and for how
+  long, so a client's tally shows it too. Its blocks stay solid rather than dimming as a claim runs down: a
   client is not told when a holder renews one, so its dimming would be a guess.
 - **Start gantry**: the countdown is a horizontal rack of three lamps hung over the
   middle of the screen, the way a racing track starts a field, rather than a number.
