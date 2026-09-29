@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cn4b4oxtdcpu7"
-path="res://.godot/imported/crossfire.png-2443c3499fcb9258c4cf0914237f5a13.ctex"
+uid="uid://cu5mts6eqnd1r"
+path="res://.godot/imported/crossfire-xl.png-86de9816ef63fb1c563cad2256fa6936.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://docs/crossfire.png"
-dest_files=["res://.godot/imported/crossfire.png-2443c3499fcb9258c4cf0914237f5a13.ctex"]
+source_file="res://docs/crossfire-xl.png"
+dest_files=["res://.godot/imported/crossfire-xl.png-86de9816ef63fb1c563cad2256fa6936.ctex"]
 
 [params]
 

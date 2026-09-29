@@ -9,7 +9,7 @@ Made with Godot 4.7 and GDScript. `GAME.md` holds the design, `PLAN.md` the
 implementation plan with the status of every milestone, and `CHANGELOG.md` what
 has changed in each release.
 
-Three arenas, three rooms to play them in.
+Three arenas, three rooms to play them in, and an XL version of each with room to spare.
 
 ![A green felt arena on a workbench, lit by a lamp over it, with karts driving between low blocks and a machined steel plate set into the felt in the middle of it. Bundles of rod stock and stacks of planks lie about the bench around the table, and a crowd of onlookers rings the arena, packed at the rail and thinning outward. Glass tanks filled to different levels, a DJ booth, two lit hoardings and a board keeping the match clock stand at the far edge; the player's score sits on a dark card in the top left, the standings run down the right and a hand of joker cards along the bottom of the screen](docs/lucky-crossing.png)
 
@@ -19,9 +19,9 @@ Three arenas, three rooms to play them in.
 
 *The Vault, After Hours.*
 
-![A concrete yard in late afternoon light, with an arena marked out on it and karts driving between pale blocks. A disc in the middle is bordered in black and yellow hazard stripes, hazard tape runs across the floor at the back, and the crowd stands on stepped tribunes behind a low fence, with lit hoardings and the match clock along the far edge](docs/crossfire.png)
+![A concrete yard in late afternoon light seen from high above, with a far bigger arena marked out on it than the usual map: two long stepped walls of pale blocks curve toward each other across it, a pit edged in black and yellow hazard stripes sits in each of their bends, and a disc bordered in the same stripes lies in the open middle, with karts small against all that floor. The crowd fills stepped tribunes on every side, with a truck, stacked drums and a forklift beyond them, and lit hoardings and the match clock along the far edge](docs/crossfire-xl.png)
 
-*Crossfire, in The Yard.*
+*Crossfire XL, in The Yard: the same room around a bigger arena.*
 
 ![A wide phone screen showing Crossfire in The Yard from above, the whole arena in view, with the touch controls drawn over it: a round stick in the lower left for the left thumb, and on the right a round Fire button beside a tall slider cut into Nitro, Gas, Reverse and Drift. The menu button sits in the top right corner with the standings under it, the player's score card is in the top left, and their hand of joker cards is along the bottom edge](docs/mobile.png)
 
