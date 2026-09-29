@@ -22,3 +22,6 @@ extends Resource
 @export var rams := false
 ## Chance per decision that the bot is willing to fire at all.
 @export var fire_chance := 1.0
+## Chance the bot goes after a rival one cash-out from winning the match, GAME.md 9.1, decided
+## once each time a rival gets there: a hunter nearly always does, a cautious bot seldom.
+@export var winner_chase := 0.5

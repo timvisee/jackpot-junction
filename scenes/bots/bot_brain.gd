@@ -155,6 +155,9 @@ var _dodge_steer := 0.0
 ## mind about the same one every frame. Kept only for bullets still in the air: a match fires
 ## thousands, and a bot that remembered every one of them would carry the lot to the whistle.
 var _dodge_rolls: Dictionary[int, bool] = {}
+## Whether this bot goes after each rival one cash-out from winning, by slot, see [method
+## _winning_rival], forgotten once they no longer are.
+var _chases: Dictionary[int, bool] = {}
 var _aim_timer := 0.0
 var _aim_error := 0.0
 var _aim_error_left := 0.0
@@ -466,10 +469,12 @@ func _richest_enemy() -> Kart:
 	return best
 
 
-## The nearest rival one cash-out from winning the match, GAME.md 9.1, or null. Every bot goes
-## after one, whatever its level and however far: knocking the coins out of that pot may be its
-## last chance of winning itself.
+## The nearest rival one cash-out from winning that this bot goes after, GAME.md 9.1, or null: its
+## trait's chance, decided once each time a rival gets there, so it commits to the chase or not.
 func _winning_rival() -> Kart:
+	for index: int in _chases.keys():
+		if index >= match_node.slots.size() or not match_node.would_win(match_node.slots[index]):
+			_chases.erase(index)
 	return _nearest_other(
 		func(other: Kart) -> bool:
 			return (
@@ -477,8 +482,17 @@ func _winning_rival() -> Kart:
 				and not other.is_decoy()
 				and other.slot < match_node.slots.size()
 				and match_node.would_win(match_node.slots[other.slot])
+				and _chases_after(other.slot)
 			)
 	)
+
+
+## Whether this bot goes after the rival in [param index] about to win, deciding it the first time.
+func _chases_after(index: int) -> bool:
+	if not _chases.has(index):
+		var roll := rng.randf() if rng != null else randf()
+		_chases[index] = bot_trait != null and roll < bot_trait.winner_chase
+	return _chases[index]
 
 
 func _nearest_enemy() -> Kart:

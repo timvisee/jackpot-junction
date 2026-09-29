@@ -71,8 +71,8 @@ below, and hands the notes to the release workflow.
   your oldest one out instead of doing nothing.
 - **The cash-out that wins runs to its last coin.** Reaching the target mid-cash-out no longer
   ends the match there; it ends once the whole pot is in, or the cash-out stops.
-- **Bots go after a player about to win.** Every bot hunts, rams and shoots whoever is one
-  cash-out from winning, and a bot that could win itself goes straight to cash out.
+- **Bots go after a player about to win.** By their trait's chance, bots hunt, ram and shoot
+  whoever is one cash-out from winning, and a bot that could win itself goes to cash out.
 - **Rams knock coins out of untouchable karts.** A kart blinking after a hit or a respawn loses
   coins to a ram but no life, and a kart can be rammed at most once every 0.2 s.
 - **Escape closes a joker card you clicked open.** It puts the card away first, and pauses the

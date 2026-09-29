@@ -728,7 +728,8 @@ func test_a_rival_about_to_win_is_gone_after_and_a_winning_pot_is_banked() -> vo
 	)
 
 
-## And the brain picks that rival out over a nearer kart that would not win.
+## And the brain picks that rival out over a nearer kart that would not win, if its trait's chance
+## says it goes after them: decided once while the rival stays about to win, and again next time.
 func test_a_bot_hunts_the_rival_about_to_win_over_the_nearest() -> void:
 	var rules: MatchRules = DEFAULT_RULES.duplicate()
 	rules.countdown = 0.1
@@ -750,7 +751,19 @@ func test_a_bot_hunts_the_rival_about_to_win_over_the_nearest() -> void:
 	winner.global_position = bot.global_position + Vector3(-20.0, 0.0, 0.0)
 	await _runner.simulate_frames(2, 17)
 	assert_object(brain._hunt_target()).is_same(near)
+	var sure: BotTrait = brain.bot_trait.duplicate()
+	sure.winner_chase = 1.0
+	brain.bot_trait = sure
 	match_node.slots[2].banked = 900
 	winner.pot.add_coins(150)
 	assert_object(brain._hunt_target()).is_same(winner)
 	assert_bool(brain._context()["enemy_winning"]).is_true()
+	# Decided, it sticks while the rival stays about to win, whatever the chance says now.
+	sure.winner_chase = 0.0
+	assert_object(brain._hunt_target()).is_same(winner)
+	# Once they are not, it is forgotten, and decided again the next time.
+	winner.pot.reset()
+	assert_object(brain._hunt_target()).is_same(near)
+	winner.pot.add_coins(150)
+	assert_object(brain._hunt_target()).is_same(near)
+	assert_bool(brain._context().get("enemy_winning", false)).is_false()

@@ -50,8 +50,9 @@ static func choose(context: Dictionary, personality: BotTrait) -> StringName:
 		BotBrain.POT_HUNT_RANGE if purse >= BotBrain.POT_WORTH_CHASING else BotBrain.HUNT_RANGE
 	)
 	if bool(context.get("enemy_winning", false)):
-		# A rival about to win is gone after from anywhere on the table, seen or not, and by the
-		# most cautious of bots: stopping them may be its last chance of winning itself.
+		# A rival about to win, that this bot has chosen to go after, is gone after from anywhere
+		# on the table, seen or not, however cautious the bot: stopping them may be its last
+		# chance of winning itself.
 		hunt = maxf(personality.hunt_weight, 1.0) * BotBrain.WINNER_PULL
 	elif enemy_distance <= reach and bool(context.get("enemy_visible", false)):
 		# A bot that is behind goes looking for a fight; one that is ahead can sit on its lead.

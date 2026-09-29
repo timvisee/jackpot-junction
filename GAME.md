@@ -2879,13 +2879,18 @@ hard nobody reads the board, and that is most of the difference between an
 opponent and a threat: an easy bot fights whoever is nearest, a hard one comes
 for whoever is carrying the most.
 
-Somebody one cash-out from winning, 3.4, is another matter, and every bot of every
-level goes after them: from anywhere on the table, seen or not, at eight times its
-usual urge to fight and never less than a hunter's, ahead of pickups and items. It
-lights nitro to ram them from 14 m rather than 9 and on a smaller tank, and a bot
-holding its fire this life shoots at them all the same. A ram or a hit knocks coins
-out of the pot that would have won it, and for a bot behind on the board that may
-be its last chance of winning. The other way round, a bot whose own cash-out would
+Somebody one cash-out from winning, 3.4, is another matter. Each bot decides once,
+each time a rival gets there, whether to go after them, by its trait: a Hunter or a
+Bumper nearly always (90%), a Balanced bot half the time, a Grazer 40%, a Greedy one
+35% and a Cautious one seldom (15%). So a room of bots mostly sends one or two, not
+all of them, and a bot that has decided sticks to it rather than changing its mind
+every tick; the rival dropping below the winning line is forgotten, and the next
+time is decided afresh. A bot that goes goes whatever its level: from anywhere on
+the table, seen or not, at eight times its usual urge to fight and never less than
+a hunter's, ahead of pickups and items. It lights nitro to ram them from 14 m rather
+than 9 and on a smaller tank, and a bot holding its fire this life shoots at them
+all the same. A ram or a hit knocks coins out of the pot that would have won it,
+and for a bot behind on the board that may be its last chance of winning. The other way round, a bot whose own cash-out would
 win goes straight to the Junction, whatever else it was doing.
 
 **Sticking to it**: a goal is picked ten times a second, and two errands a bot is

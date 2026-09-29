@@ -16,3 +16,4 @@ dodge_multiplier = 1.5
 flee_distance = 9.0
 rams = false
 fire_chance = 1.0
+winner_chase = 0.15
