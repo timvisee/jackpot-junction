@@ -51,6 +51,11 @@ func open() -> Error:
 	if error != OK:
 		return error
 	NetLine.compress(peer)
+	# Visitors have nothing to say to each other, so none of them is told about the others coming
+	# and going, which is all the engine's relay would be doing here.
+	var scene := multiplayer as SceneMultiplayer
+	if scene != null:
+		scene.server_relay = false
 	multiplayer.multiplayer_peer = peer
 	error = _reports.bind(0, "127.0.0.1")
 	if error != OK:
@@ -60,12 +65,10 @@ func open() -> Error:
 	link.hall = self
 	(home if home != null else Net).add_child(link)
 	var ports := args.game_ports()
-	_say(
-		(
-			"Jackpot Junction %s server on port %d, up to %d games on ports %d to %d"
-			% [Game.version(), args.port, args.games, ports[0], ports[-1]]
-		)
-	)
+	var games := "1 game on port %d" % ports[0]
+	if ports.size() > 1:
+		games = "%d games on ports %d to %d" % [ports.size(), ports[0], ports[-1]]
+	_say("Jackpot Junction %s server on port %d, up to %s" % [Game.version(), args.port, games])
 	return OK
 
 
@@ -291,8 +294,13 @@ func _send_the_list() -> void:
 	if said == _listed:
 		return
 	_listed = said
-	if not multiplayer.get_peers().is_empty():
-		link._games_are.rpc(now)
+	# To each visitor still connected: one that has just gone is still counted until the wire says
+	# so, and a word to it is an error for nothing.
+	var enet := multiplayer.multiplayer_peer as ENetMultiplayerPeer
+	for peer: int in multiplayer.get_peers():
+		var connection := enet.get_peer(peer) if enet != null else null
+		if connection != null and connection.get_state() == ENetPacketPeer.STATE_CONNECTED:
+			link._games_are.rpc_id(peer, now)
 
 
 func _visitor(peer: int) -> String:

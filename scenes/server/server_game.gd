@@ -233,12 +233,8 @@ func _on_planned(plan: Dictionary, still_choosing: bool) -> void:
 		return
 	var chosen := MatchConfig.new()
 	MatchOptions.from_wire(chosen, plan)
-	say(
-		(
-			"The host chose the next match: %s, %d bots asked for"
-			% [MatchOptions.describe(chosen), chosen.bot_count]
-		)
-	)
+	var bots := "%d bot%s" % [chosen.bot_count, "" if chosen.bot_count == 1 else "s"]
+	say("The host chose the next match: %s, %s asked for" % [MatchOptions.describe(chosen), bots])
 
 
 func _on_door_set() -> void:
