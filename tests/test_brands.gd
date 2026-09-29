@@ -24,19 +24,27 @@ func test_a_floor_joker_is_printed_with_its_picture() -> void:
 	assert_float(front.dot(back)).is_less(-0.99)
 
 
-## A Royal Flush pad wears a crown on its plate rather than a card letter, in its holder's color,
-## and back in nobody's once the claim is gone.
-func test_a_flush_pad_wears_a_crown_in_its_holders_color() -> void:
-	var pad: FlushPad = auto_free(FlushPad.new())
-	add_child(pad)
-	assert_array(pad.find_children("*", "Label3D", true, false)).is_empty()
-	var crown: MeshInstance3D = pad.get_node("Crown")
-	var ink: StandardMaterial3D = crown.material_override
-	assert_object(ink.albedo_texture).is_same((pad.get_node("Drawn") as SubViewport).get_texture())
-	assert_object(ink.albedo_color).is_equal(FlushPad.NEUTRAL)
-	# Flat on the plate, facing up at the camera.
-	assert_float(crown.global_basis.z.dot(Vector3.UP)).is_greater(0.99)
-	pad.claim(2, Color.RED)
-	assert_object(ink.albedo_color).is_equal(Color.RED)
-	pad.claim(-1, FlushPad.NEUTRAL)
-	assert_object(ink.albedo_color).is_equal(FlushPad.NEUTRAL)
+## A Royal Flush pad wears a card suit of its own on its plate, GAME.md 3.9, one of the four a
+## flush collects, in its holder's color, and back in nobody's once the claim is gone.
+func test_each_flush_pad_wears_a_suit_of_its_own() -> void:
+	var suits: Array[int] = []
+	for index: int in 4:
+		var pad: FlushPad = auto_free(FlushPad.new())
+		pad.index = index
+		add_child(pad)
+		assert_array(pad.find_children("*", "Label3D", true, false)).is_empty()
+		var render: SubViewport = pad.get_node("Drawn")
+		suits.append((render.get_child(0) as FlushPad.Mark).suit)
+		var mark: MeshInstance3D = pad.get_node("Suit")
+		var ink: StandardMaterial3D = mark.material_override
+		assert_object(ink.albedo_texture).is_same(render.get_texture())
+		assert_object(ink.albedo_color).is_equal(FlushPad.NEUTRAL)
+		# Flat on the plate, facing up at the camera.
+		assert_float(mark.global_basis.z.dot(Vector3.UP)).is_greater(0.99)
+		pad.claim(2, Color.RED)
+		assert_object(ink.albedo_color).is_equal(Color.RED)
+		pad.claim(-1, FlushPad.NEUTRAL)
+		assert_object(ink.albedo_color).is_equal(FlushPad.NEUTRAL)
+	assert_array(suits).is_equal(
+		[SuitArt.Suit.SPADE, SuitArt.Suit.HEART, SuitArt.Suit.DIAMOND, SuitArt.Suit.CLUB]
+	)

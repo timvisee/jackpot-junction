@@ -4,8 +4,8 @@ extends Area3D
 ## color and takes the pad from whoever held it. A held pad pays its holder a slow trickle of
 ## coins for as long as they keep it, so taking one is worth something on its own; the match
 ## watches the claims as well, and holding all four at once scores the flush, after which every
-## pad clears and sits disabled for a while. Each wears a crown on its plate, in its holder's
-## color, the mark of the flush it is a part of.
+## pad clears and sits disabled for a while. Each wears a card suit of its own on its plate, in
+## its holder's color: four pads, four suits, and a flush is the set.
 ##
 ## Every coin the pad pays out throws a ring of light off it, so the trickle can be seen from
 ## across the table rather than only read off the score.
@@ -26,9 +26,9 @@ const DISABLED := Color(0.3, 0.3, 0.34)
 const HALO_TIME := 0.7
 const HALO_GROWTH := 1.9
 const HALO_ALPHA := 0.75
-## How big the crown is across the pad, and how finely it is drawn.
-const CROWN := 0.78
-const CROWN_PIXELS := 128
+## How big the suit is across the pad, and how finely it is drawn.
+const SUIT := 0.78
+const SUIT_PIXELS := 128
 
 var index := 0
 var size := 1.25
@@ -44,7 +44,7 @@ var disabled_left := 0.0
 var puppet := false
 
 var _frame_material: StandardMaterial3D
-var _crown_material: StandardMaterial3D
+var _suit_material: StandardMaterial3D
 var _pulse := 0.0
 var _halo: MeshInstance3D
 var _halo_material: StandardMaterial3D
@@ -160,7 +160,7 @@ func _refresh() -> void:
 	_frame_material.albedo_color = color
 	_frame_material.emission = color
 	_frame_material.emission_energy_multiplier = 0.0 if is_disabled() or owner_slot < 0 else 1.0
-	_crown_material.albedo_color = color
+	_suit_material.albedo_color = color
 
 
 func _build_visuals() -> void:
@@ -190,16 +190,17 @@ func _build_visuals() -> void:
 			0.0 if along else offset, FRAME_HEIGHT * 0.5, offset if along else 0.0
 		)
 		add_child(bar)
-	# Drawn once in white and worn in whatever color the pad is.
-	_crown_material = DrawnTexture.decal(
-		DrawnTexture.of(self, Crown.new(), Vector2i.ONE * CROWN_PIXELS)
-	)
-	var crown := DrawnTexture.face(Vector2.ONE * size * CROWN, _crown_material)
-	crown.name = "Crown"
+	# The pad's own suit, one of the four a flush collects, drawn once in white and worn in
+	# whatever color the pad is.
+	var mark := Mark.new()
+	mark.suit = index
+	_suit_material = DrawnTexture.decal(DrawnTexture.of(self, mark, Vector2i.ONE * SUIT_PIXELS))
+	var suit := DrawnTexture.face(Vector2.ONE * size * SUIT, _suit_material)
+	suit.name = "Suit"
 	# Flat on the plate, its top toward -Z, so it reads from the camera behind the arena.
-	crown.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
-	crown.position = Vector3(0.0, PLATE_HEIGHT + 0.01, 0.0)
-	add_child(crown)
+	suit.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
+	suit.position = Vector3(0.0, PLATE_HEIGHT + 0.01, 0.0)
+	add_child(suit)
 	_build_halo()
 
 
@@ -229,36 +230,12 @@ func _build_halo() -> void:
 	add_child(_halo)
 
 
-## The crown on the plate: a band with three points, a ball on each, outlined in the dark of the
-## asphalt so it reads on a pad lit in a pale color.
-class Crown:
+## The suit on the plate, outlined in the dark of the asphalt so it reads on a pad lit in a pale
+## color.
+class Mark:
 	extends Control
 
-	const OUTLINE := Color(0.05, 0.05, 0.06)
-	## The outline of the crown in a unit square: the band's foot and the three points.
-	const SHAPE: Array[Vector2] = [
-		Vector2(0.16, 0.78),
-		Vector2(0.12, 0.34),
-		Vector2(0.34, 0.54),
-		Vector2(0.5, 0.24),
-		Vector2(0.66, 0.54),
-		Vector2(0.88, 0.34),
-		Vector2(0.84, 0.78),
-	]
-	const BALLS: Array[Vector2] = [Vector2(0.12, 0.3), Vector2(0.5, 0.2), Vector2(0.88, 0.3)]
+	var suit := 0
 
 	func _draw() -> void:
-		var shape := PackedVector2Array()
-		for point: Vector2 in SHAPE:
-			shape.append(point * size)
-		var edge := size.x * 0.035
-		var closed := shape.duplicate()
-		closed.append(shape[0])
-		draw_polyline(closed, OUTLINE, edge * 2.0, true)
-		for ball: Vector2 in BALLS:
-			draw_circle(ball * size, size.x * 0.06 + edge, OUTLINE)
-		draw_colored_polygon(shape, Color.WHITE)
-		for ball: Vector2 in BALLS:
-			draw_circle(ball * size, size.x * 0.06, Color.WHITE)
-		# The band across the foot, in the dark, so the crown reads as a crown and not a spike.
-		draw_line(Vector2(0.15, 0.68) * size, Vector2(0.85, 0.68) * size, OUTLINE, edge * 1.4, true)
+		SuitArt.draw_into(self, Rect2(Vector2.ZERO, size), suit, Color.WHITE, size.x * 0.035)

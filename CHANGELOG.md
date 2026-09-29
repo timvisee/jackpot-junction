@@ -63,8 +63,8 @@ below, and hands the notes to the release workflow.
   coins to a ram but no life, and a kart can be rammed at most once every 0.2 s.
 - **Escape closes a joker card you clicked open.** It puts the card away first, and pauses the
   match only once no card is open.
-- **Royal Flush pads wear a crown.** The same crown on all four, in the holder's color, replaces
-  the A, K, Q and J letters.
+- **Royal Flush pads wear the four card suits.** A spade, heart, diamond and club, one per pad
+  in the holder's color, replace the A, K, Q and J letters.
 - **Jokers on the floor show their picture.** The card is printed on both sides like a card in
   your hand, and leans back so it can be seen, instead of two letters over it.
 - **Item boxes are branded with what they hold.** A dropped box wears its item's picture on its
