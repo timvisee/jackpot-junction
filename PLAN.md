@@ -310,16 +310,23 @@ own latency.
 - [x] The server, `--server`: a hall on 7777 listing its games, each game a
       headless process of its own on the next port, reporting to the hall over
       loopback, and one log for all of it.
-- [x] Play Online: connect to a server, see its games, make, join or watch one.
+- [x] An idle server near the engine's own footprint: the hall started without
+      the game's autoloads by `GameTree`, behind a boot scene, at ten frames a
+      second with no physics; about 90 MB in a release build.
+- [x] Play Online in two screens, connecting and then the server's games, and a
+      LAN game and a server telling each other apart at the door on 7777.
+- [x] Make host in Manage players, handing the say to another player.
 - [ ] Finding servers without typing an address, and join codes.
 
 Verify: `make server-check`, then a server on a machine of its own reached over
 the internet.
 
 Status: built and checked on one machine: suites for the hall, a game's
-process, the host's say and the screen, and `tools/server_check` with a real
-server and three clients making, joining and watching a game. Not yet tried
-over the internet, or with a server full of games at once.
+process, the host's say and both screens, and `tools/server_check` with a real
+server and three clients making, joining and watching a game, handing the say
+on, and holding the idle server under 160 MB (the editor build's is 110). Also
+run against the Linux release export as the server. Not yet tried over the
+internet, or with a server full of games at once.
 
 ## Pending
 
