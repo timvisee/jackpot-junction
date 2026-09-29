@@ -481,10 +481,24 @@ func test_a_bot_flicks_the_handbrake_into_a_tight_corner_and_then_drives_it() ->
 	kart.face(Vector3(1.0, 0.0, 0.0))
 	kart.motor.forward_speed = kart.stats.top_speed
 	kart.motor.velocity = kart.motor.forward_vector() * kart.stats.top_speed
+	kart.motor.drifting = false
 	brain.goal = &"wander"
 	brain.target = kart.global_position + Vector3(0.0, 0.0, -14.0)
 	brain.target_node = null
 	brain._path = PackedVector3Array()
+	# Against players who drift a little, whose bots throw it into a corner just past square, and
+	# with nothing left over from the frames before: without these, whether the flick came at
+	# all was a race between the corner opening up past the bots' own reading of the players
+	# and the wheel bringing the nose round, which a loaded machine lost.
+	match_node.bot_mirror.drift = 0.3
+	brain._flick_left = 0.0
+	brain._flick_wait = 0.0
+	brain._turn_rate = 0.0
+	brain._last_heading = kart.motor.heading
+	brain._stuck_time = 0.0
+	brain._reverse_left = 0.0
+	brain._swing_left = 0.0
+	brain._dodge_left = 0.0
 	var pulls := 0
 	var held := 0
 	var slid := 0
