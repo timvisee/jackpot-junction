@@ -6,17 +6,17 @@ extends RefCounted
 ## wherever that node goes, as a pickup's look does into the kart that takes it.
 
 
-## Draws [param drawing], a control, once into a square of [param pixels] kept under
-## [param parent], and returns the texture it is in.
-static func of(parent: Node, drawing: Control, pixels: int) -> ViewportTexture:
+## Draws [param drawing], a control, once into [param pixels] kept under [param parent], and
+## returns the texture it is in.
+static func of(parent: Node, drawing: Control, pixels: Vector2i) -> ViewportTexture:
 	var render := SubViewport.new()
 	render.name = "Drawn"
 	render.transparent_bg = true
 	render.disable_3d = true
 	render.gui_disable_input = true
-	render.size = Vector2i.ONE * pixels
+	render.size = pixels
 	render.render_target_update_mode = SubViewport.UPDATE_ONCE
-	drawing.size = Vector2.ONE * pixels
+	drawing.size = Vector2(pixels)
 	drawing.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	render.add_child(drawing)
 	# Drawn again should it be moved, and a viewport taken out of the tree and put back is.
@@ -37,11 +37,11 @@ static func decal(texture: Texture2D) -> StandardMaterial3D:
 	return ink
 
 
-## A flat square [param side] across wearing [param material], facing along its own +Z, with no
+## A flat rectangle of [param size] wearing [param material], facing along its own +Z, with no
 ## shadow of its own.
-static func face(side: float, material: Material) -> MeshInstance3D:
+static func face(size: Vector2, material: Material) -> MeshInstance3D:
 	var quad := QuadMesh.new()
-	quad.size = Vector2.ONE * side
+	quad.size = size
 	var shown := MeshInstance3D.new()
 	shown.mesh = quad
 	shown.material_override = material

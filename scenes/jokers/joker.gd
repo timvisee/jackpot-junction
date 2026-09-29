@@ -25,14 +25,6 @@ func weight() -> float:
 	return RARITY_WEIGHTS[rarity]
 
 
-## Two letters for compact HUD slots.
-func initials() -> String:
-	var parts := display_name.split(" ")
-	if parts.size() >= 2:
-		return parts[0].left(1) + parts[1].left(1)
-	return display_name.left(2)
-
-
 func on_attach(_kart: Kart) -> void:
 	pass
 

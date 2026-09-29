@@ -1798,6 +1798,11 @@ measurement reads three times slower than the same build warm.
   question mark on a dark chip. One a wreck drops holds a known item and says so:
   a crate in the item's color, branded with its picture of 8.3a instead. Nothing
   hangs over a box: the brand is on it, where the eye already is.
+- **Jokers on the floor**: a white playing card leaning well back as it spins, so
+  the camera over the table always sees a face, printed on both sides like a card
+  in the hand: the joker's picture of 8.3a in its kind's color on a dark face edged
+  in the same color. The card is known on the floor by the shape it is known by in
+  the hand, rather than by initials over it.
 - **Karts**: toy go-karts with a simple driver figure, body tinted in the
   player color, a roof marker shape per color. Painted and lacquered: the body
   takes a coat of clear over the color, so the lamp over the table runs along it

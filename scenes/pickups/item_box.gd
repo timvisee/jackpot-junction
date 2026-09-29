@@ -72,11 +72,11 @@ func _build_visual(parent: Node3D) -> void:
 func _brand(parent: Node3D) -> void:
 	var badge := Badge.new()
 	badge.item = fixed_item
-	var ink := DrawnTexture.decal(DrawnTexture.of(parent, badge, BRAND_PIXELS))
+	var ink := DrawnTexture.decal(DrawnTexture.of(parent, badge, Vector2i.ONE * BRAND_PIXELS))
 	# Over the beam of light rising out of the box, which would tint the top one its own color.
 	ink.render_priority = 1
 	for side: int in 5:
-		var brand := DrawnTexture.face(BRAND_SIZE, ink)
+		var brand := DrawnTexture.face(Vector2.ONE * BRAND_SIZE, ink)
 		brand.name = "Brand%d" % side
 		if side < 4:
 			brand.rotation.y = side * PI * 0.5

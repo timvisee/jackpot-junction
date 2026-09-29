@@ -55,6 +55,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Jokers on the floor show their picture.** The card is printed on both sides like a card in
+  your hand, and leans back so it can be seen, instead of two letters over it.
 - **Item boxes are branded with what they hold.** A dropped box wears its item's picture on its
   top and sides instead of a letter over it, and a box from a pad wears a question mark.
 - **Chips go into the Junction the whole time you bank.** They used to fly only once the
