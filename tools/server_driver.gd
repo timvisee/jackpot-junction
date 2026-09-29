@@ -15,6 +15,7 @@ extends Node
 const WAITING_SCENE := "res://scenes/waiting/waiting_room.tscn"
 const MATCH_SCENE := "res://scenes/match/match_scene.tscn"
 const PLAY_ONLINE_SCENE := "res://scenes/ui/play_online.tscn"
+const SERVER_GAMES_SCENE := "res://scenes/ui/server_games.tscn"
 ## How far a kart walks toward the pad in a frame, and where on it each seat parks, as the LAN
 ## check has it: the host only believes a client about its kart while it stays within reach.
 const STEP := 0.05
@@ -208,33 +209,37 @@ func _watcher() -> void:
 	if not await _until(
 		func() -> bool:
 			var scene := _scene()
-			return scene != null and scene.scene_file_path == PLAY_ONLINE_SCENE,
+			return scene != null and scene.scene_file_path == SERVER_GAMES_SCENE,
 		_length * MAPS + 120.0,
-		"was told the game is over and went back to Play Online"
+		"was told the game is over and went back to the server's games"
 	):
 		return
 	var back := _scene()
-	await _frames(30)
 	_check(
 		back.note.text == "Everybody left, so the game is over" and back.note.visible,
-		"which said why, and still did once it had connected: %s" % back.note.text
+		"which said why: %s" % back.note.text
 	)
 	_finished = true
 
 
-## Play Online, connected to the server the check was given, as its screen connects by itself.
+## Play Online, connected to the server the check was given with Connect, and on to its games.
 func _play_online() -> Control:
 	Game.go_to_play_online()
 	if not await _until(
 		func() -> bool:
 			var scene := _scene()
-			return (
-				scene != null
-				and scene.scene_file_path == PLAY_ONLINE_SCENE
-				and not scene.make_button.disabled
-			),
+			return scene != null and scene.scene_file_path == PLAY_ONLINE_SCENE,
 		20.0,
-		"Play Online connected to the server"
+		"Play Online is up and waits for Connect"
+	):
+		return null
+	_scene().connect_button.pressed.emit()
+	if not await _until(
+		func() -> bool:
+			var scene := _scene()
+			return scene != null and scene.scene_file_path == SERVER_GAMES_SCENE,
+		20.0,
+		"Connect went on to the server's games"
 	):
 		return null
 	return _scene()

@@ -36,8 +36,10 @@ var hall: ServerHall
 ## machine the name it gives, for the server's log.
 var version := ""
 var player_name := ""
-## At a player's machine: the address of the server it knocked at, and the games it last listed.
+## At a player's machine: the address and port of the server it knocked at, and the games it last
+## listed.
 var address := ""
+var port := 0
 var games: Array[Dictionary] = []
 
 var _turned_away := false
@@ -91,6 +93,7 @@ func reach(at: String, port: int) -> Error:
 		NetLine.trying(server)
 	multiplayer.multiplayer_peer = peer
 	address = at
+	self.port = port
 	_turned_away = false
 	return OK
 

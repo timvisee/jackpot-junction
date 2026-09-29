@@ -3191,20 +3191,22 @@ seat is not heard. While they choose the match their karts wait where they are, 
 drive on, and the room does not go. Their Manage players lists everybody else, with their own
 players as Me; the players at one client share its say.
 
-**Play Online.** The title's way to a dedicated server, beside Play LAN and laid out like it: the
-player's name, the server's address and port, 7777 to start with, and Connect. Connected, it says
-so and lists the server's games under it the way Play LAN lists the games on the network, a row
-each saying whose it is, whether it is still in the lobby, how many play in it of how many may
-and whether it wants a password, which joins it, with Watch beside it, and Make a game under them.
-A server on a version this one cannot play says which it has, and lists nothing. Make a game asks
-the server for one, says it is making it, and once it is up goes into its lobby, where the maker
-has the host's say and sets it up the way a host does, see 9.6: Lobby settings first, then the
-match. Join and Watch go into a game's lobby the way joining a LAN game does, the password asked
-for there if it has one; a wrong one, or Back, goes back to Play Online rather than Play LAN. The
-server and its port are kept, and connected to again as the screen comes up, so coming back from
-one of its games is coming back to its list. Anybody in the game's lobby is told where friends
-find it, in Play Online at the server's address, in place of the line saying which port to join a
-LAN host on. A game that is over, or a player shown out, goes back to Play Online too, saying why.
+**Play Online.** The title's way to a dedicated server, beside Play LAN, in two screens. The first
+connects: the player's name, the server's address and port, 7777 to start with, and Connect,
+which says it is connecting and goes on to the second once the server has let this machine in, or
+says why not: nobody answered, the server is on a version this one cannot play, or it is a LAN
+game. The second, Games, lists the server's games the way Play LAN lists the games on the network,
+a row each saying whose it is, whether it is still in the lobby, how many play in it of how many
+may and whether it wants a password, which joins it, with Watch beside it, and Make a game under
+them. Make a game asks the server for one, says it is making it, and once it is up goes into its
+lobby, where the maker has the host's say and sets it up the way a host does, see 9.6: Lobby
+settings first, then the match. Join and Watch go into a game's lobby the way joining a LAN game
+does, the password asked for there if it has one. Back hangs up and goes back to the first
+screen, and so does the server going away, saying so. The server and its port are kept for next
+time. Back from one of its games, over, shown out of it, or with a wrong password or none, the
+first screen connects to the server again by itself and goes straight on to its games, which say
+why. Anybody in the game's lobby is told where friends find it, in Play Online at the server's
+address, in place of the line saying which port to join a LAN host on.
 A server and a LAN game are both found on 7777, so each says which it is at the door: Play LAN
 knocking at a server is told it is a dedicated server whose games are in Play Online, and Play
 Online knocking at a LAN game, or at one of a server's games by its own port, that it is a game to

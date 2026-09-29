@@ -206,8 +206,8 @@ func _ask_password(wrong: bool) -> void:
 		_connecting = null
 	if match_node.hud != null:
 		match_node.hud.stand_down()
-	# Back to the screen the game was found on: Play LAN, or Play Online for a game of a server.
-	var found_on := Game.go_to_online if config.server.is_empty() else Game.go_to_play_online
+	# Back to the screen the game was found on: Play LAN, or the games of the server it is on.
+	var found_on := Game.go_to_online if config.server.is_empty() else Game.back_to_the_server
 	if wrong:
 		# After the session has finished saying so: going hangs it up, and a session cannot be
 		# freed in the middle of saying something.

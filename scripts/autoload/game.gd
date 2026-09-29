@@ -9,6 +9,7 @@ const SETTINGS_SCENE := "res://scenes/ui/settings_screen.tscn"
 const MATCH_SCENE := "res://scenes/match/match_scene.tscn"
 const ONLINE_SCENE := "res://scenes/ui/online.tscn"
 const PLAY_ONLINE_SCENE := "res://scenes/ui/play_online.tscn"
+const SERVER_GAMES_SCENE := "res://scenes/ui/server_games.tscn"
 const GARAGE_SCENE := "res://scenes/garage/garage.tscn"
 const WAITING_SCENE := "res://scenes/waiting/waiting_room.tscn"
 ## The two practice rooms, GAME.md 9.4. They are one scene on two maps, a portal apart.
@@ -32,9 +33,10 @@ var garage_room := ROOM_GARAGE
 ## across scenes: every map is a scene of its own.
 var grand_prix: GrandPrix
 ## What the Play LAN screen says as it comes up, once, see [method go_to_online], and the same for
-## Play Online, see [method go_to_play_online].
+## Play Online, see [method go_to_play_online], and whether Play Online connects again by itself.
 var online_note := ""
 var play_online_note := ""
+var play_online_reconnect := false
 
 var _screenshot_path := ""
 var _screenshot_frames := 8
@@ -168,22 +170,35 @@ func go_to_online(note := "") -> void:
 	get_tree().change_scene_to_file(ONLINE_SCENE)
 
 
-## Play Online, GAME.md 9.3a, the games on a dedicated server, saying [param note] on it if there is
-## something to say about why it is up again.
+## Play Online, GAME.md 9.3a, the screen that connects to a dedicated server, saying [param note]
+## on it if there is something to say about why it is up again: the server gone, say.
 func go_to_play_online(note := "") -> void:
 	Net.close()
 	grand_prix = null
 	play_online_note = note
+	play_online_reconnect = false
 	get_tree().paused = false
 	get_tree().change_scene_to_file(PLAY_ONLINE_SCENE)
 
 
+## The games on the server Play Online has just connected to, over the connection it made there.
+func go_to_server_games() -> void:
+	get_tree().paused = false
+	get_tree().change_scene_to_file(SERVER_GAMES_SCENE)
+
+
+## Back to the games of the server a game was on, [param note] saying why: Play Online connects to
+## it again by itself, as the list was left for the game, and goes on to them.
+func back_to_the_server(note := "") -> void:
+	go_to_play_online(note)
+	play_online_reconnect = true
+
+
 ## Back to the menu the room was reached from, once it is over for this machine, [param why] saying
-## why: Play Online for a game of a dedicated server, GAME.md 9.3a, where the server's other games
-## are, and the title for anything else.
+## why: the games of the dedicated server it was on, GAME.md 9.3a, and the title for anything else.
 func back_to_the_menu(why := "") -> void:
 	if pending_config != null and not pending_config.server.is_empty():
-		go_to_play_online(why)
+		back_to_the_server(why)
 	else:
 		go_to_title()
 
