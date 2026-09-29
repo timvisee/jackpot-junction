@@ -2221,8 +2221,9 @@ movement: the one thing a corner block must not do is ask to be looked at.
   up a pad mid-match sees gamepad buttons everywhere.
 - **Match timer** at the top center, turning red during Last Call.
 - **Item beside the kart**: a player on this screen who picks an item up sees it
-  beside their kart as well as in their corner, small, on a dark chip level with
-  the kart and clear of the hints over it: it turns through the items the way the
+  beside their kart as well as in their corner, small, on a dark chip off the
+  kart's top right corner, which it keeps to however far out the camera has
+  pulled: it turns through the items the way the
   roulette in the corner does while the box is opening, settles on the one they
   got, holds a moment and fades slowly, the corner going on saying what they hold.
   Once it can be used the button that uses it sits on the chip's lower corner,

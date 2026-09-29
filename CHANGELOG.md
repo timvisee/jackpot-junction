@@ -13,8 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
-- **The item you pick up shows beside your kart.** It spins like the roulette, settles with its
-  button, fades, and fades back in near a box you can't take while holding it.
+- **The item you pick up shows by your kart.** Off its top right, it spins like the roulette,
+  settles with its button, fades, and fades back in near a box you can't take while holding it.
 - **Back to lobby after a quick match.** The podium offers it beside Rematch and Back to title,
   on one machine as well as for a LAN host.
 - **Joker slots in the match settings.** Choose how many jokers a hand holds, 3 to 8, under

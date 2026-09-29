@@ -11,11 +11,12 @@ extends Control
 ## the slot is full, which they drove straight through wondering why. The item they hold comes up
 ## beside the kart the nearer they get, and goes again as they leave the box behind.
 
-## How big the picture is, the chip it sits on, how far to the side of the kart it hangs, level with
-## it and clear of the hints over it, how long it stays once settled and how long it takes to fade.
+## How big the picture is, the chip it sits on, the kart's top right corner that the chip's lower
+## left one sits on, in meters up and to the right as the camera sees it, how long it stays once
+## settled and how long it takes to fade.
 const ICON := 30.0
 const PAD := 5.0
-const OFFSET := Vector2(50.0, 6.0)
+const CORNER := Vector2(0.7, 1.0)
 const HOLD := 0.8
 const FADE := 1.2
 ## How long after the pickup a kart holding nothing still has its tag waiting for the item: on a
@@ -175,11 +176,16 @@ func _box(kart: Kart) -> Rect2:
 	var camera := get_viewport().get_camera_3d()
 	# Where the kart is drawn, between physics ticks, rather than where the last tick left it:
 	# followed tick by tick, the tag stepped along beside a kart that glides.
-	var above := kart.get_global_transform_interpolated().origin + Vector3(0.0, 0.6, 0.0)
-	if camera == null or camera.is_position_behind(above):
+	var origin := kart.get_global_transform_interpolated().origin
+	if camera == null:
 		return Rect2()
-	var at := camera.unproject_position(above) + OFFSET
-	return Rect2(at - Vector2.ONE * ICON * 0.5, Vector2.ONE * ICON)
+	# Measured off the kart in the world rather than in pixels, so the chip keeps to the kart's
+	# corner however far out the camera has pulled.
+	var corner := origin + camera.global_basis.x * CORNER.x + Vector3.UP * CORNER.y
+	if camera.is_position_behind(corner):
+		return Rect2()
+	var at := camera.unproject_position(corner) + Vector2(PAD, -PAD - ICON)
+	return Rect2(at, Vector2.ONE * ICON)
 
 
 func _draw() -> void:
