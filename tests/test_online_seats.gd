@@ -161,3 +161,45 @@ func test_the_host_shows_out_one_of_two_players_at_a_client() -> void:
 	assert_bool(_client.local_slot >= 0).is_true()
 	assert_bool(_host.anybody_connected()).is_true()
 	assert_int(_host.guests().size()).is_equal(1)
+
+
+## A player shown out before any snapshot has built their slot is no longer played here: the seat
+## came off the books even though the slot was not there to take anything else off. Under load it
+## stayed on, and the slot arriving afterwards was a corner nobody sat at.
+func test_a_seat_shown_out_before_its_slot_arrives_is_gone() -> void:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = _rules()
+	match_node.with_hud = false
+	add_child(match_node)
+	match_node.start_puppet()
+	var here := LocalSeats.new()
+	var second := here.sit_down(0)
+	second.slot = 5
+	match_node.add_local_seat(5, second.input as PlayerInput)
+	assert_bool(match_node.is_local_seat(5)).is_true()
+	here.stand_up(second, match_node)
+	assert_bool(match_node.is_local_seat(5)).is_false()
+	assert_int(here.seats.size()).is_equal(0)
+
+
+## A second press on a pad whose seat has been asked for is the same player, not another one.
+func test_a_second_press_on_the_same_pad_asks_for_nothing_more() -> void:
+	var here := LocalSeats.new()
+	assert_object(here.sit_down(1)).is_not_null()
+	assert_object(here.sit_down(1)).is_null()
+	assert_object(here.sit_down(2)).is_not_null()
+	assert_int(here.seats.size()).is_equal(2)
+
+
+## The host told of a seat a client already has says which one it is rather than handing it a
+## second one and leaving the first to nobody.
+func test_asking_again_for_a_seat_finds_the_one_it_has() -> void:
+	await _seated()
+	var peer: int = _host.guests()[0]["peer"]
+	var index := _client.local_slot
+	assert_int(_host._peer_slots.seated_in(_host_match, peer, 0)).is_equal(index)
+	var karts := _host_match.slots.size()
+	_host._seat(peer, false, 0)
+	assert_int(_host_match.slots.size()).is_equal(karts)
+	assert_int(_host._peer_slots.slot_of(peer, 0)).is_equal(index)
+	assert_int(_host._peer_slots.seated_in(_host_match, peer, 3)).is_equal(-1)

@@ -3652,7 +3652,9 @@ the lobby's limit on the host and turned away with a message of its own when the
 which the client shows as the notice of 9.6; the client does not guess, since two machines can
 ask for the last seat at the same time. Kept by number, the two players at one client stay
 apart: each claims its own name and color, each has its own history of predicted ticks, and
-leaving empties the one seat. This changed what the machines say to each other, which is why it
+leaving empties the one seat. A seat asked for again is the seat already held, a second press of
+join on a pad whose seat is on its way asks for nothing more, and a player shown out before the
+client has seen their slot is gone from it all the same. This changed what the machines say to each other, which is why it
 came with 0.9.0 rather than a patch release.
 
 Seated is not the same as there. A client still has the room to build once it knows which one

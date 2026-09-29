@@ -24,6 +24,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A second player at a LAN client leaves nothing behind.** Shown out quickly, or asked for twice,
+  they could leave a stray corner or a kart nobody drove.
 - **Two turbo pads side by side always launch.** Driving down the line between them went
   through without a turbo; they now work as one pad.
 - **A death after the whistle no longer changes the result.** A late bomb or fall banked half a

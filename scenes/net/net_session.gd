@@ -442,6 +442,10 @@ func _seat(peer: int, fresh: bool, number := 0) -> void:
 	if _watchers.has(peer):
 		_watch(peer)
 		return
+	var seated := _peer_slots.seated_in(match_node, peer, number)
+	if seated >= 0:
+		_assign_slot.rpc_id(peer, seated, match_node.rng.seed, number)
+		return
 	var kept := _peer_slots.kept_for(peer, number)
 	var slot := match_node.join_network(NetInput.new(), kept.get("color", -1))
 	if slot == null:
@@ -695,6 +699,9 @@ func _assign_slot(index: int, _seed: int, number := 0) -> void:
 		if number != 0:
 			return
 		each = _players()[0]
+	# Moved, a seat is no longer played in the slot it had.
+	if each.slot >= 0 and each.slot != index:
+		match_node.drop_local_seat(each.slot)
 	each.slot = index
 	if each == seats[0]:
 		local_slot = index
@@ -834,7 +841,9 @@ func add_seat(device: int) -> void:
 	if is_host or watching or not _connected():
 		return
 	_players()
-	_seat_another.rpc_id(1, _here.sit_down(device).seat)
+	var made := _here.sit_down(device)
+	if made != null:
+		_seat_another.rpc_id(1, made.seat)
 
 
 ## One of this client's players gets up and goes, from their switch in the pause menu, GAME.md

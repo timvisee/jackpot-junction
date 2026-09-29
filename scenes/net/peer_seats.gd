@@ -43,6 +43,16 @@ func all_slots() -> Array[int]:
 	return slots
 
 
+## The slot [param peer]'s player [param number] already sits in in [param match_node], or -1: a
+## client asking again for a seat it has, which a message crossing another on the wire can do, is
+## told the one it has rather than handed a second and leaving the first to nobody.
+func seated_in(match_node: Match, peer: int, number: int) -> int:
+	var index := slot_of(peer, number)
+	if index < 0 or index >= match_node.slots.size():
+		return -1
+	return index if match_node.slots[index].input is NetInput else -1
+
+
 ## [param peer]'s player [param number] in [param index]. Returns whether it is the first of that
 ## client's players to sit down in this room, which is the one told the rules.
 func put(peer: int, number: int, index: int) -> bool:

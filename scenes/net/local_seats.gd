@@ -33,6 +33,7 @@ func numbered(number: int) -> ClientSeat:
 ## A newcomer on [param device], given the lowest number nobody here has, and the name and dress
 ## that seat of the settings keeps. A player on any device already here keeps the one they last
 ## used, so the two do not both answer the newcomer's, the way [method Match.join_human] has it.
+## Null for a device somebody here already sits at, whose seat may still be on its way.
 func sit_down(device: int) -> ClientSeat:
 	for each: ClientSeat in seats:
 		var player := each.input as PlayerInput
@@ -41,6 +42,11 @@ func sit_down(device: int) -> ClientSeat:
 			if chosen == DeviceInput.ANY or chosen == device:
 				chosen = DeviceInput.KEYBOARD if device >= 0 else 0
 			player.device = chosen
+	# A second press on a pad whose seat has been asked for is the same player, not another one.
+	for each: ClientSeat in seats:
+		var player := each.input as PlayerInput
+		if player != null and player.device == device:
+			return null
 	var number := 0
 	while numbered(number) != null:
 		number += 1
@@ -57,10 +63,15 @@ func sit_down(device: int) -> ClientSeat:
 ## Takes [param each] off [param match_node]: its seat is somebody else's now, or nobody's.
 func stand_up(each: ClientSeat, match_node: Match) -> void:
 	seats.erase(each)
-	if match_node == null or each.slot < 0 or each.slot >= match_node.slots.size():
+	if match_node == null or each.slot < 0:
+		return
+	# Whether or not a snapshot has built the slot yet: under load one can be told its seat and
+	# shown out of it before it has, and a seat left on the books would be played here the moment
+	# the slot arrived.
+	match_node.drop_local_seat(each.slot)
+	if each.slot >= match_node.slots.size():
 		return
 	var slot := match_node.slots[each.slot]
-	match_node.drop_local_seat(each.slot)
 	if slot.input == each.input:
 		slot.input = KartInput.new()
 	if slot.kart != null:
