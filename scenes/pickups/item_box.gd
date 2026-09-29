@@ -1,17 +1,15 @@
 class_name ItemBox
 extends Pickup
-## A power-up on the floor: a glowing, pulsing crate with a big question mark and a beam of light,
-## so it stands out from the pads and chips. From a pad it holds a whole table and decides the item
-## when taken, like a roulette; dropped on death it holds one fixed item, and wears it, GAME.md
-## 8.3a: the item's own picture over the crate where the question mark would be, and branded on
-## its top and sides. Karts already holding an item cannot take it.
+## A power-up on the floor: a glowing, pulsing crate with a beam of light, so it stands out from
+## the pads and chips. From a pad it holds a whole table and decides the item when taken, like a
+## roulette, and wears a question mark; dropped on death it holds one fixed item, and wears that,
+## GAME.md 8.3a: the item's own picture, branded on its top and sides. Karts already holding an
+## item cannot take it.
 
-## How big the picture of a dropped box's item is rendered, how big it hangs over the crate, how
-## big it is branded on each face and how far out from the middle, just clear of the bands, and
-## the chip it sits on.
+## How big the brand is drawn, how big it is on each face and how far out from the middle, just
+## clear of the bands, and the chip it is drawn on.
 const BRAND_PIXELS := 128
-const SIGN_SIZE := 0.8
-const BRAND_SIZE := 0.42
+const BRAND_SIZE := 0.56
 const BRAND_OUT := 0.41
 const BRAND_CHIP := Color(0.05, 0.05, 0.07)
 
@@ -50,10 +48,7 @@ func _build_visual(parent: Node3D) -> void:
 		band.mesh = band_mesh
 		band.material_override = dark
 		parent.add_child(band)
-	if fixed_item != null:
-		_brand(parent)
-	else:
-		_question_mark(parent)
+	_brand(parent)
 	var beam := MeshInstance3D.new()
 	var beam_mesh := CylinderMesh.new()
 	beam_mesh.top_radius = 0.04
@@ -72,68 +67,17 @@ func _build_visual(parent: Node3D) -> void:
 	hover = 0.65
 
 
-## The big question mark over a box from a pad: what comes out of it is anybody's guess.
-func _question_mark(parent: Node3D) -> void:
-	var mark := Label3D.new()
-	mark.text = "?"
-	mark.font_size = 120
-	mark.outline_size = 20
-	mark.modulate = Palette.CHIP_WHITE
-	mark.outline_modulate = Color(0.05, 0.05, 0.06)
-	mark.pixel_size = 0.01
-	mark.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	mark.no_depth_test = true
-	mark.position = Vector3(0.0, 1.15, 0.0)
-	parent.add_child(mark)
-
-
-## The item a dropped box holds, pictured over it and on its top and four sides. The picture is
-## drawn once into a texture, the way the hints in the world are, and kept in [param parent] so it
-## goes with the look into the kart that takes the box.
+## What the box holds, branded on its top and four sides: a dropped box's item, pictured, or a
+## question mark on a box from a pad, since what comes out of that is anybody's guess.
 func _brand(parent: Node3D) -> void:
-	var render := SubViewport.new()
-	render.name = "Brand"
-	render.transparent_bg = true
-	render.disable_3d = true
-	render.gui_disable_input = true
-	render.size = Vector2i.ONE * BRAND_PIXELS
-	render.render_target_update_mode = SubViewport.UPDATE_ONCE
 	var badge := Badge.new()
 	badge.item = fixed_item
-	badge.size = Vector2.ONE * BRAND_PIXELS
-	render.add_child(badge)
-	# Drawn again should it be moved, as the look is into the kart taking the box.
-	render.tree_entered.connect(
-		func() -> void: render.render_target_update_mode = SubViewport.UPDATE_ONCE
-	)
-	parent.add_child(render)
-	var picture := render.get_texture()
-	var over := Sprite3D.new()
-	over.name = "Sign"
-	over.texture = picture
-	over.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	over.no_depth_test = true
-	over.shaded = false
-	over.double_sided = true
-	over.pixel_size = SIGN_SIZE / BRAND_PIXELS
-	over.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	over.position = Vector3(0.0, 1.15, 0.0)
-	# Over the beam of light it hangs in, which would tint it its own color.
-	over.render_priority = 1
-	parent.add_child(over)
-	var ink := StandardMaterial3D.new()
-	ink.albedo_texture = picture
-	ink.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	ink.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	ink.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	var face := QuadMesh.new()
-	face.size = Vector2.ONE * BRAND_SIZE
+	var ink := DrawnTexture.decal(DrawnTexture.of(parent, badge, BRAND_PIXELS))
+	# Over the beam of light rising out of the box, which would tint the top one its own color.
+	ink.render_priority = 1
 	for side: int in 5:
-		var brand := MeshInstance3D.new()
-		brand.name = "Side%d" % side
-		brand.mesh = face
-		brand.material_override = ink
-		brand.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var brand := DrawnTexture.face(BRAND_SIZE, ink)
+		brand.name = "Brand%d" % side
 		if side < 4:
 			brand.rotation.y = side * PI * 0.5
 		else:
@@ -163,7 +107,8 @@ func _apply(kart: Kart) -> void:
 	kart.hold_item(item, reveal_time if fixed_item == null else 0.0)
 
 
-## A dropped box's item, pictured on a dark chip so it reads against the box in its own color.
+## A dropped box's item, pictured on a dark chip so it reads against the box in its own color,
+## or a question mark for a box from a pad.
 class Badge:
 	extends Control
 
@@ -174,4 +119,18 @@ class Badge:
 		chip.bg_color = ItemBox.BRAND_CHIP
 		chip.set_corner_radius_all(roundi(size.x * 0.18))
 		draw_style_box(chip, Rect2(Vector2.ZERO, size))
-		PowerUpArt.draw_into(self, Rect2(size * 0.1, size * 0.8), item.id, item.color)
+		if item != null:
+			PowerUpArt.draw_into(self, Rect2(size * 0.1, size * 0.8), item.id, item.color)
+			return
+		var height := roundi(size.y * 0.8)
+		# Stood on a baseline that puts its middle on the chip's.
+		var baseline := Vector2(0.0, size.y * 0.5 + height * 0.36)
+		draw_string(
+			Type.DISPLAY,
+			baseline,
+			"?",
+			HORIZONTAL_ALIGNMENT_CENTER,
+			size.x,
+			height,
+			Palette.CHIP_WHITE
+		)

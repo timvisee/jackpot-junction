@@ -55,8 +55,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
-- **A dropped item box shows its item's picture.** It hangs over the box, where a letter used
-  to be, and is branded on its top and sides.
+- **Item boxes are branded with what they hold.** A dropped box wears its item's picture on its
+  top and sides instead of a letter over it, and a box from a pad wears a question mark.
 - **Chips go into the Junction the whole time you bank.** They used to fly only once the
   cash-out was done.
 - **A death banks a share of what is left of the pot.** The coins it drops leave the pot first;
