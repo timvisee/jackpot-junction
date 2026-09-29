@@ -642,7 +642,9 @@ A ram the victim lives through knocks a quarter of their coins, at most 8, out o
 their pot and onto the floor around them, as dropped chips that anybody may
 collect and that vanish after 15 s like any other drop, see 3.6. A ram that kills
 scatters coins through the death sequence already; this is for the one that does
-not, which would otherwise cost a kart carrying a fortune nothing at all.
+not, which would otherwise cost a kart carrying a fortune nothing at all. Insurance
+Policy, 7.3, keeps every coin in the pot: its death banks all of it and drops no chips,
+and a ram it lives through knocks none out.
 
 A kart that can ram another kart to death goes through a crate as well, so a
 square hit while Boosting, burning nitro or under Road Rage breaks it and pays
@@ -1345,7 +1347,7 @@ a real downside. Starting set; balance is untested.
 | Green Light      | Common   | Rule   | Turbo pads give +1 mult                                                   |
 | Vulture          | Common   | Rule   | Chips dropped by other karts are worth 3 coins to you                     |
 | Odometer         | Common   | Rule   | +1 coin for every 20 m you drive                                          |
-| Insurance Policy | Uncommon | Rule   | Bank 100% of your pot on death                                            |
+| Insurance Policy | Uncommon | Rule   | Bank 100% of your pot on death, and never drop any of it                  |
 | Getaway Driver   | Uncommon | Rule   | Junction drain ramps twice as fast, D = 0.25 s                            |
 | Pickpocket       | Uncommon | Rule   | Kills move 50% of the victim's coins into your pot; the victim drops none |
 | Rubber Bumpers   | Uncommon | Rule   | Your bullets bounce off walls once more. Stacks: two copies bounce twice  |

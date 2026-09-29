@@ -900,7 +900,12 @@ func _on_kart_wounded(slot: int, _by_slot: int, cause: StringName) -> void:
 	var kart := slots[slot].kart
 	if kart == null or kart.pot.coins <= 0:
 		return
-	var knocked := clampi(roundi(kart.pot.coins * rules.ram_coin_fraction), 1, rules.ram_coin_max)
+	var fraction := rules.ram_coin_fraction
+	for joker: Joker in kart.jokers.jokers:
+		fraction = joker.modify_ram_knock(kart, fraction)
+	if fraction <= 0.0:
+		return
+	var knocked := clampi(roundi(kart.pot.coins * fraction), 1, rules.ram_coin_max)
 	knocked = mini(knocked, kart.pot.coins)
 	kart.pot.add_coins(-knocked)
 	slots[slot].stats.add(&"coins_lost", knocked)

@@ -111,6 +111,11 @@ func on_victim_death(_killer: Kart, _victim: Kart, _death: DeathOutcome) -> void
 	pass
 
 
+## The share of the holder's coins a ram they live through knocks out of their pot, GAME.md 4.1.
+func modify_ram_knock(_kart: Kart, fraction: float) -> float:
+	return fraction
+
+
 ## Called before the pot resets on death.
 func on_death(_kart: Kart) -> void:
 	pass

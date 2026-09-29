@@ -635,14 +635,25 @@ func test_high_roller_doubles_mult_gains_and_banks_nothing_on_death() -> void:
 	assert_int(match_node.slots[0].banked).is_equal(0)
 
 
+## The whole pot into the score, and none of it onto the floor for anybody else to pick up.
 func test_insurance_policy_banks_everything_on_death() -> void:
 	var match_node := _start_match(_bots())
 	var kart := match_node.kart_of(0)
 	_attach(kart, "insurance_policy")
 	kart.pot.add_coins(10)
 	kart.pot.add_mult(1.0)
+	var loose := _chips_on_the_floor(match_node)
 	kart.die(&"pit", -1)
 	assert_int(match_node.slots[0].banked).is_equal(20)
+	assert_int(_chips_on_the_floor(match_node)).is_equal(loose)
+
+
+func _chips_on_the_floor(match_node: Match) -> int:
+	var count := 0
+	for node: Node in match_node.arena.pickups.get_children():
+		if node is Chip and not node.is_queued_for_deletion():
+			count += 1
+	return count
 
 
 func test_coin_value_jokers() -> void:

@@ -6,6 +6,6 @@
 script = ExtResource("1_script")
 id = &"insurance_policy"
 display_name = "Insurance Policy"
-description = "Bank 100% of your pot on death."
+description = "Bank 100% of your pot on death, and never drop any of it."
 rarity = 1
 kind = 1

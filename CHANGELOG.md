@@ -20,6 +20,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Insurance Policy keeps the whole pot.** Dying with it drops no chips, and a ram you
+  live through knocks none out.
 - **Item boxes no longer throw an error when taken.** They also shrink down a hole and grow
   in when thrown from a wreck, as other pickups do.
 - **A full LAN lobby turns away another seat.** Pressing J at the host past the lobby's
