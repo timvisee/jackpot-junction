@@ -1794,7 +1794,12 @@ move.
 `make bench` prints the frame rate for a match on each map, measured over 600
 frames after a warm-up, so a change that costs frames is caught while it is being
 made. The warm-up matters: the first run of a scene compiles shaders, and a cold
-measurement reads three times slower than the same build warm.
+measurement reads three times slower than the same build warm. `make profile` says
+where a frame goes: it runs the same match under Godot's own profilers, with
+`tools/profile_server.gd` standing in for the editor's debugger over the remote
+debug protocol, and prints the script functions by their own time, the server
+passes and the GPU passes. A frame rate says that something costs; the profile
+says what, which is the half of the question a bench cannot answer.
 
 - **Floor**: dark green felt with asphalt lanes and painted road markings.
 - **Walls and crates**: sand-colored wooden toy blocks.

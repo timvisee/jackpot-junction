@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench bots multiplayer multiplayer-lag server-check changelog check export android android-install android-release server
+.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench profile bots multiplayer multiplayer-lag server-check changelog check export android android-install android-release server
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -90,6 +90,12 @@ jokers: | $(CACHE)
 
 # Whole matches of bots, reported as numbers. Minutes rather than seconds, so it is its own
 # target rather than part of check.
+# Where a frame goes: the script functions, server passes and GPU passes that take the most time,
+# from Godot's own profilers, over a match against bots. FRAMES=n runs longer; ARGS goes to the
+# playground, as with make dev.
+profile: | $(CACHE)
+	tools/profile $(FRAMES) $(ARGS)
+
 bots: | $(CACHE)
 	tools/bot_arena
 

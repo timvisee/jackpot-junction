@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Profiles a run of the game: the script functions, server passes and GPU passes that took the
+# most time per frame, from Godot's own profilers, read by tools/profile_server.gd standing in
+# for the editor's debugger. It plays the playground, a match against bots, for a number of
+# frames and prints the profile at the end.
+#
+# Usage: tools/profile [frames] [playground args...]
+#        tools/profile 900 --map=vault --bots=7
+#
+# PROFILE_PORT picks the debugger port (6007), PROFILE_SKIP how many frames to leave out of the
+# averages at the start (120, loading and the shader compiles), PROFILE_TOP how many functions
+# to list (40), PROFILE_OUT a file to keep the profile in, and PROFILE_GODOT_ARGS anything for
+# the engine itself, such as --rendering-method mobile or --resolution 1080x480.
+set -uo pipefail
+cd "$(dirname "$0")/.."
+frames="${1:-900}"
+shift || true
+port="${PROFILE_PORT:-6007}"
+skip="${PROFILE_SKIP:-120}"
+top="${PROFILE_TOP:-40}"
+out="${PROFILE_OUT:-}"
+server_args=(--port="$port" --skip="$skip" --top="$top")
+[[ -n $out ]] && server_args+=(--out="$out")
+log=$(mktemp)
+trap 'rm -f "$log"' EXIT
+
+tools/godot --headless -s tools/profile_server.gd -- "${server_args[@]}" ${PROFILE_DEBUG:+--debug} >"$log" 2>&1 &
+server=$!
+for _ in $(seq 1 50); do
+	grep -q "listening on" "$log" 2>/dev/null && break
+	sleep 0.1
+done
+
+# shellcheck disable=SC2086
+tools/godot --path . --disable-vsync --remote-debug "tcp://127.0.0.1:$port" \
+	${PROFILE_GODOT_ARGS:-} res://scenes/dev/playground.tscn \
+	-- --clean=1 --bots=3 --bench="$frames" "$@" 2>&1 | grep -E "^bench|SCRIPT ERROR|ERROR:" | grep -v "resources still in use"
+wait "$server"
+grep -vE "^Godot Engine|^$|profile_server: (listening|the game)" "$log"

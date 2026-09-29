@@ -72,6 +72,8 @@ make run ARGS=--touch=1  # the game with the touch controls, the mouse standing 
 make run ARGS="--touch=1 --ui-scale=1.5"  # the same at a phone's UI scale, saving nothing
 make check      # import, lint, format check, changelog, unit tests, smoke runs, multiplayer
 make test       # unit tests only (gdUnit4, headless, a suite per process in parallel)
+make bench      # the frame rate of a match on each map
+make profile    # where a frame goes: script functions, server and GPU passes, from the profilers
 make multiplayer  # a whole Grand Prix online (two games, up to two clients) and on one screen
 make server-check  # a game on a dedicated server, made, joined and watched by three clients
 make export     # release builds for Linux, Windows and macOS, and the Linux server, in build/
@@ -119,6 +121,16 @@ Read on every scene, so they work in any build.
 `--bench` leaves its first 120 frames out of the count, as the warm-up, so shader
 compiles and the arena being built do not count against the frame rate, and it
 ignores the Frame rate limit setting.
+
+`make profile` (`tools/profile [frames] [playground args]`) runs the same match
+under Godot's own profilers and prints where a frame goes: the script functions
+by their own time with calls per frame, the physics and audio server passes, the
+GPU passes as running timestamps within the frame, and the performance monitors.
+`tools/profile_server.gd` stands in for the editor's debugger over the remote
+debug protocol, so no editor is needed. `PROFILE_GODOT_ARGS="--rendering-method
+mobile --resolution 2400x1080"` measures with a phone's renderer at its size, and
+`PROFILE_OUT=<file>` keeps the profile. Profiling slows the scripts down, so read
+the ranking rather than the numbers.
 
 ### The development scene
 
