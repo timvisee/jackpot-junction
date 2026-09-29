@@ -62,8 +62,10 @@ On death:
 3. You respawn far from enemies with 2 s of protection.
 
 A match lasts 5 minutes or until someone banks the target score. The final 30 s
-are Last Call: the Junction pays double. Pots still unbanked when the timer
-ends are lost. The highest banked score wins.
+are Last Call: the Junction pays double. When the timer ends, a pot still being
+carried banks what a death would bank of it, unless the match plays on for the
+last one standing, see 3.13. The highest banked score wins, counted once the
+last of it is in.
 
 ## 3. Rules
 
@@ -287,7 +289,7 @@ The joker catalog is in section 7.3.
 | Duration        | 5:00                                                      |
 | Target score    | 3000 banked ends the match early                          |
 | Last Call       | Final 30 s: Junction pays double, Jackpot accrues double  |
-| Time out        | Sudden death, see 3.13, unless the lobby option turns it off; pots still unbanked when the match ends are lost |
+| Time out        | Sudden death, see 3.13, unless the lobby option turns it off; then every pot still carried banks what a death would bank of it |
 | Countdown       | 3 s before the karts can move                             |
 | Players         | 1 to 4 humans, bots fill the remaining slots to 4         |
 | Tie-break       | Most kills, then fewest deaths                            |
@@ -561,11 +563,12 @@ counting anything.
   on players" rather than counting down to a respawn. They keep
   their controls for the one thing left to do with them: reading their hand, see
   3.7.
-- A kart that dies after the whistle is offered no joker pick either. A bomb
-  already in the air or a fall already begun still lands once the match is over,
-  and the pick that made sat open over the podium: a question about a match that
-  has already been decided. The podium takes any pick still on screen down with
-  it as well, whatever put it there.
+- A kart that dies after the whistle changes nothing. A bomb already in the air
+  or a fall already begun still lands once the match is over, and still ends in a
+  wreck, but it banks nothing, pays nobody, counts as nobody's kill or death and
+  is offered no joker pick: the scores at the whistle are the final ones, and a
+  pick sat open over the podium was a question about a match already decided. The
+  podium takes any pick still on screen down with it as well, whatever put it there.
 - The Junction still pays. A player who would rather keep what they are carrying
   than bet it on staying alive can drive in and bank it, the same as ever.
 - The last kart standing banks its whole pot, at full value, and the whistle goes.
@@ -577,7 +580,8 @@ counting anything.
 - Everybody going down at once is nobody's win: the whistle simply goes and the
   unbanked pots are lost as usual.
 - A field already down to one when the clock runs out has nothing to play out, so
-  the whistle goes on the hour as it did before there was an overtime.
+  the whistle goes on the hour, and the one left is the last one standing: it
+  banks its whole pot, at full value, as it would at the end of sudden death.
 
 The room does not wind down for it. Sudden death counts as the finale the same as
 Last Call does, see 8.4, so the lights and the music stay at the top, and bots
@@ -591,6 +595,17 @@ the rest of them. Both say what happens rather than naming it: a player reading
 Out of time wants to know what the clock running out will do to them, and Sudden
 death and Whistle on the hour each needed the rule explained before they meant
 anything.
+
+With Match ends the whistle goes on the hour, and every pot still being carried
+banks what a death would bank of it, bent by the kart's jokers the way its death
+would be: half, all of it with Insurance Policy, nothing with High Roller.
+Nothing drops and nobody is paid for it, since nobody died. Nobody had the time
+to take it to the Junction, as the whistle came with no warning but the clock,
+and a pot carried to the end was still played for. With Last one standing nothing
+banks at the clock: the match plays on, and the last kart standing takes the lot.
+Either way the places, the winner's lap of honor and a Grand Prix's points are
+counted once the last of it is in. A match won by reaching the target ends there,
+and banks nothing more: the target was the finish line.
 
 ## 4. Kart
 

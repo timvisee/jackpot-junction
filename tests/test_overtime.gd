@@ -145,6 +145,66 @@ func test_a_field_of_one_never_enters_overtime() -> void:
 	assert_int(match_node.state).is_equal(Match.State.RESULTS)
 
 
+## Out of time with the match set to end there, GAME.md 3.13: every pot still being carried banks
+## what a death would bank of it, jokers and all, before anybody is ranked. Nobody had the time to
+## take it to the Junction.
+func test_the_whistle_banks_what_a_death_would_when_the_match_ends_on_time() -> void:
+	var match_node := _start_match(false)
+	await _runner.simulate_frames(12, 17)
+	var leader := match_node.slots[0]
+	var carrying := match_node.slots[1]
+	var insured := match_node.slots[2]
+	leader.banked = 100
+	carrying.banked = 90
+	carrying.kart.collect_coins(20, null)
+	carrying.kart.pot.add_mult(1.0)
+	insured.kart.jokers.add(load("res://data/jokers/insurance_policy.tres"))
+	insured.kart.collect_coins(10, null)
+	match_node.time_left = 0.02
+	await _runner.simulate_frames(6, 17)
+	assert_int(match_node.state).is_equal(Match.State.RESULTS)
+	# Half of 20 coins at 2x, and all of 10 at 1x.
+	assert_int(carrying.banked).is_equal(110)
+	assert_int(insured.banked).is_equal(10)
+	assert_bool(carrying.kart.pot.is_empty()).is_true()
+	# Ranked on what was banked at the whistle, so the pot carried took the lead.
+	assert_object(match_node.standings()[0]).is_same(carrying)
+
+
+## With the last one standing to play for, a field already down to one at the clock is the last
+## one standing: it banks all it carries, at full value, as it would at the end of sudden death.
+func test_a_field_of_one_at_the_clock_banks_the_lot() -> void:
+	var match_node := _start_match(true)
+	await _runner.simulate_frames(12, 17)
+	match_node.slots[1].kart.die(&"test", -1)
+	match_node.slots[2].kart.die(&"test", -1)
+	var last := match_node.slots[0]
+	var before := last.banked
+	last.kart.collect_coins(30, null)
+	last.kart.pot.add_mult(0.5)
+	match_node.time_left = 0.02
+	await _runner.simulate_frames(6, 17)
+	assert_int(match_node.state).is_equal(Match.State.RESULTS)
+	assert_int(last.banked - before).is_equal(45)
+
+
+## After the whistle the scores are final: a bomb already in the air or a fall already begun still
+## ends in a wreck, but it banks nothing, pays nobody and counts for nothing.
+func test_a_death_after_the_whistle_changes_nothing() -> void:
+	var match_node := _start_match(false)
+	await _runner.simulate_frames(12, 17)
+	match_node._finish()
+	var victim := match_node.slots[1]
+	var killer := match_node.slots[0]
+	victim.kart.collect_coins(40, null)
+	var banked := victim.banked
+	victim.kart.die(&"bomb", 0)
+	assert_int(victim.banked).is_equal(banked)
+	assert_int(victim.deaths).is_equal(0)
+	assert_int(killer.kills).is_equal(0)
+	assert_bool(victim.kart.pot.is_empty()).is_true()
+
+
 ## GAME.md 3.8: a player who would rather the whistle went on the hour can say so, and then it
 ## does, whoever is still driving.
 func test_the_lobby_switch_turns_overtime_off() -> void:

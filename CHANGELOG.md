@@ -20,6 +20,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A death after the whistle no longer changes the result.** A late bomb or fall banked half a
+  pot after the Grand Prix points and the winner were already decided.
 - **Mouse buttons can be bound in Controls.** A click to bind went to the settings screen's
   own buttons instead, so fire on the left mouse button could never be set.
 - **A player taking over a bot's kart wears their own dress.** They were left in the bot's
@@ -35,6 +37,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Pots bank at the whistle when time runs out.** With Match ends, every pot still carried
+  banks what a death would, and a field of one at the clock takes all of its own.
 - **Mouse buttons are drawn as a mouse.** A binding on the left, right or middle button shows
   a mouse with that button lit, and a double click adds ×2.
 - **Bots dress their karts.** Each bot drives with its own paint, hat, flag and trail, and

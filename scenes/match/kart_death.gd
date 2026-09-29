@@ -15,6 +15,11 @@ static func resolve(
 	match_node: Match, cause: StringName, killer_slot: int, slot: PlayerSlot
 ) -> void:
 	var kart := slot.kart
+	# After the whistle the scores are final, GAME.md 3.13: a bomb already in the air or a fall
+	# already begun still ends in a wreck, but banks nothing, pays nobody and counts for nothing.
+	if match_node.state == Match.State.RESULTS:
+		kart.pot.reset()
+		return
 	slot.stats.add(&"deaths")
 	slot.stats.add(&"coins_lost", kart.pot.coins)
 	if cause == &"pit":
@@ -42,12 +47,10 @@ static func resolve(
 	kart.pot.reset()
 	slot.deaths += 1
 	slot.respawn_left = match_node.rules.respawn_delay
-	# Nobody comes back out of sudden death, and nobody comes back out of the results either, so
-	# in both there is nothing to pick a joker for. A kart can still die after the whistle -- a
-	# bomb already in the air, a fall already begun -- and the pick that made left itself open
-	# over the podium, which is a question about a match that is already over. Some rooms turn
-	# the pick off outright, see offer_jokers.
-	var over := match_node.state == Match.State.OVERTIME or match_node.state == Match.State.RESULTS
+	# Nobody comes back out of sudden death, so there is nothing to pick a joker for; nor out of
+	# the results, which a death after the whistle never gets this far into. Some rooms turn the
+	# pick off outright, see offer_jokers.
+	var over := match_node.state == Match.State.OVERTIME
 	var picking := match_node.rules.offer_jokers and not over
 	slot.offer = _offer(match_node, slot) if picking else null
 	Events.kart_killed.emit(slot.index, killer_slot, cause)

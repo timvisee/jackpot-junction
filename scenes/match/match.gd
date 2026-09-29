@@ -728,20 +728,20 @@ func _enter_last_call() -> void:
 	_set_state(State.LAST_CALL)
 
 
-## The clock running out, GAME.md 3.13. With overtime on, the match does not end there: it
-## goes to sudden death instead, where nobody comes back and the last kart standing takes
-## everything it is carrying. Returns whether overtime was entered; if it was not, the match is
-## over and the caller should stop.
+## The clock running out, GAME.md 3.13, see [method MatchEnd.clock_out]: the pots banked and the
+## whistle, or with overtime on sudden death, where nobody comes back and the last kart standing
+## takes everything it is carrying. Returns whether overtime was entered; if it was not, the match
+## is over and the caller should stop.
 func _enter_overtime() -> bool:
-	if not rules.overtime or MatchEnd.alive_slots(self).size() < 2:
-		_finish()
+	if not MatchEnd.clock_out(self):
 		return false
 	_set_state(State.OVERTIME)
 	return true
 
 
-## Ends the match. Pots still unbanked are lost. The karts are not stopped dead: every driver
-## lets go of the wheel at the whistle and rolls to a halt, and the rig swings onto the winner.
+## Ends the match, once whatever is banked at the whistle is in, see [MatchEnd], so the winner
+## and every place after it are the final ones. The karts are not stopped dead: every driver lets
+## go of the wheel at the whistle and rolls to a halt, and the rig swings onto the winner.
 func _finish() -> void:
 	if state == State.RESULTS:
 		return

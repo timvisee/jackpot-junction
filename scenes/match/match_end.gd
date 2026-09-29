@@ -1,12 +1,33 @@
 class_name MatchEnd
 extends RefCounted
-## How a match ends, GAME.md 3.13: sudden death once the clock runs out, the last kart standing
-## taking what it carries, and the winner's lap of honor at the whistle. Kept out of [Match] the
-## way [KartDeath] is, so that file stays about running a match.
+## How a match ends, GAME.md 3.13: the clock running out, which banks what everybody carries or
+## goes to sudden death, the last kart standing taking what it carries, and the winner's lap of
+## honor at the whistle. Kept out of [Match] the way [KartDeath] is, so that file stays about
+## running a match.
 
 ## How long the fireworks go up for once a match is won, GAME.md 8.3: the pause the podium waits
 ## out and a while under the standings after it.
 const CELEBRATION := 8.0
+
+
+## The clock running out, GAME.md 3.13. Out of time the match ends, and every pot still being
+## carried banks what a death would bank of it, jokers and all: nobody had the time to take it to
+## the Junction, since the whistle came with no warning but the clock. With the last one standing
+## to play for, it goes to sudden death instead, and nothing banks yet; a field already down to one
+## has nothing to play out, and that one banks the lot as the last one standing does. Returns
+## whether sudden death has begun, which is the caller's to start; otherwise the match is over.
+static func clock_out(match_node: Match) -> bool:
+	var standing := alive_slots(match_node)
+	if match_node.rules.overtime:
+		if standing.size() > 1:
+			return true
+		if standing.size() == 1:
+			_bank_all(standing[0])
+	else:
+		for slot: PlayerSlot in match_node.slots:
+			_bank_share(match_node, slot)
+	match_node._finish()
+	return false
 
 
 ## Sudden death, GAME.md 3.13. Nobody respawns, so the field only shrinks; the last one left
@@ -16,15 +37,36 @@ static func step_overtime(match_node: Match) -> bool:
 	if standing.size() > 1:
 		return false
 	if standing.size() == 1:
-		var winner := standing[0]
-		var kart := winner.kart
-		var won := Scoring.pot_value(kart.pot.coins, kart.pot.mult)
-		if won > 0:
-			winner.banked += won
-			Events.death_banked.emit(winner.index, won)
-		kart.pot.reset()
+		_bank_all(standing[0])
 	match_node._finish()
 	return true
+
+
+## The whole of [param slot]'s pot, at full value.
+static func _bank_all(slot: PlayerSlot) -> void:
+	var kart := slot.kart
+	var won := Scoring.pot_value(kart.pot.coins, kart.pot.mult)
+	if won > 0:
+		slot.banked += won
+		Events.death_banked.emit(slot.index, won)
+	kart.pot.reset()
+
+
+## What a death would bank of [param slot]'s pot, GAME.md 3.6, bent by its jokers the way its death
+## would be: half, all of it with Insurance Policy, none with High Roller. Only the banking: nobody
+## died, so nothing drops and nobody is paid for it.
+static func _bank_share(match_node: Match, slot: PlayerSlot) -> void:
+	var kart := slot.kart
+	if kart == null or kart.pot.is_empty():
+		return
+	var death := DeathOutcome.from_rules(match_node.rules)
+	for joker: Joker in kart.jokers.jokers:
+		joker.modify_death(kart, death)
+	var banked := Scoring.death_bank(kart.pot.coins, kart.pot.mult, death.bank_fraction)
+	if banked > 0:
+		slot.banked += banked
+		Events.death_banked.emit(slot.index, banked)
+	kart.pot.reset()
 
 
 ## Every slot whose kart is still in play. A kart on its way down a pit is already gone.
