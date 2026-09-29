@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-09-29
+
+Play Online, on a dedicated server you can run yourself from the new headless Linux build. It
+doesn't play with 0.9.x.
+
 ### Added
 
 - **Play Online, on a dedicated server.** A new title entry connects to a server, then lists its
@@ -21,7 +26,6 @@ below, and hands the notes to the release workflow.
   server with no sound or pictures in it, 75 MB; it needs no flags to start.
 - **The host's say passes on.** On a dedicated server, whoever made a game hosts it from their own
   machine and can hand that on with Make host in Manage players; if they leave, the longest in does.
-
 ## [0.9.0] - 2026-09-29
 
 XL versions of every map, several players at one LAN client, and a pot about to win now burns in
@@ -1362,7 +1366,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.10.0
 [0.9.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.9.0
 [0.8.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.8.2
 [0.8.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.8.1
