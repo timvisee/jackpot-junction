@@ -96,6 +96,9 @@ var seats: Array[ClientSeat]:
 	get:
 		return _here.seats
 
+## How slow the line to each client is, see [NetPing]: made once the session is in the tree.
+var ping: NetPing
+
 var _tick := 0
 ## On the host: the seats its clients hold, see [PeerSeats].
 var _peer_slots := PeerSeats.new()
@@ -154,6 +157,9 @@ func _ready() -> void:
 	# A client is told how many players the host's room holds, for its own to say when it is full
 	# and to know when to stop asking for seats, GAME.md 9.6.
 	Events.room_planned.connect(_on_room_planned)
+	ping = NetPing.new()
+	ping.name = "Ping"
+	add_child(ping)
 	var scene := multiplayer as SceneMultiplayer
 	if scene != null:
 		scene.auth_callback = _handshake.answer

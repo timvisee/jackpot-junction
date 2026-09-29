@@ -107,14 +107,57 @@ func _watch_leaving(client_match: Match, chips: Array[Chip], flew: Dictionary[in
 		)
 
 
+## GAME.md 10.3: a line too slow to play on is warned of, in the client's own corner with how
+## slow it is, and beside that player's name in the running order on the host's screen and the
+## client's alike.
+func test_a_slow_line_is_warned_of_on_both_screens() -> void:
+	NetLag.ping = 0.2
+	var pair := await _pair(null, true)
+	var host_match: Match = pair[0]
+	var client_match: Match = pair[1]
+	var client_session: NetSession = pair[2]
+	var seat := client_session.local_slot
+	var timed := func() -> bool: return client_match.slots[seat].round_trip > NetPing.SLOW
+	assert_bool(await _wait_until(timed, 3000)).override_failure_message("never timed").is_true()
+	assert_float(host_match.slots[seat].round_trip).is_between(180.0, 400.0)
+	# The host's own player is at the host, and has no line to be slow.
+	assert_float(host_match.slots[0].round_trip).is_zero()
+	await await_millis(100)
+	var corner: LagWarning = client_match.hud._blocks[seat]["lag"]
+	assert_bool(corner.is_up()).is_true()
+	for hud: MatchHud in [host_match.hud, client_match.hud]:
+		var row: LagWarning = hud._scoreboard._rows[seat]["lag"]
+		assert_bool(row.is_up()).is_true()
+		var own: LagWarning = hud._scoreboard._rows[0]["lag"]
+		assert_bool(own.is_up()).is_false()
+
+
+## A line as quick as a LAN's is not warned of, but one gone quiet is, however quick it last was:
+## a client that has heard nothing from the host for a while is as slow as the wait.
+func test_a_quick_line_is_not_warned_of_but_a_quiet_one_is() -> void:
+	var pair := await _pair(null, true)
+	var client_match: Match = pair[1]
+	var client_session: NetSession = pair[2]
+	var seat := client_session.local_slot
+	var timed := func() -> bool: return client_match.slots[seat].round_trip > 0.0
+	assert_bool(await _wait_until(timed, 3000)).is_true()
+	await await_millis(600)
+	assert_float(client_match.slots[seat].round_trip).is_between(40.0, NetPing.SLOW)
+	var corner: LagWarning = client_match.hud._blocks[seat]["lag"]
+	assert_bool(corner.is_up()).is_false()
+	client_match.heard_at = Time.get_ticks_msec() - 900
+	assert_float(client_match.hud._round_trip(client_match.slots[seat])).is_greater(850.0)
+
+
 ## A host with a bot for the client to take over, and the client, joined and playing, on
-## [param layout] or the usual map: the host's match, the client's and the client's session.
-func _pair(layout: ArenaLayout = null) -> Array:
+## [param layout] or the usual map, each with a HUD when [param hud]: the host's match, the
+## client's and the client's session.
+func _pair(layout: ArenaLayout = null, hud := false) -> Array:
 	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
 	host_match.name = "Match"
 	host_match.arena_layout = layout
 	host_match.rules = _quick_rules()
-	host_match.with_hud = false
+	host_match.with_hud = hud
 	host_match.offer_size = 0
 	_host_root.add_child(host_match)
 	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
@@ -128,7 +171,7 @@ func _pair(layout: ArenaLayout = null) -> Array:
 	client_match.name = "Match"
 	client_match.arena_layout = layout
 	client_match.rules = _quick_rules()
-	client_match.with_hud = false
+	client_match.with_hud = hud
 	_client_root.add_child(client_match)
 	client_match.start_puppet()
 	var client_session: NetSession = auto_free(NetSession.new())

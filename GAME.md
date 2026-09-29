@@ -2326,8 +2326,10 @@ movement: the one thing a corner block must not do is ask to be looked at.
   so a hot lap is plain to read without being scored. The leader's
   row is the largest and last place the smallest, and the players on this screen
   are boxed in their own color. A carried pot that would win the match blinks,
-  see 3.4. It stands down in three- and four-player shared-screen games, where
-  every player already has a corner block.
+  see 3.4. A player online whose line to the host is too slow wears an amber
+  warning sign beside their name, on every screen, see 10.3. It stands down in
+  three- and four-player shared-screen games, where every player already has a
+  corner block.
 - **Dropping something**: a kart that bursts, or a crate that breaks, throws what
   it was carrying clear of itself rather than having it appear on the floor. It
   flies on every machine: the throw is cosmetic, since the pickup is already lying
@@ -3888,6 +3890,17 @@ other before it will pass.
   dropped rather than shown, since shown it would run the clock back and the karts
   back the way they came. ENet did that already for any snapshot big enough to go
   in pieces, which it always sends in order, and now does it for a small one too.
+- A slow line is warned of. The host knocks on each client twice a second and
+  times the answer, settling each new time a third of the way into the last, and
+  a knock gone unanswered counts for as long as it has been waiting, since a line
+  gone quiet is at least as slow as the wait. The time goes on the seats that
+  client holds and out with the rest of each player in the snapshot. Past 150 ms
+  there and back, where a chip taken flat out starts to blink out rather than fly
+  into the kart that took it, the player sees an amber warning sign and the time
+  beside their name in their corner, and everybody sees the sign beside their
+  name in the standings. A client that has heard nothing from the host for longer
+  than that while the match is running counts the silence as its round trip too,
+  since the host's word on how slow the line is is exactly what is not arriving.
 - The connection uses ENet's range coder both ends. A snapshot is still bigger than
   one datagram: it is split against the MTU of 1392 bytes *before* the datagrams
   are compressed, and an unreliable packet in pieces is lost whenever any piece

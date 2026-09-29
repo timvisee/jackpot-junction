@@ -86,6 +86,8 @@ static func _slots(match_node: Match) -> Array:
 			"nitro_charge": kart.nitro_charge,
 			"magnet": kart.pickup_radius_bonus,
 			"stats": slot.stats.to_array(),
+			# How slow their line is, for a warning beside their name on every screen.
+			"rtt": roundi(slot.round_trip),
 		}
 		if slot.offer != null and not slot.offer.is_done():
 			entry["offer"] = _offer(slot.offer)
@@ -302,6 +304,7 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 	if not match_node.puppet or match_node.arena == null:
 		return
 	var previous_state := match_node.state
+	match_node.heard_at = Time.get_ticks_msec()
 	match_node.state = data["state"]
 	match_node.time_left = data["time"]
 	match_node.countdown_left = data["countdown"]
@@ -440,6 +443,7 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 		slot.color_index = entry["color"]
 		slot.player_name = entry.get("name", "")
 		slot.respawn_left = entry["respawn"]
+		slot.round_trip = float(entry.get("rtt", 0))
 		if entry.has("stats"):
 			slot.stats.from_array(entry["stats"])
 		slot.bot_trait = (

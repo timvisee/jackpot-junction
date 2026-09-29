@@ -82,6 +82,15 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	else:
 		speed_row.add_child(speed_dial)
 		speed_row.add_child(speed)
+	# Beside the name, a warning while this player's line to the host is slow, GAME.md 10.3.
+	var lag := LagWarning.make(18.0, true)
+	var name_row := HBoxContainer.new()
+	name_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	name_row.add_theme_constant_override("separation", 8)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for part: Control in [lag, name_label] if right else [name_label, lag]:
+		name_row.add_child(part)
+	box.add_child(name_row)
 	# What is in hand and what is running, GAME.md 8.3: one thing in one place, see [ItemRow].
 	for label: Label in [name_label, banked, stats]:
 		label.horizontal_alignment = (
@@ -91,7 +100,8 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 		# made the block breathe in and out with the speedometer.
 		label.clip_text = true
 		HudText.shadowed(label)
-		box.add_child(label)
+		if label != name_label:
+			box.add_child(label)
 	# The pot goes between the banked score and the kill count, GAME.md 8.3.
 	var pot := ScorePills.add_to(box, right)
 	box.move_child(pot, 2)
@@ -103,6 +113,7 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	return {
 		"box": card,
 		"name": name_label,
+		"lag": lag,
 		"corner": corner,
 		"banked": banked,
 		"pot": pot,

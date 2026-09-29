@@ -24,6 +24,9 @@ var kills := 0
 var deaths := 0
 ## Everything else the kart did, for the awards on the results screen.
 var stats := PlayerStats.new()
+## Milliseconds there and back to the machine this player plays at, as the host last timed it,
+## GAME.md 10.3: 0 for a player at the host, and for a bot.
+var round_trip := 0.0
 
 
 func _init(slot_index: int, kart_input: KartInput, slot_color: int = -1) -> void:

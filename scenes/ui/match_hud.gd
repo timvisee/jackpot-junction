@@ -529,6 +529,7 @@ func _update_blocks() -> void:
 			pot.say("waiting on players")
 		else:
 			pot.say("respawning %.1f" % maxf(slot.respawn_left, 0.0))
+		(block["lag"] as LagWarning).show_trip(_round_trip(slot))
 		# A pot that would win the match on the next cash-out burns, GAME.md 3.4.
 		pot.set_burning(match_node.is_running() and slot.would_win(match_node.rules.target_score))
 		stats.text = "K %d  D %d" % [slot.kills, slot.deaths]
@@ -776,6 +777,18 @@ func score_spot(slot: int) -> PackedVector2Array:
 ## The speedometer, GAME.md 8.3: the needle and the number both read whatever the kart is
 ## actually doing, and both turn the nitro color while the bottle is lit. A dead kart reads
 ## zero rather than keeping the speed it died at.
+## How slow [param slot]'s line to the host is, in milliseconds, GAME.md 10.3: what the host last
+## timed, or on a client, how long it has heard nothing from the host if that is longer, since a
+## line gone quiet cannot say how slow it is. Only while the match is running and nobody has
+## stopped it, when the host is always talking.
+func _round_trip(slot: PlayerSlot) -> float:
+	var trip := slot.round_trip
+	var talking := match_node.is_running() and not get_tree().paused
+	if match_node.puppet and match_node.heard_at >= 0 and talking:
+		trip = maxf(trip, Time.get_ticks_msec() - match_node.heard_at)
+	return trip
+
+
 func _update_speed(block: Dictionary, kart: Kart) -> void:
 	var dial: ProgressBar = block["speed_dial"]
 	var readout: Label = block["speed"]

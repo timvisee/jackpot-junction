@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A slow connection is warned of.** Online, past 150 ms there and back, a warning and the time
+  show in the player's corner, and a warning beside their name in the standings on every screen.
 - **A pot that would win catches fire.** Your pot's numbers burn in your corner, and your kart
   lays gold tracks every player can see.
 - **The item you pick up shows by your kart.** Off its top right, it spins like the roulette,

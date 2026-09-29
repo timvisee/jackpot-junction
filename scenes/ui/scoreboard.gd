@@ -83,6 +83,7 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, count: int) -> vo
 	risk.text = "+%d" % unbanked if unbanked > 0 else ""
 	var hunted := match_node.bounty_slot == slot.index
 	(row["bounty"] as Label).visible = hunted
+	(row["lag"] as LagWarning).show_trip(slot.round_trip)
 	place.visible = not roster
 	score.visible = not roster
 	risk.visible = not roster
@@ -151,7 +152,10 @@ func _row(slot: PlayerSlot) -> Dictionary:
 	bounty.visible = false
 	bounty.add_theme_color_override("font_color", Palette.CHIP_GOLD)
 	Type.set_font(bounty, Type.STRONG, Type.BODY)
-	for label: Label in [place, name_label, score, risk, bounty]:
+	# A slow line to the host, beside the name, GAME.md 10.3.
+	var lag := LagWarning.make(16.0, false)
+	lag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	for label: Control in [place, name_label, lag, score, risk, bounty]:
 		line.add_child(label)
 	add_child(panel)
 	var row: Dictionary = {
@@ -161,6 +165,7 @@ func _row(slot: PlayerSlot) -> Dictionary:
 		"score": score,
 		"risk": risk,
 		"bounty": bounty,
+		"lag": lag,
 		"plain": plain,
 		"own": own
 	}

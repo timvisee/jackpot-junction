@@ -34,6 +34,9 @@ var state := State.LOBBY
 var slots: Array[PlayerSlot] = []
 ## On a client: a puppet match that renders snapshots from the host.
 var puppet := false
+## On a client, when the host was last heard from, in engine milliseconds, or -1 before it has
+## been: a line gone quiet cannot say how slow it is, GAME.md 10.3.
+var heard_at := -1
 ## Shown on the lobby panel, for example the host's address and port.
 var lobby_hint := ""
 ## Whether the next [method start] holds the field on the grid rather than going into the
