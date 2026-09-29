@@ -26,9 +26,11 @@ const STEP_BITE := 0.02
 ## How often a wall carries something on top of it, and how long a wall has to be to qualify.
 const DRESSED_WALLS := 3
 const LONG_ENOUGH := 2.0
-## The neon round the top of a card room's pit, see [method _pit_neon]: red, for the one thing on
-## the table that kills, where the room's own neon is its pink and its blue.
-const PIT_NEON := Color(1.0, 0.24, 0.22)
+## The neon round the top of a card room's pit, see [method _pit_neon]: a dark red, for the one
+## thing on the table that kills, where the room's own neon is its pink and its blue, and only just
+## lit, an edge to be found rather than a sign that shouts.
+const PIT_NEON := Color(0.62, 0.12, 0.12)
+const PIT_GLOW := 0.35
 ## How high something dropped on the floor of the arena may stand. Below this it is litter: a card
 ## face down on the baize, a washer on the bench, a scrap of paper in the yard. Nothing this low
 ## is in anybody's way, and a floor with nothing at all on it reads as a floor rather than as a
@@ -183,8 +185,8 @@ func _pit_hazard(into: Node3D, size: Vector2) -> void:
 ## table, and a dark hole in dark felt out past the lamp's brightest was a hole nobody could see
 ## until they were in it; the room's own light, the neon, says where the edge is.
 func _pit_neon(into: Node3D, size: Vector2) -> void:
-	var lit := surfaces.neon(PIT_NEON, 1.4)
-	var band := 0.09
+	var lit := surfaces.neon(PIT_NEON, PIT_GLOW)
+	var band := 0.06
 	for side: int in 4:
 		var along := side % 2 == 0
 		var out := ((size.y if along else size.x) + band) * 0.5 * (1.0 if side < 2 else -1.0)

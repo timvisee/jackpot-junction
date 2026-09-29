@@ -1758,7 +1758,8 @@ measurement reads three times slower than the same build warm.
   rebar in the yard, bright nails on the bench, something dark under the card table.
   The yard paints black and yellow round the rim of its own, which is the one
   marking on a floor that is a warning rather than a decoration, and the card room
-  edges its own in a thin red neon: lit by one lamp over a dark table, it had dark
+  edges its own in a thin dark red neon, only just lit, an edge to find rather than
+  a sign that shouts: lit by one lamp over a dark table, it had dark
   holes in dark felt out past the brightest of the lamp that nobody saw until they
   were in one, The Vault XL's out in its far corners worst of all. None of it is in
   the way -- a pit kills whatever falls in long before any of it is touched.
