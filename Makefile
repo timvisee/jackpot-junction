@@ -41,6 +41,8 @@ format:
 	$(GDFORMAT) $(GD_DIRS)
 
 smoke: | $(CACHE)
+	# The first scene a player's game starts on, on its way to the title.
+	tools/smoke res://scenes/boot/boot.tscn 30
 	tools/smoke res://scenes/ui/title.tscn 30
 	tools/smoke res://scenes/ui/settings_screen.tscn 30
 	tools/smoke res://scenes/match/match_scene.tscn 120

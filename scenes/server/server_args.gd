@@ -42,9 +42,11 @@ static func read(args: PackedStringArray) -> ServerArgs:
 	return read
 
 
-## Whether the game was started as a server.
-static func asked() -> bool:
-	return "--server" in OS.get_cmdline_user_args()
+## Whether this process is a dedicated server's hall: `--server`, and no game of its own to run,
+## see [GameTree].
+static func runs_the_hall() -> bool:
+	var args := read(OS.get_cmdline_user_args())
+	return args.server and args.game <= 0
 
 
 ## What is wrong with the arguments, for the server to say before it gives up, or nothing.

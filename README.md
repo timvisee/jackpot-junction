@@ -194,9 +194,11 @@ listens on 7777, as a LAN game does, unless given `--port`, and runs each game
 in a process of its own on the ports after it, up to `--games` of them: 7778 to
 7785 by default, so let UDP 7777 to 7785 through a firewall or router. A LAN
 game on the same machine needs another port. A game is about a quarter of a
-gigabyte of memory. Whoever makes a game has the host's say over it, passed on
-to whoever has been in it longest when they leave, and a game ends by itself
-once everybody playing has left it. The server logs every player coming and
+gigabyte of memory, and a server with no game running about 90 MB and next to
+no processor: a game's process is only started when somebody makes a game.
+Whoever makes a game has the host's say over it, passed on to whoever has been
+in it longest when they leave, and a game ends by itself once everybody playing
+has left it. The server logs every player coming and
 going and every game's state to its output, one line each, with the time and
 the game.
 

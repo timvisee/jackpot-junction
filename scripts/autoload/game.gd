@@ -11,8 +11,6 @@ const ONLINE_SCENE := "res://scenes/ui/online.tscn"
 const PLAY_ONLINE_SCENE := "res://scenes/ui/play_online.tscn"
 const GARAGE_SCENE := "res://scenes/garage/garage.tscn"
 const WAITING_SCENE := "res://scenes/waiting/waiting_room.tscn"
-## A dedicated server, GAME.md 9.3a, which `--server` starts the game as.
-const SERVER_SCENE := "res://scenes/server/server.tscn"
 ## The two practice rooms, GAME.md 9.4. They are one scene on two maps, a portal apart.
 const ROOM_GARAGE := &"garage"
 const ROOM_TRACK := &"test_track"
@@ -67,9 +65,6 @@ func _init() -> void:
 func _ready() -> void:
 	settings.apply(get_tree())
 	add_child(FrameCounter.new())
-	# Straight past the title: the first scene is the project's to say, and says the title.
-	if ServerArgs.asked():
-		get_tree().change_scene_to_file.call_deferred(SERVER_SCENE)
 
 
 ## Watches every event, without swallowing any, purely to know which scheme to draw hints in.
@@ -130,7 +125,7 @@ func _step_bench() -> void:
 
 
 static func version() -> String:
-	return str(ProjectSettings.get_setting("application/config/version", "dev"))
+	return GameVersion.current()
 
 
 ## True when running without a display, as in tests and CI.

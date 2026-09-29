@@ -45,7 +45,7 @@ var _turned_away := false
 
 func _ready() -> void:
 	if version.is_empty():
-		version = Game.version()
+		version = GameVersion.current()
 	var scene := multiplayer as SceneMultiplayer
 	if scene != null:
 		scene.auth_callback = _answer
@@ -132,7 +132,7 @@ func _answer(peer: int, data: PackedByteArray) -> void:
 		# Knocked at from Play LAN, which hosts on the same port: told this is a server, see
 		# [method NetDoor.refusal], rather than let in to wait for a seat nobody here hands out.
 		var listing := bool(words.get(LISTING, false))
-		var playable := listing and NetDoor.compatible(version, theirs)
+		var playable := listing and GameVersion.compatible(version, theirs)
 		var answer := {"version": version, "welcome": playable, "server": not listing}
 		scene.send_auth(peer, var_to_bytes(answer))
 		hall.knocked(peer, PlayerNames.clean(str(words.get("name", ""))), theirs, playable, listing)

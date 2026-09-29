@@ -15,8 +15,8 @@ below, and hands the notes to the release workflow.
 
 - **Play Online, on a dedicated server.** A new title entry lists a server's games: make one and
   host it from your machine, or join or watch somebody else's; it won't play with 0.9.x.
-- **Dedicated servers.** `--server` runs the game headless as a server of several games at once,
-  logging who comes and goes and how each game stands; a game ends once everybody has left.
+- **Dedicated servers.** `--server` runs the game headless as a server of several games at once on
+  7777, logging who comes and goes; idle it takes about 90 MB, starting a game only when one is made.
 - **The host's say passes on.** On a dedicated server, whoever made a game hosts it from their own
   machine, and when they leave, whoever has been in it longest does.
 

@@ -7,7 +7,9 @@ extends Node
 ## ended, which it does by itself when everybody has left.
 ##
 ## A process for each game rather than a scene each in this one: a game is the whole game, its
-## autoloads among it, and two sharing a process would hear each other's every kill.
+## autoloads among it, and two sharing a process would hear each other's every kill. The hall
+## itself is started without them, see [GameTree], and so names nothing of the game here: whatever
+## it names, it loads, and the game's classes bring the rest of the game with them.
 
 ## How many people may be looking at the list at once.
 const MOST_VISITORS := 32
@@ -20,8 +22,8 @@ const TICK := 1.0
 
 var args: ServerArgs
 var link: ServerLink
-## Where the link hangs, [Net] unless a test says otherwise: the same place as a player's screen
-## hangs theirs, as a call from one to the other has to.
+## Where the link hangs: a node called Net at the root, the same place a player's screen hangs
+## theirs under the [Net] autoload, as a call from one to the other has to.
 var home: Node
 ## [constant START_WAIT] and [constant QUIET_WAIT], unless a test says otherwise.
 var start_wait := START_WAIT
@@ -63,12 +65,17 @@ func open() -> Error:
 	link = ServerLink.new()
 	link.name = ServerLink.NAME
 	link.hall = self
-	(home if home != null else Net).add_child(link)
+	home.add_child(link)
 	var ports := args.game_ports()
 	var games := "1 game on port %d" % ports[0]
 	if ports.size() > 1:
 		games = "%d games on ports %d to %d" % [ports.size(), ports[0], ports[-1]]
-	_say("Jackpot Junction %s server on port %d, up to %s" % [Game.version(), args.port, games])
+	_say(
+		(
+			"Jackpot Junction %s server on port %d, up to %s"
+			% [GameVersion.current(), args.port, games]
+		)
+	)
 	return OK
 
 
@@ -84,7 +91,7 @@ func _exit_tree() -> void:
 
 
 ## Whose each game is, and how it stands, as the Play Online screen lists it: the way a LAN game
-## found on the network says it, see [LanBeacon], with the port it is played on. Only games up and
+## found on the network says it, with the port it is played on, see [GameList]. Only games up and
 ## with somebody playing, the ones in the lobby first.
 func listing() -> Array[Dictionary]:
 	var found: Array[Dictionary] = []
@@ -97,13 +104,12 @@ func listing() -> Array[Dictionary]:
 			found
 			. append(
 				{
-					"game": LanBeacon.ANSWER,
 					"id": id,
 					"name": str(state.get("name", "")) if state.get("name", "") != "" else "Host",
-					"version": Game.version(),
+					"version": GameVersion.current(),
 					"port": game["port"],
 					"players": int(state.get("players", 0)),
-					"most": int(state.get("most", NetDoor.MOST_PLAYERS)),
+					"most": int(state.get("most", 0)),
 					"password": bool(state.get("password", false)),
 					"watching": bool(state.get("watching", true)),
 					"watch_password": bool(state.get("watch_password", false)),

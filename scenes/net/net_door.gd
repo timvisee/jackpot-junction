@@ -54,16 +54,10 @@ func _notification(what: int) -> void:
 			PlayerNames.held_elsewhere.erase(named)
 
 
-## Whether a game at [param theirs] can play with one at [param mine], GAME.md 10.3: the same
-## major and minor version, whatever the patch. A patch release fixes things without changing
-## what goes over the wire; anything else may well change it, and two games that disagree about
-## what a snapshot says do not fail politely.
+## Whether a game at [param theirs] can play with one at [param mine], see
+## [method GameVersion.compatible].
 static func compatible(mine: String, theirs: String) -> bool:
-	var a := mine.split(".")
-	var b := theirs.split(".")
-	if a.size() < 2 or b.size() < 2:
-		return mine == theirs
-	return a[0] == b[0] and a[1] == b[1]
+	return GameVersion.compatible(mine, theirs)
 
 
 ## How many clients may play: [constant MAX_CLIENTS] on top of the host's own players, or with

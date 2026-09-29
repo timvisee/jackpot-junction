@@ -10,6 +10,10 @@
 #
 # Usage: tools/server_check          (about a minute)
 #
+# The server has to be small while it holds no game: started without the game's autoloads, it is
+# the engine and little more, and one that grew past SVCHECK_IDLE_MB (160, for the editor build this
+# runs) has started loading the game again, see scripts/game_tree.gd.
+#
 # SVCHECK_PORT picks the server's port, the one game it plays on the port after it, and
 # SVCHECK_LOGS=<dir> keeps every process's whole log there. The clients take --length=<seconds>
 # for the match, which against a release server, offering nothing as short as the five seconds
@@ -17,6 +21,7 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 port="${SVCHECK_PORT:-7990}"
+idle_mb="${SVCHECK_IDLE_MB:-160}"
 if [[ -n ${SVCHECK_LOGS:-} ]]; then
 	logs=$SVCHECK_LOGS
 	mkdir -p "$logs"
@@ -34,6 +39,19 @@ for _ in $(seq 1 100); do
 	grep -q " server on port $port" "$logs/server.log" 2>/dev/null && break
 	sleep 0.2
 done
+# How much the server holds before anybody has asked it for anything.
+hall=$(pgrep -P "$server" | head -1)
+idle_kb=$(awk '/^VmRSS/{print $2}' "/proc/$hall/status" 2>/dev/null)
+if [[ -z $idle_kb ]]; then
+	echo "server check: the server never came up" >&2
+	failed=1
+else
+	echo "server: idle at $((idle_kb / 1024)) MB"
+	if ((idle_kb > idle_mb * 1024)); then
+		echo "server check: the idle server holds $((idle_kb / 1024)) MB, over $idle_mb MB" >&2
+		failed=1
+	fi
+fi
 
 run() {
 	local role=$1

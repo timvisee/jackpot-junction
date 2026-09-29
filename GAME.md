@@ -3226,6 +3226,15 @@ over; once nobody has come to it in half a minute; or once it has heard nothing 
 ten seconds, since a server that has gone has taken its list with it. The server stops a game that
 never says it is up, or says nothing for ten seconds.
 
+**Idle.** A server nobody plays on is little more than the engine: about 90 MB and next to no
+processor, and no game's process runs until somebody makes a game. The game's own autoloads, its
+settings, sound, events and connection, bring nearly all of the game in with them, over a hundred
+megabytes of it, so the hall is started without them: the game's main loop is a scene tree of its
+own, `GameTree`, which drops them before they load when the game is started with `--server` and no
+game to run, and the first scene is a boot scene, which goes on to the title, the hall or a game,
+rather than the title, which would bring the game in by itself. The hall names nothing of the game,
+since whatever it names it loads, and it runs ten frames a second with its physics off.
+
 **The log.** The server writes a line to its output for everything worth knowing, with the date,
 the time and which game it was: the server opening; who comes to look at the games and leaves the
 list; who made which game, on which port; each game up; who came in to play or to watch and from
