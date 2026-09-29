@@ -442,6 +442,9 @@ func _raise_stands(half: Vector2) -> void:
 			continue
 		_footprints.append(footprint)
 		_step_up(near, out, run, _stands, tread, back)
+	# Every tread wears one material and every back wall the other, and none of it moves: two
+	# meshes rather than one a step, GAME.md 10.7.
+	Bake.merge(_stands)
 
 
 ## The footprint of one stand, flat on the table, which is what decides who is standing on it.

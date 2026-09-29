@@ -504,16 +504,23 @@ func _add_walls() -> void:
 
 
 func _add_spawns() -> void:
+	var spawns := Node3D.new()
+	spawns.name = "Spawns"
+	add_child(spawns)
 	for i: int in grid.spawns.size():
 		var position := grid.cell_center(grid.spawns[i])
 		spawn_points.append(position)
 		var marker := Marker3D.new()
 		marker.name = "Spawn%d" % i
 		marker.position = position
-		add_child(marker)
+		spawns.add_child(marker)
 		var disc := _disc_mesh(0.5, room.marking)
 		disc.position = Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
 		marker.add_child(disc)
+	# Paint on the felt that never moves is baked, GAME.md 10.7: every pad's disc is one mesh
+	# with every other's, and every rim with every other rim.
+	if bake_scenery:
+		Bake.merge(spawns)
 
 
 func _add_coin_pads() -> void:
@@ -530,6 +537,8 @@ func _add_coin_pads() -> void:
 		pad.add_child(_pad_rim(0.5))
 		pads.add_child(pad)
 		coin_pads.append(pad)
+	if bake_scenery:
+		Bake.merge(pads)
 
 
 func _add_power_pads() -> void:
@@ -547,6 +556,8 @@ func _add_power_pads() -> void:
 		pad.add_child(_pad_rim(0.66, 0.07))
 		pads.add_child(pad)
 		power_pads.append(pad)
+	if bake_scenery:
+		Bake.merge(pads)
 
 
 func _add_targets() -> void:
@@ -590,6 +601,10 @@ func _add_flush_pads() -> void:
 		pad.position = grid.cell_center(grid.flush_pads[i])
 		pads.add_child(pad)
 		flush_pads.append(pad)
+	# A pad's four frame bars wear its one material, which is what it recolors, so they bake to
+	# one mesh a pad and still take the color, GAME.md 10.7.
+	if bake_scenery:
+		Bake.merge(pads)
 
 
 func _add_turbo_pads() -> void:
@@ -618,6 +633,8 @@ func _add_turbo_pads() -> void:
 				_add_turbo_plate(pad, grid.cell_center(Vector2i(x, y)) - pad.position)
 		pads.add_child(pad)
 		turbo_pads.append(pad)
+	if bake_scenery:
+		Bake.merge(pads)
 
 
 ## One cell of a turbo pad at [param at] on [param pad]: a dark plate set into the felt with a lit
@@ -814,6 +831,10 @@ func _add_jackpots() -> void:
 		zone.add_child(trim)
 		zones.add_child(zone)
 		jackpot_zones.append(zone)
+	# The tiles and their trims across every zone; a zone's own pole, bulbs and counter each
+	# wear a material of their own and stay where they are.
+	if bake_scenery:
+		Bake.merge(zones)
 
 
 ## Painted, which is what nearly everything in an arena is. The felt and the table ask the room

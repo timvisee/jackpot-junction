@@ -34,6 +34,9 @@ below, and hands the notes to the release workflow.
   once they have faded, rather than left on at nothing.
 - **The clock board is one thing to draw.** Its thirty segments were thirty meshes with a
   material each; they are one MultiMesh now, lit per segment by a shader of its own.
+- **Pads, stands and tanks baked.** The coin, power, turbo and flush pads, the spawn discs, the
+  jackpot tiles, the tribune steps and the tanks' fittings are merged into a mesh a material as
+  the map loads; a frame of Lucky Crossing is 344 draw calls where it was 713.
 
 ## [0.10.0] - 2026-09-29
 

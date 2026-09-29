@@ -97,11 +97,13 @@ func test_some_of_them_are_standing_on_a_tribune() -> void:
 	assert_int(on_a_stand).is_greater(20)
 	# And most of the house is still on the table: a stand is somewhere, not everywhere.
 	assert_int(on_a_stand).is_less(crowd.count() / 2)
-	# The steps themselves are there, and they are not nine hundred nodes either. One step per
-	# tiered row and a wall across the back of each stand; the rows behind the tiers stand on the
-	# flat, GAME.md 8.1.
+	# The steps themselves are there, and they are not nine hundred nodes either: every tread is
+	# baked into one mesh and every back wall into the other, GAME.md 10.7, so however many stands
+	# there are, the steps are two things to draw.
 	var stands: Node3D = crowd.get_node("Stands")
-	assert_int(stands.get_child_count()).is_equal(crowd._footprints.size() * Crowd.TIERS)
+	assert_int(stands.get_child_count()).is_equal(2)
+	for step: MeshInstance3D in stands.get_children():
+		assert_int(step.mesh.get_surface_count()).is_equal(1)
 
 
 func test_a_kill_gets_them_up_and_so_does_a_hot_room() -> void:

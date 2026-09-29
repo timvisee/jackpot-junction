@@ -118,6 +118,10 @@ func _rebuild(count: int) -> void:
 	for i: int in count:
 		var at := Vector3(along + (i - (count - 1) * 0.5) * SPACING, 0.0, row)
 		_columns.append(_tank(at, match_node.slots[i].color(), glass, fitting))
+	# The feet, caps and glass of every tank are baked into one mesh a material, GAME.md 10.7.
+	# Each fluid column and each color band wears a material of its own, so they stay as they
+	# are, and the columns go on being moved by [method _show].
+	Bake.merge(self)
 	# Nobody stands in front of them, GAME.md 8.1: a crowd in front of a thing put there to be
 	# looked at is worse than a slightly smaller crowd.
 	if match_node.arena != null and match_node.arena.crowd != null:

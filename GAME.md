@@ -4466,6 +4466,16 @@ with the numbers that put them there.
   handful of buffer writes. Shaders live in `.gdshader` files beside the script
   that uses them, not in strings, so the editor checks them and the phone's
   shader baker sees them.
+- **Everything painted on the felt that never moves is baked with the walls.**
+  `Bake.merge` was run on the walls, the litter, the crates and the props; it runs
+  on the coin pads, the power pads, the turbo pads, the spawn discs, the jackpot
+  tiles, the tribune steps and the tanks' feet, caps and glass too, each container
+  merged to one mesh a material. A flush pad's four frame bars wear its one
+  material, which is what it recolors, so they bake to one mesh a pad that still
+  takes the color; a zone's bulbs and a tank's fluid wear materials of their own,
+  so the bake leaves them where they are and they go on being moved. A frame of
+  Lucky Crossing with four karts is 344 draw calls: 713 before any of this, of
+  which 306 were the shadow pass.
 
 ## 11. Roadmap
 
