@@ -35,6 +35,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Bots dress their karts.** Each bot drives with its own paint, hat, flag and trail, and
+  keeps them through a Grand Prix.
 - **Manage players sits under Lobby settings.** On the host's pause menu the two are now the
   other way round.
 - **A spectator's countdown to the standings is a small ring.** It sits beside the line saying

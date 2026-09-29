@@ -118,6 +118,22 @@ func test_every_map_of_a_run_has_the_same_bots() -> void:
 		assert_str(String(first.slots[seat].bot_trait.id)).is_equal(String(dealt.id))
 		assert_str(String(second.slots[seat].bot_trait.id)).is_equal(String(dealt.id))
 		assert_str(second.slots[seat].display_name()).is_equal(first.slots[seat].display_name())
+		# In the dress they were dealt, GAME.md 4.4, on every map of it and on every screen.
+		var dress: Array = Array(run.bot_styles[seat - 1])
+		assert_array(Array(first.slots[seat].style.to_array())).is_equal(dress)
+		assert_array(Array(second.slots[seat].kart.style.to_array())).is_equal(dress)
+
+
+## GAME.md 4.4: a bot dresses its kart as it likes, all sorts from one bot to the next, and never
+## in the crown the bounty's carrier wears.
+func test_bots_dress_their_karts_but_never_in_the_crown() -> void:
+	var rng := _rng(5)
+	var seen := {}
+	for i: int in 200:
+		var style := KartStyle.random(rng)
+		assert_int(style.hat).is_not_equal(KartStyle.HATS.find("Crown"))
+		seen[style.to_array()] = true
+	assert_int(seen.size()).is_greater(50)
 
 
 ## A slot standing in for a player, for scoring by hand.

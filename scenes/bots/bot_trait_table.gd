@@ -12,6 +12,12 @@ func pick(rng: RandomNumberGenerator) -> BotTrait:
 	return entries[rng.rand_weighted(weights)]
 
 
+## How the bot just handed a trait by [method pick] dresses its kart, GAME.md 4.4: at random,
+## unless the table says otherwise.
+func dress(rng: RandomNumberGenerator) -> KartStyle:
+	return KartStyle.random(rng)
+
+
 func by_id(id: StringName) -> BotTrait:
 	for entry: BotTrait in entries:
 		if entry.id == id:

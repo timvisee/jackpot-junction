@@ -998,6 +998,10 @@ short buzz the slider gives, so reading along the row is felt card by card.
   them changes how the kart drives, and the player color is still the player
   color underneath all of it: these say whose kart it is a second time rather
   than instead.
+- A bot dresses its kart too, a paint, a hat, a flag and a trail drawn at random
+  when it takes the wheel, so a field of bots is a field of karts rather than of
+  one kart in four colors. Never the crown, which the bounty's carrier wears,
+  3.10. A bot taking over the kart of somebody who left drives it as they left it.
 - They are picked by driving rather than from a menu, at the stalls: a pad on
   the floor for each of the four, with PAINT, HAT, FLAG and TRAIL on it, along
   the back wall of the waiting room of 9.6 and the front wall of the Garage of
@@ -3280,8 +3284,8 @@ rules' jokers are in everybody's hands before the lamps go. Nothing is carried o
 
 **The same bots.** The bots are chosen once, when the playlist is dealt, and drive every map of
 it: the same number, in the same seats and colors, each with the same way of driving and so the
-same name. The Hunter in the second seat on the first map is the Hunter in the second seat on the
-last. A seat kept for a player at another machine is dealt a way of driving too, for the maps it
+same name and the same dress. The Hunter in the second seat on the first map is the Hunter in the
+second seat on the last. A seat kept for a player at another machine is dealt a way of driving too, for the maps it
 spends as a bot -- before its player has sat down, or after they have left.
 
 **Points.** Each map is won the way a single one is, on banked chips, and pays points by where

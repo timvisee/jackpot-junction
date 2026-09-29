@@ -286,6 +286,7 @@ func leave_human(slot: PlayerSlot) -> void:
 	slot.kart.input = slot.input
 	slot.kart.rebuild_stats()
 	slot.kart.enable_sound(true, true)
+	# In the dress of whoever got up: a bot taking a kart over drives it as it was left.
 	_attach_brain(slot)
 	refresh_listener()
 	if hud != null:
@@ -341,12 +342,23 @@ func _make_human(slot: PlayerSlot, input: KartInput) -> void:
 	Events.player_joined.emit(slot.index)
 
 
+## A bot at the wheel of [param slot], in the way of driving it was dealt, or one drawn now for a
+## bot taking over from somebody who got up.
 func _attach_brain(slot: PlayerSlot) -> void:
 	var brain := BotBrain.new()
 	brain.name = "Brain"
-	brain.setup(slot.kart, self, bot_traits.pick(rng), bot_difficulty, rng)
+	var chosen := slot.bot_trait if slot.bot_trait != null else bot_traits.pick(rng)
+	brain.setup(slot.kart, self, chosen, bot_difficulty, rng)
 	slot.kart.add_child(brain)
 	slot.bot_trait = brain.bot_trait
+
+
+## Who the bot in [param slot] is, before its kart is built, GAME.md 4.4 and 9.7: its way of
+## driving and the dress that goes with it, so the kart comes out already dressed. The dress is
+## drawn off the names' generator rather than the match's, so it moves nothing a seed decides.
+func _deal_bot(slot: PlayerSlot) -> void:
+	slot.bot_trait = bot_traits.pick(rng)
+	slot.style = bot_traits.dress(_names_rng)
 
 
 ## What a slot goes by, GAME.md 3.8: the name the lobby was given for that seat, or one off the
@@ -599,6 +611,8 @@ func refresh_listener() -> void:
 
 
 func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
+	if slot.input is BotInput and slot.bot_trait == null:
+		_deal_bot(slot)
 	var kart: Kart = KART_SCENE.instantiate()
 	kart.name = "Kart%d" % slot.index
 	kart.slot = slot.index

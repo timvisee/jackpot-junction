@@ -20,6 +20,20 @@ var flag := 0
 var trail := 0
 
 
+## A dress drawn at random, for a bot, GAME.md 4.4: a part at a time from its choices, bar the
+## crown, which the bounty's carrier wears, see 3.10, and which on a bot would read as a price on
+## its head.
+static func random(rng: RandomNumberGenerator) -> KartStyle:
+	var style := KartStyle.new()
+	style.paint = rng.randi_range(0, PAINTS.size() - 1)
+	style.hat = rng.randi_range(0, HATS.size() - 2)
+	if style.hat >= HATS.find("Crown"):
+		style.hat += 1
+	style.flag = rng.randi_range(0, FLAGS.size() - 1)
+	style.trail = rng.randi_range(0, TRAILS.size() - 1)
+	return style
+
+
 ## Reads four numbers back, from the wire or from the settings file, and drops anything that is
 ## not a choice this build has. An older machine sending a hat this one has never heard of is a
 ## kart with no hat, not a crash.
