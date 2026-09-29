@@ -27,6 +27,9 @@ const SPOTS: Array[Vector3] = [
 
 var _role := ""
 var _port := 7990
+## How long the maker's match runs, in seconds: the five a debug build offers unless told otherwise,
+## as a release server will be, which offers none that short.
+var _length := MatchOptions.DEBUG_LENGTH
 var _failed := false
 var _finished := false
 
@@ -37,6 +40,8 @@ func _ready() -> void:
 			_role = arg.get_slice("=", 1)
 		elif arg.begins_with("--port="):
 			_port = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--length="):
+			_length = int(arg.get_slice("=", 1))
 	_run.call_deferred()
 
 
@@ -84,9 +89,7 @@ func _maker() -> void:
 	pane.options.choose(false)
 	pane.options.map_option.selected = 0
 	pane.options.bots_option.selected = MatchOptions.BOTS.find(1)
-	pane.options.minutes_option.selected = MatchOptions.match_lengths().find(
-		MatchOptions.DEBUG_LENGTH
-	)
+	pane.options.minutes_option.selected = MatchOptions.match_lengths().find(_length)
 	pane.options.overtime_option.selected = MatchOptions.OVERTIME.find(false)
 	pane.close()
 	var ready_room: ReadyRoom = room.ready_room
@@ -287,7 +290,7 @@ func _play(room: Node) -> Node:
 				and arena.match_node.hud != null
 				and arena.match_node.hud._results.visible
 			),
-		60.0,
+		_length + 60.0,
 		"the match was played to its podium"
 	):
 		return null

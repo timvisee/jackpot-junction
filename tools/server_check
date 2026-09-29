@@ -11,7 +11,9 @@
 # Usage: tools/server_check          (about a minute)
 #
 # SVCHECK_PORT picks the server's port, the one game it plays on the port after it, and
-# SVCHECK_LOGS=<dir> keeps every process's whole log there.
+# SVCHECK_LOGS=<dir> keeps every process's whole log there. The clients take --length=<seconds>
+# for the match, which against a release server, offering nothing as short as the five seconds
+# they choose by default, has to be 60: tools/server_driver.gd.
 set -uo pipefail
 cd "$(dirname "$0")/.."
 port="${SVCHECK_PORT:-7990}"
