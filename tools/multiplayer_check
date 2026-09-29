@@ -64,9 +64,9 @@ agree() {
 	done
 }
 
-run host_a --role=host --port="$port" --locals=2 --clients=1 --jokers=random &
+run host_a --role=host --port="$port" --locals=2 --clients=1 --jokers=random --style=1,1,1,1 &
 host_a=$!
-run client_a --role=client --port="$port" --nameless &
+run client_a --role=client --port="$port" --nameless --style=2,2,0,1 --host-style=1,1,1,1 &
 client_a=$!
 wait "$host_a"
 host_a_status=$?

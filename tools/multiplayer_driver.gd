@@ -44,6 +44,10 @@ var _seats := 1
 ## On a client with a second player: what that player presses, driven from here, since there is no
 ## pad in a headless run to press anything on.
 var _second := KartInput.new()
+## How this machine's first player dressed their kart, GAME.md 4.4, and on a client how the host's
+## did, for every screen to be checked for wearing each kart's own.
+var _style := PackedInt32Array()
+var _host_style := PackedInt32Array()
 ## The color this client had in the waiting room, to find it in again in the arena.
 var _room_color := -1
 ## The name it took in the room, for map 1 to be checked against.
@@ -86,6 +90,10 @@ func _ready() -> void:
 			_guests = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--seats="):
 			_seats = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--style="):
+			_style = _ints(arg.get_slice("=", 1))
+		elif arg.begins_with("--host-style="):
+			_host_style = _ints(arg.get_slice("=", 1))
 	if _guests < 0:
 		_guests = _clients
 	_run.call_deferred()
@@ -100,6 +108,8 @@ func _run() -> void:
 	# Settings of its own, so a check never decides anybody's next match.
 	Game.settings = Settings.new()
 	Game.settings.path = "user://multiplayer_check_%s.cfg" % _role
+	if not _style.is_empty():
+		Game.settings.kart_styles[0] = _style
 	match _role:
 		"host":
 			await _host()
@@ -317,6 +327,8 @@ func _client_joins() -> Node:
 	config.address = "127.0.0.1"
 	config.port = _port
 	config.human_names = ["" if _nameless else "Client"] as Array[String]
+	# Dressed from its settings, as Play LAN does.
+	config.human_styles = Game.settings.kart_styles.duplicate()
 	# The host may still be opening its room.
 	await _frames(60)
 	Game.go_to_waiting(config)
@@ -337,6 +349,7 @@ func _client_joins() -> Node:
 	):
 		return null
 	_room_color = match_node.slots[session.local_slot].color_index
+	await _dressed(match_node, "in the room")
 	# The first client drives through the football on the way to the pad, from a little short of
 	# it to a little past it, and the ball this machine draws has to have gone somewhere too. Only
 	# the first: two karts making for the same ball meet each other, and the host takes the wheel
@@ -427,6 +440,40 @@ func _sit_second_down(session: NetSession, match_node: Match) -> bool:
 	)
 
 
+static func _ints(text: String) -> PackedInt32Array:
+	var found := PackedInt32Array()
+	for part: String in text.split(","):
+		found.append(int(part))
+	return found
+
+
+## Each kart in its own dress on this client's screen, GAME.md 4.4: its own in the one it chose,
+## said to the host and back in the snapshot, and the host's in the host's. Asked for a while
+## rather than once, since the dress is said after the seat is given.
+func _dressed(match_node: Match, where: String) -> void:
+	if _style.is_empty():
+		return
+	await _until(
+		func() -> bool:
+			var seat := match_node.local_slot
+			if seat < 0 or seat >= match_node.slots.size() or match_node.kart_of(seat) == null:
+				return false
+			return match_node.kart_of(seat).style.to_array() == _style,
+		10.0,
+		"its kart wears its own dress %s" % where
+	)
+	if _host_style.is_empty():
+		return
+	await _until(
+		func() -> bool:
+			if match_node.slots.is_empty() or match_node.kart_of(0) == null:
+				return false
+			return match_node.kart_of(0).style.to_array() == _host_style,
+		10.0,
+		"and the host's wears the host's %s" % where
+	)
+
+
 ## Every seat played at this client in [param match_node], in the order of their slots.
 static func _seats_here(match_node: Match) -> Array[int]:
 	var here: Array[int] = []
@@ -442,6 +489,7 @@ func _client_after_map_1(first: Node) -> Node:
 	_color = one.slots[one.local_slot].color_index
 	_check(_color == _room_color, "the same color on map 1 as in the room")
 	_check(one.slots[one.local_slot].player_name == _room_name, "and the same name")
+	await _dressed(one, "on map 1")
 	var podium := await _podium(first, 60.0)
 	if podium == null:
 		return null
@@ -502,6 +550,7 @@ func _client_after_map_2(second: Node) -> void:
 	_check(_seats_here(two).size() == _seats, "%d player(s) here on map 2" % _seats)
 	_check(two.slots[two.local_slot].color_index == _color, "the same color on map 2")
 	_check(two.slots[two.local_slot].player_name == _room_name, "and the same name on map 2")
+	await _dressed(two, "on map 2")
 	var last := await _podium(second, 60.0)
 	if last == null:
 		return
