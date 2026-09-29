@@ -51,7 +51,9 @@ static var ui_scale_for_now := 0.0
 ## measurement of the frame rate is no measurement held at the player's limit.
 static var uncapped_for_now := false
 
-var master_volume := 1.0
+## Half to start with: at full the game came on loud enough to make anybody reach for the
+## volume, and the slider has the room to go up for anybody who wants it.
+var master_volume := 0.5
 var music_volume := 0.8
 var sfx_volume := 1.0
 ## The engine and tires of the karts themselves, on their own bus under the effects, GAME.md 8.4.

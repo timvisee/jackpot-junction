@@ -2467,7 +2467,8 @@ like any other button.
   button with the picture of how that seat drives, simple or advanced, that
   changes it to the other, see 4.2. The first seat's is the Driving row of
   Controls, and each shows what the other was changed to.
-- **Audio**: master, music, effects and kart volume. The karts have their own
+- **Audio**: master, music, effects and kart volume, the master at 50% to start
+  with, since at full the game came on loud enough to reach for. The karts have their own
   because their engine and tires run the whole time rather than in bursts, so
   how loud that bed should sit is a matter of taste in a way the rest is not.
   The kart bus is under the effects bus, so the effects slider still scopes it.

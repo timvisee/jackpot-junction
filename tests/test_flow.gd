@@ -49,6 +49,12 @@ func _all(node: Node) -> Array[Node]:
 	return found
 
 
+## GAME.md 8.5: a fresh install starts at half volume, since at full the game came on loud enough
+## to reach for.
+func test_the_game_starts_at_half_volume() -> void:
+	assert_float(Settings.new().master_volume).is_equal(0.5)
+
+
 func test_settings_round_trip_through_disk() -> void:
 	var saved := Settings.new()
 	saved.path = TEST_SETTINGS_PATH

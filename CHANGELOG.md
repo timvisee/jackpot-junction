@@ -37,6 +37,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The game starts at half volume.** A fresh install's master volume is 50% rather than 100%;
+  one already set keeps its level.
 - **Pots bank at the whistle when time runs out.** With Match ends, every pot still carried
   banks what a death would, and a field of one at the clock takes all of its own.
 - **Mouse buttons are drawn as a mouse.** A binding on the left, right or middle button shows
