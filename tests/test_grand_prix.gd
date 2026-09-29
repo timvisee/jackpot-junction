@@ -814,12 +814,13 @@ func test_the_podium_after_the_last_map_ends_the_run() -> void:
 	assert_bool(Game.grand_prix.revealed).is_true()
 
 
-## A single map is as it was: rematch or the title, and no talk of maps.
+## A single map is as it was: rematch, the lobby or the title, and no talk of maps.
 func test_a_single_map_podium_is_as_it_was() -> void:
 	var screen := await _podium_after(0, 0)
 	assert_bool(screen._next.visible).is_false()
 	assert_bool(screen._pager.visible).is_false()
 	assert_bool(screen._rematch.visible).is_true()
+	assert_bool(screen._lobby.visible).is_true()
 	assert_bool(screen._quit.visible).is_true()
 	assert_bool(screen._caption.visible).is_false()
 

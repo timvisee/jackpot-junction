@@ -173,10 +173,11 @@ func test_the_podium_points_at_the_rematch_button() -> void:
 	assert_object(screen._rematch.get_viewport().gui_get_focus_owner()).is_equal(screen._rematch)
 
 
-## The host of an online match can take everybody back to the waiting room from the podium, and
-## the cursor starts there, since that is where a room of people wanting another go goes next.
-## Nobody else is offered it: a match on one machine has no waiting room to go back to.
-func test_only_an_online_host_is_offered_the_way_back_to_the_lobby() -> void:
+## A quick match's podium goes back to the lobby as well as to a rematch or the title, GAME.md 3.8.
+## The host of an online one takes everybody back to the waiting room with it, and the cursor
+## starts there, since that is where a room of people wanting another go goes next; on one machine
+## it starts on Rematch, and Back to lobby is beside it.
+func test_a_quick_match_goes_back_to_the_lobby() -> void:
 	var match_node := _finished_match()
 	await _runner.simulate_frames(12, 17)
 	var session := Net.open(match_node)
@@ -189,4 +190,6 @@ func test_only_an_online_host_is_offered_the_way_back_to_the_lobby() -> void:
 	assert_object(screen._lobby.get_viewport().gui_get_focus_owner()).is_equal(screen._lobby)
 	Net.close()
 	screen.fill_in()
-	assert_bool(screen._lobby.visible).is_false()
+	assert_bool(screen._lobby.visible).is_true()
+	assert_bool(screen._rematch.visible).is_true()
+	assert_object(screen._lobby.get_viewport().gui_get_focus_owner()).is_equal(screen._rematch)

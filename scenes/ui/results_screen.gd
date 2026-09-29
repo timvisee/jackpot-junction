@@ -132,8 +132,11 @@ func fill_in() -> void:
 	# This is the one screen nobody asked for: it arrives on its own at the whistle, so it points
 	# at what most people want next rather than waiting to be found.
 	# On a map's podium that is the run's standings, with Next map beside them for a host in a
-	# hurry; on the standings it is the next map.
-	var order: Array[Button] = [_next, _continue, _standings, _map_podium, _lobby, _rematch, _quit]
+	# hurry; on the standings it is the next map. After a quick match it is another go: in the
+	# lobby for a room of people online, who go back to it together, and a rematch on one machine.
+	var order: Array[Button] = [_next, _continue, _standings, _map_podium]
+	order.append_array([_lobby, _rematch] if Net.online() else [_rematch, _lobby])
+	order.append(_quit)
 	if not _showing_run:
 		order.push_front(_standings)
 	for first: Button in order:
@@ -185,7 +188,7 @@ func _ways_on() -> void:
 	_pager.show_page(1 if standing else 0, standing, not standing)
 	_continue.visible = last and not standing and scored
 	_rematch.visible = decides and not grand_prix
-	_lobby.visible = decides and (run_up or (not grand_prix and Net.hosting()))
+	_lobby.visible = decides and (run_up or not grand_prix)
 	_quit.visible = not grand_prix or run_up
 	_host_decides.visible = match_node.puppet and Net.online() and (not last or run_up)
 	_host_decides.text = (
@@ -541,14 +544,14 @@ func _buttons() -> HBoxContainer:
 	_continue.pressed.connect(_on_standings)
 	_continue.visible = false
 	buttons.add_child(_continue)
-	_lobby = MenuTheme.button("Back to lobby", 26)
-	_lobby.pressed.connect(_back_to_lobby)
-	_lobby.visible = false
-	buttons.add_child(_lobby)
 	_rematch = MenuTheme.button("Rematch", 26)
 	_rematch.pressed.connect(func() -> void: match_node.rematch())
 	_rematch.visible = not match_node.puppet
 	buttons.add_child(_rematch)
+	_lobby = MenuTheme.button("Back to lobby", 26)
+	_lobby.pressed.connect(_back_to_lobby)
+	_lobby.visible = false
+	buttons.add_child(_lobby)
 	_quit = MenuTheme.button("Back to title", 26)
 	_quit.pressed.connect(func() -> void: Game.go_to_title())
 	buttons.add_child(_quit)

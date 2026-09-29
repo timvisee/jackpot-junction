@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Back to lobby after a quick match.** The podium offers it beside Rematch and Back to title,
+  on one machine as well as for a LAN host.
 - **Joker slots in the match settings.** Choose how many jokers a hand holds, 3 to 8, under
   Items; Deep Pockets still adds two to it.
 - **Tight Grip joker.** Your pot never spills: a death drops no coins, a killer takes none,

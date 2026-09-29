@@ -332,8 +332,12 @@ before it comes up, and the hand of cards stays where it is until it does, becau
 a scoreboard thrown over the top of a kart still rolling takes the ending away from
 the people who were in it. The music steps back 9 dB over 0.8 s as the screen
 arrives and comes back up when the room does. Results show every player's banked
-score and kills, ranked, then offer a rematch or a return to the lobby (in a Grand
-Prix, the next map instead, see 9.7), with the cursor already on Rematch: the screen arrives on its own rather than being opened,
+score and kills, ranked, then offer Rematch, Back to lobby and Back to title (in a
+Grand Prix, the next map instead, see 9.7), on one machine and for a LAN host alike:
+the lobby on one machine is Play's, and online it is the waiting room everybody
+goes back to together. The cursor is already on Rematch on one machine and on Back
+to lobby for a LAN host, whose room of people wanting another go goes there next:
+the screen arrives on its own rather than being opened,
 so it points at what most people want next instead of waiting to be found. A client,
 which does not get to decide there is another match, is pointed at the way out.
 
