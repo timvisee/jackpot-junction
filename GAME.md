@@ -249,8 +249,10 @@ Jokers are passive rule modifiers held for the rest of the match.
 - On every respawn the player is offered 3 jokers during the respawn delay and
   picks 1 or skips. Offers never include a joker the player already holds,
   except stackable jokers such as Rubber Bumpers, whose copies each apply again.
-- A player holds at most 5 jokers, unless a joker in the hand says otherwise:
-  Deep Pockets adds 2 slots and stands in one of them. A player with a full hand
+- A player holds at most as many jokers as the match's Joker slots, 5 to start
+  with and 3 to 8 in the match settings, unless a joker in the hand says
+  otherwise: Deep Pockets adds 2 slots to however many that is and stands in one
+  of them. Online it is the host's number, sent with the rest of its settings. A player with a full hand
   who wants a new one must first destroy or drop one: at the respawn pick,
   choosing a joker to discard destroys it; in the arena, the joker menu lets you
   drop one on the floor or destroy it.
@@ -3345,7 +3347,7 @@ room: the same color, the same name, the same dress.
 be in here: the host online, and on one machine the machine itself, which is where Play goes
 straight to. They are a Grand Prix or a quick match, a big button each, see 9.7, then rows for
 how many maps or which arena, how long, the target, how many bots and how hard, the items, own
-bullets and what the clock running out does. They come up over the
+bullets, what the clock running out does and how many jokers a hand holds. They come up over the
 room the moment it is opened, again from the host's pause menu, and start on whatever the host
 chose last time. Hosting online they come up one step later: first the lobby's own settings of
 10.3, who may come in, since friends are knocking from the moment the room is open, with Next

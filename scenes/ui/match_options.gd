@@ -29,6 +29,8 @@ const ITEM_SETS: Array[String] = ["first", "all"]
 const OWN_BULLETS: Array[bool] = [false, true]
 ## Index order of the overtime option: on first, so it is the default.
 const OVERTIME: Array[bool] = [true, false]
+## How many jokers a hand may hold, GAME.md 3.7: five to start with.
+const JOKER_SLOTS: Array[int] = [3, 4, 5, 6, 7, 8]
 ## How many maps a Grand Prix can run, GAME.md 9.7.
 const MAPS: Array[int] = [2, 3, 4, 5, 6]
 ## What of their jokers players take from one map of a Grand Prix to the next, in the order of
@@ -43,6 +45,7 @@ var difficulty_option: OptionButton
 var items_option: OptionButton
 var own_bullets_option: OptionButton
 var overtime_option: OptionButton
+var slots_option: OptionButton
 ## The choice between a Grand Prix and a quick match.
 var mode_picker: GameModePicker
 var maps_option: OptionButton
@@ -119,6 +122,7 @@ func apply_to(config: MatchConfig) -> void:
 	config.item_set = ITEM_SETS[items_option.selected]
 	config.own_bullets_hurt = OWN_BULLETS[own_bullets_option.selected]
 	config.overtime = OVERTIME[overtime_option.selected]
+	config.joker_slots = JOKER_SLOTS[slots_option.selected]
 
 
 ## Keeps the choices for next time. Not written to disk here: the caller saves once, with
@@ -132,6 +136,7 @@ func remember(settings: Settings) -> void:
 	settings.item_set = ITEM_SETS[items_option.selected]
 	settings.own_bullets_hurt = OWN_BULLETS[own_bullets_option.selected]
 	settings.overtime = OVERTIME[overtime_option.selected]
+	settings.joker_slots = JOKER_SLOTS[slots_option.selected]
 	settings.grand_prix_maps = MAPS[maps_option.selected]
 	settings.grand_prix_jokers = jokers_option.selected
 	settings.grand_prix_normal = normal_toggle.button_pressed
@@ -216,6 +221,10 @@ func _build(column: Container, settings: Settings) -> void:
 		["Last one standing", "Match ends"], OVERTIME.find(settings.overtime)
 	)
 	column.add_child(MenuTheme.row("Out of time", overtime_option))
+	slots_option = MenuTheme.option(
+		_labels(JOKER_SLOTS, "%d jokers"), maxi(JOKER_SLOTS.find(settings.joker_slots), 0)
+	)
+	column.add_child(MenuTheme.row("Joker slots", slots_option))
 
 
 ## Shows the rows that go with what is being set up: the arena for a single map, the number of

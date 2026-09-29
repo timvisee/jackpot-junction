@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Joker slots in the match settings.** Choose how many jokers a hand holds, 3 to 8; Deep
+  Pockets still adds two to it.
 - **Tight Grip joker.** Your pot never spills: a death drops no coins, a killer takes none,
   and a ram knocks none out.
 - **The Royal Flush pads you hold show under the clock.** A block per pad in its holder's color,

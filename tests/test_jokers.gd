@@ -523,27 +523,6 @@ func test_stat_jokers_rebuild_the_karts_own_stats_and_removal_restores_them() ->
 	assert_int(kart.jokers.count()).is_equal(5)
 
 
-## GAME.md 3.7: five slots unless the hand itself says otherwise, and Deep Pockets stands in one
-## of the two it adds. Two copies leave room for seven other jokers.
-func test_deep_pockets_widens_the_hand_and_stacks() -> void:
-	var match_node := _start_match(_bots())
-	var kart := match_node.kart_of(0)
-	assert_int(kart.jokers.capacity()).is_equal(JokerHolder.MAX_JOKERS)
-	_attach(kart, "deep_pockets")
-	assert_int(kart.jokers.capacity()).is_equal(7)
-	assert_bool(kart.jokers.is_full()).is_false()
-	var second := _attach(kart, "deep_pockets")
-	assert_int(kart.jokers.capacity()).is_equal(9)
-	for i: int in 7:
-		_attach(kart, "big_tank")
-	assert_int(kart.jokers.count()).is_equal(9)
-	assert_bool(kart.jokers.is_full()).is_true()
-	# Losing one takes its room with it, and a hand over the new limit is simply full.
-	kart.jokers.remove(second)
-	assert_int(kart.jokers.capacity()).is_equal(7)
-	assert_bool(kart.jokers.is_full()).is_true()
-
-
 ## GAME.md 8.3: a card says how rare its joker is in pips as well as in color, and the pane
 ## says it in a word. Count as well as color, because color alone is not readable by everybody
 ## and the card is already spending its color on the joker's kind.

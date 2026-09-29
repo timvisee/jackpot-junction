@@ -39,6 +39,8 @@ var item_set := "first"
 var own_bullets_hurt := false
 ## Whether the clock running out goes to sudden death rather than the whistle, GAME.md 3.13.
 var overtime := true
+## How many jokers a hand holds, GAME.md 3.7.
+var joker_slots := 5
 ## "", "host" or "join".
 var online := ""
 ## Joining to watch rather than to play, GAME.md 10.3: no kart, and a seat at nobody's expense.
@@ -105,6 +107,7 @@ func rules(base: MatchRules) -> MatchRules:
 	copy.target_score = target_score if target_score > 0 else 1 << 30
 	copy.own_bullets_hurt = own_bullets_hurt
 	copy.overtime = overtime
+	copy.joker_slots = joker_slots
 	copy.map = map
 	return copy
 
@@ -144,6 +147,7 @@ static func from_settings(settings: Settings) -> MatchConfig:
 	config.target_score = settings.target_score
 	config.item_set = settings.item_set
 	config.own_bullets_hurt = settings.own_bullets_hurt
+	config.joker_slots = settings.joker_slots
 	config.overtime = settings.overtime
 	config.human_names = settings.player_names.duplicate()
 	config.human_styles = settings.kart_styles.duplicate()

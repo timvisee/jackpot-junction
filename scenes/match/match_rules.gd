@@ -23,6 +23,7 @@ const WIRE_FIELDS: Array[StringName] = [
 	&"round",
 	&"rounds",
 	&"keep_jokers",
+	&"joker_slots",
 ]
 
 @export_group("Coins")
@@ -126,6 +127,10 @@ const WIRE_FIELDS: Array[StringName] = [
 ## where there is no run to build and a hand of cards over the screen is a player who cannot see
 ## the pad they are meant to be driving onto.
 @export var offer_jokers := true
+## How many jokers a hand holds before one has to go, GAME.md 3.7, before anything in it says
+## otherwise: Deep Pockets adds its two to this. The lobby's to choose, and on the wire, so a
+## client's hand shows as many slots as the host's does.
+@export var joker_slots := 5
 @export var death_bank_fraction := 0.5
 ## What a ram that does not kill knocks out of the victim's pot, and the most it can ever be,
 ## GAME.md 4.1. Driving nitro into somebody carrying a fortune should cost them something even
