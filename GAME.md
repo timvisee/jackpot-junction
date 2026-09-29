@@ -2868,7 +2868,16 @@ meant to overcome. A pot of 500 is worth a full point of pull and 1500 is worth
 the cap of three, which is enough to take a bot off almost any errand. Below
 hard nobody reads the board, and that is most of the difference between an
 opponent and a threat: an easy bot fights whoever is nearest, a hard one comes
-for the player who is one cash-out from winning.
+for whoever is carrying the most.
+
+Somebody one cash-out from winning, 3.4, is another matter, and every bot of every
+level goes after them: from anywhere on the table, seen or not, at eight times its
+usual urge to fight and never less than a hunter's, ahead of pickups and items. It
+lights nitro to ram them from 14 m rather than 9 and on a smaller tank, and a bot
+holding its fire this life shoots at them all the same. A ram or a hit knocks coins
+out of the pot that would have won it, and for a bot behind on the board that may
+be its last chance of winning. The other way round, a bot whose own cash-out would
+win goes straight to the Junction, whatever else it was doing.
 
 **Sticking to it**: a goal is picked ten times a second, and two errands a bot is
 equally near will otherwise swap places under it every tick and leave it driving

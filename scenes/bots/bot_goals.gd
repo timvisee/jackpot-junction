@@ -17,6 +17,9 @@ const WOUNDED_DANGER := 10.0
 static func choose(context: Dictionary, personality: BotTrait) -> StringName:
 	if float(context.get("boost_enemy_distance", INF)) <= personality.flee_distance:
 		return &"flee"
+	# Its own cash-out would take the match: straight to the Junction, before anybody can stop it.
+	if bool(context.get("self_winning", false)):
+		return &"bank"
 	# Collecting the Jackpot, a bot stays until the pile is gone, GAME.md 9.1, whatever its pot has
 	# grown to on the way: leaving half a pile is leaving it to whoever drives on next. What moves
 	# it is danger -- a kart about to ram it, above, or one of those in [method in_danger].
@@ -46,7 +49,11 @@ static func choose(context: Dictionary, personality: BotTrait) -> StringName:
 	var reach := (
 		BotBrain.POT_HUNT_RANGE if purse >= BotBrain.POT_WORTH_CHASING else BotBrain.HUNT_RANGE
 	)
-	if enemy_distance <= reach and bool(context.get("enemy_visible", false)):
+	if bool(context.get("enemy_winning", false)):
+		# A rival about to win is gone after from anywhere on the table, seen or not, and by the
+		# most cautious of bots: stopping them may be its last chance of winning itself.
+		hunt = maxf(personality.hunt_weight, 1.0) * BotBrain.WINNER_PULL
+	elif enemy_distance <= reach and bool(context.get("enemy_visible", false)):
 		# A bot that is behind goes looking for a fight; one that is ahead can sit on its lead.
 		hunt = (
 			personality.hunt_weight

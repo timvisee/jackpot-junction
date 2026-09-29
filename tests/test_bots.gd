@@ -706,3 +706,51 @@ func _fires_at(brain: BotBrain, enemy: Kart, at: Vector3) -> bool:
 	for i: int in 30:
 		brain._shoot(1.0 / 60.0)
 	return brain.input.fire
+
+
+## GAME.md 9.1: a rival whose cash-out would win the match is gone after by every bot, the most
+## cautious included, seen or not and from across the table, ahead of pickups; and a bot whose
+## own cash-out would win goes to bank it.
+func test_a_rival_about_to_win_is_gone_after_and_a_winning_pot_is_banked() -> void:
+	var far := {
+		"enemy_distance": 60.0,
+		"enemy_visible": false,
+		"enemy_winning": true,
+		"pickup_distance": 2.0,
+		"pickup_value": 3.0,
+	}
+	for id: String in ["cautious", "greedy", "balanced", "hunter"]:
+		assert_str(BotGoals.choose(far, _trait(id))).override_failure_message(id).is_equal("hunt")
+	far["enemy_winning"] = false
+	assert_str(BotGoals.choose(far, _trait("cautious"))).is_equal("collect")
+	assert_str(BotGoals.choose({"pot_value": 20, "self_winning": true}, _trait("hunter"))).is_equal(
+		"bank"
+	)
+
+
+## And the brain picks that rival out over a nearer kart that would not win.
+func test_a_bot_hunts_the_rival_about_to_win_over_the_nearest() -> void:
+	var rules: MatchRules = DEFAULT_RULES.duplicate()
+	rules.countdown = 0.1
+	rules.duration = 60.0
+	rules.target_score = 1000
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	var inputs: Array[KartInput] = [BotInput.new(), KartInput.new(), KartInput.new()]
+	match_node.start(inputs, 9)
+	await _runner.simulate_frames(30, 17)
+	var bot := match_node.kart_of(0)
+	var brain: BotBrain = bot.get_node("Brain")
+	var near := match_node.kart_of(1)
+	var winner := match_node.kart_of(2)
+	near.global_position = bot.global_position + Vector3(3.0, 0.0, 0.0)
+	winner.global_position = bot.global_position + Vector3(-20.0, 0.0, 0.0)
+	await _runner.simulate_frames(2, 17)
+	assert_object(brain._hunt_target()).is_same(near)
+	match_node.slots[2].banked = 900
+	winner.pot.add_coins(150)
+	assert_object(brain._hunt_target()).is_same(winner)
+	assert_bool(brain._context()["enemy_winning"]).is_true()

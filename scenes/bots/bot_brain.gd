@@ -50,6 +50,10 @@ const POT_MAX_PULL := 3.0
 ## one is worth a detour across the arena.
 const PAD_VALUE := 4.0
 const PAD_FLUSH_VALUE := 24.0
+## A rival one cash-out from winning, GAME.md 9.1: how strongly a bot is pulled to go after them,
+## ahead of almost anything else, and how far off it lights nitro to ram them.
+const WINNER_PULL := 8.0
+const WINNER_RAM_REACH := 14.0
 ## A pad of the bot's own with less than this left on the clock is worth going back for.
 const PAD_RENEW_LEFT := 10.0
 const PAD_RENEW_VALUE := 2.5
@@ -318,6 +322,13 @@ func _context() -> Dictionary:
 		context["enemy_visible"] = _has_line_of_sight(enemy.global_position)
 		context["enemy_pot"] = enemy.pot.value()
 		context["pot_greed"] = difficulty.pot_hunting if difficulty != null else 0.0
+		context["enemy_winning"] = enemy == _winning_rival()
+	# Its own cash-out would take the match: nothing else is worth the time.
+	context["self_winning"] = (
+		not kart.is_decoy()
+		and kart.slot < match_node.slots.size()
+		and match_node.would_win(match_node.slots[kart.slot])
+	)
 	var threat := _nearest_boosting_enemy()
 	if threat != null:
 		context["boost_enemy"] = threat
@@ -420,10 +431,13 @@ func _span() -> float:
 	return maxf(1.0, match_node.arena.world_size().x / 40.0)
 
 
-## Who to go after: whoever is carrying a bounty, when they are close enough to be worth the
-## detour, then whoever is carrying a pot worth taking off them, and otherwise simply the
-## nearest enemy.
+## Who to go after: a rival whose cash-out would win the match, wherever they are, then whoever
+## is carrying a bounty, when they are close enough to be worth the detour, then whoever is
+## carrying a pot worth taking off them, and otherwise simply the nearest enemy.
 func _hunt_target() -> Kart:
+	var winner := _winning_rival()
+	if winner != null:
+		return winner
 	var bounty := match_node.bounty_kart()
 	if bounty != null and bounty.slot != kart.slot and bounty.is_targetable():
 		if kart.global_position.distance_to(bounty.global_position) <= HUNT_RANGE * _span():
@@ -450,6 +464,21 @@ func _richest_enemy() -> Kart:
 			best_pot = float(other.pot.value())
 			best = other
 	return best
+
+
+## The nearest rival one cash-out from winning the match, GAME.md 9.1, or null. Every bot goes
+## after one, whatever its level and however far: knocking the coins out of that pot may be its
+## last chance of winning itself.
+func _winning_rival() -> Kart:
+	return _nearest_other(
+		func(other: Kart) -> bool:
+			return (
+				other.is_targetable()
+				and not other.is_decoy()
+				and other.slot < match_node.slots.size()
+				and match_node.would_win(match_node.slots[other.slot])
+			)
+	)
 
 
 func _nearest_enemy() -> Kart:
@@ -805,10 +834,12 @@ func _shoot(delta: float) -> void:
 		var spread := deg_to_rad(difficulty.aim_error_deg / _mirror().effort)
 		_aim_error = rng.randf_range(-spread, spread)
 	input.fire = false
-	if not _willing_to_fire or bot_trait.rams:
+	var mark: Node3D = _hunt_target()
+	# A bot that holds its fire this life still shoots at a rival about to win.
+	var willing := _willing_to_fire or (mark != null and mark == _winning_rival())
+	if not willing or bot_trait.rams:
 		_aim_timer = 0.0
 		return
-	var mark: Node3D = _hunt_target()
 	if mark == null or not _in_reach(mark.global_position, HUNT_RANGE):
 		# Nobody worth shooting: break something open instead.
 		mark = _scenery_mark()
@@ -918,10 +949,13 @@ func _burn_nitro() -> void:
 	var to_enemy := target_node.global_position - kart.global_position
 	to_enemy.y = 0.0
 	var ahead := absf(kart.motor.forward_vector().signed_angle_to(to_enemy, Vector3.UP)) < 0.4
+	# A rival about to win is rammed from further off and on less of a tank: a ram that lands
+	# knocks coins out of the pot that would have won it, GAME.md 4.1.
+	var winning := target_node == _winning_rival()
+	var reach := WINNER_RAM_REACH if winning else 9.0
+	var spare := need if winning else minf(need + 0.2, 1.05)
 	input.nitro = (
-		ahead
-		and to_enemy.length() < 9.0
-		and (kart.nitro_active or kart.nitro_charge > minf(need + 0.2, 1.05))
+		ahead and to_enemy.length() < reach and (kart.nitro_active or kart.nitro_charge > spare)
 	)
 
 
