@@ -36,6 +36,9 @@ static func add_to(hud: MatchHud) -> ItemTag:
 	tag.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	# Under the corners and the standings, like everything else hung on a kart.
 	tag.z_index = -1
+	# After the camera has moved for the frame, so the tag is put where the kart is drawn now
+	# rather than where the camera saw it a frame ago.
+	tag.process_priority = 100
 	hud.add_child(tag)
 	return tag
 
@@ -118,7 +121,9 @@ func _place_button(slot: int, kart: Kart) -> void:
 ## is out of sight.
 func _box(kart: Kart) -> Rect2:
 	var camera := get_viewport().get_camera_3d()
-	var above := kart.global_position + Vector3(0.0, 0.6, 0.0)
+	# Where the kart is drawn, between physics ticks, rather than where the last tick left it:
+	# followed tick by tick, the tag stepped along beside a kart that glides.
+	var above := kart.get_global_transform_interpolated().origin + Vector3(0.0, 0.6, 0.0)
 	if camera == null or camera.is_position_behind(above):
 		return Rect2()
 	var at := camera.unproject_position(above) + OFFSET
