@@ -319,6 +319,9 @@ func test_the_maker_of_a_game_chooses_it_in_the_waiting_room() -> void:
 	Game.pending_config.port = port
 	Game.pending_config.human_names = ["Maker"] as Array[String]
 	Game.pending_config.server = "127.0.0.1:7940"
+	# Who may come in, as the maker left it last time.
+	Game.settings.lobby_players = 3
+	Game.settings.lobby_watchers = false
 	var room: Node3D = auto_free(WAITING_SCENE.instantiate())
 	var runner := scene_runner(room)
 	var up := func() -> bool: return room.host_settings != null and room.host_settings.is_open()
@@ -329,6 +332,14 @@ func test_the_maker_of_a_game_chooses_it_in_the_waiting_room() -> void:
 	assert_bool(up.call()).override_failure_message("the match settings never came up").is_true()
 	var pane: HostSettings = room.host_settings
 	assert_bool(pane.on_lobby()).is_true()
+	var door := func() -> bool:
+		return _host.door.max_players == 3 and not _host.door.watchers_allowed
+	var kept := await _wait_until(door, 4000)
+	(
+		assert_bool(kept)
+		. override_failure_message("the maker's lobby settings never reached the door")
+		. is_true()
+	)
 	# Anybody in the game can say where it is found.
 	var hint: Label = room.ready_room._online_hint
 	assert_str(hint.text).is_equal("Friends find this game in Play Online, at 127.0.0.1:7940")

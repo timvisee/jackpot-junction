@@ -82,9 +82,9 @@ func _ready() -> void:
 	# Even with nobody here to open it: it is what stops the room once everybody asks.
 	var menu := PauseMenu.add_to(self, session)
 	menu.names_and_colors = true
+	_menu = menu
 	# Whoever decides where the room goes chooses the match in here, GAME.md 9.6: the host online,
 	# and on one machine the machine itself.
-	_menu = menu
 	if config.online != "join":
 		_offer_the_settings(menu)
 	elif session != null:
@@ -345,7 +345,12 @@ func _take_the_say(arriving: bool) -> void:
 		host_settings.closed.connect(_chosen)
 		_menu.add_entry("Match settings", choose)
 	if config.creating:
+		# Who may come in starts where its maker last left it, as a host's door does, GAME.md 9.6.
 		config.creating = false
+		session.door.max_players = Game.settings.lobby_players
+		session.door.watchers_allowed = Game.settings.lobby_watchers
+		session.door.watchers_need_password = not Game.settings.lobby_watch_free
+		session.host_controls.door_changed()
 		choose(true)
 	elif arriving:
 		choose()
