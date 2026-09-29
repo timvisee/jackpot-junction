@@ -4431,6 +4431,15 @@ with the numbers that put them there.
   `Type.ink` compare first, the three font variations are made once, and a
   setter that redraws returns if it was told what it already had. Script time in
   a frame went from 1.0 ms to 0.35 ms, under the profiler.
+- **A thing drawn many times is one mesh, built once.** A chip was eight
+  `MeshInstance3D`s -- the disc, the face, six notches -- each with a material of
+  its own, so a floor of a dozen chips was a hundred draw calls and a death that
+  dropped ten built eighty meshes and eighty materials in a frame. `Bake.tinted`
+  merges the pieces once with their colors on the vertices, and every chip of a
+  kind draws that one mesh in one shared material; `Bake.joined` does the same
+  for pieces that share a material, an item box's straps and its five brands.
+  The visible pass went from 381 draw calls to 271, the shadow pass from 238 to
+  147, and the distinct materials in a frame from 234 to 146.
 
 ## 11. Roadmap
 

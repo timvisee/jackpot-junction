@@ -134,10 +134,13 @@ func test_a_box_wears_what_it_holds() -> void:
 		var render: SubViewport = visual.get_node("Drawn")
 		var badge: ItemBox.Badge = render.get_child(0)
 		assert_object(badge.item).is_same(box.fixed_item)
+		# Five faces, one mesh, GAME.md 10.7.
 		var brands := visual.find_children("Brand*", "MeshInstance3D", false, false)
-		assert_int(brands.size()).is_equal(5)
+		assert_int(brands.size()).is_equal(1)
 		var ink: StandardMaterial3D = (brands[0] as MeshInstance3D).material_override
 		assert_object(ink.albedo_texture).is_same(render.get_texture())
+		var faces: Array = (brands[0] as MeshInstance3D).mesh.surface_get_arrays(0)
+		assert_int((faces[Mesh.ARRAY_VERTEX] as PackedVector3Array).size()).is_equal(20)
 	await _runner.simulate_frames(4, 17)
 	var visual := dropped._visual
 	dropped.collect(kart)

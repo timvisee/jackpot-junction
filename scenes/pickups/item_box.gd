@@ -41,13 +41,17 @@ func _build_visual(parent: Node3D) -> void:
 	parent.add_child(cube)
 	var dark := StandardMaterial3D.new()
 	dark.albedo_color = Color(0.1, 0.1, 0.12)
+	# The two straps round it are one mesh, GAME.md 10.7: they wear one material and never part.
+	var bands := MeshInstance3D.new()
+	bands.name = "Bands"
+	var pieces: Array[Array] = []
 	for axis: int in 2:
-		var band := MeshInstance3D.new()
 		var band_mesh := BoxMesh.new()
 		band_mesh.size = Vector3(0.8, 0.16, 0.8) if axis == 0 else Vector3(0.16, 0.8, 0.8)
-		band.mesh = band_mesh
-		band.material_override = dark
-		parent.add_child(band)
+		pieces.append([band_mesh, Transform3D.IDENTITY])
+	bands.mesh = Bake.joined(pieces)
+	bands.material_override = dark
+	parent.add_child(bands)
 	_brand(parent)
 	var beam := MeshInstance3D.new()
 	var beam_mesh := CylinderMesh.new()
@@ -68,23 +72,31 @@ func _build_visual(parent: Node3D) -> void:
 
 
 ## What the box holds, branded on its top and four sides: a dropped box's item, pictured, or a
-## question mark on a box from a pad, since what comes out of that is anybody's guess.
+## question mark on a box from a pad, since what comes out of that is anybody's guess. The five
+## faces are one mesh, GAME.md 10.7: one picture, one material, one thing to draw.
 func _brand(parent: Node3D) -> void:
 	var badge := Badge.new()
 	badge.item = fixed_item
 	var ink := DrawnTexture.decal(DrawnTexture.of(parent, badge, Vector2i.ONE * BRAND_PIXELS))
 	# Over the beam of light rising out of the box, which would tint the top one its own color.
 	ink.render_priority = 1
+	var quad := QuadMesh.new()
+	quad.size = Vector2.ONE * BRAND_SIZE
+	var faces: Array[Array] = []
 	for side: int in 5:
-		var brand := DrawnTexture.face(Vector2.ONE * BRAND_SIZE, ink)
-		brand.name = "Brand%d" % side
+		var turned := Basis()
 		if side < 4:
-			brand.rotation.y = side * PI * 0.5
+			turned = Basis(Vector3.UP, side * PI * 0.5)
 		else:
 			# And on top, the face the camera sees the most of.
-			brand.rotation.x = -PI * 0.5
-		brand.position = brand.basis.z * BRAND_OUT
-		parent.add_child(brand)
+			turned = Basis(Vector3.RIGHT, -PI * 0.5)
+		faces.append([quad, Transform3D(turned, turned.z * BRAND_OUT)])
+	var brands := MeshInstance3D.new()
+	brands.name = "Brands"
+	brands.mesh = Bake.joined(faces)
+	brands.material_override = ink
+	brands.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(brands)
 
 
 ## Spins and bobs like every pickup, and pulses its glow and size on top.

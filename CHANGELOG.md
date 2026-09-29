@@ -21,6 +21,8 @@ below, and hands the notes to the release workflow.
   pads, rims, plates and clock segments set into the felt no longer cast shadows nobody saw.
 - **A lighter HUD.** The scoreboard, the corner blocks, the hearts and the clock write their
   type and colors only when something changed, where they were restyling every row every frame.
+- **Chips and item boxes draw as one thing.** A chip was eight meshes with eight materials of
+  its own; every chip of a kind now shares one, and a box's straps and brands are one mesh each.
 
 ## [0.10.0] - 2026-09-29
 

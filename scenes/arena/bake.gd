@@ -52,6 +52,51 @@ static func merge(root: Node3D) -> int:
 	return made
 
 
+## One mesh out of [param pieces] that all wear one material: each piece a [Mesh] and the
+## [Transform3D] it sits at. For a thing built out of a few primitives that is drawn many times
+## over, a chip or a box, where [method merge] is for a room built once: the pieces are merged
+## as the thing is designed, and every copy of it draws the one mesh.
+static func joined(pieces: Array[Array]) -> ArrayMesh:
+	var tool := SurfaceTool.new()
+	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for piece: Array in pieces:
+		tool.append_from(piece[0] as Mesh, 0, piece[1] as Transform3D)
+	return tool.commit()
+
+
+## One mesh out of [param pieces] in several colors, each piece a [Mesh], the [Transform3D] it
+## sits at and the [Color] it is: the color goes on the vertices, so a material that takes its
+## albedo from them draws the lot in one go, GAME.md 10.7. The colors are given as they are
+## written, in sRGB, and stored linear, the way a material's own albedo is.
+static func tinted(pieces: Array[Array]) -> ArrayMesh:
+	var vertices := PackedVector3Array()
+	var normals := PackedVector3Array()
+	var colors := PackedColorArray()
+	var indices := PackedInt32Array()
+	for piece: Array in pieces:
+		var arrays: Array = (piece[0] as Mesh).surface_get_arrays(0)
+		var at: Transform3D = piece[1]
+		var color := (piece[2] as Color).srgb_to_linear()
+		var base := vertices.size()
+		var points: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+		var facing: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+		for i: int in points.size():
+			vertices.append(at * points[i])
+			normals.append(at.basis * facing[i])
+			colors.append(color)
+		for index: int in arrays[Mesh.ARRAY_INDEX] as PackedInt32Array:
+			indices.append(base + index)
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_COLOR] = colors
+	arrays[Mesh.ARRAY_INDEX] = indices
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
+
+
 ## Walks [param node] and its children, adding every mesh it finds to the group its material and
 ## its shadow setting put it in.
 static func _gather(
