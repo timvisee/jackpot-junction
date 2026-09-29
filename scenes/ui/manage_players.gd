@@ -12,12 +12,14 @@ signal closed
 
 const NAME_WIDTH := 320.0
 const KICK_SIZE := Vector2(120.0, 44.0)
+const HAND_SIZE := Vector2(170.0, 44.0)
 const TAG_INK := Color(0.66, 0.66, 0.72)
 
 var session: NetSession
 
 var _rows: VBoxContainer
 var _back: Button
+var _note: Label
 ## Who the rows were drawn for, so they are only made again when somebody comes or goes.
 var _drawn := ""
 
@@ -28,10 +30,8 @@ func _ready() -> void:
 	column.add_theme_constant_override("separation", 16)
 	add_child(column)
 	column.add_child(MenuTheme.title("Players", Type.TITLE))
-	var note := MenuTheme.subtitle(
-		"Somebody kicked goes back to the title, and can join again.", Type.LABEL
-	)
-	column.add_child(note)
+	_note = MenuTheme.subtitle("", Type.LABEL)
+	column.add_child(_note)
 	_rows = VBoxContainer.new()
 	_rows.add_theme_constant_override("separation", 10)
 	column.add_child(_rows)
@@ -43,6 +43,12 @@ func _ready() -> void:
 ## Up, drawn afresh, with the cursor on the first Kick, or on Back with nobody to kick.
 func open() -> void:
 	visible = true
+	_note.text = "Somebody kicked goes back to the title, and can join again."
+	if _handing():
+		_note.text = (
+			"Somebody kicked goes back to the server's games, and can join again."
+			+ " Make host hands them the host's say."
+		)
 	_drawn = ""
 	_redraw()
 	var first := _rows.find_children("*", "Button", true, false)
@@ -55,7 +61,7 @@ func _process(_delta: float) -> void:
 
 
 func _redraw() -> void:
-	var guests := session.guests() if session != null else []
+	var guests := session.host_controls.guests() if session != null else []
 	var mine := _mine()
 	var drawn := str(mine) + str(guests)
 	if drawn == _drawn:
@@ -102,17 +108,38 @@ func _row(guest: Dictionary) -> HBoxContainer:
 	tag.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	Type.text(tag, Type.LABEL, TAG_INK)
 	row.add_child(tag)
+	# Where the buttons would be on a row without them, so every row is the same height and the
+	# buttons line up.
 	if guest.get("me", false):
 		tag.text = "Me"
-		# Where the button would be, so every row is the same height and the names line up.
-		var room := Control.new()
-		room.custom_minimum_size = KICK_SIZE
-		row.add_child(room)
+		if _handing():
+			row.add_child(_room_for(HAND_SIZE))
+		row.add_child(_room_for(KICK_SIZE))
 		return row
-	var kick := MenuTheme.button("Kick", Type.BODY)
-	kick.custom_minimum_size = KICK_SIZE
 	var peer: int = guest["peer"]
 	var seat: int = guest.get("seat", -1)
-	kick.pressed.connect(func() -> void: session.kick(peer, seat))
+	# Somebody else playing can be handed the say at a dedicated server, GAME.md 9.3a. A LAN game's
+	# host is the machine it runs on, and has nobody to hand it to.
+	if _handing() and guest.has("color"):
+		var hand := MenuTheme.button("Make host", Type.BODY)
+		hand.custom_minimum_size = HAND_SIZE
+		hand.pressed.connect(func() -> void: session.host_controls.make_host(peer))
+		row.add_child(hand)
+	elif _handing():
+		row.add_child(_room_for(HAND_SIZE))
+	var kick := MenuTheme.button("Kick", Type.BODY)
+	kick.custom_minimum_size = KICK_SIZE
+	kick.pressed.connect(func() -> void: session.host_controls.kick(peer, seat))
 	row.add_child(kick)
 	return row
+
+
+static func _room_for(button: Vector2) -> Control:
+	var room := Control.new()
+	room.custom_minimum_size = button
+	return room
+
+
+## Whether the say here is a client's at a dedicated server, which it can hand to somebody else.
+func _handing() -> bool:
+	return session != null and not session.is_host and session.host_controls.mine()

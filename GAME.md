@@ -471,10 +471,10 @@ else's results screen, see 10.3.
   control hints with it. There is nothing left in that room to answer, and a card
   pick left open under the notice would be asking for a choice about a match that
   is not there any more.
-- The title screen offers Play, Play LAN, the Garage, Settings and Quit. Play
-  goes straight into the lobby, the waiting room of 9.6, the way hosting a LAN
-  game does, with the match settings up over it, whose first question is whether
-  it is a Grand Prix of several maps or a quick match on one, see 9.7; anybody
+- The title screen offers Play, Play LAN, Play Online, the Garage, Settings and
+  Quit. Play goes straight into the lobby, the waiting room of 9.6, the way hosting
+  a LAN game does, with the match settings up over it, whose first question is
+  whether it is a Grand Prix of several maps or a quick match on one, see 9.7; anybody
   else at the machine joins in there. There is no screen of rules of its own
   before it. There is no tutorial. At
   the start of a match the drive and fire controls are shown next to each
@@ -837,10 +837,10 @@ end of a client's controls; a client from before it sends the wheel alone, which
 push. Which way a player drives is kept per local seat, and a seat nobody has asked drives the
 advanced way.
 
-The first way into driving from the title, whether Play, Play LAN or the Garage, asks first how
-to drive: a big button each for simple and advanced, with its picture, its name and what it is in
-a line, over a word that the settings can change it later. The cursor starts on simple and stays
-on the two. The answer is every seat's that has not given one of its own, and is saved at once.
+The first way into driving from the title, whether Play, Play LAN, Play Online or the Garage,
+asks first how to drive: a big button each for simple and advanced, with its picture, its name
+and what it is in a line, over a word that the settings can change it later. The cursor starts on
+simple and stays on the two. The answer is every seat's that has not given one of its own, and is saved at once.
 Back puts the question away unanswered and leaves the title as it was, and it is asked again
 until it has been answered. Help me choose, beside the Driving row of the settings, asks it again,
 for the first player alone and without the word about the settings, the cursor starting on what
@@ -3160,6 +3160,100 @@ While a machine is in an online room an unfocused window stops waiting for the
 desktop and runs free at 60 frames a second instead, and is given back whatever
 it had the moment it comes back.
 
+### 9.3a A dedicated server
+
+Play LAN has one of the players host: their machine runs the match and everybody else connects
+to it. That is the right thing on a LAN and a poor one over the internet, where the host's router
+has to be told to let everybody in and the whole game goes when the host does. So a game can also
+be hosted on a dedicated server: the game run headless on a machine of its own, with nobody
+playing at it, holding as many games at once as it is set up for. Players connect to the server,
+and each makes a game there or joins one somebody else made. Play LAN stays as it is, for a game
+hosted at one of the players' own machines.
+
+**A game with nobody at the host.** A game of the server is hosted the way a player's machine
+hosts one, the waiting room of 9.6 and the arena after it, with nobody at it: no seat, no HUD, no
+camera anybody looks at, and nobody finding it on the network by asking, since the server lists
+it. Every seat is for somebody at another machine, so it seats four clients where a host with a
+player of its own seats three, and watchers on top of them as before. It has no pause menu to ask
+with, so the room stops once every player in it asks, see 3.8, and nobody waits on the host.
+
+**The host's say.** Nobody at the server can choose a match, answer the door or show anybody
+out, so a player at another machine has the host's say instead: whoever made the game, since
+they are the first to sit down in it, and when they leave, whoever has been in it the longest
+since, who is told they are the host now. Somebody watching never has it. It is the whole of what
+a host decides, from the same menus: Lobby settings and then the match settings as the room
+opens, the match settings again back from a match and from the pause menu, Manage players, Pause
+game and Back to lobby there, and Next map, Rematch and Back to lobby on the podium. None of it is
+done at their machine. It is asked of the server, which does it for everybody, the one who asked
+among them, and which takes it only from the player with the say and only as far as those menus
+could have said it: a map that is not one, a number of bots no row offers or a kick of their own
+seat is not heard. While they choose the match their karts wait where they are, sent nothing to
+drive on, and the room does not go. Their Manage players lists everybody else, with their own
+players as Me; the players at one client share its say. It can be handed on, too: beside Kick on
+the row of everybody else who plays is Make host, which gives that player the say at once and
+takes it from whoever pressed it, whose host's panes close. They are told who made them the host.
+Somebody watching has none, having no say to be given, and nor does a LAN game's Manage players,
+whose host is the machine the game runs on.
+
+**Play Online.** The title's way to a dedicated server, beside Play LAN, in two screens. The first
+connects: the player's name, the server's address and port, 7777 to start with, and Connect,
+which says it is connecting and goes on to the second once the server has let this machine in, or
+says why not: nobody answered, the server is on a version this one cannot play, or it is a LAN
+game. The second, Games, lists the server's games the way Play LAN lists the games on the network,
+a row each saying whose it is, whether it is still in the lobby, how many play in it of how many
+may and whether it wants a password, which joins it, with Watch beside it, and Make a game under
+them. Make a game asks the server for one, says it is making it, and once it is up goes into its
+lobby, where the maker has the host's say and sets it up the way a host does, see 9.6: Lobby
+settings first, then the match. Join and Watch go into a game's lobby the way joining a LAN game
+does, the password asked for there if it has one. Back hangs up and goes back to the first
+screen, and so does the server going away, saying so. The server and its port are kept for next
+time. Back from one of its games, over, shown out of it, or with a wrong password or none, the
+first screen connects to the server again by itself and goes straight on to its games, which say
+why. Anybody in the game's lobby is told where friends find it, in Play Online at the server's
+address, in place of the line saying which port to join a LAN host on.
+A server and a LAN game are both found on 7777, so each says which it is at the door: Play LAN
+knocking at a server is told it is a dedicated server whose games are in Play Online, and Play
+Online knocking at a LAN game, or at one of a server's games by its own port, that it is a game to
+join from Play LAN. Neither is let in to wait for something that never comes.
+
+**The server.** It is the game itself, exported for Linux as a server build of its own,
+`jackpot-junction-server`, in every release, see 10.5: started with no arguments at all, it is
+headless and a server, and it carries no sound and only the sizes of its pictures and models,
+about 75 MB against the game's 95. The game proper is a server too, started headless with
+`--server` after `--`: `./jackpot-junction.x86_64 --headless -- --server`, or `make server` from a
+checkout. Linux is what it is made for and tried on. It listens on port 7777, the port a LAN
+game is hosted on, unless given `--port`, so a LAN game on the same machine takes another one, and
+holds up to 8 games at once unless given `--games`, on the ports after its own: 7778 to 7785 to
+start with, so a server behind a router has 7777 to 7785 let through for UDP. Each game is a process
+of its own, the game started again headless as a host with nobody at it, from the waiting room on: a
+game is the whole game, its event bus and everything else it keeps among it, and two in one process
+would hear each other's every kill. That costs about a quarter of a gigabyte and a small part of a
+core a game. The server starts a game when somebody asks for one and tells them its port once it is
+up, lists it while anybody plays in it, and forgets it once its process has ended. A game ends
+itself once everybody who was playing in it has left, telling anybody still watching that it is
+over; once nobody has come to it in half a minute; or once it has heard nothing from the server for
+ten seconds, since a server that has gone has taken its list with it. The server stops a game that
+never says it is up, or says nothing for ten seconds.
+
+**Idle.** A server nobody plays on is little more than the engine: about 90 MB and next to no
+processor, and no game's process runs until somebody makes a game. The game's own autoloads, its
+settings, sound, events and connection, bring nearly all of the game in with them, over a hundred
+megabytes of it, so the hall is started without them: the game's main loop is a scene tree of its
+own, `GameTree`, which drops them before they load when the game is started with `--server` and no
+game to run, and the first scene is a boot scene, which goes on to the title, the hall or a game,
+rather than the title, which would bring the game in by itself. The hall names nothing of the game,
+since whatever it names it loads, and it runs ten frames a second with its physics off.
+
+**The log.** The server writes a line to its output for everything worth knowing, with the date,
+the time and which game it was: the server opening; who comes to look at the games and leaves the
+list; who made which game, on which port; each game up; who came in to play or to watch and from
+where; who was turned away at the door and why; who has the host's say; Lobby settings changed;
+somebody shown out; the next match chosen; each room the game goes into, the lobby or a map; play
+starting, with everybody in it; Last call and Overtime; the results in order with what each player
+banked; and the end of each game and why. A game's own output is kept quiet and its lines come to
+the server to be written with the rest, so there is one log to read; an error a game raises still
+reaches it.
+
 ### 9.4 The Garage
 
 A practice room reached straight from the title screen, before anybody starts a
@@ -3743,10 +3837,10 @@ The cost of a longer life is that nothing is cleaned up by a scene change any mo
 session holds is held until it is closed, so closing is somebody's job rather than something
 that happens by itself. The one thing it lets go of on its own is the match it was playing: the
 moment that match leaves with its room, the session holds nothing until the next room takes it
-over, and ignores whatever arrives in between rather than handing it to a match that is gone. It is also the first half of what a dedicated server would need: such a
-server runs room after room with the same clients connected throughout, which a session owned by
-a scene can never do. The second half -- a match with no local seat, and no HUD or camera for
-nobody to look at -- is separate work and untouched by this.
+over, and ignores whatever arrives in between rather than handing it to a match that is gone. It is also what a dedicated server needs, see 9.3a: such a server runs room
+after room with the same clients connected throughout, which a session owned by a scene can
+never do, and it is a session with nobody at it, no local seat and no HUD or camera for nobody to
+look at.
 
 #### Versions
 
@@ -4219,13 +4313,20 @@ it is done. `tools/changelog` is the only thing that edits either:
 
 A release is therefore: cut it, read it over, commit, then tag `vX.Y.Z` and push
 the tag. The tag starts the release workflow, which exports Linux, Windows and
-macOS builds and the Android APK and publishes them with that version's
-changelog section as the release notes, GitHub's own list of commits appended
-underneath. A tag whose version has no section fails the workflow rather than
-publishing a release with nothing written on it, and so does an APK that is not
-signed with the release key: nothing is published until everything is built.
-The workflow can also be run by hand from the Actions tab, as a dry run: the
-same builds, kept as the run's artifact for a week instead of published.
+macOS builds, the Android APK and the Linux dedicated server build of 9.3a, and
+publishes them with that version's changelog section as the release notes,
+GitHub's own list of commits appended underneath. A tag whose version has no
+section fails the workflow rather than publishing a release with nothing written
+on it, and so does an APK that is not signed with the release key: nothing is
+published until everything is built. The server build is Godot's own dedicated
+server export, preset "Linux Server": every resource stripped of what only
+drawing needs, textures and meshes left as placeholders of the same size, since
+scripts and scenes still name them, and `assets/audio` left out altogether,
+since no sound is loaded but by name when it plays and a server plays none. Its
+`dedicated_server` feature is what makes it a server with no `--server` to give,
+and headless with no `--headless`. The workflow can also be run by hand from the
+Actions tab, as a dry run: the same builds, kept as the run's artifact for a
+week instead of published.
 
 Tagging is a person's decision, not a step in a script: it says a build is worth
 other people's time.

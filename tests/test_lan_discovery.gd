@@ -54,7 +54,7 @@ func test_the_lan_screen_finds_a_hosted_game_and_what_it_is() -> void:
 	assert_bool(game["password"]).is_true()
 	assert_bool(game["lobby"]).is_true()
 	assert_str(game["address"]).is_not_empty()
-	var line := preload("res://scenes/ui/online.gd").describe(game)
+	var line := GameList.describe(game)
 	assert_str(line).is_equal("Ann's game · in the lobby · 1/3 players · password")
 	assert_bool(game["watching"]).is_true()
 	assert_bool(game["watch_password"]).is_true()

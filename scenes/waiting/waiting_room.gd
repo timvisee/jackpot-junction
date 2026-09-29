@@ -46,6 +46,8 @@ var _said_limit := -1
 ## Whether the host came back to this room from a match, on a connection that was already open.
 ## Who may come in was settled when it was opened, so only the match is asked again, GAME.md 9.6.
 var _came_back := false
+## The room's pause menu, for the host's entries on it at a client given the say, GAME.md 9.3a.
+var _menu: PauseMenu
 
 
 func _ready() -> void:
@@ -56,6 +58,8 @@ func _ready() -> void:
 	match_node.rules = RULES
 	match_node.arena_layout = LAYOUT
 	match_node.power_ups = load("res://data/powerups/all.tres")
+	# Nobody looks at a room hosted with nobody at it, GAME.md 9.3a.
+	match_node.with_hud = not config.dedicated
 	add_child(match_node)
 	# Put up behind a loading screen, the way a map is, whoever is hosting.
 	# Called the Lobby on the screen, GAME.md 9.6.
@@ -73,13 +77,18 @@ func _ready() -> void:
 	ready_room.seats = ARENA_RULES.max_players
 	if config.online != "join":
 		ready_room.everybody_ready.connect(_begin, CONNECT_ONE_SHOT)
-	DebugOverlay.add_to(self, match_node, session)
+	if not config.dedicated:
+		DebugOverlay.add_to(self, match_node, session)
+	# Even with nobody here to open it: it is what stops the room once everybody asks.
 	var menu := PauseMenu.add_to(self, session)
 	menu.names_and_colors = true
+	_menu = menu
 	# Whoever decides where the room goes chooses the match in here, GAME.md 9.6: the host online,
 	# and on one machine the machine itself.
 	if config.online != "join":
 		_offer_the_settings(menu)
+	elif session != null:
+		_follow_the_say()
 	loaded.emit()
 
 
@@ -90,7 +99,7 @@ func _take_seats() -> void:
 	var inputs: Array[KartInput] = []
 	for i: int in config.human_devices.size():
 		inputs.append(PlayerInput.new(config.human_devices[i], i))
-	if inputs.is_empty():
+	if inputs.is_empty() and not config.dedicated:
 		inputs.append(PlayerInput.new(DeviceInput.ANY, 0))
 	# Every seat's name and dress rather than only those sitting down now: somebody taking a seat
 	# in here takes theirs with it.
@@ -108,6 +117,7 @@ func _host() -> void:
 		session.re_seat()
 	else:
 		session = Net.open(match_node)
+		session.dedicated = config.dedicated
 		session.door.max_players = Game.settings.lobby_players
 		session.door.watchers_allowed = Game.settings.lobby_watchers
 		session.door.watchers_need_password = not Game.settings.lobby_watch_free
@@ -116,11 +126,15 @@ func _host() -> void:
 		if error != OK:
 			ready_room_hint("Could not host on port %d: %s" % [config.port, error_string(error)])
 			return
-	ready_room_hint("Friends join on port %d at %s" % [config.port, ", ".join(_local_addresses())])
+	if not config.dedicated:
+		ready_room_hint(
+			"Friends join on port %d at %s" % [config.port, ", ".join(_local_addresses())]
+		)
 
 
 func _join() -> void:
 	var back := Net.online()
+	_came_back = back
 	if back:
 		# Followed the host back from a match: the connection is the one already open.
 		session = Net.session
@@ -137,7 +151,9 @@ func _join() -> void:
 	session.seat_refused.connect(_on_seat_refused)
 	# After the signal rather than inside it: going to the title hangs the session up, and a session
 	# cannot be freed while it is in the middle of saying something.
-	session.disconnected.connect(func() -> void: Game.go_to_title.call_deferred())
+	session.disconnected.connect(
+		func() -> void: Game.back_to_the_menu.call_deferred("The connection to the game was lost")
+	)
 	# A host that never answers is said so, rather than left for the player to work out alone in
 	# an empty room, and so is one that answers with a version this game cannot play, GAME.md
 	# 10.3. The reason is up long enough to be read.
@@ -165,6 +181,9 @@ func _join() -> void:
 				if ready_room != null:
 					ready_room.hide_how_to_sit_down()
 		)
+	elif not config.server.is_empty():
+		# Anybody in a game of a dedicated server can tell a friend where it is, GAME.md 9.3a.
+		ready_room_hint("Friends find this game in Play Online, at %s" % config.server)
 	if back:
 		# Asked for rather than waited for: the host seats whoever asks once its room is up, and
 		# this room is now up at this end to hear the answer.
@@ -187,13 +206,15 @@ func _ask_password(wrong: bool) -> void:
 		_connecting = null
 	if match_node.hud != null:
 		match_node.hud.stand_down()
+	# Back to the screen the game was found on: Play LAN, or the games of the server it is on.
+	var found_on := Game.go_to_online if config.server.is_empty() else Game.back_to_the_server
 	if wrong:
 		# After the session has finished saying so: going hangs it up, and a session cannot be
 		# freed in the middle of saying something.
-		Game.go_to_online.call_deferred("Wrong password")
+		found_on.call_deferred("Wrong password")
 		return
 	var pane := PasswordPane.add_to(self)
-	pane.left.connect(func() -> void: Game.go_to_online())
+	pane.left.connect(func() -> void: found_on.call())
 	pane.entered.connect(
 		func(typed: String) -> void:
 			config.password = typed
@@ -245,10 +266,17 @@ func first_map_config() -> MatchConfig:
 ## The host chooses the match in here, GAME.md 9.6: first thing on opening the room, and again
 ## from the pause menu. The room is open the whole time, so friends join while it is chosen.
 func _offer_the_settings(menu: PauseMenu) -> void:
+	Events.player_joined.connect(_on_player_joined)
+	if config.dedicated:
+		# Nobody here chooses: a player at another machine has the say, see 9.3a, and the room
+		# goes to whatever they last said.
+		session.host_controls.planned.connect(_on_planned)
+		session.host_controls.changed_hands.connect(_on_hands_changed)
+		_say_the_plan()
+		return
 	host_settings = HostSettings.add_to(self, config.online == "", session)
 	host_settings.closed.connect(_chosen)
 	menu.add_entry("Match settings", choose)
-	Events.player_joined.connect(_on_player_joined)
 	# Hosting, who may come in first, then what the match is, GAME.md 9.6. Back from a match only
 	# the match: the lobby's are on the pause menu for a host who wants them.
 	choose(not _came_back)
@@ -270,7 +298,7 @@ func _process(_delta: float) -> void:
 		_hold(true)
 	# The host's lobby may be made smaller or bigger while everybody waits in it, GAME.md 9.6, and
 	# everybody in it is told.
-	if host_settings != null and SeatLimit.limit(match_node, session) != _said_limit:
+	if config.online != "join" and SeatLimit.limit(match_node, session) != _said_limit:
 		_say_the_plan()
 
 
@@ -280,7 +308,64 @@ func _chosen() -> void:
 	_say_the_plan()
 
 
+## At a dedicated server, what the player with the say has chosen, or is choosing, GAME.md 9.3a.
+func _on_planned(plan: Dictionary, _still_choosing: bool) -> void:
+	MatchOptions.from_wire(config, plan)
+	_say_the_plan()
+
+
+## At a dedicated server, the say has passed to somebody else, who is not choosing anything yet.
+func _on_hands_changed(_player: int) -> void:
+	_say_the_plan()
+
+
+## At a client of a dedicated server, the host's say may be this machine's, GAME.md 9.3a: it made
+## the game, or has been in it the longest since whoever had the say left. The match settings come
+## with it, and the host's entries on the pause menu.
+func _follow_the_say() -> void:
+	session.host_controls.granted_changed.connect(_on_granted)
+	if session.host_controls.mine():
+		_take_the_say(true)
+
+
+func _on_granted(mine: bool) -> void:
+	if mine:
+		_take_the_say(false)
+	elif host_settings != null and host_settings.is_open():
+		host_settings.close()
+
+
+## The match settings for this machine, as a host has them: up at once for the game's maker, the
+## lobby's own first; again for one [param arriving] back from a match with the say; and for
+## somebody the say has just passed to, a word that it has, see [method HostSettings.tell_new_host],
+## and the pause menu for when they want them.
+func _take_the_say(arriving: bool) -> void:
+	if host_settings == null:
+		host_settings = HostSettings.add_to(self, false, session)
+		host_settings.closed.connect(_chosen)
+		_menu.add_entry("Match settings", choose)
+	if config.creating:
+		# Who may come in starts where its maker last left it, as a host's door does, GAME.md 9.6.
+		config.creating = false
+		session.door.max_players = Game.settings.lobby_players
+		session.door.watchers_allowed = Game.settings.lobby_watchers
+		session.door.watchers_need_password = not Game.settings.lobby_watch_free
+		session.host_controls.door_changed()
+		choose(true)
+	elif arriving:
+		choose()
+	else:
+		HostSettings.tell_new_host(self, session.host_controls.given_by)
+
+
 func _hold(held: bool) -> void:
+	if match_node.puppet:
+		# A client's own karts are driven here ahead of the host, so freezing one here would only be
+		# driven past. They are held by sending the host nothing to drive them on.
+		if session != null:
+			for each: ClientSeat in session.seats:
+				each.held = held
+		return
 	for slot: PlayerSlot in match_node.slots:
 		if slot.is_local_human() and slot.kart != null:
 			slot.kart.frozen = held
@@ -294,9 +379,22 @@ func _on_seat_refused(_seat: int) -> void:
 ## Tells the room what the next match is, or that it is still being chosen. The host's own room
 ## hears it the same way the clients' rooms do.
 func _say_the_plan() -> void:
+	if config.online == "join":
+		# A client with the say tells the server, and the server tells the room, 9.3a.
+		if session != null:
+			session.host_controls.plan(config, _choosing())
+		return
 	_said_limit = SeatLimit.limit(match_node, session)
 	Events.room_planned.emit(config.bot_count, _said_limit)
-	Events.match_planned.emit(MatchOptions.describe(config), host_settings.is_open())
+	Events.match_planned.emit(MatchOptions.describe(config), _choosing())
+
+
+## Whether whoever decides where the room goes is still choosing the match: at this machine, or at
+## a dedicated server, the player at another machine who has the say.
+func _choosing() -> bool:
+	if host_settings != null:
+		return host_settings.is_open()
+	return session != null and session.dedicated and session.host_controls.choosing
 
 
 ## Somebody arrived. They were not here to hear the plan the first time, so it is said again.

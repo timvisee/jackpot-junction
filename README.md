@@ -37,6 +37,9 @@ Three arenas, three rooms to play them in, and an XL version of each with room t
   wall, and name each seat in Settings, Players.
 - **LAN**: Play LAN, host on a port or join a friend's address directly.
   The host runs the match; joining players take over bot karts.
+- **Online**: Play Online, on a dedicated server: make a game there and host it
+  from your own machine, or join one somebody else made. See
+  [Running a server](#running-a-server).
 - **Garage**: a practice room with one of everything in it and two dummy karts to
   shoot at. The first visit goes to a test track that teaches the controls, and
   the two rooms have portals to each other.
@@ -61,6 +64,7 @@ install, or `godot4` on the path. Lint and format use
 
 ```
 make dev        # start the development scene
+make server     # a dedicated server, headless, see Running a server
 make drive      # start the driving room, for handling work
 make jokers     # every joker and power-up icon on one screen, to see them as a set
 make run        # start the game scene
@@ -69,13 +73,14 @@ make run ARGS="--touch=1 --ui-scale=1.5"  # the same at a phone's UI scale, savi
 make check      # import, lint, format check, changelog, unit tests, smoke runs, multiplayer
 make test       # unit tests only (gdUnit4, headless, a suite per process in parallel)
 make multiplayer  # a whole Grand Prix online (two games, up to two clients) and on one screen
-make export     # release builds for Linux, Windows and macOS in build/
+make server-check  # a game on a dedicated server, made, joined and watched by three clients
+make export     # release builds for Linux, Windows and macOS, and the Linux server, in build/
 make android    # a debug build for Android in build/android, see GAME.md 10.5
 make android-install  # that build, installed on the phone adb can see
 make android-release  # the release APK, signed with the release key, see GAME.md 10.5
 ```
 
-`make run`, `make dev` and `make drive` hand `ARGS` to the game, after `--`.
+`make run`, `make dev`, `make drive` and `make server` hand `ARGS` to the game, after `--`.
 
 `.godot` is a build cache, not source: Godot keeps its imported assets and its
 register of every `class_name` there. The game cannot write it -- only an import
@@ -107,6 +112,9 @@ Read on every scene, so they work in any build.
 | `--screenshot=<png>`   | Saves the screen after `--frames` frames and quits; needs a display     | Yes   | Yes     |
 | `--frames=<n>`         | How many frames `--screenshot` waits, 8 unless given                    | Yes   | Yes     |
 | `--bench=<n>`          | Runs n frames, prints the frame rate, draw calls and objects, and quits | Yes   | Yes     |
+| `--server`             | Runs a dedicated server instead of the game, see Running a server       | Yes   | Yes     |
+| `--port=<port>`        | With `--server`: the port players connect to, 7777 unless given         | Yes   | Yes     |
+| `--games=<n>`          | With `--server`: how many games it holds at once, 8 unless given        | Yes   | Yes     |
 
 `--bench` leaves its first 120 frames out of the count, as the warm-up, so shader
 compiles and the arena being built do not count against the frame rate, and it
@@ -155,15 +163,49 @@ From this checkout only. `tools/godot` finds Godot through `$GODOT` first.
 - `tools/multiplayer_driver.gd` is started by `tools/multiplayer_check`, with
   `--role`, `--port`, `--clients`, `--locals`, `--jokers`, `--password`,
   `--wrong-first` and `--nameless`.
+- `tools/server_check` takes none. `SVCHECK_PORT` picks the server's port and
+  `SVCHECK_LOGS=<dir>` keeps every process's whole log there, the server's among
+  them. It starts `tools/server_driver.gd` with `--role` (`maker`, `joiner` or
+  `watcher`) and `--port`.
 
 ### Godot's own
 
-Everything the recipes here use works in a release export too: `--path`,
+Most of what the recipes here use works in a release export too:
 `--resolution <W>x<H>`, `--fullscreen`, `--headless`, `--fixed-fps <fps>`,
-`--max-fps <fps>`, `--disable-vsync`, `--time-scale <scale>`, `--print-fps` and
-`-s <script>`. The debug drawing options, such as `--debug-collisions`,
+`--max-fps <fps>`, `--disable-vsync`, `--time-scale <scale>` and `--print-fps`.
+`--path`, `--main-pack`, `-s <script>` and a scene given on the command line are
+the editor's alone: an export template refuses them, and always starts the
+game's own first scene. The debug drawing options, such as `--debug-collisions`,
 `--debug-paths` and `--debug-navigation`, are for debug builds only. A template's
 `--help` marks each option with R (every build) or D (debug only).
+
+## Running a server
+
+A dedicated server holds games for players over the internet, so nobody's own
+machine has to host, see GAME.md 9.3a. Every release has a Linux server build
+for it, `jackpot-junction-server`: the game exported as a server, headless and
+serving by itself, with its pictures and models stripped to their sizes and no
+sound at all. The game itself serves too, told to:
+
+```
+./jackpot-junction-server.x86_64                                      # the server build
+./jackpot-junction-server.x86_64 -- --port=7777 --games=8
+./jackpot-junction.x86_64 --headless -- --server                      # the game, as a server
+make server ARGS="--games=4"                                          # from this checkout
+```
+
+Players connect with Play Online, to the server's address and port. It
+listens on 7777, as a LAN game does, unless given `--port`, and runs each game
+in a process of its own on the ports after it, up to `--games` of them: 7778 to
+7785 by default, so let UDP 7777 to 7785 through a firewall or router. A LAN
+game on the same machine needs another port. A game is about a quarter of a
+gigabyte of memory, and a server with no game running about 90 MB and next to
+no processor: a game's process is only started when somebody makes a game.
+Whoever makes a game has the host's say over it, passed on to whoever has been
+in it longest when they leave, and a game ends by itself once everybody playing
+has left it. The server logs every player coming and
+going and every game's state to its output, one line each, with the time and
+the game.
 
 ## Releasing
 
@@ -174,8 +216,8 @@ git tag -a v0.2.0 -m "Jackpot Junction 0.2.0" && git push --follow-tags
 ```
 
 The tag starts the release workflow, which exports Linux, Windows and macOS
-builds and publishes them with that version's changelog section as the release
-notes. A tag whose version has no section fails rather than publishing a release
+builds, the Linux server build and the Android APK, and publishes them with that
+version's changelog section as the release notes. A tag whose version has no section fails rather than publishing a release
 with nothing written on it. GAME.md 10.5 has the detail.
 
 ## License

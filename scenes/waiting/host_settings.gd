@@ -105,6 +105,14 @@ func is_open() -> bool:
 	return _panel.visible
 
 
+## Tells a player at a client of a dedicated server, over [param room], that the host's say has
+## just come to them, GAME.md 9.3a: handed over [param by] somebody, or the host having left, and
+## the choosing is theirs now.
+static func tell_new_host(room: Node, by := "") -> void:
+	var how := "%s made you the host." % by if not by.is_empty() else "The host left."
+	NoticePane.tell(room, "You are the host", how + " You choose the match and who may join now.")
+
+
 ## The pane at its own size where the screen has room for it. Where it is too tall the rows scroll
 ## between the title and Done, which stay put; where it is too wide it is shrunk about the middle
 ## of the screen. What is shrunk is the holder that centers it: a container lays its children out
@@ -128,7 +136,7 @@ func _fit() -> void:
 ## is a hosted game for them to be the settings of.
 func open(lobby_first := false) -> void:
 	_panel.visible = true
-	if lobby_first and _session != null and _session.is_host:
+	if lobby_first and _session != null and _session.host_controls.mine():
 		_show_lobby()
 		return
 	_done.grab_focus()

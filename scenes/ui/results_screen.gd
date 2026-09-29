@@ -89,6 +89,9 @@ static func create(parent: Node, for_match: Match) -> ResultsScreen:
 	# A client hears how a Grand Prix stands a moment after it hears the whistle, so a podium
 	# already up is filled in again with the points once they are here.
 	Events.grand_prix_scored.connect(screen._on_grand_prix_scored)
+	# And the host's say can come to a client of a dedicated server while it is up, GAME.md 9.3a.
+	if Net.session != null:
+		Net.session.host_controls.granted_changed.connect(screen._on_say_changed)
 	return screen
 
 
@@ -168,7 +171,7 @@ func _can_press(button: Button) -> bool:
 ## to its podium, and lead back to the lobby. A client decides none of it, and is told who does.
 func _ways_on() -> void:
 	var rules := match_node.rules
-	var decides := not match_node.puppet
+	var decides := not match_node.puppet or _deciding_here()
 	var grand_prix := rules.rounds > 0
 	var more := grand_prix and rules.round < rules.rounds
 	var last := grand_prix and not more
@@ -190,7 +193,7 @@ func _ways_on() -> void:
 	_rematch.visible = decides and not grand_prix
 	_lobby.visible = decides and (run_up or not grand_prix)
 	_quit.visible = not grand_prix or run_up
-	_host_decides.visible = match_node.puppet and Net.online() and (not last or run_up)
+	_host_decides.visible = not decides and Net.online() and (not last or run_up)
 	_host_decides.text = (
 		"The host starts the next map." if more else "The host takes everybody back to the lobby."
 	)
@@ -250,6 +253,16 @@ func _unhandled_input(event: InputEvent) -> void:
 
 static func _watching() -> bool:
 	return Net.online() and Net.session != null and Net.session.watching
+
+
+## Whether the host's say is at this client, as it is at a dedicated server's, GAME.md 9.3a.
+static func _deciding_here() -> bool:
+	return Net.session != null and not Net.session.is_host and Net.session.host_controls.mine()
+
+
+func _on_say_changed(_mine: bool) -> void:
+	if visible:
+		fill_in()
 
 
 ## What happens to everybody's jokers on the way to the next map, said the once under the caption.
@@ -545,7 +558,7 @@ func _buttons() -> HBoxContainer:
 	_continue.visible = false
 	buttons.add_child(_continue)
 	_rematch = MenuTheme.button("Rematch", 26)
-	_rematch.pressed.connect(func() -> void: match_node.rematch())
+	_rematch.pressed.connect(func() -> void: Game.rematch(match_node))
 	_rematch.visible = not match_node.puppet
 	buttons.add_child(_rematch)
 	_lobby = MenuTheme.button("Back to lobby", 26)

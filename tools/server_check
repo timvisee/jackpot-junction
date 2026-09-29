@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+# Plays a game on a dedicated server, GAME.md 9.3a, through the real scenes and says whether it
+# worked: the server itself and three clients of it, each a process of its own on this machine.
+# See tools/server_driver.gd for what each client checks; this checks what the server logged.
+#
+#   maker:   makes a game from Play Online, chooses a Grand Prix of two maps, plays it, goes on
+#            from the first podium and takes everybody back to the lobby from the last, hands the
+#            host's say to the joiner with Make host, has it back once the joiner has gone, and leaves
+#   joiner:  joins it from the list, plays it, is made the host, and leaves
+#   watcher: watches it, and is told the game is over once both players have left
+#
+# Usage: tools/server_check          (about a minute)
+#
+# The server has to be small while it holds no game: started without the game's autoloads, it is
+# the engine and little more, and one that grew past SVCHECK_IDLE_MB (160, for the editor build this
+# runs) has started loading the game again, see scripts/game_tree.gd.
+#
+# SVCHECK_PORT picks the server's port, the one game it plays on the port after it, and
+# SVCHECK_LOGS=<dir> keeps every process's whole log there. The clients take --length=<seconds>
+# for the match, which against a release server, offering nothing as short as the five seconds
+# they choose by default, has to be 60: tools/server_driver.gd.
+set -uo pipefail
+cd "$(dirname "$0")/.."
+port="${SVCHECK_PORT:-7990}"
+idle_mb="${SVCHECK_IDLE_MB:-160}"
+if [[ -n ${SVCHECK_LOGS:-} ]]; then
+	logs=$SVCHECK_LOGS
+	mkdir -p "$logs"
+else
+	logs=$(mktemp -d)
+	trap 'rm -rf "$logs"' EXIT
+fi
+failed=0
+
+timeout 240 tools/godot --headless --path . -- --server --port="$port" --games=1 \
+	>"$logs/server.log" 2>&1 &
+server=$!
+# Up once it says so, or given up on.
+for _ in $(seq 1 100); do
+	grep -q " server on port $port" "$logs/server.log" 2>/dev/null && break
+	sleep 0.2
+done
+# How much the server holds before anybody has asked it for anything.
+hall=$(pgrep -P "$server" | head -1)
+idle_kb=$(awk '/^VmRSS/{print $2}' "/proc/$hall/status" 2>/dev/null)
+if [[ -z $idle_kb ]]; then
+	echo "server check: the server never came up" >&2
+	failed=1
+else
+	echo "server: idle at $((idle_kb / 1024)) MB"
+	if ((idle_kb > idle_mb * 1024)); then
+		echo "server check: the idle server holds $((idle_kb / 1024)) MB, over $idle_mb MB" >&2
+		failed=1
+	fi
+fi
+
+run() {
+	local role=$1
+	timeout 240 tools/godot --headless --path . -s tools/server_check.gd -- --role="$role" \
+		--port="$port" >"$logs/$role.log" 2>&1
+}
+
+run maker &
+maker=$!
+sleep 1
+run joiner &
+joiner=$!
+run watcher &
+watcher=$!
+wait "$maker"
+maker_status=$?
+wait "$joiner"
+joiner_status=$?
+wait "$watcher"
+watcher_status=$?
+
+# The game ends itself once everybody has gone, and the server says so.
+for _ in $(seq 1 50); do
+	grep -q "Game 1 is over" "$logs/server.log" && break
+	sleep 0.2
+done
+kill "$server" 2>/dev/null
+wait "$server" 2>/dev/null
+
+report() {
+	local role=$1 status=$2
+	grep -h '^SVCHECK' "$logs/$role.log" | sed "s/^SVCHECK [a-z]* /$role: /"
+	if grep -hE 'SCRIPT ERROR|USER ERROR' "$logs/$role.log" | sed "s/^/$role: /" >&2; then
+		echo "server check: $role raised script errors" >&2
+		failed=1
+	fi
+	if [[ $status -ne 0 ]]; then
+		echo "server check: $role failed" >&2
+		failed=1
+	fi
+}
+
+report maker "$maker_status"
+report joiner "$joiner_status"
+report watcher "$watcher_status"
+
+# The first line of the server's log after line $2 that has $1 in it, or nothing.
+logged() {
+	grep -nF -- "$1" "$logs/server.log" | cut -d: -f1 | awk -v after="$2" '$1 > after' | head -1
+}
+
+# What the server's log has to say, in this order; a group of lines joined by | in any order
+# among themselves, since the joiner, the watcher and the maker's choice cross on the wire.
+said=(
+	"server: Maker made game 1, on port $((port + 1))"
+	"game 1: Up on port $((port + 1))"
+	"game 1: Maker came in to play"
+	"game 1: Maker has the host's say"
+	"game 1: The host chose the next match: |game 1: Joiner came in to play|game 1: Watcher came in to watch"
+	", map 1 of 2"
+	"game 1: Playing: "
+	"game 1: Results: 1. "
+	", map 2 of 2"
+	"game 1: Results: 1. "
+	"game 1: In the lobby"
+	"game 1: Maker made Joiner the host"
+	"game 1: Joiner has the host's say"
+	"game 1: Joiner left"
+	"game 1: Maker has the host's say"
+	"game 1: Maker left"
+	"game 1: Everybody left, so the game is over"
+	"server: Game 1 is over"
+)
+line=0
+for group in "${said[@]}"; do
+	IFS='|' read -ra wants <<<"$group"
+	last=$line
+	for want in "${wants[@]}"; do
+		found=$(logged "$want" "$line")
+		if [[ -z $found ]]; then
+			echo "server check: the server never logged '$want' after line $line" >&2
+			failed=1
+			break 2
+		fi
+		((found > last)) && last=$found
+	done
+	line=$last
+done
+if grep -hE 'SCRIPT ERROR|USER ERROR' "$logs/server.log" | sed "s/^/server: /" >&2; then
+	echo "server check: the server raised script errors" >&2
+	failed=1
+fi
+if [[ $failed -eq 0 ]]; then
+	echo "server check ok"
+fi
+exit "$failed"

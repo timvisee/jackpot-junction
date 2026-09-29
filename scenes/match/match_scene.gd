@@ -33,6 +33,8 @@ func _ready() -> void:
 	if Game.grand_prix != null and config.online != "join":
 		Game.grand_prix.label(match_node.rules)
 		match_node.bot_traits = Game.grand_prix.bot_table(match_node.bot_traits)
+	# Nobody looks at a match hosted with nobody at it, GAME.md 9.3a.
+	match_node.with_hud = not config.dedicated
 	add_child(match_node)
 	match config.online:
 		"host":
@@ -83,7 +85,10 @@ func _ready() -> void:
 			session.connection_failed.connect(
 				func() -> void: _fail("Could not connect to %s:%d" % [config.address, config.port])
 			)
-			session.disconnected.connect(func() -> void: _fail("The host disconnected"))
+			var gone := "The host disconnected"
+			if not config.server.is_empty():
+				gone = "The connection to the game was lost"
+			session.disconnected.connect(func() -> void: _fail(gone))
 			session.refused.connect(_fail)
 			session.seat_refused.connect(_on_seat_refused)
 			session.slot_assigned.connect(
@@ -98,6 +103,8 @@ func _ready() -> void:
 					_pane().visible = false
 					_pane().backdrop = false
 			)
+			# At a dedicated server the host's say can pass to this machine mid-match, 9.3a.
+			session.host_controls.granted_changed.connect(_on_granted)
 			# When the match is over the host takes everybody back to the waiting room, GAME.md
 			# 9.6, and this machine goes with it.
 			session.back_to_room.connect(func() -> void: Game.go_to_waiting(config))
@@ -127,12 +134,17 @@ func _ready() -> void:
 			match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles())
 			_deal_carried_jokers()
 			match_node.begin_from_lobby()
-	DebugOverlay.add_to(self, match_node, session)
+	if not config.dedicated:
+		DebugOverlay.add_to(self, match_node, session)
+	# Even with nobody here to open it: it is what stops the match once everybody asks.
 	var menu := PauseMenu.add_to(self, session)
 	# The way back to the lobby is whoever decides where the room goes: this machine alone, or
-	# the host, GAME.md 3.8.
-	if session == null or session.is_host:
+	# the host, GAME.md 3.8, which at a dedicated server is a player at a client, 9.3a. The menu
+	# shows it while the say is this machine's.
+	if session == null or not session.dedicated:
 		menu.offer_the_lobby()
+	if config.dedicated:
+		session.host_controls.asked_to_go.connect(_on_asked_to_go)
 	Events.match_state_changed.connect(_on_state_changed)
 	Events.grand_prix_scored.connect(_on_grand_prix_scored)
 	loaded.emit()
@@ -157,6 +169,27 @@ func _on_state_changed(state: int) -> void:
 		return
 	Game.grand_prix.score(match_node.standings())
 	Events.grand_prix_scored.emit(Game.grand_prix.to_wire())
+
+
+## At a dedicated server, the player with the say wants the room somewhere else, GAME.md 9.3a:
+## back to the waiting room at any time, as a host's pause menu takes it, and on to the next map or
+## into a rematch only from the podium, where a host's own buttons for them are.
+func _on_asked_to_go(where: StringName) -> void:
+	var over := match_node.state == Match.State.RESULTS
+	match where:
+		&"lobby":
+			Game.back_to_the_room()
+		&"next":
+			if over:
+				Game.next_map(match_node)
+		&"rematch":
+			if over and Game.grand_prix == null:
+				match_node.rematch()
+
+
+func _on_granted(mine: bool) -> void:
+	if mine:
+		HostSettings.tell_new_host(self, session.host_controls.given_by)
 
 
 ## The run as the host has scored it. A client keeps it as its own; the host already has it.
@@ -199,6 +232,7 @@ func _local_addresses() -> PackedStringArray:
 ## was waited in.
 func _start_session() -> void:
 	session = Net.open(match_node)
+	session.dedicated = config.dedicated
 
 
 ## Takes over the connection the waiting room opened, GAME.md 9.6. It is the same peers and the

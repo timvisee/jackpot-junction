@@ -53,6 +53,8 @@ var _manage: Button
 ## And who may come in: how many may play, and the password, GAME.md 9.6.
 var _door: LobbySettings
 var _door_button: Button
+## Back to the lobby from a map, for whoever has the say, see [method offer_the_lobby].
+var _to_lobby: Button
 ## Whatever is up in place of the menu just now, and the button that put it there.
 var _aside: Control
 var _aside_from: Button
@@ -176,9 +178,11 @@ func add_entry(text: String, action: Callable) -> Button:
 ## Back to the lobby from a map, over Back to title, for whoever decides where the room goes: the
 ## one machine offline, back to Play, and the host online, back to the waiting room of GAME.md 9.6
 ## with everybody still connected. Either way it asks first, since it ends the map and any Grand
-## Prix it is part of.
+## Prix it is part of. Online it is only there while the host's say is this machine's, which at a
+## dedicated server may come to it in the middle of a map, GAME.md 9.3a.
 func offer_the_lobby() -> Button:
 	var button := MenuTheme.button("Back to lobby")
+	_to_lobby = button
 	button.pressed.connect(
 		func() -> void:
 			var words := lobby_words(session != null, Game.grand_prix != null)
@@ -203,24 +207,27 @@ static func lobby_words(online: bool, grand_prix: bool) -> Array[String]:
 
 
 ## What is asked before leaving for the title online, and not offline, where nobody else is in
-## it: the host takes everybody's room away with it, and a client only leaves.
-static func leave_words(hosting: bool) -> Array[String]:
+## it: the host takes everybody's room away with it, and a client only leaves, handing on the host's
+## say if it has it at a dedicated server, GAME.md 9.3a, [param saying].
+static func leave_words(hosting: bool, saying := false) -> Array[String]:
 	if hosting:
 		return [
 			"Back to the title?",
 			"Everybody who has joined will be disconnected.",
 			"Disconnect everybody"
 		]
-	return [
-		"Back to the title?", "You leave the room, and the others play on without you.", "Leave"
-	]
+	var line := "You leave the room, and the others play on without you."
+	if saying:
+		line = "You leave the room, the others play on without you, and the host's say passes on."
+	return ["Back to the title?", line, "Leave"]
 
 
 func _back_to_title() -> void:
 	if not asks_before_leaving():
 		_leave_to_title()
 		return
-	ask(leave_words(session.is_host), _leave_to_title, _quit)
+	var saying := not session.is_host and session.host_controls.mine()
+	ask(leave_words(session.is_host, saying), _leave_to_title, _quit)
 
 
 ## Whether the way back to the title asks first, see [method leave_words]: online, except for a
@@ -361,7 +368,7 @@ func set_paused(paused: bool) -> void:
 	else:
 		# The host closing its menu lets go of a pause it made everybody take.
 		if not paused:
-			session.force_pause(false)
+			session.host_controls.force_pause(false)
 		session.want_pause(paused)
 	if paused:
 		_resume.grab_focus()
@@ -380,16 +387,16 @@ func _buttons() -> Array[Button]:
 ## once everybody has asked, which is the right thing to wait for until somebody has to answer
 ## the door; this is the host not waiting. Closing the menu lets go of it.
 func _force_pause() -> void:
-	if session == null or not session.is_host:
+	if session == null or not session.host_controls.mine():
 		return
-	session.force_pause(true)
+	session.host_controls.force_pause(true)
 	_resume.grab_focus()
 
 
-## Whether the host's button to stop everybody is worth showing: online, on the host, while the
-## room is still running because somebody has not asked.
+## Whether the host's button to stop everybody is worth showing: online, with the host's say,
+## while the room is still running because somebody has not asked.
 func _can_force() -> bool:
-	return session != null and session.is_host and not session.paused
+	return session != null and session.host_controls.mine() and not session.paused
 
 
 ## Puts [param pane] up in place of the menu, with the cursor in it; its Back, or B, is the menu
@@ -417,8 +424,14 @@ func _put_away_aside() -> void:
 ## its own menu is told why nothing is moving.
 func _process(_delta: float) -> void:
 	_force.visible = _panel.visible and _can_force()
-	_manage.visible = session != null and session.is_host
+	var says := session == null or session.host_controls.mine()
+	_manage.visible = session != null and says
 	_door_button.visible = _manage.visible
+	if _to_lobby != null:
+		_to_lobby.visible = says
+	# The say handed to somebody else at a dedicated server, GAME.md 9.3a, takes its panes with it.
+	if not says and (_aside == _players or _aside == _door):
+		_put_away_aside()
 	_held.visible = (
 		session != null
 		and not session.is_host

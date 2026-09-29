@@ -34,8 +34,6 @@ const DEFAULT_PORT := 7777
 ## that says nothing in that time, or says something the host turns down, is dropped.
 const HANDSHAKE_TIMEOUT := 5.0
 const SNAPSHOT_EVERY_TICKS := 2
-## How long a kicked client has to hear why before the host lets go of it, in seconds.
-const KICK_GRACE := 0.5
 
 ## Whether this process is in the middle of raising an event a host relayed to it, which is never
 ## relayed again. Shared by every session in the process: in a test that runs a host and a client
@@ -74,6 +72,10 @@ var door := NetDoor.new()
 ## Empty leaves the plain kart the host made.
 var player_style := PackedInt32Array()
 var is_host := false
+## On the host: whether nobody plays at it, GAME.md 9.3a, a game of a dedicated server whose
+## players are all at other machines. It never asks for a pause, so it never holds one up, and it
+## is found through the server that lists it rather than by asking the network.
+var dedicated := false
 ## On the host: whether the room it is in is an arena rather than the waiting room of GAME.md 9.6,
 ## which is what a newcomer is shown into, see [method _welcome]. Said by each room as it takes the
 ## session over.
@@ -98,6 +100,9 @@ var seats: Array[ClientSeat]:
 
 ## How slow the line to each client is, see [NetPing]: made once the session is in the tree.
 var ping: NetPing
+## The host's say over its game, see [HostControls]: made with the session, since the menus that
+## ask it are made for sessions that may not be in the tree.
+var host_controls := HostControls.of(self)
 
 var _tick := 0
 ## On the host: the seats its clients hold, see [PeerSeats].
@@ -122,8 +127,6 @@ var _watcher_next: Dictionary[int, int] = {}
 var _watching_here: Dictionary[int, bool] = {}
 ## Whether this machine is asking for a pause, and which of the host's clients are.
 var _asking := false
-## On the host: whether it has stopped the match for everybody without waiting to be asked.
-var _forcing := false
 var _peer_asking: Dictionary[int, bool] = {}
 ## On the host: what it has told its clients is lying on the floor, so the next snapshot can
 ## carry what changed instead of all of it, GAME.md 10.3.
@@ -136,6 +139,10 @@ var _gate: StartGate
 ## not a failure to tell the player about on top of the reason they have already been given.
 var _turned_away := false
 var _handshake := NetHandshake.of(self)
+
+
+func _init() -> void:
+	add_child(host_controls)
 
 
 func _ready() -> void:
@@ -188,14 +195,20 @@ func _notification(what: int) -> void:
 
 func host(port: int = DEFAULT_PORT) -> Error:
 	var peer := ENetMultiplayerPeer.new()
-	var error := peer.create_server(port, NetDoor.MAX_CLIENTS + NetDoor.MAX_WATCHERS)
+	var error := peer.create_server(port, NetDoor.clients(dedicated) + NetDoor.MAX_WATCHERS)
 	if error != OK:
 		return error
 	NetLine.compress(peer)
+	# Everything a client hears comes from the host, so at a server, 9.3a, nobody is told about the
+	# others coming and going: with two going at once, that telling was an error in its log.
+	var scene := multiplayer as SceneMultiplayer
+	if dedicated and scene != null:
+		scene.server_relay = false
 	multiplayer.multiplayer_peer = NetLag.over(peer)
 	is_host = true
 	_start_relaying()
-	LanBeacon.open(self, port)
+	if not dedicated:
+		LanBeacon.open(self, port)
 	return OK
 
 
@@ -465,6 +478,7 @@ func _seat(peer: int, fresh: bool, number := 0) -> void:
 		slot.player_name = kept["name"]
 	_newcomers.erase(peer)
 	var first := _peer_slots.put(peer, number, slot.index)
+	host_controls.seated(peer)
 	# Somebody who has just sat down has none of the floor, so the next snapshot carries all of it
 	# rather than the difference since a moment they were not here for.
 	_floor.start_again()
@@ -598,6 +612,7 @@ func _on_peer_disconnected(peer: int) -> void:
 	_watcher_next.erase(peer)
 	door.forget(peer)
 	_watching_here.erase(peer)
+	host_controls.left(peer)
 	if not is_host or not _peer_slots.has(peer):
 		return
 	var held := _peer_slots.take_all(peer)
@@ -633,30 +648,17 @@ func want_pause(wanted: bool) -> void:
 		_agree_pause(wanted)
 
 
-## The host stopping the match for everybody at once, GAME.md 3.8, rather than waiting for each
-## of them to ask. It holds until the host lets go of it, which closing its menu does.
-func force_pause(on: bool) -> void:
-	if not is_host:
-		return
-	_forcing = on
-	_settle_pause()
-
-
-## Whether the host is holding the match stopped for everybody.
-func forcing_pause() -> bool:
-	return _forcing
-
-
 ## The host's count: the match stops when it and every client are asking, or when the host says
 ## so, and starts again the moment one of them is not.
 func _settle_pause() -> void:
 	if not is_host:
 		return
-	var all := _asking
+	# A host nobody plays at has no menu to ask with, and leaves it to the players.
+	var all := _asking or dedicated
 	# Somebody watching has nothing to stop, and is not waited for.
 	for peer: int in _player_peers():
 		all = all and bool(_peer_asking.get(peer, false))
-	all = all or _forcing
+	all = all or host_controls.forcing
 	_agree_pause(all)
 	if not multiplayer.get_peers().is_empty():
 		_settled_pause.rpc(all)
@@ -780,38 +782,6 @@ func _claim_color(color: int, number := 0) -> void:
 	var index := _peer_slots.slot_of(multiplayer.get_remote_sender_id(), number)
 	if index >= 0 and index < match_node.slots.size():
 		SeatIdentity.paint(match_node, match_node.slots[index], color)
-
-
-## Everybody else in the host's game, for its Manage players, GAME.md 10.3: each client that plays,
-## by the name and color of its seat, and each that watches, by the name it gave.
-func guests() -> Array[Dictionary]:
-	return door.guests(match_node, _peer_slots.held, _watchers, multiplayer)
-
-
-## Shows [param peer] out of the game: told why, and let go of a moment later whatever it does
-## with that, so it cannot stay by not listening. It may knock again. With [param number], one of
-## several players at it, only that one goes, and the rest of them play on.
-func kick(peer: int, number := -1) -> void:
-	if not is_host or not multiplayer.get_peers().has(peer):
-		return
-	var held: Dictionary = _peer_slots.held.get(peer, {})
-	if number >= 0 and held.size() > 1 and held.has(number):
-		_empty_seat(peer, number)
-		_seat_dropped.rpc_id(peer, number)
-		return
-	_kicked.rpc_id(peer)
-	get_tree().create_timer(KICK_GRACE).timeout.connect(_let_go_of.bind(peer))
-
-
-func _let_go_of(peer: int) -> void:
-	if multiplayer.multiplayer_peer != null and multiplayer.get_peers().has(peer):
-		multiplayer.multiplayer_peer.disconnect_peer(peer)
-
-
-@rpc("authority", "call_remote", "reliable")
-func _kicked() -> void:
-	_turned_away = true
-	_hang_up.call_deferred("The host removed you from the game")
 
 
 ## An emote from somebody watching, put up on every screen as the karts' are, at most as often.

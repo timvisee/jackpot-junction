@@ -34,12 +34,13 @@ func _ready() -> void:
 	_players = MenuTheme.option(counts, 0)
 	_players.item_selected.connect(_on_players)
 	column.add_child(MenuTheme.row("Player limit", _players))
-	_password = MenuTheme.field("", "None", 64)
+	_password = MenuTheme.field("", "None", NetDoor.PASSWORD_LENGTH)
 	_password.custom_minimum_size = Vector2(300.0, 44.0)
 	_password.text_changed.connect(
 		func(typed: String) -> void:
 			if session != null:
 				session.door.password = typed.strip_edges()
+				session.host_controls.door_changed()
 	)
 	# The keys are the box's while it has the cursor: the room goes on under the menu online.
 	_password.focus_entered.connect(func() -> void: PlayerInput.typing = true)
@@ -78,6 +79,7 @@ func _on_players(index: int) -> void:
 	var count := index + NetDoor.FEWEST_PLAYERS
 	if session != null:
 		session.door.max_players = count
+		session.host_controls.door_changed()
 	Game.settings.lobby_players = count
 	Game.settings.save_to_disk()
 
@@ -85,6 +87,7 @@ func _on_players(index: int) -> void:
 func _on_watchers(on: bool) -> void:
 	if session != null:
 		session.door.watchers_allowed = on
+		session.host_controls.door_changed()
 	Game.settings.lobby_watchers = on
 	Game.settings.save_to_disk()
 	_show_watching()
@@ -93,6 +96,7 @@ func _on_watchers(on: bool) -> void:
 func _on_watch_free(on: bool) -> void:
 	if session != null:
 		session.door.watchers_need_password = not on
+		session.host_controls.door_changed()
 	Game.settings.lobby_watch_free = on
 	Game.settings.save_to_disk()
 

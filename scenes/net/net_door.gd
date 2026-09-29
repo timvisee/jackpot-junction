@@ -7,8 +7,12 @@ extends RefCounted
 ## can keep watchers out altogether, or let them in without the password. Kept apart from
 ## [NetSession] so that file stays about the connection rather than the door.
 
+## Somebody knocking was turned away, [param named] as they gave it, and [param why], in the words
+## they are told: for a dedicated server's log, GAME.md 9.3a.
+signal turned_away(named: String, why: String)
+
 ## How many clients may play, on top of the host, and how many may watch on top of them, with no
-## kart of their own.
+## kart of their own. A host nobody plays at seats one more client instead, see [method clients].
 const MAX_CLIENTS := 3
 const MAX_WATCHERS := 4
 ## The most players a room can be set to, the host's own included, and the fewest.
@@ -17,6 +21,8 @@ const FEWEST_PLAYERS := 2
 ## What an answer says about the password: asked for with none given, and given wrong.
 const NEEDED := "needed"
 const WRONG := "wrong"
+## The longest password the lobby's box takes.
+const PASSWORD_LENGTH := 64
 
 ## The host's lobby settings: how many may play in the room at most, the host's own players
 ## included, and the password anybody knocking has to give, empty for none.
@@ -48,16 +54,16 @@ func _notification(what: int) -> void:
 			PlayerNames.held_elsewhere.erase(named)
 
 
-## Whether a game at [param theirs] can play with one at [param mine], GAME.md 10.3: the same
-## major and minor version, whatever the patch. A patch release fixes things without changing
-## what goes over the wire; anything else may well change it, and two games that disagree about
-## what a snapshot says do not fail politely.
+## Whether a game at [param theirs] can play with one at [param mine], see
+## [method GameVersion.compatible].
 static func compatible(mine: String, theirs: String) -> bool:
-	var a := mine.split(".")
-	var b := theirs.split(".")
-	if a.size() < 2 or b.size() < 2:
-		return mine == theirs
-	return a[0] == b[0] and a[1] == b[1]
+	return GameVersion.compatible(mine, theirs)
+
+
+## How many clients may play: [constant MAX_CLIENTS] on top of the host's own players, or with
+## nobody playing at the host, [param dedicated], a room's worth of them, GAME.md 9.3a.
+static func clients(dedicated: bool) -> int:
+	return MOST_PLAYERS if dedicated else MAX_CLIENTS
 
 
 ## What a client says about itself as it knocks: its version, whether it has come to watch, what
@@ -68,12 +74,12 @@ static func knock(version: String, watching: bool, named: String, given: String)
 
 
 ## The host's answer to [param peer], which said [param words]. [param room] says how the room
-## stands: whether it has no seat left, how many clients play in it and how many people
+## stands: whether it has no seat left, how many clients play in it and may, how many people
 ## altogether, and how many watch.
 func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> Dictionary:
 	var playable := compatible(version, str(words.get("version", "?")))
 	var watch := bool(words.get("watch", false))
-	var full: bool = room["no_seat"] or room["players"] >= MAX_CLIENTS
+	var full: bool = room["no_seat"] or room["players"] >= int(room.get("clients", MAX_CLIENTS))
 	full = full or room["humans"] >= max_players
 	if watch:
 		full = room["watchers"] >= MAX_WATCHERS
@@ -91,7 +97,7 @@ func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> 
 		names[peer] = PlayerNames.clean(str(words.get("name", "")))
 		if watch:
 			_name_watcher(peer, room.get("match"))
-	return {
+	var answered := {
 		"version": version,
 		"welcome": welcome,
 		"full": full,
@@ -99,6 +105,33 @@ func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> 
 		"locked": locked,
 		"closed": closed,
 	}
+	if not welcome:
+		var theirs := str(words.get("version", "?"))
+		var why := refusal(theirs, answered)
+		if wants_password(theirs, answered):
+			why = "The password was wrong" if locked == WRONG else "Asked for the password"
+		turned_away.emit(PlayerNames.clean(str(words.get("name", ""))), why)
+	return answered
+
+
+## The four lobby settings, as they go over the wire between a dedicated server and the player
+## hosting at it, GAME.md 9.3a.
+func to_wire() -> Dictionary:
+	return {
+		"max_players": max_players,
+		"password": password,
+		"watchers_allowed": watchers_allowed,
+		"watchers_need_password": watchers_need_password,
+	}
+
+
+## [param state] off the wire, as far as Lobby settings could have said it.
+func from_wire(state: Dictionary) -> void:
+	var most := int(state.get("max_players", max_players))
+	max_players = clampi(most, FEWEST_PLAYERS, MOST_PLAYERS)
+	password = str(state.get("password", password)).strip_edges().left(PASSWORD_LENGTH)
+	watchers_allowed = bool(state.get("watchers_allowed", watchers_allowed))
+	watchers_need_password = bool(state.get("watchers_need_password", watchers_need_password))
 
 
 ## Whether somebody coming to watch is asked for the password, for the list of games found on the
@@ -193,6 +226,9 @@ static func wants_password(version: String, words: Dictionary) -> bool:
 
 ## What a client with [param version] turned away with the host's [param words] is told.
 static func refusal(version: String, words: Dictionary) -> String:
+	# A dedicated server on the port a LAN game is hosted on, GAME.md 9.3a.
+	if bool(words.get("server", false)):
+		return "That is a dedicated server: find its games in Play Online"
 	var theirs := str(words.get("version", "?"))
 	if not compatible(version, theirs):
 		return "Wrong version: the host has %s, you have %s" % [theirs, version]

@@ -7,9 +7,10 @@ extends Control
 ## friend's match never passes through the lobby: without it every visitor would be playing
 ## under whatever name this machine last set, or under one the table handed them.
 ##
-## Over the boxes, the games on the network, found by asking, see [LanFinder]: a row each, with
-## whose it is and how it stands on the button that joins it, and Watch beside it to watch it
-## instead, if its host lets anybody watch. The address is for a game the asking does not reach.
+## Over the boxes, the games on the network, found by asking, see [LanFinder], in a [GameList]: a
+## row each, with whose it is and how it stands on the button that joins it, and Watch beside it to
+## watch it instead, if its host lets anybody watch. The address is for a game the asking does not
+## reach.
 
 var name_field: LineEdit
 var address_field: LineEdit
@@ -21,7 +22,7 @@ var status: Label
 var finder: LanFinder
 
 ## The found games' buttons, and the line over them while there are none.
-var _found: VBoxContainer
+var _found: GameList
 var _looking: Label
 
 
@@ -35,8 +36,8 @@ func _ready() -> void:
 	)
 	_looking = MenuTheme.subtitle("Looking for games on your network...", Type.LABEL)
 	column.add_child(_looking)
-	_found = VBoxContainer.new()
-	_found.add_theme_constant_override("separation", 8)
+	_found = GameList.new()
+	_found.chosen.connect(_join_found)
 	column.add_child(_found)
 	finder = LanFinder.new()
 	finder.name = "LanFinder"
@@ -87,69 +88,14 @@ func _ready() -> void:
 	host_button.grab_focus()
 
 
-## A row for each game found, see [method _found_row], and the line saying none are while none
-## are.
-##
-## Made again whenever a game comes, goes or changes, which is while a pad's cursor may be on one:
-## the cursor stays on the same button of the same game if it is still there.
+## A row for each game found, and the line saying none are while none are. Made again whenever a
+## game comes, goes or changes, with the cursor kept where it was, see [method GameList.show_games].
 func _show_found() -> void:
-	var had := get_viewport().gui_get_focus_owner()
-	var kept := ""
-	if had != null and _found.is_ancestor_of(had):
-		kept = String(had.name)
-	for old: Node in _found.get_children():
-		_found.remove_child(old)
-		old.queue_free()
 	var games := finder.games()
 	_looking.text = (
 		"Looking for games on your network..." if games.is_empty() else "Games on your network"
 	)
-	for game: Dictionary in games:
-		_found.add_child(_found_row(game))
-	if kept.is_empty():
-		return
-	var again := _found.find_child(kept, true, false) as Button
-	if again != null and not again.disabled:
-		again.grab_focus()
-	else:
-		host_button.grab_focus()
-
-
-## One found game: the button that joins it, saying what it is, and Watch beside it. A game this
-## version cannot play can be neither; one whose host lets nobody watch cannot be watched.
-func _found_row(game: Dictionary) -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 10)
-	var playable := NetDoor.compatible(Game.version(), str(game["version"]))
-	var join := MenuTheme.button(describe(game), Type.BODY)
-	join.name = "Join%d" % int(game["id"])
-	join.custom_minimum_size = Vector2(0.0, 52.0)
-	join.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	join.disabled = not playable
-	join.pressed.connect(_join_found.bind(game, "join"))
-	row.add_child(join)
-	var watch := MenuTheme.button("Watch", Type.BODY)
-	watch.name = "Watch%d" % int(game["id"])
-	watch.custom_minimum_size = Vector2(150.0, 52.0)
-	watch.disabled = not playable or not bool(game.get("watching", true))
-	watch.tooltip_text = ("Watch without a kart" if not watch.disabled else "Not open to watchers")
-	watch.pressed.connect(_join_found.bind(game, "watch"))
-	row.add_child(watch)
-	return row
-
-
-## A found game in a line: whose, how it stands, how many play in it and may, and the rest.
-static func describe(game: Dictionary) -> String:
-	var parts: PackedStringArray = [
-		"%s's game" % game["name"],
-		"in the lobby" if game["lobby"] else "playing",
-		"%d/%d players" % [game["players"], game["most"]],
-	]
-	if game["password"]:
-		parts.append("password")
-	if not NetDoor.compatible(Game.version(), str(game["version"])):
-		parts.append("version %s" % game["version"])
-	return " \u00b7 ".join(parts)
+	_found.show_games(games, host_button)
 
 
 ## Into [param game], to play in it or, with [param mode] "watch", to watch it.

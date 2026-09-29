@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench bots multiplayer multiplayer-lag changelog check export android android-install android-release
+.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench bots multiplayer multiplayer-lag server-check changelog check export android android-install android-release server
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -41,6 +41,8 @@ format:
 	$(GDFORMAT) $(GD_DIRS)
 
 smoke: | $(CACHE)
+	# The first scene a player's game starts on, on its way to the title.
+	tools/smoke res://scenes/boot/boot.tscn 30
 	tools/smoke res://scenes/ui/title.tscn 30
 	tools/smoke res://scenes/ui/settings_screen.tscn 30
 	tools/smoke res://scenes/match/match_scene.tscn 120
@@ -59,6 +61,12 @@ run: | $(CACHE)
 
 drive: | $(CACHE)
 	$(GODOT) --path . res://scenes/dev/driving.tscn -- $(ARGS)
+
+# A dedicated server, GAME.md 9.3a, headless on port 7777 and holding up to 8 games on the ports
+# after it: `make server ARGS="--port=7790 --games=4"` for others. Players reach it with Play
+# Online.
+server: | $(CACHE)
+	$(GODOT) --headless --path . -- --server $(ARGS)
 
 # What the game runs at, as a number: a match of four bots on each map, 600 frames after the
 # warm-up. A change that costs frames should be caught here rather than in a play session.
@@ -94,15 +102,23 @@ multiplayer: | $(CACHE)
 multiplayer-lag: | $(CACHE)
 	MPCHECK_PING=50 tools/multiplayer_check
 
+# A game on a dedicated server, GAME.md 9.3a, played through the real scenes: the server and three
+# clients of it as processes on this machine, making, joining and watching one. About half a minute.
+server-check: | $(CACHE)
+	tools/server_check
+
 # The changelog parses, and the version the game reports has notes to go with it.
 changelog:
 	tools/changelog
 
-check: import lint format-check changelog test smoke multiplayer multiplayer-lag
+check: import lint format-check changelog test smoke multiplayer multiplayer-lag server-check
 
+# The three desktop builds, and the dedicated server's for Linux, GAME.md 9.3a: the game exported as
+# a server, headless and serving by itself, its visual data stripped and its sound left out.
 export: | $(CACHE)
-	mkdir -p build/linux build/windows build/macos
+	mkdir -p build/linux build/linux-server build/windows build/macos
 	$(GODOT) --headless --path . --export-release "Linux" build/linux/jackpot-junction.x86_64
+	$(GODOT) --headless --path . --export-release "Linux Server" build/linux-server/jackpot-junction-server.x86_64
 	$(GODOT) --headless --path . --export-release "Windows" build/windows/jackpot-junction.exe
 	$(GODOT) --headless --path . --export-release "macOS" build/macos/jackpot-junction.zip
 

@@ -21,6 +21,9 @@ var prediction: KartPrediction
 var authority: Array = []
 ## The number put on the next set of controls sent, see [method step].
 var seq := 0
+## Whether its player's controls are working a menu rather than the kart: the host's match settings
+## at a dedicated server, GAME.md 9.3a. The kart is sent nothing to drive on, and waits.
+var held := false
 
 
 static func make(
@@ -69,6 +72,8 @@ func drivable(match_node: Match) -> bool:
 ## this machine made of the tick, which the host follows rather than second-guesses.
 func step(match_node: Match, delta: float) -> Array:
 	input.poll(delta)
+	if held:
+		input.clear()
 	_step_offer(match_node)
 	seq += 1
 	var claim: Array = []

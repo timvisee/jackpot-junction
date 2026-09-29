@@ -82,6 +82,7 @@ jobs:
           set -e
           cd build
           zip -qr "../jackpot-junction-${GITHUB_REF_NAME}-linux.zip" linux
+          zip -qr "../jackpot-junction-${GITHUB_REF_NAME}-linux-server.zip" linux-server
           zip -qr "../jackpot-junction-${GITHUB_REF_NAME}-windows.zip" windows
           cp macos/jackpot-junction.zip "../jackpot-junction-${GITHUB_REF_NAME}-macos.zip"
           cp android/jackpot-junction.apk "../jackpot-junction-${GITHUB_REF_NAME}-android.apk"

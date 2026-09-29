@@ -49,10 +49,13 @@ func say(text: String, color: Color = Palette.NEON_CYAN) -> void:
 	visible = true
 
 
-## The room is over: says why, in red, and goes back to the menu once it has been read.
+## The room is over: says why, in red, and goes back to the menu once it has been read, the one
+## the room was reached from, see [method Game.back_to_the_menu].
 func fail(message: String) -> void:
 	say(message + "\nReturning to the menu...", Palette.CHIP_RED)
-	get_tree().create_timer(RETURN_DELAY).timeout.connect(func() -> void: Game.go_to_title())
+	get_tree().create_timer(RETURN_DELAY).timeout.connect(
+		func() -> void: Game.back_to_the_menu(message)
+	)
 
 
 ## What [method say] writes on.
