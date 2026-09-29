@@ -554,7 +554,7 @@ func test_the_podium_after_the_last_map_is_the_grand_prix() -> void:
 ## Grand Prix results pressed on the last map's podium, the way a player presses it: the finale in
 ## the room comes first, and is skipped here the way a player skips it, straight to the standings.
 func _to_the_run(screen: ResultsScreen) -> void:
-	screen._standings.pressed.emit()
+	screen._continue.pressed.emit()
 	var finale := screen.match_node.finale
 	if finale != null:
 		finale.skip()
@@ -572,7 +572,7 @@ func test_the_end_of_a_run_is_a_party_on_a_podium() -> void:
 	var screen := await _podium_after(2, 2)
 	var match_node := screen.match_node
 	var champion := Game.grand_prix.standings(match_node.slots)[0]
-	screen._standings.pressed.emit()
+	screen._continue.pressed.emit()
 	var finale := match_node.finale
 	assert_object(finale).is_not_null()
 	assert_bool(screen.visible).is_false()
@@ -664,7 +664,7 @@ func _spitting(finale: GrandPrixFinale) -> int:
 func test_the_party_can_be_skipped_and_only_ends_a_run() -> void:
 	_run_at(2, 2)
 	var screen := await _podium_after(2, 2)
-	screen._standings.pressed.emit()
+	screen._continue.pressed.emit()
 	var accept := InputEventAction.new()
 	accept.action = &"ui_accept"
 	accept.pressed = true
@@ -721,6 +721,7 @@ func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
 	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._next)
 	# Nobody is champion of a run that is still going.
 	assert_bool(Game.grand_prix.revealed).is_false()
+	assert_bool(screen._continue.visible).is_false()
 	# And back to the map's podium, and on to the standings again, as often as anybody likes.
 	assert_bool(screen._map_podium.disabled).is_false()
 	screen._map_podium.pressed.emit()
@@ -793,22 +794,21 @@ func test_the_standings_in_the_middle_of_a_run_fit_their_pane() -> void:
 func test_the_podium_after_the_last_map_ends_the_run() -> void:
 	_run_at(3, 3)
 	var screen := await _podium_after(3, 3)
-	# The last map's own podium first, with one way on: the run's.
+	# The last map's own podium first, a page on its own with one way on, Continue, to the run's:
+	# no arrows, since there is no page to turn to and none to turn back to.
 	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
-	assert_bool(screen._pager.visible).is_true()
-	assert_bool(screen._standings.disabled).is_false()
+	assert_bool(screen._pager.visible).is_false()
+	assert_bool(screen._continue.visible).is_true()
 	assert_bool(screen._next.visible).is_false()
 	assert_bool(screen._rematch.visible).is_false()
 	assert_bool(screen._lobby.visible).is_false()
 	assert_bool(screen._quit.visible).is_false()
-	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._standings)
-	# And the run's podium ends it: back to the lobby or the title.
+	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._continue)
+	# And the run's podium ends it: back to the lobby or the title, a page on its own too.
 	await _to_the_run(screen)
 	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
-	# The second page, and the last: the podium it came from has handed over to the party.
-	assert_int(screen._pager.page).is_equal(1)
-	assert_bool(screen._standings.disabled).is_true()
-	assert_bool(screen._map_podium.disabled).is_true()
+	assert_bool(screen._pager.visible).is_false()
+	assert_bool(screen._continue.visible).is_false()
 	assert_bool(screen._lobby.visible).is_true()
 	assert_bool(screen._quit.visible).is_true()
 	assert_bool(Game.grand_prix.revealed).is_true()

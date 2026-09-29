@@ -24,7 +24,10 @@ const STEP := 0.05
 ## gives the client time to have its own podium up before the host has moved everybody on.
 const READING := 2.0
 const SPOTS: Array[Vector3] = [
-	Vector3(-1.3, 0.0, -1.3), Vector3(1.3, 0.0, 1.3), Vector3(1.3, 0.0, -1.3), Vector3(-1.3, 0.0, 1.3)
+	Vector3(-1.3, 0.0, -1.3),
+	Vector3(1.3, 0.0, 1.3),
+	Vector3(1.3, 0.0, -1.3),
+	Vector3(-1.3, 0.0, 1.3)
 ]
 
 var _role := ""
@@ -506,9 +509,7 @@ func _client_after_map_1(first: Node) -> Node:
 	_check(_scene_has_points(podium), "its podium shows what each place paid")
 	_say("SCORES 1 %s" % _scores(one))
 	# The run's standings are everybody's to look at, and the host still decides when to go on.
-	if not await _until(
-		func() -> bool: return podium._standings.visible, 10.0, "it offers the run's"
-	):
+	if not await _until(func() -> bool: return podium._pager.visible, 10.0, "it offers the run's"):
 		return null
 	podium._standings.pressed.emit()
 	_check(podium._title.text == ResultsScreen.GRAND_PRIX_TITLE, "then the run's standings")
@@ -902,13 +903,22 @@ func _on_to_the_standings(podium: ResultsScreen, round: int) -> bool:
 	return _check(podium._next.visible, "and they offer Next map")
 
 
-## The last map's podium is the map's, like every other; the run's is one press on from it.
+## The last map's podium is the map's, like every other; the run's is one press on from it: the
+## arrow to the next page in the middle of a run, and Continue after the last map, which has no
+## pages to turn, GAME.md 9.7.
 func _to_the_run(last: ResultsScreen) -> bool:
 	if not _check(last._title.text == ResultsScreen.TITLE, "the last map has its own podium"):
 		return false
-	await _until(func() -> bool: return last._standings.visible, 10.0, "it offers the run's")
+	await _until(
+		func() -> bool: return last._pager.visible or last._continue.visible,
+		10.0,
+		"it offers the run's"
+	)
+	var rules := last.match_node.rules
+	if rules.round >= rules.rounds:
+		_check(last._continue.visible and not last._pager.visible, "it has no pages, and Continue")
 	await _seconds(READING / 2.0)
-	last._standings.pressed.emit()
+	(last._continue if last._continue.visible else last._standings).pressed.emit()
 	# After the last map the finale in the room comes first, and the standings go up over it.
 	return await _until(
 		func() -> bool: return last.visible and last._title.text == ResultsScreen.GRAND_PRIX_TITLE,

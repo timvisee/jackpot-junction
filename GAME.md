@@ -3398,9 +3398,11 @@ passes it by. On the right is Next map, on both pages, for whoever moves everybo
 middle a client is told who does, and a watcher's countdown sits beside that, see 9.3. The cursor
 starts on the right arrow on the podium and on Next map on the standings, so going on is a press
 at a time; the two can be looked at in turn for as long as the host leaves them up. After the
-last map the right arrow goes on to the party in the room and then the final standings, whose
-ways on take the right of the foot, and there is no going back to its podium, which has handed
-over to the party. A single map has no pages, and its ways on are the whole row, centered.
+last map there are no pages: its podium is a page on its own, with Continue on the right in place
+of the arrows, which goes on to the party in the room and then the final standings, a page on
+their own too, whose ways on take the right of the foot. There is no going back to the last map's
+podium, which has handed over to the party, and a row of arrows to turn to nothing would say
+there was. A single map has no pages, and its ways on are the whole row, centered.
 There is no rematch of a map in the
 middle of a run and no leaving from its podium -- the pause menu is still the way out. The
 podium says which map of how many it was. Online the host moves everybody on, the same way it
