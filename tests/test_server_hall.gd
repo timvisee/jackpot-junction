@@ -212,6 +212,23 @@ func test_a_game_that_never_comes_up_is_stopped() -> void:
 	assert_int(_hall.count()).is_equal(0)
 
 
+## A game whose process ends before it is up tells whoever asked for it, rather than leaving them
+## waiting on it for ever.
+func test_a_game_that_ends_before_it_is_up_is_said_so() -> void:
+	_open_hall()
+	var ann := _visitor("Ann")
+	var reasons: Array[String] = []
+	ann.not_made.connect(func(reason: String) -> void: reasons.append(reason))
+	assert_bool(await _wait_until(ann._talking, 4000)).is_true()
+	ann.make_game()
+	assert_bool(await _wait_until(func() -> bool: return not _launched.is_empty(), 4000)).is_true()
+	_ended.append(1001)
+	var told := await _wait_until(func() -> bool: return not reasons.is_empty(), 4000)
+	assert_bool(told).override_failure_message("Ann was never told").is_true()
+	assert_str(reasons[0]).is_equal("The server could not start a game")
+	assert_int(_hall.count()).is_equal(0)
+
+
 ## A report is only heard from the game it says it is, with that game's key.
 func test_a_report_without_its_key_is_not_heard() -> void:
 	_open_hall()

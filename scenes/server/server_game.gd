@@ -74,7 +74,10 @@ func say(text: String) -> void:
 
 func _process(delta: float) -> void:
 	_since_start += delta
-	_unheard += delta
+	# The server answers once it has heard from the game, which is once the game is up: a room slow
+	# to put up is not a server gone quiet.
+	if _up:
+		_unheard += delta
 	_hear_the_server()
 	if _closing >= 0.0:
 		_closing -= delta

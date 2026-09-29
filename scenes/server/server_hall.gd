@@ -270,17 +270,25 @@ func _look_at_the_games() -> void:
 	for id: int in _games.keys():
 		var game := _games[id]
 		if not running.call(game["pid"]):
-			_forget(id, "over")
+			if not game["up"]:
+				_let_the_maker_down(id)
+			_forget(id, "over" if game["up"] else "ended before it was up")
 		elif not game["up"] and now - int(game["made"]) > start_wait * 1000.0:
-			var maker: int = game["maker"]
-			if multiplayer.get_peers().has(maker):
-				link._not_made.rpc_id(maker, "The server could not start a game")
+			_let_the_maker_down(id)
 			_forget(id, "never started", true)
 		elif game["up"] and now - int(game["heard"]) > quiet_wait * 1000.0:
 			_forget(id, "stopped answering", true)
 		elif int(game["from"]) > 0:
 			_reports.set_dest_address("127.0.0.1", game["from"])
 			_reports.put_packet(var_to_bytes({"alive": true}))
+
+
+## Whoever asked for game [param id] is told it could not be made, if they are still here to hear
+## it.
+func _let_the_maker_down(id: int) -> void:
+	var maker: int = _games[id]["maker"]
+	if multiplayer.get_peers().has(maker):
+		link._not_made.rpc_id(maker, "The server could not start a game")
 
 
 func _forget(id: int, why: String, stopping := false) -> void:
