@@ -77,9 +77,14 @@ func pop() -> void:
 func _process(delta: float) -> void:
 	if _flash <= 0.0:
 		# The light belongs to the boost alone, so a charged drift is sparks and nothing else.
-		_glow.light_energy = 0.0
+		# Hidden rather than left on at nothing, GAME.md 10.7: a light at zero energy is still
+		# a light to every mesh in its range on a phone's renderer.
+		if _glow.visible:
+			_glow.light_energy = 0.0
+			_glow.visible = false
 		return
 	_flash = maxf(_flash - delta / FLASH_TIME, 0.0)
+	_glow.visible = true
 	_glow.light_energy = FLASH_ENERGY * _flash * _flash
 
 

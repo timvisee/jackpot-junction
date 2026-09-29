@@ -138,6 +138,8 @@ class Shell:
 		_head.scale = Vector3.ONE * (1.0 + 9.0 * flash)
 		_head_material.albedo_color.a = 1.0 - flash
 		_glow.light_energy = LIGHT_ENERGY * (1.0 - flash) * (1.0 - flash)
+		# Out with the flash rather than left on at nothing, GAME.md 10.7.
+		_glow.visible = flash < 1.0
 		if _age >= CLIMB + SPARK_LIFETIME + 0.4:
 			queue_free()
 

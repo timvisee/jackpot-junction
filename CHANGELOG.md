@@ -30,6 +30,8 @@ below, and hands the notes to the release workflow.
 - **Textures with mipmaps, compressed for the card.** The felt, wood, paint, stone and card
   textures are drawn from mipmaps and stored the way a phone's card reads them, a quarter of the
   bandwidth for the surfaces that cover most of the screen.
+- **Lights out when they are out.** The drift boost's glow and a firework's flash are hidden
+  once they have faded, rather than left on at nothing.
 
 ## [0.10.0] - 2026-09-29
 
