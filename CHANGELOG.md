@@ -22,7 +22,7 @@ below, and hands the notes to the release workflow.
 - **XL maps.** Lucky Crossing XL, The Vault XL and Crossfire XL are roomier versions with space
   around the pits and turbos that never aim into a wall; a Grand Prix can deal normal, XL or both.
 - **A death shows where its pot went.** The banked share flies into the player's score as gold
-  coins and the lost share crumbles to gray dust, each with its number; the whistle does the same.
+  coins and the lost share goes gray into a trash can, each with its number; the whistle too.
 - **Page between a map's podium and the standings.** In a Grand Prix, arrows on the left turn
   between the two, with a dot marking the page, and Next map on the right is on both.
 - **Several players at a LAN client.** A client takes another player with J or Start, the

@@ -236,8 +236,12 @@ leaves the wreck as a stream of gold coins, a coin for every 15 points or so and
 never fewer than 3 nor more than 12, drawn in toward that player's banked score,
 in their corner of the screen if they play at this one and on their row of the
 standings if not, and +N in gold says how much beside the score as the first coin
-lands. The share that is lost bursts out of the wreck in coins that go gray as they
-fall and crumble to dust, under −N in red. A death that banks all that is left,
+lands. The share that is lost is thrown into a trash can that comes up beside the
+wreck, toward the middle of the screen: the coins go up and over one after another,
+going gray on the way, the can bumps as each lands, −N in red rises over it as the
+first goes in, and it shuts its lid once the last has and fades, a couple of seconds
+all told. Coins that crumbled to dust where they fell were gone before anybody saw
+they were lost. A death that banks all that is left,
 with Insurance Policy, has nothing to crumble, and one that banks nothing, with
 High Roller, sends nothing to the score. The chips dropped in step 1 are real chips
 on the floor, and scatter as ever.

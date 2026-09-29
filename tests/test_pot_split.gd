@@ -54,9 +54,11 @@ func test_a_death_plays_the_split_and_it_plays_out() -> void:
 	assert_int(gray.size()).is_equal(PotSplit._count(30))
 	assert_int(split._words.size()).is_equal(2)
 	assert_bool(split.is_processing()).is_true()
+	# The lost share goes into a can that comes up beside the wreck, and says how much from it.
+	assert_int(split._cans.size()).is_equal(1)
 	await _runner.simulate_frames(150, 17)
 	assert_bool(split._coins.is_empty()).is_true()
-	assert_bool(split._dust.is_empty()).is_true()
+	assert_bool(split._cans.is_empty()).is_true()
 	assert_bool(split._words.is_empty()).is_true()
 	assert_bool(split.is_processing()).is_false()
 
@@ -67,6 +69,7 @@ func test_only_the_shares_there_are_are_shown() -> void:
 	var split: PotSplit = match_node.hud._pot_split
 	split.play(0, 40, 0)
 	assert_bool(split._coins.all(func(coin: Dictionary) -> bool: return coin["bank"])).is_true()
+	assert_bool(split._cans.is_empty()).is_true()
 	assert_int(split._words.size()).is_equal(1)
 	assert_int(PotSplit._count(1)).is_equal(PotSplit.FEWEST)
 	assert_int(PotSplit._count(100000)).is_equal(PotSplit.MOST)
