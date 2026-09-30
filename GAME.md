@@ -4599,6 +4599,13 @@ preset's `version/name` is left empty, so the APK takes the game's own version.
 - Every third-party asset and library is recorded in `THIRD_PARTY.md` with its
   author, source, license, files and modifications, so licensing is arranged
   properly before release. Adding a file means adding a row.
+- The license texts go in every build with the assets they license: the export
+  presets take in every `*.txt` and `*.md`, which is `THIRD_PARTY.md` and the
+  licenses beside the assets, the font's, the car kit's, the sounds' and the
+  music's, forty kilobytes in all. Nothing in the game reads them; they are there
+  because the font's license, the OFL, asks for its text to go wherever the font
+  goes, and the credits are the attribution the others ask for. Every other text
+  file is left out by name: the design, the plan, the readme and the changelog.
 - The game's source code is open source under the GPL-3.0. Third-party assets
   keep their own licenses. Assets made for the game are licensed separately
   under CC-BY-4.0.
