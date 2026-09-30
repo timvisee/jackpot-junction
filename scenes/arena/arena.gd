@@ -17,6 +17,10 @@ const TABLE_OVERHANG := 38.0
 const BILLBOARD_STANDOFF := 3.6
 ## How many small things are left lying on the floor of the arena itself, GAME.md 8.1.
 const LITTER_COUNT := 12
+## Tiles a side the floor and the table top are cut into on a phone's renderer, GAME.md 10.7:
+## three, since a disco head's cone reaches across most of the table, so a finer cut spares few
+## pixels a light and costs a draw call a tile.
+const SLAB_TILES := 3
 const BILLBOARD_ALONG := 0.85
 const PAD_HEIGHT := 0.05
 const PIT_COLOR := Color("#0B0B0E")
@@ -366,12 +370,15 @@ func _add_table() -> void:
 	add_child(table)
 
 
-## The felt, with the pits cut out so the shafts below show through as real holes.
+## The felt, with the pits cut out so the shafts below show through as real holes. It lies on
+## the table and has nothing under it to throw a shadow on, GAME.md 10.7; the table does.
 func _add_floor() -> void:
 	var floor_mesh := _slab_with_holes(
 		world_size() * 0.5, 0.0, FLOOR_THICKNESS, _pit_rects(), surfaces.floor_top()
 	)
 	floor_mesh.name = "Floor"
+	for part: MeshInstance3D in floor_mesh.get_children():
+		part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(floor_mesh)
 
 
@@ -388,18 +395,27 @@ func _pit_rects() -> Array[Rect2]:
 ## A slab centered on the origin whose top face at [param top] has [param holes] cut out, with
 ## sides down to [param thickness] below and no bottom. The top is split along every hole edge
 ## into cells; cells inside a hole are left out.
+##
+## On a phone's renderer the top is also cut into [method _slab_tiles] a side, GAME.md 10.7: that
+## renderer lights each mesh by every light whose reach touches it, so a pixel of a slab that is
+## one mesh pays for every lamp and disco head in the room, and a pixel of a tile pays for the
+## lights that reach the tile. The desktop's renderer sorts lights by screen tile itself and
+## gains nothing from the cut, so it keeps the slab whole and its draw calls.
 func _slab_with_holes(
 	half: Vector2, top: float, thickness: float, holes: Array[Rect2], skin: StandardMaterial3D
-) -> MeshInstance3D:
+) -> Node3D:
+	var tiles := _slab_tiles()
 	var xs: Array[float] = [-half.x, half.x]
 	var zs: Array[float] = [-half.y, half.y]
 	for hole: Rect2 in holes:
 		xs.append_array([hole.position.x, hole.end.x])
 		zs.append_array([hole.position.y, hole.end.y])
+	for i: int in range(1, tiles):
+		xs.append(lerpf(-half.x, half.x, float(i) / float(tiles)))
+		zs.append(lerpf(-half.y, half.y, float(i) / float(tiles)))
 	xs.sort()
 	zs.sort()
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var tops: Dictionary[Vector2i, SurfaceTool] = {}
 	for i: int in xs.size() - 1:
 		for j: int in zs.size() - 1:
 			var x0 := xs[i]
@@ -416,14 +432,23 @@ func _slab_with_holes(
 					break
 			if inside:
 				continue
+			var tile := Vector2i(
+				clampi(int((center.x + half.x) / (half.x * 2.0) * tiles), 0, tiles - 1),
+				clampi(int((center.y + half.y) / (half.y * 2.0) * tiles), 0, tiles - 1)
+			)
+			if not tops.has(tile):
+				tops[tile] = SurfaceTool.new()
+				tops[tile].begin(Mesh.PRIMITIVE_TRIANGLES)
 			_quad(
-				st,
+				tops[tile],
 				Vector3(x0, top, z0),
 				Vector3(x1, top, z0),
 				Vector3(x1, top, z1),
 				Vector3(x0, top, z1),
 				Vector3.UP
 			)
+	var skirt := SurfaceTool.new()
+	skirt.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var bottom := top - thickness
 	var corners: Array[Vector3] = [
 		Vector3(-half.x, top, -half.y),
@@ -435,12 +460,28 @@ func _slab_with_holes(
 		var a := corners[i]
 		var b := corners[(i + 1) % 4]
 		var outward := Vector3(a.z - b.z, 0.0, b.x - a.x).normalized()
-		_quad(st, a, b, Vector3(b.x, bottom, b.z), Vector3(a.x, bottom, a.z), outward)
-	var instance := MeshInstance3D.new()
-	instance.mesh = st.commit()
+		_quad(skirt, a, b, Vector3(b.x, bottom, b.z), Vector3(a.x, bottom, a.z), outward)
 	skin.cull_mode = BaseMaterial3D.CULL_DISABLED
-	instance.material_override = skin
-	return instance
+	var slab := Node3D.new()
+	for tile: Vector2i in tops:
+		var part := MeshInstance3D.new()
+		part.name = "Tile%d_%d" % [tile.x, tile.y]
+		part.mesh = tops[tile].commit()
+		part.material_override = skin
+		slab.add_child(part)
+	var sides := MeshInstance3D.new()
+	sides.name = "Skirt"
+	sides.mesh = skirt.commit()
+	sides.material_override = skin
+	slab.add_child(sides)
+	return slab
+
+
+## How many tiles a side the top of a slab is cut into: one on the desktop's renderer, which
+## gains nothing from the cut, and [constant SLAB_TILES] on a phone's, see [method
+## _slab_with_holes].
+static func _slab_tiles() -> int:
+	return 1 if Settings.full_renderer() else SLAB_TILES
 
 
 ## Two triangles for the quad a, b, c, d with one normal; both faces render, so winding is free.
