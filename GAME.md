@@ -2391,7 +2391,10 @@ movement: the one thing a corner block must not do is ask to be looked at.
   and for local players an aim guide of four faint dots ahead of the cannon. A
   local player is whoever is steering the kart, which online is a kart the host
   moves: the guide is for the hand on the stick, not for the machine running the
-  physics. The guide and the free-aim arrow hang off the kart as it is drawn,
+  physics. The item tag beside a kart names the key or pad button that uses the
+  item; on a touch screen it names none, since the touch controls already put a
+  button with the item's picture under the thumb, 4.2. The guide and the
+  free-aim arrow hang off the kart as it is drawn,
   smoothed between physics ticks, rather than where the last tick left it: a
   screen that draws faster than the physics runs, a phone's at 90 Hz, showed dots
   placed off the tick jumping back and forth against the kart every frame.

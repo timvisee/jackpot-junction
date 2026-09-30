@@ -23,6 +23,8 @@ below, and hands the notes to the release workflow.
   the kart as it is drawn: on a phone they jittered against it every frame.
 - **No "Its address" in the server box.** Play Online's server field is empty until something is
   typed in it.
+- **No key named over the kart on a touch screen.** The picture of a new item still comes up beside
+  the kart; the button that uses it is the touch button with the item on it.
 
 ## [0.10.1] - 2026-09-30
 

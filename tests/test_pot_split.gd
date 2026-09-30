@@ -148,6 +148,21 @@ func test_a_picked_item_is_shown_beside_the_kart() -> void:
 	assert_bool(shown.is_queued_for_deletion()).is_true()
 
 
+## GAME.md 4.2: on a touch screen the picture comes up beside the kart as ever, and no key is
+## named over it: the touch controls have a button with the item on it.
+func test_a_touch_screen_names_no_key_over_the_kart() -> void:
+	var was := TouchInput.enabled
+	TouchInput.enabled = true
+	var match_node := await _ready_match()
+	var tag: ItemTag = match_node.hud.get_node("ItemTag")
+	_clear_the_boxes(match_node)
+	match_node.kart_of(0).hold_item(BOOST, 0.0)
+	await _runner.simulate_frames(20, 17)
+	assert_bool(tag._tags.has(0)).is_true()
+	assert_bool(tag._tags[0].has("button")).is_false()
+	TouchInput.enabled = was
+
+
 ## GAME.md 8.3: a player on this screen holding an item who drives up to a box they cannot take is
 ## shown the item they hold, more of it the nearer they get, and it goes again as they leave.
 func test_the_item_held_comes_up_by_a_box_that_cannot_be_taken() -> void:

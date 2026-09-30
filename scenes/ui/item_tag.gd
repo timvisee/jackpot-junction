@@ -149,10 +149,12 @@ static func _fade(tag: Dictionary) -> float:
 
 
 ## The button that uses the item, on the chip's lower corner once the item is usable: made for the
-## keys or the pad the player is on, again should they change, and faded with the chip.
+## keys or the pad the player is on, again should they change, and faded with the chip. None on a
+## touch screen, GAME.md 4.2: the touch controls already put a button with the item's own picture
+## under the player's thumb, and a key named over the kart is a key they do not have.
 func _place_button(slot: int, kart: Kart) -> void:
 	var tag := _tags[slot]
-	var usable := kart.held_item != null and kart.item_reveal_left <= 0.0
+	var usable := kart.held_item != null and kart.item_reveal_left <= 0.0 and not TouchInput.enabled
 	var box := _box(kart)
 	var keyboard := DeviceInput.uses_keyboard(match_node.slots[slot].device())
 	var button: Control = tag.get("button")
