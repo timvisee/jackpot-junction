@@ -298,7 +298,8 @@ Jokers are passive rule modifiers held for the rest of the match.
 
 - On every respawn the player is offered 3 jokers during the respawn delay and
   picks 1 or skips. Offers never include a joker the player already holds,
-  except a joker that stacks, until the stack is at its most, see 7.3.
+  except a joker that stacks, until the stack is at its most, see 7.3. So no
+  card on offer would do nothing if taken, and the pick has nothing to warn of.
 - A player holds at most as many jokers as the match's Joker slots, 5 to start
   with and 3 to 8 in the match settings, unless a joker in the hand says
   otherwise: Deep Pockets adds 2 slots to however many that is and stands in one
@@ -4566,6 +4567,11 @@ nobody is near enough to have taken it, and it blinks out.
 - `snake_case` for files, functions, variables and signals. `PascalCase` class
   names via `class_name`. Signals are named in the past tense, `coin_collected`.
 - One script per scene, colocated and named after it: `kart.tscn`, `kart.gd`.
+- Scripts and shaders live in files of their own, `.gd`, `.gdshader` and
+  `.gdshaderinc`: none embedded in a scene or a resource, where an outside
+  editor, the linter and a diff cannot get at them, and no shader written as a
+  string in a script. `tests/test_smoke.gd` fails on one. There is no size
+  under which embedding pays: a five-line script is still one nobody finds.
 - Autoloads are kept to a minimum: Game, Events, Audio.
 - Numbers live in Resources or exported variables, never as literals in logic.
 - Tests with gdUnit4 for scoring math, the cash-out and Jackpot curves, the
