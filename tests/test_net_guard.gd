@@ -9,21 +9,20 @@ func test_a_hello_of_the_game_is_one() -> void:
 	assert_str(str(game[NetGuard.MAGIC_KEY])).is_equal("jackpot-junction")
 	var hall := NetGuard.marked({"version": "0.11.0", "name": "Ann", ServerLink.LISTING: true})
 	assert_dict(NetGuard.knock_of(var_to_bytes(hall))).is_equal(hall)
-	# A version from before the marker still says hello, and is turned away for its version
-	# rather than dropped as garbage.
-	var old := {"version": "0.10.1", "name": "Bo"}
-	assert_dict(NetGuard.knock_of(var_to_bytes(old))).is_equal(old)
+	# Another version that says what it is still says hello, and is turned away for its version.
+	var other := NetGuard.marked({"version": "0.7.2", "name": "Bo"})
+	assert_dict(NetGuard.knock_of(var_to_bytes(other))).is_equal(other)
 
 
-## A hello without the marker, from a version that sends one, or with another game's name in it, is
+## A hello without the marker, whatever version it says it is, or with another game's name in it, is
 ## not the game's.
 func test_a_hello_without_the_marker_is_not_one() -> void:
 	var bare := {"version": "0.11.0", "name": "Ann"}
 	assert_dict(NetGuard.knock_of(var_to_bytes(bare))).is_empty()
-	var other := {"version": "0.11.0", "name": "Ann", NetGuard.MAGIC_KEY: "Some Other Game"}
+	var old := {"version": "0.10.1", "name": "Bo"}
+	assert_dict(NetGuard.knock_of(var_to_bytes(old))).is_empty()
+	var other := {"version": "0.11.0", "name": "Ann", NetGuard.MAGIC_KEY: "some-other-game"}
 	assert_dict(NetGuard.knock_of(var_to_bytes(other))).is_empty()
-	var later := {"version": "1.2.0", "name": "Ann"}
-	assert_dict(NetGuard.knock_of(var_to_bytes(later))).is_empty()
 
 
 func test_garbage_is_not_a_hello() -> void:
