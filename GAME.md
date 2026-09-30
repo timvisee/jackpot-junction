@@ -2337,7 +2337,10 @@ movement: the one thing a corner block must not do is ask to be looked at.
   words say what the whole stack does, "worth 4 coins to you" for two Vultures,
   every number the stack has changed in the same gold, so a stacked figure is
   never mistaken for the card's own; one copy's words are the card's, in the
-  pane's own ink. The words end with how far it stacks, "Stacks up to ×3." A
+  pane's own ink. On a Rule joker that gold is all but the Rule color of the
+  pane's top edge and its kind; it stays, since it is the ×2's, and the number
+  still stands out of the words around it. The words end with how far it
+  stacks, "Stacks up to ×3." A
   long row of cards, two Wild Cards' seven, shrinks to fit across its share of
   the screen.
 - **The respawn pick** shows the offered cards in a straight row, the one under
