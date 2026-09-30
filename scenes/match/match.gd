@@ -709,8 +709,21 @@ func junction_wins_it() -> bool:
 ## Whether [param slot] cashing its pot in would take the match, counting everything a cash-out
 ## pays: the kart's jokers, and the Junction's own payout, which Last Call doubles.
 func would_win(slot: PlayerSlot) -> bool:
+	# A room with no target has nothing to win, whatever is in a pot.
+	if rules.target_score <= 0:
+		return false
 	var payout := arena.junction.payout_multiplier if arena != null and arena.junction else 1.0
 	return slot.would_win(rules.target_score, payout)
+
+
+## Whether anybody's next cash-out would win the match that is being played, GAME.md 3.4.
+func someone_would_win() -> bool:
+	if not is_running():
+		return false
+	for slot: PlayerSlot in slots:
+		if would_win(slot):
+			return true
+	return false
 
 
 func junction_hint() -> float:

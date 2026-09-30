@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Everybody is told when a cash-out would win.** The moment a player's next cash-out would win
+  the match, every screen says so in their color, and the music climbs to the top the way it does
+  for Last Call.
+
 ### Changed
 
 - **The crowd can be turned off for speed too.** The crowd setting is Full, Half or Off, one

@@ -16,6 +16,9 @@ extends Node
 ## down: the evening builds, and the little it loses it loses gradually. Last Call is the one
 ## exception: it stops asking the meter and walks the room up to the top on its own clock,
 ## a level every couple of seconds, so the finale arrives as a build rather than as a switch.
+## So is a player one cash-out from winning, GAME.md 3.4: the match may be about to end, and the
+## room climbs for it the same way. Once nobody is, the room goes back to asking the meter and
+## comes down as gradually as it ever does.
 ##
 ## A client keeps its own meter: the host relays the same events, and snapshots give it the same
 ## pots and positions, so both machines wind up together.
@@ -131,7 +134,7 @@ func _physics_process(delta: float) -> void:
 	heat = maxf(heat - DECAY * delta, 0.0)
 	pressure = _pressure()
 	var target := clampf(heat + pressure, 0.0, 1.0)
-	if _last_call():
+	if _climbing():
 		target = 1.0
 	value = move_toward(value, target, (RISE if target > value else FALL) * delta)
 	_step_level(delta)
@@ -142,7 +145,7 @@ func _physics_process(delta: float) -> void:
 ## has kept asking for a while, and never within [constant HOLD] of the last change. Last Call
 ## skips the queue and takes the room straight to the top.
 func _step_level(delta: float) -> void:
-	if _last_call():
+	if _climbing():
 		_step_finale(delta)
 		return
 	_finale = false
@@ -194,6 +197,12 @@ func _set_level(to: int) -> void:
 ## winds the room back down, GAME.md 8.4. Nor does the party at the end of a Grand Prix.
 func _last_call() -> bool:
 	return match_node != null and (match_node.in_the_finale() or match_node.finale != null)
+
+
+## Whether the room climbs to the top on its own clock: Last Call, or somebody one cash-out from
+## winning. Every machine sees the second from the pots and the banked scores it already has.
+func _climbing() -> bool:
+	return _last_call() or (match_node != null and match_node.someone_would_win())
 
 
 ## The part that does not fade.

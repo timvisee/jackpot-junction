@@ -186,3 +186,70 @@ func test_the_cash_out_that_wins_is_let_finish() -> void:
 	await runner.simulate_frames(4, 17)
 	assert_int(match_node.state).is_equal(Match.State.RESULTS)
 	assert_int(slot.banked).is_less(650)
+
+
+## GAME.md 8.4: a player one cash-out from winning takes the room up to the top the way Last Call
+## does, a level at a time, and once nobody is, the room goes back to asking the meter.
+func test_a_pot_that_would_win_climbs_the_room_like_last_call() -> void:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = _rules()
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	var runner := scene_runner(match_node)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	match_node.start(inputs, 5)
+	await runner.simulate_frames(20, 17)
+	assert_int(match_node.intensity.level).is_equal(1)
+	match_node.slots[0].banked = match_node.rules.target_score - 10
+	match_node.kart_of(0).pot.add_coins(40)
+	assert_bool(match_node.someone_would_win()).is_true()
+	await runner.simulate_frames(int(MatchIntensity.LAST_CALL_CLIMB * 60.0) + 30, 17)
+	assert_int(match_node.intensity.level).is_equal(MatchIntensity.LEVELS)
+	match_node.kart_of(0).pot.reset()
+	assert_bool(match_node.someone_would_win()).is_false()
+	await runner.simulate_frames(2, 17)
+	assert_bool(match_node.intensity._finale).is_false()
+
+
+## GAME.md 3.4: the moment a player's next cash-out would win is called out on every screen, in
+## their color, and not again for a while however their pot hovers on the line.
+func test_the_moment_a_pot_would_win_is_called_out() -> void:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = _rules()
+	match_node.offer_size = 0
+	var runner := scene_runner(match_node)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD, 0), KartInput.new()]
+	match_node.start(inputs, 5)
+	await runner.simulate_frames(20, 17)
+	var hud := match_node.hud
+	# A rival's pot, not this screen's player's: everybody is told.
+	match_node.slots[1].banked = match_node.rules.target_score - 10
+	match_node.kart_of(1).pot.add_coins(40)
+	await runner.simulate_frames(2, 17)
+	assert_bool(hud._call.visible).is_true()
+	assert_str(hud._call.text).contains(MatchHud.WIN_CALL)
+	assert_str(hud._call.text).contains(match_node.slots[1].display_name())
+	# Off the line and back on it at once is not called again.
+	hud._call_left = 0.0
+	hud._call.visible = false
+	match_node.kart_of(1).pot.reset()
+	await runner.simulate_frames(2, 17)
+	match_node.kart_of(1).pot.add_coins(40)
+	await runner.simulate_frames(2, 17)
+	assert_bool(hud._call.visible).is_false()
+
+
+## A room with no target, such as the development driving room, has nothing to win.
+func test_a_room_with_no_target_has_nothing_to_win() -> void:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = _rules()
+	match_node.rules.target_score = 0
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	var runner := scene_runner(match_node)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	match_node.start(inputs, 5)
+	await runner.simulate_frames(20, 17)
+	match_node.kart_of(0).pot.add_coins(40)
+	assert_bool(match_node.would_win(match_node.slots[0])).is_false()
+	assert_bool(match_node.someone_would_win()).is_false()

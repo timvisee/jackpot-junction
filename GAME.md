@@ -151,7 +151,14 @@ R0 = 40 points per second, D = 0.5 s
   a different way rather than as more of the first. The same pot blinks as the
   `+N` beside its owner's score in the running order, for every player rather
   than only the ones on this screen: somebody else one cash-out from ending it is
-  worth knowing about. It sets its owner alight as well. In their corner of the
+  worth knowing about. The moment a pot gets there it is called out on every
+  screen, its owner's own, their rivals' and a watcher's, the announcer's way
+  under the middle of the screen: their name and CASH OUT TO WIN in their color,
+  once, and not again for the same player for ten seconds however the pot hovers
+  on the line. The room climbs for it too, 8.4. Each machine sees it from the pots
+  and the banked scores it already has, so nothing more is sent. A room with no
+  target has nothing to win, whatever is in a pot. It sets its owner alight as
+  well. In their corner of the
   HUD the chips pill and the mult pill each go solid in their own color, with a
   pale rim and a glow of that color round them flickering with the fire, and
   shiver, snapping to a new small tilt many times a second and now and then
@@ -2566,10 +2573,12 @@ for.
   back down, and a climb from 1 to 6 takes at least half a minute of sustained
   action. A bounty being called puts the room up a level on the spot, since a price on the
   leader's head is an announcement rather than something to wait out, and the usual hold
-  keeps it there. Two more things skip the queue. Last Call stops listening to the meter and
-  walks the room up on its own clock, one level every 2 s until it is at the top,
+  keeps it there. Three more things skip the queue. Last Call stops listening to the meter
+  and walks the room up on its own clock, one level every 2 s until it is at the top,
   so the finale arrives over about ten seconds as a build rather than as a switch;
-  a room already halfway up gets there sooner. And every human player being dead
+  a room already halfway up gets there sooner. Somebody one cash-out from winning,
+  3.4, does the same, since the match may be about to end; once nobody is, the
+  room goes back to the meter and comes down as gradually as ever. And every human player being dead
   drops the room to level 1 at once, except during Last Call, which is the finale
   whoever happens to be lying in a pit for the last few seconds of it.
 - The music is not switched by Last Call either. It follows the levels like
