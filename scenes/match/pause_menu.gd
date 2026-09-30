@@ -208,8 +208,12 @@ static func lobby_words(online: bool, grand_prix: bool) -> Array[String]:
 
 ## What is asked before leaving for the title online, and not offline, where nobody else is in
 ## it: the host takes everybody's room away with it, and a client only leaves, handing on the host's
-## say if it has it at a dedicated server, GAME.md 9.3a, [param saying].
-static func leave_words(hosting: bool, saying := false) -> Array[String]:
+## say if it has it at a dedicated server, GAME.md 9.3a, [param saying], to one of the
+## [param others] still playing. With nobody else playing there is nobody to hand it to: the game
+## ends, for the [param watching] watchers there are, or for nobody.
+static func leave_words(
+	hosting: bool, saying := false, others := 1, watching := 0
+) -> Array[String]:
 	if hosting:
 		return [
 			"Back to the title?",
@@ -217,9 +221,28 @@ static func leave_words(hosting: bool, saying := false) -> Array[String]:
 			"Disconnect everybody"
 		]
 	var line := "You leave the room, and the others play on without you."
-	if saying:
+	if saying and others <= 0:
+		line = (
+			"You leave the room, and with nobody else playing the game ends for those watching."
+			if watching > 0
+			else "You leave the room, and with nobody else in it the game ends."
+		)
+	elif saying:
 		line = "You leave the room, the others play on without you, and the host's say passes on."
 	return ["Back to the title?", line, "Leave"]
+
+
+## Who else is in the room, as the host's say sees it, GAME.md 9.3a: players at other machines,
+## and watchers. The same list Manage players shows.
+static func others_here(session: NetSession) -> Vector2i:
+	var others := 0
+	var watching := 0
+	for guest: Dictionary in session.host_controls.guests():
+		if guest.has("color"):
+			others += 1
+		else:
+			watching += 1
+	return Vector2i(others, watching)
 
 
 func _back_to_title() -> void:
@@ -227,7 +250,8 @@ func _back_to_title() -> void:
 		_leave_to_title()
 		return
 	var saying := not session.is_host and session.host_controls.mine()
-	ask(leave_words(session.is_host, saying), _leave_to_title, _quit)
+	var here := others_here(session) if saying else Vector2i(1, 0)
+	ask(leave_words(session.is_host, saying, here.x, here.y), _leave_to_title, _quit)
 
 
 ## Whether the way back to the title asks first, see [method leave_words]: online, except for a

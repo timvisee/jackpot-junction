@@ -519,7 +519,10 @@ else's results screen, see 10.3.
   and the Garage for their name and color, see 4.4. Online, Back to
   title asks first, in place of the menu: the host is told that everybody who
   has joined will be disconnected, and a client that it leaves the room and the
-  others play on. A host nobody has joined yet, to play or to watch, is not
+  others play on. A player with the host's say at a dedicated server, 9.3a, is
+  told the say passes on, and only while somebody else is playing to pass it to:
+  alone in the game they are told it ends, and with only watchers left that it
+  ends for those watching. A host nobody has joined yet, to play or to watch, is not
   asked: there is nobody to disconnect. The cursor starts on Stay, and Back is
   Stay too. A map also
   has Back to lobby, over Back to title, for whoever decides where the room

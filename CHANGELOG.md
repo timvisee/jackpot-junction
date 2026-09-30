@@ -25,6 +25,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Leaving a server game alone says so.** The player with the host's say who leaves with nobody
+  else playing is told the game ends, not that the say passes on to nobody.
 - **No errors when a dedicated server's game ends.** The server no longer logs three "Attempt to
   disconnect a nonexistent connection" errors as the last player leaves a game.
 

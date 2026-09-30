@@ -628,6 +628,15 @@ func test_back_to_title_online_asks_and_says_who_it_disconnects() -> void:
 	menu._quit.pressed.emit()
 	assert_str(menu._confirm.said()).contains("You leave the room")
 	menu._confirm.no_button().pressed.emit()
+	# GAME.md 9.3a: the host's say passes on to somebody still playing, and there is only
+	# somebody to pass it to when somebody else is playing.
+	assert_str(PauseMenu.leave_words(false, true, 1, 0)[1]).contains("passes on")
+	var alone := PauseMenu.leave_words(false, true, 0, 0)[1]
+	assert_str(alone).not_contains("passes on")
+	assert_str(alone).contains("the game ends")
+	var watched := PauseMenu.leave_words(false, true, 0, 2)[1]
+	assert_str(watched).not_contains("passes on")
+	assert_str(watched).contains("watching")
 	# Yes goes ahead with whatever the question was asked before.
 	var went := [0]
 	var words: Array[String] = ["Sure?", "Really.", "Yes"]
