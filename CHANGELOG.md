@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-09-30
+
+Most jokers now stack, four new ones join them, and the bots emote back. Dedicated servers kick
+changed clients and come as a Docker image and for ARM Linux too; it doesn't play with 0.10.x.
+
 ### Added
 
 - **Hold Alt for a joker's details.** Or click the right stick: the card adds how far it stacks,
@@ -97,7 +102,6 @@ below, and hands the notes to the release workflow.
   hand redeal while the host catches up, and the card is heard once.
 - **Watchers see the Royal Flush tally.** A watcher's screen shows who holds which pads whenever
   anybody holds one, where it only ever showed the one-pad-off warning.
-
 ## [0.10.1] - 2026-09-30
 
 Faster everywhere and much faster on phones: a match on a Pixel 7 runs at around fifty frames a
@@ -1496,7 +1500,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.10.1...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.11.0
 [0.10.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.10.1
 [0.10.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.10.0
 [0.9.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.9.0
