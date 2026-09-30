@@ -415,6 +415,31 @@ func test_play_lan_at_a_server_is_told_it_is_one() -> void:
 
 
 ## What a server is started with, after `--`.
+## The server says where it listens as it starts: every address of its machine anybody else can
+## reach it on, which is not its loopback or a link-local one.
+func test_the_server_says_where_it_listens() -> void:
+	var addresses := PackedStringArray(
+		[
+			"127.0.0.1",
+			"192.168.1.20",
+			"::1",
+			"0:0:0:0:0:0:0:1",
+			"fe80::1c2b:3aff:fe4d:5e6f",
+			"2001:db8::7",
+			"10.8.0.2",
+		]
+	)
+	assert_str(ServerHall.listening(7777, addresses)).is_equal(
+		(
+			"Listening on every address of this machine, UDP port 7777: "
+			+ "192.168.1.20, 2001:db8::7 and 10.8.0.2"
+		)
+	)
+	assert_str(ServerHall.listening(7777, PackedStringArray(["127.0.0.1", "::1"]))).contains(
+		"no address but its own loopback"
+	)
+
+
 func test_the_arguments() -> void:
 	var read := ServerArgs.read(["--server", "--port=9000", "--games=3"])
 	assert_bool(read.server).is_true()

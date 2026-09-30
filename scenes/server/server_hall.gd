@@ -76,7 +76,24 @@ func open() -> Error:
 			% [GameVersion.current(), args.port, games]
 		)
 	)
+	_say(listening(args.port, IP.get_local_addresses()))
 	return OK
+
+
+## Where players reach the server, for the log as it starts: it listens on every address of the
+## machine, so those are what [param addresses] has, less the ones nobody else can reach it on, the
+## machine's own loopback and IPv6's link-local ones. A server behind a router is reached on the
+## router's public address, which only the router knows.
+static func listening(port: int, addresses: PackedStringArray) -> String:
+	var reached: Array[String] = []
+	for address: String in addresses:
+		var local := address.begins_with("127.") or address in ["::1", "0:0:0:0:0:0:0:1"]
+		if not local and not address.to_lower().begins_with("fe80:"):
+			reached.append(address)
+	var where := "Listening on every address of this machine, UDP port %d" % port
+	if reached.is_empty():
+		return where + ", and it has no address but its own loopback"
+	return "%s: %s" % [where, ServerLog.listed(reached)]
 
 
 func _exit_tree() -> void:

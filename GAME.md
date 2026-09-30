@@ -3286,7 +3286,8 @@ start with, so a server behind a router has 7777 to 7785 let through for UDP. Ea
 of its own, the game started again headless as a host with nobody at it, from the waiting room on: a
 game is the whole game, its event bus and everything else it keeps among it, and two in one process
 would hear each other's every kill. That costs about a quarter of a gigabyte and a small part of a
-core a game. The server starts a game when somebody asks for one and tells them its port once it is
+core a game. As it starts the server says where it listens: every address of its machine, the ones
+anybody else can reach it on listed. The server starts a game when somebody asks for one and tells them its port once it is
 up, lists it while anybody plays in it, and forgets it once its process has ended. A game ends
 itself once everybody who was playing in it has left, telling anybody still watching that it is
 over; once nobody has come to it in half a minute; or once it has heard nothing from the server for

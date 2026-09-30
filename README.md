@@ -239,9 +239,9 @@ gigabyte of memory, and a server with no game running about 90 MB and next to
 no processor: a game's process is only started when somebody makes a game.
 Whoever makes a game has the host's say over it, passed on to whoever has been
 in it longest when they leave, and a game ends by itself once everybody playing
-has left it. The server logs every player coming and
-going and every game's state to its output, one line each, with the time and
-the game.
+has left it. The server logs where it listens as it starts, every address of
+its machine, and then every player coming and going and every game's state to
+its output, one line each, with the time and the game.
 
 Anything that connects and does not say hello the way the game does is dropped
 at once and logged with its address, `Dropped 1.2.3.4: said 18 bytes that are

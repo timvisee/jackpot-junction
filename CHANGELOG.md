@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A server says where it listens.** As it starts, a dedicated server logs the addresses of its
+  machine that players can reach it on.
 - **Garbage is dropped at the door.** A server drops a connection that says anything but the game's
   own hello, which now names the game, or opens too many at once, on the spot and logs where it
   came from; a player flooding it is kicked.
