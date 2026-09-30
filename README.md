@@ -270,7 +270,8 @@ git tag -a v0.2.0 -m "Jackpot Junction 0.2.0" && git push --follow-tags
 ```
 
 The tag starts the release workflow, which exports Linux, Windows and macOS
-builds, the Linux server build and the Android APK, and publishes them with that
+builds, the Linux server build and the Android APK, the Linux ones for 64-bit
+ARM as well, and publishes them with that
 version's changelog section as the release notes. A tag whose version has no section fails rather than publishing a release
 with nothing written on it. GAME.md 10.5 has the detail.
 

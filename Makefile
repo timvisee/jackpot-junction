@@ -135,10 +135,12 @@ check: import lint format-check changelog test smoke multiplayer multiplayer-lag
 # a server, headless and serving by itself, its visual data stripped and its sound left out.
 export: | $(CACHE)
 	# Emptied first: each folder is what goes in that platform's zip, and nothing else.
-	rm -rf build/linux build/linux-server build/windows build/macos
-	mkdir -p build/linux build/linux-server build/windows build/macos
+	rm -rf build/linux build/linux-server build/linux-arm64 build/linux-server-arm64 build/windows build/macos
+	mkdir -p build/linux build/linux-server build/linux-arm64 build/linux-server-arm64 build/windows build/macos
 	$(GODOT) --headless --path . --export-release "Linux" build/linux/jackpot-junction
 	$(GODOT) --headless --path . --export-release "Linux Server" build/linux-server/jackpot-junction-server
+	$(GODOT) --headless --path . --export-release "Linux ARM64" build/linux-arm64/jackpot-junction
+	$(GODOT) --headless --path . --export-release "Linux Server ARM64" build/linux-server-arm64/jackpot-junction-server
 	$(GODOT) --headless --path . --export-release "Windows" build/windows/jackpot-junction.exe
 	$(GODOT) --headless --path . --export-release "macOS" build/macos/jackpot-junction.zip
 
