@@ -494,12 +494,18 @@ func _accessibility_tab() -> Control:
 			_check(_settings.aim_guide, func(on: bool) -> void: _settings.aim_guide = on)
 		)
 	)
-	column.add_child(
-		MenuTheme.row(
-			"Disco lights",
-			_check(_settings.disco_lights, func(on: bool) -> void: _settings.disco_lights = on)
-		)
+	# Full, Few or Off: the rig, three heads of it at most, or none, GAME.md 8.5.
+	var rig := MenuTheme.option(
+		["Full", "Few", "Off"],
+		2 if not _settings.disco_lights else (1 if _settings.disco_few else 0)
 	)
+	rig.item_selected.connect(
+		func(index: int) -> void:
+			_settings.disco_lights = index != 2
+			if index != 2:
+				_settings.disco_few = index == 1
+	)
+	column.add_child(MenuTheme.row("Disco lights", rig))
 	column.add_child(
 		MenuTheme.row(
 			"Crowd", _check(_settings.crowd, func(on: bool) -> void: _settings.crowd = on)

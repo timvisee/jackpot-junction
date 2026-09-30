@@ -35,6 +35,29 @@ func test_the_setting_switches_every_head_off() -> void:
 	assert_bool(lights.visible).is_false()
 
 
+## GAME.md 8.5: at Few, three heads at most light at once, whatever the meter says and whoever
+## has won, and the lit run still walks around the rig.
+func test_few_lights_three_heads_at_most() -> void:
+	var lights := _lights()
+	var was := Game.settings.disco_few
+	Game.settings.disco_few = true
+	lights.level = DiscoLights.COUNT
+	_run(lights, 3.0)
+	assert_int(lights.lit_count()).is_equal(DiscoLights.FEW_HEADS)
+	var first := lights._offset
+	_run(lights, DiscoLights.CYCLE_FAST + DiscoLights.CYCLE_SLOW + 0.5)
+	assert_int(lights._offset).is_not_equal(first)
+	var winner := Node3D.new()
+	lights.add_child(winner)
+	lights.focus(winner)
+	_run(lights, 2.0)
+	assert_int(lights.lit_count()).is_equal(DiscoLights.FEW_HEADS)
+	Game.settings.disco_few = false
+	_run(lights, 1.0)
+	assert_int(lights.lit_count()).is_equal(DiscoLights.COUNT)
+	Game.settings.disco_few = was
+
+
 ## Runs the rig for [param seconds] of simulated time at the frame rate it would really see.
 func _run(lights: DiscoLights, seconds: float) -> void:
 	for i: int in int(seconds * 60.0):

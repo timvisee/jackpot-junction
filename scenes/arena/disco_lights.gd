@@ -31,7 +31,9 @@ extends Node3D
 ## a room that wants no rig at all, such as the Garage, takes the posts away with it.
 ##
 ## Purely decorative: the lights cast no shadows and nothing reads them. The accessibility
-## setting in GAME.md 8.5 leaves the lamps standing and stops them lighting.
+## setting in GAME.md 8.5 leaves the lamps standing and stops them lighting, or lets only
+## [constant FEW_HEADS] of them light at once: each lit head is a light over the whole table, and
+## a phone's renderer pays for every one on every pixel of it, GAME.md 10.7.
 ##
 ## Each head is a pivot at the mount that is aimed, with the light, the housing and the beam
 ## hung off it. The light of a dark head is hidden rather than left on at nothing, GAME.md 10.7:
@@ -41,6 +43,8 @@ extends Node3D
 ## every frame, rather than a mesh rebuilt to them.
 
 const COUNT := 6
+## How many heads light at most with the setting at Few.
+const FEW_HEADS := 3
 ## Where a head sits: this high on its post, this far outside the wall along the table's edge.
 const MOUNT_HEIGHT := 1.9
 const EDGE_OFFSET := 0.9
@@ -173,9 +177,10 @@ func _process(delta: float) -> void:
 ## How many heads the current level asks for: one per level, and never fewer than one. The
 ## winner gets the whole rig whatever the match was running at.
 func lit_heads() -> int:
+	var most := FEW_HEADS if Game.settings.disco_few else COUNT
 	if _focused():
-		return COUNT
-	return clampi(level, 1, COUNT)
+		return most
+	return clampi(level, 1, most)
 
 
 ## How far up the rig the current level sits, 0 at the bottom and 1 at the top.

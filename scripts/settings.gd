@@ -109,8 +109,12 @@ var aim_assist := 1.0
 var rumble := true
 ## Dots ahead of the cannon showing where shots go.
 var aim_guide := true
-## The moving-head lights over the arena, GAME.md 8.1.
+## The moving-head lights over the arena, GAME.md 8.1, and whether only a few of them light at
+## once: three heads rather than six at the top of the meter. Each lit head is a light over the
+## whole table, and a phone's renderer pays for every one on every pixel of it, GAME.md 10.7, so
+## a phone starts with a few.
 var disco_lights := true
+var disco_few := OS.has_feature("mobile")
 ## The onlookers around the table and the stands they are on, GAME.md 8.1. The busiest thing on
 ## screen that has nothing to do with the match, so it is the first thing worth being able to
 ## turn off. On by default: the room is meant to be full.
@@ -232,6 +236,7 @@ func load_from_disk() -> void:
 	rumble = file.get_value("accessibility", "rumble", rumble)
 	aim_guide = file.get_value("accessibility", "aim_guide", aim_guide)
 	disco_lights = file.get_value("accessibility", "disco_lights", disco_lights)
+	disco_few = file.get_value("accessibility", "disco_few", disco_few)
 	crowd = file.get_value("accessibility", "crowd", crowd)
 	control_hints = file.get_value("accessibility", "control_hints", control_hints)
 	color_vision = str(file.get_value("accessibility", "color_vision", color_vision))
@@ -313,6 +318,7 @@ func save_to_disk() -> Error:
 	file.set_value("accessibility", "rumble", rumble)
 	file.set_value("accessibility", "aim_guide", aim_guide)
 	file.set_value("accessibility", "disco_lights", disco_lights)
+	file.set_value("accessibility", "disco_few", disco_few)
 	file.set_value("accessibility", "crowd", crowd)
 	file.set_value("accessibility", "control_hints", control_hints)
 	file.set_value("accessibility", "color_vision", color_vision)
