@@ -21,6 +21,8 @@ below, and hands the notes to the release workflow.
 
 - **A steady aim guide.** The dots ahead of the cannon, and the arrow of a freely aimed one, follow
   the kart as it is drawn: on a phone they jittered against it every frame.
+- **No "Its address" in the server box.** Play Online's server field is empty until something is
+  typed in it.
 
 ## [0.10.1] - 2026-09-30
 

@@ -37,7 +37,7 @@ func _ready() -> void:
 	)
 	name_field.custom_minimum_size = Vector2(320.0, 44.0)
 	column.add_child(MenuTheme.row("Your name", name_field))
-	address_field = MenuTheme.field(Game.settings.last_server, "Its address", ADDRESS_LENGTH)
+	address_field = MenuTheme.field(Game.settings.last_server, "", ADDRESS_LENGTH)
 	address_field.custom_minimum_size = Vector2(320.0, 44.0)
 	address_field.text_submitted.connect(func(_typed: String) -> void: _connect())
 	column.add_child(MenuTheme.row("Server", address_field))
