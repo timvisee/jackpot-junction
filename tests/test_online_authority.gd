@@ -226,8 +226,10 @@ func _send(shape: Callable, times := 3) -> void:
 
 
 ## A client picks a joker from the cards the host dealt it and from nothing else, GAME.md 10.3: it
-## sends its controls, never a card, and the host reads the pick off its own offer. A card by a
-## number the host never dealt is nothing at all.
+## names the card it took, see [JokerWire], and the host takes it only if the pick dealt it. The
+## client's controls are no answer at all, since a cursor walked by a stick is one a late packet
+## leaves a card short. A pick that cannot be skipped is not, and a full hand has to name what it
+## gives up.
 func test_a_client_picks_only_from_the_cards_the_host_dealt() -> void:
 	await _two_machines(3)
 	var kart := _host.kart_of(0)
@@ -239,17 +241,65 @@ func test_a_client_picks_only_from_the_cards_the_host_dealt() -> void:
 	for joker: Joker in offer.choices:
 		dealt.append(joker.id)
 	await _runner.simulate_frames(40, 17)
-	_send(func(controls: KartInput) -> void: controls.joker_select = 42)
-	_send(func(controls: KartInput) -> void: controls.joker_select = dealt.size())
-	await _runner.simulate_frames(10, 17)
-	assert_bool(offer.is_done()).override_failure_message("a card nobody dealt").is_false()
-	assert_array(kart.jokers.ids()).is_equal(held)
 	_send(func(controls: KartInput) -> void: controls.joker_select = 1)
 	await _runner.simulate_frames(10, 17)
-	assert_bool(offer.is_done()).is_true()
+	assert_bool(offer.is_done()).override_failure_message("controls answered the pick").is_false()
+	var elsewhere := _not_dealt(dealt)
+	assert_bool(offer.answer_with(elsewhere, &"")).is_false()
+	assert_bool(offer.is_done()).is_false()
+	assert_array(kart.jokers.ids()).is_equal(held)
+	assert_bool(offer.answer_with(dealt[1], &"")).is_true()
 	assert_bool(dealt[1] in kart.jokers.ids()).is_true()
 	for id: StringName in kart.jokers.ids():
 		assert_bool(id in held or id == dealt[1]).override_failure_message(id).is_true()
+	# The pick of what to keep on a Grand Prix's next map has no skipping it.
+	var keep := JokerOffer.new(kart, [_host.joker_catalog.by_id(dealt[0])] as Array[Joker])
+	keep.keeping = true
+	keep.answer_at = 0.0
+	assert_bool(keep.answer_with(&"", &"")).is_false()
+	# A full hand names the card it gives up, and one it holds.
+	while not kart.jokers.is_full():
+		kart.jokers.add(_host.joker_catalog.by_id(_not_dealt(kart.jokers.ids() + dealt)))
+	var full := JokerOffer.new(kart, [_host.joker_catalog.by_id(dealt[0])] as Array[Joker])
+	full.answer_at = 0.0
+	var gone := kart.jokers.ids()[0]
+	assert_bool(full.answer_with(dealt[0], &"")).is_false()
+	assert_bool(full.answer_with(dealt[0], _not_dealt(kart.jokers.ids() + dealt))).is_false()
+	assert_bool(full.answer_with(dealt[0], gone)).is_true()
+	assert_bool(gone in kart.jokers.ids()).is_false()
+	assert_bool(dealt[0] in kart.jokers.ids()).is_true()
+
+
+## A joker none of [param names] is.
+func _not_dealt(names: Array[StringName]) -> StringName:
+	for joker: Joker in _host.joker_catalog.jokers:
+		if joker.id not in names:
+			return joker.id
+	return &""
+
+
+## A client drops and destroys the cards in its hand by name, see [JokerWire]: its controls are
+## no word for which card, since the cursor on the host is only a guess at the one on its screen.
+func test_a_client_changes_its_hand_by_name_not_by_controls() -> void:
+	await _two_machines()
+	var kart := _host.kart_of(0)
+	kart.jokers.add(_host.joker_catalog.jokers[0])
+	kart.jokers.add(_host.joker_catalog.jokers[1])
+	var held := kart.jokers.ids()
+	_send(
+		func(controls: KartInput) -> void:
+			controls.joker_menu = true
+			controls.joker_drop_pressed = true
+	)
+	_send(
+		func(controls: KartInput) -> void:
+			controls.joker_menu = true
+			controls.joker_destroy_pressed = true
+	)
+	await _runner.simulate_frames(10, 17)
+	assert_array(kart.jokers.ids()).override_failure_message("controls changed a hand").is_equal(
+		held
+	)
 
 
 ## A client's word for its own kart is where it went, not what it holds: a claim of a fuller tank,

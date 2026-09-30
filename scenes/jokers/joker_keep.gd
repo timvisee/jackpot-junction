@@ -54,7 +54,9 @@ static func step(match_node: Match, delta: float) -> bool:
 		if offer == null or not offer.keeping:
 			continue
 		if not offer.is_done():
-			if slot.is_human():
+			# A client's player answers at the client, and the host is told by name, see
+			# [JokerWire].
+			if slot.is_human() and not slot.input is NetInput:
 				offer.poll_input(slot.input)
 			offer.keep_left -= delta
 			if not offer.is_done() and offer.keep_left <= 0.0:

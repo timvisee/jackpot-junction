@@ -38,6 +38,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The joker you chose online is the joker you get.** A client names the card it picks, keeps,
+  drops or destroys, and the host checks it had that card; the host could take a neighbor.
 - **No cheating through a changed client.** A host, a dedicated server most of all, no longer
   takes a client's word for its nitro, boosts, power-ups or speed, nor for driving further than the
   kart can, and drops controls that are not controls.

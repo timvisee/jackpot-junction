@@ -792,7 +792,10 @@ func _step_respawns(delta: float, coming_back := true) -> void:
 		# because a second poll in the same tick is a button press nobody sees.
 		if slot.is_human():
 			slot.input.poll(delta)
-			if slot.offer != null and not slot.offer.is_done():
+			# A client's player answers their pick at the client, and the host is told by name,
+			# see [JokerWire].
+			var here := not slot.input is NetInput
+			if here and slot.offer != null and not slot.offer.is_done():
 				slot.offer.poll_input(slot.input)
 		if not coming_back:
 			continue

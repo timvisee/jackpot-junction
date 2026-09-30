@@ -36,6 +36,8 @@ var keeping := false
 var keep_left := 0.0
 
 var _kart: Kart
+## The held card a replacement took the place of, for [method answer].
+var _replaced := &""
 var _was_down: Dictionary[StringName, bool] = {}
 ## Which way a remote player's stick was held last tick, so holding it only steps once.
 var _steer_was := 0
@@ -88,8 +90,43 @@ func answered_lately() -> bool:
 func replace(held_index: int) -> void:
 	if stage != Stage.REPLACING or held_index < 0 or held_index >= _kart.jokers.count():
 		return
+	_replaced = _kart.jokers.ids()[held_index]
 	_kart.jokers.remove_at(held_index)
 	_finish()
+
+
+## How this pick was answered on this machine, for the host, GAME.md 10.3: the card taken, or none
+## for a skip, and the held card it took the place of, or none. Empty while it is open, and for a
+## pick that had nothing to offer.
+func answer() -> Array[StringName]:
+	if not is_done() or answered_at < 0.0:
+		return []
+	return [chosen.id if taken != null else &"", _replaced]
+
+
+## At the host: the pick as a client says it answered it, GAME.md 10.3, by the cards' names. The
+## card has to be one this pick dealt, a skip one it may be, and a hand that is full has to name a
+## card it holds to give up; anything else is no answer at all, and the pick stays open. True once
+## it is answered.
+func answer_with(taken_id: StringName, replaced_id: StringName) -> bool:
+	if is_done() or not is_settled():
+		return false
+	cancel_replace()
+	if taken_id == &"":
+		skip()
+		return is_done()
+	var index := -1
+	for i: int in choices.size():
+		if choices[i].id == taken_id:
+			index = i
+	if index < 0:
+		return false
+	var held := _kart.jokers.ids().find(replaced_id)
+	if _kart.jokers.is_full() and held < 0:
+		return false
+	take(index)
+	replace(held)
+	return is_done()
 
 
 func cancel_replace() -> void:

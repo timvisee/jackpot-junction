@@ -904,3 +904,66 @@ func test_a_client_can_watch_without_a_kart() -> void:
 	host_session.want_pause(true)
 	assert_bool(host_session.paused).is_true()
 	host_session.want_pause(false)
+
+
+## A client's own hand is opened and walked at the client, GAME.md 10.3, and a card dropped there
+## goes at once and is named to the host, see [JokerWire]: the host drops that card and no other,
+## wherever its own idea of the cursor was, and the snapshots on the way do not put it back.
+func test_a_client_drops_the_card_it_chose_from_its_hand() -> void:
+	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
+	host_match.name = "Match"
+	host_match.rules = _quick_rules()
+	host_match.with_hud = false
+	_host_root.add_child(host_match)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()]
+	host_match.start(inputs, 23)
+	var host_session: NetSession = auto_free(NetSession.new())
+	host_session.name = "Session"
+	host_session.match_node = host_match
+	_host_root.add_child(host_session)
+	assert_int(host_session.host(port)).is_equal(OK)
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var client_session: NetSession = auto_free(NetSession.new())
+	client_session.name = "Session"
+	client_session.match_node = client_match
+	client_session.local_input = PlayerInput.new()
+	_client_root.add_child(client_session)
+	assert_int(client_session.join("127.0.0.1", port)).is_equal(OK)
+	var assigned := await _wait_until(func() -> bool: return client_session.local_slot >= 0, 4000)
+	assert_bool(assigned).is_true()
+	var hand := host_match.kart_of(1).jokers
+	hand.add(host_match.joker_catalog.jokers[0])
+	hand.add(host_match.joker_catalog.jokers[1])
+	var kept := hand.ids()[0]
+	var chosen := hand.ids()[1]
+	var mine := func() -> Kart: return client_match.slots[1].kart
+	var dealt := await _wait_until(
+		func() -> bool: return client_match.slots.size() > 1 and mine.call().jokers.count() == 2,
+		4000
+	)
+	assert_bool(dealt).override_failure_message("the client never saw its hand").is_true()
+	# Opened and walked to the second card here, and that card dropped. Pressed straight into the
+	# seat's own step, since a real player's controls are read off the keyboard every tick.
+	var seat: ClientSeat = client_session.seats[0]
+	client_session.local_input.joker_menu = true
+	client_session.local_input.joker_next_pressed = true
+	seat._step_hand(client_match)
+	assert_int(mine.call().menu_index).override_failure_message("the cursor waited").is_equal(1)
+	client_session.local_input.joker_next_pressed = false
+	client_session.local_input.joker_drop_pressed = true
+	seat._step_hand(client_match)
+	assert_array(mine.call().jokers.ids()).is_equal([kept] as Array[StringName])
+	var back := [false]
+	for i: int in 30:
+		await get_tree().process_frame
+		if chosen in mine.call().jokers.ids():
+			back[0] = true
+	assert_bool(back[0]).override_failure_message("a snapshot put the card back").is_false()
+	var dropped := await _wait_until(func() -> bool: return hand.count() == 1, 4000)
+	assert_bool(dropped).override_failure_message("the host never dropped it").is_true()
+	assert_array(hand.ids()).is_equal([kept] as Array[StringName])

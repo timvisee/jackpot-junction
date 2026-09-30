@@ -462,8 +462,10 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 			slot.kart.held_item = _item_by_id(entry["item"])
 			slot.kart.item_reveal_left = entry["reveal"]
 			slot.kart.pickup_radius_bonus = entry.get("magnet", 1.0)
-			slot.kart.menu_open = entry["menu"]
-			slot.kart.menu_index = entry["menu_index"]
+			# A hand at this machine is opened and walked here, GAME.md 10.3.
+			if not match_node.is_local_seat(i):
+				slot.kart.menu_open = entry["menu"]
+				slot.kart.menu_index = entry["menu_index"]
 			if not slot.kart.predicted:
 				# A kart driven here spends its own tank and is corrected on it by the message
 				# addressed to it, GAME.md 10.3. This figure is a round trip old.
@@ -477,7 +479,7 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 			# snapshot made before the host heard would take it out again, and the hand would be
 			# dealt twice more, GAME.md 10.3.
 			var before_the_answer := entry.has("offer") and _answered_here(match_node, i, slot)
-			if not before_the_answer:
+			if not before_the_answer and not slot.changed_hand_lately():
 				slot.kart.jokers.jokers = jokers
 		if entry.has("offer") and _answered_here(match_node, i, slot):
 			# This player has answered the pick and the host has not heard yet: the snapshot is

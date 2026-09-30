@@ -103,8 +103,9 @@ var ping: NetPing
 ## The host's say over its game, see [HostControls]: made with the session, since the menus that
 ## ask it are made for sessions that may not be in the tree.
 var host_controls := HostControls.of(self)
-## The waiting room's football on the wire, see [BallWire].
+## The waiting room's football on the wire, see [BallWire], and the jokers chosen, see [JokerWire].
 var ball := BallWire.new()
+var jokers := JokerWire.new(self)
 
 var _tick := 0
 ## On the host: the seats its clients hold, see [PeerSeats].
@@ -126,8 +127,8 @@ var _relaying := false
 var _watchers: Dictionary[int, bool] = {}
 ## On the host: when each watcher may put up their next emote, in engine ticks of milliseconds.
 var _watcher_next: Dictionary[int, int] = {}
-## On a client: jokers taken from a pick here, "slot|id" to when, see [method _took_here].
-var _taken_here: Dictionary[String, int] = {}
+## On a client: jokers taken from a pick here, "slot|id" to when each time, see [method _took_here].
+var _taken_here: Dictionary[String, Array] = {}
 var _watching_here: Dictionary[int, bool] = {}
 ## Whether this machine is asking for a pause, and which of the host's clients are.
 var _asking := false
@@ -148,6 +149,7 @@ var _handshake := NetHandshake.of(self)
 func _init() -> void:
 	add_child(host_controls)
 	add_child(ball)
+	add_child(jokers)
 
 
 func _ready() -> void:
@@ -579,6 +581,7 @@ func _physics_process(delta: float) -> void:
 			each.settle(delta)
 			var sent := each.step(match_node, delta)
 			_send_input.rpc_id(1, sent[0], sent[1], sent[2], each.seat)
+			jokers.tell(each)
 
 
 func _on_peer_connected(peer: int) -> void:
@@ -656,6 +659,15 @@ func _settle_pause() -> void:
 	_agree_pause(all)
 	if not multiplayer.get_peers().is_empty():
 		_settled_pause.rpc(all)
+
+
+## At the host, in a call from a client: the slot that client plays as its seat [param number], or
+## null for one it does not.
+func sender_slot(number: int) -> PlayerSlot:
+	if not is_host or match_node == null:
+		return null
+	var index := _peer_slots.slot_of(multiplayer.get_remote_sender_id(), number)
+	return match_node.slots[index] if index >= 0 and index < match_node.slots.size() else null
 
 
 func _connected() -> bool:
@@ -934,12 +946,17 @@ func _already_heard(name: StringName, args: Array) -> bool:
 			if each.fired_first(int(args[0])):
 				return true
 	# A joker a player here took from their pick was heard as they took it, see [method
-	# _took_here]. Once: the same card taken again later is heard again.
+	# _took_here]. Once for every time it was: the same card taken again later is heard again.
 	if name == &"joker_taken" and args.size() >= 2:
 		var key := "%d|%s" % [int(args[0]), String(args[1])]
-		var at: int = _taken_here.get(key, -TAKEN_HEARD_MSEC)
-		_taken_here.erase(key)
-		return Time.get_ticks_msec() - at < TAKEN_HEARD_MSEC
+		var times: Array = _taken_here.get(key, [])
+		while not times.is_empty() and Time.get_ticks_msec() - int(times[0]) >= TAKEN_HEARD_MSEC:
+			times.pop_front()
+		if times.is_empty():
+			_taken_here.erase(key)
+			return false
+		times.pop_front()
+		return true
 	return false
 
 
@@ -948,7 +965,10 @@ func _already_heard(name: StringName, args: Array) -> bool:
 func _took_here(slot: int, joker: StringName) -> void:
 	if _replaying or is_host or match_node == null or not match_node.is_local_seat(slot):
 		return
-	_taken_here["%d|%s" % [slot, String(joker)]] = Time.get_ticks_msec()
+	var key := "%d|%s" % [slot, String(joker)]
+	if not _taken_here.has(key):
+		_taken_here[key] = []
+	_taken_here[key].append(Time.get_ticks_msec())
 
 
 ## The host forwards gameplay events so clients' HUD and audio react like the host's.

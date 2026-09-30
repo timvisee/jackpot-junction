@@ -4019,7 +4019,8 @@ only shows its kart taking what it has driven over, and waits to be told.
 | Coins, pots, cashing out, score | the host | the snapshot |
 | What is on the floor and who took it | the host | the snapshot, as what changed |
 | Items held and items used | the host | the snapshot |
-| The joker pick in front of me | the client works its own | the host deals the cards and reads the pick off its own offer from the controls: a client never sends a card, and a number it was not dealt is nothing |
+| The joker pick in front of me | the client works its own | it names the card it took, and the host takes it only if it dealt that card |
+| Dropping or destroying a card of my hand | the client, at once | it names the card, and the host does it only if the hand holds that card |
 | The waiting room's football | the client whose kart kicked it last, for a while, 9.6 | it tells the host, and the host passes it on |
 | Statistics and awards | the host | the snapshot |
 | The clock, the state, Last Call, overtime | the host | the snapshot |
@@ -4336,6 +4337,21 @@ put right afterwards, which is more than where the kart is:
   Past that the answer is taken to be lost on the way and the host's pick comes
   back to be answered again, since a kart waits on its pick to come back. The
   host's word for the joker taken is not heard a second time.
+
+  The answer goes to the host by name, `JokerWire`: the card taken or none for a
+  skip, and the held card it replaced, sent once and reliably. The host takes it
+  only if its own pick dealt that card, a skip only from a pick that has one, and
+  a replacement only of a card the hand holds, `JokerOffer.answer_with`, and it
+  no longer runs its own copy of a client's pick off the client's controls at
+  all. It used to, and the two could disagree: the cursor is walked by the stick,
+  and the stick is what the host lets go of when it plays late packets out in a
+  hurry, so the host's cursor could stop a card short of the client's and take
+  that card instead of the one on the player's screen.
+- **The hand of cards**, for the same reason. It is opened and walked here, and a
+  card dropped or destroyed goes out of the hand here at once and to the host by
+  name, which drops or destroys that card if the hand holds it, whatever its own
+  idea of the cursor was. The snapshots made before it heard leave the hand as it
+  is here for up to a second, as they do a pick.
 
 None of this decides anything. A predicted bump never costs a life, a predicted
 fall never costs one either, a predicted pick never changes which joker is

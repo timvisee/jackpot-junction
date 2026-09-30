@@ -16,6 +16,9 @@ var kart: Kart
 var respawn_left := 0.0
 ## The joker choice waiting while the kart is dead; null when none is pending.
 var offer: JokerOffer
+## At a client: when a card was last dropped or destroyed out of this seat's hand here, on the
+## engine's clock, see [method changed_hand_lately].
+var hand_changed_at := -1.0
 ## The personality of a bot slot; null for humans.
 var bot_trait: BotTrait
 ## The only score that counts at the end of the match.
@@ -91,6 +94,13 @@ func color() -> Color:
 
 
 ## Humans are local players and remote players alike.
+## Whether a card left this seat's hand here so lately that the host may not have heard yet, see
+## [constant JokerOffer.ANSWER_HOLD]: the snapshots made before it still hold the card.
+func changed_hand_lately() -> bool:
+	var since := Time.get_ticks_msec() * 0.001 - hand_changed_at
+	return hand_changed_at >= 0.0 and since < JokerOffer.ANSWER_HOLD
+
+
 func is_human() -> bool:
 	return input is PlayerInput or input is NetInput
 

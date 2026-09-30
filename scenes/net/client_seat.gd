@@ -18,6 +18,10 @@ var style := PackedInt32Array()
 var prediction: KartPrediction
 ## What its kart takes off the table, seen here first, see [TakePrediction].
 var takes := TakePrediction.new()
+## What its player chose of their jokers since the last tick, for the host by name, see
+## [JokerWire]: an answered pick, [code][&"answer", taken, replaced][/code], or a card out of the
+## hand, [code][&"drop", id][/code] or [code][&"destroy", id][/code].
+var said: Array[Array] = []
 ## The host's latest word on this seat's kart, waiting for the physics step to act on it, see
 ## [method NetSession._receive_authority]: [ack, state, whether the host drove it].
 var authority: Array = []
@@ -26,6 +30,8 @@ var seq := 0
 ## Whether its player's controls are working a menu rather than the kart: the host's match settings
 ## at a dedicated server, GAME.md 9.3a. The kart is sent nothing to drive on, and waits.
 var held := false
+## The pick whose answer has gone to the host, so it is said once.
+var _told: JokerOffer
 
 
 static func make(
@@ -78,6 +84,7 @@ func step(match_node: Match, delta: float) -> Array:
 	if held:
 		input.clear()
 	_step_offer(match_node)
+	_step_hand(match_node)
 	seq += 1
 	var claim: Array = []
 	var own := prediction != null and is_instance_valid(prediction.kart)
@@ -113,6 +120,33 @@ func _step_offer(match_node: Match) -> void:
 	var offer := match_node.slots[slot].offer
 	if offer != null and not offer.is_done():
 		offer.poll_input(input)
+	# Answered: the host is told which card, by name, rather than left to work it out again from
+	# the controls, see [JokerWire].
+	if offer != null and offer != _told and not offer.answer().is_empty():
+		_told = offer
+		said.append([&"answer"] + offer.answer())
+
+
+## The hand of this seat's player, opened and walked here, GAME.md 10.3, for the same reason the
+## pick is: a cursor a round trip behind the stick is a cursor on the wrong card. A card dropped or
+## destroyed goes out of the hand here at once and to the host by name, and the snapshots made
+## before the host heard leave the hand as it is here meanwhile.
+func _step_hand(match_node: Match) -> void:
+	if slot < 0 or slot >= match_node.slots.size():
+		return
+	var mine := match_node.slots[slot]
+	var kart := mine.kart
+	if kart == null or not KartMenu.browse(kart, input) or not kart.alive:
+		return
+	var what := &"drop" if input.joker_drop_pressed else &""
+	if input.joker_destroy_pressed and what.is_empty():
+		what = &"destroy"
+	if what.is_empty() or kart.menu_index >= kart.jokers.count():
+		return
+	said.append([what, kart.jokers.ids()[kart.menu_index]])
+	kart.jokers.remove_at(kart.menu_index)
+	kart.menu_index = clampi(kart.menu_index, 0, maxi(kart.jokers.count() - 1, 0))
+	mine.hand_changed_at = Time.get_ticks_msec() * 0.001
 
 
 ## Keeps the host's word on this kart for the physics step, only the newest: an older one describes
