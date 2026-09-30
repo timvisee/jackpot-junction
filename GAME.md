@@ -373,6 +373,11 @@ the screen arrives on its own rather than being opened,
 so it points at what most people want next instead of waiting to be found. A client,
 which does not get to decide there is another match, is pointed at the way out.
 
+The title compiles the game's shaders behind itself the first time it is up in a
+run, see 10.7: a thin bar above the credits, "Compiling shaders", fills over a
+few seconds and goes, and the menu answers throughout. Nothing waits for it; a
+match started before it is done compiles the rest the old way, on first use.
+
 The screen is headed Podium and opens with one: the top three on three steps, the winner
 in the middle on the tallest, second a little lower on one side and third lowest
 on the other, each with their own kart standing on top of it turning slowly on the
@@ -4535,6 +4540,20 @@ with the numbers that put them there.
   camera, plus room for the stands and the tanks behind it, and never under 24 m:
   framed on the whole table it comes to about what it was, pulled in it is
   sharper for the same cost.
+- **Shaders are compiled behind the title, not mid-race.** Godot compiles a
+  shader the first time something wearing it is drawn, tens to hundreds of
+  milliseconds on a phone, and every material here is built in code, so the
+  export's shader baker has nothing to bake and the first bomb, the first nitro
+  and the first chip each cost a frame. `ShaderWarmup` starts a match on a
+  160-by-90 viewport behind the title with the screen's own passes and puts one
+  of everything into it a step a frame: karts in every dress, every effect,
+  every pickup, the HUD's fire, and each room's light and air. Godot keeps what
+  it compiled on disk, so the first start pays and every start after it runs
+  the same steps in a moment. Measured in a fresh user directory: the title
+  leaves 36 shader cache entries and a match after it adds none; a match from
+  cold writes 32. One step a frame rather than a thread, since GDScript cannot
+  compile shaders off the main thread: the menu answers between steps.
+
 - **What is quadratic in the bullets is cheap per pair, and what every bullet
   asks is asked once.** Every pair of live bullets is checked for a meeting every
   tick, which is five thousand pairs at the budget's hundred bullets; the closest

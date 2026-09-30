@@ -78,6 +78,11 @@ func _ready() -> void:
 	version.offset_bottom = -12.0
 	add_child(version)
 	play_button.grab_focus()
+	# The shaders compile behind the title, once a run, GAME.md 10.7: a bar above the credits says
+	# how far along it is, and the menu answers throughout.
+	var warmup := ShaderWarmup.add_to(self)
+	if warmup != null:
+		add_child(ShaderWarmup.strip(warmup))
 	resized.connect(_fit)
 	_fit()
 
