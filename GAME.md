@@ -153,7 +153,7 @@ R0 = 40 points per second, D = 0.5 s
   than only the ones on this screen: somebody else one cash-out from ending it is
   worth knowing about. The moment a pot gets there it is called out on every
   screen, its owner's own, their rivals' and a watcher's, the announcer's way
-  under the middle of the screen: their name and CASH OUT TO WIN in their color,
+  under the middle of the screen, in their color: "Ann wins on cash out",
   once, and not again for the same player for ten seconds however the pot hovers
   on the line. The room climbs for it too, 8.4. Each machine sees it from the pots
   and the banked scores it already has, so nothing more is sent. A room with no

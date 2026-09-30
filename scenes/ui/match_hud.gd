@@ -28,9 +28,9 @@ const SYNC_SNAP := 1.0
 
 const CALL_DROP := 120.0
 const CALL_TIME := 2.2
-## What is called out when a player's next cash-out would win, and how long before the same
-## player is called out for it again.
-const WIN_CALL := "CASH OUT TO WIN"
+## What is called out when a player's next cash-out would win, a sentence with their name in it
+## rather than a call after it, and how long before the same player is called out for it again.
+const WIN_CALL := "%s wins on cash out"
 const WIN_CALL_AGAIN := 10.0
 const CALL_FADE := 0.6
 ## The line under each player's block that says what is worth pressing right now, GAME.md 8.3:
@@ -591,7 +591,11 @@ func _corner_lane(block: Dictionary, width: float) -> Vector2:
 ## color, under the middle of the screen where the eye already is. It holds and then goes.
 func _on_announced(slot: int, call: String) -> void:
 	var name_of := _slot_name(slot)
-	_call.text = call if name_of.is_empty() else "%s  %s" % [name_of, call]
+	_show_call(slot, call if name_of.is_empty() else "%s  %s" % [name_of, call])
+
+
+func _show_call(slot: int, words: String) -> void:
+	_call.text = words
 	_call.add_theme_color_override("font_color", _slot_color(slot))
 	_call.visible = true
 	_call.modulate.a = 1.0
@@ -614,7 +618,8 @@ func _update_winning(delta: float) -> void:
 			var last: float = _called_win.get(slot.index, -WIN_CALL_AGAIN)
 			if _win_clock - last >= WIN_CALL_AGAIN:
 				_called_win[slot.index] = _win_clock
-				_on_announced(slot.index, WIN_CALL)
+				var named := _slot_name(slot.index)
+				_show_call(slot.index, WIN_CALL % (named if not named.is_empty() else "Somebody"))
 		_could_win[slot.index] = can
 
 

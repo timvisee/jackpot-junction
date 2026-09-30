@@ -227,8 +227,8 @@ func test_the_moment_a_pot_would_win_is_called_out() -> void:
 	match_node.kart_of(1).pot.add_coins(40)
 	await runner.simulate_frames(2, 17)
 	assert_bool(hud._call.visible).is_true()
-	assert_str(hud._call.text).contains(MatchHud.WIN_CALL)
-	assert_str(hud._call.text).contains(match_node.slots[1].display_name())
+	var named := match_node.slots[1].display_name()
+	assert_str(hud._call.text).is_equal(MatchHud.WIN_CALL % named)
 	# Off the line and back on it at once is not called again.
 	hud._call_left = 0.0
 	hud._call.visible = false
