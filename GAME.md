@@ -481,8 +481,11 @@ else's results screen, see 10.3.
   second, so each can be read before it is replaced. The machine that runs the
   karts decides, the host online, and says so to every machine, so it comes up
   on every screen at once, a client's own included; the ask goes over the wire
-  as one more field at the end of a client's controls. A kart that is down has
-  nothing to put one over. Somebody watching, 10.3, has the same emotes and the
+  as one more field at the end of a client's controls. A player whose kart is
+  down emotes all the same, at the same pace, and with nothing to put it over it
+  floats up from the bottom of the screen the way a watcher's does, below, rimmed
+  in the player's own color and with their name under it in the same; their wheel
+  comes up at the bottom too. Somebody watching, 10.3, has the same emotes and the
   same ways to them, the touch screen's button included, and no kart: theirs
   floats up from the bottom of every screen at a spot of its own and fades, the
   way a reaction rises up a live stream, on a bubble rimmed in gray rather than

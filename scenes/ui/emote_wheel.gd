@@ -64,8 +64,15 @@ func _process(_delta: float) -> void:
 		var root: Control = wheel["root"]
 		var kart := slot.kart
 		var up := player.wheel_by_keys or player.wheel_pointing >= 0
-		if kart == null or not kart.alive or camera == null or not up:
+		if kart == null or camera == null or not up:
 			root.visible = false
+			continue
+		# Dead, a player has no kart to hold the wheel over, and it comes up where a watcher's
+		# does, at the bottom, which is where the emote floats up from too.
+		if not kart.alive:
+			root.visible = true
+			root.position = Vector2(size.x * 0.5, size.y - REACH - SIDE - WATCHER_LIFT)
+			_show(wheel, player.wheel_pointing, player.wheel_by_keys)
 			continue
 		var over := kart.global_position + Vector3.UP * LIFT
 		if camera.is_position_behind(over):

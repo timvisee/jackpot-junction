@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Emotes while you wait to come back.** A dead player's emote floats up from the bottom of the
+  screen in their color, the way a watcher's does.
 - **Carbon Copy.** A joker your death drops goes on the floor as a copy, and you keep your own.
 - **Guardian Angel.** A joker that spends the Shield or Bullet Wipe you hold on a hit about to cost
   you a life, the moment it lands.

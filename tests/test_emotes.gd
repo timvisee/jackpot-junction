@@ -161,7 +161,7 @@ func test_the_wheel_comes_up_round_the_kart() -> void:
 func test_a_watchers_emote_floats_up_the_screen() -> void:
 	var holder: CanvasLayer = auto_free(CanvasLayer.new())
 	add_child(holder)
-	var emotes := WatcherEmotes.add_to(holder)
+	var emotes := WatcherEmotes.add_to(holder, null)
 	await await_idle_frame()
 	Events.watcher_emoted.emit("Ann", 2)
 	var bubble: Control = emotes.get_node("WatcherEmote")
@@ -176,6 +176,35 @@ func test_a_watchers_emote_floats_up_the_screen() -> void:
 	assert_float(bubble.position.y).is_less(start)
 	await get_tree().create_timer(WatcherEmotes.SHOWN).timeout
 	assert_bool(is_instance_valid(bubble)).is_false()
+
+
+## A player waiting to come back emotes too, and with no kart to put it over, it floats up from the
+## bottom the way a watcher's does, in the player's own color and under their name.
+func test_a_dead_players_emote_floats_up_in_their_color() -> void:
+	var player := Emoting.new()
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	rules.countdown = 0.1
+	match_node.rules = rules
+	_runner = scene_runner(match_node)
+	match_node.start([player] as Array[KartInput], 3)
+	var holder: CanvasLayer = auto_free(CanvasLayer.new())
+	add_child(holder)
+	var emotes := WatcherEmotes.add_to(holder, match_node)
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.slots[0].kart
+	kart.die(&"pit", -1)
+	player.asked = 1
+	await _runner.simulate_frames(3, 17)
+	assert_object(kart.get_node_or_null("Emote")).is_null()
+	var bubble: Control = emotes.get_node_or_null("WatcherEmote")
+	assert_object(bubble).override_failure_message("nothing floated up").is_not_null()
+	var picture: EmoteArt.Picture = bubble.get_child(0)
+	assert_int(picture.emote).is_equal(1)
+	assert_that(picture.ink).is_equal(match_node.slots[0].color())
+	assert_str((bubble.get_child(1) as Label).text).is_equal(match_node.slots[0].display_name())
 
 
 func _tap(on: Control, at: Vector2) -> InputEventScreenTouch:

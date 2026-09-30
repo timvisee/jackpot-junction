@@ -48,21 +48,22 @@ func _physics_process(delta: float) -> void:
 		if not slot.is_human() or slot.input == null or slot.kart == null:
 			continue
 		var emote := slot.input.emote
+		# Dead or not: a player waiting to come back has something to say too, and it floats up
+		# from the bottom of the screen with nothing to put it over, see [WatcherEmotes].
 		if emote < 0 or emote >= EmoteArt.EMOTES.size() or _cool[slot.index] > 0.0:
-			continue
-		if not slot.kart.alive:
 			continue
 		_cool[slot.index] = COOLDOWN
 		Events.emoted.emit(slot.index, emote)
 
 
 ## Somebody has emoted, here or on the host: up it goes over their kart, in place of one still up.
+## A dead one's has no kart to go over, and floats up from the bottom instead, see [WatcherEmotes].
 func _on_emoted(index: int, emote: int) -> void:
 	if index < 0 or index >= match_node.slots.size():
 		return
 	var slot := match_node.slots[index]
 	var kart := slot.kart
-	if kart == null or not is_instance_valid(kart):
+	if kart == null or not is_instance_valid(kart) or not kart.alive:
 		return
 	var old := kart.get_node_or_null("Emote")
 	if old != null:
