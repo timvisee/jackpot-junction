@@ -509,10 +509,15 @@ else's results screen, see 10.3.
   closes their menu it starts again for everyone. Somebody joining a stopped
   room starts it again, and somebody leaving can be the last one holding it up.
   The host does not have to wait: Pause game, straight under Resume on its menu
-  while the room is still running and over the match settings of 9.6, stops it
-  for everybody at once, and a client with no
-  menu of its own open is told the host paused the game, on a pane in the middle
-  of the screen. It holds until the host closes its menu.
+  and over the match settings of 9.6, stops it for everybody at once, and a
+  client with no menu of its own open is told the host paused the game, on a
+  pane in the middle of the screen. It holds until the host closes its menu, or
+  presses Pause game again: the button stays up while the room stands, held down
+  in the house's gold with a tick at its end while it is the host's own pause
+  that holds the room, so the one who stopped everybody can see they did and let
+  go again. At a dedicated server the player with the host's say has it, and a
+  pause they made goes with the say when it is handed on, rather than holding the
+  room until the next holder happens to close a menu.
   The menu comes up over the room darkened behind it, as the host's match
   settings of 9.6 do, and while it is up each player at this screen has a switch
   over their own corner of the HUD for how they drive, see 4.2, and in the lobby

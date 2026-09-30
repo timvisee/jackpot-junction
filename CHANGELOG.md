@@ -25,6 +25,9 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Pause game stays on the host's menu.** It stays up while the room is paused, with a tick in it
+  while it is the host's own pause, and pressing it again lets go; a pause goes with the host's say
+  when that is handed on.
 - **Leaving a server game alone says so.** The player with the host's say who leaves with nobody
   else playing is told the game ends, not that the say passes on to nobody.
 - **No errors when a dedicated server's game ends.** The server no longer logs three "Attempt to

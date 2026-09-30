@@ -218,6 +218,20 @@ func test_the_player_with_the_say_can_stop_the_room_for_everybody() -> void:
 	clients[1].host_controls._force.rpc_id(1, true)
 	await await_millis(300)
 	assert_bool(_host.paused).is_false()
+	# A pause the holder made goes with the say, GAME.md 3.8: handed on, the room runs again, and
+	# neither holder's menu shows it as theirs.
+	clients[0].host_controls.force_pause(true)
+	assert_bool(clients[0].host_controls.forcing).is_true()
+	assert_bool(await _wait_until(func() -> bool: return clients[1].paused, 4000)).is_true()
+	clients[0].host_controls.make_host(clients[1].multiplayer.get_unique_id())
+	var let_go := await _wait_until(func() -> bool: return not clients[1].paused, 4000)
+	(
+		assert_bool(let_go)
+		. override_failure_message("the old holder's pause outlived the say")
+		. is_true()
+	)
+	assert_bool(clients[0].host_controls.forcing).is_false()
+	assert_bool(clients[1].host_controls.forcing).is_false()
 
 
 ## The plan and the way on are heard from the player with the say and nobody else, and only a way

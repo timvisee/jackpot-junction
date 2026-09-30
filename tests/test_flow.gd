@@ -653,13 +653,26 @@ func test_the_host_can_pause_everybody_and_a_client_is_told() -> void:
 	add_child(holder)
 	var session: NetSession = auto_free(NetSession.new())
 	session.is_host = true
+	# In the tree, for the room it stops to have a multiplayer to ask.
+	holder.add_child(session)
 	var menu := PauseMenu.add_to(holder, session)
 	menu._panel.visible = true
 	menu._process(0.0)
 	assert_bool(menu._force.visible).is_true()
+	assert_object(menu._force.icon).is_null()
+	# Pressed, it stops the room and says so with a tick; it stays up while the room stands, and
+	# pressed again it lets go.
+	menu._force.pressed.emit()
+	assert_bool(session.host_controls.forcing).is_true()
 	session.paused = true
 	menu._process(0.0)
-	assert_bool(menu._force.visible).is_false()
+	assert_bool(menu._force.visible).is_true()
+	assert_object(menu._force.icon).is_same(MenuTheme.tick())
+	assert_bool(menu._force.button_pressed).is_true()
+	menu._force.pressed.emit()
+	assert_bool(session.host_controls.forcing).is_false()
+	menu._process(0.0)
+	assert_object(menu._force.icon).is_null()
 	var client: NetSession = auto_free(NetSession.new())
 	var theirs := PauseMenu.add_to(holder, client)
 	client.paused = true

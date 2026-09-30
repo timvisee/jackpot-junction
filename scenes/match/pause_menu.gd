@@ -114,6 +114,9 @@ func _ready() -> void:
 	_force = MenuTheme.button("Pause game")
 	_force.pressed.connect(_force_pause)
 	_force.visible = false
+	# The tick on the far end of the words, and no bigger than they are.
+	_force.icon_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_force.expand_icon = false
 	column.add_child(_force)
 	_door = LobbySettings.new()
 	_door.session = session
@@ -413,14 +416,23 @@ func _buttons() -> Array[Button]:
 func _force_pause() -> void:
 	if session == null or not session.host_controls.mine():
 		return
-	session.host_controls.force_pause(true)
-	_resume.grab_focus()
+	# Pressed again, it lets go: the room runs on for whoever is not asking to stop.
+	session.host_controls.force_pause(not session.host_controls.forcing)
+	_show_force()
 
 
-## Whether the host's button to stop everybody is worth showing: online, with the host's say,
-## while the room is still running because somebody has not asked.
+## Whether the host's button to stop everybody is there: online, with the host's say. Kept up
+## while the room stands, with a tick in it while its own pause is what is holding the room, so
+## the one who stopped everybody can see they did and let go again, GAME.md 3.8.
 func _can_force() -> bool:
-	return session != null and session.host_controls.mine() and not session.paused
+	return session != null and session.host_controls.mine()
+
+
+## The button as the pause stands: ticked and held down while this machine's pause holds the room.
+func _show_force() -> void:
+	var forcing := session != null and session.host_controls.forcing
+	_force.icon = MenuTheme.tick() if forcing else null
+	MenuTheme.hold(_force, forcing)
 
 
 ## Puts [param pane] up in place of the menu, with the cursor in it; its Back, or B, is the menu
@@ -448,6 +460,8 @@ func _put_away_aside() -> void:
 ## its own menu is told why nothing is moving.
 func _process(_delta: float) -> void:
 	_force.visible = _panel.visible and _can_force()
+	if _force.visible:
+		_show_force()
 	var says := session == null or session.host_controls.mine()
 	_manage.visible = session != null and says
 	_door_button.visible = _manage.visible

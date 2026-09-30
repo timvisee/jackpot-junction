@@ -34,6 +34,8 @@ const BOX_HEIGHT := 52.0
 const BOX_HEIGHT_TOUCH := 60.0
 ## How big the mark beside each entry of an option's list is shown, in pixels.
 const MARK := 16
+## How big the tick on a button that is on is, see [method tick].
+const TICK := 24
 
 ## The two pictures of a switch, and of the mark on an option's list, drawn the first time one is
 ## asked for.
@@ -41,6 +43,7 @@ static var _switch_on: ImageTexture
 static var _switch_off: ImageTexture
 static var _mark_on: ImageTexture
 static var _mark_off: ImageTexture
+static var _tick: ImageTexture
 
 
 static func background(parent: Control) -> void:
@@ -198,6 +201,34 @@ static func _mark(on: bool) -> ImageTexture:
 	else:
 		_mark_off = drawn
 	return drawn
+
+
+## A tick in the house's gold, [constant TICK] across, for a button that is on: the host's Pause
+## game while its pause holds the room, GAME.md 3.8. Drawn once, at [constant SWITCH_DETAIL] times
+## its size with soft edges, the way the switches are.
+static func tick() -> ImageTexture:
+	if _tick != null:
+		return _tick
+	var side := TICK * SWITCH_DETAIL
+	var image := Image.create(side, side, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0.0, 0.0, 0.0, 0.0))
+	var s := float(side)
+	var stroke := [Vector2(0.16, 0.54) * s, Vector2(0.4, 0.78) * s, Vector2(0.86, 0.24) * s]
+	var half := 0.075 * s
+	for y: int in side:
+		for x: int in side:
+			var at := Vector2(x, y) + Vector2.ONE * 0.5
+			var near := minf(
+				at.distance_to(Geometry2D.get_closest_point_to_segment(at, stroke[0], stroke[1])),
+				at.distance_to(Geometry2D.get_closest_point_to_segment(at, stroke[1], stroke[2]))
+			)
+			var covered := clampf(half - near + 0.5, 0.0, 1.0)
+			if covered > 0.0:
+				var ink := Palette.CHIP_GOLD
+				image.set_pixel(x, y, Color(ink.r, ink.g, ink.b, covered))
+	_tick = ImageTexture.create_from_image(image)
+	_tick.set_size_override(Vector2i(TICK, TICK))
+	return _tick
 
 
 ## The picture of a switch in one of its two states, drawn once and kept.

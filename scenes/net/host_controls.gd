@@ -38,7 +38,9 @@ const GUESTS_EVERY := 0.25
 const PLACES: Array[StringName] = [&"lobby", &"next", &"rematch"]
 
 var session: NetSession
-## On the host: whether it has stopped the match for everybody without waiting to be asked.
+## Whether the host's say has stopped the match for everybody without waiting to be asked: on the
+## host, what counts; on a client with the say, what it asked for, for its menu to show, GAME.md
+## 3.8. Let go of when the say moves on, since the pause was the old holder's.
 var forcing := false
 ## At a dedicated server: who has the say, 0 for nobody, and whether they are still choosing the
 ## match, which holds the room, GAME.md 9.6.
@@ -134,6 +136,7 @@ func _ended(reason: String) -> void:
 func force_pause(on: bool) -> void:
 	if not session.is_host:
 		if granted and session._connected():
+			forcing = on
 			_force.rpc_id(1, on)
 		return
 	forcing = on
@@ -198,6 +201,11 @@ func _hand_to(player: int, by := 0) -> void:
 	var was := peer
 	peer = player
 	choosing = false
+	# A pause the last holder made is theirs, and goes with the say: whoever has it now has not
+	# stopped the room, and would otherwise find it held until they happened to close a menu.
+	if forcing:
+		forcing = false
+		session._settle_pause()
 	_told = ""
 	_look_left = 0.0
 	if was != 0 and was != player and multiplayer.get_peers().has(was):
@@ -298,6 +306,7 @@ func _granted(on: bool, by := "") -> void:
 	given_by = by if on else ""
 	if not on:
 		_guests.clear()
+		forcing = false
 	granted_changed.emit(on)
 
 
