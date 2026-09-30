@@ -473,8 +473,17 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 				var joker := match_node.joker_catalog.by_id(StringName(id))
 				if joker != null:
 					jokers.append(joker)
-			slot.kart.jokers.jokers = jokers
-		if entry.has("offer"):
+			# A card just taken here stays in the hand until the host's word has it too: a
+			# snapshot made before the host heard would take it out again, and the hand would be
+			# dealt twice more, GAME.md 10.3.
+			var before_the_answer := entry.has("offer") and _answered_here(match_node, i, slot)
+			if not before_the_answer:
+				slot.kart.jokers.jokers = jokers
+		if entry.has("offer") and _answered_here(match_node, i, slot):
+			# This player has answered the pick and the host has not heard yet: the snapshot is
+			# from before, and does not put the cards back up, GAME.md 10.3.
+			pass
+		elif entry.has("offer"):
 			var offer_data: Dictionary = entry["offer"]
 			var choices: Array[Joker] = []
 			for id: String in offer_data["choices"]:
@@ -500,6 +509,12 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 			# The host has finished with it: the card is taken, the kart is coming back, and the
 			# pick comes off the screen whoever was making it.
 			slot.offer = null
+
+
+## Whether [param slot], seat [param index], answered its pick here so lately that the host may not
+## have heard yet, see [constant JokerOffer.ANSWER_HOLD].
+static func _answered_here(match_node: Match, index: int, slot: PlayerSlot) -> bool:
+	return match_node.is_local_seat(index) and slot.offer != null and slot.offer.answered_lately()
 
 
 static func _item_by_id(id: String) -> PowerUp:

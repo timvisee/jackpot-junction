@@ -31,6 +31,8 @@ below, and hands the notes to the release workflow.
   typed in it.
 - **No key named over the kart on a touch screen.** The picture of a new item still comes up beside
   the kart; the button that uses it is the touch button with the item on it.
+- **A smooth joker pick online.** Taking a card no longer makes the pick blink back up and the
+  hand redeal while the host catches up, and the card is heard once.
 - **Watchers see the Royal Flush tally.** A watcher's screen shows who holds which pads whenever
   anybody holds one, where it only ever showed the one-pad-off warning.
 

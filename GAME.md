@@ -4260,7 +4260,12 @@ put right afterwards, which is more than where the kart is:
 - **The joker pick**, which is not physics at all. The cursor moves and the card
   is taken on the tick the key goes down, and the snapshot leaves that one pick
   alone while it is open rather than walking the cursor back to where the host had
-  it a round trip ago.
+  it a round trip ago. Answered, it stays answered: the snapshots made before the
+  host heard still carry the pick, and they neither put the cards back up nor take
+  the card out of the hand again, for up to a second, `JokerOffer.ANSWER_HOLD`.
+  Past that the answer is taken to be lost on the way and the host's pick comes
+  back to be answered again, since a kart waits on its pick to come back. The
+  host's word for the joker taken is not heard a second time.
 
 None of this decides anything. A predicted bump never costs a life, a predicted
 fall never costs one either, a predicted pick never changes which joker is

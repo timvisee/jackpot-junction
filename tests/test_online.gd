@@ -578,6 +578,49 @@ func test_a_client_works_its_own_joker_pick_at_once() -> void:
 		. override_failure_message("a snapshot put the cursor back where the host had it")
 		. is_equal(1)
 	)
+	# Taken here, the pick stays shut. The snapshots made before the host heard still carry it,
+	# and they are not to put the cards back up, nor take the card out of the hand again, nor is
+	# the host's word for it heard as a second pick.
+	# Host and client share one Events here, so the host's own word is heard too; what must not
+	# be is the host's word relayed to the client, which the client heard for itself already.
+	var heard := [0]
+	var count := func(slot: int, _joker: StringName) -> void:
+		if slot == 1 and NetSession._replaying:
+			heard[0] += 1
+	Events.joker_taken.connect(count)
+	var wanted: Joker = offer.choices[1]
+	# Picks stand for a moment before they can be answered, so nobody takes one by accident.
+	await _wait_until(func() -> bool: return offer.is_settled(), 2000)
+	# Taken the way a finger or the mouse takes one: a tap on the card, read with the controls on
+	# the next tick, answered here and sent to the host with the rest of them.
+	var touch_was := TouchInput.enabled
+	TouchInput.enabled = true
+	TouchInput.tap(1)
+	var answered := await _wait_until(func() -> bool: return offer.is_done(), 2000)
+	TouchInput.enabled = touch_was
+	assert_bool(answered).override_failure_message("the tap was never answered here").is_true()
+	var reopened := [false]
+	var dropped := [false]
+	for i: int in 40:
+		await get_tree().process_frame
+		var now: JokerOffer = client_match.slots[1].offer
+		if now != null and not now.is_done():
+			reopened[0] = true
+		if not client_match.slots[1].kart.jokers.ids().has(wanted.id):
+			dropped[0] = true
+	Events.joker_taken.disconnect(count)
+	(
+		assert_bool(reopened[0])
+		. override_failure_message("a stale snapshot put the pick back")
+		. is_false()
+	)
+	assert_bool(dropped[0]).override_failure_message("the card left the hand again").is_false()
+	var confirmed := await _wait_until(
+		func() -> bool: return host_match.slots[1].kart.jokers.ids().has(wanted.id), 4000
+	)
+	assert_bool(confirmed).override_failure_message("the host never took the card").is_true()
+	await await_millis(200)
+	assert_int(heard[0]).override_failure_message("the pick was heard twice").is_equal(0)
 
 
 ## A kart that has been down a hole and come back is still solid, GAME.md 10.3. Falling takes a

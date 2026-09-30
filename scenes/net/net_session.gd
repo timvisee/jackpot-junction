@@ -34,6 +34,8 @@ const DEFAULT_PORT := 7777
 ## that says nothing in that time, or says something the host turns down, is dropped.
 const HANDSHAKE_TIMEOUT := 5.0
 const SNAPSHOT_EVERY_TICKS := 2
+## How long a joker taken here is held against the host's word for it, see [method _took_here].
+const TAKEN_HEARD_MSEC := 2000
 
 ## Whether this process is in the middle of raising an event a host relayed to it, which is never
 ## relayed again. Shared by every session in the process: in a test that runs a host and a client
@@ -124,6 +126,8 @@ var _relaying := false
 var _watchers: Dictionary[int, bool] = {}
 ## On the host: when each watcher may put up their next emote, in engine ticks of milliseconds.
 var _watcher_next: Dictionary[int, int] = {}
+## On a client: jokers taken from a pick here, "slot|id" to when, see [method _took_here].
+var _taken_here: Dictionary[String, int] = {}
 var _watching_here: Dictionary[int, bool] = {}
 ## Whether this machine is asking for a pause, and which of the host's clients are.
 var _asking := false
@@ -148,6 +152,7 @@ func _init() -> void:
 func _ready() -> void:
 	if version.is_empty():
 		version = Game.version()
+	Events.joker_taken.connect(_took_here)
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.connected_to_server.connect(_on_connected)
@@ -933,12 +938,28 @@ func _relay_event(name: StringName, args: Array) -> void:
 ## the button goes down, GAME.md 10.3, so the host's word for that same shot, arriving a round trip
 ## later, would be the same shot heard twice.
 func _already_heard(name: StringName, args: Array) -> bool:
-	if name != &"bullet_fired" or args.is_empty():
+	if args.is_empty():
 		return false
-	for each: ClientSeat in seats:
-		if each.fired_first(int(args[0])):
-			return true
+	if name == &"bullet_fired":
+		for each: ClientSeat in seats:
+			if each.fired_first(int(args[0])):
+				return true
+	# A joker a player here took from their pick was heard as they took it, see [method
+	# _took_here]. Once: the same card taken again later is heard again.
+	if name == &"joker_taken" and args.size() >= 2:
+		var key := "%d|%s" % [int(args[0]), String(args[1])]
+		var at: int = _taken_here.get(key, -TAKEN_HEARD_MSEC)
+		_taken_here.erase(key)
+		return Time.get_ticks_msec() - at < TAKEN_HEARD_MSEC
 	return false
+
+
+## A joker taken from a pick by a player here, GAME.md 10.3: answered and heard on this machine at
+## once, and noted, so the host's word for it a round trip later is not heard a second time.
+func _took_here(slot: int, joker: StringName) -> void:
+	if _replaying or is_host or match_node == null or not match_node.is_local_seat(slot):
+		return
+	_taken_here["%d|%s" % [slot, String(joker)]] = Time.get_ticks_msec()
 
 
 ## The host forwards gameplay events so clients' HUD and audio react like the host's.

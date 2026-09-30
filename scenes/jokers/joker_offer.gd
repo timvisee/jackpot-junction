@@ -12,6 +12,11 @@ const STEER_STEP := 0.6
 ## with a thumb on the fire button and the pick opens under that same thumb, so without a moment
 ## first the card under the cursor is claimed before anybody has read a word of it.
 const SETTLE := 0.5
+## How long a pick answered at a client stays answered there while the host has not yet heard,
+## GAME.md 10.3: the snapshots made before the answer reached it still carry the pick, and they
+## are not to put it back on the screen. Past this the answer is taken to be lost on the way, and
+## the host's pick is the one to answer again.
+const ANSWER_HOLD := 1.0
 
 var choices: Array[Joker] = []
 var stage := Stage.CHOOSING
@@ -22,6 +27,9 @@ var taken: Joker
 ## allowed from the first frame: which card somebody is looking at was never the problem. Set to
 ## zero to open a pick that answers at once.
 var answer_at := 0.0
+## When this pick was answered on this machine, or below zero while it is open, see
+## [constant ANSWER_HOLD].
+var answered_at := -1.0
 ## A pick of which of last map's jokers to keep, see [JokerKeep], rather than of a new one. It
 ## cannot be skipped, and it runs out: [member keep_left] seconds are left to answer it.
 var keeping := false
@@ -68,6 +76,12 @@ func take(index: int) -> void:
 func skip() -> void:
 	if stage == Stage.CHOOSING and not keeping:
 		stage = Stage.DONE
+		answered_at = _now()
+
+
+## Whether this pick was answered on this machine so lately that the host may not have heard yet.
+func answered_lately() -> bool:
+	return is_done() and answered_at >= 0.0 and _now() - answered_at < ANSWER_HOLD
 
 
 ## Destroys the held joker at [param held_index] and takes the chosen one in its place.
@@ -182,4 +196,5 @@ func _pressed(action: StringName, device: int) -> bool:
 func _finish() -> void:
 	taken = _kart.jokers.add(chosen)
 	stage = Stage.DONE
+	answered_at = _now()
 	Events.joker_taken.emit(_kart.slot, chosen.id)
