@@ -4560,6 +4560,22 @@ bots, `make bench` and `make profile` on 2026-09-30:
 | Frame rate, 1080p, Forward+ | 442 fps | 516 fps |
 | Frame rate, 2400 by 1080, the mobile renderer | 408 fps | 651 fps |
 
+And on a phone, a Pixel 7 at 1080 by 2400, both builds debug exports with the
+phone's own defaults, read off Show FPS in screenshots taken over adb forty
+seconds into a match against three bots on Lucky Crossing:
+
+| | Before | After |
+|---|---|---|
+| In the match, eight readings | 21 to 42 fps, mostly the mid-thirties | 40 to 57 fps, mostly around fifty |
+| In the lobby | 45 fps | 60 fps |
+
+The phone's screen is 90 Hz with v-sync on, so the readings step between the
+rates a frame time lands on. The recipe: `make android-install` (a debug build,
+so `adb shell run-as com.timvisee.jackpotjunction` can write `files/settings.cfg`
+with `show_fps=true` under `[video]`), `adb shell input tap` through the title
+and `adb shell input motionevent DOWN`/`MOVE`/`UP` to hold the stick onto the
+ready pad, then `adb exec-out screencap -p` and read the corner.
+
 ## 11. Roadmap
 
 Milestones are built in order. M4 is the first release, a complete
