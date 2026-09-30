@@ -54,7 +54,7 @@ func heard(peer: int) -> void:
 	total += 1
 	heard_from.emit(peer, count)
 	if count == KICK_AT:
-		_show_out(peer, "sent what no copy of the game sends, %d times" % count)
+		_show_out(peer, "sent abnormal state %d times" % count)
 
 
 ## At the host: [param peer] sent a message; past [constant FLOOD] of them in a second, it is

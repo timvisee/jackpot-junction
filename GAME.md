@@ -4378,7 +4378,8 @@ who hit whom, what was collected and what anything is worth.
   one more than none in case the game itself ever has a bug that sends one, the
   host shows it out: it is told "Kicked: abnormal behavior detected", everybody
   else sees the same after its name in a line of the kill feed, and a dedicated
-  server writes each one in its log. What a slow line sends never counts: a claim
+  server writes each one in its log, "Tim sent abnormal state (2/3)", and the
+  kick after the third, "sent abnormal state 3 times". What a slow line sends never counts: a claim
   too far away to follow, a packet too late to play, a pick answered after it
   closed or a card no longer held are what an honest player on a bad connection
   sends, and they are only not acted on. `tools/server_check` fails on any such

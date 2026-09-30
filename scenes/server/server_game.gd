@@ -217,12 +217,7 @@ func _watch(session: NetSession) -> void:
 	)
 	session.conduct.heard_from.connect(
 		func(peer: int, count: int) -> void:
-			say(
-				(
-					"%s sent what no copy of the game sends, %d of %d"
-					% [_name_of(peer), count, NetConduct.KICK_AT]
-				)
-			)
+			say("%s sent abnormal state (%d/%d)" % [_name_of(peer), count, NetConduct.KICK_AT])
 	)
 	session.conduct.shown_out.connect(
 		func(peer: int, named: String, why: String) -> void:
