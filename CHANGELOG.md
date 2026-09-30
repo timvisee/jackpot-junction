@@ -21,6 +21,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The lobby's football answers at once online.** A client's kart kicks it the moment the two
+  meet, rather than driving into a ball that shoots off a round trip later.
 - **Pickups and pads are instant online.** A client's kart takes a chip, die, box or card, or a
   Royal Flush pad, the moment it gets there, with the flight and the sound; the host still decides
   what it was worth.

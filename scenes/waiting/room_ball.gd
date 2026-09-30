@@ -14,11 +14,18 @@ extends RigidBody3D
 ## room where there is nobody to shoot. Aim assist leans a shot onto it the way it does onto a kart,
 ## GAME.md 5.2, so a shot at the ball goes where it was meant to.
 ##
-## Online the host kicks it and says where it is; a client draws it where it was told, running on
-## at the speed it was told between one telling and the next.
+## Online the host kicks it and says where it is, and a client draws it where it was told, running
+## on at the speed it was told between one telling and the next, until its own kart meets it. Then
+## it is kicked there and then, on that machine, which runs it from there on and tells the host
+## where it is; the host goes by that client's word and passes it on, for as long as the client
+## has it: [constant OWN_TIME] after its kart last touched it, or until somebody else kicks it.
+## Waiting a round trip for the host to kick it was a kart driving into a ball that stood there and
+## then shot off from under it, GAME.md 9.6. A shot is still the host's to land, as every bullet is.
 
 ## The ball sends where it is, and how fast it is going, for the host to pass on.
 signal moved(state: Array)
+## At a client that has the ball: where it is, and which of its kicks it runs on, for the host.
+signal claimed(state: Array)
 ## Something has hit the ball hard enough to hear: a kart, [code]&"kick"[/code], or anything else,
 ## a wall, a prop or a shot, [code]&"knock"[/code]. [param strength] is how much it changed the
 ## ball's speed, in m/s. See [method _listen].
@@ -46,6 +53,10 @@ const HEARD_JOLT := 1.5
 const LOUD_JOLT := 14.0
 const LOUD_DB := -8.0
 const QUIET_DB := -24.0
+## Seconds a client runs the ball on its own word after its kart last touched it, and how long
+## the host goes without word from the client that has it before taking it back.
+const OWN_TIME := 2.0
+const OWNER_QUIET := 0.3
 ## How close a kart has to be for a hit to be a kick rather than a knock off something else.
 const KICK_REACH := 1.6
 ## Seconds after a sound in which the ball makes no other, so a ball a kart has pinned to a wall is
@@ -64,6 +75,14 @@ var match_node: Match
 var simulating := true
 ## Where it starts, and where it goes back to if it is ever found outside the room.
 var home := Vector3.ZERO
+## Online: this machine's peer, 1 at the host and on a game on one machine; whose word the ball is
+## on, by peer; and which of that client's kicks it is, see [method adopt].
+var here := 1
+var owner_peer := 1
+var owner_kick := 0
+## At a client that has the ball: whether the host has said it goes by this machine's word for the
+## latest kick, after which word of anybody else's is somebody having kicked it since.
+var agreed := false
 
 var _tick := 0
 ## The fastest the ball may go just now: [constant MAX_SPEED], or more straight after a kick on
@@ -82,6 +101,14 @@ var _shot := Vector3.ZERO
 var _was := Vector3.ZERO
 var _looked := false
 var _quiet_left := 0.0
+## At a client: how many times its karts have taken the ball and how long it still has it.
+var _kicks := 0
+var _own_left := 0.0
+## At the host: the last kick it went by from each client, how long since it heard from the one
+## that has the ball, and that client's latest word, for the next physics step to put the ball at.
+var _kick_of: Dictionary[int, int] = {}
+var _owner_quiet := 0.0
+var _adopted: Array = []
 
 
 ## Puts a ball on [param in_match]'s floor at [param at], kicked here when [param kicked_here]
@@ -134,10 +161,10 @@ func is_targetable() -> bool:
 	return true
 
 
-## A shot has landed on it: kicked on the way the shot was going, and the shot is spent. A client
-## runs no bullets of its own, and its ball goes where the host says.
+## A shot has landed on it: kicked on the way the shot was going, and the shot is spent. Only ever
+## at the host: a client runs no bullets of its own, even while it has the ball.
 func take_hit(bullet: Bullet) -> bool:
-	if not simulating:
+	if not simulating or here != 1:
 		return false
 	var going := Vector3(bullet.velocity.x, 0.0, bullet.velocity.z)
 	if going.is_zero_approx():
@@ -147,29 +174,74 @@ func take_hit(bullet: Bullet) -> bool:
 	return true
 
 
-## Where the host last said it is: [x, z, velocity x, velocity z].
+## Where the host last said it is: [x, z, velocity x, velocity z], and whose word that is, with
+## which of their kicks. While this machine has the ball, what the host says is what it had before
+## this machine's word reached it, and is let be; once the host has gone by this machine's latest
+## kick, word of anybody else's is somebody having kicked it since, and this machine lets go.
 func follow(state: Array) -> void:
 	if state.size() < 4:
 		return
+	if state.size() >= 6:
+		var said_owner := int(state[4])
+		var said_kick := int(state[5])
+		if simulating and here != 1:
+			if said_owner == here and said_kick == _kicks:
+				agreed = true
+			if said_owner == here or not agreed:
+				return
+			_let_go()
+		owner_peer = said_owner
+		owner_kick = said_kick
 	_told = Vector3(state[0], RADIUS, state[1])
 	_told_velocity = Vector3(state[2], 0.0, state[3])
+
+
+## At the host: [param peer]'s word for the ball its kart kicked, [x, z, velocity x, velocity z,
+## kick]. A kick newer than the last one heard from it gives it the ball, and word of the kick the
+## ball is already on moves it on; anything else is from before somebody else kicked it since.
+func adopt(peer: int, state: Array) -> void:
+	if state.size() < 5 or not simulating or here != 1:
+		return
+	var kick := int(state[4])
+	var last: int = _kick_of.get(peer, 0)
+	if kick > last:
+		_kick_of[peer] = kick
+		owner_peer = peer
+		owner_kick = kick
+	elif kick < last or owner_peer != peer:
+		return
+	_owner_quiet = 0.0
+	_adopted = [state[0], state[1], state[2], state[3]]
+	sleeping = false
 
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if not simulating or match_node == null:
 		return
 	var at := state.transform.origin
-	var velocity := state.linear_velocity + _shot
+	var velocity := state.linear_velocity
+	if not _adopted.is_empty():
+		at = Vector3(_adopted[0], RADIUS, _adopted[1])
+		velocity = Vector3(_adopted[2], 0.0, _adopted[3])
+		_adopted = []
+	var kicked_here := not _shot.is_zero_approx()
+	velocity += _shot
 	_shot = Vector3.ZERO
 	for slot: PlayerSlot in match_node.slots:
 		var kart := slot.kart
 		if kart == null or not kart.alive or kart.falling or not kart.is_inside_tree():
+			continue
+		# A kart played at a client is kicked with there, and the host told.
+		if here == 1 and kart.input is NetInput:
 			continue
 		var kicked := _kick(at, velocity, kart)
 		at = kicked[0]
 		velocity = kicked[1]
 		if kicked[2]:
 			_cap = MAX_SPEED * NITRO_KICK
+		kicked_here = kicked_here or (kicked[3] and (here == 1 or kart.predicted))
+	if kicked_here:
+		_kicked_here()
 	velocity.y = 0.0
 	if velocity.length() > _cap:
 		velocity = velocity.normalized() * _cap
@@ -187,7 +259,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 
 ## The ball off one kart: if it is inside the kart's box, out to its edge and away, bouncing off
 ## the side it met with the speed that side was coming at it, twice as hard off a kart on nitro.
-## Returns [where, how fast, whether it was a kick on nitro].
+## Returns [where, how fast, whether it was a kick on nitro, whether it touched the kart at all].
 func _kick(at: Vector3, velocity: Vector3, kart: Kart) -> Array:
 	var center := Vector3(kart.global_position.x, 0.0, kart.global_position.z)
 	var flat := Vector3(at.x, 0.0, at.z)
@@ -201,33 +273,100 @@ func _kick(at: Vector3, velocity: Vector3, kart: Kart) -> Array:
 	var away := flat - touch
 	var gap := away.length()
 	if gap >= RADIUS:
-		return [at, velocity, false]
+		return [at, velocity, false, false]
 	# Its middle inside the kart: straight out from the kart's own middle.
 	var normal := away / gap if gap > 0.001 else (flat - center).normalized()
 	if normal.is_zero_approx():
 		normal = Vector3.RIGHT
 	var out := touch + normal * RADIUS
-	var coming := velocity - Vector3(kart.velocity.x, 0.0, kart.velocity.z)
+	# The motor's, which is the kart's own driving and, for somebody else's on a client, the glide
+	# toward where the host last put it: a puppet is moved rather than driven.
+	var coming := velocity - Vector3(kart.motor.velocity.x, 0.0, kart.motor.velocity.z)
 	var into := coming.dot(normal)
 	var hard := kart.nitro_active and into < 0.0
 	if into < 0.0:
 		velocity -= (1.0 + RESTITUTION) * into * normal * (NITRO_KICK if hard else 1.0)
-	return [Vector3(out.x, at.y, out.z), velocity, hard]
+	return [Vector3(out.x, at.y, out.z), velocity, hard, true]
+
+
+## A kart of this machine's own kicked it, or a shot did at the host: at a client the ball is its
+## own for [constant OWN_TIME] more, and at the host it is back on the host's word.
+func _kicked_here() -> void:
+	if here != 1:
+		_own_left = OWN_TIME
+	elif owner_peer != 1:
+		owner_peer = 1
+		owner_kick = 0
 
 
 func _physics_process(delta: float) -> void:
-	if simulating:
-		_listen(linear_velocity, delta)
-		_tick += 1
-		if _tick % SHARE_EVERY == 0:
-			var at := global_position
-			moved.emit([at.x, at.z, linear_velocity.x, linear_velocity.z])
+	if not simulating:
+		_follow_on(delta)
 		return
-	# Run on at the speed it was told between tellings, and close on it.
+	_listen(linear_velocity, delta)
+	_tick += 1
+	if here != 1:
+		_own_left -= delta
+		if _own_left <= 0.0:
+			_let_go()
+		elif _tick % SHARE_EVERY == 0:
+			claimed.emit(_state() + [_kicks])
+		return
+	if owner_peer != 1:
+		_owner_quiet += delta
+		if _owner_quiet > OWNER_QUIET:
+			# Its client has let go of it, or gone.
+			owner_peer = 1
+			owner_kick = 0
+	if _tick % SHARE_EVERY == 0:
+		moved.emit(_state() + [owner_peer, owner_kick])
+
+
+func _state() -> Array:
+	var at := global_position
+	return [at.x, at.z, linear_velocity.x, linear_velocity.z]
+
+
+## At a client without the ball: a kart of its own that meets it kicks it, and gives it the ball.
+## Otherwise it runs on at the speed it was told between tellings, and closes on it.
+func _follow_on(delta: float) -> void:
+	if match_node != null:
+		for slot: PlayerSlot in match_node.slots:
+			var kart := slot.kart
+			if kart == null or not kart.predicted or not kart.alive or kart.falling:
+				continue
+			var kicked := _kick(global_position, _told_velocity, kart)
+			if kicked[3]:
+				_take(kicked)
+				return
 	_listen(_told_velocity, delta)
 	_told += _told_velocity * delta
 	_told_velocity *= maxf(1.0 - ROLLING_DAMP * delta, 0.0)
 	global_position = global_position.lerp(_told, FOLLOW)
+
+
+## This machine's kart has met the ball: kicked here and now, and run here from now on.
+func _take(kicked: Array) -> void:
+	_kicks += 1
+	_own_left = OWN_TIME
+	agreed = false
+	simulating = true
+	freeze = false
+	if kicked[2]:
+		_cap = MAX_SPEED * NITRO_KICK
+	var at: Vector3 = kicked[0]
+	global_position = Vector3(at.x, RADIUS, at.z)
+	linear_velocity = (kicked[1] as Vector3).limit_length(_cap)
+	sleeping = false
+
+
+## Long enough since this machine's kart last touched it: back to the host's word, from where it is.
+func _let_go() -> void:
+	simulating = false
+	_own_left = 0.0
+	_told = global_position
+	_told_velocity = Vector3(linear_velocity.x, 0.0, linear_velocity.z)
+	freeze = true
 
 
 ## Hears the ball being hit, on every machine the same way: from how suddenly its speed changed. A

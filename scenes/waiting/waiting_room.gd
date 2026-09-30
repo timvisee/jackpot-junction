@@ -443,14 +443,18 @@ func _dress_the_room() -> void:
 	match_node.camera_rig.show_the_room(0.8)
 	WaitingProps.add_to(match_node.arena)
 	stalls = StyleStalls.add_to(match_node, STALLS)
-	# The host, or this machine alone, kicks the ball and a client is told where it went.
+	# The host, or this machine alone, kicks the ball and a client is told where it went, until a
+	# kart of its own kicks it, see [RoomBall].
 	var joining := config.online == "join"
 	ball = RoomBall.add_to(match_node, BALL_SPOT, not joining)
 	if session != null:
+		ball.here = session.multiplayer.get_unique_id() if joining else 1
 		if joining:
-			session.ball_moved.connect(ball.follow)
+			session.ball.told.connect(ball.follow)
+			ball.claimed.connect(session.ball.claim)
 		else:
-			ball.moved.connect(session.share_ball)
+			ball.moved.connect(session.ball.share)
+			session.ball.claimed.connect(ball.adopt)
 
 
 ## The line under the ready count that says how somebody at another machine gets in. Held until

@@ -702,7 +702,7 @@ func test_a_kick_on_nitro_is_twice_as_hard() -> void:
 	var at := ball.global_position
 	kart.global_position = Vector3(at.x - 1.1, 0.0, at.z)
 	kart.face(Vector3.RIGHT)
-	kart.velocity = Vector3(8.0, 0.0, 0.0)
+	kart.motor.velocity = Vector3(8.0, 0.0, 0.0)
 	kart.nitro_active = false
 	var plain: Array = ball._kick(at, Vector3.ZERO, kart)
 	kart.nitro_active = true

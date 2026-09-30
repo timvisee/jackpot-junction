@@ -415,11 +415,17 @@ func _client_joins() -> Node:
 			30.0,
 			"up to the ball"
 		)
+		# Kicked on this screen the moment the kart meets it, before the host has heard.
+		var kicked_here := [false]
 		await _until(
-			func() -> bool: return _walk(match_node, seat, ball.home + Vector3(1.5, 0.0, 0.0)),
+			func() -> bool:
+				kicked_here[0] = kicked_here[0] or ball.simulating
+				return _walk(match_node, seat, ball.home + Vector3(1.5, 0.0, 0.0)),
 			30.0,
 			"through the ball"
 		)
+		_check(kicked_here[0], "it was kicked on this screen at once")
+		await _until(func() -> bool: return ball.agreed, 5.0, "and the host went by that kick")
 		await _until(
 			func() -> bool: return ball.global_position.distance_to(ball.home) > 0.5,
 			10.0,

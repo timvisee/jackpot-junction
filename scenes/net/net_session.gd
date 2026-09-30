@@ -20,8 +20,6 @@ signal watching_started
 signal match_beginning
 ## The match is over and the host is taking everybody back to the waiting room, GAME.md 9.6.
 signal back_to_room
-## Where the host says the waiting room's football is, see [RoomBall].
-signal ball_moved(state: Array)
 ## The host has turned this machine away, and why, for the player to be told, GAME.md 10.3.
 signal refused(reason: String)
 ## The host wants a password this client did not give, or not the one it gave, GAME.md 9.6.
@@ -105,6 +103,8 @@ var ping: NetPing
 ## The host's say over its game, see [HostControls]: made with the session, since the menus that
 ## ask it are made for sessions that may not be in the tree.
 var host_controls := HostControls.of(self)
+## The waiting room's football on the wire, see [BallWire].
+var ball := BallWire.new()
 
 var _tick := 0
 ## On the host: the seats its clients hold, see [PeerSeats].
@@ -147,6 +147,7 @@ var _handshake := NetHandshake.of(self)
 
 func _init() -> void:
 	add_child(host_controls)
+	add_child(ball)
 
 
 func _ready() -> void:
@@ -297,18 +298,6 @@ func _leaving() -> void:
 	_room_up = false
 	_watching_here.clear()
 	_peer_slots.keep_room(match_node)
-
-
-## Where the waiting room's football is, from the host that kicks it to everybody watching it,
-## GAME.md 9.6. Sent often and unreliably: a telling that goes missing is overtaken by the next.
-func share_ball(state: Array) -> void:
-	if is_host and _connected() and not multiplayer.get_peers().is_empty():
-		_ball_state.rpc(state)
-
-
-@rpc("authority", "call_remote", "unreliable_ordered")
-func _ball_state(state: Array) -> void:
-	ball_moved.emit(state)
 
 
 ## A client that has followed the host into another room asks for its seat there, once the room

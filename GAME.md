@@ -3521,7 +3521,14 @@ kart is close enough to have kicked it and a knock off anything else, louder the
 and nothing while it only rolls. It
 is nobody's on the pad, and a ball ever found outside the room goes back to where it started.
 Online the host kicks it and tells everybody where it went, often and without waiting for an
-answer; a client draws it rolling on between one telling and the next.
+answer; a client draws it rolling on between one telling and the next. Until the client's own kart
+meets it: then it is kicked there and then, on that machine, which runs it from there on and tells
+the host where it is, and the host goes by that word and passes it on, for as long as the client
+has it, two seconds after its kart last touched it or until somebody else kicks it. The last to
+kick it is the one whose word counts. Waiting a round trip for the host to kick it was a kart
+driving into a ball that stood there and then shot off from under it. What the host says in the
+meantime is from before the kick, so the client keeps to its own word until the host has said it
+goes by it. A shot is still the host's to land, as every bullet is, and takes the ball back.
 
 Nothing else is in it. There is no clock, nothing to shoot but the ball, nothing to collect and
 no score: the room asks one thing of anybody in it.
@@ -4003,6 +4010,7 @@ only shows its kart taking what it has driven over, and waits to be told.
 | What is on the floor and who took it | the host | the snapshot, as what changed |
 | Items held and items used | the host | the snapshot |
 | The joker pick in front of me | the client works its own | the host decides what is actually held |
+| The waiting room's football | the client whose kart kicked it last, for a while, 9.6 | it tells the host, and the host passes it on |
 | Statistics and awards | the host | the snapshot |
 | The clock, the state, Last Call, overtime | the host | the snapshot |
 | Jackpot, Royal Flush pads, the bounty | the host | the snapshot |
