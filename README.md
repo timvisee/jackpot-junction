@@ -121,6 +121,7 @@ Read on every scene, so they work in any build.
 | `--server`             | Runs a dedicated server instead of the game, see Running a server       | Yes   | Yes     |
 | `--port=<port>`        | With `--server`: the port players connect to, 7777 unless given         | Yes   | Yes     |
 | `--games=<n>`          | With `--server`: how many games it holds at once, 8 unless given        | Yes   | Yes     |
+| `--game-ports=<a>-<b>` | With `--server`: its games' ports, the ones after `--port` unless given | Yes   | Yes     |
 
 `--bench` leaves its first 120 frames out of the count, as the warm-up, so shader
 compiles and the arena being built do not count against the frame rate, and it
@@ -233,8 +234,17 @@ make server ARGS="--games=4"                                          # from thi
 Players connect with Play Online, to the server's address and port. It
 listens on 7777, as a LAN game does, unless given `--port`, and runs each game
 in a process of its own on the ports after it, up to `--games` of them: 7778 to
-7785 by default, so let UDP 7777 to 7785 through a firewall or router. A LAN
-game on the same machine needs another port. A game is about a quarter of a
+7785 by default, so let UDP 7777 to 7785 through a firewall or router.
+`--game-ports=9000-9015` puts the games on ports of their own instead. A LAN
+game on the same machine needs another port.
+
+The same three can be set in the environment, which the command line overrides:
+
+| Variable        | Argument       | Default                                  |
+|-----------------|----------------|------------------------------------------|
+| `JJ_PORT`       | `--port`       | `7777`                                   |
+| `JJ_GAMES`      | `--games`      | `8`, or as many as `JJ_GAME_PORTS` holds |
+| `JJ_GAME_PORTS` | `--game-ports` | the `JJ_GAMES` ports after `JJ_PORT`     | A game is about a quarter of a
 gigabyte of memory, and a server with no game running about 90 MB and next to
 no processor: a game's process is only started when somebody makes a game.
 Whoever makes a game has the host's say over it, passed on to whoever has been

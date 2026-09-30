@@ -10,7 +10,7 @@ const FPS := 10
 
 
 func _ready() -> void:
-	var args := ServerArgs.read(OS.get_cmdline_user_args())
+	var args := ServerArgs.of_this_process()
 	Engine.max_fps = FPS
 	OS.low_processor_usage_mode = true
 	PhysicsServer3D.set_active(false)

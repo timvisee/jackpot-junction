@@ -458,3 +458,55 @@ func test_the_arguments() -> void:
 	assert_int(game.game).is_equal(4)
 	assert_int(game.report).is_equal(5555)
 	assert_str(game.key).is_equal("k")
+
+
+## The games' ports as a range of their own, for a firewall or a container that lets through a
+## different stretch than the one after the server's port. As many games as the range has room
+## for, eight at most unless asked for; asked for more than it has room for, it says so.
+func test_the_games_ports_as_a_range() -> void:
+	var ranged := ServerArgs.read(["--server", "--game-ports=9100-9103"])
+	assert_int(ranged.port).is_equal(ServerArgs.PORT)
+	assert_int(ranged.games).is_equal(4)
+	assert_array(ranged.game_ports()).is_equal([9100, 9101, 9102, 9103] as Array[int])
+	assert_str(ranged.problem()).is_empty()
+	var wide := ServerArgs.read(["--game-ports=9100-9199"])
+	assert_int(wide.games).is_equal(ServerArgs.GAMES)
+	assert_int(ServerArgs.read(["--game-ports=9100-9199", "--games=20"]).game_ports()[-1]).is_equal(
+		9119
+	)
+	var one := ServerArgs.read(["--game-ports=9100"])
+	assert_array(one.game_ports()).is_equal([9100] as Array[int])
+	assert_str(ServerArgs.read(["--game-ports=9100-9101", "--games=3"]).problem()).contains("2")
+	assert_str(ServerArgs.read(["--game-ports=9101-9100"]).problem()).is_not_empty()
+	assert_str(ServerArgs.read(["--game-ports=lots"]).problem()).is_not_empty()
+	assert_str(ServerArgs.read(["--game-ports=1-2-3"]).problem()).is_not_empty()
+	assert_str(ServerArgs.read(["--game-ports=9100-70000"]).problem()).is_not_empty()
+	assert_str(ServerArgs.read(["--port=9102", "--game-ports=9100-9105"]).problem()).contains(
+		"own port"
+	)
+
+
+## The same three settings from the environment, JJ_PORT, JJ_GAMES and JJ_GAME_PORTS, the way a
+## container is told them, and the command line over them; an empty one is left out.
+func test_the_arguments_from_the_environment() -> void:
+	var told := ServerArgs.read(
+		["--server"], {"JJ_PORT": "9200", "JJ_GAMES": " 3 ", "JJ_GAME_PORTS": "9300-9309"}
+	)
+	assert_int(told.port).is_equal(9200)
+	assert_int(told.games).is_equal(3)
+	assert_array(told.game_ports()).is_equal([9300, 9301, 9302] as Array[int])
+	var over := ServerArgs.read(["--port=9400", "--games=2"], {"JJ_PORT": "9200", "JJ_GAMES": "3"})
+	assert_int(over.port).is_equal(9400)
+	assert_int(over.games).is_equal(2)
+	var empty := ServerArgs.read([], {"JJ_PORT": "", "JJ_GAMES": ""})
+	assert_int(empty.port).is_equal(ServerArgs.PORT)
+	assert_int(empty.games).is_equal(ServerArgs.GAMES)
+	var wrong := ServerArgs.read([], {"JJ_PORT": "high"})
+	assert_str(wrong.problem()).contains("JJ_PORT")
+	# Nothing else is read from it: a game the hall starts is told its port on the command line,
+	# whatever the environment it inherits says, and the environment never makes a server.
+	var game := ServerArgs.read(["--server", "--game=2", "--port=9301"], {"JJ_PORT": "9200"})
+	assert_int(game.port).is_equal(9301)
+	assert_bool(ServerArgs.read([], {"JJ_PORT": "9200"}).server).is_equal(
+		OS.has_feature("dedicated_server")
+	)

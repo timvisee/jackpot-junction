@@ -3282,7 +3282,11 @@ about 75 MB against the game's 95. The game proper is a server too, started head
 checkout. Linux is what it is made for and tried on. It listens on port 7777, the port a LAN
 game is hosted on, unless given `--port`, so a LAN game on the same machine takes another one, and
 holds up to 8 games at once unless given `--games`, on the ports after its own: 7778 to 7785 to
-start with, so a server behind a router has 7777 to 7785 let through for UDP. Each game is a process
+start with, so a server behind a router has 7777 to 7785 let through for UDP. `--game-ports=9000-9015`
+puts the games on a stretch of ports of its own instead, as many games as it has room for, still no
+more than 8 at once unless `--games` says more. Each of the three may be set in the environment
+instead, `JJ_PORT`, `JJ_GAMES` and `JJ_GAME_PORTS`, the way a container is set up, with the command
+line having the last word over the environment. Each game is a process
 of its own, the game started again headless as a host with nobody at it, from the waiting room on: a
 game is the whole game, its event bus and everything else it keeps among it, and two in one process
 would hear each other's every kill. That costs about a quarter of a gigabyte and a small part of a
