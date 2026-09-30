@@ -52,6 +52,9 @@ below, and hands the notes to the release workflow.
   the crowd is lit without the shadow map or a highlight, and the DJ booth's speakers and its DJ
   are cut like everything else: the crowd's share of the card's frame went from a tenth to a
   sixteenth.
+- **A side of the crowd off the screen is not drawn.** The house stands in four blocks, one a
+  side of the table, so a camera zoomed onto one end drops the people at the other before a
+  vertex of them is run.
 
 ## [0.10.0] - 2026-09-29
 

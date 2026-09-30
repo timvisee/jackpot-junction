@@ -132,7 +132,13 @@ var _size := Vector2.ZERO
 var _stands: Node3D
 var _shirts: PackedColorArray = []
 var _traits: PackedColorArray = []
-var _onlookers: MultiMeshInstance3D
+## The house, one [MultiMeshInstance3D] a side of the table under this, GAME.md 10.7: a
+## MultiMesh is culled whole, so a camera zoomed onto one end of the table drops the far
+## side's people before a vertex of them is run, where one house for the lot was always drawn.
+var _onlookers: Node3D
+var _houses: Array[MultiMeshInstance3D] = []
+## Which side of the table each spot stands on, 0 to 3, in step with [member _spots].
+var _sides: PackedInt32Array = []
 var _skins: Array[ShaderMaterial] = []
 var _speakers: Array[Node3D] = []
 ## Whoever is behind the decks, who dances in the booth's own space rather than on the table.
@@ -270,12 +276,14 @@ func _build(size: Vector2) -> void:
 	for child: Node in get_children():
 		child.free()
 	_spots.clear()
+	_sides.clear()
 	_shirts.clear()
 	_traits.clear()
 	_footprints.clear()
 	_skins.clear()
 	_speakers.clear()
 	_onlookers = null
+	_houses.clear()
 	_stands = null
 	_dj = null
 	var kept := _clear.duplicate()
@@ -305,7 +313,7 @@ func _ring(half: Vector2, row: int) -> void:
 		Vector3(-half.x, 0.0, half.y),
 	]
 	for i: int in 4:
-		_line(corners[i], corners[(i + 1) % 4], row)
+		_line(corners[i], corners[(i + 1) % 4], row, i)
 
 
 ## How far out from the arena wall row [param row] stands, and how far apart the people in it
@@ -326,14 +334,14 @@ static func _row_density(row: int) -> float:
 	return lerpf(PACKED, THINNED, float(row) / maxf(float(ROWS - 1), 1.0))
 
 
-func _line(from: Vector3, to: Vector3, row: int) -> void:
+func _line(from: Vector3, to: Vector3, row: int, side: int) -> void:
 	var steps := maxi(int(from.distance_to(to) / _row_spacing(row)), 1)
 	for i: int in steps:
-		_stand(from.lerp(to, float(i) / float(steps)), row)
+		_stand(from.lerp(to, float(i) / float(steps)), row, side)
 
 
-## Rolls one onlooker onto a spot, or leaves the spot empty.
-func _stand(at: Vector3, row: int) -> void:
+## Rolls one onlooker onto a spot on [param side] of the table, or leaves the spot empty.
+func _stand(at: Vector3, row: int, side: int) -> void:
 	# Grown by the jitter, since the spot is rolled off this point and could wander in.
 	if _blocked(Vector2(at.x, at.z), JITTER):
 		return
@@ -347,6 +355,7 @@ func _stand(at: Vector3, row: int) -> void:
 	var turned := Basis.from_euler(Vector3(0.0, _rng.randf_range(0.0, TAU), 0.0))
 	var size := _rng.randf_range(SIZE_RANGE.x, SIZE_RANGE.y)
 	_spots.append(Transform3D(turned.scaled(Vector3.ONE * size), spot))
+	_sides.append(side)
 	var shirt := _wardrobe().srgb_to_linear()
 	# The alpha is not transparency: it is how dark this one's face is, carried along with the
 	# shirt so that one instance color dresses both surfaces.
@@ -456,34 +465,67 @@ static func _slab(size: Vector3) -> BoxMesh:
 	return mesh
 
 
-## Puts the whole house into one [MultiMesh]. Everything that varies between two people is in the
-## instance buffer, which is written once and never touched again.
-func _raise_house(outer: Vector2) -> void:
+## Puts the house up as one [MultiMesh] a side of the table, all four drawing the one mesh in the
+## one pair of materials. Everything that varies between two people is in the instance buffers,
+## which are written once and never touched again.
+func _raise_house(_outer: Vector2) -> void:
 	var mesh := _figure_mesh()
 	mesh.surface_set_material(0, _skin(SHIRT_SHADER))
 	mesh.surface_set_material(1, _skin(FACE_SHADER))
+	_onlookers = Node3D.new()
+	_onlookers.name = "Onlookers"
+	add_child(_onlookers)
+	for side: int in 4:
+		var house := _raise_side(mesh, side)
+		if house != null:
+			_houses.append(house)
+
+
+## The people on [param side] of the table as one [MultiMeshInstance3D], or null when nobody is
+## standing there.
+func _raise_side(mesh: Mesh, side: int) -> MultiMeshInstance3D:
+	var mine: PackedInt32Array = []
+	for i: int in _spots.size():
+		if _sides[i] == side:
+			mine.append(i)
+	if mine.is_empty():
+		return null
 	var multimesh := MultiMesh.new()
 	multimesh.transform_format = MultiMesh.TRANSFORM_3D
 	multimesh.use_colors = true
 	multimesh.use_custom_data = true
 	multimesh.mesh = mesh
-	multimesh.instance_count = _spots.size()
-	for i: int in _spots.size():
-		multimesh.set_instance_transform(i, _spots[i])
-		multimesh.set_instance_color(i, _shirts[i])
-		multimesh.set_instance_custom_data(i, _traits[i])
-	_onlookers = MultiMeshInstance3D.new()
-	_onlookers.name = "Onlookers"
-	_onlookers.multimesh = multimesh
+	multimesh.instance_count = mine.size()
+	# The box the side is culled by: round everybody's feet, out by the biggest of them and the
+	# jitter they were rolled off their spots with, and up by the jump the shader lifts them by.
+	var low := _spots[mine[0]].origin
+	var high := low
+	for at: int in mine.size():
+		var spot := _spots[mine[at]]
+		low = low.min(spot.origin)
+		high = high.max(spot.origin)
+		multimesh.set_instance_transform(at, spot)
+		multimesh.set_instance_color(at, _shirts[mine[at]])
+		multimesh.set_instance_custom_data(at, _traits[mine[at]])
+	var house := MultiMeshInstance3D.new()
+	house.name = "Side%d" % side
+	house.multimesh = multimesh
 	# A crowd this size casting a thousand shadows costs more than the crowd does, and they are
 	# standing off the floor where nothing of the match ever reaches them.
-	_onlookers.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	# One cull unit, and the shader lifts people off their spots, so the box has to allow for it.
-	_onlookers.custom_aabb = AABB(
-		Vector3(-outer.x - 1.0, TABLE_TOP - 0.5, -outer.y - 1.0),
-		Vector3(outer.x * 2.0 + 2.0, 4.0, outer.y * 2.0 + 2.0)
-	)
-	add_child(_onlookers)
+	house.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var room := (SIZE_RANGE.y * 0.5 + JITTER) * Vector3(1.0, 0.0, 1.0)
+	var tall := Vector3(0.0, (BODY + HEAD * 2.0) * SIZE_RANGE.y + JUMP + 1.0, 0.0)
+	house.custom_aabb = AABB(low - room - Vector3(0.0, 0.5, 0.0), high - low + room * 2.0 + tall)
+	_onlookers.add_child(house)
+	return house
+
+
+## How many onlookers the houses hold between them, for the tests.
+func drawn() -> int:
+	var total := 0
+	for house: MultiMeshInstance3D in _houses:
+		total += house.multimesh.instance_count
+	return total
 
 
 ## One onlooker as a single mesh with its feet at the origin: a body and a head, coarse enough

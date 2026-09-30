@@ -30,7 +30,7 @@ func test_half_a_house_is_half_the_people() -> void:
 	for i: int in Crowd.REBUILD_WAIT + 1:
 		crowd._process(1.0 / 60.0)
 	assert_int(crowd.count()).is_between(int(full * 0.35), int(full * 0.65))
-	assert_int(crowd._onlookers.multimesh.instance_count).is_equal(crowd.count())
+	assert_int(crowd.drawn()).is_equal(crowd.count())
 	Game.settings.crowd_size = was
 
 
@@ -49,10 +49,29 @@ func test_the_table_is_ringed_with_onlookers_and_a_booth() -> void:
 		assert_bool(outside).override_failure_message("somebody is standing on the floor").is_true()
 		lowest = minf(lowest, at.y - Crowd.TABLE_TOP)
 	assert_float(lowest).is_greater_equal(-0.001)
-	# Two draw calls for the lot of them, not two thousand nodes.
+	# A MultiMesh a side of the table for the lot of them, GAME.md 10.7, not two thousand nodes:
+	# one side's people are culled together when the camera has zoomed away from them.
 	assert_int(crowd.get_child_count()).is_less(4)
-	assert_int(crowd._onlookers.multimesh.instance_count).is_equal(crowd.count())
-	assert_int(crowd._onlookers.multimesh.mesh.get_surface_count()).is_equal(2)
+	assert_int(crowd._houses.size()).is_equal(4)
+	assert_int(crowd.drawn()).is_equal(crowd.count())
+	assert_int(crowd._houses[0].multimesh.mesh.get_surface_count()).is_equal(2)
+	for house: MultiMeshInstance3D in crowd._houses:
+		assert_object(house.multimesh.mesh).is_same(crowd._houses[0].multimesh.mesh)
+	# Each side's box holds each of its own people, jump and all. Checked against the spots kept
+	# here rather than read back off the MultiMesh, which a headless run does not keep.
+	var outside := 0
+	for i: int in crowd._spots.size():
+		var house: MultiMeshInstance3D = crowd._onlookers.get_node("Side%d" % crowd._sides[i])
+		var feet: Vector3 = crowd._spots[i].origin
+		if not house.custom_aabb.has_point(feet):
+			outside += 1
+		if not house.custom_aabb.has_point(feet + Vector3(0.0, 1.0, 0.0)):
+			outside += 1
+	(
+		assert_int(outside)
+		. override_failure_message("%d people stand outside their box" % outside)
+		. is_equal(0)
+	)
 	# No two of them are the same person standing in a line.
 	assert_vector(crowd._spots[0].origin).is_not_equal(crowd._spots[1].origin)
 	assert_object(crowd._shirts).is_not_equal(crowd._traits)

@@ -4498,10 +4498,18 @@ with the numbers that put them there.
   1.69 to 0.07 on the mobile renderer. After that, what is left to give is
   people: the crowd size setting of 8.5 rolls half as many onto the table, and
   a phone starts there. It is cosmetic either way: nobody in the crowd touches a
-  kart. Not done, and worth it if a phone still wants more: splitting the house
-  into a `MultiMesh` a side, so a camera zoomed onto a corner culls the other
-  three, and ordering the instances near to far for the mobile renderer's early
-  depth test.
+  kart.
+- **What is off the screen is culled in blocks, never one by one from script.**
+  A `MultiMesh` is culled whole, so with the house in one the far side's people
+  were run through the vertex shader and clipped whenever the camera zoomed onto
+  a corner. Testing eight hundred people against the frustum in GDScript every
+  frame would cost more than drawing them; putting the house up as four
+  `MultiMesh`es, one a side of the table, each with its own bounding box, lets the
+  engine drop a whole side for nothing. Measured with the camera pulled in on one
+  kart: the crowd's submitted primitives fall from 80,000 to 3,000, and its cost
+  on the mobile renderer from 0.19 ms to 0.07; framed on the whole table it costs
+  six more draw calls and nothing else. Not done: ordering the instances near to
+  far for the mobile renderer's early depth test.
 - **What is quadratic in the bullets is cheap per pair, and what every bullet
   asks is asked once.** Every pair of live bullets is checked for a meeting every
   tick, which is five thousand pairs at the budget's hundred bullets; the closest
