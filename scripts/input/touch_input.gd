@@ -19,6 +19,9 @@ static var handbrake := false
 static var nitro := false
 static var fire := false
 static var use_item := false
+## Where on the floor a finger last pointed a freely aimed cannon, GAME.md 4.2, not finite while
+## none has since the cannon came to hand, see [method KartAim.floor_point].
+static var aim_point := Vector3.INF
 ## Which of the jokers is open, or -1: the one a finger is resting on, or the one tapped to keep
 ## it open, which [member joker_pinned] says.
 static var joker_inspect := -1
@@ -63,6 +66,7 @@ static func release() -> void:
 	nitro = false
 	fire = false
 	use_item = false
+	aim_point = Vector3.INF
 	joker_inspect = -1
 	joker_pinned = false
 	pick_inspect = -1

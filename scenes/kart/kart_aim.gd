@@ -54,16 +54,23 @@ static func direction(kart: Kart) -> Vector3:
 	return aim
 
 
-## Where the kart itself is pointing: the nose, unless the cannon allows free aim and the stick
-## or the mouse says otherwise.
+## Where the kart itself is pointing: the nose, unless the cannon allows free aim and the stick,
+## the mouse or a finger says otherwise. Only a player's own: a bot's swivel is nobody's pointer's.
 static func _pointed(kart: Kart) -> Vector3:
 	var forward := -kart.global_basis.z
 	if not _free_aim(kart):
 		return forward
 	if kart.input.aim.length() > 0.3:
 		return Vector3(kart.input.aim.x, 0.0, kart.input.aim.y).normalized()
-	var mouse := _from_mouse(kart)
-	return mouse if mouse != Vector3.ZERO else forward
+	if not kart.input is PlayerInput:
+		return forward
+	# On a touch screen the mouse is wherever the last finger was, buttons and all, so it is the
+	# spot on the floor a finger last pointed at instead, see [TouchControls].
+	var on := TouchInput.aim_point
+	if not TouchInput.enabled:
+		on = floor_point(kart.get_viewport(), kart.get_viewport().get_mouse_position())
+	var toward := _toward(kart, on)
+	return toward if toward != Vector3.ZERO else forward
 
 
 ## Where this kart's player is pointing, flattened for the wire, GAME.md 10.3. A client resolves
@@ -133,21 +140,27 @@ static func assist_share(stats: CannonStats, still_for: float) -> float:
 	return lerpf(1.0, clampf(stats.assist_still_floor, 0.0, 1.0), clampf(over, 0.0, 1.0))
 
 
-## Where the mouse is pointing on the floor, at the height bullets fly, or zero when there is no
-## camera to ask or the pointer is somewhere the floor is not.
-static func _from_mouse(kart: Kart) -> Vector3:
-	var camera := kart.get_viewport().get_camera_3d()
+## Where [param at], a point of the screen, is on the floor at the height bullets fly, or not
+## finite when there is no camera to ask or the point is somewhere the floor is not.
+static func floor_point(viewport: Viewport, at: Vector2) -> Vector3:
+	var camera := viewport.get_camera_3d()
 	if camera == null:
-		return Vector3.ZERO
-	var mouse := kart.get_viewport().get_mouse_position()
-	var from := camera.project_ray_origin(mouse)
-	var normal := camera.project_ray_normal(mouse)
+		return Vector3.INF
+	var from := camera.project_ray_origin(at)
+	var normal := camera.project_ray_normal(at)
 	if absf(normal.y) < 0.0001:
-		return Vector3.ZERO
+		return Vector3.INF
 	var t := (Bullet.HEIGHT - from.y) / normal.y
 	if t < 0.0:
+		return Vector3.INF
+	return from + normal * t
+
+
+## The way from [param kart] to [param point] on the floor, or zero when there is none to go or
+## the point is too close to say.
+static func _toward(kart: Kart, point: Vector3) -> Vector3:
+	if not point.is_finite():
 		return Vector3.ZERO
-	var point := from + normal * t
 	var direction := Vector3(
 		point.x - kart.global_position.x, 0.0, point.z - kart.global_position.z
 	)

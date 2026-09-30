@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Aim the Swivel Cannon by touch.** On a phone or tablet, touch the arena to point it there;
+  the fire button fires.
 - **Bots emote now and then.** Pleased at a double kill or a kart shoved down a hole, cross at being
   shot at over and over or killed as they come back, and a gg for a win; never every time.
 - **Emotes while you wait to come back.** A dead player's emote floats up from the bottom of the
@@ -63,6 +65,7 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A bot's Swivel Cannon is its own.** It no longer aims wherever the host's mouse is pointing.
 - **The joker you chose online is the joker you get.** A client names the card it picks, keeps,
   drops or destroys, and the host checks it had that card; the host could take a neighbor.
 - **No cheating through a changed client.** A host, a dedicated server most of all, no longer

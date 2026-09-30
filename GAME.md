@@ -841,7 +841,7 @@ assigns physical devices to player slots, see 10.2.
 | Joker menu: drop            | A                   | E                         |
 | Joker menu: destroy         | B                   | Q                         |
 | Jokers by mouse             |                     | Over a card to read it, click to keep a hand card open or take a pick card |
-| Free aim, Swivel Cannon only| Right stick         | Mouse position on the arena plane |
+| Free aim, Swivel Cannon only| Right stick         | Mouse position on the arena plane, or a finger on it on a touch screen |
 | Emote                       | Right stick, flicked | 7, 8, 9 or 0             |
 | Emote wheel, then a way     |                     | V, then W, D, S or A      |
 | Pause                       | Start               | Esc                       |
@@ -996,6 +996,14 @@ the round buttons, the slider and the stick are see-through, so the arena under 
 there to be seen. The hand of jokers is tucked into the bottom edge while none of its cards is
 being read, smaller and half below the edge, and comes up to its full size as a card is held or
 kept open.
+
+With the Swivel Cannon in hand, a finger that goes down on the arena rather than on any of the
+controls points the cannon at that spot on the floor, and it follows the finger as it moves.
+Lifted, the cannon stays on the spot it was let go over, the way it stays on the mouse. Pointing
+never fires, which is the fire button's, and a finger on a button points nothing. Without a
+freely aimed cannon a finger on the arena does nothing, and the next one comes to hand pointing
+down the nose until a finger says otherwise. The mouse a phone makes out of its fingers is not
+read for the aim at all, since it is wherever the last finger went down, the buttons included.
 
 The slider is one of two ways to drive, and the settings' Controls, first there on a touch
 screen, have the other: Touch driving, Slider or Buttons, each a button with its picture as the
@@ -1263,7 +1271,9 @@ Turret bullets and Swivel Cannon bullets have no aim assist.
 
 The default cannon is described above. Power-ups temporarily replace it, see
 7.1: Ricochet Cannon, Spread Cannon and the free-aiming Swivel Cannon. Jokers
-can permanently modify the cannon's stats.
+can permanently modify the cannon's stats. The mouse and a finger on a touch
+screen aim a player's Swivel Cannon and nobody else's: a bot's points down its
+nose, rather than wherever the host's pointer happens to be.
 
 ### 5.4 Health
 
@@ -1566,7 +1576,7 @@ Later set, off by default and switched on per match in the lobby:
 |-----------------|---------------------------------------------------------------------------------|
 | Decoy Kart      | Spawns a bot kart in your color with a random trait, see 9.1. Lives 20 s or 1 hit. Its kills and coins credit you. Can hit you |
 | Spread Cannon   | Next 6 shots fire 3 bullets in a 20° fan. The live bullet allowance triples with the fan, so the fan counts as one shot |
-| Swivel Cannon   | 12 s of free aim with the right stick or mouse, no aim assist                   |
+| Swivel Cannon   | 12 s of free aim with the right stick, the mouse or a finger, no aim assist     |
 | Bullet Wipe     | Erases every bullet within 8 m                                                  |
 
 ### 7.2 Owned turrets and decoys

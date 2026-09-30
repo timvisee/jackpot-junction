@@ -876,3 +876,53 @@ func test_the_touch_hud_gives_the_arena_room() -> void:
 	assert_float(card.scale.x).is_greater(tucked_scale)
 	assert_float(card.get_global_rect().end.y).is_less_equal(controls.size.y)
 	_touch(controls, 0, card.get_global_rect().get_center(), false)
+
+
+## With the Swivel Cannon in hand a finger on the arena points it there, GAME.md 4.2: it follows
+## the finger, stays on the spot the finger came up over, and never fires. A finger on a button
+## points nothing, and without the cannon a finger on the arena does nothing at all.
+func test_a_finger_on_the_arena_points_the_swivel_cannon() -> void:
+	var controls := await _driving()
+	var kart := controls.match_node.kart_of(0)
+	var camera := controls.get_viewport().get_camera_3d()
+	var swivel: SwivelCannonPowerUp = load("res://data/powerups/swivel_cannon.tres").duplicate()
+	swivel.duration = 0.5
+	swivel.activate(kart)
+	# Nothing pointed yet: down the nose, wherever the pointer the fingers leave behind is.
+	var forward := -kart.global_basis.z
+	assert_vector(KartAim.direction(kart)).is_equal_approx(forward, Vector3.ONE * 0.001)
+	# Two spots in the middle of the arena, clear of every control round the edges.
+	var first := Vector3(0.0, Bullet.HEIGHT, 0.0)
+	var second := Vector3(6.0, Bullet.HEIGHT, -4.0)
+	var toward := func(spot: Vector3) -> Vector3:
+		return (
+			Vector3(spot.x - kart.global_position.x, 0.0, spot.z - kart.global_position.z)
+			. normalized()
+		)
+	var near := Vector3.ONE * 0.02
+	_touch(controls, 3, camera.unproject_position(first), true)
+	assert_vector(KartAim.direction(kart)).is_equal_approx(toward.call(first), near)
+	assert_bool(TouchInput.fire).is_false()
+	_drag(controls, 3, camera.unproject_position(second))
+	assert_vector(KartAim.direction(kart)).is_equal_approx(toward.call(second), near)
+	_touch(controls, 3, camera.unproject_position(second), false)
+	assert_vector(KartAim.direction(kart)).is_equal_approx(toward.call(second), near)
+	# A bot's is nobody's finger's.
+	var bot := controls.match_node.kart_of(1)
+	swivel.activate(bot)
+	assert_vector(KartAim.direction(bot)).is_equal_approx(-bot.global_basis.z, near)
+	# The fire button fires where it points, and moves nothing.
+	var fire := controls.pad(TouchControls.FIRE).center
+	_touch(controls, 4, fire, true)
+	assert_bool(TouchInput.fire).is_true()
+	_drag(controls, 4, fire + Vector2(-4.0, 0.0))
+	_touch(controls, 4, fire, false)
+	assert_vector(KartAim.direction(kart)).is_equal_approx(toward.call(second), near)
+	# Worn off, the spot goes with it, and a finger on the arena points nothing.
+	await _runner.simulate_frames(45, 17)
+	assert_bool(kart.cannon.current_stats().free_aim).is_false()
+	assert_bool(TouchInput.aim_point.is_finite()).is_false()
+	_touch(controls, 3, camera.unproject_position(first), true)
+	await _runner.simulate_frames(1, 17)
+	assert_bool(TouchInput.aim_point.is_finite()).is_false()
+	_touch(controls, 3, camera.unproject_position(first), false)

@@ -182,6 +182,8 @@ var _pick_since := 0.0
 var _pick_moved := false
 ## The finger on the pick's skip or back button, or -1.
 var _back_finger := -1
+## The finger pointing a freely aimed cannon at the floor, or -1, see [member TouchInput.aim_point].
+var _aim_finger := -1
 
 
 ## Where the top right corner is clear from, under the menu button, for the board and the feed
@@ -291,6 +293,18 @@ func driving() -> bool:
 ## kart here is standing on is for, or -1 off the stalls, where it fires.
 func fire_dresses() -> int:
 	return StyleStalls.part_under(match_node, _kart())
+
+
+## Whether a finger on the arena points this player's cannon: a freely aimed one, GAME.md 4.2.
+func _aims() -> bool:
+	var kart := _kart()
+	return kart != null and kart.alive and KartAim.free_aim(kart)
+
+
+func _aim(at: Vector2) -> void:
+	var on := KartAim.floor_point(get_viewport(), _screen(at))
+	if on.is_finite():
+		TouchInput.aim_point = on
 
 
 func _kart() -> Kart:
@@ -515,6 +529,10 @@ func _process(_delta: float) -> void:
 	held = held or _back_finger >= 0 or _pane_finger >= 0 or _pinned >= 0
 	if shut and (not _fingers.is_empty() or held):
 		_let_go()
+	# A cannon gone and another picked up later points down the nose until a finger says otherwise.
+	if not _aims():
+		_aim_finger = -1
+		TouchInput.aim_point = Vector3.INF
 	_check_pinned()
 	_stack_the_jokers()
 	_compact_the_hud()
@@ -553,6 +571,8 @@ func _finger_down(finger: int, at: Vector2) -> void:
 		slider.finger = -1
 	if finger == stick.finger:
 		stick.rest(size)
+	if finger == _aim_finger:
+		_aim_finger = -1
 	var taken := false
 	if pad(MENU).reaches(at):
 		_hold(finger, [MENU])
@@ -571,6 +591,10 @@ func _finger_down(finger: int, at: Vector2) -> void:
 		if not taken and _pinned >= 0:
 			_unpin()
 			_show_pinned()
+		# And with a freely aimed cannon in hand, points it there, GAME.md 4.2, without firing it.
+		if not taken and _aims():
+			_aim_finger = finger
+			_aim(at)
 	if taken:
 		get_viewport().set_input_as_handled()
 
@@ -659,7 +683,9 @@ func _down_on_stick(finger: int, at: Vector2) -> bool:
 
 
 func _finger_moved(finger: int, at: Vector2) -> void:
-	if finger == _pick_finger:
+	if finger == _aim_finger:
+		_aim(at)
+	elif finger == _pick_finger:
 		var card := _along(_picker(), at, _pick_card)
 		if card >= 0:
 			_pick_card = card
@@ -720,7 +746,10 @@ func _slide(finger: int, at: Vector2) -> void:
 
 
 func _finger_up(finger: int, at: Vector2) -> void:
-	if finger == _pick_finger:
+	if finger == _aim_finger:
+		# The cannon stays on the spot it was let go over.
+		_aim_finger = -1
+	elif finger == _pick_finger:
 		_up_from_pick(at)
 	elif finger == _back_finger:
 		_back_finger = -1
@@ -833,6 +862,7 @@ func _let_go() -> void:
 	_pick_finger = -1
 	_back_finger = -1
 	_pane_finger = -1
+	_aim_finger = -1
 	MenuTheme.hold(_back_button, false)
 	MenuTheme.hold(_pane_button, false)
 	_unpin()
