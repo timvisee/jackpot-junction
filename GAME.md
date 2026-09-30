@@ -413,10 +413,16 @@ Demolition Crew (crates), Sharpshooter (targets), Pyrotechnician (bomb kills),
 Royal Flush (flushes), Bounty Hunter (bounties collected), Comeback Kid (lives
 restored), Spelunker (pit falls), Own Goal (self kills), Crash Test Dummy
 (deaths), Vault Cracker (chips out of the Jackpot), Power Slide (drifts carried
-to the boost), Card Counter (flush pads taken), Banana Skin (spins on oil) and
-Marksman (accuracy: the share of shots fired that landed on another kart, shield
-or not, once 10 or more have been fired, so one lucky shot is not an award).
-Stats with a value of zero never earn an award. The list follows the game: a
+to the boost), Card Counter (flush pads taken), Banana Skin (spins on oil), Last
+Word (places taken in sudden death), Knocking on the Door (match points, counted
+as they are called out, 3.4, so a pot hovering on the line is one), Piggy Bank
+(coins dropped on the floor, at a death or knocked out by a ram), Battering Ram
+(players rammed, once a ram, whether it popped a shield, took a life, killed or
+only knocked coins out) and Marksman (accuracy: the share of shots fired that
+landed on another kart, shield or not, once 10 or more have been fired, so one
+lucky shot is not an award). Butterfingers and Piggy Bank tell much the same
+story, the coins in a pot at a death being most of what it drops there, so a
+player is given at most one of the two. Stats with a value of zero never earn an award. The list follows the game: a
 mechanic worth playing around is worth counting, so anything added to the floor
 gets a line here, and a line here is counted the same on every machine in the
 match. A statistic that only adds up on the host is a wrong number on somebody

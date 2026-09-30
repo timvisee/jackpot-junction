@@ -78,6 +78,11 @@ func test_the_match_counts_shots_distance_coins_and_deaths() -> void:
 	var lost := match_node.slots[1].stats
 	assert_float(lost.value(&"deaths")).is_equal(1.0)
 	assert_float(lost.value(&"coins_lost")).is_equal(9.0)
+	# What of it spilled onto the floor, the rest being banked.
+	var rules := match_node.rules
+	var spilled := Scoring.death_drop(9, rules.death_drop_fraction, rules.death_drop_max)
+	assert_int(spilled).is_greater(0)
+	assert_float(lost.value(&"coins_dropped")).is_equal(float(spilled))
 	var data := match_node.build_snapshot()
 	var copy := PlayerStats.new()
 	copy.from_array(data["slots"][1]["stats"])
@@ -141,3 +146,65 @@ func test_the_newer_mechanics_are_counted_too() -> void:
 			. override_failure_message("%s has no award" % field)
 			. is_true()
 		)
+
+
+## GAME.md 3.8: a ram is counted for whoever landed it, once a ram, whatever it did, and the coins
+## it knocks out of a kart that lives through it are coins that kart dropped.
+func test_rams_are_counted_for_the_rammer_and_knock_coins_out() -> void:
+	var match_node := _start_match([KartInput.new(), KartInput.new()])
+	await _runner.simulate_frames(12, 17)
+	var victim := match_node.kart_of(1)
+	victim.lives = 2
+	victim.pot.add_coins(20)
+	KartCollisions.ram(victim, 0)
+	assert_bool(victim.alive).is_true()
+	assert_float(match_node.slots[0].stats.value(&"rams")).is_equal(1.0)
+	var knocked := match_node.slots[1].stats.value(&"coins_dropped")
+	assert_float(knocked).is_greater(0.0)
+	assert_float(knocked).is_equal(20.0 - victim.pot.coins)
+	# Still in touch, the tick after: the same ram, not another.
+	KartCollisions.ram(victim, 0)
+	assert_float(match_node.slots[0].stats.value(&"rams")).is_equal(1.0)
+	assert_float(match_node.slots[1].stats.value(&"rams")).is_equal(0.0)
+
+
+## GAME.md 3.8: reaching match point is counted, once for however long the pot hovers on the line
+## and again only once it has been away from it a while, the same as it is called out, 3.4.
+func test_match_points_are_counted_as_they_are_called() -> void:
+	var match_node := _start_match([KartInput.new(), KartInput.new()])
+	await _runner.simulate_frames(12, 17)
+	var slot := match_node.slots[0]
+	slot.banked = match_node.rules.target_score - 10
+	slot.kart.pot.add_coins(40)
+	assert_bool(match_node.would_win(slot)).is_true()
+	await _runner.simulate_frames(20, 17)
+	assert_float(slot.stats.value(&"match_points")).is_equal(1.0)
+	# Off the line and straight back on is the same match point.
+	slot.kart.pot.reset()
+	await _runner.simulate_frames(2, 17)
+	slot.kart.pot.add_coins(40)
+	await _runner.simulate_frames(2, 17)
+	assert_float(slot.stats.value(&"match_points")).is_equal(1.0)
+	assert_float(match_node.slots[1].stats.value(&"match_points")).is_equal(0.0)
+
+
+## GAME.md 3.8: two stats that tell one story earn a player one award between them, the coins in a
+## pot at a death being most of the coins it drops there.
+func test_one_award_for_one_story() -> void:
+	var clumsy := PlayerStats.new()
+	clumsy.add(&"coins_lost", 60.0)
+	clumsy.add(&"coins_dropped", 40.0)
+	clumsy.add(&"bullets", 5.0)
+	clumsy.add(&"rams", 2.0)
+	var careful := PlayerStats.new()
+	careful.add(&"coins_lost", 2.0)
+	careful.add(&"coins_dropped", 1.0)
+	careful.add(&"bullets", 50.0)
+	var everyone: Array[PlayerStats] = [clumsy, careful]
+	var titles: Array = []
+	for award: Array in PlayerStats.awards(clumsy, everyone):
+		titles.append(award[0])
+	assert_int(titles.size()).is_equal(3)
+	assert_bool("Butterfingers" in titles and "Piggy Bank" in titles).is_false()
+	assert_bool("Butterfingers" in titles or "Piggy Bank" in titles).is_true()
+	assert_bool("Battering Ram" in titles).is_true()

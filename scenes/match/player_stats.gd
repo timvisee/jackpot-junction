@@ -34,6 +34,9 @@ const FIELDS: Array[StringName] = [
 	&"oil_spins",
 	&"overtakes",
 	&"hits",
+	&"match_points",
+	&"coins_dropped",
+	&"rams",
 ]
 ## Worked out from the others rather than counted, and so not on the wire: of the shots fired,
 ## how many landed on somebody, as a percentage.
@@ -43,6 +46,9 @@ const BEHIND_DERIVED: Array[StringName] = [&"hits"]
 ## How many shots a player has to have fired before their accuracy says anything. One lucky shot
 ## is not a marksman.
 const ACCURACY_SHOTS := 10
+## Stats that tell much the same story, of which a player is given at most one award: the coins in
+## a pot at a death are most of the coins it drops there.
+const SAME_STORY: Array[Array] = [[&"coins_lost", &"coins_dropped"]]
 
 ## Award title and value format per field.
 const AWARDS: Dictionary[StringName, Array] = {
@@ -73,6 +79,9 @@ const AWARDS: Dictionary[StringName, Array] = {
 	&"pads_taken": ["Card Counter", "%d flush pads taken"],
 	&"oil_spins": ["Banana Skin", "%d spins on oil"],
 	&"overtakes": ["Last Word", "%d places taken in sudden death"],
+	&"match_points": ["Knocking on the Door", "%d match points"],
+	&"coins_dropped": ["Piggy Bank", "%d coins dropped"],
+	&"rams": ["Battering Ram", "%d players rammed"],
 	&"accuracy": ["Marksman", "%.0f%% of shots on target"],
 }
 
@@ -147,7 +156,22 @@ static func awards(mine: PlayerStats, everyone: Array[PlayerStats], count: int =
 		scored.append([score, field, value])
 	scored.sort_custom(func(a: Array, b: Array) -> bool: return a[0] > b[0])
 	var result: Array = []
-	for entry: Array in scored.slice(0, count):
+	var told: Array[StringName] = []
+	for entry: Array in scored:
+		if result.size() >= count or _told_already(entry[1], told):
+			continue
+		told.append(entry[1])
 		var award: Array = AWARDS[entry[1]]
 		result.append([award[0], award[1] % entry[2]])
 	return result
+
+
+## Whether an award already given, one of [param told], tells [param field]'s story, see
+## [constant SAME_STORY].
+static func _told_already(field: StringName, told: Array[StringName]) -> bool:
+	for story: Array in SAME_STORY:
+		if field in story:
+			for other: StringName in story:
+				if other != field and other in told:
+					return true
+	return false

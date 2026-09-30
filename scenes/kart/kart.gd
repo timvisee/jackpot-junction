@@ -7,6 +7,8 @@ extends CharacterBody3D
 signal died(cause: StringName, killer_slot: int)
 signal wounded(cause: StringName, by_slot: int)
 signal rammed(by_slot: int)
+## Another kart's ram reached this one, whatever came of it, see [method KartCollisions.ram].
+signal ram_landed(by_slot: int)
 signal respawned
 signal fired(bullets: Array[Bullet])
 signal turbo_taken(direction: Vector3)

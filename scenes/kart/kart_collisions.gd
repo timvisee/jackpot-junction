@@ -103,6 +103,9 @@ static func ram(victim: Kart, by_slot: int) -> void:
 	if not victim.alive or victim.falling or victim.coasting or victim.ram_wait > 0.0:
 		return
 	victim.ram_wait = victim.rules.ram_cooldown
+	# Counted for the rammer, GAME.md 3.8, once a ram and whatever it did: a shield, a life, a death
+	# or only coins knocked out.
+	victim.ram_landed.emit(by_slot)
 	var shield := victim.shielded and victim.is_targetable()
 	victim.take_ram(by_slot)
 	if victim.alive and not shield:

@@ -31,10 +31,13 @@ static func count(match_node: Match, slot: int, field: StringName, amount: float
 	match_node.slots[slot].stats.add(field, amount)
 
 
-## Hears the events a match counts, for [param match_node], see [Listener].
-static func listen(match_node: Match) -> Listener:
-	var listener := Listener.new()
+## Hears the events a match counts, for [param match_node], see [Listener]: [param kept], the one
+## the match before on the same node heard them with, or a new one. Either way it starts the match
+## with nobody at match point.
+static func listen(match_node: Match, kept: Listener = null) -> Listener:
+	var listener := kept if kept != null else Listener.new()
 	listener.match_node = match_node
+	listener.match_points = MatchPoint.new()
 	for heard: Array in listener.heard():
 		var event: Signal = heard[0]
 		if not event.is_connected(heard[1]):
@@ -49,6 +52,16 @@ class Listener:
 	extends RefCounted
 
 	var match_node: Match
+	## Who has just reached match point, called out on every screen and counted here, see
+	## [MatchPoint].
+	var match_points := MatchPoint.new()
+
+	## One tick of the match while it runs: what accrues by driving, see [method MatchStats.step],
+	## and who reached match point in it.
+	func step(delta: float) -> void:
+		MatchStats.step(match_node, delta)
+		for slot: int in match_points.step(match_node, delta):
+			MatchStats.count(match_node, slot, &"match_points")
 
 	func heard() -> Array[Array]:
 		return [

@@ -162,8 +162,7 @@ func start(
 		pad.claimed.connect(_on_pad_claimed)
 	# Once, because a rematch runs this again on the same node: the arena and the karts are
 	# rebuilt but the match itself is not, and the engine refuses a connection it already has.
-	if _counting == null:
-		_counting = MatchStats.listen(self)
+	_counting = MatchStats.listen(self, _counting)
 	arena.crate_broken.connect(_counting.on_crate)
 	arena.target_struck.connect(_on_target_struck)
 	for zone: JackpotZone in arena.jackpot_zones:
@@ -624,6 +623,7 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 	kart.died.connect(_on_kart_died.bind(slot))
 	kart.joker_dropped.connect(_on_joker_dropped.bind(slot))
 	kart.rammed.connect(_on_kart_rammed.bind(slot))
+	kart.ram_landed.connect(func(by_slot: int) -> void: MatchStats.count(self, by_slot, &"rams"))
 	kart.fired.connect(func(shots: Array[Bullet]) -> void: slot.stats.add(&"bullets", shots.size()))
 	kart.coins_collected.connect(func(amount: int) -> void: slot.stats.add(&"coins", amount))
 	kart.item_used.connect(func(_item: PowerUp) -> void: slot.stats.add(&"items"))
@@ -890,9 +890,10 @@ func _on_pad_claimed(_pad: FlushPad, kart: Kart) -> void:
 	Events.flush_completed.emit(kart.slot)
 
 
-## Distance, drifting, nitro time and peak mult, counted every tick while the match runs.
+## Distance, drifting, nitro time, peak mult and match points, counted every tick while the match
+## runs.
 func _step_stats(delta: float) -> void:
-	MatchStats.step(self, delta)
+	_counting.step(delta)
 
 
 func _on_stat_mult(_amount: float, reason: StringName, slot: PlayerSlot) -> void:
@@ -927,6 +928,7 @@ func _on_kart_rammed(_by_slot: int, slot: PlayerSlot) -> void:
 	knocked = mini(knocked, kart.pot.coins)
 	kart.pot.add_coins(-knocked)
 	slot.stats.add(&"coins_lost", knocked)
+	slot.stats.add(&"coins_dropped", knocked)
 	arena.spawn_chips(kart.global_position, knocked, rules.dropped_chip_lifetime, 0.0, true)
 
 

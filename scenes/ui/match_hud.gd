@@ -29,9 +29,8 @@ const SYNC_SNAP := 1.0
 const CALL_DROP := 120.0
 const CALL_TIME := 2.2
 ## What is called out when a player's next cash-out would win, after their name the way every call
-## is, and how long before the same player is called out for it again.
+## is, see [MatchPoint].
 const WIN_CALL := "MATCH POINT"
-const WIN_CALL_AGAIN := 10.0
 const CALL_FADE := 0.6
 ## The line under each player's block that says what is worth pressing right now, GAME.md 8.3:
 ## how big the buttons in it are drawn, what color it is, and the word that goes with each one.
@@ -94,11 +93,8 @@ var _banner: Label
 var _light: StartLight
 var _call: Label
 var _call_left := 0.0
-## Who was one cash-out from winning last frame, and when, on this HUD's own clock, each was last
-## called out for it: see [method _update_winning].
-var _could_win: Dictionary[int, bool] = {}
-var _called_win: Dictionary[int, float] = {}
-var _win_clock := 0.0
+## Who has just reached match point, to be called out: see [method _update_winning].
+var _match_points := MatchPoint.new()
 ## The sync light and what is left of its moment, and how many corrections there have been in all.
 var _sync: Label
 var _sync_left := 0.0
@@ -605,21 +601,11 @@ func _on_announced(slot: int, call: String) -> void:
 ## A player getting to where their next cash-out wins the match, GAME.md 3.4, called out on every
 ## screen, their own, their rivals' and a watcher's: the one moment worth everybody looking up
 ## for. Seen by each machine from the pots and the banked scores it has, so nothing more is sent.
-## Once, and not again for the same player for [constant WIN_CALL_AGAIN] seconds, so a pot that
-## hovers on the line does not flash it over and over.
+## Once, and not again for the same player for a while, see [MatchPoint], which the host's count of
+## them for the results goes by too.
 func _update_winning(delta: float) -> void:
-	_win_clock += delta
-	if not match_node.is_running():
-		_could_win.clear()
-		return
-	for slot: PlayerSlot in match_node.slots:
-		var can := match_node.would_win(slot)
-		if can and not _could_win.get(slot.index, false):
-			var last: float = _called_win.get(slot.index, -WIN_CALL_AGAIN)
-			if _win_clock - last >= WIN_CALL_AGAIN:
-				_called_win[slot.index] = _win_clock
-				_on_announced(slot.index, WIN_CALL)
-		_could_win[slot.index] = can
+	for index: int in _match_points.step(match_node, delta):
+		_on_announced(index, WIN_CALL)
 
 
 ## Held at full for most of its life and then faded, so it is read rather than glimpsed.
