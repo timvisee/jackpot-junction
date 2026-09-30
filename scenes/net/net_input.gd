@@ -30,6 +30,10 @@ const CLAIM_REACH := 2.0
 ## for the client to be told and to stop arguing, short enough not to be felt as a lurch.
 const CLAIM_DENIED := 0.4
 
+## How far the kart may have gone since the host last believed the client about it, in meters, see
+## [ClaimCheck]: a claim further than that from where the tick started is not followed.
+var reach_left := 0.0
+
 ## The newest packet number that has arrived, and the number the kart last actually drove. The
 ## second is what goes back to the client: a packet sitting in the queue has not moved anything
 ## yet, and a client replaying from it would replay from a tick that never ran.
@@ -88,11 +92,28 @@ static func encode(source: KartInput) -> Array:
 	]
 
 
+## Whether [param state] is controls at all: every field the kind it is sent as, and every number
+## a number rather than infinity or not one. A packet that is anything else, from a client that is
+## broken or means harm, is dropped whole rather than half read, since a single number that is not
+## one put in the steering would take the kart off the map, see [ClaimCheck].
+static func well_formed(state: Array) -> bool:
+	for i: int in state.size():
+		var field: Variant = state[i]
+		if i == FIELDS:
+			if not field is Vector2 or not (field as Vector2).is_finite():
+				return false
+		elif not ClaimCheck.plain(field):
+			return false
+	return true
+
+
 ## Takes a packet from the client and puts it in the queue. Packets travel unreliably, so one
 ## that turns up out of order is older news than what is already here and is dropped.
 func receive(state: Array, seq: int = 0, claimed: Array = []) -> void:
-	if state.size() < FIELDS or seq <= last_seq:
+	if state.size() < FIELDS or seq <= last_seq or not well_formed(state):
 		return
+	if not claimed.is_empty() and not ClaimCheck.well_formed(claimed):
+		claimed = []
 	last_seq = seq
 	_queue.append([seq, state, claimed])
 	while _queue.size() > QUEUE_MAX:

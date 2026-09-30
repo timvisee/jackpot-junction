@@ -32,6 +32,9 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **No cheating through a changed client.** A host, a dedicated server most of all, no longer
+  takes a client's word for its nitro, boosts, power-ups or speed, nor for driving further than the
+  kart can, and drops controls that are not controls.
 - **A clean exit.** Quitting while music or a sound was playing, or after keeping a joker in a
   Grand Prix, no longer ends with warnings of leaked instances and resources still in use.
 - **Pause game stays on the host's menu.** It stays up while the room is paused, with a tick in it

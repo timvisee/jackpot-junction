@@ -212,3 +212,128 @@ func test_a_puppet_kart_does_not_drive_itself() -> void:
 		. override_failure_message("a puppet drove itself on a throttle nobody was reading")
 		. is_less(0.01)
 	)
+
+
+## Ticks of controls from the client in slot 0 as the host hears them: [param shape] set on a plain
+## input and packed the way a client packs it, sent [param times] over, since the host holds a
+## couple in hand before it plays any, see [constant NetInput.QUEUE_REFILL].
+func _send(shape: Callable, times := 3) -> void:
+	var input := _host.slots[0].input as NetInput
+	for i: int in times:
+		var controls := KartInput.new()
+		shape.call(controls)
+		input.receive(NetInput.encode(controls), input.last_seq + 1)
+
+
+## A client picks a joker from the cards the host dealt it and from nothing else, GAME.md 10.3: it
+## sends its controls, never a card, and the host reads the pick off its own offer. A card by a
+## number the host never dealt is nothing at all.
+func test_a_client_picks_only_from_the_cards_the_host_dealt() -> void:
+	await _two_machines(3)
+	var kart := _host.kart_of(0)
+	var held := kart.jokers.ids()
+	kart.die(&"test", -1)
+	var offer := _host.slots[0].offer
+	assert_object(offer).override_failure_message("the host dealt no cards").is_not_null()
+	var dealt: Array[StringName] = []
+	for joker: Joker in offer.choices:
+		dealt.append(joker.id)
+	await _runner.simulate_frames(40, 17)
+	_send(func(controls: KartInput) -> void: controls.joker_select = 42)
+	_send(func(controls: KartInput) -> void: controls.joker_select = dealt.size())
+	await _runner.simulate_frames(10, 17)
+	assert_bool(offer.is_done()).override_failure_message("a card nobody dealt").is_false()
+	assert_array(kart.jokers.ids()).is_equal(held)
+	_send(func(controls: KartInput) -> void: controls.joker_select = 1)
+	await _runner.simulate_frames(10, 17)
+	assert_bool(offer.is_done()).is_true()
+	assert_bool(dealt[1] in kart.jokers.ids()).is_true()
+	for id: StringName in kart.jokers.ids():
+		assert_bool(id in held or id == dealt[1]).override_failure_message(id).is_true()
+
+
+## A client's word for its own kart is where it went, not what it holds: a claim of a fuller tank,
+## a boost, a turbo or a power-up the host never gave it, or of more speed than the kart has, is
+## held to what the host made of the same tick itself.
+func test_a_client_cannot_claim_more_than_the_host_gave_it() -> void:
+	await _two_machines()
+	await _runner.simulate_frames(10, 17)
+	var kart := _host.kart_of(0)
+	kart.nitro_charge = 0.1
+	var claim := KartPrediction.capture(kart)
+	var fields := KartMotor.STATE_FIELDS
+	claim[2 + fields.find(&"speed_bonus")] = 5.0
+	claim[2 + fields.find(&"boost_time_left")] = 9.0
+	claim[2 + fields.find(&"turbo_time_left")] = 9.0
+	claim[2 + fields.find(&"velocity")] = Vector3(200.0, 0.0, 0.0)
+	claim[2 + fields.find(&"forward_speed")] = 200.0
+	claim[claim.size() - 2] = 1.0
+	claim[claim.size() - 1] = true
+	(_host.slots[0].input as NetInput).claim = claim
+	KartPrediction.follow_claim(kart, kart.global_position)
+	assert_float(kart.nitro_charge).is_less_equal(0.1 + ClaimCheck.NITRO_SLACK)
+	assert_bool(kart.nitro_active).override_failure_message("lit on a tank too low").is_false()
+	assert_float(kart.motor.speed_bonus).is_equal(1.0)
+	assert_float(kart.motor.boost_time_left).is_less_equal(ClaimCheck.TIME_SLACK)
+	assert_float(kart.motor.turbo_time_left).is_less_equal(ClaimCheck.TIME_SLACK)
+	var limit := kart.motor.max_speed() + ClaimCheck.SPEED_SLACK
+	assert_float(kart.motor.velocity.length()).is_less_equal(limit + 0.001)
+	assert_float(kart.velocity.length()).is_less_equal(limit + 0.001)
+
+
+## A client cannot say its kart went further than it could drive: each claim spends the reach the
+## kart has banked driving at its limit, a few ticks of it at most, and one past that is not
+## followed, however near it is to where the host has the kart.
+func test_a_client_cannot_claim_further_than_it_could_drive() -> void:
+	await _two_machines()
+	await _runner.simulate_frames(10, 17)
+	var kart := _host.kart_of(0)
+	var input := _host.slots[0].input as NetInput
+	var tick := (kart.motor.max_speed() + ClaimCheck.SPEED_SLACK) / 60.0
+	var jump := tick * ClaimCheck.REACH_TICKS + 0.3
+	assert_float(jump).is_less(NetInput.CLAIM_REACH)
+	var was := kart.global_position
+	var claim := KartPrediction.capture(kart)
+	claim[0] = float(claim[0]) + jump
+	input.claim = claim
+	KartPrediction.follow_claim(kart, was)
+	assert_float(kart.global_position.distance_to(was)).is_less(0.01)
+	assert_float(input.denied_left).is_greater(0.0)
+	# At the kart's limit, tick after tick, it is followed; a fifth over it, it runs out of reach.
+	input.denied_left = 0.0
+	var followed := 0
+	for i: int in 30:
+		var from := kart.global_position
+		var step := KartPrediction.capture(kart)
+		step[0] = float(step[0]) + tick * (0.95 if i < 10 else 1.2)
+		input.claim = step
+		KartPrediction.follow_claim(kart, from)
+		if kart.global_position.distance_to(from) > 0.0:
+			followed += 1
+	assert_int(followed).is_greater_equal(10)
+	assert_float(input.denied_left).override_failure_message("never ran out").is_greater(0.0)
+
+
+## Controls that are not controls, from a client that is broken or means harm, are dropped whole:
+## a word where a number goes, or a number that is not one, and a claim of either is not a claim.
+func test_the_host_drops_controls_that_are_not_controls() -> void:
+	await _two_machines()
+	var input := _host.slots[0].input as NetInput
+	var seq := input.last_seq
+	var worded := NetInput.encode(KartInput.new())
+	worded[0] = "full left"
+	input.receive(worded, seq + 1)
+	var broken := NetInput.encode(KartInput.new())
+	broken[1] = NAN
+	input.receive(broken, seq + 2)
+	var aimed := NetInput.encode(KartInput.new())
+	aimed[NetInput.FIELDS] = {"x": 1}
+	input.receive(aimed, seq + 3)
+	assert_int(input.last_seq).override_failure_message("a broken packet was heard").is_equal(seq)
+	var claim := KartPrediction.capture(_host.kart_of(0))
+	claim[0] = INF
+	input.receive(NetInput.encode(KartInput.new()), seq + 4, claim)
+	assert_int(input.last_seq).is_equal(seq + 4)
+	input.poll(1.0 / 60.0)
+	input.poll(1.0 / 60.0)
+	assert_array(input.claimed_state()).is_empty()

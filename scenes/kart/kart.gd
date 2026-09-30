@@ -261,6 +261,7 @@ func _physics_process(delta: float) -> void:
 	if not menu_open and input.use_item_pressed and held_item != null and item_reveal_left <= 0.0:
 		use_item()
 	var heading_before := motor.heading
+	var from := global_position
 	motor.step(input, delta)
 	velocity = motor.velocity
 	move_and_slide()
@@ -268,7 +269,7 @@ func _physics_process(delta: float) -> void:
 	motor.velocity = Vector3(velocity.x, 0.0, velocity.z)
 	position.y = 0.0
 	rotation = Vector3(0.0, motor.heading, 0.0)
-	KartPrediction.follow_claim(self)
+	KartPrediction.follow_claim(self, from)
 	_collect_overlapping_pickups()
 	_spin_wheels(delta)
 	_step_crown(delta)

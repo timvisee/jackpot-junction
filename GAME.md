@@ -4017,7 +4017,7 @@ only shows its kart taking what it has driven over, and waits to be told.
 | Coins, pots, cashing out, score | the host | the snapshot |
 | What is on the floor and who took it | the host | the snapshot, as what changed |
 | Items held and items used | the host | the snapshot |
-| The joker pick in front of me | the client works its own | the host decides what is actually held |
+| The joker pick in front of me | the client works its own | the host deals the cards and reads the pick off its own offer from the controls: a client never sends a card, and a number it was not dealt is nothing |
 | The waiting room's football | the client whose kart kicked it last, for a while, 9.6 | it tells the host, and the host passes it on |
 | Statistics and awards | the host | the snapshot |
 | The clock, the state, Last Call, overtime | the host | the snapshot |
@@ -4223,6 +4223,21 @@ who hit whom, what was collected and what anything is worth.
   put the kart than a good few ticks of driving, and the host keeps the wheel
   instead. The limit is what stops a kart appearing on the far side of the room;
   it costs nothing to check because the host is simulating the kart regardless.
+  Nor may a claim say the kart went further than it can drive: the kart banks a
+  tick of driving at its limit every tick, four ticks of it at most, each claim
+  spends the distance it says the kart went, and one past what is banked is not
+  followed. A kart the host drove itself for a moment catches up again from there.
+- **A claim is where the kart went, not what it holds.** It comes with the motor's
+  whole state, since a client replays from it, and a client could say anything
+  in it. So the host keeps its own answer for the tick, driven from the same
+  controls, as the most a claim may say: no fuller nitro tank, no more boost,
+  turbo or drift banked, no shorter a spin, no power-up the host did not give,
+  and no more speed than the kart can go, `ClaimCheck`. Each has a tick or two of
+  slack for a client a tick out of step, which is all an honest one ever differs
+  by. And controls or a claim that are not what a client sends, a word where a
+  number goes or a number that is not one, are dropped whole: a single one in the
+  steering would take the kart off the map. On a dedicated server nobody at it
+  plays, so this is everything that stands between a changed client and the game.
 - **The client reconciles when the host had the wheel.** It compares where it
   predicted it would be at that sequence number with where the host says it was.
   Agreement costs nothing and changes nothing. Disagreement rewinds the kart to

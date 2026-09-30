@@ -180,7 +180,7 @@ func test_a_claim_from_too_far_away_is_refused() -> void:
 	var near := KartPrediction.capture(kart)
 	near[0] = float(near[0]) + 0.2
 	input.claim = near
-	KartPrediction.follow_claim(kart)
+	KartPrediction.follow_claim(kart, kart.global_position)
 	assert_float(kart.global_position.x).is_equal_approx(was.x + 0.2, 0.01)
 	assert_float(input.denied_left).is_equal_approx(0.0, 0.001)
 	# One it could not is refused, and the host keeps driving.
@@ -188,7 +188,7 @@ func test_a_claim_from_too_far_away_is_refused() -> void:
 	var far := KartPrediction.capture(kart)
 	far[0] = float(far[0]) + NetInput.CLAIM_REACH + 5.0
 	input.claim = far
-	KartPrediction.follow_claim(kart)
+	KartPrediction.follow_claim(kart, kart.global_position)
 	(
 		assert_float(kart.global_position.distance_to(was))
 		. override_failure_message("a kart was moved across the room by asking")

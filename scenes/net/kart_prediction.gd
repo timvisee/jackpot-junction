@@ -118,16 +118,29 @@ static func step(on: Kart, with: KartInput, delta: float, live: bool = true) -> 
 ## The host has just simulated it anyway, which is what settles anything it ran into and what
 ## catches a claim that is nonsense, but the answer a player sees on their own screen is the one
 ## that stands. Anything the host has to arbitrate takes the wheel back for a moment.
-static func follow_claim(on: Kart) -> void:
-	var claim := on.input.claimed_state()
+##
+## [param from] is where the kart started the tick. The client's word is held to what the kart
+## could have done, see [ClaimCheck]: it may say where it went, not that it went further or faster
+## than it can, nor that it has more nitro, boost or power-ups than the host gave it.
+static func follow_claim(on: Kart, from: Vector3) -> void:
+	var input := on.input as NetInput
+	if input == null:
+		return
+	ClaimCheck.step_reach(on, input, on.get_physics_process_delta_time())
+	var claim := input.claimed_state()
 	if claim.is_empty():
 		return
-	if on.global_position.distance_to(Vector3(claim[0], 0.0, claim[1])) > NetInput.CLAIM_REACH:
-		# Not a difference of opinion about physics: a kart somewhere else entirely. The host
-		# keeps this one, and says so, and the client puts itself right.
-		on.input.deny_claim(NetInput.CLAIM_DENIED)
+	var to := Vector3(claim[0], 0.0, claim[1])
+	var far := on.global_position.distance_to(to) > NetInput.CLAIM_REACH
+	if far or not ClaimCheck.reaches(input, from, to):
+		# Not a difference of opinion about physics: a kart somewhere else entirely, or one that
+		# could not have got there. The host keeps this one, and says so, and the client puts
+		# itself right.
+		input.deny_claim(NetInput.CLAIM_DENIED)
 		return
+	var answer := ClaimCheck.own(on)
 	restore(on, claim)
+	ClaimCheck.hold(on, answer)
 
 
 ## Where a kart is, what its motor is doing and what is in its nitro tank, as one value. The
