@@ -11,64 +11,43 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
-### Changed
-
-- **Faster.** Smoke, sparks and flames cast no shadows and are drawn with a fiftieth of the
-  triangles: the particles behind four karts were six of every seven triangles in a frame.
-- **Faster disco.** A beam is scaled to its throw rather than rebuilt every frame, and a dark
-  head's light is put out rather than left shining at nothing.
-- **Cheaper shadows.** The sun's shadow map is drawn in two splits rather than four, and the
-  pads, rims, plates and clock segments set into the felt no longer cast shadows nobody saw.
-- **A lighter HUD.** The scoreboard, the corner blocks, the hearts and the clock write their
-  type and colors only when something changed, where they were restyling every row every frame.
-- **Chips and item boxes draw as one thing.** A chip was eight meshes with eight materials of
-  its own; every chip of a kind now shares one, and a box's straps and brands are one mesh each.
-- **Fewer triangles in the small things.** Bullets, aim dots, roof markers, crowns, bombs,
-  turrets, oil stains and rings were built at a sphere's full sixty-four segments; they are cut
-  to what their size shows, and every bullet shares its meshes and materials rather than building
-  its own per shot.
-- **Textures with mipmaps, compressed for the card.** The felt, wood, paint, stone and card
-  textures are drawn from mipmaps and stored the way a phone's card reads them, a quarter of the
-  bandwidth for the surfaces that cover most of the screen.
-- **Lights out when they are out.** The drift boost's glow and a firework's flash are hidden
-  once they have faded, rather than left on at nothing.
-- **The clock board is one thing to draw.** Its thirty segments were thirty meshes with a
-  material each; they are one MultiMesh now, lit per segment by a shader of its own.
-- **Pads, stands and tanks baked.** The coin, power, turbo and flush pads, the spawn discs, the
-  jackpot tiles, the tribune steps and the tanks' fittings are merged into a mesh a material as
-  the map loads; a frame of Lucky Crossing is 344 draw calls where it was 713.
-- **Cheaper bullets.** Two shots are only measured against each other once they are near enough
-  to have met, and the karts and targets are looked up once a frame for every bullet in the room.
-
 ### Added
 
+- **Shaders compile behind the title.** The first time a version of the game runs on a machine, a
+  bar above the credits says "Compiling shaders" while the menu keeps working, so the first bomb,
+  nitro or firework of a match no longer stutters.
 - **Crowd size.** A Video setting for how full the house is, Full or Half; a phone starts with
   half a house, since the crowd is the most triangles on the screen and none of them are the
   match.
-- **Shaders compile behind the title.** The first time a version of the game runs on a machine,
-  a bar above the credits says "Compiling shaders" while a match nobody sees puts one of
-  everything on screen, so the first bomb and the first nitro no longer stutter; the menu keeps
-  working meanwhile, and later starts skip it.
 
 ### Changed
 
-- **A cheaper crowd.** Every onlooker is ninety triangles rather than a hundred and fifty-six,
-  the crowd is lit without the shadow map or a highlight, and the DJ booth's speakers and its DJ
-  are cut like everything else: the crowd's share of the card's frame went from a tenth to a
-  sixteenth.
-- **A side of the crowd off the screen is not drawn.** The house stands in four blocks, one a
-  side of the table, so a camera zoomed onto one end drops the people at the other before a
-  vertex of them is run.
-- **The felt and the table are lit in tiles on a phone.** A phone's renderer lights each mesh by
-  every light that reaches it, so the two big surfaces are cut three by three there, and a pixel
-  pays only for the lamps and disco heads that reach its tile; a desktop keeps them whole.
-- **Disco lights: Full, Few or Off.** The rig's setting has a middle: three heads at most, which
-  is what a phone starts on, since every lit head is a light over the whole table.
-- **Sharper shadows up close.** The sun's shadow map reaches to the far corner of the floor from
-  where the camera stands rather than a fixed 80 m, so a camera pulled in on one kart spends the
-  whole map on what it sees.
-- **One light fewer.** The room's fill light is folded into its ambient light, which looks the
-  same and costs a pass over every pixel less.
+- **Particles for a fiftieth of the triangles.** Smoke, sparks and flames cast no shadows and are
+  drawn as small balls: the particles behind four karts were six of every seven triangles in a
+  frame.
+- **Fewer draw calls.** Chips, item boxes, the clock board, the pads, the stands and the tanks
+  each draw as one thing rather than a mesh a piece, so a frame of Lucky Crossing is 344 draw
+  calls where it was 713.
+- **Fewer triangles in the small things.** Bullets, aim dots, markers, bombs, turrets, rings and
+  every onlooker in the crowd are cut to the detail their size shows, and share their meshes and
+  materials rather than building their own.
+- **Cheaper shadows, sharper up close.** The sun's shadow map has two splits rather than four and
+  reaches only as far as the camera can see, and the pads and plates set into the felt no longer
+  cast shadows nobody saw.
+- **Fewer lights.** The fill light is folded into the ambient light, and a faded drift glow, a
+  spent firework or a dark disco head is put out rather than left shining at nothing.
+- **Disco lights: Full, Few or Off.** The setting has a middle, three heads at most, which is
+  where a phone starts, and the beams are scaled to their throw rather than rebuilt every frame.
+- **The felt and the table lit in tiles on a phone.** A phone's renderer pays for every light
+  that reaches a mesh on every pixel of it, so there the two big surfaces are cut three by three.
+- **A lighter crowd.** It is lit without the shadow map or a highlight, and a side of it the
+  camera cannot see is not drawn at all.
+- **A lighter HUD.** The scoreboard, the corner blocks, the hearts and the clock restyle
+  themselves only when something changed, where they did every row every frame.
+- **Textures with mipmaps, compressed for the card.** The felt, wood, paint, stone and card
+  textures take a quarter of the bandwidth they did.
+- **Cheaper bullets.** Two shots are only measured against each other once they are near enough
+  to have met, and every bullet shares one look-up of the karts and targets a frame.
 
 ## [0.10.0] - 2026-09-29
 
