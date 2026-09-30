@@ -75,6 +75,7 @@ make test       # unit tests only (gdUnit4, headless, a suite per process in par
 make bench      # the frame rate of a match on each map
 make profile    # where a frame goes: script functions, server and GPU passes, from the profilers
 make probe      # what a frame is made of: meshes, triangles, materials, lights, draw calls by pass
+                # (the performance rules these keep, and their numbers, are in GAME.md 10.7)
 make multiplayer  # a whole Grand Prix online (two games, up to two clients) and on one screen
 make server-check  # a game on a dedicated server, made, joined and watched by three clients
 make export     # release builds for Linux, Windows and macOS, and the Linux server, in build/

@@ -4314,6 +4314,11 @@ near enough to have taken it, and it blinks out.
   works in an online match or it is not done, and the sweep in
   `tests/test_online_sync.gd` grows with it. See 10.3 for the three ways state
   reaches a client and how to choose between them.
+- Performance is kept by rule, not by luck. 10.7 lists the rules every frame
+  saving came out of, each with the measurement that put it there, and ends
+  with the checklist new code is held to. A change that costs frames is caught
+  by `make bench` and explained by `make profile` and `make probe` before it
+  lands, and the numbers go into 10.7 with the change.
 - Every change a player would notice adds its line to the `## [Unreleased]`
   section of `CHANGELOG.md`, in the same commit that makes it. The test is
   whether somebody who plays the game would care, not whether the diff was
@@ -4584,6 +4589,44 @@ with the numbers that put them there.
   the targets are read off their groups once a frame and shared by every bullet,
   rather than walked once a bullet a tick, and anything that reads the shared
   list checks each node is still alive.
+
+**Keeping it.** The rules above are how the frame was won back; this is how it
+stays won. New code is held to these, and a pull that breaks one says why:
+
+- A mesh made in code sets its segment counts. No `SphereMesh`, `CylinderMesh`,
+  `TorusMesh` or `CapsuleMesh` at its defaults: six or eight round a spark, a
+  dot or a bullet, twelve round a bulb, sixteen round a bomb, twenty-four round
+  a disc, six or eight round the tube of a torus.
+- A particle system goes through `ParticleLook.ball` and
+  `ParticleLook.no_shadows`. Nothing that is a few pixels of flat color casts a
+  shadow: paint on the floor, rims, plates, segments on a board, unshaded glows.
+- Many of one thing is one draw call. Things that never move and share a
+  material are baked with `Bake.merge`; a thing drawn many times is one mesh
+  built once with `Bake.joined` or `Bake.tinted`; things that change one at a
+  time are a `MultiMesh`, in chunks the camera can cull. A material is made
+  per instance only where its color changes at runtime; otherwise it is shared
+  through a static cache, as `Chip.paint_for` and `Bullet._glow` do.
+- The HUD writes on a change. Fonts and colors go through `Type.set_font` and
+  `Type.ink`; a setter that redraws returns when told what it already had;
+  nothing runs `_process` while hidden.
+- Shaders live in `.gdshader` files beside the script that uses them, never in
+  strings. A texture under `assets/` is imported VRAM-compressed with mipmaps,
+  its normal map flagged as one.
+- A light that is off is hidden, not left on at zero. The mobile renderer lights
+  each mesh by every light touching it, eight of a kind at most, so a light
+  over the whole table is a pass over every pixel of it there: big surfaces
+  are tiled on that renderer, and a new light has to earn its place.
+- Per tick, nothing asks the tree for a group once per object; the list is read
+  once a frame and shared, and freed nodes are checked for. What is quadratic
+  is rejected cheaply before anything is allocated.
+- A new effect, pickup, kart dress, HUD piece or room is added to
+  `ShaderWarmup`'s plan, or its shader compiles the first time a player sees
+  it, mid-race.
+- Every one of these is measured before it is believed: `make bench` on the
+  three maps, `make profile` for where the frame goes, `make probe
+  ARGS=--ablate` for what each group costs in the visible and shadow passes
+  and in GPU time, and on a phone the recipe below. The numbers go into this
+  section with the change; a rule without its number is a superstition.
 
 What the rules bought, measured on the development machine (a desktop card and
 a fast processor, which is why the frame rate moves less than the counts: a phone
