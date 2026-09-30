@@ -8,11 +8,17 @@ extends Node3D
 ## side rather than a hole. Everything else is the camera: how the picture is tonemapped, how far
 ## out it goes soft, how much the neon blooms.
 
-## How far the shadows are drawn out from the camera over a floor of [constant FLOOR_WIDTH]. The
-## table is small and the room around it is not: past this there is nothing worth a shadow map,
-## and the nearer it is drawn the more of the map lands on the table. A wider floor, an XL map's,
-## is seen from further back, and draws them as much further out.
+## How far the shadows are drawn out from the camera over a floor of [constant FLOOR_WIDTH], at
+## most. The table is small and the room around it is not: past this there is nothing worth a
+## shadow map, and the nearer it is drawn the more of the map lands on the table. A wider floor,
+## an XL map's, is seen from further back, and draws them as much further out. Frame by frame the
+## reach is fitted to the far corner of the floor from where the camera stands, plus
+## [constant SHADOW_SPARE] for the stands and the tanks behind it, and never under
+## [constant SHADOW_NEAREST]: a camera pulled in on one kart gets the whole map on what it sees,
+## GAME.md 10.7.
 const SHADOW_REACH := 80.0
+const SHADOW_SPARE := 16.0
+const SHADOW_NEAREST := 24.0
 const FLOOR_WIDTH := 40.0
 ## How far inside the edge of the lamp's cone the corners of the floor are kept, in degrees, and
 ## the floor a room's lamp was set for, whose corners a bigger floor's are kept as far into the
@@ -63,6 +69,25 @@ static func relight(tree: SceneTree) -> void:
 
 func _ready() -> void:
 	add_to_group(&"arena_environment")
+
+
+func _process(_delta: float) -> void:
+	if key == null or not key.shadow_enabled:
+		return
+	var camera := get_viewport().get_camera_3d()
+	if camera != null:
+		key.directional_shadow_max_distance = shadow_reach(camera.global_position)
+
+
+## How far the shadows are worth drawing from [param eye]: to the far corner of the floor and
+## the stands behind it, within the room's most.
+func shadow_reach(eye: Vector3) -> float:
+	var half := floor_size * 0.5
+	var far := 0.0
+	for corner: Vector2 in [half, Vector2(-half.x, half.y), -half, Vector2(half.x, -half.y)]:
+		far = maxf(far, eye.distance_to(Vector3(corner.x, 0.0, corner.y)))
+	var most := SHADOW_REACH * maxf(1.0, floor_size.x / FLOOR_WIDTH)
+	return clampf(far + SHADOW_SPARE, SHADOW_NEAREST, most)
 
 
 ## Lights the room the way [param room] says. Called again when the map changes, so everything

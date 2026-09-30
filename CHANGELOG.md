@@ -55,6 +55,14 @@ below, and hands the notes to the release workflow.
 - **A side of the crowd off the screen is not drawn.** The house stands in four blocks, one a
   side of the table, so a camera zoomed onto one end drops the people at the other before a
   vertex of them is run.
+- **The felt and the table are lit in tiles on a phone.** A phone's renderer lights each mesh by
+  every light that reaches it, so the two big surfaces are cut three by three there, and a pixel
+  pays only for the lamps and disco heads that reach its tile; a desktop keeps them whole.
+- **Disco lights: Full, Few or Off.** The rig's setting has a middle: three heads at most, which
+  is what a phone starts on, since every lit head is a light over the whole table.
+- **Sharper shadows up close.** The sun's shadow map reaches to the far corner of the floor from
+  where the camera stands rather than a fixed 80 m, so a camera pulled in on one kart spends the
+  whole map on what it sees.
 
 ## [0.10.0] - 2026-09-29
 

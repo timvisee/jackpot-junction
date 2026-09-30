@@ -2796,8 +2796,10 @@ like any other button.
   anything a kart can touch.
 - **Accessibility**: screen shake on or off, flash reduction, aim assist
   strength from 0% to 100% of the default and never above it, per player, the
-  aim guide on or off, the disco lights on or off, the control hints on or off,
-  the crowd on or off, and the fixed camera on or off. The crowd is on by default;
+  aim guide on or off, the disco lights Full, Few or Off, the control hints on or off,
+  the crowd on or off, and the fixed camera on or off. Few lights three heads at
+  most however hot the match runs, and is where a phone starts, see 10.7: every
+  lit head is a light over the whole table. The crowd is on by default;
   switching it off empties the stands and leaves the booth, since it is the
   thousand moving things around the table rather than the party that is worth
   being able to stop. The fixed camera is off by default and is described in 8.2:
@@ -4510,6 +4512,29 @@ with the numbers that put them there.
   on the mobile renderer from 0.19 ms to 0.07; framed on the whole table it costs
   six more draw calls and nothing else. Not done: ordering the instances near to
   far for the mobile renderer's early depth test.
+- **On a phone's renderer, a big surface is lit in tiles.** Forward+ sorts the
+  lights by screen tile itself, so a mesh's size costs nothing; the mobile
+  renderer lights each mesh by every light whose reach touches it, so every pixel
+  of the felt and the table, one mesh each covering the room, paid for the sun,
+  the fill, the lamp and every lit disco head. Lights were two thirds of that
+  renderer's frame, the two surfaces 0.84 ms of 2.37 with the rig at full. On that
+  renderer the two slabs are cut three tiles a side, each tile lit by what reaches
+  it: 0.84 ms became 0.57, for sixteen more draw calls. A finer cut buys little,
+  since a head's cone reaches across most of the table. The desktop's renderer
+  keeps the slabs whole and its draw calls. The felt casts no shadow either: it
+  lies on the table with nothing under it.
+- **A phone lights fewer disco heads.** Each lit head is a spot light over the
+  whole table, and on the mobile renderer that is a pass over every pixel of it.
+  The Disco lights setting has a middle, Few, that lights three heads at most
+  however far up the meter the match is and whoever has won; a phone starts
+  there. The rig still cycles, so the room keeps moving.
+- **The shadow map reaches as far as the camera sees, not a fixed distance.** The
+  sun's shadows were drawn 80 m out from the camera whatever it looked at, so a
+  camera pulled in on one kart spent most of the map on the room behind the
+  stands. Each frame the reach is fitted to the far corner of the floor from the
+  camera, plus room for the stands and the tanks behind it, and never under 24 m:
+  framed on the whole table it comes to about what it was, pulled in it is
+  sharper for the same cost.
 - **What is quadratic in the bullets is cheap per pair, and what every bullet
   asks is asked once.** Every pair of live bullets is checked for a meeting every
   tick, which is five thousand pairs at the budget's hundred bullets; the closest
