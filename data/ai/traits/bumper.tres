@@ -17,3 +17,4 @@ flee_distance = 3.0
 rams = true
 fire_chance = 0.15
 winner_chase = 0.9
+chattiness = 1.3

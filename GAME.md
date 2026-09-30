@@ -485,7 +485,8 @@ else's results screen, see 10.3.
   down emotes all the same, at the same pace, and with nothing to put it over it
   floats up from the bottom of the screen the way a watcher's does, below, rimmed
   in the player's own color and with their name under it in the same; their wheel
-  comes up at the bottom too. Somebody watching, 10.3, has the same emotes and the
+  comes up at the bottom too. Bots emote as well, now and then, see 9.1. Somebody
+  watching, 10.3, has the same emotes and the
   same ways to them, the touch screen's button included, and no kart: theirs
   floats up from the bottom of every screen at a spot of its own and fades, the
   way a reaction rises up a live stream, on a bubble rimmed in gray rather than
@@ -3010,6 +3011,16 @@ so two readings can be held against each other, and it is not part of `make chec
 takes minutes. Bot work is judged on those numbers rather than on how a match looked, because a
 single match of four bots is mostly luck: the first three ideas tried against it all read as
 clear wins on one match and as losses over three.
+
+**Saying something**: a bot emotes now and then, 3.8, on the moments a player would,
+so the table's other karts read as players rather than as machines. Pleased at a
+double kill or better and at shoving a kart down a hole; cross at being shoved down
+one, at being shot at three times in six seconds by one player, hits and near misses
+alike, and at being killed within three seconds of coming back; a gg for winning the
+match. Each moment is a 35% chance, weighed by the trait's chattiness, a Bumper
+rowdier and a Cautious bot half as talkative, said after a moment's thought of
+0.3 to 1.2 s, and a bot that has just said something says nothing more for 20 s.
+The host decides, and it comes up everywhere as a player's does, `BotEmotes`.
 
 **Getting unstuck**: driving at something solid pins a kart against it, and steering
 toward a target on the far side only holds it there harder. A bot that is going

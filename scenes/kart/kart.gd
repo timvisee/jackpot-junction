@@ -17,6 +17,8 @@ signal mult_changed(amount: float, reason: StringName)
 signal item_held(item: PowerUp)
 signal item_used(item: PowerUp)
 signal joker_dropped(joker: Joker)
+## A bullet of [param by_slot]'s passed close without hitting, see [method graze].
+signal grazed_by(by_slot: int)
 
 const WHEEL_RADIUS := 0.24
 ## Smoothing rate for puppets, per second: how fast they close in on the latest snapshot.
@@ -498,9 +500,10 @@ func gain_mult(amount: float, reason: StringName) -> void:
 
 
 ## An enemy bullet passed close without hitting, GAME.md 3.3.
-func graze(_by_slot: int) -> void:
+func graze(by_slot: int) -> void:
 	if not is_targetable() or _graze_cooldown_left > 0.0:
 		return
+	grazed_by.emit(by_slot)
 	_graze_cooldown_left = rules.graze_cooldown
 	var amount := rules.graze_mult
 	for joker: Joker in jokers.jokers:

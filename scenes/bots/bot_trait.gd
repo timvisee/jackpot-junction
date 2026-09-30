@@ -25,3 +25,6 @@ extends Resource
 ## Chance the bot goes after a rival one cash-out from winning the match, GAME.md 9.1, decided
 ## once each time a rival gets there: a hunter nearly always does, a cautious bot seldom.
 @export var winner_chase := 0.5
+## How often it has something to say, GAME.md 3.8, see [BotEmotes]: 1 an ordinary bot, more a
+## rowdy one, less a quiet one.
+@export var chattiness := 1.0

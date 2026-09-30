@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Bots emote now and then.** Pleased at a double kill or a kart shoved down a hole, cross at being
+  shot at over and over or killed as they come back, and a gg for a win; never every time.
 - **Emotes while you wait to come back.** A dead player's emote floats up from the bottom of the
   screen in their color, the way a watcher's does.
 - **Carbon Copy.** A joker your death drops goes on the floor as a copy, and you keep your own.
