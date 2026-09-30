@@ -543,7 +543,7 @@ func _update_blocks() -> void:
 		# A pot that would win the match on the next cash-out burns, GAME.md 3.4.
 		pot.set_burning(match_node.is_running() and match_node.would_win(slot))
 		stats.text = "K %d  D %d" % [slot.kills, slot.deaths]
-		var pips: Array = block["lives"]
+		var pips := HudBlock.fit_lives(block, slot, KartLives.most(kart))
 		for i: int in pips.size():
 			var lit := kart.alive and i < kart.lives
 			(pips[i] as Heart).color = slot.color() if lit else LIFE_LOST

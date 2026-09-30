@@ -45,12 +45,7 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	lives.alignment = BoxContainer.ALIGNMENT_END if right else BoxContainer.ALIGNMENT_BEGIN
 	var pips: Array = []
 	for i: int in lives_each:
-		var pip := Heart.new()
-		pip.custom_minimum_size = Vector2(MatchHud.LIFE_SIZE, MatchHud.LIFE_SIZE)
-		pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		pip.color = slot.color()
-		lives.add_child(pip)
-		pips.append(pip)
+		pips.append(_pip(lives, slot))
 	# A row rather than a line of text: the buttons in it are drawn, GAME.md 8.3. It fills the
 	# block so the pictures line up with the writing above them on either side of the screen.
 	var hints := HBoxContainer.new()
@@ -177,6 +172,26 @@ static func bar(size: Vector2, ink: Color) -> ProgressBar:
 	bar.add_theme_stylebox_override("background", back)
 	bar.add_theme_stylebox_override("fill", fill)
 	return bar
+
+
+## The pips of [param block] made up to [param most], the lives its kart may have, which a joker
+## can raise, GAME.md 3.6: one more is added where there are too few, and one too many is hidden.
+static func fit_lives(block: Dictionary, slot: PlayerSlot, most: int) -> Array:
+	var pips: Array = block["lives"]
+	while pips.size() < most and not pips.is_empty():
+		pips.append(_pip((pips[0] as Control).get_parent(), slot))
+	for i: int in pips.size():
+		(pips[i] as Control).visible = i < most
+	return pips.slice(0, mini(most, pips.size()))
+
+
+static func _pip(row: Node, slot: PlayerSlot) -> Heart:
+	var pip := Heart.new()
+	pip.custom_minimum_size = Vector2(MatchHud.LIFE_SIZE, MatchHud.LIFE_SIZE)
+	pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pip.color = slot.color()
+	row.add_child(pip)
+	return pip
 
 
 ## What a block was drawn for: the name, the color and the palette it is in, GAME.md 8.5.

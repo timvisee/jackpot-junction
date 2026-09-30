@@ -92,6 +92,18 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 			IconShapes.flame(on, box, 0.28, 0.86, 0.3, 0.0, dim)
 			IconShapes.flame(on, box, 0.72, 0.86, 0.3, 0.0, dim)
 			IconShapes.flame(on, box, 0.5, 0.9, 0.46, 0.0, ink)
+		&"scar_tissue":
+			IconShapes.heart(on, box, 0.5, 0.52, 0.34, ink)
+			IconShapes.line(on, box, 0.22, 0.34, 0.74, 0.7, dim)
+			for stitch: float in [0.34, 0.48, 0.62]:
+				var along := 0.34 + (stitch - 0.22) * 0.69
+				IconShapes.line(
+					on, box, stitch - 0.05, along + 0.06, stitch + 0.05, along - 0.06, dim
+				)
+		&"spare_tire":
+			IconShapes.ring(on, box, 0.5, 0.5, 0.36, ink)
+			IconShapes.ring(on, box, 0.5, 0.5, 0.26, dim)
+			IconShapes.heart(on, box, 0.5, 0.5, 0.14, ink)
 		&"insurance_policy":
 			IconShapes.shield(on, box, 0.5, 0.5, 0.36, ink)
 		&"jerry_can":
@@ -196,8 +208,10 @@ static func known() -> Array[StringName]:
 		&"pickpocket",
 		&"road_rage",
 		&"rubber_bumpers",
+		&"scar_tissue",
 		&"slipstream",
 		&"snake_eyes",
+		&"spare_tire",
 		&"tailslide",
 		&"tight_grip",
 		&"toll_booth",

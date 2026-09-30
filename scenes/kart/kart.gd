@@ -295,7 +295,7 @@ func is_targetable() -> bool:
 
 
 func is_wounded() -> bool:
-	return lives < rules.lives
+	return lives < KartLives.most(self)
 
 
 ## The match is over, GAME.md 2. The kart is handed a blank set of controls rather than being
@@ -686,11 +686,12 @@ func _take_lethal(cause: StringName, by_slot: int) -> void:
 	die(cause, by_slot)
 
 
-## Patches a wounded kart up to full lives: the Junction does it, and so does a kill.
+## Patches a wounded kart up to full lives: the Junction does it, and so does a kill, unless a
+## joker says nothing may, see [KartLives].
 func restore_life() -> void:
-	if not alive or not is_wounded():
+	if not alive or not is_wounded() or not KartLives.healable(self):
 		return
-	lives = rules.lives
+	lives = KartLives.most(self)
 	_apply_wounds()
 	Events.life_restored.emit(slot)
 
@@ -837,7 +838,7 @@ func respawn(point: Vector3, direction: Vector3, protection: float) -> void:
 	motor.turbo_time_left = 0.0
 	velocity = Vector3.ZERO
 	cannon.cooldown_left = 0.0
-	lives = rules.lives
+	lives = KartLives.most(self)
 	hurt_left = 0.0
 	_apply_wounds()
 	protection_left = protection

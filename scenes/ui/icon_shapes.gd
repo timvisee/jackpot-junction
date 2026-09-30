@@ -121,6 +121,16 @@ static func shield(on: CanvasItem, box: Rect2, x: float, y: float, span: float, 
 	)
 
 
+## A heart, [param span] of the box from its middle to its edge: a life, see [Heart].
+static func heart(on: CanvasItem, box: Rect2, x: float, y: float, span: float, ink: Color) -> void:
+	var side := span(box, span) * 2.0
+	var corner := at(box, x, y) - Vector2(side, side) * 0.5
+	var points := PackedVector2Array()
+	for point: Vector2 in Heart.unit_shape():
+		points.append(corner + point * side)
+	on.draw_colored_polygon(points, ink)
+
+
 ## A jagged burst, for the pictures that are about something going off.
 static func burst(on: CanvasItem, box: Rect2, x: float, y: float, span: float, ink: Color) -> void:
 	spiked(on, box, x, y, span, 10, 0.52, ink)

@@ -238,7 +238,10 @@ on: darker, at 85% top speed, blinking and untouchable for 1.2 s, so a burst of
 bullets cannot take both lives in the same moment. Untouchable is for the lives
 only: a ram still knocks coins out of the pot, see 4.1. Standing on the Junction with
 an empty pot restores the lost life, and so does banking a pot dry there, see 3.4;
-so does taking somebody out.
+so does taking somebody out. A joker can add a life, Spare Tire and Scar Tissue in
+7.3, each one more on top of the two, there the moment the card is taken rather
+than a wound, with a heart more under the player's name; healing fills them too,
+unless the card says nothing heals, and coming back always does.
 Losing the last life is death. A kart that drives into a pit falls for 0.4 s,
 uncontrollable, and dies whatever its lives. On death, in this order:
 
@@ -1590,6 +1593,7 @@ a real downside. Starting set; balance is untested.
 | Green Light      | Common   | Rule   | Turbo pads give +1 mult                                                   |
 | Vulture          | Common   | Rule   | Chips dropped by other karts are worth 3 coins to you                     |
 | Odometer         | Common   | Rule   | +1 coin for every 20 m you drive                                          |
+| Spare Tire       | Common   | Rule   | One more life. The death that takes the last one takes the tire too, never dropped |
 | Insurance Policy | Uncommon | Rule   | Bank all that is left of your pot on death                                |
 | Tight Grip       | Uncommon | Rule   | Your pot never spills: no coins dropped on death or knocked out by a ram  |
 | Getaway Driver   | Uncommon | Rule   | Junction drain ramps twice as fast, D = 0.25 s                            |
@@ -1608,6 +1612,7 @@ a real downside. Starting set; balance is untested.
 | Backfire         | Uncommon | Rule   | Holding the brake points your cannon out of the back of the kart, so you can answer whoever is behind you without turning round and losing the ground. The aim guide follows it. Free aim overrules it: a hand on the Swivel Cannon has already said where the shot goes |
 | Road Rage        | Uncommon | Cursed | Ramming above 90% of top speed kills without Boost, but top speed is -10% |
 | Snake Eyes       | Uncommon | Cursed | Start every life with mult 3, but grazes give nothing                     |
+| Scar Tissue      | Uncommon | Cursed | One more life, but neither the Junction nor a kill heals you: only coming back does. Stacks with Spare Tire, and nothing heals |
 | Lucky Seven      | Rare     | Rule   | Every 7th chip you collect gives +1 mult                                  |
 | Hot Streak       | Rare     | Rule   | +0.5 mult every 10 seconds you stay on the floor                          |
 | Deep Pockets     | Rare     | Rule   | +2 joker slots, one of which it stands in. Stacks                         |

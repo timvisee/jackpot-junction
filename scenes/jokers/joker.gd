@@ -129,3 +129,19 @@ func modify_offer_count(count: int) -> int:
 ## How many jokers the holder may hold at once, GAME.md 3.7.
 func modify_joker_slots(count: int) -> int:
 	return count
+
+
+## Lives the holder has on top of the rules' own, GAME.md 3.6, see [KartLives].
+func extra_lives() -> int:
+	return 0
+
+
+## Whether nothing patches the holder up while it lives: neither the Junction nor a kill heals it,
+## and only coming back brings its lives back, GAME.md 3.6.
+func blocks_healing() -> bool:
+	return false
+
+
+## Whether the holder's death takes this joker with it, gone rather than kept or dropped.
+func lost_on_death() -> bool:
+	return false

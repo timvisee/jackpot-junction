@@ -30,6 +30,7 @@ static func resolve(
 	for joker: Joker in kart.jokers.jokers:
 		joker.modify_death(kart, death)
 		joker.on_death(kart)
+	KartLives.lose_on_death(kart)
 	var killer: PlayerSlot = null
 	if killer_slot >= 0 and killer_slot != slot.index and killer_slot < match_node.slots.size():
 		killer = match_node.slots[killer_slot]

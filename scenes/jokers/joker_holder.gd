@@ -56,6 +56,7 @@ func add(joker: Joker) -> Joker:
 	var instance: Joker = joker.duplicate()
 	jokers.append(instance)
 	instance.on_attach(_kart)
+	KartLives.follow(_kart, instance, true)
 	changed.emit()
 	return instance
 
@@ -65,6 +66,7 @@ func remove(instance: Joker) -> void:
 		return
 	jokers.erase(instance)
 	instance.on_detach(_kart)
+	KartLives.follow(_kart, instance, false)
 	changed.emit()
 
 

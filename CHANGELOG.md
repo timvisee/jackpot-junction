@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Two jokers with a life in them.** Spare Tire is one more life, lost with the kart; Scar Tissue
+  is one more that nothing heals but coming back.
 - **Three more awards.** Knocking on the Door for match points, Piggy Bank for coins dropped on the
   floor and Battering Ram for players rammed.
 - **A server says where it listens.** As it starts, a dedicated server logs the addresses of its

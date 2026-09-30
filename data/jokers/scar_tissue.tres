@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/scar_tissue.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"scar_tissue"
+display_name = "Scar Tissue"
+description = "One more life, but nothing heals you: only coming back does."
+rarity = 1
+kind = 2
