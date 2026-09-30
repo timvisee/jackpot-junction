@@ -23,6 +23,10 @@ var _boxes_left := 0.0
 ## and how many the hand held when last looked at, for telling when one has been.
 var _cards: Array[float] = []
 var _hand := 0
+## The body of the kart it last looked after, and that kart, for the pads to measure it by: found
+## once a kart rather than every tick.
+var _body: CollisionShape3D
+var _body_of: Kart
 ## What has been taken here and not settled yet, to count how it went. Untyped, since what the host
 ## took off the floor has been freed by the time it is looked at again.
 var _waiting: Array = []
@@ -56,11 +60,18 @@ func step(match_node: Match, prediction: KartPrediction, delta: float) -> void:
 	for pad: FlushPad in match_node.arena.flush_pads:
 		if pad.predicted_claim() or not pad.can_be_taken_by(kart):
 			continue
-		if pad.would_take(kart, where):
+		if pad.would_take(_body_on(kart), where):
 			pad.predict_claim(kart)
 			Audio.ahead(&"pad_claimed", [kart.slot])
 			taken += 1
 			_waiting.append(pad)
+
+
+func _body_on(kart: Kart) -> CollisionShape3D:
+	if kart != _body_of or not is_instance_valid(_body):
+		_body_of = kart
+		_body = kart.get_node_or_null(^"CollisionShape3D") as CollisionShape3D
+	return _body
 
 
 ## Whether the kart may take [param pickup] as far as this machine knows: the pickup's own rule,

@@ -4830,9 +4830,11 @@ with the numbers that put them there.
   tick, which is five thousand pairs at the budget's hundred bullets; the closest
   points between two sweeps allocate, so a pair is first rejected by the distance
   between the middles of the sweeps, which nearly every pair fails. The karts and
-  the targets are read off their groups once a frame and shared by every bullet,
+  the targets are read off their groups once a frame and shared, `FrameGroups`,
   rather than walked once a bullet a tick, and anything that reads the shared
-  list checks each node is still alive.
+  list checks each node is still alive. The bots and the turrets read the karts
+  the same way: a bot used to walk the group up to four times a tick, looking
+  for somebody to hunt, a rival about to win and the nearest kart to shoot.
 
 **Keeping it.** The rules above are how the frame was won back; this is how it
 stays won. New code is held to these, and a pull that breaks one says why:
@@ -4866,8 +4868,16 @@ stays won. New code is held to these, and a pull that breaks one says why:
   over the whole table is a pass over every pixel of it there: big surfaces
   are tiled on that renderer, and a new light has to earn its place.
 - Per tick, nothing asks the tree for a group once per object; the list is read
-  once a frame and shared, and freed nodes are checked for. What is quadratic
-  is rejected cheaply before anything is allocated.
+  once a frame and shared through `FrameGroups`, and freed nodes are checked
+  for. What is quadratic is rejected cheaply before anything is allocated.
+- Nothing finds a node every frame. A node a script works with is kept from when
+  it is made, or asked of whoever made it and keeps it: the touch controls and
+  the mouse ask the HUD for the hand, the pick, the standings and the corners,
+  `MatchHud.hand_of` and the rest, rather than looking them up by name, and the
+  pause menus and the style stalls each keep a list of themselves as they come
+  and go for the questions asked of them every frame. A set that changes all
+  the time, such as what is lying on the floor, is gone through once a frame
+  however many ask, and a physics query is made once and pointed again.
 - Every new shader a player can meet is compiled behind the title. A new
   effect, pickup, kart dress, HUD piece, room, light or material with a feature
   set the game did not have -- a texture where there was none, transparency,

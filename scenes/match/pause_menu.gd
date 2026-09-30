@@ -16,6 +16,10 @@ const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
 ## Every room's menu is in this group, so something with no way to press Escape, such as the menu
 ## button on a touch screen, GAME.md 4.2, can open it.
 const GROUP := &"pause_menu"
+
+## Every menu in a tree, kept as they come and go, for [method is_open_in]: the touch controls,
+## the emotes and the mouse each ask it every frame, and asking the tree walks the group.
+static var _in_tree: Array[PauseMenu] = []
 ##
 ## Built on the pane every panel in the game is cut from, GAME.md 8.3, over a shade of the arena
 ## it is holding up.
@@ -68,6 +72,10 @@ static func add_to(parent: Node, net: NetSession = null) -> PauseMenu:
 	menu.session = net
 	parent.add_child(menu)
 	return menu
+
+
+func _enter_tree() -> void:
+	_in_tree.append(self)
 
 
 func _ready() -> void:
@@ -338,10 +346,14 @@ static func open_in(tree: SceneTree) -> void:
 	tree.call_group(GROUP, &"set_paused", true)
 
 
+func _exit_tree() -> void:
+	_in_tree.erase(self)
+
+
 ## Whether the room [param tree] is running has its menu up.
 static func is_open_in(tree: SceneTree) -> bool:
-	for menu: Node in tree.get_nodes_in_group(GROUP):
-		if (menu as PauseMenu).is_open():
+	for menu: PauseMenu in _in_tree:
+		if menu.get_tree() == tree and menu.is_open():
 			return true
 	return false
 

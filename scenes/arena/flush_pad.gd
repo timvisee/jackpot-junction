@@ -59,6 +59,8 @@ var _halo_material: StandardMaterial3D
 var _halo_left := 0.0
 ## The color of the ring in the air right now, which outlives the claim that threw it.
 var _halo_color := NEUTRAL
+## The question [method would_take] asks the physics, made once and pointed again each time.
+var _query := PhysicsShapeQueryParameters3D.new()
 
 
 func _ready() -> void:
@@ -146,19 +148,18 @@ func claim(slot: int, color: Color) -> void:
 	_refresh()
 
 
-## Whether [param kart], its simulation at [param where], is on the pad, for a client asking about
-## its own, GAME.md 10.3: its body's box, turned the way it points, against the pad's.
-func would_take(kart: Kart, where: Transform3D) -> bool:
-	var query := PhysicsShapeQueryParameters3D.new()
-	var body := kart.get_node_or_null(^"CollisionShape3D") as CollisionShape3D
+## Whether a kart whose body is [param body], its simulation at [param where], is on the pad, for a
+## client asking about its own, GAME.md 10.3: the body's box, turned the way it points, against
+## the pad's.
+func would_take(body: CollisionShape3D, where: Transform3D) -> bool:
 	if body == null:
 		return false
-	query.shape = body.shape
-	query.transform = where * body.transform
-	query.collide_with_areas = true
-	query.collide_with_bodies = false
-	query.collision_mask = Layers.TRIGGER
-	for hit: Dictionary in get_world_3d().direct_space_state.intersect_shape(query, 16):
+	_query.shape = body.shape
+	_query.transform = where * body.transform
+	_query.collide_with_areas = true
+	_query.collide_with_bodies = false
+	_query.collision_mask = Layers.TRIGGER
+	for hit: Dictionary in get_world_3d().direct_space_state.intersect_shape(_query, 16):
 		if hit["collider"] == self:
 			return true
 	return false

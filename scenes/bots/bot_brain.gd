@@ -457,8 +457,8 @@ func _richest_enemy() -> Kart:
 		return null
 	var best: Kart = null
 	var best_pot := POT_WORTH_CHASING
-	for node: Node in get_tree().get_nodes_in_group(&"karts"):
-		var other := node as Kart
+	for node: Node in FrameGroups.of(get_tree(), &"karts"):
+		var other := node as Kart if is_instance_valid(node) else null
 		if other == null or other.slot == kart.slot or not other.is_targetable():
 			continue
 		if kart.global_position.distance_to(other.global_position) > POT_HUNT_RANGE * _span():
@@ -507,8 +507,8 @@ func _nearest_boosting_enemy() -> Kart:
 func _nearest_other(worth_it: Callable) -> Kart:
 	var best: Kart = null
 	var best_distance := INF
-	for node: Node in get_tree().get_nodes_in_group(&"karts"):
-		var other := node as Kart
+	for node: Node in FrameGroups.of(get_tree(), &"karts"):
+		var other := node as Kart if is_instance_valid(node) else null
 		if other == null or other.slot == kart.slot or not worth_it.call(other):
 			continue
 		var distance := kart.global_position.distance_to(other.global_position)

@@ -324,19 +324,22 @@ func _slot() -> PlayerSlot:
 ## The hand of cards the HUD keeps for the player here, while it is on the screen.
 func _hand() -> JokerHand:
 	var slot := _slot()
-	if slot == null or get_parent() == null:
-		return null
-	var hand := get_parent().get_node_or_null("Hand%d" % slot.index) as JokerHand
+	var hud := _hud()
+	var hand := hud.hand_of(slot.index) if slot != null and hud != null else null
 	return hand if hand != null and hand.is_visible_in_tree() else null
 
 
 ## The respawn pick the HUD keeps for the player here, while it is up.
 func _picker() -> JokerPicker:
 	var slot := _slot()
-	if slot == null or get_parent() == null:
-		return null
-	var picker := get_parent().get_node_or_null("Picker%d" % slot.index) as JokerPicker
+	var hud := _hud()
+	var picker := hud.picker_of(slot.index) if slot != null and hud != null else null
 	return picker if picker != null and picker.is_visible_in_tree() else null
+
+
+## The HUD these hang over, which keeps the pieces they work with, see [method MatchHud.hand_of].
+func _hud() -> MatchHud:
+	return get_parent() as MatchHud
 
 
 ## The card of [param hand] under [param at], a point in these controls' own coordinates.
@@ -412,10 +415,11 @@ func _to_the_hand() -> void:
 ## up there is nothing for the hand to be under, and both go back to where the HUD put them.
 func _stack_the_jokers() -> void:
 	var slot := _slot()
-	if slot == null or get_parent() == null:
+	var hud := _hud()
+	if slot == null or hud == null:
 		return
-	var hand := get_parent().get_node_or_null("Hand%d" % slot.index) as Control
-	var picker := get_parent().get_node_or_null("Picker%d" % slot.index) as Control
+	var hand := hud.hand_of(slot.index)
+	var picker := hud.picker_of(slot.index)
 	if hand == null or picker == null:
 		return
 	var picking := picker.visible
@@ -430,17 +434,16 @@ func _stack_the_jokers() -> void:
 	var hand_first := picking and _front == HAND
 	hand.z_index = FRONT if hand_first else 0
 	picker.z_index = FRONT if picking and not hand_first else 0
-	(picker as JokerPicker).quiet = picking and _pick_quiet
+	picker.quiet = picking and _pick_quiet
 	# And the hand between the stick and the buttons rather than under either, with the pick
 	# above it rather than over it, however big the UI scale makes them, GAME.md 8.5.
-	(hand as JokerHand).lane = _hand_lane()
+	hand.lane = _hand_lane()
 	# Tucked into the bottom edge until a card of it is being read, see [member JokerHand.tucked].
-	(hand as JokerHand).tucked = true
-	(picker as JokerPicker).floor_y = (hand as JokerHand).reach() - FLOOR_GAP
-	var feed := get_parent().get_node_or_null("KillFeed") as KillFeed
+	hand.tucked = true
+	picker.floor_y = hand.reach() - FLOOR_GAP
+	var feed := hud.kill_feed()
 	if feed != null:
-		var board := get_parent().get_node_or_null("Scoreboard") as Control
-		feed.room = maxf(_buttons_top() - LANE_GAP - feed_top(board), 1.0)
+		feed.room = maxf(_buttons_top() - LANE_GAP - feed_top(hud.scoreboard()), 1.0)
 
 
 ## Where the highest of the driving buttons and the slider reaches up to.
@@ -456,14 +459,13 @@ func _buttons_top() -> float:
 ## each shrunk toward the corner or the edge it hangs from.
 func _compact_the_hud() -> void:
 	var slot := _slot()
-	var hud := get_parent()
+	var hud := _hud()
 	if hud == null:
 		return
-	var names: Array[String] = ["Scoreboard", "KillFeed"]
+	var pieces: Array[Control] = [hud.scoreboard(), hud.kill_feed()]
 	if slot != null:
-		names.append("Block%d" % slot.index)
-	for named: String in names:
-		var piece := hud.get_node_or_null(named) as Control
+		pieces.append(hud.block_of(slot.index))
+	for piece: Control in pieces:
 		if piece == null:
 			continue
 		piece.pivot_offset = Vector2(

@@ -28,6 +28,9 @@ const HOLD := 0.1
 ## The seats at this machine whose players have changed something at a pad since the game was
 ## started, and need telling no more.
 static var learned: Dictionary[int, bool] = {}
+## Every set of stalls in a room right now, kept as they come and go, for [method part_under]: the
+## touch controls ask it every frame they draw the fire button.
+static var _in_rooms: Array[StyleStalls] = []
 
 var match_node: Match
 ## Whether this machine decides who is on a pad: the host, or a machine playing alone.
@@ -55,7 +58,12 @@ static func add_to(in_match: Match, first: Vector2i) -> StyleStalls:
 	return stalls
 
 
+func _enter_tree() -> void:
+	_in_rooms.append(self)
+
+
 func _exit_tree() -> void:
+	_in_rooms.erase(self)
 	if Events.kart_dressed.is_connected(_on_kart_dressed):
 		Events.kart_dressed.disconnect(_on_kart_dressed)
 
@@ -65,8 +73,10 @@ func _exit_tree() -> void:
 static func part_under(match_node: Match, kart: Kart) -> int:
 	if match_node == null or match_node.arena == null or kart == null or not kart.alive:
 		return -1
-	var stalls := match_node.arena.get_node_or_null("StyleStalls") as StyleStalls
-	return stalls.pad_under(kart) if stalls != null else -1
+	for stalls: StyleStalls in _in_rooms:
+		if stalls.match_node == match_node:
+			return stalls.pad_under(kart)
+	return -1
 
 
 ## The pad [param kart] is standing on, or -1.

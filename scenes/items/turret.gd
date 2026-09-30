@@ -99,8 +99,8 @@ func _physics_process(delta: float) -> void:
 func _nearest_enemy() -> Kart:
 	var best: Kart = null
 	var best_distance := RANGE
-	for node: Node in get_tree().get_nodes_in_group(&"karts"):
-		var kart := node as Kart
+	for node: Node in FrameGroups.of(get_tree(), &"karts"):
+		var kart := node as Kart if is_instance_valid(node) else null
 		if kart == null or kart.slot == owner_slot or not kart.is_targetable():
 			continue
 		var distance := global_position.distance_to(kart.global_position)

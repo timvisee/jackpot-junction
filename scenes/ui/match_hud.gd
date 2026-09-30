@@ -863,6 +863,33 @@ func _update_item(block: Dictionary, kart: Kart) -> void:
 	(block["item"] as ItemRow).show_kart(kart)
 
 
+## The pieces of the HUD that the touch controls and the mouse work with, see [TouchControls]
+## and [MouseJokers]: kept from when each is made, where they used to find them by name every
+## frame, GAME.md 10.7. Null for a slot with none, and for one on its way out.
+func hand_of(index: int) -> JokerHand:
+	var hand: Variant = _hands.get(index)
+	return hand as JokerHand if is_instance_valid(hand) else null
+
+
+func picker_of(index: int) -> JokerPicker:
+	var picker: Variant = _pickers.get(index)
+	return picker as JokerPicker if is_instance_valid(picker) else null
+
+
+## [param index]'s corner of the screen, see [HudBlock].
+func block_of(index: int) -> Control:
+	var box: Variant = (_blocks.get(index, {}) as Dictionary).get("box")
+	return box as Control if is_instance_valid(box) else null
+
+
+func scoreboard() -> Scoreboard:
+	return _scoreboard
+
+
+func kill_feed() -> KillFeed:
+	return _kill_feed
+
+
 func _slot_name(slot: int) -> String:
 	if slot < 0 or slot >= match_node.slots.size():
 		return ""

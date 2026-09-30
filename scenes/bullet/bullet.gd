@@ -19,14 +19,6 @@ const PLAYER_PULL := 0.4
 ## The ray every shot looks along to see whether a target is in the open, set up once and pointed
 ## again each time, as each bullet's own [member _ray] is.
 static var _sight := PhysicsRayQueryParameters3D.new()
-## The karts and the targets in the room, read off their groups once a frame and shared by every
-## bullet, GAME.md 10.7: a hundred bullets each asking the tree for the karts is a hundred walks
-## of the same list a tick. Per drawn frame rather than per tick, since a node freed at the end
-## of one frame is gone by the next, and anything that reads these still checks each is alive.
-static var _karts_frame := -1
-static var _karts: Array[Node] = []
-static var _targets_frame := -1
-static var _targets: Array[Node] = []
 ## What a bullet is drawn with, by its radius and its color, shared by every bullet, GAME.md
 ## 10.7: a shot builds nothing, and a ball of eight segments is all a bullet ever shows.
 static var _cores: Dictionary[float, SphereMesh] = {}
@@ -247,7 +239,8 @@ static func nearest_target(
 ) -> Node3D:
 	var scored: Array = []
 	var flat := Vector3(facing.x, 0.0, facing.z)
-	for node: Node in _targets_in(tree):
+	# Read off the group once a frame and shared by every bullet, see [FrameGroups].
+	for node: Node in FrameGroups.of(tree, TARGET_GROUP):
 		var target := node as Node3D if is_instance_valid(node) else null
 		if target == null or not target.has_method("is_targetable"):
 			continue
@@ -365,27 +358,9 @@ func _hit_overlapping_targets(space: PhysicsDirectSpaceState3D) -> void:
 			return
 
 
-## The targets in [param tree], as of this frame.
-static func _targets_in(tree: SceneTree) -> Array[Node]:
-	var frame := Engine.get_process_frames()
-	if frame != _targets_frame:
-		_targets_frame = frame
-		_targets = tree.get_nodes_in_group(TARGET_GROUP)
-	return _targets
-
-
-## The karts in [param tree], as of this frame.
-static func _karts_in(tree: SceneTree) -> Array[Node]:
-	var frame := Engine.get_process_frames()
-	if frame != _karts_frame:
-		_karts_frame = frame
-		_karts = tree.get_nodes_in_group(&"karts")
-	return _karts
-
-
 ## A kart is grazed when the bullet leaves its graze distance without having hit it.
 func _update_grazes() -> void:
-	for node: Node in _karts_in(get_tree()):
+	for node: Node in FrameGroups.of(get_tree(), &"karts"):
 		var kart := node as Kart if is_instance_valid(node) else null
 		if kart == null or kart.slot == owner_slot:
 			continue

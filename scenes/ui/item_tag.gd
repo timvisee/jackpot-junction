@@ -37,6 +37,9 @@ var match_node: Match
 
 ## Slot to its tag: how long since the pickup, and how long the item has been settled.
 var _tags: Dictionary[int, Dictionary] = {}
+## Where the boxes on the floor are, found once a frame for every player here, and the frame.
+var _boxes: Array[Vector3] = []
+var _boxes_frame := -1
 
 
 static func add_to(hud: MatchHud) -> ItemTag:
@@ -131,13 +134,25 @@ func _nearness(kart: Kart) -> float:
 	if match_node.arena == null:
 		return 0.0
 	var nearest := INF
-	for node: Node in match_node.arena.pickups.get_children():
-		var box := node as ItemBox
-		if box == null or box.is_queued_for_deletion() or box.predicted_take():
-			continue
-		var gap := box.global_position - kart.global_position
+	for at: Vector3 in _boxes_on_the_floor():
+		var gap := at - kart.global_position
 		nearest = minf(nearest, Vector2(gap.x, gap.z).length())
 	return clampf((FAR - nearest) / (FAR - NEAR), 0.0, 1.0)
+
+
+## Where the item boxes on the floor are this frame. Asked for each player here up to twice a
+## frame, and looking means going through everything on the floor, chips and all.
+func _boxes_on_the_floor() -> Array[Vector3]:
+	var frame := Engine.get_process_frames()
+	if frame == _boxes_frame:
+		return _boxes
+	_boxes_frame = frame
+	_boxes.clear()
+	for node: Node in match_node.arena.pickups.get_children():
+		var box := node as ItemBox
+		if box != null and not box.is_queued_for_deletion() and not box.predicted_take():
+			_boxes.append(box.global_position)
+	return _boxes
 
 
 ## How much of [param tag] shows: all of it until it has been settled a while and then less and
