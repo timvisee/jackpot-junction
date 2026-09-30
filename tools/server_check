@@ -15,6 +15,8 @@
 # the engine and little more, and one that grew past SVCHECK_IDLE_MB (160, for the editor build this
 # runs) has started loading the game again, see scripts/game_tree.gd.
 #
+# SVCHECK_SERVER=<binary> runs an exported server build, such as a release's, in place of this
+# checkout; it offers no match as short as the clients ask for, so SVCHECK_LENGTH=60 goes with it.
 # SVCHECK_PORT picks the server's port, the one game it plays on the port after it, and
 # SVCHECK_LOGS=<dir> keeps every process's whole log there. The clients take --length=<seconds>
 # for the match, which against a release server, offering nothing as short as the five seconds
@@ -32,7 +34,14 @@ else
 fi
 failed=0
 
-timeout 240 tools/godot --headless --path . -- --server --port="$port" --games=1 \
+# SVCHECK_SERVER=<binary> plays against an exported server build rather than this checkout, which is
+# the only way to see what a release build does that an editor build does not.
+if [[ -n ${SVCHECK_SERVER:-} ]]; then
+	server_cmd=("$SVCHECK_SERVER" --)
+else
+	server_cmd=(tools/godot --headless --path . -- --server)
+fi
+timeout 600 "${server_cmd[@]}" --port="$port" --games=1 \
 	>"$logs/server.log" 2>&1 &
 server=$!
 # Up once it says so, or given up on.
@@ -56,8 +65,8 @@ fi
 
 run() {
 	local role=$1
-	timeout 240 tools/godot --headless --path . -s tools/server_check.gd -- --role="$role" \
-		--port="$port" >"$logs/$role.log" 2>&1
+	timeout 480 tools/godot --headless --path . -s tools/server_check.gd -- --role="$role" \
+		--port="$port" ${SVCHECK_LENGTH:+--length=$SVCHECK_LENGTH} >"$logs/$role.log" 2>&1
 }
 
 run maker &
@@ -143,6 +152,13 @@ for group in "${said[@]}"; do
 done
 if grep -hE 'SCRIPT ERROR|USER ERROR' "$logs/server.log" | sed "s/^/server: /" >&2; then
 	echo "server check: the server raised script errors" >&2
+	failed=1
+fi
+# And engine errors, which a release build raises where an editor build does not: one about a
+# stream still in use at exit is the audio server's own shutdown race, see tools/smoke.
+if grep -hE '^ERROR:' "$logs/server.log" | grep -vE 'resources still in use at exit' |
+	sed "s/^/server: /" >&2; then
+	echo "server check: the server raised engine errors" >&2
 	failed=1
 fi
 if [[ $failed -eq 0 ]]; then

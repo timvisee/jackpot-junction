@@ -25,6 +25,9 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **No errors when a dedicated server's game ends.** The server no longer logs three "Attempt to
+  disconnect a nonexistent connection" errors as the last player leaves a game.
+
 - **A steady aim guide.** The dots ahead of the cannon, and the arrow of a freely aimed one, follow
   the kart as it is drawn: on a phone they jittered against it every frame.
 - **No "Its address" in the server box.** Play Online's server field is empty until something is

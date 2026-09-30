@@ -85,9 +85,9 @@ func _exit_tree() -> void:
 	if link != null and is_instance_valid(link):
 		link.queue_free()
 	_reports.close()
-	if multiplayer.multiplayer_peer != null:
-		multiplayer.multiplayer_peer.close()
-		multiplayer.multiplayer_peer = null
+	# Closed now and taken off a frame later, once the link that called through it has gone, see
+	# [NetPeer].
+	NetPeer.let_go(multiplayer, multiplayer.multiplayer_peer)
 
 
 ## Whose each game is, and how it stands, as the Play Online screen lists it: the way a LAN game

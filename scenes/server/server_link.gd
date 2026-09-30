@@ -76,9 +76,9 @@ func _exit_tree() -> void:
 		scene.auth_callback = Callable()
 	if scene != null and scene.peer_authenticating.is_connected(_knock):
 		scene.peer_authenticating.disconnect(_knock)
-	if hall == null and multiplayer.multiplayer_peer != null:
-		multiplayer.multiplayer_peer.close()
-		multiplayer.multiplayer_peer = null
+	if hall == null:
+		# Closed now and taken off a frame later, see [NetPeer].
+		NetPeer.let_go(multiplayer, multiplayer.multiplayer_peer)
 
 
 ## At a player's machine: knocks at the server at [param at], on [param port].

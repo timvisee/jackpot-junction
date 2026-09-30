@@ -3879,6 +3879,16 @@ the clients stay until somebody leaves on purpose, which is every way back to a 
 fixes the path the RPCs travel on at `/root/Net/Session`, where before it was whatever the scene
 happened to be called and both ends had to agree.
 
+Letting go of a connection closes the peer at once and takes it off the API a frame later,
+`NetPeer.let_go`, and only if no other peer has been put there since. Godot ties itself to the
+`tree_exited` of every node that has made or answered a remote call, and taking the peer off
+empties that cache; in a release build the untying uses the wrong callable, and every such node
+still in the tree says "Attempt to disconnect a nonexistent connection". Letting go from a
+session's own `_exit_tree` was exactly that, since `tree_exited` comes after every `_exit_tree`:
+three errors at the end of every dedicated server game and on a client leaving one. An editor
+build never shows it, so `tools/server_check` runs an exported server with `SVCHECK_SERVER`, and
+fails on any engine error in the server's log.
+
 The cost of a longer life is that nothing is cleaned up by a scene change any more. Whatever the
 session holds is held until it is closed, so closing is somebody's job rather than something
 that happens by itself. The one thing it lets go of on its own is the match it was playing: the

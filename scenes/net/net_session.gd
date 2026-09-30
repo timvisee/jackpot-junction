@@ -186,9 +186,9 @@ func _exit_tree() -> void:
 	if scene != null and scene.peer_authenticating.is_connected(_handshake.knock):
 		scene.peer_authenticating.disconnect(_handshake.knock)
 	_background.run(false)
-	if multiplayer.multiplayer_peer != null:
-		multiplayer.multiplayer_peer.close()
-		multiplayer.multiplayer_peer = null
+	# Closed now and taken off a frame later, see [NetPeer]: taken off from here, with this node
+	# and its children still in the tree, a release build raised an error for each of them.
+	NetPeer.let_go(multiplayer, multiplayer.multiplayer_peer)
 
 
 func _notification(what: int) -> void:

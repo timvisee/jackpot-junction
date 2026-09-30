@@ -195,7 +195,12 @@ From this checkout only. `tools/godot` finds Godot through `$GODOT` first.
 - `tools/server_check` takes none. `SVCHECK_PORT` picks the server's port and
   `SVCHECK_LOGS=<dir>` keeps every process's whole log there, the server's among
   them. It starts `tools/server_driver.gd` with `--role` (`maker`, `joiner` or
-  `watcher`) and `--port`.
+  `watcher`) and `--port`. `SVCHECK_SERVER=<binary>` plays against an exported
+  server build rather than this checkout, which is the only way to see what a
+  release build does that an editor build does not; it offers no match as short
+  as the clients ask for, so `SVCHECK_LENGTH=60` goes with it, and its idle
+  memory is a release build's, so `SVCHECK_IDLE_MB` wants raising. The check fails
+  on any engine error in the server's log.
 
 ### Godot's own
 
