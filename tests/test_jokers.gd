@@ -44,7 +44,7 @@ func _chip(dropped := false, gold := false) -> Chip:
 
 func test_catalog_has_unique_jokers_and_offers_exclude_held_ones() -> void:
 	var catalog: JokerCatalog = CATALOG
-	assert_int(catalog.jokers.size()).is_equal(34)
+	assert_int(catalog.jokers.size()).is_equal(35)
 	var ids: Array[StringName] = []
 	for joker: Joker in catalog.jokers:
 		(

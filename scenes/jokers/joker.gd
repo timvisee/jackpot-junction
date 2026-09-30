@@ -147,6 +147,11 @@ func lost_on_death() -> bool:
 	return false
 
 
+## Whether a death's dropped jokers go on the floor as copies, the holder keeping its own.
+func copies_drops() -> bool:
+	return false
+
+
 ## Whether a hit about to cost the holder a life, by [param cause], is taken by something else
 ## instead, see [KartLives]. The joker does whatever takes it.
 func spares(_kart: Kart, _cause: StringName) -> bool:

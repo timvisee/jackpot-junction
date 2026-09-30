@@ -1618,6 +1618,7 @@ a real downside. Starting set; balance is untested.
 | Hot Streak       | Rare     | Rule   | +0.5 mult every 10 seconds you stay on the floor                          |
 | Deep Pockets     | Rare     | Rule   | +2 joker slots, one of which it stands in. Stacks                         |
 | Wild Card        | Rare     | Rule   | Respawn offers 5 jokers instead of 3                                      |
+| Carbon Copy      | Rare     | Rule   | A joker your death drops goes on the floor as a copy, and you keep your own, Carbon Copy among them. A card thrown away from the hand is thrown away |
 | Glass Jackpot    | Rare     | Cursed | Completed cash-outs pay 150%, but dying drops all your chips and 2 jokers |
 
 ## 8. Presentation

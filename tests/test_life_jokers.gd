@@ -135,3 +135,23 @@ func test_guardian_angel_spends_the_protection_held() -> void:
 	kart.hold_item(SHIELD, 0.5)
 	kart.take_ram(1)
 	assert_int(kart.lives).is_equal(1)
+
+
+## Carbon Copy: a joker the death drops goes on the floor as a copy, and the hand keeps its own,
+## Carbon Copy among them. Without it the card leaves the hand, as ever.
+func test_carbon_copy_keeps_what_the_death_drops() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	_attach(kart, "carbon_copy")
+	_attach(kart, "odometer")
+	var held := kart.jokers.ids()
+	var before := _floor_jokers(match_node)
+	kart.die(&"pit", -1)
+	assert_int(_floor_jokers(match_node) - before).is_equal(1)
+	assert_array(kart.jokers.ids()).is_equal(held)
+	# Without it, the card dropped is gone from the hand.
+	var other := match_node.kart_of(1)
+	_attach(other, "odometer")
+	other.die(&"pit", -1)
+	assert_bool(other.jokers.has(&"odometer")).is_false()

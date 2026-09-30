@@ -51,6 +51,9 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 			for at: float in [0.36, 0.5, 0.64]:
 				IconShapes.bar(on, box, at - 0.05, 0.24, 0.1, 0.2, ink)
 				IconShapes.tri(on, box, at, 0.18, 0.14, 0.0, ink)
+		&"carbon_copy":
+			IconShapes.bar(on, box, 0.2, 0.16, 0.42, 0.56, dim)
+			IconShapes.bar(on, box, 0.38, 0.28, 0.42, 0.56, ink)
 		&"comeback":
 			IconShapes.arc(on, box, 0.5, 0.56, 0.3, 160.0, 380.0, ink)
 			IconShapes.tri(on, box, 0.5, 0.1, 0.22, 0.0, ink)
@@ -190,6 +193,7 @@ static func known() -> Array[StringName]:
 		&"aimbot",
 		&"backfire",
 		&"big_tank",
+		&"carbon_copy",
 		&"comeback",
 		&"curve_ball",
 		&"deep_pockets",
