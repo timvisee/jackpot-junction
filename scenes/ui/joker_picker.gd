@@ -308,13 +308,12 @@ func _hint_row(choosing: bool, keeping := false) -> Control:
 		# Fire takes a card as well as the item button does, and it is the one a player already
 		# has a thumb on, so it is the one shown here.
 		InputHint.glyph(InputActions.FIRE, keyboard, ink, size),
-		InputHint.glyph(InputActions.JOKER_DESTROY, keyboard, ink, size),
 	]
+	# Keeping one of last map's is not a card that can be turned down: the rule is keep one.
+	if keeping:
+		return InputHint.row("%s choose   %s keep", parts, ink, size)
+	parts.append(InputHint.glyph(InputActions.JOKER_DESTROY, keyboard, ink, size))
 	var template := (
 		"%s choose   %s take   %s skip" if choosing else "%s choose   %s destroy   %s back"
 	)
-	# Keeping one of last map's is not a card that can be turned down: the rule is keep one.
-	if keeping:
-		parts.pop_back()
-		template = "%s choose   %s keep"
 	return InputHint.row(template, parts, ink, size)

@@ -501,3 +501,15 @@ func test_a_mouse_button_is_drawn_as_a_mouse() -> void:
 	var written: InputGlyph = auto_free(InputGlyph.of_event(wheel, Color.WHITE, 15))
 	assert_int(written.kind).is_equal(InputGlyph.Kind.KEY)
 	assert_str(written.caption).is_not_empty()
+
+
+## A button the line has no gap for is freed rather than left out of the tree, where it would stay
+## until the game quit and then be reported as leaked. The keep pick's line was one, having a skip
+## button made for it and taken off again.
+func test_a_button_with_no_gap_in_the_line_is_freed() -> void:
+	var ink := Color.WHITE
+	var spare := InputHint.glyph(InputActions.FIRE, true, ink, 15)
+	var parts: Array = [InputHint.glyph(InputActions.THROTTLE, true, ink, 15), spare]
+	var line: HBoxContainer = auto_free(InputHint.row("%s drive", parts, ink, 15))
+	assert_bool(is_instance_valid(spare)).is_false()
+	assert_bool((parts[0] as Node).get_parent() == line).is_true()

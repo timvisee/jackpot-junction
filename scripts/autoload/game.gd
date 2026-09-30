@@ -18,6 +18,9 @@ const ROOM_TRACK := &"test_track"
 ## Frames a `--bench` run throws away before it starts counting: the shader compiles and the
 ## first arena build belong to loading rather than to running.
 const BENCH_WARMUP := 120
+## How long the sound has to let go of whatever was playing before the game ends, in seconds, see
+## [method quit].
+const QUIET_BEFORE_QUIT := 0.15
 
 var settings := Settings.new()
 ## Whether the last thing anybody touched was the keyboard rather than a gamepad. Control
@@ -43,6 +46,10 @@ var _screenshot_frames := 8
 var _frames := 0
 ## Frames to run for a `--bench=<n>` measurement, and what has been seen of it so far. The clock
 ## starts after the warm-up, so the shader compiles and the first arena build do not count.
+var _quitting := false
+## Development aid: with `++ --run-frames=<n>`, quits after that many frames the way a player
+## quits, see [method quit], which the engine's own --quit-after does not. tools/smoke runs on it.
+var _run_frames := 0
 var _bench_frames := 0
 var _bench_seen := 0
 var _bench_started := 0
@@ -57,6 +64,8 @@ func _init() -> void:
 			_screenshot_path = arg.get_slice("=", 1)
 		elif arg.begins_with("--frames="):
 			_screenshot_frames = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--run-frames="):
+			_run_frames = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--bench="):
 			_bench_frames = int(arg.get_slice("=", 1))
 			Settings.uncapped_for_now = true
@@ -67,6 +76,34 @@ func _init() -> void:
 func _ready() -> void:
 	settings.apply(get_tree())
 	add_child(FrameCounter.new())
+	# Closing the window is quitting, and goes the same way as the title's Quit, see [method quit].
+	get_tree().auto_accept_quit = false
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		quit()
+
+
+## Ends the game, from the title's Quit, the window closing, or a server's game once it is over.
+## A sound still playing as the engine shuts down is left behind, and the engine says so as it
+## exits: a warning of instances leaked and an error of resources still in use, four and two for
+## every sound, which after a game online was the music and a few effects. So the room goes and
+## every sound is stopped first, and the mixer is given [constant QUIET_BEFORE_QUIT] to let go of
+## them. Frames are no measure of that: the mixer keeps a clock of its own, and without a screen a
+## frame is far shorter than one of its turns.
+func quit(code := 0) -> void:
+	if _quitting:
+		return
+	_quitting = true
+	var tree := get_tree()
+	if tree.current_scene != null:
+		tree.current_scene.queue_free()
+	for kind: String in ["AudioStreamPlayer", "AudioStreamPlayer2D", "AudioStreamPlayer3D"]:
+		for player: Node in tree.root.find_children("*", kind, true, false):
+			player.call("stop")
+	await tree.create_timer(QUIET_BEFORE_QUIT, true, false, true).timeout
+	tree.quit(code)
 
 
 ## Watches every event, without swallowing any, purely to know which scheme to draw hints in.
@@ -86,6 +123,10 @@ func _input(event: InputEvent) -> void:
 func _process(_delta: float) -> void:
 	if _bench_frames > 0:
 		_step_bench()
+	if _run_frames > 0:
+		_run_frames -= 1
+		if _run_frames == 0:
+			quit()
 	if _screenshot_path.is_empty():
 		return
 	_frames += 1
@@ -93,7 +134,7 @@ func _process(_delta: float) -> void:
 		var image := get_viewport().get_texture().get_image()
 		var error := image.save_png(_screenshot_path)
 		print("screenshot %s: %s" % [_screenshot_path, error_string(error)])
-		get_tree().quit()
+		quit()
 
 
 ## Development aid: with `++ --bench=<n>`, runs that many frames and prints the frame rate over
@@ -123,7 +164,7 @@ func _step_bench() -> void:
 			% [frames, seconds, float(frames) / maxf(seconds, 0.001), calls, objects]
 		)
 	)
-	get_tree().quit()
+	quit()
 
 
 static func version() -> String:

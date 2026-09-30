@@ -71,7 +71,7 @@ func _run() -> void:
 	if not _failed:
 		_say("PASSED")
 	DirAccess.remove_absolute(Game.settings.path)
-	get_tree().quit(1 if _failed else 0)
+	Game.quit(1 if _failed else 0)
 
 
 ## Makes the game, chooses the match, plays it, takes everybody back and leaves.

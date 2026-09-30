@@ -107,6 +107,12 @@ static func row(template: String, parts: Array, ink: Color, size: int) -> HBoxCo
 		var words: String = chunks[i].strip_edges()
 		if not words.is_empty() and (i == 0 or part != null):
 			box.add_child(_words(words, ink, size))
+	# A part the template has no gap for is freed, rather than left out of the tree for good and
+	# reported as leaked when the game quits.
+	for i: int in range(chunks.size() - 1, parts.size()):
+		var spare: Variant = parts[i]
+		if spare is Node:
+			(spare as Node).free()
 	return box
 
 

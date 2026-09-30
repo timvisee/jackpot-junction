@@ -47,6 +47,12 @@ report() {
 		echo "multiplayer check: $name raised script errors" >&2
 		failed=1
 	fi
+	# Anything left behind as it quit, which is what a sound still playing then does, see Game.quit.
+	if grep -hE 'leaked at exit|still in use at exit' "$logs/$name.log" | sed "s/^/$name: /" >&2
+	then
+		echo "multiplayer check: $name left something behind at exit" >&2
+		failed=1
+	fi
 	if [[ $status -ne 0 ]]; then
 		echo "multiplayer check: $name failed" >&2
 		failed=1

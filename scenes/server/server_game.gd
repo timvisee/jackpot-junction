@@ -190,7 +190,7 @@ func _over(why: String) -> void:
 
 
 func _quit() -> void:
-	get_tree().quit()
+	Game.quit()
 
 
 func _send(words: Dictionary) -> void:

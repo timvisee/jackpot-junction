@@ -117,6 +117,7 @@ Read on every scene, so they work in any build.
 | `--screenshot=<png>`   | Saves the screen after `--frames` frames and quits; needs a display     | Yes   | Yes     |
 | `--frames=<n>`         | How many frames `--screenshot` waits, 8 unless given                    | Yes   | Yes     |
 | `--bench=<n>`          | Runs n frames, prints the frame rate, draw calls and objects, and quits | Yes   | Yes     |
+| `--run-frames=<n>`     | Runs n frames and quits the way a player does; `tools/smoke` uses it    | Yes   | Yes     |
 | `--server`             | Runs a dedicated server instead of the game, see Running a server       | Yes   | Yes     |
 | `--port=<port>`        | With `--server`: the port players connect to, 7777 unless given         | Yes   | Yes     |
 | `--games=<n>`          | With `--server`: how many games it holds at once, 8 unless given        | Yes   | Yes     |

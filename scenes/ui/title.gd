@@ -56,7 +56,7 @@ func _ready() -> void:
 	settings.pressed.connect(func() -> void: Game.go_to_settings(Game.TITLE_SCENE))
 	column.add_child(settings)
 	var quit := MenuTheme.button("Quit")
-	quit.pressed.connect(func() -> void: get_tree().quit())
+	quit.pressed.connect(func() -> void: Game.quit())
 	column.add_child(quit)
 	var credits := Label.new()
 	credits.text = (

@@ -1,21 +1,19 @@
 #!/usr/bin/env bash
-# Runs a scene headless for a number of frames and fails on any script error in the output.
+# Runs a scene headless for a number of frames and fails on any script error in the output, and on
+# anything left behind at exit.
 # Usage: tools/smoke res://scenes/dev/playground.tscn [frames]
 #
-# One message is ignored: quitting while a sound is still playing races the audio server's own
-# shutdown, and Godot then reports the stream as a resource left in use. It happens with any
-# sound file of about a second, says nothing about the scene, and cannot be headed off from
-# GDScript: by the time an autoload's _exit_tree runs, no player reports itself as playing and
-# the playback has already been handed over. Everything else, including leaks reported for
-# anything other than a stream, still fails the run.
+# It quits the way a player does, through Game.quit, rather than with the engine's --quit-after:
+# quitting while a sound plays leaves the sound behind, which the engine reports as instances
+# leaked and resources still in use, and Game.quit stops every sound and waits for the mixer to let
+# go of them first.
 set -uo pipefail
 scene="${1:?scene path required}"
 frames="${2:-120}"
-output=$(tools/godot --headless --path . "$scene" --quit-after "$frames" 2>&1)
+output=$(tools/godot --headless --path . "$scene" -- --run-frames="$frames" 2>&1)
 status=$?
 printf '%s\n' "$output"
-errors=$(grep -E 'SCRIPT ERROR|USER ERROR|Parse Error|^ERROR:' <<<"$output" |
-	grep -vE '^ERROR: [0-9]+ resources still in use at exit')
+errors=$(grep -E 'SCRIPT ERROR|USER ERROR|Parse Error|^ERROR:|leaked at exit' <<<"$output")
 if [[ $status -ne 0 || -n $errors ]]; then
 	echo "smoke run of $scene failed" >&2
 	exit 1

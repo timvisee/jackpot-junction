@@ -32,6 +32,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A clean exit.** Quitting while music or a sound was playing, or after keeping a joker in a
+  Grand Prix, no longer ends with warnings of leaked instances and resources still in use.
 - **Pause game stays on the host's menu.** It stays up while the room is paused, with a tick in it
   while it is the host's own pause, and pressing it again lets go; a pause goes with the host's say
   when that is handed on.

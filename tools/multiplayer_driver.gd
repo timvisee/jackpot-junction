@@ -144,7 +144,7 @@ func _run() -> void:
 		_fail("stopped before the end")
 	if not _failed:
 		_say("PASSED")
-	get_tree().quit(1 if _failed else 0)
+	Game.quit(1 if _failed else 0)
 
 
 ## The host of an online Grand Prix: opens the room, chooses a match of two maps, waits for the

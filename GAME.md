@@ -3877,6 +3877,14 @@ Key pieces:
 - **Persistence**: settings, bindings, volumes and accessibility toggles are
   saved with ConfigFile under `user://`. Nothing else is persisted yet. Match
   history, statistics and unlocks wait until there is something to unlock.
+- **Quitting**: `Game.quit` is the one way out, for the title's Quit, the window
+  closing, a server's game that is over and the dev runs alike. A sound still
+  playing as the engine shuts down is left behind in memory, and the engine says
+  so at exit: instances leaked and resources still in use, four and two for every
+  sound. So the room goes, every sound is stopped, and the mixer gets 0.15 s to
+  let go of them before the engine stops: frames are no measure of that, since
+  the mixer keeps a clock of its own. `tools/smoke`, `tools/multiplayer_check` and
+  `tools/server_check` fail on anything left behind at exit, from any process.
 
 ### 10.3 Networking
 
