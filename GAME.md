@@ -2325,7 +2325,10 @@ movement: the one thing a corner block must not do is ask to be looked at.
   goes up on every screen, whoever there holds what, while somebody else holds all
   the pads but one: a warning rather than a count, that player's suits pulsing,
   swelling and glowing in their own color, with an exclamation mark in it at the
-  end of the row, since the last pad is the one to go and take off them. The suits
+  end of the row, since the last pad is the one to go and take off them. A
+  watcher's screen, 9.3, has nobody of its own to count for and is there to
+  follow the match, so it shows the tally whenever anybody holds a pad, most held
+  first, and whoever's flush is still paying. The suits
   stand on their own, with no panel behind them, each with a dark outline of its
   own. They stay solid rather than dimming as a claim runs down: a client is not
   told when a holder renews one, so its dimming would be a guess.

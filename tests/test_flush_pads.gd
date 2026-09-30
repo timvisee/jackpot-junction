@@ -300,6 +300,37 @@ func test_the_pads_held_are_counted_under_the_clock() -> void:
 	assert_bool(tally.visible).is_false()
 
 
+## GAME.md 9.3: a watcher has nobody of their own to count for, and sees the tally whenever
+## anybody holds a pad, most held first, and whoever's flush is still paying out.
+func test_a_watcher_sees_the_tally_whenever_a_pad_is_held() -> void:
+	var inputs: Array[KartInput] = [BotInput.new(), BotInput.new(), BotInput.new()]
+	var match_node := _start_match(inputs, true)
+	var was: NetSession = Net.session
+	var watching: NetSession = auto_free(NetSession.new())
+	watching.watching = true
+	Net.session = watching
+	await _runner.simulate_frames(20, 17)
+	var tally: FlushTally = match_node.hud.get_node("FlushTally")
+	var pads := match_node.arena.flush_pads
+	await _runner.simulate_frames(2, 17)
+	assert_bool(tally.visible).override_failure_message("up with no pad held").is_false()
+	pads[0].claim(1, match_node.slots[1].color())
+	await _runner.simulate_frames(2, 17)
+	assert_bool(tally.visible).is_true()
+	pads[1].claim(2, match_node.slots[2].color())
+	pads[2].claim(2, match_node.slots[2].color())
+	tally._process(0.0)
+	assert_array(tally.holders).is_equal([2, 2, 1])
+	for pad: FlushPad in pads:
+		pad.clear_and_disable(match_node.rules.flush_disable_time)
+	match_node.flush_lock_slot = 1
+	match_node.flush_lock_left = match_node.rules.flush_lock_seconds * 0.5
+	tally._process(0.0)
+	assert_bool(tally.visible).is_true()
+	assert_float(tally.locked).is_equal_approx(0.5, 0.05)
+	Net.session = was
+
+
 ## GAME.md 8.3: somebody else one pad off the flush puts the tally up on every screen, whoever
 ## there holds anything, as a warning: that player's suits pulse and an exclamation mark stands
 ## at the end of the row. Two pads short of it is not a warning.

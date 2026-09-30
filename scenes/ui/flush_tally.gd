@@ -17,6 +17,9 @@ extends Control
 ## And on every screen, whoever there holds what, while somebody else is one pad off the flush: a
 ## warning rather than a count, so that player's suits pulse and an exclamation mark in their
 ## color stands at the end of the row. The last pad is the one to go and take off them.
+##
+## A watcher's screen has nobody of its own to count for, and is there to follow the match: it
+## shows the tally whenever anybody holds a pad, and whoever's flush is still paying, GAME.md 9.3.
 
 ## How big a suit is, how far apart two are, how thick their outline, and what a free one is
 ## filled with.
@@ -68,7 +71,9 @@ func _process(delta: float) -> void:
 	var count := pads
 	var had := locked
 	_tally()
-	var shown := _held_here() or locked > 0.0 or threat >= 0
+	var shown := (
+		_held_here() or locked > 0.0 or threat >= 0 or (_watching() and not held.is_empty())
+	)
 	visible = match_node != null and match_node.is_running() and shown
 	if threat >= 0:
 		_beat += delta
@@ -93,7 +98,8 @@ func _tally() -> void:
 	if match_node == null or match_node.arena == null:
 		return
 	var winner := match_node.flush_lock_slot
-	if match_node.flush_lock_left > 0.0 and winner >= 0 and _plays_here(winner):
+	var ours := winner >= 0 and (_plays_here(winner) or _watching())
+	if match_node.flush_lock_left > 0.0 and ours:
 		pads = match_node.arena.flush_pads.size()
 		for i: int in pads:
 			held.append(match_node.slots[winner].color())
@@ -148,6 +154,11 @@ func _held_here() -> bool:
 
 func _plays_here(slot: int) -> bool:
 	return slot < match_node.slots.size() and match_node.slots[slot].is_local_human()
+
+
+## Whether this screen is a watcher's, following a match online with nobody of its own in it.
+static func _watching() -> bool:
+	return Net.online() and Net.session != null and Net.session.watching
 
 
 func _wide() -> float:

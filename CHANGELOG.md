@@ -25,6 +25,8 @@ below, and hands the notes to the release workflow.
   typed in it.
 - **No key named over the kart on a touch screen.** The picture of a new item still comes up beside
   the kart; the button that uses it is the touch button with the item on it.
+- **Watchers see the Royal Flush tally.** A watcher's screen shows who holds which pads whenever
+  anybody holds one, where it only ever showed the one-pad-off warning.
 
 ## [0.10.1] - 2026-09-30
 
