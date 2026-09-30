@@ -12,6 +12,11 @@ extends Node
 ## Nothing here waits. A step is taken each frame and the menu goes on answering in between, with
 ## a bar on the title saying how far along it is, see [method strip]. Leaving the title before it
 ## is done stops it; whatever was not compiled is compiled the old way, on first use.
+##
+## Once it has run through, it leaves a stamp beside the shader cache saying for which build of
+## the game, which renderer and which card, and how many entries the cache held: while the stamp
+## matches and the cache is still at least that full, there is nothing to compile and it does not
+## run. A new version, another card or a cleared cache runs it again.
 
 signal finished
 
@@ -26,12 +31,17 @@ const SIZE := Vector2i(160, 90)
 const STYLES: Array = [[0, 1, 1, 0], [1, 2, 2, 1], [2, 3, 3, 2], [3, 4, 0, 3]]
 ## Buses quiet while it runs: the karts idle and the fireworks go off in the viewport.
 const QUIET: Array[StringName] = [Buses.SFX, Buses.KART]
+## Where Godot keeps what it compiled, and where the stamp saying it has all been compiled goes.
+const CACHE_DIR := "user://shader_cache"
+const STAMP_PATH := "user://shader_warmup.cfg"
 
 ## Whether this run has warmed up already: once a start, kept across the screens the title comes
 ## back from.
 static var done := false
 ## Runs headless too, for the tests: nothing is drawn, but every step is taken.
 static var force := false
+## Where the stamp is read and written; the tests point it at a file of their own.
+static var stamp_path := STAMP_PATH
 
 ## How far along it is, 0 to 1.
 var progress := 0.0
@@ -48,7 +58,8 @@ var _muted := false
 ## Starts the warm-up under [param parent], once a run, and returns it, or null when there is
 ## nothing to compile here: headless, or done already this run.
 static func add_to(parent: Node) -> ShaderWarmup:
-	if done or (Game.is_headless() and not force):
+	if done or (Game.is_headless() and not force) or stamped():
+		done = true
 		return null
 	var warmup := ShaderWarmup.new()
 	warmup.name = "ShaderWarmup"
@@ -144,8 +155,63 @@ func _finish() -> void:
 	set_process(false)
 	done = true
 	_mute(false)
+	_stamp()
 	finished.emit()
 	queue_free()
+
+
+## Whether the stamp says this build has been through here on this renderer and card, and the
+## cache still holds what it held then.
+static func stamped() -> bool:
+	var stamp := ConfigFile.new()
+	if stamp.load(stamp_path) != OK:
+		return false
+	if stamp.get_value("warmup", "key", "") != _key():
+		return false
+	return cache_entries() >= int(stamp.get_value("warmup", "entries", 0))
+
+
+## Leaves the stamp: what this run compiled for, and how full the cache is now.
+func _stamp() -> void:
+	var stamp := ConfigFile.new()
+	stamp.set_value("warmup", "key", _key())
+	stamp.set_value("warmup", "entries", cache_entries())
+	stamp.save(stamp_path)
+
+
+## What the compiled shaders are good for: this build of the game, on this renderer, on this
+## card. Any of the three changing means compiling again.
+static func _key() -> String:
+	return (
+		"%s|%s|%s"
+		% [
+			Game.version(),
+			RenderingServer.get_current_rendering_method(),
+			RenderingServer.get_video_adapter_name(),
+		]
+	)
+
+
+## How many files the shader cache holds, in every folder of it: none where there is no cache.
+static func cache_entries() -> int:
+	return _files_under(CACHE_DIR)
+
+
+static func _files_under(path: String) -> int:
+	var dir := DirAccess.open(path)
+	if dir == null:
+		return 0
+	var count := 0
+	dir.list_dir_begin()
+	var name := dir.get_next()
+	while not name.is_empty():
+		if dir.current_is_dir():
+			count += _files_under(path.path_join(name))
+		else:
+			count += 1
+		name = dir.get_next()
+	dir.list_dir_end()
+	return count
 
 
 ## The buses that would be heard from the viewport, quiet while it runs and back after.

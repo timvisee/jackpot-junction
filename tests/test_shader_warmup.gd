@@ -2,15 +2,22 @@ extends GdUnitTestSuite
 ## The shaders compiled behind the title, GAME.md 10.7: a match on a viewport nobody sees, with
 ## one of everything put into it a step a frame, done once a run, and quiet while it runs.
 
+const STAMP := "user://test_shader_warmup.cfg"
+
 
 func before_test() -> void:
 	ShaderWarmup.done = false
 	ShaderWarmup.force = true
+	# A stamp of its own, so the player's is neither read nor written by a test.
+	ShaderWarmup.stamp_path = STAMP
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(STAMP))
 
 
 func after_test() -> void:
 	ShaderWarmup.force = false
 	ShaderWarmup.done = false
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(STAMP))
+	ShaderWarmup.stamp_path = ShaderWarmup.STAMP_PATH
 
 
 ## Every step is taken, one a frame, and the bar reaches the end; then it is gone, the buses are
@@ -49,6 +56,23 @@ func test_it_takes_every_step_once_and_says_so() -> void:
 	await runner.simulate_frames(2, 17)
 	assert_bool(is_instance_valid(warmup)).is_false()
 	assert_object(ShaderWarmup.add_to(holder)).is_null()
+	# And it left its stamp: the next start of this build on this card has nothing to compile,
+	# as long as the cache is still as full as it left it.
+	assert_bool(FileAccess.file_exists(STAMP)).is_true()
+	ShaderWarmup.done = false
+	assert_bool(ShaderWarmup.stamped()).is_true()
+	assert_object(ShaderWarmup.add_to(holder)).is_null()
+	assert_bool(ShaderWarmup.done).is_true()
+	# A stamp from another build, or a cache that has been emptied since, does not count.
+	var stamp := ConfigFile.new()
+	stamp.load(STAMP)
+	stamp.set_value("warmup", "key", "0.0.0|none|nothing")
+	stamp.save(STAMP)
+	assert_bool(ShaderWarmup.stamped()).is_false()
+	stamp.set_value("warmup", "key", ShaderWarmup._key())
+	stamp.set_value("warmup", "entries", ShaderWarmup.cache_entries() + 1)
+	stamp.save(STAMP)
+	assert_bool(ShaderWarmup.stamped()).is_false()
 
 
 ## Left before it is done, it goes quietly: the buses come back and nothing of it is kept.

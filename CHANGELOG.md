@@ -45,9 +45,10 @@ below, and hands the notes to the release workflow.
 - **Crowd size.** A Video setting for how full the house is, Full or Half; a phone starts with
   half a house, since the crowd is the most triangles on the screen and none of them are the
   match.
-- **Shaders compile behind the title.** The first time the game is up in a run, a bar above the
-  credits says "Compiling shaders" while a match nobody sees puts one of everything on screen, so
-  the first bomb and the first nitro no longer stutter; the menu keeps working meanwhile.
+- **Shaders compile behind the title.** The first time a version of the game runs on a machine,
+  a bar above the credits says "Compiling shaders" while a match nobody sees puts one of
+  everything on screen, so the first bomb and the first nitro no longer stutter; the menu keeps
+  working meanwhile, and later starts skip it.
 
 ### Changed
 
