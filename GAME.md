@@ -4483,13 +4483,25 @@ with the numbers that put them there.
   so the bake leaves them where they are and they go on being moved. A frame of
   Lucky Crossing with four karts is 344 draw calls: 713 before any of this, of
   which 306 were the shadow pass.
-- **The crowd is the one thing a phone thins.** Eight hundred onlookers at 156
-  triangles each are 132,000 of the 196,000 triangles in the visible pass, and
-  none of them are the match. They are already one `MultiMesh` in two draw
-  calls, so what is left to give is people: the crowd size setting of 8.5 rolls
-  half as many onto the table, and a phone starts there. It is the only
-  performance setting that is a picture of the room rather than a pass over the
-  screen, and it is cosmetic either way: nobody in the crowd touches a kart.
+- **The crowd is made as cheap as a crowd gets before a phone thins it.** Eight
+  hundred onlookers were 156 triangles each, 132,000 of the 196,000 triangles in
+  the visible pass, lit by the full material path: the shadow map sampled and a
+  specular term worked out on every pixel of a third of the screen, for figures a
+  dozen pixels tall. They are already one `MultiMesh` in two draw calls, so what
+  was left was the figure and its shader. A figure is 90 triangles now, five
+  sides round with one ring to a cap, which reads the same from where the camera
+  stands; the crowd shaders run `shadows_disabled, specular_disabled`, since
+  nobody in the crowd is in a kart's shadow and nothing that small shows a
+  highlight; and the booth's speakers and DJ are cut like the rest of the small
+  things. Measured by hiding the crowd through its setting: its share of the
+  GPU frame went from 0.18 ms of 1.88 to 0.12 on Forward+, and from 0.24 ms of
+  1.69 to 0.07 on the mobile renderer. After that, what is left to give is
+  people: the crowd size setting of 8.5 rolls half as many onto the table, and
+  a phone starts there. It is cosmetic either way: nobody in the crowd touches a
+  kart. Not done, and worth it if a phone still wants more: splitting the house
+  into a `MultiMesh` a side, so a camera zoomed onto a corner culls the other
+  three, and ordering the instances near to far for the mobile renderer's early
+  depth test.
 - **What is quadratic in the bullets is cheap per pair, and what every bullet
   asks is asked once.** Every pair of live bullets is checked for a meeting every
   tick, which is five thousand pairs at the budget's hundred bullets; the closest

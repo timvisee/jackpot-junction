@@ -490,19 +490,22 @@ func _raise_house(outer: Vector2) -> void:
 ## that a thousand of them is a rounding error and fine enough that at this size nobody can tell.
 static func _figure_mesh() -> ArrayMesh:
 	var mesh := ArrayMesh.new()
+	# Five sides and one ring to a cap: somebody a dozen pixels tall from where the camera
+	# stands, at forty triangles rather than a hundred and fifty, GAME.md 10.7. The rings of the
+	# caps are what a capsule spends its triangles on, and the shoulders still round off.
 	var capsule := CapsuleMesh.new()
 	capsule.radius = 0.15
 	capsule.height = BODY
-	capsule.radial_segments = 6
-	capsule.rings = 2
+	capsule.radial_segments = 5
+	capsule.rings = 1
 	mesh.add_surface_from_arrays(
 		Mesh.PRIMITIVE_TRIANGLES, _lifted(capsule.get_mesh_arrays(), BODY * 0.5)
 	)
 	var sphere := SphereMesh.new()
 	sphere.radius = HEAD
 	sphere.height = HEAD * 2.0
-	sphere.radial_segments = 6
-	sphere.rings = 3
+	sphere.radial_segments = 5
+	sphere.rings = 2
 	mesh.add_surface_from_arrays(
 		Mesh.PRIMITIVE_TRIANGLES, _lifted(sphere.get_mesh_arrays(), BODY + HEAD * 0.7)
 	)
@@ -577,6 +580,8 @@ func _booth(at: Vector3) -> void:
 		disc.top_radius = 0.3
 		disc.bottom_radius = 0.3
 		disc.height = 0.08
+		disc.radial_segments = 16
+		disc.rings = 1
 		cone.mesh = disc
 		cone.material_override = _glow(Palette.NEON_CYAN)
 		cone.rotation_degrees = Vector3(90.0, 0.0, 0.0)
@@ -590,6 +595,10 @@ func _booth(at: Vector3) -> void:
 	var capsule := CapsuleMesh.new()
 	capsule.radius = 0.2
 	capsule.height = 0.7
+	# The DJ is one person the size of the onlookers, cut like the rest of the room's small
+	# things, GAME.md 10.7.
+	capsule.radial_segments = 12
+	capsule.rings = 3
 	body.mesh = capsule
 	body.material_override = _paint(Palette.CHIP_GOLD)
 	body.position = Vector3(0.0, 0.7, 0.0)
@@ -598,6 +607,8 @@ func _booth(at: Vector3) -> void:
 	var sphere := SphereMesh.new()
 	sphere.radius = 0.22
 	sphere.height = 0.44
+	sphere.radial_segments = 12
+	sphere.rings = 6
 	head.mesh = sphere
 	head.material_override = _paint(Palette.CHIP_WHITE)
 	head.position = Vector3(0.0, 1.25, 0.0)

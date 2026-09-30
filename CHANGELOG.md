@@ -46,6 +46,13 @@ below, and hands the notes to the release workflow.
   half a house, since the crowd is the most triangles on the screen and none of them are the
   match.
 
+### Changed
+
+- **A cheaper crowd.** Every onlooker is ninety triangles rather than a hundred and fifty-six,
+  the crowd is lit without the shadow map or a highlight, and the DJ booth's speakers and its DJ
+  are cut like everything else: the crowd's share of the card's frame went from a tenth to a
+  sixteenth.
+
 ## [0.10.0] - 2026-09-29
 
 Play Online, on a dedicated server you can run yourself from the new headless Linux build. It
