@@ -4291,9 +4291,12 @@ who hit whom, what was collected and what anything is worth.
   compression never gets as far as the game: ENet drops it unread, and resets a
   connection that does not open the way the engine does, a stray scan and another
   program's protocol alike. What does get through has to say hello first, one
-  knock of the game's own, `NetGuard`: a hello that is not one, looked at before
-  it is read, or a second hello, is dropped there and then, and said in the log
-  with the address it came from. So is one connection too many from one address,
+  knock of the game's own, `NetGuard`, which says what it is, `"magic":
+  "jackpot-junction"`, beside its version. A hello that is not one, looked at before it is
+  read, one without the marker, or a second hello, is dropped there and then, and
+  said in the log with the address it came from. A hello from a version before
+  the marker, 0.10 and older, is still read, so its player is told they are on
+  the wrong version rather than dropped. So is one connection too many from one address,
   eight waiting to say hello at once or sixty in a minute, more than any room of
   players behind one router opens. One that says nothing is dropped when the
   handshake runs out after five seconds, and said too. A flood of datagrams that

@@ -146,7 +146,7 @@ func _knock(peer: int) -> void:
 	if hall != null:
 		return
 	var words := {"version": version, "name": PlayerNames.clean(player_name), LISTING: true}
-	(multiplayer as SceneMultiplayer).send_auth(peer, var_to_bytes(words))
+	(multiplayer as SceneMultiplayer).send_auth(peer, var_to_bytes(NetGuard.marked(words)))
 
 
 ## The server lets in anybody on a version it plays with and says which version it has; a player's

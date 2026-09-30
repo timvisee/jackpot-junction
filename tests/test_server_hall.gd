@@ -207,7 +207,7 @@ func test_a_connection_that_is_not_the_game_is_dropped_and_said() -> void:
 	# Hello, and hello again.
 	said.clear()
 	var hello := var_to_bytes(
-		{"version": Game.version(), "name": "Twice", ServerLink.LISTING: true}
+		NetGuard.marked({"version": Game.version(), "name": "Twice", ServerLink.LISTING: true})
 	)
 	var twice := _stranger(hello)
 	twice.peer_authenticating.connect(func(id: int) -> void: twice.send_auth(id, hello))

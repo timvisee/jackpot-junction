@@ -70,7 +70,9 @@ static func clients(dedicated: bool) -> int:
 ## it is called, which is all the host has to go on for somebody watching, and the password it was
 ## given, empty until the host has said there is one.
 static func knock(version: String, watching: bool, named: String, given: String) -> Dictionary:
-	return {"version": version, "watch": watching, "name": named, "password": given}
+	return NetGuard.marked(
+		{"version": version, "watch": watching, "name": named, "password": given}
+	)
 
 
 ## The host's answer to [param peer], which said [param words]. [param room] says how the room

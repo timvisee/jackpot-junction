@@ -7,8 +7,8 @@ extends RefCounted
 ## has to say hello, one knock of the game's own, before anything else is heard from it. Anything
 ## else is garbage, and the connection is dropped on the spot and said so, with where it came from:
 ##
-## - a hello that is not one: too long, not a dictionary, no version in it, or values that are
-##   neither words, numbers nor flags;
+## - a hello that is not one: too long, not a dictionary, no version in it, no [constant MAGIC] in
+##   it, or values that are neither words, numbers nor flags;
 ## - a second hello, which no copy of the game sends;
 ## - more connections from one address at once, or in a minute, than any number of players behind
 ##   one router open, which is a scan or a flood;
@@ -24,6 +24,12 @@ signal dropped(address: String, why: String)
 
 ## What a client shown out for misbehaving is told, at the hall or in a game, see [NetConduct].
 const KICKED := "Kicked: abnormal behavior detected"
+## What every hello says it is, under [constant MAGIC_KEY], so a connection of the engine's own kind
+## that is not the game is known for what it is, see [method marked]. A hello from a version before
+## [constant MAGIC_SINCE] has none, and is still read, to be turned away for its version.
+const MAGIC_KEY := "magic"
+const MAGIC := "jackpot-junction"
+const MAGIC_SINCE := [0, 11]
 ## The most a hello may be, in bytes: a version, a name, a password and a flag or two.
 const KNOCK_BYTES := 2048
 ## How many connections one address may have waiting to say hello at once, and open in a minute:
@@ -71,7 +77,26 @@ static func knock_of(data: PackedByteArray) -> Dictionary:
 		var value: Variant = said[key]
 		if not key is String or not (value is String or value is bool or value is int):
 			return {}
-	return said
+	var hello: Dictionary = said
+	if hello.get(MAGIC_KEY) != MAGIC and not _before_the_magic(str(hello["version"])):
+		return {}
+	return hello
+
+
+## [param words], a hello, with what every hello says it is, see [constant MAGIC].
+static func marked(words: Dictionary) -> Dictionary:
+	words[MAGIC_KEY] = MAGIC
+	return words
+
+
+## Whether [param version] is from before hellos said [constant MAGIC]: a player on it is told it is
+## on the wrong version rather than taken for garbage.
+static func _before_the_magic(version: String) -> bool:
+	var parts := version.split(".")
+	if parts.size() < 2 or not parts[0].is_valid_int() or not parts[1].is_valid_int():
+		return false
+	var major := int(parts[0])
+	return major < MAGIC_SINCE[0] or (major == MAGIC_SINCE[0] and int(parts[1]) < MAGIC_SINCE[1])
 
 
 ## A new connection, waiting to say hello: dropped at once if its address has too many going.
