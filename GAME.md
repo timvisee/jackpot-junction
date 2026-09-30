@@ -2781,7 +2781,9 @@ like any other button.
   upscaler, UI scale, bloom, shadows, MSAA, screen smoothing, tire marks and
   the crowd.
   A phone or a tablet starts full screen, with the system's own bars out of the
-  way; a desktop starts in a window. Bloom and the multisampled edges are the
+  way, and so does a released game on a desktop; a build from the editor or a
+  debug export starts in a window, beside whatever it is being worked on with. The
+  setting, once changed, is kept either way. Bloom and the multisampled edges are the
   passes a room pays for most, and they are the two things worth handing back on
   a card that cannot spare them: at 1080p on a mid card the bloom is about a
   tenth of The Vault's frame and 2x multisampling about a twentieth, and turning

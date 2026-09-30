@@ -70,8 +70,11 @@ var music_muted := false
 ## Whether the music goes under water for a moment when a player at this screen dies, GAME.md 8.4.
 var muffle_on_death := true
 ## A phone or a tablet plays full screen to start with, the system's own bars out of the way, since
-## a game in a window is a game with the clock and the notifications over the top of it.
-var fullscreen := OS.has_feature("mobile")
+## a game in a window is a game with the clock and the notifications over the top of it; and so
+## does a released game on a desktop, which is a game somebody sat down to play. A build of this
+## checkout, from the editor or a debug export, starts in a window, beside whatever it is being
+## worked on with.
+var fullscreen := OS.has_feature("mobile") or OS.has_feature("template_release")
 var vsync := true
 ## One of [constant FRAME_LIMITS].
 var frame_limit := 0

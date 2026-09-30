@@ -21,6 +21,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Full screen from the start on a desktop.** A released game starts full screen on Linux,
+  Windows and macOS until the Video page says otherwise; a window mode already saved is kept.
 - **The lobby's football answers at once online.** A client's kart kicks it the moment the two
   meet, rather than driving into a ball that shoots off a round trip later.
 - **Pickups and pads are instant online.** A client's kart takes a chip, die, box or card, or a
