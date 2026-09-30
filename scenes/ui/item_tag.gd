@@ -133,7 +133,7 @@ func _nearness(kart: Kart) -> float:
 	var nearest := INF
 	for node: Node in match_node.arena.pickups.get_children():
 		var box := node as ItemBox
-		if box == null or box.is_queued_for_deletion():
+		if box == null or box.is_queued_for_deletion() or box.predicted_take():
 			continue
 		var gap := box.global_position - kart.global_position
 		nearest = minf(nearest, Vector2(gap.x, gap.z).length())

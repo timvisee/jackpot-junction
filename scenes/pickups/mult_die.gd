@@ -28,3 +28,7 @@ func _build_visual(parent: Node3D) -> void:
 
 func _apply(kart: Kart) -> void:
 	kart.gain_mult(amount, &"die")
+
+
+func heard_as(kart: Kart) -> Array:
+	return [&"mult_gained", [kart.slot, amount, &"die"]]

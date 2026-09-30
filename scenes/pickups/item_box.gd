@@ -121,6 +121,11 @@ func _apply(kart: Kart) -> void:
 	kart.hold_item(item, reveal_time if fixed_item == null else 0.0)
 
 
+## Which item it was is the host's to roll, so a client taking a box off a pad names none.
+func heard_as(kart: Kart) -> Array:
+	return [&"item_picked", [kart.slot, fixed_item.id if fixed_item != null else &""]]
+
+
 ## A dropped box's item, pictured on a dark chip so it reads against the box in its own color,
 ## or a question mark for a box from a pad.
 class Badge:

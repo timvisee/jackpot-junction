@@ -285,6 +285,12 @@ func reconcile(ack: int, state: Array, delta: float) -> void:
 	Events.kart_corrected.emit(last_correction, last_correction > SNAP)
 
 
+## Where the simulation has the kart, which the host follows, GAME.md 10.3, rather than where it
+## is drawn while a correction is still being eased in.
+func simulated_transform() -> Transform3D:
+	return Transform3D(Basis(Vector3.UP, kart.motor.heading), kart.global_position - _ease)
+
+
 ## One line for the debug overlay: how far ahead of the host this machine is running, and what
 ## the last correction cost. Corrections at nought are the two machines agreeing, which is what
 ## this should read for most of a match on a decent wire.

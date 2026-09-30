@@ -3983,7 +3983,8 @@ is leaving.
 One rule underneath all of it: **a client may decide where its own kart is and
 what its own controls just did; everything else is the host's.** A client can
 move, and it can answer its own buttons on the tick they are pressed. It cannot
-award itself anything, hurt anybody, or decide that it picked something up.
+award itself anything, hurt anybody, or decide that it picked something up; it
+only shows its kart taking what it has driven over, and waits to be told.
 
 | Question | Answered by | How the other end finds out |
 |----------|-------------|------------------------------|
@@ -3994,6 +3995,7 @@ award itself anything, hurt anybody, or decide that it picked something up.
 | A turbo pad's shove | the client predicts it | nothing to send: the pad is in the same place on both |
 | Going down a hole | the client predicts the fall | the host decides the death, in the snapshot |
 | Breaking a box by ramming it | the client predicts it | the host settles it within a second, in the snapshot |
+| Taking a pickup or a Royal Flush pad: the look and the sound | the client predicts it | the host settles it within a second, in the snapshot |
 | Pulling the trigger: cooldown and sound | the client | nothing to send; the host's word for it is dropped on the way in |
 | The bullet itself | the host | the snapshot |
 | Who hit whom, who died, lives | the host | the snapshot and relayed events |
@@ -4277,6 +4279,21 @@ put right afterwards, which is more than where the kart is:
   dragged past it. So the client's own answer stands for a second, which is long
   enough for the host to agree; if it does not, the box comes back solid. What the
   box was worth and who gets the credit for it are the host's either way.
+- **Taking something off the table**: a chip, die, item box or card driven over,
+  and a Royal Flush pad driven onto, 3.9. Waiting a round trip to be told was a
+  kart driving through a chip that was still there, and the chip then flying into
+  it from behind. The host follows this machine's word for where its kart is, so
+  it finds the kart on the chip on the same tick and nearly always agrees: the
+  pickup flies into the kart and is heard the tick the kart reaches it, judged by
+  the same reach the host's physics has, and a pad takes the kart's color. The
+  snapshots built before the host heard leave both that way for up to a second,
+  `Pickup.PREDICTED_HOLD`; if the host has not agreed by then the pickup is back on
+  the floor and the pad back as the host last had it. What it was worth, the item
+  in a box, the card in the hand and whether a flush came of it are the host's and
+  arrive as they always did, and the host's word for the take is not heard a
+  second time, `Audio.ahead`. A kart takes one box at a time and no more cards than
+  its hand has room for, counting the ones taken here that the host has not dealt
+  yet. The F3 overlay counts what was taken here and how much of it was put back.
 - **The joker pick**, which is not physics at all. The cursor moves and the card
   is taken on the tick the key goes down, and the snapshot leaves that one pick
   alone while it is open rather than walking the cursor back to where the host had
@@ -4334,11 +4351,13 @@ hang-up only after the last word said before it. The suites that play over a
 socket, the online match, several players at a client, arriving, the handover
 between rooms and the door, each run a second time over a 50 ms round trip with
 10 ms of jitter, and `make multiplayer-lag` plays the whole Grand Prix of
-`tools/multiplayer_check` over one; `make check` runs both. Over it, a chip a
-client drives through flat out still flies into its kart, and goes on doing so up
-to a round trip of about 150 ms. Past that the kart on the client is so far ahead
-of the host's by the time the word comes that the chip has gone that nobody is
-near enough to have taken it, and it blinks out.
+`tools/multiplayer_check` over one; `make check` runs both. There every player at
+a client drives over a chip the host leaves in front of them and onto a pad of
+their own on the first map, each taken at once and then agreed to by the host,
+with nothing put back. A chip taken by somebody else flies into their kart on a
+client up to a round trip of about 150 ms. Past that their kart on the client is
+so far ahead of the host's by the time the word comes that the chip has gone that
+nobody is near enough to have taken it, and it blinks out.
 
 ### 10.4 Conventions
 

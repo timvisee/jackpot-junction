@@ -775,10 +775,15 @@ func overlapping_pickups() -> Array[Pickup]:
 
 ## Recomputes the pickup radius from the rules, the jokers and the Coin Magnet.
 func refresh_pickup_radius() -> void:
+	_pickup_shape.radius = pickup_reach()
+
+
+## How far the kart reaches for a pickup: the rules', bent by the jokers and the Coin Magnet.
+func pickup_reach() -> float:
 	var radius := rules.pickup_radius
 	for joker: Joker in jokers.jokers:
 		radius = joker.modify_pickup_radius(radius)
-	_pickup_shape.radius = radius * pickup_radius_bonus
+	return radius * pickup_radius_bonus
 
 
 ## Kills the kart. The match decides when and where it respawns.

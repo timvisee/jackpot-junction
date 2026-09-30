@@ -46,6 +46,10 @@ func _apply(kart: Kart) -> void:
 	Events.joker_taken.emit(kart.slot, joker.id)
 
 
+func heard_as(kart: Kart) -> Array:
+	return [&"joker_taken", [kart.slot, joker.id]]
+
+
 ## The face printed on the card: the joker's picture in its kind's color on the dark of a card in
 ## the hand, edged in the same color.
 class Face:

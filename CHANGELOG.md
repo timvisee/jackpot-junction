@@ -21,6 +21,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Pickups and pads are instant online.** A client's kart takes a chip, die, box or card, or a
+  Royal Flush pad, the moment it gets there, with the flight and the sound; the host still decides
+  what it was worth.
 - **The crowd can be turned off for speed too.** The crowd setting is Full, Half or Off, one
   setting shown on the Video page and in Accessibility alike; a crowd switched off before stays
   off.

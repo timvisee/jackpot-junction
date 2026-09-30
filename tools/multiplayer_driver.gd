@@ -23,6 +23,16 @@ const STEP := 0.05
 ## How long the host reads a podium before pressing on, the way a person does. It is also what
 ## gives the client time to have its own podium up before the host has moved everybody on.
 const READING := 2.0
+## How far in front of a client's kart the host leaves the chip it is to drive over, in meters.
+const CHIP_AHEAD := 1.2
+## The squares a client's kart is walked across on its way to a pad, in meters, and how far clear
+## of anything a kart is kept crossing them and getting on and off them, see [method _route].
+const ROUTE_CELL := 1.5
+const WIDE := 0.7
+const NARROW := 0.45
+## How far from the middle of a pad that is not its own a kart on its way is kept: half the pad and
+## half the kart's length, and a little.
+const PAD_BERTH := 1.6
 const SPOTS: Array[Vector3] = [
 	Vector3(-1.3, 0.0, -1.3),
 	Vector3(1.3, 0.0, 1.3),
@@ -497,6 +507,7 @@ func _client_after_map_1(first: Node) -> Node:
 	_check(_color == _room_color, "the same color on map 1 as in the room")
 	_check(one.slots[one.local_slot].player_name == _room_name, "and the same name")
 	await _dressed(one, "on map 1")
+	await _takes_off_the_table(one)
 	var podium := await _podium(first, 60.0)
 	if podium == null:
 		return null
@@ -528,6 +539,201 @@ func _client_after_map_1(first: Node) -> Node:
 			if seat != second.match_node.local_slot:
 				await _keep_scripted(second, seat)
 	return second
+
+
+## A chip and a pad driven onto here are this machine's the moment the kart is on them, GAME.md
+## 10.3, before the host has said anything, and the host, a round trip later, agrees: nothing it
+## was shown taking comes back. Every player here drives over the chip the host left in front of
+## them and onto a pad of their own, one with nothing in the way of a kart driven straight at it;
+## the host waits on map 1 for those claims to reach it, see [method _guests_take_pads].
+func _takes_off_the_table(match_node: Match) -> void:
+	if not await _until(match_node.is_running, 15.0, "the match is running"):
+		return
+	var pads := match_node.arena.flush_pads
+	if pads.is_empty():
+		_say("no Royal Flush pads on this map")
+		return
+	var seats := _seats_here(match_node)
+	var chips := {}
+	var dropped := func() -> bool:
+		for seat: int in seats:
+			var chip := _chip_near(match_node, match_node.slots[seat].kart.global_position)
+			if chip != null:
+				chips[seat] = chip
+		return chips.size() == seats.size()
+	if not await _until(dropped, 5.0, "the host left a chip in front of each kart here"):
+		return
+	var chip_early := {}
+	var over := func() -> bool:
+		var all := true
+		for seat: int in seats:
+			var chip: Variant = chips[seat]
+			if not is_instance_valid(chip):
+				continue
+			if (chip as Pickup).predicted_take():
+				chip_early[seat] = true
+				continue
+			_walk(match_node, seat, (chip as Pickup).global_position)
+			all = false
+		return all
+	if not await _until(over, 5.0, "drove over them"):
+		return
+	_check(chip_early.size() == seats.size(), "each flew in before the host said so")
+	var mine := {}
+	var routes := {}
+	for seat: int in seats:
+		var pad := pads[seat % pads.size()]
+		var route := _route(match_node, match_node.slots[seat].kart.global_position, pad)
+		if route.is_empty() and pad.owner_slot != seat:
+			_fail("no way for seat %d to drive to its pad" % seat)
+			return
+		mine[seat] = pad
+		routes[seat] = route
+	var early := {}
+	var there := func() -> bool:
+		if not is_instance_valid(match_node):
+			return true
+		var all := true
+		for seat: int in seats:
+			var pad: FlushPad = mine[seat]
+			if pad.predicted_claim() and pad.owner_slot == seat:
+				early[seat] = true
+			# On it is enough: there is no need to shove on to the middle of it.
+			if pad.owner_slot == seat:
+				continue
+			var route: Array = routes[seat]
+			if route.is_empty():
+				continue
+			if _walk(match_node, seat, route[0]) and route.size() > 1:
+				route.pop_front()
+			all = false
+		return all
+	if not await _until(there, 25.0, "drove onto a Royal Flush pad"):
+		return
+	_check(early.size() == seats.size(), "each was ours before the host said so")
+	var settled := func() -> bool:
+		for seat: int in seats:
+			var pad: FlushPad = mine[seat]
+			if pad.predicted_claim() or pad.owner_slot != seat or is_instance_valid(chips[seat]):
+				return false
+		return true
+	if not await _until(settled, 5.0, "and the host agreed to each"):
+		return
+	for seat: int in seats:
+		var takes := _takes_of(seat)
+		_say("TAKES seat %d %s" % [seat, takes.debug_text()])
+		_check(takes.put_back == 0, "nothing seat %d took came back" % seat)
+
+
+## The way from [param from] to [param to] across the floor of [param match_node], round the
+## walls, the props and the holes, since the walk goes through anything: the middles of a grid of
+## [constant ROUTE_CELL] squares, each straight on from the last, found breadth first, and off the
+## grid at either end along a way a kart's own width is clear. Empty when there is none.
+func _route(match_node: Match, from: Vector3, pad: FlushPad) -> Array[Vector3]:
+	var to := pad.global_position
+	# Round every other pad: one crossed on the way is taken on the way, and somebody else's.
+	var avoid: Array[Vector3] = []
+	for other: FlushPad in match_node.arena.flush_pads:
+		if other != pad:
+			avoid.append(other.global_position)
+	if _clear_way(match_node, from, to, NARROW, avoid):
+		return [to] as Array[Vector3]
+	var half := match_node.arena.world_size() * 0.5
+	var size := Vector2i(int(half.x * 2.0 / ROUTE_CELL), int(half.y * 2.0 / ROUTE_CELL))
+	var middle := func(cell: Vector2i) -> Vector3:
+		return Vector3(
+			-half.x + (cell.x + 0.5) * ROUTE_CELL, 0.0, -half.y + (cell.y + 0.5) * ROUTE_CELL
+		)
+	var inside := func(cell: Vector2i) -> bool:
+		return cell.x >= 0 and cell.y >= 0 and cell.x < size.x and cell.y < size.y
+	var first := Vector2i(int((from.x + half.x) / ROUTE_CELL), int((from.z + half.y) / ROUTE_CELL))
+	var off := Vector2i(-1, -1)
+	var came := {}
+	var queue: Array[Vector2i] = []
+	for dx: int in range(-1, 2):
+		for dy: int in range(-1, 2):
+			var cell := first + Vector2i(dx, dy)
+			if inside.call(cell) and _clear_way(match_node, from, middle.call(cell), NARROW, avoid):
+				came[cell] = off
+				queue.append(cell)
+	var steps: Array[Vector2i] = [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.DOWN, Vector2i.UP]
+	var last := off
+	while not queue.is_empty():
+		var at: Vector2i = queue.pop_front()
+		var there: Vector3 = middle.call(at)
+		if (
+			there.distance_to(to) < ROUTE_CELL * 3.0
+			and _clear_way(match_node, there, to, NARROW, avoid)
+		):
+			last = at
+			break
+		for step: Vector2i in steps:
+			var next := at + step
+			if came.has(next) or not inside.call(next):
+				continue
+			if _clear_way(match_node, there, middle.call(next), WIDE, avoid):
+				came[next] = at
+				queue.append(next)
+	if last == off:
+		return [] as Array[Vector3]
+	var route: Array[Vector3] = [to]
+	while last != off:
+		route.push_front(middle.call(last))
+		last = came[last]
+	return route
+
+
+## Whether a kart driven straight from [param from] to [param to] gets there: nothing solid within
+## [param reach] of the way, no hole under it and none of the pads in [param avoid] on it, looked
+## for every half meter.
+func _clear_way(
+	match_node: Match, from: Vector3, to: Vector3, reach: float, avoid: Array[Vector3]
+) -> bool:
+	var way := Vector3(to.x - from.x, 0.0, to.z - from.z)
+	var looks := maxi(int(way.length() / 0.5), 1)
+	var corners: Array[Vector3] = [
+		Vector3.ZERO,
+		Vector3(reach, 0.0, reach),
+		Vector3(-reach, 0.0, reach),
+		Vector3(reach, 0.0, -reach),
+		Vector3(-reach, 0.0, -reach),
+	]
+	for i: int in looks + 1:
+		var at := from + way * (float(i) / looks)
+		for corner: Vector3 in corners:
+			if match_node.arena.is_over_pit(at + corner):
+				return false
+		for other: Vector3 in avoid:
+			if Vector2(at.x - other.x, at.z - other.z).length() < PAD_BERTH:
+				return false
+	var probe := SphereShape3D.new()
+	probe.radius = reach
+	var query := PhysicsShapeQueryParameters3D.new()
+	query.shape = probe
+	query.transform = Transform3D(Basis(), Vector3(from.x, reach + 0.25, from.z))
+	query.motion = way
+	query.collision_mask = Layers.WORLD
+	var free := match_node.arena.get_world_3d().direct_space_state.cast_motion(query)
+	return free.size() == 2 and free[0] >= 1.0
+
+
+## The chip the host left just in front of a kart here at [param at], see [method _leave_chips].
+func _chip_near(match_node: Match, at: Vector3) -> Chip:
+	for value: Variant in match_node.puppet_pickups.values():
+		var chip := value as Chip if is_instance_valid(value) else null
+		if chip != null:
+			var gap := chip.global_position - at
+			if Vector2(gap.x, gap.z).length() < CHIP_AHEAD + 0.5:
+				return chip
+	return null
+
+
+## What the seat played here in [param slot] has taken off the table, see [TakePrediction].
+func _takes_of(slot: int) -> TakePrediction:
+	for seat: ClientSeat in Net.session.seats:
+		if seat.slot == slot:
+			return seat.takes
+	return TakePrediction.new()
 
 
 ## The pick to keep a joker for a player here whose controls are [member _second]: the second card,
@@ -811,8 +1017,12 @@ func _map(round: int) -> Node:
 ## Blows the whistle on a map this machine runs, after a moment of it being played, and waits
 ## for its podium.
 func _end(scene: Node) -> ResultsScreen:
+	if scene.match_node.rules.round == 1:
+		_leave_chips(scene.match_node)
 	await _seconds(READING)
 	if scene.match_node.rules.round == 1:
+		if not await _guests_take_pads(scene.match_node):
+			return null
 		_give_jokers(scene.match_node)
 	# Different fortunes on every map, so the run's standings are not simply the seats in order
 	# and the two ends have something to disagree about if they are going to.
@@ -823,6 +1033,40 @@ func _end(scene: Node) -> ResultsScreen:
 		slot.banked = 100 * (turn + 1)
 	match_node._finish()
 	return await _podium(scene, 15.0)
+
+
+## Every player at a client drives onto a pad on map 1, see [method _takes_off_the_table], and the
+## host keeps the map going until each claim has reached it, and then a moment more for the
+## clients to see it agreed.
+func _guests_take_pads(match_node: Match) -> bool:
+	if match_node.arena.flush_pads.is_empty():
+		return true
+	var taken := func() -> bool:
+		for slot: PlayerSlot in match_node.slots:
+			if slot.input is NetInput and slot.stats.value(&"pads_taken") <= 0:
+				return false
+		return true
+	if not await _until(taken, 40.0, "every player at a client took a pad"):
+		return false
+	await _seconds(READING)
+	return true
+
+
+## A chip just in front of every kart played at a client, the way it faces on the grid, for it to
+## drive over first, see [method _takes_off_the_table].
+func _leave_chips(match_node: Match) -> void:
+	var pads := match_node.arena.flush_pads
+	if pads.is_empty():
+		return
+	# The bots sit this map out: two karts on one pad hand it back and forth every tick, and a bot
+	# parked on a client's pad is the host rightly saying no to its claim, not prediction failing.
+	for slot: PlayerSlot in match_node.slots:
+		if slot.input is BotInput and slot.kart != null:
+			slot.kart.input = KartInput.new()
+	for slot: PlayerSlot in match_node.slots:
+		if slot.input is NetInput and slot.kart != null:
+			var ahead := slot.kart.motor.forward_vector() * CHIP_AHEAD
+			match_node.arena.place_drop(Chip.new(), slot.kart.global_position + ahead)
 
 
 ## Two jokers for every seat before the first whistle, different for every seat, for the rule

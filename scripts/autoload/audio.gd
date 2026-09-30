@@ -84,6 +84,9 @@ const CRASH_HEAVY_DB := -12.0
 const CRASH_HEAVY_FORCE := 0.55
 const CRASH_LIGHT_PITCH := 1.3
 const CRASH_HARD_PITCH := 0.9
+## How long a sound a client played ahead of the host waits for the host's word for the same
+## thing, in milliseconds, see [method ahead].
+const AHEAD_HOLD_MSEC := 1500
 
 ## Effect name to the files it picks from at random. A name with a slash is under
 ## [constant AUDIO_DIR], anything else under [constant SFX_DIR].
@@ -199,6 +202,10 @@ var _banked_at: Dictionary[int, float] = {}
 var _bank_pitch := 1.0
 ## The physics frame the last chip clink played on, so coins that land together are one sound.
 var _chip_frame := -1
+## The sounds played ahead of the host, see [method ahead]: for each event and slot, how many of
+## the host's words for them are still to come and until when they are waited for.
+var _ahead: Dictionary[String, Vector2i] = {}
+var _playing_ahead := false
 var _rng := RandomNumberGenerator.new()
 
 
@@ -554,7 +561,57 @@ func _free_player() -> AudioStreamPlayer:
 
 ## Coins landing in the same instant are one sound. The four Royal Flush pads pay on the same
 ## beat, GAME.md 3.9, and four clinks stacked on one frame is a rattle rather than four coins.
-func _on_coin_collected(_slot: int, coins: int) -> void:
+## Plays what [param event] sounds like for [param args], the slot first, on this machine's own
+## word, GAME.md 10.3: a client whose kart has just taken a pickup or a pad hears it now rather than
+## a round trip later. The host's word for the same thing, once it comes, is then not heard again.
+func ahead(event: StringName, args: Array) -> void:
+	var sound := _sound_of(event)
+	if not sound.is_valid() or args.is_empty():
+		return
+	_playing_ahead = true
+	sound.callv(args)
+	_playing_ahead = false
+	var key := "%s|%d" % [event, int(args[0])]
+	var now := Time.get_ticks_msec()
+	var waiting := _ahead.get(key, Vector2i.ZERO) as Vector2i
+	var still := waiting.x if waiting.y > now else 0
+	_ahead[key] = Vector2i(still + 1, now + AHEAD_HOLD_MSEC)
+
+
+## Whether this is the host's word for something [method ahead] already played, which is then
+## counted off rather than heard.
+func _heard_ahead(event: StringName, slot: int) -> bool:
+	if _playing_ahead or _ahead.is_empty():
+		return false
+	var key := "%s|%d" % [event, slot]
+	if not _ahead.has(key):
+		return false
+	var waiting := _ahead[key]
+	if waiting.y <= Time.get_ticks_msec() or waiting.x <= 1:
+		_ahead.erase(key)
+		return waiting.y > Time.get_ticks_msec()
+	_ahead[key] = Vector2i(waiting.x - 1, waiting.y)
+	return true
+
+
+func _sound_of(event: StringName) -> Callable:
+	match event:
+		&"coin_collected":
+			return _on_coin_collected
+		&"mult_gained":
+			return _on_mult_gained
+		&"item_picked":
+			return _on_item_picked
+		&"joker_taken":
+			return _on_joker_taken
+		&"pad_claimed":
+			return _on_pad_claimed
+	return Callable()
+
+
+func _on_coin_collected(slot: int, coins: int) -> void:
+	if _heard_ahead(&"coin_collected", slot):
+		return
 	var frame := Engine.get_physics_frames()
 	if frame == _chip_frame:
 		return
@@ -579,16 +636,12 @@ func _connect_events() -> void:
 	Events.bank_started.connect(func(_slot: int) -> void: _bank_pitch = 1.0)
 	Events.bank_completed.connect(_on_bank_completed)
 	Events.jackpot_full.connect(func(_zone: int) -> void: play_sfx(&"jackpot_full", -3.0))
-	Events.item_picked.connect(
-		func(_slot: int, _item: StringName) -> void: play_sfx(&"item_pick", -3.0)
-	)
+	Events.item_picked.connect(_on_item_picked)
 	Events.item_used.connect(
 		func(_slot: int, _item: StringName) -> void: play_sfx(&"item_use", -3.0)
 	)
 	Events.joker_offered.connect(func(_slot: int) -> void: play_sfx(&"joker_offer", -3.0))
-	Events.joker_taken.connect(
-		func(_slot: int, _joker: StringName) -> void: play_sfx(&"joker_take", -3.0)
-	)
+	Events.joker_taken.connect(_on_joker_taken)
 	Events.bullet_fired.connect(func(_slot: int) -> void: play_sfx(&"fire", -10.0, 0.1))
 	Events.bullet_bounced.connect(func() -> void: play_sfx(&"bounce", -12.0, 0.1))
 	Events.kart_bumped.connect(func(_slot: int) -> void: play_sfx(&"bump", -10.8))
@@ -606,7 +659,7 @@ func _connect_events() -> void:
 	)
 	Events.shield_popped.connect(func(_slot: int) -> void: play_sfx(&"shield_pop", -6.0))
 	Events.bomb_exploded.connect(func(_slot: int) -> void: _play_explosion())
-	Events.pad_claimed.connect(func(_slot: int) -> void: play_sfx(&"pad_claim", -8.0, 0.05))
+	Events.pad_claimed.connect(_on_pad_claimed)
 	Events.oil_hit.connect(func(_slot: int) -> void: play_sfx(&"oil", -2.5, 0.12))
 	Events.bounty_called.connect(func(_slot: int) -> void: play_sfx(&"bounty", -2.0, 0.0))
 	Events.bounty_claimed.connect(_on_bounty_claimed)
@@ -657,10 +710,28 @@ func _on_kart_crashed(_slot: int, force: float) -> void:
 		play_sfx(&"crash_hard", lerpf(CRASH_LIGHT_DB, CRASH_HEAVY_DB, over), 0.1)
 
 
-func _on_mult_gained(_slot: int, _amount: float, reason: StringName) -> void:
+func _on_mult_gained(slot: int, _amount: float, reason: StringName) -> void:
 	if reason == &"graze":
 		return
+	# Only a die is ever played ahead; the other reasons are the host's alone.
+	if reason == &"die" and _heard_ahead(&"mult_gained", slot):
+		return
 	play_sfx(&"die" if reason == &"die" else &"mult", -4.0)
+
+
+func _on_item_picked(slot: int, _item: StringName) -> void:
+	if not _heard_ahead(&"item_picked", slot):
+		play_sfx(&"item_pick", -3.0)
+
+
+func _on_joker_taken(slot: int, _joker: StringName) -> void:
+	if not _heard_ahead(&"joker_taken", slot):
+		play_sfx(&"joker_take", -3.0)
+
+
+func _on_pad_claimed(slot: int) -> void:
+	if not _heard_ahead(&"pad_claimed", slot):
+		play_sfx(&"pad_claim", -8.0, 0.05)
 
 
 func _on_bank_tick(_slot: int, _points: int) -> void:

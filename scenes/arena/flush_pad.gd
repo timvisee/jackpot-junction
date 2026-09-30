@@ -29,6 +29,9 @@ const HALO_ALPHA := 0.75
 ## How big the suit is across the pad, and how finely it is drawn.
 const SUIT := 0.5
 const SUIT_PIXELS := 128
+## How long a client stands by a claim of its own before the host's word takes over again, GAME.md
+## 10.3, the way a crate it drove through does.
+const PREDICTED_HOLD := 1.0
 
 var index := 0
 var size := 1.25
@@ -42,6 +45,10 @@ var held_left := 0.0
 ## Seconds the pad still ignores karts after a flush.
 var disabled_left := 0.0
 var puppet := false
+## How long this client still stands by its own claim, see [method predict_claim], and what the
+## host last said of the pad meanwhile, for going back to the moment that runs out.
+var _predicted_left := 0.0
+var _host_said: Array = []
 
 var _frame_material: StandardMaterial3D
 var _suit_material: StandardMaterial3D
@@ -81,6 +88,10 @@ func pop_halo(color: Color = Color.TRANSPARENT) -> void:
 
 func _physics_process(delta: float) -> void:
 	_pulse += delta
+	if _predicted_left > 0.0:
+		_predicted_left = maxf(_predicted_left - delta, 0.0)
+		if _predicted_left <= 0.0 and not _host_said.is_empty():
+			apply_puppet_state.callv(_host_said)
 	_step_halo(delta)
 	if owner_slot >= 0 and not is_disabled():
 		held_left = maxf(held_left - delta, 0.0)
@@ -135,6 +146,44 @@ func claim(slot: int, color: Color) -> void:
 	_refresh()
 
 
+## Whether [param kart], its simulation at [param where], is on the pad, for a client asking about
+## its own, GAME.md 10.3: its body's box, turned the way it points, against the pad's.
+func would_take(kart: Kart, where: Transform3D) -> bool:
+	var query := PhysicsShapeQueryParameters3D.new()
+	var body := kart.get_node_or_null(^"CollisionShape3D") as CollisionShape3D
+	if body == null:
+		return false
+	query.shape = body.shape
+	query.transform = where * body.transform
+	query.collide_with_areas = true
+	query.collide_with_bodies = false
+	query.collision_mask = Layers.TRIGGER
+	for hit: Dictionary in get_world_3d().direct_space_state.intersect_shape(query, 16):
+		if hit["collider"] == self:
+			return true
+	return false
+
+
+## Whether [param kart] would take the pad off whoever holds it by driving on: not while it rests
+## after a flush, and not from itself, which only renews the claim.
+func can_be_taken_by(kart: Kart) -> bool:
+	return not is_disabled() and kart.slot != owner_slot and _can_claim(kart)
+
+
+## Taken by this client's own kart on its own word, GAME.md 10.3: in its color the tick it drove
+## on rather than a round trip later. The snapshot leaves it that way until the host agrees, or
+## clears the pads for a flush, or for [constant PREDICTED_HOLD], after which the host's word is
+## the pad again.
+func predict_claim(kart: Kart) -> void:
+	_host_said = [owner_slot, owner_color, disabled_left]
+	claim(kart.slot, Palette.player_color(kart.color_index))
+	_predicted_left = PREDICTED_HOLD
+
+
+func predicted_claim() -> bool:
+	return _predicted_left > 0.0
+
+
 ## After a flush: nobody holds the pad and it ignores karts for a while.
 func clear_and_disable(seconds: float) -> void:
 	owner_slot = -1
@@ -147,6 +196,13 @@ func clear_and_disable(seconds: float) -> void:
 ## A host snapshot's view of this pad, on a client.
 func apply_puppet_state(slot: int, color: Color, disabled: float) -> void:
 	puppet = true
+	if predicted_claim():
+		# Built before the host heard of this client's claim: the pad stays this client's.
+		if slot != owner_slot and disabled <= 0.0:
+			_host_said = [slot, color, disabled]
+			return
+		_predicted_left = 0.0
+	_host_said = []
 	if slot != owner_slot:
 		held_left = decay if slot >= 0 else 0.0
 	owner_slot = slot

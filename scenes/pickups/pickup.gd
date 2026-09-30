@@ -16,6 +16,12 @@ const FALL_SPEED := 2.6
 const THROW_TIME := 0.3
 const THROW_LIFT := 0.45
 const THROW_HEIGHT := 0.7
+## How long a client stands by having taken a pickup itself before putting it back for want of
+## the host agreeing, GAME.md 10.3. The host's word is a round trip away.
+const PREDICTED_HOLD := 1.0
+## How big the pickup is to a kart reaching for it, and how high a kart reaches from.
+const RADIUS := 0.35
+const REACH_HEIGHT := 0.4
 
 ## Seconds before the pickup vanishes on its own; 0 keeps it forever.
 var lifetime := 0.0
@@ -32,6 +38,8 @@ var _fall := 0.0
 var _thrown_from := Vector3.ZERO
 var _thrown_left := 0.0
 var _taken := false
+## How long this client still stands by having taken it, see [method predict_take].
+var _predicted_left := 0.0
 var _base_y := 0.3
 var _visual: Node3D
 
@@ -43,7 +51,7 @@ func _ready() -> void:
 	add_to_group(&"pickups")
 	var shape := CollisionShape3D.new()
 	var sphere := SphereShape3D.new()
-	sphere.radius = 0.35
+	sphere.radius = RADIUS
 	shape.shape = sphere
 	add_child(shape)
 	_base_y = position.y
@@ -54,6 +62,11 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if _predicted_left > 0.0:
+		_predicted_left = maxf(_predicted_left - delta, 0.0)
+		if _predicted_left <= 0.0:
+			_put_back()
+		return
 	if _visual == null:
 		return
 	if falling:
@@ -120,6 +133,45 @@ func fall_into_pit() -> void:
 ## this one, which refuses anything already on its way down a pit.
 func can_collect(_kart: Kart) -> bool:
 	return not falling
+
+
+## Whether [param kart], its simulation at [param where], is near enough to take it: the reach of
+## its pickup area, GAME.md 3.3, against the pickup's own size, the same test the host's physics
+## makes of the two.
+func within_reach(kart: Kart, where: Vector3) -> bool:
+	var from := where + Vector3(0.0, REACH_HEIGHT, 0.0)
+	return from.distance_to(global_position) < kart.pickup_reach() + RADIUS
+
+
+## Taken by this client's own kart on its own word, GAME.md 10.3: into [param kart] the tick it
+## got there rather than a round trip later, which is how every pickup feels on the machine
+## driving. What it was worth is the host's, and so is saying it is gone, which then finds nothing
+## left to fly. Should the host not say so within [constant PREDICTED_HOLD], it is back.
+func predict_take(kart: Kart) -> void:
+	if _taken or predicted_take():
+		return
+	_predicted_left = PREDICTED_HOLD
+	PickupFlight.take(self, kart)
+
+
+func predicted_take() -> bool:
+	return _predicted_left > 0.0
+
+
+## The event the host raises when [param kart] takes this, and what with, for a client that took
+## it itself to hear it now, see [method Audio.ahead]. Empty for a pickup that says nothing.
+func heard_as(_kart: Kart) -> Array:
+	return []
+
+
+## The host never agreed: it was somebody else's, or never there. On the floor again, as it was.
+func _put_back() -> void:
+	if _visual != null:
+		return
+	_visual = Node3D.new()
+	_visual.name = "Visual"
+	add_child(_visual)
+	_build_visual(_visual)
 
 
 func collect(kart: Kart) -> void:

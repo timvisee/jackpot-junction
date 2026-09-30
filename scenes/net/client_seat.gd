@@ -16,6 +16,8 @@ var slot := -1
 var player_name := ""
 var style := PackedInt32Array()
 var prediction: KartPrediction
+## What its kart takes off the table, seen here first, see [TakePrediction].
+var takes := TakePrediction.new()
 ## The host's latest word on this seat's kart, waiting for the physics step to act on it, see
 ## [method NetSession._receive_authority]: [ack, state, whether the host drove it].
 var authority: Array = []
@@ -42,6 +44,7 @@ func forget_room() -> void:
 	slot = -1
 	prediction = null
 	authority = []
+	takes = TakePrediction.new()
 
 
 ## Takes over the driving of this seat's kart once the snapshot has built it. Asked every tick
@@ -90,6 +93,7 @@ func step(match_node: Match, delta: float) -> Array:
 		if driving:
 			prediction.predict(input, delta, seq)
 			claim = KartPrediction.capture(prediction.kart)
+			takes.step(match_node, prediction, delta)
 	var packet := NetInput.encode(input)
 	if own:
 		# The aim goes out as a direction rather than as whatever the stick happened to read,
@@ -147,4 +151,4 @@ func fired_first(shooter: int) -> bool:
 func debug_text() -> String:
 	if prediction == null or not is_instance_valid(prediction.kart):
 		return ""
-	return prediction.debug_text()
+	return "%s  %s" % [prediction.debug_text(), takes.debug_text()]

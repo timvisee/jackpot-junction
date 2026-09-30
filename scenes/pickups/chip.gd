@@ -44,6 +44,10 @@ func _apply(kart: Kart) -> void:
 	kart.collect_coins(value, self)
 
 
+func heard_as(kart: Kart) -> Array:
+	return [&"coin_collected", [kart.slot, value]]
+
+
 ## The one mesh a chip of a kind is: the disc, the lighter face a hair proud of it, which is how
 ## a chip is printed, and the notches round the rim, in their colors.
 static func mesh_for(is_gold: bool) -> ArrayMesh:
