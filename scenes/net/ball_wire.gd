@@ -6,8 +6,10 @@ extends Node
 
 ## At a client: where the host says the ball is, and whose word that is.
 signal told(state: Array)
-## At the host: where the client [param peer] says the ball its kart kicked is.
+## At the host: where the client [param peer] says the ball its kart kicked is, and a word from a
+## client that no copy of the game sends, see [NetConduct].
 signal claimed(peer: int, state: Array)
+signal malformed(peer: int)
 
 
 func _init() -> void:
@@ -38,6 +40,22 @@ func _told(state: Array) -> void:
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered")
-func _claimed(state: Array) -> void:
-	if multiplayer.is_server():
-		claimed.emit(multiplayer.get_remote_sender_id(), state)
+func _claimed(state: Variant) -> void:
+	if not multiplayer.is_server():
+		return
+	var peer := multiplayer.get_remote_sender_id()
+	if _well_formed(state):
+		claimed.emit(peer, state)
+	else:
+		malformed.emit(peer)
+
+
+## Whether [param state] is a ball as a client says it, see [method RoomBall.adopt]: four real
+## numbers and the kick's.
+static func _well_formed(state: Variant) -> bool:
+	if not state is Array or (state as Array).size() != 5 or not state[4] is int:
+		return false
+	for i: int in 4:
+		if not ClaimCheck.plain(state[i]) or state[i] is bool:
+			return false
+	return true

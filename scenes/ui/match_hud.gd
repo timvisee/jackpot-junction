@@ -188,6 +188,10 @@ func _ready() -> void:
 	Events.kart_respawned.connect(_on_kart_respawned)
 	Events.kart_crashed.connect(_on_kart_crashed)
 	Events.kart_bumped.connect(_on_kart_bumped)
+	# Said quietly, in the feed rather than over the middle of the screen, GAME.md 10.3.
+	Events.player_kicked.connect(
+		func(named: String) -> void: _kill_feed.add_line(NetConduct.TOLD % named, KillFeed.NEUTRAL)
+	)
 
 
 func _on_bounty_called(slot: int) -> void:

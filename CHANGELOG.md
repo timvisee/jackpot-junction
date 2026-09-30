@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A changed client is shown out.** One that sends what no copy of the game sends is kicked after
+  three, told "Kicked: abnormal behavior detected", and the others see it in the kill feed; a bad
+  connection never counts.
 - **Everybody is told when a cash-out would win.** The moment a player's next cash-out would win
   the match, every screen calls MATCH POINT after their name in their color, and the music climbs
   to the top the way it does for Last Call.

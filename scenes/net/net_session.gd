@@ -32,8 +32,6 @@ const DEFAULT_PORT := 7777
 ## that says nothing in that time, or says something the host turns down, is dropped.
 const HANDSHAKE_TIMEOUT := 5.0
 const SNAPSHOT_EVERY_TICKS := 2
-## How long a joker taken here is held against the host's word for it, see [method _took_here].
-const TAKEN_HEARD_MSEC := 2000
 
 ## Whether this process is in the middle of raising an event a host relayed to it, which is never
 ## relayed again. Shared by every session in the process: in a test that runs a host and a client
@@ -106,6 +104,8 @@ var host_controls := HostControls.of(self)
 ## The waiting room's football on the wire, see [BallWire], and the jokers chosen, see [JokerWire].
 var ball := BallWire.new()
 var jokers := JokerWire.new(self)
+## At the host: who has sent what no copy of the game sends, see [NetConduct].
+var conduct := NetConduct.new(self)
 
 var _tick := 0
 ## On the host: the seats its clients hold, see [PeerSeats].
@@ -127,8 +127,6 @@ var _relaying := false
 var _watchers: Dictionary[int, bool] = {}
 ## On the host: when each watcher may put up their next emote, in engine ticks of milliseconds.
 var _watcher_next: Dictionary[int, int] = {}
-## On a client: jokers taken from a pick here, "slot|id" to when each time, see [method _took_here].
-var _taken_here: Dictionary[String, Array] = {}
 var _watching_here: Dictionary[int, bool] = {}
 ## Whether this machine is asking for a pause, and which of the host's clients are.
 var _asking := false
@@ -155,7 +153,9 @@ func _init() -> void:
 func _ready() -> void:
 	if version.is_empty():
 		version = Game.version()
-	Events.joker_taken.connect(_took_here)
+	Events.joker_taken.connect(jokers.took_here)
+	jokers.malformed.connect(conduct.heard)
+	ball.malformed.connect(conduct.heard)
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.connected_to_server.connect(_on_connected)
@@ -602,6 +602,7 @@ func _on_peer_connected(peer: int) -> void:
 
 
 func _on_peer_disconnected(peer: int) -> void:
+	conduct.forget(peer)
 	_waiting_to_sit.erase(peer)
 	_newcomers.erase(peer)
 	_peer_slots.kept.erase(peer)
@@ -879,13 +880,19 @@ func _receive_snapshot(bytes: PackedByteArray) -> void:
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered")
-func _send_input(state: Array, seq: int = 0, claim: Array = [], number := 0) -> void:
-	var index := _peer_slots.slot_of(multiplayer.get_remote_sender_id(), number)
+func _send_input(
+	state: Variant, seq: Variant = 0, claim: Variant = [], number: Variant = 0
+) -> void:
+	var peer := multiplayer.get_remote_sender_id()
+	if not (state is Array and seq is int and claim is Array and number is int):
+		conduct.heard(peer)
+		return
+	var index := _peer_slots.slot_of(peer, number)
 	if match_node == null or index < 0 or index >= match_node.slots.size():
 		return
 	var input := match_node.slots[index].input as NetInput
-	if input != null:
-		input.receive(state, seq, claim)
+	if input != null and not input.receive(state, seq, claim):
+		conduct.heard(peer)
 
 
 ## One line about this client's first player's kart for the debug overlay, empty on a host or
@@ -945,30 +952,9 @@ func _already_heard(name: StringName, args: Array) -> bool:
 		for each: ClientSeat in seats:
 			if each.fired_first(int(args[0])):
 				return true
-	# A joker a player here took from their pick was heard as they took it, see [method
-	# _took_here]. Once for every time it was: the same card taken again later is heard again.
 	if name == &"joker_taken" and args.size() >= 2:
-		var key := "%d|%s" % [int(args[0]), String(args[1])]
-		var times: Array = _taken_here.get(key, [])
-		while not times.is_empty() and Time.get_ticks_msec() - int(times[0]) >= TAKEN_HEARD_MSEC:
-			times.pop_front()
-		if times.is_empty():
-			_taken_here.erase(key)
-			return false
-		times.pop_front()
-		return true
+		return jokers.heard_already(int(args[0]), StringName(args[1]))
 	return false
-
-
-## A joker taken from a pick by a player here, GAME.md 10.3: answered and heard on this machine at
-## once, and noted, so the host's word for it a round trip later is not heard a second time.
-func _took_here(slot: int, joker: StringName) -> void:
-	if _replaying or is_host or match_node == null or not match_node.is_local_seat(slot):
-		return
-	var key := "%d|%s" % [slot, String(joker)]
-	if not _taken_here.has(key):
-		_taken_here[key] = []
-	_taken_here[key].append(Time.get_ticks_msec())
 
 
 ## The host forwards gameplay events so clients' HUD and audio react like the host's.

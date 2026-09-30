@@ -81,6 +81,9 @@ signal bomb_exploded(slot: int)
 signal oil_hit(slot: int)
 signal player_joined(slot: int)
 signal player_left(slot: int)
+## The host showed [param named] out for sending what no copy of the game sends, GAME.md 10.3, see
+## [NetConduct]: said quietly on everybody's screen.
+signal player_kicked(named: String)
 ## A player in the waiting room of GAME.md 9.6 has said they are ready, by holding the pad long
 ## enough, or has taken it back by driving off it. The host works this out, since it is the host
 ## that simulates every kart; clients are told, so the tick over a kart and the count at the top

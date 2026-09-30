@@ -142,6 +142,9 @@ func _run() -> void:
 	# that happens, and it should not read as a pass.
 	if not _failed and not _finished:
 		_fail("stopped before the end")
+	# An honest client, which every one here is, never sends what no copy of the game sends.
+	if not _failed and _role == "host" and Net.session != null:
+		_check(Net.session.conduct.total == 0, "no client sent what no copy of the game sends")
 	if not _failed:
 		_say("PASSED")
 	Game.quit(1 if _failed else 0)

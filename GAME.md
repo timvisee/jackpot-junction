@@ -4241,6 +4241,21 @@ who hit whom, what was collected and what anything is worth.
   number goes or a number that is not one, are dropped whole: a single one in the
   steering would take the kart off the map. On a dedicated server nobody at it
   plays, so this is everything that stands between a changed client and the game.
+- **A changed client is shown out.** A connection, however bad, loses, delays,
+  repeats and reorders what is sent and never changes it: a datagram damaged on
+  the way is dropped before anything reads it, a call that does not decode is
+  refused by the engine before the game sees it, and every client let in plays the
+  same version. So word from a client that no copy of the game sends, controls or
+  a claim with a word or a non-number in them, a ball or a joker that is not one,
+  can only come from a changed client. After three of them, `NetConduct.KICK_AT`,
+  one more than none in case the game itself ever has a bug that sends one, the
+  host shows it out: it is told "Kicked: abnormal behavior detected", everybody
+  else sees the same after its name in a line of the kill feed, and a dedicated
+  server writes each one in its log. What a slow line sends never counts: a claim
+  too far away to follow, a packet too late to play, a pick answered after it
+  closed or a card no longer held are what an honest player on a bad connection
+  sends, and they are only not acted on. `tools/server_check` fails on any such
+  line in a server's log, and `tools/multiplayer_check` on any at its host.
 - **The client reconciles when the host had the wheel.** It compares where it
   predicted it would be at that sequence number with where the host says it was.
   Agreement costs nothing and changes nothing. Disagreement rewinds the kart to

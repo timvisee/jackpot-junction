@@ -6,6 +6,7 @@ extends RefCounted
 
 ## The events a host relays to every client, as they happen.
 const RELAYED: Array[StringName] = [
+	&"player_kicked",
 	&"coin_collected",
 	&"mult_gained",
 	&"grazed",

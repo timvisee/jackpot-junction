@@ -9,10 +9,15 @@ extends Node
 ##
 ## Under the session at both ends, as a call from one to the other has to be.
 
-## At the host, for a word from a client that no copy of the game sends, see [NetSession].
+## At the host, for a word from a client that no copy of the game sends, see [NetConduct].
 signal malformed(peer: int)
 
+## How long a joker taken here is held against the host's word for it, see [method took_here].
+const TAKEN_HEARD_MSEC := 2000
+
 var session: NetSession
+## On a client: jokers taken from a pick here, "slot|id" to when each time, see [method took_here].
+var _taken_here: Dictionary[String, Array] = {}
 
 
 func _init(of: NetSession) -> void:
@@ -61,6 +66,35 @@ func _handled(number: Variant, destroy: Variant, id: Variant) -> void:
 		slot.kart.destroy_joker(index)
 	else:
 		slot.kart.drop_joker(index)
+
+
+## A joker taken from a pick by a player here, GAME.md 10.3: answered and heard on this machine at
+## once, and noted, so the host's word for it a round trip later is not heard a second time.
+func took_here(slot: int, joker: StringName) -> void:
+	var match_node := session.match_node
+	if NetSession._replaying or session.is_host or match_node == null:
+		return
+	if not match_node.is_local_seat(slot):
+		return
+	var key := "%d|%s" % [slot, String(joker)]
+	if not _taken_here.has(key):
+		_taken_here[key] = []
+	_taken_here[key].append(Time.get_ticks_msec())
+
+
+## Whether the host's word that [param slot] took [param joker] is one heard here already, as its
+## player took it, see [method took_here]. Once for every time it was: the same card taken again
+## later is heard again.
+func heard_already(slot: int, joker: StringName) -> bool:
+	var key := "%d|%s" % [slot, String(joker)]
+	var times: Array = _taken_here.get(key, [])
+	while not times.is_empty() and Time.get_ticks_msec() - int(times[0]) >= TAKEN_HEARD_MSEC:
+		times.pop_front()
+	if times.is_empty():
+		_taken_here.erase(key)
+		return false
+	times.pop_front()
+	return true
 
 
 func _connected() -> bool:

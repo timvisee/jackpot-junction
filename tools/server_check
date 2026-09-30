@@ -160,9 +160,11 @@ if grep -hE 'SCRIPT ERROR|USER ERROR' "$logs/server.log" | sed "s/^/server: /" >
 	echo "server check: the server raised script errors" >&2
 	failed=1
 fi
-# And engine errors, which a release build raises where an editor build does not, and anything a
-# game's process left behind as it ended: a sound playing then, see Game.quit.
-if grep -hE '^ERROR:|leaked at exit' "$logs/server.log" | sed "s/^/server: /" >&2; then
+# And engine errors, which a release build raises where an editor build does not, anything a
+# game's process left behind as it ended, a sound playing then, see Game.quit, and word from a
+# client that no copy of the game sends, which the clients here never are, see NetConduct.
+if grep -hE '^ERROR:|leaked at exit|no copy of the game sends' "$logs/server.log" |
+	sed "s/^/server: /" >&2; then
 	echo "server check: the server raised engine errors" >&2
 	failed=1
 fi

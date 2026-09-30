@@ -109,17 +109,24 @@ static func well_formed(state: Array) -> bool:
 
 ## Takes a packet from the client and puts it in the queue. Packets travel unreliably, so one
 ## that turns up out of order is older news than what is already here and is dropped.
-func receive(state: Array, seq: int = 0, claimed: Array = []) -> void:
-	if state.size() < FIELDS or seq <= last_seq or not well_formed(state):
-		return
-	if not claimed.is_empty() and not ClaimCheck.well_formed(claimed):
+##
+## False for controls, or a claim, that are not what any copy of the game sends, see [NetConduct];
+## a packet merely too late to play is not that.
+func receive(state: Array, seq: int = 0, claimed: Array = []) -> bool:
+	if state.size() < FIELDS or not well_formed(state):
+		return false
+	var fine := claimed.is_empty() or ClaimCheck.well_formed(claimed)
+	if not fine:
 		claimed = []
+	if seq <= last_seq:
+		return fine
 	last_seq = seq
 	_queue.append([seq, state, claimed])
 	while _queue.size() > QUEUE_MAX:
 		# Too far behind to be worth playing out one at a time. The oldest is spent for its
 		# presses, which are the part nobody can afford to lose, and its steering is skipped.
 		_merge_presses(_queue.pop_front()[1])
+	return fine
 
 
 ## Plays back one tick of the client's controls. An empty queue means nothing has arrived for

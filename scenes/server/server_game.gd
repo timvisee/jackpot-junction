@@ -215,6 +215,24 @@ func _watch(session: NetSession) -> void:
 	session.host_controls.kicked.connect(
 		func(player: int) -> void: say("The host showed %s out" % _names.get(player, "somebody"))
 	)
+	session.conduct.heard_from.connect(
+		func(peer: int, count: int) -> void:
+			say(
+				(
+					"%s sent what no copy of the game sends, %d of %d"
+					% [_name_of(peer), count, NetConduct.KICK_AT]
+				)
+			)
+	)
+	session.conduct.shown_out.connect(
+		func(peer: int, named: String) -> void:
+			say(
+				(
+					"Kicked %s, from %s: sent what no copy of the game sends, %d times"
+					% [_named(named), _address_of(peer), NetConduct.KICK_AT]
+				)
+			)
+	)
 	session.host_controls.handed.connect(
 		func(player: int) -> void:
 			var from := _name_of(session.host_controls.peer)

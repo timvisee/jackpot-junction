@@ -29,8 +29,10 @@ signal asked_to_go(where: StringName)
 signal door_set
 signal kicked(player: int)
 
-## How long a kicked client has to hear why before the host lets go of it, in seconds.
+## How long a kicked client has to hear why before the host lets go of it, in seconds, and what it
+## is told when the host showed it out.
 const KICK_GRACE := 0.5
+const REMOVED := "The host removed you from the game"
 ## How often a dedicated server looks for a change in who else is in the game, in seconds, to tell
 ## the player with the say.
 const GUESTS_EVERY := 0.25
@@ -88,10 +90,10 @@ func guests() -> Array[Dictionary]:
 	)
 
 
-## Shows [param player] out of the game: told why, and let go of a moment later whatever it does
-## with that, so it cannot stay by not listening. It may knock again. With [param number], one of
-## several players at it, only that one goes, and the rest of them play on.
-func kick(player: int, number := -1) -> void:
+## Shows [param player] out of the game: told why, [param why], and let go of a moment later
+## whatever it does with that, so it cannot stay by not listening. It may knock again. With [param
+## number], one of several players at it, only that one goes, and the rest of them play on.
+func kick(player: int, number := -1, why := REMOVED) -> void:
 	if not session.is_host:
 		if granted and session._connected():
 			_kick.rpc_id(1, player, number)
@@ -103,7 +105,7 @@ func kick(player: int, number := -1) -> void:
 		session._empty_seat(player, number)
 		session._seat_dropped.rpc_id(player, number)
 		return
-	_kicked.rpc_id(player)
+	_kicked.rpc_id(player, why)
 	get_tree().create_timer(KICK_GRACE).timeout.connect(_let_go_of.bind(player))
 
 
@@ -113,9 +115,9 @@ func _let_go_of(player: int) -> void:
 
 
 @rpc("authority", "call_remote", "reliable")
-func _kicked() -> void:
+func _kicked(why: String) -> void:
 	session._turned_away = true
-	session._hang_up.call_deferred("The host removed you from the game")
+	session._hang_up.call_deferred(why)
 
 
 ## At a dedicated server, the game is over with somebody still in it, and [param reason] says why:
