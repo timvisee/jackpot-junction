@@ -224,7 +224,7 @@ func _owner(n: Node) -> String:
 	while p != null:
 		var s: Script = p.get_script()
 		if s != null:
-			return "%s (%s)" % [s.resource_path.get_file(), n.name.rstrip("0123456789")]
+			return "%s (%s)" % [s.resource_path.get_file(), n.name.rstrip("0123456789_").rstrip("0123456789")]
 		p = p.get_parent()
 	return "no script (%s)" % n.name
 
@@ -282,6 +282,9 @@ func _collect() -> void:
 		if n is Light3D and (n as Light3D).is_visible_in_tree():
 			_lights.append(n)
 	_group_keys = _groups.keys()
+	# Each light on its own, then the shadows of the lot, then the lot.
+	for l: Light3D in _lights:
+		_group_keys.append("LIGHT OFF: %s %s" % [l.name, l.get_parent().name])
 	_group_keys.append("LIGHT SHADOW OFF")
 	_group_keys.append("ALL LIGHTS OFF")
 	# The crowd shows itself again every frame from its setting, so it is the setting that goes.
@@ -342,6 +345,11 @@ func _hide(key: String) -> void:
 				l.visible = false
 	elif key == "CROWD SETTING OFF":
 		_settings().crowd = false
+	elif key.begins_with("LIGHT OFF: "):
+		var l := _light_named(key)
+		if l != null:
+			l.set_meta("was_visible", l.visible)
+			l.visible = false
 	else:
 		for g: Variant in _groups[key]:
 			if is_instance_valid(g):
@@ -359,10 +367,22 @@ func _restore(key: String) -> void:
 				l.visible = l.get_meta("was_visible")
 	elif key == "CROWD SETTING OFF":
 		_settings().crowd = true
+	elif key.begins_with("LIGHT OFF: "):
+		var l := _light_named(key)
+		if l != null:
+			l.visible = l.get_meta("was_visible")
 	else:
 		for g: Variant in _groups[key]:
 			if is_instance_valid(g):
 				(g as GeometryInstance3D).visible = true
+
+
+## The light a "LIGHT OFF" step names, or null if it has gone.
+func _light_named(key: String) -> Light3D:
+	for l: Light3D in _lights:
+		if is_instance_valid(l) and key == "LIGHT OFF: %s %s" % [l.name, l.get_parent().name]:
+			return l
+	return null
 
 
 ## The game's settings, through the autoload rather than by name, so this script compiles
