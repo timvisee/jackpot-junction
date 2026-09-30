@@ -28,17 +28,21 @@ func test_it_takes_every_step_once_and_says_so() -> void:
 	var ended := [false]
 	warmup.finished.connect(func() -> void: ended[0] = true)
 	var steps := warmup._steps.size()
-	assert_int(steps).is_greater(20)
+	assert_int(steps).is_greater(40)
 	await runner.simulate_frames(1, 17)
-	assert_float(warmup.progress).is_between(0.01, 0.2)
+	assert_float(warmup.progress).is_between(0.005, 0.1)
+	# The room goes up a phase a frame, and the match in it stands in its lobby: nothing runs
+	# that a step does not run itself.
 	assert_object(warmup._match).is_not_null()
-	# The match stands in its lobby: nothing runs that a step does not run itself.
-	assert_int(warmup._match.state).is_equal(Match.State.LOBBY)
-	assert_int(warmup._match.slots.size()).is_equal(4)
+	assert_int(warmup._match.slots.size()).is_equal(0)
+	var seen_lobby := false
 	for i: int in steps + ShaderWarmup.SETTLE + 2:
 		await runner.simulate_frames(1, 17)
 		if ended[0]:
 			break
+		if warmup._match.slots.size() == 4:
+			seen_lobby = seen_lobby or warmup._match.state == Match.State.LOBBY
+	assert_bool(seen_lobby).override_failure_message("the match never stood in its lobby").is_true()
 	assert_bool(ended[0]).override_failure_message("never finished").is_true()
 	assert_bool(ShaderWarmup.done).is_true()
 	assert_bool(AudioServer.is_bus_mute(sfx)).is_false()

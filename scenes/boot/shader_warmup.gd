@@ -114,7 +114,15 @@ func _ready() -> void:
 	_viewport.positional_shadow_atlas_size = screen.positional_shadow_atlas_size
 	add_child(_viewport)
 	_lighting = ArenaEnvironment.add_to(_viewport)
-	_steps = _plan()
+	# The match is put in now and its room built a phase a frame, the way the loading screen
+	# builds one, GAME.md 8.6: built in one go it is a sixth of a second on a desktop and a
+	# couple on a phone, which is long enough for the title to stop answering.
+	_match = MATCH_SCENE.instantiate()
+	_match.name = "Match"
+	_match.arena_layout = ArenaMaps.layout(&"lucky_crossing")
+	_match.hold_start = true
+	_viewport.add_child(_match)
+	_steps = _plan(_match.prepare_arena(true).build_steps())
 
 
 func _exit_tree() -> void:
@@ -151,10 +159,12 @@ func _mute(quiet: bool) -> void:
 			AudioServer.set_bus_mute(index, quiet)
 
 
-## One of everything, in the order it is put in: the match first, then what happens in one, then
-## the rooms it could be happening in.
-func _plan() -> Array[Callable]:
-	var steps: Array[Callable] = [_start_match]
+## One of everything, in the order it is put in: the room, [param building] it a phase a frame,
+## then the match in it, then what happens in one, then the rooms it could be happening in.
+func _plan(building: Array[Callable]) -> Array[Callable]:
+	var steps: Array[Callable] = []
+	steps.append_array(building)
+	steps.append(_start_match)
 	(
 		steps
 		. append_array(
@@ -186,14 +196,10 @@ func _plan() -> Array[Callable]:
 	return steps
 
 
-## A match on the home table, held in its lobby: karts standing, nothing moving that the steps
-## do not move themselves. One human at the keyboard, so the HUD has a corner to draw.
+## The match on the home table, its room built, held in its lobby: karts standing, nothing
+## moving that the steps do not move themselves. One human at the keyboard, so the HUD has a
+## corner to draw.
 func _start_match() -> void:
-	_match = MATCH_SCENE.instantiate()
-	_match.name = "Match"
-	_match.arena_layout = ArenaMaps.layout(&"lucky_crossing")
-	_match.hold_start = true
-	_viewport.add_child(_match)
 	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD, 0)]
 	for i: int in 3:
 		inputs.append(KartInput.new())

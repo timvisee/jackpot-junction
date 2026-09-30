@@ -4545,8 +4545,9 @@ with the numbers that put them there.
   milliseconds on a phone, and every material here is built in code, so the
   export's shader baker has nothing to bake and the first bomb, the first nitro
   and the first chip each cost a frame. `ShaderWarmup` starts a match on a
-  160-by-90 viewport behind the title with the screen's own passes and puts one
-  of everything into it a step a frame: karts in every dress, every effect,
+  160-by-90 viewport behind the title with the screen's own passes, the room
+  built a phase a frame the way the loading screen builds one, and puts one of
+  everything into it a step a frame: karts in every dress, every effect,
   every pickup, the HUD's fire, and each room's light and air. Godot keeps what
   it compiled on disk, so the first start pays and every start after it runs
   the same steps in a moment. Measured in a fresh user directory: the title
