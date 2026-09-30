@@ -10,6 +10,9 @@ extends SceneTree
 ##   make probe ARGS="--ablate"      and the cost of every group
 ##   tools/godot --path . -s tools/scene_probe.gd -- --frames=200 --map=vault --bots=3 --ablate
 
+## Frames each ablation step is held for: the first three are settling, the rest are measured.
+const MEASURE := 63
+
 var _frames := 200
 var _seen := 0
 var _map := "lucky_crossing"
@@ -20,6 +23,10 @@ var _group_at := -1
 var _wait := 0
 var _base: Array = []
 var _lights: Array = []
+## GPU milliseconds a frame, summed over the frames a step is measured for, and how many.
+var _gpu := 0.0
+var _gpu_frames := 0
+var _base_gpu := 0.0
 
 
 func _initialize() -> void:
@@ -277,59 +284,88 @@ func _collect() -> void:
 	_group_keys = _groups.keys()
 	_group_keys.append("LIGHT SHADOW OFF")
 	_group_keys.append("ALL LIGHTS OFF")
+	# The crowd shows itself again every frame from its setting, so it is the setting that goes.
+	_group_keys.append("CROWD SETTING OFF")
 	_group_at = -1
-	_wait = 3
+	_wait = MEASURE
+	RenderingServer.viewport_set_measure_render_time(root.get_viewport_rid(), true)
 	print("=== ablation: hiding one group at a time")
 	print("    (visible prims, visible draws, shadow prims, shadow draws, total draws)")
 
 
 func _ablation_step() -> bool:
 	_wait -= 1
+	# The first frames after a change are left out; the rest are averaged for the GPU time.
+	if _wait < MEASURE - 3:
+		_gpu += RenderingServer.viewport_get_measured_render_time_gpu(root.get_viewport_rid())
+		_gpu_frames += 1
 	if _wait > 0:
 		return false
+	var gpu := _gpu / maxf(float(_gpu_frames), 1.0)
+	_gpu = 0.0
+	_gpu_frames = 0
 	if _group_at >= 0:
 		var counts := _counts()
 		var key: String = _group_keys[_group_at]
 		var line := "  %-50s" % key
 		for i: int in counts.size():
 			line += " %9d" % (_base[i] - counts[i])
+		line += "  gpu %+.3f ms" % (gpu - _base_gpu)
 		print(line)
 		_restore(key)
 	else:
 		_base = _counts()
+		_base_gpu = gpu
 		var line := "  %-50s" % "BASE"
 		for v: int in _base:
 			line += " %9d" % v
+		line += "  gpu %.3f ms" % gpu
 		print(line)
 	_group_at += 1
 	if _group_at >= _group_keys.size():
 		return true
 	_hide(_group_keys[_group_at])
-	_wait = 3
+	_wait = MEASURE
 	return false
 
 
 func _hide(key: String) -> void:
 	if key == "LIGHT SHADOW OFF":
 		for l: Light3D in _lights:
-			l.set_meta("was_shadow", l.shadow_enabled)
-			l.shadow_enabled = false
+			if is_instance_valid(l):
+				l.set_meta("was_shadow", l.shadow_enabled)
+				l.shadow_enabled = false
 	elif key == "ALL LIGHTS OFF":
 		for l: Light3D in _lights:
-			l.set_meta("was_visible", l.visible)
-			l.visible = false
+			if is_instance_valid(l):
+				l.set_meta("was_visible", l.visible)
+				l.visible = false
+	elif key == "CROWD SETTING OFF":
+		_settings().crowd = false
 	else:
-		for g: GeometryInstance3D in _groups[key]:
-			g.visible = false
+		for g: Variant in _groups[key]:
+			if is_instance_valid(g):
+				(g as GeometryInstance3D).visible = false
 
 
 func _restore(key: String) -> void:
 	if key == "LIGHT SHADOW OFF":
 		for l: Light3D in _lights:
-			l.shadow_enabled = l.get_meta("was_shadow")
+			if is_instance_valid(l):
+				l.shadow_enabled = l.get_meta("was_shadow")
 	elif key == "ALL LIGHTS OFF":
 		for l: Light3D in _lights:
-			l.visible = l.get_meta("was_visible")
+			if is_instance_valid(l):
+				l.visible = l.get_meta("was_visible")
+	elif key == "CROWD SETTING OFF":
+		_settings().crowd = true
 	else:
-		for g: GeometryInstance3D in _groups[key]:
-			g.visible = true
+		for g: Variant in _groups[key]:
+			if is_instance_valid(g):
+				(g as GeometryInstance3D).visible = true
+
+
+## The game's settings, through the autoload rather than by name, so this script compiles
+## without the project's classes.
+func _settings() -> Variant:
+	return root.get_node("/root/Game").get("settings")
