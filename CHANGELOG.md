@@ -14,8 +14,8 @@ below, and hands the notes to the release workflow.
 ### Added
 
 - **Everybody is told when a cash-out would win.** The moment a player's next cash-out would win
-  the match, every screen says so in their color, "Ann wins on cash out", and the music climbs to
-  the top the way it does for Last Call.
+  the match, every screen calls MATCH POINT after their name in their color, and the music climbs
+  to the top the way it does for Last Call.
 - **A bar while a server makes a game.** Make a game in Play Online shows how far along the new game
   is, from the server starting it to its lobby being built.
 
