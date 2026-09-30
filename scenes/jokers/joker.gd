@@ -16,13 +16,20 @@ const RARITY_WEIGHTS: Dictionary[int, float] = {
 @export var description := ""
 @export var rarity := Rarity.COMMON
 @export var kind := Kind.RULE
-## A stackable joker is offered again while held; every copy applies its effect once more.
+## A stackable joker is offered again while held, and taken off the floor again; every copy
+## applies its effect once more.
 @export var stackable := false
 
 
 ## Offer weight from rarity.
 func weight() -> float:
 	return RARITY_WEIGHTS[rarity]
+
+
+## Whether a hand holding [param copies] of this joker has room for one more of it: none held, or
+## one that stacks.
+func room_for(copies: int) -> bool:
+	return copies <= 0 or stackable
 
 
 func on_attach(_kart: Kart) -> void:

@@ -66,6 +66,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **No second copy of a joker off the floor.** A kart already holding a joker leaves it lying,
+  unless it stacks.
 - **A bot's Swivel Cannon is its own.** It no longer aims wherever the host's mouse is pointing.
 - **The joker you chose online is the joker you get.** A client names the card it picks, keeps,
   drops or destroys, and the host checks it had that card; the host could take a neighbor.

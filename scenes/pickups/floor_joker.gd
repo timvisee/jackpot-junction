@@ -16,7 +16,12 @@ var joker: Joker
 
 
 func can_collect(kart: Kart) -> bool:
-	return super(kart) and not kart.jokers.is_full() and not kart.is_decoy()
+	return (
+		super(kart)
+		and not kart.jokers.is_full()
+		and kart.jokers.can_take(joker)
+		and not kart.is_decoy()
+	)
 
 
 func _build_visual(parent: Node3D) -> void:

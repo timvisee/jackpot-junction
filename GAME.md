@@ -307,7 +307,10 @@ Jokers are passive rule modifiers held for the rest of the match.
   choosing a joker to discard destroys it; in the arena, the joker menu lets you
   drop one on the floor or destroy it.
 - Jokers can drop on death, see 3.6. A joker on the floor can be picked up by
-  any kart, including its previous owner, for 15 s.
+  any kart, including its previous owner, for 15 s. A kart whose hand already
+  holds it leaves it lying for somebody else, unless it stacks: a second copy of
+  a joker that does not stack was the same joker twice, and Carbon Copy made one
+  at every death.
 - Players start a match with no jokers. The first offer comes with the first
   death.
 - An offer still open at the whistle is dropped. Nobody respawns out of the

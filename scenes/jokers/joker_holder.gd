@@ -51,6 +51,12 @@ func ids() -> Array[StringName]:
 	return result
 
 
+## Whether the hand has room for another copy of [param joker] as far as its stack goes, full or
+## not: none held yet, or one that stacks, GAME.md 3.7.
+func can_take(joker: Joker) -> bool:
+	return joker.room_for(ids().count(joker.id))
+
+
 ## Attaches a copy of [param joker] and returns that copy.
 func add(joker: Joker) -> Joker:
 	var instance: Joker = joker.duplicate()

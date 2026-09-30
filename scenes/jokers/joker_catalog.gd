@@ -29,7 +29,7 @@ func quality(rng: RandomNumberGenerator, min_rarity: int) -> Joker:
 func offer(rng: RandomNumberGenerator, count: int, exclude: Array[StringName]) -> Array[Joker]:
 	var pool: Array[Joker] = []
 	for joker: Joker in jokers:
-		if joker.stackable or joker.id not in exclude:
+		if joker.room_for(exclude.count(joker.id)):
 			pool.append(joker)
 	var result: Array[Joker] = []
 	while result.size() < count and not pool.is_empty():
