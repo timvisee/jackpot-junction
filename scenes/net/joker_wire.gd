@@ -39,6 +39,7 @@ func tell(seat: ClientSeat) -> void:
 
 @rpc("any_peer", "call_remote", "reliable")
 func _answered(number: Variant, taken: Variant, replaced: Variant) -> void:
+	session.conduct.spoke(multiplayer.get_remote_sender_id())
 	if not _names(number, [taken, replaced]):
 		return
 	var slot := session.sender_slot(number)
@@ -49,6 +50,7 @@ func _answered(number: Variant, taken: Variant, replaced: Variant) -> void:
 
 @rpc("any_peer", "call_remote", "reliable")
 func _handled(number: Variant, destroy: Variant, id: Variant) -> void:
+	session.conduct.spoke(multiplayer.get_remote_sender_id())
 	if not _names(number, [id]):
 		return
 	if not destroy is bool:

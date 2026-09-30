@@ -142,6 +142,23 @@ func knocked(peer: int, named: String, version: String, welcome: bool, listing :
 		_say("Turned away %s: version %s" % [_visitor(peer), version])
 
 
+## A connection dropped at the door, or a visitor shown out, see [NetGuard]: said in the log, with
+## where it came from.
+func dropped(address: String, why: String) -> void:
+	_say("Dropped %s: %s" % [address, why])
+
+
+## Shows [param peer], a visitor who is misbehaving, out: told why, and let go of a moment later.
+func show_out(peer: int, why: String) -> void:
+	_say("Kicked %s, from %s: %s" % [_visitor(peer), _address_of(peer), why])
+	link._shown_out.rpc_id(peer, NetGuard.KICKED)
+	get_tree().create_timer(0.5).timeout.connect(
+		func() -> void:
+			if multiplayer.multiplayer_peer != null and multiplayer.get_peers().has(peer):
+				multiplayer.multiplayer_peer.disconnect_peer(peer)
+	)
+
+
 func visitor_came(peer: int) -> void:
 	_say("%s is looking at the games, from %s" % [_visitor(peer), _address_of(peer)])
 	link._games_are.rpc_id(peer, listing())
@@ -237,6 +254,8 @@ func _launch(started: PackedStringArray) -> int:
 
 func _process(delta: float) -> void:
 	_hear_the_games()
+	if link != null and link.guard != null:
+		link.guard.watch(delta)
 	_tick_left -= delta
 	if _tick_left > 0.0:
 		return

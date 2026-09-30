@@ -31,8 +31,15 @@ func knock(peer: int) -> void:
 ## says why.
 func answer(peer: int, data: PackedByteArray) -> void:
 	var scene := session.multiplayer as SceneMultiplayer
-	var said: Variant = bytes_to_var(data) if not data.is_empty() else null
-	var words: Dictionary = said if said is Dictionary else {}
+	var words: Dictionary = {}
+	if session.is_host:
+		# Garbage, or a second hello, is dropped there and then, see [NetGuard].
+		words = session.guard.heard(peer, data)
+		if words.is_empty():
+			return
+	else:
+		var said: Variant = bytes_to_var(data) if not data.is_empty() else null
+		words = said if said is Dictionary else {}
 	if session.is_host:
 		if bool(words.get(ServerLink.LISTING, false)):
 			# Play Online, looking for a server's list at a game's port.

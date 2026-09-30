@@ -243,6 +243,14 @@ has left it. The server logs every player coming and
 going and every game's state to its output, one line each, with the time and
 the game.
 
+Anything that connects and does not say hello the way the game does is dropped
+at once and logged with its address, `Dropped 1.2.3.4: said 18 bytes that are
+not a Jackpot Junction hello`, and so are too many connections from one address;
+a player who misbehaves once in is kicked, `Kicked Ann, from 1.2.3.4: ...`. A
+flood of datagrams that are not the game's never reaches the game and cannot be
+traced to a sender, so the server only logs that it is getting one, once a
+minute: rate limiting UDP 7777 to 7785 in the firewall is the way to stop one.
+
 ## Releasing
 
 ```

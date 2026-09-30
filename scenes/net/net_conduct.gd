@@ -15,20 +15,30 @@ extends RefCounted
 ## At the host, for a dedicated server's log: [param peer] sent what no copy of the game sends, the
 ## [param count]th time, and [param peer], called [param named], shown out for it.
 signal heard_from(peer: int, count: int)
-signal shown_out(peer: int, named: String)
+signal shown_out(peer: int, named: String, why: String)
 
 ## How many a client may send before it is shown out: more than one, in case a bug of the game's
 ## own ever sends one.
 const KICK_AT := 3
-## What the client shown out is told, and what everybody else is told after its name.
-const KICKED := "Kicked: abnormal behavior detected"
+## What everybody else is told after its name; the client itself is told [constant
+## NetGuard.KICKED].
 const TOLD := "%s was kicked: abnormal behavior detected"
+## How many messages a second a client may send before it is flooding, and shown out: its players'
+## controls, sixty a second for each of up to four, with the ball and its jokers, and three times
+## that again. A hitch at the client runs a few ticks at once and no more, see the engine's most
+## physics steps a frame, so an honest client comes nowhere near it.
+const FLOOD := 1000
 
 var session: NetSession
+## [constant FLOOD], unless a test says otherwise.
+var flood := FLOOD
 ## How many there have been from anybody in this session, gone or not, for the checks that play the
 ## game to say there were none.
 var total := 0
 var _counts: Dictionary[int, int] = {}
+## For each client: when its current second began, in engine milliseconds, and what it has sent in
+## it, see [method spoke].
+var _second: Dictionary[int, Vector2i] = {}
 
 
 func _init(of: NetSession) -> void:
@@ -43,17 +53,38 @@ func heard(peer: int) -> void:
 	_counts[peer] = count
 	total += 1
 	heard_from.emit(peer, count)
-	if count != KICK_AT:
+	if count == KICK_AT:
+		_show_out(peer, "sent what no copy of the game sends, %d times" % count)
+
+
+## At the host: [param peer] sent a message; past [constant FLOOD] of them in a second, it is
+## flooding.
+func spoke(peer: int) -> void:
+	if not session.is_host or peer <= 1:
 		return
-	var named := name_of(peer)
-	shown_out.emit(peer, named)
-	session.host_controls.kick(peer, -1, KICKED)
-	Events.player_kicked.emit(named)
+	var now := Time.get_ticks_msec()
+	var second: Vector2i = _second.get(peer, Vector2i(now, 0))
+	if now - second.x >= 1000:
+		second = Vector2i(now, 0)
+	second.y += 1
+	_second[peer] = second
+	if second.y == flood + 1:
+		total += 1
+		_show_out(peer, "more than %d messages in a second, flooding" % flood)
 
 
 ## A client gone: its count goes with it.
 func forget(peer: int) -> void:
 	_counts.erase(peer)
+	_second.erase(peer)
+
+
+## Shows [param peer] out for [param why]: it is told, everybody else sees it in the feed.
+func _show_out(peer: int, why: String) -> void:
+	var named := name_of(peer)
+	shown_out.emit(peer, named, why)
+	session.host_controls.kick(peer, -1, NetGuard.KICKED)
+	Events.player_kicked.emit(named)
 
 
 ## What [param peer] is called: its first player's name, or for somebody watching, the name the host

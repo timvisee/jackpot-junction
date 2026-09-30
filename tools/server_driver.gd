@@ -64,8 +64,10 @@ func _run() -> void:
 			await _joiner()
 		"watcher":
 			await _watcher()
+		"stranger":
+			await _stranger()
 		_:
-			_fail("no --role=maker, joiner or watcher")
+			_fail("no --role=maker, joiner, watcher or stranger")
 	if not _failed and not _finished:
 		_fail("stopped before the end")
 	if not _failed:
@@ -231,6 +233,53 @@ func _joiner() -> void:
 	Game.go_to_title()
 	_finished = true
 	await _seconds(1.0)
+
+
+## Says garbage for a hello, as a scan or another program would, at the server and at its game once
+## it is listed: dropped at both, and written in the server's log, see [NetGuard], which is checked
+## there. Everybody else plays on meanwhile.
+func _stranger() -> void:
+	await _garbage_at(_port)
+	var screen := await _play_online()
+	if screen == null:
+		return
+	if not await _until(
+		func() -> bool: return not screen.link.games.is_empty(), 60.0, "the maker's game is listed"
+	):
+		return
+	var at := int(screen.link.games[0]["port"])
+	Net.close()
+	await _garbage_at(at)
+	_finished = true
+
+
+## A connection of the game's own kind to [param at] whose first word is not a hello at all.
+func _garbage_at(at: int) -> void:
+	var root := Node.new()
+	root.name = "Stranger%d" % at
+	get_tree().root.add_child(root)
+	var scene := SceneMultiplayer.new()
+	get_tree().set_multiplayer(scene, root.get_path())
+	scene.auth_callback = func(_id: int, _data: PackedByteArray) -> void: pass
+	var hello := func(id: int) -> void:
+		scene.send_auth(id, "GET / HTTP/1.1\r\n\r\n".to_utf8_buffer())
+	scene.peer_authenticating.connect(hello)
+	var peer := ENetMultiplayerPeer.new()
+	if peer.create_client("127.0.0.1", at) != OK:
+		_fail("could not reach port %d" % at)
+		return
+	NetLine.compress(peer)
+	scene.multiplayer_peer = peer
+	await _seconds(1.5)
+	peer.close()
+	# The hello holds the multiplayer it is said on, and the multiplayer holds the hello: undone by
+	# hand, or neither is ever freed.
+	scene.peer_authenticating.disconnect(hello)
+	scene.auth_callback = Callable()
+	scene.multiplayer_peer = null
+	get_tree().set_multiplayer(null, root.get_path())
+	root.queue_free()
+	_say("ok: said garbage at port %d" % at)
 
 
 ## Watches the maker's game from the list, all the way to being told it is over.

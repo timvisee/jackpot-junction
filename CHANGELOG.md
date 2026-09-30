@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Garbage is dropped at the door.** A server drops a connection that says anything but the game's
+  own hello, or opens too many at once, on the spot and logs where it came from; a player flooding
+  it is kicked.
 - **A changed client is shown out.** One that sends what no copy of the game sends is kicked after
   three, told "Kicked: abnormal behavior detected", and the others see it in the kill feed; a bad
   connection never counts.

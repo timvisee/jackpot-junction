@@ -82,6 +82,32 @@ func _visitor(named: String, version := "") -> ServerLink:
 	return link
 
 
+## A connection of the game's own kind at the hall that is not the game, on a root of its own: it
+## says [param hello] as its first word, or nothing at all.
+func _stranger(hello := PackedByteArray()) -> SceneMultiplayer:
+	var root: Node = auto_free(Node.new())
+	root.name = "Stranger%d" % _client_roots.size()
+	add_child(root)
+	var scene := SceneMultiplayer.new()
+	get_tree().set_multiplayer(scene, root.get_path())
+	_client_roots.append(root)
+	scene.auth_callback = func(_id: int, _data: PackedByteArray) -> void: pass
+	scene.auth_timeout = 30.0
+	if not hello.is_empty():
+		scene.peer_authenticating.connect(func(id: int) -> void: scene.send_auth(id, hello))
+	var peer := ENetMultiplayerPeer.new()
+	assert_int(peer.create_client("127.0.0.1", port)).is_equal(OK)
+	NetLine.compress(peer)
+	scene.multiplayer_peer = peer
+	return scene
+
+
+## Whether the hall still holds a connection from [param stranger].
+func _held(stranger: SceneMultiplayer) -> bool:
+	var enet := _hall.multiplayer.multiplayer_peer as ENetMultiplayerPeer
+	return enet.get_peer(stranger.get_unique_id()) != null
+
+
 func _wait_until(condition: Callable, max_millis: int) -> bool:
 	var waited := 0
 	var budget := max_millis * PATIENCE
@@ -159,6 +185,88 @@ func test_a_game_is_made_listed_and_forgotten_when_its_process_ends() -> void:
 	var gone := await _wait_until(func() -> bool: return lists[-1].is_empty(), 4000)
 	assert_bool(gone).override_failure_message("the game stayed in the list").is_true()
 	assert_int(_hall.count()).is_equal(0)
+
+
+## Garbage for a hello, or a second hello, is dropped there and then and said, with the address it
+## came from, rather than waited on for the handshake to run out, see [NetGuard]; one that says
+## nothing is dropped once it has, and said too.
+func test_a_connection_that_is_not_the_game_is_dropped_and_said() -> void:
+	_open_hall()
+	var said: Array[String] = []
+	_hall.link.guard.dropped.connect(
+		func(at: String, why: String) -> void: said.append(at + ": " + why)
+	)
+	var junk := PackedByteArray()
+	for i: int in 64:
+		junk.append((i * 37 + 11) % 256)
+	var garbled := _stranger(junk)
+	var gone := await _wait_until(func() -> bool: return not said.is_empty(), 1000)
+	assert_bool(gone).override_failure_message("garbage was not dropped at once").is_true()
+	assert_str(said[0]).contains("127.0.0.1").contains("not a Jackpot Junction hello")
+	assert_bool(await _wait_until(func() -> bool: return not _held(garbled), 1000)).is_true()
+	# Hello, and hello again.
+	said.clear()
+	var hello := var_to_bytes(
+		{"version": Game.version(), "name": "Twice", ServerLink.LISTING: true}
+	)
+	var twice := _stranger(hello)
+	twice.peer_authenticating.connect(func(id: int) -> void: twice.send_auth(id, hello))
+	assert_bool(await _wait_until(func() -> bool: return not said.is_empty(), 1000)).is_true()
+	assert_str(said[0]).contains("said hello twice")
+	# Nothing at all.
+	said.clear()
+	(_hall.multiplayer as SceneMultiplayer).auth_timeout = 0.5
+	_stranger()
+	assert_bool(await _wait_until(func() -> bool: return not said.is_empty(), 2000)).is_true()
+	assert_str(said[0]).contains("never said hello")
+
+
+## More connections from one address at once than any room of players behind one router opens is a
+## scan or a flood: the one too many is dropped, and said.
+func test_a_flood_of_connections_is_dropped() -> void:
+	_open_hall()
+	var said: Array[String] = []
+	_hall.link.guard.dropped.connect(func(_at: String, why: String) -> void: said.append(why))
+	for i: int in NetGuard.WAITING_AT_ONCE + 1:
+		_stranger()
+	assert_bool(await _wait_until(func() -> bool: return not said.is_empty(), 2000)).is_true()
+	assert_str(said[0]).contains("waiting at once")
+	assert_int(said.size()).is_equal(1)
+
+
+## A flood of datagrams that are not the game's, which ENet drops unread, is said, since that is all
+## that can be done with it here.
+func test_a_flood_of_datagrams_is_said() -> void:
+	_open_hall()
+	var said: Array[String] = []
+	_hall.link.guard.dropped.connect(func(_at: String, why: String) -> void: said.append(why))
+	_hall.link.guard.every = 0.25
+	var noise := PacketPeerUDP.new()
+	noise.set_dest_address("127.0.0.1", port)
+	# A frame at a time, as a flood arrives: the system's buffer takes a couple of hundred at once.
+	var sending := func() -> bool:
+		for i: int in 150:
+			noise.put_packet(PackedByteArray([i % 256, 1, 2, 3, 4, 5, 6, 7]))
+		return not said.is_empty()
+	assert_bool(await _wait_until(sending, 3000)).is_true()
+	noise.close()
+	assert_str(said[0]).contains("datagrams a second").contains("firewall")
+
+
+## A visitor that asks for games faster than anybody presses a button is shown out, and told why.
+func test_a_visitor_flooding_the_hall_is_shown_out() -> void:
+	_open_hall()
+	var ann := _visitor("Ann")
+	assert_bool(await _wait_until(ann._talking, 4000)).is_true()
+	var told := [""]
+	ann.refused.connect(func(why: String) -> void: told[0] = why)
+	for i: int in ServerLink.MAKES_A_SECOND + 5:
+		ann.make_game()
+	(
+		assert_bool(await _wait_until(func() -> bool: return told[0] == NetGuard.KICKED, 4000))
+		. is_true()
+	)
+	assert_int(_launched.size()).is_less_equal(1)
 
 
 ## Asking again while the game asked for has nobody in it yet makes nothing: its maker is on the

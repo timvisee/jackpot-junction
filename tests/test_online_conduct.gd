@@ -102,7 +102,7 @@ func test_a_client_that_sends_what_no_game_sends_is_shown_out() -> void:
 	var claim := KartPrediction.capture(_host_match.kart_of(1))
 	claim[0] = NAN
 	_client._send_input.rpc_id(1, NetInput.encode(KartInput.new()), 10_001, claim, 0)
-	var heard := await _wait_until(func() -> bool: return told[0] == NetConduct.KICKED, 4000)
+	var heard := await _wait_until(func() -> bool: return told[0] == NetGuard.KICKED, 4000)
 	Events.player_kicked.disconnect(note)
 	assert_bool(heard).override_failure_message("the client was never told").is_true()
 	assert_array(kicked).is_equal(["Mallory"] as Array[String])
@@ -127,3 +127,45 @@ func test_a_slow_line_is_never_shown_out() -> void:
 	await await_millis(600)
 	assert_bool(_connected()).override_failure_message("a slow line was shown out").is_true()
 	assert_bool(_host.conduct._counts.is_empty()).is_true()
+
+
+## A game's own door is the hall's, see [NetGuard]: garbage for a hello is dropped at once and said,
+## with the address it came from, and the players in the game carry on.
+func test_garbage_at_a_game_is_dropped_at_once() -> void:
+	await _connect()
+	var said: Array[String] = []
+	_host.guard.dropped.connect(func(at: String, why: String) -> void: said.append(at + ": " + why))
+	var root: Node = auto_free(Node.new())
+	root.name = "StrangerRoot"
+	add_child(root)
+	var scene := SceneMultiplayer.new()
+	get_tree().set_multiplayer(scene, root.get_path())
+	scene.auth_callback = func(_id: int, _data: PackedByteArray) -> void: pass
+	scene.peer_authenticating.connect(
+		func(id: int) -> void: scene.send_auth(id, "GET / HTTP/1.1\r\n\r\n".to_utf8_buffer())
+	)
+	var peer := ENetMultiplayerPeer.new()
+	assert_int(peer.create_client("127.0.0.1", port)).is_equal(OK)
+	NetLine.compress(peer)
+	scene.multiplayer_peer = peer
+	var dropped := await _wait_until(func() -> bool: return not said.is_empty(), 1000)
+	get_tree().set_multiplayer(null, root.get_path())
+	assert_bool(dropped).override_failure_message("garbage was not dropped at once").is_true()
+	assert_str(said[0]).contains("127.0.0.1").contains("not a Jackpot Junction hello")
+	assert_bool(_connected()).override_failure_message("the player went with it").is_true()
+
+
+## A seated client sending far more than any player's controls in a second is flooding: shown out,
+## told why, the same as for sending what no copy of the game sends.
+func test_a_client_flooding_the_game_is_shown_out() -> void:
+	await _connect()
+	var told := [""]
+	_client.refused.connect(func(reason: String) -> void: told[0] = reason)
+	# A limit a burst sent reliably gets past in its second: sent unreliably, ENet's own throttle
+	# lets go of most of a burst the size of the real one.
+	_host.conduct.flood = 100
+	for i: int in 150:
+		_client.jokers._answered.rpc_id(1, 0, &"", &"")
+	var heard := await _wait_until(func() -> bool: return told[0] == NetGuard.KICKED, 4000)
+	assert_bool(heard).override_failure_message("a flood was not shown out").is_true()
+	assert_int(_host.conduct.total).is_equal(1)

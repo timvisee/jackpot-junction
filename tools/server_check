@@ -8,6 +8,7 @@
 #            host's say to the joiner with Make host, has it back once the joiner has gone, and leaves
 #   joiner:  joins it from the list, plays it, is made the host, and leaves
 #   watcher: watches it, and is told the game is over once both players have left
+#   stranger: says garbage for a hello at the server and at the game, which drop it and say so
 #
 # Usage: tools/server_check          (about a minute)
 #
@@ -76,12 +77,16 @@ run joiner &
 joiner=$!
 run watcher &
 watcher=$!
+run stranger &
+stranger=$!
 wait "$maker"
 maker_status=$?
 wait "$joiner"
 joiner_status=$?
 wait "$watcher"
 watcher_status=$?
+wait "$stranger"
+stranger_status=$?
 
 # The game ends itself once everybody has gone, and the server says so.
 for _ in $(seq 1 50); do
@@ -113,6 +118,16 @@ report() {
 report maker "$maker_status"
 report joiner "$joiner_status"
 report watcher "$watcher_status"
+report stranger "$stranger_status"
+
+# The stranger's garbage, dropped at the server's door and at its game's, and said, see NetGuard.
+for door in "server" "game 1"; do
+	if ! grep -qE "$door: Dropped 127.0.0.1: said [0-9]+ bytes that are not a Jackpot Junction hello" \
+		"$logs/server.log"; then
+		echo "server check: $door never said it dropped the stranger's garbage" >&2
+		failed=1
+	fi
+done
 
 # The first line of the server's log after line $2 that has $1 in it, or nothing.
 logged() {

@@ -39,6 +39,9 @@ const HANDSHAKE_TIMEOUT := 5.0
 const MAKING_STARTED := 0.05
 const MAKING_BOOTED := 0.65
 const MAKING_BUILT := 0.92
+## How many games a visitor may ask for in a second before it is flooding, and shown out: a player
+## presses Make a game once, and the hall makes one game each at a time anyway.
+const MAKES_A_SECOND := 10
 
 ## At the server: the hall it is the wire of. Null at a player's machine.
 var hall: ServerHall
@@ -51,8 +54,12 @@ var player_name := ""
 var address := ""
 var port := 0
 var games: Array[Dictionary] = []
+## At the server: the door before anybody is let in to look, see [NetGuard].
+var guard: NetGuard
 
 var _turned_away := false
+## At the server: when each visitor last asked for games, in the last second.
+var _asked: Dictionary[int, Array] = {}
 
 
 func _ready() -> void:
@@ -64,6 +71,14 @@ func _ready() -> void:
 		scene.auth_timeout = HANDSHAKE_TIMEOUT
 		scene.peer_authenticating.connect(_knock)
 	if hall != null:
+		guard = NetGuard.new(multiplayer)
+		guard.dropped.connect(hall.dropped)
+		if scene != null:
+			scene.peer_authenticating.connect(guard.came)
+			scene.peer_authentication_failed.connect(guard.timed_out)
+		multiplayer.peer_connected.connect(guard.settled)
+		multiplayer.peer_disconnected.connect(guard.settled)
+		multiplayer.peer_disconnected.connect(func(peer: int) -> void: _asked.erase(peer))
 		multiplayer.peer_connected.connect(hall.visitor_came)
 		multiplayer.peer_disconnected.connect(hall.visitor_left)
 		return
@@ -138,8 +153,15 @@ func _knock(peer: int) -> void:
 ## end let in lets the server in, and one turned away says why.
 func _answer(peer: int, data: PackedByteArray) -> void:
 	var scene := multiplayer as SceneMultiplayer
-	var said: Variant = bytes_to_var(data) if not data.is_empty() else null
-	var words: Dictionary = said if said is Dictionary else {}
+	var words: Dictionary = {}
+	if hall != null:
+		# Garbage, or a second hello, is dropped there and then, see [NetGuard].
+		words = guard.heard(peer, data)
+		if words.is_empty():
+			return
+	else:
+		var said: Variant = bytes_to_var(data) if not data.is_empty() else null
+		words = said if said is Dictionary else {}
 	var theirs := str(words.get("version", "?"))
 	if hall != null:
 		# Knocked at from Play LAN, which hosts on the same port: told this is a server, see
@@ -170,8 +192,27 @@ func _give_up(reason: String) -> void:
 
 @rpc("any_peer", "call_remote", "reliable")
 func _make() -> void:
-	if hall != null:
-		hall.make_game(multiplayer.get_remote_sender_id())
+	if hall == null:
+		return
+	var peer := multiplayer.get_remote_sender_id()
+	var now := Time.get_ticks_msec()
+	var times: Array = _asked.get(peer, [])
+	while not times.is_empty() and now - int(times[0]) >= 1000:
+		times.pop_front()
+	times.append(now)
+	_asked[peer] = times
+	if times.size() > MAKES_A_SECOND:
+		if times.size() == MAKES_A_SECOND + 1:
+			hall.show_out(peer, "%d games asked for in a second, flooding" % times.size())
+		return
+	hall.make_game(peer)
+
+
+## At a player's machine: the server has shown this machine out, and [param why] is what it said.
+@rpc("authority", "call_remote", "reliable")
+func _shown_out(why: String) -> void:
+	_turned_away = true
+	_give_up.call_deferred(why)
 
 
 ## At a player's machine: the games as the server lists them, each as a found LAN game is, see

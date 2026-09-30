@@ -104,8 +104,10 @@ var host_controls := HostControls.of(self)
 ## The waiting room's football on the wire, see [BallWire], and the jokers chosen, see [JokerWire].
 var ball := BallWire.new()
 var jokers := JokerWire.new(self)
-## At the host: who has sent what no copy of the game sends, see [NetConduct].
+## At the host: who has sent what no copy of the game sends, see [NetConduct], and the door before
+## anybody is let in, see [NetGuard], made once the session knows its connection.
 var conduct := NetConduct.new(self)
+var guard: NetGuard
 
 var _tick := 0
 ## On the host: the seats its clients hold, see [PeerSeats].
@@ -156,6 +158,8 @@ func _ready() -> void:
 	Events.joker_taken.connect(jokers.took_here)
 	jokers.malformed.connect(conduct.heard)
 	ball.malformed.connect(conduct.heard)
+	ball.claimed.connect(func(peer: int, _state: Array) -> void: conduct.spoke(peer))
+	guard = NetGuard.new(multiplayer)
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.connected_to_server.connect(_on_connected)
@@ -180,6 +184,12 @@ func _ready() -> void:
 		scene.auth_callback = _handshake.answer
 		scene.auth_timeout = HANDSHAKE_TIMEOUT
 		scene.peer_authenticating.connect(_handshake.knock)
+		scene.peer_authenticating.connect(
+			func(peer: int) -> void:
+				if is_host:
+					guard.came(peer)
+		)
+		scene.peer_authentication_failed.connect(guard.timed_out)
 
 
 func _exit_tree() -> void:
@@ -547,6 +557,7 @@ func _physics_process(delta: float) -> void:
 	# nobody to wait for, and opens.
 	if is_host:
 		_step_gate(delta)
+		guard.watch(delta)
 	if match_node == null or multiplayer.multiplayer_peer == null:
 		return
 	if multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
@@ -587,6 +598,7 @@ func _physics_process(delta: float) -> void:
 func _on_peer_connected(peer: int) -> void:
 	if not is_host:
 		return
+	guard.settled(peer)
 	var enet := NetLag.enet(multiplayer.multiplayer_peer)
 	if enet != null and enet.get_peer(peer) != null:
 		NetLine.made(enet.get_peer(peer))
@@ -603,6 +615,7 @@ func _on_peer_connected(peer: int) -> void:
 
 func _on_peer_disconnected(peer: int) -> void:
 	conduct.forget(peer)
+	guard.settled(peer)
 	_waiting_to_sit.erase(peer)
 	_newcomers.erase(peer)
 	_peer_slots.kept.erase(peer)
@@ -884,6 +897,7 @@ func _send_input(
 	state: Variant, seq: Variant = 0, claim: Variant = [], number: Variant = 0
 ) -> void:
 	var peer := multiplayer.get_remote_sender_id()
+	conduct.spoke(peer)
 	if not (state is Array and seq is int and claim is Array and number is int):
 		conduct.heard(peer)
 		return

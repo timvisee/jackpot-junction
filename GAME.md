@@ -4287,6 +4287,24 @@ who hit whom, what was collected and what anything is worth.
   moved between the two poses the engine is interpolating the picture from, and
   it is drawn swerving through somewhere the kart never was. So the answer is
   held and acted on at the top of the next tick.
+- **Garbage at the door is dropped at once.** What is not ENet with the game's own
+  compression never gets as far as the game: ENet drops it unread, and resets a
+  connection that does not open the way the engine does, a stray scan and another
+  program's protocol alike. What does get through has to say hello first, one
+  knock of the game's own, `NetGuard`: a hello that is not one, looked at before
+  it is read, or a second hello, is dropped there and then, and said in the log
+  with the address it came from. So is one connection too many from one address,
+  eight waiting to say hello at once or sixty in a minute, more than any room of
+  players behind one router opens. One that says nothing is dropped when the
+  handshake runs out after five seconds, and said too. A flood of datagrams that
+  are not the game's cannot be traced to anybody, since ENet drops them unread, so
+  a server only says once a minute that it is getting one, a thousand a second
+  and three hundred a connection more than its players send: a firewall is the
+  place to stop it. Past the door, a player who floods is shown out as for sending
+  what no copy of the game sends: a thousand messages in a second in a game,
+  `NetConduct.FLOOD`, and ten games asked for in a second at the server's list,
+  told "Kicked: abnormal behavior detected" either way. `tools/server_check` sends
+  a stranger's garbage at both doors and has the server say it dropped it.
 
 What a client predicts is movement and nothing else. It does not decide that it
 picked a coin up, hit anybody, fired a shot that counts, or cashed out: all of
