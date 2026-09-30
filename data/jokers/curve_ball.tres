@@ -6,6 +6,8 @@
 script = ExtResource("1_script")
 id = &"curve_ball"
 display_name = "Curve Ball"
-description = "Your bullets curve hard toward enemies, further out, and keep curving after a bounce."
+description = "Your bullets curve hard toward enemies, turning up to {turn} a second, further out, and keep curving after a bounce."
 rarity = 1
 kind = 1
+stackable = true
+most = 3

@@ -6,6 +6,8 @@
 script = ExtResource("1_script")
 id = &"magnet_hubcaps"
 display_name = "Magnet Hubcaps"
-description = "Pickup radius times 2."
+description = "Pickup radius times {times}."
 rarity = 0
 kind = 0
+stackable = true
+most = 3

@@ -6,6 +6,8 @@
 script = ExtResource("1_script")
 id = &"nitro_habit"
 display_name = "Nitro Habit"
-description = "Drift exit boosts and turbo pads last three times as long."
+description = "Drift exit boosts and turbo pads last {times} as long."
 rarity = 0
 kind = 0
+stackable = true
+most = 3

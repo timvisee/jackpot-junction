@@ -6,6 +6,8 @@
 script = ExtResource("1_script")
 id = &"toll_booth"
 display_name = "Toll Booth"
-description = "Whenever another kart completes a cash-out, you bank 15% of it."
+description = "Whenever another kart completes a cash-out, you bank {share} of it."
 rarity = 1
 kind = 1
+stackable = true
+most = 3

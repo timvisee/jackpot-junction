@@ -36,6 +36,8 @@ const CROSS_REACH := 0.82
 ## moving up is not enough on its own.
 const TOP_ROOM := 64.0
 const NARROWEST := 0.7
+## The most of its share of the screen's width a row of cards takes, the card picked out included.
+const ACROSS := 0.9
 ## How much room the title takes over the cards of a pick in a top corner, see [member corner].
 const HUNG_TITLE := 52.0
 
@@ -207,13 +209,17 @@ func _layout(picked: int) -> void:
 		factor = clampf(tall / JokerCard.SIZE.y, NARROWEST, factor)
 		var highest := JokerCard.SIZE.y * factor + 86.0 + TOP_ROOM
 		baseline = clampf(floor_y - under, minf(highest, baseline), baseline)
-	var card_size := JokerCard.SIZE * factor
-	var gap := GAP * factor
 	var width := size.x / columns
 	var center := width * (column + 0.5)
 	if corner >= 0:
 		width = lane.y - lane.x
 		center = (lane.x + lane.y) * 0.5
+	# A long row, two Wild Cards' seven, shrinks to fit across its share of the screen.
+	var across := JokerCard.SIZE.x * count + GAP * maxf(count - 1, 0.0)
+	if across > 0.0:
+		factor = minf(factor, width * ACROSS / across)
+	var card_size := JokerCard.SIZE * factor
+	var gap := GAP * factor
 	var hangs := corner == 0 or corner == 1
 	if hangs:
 		baseline = ceiling_y + HUNG_TITLE + LIFT * factor + card_size.y

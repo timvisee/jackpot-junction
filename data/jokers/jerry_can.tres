@@ -6,6 +6,8 @@
 script = ExtResource("1_script")
 id = &"jerry_can"
 display_name = "Jerry Can"
-description = "Nitro refills 4x as fast."
+description = "Nitro refills {times} as fast."
 rarity = 1
 kind = 0
+stackable = true
+most = 3

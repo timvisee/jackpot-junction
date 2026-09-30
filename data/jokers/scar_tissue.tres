@@ -6,6 +6,8 @@
 script = ExtResource("1_script")
 id = &"scar_tissue"
 display_name = "Scar Tissue"
-description = "One more life, but nothing heals you: only coming back does."
+description = "{lives}, but nothing heals you: only coming back does."
 rarity = 1
 kind = 2
+stackable = true
+most = 2

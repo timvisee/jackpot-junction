@@ -6,6 +6,8 @@
 script = ExtResource("1_script")
 id = &"getaway_driver"
 display_name = "Getaway Driver"
-description = "Junction drain ramps twice as fast."
+description = "Junction drain ramps {times} as fast."
 rarity = 1
 kind = 1
+stackable = true
+most = 3

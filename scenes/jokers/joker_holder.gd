@@ -52,7 +52,7 @@ func ids() -> Array[StringName]:
 
 
 ## Whether the hand has room for another copy of [param joker] as far as its stack goes, full or
-## not: none held yet, or one that stacks, GAME.md 3.7.
+## not: none held yet, or a stack short of its most, GAME.md 7.3.
 func can_take(joker: Joker) -> bool:
 	return joker.room_for(ids().count(joker.id))
 
@@ -61,6 +61,7 @@ func can_take(joker: Joker) -> bool:
 func add(joker: Joker) -> Joker:
 	var instance: Joker = joker.duplicate()
 	jokers.append(instance)
+	_restack()
 	instance.on_attach(_kart)
 	KartLives.follow(_kart, instance, true)
 	changed.emit()
@@ -71,9 +72,38 @@ func remove(instance: Joker) -> void:
 	if not jokers.has(instance):
 		return
 	jokers.erase(instance)
+	_restack()
 	instance.on_detach(_kart)
 	KartLives.follow(_kart, instance, false)
 	changed.emit()
+
+
+## The hand made [param wanted], as a client hears it from the host, GAME.md 10.3: copies of its
+## own, so a stack's count is this kart's alone, made again only when the hand has changed. The
+## host has already attached and detached them.
+func deal(wanted: Array[Joker]) -> void:
+	var named: Array[StringName] = []
+	for joker: Joker in wanted:
+		named.append(joker.id)
+	if named == ids():
+		return
+	jokers.clear()
+	for joker: Joker in wanted:
+		jokers.append(joker.duplicate())
+	_restack()
+	changed.emit()
+
+
+## Tells every joker how many copies of it are held and whether it is the first of them.
+func _restack() -> void:
+	var copies: Dictionary[StringName, int] = {}
+	for joker: Joker in jokers:
+		copies[joker.id] = copies.get(joker.id, 0) + 1
+	var seen: Dictionary[StringName, bool] = {}
+	for joker: Joker in jokers:
+		joker.held = copies[joker.id]
+		joker.leads = not seen.has(joker.id)
+		seen[joker.id] = true
 
 
 func remove_at(index: int) -> Joker:

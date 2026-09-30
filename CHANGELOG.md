@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Most jokers with a number stack.** Take one again for more of it, up to three copies (two for
+  Wild Card, Spare Tire and Scar Tissue); the card says the stack's total, in gold.
 - **Aim the Swivel Cannon by touch.** On a phone or tablet, touch the arena to point it there;
   the fire button fires.
 - **Bots emote now and then.** Pleased at a double kill or a kart shoved down a hole, cross at being
@@ -67,7 +69,7 @@ below, and hands the notes to the release workflow.
 ### Fixed
 
 - **No second copy of a joker off the floor.** A kart already holding a joker leaves it lying,
-  unless it stacks.
+  unless it stacks and the stack has room.
 - **A bot's Swivel Cannon is its own.** It no longer aims wherever the host's mouse is pointing.
 - **The joker you chose online is the joker you get.** A client names the card it picks, keeps,
   drops or destroys, and the host checks it had that card; the host could take a neighbor.

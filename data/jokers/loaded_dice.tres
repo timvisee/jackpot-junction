@@ -6,6 +6,8 @@
 script = ExtResource("1_script")
 id = &"loaded_dice"
 display_name = "Loaded Dice"
-description = "Every chip has a 25% chance to count as a gold chip."
+description = "Every chip has a {chance} chance to count as a gold chip."
 rarity = 1
 kind = 1
+stackable = true
+most = 3

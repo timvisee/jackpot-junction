@@ -11,7 +11,8 @@ extends PanelContainer
 ## rather than run together in one paragraph.
 ##
 ## A joker that stacks, held more than once, says how many beside its name, see [method
-## show_joker]: every copy applies its effect again, and each is its own card in the hand.
+## show_joker], and what the whole stack does in its words, every number the stack has changed
+## in the same gold, so it reads as the stack's rather than the card's own.
 
 const WIDTH := 400.0
 const BG := Color(0.07, 0.07, 0.09, 0.92)
@@ -81,6 +82,7 @@ func _init() -> void:
 	_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_body.custom_minimum_size = Vector2(WIDTH, 0.0)
 	_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_body.bbcode_enabled = true
 	_body.add_theme_font_size_override("normal_font_size", 18)
 	box.add_child(_body)
 
@@ -106,7 +108,7 @@ func show_joker(joker: Joker, held := 1, taking := false) -> void:
 	_rarity.add_theme_color_override("font_color", JokerCard.rarity_color(joker))
 	_kind.text = JokerCard.kind_name(joker).to_upper()
 	_kind.add_theme_color_override("font_color", color)
-	_body.text = joker.description
+	_body.text = joker.describe(copies, "[color=#%s]%%s[/color]" % STACK.to_html(false))
 
 
 ## The controls for whatever the player can do from here, as a row of pictures and words built

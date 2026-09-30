@@ -6,6 +6,8 @@
 script = ExtResource("1_script")
 id = &"tailslide"
 display_name = "Tailslide"
-description = "+1 coin for every 8 m you drift."
+description = "+{coins} for every 8 m you drift."
 rarity = 1
 kind = 1
+stackable = true
+most = 3

@@ -6,6 +6,8 @@
 script = ExtResource("1_script")
 id = &"green_light"
 display_name = "Green Light"
-description = "Turbo pads give +1 mult."
+description = "Turbo pads give {mult} mult."
 rarity = 0
 kind = 1
+stackable = true
+most = 3

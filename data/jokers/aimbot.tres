@@ -6,6 +6,8 @@
 script = ExtResource("1_script")
 id = &"aimbot"
 display_name = "Aimbot"
-description = "Every shot leaves the barrel aimed up to 14° toward the nearest enemy."
+description = "Every shot leaves the barrel aimed up to {deg} toward the nearest enemy."
 rarity = 2
 kind = 1
+stackable = true
+most = 3

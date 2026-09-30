@@ -3,7 +3,8 @@ extends Joker
 ##
 ## Mult is the half of the pot that multiplies, so this compounds with everything else a player
 ## is doing rather than adding to it. A mult that has been left alone to climb for a minute is
-## worth driving across the arena to shoot, which is the point.
+## worth driving across the arena to shoot, which is the point. A stack climbs by half a point
+## more for every copy, at the same moments.
 
 ## Seconds between gains.
 const INTERVAL := 10.0
@@ -13,8 +14,15 @@ var _left := INTERVAL
 
 
 func on_step(kart: Kart, delta: float) -> int:
+	var copies := stacked()
+	if copies <= 0:
+		return 0
 	_left -= delta
 	while _left <= 0.0:
 		_left += INTERVAL
-		kart.gain_mult(AMOUNT, &"hot_streak")
+		kart.gain_mult(AMOUNT * copies, &"hot_streak")
 	return 0
+
+
+func stack_values(copies: int) -> Dictionary:
+	return {"mult": "+" + figure(AMOUNT * copies)}

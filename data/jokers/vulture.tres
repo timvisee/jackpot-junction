@@ -6,6 +6,8 @@
 script = ExtResource("1_script")
 id = &"vulture"
 display_name = "Vulture"
-description = "Chips dropped by other karts are worth 3 coins to you."
+description = "Chips dropped by other karts are worth {coins} to you."
 rarity = 0
 kind = 1
+stackable = true
+most = 3

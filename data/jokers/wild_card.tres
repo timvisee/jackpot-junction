@@ -6,6 +6,8 @@
 script = ExtResource("1_script")
 id = &"wild_card"
 display_name = "Wild Card"
-description = "Respawn offers 5 jokers instead of 3."
+description = "Respawn offers {offers} jokers instead of 3."
 rarity = 2
 kind = 1
+stackable = true
+most = 2

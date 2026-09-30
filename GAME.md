@@ -298,7 +298,7 @@ Jokers are passive rule modifiers held for the rest of the match.
 
 - On every respawn the player is offered 3 jokers during the respawn delay and
   picks 1 or skips. Offers never include a joker the player already holds,
-  except stackable jokers such as Rubber Bumpers, whose copies each apply again.
+  except a joker that stacks, until the stack is at its most, see 7.3.
 - A player holds at most as many jokers as the match's Joker slots, 5 to start
   with and 3 to 8 in the match settings, unless a joker in the hand says
   otherwise: Deep Pockets adds 2 slots to however many that is and stands in one
@@ -308,9 +308,9 @@ Jokers are passive rule modifiers held for the rest of the match.
   drop one on the floor or destroy it.
 - Jokers can drop on death, see 3.6. A joker on the floor can be picked up by
   any kart, including its previous owner, for 15 s. A kart whose hand already
-  holds it leaves it lying for somebody else, unless it stacks: a second copy of
-  a joker that does not stack was the same joker twice, and Carbon Copy made one
-  at every death.
+  holds it leaves it lying for somebody else, unless it stacks and the stack has
+  room: a second copy of a joker that does not stack was the same joker twice,
+  and Carbon Copy made one at every death.
 - Players start a match with no jokers. The first offer comes with the first
   death.
 - An offer still open at the whistle is dropped. Nobody respawns out of the
@@ -1615,7 +1615,7 @@ a real downside. Starting set; balance is untested.
 | Tight Grip       | Uncommon | Rule   | Your pot never spills: no coins dropped on death or knocked out by a ram  |
 | Getaway Driver   | Uncommon | Rule   | Junction drain ramps twice as fast, D = 0.25 s                            |
 | Pickpocket       | Uncommon | Rule   | Kills move 50% of the victim's coins into your pot; the victim drops none |
-| Rubber Bumpers   | Uncommon | Rule   | Your bullets bounce off walls once more. Stacks: two copies bounce twice  |
+| Rubber Bumpers   | Uncommon | Rule   | Your bullets bounce off walls once more                                   |
 | Comeback         | Uncommon | Rule   | Respawn with mult equal to half your mult at death, rounded up            |
 | Loaded Dice      | Uncommon | Rule   | Every chip has a 25% chance to count as a gold chip                       |
 | Toll Booth       | Uncommon | Rule   | Whenever another kart completes a cash-out, you bank 15% of it            |
@@ -1633,10 +1633,70 @@ a real downside. Starting set; balance is untested.
 | Scar Tissue      | Uncommon | Cursed | One more life, but neither the Junction nor a kill heals you: only coming back does. Stacks with Spare Tire, and nothing heals |
 | Lucky Seven      | Rare     | Rule   | Every 7th chip you collect gives +1 mult                                  |
 | Hot Streak       | Rare     | Rule   | +0.5 mult every 10 seconds you stay on the floor                          |
-| Deep Pockets     | Rare     | Rule   | +2 joker slots, one of which it stands in. Stacks                         |
+| Deep Pockets     | Rare     | Rule   | +2 joker slots, one of which it stands in                                 |
 | Wild Card        | Rare     | Rule   | Respawn offers 5 jokers instead of 3                                      |
 | Carbon Copy      | Rare     | Rule   | A joker your death drops goes on the floor as a copy, and you keep your own, Carbon Copy among them. A card thrown away from the hand is thrown away |
 | Glass Jackpot    | Rare     | Cursed | Completed cash-outs pay 150%, but dying drops all your chips and 2 jokers |
+
+#### Stacking
+
+Most of the jokers that hand out a number stack: a hand that holds one is
+offered it again at the respawn pick, and takes it off the floor again, until
+the stack is at its most. Each copy is a card of its own in the hand. The most
+keeps a stack from running away with a match: three for all of them but Wild
+Card, whose seven cards are as many as the pick has room for on a phone, and the
+two that are lives, since two more lives already double the rules' own two.
+
+| Joker          | One copy           | Every copy past the first | ×2          | ×3          | Most |
+|----------------|--------------------|---------------------------|-------------|-------------|------|
+| Payday         | +1 coin a second   | +1 coin                   | 2 coins     | 3 coins     | 3    |
+| Odometer       | +1 coin per 20 m   | +1 coin                   | 2 coins     | 3 coins     | 3    |
+| Tailslide      | +1 coin per 8 m    | +1 coin                   | 2 coins     | 3 coins     | 3    |
+| Green Light    | +1 mult a pad      | +1 mult                   | +2          | +3          | 3    |
+| Hot Streak     | +0.5 mult per 10 s | +0.5 mult                 | +1          | +1.5        | 3    |
+| Lucky Seven    | +1 mult a 7th chip | +1 mult                   | +2          | +3          | 3    |
+| Direct Debit   | 5 points a second  | +5 points                 | 10          | 15          | 3    |
+| Loaded Dice    | 25%                | a roll of its own         | 44%         | 58%         | 3    |
+| Big Tank       | +2 bullets         | +2 bullets                | +4          | +6          | 3    |
+| Rubber Bumpers | 1 bounce           | +1 bounce                 | 2           | 3           | 3    |
+| Deep Pockets   | +2 slots           | +2 slots                  | +4          | +6          | 3    |
+| Aimbot         | 14°                | +7°                       | 21°         | 28°         | 3    |
+| Curve Ball     | 150°/s             | +75°/s                    | 225°/s      | 300°/s      | 3    |
+| Toll Booth     | 15%                | +10%                      | 25%         | 35%         | 3    |
+| Vulture        | 3 coins            | +1 coin                   | 4 coins     | 5 coins     | 3    |
+| Slipstream     | +1.5 mult          | +0.5 mult                 | +2          | +2.5        | 3    |
+| Nitro Habit    | 3 times as long    | once as long again        | 4 times     | 5 times     | 3    |
+| Jerry Can      | 4x as fast         | 2x more                   | 6x          | 8x          | 3    |
+| Getaway Driver | twice as fast      | once as fast again        | 3 times     | 4 times     | 3    |
+| Hair Trigger   | cooldown -30%      | 3 shots in 7 more         | -46%        | -56%        | 3    |
+| Magnet Hubcaps | radius times 2     | twice the ground          | times 2.8   | times 4     | 3    |
+| Wild Card      | 5 cards            | +2 cards                  | 7 cards     |             | 2    |
+| Spare Tire     | 1 life more        | +1 life                   | 2 lives     |             | 2    |
+| Scar Tissue    | 1 life more        | +1 life                   | 2 lives     |             | 2    |
+
+- Where a stack's copies do more than add up, its first copy applies the whole
+  stack and the others do nothing, so the numbers are the table's rather than
+  one copy's multiplied by the next: two Vultures are 4 coins a chip, not 9, and
+  two Jerry Cans six times as fast, not sixteen. When the first copy leaves the
+  hand, the next one is first.
+- Payday, Odometer, Tailslide, Green Light, Hot Streak, Lucky Seven and Direct
+  Debit pay the whole stack at once, so two Paydays are one pop of two coins a
+  second rather than two of one.
+- Hair Trigger adds to how often the cannon fires rather than cutting the
+  cooldown again: each copy is the same three more shots in seven, so the third
+  is worth as much as the first. Magnet Hubcaps doubles the ground the kart
+  reaches with each copy past the first rather than how far it reaches, so
+  three reach four times as far rather than eight.
+- Curve Ball's third copy turns a bullet 300°/s, short of a full circle in a
+  second. A bullet only ever bends toward an enemy in the cone ahead of it, so
+  none goes round and round one, however hard it turns.
+- One death takes every Spare Tire.
+- A client hears its hand from the host by name, 10.3, and holds copies of its
+  own, so each kart there counts its own stacks.
+- High Roller, Road Rage and Glass Jackpot do not stack: a second copy of any of
+  them would be all upside or all downside, the other half already at its worst.
+  Nor do the jokers that are a rule rather than a number, such as Insurance
+  Policy, which a second copy would do nothing for.
 
 ## 8. Presentation
 
@@ -2272,9 +2332,14 @@ movement: the one thing a corner block must not do is ask to be looked at.
   and the buttons for whatever can be done from there sit at the foot in gray,
   drawn as buttons. Things told apart beats one paragraph they were all run into.
   A joker that stacks, held more than once, says how many beside its name in gold,
-  ×2 or ×3, since each copy is a card of its own in the hand and applies again; on
-  offer at the respawn pick, one already held says what taking it makes it,
-  "makes ×2".
+  ×2 or ×3, since each copy is a card of its own in the hand; on offer at the
+  respawn pick, one already held says what taking it makes it, "makes ×2". Its
+  words say what the whole stack does, "worth 4 coins to you" for two Vultures,
+  every number the stack has changed in the same gold, so a stacked figure is
+  never mistaken for the card's own; one copy's words are the card's, in the
+  pane's own ink. The words end with how far it stacks, "Stacks up to ×3." A
+  long row of cards, two Wild Cards' seven, shrinks to fit across its share of
+  the screen.
 - **The respawn pick** shows the offered cards in a straight row, the one under
   the cursor risen and grown and nothing else: it grows about its own bottom
   center, so it stays where it was along the row rather than drifting sideways as

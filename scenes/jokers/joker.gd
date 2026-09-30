@@ -7,6 +7,8 @@ extends Resource
 enum Rarity { COMMON, UNCOMMON, RARE }
 enum Kind { STAT, RULE, CURSED }
 
+## How many times as much, as the cards say it, see [method times].
+const TIMES: Array[String] = ["", "once", "twice", "three times", "four times", "five times"]
 const RARITY_WEIGHTS: Dictionary[int, float] = {
 	Rarity.COMMON: 60.0, Rarity.UNCOMMON: 30.0, Rarity.RARE: 10.0
 }
@@ -16,9 +18,18 @@ const RARITY_WEIGHTS: Dictionary[int, float] = {
 @export var description := ""
 @export var rarity := Rarity.COMMON
 @export var kind := Kind.RULE
-## A stackable joker is offered again while held, and taken off the floor again; every copy
-## applies its effect once more.
+## A stackable joker is offered again while held, and taken off the floor again, up to [member
+## most] copies, GAME.md 7.3. Where a stack's copies do more than add up, its first copy applies
+## the whole stack and the others nothing, see [method stacked], so every stack's numbers are the
+## ones the card says rather than one copy's multiplied by another's.
 @export var stackable := false
+## The most copies of a stackable joker one hand holds, 0 for any number.
+@export var most := 0
+
+## How many copies of this joker its holder holds, this one among them, and whether this one is
+## the first of them, kept by [JokerHolder].
+var held := 1
+var leads := true
 
 
 ## Offer weight from rarity.
@@ -27,9 +38,56 @@ func weight() -> float:
 
 
 ## Whether a hand holding [param copies] of this joker has room for one more of it: none held, or
-## one that stacks.
+## a stack short of its most.
 func room_for(copies: int) -> bool:
-	return copies <= 0 or stackable
+	return copies <= 0 or (stackable and (most <= 0 or copies < most))
+
+
+## How many copies this one applies: the whole stack, up to [member most], for the first copy of
+## it, and none for the others. For the jokers whose copies do more than add up.
+func stacked() -> int:
+	if not leads:
+		return 0
+	return mini(held, most) if most > 0 else held
+
+
+## The card's own words for [param copies] held, GAME.md 8.3: [member description] with every
+## number in braces filled in from [method stack_values], and each a stack has made other than one
+## copy's put through [param mark], a format with a place for the value, to set it apart.
+func describe(copies := 1, mark := "%s") -> String:
+	var count := 1
+	if stackable:
+		count = clampi(copies, 1, most if most > 0 else maxi(copies, 1))
+	var one := stack_values(1)
+	var now := stack_values(count)
+	var said := description
+	for key: String in now:
+		var value := str(now[key])
+		said = said.replace("{%s}" % key, value if value == str(one[key]) else mark % value)
+	if stackable:
+		said += " Stacks up to ×%d." % most if most > 0 else " Stacks."
+	return said
+
+
+## The numbers of the card's words for [param copies] of the joker, by the names its [member
+## description] has them under.
+func stack_values(_copies: int) -> Dictionary:
+	return {}
+
+
+## [param count] of a thing as the cards say it: "1 coin", "2 coins".
+static func counted(count: int, one: String, many: String) -> String:
+	return "%d %s" % [count, one if count == 1 else many]
+
+
+## How many times as much as the cards say it: "twice", "three times".
+static func times(factor: int) -> String:
+	return TIMES[factor] if factor < TIMES.size() else "%d times" % factor
+
+
+## A figure as the cards say it: 2 rather than 2.0, and one decimal at most.
+static func figure(value: float) -> String:
+	return String.num(value, 1)
 
 
 func on_attach(_kart: Kart) -> void:

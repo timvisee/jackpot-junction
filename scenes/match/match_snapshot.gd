@@ -480,7 +480,7 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 			# dealt twice more, GAME.md 10.3.
 			var before_the_answer := entry.has("offer") and _answered_here(match_node, i, slot)
 			if not before_the_answer and not slot.changed_hand_lately():
-				slot.kart.jokers.jokers = jokers
+				slot.kart.jokers.deal(jokers)
 		if entry.has("offer") and _answered_here(match_node, i, slot):
 			# This player has answered the pick and the host has not heard yet: the snapshot is
 			# from before, and does not put the cards back up, GAME.md 10.3.

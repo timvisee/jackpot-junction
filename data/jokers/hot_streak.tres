@@ -6,6 +6,8 @@
 script = ExtResource("1_script")
 id = &"hot_streak"
 display_name = "Hot Streak"
-description = "+0.5 mult every 10 seconds you stay on the floor."
+description = "{mult} mult every 10 seconds you stay on the floor."
 rarity = 2
 kind = 1
+stackable = true
+most = 3
