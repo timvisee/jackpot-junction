@@ -11,7 +11,6 @@ key_energy = 2.0
 key_angle = Vector3(-60, 22, 0)
 fill_color = Color(0.8235, 0.8706, 1, 1.0)
 fill_energy = 0.55
-fill_angle = Vector3(-24, -150, 0)
 lamp_color = Color(0.9608, 0.9804, 1, 1.0)
 lamp_energy = 2.6
 lamp_height = 22.0

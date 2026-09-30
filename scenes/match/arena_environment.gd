@@ -4,9 +4,12 @@ extends Node3D
 ## match hands it the [RoomLook] its map names, so what a room is lit by is data rather than a
 ## number typed into four scenes.
 ##
-## Two lights: a key that casts the shadows and a fill from the other side so a shadow is a dark
-## side rather than a hole. Everything else is the camera: how the picture is tonemapped, how far
-## out it goes soft, how much the neon blooms.
+## Two lights: a key that casts the shadows and the lamp over the table, and an ambient that
+## carries the room's fill from the other side, so a shadow is a dark side rather than a hole.
+## The fill was a second directional light, GAME.md 10.7, which is a second pass over every
+## pixel; folded into the ambient it does the same for the shaded side of things within a hair,
+## for nothing. Everything else is the camera: how the picture is tonemapped, how far out it
+## goes soft, how much the neon blooms.
 
 ## How far the shadows are drawn out from the camera over a floor of [constant FLOOR_WIDTH], at
 ## most. The table is small and the room around it is not: past this there is nothing worth a
@@ -27,6 +30,8 @@ const LAMP_SPARE := 4.0
 const USUAL_FLOOR := Vector2(40.0, 22.5)
 ## The light a room needs from its sun before that sun is worth a shadow map of its own.
 const SUN_SHADOWS := 0.8
+## What a directional light comes to as ambient light: over a hemisphere, about half its energy.
+const FILL_AS_AMBIENT := 0.5
 
 ## The floor lit, in meters, which a lamp over a bigger one than its room was set for widens to
 ## take in, see [method dress].
@@ -34,7 +39,6 @@ var floor_size := Vector2(40.0, 22.5)
 ## The room this is lit for, kept so a setting can ask for the same room again.
 var lit_by: RoomLook
 var key: DirectionalLight3D
-var fill: DirectionalLight3D
 ## The lamp over the table, off in a room that has none.
 var lamp: SpotLight3D
 var world: WorldEnvironment
@@ -108,9 +112,6 @@ func dress(room: RoomLook) -> void:
 	key.directional_shadow_max_distance = SHADOW_REACH * maxf(1.0, floor_size.x / FLOOR_WIDTH)
 	key.shadow_opacity = room.shadow_depth
 	key.shadow_blur = room.shadow_softness
-	fill.light_color = room.fill_color
-	fill.light_energy = room.fill_energy
-	fill.rotation_degrees = room.fill_angle
 	lamp.visible = room.lamp_energy > 0.0
 	lamp.light_color = room.lamp_color
 	lamp.light_energy = room.lamp_energy
@@ -130,8 +131,11 @@ func dress(room: RoomLook) -> void:
 	lamp.shadow_blur = room.shadow_softness
 	var air := world.environment
 	air.background_color = room.background
-	air.ambient_light_color = room.ambient_color
-	air.ambient_light_energy = room.ambient_energy
+	# The room's own glow and its fill together, the fill in its own color for its share.
+	var filled := room.fill_energy * FILL_AS_AMBIENT
+	var glow := room.ambient_energy + filled
+	air.ambient_light_color = room.ambient_color.lerp(room.fill_color, filled / maxf(glow, 0.001))
+	air.ambient_light_energy = glow
 	# A room that asks for none of something does not pay for it: the passes come on with the
 	# numbers rather than standing enabled at zero.
 	air.ssao_enabled = room.occlusion > 0.0
@@ -162,10 +166,6 @@ func _build() -> void:
 	# the room behind the stands, GAME.md 10.7.
 	key.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
 	add_child(key)
-	fill = DirectionalLight3D.new()
-	fill.name = "Fill"
-	fill.shadow_enabled = false
-	add_child(fill)
 	lamp = SpotLight3D.new()
 	lamp.name = "Lamp"
 	# Straight down over the middle of the table, which is where every map is centered.

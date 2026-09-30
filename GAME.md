@@ -1620,8 +1620,12 @@ exactly why the same match can be played in three of them. Adding a fourth is a
 resource file and a map that names it.
 
 **The light.** Every room is lit the same way and differs only in the numbers: a
-key, a fill from the other side so a shadow is a dark side rather than a hole, an optional lamp hung over the middle of the table, and an
-ambient that says how much the room itself glows. A lamp is what separates a room
+key, an optional lamp hung over the middle of the table, and an ambient that says
+how much the room itself glows and carries the room's fill, the cool light from
+the other side that keeps a shadow a dark side rather than a hole. The fill has a
+color and a strength and no direction: it was a light of its own once, and a
+second directional light is a second pass over every pixel for a difference
+nobody could see, 10.7. A lamp is what separates a room
 from a field: a sun lights everything it can see, and a lamp lights what is under
 it and lets the rest go. Whichever of the two is doing the work casts the shadows
 and the other casts none, so a room never pays for two shadow maps. How dark those
@@ -4554,6 +4558,14 @@ with the numbers that put them there.
   leaves 36 shader cache entries and a match after it adds none; a match from
   cold writes 32. One step a frame rather than a thread, since GDScript cannot
   compile shaders off the main thread: the menu answers between steps.
+- **The fill light is ambient.** Every room had a second directional light, a
+  cool fill from the other side, and on either renderer a directional light is
+  a pass over every pixel: 0.07 ms of a 1.8 ms Forward+ frame here, and one of
+  the three passes every pixel of a phone's floor paid for. Folded into the
+  ambient term at half its energy, in its own color for its share, the shaded
+  sides of karts and blocks come out within a hair of where they were, side by
+  side in a screenshot, for nothing. `RoomLook` keeps the fill's color and
+  strength; `ArenaEnvironment.FILL_AS_AMBIENT` is the half.
 
 - **What is quadratic in the bullets is cheap per pair, and what every bullet
   asks is asked once.** Every pair of live bullets is checked for a meeting every

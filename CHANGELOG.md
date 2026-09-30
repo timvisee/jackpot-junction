@@ -66,6 +66,8 @@ below, and hands the notes to the release workflow.
 - **Sharper shadows up close.** The sun's shadow map reaches to the far corner of the floor from
   where the camera stands rather than a fixed 80 m, so a camera pulled in on one kart spends the
   whole map on what it sees.
+- **One light fewer.** The room's fill light is folded into its ambient light, which looks the
+  same and costs a pass over every pixel less.
 
 ## [0.10.0] - 2026-09-29
 

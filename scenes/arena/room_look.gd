@@ -20,10 +20,11 @@ enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR }
 @export var key_color := Color(1.0, 0.94, 0.85)
 @export var key_energy := 2.2
 @export var key_angle := Vector3(-52.0, 38.0, 0.0)
-## The fill from the other side, which keeps a shadow from being a hole.
+## The fill from the other side, which keeps a shadow from being a hole. Carried by the ambient
+## light rather than a light of its own, see [ArenaEnvironment], so it has a color and a
+## strength and no direction.
 @export var fill_color := Color(0.55, 0.68, 1.0)
 @export var fill_energy := 0.55
-@export var fill_angle := Vector3(-26.0, -140.0, 0.0)
 ## The lamp over the table, which is what makes a room a room rather than a field: a sun lights
 ## everything it can see, and a lamp lights what is under it and lets the rest fall away. Energy
 ## 0 for a room lit by daylight alone.
