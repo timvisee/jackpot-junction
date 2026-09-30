@@ -220,7 +220,8 @@ A dedicated server holds games for players over the internet, so nobody's own
 machine has to host, see GAME.md 9.3a. Every release has a Linux server build
 for it, `jackpot-junction-server`: the game exported as a server, headless and
 serving by itself, with its pictures and models stripped to their sizes and no
-sound at all. The game itself serves too, told to:
+sound at all. The game itself serves too, told to, and then loads no sound
+either:
 
 ```
 ./jackpot-junction-server                                             # the server build

@@ -158,3 +158,19 @@ func test_pitch_never_leaves_the_range_the_sample_stands_up_to() -> void:
 			seen_high = seen_high or _rev.pitch() > 1.5
 	assert_bool(seen_low).is_true()
 	assert_bool(seen_high).is_true()
+
+
+## A dedicated server loads no sound at all, GAME.md 9.3a, run from a checkout that has every file
+## as much as in its own build, which has none: an effect, the music and a kart's engine alike.
+func test_a_server_loads_no_sound() -> void:
+	var was := Game.serving
+	Game.serving = true
+	var engine := KartSound._stream(KartSound.ENGINE_FILE, true)
+	var effect := Audio._stream("chip-lay-1.ogg")
+	var music := Audio._music_stream(Audio.LAYER_CALM)
+	Game.serving = was
+	assert_object(engine).is_null()
+	assert_object(effect).is_null()
+	assert_object(music).is_null()
+	# And the game proper loads them.
+	assert_object(KartSound._stream(KartSound.ENGINE_FILE, true)).is_not_null()

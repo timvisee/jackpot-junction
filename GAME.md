@@ -4455,7 +4455,11 @@ published until everything is built. The server build is Godot's own dedicated
 server export, preset "Linux Server": every resource stripped of what only
 drawing needs, textures and meshes left as placeholders of the same size, since
 scripts and scenes still name them, and `assets/audio` left out altogether,
-since no sound is loaded but by name when it plays and a server plays none. Its
+since no sound is loaded but by name when it plays and a server plays none. The
+game run as a server, from a release with `--server` or from a checkout with
+`make server`, loads no sound either, `Game.serving`, so it plays the same game
+its build does; the pictures and models it does load, since only an export can
+strip those. Its
 `dedicated_server` feature is what makes it a server with no `--server` to give,
 and headless with no `--headless`. The workflow can also be run by hand from the
 Actions tab, as a dry run: the same builds, kept as the run's artifact for a

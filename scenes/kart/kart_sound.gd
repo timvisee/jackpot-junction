@@ -265,11 +265,12 @@ func _build(name: String, file: String, looping: bool) -> AudioStreamPlayer3D:
 ## The file, set to loop or not. Loading hands back one shared resource per file, and the loop
 ## flag lives on it, so a one-shot that shares a file with a loop gets its own copy.
 static func _stream(file: String, looping: bool) -> AudioStream:
+	# A dedicated server loads no sound at all, see [member Game.serving]: its build has none.
+	if Game.serving:
+		return null
 	var path := AUDIO_DIR + file
 	if not ResourceLoader.exists(path):
-		# The dedicated server build carries no sound at all, GAME.md 10.5, and says nothing of it.
-		if not OS.has_feature("dedicated_server"):
-			push_warning("missing kart sound %s" % path)
+		push_warning("missing kart sound %s" % path)
 		return null
 	var stream := load(path) as AudioStream
 	if stream is AudioStreamOggVorbis:

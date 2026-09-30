@@ -525,7 +525,7 @@ func set_track(index: int) -> void:
 
 func _music_stream(layer: StringName) -> AudioStream:
 	var path := MUSIC_DIR + String(TRACKS[track]["id"]) + "/" + LAYER_FILES[layer]
-	if not ResourceLoader.exists(path):
+	if Game.serving or not ResourceLoader.exists(path):
 		return null
 	var stream := load(path) as AudioStream
 	if stream is AudioStreamOggVorbis:
@@ -533,7 +533,11 @@ func _music_stream(layer: StringName) -> AudioStream:
 	return stream
 
 
+## An effect's file, loaded once and kept. Nothing at all on a dedicated server, see [member
+## Game.serving].
 func _stream(file: String) -> AudioStream:
+	if Game.serving:
+		return null
 	if not _streams.has(file):
 		var path := (AUDIO_DIR + file) if file.contains("/") else (SFX_DIR + file)
 		_streams[file] = load(path) as AudioStream if ResourceLoader.exists(path) else null

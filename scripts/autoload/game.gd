@@ -22,6 +22,12 @@ const BENCH_WARMUP := 120
 ## [method quit].
 const QUIET_BEFORE_QUIT := 0.15
 
+## Whether this is a dedicated server or one of its games, GAME.md 9.3a: the server build, or the
+## game started with `--server`. It plays to nobody, so it loads no sound at all: the build has
+## none in it, see 10.5, and run from a checkout it leaves every sound file where it is, so the
+## two are the same game. A test may set it.
+static var serving := OS.has_feature("dedicated_server") or "--server" in OS.get_cmdline_user_args()
+
 var settings := Settings.new()
 ## Whether the last thing anybody touched was the keyboard rather than a gamepad. Control
 ## hints for a player who is not pinned to one device follow this, GAME.md 8.3.

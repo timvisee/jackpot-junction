@@ -21,6 +21,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The game as a server loads no sound.** Run with `--server`, or with `make server` from a
+  checkout, it plays the same game the server build does, which carries none.
 - **Plainer release zips.** Each zip holds the game at its top: `jackpot-junction` for Linux,
   `jackpot-junction.exe` for Windows and `jackpot-junction-server` for the server.
 - **Full screen from the start on a desktop.** A released game starts full screen on Linux,
