@@ -1,7 +1,11 @@
 class_name AimGuide
 extends Node3D
 ## Faint dots ahead of the cannon showing where a shot will go, for local players. Lives in world
-## space and follows the kart's aim every frame.
+## space and follows the kart's aim every drawn frame, from where the kart is drawn rather than
+## from where its last physics tick left it: the kart is smoothed between ticks, and dots placed
+## off the tick jumped back and forth against it wherever the screen draws faster than the
+## physics runs, which on a phone at 90 Hz was every frame. So the engine does not smooth the
+## dots again, see [method attach].
 
 const DOTS := 4
 const SPACING := 1.5
@@ -15,6 +19,8 @@ static func attach(kart: Kart, color: Color) -> AimGuide:
 	var guide := AimGuide.new()
 	guide.name = "AimGuide"
 	guide.top_level = true
+	# Placed every drawn frame from the drawn kart: smoothing it again would put it a tick behind.
+	guide.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	kart.add_child(guide)
 	guide._build(color)
 	return guide

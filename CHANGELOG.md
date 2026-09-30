@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **A steady aim guide.** The dots ahead of the cannon, and the arrow of a freely aimed one, follow
+  the kart as it is drawn: on a phone they jittered against it every frame.
+
 ## [0.10.1] - 2026-09-30
 
 Faster everywhere and much faster on phones: a match on a Pixel 7 runs at around fifty frames a

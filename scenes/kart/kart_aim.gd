@@ -9,6 +9,43 @@ extends RefCounted
 ## which is that answer bent toward an enemy when the Aimbot joker is held.
 
 
+## The arrow over a freely aiming kart and the guide ahead of a local player's cannon, placed
+## for this drawn frame, and the guide returned, made the first time it is wanted. Both follow
+## the kart as it is drawn, between physics ticks, rather than where the last tick left it, see
+## [AimGuide].
+##
+## The aim guide shows for local players when the setting is on. A puppet counts: online the
+## kart a player drives is moved by the host, and it is still the one they are steering and the
+## only one on their screen whose aim is theirs to see. Holding a [PlayerInput] is what says so,
+## since nothing else on either machine is given one.
+static func draw(kart: Kart, arrow: MeshInstance3D, guide: AimGuide) -> AimGuide:
+	var shown := kart.get_global_transform_interpolated()
+	if arrow.visible and kart.alive:
+		var toward := shown_direction(kart, shown)
+		arrow.global_position = shown.origin + Vector3(0.0, 0.9, 0.0) + toward * 0.9
+		arrow.look_at(arrow.global_position + toward, Vector3.UP)
+	var wanted := kart.alive and kart.input is PlayerInput and Game.settings.aim_guide
+	if wanted and guide == null:
+		guide = AimGuide.attach(kart, Palette.player_color(kart.color_index))
+	if guide == null:
+		return null
+	guide.visible = wanted
+	if wanted:
+		var toward := shown_direction(kart, shown)
+		guide.update_line(shown.origin + toward * kart.cannon_stats.muzzle_offset, toward)
+	return guide
+
+
+## Where the aim points with the kart drawn at [param shown]: aimed down the nose, it turns with
+## the drawn kart rather than jumping with the physics tick; aimed by a stick or the mouse, it is
+## a direction in the room, and the kart's turning has nothing to do with it.
+static func shown_direction(kart: Kart, shown: Transform3D) -> Vector3:
+	var aim := direction(kart)
+	if _free_aim(kart):
+		return aim
+	return (shown.basis.orthonormalized() * kart.global_basis.orthonormalized().inverse()) * aim
+
+
 ## Where this kart is pointing its cannon, after any joker has had its say about it.
 static func direction(kart: Kart) -> Vector3:
 	var aim := _pointed(kart)

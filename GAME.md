@@ -2391,7 +2391,10 @@ movement: the one thing a corner block must not do is ask to be looked at.
   and for local players an aim guide of four faint dots ahead of the cannon. A
   local player is whoever is steering the kart, which online is a kart the host
   moves: the guide is for the hand on the stick, not for the machine running the
-  physics.
+  physics. The guide and the free-aim arrow hang off the kart as it is drawn,
+  smoothed between physics ticks, rather than where the last tick left it: a
+  screen that draws faster than the physics runs, a phone's at 90 Hz, showed dots
+  placed off the tick jumping back and forth against the kart every frame.
   Royal Flush pad frames glow and pulse in their holder's color, the suit on the
   plate in it too; a flush shows
   ROYAL FLUSH over the kart.
@@ -4618,6 +4621,11 @@ stays won. New code is held to these, and a pull that breaks one says why:
   time are a `MultiMesh`, in chunks the camera can cull. A material is made
   per instance only where its color changes at runtime; otherwise it is shared
   through a static cache, as `Chip.paint_for` and `Bullet._glow` do.
+- Anything placed every drawn frame off a kart (the aim guide, the free-aim
+  arrow, a tag over its head) is placed from `get_global_transform_interpolated()`
+  and has `physics_interpolation_mode` off. A kart moves on the physics tick and
+  is drawn smoothed between ticks; placed from `global_position`, a thing jumps
+  against it wherever the screen draws faster than the physics runs.
 - The HUD writes on a change. Fonts and colors go through `Type.set_font` and
   `Type.ink`; a setter that redraws returns when told what it already had;
   nothing runs `_process` while hidden.

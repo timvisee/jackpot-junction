@@ -577,27 +577,7 @@ func _process(_delta: float) -> void:
 	if _ring.visible:
 		var radius := lerpf(RING_RADIUS_EMPTY, RING_RADIUS_FULL, channel_progress)
 		_ring.scale = Vector3(radius, 1.0, radius)
-	if _aim_arrow.visible and alive:
-		var direction := aim_direction()
-		_aim_arrow.global_position = global_position + Vector3(0.0, 0.9, 0.0) + direction * 0.9
-		_aim_arrow.look_at(_aim_arrow.global_position + direction, Vector3.UP)
-	_update_aim_guide()
-
-
-## The aim guide shows for local players when the setting is on. A puppet counts: online the
-## kart a player drives is moved by the host, and it is still the one they are steering and the
-## only one on their screen whose aim is theirs to see. Holding a [PlayerInput] is what says so,
-## since nothing else on either machine is given one.
-func _update_aim_guide() -> void:
-	var wanted := alive and input is PlayerInput and Game.settings.aim_guide
-	if wanted and _aim_guide == null:
-		_aim_guide = AimGuide.attach(self, Palette.player_color(color_index))
-	if _aim_guide == null:
-		return
-	_aim_guide.visible = wanted
-	if wanted:
-		var direction := aim_direction()
-		_aim_guide.update_line(global_position + direction * cannon_stats.muzzle_offset, direction)
+	_aim_guide = KartAim.draw(self, _aim_arrow, _aim_guide)
 
 
 ## Nitro, GAME.md 4.1: hold to burn a limited tank for extra speed and ramming kills. It refills

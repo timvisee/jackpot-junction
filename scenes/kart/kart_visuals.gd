@@ -227,6 +227,8 @@ static func build_attachments(kart: Kart) -> Dictionary:
 	aim_arrow.material_override = arrow_material
 	aim_arrow.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
 	aim_arrow.top_level = true
+	# Placed every drawn frame from the drawn kart, like the aim guide: see [AimGuide].
+	aim_arrow.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	aim_arrow.visible = false
 	kart.add_child(aim_arrow)
 	var crown := bounty_crown()
