@@ -185,7 +185,9 @@ func count() -> int:
 
 
 func _process(delta: float) -> void:
-	if _rebuild_wait == 0 and _size != Vector2.ZERO and _built_size != Game.settings.crowd_size:
+	# A new size stands the house up again; Off only hides it, so turning it back on is at once.
+	var wanted := Game.settings.crowd_size
+	if _rebuild_wait == 0 and _size != Vector2.ZERO and wanted > 0.0 and _built_size != wanted:
 		_rebuild_wait = REBUILD_WAIT
 	if _rebuild_wait > 0:
 		_rebuild_wait -= 1
@@ -196,7 +198,7 @@ func _process(delta: float) -> void:
 		return
 	# A player who would rather have the table to themselves keeps the booth and loses the house,
 	# GAME.md 8.5. Hidden rather than never built, since the setting can be changed mid-match.
-	var watching := Game.settings.crowd
+	var watching := Game.settings.crowd_size > 0.0
 	_onlookers.visible = watching
 	if _stands != null:
 		_stands.visible = watching

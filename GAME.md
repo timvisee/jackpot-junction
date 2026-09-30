@@ -2756,7 +2756,7 @@ like any other button.
   default.
 - **Video**: window mode, vsync, frame rate limit, show FPS, render scale,
   upscaler, UI scale, bloom, shadows, MSAA, screen smoothing, tire marks and
-  crowd size.
+  the crowd.
   A phone or a tablet starts full screen, with the system's own bars out of the
   way; a desktop starts in a window. Bloom and the multisampled edges are the
   passes a room pays for most, and they are the two things worth handing back on
@@ -2803,20 +2803,23 @@ like any other button.
   size rather than stretched to it, so it stays sharp. Tire marks, 4.3, are on by
   default; off, none are laid, and whatever is down goes at once rather than
   fading out. The gold tracks of a pot that would win are laid either way: they
-  say who is about to win rather than dressing the floor. Crowd size, Full or
-  Half, is how many of the house came: the crowd is the most triangles on the
+  say who is about to win rather than dressing the floor. The crowd, Full, Half
+  or Off, is how many of the house came: the crowd is the most triangles on the
   screen by far and none of them are the match, see 10.7, so a phone starts with
   half a house and a desktop with a full one, and a change stands the house up
-  again at the new size a moment later. Neither the crowd nor its size changes
-  anything a kart can touch.
+  again at the new size a moment later. Off empties the stands and leaves the
+  booth, and turning it back on is at once. It is one setting offered on this
+  page and in Accessibility alike, since it is both what a card can afford and
+  the busiest thing on screen that has nothing to do with the match. Nothing
+  about the crowd changes anything a kart can touch.
 - **Accessibility**: screen shake on or off, flash reduction, aim assist
   strength from 0% to 100% of the default and never above it, per player, the
   aim guide on or off, the disco lights Full, Few or Off, the control hints on or off,
-  the crowd on or off, and the fixed camera on or off. Few lights three heads at
-  most however hot the match runs, and is where a phone starts, see 10.7: every
-  lit head is a light over the whole table. The crowd is on by default;
-  switching it off empties the stands and leaves the booth, since it is the
-  thousand moving things around the table rather than the party that is worth
+  crowd Full, Half or Off, and the fixed camera on or off. Few lights three heads
+  at most however hot the match runs, and is where a phone starts, see 10.7:
+  every lit head is a light over the whole table. The crowd is the same setting
+  as on the Video page; Off empties the stands and leaves the booth, since it is
+  the thousand moving things around the table rather than the party that is worth
   being able to stop. The fixed camera is off by default and is described in 8.2:
   a camera that never goes anywhere is a smaller picture of the karts, which is a
   real cost, and a still one, which for some players is worth more.

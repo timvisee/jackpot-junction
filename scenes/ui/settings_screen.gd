@@ -506,11 +506,8 @@ func _accessibility_tab() -> Control:
 				_settings.disco_few = index == 1
 	)
 	column.add_child(MenuTheme.row("Disco lights", rig))
-	column.add_child(
-		MenuTheme.row(
-			"Crowd", _check(_settings.crowd, func(on: bool) -> void: _settings.crowd = on)
-		)
-	)
+	# The same setting as on the Video page, see [method VideoTab.crowd_box].
+	column.add_child(MenuTheme.row("Crowd", VideoTab.crowd_box(_settings)))
 	column.add_child(
 		MenuTheme.row(
 			"Control hints",

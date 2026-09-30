@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **The crowd can be turned off for speed too.** The crowd setting is Full, Half or Off, one
+  setting shown on the Video page and in Accessibility alike; a crowd switched off before stays
+  off.
+
 ### Fixed
 
 - **A steady aim guide.** The dots ahead of the cannon, and the arrow of a freely aimed one, follow

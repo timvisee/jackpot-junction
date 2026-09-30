@@ -216,8 +216,8 @@ func test_a_client_tells_its_crowd_how_the_room_is_going() -> void:
 ## Anybody who would rather have the table to themselves empties the stands, GAME.md 8.5, and
 ## keeps the booth: it is the thousand moving things that the setting is about.
 func test_the_stands_can_be_emptied() -> void:
-	var was := Game.settings.crowd
-	Game.settings.crowd = false
+	var was := Game.settings.crowd_size
+	Game.settings.crowd_size = 0.0
 	var arena := _arena()
 	var crowd := arena.crowd
 	var runner: GdUnitSceneRunner = scene_runner(arena)
@@ -225,7 +225,7 @@ func test_the_stands_can_be_emptied() -> void:
 	assert_bool(crowd._onlookers.visible).is_false()
 	assert_bool(crowd.get_node("Stands").visible).is_false()
 	assert_bool(crowd.get_node("DjBooth").visible).is_true()
-	Game.settings.crowd = was
+	Game.settings.crowd_size = was
 	await runner.simulate_frames(4, 17)
 	assert_bool(crowd._onlookers.visible).is_true()
 

@@ -143,14 +143,25 @@ func _ready() -> void:
 	var marks := MenuTheme.toggle(_settings.tire_marks)
 	marks.toggled.connect(func(on: bool) -> void: _settings.tire_marks = on)
 	_add("Tire marks", marks)
-	# The house stands up again at the new size a moment later, see [Crowd].
+	_add("Crowd", crowd_box(_settings))
+
+
+## Full, Half or Off for the crowd, GAME.md 8.5: one setting, offered here and in Accessibility, so
+## the box reads the setting again whenever its page comes up and shows what the other page set.
+## The house stands up again at a new size a moment later, see [Crowd].
+static func crowd_box(settings: Settings) -> OptionButton:
 	var house := MenuTheme.option(
-		["Full", "Half"], maxi(Settings.CROWD_SIZES.find(_settings.crowd_size), 0)
+		Settings.CROWD_NAMES, maxi(Settings.CROWD_SIZES.find(settings.crowd_size), 0)
 	)
 	house.item_selected.connect(
-		func(index: int) -> void: _settings.crowd_size = Settings.CROWD_SIZES[index]
+		func(index: int) -> void: settings.crowd_size = Settings.CROWD_SIZES[index]
 	)
-	_add("Crowd size", house)
+	house.visibility_changed.connect(
+		func() -> void:
+			if house.is_visible_in_tree():
+				house.select(maxi(Settings.CROWD_SIZES.find(settings.crowd_size), 0))
+	)
+	return house
 
 
 ## The window mode and V-sync, which a desktop has and a phone does not.

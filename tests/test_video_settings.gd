@@ -111,6 +111,50 @@ func test_the_picture_is_remembered() -> void:
 	DirAccess.remove_absolute(settings.path)
 
 
+## GAME.md 8.5: the crowd is one setting, Full, Half or Off, remembered through the file; a crowd
+## switched off under the old switch of its own stays off.
+func test_the_crowd_is_one_setting_and_the_old_switch_carries_over() -> void:
+	var path := "user://test_video_settings_crowd.cfg"
+	for size: float in Settings.CROWD_SIZES:
+		var settings := Settings.new()
+		settings.path = path
+		settings.crowd_size = size
+		assert_int(settings.save_to_disk()).is_equal(OK)
+		var read := Settings.new()
+		read.path = path
+		read.load_from_disk()
+		assert_float(read.crowd_size).is_equal(size)
+	var old := ConfigFile.new()
+	old.set_value("video", "crowd_size", 1.0)
+	old.set_value("accessibility", "crowd", false)
+	assert_int(old.save(path)).is_equal(OK)
+	var read := Settings.new()
+	read.path = path
+	read.load_from_disk()
+	assert_float(read.crowd_size).is_equal(0.0)
+	DirAccess.remove_absolute(path)
+
+
+## Offered on two pages, the box reads the setting again as its page comes up, so each shows what
+## the other set.
+func test_the_two_crowd_boxes_show_one_setting() -> void:
+	var settings := Settings.new()
+	settings.path = "user://test_video_settings_boxes.cfg"
+	settings.crowd_size = 1.0
+	var holder: Control = auto_free(Control.new())
+	add_child(holder)
+	var video := VideoTab.crowd_box(settings)
+	var access := VideoTab.crowd_box(settings)
+	holder.add_child(video)
+	holder.add_child(access)
+	access.visible = false
+	video.select(2)
+	video.item_selected.emit(2)
+	assert_float(settings.crowd_size).is_equal(0.0)
+	access.visible = true
+	assert_str(access.get_item_text(access.selected)).is_equal("Off")
+
+
 ## The fixed camera of GAME.md 8.5 is remembered too, and is off until somebody asks for it.
 func test_the_fixed_camera_is_off_until_it_is_asked_for() -> void:
 	var settings := Settings.new()

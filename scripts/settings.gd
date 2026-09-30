@@ -21,8 +21,10 @@ const SMOOTHINGS: Array[String] = [SMOOTH_OFF, SMOOTH_FXAA, SMOOTH_SMAA]
 const UPSCALE_BILINEAR := "bilinear"
 const UPSCALE_FSR := "fsr"
 const UPSCALE_FSR2 := "fsr2"
-## The sizes of house the crowd setting offers, as a share of the people who would have come.
-const CROWD_SIZES: Array[float] = [1.0, 0.5]
+## The sizes of house the crowd setting offers, as a share of the people who would have come,
+## and what each is called: all of them, half, or nobody at all.
+const CROWD_SIZES: Array[float] = [1.0, 0.5, 0.0]
+const CROWD_NAMES: Array[String] = ["Full", "Half", "Off"]
 const UPSCALERS: Array[String] = [UPSCALE_BILINEAR, UPSCALE_FSR, UPSCALE_FSR2]
 ## The shadows the room's sun and lamp cast: none, or drawn into smaller maps with hard edges, or
 ## into the big ones with soft edges. Low is what a phone's renderer does of its own accord, and
@@ -98,9 +100,12 @@ var screen_smoothing := SMOOTH_FXAA if OS.has_feature("mobile") else SMOOTH_OFF
 ## The marks the rear wheels leave on the floor, GAME.md 4.3. Off, none are laid, and whatever is
 ## down already goes at once.
 var tire_marks := true
-## How full the house is, one of [constant CROWD_SIZES]: the whole crowd, or half of it. The
-## crowd is the most triangles on the screen by far and none of them are the match, GAME.md
-## 10.7, so a phone starts with half a house and a desktop with a full one.
+## How full the house is, one of [constant CROWD_SIZES]: the whole crowd, half of it, or nobody,
+## which empties the stands and leaves the booth, GAME.md 8.5. The crowd is the most triangles on
+## the screen by far and none of them are the match, 10.7, so a phone starts with half a house and
+## a desktop with a full one. One setting, offered on the Video page and in Accessibility alike:
+## it is both what a phone's card can afford and the busiest thing on screen that has nothing to
+## do with the match.
 var crowd_size := 0.5 if OS.has_feature("mobile") else 1.0
 var screen_shake := true
 var flash_reduction := false
@@ -115,10 +120,6 @@ var aim_guide := true
 ## a phone starts with a few.
 var disco_lights := true
 var disco_few := OS.has_feature("mobile")
-## The onlookers around the table and the stands they are on, GAME.md 8.1. The busiest thing on
-## screen that has nothing to do with the match, so it is the first thing worth being able to
-## turn off. On by default: the room is meant to be full.
-var crowd := true
 ## The on-screen reminders of which button does what, GAME.md 8.3.
 var control_hints := true
 ## The player colors drawn for a kind of color blindness, one of [constant VISIONS].
@@ -228,6 +229,9 @@ func load_from_disk() -> void:
 	tire_marks = file.get_value("video", "tire_marks", tire_marks)
 	var housed := float(file.get_value("video", "crowd_size", crowd_size))
 	crowd_size = housed if housed in CROWD_SIZES else crowd_size
+	# The crowd was a switch of its own before it was a size, and a crowd switched off stays off.
+	if not bool(file.get_value("accessibility", "crowd", true)):
+		crowd_size = 0.0
 	screen_shake = file.get_value("accessibility", "screen_shake", screen_shake)
 	flash_reduction = file.get_value("accessibility", "flash_reduction", flash_reduction)
 	aim_assist = clampf(
@@ -237,7 +241,6 @@ func load_from_disk() -> void:
 	aim_guide = file.get_value("accessibility", "aim_guide", aim_guide)
 	disco_lights = file.get_value("accessibility", "disco_lights", disco_lights)
 	disco_few = file.get_value("accessibility", "disco_few", disco_few)
-	crowd = file.get_value("accessibility", "crowd", crowd)
 	control_hints = file.get_value("accessibility", "control_hints", control_hints)
 	color_vision = str(file.get_value("accessibility", "color_vision", color_vision))
 	if color_vision not in VISIONS:
@@ -319,7 +322,8 @@ func save_to_disk() -> Error:
 	file.set_value("accessibility", "aim_guide", aim_guide)
 	file.set_value("accessibility", "disco_lights", disco_lights)
 	file.set_value("accessibility", "disco_few", disco_few)
-	file.set_value("accessibility", "crowd", crowd)
+	# Kept beside the size for a build from before the two were one, which reads only this.
+	file.set_value("accessibility", "crowd", crowd_size > 0.0)
 	file.set_value("accessibility", "control_hints", control_hints)
 	file.set_value("accessibility", "color_vision", color_vision)
 	file.set_value("accessibility", "fixed_camera", fixed_camera)
