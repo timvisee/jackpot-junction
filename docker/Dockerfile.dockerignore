@@ -1,0 +1,5 @@
+# The build context is build/, which holds every platform's export. The image takes only the two
+# servers, so nothing else is sent to the builder.
+*
+!linux-server/jackpot-junction-server
+!linux-server-arm64/jackpot-junction-server

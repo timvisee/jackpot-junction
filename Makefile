@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export android android-install android-release server
+.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -143,6 +143,17 @@ export: | $(CACHE)
 	$(GODOT) --headless --path . --export-release "Linux Server ARM64" build/linux-server-arm64/jackpot-junction-server
 	$(GODOT) --headless --path . --export-release "Windows" build/windows/jackpot-junction.exe
 	$(GODOT) --headless --path . --export-release "macOS" build/macos/jackpot-junction.zip
+
+# The dedicated server's container image, docker/Dockerfile, for this machine alone: the server
+# exported for this machine's architecture and the image built from it, tagged DOCKER_IMAGE. The
+# release workflow builds it for x86_64 and ARM together and publishes it, GAME.md 10.5.
+DOCKER_IMAGE ?= timvisee/jackpot-junction-server:dev
+DOCKER_ARM := $(filter aarch64 arm64,$(shell uname -m))
+DOCKER_SERVER := build/linux-server$(if $(DOCKER_ARM),-arm64)
+docker: | $(CACHE)
+	mkdir -p $(DOCKER_SERVER)
+	$(GODOT) --headless --path . --export-release "Linux Server$(if $(DOCKER_ARM), ARM64)" $(DOCKER_SERVER)/jackpot-junction-server
+	docker build -f docker/Dockerfile -t $(DOCKER_IMAGE) build
 
 # A debug build for Android phones and tablets in build/android, signed with the debug keystore
 # the Godot editor's own settings name, next to the Android SDK and the JDK it builds with,

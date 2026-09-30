@@ -21,6 +21,8 @@ below, and hands the notes to the release workflow.
 - **A changed client is shown out.** One that sends what no copy of the game sends is kicked after
   three, told "Kicked: abnormal behavior detected", and the others see it in the kill feed; a bad
   connection never counts.
+- **The server as a Docker image.** Every release publishes `timvisee/jackpot-junction-server`
+  for x86_64 and ARM, with a Compose example in `docker/compose.yaml`.
 - **Linux on ARM.** Every release has the game and the dedicated server for 64-bit ARM Linux too.
 - **Server settings from the environment and a range of game ports.** A dedicated server takes
   `JJ_PORT`, `JJ_GAMES` and `JJ_GAME_PORTS` as well as its arguments, and `--game-ports=9000-9015`

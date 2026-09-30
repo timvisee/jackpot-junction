@@ -1,0 +1,32 @@
+# A Jackpot Junction dedicated server, GAME.md 9.3a, from the image every release publishes, for
+# x86_64 and ARM alike. Put this file on the server and start it with:
+#
+#   docker compose up -d
+#
+# Players connect with Play Online to this machine's address and port 7777. Let UDP 7777 to 7785
+# through the firewall, and through the router to this machine if it is behind one.
+#
+# Every port is published as the same number outside as in: the server tells a player which port
+# their game is on, and they connect to that number at the address they came in by. So a changed
+# JJ_PORT, JJ_GAMES or JJ_GAME_PORTS wants the ports below changed to match.
+
+name: jackpot-junction
+
+services:
+  jackpot-junction:
+    # A version, such as timvisee/jackpot-junction-server:0.11.0, for upgrading only when asked
+    # to; `latest` is the newest release. Players need the same major and minor version, 0.11.x.
+    image: timvisee/jackpot-junction-server:latest
+    restart: unless-stopped
+    environment:
+      # The port players connect to.
+      JJ_PORT: "7777"
+      # How many games at once. Each is a process of its own, about a quarter of a gigabyte.
+      JJ_GAMES: "8"
+      # The ports the games are played on, as many as JJ_GAMES; the ones after JJ_PORT unless set.
+      # JJ_GAME_PORTS: "7778-7785"
+      # The time zone of the log's times, UTC unless set.
+      # TZ: "Europe/Amsterdam"
+    ports:
+      - "7777:7777/udp"
+      - "7778-7785:7778-7785/udp"

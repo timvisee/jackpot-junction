@@ -4527,6 +4527,25 @@ and headless with no `--headless`. The workflow can also be run by hand from the
 Actions tab, as a dry run: the same builds, kept as the run's artifact for a
 week instead of published.
 
+The server is published as a Docker image too, `timvisee/jackpot-junction-server`
+on Docker Hub, one image for x86_64 and ARM, built from the two server exports by
+`docker/Dockerfile`. It is Google's distroless glibc image, which is the C library
+the server's `ldd` asks for and a nonroot user to run it as, with three files on
+top: the server, tini to run it under, since the first process in a container
+is only given the stop signal if it asks for it and the engine does not, and
+busybox as `/bin/sh`, since the engine asks a shell where the desktop is as it
+starts and without one logs an error in the server and in every game. About 92
+MB, nearly all of it the server. The Dockerfile only copies files in, so the ARM
+half is built on the x86 runner without emulating anything. Every run builds it,
+so a broken image fails a dry run; a tag pushes it, before the release itself,
+as the version, `0.11.0`, and as `latest` when the tag is the newest release and
+not a pre-release, `v0.11.0-rc.1`. A fix to an older version published after a
+newer one leaves `latest` where it is, and the GitHub release is marked the
+latest exactly when the image is. Pushing needs two repository secrets,
+`DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`, a Docker Hub access token with read
+and write, and a tag with either missing fails before anything is built.
+`docker/compose.yaml` is the example a server is run from, README.md has the rest.
+
 Tagging is a person's decision, not a step in a script: it says a build is worth
 other people's time.
 

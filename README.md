@@ -244,14 +244,15 @@ The same three can be set in the environment, which the command line overrides:
 |-----------------|----------------|------------------------------------------|
 | `JJ_PORT`       | `--port`       | `7777`                                   |
 | `JJ_GAMES`      | `--games`      | `8`, or as many as `JJ_GAME_PORTS` holds |
-| `JJ_GAME_PORTS` | `--game-ports` | the `JJ_GAMES` ports after `JJ_PORT`     | A game is about a quarter of a
-gigabyte of memory, and a server with no game running about 90 MB and next to
-no processor: a game's process is only started when somebody makes a game.
-Whoever makes a game has the host's say over it, passed on to whoever has been
-in it longest when they leave, and a game ends by itself once everybody playing
-has left it. The server logs where it listens as it starts, every address of
-its machine, and then every player coming and going and every game's state to
-its output, one line each, with the time and the game.
+| `JJ_GAME_PORTS` | `--game-ports` | the `JJ_GAMES` ports after `JJ_PORT`     |
+
+A game is about a quarter of a gigabyte of memory, and a server with no game
+running about 90 MB and next to no processor: a game's process is only started
+when somebody makes a game. Whoever makes a game has the host's say over it,
+passed on to whoever has been in it longest when they leave, and a game ends by
+itself once everybody playing has left it. The server logs where it listens as
+it starts, every address of its machine, and then every player coming and going
+and every game's state to its output, one line each, with the time and the game.
 
 Anything that connects and does not say hello the way the game does is dropped
 at once and logged with its address, `Dropped 1.2.3.4: said 18 bytes that are
@@ -260,6 +261,39 @@ a player who misbehaves once in is kicked, `Kicked Ann, from 1.2.3.4: ...`. A
 flood of datagrams that are not the game's never reaches the game and cannot be
 traced to a sender, so the server only logs that it is getting one, once a
 minute: rate limiting UDP 7777 to 7785 in the firewall is the way to stop one.
+
+### With Docker
+
+Every release also publishes the server as a Docker image for x86_64 and ARM,
+[`timvisee/jackpot-junction-server`](https://hub.docker.com/r/timvisee/jackpot-junction-server),
+tagged with its version, such as `0.11.0`, and the newest as `latest`. It holds
+the server build and the C library it runs on, and runs as a user of its own
+rather than root. To run it:
+
+```
+docker run -d --name jackpot-junction --restart unless-stopped \
+  -p 7777-7785:7777-7785/udp timvisee/jackpot-junction-server
+```
+
+Or with Docker Compose, from [`docker/compose.yaml`](docker/compose.yaml):
+
+```
+curl -O https://raw.githubusercontent.com/timvisee/jackpot-junction/master/docker/compose.yaml
+docker compose up -d
+docker compose logs -f                  # the server's log
+docker compose pull && docker compose up -d     # to the newest release
+```
+
+The server is set with the environment variables above, `-e JJ_GAMES=4`, or
+with its arguments after the image's name,
+`timvisee/jackpot-junction-server --games=4`. Publish every port as the same
+number on the host as in the container, `-p 9000-9015:9000-9015/udp` for
+`JJ_GAME_PORTS=9000-9015`: the server tells a player which port their game is
+on, and they connect to that number. Players need the same major and minor
+version as the server, so pin the tag, `:0.11.0`, to upgrade only when they do.
+The log's times are UTC unless `TZ` is set, `-e TZ=Europe/Amsterdam`, and the
+addresses it says it listens on are the container's own rather than the host's.
+`make docker` builds the image from this checkout, for this machine.
 
 ## Releasing
 
@@ -271,9 +305,10 @@ git tag -a v0.2.0 -m "Jackpot Junction 0.2.0" && git push --follow-tags
 
 The tag starts the release workflow, which exports Linux, Windows and macOS
 builds, the Linux server build and the Android APK, the Linux ones for 64-bit
-ARM as well, and publishes them with that
-version's changelog section as the release notes. A tag whose version has no section fails rather than publishing a release
-with nothing written on it. GAME.md 10.5 has the detail.
+ARM as well, and publishes them with that version's changelog section as the
+release notes, and the server's Docker image to Docker Hub. A tag whose version
+has no section fails rather than publishing a release with nothing written on
+it. GAME.md 10.5 has the detail, and the two secrets Docker Hub needs.
 
 ## License
 
