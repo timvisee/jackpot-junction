@@ -16,6 +16,8 @@ below, and hands the notes to the release workflow.
 - **Everybody is told when a cash-out would win.** The moment a player's next cash-out would win
   the match, every screen says so in their color, and the music climbs to the top the way it does
   for Last Call.
+- **A bar while a server makes a game.** Make a game in Play Online shows how far along the new game
+  is, from the server starting it to its lobby being built.
 
 ### Changed
 
@@ -32,7 +34,6 @@ below, and hands the notes to the release workflow.
   else playing is told the game ends, not that the say passes on to nobody.
 - **No errors when a dedicated server's game ends.** The server no longer logs three "Attempt to
   disconnect a nonexistent connection" errors as the last player leaves a game.
-
 - **A steady aim guide.** The dots ahead of the cannon, and the arrow of a freely aimed one, follow
   the kart as it is drawn: on a phone they jittered against it every frame.
 - **No "Its address" in the server box.** Play Online's server field is empty until something is

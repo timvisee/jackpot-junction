@@ -86,12 +86,18 @@ func _screen() -> ServerGames:
 
 ## Says [param players] play in game [param index] of those the hall started, as its process would.
 func _up(index: int, players: int, named: String) -> void:
+	var state := {"name": named, "players": players, "most": 4, "lobby": true}
+	_report(index, {"state": state})
+
+
+## Says [param words] to the hall as game [param index] of those it started.
+func _report(index: int, words: Dictionary) -> void:
 	var given := {}
 	for arg: String in _launched[index]:
 		if arg.contains("="):
 			given[arg.get_slice("=", 0).trim_prefix("--")] = arg.get_slice("=", 1)
-	var state := {"name": named, "players": players, "most": 4, "lobby": true}
-	var words := {"game": int(given["game"]), "key": given["key"], "state": state}
+	words["game"] = int(given["game"])
+	words["key"] = given["key"]
 	_games.set_dest_address("127.0.0.1", int(given["report"]))
 	_games.put_packet(var_to_bytes(words))
 
@@ -115,6 +121,29 @@ func test_make_a_game_goes_into_its_lobby_with_the_say() -> void:
 	assert_int(config.port).is_equal(port + 1)
 	assert_str(config.server).is_equal("127.0.0.1:%d" % port)
 	assert_array(config.human_names).is_equal(["Ann"] as Array[String])
+
+
+## While the game is being made a bar under the line saying so follows it, from its process being
+## started to its room being built, as the game says, and it goes once the game cannot be made.
+func test_a_bar_follows_the_game_being_made() -> void:
+	var screen := await _screen()
+	assert_bool(screen.making_bar.visible).is_false()
+	screen.make_button.pressed.emit()
+	assert_bool(screen.making_bar.visible).is_true()
+	var at := func(done: float) -> Callable:
+		return func() -> bool: return is_equal_approx(screen.making_bar.value, done)
+	var started := await _wait_until(at.call(ServerLink.MAKING_STARTED), 4000)
+	assert_bool(started).override_failure_message("the bar never moved").is_true()
+	_report(0, {"making": 0.7})
+	var along := await _wait_until(at.call(0.7), 4000)
+	assert_bool(along).override_failure_message("the bar never followed the game").is_true()
+	# Word of less than the bar shows, out of order, never takes it back.
+	_report(0, {"making": 0.6})
+	await await_millis(300)
+	assert_float(screen.making_bar.value).is_equal_approx(0.7, 0.001)
+	screen.link.not_made.emit("The server could not start a game")
+	assert_bool(screen.making_bar.visible).is_false()
+	assert_bool(screen.make_button.disabled).is_false()
 
 
 ## Somebody else's game is listed with Join and Watch, and each goes into its lobby its own way.

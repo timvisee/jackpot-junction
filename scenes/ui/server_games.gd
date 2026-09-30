@@ -14,6 +14,8 @@ var enter: Callable = Game.go_to_waiting
 var leave: Callable = Game.go_to_play_online
 var make_button: Button
 var status: Label
+## How far along the game being made for this machine is, under the line saying it is being made.
+var making_bar: ProgressBar
 ## Why the screen is up again, back from one of the server's games.
 var note: Label
 
@@ -51,6 +53,10 @@ func _ready() -> void:
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status.visible = false
 	column.add_child(status)
+	making_bar = LoadingScreen.bar()
+	making_bar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	making_bar.visible = false
+	column.add_child(making_bar)
 	_games_line = MenuTheme.subtitle("", Type.LABEL)
 	column.add_child(_games_line)
 	_games = GameList.new()
@@ -67,8 +73,9 @@ func _ready() -> void:
 		leave.call_deferred("")
 		return
 	link.listed.connect(_show_games)
-	link.made.connect(func(port: int) -> void: _enter(port, "join", true))
+	link.made.connect(_on_made)
 	link.not_made.connect(_on_not_made)
+	link.making.connect(_on_making)
 	link.lost.connect(func() -> void: leave.call("The server closed the connection"))
 	_show_games(link.games)
 
@@ -92,11 +99,28 @@ func _make() -> void:
 		return
 	make_button.disabled = true
 	_say("Making a game...")
+	making_bar.value = 0.0
+	making_bar.visible = true
 	link.make_game()
+
+
+## The server's word on how far along the game is: the bar moves when a part of it is done, the way
+## a loading screen's does, GAME.md 8.6, eased there over a moment rather than jumping.
+func _on_making(done: float) -> void:
+	if not making_bar.visible or done <= making_bar.value:
+		return
+	var eased := create_tween()
+	eased.tween_property(making_bar, "value", done, 0.15)
+
+
+func _on_made(port: int) -> void:
+	making_bar.value = 1.0
+	_enter(port, "join", true)
 
 
 func _on_not_made(reason: String) -> void:
 	make_button.disabled = false
+	making_bar.visible = false
 	_say(reason, true)
 
 

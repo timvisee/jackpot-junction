@@ -3256,7 +3256,9 @@ says why not: nobody answered, the server is on a version this one cannot play, 
 game. The second, Games, lists the server's games the way Play LAN lists the games on the network,
 a row each saying whose it is, whether it is still in the lobby, how many play in it of how many
 may and whether it wants a password, which joins it, with Watch beside it, and Make a game under
-them. Make a game asks the server for one, says it is making it, and once it is up goes into its
+them. Make a game asks the server for one, says it is making it with a bar under the words that
+fills as the server starts the game's process, the process starts up and its waiting room is built
+a phase at a time, see 8.6, the bar weighted by how long each takes, and once it is up goes into its
 lobby, where the maker has the host's say and sets it up the way a host does, see 9.6: Lobby
 settings first, then the match. Join and Watch go into a game's lobby the way joining a LAN game
 does, the password asked for there if it has one. Back hangs up and goes back to the first

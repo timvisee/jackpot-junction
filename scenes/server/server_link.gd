@@ -21,6 +21,9 @@ signal listed(games: Array[Dictionary])
 ## could not be made, and [param reason] says why.
 signal made(port: int)
 signal not_made(reason: String)
+## At a player's machine: how far along the game it asked for is, from 0 to 1, see [constant
+## MAKING_STARTED].
+signal making(done: float)
 
 ## Where it hangs under [Net], at both ends.
 const NAME := "Server"
@@ -29,6 +32,13 @@ const NAME := "Server"
 const LISTING := "list"
 ## How long the two ends of a new connection have to agree on a version, in seconds.
 const HANDSHAKE_TIMEOUT := 5.0
+## How far along a game being made is, GAME.md 9.3a: its process started by the server, running
+## its first frame, and its waiting room built, with the rest the room opening its door. Weighted
+## by how long each part takes: about 1.3, 0.45 and 0.15 seconds of 1.9 on a desktop, the engine
+## starting up in the new process being most of it.
+const MAKING_STARTED := 0.05
+const MAKING_BOOTED := 0.65
+const MAKING_BUILT := 0.92
 
 ## At the server: the hall it is the wire of. Null at a player's machine.
 var hall: ServerHall
@@ -183,3 +193,8 @@ func _made(port: int) -> void:
 @rpc("authority", "call_remote", "reliable")
 func _not_made(reason: String) -> void:
 	not_made.emit(reason)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _making(done: float) -> void:
+	making.emit(clampf(done, 0.0, 1.0))

@@ -186,8 +186,10 @@ func make_game(peer: int) -> void:
 		"from": 0,
 		"up": false,
 		"state": {},
+		"making": ServerLink.MAKING_STARTED,
 	}
 	_say("%s made game %d, on port %d" % [_visitor(peer), id, port])
+	link._making.rpc_id(peer, ServerLink.MAKING_STARTED)
 
 
 func _free_port() -> int:
@@ -243,8 +245,10 @@ func _process(delta: float) -> void:
 	_send_the_list()
 
 
-## What the games have said: a line for the log, how one stands, or that it is over.
+## What the games have said: a line for the log, how far along one being made is, how one stands,
+## or that it is over.
 func _hear_the_games() -> void:
+	var along: Array[int] = []
 	while _reports.get_available_packet_count() > 0:
 		var said: Variant = bytes_to_var(_reports.get_packet())
 		var from := _reports.get_packet_port()
@@ -259,11 +263,19 @@ func _hear_the_games() -> void:
 		game["from"] = from
 		if words.has("log"):
 			ServerLog.say("game %d" % id, str(words["log"]))
+		if words.has("making") and float(words["making"]) > float(game["making"]):
+			game["making"] = float(words["making"])
+			if id not in along:
+				along.append(id)
 		if words.get("state") is Dictionary:
 			game["state"] = words["state"]
 			if not game["up"]:
 				game["up"] = true
 				_tell_the_maker(id)
+	# Once a frame at most, however many phases a game has got through since the last one.
+	for id: int in along:
+		if _games.has(id) and not _games[id]["up"]:
+			_tell_the_maker_how_far(id)
 
 
 ## The game [param id] is up: whoever asked for it is told where it is, and goes to it.
@@ -271,6 +283,12 @@ func _tell_the_maker(id: int) -> void:
 	var maker: int = _games[id]["maker"]
 	if multiplayer.get_peers().has(maker):
 		link._made.rpc_id(maker, _games[id]["port"])
+
+
+func _tell_the_maker_how_far(id: int) -> void:
+	var maker: int = _games[id]["maker"]
+	if multiplayer.get_peers().has(maker):
+		link._making.rpc_id(maker, _games[id]["making"])
 
 
 ## Every game in turn: told the hall is still here, and forgotten once its process has ended, or it

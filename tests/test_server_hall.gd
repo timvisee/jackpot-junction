@@ -133,6 +133,13 @@ func test_a_game_is_made_listed_and_forgotten_when_its_process_ends() -> void:
 	assert_bool("--server" in _launched[0]).is_true()
 	assert_bool("--headless" in _launched[0]).is_true()
 	assert_str(given["port"]).is_equal(str(port + 1))
+	# How far along it is goes to whoever asked for it: started, and then as the game says.
+	var along: Array[float] = []
+	ann.making.connect(func(done: float) -> void: along.append(done))
+	_report(0, {"making": 0.5})
+	_report(0, {"making": 0.6})
+	var heard := await _wait_until(func() -> bool: return 0.6 in along, 4000)
+	assert_bool(heard).override_failure_message("Ann never heard how far along it was").is_true()
 	_up(0, 0)
 	var told := await _wait_until(func() -> bool: return not ports.is_empty(), 4000)
 	assert_bool(told).override_failure_message("Ann was never told the port").is_true()

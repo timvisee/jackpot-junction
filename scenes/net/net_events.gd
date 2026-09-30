@@ -66,10 +66,12 @@ const RELAYED: Array[StringName] = [
 ## listening to it on any machine; the card it names arrives as a pickup like any other.
 ## [code]kart_corrected[/code] is about this machine's own guess being put right, which is news
 ## to nobody else: their picture of that kart never changed. [code]kart_shot[/code] is counted
-## by the host alone, and the counts reach everybody in the snapshot.
+## by the host alone, and the counts reach everybody in the snapshot. [code]room_building[/code] is
+## this machine's own loading screen, and each machine puts its rooms up by itself.
 const LOCAL: Array[StringName] = [
 	&"announced",
 	&"wild_joker_dropped",
 	&"kart_corrected",
 	&"kart_shot",
+	&"room_building",
 ]

@@ -61,13 +61,7 @@ func _ready() -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	Type.display(title, Type.TITLE, Color(0.94, 0.94, 0.97))
 	column.add_child(title)
-	_bar = ProgressBar.new()
-	_bar.custom_minimum_size = Vector2(420.0, 10.0)
-	_bar.max_value = 1.0
-	_bar.value = 0.0
-	_bar.show_percentage = false
-	_bar.add_theme_stylebox_override("background", _bar_style(Color(0.16, 0.16, 0.2)))
-	_bar.add_theme_stylebox_override("fill", _bar_style(Palette.CHIP_GOLD))
+	_bar = bar()
 	column.add_child(_bar)
 	_phase = Label.new()
 	_phase.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -86,16 +80,27 @@ func run(steps: Array[Callable], label: String) -> void:
 	for i: int in steps.size():
 		steps[i].call()
 		_bar.value = float(i + 1) / float(steps.size())
+		Events.room_building.emit(_bar.value)
 		await get_tree().process_frame
 	await get_tree().create_timer(LINGER).timeout
 	queue_free()
 
 
-func _bar_style(fill: Color) -> StyleBoxFlat:
+## The bar a room fills as it is put up, from 0 to 1: the one on this screen, and the one a player
+## watches while a dedicated server makes them a game, GAME.md 9.3a.
+static func bar() -> ProgressBar:
+	var made := ProgressBar.new()
+	made.custom_minimum_size = Vector2(420.0, 10.0)
+	made.max_value = 1.0
+	made.value = 0.0
+	made.show_percentage = false
+	made.add_theme_stylebox_override("background", _bar_style(Color(0.16, 0.16, 0.2)))
+	made.add_theme_stylebox_override("fill", _bar_style(Palette.CHIP_GOLD))
+	return made
+
+
+static func _bar_style(fill: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = fill
-	style.corner_radius_top_left = 5
-	style.corner_radius_top_right = 5
-	style.corner_radius_bottom_left = 5
-	style.corner_radius_bottom_right = 5
+	style.set_corner_radius_all(5)
 	return style

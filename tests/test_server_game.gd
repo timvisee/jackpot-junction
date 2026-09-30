@@ -19,6 +19,8 @@ var _finished := false
 ## Everything the game has said to the server, its lines and its reports in turn.
 var _lines: Array[String] = []
 var _states: Array[Dictionary] = []
+## How far along it said it was while it was being made, in turn.
+var _making: Array[float] = []
 var _over := false
 ## Whether the stand-in server answers, the way a server tells its games it is still there.
 var _answering := true
@@ -29,6 +31,7 @@ var _settings_were: Settings
 func before_test() -> void:
 	_lines.clear()
 	_states.clear()
+	_making.clear()
 	_over = false
 	_finished = false
 	_answering = true
@@ -79,6 +82,8 @@ func _listen() -> void:
 			_lines.append(str(said["log"]))
 		if said.get("state") is Dictionary:
 			_states.append(said["state"])
+		if said.has("making"):
+			_making.append(float(said["making"]))
 		_over = _over or bool(said.get("over", false))
 		if _answering:
 			_hall.set_dest_address("127.0.0.1", from)
@@ -133,6 +138,13 @@ func _client(named: String) -> NetSession:
 func test_a_game_says_who_comes_and_goes_and_ends_when_everybody_has() -> void:
 	_start_game()
 	var up := await _wait_until(_said.bind("Up on port %d" % port), 8000)
+	# On its way up it said how far along it was, for whoever asked for it: running, and then its
+	# room a phase at a time, never going back, and never saying it was all the way.
+	assert_float(_making[0]).is_equal(ServerLink.MAKING_BOOTED)
+	assert_int(_making.size()).is_greater(5)
+	for i: int in range(1, _making.size()):
+		assert_float(_making[i]).is_greater_equal(_making[i - 1])
+	assert_float(_making[-1]).is_equal_approx(ServerLink.MAKING_BUILT, 0.001)
 	(
 		assert_bool(up)
 		. override_failure_message("the game never said it was up: %s" % [_lines])

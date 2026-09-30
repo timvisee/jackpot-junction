@@ -53,6 +53,9 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_socket.bind(0, "127.0.0.1")
 	_socket.set_dest_address("127.0.0.1", args.report)
+	# How far along it is, for whoever asked for it, see [constant ServerLink.MAKING_STARTED].
+	_send({"making": ServerLink.MAKING_BOOTED})
+	Events.room_building.connect(_on_room_building)
 	var config := MatchConfig.from_settings(Game.settings)
 	config.online = "host"
 	config.dedicated = true
@@ -70,6 +73,11 @@ func _exit_tree() -> void:
 ## A line for the server's log.
 func say(text: String) -> void:
 	_send({"log": text})
+
+
+func _on_room_building(done: float) -> void:
+	if not _up:
+		_send({"making": lerpf(ServerLink.MAKING_BOOTED, ServerLink.MAKING_BUILT, done)})
 
 
 func _process(delta: float) -> void:

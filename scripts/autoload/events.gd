@@ -94,6 +94,9 @@ signal match_planned(summary: String, choosing: bool)
 ## how many players the room may hold, GAME.md 9.6: the room says how many bots will come in with
 ## the players, and whether there is a seat left to take. Said alongside the plan.
 signal room_planned(bots: int, seats: int)
+## A room being put up has done [param done] of its phases, from 0 to 1, GAME.md 8.6: how far a
+## dedicated server's game is along, for the player waiting for it, 9.3a.
+signal room_building(done: float)
 ## A map of a Grand Prix has been scored, GAME.md 9.7, and this is the whole run as it stands.
 ## The host scores it; a client is told, and draws its podiums from what it is told.
 signal grand_prix_scored(run: Dictionary)
