@@ -53,8 +53,9 @@ func stacked() -> int:
 
 ## The card's own words for [param copies] held, GAME.md 8.3: [member description] with every
 ## number in braces filled in from [method stack_values], and each a stack has made other than one
-## copy's put through [param mark], a format with a place for the value, to set it apart.
-func describe(copies := 1, mark := "%s") -> String:
+## copy's put through [param mark], a format with a place for the value, to set it apart. With
+## [param details], how far it stacks as well, which the card leaves out.
+func describe(copies := 1, mark := "%s", details := false) -> String:
 	var count := 1
 	if stackable:
 		count = clampi(copies, 1, most if most > 0 else maxi(copies, 1))
@@ -64,7 +65,7 @@ func describe(copies := 1, mark := "%s") -> String:
 	for key: String in now:
 		var value := str(now[key])
 		said = said.replace("{%s}" % key, value if value == str(one[key]) else mark % value)
-	if stackable:
+	if stackable and details:
 		said += " Stacks up to ×%d." % most if most > 0 else " Stacks."
 	return said
 

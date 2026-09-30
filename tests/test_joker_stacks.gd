@@ -37,8 +37,9 @@ func _attach(kart: Kart, id: String, copies := 1) -> Joker:
 	return first
 
 
-## Every card fills in its numbers. One that stacks says how far, and a stack of it says more
-## than one copy does, every number it changed marked; one copy's marks nothing.
+## Every card fills in its numbers. One that stacks says how far only when asked for the details,
+## and a stack of it says more than one copy does, every number it changed marked; one copy's
+## marks nothing.
 func test_every_card_fills_in_its_numbers_and_a_stack_marks_what_it_changed() -> void:
 	for joker: Joker in CATALOG.jokers:
 		var one := joker.describe(1, MARK)
@@ -50,7 +51,8 @@ func test_every_card_fills_in_its_numbers_and_a_stack_marks_what_it_changed() ->
 		assert_int(joker.most).override_failure_message("%s stacks forever" % joker.id).is_greater(
 			1
 		)
-		assert_str(one).override_failure_message(joker.id).ends_with(
+		assert_bool("Stacks" in one).override_failure_message(joker.id).is_false()
+		assert_str(joker.describe(1, MARK, true)).override_failure_message(joker.id).ends_with(
 			"Stacks up to ×%d." % joker.most
 		)
 		var most := joker.describe(joker.most, MARK)

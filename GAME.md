@@ -2340,8 +2340,9 @@ movement: the one thing a corner block must not do is ask to be looked at.
   never mistaken for the card's own; one copy's words are the card's, in the
   pane's own ink. On a Rule joker that gold is all but the Rule color of the
   pane's top edge and its kind; it stays, since it is the ×2's, and the number
-  still stands out of the words around it. The words end with how far it
-  stacks, "Stacks up to ×3." A
+  still stands out of the words around it. How far it stacks, "Stacks up to
+  ×3.", is left off the words: it was one more sentence on every card for a
+  number the player has no way to act on while reading it. A
   long row of cards, two Wild Cards' seven, shrinks to fit across its share of
   the screen.
 - **The respawn pick** shows the offered cards in a straight row, the one under
