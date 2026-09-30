@@ -234,7 +234,10 @@ func _build(standings: Array[PlayerSlot]) -> void:
 	var shown := mini(standings.size(), PLACES.size())
 	for place: int in shown:
 		_colors.append(standings[place].color())
-	var surfaces := Surfaces.new(room)
+	# The arena's own surfaces rather than a fresh set, GAME.md 10.7: the arena turns the culling
+	# off on its table's wood, so a fresh set's wood is a shader of its own, compiled the first
+	# time a Grand Prix ends and nowhere else.
+	var surfaces := match_node.arena.surfaces if match_node.arena != null else Surfaces.new(room)
 	_lay_the_floor(surfaces)
 	_fence_the_floor(room, surfaces)
 	_stack_the_chips(surfaces)

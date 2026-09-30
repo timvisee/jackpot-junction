@@ -4318,7 +4318,9 @@ near enough to have taken it, and it blinks out.
   saving came out of, each with the measurement that put it there, and ends
   with the checklist new code is held to. A change that costs frames is caught
   by `make bench` and explained by `make profile` and `make probe` before it
-  lands, and the numbers go into 10.7 with the change.
+  lands, and the numbers go into 10.7 with the change. A change that adds a
+  shader adds it to the warm-up behind the title, and `make warmup-check` says
+  whether it did.
 - Every change a player would notice adds its line to the `## [Unreleased]`
   section of `CHANGELOG.md`, in the same commit that makes it. The test is
   whether somebody who plays the game would care, not whether the diff was
@@ -4569,9 +4571,19 @@ with the numbers that put them there.
   through, `ShaderWarmup` leaves `user://shader_warmup.cfg` saying for which
   build, renderer and card it ran and how many entries the shader cache held;
   while that matches and the cache is still at least that full, it does not run
-  again, so the bar is seen once per build on a machine. Shipping the compiled
-  shaders in the export instead would need every material to be a resource the
-  export's shader baker can see, which is a bigger change than the bar.
+  again, so the bar is seen once per build on a machine; a step added to the
+  plan changes the stamp, so a machine that has stamped compiles the new step
+  too. Shipping the compiled shaders in the export instead would need every
+  material to be a resource the export's shader baker can see, which is a
+  bigger change than the bar. Two things the check found that a reading of the
+  code would not: a material is compiled once per vertex layout, so the table's
+  wood on the arena's own slab, built without tangents, and the same wood on the
+  finale's `BoxMesh` are two shaders; and a `Surfaces` set of its own, as the
+  finale had, is a second set of every material, since the arena turns the
+  culling off on its table's. The finale reuses the arena's surfaces now, and
+  the warm-up lays the wood and the felt on a box. `make warmup-check` passes on
+  both renderers: after the title a match, the results and the finale compile
+  nothing, 37 cache entries on Forward+ and 46 on the mobile renderer.
 - **The fill light is ambient.** Every room had a second directional light, a
   cool fill from the other side, and on either renderer a directional light is
   a pass over every pixel: 0.07 ms of a 1.8 ms Forward+ frame here, and one of
@@ -4619,9 +4631,17 @@ stays won. New code is held to these, and a pull that breaks one says why:
 - Per tick, nothing asks the tree for a group once per object; the list is read
   once a frame and shared, and freed nodes are checked for. What is quadratic
   is rejected cheaply before anything is allocated.
-- A new effect, pickup, kart dress, HUD piece or room is added to
-  `ShaderWarmup`'s plan, or its shader compiles the first time a player sees
-  it, mid-race.
+- Every new shader a player can meet is compiled behind the title. A new
+  effect, pickup, kart dress, HUD piece, room, light or material with a feature
+  set the game did not have -- a texture where there was none, transparency,
+  emission, a billboard, a particle trail -- is a shader of its own, and it is
+  added to `ShaderWarmup`'s plan in the commit that adds it, or it compiles the
+  first time a player sees it, mid-race. `make warmup-check` is the proof: it
+  runs the title in a user directory of its own until the warm-up is done, then
+  a match with one of everything, the results and the finale, and fails if any
+  of them compiled a shader the title had not. It is run on the mobile renderer
+  too, since each renderer compiles shaders of its own. When it fails, the plan
+  is what is fixed, not the check.
 - Every one of these is measured before it is believed: `make bench` on the
   three maps, `make profile` for where the frame goes, `make probe
   ARGS=--ablate` for what each group costs in the visible and shadow passes

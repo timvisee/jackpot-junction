@@ -23,6 +23,34 @@ signal finished
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 ## The rooms, whose lights and air are each a shader of their own.
 const ROOMS: Array[String] = ["workbench", "the_yard", "garage", "after_hours"]
+## What is put into the match once its room stands, in order, each a method here: the match
+## itself, then one of everything that happens in one. A new effect, pickup, dress, HUD piece or
+## material goes on this list, GAME.md 10.7, and `make warmup-check` says whether it had to.
+const EFFECTS: Array[StringName] = [
+	&"_start_match",
+	&"_nitro",
+	&"_drift",
+	&"_explosion",
+	&"_burst",
+	&"_ring",
+	&"_stain",
+	&"_bomb",
+	&"_turret",
+	&"_shots",
+	&"_marks",
+	&"_chips",
+	&"_item_box",
+	&"_floor_joker",
+	&"_die",
+	&"_fireworks",
+	&"_burst_a_shell",
+	&"_smoke_machine",
+	&"_tracks",
+	&"_dressed_karts",
+	&"_hud",
+	&"_printed",
+	&"_boxed_slabs",
+]
 ## Frames left running after the last step, for what was put down to draw its first frames.
 const SETTLE := 12
 ## The viewport's size: a shader compiles the same at any size, and pixels cost.
@@ -49,6 +77,7 @@ var progress := 0.0
 var _viewport: SubViewport
 var _lighting: ArenaEnvironment
 var _match: Match
+var _show: Fireworks
 var _steps: Array[Callable] = []
 var _at := 0
 var _settle := SETTLE
@@ -180,14 +209,15 @@ func _stamp() -> void:
 
 
 ## What the compiled shaders are good for: this build of the game, on this renderer, on this
-## card. Any of the three changing means compiling again.
+## card, with this many steps in the plan. Any of the four changing means compiling again.
 static func _key() -> String:
 	return (
-		"%s|%s|%s"
+		"%s|%s|%s|%d"
 		% [
 			Game.version(),
 			RenderingServer.get_current_rendering_method(),
 			RenderingServer.get_video_adapter_name(),
+			plan_length(),
 		]
 	)
 
@@ -230,36 +260,20 @@ func _mute(quiet: bool) -> void:
 func _plan(building: Array[Callable]) -> Array[Callable]:
 	var steps: Array[Callable] = []
 	steps.append_array(building)
-	steps.append(_start_match)
-	(
-		steps
-		. append_array(
-			[
-				_nitro,
-				_drift,
-				_explosion,
-				_burst,
-				_ring,
-				_stain,
-				_bomb,
-				_turret,
-				_shots,
-				_marks,
-				_chips,
-				_item_box,
-				_floor_joker,
-				_die,
-				_fireworks,
-				_smoke_machine,
-				_tracks,
-				_dressed_karts,
-				_hud,
-			]
-		)
-	)
+	for step: StringName in EFFECTS:
+		steps.append(Callable(self, step))
 	for room: String in ROOMS:
 		steps.append(_dress.bind(room))
 	return steps
+
+
+## How many steps the plan has, without a match to run them on: the room's phases, the effects
+## and the rooms. In the stamp, so a step added to the plan runs on a machine that has stamped.
+static func plan_length() -> int:
+	var arena := Arena.new()
+	var phases := arena.build_steps().size()
+	arena.free()
+	return phases + EFFECTS.size() + ROOMS.size()
 
 
 ## The match on the home table, its room built, held in its lobby: karts standing, nothing
@@ -357,8 +371,20 @@ func _die() -> void:
 	_match.arena.place_drop(MultDie.new(), _spot(Vector3(0.0, 0.0, -3.0)))
 
 
+## A show, with its first shell sent up at once rather than when the show would send it.
 func _fireworks() -> void:
-	Fireworks.celebrate(_match, _match.arena.bounds(), Palette.player_color(0), 2.0)
+	_show = Fireworks.celebrate(_match, _match.arena.bounds(), Palette.player_color(0), 2.0)
+	_show._launch()
+
+
+## The shell broken open now: the break is the one place the game draws particles with trails,
+## which is a shader of its own, and a shell takes a second to climb that this does not wait.
+func _burst_a_shell() -> void:
+	if _show == null or not is_instance_valid(_show):
+		return
+	for shell: Node in _show.get_children():
+		if shell is Fireworks.Shell:
+			(shell as Fireworks.Shell)._break()
 
 
 func _smoke_machine() -> void:
@@ -398,6 +424,46 @@ func _hud() -> void:
 	FloatingText.spawn(_match, at, "+100", Palette.CHIP_GOLD)
 	ChipBurst.spawn(_match, at, at + Vector3(2.0, 1.0, 0.0), 4, Palette.CHIP_GOLD)
 	FloatingIcon.spawn(_match, at, Heart.broken_shapes(), Palette.player_color(0), 1.0, 1.0)
+
+
+## A picture printed on a thing, GAME.md 8.1: the chip stacks and cards of the card room and the
+## Grand Prix finale, the one textured surface a match on the home table never shows.
+func _printed() -> void:
+	var surfaces := _match.arena.surfaces
+	var stack := MeshInstance3D.new()
+	var coin := CylinderMesh.new()
+	coin.top_radius = 0.4
+	coin.bottom_radius = 0.4
+	coin.height = 0.1
+	coin.radial_segments = 16
+	coin.rings = 1
+	stack.mesh = coin
+	stack.material_override = surfaces.printed(Surfaces.CHIP_FACE, Palette.CHIP_RED)
+	stack.position = _spot(Vector3(5.0, 0.05, 5.0))
+	_match.add_child(stack)
+	var card := MeshInstance3D.new()
+	var face := BoxMesh.new()
+	face.size = Vector3(0.6, 0.02, 0.9)
+	card.mesh = face
+	card.material_override = surfaces.printed(Surfaces.CARD_BACK)
+	card.position = _spot(Vector3(6.0, 0.01, 5.0))
+	_match.add_child(card)
+
+
+## The table's wood and the floor's felt on a box, GAME.md 10.7: the arena lays them on meshes it
+## builds itself, without tangents, and the Grand Prix finale lays the same wood on a BoxMesh,
+## which has them. Godot compiles a material's shader per vertex layout, so the one material is
+## two shaders, and a finale was the first to draw the second.
+func _boxed_slabs() -> void:
+	var surfaces := _match.arena.surfaces
+	for skin: Material in [surfaces.surround(), surfaces.floor_top()]:
+		var slab := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = Vector3(2.0, 0.3, 2.0)
+		slab.mesh = box
+		slab.material_override = skin
+		slab.position = _spot(Vector3(-7.0, 0.15, 5.0))
+		_match.add_child(slab)
 
 
 ## The light and the air of [param room], each a shader of its own for the sky, the fog and the

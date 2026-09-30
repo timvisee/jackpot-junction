@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Says whether the shader warm-up behind the title compiles everything a match draws, GAME.md
+# 10.7. It runs the title long enough for the warm-up to finish, in a user directory of its own
+# so the player's cache and settings are never touched, counts what the shader cache holds, then
+# plays a match with one of everything in it, the results and the Grand Prix finale, and counts
+# again. Anything compiled by the match is a shader the warm-up missed: a new effect, pickup,
+# dress, HUD piece or room that was not added to ShaderWarmup's plan, which a player would meet
+# as a stutter the first time they saw it.
+#
+# Usage: tools/warmup_check                (needs a display; about a minute)
+#
+# WARMUP_GODOT_ARGS goes to the engine, such as --rendering-method mobile, since each renderer
+# compiles shaders of its own. WARMUP_KEEP=1 keeps the scratch directory and says where it is.
+set -uo pipefail
+cd "$(dirname "$0")/.."
+scratch=$(mktemp -d)
+if [[ -z ${WARMUP_KEEP:-} ]]; then
+	trap 'rm -rf "$scratch"' EXIT
+fi
+# Godot keeps user:// under XDG_DATA_HOME on Linux, so this points it at the scratch directory.
+export XDG_DATA_HOME="$scratch"
+# shellcheck disable=SC2086
+engine=(tools/godot --path . --fixed-fps 60 --resolution 1280x720 ${WARMUP_GODOT_ARGS:-})
+
+count() {
+	find "$scratch" -path '*shader_cache*' -type f 2>/dev/null | wc -l
+}
+
+# --screenshot runs a scene for that many frames and quits, which is all this wants of it.
+run() {
+	local scene=$1
+	local frames=$2
+	shift 2
+	"${engine[@]}" "$scene" -- --screenshot="$scratch/shot.png" --frames="$frames" "$@" 2>&1 |
+		grep -E "SCRIPT ERROR" | head -5
+}
+
+run res://scenes/ui/title.tscn 200
+warmed=$(count)
+if ! find "$scratch" -name shader_warmup.cfg | grep -q .; then
+	echo "warmup check failed: the title did not finish the warm-up in 200 frames" >&2
+	exit 1
+fi
+run res://scenes/dev/playground.tscn 420 --clean=1 --bots=3 --jokers=3 --banked=1 --feed=1 \
+	--flame=1 --explosion=0.2 --burst=1 --oil=1 --bounty=1 --disco=6 --offer=1
+match=$(count)
+run res://scenes/dev/playground.tscn 200 --clean=1 --bots=3 --results=1
+results=$(count)
+run res://scenes/dev/playground.tscn 300 --clean=1 --bots=3 --finale=1
+finale=$(count)
+echo "warm-up: $warmed shader cache entries; then a match added $((match - warmed))," \
+	"the results $((results - match)), the finale $((finale - results))"
+if [[ -n ${WARMUP_KEEP:-} ]]; then
+	echo "kept $scratch"
+fi
+if ((finale > warmed)); then
+	echo "warmup check failed: something a player meets was not compiled behind the title;" \
+		"add it to ShaderWarmup's plan, GAME.md 10.7" >&2
+	exit 1
+fi
+echo "warmup check ok"

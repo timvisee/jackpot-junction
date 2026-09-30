@@ -75,6 +75,7 @@ make test       # unit tests only (gdUnit4, headless, a suite per process in par
 make bench      # the frame rate of a match on each map
 make profile    # where a frame goes: script functions, server and GPU passes, from the profilers
 make probe      # what a frame is made of: meshes, triangles, materials, lights, draw calls by pass
+make warmup-check  # whether the shader warm-up behind the title covers everything a player meets
                 # (the performance rules these keep, and their numbers, are in GAME.md 10.7)
 make multiplayer  # a whole Grand Prix online (two games, up to two clients) and on one screen
 make server-check  # a game on a dedicated server, made, joined and watched by three clients
@@ -139,6 +140,14 @@ instance by the script that built it, with its triangles, the distinct meshes an
 materials, the lights and particle systems, and the draw calls and primitives of
 the visible pass, the shadow pass and the canvas. `make probe ARGS="--ablate"`
 then hides one group at a time and prints what each costs in every pass.
+
+`make warmup-check` (`tools/warmup_check`) runs the title in a user directory of
+its own until the shader warm-up behind it has finished, then a match with one of
+everything in it, the results and the Grand Prix finale, counting the shader
+cache after each. It fails if anything compiled after the title: that is a shader
+a player would meet as a stutter, and it belongs in `ShaderWarmup`'s plan, GAME.md
+10.7. Run it whenever a new effect, pickup, dress, HUD piece, room or material
+lands, on `--rendering-method mobile` too via `WARMUP_GODOT_ARGS`.
 
 ### The development scene
 

@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench profile probe bots multiplayer multiplayer-lag server-check changelog check export android android-install android-release server
+.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export android android-install android-release server
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -101,6 +101,12 @@ profile: | $(CACHE)
 # a time and says what each costs.
 probe: | $(CACHE)
 	$(GODOT) --path . --disable-vsync -s tools/scene_probe.gd -- --clean=1 --bots=3 --frames=200 $(ARGS)
+
+# Whether the shader warm-up behind the title compiles everything a match, the results and the
+# finale draw, in a user directory of its own: a shader it misses is a stutter the first time a
+# player meets it. Needs a display.
+warmup-check: | $(CACHE)
+	tools/warmup_check
 
 bots: | $(CACHE)
 	tools/bot_arena
