@@ -3027,10 +3027,12 @@ so the table's other karts read as players rather than as machines. Pleased at a
 double kill or better and at shoving a kart down a hole; cross at being shoved down
 one, at being shot at three times in six seconds by one player, hits and near misses
 alike, and at being killed within three seconds of coming back; a gg for winning the
-match. Each moment is a 35% chance, weighed by the trait's chattiness, a Bumper
-rowdier and a Cautious bot half as talkative, said after a moment's thought of
-0.3 to 1.2 s, and a bot that has just said something says nothing more for 20 s.
-The host decides, and it comes up everywhere as a player's does, `BotEmotes`.
+match, and now and then one for losing it, at a fifth of the chance, 7%, since a
+table where every loser says it at once reads as a script. Each moment is a 35%
+chance, weighed by the trait's chattiness, a Bumper rowdier and a Cautious bot half
+as talkative, said after a moment's thought of 0.3 to 1.2 s, and a bot that has just
+said something says nothing more for 20 s. The host decides, and it comes up
+everywhere as a player's does, `BotEmotes`.
 
 **Getting unstuck**: driving at something solid pins a kart against it, and steering
 toward a target on the far side only holds it there harder. A bot that is going

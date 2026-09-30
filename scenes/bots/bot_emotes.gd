@@ -4,9 +4,10 @@ extends Node
 ## player's is, on the moments a player would put one up. Pleased with a double kill or better and
 ## with shoving somebody down a hole; cross at being shoved down one, at being shot at over and over
 ## by the same player, and at being killed the moment they came back; and a gg for winning the
-## match. Never every time: each moment is a chance, weighed by how chatty the bot is, after a
-## moment's thought, and a bot that has just said something says nothing more for a while, so they
-## read as the table's other players rather than as a machine answering every event.
+## match, which a beaten bot now and then says too. Never every time: each moment is a chance,
+## weighed by how chatty the bot is, after a moment's thought, and a bot that has just said
+## something says nothing more for a while, so they read as the table's other players rather than as
+## a machine answering every event.
 ##
 ## Decided where the karts run, the host online, and said to every machine as a player's emote is.
 
@@ -16,6 +17,8 @@ const HAPPY := 1
 const ANGRY := 2
 ## The chance a moment gets an emote, for a bot of [member BotTrait.chattiness] 1.
 const CHANCE := 0.35
+## How much of that a beaten bot's gg at the end of the match has, being the rarer grace.
+const LOSING_GG := 0.2
 ## How long a bot thinks before it says it, in seconds, and how long before it says anything else.
 const DELAY_MIN := 0.3
 const DELAY_MAX := 1.2
@@ -100,14 +103,14 @@ func _listen_to_the_karts() -> void:
 		kart.grazed_by.connect(func(by: int) -> void: _on_shot(victim, by))
 
 
-## [param slot], a bot, may say [param emote]: a chance, weighed by its chattiness, and said after
-## a moment unless it has said something lately.
-func want(slot: int, emote: int) -> void:
+## [param slot], a bot, may say [param emote]: a chance, weighed by its chattiness and by
+## [param share] of the usual, and said after a moment unless it has said something lately.
+func want(slot: int, emote: int, share := 1.0) -> void:
 	if match_node.puppet or not _is_bot(slot) or _clock < _next.get(slot, 0.0):
 		return
 	var bot_trait := match_node.slots[slot].bot_trait
 	var chatty := bot_trait.chattiness if bot_trait != null else 1.0
-	if rng.randf() >= chance * chatty:
+	if rng.randf() >= chance * chatty * share:
 		return
 	_next[slot] = _clock + QUIET
 	_waiting.append([_clock + rng.randf_range(DELAY_MIN, DELAY_MAX), slot, emote])
@@ -157,5 +160,5 @@ func _on_state(state: int) -> void:
 	if state != Match.State.RESULTS:
 		return
 	var ranked := match_node.standings()
-	if not ranked.is_empty():
-		want(ranked[0].index, GG)
+	for place: int in ranked.size():
+		want(ranked[place].index, GG, 1.0 if place == 0 else LOSING_GG)

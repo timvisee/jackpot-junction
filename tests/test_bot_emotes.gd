@@ -122,3 +122,32 @@ func test_a_double_kill_pleases_and_near_misses_count() -> void:
 		hounded.graze(0)
 	await _think()
 	assert_array(_said).is_equal([Vector2i(2, BotEmotes.ANGRY)] as Array[Vector2i])
+
+
+## The winner says gg, and a beaten bot now and then does too, a fifth as often.
+func test_the_winner_says_gg_and_the_beaten_now_and_then() -> void:
+	var emotes := await _start()
+	await _runner.simulate_frames(10, 17)
+	var slots := emotes.match_node.slots
+	slots[2].banked = 500
+	emotes._on_state(Match.State.RESULTS)
+	await _think()
+	# Every chance taken: both bots say it, and the player is left to say their own.
+	var both: Array[Vector2i] = [Vector2i(2, BotEmotes.GG), Vector2i(1, BotEmotes.GG)]
+	assert_array(_said).contains_exactly_in_any_order(both)
+	# At the real chance, with the two as chatty as each other, the beaten one says it far less.
+	emotes.chance = BotEmotes.CHANCE
+	emotes.rng.seed = 11
+	for slot: PlayerSlot in [slots[1], slots[2]]:
+		slot.bot_trait = slot.bot_trait.duplicate()
+		slot.bot_trait.chattiness = 1.0
+	var said := {1: 0, 2: 0}
+	for i: int in 1000:
+		emotes._next.clear()
+		emotes._waiting.clear()
+		emotes._on_state(Match.State.RESULTS)
+		for waiting: Array in emotes._waiting:
+			said[waiting[1]] += 1
+	emotes._waiting.clear()
+	assert_int(said[2]).is_between(300, 400)
+	assert_int(said[1]).is_between(40, 100)
