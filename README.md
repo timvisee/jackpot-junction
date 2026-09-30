@@ -100,7 +100,7 @@ Anything a player would notice gets a line in the `## [Unreleased]` section of
 ## Startup arguments
 
 The game's own arguments go after `--` (or `++`), past Godot's:
-`make run ARGS="--touch=1"`, or `./jackpot-junction.x86_64 -- --touch=1` for an
+`make run ARGS="--touch=1"`, or `./jackpot-junction -- --touch=1` for an
 exported build. *Debug* is the game run from this checkout (`make run`, `make dev`,
 the editor) or a debug export (`make android`); *release* is a release export
 (`make export`, `make android-release`, and every published release).
@@ -223,9 +223,9 @@ serving by itself, with its pictures and models stripped to their sizes and no
 sound at all. The game itself serves too, told to:
 
 ```
-./jackpot-junction-server.x86_64                                      # the server build
-./jackpot-junction-server.x86_64 -- --port=7777 --games=8
-./jackpot-junction.x86_64 --headless -- --server                      # the game, as a server
+./jackpot-junction-server                                             # the server build
+./jackpot-junction-server -- --port=7777 --games=8
+./jackpot-junction --headless -- --server                             # the game, as a server
 make server ARGS="--games=4"                                          # from this checkout
 ```
 

@@ -3278,7 +3278,7 @@ join from Play LAN. Neither is let in to wait for something that never comes.
 `jackpot-junction-server`, in every release, see 10.5: started with no arguments at all, it is
 headless and a server, and it carries no sound and only the sizes of its pictures and models,
 about 75 MB against the game's 95. The game proper is a server too, started headless with
-`--server` after `--`: `./jackpot-junction.x86_64 --headless -- --server`, or `make server` from a
+`--server` after `--`: `./jackpot-junction --headless -- --server`, or `make server` from a
 checkout. Linux is what it is made for and tried on. It listens on port 7777, the port a LAN
 game is hosted on, unless given `--port`, so a LAN game on the same machine takes another one, and
 holds up to 8 games at once unless given `--games`, on the ports after its own: 7778 to 7785 to
@@ -4445,7 +4445,10 @@ A release is therefore: cut it, read it over, commit, then tag `vX.Y.Z` and push
 the tag. The tag starts the release workflow, which exports Linux, Windows and
 macOS builds, the Android APK and the Linux dedicated server build of 9.3a, and
 publishes them with that version's changelog section as the release notes,
-GitHub's own list of commits appended underneath. A tag whose version has no
+GitHub's own list of commits appended underneath. Each zip holds the game itself
+at its top, one file with everything inside it: `jackpot-junction` for Linux,
+`jackpot-junction.exe` for Windows, `jackpot-junction-server` for the server,
+and for macOS the app. A tag whose version has no
 section fails the workflow rather than publishing a release with nothing written
 on it, and so does an APK that is not signed with the release key: nothing is
 published until everything is built. The server build is Godot's own dedicated

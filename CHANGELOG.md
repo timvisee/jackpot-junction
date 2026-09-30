@@ -21,6 +21,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Plainer release zips.** Each zip holds the game at its top: `jackpot-junction` for Linux,
+  `jackpot-junction.exe` for Windows and `jackpot-junction-server` for the server.
 - **Full screen from the start on a desktop.** A released game starts full screen on Linux,
   Windows and macOS until the Video page says otherwise; a window mode already saved is kept.
 - **The lobby's football answers at once online.** A client's kart kicks it the moment the two
