@@ -31,6 +31,15 @@ static func follow(kart: Kart, joker: Joker, joined: bool) -> void:
 	kart.lives = clampi(kart.lives + change, 1, most(kart))
 
 
+## Whether a hit about to cost [param kart] a life, by [param cause], is taken by one of its jokers
+## instead, see [method Joker.spares].
+static func spared(kart: Kart, cause: StringName) -> bool:
+	for joker: Joker in kart.jokers.jokers:
+		if joker.spares(kart, cause):
+			return true
+	return false
+
+
 ## What [param kart]'s death takes with it out of its hand, before anything is dropped: never on the
 ## floor, see [method Joker.lost_on_death].
 static func lose_on_death(kart: Kart) -> void:

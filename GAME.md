@@ -1603,6 +1603,7 @@ a real downside. Starting set; balance is untested.
 | Loaded Dice      | Uncommon | Rule   | Every chip has a 25% chance to count as a gold chip                       |
 | Toll Booth       | Uncommon | Rule   | Whenever another kart completes a cash-out, you bank 15% of it            |
 | Tailslide        | Uncommon | Rule   | +1 coin for every 8 m you drift                                           |
+| Guardian Angel   | Uncommon | Rule   | A hit about to cost you a life uses the Shield or Bullet Wipe you hold instead, the moment it lands: a Shield takes any hit, a Bullet Wipe a shot only. An item still being rolled for off a pad is not yours yet |
 | Jerry Can        | Uncommon | Stat   | Nitro refills 4x as fast                                                  |
 | Direct Debit     | Uncommon | Rule   | 5 points of your pot bank themselves every second, wherever you are. Your mult is left alone |
 | Payday           | Uncommon | Rule   | +1 coin every second, wherever you are and whatever you are doing        |

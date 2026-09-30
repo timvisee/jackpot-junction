@@ -145,3 +145,9 @@ func blocks_healing() -> bool:
 ## Whether the holder's death takes this joker with it, gone rather than kept or dropped.
 func lost_on_death() -> bool:
 	return false
+
+
+## Whether a hit about to cost the holder a life, by [param cause], is taken by something else
+## instead, see [KartLives]. The joker does whatever takes it.
+func spares(_kart: Kart, _cause: StringName) -> bool:
+	return false

@@ -1,8 +1,11 @@
 extends GdUnitTestSuite
 ## The jokers about lives, GAME.md 3.6 and 7.3: Spare Tire, one more that the death takes with it,
-## and Scar Tissue, one more that nothing heals. In a running match with the rules' two lives.
+## Scar Tissue, one more that nothing heals, and Guardian Angel, which spends a protection item on a
+## hit that would take one. In a running match with the rules' two lives.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const SHIELD := preload("res://data/powerups/shield.tres")
+const WIPE := preload("res://data/powerups/bullet_wipe.tres")
 
 var _runner: GdUnitSceneRunner
 
@@ -98,3 +101,37 @@ func _floor_jokers(match_node: Match) -> int:
 		if node is FloorJoker:
 			count += 1
 	return count
+
+
+## Guardian Angel spends the Shield or Bullet Wipe the kart holds on a hit about to cost it a life:
+## a Shield on anything, a Bullet Wipe on a shot only, and nothing still being rolled for.
+func test_guardian_angel_spends_the_protection_held() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	_attach(kart, "guardian_angel")
+	kart.protection_left = 0.0
+	kart.hurt_left = 0.0
+	kart.hold_item(SHIELD, 0.0)
+	kart.take_ram(1)
+	assert_int(kart.lives).override_failure_message("the shield never went up").is_equal(2)
+	assert_object(kart.held_item).is_null()
+	assert_bool(kart.shielded).is_false()
+	# A Bullet Wipe takes a shot, and wipes it with the rest near the kart.
+	kart.hold_item(WIPE, 0.0)
+	var shot: Bullet = auto_free(Bullet.new())
+	shot.owner_slot = 1
+	kart.take_hit(shot)
+	assert_int(kart.lives).is_equal(2)
+	assert_object(kart.held_item).is_null()
+	# But not a ram, which it cannot wipe away.
+	kart.hold_item(WIPE, 0.0)
+	kart.take_ram(1)
+	assert_int(kart.lives).is_equal(1)
+	assert_object(kart.held_item).is_not_null()
+	# Nor does anything off a pad that is still being rolled for.
+	kart.hurt_left = 0.0
+	kart.restore_life()
+	kart.hold_item(SHIELD, 0.5)
+	kart.take_ram(1)
+	assert_int(kart.lives).is_equal(1)

@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Guardian Angel.** A joker that spends the Shield or Bullet Wipe you hold on a hit about to cost
+  you a life, the moment it lands.
 - **Two jokers with a life in them.** Spare Tire is one more life, lost with the kart; Scar Tissue
   is one more that nothing heals but coming back.
 - **Three more awards.** Knocking on the Door for match points, Piggy Bank for coins dropped on the

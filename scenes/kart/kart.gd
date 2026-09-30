@@ -648,7 +648,9 @@ func take_hit(bullet: Bullet) -> bool:
 	if shielded:
 		pop_shield()
 		return true
-	_take_lethal(&"turret" if bullet.from_turret else &"bullet", bullet.owner_slot)
+	var cause := &"turret" if bullet.from_turret else &"bullet"
+	if not KartLives.spared(self, cause):
+		_take_lethal(cause, bullet.owner_slot)
 	return true
 
 
@@ -670,7 +672,8 @@ func _take_through_shield(cause: StringName, by_slot: int) -> void:
 	if shielded:
 		pop_shield()
 		return
-	_take_lethal(cause, by_slot)
+	if not KartLives.spared(self, cause):
+		_take_lethal(cause, by_slot)
 
 
 ## A lethal hit: a kart with a life to spare loses it and limps on, darker, slower and for a

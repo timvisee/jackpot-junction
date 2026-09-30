@@ -84,6 +84,9 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 			IconShapes.disc(on, box, 0.5, 0.74, 0.11, ink)
 		&"hair_trigger":
 			IconShapes.bolt(on, box, 0.5, 0.5, 0.42, ink)
+		&"guardian_angel":
+			IconShapes.shield(on, box, 0.5, 0.6, 0.28, ink)
+			IconShapes.ring(on, box, 0.5, 0.2, 0.13, dim)
 		&"high_roller":
 			IconShapes.bar(on, box, 0.16, 0.16, 0.68, 0.68, dim)
 			for spot: Vector2 in [Vector2(0.32, 0.32), Vector2(0.5, 0.5), Vector2(0.68, 0.68)]:
@@ -194,6 +197,7 @@ static func known() -> Array[StringName]:
 		&"getaway_driver",
 		&"glass_jackpot",
 		&"green_light",
+		&"guardian_angel",
 		&"hair_trigger",
 		&"high_roller",
 		&"hot_streak",
