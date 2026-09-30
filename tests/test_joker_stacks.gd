@@ -11,16 +11,17 @@ const MARK := "<%s>"
 var _runner: GdUnitSceneRunner
 
 
-func _start_match() -> Match:
+## Two karts, the first driven by [param first] when given, and the HUD up with [param hud].
+func _start_match(first: KartInput = null, hud := false) -> Match:
 	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
 	rules.countdown = 0.1
 	rules.duration = 60.0
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = rules
-	match_node.with_hud = false
+	match_node.with_hud = hud
 	match_node.offer_size = 0
 	_runner = scene_runner(match_node)
-	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var inputs: Array[KartInput] = [first if first != null else KartInput.new(), KartInput.new()]
 	match_node.start(inputs, 21)
 	return match_node
 
@@ -234,3 +235,49 @@ func test_two_wild_cards_offer_seven_and_they_fit() -> void:
 				. override_failure_message("off the right of %d" % columns)
 				. is_less_equal(share)
 			)
+
+
+## Held down, the key for details says what the card leaves out, GAME.md 8.3: beside each number
+## a stack has changed, one copy's, in the pane's own ink, and how far the joker stacks.
+func test_the_details_say_one_copys_numbers_and_how_far_it_stacks() -> void:
+	var vulture := _joker("vulture")
+	assert_str(vulture.describe(2, MARK, true)).is_equal(
+		"Chips dropped by other karts are worth <4 coins> (3 coins) to you. Stacks up to ×3."
+	)
+	assert_str(vulture.describe(1, MARK, true)).is_equal(
+		"Chips dropped by other karts are worth 3 coins to you. Stacks up to ×3."
+	)
+	assert_str(_joker("spare_tire").describe(2, MARK, true)).starts_with(
+		"<Two more lives> (one more life). Lost"
+	)
+	# A joker that does not stack has nothing more to say.
+	var plain := _joker("pickpocket")
+	assert_str(plain.describe(1, MARK, true)).is_equal(plain.describe(1, MARK))
+	var detail: JokerDetail = auto_free(JokerDetail.new())
+	add_child(detail)
+	detail.show_joker(vulture, 2, false, true)
+	assert_str(detail._body.text).contains("4 coins[/color] (3 coins) to you")
+	assert_str(detail._body.text).ends_with("Stacks up to ×3.")
+	detail.show_joker(vulture, 2)
+	assert_str(detail._body.text).not_contains("Stacks")
+
+
+## The key is the player's own, GAME.md 4.2: held on their device, the card up in their hand says
+## its details, and let go of, it stops.
+func test_holding_the_details_key_opens_the_details_of_the_card_up() -> void:
+	var match_node := _start_match(PlayerInput.new(DeviceInput.ANY, 0), true)
+	await _runner.simulate_frames(12, 17)
+	_attach(match_node.kart_of(0), "vulture", 2)
+	var hand := match_node.hud.hand_of(0)
+	Input.action_press(InputActions.JOKER_MENU)
+	await _runner.simulate_frames(3, 17)
+	var body := hand._detail._body
+	assert_bool(hand._detail.visible).is_true()
+	assert_str(body.text).not_contains("Stacks")
+	Input.action_press(InputActions.DETAILS)
+	await _runner.simulate_frames(3, 17)
+	assert_str(body.text).ends_with("Stacks up to ×3.")
+	Input.action_release(InputActions.DETAILS)
+	await _runner.simulate_frames(3, 17)
+	assert_str(body.text).not_contains("Stacks")
+	Input.action_release(InputActions.JOKER_MENU)

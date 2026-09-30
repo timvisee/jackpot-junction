@@ -53,6 +53,8 @@ var lane := Vector2.ZERO
 var ceiling_y := 0.0
 ## Whether the control hints name keys or gamepad buttons.
 var keyboard := true
+## Whether the player is holding the key for a card's details, GAME.md 8.3.
+var details := false
 ## With no card picked out and no pane, while the player is reading their own hand instead on a
 ## touch screen, GAME.md 4.2: the pane being read is the hand's, and one card of each lifted at
 ## once is two things asking to be read. The title and the button under the row stay.
@@ -151,7 +153,7 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 	)
 	if picked >= 0 and picked < jokers.size():
 		var held := kart.jokers.ids().count(jokers[picked].id)
-		_detail.show_joker(jokers[picked], held, choosing)
+		_detail.show_joker(jokers[picked], held, choosing, details)
 		var actions: Array[StringName] = [
 			InputActions.STEER_LEFT,
 			InputActions.STEER_RIGHT,

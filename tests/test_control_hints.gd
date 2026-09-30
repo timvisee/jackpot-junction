@@ -513,3 +513,18 @@ func test_a_button_with_no_gap_in_the_line_is_freed() -> void:
 	var line: HBoxContainer = auto_free(InputHint.row("%s drive", parts, ink, 15))
 	assert_bool(is_instance_valid(spare)).is_false()
 	assert_bool((parts[0] as Node).get_parent() == line).is_true()
+
+
+## A stick's click is its own button, GAME.md 8.3, "RS" rather than Godot's "R/RS", in a pill: the
+## details of a joker's card are held on it, and on Alt at the keyboard.
+func test_a_stick_click_is_named_for_the_click() -> void:
+	InputActions.register_defaults()
+	var click := InputEventJoypadButton.new()
+	click.button_index = JOY_BUTTON_RIGHT_STICK
+	var glyph: InputGlyph = auto_free(InputGlyph.of_event(click, Color.WHITE, 15))
+	assert_str(glyph.caption).is_equal("RS")
+	assert_int(glyph.kind).is_equal(InputGlyph.Kind.SHOULDER)
+	var held: Array[String] = []
+	for event: InputEvent in InputMap.action_get_events(InputActions.DETAILS):
+		held.append(InputActions.event_text(event))
+	assert_array(held).contains_exactly(["Alt", "RS"])

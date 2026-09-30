@@ -570,7 +570,9 @@ func _update_blocks() -> void:
 			_pickers[index].lane = hand.lane
 			_pickers[index].ceiling_y = hand.reach() + LANE_GAP
 		hand.keyboard = DeviceInput.uses_keyboard(slot.device())
+		hand.details = DeviceInput.pressed(InputActions.DETAILS, slot.device())
 		_pickers[index].keyboard = hand.keyboard
+		_pickers[index].details = hand.details
 		var offer: JokerOffer = null if _podium_up else slot.offer
 		_pickers[index].show_offer(offer, kart)
 

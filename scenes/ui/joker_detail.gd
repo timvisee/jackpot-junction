@@ -35,6 +35,7 @@ var _hints: Control
 ## layout each time.
 var _joker: Joker
 var _stack_said := ""
+var _details := false
 
 
 func _init() -> void:
@@ -89,16 +90,18 @@ func _init() -> void:
 
 ## Fills the pane for one joker and paints the top edge in its kind's color. [param held] is how
 ## many copies of it the player holds; a joker that stacks, held more than once, says so beside
-## its name, and [param taking] says what taking one more would make it instead.
-func show_joker(joker: Joker, held := 1, taking := false) -> void:
+## its name, and [param taking] says what taking one more would make it instead. [param details]
+## is the player holding the key for more, see [method Joker.describe].
+func show_joker(joker: Joker, held := 1, taking := false, details := false) -> void:
 	var copies := held + 1 if taking else held
 	var said := ""
 	if joker.stackable and copies > 1:
 		said = ("makes ×%d" if taking else "×%d") % copies
-	if joker == _joker and said == _stack_said:
+	if joker == _joker and said == _stack_said and details == _details:
 		return
 	_joker = joker
 	_stack_said = said
+	_details = details
 	_stack.text = said
 	_stack.visible = not said.is_empty()
 	var color := JokerCard.kind_color(joker)
@@ -108,7 +111,7 @@ func show_joker(joker: Joker, held := 1, taking := false) -> void:
 	_rarity.add_theme_color_override("font_color", JokerCard.rarity_color(joker))
 	_kind.text = JokerCard.kind_name(joker).to_upper()
 	_kind.add_theme_color_override("font_color", color)
-	_body.text = joker.describe(copies, "[color=#%s]%%s[/color]" % STACK.to_html(false))
+	_body.text = joker.describe(copies, "[color=#%s]%%s[/color]" % STACK.to_html(false), details)
 
 
 ## The controls for whatever the player can do from here, as a row of pictures and words built

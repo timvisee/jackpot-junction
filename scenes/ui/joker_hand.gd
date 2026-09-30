@@ -49,6 +49,8 @@ var columns := 1
 var corner := -1
 ## Whether the control hints name keys or gamepad buttons.
 var keyboard := true
+## Whether the player is holding the key for a card's details, GAME.md 8.3.
+var details := false
 ## Screen rectangles the hand stays clear of, such as a HUD block in a bottom corner.
 var avoid: Array[Rect2] = []
 ## The stretch of the bottom edge the hand keeps to, from and to, inside its own share; zero for
@@ -306,7 +308,7 @@ func _sync_cards() -> void:
 ## What the player can do with the lifted card, which is the only part of the pane the hand has
 ## to say anything about.
 func _show_detail(joker: Joker) -> void:
-	_detail.show_joker(joker, kart.jokers.ids().count(joker.id))
+	_detail.show_joker(joker, kart.jokers.ids().count(joker.id), false, details)
 	if _pointed():
 		_keys_shown = ""
 		_show_touch_hints()

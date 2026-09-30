@@ -25,6 +25,7 @@ const REBINDABLE: Array[StringName] = [
 	InputActions.JOKER_PREV,
 	InputActions.JOKER_NEXT,
 	InputActions.JOKER_DESTROY,
+	InputActions.DETAILS,
 	InputActions.EMOTE_1,
 	InputActions.EMOTE_2,
 	InputActions.EMOTE_3,

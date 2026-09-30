@@ -844,6 +844,7 @@ assigns physical devices to player slots, see 10.2.
 | Respawn pick: take          | Fire or use power-up | Space or E                |
 | Joker menu: drop            | A                   | E                         |
 | Joker menu: destroy         | B                   | Q                         |
+| Joker card: details, hold   | Right stick click   | Alt                       |
 | Jokers by mouse             |                     | Over a card to read it, click to keep a hand card open or take a pick card |
 | Free aim, Swivel Cannon only| Right stick         | Mouse position on the arena plane, or a finger on it on a touch screen |
 | Emote                       | Right stick, flicked | 7, 8, 9 or 0             |
@@ -2342,7 +2343,16 @@ movement: the one thing a corner block must not do is ask to be looked at.
   pane's top edge and its kind; it stays, since it is the ×2's, and the number
   still stands out of the words around it. How far it stacks, "Stacks up to
   ×3.", is left off the words: it was one more sentence on every card for a
-  number the player has no way to act on while reading it. A
+  number the player has no way to act on while reading it. Holding Details,
+  Alt or a click of the right stick, 4.2, puts it back at the end, and beside
+  every gold number what one copy says, in the pane's own ink: "worth 4 coins
+  (3 coins) to you". It is each player's own key, for the cards on their own
+  screen share, on the hand and on the respawn pick alike. Nothing on the pane
+  names it, which would be the sentence taken off it again: the settings'
+  Controls list it with the rest, "RS" for the click rather than the engine's
+  "R/RS". A touch screen has no key for it and keeps its cards short. On a
+  keyboard Tab goes down first, since Alt and then Tab is the desktop's own
+  window switch. A
   long row of cards, two Wild Cards' seven, shrinks to fit across its share of
   the screen.
 - **The respawn pick** shows the offered cards in a straight row, the one under

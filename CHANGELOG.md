@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Hold Alt for a joker's details.** Or click the right stick: the card adds how far it stacks,
+  and one copy's number beside each gold one. The card itself no longer says how far it stacks.
 - **Most jokers with a number stack.** Take one again for more of it, up to three copies (two for
   Wild Card, Spare Tire and Scar Tissue); the card says the stack's total, in gold.
 - **Aim the Swivel Cannon by touch.** On a phone or tablet, touch the arena to point it there;

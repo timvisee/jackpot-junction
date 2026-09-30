@@ -33,6 +33,9 @@ const JOKER_SELECTS: Array[StringName] = [
 ]
 const JOKER_DROP := &"joker_drop"
 const JOKER_DESTROY := &"joker_destroy"
+## Held to read more on a joker's card, GAME.md 8.3: how far it stacks, and beside each number a
+## stack has changed, what one copy says.
+const DETAILS := &"details"
 const AIM_LEFT := &"aim_left"
 const AIM_RIGHT := &"aim_right"
 const AIM_UP := &"aim_up"
@@ -111,6 +114,7 @@ const DEFAULTS: Dictionary[StringName, Array] = {
 	JOKER_SELECT_5: [{"key": KEY_5}],
 	JOKER_DROP: [{"key": KEY_E}, {"button": JOY_BUTTON_A}],
 	JOKER_DESTROY: [{"key": KEY_Q}, {"button": JOY_BUTTON_B}],
+	DETAILS: [{"key": KEY_ALT}, {"button": JOY_BUTTON_RIGHT_STICK}],
 	AIM_LEFT: [{"axis": JOY_AXIS_RIGHT_X, "value": -1.0}],
 	AIM_RIGHT: [{"axis": JOY_AXIS_RIGHT_X, "value": 1.0}],
 	AIM_UP: [{"axis": JOY_AXIS_RIGHT_Y, "value": -1.0}],
@@ -297,6 +301,8 @@ static func event_text(event: InputEvent) -> String:
 		for name: String in names:
 			if name.begins_with("Xbox "):
 				chosen = name.trim_prefix("Xbox ")
+		# A stick's click is "R/RS" to Godot, the stick and its click: the click is the button.
+		chosen = chosen.get_slice("/", chosen.get_slice_count("/") - 1)
 		if motion != null and not chosen.contains("Trigger") and chosen.length() > 2:
 			chosen += " +" if motion.axis_value > 0.0 else " -"
 		return chosen
