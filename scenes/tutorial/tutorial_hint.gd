@@ -7,6 +7,9 @@ extends Node
 
 const RECHECK := 0.25
 const INK := Palette.CHIP_WHITE
+## How much bigger than the drive and fire line of 3.8 it is drawn: a line that is missed teaches
+## nothing.
+const SCALE := 1.5
 
 var slot: PlayerSlot
 
@@ -48,14 +51,13 @@ func _rebuild() -> void:
 	var simple := _lesson.simple()
 	var keyboard := DeviceInput.uses_keyboard(slot.device())
 	var template := _task.hint_words(simple)
-	var size := ScreenHint.drawn_size(get_tree() if is_inside_tree() else null)
+	var size := roundi(ScreenHint.drawn_size(get_tree() if is_inside_tree() else null) * SCALE)
 	var wanted := (
 		"%s|%s|%s|%d|%s"
 		% [template, keyboard, simple, size, InputHint.stamp(_task.actions, keyboard)]
 	)
 	if wanted == _shown and _row != null and is_instance_valid(_row):
 		return
-	_drop()
 	_shown = wanted
 	var parts: Array = []
 	if simple and _task.simple_way:
@@ -64,7 +66,13 @@ func _rebuild() -> void:
 		parts.append(InputHint.pair(_task.actions[0], _task.actions[1], keyboard, INK, size))
 	elif _task.actions.size() == 1:
 		parts.append(InputHint.glyph(_task.actions[0], keyboard, INK, size))
-	_row = ScreenHint.hang(kart, InputHint.row(template, parts, INK, size), "TutorialHint")
+	var row := InputHint.row(template, parts, INK, size)
+	# The same sprite over the kart, redrawn, rather than a new one for every task.
+	if _row != null and is_instance_valid(_row) and _row.get_parent() == kart:
+		_row.replace(row)
+	else:
+		_drop()
+		_row = ScreenHint.hang(kart, row, "TutorialHint")
 
 
 func _drop() -> void:

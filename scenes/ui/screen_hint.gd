@@ -30,6 +30,12 @@ static func hang(kart: Node3D, row: Control, named: String) -> ScreenHint:
 	return hint
 
 
+## Says [param row] in place of what it says, on the same sprite, see [method InputHint.redraw].
+func replace(row: Control) -> void:
+	InputHint.redraw(_face.get_parent(), InputHint.card(row))
+	_fit()
+
+
 ## [constant FONT_SIZE] at the UI scale the screen has now: drawn bigger with the rest of the UI,
 ## GAME.md 8.5, rather than stretched to it, so it stays sharp.
 static func drawn_size(tree: SceneTree) -> int:

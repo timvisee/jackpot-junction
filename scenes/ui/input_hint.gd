@@ -176,6 +176,20 @@ static func billboard(content: Control, pixel_size: float) -> Node3D:
 	return holder
 
 
+## Draws [param content] on [param holder], a billboard from [method billboard], in place of what
+## it showed: the viewport and the sprite stay, so a hint that changes its words is not a new
+## render target each time it does.
+static func redraw(holder: Node3D, content: Control) -> void:
+	var viewport: SubViewport = holder.get_node("Render")
+	for old: Node in viewport.get_children():
+		viewport.remove_child(old)
+		old.queue_free()
+	viewport.add_child(content)
+	content.minimum_size_changed.connect(_fit.bind(viewport, content))
+	_fit.call_deferred(viewport, content)
+	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+
+
 ## Cuts the viewport to whatever the row turned out to be, and draws it again.
 static func _fit(viewport: SubViewport, content: Control) -> void:
 	if not is_instance_valid(viewport) or not is_instance_valid(content):

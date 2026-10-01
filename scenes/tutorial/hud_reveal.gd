@@ -12,10 +12,12 @@ const PIECES: Array[StringName] = [
 	&"nitro", &"item", &"hand", &"lives", &"pot", &"bank", &"stats", &"feed"
 ]
 const INK := Palette.NEON_CYAN
-## How far the pointer bobs beside its piece, in pixels, and how fast.
-const BOB := 6.0
+## How far the pointer bobs beside its piece, in pixels, and how fast, and how far the frame round
+## the piece stands off it.
+const BOB := 8.0
 const BOB_RATE := 0.7
 const GAP := 14.0
+const FRAME_GROW := 6.0
 
 var hud: MatchHud
 ## Which player's corner.
@@ -25,8 +27,26 @@ var shown: Dictionary[StringName, bool] = {}
 var _pointer: HBoxContainer
 var _tip: Tip
 var _label: Label
+var _frame: Frame
 var _pointing := &""
 var _time := 0.0
+
+
+## The frame round the piece pointed at, drawn: a rounded box that pulses with the pointer.
+class Frame:
+	extends Control
+
+	var strength := 1.0:
+		set(value):
+			strength = value
+			queue_redraw()
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		var box := Rect2(Vector2(1.5, 1.5), size - Vector2(3.0, 3.0))
+		draw_rect(box, Color(INK, 0.45 + 0.55 * strength), false, 3.0)
 
 
 ## The triangle of the pointer, drawn, pointing left at the piece beside it or down at one under.
@@ -70,11 +90,15 @@ func _ready() -> void:
 	_pointer.add_child(_tip)
 	_label = Label.new()
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Type.strong(_label, Type.LABEL, INK)
+	Type.strong(_label, Type.LARGE, INK)
 	HudText.shadowed(_label)
 	_pointer.add_child(_label)
 	_pointer.visible = false
 	hud.add_child(_pointer)
+	_frame = Frame.new()
+	_frame.name = "Frame"
+	_frame.visible = false
+	hud.add_child(_frame)
 
 
 ## Brings [param piece] in, with [param line] on a pointer beside it until [method pointer_done].
@@ -87,12 +111,14 @@ func show_piece(piece: StringName, line: String) -> void:
 	_tip.down = piece == &"hand"
 	_tip.queue_redraw()
 	_pointer.visible = true
+	_frame.visible = true
 
 
 ## The pointer has said its piece.
 func pointer_done() -> void:
 	_pointing = &""
 	_pointer.visible = false
+	_frame.visible = false
 
 
 func is_pointing() -> bool:
@@ -125,18 +151,24 @@ func _process(delta: float) -> void:
 
 ## The pointer beside its piece: to the right of a piece of the corner, over the hand.
 func _place(parts: Dictionary, hand: JokerHand) -> void:
-	var bob := sin(_time * TAU * BOB_RATE) * BOB
+	var pulse := 0.5 + 0.5 * sin(_time * TAU * BOB_RATE)
+	var bob := (pulse * 2.0 - 1.0) * BOB
 	var size := _pointer.get_combined_minimum_size()
+	_frame.strength = pulse
 	if _pointing == &"hand":
 		if hand == null:
 			return
 		var top := hand.reach() if not hand.hangs() else hand.reach() + size.y
 		_pointer.position = Vector2(hand.size.x * 0.5 - size.x * 0.5, top - size.y - GAP + bob)
+		_frame.visible = false
 		return
 	var rect := _anchor(parts).get_global_rect()
 	_pointer.position = Vector2(
 		rect.end.x + GAP + bob, rect.position.y + rect.size.y * 0.5 - size.y * 0.5
 	)
+	var grown := rect.grow(FRAME_GROW)
+	_frame.position = grown.position
+	_frame.size = grown.size
 
 
 func _anchor(parts: Dictionary) -> Control:

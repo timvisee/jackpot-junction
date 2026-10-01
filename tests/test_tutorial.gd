@@ -133,15 +133,17 @@ func test_a_gate_sinks_open_and_rises_shut() -> void:
 	assert_array(gate.cells).is_equal([Vector2i(3, 1)] as Array[Vector2i])
 	assert_object(arena.gate_at(Vector2i(3, 1))).is_same(gate)
 	assert_object(arena.gate_at(Vector2i(1, 1))).is_null()
-	var rest := gate.position.y
+	assert_int(gate._bar_count).is_greater_equal(1)
 	gate.open()
 	await get_tree().create_timer(Gate.SECONDS + 0.2).timeout
-	assert_float(gate.position.y).is_less(rest - 0.9)
+	assert_float(gate.drop).is_equal_approx(1.0, 0.01)
 	assert_bool(gate._shape.disabled).is_true()
 	gate.close()
-	await get_tree().create_timer(Gate.SECONDS + 0.2).timeout
-	assert_float(gate.position.y).is_equal_approx(rest, 0.01)
+	await get_tree().create_timer(Gate.SECONDS * 0.3).timeout
+	# A wall again from the first moment, while the bars are still on their way up.
 	assert_bool(gate._shape.disabled).is_false()
+	await get_tree().create_timer(Gate.SECONDS).timeout
+	assert_float(gate.drop).is_equal_approx(0.0, 0.01)
 
 
 ## Lesson one: the list says so, driving fills the bar, the gate opens on it, and the kart through
@@ -345,7 +347,7 @@ func test_drifting_counts_the_tap_and_three_turbos() -> void:
 	assert_str(run.list.task_rows(lesson)[1]["label"].text).contains("3/3")
 
 
-## Shooting: each target counts once, with a ring at its foot, the loose boxes count for nothing,
+## Shooting: each target counts once, its light going green, the loose boxes count for nothing,
 ## and the wall of boxes down is the way out.
 func test_shooting_the_targets_and_through_the_boxes() -> void:
 	var tutorial := await _start()
@@ -355,10 +357,18 @@ func test_shooting_the_targets_and_through_the_boxes() -> void:
 	var arena := tutorial.match_node.arena
 	var shot: Bullet = auto_free(Bullet.new())
 	shot.owner_slot = 0
+	# A light beside every target, red until it is counted.
+	var lights := lesson.lights()
+	assert_int(lights.size()).is_equal(TutorialShoot.TARGETS)
+	for light: TrafficLight in lights:
+		assert_bool(light.green).is_false()
 	arena.targets[0].take_hit(shot)
 	await _runner.simulate_frames(1, 17)
 	assert_int(lesson._hit.count).is_equal(1)
-	assert_int(lesson._rings.size()).is_equal(1)
+	var greens := 0
+	for light: TrafficLight in lesson.lights():
+		greens += 1 if light.green else 0
+	assert_int(greens).is_equal(1)
 	# The same target again, once it is back up, is not another.
 	arena.targets[0]._stand(true)
 	arena.targets[0].take_hit(shot)

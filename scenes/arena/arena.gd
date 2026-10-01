@@ -563,7 +563,7 @@ func _add_gates() -> void:
 		for y: int in range(rect.position.y, rect.end.y):
 			for x: int in range(rect.position.x, rect.end.x):
 				gate.cells.append(Vector2i(x, y))
-		gate.build(grid.rect_center(rect), size, kit.wall(size, grid.walls.size() + i))
+		gate.build(grid.rect_center(rect), size)
 		holder.add_child(gate)
 		gates.append(gate)
 

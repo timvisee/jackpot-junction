@@ -3546,13 +3546,17 @@ leads back to the Garage, so going round once locks nothing away. Finishing it
 is remembered in the settings; the pause menu's Skip step passes a lesson, and
 leaving starts over from the first, since nothing in the middle is saved.
 
-It is one map of rooms in a row, each a lesson, joined by gates: a piece of wall
-that sinks into the floor when the lesson in front of it is done, with a band
-along its top that is red while it is shut and cyan once it is open, and that
-rises again once the kart is through, so a room finished is a room left behind
-and a kart that dies comes back in the room it is learning in. The gates are
-the `G` cells of a map, see 6.3; a match with none never meets one, and the
-bots' map of where they can drive treats a shut one as wall. A kart that dies
+It is one map of rooms in a row, each a lesson, joined by gates: a portcullis,
+two posts with a beam across them, a light strip along the beam that is red
+while the gate is shut and cyan once it is open, and a row of steel bars between
+the posts that sink into the floor one after another from the middle outward
+when the lesson in front of it is done, the frame left standing as a doorway,
+and that rise again once the kart is through, so a room finished is a room left
+behind and a kart that dies comes back in the room it is learning in. The gates
+are the `G` cells of a map, see 6.3; a match with none never meets one, and the
+bots' map of where they can drive treats a shut one as wall. The gate, the
+arrow, the pads and the lights below are in the shader warm-up of 10.7, so none
+of them is a hitch the first time it is seen. A kart that dies
 comes back on its own room's spot, facing the way the lesson goes. Nothing in
 here drops a joker on death, and the picks never deal a Cursed card: a trap is
 no way to meet a mechanic. The camera follows from 26 m back, as the test track's
@@ -3585,12 +3589,12 @@ Garage.
 ########......................################################............................##
 ########......................################################............................##
 ########......................##################################################GGGG########
-##............................#................#....................................########
-##............................G................G....................................########
-##................##..........G................G....................................########
-##................##..........G................G....................................########
-##............................G................G....................................########
-##............................#................#....................................########
+########......................#................#....................................########
+########......................G................G....................................########
+########..........##..........G................G....................................########
+########..........##..........G................G....................................########
+########......................G................G....................................########
+########......................#................#....................................########
 ########......................##############################################################
 ########......................##############################################################
 ########......................##############################################################
@@ -3598,6 +3602,10 @@ Garage.
 ########......................##############################################################
 ########......................##############################################################
 #################GGGG#######################################################################
+#################....#######################################################################
+#################....#######################################################################
+#################....#######################################################################
+#################....#######################################################################
 #################....#######################################################################
 #################....#######################################################################
 #################....#######################################################################
@@ -3627,18 +3635,20 @@ not shown, so the list grows as the lesson goes. A finished lesson shrinks to
 one ticked line, and only the last three lessons stay listed. On a touch screen
 it hangs under the menu button.
 
-**The hint.** Over the kart, the way the drive and fire line of 3.8 is, one
-short line for the task being done with the control drawn into it for the device
-in hand, a key, a pad button or the touch screen's button, and it follows a pad
-picked up or a switch of driving mode. An arrow on the floor ahead of the kart
+**The hint.** Over the kart, the way the drive and fire line of 3.8 is but half
+again as big, since a line that is missed teaches nothing: one short line for
+the task being done with the control drawn into it for the device in hand, a
+key, a pad button or the touch screen's button, and it follows a pad picked up
+or a switch of driving mode. It is one sprite redrawn as the task changes rather
+than a new one each time, which was a hitch at every gate. An arrow on the floor ahead of the kart
 pulses toward wherever the task needs the kart to go, when it needs it anywhere,
 and toward the open gate once the lesson is done; within a few meters of the
 spot it goes.
 
 **The HUD comes in pieces.** At the start only the player's name, the checklist
 and the hint are on the screen. Each piece of the corner block appears with the
-lesson it is for, with a pointer beside it and one line saying what it is, which
-stays until the lesson's first task is done: the nitro tank and the speedometer
+lesson it is for, with a pointer beside it, a frame pulsing round it and one line
+saying what it is, which stay until the lesson's first task is done: the nitro tank and the speedometer
 with nitro, "Your nitro"; the item slot with items, "Your item"; the hand of
 jokers and the lives with jokers, "Your jokers, hold Tab to read them", Tab
 being whatever opens the hand; the pot with the pads lesson and the bank with
@@ -3648,27 +3658,30 @@ over the kart is saying it.
 **Driving mode.** The tutorial does not ask how to drive up front. A player who
 has answered before drives their way; one who never has is asked the question
 of 4.2 on the grid, before the kart will move, and the answer is kept. The
-steering room has two pads in an alcove, SIMPLE and ADVANCED, lit for the way in
-use: driving onto one switches to it on the spot, and a sign over them says the
-pause menu and the settings change it later too.
+steering room has two big lit pads either side of the way in, SIMPLE and
+ADVANCED, cyan for the way in use and magenta for the other, each with its name
+over it: driving onto the other switches to it on the spot, and a sign between
+them says the pause menu and the settings change it later too.
 
 The lessons, each in its own room, in order:
 
-1. **Driving.** A corridor four cells wide and fifteen long, running north, out
+1. **Driving.** A corridor four cells wide and nineteen long, running north, out
    of a pocket with the one spawn in it. The task is to drive forward, its bar
-   filling over 15 cells, 18.75 m, driven; the gate at the top opens on it.
+   filling over 15 cells, 18.75 m, driven, with four cells of road left before
+   the gate, so it is open before the kart gets there rather than driven against.
 2. **Steering.** A room 22 by 17 cells with a 2-by-2 pillar in the middle to go
-   round, and the mode alcove on its west side. Two tasks, each with a bar: a
+   round, and the two mode pads either side of the way in. Two tasks, each with a bar: a
    circle and a half to the left, then a circle and a half to the right, 540°
    each, counted from the kart's heading while it is moving forward, so sawing
    the wheel back and forth adds up to nothing and one direction alone is not
    enough. Simple driving is told to push the way to go.
 3. **Brake and reverse.** A straight of 16 by 6 cells going east. Brake to a stop
-   from speed, then reverse 4 cells, 5 m, with a bar. Simple driving has no
-   reverse, since letting go is the brake, so its second task is to turn round
-   and drive 4 cells back the way it came.
+   from speed, then drive backwards, 5 m of it on a bar that names no distance.
+   Simple driving has no reverse, since letting go is the brake, so its second
+   task is to turn round and drive back the way it came.
 4. **Nitro.** A straight 36 cells long, 45 m, with the tank filled as the lesson
-   starts and refilling at the match's own rate. One task: burn a full tank, the
+   starts and coming back in seconds as it does in the Garage, 9.4, since the
+   bottle is the lesson and not the wait for it. One task: burn a full tank, the
    bar showing how much of it has gone, done when it runs dry. The nitro tank
    and the speedometer appear in the corner, pointed at.
 5. **Drifting.** An open room 28 by 22 cells with three 2-by-2 pillars to drift
@@ -3676,8 +3689,9 @@ The lessons, each in its own room, in order:
    for a turbo, three times, each drift's bar filling toward the turbo point of
    4.1, 0.6 s of drift at half speed or more.
 6. **Shooting.** A gallery 24 by 16 cells with five targets round it and three
-   loose boxes that break but count for nothing. Hit each of the five once, each
-   lighting a green ring at its foot as it is counted; then shoot through the wall
+   loose boxes that break but count for nothing. Hit each of the five once, a
+   traffic light beside each going from red to green as it is counted, so the
+   ones still to do can be told from across the room; then shoot through the wall
    of eight boxes, two deep, across the corridor out, which never comes back in
    here. The way on is where they were.
 7. **Items.** Three set pieces in a row, each box holding its own item with no

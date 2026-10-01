@@ -7,10 +7,10 @@ extends TutorialLesson
 ## How far round each way, in turns, and how fast the kart has to be going for a turn to count.
 const TURNS := 1.5
 const MOVING := 1.5
-## The pads and the sign over them, by cell.
-const SIMPLE_PAD := Vector2i(4, 25)
-const ADVANCED_PAD := Vector2i(4, 28)
-const PADS_SIGN := Vector2i(4, 23)
+## The pads either side of the way in, and the sign between them, by cell.
+const SIMPLE_PAD := Vector2i(13, 33)
+const ADVANCED_PAD := Vector2i(24, 33)
+const PADS_SIGN := Vector2i(18, 33)
 
 var _left: TutorialTask
 var _right: TutorialTask
@@ -39,8 +39,8 @@ func _begin() -> void:
 	var advanced := ModePad.add_to(holder, run.cell(ADVANCED_PAD), Settings.DRIVE_ADVANCED)
 	var sign := Label3D.new()
 	sign.text = "HOW TO DRIVE\ndrive onto a pad to switch\nthe pause menu changes it later too"
-	sign.font_size = 40
-	sign.outline_size = 10
+	sign.font_size = 48
+	sign.outline_size = 12
 	sign.modulate = Palette.CHIP_WHITE
 	sign.outline_modulate = Color(0.04, 0.04, 0.05, 0.9)
 	sign.pixel_size = 0.009

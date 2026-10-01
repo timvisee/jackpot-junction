@@ -147,3 +147,5 @@ func offer_tutorial(then: Callable) -> void:
 		"Tutorial",
 		"Not now"
 	)
+	# The cursor starts on the tutorial: it is the thing the question is for.
+	pane.yes_button().grab_focus()

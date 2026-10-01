@@ -50,6 +50,7 @@ const EFFECTS: Array[StringName] = [
 	&"_hud",
 	&"_printed",
 	&"_boxed_slabs",
+	&"_tutorial_pieces",
 ]
 ## Frames left running after the last step, for what was put down to draw its first frames.
 const SETTLE := 12
@@ -297,6 +298,20 @@ func _spot(offset: Vector3) -> Vector3:
 
 func _nitro() -> void:
 	_kart(0)._flame.set_active(true)
+
+
+## The tutorial's own pieces, GAME.md 9.4a, each a material of its own: a gate, opening, the arrow
+## on the floor, a pad of the steering room and a traffic light.
+func _tutorial_pieces() -> void:
+	var gate := Gate.new()
+	_match.add_child(gate)
+	gate.build(_spot(Vector3(6.0, 0.0, -3.0)), Vector3(5.0, 1.0, 1.25))
+	gate.open()
+	var arrow := GuideArrow.add_to(_match)
+	arrow.kart = _kart(0)
+	arrow.point_at(_spot(Vector3(0.0, 0.0, -30.0)))
+	ModePad.add_to(_match, _spot(Vector3(-6.0, 0.0, -3.0)), Settings.DRIVE_SIMPLE)
+	TrafficLight.add_to(_match, _spot(Vector3(-6.0, 0.0, 3.0))).set_green()
 
 
 func _drift() -> void:

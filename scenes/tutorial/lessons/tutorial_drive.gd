@@ -10,7 +10,7 @@ var _drive: TutorialTask
 func _init() -> void:
 	title = "Driving"
 	gate_cell = Vector2i(17, 36)
-	spawn_cell = Vector2i(18, 51)
+	spawn_cell = Vector2i(18, 55)
 	next_cell = Vector2i(18, 33)
 	_drive = add_task("Drive forward", "Hold %s to drive", [InputActions.THROTTLE], true)
 	_drive.simple_hint = "Push %s to drive"
