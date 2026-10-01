@@ -3,7 +3,8 @@ extends PanelContainer
 ## The tutorial's word at the top of the screen, GAME.md 9.4a: a line or two about the thing in
 ## front of the player, the two ways to drive, what an item is, what a joker is, what the pot and
 ## the bank are, at the top edge, under the fight's bar while that is up, and the welcome at the
-## very start with the game's mark over it and its name under it. A line may name a control, drawn
+## very start with the game's mark over it and its name under it, the panel no wider than its
+## words. A line may name a control, drawn
 ## in for the device in hand the way the hint over the kart draws it, a key, a pad button, a touch
 ## button, or the menu button of a touch screen. Each lesson says its piece by a key of its own
 ## and clears only that, so one lesson's word never wipes another's; a lesson ending clears
@@ -12,7 +13,6 @@ extends PanelContainer
 
 signal changed
 
-const WIDTH := 640.0
 const INK := Palette.CHIP_WHITE
 const FADE := 0.25
 const MARK_SIDE := 110.0
@@ -76,7 +76,6 @@ func _ready() -> void:
 	add_theme_stylebox_override("panel", HudBlock.scrim())
 	set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	grow_horizontal = Control.GROW_DIRECTION_BOTH
-	custom_minimum_size = Vector2(WIDTH, 0.0)
 	set_top(TOP)
 	var column := VBoxContainer.new()
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -92,7 +91,7 @@ func _ready() -> void:
 	column.add_child(_mark)
 	var row := HBoxContainer.new()
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_theme_constant_override("separation", 10)
+	row.add_theme_constant_override("separation", 16)
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	column.add_child(row)
 	_info = Info.new()

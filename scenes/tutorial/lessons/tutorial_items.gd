@@ -120,6 +120,8 @@ func _prepare() -> void:
 	_guard.rotation.y = PI * 0.5
 	var size := run.grid().cell_size
 	var holder := run.match_node
+	# The hazard ring round the guard, on the floor, where it stays put while the guard turns.
+	HazardLine.box(holder, run.cell(GUARD), Vector2(1.7, 1.7))
 	# Where the guard's reach begins, across the run.
 	var reach_x := run.cell(GUARD).x + GUARD_REACH
 	var run_top := run.cell(Vector2i(GUARD.x, RUN_ROWS.x)).z - size * 0.5

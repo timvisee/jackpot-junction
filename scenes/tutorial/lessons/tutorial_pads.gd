@@ -90,10 +90,26 @@ func end() -> void:
 
 
 func step(_delta: float) -> void:
+	if current() == _flush:
+		_aim_at_pad()
 	if current() == _drain and _zone != null and _zone.active:
 		_drain.progress = clampf(1.0 - _zone.chips / maxf(float(_zone.cap()), 1.0), 0.0, 1.0)
 	if current() == _mult:
 		_aim_at_die()
+
+
+## The arrow on the nearest Royal Flush pad of the room that is not the player's yet.
+func _aim_at_pad() -> void:
+	var here := kart().global_position
+	var room := run.grid().region_of(SPAWN)
+	var best := INF
+	for pad: FlushPad in arena().flush_pads:
+		if pad.group != room or pad.owner_slot == kart().slot:
+			continue
+		var distance := here.distance_to(pad.global_position)
+		if distance < best:
+			best = distance
+			_flush.arrow = run.grid().cell_of(pad.global_position)
 
 
 ## The arrow on the nearest die still on the floor.

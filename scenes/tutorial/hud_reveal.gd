@@ -90,31 +90,40 @@ class Frame:
 		draw_rect(box, Color(INK, 0.45 + 0.55 * strength), false, 3.0)
 
 
-## A padlock, drawn: shut for the bank, which is safe, open for the pot, which is not.
+## A padlock, drawn: shut for the bank, which is safe, open for the pot, which is not. The body
+## is a rounded block with a keyhole, the shackle an arc over it, swung up and aside when open.
 class Lock:
 	extends Control
 
-	const SIDE := 22.0
+	const SIDE := 30.0
+	const SHUT := Color(0.36, 0.9, 0.46)
+	const OPEN := Color(0.98, 0.45, 0.35)
 
 	var open := false
 
 	func _init(is_open: bool) -> void:
 		open = is_open
 		custom_minimum_size = Vector2(SIDE, SIDE)
+		size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	func _draw() -> void:
-		var ink := Color(0.36, 0.9, 0.46) if not open else Color(0.98, 0.45, 0.35)
-		var body := Rect2(Vector2(4.0, 10.0), Vector2(14.0, 10.0))
-		draw_rect(body, ink)
-		var hinge := Vector2(11.0, 10.0) if not open else Vector2(15.0, 10.0)
-		draw_arc(hinge, 5.0, PI, TAU, 16, ink, 2.2, true)
-		if not open:
-			draw_rect(Rect2(Vector2(5.0, 6.0), Vector2(2.2, 4.0)), ink)
-			draw_rect(Rect2(Vector2(14.8, 6.0), Vector2(2.2, 4.0)), ink)
+		var ink := OPEN if open else SHUT
+		var body := StyleBoxFlat.new()
+		body.bg_color = ink
+		body.set_corner_radius_all(3)
+		draw_style_box(body, Rect2(Vector2(6.0, 14.0), Vector2(18.0, 13.0)))
+		draw_circle(Vector2(15.0, 19.5), 2.2, Color(0.05, 0.05, 0.07))
+		draw_rect(Rect2(Vector2(14.2, 19.5), Vector2(1.6, 4.0)), Color(0.05, 0.05, 0.07))
+		if open:
+			# Swung open: the shackle stands up off the right side, its free end in the air.
+			draw_arc(Vector2(21.0, 9.5), 6.0, PI, TAU, 20, ink, 3.0, true)
+			draw_line(Vector2(27.0, 9.5), Vector2(27.0, 14.0), ink, 3.0, true)
+			draw_line(Vector2(15.0, 9.5), Vector2(15.0, 11.5), ink, 3.0, true)
 		else:
-			draw_rect(Rect2(Vector2(9.0, 3.0), Vector2(2.2, 7.0)), ink)
-			draw_rect(Rect2(Vector2(18.8, 6.0), Vector2(2.2, 4.0)), ink)
+			draw_arc(Vector2(15.0, 10.0), 6.0, PI, TAU, 20, ink, 3.0, true)
+			draw_line(Vector2(9.0, 10.0), Vector2(9.0, 14.0), ink, 3.0, true)
+			draw_line(Vector2(21.0, 10.0), Vector2(21.0, 14.0), ink, 3.0, true)
 
 
 ## The ring shrinking onto the card, drawn about the middle of this control, which is as wide as
@@ -297,6 +306,11 @@ func _process(delta: float) -> void:
 	var parts := hud.block_parts(index)
 	if parts.is_empty():
 		return
+	# The whole block waits for its first piece: a name alone in the corner said nothing.
+	var any_shown := false
+	for piece: StringName in PIECES:
+		any_shown = any_shown or shown[piece]
+	(parts["box"] as Control).visible = any_shown
 	for part: Control in [parts["nitro"], parts["speed"], parts["speed_dial"]]:
 		part.visible = shown[&"nitro"]
 	(parts["item"] as Control).visible = shown[&"item"]

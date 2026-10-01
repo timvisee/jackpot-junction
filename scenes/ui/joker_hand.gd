@@ -471,7 +471,9 @@ func _mark_unread(card: JokerCard, shown: bool) -> void:
 			return
 		eye = Eye.new()
 		eye.name = "Unread"
-		eye.position = Vector2(JokerCard.SIZE.x - Eye.SIDE - 8.0, 8.0)
+		# In the middle of the card, over whatever is there: a card's corner is under the next
+		# card in a fanned hand, and the eye has to be seen on every card.
+		eye.position = (JokerCard.SIZE - Vector2(Eye.SIDE, Eye.SIDE)) * 0.5
 		card.add_child(eye)
 	eye.visible = shown
 
@@ -480,7 +482,7 @@ func _mark_unread(card: JokerCard, shown: bool) -> void:
 class Eye:
 	extends Control
 
-	const SIDE := 26.0
+	const SIDE := 44.0
 	const INK := Palette.NEON_CYAN
 
 	func _init() -> void:
@@ -490,18 +492,19 @@ class Eye:
 
 	func _draw() -> void:
 		var middle := Vector2(SIDE, SIDE) * 0.5
-		draw_circle(middle, SIDE * 0.5, Color(0.0, 0.0, 0.0, 0.6))
+		draw_circle(middle, SIDE * 0.5, Color(0.0, 0.0, 0.0, 0.7))
+		draw_arc(middle, SIDE * 0.5 - 1.0, 0.0, TAU, 40, INK, 1.5, true)
 		var lid := PackedVector2Array()
 		for i: int in 17:
 			var t := float(i) / 16.0
-			var x := lerpf(-9.0, 9.0, t)
-			lid.append(middle + Vector2(x, -5.0 * sin(t * PI)))
+			var x := lerpf(-15.0, 15.0, t)
+			lid.append(middle + Vector2(x, -8.0 * sin(t * PI)))
 		for i: int in 17:
 			var t := float(i) / 16.0
-			var x := lerpf(9.0, -9.0, t)
-			lid.append(middle + Vector2(x, 5.0 * sin(t * PI)))
-		draw_polyline(lid, INK, 1.6, true)
-		draw_circle(middle, 3.0, INK)
+			var x := lerpf(15.0, -15.0, t)
+			lid.append(middle + Vector2(x, 8.0 * sin(t * PI)))
+		draw_polyline(lid, INK, 2.2, true)
+		draw_circle(middle, 5.0, INK)
 
 
 func _sync_cards() -> void:

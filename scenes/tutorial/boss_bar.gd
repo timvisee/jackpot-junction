@@ -11,6 +11,7 @@ var need := 1000
 
 var _bar: ProgressBar
 var _count: Label
+var _title: Label
 
 
 static func add_to(layer: CanvasLayer, points: int) -> TutorialBossBar:
@@ -32,8 +33,9 @@ func _ready() -> void:
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_theme_constant_override("separation", 6)
 	add_child(column)
-	var title := Label.new()
-	title.text = "BANK %d TO FINISH" % need
+	_title = Label.new()
+	var title := _title
+	title.text = "BANK %d EXTRA TO FINISH" % need
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.strong(title, Type.LARGE, INK)

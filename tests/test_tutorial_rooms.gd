@@ -128,11 +128,18 @@ func test_items_three_stations_in_any_order() -> void:
 		target.hit_by_turret = false
 		target.struck.emit(target, 0)
 	assert_int(lesson._clear.count).is_equal(0)
-	for cell: Vector2i in TutorialItems.ROW:
+	# One of the count ticks nothing on the list; only the count complete does.
+	var first := lesson.target_at(TutorialItems.ROW[0])
+	first.hit_by_turret = true
+	first.struck.emit(first, 0)
+	await _runner.simulate_frames(1, 17)
+	assert_int(lesson._clear.count).is_equal(1)
+	var clear_row: Dictionary = run.list.task_rows(lesson)[6]
+	assert_bool((clear_row["mark"] as TutorialList.Mark).done).is_false()
+	for cell: Vector2i in TutorialItems.ROW.slice(1):
 		var target := lesson.target_at(cell)
 		target.hit_by_turret = true
 		target.struck.emit(target, 0)
-	assert_bool(lesson._clear.just_ticked()).is_true()
 	await _runner.simulate_frames(2, 17)
 	assert_bool(lesson.is_done()).is_true()
 	assert_bool(arena.gate_at(lesson.gate_cell).is_open).is_true()
@@ -320,6 +327,12 @@ func test_pads_flush_their_own_room_and_drain_the_jackpot() -> void:
 	for pad: CoinPad in arena.coin_pads:
 		assert_bool(pad.visible).is_false()
 	var room := arena.grid.region_of(TutorialPads.SPAWN)
+	# The arrow is on the nearest pad not yet the player's: with three claimed, on the fourth.
+	for pad: FlushPad in arena.flush_pads.slice(0, 3):
+		pad.claim(kart.slot, run.slot().color())
+	await _runner.simulate_frames(1, 17)
+	var fourth := arena.grid.cell_of(arena.flush_pads[3].global_position)
+	assert_vector(lesson._flush.arrow).is_equal(fourth)
 	for pad: FlushPad in arena.flush_pads:
 		assert_int(pad.group).is_equal(room)
 		pad.claim(kart.slot, run.slot().color())
@@ -482,6 +495,7 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	assert_bool(arena.gate_at(TutorialFight.PEN_GATES[0]).is_open).is_true()
 	assert_bool(arena.gate_at(TutorialFight.PEN_GATES[1]).is_open).is_false()
 	assert_object(tutorial.layer.get_node_or_null("BossBar")).is_not_null()
+	assert_str(lesson._bar._title.text).contains("EXTRA")
 	var tally: FlushTally = tutorial.match_node.hud.find_child("FlushTally", true, false)
 	assert_float(tally.offset_top).is_greater(MatchHud.TALLY_DROP)
 	# The fight is not skipped, and the pause menu's Skip lesson is gone from here on.
@@ -521,6 +535,10 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	await _runner.simulate_frames(1, 17)
 	assert_bool(run.arrow.target.is_finite()).is_true()
 	assert_bool(run.arrow._ring.visible).is_false()
+	# In with the portals, the arrow has nothing left to point at.
+	_put(tutorial, Tutorial.PLAY_PORTAL + Vector2i(1, 1), Vector3(0.0, 0.0, -1.0))
+	await _runner.simulate_frames(2, 17)
+	assert_bool(run.arrow.target.is_finite()).is_false()
 	assert_int(tutorial.match_node.win_at).is_equal(0)
 	assert_bool(Game.settings.tutorial_done).is_true()
 	assert_bool(arena.gate_at(TutorialFight.PORTAL_GATE).is_open).is_true()

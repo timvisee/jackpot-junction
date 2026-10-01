@@ -165,8 +165,9 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	# penned bots rooms away.
 	assert_float(run.kart().global_position.distance_to(run.cell(lesson.spawn_cell))).is_less(0.5)
 	assert_array(tutorial.match_node.camera_rig.targets).is_equal([run.kart()] as Array[Node3D])
-	# Bare: no nitro, no hand, no pot, and the corner's own hints never.
+	# Bare: no corner block at all, no hand, and the corner's own hints never.
 	var parts := tutorial.match_node.hud.block_parts(0)
+	assert_bool((parts["box"] as Control).visible).is_false()
 	assert_bool((parts["nitro"] as Control).visible).is_false()
 	assert_bool((parts["pot"] as Control).visible).is_false()
 	assert_bool(tutorial.match_node.hud.hand_of(0).visible).is_false()
@@ -184,6 +185,8 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_bool(lesson.is_done()).is_true()
 	assert_object(run.waiting_at).is_same(gate)
 	assert_bool(run.notice.is_saying(&"welcome")).is_false()
+	# The notice is no wider than its words.
+	assert_float(run.notice.size.x).is_less(600.0)
 	# The list is a big green check for a second, under the lesson's name, then nothing until
 	# the next lesson.
 	assert_bool(run.list.is_checking()).is_true()
@@ -359,6 +362,7 @@ func test_burning_the_tank_dry_with_the_nitro_pointed_out() -> void:
 	assert_float(kart.nitro_charge).is_equal(1.0)
 	var parts := tutorial.match_node.hud.block_parts(0)
 	await _runner.simulate_frames(2, 17)
+	assert_bool((parts["box"] as Control).visible).is_true()
 	assert_bool((parts["nitro"] as Control).visible).is_true()
 	assert_bool((parts["speed"] as Control).visible).is_true()
 	assert_bool((parts["pot"] as Control).visible).is_false()

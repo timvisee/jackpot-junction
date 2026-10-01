@@ -3654,7 +3654,7 @@ hangs under the list while the list is up. The tick boxes, the bars and the
 rules are in the gold the game's name is written in. A task that is done is
 ticked and grayed with a short chime; the one
 being done is bright, with a bar under it where it is a matter of how far, and
-a count's box lights for a moment at each one of the count; tasks not yet
+a count's box stays empty until the count is complete; tasks not yet
 reached are not shown, so the list grows as the lesson goes. A lesson done in
 any order shows all its tasks from the start, the one being done bright and the
 rest a shade dimmer, its stations set apart by a short rule with room round
@@ -3662,9 +3662,10 @@ it. A lesson done is a big green check in place of its tasks for a second, under
 its name, and then the next lesson, or nothing until that starts: a list of
 lessons done was noise. On a touch screen it hangs under the menu button.
 
-**The notice.** A panel at the top center of the screen, at the top edge on
-every screen, a touch screen's too, where the fight's bar goes and under that
-bar while it is up, and under a pointer's card while one is up there, with a
+**The notice.** A panel at the top center of the screen, no wider than its
+words, at the top edge on every screen, a touch screen's too, where the fight's
+bar goes and under that bar while it is up, and under a pointer's card while
+one is up there, with a
 line or two about the thing in front of the player, where signs floating in the
 room used to be, short and to the point, an information mark in front of each
 so the panel reads as a note and not as something to answer. A line that names
@@ -3711,8 +3712,8 @@ few meters of the spot the arrow goes, and the ring stays until the spot is
 reached. A task that needs the kart nowhere in particular, the nitro's, has
 neither.
 
-**The HUD comes in pieces.** At the start only the player's name, the checklist
-and the hint are on the screen. Each piece of the corner block appears with the
+**The HUD comes in pieces.** At the start only the checklist and the hint are on
+the screen, the player's corner block not at all. Each piece of the corner block appears with the
 lesson it is for, with a pointer beside it, a frame pulsing round it and one line
 saying what it is, on a dark card so it reads against any floor, and a ring
 that starts as wide as the screen and shrinks onto the card and away to
@@ -3727,7 +3728,8 @@ being whatever opens the hand, or "Tap your jokers to view them" on a touch
 screen, only once the parked karts, the cards and the pit are done, so the
 reading is the one thing left when the pointer says how, and until the hand has
 been read, the card stepping aside while the hand is open, when the cards still
-to read wear an eye each on the hand itself; the pot with
+to read wear an eye each in the middle of the card, where the next card of a
+fanned hand does not cover it; the pot with
 the pads lesson, "Your pot: where the coins go", and the mult pill of the pot
 with its dice, "Your mult: coins times this is your pot"; and the bank with
 the Junction's, "Bank: safe" behind a shut padlock, with a second card and
@@ -3782,8 +3784,7 @@ The lessons, each in its own room, in order:
    three steps of a drift with a tick box each, ticked as the drift under way
    gets there: "Tap Shift while turning", "Hold the drift to build turbo",
    "Straighten up to launch"; a turbo launched holds all three ticked for a
-   moment and lights the count's box, and then the steps start over for the
-   next. The stacks of tires and barrels are two barrels side by side with one
+   moment, and then the steps start over for the next. The stacks of tires and barrels are two barrels side by side with one
    on top, the same every time, so the body in each fits what is seen.
 6. **Shooting.** A gallery 24 by 16 cells with five targets round it and three
    loose boxes that break but count for nothing. Hit each of the five once, a
@@ -3798,9 +3799,10 @@ The lessons, each in its own room, in order:
    written in the room: the checklist, the hint and the notice carry the
    instructions, and the floor says the rest in paint. Along the top, a dead-end
    run with a turret at its far end that is part of the room: steel gray, on a
-   steel plinth with the hazard stripes in a ring round it, never destroyed, a
-   shot at it stopped and nothing more, shooting seven meters, with a hazard
-   line across the run where its reach begins. The Shield's box is at the run's open end, out of the turret's reach,
+   round steel plinth with the hazard stripes in a ring round it on the floor,
+   where they stay put while the turret turns, never destroyed, a shot at it
+   stopped and nothing more, shooting seven meters, with a hazard line across
+   the run where its reach begins. The Shield's box is at the run's open end, out of the turret's reach,
    and the task is to arm the Shield, cross the line and take the turret's shot
    on it, which is what a Shield is for, the arrow on the turret with no ring;
    the turret stops shooting once it has, and stands. In the south-east, a
@@ -3853,7 +3855,8 @@ The lessons, each in its own room, in order:
    at a time, each with the notice about it: first the four Royal Flush pads in
    the corners, which pay whoever holds them and lock in for a flush, the pot
    pointed at as where the coins go, and the task is to hold every pad of the
-   room at once; then, on the flush, the two Jackpots, the one by the way in
+   room at once, the arrow and its ring on the nearest pad not yet the
+   player's; then, on the flush, the two Jackpots, the one by the way in
    full, which fill over time and pay whoever waits in them, and the task is to
    drain it; then, drained, four mult dice on the floor, which raise the mult
    that the coins are multiplied by, the mult pill of the pot pointed at, and
@@ -3886,7 +3889,8 @@ The lessons, each in its own room, in order:
     banked and the normal one at 600, each pen's gate opening and shutting again
     once its bot is out in the room. Bank 1000 points in here, counted from the
     start of the fight, the match point counted the same way, from where the
-    bank stood as the fight began, shown as a bar across the top center of the screen the
+    bank stood as the fight began, shown as a bar across the top center of the
+    screen, "BANK 1000 EXTRA TO FINISH", the
     way a boss's health would be, with the Royal Flush tally of 8.3 moved down
     under it for the while, and no line over the kart: there is nothing to say
     but the bar; a death is a respawn and a joker pick, a bot comes back on one
@@ -3901,7 +3905,8 @@ The lessons, each in its own room, in order:
     decoys gone, so nothing of the fight shoots on or banks on, the settings
     remember it, the four-cell gate at the top of the room opens on an alcove 8
     by 5 with the two portals in it, one to Play and one to the Garage, and the
-    arrow points the way through it. A kart parked on the Junction with an
+    arrow points the way through it until the kart is in there with them. A
+    kart parked on the Junction with an
     empty pot finishes a cash-out of nothing every tick, which neither the
     Junction's lesson nor the fight's hint counts.
 

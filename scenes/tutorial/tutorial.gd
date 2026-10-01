@@ -144,6 +144,12 @@ func _ask_how_to_drive() -> void:
 func _physics_process(_delta: float) -> void:
 	if holding and run != null:
 		run.kart().frozen = true
+	# The arrow to the portals' gate has done its piece once the kart is through it.
+	if run != null and run.is_over() and run.arrow.target.is_finite():
+		var grid := match_node.arena.grid
+		var here := grid.region_of(grid.cell_of(run.kart().global_position))
+		if here == grid.region_of(PLAY_PORTAL):
+			run.arrow.point_at(Vector3.INF)
 
 
 ## The fight is on: the pause menu's Skip lesson goes, for good.

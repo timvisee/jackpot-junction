@@ -143,8 +143,7 @@ func refresh(lesson: TutorialLesson) -> void:
 				row["bar"] = bar
 			_tasks.append(row)
 		var line: Dictionary = _tasks[shown]
-		# Lit for a moment for each one of a count, as well as for good once it is done.
-		(line["mark"] as Mark).done = task.done or task.just_ticked()
+		(line["mark"] as Mark).done = task.done
 		var label: Label = line["label"]
 		label.text = task.label(simple)
 		# The one being done is bright, and in any order, or under a goal, the others wait a

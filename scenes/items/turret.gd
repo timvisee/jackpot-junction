@@ -18,8 +18,8 @@ static var hunts_targets := false
 var owner_slot := -1
 var shoots_targets := false
 ## Whether this turret is part of the room rather than anybody's item, GAME.md 9.4a: never
-## destroyed, a shot at it stopped and nothing more, and stood on a hazard-striped plinth in
-## steel gray so it is plainly no player's.
+## destroyed, a shot at it stopped and nothing more, and stood on a round steel plinth so it is
+## plainly no player's.
 var fixture := false
 ## How far it shoots, [constant RANGE] unless told otherwise.
 var reach := RANGE
@@ -178,16 +178,20 @@ func _build_visuals() -> void:
 		_build_plinth()
 
 
-## The plinth a fixture stands on: a steel slab under it and the hazard stripes of [HazardLine]
-## in a ring round that, the same paint the floor round a fixture wears.
+## The plinth a fixture stands on: a round steel slab, round because the turret turns to aim and a
+## plinth turning with it would give it away. The hazard stripes round it are the room's to lay,
+## on the floor, see [HazardLine], since they are not to turn either.
 func _build_plinth() -> void:
 	var steel := StandardMaterial3D.new()
 	steel.albedo_color = Color(0.4, 0.42, 0.46)
 	var slab := MeshInstance3D.new()
-	var slab_mesh := BoxMesh.new()
-	slab_mesh.size = Vector3(1.0, 0.1, 1.0)
+	var slab_mesh := CylinderMesh.new()
+	slab_mesh.top_radius = 0.6
+	slab_mesh.bottom_radius = 0.6
+	slab_mesh.height = 0.1
+	slab_mesh.radial_segments = 20
+	slab_mesh.rings = 1
 	slab.mesh = slab_mesh
 	slab.material_override = steel
 	slab.position = Vector3(0.0, 0.05, 0.0)
 	add_child(slab)
-	HazardLine.box(self, global_position, Vector2(1.7, 1.7))
