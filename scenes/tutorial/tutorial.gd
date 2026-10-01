@@ -22,8 +22,9 @@ const CAMERA := 26.0
 const SIGN_HEIGHT := 2.7
 ## Which of the two portals at the end leads to Play; the other leads to the Garage.
 const PLAY_PORTAL := Vector2i(34, 36)
-## What the end says, and for how long, and how long the fireworks over the room go on.
-const DONE := "TUTORIAL COMPLETE"
+## What the end says, in two lines, for how long, and how long the fireworks over the room go on.
+const DONE := "CONGRATULATIONS"
+const DONE_LINE := "You are ready for the Junction"
 const DONE_SHOWN := 5.0
 const FIREWORKS_FOR := 8.0
 
@@ -34,6 +35,9 @@ var menu: PauseMenu
 ## Whether the kart is held still for the question of how to drive, every tick, since the match
 ## lets its karts go as it gets going.
 var holding := false
+## The pause menu's Skip lesson, gone from the fight on: the fight is not skipped, and nothing
+## after it is a lesson.
+var _skip_entry: Button
 
 
 func _ready() -> void:
@@ -83,7 +87,8 @@ func _ready() -> void:
 	DebugOverlay.add_to(self, match_node)
 	menu = PauseMenu.add_to(self)
 	menu.names_and_colors = true
-	menu.add_entry("Skip lesson", run.skip)
+	_skip_entry = menu.add_entry("Skip lesson", run.skip)
+	run.lesson_started.connect(_on_lesson_started)
 	_ask_how_to_drive()
 	loaded.emit()
 
@@ -141,6 +146,12 @@ func _physics_process(_delta: float) -> void:
 		run.kart().frozen = true
 
 
+## The fight is on: the pause menu's Skip lesson goes, for good.
+func _on_lesson_started(index: int) -> void:
+	if not run.lessons[index].skippable and _skip_entry != null:
+		_skip_entry.visible = false
+
+
 ## Done, GAME.md 9.4a: said so, with a fanfare, remembered, and the gate to the portals opened.
 func _on_finished() -> void:
 	Game.settings.tutorial_done = true
@@ -158,13 +169,24 @@ func _on_finished() -> void:
 		Palette.player_color(kart.color_index),
 		FIREWORKS_FOR
 	)
-	var banner := Label.new()
+	var banner := VBoxContainer.new()
 	banner.name = "Done"
-	banner.text = DONE
-	banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Type.display(banner, Type.HERO, Palette.CHIP_GOLD)
-	HudText.shadowed(banner, 3)
+	banner.add_theme_constant_override("separation", 4)
+	var word := Label.new()
+	word.text = DONE
+	word.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	word.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Type.display(word, Type.HERO, Palette.CHIP_GOLD)
+	HudText.shadowed(word, 3)
+	banner.add_child(word)
+	var line := Label.new()
+	line.text = DONE_LINE
+	line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Type.strong(line, Type.HEADING, Palette.CHIP_WHITE)
+	HudText.shadowed(line, 2)
+	banner.add_child(line)
 	banner.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	banner.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	banner.offset_top = 120.0

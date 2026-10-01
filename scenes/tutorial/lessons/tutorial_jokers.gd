@@ -19,12 +19,10 @@ const CARDS: Array[StringName] = [&"magnet_hubcaps", &"payday"]
 const PIT := Vector2i(7, 52)
 const PIT_RECT := Rect2i(7, 52, 2, 2)
 const WANTED := 4
-## What the reading task says: by key, and by touch; and the word at the top for the lesson.
-const READ_KEYS := "Hold %s and steer through your cards"
-const READ_TOUCH := "Tap each card to read it"
+## The word at the top for the lesson.
 const WORDS := (
-	"Jokers are cards that bend the rules in your favor: every one you hold is a perk "
-	+ "for the rest of the match. A hand holds five."
+	"Joker cards bend rules in your favor.\nKilling a kart may drop a joker.\n"
+	+ "Dying lets you choose a joker.\nUse them to your advantage."
 )
 
 var _shoot: TutorialTask
@@ -50,7 +48,7 @@ func _init() -> void:
 	_pick_up = add_task("Pick up the cards they dropped", "Drive over a card")
 	_pick_up.of = DUMMIES
 	_pick_up.arrow = DUMMY_SPOTS[1]
-	_read = add_task("Read each card in your hand", READ_KEYS, [InputActions.JOKER_MENU], true)
+	_read = add_task("Read each card in your hand", "", [], true)
 	_pit = add_task("Drive into the pit and pick a joker", "%s to take a card", [InputActions.FIRE])
 	_pit.of = WANTED - DUMMIES
 	_pit.arrow = PIT
@@ -63,13 +61,8 @@ func _begin() -> void:
 	# A death opens the joker pick from here on, GAME.md 3.7.
 	run.match_node.rules.offer_jokers = true
 	run.notice.say(&"jokers", WORDS)
-	if TouchInput.enabled:
-		_read.hint = READ_TOUCH
-		_read.actions = []
 	Events.kart_killed.connect(_on_killed)
 	Events.joker_taken.connect(_on_taken)
-	put_sign("PARKED KARTS\nshoot one and it drops a joker", Vector2i(7, 46), Palette.NEON_MAGENTA)
-	put_sign("PIT\ndrive in: a death opens the joker pick", PIT, Palette.NEON_MAGENTA)
 
 
 func end() -> void:
@@ -89,6 +82,9 @@ func step(_delta: float) -> void:
 		)
 	_aim_at_nearest()
 	_read_cards()
+	# A hand already full takes no card off the floor: the picking up is as good as done.
+	if kart().jokers.is_full() and not _pick_up.done:
+		_pick_up.complete()
 
 
 ## The card under the cursor, with the hand open, is read: the task is every card in the hand.

@@ -19,16 +19,10 @@ const DICE_AT: Array[Vector2i] = [
 const DICE := 3
 ## What the word at the top says at each part.
 const FLUSH_WORDS := (
-	"Royal Flush pads pay coins to whoever holds them, for as long as they do. "
-	+ "Hold all four at once and they lock in for you."
+	"Royal Flush pads pay out coins when you hold them.\n" + "Hold all four to lock them in."
 )
-const JACKPOT_WORDS := (
-	"Jackpots fill with coins over time. " + "Drive in and wait, and what has built up is yours."
-)
-const MULT_WORDS := (
-	"Mult dice raise your mult. Coins times mult is your pot: "
-	+ "the same coins are worth double at times two."
-)
+const JACKPOT_WORDS := "Stand on a Jackpot to collect its pot."
+const MULT_WORDS := "Mult multiplies your pot.\nBalance coins and mult for the best score."
 
 var _flush: TutorialTask
 var _drain: TutorialTask
@@ -40,12 +34,12 @@ func _init() -> void:
 	title = "Pads"
 	spawn_cell = SPAWN
 	reveals = [[&"pot", "Your pot: where the coins go", []]]
-	_flush = add_task("Hold all four Royal Flush pads at once", "Drive over each of the pads")
+	_flush = add_task("Hold all four Royal Flush pads at once", "")
 	_flush.arrow = Vector2i(24, 44)
 	_drain = add_task("Drain the Jackpot", "Drive in and wait", [], true)
 	_drain.arrow = JACKPOT
 	_drain.arrow_rect = JACKPOT_RECT
-	_mult = add_task("Pick up three mult dice", "Drive over a die")
+	_mult = add_task("Pick up three mult dice", "")
 	_mult.of = DICE
 
 

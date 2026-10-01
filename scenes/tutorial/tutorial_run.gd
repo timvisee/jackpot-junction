@@ -21,12 +21,8 @@ const RING_OUT := 0.4
 ## What a task done sounds like, and a gate opening.
 const TICK := &"ready"
 const GATE := &"turbo_pass"
-## What the notice says for a lesson that may not be skipped, and for a joker pick with the hand
-## already full, GAME.md 3.7.
-const NO_SKIP := "The fight is the test: win it, or leave by the pause menu."
-const HAND_FULL := (
-	"Your hand is full: take a card and pick one of yours for it to replace, " + "or take none."
-)
+## What the notice says for a joker pick with the hand already full, GAME.md 3.7.
+const HAND_FULL := "Your hand is full.\nReplace a card or skip it."
 
 var match_node: Match
 var layer: CanvasLayer
@@ -105,6 +101,8 @@ func _ready() -> void:
 	Events.kart_respawned.connect(_on_respawned)
 	# Everybody where they belong: the match seated them on the map's spawns in reading order.
 	kart().respawn(cell(lessons[0].spawn_cell), lessons[0].facing, 0.0)
+	# No banking by joker until the Junction is in the room, GAME.md 9.4a.
+	kart().banks_passively = false
 	for i: int in dummies.size():
 		_park_dummy(i)
 	for i: int in bots.size():
@@ -152,13 +150,10 @@ func begin() -> void:
 
 
 ## The pause menu's Skip lesson: the lesson being done is done, and its gate opens. The fight is
-## not skipped: it is the test, and the word at the top says so.
+## not skipped: it is the test, and the menu's entry is gone by then.
 func skip() -> void:
 	var lesson := current_lesson()
-	if lesson == null or waiting_at != null:
-		return
-	if not lesson.skippable:
-		notice.say(&"no_skip", NO_SKIP)
+	if lesson == null or waiting_at != null or not lesson.skippable:
 		return
 	lesson.skip()
 
@@ -218,6 +213,8 @@ func _start(i: int) -> void:
 		return
 	index = i
 	waiting_at = null
+	# Whatever the lesson before had to say is said; the one starting has its own.
+	notice.clear()
 	var lesson := lessons[i]
 	lesson.begin(self)
 	list.start_lesson(lesson)
@@ -227,7 +224,8 @@ func _start(i: int) -> void:
 			if piece.size() > 2:
 				actions.assign(piece[2])
 			var also: StringName = piece[3] if piece.size() > 3 else &""
-			reveal.show_piece(piece[0], piece[1], actions, also)
+			var also_line: String = piece[4] if piece.size() > 4 else ""
+			reveal.show_piece(piece[0], piece[1], actions, also, also_line)
 	_task = null
 	_done = 0
 	_refresh()
@@ -247,6 +245,7 @@ func _physics_process(delta: float) -> void:
 	_watch_hand()
 	if notice.visible:
 		place_tally()
+	_place_feed()
 	if _over or index < 0:
 		return
 	if waiting_at != null:
@@ -334,6 +333,13 @@ func _step_through() -> void:
 	_shut_what_is_clear()
 	waiting_at = null
 	_start(index + 1)
+
+
+## The kill feed hangs where the checklist is: under it, for as long as the list is up.
+func _place_feed() -> void:
+	if match_node.hud == null:
+		return
+	match_node.hud.feed_drop = list.offset_top + list.size.y + 10.0 if list.visible else 0.0
 
 
 ## A joker pick open with the hand already full is the one moment the pick wants explaining,

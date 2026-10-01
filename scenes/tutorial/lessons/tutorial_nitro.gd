@@ -4,7 +4,7 @@ extends TutorialLesson
 ## the lesson starts. The nitro tank and the speedometer come into the corner with it.
 
 ## The word at the top for the lesson.
-const WORDS := "Nitro burns the tank for a burst of speed. The tank refills on its own."
+const WORDS := "Nitro burns the tank for a burst of speed.\nIt refills on its own."
 
 var _burn: TutorialTask
 

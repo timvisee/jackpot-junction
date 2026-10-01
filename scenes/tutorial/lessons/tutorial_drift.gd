@@ -9,20 +9,22 @@ extends TutorialLesson
 ## Garage to drift round, each with a body in it a kart bumps and a shot hits.
 
 const TURBOS := 3
-## Where the props stand, by the cells each covers, what each is, and how far round a body of
-## tires reaches, in meters.
+## Where the props stand, by the cells each covers, what each is, how far round a body of tires
+## reaches, in meters, and how big the body round the barrels is, along their row and across it,
+## see [method RoomProps.garage_prop].
 const PROPS: Array[Rect2i] = [Rect2i(67, 6, 2, 2), Rect2i(75, 15, 2, 2), Rect2i(83, 8, 2, 2)]
 const PROP_KINDS: Array[StringName] = [&"tires", &"barrels", &"tires"]
 const TIRES_RADIUS := 1.5
+const BARRELS_BODY := Vector3(4.2, 3.0, 2.2)
 ## The steps, and what each is done with.
 const STEPS: Array[String] = [
-	"Tap %s while turning", "Hold the drift to build a turbo", "Straighten up to launch it"
+	"Tap %s while turning", "Hold the drift to build turbo", "Straighten up to launch"
 ]
 const STEP_ACTIONS: Array[Array] = [[InputActions.HANDBRAKE], [], []]
 ## How long all three stay ticked after a turbo, in seconds.
 const LAUNCHED_FOR := 0.9
 ## The word at the top for the lesson.
-const WORDS := "A drift held long enough earns a turbo, let go the moment you straighten up."
+const WORDS := "Drift for tight corners.\nHold a drift to build turbo."
 
 var _tap: TutorialTask
 var _turbo: TutorialTask
@@ -66,7 +68,7 @@ func _prepare() -> void:
 			shape.shape = drum
 		else:
 			var box := BoxShape3D.new()
-			box.size = Vector3(rect.size.x * grid.cell_size, 3.0, rect.size.y * grid.cell_size)
+			box.size = BARRELS_BODY
 			shape.shape = box
 		shape.position = Vector3(0.0, 1.5, 0.0)
 		body.add_child(shape)

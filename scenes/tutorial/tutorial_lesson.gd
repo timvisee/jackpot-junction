@@ -33,6 +33,9 @@ var reveals: Array[Array] = []
 var pointer_until: TutorialTask
 ## Whether the pause menu may pass this lesson: every lesson but the fight.
 var skippable := true
+## Whether every task is on the list from the start though they are done in order: the fight's
+## goal with its hints under it.
+var show_all := false
 var run: TutorialRun
 
 ## The signs this lesson put up, taken down with it.
@@ -97,9 +100,10 @@ func current() -> TutorialTask:
 	return _first_undone(_held) if not _held.is_empty() else null
 
 
-## The tasks the checklist shows: up to the one being done, or all of them in any order.
+## The tasks the checklist shows: up to the one being done, or all of them in any order or when
+## the lesson wants them all up.
 func shown() -> Array[TutorialTask]:
-	if not ordered:
+	if not ordered or show_all:
 		return tasks
 	var up_to: Array[TutorialTask] = []
 	for task: TutorialTask in tasks:

@@ -11,15 +11,11 @@ const JUNCTION_RECT := Rect2i(35, 46, 4, 4)
 const JACKPOT := Vector2i(47, 52)
 const JACKPOT_RECT := Rect2i(47, 52, 2, 2)
 const POT := 20
-## What the banking task says: with something in the pot, and with nothing; and the word at the
-## top for the lesson.
-const BANK := "Drive onto the Junction: it banks the coins of your pot"
+## What the banking task says over the kart: nothing, the pointers and the word at the top
+## saying it, unless the pot is empty; and the word at the top for the lesson.
+const BANK := ""
 const EMPTY := "Your pot is empty: fill it at the Jackpot first"
-const WORDS := (
-	"Your pot is what you carry, and part of it is lost when you die. "
-	+ "Only banked points are safe: the Junction banks the coins of your pot, "
-	+ "and 3000 banked wins a match."
-)
+const WORDS := "You lose part of your pot when you die.\nOnly banked points are safe."
 
 var _fill: TutorialTask
 var _bank: TutorialTask
@@ -30,7 +26,7 @@ var _peak := 0.0
 func _init() -> void:
 	title = "The Junction"
 	spawn_cell = TutorialPads.SPAWN
-	reveals = [[&"bank", "Your bank, from the coins of your pot: safe for good", [], &"pot"]]
+	reveals = [[&"bank", "Your bank: safe for good", [], &"pot", "Your pot: banked here"]]
 	_fill = add_task("Fill your pot from the Jackpot", "Drive into the Jackpot and wait")
 	_fill.arrow = JACKPOT
 	_fill.arrow_rect = JACKPOT_RECT
@@ -48,6 +44,8 @@ func _begin() -> void:
 		zone.chips = float(zone.cap())
 	Events.bank_completed.connect(_on_banked)
 	run.notice.say(&"bank", WORDS)
+	# The Junction is in the room: a joker that banks of its own accord may, from here on.
+	kart().banks_passively = true
 
 
 func end() -> void:

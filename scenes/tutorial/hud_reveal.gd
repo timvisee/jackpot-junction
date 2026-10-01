@@ -40,8 +40,12 @@ var _tip: Tip
 ## The pointer's line, words with the control drawn in where it names one, see [InputHint].
 var _line: Control
 var _frame: Frame
-## A second frame, for a pointer that is about two pieces at once, the pot and the bank.
+## A second frame and a second card, for a pointer that is about two pieces at once, the pot and
+## the bank.
 var _also_frame: Frame
+var _also_pointer: PanelContainer
+var _also_row: HBoxContainer
+var _also_line: Control
 var _also := &""
 var _ring: Ring
 var _pointing := &""
@@ -144,6 +148,19 @@ func _ready() -> void:
 	_also_frame.name = "AlsoFrame"
 	_also_frame.visible = false
 	hud.add_child(_also_frame)
+	_also_pointer = PanelContainer.new()
+	_also_pointer.name = "AlsoPointer"
+	_also_pointer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_also_pointer.add_theme_stylebox_override("panel", HudBlock.scrim())
+	_also_row = HBoxContainer.new()
+	_also_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_also_row.add_theme_constant_override("separation", 8)
+	_also_pointer.add_child(_also_row)
+	var also_tip := Tip.new()
+	also_tip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_also_row.add_child(also_tip)
+	_also_pointer.visible = false
+	hud.add_child(_also_pointer)
 	_ring = Ring.new()
 	_ring.name = "Ring"
 	_ring.visible = false
@@ -152,10 +169,15 @@ func _ready() -> void:
 
 ## Brings [param piece] in, with [param line] on a pointer beside it until [method pointer_done],
 ## each gap in the line filled with the control of [param actions] for the device in hand, and a
-## frame round [param also] as well where the line is about two pieces. A piece that is a part of
-## another, the mult pill of the pot, is pointed at without being brought in.
+## frame round [param also] as well where the line is about two pieces, with a card of its own
+## saying [param also_line] where there is one. A piece that is a part of another, the mult pill
+## of the pot, is pointed at without being brought in.
 func show_piece(
-	piece: StringName, line: String, actions: Array[StringName] = [], also: StringName = &""
+	piece: StringName,
+	line: String,
+	actions: Array[StringName] = [],
+	also: StringName = &"",
+	also_line: String = ""
 ) -> void:
 	if piece in PIECES:
 		shown[piece] = true
@@ -164,6 +186,13 @@ func show_piece(
 	_pointing = piece
 	_also = also
 	_also_frame.visible = also != &""
+	if _also_line != null:
+		_also_line.queue_free()
+		_also_line = null
+	_also_pointer.visible = also != &"" and not also_line.is_empty()
+	if _also_pointer.visible:
+		_also_line = InputHint.row(also_line, [], INK, Type.LARGE)
+		_also_row.add_child(_also_line)
 	if _line != null:
 		_line.queue_free()
 	var keyboard := DeviceInput.uses_keyboard(slot.device()) if slot != null else true
@@ -188,6 +217,7 @@ func pointer_done() -> void:
 	_pointer.visible = false
 	_frame.visible = false
 	_also_frame.visible = false
+	_also_pointer.visible = false
 	_ring.visible = false
 
 
@@ -195,12 +225,17 @@ func is_pointing() -> bool:
 	return _pointer.visible
 
 
-## Where the pointer's card ends, from the top of the screen, for what else hangs up there to
+## Where the pointer's cards end, from the top of the screen, for what else hangs up there to
 ## keep clear of; nothing while no card is up.
 func card_bottom() -> float:
 	if not _pointer.visible:
 		return 0.0
-	return _pointer.position.y + _pointer.get_combined_minimum_size().y
+	var bottom := _pointer.position.y + _pointer.get_combined_minimum_size().y
+	if _also_pointer.visible:
+		bottom = maxf(
+			bottom, _also_pointer.position.y + _also_pointer.get_combined_minimum_size().y
+		)
+	return bottom
 
 
 ## What the pointer says, for asking.
@@ -263,10 +298,17 @@ func _place(parts: Dictionary, hand: JokerHand, delta: float) -> void:
 		_frame.position = grown.position
 		_frame.size = grown.size
 	if _also != &"":
-		var other := _anchor(_also, parts).get_global_rect().grow(FRAME_GROW)
+		var other_rect := _anchor(_also, parts).get_global_rect()
+		var other := other_rect.grow(FRAME_GROW)
 		_also_frame.strength = pulse
 		_also_frame.position = other.position
 		_also_frame.size = other.size
+		if _also_pointer.visible:
+			var other_size := _also_pointer.get_combined_minimum_size()
+			_also_pointer.position = Vector2(
+				other_rect.end.x + GAP + bob,
+				other_rect.position.y + other_rect.size.y * 0.5 - other_size.y * 0.5
+			)
 	if _ring.visible:
 		_ring_left = maxf(_ring_left - delta, 0.0)
 		var card := Rect2(_pointer.position, size)

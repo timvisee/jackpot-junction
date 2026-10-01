@@ -47,6 +47,12 @@ func used_up(kart: Kart, word: String) -> void:
 		Events.joker_used_up.emit(kart.slot, id, word)
 
 
+## Whether this joker banks points every tick of its own accord, Direct Debit: the tutorial holds
+## that off until the Junction is in the room, GAME.md 9.4a.
+func banks_on_step() -> bool:
+	return false
+
+
 ## Offer weight from rarity.
 func weight() -> float:
 	return RARITY_WEIGHTS[rarity]

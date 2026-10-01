@@ -51,7 +51,6 @@ func _prepare() -> void:
 
 
 func _begin() -> void:
-	run.notice.say(&"shoot", WORDS)
 	for target: Target in _gallery():
 		target.struck.connect(_on_struck)
 	var grid := run.grid()

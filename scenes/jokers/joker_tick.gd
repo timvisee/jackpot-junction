@@ -19,6 +19,8 @@ static func step(slots: Array[PlayerSlot], delta: float) -> bool:
 			continue
 		var banked := 0
 		for joker: Joker in kart.jokers.jokers:
+			if joker.banks_on_step() and not kart.banks_passively:
+				continue
 			banked += joker.on_step(kart, delta)
 		if banked > 0:
 			slot.banked += banked

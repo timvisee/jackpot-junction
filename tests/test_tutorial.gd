@@ -121,7 +121,16 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_int(run.index).is_equal(0)
 	assert_str(lesson.title).is_equal("Driving")
 	assert_int(run.list.listed()).is_equal(1)
-	assert_str(run.list._title.text).is_equal("Driving")
+	assert_str(run.list._title.text).is_equal("Objectives  ·  Driving")
+	assert_bool(tutorial._skip_entry.visible).is_true()
+	# The welcome at the top, with the mark, until the kart has driven a few meters.
+	assert_bool(run.notice.is_saying(&"welcome")).is_true()
+	assert_str(run.notice.said()).contains("Welcome")
+	assert_bool(run.notice._mark.visible).is_true()
+	assert_bool(run.kart().banks_passively).is_false()
+	# The kill feed hangs under the list, not behind it.
+	var feed := tutorial.match_node.hud.kill_feed()
+	assert_float(feed.offset_top).is_greater_equal(run.list.offset_top + run.list.size.y)
 	var rows := run.list.task_rows(lesson)
 	assert_int(rows.size()).is_equal(1)
 	# The arrow points up the corridor at the gate, and a gate gets no ring.
@@ -154,6 +163,7 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_bool(opened).override_failure_message("the gate never opened").is_true()
 	assert_bool(lesson.is_done()).is_true()
 	assert_object(run.waiting_at).is_same(gate)
+	assert_bool(run.notice.is_saying(&"welcome")).is_false()
 	# The list is a big green check for a second, under the lesson's name, then nothing until
 	# the next lesson.
 	assert_bool(run.list.is_checking()).is_true()
@@ -187,7 +197,7 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_str(run.current_lesson().title).is_equal("Steering")
 	await _runner.simulate_frames(1, 17)
 	assert_int(run.list.listed()).is_equal(1)
-	assert_str(run.list._title.text).is_equal("Steering")
+	assert_str(run.list._title.text).contains("Steering")
 
 
 ## Steering counts the heading, left then right, only while moving forward; sawing the wheel back
@@ -360,10 +370,16 @@ func test_drifting_counts_the_tap_and_three_turbos() -> void:
 	# Looked at between ticks: the kart's own tick would put the slide down again, since the kart
 	# is standing still.
 	assert_array(lesson._turbo.steps).is_equal(TutorialDrift.STEPS)
+	assert_str(TutorialDrift.STEPS[1]).is_equal("Hold the drift to build turbo")
+	assert_str(TutorialDrift.STEPS[2]).is_equal("Straighten up to launch")
+	assert_str(run.notice.said()).contains("Drift for tight corners")
 	assert_int(lesson._tap.steps_done).is_equal(0)
 	# Tires and barrels to drift round, each with a body in it, where the map has floor.
 	var props := tutorial.match_node.find_children("DriftProp*", "", false, false)
 	assert_int(props.size()).is_equal(TutorialDrift.PROPS.size())
+	var barrels := tutorial.match_node.get_node("DriftProp1") as StaticBody3D
+	var body := (barrels.get_child(0) as CollisionShape3D).shape as BoxShape3D
+	assert_vector(body.size).is_equal(TutorialDrift.BARRELS_BODY)
 	for rect: Rect2i in TutorialDrift.PROPS:
 		assert_str(tutorial.match_node.arena.grid.glyph(rect.position)).is_equal(".")
 	assert_object(tutorial.match_node.arena.get_node_or_null("Props")).is_not_null()
@@ -408,6 +424,8 @@ func test_shooting_the_targets_and_through_the_boxes() -> void:
 	var arena := tutorial.match_node.arena
 	# In the gallery: from the start corridor the kart would count as through the gallery's gate.
 	_put(tutorial, lesson.spawn_cell, Vector3(-1.0, 0.0, 0.0))
+	# Nothing to say at the top in here.
+	assert_bool(run.notice.visible).is_false()
 	var shot: Bullet = auto_free(Bullet.new())
 	shot.owner_slot = 0
 	# A light beside every target, red until it is counted.

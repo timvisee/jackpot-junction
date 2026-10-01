@@ -24,5 +24,9 @@ func on_step(kart: Kart, delta: float) -> int:
 	return points
 
 
+func banks_on_step() -> bool:
+	return true
+
+
 func stack_values(copies: int) -> Dictionary:
 	return {"points": "%d" % roundi(RATE * copies)}

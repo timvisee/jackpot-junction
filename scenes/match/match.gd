@@ -34,6 +34,8 @@ var state := State.LOBBY
 var slots: Array[PlayerSlot] = []
 ## On a client: a puppet match that renders snapshots from the host.
 var puppet := false
+## A match point of the room's own for [method would_win], GAME.md 9.4a, or 0 for the rules' target.
+var win_at := 0
 ## On a client, when the host was last heard from, in engine milliseconds, or -1 before it has
 ## been: a line gone quiet cannot say how slow it is, GAME.md 10.3.
 var heard_at := -1
@@ -710,11 +712,12 @@ func junction_wins_it() -> bool:
 ## Whether [param slot] cashing its pot in would take the match, counting everything a cash-out
 ## pays: the kart's jokers, and the Junction's own payout, which Last Call doubles.
 func would_win(slot: PlayerSlot) -> bool:
+	var target := win_at if win_at > 0 else rules.target_score
 	# A room with no target has nothing to win, whatever is in a pot.
-	if rules.target_score <= 0:
+	if target <= 0:
 		return false
 	var payout := arena.junction.payout_multiplier if arena != null and arena.junction else 1.0
-	return slot.would_win(rules.target_score, payout)
+	return slot.would_win(target, payout)
 
 
 ## Whether anybody's next cash-out would win the match that is being played, GAME.md 3.4.

@@ -79,6 +79,9 @@ var rng := RandomNumberGenerator.new()
 var alive := true
 ## Hits left before death; a kart below the rules' count is wounded: darker and slower.
 var lives := 2
+## Whether a joker that banks of its own accord, Direct Debit, may: the tutorial says no until
+## the Junction is in the room, GAME.md 9.4a.
+var banks_passively := true
 ## Seconds a freshly wounded kart cannot be hit again.
 var hurt_left := 0.0
 var falling := false

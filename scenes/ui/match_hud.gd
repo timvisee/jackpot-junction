@@ -86,6 +86,9 @@ var dismissed := false
 ## The waiting room of GAME.md 9.6: nothing is being played for, so the HUD says who is there
 ## rather than who is winning.
 var waiting := false
+## How far from the top the kill feed hangs at the least, for a screen with something else in the
+## top right corner: the tutorial's checklist, GAME.md 9.4a. Zero for the feed's own place.
+var feed_drop := 0.0
 
 var _timer: Label
 var _scoreboard: Scoreboard
@@ -517,7 +520,7 @@ func _update_blocks() -> void:
 		elif corner == 1:
 			# A player's block owns the top right corner; the feed lines up underneath it.
 			feed_top = maxf(feed_top, rect.end.y + 12.0)
-	_kill_feed.offset_top = feed_top
+	_kill_feed.offset_top = maxf(feed_top, feed_drop)
 	for index: int in _blocks:
 		var slot := match_node.slots[index]
 		var block := _blocks[index]

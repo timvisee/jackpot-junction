@@ -54,17 +54,22 @@ static func add_to(for_arena: Arena) -> RoomProps:
 	return props
 
 
-## A stack of tires or a few barrels put down at [param at], turned [param turn], in the
-## Garage's own materials, GAME.md 9.4a: what the tutorial's drift room has to drift round in
-## place of pillars. Decoration only, like everything else here; whoever asks for one stands a
-## body of their own in it.
+## A stack of tires, or two barrels side by side with one on top, put down at [param at], turned
+## [param turn], in the Garage's own materials, GAME.md 9.4a: what the tutorial's drift room has
+## to drift round in place of pillars. Always the same shape, unlike the yard's own barrels, so
+## that the body whoever asks for one stands in it fits: 3 m across for the tires, 4.2 by 2.2 for
+## the barrels along [param turn]. Decoration only, like everything else here.
 func garage_prop(kind: StringName, at: Vector3, turn: float) -> void:
 	var steel := surfaces.metal(Color(0.66, 0.68, 0.72))
 	match kind:
 		&"tires":
 			_tires(at, turn, surfaces.painted(Color(0.1, 0.1, 0.11)), steel)
 		&"barrels":
-			_barrels(at, turn, surfaces.painted(Color(0.22, 0.35, 0.44)), steel)
+			var drum := surfaces.painted(Color(0.22, 0.35, 0.44))
+			var side := Vector3(cos(turn), 0.0, -sin(turn))
+			_barrel(at + side * 1.05, drum, steel)
+			_barrel(at - side * 1.05, drum, steel)
+			_barrel(at + Vector3(0.0, 2.6, 0.0), drum, steel)
 
 
 func _build() -> void:

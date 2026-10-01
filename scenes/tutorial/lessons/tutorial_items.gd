@@ -32,10 +32,7 @@ const GUARD_REACH := 7.0
 const RETURN_WAIT := 3.0
 const GUARD_INK := Color("#FF3B30")
 ## The word at the top until an item has been used, with the item key named in it.
-const WORDS := (
-	"Items: drive over a box to pick one up. "
-	+ "It waits in your slot, one at a time, until you use it with %s."
-)
+const WORDS := "Drive over a box to pick up an item.\nUse it with %s."
 
 var _take_shield: TutorialTask
 var _pop: TutorialTask
@@ -147,9 +144,9 @@ func step(delta: float) -> void:
 		_return(id, delta)
 
 
-## A box taken and its station not done, the item gone, comes back after a moment: a Shield burnt
-## elsewhere, a Ricochet's shots all spent before the pocket, a Turret dropped out of reach of the
-## row.
+## A box taken and its station not done, the item gone, comes back: a Shield burnt elsewhere or
+## a Turret dropped out of reach of the row after a moment, a Ricochet's shots all spent before
+## the pocket at once, since there is nothing else to wait for.
 func _return(id: StringName, delta: float) -> void:
 	var box: ItemBox = _boxes[id]
 	if is_instance_valid(box) and box.is_inside_tree():
@@ -160,7 +157,8 @@ func _return(id: StringName, delta: float) -> void:
 		_waits[id] = 0.0
 		return
 	_waits[id] = float(_waits.get(id, 0.0)) + delta
-	if float(_waits[id]) < RETURN_WAIT:
+	var wait := 0.0 if id == &"ricochet_cannon" else RETURN_WAIT
+	if float(_waits[id]) < wait:
 		return
 	_waits[id] = 0.0
 	match id:

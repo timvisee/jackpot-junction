@@ -11,8 +11,8 @@ const TURNS := 1.5
 ## meters, and the word.
 const NEAR_PADS := 7.0
 const MODES_WORDS := (
-	"Two ways to drive: SIMPLE steers wherever you push, ADVANCED steers like a car. "
-	+ "Drive onto a pad to switch; the pause menu changes it any time."
+	"Two ways to drive: SIMPLE steers where you push, ADVANCED like a car.\n"
+	+ "Drive onto a pad to switch. The pause menu changes it any time."
 )
 ## The pads either side of the way in, by cell.
 const SIMPLE_PAD := Vector2i(13, 33)

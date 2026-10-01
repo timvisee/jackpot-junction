@@ -14,6 +14,8 @@ const WAITING_INK := Color(0.8, 0.8, 0.86)
 const DONE_INK := Color(0.55, 0.55, 0.6)
 const MARK := Palette.NEON_CYAN
 const MARK_SIDE := 18.0
+## What the panel is headed, before the lesson's name.
+const HEADING := "Objectives  ·  %s"
 ## The check a lesson done is: its color, how big, and for how long, in seconds.
 const DONE := Color(0.36, 0.9, 0.46)
 const CHECK_SIDE := 72.0
@@ -145,8 +147,10 @@ func refresh(lesson: TutorialLesson) -> void:
 		(line["mark"] as Mark).done = task.done or task.just_ticked()
 		var label: Label = line["label"]
 		label.text = task.label(simple)
-		# The one being done is bright, and in any order the others wait a shade dimmer.
-		var ink := INK if task == now or lesson.ordered else WAITING_INK
+		# The one being done is bright, and in any order, or under a goal, the others wait a
+		# shade dimmer.
+		var waits := not lesson.ordered or lesson.show_all
+		var ink := WAITING_INK if waits and task != now else INK
 		Type.ink(label, DONE_INK if task.done else ink)
 		if line.has("bar"):
 			var bar: ProgressBar = line["bar"]
@@ -199,7 +203,7 @@ func _show(lesson: TutorialLesson) -> void:
 	for row: Node in _rows.get_children():
 		row.queue_free()
 	_tasks.clear()
-	_title.text = lesson.title
+	_title.text = HEADING % lesson.title
 	_title.visible = true
 	_rows.visible = true
 	_check.get_parent().visible = false

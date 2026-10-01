@@ -30,6 +30,15 @@ const CHIPS_EACH := 10
 const DICE_AT: Array[Vector2i] = [Vector2i(27, 47), Vector2i(46, 47)]
 
 var _bank: TutorialTask
+## The hints under the goal, each a thing worth doing in a match, done on its own or with the goal.
+var _kill: TutorialTask
+var _mult: TutorialTask
+var _jackpot: TutorialTask
+var _flush: TutorialTask
+var _cash: TutorialTask
+var _use: TutorialTask
+var _hand: TutorialTask
+var _collected_lately := 0.0
 var _banked := 0
 var _released := 0
 ## The pens standing open, by bot, until their bot is out.
@@ -40,9 +49,18 @@ var _bar: TutorialBossBar
 func _init() -> void:
 	title = "The fight"
 	skippable = false
+	show_all = true
 	spawn_cell = TutorialPads.SPAWN
 	reveals = [[&"stats", "", []], [&"feed", "", []]]
 	_bank = add_task("Bank %d points" % NEED, "", [], true)
+	_kill = add_task("Take out another kart", "")
+	_mult = add_task("Reach a mult of 4", "")
+	_jackpot = add_task("Drain a Jackpot", "")
+	_flush = add_task("Make a Royal Flush", "")
+	_cash = add_task("Bank your whole pot at the Junction", "")
+	_use = add_task("Use an item", "")
+	_hand = add_task("Hold five jokers", "")
+	stations = [[_bank], [_kill, _mult, _jackpot, _flush, _cash, _use, _hand]]
 
 
 func _begin() -> void:
@@ -64,6 +82,15 @@ func _begin() -> void:
 		die.lifetime = 0.0
 		arena().place_drop(die, run.cell(at))
 	Events.bank_tick.connect(_on_tick)
+	Events.kart_killed.connect(_on_killed)
+	Events.jackpot_collected.connect(_on_collected)
+	Events.jackpot_emptied.connect(_on_emptied)
+	Events.flush_completed.connect(_on_flush)
+	Events.bank_completed.connect(_on_cashed)
+	Events.item_used.connect(_on_used)
+	# Match point from the goal, GAME.md 3.4: the call, the gold tracks and the burning pot, while
+	# the match itself has no target to end on.
+	run.match_node.win_at = NEED
 	_bar = TutorialBossBar.add_to(run.layer, NEED)
 	# The Royal Flush tally and the word at the top hang where the bar now is: under it.
 	run.boss_bar = _bar
@@ -74,6 +101,17 @@ func _begin() -> void:
 func end() -> void:
 	if Events.bank_tick.is_connected(_on_tick):
 		Events.bank_tick.disconnect(_on_tick)
+	for pair: Array in [
+		[Events.kart_killed, _on_killed],
+		[Events.jackpot_collected, _on_collected],
+		[Events.jackpot_emptied, _on_emptied],
+		[Events.flush_completed, _on_flush],
+		[Events.bank_completed, _on_cashed],
+		[Events.item_used, _on_used],
+	]:
+		if (pair[0] as Signal).is_connected(pair[1]):
+			(pair[0] as Signal).disconnect(pair[1])
+	run.match_node.win_at = 0
 	if _bar != null and is_instance_valid(_bar):
 		_bar.queue_free()
 	run.boss_bar = null
@@ -84,7 +122,12 @@ func end() -> void:
 	run.place_tally()
 
 
-func step(_delta: float) -> void:
+func step(delta: float) -> void:
+	_collected_lately = maxf(_collected_lately - delta, 0.0)
+	if kart().pot.mult >= 4.0 and not _mult.done:
+		_mult.complete()
+	if kart().jokers.count() >= 5 and not _hand.done:
+		_hand.complete()
 	# A pen shuts behind its bot once the bot is out in the room.
 	for i: int in range(_pens_open.size() - 1, -1, -1):
 		var which := _pens_open[i]
@@ -125,4 +168,37 @@ func _on_tick(slot_index: int, points: int) -> void:
 	if _bar != null and is_instance_valid(_bar):
 		_bar.show_banked(_banked)
 	if _banked >= NEED:
-		_bank.complete()
+		# The goal is the lesson: the hints under it go with it, done or not.
+		for task: TutorialTask in tasks:
+			task.complete()
+
+
+func _on_killed(_victim: int, killer: int, _cause: StringName) -> void:
+	if killer == kart().slot and not _kill.done:
+		_kill.complete()
+
+
+func _on_collected(slot_index: int, _chips: int) -> void:
+	if slot_index == kart().slot:
+		_collected_lately = 1.0
+
+
+## A Jackpot emptied while the player was the one collecting from it.
+func _on_emptied(_zone_index: int) -> void:
+	if _collected_lately > 0.0 and not _jackpot.done:
+		_jackpot.complete()
+
+
+func _on_flush(slot_index: int) -> void:
+	if slot_index == kart().slot and not _flush.done:
+		_flush.complete()
+
+
+func _on_cashed(slot_index: int, _coins: int, _mult: float, _total: int) -> void:
+	if slot_index == kart().slot and not _cash.done:
+		_cash.complete()
+
+
+func _on_used(slot_index: int, _id: StringName) -> void:
+	if slot_index == kart().slot and not _use.done:
+		_use.complete()

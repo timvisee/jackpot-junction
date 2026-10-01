@@ -2,7 +2,8 @@ class_name TutorialNotice
 extends PanelContainer
 ## The tutorial's word at the top of the screen, GAME.md 9.4a: a line or two about the thing in
 ## front of the player, the two ways to drive, what an item is, what a joker is, what the pot and
-## the bank are, where the fight's bar goes, and under that bar while it is up. Each lesson says
+## the bank are, where the fight's bar goes, and under that bar while it is up, and the welcome
+## at the very start with the game's mark over it. Each lesson says
 ## its piece by a key of its own and clears only that, so one lesson's word never wipes another's;
 ## a lesson ending clears whatever is up. Said in words alone, since a panel of them is read where
 ## a sign floating in the room was noise.
@@ -12,8 +13,10 @@ signal changed
 const WIDTH := 640.0
 const INK := Palette.CHIP_WHITE
 const FADE := 0.25
+const MARK_SIDE := 72.0
 
 var _label: Label
+var _mark: Control
 var _key := &""
 
 
@@ -31,6 +34,18 @@ func _ready() -> void:
 	grow_horizontal = Control.GROW_DIRECTION_BOTH
 	custom_minimum_size = Vector2(WIDTH, 0.0)
 	set_top(TouchControls.below_menu() if TouchInput.enabled else 16.0)
+	var column := VBoxContainer.new()
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_theme_constant_override("separation", 8)
+	add_child(column)
+	_mark = CenterContainer.new()
+	_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var logo := LogoArt.new()
+	logo.plate = false
+	logo.custom_minimum_size = Vector2(MARK_SIDE, MARK_SIDE)
+	_mark.add_child(logo)
+	_mark.visible = false
+	column.add_child(_mark)
 	_label = Label.new()
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -38,14 +53,16 @@ func _ready() -> void:
 	_label.custom_minimum_size = Vector2(WIDTH - 24.0, 0.0)
 	Type.text(_label, Type.BODY, INK)
 	HudText.shadowed(_label)
-	add_child(_label)
+	column.add_child(_label)
 	visible = false
 
 
-## Says [param text], as [param key], in place of whatever was up.
-func say(key: StringName, text: String) -> void:
+## Says [param text], as [param key], in place of whatever was up, with the game's mark over it
+## for [param with_mark].
+func say(key: StringName, text: String, with_mark := false) -> void:
 	_key = key
 	_label.text = text
+	_mark.visible = with_mark
 	if not visible:
 		visible = true
 		modulate.a = 0.0
