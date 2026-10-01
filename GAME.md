@@ -2535,8 +2535,11 @@ movement: the one thing a corner block must not do is ask to be looked at.
   itself, Guardian Angel spending the item on a hit, 7.3, says so on its own
   card: in its player's hand the card pulls out of the fan, further than a card
   being read, grows by a third, lights up and glows round its frame in pale
-  gold, holds there for most of a second and goes back. A tucked hand comes up
-  meanwhile, as it does for a card being read. The item it spent is gone from
+  gold, with GUARDED over it in the same gold, under it for a hand hanging from
+  the top, holds there for most of a second and goes back, the word fading with
+  it. A tucked hand comes up meanwhile, as it does for a card being read. The
+  word is on the card rather than over the kart, where 3.6 keeps words out: the
+  card is where the player looks to see what happened to the item. The item it spent is gone from
   the corner, and without that it reads as an item lost rather than a life kept;
   a haloed heart over the kart, tried first, said a life without saying whose
   doing it was. The item's own effect, a shield popping or a wipe, plays as

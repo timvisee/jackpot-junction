@@ -160,8 +160,8 @@ func test_carbon_copy_keeps_what_the_death_drops() -> void:
 
 
 ## Guardian Angel taking a hit says so, GAME.md 7.3 and 8.3: the event goes to every screen, and in
-## its player's hand the card pulls out of the fan, grows, lights up and glows round its frame, and
-## goes back.
+## its player's hand the card pulls out of the fan, grows, lights up and glows round its frame with
+## "GUARDED" over it, and goes back.
 func test_guardian_angel_taking_a_hit_sets_its_card_off() -> void:
 	var match_node := _start_match(PlayerInput.new(DeviceInput.ANY, 0), true)
 	await _runner.simulate_frames(20, 17)
@@ -196,10 +196,19 @@ func test_guardian_angel_taking_a_hit_sets_its_card_off() -> void:
 	# The other card stays where it was, and nothing rises over the kart.
 	assert_object(hand._cards[0].get_theme_stylebox("panel")).is_same(hand._cards[0]._normal)
 	assert_object(match_node.get_node_or_null("FloatingIcon")).is_null()
+	# "GUARDED" over it, clear of its top.
+	var word: Label = hand._words.get(&"guardian_angel")
+	assert_object(word).override_failure_message("no word over the card").is_not_null()
+	assert_str(word.text).is_equal("GUARDED")
+	assert_float(word.modulate.a).is_greater(0.9)
+	var top := angel.position.y + angel.pivot_offset.y - JokerCard.SIZE.y * angel.scale.y
+	assert_float(word.position.y + word.size.y).is_less_equal(top)
 	await _runner.simulate_frames(int(JokerHand.FLASH_TIME * 60.0) + 30, 17)
 	assert_float(angel.position.y).is_equal_approx(rest, 1.0)
 	assert_float(angel.modulate.r).is_less(1.02)
 	assert_object(angel.get_theme_stylebox("panel")).is_same(angel._normal)
+	assert_bool(hand._words.is_empty()).is_true()
+	assert_bool(is_instance_valid(word)).is_false()
 
 
 ## A tucked hand, a touch screen's, comes up while a card of it is out, the way it does for a card

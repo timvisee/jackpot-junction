@@ -14,7 +14,7 @@ below, and hands the notes to the release workflow.
 ### Added
 
 - **You see Guardian Angel save you.** When it spends your item on a hit, its card pulls out of
-  your hand, grows and glows for a moment.
+  your hand, grows and glows for a moment, with GUARDED over it.
 
 ## [0.11.0] - 2026-09-30
 

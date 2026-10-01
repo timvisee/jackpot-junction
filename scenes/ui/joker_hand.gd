@@ -33,6 +33,9 @@ const FLASH_GROW := 1.3
 const FLASH := Color(1.3, 1.25, 1.1)
 const FLASH_TIME := 1.2
 const FLASH_FADE := 0.45
+## The word over a card that has gone off, "GUARDED": how big, and how far clear of the card.
+const FLASH_WORD_SIZE := 24
+const FLASH_WORD_GAP := 8.0
 ## How big the picture of the joker-menu button beside the hand is drawn.
 const CAP_SIZE := 18
 ## The least a hand shrinks to in its lane, and the room kept either side of it for the count.
@@ -87,8 +90,9 @@ var _keys_shown := ""
 var _touch_buttons: Dictionary[StringName, Button] = {}
 ## How far into the screen the cards come, at rest, see [method reach].
 var _reach := 0.0
-## The jokers lit up by [method flash], to how long each has left.
+## The jokers lit up by [method flash], to how long each has left, and the word over each.
 var _flashing: Dictionary[StringName, float] = {}
+var _words: Dictionary[StringName, Label] = {}
 
 
 func _ready() -> void:
@@ -113,10 +117,37 @@ func card_count() -> int:
 
 ## Sets the cards of [param id] off for a moment, GAME.md 8.3, for a joker that has just done
 ## something by itself, such as Guardian Angel spending the item: each pulls out of the fan,
-## grows, lights up and glows round its frame, and goes back. A tucked hand comes up meanwhile,
-## the way it does for a card being read.
-func flash(id: StringName) -> void:
+## grows, lights up and glows round its frame, with [param word] over it, and goes back. A tucked
+## hand comes up meanwhile, the way it does for a card being read.
+func flash(id: StringName, word := "") -> void:
 	_flashing[id] = FLASH_TIME
+	if word.is_empty():
+		return
+	var label: Label = _words.get(id)
+	if label == null:
+		label = Label.new()
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		Type.set_font(label, Type.DISPLAY, FLASH_WORD_SIZE)
+		Type.ink(label, JokerCard.GLOW)
+		label.add_theme_constant_override("outline_size", 8)
+		label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.8))
+		add_child(label)
+		_words[id] = label
+	label.text = word
+	label.modulate.a = 0.0
+
+
+## Holds the word of a card that has gone off clear of it, see [method flash]: over a card standing
+## on the bottom edge, under one hanging from the top, and fading as the card goes back.
+func _place_word(label: Label, panel: JokerCard, glow: float) -> void:
+	label.size = label.get_minimum_size()
+	var held := panel.position + panel.pivot_offset
+	var tall := JokerCard.SIZE.y * panel.scale.y
+	var y := held.y + tall + FLASH_WORD_GAP
+	if not hangs():
+		y = held.y - tall - FLASH_WORD_GAP - label.size.y
+	label.position = Vector2(held.x - label.size.x * 0.5, y)
+	label.modulate.a = glow
 
 
 ## How far out the card at [param index] still is, 1 while it is out and down to 0 as it goes back.
@@ -128,7 +159,7 @@ func _glow(index: int) -> float:
 
 func _on_spared(slot: int, joker: StringName) -> void:
 	if kart != null and kart.slot == slot:
-		flash(joker)
+		flash(joker, "GUARDED")
 
 
 ## How far into the screen the cards come while none is lifted, for what has to stay clear of
@@ -189,6 +220,9 @@ func _process(delta: float) -> void:
 		_flashing[id] -= delta
 		if _flashing[id] <= 0.0:
 			_flashing.erase(id)
+			if _words.has(id):
+				_words[id].queue_free()
+				_words.erase(id)
 	var count := _cards.size()
 	var picked := selected()
 	var factor := 1.0 if columns <= 2 else 0.8
@@ -262,6 +296,8 @@ func _process(delta: float) -> void:
 			panel.set_glowing(glow)
 		else:
 			panel.set_highlighted(lifted)
+		if _words.has(_ids[i]):
+			_place_word(_words[_ids[i]], panel, glow)
 	var middle := edge + inward * card.y * 0.5
 	_place_cap(left, middle)
 	_place_count(left + hand_width, middle)
