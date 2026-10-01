@@ -29,7 +29,7 @@ func _init() -> void:
 	reveals = [
 		[&"bank", "%s Bank: safe", [&"icon:safe"], &"pot", "%s Pot: at risk", [&"icon:risk"]]
 	]
-	_fill = add_task("Fill your pot from the Jackpot", "Drive into the Jackpot and wait")
+	_fill = add_task("Fill your pot from the Jackpot", "")
 	_fill.arrow = JACKPOT
 	_fill.arrow_rect = JACKPOT_RECT
 	_bank = add_task("Bank the coins of your pot at the Junction", BANK, [], true)

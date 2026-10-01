@@ -3697,8 +3697,8 @@ or a switch of driving mode, and a task's own change of words as it goes. A
 task done in steps that come round again, the drift below, is its steps
 instead, a line each with a tick box in front, a little smaller, ticked as the
 try under way gets there. A task the checklist and the notice say enough about,
-holding the pads, picking up a die, reading the hand, banking at the Junction,
-has no line at all. It is one sprite redrawn as the task changes rather
+holding the pads, picking up a die, reading the hand, filling the pot at the
+Jackpot, banking at the Junction, has no line at all. It is one sprite redrawn as the task changes rather
 than a new one each time, which was a hitch at every gate. In a lesson done in
 any order it is for the station nearest the kart, and moves to another only once
 that one is a good two meters nearer, so a kart between two does not see it

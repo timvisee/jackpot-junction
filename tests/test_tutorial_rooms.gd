@@ -416,6 +416,7 @@ func test_the_junction_banks_the_whole_pot() -> void:
 	assert_bool(kart.banks_passively).is_true()
 	assert_str(lesson._bank.hint).is_equal("")
 	assert_object(lesson.pointer_until).is_same(lesson._bank)
+	assert_str(lesson._fill.hint).is_equal("")
 	(
 		assert_bool(arena.junctions[0].bank_tick.is_connected(tutorial.match_node._on_bank_tick))
 		. is_true()
