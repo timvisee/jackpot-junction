@@ -22,8 +22,11 @@ var progress := 0.0
 ## How many times it has been done of how many, where it is a count; 0 of for no count.
 var count := 0
 var of := 0
-## Where it needs the kart to go, by cell, for the arrow on the floor, or none.
+## Where it needs the kart to go, by cell, for the arrow on the floor, or none; and where that is
+## a whole piece of the floor, a Jackpot or the Junction, its cells, so the ring goes round all
+## of it.
 var arrow := Vector2i(-1, -1)
+var arrow_rect := Rect2i()
 var done := false
 
 ## When one of the count was last done, in engine seconds, or never.

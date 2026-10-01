@@ -149,9 +149,15 @@ func test_the_map_is_rooms_in_a_row_joined_by_gates() -> void:
 		assert_str(grid.glyph(cell)).is_equal("G")
 	assert_str(grid.glyph(TutorialFight.PORTAL_GATE)).is_equal("G")
 	# The pocket's target is past its pillar: no straight line from the window reaches it.
-	for cell: Vector2i in [TutorialItems.POCKET, TutorialItems.WINDOW, Vector2i(19, 16)]:
+	for cell: Vector2i in [
+		TutorialItems.POCKET,
+		TutorialItems.WINDOW,
+		Vector2i(19, 16),
+		Vector2i(23, 15),
+		Vector2i(23, 16)
+	]:
 		assert_str(grid.glyph(cell)).is_not_equal("#")
-	for cell: Vector2i in [Vector2i(22, 15), Vector2i(23, 16), Vector2i(19, 14), Vector2i(19, 17)]:
+	for cell: Vector2i in [Vector2i(22, 15), Vector2i(22, 16), Vector2i(19, 14), Vector2i(19, 17)]:
 		assert_str(grid.glyph(cell)).is_equal("#")
 
 
@@ -223,13 +229,14 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_bool(lesson.is_done()).is_true()
 	assert_bool((rows[0]["mark"] as TutorialList.Mark).done).is_true()
 	assert_object(run.waiting_at).is_same(gate)
-	# The arrow points at the gate now, with its ring on the floor there.
+	# The arrow points at the gate now, and a doorway gets no ring.
 	await _runner.simulate_frames(1, 17)
-	assert_bool(run.arrow._ring.visible).is_true()
-	var ring_at := run.arrow._ring.global_position
+	assert_bool(run.arrow.visible).is_true()
+	assert_bool(run.arrow._ring.visible).is_false()
+	var aimed := run.arrow.target
 	(
 		assert_float(
-			Vector2(ring_at.x, ring_at.z).distance_to(
+			Vector2(aimed.x, aimed.z).distance_to(
 				Vector2(gate.global_position.x, gate.global_position.z)
 			)
 		)
@@ -379,9 +386,8 @@ func test_burning_the_tank_dry_with_the_nitro_pointed_out() -> void:
 		card.position + card.get_combined_minimum_size() * 0.5
 	)
 	assert_float(apart).is_less(2.0)
-	assert_float(ring.size.x).is_less(
-		card.get_combined_minimum_size().x * 2.0 * HudReveal.RING_FROM
-	)
+	var screen := tutorial.match_node.hud.get_viewport().get_visible_rect().size.length()
+	assert_float(ring.size.x).is_equal_approx(screen * HudReveal.RING_FROM * 2.0, 1.0)
 	_put(tutorial, Vector2i(50, 26), Vector3(1.0, 0.0, 0.0))
 	Input.action_press(InputActions.THROTTLE)
 	Input.action_press(InputActions.NITRO)
@@ -725,6 +731,9 @@ func test_jokers_from_parked_karts_and_the_pit() -> void:
 	await _runner.simulate_frames(2, 17)
 	assert_int(kart.jokers.count()).is_equal(TutorialJokers.WANTED)
 	assert_bool(lesson.is_done()).is_true()
+	# Long past the respawn delay by now, the parked karts are still down.
+	for slot_dummy: PlayerSlot in run.dummies:
+		assert_bool(slot_dummy.kart.alive).is_false()
 
 
 ## Pads: the last room starts bare, its pads and Jackpots growing out of the floor with the
@@ -762,6 +771,14 @@ func test_pads_flush_their_own_room_and_drain_the_jackpot() -> void:
 	assert_bool(lesson._flush.done).is_false()
 	arena.flush_pads[3].claimed.emit(arena.flush_pads[3], kart)
 	assert_bool(lesson._flush.done).override_failure_message("no flush").is_true()
+	# On to the Jackpot, with the ring round the whole of it, two cells across.
+	await _runner.simulate_frames(1, 17)
+	assert_object(lesson.current()).is_same(lesson._drain)
+	assert_bool(run.arrow._ring.visible).is_true()
+	assert_float(run.arrow.ring_radius).is_greater(arena.grid.cell_size)
+	var ring_at := run.arrow.target
+	var zone_at := arena.grid.rect_center(TutorialPads.JACKPOT_RECT)
+	assert_float(ring_at.distance_to(zone_at)).is_less(0.1)
 	Events.jackpot_emptied.emit(lesson._zone.index)
 	await _runner.simulate_frames(1, 17)
 	assert_bool(lesson.is_done()).is_true()
@@ -824,8 +841,9 @@ func test_the_junction_banks_the_whole_pot() -> void:
 
 
 ## The fight: the item pads and the crates come in with it, the bots come out of their pens one
-## at a time as the player banks, each pen's own gate opening, the last of them normal, and 400
-## banked is the end: said, remembered, and the portals' gate open.
+## at a time as the player banks, each pen's own gate opening, the last of them normal, and 1000
+## banked is the end: said, remembered, the portals' gate open, and the bots gone in a poof with
+## their bullets and turrets.
 func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	var tutorial := await _start()
 	var run := tutorial.run
@@ -849,23 +867,44 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	assert_object(tutorial.layer.get_node_or_null("BossBar")).is_not_null()
 	var tally: FlushTally = tutorial.match_node.hud.find_child("FlushTally", true, false)
 	assert_float(tally.offset_top).is_greater(MatchHud.TALLY_DROP)
-	Events.bank_tick.emit(0, 150)
+	Events.bank_tick.emit(0, TutorialFight.RELEASE_AT[1])
 	await _runner.simulate_frames(1, 17)
 	assert_int(lesson.released()).is_equal(2)
 	assert_bool(arena.gate_at(TutorialFight.PEN_GATES[1]).is_open).is_true()
-	Events.bank_tick.emit(0, 150)
+	Events.bank_tick.emit(0, TutorialFight.RELEASE_AT[2] - TutorialFight.RELEASE_AT[1])
 	await _runner.simulate_frames(1, 17)
 	assert_int(lesson.released()).is_equal(3)
 	var brain := run.bots[2].kart.get_node("Brain") as BotBrain
 	assert_object(brain.difficulty).is_same(TutorialFight.NORMAL)
 	assert_bool(run.penned.is_empty()).is_true()
+	# A bot's turret and a bot's bullet on the floor, and the player's own bullet.
+	var bot := run.bots[0]
+	var turret := Turret.new()
+	turret.owner_slot = bot.index
+	turret.bullet_system = tutorial.match_node.bullets
+	tutorial.match_node.add_child(turret)
+	turret.global_position = run.cell(Vector2i(30, 44))
+	var bullets := tutorial.match_node.bullets
+	var stats: CannonStats = load("res://data/cannons/default.tres")
+	bullets.spawn(bot.index, run.cell(Vector2i(40, 44)), Vector3(1.0, 0.0, 0.0), stats, Color.RED)
+	bullets.spawn(0, run.cell(Vector2i(40, 50)), Vector3(1.0, 0.0, 0.0), stats, Color.WHITE)
 	Game.settings.tutorial_done = false
-	Events.bank_tick.emit(0, 100)
+	Events.bank_tick.emit(0, TutorialFight.NEED - TutorialFight.RELEASE_AT[2])
 	await _runner.simulate_frames(2, 17)
 	assert_bool(run.is_over()).is_true()
 	assert_bool(Game.settings.tutorial_done).is_true()
 	assert_bool(arena.gate_at(TutorialFight.PORTAL_GATE).is_open).is_true()
 	assert_object(tutorial.layer.get_node_or_null("Done")).is_not_null()
+	# The bots and everything of theirs gone, the player's own shot still flying.
+	for slot_bot: PlayerSlot in run.bots:
+		assert_bool(slot_bot.kart.visible).is_false()
+		assert_int(slot_bot.kart.process_mode).is_equal(Node.PROCESS_MODE_DISABLED)
+	assert_bool(not is_instance_valid(turret) or not turret.alive).is_true()
+	var flying := 0
+	for bullet: Bullet in bullets.bullets:
+		assert_int(bullet.owner_slot).is_equal(0)
+		flying += 1
+	assert_int(flying).is_equal(1)
 
 
 ## A gate never shuts on anybody: told to shut with a kart in it, it waits until the kart is out.

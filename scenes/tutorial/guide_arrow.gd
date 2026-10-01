@@ -2,8 +2,9 @@ class_name GuideArrow
 extends Node3D
 ## The arrow on the floor ahead of the kart, GAME.md 9.4a, pulsing toward wherever the task needs
 ## the kart to go, and toward the open gate once a lesson is done, with a ring on the floor round
-## the spot itself. The arrow is gone within a few meters of the spot, the ring stays until the
-## spot is reached, and both while there is nowhere in particular to go.
+## the spot itself, as big as what it marks, a pad or a whole Jackpot; a gate gets the arrow
+## alone. The arrow is gone within a few meters of the spot, the ring stays until the spot is
+## reached, and both while there is nowhere in particular to go.
 
 ## How far ahead of the kart it lies, how near the spot it goes, and how high off the floor.
 const AHEAD := 3.2
@@ -12,13 +13,16 @@ const HEIGHT := 0.07
 const COLOR := Palette.NEON_CYAN
 ## How fast it pulses, in beats a second.
 const PULSE := 0.8
-## The ring round the spot: its radius and its width, in meters.
+## The ring round the spot: its radius for a pad of one cell and its width, in meters.
 const RING_RADIUS := 1.1
 const RING_WIDTH := 0.12
 
 var kart: Kart
-## Where it points, or not finite for nowhere.
+## Where it points, or not finite for nowhere, how big a ring the spot gets, and whether it gets
+## one at all.
 var target := Vector3.INF
+var ring_radius := RING_RADIUS
+var ringed := true
 
 var _material: StandardMaterial3D
 var _ring: MeshInstance3D
@@ -69,8 +73,12 @@ func _exit_tree() -> void:
 		_ring.queue_free()
 
 
-func point_at(at: Vector3) -> void:
+## Points at [param at], with a ring of [param radius] round it, or none for [param with_ring]
+## false.
+func point_at(at: Vector3, radius: float = RING_RADIUS, with_ring := true) -> void:
 	target = at
+	ring_radius = radius
+	ringed = with_ring
 
 
 func _process(delta: float) -> void:
@@ -81,9 +89,9 @@ func _process(delta: float) -> void:
 		_ring.visible = false
 		return
 	if _ring.is_inside_tree():
-		_ring.visible = true
+		_ring.visible = ringed
 		_ring.global_position = Vector3(target.x, HEIGHT, target.z)
-		_ring.scale = Vector3.ONE * (0.95 + 0.1 * pulse)
+		_ring.scale = Vector3.ONE * (ring_radius / RING_RADIUS) * (0.95 + 0.1 * pulse)
 		_ring_material.albedo_color = Color(COLOR, 0.45 + 0.4 * pulse)
 	var from := kart.global_position
 	var flat := Vector3(target.x - from.x, 0.0, target.z - from.z)

@@ -7,8 +7,8 @@ extends Node
 ## The corner's own control hints stay off throughout: the line over the kart is saying it.
 ##
 ## The pointer is read, not glimpsed: its line sits on a dark card, a frame pulses round the piece,
-## and as the card first appears a ring closes in on it from a little way outside, which is what
-## pulls the eye across the screen.
+## and as the card first appears a ring as wide as the screen shrinks onto it and away to nothing,
+## twice over, which is what pulls the eye to it wherever it was looking.
 
 ## What can be shown: the nitro tank with the speedometer, the item slot, the hand of jokers, the
 ## lives, the pot, the banked score, the kills and deaths, and the kill feed.
@@ -22,10 +22,11 @@ const BOB := 8.0
 const BOB_RATE := 0.7
 const GAP := 14.0
 const FRAME_GROW := 6.0
-## The ring that closes in on the pointer's card as it appears: how long it takes, in seconds,
-## and how far out it starts, as a multiple of the card's size.
-const RING_SECONDS := 1.0
-const RING_FROM := 1.7
+## The ring that shrinks onto the pointer's card as it appears: how long one pass takes, in
+## seconds, how many passes, and how far out it starts, as a share of the screen's diagonal.
+const RING_SECONDS := 1.1
+const RING_PASSES := 2
+const RING_FROM := 0.42
 
 var hud: MatchHud
 ## Whose corner, and which.
@@ -43,6 +44,7 @@ var _ring: Ring
 var _pointing := &""
 var _time := 0.0
 var _ring_left := 0.0
+var _ring_passes := 0
 
 
 ## The triangle of the pointer, drawn, pointing left at the piece beside it or down at one under.
@@ -81,24 +83,27 @@ class Frame:
 		draw_rect(box, Color(INK, 0.45 + 0.55 * strength), false, 3.0)
 
 
-## The ring closing in on the card, drawn about the middle of this control.
+## The ring shrinking onto the card, drawn about the middle of this control, which is as wide as
+## the ring starts.
 class Ring:
 	extends Control
 
-	## How far along it is, 0 at the start out wide to 1 on the card, and how big the card is.
+	## How far along it is, 0 at the start out wide to 1 gone.
 	var progress := 0.0:
 		set(value):
 			progress = value
 			queue_redraw()
-	var piece := Vector2(100.0, 40.0)
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	func _draw() -> void:
-		var eased := 1.0 - pow(1.0 - progress, 3.0)
-		var radius := lerpf(piece.length() * 0.5 * RING_FROM, piece.length() * 0.5, eased)
-		draw_arc(size * 0.5, radius, 0.0, TAU, 64, Color(INK, 0.25 + 0.6 * eased), 4.0, true)
+		var eased := progress * progress * (3.0 - 2.0 * progress)
+		var radius := size.x * 0.5 * (1.0 - eased)
+		if radius < 1.0:
+			return
+		var width := 3.0 + 5.0 * eased
+		draw_arc(size * 0.5, radius, 0.0, TAU, 96, Color(INK, 0.3 + 0.6 * eased), width, true)
 
 
 static func add_to(on: MatchHud, of: PlayerSlot) -> HudReveal:
@@ -158,6 +163,7 @@ func show_piece(piece: StringName, line: String, actions: Array[StringName] = []
 	_pointer.visible = true
 	_frame.visible = true
 	_ring_left = RING_SECONDS
+	_ring_passes = RING_PASSES
 	_ring.visible = true
 
 
@@ -231,13 +237,16 @@ func _place(parts: Dictionary, hand: JokerHand, delta: float) -> void:
 	if _ring.visible:
 		_ring_left = maxf(_ring_left - delta, 0.0)
 		var card := Rect2(_pointer.position, size)
-		var reach := size.length() * 0.5 * RING_FROM + 4.0
+		var reach := hud.get_viewport().get_visible_rect().size.length() * RING_FROM
 		_ring.position = card.get_center() - Vector2(reach, reach)
 		_ring.size = Vector2(reach, reach) * 2.0
-		_ring.piece = size
 		_ring.progress = 1.0 - _ring_left / RING_SECONDS
 		if _ring_left <= 0.0:
-			_ring.visible = false
+			_ring_passes -= 1
+			if _ring_passes > 0:
+				_ring_left = RING_SECONDS
+			else:
+				_ring.visible = false
 
 
 func _anchor(parts: Dictionary) -> Control:

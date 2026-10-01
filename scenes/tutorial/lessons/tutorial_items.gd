@@ -4,9 +4,9 @@ extends TutorialLesson
 ## holding its own item with no roulette. Along the top, the run a turret guards: pick the Shield
 ## up at the east end, out of the turret's reach, raise it and take the turret's shot on it, which
 ## is what a Shield is for. In the south-east, the pocket shut off by a hologram a shot passes and
-## a kart does not, with a pillar in the middle and the target past it, where only a shot bounced
-## off the pocket's north or south wall reaches: pick the Ricochet Cannon up and bounce a shot onto
-## it. Along the west wall, a row of three targets: pick the Turret up, drop it
+## a kart does not, with a thin pillar in the middle and the target past it, where only a shot
+## bounced off the pocket's north or south wall reaches: pick the Ricochet Cannon up and bounce a
+## shot onto it. Along the west wall, a row of three targets: pick the Turret up, drop it
 ## by them and let it clear them, which only it can, a shot of the player's counting for nothing.
 ## A box taken with its station not done and the item gone comes back a moment later.
 

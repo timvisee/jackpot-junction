@@ -6,7 +6,9 @@ extends TutorialLesson
 ## sign says the difference between the pot and the bank.
 
 const JUNCTION := Vector2i(36, 47)
+const JUNCTION_RECT := Rect2i(35, 46, 4, 4)
 const JACKPOT := Vector2i(47, 52)
+const JACKPOT_RECT := Rect2i(47, 52, 2, 2)
 const WORDS := Vector2i(36, 50)
 const POT := 20
 ## What the banking task says: with something in the pot, and with nothing.
@@ -25,8 +27,10 @@ func _init() -> void:
 	reveals = [[&"bank", "Your bank: safe for good", []]]
 	_fill = add_task("Fill your pot from the Jackpot", "Drive into the Jackpot and wait")
 	_fill.arrow = JACKPOT
+	_fill.arrow_rect = JACKPOT_RECT
 	_bank = add_task("Bank your whole pot at the Junction", BANK, [], true)
 	_bank.arrow = JUNCTION
+	_bank.arrow_rect = JUNCTION_RECT
 
 
 func _begin() -> void:
@@ -62,6 +66,7 @@ func step(_delta: float) -> void:
 		_bank.progress = clampf(1.0 - pot.exact_value() / maxf(_peak, 1.0), 0.0, 1.0)
 		_bank.hint = EMPTY if pot.is_empty() else BANK
 		_bank.arrow = JACKPOT if pot.is_empty() else JUNCTION
+		_bank.arrow_rect = JACKPOT_RECT if pot.is_empty() else JUNCTION_RECT
 
 
 func _on_banked(slot_index: int, _coins: int, _mult: float, _total: int) -> void:

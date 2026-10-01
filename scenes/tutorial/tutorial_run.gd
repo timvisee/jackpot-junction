@@ -16,6 +16,8 @@ signal finished
 ## may be for the gate to shut: never on anybody.
 const THROUGH := 3.0
 const CLEAR := 1.8
+## How far outside a piece of the floor its ring runs, in meters.
+const RING_OUT := 0.4
 ## What a task done sounds like, and a gate opening.
 const TICK := &"ready"
 const GATE := &"turbo_pass"
@@ -192,6 +194,10 @@ func _physics_process(delta: float) -> void:
 	# Held in their pens every tick: the match lets its karts go as it gets going.
 	for slot_penned: PlayerSlot in penned:
 		slot_penned.kart.frozen = true
+	# A parked kart shot stays down: the match would bring it back after its delay.
+	for slot_dummy: PlayerSlot in dummies:
+		if not slot_dummy.kart.alive:
+			slot_dummy.respawn_left = INF
 	_shut_what_is_clear()
 	if _over or index < 0:
 		return
@@ -222,8 +228,23 @@ func _refresh() -> void:
 	if now != _task:
 		_task = now
 		hint.show_task(now, lesson)
-		arrow.point_at(cell(now.arrow) if now != null and now.arrow.x >= 0 else Vector3.INF)
+	_aim(now)
 	list.refresh(lesson)
+
+
+## The arrow and its ring on where [param task] needs the kart: round a whole piece of the floor
+## where the task names one, round the cell otherwise, and nowhere for a task that needs the kart
+## nowhere in particular. Every tick, since a task may move its spot as it goes.
+func _aim(task: TutorialTask) -> void:
+	if task == null:
+		arrow.point_at(Vector3.INF)
+	elif task.arrow_rect.has_area():
+		var across := maxi(task.arrow_rect.size.x, task.arrow_rect.size.y) * grid().cell_size
+		arrow.point_at(grid().rect_center(task.arrow_rect), across * 0.5 + RING_OUT)
+	elif task.arrow.x >= 0:
+		arrow.point_at(cell(task.arrow))
+	else:
+		arrow.point_at(Vector3.INF)
 
 
 func _complete(lesson: TutorialLesson) -> void:
@@ -240,7 +261,10 @@ func _complete(lesson: TutorialLesson) -> void:
 	gate.open()
 	_block(gate, false)
 	Audio.play_sfx(GATE, -8.0)
-	arrow.point_at(Vector3(gate.global_position.x, 0.0, gate.global_position.z))
+	# The arrow alone: a ring on a doorway marks nothing.
+	arrow.point_at(
+		Vector3(gate.global_position.x, 0.0, gate.global_position.z), GuideArrow.RING_RADIUS, false
+	)
 	waiting_at = gate
 
 
@@ -291,8 +315,8 @@ func _somebody_in(gate: Gate) -> bool:
 
 
 ## A kart that died comes back where it belongs: the player in the room they are learning in,
-## facing the way the lesson goes, a parked kart on its spot, and a bot in the arena, or in its pen
-## while it is still waiting there.
+## facing the way the lesson goes, and a bot in the arena, or in its pen while it is still waiting
+## there. A parked kart never comes back.
 func _on_respawned(slot_index: int, _at: Vector3) -> void:
 	if slot_index == _slot.index:
 		var lesson := current_lesson()
@@ -301,10 +325,6 @@ func _on_respawned(slot_index: int, _at: Vector3) -> void:
 				cell(lesson.spawn_cell), lesson.facing, match_node.rules.spawn_protection
 			)
 		return
-	for i: int in dummies.size():
-		if dummies[i].index == slot_index:
-			_park_dummy(i)
-			return
 	for i: int in bots.size():
 		if bots[i].index == slot_index:
 			_park_bot(i)
@@ -329,6 +349,38 @@ func _park_bot(i: int) -> void:
 	_bot_spawns += 1
 	var toward := match_node.arena.junction_near(at) - at
 	slot_bot.kart.respawn(at, toward, match_node.rules.spawn_protection)
+
+
+## The bots gone in a poof, GAME.md 9.4a, with everything of theirs: their bullets, their turrets
+## and their decoys. The fight is won; nothing of it shoots on.
+func vanish_bots() -> void:
+	var theirs: Array[int] = []
+	for slot_bot: PlayerSlot in bots:
+		theirs.append(slot_bot.index)
+	for bullet: Bullet in match_node.bullets.bullets.duplicate():
+		if bullet.owner_slot in theirs:
+			bullet.destroy()
+	for turret: Node in get_tree().get_nodes_in_group(&"turrets"):
+		if turret is Turret and (turret as Turret).owner_slot in theirs:
+			(turret as Turret).destroy()
+	for node: Node in get_tree().get_nodes_in_group(&"karts"):
+		var each := node as Kart
+		if each == null or not each.is_decoy() or each.slot not in theirs:
+			continue
+		Burst.spawn(each.get_parent(), each.global_position, Palette.player_color(each.color_index))
+		each.queue_free()
+	for slot_bot: PlayerSlot in bots:
+		var each := slot_bot.kart
+		if each.visible:
+			Burst.spawn(
+				each.get_parent(),
+				each.global_position,
+				Palette.player_color(each.color_index),
+				1.4,
+				28
+			)
+		TutorialReveal.hold(each)
+	penned.clear()
 
 
 ## Where the bots may drive, with [param gate] shut or open.

@@ -2,10 +2,10 @@ class_name TutorialFight
 extends TutorialLesson
 ## Lesson 11, GAME.md 9.4a: the fight, in the last room, which gains its item pads and its crates
 ## as the lesson starts, with three bots in three pens along its east side, a gate each: the first
-## is let out at once, the second at 150 banked and the third, a normal one where the others are
-## easy, at 300. Bank 400 points in here, on the bar across the top of the screen, and the tutorial
-## is done. A death is a respawn and a joker pick; nobody else's banking counts, and nobody can
-## win the match itself.
+## is let out at once, the second at 300 banked and the third, a normal one where the others are
+## easy, at 600. Bank 1000 points in here, on the bar across the top of the screen, and the
+## tutorial is done, the bots and everything of theirs gone in a poof. A death is a respawn and a
+## joker pick; nobody else's banking counts, and nobody can win the match itself.
 
 const BOTS := 3
 ## Where the bots wait in their pens, each pen's gate, and where the bots come back in the arena.
@@ -16,8 +16,8 @@ const ARENA_SPAWNS: Array[Vector2i] = [
 ]
 const PORTAL_GATE := Vector2i(35, 39)
 ## The points banked that let each bot out, and the points that finish the tutorial.
-const RELEASE_AT: Array[int] = [0, 150, 300]
-const NEED := 400
+const RELEASE_AT: Array[int] = [0, 300, 600]
+const NEED := 1000
 const NORMAL: BotDifficulty = preload("res://data/ai/normal.tres")
 
 var _bank: TutorialTask
@@ -32,7 +32,7 @@ func _init() -> void:
 	title = "The fight"
 	spawn_cell = TutorialPads.SPAWN
 	reveals = [[&"stats", "", []], [&"feed", "", []]]
-	_bank = add_task("Bank 400 points", "Collect, bank, and watch your back", [], true)
+	_bank = add_task("Bank %d points" % NEED, "Collect, bank, and watch your back", [], true)
 
 
 func _begin() -> void:
@@ -58,6 +58,9 @@ func end() -> void:
 		Events.bank_tick.disconnect(_on_tick)
 	if _bar != null and is_instance_valid(_bar):
 		_bar.queue_free()
+	# Won: the bots go in a poof. Left before that, they are torn down with the room.
+	if is_done() and run.is_inside_tree():
+		run.vanish_bots()
 	var tally := _tally()
 	if tally != null:
 		tally.offset_top = MatchHud.TALLY_DROP

@@ -1,18 +1,20 @@
 class_name TutorialJokers
 extends TutorialLesson
-## Lesson 8, GAME.md 9.4a: jokers, in any order. Two parked karts that never move or shoot and go
-## down to one hit, each dropping a card as it goes, and the cards picked up off the floor; the
+## Lesson 8, GAME.md 9.4a: jokers, in any order. Two parked karts across the room that never move
+## or shoot and go down to one hit, for good, each dropping a card as it goes, and the cards picked
+## up off the floor; the
 ## joker key held to read the hand; and two deaths in the pit, each opening the joker pick, for
 ## two more cards. Four cards in the hand is the lesson. The lives come into the corner with it,
 ## and the hand with the first card, pointed at until the hand has been read; from here on a death
 ## opens the pick, as it does in a match.
 
 const DUMMIES := 2
-## Where the parked karts stand, by cell, and what each drops: both help with the coins straight
-## after.
-const DUMMY_SPOTS: Array[Vector2i] = [Vector2i(5, 42), Vector2i(10, 42)]
+## Where the parked karts stand, by cell, across the room from the way in and facing it, and what
+## each drops: both help with the coins straight after.
+const DUMMY_SPOTS: Array[Vector2i] = [Vector2i(5, 47), Vector2i(10, 47)]
 const CARDS: Array[StringName] = [&"magnet_hubcaps", &"payday"]
 const PIT := Vector2i(7, 50)
+const PIT_RECT := Rect2i(7, 50, 2, 2)
 const WANTED := 4
 ## How long the hand has to be held open to have been read, in seconds.
 const READ_FOR := 1.0
@@ -48,6 +50,7 @@ func _init() -> void:
 	_pit = add_task("Drive into the pit and pick a joker", "%s to take a card", [InputActions.FIRE])
 	_pit.of = WANTED - DUMMIES
 	_pit.arrow = PIT
+	_pit.arrow_rect = PIT_RECT
 	stations = [[_shoot, _pick_up], [_read], [_pit]]
 	pointer_until = _read
 
@@ -57,7 +60,7 @@ func _begin() -> void:
 	run.match_node.rules.offer_jokers = true
 	Events.kart_killed.connect(_on_killed)
 	Events.joker_taken.connect(_on_taken)
-	put_sign("PARKED KARTS\nshoot one and it drops a joker", Vector2i(7, 41), Palette.NEON_MAGENTA)
+	put_sign("PARKED KARTS\nshoot one and it drops a joker", Vector2i(7, 46), Palette.NEON_MAGENTA)
 	put_sign("PIT\ndrive in: a death opens the joker pick", PIT, Palette.NEON_MAGENTA)
 
 

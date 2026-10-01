@@ -3589,8 +3589,8 @@ Garage.
 ##........................G.....BB...........................G............................##
 ##.R...............##################........................G............................##
 ##.................#......###########.......B.......B........#............................##
-##....................##.R###########........................#.............##.............##
-##....................##..###########...R................R...#.............##.............##
+##....................#..R###########........................#.............##.............##
+##....................#...###########...R................R...#.............##.............##
 ##.................#......###########........................#............................##
 ##GGGG###############################........................#............................##
 ##....##......................################################............................##
@@ -3662,15 +3662,18 @@ that one is a good two meters nearer, so a kart between two does not see it
 flicker. An arrow on the floor ahead of the kart
 pulses toward wherever the task needs the kart to go, when it needs it anywhere,
 and toward the open gate once the lesson is done, with a cyan ring on the floor
-round the spot itself; within a few meters of the spot the arrow goes, and the
+round the spot itself, as big as what it marks, a pad's width round a pad and a
+whole Jackpot or the whole Junction round those, and none at a gate, a doorway
+being nothing to ring; within a few meters of the spot the arrow goes, and the
 ring stays until the spot is reached.
 
 **The HUD comes in pieces.** At the start only the player's name, the checklist
 and the hint are on the screen. Each piece of the corner block appears with the
 lesson it is for, with a pointer beside it, a frame pulsing round it and one line
 saying what it is, on a dark card so it reads against any floor, and a ring
-that closes in on the card from a little way outside it over the first second,
-which is what pulls the eye to it; these stay until the lesson's first task is
+that starts as wide as the screen and shrinks onto the card and away to
+nothing in a second, twice over, which is what pulls the eye to it wherever it
+was looking; these stay until the lesson's first task is
 done, or until a task the lesson names: the nitro tank and the speedometer
 with nitro, "Your nitro"; the item slot with items, "Your item"; the lives with
 jokers, and the hand of jokers with the first card picked up in that lesson,
@@ -3739,9 +3742,10 @@ The lessons, each in its own room, in order:
    the turret's shot on it, which is what a Shield is for; the turret falls
    silent once it has. In the south-east, a pocket shut off by a wall of light
    across its doorway, which a kart cannot drive through and a shot can, with a
-   pillar in the middle and the target on the far side of it, where no straight
-   shot from the doorway reaches and one bounce off the pocket's north or south
-   wall does, the Ricochet's shots bouncing once: its task is to bounce a shot
+   pillar one cell thin in the middle and the target on the far side of it,
+   where no straight shot from the doorway reaches and one bounce off the
+   pocket's north or south wall does, the Ricochet's shots bouncing once, and a
+   thin pillar leaves the most room for the bounce: its task is to bounce a shot
    onto the target, and only a hit that came off a wall counts. Along the west
    wall, a row of three targets
    with the Turret's box before them: drop the Turret by them and let it clear
@@ -3749,10 +3753,11 @@ The lessons, each in its own room, in order:
    while the tutorial runs and a match's never; a shot of the player's own at
    the row counts for nothing. A box taken with its station not done and the
    item gone comes back after three seconds. The item slot appears, pointed at.
-8. **Jokers.** In any order: two parked dummy karts that never move or shoot
-   and go down to one hit, each dropping a card as it goes, Magnet Hubcaps and
-   Payday, since both help with the coins straight after, and the cards picked
-   up; hold Tab to read the hand; and drive into the pit twice, each death
+8. **Jokers.** In any order: two parked dummy karts across the room from the
+   way in, facing it, that never move or shoot and go down to one hit, for good,
+   each dropping a card as it goes, Magnet Hubcaps and Payday, since both help
+   with the coins straight after, and the cards picked up; hold Tab to read the
+   hand; and drive into the pit twice, each death
    opening the joker pick with a pointer explaining it, for two more cards.
    Holding four completes the lesson. The lives appear with the lesson, the
    hand with the first card, pointed at until the hand has been read. The way
@@ -3779,17 +3784,19 @@ The lessons, each in its own room, in order:
     3000 wins a match. The bank appears, pointed at.
 11. **The fight.** Two item pads and six crates come in, and three bots wait in
     three pens of their own along the east side, each 3 by 3 behind a gate of
-    its own. The first easy bot is let out at once, the second easy one at 150
-    banked and the normal one at 300, each pen's gate opening and shutting again
-    once its bot is out in the room. Bank 400 points in here, counted from the
+    its own. The first easy bot is let out at once, the second easy one at 300
+    banked and the normal one at 600, each pen's gate opening and shutting again
+    once its bot is out in the room. Bank 1000 points in here, counted from the
     start of the fight, shown as a bar across the top center of the screen the
     way a boss's health would be, with the Royal Flush tally of 8.3 moved down
     under it for the while; a death is a respawn and a joker pick, a bot comes
     back on one of the room's four spawns, nobody else's banking counts against
     the player, and nobody can win the match itself. Reaching it is TUTORIAL
-    COMPLETE across the screen with a fanfare, the settings remember it, and
-    the four-cell gate at the top of the room opens on an alcove 8 by 5 with the
-    two portals in it, one to Play and one to the Garage.
+    COMPLETE across the screen with a fanfare, the bots gone in a poof with
+    their bullets, their turrets and their decoys, so nothing of the fight shoots
+    on, the settings remember it, and the four-cell gate at the top of the room
+    opens on an alcove 8 by 5 with the two portals in it, one to Play and one to
+    the Garage.
 
 A map may hold more than one Junction, each banking as the one does, and the
 Royal Flush is per room for the same reason: a map of rooms wants each room's

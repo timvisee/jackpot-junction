@@ -10,6 +10,7 @@ extends TutorialLesson
 ## starts full is.
 const SPAWN := Vector2i(27, 53)
 const JACKPOT := Vector2i(25, 41)
+const JACKPOT_RECT := Rect2i(25, 41, 2, 2)
 const FLUSH_SIGN := Vector2i(36, 44)
 
 var _flush: TutorialTask
@@ -25,6 +26,7 @@ func _init() -> void:
 	_flush.arrow = Vector2i(24, 44)
 	_drain = add_task("Drain the Jackpot", "Drive in and wait", [], true)
 	_drain.arrow = JACKPOT
+	_drain.arrow_rect = JACKPOT_RECT
 
 
 ## The last room starts bare: everything but its pit is held back for the lesson it is for.

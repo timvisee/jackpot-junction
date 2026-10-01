@@ -7,7 +7,7 @@ extends PanelContainer
 const WIDTH := 520.0
 const INK := Palette.CHIP_GOLD
 
-var need := 400
+var need := 1000
 
 var _bar: ProgressBar
 var _count: Label
