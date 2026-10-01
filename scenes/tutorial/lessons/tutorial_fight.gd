@@ -1,45 +1,49 @@
 class_name TutorialFight
 extends TutorialLesson
-## Lesson 11, GAME.md 9.4a: the fight. A small arena with everything a map has and three bots in a
-## pen behind a gate: the first is let out at once, the second at 150 banked and the third, a
-## normal one where the others are easy, at 300. Bank 400 points in here, on the bar across the
-## top of the screen, and the tutorial is done. A death is a respawn and a joker pick; nobody
-## else's banking counts, and nobody can win the match itself.
+## Lesson 11, GAME.md 9.4a: the fight, in the last room, which gains its item pads and its crates
+## as the lesson starts, with three bots in three pens along its east side, a gate each: the first
+## is let out at once, the second at 150 banked and the third, a normal one where the others are
+## easy, at 300. Bank 400 points in here, on the bar across the top of the screen, and the tutorial
+## is done. A death is a respawn and a joker pick; nobody else's banking counts, and nobody can
+## win the match itself.
 
 const BOTS := 3
-## Where the bots wait in the pen and come back in the arena, and where the player does.
-const PEN_SPOTS: Array[Vector2i] = [Vector2i(86, 34), Vector2i(88, 36), Vector2i(86, 39)]
+## Where the bots wait in their pens, each pen's gate, and where the bots come back in the arena.
+const PEN_SPOTS: Array[Vector2i] = [Vector2i(54, 42), Vector2i(54, 47), Vector2i(54, 52)]
+const PEN_GATES: Array[Vector2i] = [Vector2i(52, 41), Vector2i(52, 46), Vector2i(52, 51)]
 const ARENA_SPAWNS: Array[Vector2i] = [
-	Vector2i(63, 32), Vector2i(63, 60), Vector2i(81, 47), Vector2i(72, 33)
+	Vector2i(23, 47), Vector2i(50, 47), Vector2i(36, 41), Vector2i(36, 53)
 ]
-const PEN_GATE := Vector2i(84, 35)
-const PORTAL_GATE := Vector2i(84, 54)
+const PORTAL_GATE := Vector2i(36, 39)
 ## The points banked that let each bot out, and the points that finish the tutorial.
 const RELEASE_AT: Array[int] = [0, 150, 300]
 const NEED := 400
 const NORMAL: BotDifficulty = preload("res://data/ai/normal.tres")
-## How long the pen stands open for a bot to come out, in seconds.
-const PEN_OPEN := 6.0
 
 var _bank: TutorialTask
 var _banked := 0
 var _released := 0
-var _pen_left := 0.0
+## The pens standing open, by bot, until their bot is out.
+var _pens_open: Array[int] = []
 var _bar: TutorialBossBar
 
 
 func _init() -> void:
 	title = "The fight"
-	spawn_cell = Vector2i(61, 45)
-	facing = Vector3(1.0, 0.0, 0.0)
+	spawn_cell = TutorialPads.SPAWN
 	reveals = [[&"stats", "", []], [&"feed", "", []]]
 	_bank = add_task("Bank 400 points", "Collect, bank, and watch your back", [], true)
 
 
 func _begin() -> void:
-	var zone := jackpot_near(Vector2i(65, 36))
-	if zone != null:
-		arena().activate_jackpot(zone.index)
+	var room := run.grid().region_of(TutorialPads.SPAWN)
+	var grid := run.grid()
+	for pad: PowerUpPad in arena().power_pads:
+		if grid.region_of(grid.cell_of(pad.position)) == room:
+			TutorialReveal.show(pad)
+	for crate: Crate in arena().crates:
+		if grid.region_of(grid.cell_of(crate.position)) == room:
+			TutorialReveal.show(crate)
 	Events.bank_tick.connect(_on_tick)
 	_bar = TutorialBossBar.add_to(run.layer, NEED)
 	_release()
@@ -53,21 +57,23 @@ func end() -> void:
 	super()
 
 
-func step(delta: float) -> void:
-	if _pen_left > 0.0:
-		_pen_left -= delta
-		if _pen_left <= 0.0:
-			run.close_gate(PEN_GATE)
+func step(_delta: float) -> void:
+	# A pen shuts behind its bot once the bot is out in the room.
+	for i: int in range(_pens_open.size() - 1, -1, -1):
+		var which := _pens_open[i]
+		if run.bots[which].kart.global_position.x < run.cell(PEN_GATES[which]).x:
+			run.close_gate(PEN_GATES[which])
+			_pens_open.remove_at(i)
 	while _released < BOTS and _released < RELEASE_AT.size() and _banked >= RELEASE_AT[_released]:
 		_release()
 
 
-## How many bots are out of the pen.
+## How many bots are out of their pens.
 func released() -> int:
 	return _released
 
 
-## The next bot out: the pen opens, the bot is let go, and the last one is the normal one.
+## The next bot out: its pen opens, the bot is let go, and the last one is the normal one.
 func _release() -> void:
 	var which := _released
 	_released += 1
@@ -79,8 +85,8 @@ func _release() -> void:
 			brain.setup(
 				run.bots[which].kart, run.match_node, brain.bot_trait, NORMAL, run.match_node.rng
 			)
-	run.open_gate(PEN_GATE)
-	_pen_left = PEN_OPEN
+	run.open_gate(PEN_GATES[which])
+	_pens_open.append(which)
 	run.release_bot(which)
 
 

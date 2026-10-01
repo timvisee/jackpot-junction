@@ -1,10 +1,10 @@
 class_name TutorialJokers
 extends TutorialLesson
-## Lesson 8, GAME.md 9.4a: jokers. Two parked karts that never move or shoot and go down to one
-## hit, each dropping a card as it goes; then hold the joker key to read the hand; then drive into
-## the pit twice, each death opening the joker pick, for the third and fourth cards. Holding four
-## is the lesson. The hand and the lives come into the corner with it, and from here on a death
-## opens the pick, as it does in a match.
+## Lesson 8, GAME.md 9.4a: jokers, in any order. Two parked karts that never move or shoot and go
+## down to one hit, each dropping a card as it goes, and the cards picked up off the floor; the
+## joker key held to read the hand; and two deaths in the pit, each opening the joker pick, for
+## two more cards. Four cards in the hand is the lesson. The hand and the lives come into the
+## corner with it, and from here on a death opens the pick, as it does in a match.
 
 const DUMMIES := 2
 ## Where the parked karts stand, by cell, and what each drops: both help with the coins straight
@@ -25,10 +25,11 @@ var _read_time := 0.0
 
 func _init() -> void:
 	title = "Jokers"
-	gate_cell = Vector2i(6, 57)
+	ordered = false
+	gate_cell = Vector2i(22, 55)
 	spawn_cell = Vector2i(4, 40)
 	facing = Vector3(0.0, 0.0, 1.0)
-	next_cell = Vector2i(24, 54)
+	next_cell = Vector2i(23, 53)
 	reveals = [
 		[&"hand", "Your jokers, hold %s to read them", [InputActions.JOKER_MENU]],
 		[&"lives", "", []],
@@ -38,6 +39,7 @@ func _init() -> void:
 	_shoot.arrow = DUMMY_SPOTS[0]
 	_pick_up = add_task("Pick up the cards they dropped", "Drive over a card")
 	_pick_up.of = DUMMIES
+	_pick_up.arrow = DUMMY_SPOTS[1]
 	_read = add_task(
 		"Hold the joker key to read your hand",
 		"Hold %s to read your hand",
@@ -47,6 +49,7 @@ func _init() -> void:
 	_pit = add_task("Drive into the pit and pick a joker", "%s to take a card", [InputActions.FIRE])
 	_pit.of = WANTED - DUMMIES
 	_pit.arrow = PIT
+	stations = [[_shoot, _pick_up], [_read], [_pit]]
 
 
 func _begin() -> void:
@@ -67,17 +70,13 @@ func end() -> void:
 
 
 func step(delta: float) -> void:
-	var task := current()
-	if task == _read:
-		if kart().menu_open:
-			_read_time += delta
-		_read.progress = clampf(_read_time / READ_FOR, 0.0, 1.0)
-		if _read.progress >= 1.0:
-			_read.complete()
-	elif task == _pit:
-		_pit.count = clampi(kart().jokers.count() - DUMMIES, 0, _pit.of)
-		if _pit.count >= _pit.of:
-			_pit.complete()
+	if _read.done:
+		return
+	if kart().menu_open:
+		_read_time += delta
+	_read.progress = clampf(_read_time / READ_FOR, 0.0, 1.0)
+	if _read.progress >= 1.0:
+		_read.complete()
 
 
 ## A parked kart shot: its card goes on the floor beside it.
@@ -94,6 +93,12 @@ func _on_killed(victim: int, _killer: int, _cause: StringName) -> void:
 	_shoot.tally()
 
 
+## A card taken: off the floor while alive, out of the pick while dead.
 func _on_taken(slot_index: int, _joker: StringName) -> void:
-	if slot_index == kart().slot and current() == _pick_up:
-		_pick_up.tally()
+	if slot_index != kart().slot:
+		return
+	if kart().alive:
+		if not _pick_up.done:
+			_pick_up.tally()
+	elif not _pit.done:
+		_pit.tally()

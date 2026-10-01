@@ -11,6 +11,7 @@ extends PanelContainer
 const KEEP := 3
 const WIDTH := 300.0
 const INK := Color(0.97, 0.97, 1.0)
+const WAITING_INK := Color(0.8, 0.8, 0.86)
 const DONE_INK := Color(0.55, 0.55, 0.6)
 const MARK := Palette.NEON_CYAN
 const MARK_SIDE := 18.0
@@ -100,8 +101,9 @@ func refresh(lesson: TutorialLesson) -> void:
 		return
 	var simple := lesson.simple()
 	var rows: Array = entry["tasks"]
+	var now := lesson.current()
 	var shown := 0
-	for task: TutorialTask in lesson.tasks:
+	for task: TutorialTask in lesson.shown():
 		if shown >= rows.size():
 			var row := _line(task.label(simple), false)
 			(entry["rows"] as VBoxContainer).add_child(row["row"])
@@ -112,17 +114,18 @@ func refresh(lesson: TutorialLesson) -> void:
 				row["bar"] = bar
 			rows.append(row)
 		var line: Dictionary = rows[shown]
-		(line["mark"] as Mark).done = task.done
+		# Lit for a moment for each one of a count, as well as for good once it is done.
+		(line["mark"] as Mark).done = task.done or task.just_ticked()
 		var label: Label = line["label"]
 		label.text = task.label(simple)
-		Type.ink(label, DONE_INK if task.done else INK)
+		# The one being done is bright, and in any order the others wait a shade dimmer.
+		var ink := INK if task == now or lesson.ordered else WAITING_INK
+		Type.ink(label, DONE_INK if task.done else ink)
 		if line.has("bar"):
 			var bar: ProgressBar = line["bar"]
 			bar.visible = not task.done
 			bar.value = task.progress * 100.0
 		shown += 1
-		if not task.done:
-			break
 
 
 ## [param lesson] is done: one ticked line, its tasks folded away under it.

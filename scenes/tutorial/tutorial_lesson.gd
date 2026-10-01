@@ -1,14 +1,25 @@
 class_name TutorialLesson
 extends RefCounted
-## One lesson of the tutorial, GAME.md 9.4a: a room, a name, the tasks done in it in order and the
-## gate out of it. Each lesson is a script of its own under lessons/, which adds its tasks as it is
-## made and watches the kart every tick to tick them off; [TutorialRun] runs them in turn.
+## One lesson of the tutorial, GAME.md 9.4a: a room, a name, the tasks done in it and the gate out
+## of it. Each lesson is a script of its own under lessons/, which adds its tasks as it is made and
+## watches the kart every tick to tick them off; [TutorialRun] runs them in turn. A lesson's tasks
+## are done in order unless it says otherwise, when they are done in any order and the one being
+## done is whichever is nearest the kart.
 
 const SIGN_HEIGHT := 2.7
+## How much nearer another station has to be, in meters, before the hint moves to it from the one
+## it is on, so a kart between two does not see it flicker.
+const STICK := 2.5
 
 var title := ""
 var tasks: Array[TutorialTask] = []
-## The gate out of this room, by one of its cells, or none for the last room.
+## Whether the tasks come one after another, each shown as the one before is done, or all at once
+## in any order.
+var ordered := true
+## For a lesson done in any order, its tasks in groups that belong together, each a station of the
+## room done in its own order, nearest station first. Empty for one task at a time.
+var stations: Array[Array] = []
+## The gate out of this room, by one of its cells, or none for a lesson that ends in its room.
 var gate_cell := Vector2i(-1, -1)
 ## Where a kart that died comes back in this room, which way it faces there, and the first cell of
 ## the next room, for knowing when the kart is through the gate.
@@ -21,6 +32,19 @@ var run: TutorialRun
 
 ## The signs this lesson put up, taken down with it.
 var _signs: Array[Node] = []
+## The station the hint is on, for a lesson done in any order.
+var _held: Array = []
+
+
+## What the lesson puts in its room before anything starts, with [param of] the run: what is seen
+## on the way in and stays after.
+func prepare(of: TutorialRun) -> void:
+	run = of
+	_prepare()
+
+
+func _prepare() -> void:
+	pass
 
 
 ## Begins, in [param of]: the lesson's own [method _begin] once it has its run.
@@ -38,8 +62,8 @@ func step(_delta: float) -> void:
 	pass
 
 
-## The lesson is done with: whatever it listened to or put down, let go of. A lesson with more to
-## let go of calls this as well.
+## The lesson is done with: whatever it listened to or put down for itself, let go of. A lesson
+## with more to let go of calls this as well.
 func end() -> void:
 	for board: Node in _signs:
 		if is_instance_valid(board):
@@ -47,16 +71,42 @@ func end() -> void:
 	_signs.clear()
 
 
-## The task being done: the first not yet done, or null once they all are.
+## The task being done: the first not yet done, or for a lesson done in any order the first not
+## yet done of the station nearest the kart, or null once they all are.
 func current() -> TutorialTask:
+	if ordered or run == null or run.kart() == null:
+		return _first_undone(tasks)
+	var groups := stations
+	if groups.is_empty():
+		groups = []
+		for task: TutorialTask in tasks:
+			groups.append([task])
+	var nearest := _nearest(groups)
+	if _held.is_empty() or _first_undone(_held) == null:
+		_held = nearest
+	elif not nearest.is_empty() and nearest != _held:
+		if _distance(_first_undone(nearest)) + STICK < _distance(_first_undone(_held)):
+			_held = nearest
+	return _first_undone(_held) if not _held.is_empty() else null
+
+
+## The tasks the checklist shows: up to the one being done, or all of them in any order.
+func shown() -> Array[TutorialTask]:
+	if not ordered:
+		return tasks
+	var up_to: Array[TutorialTask] = []
 	for task: TutorialTask in tasks:
+		up_to.append(task)
 		if not task.done:
-			return task
-	return null
+			break
+	return up_to
 
 
 func is_done() -> bool:
-	return current() == null
+	for task: TutorialTask in tasks:
+		if not task.done:
+			return false
+	return true
 
 
 ## Every task done, for the pause menu's Skip step.
@@ -134,3 +184,33 @@ func target_at(cell: Vector2i) -> Target:
 		if target.position.distance_to(at) < 0.5:
 			return target
 	return null
+
+
+static func _first_undone(group: Array) -> TutorialTask:
+	for task: TutorialTask in group:
+		if not task.done:
+			return task
+	return null
+
+
+## Of [param groups] with something left to do, the one whose first undone task's spot is nearest
+## the kart; a task with no spot comes last.
+func _nearest(groups: Array) -> Array:
+	var best: Array = []
+	var best_distance := INF
+	for group: Array in groups:
+		var task := _first_undone(group)
+		if task == null:
+			continue
+		var distance := _distance(task)
+		if distance < best_distance:
+			best_distance = distance
+			best = group
+	return best
+
+
+## How far the kart is from where [param task] needs it, or very far for one that needs it nowhere.
+func _distance(task: TutorialTask) -> float:
+	if task == null or task.arrow.x < 0:
+		return 1.0e9
+	return kart().global_position.distance_to(run.cell(task.arrow))

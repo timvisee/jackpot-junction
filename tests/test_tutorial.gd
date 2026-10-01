@@ -4,6 +4,8 @@ extends GdUnitTestSuite
 
 const LAYOUT: ArenaLayout = preload("res://data/maps/tutorial.tres")
 const SCENE := preload("res://scenes/tutorial/tutorial.tscn")
+const ARENA_SCENE := preload("res://scenes/arena/arena.tscn")
+const ROOM: RoomLook = preload("res://data/rooms/garage.tres")
 const DT := 1.0 / 60.0
 
 var _runner: GdUnitSceneRunner
@@ -84,6 +86,8 @@ func _put(tutorial: Tutorial, cell: Vector2i, way: Vector3) -> void:
 
 ## The rooms chain: every gate shut, nothing past the first room can be reached; open, the way
 ## through is blocked only by the boxes of the gallery; those broken too, the portal at the end is.
+## The last room, which three lessons share, is no bigger than the smallest map's floor and wider
+## than it is tall.
 func test_the_map_is_rooms_in_a_row_joined_by_gates() -> void:
 	assert_array(LAYOUT.validate()).is_empty()
 	var grid := LAYOUT.parse()
@@ -91,17 +95,28 @@ func test_the_map_is_rooms_in_a_row_joined_by_gates() -> void:
 	assert_int(grid.portals.size()).is_equal(2)
 	assert_int(grid.gates.size()).is_equal(12)
 	assert_int(grid.targets.size()).is_equal(9)
-	assert_int(grid.junctions.size()).is_equal(2)
+	assert_int(grid.junctions.size()).is_equal(1)
 	assert_object(grid.junction).is_equal(grid.junctions[0])
 	assert_int(grid.pits.size()).is_equal(2)
-	assert_int(grid.jackpots.size()).is_equal(4)
-	assert_int(grid.flush_pads.size()).is_equal(8)
-	# The pads room's four are one room and the fight's four another, see 3.9.
-	var pads_room := grid.region_of(Vector2i(25, 41))
-	assert_int(pads_room).is_greater_equal(0)
-	assert_int(grid.region_of(Vector2i(37, 53))).is_equal(pads_room)
-	assert_int(grid.region_of(Vector2i(63, 34))).is_not_equal(pads_room)
+	assert_int(grid.jackpots.size()).is_equal(2)
+	assert_int(grid.flush_pads.size()).is_equal(4)
+	# The last room is one room, the jokers room another, and a gate is wall.
+	var last_room := grid.region_of(TutorialPads.SPAWN)
+	assert_int(last_room).is_greater_equal(0)
+	assert_int(grid.region_of(TutorialBank.JUNCTION)).is_equal(last_room)
+	assert_int(grid.region_of(TutorialJokers.PIT)).is_not_equal(last_room)
 	assert_int(grid.region_of(Vector2i(17, 36))).is_equal(-1)
+	var low := Vector2i(grid.width, grid.height)
+	var high := Vector2i(0, 0)
+	for y: int in grid.height:
+		for x: int in grid.width:
+			if grid.region_of(Vector2i(x, y)) == last_room:
+				low = Vector2i(mini(low.x, x), mini(low.y, y))
+				high = Vector2i(maxi(high.x, x), maxi(high.y, y))
+	var size := high - low + Vector2i.ONE
+	assert_int(size.x).is_less_equal(31)
+	assert_int(size.y).is_less_equal(15)
+	assert_int(size.x).is_greater(size.y)
 	var shut := _reachable(grid, ["#", "G"] as Array[String])
 	assert_bool(shut.has(TutorialDrive.new().next_cell)).is_false()
 	var open := _reachable(grid, ["#", "B"] as Array[String])
@@ -130,8 +145,13 @@ func test_the_map_is_rooms_in_a_row_joined_by_gates() -> void:
 			var next := grid.glyph(lesson.next_cell)
 			assert_str(next).override_failure_message(lesson.title).is_equal(".")
 		assert_bool(grid.glyph(lesson.spawn_cell) in [".", "S"]).is_true()
-	for cell: Vector2i in [TutorialFight.PEN_GATE, TutorialFight.PORTAL_GATE]:
+	for cell: Vector2i in TutorialFight.PEN_GATES:
 		assert_str(grid.glyph(cell)).is_equal("G")
+	assert_str(grid.glyph(TutorialFight.PORTAL_GATE)).is_equal("G")
+	# The pocket's target is behind its stub: no straight line from the window reaches it.
+	for cell: Vector2i in [TutorialItems.POCKET, TutorialItems.WINDOW]:
+		assert_str(grid.glyph(cell)).is_not_equal("#")
+	assert_str(grid.glyph(Vector2i(21, 16))).is_equal("#")
 
 
 ## A gate is a wall until it opens: it sinks into the floor and stops standing in the way, and
@@ -139,8 +159,8 @@ func test_the_map_is_rooms_in_a_row_joined_by_gates() -> void:
 func test_a_gate_sinks_open_and_rises_shut() -> void:
 	var layout := ArenaLayout.new()
 	layout.grid = "######\n#S.G.#\n######"
-	layout.room = load("res://data/rooms/garage.tres")
-	var arena: Arena = auto_free(load("res://scenes/arena/arena.tscn").instantiate())
+	layout.room = ROOM
+	var arena: Arena = auto_free(ARENA_SCENE.instantiate())
 	arena.layout = layout
 	arena.bake_scenery = false
 	add_child(arena)
@@ -188,6 +208,9 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_bool((parts["nitro"] as Control).visible).is_false()
 	assert_bool((parts["pot"] as Control).visible).is_false()
 	assert_bool(tutorial.match_node.hud.hand_of(0).visible).is_false()
+	# The pads of the steering room and the lamps of the gallery are down from the start.
+	assert_int(tutorial.match_node.find_children("ModePad_*", "", false, false).size()).is_equal(2)
+	assert_int((run.lessons[5] as TutorialShoot).lights().size()).is_equal(TutorialShoot.TARGETS)
 	Input.action_press(InputActions.THROTTLE)
 	var opened := false
 	for i: int in 600:
@@ -211,9 +234,6 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_bool(gate.is_open).is_false()
 	assert_str(run.current_lesson().title).is_equal("Steering")
 	assert_int(run.list.listed()).is_equal(2)
-	# The pads of the steering room are down, lit for the way in use.
-	var pads := tutorial.match_node.find_children("ModePad_*", "", false, false)
-	assert_int(pads.size()).is_equal(2)
 
 
 ## Steering counts the heading, left then right, only while moving forward; sawing the wheel back
@@ -224,6 +244,8 @@ func test_steering_counts_both_ways_from_the_heading() -> void:
 	run._start(1)
 	var lesson := run.current_lesson() as TutorialSteer
 	var kart := run.kart()
+	assert_array(lesson._left.actions).is_equal([InputActions.STEER_LEFT] as Array[StringName])
+	assert_array(lesson._right.actions).is_equal([InputActions.STEER_RIGHT] as Array[StringName])
 	_put(tutorial, Vector2i(18, 42), Vector3(0.0, 0.0, -1.0))
 	await _runner.simulate_frames(2, 17)
 	# Standing still and turning the wheel is nothing.
@@ -326,6 +348,8 @@ func test_burning_the_tank_dry_with_the_nitro_pointed_out() -> void:
 	assert_bool((parts["speed"] as Control).visible).is_true()
 	assert_bool((parts["pot"] as Control).visible).is_false()
 	assert_bool(run.reveal.is_pointing()).is_true()
+	assert_bool(run.reveal._ring.visible).is_true()
+	assert_bool(run.reveal._pointer is PanelContainer).is_true()
 	_put(tutorial, Vector2i(50, 26), Vector3(1.0, 0.0, 0.0))
 	Input.action_press(InputActions.THROTTLE)
 	Input.action_press(InputActions.NITRO)
@@ -358,6 +382,12 @@ func test_drifting_counts_the_tap_and_three_turbos() -> void:
 	assert_bool(lesson._tap.done).is_true()
 	lesson.step(DT)
 	assert_float(lesson._turbo.progress).is_between(0.3, 0.7)
+	assert_str(lesson._turbo.hint).is_equal(TutorialDrift.KEEP)
+	# Long enough and fast enough for the turbo: the hint says to straighten up.
+	kart.motor.drift_time = kart.stats.drift_min_duration + 0.1
+	kart.motor.velocity = Vector3(0.0, 0.0, -kart.stats.top_speed)
+	lesson.step(DT)
+	assert_str(lesson._turbo.hint).is_equal(TutorialDrift.READY)
 	kart.motor.drifting = false
 	await _runner.simulate_frames(1, 17)
 	assert_int(run.list.task_rows(lesson).size()).is_equal(2)
@@ -454,31 +484,41 @@ func test_skipping_a_lesson_and_coming_back_in_the_room() -> void:
 	assert_float(kart.global_position.distance_to(run.cell(lesson.spawn_cell))).is_less(0.5)
 
 
-## The map has two Junctions, each wired to bank, and a bot heads for its own room's.
+## A map may hold more than one Junction: each is given the rules and wired to bank, and a bot
+## heads for the nearest.
 func test_two_junctions_each_bank_and_the_nearest_is_a_bots() -> void:
-	var tutorial := await _start()
-	var arena := tutorial.match_node.arena
+	var layout := ArenaLayout.new()
+	layout.grid = "##########\n#JJ.S..JJ#\n#JJ....JJ#\n##########"
+	layout.room = ROOM
+	var arena: Arena = auto_free(ARENA_SCENE.instantiate())
+	arena.layout = layout
+	arena.bake_scenery = false
+	add_child(arena)
 	assert_int(arena.junctions.size()).is_equal(2)
 	assert_object(arena.junction).is_same(arena.junctions[0])
+	var rules := MatchRules.new()
+	arena.start_economy(rules, RandomNumberGenerator.new(), load("res://data/powerups/all.tres"))
 	for pad: JunctionPad in arena.junctions:
-		assert_bool(pad.bank_tick.is_connected(tutorial.match_node._on_bank_tick)).is_true()
+		assert_object(pad.rules).is_same(rules)
 	var grid := arena.grid
-	var bank_room := grid.rect_center(grid.junctions[1])
-	var fight_room := grid.rect_center(grid.junctions[0])
-	assert_vector(arena.junction_near(tutorial.run.cell(TutorialBank.JUNCTION))).is_equal(bank_room)
-	assert_vector(arena.junction_near(tutorial.run.cell(Vector2i(70, 40)))).is_equal(fight_room)
+	var west := grid.rect_center(grid.junctions[0])
+	var east := grid.rect_center(grid.junctions[1])
+	assert_vector(arena.junction_near(grid.cell_center(Vector2i(3, 1)))).is_equal(west)
+	assert_vector(arena.junction_near(grid.cell_center(Vector2i(6, 1)))).is_equal(east)
 
 
-## Items: three boxes each holding their own item, a turret guarding the corridor that falls
-## silent once the kart is past it, the pocket target and the row of three.
-func test_items_three_set_pieces_in_a_row() -> void:
+## Items: three stations in any order, the hint on the nearest. The Shield has to take the
+## guard's shot; the pocket's target counts only off a bounce, behind a wall of light a kart cannot
+## pass; the row counts only shot by a turret.
+func test_items_three_stations_in_any_order() -> void:
 	var tutorial := await _start()
 	var run := tutorial.run
 	run._start(6)
 	var lesson := run.current_lesson() as TutorialItems
 	var arena := tutorial.match_node.arena
 	await _runner.simulate_frames(2, 17)
-	# The lesson's own boxes, each holding its item; the fight's pads put boxes of their own down.
+	assert_bool(lesson.ordered).is_false()
+	# The lesson's own boxes, each holding its item, down from the start of the tutorial.
 	var boxes: Array[ItemBox] = []
 	for pickup: Node in arena.pickups.get_children():
 		if pickup is ItemBox and (pickup as ItemBox).fixed_item != null:
@@ -486,44 +526,63 @@ func test_items_three_set_pieces_in_a_row() -> void:
 	assert_int(boxes.size()).is_equal(3)
 	assert_bool(lesson._guard.alive).is_true()
 	assert_float(lesson._guard.reach).is_equal(TutorialItems.GUARD_REACH)
-	Events.item_picked.emit(0, &"shield")
-	await _runner.simulate_frames(1, 17)
-	assert_bool(lesson._take_shield.done).is_true()
-	_put(tutorial, Vector2i(10, 10), Vector3(-1.0, 0.0, 0.0))
+	assert_int(lesson._window.collision_layer).is_equal(Layers.PROTECTED)
+	assert_bool(bool(run.kart().collision_mask & Layers.PROTECTED)).is_true()
+	# Nearest the Ricochet box, that station is the one being done; the list shows all six.
+	_put(tutorial, TutorialItems.RICOCHET_BOX + Vector2i(-1, 0), Vector3(1.0, 0.0, 0.0))
 	await _runner.simulate_frames(2, 17)
-	assert_bool(lesson._past.done).is_true()
-	assert_bool(not is_instance_valid(lesson._guard) or not lesson._guard.alive).is_true()
+	assert_object(lesson.current()).is_same(lesson._take_ricochet)
+	assert_int(run.list.task_rows(lesson).size()).is_equal(6)
 	Events.item_picked.emit(0, &"ricochet_cannon")
 	await _runner.simulate_frames(1, 17)
+	assert_bool(lesson._take_ricochet.done).is_true()
+	assert_object(lesson.current()).is_same(lesson._bounce)
 	var pocket := lesson.target_at(TutorialItems.POCKET)
 	assert_object(pocket).is_not_null()
+	pocket.hit_after_bounce = false
 	pocket.struck.emit(pocket, 0)
-	await _runner.simulate_frames(1, 17)
+	assert_bool(lesson._bounce.done).is_false()
+	pocket.hit_after_bounce = true
+	pocket.struck.emit(pocket, 0)
 	assert_bool(lesson._bounce.done).is_true()
+	# The Shield: picked up, raised, and popped by the guard.
+	Events.item_picked.emit(0, &"shield")
+	assert_bool(lesson._take_shield.done).is_true()
+	assert_bool(lesson._pop.done).is_false()
+	Events.shield_popped.emit(0)
+	assert_bool(lesson._pop.done).is_true()
+	assert_bool(not is_instance_valid(lesson._guard) or not lesson._guard.alive).is_true()
+	# The row: a shot of the player's own counts for nothing, a turret's does.
 	Events.item_picked.emit(0, &"turret")
-	await _runner.simulate_frames(1, 17)
 	for cell: Vector2i in TutorialItems.ROW:
 		var target := lesson.target_at(cell)
+		target.hit_by_turret = false
 		target.struck.emit(target, 0)
+	assert_int(lesson._clear.count).is_equal(0)
+	for cell: Vector2i in TutorialItems.ROW:
+		var target := lesson.target_at(cell)
+		target.hit_by_turret = true
+		target.struck.emit(target, 0)
+	assert_bool(lesson._clear.just_ticked()).is_true()
 	await _runner.simulate_frames(2, 17)
 	assert_bool(lesson.is_done()).is_true()
 	assert_bool(arena.gate_at(lesson.gate_cell).is_open).is_true()
 
 
-## A turret told to shoots the gallery's targets when no kart is in reach, which only the
-## tutorial's do.
+## A turret shoots the gallery's targets when no kart is in reach: one told to, or any turret
+## while the tutorial runs, which is how a dropped one clears the row.
 func test_a_turret_can_shoot_targets() -> void:
 	var tutorial := await _start()
 	var run := tutorial.run
 	run._start(6)
 	await _runner.simulate_frames(2, 17)
+	assert_bool(Turret.hunts_targets).is_true()
 	var target := (run.current_lesson() as TutorialItems).target_at(TutorialItems.ROW[1])
 	var turret := Turret.new()
 	turret.owner_slot = 0
-	turret.shoots_targets = true
 	turret.bullet_system = tutorial.match_node.bullets
 	tutorial.match_node.add_child(turret)
-	turret.global_position = run.cell(TutorialItems.ROW[1] + Vector2i(0, -3))
+	turret.global_position = run.cell(TutorialItems.ROW[1] + Vector2i(3, 0))
 	_put(tutorial, Vector2i(23, 11), Vector3(-1.0, 0.0, 0.0))
 	var struck := false
 	for i: int in 240:
@@ -533,10 +592,14 @@ func test_a_turret_can_shoot_targets() -> void:
 			break
 	turret.queue_free()
 	assert_bool(struck).override_failure_message("the turret never shot the target").is_true()
+	assert_bool(target.hit_by_turret).is_true()
+	tutorial.queue_free()
+	await await_idle_frame()
+	assert_bool(Turret.hunts_targets).is_false()
 
 
-## Jokers: the parked karts go down to one hit and drop their cards, the hand is read, and two
-## deaths in the pit each bring the joker pick, for four cards in all.
+## Jokers, in any order: the parked karts go down to one hit and drop their cards, the hand is
+## read, and two deaths in the pit each bring the joker pick, for four cards in all.
 func test_jokers_from_parked_karts_and_the_pit() -> void:
 	var tutorial := await _start()
 	var run := tutorial.run
@@ -546,6 +609,8 @@ func test_jokers_from_parked_karts_and_the_pit() -> void:
 	var arena := tutorial.match_node.arena
 	await _runner.simulate_frames(2, 17)
 	assert_bool(tutorial.match_node.rules.offer_jokers).is_true()
+	assert_bool(lesson.ordered).is_false()
+	assert_int(run.list.task_rows(lesson).size()).is_equal(4)
 	assert_int(run.dummies.size()).is_equal(TutorialJokers.DUMMIES)
 	for i: int in run.dummies.size():
 		var dummy := run.dummies[i].kart
@@ -607,50 +672,79 @@ func test_jokers_from_parked_karts_and_the_pit() -> void:
 	assert_bool(lesson.is_done()).is_true()
 
 
-## Pads: the flush is every pad of the room, with the fight's pads untouched, and the Jackpot
-## starts full to be drained.
+## Pads: the last room starts bare, its pads and Jackpots growing out of the floor with the
+## lesson; the flush is every pad of the room, and the Jackpot starts full to be drained.
 func test_pads_flush_their_own_room_and_drain_the_jackpot() -> void:
 	var tutorial := await _start()
 	var run := tutorial.run
-	run._start(8)
-	var lesson := run.current_lesson() as TutorialPads
 	var match_node := tutorial.match_node
 	var arena := match_node.arena
 	var kart := run.kart()
+	# Held back until the lesson: unseen, and not driven onto.
+	assert_int(arena.flush_pads.size()).is_equal(4)
+	for pad: FlushPad in arena.flush_pads:
+		assert_bool(pad.visible).is_false()
+		assert_int(pad.process_mode).is_equal(Node.PROCESS_MODE_DISABLED)
+	for zone: JackpotZone in arena.jackpot_zones:
+		assert_bool(zone.visible).is_false()
+		assert_bool(zone.active).is_false()
+	for pad: JunctionPad in arena.junctions:
+		assert_bool(pad.visible).is_false()
+	run._start(8)
+	var lesson := run.current_lesson() as TutorialPads
 	await _runner.simulate_frames(2, 17)
+	for pad: FlushPad in arena.flush_pads:
+		assert_bool(pad.visible).is_true()
+		assert_int(pad.process_mode).is_equal(Node.PROCESS_MODE_INHERIT)
+	for pad: JunctionPad in arena.junctions:
+		assert_bool(pad.visible).is_false()
 	assert_bool(lesson._zone.active).is_true()
 	assert_float(lesson._zone.chips).is_equal(float(lesson._zone.cap()))
-	var room := arena.grid.region_of(Vector2i(25, 41))
-	var mine: Array[FlushPad] = []
-	var theirs: Array[FlushPad] = []
+	var room := arena.grid.region_of(TutorialPads.SPAWN)
 	for pad: FlushPad in arena.flush_pads:
-		if pad.group == room:
-			mine.append(pad)
-		else:
-			theirs.append(pad)
-	assert_int(mine.size()).is_equal(4)
-	assert_int(theirs.size()).is_equal(4)
-	for pad: FlushPad in mine:
+		assert_int(pad.group).is_equal(room)
 		pad.claim(kart.slot, run.slot().color())
 	assert_bool(lesson._flush.done).is_false()
-	mine[3].claimed.emit(mine[3], kart)
+	arena.flush_pads[3].claimed.emit(arena.flush_pads[3], kart)
 	assert_bool(lesson._flush.done).override_failure_message("no flush").is_true()
-	for pad: FlushPad in theirs:
-		assert_int(pad.owner_slot).is_equal(-1)
-		assert_bool(pad.is_disabled()).is_false()
 	Events.jackpot_emptied.emit(lesson._zone.index)
 	await _runner.simulate_frames(1, 17)
 	assert_bool(lesson.is_done()).is_true()
+	# No gate: the Junction's lesson starts in the same room.
+	assert_int(run.index).is_equal(9)
 
 
-## The Junction: the pot filled, then 50 points banked in as many cash-outs as it takes.
+## The tally over the top counts the pads of the room the player is in, GAME.md 3.9: the last
+## room's four from inside it, and none from a room without any.
+func test_the_flush_tally_counts_the_room_the_player_is_in() -> void:
+	var tutorial := await _start()
+	var run := tutorial.run
+	var tally: FlushTally = tutorial.match_node.hud.find_child("FlushTally", true, false)
+	assert_object(tally).is_not_null()
+	_put(tutorial, TutorialPads.SPAWN, Vector3(0.0, 0.0, -1.0))
+	assert_int(tally._pads_here().size()).is_equal(4)
+	_put(tutorial, TutorialJokers.PIT + Vector2i(0, -3), Vector3(0.0, 0.0, -1.0))
+	assert_int(tally._pads_here().size()).is_equal(0)
+	assert_int(run.index).is_equal(0)
+
+
+## The Junction grows out of the floor with its lesson, wired to bank: the pot filled, then 50
+## points banked in as many cash-outs as it takes, and the fight starts in the same room.
 func test_the_junction_banks_fifty_points() -> void:
 	var tutorial := await _start()
 	var run := tutorial.run
+	var arena := tutorial.match_node.arena
 	run._start(9)
 	var lesson := run.current_lesson() as TutorialBank
 	var kart := run.kart()
 	await _runner.simulate_frames(2, 17)
+	assert_int(arena.junctions.size()).is_equal(1)
+	assert_bool(arena.junctions[0].visible).is_true()
+	assert_object(arena.junctions[0].rules).is_same(tutorial.match_node.rules)
+	(
+		assert_bool(arena.junctions[0].bank_tick.is_connected(tutorial.match_node._on_bank_tick))
+		. is_true()
+	)
 	assert_bool(lesson._fill.done).is_false()
 	kart.pot.add_coins(TutorialBank.POT)
 	await _runner.simulate_frames(1, 17)
@@ -661,29 +755,37 @@ func test_the_junction_banks_fifty_points() -> void:
 	Events.bank_tick.emit(0, 30)
 	await _runner.simulate_frames(1, 17)
 	assert_bool(lesson.is_done()).is_true()
-	assert_bool(tutorial.match_node.arena.gate_at(lesson.gate_cell).is_open).is_true()
+	assert_int(run.index).is_equal(10)
 
 
-## The fight: the bots come out of the pen one at a time as the player banks, the last of them
-## normal, and 400 banked is the end: said, remembered, and the portals' gate open.
+## The fight: the item pads and the crates come in with it, the bots come out of their pens one
+## at a time as the player banks, each pen's own gate opening, the last of them normal, and 400
+## banked is the end: said, remembered, and the portals' gate open.
 func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	var tutorial := await _start()
 	var run := tutorial.run
+	var arena := tutorial.match_node.arena
 	assert_int(run.bots.size()).is_equal(TutorialFight.BOTS)
 	for slot: PlayerSlot in run.bots:
 		assert_bool(slot.kart.frozen).is_true()
+	for pad: PowerUpPad in arena.power_pads:
+		assert_bool(pad.visible).is_false()
+		assert_object(pad.current).is_null()
 	run._start(10)
 	var lesson := run.current_lesson() as TutorialFight
-	var arena := tutorial.match_node.arena
 	await _runner.simulate_frames(2, 17)
+	for pad: PowerUpPad in arena.power_pads:
+		assert_bool(pad.visible).is_true()
 	assert_int(lesson.released()).is_equal(1)
 	assert_bool(run.bots[0].kart.frozen).is_false()
 	assert_bool(run.bots[1].kart.frozen).is_true()
-	assert_bool(arena.gate_at(TutorialFight.PEN_GATE).is_open).is_true()
+	assert_bool(arena.gate_at(TutorialFight.PEN_GATES[0]).is_open).is_true()
+	assert_bool(arena.gate_at(TutorialFight.PEN_GATES[1]).is_open).is_false()
 	assert_object(tutorial.layer.get_node_or_null("BossBar")).is_not_null()
 	Events.bank_tick.emit(0, 150)
 	await _runner.simulate_frames(1, 17)
 	assert_int(lesson.released()).is_equal(2)
+	assert_bool(arena.gate_at(TutorialFight.PEN_GATES[1]).is_open).is_true()
 	Events.bank_tick.emit(0, 150)
 	await _runner.simulate_frames(1, 17)
 	assert_int(lesson.released()).is_equal(3)
@@ -697,6 +799,24 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	assert_bool(Game.settings.tutorial_done).is_true()
 	assert_bool(arena.gate_at(TutorialFight.PORTAL_GATE).is_open).is_true()
 	assert_object(tutorial.layer.get_node_or_null("Done")).is_not_null()
+
+
+## A gate never shuts on anybody: told to shut with a kart in it, it waits until the kart is out.
+func test_a_gate_waits_to_shut_until_nobody_is_in_it() -> void:
+	var tutorial := await _start()
+	var run := tutorial.run
+	var lesson := run.current_lesson()
+	var gate := tutorial.match_node.arena.gate_at(lesson.gate_cell)
+	run.open_gate(lesson.gate_cell)
+	await _runner.simulate_frames(1, 17)
+	assert_bool(gate.is_open).is_true()
+	_put(tutorial, lesson.gate_cell + Vector2i(1, 0), Vector3(0.0, 0.0, -1.0))
+	run.close_gate(lesson.gate_cell)
+	await _runner.simulate_frames(3, 17)
+	assert_bool(gate.is_open).is_true()
+	_put(tutorial, lesson.spawn_cell, Vector3(0.0, 0.0, -1.0))
+	await _runner.simulate_frames(2, 17)
+	assert_bool(gate.is_open).is_false()
 
 
 ## The title offers the tutorial once, the first time Play is pressed: Not now goes on to play

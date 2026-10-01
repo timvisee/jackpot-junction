@@ -5,6 +5,10 @@ extends Node
 ## beside it saying what it is until the lesson's first task is done. Under the HUD as a child, so
 ## it runs after the HUD has put everything up for the frame and takes back what is not yet shown.
 ## The corner's own control hints stay off throughout: the line over the kart is saying it.
+##
+## The pointer is read, not glimpsed: its line sits on a dark card, a frame pulses round the piece,
+## and as it first appears a ring closes in on the piece from well outside it, which is what pulls
+## the eye across the screen.
 
 ## What can be shown: the nitro tank with the speedometer, the item slot, the hand of jokers, the
 ## lives, the pot, the banked score, the kills and deaths, and the kill feed.
@@ -18,6 +22,10 @@ const BOB := 8.0
 const BOB_RATE := 0.7
 const GAP := 14.0
 const FRAME_GROW := 6.0
+## The ring that closes in on a piece as its pointer appears: how long it takes, in seconds, and
+## how far out it starts, as a multiple of the piece's size.
+const RING_SECONDS := 1.1
+const RING_FROM := 3.0
 
 var hud: MatchHud
 ## Whose corner, and which.
@@ -25,30 +33,16 @@ var slot: PlayerSlot
 var index := 0
 var shown: Dictionary[StringName, bool] = {}
 
-var _pointer: HBoxContainer
+var _pointer: PanelContainer
+var _row: HBoxContainer
 var _tip: Tip
 ## The pointer's line, words with the control drawn in where it names one, see [InputHint].
 var _line: Control
 var _frame: Frame
+var _ring: Ring
 var _pointing := &""
 var _time := 0.0
-
-
-## The frame round the piece pointed at, drawn: a rounded box that pulses with the pointer.
-class Frame:
-	extends Control
-
-	var strength := 1.0:
-		set(value):
-			strength = value
-			queue_redraw()
-
-	func _init() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	func _draw() -> void:
-		var box := Rect2(Vector2(1.5, 1.5), size - Vector2(3.0, 3.0))
-		draw_rect(box, Color(INK, 0.45 + 0.55 * strength), false, 3.0)
+var _ring_left := 0.0
 
 
 ## The triangle of the pointer, drawn, pointing left at the piece beside it or down at one under.
@@ -70,6 +64,43 @@ class Tip:
 		draw_colored_polygon(points, INK)
 
 
+## The frame round the piece pointed at, drawn: a rounded box that pulses with the pointer.
+class Frame:
+	extends Control
+
+	var strength := 1.0:
+		set(value):
+			strength = value
+			queue_redraw()
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		var box := Rect2(Vector2(1.5, 1.5), size - Vector2(3.0, 3.0))
+		draw_rect(box, Color(INK, 0.45 + 0.55 * strength), false, 3.0)
+
+
+## The ring closing in on the piece, drawn about the middle of this control.
+class Ring:
+	extends Control
+
+	## How far along it is, 0 at the start far out to 1 on the piece, and how big the piece is.
+	var progress := 0.0:
+		set(value):
+			progress = value
+			queue_redraw()
+	var piece := Vector2(100.0, 40.0)
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		var eased := 1.0 - pow(1.0 - progress, 3.0)
+		var radius := lerpf(piece.length() * 0.5 * RING_FROM, piece.length() * 0.5, eased)
+		draw_arc(size * 0.5, radius, 0.0, TAU, 64, Color(INK, 0.25 + 0.6 * eased), 4.0, true)
+
+
 static func add_to(on: MatchHud, of: PlayerSlot) -> HudReveal:
 	var reveal := HudReveal.new()
 	reveal.name = "HudReveal"
@@ -84,19 +115,27 @@ static func add_to(on: MatchHud, of: PlayerSlot) -> HudReveal:
 func _ready() -> void:
 	for piece: StringName in PIECES:
 		shown[piece] = false
-	_pointer = HBoxContainer.new()
+	_pointer = PanelContainer.new()
 	_pointer.name = "Pointer"
 	_pointer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_pointer.add_theme_constant_override("separation", 8)
+	_pointer.add_theme_stylebox_override("panel", HudBlock.scrim())
+	_row = HBoxContainer.new()
+	_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_row.add_theme_constant_override("separation", 8)
+	_pointer.add_child(_row)
 	_tip = Tip.new()
 	_tip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_pointer.add_child(_tip)
+	_row.add_child(_tip)
 	_pointer.visible = false
 	hud.add_child(_pointer)
 	_frame = Frame.new()
 	_frame.name = "Frame"
 	_frame.visible = false
 	hud.add_child(_frame)
+	_ring = Ring.new()
+	_ring.name = "Ring"
+	_ring.visible = false
+	hud.add_child(_ring)
 
 
 ## Brings [param piece] in, with [param line] on a pointer beside it until [method pointer_done],
@@ -113,11 +152,25 @@ func show_piece(piece: StringName, line: String, actions: Array[StringName] = []
 	for action: StringName in actions:
 		parts.append(InputHint.glyph(action, keyboard, INK, Type.LARGE))
 	_line = InputHint.row(line, parts, INK, Type.LARGE)
-	_pointer.add_child(_line)
+	_row.add_child(_line)
 	_tip.down = piece == &"hand"
 	_tip.queue_redraw()
 	_pointer.visible = true
 	_frame.visible = true
+	_ring_left = RING_SECONDS
+	_ring.visible = piece != &"hand"
+
+
+## The pointer has said its piece.
+func pointer_done() -> void:
+	_pointing = &""
+	_pointer.visible = false
+	_frame.visible = false
+	_ring.visible = false
+
+
+func is_pointing() -> bool:
+	return _pointer.visible
 
 
 ## What the pointer says, for asking.
@@ -128,17 +181,6 @@ func line() -> String:
 			if part is Label:
 				words.append((part as Label).text)
 	return " ".join(words)
-
-
-## The pointer has said its piece.
-func pointer_done() -> void:
-	_pointing = &""
-	_pointer.visible = false
-	_frame.visible = false
-
-
-func is_pointing() -> bool:
-	return _pointer.visible
 
 
 func _process(delta: float) -> void:
@@ -162,11 +204,12 @@ func _process(delta: float) -> void:
 	if feed != null:
 		feed.visible = shown[&"feed"]
 	if _pointer.visible:
-		_place(parts, hand)
+		_place(parts, hand, delta)
 
 
-## The pointer beside its piece: to the right of a piece of the corner, over the hand.
-func _place(parts: Dictionary, hand: JokerHand) -> void:
+## The pointer beside its piece: to the right of a piece of the corner, over the hand; the frame
+## round the piece, and the ring closing in on it.
+func _place(parts: Dictionary, hand: JokerHand, delta: float) -> void:
 	var pulse := 0.5 + 0.5 * sin(_time * TAU * BOB_RATE)
 	var bob := (pulse * 2.0 - 1.0) * BOB
 	var size := _pointer.get_combined_minimum_size()
@@ -185,6 +228,15 @@ func _place(parts: Dictionary, hand: JokerHand) -> void:
 	var grown := rect.grow(FRAME_GROW)
 	_frame.position = grown.position
 	_frame.size = grown.size
+	if _ring.visible:
+		_ring_left = maxf(_ring_left - delta, 0.0)
+		var reach := rect.size.length() * RING_FROM
+		_ring.position = rect.get_center() - Vector2(reach, reach)
+		_ring.size = Vector2(reach, reach) * 2.0
+		_ring.piece = rect.size
+		_ring.progress = 1.0 - _ring_left / RING_SECONDS
+		if _ring_left <= 0.0:
+			_ring.visible = false
 
 
 func _anchor(parts: Dictionary) -> Control:

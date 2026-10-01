@@ -1,30 +1,35 @@
 class_name TutorialItems
 extends TutorialLesson
-## Lesson 7, GAME.md 9.4a: items, three set pieces in a row, each box holding its own item with no
-## roulette. A Shield to raise and drive past the turret guarding the corridor; a Ricochet Cannon
-## to hit the target in the pocket behind the stub of wall; a Turret to drop by the row of three
-## targets and let it clear them. A box taken and the item gone before its piece is done comes back
-## a moment later, and the guard falls silent once the kart is past it.
+## Lesson 7, GAME.md 9.4a: items, three stations round one room, done in any order, each box
+## holding its own item with no roulette. Along the top, the run a turret guards: pick the Shield
+## up at the east end, out of the turret's reach, raise it and take the turret's shot on it, which
+## is what a Shield is for. In the south-east, the pocket shut off by a hologram a shot passes and
+## a kart does not, with the target behind a stub of wall in there: pick the Ricochet Cannon up and
+## bounce a shot onto it. Along the west wall, a row of three targets: pick the Turret up, drop it
+## by them and let it clear them, which only it can, a shot of the player's counting for nothing.
+## A box taken with its station not done and the item gone comes back a moment later.
 
 const SHIELD: PowerUp = preload("res://data/powerups/shield.tres")
 const RICOCHET: PowerUp = preload("res://data/powerups/ricochet_cannon.tres")
 const TURRET: PowerUp = preload("res://data/powerups/turret.tres")
-## Where everything stands, by cell: the boxes, the guard, the line past it, the pocket target and
-## the row.
-const SHIELD_BOX := Vector2i(24, 10)
-const GUARD := Vector2i(19, 11)
-const PAST := Vector2i(13, 10)
-const RICOCHET_BOX := Vector2i(12, 4)
-const POCKET := Vector2i(3, 4)
-const TURRET_BOX := Vector2i(12, 14)
-const ROW: Array[Vector2i] = [Vector2i(4, 16), Vector2i(7, 16), Vector2i(10, 16)]
+## Where everything stands, by cell: the boxes, the guard and the way in to it, the window and the
+## pocket's target, and the row.
+const SHIELD_BOX := Vector2i(24, 3)
+const GUARD := Vector2i(13, 3)
+const RUN_IN := Vector2i(23, 5)
+const RICOCHET_BOX := Vector2i(16, 15)
+const WINDOW := Vector2i(19, 16)
+const WINDOW_TALL := 2
+const POCKET := Vector2i(23, 16)
+const TURRET_BOX := Vector2i(9, 11)
+const ROW: Array[Vector2i] = [Vector2i(3, 9), Vector2i(3, 11), Vector2i(3, 13)]
 ## How far the guard shoots, in meters, and how long a taken box takes to come back, in seconds.
 const GUARD_REACH := 7.0
 const RETURN_WAIT := 3.0
 const GUARD_INK := Color("#FF3B30")
 
 var _take_shield: TutorialTask
-var _past: TutorialTask
+var _pop: TutorialTask
 var _take_ricochet: TutorialTask
 var _bounce: TutorialTask
 var _take_turret: TutorialTask
@@ -33,38 +38,46 @@ var _clear: TutorialTask
 var _boxes: Dictionary[StringName, ItemBox] = {}
 var _waits: Dictionary[StringName, float] = {}
 var _guard: Turret
+var _window: Hologram
 var _row_hit: Dictionary[int, bool] = {}
 
 
 func _init() -> void:
 	title = "Items"
+	ordered = false
 	gate_cell = Vector2i(2, 18)
-	spawn_cell = Vector2i(23, 11)
+	spawn_cell = Vector2i(24, 10)
 	facing = Vector3(-1.0, 0.0, 0.0)
 	next_cell = Vector2i(3, 20)
 	reveals = [[&"item", "Your item, %s to use it", [InputActions.USE_ITEM]]]
 	_take_shield = add_task("Pick up the Shield", "Drive over the box")
 	_take_shield.arrow = SHIELD_BOX
-	_past = add_task(
-		"Raise it and drive past the turret", "%s to raise the shield", [InputActions.USE_ITEM]
+	_pop = add_task(
+		"Raise it and take the turret's shot", "%s to raise the shield", [InputActions.USE_ITEM]
 	)
-	_past.arrow = PAST
+	_pop.arrow = RUN_IN
 	_take_ricochet = add_task("Pick up the Ricochet Cannon", "Drive over the box")
 	_take_ricochet.arrow = RICOCHET_BOX
 	_bounce = add_task(
-		"Hit the target behind the wall", "%s to fire, the shots bounce", [InputActions.FIRE]
+		"Bounce a shot onto the hidden target",
+		"%s to fire: shots bounce off walls",
+		[InputActions.FIRE]
 	)
-	_bounce.arrow = POCKET
+	_bounce.arrow = Vector2i(17, 16)
 	_take_turret = add_task("Pick up the Turret", "Drive over the box")
 	_take_turret.arrow = TURRET_BOX
 	_clear = add_task(
-		"Drop it by the targets and let it work", "%s to drop the turret", [InputActions.USE_ITEM]
+		"Drop it and let it clear the three targets",
+		"%s to drop the turret",
+		[InputActions.USE_ITEM]
 	)
-	_clear.arrow = ROW[1]
+	_clear.arrow = Vector2i(6, 11)
 	_clear.of = ROW.size()
+	stations = [[_take_shield, _pop], [_take_ricochet, _bounce], [_take_turret, _clear]]
 
 
-func _begin() -> void:
+## The room's furniture, there from the start: the guard, the window and the boxes.
+func _prepare() -> void:
 	_place(&"shield", SHIELD, SHIELD_BOX)
 	_place(&"ricochet_cannon", RICOCHET, RICOCHET_BOX)
 	_place(&"turret", TURRET, TURRET_BOX)
@@ -79,13 +92,22 @@ func _begin() -> void:
 	run.match_node.bullets.get_parent().add_child(_guard)
 	_guard.global_position = run.cell(GUARD)
 	_guard.rotation.y = -PI * 0.5
+	var size := run.grid().cell_size
+	var window_at := run.cell(WINDOW) + Vector3(0.0, 0.0, size * (WINDOW_TALL - 1) * 0.5)
+	_window = Hologram.add_to(run.match_node, window_at, Vector3(0.3, 1.0, size * WINDOW_TALL))
+	for at: Vector2i in [WINDOW, WINDOW + Vector2i(0, 1)]:
+		run.match_node.nav.set_cell_blocked(at, true)
+
+
+func _begin() -> void:
 	for target: Target in arena().targets:
 		target.struck.connect(_on_struck)
 	Events.item_picked.connect(_on_picked)
-	put_sign("ITEMS\nan item works once: pick one up, use it", Vector2i(24, 9), Palette.NEON_CYAN)
-	put_sign("TURRET\nshield up, drive past", GUARD, GUARD_INK)
-	put_sign("RICOCHET\nbounce a shot into the pocket", Vector2i(4, 8), Palette.NEON_CYAN)
-	put_sign("TURRET\ndrop it here, it shoots the targets", Vector2i(7, 14), Palette.NEON_CYAN)
+	Events.shield_popped.connect(_on_popped)
+	put_sign("ITEMS\nan item works once: pick one up, use it", Vector2i(13, 9), Palette.NEON_CYAN)
+	put_sign("SHIELD\nup, then into the turret's fire", Vector2i(22, 3), GUARD_INK)
+	put_sign("RICOCHET\nbounce a shot through the window", Vector2i(15, 14), Palette.NEON_CYAN)
+	put_sign("TURRET\ndrop it here, it shoots the row", Vector2i(7, 11), Palette.NEON_CYAN)
 
 
 func end() -> void:
@@ -94,25 +116,19 @@ func end() -> void:
 			target.struck.disconnect(_on_struck)
 	if Events.item_picked.is_connected(_on_picked):
 		Events.item_picked.disconnect(_on_picked)
+	if Events.shield_popped.is_connected(_on_popped):
+		Events.shield_popped.disconnect(_on_popped)
 	_silence()
-	for box: ItemBox in _boxes.values():
-		if is_instance_valid(box):
-			box.queue_free()
-	_boxes.clear()
 	super()
 
 
 func step(delta: float) -> void:
-	var task := current()
-	if task == _past and kart().alive and kart().global_position.x < run.cell(PAST).x:
-		_past.complete()
-		_silence()
 	for id: StringName in _boxes.keys():
 		_return(id, delta)
 
 
-## A box taken and its piece not done, the item gone, comes back after a moment: a Shield burnt on
-## the way to the turret, a Ricochet worn off before the pocket, a Turret dropped short.
+## A box taken and its station not done, the item gone, comes back after a moment: a Shield burnt
+## elsewhere, a Ricochet worn off before the pocket, a Turret dropped out of reach of the row.
 func _return(id: StringName, delta: float) -> void:
 	var box: ItemBox = _boxes[id]
 	if is_instance_valid(box) and box.is_inside_tree():
@@ -138,7 +154,7 @@ func _return(id: StringName, delta: float) -> void:
 func _station(id: StringName) -> TutorialTask:
 	match id:
 		&"shield":
-			return _past
+			return _pop
 		&"ricochet_cannon":
 			return _bounce
 		&"turret":
@@ -154,6 +170,7 @@ func _place(id: StringName, item: PowerUp, cell: Vector2i) -> void:
 	_boxes[id] = box
 
 
+## The guard has done its piece once the Shield has taken its shot.
 func _silence() -> void:
 	if _guard != null and is_instance_valid(_guard) and _guard.alive:
 		_guard.destroy()
@@ -171,15 +188,22 @@ func _on_picked(slot_index: int, id: StringName) -> void:
 			_take_turret.complete()
 
 
+func _on_popped(slot_index: int) -> void:
+	if slot_index == kart().slot and not _pop.done:
+		_pop.complete()
+		_silence()
+
+
 func _on_struck(target: Target, by_slot: int) -> void:
 	if by_slot != kart().slot:
 		return
 	if target == target_at(POCKET):
-		_bounce.complete()
+		if target.hit_after_bounce:
+			_bounce.complete()
+		return
+	if not target.hit_by_turret:
 		return
 	for cell: Vector2i in ROW:
 		if target == target_at(cell) and not _row_hit.has(target.get_instance_id()):
 			_row_hit[target.get_instance_id()] = true
-			_clear.count = _row_hit.size()
-			if _clear.count >= _clear.of:
-				_clear.complete()
+			_clear.tally()

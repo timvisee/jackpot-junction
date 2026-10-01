@@ -2441,7 +2441,9 @@ movement: the one thing a corner block must not do is ask to be looked at.
   on the corner of the screen. Nobody else's pickup puts one up.
 - **Royal Flush tally** under the timer, while a player at this screen holds a
   Royal Flush pad, see 3.9: each pad's own card suit, filled in its holder's color
-  for every pad held and faint for every pad nobody holds. This screen's players
+  for every pad held and faint for every pad nobody holds, the pads being those
+  of the room the first player at this screen is in, which on every map but the
+  tutorial's of 9.4a is every pad on the map. This screen's players
   come first, whatever their suits, then whoever holds most, and the free suits
   last, so a player's own count is the run on the left and the faint ones are the
   suits still to get. It says how close a flush is without four frames to find
@@ -3556,7 +3558,10 @@ middle outward when the lesson in front of it is done, the posts left standing
 as a doorway, and that rise again once the kart is through, so a room finished
 is a room left behind and a kart that dies comes back in the room it is
 learning in. Nothing crosses over the top of a gate: a beam did, and a kart's
-hat drove through it. The gates
+hat drove through it. A gate never shuts on anybody: told to shut with a kart
+within two meters of its line, it waits until nobody is, and the kart is
+through only once it is in the next room and three meters past the gate, since
+a room may well lie on the far side of its own gate. The gates
 are the `G` cells of a map, see 6.3; a match with none never meets one, and the
 bots' map of where they can drive treats a shut one as wall. The gate, the
 arrow, the pads and the lights below are in the shader warm-up of 10.7, so none
@@ -3570,23 +3575,23 @@ Garage.
 
 ```
 ############################################################################################
-##............################################################............................##
-##...##.......################################################............................##
-##...##.......#######################........................#............................##
-##.R.##.......#######################........................#............................##
-##...##.......#######################...R................R...#............................##
-##...##.......#######################........................#.....##.....................##
-##...##.......#######################........B...............#.....##.....................##
-##............#######################........................#.....................##.....##
-##........................G.....BB...........................#.....................##.....##
+##........................####################################............................##
+##........................####################################............................##
+##........................###########........................#............................##
+##........................###########........................#............................##
+##........................###########...R................R...#............................##
+##...#################....###########........................#.....##.....................##
+##........................###########........B...............#.....##.....................##
+##........................###########........................#.....................##.....##
+##.R......................G.....BB...........................#.....................##.....##
 ##........................G.....BB..............R............G............................##
+##.R......................G.....BB...........................G............................##
 ##........................G.....BB...........................G............................##
-##........................G.....BB...........................G............................##
-##............#######################........................G............................##
-##............#######################.......B.......B........#............................##
-##............#######################........................#.............##.............##
-##..R..R..R...#######################...R................R...#.............##.............##
-##............#######################........................#............................##
+##.R...............##################........................G............................##
+##.................#......###########.......B.......B........#............................##
+##.................#.##...###########........................#.............##.............##
+##...................##R..###########...R................R...#.............##.............##
+##...................##...###########........................#............................##
 ##GGGG###############################........................#............................##
 ##....##......................################################............................##
 ##....##......................################################............................##
@@ -3600,37 +3605,37 @@ Garage.
 ##....##......................G................G....................................########
 ##....##......................#................#....................................########
 ##....##......................##############################################################
-##....##......................##############################...............................#
-##....##......................##############################...S....................########
-##....##......................##############################............S...........#.....##
-##....##......................##############################...F..................F.#.....##
-##....##......................##############################........................G.....##
-##....###########GGGG#######################################.....KK.................G.....##
-##....###########....#######################################.....KK.................G.....##
-##............###....#...................#.................#..........BB............G.....##
-##............###....#...................#.................#........................#.....##
-##............###....#...................#..C.C.......KKK..#..................P.....#.....##
-##............###....#...F...........F...#............KKK..#........................########
-##............###....#...................#............KKK..#...............................#
-##............###....#...................#.................#...............................#
-##............###....#...................#.................#............JJJJ...............#
-##............###....#...................#......JJJJ.......#............JJJJ...............#
-##............###....#........KKK........G......JJJJ.......G........B...JJJJ....B..........#
-##............###....#........KKK........G......JJJJ.......G............JJJJ.....S.........#
-##............###....#........KKK........G......JJJJ.......G...............................#
-##............###....#...................G.................G...............................#
-##.....XX.....###....#...................#.................#......XX.......................#
-##.....XX.....###....#...................#.................#......XX................########
-##............###....#...................#.................#........P...............#.....##
-##............###....#...F...........F...#.................#........................#.....##
-##............###....#...................#..C.C.......C.C..#................BB......G.....##
-##............###.S..#...................#.................#........................G.O...##
-##............###....#...................#.................#....................KK..G.....##
-######GGGG#######....#....##################################....................KK..G.....##
-######....############....##################################...F..................F.#...O.##
-##........................##################################........................#.....##
-##........................##################################...S....................########
-##........................##################################...............................#
+##....##......................##############################################################
+##....##......................##############################################################
+##....##......................##############################################################
+##....##......................##############################################################
+##....##......................##############################################################
+##....###########GGGG##############....#####################################################
+##....###########....##############O..O#####################################################
+##............###....##############....#####################################################
+##............###....###############GG######################################################
+##............###....#..............................########################################
+##............###....#...KK...P.....S.......XX......G...####################################
+##............###....#...KK.........B.......XX......G...####################################
+##............###....#..............................#...####################################
+##............###....#..F........................F..########################################
+##............###....#..............................########################################
+##............###....#.........BB..JJJJ.............G...####################################
+##............###....#.S...........JJJJ...........S.G...####################################
+##............###....#.............JJJJ.............#...####################################
+##............###....#.............JJJJ..BB.........########################################
+##.....XX.....###....#..............................########################################
+##.....XX.....###....#..F........................F..G...####################################
+##............###....#...............B.........KK...G...####################################
+##............###....#..............S......P...KK...#...####################################
+##............###....#..............................########################################
+##............###.S..#GGGG##################################################################
+##............###....#....##################################################################
+######....#######....#....##################################################################
+######....############....##################################################################
+##........................##################################################################
+##........................##################################################################
+##........................##################################################################
 ############################################################################################
 ############################################################################################
 ```
@@ -3638,17 +3643,23 @@ Garage.
 **The checklist.** A panel in the top right corner, clear of the player's own
 corner on the left, with the lesson's name and its tasks under it. A task that
 is done is ticked and grayed with a short chime; the one being done is bright,
-with a bar under it where it is a matter of how far; tasks not yet reached are
-not shown, so the list grows as the lesson goes. A finished lesson shrinks to
-one ticked line, and only the last three lessons stay listed. On a touch screen
-it hangs under the menu button.
+with a bar under it where it is a matter of how far, and a count's box lights
+for a moment at each one of the count; tasks not yet reached are not shown, so
+the list grows as the lesson goes. A lesson done in any order shows all its
+tasks from the start, the one being done bright and the rest a shade dimmer. A
+finished lesson shrinks to one ticked line, and only the last three lessons
+stay listed. On a touch screen it hangs under the menu button.
 
 **The hint.** Over the kart, the way the drive and fire line of 3.8 is but half
 again as big, since a line that is missed teaches nothing: one short line for
 the task being done with the control drawn into it for the device in hand, a
 key, a pad button or the touch screen's button, and it follows a pad picked up
-or a switch of driving mode. It is one sprite redrawn as the task changes rather
-than a new one each time, which was a hitch at every gate. An arrow on the floor ahead of the kart
+or a switch of driving mode, and a task's own change of words as it goes, the
+drift's turbo line below. It is one sprite redrawn as the task changes rather
+than a new one each time, which was a hitch at every gate. In a lesson done in
+any order it is for the station nearest the kart, and moves to another only once
+that one is a good two meters nearer, so a kart between two does not see it
+flicker. An arrow on the floor ahead of the kart
 pulses toward wherever the task needs the kart to go, when it needs it anywhere,
 and toward the open gate once the lesson is done; within a few meters of the
 spot it goes.
@@ -3656,7 +3667,10 @@ spot it goes.
 **The HUD comes in pieces.** At the start only the player's name, the checklist
 and the hint are on the screen. Each piece of the corner block appears with the
 lesson it is for, with a pointer beside it, a frame pulsing round it and one line
-saying what it is, which stay until the lesson's first task is done: the nitro tank and the speedometer
+saying what it is, on a dark card so it reads against any floor, and a ring
+that closes in on the piece from well outside it over the first second, which
+is what pulls the eye across the screen; these stay until the lesson's first
+task is done: the nitro tank and the speedometer
 with nitro, "Your nitro"; the item slot with items, "Your item"; the hand of
 jokers and the lives with jokers, "Your jokers, hold Tab to read them", Tab
 being whatever opens the hand; the pot with the pads lesson and the bank with
@@ -3667,9 +3681,12 @@ over the kart is saying it.
 has answered before drives their way; one who never has is asked the question
 of 4.2 on the grid, before the kart will move, and the answer is kept. The
 steering room has two big lit pads either side of the way in, SIMPLE and
-ADVANCED, cyan for the way in use and magenta for the other, each with its name
-over it: driving onto the other switches to it on the spot, and a sign between
-them says the pause menu and the settings change it later too.
+ADVANCED, each a disc with the way of driving's own picture on it, the one the
+question of 4.2 draws, a ring round it with a run of lamps chasing round that,
+and its name over it, cyan for the way in use and magenta for the other: driving
+onto the other switches to it on the spot, and a sign between them says the
+pause menu and the settings change it later too. The pads stay for the rest of
+the tutorial, there being no reason to take them away.
 
 The lessons, each in its own room, in order:
 
@@ -3682,7 +3699,8 @@ The lessons, each in its own room, in order:
    circle and a half to the left, then a circle and a half to the right, 540°
    each, counted from the kart's heading while it is moving forward, so sawing
    the wheel back and forth adds up to nothing and one direction alone is not
-   enough. Simple driving is told to push the way to go.
+   enough. Each hint names the one key that steers that way, not the pair.
+   Simple driving is told to push the way to go.
 3. **Brake and reverse.** A straight of 16 by 6 cells going east. Brake to a stop
    from speed, then drive backwards, 5 m of it on a bar that names no distance.
    Simple driving has no reverse, since letting go is the brake, so its second
@@ -3695,57 +3713,75 @@ The lessons, each in its own room, in order:
 5. **Drifting.** An open room 28 by 22 cells with three 2-by-2 pillars to drift
    around. Tap the handbrake while turning, once; then hold a drift long enough
    for a turbo, three times, each drift's bar filling toward the turbo point of
-   4.1, 0.6 s of drift at half speed or more.
+   4.1, 0.6 s of drift at half speed or more. Once a drift has earned its turbo
+   the hint changes to say so, "Turbo ready: straighten up to launch it", and
+   the turbo launched lights the count's box.
 6. **Shooting.** A gallery 24 by 16 cells with five targets round it and three
    loose boxes that break but count for nothing. Hit each of the five once, a
-   lamp on a pole beside each, the pole the Jackpot zones of 3.5 wear, dark
-   until the target is counted and green after, so the ones still to do can be
-   told from across the room; then shoot through the wall
+   lamp on a pole beside each, the pole the Jackpot zones of 3.5 wear, standing
+   there from the start, dark until the target is counted and green after, so
+   the ones still to do can be told from across the room; then shoot through the wall
    of eight boxes, two deep, across the corridor out, which never comes back in
    here. The way on is where they were.
-7. **Items.** Three set pieces in a row, each box holding its own item with no
-   roulette, and a line that an item works once. A Shield to raise and drive
-   past a turret guarding the corridor in, which shoots seven meters and falls
-   silent once the kart is past it; a Ricochet to hit the target in a pocket
-   behind a stub of wall by bouncing a shot; a Turret to drop by a row of three
-   targets and let it clear them, which the tutorial's turrets do when no kart
-   is in reach, see 6.2, and a match's never. A box taken with its piece not
-   done and the item gone comes back after three seconds. The item slot
-   appears, pointed at.
-8. **Jokers.** Two parked dummy karts that never move or shoot and go down to one
-   hit, each dropping a card as it goes, Magnet Hubcaps and Payday, since both
-   help with the coins straight after; then hold Tab to read the hand; then drive
-   into the pit twice, each death opening the joker pick with a pointer explaining
-   it, for the third and fourth cards. Holding four completes the lesson. The
-   hand and the lives appear, pointed at.
-9. **Pads.** A room with four Royal Flush pads and a Jackpot: hold every pad of
-   the room at once for a flush, then drain the Jackpot once, taking all it has
-   filled to. The pot appears, pointed at. A flush is holding every pad in the
-   room rather than on the map, see 3.9, so each room's pads are a flush of their
-   own.
-10. **The Junction.** A room with a Junction, a Jackpot that starts full and
-    six coin pads to fill the pot from: 20 chips in the pot, then 50 points
-    banked on the Junction, in as many cash-outs as it takes, on a bar. A sign
-    says the difference: the pot is what you carry, part of it lost when you
-    die; the bank is safe for good, and 3000 wins a match. The bank appears,
-    pointed at.
-11. **The fight.** An arena with everything a map has, a Junction, Royal Flush
-    pads, two Jackpots, item pads, boxes and a pit, and a pen of three bots
-    behind a gate of its own on the east side. The gate shuts behind the kart
-    as it drives in. The first easy bot is let out at once, the second easy
-    one at 150 banked and the normal one at 300, the pen's gate opening for six
-    seconds each time. Bank 400 points in here, counted from the start of the
-    fight, shown as a bar across the top center of the screen the way a boss's
-    health would be; a death is a respawn in the arena and a joker pick, a bot
-    comes back in the arena too, nobody else's banking counts against the
-    player, and nobody can win the match itself. Reaching it is TUTORIAL
-    COMPLETE across the screen with a fanfare, the settings remember it, and
-    the gate on the two portals opens, one to Play and one to the Garage.
+7. **Items.** One room 24 by 17 cells with three stations round it, done in
+   any order, each box holding its own item with no roulette, and a line that
+   an item works once. Along the top, a run a turret guards from its middle,
+   shooting seven meters, walled off from the rest of the room so nothing is
+   shot before the lesson is understood: the Shield's box is at the run's east
+   end, out of the turret's reach, and the task is to raise the Shield and take
+   the turret's shot on it, which is what a Shield is for; the turret falls
+   silent once it has. In the south-east, a pocket shut off by a wall of light
+   across its doorway, which a kart cannot drive through and a shot can, with a
+   target behind a stub of wall inside, where no straight shot from the doorway
+   reaches: the Ricochet Cannon's task is to bounce a shot onto it, and only a
+   hit that came off a wall counts. Along the west wall, a row of three targets
+   with the Turret's box before them: drop the Turret by them and let it clear
+   them, which it does when no kart is in reach, see 6.2, as every turret does
+   while the tutorial runs and a match's never; a shot of the player's own at
+   the row counts for nothing. A box taken with its station not done and the
+   item gone comes back after three seconds. The item slot appears, pointed at.
+8. **Jokers.** In any order: two parked dummy karts that never move or shoot
+   and go down to one hit, each dropping a card as it goes, Magnet Hubcaps and
+   Payday, since both help with the coins straight after, and the cards picked
+   up; hold Tab to read the hand; and drive into the pit twice, each death
+   opening the joker pick with a pointer explaining it, for two more cards.
+   Holding four completes the lesson. The hand and the lives appear, pointed
+   at. The way out is the underpass below the start corridor, to a gate into the
+   last room.
+9. **Pads.** The last room, which this lesson, the Junction's and the fight
+   share: 30 by 15 cells of floor, no bigger than the smallest map's and wider
+   than it is tall, with the pit at the top. It starts bare, and what each
+   lesson is about grows out of the floor as that lesson starts, small to full
+   size in a ring of light, nothing seen or in play before its lesson; the room
+   is built without the baking of 6.3 so that each of these is a node of its own
+   to hold back. With this lesson, four Royal Flush pads in the corners and two
+   Jackpots: hold every pad of the room at once for a flush, then drain the
+   Jackpot by the way in, which starts full. The pot appears, pointed at. A
+   flush is holding every pad in the room rather than on the map, see 3.9, so
+   each room's pads are a flush of their own, and the tally over the top counts
+   the room the player is in.
+10. **The Junction.** The Junction grows out of the middle of the floor, and the
+    other Jackpot fills: 20 chips in the pot, then 50 points banked on the
+    Junction, in as many cash-outs as it takes, on a bar. A sign says the
+    difference: the pot is what you carry, part of it lost when you die; the
+    bank is safe for good, and 3000 wins a match. The bank appears, pointed at.
+11. **The fight.** Two item pads and six crates come in, and three bots wait in
+    three pens of their own along the east side, each 3 by 3 behind a gate of
+    its own. The first easy bot is let out at once, the second easy one at 150
+    banked and the normal one at 300, each pen's gate opening and shutting again
+    once its bot is out in the room. Bank 400 points in here, counted from the
+    start of the fight, shown as a bar across the top center of the screen the
+    way a boss's health would be; a death is a respawn and a joker pick, a bot
+    comes back on one of the room's four spawns, nobody else's banking counts
+    against the player, and nobody can win the match itself. Reaching it is
+    TUTORIAL COMPLETE across the screen with a fanfare, the settings remember
+    it, and the gate at the top of the room opens on the two portals, one to
+    Play and one to the Garage.
 
 A map may hold more than one Junction, each banking as the one does, and the
-Royal Flush is per room for the same reason: the tutorial's rooms each want
-their own. On every other map the one Junction and the one room make this the
-rule it always was.
+Royal Flush is per room for the same reason: a map of rooms wants each room's
+own. On every other map the one Junction and the one room make this the rule it
+always was.
 
 ### 9.5 The driving room
 

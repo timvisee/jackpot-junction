@@ -33,11 +33,16 @@ func _init() -> void:
 	_boxes.arrow = Vector2i(32, 10)
 
 
+## The lamp poles stand beside the targets from the start, dark.
+func _prepare() -> void:
+	for target: Target in _gallery():
+		var light := TrafficLight.add_to(target.get_parent(), target.position + LIGHT_AT)
+		_lights[target.get_instance_id()] = light
+
+
 func _begin() -> void:
 	for target: Target in _gallery():
 		target.struck.connect(_on_struck)
-		var light := TrafficLight.add_to(target.get_parent(), target.position + LIGHT_AT)
-		_lights[target.get_instance_id()] = light
 	var grid := run.grid()
 	for i: int in arena().crates.size():
 		if WALL.has_point(grid.crates[i]):

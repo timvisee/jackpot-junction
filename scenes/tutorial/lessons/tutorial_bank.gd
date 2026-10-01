@@ -1,12 +1,13 @@
 class_name TutorialBank
 extends TutorialLesson
-## Lesson 10, GAME.md 9.4a: the Junction. Fill the pot from the chips and the Jackpot, then bank
-## 50 points on the Junction, in as many cash-outs as it takes. The banked score comes into the
-## corner with it, and a sign says the difference between the pot and the bank.
+## Lesson 10, GAME.md 9.4a: the Junction, in the last room, which grows out of the floor as the
+## lesson starts. Fill the pot from the Jackpots, then bank 50 points on the Junction, in as many
+## cash-outs as it takes. The banked score comes into the corner with it, and a sign says the
+## difference between the pot and the bank.
 
-const JUNCTION := Vector2i(49, 46)
-const JACKPOT := Vector2i(55, 41)
-const WORDS := Vector2i(50, 41)
+const JUNCTION := Vector2i(36, 47)
+const JACKPOT := Vector2i(47, 52)
+const WORDS := Vector2i(36, 50)
 const NEED := 50
 const POT := 20
 
@@ -17,18 +18,17 @@ var _banked := 0
 
 func _init() -> void:
 	title = "The Junction"
-	gate_cell = Vector2i(59, 46)
-	spawn_cell = Vector2i(43, 47)
-	facing = Vector3(1.0, 0.0, 0.0)
-	next_cell = Vector2i(62, 45)
+	spawn_cell = TutorialPads.SPAWN
 	reveals = [[&"bank", "Your bank: safe for good", []]]
-	_fill = add_task("Fill your pot with chips", "Drive over the chips and into the Jackpot")
+	_fill = add_task("Fill your pot from the Jackpot", "Drive into the Jackpot and wait")
 	_fill.arrow = JACKPOT
 	_bank = add_task("Bank 50 points at the Junction", "Drive onto the Junction and wait", [], true)
 	_bank.arrow = JUNCTION
 
 
 func _begin() -> void:
+	for pad: JunctionPad in arena().junctions:
+		TutorialReveal.show(pad)
 	var zone := jackpot_near(JACKPOT)
 	if zone != null:
 		arena().activate_jackpot(zone.index)

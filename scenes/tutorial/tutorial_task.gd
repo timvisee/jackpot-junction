@@ -4,6 +4,9 @@ extends RefCounted
 ## the kart while it is the one being done, with the controls for it drawn in, and a bar where it
 ## is a matter of how far, or a count where it is a matter of how many.
 
+## How long the tick box stays lit after one of a count, in seconds.
+const TICKED_FOR := 0.8
+
 var text := ""
 ## The hint's words, with a gap for each of [member actions]: two actions are the two ends of one
 ## control, a stick on a pad, and are drawn as one. Simple driving, GAME.md 4.2, has its own words
@@ -23,6 +26,9 @@ var of := 0
 var arrow := Vector2i(-1, -1)
 var done := false
 
+## When one of the count was last done, in engine seconds, or never.
+var _ticked_at := -INF
+
 
 func complete() -> void:
 	done = true
@@ -39,8 +45,14 @@ func advance(by: float, total: float) -> void:
 ## One more of the count, and done once they are all there.
 func tally() -> void:
 	count += 1
+	_ticked_at = Time.get_ticks_msec() * 0.001
 	if count >= of:
 		complete()
+
+
+## Whether one of the count was done a moment ago, for the tick box to light up for it.
+func just_ticked() -> bool:
+	return Time.get_ticks_msec() * 0.001 - _ticked_at < TICKED_FOR
 
 
 ## The line on the checklist, with the count where there is one, and simple driving's own words

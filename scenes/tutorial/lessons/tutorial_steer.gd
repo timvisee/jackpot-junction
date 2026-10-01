@@ -2,7 +2,8 @@ class_name TutorialSteer
 extends TutorialLesson
 ## Lesson 2, GAME.md 9.4a: steer, round the pillar, a circle and a half to the left and then to
 ## the right, counted from the kart's heading while it is moving forward, so sawing the wheel back
-## and forth adds up to nothing. The room has the two pads that switch the way of driving, 4.2.
+## and forth adds up to nothing. The room has the two pads that switch the way of driving, 4.2,
+## which are there from the start and stay.
 
 ## How far round each way, in turns, and how fast the kart has to be going for a turn to count.
 const TURNS := 1.5
@@ -15,7 +16,6 @@ const PADS_SIGN := Vector2i(18, 33)
 var _left: TutorialTask
 var _right: TutorialTask
 var _heading := 0.0
-var _pads: Array[Node] = []
 
 
 func _init() -> void:
@@ -23,20 +23,22 @@ func _init() -> void:
 	gate_cell = Vector2i(30, 25)
 	spawn_cell = Vector2i(18, 33)
 	next_cell = Vector2i(33, 26)
-	var steer: Array[StringName] = [InputActions.STEER_LEFT, InputActions.STEER_RIGHT]
-	_left = add_task("Turn left, a circle and a half", "%s to steer left", steer, true)
+	_left = add_task(
+		"Turn left, a circle and a half", "%s to steer left", [InputActions.STEER_LEFT], true
+	)
 	_left.simple_hint = "Push %s the way to go, round to the left"
 	_left.simple_way = true
-	_right = add_task("Turn right, a circle and a half", "%s to steer right", steer, true)
+	_right = add_task(
+		"Turn right, a circle and a half", "%s to steer right", [InputActions.STEER_RIGHT], true
+	)
 	_right.simple_hint = "Push %s the way to go, round to the right"
 	_right.simple_way = true
 
 
-func _begin() -> void:
-	_heading = kart().motor.heading
+func _prepare() -> void:
 	var holder := run.match_node
-	var simple := ModePad.add_to(holder, run.cell(SIMPLE_PAD), Settings.DRIVE_SIMPLE)
-	var advanced := ModePad.add_to(holder, run.cell(ADVANCED_PAD), Settings.DRIVE_ADVANCED)
+	ModePad.add_to(holder, run.cell(SIMPLE_PAD), Settings.DRIVE_SIMPLE)
+	ModePad.add_to(holder, run.cell(ADVANCED_PAD), Settings.DRIVE_ADVANCED)
 	var board := Label3D.new()
 	board.text = "HOW TO DRIVE\ndrive onto a pad to switch\nthe pause menu changes it later too"
 	board.font_size = 48
@@ -47,9 +49,12 @@ func _begin() -> void:
 	board.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	board.no_depth_test = true
 	var at := run.cell(PADS_SIGN)
-	board.position = Vector3(at.x, 2.7, at.z)
+	board.position = Vector3(at.x, SIGN_HEIGHT, at.z)
 	holder.add_child(board)
-	_pads = [simple, advanced, board]
+
+
+func _begin() -> void:
+	_heading = kart().motor.heading
 
 
 func step(_delta: float) -> void:
@@ -64,11 +69,3 @@ func step(_delta: float) -> void:
 		_left.advance(turned, TURNS * TAU)
 	elif task == _right and turned < 0.0:
 		_right.advance(-turned, TURNS * TAU)
-
-
-func end() -> void:
-	for pad: Node in _pads:
-		if is_instance_valid(pad):
-			pad.queue_free()
-	_pads.clear()
-	super()

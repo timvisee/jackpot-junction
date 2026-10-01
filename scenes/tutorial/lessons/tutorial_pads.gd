@@ -1,10 +1,16 @@
 class_name TutorialPads
 extends TutorialLesson
-## Lesson 9, GAME.md 9.4a: the pads. Hold every Royal Flush pad of the room at once for a flush,
-## then drain the Jackpot, which starts full. The pot comes into the corner with it.
+## Lesson 9, GAME.md 9.4a: the pads, in the last room, which the pads lesson, the Junction's and
+## the fight share, see [TutorialReveal]. The room starts bare but for its pit; the four Royal
+## Flush pads and the two Jackpots grow out of the floor as the lesson starts. Hold every pad of
+## the room at once for a flush, then drain the Jackpot, which starts full. The pot comes into the
+## corner with it.
 
-const JACKPOT := Vector2i(31, 47)
-const FLUSH_SIGN := Vector2i(31, 41)
+## Where the player comes back in the last room, which way they face, and where the Jackpot that
+## starts full is.
+const SPAWN := Vector2i(27, 53)
+const JACKPOT := Vector2i(25, 41)
+const FLUSH_SIGN := Vector2i(36, 44)
 
 var _flush: TutorialTask
 var _drain: TutorialTask
@@ -13,17 +19,44 @@ var _zone: JackpotZone
 
 func _init() -> void:
 	title = "Pads"
-	gate_cell = Vector2i(41, 46)
-	spawn_cell = Vector2i(24, 54)
-	next_cell = Vector2i(43, 47)
+	spawn_cell = SPAWN
 	reveals = [[&"pot", "Your pot: chips times mult", []]]
 	_flush = add_task("Hold all four Royal Flush pads at once", "Drive over each of the pads")
-	_flush.arrow = Vector2i(25, 41)
+	_flush.arrow = Vector2i(24, 44)
 	_drain = add_task("Drain the Jackpot", "Drive in and wait", [], true)
 	_drain.arrow = JACKPOT
 
 
+## The last room starts bare: everything but its pit is held back for the lesson it is for.
+func _prepare() -> void:
+	var room := run.grid().region_of(SPAWN)
+	var grid := run.grid()
+	for pad: FlushPad in arena().flush_pads:
+		if pad.group == room:
+			TutorialReveal.hold(pad)
+	for zone: JackpotZone in arena().jackpot_zones:
+		if grid.region_of(grid.cell_of(zone.position)) == room:
+			TutorialReveal.hold(zone)
+	for pad: JunctionPad in arena().junctions:
+		if grid.region_of(grid.cell_of(pad.position)) == room:
+			TutorialReveal.hold(pad)
+	for pad: PowerUpPad in arena().power_pads:
+		if grid.region_of(grid.cell_of(pad.position)) == room:
+			TutorialReveal.hold(pad)
+	for crate: Crate in arena().crates:
+		if grid.region_of(grid.cell_of(crate.position)) == room:
+			TutorialReveal.hold(crate)
+
+
 func _begin() -> void:
+	var room := run.grid().region_of(SPAWN)
+	var grid := run.grid()
+	for pad: FlushPad in arena().flush_pads:
+		if pad.group == room:
+			TutorialReveal.show(pad)
+	for zone: JackpotZone in arena().jackpot_zones:
+		if grid.region_of(grid.cell_of(zone.position)) == room:
+			TutorialReveal.show(zone)
 	_zone = jackpot_near(JACKPOT)
 	if _zone != null:
 		arena().activate_jackpot(_zone.index)

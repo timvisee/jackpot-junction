@@ -21,7 +21,7 @@ const EASY: BotDifficulty = preload("res://data/ai/easy.tres")
 const CAMERA := 26.0
 const SIGN_HEIGHT := 2.7
 ## Which of the two portals at the end leads to Play; the other leads to the Garage.
-const PLAY_PORTAL := Vector2i(86, 55)
+const PLAY_PORTAL := Vector2i(35, 37)
 ## What the end says, and for how long.
 const DONE := "TUTORIAL COMPLETE"
 const DONE_SHOWN := 5.0
@@ -48,6 +48,11 @@ func _ready() -> void:
 	match_node.with_kart_hints = false
 	match_node.power_ups = load("res://data/powerups/all.tres")
 	add_child(match_node)
+	# Built without baking: the last room holds its pads, Junction and boxes back until their
+	# lessons, see [TutorialReveal], which takes each being a node of its own.
+	match_node.prepare_arena(true).bake_scenery = false
+	# A turret dropped in here shoots the targets too, GAME.md 9.4a.
+	Turret.hunts_targets = true
 	await LoadingScreen.put_up(self, match_node, "Tutorial")
 	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.ANY, 0)]
 	for i: int in TutorialJokers.DUMMIES:
@@ -80,6 +85,10 @@ func _ready() -> void:
 	menu.add_entry("Skip step", run.skip)
 	_ask_how_to_drive()
 	loaded.emit()
+
+
+func _exit_tree() -> void:
+	Turret.hunts_targets = false
 
 
 ## The deck without its Cursed cards, GAME.md 9.4a: a trap is no way to meet a mechanic.

@@ -312,6 +312,7 @@ func _tutorial_pieces() -> void:
 	arrow.point_at(_spot(Vector3(0.0, 0.0, -30.0)))
 	ModePad.add_to(_match, _spot(Vector3(-6.0, 0.0, -3.0)), Settings.DRIVE_SIMPLE)
 	TrafficLight.add_to(_match, _spot(Vector3(-6.0, 0.0, 3.0))).set_green()
+	Hologram.add_to(_match, _spot(Vector3(0.0, 0.0, 6.0)), Vector3(2.5, 1.0, 0.3))
 
 
 func _drift() -> void:
