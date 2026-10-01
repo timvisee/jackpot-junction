@@ -205,8 +205,8 @@ func start_economy(
 		crate.respawn_delay = rules.crate_respawn
 		if not crate.destroyed.is_connected(_on_crate_destroyed):
 			crate.destroyed.connect(_on_crate_destroyed.bind(crate))
-	if junction != null:
-		junction.rules = rules
+	for pad: JunctionPad in junctions:
+		pad.rules = rules
 	for zone: JackpotZone in jackpot_zones:
 		zone.rules = rules
 		if not zone.emptied.is_connected(_on_jackpot_emptied):

@@ -99,8 +99,9 @@ func _tally() -> void:
 		return
 	var winner := match_node.flush_lock_slot
 	var ours := winner >= 0 and (_plays_here(winner) or _watching())
+	var here := _pads_here()
 	if match_node.flush_lock_left > 0.0 and ours:
-		pads = match_node.arena.flush_pads.size()
+		pads = here.size()
 		for i: int in pads:
 			held.append(match_node.slots[winner].color())
 			holders.append(winner)
@@ -110,7 +111,7 @@ func _tally() -> void:
 		return
 	var by_slot: Dictionary[int, Array] = {}
 	var free: Array[int] = []
-	for pad: FlushPad in match_node.arena.flush_pads:
+	for pad: FlushPad in here:
 		pads += 1
 		if pad.owner_slot >= 0 and not pad.is_disabled():
 			if not by_slot.has(pad.owner_slot):
@@ -146,10 +147,27 @@ func _tally() -> void:
 func _held_here() -> bool:
 	if match_node == null or match_node.arena == null:
 		return false
-	for pad: FlushPad in match_node.arena.flush_pads:
+	for pad: FlushPad in _pads_here():
 		if pad.owner_slot >= 0 and not pad.is_disabled() and _plays_here(pad.owner_slot):
 			return true
 	return false
+
+
+## The pads of the room the first player at this screen is in, GAME.md 3.9: every pad on a map of
+## one room, which is every map but the tutorial's, and every pad on a watcher's screen.
+func _pads_here() -> Array[FlushPad]:
+	var all := match_node.arena.flush_pads
+	var grid := match_node.arena.grid
+	for slot: PlayerSlot in match_node.slots:
+		if not slot.is_local_human() or slot.kart == null:
+			continue
+		var room := grid.region_of(grid.cell_of(slot.kart.global_position))
+		var mine: Array[FlushPad] = []
+		for pad: FlushPad in all:
+			if pad.group == room:
+				mine.append(pad)
+		return mine
+	return all
 
 
 func _plays_here(slot: int) -> bool:

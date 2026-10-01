@@ -19,6 +19,10 @@ var coins := 3
 var alive := true
 ## Whether this target takes the host's word for it rather than keeping its own respawn clock.
 var puppet := false
+## How the last hit came: from a turret, and off a wall first. For the tutorial's lessons that
+## ask for one or the other, GAME.md 9.4a.
+var hit_by_turret := false
+var hit_after_bounce := false
 
 var _left := 0.0
 var _face: Node3D
@@ -48,6 +52,8 @@ func is_targetable() -> bool:
 func take_hit(bullet: Bullet) -> bool:
 	if not alive:
 		return false
+	hit_by_turret = bullet.from_turret
+	hit_after_bounce = bullet.bounced
 	_stand(false)
 	_left = RESPAWN_DELAY
 	Burst.spawn(get_parent(), global_position + Vector3(0.0, FACE_HEIGHT, 0.0), RINGS[1], 0.7, 12)

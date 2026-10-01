@@ -135,6 +135,13 @@ func cell_center(cell: Vector2i) -> Vector3:
 	)
 
 
+## The cell under [param point] on the floor plane, the reverse of [method cell_center].
+func cell_of(point: Vector3) -> Vector2i:
+	return Vector2i(
+		floori(point.x / cell_size + width * 0.5), floori(point.z / cell_size + height * 0.5)
+	)
+
+
 ## World position of the center of a rectangle of cells, on the floor plane.
 func rect_center(rect: Rect2i) -> Vector3:
 	var center := Vector2(rect.position) + Vector2(rect.size) * 0.5

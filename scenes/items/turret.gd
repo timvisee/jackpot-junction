@@ -10,9 +10,12 @@ const TURN_RATE := PI
 const AIM_TOLERANCE := 0.09
 const RANGE := 30.0
 
+## Whether every turret shoots the gallery's targets of 6.2 as well, when no kart is in reach: the
+## tutorial's do, GAME.md 9.4a, turned on by the tutorial for as long as it runs, and a match's
+## never. [member shoots_targets] is the same for one turret.
+static var hunts_targets := false
+
 var owner_slot := -1
-## Whether it shoots the gallery's targets of 6.2 as well, when no kart is in reach: the tutorial's
-## turrets do, GAME.md 9.4a, and a match's never.
 var shoots_targets := false
 ## How far it shoots, [constant RANGE] unless told otherwise.
 var reach := RANGE
@@ -76,7 +79,7 @@ func _physics_process(delta: float) -> void:
 		destroy()
 		return
 	var target: Node3D = _nearest_enemy()
-	if target == null and shoots_targets:
+	if target == null and (shoots_targets or hunts_targets):
 		target = _nearest_target()
 	if target == null:
 		return
