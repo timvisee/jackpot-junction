@@ -3585,15 +3585,15 @@ rules have a switch for it.
 ##........................###########........................#............................##
 ##........................###########........................#............................##
 ##........................###########...R................R...#............................##
-##...#################....###########........................#............................##
+######################....###########........................#............................##
 ##........................###########........B...............#............................##
-##........................###########........................#............................##
+##.##.....................###########........................#............................##
 ##.R......................G.....BB...........................#............................##
 ##........................G.....BB..............R............G............................##
 ##.R......................G.....BB...........................G............................##
 ##........................G.....BB...........................G............................##
 ##.R...............##################........................G............................##
-##.................#......###########.......B.......B........#............................##
+##.##..............#......###########.......B.......B........#............................##
 ##....................#..R###########........................#............................##
 ##....................#...###########...R................R...#............................##
 ##.................#......###########........................#............................##
@@ -3648,28 +3648,32 @@ rules have a switch for it.
 **The checklist.** A panel in the top right corner, clear of the player's own
 corner on the left, headed "Objectives · " and the lesson's name, with its
 tasks under it, one lesson at a time; the kill feed, which hangs there too,
-hangs under the list while the list is up. A task that is done is ticked and
-grayed with a short chime; the one
+hangs under the list while the list is up. The tick boxes, the bars and the
+rules are in the gold the game's name is written in. A task that is done is
+ticked and grayed with a short chime; the one
 being done is bright, with a bar under it where it is a matter of how far, and
 a count's box lights for a moment at each one of the count; tasks not yet
 reached are not shown, so the list grows as the lesson goes. A lesson done in
 any order shows all its tasks from the start, the one being done bright and the
-rest a shade dimmer, its stations set apart by a short cyan rule with room round
+rest a shade dimmer, its stations set apart by a short rule with room round
 it. A lesson done is a big green check in place of its tasks for a second, under
 its name, and then the next lesson, or nothing until that starts: a list of
 lessons done was noise. On a touch screen it hangs under the menu button.
 
 **The notice.** A panel at the top center of the screen, where the fight's bar
-goes and under that bar while it is up, and under a pointer's card while one is,
-with a line or two about the thing in front of the player, where signs floating
-in the room used to be, short and to the point: "Welcome to Jackpot Junction!"
-under the game's mark at the very start, until the kart has driven four meters;
-the two ways to drive, while the kart is near the pads of the steering room;
-"Nitro burns the tank for a burst of speed. It refills on its own."; "Drift for
-tight corners. Hold a drift to build turbo."; nothing in the gallery; "Drive
+goes and under that bar while it is up, and under a pointer's card while one is
+up there, with a line or two about the thing in front of the player, where signs
+floating in the room used to be, short and to the point, an information mark in
+front of each so the panel reads as a note and not as something to answer. The
+first is the welcome, "Welcome to" under the game's mark and over its name in
+the title screen's gold, with no mark in front, until the kart has driven four
+meters; then "Choose Simple or Advanced driving. Change it anytime in the [Esc]
+menu.", Esc being whatever pauses, while the kart is near the pads of the
+steering room; "Use nitro to boost your speed. It refills over time."; "Drift
+in tight corners. Hold a drift to build turbo."; nothing in the gallery; "Drive
 over a box to pick up an item. Use it with E.", until one has been used; "Joker
-cards bend rules in your favor. Killing a kart may drop a joker. Dying lets you
-choose a joker. Use them to your advantage."; "Royal Flush pads pay out coins
+cards bend rules in your favor. A killed kart may drop a joker. When you die you
+can choose a joker. Use them to your advantage."; "Royal Flush pads pay out coins
 when you hold them. Hold all four to lock them in."; "Stand on a Jackpot to
 collect its pot."; "Mult multiplies your pot. Balance coins and mult for the
 best score."; "You lose part of your pot when you die. Only banked points are
@@ -3713,13 +3717,15 @@ done, or until a task the lesson names: the nitro tank and the speedometer
 with nitro, "Your nitro"; the item slot with the first item picked up in the
 items lesson, "Your item, E to use it", which stays until that item has done
 its piece; the lives with jokers, and the hand of jokers with the first card
-picked up in that lesson, "Your jokers, hold Tab to read them", Tab being
-whatever opens the hand, which stays until the hand has been read; the pot with
+picked up in that lesson, pointed at, "Your jokers, hold Tab to read them", Tab
+being whatever opens the hand, only once the parked karts, the cards and the pit
+are done, so the reading is the one thing left when the pointer says how, and
+until the hand has been read; the pot with
 the pads lesson, "Your pot: where the coins go", and the mult pill of the pot
 with its dice, "Your mult: coins times this is your pot"; and the bank with
 the Junction's, "Your bank: safe for good", with a second card and frame on the
 pot at the same time, "Your pot: banked here", since banking is the one moving
-to the other. The
+to the other, both up until the pot has been banked. The
 corner's own control hints stay off throughout: the hint over the kart is saying
 it.
 
@@ -3743,13 +3749,14 @@ The lessons, each in its own room, in order:
    filling over 15 cells, 18.75 m, driven, with four cells of road left before
    the gate, so it is open before the kart gets there rather than driven against.
 2. **Steering.** A room 22 by 17 cells with a 2-by-2 pillar in the middle to go
-   round, and the two mode pads either side of the way in. Two tasks, each with a bar: a
-   circle and a half to the left, then a circle and a half to the right, 540°
-   each, counted from the kart's heading, moving or standing, so turning on the
-   spot counts, sawing the wheel back and forth adds up to nothing and one
-   direction alone is not enough. Each hint names the one key that steers that
-   way, not the pair.
-   Simple driving is told to push the way to go.
+   round, and the two mode pads either side of the way in. Two tasks, both on
+   the list from the start, each with a bar: turn left and turn right, a circle
+   and a half each, in either order or both at once, counted from the kart's
+   heading, moving or standing, so turning on the spot counts, sawing the wheel
+   back and forth adds up to nothing and one direction alone is not enough. The
+   words name no distance: the bars say how far is left. Each hint names the one
+   key that steers that way, not the pair. Simple driving is told to push the
+   way to go.
 3. **Brake and reverse.** A straight of 16 by 6 cells going east. Brake to a stop
    from speed, then drive backwards, 5 m of it on a bar that names no distance.
    Simple driving has no reverse, since letting go is the brake, so its second
@@ -3779,27 +3786,31 @@ The lessons, each in its own room, in order:
    whole: one row of it down, both boxes deep, is a kart's width and enough, and
    the boxes never come back in here. The way on is where they were.
 7. **Items.** One room 24 by 17 cells with three stations round it, done in
-   any order, each box holding its own item with no roulette, the station's name
-   painted on the floor by its box and nothing else said in the room: the
-   checklist and the hint carry the instructions, and three signs of them
-   floating in the air were noise. Along the top, a run a turret guards from its middle,
-   shooting seven meters, walled off from the rest of the room so nothing is
-   shot before the lesson is understood: the Shield's box is at the run's east
-   end, out of the turret's reach, and the task is to raise the Shield and take
-   the turret's shot on it, which is what a Shield is for, the arrow on the
-   turret with no ring; the turret falls silent once it has. In the south-east,
-   a pocket shut off by a wall of light
-   across its doorway, which a kart cannot drive through and a shot can, with a
-   pillar one cell thin in the middle and the target on the far side of it,
-   where no straight shot from the doorway reaches and one bounce off the
-   pocket's north or south wall does, the Ricochet's shots bouncing once, and a
-   thin pillar leaves the most room for the bounce: its tasks are to arm the
-   cannon, with the item key, and bounce a shot onto the target, and only a hit
-   that came off a wall counts. Along the west wall, a row of three targets
-   with the Turret's box before them: drop the Turret by them and let it clear
-   them, which it does when no kart is in reach, see 6.2, as every turret does
-   while the tutorial runs and a match's never; a shot of the player's own at
-   the row counts for nothing. A box taken with its station not done and the
+   any order, each box holding its own item with no roulette, and nothing
+   written in the room: the checklist, the hint and the notice carry the
+   instructions, and the floor says the rest in paint. Along the top, a dead-end
+   run with a turret at its far end that is part of the room: steel gray, on a
+   hazard-striped plinth, never destroyed, a shot at it stopped and nothing more,
+   shooting seven meters, with a hazard line across the run where its reach
+   begins. The Shield's box is at the run's open end, out of the turret's reach,
+   and the task is to arm the Shield, cross the line and take the turret's shot
+   on it, which is what a Shield is for, the arrow on the turret with no ring;
+   the turret stops shooting once it has, and stands. In the south-east, a
+   pocket shut off by a wall of light across its doorway, which a kart cannot
+   drive through and a shot can, with a pillar one cell thin in the middle and
+   the target on the far side of it, where no straight shot from the doorway
+   reaches and one bounce off the pocket's north wall does, the Ricochet's shots
+   bouncing once; the path of that shot is dotted on the floor, from the ringed
+   spot to stand on, through the doorway, off the wall and onto the target, so
+   the task is to arm the cannon, with the item key, line the kart up with the
+   dots and fire, which is a bank shot shown rather than an angle found by
+   trial; only a hit that came off a wall counts. Along the west wall, three
+   targets in a pocket of their own behind a wall of light, so no kart drives up
+   to them, and a hazard box on the floor in front of it where the Turret goes:
+   pick it up, drop it in the box and let it clear them, which it does when no
+   kart is in reach, see 6.2, as every turret does while the tutorial runs and a
+   match's never; a shot of the player's own at the row counts for nothing. A
+   box taken with its station not done and the
    item gone comes back after three seconds, unless the Ricochet is still
    armed, and the Ricochet's box comes back at once when its shots are spent
    with the bounce still to do, since there is nothing else to wait for. The
@@ -3814,8 +3825,8 @@ The lessons, each in its own room, in order:
    floor, counts as having picked them up; read each card in the hand, on a bar
    that fills a card at a time, with Tab held and the steering walking the hand
    on a keyboard or a pad, or a tap on each card on a touch screen, see 3.7, the
-   hand's own hint saying how; and drive into the pit, a few cells on from the
-   karts, twice, each death
+   hand's own hint saying how, the last task on the list; and drive into the pit,
+   a few cells on from the karts, twice, each death
    opening the joker pick with a pointer explaining it, for two more cards.
    Holding four completes the lesson. The lives appear with the lesson, the
    hand with the first card, pointed at until the hand has been read. The way
@@ -3853,7 +3864,7 @@ The lessons, each in its own room, in order:
 11. **The fight.** The checklist has the goal, bank 1000 points, and under a
     rule seven hints, each a thing worth doing in a match, ticked on its own
     when it happens and all of them ticked with the goal: take out another kart,
-    reach a mult of 4, drain a Jackpot, make a Royal Flush, bank your whole pot
+    reach a mult of 4, drain a Jackpot, claim a Royal Flush, bank your whole pot
     at the Junction, use an item, hold five jokers. From the goal the match
     point of 3.4 is on, MATCH POINT called, the gold tracks and the burning pot,
     on a match point of the room's own since the rules have no target to end on.
@@ -3863,7 +3874,8 @@ The lessons, each in its own room, in order:
     its own. The first easy bot is let out at once, the second easy one at 300
     banked and the normal one at 600, each pen's gate opening and shutting again
     once its bot is out in the room. Bank 1000 points in here, counted from the
-    start of the fight, shown as a bar across the top center of the screen the
+    start of the fight, the match point counted the same way, from where the
+    bank stood as the fight began, shown as a bar across the top center of the screen the
     way a boss's health would be, with the Royal Flush tally of 8.3 moved down
     under it for the while, and no line over the kart: there is nothing to say
     but the bar; a death is a respawn and a joker pick, a bot comes back on one
@@ -3873,11 +3885,14 @@ The lessons, each in its own room, in order:
     fight on, and the way out is to win or to leave. Reaching it is
     CONGRATULATIONS across
     the screen with a fanfare and the fireworks of 8.3 over the room in the
-    player's color, the bots dying where they stand the way a kart that dies
-    does, for good, with their bullets, their turrets and their decoys gone, so
-    nothing of the fight shoots on or banks on, the settings remember it, and
-    the four-cell gate at the top of the room opens on an alcove 8 by 5 with the
-    two portals in it, one to Play and one to the Garage.
+    player's color, the bots blown up where they stand, a bang each and the
+    death a kart has, for good, with their bullets, their turrets and their
+    decoys gone, so nothing of the fight shoots on or banks on, the settings
+    remember it, the four-cell gate at the top of the room opens on an alcove 8
+    by 5 with the two portals in it, one to Play and one to the Garage, and the
+    arrow points the way through it. A kart parked on the Junction with an
+    empty pot finishes a cash-out of nothing every tick, which neither the
+    Junction's lesson nor the fight's hint counts.
 
 A map may hold more than one Junction, each banking as the one does, and the
 Royal Flush is per room for the same reason: a map of rooms wants each room's

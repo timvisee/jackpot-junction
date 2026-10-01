@@ -1,36 +1,45 @@
 class_name TutorialItems
 extends TutorialLesson
 ## Lesson 7, GAME.md 9.4a: items, three stations round one room, done in any order, each box
-## holding its own item with no roulette. Along the top, the run a turret guards: pick the Shield
-## up at the east end, out of the turret's reach, raise it and take the turret's shot on it, which
-## is what a Shield is for. In the south-east, the pocket shut off by a hologram a shot passes and
-## a kart does not, with a thin pillar in the middle and the target past it, where only a shot
-## bounced off the pocket's north or south wall reaches: pick the Ricochet Cannon up, arm it, and
-## bounce a shot onto the target. Along the west wall, a row of three targets: pick the Turret up,
-## drop it by them and let it clear them, which only it can, a shot of the player's counting for
-## nothing. A box taken with its station not done and the item gone comes back a moment later. The
-## item slot comes into the corner with the first item picked up, pointed at until that item has
-## done its piece. Each station's name is painted on the floor by its box.
+## holding its own item with no roulette. Along the top, a dead-end run with a turret at the far
+## end that is part of the room, on a hazard plinth, never destroyed: pick the Shield up at the
+## open end, out of the turret's reach, arm it, cross the hazard line where the reach begins and
+## take the turret's shot on it, which is what a Shield is for. In the south-east, the pocket shut
+## off by a hologram a shot passes and a kart does not, with a thin pillar in the middle and the
+## target past it, where only a shot bounced off the pocket's north wall reaches, and the path of
+## that shot dotted on the floor from the spot to stand on: pick the Ricochet Cannon up, arm it,
+## line up with the dots and fire. Along the west wall, three targets behind a hologram of their
+## own and a hazard box on the floor where to drop the Turret: pick it up, drop it there and let it
+## clear them, which only it can, a shot of the player's counting for nothing. A box taken with
+## its station not done and the item gone comes back. The item slot comes into the corner with
+## the first item picked up, pointed at until that item has done its piece.
 
 const SHIELD: PowerUp = preload("res://data/powerups/shield.tres")
 const RICOCHET: PowerUp = preload("res://data/powerups/ricochet_cannon.tres")
 const TURRET: PowerUp = preload("res://data/powerups/turret.tres")
-## Where everything stands, by cell: the boxes, the guard, the window and the pocket's target, the
-## spot to shoot from, the row and where to drop the Turret for it.
+## Where everything stands, by cell: the boxes, the guard and the run it covers, the window and
+## the pocket's target, the spot to shoot from and where the shot banks, the row and its own
+## window, and where to drop the Turret for it.
 const SHIELD_BOX := Vector2i(24, 3)
-const GUARD := Vector2i(13, 3)
+const GUARD := Vector2i(3, 3)
+const RUN_ROWS := Vector2i(1, 5)
 const RICOCHET_BOX := Vector2i(16, 15)
 const WINDOW := Vector2i(19, 15)
 const WINDOW_TALL := 2
 const POCKET := Vector2i(25, 15)
 const SHOOT_FROM := Vector2i(17, 15)
+## Where the bank shot meets the pocket's north wall, in cells, on the wall's own line.
+const BANK_AT := Vector2(21.5, 14.0)
 const TURRET_BOX := Vector2i(9, 11)
 const ROW: Array[Vector2i] = [Vector2i(3, 9), Vector2i(3, 11), Vector2i(3, 13)]
+const ROW_WINDOW := Vector2i(4, 9)
+const ROW_WINDOW_TALL := 5
 const DROP_AT := Vector2i(6, 11)
+const DROP_BOX_CELLS := 3
 ## How far the guard shoots, in meters, and how long a taken box takes to come back, in seconds.
 const GUARD_REACH := 7.0
 const RETURN_WAIT := 3.0
-const GUARD_INK := Color("#FF3B30")
+const GUARD_INK := Color(0.6, 0.62, 0.66)
 ## The word at the top until an item has been used, with the item key named in it.
 const WORDS := "Drive over a box to pick up an item.\nUse it with %s."
 
@@ -46,6 +55,7 @@ var _boxes: Dictionary[StringName, ItemBox] = {}
 var _waits: Dictionary[StringName, float] = {}
 var _guard: Turret
 var _window: Hologram
+var _row_window: Hologram
 var _row_hit: Dictionary[int, bool] = {}
 var _slot_shown := false
 
@@ -57,28 +67,28 @@ func _init() -> void:
 	spawn_cell = Vector2i(24, 10)
 	facing = Vector3(-1.0, 0.0, 0.0)
 	next_cell = Vector2i(3, 20)
-	_take_shield = add_task("Pick up the Shield", "Drive over the box")
+	_take_shield = add_task("Pick up the Shield", "")
 	_take_shield.arrow = SHIELD_BOX
 	_pop = add_task(
-		"Raise it and take the turret's shot",
-		"%s to raise it, then into the turret's fire",
+		"Arm it and take the turret's shot",
+		"%s to arm it, then across the hazard line",
 		[InputActions.USE_ITEM]
 	)
 	_pop.arrow = GUARD
 	_pop.ringed = false
-	_take_ricochet = add_task("Pick up the Ricochet Cannon", "Drive over the box")
+	_take_ricochet = add_task("Pick up the Ricochet Cannon", "")
 	_take_ricochet.arrow = RICOCHET_BOX
 	_arm = add_task("Arm it", "%s to arm the cannon", [InputActions.USE_ITEM])
 	_bounce = add_task(
-		"Bounce a shot onto the hidden target",
-		"%s to fire at a wall past the pillar",
+		"Bank a shot onto the hidden target",
+		"Line up with the dots, %s to fire",
 		[InputActions.FIRE]
 	)
 	_bounce.arrow = SHOOT_FROM
-	_take_turret = add_task("Pick up the Turret", "Drive over the box")
+	_take_turret = add_task("Pick up the Turret", "")
 	_take_turret.arrow = TURRET_BOX
 	_clear = add_task(
-		"Drop it and let it clear the three targets",
+		"Drop it in the box and let it clear the targets",
 		"%s to drop the turret",
 		[InputActions.USE_ITEM]
 	)
@@ -87,8 +97,9 @@ func _init() -> void:
 	stations = [[_take_shield, _pop], [_take_ricochet, _arm, _bounce], [_take_turret, _clear]]
 
 
-## The room's furniture, there from the start: the guard, the window, the boxes and the names on
-## the floor by them.
+## The room's furniture, there from the start: the guard on its plinth and the hazard line where
+## its reach begins, the two windows, the dotted bank shot, the hazard box for the Turret and the
+## boxes.
 func _prepare() -> void:
 	_place(&"shield", SHIELD, SHIELD_BOX)
 	_place(&"ricochet_cannon", RICOCHET, RICOCHET_BOX)
@@ -96,6 +107,7 @@ func _prepare() -> void:
 	_guard = Turret.new()
 	_guard.name = "Guard"
 	_guard.owner_slot = -1
+	_guard.fixture = true
 	_guard.lifetime = 1.0e9
 	_guard.fire_interval = 1.2
 	_guard.reach = GUARD_REACH
@@ -103,15 +115,28 @@ func _prepare() -> void:
 	_guard.color = GUARD_INK
 	run.match_node.bullets.get_parent().add_child(_guard)
 	_guard.global_position = run.cell(GUARD)
-	_guard.rotation.y = -PI * 0.5
+	_guard.rotation.y = PI * 0.5
 	var size := run.grid().cell_size
+	var holder := run.match_node
+	# Where the guard's reach begins, across the run.
+	var reach_x := run.cell(GUARD).x + GUARD_REACH
+	var run_top := run.cell(Vector2i(GUARD.x, RUN_ROWS.x)).z - size * 0.5
+	var run_bottom := run.cell(Vector2i(GUARD.x, RUN_ROWS.y)).z + size * 0.5
+	HazardLine.lay(holder, Vector3(reach_x, 0.0, run_top), Vector3(reach_x, 0.0, run_bottom))
+	# The pocket's window, and the bank shot dotted from the spot to stand on.
 	var window_at := run.cell(WINDOW) + Vector3(0.0, 0.0, size * (WINDOW_TALL - 1) * 0.5)
-	_window = Hologram.add_to(run.match_node, window_at, Vector3(0.3, 1.0, size * WINDOW_TALL))
+	_window = Hologram.add_to(holder, window_at, Vector3(0.3, 1.0, size * WINDOW_TALL))
 	for at: Vector2i in [WINDOW, WINDOW + Vector2i(0, 1)]:
 		run.match_node.nav.set_cell_blocked(at, true)
-	paint("SHIELD", SHIELD_BOX + Vector2i(0, 1), GUARD_INK)
-	paint("RICOCHET", RICOCHET_BOX + Vector2i(0, -2), Palette.NEON_CYAN)
-	paint("TURRET", TURRET_BOX + Vector2i(0, -2), Palette.NEON_CYAN)
+	var grid := run.grid()
+	var bank := grid.cell_center(Vector2i(BANK_AT)) + Vector3(0.0, 0.0, -size * 0.5)
+	GuideDots.lay(holder, [run.cell(SHOOT_FROM), bank, run.cell(POCKET)])
+	# The row behind a window of its own, and the box to drop the Turret in.
+	var row_at := run.cell(ROW_WINDOW) + Vector3(0.0, 0.0, size * (ROW_WINDOW_TALL - 1) * 0.5)
+	_row_window = Hologram.add_to(holder, row_at, Vector3(0.3, 1.0, size * ROW_WINDOW_TALL))
+	for i: int in ROW_WINDOW_TALL:
+		run.match_node.nav.set_cell_blocked(ROW_WINDOW + Vector2i(0, i), true)
+	HazardLine.box(holder, run.cell(DROP_AT), Vector2.ONE * size * DROP_BOX_CELLS)
 
 
 func _begin() -> void:
@@ -190,10 +215,11 @@ func _place(id: StringName, item: PowerUp, cell: Vector2i) -> void:
 	_boxes[id] = box
 
 
-## The guard has done its piece once the Shield has taken its shot.
+## The guard has done its piece once the Shield has taken its shot: it stops shooting, and
+## stands, being part of the room.
 func _silence() -> void:
-	if _guard != null and is_instance_valid(_guard) and _guard.alive:
-		_guard.destroy()
+	if _guard != null and is_instance_valid(_guard):
+		_guard.reach = 0.0
 
 
 ## An item picked up: the first brings the item slot into the corner, pointed at until that item

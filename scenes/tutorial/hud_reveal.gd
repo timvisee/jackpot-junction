@@ -226,9 +226,10 @@ func is_pointing() -> bool:
 
 
 ## Where the pointer's cards end, from the top of the screen, for what else hangs up there to
-## keep clear of; nothing while no card is up.
+## keep clear of; nothing while no card is up, and nothing for the hand's card, which hangs at
+## the bottom of the screen.
 func card_bottom() -> float:
-	if not _pointer.visible:
+	if not _pointer.visible or _pointing == &"hand":
 		return 0.0
 	var bottom := _pointer.position.y + _pointer.get_combined_minimum_size().y
 	if _also_pointer.visible:

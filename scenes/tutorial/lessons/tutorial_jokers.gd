@@ -21,8 +21,8 @@ const PIT_RECT := Rect2i(7, 52, 2, 2)
 const WANTED := 4
 ## The word at the top for the lesson.
 const WORDS := (
-	"Joker cards bend rules in your favor.\nKilling a kart may drop a joker.\n"
-	+ "Dying lets you choose a joker.\nUse them to your advantage."
+	"Joker cards bend rules in your favor.\nA killed kart may drop a joker.\n"
+	+ "When you die you can choose a joker.\nUse them to your advantage."
 )
 
 var _shoot: TutorialTask
@@ -48,12 +48,12 @@ func _init() -> void:
 	_pick_up = add_task("Pick up the cards they dropped", "Drive over a card")
 	_pick_up.of = DUMMIES
 	_pick_up.arrow = DUMMY_SPOTS[1]
-	_read = add_task("Read each card in your hand", "", [], true)
-	_pit = add_task("Drive into the pit and pick a joker", "%s to take a card", [InputActions.FIRE])
+	_pit = add_task("Drive into the pit and pick a joker", "")
 	_pit.of = WANTED - DUMMIES
 	_pit.arrow = PIT
 	_pit.arrow_rect = PIT_RECT
-	stations = [[_shoot, _pick_up], [_read], [_pit]]
+	_read = add_task("Read each card in your hand", "", [], true)
+	stations = [[_shoot, _pick_up], [_pit], [_read]]
 	pointer_until = _read
 
 
@@ -74,12 +74,15 @@ func end() -> void:
 
 
 func step(_delta: float) -> void:
-	# The hand comes in with the first card, and is pointed at.
+	# The hand comes in with the first card, and is pointed at once the rest is done, so the
+	# reading is the one thing left to do when the pointer says how.
 	if not _hand_shown and kart().jokers.count() > 0 and run.reveal != null:
-		_hand_shown = true
-		run.reveal.show_piece(
-			&"hand", "Your jokers, hold %s to read them", [InputActions.JOKER_MENU]
-		)
+		run.reveal.show_piece(&"hand", "", [])
+		if _shoot.done and _pick_up.done and _pit.done:
+			_hand_shown = true
+			run.reveal.show_piece(
+				&"hand", "Your jokers, hold %s to read them", [InputActions.JOKER_MENU]
+			)
 	_aim_at_nearest()
 	_read_cards()
 	# A hand already full takes no card off the floor: the picking up is as good as done.

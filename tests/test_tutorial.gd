@@ -81,6 +81,12 @@ func test_the_map_is_rooms_in_a_row_joined_by_gates() -> void:
 		assert_str(grid.glyph(cell)).is_not_equal("#")
 	for cell: Vector2i in [Vector2i(22, 15), Vector2i(22, 16), Vector2i(19, 14), Vector2i(19, 17)]:
 		assert_str(grid.glyph(cell)).is_equal("#")
+	# The guard's run is a dead end at its end, and the row sits in a pocket of its own.
+	assert_str(grid.glyph(Vector2i(3, 6))).is_equal("#")
+	for cell: Vector2i in [Vector2i(3, 8), Vector2i(4, 8), Vector2i(3, 14), Vector2i(4, 14)]:
+		assert_str(grid.glyph(cell)).is_equal("#")
+	for i: int in TutorialItems.ROW_WINDOW_TALL:
+		assert_str(grid.glyph(TutorialItems.ROW_WINDOW + Vector2i(0, i))).is_equal(".")
 
 
 ## A gate is a wall until it opens: it sinks into the floor and stops standing in the way, and
@@ -127,6 +133,8 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_bool(run.notice.is_saying(&"welcome")).is_true()
 	assert_str(run.notice.said()).contains("Welcome")
 	assert_bool(run.notice._mark.visible).is_true()
+	assert_bool(run.notice._title.visible).is_true()
+	assert_bool(run.notice._info.visible).is_false()
 	assert_bool(run.kart().banks_passively).is_false()
 	# The kill feed hangs under the list, not behind it.
 	var feed := tutorial.match_node.hud.kill_feed()
@@ -214,11 +222,15 @@ func test_steering_counts_both_ways_from_the_heading() -> void:
 	_put(tutorial, Vector2i(18, 33), Vector3(0.0, 0.0, -1.0))
 	await _runner.simulate_frames(2, 17)
 	assert_bool(run.notice.is_saying(&"modes")).is_true()
-	assert_str(run.notice.said()).contains("Two ways to drive")
+	assert_str(run.notice.said()).contains("Choose Simple or Advanced driving")
+	assert_bool(run.notice._info.visible).is_true()
+	assert_bool(lesson.show_all).is_true()
+	assert_str(lesson._left.text).is_equal("Turn left")
+	assert_int(run.list.task_rows(lesson).size()).is_equal(2)
 	_put(tutorial, Vector2i(18, 42), Vector3(0.0, 0.0, -1.0))
 	await _runner.simulate_frames(2, 17)
 	assert_bool(run.notice.is_saying(&"modes")).is_false()
-	# Turning on the spot counts, to the left; back again takes it off, so sawing adds nothing.
+	# Turning on the spot counts, to the left; back again counts to the right, each its own.
 	kart.motor.heading += 0.5
 	lesson.step(DT)
 	assert_float(lesson._left.progress).is_equal_approx(0.5 / (TutorialSteer.TURNS * TAU), 0.001)
@@ -226,7 +238,8 @@ func test_steering_counts_both_ways_from_the_heading() -> void:
 	kart.motor.heading -= 0.5
 	lesson.step(DT)
 	assert_float(lesson._left.progress).is_equal_approx(0.5 / (TutorialSteer.TURNS * TAU), 0.001)
-	assert_float(lesson._right.progress).is_equal(0.0)
+	assert_float(lesson._right.progress).is_equal_approx(0.5 / (TutorialSteer.TURNS * TAU), 0.001)
+	lesson._right.progress = 0.0
 	# Moving and turning left fills the left task, and nothing of the right one.
 	Input.action_press(InputActions.THROTTLE)
 	Input.action_press(InputActions.STEER_LEFT)
@@ -236,7 +249,7 @@ func test_steering_counts_both_ways_from_the_heading() -> void:
 			break
 	Input.action_release(InputActions.STEER_LEFT)
 	assert_bool(lesson._left.done).override_failure_message("left never filled").is_true()
-	assert_float(lesson._right.progress).is_equal(0.0)
+	assert_float(lesson._right.progress).is_less(0.3)
 	Input.action_press(InputActions.STEER_RIGHT)
 	for i: int in 400:
 		await _runner.simulate_frames(1, 17)
@@ -330,7 +343,7 @@ func test_burning_the_tank_dry_with_the_nitro_pointed_out() -> void:
 	assert_bool((parts["speed"] as Control).visible).is_true()
 	assert_bool((parts["pot"] as Control).visible).is_false()
 	assert_bool(run.reveal.is_pointing()).is_true()
-	assert_str(run.notice.said()).contains("Nitro")
+	assert_str(run.notice.said()).contains("Use nitro to boost your speed")
 	assert_bool(run.arrow.visible).is_false()
 	assert_bool(run.arrow._ring.visible).is_false()
 	assert_bool(run.reveal._ring.visible).is_true()
@@ -372,7 +385,7 @@ func test_drifting_counts_the_tap_and_three_turbos() -> void:
 	assert_array(lesson._turbo.steps).is_equal(TutorialDrift.STEPS)
 	assert_str(TutorialDrift.STEPS[1]).is_equal("Hold the drift to build turbo")
 	assert_str(TutorialDrift.STEPS[2]).is_equal("Straighten up to launch")
-	assert_str(run.notice.said()).contains("Drift for tight corners")
+	assert_str(run.notice.said()).contains("Drift in tight corners")
 	assert_int(lesson._tap.steps_done).is_equal(0)
 	# Tires and barrels to drift round, each with a body in it, where the map has floor.
 	var props := tutorial.match_node.find_children("DriftProp*", "", false, false)

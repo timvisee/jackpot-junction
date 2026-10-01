@@ -33,6 +33,7 @@ func _init() -> void:
 	_bank = add_task("Bank the coins of your pot at the Junction", BANK, [], true)
 	_bank.arrow = JUNCTION
 	_bank.arrow_rect = JUNCTION_RECT
+	pointer_until = _bank
 
 
 func _begin() -> void:
@@ -68,6 +69,7 @@ func step(_delta: float) -> void:
 		_bank.arrow_rect = JACKPOT_RECT if pot.is_empty() else JUNCTION_RECT
 
 
-func _on_banked(slot_index: int, _coins: int, _mult: float, _total: int) -> void:
-	if slot_index == kart().slot and current() == _bank:
+func _on_banked(slot_index: int, _coins: int, _mult: float, total: int) -> void:
+	# A kart standing on the Junction with nothing in the pot banks nothing, every tick.
+	if slot_index == kart().slot and total > 0 and current() == _bank:
 		_bank.complete()

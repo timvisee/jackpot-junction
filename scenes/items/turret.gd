@@ -17,6 +17,10 @@ static var hunts_targets := false
 
 var owner_slot := -1
 var shoots_targets := false
+## Whether this turret is part of the room rather than anybody's item, GAME.md 9.4a: never
+## destroyed, a shot at it stopped and nothing more, and stood on a hazard-striped plinth in
+## steel gray so it is plainly no player's.
+var fixture := false
 ## How far it shoots, [constant RANGE] unless told otherwise.
 var reach := RANGE
 ## The slot this turret belongs to, for bullets' target filtering.
@@ -58,6 +62,8 @@ func is_targetable() -> bool:
 func take_hit(_bullet: Bullet) -> bool:
 	if not alive:
 		return false
+	if fixture:
+		return true
 	destroy()
 	return true
 
@@ -168,3 +174,28 @@ func _build_visuals() -> void:
 	_barrel.rotation_degrees = Vector3(90.0, 0.0, 0.0)
 	_barrel.position = Vector3(0.0, 0.55, -0.45)
 	add_child(_barrel)
+	if fixture:
+		_build_plinth()
+
+
+## The hazard-striped plinth a fixture stands on: a yellow slab with black bands across it.
+func _build_plinth() -> void:
+	var yellow := StandardMaterial3D.new()
+	yellow.albedo_color = Color(0.96, 0.78, 0.16)
+	var black := StandardMaterial3D.new()
+	black.albedo_color = Color(0.09, 0.09, 0.1)
+	var slab := MeshInstance3D.new()
+	var slab_mesh := BoxMesh.new()
+	slab_mesh.size = Vector3(1.3, 0.12, 1.3)
+	slab.mesh = slab_mesh
+	slab.material_override = yellow
+	slab.position = Vector3(0.0, 0.06, 0.0)
+	add_child(slab)
+	for i: int in 3:
+		var band := MeshInstance3D.new()
+		var band_mesh := BoxMesh.new()
+		band_mesh.size = Vector3(0.18, 0.13, 1.3)
+		band.mesh = band_mesh
+		band.material_override = black
+		band.position = Vector3(-0.42 + 0.42 * i, 0.06, 0.0)
+		add_child(band)

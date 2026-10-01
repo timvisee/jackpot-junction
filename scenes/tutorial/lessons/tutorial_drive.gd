@@ -5,7 +5,7 @@ extends TutorialLesson
 
 const CELLS := 15.0
 ## The welcome, and how far the kart drives before it goes, in meters.
-const WELCOME := "Welcome to Jackpot Junction!"
+const WELCOME := "Welcome to"
 const WELCOME_FOR := 4.0
 
 var _drive: TutorialTask

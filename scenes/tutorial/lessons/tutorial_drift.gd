@@ -24,7 +24,7 @@ const STEP_ACTIONS: Array[Array] = [[InputActions.HANDBRAKE], [], []]
 ## How long all three stay ticked after a turbo, in seconds.
 const LAUNCHED_FOR := 0.9
 ## The word at the top for the lesson.
-const WORDS := "Drift for tight corners.\nHold a drift to build turbo."
+const WORDS := "Drift in tight corners.\nHold a drift to build turbo."
 
 var _tap: TutorialTask
 var _turbo: TutorialTask

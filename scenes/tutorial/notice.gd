@@ -13,11 +13,30 @@ signal changed
 const WIDTH := 640.0
 const INK := Palette.CHIP_WHITE
 const FADE := 0.25
-const MARK_SIDE := 72.0
+const MARK_SIDE := 110.0
+const INFO_SIDE := 22.0
 
 var _label: Label
 var _mark: Control
+var _title: Label
+var _info: Control
 var _key := &""
+
+
+## The information mark in front of a word: a ring with an i in it, so the panel reads as a note
+## and not as something to answer.
+class Info:
+	extends Control
+
+	func _init() -> void:
+		custom_minimum_size = Vector2(INFO_SIDE, INFO_SIDE)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		var middle := Vector2(INFO_SIDE, INFO_SIDE) * 0.5
+		draw_arc(middle, INFO_SIDE * 0.5 - 1.5, 0.0, TAU, 32, Palette.NEON_CYAN, 2.0, true)
+		draw_circle(middle + Vector2(0.0, -5.0), 1.6, Palette.NEON_CYAN)
+		draw_rect(Rect2(middle + Vector2(-1.4, -2.0), Vector2(2.8, 8.0)), Palette.NEON_CYAN)
 
 
 static func add_to(layer: CanvasLayer) -> TutorialNotice:
@@ -46,23 +65,40 @@ func _ready() -> void:
 	_mark.add_child(logo)
 	_mark.visible = false
 	column.add_child(_mark)
+	var row := HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_theme_constant_override("separation", 10)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	column.add_child(row)
+	_info = Info.new()
+	_info.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(_info)
 	_label = Label.new()
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_label.custom_minimum_size = Vector2(WIDTH - 24.0, 0.0)
+	_label.custom_minimum_size = Vector2(WIDTH - 24.0 - INFO_SIDE - 10.0, 0.0)
 	Type.text(_label, Type.BODY, INK)
 	HudText.shadowed(_label)
-	column.add_child(_label)
+	row.add_child(_label)
+	# The game's name under the welcome, in the gold the title screen writes it in.
+	_title = MenuTheme.title("Jackpot Junction", Type.TITLE)
+	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	HudText.shadowed(_title, 2)
+	_title.visible = false
+	column.add_child(_title)
 	visible = false
 
 
-## Says [param text], as [param key], in place of whatever was up, with the game's mark over it
-## for [param with_mark].
-func say(key: StringName, text: String, with_mark := false) -> void:
+## Says [param text], as [param key], in place of whatever was up, with an information mark in
+## front of it; or for [param welcome] with the game's mark over it and the game's name under it,
+## and no information mark, since a welcome is not a note.
+func say(key: StringName, text: String, welcome := false) -> void:
 	_key = key
 	_label.text = text
-	_mark.visible = with_mark
+	_mark.visible = welcome
+	_title.visible = welcome
+	_info.visible = not welcome
 	if not visible:
 		visible = true
 		modulate.a = 0.0

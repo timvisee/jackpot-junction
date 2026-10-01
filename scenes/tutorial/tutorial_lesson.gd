@@ -138,23 +138,6 @@ func add_task(
 	return task
 
 
-## [param text] painted on the floor at [param cell], in [param color], reading from the south as
-## the room is seen, and there for good: a word by a thing rather than a sign over it.
-func paint(text: String, cell: Vector2i, color: Color = Palette.CHIP_WHITE) -> Label3D:
-	var label := Label3D.new()
-	label.text = text
-	label.font_size = 64
-	label.outline_size = 10
-	label.modulate = Color(color, 0.85)
-	label.outline_modulate = Color(0.04, 0.04, 0.05, 0.6)
-	label.pixel_size = 0.009
-	label.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
-	var at := run.cell(cell)
-	label.position = Vector3(at.x, 0.03, at.z)
-	run.match_node.add_child(label)
-	return label
-
-
 ## A sign over [param cell], in [param color], taken down with the lesson.
 func put_sign(text: String, cell: Vector2i, color: Color = Palette.CHIP_WHITE) -> Label3D:
 	var label := Label3D.new()

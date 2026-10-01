@@ -438,9 +438,19 @@ func vanish_bots() -> void:
 	for slot_bot: PlayerSlot in bots:
 		var each := slot_bot.kart
 		if each.alive:
+			# A bang, not the puff a kart dying is: this is the end of the fight.
+			Burst.spawn(
+				each.get_parent(),
+				each.global_position,
+				Palette.player_color(each.color_index),
+				2.4,
+				48
+			)
 			each.die(&"vanished", -1)
 		TutorialReveal.hold(each)
 		slot_bot.respawn_left = INF
+	if not bots.is_empty():
+		Audio.play_sfx(&"explosion", -2.0, 0.0)
 	gone = bots.duplicate()
 	penned.clear()
 

@@ -56,7 +56,7 @@ func _init() -> void:
 	_kill = add_task("Take out another kart", "")
 	_mult = add_task("Reach a mult of 4", "")
 	_jackpot = add_task("Drain a Jackpot", "")
-	_flush = add_task("Make a Royal Flush", "")
+	_flush = add_task("Claim a Royal Flush", "")
 	_cash = add_task("Bank your whole pot at the Junction", "")
 	_use = add_task("Use an item", "")
 	_hand = add_task("Hold five jokers", "")
@@ -89,8 +89,9 @@ func _begin() -> void:
 	Events.bank_completed.connect(_on_cashed)
 	Events.item_used.connect(_on_used)
 	# Match point from the goal, GAME.md 3.4: the call, the gold tracks and the burning pot, while
-	# the match itself has no target to end on.
-	run.match_node.win_at = NEED
+	# the match itself has no target to end on. The goal is counted from where the bank stands as
+	# the fight starts, so the match point is too.
+	run.match_node.win_at = run.slot().banked + NEED
 	_bar = TutorialBossBar.add_to(run.layer, NEED)
 	# The Royal Flush tally and the word at the top hang where the bar now is: under it.
 	run.boss_bar = _bar
@@ -194,8 +195,9 @@ func _on_flush(slot_index: int) -> void:
 		_flush.complete()
 
 
-func _on_cashed(slot_index: int, _coins: int, _mult: float, _total: int) -> void:
-	if slot_index == kart().slot and not _cash.done:
+func _on_cashed(slot_index: int, _coins: int, _mult: float, total: int) -> void:
+	# A kart standing on the Junction with nothing in the pot banks nothing, every tick.
+	if slot_index == kart().slot and total > 0 and not _cash.done:
 		_cash.complete()
 
 

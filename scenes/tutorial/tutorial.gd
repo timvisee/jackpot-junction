@@ -24,7 +24,7 @@ const SIGN_HEIGHT := 2.7
 const PLAY_PORTAL := Vector2i(34, 36)
 ## What the end says, in two lines, for how long, and how long the fireworks over the room go on.
 const DONE := "CONGRATULATIONS"
-const DONE_LINE := "You are ready for the Junction"
+const DONE_LINE := "You are ready for Jackpot Junction"
 const DONE_SHOWN := 5.0
 const FIREWORKS_FOR := 8.0
 
@@ -158,6 +158,14 @@ func _on_finished() -> void:
 	Game.settings.save_to_disk()
 	Audio.play_sfx(&"fanfare", -4.0, 0.0)
 	run.open_gate(TutorialFight.PORTAL_GATE)
+	# The arrow on the way out, through the gate just opened, with no ring: a doorway.
+	var gate := match_node.arena.gate_at(TutorialFight.PORTAL_GATE)
+	if gate != null:
+		run.arrow.point_at(
+			Vector3(gate.global_position.x, 0.0, gate.global_position.z),
+			GuideArrow.RING_RADIUS,
+			false
+		)
 	# Fireworks over the last room, in the player's color, the way a match won has them.
 	var grid := match_node.arena.grid
 	var across := Vector3(TutorialPads.ROOM.size.x, 0.0, TutorialPads.ROOM.size.y) * grid.cell_size

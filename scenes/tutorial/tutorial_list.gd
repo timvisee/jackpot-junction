@@ -12,7 +12,7 @@ const WIDTH := 300.0
 const INK := Color(0.97, 0.97, 1.0)
 const WAITING_INK := Color(0.8, 0.8, 0.86)
 const DONE_INK := Color(0.55, 0.55, 0.6)
-const MARK := Palette.NEON_CYAN
+const MARK := Palette.CHIP_GOLD
 const MARK_SIDE := 18.0
 ## What the panel is headed, before the lesson's name.
 const HEADING := "Objectives  ·  %s"
