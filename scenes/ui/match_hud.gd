@@ -884,6 +884,11 @@ func block_of(index: int) -> Control:
 	return box as Control if is_instance_valid(box) else null
 
 
+## The pieces of [param index]'s corner block by name, see [method HudBlock.make], or empty.
+func block_parts(index: int) -> Dictionary:
+	return _blocks.get(index, {})
+
+
 func scoreboard() -> Scoreboard:
 	return _scoreboard
 

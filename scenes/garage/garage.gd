@@ -1,67 +1,28 @@
 extends Node3D
-## The two practice rooms, GAME.md 9.4, which are one scene on two maps a portal apart.
+## The Garage, GAME.md 9.4: a practice room with everything in it. A straight to wind the kart out
+## on, turbo pads at either end, crates to slalom and shoot, coin pads, the Junction, a Jackpot, a
+## pit, Royal Flush pads, item pads, a joker pad that keeps handing out cards, a row of targets to
+## shoot at for coins, and two dummy karts nobody is driving, standing there carrying a pot and an
+## item so that shooting one is worth something. Signs name every area, since a player arriving
+## here has not read anything. A portal leads to the tutorial of 9.4a, which teaches the controls
+## a lesson at a time and leads back here at its end.
 ##
-## The Garage is a room with everything in it: a straight to wind the kart out on, turbo pads at
-## either end, crates to slalom and shoot, coin pads, the Junction, a Jackpot, a pit, Royal Flush
-## pads, item pads, a joker pad that keeps handing out cards, a row of targets to shoot at for
-## coins, and two dummy karts nobody is driving, standing there carrying a pot and an item so
-## that shooting one is worth something. Signs name every area, since a player arriving here has
-## not read anything.
-##
-## The test track is the room before that one: a road with corners on it, a wall of boxes to
-## shoot through, a straight to open the bottle on, a chicane to drift, and a room at the end to
-## keep drifting in. Nothing to collect and nothing to bank; six signs, each of them telling the
-## player what to press and what it does. The first visit to the Garage from the title goes here,
-## and the portal at the end leads to the Garage proper.
-##
-## Either room runs an ordinary match with no bots and no clock, so there is nothing to lose and
-## nothing to win.
+## It runs an ordinary match with no bots and no clock, so there is nothing to lose and nothing
+## to win.
 
 ## Given once the room is up and the match in it started, GAME.md 8.6.
 signal loaded
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const LAYOUT: ArenaLayout = preload("res://data/maps/garage.tres")
-const TRACK: ArenaLayout = preload("res://data/maps/test_track.tres")
 const RULES: MatchRules = preload("res://data/match/garage.tres")
 const SIGN_HEIGHT := 2.7
-## The test track's signs, which are drawn pictures on a card rather than floating words: how big
-## the lettering is, how big that picture is in the world, and what color the line under the
-## heading is.
-const SIGN_TITLE_SIZE := 34
-const SIGN_SIZE := 26
-const SIGN_PIXEL := 0.011
-const SIGN_INK := Color(0.86, 0.86, 0.90)
-## How far back the camera sits on the test track. The track is a road rather than an arena, and
-## framing all 65 m of it at once leaves the kart too small to learn a control from, GAME.md 9.4a,
-## so the camera comes down onto the player the way the driving room's does in 9.5.
-const TRACK_CAMERA := 26.0
 ## How much floor the camera leaves round the karts in the garage. The rig frames every one of
 ## them with four meters of floor round it, which is the band a crowd sits in; there is none in
 ## here, so the bay is held tighter and the karts come out bigger for it, GAME.md 9.4. What is
 ## framed is unchanged: both dummies stay in the shot, since driving up to one is half of what
 ## the room is for.
 const BAY_MARGIN := 1.0
-## The test track's signs: the cell one stands on, the name of the lesson, the line under it, and
-## the actions whose bindings fill that line in. A word and a key named the button a stretch was
-## about but never said what it did, so each line is an instruction instead. Still short on
-## purpose: a player reading a wall is a player not driving.
-const TRACK_SIGNS: Array[Array] = [
-	[Vector2i(6, 3), "DRIVE", "%s to go", [InputActions.THROTTLE]],
-	[Vector2i(21, 3), "STEER", "%s to turn", [InputActions.STEER_LEFT, InputActions.STEER_RIGHT]],
-	[Vector2i(11, 17), "SHOOT", "%s to break the boxes", [InputActions.FIRE]],
-	[Vector2i(22, 17), "NITRO", "hold %s to go faster", [InputActions.NITRO]],
-	[Vector2i(49, 23), "HANDBRAKE", "%s to lock the wheels", [InputActions.HANDBRAKE]],
-	[Vector2i(50, 26), "DRIFT", "handbrake and turn", []],
-]
-## What a sign names for the push of simple driving, which is no one action.
-const WAY := &"way"
-## The first two in simple driving, GAME.md 4.2, where the way pushed is the way the kart goes, and
-## a flick of it on its own is how to face somewhere, to aim.
-const SIMPLE_SIGNS: Array[Array] = [
-	[Vector2i(6, 3), "DRIVE", "push %s the way to go", [WAY]],
-	[Vector2i(21, 3), "TURN", "flick %s to face that way", [WAY]],
-]
 ## Where the stalls for dressing the kart start, GAME.md 4.4: the top left cell of the first of
 ## them, on the open floor along the front wall.
 const STALLS := Vector2i(10, 15)
@@ -72,28 +33,20 @@ const DUMMY_COINS := Vector2i(8, 25)
 const DUMMY_MULT := Vector2(1.0, 3.0)
 
 var match_node: Match
-## Whether this is the test track rather than the Garage proper.
-var on_track := false
 
 
 func _ready() -> void:
 	ArenaEnvironment.add_to(self)
-	on_track = Game.garage_room == Game.ROOM_TRACK
 	match_node = MATCH_SCENE.instantiate()
 	match_node.name = "Match"
 	match_node.rules = RULES
-	match_node.arena_layout = TRACK if on_track else LAYOUT
-	# The track says what every button does on the signs along it, so the kart does not say it
-	# again over the player's shoulder, GAME.md 9.4a.
-	match_node.with_kart_hints = not on_track
+	match_node.arena_layout = LAYOUT
 	match_node.power_ups = load("res://data/powerups/all.tres")
 	add_child(match_node)
 	# Put up behind a loading screen, the way a map is.
-	await LoadingScreen.put_up(self, match_node, "Test Track" if on_track else "Garage")
+	await LoadingScreen.put_up(self, match_node, "Garage")
 	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.ANY, 0)]
-	# Nobody is standing about on the test track: it is a road, and a kart parked on it is in
-	# the way of the one lesson each stretch is there to teach.
-	for i: int in 0 if on_track else DUMMIES:
+	for i: int in DUMMIES:
 		inputs.append(DummyInput.new())
 	# The player drives the kart they dressed and answers to the name they gave, GAME.md 4.4.
 	var names: Array[String] = [Game.settings.player_names[0]]
@@ -105,21 +58,18 @@ func _ready() -> void:
 	match_node.arena.crowd.enabled = false
 	match_node.arena.billboards.visible = false
 	_wire_portals()
-	if on_track:
-		# A kart is pointed at the middle of the map when it is put down, which on a road is a
-		# wall two cells away. The track runs one way out of the start, so face it down the road.
-		for slot: PlayerSlot in match_node.slots:
-			slot.kart.face(Vector3(1.0, 0.0, 0.0))
-		match_node.camera_rig.follow_close(TRACK_CAMERA)
-		_add_track_signs()
-	else:
-		_close_the_shot()
-		_add_signs()
-		# The kart is dressed in here as it is in the lobby, GAME.md 9.4, along the front wall.
-		StyleStalls.add_to(match_node, STALLS)
+	_close_the_shot()
+	_add_signs()
+	# The kart is dressed in here as it is in the lobby, GAME.md 9.4, along the front wall.
+	StyleStalls.add_to(match_node, STALLS)
 	DebugOverlay.add_to(self, match_node)
 	PauseMenu.add_to(self).names_and_colors = true
 	loaded.emit()
+
+
+func _exit_tree() -> void:
+	if Events.kart_respawned.is_connected(_on_kart_respawned):
+		Events.kart_respawned.disconnect(_on_kart_respawned)
 
 
 ## Brings the camera in, by leaving less floor round what it is framing rather than by framing
@@ -128,62 +78,13 @@ func _close_the_shot() -> void:
 	match_node.camera_rig.follow_margin = BAY_MARGIN
 
 
-## Every portal leads to the other room, GAME.md 9.4, which is the only place there is to go.
+## The portal leads to the tutorial, GAME.md 9.4a, whose own portal leads back here.
 func _wire_portals() -> void:
-	var other := Game.ROOM_GARAGE if on_track else Game.ROOM_TRACK
 	for portal: Portal in match_node.arena.portals:
 		# Once the physics step that saw the kart arrive is over: the room it takes down is made of
 		# the bodies that step is in the middle of.
-		portal.entered.connect(func(_kart: Kart) -> void: Game.go_to_garage.call_deferred(other))
-		_sign("GARAGE" if on_track else "TRACK", portal.global_position, Palette.NEON_CYAN)
-
-
-## Six signs on the test track, each telling the player what to press on that stretch and what it
-## does, with the button itself drawn on the sign, GAME.md 8.3. The bindings are read off the
-## input map, so a player who has rebound something is shown what they bound it to.
-func _add_track_signs() -> void:
-	var grid := match_node.arena.grid
-	var keyboard := Game.last_input_keyboard
-	var signs := TRACK_SIGNS.duplicate()
-	if Game.settings.drive_mode(0) == Settings.DRIVE_SIMPLE:
-		for i: int in SIMPLE_SIGNS.size():
-			signs[i] = SIMPLE_SIGNS[i]
-	for entry: Array in signs:
-		var at: Vector3 = grid.cell_center(entry[0])
-		var sign := InputHint.billboard(InputHint.card(_track_board(entry, keyboard)), SIGN_PIXEL)
-		sign.position = Vector3(at.x, SIGN_HEIGHT, at.z)
-		add_child(sign)
-
-
-## One sign: the name of the lesson over the line that teaches it, with the player's own buttons
-## drawn into the line.
-static func _track_board(entry: Array, keyboard: bool) -> VBoxContainer:
-	var column := VBoxContainer.new()
-	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.add_theme_constant_override("separation", 6)
-	var title := Label.new()
-	title.text = entry[1]
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	title.add_theme_font_size_override("font_size", SIGN_TITLE_SIZE)
-	title.add_theme_color_override("font_color", Palette.CHIP_WHITE)
-	column.add_child(title)
-	var line := InputHint.row(entry[2], _track_glyphs(entry[3], keyboard), SIGN_INK, SIGN_SIZE)
-	line.alignment = BoxContainer.ALIGNMENT_CENTER
-	column.add_child(line)
-	return column
-
-
-## The buttons one sign names. Two actions are the two ends of a single control and are drawn as
-## one, GAME.md 8.3, so steering is a stick on a pad rather than two halves of one.
-static func _track_glyphs(actions: Array, keyboard: bool) -> Array:
-	if actions == [WAY]:
-		return [InputHint.way(keyboard, SIGN_INK, SIGN_SIZE)]
-	if actions.size() >= 2:
-		return [InputHint.pair(actions[0], actions[1], keyboard, SIGN_INK, SIGN_SIZE)]
-	if actions.size() == 1:
-		return [InputHint.glyph(actions[0], keyboard, SIGN_INK, SIGN_SIZE)]
-	return []
+		portal.entered.connect(func(_kart: Kart) -> void: Game.go_to_tutorial.call_deferred())
+		_sign("TUTORIAL", portal.global_position, Palette.NEON_CYAN)
 
 
 ## A dummy that has been shot comes back with something new in it, so the next one is worth

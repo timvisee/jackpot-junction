@@ -1,0 +1,149 @@
+class_name HudReveal
+extends Node
+## The match HUD arriving a piece at a time, GAME.md 9.4a: at the start of the tutorial only the
+## player's name is in their corner, and each piece comes with the lesson it is for, with a pointer
+## beside it saying what it is until the lesson's first task is done. Under the HUD as a child, so
+## it runs after the HUD has put everything up for the frame and takes back what is not yet shown.
+## The corner's own control hints stay off throughout: the line over the kart is saying it.
+
+## What can be shown: the nitro tank with the speedometer, the item slot, the hand of jokers, the
+## lives, the pot, the banked score, the kills and deaths, and the kill feed.
+const PIECES: Array[StringName] = [
+	&"nitro", &"item", &"hand", &"lives", &"pot", &"bank", &"stats", &"feed"
+]
+const INK := Palette.NEON_CYAN
+## How far the pointer bobs beside its piece, in pixels, and how fast.
+const BOB := 6.0
+const BOB_RATE := 0.7
+const GAP := 14.0
+
+var hud: MatchHud
+## Which player's corner.
+var index := 0
+var shown: Dictionary[StringName, bool] = {}
+
+var _pointer: HBoxContainer
+var _tip: Tip
+var _label: Label
+var _pointing := &""
+var _time := 0.0
+
+
+## The triangle of the pointer, drawn, pointing left at the piece beside it or down at one under.
+class Tip:
+	extends Control
+
+	var down := false
+
+	func _init() -> void:
+		custom_minimum_size = Vector2(16.0, 16.0)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		var points := (
+			PackedVector2Array([Vector2(1.0, 2.0), Vector2(15.0, 2.0), Vector2(8.0, 15.0)])
+			if down
+			else PackedVector2Array([Vector2(15.0, 1.0), Vector2(15.0, 15.0), Vector2(1.0, 8.0)])
+		)
+		draw_colored_polygon(points, INK)
+
+
+static func add_to(on: MatchHud, slot_index: int) -> HudReveal:
+	var reveal := HudReveal.new()
+	reveal.name = "HudReveal"
+	reveal.hud = on
+	reveal.index = slot_index
+	reveal.process_priority = 10
+	on.add_child(reveal)
+	return reveal
+
+
+func _ready() -> void:
+	for piece: StringName in PIECES:
+		shown[piece] = false
+	_pointer = HBoxContainer.new()
+	_pointer.name = "Pointer"
+	_pointer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_pointer.add_theme_constant_override("separation", 8)
+	_tip = Tip.new()
+	_tip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_pointer.add_child(_tip)
+	_label = Label.new()
+	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Type.strong(_label, Type.LABEL, INK)
+	HudText.shadowed(_label)
+	_pointer.add_child(_label)
+	_pointer.visible = false
+	hud.add_child(_pointer)
+
+
+## Brings [param piece] in, with [param line] on a pointer beside it until [method pointer_done].
+func show_piece(piece: StringName, line: String) -> void:
+	shown[piece] = true
+	if line.is_empty():
+		return
+	_pointing = piece
+	_label.text = line
+	_tip.down = piece == &"hand"
+	_tip.queue_redraw()
+	_pointer.visible = true
+
+
+## The pointer has said its piece.
+func pointer_done() -> void:
+	_pointing = &""
+	_pointer.visible = false
+
+
+func is_pointing() -> bool:
+	return _pointer.visible
+
+
+func _process(delta: float) -> void:
+	_time += delta
+	var parts := hud.block_parts(index)
+	if parts.is_empty():
+		return
+	for part: Control in [parts["nitro"], parts["speed"], parts["speed_dial"]]:
+		part.visible = shown[&"nitro"]
+	(parts["item"] as Control).visible = shown[&"item"]
+	for pip: Control in parts["lives"]:
+		pip.visible = shown[&"lives"]
+	(parts["pot"] as Control).visible = shown[&"pot"]
+	(parts["banked"] as Control).visible = shown[&"bank"]
+	(parts["stats"] as Control).visible = shown[&"stats"]
+	(parts["hints"] as Control).visible = false
+	var hand := hud.hand_of(index)
+	if hand != null:
+		hand.visible = shown[&"hand"]
+	var feed := hud.kill_feed()
+	if feed != null:
+		feed.visible = shown[&"feed"]
+	if _pointer.visible:
+		_place(parts, hand)
+
+
+## The pointer beside its piece: to the right of a piece of the corner, over the hand.
+func _place(parts: Dictionary, hand: JokerHand) -> void:
+	var bob := sin(_time * TAU * BOB_RATE) * BOB
+	var size := _pointer.get_combined_minimum_size()
+	if _pointing == &"hand":
+		if hand == null:
+			return
+		var top := hand.reach() if not hand.hangs() else hand.reach() + size.y
+		_pointer.position = Vector2(hand.size.x * 0.5 - size.x * 0.5, top - size.y - GAP + bob)
+		return
+	var rect := _anchor(parts).get_global_rect()
+	_pointer.position = Vector2(
+		rect.end.x + GAP + bob, rect.position.y + rect.size.y * 0.5 - size.y * 0.5
+	)
+
+
+func _anchor(parts: Dictionary) -> Control:
+	if _pointing == &"lives":
+		var pips: Array = parts["lives"]
+		return (pips[0] as Control).get_parent() if not pips.is_empty() else parts["box"]
+	var keyed: Dictionary[StringName, String] = {
+		&"nitro": "nitro", &"item": "item", &"pot": "pot", &"bank": "banked", &"stats": "stats"
+	}
+	return parts[keyed.get(_pointing, "box")]

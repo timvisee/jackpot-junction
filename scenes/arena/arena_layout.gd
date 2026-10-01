@@ -97,6 +97,8 @@ func _collect_elements(target: ArenaGrid) -> void:
 								target.jackpots.append(rect)
 							ArenaGrid.JUNCTION:
 								target.junction = rect
+							ArenaGrid.GATE:
+								target.gates.append(rect)
 
 
 ## Bounding rectangle of the connected cells sharing a glyph, marking them visited.

@@ -25,9 +25,11 @@ const TARGET := "R"
 const JOKER_PAD := "D"
 ## A way through to the other practice room, GAME.md 9.4.
 const PORTAL := "O"
+## A piece of wall that opens and shuts, GAME.md 9.4a: floor to drive on once open, see [Gate].
+const GATE := "G"
 
 const TURBO_GLYPHS: Array[String] = [TURBO_PAD, TURBO_UP, TURBO_DOWN, TURBO_LEFT, TURBO_RIGHT]
-const AREA_GLYPHS: Array[String] = [PIT, JUNCTION, JACKPOT]
+const AREA_GLYPHS: Array[String] = [PIT, JUNCTION, JACKPOT, GATE]
 const KNOWN_GLYPHS: Array[String] = [
 	WALL,
 	FLOOR,
@@ -47,6 +49,7 @@ const KNOWN_GLYPHS: Array[String] = [
 	TARGET,
 	JOKER_PAD,
 	PORTAL,
+	GATE,
 ]
 
 var width: int = 0
@@ -54,6 +57,8 @@ var height: int = 0
 var cell_size: float = 1.25
 var rows: PackedStringArray = []
 var walls: Array[Rect2i] = []
+## Each run of gate cells, one gate, see [Gate].
+var gates: Array[Rect2i] = []
 var spawns: Array[Vector2i] = []
 var coin_pads: Array[Vector2i] = []
 var power_pads: Array[Vector2i] = []

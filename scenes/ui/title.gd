@@ -1,6 +1,6 @@
 extends Control
-## The title screen from GAME.md 3.8: Play, Play LAN, Play Online, the Garage practice room,
-## Settings, Quit, over the turning sunburst of [TitleBackground].
+## The title screen from GAME.md 3.8: Play, Play LAN, Play Online, the Tutorial, the Garage
+## practice room, Settings, Quit, over the turning sunburst of [TitleBackground].
 
 ## Room kept under the buttons for the credits along the bottom of the screen.
 const CREDITS_ROOM := 48.0
@@ -39,8 +39,11 @@ func _ready() -> void:
 	play_button = MenuTheme.button("Play")
 	# One way in to playing. Whether it is a Grand Prix or a quick match is the lobby's first
 	# question, GAME.md 9.7, asked with the rest rather than a screen early.
-	# Asked first, the first time, how to drive, GAME.md 4.2, whichever way in to driving it is.
-	play_button.pressed.connect(func() -> void: DriveChoice.first(self, Game.go_to_lobby))
+	# Asked first, the first time, how to drive, GAME.md 4.2, whichever way in to driving it is,
+	# and before that, once, whether to take the tutorial, 9.4a.
+	play_button.pressed.connect(
+		func() -> void: offer_tutorial(func() -> void: DriveChoice.first(self, Game.go_to_lobby))
+	)
 	column.add_child(play_button)
 	var online := MenuTheme.button("Play LAN")
 	online.pressed.connect(func() -> void: DriveChoice.first(self, Game.go_to_online))
@@ -49,8 +52,11 @@ func _ready() -> void:
 	var server := MenuTheme.button("Play Online")
 	server.pressed.connect(func() -> void: DriveChoice.first(self, Game.go_to_play_online))
 	column.add_child(server)
+	var tutorial := MenuTheme.button("Tutorial")
+	tutorial.pressed.connect(Game.go_to_tutorial)
+	column.add_child(tutorial)
 	var garage := MenuTheme.button("Garage")
-	garage.pressed.connect(func() -> void: DriveChoice.first(self, Game.enter_garage))
+	garage.pressed.connect(func() -> void: DriveChoice.first(self, Game.go_to_garage))
 	column.add_child(garage)
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(func() -> void: Game.go_to_settings(Game.TITLE_SCENE))
@@ -101,3 +107,43 @@ func _fit() -> void:
 		each.visible = tall + CREDITS_ROOM <= size.y
 		if not each.visible:
 			tall -= each.get_combined_minimum_size().y + gap
+
+
+## The tutorial offered once, GAME.md 9.4a: the first time Play is pressed on a machine that has
+## never seen it, with Not now going on to [param then] and the question never asked again either
+## way. Asked already, or the tutorial done, it is straight on.
+func offer_tutorial(then: Callable) -> void:
+	if Game.settings.tutorial_offered or Game.settings.tutorial_done:
+		then.call()
+		return
+	var holder := Control.new()
+	holder.name = "TutorialQuestion"
+	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(holder)
+	var shade := ColorRect.new()
+	shade.color = Color(0.0, 0.0, 0.0, 0.6)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.add_child(shade)
+	var middle := CenterContainer.new()
+	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.add_child(middle)
+	var pane := ConfirmPane.new()
+	pane.name = "TutorialOffer"
+	middle.add_child(pane)
+	pane.answered.connect(
+		func(yes: bool) -> void:
+			Game.settings.tutorial_offered = true
+			Game.settings.save_to_disk()
+			holder.queue_free()
+			if yes:
+				Game.go_to_tutorial()
+			else:
+				then.call()
+	)
+	pane.ask(
+		"New here?",
+		"The tutorial teaches the controls and the game in a few minutes.",
+		"Tutorial",
+		"Not now"
+	)

@@ -25,6 +25,9 @@ func _init(arena_grid: ArenaGrid) -> void:
 		astar.fill_solid_region(rect, true)
 	for cell: Vector2i in grid.crates:
 		astar.set_point_solid(cell, true)
+	# A gate starts shut, GAME.md 9.4a, and the room opening one says so, see set_cell_blocked.
+	for rect: Rect2i in grid.gates:
+		astar.fill_solid_region(rect, true)
 
 
 ## Whether a cell is part of a pit rather than merely blocked.

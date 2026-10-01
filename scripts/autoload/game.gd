@@ -11,10 +11,8 @@ const ONLINE_SCENE := "res://scenes/ui/online.tscn"
 const PLAY_ONLINE_SCENE := "res://scenes/ui/play_online.tscn"
 const SERVER_GAMES_SCENE := "res://scenes/ui/server_games.tscn"
 const GARAGE_SCENE := "res://scenes/garage/garage.tscn"
+const TUTORIAL_SCENE := "res://scenes/tutorial/tutorial.tscn"
 const WAITING_SCENE := "res://scenes/waiting/waiting_room.tscn"
-## The two practice rooms, GAME.md 9.4. They are one scene on two maps, a portal apart.
-const ROOM_GARAGE := &"garage"
-const ROOM_TRACK := &"test_track"
 ## Frames a `--bench` run throws away before it starts counting: the shader compiles and the
 ## first arena build belong to loading rather than to running.
 const BENCH_WARMUP := 120
@@ -36,8 +34,6 @@ var last_input_keyboard := true
 var pending_config: MatchConfig
 ## Where the settings screen returns to.
 var settings_return := TITLE_SCENE
-## Which of the two practice rooms the Garage scene builds.
-var garage_room := ROOM_GARAGE
 ## The Grand Prix being played, GAME.md 9.7, or null for a single map. Kept here because it runs
 ## across scenes: every map is a scene of its own.
 var grand_prix: GrandPrix
@@ -250,28 +246,16 @@ func back_to_the_menu(why := "") -> void:
 		go_to_title()
 
 
-## The practice rooms, GAME.md 9.4. Called with a room by the portal in the other one.
-func go_to_garage(room: StringName = ROOM_GARAGE) -> void:
-	garage_room = room
+## The Garage, GAME.md 9.4: from the title, and from the portal at the end of the tutorial.
+func go_to_garage() -> void:
 	get_tree().paused = false
 	get_tree().change_scene_to_file(GARAGE_SCENE)
 
 
-## The way in from the title, GAME.md 9.4: the very first visit is the test track, which teaches
-## the controls, and every visit after it is the Garage proper. Either room has a portal to the
-## other, so nothing is locked away by going once.
-func enter_garage() -> void:
-	go_to_garage(next_garage_room())
-
-
-## Which room that is, and the note that somebody has now been. Apart from the going, so it can
-## be asked without a scene change.
-func next_garage_room() -> StringName:
-	if settings.seen_test_track:
-		return ROOM_GARAGE
-	settings.seen_test_track = true
-	settings.save_to_disk()
-	return ROOM_TRACK
+## The tutorial, GAME.md 9.4a: from the title, its offer on the first Play, and the Garage's portal.
+func go_to_tutorial() -> void:
+	get_tree().paused = false
+	get_tree().change_scene_to_file(TUTORIAL_SCENE)
 
 
 func go_to_settings(return_to: String = TITLE_SCENE) -> void:

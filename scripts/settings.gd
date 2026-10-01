@@ -177,7 +177,10 @@ var kart_styles: Array = [
 ]
 ## Whether anybody has been round the test track yet, GAME.md 9.4. The first visit to the
 ## Garage goes there; every visit after it goes to the Garage proper.
-var seen_test_track := false
+## Whether the tutorial of GAME.md 9.4a has been finished, and whether it has been offered, which
+## the first Play does once.
+var tutorial_done := false
+var tutorial_offered := false
 var last_address := "127.0.0.1"
 var last_port := 7777
 ## The dedicated server Play Online last connected to, GAME.md 9.3a, and connects to again as it
@@ -282,7 +285,8 @@ func load_from_disk() -> void:
 	var dressed: Array = file.get_value("lobby", "kart_styles", [])
 	for i: int in mini(dressed.size(), kart_styles.size()):
 		kart_styles[i] = KartStyle.from_array(dressed[i]).to_array()
-	seen_test_track = file.get_value("progress", "seen_test_track", seen_test_track)
+	tutorial_done = bool(file.get_value("progress", "tutorial_done", tutorial_done))
+	tutorial_offered = bool(file.get_value("progress", "tutorial_offered", tutorial_offered))
 	last_address = file.get_value("online", "address", last_address)
 	last_port = file.get_value("online", "port", last_port)
 	last_server = str(file.get_value("online", "server", last_server))
@@ -350,7 +354,8 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "grand_prix_xl", grand_prix_xl)
 	file.set_value("lobby", "player_names", player_names)
 	file.set_value("lobby", "kart_styles", kart_styles)
-	file.set_value("progress", "seen_test_track", seen_test_track)
+	file.set_value("progress", "tutorial_done", tutorial_done)
+	file.set_value("progress", "tutorial_offered", tutorial_offered)
 	file.set_value("online", "address", last_address)
 	file.set_value("online", "port", last_port)
 	file.set_value("online", "server", last_server)

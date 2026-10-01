@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A tutorial.** The test track is now lessons in a row of rooms, with a checklist, a hint over
+  the kart and the HUD arriving piece by piece: driving, steering, braking, nitro, drifting and
+  shooting so far. The title offers it the first time you press Play, and has a button for it.
 - **Jokers show when they go off.** Guardian Angel, Insurance Policy, Tight Grip, Pickpocket, Toll
   Booth, Road Rage and Carbon Copy pull out of your hand and glow with a word when they act; a
   joker your death drops or takes, such as Spare Tire, burns out of it in red, saying LOST.

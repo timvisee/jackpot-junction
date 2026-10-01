@@ -503,12 +503,13 @@ else's results screen, see 10.3.
   control hints with it. There is nothing left in that room to answer, and a card
   pick left open under the notice would be asking for a choice about a match that
   is not there any more.
-- The title screen offers Play, Play LAN, Play Online, the Garage, Settings and
-  Quit. Play goes straight into the lobby, the waiting room of 9.6, the way hosting
+- The title screen offers Play, Play LAN, Play Online, the Tutorial, the Garage,
+  Settings and Quit. Play goes straight into the lobby, the waiting room of 9.6, the way hosting
   a LAN game does, with the match settings up over it, whose first question is
   whether it is a Grand Prix of several maps or a quick match on one, see 9.7; anybody
   else at the machine joins in there. There is no screen of rules of its own
-  before it. There is no tutorial. At
+  before it. The tutorial of 9.4a is offered once, the first time Play is
+  pressed, and is on the title after that. At
   the start of a match the drive and fire controls are shown next to each
   human player's kart, from the countdown until that player has both driven
   and fired, or for 10 s at most. For a player who drives the simple way, see
@@ -984,8 +985,8 @@ grayed out and press nothing: a thumb resting on fire after a death would otherw
 of the respawn pick it has not read. The gas held through the last lamp takes the kart away on
 the green. The driving buttons go while the podium is up, where they would sit over its own. The
 hints that name keys, in the corner and beside the kart, are not shown on a touch screen: the
-buttons say what they are on them. A hint that is shown, such as the signs along the test track
-of 9.4a, names the button on the screen instead of a key: gas, fire, nitro, drift and the item
+buttons say what they are on them. A hint that is shown, such as the tutorial's line over the kart
+in 9.4a, names the button on the screen instead of a key: gas, fire, nitro, drift and the item
 as a pill with the button's word on it, and steering as the stick under the left thumb. The
 Garage's sign over the jokers says to hold one to read it rather than to press Tab. The
 standings hang from the top right corner under the menu button rather than down the middle of
@@ -1363,11 +1364,12 @@ the center, and the pits above and below the Junction, a lane's width clear of i
 J  Junction pad  K  Jackpot zone     T  turbo pad      X  pit
 R  target        D  joker pad       O  portal
 B  crate         .  floor            F  Royal Flush pad
+G  gate, a piece of wall that opens, see 9.4a
 ```
 
 Every element is optional. A map with no `J` in it has no Junction, and nothing
-that reaches for one finds one: the test track in 9.4 is a road with corners on
-it and nothing to bank.
+that reaches for one finds one: the first rooms of the tutorial in 9.4a have
+nothing to bank. A map may hold several, each banking as the one does.
 
 - The four turbo pads point along the vertical lanes at columns 10 and 21,
   each toward the opposite pad, so karts can rocket past the Junction's flanks.
@@ -2207,8 +2209,8 @@ the trade is worth making.
 The opening shot still happens and the rig still comes in from it. That move is
 the map being shown rather than the karts being chased, and a fixed camera that
 refused to arrive would sit every match three meters further out than it belongs.
-The driving rooms of 9.4a are unaffected: they have no arena to hold and are
-following a kart down a road on purpose.
+The tutorial of 9.4a and the driving room of 9.5 are unaffected: they have no
+arena to hold and are following a kart down a road on purpose.
 
 At the whistle it stops following and opens back out to the whole arena over the
 pause the podium waits out in 3.8, easing rather than cutting, and it holds still
@@ -2389,7 +2391,7 @@ movement: the one thing a corner block must not do is ask to be looked at.
   its shape; two letters at that size are a shape that has to be read first. How
   they are built, and how to add one, is 8.3a.
 - **Bindings are drawn, not written.** Everywhere the game names a control -- the
-  hints above, the joker hand and pick, the signs on the test track in 9.4a, the
+  hints above, the joker hand and pick, the tutorial's line over the kart in 9.4a, the
   hint beside the kart, the join line in the lobby and the rebinding rows in 8.5
   -- the binding is a picture of the thing being pressed. A key is a key cap with
   the key on it. A gamepad face button is the round one in the color everybody's
@@ -3531,81 +3533,191 @@ every one of them made a room to be read rather than driven.
   controls, not a nightclub.
 - No standings either: there is no clock and nothing to reach, so a table of who
   is ahead would be a table about nothing, with two dummies ranked in it.
-- A portal in the bottom right leads to the test track in 9.4a.
+- A portal in the bottom right leads to the tutorial of 9.4a.
 
-### 9.4a The test track
+### 9.4a The tutorial
 
-The room before the Garage: the first time anybody picks Garage from the title
-they arrive here instead, and every time after that they arrive in the Garage
-proper. Both rooms are the same scene on a different map and each has a portal to
-the other, so going round once locks nothing away.
+A short, playable lesson in how to drive and what the game is, reached from the
+title's Tutorial button, and offered once, the first time anybody presses Play on
+a fresh install: "New here?", with Tutorial and Not now, and never asked again
+either way. Six to eight minutes for somebody new. One player at this machine,
+no join, nothing online; the Garage's portal leads here and the portal at the end
+leads back to the Garage, so going round once locks nothing away. Finishing it
+is remembered in the settings; the pause menu's Skip step passes a lesson, and
+leaving starts over from the first, since nothing in the middle is saved.
 
-It is a road rather than an arena: no Junction, no coins, no Jackpot, no pits,
-nothing to collect and nothing to score. The hint that rides beside a kart at
-the start of a match, see 3.8, is off in here: this room teaches the controls a
-sign at a time, and a second copy of the same three buttons following the player
-about is the room saying it twice. Six signs, each of them the name of a
-lesson and a line saying what to press and what it does: "Shift to lock the
-wheels" rather than "DRIFT". The bindings are read off the input map, so a player
-who has rebound something is told what they bound it to, and a pad is told about
-the stick rather than about its two halves, see 8.3.
-
-The road is 97.5 by 36.25 m with six-cell lanes, wide enough to get a corner wrong
-and carry on rather than stop against a wall. The straight after the boxes is
-most of that length on its own, because a bottle that lasts several seconds needs
-somewhere to be emptied: a straight you run out of before the nitro does teaches
-the opposite of what it is for. The camera does not frame the road: it follows
-the player from 26 m back the way the driving room's does in 9.5, since a road
-framed end to end puts the kart too far away to see what a control did.
+It is one map of rooms in a row, each a lesson, joined by gates: a piece of wall
+that sinks into the floor when the lesson in front of it is done, with a band
+along its top that is red while it is shut and cyan once it is open, and that
+rises again once the kart is through, so a room finished is a room left behind
+and a kart that dies comes back in the room it is learning in. The gates are
+the `G` cells of a map, see 6.3; a match with none never meets one, and the
+bots' map of where they can drive treats a shut one as wall. A kart that dies
+comes back on its own room's spot, facing the way the lesson goes. Nothing in
+here drops a joker on death, and the picks never deal a Cursed card: a trap is
+no way to meet a mechanic. The camera follows from 26 m back, as the test track's
+did, since a room framed whole puts the kart too far away to see what a control
+did. No disco, no crowd, no hoardings, no clock and no standings, as in the
+Garage.
 
 ```
-##############################################################################
-#............................###########################.....................#
-#.S..........................###########################.....................#
-#............................###########################.....................#
-#.S..........................###########################.....................#
-#............................###########################.....................#
-#............................###########################.....................#
-#######################......###########################.....................#
-######.......................###########################.....................#
-######.......................###########################.....................#
-######.......................###########################...######............#
-######.......................###########################...#....#............#
-######.......................###########################........#............#
-######.......................###########################.....O..#............#
-######......############################################........#............#
-######.........B.....................................###...#....#............#
-######.........B.....................................###...######............#
-######.........B.....................................###.....................#
-######.........B.....................................###.....................#
-######.........B.....................................###.....................#
-######.........B.....................................###.....................#
-###############################################......###.....................#
-###############################################....##........................#
-###############################################....##........................#
-###############################################....##........................#
-###############################################.........##...................#
-###############################################.........##...................#
-###############################################.........##...................#
-##############################################################################
+############################################################################################
+##############################################################............................##
+##############################################################............................##
+#####################################........................#............................##
+#####################################........................#............................##
+#############.............###########...R................R...#............................##
+#############.............###########........................#.....##.....................##
+#############.............###########........B...............#.....##.....................##
+#############.............###########........................#.....................##.....##
+#############.............G.....BB...........................#.....................##.....##
+#############......O......G.....BB..............R............G............................##
+#############.............G.....BB...........................G............................##
+#############.............G.....BB...........................G............................##
+#############.............###########........................G............................##
+#############.............###########.......B.......B........#............................##
+#############.............###########........................#.............##.............##
+#############.............###########...R................R...#.............##.............##
+#####################################........................#............................##
+#####################################........................#............................##
+########......................################################............................##
+########......................################################............................##
+########......................################################............................##
+########......................################################............................##
+########......................##################################################GGGG########
+##............................#................#....................................########
+##............................G................G....................................########
+##................##..........G................G....................................########
+##................##..........G................G....................................########
+##............................G................G....................................########
+##............................#................#....................................########
+########......................##############################################################
+########......................##############################################################
+########......................##############################################################
+########......................##############################################################
+########......................##############################################################
+########......................##############################################################
+#################GGGG#######################################################################
+#################....#######################################################################
+#################....#######################################################################
+#################....#######################################################################
+#################....#######################################################################
+#################....#######################################################################
+#################....#######################################################################
+#################....#######################################################################
+#################....#######################################################################
+#################....#######################################################################
+#################....#######################################################################
+#################....#######################################################################
+#################....#######################################################################
+#################....#######################################################################
+#################....#######################################################################
+#################.S..#######################################################################
+#################....#######################################################################
+#################....#######################################################################
+############################################################################################
+############################################################################################
 ```
 
-1. **Drive and steer.** A straight out of the start with DRIVE and STEER on it,
-   then a corner, a lane back the other way and a second corner. None of them
-   tight. For the first player driving the simple way, see 4.2, the two say to
-   push the way to go and to flick it to face that way, TURN rather than STEER.
-2. **Shoot.** A wall of boxes across the third lane, which cannot be driven
-   through. SHOOT, and the way on is where they were.
-3. **Nitro.** The long straight after the boxes, 45 m of it, with NITRO at the
-   near end so there is road left to use it on.
-4. **Drift.** A corner down into a chicane: two stubs of wall that have to be
-   woven through, with HANDBRAKE at the mouth of it and DRIFT in the middle. The
-   gap between the two stubs is three cells wide. One was a keyhole to be lined
-   up and crept through, which is the opposite of a corner to be drifted.
-5. **The room at the end.** 26 by 34 m of open floor to keep driving in, which is
-   the only part of the track with room to get a drift wrong and go round again,
-   with an island in the middle of it to lean on and one way into the middle,
-   where the portal to the Garage stands.
+**The checklist.** A panel in the top right corner, clear of the player's own
+corner on the left, with the lesson's name and its tasks under it. A task that
+is done is ticked and grayed with a short chime; the one being done is bright,
+with a bar under it where it is a matter of how far; tasks not yet reached are
+not shown, so the list grows as the lesson goes. A finished lesson shrinks to
+one ticked line, and only the last three lessons stay listed. On a touch screen
+it hangs under the menu button.
+
+**The hint.** Over the kart, the way the drive and fire line of 3.8 is, one
+short line for the task being done with the control drawn into it for the device
+in hand, a key, a pad button or the touch screen's button, and it follows a pad
+picked up or a switch of driving mode. An arrow on the floor ahead of the kart
+pulses toward wherever the task needs the kart to go, when it needs it anywhere,
+and toward the open gate once the lesson is done; within a few meters of the
+spot it goes.
+
+**The HUD comes in pieces.** At the start only the player's name, the checklist
+and the hint are on the screen. Each piece of the corner block appears with the
+lesson it is for, with a pointer beside it and one line saying what it is, which
+stays until the lesson's first task is done: the nitro tank and the speedometer
+with nitro, "Your nitro"; the item slot with items, "Your item"; the hand of
+jokers and the lives with jokers, "Your jokers, hold Tab to read them", Tab
+being whatever opens the hand; the pot with the pads lesson and the bank with
+the Junction's. The corner's own control hints stay off throughout: the hint
+over the kart is saying it.
+
+**Driving mode.** The tutorial does not ask how to drive up front. A player who
+has answered before drives their way; one who never has is asked the question
+of 4.2 on the grid, before the kart will move, and the answer is kept. The
+steering room has two pads in an alcove, SIMPLE and ADVANCED, lit for the way in
+use: driving onto one switches to it on the spot, and a sign over them says the
+pause menu and the settings change it later too.
+
+The lessons, each in its own room, in order:
+
+1. **Driving.** A corridor four cells wide and fifteen long, running north, out
+   of a pocket with the one spawn in it. The task is to drive forward, its bar
+   filling over 15 cells, 18.75 m, driven; the gate at the top opens on it.
+2. **Steering.** A room 22 by 17 cells with a 2-by-2 pillar in the middle to go
+   round, and the mode alcove on its west side. Two tasks, each with a bar: a
+   circle and a half to the left, then a circle and a half to the right, 540°
+   each, counted from the kart's heading while it is moving forward, so sawing
+   the wheel back and forth adds up to nothing and one direction alone is not
+   enough. Simple driving is told to push the way to go.
+3. **Brake and reverse.** A straight of 16 by 6 cells going east. Brake to a stop
+   from speed, then reverse 4 cells, 5 m, with a bar. Simple driving has no
+   reverse, since letting go is the brake, so its second task is to turn round
+   and drive 4 cells back the way it came.
+4. **Nitro.** A straight 36 cells long, 45 m, with the tank filled as the lesson
+   starts and refilling at the match's own rate. One task: burn a full tank, the
+   bar showing how much of it has gone, done when it runs dry. The nitro tank
+   and the speedometer appear in the corner, pointed at.
+5. **Drifting.** An open room 28 by 22 cells with three 2-by-2 pillars to drift
+   around. Tap the handbrake while turning, once; then hold a drift long enough
+   for a turbo, three times, each drift's bar filling toward the turbo point of
+   4.1, 0.6 s of drift at half speed or more.
+6. **Shooting.** A gallery 24 by 16 cells with five targets round it and three
+   loose boxes that break but count for nothing. Hit each of the five once, each
+   lighting a green ring at its foot as it is counted; then shoot through the wall
+   of eight boxes, two deep, across the corridor out, which never comes back in
+   here. The way on is where they were.
+7. **Items.** Three set pieces in a row, each box holding its own item with no
+   roulette, and a line that an item works once. A Shield to raise and drive
+   past a turret guarding a corridor without losing a life; a Ricochet to hit a
+   target round a corner by bouncing a shot off the wall; a Turret to drop by a
+   row of three targets and let it clear them. The item slot appears, pointed at.
+8. **Jokers.** Two parked dummy karts that never move or shoot and go down to one
+   hit, each dropping a card as it goes, Magnet Hubcaps and Payday, since both
+   help with the coins straight after; then hold Tab to read the hand; then drive
+   into the pit twice, each death opening the joker pick with a pointer explaining
+   it, for the third and fourth cards. Holding four completes the lesson. The
+   hand and the lives appear, pointed at.
+9. **Pads.** A room with four Royal Flush pads and a Jackpot: hold every pad of
+   the room at once for a flush, then drain the Jackpot once, taking all it has
+   filled to. The pot appears, pointed at. A flush is holding every pad in the
+   room rather than on the map, see 3.9, so each room's pads are a flush of their
+   own.
+10. **The Junction.** A room with a Junction and a Jackpot to earn with: one
+    cash-out of 100 points or more, done. A line says the difference: the pot is
+    part lost when you die, the bank is safe, and a match is won by banking its
+    target, 3000 to start with. The bank appears, pointed at.
+11. **The fight.** A small arena with everything a map has, a Junction, Royal
+    Flush pads, a Jackpot, item pads, boxes and a pit, and a pen of three bots
+    behind bars. The gate shuts behind the kart as it drives in. The first easy
+    bot is let out at once, the second easy one at 150 banked and the normal one
+    at 300. Bank 400 points in here, counted from the start of the fight, shown
+    as a bar across the top center of the screen the way a boss's health would
+    be; a death is a respawn and a joker pick, nobody else's banking counts
+    against the player, and nobody can win the match itself. Reaching it is
+    TUTORIAL COMPLETE with a fanfare, two portals open, to Play and to the
+    Garage, and the settings remember it.
+
+A map may hold more than one Junction, each banking as the one does, and the
+Royal Flush is per room for the same reason: the tutorial's rooms each want
+their own. On every other map the one Junction and the one room make this the
+rule it always was.
+
+In the current build the tutorial ends after Shooting, in a room with the portal
+to the Garage in it; the lessons from Items on follow.
 
 ### 9.5 The driving room
 

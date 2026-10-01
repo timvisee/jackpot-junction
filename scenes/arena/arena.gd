@@ -57,6 +57,8 @@ var flush_pads: Array[FlushPad] = []
 var targets: Array[Target] = []
 var joker_pads: Array[JokerPad] = []
 var portals: Array[Portal] = []
+## The pieces of wall that open and shut, GAME.md 9.4a, which the room running the map works.
+var gates: Array[Gate] = []
 var junction: JunctionPad
 ## The moving-head lights over the table, driven by the match's excitement meter.
 var disco: DiscoLights
@@ -121,6 +123,7 @@ func build_steps() -> Array[Callable]:
 		_add_table,
 		_add_floor,
 		_add_walls,
+		_add_gates,
 		_add_spawns,
 		_add_coin_pads,
 		_add_power_pads,
@@ -160,6 +163,7 @@ func _clear_the_room() -> void:
 	targets.clear()
 	joker_pads.clear()
 	portals.clear()
+	gates.clear()
 	jackpot_zones.clear()
 	jackpot_positions.clear()
 	pickups = Node3D.new()
@@ -542,6 +546,34 @@ func _add_walls() -> void:
 	# Every wall in the room is the same handful of materials and none of them ever moves.
 	if bake_scenery:
 		Bake.merge(walls)
+
+
+## A gate for every run of G cells, GAME.md 9.4a: a piece of the room's own wall that the room
+## opens and shuts, see [Gate]. Apart from the walls, since these move and the walls are baked.
+func _add_gates() -> void:
+	var holder := Node3D.new()
+	holder.name = "Gates"
+	add_child(holder)
+	for i: int in grid.gates.size():
+		var rect := grid.gates[i]
+		var size2 := grid.rect_size(rect)
+		var size := Vector3(size2.x, layout.wall_height, size2.y)
+		var gate := Gate.new()
+		gate.name = "Gate%d" % i
+		for y: int in range(rect.position.y, rect.end.y):
+			for x: int in range(rect.position.x, rect.end.x):
+				gate.cells.append(Vector2i(x, y))
+		gate.build(grid.rect_center(rect), size, kit.wall(size, grid.walls.size() + i))
+		holder.add_child(gate)
+		gates.append(gate)
+
+
+## The gate standing on [param cell], or null.
+func gate_at(cell: Vector2i) -> Gate:
+	for gate: Gate in gates:
+		if cell in gate.cells:
+			return gate
+	return null
 
 
 func _add_spawns() -> void:

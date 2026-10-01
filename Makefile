@@ -48,6 +48,7 @@ smoke: | $(CACHE)
 	tools/smoke res://scenes/match/match_scene.tscn 120
 	# Past the countdown, so the run does not end with a beep still sounding.
 	tools/smoke res://scenes/garage/garage.tscn 240
+	tools/smoke res://scenes/tutorial/tutorial.tscn 240
 	tools/smoke res://scenes/waiting/waiting_room.tscn 60
 	tools/smoke res://scenes/dev/playground.tscn
 	tools/smoke res://scenes/dev/driving.tscn
