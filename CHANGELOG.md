@@ -15,7 +15,7 @@ below, and hands the notes to the release workflow.
 
 - **Jokers show when they go off.** Guardian Angel, Insurance Policy, Tight Grip, Pickpocket, Toll
   Booth, Road Rage and Carbon Copy pull out of your hand and glow with a word when they act; a
-  Spare Tire a death takes burns out of it in red.
+  joker your death drops or takes, such as Spare Tire, burns out of it in red, saying LOST.
 
 ## [0.11.0] - 2026-09-30
 

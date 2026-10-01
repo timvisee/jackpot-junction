@@ -266,3 +266,25 @@ func test_the_spare_tire_a_death_takes_burns_out_of_the_hand() -> void:
 	# The card left is the one it was, not one dealt again.
 	assert_bool(is_instance_valid(tank)).is_true()
 	assert_array(hand._cards).is_equal([tank])
+
+
+## Every joker a death drops burns out of the hand the same way, Glass Jackpot's two at once, and
+## the card left stays the one it was.
+func test_the_jokers_a_death_drops_burn_out_of_the_hand() -> void:
+	var match_node := _start_match(PlayerInput.new(DeviceInput.ANY, 0), true)
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	_attach(kart, "glass_jackpot")
+	_attach(kart, "hair_trigger")
+	_attach(kart, "big_tank")
+	await _runner.simulate_frames(30, 17)
+	var hand := match_node.hud.hand_of(0)
+	var before := hand._cards.duplicate()
+	kart.die(&"pit", -1)
+	assert_int(kart.jokers.count()).is_equal(1)
+	assert_int(hand._burning.size()).is_equal(2)
+	for going: Array in hand._burning:
+		assert_str((going[1] as Label).text).is_equal("LOST")
+	await _runner.simulate_frames(3, 17)
+	assert_int(hand._cards.size()).is_equal(1)
+	assert_bool(hand._cards[0] in before).override_failure_message("dealt again").is_true()

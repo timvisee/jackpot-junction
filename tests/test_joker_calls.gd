@@ -8,19 +8,28 @@ const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 var _runner: GdUnitSceneRunner
 ## What went off since the test began: "slot joker WORD".
 var _said: Array[String] = []
+## And what went from a hand by itself: "slot joker WORD".
+var _lost: Array[String] = []
 
 
 func _heard(slot: int, joker: StringName, word: String) -> void:
 	_said.append("%d %s %s" % [slot, joker, word])
 
 
+func _heard_lost(slot: int, joker: StringName, word: String) -> void:
+	_lost.append("%d %s %s" % [slot, joker, word])
+
+
 func before_test() -> void:
 	_said.clear()
+	_lost.clear()
 	Events.joker_went_off.connect(_heard)
+	Events.joker_used_up.connect(_heard_lost)
 
 
 func after_test() -> void:
 	Events.joker_went_off.disconnect(_heard)
+	Events.joker_used_up.disconnect(_heard_lost)
 
 
 func _start_match() -> Match:
@@ -124,6 +133,27 @@ func test_carbon_copy_says_so_when_it_copies_a_drop() -> void:
 	kart.die(&"pit", -1)
 	assert_array(_said).is_equal(["0 carbon_copy COPIED"] as Array[String])
 	assert_int(kart.jokers.count()).is_equal(2)
+	# A copy is nothing lost.
+	assert_array(_lost).is_empty()
+
+
+## A joker a death drops on the floor is gone from the hand without the player's say, and its card
+## says LOST as it goes; Glass Jackpot's two say it each.
+func test_a_joker_a_death_drops_says_it_is_lost() -> void:
+	var match_node := await _start_match()
+	match_node.rules.death_joker_drop_chance = 1.0
+	var kart := match_node.kart_of(0)
+	_attach(kart, "big_tank")
+	kart.die(&"pit", -1)
+	assert_array(_lost).is_equal(["0 big_tank LOST"] as Array[String])
+	assert_int(kart.jokers.count()).is_equal(0)
+	await _runner.simulate_frames(int(match_node.rules.respawn_delay * 60.0) + 30, 17)
+	_lost.clear()
+	_attach(kart, "glass_jackpot")
+	_attach(kart, "hair_trigger")
+	kart.die(&"pit", -1)
+	assert_int(_lost.size()).is_equal(2)
+	assert_bool(_lost.all(func(each: String) -> bool: return each.ends_with(" LOST"))).is_true()
 
 
 ## A puppet's jokers do nothing of their own: the host says it, and the client hears it relayed.

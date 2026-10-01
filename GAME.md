@@ -2546,7 +2546,11 @@ movement: the one thing a corner block must not do is ask to be looked at.
   Copy dropping a copy, COPIED. A joker that goes from the hand by itself, used
   up, gets the destroying kind: the Spare Tire a death takes is framed and lit in
   red with LOST over it, shakes for a moment, then drops out of the hand and
-  fades, and the cards left close up behind it. The word is on the card rather
+  fades, and the cards left close up behind it. So does every joker a death drops
+  on the floor, LOST the same, Glass Jackpot's two each: it went without the
+  player's say, and the card on the floor is anybody's now. What the player gives
+  up themselves, dropping or destroying a card or swapping one at the pick, goes
+  as it always did: they saw it go. The word is on the card rather
   than over the kart, where words are kept out: the card is where the player
   looks to see what a joker did. A haloed heart over the kart, tried first for
   Guardian Angel, said a life was kept without saying whose doing it was. The
