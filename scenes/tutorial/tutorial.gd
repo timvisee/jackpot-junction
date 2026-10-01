@@ -61,6 +61,10 @@ func _ready() -> void:
 	match_node.arena.disco.enabled = false
 	match_node.arena.crowd.enabled = false
 	match_node.arena.billboards.visible = false
+	# The camera follows the player alone: the match frames every kart, and the parked karts and
+	# the penned bots are rooms away.
+	var followed: Array[Node3D] = [match_node.slots[0].kart]
+	match_node.camera_rig.targets = followed
 	match_node.camera_rig.follow_close(CAMERA)
 	_wire_portals()
 	layer = CanvasLayer.new()

@@ -179,6 +179,10 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_str(run.hint.words()).is_equal("Hold %s to drive")
 	var gate := tutorial.match_node.arena.gate_at(lesson.gate_cell)
 	assert_bool(gate.is_open).is_false()
+	# The kart is in the corridor, and the camera follows it alone, not the parked karts and the
+	# penned bots rooms away.
+	assert_float(run.kart().global_position.distance_to(run.cell(lesson.spawn_cell))).is_less(0.5)
+	assert_array(tutorial.match_node.camera_rig.targets).is_equal([run.kart()] as Array[Node3D])
 	# Bare: no nitro, no hand, no pot, and the corner's own hints never.
 	var parts := tutorial.match_node.hud.block_parts(0)
 	assert_bool((parts["nitro"] as Control).visible).is_false()
