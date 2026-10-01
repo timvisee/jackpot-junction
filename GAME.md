@@ -3546,13 +3546,15 @@ leads back to the Garage, so going round once locks nothing away. Finishing it
 is remembered in the settings; the pause menu's Skip step passes a lesson, and
 leaving starts over from the first, since nothing in the middle is saved.
 
-It is one map of rooms in a row, each a lesson, joined by gates: a portcullis,
-two posts with a beam across them, a light strip along the beam that is red
-while the gate is shut and cyan once it is open, and a row of steel bars between
-the posts that sink into the floor one after another from the middle outward
-when the lesson in front of it is done, the frame left standing as a doorway,
-and that rise again once the kart is through, so a room finished is a room left
-behind and a kart that dies comes back in the room it is learning in. The gates
+It is one map of rooms in a row, each a lesson, joined by gates: a portcullis
+no taller than the walls either side of it, two posts with a lamp on top of
+each that is red while the gate is shut and cyan once it is open, and a row of
+steel bars between the posts that sink into the floor one after another from the
+middle outward when the lesson in front of it is done, the posts left standing
+as a doorway, and that rise again once the kart is through, so a room finished
+is a room left behind and a kart that dies comes back in the room it is
+learning in. Nothing crosses over the top of a gate: a beam did, and a kart's
+hat drove through it. The gates
 are the `G` cells of a map, see 6.3; a match with none never meets one, and the
 bots' map of where they can drive treats a shut one as wall. The gate, the
 arrow, the pads and the lights below are in the shader warm-up of 10.7, so none
@@ -3690,8 +3692,9 @@ The lessons, each in its own room, in order:
    4.1, 0.6 s of drift at half speed or more.
 6. **Shooting.** A gallery 24 by 16 cells with five targets round it and three
    loose boxes that break but count for nothing. Hit each of the five once, a
-   traffic light beside each going from red to green as it is counted, so the
-   ones still to do can be told from across the room; then shoot through the wall
+   lamp on a pole beside each, the pole the Jackpot zones of 3.5 wear, dark
+   until the target is counted and green after, so the ones still to do can be
+   told from across the room; then shoot through the wall
    of eight boxes, two deep, across the corridor out, which never comes back in
    here. The way on is where they were.
 7. **Items.** Three set pieces in a row, each box holding its own item with no

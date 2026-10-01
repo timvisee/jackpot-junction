@@ -1,10 +1,11 @@
 class_name Gate
 extends StaticBody3D
-## A gate between two rooms, GAME.md 9.4a: a portcullis. Two posts with a beam across them, a
-## light strip along the beam that is red while the gate is shut and cyan once it is open, and a
-## row of steel bars between the posts that sink into the floor one after another from the middle
-## outward when it opens, and rise again when it shuts; the frame stays, a doorway. The arena puts
-## one down for every run of G cells in a map, see 6.3, and whoever runs the room opens and closes
+## A gate between two rooms, GAME.md 9.4a: a portcullis no taller than the walls either side of
+## it. Two posts with a lamp on top of each, red while the gate is shut and cyan once it is open,
+## and a row of steel bars between them that sink into the floor one after another from the
+## middle outward when it opens, and rise again when it shuts; the posts stay, a doorway. Nothing
+## crosses over the top of it, so nothing a kart wears goes through anything. The arena puts one
+## down for every run of G cells in a map, see 6.3, and whoever runs the room opens and closes
 ## them: a match on a map without them never meets one. Where the bots may drive is the room's to
 ## keep, see [method ArenaNav.set_cell_blocked], since the arena has no say in it.
 
@@ -19,16 +20,16 @@ const UNDER := 0.1
 const CLEAR_AT := 0.55
 ## How far behind the middle bars the end ones run, as a share of the slide.
 const STAGGER := 0.6
-## The bars: how far apart, how thick, and how much of the span either side is post rather than bar.
+## The bars: how far apart, how thick, how tall against the wall, and how much of the span either
+## side is post rather than bar.
 const BAR_EVERY := 0.32
 const BAR_RADIUS := 0.055
+const BAR_SHARE := 0.95
 const INSET := 0.5
-## The posts, the beam between their tops and the light strip along it.
-const POST := Vector3(0.36, 1.5, 0.36)
-const BEAM_HEIGHT := 1.3
-const BEAM_TALL := 0.26
-const BEAM_THICK := 0.3
-const STRIP := 0.07
+## The posts, as tall as the wall and a little more, and the lamp capping each.
+const POST_SIDE := 0.36
+const POST_OVER := 0.12
+const LAMP := 0.12
 const SHUT := Color("#FF3B30")
 const OPEN := Palette.NEON_CYAN
 const STEEL := Color(0.22, 0.23, 0.27)
@@ -45,7 +46,6 @@ var drop := 0.0:
 		if _shape != null:
 			_shape.set_deferred("disabled", is_open and drop >= CLEAR_AT)
 
-var _height := 1.0
 var _span := 1.0
 var _along := Vector3.RIGHT
 var _shape: CollisionShape3D
@@ -57,13 +57,13 @@ var _tween: Tween
 
 
 ## Builds the gate across [param size], in meters, standing on the floor at [param at]. The bars
-## run along the longer side.
+## run along the longer side, and stand as tall as [param size] is.
 func build(at: Vector3, size: Vector3) -> void:
 	position = at
-	_height = size.y
 	var along_x := size.x >= size.z
 	_along = Vector3.RIGHT if along_x else Vector3.BACK
 	_span = maxf(size.x, size.z)
+	_bar_tall = size.y * BAR_SHARE
 	collision_layer = Layers.WORLD
 	collision_mask = 0
 	_shape = CollisionShape3D.new()
@@ -72,24 +72,18 @@ func build(at: Vector3, size: Vector3) -> void:
 	_shape.shape = box
 	_shape.position = Vector3(0.0, size.y * 0.5, 0.0)
 	add_child(_shape)
-	var steel := _material(STEEL, 0.6)
-	var dark := _material(DARK, 0.2)
-	for side: float in [-1.0, 1.0]:
-		var post := _box(_sized(POST.x, POST.y, POST.z, along_x), dark)
-		post.position = (
-			_along * side * (_span * 0.5 - POST.x * 0.5) + Vector3(0.0, POST.y * 0.5, 0.0)
-		)
-		add_child(post)
-	var beam := _box(_sized(_span, BEAM_TALL, BEAM_THICK, along_x), dark)
-	beam.position = Vector3(0.0, BEAM_HEIGHT, 0.0)
-	add_child(beam)
 	_lamps = StandardMaterial3D.new()
 	_lamps.emission_enabled = true
 	_lamps.emission_energy_multiplier = 1.6
-	var strip := _box(_sized(_span - POST.x * 2.0, STRIP, BEAM_THICK + 0.04, along_x), _lamps)
-	strip.position = Vector3(0.0, BEAM_HEIGHT + BEAM_TALL * 0.5 - STRIP * 0.5, 0.0)
-	add_child(strip)
-	_bar_tall = BEAM_HEIGHT - BEAM_TALL * 0.5
+	var post_tall := size.y + POST_OVER
+	for side: float in [-1.0, 1.0]:
+		var foot := _along * side * (_span * 0.5 - POST_SIDE * 0.5)
+		var post := _box(Vector3(POST_SIDE, post_tall, POST_SIDE), _material(DARK, 0.2))
+		post.position = foot + Vector3(0.0, post_tall * 0.5, 0.0)
+		add_child(post)
+		var lamp := _box(Vector3(POST_SIDE + 0.04, LAMP, POST_SIDE + 0.04), _lamps)
+		lamp.position = foot + Vector3(0.0, post_tall + LAMP * 0.5, 0.0)
+		add_child(lamp)
 	_bar_count = maxi(roundi((_span - INSET * 2.0) / BAR_EVERY), 1)
 	var bar := CylinderMesh.new()
 	bar.top_radius = BAR_RADIUS
@@ -104,7 +98,7 @@ func build(at: Vector3, size: Vector3) -> void:
 	_bars = MultiMeshInstance3D.new()
 	_bars.name = "Bars"
 	_bars.multimesh = multi
-	_bars.material_override = steel
+	_bars.material_override = _material(STEEL, 0.6)
 	add_child(_bars)
 	_place_bars()
 	_paint()
@@ -129,6 +123,11 @@ func close() -> void:
 	_shape.set_deferred("disabled", false)
 	_slide(0.0)
 	closed.emit()
+
+
+## Where bar [param index] stands just now, in the gate's own space, for asking where they are.
+func bar_origin(index: int) -> Vector3:
+	return _bars.multimesh.get_instance_transform(index).origin
 
 
 func _slide(to: float) -> void:
@@ -160,11 +159,6 @@ func _paint() -> void:
 	var color := OPEN if is_open else SHUT
 	_lamps.albedo_color = color
 	_lamps.emission = color
-
-
-## A box of [param size] turned to run along the gate's long side.
-static func _sized(long: float, tall: float, thick: float, along_x: bool) -> Vector3:
-	return Vector3(long, tall, thick) if along_x else Vector3(thick, tall, long)
 
 
 static func _box(size: Vector3, skin: Material) -> MeshInstance3D:
