@@ -20,13 +20,15 @@ const GAP := 14.0
 const FRAME_GROW := 6.0
 
 var hud: MatchHud
-## Which player's corner.
+## Whose corner, and which.
+var slot: PlayerSlot
 var index := 0
 var shown: Dictionary[StringName, bool] = {}
 
 var _pointer: HBoxContainer
 var _tip: Tip
-var _label: Label
+## The pointer's line, words with the control drawn in where it names one, see [InputHint].
+var _line: Control
 var _frame: Frame
 var _pointing := &""
 var _time := 0.0
@@ -68,11 +70,12 @@ class Tip:
 		draw_colored_polygon(points, INK)
 
 
-static func add_to(on: MatchHud, slot_index: int) -> HudReveal:
+static func add_to(on: MatchHud, of: PlayerSlot) -> HudReveal:
 	var reveal := HudReveal.new()
 	reveal.name = "HudReveal"
 	reveal.hud = on
-	reveal.index = slot_index
+	reveal.slot = of
+	reveal.index = of.index
 	reveal.process_priority = 10
 	on.add_child(reveal)
 	return reveal
@@ -88,11 +91,6 @@ func _ready() -> void:
 	_tip = Tip.new()
 	_tip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_pointer.add_child(_tip)
-	_label = Label.new()
-	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Type.strong(_label, Type.LARGE, INK)
-	HudText.shadowed(_label)
-	_pointer.add_child(_label)
 	_pointer.visible = false
 	hud.add_child(_pointer)
 	_frame = Frame.new()
@@ -101,17 +99,35 @@ func _ready() -> void:
 	hud.add_child(_frame)
 
 
-## Brings [param piece] in, with [param line] on a pointer beside it until [method pointer_done].
-func show_piece(piece: StringName, line: String) -> void:
+## Brings [param piece] in, with [param line] on a pointer beside it until [method pointer_done],
+## each gap in the line filled with the control of [param actions] for the device in hand.
+func show_piece(piece: StringName, line: String, actions: Array[StringName] = []) -> void:
 	shown[piece] = true
 	if line.is_empty():
 		return
 	_pointing = piece
-	_label.text = line
+	if _line != null:
+		_line.queue_free()
+	var keyboard := DeviceInput.uses_keyboard(slot.device()) if slot != null else true
+	var parts: Array = []
+	for action: StringName in actions:
+		parts.append(InputHint.glyph(action, keyboard, INK, Type.LARGE))
+	_line = InputHint.row(line, parts, INK, Type.LARGE)
+	_pointer.add_child(_line)
 	_tip.down = piece == &"hand"
 	_tip.queue_redraw()
 	_pointer.visible = true
 	_frame.visible = true
+
+
+## What the pointer says, for asking.
+func line() -> String:
+	var words: PackedStringArray = []
+	if _line != null:
+		for part: Node in _line.get_children():
+			if part is Label:
+				words.append((part as Label).text)
+	return " ".join(words)
 
 
 ## The pointer has said its piece.

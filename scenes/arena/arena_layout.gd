@@ -96,7 +96,7 @@ func _collect_elements(target: ArenaGrid) -> void:
 							ArenaGrid.JACKPOT:
 								target.jackpots.append(rect)
 							ArenaGrid.JUNCTION:
-								target.junction = rect
+								target.junctions.append(rect)
 							ArenaGrid.GATE:
 								target.gates.append(rect)
 

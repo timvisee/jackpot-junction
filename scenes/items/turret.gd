@@ -11,6 +11,11 @@ const AIM_TOLERANCE := 0.09
 const RANGE := 30.0
 
 var owner_slot := -1
+## Whether it shoots the gallery's targets of 6.2 as well, when no kart is in reach: the tutorial's
+## turrets do, GAME.md 9.4a, and a match's never.
+var shoots_targets := false
+## How far it shoots, [constant RANGE] unless told otherwise.
+var reach := RANGE
 ## The slot this turret belongs to, for bullets' target filtering.
 var slot := -1
 var lifetime := 20.0
@@ -70,7 +75,9 @@ func _physics_process(delta: float) -> void:
 	if lifetime <= 0.0:
 		destroy()
 		return
-	var target := _nearest_enemy()
+	var target: Node3D = _nearest_enemy()
+	if target == null and shoots_targets:
+		target = _nearest_target()
 	if target == null:
 		return
 	var to_target := target.global_position - global_position
@@ -98,7 +105,7 @@ func _physics_process(delta: float) -> void:
 
 func _nearest_enemy() -> Kart:
 	var best: Kart = null
-	var best_distance := RANGE
+	var best_distance := reach
 	for node: Node in FrameGroups.of(get_tree(), &"karts"):
 		var kart := node as Kart if is_instance_valid(node) else null
 		if kart == null or kart.slot == owner_slot or not kart.is_targetable():
@@ -107,6 +114,20 @@ func _nearest_enemy() -> Kart:
 		if distance < best_distance:
 			best_distance = distance
 			best = kart
+	return best
+
+
+func _nearest_target() -> Target:
+	var best: Target = null
+	var best_distance := reach
+	for node: Node in FrameGroups.of(get_tree(), &"targets"):
+		var target := node as Target if is_instance_valid(node) else null
+		if target == null or not target.is_targetable():
+			continue
+		var distance := global_position.distance_to(target.global_position)
+		if distance < best_distance:
+			best_distance = distance
+			best = target
 	return best
 
 

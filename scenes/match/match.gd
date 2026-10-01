@@ -154,10 +154,10 @@ func start(
 		var cell := arena.grid.crates[i]
 		arena.crates[i].destroyed.connect(func(_by: int) -> void: nav.set_cell_blocked(cell, false))
 		arena.crates[i].respawned.connect(func() -> void: nav.set_cell_blocked(cell, true))
-	if arena.junction != null:
-		arena.junction.bank_started.connect(_on_bank_started)
-		arena.junction.bank_tick.connect(_on_bank_tick)
-		arena.junction.bank_completed.connect(_on_bank_completed)
+	for pad: JunctionPad in arena.junctions:
+		pad.bank_started.connect(_on_bank_started)
+		pad.bank_tick.connect(_on_bank_tick)
+		pad.bank_completed.connect(_on_bank_completed)
 	for pad: FlushPad in arena.flush_pads:
 		pad.decay = rules.flush_pad_decay
 		pad.claimed.connect(_on_pad_claimed)
@@ -487,12 +487,12 @@ func start_puppet() -> void:
 	for zone: JackpotZone in arena.jackpot_zones:
 		zone.rules = rules
 		zone.puppet = true
-	if arena.junction != null:
-		arena.junction.puppet = true
+	for pad: JunctionPad in arena.junctions:
+		pad.puppet = true
 		# Banking stays the host's, but the pad's faster nitro tank is worked out here too,
 		# GAME.md 3.4, and for that it needs the numbers. They are the same numbers: a client's
 		# copy is the one the host's lobby settings are written into, and the rest is in the file.
-		arena.junction.rules = rules
+		pad.rules = rules
 	for crate: Crate in arena.crates:
 		crate.puppet = true
 	_build_systems(true)
@@ -680,9 +680,9 @@ func _physics_process(delta: float) -> void:
 			# was waiting on to stop, see [method check_target].
 			check_target()
 			MatchHeat.step(self, delta)
-			if arena.junction != null:
-				arena.junction.hint = junction_hint()
-				arena.junction.winning = junction_wins_it()
+			for pad: JunctionPad in arena.junctions:
+				pad.hint = junction_hint()
+				pad.winning = junction_wins_it()
 			MatchStage.step(self)
 
 
@@ -748,8 +748,8 @@ func _begin_play() -> void:
 
 
 func _enter_last_call() -> void:
-	if arena.junction != null:
-		arena.junction.payout_multiplier = rules.last_call_payout
+	for pad: JunctionPad in arena.junctions:
+		pad.payout_multiplier = rules.last_call_payout
 	_set_state(State.LAST_CALL)
 
 
@@ -816,7 +816,7 @@ func check_target() -> void:
 		if slot.banked < rules.target_score:
 			continue
 		reached = true
-		if slot.kart != null and arena.junction != null and arena.junction.is_banking(slot.kart):
+		if slot.kart != null and arena.banking(slot.kart):
 			return
 	if reached:
 		_finish()
@@ -870,15 +870,20 @@ func _step_flush_lock(delta: float) -> int:
 
 
 ## A flush pad changed hands. Holding all four at once is a Royal Flush, GAME.md 3.9: a mult
-## bonus and a full nitro tank, and the pads clear and rest for a while.
-func _on_pad_claimed(_pad: FlushPad, kart: Kart) -> void:
+## bonus and a full nitro tank, and the pads clear and rest for a while. All four being every pad
+## of the room the pad is in: a map of rooms, 9.4a, has a flush a room.
+func _on_pad_claimed(pad: FlushPad, kart: Kart) -> void:
 	if kart.slot >= 0 and kart.slot < slots.size():
 		slots[kart.slot].stats.add(&"pads_taken")
 	Events.pad_claimed.emit(kart.slot)
+	var room: Array[FlushPad] = []
 	for other: FlushPad in arena.flush_pads:
+		if other.group == pad.group:
+			room.append(other)
+	for other: FlushPad in room:
 		if other.owner_slot != kart.slot:
 			return
-	for other: FlushPad in arena.flush_pads:
+	for other: FlushPad in room:
 		other.clear_and_disable(rules.flush_disable_time)
 	flush_lock_slot = kart.slot
 	flush_lock_left = rules.flush_lock_seconds

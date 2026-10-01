@@ -37,19 +37,19 @@ func _begin() -> void:
 	var holder := run.match_node
 	var simple := ModePad.add_to(holder, run.cell(SIMPLE_PAD), Settings.DRIVE_SIMPLE)
 	var advanced := ModePad.add_to(holder, run.cell(ADVANCED_PAD), Settings.DRIVE_ADVANCED)
-	var sign := Label3D.new()
-	sign.text = "HOW TO DRIVE\ndrive onto a pad to switch\nthe pause menu changes it later too"
-	sign.font_size = 48
-	sign.outline_size = 12
-	sign.modulate = Palette.CHIP_WHITE
-	sign.outline_modulate = Color(0.04, 0.04, 0.05, 0.9)
-	sign.pixel_size = 0.009
-	sign.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	sign.no_depth_test = true
+	var board := Label3D.new()
+	board.text = "HOW TO DRIVE\ndrive onto a pad to switch\nthe pause menu changes it later too"
+	board.font_size = 48
+	board.outline_size = 12
+	board.modulate = Palette.CHIP_WHITE
+	board.outline_modulate = Color(0.04, 0.04, 0.05, 0.9)
+	board.pixel_size = 0.009
+	board.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	board.no_depth_test = true
 	var at := run.cell(PADS_SIGN)
-	sign.position = Vector3(at.x, 2.7, at.z)
-	holder.add_child(sign)
-	_pads = [simple, advanced, sign]
+	board.position = Vector3(at.x, 2.7, at.z)
+	holder.add_child(board)
+	_pads = [simple, advanced, board]
 
 
 func step(_delta: float) -> void:
@@ -71,3 +71,4 @@ func end() -> void:
 		if is_instance_valid(pad):
 			pad.queue_free()
 	_pads.clear()
+	super()

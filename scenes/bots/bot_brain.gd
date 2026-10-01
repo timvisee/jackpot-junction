@@ -255,7 +255,7 @@ func _decide() -> void:
 			var away := (kart.global_position - threat.global_position).normalized()
 			target = _clamp_to_arena(kart.global_position + away * 8.0)
 		&"bank":
-			target = match_node.arena.junction_position
+			target = match_node.arena.junction_near(kart.global_position)
 		&"jackpot":
 			target = context["jackpot_position"]
 		&"hunt":
@@ -273,7 +273,7 @@ func _decide() -> void:
 		_:
 			target = _clamp_to_arena(
 				(
-					match_node.arena.junction_position
+					match_node.arena.junction_near(kart.global_position)
 					+ Vector3(rng.randf_range(-8.0, 8.0), 0.0, rng.randf_range(-5.0, 5.0)) * _span()
 				)
 			)
@@ -701,7 +701,7 @@ func _current_waypoint() -> Vector3:
 func _should_hold_position() -> bool:
 	if goal == &"bank":
 		return (
-			kart.global_position.distance_to(match_node.arena.junction_position)
+			kart.global_position.distance_to(match_node.arena.junction_near(kart.global_position))
 			< match_node.arena.junction_radius - 0.9
 		)
 	if goal == &"jackpot":

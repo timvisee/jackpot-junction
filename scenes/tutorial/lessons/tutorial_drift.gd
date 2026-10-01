@@ -28,6 +28,7 @@ func _begin() -> void:
 func end() -> void:
 	if Events.drift_boosted.is_connected(_on_boost):
 		Events.drift_boosted.disconnect(_on_boost)
+	super()
 
 
 func _on_boost(slot_index: int) -> void:

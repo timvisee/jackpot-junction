@@ -70,7 +70,14 @@ var turbo_pads: Array[Vector2i] = []
 var crates: Array[Vector2i] = []
 var pits: Array[Rect2i] = []
 var jackpots: Array[Rect2i] = []
-var junction: Rect2i = Rect2i()
+## The Junctions, GAME.md 3.4: one on most maps, several on the tutorial's, 9.4a.
+var junctions: Array[Rect2i] = []
+## The first Junction, or an empty rect, for whatever asks for the one.
+var junction: Rect2i:
+	get:
+		return junctions[0] if not junctions.is_empty() else Rect2i()
+## Which room each floor cell is in, see [method region_of], found on the first ask.
+var _regions: Dictionary[Vector2i, int] = {}
 
 
 func world_size() -> Vector2:
@@ -83,6 +90,42 @@ func glyph(cell: Vector2i) -> String:
 
 func is_wall(cell: Vector2i) -> bool:
 	return glyph(cell) == WALL
+
+
+## Which room [param cell] is in, GAME.md 9.4a: the cells that can be reached from one another
+## without crossing a wall or a gate are one room, numbered from 0 in reading order, and a wall is
+## -1. A map of one room is one room, which is every map but the tutorial's.
+func region_of(cell: Vector2i) -> int:
+	if _regions.is_empty():
+		_find_regions()
+	return _regions.get(cell, -1)
+
+
+func _find_regions() -> void:
+	var next := 0
+	for y: int in height:
+		for x: int in width:
+			var start := Vector2i(x, y)
+			if _solid(start) or _regions.has(start):
+				continue
+			_regions[start] = next
+			var stack: Array[Vector2i] = [start]
+			while not stack.is_empty():
+				var cell: Vector2i = stack.pop_back()
+				for offset: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+					var near := cell + offset
+					if near.x < 0 or near.y < 0 or near.x >= width or near.y >= height:
+						continue
+					if _solid(near) or _regions.has(near):
+						continue
+					_regions[near] = next
+					stack.append(near)
+			next += 1
+
+
+func _solid(cell: Vector2i) -> bool:
+	var glyph_here := glyph(cell)
+	return glyph_here == WALL or glyph_here == GATE
 
 
 ## World position of the center of a cell, on the floor plane.

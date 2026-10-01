@@ -12,8 +12,9 @@ func _init() -> void:
 	spawn_cell = Vector2i(50, 26)
 	facing = Vector3(1.0, 0.0, 0.0)
 	next_cell = Vector2i(81, 20)
-	reveals = [[&"nitro", "Your nitro"]]
+	reveals = [[&"nitro", "Your nitro", [InputActions.NITRO]]]
 	_burn = add_task("Burn a full tank of nitro", "Hold %s for nitro", [InputActions.NITRO], true)
+	reveals[0][1] = "Your nitro, %s to burn it"
 	_burn.arrow = Vector2i(83, 26)
 
 

@@ -34,6 +34,8 @@ const SUIT_PIXELS := 128
 const PREDICTED_HOLD := 1.0
 
 var index := 0
+## Which room it is in, GAME.md 3.9: a Royal Flush is holding every pad of the room.
+var group := 0
 var size := 1.25
 ## Slot holding the pad, -1 for nobody.
 var owner_slot := -1

@@ -59,7 +59,12 @@ var joker_pads: Array[JokerPad] = []
 var portals: Array[Portal] = []
 ## The pieces of wall that open and shut, GAME.md 9.4a, which the room running the map works.
 var gates: Array[Gate] = []
-var junction: JunctionPad
+## The cash-out pads, GAME.md 3.4: one on most maps, and one a room on the tutorial's, 9.4a.
+var junctions: Array[JunctionPad] = []
+## The first of them, or null, for whatever asks for the one.
+var junction: JunctionPad:
+	get:
+		return junctions[0] if not junctions.is_empty() else null
 ## The moving-head lights over the table, driven by the match's excitement meter.
 var disco: DiscoLights
 ## The people watching, GAME.md 8.1.
@@ -164,6 +169,7 @@ func _clear_the_room() -> void:
 	joker_pads.clear()
 	portals.clear()
 	gates.clear()
+	junctions.clear()
 	jackpot_zones.clear()
 	jackpot_positions.clear()
 	pickups = Node3D.new()
@@ -548,24 +554,9 @@ func _add_walls() -> void:
 		Bake.merge(walls)
 
 
-## A gate for every run of G cells, GAME.md 9.4a: a piece of the room's own wall that the room
-## opens and shuts, see [Gate]. Apart from the walls, since these move and the walls are baked.
+## A gate for every run of G cells, GAME.md 9.4a, see [ArenaGates].
 func _add_gates() -> void:
-	var holder := Node3D.new()
-	holder.name = "Gates"
-	add_child(holder)
-	for i: int in grid.gates.size():
-		var rect := grid.gates[i]
-		var size2 := grid.rect_size(rect)
-		var size := Vector3(size2.x, layout.wall_height, size2.y)
-		var gate := Gate.new()
-		gate.name = "Gate%d" % i
-		for y: int in range(rect.position.y, rect.end.y):
-			for x: int in range(rect.position.x, rect.end.x):
-				gate.cells.append(Vector2i(x, y))
-		gate.build(grid.rect_center(rect), size)
-		holder.add_child(gate)
-		gates.append(gate)
+	gates = ArenaGates.build(self)
 
 
 ## The gate standing on [param cell], or null.
@@ -671,6 +662,7 @@ func _add_flush_pads() -> void:
 		pad.name = "FlushPad%d" % i
 		pad.index = i
 		pad.size = grid.cell_size
+		pad.group = grid.region_of(grid.flush_pads[i])
 		pad.position = grid.cell_center(grid.flush_pads[i])
 		pads.add_child(pad)
 		flush_pads.append(pad)
@@ -851,26 +843,47 @@ func _add_portals() -> void:
 
 
 func _add_junction() -> void:
-	var rect := grid.junction
-	if rect.size == Vector2i.ZERO:
-		return
-	var size2 := grid.rect_size(rect)
-	junction_position = grid.rect_center(rect)
-	junction_radius = minf(size2.x, size2.y) * 0.5
-	var pad := JunctionPad.new()
-	pad.name = "JunctionPad"
-	pad.radius = junction_radius
-	pad.position = junction_position
-	add_child(pad)
-	junction = pad
-	# What is painted on it is the room's, GAME.md 8.1: a roulette wheel let into the baize After
-	# Hours, a hazard border in the Yard, a machined plate on the bench. The rim that blinks is
-	# not, since the hint of 3.4 says the same thing wherever it is said.
-	pad.ring_material = kit.junction(pad, junction_radius)
-	# A face made of twenty flat pieces is twenty things to draw for a disc two meters across,
-	# and none of it moves or is ever hidden on its own.
-	if bake_scenery:
-		Bake.merge(pad)
+	for i: int in grid.junctions.size():
+		var rect := grid.junctions[i]
+		var size2 := grid.rect_size(rect)
+		var pad := JunctionPad.new()
+		pad.name = "JunctionPad" if i == 0 else "JunctionPad%d" % i
+		pad.radius = minf(size2.x, size2.y) * 0.5
+		pad.position = grid.rect_center(rect)
+		add_child(pad)
+		junctions.append(pad)
+		if i == 0:
+			junction_position = pad.position
+			junction_radius = pad.radius
+		# What is painted on it is the room's, GAME.md 8.1: a roulette wheel let into the baize
+		# After Hours, a hazard border in the Yard, a machined plate on the bench. The rim that
+		# blinks is not, since the hint of 3.4 says the same thing wherever it is said.
+		pad.ring_material = kit.junction(pad, pad.radius)
+		# A face made of twenty flat pieces is twenty things to draw for a disc two meters across,
+		# and none of it moves or is ever hidden on its own.
+		if bake_scenery:
+			Bake.merge(pad)
+
+
+## The middle of the Junction nearest [param point], or the map's middle with none: where a bot
+## goes to bank, which on a map of rooms is its own room's.
+func junction_near(point: Vector3) -> Vector3:
+	var best := Vector3.ZERO
+	var best_distance := INF
+	for pad: JunctionPad in junctions:
+		var distance := pad.position.distance_to(point)
+		if distance < best_distance:
+			best_distance = distance
+			best = pad.position
+	return best
+
+
+## Whether [param kart] is banking on any Junction.
+func banking(kart: Kart) -> bool:
+	for pad: JunctionPad in junctions:
+		if pad.is_banking(kart):
+			return true
+	return false
 
 
 func _add_disco() -> void:

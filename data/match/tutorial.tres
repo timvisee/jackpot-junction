@@ -75,4 +75,4 @@ duration = 3600.0
 target_score = 1073741824
 last_call_duration = 0.0
 countdown = 0.0
-max_players = 4
+max_players = 6
