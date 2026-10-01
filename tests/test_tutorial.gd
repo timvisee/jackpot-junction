@@ -116,6 +116,8 @@ func test_a_gate_sinks_open_and_rises_shut() -> void:
 	assert_object(arena.gate_at(Vector2i(3, 1))).is_same(gate)
 	assert_object(arena.gate_at(Vector2i(1, 1))).is_null()
 	assert_int(gate._bar_count).is_greater_equal(1)
+	# Tweened in frame time, so the renderer is told not to interpolate the bars itself.
+	assert_int(gate._bars.physics_interpolation_mode).is_equal(Node.PHYSICS_INTERPOLATION_MODE_OFF)
 	gate.open()
 	await get_tree().create_timer(Gate.SECONDS + 0.2).timeout
 	assert_float(gate.drop).is_equal_approx(1.0, 0.01)

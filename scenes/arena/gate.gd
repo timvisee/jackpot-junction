@@ -99,6 +99,9 @@ func build(at: Vector3, size: Vector3) -> void:
 	_bars.name = "Bars"
 	_bars.multimesh = multi
 	_bars.material_override = _material(STEEL, 0.6)
+	# The bars are moved by a tween, in frame time: with the physics interpolation of the project
+	# on, the renderer would otherwise try to interpolate them and warn every frame they move.
+	_bars.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	add_child(_bars)
 	_place_bars()
 	_paint()

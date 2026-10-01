@@ -3562,7 +3562,9 @@ middle outward when the lesson in front of it is done, the posts left standing
 as a doorway, and that rise again once the kart is through, so a room finished
 is a room left behind and a kart that dies comes back in the room it is
 learning in. Nothing crosses over the top of a gate: a beam did, and a kart's
-hat drove through it. A gate never shuts on anybody: told to shut with a kart
+hat drove through it. The bars are one MultiMesh moved in frame time, with the
+project's physics interpolation off for it, since a renderer interpolating what
+a tween already moves warns on every frame. A gate never shuts on anybody: told to shut with a kart
 within two meters of its line, it waits until nobody is, and the kart is
 through only once it is in the next room and three meters past the gate, since
 a room may well lie on the far side of its own gate. The gates
