@@ -15,6 +15,8 @@ const RETRY := 5.0
 ## One tick of the rule: runs the clock on a bounty that is up, or looks for somebody to put one
 ## on when none is.
 static func step(match_node: Match, delta: float) -> void:
+	if not match_node.rules.bounties:
+		return
 	if match_node.bounty_slot >= 0:
 		match_node.bounty_left -= delta
 		var kart := match_node.kart_of(match_node.bounty_slot)

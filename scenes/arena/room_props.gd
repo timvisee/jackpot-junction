@@ -54,6 +54,19 @@ static func add_to(for_arena: Arena) -> RoomProps:
 	return props
 
 
+## A stack of tires or a few barrels put down at [param at], turned [param turn], in the
+## Garage's own materials, GAME.md 9.4a: what the tutorial's drift room has to drift round in
+## place of pillars. Decoration only, like everything else here; whoever asks for one stands a
+## body of their own in it.
+func garage_prop(kind: StringName, at: Vector3, turn: float) -> void:
+	var steel := surfaces.metal(Color(0.66, 0.68, 0.72))
+	match kind:
+		&"tires":
+			_tires(at, turn, surfaces.painted(Color(0.1, 0.1, 0.11)), steel)
+		&"barrels":
+			_barrels(at, turn, surfaces.painted(Color(0.22, 0.35, 0.44)), steel)
+
+
 func _build() -> void:
 	_rng.seed = hash(room.id)
 	_keep_the_floor()

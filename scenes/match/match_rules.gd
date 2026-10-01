@@ -151,6 +151,8 @@ const WIRE_FIELDS: Array[StringName] = [
 @export var bump_attribution_window := 2.0
 
 @export_group("Bounty")
+## Whether bounties are called at all: the tutorial's are not, GAME.md 9.4a.
+@export var bounties := true
 ## Seconds before the first bounty can be called, and the range between later ones.
 @export var bounty_first_delay := 45.0
 @export var bounty_interval_min := 25.0
