@@ -29,6 +29,8 @@ const RARITY_COLORS: Dictionary[int, Color] = {
 	Joker.Rarity.UNCOMMON: Palette.NEON_CYAN,
 	Joker.Rarity.RARE: Palette.NEON_MAGENTA
 }
+## The pale gold of a card that has just gone off by itself, see [method set_glowing].
+const GLOW := Color(1.0, 0.9, 0.55)
 ## Side of one rarity pip, and the gap between two of them.
 const PIP := 9.0
 const PIP_GAP := 5
@@ -39,6 +41,7 @@ var _pips: HBoxContainer
 var _normal: StyleBoxFlat
 var _chosen: StyleBoxFlat
 var _doomed: StyleBoxFlat
+var _glowing: StyleBoxFlat
 
 
 static func create(for_joker: Joker) -> JokerCard:
@@ -79,6 +82,18 @@ func rarity_pips() -> int:
 ## Lights the card up as the one under the cursor. [param doomed] marks it as the one that is
 ## about to be thrown away rather than taken, which is a different answer to a different
 ## question and must not look the same.
+## A frame of [constant GLOW] with a glow round it, for a joker that has just done something by
+## itself, GAME.md 8.3: [param amount] from 1, as it goes off, down to 0, the card's own frame.
+func set_glowing(amount: float) -> void:
+	if amount <= 0.0:
+		set_highlighted(false)
+		return
+	_glowing.border_color = _normal.border_color.lerp(GLOW, amount)
+	_glowing.shadow_color = Color(GLOW, 0.9 * amount)
+	_glowing.shadow_size = roundi(26.0 * amount)
+	add_theme_stylebox_override("panel", _glowing)
+
+
 func set_highlighted(on: bool, doomed: bool = false) -> void:
 	if not on:
 		add_theme_stylebox_override("panel", _normal)
@@ -112,6 +127,8 @@ func _build() -> void:
 	_doomed.border_color = DOOMED
 	_doomed.shadow_color = Color(DOOMED, 0.75)
 	_doomed.shadow_size = 18
+	_glowing = _chosen.duplicate()
+	_glowing.bg_color = Color(0.24, 0.21, 0.12, 1.0)
 	add_theme_stylebox_override("panel", _normal)
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

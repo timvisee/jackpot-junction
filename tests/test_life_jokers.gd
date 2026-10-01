@@ -159,14 +159,20 @@ func test_carbon_copy_keeps_what_the_death_drops() -> void:
 	assert_bool(other.jokers.has(&"odometer")).is_false()
 
 
-## Guardian Angel taking a hit says so, GAME.md 7.3: the event goes to every screen, a whole heart
-## wearing a halo rises over the kart, and the card lights up in its player's hand and settles.
-func test_guardian_angel_taking_a_hit_says_so() -> void:
+## Guardian Angel taking a hit says so, GAME.md 7.3 and 8.3: the event goes to every screen, and in
+## its player's hand the card pulls out of the fan, grows, lights up and glows round its frame, and
+## goes back.
+func test_guardian_angel_taking_a_hit_sets_its_card_off() -> void:
 	var match_node := _start_match(PlayerInput.new(DeviceInput.ANY, 0), true)
 	await _runner.simulate_frames(20, 17)
 	var kart := match_node.kart_of(0)
+	_attach(kart, "spare_tire")
 	_attach(kart, "guardian_angel")
-	await _runner.simulate_frames(3, 17)
+	await _runner.simulate_frames(30, 17)
+	var hand := match_node.hud.hand_of(0)
+	var angel: JokerCard = hand._cards[1]
+	var rest := angel.position.y
+	var rest_scale := angel.scale.x
 	kart.protection_left = 0.0
 	kart.hurt_left = 0.0
 	kart.hold_item(SHIELD, 0.0)
@@ -179,27 +185,33 @@ func test_guardian_angel_taking_a_hit_says_so() -> void:
 	Events.kart_spared.disconnect(note)
 	assert_array(heard).is_equal([&"guardian_angel"] as Array[StringName])
 	assert_bool(&"kart_spared" in NetEvents.RELAYED).is_true()
-	var icon := match_node.get_node_or_null("FloatingIcon")
-	assert_object(icon).override_failure_message("nothing rose over the kart").is_not_null()
-	var hand := match_node.hud.hand_of(0)
-	assert_float(hand._glow(0)).is_equal(1.0)
-	await _runner.simulate_frames(10, 17)
-	assert_float(hand._cards[0].modulate.r).is_greater(1.2)
+	await _runner.simulate_frames(20, 17)
+	assert_float(angel.position.y).override_failure_message("it never pulled out").is_less(
+		rest - 30.0
+	)
+	assert_float(angel.scale.x).is_greater(rest_scale * 1.15)
+	assert_float(angel.modulate.r).is_greater(1.1)
+	assert_object(angel.get_theme_stylebox("panel")).is_same(angel._glowing)
+	assert_int(angel.z_index).is_greater(hand._cards[0].z_index)
+	# The other card stays where it was, and nothing rises over the kart.
+	assert_object(hand._cards[0].get_theme_stylebox("panel")).is_same(hand._cards[0]._normal)
+	assert_object(match_node.get_node_or_null("FloatingIcon")).is_null()
 	await _runner.simulate_frames(int(JokerHand.FLASH_TIME * 60.0) + 30, 17)
-	assert_float(hand._glow(0)).is_equal(0.0)
-	assert_float(hand._cards[0].modulate.r).is_less(1.05)
+	assert_float(angel.position.y).is_equal_approx(rest, 1.0)
+	assert_float(angel.modulate.r).is_less(1.02)
+	assert_object(angel.get_theme_stylebox("panel")).is_same(angel._normal)
 
 
-## The halo and the heart are one picture in the unit box, the halo above the heart.
-func test_the_spared_picture_is_a_heart_under_a_halo() -> void:
-	var drawn := SpareCall.shapes()
-	assert_int(drawn.size()).is_equal(1 + SpareCall.HALO_PIECES)
-	var heart_top := INF
-	for point: Vector2 in drawn[0]:
-		heart_top = minf(heart_top, point.y)
-	var halo_bottom := -INF
-	for piece: PackedVector2Array in drawn.slice(1):
-		for point: Vector2 in piece:
-			assert_bool(point.x >= 0.0 and point.x <= 1.0 and point.y >= 0.0).is_true()
-			halo_bottom = maxf(halo_bottom, point.y)
-	assert_float(halo_bottom).is_less(heart_top)
+## A tucked hand, a touch screen's, comes up while a card of it is out, the way it does for a card
+## being read, so the card that went off is seen at its full size rather than half under the edge.
+func test_a_tucked_hand_comes_up_while_a_card_is_out() -> void:
+	var match_node := _start_match(PlayerInput.new(DeviceInput.ANY, 0), true)
+	await _runner.simulate_frames(20, 17)
+	_attach(match_node.kart_of(0), "guardian_angel")
+	var hand := match_node.hud.hand_of(0)
+	hand.tucked = true
+	await _runner.simulate_frames(40, 17)
+	var tucked := hand._cards[0].scale.x
+	hand.flash(&"guardian_angel")
+	await _runner.simulate_frames(20, 17)
+	assert_float(hand._cards[0].scale.x).is_greater(tucked * 1.6)

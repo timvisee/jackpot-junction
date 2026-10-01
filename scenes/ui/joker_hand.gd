@@ -25,11 +25,14 @@ const GLIDE := 14.0
 const ARC := 18.0
 const TILT_DEG := 6.0
 const DIMMED := Color(0.55, 0.55, 0.6, 0.9)
-## What a card is lit up to and grown by for a moment, see [method flash], and how long it takes to
-## settle back, in seconds.
-const FLASH := Color(1.9, 1.75, 1.2)
-const FLASH_GROW := 1.25
+## A card going off by itself, see [method flash]: how far out of the fan it pulls, as a share of
+## the lift of a card being read, how much it grows and how bright it is lit, how long it stays
+## out, in seconds, and how much of the end of that it spends going back.
+const FLASH_PULL := 1.6
+const FLASH_GROW := 1.3
+const FLASH := Color(1.3, 1.25, 1.1)
 const FLASH_TIME := 1.2
+const FLASH_FADE := 0.45
 ## How big the picture of the joker-menu button beside the hand is drawn.
 const CAP_SIZE := 18
 ## The least a hand shrinks to in its lane, and the room kept either side of it for the count.
@@ -96,24 +99,36 @@ func _ready() -> void:
 	_detail.visible = false
 	add_child(_detail)
 	_build_count()
+	Events.kart_spared.connect(_on_spared)
+
+
+func _exit_tree() -> void:
+	if Events.kart_spared.is_connected(_on_spared):
+		Events.kart_spared.disconnect(_on_spared)
 
 
 func card_count() -> int:
 	return _cards.size()
 
 
-## Lights up the cards of [param id] for a moment, GAME.md 8.3: brighter and bigger, settling back
-## the way every card settles into its place, for a joker that has just done something the player
-## did not ask for, such as Guardian Angel spending their item.
+## Sets the cards of [param id] off for a moment, GAME.md 8.3, for a joker that has just done
+## something by itself, such as Guardian Angel spending the item: each pulls out of the fan,
+## grows, lights up and glows round its frame, and goes back. A tucked hand comes up meanwhile,
+## the way it does for a card being read.
 func flash(id: StringName) -> void:
 	_flashing[id] = FLASH_TIME
 
 
-## How lit up the card at [param index] still is, 1 as [method flash] lights it and 0 once settled.
+## How far out the card at [param index] still is, 1 while it is out and down to 0 as it goes back.
 func _glow(index: int) -> float:
 	if index >= _ids.size():
 		return 0.0
-	return clampf(_flashing.get(_ids[index], 0.0) / FLASH_TIME, 0.0, 1.0)
+	return clampf(_flashing.get(_ids[index], 0.0) / FLASH_FADE, 0.0, 1.0)
+
+
+func _on_spared(slot: int, joker: StringName) -> void:
+	if kart != null and kart.slot == slot:
+		flash(joker)
 
 
 ## How far into the screen the cards come while none is lifted, for what has to stay clear of
@@ -188,7 +203,7 @@ func _process(delta: float) -> void:
 		var full := JokerCard.SIZE.x * (1.0 + (1.0 - OVERLAP) * maxf(count - 1, 0.0))
 		var room := to - from - COUNT_ROOM * 2.0
 		factor = clampf(room / full, NARROWEST, factor)
-	var resting := (tucked or corner >= 0) and picked < 0
+	var resting := (tucked or corner >= 0) and picked < 0 and _flashing.is_empty()
 	if resting:
 		factor = maxf(factor * TUCKED, minf(TUCKED_LEAST, factor))
 	var card := JokerCard.SIZE * factor
@@ -219,14 +234,15 @@ func _process(delta: float) -> void:
 		var lifted := i == picked
 		var across := 0.0 if count < 2 else float(i) / float(count - 1) * 2.0 - 1.0
 		var arc := (1.0 - across * across) * ARC * factor * fan
-		var height := edge + inward * (arc + (lift if lifted else 0.0))
+		var glow := _glow(i)
+		var out := lift if lifted else lift * FLASH_PULL * glow
+		var height := edge + inward * (arc + out)
 		var anchor := Vector2(left + step * i + card.x * 0.5, height)
 		if lifted:
 			picked_anchor = anchor
 		# Hanging, a card turns about its top center rather than its bottom center, so the point
 		# the hand is held at stays the one it turns and shrinks about.
 		panel.pivot_offset = Vector2(JokerCard.SIZE.x * 0.5, 0.0 if hangs() else JokerCard.SIZE.y)
-		var glow := _glow(i)
 		panel.scale = panel.scale.lerp(Vector2.ONE * factor * lerpf(1.0, FLASH_GROW, glow), blend)
 		# The pivot is the card's bottom center, so scaling already happens about that point and the
 		# offset is not scaled again: scaled, a card smaller than its own size stood below its place
@@ -239,10 +255,13 @@ func _process(delta: float) -> void:
 		# other way: the same fan, held from above.
 		var tilt := across * deg_to_rad(TILT_DEG) * fan * -inward
 		panel.rotation = lerp_angle(panel.rotation, tilt, blend)
-		panel.z_index = count + 1 if lifted else i
+		panel.z_index = count + 1 if lifted or glow > 0.0 else i
 		var tint := DIMMED if picked >= 0 and not lifted else Color.WHITE
 		panel.modulate = panel.modulate.lerp(tint.lerp(FLASH, glow), blend)
-		panel.set_highlighted(lifted)
+		if glow > 0.0 and not lifted:
+			panel.set_glowing(glow)
+		else:
+			panel.set_highlighted(lifted)
 	var middle := edge + inward * card.y * 0.5
 	_place_cap(left, middle)
 	_place_count(left + hand_width, middle)

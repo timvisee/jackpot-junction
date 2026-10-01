@@ -1622,7 +1622,7 @@ a real downside. Starting set; balance is untested.
 | Loaded Dice      | Uncommon | Rule   | Every chip has a 25% chance to count as a gold chip                       |
 | Toll Booth       | Uncommon | Rule   | Whenever another kart completes a cash-out, you bank 15% of it            |
 | Tailslide        | Uncommon | Rule   | +1 coin for every 8 m you drift                                           |
-| Guardian Angel   | Uncommon | Rule   | A hit about to cost you a life uses the Shield or Bullet Wipe you hold instead, the moment it lands: a Shield takes any hit, a Bullet Wipe a shot only. An item still being rolled for off a pad is not yours yet. A haloed heart rises over the kart and the card lights up in the hand when it does, see 8.3 |
+| Guardian Angel   | Uncommon | Rule   | A hit about to cost you a life uses the Shield or Bullet Wipe you hold instead, the moment it lands: a Shield takes any hit, a Bullet Wipe a shot only. An item still being rolled for off a pad is not yours yet. Its card pulls out of the hand and glows when it does, see 8.3 |
 | Jerry Can        | Uncommon | Stat   | Nitro refills 4x as fast                                                  |
 | Direct Debit     | Uncommon | Rule   | 5 points of your pot bank themselves every second, wherever you are. Your mult is left alone |
 | Payday           | Uncommon | Rule   | +1 coin every second, wherever you are and whatever you are doing        |
@@ -2531,12 +2531,16 @@ movement: the one thing a corner block must not do is ask to be looked at.
   ROYAL FLUSH over the kart.
   A life going shows a heart breaking over the kart and one handed back shows a
   whole one, rather than the words that were there before: two words have to be
-  read, and a player who is reading is not driving. A life Guardian Angel kept,
-  7.3, shows a whole heart wearing a halo, in pale gold, and the Guardian Angel
-  card in its player's hand lights up and grows for a second before settling
-  back: the item it spent is gone from the corner, and without either that reads
-  as an item lost rather than a life kept. The item's own effect, a shield
-  popping or a wipe, plays as well.
+  read, and a player who is reading is not driving. A joker that goes off by
+  itself, Guardian Angel spending the item on a hit, 7.3, says so on its own
+  card: in its player's hand the card pulls out of the fan, further than a card
+  being read, grows by a third, lights up and glows round its frame in pale
+  gold, holds there for most of a second and goes back. A tucked hand comes up
+  meanwhile, as it does for a card being read. The item it spent is gone from
+  the corner, and without that it reads as an item lost rather than a life kept;
+  a haloed heart over the kart, tried first, said a life without saying whose
+  doing it was. The item's own effect, a shield popping or a wipe, plays as
+  well.
 
 The tally is the payoff moment and gets the polish budget. The whole time a pot
 is being banked, chips go from the kart into the pad at a steady beat, more of

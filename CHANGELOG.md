@@ -13,8 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
-- **You see Guardian Angel save you.** A whole heart with a halo rises over your kart and the card
-  lights up in your hand when it spends your item on a hit.
+- **You see Guardian Angel save you.** When it spends your item on a hit, its card pulls out of
+  your hand, grows and glows for a moment.
 
 ## [0.11.0] - 2026-09-30
 
