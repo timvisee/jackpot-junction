@@ -36,6 +36,7 @@ static func follow(kart: Kart, joker: Joker, joined: bool) -> void:
 static func spared(kart: Kart, cause: StringName) -> bool:
 	for joker: Joker in kart.jokers.jokers:
 		if joker.spares(kart, cause):
+			Events.kart_spared.emit(kart.slot, joker.id)
 			return true
 	return false
 

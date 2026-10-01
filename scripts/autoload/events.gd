@@ -10,6 +10,9 @@ signal grazed(slot: int)
 signal kart_killed(victim_slot: int, killer_slot: int, cause: StringName)
 signal kart_wounded(victim_slot: int, by_slot: int, cause: StringName)
 signal life_restored(slot: int)
+## A hit that would have cost [param slot] a life was taken by [param joker] instead, GAME.md 7.3:
+## Guardian Angel spending the item held on it.
+signal kart_spared(slot: int, joker: StringName)
 ## Back on the floor, and where: a client hears this before the snapshot that puts the kart
 ## there, so anything drawn where it came back has to be told the place rather than look at it.
 signal kart_respawned(slot: int, at: Vector3)

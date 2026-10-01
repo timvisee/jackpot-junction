@@ -25,6 +25,11 @@ const GLIDE := 14.0
 const ARC := 18.0
 const TILT_DEG := 6.0
 const DIMMED := Color(0.55, 0.55, 0.6, 0.9)
+## What a card is lit up to and grown by for a moment, see [method flash], and how long it takes to
+## settle back, in seconds.
+const FLASH := Color(1.9, 1.75, 1.2)
+const FLASH_GROW := 1.25
+const FLASH_TIME := 1.2
 ## How big the picture of the joker-menu button beside the hand is drawn.
 const CAP_SIZE := 18
 ## The least a hand shrinks to in its lane, and the room kept either side of it for the count.
@@ -79,6 +84,8 @@ var _keys_shown := ""
 var _touch_buttons: Dictionary[StringName, Button] = {}
 ## How far into the screen the cards come, at rest, see [method reach].
 var _reach := 0.0
+## The jokers lit up by [method flash], to how long each has left.
+var _flashing: Dictionary[StringName, float] = {}
 
 
 func _ready() -> void:
@@ -93,6 +100,20 @@ func _ready() -> void:
 
 func card_count() -> int:
 	return _cards.size()
+
+
+## Lights up the cards of [param id] for a moment, GAME.md 8.3: brighter and bigger, settling back
+## the way every card settles into its place, for a joker that has just done something the player
+## did not ask for, such as Guardian Angel spending their item.
+func flash(id: StringName) -> void:
+	_flashing[id] = FLASH_TIME
+
+
+## How lit up the card at [param index] still is, 1 as [method flash] lights it and 0 once settled.
+func _glow(index: int) -> float:
+	if index >= _ids.size():
+		return 0.0
+	return clampf(_flashing.get(_ids[index], 0.0) / FLASH_TIME, 0.0, 1.0)
 
 
 ## How far into the screen the cards come while none is lifted, for what has to stay clear of
@@ -149,6 +170,10 @@ func _process(delta: float) -> void:
 	if kart == null:
 		return
 	_sync_cards()
+	for id: StringName in _flashing.keys():
+		_flashing[id] -= delta
+		if _flashing[id] <= 0.0:
+			_flashing.erase(id)
 	var count := _cards.size()
 	var picked := selected()
 	var factor := 1.0 if columns <= 2 else 0.8
@@ -201,7 +226,8 @@ func _process(delta: float) -> void:
 		# Hanging, a card turns about its top center rather than its bottom center, so the point
 		# the hand is held at stays the one it turns and shrinks about.
 		panel.pivot_offset = Vector2(JokerCard.SIZE.x * 0.5, 0.0 if hangs() else JokerCard.SIZE.y)
-		panel.scale = panel.scale.lerp(Vector2.ONE * factor, blend)
+		var glow := _glow(i)
+		panel.scale = panel.scale.lerp(Vector2.ONE * factor * lerpf(1.0, FLASH_GROW, glow), blend)
 		# The pivot is the card's bottom center, so scaling already happens about that point and the
 		# offset is not scaled again: scaled, a card smaller than its own size stood below its place
 		# and to the right of it, by as much as it had shrunk.
@@ -215,7 +241,7 @@ func _process(delta: float) -> void:
 		panel.rotation = lerp_angle(panel.rotation, tilt, blend)
 		panel.z_index = count + 1 if lifted else i
 		var tint := DIMMED if picked >= 0 and not lifted else Color.WHITE
-		panel.modulate = panel.modulate.lerp(tint, blend)
+		panel.modulate = panel.modulate.lerp(tint.lerp(FLASH, glow), blend)
 		panel.set_highlighted(lifted)
 	var middle := edge + inward * card.y * 0.5
 	_place_cap(left, middle)

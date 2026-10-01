@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **You see Guardian Angel save you.** A whole heart with a halo rises over your kart and the card
+  lights up in your hand when it spends your item on a hit.
+
 ## [0.11.0] - 2026-09-30
 
 Most jokers now stack, four new ones join them, and the bots emote back. Dedicated servers kick
