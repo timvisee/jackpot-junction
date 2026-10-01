@@ -83,8 +83,8 @@ static func _bump(
 		# and neither right. The host takes the wheel off both of them for a moment, GAME.md 10.3.
 		kart.input.deny_claim(NetInput.CLAIM_DENIED)
 		other.input.deny_claim(NetInput.CLAIM_DENIED)
-		if kart.ram_kills():
-			ram(other, kart.slot)
+		if kart.ram_kills() and ram(other, kart.slot):
+			_raged(kart)
 	kart.motor.apply_bump(normal)
 	kart.velocity = kart.motor.velocity
 	if pre.length() > BUMP_SPEED:
@@ -98,10 +98,10 @@ static func _bump(
 ## rather than a life, which the match hears of through [signal Kart.rammed], as it does of a ram
 ## the victim lives through. Two karts in touch meet on every tick of it, so a ram reaches nobody
 ## again for [member MatchRules.ram_cooldown] after the last one, or one that never let go would
-## knock the pot out a handful a tick until nothing was left.
-static func ram(victim: Kart, by_slot: int) -> void:
+## knock the pot out a handful a tick until nothing was left. Returns whether it reached them.
+static func ram(victim: Kart, by_slot: int) -> bool:
 	if not victim.alive or victim.falling or victim.coasting or victim.ram_wait > 0.0:
-		return
+		return false
 	victim.ram_wait = victim.rules.ram_cooldown
 	# Counted for the rammer, GAME.md 3.8, once a ram and whatever it did: a shield, a life, a death
 	# or only coins knocked out.
@@ -110,6 +110,18 @@ static func ram(victim: Kart, by_slot: int) -> void:
 	victim.take_ram(by_slot)
 	if victim.alive and not shield:
 		victim.rammed.emit(by_slot)
+	return true
+
+
+## A ram that landed because of a joker such as Road Rage rather than Boost or nitro, which the
+## joker's card says, GAME.md 8.3.
+static func _raged(kart: Kart) -> void:
+	if kart.ramming or kart.nitro_active:
+		return
+	for joker: Joker in kart.jokers.jokers:
+		if joker.ram_kills(kart):
+			joker.went_off(kart, "WRECKED")
+			return
 
 
 ## Distance from a point on the floor plane to [param kart]'s body rectangle, 0 when inside.

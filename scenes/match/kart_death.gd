@@ -95,19 +95,25 @@ static func _scatter(match_node: Match, slot: PlayerSlot, death: DeathOutcome) -
 	var rules := match_node.rules
 	var rng := match_node.rng
 	var position := kart.global_position
-	# With Carbon Copy what goes on the floor is a copy, and the hand keeps its own, GAME.md 7.3.
-	var copying := false
+	# With Carbon Copy what goes on the floor is a copy, and the hand keeps its own, GAME.md 7.3,
+	# which its card says, 8.3.
+	var copier: Joker = null
 	for joker: Joker in kart.jokers.jokers:
-		copying = copying or joker.copies_drops()
+		if copier == null and joker.copies_drops():
+			copier = joker
 	var held := kart.jokers.jokers.duplicate()
+	var copied := false
 	for i: int in death.joker_drop_count:
 		if not held.is_empty() and rng.randf() < death.joker_drop_chance:
 			var dropped: Joker = held.pop_at(rng.randi_range(0, held.size() - 1))
-			if copying:
+			if copier != null:
 				dropped = dropped.duplicate()
+				copied = true
 			else:
 				kart.jokers.remove(dropped)
 			match_node.arena.spawn_floor_joker(position, dropped, rules.floor_item_lifetime)
+	if copied:
+		copier.went_off(kart, "COPIED")
 	if kart.held_item != null:
 		if rng.randf() < death.item_drop_chance:
 			match_node.arena.spawn_floor_item(position, kart.held_item, rules.floor_item_lifetime)

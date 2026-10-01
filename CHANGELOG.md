@@ -13,8 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
-- **You see Guardian Angel save you.** When it spends your item on a hit, its card pulls out of
-  your hand, grows and glows for a moment, with GUARDED over it.
+- **Jokers show when they go off.** Guardian Angel, Insurance Policy, Tight Grip, Pickpocket, Toll
+  Booth, Road Rage and Carbon Copy pull out of your hand and glow with a word when they act; a
+  Spare Tire a death takes burns out of it in red.
 
 ## [0.11.0] - 2026-09-30
 

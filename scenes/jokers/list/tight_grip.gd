@@ -8,5 +8,14 @@ func modify_death(_kart: Kart, death: DeathOutcome) -> void:
 	death.sealed = true
 
 
-func modify_ram_knock(_kart: Kart, _fraction: float) -> float:
+## A death or a ram with coins in the pot would have spilled some, and the card says it kept them,
+## GAME.md 8.3. A ram is only asked about with coins in the pot.
+func on_death(kart: Kart) -> void:
+	if kart.pot.coins > 0:
+		went_off(kart, "GRIPPED")
+
+
+func modify_ram_knock(kart: Kart, fraction: float) -> float:
+	if fraction > 0.0:
+		went_off(kart, "GRIPPED")
 	return 0.0

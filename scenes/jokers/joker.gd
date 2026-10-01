@@ -32,6 +32,21 @@ var held := 1
 var leads := true
 
 
+## Says this joker has just done something by itself for [param kart], GAME.md 8.3: its card goes
+## off in the hand with [param word] over it. Only where the karts are run, the host online, which
+## says it to every client: a puppet's jokers do nothing of their own.
+func went_off(kart: Kart, word: String) -> void:
+	if kart != null and not kart.puppet:
+		Events.joker_went_off.emit(kart.slot, id, word)
+
+
+## Says this joker has just gone from [param kart]'s hand by itself, used up, GAME.md 8.3: its
+## card burns out of the hand with [param word] over it.
+func used_up(kart: Kart, word: String) -> void:
+	if kart != null and not kart.puppet:
+		Events.joker_used_up.emit(kart.slot, id, word)
+
+
 ## Offer weight from rarity.
 func weight() -> float:
 	return RARITY_WEIGHTS[rarity]

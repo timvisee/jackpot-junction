@@ -13,8 +13,9 @@ func spares(kart: Kart, cause: StringName) -> bool:
 	if item is ShieldPowerUp:
 		kart.use_item()
 		kart.pop_shield()
-		return true
-	if item is BulletWipePowerUp and cause in [&"bullet", &"turret"]:
+	elif item is BulletWipePowerUp and cause in [&"bullet", &"turret"]:
 		kart.use_item()
-		return true
-	return false
+	else:
+		return false
+	went_off(kart, "GUARDED")
+	return true

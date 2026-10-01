@@ -36,6 +36,14 @@ const FLASH_FADE := 0.45
 ## The word over a card that has gone off, "GUARDED": how big, and how far clear of the card.
 const FLASH_WORD_SIZE := 24
 const FLASH_WORD_GAP := 8.0
+## A card used up, see [method burn]: how long it shakes, framed and lit in red, and then how long
+## it takes to drop out of the hand and fade, in seconds, how far either way it shakes, and how far
+## it drops, as a share of its height.
+const BURN_SHAKE := 0.45
+const BURN_DROP := 0.6
+const BURN_WOBBLE := 7.0
+const BURN_FALL := 0.9
+const BURN := Color(1.35, 0.7, 0.65)
 ## How big the picture of the joker-menu button beside the hand is drawn.
 const CAP_SIZE := 18
 ## The least a hand shrinks to in its lane, and the room kept either side of it for the count.
@@ -93,6 +101,13 @@ var _reach := 0.0
 ## The jokers lit up by [method flash], to how long each has left, and the word over each.
 var _flashing: Dictionary[StringName, float] = {}
 var _words: Dictionary[StringName, Label] = {}
+## Cards used up and on their way out, see [method burn]: each the card, its word or null, how
+## long since it went, and where it was then.
+var _burning: Array[Array] = []
+## Where the middle of the hand stands and how big its cards are, from the last frame, for a card
+## used up that this hand no longer has to start from.
+var _middle := Vector2.ZERO
+var _factor := 1.0
 
 
 func _ready() -> void:
@@ -103,12 +118,15 @@ func _ready() -> void:
 	_detail.visible = false
 	add_child(_detail)
 	_build_count()
-	Events.kart_spared.connect(_on_spared)
+	Events.joker_went_off.connect(_on_went_off)
+	Events.joker_used_up.connect(_on_used_up)
 
 
 func _exit_tree() -> void:
-	if Events.kart_spared.is_connected(_on_spared):
-		Events.kart_spared.disconnect(_on_spared)
+	if Events.joker_went_off.is_connected(_on_went_off):
+		Events.joker_went_off.disconnect(_on_went_off)
+	if Events.joker_used_up.is_connected(_on_used_up):
+		Events.joker_used_up.disconnect(_on_used_up)
 
 
 func card_count() -> int:
@@ -125,16 +143,72 @@ func flash(id: StringName, word := "") -> void:
 		return
 	var label: Label = _words.get(id)
 	if label == null:
-		label = Label.new()
-		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		Type.set_font(label, Type.DISPLAY, FLASH_WORD_SIZE)
-		Type.ink(label, JokerCard.GLOW)
-		label.add_theme_constant_override("outline_size", 8)
-		label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.8))
-		add_child(label)
+		label = _word(word, JokerCard.GLOW)
 		_words[id] = label
 	label.text = word
+
+
+## Sends a card of [param id] out of the hand, used up, GAME.md 8.3, for a joker that has gone by
+## itself, such as the Spare Tire a death takes: the destroying kind of [method flash]. Framed and
+## lit in red with [param word] over it, it shakes, then drops out of the hand and fades. The card
+## is this hand's while it still has it, and the rest close up behind it; one already gone, as a
+## client may hear after the host's hand has reached it, is dealt again to go.
+func burn(id: StringName, word := "") -> void:
+	var card: JokerCard = null
+	var index := _ids.find(id)
+	if index >= 0 and index < _cards.size():
+		card = _cards[index]
+		_cards.remove_at(index)
+		_ids.remove_at(index)
+	else:
+		var catalog: JokerCatalog = load("res://data/jokers/catalog.tres")
+		var joker := catalog.by_id(id)
+		if joker == null:
+			return
+		card = JokerCard.create(joker)
+		card.pivot_offset = Vector2(JokerCard.SIZE.x * 0.5, 0.0 if hangs() else JokerCard.SIZE.y)
+		card.position = _middle - card.pivot_offset
+		card.scale = Vector2.ONE * _factor
+		add_child(card)
+	card.set_highlighted(true, true)
+	card.z_index = _cards.size() + 2
+	var label := _word(word, JokerCard.DOOMED) if not word.is_empty() else null
+	_burning.append([card, label, 0.0, card.position])
+
+
+## A word for over a card, in [param ink], see [method flash] and [method burn].
+func _word(text: String, ink: Color) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Type.set_font(label, Type.DISPLAY, FLASH_WORD_SIZE)
+	Type.ink(label, ink)
+	label.add_theme_constant_override("outline_size", 8)
+	label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.8))
 	label.modulate.a = 0.0
+	add_child(label)
+	return label
+
+
+## One frame of a card on its way out, see [method burn]. False once it has gone.
+func _step_burn(going: Array, delta: float) -> bool:
+	var card: JokerCard = going[0]
+	var label: Label = going[1]
+	var since: float = going[2] + delta
+	going[2] = since
+	if since >= BURN_SHAKE + BURN_DROP:
+		card.queue_free()
+		if label != null:
+			label.queue_free()
+		return false
+	var drop := clampf((since - BURN_SHAKE) / BURN_DROP, 0.0, 1.0)
+	var wobble := sin(since * 55.0) * BURN_WOBBLE * (1.0 - drop)
+	var fall := JokerCard.SIZE.y * card.scale.y * BURN_FALL * drop * drop
+	card.position = (going[3] as Vector2) + Vector2(wobble, -_inward() * fall)
+	card.modulate = Color(BURN, 1.0 - drop)
+	if label != null:
+		_place_word(label, card, 1.0 - drop)
+	return true
 
 
 ## Holds the word of a card that has gone off clear of it, see [method flash]: over a card standing
@@ -157,9 +231,14 @@ func _glow(index: int) -> float:
 	return clampf(_flashing.get(_ids[index], 0.0) / FLASH_FADE, 0.0, 1.0)
 
 
-func _on_spared(slot: int, joker: StringName) -> void:
+func _on_went_off(slot: int, joker: StringName, word: String) -> void:
 	if kart != null and kart.slot == slot:
-		flash(joker, "GUARDED")
+		flash(joker, word)
+
+
+func _on_used_up(slot: int, joker: StringName, word: String) -> void:
+	if kart != null and kart.slot == slot:
+		burn(joker, word)
 
 
 ## How far into the screen the cards come while none is lifted, for what has to stay clear of
@@ -299,6 +378,11 @@ func _process(delta: float) -> void:
 		if _words.has(_ids[i]):
 			_place_word(_words[_ids[i]], panel, glow)
 	var middle := edge + inward * card.y * 0.5
+	_middle = Vector2(left + hand_width * 0.5, edge)
+	_factor = factor
+	for i: int in range(_burning.size() - 1, -1, -1):
+		if not _step_burn(_burning[i], delta):
+			_burning.remove_at(i)
 	_place_cap(left, middle)
 	_place_count(left + hand_width, middle)
 	_detail.visible = picked >= 0

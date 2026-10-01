@@ -10,9 +10,12 @@ static func share(copies: int) -> float:
 	return SHARE + MORE_SHARE * (copies - 1)
 
 
-func on_other_bank_completed(_kart: Kart, _other_slot: int, total: int) -> int:
+func on_other_bank_completed(kart: Kart, _other_slot: int, total: int) -> int:
 	var copies := stacked()
-	return floori(total * share(copies)) if copies > 0 else 0
+	var toll := floori(total * share(copies)) if copies > 0 else 0
+	if toll > 0:
+		went_off(kart, "TOLL")
+	return toll
 
 
 func stack_values(copies: int) -> Dictionary:

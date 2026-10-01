@@ -176,15 +176,14 @@ func test_guardian_angel_taking_a_hit_sets_its_card_off() -> void:
 	kart.protection_left = 0.0
 	kart.hurt_left = 0.0
 	kart.hold_item(SHIELD, 0.0)
-	var heard: Array[StringName] = []
-	var note := func(slot: int, joker: StringName) -> void:
+	var heard: Array[String] = []
+	var note := func(slot: int, joker: StringName, word: String) -> void:
 		if slot == 0:
-			heard.append(joker)
-	Events.kart_spared.connect(note)
+			heard.append("%s %s" % [joker, word])
+	Events.joker_went_off.connect(note)
 	kart.take_ram(1)
-	Events.kart_spared.disconnect(note)
-	assert_array(heard).is_equal([&"guardian_angel"] as Array[StringName])
-	assert_bool(&"kart_spared" in NetEvents.RELAYED).is_true()
+	Events.joker_went_off.disconnect(note)
+	assert_array(heard).is_equal(["guardian_angel GUARDED"] as Array[String])
 	await _runner.simulate_frames(20, 17)
 	assert_float(angel.position.y).override_failure_message("it never pulled out").is_less(
 		rest - 30.0
@@ -224,3 +223,46 @@ func test_a_tucked_hand_comes_up_while_a_card_is_out() -> void:
 	hand.flash(&"guardian_angel")
 	await _runner.simulate_frames(20, 17)
 	assert_float(hand._cards[0].scale.x).is_greater(tucked * 1.6)
+
+
+## The death that takes the Spare Tire says so, GAME.md 8.3, the destroying kind of a card going
+## off: framed and lit in red with LOST over it, the card shakes, drops out of the hand and fades,
+## and the cards left close up behind it rather than being dealt again.
+func test_the_spare_tire_a_death_takes_burns_out_of_the_hand() -> void:
+	var match_node := _start_match(PlayerInput.new(DeviceInput.ANY, 0), true)
+	match_node.rules.death_joker_drop_chance = 0.0
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	_attach(kart, "big_tank")
+	_attach(kart, "spare_tire")
+	await _runner.simulate_frames(30, 17)
+	var hand := match_node.hud.hand_of(0)
+	var tank: JokerCard = hand._cards[0]
+	var tire: JokerCard = hand._cards[1]
+	var rest := tire.position.y
+	var heard: Array[String] = []
+	var note := func(slot: int, joker: StringName, word: String) -> void:
+		heard.append("%d %s %s" % [slot, joker, word])
+	Events.joker_used_up.connect(note)
+	for i: int in 3:
+		_hit(kart)
+	Events.joker_used_up.disconnect(note)
+	assert_bool(kart.alive).is_false()
+	assert_array(heard).is_equal(["0 spare_tire LOST"] as Array[String])
+	assert_int(hand._burning.size()).is_equal(1)
+	assert_object(tire.get_theme_stylebox("panel")).is_same(tire._doomed)
+	var word: Label = hand._burning[0][1]
+	assert_str(word.text).is_equal("LOST")
+	await _runner.simulate_frames(
+		int((JokerHand.BURN_SHAKE + JokerHand.BURN_DROP * 0.6) * 60.0), 17
+	)
+	assert_float(tire.position.y).override_failure_message("it never dropped").is_greater(
+		rest + 20.0
+	)
+	assert_float(tire.modulate.a).is_less(0.9)
+	await _runner.simulate_frames(int(JokerHand.BURN_DROP * 60.0) + 10, 17)
+	assert_bool(is_instance_valid(tire)).is_false()
+	assert_bool(hand._burning.is_empty()).is_true()
+	# The card left is the one it was, not one dealt again.
+	assert_bool(is_instance_valid(tank)).is_true()
+	assert_array(hand._cards).is_equal([tank])

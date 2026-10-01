@@ -2531,19 +2531,26 @@ movement: the one thing a corner block must not do is ask to be looked at.
   ROYAL FLUSH over the kart.
   A life going shows a heart breaking over the kart and one handed back shows a
   whole one, rather than the words that were there before: two words have to be
-  read, and a player who is reading is not driving. A joker that goes off by
-  itself, Guardian Angel spending the item on a hit, 7.3, says so on its own
-  card: in its player's hand the card pulls out of the fan, further than a card
-  being read, grows by a third, lights up and glows round its frame in pale
-  gold, with GUARDED over it in the same gold, under it for a hand hanging from
-  the top, holds there for most of a second and goes back, the word fading with
-  it. A tucked hand comes up meanwhile, as it does for a card being read. The
-  word is on the card rather than over the kart, where 3.6 keeps words out: the
-  card is where the player looks to see what happened to the item. The item it spent is gone from
-  the corner, and without that it reads as an item lost rather than a life kept;
-  a haloed heart over the kart, tried first, said a life without saying whose
-  doing it was. The item's own effect, a shield popping or a wipe, plays as
-  well.
+  read, and a player who is reading is not driving. A joker that does something
+  by itself says so on its own card: in its player's hand the card pulls out of
+  the fan, further than a card being read, grows by a third, lights up and glows
+  round its frame in pale gold, with a word over it in the same gold, under it
+  for a hand hanging from the top, holds there for most of a second and goes
+  back, the word fading with it. A tucked hand comes up meanwhile, as it does
+  for a card being read. Only on the moment it made a difference, which for most
+  jokers is every moment and so never: Guardian Angel spending the item on a
+  hit, GUARDED; Insurance Policy banking a pot at a death, INSURED; Tight Grip
+  keeping coins a death or a ram would have spilled, GRIPPED; Pickpocket taking
+  coins off a kill, STOLEN; Toll Booth paid out of another kart's cash-out, TOLL;
+  Road Rage making a ram land that nitro or Boost did not, WRECKED; and Carbon
+  Copy dropping a copy, COPIED. A joker that goes from the hand by itself, used
+  up, gets the destroying kind: the Spare Tire a death takes is framed and lit in
+  red with LOST over it, shakes for a moment, then drops out of the hand and
+  fades, and the cards left close up behind it. The word is on the card rather
+  than over the kart, where words are kept out: the card is where the player
+  looks to see what a joker did. A haloed heart over the kart, tried first for
+  Guardian Angel, said a life was kept without saying whose doing it was. The
+  host says it to every client, and a puppet's jokers say nothing of their own.
 
 The tally is the payoff moment and gets the polish budget. The whole time a pot
 is being banked, chips go from the kart into the pad at a steady beat, more of
