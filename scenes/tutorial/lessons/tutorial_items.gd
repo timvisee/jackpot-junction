@@ -4,8 +4,9 @@ extends TutorialLesson
 ## holding its own item with no roulette. Along the top, the run a turret guards: pick the Shield
 ## up at the east end, out of the turret's reach, raise it and take the turret's shot on it, which
 ## is what a Shield is for. In the south-east, the pocket shut off by a hologram a shot passes and
-## a kart does not, with the target behind a stub of wall in there: pick the Ricochet Cannon up and
-## bounce a shot onto it. Along the west wall, a row of three targets: pick the Turret up, drop it
+## a kart does not, with a pillar in the middle and the target past it, where only a shot bounced
+## off the pocket's north or south wall reaches: pick the Ricochet Cannon up and bounce a shot onto
+## it. Along the west wall, a row of three targets: pick the Turret up, drop it
 ## by them and let it clear them, which only it can, a shot of the player's counting for nothing.
 ## A box taken with its station not done and the item gone comes back a moment later.
 
@@ -18,9 +19,9 @@ const SHIELD_BOX := Vector2i(24, 3)
 const GUARD := Vector2i(13, 3)
 const RUN_IN := Vector2i(23, 5)
 const RICOCHET_BOX := Vector2i(16, 15)
-const WINDOW := Vector2i(19, 16)
+const WINDOW := Vector2i(19, 15)
 const WINDOW_TALL := 2
-const POCKET := Vector2i(23, 16)
+const POCKET := Vector2i(25, 15)
 const TURRET_BOX := Vector2i(9, 11)
 const ROW: Array[Vector2i] = [Vector2i(3, 9), Vector2i(3, 11), Vector2i(3, 13)]
 ## How far the guard shoots, in meters, and how long a taken box takes to come back, in seconds.
@@ -60,10 +61,10 @@ func _init() -> void:
 	_take_ricochet.arrow = RICOCHET_BOX
 	_bounce = add_task(
 		"Bounce a shot onto the hidden target",
-		"%s to fire: shots bounce off walls",
+		"%s to fire at a wall past the pillar",
 		[InputActions.FIRE]
 	)
-	_bounce.arrow = Vector2i(17, 16)
+	_bounce.arrow = Vector2i(17, 15)
 	_take_turret = add_task("Pick up the Turret", "Drive over the box")
 	_take_turret.arrow = TURRET_BOX
 	_clear = add_task(
@@ -106,7 +107,11 @@ func _begin() -> void:
 	Events.shield_popped.connect(_on_popped)
 	put_sign("ITEMS\nan item works once: pick one up, use it", Vector2i(13, 9), Palette.NEON_CYAN)
 	put_sign("SHIELD\nup, then into the turret's fire", Vector2i(22, 3), GUARD_INK)
-	put_sign("RICOCHET\nbounce a shot through the window", Vector2i(15, 14), Palette.NEON_CYAN)
+	put_sign(
+		"RICOCHET\nthrough the window, off a wall past the pillar",
+		Vector2i(15, 13),
+		Palette.NEON_CYAN
+	)
 	put_sign("TURRET\ndrop it here, it shoots the row", Vector2i(7, 11), Palette.NEON_CYAN)
 
 

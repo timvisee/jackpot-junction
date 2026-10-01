@@ -52,6 +52,11 @@ func _ready() -> void:
 	show_banked(0)
 
 
+## Where the screen is clear again under the bar, from the top, for what else hangs there.
+func below() -> float:
+	return offset_top + get_combined_minimum_size().y + 10.0
+
+
 func show_banked(banked: int) -> void:
 	_bar.value = clampf(float(banked) / maxf(float(need), 1.0), 0.0, 1.0) * 100.0
 	_count.text = "%d / %d" % [mini(banked, need), need]

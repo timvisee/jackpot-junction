@@ -21,7 +21,7 @@ const EASY: BotDifficulty = preload("res://data/ai/easy.tres")
 const CAMERA := 26.0
 const SIGN_HEIGHT := 2.7
 ## Which of the two portals at the end leads to Play; the other leads to the Garage.
-const PLAY_PORTAL := Vector2i(35, 37)
+const PLAY_PORTAL := Vector2i(34, 36)
 ## What the end says, and for how long.
 const DONE := "TUTORIAL COMPLETE"
 const DONE_SHOWN := 5.0

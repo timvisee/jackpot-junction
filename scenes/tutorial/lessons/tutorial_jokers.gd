@@ -3,8 +3,9 @@ extends TutorialLesson
 ## Lesson 8, GAME.md 9.4a: jokers, in any order. Two parked karts that never move or shoot and go
 ## down to one hit, each dropping a card as it goes, and the cards picked up off the floor; the
 ## joker key held to read the hand; and two deaths in the pit, each opening the joker pick, for
-## two more cards. Four cards in the hand is the lesson. The hand and the lives come into the
-## corner with it, and from here on a death opens the pick, as it does in a match.
+## two more cards. Four cards in the hand is the lesson. The lives come into the corner with it,
+## and the hand with the first card, pointed at until the hand has been read; from here on a death
+## opens the pick, as it does in a match.
 
 const DUMMIES := 2
 ## Where the parked karts stand, by cell, and what each drops: both help with the coins straight
@@ -21,6 +22,7 @@ var _pick_up: TutorialTask
 var _read: TutorialTask
 var _pit: TutorialTask
 var _read_time := 0.0
+var _hand_shown := false
 
 
 func _init() -> void:
@@ -30,10 +32,7 @@ func _init() -> void:
 	spawn_cell = Vector2i(4, 40)
 	facing = Vector3(0.0, 0.0, 1.0)
 	next_cell = Vector2i(23, 53)
-	reveals = [
-		[&"hand", "Your jokers, hold %s to read them", [InputActions.JOKER_MENU]],
-		[&"lives", "", []],
-	]
+	reveals = [[&"lives", "", []]]
 	_shoot = add_task("Shoot the two parked karts", "%s to fire", [InputActions.FIRE])
 	_shoot.of = DUMMIES
 	_shoot.arrow = DUMMY_SPOTS[0]
@@ -50,6 +49,7 @@ func _init() -> void:
 	_pit.of = WANTED - DUMMIES
 	_pit.arrow = PIT
 	stations = [[_shoot, _pick_up], [_read], [_pit]]
+	pointer_until = _read
 
 
 func _begin() -> void:
@@ -70,6 +70,12 @@ func end() -> void:
 
 
 func step(delta: float) -> void:
+	# The hand comes in with the first card, and is pointed at.
+	if not _hand_shown and kart().jokers.count() > 0 and run.reveal != null:
+		_hand_shown = true
+		run.reveal.show_piece(
+			&"hand", "Your jokers, hold %s to read them", [InputActions.JOKER_MENU]
+		)
 	if _read.done:
 		return
 	if kart().menu_open:

@@ -14,7 +14,7 @@ const PEN_GATES: Array[Vector2i] = [Vector2i(52, 41), Vector2i(52, 46), Vector2i
 const ARENA_SPAWNS: Array[Vector2i] = [
 	Vector2i(23, 47), Vector2i(50, 47), Vector2i(36, 41), Vector2i(36, 53)
 ]
-const PORTAL_GATE := Vector2i(36, 39)
+const PORTAL_GATE := Vector2i(35, 39)
 ## The points banked that let each bot out, and the points that finish the tutorial.
 const RELEASE_AT: Array[int] = [0, 150, 300]
 const NEED := 400
@@ -46,6 +46,10 @@ func _begin() -> void:
 			TutorialReveal.show(crate)
 	Events.bank_tick.connect(_on_tick)
 	_bar = TutorialBossBar.add_to(run.layer, NEED)
+	# The Royal Flush tally hangs where the bar now is: under it for the rest of the fight.
+	var tally := _tally()
+	if tally != null:
+		tally.offset_top = _bar.below()
 	_release()
 
 
@@ -54,7 +58,15 @@ func end() -> void:
 		Events.bank_tick.disconnect(_on_tick)
 	if _bar != null and is_instance_valid(_bar):
 		_bar.queue_free()
+	var tally := _tally()
+	if tally != null:
+		tally.offset_top = MatchHud.TALLY_DROP
 	super()
+
+
+func _tally() -> FlushTally:
+	var hud := run.match_node.hud
+	return hud.find_child("FlushTally", true, false) as FlushTally if hud != null else null
 
 
 func step(_delta: float) -> void:

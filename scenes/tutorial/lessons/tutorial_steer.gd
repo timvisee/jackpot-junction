@@ -1,13 +1,12 @@
 class_name TutorialSteer
 extends TutorialLesson
 ## Lesson 2, GAME.md 9.4a: steer, round the pillar, a circle and a half to the left and then to
-## the right, counted from the kart's heading while it is moving forward, so sawing the wheel back
-## and forth adds up to nothing. The room has the two pads that switch the way of driving, 4.2,
-## which are there from the start and stay.
+## the right, counted from the kart's heading, moving or standing, so sawing the wheel back and
+## forth adds up to nothing and turning on the spot counts. The room has the two pads that switch
+## the way of driving, 4.2, which are there from the start and stay.
 
-## How far round each way, in turns, and how fast the kart has to be going for a turn to count.
+## How far round each way, in turns.
 const TURNS := 1.5
-const MOVING := 1.5
 ## The pads either side of the way in, and the sign between them, by cell.
 const SIMPLE_PAD := Vector2i(13, 33)
 const ADVANCED_PAD := Vector2i(24, 33)
@@ -62,8 +61,6 @@ func step(_delta: float) -> void:
 	var now := motor.heading
 	var turned := wrapf(now - _heading, -PI, PI)
 	_heading = now
-	if motor.forward_speed < MOVING:
-		return
 	var task := current()
 	if task == _left and turned > 0.0:
 		_left.advance(turned, TURNS * TAU)

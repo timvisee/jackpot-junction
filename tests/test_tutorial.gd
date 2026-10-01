@@ -148,10 +148,11 @@ func test_the_map_is_rooms_in_a_row_joined_by_gates() -> void:
 	for cell: Vector2i in TutorialFight.PEN_GATES:
 		assert_str(grid.glyph(cell)).is_equal("G")
 	assert_str(grid.glyph(TutorialFight.PORTAL_GATE)).is_equal("G")
-	# The pocket's target is behind its stub: no straight line from the window reaches it.
-	for cell: Vector2i in [TutorialItems.POCKET, TutorialItems.WINDOW]:
+	# The pocket's target is past its pillar: no straight line from the window reaches it.
+	for cell: Vector2i in [TutorialItems.POCKET, TutorialItems.WINDOW, Vector2i(19, 16)]:
 		assert_str(grid.glyph(cell)).is_not_equal("#")
-	assert_str(grid.glyph(Vector2i(21, 16))).is_equal("#")
+	for cell: Vector2i in [Vector2i(22, 15), Vector2i(23, 16), Vector2i(19, 14), Vector2i(19, 17)]:
+		assert_str(grid.glyph(cell)).is_equal("#")
 
 
 ## A gate is a wall until it opens: it sinks into the floor and stops standing in the way, and
@@ -222,6 +223,18 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_bool(lesson.is_done()).is_true()
 	assert_bool((rows[0]["mark"] as TutorialList.Mark).done).is_true()
 	assert_object(run.waiting_at).is_same(gate)
+	# The arrow points at the gate now, with its ring on the floor there.
+	await _runner.simulate_frames(1, 17)
+	assert_bool(run.arrow._ring.visible).is_true()
+	var ring_at := run.arrow._ring.global_position
+	(
+		assert_float(
+			Vector2(ring_at.x, ring_at.z).distance_to(
+				Vector2(gate.global_position.x, gate.global_position.z)
+			)
+		)
+		. is_less(0.5)
+	)
 	# On through it, into the steering room.
 	var started := false
 	for i: int in 600:
@@ -248,10 +261,15 @@ func test_steering_counts_both_ways_from_the_heading() -> void:
 	assert_array(lesson._right.actions).is_equal([InputActions.STEER_RIGHT] as Array[StringName])
 	_put(tutorial, Vector2i(18, 42), Vector3(0.0, 0.0, -1.0))
 	await _runner.simulate_frames(2, 17)
-	# Standing still and turning the wheel is nothing.
-	kart.motor.heading += 2.0
-	await _runner.simulate_frames(2, 17)
-	assert_float(lesson._left.progress).is_equal(0.0)
+	# Turning on the spot counts, to the left; back again takes it off, so sawing adds nothing.
+	kart.motor.heading += 0.5
+	lesson.step(DT)
+	assert_float(lesson._left.progress).is_equal_approx(0.5 / (TutorialSteer.TURNS * TAU), 0.001)
+	assert_float(lesson._right.progress).is_equal(0.0)
+	kart.motor.heading -= 0.5
+	lesson.step(DT)
+	assert_float(lesson._left.progress).is_equal_approx(0.5 / (TutorialSteer.TURNS * TAU), 0.001)
+	assert_float(lesson._right.progress).is_equal(0.0)
 	# Moving and turning left fills the left task, and nothing of the right one.
 	Input.action_press(InputActions.THROTTLE)
 	Input.action_press(InputActions.STEER_LEFT)
@@ -283,9 +301,14 @@ func test_a_mode_pad_switches_the_way_of_driving() -> void:
 		if pad.mode == Settings.DRIVE_SIMPLE:
 			simple = pad
 	assert_bool(simple.is_lit()).is_false()
+	assert_float(simple._ring.emission_energy_multiplier).is_equal(0.0)
+	assert_object(simple._label.modulate).is_equal(ModePad.OFF)
 	simple._on_body_entered(tutorial.run.kart())
 	assert_str(Game.settings.drive_mode(0)).is_equal(Settings.DRIVE_SIMPLE)
 	assert_bool(simple.is_lit()).is_true()
+	await _runner.simulate_frames(1, 17)
+	assert_float(simple._ring.emission_energy_multiplier).is_greater(0.0)
+	assert_object(simple._label.modulate).is_equal(ModePad.LIT)
 	# Simple driving says the tasks its own way, within the hint's quarter second.
 	await _runner.simulate_frames(20, 17)
 	assert_str(tutorial.run.hint.words()).contains("Push %s")
@@ -350,6 +373,15 @@ func test_burning_the_tank_dry_with_the_nitro_pointed_out() -> void:
 	assert_bool(run.reveal.is_pointing()).is_true()
 	assert_bool(run.reveal._ring.visible).is_true()
 	assert_bool(run.reveal._pointer is PanelContainer).is_true()
+	var card := run.reveal._pointer as Control
+	var ring := run.reveal._ring as Control
+	var apart := (ring.position + ring.size * 0.5).distance_to(
+		card.position + card.get_combined_minimum_size() * 0.5
+	)
+	assert_float(apart).is_less(2.0)
+	assert_float(ring.size.x).is_less(
+		card.get_combined_minimum_size().x * 2.0 * HudReveal.RING_FROM
+	)
 	_put(tutorial, Vector2i(50, 26), Vector3(1.0, 0.0, 0.0))
 	Input.action_press(InputActions.THROTTLE)
 	Input.action_press(InputActions.NITRO)
@@ -390,6 +422,8 @@ func test_drifting_counts_the_tap_and_three_turbos() -> void:
 	assert_str(lesson._turbo.hint).is_equal(TutorialDrift.READY)
 	kart.motor.drifting = false
 	await _runner.simulate_frames(1, 17)
+	assert_str(lesson._turbo.hint).is_equal(TutorialDrift.AGAIN)
+	assert_array(lesson._turbo.actions).is_equal([InputActions.HANDBRAKE] as Array[StringName])
 	assert_int(run.list.task_rows(lesson).size()).is_equal(2)
 	for i: int in TutorialDrift.TURBOS:
 		Events.drift_boosted.emit(kart.slot)
@@ -399,7 +433,7 @@ func test_drifting_counts_the_tap_and_three_turbos() -> void:
 
 
 ## Shooting: each target counts once, its light going green, the loose boxes count for nothing,
-## and the wall of boxes down is the way out.
+## and one row of the wall of boxes down, both deep, is the way out.
 func test_shooting_the_targets_and_through_the_boxes() -> void:
 	var tutorial := await _start()
 	var run := tutorial.run
@@ -447,19 +481,31 @@ func test_shooting_the_targets_and_through_the_boxes() -> void:
 			arena.crates[i].hit(0)
 	await _runner.simulate_frames(1, 17)
 	assert_bool(lesson.is_done()).is_false()
-	for i: int in arena.crates.size():
-		if TutorialShoot.WALL.has_point(grid.crates[i]):
-			arena.crates[i].hit(0)
+	# One box of a row, and one of another: no way through yet.
+	_crate_at(arena, Vector2i(32, 9)).hit(0)
+	_crate_at(arena, Vector2i(33, 10)).hit(0)
+	await _runner.simulate_frames(1, 17)
+	assert_bool(lesson.is_way_through()).is_false()
+	assert_bool(lesson.is_done()).is_false()
+	_crate_at(arena, Vector2i(33, 9)).hit(0)
 	await _runner.simulate_frames(4, 17)
 	var now := lesson.current()
 	(
 		assert_bool(lesson.is_done())
 		. override_failure_message(
-			"standing %d, on %s" % [lesson._standing, now.text if now != null else "nothing"]
+			"down %s, on %s" % [lesson._down.keys(), now.text if now != null else "nothing"]
 		)
 		. is_true()
 	)
 	assert_bool(arena.gate_at(lesson.gate_cell).is_open).is_true()
+
+
+## The crate standing on [param cell].
+func _crate_at(arena: Arena, cell: Vector2i) -> Crate:
+	for i: int in arena.crates.size():
+		if arena.grid.crates[i] == cell:
+			return arena.crates[i]
+	return null
 
 
 ## The pause menu's Skip step passes the lesson, and a kart that dies comes back in its own room.
@@ -611,6 +657,9 @@ func test_jokers_from_parked_karts_and_the_pit() -> void:
 	assert_bool(tutorial.match_node.rules.offer_jokers).is_true()
 	assert_bool(lesson.ordered).is_false()
 	assert_int(run.list.task_rows(lesson).size()).is_equal(4)
+	# No hand yet, and nothing pointing at one: the lives alone came in.
+	assert_bool(tutorial.match_node.hud.hand_of(0).visible).is_false()
+	assert_bool(run.reveal.is_pointing()).is_false()
 	assert_int(run.dummies.size()).is_equal(TutorialJokers.DUMMIES)
 	for i: int in run.dummies.size():
 		var dummy := run.dummies[i].kart
@@ -632,6 +681,10 @@ func test_jokers_from_parked_karts_and_the_pit() -> void:
 		card.queue_free()
 	await _runner.simulate_frames(1, 17)
 	assert_bool(lesson._pick_up.done).is_true()
+	# The hand came in with the cards, pointed at, and stays pointed at past the task done.
+	assert_bool(tutorial.match_node.hud.hand_of(0).visible).is_true()
+	assert_bool(run.reveal.is_pointing()).is_true()
+	assert_str(run.reveal.line()).contains("Your jokers")
 	Input.action_press(InputActions.JOKER_MENU)
 	for i: int in 120:
 		await _runner.simulate_frames(1, 17)
@@ -639,6 +692,8 @@ func test_jokers_from_parked_karts_and_the_pit() -> void:
 			break
 	Input.action_release(InputActions.JOKER_MENU)
 	assert_bool(lesson._read.done).override_failure_message("the hand was never read").is_true()
+	await _runner.simulate_frames(1, 17)
+	assert_bool(run.reveal.is_pointing()).is_false()
 	var slot := run.slot()
 	for death: int in 2:
 		kart.die(&"pit", -1)
@@ -728,9 +783,9 @@ func test_the_flush_tally_counts_the_room_the_player_is_in() -> void:
 	assert_int(run.index).is_equal(0)
 
 
-## The Junction grows out of the floor with its lesson, wired to bank: the pot filled, then 50
-## points banked in as many cash-outs as it takes, and the fight starts in the same room.
-func test_the_junction_banks_fifty_points() -> void:
+## The Junction grows out of the floor with its lesson, wired to bank: the pot filled, then the
+## whole of it banked, an empty pot sent back to the Jackpot, and the fight starts in the same room.
+func test_the_junction_banks_the_whole_pot() -> void:
 	var tutorial := await _start()
 	var run := tutorial.run
 	var arena := tutorial.match_node.arena
@@ -747,12 +802,22 @@ func test_the_junction_banks_fifty_points() -> void:
 	)
 	assert_bool(lesson._fill.done).is_false()
 	kart.pot.add_coins(TutorialBank.POT)
-	await _runner.simulate_frames(1, 17)
+	await _runner.simulate_frames(2, 17)
 	assert_bool(lesson._fill.done).is_true()
-	Events.bank_tick.emit(0, 30)
+	assert_str(lesson._bank.hint).is_equal(TutorialBank.BANK)
+	# Half of it banked is half the bar; a pot emptied otherwise is a trip back to the Jackpot.
+	kart.pot.coins = TutorialBank.POT / 2
 	await _runner.simulate_frames(1, 17)
-	assert_float(lesson._bank.progress).is_equal_approx(0.6, 0.01)
-	Events.bank_tick.emit(0, 30)
+	assert_float(lesson._bank.progress).is_equal_approx(0.5, 0.01)
+	kart.pot.reset()
+	await _runner.simulate_frames(1, 17)
+	assert_str(lesson._bank.hint).is_equal(TutorialBank.EMPTY)
+	assert_vector(lesson._bank.arrow).is_equal(TutorialBank.JACKPOT)
+	kart.pot.add_coins(TutorialBank.POT)
+	await _runner.simulate_frames(1, 17)
+	assert_str(lesson._bank.hint).is_equal(TutorialBank.BANK)
+	assert_bool(lesson.is_done()).is_false()
+	Events.bank_completed.emit(0, TutorialBank.POT, 1.0, TutorialBank.POT)
 	await _runner.simulate_frames(1, 17)
 	assert_bool(lesson.is_done()).is_true()
 	assert_int(run.index).is_equal(10)
@@ -782,6 +847,8 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	assert_bool(arena.gate_at(TutorialFight.PEN_GATES[0]).is_open).is_true()
 	assert_bool(arena.gate_at(TutorialFight.PEN_GATES[1]).is_open).is_false()
 	assert_object(tutorial.layer.get_node_or_null("BossBar")).is_not_null()
+	var tally: FlushTally = tutorial.match_node.hud.find_child("FlushTally", true, false)
+	assert_float(tally.offset_top).is_greater(MatchHud.TALLY_DROP)
 	Events.bank_tick.emit(0, 150)
 	await _runner.simulate_frames(1, 17)
 	assert_int(lesson.released()).is_equal(2)

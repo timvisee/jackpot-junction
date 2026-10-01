@@ -26,8 +26,10 @@ var gate_cell := Vector2i(-1, -1)
 var spawn_cell := Vector2i(-1, -1)
 var facing := Vector3(0.0, 0.0, -1.0)
 var next_cell := Vector2i(-1, -1)
-## The pieces of the HUD this lesson brings in, each [piece, line, actions], see [HudReveal].
+## The pieces of the HUD this lesson brings in, each [piece, line, actions], see [HudReveal], and
+## the task the pointer at them stays up until, or null for the first task done.
 var reveals: Array[Array] = []
+var pointer_until: TutorialTask
 var run: TutorialRun
 
 ## The signs this lesson put up, taken down with it.

@@ -7,8 +7,8 @@ extends Node
 ## The corner's own control hints stay off throughout: the line over the kart is saying it.
 ##
 ## The pointer is read, not glimpsed: its line sits on a dark card, a frame pulses round the piece,
-## and as it first appears a ring closes in on the piece from well outside it, which is what pulls
-## the eye across the screen.
+## and as the card first appears a ring closes in on it from a little way outside, which is what
+## pulls the eye across the screen.
 
 ## What can be shown: the nitro tank with the speedometer, the item slot, the hand of jokers, the
 ## lives, the pot, the banked score, the kills and deaths, and the kill feed.
@@ -22,10 +22,10 @@ const BOB := 8.0
 const BOB_RATE := 0.7
 const GAP := 14.0
 const FRAME_GROW := 6.0
-## The ring that closes in on a piece as its pointer appears: how long it takes, in seconds, and
-## how far out it starts, as a multiple of the piece's size.
-const RING_SECONDS := 1.1
-const RING_FROM := 3.0
+## The ring that closes in on the pointer's card as it appears: how long it takes, in seconds,
+## and how far out it starts, as a multiple of the card's size.
+const RING_SECONDS := 1.0
+const RING_FROM := 1.7
 
 var hud: MatchHud
 ## Whose corner, and which.
@@ -81,11 +81,11 @@ class Frame:
 		draw_rect(box, Color(INK, 0.45 + 0.55 * strength), false, 3.0)
 
 
-## The ring closing in on the piece, drawn about the middle of this control.
+## The ring closing in on the card, drawn about the middle of this control.
 class Ring:
 	extends Control
 
-	## How far along it is, 0 at the start far out to 1 on the piece, and how big the piece is.
+	## How far along it is, 0 at the start out wide to 1 on the card, and how big the card is.
 	var progress := 0.0:
 		set(value):
 			progress = value
@@ -158,7 +158,7 @@ func show_piece(piece: StringName, line: String, actions: Array[StringName] = []
 	_pointer.visible = true
 	_frame.visible = true
 	_ring_left = RING_SECONDS
-	_ring.visible = piece != &"hand"
+	_ring.visible = true
 
 
 ## The pointer has said its piece.
@@ -208,7 +208,7 @@ func _process(delta: float) -> void:
 
 
 ## The pointer beside its piece: to the right of a piece of the corner, over the hand; the frame
-## round the piece, and the ring closing in on it.
+## round the piece, and the ring closing in on the card.
 func _place(parts: Dictionary, hand: JokerHand, delta: float) -> void:
 	var pulse := 0.5 + 0.5 * sin(_time * TAU * BOB_RATE)
 	var bob := (pulse * 2.0 - 1.0) * BOB
@@ -220,20 +220,21 @@ func _place(parts: Dictionary, hand: JokerHand, delta: float) -> void:
 		var top := hand.reach() if not hand.hangs() else hand.reach() + size.y
 		_pointer.position = Vector2(hand.size.x * 0.5 - size.x * 0.5, top - size.y - GAP + bob)
 		_frame.visible = false
-		return
-	var rect := _anchor(parts).get_global_rect()
-	_pointer.position = Vector2(
-		rect.end.x + GAP + bob, rect.position.y + rect.size.y * 0.5 - size.y * 0.5
-	)
-	var grown := rect.grow(FRAME_GROW)
-	_frame.position = grown.position
-	_frame.size = grown.size
+	else:
+		var rect := _anchor(parts).get_global_rect()
+		_pointer.position = Vector2(
+			rect.end.x + GAP + bob, rect.position.y + rect.size.y * 0.5 - size.y * 0.5
+		)
+		var grown := rect.grow(FRAME_GROW)
+		_frame.position = grown.position
+		_frame.size = grown.size
 	if _ring.visible:
 		_ring_left = maxf(_ring_left - delta, 0.0)
-		var reach := rect.size.length() * RING_FROM
-		_ring.position = rect.get_center() - Vector2(reach, reach)
+		var card := Rect2(_pointer.position, size)
+		var reach := size.length() * 0.5 * RING_FROM + 4.0
+		_ring.position = card.get_center() - Vector2(reach, reach)
 		_ring.size = Vector2(reach, reach) * 2.0
-		_ring.piece = rect.size
+		_ring.piece = size
 		_ring.progress = 1.0 - _ring_left / RING_SECONDS
 		if _ring_left <= 0.0:
 			_ring.visible = false

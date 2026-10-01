@@ -39,6 +39,8 @@ var penned: Array[PlayerSlot] = []
 
 var _slot: PlayerSlot
 var _task: TutorialTask
+## How many of the lesson's tasks were done at the last look, for hearing one more.
+var _done := 0
 var _over := false
 var _bot_spawns := 0
 ## Gates told to shut while somebody was still in them, shut as soon as nobody is.
@@ -181,6 +183,7 @@ func _start(i: int) -> void:
 				actions.assign(piece[2])
 			reveal.show_piece(piece[0], piece[1], actions)
 	_task = null
+	_done = 0
 	_refresh()
 	lesson_started.emit(i)
 
@@ -207,9 +210,14 @@ func _physics_process(delta: float) -> void:
 func _refresh() -> void:
 	var lesson := lessons[index]
 	var now := lesson.current()
-	if _task != null and _task.done:
+	var done := 0
+	for task: TutorialTask in lesson.tasks:
+		done += 1 if task.done else 0
+	if done > _done:
+		_done = done
 		Audio.play_sfx(TICK, -6.0, 0.0)
-		if reveal != null:
+		var until := lesson.pointer_until
+		if reveal != null and (until == null or until.done):
 			reveal.pointer_done()
 	if now != _task:
 		_task = now

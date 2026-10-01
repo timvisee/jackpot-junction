@@ -1,8 +1,9 @@
 class_name GuideArrow
 extends Node3D
 ## The arrow on the floor ahead of the kart, GAME.md 9.4a, pulsing toward wherever the task needs
-## the kart to go, and toward the open gate once a lesson is done. Gone within a few meters of the
-## spot, and while there is nowhere in particular to go.
+## the kart to go, and toward the open gate once a lesson is done, with a ring on the floor round
+## the spot itself. The arrow is gone within a few meters of the spot, the ring stays until the
+## spot is reached, and both while there is nowhere in particular to go.
 
 ## How far ahead of the kart it lies, how near the spot it goes, and how high off the floor.
 const AHEAD := 3.2
@@ -11,12 +12,17 @@ const HEIGHT := 0.07
 const COLOR := Palette.NEON_CYAN
 ## How fast it pulses, in beats a second.
 const PULSE := 0.8
+## The ring round the spot: its radius and its width, in meters.
+const RING_RADIUS := 1.1
+const RING_WIDTH := 0.12
 
 var kart: Kart
 ## Where it points, or not finite for nowhere.
 var target := Vector3.INF
 
 var _material: StandardMaterial3D
+var _ring: MeshInstance3D
+var _ring_material: StandardMaterial3D
 var _time := 0.0
 
 
@@ -39,6 +45,28 @@ func _ready() -> void:
 	face.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(face)
 	visible = false
+	# The ring stands on its own in the match, since the arrow moves with the kart.
+	_ring = MeshInstance3D.new()
+	_ring.name = "GuideRing"
+	var band := TorusMesh.new()
+	band.inner_radius = RING_RADIUS - RING_WIDTH * 0.5
+	band.outer_radius = RING_RADIUS + RING_WIDTH * 0.5
+	band.rings = 48
+	band.ring_segments = 6
+	_ring.mesh = band
+	_ring_material = StandardMaterial3D.new()
+	_ring_material.albedo_color = COLOR
+	_ring_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_ring_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_ring.material_override = _ring_material
+	_ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_ring.visible = false
+	get_parent().add_child.call_deferred(_ring)
+
+
+func _exit_tree() -> void:
+	if _ring != null and is_instance_valid(_ring):
+		_ring.queue_free()
 
 
 func point_at(at: Vector3) -> void:
@@ -47,9 +75,16 @@ func point_at(at: Vector3) -> void:
 
 func _process(delta: float) -> void:
 	_time += delta
+	var pulse := 0.5 + 0.5 * sin(_time * TAU * PULSE)
 	if kart == null or not is_instance_valid(kart) or not target.is_finite():
 		visible = false
+		_ring.visible = false
 		return
+	if _ring.is_inside_tree():
+		_ring.visible = true
+		_ring.global_position = Vector3(target.x, HEIGHT, target.z)
+		_ring.scale = Vector3.ONE * (0.95 + 0.1 * pulse)
+		_ring_material.albedo_color = Color(COLOR, 0.45 + 0.4 * pulse)
 	var from := kart.global_position
 	var flat := Vector3(target.x - from.x, 0.0, target.z - from.z)
 	if flat.length() < NEAR:
@@ -59,7 +94,6 @@ func _process(delta: float) -> void:
 	var way := flat.normalized()
 	global_position = Vector3(from.x, HEIGHT, from.z) + way * AHEAD
 	look_at(global_position + way, Vector3.UP)
-	var pulse := 0.5 + 0.5 * sin(_time * TAU * PULSE)
 	scale = Vector3.ONE * (0.9 + 0.2 * pulse)
 	_material.albedo_color = Color(COLOR, 0.5 + 0.45 * pulse)
 

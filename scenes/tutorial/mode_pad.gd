@@ -3,16 +3,18 @@ extends Area3D
 ## One of the two pads either side of the way into the steering room of the tutorial, GAME.md
 ## 9.4a: SIMPLE or ADVANCED, a big lit disc with the way of driving's own picture on it, the one
 ## the title's question draws, a ring round it and a run of lamps chasing round that, and its name
-## over it, cyan for the way the player drives now and magenta for the other. Driving onto the
-## other switches to it on the spot, the same change the pause menu's switch makes, 4.2. The pads
-## stay for the rest of the tutorial: there is no reason to take them away.
+## over it, lit cyan for the way the player drives now and plainly off, gray and unlit, for the
+## other, so there is no mistaking which is on. Driving onto the other switches to it on the spot,
+## the same change the pause menu's switch makes, 4.2. The pads stay for the rest of the tutorial:
+## there is no reason to take them away.
 
 signal switched(mode: String)
 
 const RADIUS := 1.5
 const RING := 0.14
 const LIT := Palette.NEON_CYAN
-const OTHER := Palette.NEON_MAGENTA
+const OFF := Color(0.46, 0.47, 0.52)
+const OFF_PICTURE := Color(0.62, 0.63, 0.68)
 const LABEL_HEIGHT := 2.2
 ## The picture on the face: how many pixels it is drawn at and how many meters it spans.
 const PICTURE_PIXELS := 256
@@ -28,6 +30,7 @@ var _disc: StandardMaterial3D
 var _ring: StandardMaterial3D
 var _picture: StandardMaterial3D
 var _lamps: Array[StandardMaterial3D] = []
+var _label: Label3D
 var _time := 0.0
 
 
@@ -77,16 +80,16 @@ func _ready() -> void:
 	add_child(ring)
 	_add_picture()
 	_add_lamps()
-	var label := Label3D.new()
-	label.text = DrivePicker.WORDS[mode].to_upper()
-	label.font_size = 72
-	label.outline_size = 16
-	label.outline_modulate = Color(0.04, 0.04, 0.05, 0.9)
-	label.pixel_size = 0.009
-	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.no_depth_test = true
-	label.position = Vector3(0.0, LABEL_HEIGHT, 0.0)
-	add_child(label)
+	_label = Label3D.new()
+	_label.text = DrivePicker.WORDS[mode].to_upper()
+	_label.font_size = 72
+	_label.outline_size = 16
+	_label.outline_modulate = Color(0.04, 0.04, 0.05, 0.9)
+	_label.pixel_size = 0.009
+	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_label.no_depth_test = true
+	_label.position = Vector3(0.0, LABEL_HEIGHT, 0.0)
+	add_child(_label)
 	_paint()
 
 
@@ -147,21 +150,26 @@ func is_lit() -> bool:
 	return Game.settings.drive_mode(0) == mode
 
 
+## Lit: the disc and ring glow cyan, the lamps chase, the name is cyan. Off: gray, no glow, the
+## lamps dark and still, the name gray.
 func _paint() -> void:
-	var color := LIT if is_lit() else OTHER
-	_disc.albedo_color = color.darkened(0.55)
+	var lit := is_lit()
+	var color := LIT if lit else OFF
+	_disc.albedo_color = color.darkened(0.55 if lit else 0.35)
 	_disc.emission = color
-	_disc.emission_energy_multiplier = 0.5 if is_lit() else 0.25
+	_disc.emission_energy_multiplier = 0.5 if lit else 0.0
 	_ring.albedo_color = color
 	_ring.emission = color
-	_ring.emission_energy_multiplier = 1.4 if is_lit() else 0.7
+	_ring.emission_energy_multiplier = 1.4 if lit else 0.0
+	_picture.albedo_color = Color.WHITE if lit else OFF_PICTURE
+	_label.modulate = LIT if lit else OFF
 	var head := fmod(_time * CHASE, 1.0) * LAMPS
 	for i: int in _lamps.size():
 		var behind := fmod(head - i + LAMPS, LAMPS)
-		var glow := clampf(1.0 - behind / 3.0, 0.0, 1.0)
+		var glow := clampf(1.0 - behind / 3.0, 0.0, 1.0) if lit else 0.0
 		_lamps[i].albedo_color = color.darkened(0.6)
 		_lamps[i].emission = color
-		_lamps[i].emission_energy_multiplier = 0.2 + 2.2 * glow
+		_lamps[i].emission_energy_multiplier = 0.2 + 2.2 * glow if lit else 0.0
 
 
 func _on_body_entered(body: Node3D) -> void:
