@@ -16,6 +16,7 @@ func _init() -> void:
 	_drive.simple_hint = "Push %s to drive"
 	_drive.simple_way = true
 	_drive.arrow = Vector2i(18, 36)
+	_drive.ringed = false
 
 
 func step(delta: float) -> void:

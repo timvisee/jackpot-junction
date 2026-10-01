@@ -27,6 +27,15 @@ var of := 0
 ## of it.
 var arrow := Vector2i(-1, -1)
 var arrow_rect := Rect2i()
+## Whether the spot gets a ring round it as well as the arrow: a doorway, or a turret to drive at,
+## does not.
+var ringed := true
+## For a task done in steps that come round again, a drift say: the lines of the hint, a tick box
+## each, with the gap for each line's control and the controls, and how many are done this time
+## round. A task with steps is said in them rather than in [member hint].
+var steps: Array[String] = []
+var step_actions: Array[Array] = []
+var steps_done := 0
 var done := false
 
 ## When one of the count was last done, in engine seconds, or never.

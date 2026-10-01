@@ -2,14 +2,13 @@ class_name TutorialBank
 extends TutorialLesson
 ## Lesson 10, GAME.md 9.4a: the Junction, in the last room, which grows out of the floor as the
 ## lesson starts. Fill the pot from the Jackpot, then bank the whole of it on the Junction, so the
-## fight after starts with nothing in hand. The banked score comes into the corner with it, and a
-## sign says the difference between the pot and the bank.
+## fight after starts with nothing in hand. The banked score comes into the corner with it, its
+## pointer saying what the bank is where the pot's said what the pot is.
 
 const JUNCTION := Vector2i(36, 47)
 const JUNCTION_RECT := Rect2i(35, 46, 4, 4)
 const JACKPOT := Vector2i(47, 52)
 const JACKPOT_RECT := Rect2i(47, 52, 2, 2)
-const WORDS := Vector2i(36, 50)
 const POT := 20
 ## What the banking task says: with something in the pot, and with nothing.
 const BANK := "Drive onto the Junction and wait"
@@ -24,7 +23,7 @@ var _peak := 0.0
 func _init() -> void:
 	title = "The Junction"
 	spawn_cell = TutorialPads.SPAWN
-	reveals = [[&"bank", "Your bank: safe for good", []]]
+	reveals = [[&"bank", "Your bank: safe for good, 3000 wins a match", []]]
 	_fill = add_task("Fill your pot from the Jackpot", "Drive into the Jackpot and wait")
 	_fill.arrow = JACKPOT
 	_fill.arrow_rect = JACKPOT_RECT
@@ -41,12 +40,6 @@ func _begin() -> void:
 		arena().activate_jackpot(zone.index)
 		zone.chips = float(zone.cap())
 	Events.bank_completed.connect(_on_banked)
-	put_sign("JUNCTION\nbank your pot here", JUNCTION, Palette.NEON_MAGENTA)
-	put_sign(
-		"POT: what you carry, part of it lost when you die\nBANK: safe for good, and 3000 wins a match",
-		WORDS,
-		Palette.CHIP_WHITE
-	)
 
 
 func end() -> void:

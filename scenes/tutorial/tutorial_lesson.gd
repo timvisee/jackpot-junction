@@ -87,7 +87,7 @@ func current() -> TutorialTask:
 	if _held.is_empty() or _first_undone(_held) == null:
 		_held = nearest
 	elif not nearest.is_empty() and nearest != _held:
-		if _distance(_first_undone(nearest)) + STICK < _distance(_first_undone(_held)):
+		if _distance(nearest) + STICK < _distance(_held):
 			_held = nearest
 	return _first_undone(_held) if not _held.is_empty() else null
 
@@ -127,6 +127,23 @@ func add_task(
 	task.bar = bar
 	tasks.append(task)
 	return task
+
+
+## [param text] painted on the floor at [param cell], in [param color], reading from the south as
+## the room is seen, and there for good: a word by a thing rather than a sign over it.
+func paint(text: String, cell: Vector2i, color: Color = Palette.CHIP_WHITE) -> Label3D:
+	var label := Label3D.new()
+	label.text = text
+	label.font_size = 64
+	label.outline_size = 10
+	label.modulate = Color(color, 0.85)
+	label.outline_modulate = Color(0.04, 0.04, 0.05, 0.6)
+	label.pixel_size = 0.009
+	label.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
+	var at := run.cell(cell)
+	label.position = Vector3(at.x, 0.03, at.z)
+	run.match_node.add_child(label)
+	return label
 
 
 ## A sign over [param cell], in [param color], taken down with the lesson.
@@ -195,24 +212,27 @@ static func _first_undone(group: Array) -> TutorialTask:
 	return null
 
 
-## Of [param groups] with something left to do, the one whose first undone task's spot is nearest
-## the kart; a task with no spot comes last.
+## Of [param groups] with something left to do, the one whose spot is nearest the kart; a station
+## with no spot comes last.
 func _nearest(groups: Array) -> Array:
 	var best: Array = []
 	var best_distance := INF
 	for group: Array in groups:
-		var task := _first_undone(group)
-		if task == null:
+		if _first_undone(group) == null:
 			continue
-		var distance := _distance(task)
+		var distance := _distance(group)
 		if distance < best_distance:
 			best_distance = distance
 			best = group
 	return best
 
 
-## How far the kart is from where [param task] needs it, or very far for one that needs it nowhere.
-func _distance(task: TutorialTask) -> float:
-	if task == null or task.arrow.x < 0:
-		return 1.0e9
-	return kart().global_position.distance_to(run.cell(task.arrow))
+## How far the kart is from the station [param group] is, by the nearest spot any of its tasks
+## names, done or not, so a station is not lost between its tasks when one of them, arming an
+## item say, is done anywhere; very far for a station that names no spot at all.
+func _distance(group: Array) -> float:
+	var best := 1.0e9
+	for task: TutorialTask in group:
+		if task.arrow.x >= 0:
+			best = minf(best, kart().global_position.distance_to(run.cell(task.arrow)))
+	return best

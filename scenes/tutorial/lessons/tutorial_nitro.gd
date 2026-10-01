@@ -15,7 +15,6 @@ func _init() -> void:
 	reveals = [[&"nitro", "Your nitro", [InputActions.NITRO]]]
 	_burn = add_task("Burn a full tank of nitro", "Hold %s for nitro", [InputActions.NITRO], true)
 	reveals[0][1] = "Your nitro, %s to burn it"
-	_burn.arrow = Vector2i(83, 26)
 
 
 func _begin() -> void:

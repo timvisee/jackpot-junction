@@ -22,9 +22,10 @@ const CAMERA := 26.0
 const SIGN_HEIGHT := 2.7
 ## Which of the two portals at the end leads to Play; the other leads to the Garage.
 const PLAY_PORTAL := Vector2i(34, 36)
-## What the end says, and for how long.
+## What the end says, and for how long, and how long the fireworks over the room go on.
 const DONE := "TUTORIAL COMPLETE"
 const DONE_SHOWN := 5.0
+const FIREWORKS_FOR := 8.0
 
 var match_node: Match
 var run: TutorialRun
@@ -146,6 +147,17 @@ func _on_finished() -> void:
 	Game.settings.save_to_disk()
 	Audio.play_sfx(&"fanfare", -4.0, 0.0)
 	run.open_gate(TutorialFight.PORTAL_GATE)
+	# Fireworks over the last room, in the player's color, the way a match won has them.
+	var grid := match_node.arena.grid
+	var across := Vector3(TutorialPads.ROOM.size.x, 0.0, TutorialPads.ROOM.size.y) * grid.cell_size
+	var middle := grid.rect_center(TutorialPads.ROOM)
+	var kart := run.kart()
+	Fireworks.celebrate(
+		match_node,
+		AABB(middle - across * 0.5, across),
+		Palette.player_color(kart.color_index),
+		FIREWORKS_FOR
+	)
 	var banner := Label.new()
 	banner.name = "Done"
 	banner.text = DONE

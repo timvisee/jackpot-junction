@@ -38,6 +38,8 @@ var waiting_at: Gate
 var dummies: Array[PlayerSlot] = []
 var bots: Array[PlayerSlot] = []
 var penned: Array[PlayerSlot] = []
+## The bots gone for good at the end of the fight, never to come back.
+var gone: Array[PlayerSlot] = []
 
 var _slot: PlayerSlot
 var _task: TutorialTask
@@ -175,6 +177,7 @@ func _start(i: int) -> void:
 		finished.emit()
 		return
 	index = i
+	waiting_at = null
 	var lesson := lessons[i]
 	lesson.begin(self)
 	list.start_lesson(lesson)
@@ -194,10 +197,11 @@ func _physics_process(delta: float) -> void:
 	# Held in their pens every tick: the match lets its karts go as it gets going.
 	for slot_penned: PlayerSlot in penned:
 		slot_penned.kart.frozen = true
-	# A parked kart shot stays down: the match would bring it back after its delay.
-	for slot_dummy: PlayerSlot in dummies:
-		if not slot_dummy.kart.alive:
-			slot_dummy.respawn_left = INF
+	# A parked kart shot stays down, and so does a bot gone at the end: the match would bring
+	# them back after its delay.
+	for slot_down: PlayerSlot in dummies + gone:
+		if not slot_down.kart.alive:
+			slot_down.respawn_left = INF
 	_shut_what_is_clear()
 	if _over or index < 0:
 		return
@@ -240,9 +244,9 @@ func _aim(task: TutorialTask) -> void:
 		arrow.point_at(Vector3.INF)
 	elif task.arrow_rect.has_area():
 		var across := maxi(task.arrow_rect.size.x, task.arrow_rect.size.y) * grid().cell_size
-		arrow.point_at(grid().rect_center(task.arrow_rect), across * 0.5 + RING_OUT)
+		arrow.point_at(grid().rect_center(task.arrow_rect), across * 0.5 + RING_OUT, task.ringed)
 	elif task.arrow.x >= 0:
-		arrow.point_at(cell(task.arrow))
+		arrow.point_at(cell(task.arrow), GuideArrow.RING_RADIUS, task.ringed)
 	else:
 		arrow.point_at(Vector3.INF)
 
@@ -351,8 +355,9 @@ func _park_bot(i: int) -> void:
 	slot_bot.kart.respawn(at, toward, match_node.rules.spawn_protection)
 
 
-## The bots gone in a poof, GAME.md 9.4a, with everything of theirs: their bullets, their turrets
-## and their decoys. The fight is won; nothing of it shoots on.
+## The bots gone, GAME.md 9.4a, each popping the way a kart that dies does, with everything of
+## theirs: their bullets, their turrets and their decoys. The fight is won; nothing of it shoots
+## on, and a bot that was banking banks no more.
 func vanish_bots() -> void:
 	var theirs: Array[int] = []
 	for slot_bot: PlayerSlot in bots:
@@ -371,15 +376,11 @@ func vanish_bots() -> void:
 		each.queue_free()
 	for slot_bot: PlayerSlot in bots:
 		var each := slot_bot.kart
-		if each.visible:
-			Burst.spawn(
-				each.get_parent(),
-				each.global_position,
-				Palette.player_color(each.color_index),
-				1.4,
-				28
-			)
+		if each.alive:
+			each.die(&"vanished", -1)
 		TutorialReveal.hold(each)
+		slot_bot.respawn_left = INF
+	gone = bots.duplicate()
 	penned.clear()
 
 

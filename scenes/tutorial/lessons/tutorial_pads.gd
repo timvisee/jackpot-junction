@@ -11,7 +11,8 @@ extends TutorialLesson
 const SPAWN := Vector2i(27, 53)
 const JACKPOT := Vector2i(25, 41)
 const JACKPOT_RECT := Rect2i(25, 41, 2, 2)
-const FLUSH_SIGN := Vector2i(36, 44)
+## The room's floor, by cell.
+const ROOM := Rect2i(22, 40, 30, 15)
 
 var _flush: TutorialTask
 var _drain: TutorialTask
@@ -21,7 +22,7 @@ var _zone: JackpotZone
 func _init() -> void:
 	title = "Pads"
 	spawn_cell = SPAWN
-	reveals = [[&"pot", "Your pot: chips times mult", []]]
+	reveals = [[&"pot", "Your pot: what you carry, part lost when you die", []]]
 	_flush = add_task("Hold all four Royal Flush pads at once", "Drive over each of the pads")
 	_flush.arrow = Vector2i(24, 44)
 	_drain = add_task("Drain the Jackpot", "Drive in and wait", [], true)
@@ -48,6 +49,9 @@ func _prepare() -> void:
 	for crate: Crate in arena().crates:
 		if grid.region_of(grid.cell_of(crate.position)) == room:
 			TutorialReveal.hold(crate)
+	for pad: CoinPad in arena().coin_pads:
+		if grid.region_of(grid.cell_of(pad.position)) == room:
+			TutorialReveal.hold(pad)
 
 
 func _begin() -> void:
@@ -65,8 +69,6 @@ func _begin() -> void:
 		_zone.chips = float(_zone.cap())
 	Events.flush_completed.connect(_on_flush)
 	Events.jackpot_emptied.connect(_on_emptied)
-	put_sign("ROYAL FLUSH\nhold all four pads at once", FLUSH_SIGN, Palette.NEON_CYAN)
-	put_sign("JACKPOT\ndrive in and wait", JACKPOT, Palette.CHIP_GOLD)
 
 
 func end() -> void:

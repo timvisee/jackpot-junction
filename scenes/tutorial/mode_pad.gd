@@ -2,11 +2,11 @@ class_name ModePad
 extends Area3D
 ## One of the two pads either side of the way into the steering room of the tutorial, GAME.md
 ## 9.4a: SIMPLE or ADVANCED, a big lit disc with the way of driving's own picture on it, the one
-## the title's question draws, a ring round it and a run of lamps chasing round that, and its name
-## over it, lit cyan for the way the player drives now and plainly off, gray and unlit, for the
-## other, so there is no mistaking which is on. Driving onto the other switches to it on the spot,
-## the same change the pause menu's switch makes, 4.2. The pads stay for the rest of the tutorial:
-## there is no reason to take them away.
+## the title's question draws, its name under the picture on the face, a ring round it and a run
+## of lamps chasing round that. Lit cyan for the way the player drives now and plainly off, gray
+## and unlit, for the other, so there is no mistaking which is on. Driving onto the other switches
+## to it on the spot, the same change the pause menu's switch makes, 4.2. The pads stay for the
+## rest of the tutorial: there is no reason to take them away.
 
 signal switched(mode: String)
 
@@ -15,10 +15,13 @@ const RING := 0.14
 const LIT := Palette.NEON_CYAN
 const OFF := Color(0.46, 0.47, 0.52)
 const OFF_PICTURE := Color(0.62, 0.63, 0.68)
-const LABEL_HEIGHT := 2.2
-## The picture on the face: how many pixels it is drawn at and how many meters it spans.
+## The face: how many pixels it is drawn at, how many meters it spans, and where on it the
+## picture and the name go.
 const PICTURE_PIXELS := 256
-const PICTURE_SPAN := 2.1
+const PICTURE_SPAN := 2.0
+const ICON_SIDE := 140.0
+const ICON_TOP := 22.0
+const WORD_TOP := 172.0
 ## The lamps round the ring: how many, how big, and how fast the lit one runs round.
 const LAMPS := 10
 const LAMP_RADIUS := 0.09
@@ -30,7 +33,9 @@ var _disc: StandardMaterial3D
 var _ring: StandardMaterial3D
 var _picture: StandardMaterial3D
 var _lamps: Array[StandardMaterial3D] = []
-var _label: Label3D
+var _viewport: SubViewport
+var _label: Label
+var _was_lit := false
 var _time := 0.0
 
 
@@ -80,38 +85,37 @@ func _ready() -> void:
 	add_child(ring)
 	_add_picture()
 	_add_lamps()
-	_label = Label3D.new()
-	_label.text = DrivePicker.WORDS[mode].to_upper()
-	_label.font_size = 72
-	_label.outline_size = 16
-	_label.outline_modulate = Color(0.04, 0.04, 0.05, 0.9)
-	_label.pixel_size = 0.009
-	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_label.no_depth_test = true
-	_label.position = Vector3(0.0, LABEL_HEIGHT, 0.0)
-	add_child(_label)
+	_was_lit = not is_lit()
 	_paint()
 
 
-## The way of driving's own picture, drawn once by a viewport of its own and laid on the face.
+## The way of driving's own picture with its name under it, drawn by a viewport of its own, once
+## and again whenever the pad is lit or put out, and laid on the face.
 func _add_picture() -> void:
-	var viewport := SubViewport.new()
-	viewport.name = "Picture"
-	viewport.transparent_bg = true
-	viewport.disable_3d = true
-	viewport.gui_disable_input = true
-	viewport.size = Vector2i(PICTURE_PIXELS, PICTURE_PIXELS)
-	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
-	add_child(viewport)
-	var drawn := DriveArt.picture(mode, Palette.CHIP_WHITE, PICTURE_PIXELS * 0.8)
-	drawn.position = Vector2.ONE * PICTURE_PIXELS * 0.1
-	viewport.add_child(drawn)
+	_viewport = SubViewport.new()
+	_viewport.name = "Picture"
+	_viewport.transparent_bg = true
+	_viewport.disable_3d = true
+	_viewport.gui_disable_input = true
+	_viewport.size = Vector2i(PICTURE_PIXELS, PICTURE_PIXELS)
+	_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	add_child(_viewport)
+	var drawn := DriveArt.picture(mode, Palette.CHIP_WHITE, ICON_SIDE)
+	drawn.position = Vector2((PICTURE_PIXELS - ICON_SIDE) * 0.5, ICON_TOP)
+	_viewport.add_child(drawn)
+	_label = Label.new()
+	_label.text = DrivePicker.WORDS[mode].to_upper()
+	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_label.position = Vector2(0.0, WORD_TOP)
+	_label.size = Vector2(PICTURE_PIXELS, PICTURE_PIXELS - WORD_TOP)
+	Type.strong(_label, 40, Palette.CHIP_WHITE)
+	_viewport.add_child(_label)
 	var face := MeshInstance3D.new()
 	var quad := QuadMesh.new()
 	quad.size = Vector2.ONE * PICTURE_SPAN
 	face.mesh = quad
 	_picture = StandardMaterial3D.new()
-	_picture.albedo_texture = viewport.get_texture()
+	_picture.albedo_texture = _viewport.get_texture()
 	_picture.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	_picture.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	_picture.cull_mode = BaseMaterial3D.CULL_DISABLED
@@ -162,7 +166,10 @@ func _paint() -> void:
 	_ring.emission = color
 	_ring.emission_energy_multiplier = 1.4 if lit else 0.0
 	_picture.albedo_color = Color.WHITE if lit else OFF_PICTURE
-	_label.modulate = LIT if lit else OFF
+	if lit != _was_lit:
+		_was_lit = lit
+		Type.ink(_label, Palette.CHIP_WHITE if lit else OFF_PICTURE)
+		_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	var head := fmod(_time * CHASE, 1.0) * LAMPS
 	for i: int in _lamps.size():
 		var behind := fmod(head - i + LAMPS, LAMPS)

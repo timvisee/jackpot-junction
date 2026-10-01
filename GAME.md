@@ -605,7 +605,8 @@ to go after them.
 
 - No bounty in the first 45 s. After that one is called every 25 to 50 s, at
   random, but only on a leader who is at least 120 banked points clear of second
-  place and alive at that moment.
+  place and alive at that moment. A match's rules can switch bounties off
+  altogether, which the tutorial of 9.4a does.
 - The bounty stands for 20 s. Whoever kills the carrier banks 150 points on top
   of the usual kill reward. If nobody manages it, or the carrier dies some other
   way, it lapses.
@@ -3571,7 +3572,8 @@ here drops a joker on death, and the picks never deal a Cursed card: a trap is
 no way to meet a mechanic. The camera follows from 26 m back, as the test track's
 did, since a room framed whole puts the kart too far away to see what a control
 did. No disco, no crowd, no hoardings, no clock and no standings, as in the
-Garage.
+Garage, and no bounty of 3.10: a price on a head is a match's thing, and the
+rules have a switch for it.
 
 ```
 ############################################################################################
@@ -3580,17 +3582,17 @@ Garage.
 ##........................###########........................#............................##
 ##........................###########........................#............................##
 ##........................###########...R................R...#............................##
-##...#################....###########........................#.....##.....................##
-##........................###########........B...............#.....##.....................##
-##........................###########........................#.....................##.....##
-##.R......................G.....BB...........................#.....................##.....##
+##...#################....###########........................#............................##
+##........................###########........B...............#............................##
+##........................###########........................#............................##
+##.R......................G.....BB...........................#............................##
 ##........................G.....BB..............R............G............................##
 ##.R......................G.....BB...........................G............................##
 ##........................G.....BB...........................G............................##
 ##.R...............##################........................G............................##
 ##.................#......###########.......B.......B........#............................##
-##....................#..R###########........................#.............##.............##
-##....................#...###########...R................R...#.............##.............##
+##....................#..R###########........................#............................##
+##....................#...###########...R................R...#............................##
 ##.................#......###########........................#............................##
 ##GGGG###############################........................#............................##
 ##....##......................################################............................##
@@ -3618,16 +3620,16 @@ Garage.
 ##............###....#...KK...P.....S.......XX......G...####################################
 ##............###....#...KK.........B.......XX......G...####################################
 ##............###....#..............................#...####################################
-##............###....#..F........................F..########################################
+##............###....#..F....C......C.......C....F..########################################
 ##............###....#..............................########################################
 ##............###....#.........BB..JJJJ.............G...####################################
 ##............###....#.S...........JJJJ...........S.G...####################################
 ##............###....#.............JJJJ.............#...####################################
 ##............###....#.............JJJJ..BB.........########################################
-##.....XX.....###....#..............................########################################
-##.....XX.....###....#..F........................F..G...####################################
-##............###....#...............B.........KK...G...####################################
-##............###....#..............S......P...KK...#...####################################
+##............###....#.......C..............C.......########################################
+##............###....#..F...........C............F..G...####################################
+##.....XX.....###....#...............B.........KK...G...####################################
+##.....XX.....###....#..............S......P...KK...#...####################################
 ##............###....#..............................########################################
 ##............###.S..#GGGG##################################################################
 ##............###....#....##################################################################
@@ -3641,21 +3643,25 @@ Garage.
 ```
 
 **The checklist.** A panel in the top right corner, clear of the player's own
-corner on the left, with the lesson's name and its tasks under it. A task that
-is done is ticked and grayed with a short chime; the one being done is bright,
-with a bar under it where it is a matter of how far, and a count's box lights
-for a moment at each one of the count; tasks not yet reached are not shown, so
-the list grows as the lesson goes. A lesson done in any order shows all its
-tasks from the start, the one being done bright and the rest a shade dimmer. A
-finished lesson shrinks to one ticked line, and only the last three lessons
-stay listed. On a touch screen it hangs under the menu button.
+corner on the left, with the lesson's name and its tasks under it, one lesson
+at a time. A task that is done is ticked and grayed with a short chime; the one
+being done is bright, with a bar under it where it is a matter of how far, and
+a count's box lights for a moment at each one of the count; tasks not yet
+reached are not shown, so the list grows as the lesson goes. A lesson done in
+any order shows all its tasks from the start, the one being done bright and the
+rest a shade dimmer, its stations set apart by a thin line. A lesson done is a
+big green check in place of its words for a second, and then the next lesson,
+or nothing until that starts: a list of lessons done was noise. On a touch
+screen it hangs under the menu button.
 
 **The hint.** Over the kart, the way the drive and fire line of 3.8 is but half
 again as big, since a line that is missed teaches nothing: one short line for
 the task being done with the control drawn into it for the device in hand, a
 key, a pad button or the touch screen's button, and it follows a pad picked up
-or a switch of driving mode, and a task's own change of words as it goes, the
-drift's lines below. It is one sprite redrawn as the task changes rather
+or a switch of driving mode, and a task's own change of words as it goes. A
+task done in steps that come round again, the drift below, is its steps
+instead, a line each with a tick box in front, a little smaller, ticked as the
+try under way gets there. It is one sprite redrawn as the task changes rather
 than a new one each time, which was a hitch at every gate. In a lesson done in
 any order it is for the station nearest the kart, and moves to another only once
 that one is a good two meters nearer, so a kart between two does not see it
@@ -3663,9 +3669,11 @@ flicker. An arrow on the floor ahead of the kart
 pulses toward wherever the task needs the kart to go, when it needs it anywhere,
 and toward the open gate once the lesson is done, with a cyan ring on the floor
 round the spot itself, as big as what it marks, a pad's width round a pad and a
-whole Jackpot or the whole Junction round those, and none at a gate, a doorway
-being nothing to ring; within a few meters of the spot the arrow goes, and the
-ring stays until the spot is reached.
+whole Jackpot, the whole Junction or the whole wall of boxes round those, and
+none at a gate or a turret to drive at, those being nothing to ring; within a
+few meters of the spot the arrow goes, and the ring stays until the spot is
+reached. A task that needs the kart nowhere in particular, the nitro's, has
+neither.
 
 **The HUD comes in pieces.** At the start only the player's name, the checklist
 and the hint are on the screen. Each piece of the corner block appears with the
@@ -3675,20 +3683,23 @@ that starts as wide as the screen and shrinks onto the card and away to
 nothing in a second, twice over, which is what pulls the eye to it wherever it
 was looking; these stay until the lesson's first task is
 done, or until a task the lesson names: the nitro tank and the speedometer
-with nitro, "Your nitro"; the item slot with items, "Your item"; the lives with
-jokers, and the hand of jokers with the first card picked up in that lesson,
-"Your jokers, hold Tab to read them", Tab being whatever opens the hand, which
-stays until the hand has been read; the pot with the pads lesson and the bank
-with the Junction's. The corner's own control hints stay off throughout: the
-hint over the kart is saying it.
+with nitro, "Your nitro"; the item slot with the first item picked up in the
+items lesson, "Your item, E to use it", which stays until that item has done
+its piece; the lives with jokers, and the hand of jokers with the first card
+picked up in that lesson, "Your jokers, hold Tab to read them", Tab being
+whatever opens the hand, which stays until the hand has been read; the pot with
+the pads lesson, "Your pot: what you carry, part lost when you die", and the
+bank with the Junction's, "Your bank: safe for good, 3000 wins a match", the
+two lines between them being what a sign in the room used to say. The corner's
+own control hints stay off throughout: the hint over the kart is saying it.
 
 **Driving mode.** The tutorial does not ask how to drive up front. A player who
 has answered before drives their way; one who never has is asked the question
 of 4.2 on the grid, before the kart will move, and the answer is kept. The
 steering room has two big lit pads either side of the way in, SIMPLE and
 ADVANCED, each a disc with the way of driving's own picture on it, the one the
-question of 4.2 draws, a ring round it with a run of lamps round that, and its
-name over it. The one in use is lit cyan, its lamps chasing; the other is
+question of 4.2 draws, its name under the picture on the face itself, and a
+ring round it with a run of lamps round that. The one in use is lit cyan, its lamps chasing; the other is
 plainly off, gray and unlit, its lamps dark, so there is no mistaking which is
 on. Driving onto the other switches to it on the spot, and a sign between them
 says the pause menu and the settings change it later too. The pads stay for the
@@ -3717,47 +3728,58 @@ The lessons, each in its own room, in order:
    bottle is the lesson and not the wait for it. One task: burn a full tank, the
    bar showing how much of it has gone, done when it runs dry. The nitro tank
    and the speedometer appear in the corner, pointed at.
-5. **Drifting.** An open room 28 by 22 cells with three 2-by-2 pillars to drift
-   around. Tap the handbrake while turning, once; then hold a drift long enough
+5. **Drifting.** An open room 28 by 22 cells with three stacks of tires and
+   barrels out of the Garage, 8.1, to drift around, each 2 by 2 cells with a
+   body in it that a kart bumps and a shot hits. Tap the handbrake while turning, once; then hold a drift long enough
    for a turbo, three times, each drift's bar filling toward the turbo point of
-   4.1, 0.6 s of drift at half speed or more. The hint says what to do now:
-   between drifts how to start one, "Hold Shift while turning to drift"; in one,
-   "Keep the drift going for a turbo"; and once the drift has earned its turbo,
-   "Turbo ready: straighten up to launch it". The turbo launched lights the
-   count's box.
+   4.1, 0.6 s of drift at half speed or more. The hint over the kart is the
+   three steps of a drift with a tick box each, ticked as the drift under way
+   gets there: "Tap Shift while turning", "Hold the drift to build a turbo",
+   "Straighten up to launch it"; a turbo launched holds all three ticked for a
+   moment and lights the count's box, and then the steps start over for the
+   next.
 6. **Shooting.** A gallery 24 by 16 cells with five targets round it and three
    loose boxes that break but count for nothing. Hit each of the five once, a
    lamp on a pole beside each, the pole the Jackpot zones of 3.5 wear, standing
    there from the start, dark until the target is counted and green after, so
    the ones still to do can be told from across the room; then shoot a way
-   through the wall of eight boxes, two deep, across the corridor out: one row
-   of it down, both boxes deep, is a kart's width and enough, and the boxes
-   never come back in here. The way on is where they were.
+   through the wall of eight boxes, two deep, across the corridor out, ringed
+   whole: one row of it down, both boxes deep, is a kart's width and enough, and
+   the boxes never come back in here. The way on is where they were.
 7. **Items.** One room 24 by 17 cells with three stations round it, done in
-   any order, each box holding its own item with no roulette, and a line that
-   an item works once. Along the top, a run a turret guards from its middle,
+   any order, each box holding its own item with no roulette, the station's name
+   painted on the floor by its box and nothing else said in the room: the
+   checklist and the hint carry the instructions, and three signs of them
+   floating in the air were noise. Along the top, a run a turret guards from its middle,
    shooting seven meters, walled off from the rest of the room so nothing is
    shot before the lesson is understood: the Shield's box is at the run's east
    end, out of the turret's reach, and the task is to raise the Shield and take
-   the turret's shot on it, which is what a Shield is for; the turret falls
-   silent once it has. In the south-east, a pocket shut off by a wall of light
+   the turret's shot on it, which is what a Shield is for, the arrow on the
+   turret with no ring; the turret falls silent once it has. In the south-east,
+   a pocket shut off by a wall of light
    across its doorway, which a kart cannot drive through and a shot can, with a
    pillar one cell thin in the middle and the target on the far side of it,
    where no straight shot from the doorway reaches and one bounce off the
    pocket's north or south wall does, the Ricochet's shots bouncing once, and a
-   thin pillar leaves the most room for the bounce: its task is to bounce a shot
-   onto the target, and only a hit that came off a wall counts. Along the west
-   wall, a row of three targets
+   thin pillar leaves the most room for the bounce: its tasks are to arm the
+   cannon, with the item key, and bounce a shot onto the target, and only a hit
+   that came off a wall counts. Along the west wall, a row of three targets
    with the Turret's box before them: drop the Turret by them and let it clear
    them, which it does when no kart is in reach, see 6.2, as every turret does
    while the tutorial runs and a match's never; a shot of the player's own at
    the row counts for nothing. A box taken with its station not done and the
-   item gone comes back after three seconds. The item slot appears, pointed at.
+   item gone comes back after three seconds, unless the Ricochet is still
+   armed. The item slot appears with the first item picked up, pointed at until
+   that item has done its piece.
 8. **Jokers.** In any order: two parked dummy karts across the room from the
    way in, facing it, that never move or shoot and go down to one hit, for good,
    each dropping a card as it goes, Magnet Hubcaps and Payday, since both help
-   with the coins straight after, and the cards picked up; hold Tab to read the
-   hand; and drive into the pit twice, each death
+   with the coins straight after, and the cards picked up, the arrow and its
+   ring on the nearest parked kart still standing and then on the nearest card
+   still on the floor; read each card in the hand, on a bar that fills a card
+   at a time, with Tab held and the steering walking the hand on a keyboard or a
+   pad, or a tap on each card on a touch screen, see 3.7; and drive into the
+   pit, a few cells on from the karts, twice, each death
    opening the joker pick with a pointer explaining it, for two more cards.
    Holding four completes the lesson. The lives appear with the lesson, the
    hand with the first card, pointed at until the hand has been read. The way
@@ -3768,9 +3790,11 @@ The lessons, each in its own room, in order:
    lesson is about grows out of the floor as that lesson starts, small to full
    size in a ring of light, nothing seen or in play before its lesson; the room
    is built without the baking of 6.3 so that each of these is a node of its own
-   to hold back. With this lesson, four Royal Flush pads in the corners and two
-   Jackpots: hold every pad of the room at once for a flush, then drain the
-   Jackpot by the way in, which starts full. The pot appears, pointed at. A
+   to hold back. Nothing in the room is written in the air: the hint, the arrow
+   and the pointers say it all. With this lesson, four Royal Flush pads in the
+   corners and two Jackpots: hold every pad of the room at once for a flush,
+   then drain the Jackpot by the way in, which starts full. The pot appears,
+   pointed at. A
    flush is holding every pad in the room rather than on the map, see 3.9, so
    each room's pads are a flush of their own, and the tally over the top counts
    the room the player is in.
@@ -3779,24 +3803,26 @@ The lessons, each in its own room, in order:
     Junction, the bar being how much of the most the pot held is in the bank,
     so the fight starts with nothing in hand and the points have to be earned
     in it. A pot emptied any other way, a death say, sends the player back to
-    the Jackpot, the hint saying so. A sign says the difference: the pot is
-    what you carry, part of it lost when you die; the bank is safe for good, and
-    3000 wins a match. The bank appears, pointed at.
-11. **The fight.** Two item pads and six crates come in, and three bots wait in
+    the Jackpot, the hint saying so. The bank appears, pointed at, its pointer
+    saying what the bank is where the pot's said what the pot is.
+11. **The fight.** Two item pads, six coin pads and six crates come in, with
+    forty chips scattered over the floor to open with, and three bots wait in
     three pens of their own along the east side, each 3 by 3 behind a gate of
     its own. The first easy bot is let out at once, the second easy one at 300
     banked and the normal one at 600, each pen's gate opening and shutting again
     once its bot is out in the room. Bank 1000 points in here, counted from the
     start of the fight, shown as a bar across the top center of the screen the
     way a boss's health would be, with the Royal Flush tally of 8.3 moved down
-    under it for the while; a death is a respawn and a joker pick, a bot comes
-    back on one of the room's four spawns, nobody else's banking counts against
-    the player, and nobody can win the match itself. Reaching it is TUTORIAL
-    COMPLETE across the screen with a fanfare, the bots gone in a poof with
-    their bullets, their turrets and their decoys, so nothing of the fight shoots
-    on, the settings remember it, and the four-cell gate at the top of the room
-    opens on an alcove 8 by 5 with the two portals in it, one to Play and one to
-    the Garage.
+    under it for the while, and no line over the kart: there is nothing to say
+    but the bar; a death is a respawn and a joker pick, a bot comes back on one
+    of the room's four spawns, nobody else's banking counts against the player,
+    and nobody can win the match itself. Reaching it is TUTORIAL COMPLETE across
+    the screen with a fanfare and the fireworks of 8.3 over the room in the
+    player's color, the bots dying where they stand the way a kart that dies
+    does, for good, with their bullets, their turrets and their decoys gone, so
+    nothing of the fight shoots on or banks on, the settings remember it, and
+    the four-cell gate at the top of the room opens on an alcove 8 by 5 with the
+    two portals in it, one to Play and one to the Garage.
 
 A map may hold more than one Junction, each banking as the one does, and the
 Royal Flush is per room for the same reason: a map of rooms wants each room's

@@ -36,6 +36,7 @@ func _init() -> void:
 		"Shoot a way through the boxes", "%s to fire at the boxes", [InputActions.FIRE]
 	)
 	_boxes.arrow = Vector2i(32, 10)
+	_boxes.arrow_rect = WALL
 
 
 ## The lamp poles stand beside the targets from the start, dark.

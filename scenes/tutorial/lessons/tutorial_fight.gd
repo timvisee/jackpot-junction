@@ -1,7 +1,8 @@
 class_name TutorialFight
 extends TutorialLesson
-## Lesson 11, GAME.md 9.4a: the fight, in the last room, which gains its item pads and its crates
-## as the lesson starts, with three bots in three pens along its east side, a gate each: the first
+## Lesson 11, GAME.md 9.4a: the fight, in the last room, which gains its item pads, its coin pads
+## and its crates as the lesson starts, with chips scattered over the floor to open with, and
+## three bots in three pens along its east side, a gate each: the first
 ## is let out at once, the second at 300 banked and the third, a normal one where the others are
 ## easy, at 600. Bank 1000 points in here, on the bar across the top of the screen, and the
 ## tutorial is done, the bots and everything of theirs gone in a poof. A death is a respawn and a
@@ -19,6 +20,11 @@ const PORTAL_GATE := Vector2i(35, 39)
 const RELEASE_AT: Array[int] = [0, 300, 600]
 const NEED := 1000
 const NORMAL: BotDifficulty = preload("res://data/ai/normal.tres")
+## Where chips lie as the fight opens, by cell, and how many at each.
+const CHIPS_AT: Array[Vector2i] = [
+	Vector2i(29, 47), Vector2i(44, 47), Vector2i(36, 44), Vector2i(36, 51)
+]
+const CHIPS_EACH := 10
 
 var _bank: TutorialTask
 var _banked := 0
@@ -32,7 +38,7 @@ func _init() -> void:
 	title = "The fight"
 	spawn_cell = TutorialPads.SPAWN
 	reveals = [[&"stats", "", []], [&"feed", "", []]]
-	_bank = add_task("Bank %d points" % NEED, "Collect, bank, and watch your back", [], true)
+	_bank = add_task("Bank %d points" % NEED, "", [], true)
 
 
 func _begin() -> void:
@@ -44,6 +50,11 @@ func _begin() -> void:
 	for crate: Crate in arena().crates:
 		if grid.region_of(grid.cell_of(crate.position)) == room:
 			TutorialReveal.show(crate)
+	for pad: CoinPad in arena().coin_pads:
+		if grid.region_of(grid.cell_of(pad.position)) == room:
+			TutorialReveal.show(pad)
+	for at: Vector2i in CHIPS_AT:
+		arena().spawn_chips(run.cell(at), CHIPS_EACH, 0.0, 0.15)
 	Events.bank_tick.connect(_on_tick)
 	_bar = TutorialBossBar.add_to(run.layer, NEED)
 	# The Royal Flush tally hangs where the bar now is: under it for the rest of the fight.
