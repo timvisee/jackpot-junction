@@ -90,6 +90,33 @@ class Frame:
 		draw_rect(box, Color(INK, 0.45 + 0.55 * strength), false, 3.0)
 
 
+## A padlock, drawn: shut for the bank, which is safe, open for the pot, which is not.
+class Lock:
+	extends Control
+
+	const SIDE := 22.0
+
+	var open := false
+
+	func _init(is_open: bool) -> void:
+		open = is_open
+		custom_minimum_size = Vector2(SIDE, SIDE)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		var ink := Color(0.36, 0.9, 0.46) if not open else Color(0.98, 0.45, 0.35)
+		var body := Rect2(Vector2(4.0, 10.0), Vector2(14.0, 10.0))
+		draw_rect(body, ink)
+		var hinge := Vector2(11.0, 10.0) if not open else Vector2(15.0, 10.0)
+		draw_arc(hinge, 5.0, PI, TAU, 16, ink, 2.2, true)
+		if not open:
+			draw_rect(Rect2(Vector2(5.0, 6.0), Vector2(2.2, 4.0)), ink)
+			draw_rect(Rect2(Vector2(14.8, 6.0), Vector2(2.2, 4.0)), ink)
+		else:
+			draw_rect(Rect2(Vector2(9.0, 3.0), Vector2(2.2, 7.0)), ink)
+			draw_rect(Rect2(Vector2(18.8, 6.0), Vector2(2.2, 4.0)), ink)
+
+
 ## The ring shrinking onto the card, drawn about the middle of this control, which is as wide as
 ## the ring starts.
 class Ring:
@@ -168,22 +195,26 @@ func _ready() -> void:
 
 
 ## Brings [param piece] in, with [param line] on a pointer beside it until [method pointer_done],
-## each gap in the line filled with the control of [param actions] for the device in hand, and a
-## frame round [param also] as well where the line is about two pieces, with a card of its own
-## saying [param also_line] where there is one. A piece that is a part of another, the mult pill
-## of the pot, is pointed at without being brought in.
+## each gap in the line filled with the control of [param actions] for the device in hand, or
+## with a mark where the action is one, "icon:safe" a shut padlock and "icon:risk" an open one,
+## and a frame round [param also] as well where the line is about two pieces, with a card of its
+## own saying [param also_line], its gaps filled from [param also_actions], where there is one. A
+## piece that is a part of another, the mult pill of the pot, is pointed at without being brought
+## in.
 func show_piece(
 	piece: StringName,
 	line: String,
 	actions: Array[StringName] = [],
 	also: StringName = &"",
-	also_line: String = ""
+	also_line: String = "",
+	also_actions: Array[StringName] = []
 ) -> void:
 	if piece in PIECES:
 		shown[piece] = true
 	if line.is_empty():
 		return
 	_pointing = piece
+	var keyboard := DeviceInput.uses_keyboard(slot.device()) if slot != null else true
 	_also = also
 	_also_frame.visible = also != &""
 	if _also_line != null:
@@ -191,14 +222,17 @@ func show_piece(
 		_also_line = null
 	_also_pointer.visible = also != &"" and not also_line.is_empty()
 	if _also_pointer.visible:
-		_also_line = InputHint.row(also_line, [], INK, Type.LARGE)
+		var also_parts: Array = []
+		for action: StringName in also_actions:
+			also_parts.append(_part(action, keyboard))
+		_also_line = InputHint.row(also_line, also_parts, INK, Type.LARGE)
 		_also_row.add_child(_also_line)
+
 	if _line != null:
 		_line.queue_free()
-	var keyboard := DeviceInput.uses_keyboard(slot.device()) if slot != null else true
 	var parts: Array = []
 	for action: StringName in actions:
-		parts.append(InputHint.glyph(action, keyboard, INK, Type.LARGE))
+		parts.append(_part(action, keyboard))
 	_line = InputHint.row(line, parts, INK, Type.LARGE)
 	_row.add_child(_line)
 	_tip.down = piece == &"hand"
@@ -208,6 +242,15 @@ func show_piece(
 	_ring_left = RING_SECONDS
 	_ring_passes = RING_PASSES
 	_ring.visible = true
+
+
+## The control for [param action] on the device in hand, or the mark an "icon:" action names.
+func _part(action: StringName, keyboard: bool) -> Control:
+	if action == &"icon:safe":
+		return Lock.new(false)
+	if action == &"icon:risk":
+		return Lock.new(true)
+	return InputHint.glyph(action, keyboard, INK, Type.LARGE)
 
 
 ## The pointer has said its piece.
@@ -222,7 +265,7 @@ func pointer_done() -> void:
 
 
 func is_pointing() -> bool:
-	return _pointer.visible
+	return _pointing != &""
 
 
 ## Where the pointer's cards end, from the top of the screen, for what else hangs up there to
@@ -269,6 +312,10 @@ func _process(delta: float) -> void:
 	var feed := hud.kill_feed()
 	if feed != null:
 		feed.visible = shown[&"feed"]
+	# The card at the hand steps aside while the hand is open: the cards say what is left to read.
+	var kart := slot.kart if slot != null else null
+	var hand_open := kart != null and is_instance_valid(kart) and kart.menu_open
+	_pointer.visible = _pointing != &"" and not (_pointing == &"hand" and hand_open)
 	if _pointer.visible:
 		_place(parts, hand, delta)
 

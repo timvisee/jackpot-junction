@@ -28,8 +28,10 @@ const WINDOW := Vector2i(19, 15)
 const WINDOW_TALL := 2
 const POCKET := Vector2i(25, 15)
 const SHOOT_FROM := Vector2i(17, 15)
-## Where the bank shot meets the pocket's north wall, in cells, on the wall's own line.
-const BANK_AT := Vector2(21.5, 14.0)
+## The pocket's north wall, by the row of cells it is, and how far from a wall a shot turns:
+## the bullet's own radius, see [Bullet].
+const POCKET_WALL_ROW := 13
+const BULLET_RADIUS := 0.15
 const TURRET_BOX := Vector2i(9, 11)
 const ROW: Array[Vector2i] = [Vector2i(3, 9), Vector2i(3, 11), Vector2i(3, 13)]
 const ROW_WINDOW := Vector2i(4, 9)
@@ -128,9 +130,7 @@ func _prepare() -> void:
 	_window = Hologram.add_to(holder, window_at, Vector3(0.3, 1.0, size * WINDOW_TALL))
 	for at: Vector2i in [WINDOW, WINDOW + Vector2i(0, 1)]:
 		run.match_node.nav.set_cell_blocked(at, true)
-	var grid := run.grid()
-	var bank := grid.cell_center(Vector2i(BANK_AT)) + Vector3(0.0, 0.0, -size * 0.5)
-	GuideDots.lay(holder, [run.cell(SHOOT_FROM), bank, run.cell(POCKET)])
+	GuideDots.lay(holder, [run.cell(SHOOT_FROM), _bank_point(), run.cell(POCKET)])
 	# The row behind a window of its own, and the box to drop the Turret in.
 	var row_at := run.cell(ROW_WINDOW) + Vector3(0.0, 0.0, size * (ROW_WINDOW_TALL - 1) * 0.5)
 	_row_window = Hologram.add_to(holder, row_at, Vector3(0.3, 1.0, size * ROW_WINDOW_TALL))
@@ -140,9 +140,7 @@ func _prepare() -> void:
 
 
 func _begin() -> void:
-	var keyboard := DeviceInput.uses_keyboard(run.slot().device())
-	var key := InputActions.short_binding_text(InputActions.USE_ITEM, keyboard)
-	run.notice.say(&"items", WORDS % key)
+	run.notice.say(&"items", WORDS, false, [InputActions.USE_ITEM])
 	for target: Target in arena().targets:
 		target.struck.connect(_on_struck)
 	Events.item_picked.connect(_on_picked)
@@ -213,6 +211,19 @@ func _place(id: StringName, item: PowerUp, cell: Vector2i) -> void:
 	box.lifetime = 0.0
 	arena().place_drop(box, run.cell(cell))
 	_boxes[id] = box
+
+
+## Where a shot from the spot to stand on turns off the pocket's north wall to land on the target:
+## the target mirrored in the wall's face, a bullet's radius off it, and the straight line to the
+## mirror image crossing that face.
+func _bank_point() -> Vector3:
+	var size := run.grid().cell_size
+	var face := run.cell(Vector2i(POCKET.x, POCKET_WALL_ROW)).z + size * 0.5 + BULLET_RADIUS
+	var from := run.cell(SHOOT_FROM)
+	var target := run.cell(POCKET)
+	var image := Vector3(target.x, 0.0, 2.0 * face - target.z)
+	var share := (face - from.z) / (image.z - from.z)
+	return from.lerp(image, share)
 
 
 ## The guard has done its piece once the Shield has taken its shot: it stops shooting, and

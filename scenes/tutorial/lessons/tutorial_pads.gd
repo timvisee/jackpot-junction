@@ -36,7 +36,7 @@ func _init() -> void:
 	reveals = [[&"pot", "Your pot: where the coins go", []]]
 	_flush = add_task("Hold all four Royal Flush pads at once", "")
 	_flush.arrow = Vector2i(24, 44)
-	_drain = add_task("Drain the Jackpot", "Drive in and wait", [], true)
+	_drain = add_task("Drain the Jackpot", "", [], true)
 	_drain.arrow = JACKPOT
 	_drain.arrow_rect = JACKPOT_RECT
 	_mult = add_task("Pick up three mult dice", "")
@@ -137,7 +137,7 @@ func _on_emptied(zone_index: int) -> void:
 	run.notice.say(&"mult", MULT_WORDS)
 	if run.reveal != null:
 		pointer_until = _mult
-		run.reveal.show_piece(&"mult", "Your mult: coins times this is your pot", [])
+		run.reveal.show_piece(&"mult", "Mult will multiply your pot", [])
 
 
 func _on_mult(slot_index: int, _amount: float, reason: StringName) -> void:

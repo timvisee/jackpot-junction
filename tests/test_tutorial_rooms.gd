@@ -56,6 +56,13 @@ func test_items_three_stations_in_any_order() -> void:
 	assert_int(lesson._window.collision_layer).is_equal(Layers.PROTECTED)
 	assert_int(lesson._row_window.collision_layer).is_equal(Layers.PROTECTED)
 	assert_object(tutorial.match_node.find_child("GuideDots", true, false)).is_not_null()
+	var bank := lesson._bank_point()
+	var wall := run.cell(Vector2i(TutorialItems.POCKET.x, TutorialItems.POCKET_WALL_ROW)).z
+	var face := wall + arena.grid.cell_size * 0.5 + TutorialItems.BULLET_RADIUS
+	assert_float(bank.z).is_equal_approx(face, 0.01)
+	assert_float(bank.x).is_between(
+		run.cell(TutorialItems.SHOOT_FROM).x, run.cell(TutorialItems.POCKET).x
+	)
 	assert_object(tutorial.match_node.find_child("HazardLine", true, false)).is_not_null()
 	assert_object(tutorial.match_node.find_child("HazardBox", true, false)).is_not_null()
 	assert_str(lesson._take_shield.hint).is_equal("")
@@ -176,6 +183,7 @@ func test_jokers_from_parked_karts_and_the_pit() -> void:
 	assert_bool(lesson._signs.is_empty()).is_true()
 	assert_str(lesson._read.hint).is_equal("")
 	assert_str(lesson._pit.hint).is_equal("")
+	assert_str(lesson._pick_up.hint).is_equal("")
 	assert_bool(lesson.ordered).is_false()
 	assert_int(run.list.task_rows(lesson).size()).is_equal(4)
 	assert_object(lesson.tasks[3]).is_same(lesson._read)
@@ -215,15 +223,30 @@ func test_jokers_from_parked_karts_and_the_pit() -> void:
 	# Reading the hand is every card under the cursor once: half the bar for one of two. The
 	# pit's two deaths come first here, so the pointer at the hand is up by now.
 	assert_bool(lesson._read.done).is_false()
+	var hand := tutorial.match_node.hud.hand_of(0)
 	kart.menu_open = true
 	kart.menu_index = 0
 	lesson.step(DT)
 	assert_float(lesson._read.progress).is_equal_approx(0.5, 0.01)
+	# The card still to read wears an eye; the one read does not.
+	assert_int(hand.unread.size()).is_equal(1)
+	await _runner.simulate_frames(1, 17)
+	var eyes := 0
+	for card: Node in hand.get_children():
+		var eye := card.get_node_or_null("Unread") as Control
+		eyes += 1 if eye != null and eye.visible else 0
+	assert_int(eyes).is_equal(1)
+	# The pointer at the hand steps aside while the hand is open.
+	assert_bool(run.reveal._pointer.visible).is_false()
+	# The kart's own tick shut the hand again meanwhile: open it on the second card.
+	kart.menu_open = true
+	kart.menu_index = 0
 	lesson.step(DT)
 	assert_float(lesson._read.progress).is_equal_approx(0.5, 0.01)
 	kart.menu_index = 1
 	lesson.step(DT)
 	assert_bool(lesson._read.done).override_failure_message("the hand was never read").is_true()
+	assert_bool(hand.unread.is_empty()).is_true()
 	kart.menu_open = false
 	var slot := run.slot()
 	for death: int in 2:
@@ -327,8 +350,9 @@ func test_pads_flush_their_own_room_and_drain_the_jackpot() -> void:
 	assert_int(dice).is_equal(TutorialPads.DICE_AT.size())
 	assert_str(run.notice.said()).contains("Mult multiplies your pot")
 	assert_str(lesson._mult.hint).is_equal("")
+	assert_str(lesson._drain.hint).is_equal("")
 	assert_bool(run.reveal.is_pointing()).is_true()
-	assert_str(run.reveal.line()).contains("Your mult")
+	assert_str(run.reveal.line()).contains("Mult will multiply your pot")
 	assert_vector(lesson._mult.arrow).is_not_equal(Vector2i(-1, -1))
 	for i: int in TutorialPads.DICE:
 		Events.mult_gained.emit(0, 1.0, &"die")
@@ -368,7 +392,11 @@ func test_the_junction_banks_the_whole_pot() -> void:
 	assert_object(arena.junctions[0].rules).is_same(tutorial.match_node.rules)
 	# The pointer is about the pot and the bank both: a frame and a card for each.
 	assert_bool(run.reveal.is_pointing()).is_true()
-	assert_str(run.reveal.line()).contains("Your bank")
+	assert_str(run.reveal.line()).contains("Bank: safe")
+	var locks := 0
+	for part: Node in run.reveal._line.get_children():
+		locks += 1 if part is HudReveal.Lock else 0
+	assert_int(locks).is_equal(1)
 	assert_bool(run.reveal._also_frame.visible).is_true()
 	assert_bool(run.reveal._frame.visible).is_true()
 	assert_bool(run.reveal._also_pointer.visible).is_true()

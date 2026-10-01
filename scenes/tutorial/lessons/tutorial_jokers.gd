@@ -45,7 +45,7 @@ func _init() -> void:
 	_shoot = add_task("Shoot the two parked karts", "%s to fire", [InputActions.FIRE])
 	_shoot.of = DUMMIES
 	_shoot.arrow = DUMMY_SPOTS[0]
-	_pick_up = add_task("Pick up the cards they dropped", "Drive over a card")
+	_pick_up = add_task("Pick up the cards they dropped", "")
 	_pick_up.of = DUMMIES
 	_pick_up.arrow = DUMMY_SPOTS[1]
 	_pit = add_task("Drive into the pit and pick a joker", "")
@@ -66,6 +66,9 @@ func _begin() -> void:
 
 
 func end() -> void:
+	var hand := run.match_node.hud.hand_of(kart().slot) if run.match_node.hud != null else null
+	if hand != null:
+		hand.set_unread([])
 	if Events.kart_killed.is_connected(_on_killed):
 		Events.kart_killed.disconnect(_on_killed)
 	if Events.joker_taken.is_connected(_on_taken):
@@ -80,9 +83,12 @@ func step(_delta: float) -> void:
 		run.reveal.show_piece(&"hand", "", [])
 		if _shoot.done and _pick_up.done and _pit.done:
 			_hand_shown = true
-			run.reveal.show_piece(
-				&"hand", "Your jokers, hold %s to read them", [InputActions.JOKER_MENU]
-			)
+			if TouchInput.enabled:
+				run.reveal.show_piece(&"hand", "Tap your jokers to view them", [])
+			else:
+				run.reveal.show_piece(
+					&"hand", "Your jokers, hold %s to read them", [InputActions.JOKER_MENU]
+				)
 	_aim_at_nearest()
 	_read_cards()
 	# A hand already full takes no card off the floor: the picking up is as good as done.
@@ -98,9 +104,17 @@ func _read_cards() -> void:
 	if kart().menu_open and kart().menu_index >= 0 and kart().menu_index < ids.size():
 		_viewed[ids[kart().menu_index]] = true
 	var read := 0
+	var unread: Array[StringName] = []
 	for id: StringName in ids:
-		read += 1 if _viewed.has(id) else 0
+		if _viewed.has(id):
+			read += 1
+		else:
+			unread.append(id)
 	_read.progress = float(read) / maxf(float(ids.size()), 1.0)
+	# The cards still to read wear an eye on the hand itself, which is where the player looks.
+	var hand := run.match_node.hud.hand_of(kart().slot) if run.match_node.hud != null else null
+	if hand != null:
+		hand.set_unread(unread)
 	if not ids.is_empty() and read >= ids.size():
 		_read.complete()
 

@@ -178,24 +178,16 @@ func _build_visuals() -> void:
 		_build_plinth()
 
 
-## The hazard-striped plinth a fixture stands on: a yellow slab with black bands across it.
+## The plinth a fixture stands on: a steel slab under it and the hazard stripes of [HazardLine]
+## in a ring round that, the same paint the floor round a fixture wears.
 func _build_plinth() -> void:
-	var yellow := StandardMaterial3D.new()
-	yellow.albedo_color = Color(0.96, 0.78, 0.16)
-	var black := StandardMaterial3D.new()
-	black.albedo_color = Color(0.09, 0.09, 0.1)
+	var steel := StandardMaterial3D.new()
+	steel.albedo_color = Color(0.4, 0.42, 0.46)
 	var slab := MeshInstance3D.new()
 	var slab_mesh := BoxMesh.new()
-	slab_mesh.size = Vector3(1.3, 0.12, 1.3)
+	slab_mesh.size = Vector3(1.0, 0.1, 1.0)
 	slab.mesh = slab_mesh
-	slab.material_override = yellow
-	slab.position = Vector3(0.0, 0.06, 0.0)
+	slab.material_override = steel
+	slab.position = Vector3(0.0, 0.05, 0.0)
 	add_child(slab)
-	for i: int in 3:
-		var band := MeshInstance3D.new()
-		var band_mesh := BoxMesh.new()
-		band_mesh.size = Vector3(0.18, 0.13, 1.3)
-		band.mesh = band_mesh
-		band.material_override = black
-		band.position = Vector3(-0.42 + 0.42 * i, 0.06, 0.0)
-		add_child(band)
+	HazardLine.box(self, global_position, Vector2(1.7, 1.7))

@@ -26,9 +26,8 @@ func _ready() -> void:
 	add_theme_stylebox_override("panel", HudBlock.scrim())
 	set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	grow_horizontal = Control.GROW_DIRECTION_BOTH
-	var top := TouchControls.below_menu() if TouchInput.enabled else 16.0
-	offset_top = top
-	offset_bottom = top
+	offset_top = TutorialNotice.TOP
+	offset_bottom = TutorialNotice.TOP
 	var column := VBoxContainer.new()
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_theme_constant_override("separation", 6)

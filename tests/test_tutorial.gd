@@ -81,10 +81,20 @@ func test_the_map_is_rooms_in_a_row_joined_by_gates() -> void:
 		assert_str(grid.glyph(cell)).is_not_equal("#")
 	for cell: Vector2i in [Vector2i(22, 15), Vector2i(22, 16), Vector2i(19, 14), Vector2i(19, 17)]:
 		assert_str(grid.glyph(cell)).is_equal("#")
-	# The guard's run is a dead end at its end, and the row sits in a pocket of its own.
+	# The guard's run is a dead end at its end, and the row sits in a pocket of its own, sealed
+	# to the wall.
 	assert_str(grid.glyph(Vector2i(3, 6))).is_equal("#")
-	for cell: Vector2i in [Vector2i(3, 8), Vector2i(4, 8), Vector2i(3, 14), Vector2i(4, 14)]:
+	for cell: Vector2i in [
+		Vector2i(2, 8),
+		Vector2i(3, 8),
+		Vector2i(4, 8),
+		Vector2i(2, 14),
+		Vector2i(3, 14),
+		Vector2i(4, 14),
+	]:
 		assert_str(grid.glyph(cell)).is_equal("#")
+	var sealed := _reachable(grid, ["#", "G"] as Array[String])
+	assert_bool(sealed.has(TutorialItems.ROW[1])).is_false()
 	for i: int in TutorialItems.ROW_WINDOW_TALL:
 		assert_str(grid.glyph(TutorialItems.ROW_WINDOW + Vector2i(0, i))).is_equal(".")
 
@@ -224,6 +234,14 @@ func test_steering_counts_both_ways_from_the_heading() -> void:
 	assert_bool(run.notice.is_saying(&"modes")).is_true()
 	assert_str(run.notice.said()).contains("Choose Simple or Advanced driving")
 	assert_bool(run.notice._info.visible).is_true()
+	# The menu's key is drawn into the second line, not written as a word.
+	assert_int(run.notice._lines.get_child_count()).is_equal(2)
+	var second := run.notice._lines.get_child(1) as HBoxContainer
+	var drawn := false
+	for part: Node in second.get_children():
+		drawn = drawn or part is InputGlyph
+	assert_bool(drawn).is_true()
+	assert_float(run.notice.offset_top).is_equal(TutorialNotice.TOP)
 	assert_bool(lesson.show_all).is_true()
 	assert_str(lesson._left.text).is_equal("Turn left")
 	assert_int(run.list.task_rows(lesson).size()).is_equal(2)

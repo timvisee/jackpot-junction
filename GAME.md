@@ -3587,13 +3587,13 @@ rules have a switch for it.
 ##........................###########...R................R...#............................##
 ######################....###########........................#............................##
 ##........................###########........B...............#............................##
-##.##.....................###########........................#............................##
+#####.....................###########........................#............................##
 ##.R......................G.....BB...........................#............................##
 ##........................G.....BB..............R............G............................##
 ##.R......................G.....BB...........................G............................##
 ##........................G.....BB...........................G............................##
 ##.R...............##################........................G............................##
-##.##..............#......###########.......B.......B........#............................##
+#####..............#......###########.......B.......B........#............................##
 ##....................#..R###########........................#............................##
 ##....................#...###########...R................R...#............................##
 ##.................#......###########........................#............................##
@@ -3660,16 +3660,19 @@ it. A lesson done is a big green check in place of its tasks for a second, under
 its name, and then the next lesson, or nothing until that starts: a list of
 lessons done was noise. On a touch screen it hangs under the menu button.
 
-**The notice.** A panel at the top center of the screen, where the fight's bar
-goes and under that bar while it is up, and under a pointer's card while one is
-up there, with a line or two about the thing in front of the player, where signs
-floating in the room used to be, short and to the point, an information mark in
-front of each so the panel reads as a note and not as something to answer. The
-first is the welcome, "Welcome to" under the game's mark and over its name in
-the title screen's gold, with no mark in front, until the kart has driven four
-meters; then "Choose Simple or Advanced driving. Change it anytime in the [Esc]
-menu.", Esc being whatever pauses, while the kart is near the pads of the
-steering room; "Use nitro to boost your speed. It refills over time."; "Drift
+**The notice.** A panel at the top center of the screen, at the top edge on
+every screen, a touch screen's too, where the fight's bar goes and under that
+bar while it is up, and under a pointer's card while one is up there, with a
+line or two about the thing in front of the player, where signs floating in the
+room used to be, short and to the point, an information mark in front of each
+so the panel reads as a note and not as something to answer. A line that names
+a control draws it in the way the hint over the kart does, the key, the pad
+button or the touch screen's button, and for the pause on a touch screen the
+menu button in the top right corner. The first is the welcome, "Welcome to"
+under the game's mark and over its name in the title screen's gold, with no
+mark in front, until the kart has driven four meters; then "Choose Simple or
+Advanced driving. Change it anytime in the Esc menu.", Esc drawn as whatever
+pauses, while the kart is near the pads of the steering room; "Use nitro to boost your speed. It refills over time."; "Drift
 in tight corners. Hold a drift to build turbo."; nothing in the gallery; "Drive
 over a box to pick up an item. Use it with E.", until one has been used; "Joker
 cards bend rules in your favor. A killed kart may drop a joker. When you die you
@@ -3718,14 +3721,17 @@ with nitro, "Your nitro"; the item slot with the first item picked up in the
 items lesson, "Your item, E to use it", which stays until that item has done
 its piece; the lives with jokers, and the hand of jokers with the first card
 picked up in that lesson, pointed at, "Your jokers, hold Tab to read them", Tab
-being whatever opens the hand, only once the parked karts, the cards and the pit
-are done, so the reading is the one thing left when the pointer says how, and
-until the hand has been read; the pot with
+being whatever opens the hand, or "Tap your jokers to view them" on a touch
+screen, only once the parked karts, the cards and the pit are done, so the
+reading is the one thing left when the pointer says how, and until the hand has
+been read, the card stepping aside while the hand is open, when the cards still
+to read wear an eye each on the hand itself; the pot with
 the pads lesson, "Your pot: where the coins go", and the mult pill of the pot
 with its dice, "Your mult: coins times this is your pot"; and the bank with
-the Junction's, "Your bank: safe for good", with a second card and frame on the
-pot at the same time, "Your pot: banked here", since banking is the one moving
-to the other, both up until the pot has been banked. The
+the Junction's, "Bank: safe" behind a shut padlock, with a second card and
+frame on the pot at the same time, "Pot: at risk" behind an open one, since
+banking is the one moving to the other, both up until the pot has been banked;
+and the mult pill's card says "Mult will multiply your pot". The
 corner's own control hints stay off throughout: the hint over the kart is saying
 it.
 
@@ -3790,9 +3796,9 @@ The lessons, each in its own room, in order:
    written in the room: the checklist, the hint and the notice carry the
    instructions, and the floor says the rest in paint. Along the top, a dead-end
    run with a turret at its far end that is part of the room: steel gray, on a
-   hazard-striped plinth, never destroyed, a shot at it stopped and nothing more,
-   shooting seven meters, with a hazard line across the run where its reach
-   begins. The Shield's box is at the run's open end, out of the turret's reach,
+   steel plinth with the hazard stripes in a ring round it, never destroyed, a
+   shot at it stopped and nothing more, shooting seven meters, with a hazard
+   line across the run where its reach begins. The Shield's box is at the run's open end, out of the turret's reach,
    and the task is to arm the Shield, cross the line and take the turret's shot
    on it, which is what a Shield is for, the arrow on the turret with no ring;
    the turret stops shooting once it has, and stands. In the south-east, a
@@ -3801,12 +3807,15 @@ The lessons, each in its own room, in order:
    the target on the far side of it, where no straight shot from the doorway
    reaches and one bounce off the pocket's north wall does, the Ricochet's shots
    bouncing once; the path of that shot is dotted on the floor, from the ringed
-   spot to stand on, through the doorway, off the wall and onto the target, so
-   the task is to arm the cannon, with the item key, line the kart up with the
-   dots and fire, which is a bank shot shown rather than an angle found by
-   trial; only a hit that came off a wall counts. Along the west wall, three
-   targets in a pocket of their own behind a wall of light, so no kart drives up
-   to them, and a hazard box on the floor in front of it where the Turret goes:
+   spot to stand on, through the doorway, off the wall and onto the target, the
+   turn worked out where a bullet really turns, a bullet's radius off the wall's
+   face, so the task is to arm the cannon, with the item key, line the kart up
+   with the dots and fire, which is a bank shot shown rather than an angle found
+   by trial; only a hit that came off a wall counts. Along the west wall, three
+   targets in a pocket of their own, walled to the room's edge and shut with a
+   wall of light, so no kart drives up to or behind them, and a hazard box on the
+   floor in front of it where the Turret goes, its sides stopping short of its
+   corners under a black cap each so no two stripes share a patch of floor:
    pick it up, drop it in the box and let it clear them, which it does when no
    kart is in reach, see 6.2, as every turret does while the tutorial runs and a
    match's never; a shot of the player's own at the row counts for nothing. A

@@ -26,7 +26,9 @@ var _peak := 0.0
 func _init() -> void:
 	title = "The Junction"
 	spawn_cell = TutorialPads.SPAWN
-	reveals = [[&"bank", "Your bank: safe for good", [], &"pot", "Your pot: banked here"]]
+	reveals = [
+		[&"bank", "%s Bank: safe", [&"icon:safe"], &"pot", "%s Pot: at risk", [&"icon:risk"]]
+	]
 	_fill = add_task("Fill your pot from the Jackpot", "Drive into the Jackpot and wait")
 	_fill.arrow = JACKPOT
 	_fill.arrow_rect = JACKPOT_RECT

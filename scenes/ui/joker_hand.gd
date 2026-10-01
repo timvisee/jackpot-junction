@@ -70,6 +70,9 @@ var corner := -1
 var keyboard := true
 ## Whether the player is holding the key for a card's details, GAME.md 8.3.
 var details := false
+## The cards wearing an eye, by id, as still to be read: the tutorial's reading lesson, GAME.md
+## 9.4a. Empty for none.
+var unread: Array[StringName] = []
 ## Screen rectangles the hand stays clear of, such as a HUD block in a bottom corner.
 var avoid: Array[Rect2] = []
 ## The stretch of the bottom edge the hand keeps to, from and to, inside its own share; zero for
@@ -453,6 +456,54 @@ func _place_cap(left: float, middle: float) -> void:
 
 
 ## Deals a fresh set of cards, sliding in from below, whenever the held jokers change.
+## Marks the cards of [param ids] as still to be read, with an eye on each, and the rest not.
+func set_unread(ids: Array[StringName]) -> void:
+	unread = ids.duplicate()
+	for i: int in _cards.size():
+		_mark_unread(_cards[i], i < _ids.size() and _ids[i] in unread)
+
+
+## The eye on [param card], shown or not.
+func _mark_unread(card: JokerCard, shown: bool) -> void:
+	var eye := card.get_node_or_null("Unread") as Control
+	if eye == null:
+		if not shown:
+			return
+		eye = Eye.new()
+		eye.name = "Unread"
+		eye.position = Vector2(JokerCard.SIZE.x - Eye.SIDE - 8.0, 8.0)
+		card.add_child(eye)
+	eye.visible = shown
+
+
+## An eye, drawn: the mark of a card still to be read.
+class Eye:
+	extends Control
+
+	const SIDE := 26.0
+	const INK := Palette.NEON_CYAN
+
+	func _init() -> void:
+		custom_minimum_size = Vector2(SIDE, SIDE)
+		size = custom_minimum_size
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		var middle := Vector2(SIDE, SIDE) * 0.5
+		draw_circle(middle, SIDE * 0.5, Color(0.0, 0.0, 0.0, 0.6))
+		var lid := PackedVector2Array()
+		for i: int in 17:
+			var t := float(i) / 16.0
+			var x := lerpf(-9.0, 9.0, t)
+			lid.append(middle + Vector2(x, -5.0 * sin(t * PI)))
+		for i: int in 17:
+			var t := float(i) / 16.0
+			var x := lerpf(9.0, -9.0, t)
+			lid.append(middle + Vector2(x, 5.0 * sin(t * PI)))
+		draw_polyline(lid, INK, 1.6, true)
+		draw_circle(middle, 3.0, INK)
+
+
 func _sync_cards() -> void:
 	var ids := kart.jokers.ids()
 	if ids == _ids:
@@ -468,6 +519,7 @@ func _sync_cards() -> void:
 		card.position = Vector2(size.x * (column + 0.5) / columns, beyond)
 		add_child(card)
 		_cards.append(card)
+		_mark_unread(card, joker.id in unread)
 
 
 ## What the player can do with the lifted card, which is the only part of the pane the hand has

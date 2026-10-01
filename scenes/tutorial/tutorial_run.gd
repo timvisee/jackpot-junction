@@ -162,7 +162,7 @@ func skip() -> void:
 ## one is, and the Royal Flush tally under all of them, back where the HUD hangs it once they are
 ## gone.
 func place_tally() -> void:
-	var top := TouchControls.below_menu() if TouchInput.enabled else 16.0
+	var top := TutorialNotice.TOP
 	var bar_ok := boss_bar != null and is_instance_valid(boss_bar)
 	var under := boss_bar.below() if bar_ok else top
 	if reveal != null and notice.visible:
@@ -225,7 +225,10 @@ func _start(i: int) -> void:
 				actions.assign(piece[2])
 			var also: StringName = piece[3] if piece.size() > 3 else &""
 			var also_line: String = piece[4] if piece.size() > 4 else ""
-			reveal.show_piece(piece[0], piece[1], actions, also, also_line)
+			var also_actions: Array[StringName] = []
+			if piece.size() > 5:
+				also_actions.assign(piece[5])
+			reveal.show_piece(piece[0], piece[1], actions, also, also_line, also_actions)
 	_task = null
 	_done = 0
 	_refresh()
@@ -243,6 +246,7 @@ func _physics_process(delta: float) -> void:
 			slot_down.respawn_left = INF
 	_shut_what_is_clear()
 	_watch_hand()
+	notice.keyboard = DeviceInput.uses_keyboard(_slot.device())
 	if notice.visible:
 		place_tally()
 	_place_feed()
