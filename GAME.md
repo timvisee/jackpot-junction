@@ -2555,7 +2555,9 @@ movement: the one thing a corner block must not do is ask to be looked at.
   red with LOST over it, shakes for a moment, then drops out of the hand and
   fades, and the cards left close up behind it. So does every joker a death drops
   on the floor, LOST the same, Glass Jackpot's two each: it went without the
-  player's say, and the card on the floor is anybody's now. What the player gives
+  player's say, and the card on the floor is anybody's now. A card a full hand
+  trades out for a new one from a pick, 3.7, goes the same way with REPLACED
+  over it: the player's say, but the card is gone all the same. What the player gives
   up themselves, dropping or destroying a card or swapping one at the pick, goes
   as it always did: they saw it go. The word is on the card rather
   than over the kart, where words are kept out: the card is where the player
@@ -3548,8 +3550,9 @@ a fresh install: "New here?", with Tutorial and Not now, and never asked again
 either way. Six to eight minutes for somebody new. One player at this machine,
 no join, nothing online; the Garage's portal leads here and the portal at the end
 leads back to the Garage, so going round once locks nothing away. Finishing it
-is remembered in the settings; the pause menu's Skip step passes a lesson, and
-leaving starts over from the first, since nothing in the middle is saved.
+is remembered in the settings; the pause menu's Skip lesson passes a lesson, all
+but the last, and leaving starts over from the first, since nothing in the
+middle is saved.
 
 It is one map of rooms in a row, each a lesson, joined by gates: a portcullis
 no taller than the walls either side of it, two posts with a lamp on top of
@@ -3649,10 +3652,23 @@ being done is bright, with a bar under it where it is a matter of how far, and
 a count's box lights for a moment at each one of the count; tasks not yet
 reached are not shown, so the list grows as the lesson goes. A lesson done in
 any order shows all its tasks from the start, the one being done bright and the
-rest a shade dimmer, its stations set apart by a thin line. A lesson done is a
-big green check in place of its words for a second, and then the next lesson,
-or nothing until that starts: a list of lessons done was noise. On a touch
-screen it hangs under the menu button.
+rest a shade dimmer, its stations set apart by a short cyan rule with room round
+it. A lesson done is a big green check in place of its tasks for a second, under
+its name, and then the next lesson, or nothing until that starts: a list of
+lessons done was noise. On a touch screen it hangs under the menu button.
+
+**The notice.** A panel at the top center of the screen, where the fight's bar
+goes and under that bar while it is up, with a line or two about the thing in
+front of the player, where signs floating in the room used to be: the two ways
+to drive, while the kart is near the pads of the steering room; what nitro is;
+what a drift pays; what targets and boxes drop; what an item is and the key it
+is used with, until one has been used; what a joker is; what Royal Flush pads,
+Jackpots and mult dice are, each as it comes; what the pot and the bank are and
+what the Junction does. Each lesson's word goes with the lesson. The one word
+that is not a lesson's is for a joker pick, see 3.7, that opens on a hand that
+is already full: it says the choice is to take a card and pick one of yours for
+it to replace, or to take none, for as long as the pick is open. The Royal Flush
+tally of 8.3 hangs under the notice and the bar, whichever is lower.
 
 **The hint.** Over the kart, the way the drive and fire line of 3.8 is but half
 again as big, since a line that is missed teaches nothing: one short line for
@@ -3688,10 +3704,12 @@ items lesson, "Your item, E to use it", which stays until that item has done
 its piece; the lives with jokers, and the hand of jokers with the first card
 picked up in that lesson, "Your jokers, hold Tab to read them", Tab being
 whatever opens the hand, which stays until the hand has been read; the pot with
-the pads lesson, "Your pot: what you carry, part lost when you die", and the
-bank with the Junction's, "Your bank: safe for good, 3000 wins a match", the
-two lines between them being what a sign in the room used to say. The corner's
-own control hints stay off throughout: the hint over the kart is saying it.
+the pads lesson, "Your pot: where the coins go", and the mult pill of the pot
+with its dice, "Your mult: coins times this is your pot"; and the bank with
+the Junction's, "Your bank, from the coins of your pot: safe for good", that
+one framing the pot as well, since banking is the one moving to the other. The
+corner's own control hints stay off throughout: the hint over the kart is saying
+it.
 
 **Driving mode.** The tutorial does not ask how to drive up front. A player who
 has answered before drives their way; one who never has is asked the question
@@ -3701,9 +3719,10 @@ ADVANCED, each a disc with the way of driving's own picture on it, the one the
 question of 4.2 draws, its name under the picture on the face itself, and a
 ring round it with a run of lamps round that. The one in use is lit cyan, its lamps chasing; the other is
 plainly off, gray and unlit, its lamps dark, so there is no mistaking which is
-on. Driving onto the other switches to it on the spot, and a sign between them
-says the pause menu and the settings change it later too. The pads stay for the
-rest of the tutorial, there being no reason to take them away.
+on. Driving onto the other switches to it on the spot, and while the kart is
+near the pads the notice says what the two ways are and that the pause menu
+changes it any time. The pads stay for the rest of the tutorial, there being no
+reason to take them away.
 
 The lessons, each in its own room, in order:
 
@@ -3790,21 +3809,29 @@ The lessons, each in its own room, in order:
    lesson is about grows out of the floor as that lesson starts, small to full
    size in a ring of light, nothing seen or in play before its lesson; the room
    is built without the baking of 6.3 so that each of these is a node of its own
-   to hold back. Nothing in the room is written in the air: the hint, the arrow
-   and the pointers say it all. With this lesson, four Royal Flush pads in the
-   corners and two Jackpots: hold every pad of the room at once for a flush,
-   then drain the Jackpot by the way in, which starts full. The pot appears,
-   pointed at. A
+   to hold back. Nothing in the room is written in the air: the hint, the arrow,
+   the pointers and the notice say it all. This lesson brings its pieces in one
+   at a time, each with the notice about it: first the four Royal Flush pads in
+   the corners, which pay whoever holds them and lock in for a flush, the pot
+   pointed at as where the coins go, and the task is to hold every pad of the
+   room at once; then, on the flush, the two Jackpots, the one by the way in
+   full, which fill over time and pay whoever waits in them, and the task is to
+   drain it; then, drained, four mult dice on the floor, which raise the mult
+   that the coins are multiplied by, the mult pill of the pot pointed at, and
+   the task is to pick up three. A
    flush is holding every pad in the room rather than on the map, see 3.9, so
    each room's pads are a flush of their own, and the tally over the top counts
    the room the player is in.
 10. **The Junction.** The Junction grows out of the middle of the floor, and the
-    other Jackpot fills: 20 chips in the pot, then the whole pot banked on the
-    Junction, the bar being how much of the most the pot held is in the bank,
-    so the fight starts with nothing in hand and the points have to be earned
-    in it. A pot emptied any other way, a death say, sends the player back to
-    the Jackpot, the hint saying so. The bank appears, pointed at, its pointer
-    saying what the bank is where the pot's said what the pot is.
+    other Jackpot fills: 20 chips in the pot, then the coins of the pot banked
+    on the Junction, all of them, the bar being how much of the most the pot
+    held is in the bank, so the fight starts with nothing in hand and the points
+    have to be earned in it. A pot emptied any other way, a death say, sends the
+    player back to the Jackpot, the hint saying so. The bank appears, pointed
+    at, the pot framed with it, and the notice says what the lesson is about:
+    the pot is what you carry and part of it is lost when you die; only banked
+    points are safe; the Junction banks the coins of your pot; 3000 banked wins
+    a match.
 11. **The fight.** Two item pads, six coin pads and six crates come in, with
     forty chips scattered over the floor to open with, and three bots wait in
     three pens of their own along the east side, each 3 by 3 behind a gate of
@@ -3816,7 +3843,9 @@ The lessons, each in its own room, in order:
     under it for the while, and no line over the kart: there is nothing to say
     but the bar; a death is a respawn and a joker pick, a bot comes back on one
     of the room's four spawns, nobody else's banking counts against the player,
-    and nobody can win the match itself. Reaching it is TUTORIAL COMPLETE across
+    and nobody can win the match itself. The fight is the one lesson the pause
+    menu's Skip lesson does not pass: it is the test, the notice says so, and
+    the way out of it is to win or to leave. Reaching it is TUTORIAL COMPLETE across
     the screen with a fanfare and the fireworks of 8.3 over the room in the
     player's color, the bots dying where they stand the way a kart that dies
     does, for good, with their bullets, their turrets and their decoys gone, so

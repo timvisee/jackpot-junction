@@ -13,6 +13,10 @@ const GALLERY := Rect2i(37, 3, 24, 16)
 const WALL := Rect2i(32, 9, 2, 4)
 ## Where a target's light stands, from the target.
 const LIGHT_AT := Vector3(1.1, 0.0, 0.0)
+## The word at the top for the lesson.
+const WORDS := (
+	"Targets and boxes drop chips when they are hit. " + "Boxes are cover, until they are not."
+)
 
 var _hit: TutorialTask
 var _boxes: TutorialTask
@@ -47,6 +51,7 @@ func _prepare() -> void:
 
 
 func _begin() -> void:
+	run.notice.say(&"shoot", WORDS)
 	for target: Target in _gallery():
 		target.struck.connect(_on_struck)
 	var grid := run.grid()

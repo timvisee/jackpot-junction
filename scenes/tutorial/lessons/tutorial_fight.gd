@@ -1,7 +1,8 @@
 class_name TutorialFight
 extends TutorialLesson
 ## Lesson 11, GAME.md 9.4a: the fight, in the last room, which gains its item pads, its coin pads
-## and its crates as the lesson starts, with chips scattered over the floor to open with, and
+## and its crates as the lesson starts, with chips and a mult die or two over the floor to open
+## with, and
 ## three bots in three pens along its east side, a gate each: the first
 ## is let out at once, the second at 300 banked and the third, a normal one where the others are
 ## easy, at 600. Bank 1000 points in here, on the bar across the top of the screen, and the
@@ -25,6 +26,8 @@ const CHIPS_AT: Array[Vector2i] = [
 	Vector2i(29, 47), Vector2i(44, 47), Vector2i(36, 44), Vector2i(36, 51)
 ]
 const CHIPS_EACH := 10
+## Where a mult die or two lie as the fight opens, by cell, for a quicker road to the goal.
+const DICE_AT: Array[Vector2i] = [Vector2i(27, 47), Vector2i(46, 47)]
 
 var _bank: TutorialTask
 var _banked := 0
@@ -36,6 +39,7 @@ var _bar: TutorialBossBar
 
 func _init() -> void:
 	title = "The fight"
+	skippable = false
 	spawn_cell = TutorialPads.SPAWN
 	reveals = [[&"stats", "", []], [&"feed", "", []]]
 	_bank = add_task("Bank %d points" % NEED, "", [], true)
@@ -55,12 +59,15 @@ func _begin() -> void:
 			TutorialReveal.show(pad)
 	for at: Vector2i in CHIPS_AT:
 		arena().spawn_chips(run.cell(at), CHIPS_EACH, 0.0, 0.15)
+	for at: Vector2i in DICE_AT:
+		var die := MultDie.new()
+		die.lifetime = 0.0
+		arena().place_drop(die, run.cell(at))
 	Events.bank_tick.connect(_on_tick)
 	_bar = TutorialBossBar.add_to(run.layer, NEED)
-	# The Royal Flush tally hangs where the bar now is: under it for the rest of the fight.
-	var tally := _tally()
-	if tally != null:
-		tally.offset_top = _bar.below()
+	# The Royal Flush tally and the word at the top hang where the bar now is: under it.
+	run.boss_bar = _bar
+	run.place_tally()
 	_release()
 
 
@@ -69,18 +76,12 @@ func end() -> void:
 		Events.bank_tick.disconnect(_on_tick)
 	if _bar != null and is_instance_valid(_bar):
 		_bar.queue_free()
+	run.boss_bar = null
 	# Won: the bots go in a poof. Left before that, they are torn down with the room.
 	if is_done() and run.is_inside_tree():
 		run.vanish_bots()
-	var tally := _tally()
-	if tally != null:
-		tally.offset_top = MatchHud.TALLY_DROP
 	super()
-
-
-func _tally() -> FlushTally:
-	var hud := run.match_node.hud
-	return hud.find_child("FlushTally", true, false) as FlushTally if hud != null else null
+	run.place_tally()
 
 
 func step(_delta: float) -> void:

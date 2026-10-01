@@ -31,6 +31,11 @@ const DROP_AT := Vector2i(6, 11)
 const GUARD_REACH := 7.0
 const RETURN_WAIT := 3.0
 const GUARD_INK := Color("#FF3B30")
+## The word at the top until an item has been used, with the item key named in it.
+const WORDS := (
+	"Items: drive over a box to pick one up. "
+	+ "It waits in your slot, one at a time, until you use it with %s."
+)
 
 var _take_shield: TutorialTask
 var _pop: TutorialTask
@@ -113,6 +118,9 @@ func _prepare() -> void:
 
 
 func _begin() -> void:
+	var keyboard := DeviceInput.uses_keyboard(run.slot().device())
+	var key := InputActions.short_binding_text(InputActions.USE_ITEM, keyboard)
+	run.notice.say(&"items", WORDS % key)
 	for target: Target in arena().targets:
 		target.struck.connect(_on_struck)
 	Events.item_picked.connect(_on_picked)
@@ -209,7 +217,10 @@ func _on_picked(slot_index: int, id: StringName) -> void:
 
 
 func _on_used(slot_index: int, id: StringName) -> void:
-	if slot_index == kart().slot and id == &"ricochet_cannon":
+	if slot_index != kart().slot:
+		return
+	run.notice.clear(&"items")
+	if id == &"ricochet_cannon":
 		_arm.complete()
 
 

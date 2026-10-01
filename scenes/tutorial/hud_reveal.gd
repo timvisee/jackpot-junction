@@ -40,6 +40,9 @@ var _tip: Tip
 ## The pointer's line, words with the control drawn in where it names one, see [InputHint].
 var _line: Control
 var _frame: Frame
+## A second frame, for a pointer that is about two pieces at once, the pot and the bank.
+var _also_frame: Frame
+var _also := &""
 var _ring: Ring
 var _pointing := &""
 var _time := 0.0
@@ -137,6 +140,10 @@ func _ready() -> void:
 	_frame.name = "Frame"
 	_frame.visible = false
 	hud.add_child(_frame)
+	_also_frame = Frame.new()
+	_also_frame.name = "AlsoFrame"
+	_also_frame.visible = false
+	hud.add_child(_also_frame)
 	_ring = Ring.new()
 	_ring.name = "Ring"
 	_ring.visible = false
@@ -144,12 +151,19 @@ func _ready() -> void:
 
 
 ## Brings [param piece] in, with [param line] on a pointer beside it until [method pointer_done],
-## each gap in the line filled with the control of [param actions] for the device in hand.
-func show_piece(piece: StringName, line: String, actions: Array[StringName] = []) -> void:
-	shown[piece] = true
+## each gap in the line filled with the control of [param actions] for the device in hand, and a
+## frame round [param also] as well where the line is about two pieces. A piece that is a part of
+## another, the mult pill of the pot, is pointed at without being brought in.
+func show_piece(
+	piece: StringName, line: String, actions: Array[StringName] = [], also: StringName = &""
+) -> void:
+	if piece in PIECES:
+		shown[piece] = true
 	if line.is_empty():
 		return
 	_pointing = piece
+	_also = also
+	_also_frame.visible = also != &""
 	if _line != null:
 		_line.queue_free()
 	var keyboard := DeviceInput.uses_keyboard(slot.device()) if slot != null else true
@@ -170,13 +184,23 @@ func show_piece(piece: StringName, line: String, actions: Array[StringName] = []
 ## The pointer has said its piece.
 func pointer_done() -> void:
 	_pointing = &""
+	_also = &""
 	_pointer.visible = false
 	_frame.visible = false
+	_also_frame.visible = false
 	_ring.visible = false
 
 
 func is_pointing() -> bool:
 	return _pointer.visible
+
+
+## Where the pointer's card ends, from the top of the screen, for what else hangs up there to
+## keep clear of; nothing while no card is up.
+func card_bottom() -> float:
+	if not _pointer.visible:
+		return 0.0
+	return _pointer.position.y + _pointer.get_combined_minimum_size().y
 
 
 ## What the pointer says, for asking.
@@ -227,13 +251,22 @@ func _place(parts: Dictionary, hand: JokerHand, delta: float) -> void:
 		_pointer.position = Vector2(hand.size.x * 0.5 - size.x * 0.5, top - size.y - GAP + bob)
 		_frame.visible = false
 	else:
-		var rect := _anchor(parts).get_global_rect()
+		var rect := _anchor(_pointing, parts).get_global_rect()
+		# The card stands clear of the whole pot row when it is about the mult pill in it.
+		var beside := (
+			_anchor(&"pot" if _pointing == &"mult" else _pointing, parts).get_global_rect()
+		)
 		_pointer.position = Vector2(
-			rect.end.x + GAP + bob, rect.position.y + rect.size.y * 0.5 - size.y * 0.5
+			beside.end.x + GAP + bob, rect.position.y + rect.size.y * 0.5 - size.y * 0.5
 		)
 		var grown := rect.grow(FRAME_GROW)
 		_frame.position = grown.position
 		_frame.size = grown.size
+	if _also != &"":
+		var other := _anchor(_also, parts).get_global_rect().grow(FRAME_GROW)
+		_also_frame.strength = pulse
+		_also_frame.position = other.position
+		_also_frame.size = other.size
 	if _ring.visible:
 		_ring_left = maxf(_ring_left - delta, 0.0)
 		var card := Rect2(_pointer.position, size)
@@ -249,11 +282,15 @@ func _place(parts: Dictionary, hand: JokerHand, delta: float) -> void:
 				_ring.visible = false
 
 
-func _anchor(parts: Dictionary) -> Control:
-	if _pointing == &"lives":
+## The control [param piece] is on the screen: a part of the corner block, or the mult pill of
+## its pot.
+func _anchor(piece: StringName, parts: Dictionary) -> Control:
+	if piece == &"lives":
 		var pips: Array = parts["lives"]
 		return (pips[0] as Control).get_parent() if not pips.is_empty() else parts["box"]
+	if piece == &"mult":
+		return (parts["pot"] as ScorePills).mult
 	var keyed: Dictionary[StringName, String] = {
 		&"nitro": "nitro", &"item": "item", &"pot": "pot", &"bank": "banked", &"stats": "stats"
 	}
-	return parts[keyed.get(_pointing, "box")]
+	return parts[keyed.get(piece, "box")]

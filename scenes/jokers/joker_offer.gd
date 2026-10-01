@@ -91,6 +91,9 @@ func replace(held_index: int) -> void:
 	if stage != Stage.REPLACING or held_index < 0 or held_index >= _kart.jokers.count():
 		return
 	_replaced = _kart.jokers.ids()[held_index]
+	# Gone from the hand by the player's own choice, which its card says, GAME.md 8.3.
+	if not _kart.puppet:
+		Events.joker_used_up.emit(_kart.slot, _replaced, "REPLACED")
 	_kart.jokers.remove_at(held_index)
 	_finish()
 

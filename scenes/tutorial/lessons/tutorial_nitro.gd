@@ -3,6 +3,9 @@ extends TutorialLesson
 ## Lesson 4, GAME.md 9.4a: burn a full tank of nitro down the long straight, the tank filled as
 ## the lesson starts. The nitro tank and the speedometer come into the corner with it.
 
+## The word at the top for the lesson.
+const WORDS := "Nitro burns the tank for a burst of speed. The tank refills on its own."
+
 var _burn: TutorialTask
 
 
@@ -19,6 +22,7 @@ func _init() -> void:
 
 func _begin() -> void:
 	kart().refill_nitro(1.0)
+	run.notice.say(&"nitro", WORDS)
 
 
 func step(_delta: float) -> void:

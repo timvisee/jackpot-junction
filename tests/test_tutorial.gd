@@ -154,9 +154,12 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_bool(opened).override_failure_message("the gate never opened").is_true()
 	assert_bool(lesson.is_done()).is_true()
 	assert_object(run.waiting_at).is_same(gate)
-	# The list is a big green check for a second, then nothing until the next lesson.
+	# The list is a big green check for a second, under the lesson's name, then nothing until
+	# the next lesson.
 	assert_bool(run.list.is_checking()).is_true()
-	assert_int(run.list.listed()).is_equal(0)
+	assert_int(run.list.listed()).is_equal(1)
+	assert_bool(run.list._title.visible).is_true()
+	assert_bool(run.list._rows.visible).is_false()
 	assert_bool(run.list._check.visible).is_true()
 	# The arrow points at the gate now, and a doorway gets no ring.
 	await _runner.simulate_frames(1, 17)
@@ -197,8 +200,14 @@ func test_steering_counts_both_ways_from_the_heading() -> void:
 	var kart := run.kart()
 	assert_array(lesson._left.actions).is_equal([InputActions.STEER_LEFT] as Array[StringName])
 	assert_array(lesson._right.actions).is_equal([InputActions.STEER_RIGHT] as Array[StringName])
+	# By the pads the word at the top is about the two ways to drive; away from them it is not.
+	_put(tutorial, Vector2i(18, 33), Vector3(0.0, 0.0, -1.0))
+	await _runner.simulate_frames(2, 17)
+	assert_bool(run.notice.is_saying(&"modes")).is_true()
+	assert_str(run.notice.said()).contains("Two ways to drive")
 	_put(tutorial, Vector2i(18, 42), Vector3(0.0, 0.0, -1.0))
 	await _runner.simulate_frames(2, 17)
+	assert_bool(run.notice.is_saying(&"modes")).is_false()
 	# Turning on the spot counts, to the left; back again takes it off, so sawing adds nothing.
 	kart.motor.heading += 0.5
 	lesson.step(DT)
@@ -311,6 +320,7 @@ func test_burning_the_tank_dry_with_the_nitro_pointed_out() -> void:
 	assert_bool((parts["speed"] as Control).visible).is_true()
 	assert_bool((parts["pot"] as Control).visible).is_false()
 	assert_bool(run.reveal.is_pointing()).is_true()
+	assert_str(run.notice.said()).contains("Nitro")
 	assert_bool(run.arrow.visible).is_false()
 	assert_bool(run.arrow._ring.visible).is_false()
 	assert_bool(run.reveal._ring.visible).is_true()

@@ -21,6 +21,12 @@ const RING_OUT := 0.4
 ## What a task done sounds like, and a gate opening.
 const TICK := &"ready"
 const GATE := &"turbo_pass"
+## What the notice says for a lesson that may not be skipped, and for a joker pick with the hand
+## already full, GAME.md 3.7.
+const NO_SKIP := "The fight is the test: win it, or leave by the pause menu."
+const HAND_FULL := (
+	"Your hand is full: take a card and pick one of yours for it to replace, " + "or take none."
+)
 
 var match_node: Match
 var layer: CanvasLayer
@@ -31,6 +37,10 @@ var list: TutorialList
 var hint: TutorialHint
 var arrow: GuideArrow
 var reveal: HudReveal
+## The word at the top of the screen, and the fight's bar while that is up, which the word and
+## the Royal Flush tally keep clear of.
+var notice: TutorialNotice
+var boss_bar: TutorialBossBar
 ## The gate opened by the lesson just done, waiting for the kart to go through, or null.
 var waiting_at: Gate
 ## The parked karts of the jokers lesson and the bots of the fight, and which bots are still in
@@ -64,6 +74,8 @@ static func add_to(parent: Node, in_match: Match, on_layer: CanvasLayer) -> Tuto
 			run.bots.append(slot)
 	run.penned = run.bots.duplicate()
 	run.list = TutorialList.add_to(on_layer)
+	run.notice = TutorialNotice.add_to(on_layer)
+	run.notice.changed.connect(run.place_tally)
 	run.hint = TutorialHint.new()
 	run.hint.name = "Hint"
 	run.hint.slot = run._slot
@@ -139,11 +151,39 @@ func begin() -> void:
 	_start(0)
 
 
-## The pause menu's Skip step: the lesson being done is done, and its gate opens.
+## The pause menu's Skip lesson: the lesson being done is done, and its gate opens. The fight is
+## not skipped: it is the test, and the word at the top says so.
 func skip() -> void:
 	var lesson := current_lesson()
-	if lesson != null and waiting_at == null:
-		lesson.skip()
+	if lesson == null or waiting_at != null:
+		return
+	if not lesson.skippable:
+		notice.say(&"no_skip", NO_SKIP)
+		return
+	lesson.skip()
+
+
+## The word at the top under the fight's bar while that is up and under a pointer's card while
+## one is, and the Royal Flush tally under all of them, back where the HUD hangs it once they are
+## gone.
+func place_tally() -> void:
+	var top := TouchControls.below_menu() if TouchInput.enabled else 16.0
+	var bar_ok := boss_bar != null and is_instance_valid(boss_bar)
+	var under := boss_bar.below() if bar_ok else top
+	if reveal != null and notice.visible:
+		under = maxf(under, reveal.card_bottom() + 10.0)
+	if not is_equal_approx(notice.offset_top, under):
+		notice.set_top(under)
+	var hud := match_node.hud
+	var tally := hud.find_child("FlushTally", true, false) as FlushTally if hud != null else null
+	if tally == null:
+		return
+	var drop := MatchHud.TALLY_DROP
+	if bar_ok:
+		drop = maxf(drop, boss_bar.below())
+	if notice.visible:
+		drop = maxf(drop, notice.below())
+	tally.offset_top = drop
 
 
 ## The gate on [param at] opened, and the bots' map told, see [Gate].
@@ -186,7 +226,8 @@ func _start(i: int) -> void:
 			var actions: Array[StringName] = []
 			if piece.size() > 2:
 				actions.assign(piece[2])
-			reveal.show_piece(piece[0], piece[1], actions)
+			var also: StringName = piece[3] if piece.size() > 3 else &""
+			reveal.show_piece(piece[0], piece[1], actions, also)
 	_task = null
 	_done = 0
 	_refresh()
@@ -203,6 +244,9 @@ func _physics_process(delta: float) -> void:
 		if not slot_down.kart.alive:
 			slot_down.respawn_left = INF
 	_shut_what_is_clear()
+	_watch_hand()
+	if notice.visible:
+		place_tally()
 	if _over or index < 0:
 		return
 	if waiting_at != null:
@@ -290,6 +334,17 @@ func _step_through() -> void:
 	_shut_what_is_clear()
 	waiting_at = null
 	_start(index + 1)
+
+
+## A joker pick open with the hand already full is the one moment the pick wants explaining,
+## GAME.md 3.7: the word at the top says what the choice is, for as long as the pick is open.
+func _watch_hand() -> void:
+	var offer := _slot.offer
+	var full_pick := offer != null and not offer.is_done() and kart().jokers.is_full()
+	if full_pick and not notice.is_saying(&"hand_full"):
+		notice.say(&"hand_full", HAND_FULL)
+	elif not full_pick and notice.is_saying(&"hand_full"):
+		notice.clear(&"hand_full")
 
 
 ## Shuts the gates waiting to shut, each once nobody is in it.

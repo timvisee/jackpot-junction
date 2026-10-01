@@ -19,9 +19,13 @@ const CARDS: Array[StringName] = [&"magnet_hubcaps", &"payday"]
 const PIT := Vector2i(7, 52)
 const PIT_RECT := Rect2i(7, 52, 2, 2)
 const WANTED := 4
-## What the reading task says: by key, and by touch.
+## What the reading task says: by key, and by touch; and the word at the top for the lesson.
 const READ_KEYS := "Hold %s and steer through your cards"
 const READ_TOUCH := "Tap each card to read it"
+const WORDS := (
+	"Jokers are cards that bend the rules in your favor: every one you hold is a perk "
+	+ "for the rest of the match. A hand holds five."
+)
 
 var _shoot: TutorialTask
 var _pick_up: TutorialTask
@@ -58,6 +62,7 @@ func _init() -> void:
 func _begin() -> void:
 	# A death opens the joker pick from here on, GAME.md 3.7.
 	run.match_node.rules.offer_jokers = true
+	run.notice.say(&"jokers", WORDS)
 	if TouchInput.enabled:
 		_read.hint = READ_TOUCH
 		_read.actions = []

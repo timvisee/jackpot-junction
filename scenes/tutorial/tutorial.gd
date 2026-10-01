@@ -83,7 +83,7 @@ func _ready() -> void:
 	DebugOverlay.add_to(self, match_node)
 	menu = PauseMenu.add_to(self)
 	menu.names_and_colors = true
-	menu.add_entry("Skip step", run.skip)
+	menu.add_entry("Skip lesson", run.skip)
 	_ask_how_to_drive()
 	loaded.emit()
 

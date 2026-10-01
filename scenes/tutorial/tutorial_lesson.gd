@@ -26,10 +26,13 @@ var gate_cell := Vector2i(-1, -1)
 var spawn_cell := Vector2i(-1, -1)
 var facing := Vector3(0.0, 0.0, -1.0)
 var next_cell := Vector2i(-1, -1)
-## The pieces of the HUD this lesson brings in, each [piece, line, actions], see [HudReveal], and
-## the task the pointer at them stays up until, or null for the first task done.
+## The pieces of the HUD this lesson brings in, each [piece, line, actions] and for a pointer
+## that frames a second piece too [piece, line, actions, also], see [HudReveal], and the task the
+## pointer at them stays up until, or null for the first task done.
 var reveals: Array[Array] = []
 var pointer_until: TutorialTask
+## Whether the pause menu may pass this lesson: every lesson but the fight.
+var skippable := true
 var run: TutorialRun
 
 ## The signs this lesson put up, taken down with it.
@@ -64,13 +67,15 @@ func step(_delta: float) -> void:
 	pass
 
 
-## The lesson is done with: whatever it listened to or put down for itself, let go of. A lesson
-## with more to let go of calls this as well.
+## The lesson is done with: whatever it listened to or put down for itself, let go of, and its
+## word at the top taken down. A lesson with more to let go of calls this as well.
 func end() -> void:
 	for board: Node in _signs:
 		if is_instance_valid(board):
 			board.queue_free()
 	_signs.clear()
+	if run != null and run.notice != null:
+		run.notice.clear()
 
 
 ## The task being done: the first not yet done, or for a lesson done in any order the first not

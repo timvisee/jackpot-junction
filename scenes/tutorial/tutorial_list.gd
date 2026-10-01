@@ -5,8 +5,8 @@ extends PanelContainer
 ## is ticked and grayed, the one being done is bright with a bar under it where it has one, and
 ## tasks not yet reached are not shown, so the list grows as the lesson goes; a lesson done in any
 ## order shows all of its tasks, its stations set apart by a line. A lesson done is a big green
-## check in place of the words for a second, and then the next lesson, or nothing until it starts.
-## On a touch screen it hangs under the menu button.
+## check in place of its tasks for a second, under its name, and then the next lesson, or nothing
+## until it starts. On a touch screen it hangs under the menu button.
 
 const WIDTH := 300.0
 const INK := Color(0.97, 0.97, 1.0)
@@ -155,20 +155,19 @@ func refresh(lesson: TutorialLesson) -> void:
 		shown += 1
 
 
-## [param lesson] is done: a big green check in place of its words, for a second.
+## [param lesson] is done: a big green check in place of its tasks, under its name, for a second.
 func finish_lesson(lesson: TutorialLesson) -> void:
 	if lesson != _lesson:
 		return
 	_check_left = CHECK_FOR
-	_title.visible = false
 	_rows.visible = false
 	_check.get_parent().visible = true
 	visible = true
 
 
-## Whether a lesson's words are up just now: one, or none while the check is or between lessons.
+## Whether a lesson's name is up just now: one, or none between lessons.
 func listed() -> int:
-	return 1 if visible and _title.visible and _lesson != null else 0
+	return 1 if visible and _lesson != null else 0
 
 
 ## Whether the check of a lesson done is up.
@@ -215,13 +214,20 @@ func _starts_station(lesson: TutorialLesson, task: TutorialTask) -> bool:
 	return false
 
 
-## The line between two stations.
+## The line between two stations: a short rule in the marks' own cyan, with room round it.
 func _rule() -> Control:
+	var room := MarginContainer.new()
+	room.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	room.add_theme_constant_override("margin_top", 7)
+	room.add_theme_constant_override("margin_bottom", 7)
+	room.add_theme_constant_override("margin_left", 14)
+	room.add_theme_constant_override("margin_right", 14)
 	var rule := ColorRect.new()
 	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	rule.color = Color(1.0, 1.0, 1.0, 0.18)
-	rule.custom_minimum_size = Vector2(0.0, 1.0)
-	return rule
+	rule.color = Color(MARK, 0.35)
+	rule.custom_minimum_size = Vector2(0.0, 2.0)
+	room.add_child(rule)
+	return room
 
 
 ## One line: a tick box and the words.

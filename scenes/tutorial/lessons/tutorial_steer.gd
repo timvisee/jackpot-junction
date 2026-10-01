@@ -7,10 +7,16 @@ extends TutorialLesson
 
 ## How far round each way, in turns.
 const TURNS := 1.5
-## The pads either side of the way in, and the sign between them, by cell.
+## How near a pad the kart has to be for the word at the top about the two ways to drive, in
+## meters, and the word.
+const NEAR_PADS := 7.0
+const MODES_WORDS := (
+	"Two ways to drive: SIMPLE steers wherever you push, ADVANCED steers like a car. "
+	+ "Drive onto a pad to switch; the pause menu changes it any time."
+)
+## The pads either side of the way in, by cell.
 const SIMPLE_PAD := Vector2i(13, 33)
 const ADVANCED_PAD := Vector2i(24, 33)
-const PADS_SIGN := Vector2i(18, 33)
 
 var _left: TutorialTask
 var _right: TutorialTask
@@ -38,18 +44,6 @@ func _prepare() -> void:
 	var holder := run.match_node
 	ModePad.add_to(holder, run.cell(SIMPLE_PAD), Settings.DRIVE_SIMPLE)
 	ModePad.add_to(holder, run.cell(ADVANCED_PAD), Settings.DRIVE_ADVANCED)
-	var board := Label3D.new()
-	board.text = "HOW TO DRIVE\ndrive onto a pad to switch\nthe pause menu changes it later too"
-	board.font_size = 48
-	board.outline_size = 12
-	board.modulate = Palette.CHIP_WHITE
-	board.outline_modulate = Color(0.04, 0.04, 0.05, 0.9)
-	board.pixel_size = 0.009
-	board.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	board.no_depth_test = true
-	var at := run.cell(PADS_SIGN)
-	board.position = Vector3(at.x, SIGN_HEIGHT, at.z)
-	holder.add_child(board)
 
 
 func _begin() -> void:
@@ -57,6 +51,15 @@ func _begin() -> void:
 
 
 func step(_delta: float) -> void:
+	var here := kart().global_position
+	var near_pads := (
+		here.distance_to(run.cell(SIMPLE_PAD)) < NEAR_PADS
+		or here.distance_to(run.cell(ADVANCED_PAD)) < NEAR_PADS
+	)
+	if near_pads and not run.notice.is_saying(&"modes"):
+		run.notice.say(&"modes", MODES_WORDS)
+	elif not near_pads:
+		run.notice.clear(&"modes")
 	var motor := kart().motor
 	var now := motor.heading
 	var turned := wrapf(now - _heading, -PI, PI)

@@ -59,8 +59,10 @@ func test_items_three_stations_in_any_order() -> void:
 	assert_int(run.list.task_rows(lesson).size()).is_equal(7)
 	var rules := 0
 	for row: Node in run.list._rows.get_children():
-		rules += 1 if row is ColorRect else 0
+		rules += 1 if row is MarginContainer else 0
 	assert_int(rules).is_equal(2)
+	assert_bool(run.notice.is_saying(&"items")).is_true()
+	assert_str(run.notice.said()).contains("Items")
 	Events.item_picked.emit(0, &"ricochet_cannon")
 	await _runner.simulate_frames(1, 17)
 	assert_bool(lesson._take_ricochet.done).is_true()
@@ -71,6 +73,7 @@ func test_items_three_stations_in_any_order() -> void:
 	Events.item_used.emit(0, &"ricochet_cannon")
 	await _runner.simulate_frames(1, 17)
 	assert_bool(lesson._arm.done).is_true()
+	assert_bool(run.notice.is_saying(&"items")).is_false()
 	assert_bool(run.reveal.is_pointing()).is_true()
 	assert_object(lesson.current()).is_same(lesson._bounce)
 	var pocket := lesson.target_at(TutorialItems.POCKET)
@@ -150,6 +153,7 @@ func test_jokers_from_parked_karts_and_the_pit() -> void:
 	await _runner.simulate_frames(2, 17)
 	assert_bool(tutorial.match_node.rules.offer_jokers).is_true()
 	assert_bool(tutorial.match_node.rules.bounties).is_false()
+	assert_str(run.notice.said()).contains("Jokers")
 	assert_bool(lesson.ordered).is_false()
 	assert_int(run.list.task_rows(lesson).size()).is_equal(4)
 	# No hand yet, and nothing pointing at one: the lives alone came in.
@@ -257,14 +261,16 @@ func test_pads_flush_their_own_room_and_drain_the_jackpot() -> void:
 	run._start(8)
 	var lesson := run.current_lesson() as TutorialPads
 	await _runner.simulate_frames(2, 17)
+	# The flush pads first, the Jackpots still held back, and the word about the pads.
 	for pad: FlushPad in arena.flush_pads:
 		assert_bool(pad.visible).is_true()
 		assert_int(pad.process_mode).is_equal(Node.PROCESS_MODE_INHERIT)
+	for zone: JackpotZone in arena.jackpot_zones:
+		assert_bool(zone.visible).is_false()
 	for pad: JunctionPad in arena.junctions:
 		assert_bool(pad.visible).is_false()
-	assert_bool(lesson._zone.active).is_true()
-	assert_float(lesson._zone.chips).is_equal(float(lesson._zone.cap()))
 	assert_bool(lesson._signs.is_empty()).is_true()
+	assert_str(run.notice.said()).contains("Royal Flush")
 	for pad: CoinPad in arena.coin_pads:
 		assert_bool(pad.visible).is_false()
 	var room := arena.grid.region_of(TutorialPads.SPAWN)
@@ -274,19 +280,39 @@ func test_pads_flush_their_own_room_and_drain_the_jackpot() -> void:
 	assert_bool(lesson._flush.done).is_false()
 	arena.flush_pads[3].claimed.emit(arena.flush_pads[3], kart)
 	assert_bool(lesson._flush.done).override_failure_message("no flush").is_true()
-	# On to the Jackpot, with the ring round the whole of it, two cells across.
+	# The flush brings the Jackpots up, one of them full, and the word is about them; the ring
+	# goes round the whole of the full one, two cells across.
 	await _runner.simulate_frames(1, 17)
+	for zone: JackpotZone in arena.jackpot_zones:
+		assert_bool(zone.visible).is_true()
+	assert_bool(lesson._zone.active).is_true()
+	assert_float(lesson._zone.chips).is_equal(float(lesson._zone.cap()))
+	assert_str(run.notice.said()).contains("Jackpots")
 	assert_object(lesson.current()).is_same(lesson._drain)
 	assert_bool(run.arrow._ring.visible).is_true()
 	assert_float(run.arrow.ring_radius).is_greater(arena.grid.cell_size)
 	var ring_at := run.arrow.target
 	var zone_at := arena.grid.rect_center(TutorialPads.JACKPOT_RECT)
 	assert_float(ring_at.distance_to(zone_at)).is_less(0.1)
+	# Drained, the dice come out, the word is about mult and the pointer is on the mult pill.
 	Events.jackpot_emptied.emit(lesson._zone.index)
 	await _runner.simulate_frames(1, 17)
+	assert_object(lesson.current()).is_same(lesson._mult)
+	var dice := 0
+	for pickup: Node in arena.pickups.get_children():
+		dice += 1 if pickup is MultDie else 0
+	assert_int(dice).is_equal(TutorialPads.DICE_AT.size())
+	assert_str(run.notice.said()).contains("Mult")
+	assert_bool(run.reveal.is_pointing()).is_true()
+	assert_str(run.reveal.line()).contains("Your mult")
+	assert_vector(lesson._mult.arrow).is_not_equal(Vector2i(-1, -1))
+	for i: int in TutorialPads.DICE:
+		Events.mult_gained.emit(0, 1.0, &"die")
+	await _runner.simulate_frames(1, 17)
 	assert_bool(lesson.is_done()).is_true()
-	# No gate: the Junction's lesson starts in the same room.
+	# No gate: the Junction's lesson starts in the same room, its word up and the pads' gone.
 	assert_int(run.index).is_equal(9)
+	assert_str(run.notice.said()).contains("Only banked points are safe")
 
 
 ## The tally over the top counts the pads of the room the player is in, GAME.md 3.9: the last
@@ -316,6 +342,11 @@ func test_the_junction_banks_the_whole_pot() -> void:
 	assert_int(arena.junctions.size()).is_equal(1)
 	assert_bool(arena.junctions[0].visible).is_true()
 	assert_object(arena.junctions[0].rules).is_same(tutorial.match_node.rules)
+	# The pointer is about the pot and the bank both: a frame round each.
+	assert_bool(run.reveal.is_pointing()).is_true()
+	assert_str(run.reveal.line()).contains("coins of your pot")
+	assert_bool(run.reveal._also_frame.visible).is_true()
+	assert_bool(run.reveal._frame.visible).is_true()
 	(
 		assert_bool(arena.junctions[0].bank_tick.is_connected(tutorial.match_node._on_bank_tick))
 		. is_true()
@@ -377,6 +408,14 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	assert_object(tutorial.layer.get_node_or_null("BossBar")).is_not_null()
 	var tally: FlushTally = tutorial.match_node.hud.find_child("FlushTally", true, false)
 	assert_float(tally.offset_top).is_greater(MatchHud.TALLY_DROP)
+	# The fight is not skipped: the word at the top says so, under the bar.
+	assert_bool(lesson.skippable).is_false()
+	run.skip()
+	await _runner.simulate_frames(1, 17)
+	assert_bool(lesson.is_done()).is_false()
+	assert_bool(run.notice.is_saying(&"no_skip")).is_true()
+	assert_float(run.notice.offset_top).is_greater_equal(lesson._bar.below() - 0.01)
+	run.notice.clear()
 	Events.bank_tick.emit(0, TutorialFight.RELEASE_AT[1])
 	await _runner.simulate_frames(1, 17)
 	assert_int(lesson.released()).is_equal(2)
@@ -419,6 +458,43 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 		assert_int(bullet.owner_slot).is_equal(0)
 		flying += 1
 	assert_int(flying).is_equal(1)
+
+
+## A joker pick with the hand already full gets the word at the top for as long as it is open,
+## and a card replaced says REPLACED on its way out, the way a card lost says LOST.
+func test_a_full_hand_is_explained_and_a_replaced_card_says_so() -> void:
+	var tutorial := await _start()
+	var run := tutorial.run
+	run._start(7)
+	var kart := run.kart()
+	var slot := run.slot()
+	await _runner.simulate_frames(2, 17)
+	for joker: Joker in tutorial.match_node.joker_catalog.jokers:
+		if kart.jokers.is_full():
+			break
+		if not kart.jokers.has(joker.id):
+			kart.jokers.add(joker)
+	assert_bool(kart.jokers.is_full()).is_true()
+	assert_bool(run.notice.is_saying(&"hand_full")).is_false()
+	kart.die(&"pit", -1)
+	for i: int in 60:
+		await _runner.simulate_frames(1, 17)
+		if slot.offer != null and not slot.offer.is_done():
+			break
+	assert_object(slot.offer).is_not_null()
+	await _runner.simulate_frames(1, 17)
+	assert_bool(run.notice.is_saying(&"hand_full")).is_true()
+	assert_str(run.notice.said()).contains("hand is full")
+	var said: Array[String] = []
+	var heard := func(_slot: int, _joker: StringName, word: String) -> void: said.append(word)
+	Events.joker_used_up.connect(heard)
+	slot.offer.take(0)
+	slot.offer.replace(0)
+	Events.joker_used_up.disconnect(heard)
+	assert_array(said).is_equal(["REPLACED"] as Array[String])
+	assert_bool(slot.offer.is_done()).is_true()
+	await _runner.simulate_frames(1, 17)
+	assert_bool(run.notice.is_saying(&"hand_full")).is_false()
 
 
 ## A gate never shuts on anybody: told to shut with a kart in it, it waits until the kart is out.
