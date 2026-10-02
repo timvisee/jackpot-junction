@@ -1,6 +1,6 @@
 extends TutorialSuite
 ## The tutorial's later rooms, GAME.md 9.4a: items, jokers, the last room's three lessons, the
-## gates' care for whoever is in them, and the title's offer.
+## gates' care for whoever is in them, and the title asking for the license.
 
 
 ## A map may hold more than one Junction: each is given the rules and wired to bank, and a bot
@@ -273,13 +273,20 @@ func test_jokers_from_parked_karts_and_the_pit() -> void:
 			. override_failure_message("death %d: the pick was already answered" % death)
 			. is_false()
 		)
-		# Whichever card on offer the hand can take: a copy of one held may not be, by its stack.
-		var pick := 0
+		# A card not held yet, since a copy of one held stacks on it and adds no card to the hand,
+		# or else whichever card the hand can take: a copy at its stack's cap it cannot.
+		var pick := -1
 		for i: int in slot.offer.choices.size():
-			if kart.jokers.can_take(slot.offer.choices[i]):
+			var choice: Joker = slot.offer.choices[i]
+			if kart.jokers.can_take(choice) and not kart.jokers.has(choice.id):
 				pick = i
 				break
-		slot.offer.take(pick)
+		if pick < 0:
+			for i: int in slot.offer.choices.size():
+				if kart.jokers.can_take(slot.offer.choices[i]):
+					pick = i
+					break
+		slot.offer.take(maxi(pick, 0))
 		assert_bool(slot.offer.is_done()).override_failure_message("death %d" % death).is_true()
 		for i: int in 200:
 			await _runner.simulate_frames(1, 17)
@@ -537,6 +544,7 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	Game.settings.tutorial_done = false
 	Game.settings.license_number = ""
 	Game.settings.license_date = ""
+	Game.settings.license_plate = ""
 	Events.bank_tick.emit(0, TutorialFight.NEED - TutorialFight.RELEASE_AT[2])
 	await _runner.simulate_frames(2, 17)
 	assert_bool(run.is_over()).is_true()
@@ -552,6 +560,13 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	assert_bool(number.begins_with("JJ-")).is_true()
 	assert_int(number.length()).is_equal(9)
 	assert_str(Game.settings.license_date).is_equal(Time.get_date_string_from_system())
+	# And the holder, what they earned on their own, and a plate to start from.
+	assert_str(Game.settings.license_holder).is_equal(run.slot().display_name())
+	assert_bool("KO" in Game.settings.license_endorsements).is_true()
+	assert_bool("ROYAL FLUSH" in Game.settings.license_endorsements).is_false()
+	assert_str(Game.settings.license_plate).is_equal(
+		LicensePlate.suggest(run.slot().display_name(), number)
+	)
 	assert_object(tutorial.license).is_null()
 	assert_object(tutorial.layer.get_node_or_null("License")).is_null()
 	# The bots dead and gone with everything of theirs, the player's own shot still flying, and
@@ -598,11 +613,44 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	assert_bool(license.card.stamped).is_true()
 	await await_millis(int(LicenseScreen.SETTLE * 1000.0) + 200)
 	assert_bool(license.offering()).is_true()
+	# The plate to choose, under the congratulations, kept as it is typed.
+	assert_object(license.plate_field).is_not_null()
+	license.plate_field.text = "go fast!"
+	license.plate_field.text_changed.emit(license.plate_field.text)
+	assert_str(Game.settings.license_plate).is_equal("GO FAST")
+	assert_str(license.plate.text).is_equal("GO FAST")
 	license.buttons[&"play"].pressed.emit()
 	assert_array(went).contains_exactly([&"play"])
 	# Done again, the license keeps its number.
 	tutorial._on_finished()
 	assert_str(Game.settings.license_number).is_equal(number)
+
+
+## The item slot is in the corner once the items lesson is over, however it went, and the hand
+## once the jokers lesson is: skipped, neither was ever pointed at.
+func test_the_pieces_a_lesson_is_about_stay_once_it_is_over() -> void:
+	var tutorial := await _start()
+	var run := tutorial.run
+	run._start(6)
+	await _runner.simulate_frames(1, 17)
+	assert_bool(run.reveal.shown[&"item"]).is_false()
+	run.skip()
+	await _runner.simulate_frames(1, 17)
+	assert_bool(run.reveal.shown[&"item"]).is_true()
+	assert_bool(run.reveal.shown[&"hand"]).is_false()
+	# The learner blocks about the rooms are boxes: a kart bumps them, a shot breaks them.
+	var props := tutorial.match_node.arena.get_node("SchoolProps")
+	var blocks := props.find_children("LearnerBlock*", "", false, false)
+	assert_int(blocks.size()).is_equal(SchoolProps.BLOCKS.size())
+	for block: Node in blocks:
+		assert_bool(block is Crate).is_true()
+		assert_int((block as Crate).collision_layer).is_equal(Layers.WORLD)
+	(blocks[0] as Crate).hit(0)
+	assert_bool((blocks[0] as Crate).alive).is_false()
+	# And the kart wears the learner's L for the test.
+	var plate := run.kart().get_node_or_null("Body/Plate")
+	assert_object(plate).is_not_null()
+	assert_str(plate.get_meta(&"plate")).is_equal("L")
 
 
 ## A joker pick with the hand already full gets the word at the top for as long as it is open,
@@ -702,25 +750,31 @@ func test_a_gate_waits_to_shut_until_nobody_is_in_it() -> void:
 	assert_bool(gate.is_open).is_false()
 
 
-## The title offers the tutorial once, the first time Play is pressed: Not now goes on to play
-## and is never asked again.
-func test_the_title_offers_the_tutorial_once() -> void:
-	Game.settings.tutorial_offered = false
-	Game.settings.tutorial_done = false
+## The title asks for the license before every way in to driving until it is earned: Drive
+## anyway goes on to play, and the next press asks again; with a license nothing is asked.
+func test_the_title_asks_for_the_license_until_it_is_earned() -> void:
+	Game.settings.license_number = ""
 	var title: Control = auto_free(load("res://scenes/ui/title.tscn").instantiate())
 	add_child(title)
 	await await_idle_frame()
 	var went := [0]
-	title.offer_tutorial(func() -> void: went[0] += 1)
-	var pane: ConfirmPane = title.find_child("TutorialOffer", true, false)
+	title.offer_license(func() -> void: went[0] += 1)
+	var pane: ConfirmPane = title.find_child("LicenseOffer", true, false)
 	assert_object(pane).is_not_null()
-	assert_str(pane.said()).contains("New here?")
+	assert_str(pane.said()).contains("No license yet")
 	assert_int(went[0]).is_equal(0)
 	pane.no_button().pressed.emit()
 	assert_int(went[0]).is_equal(1)
-	assert_bool(Game.settings.tutorial_offered).is_true()
 	await await_idle_frame()
-	assert_object(title.find_child("TutorialOffer", true, false)).is_null()
-	title.offer_tutorial(func() -> void: went[0] += 1)
-	assert_int(went[0]).is_equal(2)
-	assert_object(title.find_child("TutorialOffer", true, false)).is_null()
+	assert_object(title.find_child("LicenseOffer", true, false)).is_null()
+	# Asked again the next time.
+	title.offer_license(func() -> void: went[0] += 1)
+	assert_object(title.find_child("LicenseOffer", true, false)).is_not_null()
+	assert_int(went[0]).is_equal(1)
+	(title.find_child("LicenseOffer", true, false) as ConfirmPane).no_button().pressed.emit()
+	await await_idle_frame()
+	# With a license, straight on.
+	Game.settings.license_number = "JJ-224123"
+	title.offer_license(func() -> void: went[0] += 1)
+	assert_int(went[0]).is_equal(3)
+	assert_object(title.find_child("LicenseOffer", true, false)).is_null()

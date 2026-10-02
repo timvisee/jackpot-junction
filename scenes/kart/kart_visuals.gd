@@ -11,6 +11,11 @@ const MODEL_LIFT := 0.235
 ## How high above the kart the roof marker and the bounty crown ride.
 const MARKER_HEIGHT := 1.75
 const CROWN_HEIGHT := MARKER_HEIGHT + 0.42
+## The plate on the back of the kart, GAME.md 4.4: where it hangs, on the rear bumper under the
+## flag, how big the learner's L is, and how big a license plate is.
+const PLATE_AT := Vector3(0.0, 0.47, 0.69)
+const LEARNER_SIDE := 0.42
+const LICENSE_PLATE := Vector2(0.56, 0.16)
 
 
 ## The body: the model tinted in the player's color, the wheels picked out so they can be spun,
@@ -36,6 +41,56 @@ static func build_body(kart: Kart) -> Dictionary:
 	if flag != null:
 		body.add_child(flag)
 	return {"body": body, "tint": tint, "wheels": wheels}
+
+
+## The learner's L on the back of [param kart], GAME.md 4.4: for a kart of this machine's while it
+## has no license yet, and for the whole of the driving test. In place of any plate it wore.
+static func learner_plate(kart: Kart) -> Node3D:
+	var plate := _plate(
+		kart,
+		SchoolFigure.of(SchoolFigure.Kind.LEARNER, 128.0),
+		Vector2i(128, 128),
+		Vector2(LEARNER_SIDE, LEARNER_SIDE)
+	)
+	if plate != null:
+		plate.set_meta(&"plate", "L")
+	return plate
+
+
+## The license plate on the back of [param kart], reading [param text], GAME.md 4.4: for a kart of
+## this machine's once it has its license. In place of any plate it wore.
+static func license_plate(kart: Kart, text: String) -> Node3D:
+	var plate := _plate(kart, LicensePlate.of(text), Vector2i(448, 128), LICENSE_PLATE)
+	if plate != null:
+		plate.set_meta(&"plate", text)
+	return plate
+
+
+## The plate a kart of this machine's wears, by the settings: the learner's L until the license
+## is earned, and the plate chosen after.
+static func plate_for_here(kart: Kart) -> Node3D:
+	if Game.settings.license_number.is_empty():
+		return learner_plate(kart)
+	return license_plate(kart, Game.settings.license_plate)
+
+
+## [param drawing], [param pixels] across, as a face [param size] meters across on the back of
+## [param kart], where whatever plate it wore was.
+static func _plate(kart: Kart, drawing: Control, pixels: Vector2i, size: Vector2) -> Node3D:
+	var body := kart.get_node_or_null("Body") as Node3D
+	if body == null:
+		return null
+	var old := body.get_node_or_null("Plate")
+	if old != null:
+		body.remove_child(old)
+		old.queue_free()
+	var plate := Node3D.new()
+	plate.name = "Plate"
+	plate.position = PLATE_AT
+	var drawn := DrawnTexture.of(plate, drawing, pixels)
+	plate.add_child(DrawnTexture.face(size, DrawnTexture.decal(drawn)))
+	body.add_child(plate)
+	return plate
 
 
 ## Dresses [param kart] again in its [member Kart.style], which has just been changed from [param

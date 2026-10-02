@@ -68,7 +68,7 @@ func _ready() -> void:
 	# The driving school's dressing, GAME.md 9.4a: the cones, the signs and the rest of it, and the
 	# L-plate on the back of the kart for the whole test.
 	SchoolProps.add_to(match_node.arena)
-	SchoolProps.learner_plate(match_node.slots[0].kart)
+	KartVisuals.learner_plate(match_node.slots[0].kart)
 	# A room for learning in, not a nightclub, as the Garage is.
 	match_node.arena.disco.enabled = false
 	match_node.arena.crowd.enabled = false
@@ -145,8 +145,20 @@ func _on_finished() -> void:
 	if Game.settings.license_number.is_empty():
 		var rng := RandomNumberGenerator.new()
 		rng.randomize()
-		Game.settings.license_number = LicenseCard.new_number(rng)
-		Game.settings.license_date = LicenseCard.today()
+		var settings := Game.settings
+		settings.license_number = LicenseCard.new_number(rng)
+		settings.license_date = LicenseCard.today()
+		settings.license_holder = run.slot().display_name()
+		settings.license_endorsements.clear()
+		var fight := run.lessons[run.lessons.size() - 1] as TutorialFight
+		if fight != null:
+			var earned := fight.endorsements()
+			for word: String in earned:
+				if earned[word]:
+					settings.license_endorsements.append(word)
+		settings.license_plate = LicensePlate.suggest(
+			settings.license_holder, settings.license_number
+		)
 	Game.settings.save_to_disk()
 	Audio.play_sfx(&"fanfare", -4.0, 0.0)
 	# Fireworks over the last room, in the player's color, the way a match won has them.

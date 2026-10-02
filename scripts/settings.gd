@@ -177,14 +177,16 @@ var kart_styles: Array = [
 ]
 ## Whether anybody has been round the test track yet, GAME.md 9.4. The first visit to the
 ## Garage goes there; every visit after it goes to the Garage proper.
-## Whether the tutorial of GAME.md 9.4a has been finished, and whether it has been offered, which
-## the first Play does once.
+## Whether the tutorial of GAME.md 9.4a has been finished.
 var tutorial_done := false
-var tutorial_offered := false
-## The driver license the tutorial ends on, GAME.md 9.4a: its number and the day it was issued,
-## empty until it has been, so the card reads the same every time it is looked at.
+## The driver license the tutorial ends on, GAME.md 9.4a: its number, the day it was issued, who
+## it was issued to and what they earned on the way, empty until it has been, so the card reads
+## the same every time it is looked at; and the plate they chose for the back of their kart, 4.4.
 var license_number := ""
 var license_date := ""
+var license_holder := ""
+var license_endorsements := PackedStringArray()
+var license_plate := ""
 var last_address := "127.0.0.1"
 var last_port := 7777
 ## The dedicated server Play Online last connected to, GAME.md 9.3a, and connects to again as it
@@ -290,9 +292,16 @@ func load_from_disk() -> void:
 	for i: int in mini(dressed.size(), kart_styles.size()):
 		kart_styles[i] = KartStyle.from_array(dressed[i]).to_array()
 	tutorial_done = bool(file.get_value("progress", "tutorial_done", tutorial_done))
-	tutorial_offered = bool(file.get_value("progress", "tutorial_offered", tutorial_offered))
 	license_number = str(file.get_value("progress", "license_number", license_number))
 	license_date = str(file.get_value("progress", "license_date", license_date))
+	license_holder = PlayerNames.clean(str(file.get_value("progress", "license_holder", "")))
+	var earned: Variant = file.get_value("progress", "license_endorsements", PackedStringArray())
+	license_endorsements = (
+		PackedStringArray(earned)
+		if earned is Array or earned is PackedStringArray
+		else PackedStringArray()
+	)
+	license_plate = LicensePlate.clean(str(file.get_value("progress", "license_plate", "")))
 	last_address = file.get_value("online", "address", last_address)
 	last_port = file.get_value("online", "port", last_port)
 	last_server = str(file.get_value("online", "server", last_server))
@@ -361,9 +370,11 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "player_names", player_names)
 	file.set_value("lobby", "kart_styles", kart_styles)
 	file.set_value("progress", "tutorial_done", tutorial_done)
-	file.set_value("progress", "tutorial_offered", tutorial_offered)
 	file.set_value("progress", "license_number", license_number)
 	file.set_value("progress", "license_date", license_date)
+	file.set_value("progress", "license_holder", license_holder)
+	file.set_value("progress", "license_endorsements", license_endorsements)
+	file.set_value("progress", "license_plate", license_plate)
 	file.set_value("online", "address", last_address)
 	file.set_value("online", "port", last_port)
 	file.set_value("online", "server", last_server)

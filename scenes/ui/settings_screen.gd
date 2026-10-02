@@ -1,7 +1,7 @@
 class_name SettingsScreen
 extends Control
-## The settings screen from GAME.md 8.5: controls with rebinding, audio, video and
-## accessibility. Changes apply at once and are saved on Back.
+## The settings screen from GAME.md 8.5: controls with rebinding, the players, the license, audio,
+## video and accessibility. Changes apply at once and are saved on Back.
 ##
 ## From the title it is a screen of its own. From a room's pause menu it is laid over the room
 ## instead, see [member overlay], so the match, and online the connection and everybody on it,
@@ -79,6 +79,7 @@ func _ready() -> void:
 	column.add_child(tabs)
 	tabs.add_child(_controls_tab())
 	tabs.add_child(_players_tab())
+	tabs.add_child(LicenseTab.make(_settings))
 	tabs.add_child(_audio_tab())
 	tabs.add_child(VideoTab.make(_settings))
 	tabs.add_child(_accessibility_tab())

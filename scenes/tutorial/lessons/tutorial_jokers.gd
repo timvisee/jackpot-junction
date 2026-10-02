@@ -36,6 +36,7 @@ var _hand_shown := false
 
 func _init() -> void:
 	title = "Jokers"
+	ensures = [&"hand"]
 	ordered = false
 	gate_cell = Vector2i(22, 55)
 	spawn_cell = Vector2i(4, 40)

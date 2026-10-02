@@ -4,7 +4,8 @@ extends Control
 ## each on buttons. A right answer lights green with a word; a wrong one shakes red, and after a
 ## moment the right one lights green and presses itself, with a word for that too, so nobody
 ## fails and everybody leaves knowing the answer. Three down, the theory is passed, on a card
-## that says so, with the one button on to the driving test.
+## that says so, the course's first step ticked and the other two still to come under it, with
+## the one button on to the driving test.
 
 signal passed
 
@@ -177,6 +178,8 @@ func _finish() -> void:
 		Type.LABEL
 	)
 	_column.add_child(score)
+	# The course, with its first step ticked and the other two still to come.
+	_column.add_child(SchoolEnrollment.course(1))
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(0.0, 6.0)
 	_column.add_child(gap)

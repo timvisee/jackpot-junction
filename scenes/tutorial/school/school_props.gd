@@ -4,9 +4,10 @@ extends RoomBuild
 ## start corridor and round the steering pillar, road signs on poles planted in the wall tops
 ## where a kart will see them, learner blocks in the corners, bunting over the start, a zebra
 ## crossing and a parking bay painted on the floor, and the examiner's booth on the wall over
-## the last room, with the L-plate the kart itself wears for the whole test. Boxes and cylinders
-## in the room's own materials, as the rest of the room is, 8.1; none of it collides, so it all
-## stands where a kart does not go, the edges of the road and the tops of the walls.
+## the last room. Boxes and cylinders in the room's own materials, as the rest of the room is,
+## 8.1; none of it collides but the learner blocks, which break like boxes, so the rest stands
+## where a kart does not go, the edges of the road and the tops of the walls. The L-plate the
+## kart wears for the test is the kart's own, see [method KartVisuals.learner_plate].
 
 ## The cones along the corridor north, by cell, on the west wall's side and the east wall's.
 const CORRIDOR_CONES: Array[Vector2i] = [
@@ -41,8 +42,11 @@ const ROUNDABOUT_TURN := 0.0
 ## along the underpass.
 const EXAM_PLATE := Vector2i(26, 57)
 const EXAM_WORDS := "FINAL EXAM"
+## Turned toward the camera, which looks north, and a little toward the kart coming from the
+## west, so it can be read rather than seen edge-on.
+const EXAM_PLATE_TURN := -PI * 0.2
 ## The learner blocks, by cell: the corners of the steering room, the jokers room and the drift
-## room.
+## room. In the driving space, so a kart bumps them and a shot breaks them, and they stay broken.
 const BLOCKS: Array[Vector2i] = [
 	Vector2i(9, 20), Vector2i(28, 20), Vector2i(12, 39), Vector2i(12, 55), Vector2i(63, 2)
 ]
@@ -64,13 +68,13 @@ const CONE := Color(0.94, 0.42, 0.1)
 const CONE_HEIGHT := 0.72
 const POLE_HEIGHT := 2.6
 const SIGN_SIDE := 1.1
+## How far in front of its pole a plate stands, past the pole's own radius.
+const PLATE_OUT := 0.09
 const SIGN_PIXELS := 256
 const BLOCK_SIDE := 0.9
+const BLOCK_RESPAWN := 3600.0
 const STEEL := Color(0.66, 0.68, 0.72)
 const PAINT_WHITE := Color(0.93, 0.92, 0.88)
-## The L-plate on the kart: how big, and where on the kart it hangs, on the back under the flag.
-const PLATE_SIDE := 0.42
-const PLATE_AT := Vector3(0.0, 0.46, 0.76)
 
 
 ## A rectangular plate with words and an arrow on it, pointing [member arrow_turn] turns
@@ -122,22 +126,6 @@ static func add_to(for_arena: Arena) -> SchoolProps:
 	return props
 
 
-## The L-plate on the back of [param kart], for the whole test.
-static func learner_plate(kart: Kart) -> Node3D:
-	var body := kart.get_node_or_null("Body") as Node3D
-	if body == null:
-		return null
-	var plate := Node3D.new()
-	plate.name = "LearnerPlate"
-	plate.position = PLATE_AT
-	var face := SchoolFigure.of(SchoolFigure.Kind.LEARNER, 128.0)
-	var drawn := DrawnTexture.of(plate, face, Vector2i(128, 128))
-	var front := DrawnTexture.face(Vector2(PLATE_SIDE, PLATE_SIDE), DrawnTexture.decal(drawn))
-	plate.add_child(front)
-	body.add_child(plate)
-	return plate
-
-
 func _build() -> void:
 	var grid := arena.grid
 	var steel := surfaces.metal(STEEL)
@@ -156,9 +144,9 @@ func _build() -> void:
 	_sign(
 		SchoolFigure.Kind.ROUNDABOUT, pillar + Vector3(0.0, WALL_TOP, 0.0), ROUNDABOUT_TURN, steel
 	)
-	_plate(grid.cell_center(EXAM_PLATE) + Vector3(0.0, WALL_TOP, 0.0), -PI * 0.5, steel)
-	for cell: Vector2i in BLOCKS:
-		_block(grid.cell_center(cell))
+	_plate(grid.cell_center(EXAM_PLATE) + Vector3(0.0, WALL_TOP, 0.0), EXAM_PLATE_TURN, steel)
+	for i: int in BLOCKS.size():
+		_block(grid.cell_center(BLOCKS[i]), i)
 	_bunting(
 		grid.cell_center(BUNTING[0]) + Vector3(0.0, WALL_TOP, 0.0),
 		grid.cell_center(BUNTING[1]) + Vector3(0.0, WALL_TOP, 0.0),
@@ -186,9 +174,10 @@ func _sign(kind: SchoolFigure.Kind, foot: Vector3, turn: float, steel: Material)
 	var face := SchoolFigure.of(kind, SIGN_PIXELS)
 	var drawn := DrawnTexture.of(self, face, Vector2i(SIGN_PIXELS, SIGN_PIXELS))
 	var front := DrawnTexture.face(Vector2(SIGN_SIDE, SIGN_SIDE), DrawnTexture.decal(drawn))
-	var at := foot + Vector3(0.0, POLE_HEIGHT - SIGN_SIDE * 0.5 - 0.1, 0.0)
 	var forward := Vector3(sin(turn), 0.0, cos(turn))
-	front.position = at + forward * 0.04
+	# The plate stands in front of its pole, not round it.
+	var at := foot + Vector3(0.0, POLE_HEIGHT - SIGN_SIDE * 0.5 - 0.1, 0.0) + forward * PLATE_OUT
+	front.position = at + forward * 0.025
 	front.rotation.y = turn
 	add_child(front)
 	var back := _box(
@@ -207,31 +196,43 @@ func _plate(foot: Vector3, turn: float, steel: Material) -> void:
 	var pixels := Vector2i(512, 128)
 	var drawn := DrawnTexture.of(self, face, pixels)
 	var front := DrawnTexture.face(Vector2(2.4, 0.6), DrawnTexture.decal(drawn))
-	var at := foot + Vector3(0.0, POLE_HEIGHT - 0.45, 0.0)
 	var forward := Vector3(sin(turn), 0.0, cos(turn))
-	front.position = at + forward * 0.04
+	var at := foot + Vector3(0.0, POLE_HEIGHT - 0.45, 0.0) + forward * PLATE_OUT
+	front.position = at + forward * 0.025
 	front.rotation.y = turn
 	add_child(front)
 	var back := _box(Vector3(2.3, 0.56, 0.04), surfaces.painted(Color(0.2, 0.2, 0.22)), at)
 	back.rotation.y = turn
 
 
-## A learner block: a white cube with the L on each side of it.
-func _block(at: Vector3) -> void:
-	var cube := _box(
-		Vector3(BLOCK_SIDE, BLOCK_SIDE, BLOCK_SIDE),
-		surfaces.painted(PAINT_WHITE),
-		at + Vector3(0.0, BLOCK_SIDE * 0.5, 0.0)
-	)
+## A learner block: a white cube with the L on each side of it, a box like the arena's, see
+## [Crate], that a kart bumps and a shot breaks, and that stays broken for the rest of the test.
+func _block(at: Vector3, index: int) -> void:
+	var block := Crate.new()
+	block.name = "LearnerBlock%d" % index
+	block.respawn_delay = BLOCK_RESPAWN
+	block.position = at + Vector3(0.0, BLOCK_SIDE * 0.5, 0.0)
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3.ONE * BLOCK_SIDE
+	shape.shape = box
+	block.add_child(shape)
+	var cube := MeshInstance3D.new()
+	var mesh := BoxMesh.new()
+	mesh.size = Vector3.ONE * BLOCK_SIDE
+	cube.mesh = mesh
+	cube.material_override = surfaces.painted(PAINT_WHITE)
+	block.add_child(cube)
 	var face := SchoolFigure.of(SchoolFigure.Kind.LEARNER, 128.0)
-	var drawn := DrawnTexture.of(cube, face, Vector2i(128, 128))
+	var drawn := DrawnTexture.of(block, face, Vector2i(128, 128))
 	var decal := DrawnTexture.decal(drawn)
 	for side: int in 4:
 		var turn := PI * 0.5 * float(side)
 		var front := DrawnTexture.face(Vector2(BLOCK_SIDE * 0.82, BLOCK_SIDE * 0.82), decal)
 		front.position = Vector3(sin(turn), 0.0, cos(turn)) * (BLOCK_SIDE * 0.5 + 0.01)
 		front.rotation.y = turn
-		cube.add_child(front)
+		block.add_child(front)
+	add_child(block)
 
 
 ## Bunting: a string between two poles with pennants in the players' colors along it.

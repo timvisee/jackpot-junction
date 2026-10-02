@@ -14,15 +14,15 @@ var _runner: GdUnitSceneRunner
 var _was_path := ""
 var _was_modes: Array[String] = []
 var _was_done := false
-var _was_offered := false
+var _was_license := ""
 
 
 func before_test() -> void:
-	# Nothing here writes the real settings file: the pads and the title's offer both save.
+	# Nothing here writes the real settings file: the pads and the license both save.
 	_was_path = Game.settings.path
 	_was_modes = Game.settings.drive_modes.duplicate()
 	_was_done = Game.settings.tutorial_done
-	_was_offered = Game.settings.tutorial_offered
+	_was_license = Game.settings.license_number
 	Game.settings.path = "user://tutorial_test.cfg"
 	Game.settings.drive_modes = ["advanced", "", "", ""]
 
@@ -41,7 +41,7 @@ func after_test() -> void:
 	Game.settings.path = _was_path
 	Game.settings.drive_modes = _was_modes
 	Game.settings.tutorial_done = _was_done
-	Game.settings.tutorial_offered = _was_offered
+	Game.settings.license_number = _was_license
 
 
 ## Every cell that can be driven to from the player's spawn, the corridor's, treating

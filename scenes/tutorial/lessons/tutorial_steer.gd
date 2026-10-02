@@ -52,7 +52,7 @@ func step(_delta: float) -> void:
 		or here.distance_to(run.cell(ADVANCED_PAD)) < NEAR_PADS
 	)
 	if near_pads and not run.notice.is_saying(&"modes"):
-		run.notice.say(&"modes", MODES_WORDS, false, [InputActions.PAUSE])
+		run.notice.say(&"modes", MODES_WORDS, [InputActions.PAUSE])
 	elif not near_pads:
 		run.notice.clear(&"modes")
 	var motor := kart().motor

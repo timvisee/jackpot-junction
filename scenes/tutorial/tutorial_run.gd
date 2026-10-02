@@ -302,6 +302,8 @@ func _complete(lesson: TutorialLesson) -> void:
 	Audio.play_sfx(TICK, -6.0, 0.0)
 	if reveal != null:
 		reveal.pointer_done()
+		for piece: StringName in lesson.ensures:
+			reveal.ensure_shown(piece)
 	lesson.end()
 	list.finish_lesson(lesson)
 	hint.clear()

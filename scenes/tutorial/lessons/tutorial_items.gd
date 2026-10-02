@@ -64,6 +64,7 @@ var _slot_shown := false
 
 func _init() -> void:
 	title = "Items"
+	ensures = [&"item"]
 	ordered = false
 	gate_cell = Vector2i(2, 18)
 	spawn_cell = Vector2i(24, 10)
@@ -142,7 +143,7 @@ func _prepare() -> void:
 
 
 func _begin() -> void:
-	run.notice.say(&"items", WORDS, false, [InputActions.USE_ITEM])
+	run.notice.say(&"items", WORDS, [InputActions.USE_ITEM])
 	for target: Target in arena().targets:
 		target.struck.connect(_on_struck)
 	Events.item_picked.connect(_on_picked)

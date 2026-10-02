@@ -3,8 +3,8 @@ extends Control
 ## The driver license the driving test ends on, GAME.md 9.4a: a card the shape of one in a
 ## wallet, cream paper under a dark band, the game's mark and DRIVER LICENSE on the band, the
 ## holder's kart in their own color and hat in the photo, turning slowly as a photo of a kart
-## should, their name large beside it, the class, K for Kart, the day it was issued and NEVER
-## for when it expires, a number of its own, the endorsements earned in the final exam as chips
+## should, their name large beside it, the class, K for Kart, the day it was issued and the day,
+## 420 years on, it expires, a number of its own, the endorsements earned in the final exam as chips
 ## along the foot, lit for the ones earned, a signature in blue ink, and the fine print. Drawn,
 ## as every picture in the game is, 8.3a, so it is one control that can be shaken and stamped.
 ## The stamp's impression is drawn on it once it has come down, see [RubberStamp].
@@ -28,7 +28,8 @@ const AGENCY := "JACKPOT JUNCTION  ·  DEPT. OF KARTS"
 const TITLE := "DRIVER LICENSE"
 const CLASS_WORD := "CLASS K"
 const CLASS_LINE := "K  ·  Kart"
-const EXPIRES := "NEVER"
+## How long a license is good for, in years: unreasonably.
+const GOOD_FOR := 420
 const MICRO := "VALID ON ALL TABLES  ·  NOT VALID AS ID  ·  KEEP OFF THE FELT  ·  NO CASH VALUE"
 ## The stamp's mark, where it lands and how it lies: the lower right, a little askew.
 const STAMP_AT := Vector2(474.0, 296.0)
@@ -83,6 +84,37 @@ static func today() -> String:
 	return Time.get_date_string_from_system()
 
 
+## When a license issued on [param issued] expires: the same day, [constant GOOD_FOR] years on.
+static func expiry(issued: String) -> String:
+	if issued.length() < 4 or not issued.substr(0, 4).is_valid_int():
+		return "NEVER"
+	return "%04d%s" % [issued.substr(0, 4).to_int() + GOOD_FOR, issued.substr(4)]
+
+
+## The license this machine holds, as the settings keep it, GAME.md 9.4a, stamped as it was:
+## for the title and the settings to show. The kart in the photo is the first seat's.
+static func from_settings() -> LicenseCard:
+	var settings := Game.settings
+	var holder := settings.license_holder
+	if holder.is_empty():
+		holder = settings.player_names[0]
+	if holder.is_empty():
+		holder = "Player 1"
+	var earned: Dictionary[String, bool] = {}
+	for word: String in TutorialFight.ENDORSEMENTS:
+		earned[word] = word in settings.license_endorsements
+	var card := create(
+		holder,
+		settings.license_number,
+		settings.license_date,
+		0,
+		KartStyle.from_array(settings.kart_styles[0]),
+		earned
+	)
+	card.stamped = true
+	return card
+
+
 func _ready() -> void:
 	custom_minimum_size = SIZE
 	size = SIZE
@@ -131,10 +163,12 @@ func _build_photo() -> void:
 	_photo.add_child(viewport)
 	_kart = KartVisuals.display_model(color_index, style)
 	_kart.rotation.y = 0.6
+	# Low in the frame, so the hat has the room.
+	_kart.position.y = -0.22
 	viewport.add_child(_kart)
 	var camera := Camera3D.new()
 	camera.fov = 34.0
-	camera.look_at_from_position(Vector3(0.0, 1.5, 3.3), Vector3(0.0, 0.72, 0.0), Vector3.UP)
+	camera.look_at_from_position(Vector3(0.0, 1.55, 3.3), Vector3(0.0, 0.9, 0.0), Vector3.UP)
 	viewport.add_child(camera)
 	var light := DirectionalLight3D.new()
 	light.light_energy = 1.1
@@ -234,7 +268,14 @@ func _draw_fields() -> void:
 		Vector2(COLUMN + 168.0, 134.0), "LICENSE NO.", number, 19, Type.numbers_text_font(), 166.0
 	)
 	_field(Vector2(COLUMN, 180.0), "ISSUED", issued, 19, Type.numbers_text_font(), 160.0)
-	_field(Vector2(COLUMN + 168.0, 180.0), "EXPIRES", EXPIRES, 19, Type.STRONG, 166.0)
+	_field(
+		Vector2(COLUMN + 168.0, 180.0),
+		"EXPIRES",
+		expiry(issued),
+		19,
+		Type.numbers_text_font(),
+		166.0
+	)
 
 
 ## One field: a small gray label with its value under it, cut to [param width].

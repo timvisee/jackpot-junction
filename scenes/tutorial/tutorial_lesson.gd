@@ -31,6 +31,9 @@ var next_cell := Vector2i(-1, -1)
 ## pointer at them stays up until, or null for the first task done.
 var reveals: Array[Array] = []
 var pointer_until: TutorialTask
+## The pieces of the HUD that are in the corner once this lesson is over, however it went: the
+## item slot a lesson skipped never pointed at, say.
+var ensures: Array[StringName] = []
 ## Whether the pause menu may pass this lesson: every lesson but the fight.
 var skippable := true
 ## Whether every task is on the list from the start though they are done in order: the fight's

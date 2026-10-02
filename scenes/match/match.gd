@@ -9,10 +9,8 @@ enum State { LOBBY, COUNTDOWN, PLAYING, LAST_CALL, OVERTIME, RESULTS }
 const ARENA_SCENE := preload("res://scenes/arena/arena.tscn")
 const KART_SCENE := preload("res://scenes/kart/kart.tscn")
 const CAMERA_SCENE := preload("res://scenes/camera/camera_rig.tscn")
-## Lamps on the start gantry, GAME.md 8.3. The rack and the start tones are one countdown: a
-## lamp lights and a tone plays together, so however long the countdown is set to, there are
-## this many of both. Three of them over the usual three seconds is a lamp a second, which is
-## the pace anyone counting a field down actually counts at.
+## Lamps on the start gantry, GAME.md 8.3: a lamp lights and a tone plays together, this many of
+## both however long the countdown is, three over three seconds being the pace anyone counts at.
 const COUNTDOWN_LAMPS := 3
 
 @export var rules: MatchRules
@@ -52,11 +50,9 @@ var loading := Vector2i.ZERO
 var finale: GrandPrixFinale
 ## The slot the local player controls in a puppet match, -1 until assigned.
 var local_slot := -1
-## On a client, the input its session is polling and sending to the host. The local player's kart
-## is a puppet, but it is still the one they are steering, so anything drawn from where they are
-## pointing reads this rather than an input nobody fills in. Always a [PlayerInput] or null: a
-## player at this machine is what that type means, here and everywhere else, and the corner block
-## and the joker hand are hung on the local slot holding one.
+## On a client, the input its session is polling and sending to the host: the local player's kart
+## is a puppet, but still the one they are steering, so anything drawn from where they are pointing
+## reads this. Always a [PlayerInput] or null: a player at this machine is what that type means.
 var local_input: PlayerInput
 ## On a client, every seat played at this machine, by slot, with the input it is played on: the
 ## first, [member local_slot], and any other player who sat down beside them, GAME.md 10.3.
@@ -199,11 +195,10 @@ func start(
 		_begin_countdown()
 
 
-## Tears everything down and starts again with the same players and a fresh seed.
-##
-## The same players means whoever is at the table now, not whoever the lobby started with. A
-## player who joined mid-match, took over a bot, or arrived over a wire is still here for the
-## next one, and starting again from the lobby's list handed their kart to a bot while they went
+## Tears everything down and starts again with the same players and a fresh seed. The same
+## players means whoever is at the table now, not whoever the lobby started with: a player who
+## joined mid-match, took over a bot, or arrived over a wire is still here for the next one, and
+## starting again from the lobby's list handed their kart to a bot while they went
 ## on driving it: online that broke every client at once, since each of them kept steering a kart
 ## the host had given to a bot.
 func rematch() -> void:
@@ -334,6 +329,7 @@ func _make_human(slot: PlayerSlot, input: KartInput) -> void:
 	StyleStalls.dress(slot, _style_for(slot.index, input).to_array())
 	slot.kart.rebuild_stats()
 	slot.kart.enable_sound(true, not slot.is_local_human())
+	_plate(slot)
 	refresh_listener()
 	if hud != null:
 		hud.add_block(slot)
@@ -415,9 +411,8 @@ func _on_joy_connection_changed(device: int, connected: bool) -> void:
 
 
 ## What a host and a client both have around the arena: the bullets, the excitement meter and
-## the camera framing the floor. The only difference is whether the bullets are driven here or
-## replayed from snapshots, so everything else stays one description rather than two that have
-## to be kept in step by hand.
+## the camera framing the floor, the one difference being whether the bullets are driven here or
+## replayed from snapshots.
 func _build_systems(from_snapshots: bool) -> void:
 	bullets = BulletSystem.new()
 	bullets.name = "Bullets"
@@ -451,11 +446,10 @@ func _add_intensity() -> void:
 	add_child(announcer)
 
 
-## Instantiates the arena on the chosen map. The layout has to be in place before the node
-## enters the tree, because that is when it builds itself.
-## The room, built. A loader that means to show a progress bar asks for it with [param stepped],
-## runs [method Arena.build_steps] itself and then starts the match, GAME.md 8.6; everything else
-## lets this build it in one go when the match starts.
+## The room, built, its layout in place before it enters the tree, which is when it builds
+## itself. A loader that means to show a progress bar asks for it with [param stepped], runs
+## [method Arena.build_steps] itself and then starts the match, GAME.md 8.6; everything else lets
+## this build it in one go when the match starts.
 func prepare_arena(stepped := false) -> Arena:
 	if arena == null:
 		arena = _build_arena(stepped)
@@ -513,6 +507,16 @@ func set_local_slot(index: int, input: KartInput = null) -> void:
 ## Another player at this client, in [param index] on [param input], or one of them gone again.
 func add_local_seat(index: int, input: PlayerInput) -> void:
 	local_seats[index] = input
+	for slot: PlayerSlot in slots:
+		if slot.index == index:
+			_plate(slot)
+
+
+## The plate on the back of [param slot]'s kart where the kart is somebody's at this machine,
+## GAME.md 4.4: the learner's L until the machine has its license, the plate chosen after.
+func _plate(slot: PlayerSlot) -> void:
+	if slot.kart != null and (slot.is_local_human() or is_local_seat(slot.index)):
+		KartVisuals.plate_for_here(slot.kart)
 
 
 func drop_local_seat(index: int) -> void:
@@ -634,6 +638,7 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 	kart.mult_changed.connect(_on_stat_mult.bind(slot))
 	slot.kart = kart
 	kart.enable_sound(true, not slot.is_local_human())
+	_plate(slot)
 	if slot.input is BotInput:
 		_attach_brain(slot)
 
@@ -832,10 +837,9 @@ func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> voi
 
 
 ## GAME.md 3.9: every pad a kart is holding trickles coins into its pot, so the pads are worth
-## driving over even when a flush is out of reach. A holder who is dead, falling or rolling out
-## the end of the match earns nothing while they are; the pad simply waits for them. The
-## trickle runs with the room: at the top excitement level of 8.4 the pads pay three times what
-## they pay over a quiet opening lap, so a hot match is worth being out in.
+## driving over even when a flush is out of reach; a holder dead, falling or rolling out the end
+## of the match earns nothing meanwhile. The trickle runs with the room: at the top excitement
+## level of 8.4 the pads pay three times what they pay over a quiet opening lap.
 func _step_flush_income(delta: float) -> void:
 	var rate := rules.flush_pad_income * lerpf(1.0, rules.flush_pad_income_hot, intensity.share())
 	var locked := _step_flush_lock(delta)

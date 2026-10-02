@@ -280,6 +280,13 @@ func pointer_done() -> void:
 	_ring.visible = false
 
 
+## [param piece] in the corner from here on, with nothing said about it: for a lesson over that
+## never got to point at it.
+func ensure_shown(piece: StringName) -> void:
+	if piece in PIECES:
+		shown[piece] = true
+
+
 func is_pointing() -> bool:
 	return _pointing != &""
 

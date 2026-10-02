@@ -18,6 +18,9 @@ const STEP_LINES: Array[String] = [
 	"Stamped, signed and yours to keep.",
 ]
 const NUMBER_SIDE := 34.0
+const DONE := Color(0.36, 0.9, 0.46)
+const PENDING_INK := Color(0.62, 0.62, 0.68)
+const PENDING_LINE := Color(0.48, 0.48, 0.54)
 const BUTTON := Vector2(420.0, 60.0)
 const FIELD_WIDTH := 360.0
 
@@ -25,19 +28,33 @@ var field: LineEdit
 var enroll: Button
 
 
-## The numbered disc in front of a step of the course, in the house's gold.
+## The numbered disc in front of a step of the course, in the house's gold, or a green disc with
+## a check in it for a step done.
 class Number:
 	extends Control
 
 	var number := 1
+	var done := false
 
-	func _init(of: int) -> void:
+	func _init(of: int, is_done := false) -> void:
 		number = of
+		done = is_done
 		custom_minimum_size = Vector2(NUMBER_SIDE, NUMBER_SIDE)
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	func _draw() -> void:
 		var middle := size * 0.5
+		if done:
+			draw_circle(middle, NUMBER_SIDE * 0.5, DONE)
+			var stroke := PackedVector2Array(
+				[
+					middle + Vector2(-8.0, 0.0),
+					middle + Vector2(-2.5, 6.0),
+					middle + Vector2(8.0, -6.0)
+				]
+			)
+			draw_polyline(stroke, Color.WHITE, 3.0, true)
+			return
 		draw_circle(middle, NUMBER_SIDE * 0.5, Palette.CHIP_GOLD)
 		var font := Type.display_font()
 		var font_size := 19
@@ -95,7 +112,7 @@ func _ready() -> void:
 	field.custom_minimum_size = Vector2(FIELD_WIDTH, MenuTheme.box_height())
 	field.text_submitted.connect(func(_text: String) -> void: _enroll())
 	inside.add_child(MenuTheme.row("Your name on the license", field))
-	inside.add_child(_course())
+	inside.add_child(course(0))
 	enroll = MenuTheme.button("Enroll", Type.HEADING)
 	enroll.name = "Enroll"
 	enroll.custom_minimum_size = BUTTON
@@ -105,9 +122,11 @@ func _ready() -> void:
 	enroll.grab_focus()
 
 
-## The three steps of the course, numbered, each with a line under it.
-func _course() -> Control:
+## The three steps of the course, numbered, each with a line under it, the first [param done]
+## of them ticked green and the rest, still to come, a shade dimmer.
+static func course(done: int) -> Control:
 	var card := PanelContainer.new()
+	card.name = "Course"
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(1.0, 1.0, 1.0, 0.05)
 	style.set_corner_radius_all(MenuTheme.BUTTON_RADIUS)
@@ -119,18 +138,20 @@ func _course() -> Control:
 	for i: int in STEPS.size():
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 14)
-		var number := Number.new(i + 1)
+		var is_done := i < done
+		var pending := done > 0 and not is_done
+		var number := Number.new(i + 1, is_done)
 		number.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		row.add_child(number)
 		var words := VBoxContainer.new()
 		words.add_theme_constant_override("separation", 0)
 		var title := Label.new()
-		title.text = STEPS[i]
-		Type.strong(title, Type.BODY, Color(0.92, 0.92, 0.95))
+		title.text = STEPS[i] + ("  ·  done" if is_done else "")
+		Type.strong(title, Type.BODY, PENDING_INK if pending else Color(0.92, 0.92, 0.95))
 		words.add_child(title)
 		var line := Label.new()
 		line.text = STEP_LINES[i]
-		Type.text(line, Type.LABEL, Color(0.66, 0.66, 0.72))
+		Type.text(line, Type.LABEL, PENDING_LINE if pending else Color(0.66, 0.66, 0.72))
 		words.add_child(line)
 		row.add_child(words)
 		rows.add_child(row)

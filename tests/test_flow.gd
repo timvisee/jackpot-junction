@@ -167,7 +167,7 @@ func test_menu_scenes_build() -> void:
 	assert_str(config.difficulty).is_equal("hard")
 	var settings: Control = auto_free(SETTINGS_SCENE.instantiate())
 	add_child(settings)
-	assert_int(settings.tabs.get_tab_count()).is_equal(6)
+	assert_int(settings.tabs.get_tab_count()).is_equal(7)
 
 
 ## GAME.md 3.8: somebody joining a friend's match never passes through the local lobby, so the

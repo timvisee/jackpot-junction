@@ -2,20 +2,17 @@ class_name TutorialNotice
 extends PanelContainer
 ## The tutorial's word at the top of the screen, GAME.md 9.4a: a line or two about the thing in
 ## front of the player, the two ways to drive, what an item is, what a joker is, what the pot and
-## the bank are, at the top edge, under the fight's bar while that is up, and the welcome at the
-## very start with the game's mark over it and its name under it, the panel no wider than its
-## words. A line may name a control, drawn
-## in for the device in hand the way the hint over the kart draws it, a key, a pad button, a touch
-## button, or the menu button of a touch screen. Each lesson says its piece by a key of its own
-## and clears only that, so one lesson's word never wipes another's; a lesson ending clears
-## whatever is up. An information mark stands in front of every word but the welcome, so the
-## panel reads as a note and not as something to answer.
+## the bank are, at the top edge, under the fight's bar while that is up, the panel no wider than
+## its words. A line may name a control, drawn in for the device in hand the way the hint over
+## the kart draws it, a key, a pad button, a touch button, or the menu button of a touch screen.
+## Each lesson says its piece by a key of its own and clears only that, so one lesson's word
+## never wipes another's; a lesson ending clears whatever is up. An information mark stands in
+## front of every word, so the panel reads as a note and not as something to answer.
 
 signal changed
 
 const INK := Palette.CHIP_WHITE
 const FADE := 0.25
-const MARK_SIDE := 110.0
 const INFO_SIDE := 22.0
 const TOP := 16.0
 
@@ -23,8 +20,6 @@ const TOP := 16.0
 var keyboard := true
 
 var _lines: VBoxContainer
-var _mark: Control
-var _title: Label
 var _info: Control
 var _key := &""
 var _said := ""
@@ -81,14 +76,6 @@ func _ready() -> void:
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_theme_constant_override("separation", 8)
 	add_child(column)
-	_mark = CenterContainer.new()
-	_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var logo := LogoArt.new()
-	logo.plate = false
-	logo.custom_minimum_size = Vector2(MARK_SIDE, MARK_SIDE)
-	_mark.add_child(logo)
-	_mark.visible = false
-	column.add_child(_mark)
 	var row := HBoxContainer.new()
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_theme_constant_override("separation", 16)
@@ -102,20 +89,12 @@ func _ready() -> void:
 	_lines.add_theme_constant_override("separation", 2)
 	_lines.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_child(_lines)
-	# The game's name under the welcome, in the gold the title screen writes it in.
-	_title = MenuTheme.title("Jackpot Junction", Type.TITLE)
-	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	HudText.shadowed(_title, 2)
-	_title.visible = false
-	column.add_child(_title)
 	visible = false
 
 
 ## Says [param text], as [param key], in place of whatever was up, a line per line of it, each
-## gap in it filled with the control of the next of [param actions] for the device in hand; or
-## for [param welcome] with the game's mark over it and the game's name under it, and no
-## information mark, since a welcome is not a note.
-func say(key: StringName, text: String, welcome := false, actions: Array[StringName] = []) -> void:
+## gap in it filled with the control of the next of [param actions] for the device in hand.
+func say(key: StringName, text: String, actions: Array[StringName] = []) -> void:
 	_key = key
 	_said = text
 	for old: Node in _lines.get_children():
@@ -128,9 +107,6 @@ func say(key: StringName, text: String, welcome := false, actions: Array[StringN
 		var row := InputHint.row(line, parts, INK, Type.BODY)
 		row.alignment = BoxContainer.ALIGNMENT_CENTER
 		_lines.add_child(row)
-	_mark.visible = welcome
-	_title.visible = welcome
-	_info.visible = not welcome
 	if not visible:
 		visible = true
 		modulate.a = 0.0

@@ -4,8 +4,9 @@ extends Control
 ## passed, on the pane the podium is cut from with the player's color along its top: YOU PASSED,
 ## a word from the examiner, the license itself, see [LicenseCard], with the rubber stamp hanging
 ## over its corner, see [RubberStamp], and a line saying to press it. Stamped, the card takes its
-## mark and shakes, and the ways on come up under it: the Garage, the road, which is Play, and
-## the title. Nothing leaves this screen without stamping: the stamp is the point.
+## mark and shakes, and the ways on come up under it with the plate for the back of the kart to
+## choose: the Garage, the road, which is Play, and the title. Nothing leaves this screen without
+## stamping: the stamp is the point.
 
 ## The stamp came down.
 signal stamped
@@ -35,11 +36,19 @@ const STAMP_LANDS := Vector2(
 	LicenseCard.STAMP_AT.x - RubberStamp.SIZE.x * 0.5, LicenseCard.STAMP_AT.y - STAMP_FOOT
 )
 const STAMP_ROOM := 84.0
+## The room over and under the card on the desk.
+const PAD := 22.0
+## The plate to choose, under the congratulations: the label, and the line under the box.
+const PLATE_LABEL := "Your license plate"
+const PLATE_LINE := "Up to %d letters, digits, spaces and dashes, on the back of your kart."
 const SHAKES := 5
 const SHAKE := 7.0
 
 var card: LicenseCard
 var stamp: RubberStamp
+## The box the plate is typed into, and the plate as it will read.
+var plate_field: LineEdit
+var plate: LicensePlate
 ## What each way on does: the scenes, unless a test says otherwise.
 var ways: Dictionary[StringName, Callable] = {}
 var buttons: Dictionary[StringName, Button] = {}
@@ -103,24 +112,27 @@ func _ready() -> void:
 	column.add_child(gap)
 	_desk = Control.new()
 	_desk.name = "Desk"
-	_desk.custom_minimum_size = LicenseCard.SIZE
+	_desk.custom_minimum_size = LicenseCard.SIZE + Vector2(0.0, PAD * 2.0)
 	_desk.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_desk.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(_desk)
+	card.position = Vector2(0.0, PAD)
 	_desk.add_child(card)
 	stamp = RubberStamp.create()
-	stamp.position = STAMP_HANGS
-	stamp.lands_at = STAMP_LANDS
+	stamp.position = STAMP_HANGS + Vector2(0.0, PAD)
+	stamp.lands_at = STAMP_LANDS + Vector2(0.0, PAD)
 	stamp.stamped.connect(_on_stamped)
+	stamp.device_changed.connect(_say_how)
 	_desk.add_child(stamp)
-	var press := "Tap" if TouchInput.enabled else "Click"
-	_hint = MenuTheme.subtitle(STAMP_LINE % press, Type.BODY)
+	_hint = MenuTheme.subtitle("", Type.BODY)
 	column.add_child(_hint)
+	_say_how()
 	_foot = VBoxContainer.new()
 	_foot.name = "Ways"
 	_foot.add_theme_constant_override("separation", 10)
 	_foot.add_child(MenuTheme.title(DONE_TITLE % card.holder_name, Type.HEADING))
 	_foot.add_child(MenuTheme.subtitle(DONE_LINE, Type.BODY))
+	_foot.add_child(_plate_row())
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 16)
@@ -137,6 +149,42 @@ func _ready() -> void:
 	var rise := create_tween()
 	rise.tween_property(self, "modulate:a", 1.0, RISE)
 	stamp.grab_focus()
+
+
+## How the stamp is pressed, under the card, for the device in hand.
+func _say_how() -> void:
+	_hint.text = STAMP_LINE % stamp.press_word()
+
+
+## The plate for the back of the kart, GAME.md 4.4: a box to type it into, starting from the one
+## the settings suggest, with the plate as it will read beside it, kept as it is typed.
+func _plate_row() -> Control:
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 6)
+	plate_field = MenuTheme.field(
+		Game.settings.license_plate, LicensePlate.BLANK, LicensePlate.MOST
+	)
+	plate_field.name = "Plate"
+	plate_field.custom_minimum_size = Vector2(220.0, MenuTheme.box_height())
+	plate_field.text_changed.connect(_on_plate_typed)
+	var row := MenuTheme.row(PLATE_LABEL, plate_field)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	plate = LicensePlate.of(Game.settings.license_plate, 168.0)
+	plate.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(plate)
+	box.add_child(row)
+	box.add_child(MenuTheme.subtitle(PLATE_LINE % LicensePlate.MOST, Type.LABEL))
+	return box
+
+
+func _on_plate_typed(text: String) -> void:
+	var cleaned := LicensePlate.clean(text)
+	if cleaned != text:
+		var caret := plate_field.caret_column
+		plate_field.text = cleaned
+		plate_field.caret_column = mini(caret, cleaned.length())
+	Game.settings.license_plate = cleaned
+	plate.set_text(cleaned)
 
 
 func _on_stamped() -> void:
@@ -178,6 +226,8 @@ func offering() -> bool:
 
 
 func _choose(way: StringName) -> void:
+	# The plate as it was left, kept.
+	Game.settings.save_to_disk()
 	chosen.emit(way)
 	if ways.has(way) and (ways[way] as Callable).is_valid():
 		(ways[way] as Callable).call()

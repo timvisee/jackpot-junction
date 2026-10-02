@@ -162,7 +162,9 @@ static func billboard(content: Control, pixel_size: float) -> Node3D:
 	# sorted, which has not happened yet, and a viewport cut to the answer from before that is a
 	# hint with its last word chopped off.
 	content.minimum_size_changed.connect(_fit.bind(viewport, content))
-	_fit.call_deferred(viewport, content)
+	# Through a closure rather than a deferred call with the two as arguments: a hint freed before
+	# the end of the frame would hand the call freed objects, which it cannot take as typed ones.
+	(func() -> void: _fit(viewport, content)).call_deferred()
 	var sprite := Sprite3D.new()
 	sprite.name = "Face"
 	sprite.texture = viewport.get_texture()
@@ -186,7 +188,9 @@ static func redraw(holder: Node3D, content: Control) -> void:
 		old.queue_free()
 	viewport.add_child(content)
 	content.minimum_size_changed.connect(_fit.bind(viewport, content))
-	_fit.call_deferred(viewport, content)
+	# Through a closure rather than a deferred call with the two as arguments: a hint freed before
+	# the end of the frame would hand the call freed objects, which it cannot take as typed ones.
+	(func() -> void: _fit(viewport, content)).call_deferred()
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 

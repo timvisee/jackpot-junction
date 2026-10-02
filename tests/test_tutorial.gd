@@ -149,12 +149,8 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_int(run.list.listed()).is_equal(1)
 	assert_str(run.list._title.text).is_equal("Driving test  ·  Driving")
 	assert_bool(tutorial._skip_entry.visible).is_true()
-	# The welcome at the top, with the mark, until the kart has driven a few meters.
-	assert_bool(run.notice.is_saying(&"welcome")).is_true()
-	assert_str(run.notice.said()).contains("Welcome")
-	assert_bool(run.notice._mark.visible).is_true()
-	assert_bool(run.notice._title.visible).is_true()
-	assert_bool(run.notice._info.visible).is_false()
+	# No word at the top: the driving school greeted the player already.
+	assert_bool(run.notice.visible).is_false()
 	assert_bool(run.kart().banks_passively).is_false()
 	# The kill feed hangs under the list, not behind it.
 	var feed := tutorial.match_node.hud.kill_feed()
@@ -192,9 +188,6 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_bool(opened).override_failure_message("the gate never opened").is_true()
 	assert_bool(lesson.is_done()).is_true()
 	assert_object(run.waiting_at).is_same(gate)
-	assert_bool(run.notice.is_saying(&"welcome")).is_false()
-	# The notice is no wider than its words.
-	assert_float(run.notice.size.x).is_less(600.0)
 	# The list is a big green check for a second, under the lesson's name, then nothing until
 	# the next lesson.
 	assert_bool(run.list.is_checking()).is_true()
