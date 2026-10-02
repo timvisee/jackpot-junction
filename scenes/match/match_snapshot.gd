@@ -123,6 +123,7 @@ static func _karts(match_node: Match) -> Array:
 					"slot": kart.slot,
 					"color": kart.color_index,
 					"style": kart.style.to_array(),
+					"plate": KartVisuals.plate_worn(kart),
 					"x": kart.global_position.x,
 					"z": kart.global_position.z,
 					"h": kart.motor.heading,
@@ -563,6 +564,12 @@ static func _apply_karts(match_node: Match, entries: Array) -> void:
 				var was := kart.style
 				kart.style = KartStyle.from_array(style)
 				KartVisuals.redress(kart, was)
+		if kart != null and entry.has("plate"):
+			# The plate on its back as the host has it, GAME.md 4.4: a learner's L, a license plate,
+			# or none, put on or taken off as the host's word changes.
+			var worn: String = entry["plate"]
+			if worn != KartVisuals.plate_worn(kart):
+				KartVisuals.plate_like(kart.get_node_or_null("Body") as Node3D, worn)
 		if kart == null:
 			kart = match_node.KART_SCENE.instantiate()
 			kart.name = "Puppet%d" % id
@@ -574,6 +581,7 @@ static func _apply_karts(match_node: Match, entries: Array) -> void:
 				kart.decoy_owner = kart
 			match_node.add_child(kart)
 			kart.make_puppet()
+			KartVisuals.plate_like(kart.get_node_or_null("Body") as Node3D, entry.get("plate", ""))
 			kart.global_position = Vector3(entry["x"], 0.0, entry["z"])
 			match_node.puppet_karts[id] = kart
 			if not entry["decoy"] and entry["slot"] < match_node.slots.size():

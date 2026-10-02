@@ -1170,11 +1170,14 @@ short buzz the slider gives, so reading along the row is felt card by card.
   this machine has earned the driver license of 9.4a, and the license plate its
   driver chose after, up to eight characters in black on a pale plate with a
   dark rim and a bolt in each corner, chosen as the license is issued and
-  changed on the License tab of the settings, 8.5. A bot wears one too: the
+  changed, or cleared for a bare bumper, on the License tab of the settings,
+  8.5. A bot wears one too: the
   easiest bots are learners, with the L, and the rest hold a license, with a
   plate drawn from their name and the match's seed, "HUN-382" for a Hunter;
-  the tutorial's normal bot takes its plate as it is let out. Karts from other
-  machines wear none.
+  the tutorial's normal bot takes its plate as it is let out. Online, 10.3, a
+  client says what its seats wear as it says their name and dress, the host
+  puts it on, and the snapshot carries every kart's plate to every screen, so a
+  kart wears the same plate on every machine.
 - They are picked by driving rather than from a menu, at the stalls: a pad on
   the floor for each of the four, with PAINT, HAT, FLAG and TRAIL on it, along
   the back wall of the waiting room of 9.6 and the front wall of the Garage of
@@ -4031,7 +4034,16 @@ as chips in two rows, KO, MULT 4, JACKPOT, ROYAL FLUSH,
 CASH-OUT, ITEMS and FULL HAND, gold for the ones earned on their own in the exam
 and a faint outline for the rest; the holder's name slanted in blue ink over a
 SIGNATURE line under the photo; and the fine print along the foot, VALID ON ALL
-TABLES · NOT VALID AS ID · KEEP OFF THE FELT · NO CASH VALUE. The card has air
+TABLES · NOT VALID AS ID · KEEP OFF THE FELT · NO CASH VALUE. The card has a
+back, which it turns over to show on a click or a tap on it or on Turn it over
+where it is shown in full, narrowing to nothing about its middle and widening
+again the other way up: a magnetic stripe along the top, a hologram, rings of
+light whose colors run round and a sheen that sweeps across them as the card is
+looked at, with the game's mark in the middle, PROPERTY OF THE DEPT. OF KARTS
+with the small print of whose card it is, "If found, return to the nearest
+Junction. Any Junction.", the examiner's own signature, the number as a
+barcode, and, for whoever reads that far, a cheat code, up up down down left
+right left right B A, "Does nothing. We checked." The card has air
 over and under it on the pane. The rubber stamp, a wooden handle on a red base,
 hangs off the card's right edge over its own shadow, breathing a little and
 leaning a good way after the mouse as it moves, over the card if the mouse is
@@ -4056,9 +4068,11 @@ and a third off the screen, sliding in straight under the cursor and back out
 from under it, and shown in full over a shade on a click or a tap, or on the
 button that opens the hand of jokers, 3.7, Tab or Y say, drawn in the bottom
 right corner of the title with License beside it for the device last touched, the
-way a joker is shown out of the hand, with Put it away under it and a click
-anywhere, Back or the same button putting it away; and on the License tab of
-the settings, 8.5, with the plate to change under it.
+way a joker is shown out of the hand, with Turn it over and Put it away under
+it and a line saying what puts it away for the device in hand, its Back drawn
+in, a click beside the card with a mouse, a tap on a touch screen, and never a
+click on a pad; and on the License tab of the settings, 8.5, with the plate to
+change under it.
 
 A map may hold more than one Junction, each banking as the one does, and the
 Royal Flush is per room for the same reason: a map of rooms wants each room's

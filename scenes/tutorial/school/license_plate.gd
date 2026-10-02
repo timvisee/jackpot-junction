@@ -72,6 +72,14 @@ static func for_bot(trait_name: String, rng: RandomNumberGenerator) -> String:
 	return suggest(called, "%06d" % rng.randi_range(0, 999999))
 
 
+## [param worn] as a kart may wear it, off the wire, GAME.md 10.3: nothing, the learner's L, or a
+## plate's text cleaned the way a typed one is.
+static func valid(worn: String) -> String:
+	if worn == "L":
+		return worn
+	return clean(worn)
+
+
 func set_text(words: String) -> void:
 	text = words
 	queue_redraw()

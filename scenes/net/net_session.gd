@@ -34,17 +34,13 @@ const HANDSHAKE_TIMEOUT := 5.0
 const SNAPSHOT_EVERY_TICKS := 2
 
 ## Whether this process is in the middle of raising an event a host relayed to it, which is never
-## relayed again. Shared by every session in the process: in a test that runs a host and a client
-## side by side, both hearing the one [Events], the client raising the host's player_joined was
-## the host hearing it again, and the two passed it back and forth a hundred and fifty times a
-## second. A game has one session, and a host is never relayed anything, so it changes nothing
-## there.
+## relayed again. Shared by every session in the process: a test running a host and a client side
+## by side, both hearing the one [Events], had them passing player_joined back and forth forever.
 static var _replaying := false
 
 ## The match this session is playing, or null while it is between rooms. Let go of the moment the
-## match leaves the tree: a session outlives the rooms it is played in, see GAME.md 10.3, and in
-## the frames between one room going and the next one taking over, a session still holding the
-## old match would be feeding a freed one every input, snapshot and seat that arrived.
+## match leaves the tree, see GAME.md 10.3: a session outlives its rooms, and one still holding the
+## old match between rooms would be feeding a freed one every input, snapshot and seat that came.
 var match_node: Match:
 	set(value):
 		if is_instance_valid(match_node) and match_node.tree_exiting.is_connected(_let_go):
@@ -313,9 +309,8 @@ func _leaving() -> void:
 
 
 ## A client that has followed the host into another room asks for its seat there, once the room
-## is built and pointed at this session. Asking rather than being told is what makes the change
-## safe: a seat and a set of rules sent the moment the host arrived could reach a client that was
-## still in the old room, and be applied to a match that is about to be taken down.
+## is built and pointed at this session: a seat and rules sent the moment the host arrived could
+## reach a client still in the old room, and be applied to a match about to be taken down.
 func ready_for_seat() -> void:
 	if not is_host and _connected():
 		var numbers: Array[int] = []
@@ -373,12 +368,10 @@ func _seat_another(number: int) -> void:
 
 ## Seats everybody who is already here in the match this session has just been pointed at.
 ##
-## The rules and the seat are sent once, as a peer arrives, which is all a match that runs from
-## beginning to end in one room ever needs. The waiting room and the arena are two matches: a
-## client told the first one's rules on the way in knows nothing about the second, and the slot
-## it was given belongs to a match that has been taken down. So it is all said again, to the same
-## peers, in the order [method peer_seats] lists them, each taking the next seat the new match
-## has free for somebody: the seats the waiting room kept for them, see GAME.md 9.6.
+## The rules and the seat are sent once, as a peer arrives. The waiting room and the arena are two
+## matches, and a client told the first one's rules knows nothing of the second, so it is all said
+## again, to the same peers in the order [method peer_seats] lists them, each taking the next seat
+## the new match has free: the seats the waiting room kept for them, see GAME.md 9.6.
 func re_seat() -> void:
 	if not is_host:
 		return
@@ -742,6 +735,7 @@ func _assign_slot(index: int, _seed: int, number := 0) -> void:
 	_claim_name.rpc_id(1, PlayerNames.clean(each.player_name), number)
 	if not each.style.is_empty():
 		_claim_style.rpc_id(1, each.style, number)
+	_claim_plate.rpc_id(1, KartVisuals.plate_here(), number)
 	slot_assigned.emit(index)
 
 
@@ -770,6 +764,19 @@ func _claim_style(claimed: PackedInt32Array, number := 0) -> void:
 	var index := _peer_slots.slot_of(multiplayer.get_remote_sender_id(), number)
 	if index >= 0 and index < match_node.slots.size():
 		StyleStalls.dress(match_node.slots[index], claimed)
+
+
+## The plate on the back of the client's kart, GAME.md 4.4, its own to say as its dress is: the
+## host puts it on, cleaned, and it reaches the other screens in the snapshot, 10.3.
+@rpc("any_peer", "call_remote", "reliable")
+func _claim_plate(claimed: String, number := 0) -> void:
+	if not is_host or match_node == null:
+		return
+	var index := _peer_slots.slot_of(multiplayer.get_remote_sender_id(), number)
+	if index < 0 or index >= match_node.slots.size() or match_node.slots[index].kart == null:
+		return
+	var body := match_node.slots[index].kart.get_node_or_null("Body") as Node3D
+	KartVisuals.plate_like(body, LicensePlate.valid(claimed))
 
 
 ## A player at this client has changed their name or their color in the room, GAME.md 4.4, the

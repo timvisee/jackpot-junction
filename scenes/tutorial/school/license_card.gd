@@ -7,7 +7,10 @@ extends Control
 ## 420 years on, it expires, a number of its own, the endorsements earned in the final exam as chips
 ## along the foot, lit for the ones earned, a signature in blue ink, and the fine print. Drawn,
 ## as every picture in the game is, 8.3a, so it is one control that can be shaken and stamped.
-## The stamp's impression is drawn on it once it has come down, see [RubberStamp].
+## The stamp's impression is drawn on it once it has come down, see [RubberStamp]. It has a back,
+## which it turns over to show, see [method flip]: a magnetic stripe, a hologram with the game's
+## mark in it that shimmers as it is looked at, the number as a barcode, the small print of
+## whose card it is, and, for whoever reads that far, a cheat code that does nothing.
 
 const SIZE := Vector2(560.0, 352.0)
 const RADIUS := 18.0
@@ -43,6 +46,29 @@ const STAMP_RADIUS := 52.0
 const STAMP_WORD := "PASSED"
 ## How long the photo takes to turn all the way round, in seconds.
 const SPIN_SECONDS := 9.0
+## The back: the stripe, the hologram and where its mark sits, the barcode, and the turn over,
+## each half of which takes this long.
+const STRIPE := Rect2(Vector2(0.0, 30.0), Vector2(SIZE.x, 44.0))
+const STRIPE_INK := Color(0.1, 0.1, 0.12)
+const HOLOGRAM_AT := Vector2(120.0, 210.0)
+const HOLOGRAM_RADIUS := 78.0
+const HOLOGRAM_MARK := 68.0
+const BARCODE := Rect2(Vector2(232.0, 232.0), Vector2(300.0, 54.0))
+const BACK_COLUMN := 232.0
+const FLIP_HALF := 0.17
+const PROPERTY := "PROPERTY OF THE DEPT. OF KARTS"
+const BACK_LINES: Array[String] = [
+	"If found, return to the nearest Junction. Any Junction.",
+	"Valid for Class K karts only. Not transferable, not edible,",
+	"not a coaster. Keep away from pits, turrets and plumbers.",
+	"The holder agrees to drift responsibly, or at least often.",
+]
+const CODE := "CHEAT CODE"
+const CODE_LINE := "Does nothing. We checked."
+const EXAMINER := "The Examiner"
+const BACK_MICRO := (
+	"VOID WHERE PROHIBITED. ESPECIALLY THERE.  ·  " + "ISSUED BY A BOT, REVIEWED BY NOBODY."
+)
 
 var holder_name := ""
 var number := ""
@@ -53,9 +79,15 @@ var style: KartStyle
 var endorsements: Dictionary[String, bool] = {}
 ## Whether the stamp has come down on it.
 var stamped := false
+## Whether the back is up, see [method flip].
+var flipped := false
 
 var _photo: SubViewportContainer
 var _kart: Node3D
+var _mark: LogoArt
+var _back_mark: LogoArt
+var _shimmer := 0.0
+var _turning := false
 
 
 ## A card for [param of], numbered [param numbered], issued on [param on], the kart in its color
@@ -126,13 +158,22 @@ func _ready() -> void:
 	custom_minimum_size = SIZE
 	size = SIZE
 	pivot_offset = SIZE * 0.5
-	var mark := LogoArt.new()
-	mark.plate = false
-	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	mark.position = Vector2(16.0, (BAND_HEIGHT - MARK_SIDE) * 0.5)
-	mark.size = Vector2(MARK_SIDE, MARK_SIDE)
-	add_child(mark)
+	_mark = LogoArt.new()
+	_mark.plate = false
+	_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_mark.position = Vector2(16.0, (BAND_HEIGHT - MARK_SIDE) * 0.5)
+	_mark.size = Vector2(MARK_SIDE, MARK_SIDE)
+	add_child(_mark)
 	_build_photo()
+	# The mark in the hologram on the back, which the shimmer plays over.
+	_back_mark = LogoArt.new()
+	_back_mark.plate = false
+	_back_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_back_mark.position = HOLOGRAM_AT - Vector2.ONE * HOLOGRAM_MARK * 0.5
+	_back_mark.size = Vector2.ONE * HOLOGRAM_MARK
+	_back_mark.modulate = Color(1.0, 1.0, 1.0, 0.85)
+	_back_mark.visible = false
+	add_child(_back_mark)
 
 
 ## The stamp has come down: its mark is on the card from here on.
@@ -142,8 +183,43 @@ func stamp() -> void:
 
 
 func _process(delta: float) -> void:
-	if _kart != null:
+	if _kart != null and not flipped:
 		_kart.rotate_y(TAU * delta / SPIN_SECONDS)
+	if flipped:
+		_shimmer += delta
+		queue_redraw()
+
+
+## Turns the card over, to its back or its front again: it narrows to nothing about its middle,
+## the other side comes round, and it widens again, the way a card turned in the hand does.
+func flip() -> void:
+	if _turning:
+		return
+	_turning = true
+	var wide := scale.x
+	var turn := create_tween()
+	turn.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	turn.tween_property(self, "scale:x", 0.0, FLIP_HALF)
+	turn.tween_callback(_other_side)
+	turn.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	turn.tween_property(self, "scale:x", wide, FLIP_HALF)
+	turn.tween_callback(func() -> void: _turning = false)
+	Audio.play_sfx(&"page", -10.0, 0.0)
+
+
+## The other side up: the photo and the front's mark go with the front, the hologram's mark
+## comes with the back.
+func _other_side() -> void:
+	flipped = not flipped
+	_photo.visible = not flipped
+	_mark.visible = not flipped
+	_back_mark.visible = flipped
+	queue_redraw()
+
+
+## Whether the card is in the middle of turning over.
+func is_turning() -> bool:
+	return _turning
 
 
 ## The photo: the holder's kart in a little world of its own, lit evenly, turning.
@@ -186,6 +262,9 @@ func _build_photo() -> void:
 
 func _draw() -> void:
 	_draw_paper()
+	if flipped:
+		_draw_back()
+		return
 	_draw_band()
 	_draw_photo_frame()
 	_draw_fields()
@@ -194,6 +273,100 @@ func _draw() -> void:
 	_draw_micro()
 	if stamped:
 		_draw_stamp()
+
+
+## The back: the magnetic stripe along the top, the hologram with the mark in it, whose card it
+## is in small print with the number as a barcode under it, the examiner's own signature, the
+## fine print, and the cheat code.
+func _draw_back() -> void:
+	draw_rect(STRIPE, STRIPE_INK)
+	draw_rect(
+		Rect2(STRIPE.position + Vector2(0.0, 6.0), Vector2(STRIPE.size.x, 1.0)),
+		Color(1.0, 1.0, 1.0, 0.08)
+	)
+	_draw_hologram()
+	_text(Vector2(BACK_COLUMN, 96.0), PROPERTY, Type.STRONG, 11, INK)
+	for i: int in BACK_LINES.size():
+		_text(Vector2(BACK_COLUMN, 114.0 + float(i) * 15.0), BACK_LINES[i], Type.TEXT, 10, FAINT)
+	_text(Vector2(BACK_COLUMN, 182.0), "EXAMINER", Type.STRONG, 8, FAINT)
+	var hand := SIGNATURE_FONT
+	draw_string(
+		hand,
+		Vector2(BACK_COLUMN + 60.0, 198.0),
+		EXAMINER,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		14,
+		SIGNATURE_INK
+	)
+	draw_line(
+		Vector2(BACK_COLUMN, 204.0), Vector2(BACK_COLUMN + 200.0, 204.0), Color(INK, 0.4), 1.0
+	)
+	_draw_barcode()
+	# The cheat code, under the hologram, for whoever turns the card over and reads the back.
+	_text(Vector2(26.0, 298.0), CODE, Type.STRONG, 8, FAINT)
+	var at := Vector2(26.0, 310.0)
+	for way: float in [0.0, 0.0, 180.0, 180.0, 270.0, 90.0, 270.0, 90.0]:
+		IconShapes.tri(self, Rect2(at, Vector2(12.0, 12.0)), 0.5, 0.5, 0.95, way, INK)
+		at.x += 15.0
+	_text(at + Vector2(2.0, -1.0), "B  A", Type.STRONG, 10, INK)
+	_text(Vector2(26.0, 324.0), CODE_LINE, Type.TEXT, 8, FAINT)
+	_text(
+		Vector2(0.0, SIZE.y - 14.0),
+		BACK_MICRO,
+		Type.STRONG,
+		7,
+		FAINT,
+		HORIZONTAL_ALIGNMENT_CENTER,
+		SIZE.x
+	)
+
+
+## The hologram: rings of light whose colors run round and through as the card is looked at,
+## with the game's mark sitting in the middle of them.
+func _draw_hologram() -> void:
+	draw_circle(HOLOGRAM_AT, HOLOGRAM_RADIUS + 3.0, Color(INK, 0.08))
+	var rings := 6
+	for ring: int in rings:
+		var radius := HOLOGRAM_RADIUS - float(ring) * 10.0
+		var segments := 36
+		for i: int in segments:
+			var from := TAU * float(i) / float(segments)
+			var hue := fmod(float(i) / float(segments) + _shimmer * 0.15 + float(ring) * 0.07, 1.0)
+			var glow := 0.55 + 0.45 * sin(_shimmer * 2.2 + from * 3.0 + float(ring))
+			var color := Color.from_hsv(hue, 0.45, 1.0, 0.18 + 0.3 * glow)
+			draw_arc(
+				HOLOGRAM_AT, radius, from, from + TAU / float(segments) + 0.02, 4, color, 7.0, true
+			)
+	# A sheen that sweeps across, the way the light does over a real one.
+	var sweep := fmod(_shimmer * 0.4, 1.0) * 2.0 - 1.0
+	var band := HOLOGRAM_AT + Vector2(sweep * HOLOGRAM_RADIUS, 0.0)
+	draw_set_transform(band, -0.6, Vector2.ONE)
+	draw_rect(
+		Rect2(Vector2(-6.0, -HOLOGRAM_RADIUS), Vector2(12.0, HOLOGRAM_RADIUS * 2.0)),
+		Color(1.0, 1.0, 1.0, 0.18)
+	)
+	draw_set_transform(Vector2.ZERO)
+	draw_arc(HOLOGRAM_AT, HOLOGRAM_RADIUS + 3.0, 0.0, TAU, 64, Color(INK, 0.35), 1.0, true)
+
+
+## The number as a barcode: each digit a run of bars, wide for a one and narrow for a zero in its
+## bits, with the number written under it.
+func _draw_barcode() -> void:
+	var x := BARCODE.position.x
+	var top := BARCODE.position.y
+	var tall := BARCODE.size.y - 16.0
+	for character: String in number:
+		if not character.is_valid_int():
+			x += 4.0
+			continue
+		var digit := character.to_int()
+		for bit: int in 4:
+			var wide := 3.0 if (digit >> bit) & 1 else 1.5
+			draw_rect(Rect2(Vector2(x, top), Vector2(wide, tall)), INK)
+			x += wide + 2.0
+		x += 2.0
+	_text(Vector2(BARCODE.position.x, top + tall + 3.0), number, Type.numbers_text_font(), 11, INK)
 
 
 ## The paper: cream, darker toward the foot, with the fine curves a banknote wears and the four

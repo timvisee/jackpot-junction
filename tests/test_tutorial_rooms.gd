@@ -256,7 +256,14 @@ func test_jokers_from_parked_karts_and_the_pit() -> void:
 	assert_bool(hand.unread.is_empty()).is_true()
 	kart.menu_open = false
 	var slot := run.slot()
-	for death: int in 2:
+	# The two picks the lesson counts, each landing on a card not held yet, since a copy of one
+	# held stacks on it and adds no card to the hand, GAME.md 7.3, and the three on offer may well
+	# all be copies once three cards are held: such a pick is skipped, which counts for nothing,
+	# and the pit is driven into again.
+	var taken := 0
+	var tries := 0
+	while taken < TutorialJokers.WANTED - TutorialJokers.DUMMIES and tries < 6:
+		tries += 1
 		kart.die(&"pit", -1)
 		# A fresh pick, open: the last one is cleared as the kart comes back.
 		for i: int in 60:
@@ -265,29 +272,25 @@ func test_jokers_from_parked_karts_and_the_pit() -> void:
 				break
 		(
 			assert_object(slot.offer)
-			. override_failure_message("no pick on death %d" % death)
+			. override_failure_message("no pick on death %d" % tries)
 			. is_not_null()
 		)
 		(
 			assert_bool(slot.offer.is_done())
-			. override_failure_message("death %d: the pick was already answered" % death)
+			. override_failure_message("death %d: the pick was already answered" % tries)
 			. is_false()
 		)
-		# A card not held yet, since a copy of one held stacks on it and adds no card to the hand,
-		# or else whichever card the hand can take: a copy at its stack's cap it cannot.
 		var pick := -1
 		for i: int in slot.offer.choices.size():
-			var choice: Joker = slot.offer.choices[i]
-			if kart.jokers.can_take(choice) and not kart.jokers.has(choice.id):
+			if not kart.jokers.has(slot.offer.choices[i].id):
 				pick = i
 				break
 		if pick < 0:
-			for i: int in slot.offer.choices.size():
-				if kart.jokers.can_take(slot.offer.choices[i]):
-					pick = i
-					break
-		slot.offer.take(maxi(pick, 0))
-		assert_bool(slot.offer.is_done()).override_failure_message("death %d" % death).is_true()
+			slot.offer.skip()
+		else:
+			slot.offer.take(pick)
+			taken += 1
+		assert_bool(slot.offer.is_done()).override_failure_message("death %d" % tries).is_true()
 		for i: int in 200:
 			await _runner.simulate_frames(1, 17)
 			if kart.alive:
@@ -295,7 +298,8 @@ func test_jokers_from_parked_karts_and_the_pit() -> void:
 		assert_bool(kart.alive).is_true()
 		await _runner.simulate_frames(3, 17)
 		assert_float(kart.global_position.distance_to(run.cell(lesson.spawn_cell))).is_less(0.5)
-		assert_int(kart.jokers.count()).is_equal(TutorialJokers.DUMMIES + death + 1)
+		assert_int(kart.jokers.count()).is_equal(TutorialJokers.DUMMIES + taken)
+	assert_int(taken).is_equal(TutorialJokers.WANTED - TutorialJokers.DUMMIES)
 	await _runner.simulate_frames(2, 17)
 	assert_int(kart.jokers.count()).is_equal(TutorialJokers.WANTED)
 	assert_bool(lesson.is_done()).is_true()
@@ -772,9 +776,7 @@ func test_the_title_asks_for_the_license_until_it_is_earned() -> void:
 		str(pane.no_button().get_path())
 	)
 	assert_str(str(pane.no_button().focus_neighbor_top)).is_equal(str(pane.yes_button().get_path()))
-	assert_str(str(pane.yes_button().focus_neighbor_top)).is_equal(
-		str(pane.no_button().get_path())
-	)
+	assert_str(str(pane.yes_button().focus_neighbor_top)).is_equal(str(pane.no_button().get_path()))
 	assert_str(str(pane.yes_button().focus_neighbor_left)).is_equal(
 		str(pane.yes_button().get_path())
 	)

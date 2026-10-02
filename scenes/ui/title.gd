@@ -25,7 +25,11 @@ const LICENSE_SLIDE := 0.25
 ## the button that opens the hand of jokers, drawn in the bottom right corner over the version
 ## with the word License beside it: how big, and the line under it.
 const LICENSE_FULL := 1.15
-const LICENSE_AWAY := "Click anywhere, or press %s, to put it away"
+## What puts the view away, by the device in hand, and what turns the card over.
+const LICENSE_AWAY_MOUSE := "Click beside the card, or press %s, to put it away"
+const LICENSE_AWAY_PAD := "Press %s to put it away"
+const LICENSE_AWAY_TOUCH := "Tap beside the card to put it away"
+const LICENSE_FLIP := "Turn it over"
 const LICENSE_GLYPH_SIZE := 24
 const LICENSE_GLYPH_BOTTOM := 44.0
 const LICENSE_WORD := "License"
@@ -43,6 +47,7 @@ var _spare: Array[Control] = []
 var _license: LicenseCard
 var _license_out := false
 var _license_view: Control
+var _away_line: Control
 ## The button that shows the license, drawn beside it for the device in hand, and which that is,
 ## picked up from whatever was last touched anywhere in the game.
 var _license_glyph: Control
@@ -207,6 +212,7 @@ func _input(event: InputEvent) -> void:
 		_keyboard = true
 	if was != _keyboard:
 		_show_license_glyph()
+		_say_away()
 	if event.is_action_pressed(InputActions.JOKER_MENU):
 		get_viewport().set_input_as_handled()
 		if _license_view != null:
@@ -258,15 +264,38 @@ func show_license() -> void:
 	card.name = "LicenseFull"
 	card.scale = Vector2.ONE * LICENSE_FULL
 	card.position = (LicenseCard.SIZE * LICENSE_FULL - LicenseCard.SIZE) * 0.5
+	# A click or a tap on the card turns it over, see [method LicenseCard.flip].
+	card.mouse_filter = Control.MOUSE_FILTER_STOP
+	card.gui_input.connect(
+		func(event: InputEvent) -> void:
+			var click := event as InputEventMouseButton
+			var touch := event as InputEventScreenTouch
+			if (
+				(click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT)
+				or (touch != null and touch.pressed)
+			):
+				get_viewport().set_input_as_handled()
+				card.flip()
+	)
 	holder.add_child(card)
 	column.add_child(holder)
+	var buttons := HBoxContainer.new()
+	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	buttons.add_theme_constant_override("separation", 16)
+	var flip := MenuTheme.button(LICENSE_FLIP, Type.BODY)
+	flip.name = "Flip"
+	flip.pressed.connect(card.flip)
+	buttons.add_child(flip)
 	var away := MenuTheme.button("Put it away", Type.BODY)
 	away.name = "Away"
-	away.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	away.pressed.connect(hide_license)
-	column.add_child(away)
-	var binding := InputActions.short_binding_text(&"ui_cancel", true)
-	column.add_child(MenuTheme.subtitle(LICENSE_AWAY % binding, Type.LABEL))
+	buttons.add_child(away)
+	column.add_child(buttons)
+	_away_line = Control.new()
+	_away_line.custom_minimum_size = Vector2(0.0, 24.0)
+	_away_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(_away_line)
+	_say_away()
 	view.gui_input.connect(
 		func(event: InputEvent) -> void:
 			var click := event as InputEventMouseButton
@@ -282,11 +311,39 @@ func show_license() -> void:
 	Audio.play_sfx(&"joker_offer", MenuTheme.MOVE_DB, 0.0)
 
 
+## The line under the card saying what puts it away, with the control drawn in for the device in
+## hand: Back, Escape or B, and a click beside the card with a mouse, a tap on a touch screen.
+func _say_away() -> void:
+	if _away_line == null or not is_instance_valid(_away_line):
+		return
+	for old: Node in _away_line.get_children():
+		_away_line.remove_child(old)
+		old.queue_free()
+	var ink := Color(0.72, 0.72, 0.78)
+	var row: Control
+	if TouchInput.enabled:
+		row = MenuTheme.subtitle(LICENSE_AWAY_TOUCH, Type.LABEL)
+	else:
+		var glyph := InputGlyph.of_action(&"ui_cancel", _keyboard, ink, Type.LABEL)
+		var words := LICENSE_AWAY_MOUSE if _keyboard else LICENSE_AWAY_PAD
+		if glyph == null:
+			row = MenuTheme.subtitle(
+				words % InputActions.short_binding_text(&"ui_cancel", _keyboard), Type.LABEL
+			)
+		else:
+			row = InputHint.row(words, [glyph], ink, Type.LABEL)
+	row.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	row.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	row.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_away_line.add_child(row)
+
+
 func hide_license() -> void:
 	if _license_view == null:
 		return
 	_license_view.queue_free()
 	_license_view = null
+	_away_line = null
 	_slide_license(false)
 	if play_button != null:
 		play_button.grab_focus()

@@ -46,50 +46,33 @@ static func build_body(kart: Kart) -> Dictionary:
 ## The learner's L on the back of [param kart], GAME.md 4.4: for a kart of this machine's while it
 ## has no license yet, and for the whole of the driving test. In place of any plate it wore.
 static func learner_plate(kart: Kart) -> Node3D:
-	var plate := _plate(
-		kart,
-		SchoolFigure.of(SchoolFigure.Kind.LEARNER, 128.0),
-		Vector2i(128, 128),
-		Vector2(LEARNER_SIDE, LEARNER_SIDE)
-	)
-	if plate != null:
-		plate.set_meta(&"plate", "L")
-	return plate
+	return plate_like(_body_of(kart), "L")
 
 
 ## The license plate on the back of [param kart], reading [param text], GAME.md 4.4: for a kart of
 ## this machine's once it has its license. In place of any plate it wore.
 static func license_plate(kart: Kart, text: String) -> Node3D:
-	var plate := _plate(kart, LicensePlate.of(text), Vector2i(448, 128), LICENSE_PLATE)
-	if plate != null:
-		plate.set_meta(&"plate", text)
-	return plate
+	return plate_like(_body_of(kart), text)
 
 
 ## The plate a kart of this machine's wears, by the settings: the learner's L until the license
 ## is earned, and the plate chosen after.
 static func plate_for_here(kart: Kart) -> Node3D:
-	return plate_for_here_on(kart.get_node_or_null("Body") as Node3D)
+	return plate_for_here_on(_body_of(kart))
+
+
+## The same, as the word the wire carries, GAME.md 10.3: "L" or the plate's text, which a client
+## says to the host for its seats, see [method NetSession._claim_plate].
+static func plate_here() -> String:
+	if Game.settings.license_number.is_empty():
+		return "L"
+	return Game.settings.license_plate
 
 
 ## The same plate on [param body], a kart's body or a model of one standing for display, the
 ## podium's say, GAME.md 3.8.
 static func plate_for_here_on(body: Node3D) -> Node3D:
-	if body == null:
-		return null
-	if Game.settings.license_number.is_empty():
-		var learner := _plate_on(
-			body,
-			SchoolFigure.of(SchoolFigure.Kind.LEARNER, 128.0),
-			Vector2i(128, 128),
-			Vector2(LEARNER_SIDE, LEARNER_SIDE)
-		)
-		learner.set_meta(&"plate", "L")
-		return learner
-	var text := Game.settings.license_plate
-	var plate := _plate_on(body, LicensePlate.of(text), Vector2i(448, 128), LICENSE_PLATE)
-	plate.set_meta(&"plate", text)
-	return plate
+	return plate_like(body, plate_here())
 
 
 ## What [param kart] wears on its back, GAME.md 4.4: "L" for the learner's plate, the words of a
@@ -97,28 +80,42 @@ static func plate_for_here_on(body: Node3D) -> Node3D:
 static func plate_worn(kart: Kart) -> String:
 	if kart == null or not is_instance_valid(kart):
 		return ""
-	var plate := kart.get_node_or_null("Body/Plate")
-	if plate == null or not plate.has_meta(&"plate"):
-		return ""
-	return str(plate.get_meta(&"plate"))
+	return _worn_on(_body_of(kart))
 
 
-## The plate [param worn], as [method plate_worn] has it, on [param body], a model standing for a
-## kart, the podium's say, GAME.md 3.8; nothing for nothing.
+## The plate [param worn], as [method plate_worn] has it, on [param body]: a kart's body, a model
+## standing for a kart, the podium's say, GAME.md 3.8, or a puppet's body on a client, 10.3. The
+## learner's L for "L", a license plate reading anything else, none for nothing; whatever was worn
+## comes off, and a body wearing [param worn] already keeps the plate it has.
 static func plate_like(body: Node3D, worn: String) -> Node3D:
-	if body == null or worn.is_empty():
+	if body == null:
 		return null
-	var plate: Node3D
-	if worn == "L":
-		plate = _plate_on(
-			body,
-			SchoolFigure.of(SchoolFigure.Kind.LEARNER, 128.0),
-			Vector2i(128, 128),
-			Vector2(LEARNER_SIDE, LEARNER_SIDE)
-		)
-	else:
-		plate = _plate_on(body, LicensePlate.of(worn), Vector2i(448, 128), LICENSE_PLATE)
+	var old := body.get_node_or_null("Plate") as Node3D
+	if old != null:
+		if _worn_on(body) == worn:
+			return old
+		# Out of the name's way and out of sight, but in the tree until the frame ends, so that its
+		# parts are no stray nodes meanwhile, which a test would count.
+		old.name = "PlateGone"
+		old.visible = false
+		old.queue_free()
+	if worn.is_empty():
+		return null
+	var plate := Node3D.new()
+	plate.name = "Plate"
+	plate.position = PLATE_AT
 	plate.set_meta(&"plate", worn)
+	var drawn: ViewportTexture
+	var size: Vector2
+	if worn == "L":
+		var figure := SchoolFigure.of(SchoolFigure.Kind.LEARNER, 128.0)
+		drawn = DrawnTexture.of(plate, figure, Vector2i(128, 128))
+		size = Vector2(LEARNER_SIDE, LEARNER_SIDE)
+	else:
+		drawn = DrawnTexture.of(plate, LicensePlate.of(worn), Vector2i(448, 128))
+		size = LICENSE_PLATE
+	plate.add_child(DrawnTexture.face(size, DrawnTexture.decal(drawn)))
+	body.add_child(plate)
 	return plate
 
 
@@ -133,27 +130,21 @@ static func plate_for_bot(kart: Kart, brain: BotBrain, rng: RandomNumberGenerato
 	return license_plate(kart, LicensePlate.for_bot(trait_name, rng))
 
 
-## [param drawing], [param pixels] across, as a face [param size] meters across on the back of
-## [param kart], where whatever plate it wore was.
-static func _plate(kart: Kart, drawing: Control, pixels: Vector2i, size: Vector2) -> Node3D:
-	return _plate_on(kart.get_node_or_null("Body") as Node3D, drawing, pixels, size)
-
-
-## The same, on [param body], any node a kart's model hangs under at the kart's own scale.
-static func _plate_on(body: Node3D, drawing: Control, pixels: Vector2i, size: Vector2) -> Node3D:
-	if body == null:
+## The body of [param kart] its plate hangs under, or nothing for a kart without one.
+static func _body_of(kart: Kart) -> Node3D:
+	if kart == null:
 		return null
-	var old := body.get_node_or_null("Plate")
-	if old != null:
-		body.remove_child(old)
-		old.queue_free()
-	var plate := Node3D.new()
-	plate.name = "Plate"
-	plate.position = PLATE_AT
-	var drawn := DrawnTexture.of(plate, drawing, pixels)
-	plate.add_child(DrawnTexture.face(size, DrawnTexture.decal(drawn)))
-	body.add_child(plate)
-	return plate
+	return kart.get_node_or_null("Body") as Node3D
+
+
+## What [param body] wears, as [method plate_worn] has it.
+static func _worn_on(body: Node3D) -> String:
+	if body == null:
+		return ""
+	var plate := body.get_node_or_null("Plate")
+	if plate == null or not plate.has_meta(&"plate"):
+		return ""
+	return str(plate.get_meta(&"plate"))
 
 
 ## Dresses [param kart] again in its [member Kart.style], which has just been changed from [param

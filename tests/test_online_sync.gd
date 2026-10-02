@@ -222,6 +222,54 @@ func test_every_event_is_either_relayed_or_named_as_local() -> void:
 		assert_bool(NetEvents.RELAYED.has(name)).is_false()
 
 
+## The plate on a kart's back reaches a client in the snapshot, GAME.md 4.4 and 10.3: the host's
+## player's as the host has it, a bot's, none for a kart with none, and a change of it; and a
+## client's own word on its plate is taken by the host, cleaned.
+func test_a_kart_wears_its_plate_on_a_client_too() -> void:
+	var was_number := Game.settings.license_number
+	var was_plate := Game.settings.license_plate
+	Game.settings.license_number = "JJ-000001"
+	Game.settings.license_plate = "HOST-1"
+	var host: Match = auto_free(MATCH_SCENE.instantiate())
+	host.rules = _rules()
+	host.bot_difficulty = load("res://data/ai/easy.tres")
+	host.with_hud = false
+	var runner := scene_runner(host)
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.ANY, 0), BotInput.new(), KartInput.new()
+	]
+	host.start(inputs, 91)
+	var client: Match = auto_free(MATCH_SCENE.instantiate())
+	client.rules = _rules()
+	client.with_hud = false
+	add_child(client)
+	client.start_puppet()
+	client.set_local_slot(2)
+	await runner.simulate_frames(2, 17)
+	client.apply_snapshot(host.build_snapshot())
+	await runner.simulate_frames(1, 17)
+	assert_str(KartVisuals.plate_worn(client.slots[0].kart)).is_equal("HOST-1")
+	assert_str(KartVisuals.plate_worn(client.slots[1].kart)).is_equal("L")
+	assert_str(KartVisuals.plate_worn(client.slots[2].kart)).is_equal("")
+	# The host hears what the third kart's machine says it wears, cleaned, and the next snapshot
+	# carries it; taken off again, it goes.
+	var body := host.slots[2].kart.get_node("Body") as Node3D
+	KartVisuals.plate_like(body, LicensePlate.valid("go fast!!"))
+	client.apply_snapshot(host.build_snapshot())
+	assert_str(KartVisuals.plate_worn(client.slots[2].kart)).is_equal("GO FAST")
+	KartVisuals.plate_like(body, LicensePlate.valid("L"))
+	client.apply_snapshot(host.build_snapshot())
+	assert_str(KartVisuals.plate_worn(client.slots[2].kart)).is_equal("L")
+	KartVisuals.plate_like(body, "")
+	client.apply_snapshot(host.build_snapshot())
+	assert_str(KartVisuals.plate_worn(client.slots[2].kart)).is_equal("")
+	assert_str(KartVisuals.plate_here()).is_equal("HOST-1")
+	Game.settings.license_number = ""
+	assert_str(KartVisuals.plate_here()).is_equal("L")
+	Game.settings.license_number = was_number
+	Game.settings.license_plate = was_plate
+
+
 ## A client hears the room the host hears, GAME.md 10.3: the countdown, a kart hitting something,
 ## a kart going down a hole. None of it happens on a client, whose karts are puppets.
 func test_the_sounds_of_the_room_reach_a_client() -> void:

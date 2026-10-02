@@ -316,6 +316,22 @@ func test_the_title_peeks_the_license_earned() -> void:
 	var full: LicenseCard = view.find_child("LicenseFull", true, false)
 	assert_object(full).is_not_null()
 	assert_float(full.scale.x).is_equal_approx(title.LICENSE_FULL, 0.001)
+	# The line under it names the pad's button, a pad being in hand, and not a click.
+	var away_words := _words_in(title._away_line)
+	assert_str(away_words).contains("to put it away")
+	assert_bool(away_words.contains("Click")).is_false()
+	# Turned over, the back is up, the photo gone with the front; turned again, the front.
+	assert_bool(full.flipped).is_false()
+	(view.find_child("Flip", true, false) as Button).pressed.emit()
+	assert_bool(full.is_turning()).is_true()
+	await await_millis(int(LicenseCard.FLIP_HALF * 2000.0) + 200)
+	assert_bool(full.flipped).is_true()
+	assert_bool(full._photo.visible).is_false()
+	assert_float(full.scale.x).is_equal_approx(title.LICENSE_FULL, 0.001)
+	full.flip()
+	await await_millis(int(LicenseCard.FLIP_HALF * 2000.0) + 200)
+	assert_bool(full.flipped).is_false()
+	assert_bool(full._photo.visible).is_true()
 	var back := InputEventAction.new()
 	back.action = &"ui_cancel"
 	back.pressed = true
@@ -429,6 +445,16 @@ func test_a_settings_file_can_be_named_on_the_command_line() -> void:
 	)
 	assert_str(Game.settings_path_in(PackedStringArray(["--settings="]))).is_equal("")
 	assert_str(Game.settings_path_in(PackedStringArray(["--bench=10"]))).is_equal("")
+
+
+## The words of every label under [param node], run together.
+static func _words_in(node: Node) -> String:
+	var words: Array[String] = []
+	if node is Label:
+		words.append((node as Label).text)
+	for child: Node in node.get_children():
+		words.append(_words_in(child))
+	return " ".join(words)
 
 
 ## The title's Tutorial goes to the school, and the school's end to the driving test.
