@@ -460,10 +460,11 @@ func test_the_junction_banks_the_whole_pot() -> void:
 	assert_bool(fight._cash.done).is_false()
 
 
-## The fight: the item pads and the crates come in with it, the bots come out of their pens one
-## at a time as the player banks, each pen's own gate opening, the last of them normal, and 1000
-## banked is the end: said, remembered, the portals' gate open, and the bots gone in a poof with
-## their bullets and turrets.
+## The final exam: the item pads and the crates come in with it, the bots come out of their pens
+## one at a time as the player banks, each pen's own gate opening, the last of them normal, and
+## 1000 banked is the end: remembered, the bots gone in a poof with their bullets and turrets, and
+## a moment later the license up over the room, numbered once, with the endorsements earned on
+## their own lit, the stamp to press, and the ways on once it is.
 func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	var tutorial := await _start()
 	var run := tutorial.run
@@ -534,23 +535,25 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	bullets.spawn(bot.index, run.cell(Vector2i(40, 44)), Vector3(1.0, 0.0, 0.0), stats, Color.RED)
 	bullets.spawn(0, run.cell(Vector2i(40, 50)), Vector3(1.0, 0.0, 0.0), stats, Color.WHITE)
 	Game.settings.tutorial_done = false
+	Game.settings.license_number = ""
+	Game.settings.license_date = ""
 	Events.bank_tick.emit(0, TutorialFight.NEED - TutorialFight.RELEASE_AT[2])
 	await _runner.simulate_frames(2, 17)
 	assert_bool(run.is_over()).is_true()
-	# The goal takes the hints with it, and the arrow points the way out, through the gate.
+	# The goal takes the hints with it, and the arrow has nothing left to point at.
 	for task: TutorialTask in lesson.tasks:
 		assert_bool(task.done).is_true()
 	await _runner.simulate_frames(1, 17)
-	assert_bool(run.arrow.target.is_finite()).is_true()
-	assert_bool(run.arrow._ring.visible).is_false()
-	# In with the portals, the arrow has nothing left to point at.
-	_put(tutorial, Tutorial.PLAY_PORTAL + Vector2i(1, 1), Vector3(0.0, 0.0, -1.0))
-	await _runner.simulate_frames(2, 17)
 	assert_bool(run.arrow.target.is_finite()).is_false()
 	assert_int(tutorial.match_node.win_at).is_equal(0)
 	assert_bool(Game.settings.tutorial_done).is_true()
-	assert_bool(arena.gate_at(TutorialFight.PORTAL_GATE).is_open).is_true()
-	assert_object(tutorial.layer.get_node_or_null("Done")).is_not_null()
+	# The license is numbered once, for good, and dated today.
+	var number := Game.settings.license_number
+	assert_bool(number.begins_with("JJ-")).is_true()
+	assert_int(number.length()).is_equal(9)
+	assert_str(Game.settings.license_date).is_equal(Time.get_date_string_from_system())
+	assert_object(tutorial.license).is_null()
+	assert_object(tutorial.layer.get_node_or_null("License")).is_null()
 	# The bots dead and gone with everything of theirs, the player's own shot still flying, and
 	# fireworks over the room.
 	for slot_bot: PlayerSlot in run.bots:
@@ -565,6 +568,41 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 		assert_int(bullet.owner_slot).is_equal(0)
 		flying += 1
 	assert_int(flying).is_equal(1)
+	# A moment after the bang, the license: the kart held, the checklist and the menu gone.
+	await await_millis(int(Tutorial.LICENSE_AFTER * 1000.0) + 400)
+	await _runner.simulate_frames(2, 17)
+	var license := tutorial.license
+	assert_object(license).is_not_null()
+	assert_object(tutorial.layer.get_node_or_null("License")).is_same(license)
+	assert_bool(run.kart().frozen).is_true()
+	assert_bool(run.list.visible).is_false()
+	assert_object(tutorial.menu).is_null()
+	assert_str(license.card.number).is_equal(number)
+	assert_str(license.card.holder_name).is_equal(run.slot().display_name())
+	# The endorsements: the kill and the item on their own, the rest ticked by the goal.
+	var earned := license.card.endorsements
+	assert_int(earned.size()).is_equal(TutorialFight.ENDORSEMENTS.size())
+	assert_bool(earned["KO"]).is_true()
+	assert_bool(earned["ITEMS"]).is_true()
+	assert_bool(earned["ROYAL FLUSH"]).is_false()
+	assert_bool(earned["FULL HAND"]).is_false()
+	# Nothing on until the stamp comes down; stamped, the card wears it and the ways on come up.
+	assert_bool(license.offering()).is_false()
+	assert_bool(license.card.stamped).is_false()
+	var went: Array[StringName] = []
+	for way: StringName in license.ways:
+		license.ways[way] = func() -> void: went.append(way)
+	license.stamp.pressed.emit()
+	assert_bool(license.stamp.has_slammed()).is_true()
+	await await_millis(int((RubberStamp.LIFT + RubberStamp.DROP) * 1000.0) + 150)
+	assert_bool(license.card.stamped).is_true()
+	await await_millis(int(LicenseScreen.SETTLE * 1000.0) + 200)
+	assert_bool(license.offering()).is_true()
+	license.buttons[&"play"].pressed.emit()
+	assert_array(went).contains_exactly([&"play"])
+	# Done again, the license keeps its number.
+	tutorial._on_finished()
+	assert_str(Game.settings.license_number).is_equal(number)
 
 
 ## A joker pick with the hand already full gets the word at the top for as long as it is open,
@@ -634,7 +672,8 @@ func test_the_fight_counts_its_match_point_from_the_bank_at_its_start() -> void:
 	# it, yes; and a bank that has reached it still wants a coin in the pot.
 	_put(tutorial, TutorialPads.SPAWN, Vector3(0.0, 0.0, -1.0))
 	await _runner.simulate_frames(2, 17)
-	assert_bool(kart.pot.is_empty()).is_true()
+	# Emptied by hand: the fight opens with chips over the floor, and one may have rolled in.
+	kart.pot.reset()
 	assert_bool(match_node.would_win(slot)).is_false()
 	kart.pot.add_coins(TutorialFight.NEED - 1)
 	assert_bool(match_node.would_win(slot)).is_false()

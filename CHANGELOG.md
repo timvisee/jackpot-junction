@@ -13,9 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
-- **A tutorial.** The test track is now eleven lessons in a row of rooms, with a checklist, a hint
-  over the kart and the HUD arriving piece by piece, from driving to a fight against three bots.
-  The title offers it the first time you press Play, and has a button for it.
+- **A tutorial, as a driving school.** Enroll, sit through a Highway Code that reads itself, pass a
+  quiz nobody fails, then the driving test: eleven lessons in a row of rooms, from driving to a
+  final exam against three bots, and a driver license to stamp at the end. The title offers it the
+  first time you press Play, and has a button for it.
 - **Jokers show when they go off.** Guardian Angel, Insurance Policy, Tight Grip, Pickpocket, Toll
   Booth, Road Rage and Carbon Copy pull out of your hand and glow with a word when they act; a
   joker your death drops or takes, such as Spare Tire, burns out of it in red, saying LOST.

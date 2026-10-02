@@ -15,7 +15,7 @@ const DONE_INK := Color(0.55, 0.55, 0.6)
 const MARK := Palette.CHIP_GOLD
 const MARK_SIDE := 18.0
 ## What the panel is headed, before the lesson's name.
-const HEADING := "Objectives  ·  %s"
+const HEADING := "Driving test  ·  %s"
 ## The check a lesson done is: its color, how big, and for how long, in seconds.
 const DONE := Color(0.36, 0.9, 0.46)
 const CHECK_SIDE := 72.0

@@ -12,6 +12,7 @@ const PLAY_ONLINE_SCENE := "res://scenes/ui/play_online.tscn"
 const SERVER_GAMES_SCENE := "res://scenes/ui/server_games.tscn"
 const GARAGE_SCENE := "res://scenes/garage/garage.tscn"
 const TUTORIAL_SCENE := "res://scenes/tutorial/tutorial.tscn"
+const DRIVING_SCHOOL_SCENE := "res://scenes/tutorial/school/driving_school.tscn"
 const WAITING_SCENE := "res://scenes/waiting/waiting_room.tscn"
 ## Frames a `--bench` run throws away before it starts counting: the shader compiles and the
 ## first arena build belong to loading rather than to running.
@@ -252,8 +253,15 @@ func go_to_garage() -> void:
 	get_tree().change_scene_to_file(GARAGE_SCENE)
 
 
-## The tutorial, GAME.md 9.4a: from the title, its offer on the first Play, and the Garage's portal.
+## The tutorial, GAME.md 9.4a, which opens on the driving school: from the title, its offer on the
+## first Play, and the Garage's portal.
 func go_to_tutorial() -> void:
+	get_tree().paused = false
+	get_tree().change_scene_to_file(DRIVING_SCHOOL_SCENE)
+
+
+## The driving test itself, GAME.md 9.4a: the tutorial's rooms, from the end of the school's theory.
+func go_to_driving_test() -> void:
 	get_tree().paused = false
 	get_tree().change_scene_to_file(TUTORIAL_SCENE)
 

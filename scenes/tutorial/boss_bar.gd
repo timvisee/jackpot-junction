@@ -35,7 +35,7 @@ func _ready() -> void:
 	add_child(column)
 	_title = Label.new()
 	var title := _title
-	title.text = "BANK %d MORE TO FINISH" % need
+	title.text = "BANK %d MORE TO PASS" % need
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.strong(title, Type.LARGE, INK)

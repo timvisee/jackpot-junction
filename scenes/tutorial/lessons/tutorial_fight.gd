@@ -16,7 +16,6 @@ const PEN_GATES: Array[Vector2i] = [Vector2i(52, 41), Vector2i(52, 46), Vector2i
 const ARENA_SPAWNS: Array[Vector2i] = [
 	Vector2i(23, 47), Vector2i(50, 47), Vector2i(36, 41), Vector2i(36, 53)
 ]
-const PORTAL_GATE := Vector2i(35, 39)
 ## The points banked that let each bot out, and the points that finish the tutorial.
 const RELEASE_AT: Array[int] = [0, 300, 600]
 const NEED := 1000
@@ -28,6 +27,11 @@ const CHIPS_AT: Array[Vector2i] = [
 const CHIPS_EACH := 10
 ## Where a mult die or two lie as the fight opens, by cell, for a quicker road to the goal.
 const DICE_AT: Array[Vector2i] = [Vector2i(27, 47), Vector2i(46, 47)]
+## What each hint under the goal is called on the license, see [LicenseCard], in the order of
+## the hints.
+const ENDORSEMENTS: Array[String] = [
+	"KO", "MULT 4", "JACKPOT", "ROYAL FLUSH", "CASH-OUT", "ITEMS", "FULL HAND"
+]
 
 var _bank: TutorialTask
 ## The hints under the goal, each a thing worth doing in a match, done on its own or with the goal.
@@ -43,13 +47,15 @@ var _banked := 0
 ## What the bank held as the fight began, which the goal and the match point count from.
 var _bank_at_start := 0
 var _released := 0
+## The hints done on their own, by endorsement, before the goal took the rest with it.
+var _earned: Dictionary[String, bool] = {}
 ## The pens standing open, by bot, until their bot is out.
 var _pens_open: Array[int] = []
 var _bar: TutorialBossBar
 
 
 func _init() -> void:
-	title = "The fight"
+	title = "Final exam"
 	skippable = false
 	show_all = true
 	spawn_cell = TutorialPads.SPAWN
@@ -129,10 +135,10 @@ func end() -> void:
 
 func step(delta: float) -> void:
 	_collected_lately = maxf(_collected_lately - delta, 0.0)
-	if kart().pot.mult >= 4.0 and not _mult.done:
-		_mult.complete()
-	if kart().jokers.count() >= 5 and not _hand.done:
-		_hand.complete()
+	if kart().pot.mult >= 4.0:
+		_earn(_mult, ENDORSEMENTS[1])
+	if kart().jokers.count() >= 5:
+		_earn(_hand, ENDORSEMENTS[6])
 	# A pen shuts behind its bot once the bot is out in the room.
 	for i: int in range(_pens_open.size() - 1, -1, -1):
 		var which := _pens_open[i]
@@ -151,6 +157,23 @@ func released() -> int:
 ## What the bank held as the fight began.
 func bank_at_start() -> int:
 	return _bank_at_start
+
+
+## The endorsements for the license, each to whether it was earned: a hint done on its own, not
+## one the goal ticked on the way out.
+func endorsements() -> Dictionary[String, bool]:
+	var earned: Dictionary[String, bool] = {}
+	for word: String in ENDORSEMENTS:
+		earned[word] = _earned.get(word, false)
+	return earned
+
+
+## [param task] done on its own, which is the endorsement [param word] earned.
+func _earn(task: TutorialTask, word: String) -> void:
+	if task.done:
+		return
+	_earned[word] = true
+	task.complete()
 
 
 ## The next bot out: its pen opens, the bot is let go, and the last one is the normal one.
@@ -184,8 +207,8 @@ func _on_tick(slot_index: int, points: int) -> void:
 
 
 func _on_killed(_victim: int, killer: int, _cause: StringName) -> void:
-	if killer == kart().slot and not _kill.done:
-		_kill.complete()
+	if killer == kart().slot:
+		_earn(_kill, ENDORSEMENTS[0])
 
 
 func _on_collected(slot_index: int, _chips: int) -> void:
@@ -195,21 +218,21 @@ func _on_collected(slot_index: int, _chips: int) -> void:
 
 ## A Jackpot emptied while the player was the one collecting from it.
 func _on_emptied(_zone_index: int) -> void:
-	if _collected_lately > 0.0 and not _jackpot.done:
-		_jackpot.complete()
+	if _collected_lately > 0.0:
+		_earn(_jackpot, ENDORSEMENTS[2])
 
 
 func _on_flush(slot_index: int) -> void:
-	if slot_index == kart().slot and not _flush.done:
-		_flush.complete()
+	if slot_index == kart().slot:
+		_earn(_flush, ENDORSEMENTS[3])
 
 
 func _on_cashed(slot_index: int, _coins: int, _mult: float, total: int) -> void:
 	# A kart standing on the Junction with nothing in the pot banks nothing, every tick.
-	if slot_index == kart().slot and total > 0 and not _cash.done:
-		_cash.complete()
+	if slot_index == kart().slot and total > 0:
+		_earn(_cash, ENDORSEMENTS[4])
 
 
 func _on_used(slot_index: int, _id: StringName) -> void:
-	if slot_index == kart().slot and not _use.done:
-		_use.complete()
+	if slot_index == kart().slot:
+		_earn(_use, ENDORSEMENTS[5])

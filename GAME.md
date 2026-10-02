@@ -3544,15 +3544,61 @@ every one of them made a room to be read rather than driven.
 
 ### 9.4a The tutorial
 
-A short, playable lesson in how to drive and what the game is, reached from the
-title's Tutorial button, and offered once, the first time anybody presses Play on
-a fresh install: "New here?", with Tutorial and Not now, and never asked again
-either way. Six to eight minutes for somebody new. One player at this machine,
-no join, nothing online; the Garage's portal leads here and the portal at the end
-leads back to the Garage, so going round once locks nothing away. Finishing it
-is remembered in the settings; the pause menu's Skip lesson passes a lesson, and
-is gone from the menu from the last lesson on; leaving starts over from the
-first, since nothing in the middle is saved.
+A short, playable lesson in how to drive and what the game is, dressed as a
+driving school: the title's Tutorial button opens on the school, offered once
+besides, the first time anybody presses Play on a fresh install: "New here?",
+with Tutorial and Not now, and never asked again either way. Twenty seconds of
+school, then six to eight minutes of driving test for somebody new, and a
+driver license at the end of it. One player at this machine, no join, nothing
+online; the Garage's portal leads here and the license screen leads back to the
+Garage, so going round once locks nothing away. Finishing it is remembered in
+the settings, and so are the license's number and date; the pause menu's Skip
+lesson passes a lesson, and is gone from the menu from the last lesson on;
+leaving starts over from the first, since nothing in the middle is saved.
+
+**The driving school.** Three pages over the title's own turning background,
+before the test. The enrollment: the game's mark and name with DRIVING SCHOOL
+under them, "Nobody drives the Junction without a license. Earn yours.", a box
+for the name that goes on the license, which starts with the first seat's name
+or with one off the funny list of 3.8 for a seat that never gave one and is
+the first seat's name from here on, the course in three numbered steps, driving
+theory, driving test, your license, and one big button, Enroll; Enter in the box
+enrolls too, and Back is back to the title. The theory: the Highway Code of the
+Junction, 212th edition, open at a spread of two cream pages that reads itself,
+rules in bold among filler drawn from a seeded generator so it reads the same
+every time, with figures and captions among them, the speed limit, a Jackpot,
+karts crossing, the Junction, a drift, a pit, a Royal Flush, a mult die, a
+roundabout, at a pace anybody could follow for a second or two and then on an
+exponential until the pages are a blur, the counter in the corner racing to the
+212th page and a line under the pages going from "comfortable" through "brisk",
+"alarming" and "unreasonable" to "please stop"; nine seconds of that and the
+book slams shut on "Got that?", with Absolutely and Not a word, either of which
+goes on. The pop quiz: three easy questions, one at a time, three answers each
+on buttons, "What goes in your pot?", "What is safe from everybody?", "A Royal
+Flush is...". A right answer lights green with a word; a wrong one shakes red
+and after a moment the right one lights green and presses itself, "Close
+enough.", so nobody fails and everybody leaves knowing. Three down, THEORY:
+PASSED, "We're not picky. The road will be.", how many were right first time,
+and the one button, To the driving test. There is no skipping the school: it
+is twenty seconds.
+
+**The dressing.** The rooms are dressed as a test route, 8.1, in boxes and
+cylinders of the room's own materials that collide with nothing and stand where
+a kart does not go, the edges of the road and the tops of the walls: traffic
+cones along both sides of the corridor north and tucked into the four corners
+of the steering pillar; road signs on poles planted in the wall tops, facing
+the kart as it comes, an L at the start, a 30 by the corridor's gate, the
+roundabout on the pillar itself, a P over the brake and reverse straight, karts
+crossing at the drift room's gate, no entry over the guard turret's run, and a
+plate reading FINAL EXAM with an arrow pointing the way at the join under the
+start; white learner blocks with a red L on every side in the corners of the
+steering, jokers and drift rooms; bunting in the players' colors over the start
+pocket; a zebra crossing painted over the corridor and a parking bay at the far
+end of the straight; and the examiner's booth on the wall over the top of the
+last room, a cabin with a lit window looking down into it and a pennant on a
+pole either side. The kart wears an L-plate on its back for the whole test. The
+loading screen says Driving test, the checklist is headed "Driving test ·" and
+the lesson, and the last lesson is the final exam.
 
 It is one map of rooms in a row, each a lesson, joined by gates: a portcullis
 no taller than the walls either side of it, two posts with a lamp on top of
@@ -3615,12 +3661,12 @@ rules have a switch for it.
 ##....##......................##############################################################
 ##....##......................##############################################################
 ##....##......................##############################################################
-##....##......................###........###################################################
-##....##......................###........###################################################
-##....###########GGGG############.O....O.###################################################
-##....###########....############........###################################################
-##............###....############........###################################################
-##............###....##############GGGG#####################################################
+##....##......................##############################################################
+##....##......................##############################################################
+##....###########GGGG#######################################################################
+##....###########....#######################################################################
+##............###....#######################################################################
+##............###....#######################################################################
 ##............###....#..............................########################################
 ##............###....#...KK...P.....S.......XX......G...####################################
 ##............###....#...KK.........B.......XX......G...####################################
@@ -3648,7 +3694,7 @@ rules have a switch for it.
 ```
 
 **The checklist.** A panel in the top right corner, clear of the player's own
-corner on the left, headed "Objectives · " and the lesson's name, with its
+corner on the left, headed "Driving test · " and the lesson's name, with its
 tasks under it, one lesson at a time; the kill feed, which hangs there too,
 hangs under the list while the list is up. The tick boxes, the bars and the
 rules are in the gold the game's name is written in. A task that is done is
@@ -3875,7 +3921,7 @@ The lessons, each in its own room, in order:
     points are safe. A joker that banks of its own accord, Direct Debit, 7.3,
     is held off until this lesson puts the Junction in the room: banking before
     the player has seen what does it would teach the wrong thing.
-11. **The fight.** The checklist has the goal, bank 1000 points, and under a
+11. **The final exam.** The checklist has the goal, bank 1000 points, and under a
     rule seven hints, each a thing worth doing in a match, ticked on its own
     when it happens and all of them ticked with the goal: take out another kart,
     reach a mult of 4, drain a Jackpot, claim a Royal Flush, bank your whole pot
@@ -3893,25 +3939,53 @@ The lessons, each in its own room, in order:
     once its bot is out in the room. Bank 1000 points in here, counted from the
     start of the fight, the match point counted the same way, from where the
     bank stood as the fight began, shown as a bar across the top center of the
-    screen, "BANK 1000 MORE TO FINISH", the
+    screen, "BANK 1000 MORE TO PASS", the
     way a boss's health would be, with the Royal Flush tally of 8.3 moved down
     under it for the while, and no line over the kart: there is nothing to say
     but the bar; a death is a respawn and a joker pick, a bot comes back on one
     of the room's four spawns, nobody else's banking counts against the player,
     and nobody can win the match itself. The fight is the one lesson the pause
     menu's Skip lesson does not pass: the entry is gone from the menu from the
-    fight on, and the way out is to win or to leave. Reaching it is
-    CONGRATULATIONS across
-    the screen with a fanfare and the fireworks of 8.3 over the room in the
-    player's color, the bots blown up where they stand, a bang each and the
-    death a kart has, for good, with their bullets, their turrets and their
-    decoys gone, so nothing of the fight shoots on or banks on, the settings
-    remember it, the four-cell gate at the top of the room opens on an alcove 8
-    by 5 with the two portals in it, one to Play and one to the Garage, and the
-    arrow points the way through it until the kart is in there with them. A
-    kart parked on the Junction with an
+    exam on, and the way out is to pass or to leave. Passing is a fanfare and
+    the fireworks of 8.3 over the room in the player's color, the bots blown up
+    where they stand, a bang each and the death a kart has, for good, with their
+    bullets, their turrets and their decoys gone, so nothing of the fight shoots
+    on or banks on, the settings remember it, and a couple of seconds after the
+    bang the license comes up, below. A kart parked on the Junction with an
     empty pot finishes a cash-out of nothing every tick, which neither the
-    Junction's lesson nor the fight's hint counts.
+    Junction's lesson nor the exam's hint counts. Which of the seven hints were
+    done on their own, before the goal ticked the rest, is kept for the license.
+
+**The license.** Over the room, with the kart held and the checklist and the
+pause menu gone, on the pane the podium is cut from with the player's color
+along its top: YOU PASSED, "The examiner found nothing to object to. Your
+license, then.", and the card. The card is the shape of one in a wallet, 560 by
+352, drawn as every picture in the game is, 8.3a: cream paper, darker toward
+the foot, with the fine curves of a banknote and the four suits as a watermark;
+a dark band along the top with the game's mark, JACKPOT JUNCTION · DEPT. OF
+KARTS in small print over DRIVER LICENSE in the title's gold, and a gold CLASS K
+chip on the right; a photo on the left, the holder's own kart in their color,
+hat and flag, in a little lit world of its own, turning slowly, in a gold frame
+on a dark ground; beside it NAME, the enrolled name, large, then CLASS "K ·
+Kart" and LICENSE NO., JJ and six digits drawn once when the test is first
+passed and kept in the settings with the date, ISSUED, that day, and EXPIRES,
+NEVER; ENDORSEMENTS as chips in two rows, KO, MULT 4, JACKPOT, ROYAL FLUSH,
+CASH-OUT, ITEMS and FULL HAND, gold for the ones earned on their own in the exam
+and a faint outline for the rest; the holder's name slanted in blue ink over a
+SIGNATURE line under the photo; and the fine print along the foot, VALID ON ALL
+TABLES · NOT VALID AS ID · KEEP OFF THE FELT · NO CASH VALUE. The rubber stamp,
+a wooden handle on a red base, hangs off the card's right edge breathing a
+little, with "Click the stamp to make it official" under the card, or Tap on a
+touch screen; it is a button, so a click, a tap, Enter or A with the cursor on
+it, which it starts with, presses it. Pressed, it lifts and swings over the
+card's lower right corner, slams down with a thud, which is when the card takes
+the mark, two red rings with PASSED between them, DEPT. OF KARTS over the word
+and the date under it, laid a little askew and short of solid the way ink is,
+and the card shivers; then the stamp fades away leaving the mark. Nothing goes
+on without stamping: the stamp is the point. A moment after, CONGRATULATIONS and
+the name in gold, "Class K. Valid on every table. The Junction is yours.", and
+the three ways on, Garage, Hit the road, which is Play, with the cursor, and
+Back to title.
 
 A map may hold more than one Junction, each banking as the one does, and the
 Royal Flush is per room for the same reason: a map of rooms wants each room's

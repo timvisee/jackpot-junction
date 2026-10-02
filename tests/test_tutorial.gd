@@ -5,15 +5,15 @@ extends TutorialSuite
 
 
 ## The rooms chain: every gate shut, nothing past the first room can be reached; open, the way
-## through is blocked only by the boxes of the gallery; those broken too, the portal at the end is.
+## through is blocked only by the boxes of the gallery.
 ## The last room, which three lessons share, is no bigger than the smallest map's floor and wider
 ## than it is tall.
 func test_the_map_is_rooms_in_a_row_joined_by_gates() -> void:
 	assert_array(LAYOUT.validate()).is_empty()
 	var grid := LAYOUT.parse()
 	assert_int(grid.spawns.size()).is_equal(5)
-	assert_int(grid.portals.size()).is_equal(2)
-	assert_int(grid.gates.size()).is_equal(12)
+	assert_int(grid.portals.size()).is_equal(0)
+	assert_int(grid.gates.size()).is_equal(11)
 	assert_int(grid.targets.size()).is_equal(9)
 	assert_int(grid.junctions.size()).is_equal(1)
 	assert_object(grid.junction).is_equal(grid.junctions[0])
@@ -43,10 +43,8 @@ func test_the_map_is_rooms_in_a_row_joined_by_gates() -> void:
 	assert_bool(shut.has(TutorialDrive.new().next_cell)).is_false()
 	var open := _reachable(grid, ["#", "B"] as Array[String])
 	assert_bool(open.has(TutorialShoot.WALL.position)).is_false()
-	assert_bool(open.has(grid.portals[0])).is_false()
 	var broken := _reachable(grid, ["#"] as Array[String])
-	for portal: Vector2i in grid.portals:
-		assert_bool(broken.has(portal)).is_true()
+	assert_bool(broken.has(TutorialPads.SPAWN)).is_true()
 	# Every lesson's cells are where the map has them: its gate a gate, its spawn floor.
 	for lesson: TutorialLesson in [
 		TutorialDrive.new(),
@@ -69,7 +67,17 @@ func test_the_map_is_rooms_in_a_row_joined_by_gates() -> void:
 		assert_bool(grid.glyph(lesson.spawn_cell) in [".", "S"]).is_true()
 	for cell: Vector2i in TutorialFight.PEN_GATES:
 		assert_str(grid.glyph(cell)).is_equal("G")
-	assert_str(grid.glyph(TutorialFight.PORTAL_GATE)).is_equal("G")
+	# The driving school's props stand on wall tops and the edges of the road, never in the way.
+	for sign: Array in SchoolProps.SIGNS:
+		assert_str(grid.glyph(sign[1])).is_equal("#")
+	for cell: Vector2i in SchoolProps.BUNTING + [SchoolProps.EXAM_PLATE]:
+		assert_str(grid.glyph(cell)).is_equal("#")
+	for cell: Vector2i in (
+		SchoolProps.CORRIDOR_CONES + SchoolProps.PILLAR_CONES + SchoolProps.BLOCKS
+	):
+		assert_str(grid.glyph(cell)).is_equal(".")
+	for cell: Vector2i in [SchoolProps.BOOTH.position, SchoolProps.BOOTH.end - Vector2i.ONE]:
+		assert_str(grid.glyph(cell)).is_equal("#")
 	# The pocket's target is past its pillar: no straight line from the window reaches it.
 	for cell: Vector2i in [
 		TutorialItems.POCKET,
@@ -139,7 +147,7 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_int(run.index).is_equal(0)
 	assert_str(lesson.title).is_equal("Driving")
 	assert_int(run.list.listed()).is_equal(1)
-	assert_str(run.list._title.text).is_equal("Objectives  ·  Driving")
+	assert_str(run.list._title.text).is_equal("Driving test  ·  Driving")
 	assert_bool(tutorial._skip_entry.visible).is_true()
 	# The welcome at the top, with the mark, until the kart has driven a few meters.
 	assert_bool(run.notice.is_saying(&"welcome")).is_true()
