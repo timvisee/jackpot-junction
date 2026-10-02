@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-10-02
+
+A driving school teaches the game and ends with a license whose plate your kart wears, and jokers
+now show in your hand when they go off. It doesn't play with 0.11.x.
+
 ### Added
 
 - **A tutorial, as a driving school.** Enroll, sit through a Highway Code that reads itself, pass a
@@ -30,7 +35,6 @@ below, and hands the notes to the release workflow.
 
 - **The shader warm-up asks for patience.** The title's strip reads "Compiling shaders, please
   wait..." while it runs.
-
 ## [0.11.0] - 2026-09-30
 
 Most jokers now stack, four new ones join them, and the bots emote back. Dedicated servers kick
@@ -1520,7 +1524,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.12.0
 [0.11.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.11.0
 [0.10.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.10.1
 [0.10.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.10.0
