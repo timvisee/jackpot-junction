@@ -38,6 +38,14 @@ const CHAPTERS: Array[Array] = [
 		],
 	],
 	[
+		"Signs and markings",
+		[
+			"A sign shall be obeyed by any kart able to read it.",
+			"Hazard stripes mean hazard. They are not decoration, whatever they look like.",
+			"Arrows on the floor point the way. Karts may go the other way at their own risk.",
+		],
+	],
+	[
 		"Coins and pots",
 		[
 			"Coins collected go to your pot. The pot is yours until it isn't.",
@@ -61,12 +69,48 @@ const CHAPTERS: Array[Array] = [
 			"On meeting a pit, the recommended procedure is: not that.",
 		],
 	],
+	[
+		"Items",
+		[
+			"An item held is an item not yet used. Use it.",
+			"A shield is a hat for the whole kart.",
+			"Oil goes on the floor, not on other drivers' feelings.",
+		],
+	],
 	["Jokers", ["Jokers bend rules in your favor. This rule is not a joker."]],
 	[
 		"Hazards",
 		[
 			"Shots bounce. Plan accordingly, or don't, and see what happens.",
 			"A turret left running is a turret left running.",
+		],
+	],
+	[
+		"Bots",
+		[
+			"Bots drive like bots. Do not take it personally.",
+			"A bot that says gg means it, more or less.",
+		],
+	],
+	[
+		"Emotes",
+		[
+			"An emote is a statement. A second emote is an argument.",
+			"Emoting while banking is permitted, and encouraged.",
+		],
+	],
+	[
+		"Bounties",
+		[
+			"A crown makes you a target. Wear it with pride, briefly.",
+			"The bounty on your head is a compliment.",
+		],
+	],
+	[
+		"Overtime",
+		[
+			"Overtime is the same as time, only more so.",
+			"In sudden death, death is sudden.",
 		],
 	],
 	[
@@ -77,8 +121,22 @@ const CHAPTERS: Array[Array] = [
 		],
 	],
 ]
-## The end of the book, on its last page: a chapter of its own after the last, its one section
-## concluding the code with a clause or two under it, and THE END over the printer's note.
+## The back cover: what the publisher says of the book, what its readers say, each with who said
+## it, its number for the barcode and its price.
+const BLURB := (
+	"Everything a kart needs to know, and a fair amount it does not. "
+	+ "Revised for the 212th time, and still not finished."
+)
+const QUOTES: Array[Array] = [
+	["\u201cImpossible to put down. It shuts itself.\u201d", "The Examiner"],
+	["\u201cI read it cover to cover. Quickly.\u201d", "A learner"],
+	["\u201cBank first. Read later.\u201d", "The Junction"],
+]
+const ISBN := "ISBN 0-212-2120-K"
+const PRICE := "212 CHIPS"
+## The end of the book, on its last page: a chapter of its own after the one the page across
+## from it is in, its one section concluding the code with a clause or two under it, and THE END
+## over the printer's note, see [method ending_after].
 const CLOSING_TITLE := "Final provisions"
 const CLOSING_RULE := "This concludes the Highway Code of the Junction."
 const CLOSING_CLAUSES: Array[String] = [
@@ -92,8 +150,8 @@ const COLOPHON := (
 )
 ## How many clauses a section has under its rule, fewest and most; how many paragraphs at least
 ## stand between two figures, and the chance of one after any paragraph past that.
-const CLAUSES_FEWEST := 2
-const CLAUSES_MOST := 6
+const CLAUSES_FEWEST := 3
+const CLAUSES_MOST := 7
 const FIGURE_GAP := 2
 const FIGURE_CHANCE := 0.3
 ## What the filler is made of: a subject, a verb, an object and a tail, drawn by a seeded
@@ -151,9 +209,6 @@ const SEED := 212
 var items: Array[Dictionary] = []
 var sections := 0
 var figures := 0
-## The book's last page, numbered on from the last section of the text, see [method words]: the
-## same lap as the page across from it reads it right after that page.
-var ending: Array[Dictionary] = []
 
 
 func _init() -> void:
@@ -168,38 +223,69 @@ func _compose() -> void:
 	rng.seed = SEED
 	items = [{"kind": &"title"}]
 	var since_figure := 0
+	# Every item knows the chapter and the section it is in, so the end can be numbered on from
+	# whichever of them the book gets to.
 	for chapter: int in CHAPTERS.size():
-		items.append({"kind": &"chapter", "number": chapter + 1, "text": CHAPTERS[chapter][0]})
+		var number := chapter + 1
+		items.append(
+			{
+				"kind": &"chapter",
+				"number": number,
+				"chapter": number,
+				"section": sections,
+				"text": CHAPTERS[chapter][0]
+			}
+		)
 		for rule: String in CHAPTERS[chapter][1]:
 			sections += 1
-			items.append({"kind": &"rule", "section": sections, "text": rule})
+			items.append({"kind": &"rule", "chapter": number, "section": sections, "text": rule})
 			since_figure += 1
 			for clause: int in rng.randi_range(CLAUSES_FEWEST, CLAUSES_MOST):
 				var said := _filler(rng)
 				items.append(
-					{"kind": &"clause", "section": sections, "clause": clause + 1, "text": said}
+					{
+						"kind": &"clause",
+						"chapter": number,
+						"section": sections,
+						"clause": clause + 1,
+						"text": said
+					}
 				)
 				since_figure += 1
 				if since_figure >= FIGURE_GAP and rng.randf() < FIGURE_CHANCE:
 					figures += 1
-					items.append({"kind": &"figure", "number": figures})
+					items.append(
+						{
+							"kind": &"figure",
+							"chapter": number,
+							"section": sections,
+							"number": figures
+						}
+					)
 					since_figure = 0
-	# The ending: the chapter and the section after the last, so its numbers go on from them.
-	var last := sections + 1
-	ending = [
-		{"kind": &"chapter", "number": CHAPTERS.size() + 1, "text": CLOSING_TITLE},
-		{"kind": &"rule", "section": last, "text": CLOSING_RULE},
+
+
+## The book's last page, to come right after [param last], the last item on the page across from
+## it: a chapter numbered on from the one [param last] is in, a section on from its section, so
+## read the same lap as that page, see [method words], its numbers go on from it.
+func ending_after(last: Dictionary) -> Array[Dictionary]:
+	var chapter := int(last.get("chapter", CHAPTERS.size())) + 1
+	var section := int(last.get("section", sections)) + 1
+	var ending: Array[Dictionary] = [
+		{"kind": &"chapter", "number": chapter, "text": CLOSING_TITLE},
+		{"kind": &"rule", "section": section, "text": CLOSING_RULE},
 	]
 	for clause: int in CLOSING_CLAUSES.size():
 		ending.append(
 			{
 				"kind": &"clause",
-				"section": last,
+				"section": section,
 				"clause": clause + 1,
 				"text": CLOSING_CLAUSES[clause]
 			}
 		)
 	ending.append({"kind": &"end"})
+	return ending
 
 
 ## [param item] of the text as it reads the [param lap]th time the book comes round to it, from

@@ -3620,9 +3620,11 @@ edition, with the first rule on the page across from it, and stands there a
 moment and a half; then its pages turn, the text cut into pages with nothing
 cut across two and no chapter heading left at the foot of one. The text is a
 code, drawn from a seeded generator so it reads the same every time: chapters
-numbered in Roman numerals, The kart, Coins and pots, Pads and the mult,
-Handling, Jokers, Hazards and Examinations, each of sections numbered on through
-the book, each section a rule in bold with two to six clauses of filler under
+numbered in Roman numerals, The kart, Signs and markings, Coins and pots, Pads
+and the mult, Handling, Items, Jokers, Hazards, Bots, Emotes, Bounties, Overtime
+and Examinations, each of sections numbered on through the book, long enough
+for a whole read without coming round again, each section a rule in bold with
+three to seven clauses of filler under
 it, § 3.1, § 3.2 and on, and figures falling among the clauses where they will,
 numbered as they come, the speed limit, karts crossing, a Jackpot, the
 Junction, a Royal Flush, a mult die, a drift, a pit, a roundabout; the text
@@ -3635,14 +3637,18 @@ read the spread in, each next one sooner by nearly a third, until they riffle
 past twenty a second and the page numbers race to the 212th, each turn a soft
 rustle, softer and a touch higher as the pages race; then the riffle slows over
 its last moments, and the last leaf comes over onto the end of the book, pages
-211 and 212: the last page of the text, and across from it Final provisions, a
-chapter of its own numbered on from the last, "This concludes the Highway Code
+211 and 212: the next page of the text, whichever it is, nothing skipped, and
+across from it Final provisions, a chapter of its own numbered on from that
+page's, "This concludes the Highway Code
 of the Junction.", the holder now being fully informed and to be asked about
 it, THE END, and the printer's note, "No karts were harmed in the making of
 this book. Most were merely inconvenienced." That stands a moment; ten seconds
 of reading in all, and the book shuts,
 a breath, the right half swinging over onto the left on the spine, the front
-cover coming down over it, tooled leather with the book's name in gilt, with a
+cover coming down over it, the back of the book, tooled leather like the front
+but with the publisher's word on the book, what three readers said of it, "Impossible
+to put down. It shuts itself." the Examiner's, a barcode on a cream label and
+the price, 212 chips, where the front has the book's name in gilt, with a
 thud and a puff of dust off its edges, and, the shut book standing a couple of
 seconds, "Got that?" beside it where the right page was, with
 Absolutely and Not a word, either of which goes on.

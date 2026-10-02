@@ -115,9 +115,9 @@ var _book: Control
 ## The two halves of the open book, each its half of the cover with its page on it, and the
 ## front cover that comes down over the left half as the book shuts.
 var _halves: Array[Control] = []
-var _lid: Control
+var _lid: BookCover
 ## The front cover over the right half, as the shut book lies before it opens.
-var _front: Lid
+var _front: BookCover
 ## The opening, while it is under way.
 var _opening: Tween
 ## Every page's text, the clip it runs under and its page number: the spread's left and right,
@@ -155,6 +155,8 @@ var _sound_left := 0.0
 var _ended := false
 var _final_left := -1
 var _final_lap := 0
+## The book's last page, numbered on from the page across from it.
+var _ending: Array[Dictionary] = []
 
 
 ## How wide one half of the book is: its half of the cover, its page and its half of the gutter.
@@ -236,81 +238,6 @@ class HalfCover:
 			draw_rect(Rect2(Vector2(x, COVER), Vector2(3.0, PAGE.y)), shade)
 
 
-## The front cover, as it comes down over the left half: leather, tooled, with the book's name
-## in gilt and the game's mark under it.
-class Lid:
-	extends Control
-
-	## Whether the spine runs down its left edge, as on a shut book lying on the right half, rather
-	## than its right, as on one shut onto the left.
-	var spine_left := false
-
-	func _draw() -> void:
-		var leather := StyleBoxFlat.new()
-		leather.bg_color = COVER_INK
-		leather.shadow_color = Color(0.0, 0.0, 0.0, 0.55)
-		leather.shadow_size = 22
-		_round_fore_edge(leather, 10)
-		draw_style_box(leather, Rect2(Vector2.ZERO, size))
-		var light := StyleBoxFlat.new()
-		light.bg_color = COVER_LIGHT
-		_round_fore_edge(light, 8)
-		var inset := Vector2(0.0 if spine_left else 3.0, 3.0)
-		draw_style_box(light, Rect2(inset, size - Vector2(3.0, 6.0)))
-		var tooled := StyleBoxFlat.new()
-		tooled.draw_center = false
-		tooled.set_border_width_all(2)
-		tooled.border_color = TOOLING
-		_round_fore_edge(tooled, 6)
-		draw_style_box(tooled, Rect2(Vector2(14.0, 14.0), size - Vector2(28.0, 28.0)))
-		var spine := GUTTER * 0.5 + 4.0
-		draw_rect(
-			Rect2(Vector2(0.0 if spine_left else size.x - spine, 0.0), Vector2(spine, size.y)),
-			SPINE_INK
-		)
-		var font := Type.display_font()
-		var lines := COVER_TITLE.split("\n")
-		var font_size := 30
-		var top := size.y * 0.3
-		for i: int in lines.size():
-			var baseline := top + float(i) * 38.0 + font.get_ascent(font_size)
-			draw_string(
-				font,
-				Vector2(0.0, baseline),
-				lines[i],
-				HORIZONTAL_ALIGNMENT_CENTER,
-				size.x,
-				font_size,
-				GILT
-			)
-		draw_line(
-			Vector2(size.x * 0.3, size.y * 0.3 - 18.0),
-			Vector2(size.x * 0.7, size.y * 0.3 - 18.0),
-			GILT,
-			1.5
-		)
-		var foot := top + float(lines.size()) * 38.0 + 10.0
-		draw_line(Vector2(size.x * 0.3, foot), Vector2(size.x * 0.7, foot), GILT, 1.5)
-		draw_string(
-			Type.STRONG,
-			Vector2(0.0, foot + 26.0),
-			"212TH EDITION",
-			HORIZONTAL_ALIGNMENT_CENTER,
-			size.x,
-			12,
-			GILT
-		)
-
-	## Rounds the fore-edge's corners of [param box], the ones away from the spine.
-	func _round_fore_edge(box: StyleBoxFlat, radius: int) -> void:
-		if spine_left:
-			box.corner_radius_top_right = radius
-			box.corner_radius_bottom_right = radius
-		else:
-			box.corner_radius_top_left = radius
-			box.corner_radius_bottom_left = radius
-
-
 ## The dust a book throws up as it shuts: motes drifting out from its edges, growing and fading.
 class Dust:
 	extends Control
@@ -362,8 +289,10 @@ func _ready() -> void:
 	for side: int in 2:
 		_book.add_child(_half(side))
 	_book.add_child(_leaf_over())
-	_lid = Lid.new()
+	_lid = BookCover.new()
 	_lid.name = "Lid"
+	# Shut onto the left at the end, the book shows its back.
+	_lid.back = true
 	_lid.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_lid.size = Vector2(half_width(), book_height())
 	_lid.position = Vector2.ZERO
@@ -373,7 +302,7 @@ func _ready() -> void:
 	_lid.visible = false
 	_book.add_child(_lid)
 	# The front cover the book opens by, over the right half, hinged on the spine at its left.
-	_front = Lid.new()
+	_front = BookCover.new()
 	_front.name = "Front"
 	_front.spine_left = true
 	_front.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -625,13 +554,9 @@ func _text_page(spread: int, right := false) -> int:
 func _show_page(which: int, text: int, folio: int) -> void:
 	if _page_first.size() < 2:
 		return
-	var count := _page_count()
-	var lap := 0
-	var page := text
-	if text >= count:
-		var past := text - 1
-		lap = past / maxi(count - 1, 1)
-		page = 1 + past % maxi(count - 1, 1)
+	var at := _locate(text)
+	var page := at.x
+	var lap := at.y
 	var column := _columns[which]
 	for old: Node in column.get_children():
 		column.remove_child(old)
@@ -686,28 +611,51 @@ func _prepare_turn(last := false) -> void:
 	_preparing = true
 
 
-## Which page of the text the end comes after: the last of the lap of it the right page is in, or
-## of the next lap should the right page be that last one already, so the numbers only go up.
+## The end comes after the next page as it is, whatever it is, so nothing is skipped: the end is
+## numbered on from the last item on it, see [method TheoryText.ending_after].
 func _aim_at_the_end() -> void:
-	var count := maxi(_page_count() - 1, 1)
-	var right_now := _text_page(_spread - 1, true)
-	_final_lap = right_now / count
-	_final_left = (_final_lap + 1) * count
-	if _final_left <= right_now:
-		_final_lap += 1
-		_final_left += count
+	_final_left = _text_page(_spread)
+	var at := _locate(_final_left)
+	_final_lap = at.y
+	_ending = _text.ending_after(_text.items[_page_first[at.x + 1] - 1])
 
 
-## The book's last page on page [param which], numbered [param folio], see [member
-## TheoryText.ending].
+## Where text page [param text] is in the text: its page of it, and the lap of the text it is in,
+## the book coming round to the start again past the end.
+func _locate(text: int) -> Vector2i:
+	var count := _page_count()
+	if text < count:
+		return Vector2i(text, 0)
+	var past := text - 1
+	return Vector2i(1 + past % maxi(count - 1, 1), past / maxi(count - 1, 1))
+
+
+## The book's last page on page [param which], numbered [param folio], see [method
+## TheoryText.ending_after].
 func _show_the_end(which: int, folio: int) -> void:
 	var column := _columns[which]
 	for old: Node in column.get_children():
 		column.remove_child(old)
 		old.queue_free()
-	for item: Dictionary in _text.ending:
+	for item: Dictionary in _ending:
 		column.add_child(_text.build(item, _final_lap))
 	_folios[which].text = str(folio)
+
+
+## How many leaves a whole read turns, the last onto the end, by the same schedule the turns
+## keep, so the text can be checked to be long enough never to come round again.
+static func planned_turns() -> int:
+	var at := TURN_FIRST
+	var interval := TURN_FIRST
+	var count := 0
+	while at < LAST_TURN:
+		count += 1
+		if at >= LAST_TURN - SLOW_FOR:
+			interval = minf(interval / TURN_RAMP, TURN_SLOWEST)
+		else:
+			interval = maxf(interval * TURN_RAMP, TURN_FASTEST)
+		at += interval
+	return count + 1
 
 
 ## The leaf lifts off the right page, which is the next spread's under it from here on, and comes

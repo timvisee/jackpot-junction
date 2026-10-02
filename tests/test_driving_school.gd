@@ -104,6 +104,8 @@ func test_the_book_reads_faster_shuts_and_asks() -> void:
 	assert_str(theory._folios[1].text).is_equal("2")
 	assert_object(theory._columns[0].get_child(0).find_child("*", true, false)).is_not_null()
 	assert_int(theory._page_count()).is_greater(10)
+	# Long enough that a whole read never comes round to the start again.
+	assert_int(theory._page_count()).is_greater(2 * SchoolTheory.planned_turns() + 2)
 	assert_int(theory._columns[SchoolTheory.RIGHT].get_child_count()).is_greater(0)
 	for page: int in theory._page_count():
 		assert_float(theory._page_tall[page]).is_less_equal(SchoolTheory.leaf_height())
@@ -177,6 +179,8 @@ func test_the_book_reads_faster_shuts_and_asks() -> void:
 	var end_section := int(end_words.get_slice("§ ", 1).get_slice(".", 0))
 	var left_section := int(left_words.get_slice("§ ", left_words.count("§ ")).get_slice(".", 0))
 	assert_int(end_section).is_equal(left_section + 1)
+	# Nothing skipped on the way: the page across from the end is the one after the last.
+	assert_int(theory._final_left).is_equal(theory._text_page(theory._spread))
 	assert_bool(theory.is_asking()).is_false()
 	theory.elapsed = SchoolTheory.READ_FOR
 	await runner.simulate_frames(2, 16)
