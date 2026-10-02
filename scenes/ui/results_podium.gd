@@ -39,16 +39,17 @@ static func create() -> ResultsPodium:
 	return podium
 
 
-## Stands the top three on it, tallest first. Called every time the screen is filled in, so it
-## clears whatever was standing there before.
-func show_top(standings: Array[PlayerSlot]) -> void:
+## Stands the top three on it, tallest first, each kart of this machine's, [param mine] by
+## place, with the plate on its back, GAME.md 4.4. Called every time the screen is filled in, so
+## it clears whatever was standing there before.
+func show_top(standings: Array[PlayerSlot], mine: Array[bool] = []) -> void:
 	for child: Node in _stage.get_children():
 		_stage.remove_child(child)
 		child.free()
 	_karts.clear()
 	var shown := mini(standings.size(), PLACES.size())
 	for place: int in shown:
-		_add_step(standings[place], place)
+		_add_step(standings[place], place, place < mine.size() and mine[place])
 	# A full podium is already centered on the winner. A short one is not, so the whole thing is
 	# slid over until what is standing on it sits in the middle of the picture.
 	var middle := 0.0
@@ -70,8 +71,9 @@ func _process(delta: float) -> void:
 		kart.rotate_y(TAU * delta / SPIN_SECONDS)
 
 
-## One step with its kart on top and its place painted on the front.
-func _add_step(slot: PlayerSlot, place: int) -> void:
+## One step with its kart on top and its place painted on the front, and the plate on the kart
+## where it is somebody's at this machine.
+func _add_step(slot: PlayerSlot, place: int, is_mine: bool) -> void:
 	var at := PLACES[place]
 	var step := MeshInstance3D.new()
 	var box := BoxMesh.new()
@@ -92,7 +94,10 @@ func _add_step(slot: PlayerSlot, place: int) -> void:
 	kart.name = "Kart%d" % place
 	kart.position = Vector3(at.x, at.y + BAND_LIFT, 0.0)
 	kart.scale = Vector3.ONE * KART_SCALE
-	kart.add_child(KartVisuals.display_model(slot.color_index, slot.style))
+	var model := KartVisuals.display_model(slot.color_index, slot.style)
+	kart.add_child(model)
+	if is_mine:
+		KartVisuals.plate_for_here_on(model)
 	_stage.add_child(kart)
 	_karts.append(kart)
 

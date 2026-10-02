@@ -69,15 +69,37 @@ static func license_plate(kart: Kart, text: String) -> Node3D:
 ## The plate a kart of this machine's wears, by the settings: the learner's L until the license
 ## is earned, and the plate chosen after.
 static func plate_for_here(kart: Kart) -> Node3D:
+	return plate_for_here_on(kart.get_node_or_null("Body") as Node3D)
+
+
+## The same plate on [param body], a kart's body or a model of one standing for display, the
+## podium's say, GAME.md 3.8.
+static func plate_for_here_on(body: Node3D) -> Node3D:
+	if body == null:
+		return null
 	if Game.settings.license_number.is_empty():
-		return learner_plate(kart)
-	return license_plate(kart, Game.settings.license_plate)
+		var learner := _plate_on(
+			body,
+			SchoolFigure.of(SchoolFigure.Kind.LEARNER, 128.0),
+			Vector2i(128, 128),
+			Vector2(LEARNER_SIDE, LEARNER_SIDE)
+		)
+		learner.set_meta(&"plate", "L")
+		return learner
+	var text := Game.settings.license_plate
+	var plate := _plate_on(body, LicensePlate.of(text), Vector2i(448, 128), LICENSE_PLATE)
+	plate.set_meta(&"plate", text)
+	return plate
 
 
 ## [param drawing], [param pixels] across, as a face [param size] meters across on the back of
 ## [param kart], where whatever plate it wore was.
 static func _plate(kart: Kart, drawing: Control, pixels: Vector2i, size: Vector2) -> Node3D:
-	var body := kart.get_node_or_null("Body") as Node3D
+	return _plate_on(kart.get_node_or_null("Body") as Node3D, drawing, pixels, size)
+
+
+## The same, on [param body], any node a kart's model hangs under at the kart's own scale.
+static func _plate_on(body: Node3D, drawing: Control, pixels: Vector2i, size: Vector2) -> Node3D:
 	if body == null:
 		return null
 	var old := body.get_node_or_null("Plate")

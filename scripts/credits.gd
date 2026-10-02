@@ -41,6 +41,12 @@ const THINGS: Array[Dictionary] = [
 		"where": "rsms.me/inter",
 	},
 	{
+		"what": "Homemade Apple typeface, the signature on the driver license",
+		"who": "Font Diner",
+		"terms": "Apache License 2.0",
+		"where": "fonts.google.com/specimen/Homemade+Apple",
+	},
+	{
 		"what": "gdUnit4, the tests' framework",
 		"who": "Mike Schulze",
 		"terms": "MIT license",

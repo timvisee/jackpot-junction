@@ -157,14 +157,13 @@ static func billboard(content: Control, pixel_size: float) -> Node3D:
 	viewport.gui_disable_input = true
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	holder.add_child(viewport)
-	viewport.add_child(content)
-	# Sized after a layout pass rather than now: a container works out how big it is when it is
-	# sorted, which has not happened yet, and a viewport cut to the answer from before that is a
-	# hint with its last word chopped off.
+	# Sized once the row is ready in the tree rather than now, with its minimum size worked out,
+	# and again whenever that changes: a viewport cut to the answer from before that is a hint
+	# with its last word chopped off. On ready rather than deferred, so a hint freed before the
+	# end of the frame leaves no call behind to find it gone.
+	content.ready.connect(_fit.bind(viewport, content), CONNECT_ONE_SHOT)
 	content.minimum_size_changed.connect(_fit.bind(viewport, content))
-	# Through a closure rather than a deferred call with the two as arguments: a hint freed before
-	# the end of the frame would hand the call freed objects, which it cannot take as typed ones.
-	(func() -> void: _fit(viewport, content)).call_deferred()
+	viewport.add_child(content)
 	var sprite := Sprite3D.new()
 	sprite.name = "Face"
 	sprite.texture = viewport.get_texture()
@@ -186,11 +185,9 @@ static func redraw(holder: Node3D, content: Control) -> void:
 	for old: Node in viewport.get_children():
 		viewport.remove_child(old)
 		old.queue_free()
-	viewport.add_child(content)
+	content.ready.connect(_fit.bind(viewport, content), CONNECT_ONE_SHOT)
 	content.minimum_size_changed.connect(_fit.bind(viewport, content))
-	# Through a closure rather than a deferred call with the two as arguments: a hint freed before
-	# the end of the frame would hand the call freed objects, which it cannot take as typed ones.
-	(func() -> void: _fit(viewport, content)).call_deferred()
+	viewport.add_child(content)
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 

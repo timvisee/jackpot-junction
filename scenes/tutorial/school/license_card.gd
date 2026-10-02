@@ -18,6 +18,11 @@ const BAND_HEIGHT := 64.0
 const INK := Color(0.13, 0.12, 0.14)
 const FAINT := Color(0.47, 0.45, 0.46)
 const SIGNATURE_INK := Color(0.14, 0.2, 0.46)
+## The hand the signature is written in: Homemade Apple, a handwriting face under the Apache
+## license, see assets/fonts, the one face in the game that is not Inter, since a signature set
+## in a text face is a name typed on a line.
+const SIGNATURE_FONT: Font = preload("res://assets/fonts/HomemadeApple-Regular.ttf")
+const SIGNATURE_SIZE := 17
 const STAMP_INK := Color(0.8, 0.17, 0.14, 0.82)
 const PHOTO := Rect2(Vector2(26.0, 84.0), Vector2(148.0, 148.0))
 const PHOTO_BACK := Color(0.18, 0.2, 0.26)
@@ -65,6 +70,8 @@ static func create(
 ) -> LicenseCard:
 	var card := LicenseCard.new()
 	card.name = "LicenseCard"
+	# Nothing to press on a card, unless whoever shows it says otherwise, as the title does.
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.holder_name = of
 	card.number = numbered
 	card.issued = on
@@ -119,7 +126,6 @@ func _ready() -> void:
 	custom_minimum_size = SIZE
 	size = SIZE
 	pivot_offset = SIZE * 0.5
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var mark := LogoArt.new()
 	mark.plate = false
 	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -332,17 +338,19 @@ func _draw_signature() -> void:
 	var line_y := 292.0
 	draw_line(Vector2(26.0, line_y), Vector2(176.0, line_y), Color(INK, 0.5), 1.0)
 	_text(Vector2(26.0, line_y + 3.0), "SIGNATURE", Type.STRONG, 8, FAINT)
-	var font := Type.TEXT
-	var font_size := 19
-	var shown := holder_name
+	# In a hand, a size down for a long name, and leaning a little further than the hand does.
+	var font := SIGNATURE_FONT
+	var font_size := SIGNATURE_SIZE
 	while (
-		shown.length() > 1
-		and font.get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > 150.0
+		font_size > 10
+		and font.get_string_size(holder_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > 146.0
 	):
-		shown = shown.substr(0, shown.length() - 1)
-	var slant := Transform2D(Vector2(1.0, 0.0), Vector2(-0.3, 1.0), Vector2(32.0, line_y - 6.0))
+		font_size -= 1
+	var slant := Transform2D(Vector2(1.0, 0.0), Vector2(-0.12, 1.0), Vector2(30.0, line_y - 8.0))
 	draw_set_transform_matrix(slant)
-	draw_string(font, Vector2.ZERO, shown, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, SIGNATURE_INK)
+	draw_string(
+		font, Vector2.ZERO, holder_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, SIGNATURE_INK
+	)
 	draw_set_transform(Vector2.ZERO)
 
 

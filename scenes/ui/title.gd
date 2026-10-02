@@ -7,7 +7,7 @@ extends Control
 ## Room kept under the buttons for the credits along the bottom of the screen.
 const CREDITS_ROOM := 48.0
 ## What is asked before driving without a license, GAME.md 9.4a.
-const LICENSE_QUESTION := "No license yet"
+const LICENSE_QUESTION := "Missing license"
 const LICENSE_LINE := (
 	"Nobody drives the Junction without one. The driving school takes a few minutes: "
 	+ "a little theory, the driving test, and a license with your name on it."

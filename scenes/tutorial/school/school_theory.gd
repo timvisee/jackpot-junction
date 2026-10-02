@@ -6,9 +6,9 @@ extends Control
 ## anybody could follow, with figures among the rules, and speeds up on an exponential until the
 ## pages are a blur and the page numbers in the corners are racing to the 212th. Nine seconds of
 ## that and the book folds shut, the right half swinging over onto the left and the front cover
-## coming down on it with a thud and a puff of dust, and the one question is "Got that?", which
-## either answer gets past: the theory is a gag with a few true things in it, and the test is the
-## test.
+## coming down on it with a thud and a puff of dust, and the one question, "Got that?", comes up
+## beside the shut book where the right page was, which either answer gets past: the theory is a
+## gag with a few true things in it, and the test is the test.
 
 signal finished
 
@@ -30,7 +30,7 @@ const START_SPEED := 36.0
 const RAMP := 0.62
 const TOP_SPEED := 16000.0
 ## The shutting: a breath before it, the right half swinging over, the cover coming down, the
-## closed book standing a moment, and the fade to the question.
+## closed book standing a while, and the question fading in beside it.
 const BREATH := 0.25
 const SWING := 0.34
 const COVER_DOWN := 0.26
@@ -369,10 +369,14 @@ func _ready() -> void:
 	_lid.scale = Vector2(0.0, 1.0)
 	_lid.visible = false
 	_book.add_child(_lid)
+	# The question, where the right page was once the book is shut, beside it.
 	_question = VBoxContainer.new()
 	_question.name = "Question"
 	_question.add_theme_constant_override("separation", 16)
 	_question.alignment = BoxContainer.ALIGNMENT_CENTER
+	_question.position = Vector2(half_width() + GUTTER, 0.0)
+	_question.size = Vector2(half_width() - GUTTER, book_height())
+	_question.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_question.add_child(MenuTheme.title(QUESTION, Type.HEADING))
 	for word: String in ANSWERS:
 		var button := MenuTheme.button(word)
@@ -381,7 +385,7 @@ func _ready() -> void:
 		_question.add_child(button)
 		answers.append(button)
 	_question.visible = false
-	column.add_child(_question)
+	_book.add_child(_question)
 	_show_pages()
 
 
@@ -627,7 +631,6 @@ func shut() -> void:
 	fold.tween_property(_lid, "scale:x", 1.0, COVER_DOWN)
 	fold.tween_callback(_slammed)
 	fold.tween_interval(SHUT_FOR)
-	fold.tween_property(_book, "modulate:a", 0.0, FADE)
 	fold.tween_callback(_ask)
 
 
@@ -675,12 +678,12 @@ func _slammed() -> void:
 	settle.tween_property(_halves[0], "position:x", 0.0, 0.04)
 
 
+## The question comes up beside the shut book.
 func _ask() -> void:
-	_book.visible = false
 	_question.visible = true
 	_question.modulate.a = 0.0
 	var fade := create_tween()
-	fade.tween_property(_question, "modulate:a", 1.0, 0.25)
+	fade.tween_property(_question, "modulate:a", 1.0, FADE)
 	answers[0].grab_focus()
 
 

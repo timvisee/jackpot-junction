@@ -113,7 +113,10 @@ func fill_in() -> void:
 	var standings := run.standings(match_node.slots) if final else match_node.standings()
 	if not standings.is_empty():
 		_style.border_color = standings[0].color()
-	_podium.show_top(standings)
+	var mine: Array[bool] = []
+	for slot: PlayerSlot in standings:
+		mine.append(_is_mine(slot))
+	_podium.show_top(standings, mine)
 	_title.text = GRAND_PRIX_TITLE if final else TITLE
 	var rank := 1
 	for slot: PlayerSlot in standings:

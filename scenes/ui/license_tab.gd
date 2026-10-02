@@ -5,7 +5,7 @@ extends ScrollContainer
 ## one is earned, a word on where to get one, the button that goes there, and the learner's L the
 ## kart wears meanwhile.
 
-const NONE_YET := "No license yet."
+const NONE_YET := "Missing license."
 const HOW := "Pass the driving school's test to earn one. It takes a few minutes."
 const EARN := "Earn it now"
 const MEANWHILE := "Until then, your kart wears this."

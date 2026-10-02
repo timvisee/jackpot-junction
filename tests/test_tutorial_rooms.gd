@@ -766,7 +766,7 @@ func test_the_title_asks_for_the_license_until_it_is_earned() -> void:
 	title.offer_license(func() -> void: went[0] += 1)
 	var pane: ConfirmPane = title.find_child("LicenseOffer", true, false)
 	assert_object(pane).is_not_null()
-	assert_str(pane.said()).contains("No license yet")
+	assert_str(pane.said()).contains("Missing license")
 	assert_int(went[0]).is_equal(0)
 	pane.no_button().pressed.emit()
 	assert_int(went[0]).is_equal(1)

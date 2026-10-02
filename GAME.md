@@ -398,7 +398,8 @@ graphics card or a cleared cache.
 The screen is headed Podium and opens with one: the top three on three steps, the winner
 in the middle on the tallest, second a little lower on one side and third lowest
 on the other, each with their own kart standing on top of it turning slowly on the
-spot. It is a small 3D scene of its own rather than a picture, lit by its own
+spot, a kart of this machine's with the plate on its back, the learner's L or the
+license plate, see 4.4. It is a small 3D scene of its own rather than a picture, lit by its own
 light in a world of its own so nothing of the arena behind it leaks in. A match of
 two fills two steps.
 
@@ -512,7 +513,7 @@ else's results screen, see 10.3.
   whether it is a Grand Prix of several maps or a quick match on one, see 9.7; anybody
   else at the machine joins in there. There is no screen of rules of its own
   before it. Until this machine has earned the driver license of 9.4a, Play,
-  Play LAN and Play Online each ask for it first, every time: "No license yet",
+  Play LAN and Play Online each ask for it first, every time: "Missing license",
   with Earn it now, which is the driving school, and Drive anyway. At
   the start of a match the drive and fire controls are shown next to each
   human player's kart, from the countdown until that player has both driven
@@ -1215,7 +1216,7 @@ short buzz the slider gives, so reading along the row is felt card by card.
   anything for as long as somebody takes it for you, and a kart in your color
   with none of your things on it is not you.
 - The podium at the end of a match shows each kart as its owner dressed it, see
-  3.8, and so does the Garage.
+  3.8, plate and all for the karts of this machine, and so does the Garage.
 
 ## 5. Combat
 
@@ -2331,7 +2332,10 @@ movement: the one thing a corner block must not do is ask to be looked at.
   a banked score, the clock, a speed, a place in the standings -- is set with
   tabular figures, so every digit is the same width and the line stays where it
   is while it counts. Proportional digits move the whole line sideways on every
-  tick, and a number that moves is a number read twice. Sizes come off a scale where each step is
+  tick, and a number that moves is a number read twice. The one face that is
+  not Inter is the hand the signature on the driver license of 9.4a is written
+  in, Homemade Apple, under the Apache license: a signature set in a text face
+  is a name typed on a line. Sizes come off a scale where each step is
   about a quarter larger than the one below it, because a screen with nine sizes
   on it reads as nine screens. Display lines are tracked out a little: a heavy
   face set tight reads as a shout.
@@ -2903,6 +2907,11 @@ are open keeps whatever was changed in them. On a pad the shoulder buttons step 
 round at the ends, and a line beside Back says so; while a rebind is listening they are bindings
 like any other button.
 
+- **License**, first: the driver license earned at the driving school of 9.4a, as it
+  was stamped, with the plate on the back of the kart under it to change, see
+  4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed;
+  or, before one is earned, a word on where to get one, Earn it now, which goes
+  to the school, and the learner's L the kart wears meanwhile.
 - **Controls**: how the first player drives, simple or advanced, each a button
   with its picture on it, a kart with an arrow each way round it and a steering
   wheel, and Help me choose beside them for the question the first Play asks, see
@@ -2915,11 +2924,6 @@ like any other button.
   button with the picture of how that seat drives, simple or advanced, that
   changes it to the other, see 4.2. The first seat's is the Driving row of
   Controls, and each shows what the other was changed to.
-- **License**: the driver license earned at the driving school of 9.4a, as it
-  was stamped, with the plate on the back of the kart under it to change, see
-  4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed;
-  or, before one is earned, a word on where to get one, Earn it now, which goes
-  to the school, and the learner's L the kart wears meanwhile.
 - **Audio**: master, music, effects and kart volume, the master at 50% to start
   with, since at full the game came on loud enough to reach for. The karts have their own
   because their engine and tires run the whole time rather than in bursts, so
@@ -3563,7 +3567,7 @@ every one of them made a room to be read rather than driven.
 A short, playable lesson in how to drive and what the game is, dressed as a
 driving school: the title's Tutorial button opens on the school, and every way
 in to driving, Play, Play LAN and Play Online, asks for the license first, every
-time until it is earned: "No license yet", with Earn it now, which is the
+time until it is earned: "Missing license", with Earn it now, which is the
 school, and Drive anyway, which is the way in asked for. Twenty seconds of
 school, then six to eight minutes of driving test for somebody new, and a
 driver license at the end of it. One player at this machine, no join, nothing
@@ -3596,7 +3600,7 @@ page numbers are racing to the 212th; nine seconds of that and the book shuts,
 a breath, the right half swinging over onto the left on the spine, the front
 cover coming down over it, tooled leather with the book's name in gilt, with a
 thud and a puff of dust off its edges, and, the shut book standing a couple of
-seconds, "Got that?", with
+seconds, "Got that?" beside it where the right page was, with
 Absolutely and Not a word, either of which goes on.
 Nothing under the pages says how fast it is going: the pages say it. The pop
 quiz: three easy questions, one at a time, three answers each on buttons, "What

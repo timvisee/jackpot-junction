@@ -1,7 +1,7 @@
 class_name SettingsScreen
 extends Control
-## The settings screen from GAME.md 8.5: controls with rebinding, the players, the license, audio,
-## video and accessibility. Changes apply at once and are saved on Back.
+## The settings screen from GAME.md 8.5: the license first, controls with rebinding, the players,
+## audio, video and accessibility. Changes apply at once and are saved on Back.
 ##
 ## From the title it is a screen of its own. From a room's pause menu it is laid over the room
 ## instead, see [member overlay], so the match, and online the connection and everybody on it,
@@ -77,9 +77,9 @@ func _ready() -> void:
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	MenuTheme.tabs(tabs)
 	column.add_child(tabs)
+	tabs.add_child(LicenseTab.make(_settings))
 	tabs.add_child(_controls_tab())
 	tabs.add_child(_players_tab())
-	tabs.add_child(LicenseTab.make(_settings))
 	tabs.add_child(_audio_tab())
 	tabs.add_child(VideoTab.make(_settings))
 	tabs.add_child(_accessibility_tab())
@@ -102,14 +102,18 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if _listening_action != &"":
 		return
+	# Kept before acting: Back over a room hands the screen back to the pause menu, which takes
+	# it out of the tree, and a node out of the tree has no viewport to tell.
+	var viewport := get_viewport()
 	var pad := event as InputEventJoypadButton
 	if pad != null and pad.pressed and pad.button_index in [TAB_BACK, TAB_ON]:
 		switch_tab(-1 if pad.button_index == TAB_BACK else 1)
-		get_viewport().set_input_as_handled()
+		viewport.set_input_as_handled()
 		return
 	if event.is_action_pressed(&"ui_cancel"):
 		_back()
-		get_viewport().set_input_as_handled()
+		if viewport != null:
+			viewport.set_input_as_handled()
 
 
 ## A rebind listening takes the next press, whatever it is on. Heard before the buttons are, rather

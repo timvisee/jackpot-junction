@@ -109,6 +109,10 @@ func test_the_book_reads_faster_shuts_and_asks() -> void:
 	assert_bool(theory.is_asking()).is_false()
 	await await_millis(int((SchoolTheory.SHUT_FOR + SchoolTheory.FADE) * 1000.0) + 300)
 	assert_bool(theory.is_asking()).is_true()
+	# Beside the shut book, which stays: where the right page was.
+	assert_bool(theory._book.visible).is_true()
+	assert_bool(theory.is_closed()).is_true()
+	assert_float(theory._question.position.x).is_greater(SchoolTheory.half_width())
 	assert_int(theory.page_shown).is_equal(SchoolTheory.PAGES - 1)
 	assert_str(theory._folios[1].text).is_equal(str(SchoolTheory.PAGES))
 	assert_int(theory.answers.size()).is_equal(2)
@@ -205,6 +209,16 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	KartVisuals.plate_for_here(without.slots[0].kart)
 	plate = without.slots[0].kart.get_node_or_null("Body/Plate")
 	assert_str(plate.get_meta(&"plate")).is_equal("TLT-123")
+	# The podium's karts wear theirs too, for the ones at this machine.
+	var podium := ResultsPodium.create()
+	add_child(podium)
+	podium.show_top([without.slots[0], without.slots[1]], [true, false])
+	assert_int(podium._karts.size()).is_equal(2)
+	var on_step := podium._karts[0].find_child("Plate", true, false)
+	assert_object(on_step).is_not_null()
+	assert_str(on_step.get_meta(&"plate")).is_equal("TLT-123")
+	assert_object(podium._karts[1].find_child("Plate", true, false)).is_null()
+	podium.queue_free()
 	(
 		assert_int(
 			without.slots[0].kart.get_node("Body").find_children("Plate", "", false, false).size()
