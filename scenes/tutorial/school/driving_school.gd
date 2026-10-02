@@ -65,6 +65,8 @@ var quiz: SchoolQuiz
 ## The question whether to leave, while it is up, and what had the cursor before it.
 var _question: Control
 var _was_focused: Control
+## The touch screen's menu button, kept over every page put up after it.
+var _menu: LeaveButton
 
 
 func _init() -> void:
@@ -77,10 +79,10 @@ func _ready() -> void:
 	TitleBackground.add_to(self)
 	_turn_to(Page.ENROLL)
 	if TouchInput.enabled:
-		var menu := LeaveButton.new()
-		menu.name = "Menu"
-		menu.pressed.connect(ask_to_leave)
-		add_child(menu)
+		_menu = LeaveButton.new()
+		_menu.name = "Menu"
+		_menu.pressed.connect(ask_to_leave)
+		add_child(_menu)
 
 
 ## Puts up the page [param to], in place of whatever was up.
@@ -104,6 +106,9 @@ func _turn_to(to: Page) -> void:
 			quiz.passed.connect(_on_quiz_done)
 		Page.DONE:
 			pass
+	# A page put up over the menu button would take its touches: the button stays on top.
+	if _menu != null and is_instance_valid(_menu):
+		_menu.move_to_front()
 	page_turned.emit(to)
 
 

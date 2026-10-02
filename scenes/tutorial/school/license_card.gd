@@ -312,7 +312,7 @@ func _draw_back() -> void:
 
 
 ## The number as a barcode: each digit a run of bars, wide for a one and narrow for a zero in its
-## bits, with the number written under it.
+## bits, with the number written under it, centered under the bars.
 func _draw_barcode() -> void:
 	var x := BARCODE.position.x
 	var top := BARCODE.position.y
@@ -327,7 +327,16 @@ func _draw_barcode() -> void:
 			draw_rect(Rect2(Vector2(x, top), Vector2(wide, tall)), INK)
 			x += wide + 2.5
 		x += 3.0
-	_text(Vector2(BARCODE.position.x, top + tall + 3.0), number, Type.numbers_text_font(), 11, INK)
+	var bars := x - 5.5 - BARCODE.position.x
+	_text(
+		Vector2(BARCODE.position.x, top + tall + 3.0),
+		number,
+		Type.numbers_text_font(),
+		11,
+		INK,
+		HORIZONTAL_ALIGNMENT_CENTER,
+		bars
+	)
 
 
 ## The paper: cream, darker toward the foot, with the fine curves a banknote wears and the four

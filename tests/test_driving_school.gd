@@ -458,6 +458,30 @@ func test_back_leaves_the_school_and_the_quiz_has_a_word_for_every_score() -> vo
 	)
 
 
+## On a touch screen the menu button in the corner asks whether to leave on every page: the book
+## and the quiz are put up after it, and would take its touches were it left under them.
+func test_the_touch_menu_button_stays_over_the_book_and_the_quiz() -> void:
+	var was_touch := TouchInput.enabled
+	TouchInput.enabled = true
+	var school := await _open()
+	TouchInput.enabled = was_touch
+	var menu: Button = school.get_node_or_null("Menu")
+	assert_object(menu).is_not_null()
+	school.enrollment.enroll.pressed.emit()
+	await await_idle_frame()
+	assert_int(school.page).is_equal(DrivingSchool.Page.THEORY)
+	assert_int(menu.get_index()).is_greater(school.theory.get_index())
+	menu.pressed.emit()
+	assert_bool(school.is_asking_to_leave()).is_true()
+	school.stay()
+	school._on_theory_done()
+	await await_idle_frame()
+	assert_int(school.page).is_equal(DrivingSchool.Page.QUIZ)
+	assert_int(menu.get_index()).is_greater(school.quiz.get_index())
+	menu.pressed.emit()
+	assert_bool(school.is_asking_to_leave()).is_true()
+
+
 ## The settings file can be named on the command line, GAME.md 10.2: a user path, an absolute
 ## one, or a bare name in the user directory; nothing named is the usual file.
 func test_a_settings_file_can_be_named_on_the_command_line() -> void:
