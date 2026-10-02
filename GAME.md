@@ -3628,9 +3628,16 @@ starting over. A leaf at a time lifts off the right page about the
 spine and comes over onto the left in perspective, growing a little as it comes
 up and going a shade darker as it turns from the light, its front the page it
 was and its back the next left page; the first after two seconds anybody could
-read the spread in, each next one sooner by a quarter, until they riffle past
-twenty a second and the page numbers race to the 212th, each turn a soft rustle,
-softer and a touch higher as the pages race; nine seconds of that and the book shuts,
+read the spread in, each next one sooner by nearly a third, until they riffle
+past twenty a second and the page numbers race to the 212th, each turn a soft
+rustle, softer and a touch higher as the pages race; then the riffle slows over
+its last moments, and the last leaf comes over onto the end of the book, pages
+211 and 212: the last page of the text, and across from it Final provisions, a
+chapter of its own numbered on from the last, "This concludes the Highway Code
+of the Junction.", the holder now being fully informed and to be asked about
+it, THE END, and the printer's note, "No karts were harmed in the making of
+this book. Most were merely inconvenienced." That stands a moment; ten seconds
+of reading in all, and the book shuts,
 a breath, the right half swinging over onto the left on the spine, the front
 cover coming down over it, tooled leather with the book's name in gilt, with a
 thud and a puff of dust off its edges, and, the shut book standing a couple of

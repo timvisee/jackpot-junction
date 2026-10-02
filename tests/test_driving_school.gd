@@ -141,10 +141,28 @@ func test_the_book_reads_faster_shuts_and_asks() -> void:
 	var early: float = theory._interval
 	assert_float(early).is_less(SchoolTheory.TURN_FIRST)
 	# Later on, the leaves come many times faster.
-	theory.elapsed = SchoolTheory.HOLD + (SchoolTheory.READ_FOR - SchoolTheory.HOLD) * 0.7
-	await runner.simulate_frames(40, 16)
+	theory.elapsed = SchoolTheory.HOLD + SchoolTheory.LAST_TURN * 0.75
+	await runner.simulate_frames(30, 16)
 	assert_int(theory.turns).is_greater(5)
 	assert_float(theory._interval).is_less(early / 4.0)
+	assert_bool(theory.is_asking()).is_false()
+	# Then the riffle slows, and the last leaf lands on the end: the last page of a lap of the
+	# text on the left, numbered 211, and the end on the right, 212, numbered on from it.
+	assert_bool(theory.is_ended()).is_false()
+	theory.elapsed = SchoolTheory.HOLD + SchoolTheory.LAST_TURN
+	await runner.simulate_frames(3, 16)
+	assert_bool(theory.is_ended()).is_true()
+	await await_millis(int(SchoolTheory.TURN_SLOWEST * 1000.0) + 200)
+	assert_bool(theory.is_turning()).is_false()
+	assert_str(theory._folios[0].text).is_equal(str(SchoolTheory.PAGES - 1))
+	assert_str(theory._folios[1].text).is_equal(str(SchoolTheory.PAGES))
+	var end_words := _words_in(theory._columns[SchoolTheory.RIGHT])
+	assert_str(end_words).contains(TheoryText.CLOSING_RULE)
+	assert_str(end_words).contains(TheoryText.THE_END.to_upper())
+	var left_words := _words_in(theory._columns[SchoolTheory.LEFT])
+	var end_section := int(end_words.get_slice("§ ", 1).get_slice(".", 0))
+	var left_section := int(left_words.get_slice("§ ", left_words.count("§ ")).get_slice(".", 0))
+	assert_int(end_section).is_equal(left_section + 1)
 	assert_bool(theory.is_asking()).is_false()
 	theory.elapsed = SchoolTheory.READ_FOR
 	await runner.simulate_frames(2, 16)

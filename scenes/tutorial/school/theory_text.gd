@@ -77,6 +77,19 @@ const CHAPTERS: Array[Array] = [
 		],
 	],
 ]
+## The end of the book, on its last page: a chapter of its own after the last, its one section
+## concluding the code with a clause or two under it, and THE END over the printer's note.
+const CLOSING_TITLE := "Final provisions"
+const CLOSING_RULE := "This concludes the Highway Code of the Junction."
+const CLOSING_CLAUSES: Array[String] = [
+	"The holder, having read every word of it, is now fully informed, and will be asked about it.",
+	"Any part of it not read is deemed read.",
+]
+const THE_END := "The End"
+const COLOPHON := (
+	"Printed and bound at the Junction. No karts were harmed in the making of this book. "
+	+ "Most were merely inconvenienced."
+)
 ## How many clauses a section has under its rule, fewest and most; how many paragraphs at least
 ## stand between two figures, and the chance of one after any paragraph past that.
 const CLAUSES_FEWEST := 2
@@ -138,6 +151,9 @@ const SEED := 212
 var items: Array[Dictionary] = []
 var sections := 0
 var figures := 0
+## The book's last page, numbered on from the last section of the text, see [method words]: the
+## same lap as the page across from it reads it right after that page.
+var ending: Array[Dictionary] = []
 
 
 func _init() -> void:
@@ -168,6 +184,22 @@ func _compose() -> void:
 					figures += 1
 					items.append({"kind": &"figure", "number": figures})
 					since_figure = 0
+	# The ending: the chapter and the section after the last, so its numbers go on from them.
+	var last := sections + 1
+	ending = [
+		{"kind": &"chapter", "number": CHAPTERS.size() + 1, "text": CLOSING_TITLE},
+		{"kind": &"rule", "section": last, "text": CLOSING_RULE},
+	]
+	for clause: int in CLOSING_CLAUSES.size():
+		ending.append(
+			{
+				"kind": &"clause",
+				"section": last,
+				"clause": clause + 1,
+				"text": CLOSING_CLAUSES[clause]
+			}
+		)
+	ending.append({"kind": &"end"})
 
 
 ## [param item] of the text as it reads the [param lap]th time the book comes round to it, from
@@ -183,7 +215,31 @@ func build(item: Dictionary, lap: int) -> Control:
 		&"figure":
 			var entry: Array = FIGURES[(int(item["number"]) - 1) % FIGURES.size()]
 			return _figure(entry[0], words(item, lap))
+		&"end":
+			return _the_end()
 	return _paragraph(words(item, lap), false)
+
+
+## THE END, in the middle of the page under a rule, and the printer's note under it.
+func _the_end() -> Control:
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 8)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var air := Control.new()
+	air.custom_minimum_size = Vector2(0.0, 18.0)
+	box.add_child(air)
+	var rule := ColorRect.new()
+	rule.color = Color(SchoolTheory.INK, 0.4)
+	rule.custom_minimum_size = Vector2(120.0, 1.0)
+	rule.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(rule)
+	box.add_child(_line(THE_END.to_upper(), Type.display_font(), Type.HEADING, SchoolTheory.INK))
+	var note := _line(COLOPHON, Type.TEXT, Type.SMALL, SchoolTheory.FAINT_INK)
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	note.custom_minimum_size = Vector2(SchoolTheory.PAGE.x - SchoolTheory.MARGIN * 2.0, 0.0)
+	box.add_child(note)
+	return box
 
 
 ## What [param item] says, numbered for the [param lap]th time round.

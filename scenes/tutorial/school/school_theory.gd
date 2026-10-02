@@ -5,7 +5,8 @@ extends Control
 ## game's mark and name over the book's, and stands there a moment; then its pages turn, a leaf
 ## at a time lifting off the right page and laid down on the left, the first after a couple of
 ## seconds anybody could read them in and each next one sooner, until the pages riffle past and
-## the page numbers in the corners are racing to the 212th. Nine seconds of
+## the page numbers in the corners are racing to the 212th; then they slow, and the last leaf
+## comes over onto the end of the book, which stands a moment. Ten seconds of
 ## that and the book folds shut, the right half swinging over onto the left and the front cover
 ## coming down on it with a thud and a puff of dust, and the one question, "Got that?", comes up
 ## beside the shut book where the right page was, which either answer gets past: the theory is a
@@ -22,18 +23,24 @@ const PAGES := 212
 ## How long the title page stands before the book starts reading, how long it reads, and how
 ## fast the page numbers race to the last page, a growth a second.
 const HOLD := 1.6
-const READ_FOR := HOLD + 9.0
+const READ_FOR := HOLD + 10.0
 const RAMP := 0.62
 ## The pages turning: the first after this long, each next one sooner by a factor, never sooner
 ## than the fastest a leaf can riffle past; each turn takes most of the time to the next, never
 ## longer than a slow one; and the camera the leaf is seen from stands this many pages off.
 const TURN_FIRST := 2.0
-const TURN_RAMP := 0.75
+const TURN_RAMP := 0.7
 const TURN_FASTEST := 0.06
 const TURN_SLOWEST := 0.55
 const TURN_SHARE := 0.85
 const TURN_DEPTH := 7.0
 const TURN_SHADER := preload("res://scenes/tutorial/school/page_turn.gdshader")
+## The end of the book: how long its last spread stands before the book shuts, and how long
+## before the last leaf the riffle starts slowing, each turn later by the factor it was sooner.
+const END_HOLD := 1.4
+const SLOW_FOR := 0.8
+## When the last leaf turns, onto the end, counted from when the reading starts.
+const LAST_TURN := READ_FOR - HOLD - END_HOLD - TURN_SLOWEST
 ## Room over and under the book for the leaf to grow into as it comes up toward the camera.
 const LIFT_ROOM := 72.0
 ## The page turning's sound: soft, softer still as the pages riffle, a touch higher as they race,
@@ -131,6 +138,11 @@ var _next_turn_at := TURN_FIRST
 var _interval := TURN_FIRST
 var _turn_for := TURN_SLOWEST
 var _sound_left := 0.0
+## Whether the last leaf has turned, onto the end; the page of the text it showed on its back,
+## the last of a lap of it, and that lap, which the end is read in.
+var _ended := false
+var _final_left := -1
+var _final_lap := 0
 
 
 ## How wide one half of the book is: its half of the cover, its page and its half of the gutter.
@@ -576,31 +588,67 @@ func _process(delta: float) -> void:
 	elapsed += delta
 	_sound_left = maxf(_sound_left - delta, 0.0)
 	if not _page_first.is_empty():
+		var reading := elapsed - HOLD
 		if _preparing:
 			_preparing = false
 			_start_turn()
-		elif elapsed - HOLD >= _next_turn_at:
-			_prepare_turn()
+		elif not _ended and reading >= minf(_next_turn_at, LAST_TURN):
+			_prepare_turn(reading >= LAST_TURN)
 	if elapsed >= READ_FOR:
 		shut()
 
 
 ## The next leaf drawn: its front the right page as it is, its back the next spread's left page,
-## numbered as far on as the race has got; it turns from the next frame, once both are drawn, so
-## it never shows the turn before.
-func _prepare_turn() -> void:
+## numbered as far on as the race has got, or, the [param last], the last page of the text the
+## end comes after, numbered 211; it turns from the next frame, once both are drawn, so it never
+## shows the turn before. The riffle slows again over its last moments.
+func _prepare_turn(last := false) -> void:
 	_land_now()
-	var folio := mini(maxi(page_shown + 2, _page_by_now()), PAGES - 1)
 	_show_page(FRONT, _text_page(_spread, true), page_shown + 1)
 	_spread += 1
-	_show_page(BACK, _text_page(_spread), folio)
+	if last:
+		_ended = true
+		_aim_at_the_end()
+		_show_page(BACK, _final_left, PAGES - 1)
+		_land_folio = PAGES - 1
+		_turn_for = TURN_SLOWEST
+	else:
+		var folio := mini(maxi(page_shown + 2, _page_by_now()), PAGES - 3)
+		_show_page(BACK, _text_page(_spread), folio)
+		_land_folio = folio
+		if elapsed - HOLD >= LAST_TURN - SLOW_FOR:
+			_interval = minf(_interval / TURN_RAMP, TURN_SLOWEST)
+		else:
+			_interval = maxf(_interval * TURN_RAMP, TURN_FASTEST)
+		_next_turn_at += _interval
+		_turn_for = clampf(_interval * TURN_SHARE, TURN_FASTEST * 0.8, TURN_SLOWEST)
 	for face: SubViewport in _faces:
 		face.render_target_update_mode = SubViewport.UPDATE_ONCE
-	_land_folio = folio
-	_interval = maxf(_interval * TURN_RAMP, TURN_FASTEST)
-	_next_turn_at += _interval
-	_turn_for = clampf(_interval * TURN_SHARE, TURN_FASTEST * 0.8, TURN_SLOWEST)
 	_preparing = true
+
+
+## Which page of the text the end comes after: the last of the lap of it the right page is in, or
+## of the next lap should the right page be that last one already, so the numbers only go up.
+func _aim_at_the_end() -> void:
+	var count := maxi(_page_count() - 1, 1)
+	var right_now := _text_page(_spread - 1, true)
+	_final_lap = right_now / count
+	_final_left = (_final_lap + 1) * count
+	if _final_left <= right_now:
+		_final_lap += 1
+		_final_left += count
+
+
+## The book's last page on page [param which], numbered [param folio], see [member
+## TheoryText.ending].
+func _show_the_end(which: int, folio: int) -> void:
+	var column := _columns[which]
+	for old: Node in column.get_children():
+		column.remove_child(old)
+		old.queue_free()
+	for item: Dictionary in _text.ending:
+		column.add_child(_text.build(item, _final_lap))
+	_folios[which].text = str(folio)
 
 
 ## The leaf lifts off the right page, which is the next spread's under it from here on, and comes
@@ -608,7 +656,10 @@ func _prepare_turn() -> void:
 func _start_turn() -> void:
 	turns += 1
 	page_shown = _land_folio
-	_show_page(RIGHT, _text_page(_spread, true), page_shown + 1)
+	if _ended:
+		_show_the_end(RIGHT, PAGES)
+	else:
+		_show_page(RIGHT, _text_page(_spread, true), page_shown + 1)
 	_landing = true
 	_turn_to(0.0)
 	_leaf.visible = true
@@ -642,7 +693,7 @@ func _land_now() -> void:
 	if _leaf_turn != null:
 		_leaf_turn.kill()
 		_leaf_turn = null
-	_show_page(LEFT, _text_page(_spread), page_shown)
+	_show_page(LEFT, _final_left if _ended else _text_page(_spread), page_shown)
 	_leaf.visible = false
 
 
@@ -652,11 +703,16 @@ func is_turning() -> bool:
 
 
 ## The page the race has got to: up the same curve as the pace, from the first to the last page
-## as the book shuts.
+## but the end's spread as the last leaf turns.
 func _page_by_now() -> int:
 	var reading := maxf(elapsed - HOLD, 0.0)
-	var share := (exp(RAMP * reading) - 1.0) / (exp(RAMP * (READ_FOR - HOLD)) - 1.0)
-	return clampi(1 + roundi(share * float(PAGES - 2)), 1, PAGES - 1)
+	var share := (exp(RAMP * reading) - 1.0) / (exp(RAMP * LAST_TURN) - 1.0)
+	return clampi(1 + roundi(share * float(PAGES - 4)), 1, PAGES - 3)
+
+
+## Whether the last leaf has turned, onto the end of the book.
+func is_ended() -> bool:
+	return _ended
 
 
 ## The book shuts: a breath, the right half swings over onto the left, the front cover comes
@@ -667,9 +723,15 @@ func shut() -> void:
 		return
 	_shut = true
 	elapsed = READ_FOR
-	# The last page, whatever the race got to.
+	# The end of the book up, at once should the last leaf not have turned yet.
 	_land_now()
 	_preparing = false
+	if not _ended and not _page_first.is_empty():
+		_ended = true
+		_spread += 1
+		_aim_at_the_end()
+		_show_page(LEFT, _final_left, PAGES - 1)
+		_show_the_end(RIGHT, PAGES)
 	page_shown = PAGES - 1
 	_folios[LEFT].text = str(page_shown)
 	_folios[RIGHT].text = str(PAGES)
