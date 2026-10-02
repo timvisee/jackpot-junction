@@ -4053,7 +4053,8 @@ the nearest Junction. Any Junction.", the examiner's own signature, for
 whoever reads that far, a cheat code, up up down down left right left right
 B A, "Does nothing. We checked.", and the number as a barcode under them
 all. The card has air
-over and under it on the pane. The rubber stamp, a wooden handle on a red base,
+over and under it on the pane, and the pane scrolls on a screen too short for
+it, a phone's at a big UI scale, 8.5, following the cursor down to the ways on. The rubber stamp, a wooden handle on a red base,
 hangs off the card's right edge over its own shadow, breathing a little and
 leaning a good way after the mouse as it moves, over the card if the mouse is
 there, and under its base is drawn
@@ -4074,7 +4075,8 @@ plate as it will read beside it, and the three ways on, Garage, Hit the road,
 which is Play, with the cursor, and Back to title. The license is seen again on
 the title, peeking in from the right edge the way a card in a hand does, tilted
 and a third off the screen, sliding in straight under the cursor and back out
-from under it, and shown in full over a shade on a click or a tap, or on the
+from under it, a touch screen having the tap alone and nothing sliding under a
+finger, and shown in full over a shade on a click or a tap, or on the
 button that opens the hand of jokers, 3.7, Tab or Y say, drawn in the bottom
 right corner of the title with License beside it for the device last touched, the
 way a joker is shown out of the hand, held up to be looked at: it turns a little

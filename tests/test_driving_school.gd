@@ -313,6 +313,14 @@ func test_the_title_peeks_the_license_earned() -> void:
 	await await_idle_frame()
 	var view := title.find_child("LicenseView", true, false)
 	assert_object(view).is_not_null()
+	# The mouse press a touch screen makes of the tap lands on the view a moment later, and does
+	# not put it away.
+	var made_of_the_tap := InputEventMouseButton.new()
+	made_of_the_tap.button_index = MOUSE_BUTTON_LEFT
+	made_of_the_tap.pressed = true
+	view.gui_input.emit(made_of_the_tap)
+	await await_idle_frame()
+	assert_object(title.find_child("LicenseView", true, false)).is_not_null()
 	var full: LicenseCard = view.find_child("LicenseFull", true, false)
 	assert_object(full).is_not_null()
 	# Held up on a stand the size of the card and the room round it, and no button says there is
@@ -456,6 +464,28 @@ func test_back_leaves_the_school_and_the_quiz_has_a_word_for_every_score() -> vo
 	assert_str(SchoolQuiz.score_words(3, 3)).is_equal(
 		"3 of 3 right the first time. Nobody likes a show-off."
 	)
+
+
+## On a touch screen the license peeking in does not slide under a finger, there being no hover:
+## the tap shows it in full on the spot.
+func test_on_a_touch_screen_the_tap_shows_the_license_and_nothing_slides() -> void:
+	var was_touch := TouchInput.enabled
+	TouchInput.enabled = true
+	Game.settings.license_number = "JJ-224123"
+	Game.settings.license_date = "2026-10-02"
+	Game.settings.license_holder = "Tail Light Tim"
+	var title: Control = auto_free(TITLE_SCENE.instantiate())
+	add_child(title)
+	await await_idle_frame()
+	TouchInput.enabled = was_touch
+	var peek: LicenseCard = title.find_child("LicensePeek", true, false)
+	assert_object(peek).is_not_null()
+	assert_int(peek.mouse_entered.get_connections().size()).is_equal(0)
+	var tap := InputEventScreenTouch.new()
+	tap.pressed = true
+	title._on_license_input(tap)
+	await await_idle_frame()
+	assert_object(title.find_child("LicenseView", true, false)).is_not_null()
 
 
 ## On a touch screen the menu button in the corner asks whether to leave on every page: the book

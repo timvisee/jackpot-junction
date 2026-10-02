@@ -32,6 +32,9 @@ const LICENSE_AWAY_TOUCH := "Tap beside the card to put it away"
 const LICENSE_GLYPH_SIZE := 24
 const LICENSE_GLYPH_BOTTOM := 44.0
 const LICENSE_WORD := "License"
+## How long after the view comes up a press beside the card is let be: a tap comes with a mouse
+## press made of it a moment later, which would put the view away as soon as the tap brought it up.
+const LICENSE_SETTLE_MS := 150
 
 var play_button: Button
 
@@ -48,6 +51,7 @@ var _license_out := false
 var _license_view: Control
 var _stand: TiltedCard
 var _away_line: Control
+var _view_shown_at := 0
 ## The button that shows the license, drawn beside it for the device in hand, and which that is,
 ## picked up from whatever was last touched anywhere in the game.
 var _license_glyph: Control
@@ -155,8 +159,10 @@ func _peek_license() -> void:
 	_license.scale = Vector2.ONE * LICENSE_SCALE
 	_license.rotation = LICENSE_TILT
 	add_child(_license)
-	_license.mouse_entered.connect(_slide_license.bind(true))
-	_license.mouse_exited.connect(_slide_license.bind(false))
+	# A touch screen has no hover to slide under: the tap shows the card in full on the spot.
+	if not TouchInput.enabled:
+		_license.mouse_entered.connect(_slide_license.bind(true))
+		_license.mouse_exited.connect(_slide_license.bind(false))
 	_license.gui_input.connect(_on_license_input)
 	resized.connect(_place_license)
 	_place_license()
@@ -245,6 +251,7 @@ func show_license() -> void:
 	view.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(view)
 	_license_view = view
+	_view_shown_at = Time.get_ticks_msec()
 	var shade := ColorRect.new()
 	shade.color = Color(0.0, 0.0, 0.0, 0.7)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -279,7 +286,8 @@ func show_license() -> void:
 			var touch := event as InputEventScreenTouch
 			if (click != null and click.pressed) or (touch != null and touch.pressed):
 				get_viewport().set_input_as_handled()
-				hide_license()
+				if Time.get_ticks_msec() - _view_shown_at >= LICENSE_SETTLE_MS:
+					hide_license()
 	)
 	view.modulate.a = 0.0
 	var rise := create_tween()

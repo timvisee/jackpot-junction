@@ -97,9 +97,18 @@ func _ready() -> void:
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(shade)
+	# Taller than a phone's screen at a big UI scale, GAME.md 8.5, the pane scrolls, following the
+	# cursor down to the ways on; it sits in the middle of the screen when it fits.
+	var scroll := ScrollContainer.new()
+	scroll.name = "Scroll"
+	scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
+	add_child(scroll)
 	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(center)
+	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	center.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.add_child(center)
 	var pane := MenuTheme.pane(_edge)
 	center.add_child(pane)
 	var column := VBoxContainer.new()
