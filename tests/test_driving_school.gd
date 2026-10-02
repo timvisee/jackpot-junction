@@ -165,8 +165,21 @@ func test_the_book_reads_faster_shuts_and_asks() -> void:
 	# Then the riffle slows, and the last leaf lands on the end: the last page of a lap of the
 	# text on the left, numbered 211, and the end on the right, 212, numbered on from it.
 	assert_bool(theory.is_ended()).is_false()
+	# The plan: no leaf runs over into the next, the page numbers only go up, and the slowing
+	# counts on a spread a leaf to the end's.
+	for i: int in theory._plan_at.size() - 1:
+		var lands: float = theory._plan_at[i] + theory._plan_for[i]
+		assert_float(lands).is_less_equal(theory._plan_at[i + 1] + 0.0001)
+		assert_int(theory._plan_folio[i + 1]).is_greater_equal(theory._plan_folio[i] + 2)
+	assert_int(theory._plan_folio[theory._plan_folio.size() - 1]).is_equal(SchoolTheory.PAGES - 1)
+	# The first leaves, slow enough to read, go on a spread at a time.
+	for i: int in 3:
+		assert_int(theory._plan_folio[i]).is_equal(3 + i * 2)
 	theory.elapsed = SchoolTheory.HOLD + SchoolTheory.LAST_TURN
-	await runner.simulate_frames(3, 16)
+	for i: int in 120:
+		await runner.simulate_frames(1, 16)
+		if theory.is_ended():
+			break
 	assert_bool(theory.is_ended()).is_true()
 	await await_millis(int(SchoolTheory.TURN_SLOWEST * 1000.0) + 200)
 	assert_bool(theory.is_turning()).is_false()

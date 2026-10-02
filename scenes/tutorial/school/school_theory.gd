@@ -24,15 +24,16 @@ const HEADS: Array[String] = [
 const PAGES := 212
 ## The opening: the shut book standing a moment, the front cover lifting off, and the right half
 ## swinging out from the spine, the way the shutting has it the other way round.
-const OPEN_WAIT := 0.35
+const OPEN_WAIT := 1.4
 const COVER_UP := 0.3
 const SWING_OUT := 0.34
 const OPEN_FOR := OPEN_WAIT + COVER_UP + SWING_OUT
 ## How long after it comes up the open book starts reading, the title page having stood a while,
-## how long it reads, and how fast the page numbers race to the last page, a growth a second.
+## and how long it reads.
 const HOLD := OPEN_FOR + 1.6
 const READ_FOR := HOLD + 10.0
-const RAMP := 0.62
+## How steeply the page numbers race over the leaves, so the slow ones go a spread at a time.
+const FOLIO_RAMP := 5.0
 ## The pages turning: the first after this long, each next one sooner by a factor, never sooner
 ## than the fastest a leaf can riffle past; each turn takes most of the time to the next, never
 ## longer than a slow one; and the camera the leaf is seen from stands this many pages off.
@@ -44,9 +45,11 @@ const TURN_SHARE := 0.85
 const TURN_DEPTH := 7.0
 const TURN_SHADER := preload("res://scenes/tutorial/school/page_turn.gdshader")
 ## The end of the book: how long its last spread stands before the book shuts, and how long
-## before the last leaf the riffle starts slowing, each turn later by the factor it was sooner.
+## before the last leaf the riffle starts slowing, each turn later by the factor it was sooner;
+## and how far behind its plan a read may fall before a leaf still over is put down to catch up.
 const END_HOLD := 1.4
 const SLOW_FOR := 0.8
+const CATCH_UP := 0.25
 ## When the last leaf turns, onto the end, counted from when the reading starts.
 const LAST_TURN := READ_FOR - HOLD - END_HOLD - TURN_SLOWEST
 ## Room over and under the book for the leaf to grow into as it comes up toward the camera.
@@ -144,9 +147,13 @@ var _leaf_turn: Tween
 var _preparing := false
 var _landing := false
 var _land_folio := 1
-## When the next leaf turns, counted from when the reading starts, how long until the one after,
-## how long the one under way takes, and how long until a page may make a sound again.
-var _next_turn_at := TURN_FIRST
+## The leaves to turn, planned before the first: when each starts, counted from when the reading
+## starts, how long it takes, never longer than until the next, and the page number it lands on,
+## counting down evenly to the end's spread over the slowing; then how long until the leaf after
+## the one under way, how long that one takes, and how long until a page may make a sound again.
+var _plan_at: PackedFloat32Array = []
+var _plan_for: PackedFloat32Array = []
+var _plan_folio: PackedInt32Array = []
 var _interval := TURN_FIRST
 var _turn_for := TURN_SLOWEST
 var _sound_left := 0.0
@@ -333,6 +340,7 @@ func _ready() -> void:
 	_columns[LEFT].add_child(_text.build(_text.items[0], 0))
 	_measure_text()
 	_paginate()
+	_make_plan()
 	_open()
 
 
@@ -576,8 +584,11 @@ func _process(delta: float) -> void:
 		if _preparing:
 			_preparing = false
 			_start_turn()
-		elif not _ended and reading >= minf(_next_turn_at, LAST_TURN):
-			_prepare_turn(reading >= LAST_TURN)
+		elif not _ended and turns < _plan_at.size() and reading >= _plan_at[turns]:
+			# Never while a leaf is still over, unless the read has fallen well behind, as it does
+			# only when the book is held up: a leaf snapped down mid-air is a page jumping.
+			if not _landing or reading >= _plan_at[turns] + CATCH_UP:
+				_prepare_turn(turns == _plan_at.size() - 1)
 	if elapsed >= READ_FOR:
 		shut()
 
@@ -595,17 +606,13 @@ func _prepare_turn(last := false) -> void:
 		_aim_at_the_end()
 		_show_page(BACK, _final_left, PAGES - 1)
 		_land_folio = PAGES - 1
-		_turn_for = TURN_SLOWEST
+		_turn_for = _plan_for[turns]
 	else:
-		var folio := mini(maxi(page_shown + 2, _page_by_now()), PAGES - 3)
+		var folio := mini(maxi(page_shown + 2, _plan_folio[turns]), PAGES - 3)
 		_show_page(BACK, _text_page(_spread), folio)
 		_land_folio = folio
-		if elapsed - HOLD >= LAST_TURN - SLOW_FOR:
-			_interval = minf(_interval / TURN_RAMP, TURN_SLOWEST)
-		else:
-			_interval = maxf(_interval * TURN_RAMP, TURN_FASTEST)
-		_next_turn_at += _interval
-		_turn_for = clampf(_interval * TURN_SHARE, TURN_FASTEST * 0.8, TURN_SLOWEST)
+		_interval = _plan_at[turns + 1] - _plan_at[turns]
+		_turn_for = _plan_for[turns]
 	for face: SubViewport in _faces:
 		face.render_target_update_mode = SubViewport.UPDATE_ONCE
 	_preparing = true
@@ -642,20 +649,61 @@ func _show_the_end(which: int, folio: int) -> void:
 	_folios[which].text = str(folio)
 
 
-## How many leaves a whole read turns, the last onto the end, by the same schedule the turns
-## keep, so the text can be checked to be long enough never to come round again.
-static func planned_turns() -> int:
+## When each leaf of a whole read starts, counted from when the reading starts: the first after
+## [constant TURN_FIRST], each next one sooner by [constant TURN_RAMP] down to the riffle, slowing
+## again over [constant SLOW_FOR] before the last, which turns at [constant LAST_TURN] onto the
+## end, a slow leaf's gap after the one before it at the least.
+static func plan() -> PackedFloat32Array:
+	var starts := PackedFloat32Array()
 	var at := TURN_FIRST
 	var interval := TURN_FIRST
-	var count := 0
 	while at < LAST_TURN:
-		count += 1
+		starts.append(at)
 		if at >= LAST_TURN - SLOW_FOR:
 			interval = minf(interval / TURN_RAMP, TURN_SLOWEST)
 		else:
 			interval = maxf(interval * TURN_RAMP, TURN_FASTEST)
 		at += interval
-	return count + 1
+	while starts.size() > 1 and LAST_TURN - starts[starts.size() - 1] < interval * 0.7:
+		starts.remove_at(starts.size() - 1)
+	starts.append(LAST_TURN)
+	return starts
+
+
+## How many leaves a whole read turns, the last onto the end, so the text can be checked to be
+## long enough never to come round again.
+static func planned_turns() -> int:
+	return plan().size()
+
+
+## The plan of the read, see [member _plan_at]: each leaf takes most of the time to the next and
+## the last a slow leaf's time, and the page numbers race up the curve of the pace until the
+## riffle slows, then count on by a spread a leaf to the end's, 211 and 212.
+func _make_plan() -> void:
+	_plan_at = plan()
+	var count := _plan_at.size()
+	_plan_for.resize(count)
+	for i: int in count - 1:
+		var gap := _plan_at[i + 1] - _plan_at[i]
+		_plan_for[i] = minf(gap * TURN_SHARE, TURN_SLOWEST)
+	_plan_for[count - 1] = TURN_SLOWEST
+	var slow_from := count - 1
+	for i: int in count:
+		if _plan_at[i] >= LAST_TURN - SLOW_FOR:
+			slow_from = i
+			break
+	var slowing := PAGES - 1 - 2 * (count - 1 - slow_from)
+	var top := exp(FOLIO_RAMP) - 1.0
+	_plan_folio.resize(count)
+	var last := 1
+	for i: int in count:
+		var folio := PAGES - 1 - 2 * (count - 1 - i)
+		if i < slow_from:
+			var share := (exp(FOLIO_RAMP * float(i) / float(maxi(slow_from, 1))) - 1.0) / top
+			folio = 1 + roundi(share * float(slowing - 3))
+			folio = mini(maxi(folio, last + 2), slowing - 2 * (slow_from - i))
+		_plan_folio[i] = folio
+		last = folio
 
 
 ## The leaf lifts off the right page, which is the next spread's under it from here on, and comes
@@ -707,14 +755,6 @@ func _land_now() -> void:
 ## Whether a leaf is turning over.
 func is_turning() -> bool:
 	return _landing
-
-
-## The page the race has got to: up the same curve as the pace, from the first to the last page
-## but the end's spread as the last leaf turns.
-func _page_by_now() -> int:
-	var reading := maxf(elapsed - HOLD, 0.0)
-	var share := (exp(RAMP * reading) - 1.0) / (exp(RAMP * LAST_TURN) - 1.0)
-	return clampi(1 + roundi(share * float(PAGES - 4)), 1, PAGES - 3)
 
 
 ## Whether the last leaf has turned, onto the end of the book.

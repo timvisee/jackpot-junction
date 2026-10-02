@@ -3,8 +3,10 @@ shader_type canvas_item;
 // and laid down on the left, seen in perspective from a camera standing in front of the book, so
 // the leaf grows a little as it comes up toward it and narrows to an edge as it stands upright.
 // Its front is the right page it was, its back the left page it lands as; each face goes a shade
-// darker as it turns away from the light in front of the book. The rect covers the open book with
-// room over and under it for the leaf to grow into; everything here is in its pixels.
+// darker as it turns away from the light in front of the book, a soft sheen runs across the paper
+// as it comes up, and it darkens a little where it bends at the spine: a few sums a pixel, and
+// only while a leaf is turning, since the leaf is hidden the rest of the time. The rect covers the
+// open book with room over and under it for the leaf to grow into; everything here is in pixels.
 
 // How far over the leaf has come: 0 flat on the right, PI flat on the left.
 uniform float angle = 0.0;
@@ -51,8 +53,15 @@ void fragment() {
 				} else {
 					picture = texture(back, vec2(1.0 - along / page.x, down / page.y));
 				}
-				float shade = 0.7 + 0.3 * abs(c);
-				drawn = vec4(picture.rgb * shade, picture.a);
+				// Lit from in front and a little above: the face turned toward the light is the
+				// brighter, a sheen runs across the paper from the spine out as the leaf comes up,
+				// and the paper by the spine, bent there, is a shade darker while the leaf is up.
+				float across = along / page.x;
+				float shade = 0.7 + 0.3 * abs(c) - 0.05 * (down / page.y - 0.5) * s;
+				float sheen_at = c > 0.0 ? s * 0.8 : 1.0 - s * 0.8;
+				float sheen = exp(-pow((across - sheen_at) * 5.0, 2.0)) * s * 0.14;
+				float bend = 1.0 - 0.12 * s * (1.0 - smoothstep(0.0, 0.18, across));
+				drawn = vec4(picture.rgb * shade * bend + sheen, picture.a);
 			}
 		}
 	}

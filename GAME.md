@@ -3612,7 +3612,8 @@ Junction, 212th edition, a book in a leather cover with a spine and the edges of
 its leaves showing, with no word under it, since one gone as the book shuts
 made the pane jump, open at a spread of two cream pages with a running head
 over each and its page number in the outer corner, which reads itself. It comes
-up shut on the right, its spine to the left as a shut book lies, and opens, the
+up shut on the right, its spine to the left as a shut book lies, stands so for a
+second and a half for the player to see what book it is, and opens, the
 front cover lifting off it toward the spine and coming down over it onto the
 left, a rustle each, the other way from the way it shuts at the end, on its
 title page, the game's mark and name over the book's own and its
@@ -3631,12 +3632,15 @@ Junction, a Royal Flush, a mult die, a drift, a pit, a roundabout; the text
 comes round again once it runs out, its numbers going on up rather than
 starting over. A leaf at a time lifts off the right page about the
 spine and comes over onto the left in perspective, growing a little as it comes
-up and going a shade darker as it turns from the light, its front the page it
+up and going a shade darker as it turns from the light, a soft sheen running
+across the paper and a shade where it bends at the spine, its front the page it
 was and its back the next left page; the first after two seconds anybody could
 read the spread in, each next one sooner by nearly a third, until they riffle
 past twenty a second and the page numbers race to the 212th, each turn a soft
 rustle, softer and a touch higher as the pages race; then the riffle slows over
-its last moments, and the last leaf comes over onto the end of the book, pages
+its last moments, the page numbers counting on a spread a leaf, every leaf down
+before the next comes up, all of it planned before the first so none is put
+down mid-air, and the last leaf comes over onto the end of the book, pages
 211 and 212: the next page of the text, whichever it is, nothing skipped, and
 across from it Final provisions, a chapter of its own numbered on from that
 page's, "This concludes the Highway Code
