@@ -24,11 +24,10 @@ const PATTERN_SCALE := 1.6
 const HEAD := Vector3(0.0, 1.63, -0.06)
 const HEAD_RADIUS := 0.42
 ## How far above the head each hat reaches, so the roof marker can be lifted clear of it.
-const HAT_LIFT: Array[float] = [0.0, 0.21, 0.46, 0.51, 0.59, 0.46]
+const HAT_LIFT: Array[float] = [0.0, 0.21, 0.46, 0.51, 0.59, 0.5]
 ## The learner's block, GAME.md 9.4a: a white cube the driving school's L is painted on, worn
-## turned a little on the helmet, how big, and how far round.
-const LEARNER_SIDE := 0.4
-const LEARNER_TURN := 0.35
+## square on the helmet, and how big.
+const LEARNER_SIDE := 0.44
 const LEARNER_WHITE := Color(0.95, 0.95, 0.93)
 ## Where a flag stands and how long its pole is. Clear of the bodywork, which is 1 m tall at the
 ## back, so the flag flies where it can be seen rather than inside the engine.
@@ -137,13 +136,12 @@ static func hat(index: int, color: Color) -> Node3D:
 
 
 ## The learner's block: the driving school's white cube with the L on its four sides and its top,
-## the top being what the camera sees most of, sitting on the helmet turned a little, the same
-## for every player since the L is the L whoever wears it.
+## the top being what the camera sees most of, sitting square on the helmet, facing the way the
+## kart does, the same for every player since the L is the L whoever wears it.
 static func _learner_block() -> Node3D:
 	var block := Node3D.new()
 	block.name = "LearnerBlock"
 	block.position = Vector3(0.0, LEARNER_SIDE * 0.5, 0.0)
-	block.rotation.y = LEARNER_TURN
 	block.add_child(_block(Vector3.ONE * LEARNER_SIDE, LEARNER_WHITE))
 	var drawn := DrawnTexture.of(
 		block, SchoolFigure.of(SchoolFigure.Kind.LEARNER, 128.0), Vector2i(128, 128)
