@@ -159,7 +159,7 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"turbo_pass": ["kart/turbo_pass.ogg"],
 	# The driving school, GAME.md 9.4a: a page of the theory book, the book shutting, and the stamp
 	# coming down on the license.
-	&"page": ["card-shove-1.ogg", "card-place-1.ogg", "card-place-2.ogg"],
+	&"page": ["card-shove-1.ogg", "card-place-2.ogg"],
 	&"book": ["impactPlate_light_000.ogg"],
 	&"stamp": ["impactPunch_heavy_000.ogg"],
 	&"nitro_swell": ["kart/nitro_swell.ogg"],

@@ -81,24 +81,38 @@ func test_the_book_reads_faster_shuts_and_asks() -> void:
 	await await_idle_frame()
 	var theory := school.theory
 	var runner := _runner
-	# The title page, still, on the left, with the first rule across from it.
+	# The title page, still, on the left, with the first rule across from it, the text cut into
+	# pages with nothing cut across two.
 	await runner.simulate_frames(10, 16)
-	assert_float(theory._offset).is_equal(0.0)
+	assert_int(theory.turns).is_equal(0)
 	assert_int(theory.page_shown).is_equal(1)
 	assert_str(theory._folios[0].text).is_equal("1")
 	assert_str(theory._folios[1].text).is_equal("2")
 	assert_object(theory._columns[0].get_child(0).find_child("*", true, false)).is_not_null()
-	theory.elapsed = SchoolTheory.HOLD
-	await runner.simulate_frames(10, 16)
-	var early := theory._offset
-	assert_float(early).is_greater(0.0)
-	await runner.simulate_frames(10, 16)
-	var pace_early := theory._offset - early
-	theory.elapsed = SchoolTheory.HOLD + (SchoolTheory.READ_FOR - SchoolTheory.HOLD) * 0.7
-	var late := theory._offset
-	await runner.simulate_frames(10, 16)
-	assert_float(theory._offset - late).is_greater(pace_early * 4.0)
+	assert_int(theory._page_count()).is_greater(10)
+	assert_bool(theory._columns[SchoolTheory.RIGHT].visible).is_true()
+	for page: int in theory._page_count():
+		var tall: float = theory._breaks[page + 1] - theory._breaks[page]
+		assert_float(tall).is_less_equal(SchoolTheory.leaf_height() + 10.0)
+	# The first leaf turns a while into the reading, over onto the left, which it becomes.
+	theory.elapsed = SchoolTheory.HOLD + SchoolTheory.TURN_FIRST
+	await runner.simulate_frames(3, 16)
+	assert_int(theory.turns).is_equal(1)
+	assert_bool(theory.is_turning()).is_true()
+	assert_bool(theory._leaf.visible).is_true()
+	await await_millis(int(SchoolTheory.TURN_SLOWEST * 1000.0) + 200)
+	assert_bool(theory.is_turning()).is_false()
+	assert_bool(theory._leaf.visible).is_false()
 	assert_int(theory.page_shown).is_greater(1)
+	assert_str(theory._folios[0].text).is_equal(str(theory.page_shown))
+	assert_str(theory._folios[1].text).is_equal(str(theory.page_shown + 1))
+	var early: float = theory._interval
+	assert_float(early).is_less(SchoolTheory.TURN_FIRST)
+	# Later on, the leaves come many times faster.
+	theory.elapsed = SchoolTheory.HOLD + (SchoolTheory.READ_FOR - SchoolTheory.HOLD) * 0.7
+	await runner.simulate_frames(40, 16)
+	assert_int(theory.turns).is_greater(5)
+	assert_float(theory._interval).is_less(early / 4.0)
 	assert_bool(theory.is_asking()).is_false()
 	theory.elapsed = SchoolTheory.READ_FOR
 	await runner.simulate_frames(2, 16)
@@ -268,6 +282,11 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	var look: Control = tab.find_child("Look", true, false)
 	assert_object(look).is_not_null()
 	assert_object(look.get_parent()).is_same(card.get_parent())
+	var corner := LicenseCard.SIZE.x * LicenseTab.CARD_SCALE + LicenseTab.LOOK_AT.x
+	assert_float(look.position.x).is_equal_approx(corner, 1.0)
+	var mark: Control = look.get_child(0)
+	assert_float(mark.position.x + mark.size.x * 0.5).is_equal_approx(0.0, 0.5)
+	assert_float(mark.position.y + mark.size.y * 0.5).is_equal_approx(0.0, 0.5)
 	assert_int(look.find_children("*", "InputGlyph", true, false).size()).is_equal(1)
 	assert_str(_words_in(look).strip_edges()).is_empty()
 	var click := InputEventMouseButton.new()

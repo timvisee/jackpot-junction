@@ -13,11 +13,11 @@ const MEANWHILE := "Until then, your kart wears this."
 const PLATE_LINE := "Up to %d letters, digits, spaces and dashes, on the back of your kart."
 const RETAKE := "Retake the driving test"
 const CARD_SCALE := 0.9
-## How big the hand's button is drawn over the card's bottom right corner, where its middle sits
-## from the corner, and the chip it sits on so it reads on the cream of the card.
+## How big the hand's button is drawn on the card's bottom right corner, and where its middle
+## sits from the corner of the card's box: on the rounded corner itself, so a quarter of it is over
+## the card.
 const LOOK_SIZE := 22
-const LOOK_AT := Vector2(-22.0, -18.0)
-const LOOK_CHIP := Color(0.08, 0.08, 0.1, 0.88)
+const LOOK_AT := -Vector2.ONE * LicenseCard.RADIUS * CARD_SCALE * (1.0 - 0.7071)
 
 var field: LineEdit
 var preview: LicensePlate
@@ -172,9 +172,9 @@ func _on_put_away() -> void:
 		_was_focused.grab_focus()
 
 
-## The hand's button, drawn alone for the device in hand over the card's bottom right corner on
-## a dark chip, the way the title draws it beside its own; nothing on a touch screen, which has
-## the tap and no button. A click on it is a click on the card under it.
+## The hand's button, drawn alone for the device in hand on the card's bottom right corner, over
+## the card, the way the title draws it beside its own; nothing on a touch screen, which has the
+## tap and no button. A click on it is a click on the card under it.
 func _say_look() -> void:
 	if _look == null:
 		return
@@ -188,18 +188,16 @@ func _say_look() -> void:
 	)
 	if glyph == null:
 		return
-	var chip := PanelContainer.new()
-	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var style := StyleBoxFlat.new()
-	style.bg_color = LOOK_CHIP
-	style.set_corner_radius_all(8)
-	style.set_content_margin_all(5.0)
-	chip.add_theme_stylebox_override("panel", style)
-	chip.add_child(glyph)
-	chip.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	chip.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	chip.grow_vertical = Control.GROW_DIRECTION_BOTH
-	_look.add_child(chip)
+	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_look.add_child(glyph)
+	# Its middle on the corner, which is where the point it hangs from is, whatever size it is.
+	_on_the_corner(glyph)
+	glyph.minimum_size_changed.connect(_on_the_corner.bind(glyph))
+
+
+func _on_the_corner(glyph: Control) -> void:
+	glyph.size = glyph.get_combined_minimum_size()
+	glyph.position = -glyph.size * 0.5
 
 
 ## Out of whatever room the settings were opened over, and to the school.

@@ -2,9 +2,10 @@ class_name SchoolTheory
 extends Control
 ## The driving school's theory, GAME.md 9.4a: the Highway Code of the Junction, a book open at a
 ## spread of two pages in a leather cover, which reads itself. It opens on its title page, the
-## game's mark and name over the book's, and stands there a moment; then the text runs, at a pace
-## anybody could follow, with figures among the rules, and speeds up on an exponential until the
-## pages are a blur and the page numbers in the corners are racing to the 212th. Nine seconds of
+## game's mark and name over the book's, and stands there a moment; then its pages turn, a leaf
+## at a time lifting off the right page and laid down on the left, the first after a couple of
+## seconds anybody could read them in and each next one sooner, until the pages riffle past and
+## the page numbers in the corners are racing to the 212th. Nine seconds of
 ## that and the book folds shut, the right half swinging over onto the left and the front cover
 ## coming down on it with a thud and a puff of dust, and the one question, "Got that?", comes up
 ## beside the shut book where the right page was, which either answer gets past: the theory is a
@@ -22,14 +23,35 @@ const HEADS: Array[String] = [
 	"DEPT. OF KARTS  ·  212TH EDITION", "THE HIGHWAY CODE OF THE JUNCTION"
 ]
 const PAGES := 212
-## How long the title page stands before the book starts reading, how long it reads, and how it
-## reads: a pace in pixels a second that grows by a factor every second, up to a ceiling that is
-## a blur on any screen.
+## How long the title page stands before the book starts reading, how long it reads, and how
+## fast the page numbers race to the last page, a growth a second.
 const HOLD := 1.6
 const READ_FOR := HOLD + 9.0
-const START_SPEED := 36.0
 const RAMP := 0.62
-const TOP_SPEED := 16000.0
+## The pages turning: the first after this long, each next one sooner by a factor, never sooner
+## than the fastest a leaf can riffle past; each turn takes most of the time to the next, never
+## longer than a slow one; and the camera the leaf is seen from stands this many pages off.
+const TURN_FIRST := 2.0
+const TURN_RAMP := 0.75
+const TURN_FASTEST := 0.06
+const TURN_SLOWEST := 0.55
+const TURN_SHARE := 0.85
+const TURN_DEPTH := 7.0
+const TURN_SHADER := preload("res://scenes/tutorial/school/page_turn.gdshader")
+## Room over and under the book for the leaf to grow into as it comes up toward the camera.
+const LIFT_ROOM := 72.0
+## The page turning's sound: soft, softer still as the pages riffle, a touch higher as they race,
+## and never closer together than this, so the riffle is not a rattle.
+const PAGE_DB := -19.0
+const RIFFLE_DB := -26.0
+const RIFFLE_PITCH := 0.16
+const PAGE_PITCHES := 0.07
+const SOUND_GAP := 0.1
+## Which of the pages is which: the spread's two, and the leaf's two faces.
+const LEFT := 0
+const RIGHT := 1
+const FRONT := 2
+const BACK := 3
 ## The shutting: a breath before it, the right half swinging over, the cover coming down, the
 ## closed book standing a while, and the question fading in beside it.
 const BREATH := 0.25
@@ -61,8 +83,6 @@ const MOTES := 36
 const DUST := Color(0.82, 0.76, 0.62)
 const DUST_FOR := 0.9
 const DUST_SPEED := 160.0
-## The least time between two page sounds, so the blur is not a rattle.
-const FLIP_GAP := 0.12
 const FIGURE_SIDE := 104.0
 const MARK_SIDE := 104.0
 ## The figures among the rules, each with its caption.
@@ -152,6 +172,8 @@ const ANSWERS: Array[String] = ["Absolutely", "Not a word"]
 var elapsed := 0.0
 ## The page the left of the spread is on, 1 to 211; the right is the next.
 var page_shown := 1
+## How many leaves have been turned.
+var turns := 0
 ## The buttons of the question, once the book is shut.
 var answers: Array[Button] = []
 
@@ -162,12 +184,31 @@ var _advice: Label
 ## front cover that comes down over the left half as the book shuts.
 var _halves: Array[Control] = []
 var _lid: Control
+## Every page's text, the clip it runs under and its page number: the spread's left and right,
+## and the leaf's front and back, see [constant LEFT].
 var _columns: Array[VBoxContainer] = []
+var _clips: Array[Control] = []
 var _folios: Array[Label] = []
 var _question: VBoxContainer
-var _offset := 0.0
-var _flip_left := 0.0
 var _shut := false
+## Where each page of the text starts in it, a page ending where the next starts and no item cut
+## across two, with where the text ends last; empty until the text has been laid out.
+var _breaks: Array[float] = []
+## The spread up, counting from the title's; the leaf turning over, its faces, and the turn
+## under way: drawn this frame and turned from the next, landing as the left page and its folio.
+var _spread := 0
+var _leaf: TextureRect
+var _faces: Array[SubViewport] = []
+var _leaf_turn: Tween
+var _preparing := false
+var _landing := false
+var _land_folio := 1
+## When the next leaf turns, counted from when the reading starts, how long until the one after,
+## how long the one under way takes, and how long until a page may make a sound again.
+var _next_turn_at := TURN_FIRST
+var _interval := TURN_FIRST
+var _turn_for := TURN_SLOWEST
+var _sound_left := 0.0
 
 
 ## How wide one half of the book is: its half of the cover, its page and its half of the gutter.
@@ -364,6 +405,7 @@ func _ready() -> void:
 	column.add_child(_advice)
 	for side: int in 2:
 		_book.add_child(_half(side))
+	_book.add_child(_leaf_over())
 	_lid = Lid.new()
 	_lid.name = "Lid"
 	_lid.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -391,7 +433,9 @@ func _ready() -> void:
 		answers.append(button)
 	_question.visible = false
 	_book.add_child(_question)
-	_show_pages()
+	# The page across from the title, once the text is laid out and cut into pages.
+	_columns[RIGHT].visible = false
+	_paginate()
 
 
 ## One half of the open book, [param side] 0 for the left: its half of the cover, its page on
@@ -458,6 +502,7 @@ func _page(side: int) -> Control:
 	clip.size = Vector2(PAGE.x, leaf_height())
 	clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	page.add_child(clip)
+	_clips.append(clip)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 10)
 	column.position = Vector2(MARGIN, 0.0)
@@ -584,39 +629,179 @@ func _figure(entry: Array) -> Control:
 	return box
 
 
+## The leaf that turns over, seen through [constant TURN_SHADER] over the whole open book: its
+## front a right page and its back a left one, each drawn into a picture of its own as a turn
+## begins.
+func _leaf_over() -> TextureRect:
+	_leaf = TextureRect.new()
+	_leaf.name = "Leaf"
+	_leaf.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_leaf.position = Vector2(0.0, -LIFT_ROOM)
+	_leaf.size = Vector2(half_width() * 2.0, book_height() + LIFT_ROOM * 2.0)
+	_leaf.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_leaf.stretch_mode = TextureRect.STRETCH_SCALE
+	_leaf.visible = false
+	var turn := ShaderMaterial.new()
+	turn.shader = TURN_SHADER
+	turn.set_shader_parameter("rect_size", _leaf.size)
+	turn.set_shader_parameter("hinge", half_width())
+	turn.set_shader_parameter("inner", GUTTER * 0.5)
+	turn.set_shader_parameter("page", PAGE)
+	turn.set_shader_parameter("top", LIFT_ROOM + COVER)
+	turn.set_shader_parameter("depth", TURN_DEPTH * PAGE.x)
+	# The front a right page, the back a left one: pages FRONT and BACK.
+	for side: int in [1, 0]:
+		var face := SubViewport.new()
+		face.name = "Front" if side == 1 else "Back"
+		face.size = Vector2i(PAGE)
+		face.transparent_bg = true
+		face.disable_3d = true
+		face.gui_disable_input = true
+		face.render_target_update_mode = SubViewport.UPDATE_DISABLED
+		face.add_child(_page(side))
+		_leaf.add_child(face)
+		_faces.append(face)
+		turn.set_shader_parameter("front" if side == 1 else "back", face.get_texture())
+	_leaf.texture = _faces[0].get_texture()
+	_leaf.material = turn
+	return _leaf
+
+
+## Cuts the text into pages once it is laid out: a page holds what fits under its running head,
+## and the item that does not starts the next one, so no line is cut across two pages.
+func _paginate() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if not is_inside_tree():
+		return
+	var column := _columns[LEFT]
+	var start := 0.0
+	_breaks = [0.0]
+	for child: Node in column.get_children():
+		var item := child as Control
+		if item.position.y > start and item.position.y + item.size.y - start > leaf_height():
+			start = item.position.y
+			_breaks.append(start)
+	_breaks.append(column.size.y + float(column.get_theme_constant("separation")))
+	_show_page(LEFT, 0, page_shown)
+	_show_page(RIGHT, 1, page_shown + 1)
+	_columns[RIGHT].visible = true
+
+
+## How many pages the text was cut into, the title's first.
+func _page_count() -> int:
+	return maxi(_breaks.size() - 1, 1)
+
+
+## The page of the text spread [param spread]'s left page, or its right with [param right], is:
+## round again from the first after the title's once the text runs out, the book being longer
+## than nine seconds at any pace.
+func _text_page(spread: int, right := false) -> int:
+	var at := spread * 2 + (1 if right else 0)
+	var count := _page_count()
+	if at < count:
+		return at
+	return 1 + (at - 1) % maxi(count - 1, 1)
+
+
+## Shows text page [param text] on page [param which] of [constant LEFT] and the rest, numbered
+## [param folio]: the text from where that page starts, cut off where the next one starts.
+func _show_page(which: int, text: int, folio: int) -> void:
+	if _breaks.size() < 2:
+		return
+	var from := _breaks[text]
+	_columns[which].position.y = -from
+	_clips[which].size.y = minf(_breaks[text + 1] - from, leaf_height())
+	_folios[which].text = str(folio)
+
+
 func _process(delta: float) -> void:
 	if _shut:
 		return
 	elapsed += delta
-	_flip_left = maxf(_flip_left - delta, 0.0)
-	# The title page stands a moment; then the text runs down the left page and on down the
-	# right one, and comes round again: the book is longer than nine seconds at any pace.
-	var reading := maxf(elapsed - HOLD, 0.0)
-	if reading > 0.0:
-		var speed := minf(START_SPEED * exp(RAMP * reading), TOP_SPEED)
-		_offset += speed * delta
-	var length := maxf(_columns[0].size.y + MARGIN, leaf_height() * 2.0 + 1.0)
-	for side: int in 2:
-		var at := fmod(_offset + leaf_height() * float(side), length)
-		_columns[side].position.y = -at
-	_show_pages()
+	_sound_left = maxf(_sound_left - delta, 0.0)
+	if not _breaks.is_empty():
+		if _preparing:
+			_preparing = false
+			_start_turn()
+		elif elapsed - HOLD >= _next_turn_at:
+			_prepare_turn()
 	if elapsed >= READ_FOR:
 		shut()
 
 
-## The page numbers in the corners, which run up the same curve as the pace and reach the last
-## page as the book shuts.
-func _show_pages() -> void:
+## The next leaf drawn: its front the right page as it is, its back the next spread's left page,
+## numbered as far on as the race has got; it turns from the next frame, once both are drawn, so
+## it never shows the turn before.
+func _prepare_turn() -> void:
+	_land_now()
+	var folio := mini(maxi(page_shown + 2, _page_by_now()), PAGES - 1)
+	_show_page(FRONT, _text_page(_spread, true), page_shown + 1)
+	_spread += 1
+	_show_page(BACK, _text_page(_spread), folio)
+	for face: SubViewport in _faces:
+		face.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_land_folio = folio
+	_interval = maxf(_interval * TURN_RAMP, TURN_FASTEST)
+	_next_turn_at += _interval
+	_turn_for = clampf(_interval * TURN_SHARE, TURN_FASTEST * 0.8, TURN_SLOWEST)
+	_preparing = true
+
+
+## The leaf lifts off the right page, which is the next spread's under it from here on, and comes
+## over onto the left one with a soft rustle.
+func _start_turn() -> void:
+	turns += 1
+	page_shown = _land_folio
+	_show_page(RIGHT, _text_page(_spread, true), page_shown + 1)
+	_landing = true
+	_turn_to(0.0)
+	_leaf.visible = true
+	_leaf_turn = create_tween()
+	_leaf_turn.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
+	_leaf_turn.tween_method(_turn_to, 0.0, PI, _turn_for)
+	_leaf_turn.tween_callback(_landed)
+	if _sound_left <= 0.0:
+		var racing := clampf((TURN_FIRST - _interval) / (TURN_FIRST - TURN_FASTEST), 0.0, 1.0)
+		Audio.play_sfx(
+			&"page", lerpf(PAGE_DB, RIFFLE_DB, racing), PAGE_PITCHES, 1.0 + RIFFLE_PITCH * racing
+		)
+		_sound_left = SOUND_GAP
+
+
+func _turn_to(angle: float) -> void:
+	(_leaf.material as ShaderMaterial).set_shader_parameter("angle", angle)
+
+
+func _landed() -> void:
+	_leaf_turn = null
+	_land_now()
+
+
+## The leaf down on the left page, which is now the page it showed: the turn under way, if any,
+## finished on the spot.
+func _land_now() -> void:
+	if not _landing:
+		return
+	_landing = false
+	if _leaf_turn != null:
+		_leaf_turn.kill()
+		_leaf_turn = null
+	_show_page(LEFT, _text_page(_spread), page_shown)
+	_leaf.visible = false
+
+
+## Whether a leaf is turning over.
+func is_turning() -> bool:
+	return _landing
+
+
+## The page the race has got to: up the same curve as the pace, from the first to the last page
+## as the book shuts.
+func _page_by_now() -> int:
 	var reading := maxf(elapsed - HOLD, 0.0)
 	var share := (exp(RAMP * reading) - 1.0) / (exp(RAMP * (READ_FOR - HOLD)) - 1.0)
-	var page := clampi(1 + roundi(share * float(PAGES - 2)), 1, PAGES - 1)
-	if page != page_shown:
-		page_shown = page
-		if _flip_left <= 0.0:
-			Audio.play_sfx(&"page", -14.0, 0.0)
-			_flip_left = FLIP_GAP
-	for side: int in _folios.size():
-		_folios[side].text = str(page_shown + side)
+	return clampi(1 + roundi(share * float(PAGES - 2)), 1, PAGES - 1)
 
 
 ## The book shuts: a breath, the right half swings over onto the left, the front cover comes
@@ -628,6 +813,12 @@ func shut() -> void:
 	_shut = true
 	elapsed = READ_FOR
 	_advice.visible = false
+	# The last page, whatever the race got to.
+	_land_now()
+	_preparing = false
+	page_shown = PAGES - 1
+	_folios[LEFT].text = str(page_shown)
+	_folios[RIGHT].text = str(PAGES)
 	var fold := create_tween()
 	fold.tween_interval(BREATH)
 	fold.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)

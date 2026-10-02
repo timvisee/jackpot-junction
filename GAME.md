@@ -2923,8 +2923,8 @@ like any other button.
 
 - **License**, first: the driver license earned at the driving school of 9.4a, as it
   was stamped, shown in full over the whole screen as the title shows it on a
-  click or a tap on it, or on the hand's button, drawn alone over its bottom
-  right corner on a dark chip for the device in hand, with the plate on the back of the kart under it to change, see
+  click or a tap on it, or on the hand's button, drawn alone with its middle on
+  the card's bottom right corner for the device in hand, with the plate on the back of the kart under it to change, see
   4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed,
   and Retake the driving test, which goes to the school; or, before one is
   earned, a word on where to get one, Earn it now, which goes to the school,
@@ -3614,12 +3614,17 @@ under it while it is open, open at a spread of two cream pages with a running he
 over each and its page number in the outer corner, which reads itself. It opens
 on its title page, the game's mark and name over the book's own and its
 edition, with the first rule on the page across from it, and stands there a
-moment and a half; then the text runs, rules in bold among filler drawn from a
-seeded generator so it reads the same every time, with figures and captions
-among them, the speed limit, a Jackpot, karts crossing, the Junction, a drift, a
-pit, a Royal Flush, a mult die, a roundabout, at a pace anybody could follow for
-a second or two and then on an exponential until the pages are a blur and the
-page numbers are racing to the 212th; nine seconds of that and the book shuts,
+moment and a half; then its pages turn, the text cut into pages with nothing
+cut across two, rules in bold among filler drawn from a seeded generator so it
+reads the same every time, with figures and captions among them, the speed
+limit, a Jackpot, karts crossing, the Junction, a drift, a pit, a Royal Flush, a
+mult die, a roundabout. A leaf at a time lifts off the right page about the
+spine and comes over onto the left in perspective, growing a little as it comes
+up and going a shade darker as it turns from the light, its front the page it
+was and its back the next left page; the first after two seconds anybody could
+read the spread in, each next one sooner by a quarter, until they riffle past
+twenty a second and the page numbers race to the 212th, each turn a soft rustle,
+softer and a touch higher as the pages race; nine seconds of that and the book shuts,
 a breath, the right half swinging over onto the left on the spine, the front
 cover coming down over it, tooled leather with the book's name in gilt, with a
 thud and a puff of dust off its edges, and, the shut book standing a couple of
