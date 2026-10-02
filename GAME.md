@@ -398,8 +398,8 @@ graphics card or a cleared cache.
 The screen is headed Podium and opens with one: the top three on three steps, the winner
 in the middle on the tallest, second a little lower on one side and third lowest
 on the other, each with their own kart standing on top of it turning slowly on the
-spot, a kart of this machine's with the plate on its back, the learner's L or the
-license plate, see 4.4. It is a small 3D scene of its own rather than a picture, lit by its own
+spot, each with the plate it wore in the match on its back, the learner's L or a
+license plate, a bot's too, see 4.4. It is a small 3D scene of its own rather than a picture, lit by its own
 light in a world of its own so nothing of the arena behind it leaks in. A match of
 two fills two steps.
 
@@ -508,7 +508,9 @@ else's results screen, see 10.3.
   Settings and Quit, and once the driving test of 9.4a is passed, the driver
   license peeks in from the right edge, out under the cursor and in full on a
   click or on the button that opens the hand of jokers, see 3.7, which is drawn
-  on the card's corner for the device in hand. Play goes
+  in the bottom right corner over the version with License beside it, for the
+  device in hand. A question asked over the title, this one or any other, keeps
+  the cursor on its own two answers. Play goes
   straight into the lobby, the waiting room of 9.6, the way hosting
   a LAN game does, with the match settings up over it, whose first question is
   whether it is a Grand Prix of several maps or a quick match on one, see 9.7; anybody
@@ -1222,7 +1224,7 @@ short buzz the slider gives, so reading along the row is felt card by card.
   anything for as long as somebody takes it for you, and a kart in your color
   with none of your things on it is not you.
 - The podium at the end of a match shows each kart as its owner dressed it, see
-  3.8, plate and all for the karts of this machine, and so does the Garage.
+  3.8, plate and all, and so does the Garage.
 
 ## 5. Combat
 
@@ -2915,9 +2917,10 @@ like any other button.
 
 - **License**, first: the driver license earned at the driving school of 9.4a, as it
   was stamped, with the plate on the back of the kart under it to change, see
-  4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed;
-  or, before one is earned, a word on where to get one, Earn it now, which goes
-  to the school, and the learner's L the kart wears meanwhile.
+  4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed,
+  and Retake the driving test, which goes to the school; or, before one is
+  earned, a word on where to get one, Earn it now, which goes to the school,
+  and the learner's L the kart wears meanwhile.
 - **Controls**: how the first player drives, simple or advanced, each a button
   with its picture on it, a kart with an arrow each way round it and a steering
   wheel, and Help me choose beside them for the question the first Play asks, see
@@ -3591,9 +3594,11 @@ or with one off the funny list of 3.8 for a seat that never gave one and is
 the first seat's name from here on, the course in three numbered steps, driving
 theory, driving test, your license, and one big button, Enroll; Enter in the box
 enrolls too. Back on any page, Escape or B, or the menu button a touch screen
-has in the top right corner, asks "Leave the driving school?", with Leave,
-which is the title, and Stay, which has the cursor, the page held still under
-the question so the book stops reading; Back again is Stay. The theory: the Highway Code of the
+has in the top right corner, or the pause button of a room, Start on a pad,
+asks "Leave the driving school?", "Progress will be lost. Come back any time
+from the title screen.", with Leave, which is the title, and Stay, which has
+the cursor, the page held still under the question so the book stops reading;
+Back again is Stay. The theory: the Highway Code of the
 Junction, 212th edition, a book in a leather cover with a spine and the edges of
 its leaves showing, "Read all the theory carefully. There will be questions."
 under it while it is open, open at a spread of two cream pages with a running head
@@ -4046,8 +4051,8 @@ which is Play, with the cursor, and Back to title. The license is seen again on
 the title, peeking in from the right edge the way a card in a hand does, tilted
 and a third off the screen, sliding in straight under the cursor and back out
 from under it, and shown in full over a shade on a click or a tap, or on the
-button that opens the hand of jokers, 3.7, Tab or Y say, drawn on the card's
-corner for the device last touched and riding on the card as it slides, the
+button that opens the hand of jokers, 3.7, Tab or Y say, drawn in the bottom
+right corner of the title with License beside it for the device last touched, the
 way a joker is shown out of the hand, with Put it away under it and a click
 anywhere, Back or the same button putting it away; and on the License tab of
 the settings, 8.5, with the plate to change under it.

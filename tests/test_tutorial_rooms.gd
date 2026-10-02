@@ -767,6 +767,17 @@ func test_the_title_asks_for_the_license_until_it_is_earned() -> void:
 	var pane: ConfirmPane = title.find_child("LicenseOffer", true, false)
 	assert_object(pane).is_not_null()
 	assert_str(pane.said()).contains("Missing license")
+	# The cursor stays on the question's two answers, not the title's buttons behind it.
+	assert_str(str(pane.yes_button().focus_neighbor_bottom)).is_equal(
+		str(pane.no_button().get_path())
+	)
+	assert_str(str(pane.no_button().focus_neighbor_top)).is_equal(str(pane.yes_button().get_path()))
+	assert_str(str(pane.yes_button().focus_neighbor_top)).is_equal(
+		str(pane.no_button().get_path())
+	)
+	assert_str(str(pane.yes_button().focus_neighbor_left)).is_equal(
+		str(pane.yes_button().get_path())
+	)
 	assert_int(went[0]).is_equal(0)
 	pane.no_button().pressed.emit()
 	assert_int(went[0]).is_equal(1)

@@ -92,6 +92,36 @@ static func plate_for_here_on(body: Node3D) -> Node3D:
 	return plate
 
 
+## What [param kart] wears on its back, GAME.md 4.4: "L" for the learner's plate, the words of a
+## license plate, or nothing for a kart with none.
+static func plate_worn(kart: Kart) -> String:
+	if kart == null or not is_instance_valid(kart):
+		return ""
+	var plate := kart.get_node_or_null("Body/Plate")
+	if plate == null or not plate.has_meta(&"plate"):
+		return ""
+	return str(plate.get_meta(&"plate"))
+
+
+## The plate [param worn], as [method plate_worn] has it, on [param body], a model standing for a
+## kart, the podium's say, GAME.md 3.8; nothing for nothing.
+static func plate_like(body: Node3D, worn: String) -> Node3D:
+	if body == null or worn.is_empty():
+		return null
+	var plate: Node3D
+	if worn == "L":
+		plate = _plate_on(
+			body,
+			SchoolFigure.of(SchoolFigure.Kind.LEARNER, 128.0),
+			Vector2i(128, 128),
+			Vector2(LEARNER_SIDE, LEARNER_SIDE)
+		)
+	else:
+		plate = _plate_on(body, LicensePlate.of(worn), Vector2i(448, 128), LICENSE_PLATE)
+	plate.set_meta(&"plate", worn)
+	return plate
+
+
 ## The plate a bot wears, GAME.md 4.4, by [param brain]: the easiest bots are learners, with the
 ## L, and the rest hold a license, with a plate drawn from their name and [param rng], the
 ## match's, so a seed decides it. A bot with no brain yet is a learner.

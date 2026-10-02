@@ -222,15 +222,19 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	KartVisuals.plate_for_here(without.slots[0].kart)
 	plate = without.slots[0].kart.get_node_or_null("Body/Plate")
 	assert_str(plate.get_meta(&"plate")).is_equal("TLT-123")
-	# The podium's karts wear theirs too, for the ones at this machine.
+	# The podium's karts wear what they wore in the match: the player's plate, the bot's, and
+	# nothing for a kart with none.
 	var podium := ResultsPodium.create()
 	add_child(podium)
-	podium.show_top([without.slots[0], without.slots[1]], [true, false])
-	assert_int(podium._karts.size()).is_equal(2)
+	podium.show_top([without.slots[0], without.slots[2], without.slots[1]])
+	assert_int(podium._karts.size()).is_equal(3)
 	var on_step := podium._karts[0].find_child("Plate", true, false)
 	assert_object(on_step).is_not_null()
 	assert_str(on_step.get_meta(&"plate")).is_equal("TLT-123")
-	assert_object(podium._karts[1].find_child("Plate", true, false)).is_null()
+	var bots_step := podium._karts[1].find_child("Plate", true, false)
+	assert_object(bots_step).is_not_null()
+	assert_str(bots_step.get_meta(&"plate")).is_equal(worn)
+	assert_object(podium._karts[2].find_child("Plate", true, false)).is_null()
 	podium.queue_free()
 	(
 		assert_int(
@@ -244,6 +248,7 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	await await_idle_frame()
 	var card: LicenseCard = tab.find_child("LicenseCard", true, false)
 	assert_object(card).is_not_null()
+	assert_object(tab.retake).is_not_null()
 	assert_str(card.holder_name).is_equal("Tail Light Tim")
 	assert_bool(card.stamped).is_true()
 	assert_bool(card.endorsements["KO"]).is_true()
@@ -311,8 +316,10 @@ func test_the_title_peeks_the_license_earned() -> void:
 	title._unhandled_input(back)
 	await await_idle_frame()
 	assert_object(title.find_child("LicenseView", true, false)).is_null()
-	# The hand's button shows it too, and again puts it away, with its glyph riding on the card.
-	assert_object(peek.find_child("LicenseGlyph", false, false)).is_not_null()
+	# The hand's button shows it too, and again puts it away, its glyph in the bottom right corner.
+	var glyph: Control = title.find_child("LicenseGlyph", true, false)
+	assert_object(glyph).is_not_null()
+	assert_object(glyph.get_parent()).is_same(title)
 	var hand := InputEventAction.new()
 	hand.action = InputActions.JOKER_MENU
 	hand.pressed = true
@@ -341,8 +348,12 @@ func test_back_leaves_the_school_and_the_quiz_has_a_word_for_every_score() -> vo
 	var back := InputEventAction.new()
 	back.action = &"ui_cancel"
 	back.pressed = true
-	# Back asks first, the book held still under the question; Back again is Stay.
-	school._unhandled_input(back)
+	# The pause button asks first, as Back does, the book held still under the question; Back
+	# again is Stay.
+	var pause := InputEventAction.new()
+	pause.action = InputActions.PAUSE
+	pause.pressed = true
+	school._unhandled_input(pause)
 	assert_bool(school.is_asking_to_leave()).is_true()
 	assert_int(left[0]).is_equal(0)
 	assert_int(school.page).is_equal(DrivingSchool.Page.THEORY)

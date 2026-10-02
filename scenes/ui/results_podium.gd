@@ -39,17 +39,17 @@ static func create() -> ResultsPodium:
 	return podium
 
 
-## Stands the top three on it, tallest first, each kart of this machine's, [param mine] by
-## place, with the plate on its back, GAME.md 4.4. Called every time the screen is filled in, so
-## it clears whatever was standing there before.
-func show_top(standings: Array[PlayerSlot], mine: Array[bool] = []) -> void:
+## Stands the top three on it, tallest first, each kart with the plate it wore in the match on
+## its back, GAME.md 4.4, the learner's L or its license plate, a bot's too. Called every time
+## the screen is filled in, so it clears whatever was standing there before.
+func show_top(standings: Array[PlayerSlot]) -> void:
 	for child: Node in _stage.get_children():
 		_stage.remove_child(child)
 		child.free()
 	_karts.clear()
 	var shown := mini(standings.size(), PLACES.size())
 	for place: int in shown:
-		_add_step(standings[place], place, place < mine.size() and mine[place])
+		_add_step(standings[place], place)
 	# A full podium is already centered on the winner. A short one is not, so the whole thing is
 	# slid over until what is standing on it sits in the middle of the picture.
 	var middle := 0.0
@@ -71,9 +71,9 @@ func _process(delta: float) -> void:
 		kart.rotate_y(TAU * delta / SPIN_SECONDS)
 
 
-## One step with its kart on top and its place painted on the front, and the plate on the kart
-## where it is somebody's at this machine.
-func _add_step(slot: PlayerSlot, place: int, is_mine: bool) -> void:
+## One step with its kart on top and its place painted on the front, and the plate the kart
+## wore.
+func _add_step(slot: PlayerSlot, place: int) -> void:
 	var at := PLACES[place]
 	var step := MeshInstance3D.new()
 	var box := BoxMesh.new()
@@ -96,8 +96,7 @@ func _add_step(slot: PlayerSlot, place: int, is_mine: bool) -> void:
 	kart.scale = Vector3.ONE * KART_SCALE
 	var model := KartVisuals.display_model(slot.color_index, slot.style)
 	kart.add_child(model)
-	if is_mine:
-		KartVisuals.plate_for_here_on(model)
+	KartVisuals.plate_like(model, KartVisuals.plate_worn(slot.kart))
 	_stage.add_child(kart)
 	_karts.append(kart)
 

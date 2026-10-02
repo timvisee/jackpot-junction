@@ -33,6 +33,21 @@ func _ready() -> void:
 	_no = MenuTheme.button("")
 	_no.pressed.connect(func() -> void: answered.emit(false))
 	column.add_child(_no)
+	_confine()
+
+
+## The cursor stays on the two answers while the question is up, rather than walking off them
+## onto whatever the question was asked over, the title's buttons say.
+func _confine() -> void:
+	for each: Button in [_yes, _no]:
+		var other := _no if each == _yes else _yes
+		var here := each.get_path()
+		each.focus_neighbor_left = here
+		each.focus_neighbor_right = here
+		each.focus_neighbor_top = other.get_path()
+		each.focus_neighbor_bottom = other.get_path()
+		each.focus_next = other.get_path()
+		each.focus_previous = other.get_path()
 
 
 ## Puts [param question] up, with [param message] under it, [param yes] on the button that goes

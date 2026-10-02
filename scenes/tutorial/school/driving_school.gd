@@ -5,9 +5,9 @@ extends Control
 ## the enrollment, where the player gives the name that goes on their license, see
 ## [SchoolEnrollment]; the theory, a book that reads itself faster than anybody could, see
 ## [SchoolTheory]; and the pop quiz, three questions nobody fails, see [SchoolQuiz]. Then the
-## driving test. Back on any page, Escape or B, or the menu button a touch screen has in the top
-## right corner, GAME.md 4.2, asks whether to leave, the page held still under the question, and
-## leaving is back to the title.
+## driving test. Back on any page, Escape or B, the pause button of a room, Start on a pad, or
+## the menu button a touch screen has in the top right corner, GAME.md 4.2, asks whether to
+## leave, the page held still under the question, and leaving is back to the title.
 
 signal page_turned(page: int)
 
@@ -21,7 +21,7 @@ const MENU_INSET := Vector2(64.0, 62.0)
 const MENU_INK := Palette.CHIP_WHITE
 ## What leaving asks.
 const LEAVE_QUESTION := "Leave the driving school?"
-const LEAVE_LINE := "Nothing here is kept. You can come back any time from the title."
+const LEAVE_LINE := "Progress will be lost. Come back any time from the title screen."
 
 
 ## The round menu button of a touch screen, drawn the way the rooms draw theirs.
@@ -126,8 +126,11 @@ func _on_quiz_done() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Back on any page asks whether to leave, and Back on the question is Stay: B on a pad, or
-	# Escape, GAME.md 4.2.
-	if page != Page.DONE and event.is_action_pressed(&"ui_cancel"):
+	# Escape, GAME.md 4.2, and the pause button of a room, Start on a pad, the same.
+	var asked := (
+		event.is_action_pressed(&"ui_cancel") or event.is_action_pressed(InputActions.PAUSE)
+	)
+	if page != Page.DONE and asked:
 		get_viewport().set_input_as_handled()
 		if _question != null:
 			stay()

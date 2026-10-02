@@ -1,21 +1,24 @@
 class_name LicenseTab
 extends ScrollContainer
 ## The License tab of the settings, GAME.md 8.5: the driver license earned at the driving school,
-## 9.4a, to look at, with the plate on the back of the kart to change under it, 4.4; or, before
-## one is earned, a word on where to get one, the button that goes there, and the learner's L the
-## kart wears meanwhile.
+## 9.4a, to look at, with the plate on the back of the kart to change under it, 4.4, and a button
+## to retake the test; or, before one is earned, a word on where to get one, the button that goes
+## there, and the learner's L the kart wears meanwhile.
 
 const NONE_YET := "Missing license."
 const HOW := "Pass the driving school's test to earn one. It takes a few minutes."
 const EARN := "Earn it now"
 const MEANWHILE := "Until then, your kart wears this."
 const PLATE_LINE := "Up to %d letters, digits, spaces and dashes, on the back of your kart."
+const RETAKE := "Retake the driving test"
 const CARD_SCALE := 0.9
 
 var field: LineEdit
 var preview: LicensePlate
-## The way to the driving school, on a tab with no license to show.
+## The way to the driving school: Earn it now on a tab with no license to show, and Retake the
+## driving test under a license.
 var earn: Button
+var retake: Button
 
 var _settings: Settings
 
@@ -50,12 +53,7 @@ func _none_yet(column: VBoxContainer) -> void:
 	earn = MenuTheme.button(EARN)
 	earn.name = "Earn"
 	earn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	# Out of whatever room the settings were opened over, and to the school.
-	earn.pressed.connect(
-		func() -> void:
-			Net.close()
-			Game.go_to_tutorial()
-	)
+	earn.pressed.connect(_to_the_school)
 	column.add_child(earn)
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(0.0, 8.0)
@@ -91,6 +89,20 @@ func _license(column: VBoxContainer) -> void:
 	row.add_child(preview)
 	column.add_child(row)
 	column.add_child(MenuTheme.subtitle(PLATE_LINE % LicensePlate.MOST, Type.LABEL))
+	var gap_after := Control.new()
+	gap_after.custom_minimum_size = Vector2(0.0, 6.0)
+	column.add_child(gap_after)
+	retake = MenuTheme.button(RETAKE, Type.BODY)
+	retake.name = "Retake"
+	retake.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	retake.pressed.connect(_to_the_school)
+	column.add_child(retake)
+
+
+## Out of whatever room the settings were opened over, and to the school.
+func _to_the_school() -> void:
+	Net.close()
+	Game.go_to_tutorial()
 
 
 ## The plate as typed, cleaned on the way: the box shows what the plate will read.

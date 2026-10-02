@@ -22,12 +22,13 @@ const LICENSE_BOTTOM := 72.0
 const LICENSE_IN := 28.0
 const LICENSE_SLIDE := 0.25
 ## The license shown in full, over a shade, on a click or a tap on the one peeking in, or on
-## the button that opens the hand of jokers, drawn beside the license: how big, and the line
-## under it.
+## the button that opens the hand of jokers, drawn in the bottom right corner over the version
+## with the word License beside it: how big, and the line under it.
 const LICENSE_FULL := 1.15
 const LICENSE_AWAY := "Click anywhere, or press %s, to put it away"
-const LICENSE_GLYPH_AT := Vector2(10.0, -48.0)
-const LICENSE_GLYPH_SIZE := 28
+const LICENSE_GLYPH_SIZE := 24
+const LICENSE_GLYPH_BOTTOM := 44.0
+const LICENSE_WORD := "License"
 
 var play_button: Button
 
@@ -152,9 +153,9 @@ func _peek_license() -> void:
 	_show_license_glyph()
 
 
-## The button that opens the hand of jokers, GAME.md 3.7, drawn at the license's corner as the
-## button that shows it, for a keyboard or a pad by what was touched last; a touch screen has
-## the tap. It rides on the card, tilting and sliding with it.
+## The button that opens the hand of jokers, GAME.md 3.7, drawn in the bottom right corner over
+## the version with License beside it, as the button that shows the license, for a keyboard or a
+## pad by what was touched last; a touch screen has the tap, and no glyph.
 func _show_license_glyph() -> void:
 	if _license_glyph != null:
 		_license_glyph.queue_free()
@@ -166,10 +167,24 @@ func _show_license_glyph() -> void:
 	)
 	if glyph == null:
 		return
-	glyph.name = "LicenseGlyph"
-	glyph.position = LICENSE_GLYPH_AT
-	_license.add_child(glyph)
-	_license_glyph = glyph
+	var row := HBoxContainer.new()
+	row.name = "LicenseGlyph"
+	row.add_theme_constant_override("separation", 8)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(glyph)
+	var word := Label.new()
+	word.text = LICENSE_WORD
+	word.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Type.text(word, Type.LABEL, Color(0.6, 0.6, 0.65))
+	word.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(word)
+	row.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	row.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	row.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	row.offset_right = -16.0
+	row.offset_bottom = -LICENSE_GLYPH_BOTTOM
+	add_child(row)
+	_license_glyph = row
 
 
 ## The hand's button shows the license and puts it away again, before the focus takes the key
