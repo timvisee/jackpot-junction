@@ -227,6 +227,7 @@ func show_piece(
 	_also = also
 	_also_frame.visible = also != &""
 	if _also_line != null:
+		_also_row.remove_child(_also_line)
 		_also_line.queue_free()
 		_also_line = null
 	_also_pointer.visible = also != &"" and not also_line.is_empty()
@@ -236,14 +237,20 @@ func show_piece(
 			also_parts.append(_part(action, keyboard))
 		_also_line = InputHint.row(also_line, also_parts, INK, Type.LARGE)
 		_also_row.add_child(_also_line)
+		_also_pointer.reset_size()
 
+	# The old line out of the card before the new one goes in and the card is sized: a freed
+	# child is still in the card's size until the end of the frame.
 	if _line != null:
+		_row.remove_child(_line)
 		_line.queue_free()
 	var parts: Array = []
 	for action: StringName in actions:
 		parts.append(_part(action, keyboard))
 	_line = InputHint.row(line, parts, INK, Type.LARGE)
 	_row.add_child(_line)
+	# A card that said something longer before keeps that width unless told to let it go.
+	_pointer.reset_size()
 	_tip.down = piece == &"hand"
 	_tip.queue_redraw()
 	_pointer.visible = true

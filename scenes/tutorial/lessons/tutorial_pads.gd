@@ -33,7 +33,7 @@ var _zone: JackpotZone
 func _init() -> void:
 	title = "Pads"
 	spawn_cell = SPAWN
-	reveals = [[&"pot", "Your pot: where the coins go", []]]
+	reveals = [[&"pot", "Collected coins go to your pot", []]]
 	_flush = add_task("Hold all four Royal Flush pads at once", "")
 	_flush.arrow = Vector2i(24, 44)
 	_drain = add_task("Drain the Jackpot", "", [], true)

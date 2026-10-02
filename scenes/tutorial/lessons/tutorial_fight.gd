@@ -40,6 +40,8 @@ var _use: TutorialTask
 var _hand: TutorialTask
 var _collected_lately := 0.0
 var _banked := 0
+## What the bank held as the fight began, which the goal and the match point count from.
+var _bank_at_start := 0
 var _released := 0
 ## The pens standing open, by bot, until their bot is out.
 var _pens_open: Array[int] = []
@@ -89,9 +91,11 @@ func _begin() -> void:
 	Events.bank_completed.connect(_on_cashed)
 	Events.item_used.connect(_on_used)
 	# Match point from the goal, GAME.md 3.4: the call, the gold tracks and the burning pot, while
-	# the match itself has no target to end on. The goal is counted from where the bank stands as
-	# the fight starts, so the match point is too.
-	run.match_node.win_at = run.slot().banked + NEED
+	# the match itself has no target to end on. The goal is the thousand on top of what the bank
+	# holds as the fight starts, so the match point is where banking the pot would reach that,
+	# and never with an empty pot, which is the match's own rule.
+	_bank_at_start = run.slot().banked
+	run.match_node.win_at = _bank_at_start + NEED
 	_bar = TutorialBossBar.add_to(run.layer, NEED)
 	# The Royal Flush tally and the word at the top hang where the bar now is: under it.
 	run.boss_bar = _bar
@@ -142,6 +146,11 @@ func step(delta: float) -> void:
 ## How many bots are out of their pens.
 func released() -> int:
 	return _released
+
+
+## What the bank held as the fight began.
+func bank_at_start() -> int:
+	return _bank_at_start
 
 
 ## The next bot out: its pen opens, the bot is let go, and the last one is the normal one.

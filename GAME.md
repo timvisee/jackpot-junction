@@ -3730,7 +3730,7 @@ reading is the one thing left when the pointer says how, and until the hand has
 been read, the card stepping aside while the hand is open, when the cards still
 to read wear an eye each in the middle of the card, where the next card of a
 fanned hand does not cover it; the pot with
-the pads lesson, "Your pot: where the coins go", and the mult pill of the pot
+the pads lesson, "Collected coins go to your pot", and the mult pill of the pot
 with its dice, "Your mult: coins times this is your pot"; and the bank with
 the Junction's, "Bank: safe" behind a shut padlock, with a second card and
 frame on the pot at the same time, "Pot: at risk" behind an open one, since
@@ -3881,7 +3881,10 @@ The lessons, each in its own room, in order:
     reach a mult of 4, drain a Jackpot, claim a Royal Flush, bank your whole pot
     at the Junction, use an item, hold five jokers. From the goal the match
     point of 3.4 is on, MATCH POINT called, the gold tracks and the burning pot,
-    on a match point of the room's own since the rules have no target to end on.
+    on a match point of the room's own since the rules have no target to end on:
+    the bank as the fight began plus the thousand, reached by what is banked
+    since and what the pot would bank, and never on an empty pot, which is the
+    match's own rule too.
     Two item pads, six coin pads and six crates come in, with
     forty chips and two mult dice over the floor to open with, and three bots wait in
     three pens of their own along the east side, each 3 by 3 behind a gate of
@@ -3890,7 +3893,7 @@ The lessons, each in its own room, in order:
     once its bot is out in the room. Bank 1000 points in here, counted from the
     start of the fight, the match point counted the same way, from where the
     bank stood as the fight began, shown as a bar across the top center of the
-    screen, "BANK 1000 EXTRA TO FINISH", the
+    screen, "BANK 1000 MORE TO FINISH", the
     way a boss's health would be, with the Royal Flush tally of 8.3 moved down
     under it for the while, and no line over the kart: there is nothing to say
     but the bar; a death is a respawn and a joker pick, a bot comes back on one

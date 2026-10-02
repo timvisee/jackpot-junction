@@ -273,7 +273,13 @@ func test_jokers_from_parked_karts_and_the_pit() -> void:
 			. override_failure_message("death %d: the pick was already answered" % death)
 			. is_false()
 		)
-		slot.offer.take(0)
+		# Whichever card on offer the hand can take: a copy of one held may not be, by its stack.
+		var pick := 0
+		for i: int in slot.offer.choices.size():
+			if kart.jokers.can_take(slot.offer.choices[i]):
+				pick = i
+				break
+		slot.offer.take(pick)
 		assert_bool(slot.offer.is_done()).override_failure_message("death %d" % death).is_true()
 		for i: int in 200:
 			await _runner.simulate_frames(1, 17)
@@ -366,6 +372,7 @@ func test_pads_flush_their_own_room_and_drain_the_jackpot() -> void:
 	assert_str(lesson._drain.hint).is_equal("")
 	assert_bool(run.reveal.is_pointing()).is_true()
 	assert_str(run.reveal.line()).contains("Mult will multiply your pot")
+	assert_str(lesson.reveals[0][1]).is_equal("Collected coins go to your pot")
 	assert_vector(lesson._mult.arrow).is_not_equal(Vector2i(-1, -1))
 	for i: int in TutorialPads.DICE:
 		Events.mult_gained.emit(0, 1.0, &"die")
@@ -496,7 +503,7 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	assert_bool(arena.gate_at(TutorialFight.PEN_GATES[0]).is_open).is_true()
 	assert_bool(arena.gate_at(TutorialFight.PEN_GATES[1]).is_open).is_false()
 	assert_object(tutorial.layer.get_node_or_null("BossBar")).is_not_null()
-	assert_str(lesson._bar._title.text).contains("EXTRA")
+	assert_str(lesson._bar._title.text).contains("MORE")
 	var tally: FlushTally = tutorial.match_node.hud.find_child("FlushTally", true, false)
 	assert_float(tally.offset_top).is_greater(MatchHud.TALLY_DROP)
 	# The fight is not skipped, and the pause menu's Skip lesson is gone from here on.
@@ -598,6 +605,44 @@ func test_a_full_hand_is_explained_and_a_replaced_card_says_so() -> void:
 	assert_bool(slot.offer.is_done()).is_true()
 	await _runner.simulate_frames(1, 17)
 	assert_bool(run.notice.is_saying(&"hand_full")).is_false()
+
+
+## The fight's match point is the thousand on top of the bank as the fight began, with the pot
+## counted in and never with an empty pot: banked for real at the Junction, so the bank stands
+## where the HUD says when the fight takes its baseline.
+func test_the_fight_counts_its_match_point_from_the_bank_at_its_start() -> void:
+	var tutorial := await _start()
+	var run := tutorial.run
+	var match_node := tutorial.match_node
+	var kart := run.kart()
+	var slot := run.slot()
+	run._start(9)
+	await _runner.simulate_frames(2, 17)
+	# A pot banked for real, on the Junction, the lesson's own way out.
+	kart.pot.add_coins(TutorialBank.POT)
+	_put(tutorial, TutorialBank.JUNCTION, Vector3(1.0, 0.0, 0.0))
+	for i: int in 900:
+		await _runner.simulate_frames(1, 17)
+		if run.index == 10:
+			break
+	assert_int(run.index).override_failure_message("the pot was never banked").is_equal(10)
+	var fight := run.current_lesson() as TutorialFight
+	assert_int(slot.banked).is_greater(0)
+	assert_int(fight.bank_at_start()).is_equal(slot.banked)
+	assert_int(match_node.win_at).is_equal(slot.banked + TutorialFight.NEED)
+	# No match point on an empty pot, nor on a pot short of the thousand; one that would reach
+	# it, yes; and a bank that has reached it still wants a coin in the pot.
+	_put(tutorial, TutorialPads.SPAWN, Vector3(0.0, 0.0, -1.0))
+	await _runner.simulate_frames(2, 17)
+	assert_bool(kart.pot.is_empty()).is_true()
+	assert_bool(match_node.would_win(slot)).is_false()
+	kart.pot.add_coins(TutorialFight.NEED - 1)
+	assert_bool(match_node.would_win(slot)).is_false()
+	kart.pot.add_coins(1)
+	assert_bool(match_node.would_win(slot)).is_true()
+	kart.pot.reset()
+	slot.banked += TutorialFight.NEED
+	assert_bool(match_node.would_win(slot)).is_false()
 
 
 ## A gate never shuts on anybody: told to shut with a kart in it, it waits until the kart is out.
