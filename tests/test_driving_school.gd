@@ -81,15 +81,20 @@ func test_the_book_reads_faster_shuts_and_asks() -> void:
 	await await_idle_frame()
 	var theory := school.theory
 	var runner := _runner
-	# It comes up shut, and opens: the cover lifts and the right half swings out.
+	# It comes up shut on the right, and opens onto the left: the front cover lifts off it toward
+	# the spine and comes down on the other side, which is the side it does not shut onto.
 	assert_bool(theory.is_opening()).is_true()
 	assert_bool(theory.is_closed()).is_true()
-	assert_float(theory._halves[1].scale.x).is_equal_approx(0.0, 0.001)
+	assert_bool(theory._front.visible).is_true()
+	assert_float(theory._front.position.x).is_equal_approx(SchoolTheory.half_width(), 0.5)
+	assert_bool(theory._lid.visible).is_false()
+	assert_float(theory._halves[0].scale.x).is_equal_approx(0.0, 0.001)
+	assert_float(theory._halves[1].scale.x).is_equal_approx(1.0, 0.001)
 	await await_millis(int(SchoolTheory.OPEN_FOR * 1000.0) + 200)
 	assert_bool(theory.is_opening()).is_false()
 	assert_bool(theory.is_closed()).is_false()
-	assert_bool(theory._lid.visible).is_false()
-	assert_float(theory._halves[1].scale.x).is_equal_approx(1.0, 0.001)
+	assert_bool(theory._front.visible).is_false()
+	assert_float(theory._halves[0].scale.x).is_equal_approx(1.0, 0.001)
 	# The title page, still, on the left, with the first rule across from it, the text cut into
 	# pages with nothing cut across two.
 	await runner.simulate_frames(10, 16)

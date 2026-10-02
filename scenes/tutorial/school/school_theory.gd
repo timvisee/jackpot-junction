@@ -1,9 +1,10 @@
 class_name SchoolTheory
 extends Control
 ## The driving school's theory, GAME.md 9.4a: the Highway Code of the Junction, a book in a
-## leather cover, which reads itself. It comes up shut and opens, the front cover lifting off and
-## the right half swinging out from the spine, at its title page, the game's mark and name over
-## the book's, and stands there a moment; then its pages turn, a leaf
+## leather cover, which reads itself. It comes up shut on the right, its spine to the left as a
+## book lies, and opens, the front cover lifting off and coming over the spine onto the left, at
+## its title page, the game's mark and name over the book's, and stands there a moment; at the
+## end it shuts the other way, onto the left. Between the two, its pages turn, a leaf
 ## at a time lifting off the right page and laid down on the left, the first after a couple of
 ## seconds anybody could read them in and each next one sooner, until the pages riffle past and
 ## the page numbers in the corners are racing to the 212th; then they slow, and the last leaf
@@ -115,6 +116,8 @@ var _book: Control
 ## front cover that comes down over the left half as the book shuts.
 var _halves: Array[Control] = []
 var _lid: Control
+## The front cover over the right half, as the shut book lies before it opens.
+var _front: Lid
 ## The opening, while it is under way.
 var _opening: Tween
 ## Every page's text, the clip it runs under and its page number: the spread's left and right,
@@ -238,28 +241,31 @@ class HalfCover:
 class Lid:
 	extends Control
 
+	## Whether the spine runs down its left edge, as on a shut book lying on the right half, rather
+	## than its right, as on one shut onto the left.
+	var spine_left := false
+
 	func _draw() -> void:
 		var leather := StyleBoxFlat.new()
 		leather.bg_color = COVER_INK
-		leather.corner_radius_top_left = 10
-		leather.corner_radius_bottom_left = 10
 		leather.shadow_color = Color(0.0, 0.0, 0.0, 0.55)
 		leather.shadow_size = 22
+		_round_fore_edge(leather, 10)
 		draw_style_box(leather, Rect2(Vector2.ZERO, size))
 		var light := StyleBoxFlat.new()
 		light.bg_color = COVER_LIGHT
-		light.corner_radius_top_left = 8
-		light.corner_radius_bottom_left = 8
-		draw_style_box(light, Rect2(Vector2(3.0, 3.0), size - Vector2(3.0, 6.0)))
+		_round_fore_edge(light, 8)
+		var inset := Vector2(0.0 if spine_left else 3.0, 3.0)
+		draw_style_box(light, Rect2(inset, size - Vector2(3.0, 6.0)))
 		var tooled := StyleBoxFlat.new()
 		tooled.draw_center = false
 		tooled.set_border_width_all(2)
 		tooled.border_color = TOOLING
-		tooled.corner_radius_top_left = 6
-		tooled.corner_radius_bottom_left = 6
+		_round_fore_edge(tooled, 6)
 		draw_style_box(tooled, Rect2(Vector2(14.0, 14.0), size - Vector2(28.0, 28.0)))
+		var spine := GUTTER * 0.5 + 4.0
 		draw_rect(
-			Rect2(Vector2(size.x - GUTTER * 0.5 - 4.0, 0.0), Vector2(GUTTER * 0.5 + 4.0, size.y)),
+			Rect2(Vector2(0.0 if spine_left else size.x - spine, 0.0), Vector2(spine, size.y)),
 			SPINE_INK
 		)
 		var font := Type.display_font()
@@ -294,6 +300,15 @@ class Lid:
 			12,
 			GILT
 		)
+
+	## Rounds the fore-edge's corners of [param box], the ones away from the spine.
+	func _round_fore_edge(box: StyleBoxFlat, radius: int) -> void:
+		if spine_left:
+			box.corner_radius_top_right = radius
+			box.corner_radius_bottom_right = radius
+		else:
+			box.corner_radius_top_left = radius
+			box.corner_radius_bottom_left = radius
 
 
 ## The dust a book throws up as it shuts: motes drifting out from its edges, growing and fading.
@@ -357,6 +372,16 @@ func _ready() -> void:
 	_lid.scale = Vector2(0.0, 1.0)
 	_lid.visible = false
 	_book.add_child(_lid)
+	# The front cover the book opens by, over the right half, hinged on the spine at its left.
+	_front = Lid.new()
+	_front.name = "Front"
+	_front.spine_left = true
+	_front.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_front.size = Vector2(half_width(), book_height())
+	_front.position = Vector2(half_width(), 0.0)
+	_front.pivot_offset = Vector2(0.0, book_height() * 0.5)
+	_front.visible = false
+	_book.add_child(_front)
 	# The question, where the right page was once the book is shut, beside it.
 	_question = VBoxContainer.new()
 	_question.name = "Question"
@@ -382,21 +407,22 @@ func _ready() -> void:
 	_open()
 
 
-## The book comes up shut, the way it ends, and opens: a moment, the front cover lifts off the
-## left half, and the right half swings out from the spine onto the spread.
+## The book comes up shut on the right half, its spine to the left, and opens: a moment, the
+## front cover lifts off it toward the spine, and comes down over it onto the left, its inside
+## the title page. It shuts the other way, onto the left, see [method shut].
 func _open() -> void:
-	_halves[1].scale.x = 0.0
-	_lid.visible = true
-	_lid.scale.x = 1.0
+	_halves[0].scale.x = 0.0
+	_front.visible = true
+	_front.scale.x = 1.0
 	_opening = create_tween()
 	_opening.tween_interval(OPEN_WAIT)
 	_opening.tween_callback(Audio.play_sfx.bind(&"page", PAGE_DB, PAGE_PITCHES, 0.9))
-	_opening.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-	_opening.tween_property(_lid, "scale:x", 0.0, COVER_UP)
-	_opening.tween_callback(func() -> void: _lid.visible = false)
+	_opening.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	_opening.tween_property(_front, "scale:x", 0.0, COVER_UP)
+	_opening.tween_callback(func() -> void: _front.visible = false)
 	_opening.tween_callback(Audio.play_sfx.bind(&"page", PAGE_DB, PAGE_PITCHES, 1.0))
 	_opening.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-	_opening.tween_property(_halves[1], "scale:x", 1.0, SWING_OUT)
+	_opening.tween_property(_halves[0], "scale:x", 1.0, SWING_OUT)
 	_opening.tween_callback(func() -> void: _opening = null)
 
 
@@ -760,9 +786,9 @@ func shut() -> void:
 	if _opening != null:
 		_opening.kill()
 		_opening = null
-		_lid.visible = false
-		_lid.scale.x = 0.0
-		_halves[1].scale.x = 1.0
+		_front.visible = false
+		_front.scale.x = 0.0
+		_halves[0].scale.x = 1.0
 	# The end of the book up, at once should the last leaf not have turned yet.
 	_land_now()
 	_preparing = false
@@ -847,7 +873,8 @@ func is_asking() -> bool:
 
 ## Whether the book's front cover is down: shut, past the swing.
 func is_closed() -> bool:
-	return _lid.visible and _lid.scale.x >= 0.999
+	var shut_left := _lid.visible and _lid.scale.x >= 0.999
+	return shut_left or (_front.visible and _front.scale.x >= 0.999)
 
 
 func _answered() -> void:

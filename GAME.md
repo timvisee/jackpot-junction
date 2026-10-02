@@ -3612,8 +3612,9 @@ Junction, 212th edition, a book in a leather cover with a spine and the edges of
 its leaves showing, with no word under it, since one gone as the book shuts
 made the pane jump, open at a spread of two cream pages with a running head
 over each and its page number in the outer corner, which reads itself. It comes
-up shut, the way it ends, and opens, the front cover lifting off the left half
-and the right half swinging out from the spine with a rustle each, on its
+up shut on the right, its spine to the left as a shut book lies, and opens, the
+front cover lifting off it toward the spine and coming down over it onto the
+left, a rustle each, the other way from the way it shuts at the end, on its
 title page, the game's mark and name over the book's own and its
 edition, with the first rule on the page across from it, and stands there a
 moment and a half; then its pages turn, the text cut into pages with nothing
