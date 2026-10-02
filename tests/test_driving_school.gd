@@ -267,7 +267,9 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	# the hand's button drawn under the card; Back puts it away, and the hand's button shows it too.
 	var look: Control = tab.find_child("Look", true, false)
 	assert_object(look).is_not_null()
-	assert_str(_words_in(look)).contains("Look closer")
+	assert_object(look.get_parent()).is_same(card.get_parent())
+	assert_int(look.find_children("*", "InputGlyph", true, false).size()).is_equal(1)
+	assert_str(_words_in(look).strip_edges()).is_empty()
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
 	click.pressed = true

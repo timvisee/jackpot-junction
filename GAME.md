@@ -508,7 +508,7 @@ else's results screen, see 10.3.
   Settings and Quit, and once the driving test of 9.4a is passed, the driver
   license peeks in from the right edge, out under the cursor and in full on a
   click or on the button that opens the hand of jokers, see 3.7, which is drawn
-  in the bottom right corner over the version with License beside it, for the
+  alone in the bottom right corner over the version, for the
   device last touched anywhere in the game, a pad's button after a match on the
   pad. A question asked over the title, this one or any other, keeps
   the cursor on its own two answers. Play goes
@@ -2923,8 +2923,8 @@ like any other button.
 
 - **License**, first: the driver license earned at the driving school of 9.4a, as it
   was stamped, shown in full over the whole screen as the title shows it on a
-  click or a tap on it, or on the hand's button, drawn under it with Look closer
-  for the device in hand, with the plate on the back of the kart under it to change, see
+  click or a tap on it, or on the hand's button, drawn alone over its bottom
+  right corner on a dark chip for the device in hand, with the plate on the back of the kart under it to change, see
   4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed,
   and Retake the driving test, which goes to the school; or, before one is
   earned, a word on where to get one, Earn it now, which goes to the school,
@@ -4088,7 +4088,7 @@ the buttons, sliding in straight under the cursor, as it is, and back out
 from under it, a touch screen having the tap alone and nothing sliding under a
 finger, and shown in full over a shade on a click or a tap, or on the
 button that opens the hand of jokers, 3.7, Tab or Y say, drawn in the bottom
-right corner of the title with License beside it for the device last touched, the
+right corner of the title, alone, for the device last touched, the
 way a joker is shown out of the hand, held up to be looked at: it turns a little
 in perspective toward the mouse as it moves, or the way the right stick is
 pushed, or the way a phone is tilted from how it was held as the card came up,

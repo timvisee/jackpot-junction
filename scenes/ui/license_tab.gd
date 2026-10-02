@@ -13,9 +13,11 @@ const MEANWHILE := "Until then, your kart wears this."
 const PLATE_LINE := "Up to %d letters, digits, spaces and dashes, on the back of your kart."
 const RETAKE := "Retake the driving test"
 const CARD_SCALE := 0.9
-## The line under the card: the hand's button and what it does, or the tap on a touch screen.
-const LOOK := "%s Look closer"
-const LOOK_TOUCH := "Tap the card to look closer"
+## How big the hand's button is drawn over the card's bottom right corner, where its middle sits
+## from the corner, and the chip it sits on so it reads on the cream of the card.
+const LOOK_SIZE := 22
+const LOOK_AT := Vector2(-22.0, -18.0)
+const LOOK_CHIP := Color(0.08, 0.08, 0.1, 0.88)
 
 var field: LineEdit
 var preview: LicensePlate
@@ -27,8 +29,8 @@ var retake: Button
 var view: LicenseView
 
 var _settings: Settings
-## The line under the card, whether a keyboard and mouse are in hand rather than a pad, and what
-## had the cursor before the license came up in full.
+## The hand's button under the card, whether a keyboard and mouse are in hand rather than a pad,
+## and what had the cursor before the license came up in full.
 var _look: Control
 var _keyboard := true
 var _was_focused: Control
@@ -90,12 +92,20 @@ func _license(column: VBoxContainer) -> void:
 	card.gui_input.connect(_on_card_input)
 	holder.add_child(card)
 	column.add_child(holder)
+	# A point over the card's bottom right corner the button is centered on, see [method _say_look].
 	_look = Control.new()
 	_look.name = "Look"
-	_look.custom_minimum_size = Vector2(0.0, 26.0)
 	_look.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.add_child(_look)
+	_look.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	_look.offset_left = LOOK_AT.x
+	_look.offset_right = LOOK_AT.x
+	_look.offset_top = LOOK_AT.y
+	_look.offset_bottom = LOOK_AT.y
+	holder.add_child(_look)
 	_say_look()
+	var gap := Control.new()
+	gap.custom_minimum_size = Vector2(0.0, 6.0)
+	column.add_child(gap)
 	field = MenuTheme.field(_settings.license_plate, LicensePlate.BLANK, LicensePlate.MOST)
 	field.name = "Plate"
 	field.custom_minimum_size = Vector2(240.0, MenuTheme.box_height())
@@ -162,28 +172,34 @@ func _on_put_away() -> void:
 		_was_focused.grab_focus()
 
 
-## The line under the card: the hand's button, drawn for the device in hand, and Look closer; or
-## the tap on a touch screen, which has no button.
+## The hand's button, drawn alone for the device in hand over the card's bottom right corner on
+## a dark chip, the way the title draws it beside its own; nothing on a touch screen, which has
+## the tap and no button. A click on it is a click on the card under it.
 func _say_look() -> void:
 	if _look == null:
 		return
 	for old: Node in _look.get_children():
 		_look.remove_child(old)
 		old.queue_free()
-	var ink := Color(0.6, 0.6, 0.65)
-	var row: Control
 	if TouchInput.enabled:
-		row = MenuTheme.subtitle(LOOK_TOUCH, Type.LABEL)
-	else:
-		var glyph := InputGlyph.of_action(InputActions.JOKER_MENU, _keyboard, ink, Type.LABEL)
-		if glyph == null:
-			row = MenuTheme.subtitle(LOOK % "", Type.LABEL)
-		else:
-			row = InputHint.row(LOOK, [glyph], ink, Type.LABEL)
-	row.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	row.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	row.grow_vertical = Control.GROW_DIRECTION_BOTH
-	_look.add_child(row)
+		return
+	var glyph := InputGlyph.of_action(
+		InputActions.JOKER_MENU, _keyboard, Palette.CHIP_WHITE, LOOK_SIZE
+	)
+	if glyph == null:
+		return
+	var chip := PanelContainer.new()
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.bg_color = LOOK_CHIP
+	style.set_corner_radius_all(8)
+	style.set_content_margin_all(5.0)
+	chip.add_theme_stylebox_override("panel", style)
+	chip.add_child(glyph)
+	chip.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	chip.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	chip.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_look.add_child(chip)
 
 
 ## Out of whatever room the settings were opened over, and to the school.

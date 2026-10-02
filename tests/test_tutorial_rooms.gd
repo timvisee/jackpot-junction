@@ -257,9 +257,9 @@ func test_jokers_from_parked_karts_and_the_pit() -> void:
 	kart.menu_open = false
 	var slot := run.slot()
 	# The two picks the lesson counts, each landing on a card not held yet, since a copy of one
-	# held stacks on it and adds no card to the hand, GAME.md 7.3, and the three on offer may well
-	# all be copies once three cards are held: such a pick is skipped, which counts for nothing,
-	# and the pit is driven into again.
+	# held stacks on it and adds no card to the hand, GAME.md 7.3, and not on one the next death
+	# takes back, Spare Tire; the three on offer may well have none such once three cards are
+	# held: such a pick is skipped, which counts for nothing, and the pit is driven into again.
 	var taken := 0
 	var tries := 0
 	while taken < TutorialJokers.WANTED - TutorialJokers.DUMMIES and tries < 6:
@@ -282,7 +282,8 @@ func test_jokers_from_parked_karts_and_the_pit() -> void:
 		)
 		var pick := -1
 		for i: int in slot.offer.choices.size():
-			if not kart.jokers.has(slot.offer.choices[i].id):
+			var choice: Joker = slot.offer.choices[i]
+			if not kart.jokers.has(choice.id) and not choice.lost_on_death():
 				pick = i
 				break
 		if pick < 0:
