@@ -21,7 +21,9 @@ const MENU_INSET := Vector2(64.0, 62.0)
 const MENU_INK := Palette.CHIP_WHITE
 ## What leaving asks.
 const LEAVE_QUESTION := "Leave the driving school?"
-const LEAVE_LINE := "Progress will be lost. Come back any time from the title screen."
+const LEAVE_LINE := (
+	"Progress will be lost. " + "Retake your driving test any time from the title screen."
+)
 
 
 ## The round menu button of a touch screen, drawn the way the rooms draw theirs.

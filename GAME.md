@@ -3601,8 +3601,8 @@ the first seat's name from here on, the course in three numbered steps, driving
 theory, driving test, your license, and one big button, Enroll; Enter in the box
 enrolls too. Back on any page, Escape or B, or the menu button a touch screen
 has in the top right corner, or the pause button of a room, Start on a pad,
-asks "Leave the driving school?", "Progress will be lost. Come back any time
-from the title screen.", with Leave, which is the title, and Stay, which has
+asks "Leave the driving school?", "Progress will be lost. Retake your driving
+test any time from the title screen.", with Leave, which is the title, and Stay, which has
 the cursor, the page held still under the question so the book stops reading;
 Back again is Stay. The theory: the Highway Code of the
 Junction, 212th edition, a book in a leather cover with a spine and the edges of
