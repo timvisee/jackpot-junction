@@ -509,7 +509,8 @@ else's results screen, see 10.3.
   license peeks in from the right edge, out under the cursor and in full on a
   click or on the button that opens the hand of jokers, see 3.7, which is drawn
   in the bottom right corner over the version with License beside it, for the
-  device in hand. A question asked over the title, this one or any other, keeps
+  device last touched anywhere in the game, a pad's button after a match on the
+  pad. A question asked over the title, this one or any other, keeps
   the cursor on its own two answers. Play goes
   straight into the lobby, the waiting room of 9.6, the way hosting
   a LAN game does, with the match settings up over it, whose first question is
@@ -519,7 +520,9 @@ else's results screen, see 10.3.
   Play LAN, Play Online and the Garage each ask for it first, every time:
   "Missing license", "Nobody drives the Junction without one. Earn your very
   own license at the driving school.", with Earn it now, which is the driving
-  school, and Drive anyway. At
+  school, and Drive anyway; Back puts the question away and goes nowhere, and
+  the cursor goes back to the button that asked, so a question that follows,
+  how to drive say, has it to give back when it is put away too. At
   the start of a match the drive and fire controls are shown next to each
   human player's kart, from the countdown until that player has both driven
   and fired, or for 10 s at most. For a player who drives the simple way, see

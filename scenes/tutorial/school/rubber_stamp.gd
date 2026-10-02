@@ -70,6 +70,8 @@ func _ready() -> void:
 	pressed.connect(func() -> void: Audio.play_sfx(&"ui_click", MenuTheme.CLICK_DB, 0.0))
 	if TouchInput.enabled:
 		device = Device.TOUCH
+	elif not Game.last_input_keyboard:
+		device = Device.PAD
 	_show_glyph()
 
 

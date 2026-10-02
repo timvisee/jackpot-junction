@@ -8,6 +8,7 @@ const TITLE_SCENE := preload("res://scenes/ui/title.tscn")
 var _runner: GdUnitSceneRunner
 var _was_path := ""
 var _was_names: Array[String] = []
+var _was_modes: Array[String] = []
 var _was_license: Array = []
 
 
@@ -15,6 +16,7 @@ func before_test() -> void:
 	# Enrolling saves the settings: never the real file.
 	_was_path = Game.settings.path
 	_was_names = Game.settings.player_names.duplicate()
+	_was_modes = Game.settings.drive_modes.duplicate()
 	var settings := Game.settings
 	_was_license = [
 		settings.license_number,
@@ -30,6 +32,7 @@ func after_test() -> void:
 	DirAccess.remove_absolute(Game.settings.path)
 	Game.settings.path = _was_path
 	Game.settings.player_names = _was_names
+	Game.settings.drive_modes = _was_modes
 	Game.settings.license_number = _was_license[0]
 	Game.settings.license_date = _was_license[1]
 	Game.settings.license_holder = _was_license[2]
@@ -269,8 +272,11 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 
 
 ## The title peeks the license in from the right edge once there is one, and slides it out under
-## the cursor; with none there is nothing to peek.
+## the cursor; with none there is nothing to peek. Its button is drawn for the device last
+## touched anywhere, a pad's when a pad was.
 func test_the_title_peeks_the_license_earned() -> void:
+	var was_keyboard := Game.last_input_keyboard
+	Game.last_input_keyboard = false
 	Game.settings.license_number = ""
 	var bare: Control = auto_free(TITLE_SCENE.instantiate())
 	add_child(bare)
@@ -320,6 +326,8 @@ func test_the_title_peeks_the_license_earned() -> void:
 	var glyph: Control = title.find_child("LicenseGlyph", true, false)
 	assert_object(glyph).is_not_null()
 	assert_object(glyph.get_parent()).is_same(title)
+	assert_int((glyph.get_child(0) as InputGlyph).kind).is_not_equal(InputGlyph.Kind.KEY)
+	Game.last_input_keyboard = was_keyboard
 	var hand := InputEventAction.new()
 	hand.action = InputActions.JOKER_MENU
 	hand.pressed = true
@@ -329,11 +337,35 @@ func test_the_title_peeks_the_license_earned() -> void:
 	title._input(hand)
 	await await_idle_frame()
 	assert_object(title.find_child("LicenseView", true, false)).is_null()
-	# Without a license, the Garage asks for one like the ways in to playing do.
+	# Without a license, the Garage asks for one like the ways in to playing do, and Back puts
+	# the question away with the cursor back on the button that asked.
 	Game.settings.license_number = ""
 	var garage: Button = title.find_child("Garage", true, false)
+	garage.grab_focus()
 	garage.pressed.emit()
 	assert_object(title.find_child("LicenseOffer", true, false)).is_not_null()
+	title._unhandled_input(back)
+	await await_idle_frame()
+	assert_object(title.find_child("LicenseOffer", true, false)).is_null()
+	assert_object(title.get_viewport().gui_get_focus_owner()).is_same(garage)
+	# Drive anyway, with the question of how to drive after it: that question put away leaves
+	# the cursor on a button of the title, not on nothing.
+	Game.settings.drive_modes = ["", "", "", ""]
+	garage.pressed.emit()
+	var asked := [0]
+	var offer: ConfirmPane = title.find_child("LicenseOffer", true, false)
+	offer.no_button().pressed.emit()
+	await await_idle_frame()
+	var choice: DriveChoice = title.find_child("DriveChoice", true, false)
+	if choice == null:
+		choice = DriveChoice.ask(title, func() -> void: asked[0] += 1)
+		await await_idle_frame()
+	choice._unhandled_input(back)
+	await await_idle_frame()
+	var focused := title.get_viewport().gui_get_focus_owner()
+	assert_object(focused).is_not_null()
+	assert_bool(focused is Button).is_true()
+	assert_int(asked[0]).is_equal(0)
 
 
 ## Back on any page of the school is the way out, to the title; the quiz has a word for every

@@ -43,9 +43,13 @@ var _spare: Array[Control] = []
 var _license: LicenseCard
 var _license_out := false
 var _license_view: Control
-## The button that shows the license, drawn beside it for the device in hand, and which that is.
+## The button that shows the license, drawn beside it for the device in hand, and which that is,
+## picked up from whatever was last touched anywhere in the game.
 var _license_glyph: Control
 var _keyboard := true
+## The question whether to earn the license, while it is up, and what had the cursor before it.
+var _license_question: Control
+var _question_from: Control
 
 
 func _ready() -> void:
@@ -139,6 +143,7 @@ func _ready() -> void:
 ## The license earned, tilted and a third off the right edge like a card in a hand, sliding in
 ## straight under the cursor and back out from under it, and shown in full on a click.
 func _peek_license() -> void:
+	_keyboard = Game.last_input_keyboard
 	_license = LicenseCard.from_settings()
 	_license.name = "LicensePeek"
 	_license.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -288,9 +293,28 @@ func hide_license() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _license_view != null and event.is_action_pressed(&"ui_cancel"):
+	if not event.is_action_pressed(&"ui_cancel"):
+		return
+	# Back puts the license away, and puts the question of earning one away unanswered.
+	if _license_view != null:
 		get_viewport().set_input_as_handled()
 		hide_license()
+	elif _license_question != null:
+		get_viewport().set_input_as_handled()
+		Audio.play_sfx(&"ui_back", MenuTheme.CLICK_DB, 0.0)
+		_put_the_question_away()
+
+
+## The question of earning the license taken down, and the cursor back where it was.
+func _put_the_question_away() -> void:
+	if _license_question == null:
+		return
+	_license_question.queue_free()
+	_license_question = null
+	if _question_from != null and is_instance_valid(_question_from):
+		_question_from.grab_focus()
+	elif play_button != null:
+		play_button.grab_focus()
 
 
 ## Where the license's middle is, out under the cursor or peeking in.
@@ -343,16 +367,21 @@ func _fit() -> void:
 
 ## The license asked for before any way in to driving, GAME.md 9.4a, every time, until this
 ## machine has earned one: Earn it now goes to the driving school, Drive anyway on to
-## [param then]. With a license it is straight on.
+## [param then], and Back puts the question away and goes nowhere. With a license it is straight
+## on.
 func offer_license(then: Callable) -> void:
 	if not Game.settings.license_number.is_empty():
 		then.call()
 		return
+	if _license_question != null:
+		return
+	_question_from = get_viewport().gui_get_focus_owner()
 	var holder := Control.new()
 	holder.name = "LicenseQuestion"
 	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	holder.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(holder)
+	_license_question = holder
 	var shade := ColorRect.new()
 	shade.color = Color(0.0, 0.0, 0.0, 0.6)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -365,7 +394,9 @@ func offer_license(then: Callable) -> void:
 	middle.add_child(pane)
 	pane.answered.connect(
 		func(yes: bool) -> void:
-			holder.queue_free()
+			# The cursor goes back to the button that asked before anything else comes up, so
+			# whatever does, the question of how to drive say, has a button to give it back to.
+			_put_the_question_away()
 			if yes:
 				Game.go_to_tutorial()
 			else:

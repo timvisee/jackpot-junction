@@ -153,3 +153,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		queue_free()
 		if _was_focused != null and is_instance_valid(_was_focused):
 			_was_focused.grab_focus()
+		else:
+			# What had the cursor has gone, a question answered before this one came up: the first
+			# button of the screen underneath has it, so a pad is not left with nothing to press.
+			var first := SettingsScreen._first_focusable(get_parent())
+			if first != null and first != self and not is_ancestor_of(first):
+				first.grab_focus()
