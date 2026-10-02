@@ -24,6 +24,10 @@ const LICENSE_SLIDE := 0.25
 ## The license peeking in is dimmed a little, so it does not take the eye from the buttons; slid
 ## out under the cursor it is as it is.
 const LICENSE_DIM := Color(0.74, 0.74, 0.78, 0.86)
+## The flyer for the driving school: how far from the button it stands, and from the screen's
+## edge at the least.
+const AD_GAP := 18.0
+const AD_EDGE := 16.0
 ## The button that shows the license in full, see [LicenseView], the one that opens the hand of
 ## jokers, drawn alone in the bottom right corner over the version.
 const LICENSE_GLYPH_SIZE := 24
@@ -49,6 +53,9 @@ var _keyboard := true
 ## The question whether to earn the license, while it is up, and what had the cursor before it.
 var _license_question: Control
 var _question_from: Control
+## The Driving School button, and the flyer pointing at it while there is no license yet.
+var _school_button: Button
+var _ad: SchoolAd
 
 
 func _ready() -> void:
@@ -97,6 +104,7 @@ func _ready() -> void:
 	tutorial.name = "DrivingSchool"
 	tutorial.pressed.connect(Game.go_to_tutorial)
 	column.add_child(tutorial)
+	_school_button = tutorial
 	var garage := MenuTheme.button("Garage")
 	garage.name = "Garage"
 	garage.pressed.connect(
@@ -136,8 +144,36 @@ func _ready() -> void:
 		add_child(ShaderWarmup.strip(warmup))
 	if not Game.settings.license_number.is_empty():
 		_peek_license()
+	else:
+		_advertise_school()
 	resized.connect(_fit)
 	_fit()
+
+
+## Until the license is earned, a flyer stands in its place, GAME.md 3.8, beside the Driving
+## School button and pointing at it, or in the bottom right corner on a screen with no room
+## beside the button; a click or a tap on it is the button's.
+func _advertise_school() -> void:
+	_ad = SchoolAd.new()
+	add_child(_ad)
+	_ad.chosen.connect(func() -> void: _school_button.pressed.emit())
+	resized.connect(_place_ad)
+	_school_button.item_rect_changed.connect(_place_ad)
+	_ad.resized.connect(_place_ad)
+	_place_ad.call_deferred()
+
+
+func _place_ad() -> void:
+	if _ad == null or _school_button == null or not is_inside_tree():
+		return
+	var button := _school_button.get_global_rect()
+	button.position -= global_position
+	var beside := Vector2(button.end.x + AD_GAP, button.get_center().y - _ad.size.y * 0.5)
+	_ad.pointing = beside.x + _ad.size.x + AD_EDGE <= size.x
+	if _ad.pointing:
+		_ad.position = beside
+	else:
+		_ad.position = size - _ad.size - Vector2(AD_EDGE, LICENSE_BOTTOM)
 
 
 ## The license earned, tilted and a third off the right edge like a card in a hand, sliding in

@@ -81,8 +81,21 @@ func test_the_book_reads_faster_shuts_and_asks() -> void:
 	await await_idle_frame()
 	var theory := school.theory
 	var runner := _runner
-	# It comes up shut on the right, and opens onto the left: the front cover lifts off it toward
-	# the spine and comes down on the other side, which is the side it does not shut onto.
+	# It comes up shut on the right and waits, the control that opens it on its corner and the
+	# reading not started; a click on it opens it onto the left: the front cover lifts off it
+	# toward the spine and comes down on the other side, which is the side it does not shut onto.
+	await runner.simulate_frames(20, 16)
+	assert_bool(theory.is_waiting()).is_true()
+	assert_bool(theory.is_opening()).is_false()
+	assert_float(theory.elapsed).is_equal(0.0)
+	var mark: Control = theory._book.find_child("OpenMark", true, false)
+	assert_object(mark).is_not_null()
+	assert_int(mark.find_children("*", "InputGlyph", true, false).size()).is_equal(1)
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	theory._front.gui_input.emit(click)
+	assert_bool(theory.is_waiting()).is_false()
 	assert_bool(theory.is_opening()).is_true()
 	assert_bool(theory.is_closed()).is_true()
 	assert_bool(theory._front.visible).is_true()
@@ -167,14 +180,14 @@ func test_the_book_reads_faster_shuts_and_asks() -> void:
 	assert_bool(theory.is_ended()).is_false()
 	# The plan: no leaf runs over into the next, the page numbers only go up, and the slowing
 	# counts on a spread a leaf to the end's.
-	for i: int in theory._plan_at.size() - 1:
-		var lands: float = theory._plan_at[i] + theory._plan_for[i]
-		assert_float(lands).is_less_equal(theory._plan_at[i + 1] + 0.0001)
-		assert_int(theory._plan_folio[i + 1]).is_greater_equal(theory._plan_folio[i] + 2)
-	assert_int(theory._plan_folio[theory._plan_folio.size() - 1]).is_equal(SchoolTheory.PAGES - 1)
+	for i: int in theory._plan.at.size() - 1:
+		var lands: float = theory._plan.at[i] + theory._plan.lasting[i]
+		assert_float(lands).is_less_equal(theory._plan.at[i + 1] + 0.0001)
+		assert_int(theory._plan.folio[i + 1]).is_greater_equal(theory._plan.folio[i] + 2)
+	assert_int(theory._plan.folio[theory._plan.folio.size() - 1]).is_equal(SchoolTheory.PAGES - 1)
 	# The first leaves, slow enough to read, go on a spread at a time.
 	for i: int in 3:
-		assert_int(theory._plan_folio[i]).is_equal(3 + i * 2)
+		assert_int(theory._plan.folio[i]).is_equal(3 + i * 2)
 	theory.elapsed = SchoolTheory.HOLD + SchoolTheory.LAST_TURN
 	for i: int in 120:
 		await runner.simulate_frames(1, 16)
@@ -411,7 +424,20 @@ func test_the_title_peeks_the_license_earned() -> void:
 	var bare: Control = auto_free(TITLE_SCENE.instantiate())
 	add_child(bare)
 	await await_idle_frame()
+	await await_idle_frame()
 	assert_object(bare.find_child("LicensePeek", true, false)).is_null()
+	# With none, the flyer for the school stands in its place, beside the Driving School button
+	# and pointing at it, its headline blinking.
+	var ad: SchoolAd = bare.find_child("SchoolAd", true, false)
+	assert_object(ad).is_not_null()
+	var school_button: Button = bare.find_child("DrivingSchool", true, false)
+	if ad.pointing:
+		assert_float(ad.position.x).is_greater(school_button.get_global_rect().end.x - 1.0)
+		var middle := ad.position.y + ad.size.y * 0.5
+		assert_float(middle).is_equal_approx(school_button.get_global_rect().get_center().y, 2.0)
+	var first_blink := ad.headline.modulate.a
+	await await_millis(300)
+	assert_float(ad.headline.modulate.a).is_not_equal(first_blink)
 	bare.queue_free()
 	Game.settings.license_number = "JJ-224123"
 	Game.settings.license_date = "2026-10-02"
@@ -422,6 +448,8 @@ func test_the_title_peeks_the_license_earned() -> void:
 	var peek: LicenseCard = title.find_child("LicensePeek", true, false)
 	assert_object(peek).is_not_null()
 	assert_bool(peek.stamped).is_true()
+	# The license earned, the flyer for the school is gone.
+	assert_object(title.find_child("SchoolAd", true, false)).is_null()
 	var screen := title.size
 	var hidden_middle := peek.position + LicenseCard.SIZE * 0.5
 	assert_float(hidden_middle.x).is_greater(screen.x - LicenseCard.SIZE.x * 0.5)
@@ -557,6 +585,36 @@ func test_the_title_peeks_the_license_earned() -> void:
 	assert_object(focused).is_not_null()
 	assert_bool(focused is Button).is_true()
 	assert_int(asked[0]).is_equal(0)
+
+
+## A click on the flyer for the school is a choice of it, as the button is.
+func test_a_click_on_the_school_flyer_chooses_it() -> void:
+	var ad: SchoolAd = auto_free(SchoolAd.new())
+	add_child(ad)
+	await await_idle_frame()
+	var chose := [0]
+	ad.chosen.connect(func() -> void: chose[0] += 1)
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	ad._on_input(click)
+	assert_int(chose[0]).is_equal(1)
+	assert_float(ad.size.x).is_greater(SchoolAd.POINTER)
+
+
+## The accept button opens the shut book too, as a click on it does.
+func test_the_accept_button_opens_the_book() -> void:
+	var school := await _open()
+	school.enrollment.enroll.pressed.emit()
+	await await_idle_frame()
+	var theory := school.theory
+	assert_bool(theory.is_waiting()).is_true()
+	var accept := InputEventAction.new()
+	accept.action = &"ui_accept"
+	accept.pressed = true
+	theory._unhandled_input(accept)
+	assert_bool(theory.is_waiting()).is_false()
+	assert_bool(theory.is_opening()).is_true()
 
 
 ## Back on any page of the school is the way out, to the title; the quiz has a word for every

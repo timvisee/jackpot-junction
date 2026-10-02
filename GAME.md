@@ -505,7 +505,12 @@ else's results screen, see 10.3.
   pick left open under the notice would be asking for a choice about a match that
   is not there any more.
 - The title screen offers Play, Play LAN, Play Online, the Driving School, the Garage,
-  Settings and Quit, and once the driving test of 9.4a is passed, the driver
+  Settings and Quit, and until the driving test of 9.4a is passed a flyer
+  beside the Driving School button, pointing at it, the learner's L on it, NOW
+  ENROLLING blinking over "Earn your very own license here." and "No
+  experience required.", nudging toward the button now and then, a click or a
+  tap on it the button's, or in the bottom right corner on a screen with no room
+  beside the button; once the driving test is passed, the driver
   license peeks in from the right edge, out under the cursor and in full on a
   click or on the button that opens the hand of jokers, see 3.7, which is drawn
   alone in the bottom right corner over the version, for the
@@ -3614,8 +3619,10 @@ Junction, 212th edition, a book in a leather cover with a spine and the edges of
 its leaves showing, with no word under it, since one gone as the book shuts
 made the pane jump, open at a spread of two cream pages with a running head
 over each and its page number in the outer corner, which reads itself. It comes
-up shut on the right, its spine to the left as a shut book lies, stands so for a
-second and a half for the player to see what book it is, and opens, the
+up shut on the right, its spine to the left as a shut book lies, and waits to be
+opened, by a click or a tap on it or the accept button, drawn on its bottom
+right corner for the device in hand, its cover lifting a little off the pages
+now and then as if about to open, so it reads as a book to open; opened, the
 front cover lifting off it toward the spine and coming down over it onto the
 left, a rustle each, the other way from the way it shuts at the end, on its
 title page, the game's mark and name over the book's own and its

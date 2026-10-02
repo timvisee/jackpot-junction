@@ -22,12 +22,19 @@ const HEADS: Array[String] = [
 	"DEPT. OF KARTS  ·  212TH EDITION", "THE HIGHWAY CODE OF THE JUNCTION"
 ]
 const PAGES := 212
-## The opening: the shut book standing a moment, the front cover lifting off, and the right half
-## swinging out from the spine, the way the shutting has it the other way round.
-const OPEN_WAIT := 1.4
+## The opening, once the player opens the shut book: the front cover lifting off, and the left
+## half swinging out from the spine, the way the shutting has it the other way round.
+const OPEN_WAIT := 0.05
 const COVER_UP := 0.3
 const SWING_OUT := 0.34
 const OPEN_FOR := OPEN_WAIT + COVER_UP + SWING_OUT
+## The shut book stirring while it waits, so it reads as a book to open: every so often the cover
+## lifts a little off the pages and settles again; and the control that opens it, on the corner.
+const STIR_EVERY := 2.2
+const STIR_LIFT := 0.07
+const STIR_FOR := 0.22
+const OPEN_GLYPH_SIZE := 28
+const OPEN_INK := Color(0.92, 0.92, 0.95)
 ## How long after it comes up the open book starts reading, the title page having stood a while,
 ## and how long it reads.
 const HOLD := OPEN_FOR + 1.6
@@ -121,8 +128,13 @@ var _halves: Array[Control] = []
 var _lid: BookCover
 ## The front cover over the right half, as the shut book lies before it opens.
 var _front: BookCover
-## The opening, while it is under way.
+## The opening, while it is under way; whether the shut book is still waiting to be opened, its
+## stirring meanwhile, the control drawn on its corner, and the device in hand for it.
 var _opening: Tween
+var _waiting := true
+var _stirring: Tween
+var _open_mark: Control
+var _open_device := RubberStamp.Device.MOUSE
 ## Every page's text, the clip it runs under and its page number: the spread's left and right,
 ## and the leaf's front and back, see [constant LEFT].
 var _columns: Array[VBoxContainer] = []
@@ -147,13 +159,10 @@ var _leaf_turn: Tween
 var _preparing := false
 var _landing := false
 var _land_folio := 1
-## The leaves to turn, planned before the first: when each starts, counted from when the reading
-## starts, how long it takes, never longer than until the next, and the page number it lands on,
-## counting down evenly to the end's spread over the slowing; then how long until the leaf after
-## the one under way, how long that one takes, and how long until a page may make a sound again.
-var _plan_at: PackedFloat32Array = []
-var _plan_for: PackedFloat32Array = []
-var _plan_folio: PackedInt32Array = []
+## The leaves to turn, planned before the first, see [ReadPlan]; then how long until the leaf
+## after the one under way, how long that one takes, and how long until a page may make a sound
+## again.
+var _plan: ReadPlan
 var _interval := TURN_FIRST
 var _turn_for := TURN_SLOWEST
 var _sound_left := 0.0
@@ -340,17 +349,120 @@ func _ready() -> void:
 	_columns[LEFT].add_child(_text.build(_text.items[0], 0))
 	_measure_text()
 	_paginate()
-	_make_plan()
-	_open()
+	_plan = ReadPlan.of_a_read()
+	_wait_to_open()
 
 
-## The book comes up shut on the right half, its spine to the left, and opens: a moment, the
-## front cover lifts off it toward the spine, and comes down over it onto the left, its inside
-## the title page. It shuts the other way, onto the left, see [method shut].
-func _open() -> void:
+## The book comes up shut on the right half, its spine to the left, and waits to be opened: a
+## click or a tap on it, or the accept button, drawn on its corner for the device in hand; the
+## cover stirs now and then meanwhile, as if about to open.
+func _wait_to_open() -> void:
 	_halves[0].scale.x = 0.0
 	_front.visible = true
 	_front.scale.x = 1.0
+	_front.mouse_filter = Control.MOUSE_FILTER_STOP
+	_front.gui_input.connect(_on_cover_input)
+	if TouchInput.enabled:
+		_open_device = RubberStamp.Device.TOUCH
+	elif not Game.last_input_keyboard:
+		_open_device = RubberStamp.Device.PAD
+	_open_mark = Control.new()
+	_open_mark.name = "OpenMark"
+	_open_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_open_mark.position = _front.position + _front.size - Vector2.ONE * 6.0
+	_book.add_child(_open_mark)
+	_show_open_glyph()
+	_stirring = create_tween().set_loops()
+	_stirring.tween_interval(STIR_EVERY)
+	_stirring.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
+	_stirring.tween_property(_front, "scale:x", 1.0 - STIR_LIFT, STIR_FOR)
+	_stirring.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_SINE)
+	_stirring.tween_property(_front, "scale:x", 1.0, STIR_FOR)
+
+
+## The control that opens the book, centered on the shut cover's bottom right corner: the left
+## mouse button, the accept key or pad button, or a tap.
+func _show_open_glyph() -> void:
+	if _open_mark == null:
+		return
+	for old: Node in _open_mark.get_children():
+		_open_mark.remove_child(old)
+		old.queue_free()
+	var glyph: Control
+	match _open_device:
+		RubberStamp.Device.MOUSE:
+			var click := InputEventMouseButton.new()
+			click.button_index = MOUSE_BUTTON_LEFT
+			glyph = InputGlyph.of_event(click, OPEN_INK, OPEN_GLYPH_SIZE)
+		RubberStamp.Device.KEYBOARD:
+			glyph = InputGlyph.of_action(&"ui_accept", true, OPEN_INK, OPEN_GLYPH_SIZE)
+		RubberStamp.Device.PAD:
+			glyph = InputGlyph.of_action(&"ui_accept", false, OPEN_INK, OPEN_GLYPH_SIZE)
+		_:
+			glyph = InputGlyph.of_word("Tap", OPEN_INK, OPEN_GLYPH_SIZE)
+	if glyph == null:
+		return
+	_open_mark.add_child(glyph)
+	glyph.size = glyph.get_combined_minimum_size()
+	glyph.position = -glyph.size * 0.5
+
+
+## What was pressed says which control to draw on the cover, while it waits.
+func _input(event: InputEvent) -> void:
+	if not _waiting:
+		return
+	var was := _open_device
+	if event is InputEventMouseMotion or event is InputEventMouseButton:
+		_open_device = RubberStamp.Device.MOUSE
+	elif event is InputEventKey:
+		_open_device = RubberStamp.Device.KEYBOARD
+	elif event is InputEventJoypadButton:
+		_open_device = RubberStamp.Device.PAD
+	elif event is InputEventScreenTouch:
+		_open_device = RubberStamp.Device.TOUCH
+	if _open_device != was:
+		_show_open_glyph()
+
+
+## The accept button opens the shut book.
+func _unhandled_input(event: InputEvent) -> void:
+	if _waiting and event.is_action_pressed(&"ui_accept"):
+		get_viewport().set_input_as_handled()
+		open()
+
+
+## A click or a tap on the shut book opens it.
+func _on_cover_input(event: InputEvent) -> void:
+	var click := event as InputEventMouseButton
+	var touch := event as InputEventScreenTouch
+	if (
+		(click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT)
+		or (touch != null and touch.pressed)
+	):
+		get_viewport().set_input_as_handled()
+		open()
+
+
+## Whether the shut book is still waiting to be opened.
+func is_waiting() -> bool:
+	return _waiting
+
+
+## Opens the shut book: the front cover lifts off toward the spine and comes down over it onto
+## the left, its inside the title page, and the reading starts from there. It shuts the other way,
+## onto the left, see [method shut].
+func open() -> void:
+	if not _waiting:
+		return
+	_waiting = false
+	if _stirring != null:
+		_stirring.kill()
+		_stirring = null
+	_front.scale.x = 1.0
+	_front.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if _open_mark != null:
+		_open_mark.queue_free()
+		_open_mark = null
 	_opening = create_tween()
 	_opening.tween_interval(OPEN_WAIT)
 	_opening.tween_callback(Audio.play_sfx.bind(&"page", PAGE_DB, PAGE_PITCHES, 0.9))
@@ -575,7 +687,7 @@ func _show_page(which: int, text: int, folio: int) -> void:
 
 
 func _process(delta: float) -> void:
-	if _shut:
+	if _shut or _waiting:
 		return
 	elapsed += delta
 	_sound_left = maxf(_sound_left - delta, 0.0)
@@ -584,11 +696,11 @@ func _process(delta: float) -> void:
 		if _preparing:
 			_preparing = false
 			_start_turn()
-		elif not _ended and turns < _plan_at.size() and reading >= _plan_at[turns]:
+		elif not _ended and turns < _plan.at.size() and reading >= _plan.at[turns]:
 			# Never while a leaf is still over, unless the read has fallen well behind, as it does
 			# only when the book is held up: a leaf snapped down mid-air is a page jumping.
-			if not _landing or reading >= _plan_at[turns] + CATCH_UP:
-				_prepare_turn(turns == _plan_at.size() - 1)
+			if not _landing or reading >= _plan.at[turns] + CATCH_UP:
+				_prepare_turn(turns == _plan.at.size() - 1)
 	if elapsed >= READ_FOR:
 		shut()
 
@@ -606,13 +718,13 @@ func _prepare_turn(last := false) -> void:
 		_aim_at_the_end()
 		_show_page(BACK, _final_left, PAGES - 1)
 		_land_folio = PAGES - 1
-		_turn_for = _plan_for[turns]
+		_turn_for = _plan.lasting[turns]
 	else:
-		var folio := mini(maxi(page_shown + 2, _plan_folio[turns]), PAGES - 3)
+		var folio := mini(maxi(page_shown + 2, _plan.folio[turns]), PAGES - 3)
 		_show_page(BACK, _text_page(_spread), folio)
 		_land_folio = folio
-		_interval = _plan_at[turns + 1] - _plan_at[turns]
-		_turn_for = _plan_for[turns]
+		_interval = _plan.at[turns + 1] - _plan.at[turns]
+		_turn_for = _plan.lasting[turns]
 	for face: SubViewport in _faces:
 		face.render_target_update_mode = SubViewport.UPDATE_ONCE
 	_preparing = true
@@ -649,61 +761,9 @@ func _show_the_end(which: int, folio: int) -> void:
 	_folios[which].text = str(folio)
 
 
-## When each leaf of a whole read starts, counted from when the reading starts: the first after
-## [constant TURN_FIRST], each next one sooner by [constant TURN_RAMP] down to the riffle, slowing
-## again over [constant SLOW_FOR] before the last, which turns at [constant LAST_TURN] onto the
-## end, a slow leaf's gap after the one before it at the least.
-static func plan() -> PackedFloat32Array:
-	var starts := PackedFloat32Array()
-	var at := TURN_FIRST
-	var interval := TURN_FIRST
-	while at < LAST_TURN:
-		starts.append(at)
-		if at >= LAST_TURN - SLOW_FOR:
-			interval = minf(interval / TURN_RAMP, TURN_SLOWEST)
-		else:
-			interval = maxf(interval * TURN_RAMP, TURN_FASTEST)
-		at += interval
-	while starts.size() > 1 and LAST_TURN - starts[starts.size() - 1] < interval * 0.7:
-		starts.remove_at(starts.size() - 1)
-	starts.append(LAST_TURN)
-	return starts
-
-
-## How many leaves a whole read turns, the last onto the end, so the text can be checked to be
-## long enough never to come round again.
+## How many leaves a whole read turns, the last onto the end, see [ReadPlan].
 static func planned_turns() -> int:
-	return plan().size()
-
-
-## The plan of the read, see [member _plan_at]: each leaf takes most of the time to the next and
-## the last a slow leaf's time, and the page numbers race up the curve of the pace until the
-## riffle slows, then count on by a spread a leaf to the end's, 211 and 212.
-func _make_plan() -> void:
-	_plan_at = plan()
-	var count := _plan_at.size()
-	_plan_for.resize(count)
-	for i: int in count - 1:
-		var gap := _plan_at[i + 1] - _plan_at[i]
-		_plan_for[i] = minf(gap * TURN_SHARE, TURN_SLOWEST)
-	_plan_for[count - 1] = TURN_SLOWEST
-	var slow_from := count - 1
-	for i: int in count:
-		if _plan_at[i] >= LAST_TURN - SLOW_FOR:
-			slow_from = i
-			break
-	var slowing := PAGES - 1 - 2 * (count - 1 - slow_from)
-	var top := exp(FOLIO_RAMP) - 1.0
-	_plan_folio.resize(count)
-	var last := 1
-	for i: int in count:
-		var folio := PAGES - 1 - 2 * (count - 1 - i)
-		if i < slow_from:
-			var share := (exp(FOLIO_RAMP * float(i) / float(maxi(slow_from, 1))) - 1.0) / top
-			folio = 1 + roundi(share * float(slowing - 3))
-			folio = mini(maxi(folio, last + 2), slowing - 2 * (slow_from - i))
-		_plan_folio[i] = folio
-		last = folio
+	return ReadPlan.turns()
 
 
 ## The leaf lifts off the right page, which is the next spread's under it from here on, and comes
@@ -770,7 +830,9 @@ func shut() -> void:
 		return
 	_shut = true
 	elapsed = READ_FOR
-	# Open, should it still have been opening, to shut from there.
+	# Open, should it still have been opening or waiting to be, to shut from there.
+	if _waiting:
+		open()
 	if _opening != null:
 		_opening.kill()
 		_opening = null

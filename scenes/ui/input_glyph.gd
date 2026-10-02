@@ -109,6 +109,18 @@ static func of_touch(action: StringName, ink: Color, font_size: int) -> InputGly
 	return glyph
 
 
+## A pill with [param word] on it, for what has no key or button to draw, a tap say.
+static func of_word(word: String, ink: Color, font_size: int) -> InputGlyph:
+	var glyph := InputGlyph.new()
+	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	glyph.ink = ink
+	glyph.font_size = font_size
+	glyph.kind = Kind.SHOULDER
+	glyph.caption = word
+	glyph.custom_minimum_size = glyph._wanted()
+	return glyph
+
+
 static func of_event(event: InputEvent, ink: Color, font_size: int) -> InputGlyph:
 	var glyph := InputGlyph.new()
 	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE

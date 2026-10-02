@@ -104,8 +104,10 @@ static func _speed(on: CanvasItem, box: Rect2) -> void:
 
 ## Karts crossing: a red-edged triangle with a kart on it.
 static func _warning(on: CanvasItem, box: Rect2) -> void:
+	# The white inside on the same middle as the red, so the border is as wide along the foot as
+	# up the sides rather than worn to a sliver there.
 	IconShapes.tri(on, box, 0.5, 0.56, 1.02, 0.0, SIGN_RED)
-	IconShapes.tri(on, box, 0.5, 0.6, 0.76, 0.0, SIGN_WHITE)
+	IconShapes.tri(on, box, 0.5, 0.56, 0.76, 0.0, SIGN_WHITE)
 	# A kart from the side: a low body, a bump of a driver, and two wheels.
 	IconShapes.bar(on, box, 0.33, 0.52, 0.34, 0.1, SIGN_INK)
 	IconShapes.bar(on, box, 0.4, 0.44, 0.14, 0.1, SIGN_INK)
