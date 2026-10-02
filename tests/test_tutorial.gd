@@ -265,17 +265,20 @@ func test_steering_counts_both_ways_from_the_heading() -> void:
 	assert_float(lesson._right.progress).is_equal_approx(0.5 / (TutorialSteer.TURNS * TAU), 0.001)
 	lesson._right.progress = 0.0
 	# Moving and turning left fills the left task, and nothing of the right one.
-	Input.action_press(InputActions.THROTTLE)
-	Input.action_press(InputActions.STEER_LEFT)
+	# Pressed again every frame: a stray axis event from a keyboard with a joystick in it would
+	# release the action under the test.
 	for i: int in 400:
+		Input.action_press(InputActions.THROTTLE)
+		Input.action_press(InputActions.STEER_LEFT)
 		await _runner.simulate_frames(1, 17)
 		if lesson._left.done:
 			break
 	Input.action_release(InputActions.STEER_LEFT)
 	assert_bool(lesson._left.done).override_failure_message("left never filled").is_true()
 	assert_float(lesson._right.progress).is_less(0.3)
-	Input.action_press(InputActions.STEER_RIGHT)
 	for i: int in 400:
+		Input.action_press(InputActions.THROTTLE)
+		Input.action_press(InputActions.STEER_RIGHT)
 		await _runner.simulate_frames(1, 17)
 		if lesson.is_done():
 			break

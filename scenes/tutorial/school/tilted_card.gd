@@ -2,8 +2,9 @@ class_name TiltedCard
 extends Control
 ## A [LicenseCard] held up to be looked at, GAME.md 3.8: the card is drawn into a picture of its
 ## own and shown through a shader that turns the picture a little in perspective, toward where the
-## mouse goes or the way the right stick is pushed, so the card moves in the hand and the hologram
-## on its back plays with it, see [member LicenseCard.tilt]; and it is turned right over on a
+## mouse goes, the way the right stick is pushed or the way a phone is tilted from how it was held
+## as the card came up, so the card moves in the hand and the hologram on its back plays with it,
+## see [member LicenseCard.tilt]; and it is turned right over on a
 ## click, a tap or [method turn_over], about its upright axis, the other side coming round as it
 ## passes edge-on. Nothing says there is a back: whoever turns it finds out.
 
@@ -14,6 +15,11 @@ const TURN := 0.26
 const FOLLOW := 10.0
 ## A stick pushed less than this is resting.
 const STICK_REST := 0.2
+## How far a phone tilts from how it was held, as a share of gravity, for the card to turn all the
+## way, about a third of the way to its side; and how much of the way the held pose follows the
+## phone each second, so the card settles back once the phone is held still in a new way.
+const PHONE_TURN := 0.5
+const PHONE_SETTLE := 0.5
 ## Room round the card in its picture, in pixels of the card, for its corners as it turns, and how
 ## much sharper the picture is drawn than it is shown, for the small print once turned.
 const PAD := 28.0
@@ -39,6 +45,9 @@ var _from := false
 ## Where the mouse was last seen, once it has moved at all: a card lies flat until it does.
 var _mouse_at := Vector2.ZERO
 var _mouse_seen := false
+## Which way gravity pulls on the phone held still, following it slowly from the pull as the card
+## came up; nothing on a machine with no sensor to say.
+var _held := Vector3.ZERO
 var _picture: SubViewport
 var _shown: TextureRect
 var _material: ShaderMaterial
@@ -86,6 +95,7 @@ func _ready() -> void:
 	_shown.mouse_filter = Control.MOUSE_FILTER_STOP
 	_shown.gui_input.connect(_on_input)
 	add_child(_shown)
+	_held = Input.get_gravity()
 	_aim()
 
 
@@ -97,6 +107,11 @@ func _input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	var pull := Input.get_gravity()
+	if _held.is_zero_approx():
+		_held = pull
+	else:
+		_held = _held.lerp(pull, 1.0 - exp(-PHONE_SETTLE * delta))
 	_turn = _turn.lerp(_wanted(), 1.0 - exp(-FOLLOW * delta))
 	# The hologram sees the turn over too: its colors run through as the back comes round.
 	card.tilt = _turn + Vector2(sin(_over) * TURN_SHINE, 0.0)
@@ -104,18 +119,31 @@ func _process(delta: float) -> void:
 
 
 ## Where the card is turned toward: the way the right stick is pushed, or else where the mouse
-## has gone about the card, all the way at its edges and beyond; nowhere on a touch screen, which
-## has neither.
+## has gone about the card, all the way at its edges and beyond, or else the way a phone has been
+## tilted since the card came up; nowhere otherwise.
 func _wanted() -> Vector2:
 	var stick := Input.get_vector(
 		InputActions.AIM_LEFT, InputActions.AIM_RIGHT, InputActions.AIM_UP, InputActions.AIM_DOWN
 	)
 	if stick.length() > STICK_REST:
 		return stick.limit_length(1.0)
-	if not _mouse_seen or size.x <= 0.0 or size.y <= 0.0:
+	if _mouse_seen and size.x > 0.0 and size.y > 0.0:
+		var away := (_mouse_at - (global_position + size * 0.5)) / (size * 0.5)
+		return away.clamp(-Vector2.ONE, Vector2.ONE)
+	return tilt_of_phone(Input.get_gravity(), _held)
+
+
+## How far a phone pulled on by gravity [param now] has been tilted from [param held], the pull as
+## the card came up, as a turn to give the card: its right edge forward as the right side of the
+## phone dips, its bottom edge forward as the bottom dips, all the way at [constant PHONE_TURN]
+## of gravity. Nothing for a machine with no sensor, which reads no pull at all. The pull comes
+## in the screen's own axes, x across it and y up it.
+static func tilt_of_phone(now: Vector3, held: Vector3) -> Vector2:
+	if now.is_zero_approx() or held.is_zero_approx():
 		return Vector2.ZERO
-	var away := (_mouse_at - (global_position + size * 0.5)) / (size * 0.5)
-	return away.clamp(-Vector2.ONE, Vector2.ONE)
+	var g := maxf(held.length(), 0.001)
+	var tilted := (now - held) / g
+	return (Vector2(tilted.x, -tilted.y) / PHONE_TURN).clamp(-Vector2.ONE, Vector2.ONE)
 
 
 ## The picture turned as the card is: the tilt, and the turn over on top of it. In the middle of

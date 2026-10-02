@@ -4081,7 +4081,9 @@ button that opens the hand of jokers, 3.7, Tab or Y say, drawn in the bottom
 right corner of the title with License beside it for the device last touched, the
 way a joker is shown out of the hand, held up to be looked at: it turns a little
 in perspective toward the mouse as it moves, or the way the right stick is
-pushed, and settles back, with Put it away under it and a line saying what
+pushed, or the way a phone is tilted from how it was held as the card came up,
+which needs no permission of the phone, and settles back, with Put it away
+under it and a line saying what
 puts it away for the device in hand, its Back drawn
 in, a click beside the card with a mouse, a tap on a touch screen, and never a
 click on a pad; and on the License tab of the settings, 8.5, with the plate to

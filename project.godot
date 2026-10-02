@@ -47,6 +47,10 @@ window/handheld/orientation=4
 
 theme/custom_font="res://assets/fonts/Inter-Regular.ttf"
 
+[input_devices]
+
+sensors/enable_gravity=true
+
 [layer_names]
 
 3d_physics/layer_1="world"

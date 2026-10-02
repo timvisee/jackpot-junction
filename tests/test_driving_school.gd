@@ -488,6 +488,22 @@ func test_on_a_touch_screen_the_tap_shows_the_license_and_nothing_slides() -> vo
 	assert_object(title.find_child("LicenseView", true, false)).is_not_null()
 
 
+## A phone turns the card the way it is tilted from how it was held as the card came up, GAME.md
+## 3.8: the right side dipping brings the right edge forward, the bottom dipping the bottom edge,
+## all the way at half of gravity; held still, or with no sensor to read, the card lies flat.
+func test_a_phone_tilted_turns_the_card() -> void:
+	var held := Vector3(0.0, -6.9, -6.9)
+	assert_bool(TiltedCard.tilt_of_phone(held, held).is_zero_approx()).is_true()
+	assert_bool(TiltedCard.tilt_of_phone(Vector3.ZERO, Vector3.ZERO).is_zero_approx()).is_true()
+	var right_down := TiltedCard.tilt_of_phone(held + Vector3(2.45, 0.0, 0.0), held)
+	assert_float(right_down.x).is_equal_approx(0.5, 0.01)
+	assert_float(right_down.y).is_equal_approx(0.0, 0.01)
+	var bottom_down := TiltedCard.tilt_of_phone(held + Vector3(0.0, -4.9, 0.0), held)
+	assert_float(bottom_down.y).is_equal_approx(1.0, 0.01)
+	var far := TiltedCard.tilt_of_phone(held + Vector3(-20.0, 0.0, 0.0), held)
+	assert_float(far.x).is_equal_approx(-1.0, 0.01)
+
+
 ## On a touch screen the menu button in the corner asks whether to leave on every page: the book
 ## and the quiz are put up after it, and would take its touches were it left under them.
 func test_the_touch_menu_button_stays_over_the_book_and_the_quiz() -> void:
