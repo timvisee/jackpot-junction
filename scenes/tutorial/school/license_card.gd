@@ -241,7 +241,7 @@ func _build_photo() -> void:
 	_kart = KartVisuals.display_model(color_index, style)
 	_kart.rotation.y = 0.6
 	# Low in the frame, so the hat has the room.
-	_kart.position.y = -0.22
+	_kart.position.y = -0.27
 	viewport.add_child(_kart)
 	var camera := Camera3D.new()
 	camera.fov = 34.0

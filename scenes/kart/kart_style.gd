@@ -8,7 +8,7 @@ extends RefCounted
 ## screen and these ride the wire with the rest of the roster, GAME.md 10.3.
 
 const PAINTS: Array[String] = ["Solid", "Stripes", "Checks", "Spots"]
-const HATS: Array[String] = ["None", "Cap", "Top hat", "Crown", "Party"]
+const HATS: Array[String] = ["None", "Cap", "Top hat", "Crown", "Party", "Learner"]
 const FLAGS: Array[String] = ["None", "Pennant", "Banner", "Checkered"]
 const TRAILS: Array[String] = ["Smoke", "Sparks", "Confetti", "None"]
 ## The four in the order they are asked for, offered and sent.

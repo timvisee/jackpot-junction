@@ -19,6 +19,7 @@ below, and hands the notes to the release workflow.
   first time you press Play, and has a button for it.
 - **License plates.** Your kart wears the plate you chose with your license, up to eight
   characters, online too; until you pass it wears a learner's L, as the easiest bots do.
+- **A learner hat.** The driving school's L block, to wear on your helmet.
 - **Run with another settings file.** `--settings=<path>` after `--` starts the game with a fresh
   or a particular settings file, leaving your own alone.
 - **Jokers show when they go off.** Guardian Angel, Insurance Policy, Tight Grip, Pickpocket, Toll

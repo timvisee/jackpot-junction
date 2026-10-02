@@ -1203,7 +1203,7 @@ short buzz the slider gives, so reading along the row is felt card by card.
 | Choice | Options                                                            |
 |--------|--------------------------------------------------------------------|
 | Paint  | Solid, Stripes, Checks, Spots                                      |
-| Hat    | None, Cap, Top hat, Crown, Party                                   |
+| Hat    | None, Cap, Top hat, Crown, Party, Learner                          |
 | Flag   | None, Pennant, Banner, Checkered                                   |
 | Trail  | Smoke, Sparks, Confetti, None                                      |
 
@@ -1214,7 +1214,9 @@ short buzz the slider gives, so reading along the row is felt card by card.
   sprite, and the podium camera comes right down to it. A striped red kart is
   still unmistakably the red one.
 - **Hats** sit on the crown of the driver's helmet, and the roof marker moves up
-  over whichever one is worn rather than through it.
+  over whichever one is worn rather than through it. The Learner is the driving
+  school's block of 9.4a, a white cube with the red L on its sides and its top,
+  worn turned a little, white whatever the player's color.
 - **Flags** fly from a pole at the back, clear of the bodywork and streaming
   behind the kart rather than out of its side. All of them are the player's color
   except the checkered one, which is the color a checkered flag is.

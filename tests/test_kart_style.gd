@@ -80,6 +80,26 @@ func test_a_dressed_kart_wears_all_of_it() -> void:
 	assert_float(_named(plain, "RoofMarker").position.y).is_equal(KartVisuals.MARKER_HEIGHT)
 
 
+## Every hat there is to pick is a hat with a height the roof marker clears, the learner's
+## block too, the driving school's L on its sides and its top, GAME.md 4.4 and 9.4a.
+func test_every_hat_is_worn_and_the_learner_wears_the_block() -> void:
+	assert_int(KartDress.HAT_LIFT.size()).is_equal(KartStyle.HATS.size())
+	for index: int in range(1, KartStyle.HATS.size()):
+		var hat: Node3D = auto_free(KartDress.hat(index, Color.RED))
+		assert_object(hat).is_not_null()
+		assert_float(KartDress.HAT_LIFT[index]).is_greater(0.0)
+	var learner := KartStyle.HATS.find("Learner")
+	assert_int(learner).is_greater(0)
+	var worn: Node3D = auto_free(KartDress.hat(learner, Color.RED))
+	var block := worn.find_child("LearnerBlock", true, false)
+	assert_object(block).is_not_null()
+	# Four sides and the top, each the L.
+	assert_int(block.find_children("*", "MeshInstance3D", false, false).size()).is_equal(6)
+	# A style with it survives the wire.
+	var style := KartStyle.from_array(PackedInt32Array([0, learner, 0, 0]))
+	assert_int(style.hat).is_equal(learner)
+
+
 ## GAME.md 10.3: a kart looks the same on every screen, so the dress rides with it.
 func test_a_dressed_kart_reaches_a_client() -> void:
 	var host := _start([PackedInt32Array([3, 2, 2, 1])])

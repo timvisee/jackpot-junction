@@ -24,7 +24,12 @@ const PATTERN_SCALE := 1.6
 const HEAD := Vector3(0.0, 1.63, -0.06)
 const HEAD_RADIUS := 0.42
 ## How far above the head each hat reaches, so the roof marker can be lifted clear of it.
-const HAT_LIFT: Array[float] = [0.0, 0.21, 0.46, 0.51, 0.59]
+const HAT_LIFT: Array[float] = [0.0, 0.21, 0.46, 0.51, 0.59, 0.46]
+## The learner's block, GAME.md 9.4a: a white cube the driving school's L is painted on, worn
+## turned a little on the helmet, how big, and how far round.
+const LEARNER_SIDE := 0.4
+const LEARNER_TURN := 0.35
+const LEARNER_WHITE := Color(0.95, 0.95, 0.93)
 ## Where a flag stands and how long its pole is. Clear of the bodywork, which is 1 m tall at the
 ## back, so the flag flies where it can be seen rather than inside the engine.
 const FLAG := Vector3(0.0, 0.95, 0.5)
@@ -123,10 +128,40 @@ static func hat(index: int, color: Color) -> Node3D:
 					cos(angle) * HEAD_RADIUS * 0.7, 0.32, sin(angle) * HEAD_RADIUS * 0.7
 				)
 				worn.add_child(spike)
+		5:
+			worn.add_child(_learner_block())
 		_:
 			worn.add_child(_spike(HEAD_RADIUS * 0.85, 0.46, color, 0.23))
 			worn.add_child(_disc(0.1, 0.1, Palette.CHIP_WHITE, 0.5))
 	return worn
+
+
+## The learner's block: the driving school's white cube with the L on its four sides and its top,
+## the top being what the camera sees most of, sitting on the helmet turned a little, the same
+## for every player since the L is the L whoever wears it.
+static func _learner_block() -> Node3D:
+	var block := Node3D.new()
+	block.name = "LearnerBlock"
+	block.position = Vector3(0.0, LEARNER_SIDE * 0.5, 0.0)
+	block.rotation.y = LEARNER_TURN
+	block.add_child(_block(Vector3.ONE * LEARNER_SIDE, LEARNER_WHITE))
+	var drawn := DrawnTexture.of(
+		block, SchoolFigure.of(SchoolFigure.Kind.LEARNER, 128.0), Vector2i(128, 128)
+	)
+	var decal := DrawnTexture.decal(drawn)
+	var side := Vector2.ONE * LEARNER_SIDE * 0.84
+	var out := LEARNER_SIDE * 0.5 + 0.005
+	for i: int in 4:
+		var turn := PI * 0.5 * float(i)
+		var face := DrawnTexture.face(side, decal)
+		face.position = Vector3(sin(turn), 0.0, cos(turn)) * out
+		face.rotation.y = turn
+		block.add_child(face)
+	var top := DrawnTexture.face(side, decal)
+	top.position = Vector3(0.0, out, 0.0)
+	top.rotation.x = -PI * 0.5
+	block.add_child(top)
+	return block
 
 
 ## The flag a player picked, on its pole at the back of the kart, or null for none. All of them
