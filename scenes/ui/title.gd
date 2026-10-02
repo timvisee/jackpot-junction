@@ -21,6 +21,9 @@ const LICENSE_TILT_SHOWN := -0.04
 const LICENSE_BOTTOM := 72.0
 const LICENSE_IN := 28.0
 const LICENSE_SLIDE := 0.25
+## The license peeking in is dimmed a little, so it does not take the eye from the buttons; slid
+## out under the cursor it is as it is.
+const LICENSE_DIM := Color(0.74, 0.74, 0.78, 0.86)
 ## The license shown in full, over a shade, on a click or a tap on the one peeking in, or on
 ## the button that opens the hand of jokers, drawn in the bottom right corner over the version
 ## with the word License beside it: how big, and the line under it.
@@ -158,6 +161,7 @@ func _peek_license() -> void:
 	_license.mouse_filter = Control.MOUSE_FILTER_STOP
 	_license.scale = Vector2.ONE * LICENSE_SCALE
 	_license.rotation = LICENSE_TILT
+	_license.modulate = LICENSE_DIM
 	add_child(_license)
 	# A touch screen has no hover to slide under: the tap shows the card in full on the spot.
 	if not TouchInput.enabled:
@@ -388,6 +392,7 @@ func _slide_license(out: bool) -> void:
 	slide.tween_property(
 		_license, "rotation", LICENSE_TILT_SHOWN if out else LICENSE_TILT, LICENSE_SLIDE
 	)
+	slide.tween_property(_license, "modulate", Color.WHITE if out else LICENSE_DIM, LICENSE_SLIDE)
 	if out:
 		Audio.play_sfx(&"ui_move", MenuTheme.MOVE_DB, 0.0)
 

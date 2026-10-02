@@ -181,6 +181,11 @@ func _ready() -> void:
 	emblem.plate = false
 	foil.set_shader_parameter("mark", DrawnTexture.of(self, emblem, Vector2i(128, 128)))
 	foil.set_shader_parameter("mark_share", HOLOGRAM_MARK / _hologram.size.x)
+	# The game's name round the ring, over the top and along the foot, at about the size the disc
+	# is drawn at on the title, so its thin rings stay sharp.
+	var seal := SealWords.new()
+	seal.name = "Seal"
+	foil.set_shader_parameter("words", DrawnTexture.of(self, seal, Vector2i(320, 320)))
 	_hologram.material = foil
 	add_child(_hologram)
 

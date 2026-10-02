@@ -4046,8 +4046,11 @@ top, a hologram, a disc of foil drawn by a shader whose colors run round and
 through as the card is tilted, as a foil's do with the angle it is seen at,
 and run as it is turned over, fine rings engraved under them, a glint where
 the light catches it that moves only as the card moves, a glance of light
-crossing it now and then while it lies still, and the game's mark raised in
-the middle in a foil of its own; beside it, in a column, PROPERTY OF THE
+crossing it now and then while it lies still, the game's mark raised in
+the middle in a foil of its own, and round it, between two thin rings, the
+game's name the way a seal has it, JACKPOT over the top and JUNCTION along
+the foot, both upright, a star at either side, struck in a deeper foil whose
+colors run with the rest; beside it, in a column, PROPERTY OF THE
 DEPT. OF KARTS with the small print of whose card it is, "If found, return to
 the nearest Junction. Any Junction.", the examiner's own signature, for
 whoever reads that far, a cheat code, up up down down left right left right
@@ -4074,7 +4077,8 @@ the holder's initials and the number's last three digits, "TLT-123", with the
 plate as it will read beside it, and the three ways on, Garage, Hit the road,
 which is Play, with the cursor, and Back to title. The license is seen again on
 the title, peeking in from the right edge the way a card in a hand does, tilted
-and a third off the screen, sliding in straight under the cursor and back out
+and a third off the screen, dimmed a little so it does not take the eye from
+the buttons, sliding in straight under the cursor, as it is, and back out
 from under it, a touch screen having the tap alone and nothing sliding under a
 finger, and shown in full over a shade on a click or a tap, or on the
 button that opens the hand of jokers, 3.7, Tab or Y say, drawn in the bottom

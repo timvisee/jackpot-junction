@@ -296,8 +296,13 @@ func test_the_title_peeks_the_license_earned() -> void:
 	var hidden_middle := peek.position + LicenseCard.SIZE * 0.5
 	assert_float(hidden_middle.x).is_greater(screen.x - LicenseCard.SIZE.x * 0.5)
 	assert_float(peek.rotation).is_less(-0.1)
+	# Dimmed while it peeks, so it does not take the eye; as it is once out under the cursor.
+	assert_float(peek.modulate.a).is_less(1.0)
+	assert_float(peek.modulate.r).is_less(1.0)
 	title._slide_license(true)
 	await await_millis(int(title.LICENSE_SLIDE * 1000.0) + 150)
+	assert_float(peek.modulate.a).is_equal_approx(1.0, 0.01)
+	assert_float(peek.modulate.r).is_equal_approx(1.0, 0.01)
 	var out_middle := peek.position + LicenseCard.SIZE * 0.5
 	assert_float(out_middle.x).is_less(hidden_middle.x)
 	assert_float(out_middle.x + LicenseCard.SIZE.x * title.LICENSE_SCALE * 0.5).is_less(screen.x)
@@ -364,6 +369,10 @@ func test_the_title_peeks_the_license_earned() -> void:
 	assert_bool(full.flipped).is_true()
 	assert_bool(full._photo.visible).is_false()
 	assert_object(title.find_child("LicenseView", true, false)).is_not_null()
+	# The hologram on the back has the game's name round its ring.
+	var seal: SealWords = full.find_child("Seal", true, false)
+	assert_object(seal).is_not_null()
+	assert_str(seal.top + " " + seal.bottom).is_equal("JACKPOT JUNCTION")
 	var click_card := InputEventMouseButton.new()
 	click_card.button_index = MOUSE_BUTTON_LEFT
 	click_card.pressed = true

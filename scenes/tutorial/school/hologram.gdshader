@@ -11,6 +11,8 @@ uniform vec2 tilt = vec2(0.0, 0.0);
 // The game's mark, on clear, and how much of the disc's width it takes.
 uniform sampler2D mark : filter_linear, repeat_disable;
 uniform float mark_share = 0.42;
+// The game's name round the ring, white on clear across the whole disc, see SealWords.
+uniform sampler2D words : filter_linear, repeat_disable;
 // Turns of the colors a second while the card lies still, and how often a glance crosses it.
 uniform float drift = 0.02;
 uniform float glance_every = 4.5;
@@ -44,6 +46,11 @@ void fragment() {
 	// The engraving: fine rings, glittering as the view slides over them.
 	float rings = 0.5 + 0.5 * sin(r * 150.0 + view * 30.0);
 	color += (rings * rings - 0.3) * 0.1;
+	// The name round the ring, struck in a deeper foil a third of a turn on, so it reads through
+	// the colors and its own colors run as theirs do.
+	float lettered = texture(words, UV).a;
+	vec3 struck = foil(phase + 0.33) * 0.6 + 0.12;
+	color = mix(color, struck, lettered * 0.85);
 	// The mark, raised in a brighter foil half a turn on, its own light and shade in it.
 	vec2 m = p / mark_share + 0.5;
 	float in_mark = step(abs(m.x - 0.5), 0.5) * step(abs(m.y - 0.5), 0.5);
