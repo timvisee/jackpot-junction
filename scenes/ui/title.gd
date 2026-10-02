@@ -151,8 +151,8 @@ func _ready() -> void:
 
 
 ## Until the license is earned, a flyer stands in its place, GAME.md 3.8, beside the Driving
-## School button and pointing at it, or in the bottom right corner on a screen with no room
-## beside the button; a click or a tap on it is the button's.
+## School button and pointing at it, fitted to the room there, see [method SchoolAd.fit_into],
+## and gone on a screen with none; a click or a tap on it is the button's.
 func _advertise_school() -> void:
 	_ad = SchoolAd.new()
 	add_child(_ad)
@@ -160,6 +160,12 @@ func _advertise_school() -> void:
 	resized.connect(_place_ad)
 	_school_button.item_rect_changed.connect(_place_ad)
 	_ad.resized.connect(_place_ad)
+	# A column taller than the screen scrolls, GAME.md 8.5, which moves what holds the button rather
+	# than the button in it: the flyer goes along with any of them moving.
+	var holder := _school_button.get_parent() as Control
+	while holder != null and holder != self:
+		holder.item_rect_changed.connect(_place_ad)
+		holder = holder.get_parent() as Control
 	_place_ad.call_deferred()
 
 
@@ -168,12 +174,12 @@ func _place_ad() -> void:
 		return
 	var button := _school_button.get_global_rect()
 	button.position -= global_position
-	var beside := Vector2(button.end.x + AD_GAP, button.get_center().y - _ad.size.y * 0.5)
-	_ad.pointing = beside.x + _ad.size.x + AD_EDGE <= size.x
-	if _ad.pointing:
-		_ad.position = beside
-	else:
-		_ad.position = size - _ad.size - Vector2(AD_EDGE, LICENSE_BOTTOM)
+	var left := button.end.x + AD_GAP
+	var middle := button.get_center().y
+	# Gone with the button should the column be scrolled to put it out of sight.
+	var in_sight := middle >= 0.0 and middle <= size.y
+	_ad.visible = _ad.fit_into(size.x - left - AD_EDGE) and in_sight
+	_ad.position = Vector2(left, middle - _ad.size.y * 0.5)
 
 
 ## The license earned, tilted and a third off the right edge like a card in a hand, sliding in

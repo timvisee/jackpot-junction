@@ -509,8 +509,9 @@ else's results screen, see 10.3.
   beside the Driving School button, pointing at it, the learner's L on it, NOW
   ENROLLING blinking over "Earn your very own license here." and "No
   experience required.", nudging toward the button now and then, a click or a
-  tap on it the button's, or in the bottom right corner on a screen with no room
-  beside the button; once the driving test is passed, the driver
+  tap on it the button's, fitted to the room beside the button, its words
+  wrapped narrower on a phone or at a big UI scale, the L with its pointer alone
+  in less, and gone on a screen with none; once the driving test is passed, the driver
   license peeks in from the right edge, out under the cursor and in full on a
   click or on the button that opens the hand of jokers, see 3.7, which is drawn
   alone in the bottom right corner over the version, for the

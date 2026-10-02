@@ -600,6 +600,20 @@ func test_a_click_on_the_school_flyer_chooses_it() -> void:
 	ad._on_input(click)
 	assert_int(chose[0]).is_equal(1)
 	assert_float(ad.size.x).is_greater(SchoolAd.POINTER)
+	# Fitted to the room beside the button: as it is with room to spare, its words wrapped in less,
+	# the L with its pointer alone in less still, and nothing in none.
+	assert_bool(ad.fit_into(1000.0)).is_true()
+	var natural := ad.size.x
+	assert_bool(ad._words.visible).is_true()
+	assert_bool(ad.fit_into(natural - 60.0)).is_true()
+	await await_idle_frame()
+	assert_bool(ad._words.visible).is_true()
+	assert_float(ad.size.x).is_less_equal(natural - 59.0)
+	assert_bool(ad.fit_into(120.0)).is_true()
+	await await_idle_frame()
+	assert_bool(ad._words.visible).is_false()
+	assert_float(ad.size.x).is_less_equal(120.0)
+	assert_bool(ad.fit_into(40.0)).is_false()
 
 
 ## The accept button opens the shut book too, as a click on it does.
