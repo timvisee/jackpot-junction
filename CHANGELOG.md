@@ -19,9 +19,16 @@ below, and hands the notes to the release workflow.
   first time you press Play, and has a button for it.
 - **License plates.** Your kart wears the plate you chose with your license, up to eight
   characters, online too; until you pass it wears a learner's L, as the easiest bots do.
+- **Run with another settings file.** `--settings=<path>` after `--` starts the game with a fresh
+  or a particular settings file, leaving your own alone.
 - **Jokers show when they go off.** Guardian Angel, Insurance Policy, Tight Grip, Pickpocket, Toll
   Booth, Road Rage and Carbon Copy pull out of your hand and glow with a word when they act; a
   joker your death drops or takes, such as Spare Tire, burns out of it in red, saying LOST.
+
+### Changed
+
+- **The shader warm-up asks for patience.** The title's strip reads "Compiling shaders, please
+  wait..." while it runs.
 
 ## [0.11.0] - 2026-09-30
 

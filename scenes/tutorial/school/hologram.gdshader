@@ -3,15 +3,17 @@ shader_type canvas_item;
 // round and through as the card is tilted, since the color a foil throws back hangs on the angle
 // it is seen at, fine rings engraved under them that glitter as the view slides over, the game's
 // mark raised in the middle in a foil of its own, and a glint where the light catches the disc,
-// which moves over it only as the card moves. Lying still, the colors drift, slowly.
+// which moves over it only as the card moves. Lying still, the colors sway and drift, slowly,
+// and a glance of light crosses it now and then.
 
 // Where the card is turned toward, -1 to 1 either way, see TiltedCard.
 uniform vec2 tilt = vec2(0.0, 0.0);
 // The game's mark, on clear, and how much of the disc's width it takes.
 uniform sampler2D mark : filter_linear, repeat_disable;
 uniform float mark_share = 0.42;
-// Turns of the colors a second while the card lies still.
+// Turns of the colors a second while the card lies still, and how often a glance crosses it.
 uniform float drift = 0.02;
+uniform float glance_every = 4.5;
 
 // The modulate, taken before the texture is read into COLOR.
 varying vec4 tint;
@@ -28,7 +30,9 @@ void fragment() {
 	vec2 p = UV - 0.5;
 	float r = length(p) * 2.0;
 	float disc = 1.0 - smoothstep(0.97, 1.0, r);
-	float view = tilt.x * 1.1 - tilt.y * 0.7 + TIME * drift;
+	// The view: where the card is turned toward, swaying a little on its own, and drifting.
+	float sway = 0.16 * sin(TIME * 0.7) + 0.08 * sin(TIME * 1.9);
+	float view = tilt.x * 1.1 - tilt.y * 0.7 + TIME * drift + sway;
 	float angle = atan(p.y, p.x);
 	// Broad bands running outward, crossed by a slow weave, every phase sliding with the view.
 	float weave = sin(p.x * 17.0 + view * 4.0) * sin(p.y * 17.0 - view * 3.0);
@@ -51,6 +55,11 @@ void fragment() {
 	vec2 light = vec2(-0.18, -0.22) - tilt * 0.26;
 	float glint = exp(-dot(p - light, p - light) * 24.0);
 	color += glint * 0.25;
+	// The glance: a soft band of light crossing the disc now and then, off it in between.
+	float along = p.x + p.y * 0.6;
+	float crossing = fract(TIME / glance_every) * 3.0 - 1.5;
+	float glance = exp(-pow((along - crossing) * 5.0, 2.0));
+	color += glance * 0.18;
 	// The rim, a shade darker, so the disc sits in the paper.
 	color = mix(color, vec3(0.3, 0.3, 0.34), smoothstep(0.9, 1.0, r) * 0.4);
 	COLOR = vec4(color, disc * 0.94) * tint;

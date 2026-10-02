@@ -171,9 +171,9 @@ func _ready() -> void:
 
 
 ## Another thing the menu can do in this room, put under Resume, and under Pause game where the
-## host has that. The waiting room of GAME.md 9.6 adds the host's match settings, which are only a
-## thing in there and only for the host.
-func add_entry(text: String, action: Callable) -> Button:
+## host has that, or under [param under], an entry added before. The waiting room of GAME.md 9.6
+## adds the host's match settings, which are only a thing in there and only for the host.
+func add_entry(text: String, action: Callable, under: Control = null) -> Button:
 	var button := MenuTheme.button(text)
 	button.pressed.connect(
 		func() -> void:
@@ -182,7 +182,10 @@ func add_entry(text: String, action: Callable) -> Button:
 	)
 	# Under Pause game rather than over it: stopping everybody is the host's first thing to reach for
 	# in a room that is still running, and the match settings are a second thing to do in it.
-	_force.add_sibling(button)
+	if under != null:
+		under.add_sibling(button)
+	else:
+		_force.add_sibling(button)
 	return button
 
 

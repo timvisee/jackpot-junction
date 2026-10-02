@@ -41,6 +41,7 @@ const PAD := 22.0
 ## The plate to choose, under the congratulations: the label, and the line under the box.
 const PLATE_LABEL := "Your license plate"
 const PLATE_LINE := "Up to %d letters, digits, spaces and dashes, on the back of your kart."
+const PLATE_AIR := 8.0
 const SHAKES := 5
 const SHAKE := 7.0
 
@@ -174,6 +175,10 @@ func _plate_row() -> Control:
 	row.add_child(plate)
 	box.add_child(row)
 	box.add_child(MenuTheme.subtitle(PLATE_LINE % LicensePlate.MOST, Type.LABEL))
+	# Air under the line, before the ways on.
+	var air := Control.new()
+	air.custom_minimum_size = Vector2(0.0, PLATE_AIR)
+	box.add_child(air)
 	return box
 
 

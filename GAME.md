@@ -389,7 +389,7 @@ which does not get to decide there is another match, is pointed at the way out.
 
 The title compiles the game's shaders behind itself the first time this build
 of the game runs on this machine, see 10.7: a thin bar above the credits,
-"Compiling shaders", fills over a few seconds and goes, and the menu answers
+"Compiling shaders, please wait...", fills over a few seconds and goes, and the menu answers
 throughout. Nothing waits for it; a match started before it is done compiles the
 rest the old way, on first use. Once through, it leaves a stamp, and the next
 start has nothing to compile and shows no bar, until a new version, another
@@ -4007,7 +4007,7 @@ The lessons, each in its own room, in order:
     and nobody can win the match itself. The fight is the one lesson the pause
     menu's Skip lesson does not pass: the entry is gone from the menu from the
     exam on, and the way out is to pass or to leave. A debug build's menu has
-    Skip to end besides, which drops whatever lesson is on, puts the kart down
+    Skip to end under it besides, which drops whatever lesson is on, puts the kart down
     in the last room and passes the test on the spot, with nothing earned, to
     look at the end of it. Passing is a fanfare and
     the fireworks of 8.3 over the room in the player's color, the bots blown up
@@ -4043,14 +4043,16 @@ tap on it or on the hand's button again, Tab or Y, and nothing on the screen
 says there is one: it turns right over about its upright axis, in perspective,
 the back coming round as it passes edge-on. On it, a magnetic stripe along the
 top, a hologram, a disc of foil drawn by a shader whose colors run round and
-through as the card is tilted, as a foil's do with the angle it is seen at, a
-fine grating glittering under them, a glint where the light catches it that
-moves only as the card moves, and the game's mark raised in the middle in a
-foil of its own, PROPERTY OF THE DEPT. OF KARTS
-with the small print of whose card it is, "If found, return to the nearest
-Junction. Any Junction.", the examiner's own signature, the number as a
-barcode, and, for whoever reads that far, a cheat code, up up down down left
-right left right B A, "Does nothing. We checked." The card has air
+through as the card is tilted, as a foil's do with the angle it is seen at,
+and run as it is turned over, fine rings engraved under them, a glint where
+the light catches it that moves only as the card moves, a glance of light
+crossing it now and then while it lies still, and the game's mark raised in
+the middle in a foil of its own; beside it, in a column, PROPERTY OF THE
+DEPT. OF KARTS with the small print of whose card it is, "If found, return to
+the nearest Junction. Any Junction.", the examiner's own signature, for
+whoever reads that far, a cheat code, up up down down left right left right
+B A, "Does nothing. We checked.", and the number as a barcode under them
+all. The card has air
 over and under it on the pane. The rubber stamp, a wooden handle on a red base,
 hangs off the card's right edge over its own shadow, breathing a little and
 leaning a good way after the mouse as it moves, over the card if the mouse is

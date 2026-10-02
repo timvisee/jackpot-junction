@@ -70,6 +70,7 @@ make jokers     # every joker and power-up icon on one screen, to see them as a 
 make run        # start the game scene
 make run ARGS=--touch=1  # the game with the touch controls, the mouse standing in for a finger
 make run ARGS="--touch=1 --ui-scale=1.5"  # the same at a phone's UI scale, saving nothing
+make run ARGS=--settings=fresh.cfg  # the game as a new player sees it, its settings kept apart
 make check      # import, lint, format check, changelog, unit tests, smoke runs, multiplayer
 make test       # unit tests only (gdUnit4, headless, a suite per process in parallel)
 make bench      # the frame rate of a match on each map
@@ -114,6 +115,7 @@ Read on every scene, so they work in any build.
 | `--touch`, `--touch=1` | The touch controls on a desktop, the mouse standing in for a finger     | Yes   | Yes     |
 | `--touch=0`            | No touch controls, even on a phone                                      | Yes   | Yes     |
 | `--ui-scale=<scale>`   | The UI at this scale for this run alone, 0.5 to 3; saves nothing        | Yes   | Yes     |
+| `--settings=<path>`    | Another settings file for this run, `user://`, absolute or a bare name  | Yes   | Yes     |
 | `--screenshot=<png>`   | Saves the screen after `--frames` frames and quits; needs a display     | Yes   | Yes     |
 | `--frames=<n>`         | How many frames `--screenshot` waits, 8 unless given                    | Yes   | Yes     |
 | `--bench=<n>`          | Runs n frames, prints the frame rate, draw calls and objects, and quits | Yes   | Yes     |

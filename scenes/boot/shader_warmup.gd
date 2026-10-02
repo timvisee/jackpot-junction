@@ -97,15 +97,15 @@ static func add_to(parent: Node) -> ShaderWarmup:
 	return warmup
 
 
-## The line on the title that says what is going on, GAME.md 3.8: "Compiling shaders" over a
-## thin bar, bottom left above the credits, gone a moment after the bar is full.
+## The line on the title that says what is going on, GAME.md 3.8: "Compiling shaders, please
+## wait..." over a thin bar, bottom left above the credits, gone a moment after the bar is full.
 static func strip(warmup: ShaderWarmup) -> Control:
 	var strip := VBoxContainer.new()
 	strip.name = "ShaderWarmupStrip"
 	strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	strip.add_theme_constant_override("separation", 4)
 	var label := Label.new()
-	label.text = "Compiling shaders"
+	label.text = "Compiling shaders, please wait..."
 	Type.text(label, Type.SMALL, Color(0.6, 0.6, 0.65))
 	strip.add_child(label)
 	var bar := HudBlock.bar(Vector2(220.0, 6.0), Palette.CHIP_GOLD)

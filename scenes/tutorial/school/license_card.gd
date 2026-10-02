@@ -50,11 +50,11 @@ const SPIN_SECONDS := 9.0
 ## The back: the stripe, the hologram, its shader and how big its mark is in it, the barcode.
 const STRIPE := Rect2(Vector2(0.0, 30.0), Vector2(SIZE.x, 44.0))
 const STRIPE_INK := Color(0.1, 0.1, 0.12)
-const HOLOGRAM_AT := Vector2(120.0, 210.0)
+const HOLOGRAM_AT := Vector2(120.0, 194.0)
 const HOLOGRAM_RADIUS := 78.0
 const HOLOGRAM_MARK := 68.0
 const HOLOGRAM_SHADER := preload("res://scenes/tutorial/school/hologram.gdshader")
-const BARCODE := Rect2(Vector2(232.0, 232.0), Vector2(300.0, 54.0))
+const BARCODE := Rect2(Vector2(232.0, 240.0), Vector2(300.0, 56.0))
 const BACK_COLUMN := 232.0
 const PROPERTY := "PROPERTY OF THE DEPT. OF KARTS"
 const BACK_LINES: Array[String] = [
@@ -265,23 +265,23 @@ func _draw() -> void:
 		_draw_stamp()
 
 
-## The back: the magnetic stripe along the top, the hologram with the mark in it, whose card it
-## is in small print with the number as a barcode under it, the examiner's own signature, the
-## fine print, and the cheat code.
+## The back: the magnetic stripe along the top, the hologram with the mark in it on the left, and
+## a column of fields beside it, whose card it is in small print, the examiner's own signature,
+## the cheat code and the number as a barcode under them all, with the fine print along the foot.
 func _draw_back() -> void:
 	draw_rect(STRIPE, STRIPE_INK)
 	draw_rect(
 		Rect2(STRIPE.position + Vector2(0.0, 6.0), Vector2(STRIPE.size.x, 1.0)),
 		Color(1.0, 1.0, 1.0, 0.08)
 	)
-	_text(Vector2(BACK_COLUMN, 96.0), PROPERTY, Type.STRONG, 11, INK)
+	_text(Vector2(BACK_COLUMN, 94.0), PROPERTY, Type.STRONG, 11, INK)
 	for i: int in BACK_LINES.size():
-		_text(Vector2(BACK_COLUMN, 114.0 + float(i) * 15.0), BACK_LINES[i], Type.TEXT, 10, FAINT)
-	_text(Vector2(BACK_COLUMN, 182.0), "EXAMINER", Type.STRONG, 8, FAINT)
+		_text(Vector2(BACK_COLUMN, 110.0 + float(i) * 14.0), BACK_LINES[i], Type.TEXT, 10, FAINT)
+	_text(Vector2(BACK_COLUMN, 168.0), "EXAMINER", Type.STRONG, 8, FAINT)
 	var hand := SIGNATURE_FONT
 	draw_string(
 		hand,
-		Vector2(BACK_COLUMN + 60.0, 198.0),
+		Vector2(BACK_COLUMN + 60.0, 184.0),
 		EXAMINER,
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
@@ -289,17 +289,17 @@ func _draw_back() -> void:
 		SIGNATURE_INK
 	)
 	draw_line(
-		Vector2(BACK_COLUMN, 204.0), Vector2(BACK_COLUMN + 200.0, 204.0), Color(INK, 0.4), 1.0
+		Vector2(BACK_COLUMN, 190.0), Vector2(BACK_COLUMN + 200.0, 190.0), Color(INK, 0.4), 1.0
 	)
-	_draw_barcode()
-	# The cheat code, under the hologram, for whoever turns the card over and reads the back.
-	_text(Vector2(26.0, 298.0), CODE, Type.STRONG, 8, FAINT)
-	var at := Vector2(26.0, 310.0)
+	# The cheat code, a field like the others, for whoever turns the card over and reads the back.
+	_text(Vector2(BACK_COLUMN, 200.0), CODE, Type.STRONG, 8, FAINT)
+	var at := Vector2(BACK_COLUMN, 212.0)
 	for way: float in [0.0, 0.0, 180.0, 180.0, 270.0, 90.0, 270.0, 90.0]:
 		IconShapes.tri(self, Rect2(at, Vector2(12.0, 12.0)), 0.5, 0.5, 0.95, way, INK)
 		at.x += 15.0
 	_text(at + Vector2(2.0, -1.0), "B  A", Type.STRONG, 10, INK)
-	_text(Vector2(26.0, 324.0), CODE_LINE, Type.TEXT, 8, FAINT)
+	_text(at + Vector2(36.0, 1.0), CODE_LINE, Type.TEXT, 8, FAINT)
+	_draw_barcode()
 	_text(
 		Vector2(0.0, SIZE.y - 14.0),
 		BACK_MICRO,
@@ -319,14 +319,14 @@ func _draw_barcode() -> void:
 	var tall := BARCODE.size.y - 16.0
 	for character: String in number:
 		if not character.is_valid_int():
-			x += 4.0
+			x += 6.0
 			continue
 		var digit := character.to_int()
 		for bit: int in 4:
-			var wide := 3.0 if (digit >> bit) & 1 else 1.5
+			var wide := 4.0 if (digit >> bit) & 1 else 2.0
 			draw_rect(Rect2(Vector2(x, top), Vector2(wide, tall)), INK)
-			x += wide + 2.0
-		x += 2.0
+			x += wide + 2.5
+		x += 3.0
 	_text(Vector2(BARCODE.position.x, top + tall + 3.0), number, Type.numbers_text_font(), 11, INK)
 
 

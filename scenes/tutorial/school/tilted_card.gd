@@ -18,8 +18,10 @@ const STICK_REST := 0.2
 ## much sharper the picture is drawn than it is shown, for the small print once turned.
 const PAD := 28.0
 const SHARPEN := 2.0
-## How long turning it over takes, and how far back the camera stands, in widths of the card.
+## How long turning it over takes, how far the hologram's colors run through the turn, and how
+## far back the camera stands, in widths of the card.
 const TURN_OVER := 0.55
+const TURN_SHINE := 1.6
 const DEPTH := 2.4
 
 ## The card held.
@@ -96,7 +98,8 @@ func _input(event: InputEvent) -> void:
 
 func _process(delta: float) -> void:
 	_turn = _turn.lerp(_wanted(), 1.0 - exp(-FOLLOW * delta))
-	card.tilt = _turn
+	# The hologram sees the turn over too: its colors run through as the back comes round.
+	card.tilt = _turn + Vector2(sin(_over) * TURN_SHINE, 0.0)
 	_aim()
 
 

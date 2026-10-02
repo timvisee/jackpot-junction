@@ -557,6 +557,7 @@ func test_skip_to_end_passes_the_test_on_the_spot() -> void:
 	for button: Button in tutorial.menu.find_children("*", "Button", true, false):
 		entries.append(button.text)
 	assert_array(entries).contains(["Skip to end"])
+	assert_int(entries.find("Skip to end")).is_equal(entries.find("Skip lesson") + 1)
 	Game.settings.license_number = ""
 	var over: Array[bool] = []
 	run.finished.connect(func() -> void: over.append(true))
