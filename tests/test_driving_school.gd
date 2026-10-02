@@ -264,6 +264,69 @@ func test_the_title_peeks_the_license_earned() -> void:
 	assert_float(out_middle.x).is_less(hidden_middle.x)
 	assert_float(out_middle.x + LicenseCard.SIZE.x * title.LICENSE_SCALE * 0.5).is_less(screen.x)
 	assert_float(peek.rotation).is_greater(-0.1)
+	# Peeking in, most of it shows; a click shows it in full, and Back puts it away.
+	var drawn: float = LicenseCard.SIZE.x * title.LICENSE_SCALE
+	var showing: float = screen.x - (hidden_middle.x - drawn * 0.5)
+	assert_float(showing / drawn).is_greater(0.6)
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	title._on_license_input(click)
+	await await_idle_frame()
+	var view := title.find_child("LicenseView", true, false)
+	assert_object(view).is_not_null()
+	var full: LicenseCard = view.find_child("LicenseFull", true, false)
+	assert_object(full).is_not_null()
+	assert_float(full.scale.x).is_equal_approx(title.LICENSE_FULL, 0.001)
+	var back := InputEventAction.new()
+	back.action = &"ui_cancel"
+	back.pressed = true
+	title._unhandled_input(back)
+	await await_idle_frame()
+	assert_object(title.find_child("LicenseView", true, false)).is_null()
+
+
+## Back on any page of the school is the way out, to the title; the quiz has a word for every
+## score, and one for a show-off.
+func test_back_leaves_the_school_and_the_quiz_has_a_word_for_every_score() -> void:
+	var school := await _open()
+	var left := [0]
+	school.leave = func() -> void: left[0] += 1
+	school.enrollment.enroll.pressed.emit()
+	await await_idle_frame()
+	assert_int(school.page).is_equal(DrivingSchool.Page.THEORY)
+	var back := InputEventAction.new()
+	back.action = &"ui_cancel"
+	back.pressed = true
+	school._unhandled_input(back)
+	assert_int(left[0]).is_equal(1)
+	assert_int(school.page).is_equal(DrivingSchool.Page.DONE)
+	assert_str(SchoolQuiz.score_words(0, 3)).is_equal(
+		"0 of 3 right the first time. You'll get them, eventually."
+	)
+	assert_str(SchoolQuiz.score_words(1, 3)).is_equal(
+		"1 of 3 right the first time. The other 2, eventually."
+	)
+	assert_str(SchoolQuiz.score_words(3, 3)).is_equal(
+		"3 of 3 right the first time. Nobody likes a show-off."
+	)
+
+
+## The settings file can be named on the command line, GAME.md 10.2: a user path, an absolute
+## one, or a bare name in the user directory; nothing named is the usual file.
+func test_a_settings_file_can_be_named_on_the_command_line() -> void:
+	assert_str(Game.settings_path_in(PackedStringArray(["--settings=user://fresh.cfg"]))).is_equal(
+		"user://fresh.cfg"
+	)
+	(
+		assert_str(Game.settings_path_in(PackedStringArray(["--frames=3", "--settings=fresh.cfg"])))
+		. is_equal("user://fresh.cfg")
+	)
+	assert_str(Game.settings_path_in(PackedStringArray(["--settings=/tmp/a.cfg"]))).is_equal(
+		"/tmp/a.cfg"
+	)
+	assert_str(Game.settings_path_in(PackedStringArray(["--settings="]))).is_equal("")
+	assert_str(Game.settings_path_in(PackedStringArray(["--bench=10"]))).is_equal("")
 
 
 ## The title's Tutorial goes to the school, and the school's end to the driving test.

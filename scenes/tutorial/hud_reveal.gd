@@ -320,6 +320,11 @@ func _process(delta: float) -> void:
 	var parts := hud.block_parts(index)
 	if parts.is_empty():
 		return
+	# An item in hand is shown whatever the lessons did: a slot hidden with something in it is a
+	# thing the player cannot see they have.
+	var holder := slot.kart if slot != null else null
+	if holder != null and is_instance_valid(holder) and holder.held_item != null:
+		shown[&"item"] = true
 	# The whole block waits for its first piece: a name alone in the corner said nothing.
 	var any_shown := false
 	for piece: StringName in PIECES:

@@ -13,9 +13,9 @@ const MARKER_HEIGHT := 1.75
 const CROWN_HEIGHT := MARKER_HEIGHT + 0.42
 ## The plate on the back of the kart, GAME.md 4.4: where it hangs, on the rear bumper under the
 ## flag, how big the learner's L is, and how big a license plate is.
-const PLATE_AT := Vector3(0.0, 0.47, 0.69)
-const LEARNER_SIDE := 0.42
-const LICENSE_PLATE := Vector2(0.56, 0.16)
+const PLATE_AT := Vector3(0.0, 0.49, 0.69)
+const LEARNER_SIDE := 0.52
+const LICENSE_PLATE := Vector2(0.74, 0.21)
 
 
 ## The body: the model tinted in the player's color, the wheels picked out so they can be spun,

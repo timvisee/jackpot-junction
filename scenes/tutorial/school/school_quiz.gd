@@ -163,6 +163,19 @@ func _next() -> void:
 		_finish()
 
 
+## What the card says of [param right] of [param asked] answered right first time: all of them
+## is a word for a show-off, none of them a word of comfort, and in between, the rest came
+## eventually.
+static func score_words(right: int, asked: int) -> String:
+	if right >= asked:
+		return "%d of %d right the first time. Nobody likes a show-off." % [right, asked]
+	if right <= 0:
+		return "%d of %d right the first time. You'll get them, eventually." % [right, asked]
+	return (
+		"%d of %d right the first time. The other %d, eventually." % [right, asked, asked - right]
+	)
+
+
 ## Passed, as everybody is: the card says so, and the one button goes on to the driving test.
 func _finish() -> void:
 	for old: Node in _column.get_children():
@@ -170,14 +183,7 @@ func _finish() -> void:
 		old.queue_free()
 	_column.add_child(MenuTheme.title(PASSED, Type.TITLE))
 	_column.add_child(MenuTheme.subtitle(PASSED_LINE, Type.BODY))
-	var score := MenuTheme.subtitle(
-		(
-			"%d of %d right first time. The other %d, eventually."
-			% [right, QUESTIONS.size(), QUESTIONS.size() - right]
-		),
-		Type.LABEL
-	)
-	_column.add_child(score)
+	_column.add_child(MenuTheme.subtitle(score_words(right, QUESTIONS.size()), Type.LABEL))
 	# The course, with its first step ticked and the other two still to come.
 	_column.add_child(SchoolEnrollment.course(1))
 	var gap := Control.new()

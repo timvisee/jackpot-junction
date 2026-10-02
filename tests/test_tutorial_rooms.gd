@@ -512,6 +512,11 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	assert_bool(arena.gate_at(TutorialFight.PEN_GATES[1]).is_open).is_false()
 	assert_object(tutorial.layer.get_node_or_null("BossBar")).is_not_null()
 	assert_str(lesson._bar._title.text).contains("MORE")
+	# What a death banks is on the bar too, so the bar and the match point count the same bank.
+	Events.death_banked.emit(0, 40, 60)
+	assert_str(lesson._bar._count.text).starts_with("40 /")
+	Events.death_banked.emit(run.bots[0].index, 500, 0)
+	assert_str(lesson._bar._count.text).starts_with("40 /")
 	var tally: FlushTally = tutorial.match_node.hud.find_child("FlushTally", true, false)
 	assert_float(tally.offset_top).is_greater(MatchHud.TALLY_DROP)
 	# The fight is not skipped, and the pause menu's Skip lesson is gone from here on.
@@ -520,7 +525,7 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	await _runner.simulate_frames(1, 17)
 	assert_bool(lesson.is_done()).is_false()
 	assert_bool(tutorial._skip_entry.visible).is_false()
-	Events.bank_tick.emit(0, TutorialFight.RELEASE_AT[1])
+	Events.bank_tick.emit(0, TutorialFight.RELEASE_AT[1] - 40)
 	await _runner.simulate_frames(1, 17)
 	assert_int(lesson.released()).is_equal(2)
 	assert_bool(arena.gate_at(TutorialFight.PEN_GATES[1]).is_open).is_true()

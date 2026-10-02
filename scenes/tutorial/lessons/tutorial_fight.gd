@@ -90,6 +90,7 @@ func _begin() -> void:
 		die.lifetime = 0.0
 		arena().place_drop(die, run.cell(at))
 	Events.bank_tick.connect(_on_tick)
+	Events.death_banked.connect(_on_death_banked)
 	Events.kart_killed.connect(_on_killed)
 	Events.jackpot_collected.connect(_on_collected)
 	Events.jackpot_emptied.connect(_on_emptied)
@@ -112,6 +113,8 @@ func _begin() -> void:
 func end() -> void:
 	if Events.bank_tick.is_connected(_on_tick):
 		Events.bank_tick.disconnect(_on_tick)
+	if Events.death_banked.is_connected(_on_death_banked):
+		Events.death_banked.disconnect(_on_death_banked)
 	for pair: Array in [
 		[Events.kart_killed, _on_killed],
 		[Events.jackpot_collected, _on_collected],
@@ -193,8 +196,14 @@ func _release() -> void:
 	run.release_bot(which)
 
 
+## A death banks a share of the pot, GAME.md 3.6, into the bank like anything else: on the bar,
+## so the bar and the match point, which counts the bank, agree.
+func _on_death_banked(slot_index: int, amount: int, _lost: int) -> void:
+	_on_tick(slot_index, amount)
+
+
 func _on_tick(slot_index: int, points: int) -> void:
-	if slot_index != kart().slot:
+	if slot_index != kart().slot or points <= 0:
 		return
 	_banked += points
 	_bank.progress = clampf(float(_banked) / NEED, 0.0, 1.0)

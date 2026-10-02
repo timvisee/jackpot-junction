@@ -28,7 +28,7 @@ const BREATHE := 0.035
 const LEAN := 0.05
 const BREATHE_RATE := 1.7
 ## How far it leans after the mouse, in pixels at most, and how quickly it follows.
-const FOLLOW := 7.0
+const FOLLOW := 26.0
 const FOLLOW_RATE := 9.0
 ## The slam: up and over, down hard, and settle, in seconds, and how long the stamp stays before
 ## it fades.
@@ -91,7 +91,7 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		device = Device.MOUSE
 		var middle := global_position + (pivot_offset * scale).rotated(rotation)
-		_lean_to = ((get_global_mouse_position() - middle) / 50.0).limit_length(FOLLOW)
+		_lean_to = ((get_global_mouse_position() - middle) / 24.0).limit_length(FOLLOW)
 	elif event is InputEventMouseButton:
 		device = Device.MOUSE
 	elif event is InputEventKey:

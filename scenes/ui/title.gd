@@ -16,12 +16,16 @@ const LICENSE_LINE := (
 ## does: how big, how much of it shows, how far it leans, where it sits over the version line,
 ## and how far in it comes under the cursor.
 const LICENSE_SCALE := 0.78
-const LICENSE_PEEK := 0.42
-const LICENSE_TILT := -0.2
+const LICENSE_PEEK := 0.68
+const LICENSE_TILT := -0.14
 const LICENSE_TILT_SHOWN := -0.04
 const LICENSE_BOTTOM := 72.0
 const LICENSE_IN := 28.0
 const LICENSE_SLIDE := 0.25
+## The license shown in full, over a shade, on a click or a tap on the one peeking in: how big,
+## and the line under it.
+const LICENSE_FULL := 1.15
+const LICENSE_AWAY := "Click anywhere, or press %s, to put it away"
 
 var play_button: Button
 
@@ -31,9 +35,11 @@ var _column: VBoxContainer
 ## screen shorter still, the gap over the buttons and the line under the name, in that order.
 var _mark: Control
 var _spare: Array[Control] = []
-## The license peeking in, where there is one, and whether it is out under the cursor.
+## The license peeking in, where there is one, whether it is out under the cursor, and the view
+## of it in full while one is up.
 var _license: LicenseCard
 var _license_out := false
+var _license_view: Control
 
 
 func _ready() -> void:
@@ -121,8 +127,8 @@ func _ready() -> void:
 	_fit()
 
 
-## The license earned, tilted and half off the right edge like a card in a hand, sliding in
-## straight under the cursor and back out from under it.
+## The license earned, tilted and a third off the right edge like a card in a hand, sliding in
+## straight under the cursor and back out from under it, and shown in full on a click.
 func _peek_license() -> void:
 	_license = LicenseCard.from_settings()
 	_license.name = "LicensePeek"
@@ -132,8 +138,92 @@ func _peek_license() -> void:
 	add_child(_license)
 	_license.mouse_entered.connect(_slide_license.bind(true))
 	_license.mouse_exited.connect(_slide_license.bind(false))
+	_license.gui_input.connect(_on_license_input)
 	resized.connect(_place_license)
 	_place_license()
+
+
+## A click or a tap on the license peeking in shows it in full.
+func _on_license_input(event: InputEvent) -> void:
+	var click := event as InputEventMouseButton
+	var touch := event as InputEventScreenTouch
+	if (
+		(click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT)
+		or (touch != null and touch.pressed)
+	):
+		get_viewport().set_input_as_handled()
+		show_license()
+
+
+## The license in full, over a shade, the way a joker is shown out of the hand, GAME.md 3.7: a
+## click anywhere, a tap, Back or the button under it puts it away.
+func show_license() -> void:
+	if _license_view != null:
+		return
+	var view := Control.new()
+	view.name = "LicenseView"
+	view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	view.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(view)
+	_license_view = view
+	var shade := ColorRect.new()
+	shade.color = Color(0.0, 0.0, 0.0, 0.7)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	view.add_child(shade)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	view.add_child(center)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 22)
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.add_child(column)
+	var holder := Control.new()
+	holder.custom_minimum_size = LicenseCard.SIZE * LICENSE_FULL
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var card := LicenseCard.from_settings()
+	card.name = "LicenseFull"
+	card.scale = Vector2.ONE * LICENSE_FULL
+	card.position = (LicenseCard.SIZE * LICENSE_FULL - LicenseCard.SIZE) * 0.5
+	holder.add_child(card)
+	column.add_child(holder)
+	var away := MenuTheme.button("Put it away", Type.BODY)
+	away.name = "Away"
+	away.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	away.pressed.connect(hide_license)
+	column.add_child(away)
+	var binding := InputActions.short_binding_text(&"ui_cancel", true)
+	column.add_child(MenuTheme.subtitle(LICENSE_AWAY % binding, Type.LABEL))
+	view.gui_input.connect(
+		func(event: InputEvent) -> void:
+			var click := event as InputEventMouseButton
+			var touch := event as InputEventScreenTouch
+			if (click != null and click.pressed) or (touch != null and touch.pressed):
+				get_viewport().set_input_as_handled()
+				hide_license()
+	)
+	view.modulate.a = 0.0
+	var rise := create_tween()
+	rise.tween_property(view, "modulate:a", 1.0, 0.2)
+	away.grab_focus()
+	Audio.play_sfx(&"joker_offer", MenuTheme.MOVE_DB, 0.0)
+
+
+func hide_license() -> void:
+	if _license_view == null:
+		return
+	_license_view.queue_free()
+	_license_view = null
+	_slide_license(false)
+	if play_button != null:
+		play_button.grab_focus()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if _license_view != null and event.is_action_pressed(&"ui_cancel"):
+		get_viewport().set_input_as_handled()
+		hide_license()
 
 
 ## Where the license's middle is, out under the cursor or peeking in.

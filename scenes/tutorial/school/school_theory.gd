@@ -34,7 +34,7 @@ const TOP_SPEED := 16000.0
 const BREATH := 0.25
 const SWING := 0.34
 const COVER_DOWN := 0.26
-const SHUT_FOR := 0.6
+const SHUT_FOR := 2.6
 const FADE := 0.25
 ## The pages: their size, the running head over the text and the page number under it, the
 ## margin round the text, the gutter between the pages, and how far the cover shows round them.

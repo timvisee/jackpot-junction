@@ -60,6 +60,9 @@ var _bench_started := 0
 
 func _init() -> void:
 	InputActions.register_defaults()
+	var own := settings_path_in(OS.get_cmdline_user_args())
+	if not own.is_empty():
+		settings.path = own
 	settings.load_from_disk()
 	TouchInput.detect(OS.get_cmdline_user_args())
 	for arg: String in OS.get_cmdline_user_args():
@@ -168,6 +171,22 @@ func _step_bench() -> void:
 		)
 	)
 	quit()
+
+
+## The settings file named by `--settings=<path>` among [param args], GAME.md 10.2, for running
+## with a fresh or a particular one: a `user://` path, an absolute one, or a bare name, which goes
+## in the user directory. Empty for none.
+static func settings_path_in(args: PackedStringArray) -> String:
+	for arg: String in args:
+		if not arg.begins_with("--settings="):
+			continue
+		var given := arg.get_slice("=", 1).strip_edges()
+		if given.is_empty():
+			return ""
+		if given.contains("://") or given.is_absolute_path():
+			return given
+		return "user://" + given
+	return ""
 
 
 static func version() -> String:

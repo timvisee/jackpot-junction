@@ -505,7 +505,8 @@ else's results screen, see 10.3.
   is not there any more.
 - The title screen offers Play, Play LAN, Play Online, the Tutorial, the Garage,
   Settings and Quit, and once the driving test of 9.4a is passed, the driver
-  license peeks in from the right edge, out under the cursor. Play goes
+  license peeks in from the right edge, out under the cursor and in full on a
+  click. Play goes
   straight into the lobby, the waiting room of 9.6, the way hosting
   a LAN game does, with the match settings up over it, whose first question is
   whether it is a Grand Prix of several maps or a quick match on one, see 9.7; anybody
@@ -3579,7 +3580,8 @@ for the name that goes on the license, which starts with the first seat's name
 or with one off the funny list of 3.8 for a seat that never gave one and is
 the first seat's name from here on, the course in three numbered steps, driving
 theory, driving test, your license, and one big button, Enroll; Enter in the box
-enrolls too, and Back is back to the title. The theory: the Highway Code of the
+enrolls too. Back on any page, Escape or B, or the menu button a touch screen
+has in the top right corner, is back to the title. The theory: the Highway Code of the
 Junction, 212th edition, a book in a leather cover with a spine and the edges of
 its leaves showing, open at a spread of two cream pages with a running head
 over each and its page number in the outer corner, which reads itself. It opens
@@ -3593,7 +3595,8 @@ a second or two and then on an exponential until the pages are a blur and the
 page numbers are racing to the 212th; nine seconds of that and the book shuts,
 a breath, the right half swinging over onto the left on the spine, the front
 cover coming down over it, tooled leather with the book's name in gilt, with a
-thud and a puff of dust off its edges, and after a moment "Got that?", with
+thud and a puff of dust off its edges, and, the shut book standing a couple of
+seconds, "Got that?", with
 Absolutely and Not a word, either of which goes on.
 Nothing under the pages says how fast it is going: the pages say it. The pop
 quiz: three easy questions, one at a time, three answers each on buttons, "What
@@ -3601,7 +3604,9 @@ goes in your pot?", "What is safe from everybody?", "A Royal Flush is...". A
 right answer lights green with a word; a wrong one shakes red and after a
 moment the right one lights green and presses itself, "Close enough.", so
 nobody fails and everybody leaves knowing. Three down, THEORY: PASSED, "We're
-not picky. The road will be.", how many were right first time, the course again
+not picky. The road will be.", how many were right the first time, with a word
+of comfort for none of them, "You'll get them, eventually.", and one for the
+show-off who had them all, "Nobody likes a show-off.", the course again
 with its first step ticked green and "done" and the other two a shade dimmer,
 still to come, and the one button, To the driving test. There is no skipping
 the school: it is twenty seconds.
@@ -3965,8 +3970,11 @@ The lessons, each in its own room, in order:
     its own. The first easy bot is let out at once, the second easy one at 300
     banked and the normal one at 600, each pen's gate opening and shutting again
     once its bot is out in the room. Bank 1000 points in here, counted from the
-    start of the fight, the match point counted the same way, from where the
-    bank stood as the fight began, shown as a bar across the top center of the
+    start of the fight, what a death banks of the pot, 3.6, counted with the
+    rest, the match point counted the same way, from where the bank stood as
+    the fight began, so the bar and the match point agree, the match point
+    being the bar plus the pot's worth, coins times mult, shown as a bar across
+    the top center of the
     screen, "BANK 1000 MORE TO PASS", the
     way a boss's health would be, with the Royal Flush tally of 8.3 moved down
     under it for the while, and no line over the kart: there is nothing to say
@@ -4005,7 +4013,8 @@ SIGNATURE line under the photo; and the fine print along the foot, VALID ON ALL
 TABLES · NOT VALID AS ID · KEEP OFF THE FELT · NO CASH VALUE. The card has air
 over and under it on the pane. The rubber stamp, a wooden handle on a red base,
 hangs off the card's right edge over its own shadow, breathing a little and
-leaning a few pixels after the mouse as it moves, and under its base is drawn
+leaning a good way after the mouse as it moves, over the card if the mouse is
+there, and under its base is drawn
 the control that presses it, the left mouse button, Enter or the pad's accept,
 whichever was touched last, and nothing on a touch screen; under the card a
 line says "Click the stamp to make it official", or Tap, or Press, by the same
@@ -4022,8 +4031,10 @@ the holder's initials and the number's last three digits, "TLT-123", with the
 plate as it will read beside it, and the three ways on, Garage, Hit the road,
 which is Play, with the cursor, and Back to title. The license is seen again on
 the title, peeking in from the right edge the way a card in a hand does, tilted
-and more than half off the screen, sliding in straight under the cursor and
-back out from under it, and on the License tab of the settings, 8.5, with the
+and a third off the screen, sliding in straight under the cursor and back out
+from under it, and shown in full over a shade on a click or a tap, the way a
+joker is shown out of the hand, with Put it away under it and a click anywhere
+or Back putting it away; and on the License tab of the settings, 8.5, with the
 plate to change under it.
 
 A map may hold more than one Junction, each banking as the one does, and the
@@ -4453,6 +4464,9 @@ Key pieces:
 - **Persistence**: settings, bindings, volumes and accessibility toggles are
   saved with ConfigFile under `user://`. Nothing else is persisted yet. Match
   history, statistics and unlocks wait until there is something to unlock.
+  `++ --settings=<path>` runs with another settings file, a `user://` path, an
+  absolute one or a bare name in the user directory, for seeing the game as a
+  new player does without touching one's own.
 - **Quitting**: `Game.quit` is the one way out, for the title's Quit, the window
   closing, a server's game that is over and the dev runs alike. A sound still
   playing as the engine shuts down is left behind in memory, and the engine says
