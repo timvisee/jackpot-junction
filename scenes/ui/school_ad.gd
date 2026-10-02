@@ -17,7 +17,10 @@ const HOVER := 1.04
 const HEADLINE := "NOW ENROLLING"
 const LINE := "Earn your very own license here."
 const SMALL := "No experience required."
-const FILL := Color(0.1, 0.1, 0.13, 0.96)
+## Opaque, so the pointer laid over the flyer's edge hides the border under it entirely.
+const FILL := Color(0.1, 0.1, 0.13)
+## How far into the flyer the pointer's base reaches, past its border and the border's soft edge.
+const OVERLAP := 4.0
 const EDGE := Palette.CHIP_GOLD
 const LEARNER_SIDE := 54.0
 
@@ -29,9 +32,15 @@ class Arrow:
 	func _draw() -> void:
 		var middle := size.y * 0.5
 		var tip := Vector2(0.0, middle)
-		var top := Vector2(POINTER + 2.0, middle - POINTER)
-		var foot := Vector2(POINTER + 2.0, middle + POINTER)
-		draw_colored_polygon(PackedVector2Array([tip, top, foot]), FILL)
+		# The two edges meet the flyer's border where it is, and the fill runs on past it, so no
+		# line of the border shows across the pointer's base.
+		var top := Vector2(POINTER, middle - POINTER)
+		var foot := Vector2(POINTER, middle + POINTER)
+		var reach := POINTER + OVERLAP
+		var fill := PackedVector2Array(
+			[tip, top, Vector2(reach, middle - POINTER), Vector2(reach, middle + POINTER), foot]
+		)
+		draw_colored_polygon(fill, FILL)
 		draw_line(tip, top, EDGE, 2.0, true)
 		draw_line(tip, foot, EDGE, 2.0, true)
 
@@ -119,7 +128,7 @@ func _fit() -> void:
 	_panel.size = wanted
 	_panel.position = Vector2(POINTER, 0.0)
 	_arrow.position = Vector2.ZERO
-	_arrow.size = Vector2(POINTER + 3.0, wanted.y)
+	_arrow.size = Vector2(POINTER + OVERLAP + 1.0, wanted.y)
 	custom_minimum_size = wanted + Vector2(POINTER, 0.0)
 	size = custom_minimum_size
 	pivot_offset = size * 0.5
