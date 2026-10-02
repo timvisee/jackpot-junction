@@ -1,8 +1,9 @@
 class_name SchoolTheory
 extends Control
-## The driving school's theory, GAME.md 9.4a: the Highway Code of the Junction, a book open at a
-## spread of two pages in a leather cover, which reads itself. It opens on its title page, the
-## game's mark and name over the book's, and stands there a moment; then its pages turn, a leaf
+## The driving school's theory, GAME.md 9.4a: the Highway Code of the Junction, a book in a
+## leather cover, which reads itself. It comes up shut and opens, the front cover lifting off and
+## the right half swinging out from the spine, at its title page, the game's mark and name over
+## the book's, and stands there a moment; then its pages turn, a leaf
 ## at a time lifting off the right page and laid down on the left, the first after a couple of
 ## seconds anybody could read them in and each next one sooner, until the pages riffle past and
 ## the page numbers in the corners are racing to the 212th; then they slow, and the last leaf
@@ -20,9 +21,15 @@ const HEADS: Array[String] = [
 	"DEPT. OF KARTS  ·  212TH EDITION", "THE HIGHWAY CODE OF THE JUNCTION"
 ]
 const PAGES := 212
-## How long the title page stands before the book starts reading, how long it reads, and how
-## fast the page numbers race to the last page, a growth a second.
-const HOLD := 1.6
+## The opening: the shut book standing a moment, the front cover lifting off, and the right half
+## swinging out from the spine, the way the shutting has it the other way round.
+const OPEN_WAIT := 0.35
+const COVER_UP := 0.3
+const SWING_OUT := 0.34
+const OPEN_FOR := OPEN_WAIT + COVER_UP + SWING_OUT
+## How long after it comes up the open book starts reading, the title page having stood a while,
+## how long it reads, and how fast the page numbers race to the last page, a growth a second.
+const HOLD := OPEN_FOR + 1.6
 const READ_FOR := HOLD + 10.0
 const RAMP := 0.62
 ## The pages turning: the first after this long, each next one sooner by a factor, never sooner
@@ -108,6 +115,8 @@ var _book: Control
 ## front cover that comes down over the left half as the book shuts.
 var _halves: Array[Control] = []
 var _lid: Control
+## The opening, while it is under way.
+var _opening: Tween
 ## Every page's text, the clip it runs under and its page number: the spread's left and right,
 ## and the leaf's front and back, see [constant LEFT].
 var _columns: Array[VBoxContainer] = []
@@ -370,6 +379,30 @@ func _ready() -> void:
 	_columns[LEFT].add_child(_text.build(_text.items[0], 0))
 	_measure_text()
 	_paginate()
+	_open()
+
+
+## The book comes up shut, the way it ends, and opens: a moment, the front cover lifts off the
+## left half, and the right half swings out from the spine onto the spread.
+func _open() -> void:
+	_halves[1].scale.x = 0.0
+	_lid.visible = true
+	_lid.scale.x = 1.0
+	_opening = create_tween()
+	_opening.tween_interval(OPEN_WAIT)
+	_opening.tween_callback(Audio.play_sfx.bind(&"page", PAGE_DB, PAGE_PITCHES, 0.9))
+	_opening.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	_opening.tween_property(_lid, "scale:x", 0.0, COVER_UP)
+	_opening.tween_callback(func() -> void: _lid.visible = false)
+	_opening.tween_callback(Audio.play_sfx.bind(&"page", PAGE_DB, PAGE_PITCHES, 1.0))
+	_opening.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	_opening.tween_property(_halves[1], "scale:x", 1.0, SWING_OUT)
+	_opening.tween_callback(func() -> void: _opening = null)
+
+
+## Whether the book is still opening.
+func is_opening() -> bool:
+	return _opening != null
 
 
 ## One half of the open book, [param side] 0 for the left: its half of the cover, its page on
@@ -723,6 +756,13 @@ func shut() -> void:
 		return
 	_shut = true
 	elapsed = READ_FOR
+	# Open, should it still have been opening, to shut from there.
+	if _opening != null:
+		_opening.kill()
+		_opening = null
+		_lid.visible = false
+		_lid.scale.x = 0.0
+		_halves[1].scale.x = 1.0
 	# The end of the book up, at once should the last leaf not have turned yet.
 	_land_now()
 	_preparing = false
