@@ -4006,7 +4006,10 @@ The lessons, each in its own room, in order:
     of the room's four spawns, nobody else's banking counts against the player,
     and nobody can win the match itself. The fight is the one lesson the pause
     menu's Skip lesson does not pass: the entry is gone from the menu from the
-    exam on, and the way out is to pass or to leave. Passing is a fanfare and
+    exam on, and the way out is to pass or to leave. A debug build's menu has
+    Skip to end besides, which drops whatever lesson is on, puts the kart down
+    in the last room and passes the test on the spot, with nothing earned, to
+    look at the end of it. Passing is a fanfare and
     the fireworks of 8.3 over the room in the player's color, the bots blown up
     where they stand, a bang each and the death a kart has, for good, with their
     bullets, their turrets and their decoys gone, so nothing of the fight shoots
@@ -4035,11 +4038,15 @@ CASH-OUT, ITEMS and FULL HAND, gold for the ones earned on their own in the exam
 and a faint outline for the rest; the holder's name slanted in blue ink over a
 SIGNATURE line under the photo; and the fine print along the foot, VALID ON ALL
 TABLES · NOT VALID AS ID · KEEP OFF THE FELT · NO CASH VALUE. The card has a
-back, which it turns over to show on a click or a tap on it or on Turn it over
-where it is shown in full, narrowing to nothing about its middle and widening
-again the other way up: a magnetic stripe along the top, a hologram, rings of
-light whose colors run round and a sheen that sweeps across them as the card is
-looked at, with the game's mark in the middle, PROPERTY OF THE DEPT. OF KARTS
+back, which it turns over to show where it is shown in full, on a click or a
+tap on it or on the hand's button again, Tab or Y, and nothing on the screen
+says there is one: it turns right over about its upright axis, in perspective,
+the back coming round as it passes edge-on. On it, a magnetic stripe along the
+top, a hologram, a disc of foil drawn by a shader whose colors run round and
+through as the card is tilted, as a foil's do with the angle it is seen at, a
+fine grating glittering under them, a glint where the light catches it that
+moves only as the card moves, and the game's mark raised in the middle in a
+foil of its own, PROPERTY OF THE DEPT. OF KARTS
 with the small print of whose card it is, "If found, return to the nearest
 Junction. Any Junction.", the examiner's own signature, the number as a
 barcode, and, for whoever reads that far, a cheat code, up up down down left
@@ -4068,8 +4075,10 @@ and a third off the screen, sliding in straight under the cursor and back out
 from under it, and shown in full over a shade on a click or a tap, or on the
 button that opens the hand of jokers, 3.7, Tab or Y say, drawn in the bottom
 right corner of the title with License beside it for the device last touched, the
-way a joker is shown out of the hand, with Turn it over and Put it away under
-it and a line saying what puts it away for the device in hand, its Back drawn
+way a joker is shown out of the hand, held up to be looked at: it turns a little
+in perspective toward the mouse as it moves, or the way the right stick is
+pushed, and settles back, with Put it away under it and a line saying what
+puts it away for the device in hand, its Back drawn
 in, a click beside the card with a mouse, a tap on a touch screen, and never a
 click on a pad; and on the License tab of the settings, 8.5, with the plate to
 change under it.

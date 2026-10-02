@@ -546,3 +546,26 @@ func test_skipping_a_lesson_and_coming_back_in_the_room() -> void:
 			break
 	assert_bool(back).is_true()
 	assert_float(kart.global_position.distance_to(run.cell(lesson.spawn_cell))).is_less(0.5)
+
+
+## A debug build's Skip to end, on the pause menu, passes the test on the spot: the run is over,
+## the kart is down in the last room, and the license is numbered with nothing earned.
+func test_skip_to_end_passes_the_test_on_the_spot() -> void:
+	var tutorial := await _start()
+	var run := tutorial.run
+	var entries: Array[String] = []
+	for button: Button in tutorial.menu.find_children("*", "Button", true, false):
+		entries.append(button.text)
+	assert_array(entries).contains(["Skip to end"])
+	Game.settings.license_number = ""
+	var over: Array[bool] = []
+	run.finished.connect(func() -> void: over.append(true))
+	run.skip_to_end()
+	assert_int(over.size()).is_equal(1)
+	var last := run.lessons[run.lessons.size() - 1]
+	assert_float(run.kart().global_position.distance_to(run.cell(last.spawn_cell))).is_less(0.5)
+	assert_str(Game.settings.license_number).starts_with("JJ-")
+	assert_int(Game.settings.license_endorsements.size()).is_equal(0)
+	# Asked again, nothing: the test is over.
+	run.skip_to_end()
+	assert_int(over.size()).is_equal(1)

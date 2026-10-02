@@ -25,11 +25,10 @@ const LICENSE_SLIDE := 0.25
 ## the button that opens the hand of jokers, drawn in the bottom right corner over the version
 ## with the word License beside it: how big, and the line under it.
 const LICENSE_FULL := 1.15
-## What puts the view away, by the device in hand, and what turns the card over.
+## What puts the view away, by the device in hand.
 const LICENSE_AWAY_MOUSE := "Click beside the card, or press %s, to put it away"
 const LICENSE_AWAY_PAD := "Press %s to put it away"
 const LICENSE_AWAY_TOUCH := "Tap beside the card to put it away"
-const LICENSE_FLIP := "Turn it over"
 const LICENSE_GLYPH_SIZE := 24
 const LICENSE_GLYPH_BOTTOM := 44.0
 const LICENSE_WORD := "License"
@@ -47,6 +46,7 @@ var _spare: Array[Control] = []
 var _license: LicenseCard
 var _license_out := false
 var _license_view: Control
+var _stand: TiltedCard
 var _away_line: Control
 ## The button that shows the license, drawn beside it for the device in hand, and which that is,
 ## picked up from whatever was last touched anywhere in the game.
@@ -216,7 +216,7 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed(InputActions.JOKER_MENU):
 		get_viewport().set_input_as_handled()
 		if _license_view != null:
-			hide_license()
+			_stand.turn_over()
 		else:
 			show_license()
 
@@ -233,8 +233,9 @@ func _on_license_input(event: InputEvent) -> void:
 		show_license()
 
 
-## The license in full, over a shade, the way a joker is shown out of the hand, GAME.md 3.7: a
-## click anywhere, a tap, Back or the button under it puts it away.
+## The license in full, over a shade, the way a joker is shown out of the hand, GAME.md 3.7,
+## held up to be looked at, see [TiltedCard]: a click or a tap on it, or the hand's button again,
+## turns it over, and a click or a tap beside it, Back or the button under it puts it away.
 func show_license() -> void:
 	if _license_view != null:
 		return
@@ -257,40 +258,16 @@ func show_license() -> void:
 	column.add_theme_constant_override("separation", 22)
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	center.add_child(column)
-	var holder := Control.new()
-	holder.custom_minimum_size = LicenseCard.SIZE * LICENSE_FULL
-	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var card := LicenseCard.from_settings()
 	card.name = "LicenseFull"
-	card.scale = Vector2.ONE * LICENSE_FULL
-	card.position = (LicenseCard.SIZE * LICENSE_FULL - LicenseCard.SIZE) * 0.5
-	# A click or a tap on the card turns it over, see [method LicenseCard.flip].
-	card.mouse_filter = Control.MOUSE_FILTER_STOP
-	card.gui_input.connect(
-		func(event: InputEvent) -> void:
-			var click := event as InputEventMouseButton
-			var touch := event as InputEventScreenTouch
-			if (
-				(click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT)
-				or (touch != null and touch.pressed)
-			):
-				get_viewport().set_input_as_handled()
-				card.flip()
-	)
-	holder.add_child(card)
-	column.add_child(holder)
-	var buttons := HBoxContainer.new()
-	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
-	buttons.add_theme_constant_override("separation", 16)
-	var flip := MenuTheme.button(LICENSE_FLIP, Type.BODY)
-	flip.name = "Flip"
-	flip.pressed.connect(card.flip)
-	buttons.add_child(flip)
+	_stand = TiltedCard.of(card, LICENSE_FULL)
+	_stand.name = "LicenseStand"
+	column.add_child(_stand)
 	var away := MenuTheme.button("Put it away", Type.BODY)
 	away.name = "Away"
+	away.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	away.pressed.connect(hide_license)
-	buttons.add_child(away)
-	column.add_child(buttons)
+	column.add_child(away)
 	_away_line = Control.new()
 	_away_line.custom_minimum_size = Vector2(0.0, 24.0)
 	_away_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -343,6 +320,7 @@ func hide_license() -> void:
 		return
 	_license_view.queue_free()
 	_license_view = null
+	_stand = null
 	_away_line = null
 	_slide_license(false)
 	if play_button != null:

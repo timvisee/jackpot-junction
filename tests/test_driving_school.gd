@@ -315,21 +315,52 @@ func test_the_title_peeks_the_license_earned() -> void:
 	assert_object(view).is_not_null()
 	var full: LicenseCard = view.find_child("LicenseFull", true, false)
 	assert_object(full).is_not_null()
-	assert_float(full.scale.x).is_equal_approx(title.LICENSE_FULL, 0.001)
+	# Held up on a stand the size of the card and the room round it, and no button says there is
+	# a back.
+	var stand: TiltedCard = view.find_child("LicenseStand", true, false)
+	assert_object(stand).is_not_null()
+	var picture := LicenseCard.SIZE + Vector2.ONE * TiltedCard.PAD * 2.0
+	assert_float(stand.size.x).is_equal_approx(picture.x * title.LICENSE_FULL, 2.0)
+	assert_object(view.find_child("Flip", true, false)).is_null()
 	# The line under it names the pad's button, a pad being in hand, and not a click.
 	var away_words := _words_in(title._away_line)
 	assert_str(away_words).contains("to put it away")
 	assert_bool(away_words.contains("Click")).is_false()
-	# Turned over, the back is up, the photo gone with the front; turned again, the front.
+	# The card lies flat until something moves: the mouse turns it toward where it goes, the
+	# right stick pushed wins over the mouse, and let go, the card settles back.
+	assert_float(stand.turned().length()).is_less(0.01)
+	var motion := InputEventMouseMotion.new()
+	motion.global_position = stand.global_position + stand.size * Vector2(0.5, 1.0)
+	stand._input(motion)
+	await await_millis(400)
+	assert_float(stand.turned().y).is_greater(0.8)
+	assert_float(absf(stand.turned().x)).is_less(0.1)
+	Input.action_press(InputActions.AIM_RIGHT, 1.0)
+	await await_millis(400)
+	assert_float(stand.turned().x).is_greater(0.5)
+	Input.action_release(InputActions.AIM_RIGHT)
+	motion.global_position = stand.global_position + stand.size * 0.5
+	stand._input(motion)
+	await await_millis(600)
+	assert_float(stand.turned().length()).is_less(0.15)
+	# Turned over on the hand's button, the back is up, the photo gone with the front; turned
+	# again on a click on it, the front.
 	assert_bool(full.flipped).is_false()
-	(view.find_child("Flip", true, false) as Button).pressed.emit()
-	assert_bool(full.is_turning()).is_true()
-	await await_millis(int(LicenseCard.FLIP_HALF * 2000.0) + 200)
+	var hand := InputEventAction.new()
+	hand.action = InputActions.JOKER_MENU
+	hand.pressed = true
+	title._input(hand)
+	assert_bool(stand.is_turning()).is_true()
+	await await_millis(int(TiltedCard.TURN_OVER * 1000.0) + 250)
+	assert_bool(stand.is_turning()).is_false()
 	assert_bool(full.flipped).is_true()
 	assert_bool(full._photo.visible).is_false()
-	assert_float(full.scale.x).is_equal_approx(title.LICENSE_FULL, 0.001)
-	full.flip()
-	await await_millis(int(LicenseCard.FLIP_HALF * 2000.0) + 200)
+	assert_object(title.find_child("LicenseView", true, false)).is_not_null()
+	var click_card := InputEventMouseButton.new()
+	click_card.button_index = MOUSE_BUTTON_LEFT
+	click_card.pressed = true
+	stand._on_input(click_card)
+	await await_millis(int(TiltedCard.TURN_OVER * 1000.0) + 250)
 	assert_bool(full.flipped).is_false()
 	assert_bool(full._photo.visible).is_true()
 	var back := InputEventAction.new()
@@ -338,19 +369,16 @@ func test_the_title_peeks_the_license_earned() -> void:
 	title._unhandled_input(back)
 	await await_idle_frame()
 	assert_object(title.find_child("LicenseView", true, false)).is_null()
-	# The hand's button shows it too, and again puts it away, its glyph in the bottom right corner.
+	# The hand's button shows it too, its glyph in the bottom right corner, and Back puts it away.
 	var glyph: Control = title.find_child("LicenseGlyph", true, false)
 	assert_object(glyph).is_not_null()
 	assert_object(glyph.get_parent()).is_same(title)
 	assert_int((glyph.get_child(0) as InputGlyph).kind).is_not_equal(InputGlyph.Kind.KEY)
 	Game.last_input_keyboard = was_keyboard
-	var hand := InputEventAction.new()
-	hand.action = InputActions.JOKER_MENU
-	hand.pressed = true
 	title._input(hand)
 	await await_idle_frame()
 	assert_object(title.find_child("LicenseView", true, false)).is_not_null()
-	title._input(hand)
+	title._unhandled_input(back)
 	await await_idle_frame()
 	assert_object(title.find_child("LicenseView", true, false)).is_null()
 	# Without a license, the Garage asks for one like the ways in to playing do, and Back puts

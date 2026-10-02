@@ -8,9 +8,10 @@ extends Control
 ## along the foot, lit for the ones earned, a signature in blue ink, and the fine print. Drawn,
 ## as every picture in the game is, 8.3a, so it is one control that can be shaken and stamped.
 ## The stamp's impression is drawn on it once it has come down, see [RubberStamp]. It has a back,
-## which it turns over to show, see [method flip]: a magnetic stripe, a hologram with the game's
-## mark in it that shimmers as it is looked at, the number as a barcode, the small print of
-## whose card it is, and, for whoever reads that far, a cheat code that does nothing.
+## which whoever holds it up turns over to show, see [TiltedCard] and [method other_side]: a
+## magnetic stripe, a hologram with the game's mark in it, a shader whose colors run with the
+## card's [member tilt], the number as a barcode, the small print of whose card it is, and, for
+## whoever reads that far, a cheat code that does nothing.
 
 const SIZE := Vector2(560.0, 352.0)
 const RADIUS := 18.0
@@ -46,16 +47,15 @@ const STAMP_RADIUS := 52.0
 const STAMP_WORD := "PASSED"
 ## How long the photo takes to turn all the way round, in seconds.
 const SPIN_SECONDS := 9.0
-## The back: the stripe, the hologram and where its mark sits, the barcode, and the turn over,
-## each half of which takes this long.
+## The back: the stripe, the hologram, its shader and how big its mark is in it, the barcode.
 const STRIPE := Rect2(Vector2(0.0, 30.0), Vector2(SIZE.x, 44.0))
 const STRIPE_INK := Color(0.1, 0.1, 0.12)
 const HOLOGRAM_AT := Vector2(120.0, 210.0)
 const HOLOGRAM_RADIUS := 78.0
 const HOLOGRAM_MARK := 68.0
+const HOLOGRAM_SHADER := preload("res://scenes/tutorial/school/hologram.gdshader")
 const BARCODE := Rect2(Vector2(232.0, 232.0), Vector2(300.0, 54.0))
 const BACK_COLUMN := 232.0
-const FLIP_HALF := 0.17
 const PROPERTY := "PROPERTY OF THE DEPT. OF KARTS"
 const BACK_LINES: Array[String] = [
 	"If found, return to the nearest Junction. Any Junction.",
@@ -79,15 +79,17 @@ var style: KartStyle
 var endorsements: Dictionary[String, bool] = {}
 ## Whether the stamp has come down on it.
 var stamped := false
-## Whether the back is up, see [method flip].
+## Whether the back is up, see [method other_side].
 var flipped := false
+## Where the card is turned toward, -1 to 1 either way, which the hologram's colors run with: set
+## by whoever holds the card up, see [TiltedCard].
+var tilt := Vector2.ZERO:
+	set = _set_tilt
 
 var _photo: SubViewportContainer
 var _kart: Node3D
 var _mark: LogoArt
-var _back_mark: LogoArt
-var _shimmer := 0.0
-var _turning := false
+var _hologram: ColorRect
 
 
 ## A card for [param of], numbered [param numbered], issued on [param on], the kart in its color
@@ -165,15 +167,22 @@ func _ready() -> void:
 	_mark.size = Vector2(MARK_SIDE, MARK_SIDE)
 	add_child(_mark)
 	_build_photo()
-	# The mark in the hologram on the back, which the shimmer plays over.
-	_back_mark = LogoArt.new()
-	_back_mark.plate = false
-	_back_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_back_mark.position = HOLOGRAM_AT - Vector2.ONE * HOLOGRAM_MARK * 0.5
-	_back_mark.size = Vector2.ONE * HOLOGRAM_MARK
-	_back_mark.modulate = Color(1.0, 1.0, 1.0, 0.85)
-	_back_mark.visible = false
-	add_child(_back_mark)
+	# The hologram on the back: a shader over the disc, with the mark drawn once into a picture
+	# for it to raise in foil.
+	_hologram = ColorRect.new()
+	_hologram.name = "Hologram"
+	_hologram.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hologram.position = HOLOGRAM_AT - Vector2.ONE * (HOLOGRAM_RADIUS + 3.0)
+	_hologram.size = Vector2.ONE * (HOLOGRAM_RADIUS + 3.0) * 2.0
+	_hologram.visible = false
+	var foil := ShaderMaterial.new()
+	foil.shader = HOLOGRAM_SHADER
+	var emblem := LogoArt.new()
+	emblem.plate = false
+	foil.set_shader_parameter("mark", DrawnTexture.of(self, emblem, Vector2i(128, 128)))
+	foil.set_shader_parameter("mark_share", HOLOGRAM_MARK / _hologram.size.x)
+	_hologram.material = foil
+	add_child(_hologram)
 
 
 ## The stamp has come down: its mark is on the card from here on.
@@ -185,41 +194,22 @@ func stamp() -> void:
 func _process(delta: float) -> void:
 	if _kart != null and not flipped:
 		_kart.rotate_y(TAU * delta / SPIN_SECONDS)
-	if flipped:
-		_shimmer += delta
-		queue_redraw()
 
 
-## Turns the card over, to its back or its front again: it narrows to nothing about its middle,
-## the other side comes round, and it widens again, the way a card turned in the hand does.
-func flip() -> void:
-	if _turning:
-		return
-	_turning = true
-	var wide := scale.x
-	var turn := create_tween()
-	turn.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
-	turn.tween_property(self, "scale:x", 0.0, FLIP_HALF)
-	turn.tween_callback(_other_side)
-	turn.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-	turn.tween_property(self, "scale:x", wide, FLIP_HALF)
-	turn.tween_callback(func() -> void: _turning = false)
-	Audio.play_sfx(&"page", -10.0, 0.0)
-
-
-## The other side up: the photo and the front's mark go with the front, the hologram's mark
-## comes with the back.
-func _other_side() -> void:
+## The other side up, on the spot: the photo and the front's mark go with the front, the
+## hologram comes with the back. Whoever holds the card up does the turning, see [TiltedCard].
+func other_side() -> void:
 	flipped = not flipped
 	_photo.visible = not flipped
 	_mark.visible = not flipped
-	_back_mark.visible = flipped
+	_hologram.visible = flipped
 	queue_redraw()
 
 
-## Whether the card is in the middle of turning over.
-func is_turning() -> bool:
-	return _turning
+func _set_tilt(toward: Vector2) -> void:
+	tilt = toward
+	if _hologram != null:
+		(_hologram.material as ShaderMaterial).set_shader_parameter("tilt", toward)
 
 
 ## The photo: the holder's kart in a little world of its own, lit evenly, turning.
@@ -284,7 +274,6 @@ func _draw_back() -> void:
 		Rect2(STRIPE.position + Vector2(0.0, 6.0), Vector2(STRIPE.size.x, 1.0)),
 		Color(1.0, 1.0, 1.0, 0.08)
 	)
-	_draw_hologram()
 	_text(Vector2(BACK_COLUMN, 96.0), PROPERTY, Type.STRONG, 11, INK)
 	for i: int in BACK_LINES.size():
 		_text(Vector2(BACK_COLUMN, 114.0 + float(i) * 15.0), BACK_LINES[i], Type.TEXT, 10, FAINT)
@@ -320,34 +309,6 @@ func _draw_back() -> void:
 		HORIZONTAL_ALIGNMENT_CENTER,
 		SIZE.x
 	)
-
-
-## The hologram: rings of light whose colors run round and through as the card is looked at,
-## with the game's mark sitting in the middle of them.
-func _draw_hologram() -> void:
-	draw_circle(HOLOGRAM_AT, HOLOGRAM_RADIUS + 3.0, Color(INK, 0.08))
-	var rings := 6
-	for ring: int in rings:
-		var radius := HOLOGRAM_RADIUS - float(ring) * 10.0
-		var segments := 36
-		for i: int in segments:
-			var from := TAU * float(i) / float(segments)
-			var hue := fmod(float(i) / float(segments) + _shimmer * 0.15 + float(ring) * 0.07, 1.0)
-			var glow := 0.55 + 0.45 * sin(_shimmer * 2.2 + from * 3.0 + float(ring))
-			var color := Color.from_hsv(hue, 0.45, 1.0, 0.18 + 0.3 * glow)
-			draw_arc(
-				HOLOGRAM_AT, radius, from, from + TAU / float(segments) + 0.02, 4, color, 7.0, true
-			)
-	# A sheen that sweeps across, the way the light does over a real one.
-	var sweep := fmod(_shimmer * 0.4, 1.0) * 2.0 - 1.0
-	var band := HOLOGRAM_AT + Vector2(sweep * HOLOGRAM_RADIUS, 0.0)
-	draw_set_transform(band, -0.6, Vector2.ONE)
-	draw_rect(
-		Rect2(Vector2(-6.0, -HOLOGRAM_RADIUS), Vector2(12.0, HOLOGRAM_RADIUS * 2.0)),
-		Color(1.0, 1.0, 1.0, 0.18)
-	)
-	draw_set_transform(Vector2.ZERO)
-	draw_arc(HOLOGRAM_AT, HOLOGRAM_RADIUS + 3.0, 0.0, TAU, 64, Color(INK, 0.35), 1.0, true)
 
 
 ## The number as a barcode: each digit a run of bars, wide for a one and narrow for a zero in its

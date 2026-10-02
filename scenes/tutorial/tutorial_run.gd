@@ -321,6 +321,23 @@ func _complete(lesson: TutorialLesson) -> void:
 	waiting_at = gate
 
 
+## A debug build's Skip to end: the lesson being done is dropped, the kart is put down in the
+## last room, where the fight is fought, and the test is over as if the fight were won, with
+## nothing earned on the license.
+func skip_to_end() -> void:
+	if _over:
+		return
+	var lesson := current_lesson()
+	if lesson != null and waiting_at == null:
+		lesson.end()
+	var last := lessons[lessons.size() - 1]
+	index = lessons.size() - 1
+	waiting_at = null
+	if last.spawn_cell.x >= 0:
+		kart().respawn(cell(last.spawn_cell), last.facing, 0.0)
+	_start(lessons.size())
+
+
 ## The kart through the open gate: the gate shuts behind it and the next lesson starts.
 func _step_through() -> void:
 	var lesson := lessons[index]

@@ -89,6 +89,9 @@ func _ready() -> void:
 	menu = PauseMenu.add_to(self)
 	menu.names_and_colors = true
 	_skip_entry = menu.add_entry("Skip lesson", run.skip)
+	# A debug build may skip the whole test, to the license coming up, to look at that end of it.
+	if OS.is_debug_build():
+		menu.add_entry("Skip to end", run.skip_to_end)
 	run.lesson_started.connect(_on_lesson_started)
 	_ask_how_to_drive()
 	loaded.emit()
