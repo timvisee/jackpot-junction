@@ -14,11 +14,7 @@ extends Control
 signal finished
 
 const CAPTION := "Driving theory  ·  step 1 of 3"
-const ADVICE := "Read all the theory carefully. There will be questions."
-const TITLE := "The Highway Code\nof the Junction"
 const COVER_TITLE := "THE HIGHWAY\nCODE OF THE\nJUNCTION"
-const EDITION := "212th edition, abridged for karts"
-const PUBLISHER := "DEPT. OF KARTS  ·  JACKPOT JUNCTION"
 const HEADS: Array[String] = [
 	"DEPT. OF KARTS  ·  212TH EDITION", "THE HIGHWAY CODE OF THE JUNCTION"
 ]
@@ -83,88 +79,11 @@ const MOTES := 36
 const DUST := Color(0.82, 0.76, 0.62)
 const DUST_FOR := 0.9
 const DUST_SPEED := 160.0
-const FIGURE_SIDE := 104.0
-const MARK_SIDE := 104.0
-## The figures among the rules, each with its caption.
-const FIGURES: Array[Array] = [
-	[SchoolFigure.Kind.SPEED, "Fig. 1. The speed limit. Advisory."],
-	[SchoolFigure.Kind.JACKPOT, "Fig. 2. A Jackpot, filling. Wait in it."],
-	[SchoolFigure.Kind.WARNING, "Fig. 3. Karts crossing. They will not stop."],
-	[SchoolFigure.Kind.JUNCTION, "Fig. 4. The Junction. Bank here, and only here."],
-	[SchoolFigure.Kind.DRIFT, "Fig. 5. A drift, held. Note the turbo."],
-	[SchoolFigure.Kind.PIT, "Fig. 6. A pit. Do not."],
-	[SchoolFigure.Kind.FLUSH, "Fig. 7. A Royal Flush: four pads, held at once."],
-	[SchoolFigure.Kind.DIE, "Fig. 8. A mult die. Multiplies."],
-	[SchoolFigure.Kind.ROUNDABOUT, "Fig. 9. A roundabout. Go round it."],
-]
-## The rules worth reading, in among the filler: each true, more or less.
-const RULES: Array[String] = [
-	"§ 1. A kart shall at all times be a kart.",
-	"§ 2. Give way to anything bigger, faster, or on fire.",
-	"§ 3. Coins collected go to your pot. The pot is yours until it isn't.",
-	"§ 4. Only banked points are safe. Nothing else is. Not even this book.",
-	"§ 5. A Royal Flush is four pads held at once. It is not a plumbing matter.",
-	"§ 6. Mult multiplies. That is all it does, and it does it very well.",
-	"§ 7. Drifting is permitted in tight corners and encouraged in wide ones.",
-	"§ 8. On meeting a pit, the recommended procedure is: not that.",
-	"§ 9. Jokers bend rules in your favor. This rule is not a joker.",
-	"§ 10. Nitro refills over time. Patience does not.",
-	"§ 11. Shots bounce. Plan accordingly, or don't, and see what happens.",
-	"§ 12. When in doubt, the Junction is in the middle.",
-	"§ 13. A kart that dies loses part of its pot. The remainder is the kart's own business.",
-	"§ 14. Overtaking is permitted on the left, on the right, and over the top where a ramp is.",
-	"§ 15. A turret left running is a turret left running.",
-	"§ 16. Examiners are always right. Examiners are also bots.",
-	"§ 17. Reading this far is itself an endorsement.",
-]
-## What the filler is made of: a subject, a verb, an object and a tail, drawn by a seeded
-## generator so the book reads the same every time it is opened.
-const SUBJECTS: Array[String] = [
-	"A kart",
-	"The driver",
-	"Any licensed vehicle",
-	"The pot",
-	"A learner",
-	"The examiner",
-	"Every Junction",
-	"A parked kart",
-	"The holder of a Class K license",
-]
-const VERBS: Array[String] = [
-	"shall",
-	"must",
-	"may not",
-	"is advised to",
-	"will under no circumstances",
-	"is expected to",
-	"may, with care,",
-]
-const OBJECTS: Array[String] = [
-	"yield to the mult",
-	"signal before drifting",
-	"keep two chips' distance",
-	"declare any jokers held",
-	"bank before the music stops",
-	"proceed at a reasonable speed",
-	"stop at every pad",
-	"respect the hazard stripes",
-	"count their coins",
-	"mind the pit",
-	"take the turret's shot on a shield",
-	"hold all four pads at once",
-]
-const TAILS: Array[String] = [
-	" except on Tuesdays.",
-	", see Appendix F.",
-	" unless told otherwise.",
-	", whichever comes first.",
-	". Penalties apply.",
-	", as amended.",
-	".",
-	", within reason.",
-	" and will be asked about it later.",
-]
-const ITEMS := 130
+## The text is laid out for pages with its numbers as wide as the second time round has them, so
+## a page holds the same however far on its numbers are, and with a little to spare.
+const MEASURE_LAP := 2
+const PAGE_SPARE := 6.0
+## The dust's seed, so the book shuts the same every time.
 const SEED := 212
 const QUESTION := "Got that?"
 const ANSWERS: Array[String] = ["Absolutely", "Not a word"]
@@ -178,8 +97,6 @@ var turns := 0
 var answers: Array[Button] = []
 
 var _book: Control
-## The word of advice under the open book, gone once it is shut.
-var _advice: Label
 ## The two halves of the open book, each its half of the cover with its page on it, and the
 ## front cover that comes down over the left half as the book shuts.
 var _halves: Array[Control] = []
@@ -191,9 +108,14 @@ var _clips: Array[Control] = []
 var _folios: Array[Label] = []
 var _question: VBoxContainer
 var _shut := false
-## Where each page of the text starts in it, a page ending where the next starts and no item cut
-## across two, with where the text ends last; empty until the text has been laid out.
-var _breaks: Array[float] = []
+## The text cut into pages, each the item it starts with, with where the text ends last, and how
+## tall each page's items stand; empty until the text has been laid out.
+var _page_first: PackedInt32Array = []
+var _page_tall: PackedFloat32Array = []
+## The copy of the whole text laid out to be cut into pages, drawing nothing.
+var _measure: Control
+## The text, see [TheoryText].
+var _text: TheoryText
 ## The spread up, counting from the title's; the leaf turning over, its faces, and the turn
 ## under way: drawn this frame and turned from the next, landing as the left page and its folio.
 var _spread := 0
@@ -401,8 +323,6 @@ func _ready() -> void:
 	_book.custom_minimum_size = Vector2(half_width() * 2.0, book_height())
 	_book.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(_book)
-	_advice = MenuTheme.subtitle(ADVICE, Type.BODY)
-	column.add_child(_advice)
 	for side: int in 2:
 		_book.add_child(_half(side))
 	_book.add_child(_leaf_over())
@@ -433,8 +353,10 @@ func _ready() -> void:
 		answers.append(button)
 	_question.visible = false
 	_book.add_child(_question)
-	# The page across from the title, once the text is laid out and cut into pages.
-	_columns[RIGHT].visible = false
+	# The title page at once; the page across from it once the text is laid out and cut.
+	_text = TheoryText.new()
+	_columns[LEFT].add_child(_text.build(_text.items[0], 0))
+	_measure_text()
 	_paginate()
 
 
@@ -507,7 +429,6 @@ func _page(side: int) -> Control:
 	column.add_theme_constant_override("separation", 10)
 	column.position = Vector2(MARGIN, 0.0)
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_fill(column)
 	clip.add_child(column)
 	_columns.append(column)
 	var folio := Label.new()
@@ -520,113 +441,6 @@ func _page(side: int) -> Control:
 	page.add_child(folio)
 	_folios.append(folio)
 	return page
-
-
-## The book's text, the same every time: the title page first, then the rules, the filler
-## between them and the figures among them.
-func _fill(column: VBoxContainer) -> void:
-	column.add_child(_title_page())
-	var rng := RandomNumberGenerator.new()
-	rng.seed = SEED
-	var rule := 0
-	var figure := 0
-	var section := 1
-	for i: int in ITEMS:
-		if i % 9 == 4:
-			column.add_child(_figure(FIGURES[figure % FIGURES.size()]))
-			figure += 1
-		elif i % 3 == 0 and rule < RULES.size():
-			column.add_child(_paragraph(RULES[rule], true))
-			rule += 1
-		else:
-			section += 1
-			column.add_child(_paragraph(_filler(rng, section), false))
-
-
-## The title page, a page tall, so the text starts at the top of the page across from it: the
-## game's mark and name, the book's own, and its edition.
-func _title_page() -> Control:
-	var page := VBoxContainer.new()
-	page.custom_minimum_size = Vector2(PAGE.x - MARGIN * 2.0, leaf_height() - 10.0)
-	page.alignment = BoxContainer.ALIGNMENT_CENTER
-	page.add_theme_constant_override("separation", 10)
-	page.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var mark := LogoArt.new()
-	mark.plate = false
-	mark.custom_minimum_size = Vector2(MARK_SIDE, MARK_SIDE)
-	mark.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	page.add_child(mark)
-	page.add_child(_line("Jackpot Junction", Type.display_font(), Type.LARGE, INK))
-	page.add_child(_line(PUBLISHER, Type.TEXT, Type.SMALL, FAINT_INK))
-	var rule := ColorRect.new()
-	rule.color = Color(INK, 0.4)
-	rule.custom_minimum_size = Vector2(120.0, 1.0)
-	rule.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	page.add_child(rule)
-	var gap := Control.new()
-	gap.custom_minimum_size = Vector2(0.0, 6.0)
-	page.add_child(gap)
-	page.add_child(_line(TITLE, Type.display_font(), Type.HEADING, INK))
-	page.add_child(_line(EDITION, Type.TEXT, Type.LABEL, FAINT_INK))
-	return page
-
-
-## A centered line of the title page.
-func _line(text: String, font: Font, font_size: int, ink: Color) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Type.set_font(label, font, font_size)
-	label.add_theme_color_override("font_color", ink)
-	return label
-
-
-func _filler(rng: RandomNumberGenerator, section: int) -> String:
-	var subject := SUBJECTS[rng.randi_range(0, SUBJECTS.size() - 1)]
-	var verb := VERBS[rng.randi_range(0, VERBS.size() - 1)]
-	var object := OBJECTS[rng.randi_range(0, OBJECTS.size() - 1)]
-	var tail := TAILS[rng.randi_range(0, TAILS.size() - 1)]
-	var line := (
-		"§ %d.%d. %s %s %s%s" % [section, rng.randi_range(1, 9), subject, verb, object, tail]
-	)
-	if rng.randf() < 0.35:
-		var again := OBJECTS[rng.randi_range(0, OBJECTS.size() - 1)]
-		line += " Where this is not possible, the holder shall %s instead." % again
-	return line
-
-
-func _paragraph(text: String, strong: bool) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(PAGE.x - MARGIN * 2.0, 0.0)
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	if strong:
-		Type.strong(label, Type.LABEL, INK)
-	else:
-		Type.text(label, Type.LABEL, INK)
-	return label
-
-
-## A figure with its caption under it, in the middle of the page.
-func _figure(entry: Array) -> Control:
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 4)
-	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var picture := SchoolFigure.of(entry[0], FIGURE_SIDE, INK)
-	picture.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	box.add_child(picture)
-	var caption := Label.new()
-	caption.text = entry[1]
-	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	caption.custom_minimum_size = Vector2(PAGE.x - MARGIN * 2.0, 0.0)
-	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Type.text(caption, Type.SMALL, FAINT_INK)
-	box.add_child(caption)
-	return box
 
 
 ## The leaf that turns over, seen through [constant TURN_SHADER] over the whole open book: its
@@ -667,51 +481,92 @@ func _leaf_over() -> TextureRect:
 	return _leaf
 
 
+## The whole text laid out once, its numbers as wide as they come round, out of sight under a
+## clip with no room in it, to be cut into pages.
+func _measure_text() -> void:
+	_measure = Control.new()
+	_measure.name = "Measure"
+	_measure.clip_contents = true
+	_measure.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 10)
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for item: Dictionary in _text.items:
+		column.add_child(_text.build(item, MEASURE_LAP))
+	_measure.add_child(column)
+	_book.add_child(_measure)
+
+
 ## Cuts the text into pages once it is laid out: a page holds what fits under its running head,
-## and the item that does not starts the next one, so no line is cut across two pages.
+## and the item that does not starts the next one, so no line is cut across two pages; a chapter's
+## heading goes over with the item after it rather than be left at the foot of a page.
 func _paginate() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	if not is_inside_tree():
 		return
-	var column := _columns[LEFT]
-	var start := 0.0
-	_breaks = [0.0]
-	for child: Node in column.get_children():
-		var item := child as Control
-		if item.position.y > start and item.position.y + item.size.y - start > leaf_height():
-			start = item.position.y
-			_breaks.append(start)
-	_breaks.append(column.size.y + float(column.get_theme_constant("separation")))
+	var column := _measure.get_child(0) as VBoxContainer
+	var room := leaf_height() - PAGE_SPARE
+	var first := 0
+	_page_first = [0]
+	for i: int in column.get_child_count():
+		var item := column.get_child(i) as Control
+		var top := (column.get_child(first) as Control).position.y
+		if i > first and item.position.y + item.size.y - top > room:
+			var from := i
+			if i - 1 > first and _text.items[i - 1]["kind"] == &"chapter":
+				from = i - 1
+			_page_tall.append(_bottom(column, from - 1) - top)
+			_page_first.append(from)
+			first = from
+	_page_tall.append(
+		(
+			_bottom(column, column.get_child_count() - 1)
+			- (column.get_child(first) as Control).position.y
+		)
+	)
+	_page_first.append(column.get_child_count())
+	_measure.queue_free()
+	_measure = null
 	_show_page(LEFT, 0, page_shown)
 	_show_page(RIGHT, 1, page_shown + 1)
-	_columns[RIGHT].visible = true
+
+
+func _bottom(column: VBoxContainer, index: int) -> float:
+	var item := column.get_child(index) as Control
+	return item.position.y + item.size.y
 
 
 ## How many pages the text was cut into, the title's first.
 func _page_count() -> int:
-	return maxi(_breaks.size() - 1, 1)
+	return maxi(_page_first.size() - 1, 1)
 
 
-## The page of the text spread [param spread]'s left page, or its right with [param right], is:
-## round again from the first after the title's once the text runs out, the book being longer
-## than nine seconds at any pace.
+## The page of the text spread [param spread]'s left page, or its right with [param right], is,
+## counting on past the end of the text, which comes round again from after the title's.
 func _text_page(spread: int, right := false) -> int:
-	var at := spread * 2 + (1 if right else 0)
-	var count := _page_count()
-	if at < count:
-		return at
-	return 1 + (at - 1) % maxi(count - 1, 1)
+	return spread * 2 + (1 if right else 0)
 
 
 ## Shows text page [param text] on page [param which] of [constant LEFT] and the rest, numbered
-## [param folio]: the text from where that page starts, cut off where the next one starts.
+## [param folio]: the items of that page, which past the end of the text are those of a page of it
+## come round again with their numbers gone on.
 func _show_page(which: int, text: int, folio: int) -> void:
-	if _breaks.size() < 2:
+	if _page_first.size() < 2:
 		return
-	var from := _breaks[text]
-	_columns[which].position.y = -from
-	_clips[which].size.y = minf(_breaks[text + 1] - from, leaf_height())
+	var count := _page_count()
+	var lap := 0
+	var page := text
+	if text >= count:
+		var past := text - 1
+		lap = past / maxi(count - 1, 1)
+		page = 1 + past % maxi(count - 1, 1)
+	var column := _columns[which]
+	for old: Node in column.get_children():
+		column.remove_child(old)
+		old.queue_free()
+	for i: int in range(_page_first[page], _page_first[page + 1]):
+		column.add_child(_text.build(_text.items[i], lap))
 	_folios[which].text = str(folio)
 
 
@@ -720,7 +575,7 @@ func _process(delta: float) -> void:
 		return
 	elapsed += delta
 	_sound_left = maxf(_sound_left - delta, 0.0)
-	if not _breaks.is_empty():
+	if not _page_first.is_empty():
 		if _preparing:
 			_preparing = false
 			_start_turn()
@@ -812,7 +667,6 @@ func shut() -> void:
 		return
 	_shut = true
 	elapsed = READ_FOR
-	_advice.visible = false
 	# The last page, whatever the race got to.
 	_land_now()
 	_preparing = false

@@ -90,10 +90,42 @@ func test_the_book_reads_faster_shuts_and_asks() -> void:
 	assert_str(theory._folios[1].text).is_equal("2")
 	assert_object(theory._columns[0].get_child(0).find_child("*", true, false)).is_not_null()
 	assert_int(theory._page_count()).is_greater(10)
-	assert_bool(theory._columns[SchoolTheory.RIGHT].visible).is_true()
+	assert_int(theory._columns[SchoolTheory.RIGHT].get_child_count()).is_greater(0)
 	for page: int in theory._page_count():
-		var tall: float = theory._breaks[page + 1] - theory._breaks[page]
-		assert_float(tall).is_less_equal(SchoolTheory.leaf_height() + 10.0)
+		assert_float(theory._page_tall[page]).is_less_equal(SchoolTheory.leaf_height())
+	# The numbers only go up, through the chapters and sections, the clauses under each section
+	# and the figures, and on up past the end of the text as the book comes round again; and the
+	# figures do not fall on a beat.
+	var last := {&"chapter": 0, &"section": 0, &"clause": 0, &"figure": 0}
+	var gaps: Array[int] = []
+	var since := 0
+	for lap: int in 3:
+		for item: Dictionary in theory._text.items:
+			var words: String = theory._text.words(item, lap)
+			match item["kind"]:
+				&"rule":
+					var section := int(words.trim_prefix("§ ").get_slice(".", 0))
+					assert_int(section).is_equal(last[&"section"] + 1)
+					last[&"section"] = section
+					last[&"clause"] = 0
+					since += 1
+				&"clause":
+					var numbers := words.trim_prefix("§ ").get_slice(" ", 0).split(".")
+					assert_int(int(numbers[0])).is_equal(last[&"section"])
+					assert_int(int(numbers[1])).is_equal(last[&"clause"] + 1)
+					last[&"clause"] = int(numbers[1])
+					since += 1
+				&"figure":
+					var number := int(words.trim_prefix("Fig. ").get_slice(".", 0))
+					assert_int(number).is_equal(last[&"figure"] + 1)
+					last[&"figure"] = number
+					gaps.append(since)
+					since = 0
+				&"chapter":
+					last[&"chapter"] += 1
+					assert_str(words).starts_with("Chapter " + TheoryText.roman(last[&"chapter"]))
+	assert_int(gaps.size()).is_greater(5)
+	assert_int(gaps.max()).is_greater(gaps.min())
 	# The first leaf turns a while into the reading, over onto the left, which it becomes.
 	theory.elapsed = SchoolTheory.HOLD + SchoolTheory.TURN_FIRST
 	await runner.simulate_frames(3, 16)

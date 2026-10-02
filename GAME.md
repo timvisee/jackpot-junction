@@ -3609,16 +3609,22 @@ test any time from the title screen.", with Leave, which is the title, and Stay,
 the cursor, the page held still under the question so the book stops reading;
 Back again is Stay. The theory: the Highway Code of the
 Junction, 212th edition, a book in a leather cover with a spine and the edges of
-its leaves showing, "Read all the theory carefully. There will be questions."
-under it while it is open, open at a spread of two cream pages with a running head
+its leaves showing, with no word under it, since one gone as the book shuts
+made the pane jump, open at a spread of two cream pages with a running head
 over each and its page number in the outer corner, which reads itself. It opens
 on its title page, the game's mark and name over the book's own and its
 edition, with the first rule on the page across from it, and stands there a
 moment and a half; then its pages turn, the text cut into pages with nothing
-cut across two, rules in bold among filler drawn from a seeded generator so it
-reads the same every time, with figures and captions among them, the speed
-limit, a Jackpot, karts crossing, the Junction, a drift, a pit, a Royal Flush, a
-mult die, a roundabout. A leaf at a time lifts off the right page about the
+cut across two and no chapter heading left at the foot of one. The text is a
+code, drawn from a seeded generator so it reads the same every time: chapters
+numbered in Roman numerals, The kart, Coins and pots, Pads and the mult,
+Handling, Jokers, Hazards and Examinations, each of sections numbered on through
+the book, each section a rule in bold with two to six clauses of filler under
+it, § 3.1, § 3.2 and on, and figures falling among the clauses where they will,
+numbered as they come, the speed limit, karts crossing, a Jackpot, the
+Junction, a Royal Flush, a mult die, a drift, a pit, a roundabout; the text
+comes round again once it runs out, its numbers going on up rather than
+starting over. A leaf at a time lifts off the right page about the
 spine and comes over onto the left in perspective, growing a little as it comes
 up and going a shade darker as it turns from the light, its front the page it
 was and its back the next left page; the first after two seconds anybody could
