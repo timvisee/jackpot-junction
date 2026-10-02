@@ -65,6 +65,13 @@ static func suggest(holder: String, number: String) -> String:
 	return "%s-%s" % [letters, digits]
 
 
+## A plate for a bot called [param trait_name], its digits drawn with [param rng]: "HUN-382" for
+## a Hunter, "BOT" and digits for one with no name.
+static func for_bot(trait_name: String, rng: RandomNumberGenerator) -> String:
+	var called := trait_name if not trait_name.is_empty() else "Bot"
+	return suggest(called, "%06d" % rng.randi_range(0, 999999))
+
+
 func set_text(words: String) -> void:
 	text = words
 	queue_redraw()

@@ -5,8 +5,9 @@ extends Control
 ## the enrollment, where the player gives the name that goes on their license, see
 ## [SchoolEnrollment]; the theory, a book that reads itself faster than anybody could, see
 ## [SchoolTheory]; and the pop quiz, three questions nobody fails, see [SchoolQuiz]. Then the
-## driving test. Back on any page, Escape or B, is back to the title, and on a touch screen the
-## menu button in the top right corner is, GAME.md 4.2.
+## driving test. Back on any page, Escape or B, or the menu button a touch screen has in the top
+## right corner, GAME.md 4.2, asks whether to leave, the page held still under the question, and
+## leaving is back to the title.
 
 signal page_turned(page: int)
 
@@ -18,6 +19,9 @@ enum Page { ENROLL, THEORY, QUIZ, DONE }
 const MENU_RADIUS := 34.0
 const MENU_INSET := Vector2(64.0, 62.0)
 const MENU_INK := Palette.CHIP_WHITE
+## What leaving asks.
+const LEAVE_QUESTION := "Leave the driving school?"
+const LEAVE_LINE := "Nothing here is kept. You can come back any time from the title."
 
 
 ## The round menu button of a touch screen, drawn the way the rooms draw theirs.
@@ -58,6 +62,10 @@ var enrollment: SchoolEnrollment
 var theory: SchoolTheory
 var quiz: SchoolQuiz
 
+## The question whether to leave, while it is up, and what had the cursor before it.
+var _question: Control
+var _was_focused: Control
+
 
 func _init() -> void:
 	then = Game.go_to_driving_test
@@ -71,7 +79,7 @@ func _ready() -> void:
 	if TouchInput.enabled:
 		var menu := LeaveButton.new()
 		menu.name = "Menu"
-		menu.pressed.connect(_leave)
+		menu.pressed.connect(ask_to_leave)
 		add_child(menu)
 
 
@@ -117,10 +125,80 @@ func _on_quiz_done() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# Back out of any page is back to the title: B on a pad, or Escape, GAME.md 4.2.
+	# Back on any page asks whether to leave, and Back on the question is Stay: B on a pad, or
+	# Escape, GAME.md 4.2.
 	if page != Page.DONE and event.is_action_pressed(&"ui_cancel"):
 		get_viewport().set_input_as_handled()
-		_leave()
+		if _question != null:
+			stay()
+		else:
+			ask_to_leave()
+
+
+## Asks whether to leave, over the page, which stands still under the question: the book stops
+## reading. Leave is the title; Stay, which has the cursor, is back to where the page was.
+func ask_to_leave() -> void:
+	if _question != null or page == Page.DONE:
+		return
+	_was_focused = get_viewport().gui_get_focus_owner()
+	var holder := Control.new()
+	holder.name = "LeaveQuestion"
+	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(holder)
+	_question = holder
+	var shade := ColorRect.new()
+	shade.color = Color(0.0, 0.0, 0.0, 0.6)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.add_child(shade)
+	var middle := CenterContainer.new()
+	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.add_child(middle)
+	var pane := ConfirmPane.new()
+	pane.name = "LeavePane"
+	middle.add_child(pane)
+	pane.answered.connect(
+		func(yes: bool) -> void:
+			if yes:
+				_leave()
+			else:
+				stay()
+	)
+	pane.ask(LEAVE_QUESTION, LEAVE_LINE, "Leave", "Stay")
+	var shown := _shown_page()
+	if shown != null:
+		shown.process_mode = Node.PROCESS_MODE_DISABLED
+
+
+## The question put away, and the page going on as it was.
+func stay() -> void:
+	if _question == null:
+		return
+	_question.queue_free()
+	_question = null
+	var shown := _shown_page()
+	if shown != null:
+		shown.process_mode = Node.PROCESS_MODE_INHERIT
+	if _was_focused != null and is_instance_valid(_was_focused):
+		_was_focused.grab_focus()
+
+
+## Whether the question whether to leave is up.
+func is_asking_to_leave() -> bool:
+	return _question != null
+
+
+## The page up just now, or null.
+func _shown_page() -> Control:
+	match page:
+		Page.ENROLL:
+			return enrollment
+		Page.THEORY:
+			return theory
+		Page.QUIZ:
+			return quiz
+	return null
 
 
 ## Out of the school, to the title.

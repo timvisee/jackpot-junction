@@ -13,6 +13,7 @@ extends Control
 signal finished
 
 const CAPTION := "Driving theory  ·  step 1 of 3"
+const ADVICE := "Read all the theory carefully. There will be questions."
 const TITLE := "The Highway Code\nof the Junction"
 const COVER_TITLE := "THE HIGHWAY\nCODE OF THE\nJUNCTION"
 const EDITION := "212th edition, abridged for karts"
@@ -155,6 +156,8 @@ var page_shown := 1
 var answers: Array[Button] = []
 
 var _book: Control
+## The word of advice under the open book, gone once it is shut.
+var _advice: Label
 ## The two halves of the open book, each its half of the cover with its page on it, and the
 ## front cover that comes down over the left half as the book shuts.
 var _halves: Array[Control] = []
@@ -357,6 +360,8 @@ func _ready() -> void:
 	_book.custom_minimum_size = Vector2(half_width() * 2.0, book_height())
 	_book.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(_book)
+	_advice = MenuTheme.subtitle(ADVICE, Type.BODY)
+	column.add_child(_advice)
 	for side: int in 2:
 		_book.add_child(_half(side))
 	_lid = Lid.new()
@@ -622,6 +627,7 @@ func shut() -> void:
 		return
 	_shut = true
 	elapsed = READ_FOR
+	_advice.visible = false
 	var fold := create_tween()
 	fold.tween_interval(BREATH)
 	fold.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)

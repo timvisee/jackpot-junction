@@ -507,14 +507,17 @@ else's results screen, see 10.3.
 - The title screen offers Play, Play LAN, Play Online, the Tutorial, the Garage,
   Settings and Quit, and once the driving test of 9.4a is passed, the driver
   license peeks in from the right edge, out under the cursor and in full on a
-  click. Play goes
+  click or on the button that opens the hand of jokers, see 3.7, which is drawn
+  on the card's corner for the device in hand. Play goes
   straight into the lobby, the waiting room of 9.6, the way hosting
   a LAN game does, with the match settings up over it, whose first question is
   whether it is a Grand Prix of several maps or a quick match on one, see 9.7; anybody
   else at the machine joins in there. There is no screen of rules of its own
   before it. Until this machine has earned the driver license of 9.4a, Play,
-  Play LAN and Play Online each ask for it first, every time: "Missing license",
-  with Earn it now, which is the driving school, and Drive anyway. At
+  Play LAN, Play Online and the Garage each ask for it first, every time:
+  "Missing license", "Nobody drives the Junction without one. Earn your very
+  own license at the driving school.", with Earn it now, which is the driving
+  school, and Drive anyway. At
   the start of a match the drive and fire controls are shown next to each
   human player's kart, from the countdown until that player has both driven
   and fired, or for 10 s at most. For a player who drives the simple way, see
@@ -1162,7 +1165,10 @@ short buzz the slider gives, so reading along the row is felt card by card.
   this machine has earned the driver license of 9.4a, and the license plate its
   driver chose after, up to eight characters in black on a pale plate with a
   dark rim and a bolt in each corner, chosen as the license is issued and
-  changed on the License tab of the settings, 8.5. Bots and karts from other
+  changed on the License tab of the settings, 8.5. A bot wears one too: the
+  easiest bots are learners, with the L, and the rest hold a license, with a
+  plate drawn from their name and the match's seed, "HUN-382" for a Hunter;
+  the tutorial's normal bot takes its plate as it is let out. Karts from other
   machines wear none.
 - They are picked by driving rather than from a menu, at the stalls: a pad on
   the floor for each of the four, with PAINT, HAT, FLAG and TRAIL on it, along
@@ -3566,9 +3572,9 @@ every one of them made a room to be read rather than driven.
 
 A short, playable lesson in how to drive and what the game is, dressed as a
 driving school: the title's Tutorial button opens on the school, and every way
-in to driving, Play, Play LAN and Play Online, asks for the license first, every
-time until it is earned: "Missing license", with Earn it now, which is the
-school, and Drive anyway, which is the way in asked for. Twenty seconds of
+in to driving, Play, Play LAN, Play Online and the Garage, asks for the license
+first, every time until it is earned: "Missing license", with Earn it now,
+which is the school, and Drive anyway, which is the way in asked for. Twenty seconds of
 school, then six to eight minutes of driving test for somebody new, and a
 driver license at the end of it. One player at this machine, no join, nothing
 online; the Garage's portal leads here and the license screen leads back to the
@@ -3585,9 +3591,12 @@ or with one off the funny list of 3.8 for a seat that never gave one and is
 the first seat's name from here on, the course in three numbered steps, driving
 theory, driving test, your license, and one big button, Enroll; Enter in the box
 enrolls too. Back on any page, Escape or B, or the menu button a touch screen
-has in the top right corner, is back to the title. The theory: the Highway Code of the
+has in the top right corner, asks "Leave the driving school?", with Leave,
+which is the title, and Stay, which has the cursor, the page held still under
+the question so the book stops reading; Back again is Stay. The theory: the Highway Code of the
 Junction, 212th edition, a book in a leather cover with a spine and the edges of
-its leaves showing, open at a spread of two cream pages with a running head
+its leaves showing, "Read all the theory carefully. There will be questions."
+under it while it is open, open at a spread of two cream pages with a running head
 over each and its page number in the outer corner, which reads itself. It opens
 on its title page, the game's mark and name over the book's own and its
 edition, with the first rule on the page across from it, and stands there a
@@ -4036,10 +4045,12 @@ plate as it will read beside it, and the three ways on, Garage, Hit the road,
 which is Play, with the cursor, and Back to title. The license is seen again on
 the title, peeking in from the right edge the way a card in a hand does, tilted
 and a third off the screen, sliding in straight under the cursor and back out
-from under it, and shown in full over a shade on a click or a tap, the way a
-joker is shown out of the hand, with Put it away under it and a click anywhere
-or Back putting it away; and on the License tab of the settings, 8.5, with the
-plate to change under it.
+from under it, and shown in full over a shade on a click or a tap, or on the
+button that opens the hand of jokers, 3.7, Tab or Y say, drawn on the card's
+corner for the device last touched and riding on the card as it slides, the
+way a joker is shown out of the hand, with Put it away under it and a click
+anywhere, Back or the same button putting it away; and on the License tab of
+the settings, 8.5, with the plate to change under it.
 
 A map may hold more than one Junction, each banking as the one does, and the
 Royal Flush is per room for the same reason: a map of rooms wants each room's

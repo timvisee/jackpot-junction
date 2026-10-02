@@ -9,8 +9,7 @@ const CREDITS_ROOM := 48.0
 ## What is asked before driving without a license, GAME.md 9.4a.
 const LICENSE_QUESTION := "Missing license"
 const LICENSE_LINE := (
-	"Nobody drives the Junction without one. The driving school takes a few minutes: "
-	+ "a little theory, the driving test, and a license with your name on it."
+	"Nobody drives the Junction without one. " + "Earn your very own license at the driving school."
 )
 ## The license earned, GAME.md 9.4a, peeking in from the right edge the way a card in a hand
 ## does: how big, how much of it shows, how far it leans, where it sits over the version line,
@@ -22,10 +21,13 @@ const LICENSE_TILT_SHOWN := -0.04
 const LICENSE_BOTTOM := 72.0
 const LICENSE_IN := 28.0
 const LICENSE_SLIDE := 0.25
-## The license shown in full, over a shade, on a click or a tap on the one peeking in: how big,
-## and the line under it.
+## The license shown in full, over a shade, on a click or a tap on the one peeking in, or on
+## the button that opens the hand of jokers, drawn beside the license: how big, and the line
+## under it.
 const LICENSE_FULL := 1.15
 const LICENSE_AWAY := "Click anywhere, or press %s, to put it away"
+const LICENSE_GLYPH_AT := Vector2(10.0, -48.0)
+const LICENSE_GLYPH_SIZE := 28
 
 var play_button: Button
 
@@ -40,6 +42,9 @@ var _spare: Array[Control] = []
 var _license: LicenseCard
 var _license_out := false
 var _license_view: Control
+## The button that shows the license, drawn beside it for the device in hand, and which that is.
+var _license_glyph: Control
+var _keyboard := true
 
 
 func _ready() -> void:
@@ -88,7 +93,10 @@ func _ready() -> void:
 	tutorial.pressed.connect(Game.go_to_tutorial)
 	column.add_child(tutorial)
 	var garage := MenuTheme.button("Garage")
-	garage.pressed.connect(func() -> void: DriveChoice.first(self, Game.go_to_garage))
+	garage.name = "Garage"
+	garage.pressed.connect(
+		func() -> void: offer_license(func() -> void: DriveChoice.first(self, Game.go_to_garage))
+	)
 	column.add_child(garage)
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(func() -> void: Game.go_to_settings(Game.TITLE_SCENE))
@@ -141,6 +149,50 @@ func _peek_license() -> void:
 	_license.gui_input.connect(_on_license_input)
 	resized.connect(_place_license)
 	_place_license()
+	_show_license_glyph()
+
+
+## The button that opens the hand of jokers, GAME.md 3.7, drawn at the license's corner as the
+## button that shows it, for a keyboard or a pad by what was touched last; a touch screen has
+## the tap. It rides on the card, tilting and sliding with it.
+func _show_license_glyph() -> void:
+	if _license_glyph != null:
+		_license_glyph.queue_free()
+		_license_glyph = null
+	if TouchInput.enabled:
+		return
+	var glyph := InputGlyph.of_action(
+		InputActions.JOKER_MENU, _keyboard, Palette.CHIP_WHITE, LICENSE_GLYPH_SIZE
+	)
+	if glyph == null:
+		return
+	glyph.name = "LicenseGlyph"
+	glyph.position = LICENSE_GLYPH_AT
+	_license.add_child(glyph)
+	_license_glyph = glyph
+
+
+## The hand's button shows the license and puts it away again, before the focus takes the key
+## for walking the buttons; and what was pressed says which glyph to draw.
+func _input(event: InputEvent) -> void:
+	if _license == null:
+		return
+	var was := _keyboard
+	# A stick has to be pushed to count: a keyboard with a joystick in it, or a pad on the desk,
+	# whispers small motions all the time.
+	var stick := event as InputEventJoypadMotion
+	if event is InputEventJoypadButton or (stick != null and absf(stick.axis_value) > 0.5):
+		_keyboard = false
+	elif event is InputEventKey or event is InputEventMouseButton:
+		_keyboard = true
+	if was != _keyboard:
+		_show_license_glyph()
+	if event.is_action_pressed(InputActions.JOKER_MENU):
+		get_viewport().set_input_as_handled()
+		if _license_view != null:
+			hide_license()
+		else:
+			show_license()
 
 
 ## A click or a tap on the license peeking in shows it in full.

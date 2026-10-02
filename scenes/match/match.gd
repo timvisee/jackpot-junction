@@ -329,7 +329,7 @@ func _make_human(slot: PlayerSlot, input: KartInput) -> void:
 	StyleStalls.dress(slot, _style_for(slot.index, input).to_array())
 	slot.kart.rebuild_stats()
 	slot.kart.enable_sound(true, not slot.is_local_human())
-	_plate(slot)
+	plate_kart(slot)
 	refresh_listener()
 	if hud != null:
 		hud.add_block(slot)
@@ -378,9 +378,7 @@ func _style_for(index: int, input: KartInput) -> KartStyle:
 
 
 ## Which seat's name and dress [param input] in [param index] takes, GAME.md 3.8 and 4.4: a player
-## here the seat of the settings they sat down in, and a player at another machine none, since
-## the seats here are this machine's own people's and they say their own. Anything else, a bot
-## or a player given no seat, goes by its slot.
+## here the seat they sat down in, one at another machine none, and anything else its slot.
 static func _seat_for(index: int, input: KartInput) -> int:
 	if input is NetInput:
 		return -1
@@ -509,14 +507,17 @@ func add_local_seat(index: int, input: PlayerInput) -> void:
 	local_seats[index] = input
 	for slot: PlayerSlot in slots:
 		if slot.index == index:
-			_plate(slot)
+			plate_kart(slot)
 
 
-## The plate on the back of [param slot]'s kart where the kart is somebody's at this machine,
-## GAME.md 4.4: the learner's L until the machine has its license, the plate chosen after.
-func _plate(slot: PlayerSlot) -> void:
-	if slot.kart != null and (slot.is_local_human() or is_local_seat(slot.index)):
+## The plate on [param slot]'s kart, GAME.md 4.4: a player's here by the settings, a bot's by skill.
+func plate_kart(slot: PlayerSlot) -> void:
+	if slot.kart == null:
+		return
+	if slot.is_local_human() or is_local_seat(slot.index):
 		KartVisuals.plate_for_here(slot.kart)
+	elif slot.input is BotInput:
+		KartVisuals.plate_for_bot(slot.kart, slot.kart.get_node_or_null("Brain") as BotBrain, rng)
 
 
 func drop_local_seat(index: int) -> void:
@@ -638,9 +639,9 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 	kart.mult_changed.connect(_on_stat_mult.bind(slot))
 	slot.kart = kart
 	kart.enable_sound(true, not slot.is_local_human())
-	_plate(slot)
 	if slot.input is BotInput:
 		_attach_brain(slot)
+	plate_kart(slot)
 
 
 func _physics_process(delta: float) -> void:
@@ -694,8 +695,7 @@ func _physics_process(delta: float) -> void:
 
 
 ## How loudly the Junction should blink: from the biggest pot a local player is carrying,
-## GAME.md 3.4. Bots and remote players never make it blink; it is a nudge for whoever is
-## watching this screen.
+## GAME.md 3.4, a nudge for whoever is watching this screen and nobody else.
 ## The kart carrying the bounty, or null when nobody is.
 func bounty_kart() -> Kart:
 	return kart_of(bounty_slot) if bounty_slot >= 0 else null

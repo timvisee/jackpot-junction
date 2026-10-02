@@ -191,6 +191,8 @@ func _release() -> void:
 			brain.setup(
 				run.bots[which].kart, run.match_node, brain.bot_trait, NORMAL, run.match_node.rng
 			)
+			# No learner any more: it holds a license, and wears the plate, GAME.md 4.4.
+			run.match_node.plate_kart(run.bots[which])
 	run.open_gate(PEN_GATES[which])
 	_pens_open.append(which)
 	run.release_bot(which)

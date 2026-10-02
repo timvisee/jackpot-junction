@@ -194,13 +194,26 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	without.rules = load("res://data/match/default.tres").duplicate()
 	without.offer_size = 0
 	var runner := scene_runner(without)
-	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.ANY, 0), KartInput.new()]
+	without.bot_difficulty = load("res://data/ai/easy.tres")
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.ANY, 0), KartInput.new(), BotInput.new()
+	]
 	without.start(inputs, 17, [], [], [])
 	await runner.simulate_frames(1, 16)
 	var plate := without.slots[0].kart.get_node_or_null("Body/Plate")
 	assert_object(plate).is_not_null()
 	assert_str(plate.get_meta(&"plate")).is_equal("L")
 	assert_object(without.slots[1].kart.get_node_or_null("Body/Plate")).is_null()
+	# The easy bot is a learner; made normal, it holds a license, with a plate from its name.
+	var bot := without.slots[2]
+	assert_str(bot.kart.get_node("Body/Plate").get_meta(&"plate")).is_equal("L")
+	var brain := bot.kart.get_node("Brain") as BotBrain
+	brain.setup(bot.kart, without, brain.bot_trait, load("res://data/ai/normal.tres"), without.rng)
+	without.plate_kart(bot)
+	var worn: String = bot.kart.get_node("Body/Plate").get_meta(&"plate")
+	assert_str(worn).is_not_equal("L")
+	assert_bool(worn.contains("-")).is_true()
+	assert_str(worn).is_equal(LicensePlate.clean(worn))
 	Game.settings.license_number = "JJ-224123"
 	Game.settings.license_date = "2026-10-02"
 	Game.settings.license_holder = "Tail Light Tim"
@@ -298,6 +311,22 @@ func test_the_title_peeks_the_license_earned() -> void:
 	title._unhandled_input(back)
 	await await_idle_frame()
 	assert_object(title.find_child("LicenseView", true, false)).is_null()
+	# The hand's button shows it too, and again puts it away, with its glyph riding on the card.
+	assert_object(peek.find_child("LicenseGlyph", false, false)).is_not_null()
+	var hand := InputEventAction.new()
+	hand.action = InputActions.JOKER_MENU
+	hand.pressed = true
+	title._input(hand)
+	await await_idle_frame()
+	assert_object(title.find_child("LicenseView", true, false)).is_not_null()
+	title._input(hand)
+	await await_idle_frame()
+	assert_object(title.find_child("LicenseView", true, false)).is_null()
+	# Without a license, the Garage asks for one like the ways in to playing do.
+	Game.settings.license_number = ""
+	var garage: Button = title.find_child("Garage", true, false)
+	garage.pressed.emit()
+	assert_object(title.find_child("LicenseOffer", true, false)).is_not_null()
 
 
 ## Back on any page of the school is the way out, to the title; the quiz has a word for every
@@ -312,7 +341,23 @@ func test_back_leaves_the_school_and_the_quiz_has_a_word_for_every_score() -> vo
 	var back := InputEventAction.new()
 	back.action = &"ui_cancel"
 	back.pressed = true
+	# Back asks first, the book held still under the question; Back again is Stay.
 	school._unhandled_input(back)
+	assert_bool(school.is_asking_to_leave()).is_true()
+	assert_int(left[0]).is_equal(0)
+	assert_int(school.page).is_equal(DrivingSchool.Page.THEORY)
+	assert_int(school.theory.process_mode).is_equal(Node.PROCESS_MODE_DISABLED)
+	var pane: ConfirmPane = school.find_child("LeavePane", true, false)
+	assert_object(pane).is_not_null()
+	assert_str(pane.said()).contains("Leave the driving school?")
+	school._unhandled_input(back)
+	assert_bool(school.is_asking_to_leave()).is_false()
+	assert_int(school.theory.process_mode).is_equal(Node.PROCESS_MODE_INHERIT)
+	await await_idle_frame()
+	assert_object(school.find_child("LeavePane", true, false)).is_null()
+	# Asked again and answered Leave, it leaves.
+	school.ask_to_leave()
+	(school.find_child("LeavePane", true, false) as ConfirmPane).yes_button().pressed.emit()
 	assert_int(left[0]).is_equal(1)
 	assert_int(school.page).is_equal(DrivingSchool.Page.DONE)
 	assert_str(SchoolQuiz.score_words(0, 3)).is_equal(

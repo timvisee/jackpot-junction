@@ -92,6 +92,17 @@ static func plate_for_here_on(body: Node3D) -> Node3D:
 	return plate
 
 
+## The plate a bot wears, GAME.md 4.4, by [param brain]: the easiest bots are learners, with the
+## L, and the rest hold a license, with a plate drawn from their name and [param rng], the
+## match's, so a seed decides it. A bot with no brain yet is a learner.
+static func plate_for_bot(kart: Kart, brain: BotBrain, rng: RandomNumberGenerator) -> Node3D:
+	var difficulty := brain.difficulty if brain != null else null
+	if difficulty == null or difficulty.id == &"easy":
+		return learner_plate(kart)
+	var trait_name := brain.bot_trait.display_name if brain.bot_trait != null else ""
+	return license_plate(kart, LicensePlate.for_bot(trait_name, rng))
+
+
 ## [param drawing], [param pixels] across, as a face [param size] meters across on the back of
 ## [param kart], where whatever plate it wore was.
 static func _plate(kart: Kart, drawing: Control, pixels: Vector2i, size: Vector2) -> Node3D:
