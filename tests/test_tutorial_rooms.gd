@@ -610,6 +610,12 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	assert_bool(earned["ITEMS"]).is_true()
 	assert_bool(earned["ROYAL FLUSH"]).is_false()
 	assert_bool(earned["FULL HAND"]).is_false()
+	# The course along the top: the theory done, the driving test ticked as the pane came up.
+	assert_object(license.course).is_not_null()
+	await await_millis(int((LicenseScreen.RISE + LicenseScreen.TICK_AFTER) * 1000.0) + 150)
+	assert_bool(SchoolEnrollment.is_ticked(license.course, 0)).is_true()
+	assert_bool(SchoolEnrollment.is_ticked(license.course, 1)).is_true()
+	assert_bool(SchoolEnrollment.is_ticked(license.course, 2)).is_false()
 	# Nothing on until the stamp comes down; stamped, the card wears it and the ways on come up.
 	assert_bool(license.offering()).is_false()
 	assert_bool(license.card.stamped).is_false()
@@ -622,6 +628,8 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	assert_bool(license.card.stamped).is_true()
 	await await_millis(int(LicenseScreen.SETTLE * 1000.0) + 200)
 	assert_bool(license.offering()).is_true()
+	# The license is the course's last step, ticked as the stamp came down.
+	assert_bool(SchoolEnrollment.is_ticked(license.course, 2)).is_true()
 	# The plate to choose, under the congratulations, kept as it is typed.
 	assert_object(license.plate_field).is_not_null()
 	license.plate_field.text = "go fast!"

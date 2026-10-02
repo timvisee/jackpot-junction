@@ -27,6 +27,8 @@ const WAY_WIDTH := 240.0
 ## come up under it.
 const RISE := 0.45
 const SETTLE := 0.8
+## How long after the pane is up, or the stamp down, the step it finishes is ticked.
+const TICK_AFTER := 0.35
 ## Where the stamp hangs, off the right edge of the card so it hides nothing on it, and where it
 ## lands, its top left in the card's space with its base over the mark it leaves; and the room
 ## kept either side of the card for it to hang in.
@@ -49,6 +51,8 @@ var card: LicenseCard
 var stamp: RubberStamp
 ## The box the plate is typed into, and the plate as it will read.
 var plate_field: LineEdit
+## The course along the top, see [method SchoolEnrollment.course_row].
+var course: HBoxContainer
 var plate: LicensePlate
 ## What each way on does: the scenes, unless a test says otherwise.
 var ways: Dictionary[StringName, Callable] = {}
@@ -117,6 +121,13 @@ func _ready() -> void:
 	pane.add_child(column)
 	column.add_child(MenuTheme.title(TITLE, Type.TITLE))
 	column.add_child(MenuTheme.subtitle(LINE, Type.BODY))
+	# The course, its theory done; the driving test ticks as the pane comes up, and the license
+	# as the stamp comes down.
+	course = SchoolEnrollment.course_row(1)
+	column.add_child(course)
+	var test_done := create_tween()
+	test_done.tween_interval(RISE + TICK_AFTER)
+	test_done.tween_callback(SchoolEnrollment.tick.bind(course, 1))
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(0.0, 6.0)
 	column.add_child(gap)
@@ -205,6 +216,9 @@ func _on_stamped() -> void:
 	card.stamp()
 	_shake()
 	stamped.emit()
+	var license_done := create_tween()
+	license_done.tween_interval(TICK_AFTER)
+	license_done.tween_callback(SchoolEnrollment.tick.bind(course, 2))
 	var settle := create_tween()
 	settle.tween_interval(SETTLE)
 	settle.tween_callback(_offer_the_ways)

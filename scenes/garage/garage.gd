@@ -4,8 +4,8 @@ extends Node3D
 ## pit, Royal Flush pads, item pads, a joker pad that keeps handing out cards, a row of targets to
 ## shoot at for coins, and two dummy karts nobody is driving, standing there carrying a pot and an
 ## item so that shooting one is worth something. Signs name every area, since a player arriving
-## here has not read anything. A portal leads to the tutorial of 9.4a, which teaches the controls
-## a lesson at a time and leads back here at its end.
+## here has not read anything. The driving school of 9.4a, which teaches the controls a lesson at
+## a time, is the title's to open, and leads here at its end.
 ##
 ## It runs an ordinary match with no bots and no clock, so there is nothing to lose and nothing
 ## to win.
@@ -57,7 +57,6 @@ func _ready() -> void:
 	match_node.arena.disco.enabled = false
 	match_node.arena.crowd.enabled = false
 	match_node.arena.billboards.visible = false
-	_wire_portals()
 	_close_the_shot()
 	_add_signs()
 	# The kart is dressed in here as it is in the lobby, GAME.md 9.4, along the front wall.
@@ -76,15 +75,6 @@ func _exit_tree() -> void:
 ## less of it.
 func _close_the_shot() -> void:
 	match_node.camera_rig.follow_margin = BAY_MARGIN
-
-
-## The portal leads to the tutorial, GAME.md 9.4a, whose own portal leads back here.
-func _wire_portals() -> void:
-	for portal: Portal in match_node.arena.portals:
-		# Once the physics step that saw the kart arrive is over: the room it takes down is made of
-		# the bodies that step is in the middle of.
-		portal.entered.connect(func(_kart: Kart) -> void: Game.go_to_tutorial.call_deferred())
-		_sign("TUTORIAL", portal.global_position, Palette.NEON_CYAN)
 
 
 ## A dummy that has been shot comes back with something new in it, so the next one is worth

@@ -46,11 +46,11 @@ void fragment() {
 	// The engraving: fine rings, glittering as the view slides over them.
 	float rings = 0.5 + 0.5 * sin(r * 150.0 + view * 30.0);
 	color += (rings * rings - 0.3) * 0.1;
-	// The name round the ring, struck in a deeper foil a third of a turn on, so it reads through
-	// the colors and its own colors run as theirs do.
+	// The name round the ring, struck faintly in a foil a third of a turn on, so it is there to
+	// be found in the colors rather than printed over them, its own colors running as theirs do.
 	float lettered = texture(words, UV).a;
-	vec3 struck = foil(phase + 0.33) * 0.6 + 0.12;
-	color = mix(color, struck, lettered * 0.85);
+	vec3 struck = foil(phase + 0.33) * 0.7 + 0.12;
+	color = mix(color, struck, lettered * 0.3);
 	// The mark, raised in a brighter foil half a turn on, its own light and shade in it.
 	vec2 m = p / mark_share + 0.5;
 	float in_mark = step(abs(m.x - 0.5), 0.5) * step(abs(m.y - 0.5), 0.5);

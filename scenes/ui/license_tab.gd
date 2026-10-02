@@ -1,7 +1,8 @@
 class_name LicenseTab
 extends ScrollContainer
 ## The License tab of the settings, GAME.md 8.5: the driver license earned at the driving school,
-## 9.4a, to look at, with the plate on the back of the kart to change under it, 4.4, and a button
+## 9.4a, to look at, in full on a click or a tap on it or on the hand's button, drawn under it, see
+## [LicenseView], with the plate on the back of the kart to change under it, 4.4, and a button
 ## to retake the test; or, before one is earned, a word on where to get one, the button that goes
 ## there, and the learner's L the kart wears meanwhile.
 
@@ -12,6 +13,9 @@ const MEANWHILE := "Until then, your kart wears this."
 const PLATE_LINE := "Up to %d letters, digits, spaces and dashes, on the back of your kart."
 const RETAKE := "Retake the driving test"
 const CARD_SCALE := 0.9
+## The line under the card: the hand's button and what it does, or the tap on a touch screen.
+const LOOK := "%s Look closer"
+const LOOK_TOUCH := "Tap the card to look closer"
 
 var field: LineEdit
 var preview: LicensePlate
@@ -19,8 +23,15 @@ var preview: LicensePlate
 ## driving test under a license.
 var earn: Button
 var retake: Button
+## The license in full while it is up.
+var view: LicenseView
 
 var _settings: Settings
+## The line under the card, whether a keyboard and mouse are in hand rather than a pad, and what
+## had the cursor before the license came up in full.
+var _look: Control
+var _keyboard := true
+var _was_focused: Control
 
 
 static func make(settings: Settings) -> LicenseTab:
@@ -33,6 +44,7 @@ static func make(settings: Settings) -> LicenseTab:
 func _ready() -> void:
 	horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	follow_focus = true
+	_keyboard = Game.last_input_keyboard
 	var center := CenterContainer.new()
 	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	center.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -74,11 +86,16 @@ func _license(column: VBoxContainer) -> void:
 	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.scale = Vector2.ONE * CARD_SCALE
 	card.position = (LicenseCard.SIZE * CARD_SCALE - LicenseCard.SIZE) * 0.5
+	card.mouse_filter = Control.MOUSE_FILTER_STOP
+	card.gui_input.connect(_on_card_input)
 	holder.add_child(card)
 	column.add_child(holder)
-	var gap := Control.new()
-	gap.custom_minimum_size = Vector2(0.0, 6.0)
-	column.add_child(gap)
+	_look = Control.new()
+	_look.name = "Look"
+	_look.custom_minimum_size = Vector2(0.0, 26.0)
+	_look.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(_look)
+	_say_look()
 	field = MenuTheme.field(_settings.license_plate, LicensePlate.BLANK, LicensePlate.MOST)
 	field.name = "Plate"
 	field.custom_minimum_size = Vector2(240.0, MenuTheme.box_height())
@@ -97,6 +114,76 @@ func _license(column: VBoxContainer) -> void:
 	retake.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	retake.pressed.connect(_to_the_school)
 	column.add_child(retake)
+
+
+## The hand's button shows the license in full, before the focus takes the key for walking the
+## controls; and what was pressed says which button to draw. Only while the tab is up.
+func _input(event: InputEvent) -> void:
+	if _look == null or not is_visible_in_tree():
+		return
+	var was := _keyboard
+	_keyboard = LicenseView.keyboard_after(event, _keyboard)
+	if was != _keyboard:
+		_say_look()
+	if event.is_action_pressed(InputActions.JOKER_MENU) and view == null:
+		get_viewport().set_input_as_handled()
+		look_closer()
+
+
+## A click or a tap on the card shows it in full.
+func _on_card_input(event: InputEvent) -> void:
+	var click := event as InputEventMouseButton
+	var touch := event as InputEventScreenTouch
+	if (
+		(click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT)
+		or (touch != null and touch.pressed)
+	):
+		get_viewport().set_input_as_handled()
+		look_closer()
+
+
+## The license in full over the whole screen the settings are on, as the title shows it; put
+## away, the cursor goes back where it was.
+func look_closer() -> void:
+	if view != null:
+		return
+	_was_focused = get_viewport().gui_get_focus_owner()
+	var top: Control = self
+	while top.get_parent() is Control:
+		top = top.get_parent() as Control
+	# Over the screen the tab is on; a tab on its own has the window, under whatever holds it.
+	view = LicenseView.open(top if top != self else get_parent(), _keyboard)
+	view.put_away.connect(_on_put_away)
+
+
+func _on_put_away() -> void:
+	view = null
+	if _was_focused != null and is_instance_valid(_was_focused):
+		_was_focused.grab_focus()
+
+
+## The line under the card: the hand's button, drawn for the device in hand, and Look closer; or
+## the tap on a touch screen, which has no button.
+func _say_look() -> void:
+	if _look == null:
+		return
+	for old: Node in _look.get_children():
+		_look.remove_child(old)
+		old.queue_free()
+	var ink := Color(0.6, 0.6, 0.65)
+	var row: Control
+	if TouchInput.enabled:
+		row = MenuTheme.subtitle(LOOK_TOUCH, Type.LABEL)
+	else:
+		var glyph := InputGlyph.of_action(InputActions.JOKER_MENU, _keyboard, ink, Type.LABEL)
+		if glyph == null:
+			row = MenuTheme.subtitle(LOOK % "", Type.LABEL)
+		else:
+			row = InputHint.row(LOOK, [glyph], ink, Type.LABEL)
+	row.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	row.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	row.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_look.add_child(row)
 
 
 ## Out of whatever room the settings were opened over, and to the school.

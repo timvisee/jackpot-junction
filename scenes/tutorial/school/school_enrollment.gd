@@ -158,6 +158,53 @@ static func course(done: int) -> Control:
 	return card
 
 
+## The course as a row of its steps, for the license screen, GAME.md 9.4a: each step's number,
+## or a tick once it is done, with its name beside it, the first [param done] ticked.
+static func course_row(done: int) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.name = "CourseRow"
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 26)
+	for i: int in STEPS.size():
+		var step := HBoxContainer.new()
+		step.add_theme_constant_override("separation", 8)
+		var number := Number.new(i + 1, i < done)
+		number.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		step.add_child(number)
+		var word := Label.new()
+		word.text = STEPS[i]
+		Type.strong(word, Type.LABEL, Color(0.92, 0.92, 0.95) if i < done else PENDING_INK)
+		step.add_child(word)
+		row.add_child(step)
+	return row
+
+
+## Ticks step [param index] of a row of [method course_row], the number giving way to the tick
+## with a pop.
+static func tick(row: Control, index: int) -> void:
+	if row == null or not is_instance_valid(row) or index >= row.get_child_count():
+		return
+	var step := row.get_child(index)
+	var number := step.get_child(0) as Number
+	if number == null or number.done:
+		return
+	number.done = true
+	number.queue_redraw()
+	Type.strong(step.get_child(1) as Label, Type.LABEL, Color(0.92, 0.92, 0.95))
+	number.pivot_offset = number.size * 0.5
+	number.scale = Vector2.ONE * 1.4
+	var pop := number.create_tween()
+	pop.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	pop.tween_property(number, "scale", Vector2.ONE, 0.32)
+	Audio.play_sfx(&"ready", -8.0, 0.0)
+
+
+## Whether step [param index] of a row of [method course_row] is ticked.
+static func is_ticked(row: Control, index: int) -> bool:
+	var number := row.get_child(index).get_child(0) as Number
+	return number != null and number.done
+
+
 ## What the box starts with: the first seat's name, or one off the list for a seat without one.
 func _starting_name() -> String:
 	var given: String = Game.settings.player_names[0]

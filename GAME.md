@@ -504,7 +504,7 @@ else's results screen, see 10.3.
   control hints with it. There is nothing left in that room to answer, and a card
   pick left open under the notice would be asking for a choice about a match that
   is not there any more.
-- The title screen offers Play, Play LAN, Play Online, the Tutorial, the Garage,
+- The title screen offers Play, Play LAN, Play Online, the Driving School, the Garage,
   Settings and Quit, and once the driving test of 9.4a is passed, the driver
   license peeks in from the right edge, out under the cursor and in full on a
   click or on the button that opens the hand of jokers, see 3.7, which is drawn
@@ -2922,7 +2922,9 @@ round at the ends, and a line beside Back says so; while a rebind is listening t
 like any other button.
 
 - **License**, first: the driver license earned at the driving school of 9.4a, as it
-  was stamped, with the plate on the back of the kart under it to change, see
+  was stamped, shown in full over the whole screen as the title shows it on a
+  click or a tap on it, or on the hand's button, drawn under it with Look closer
+  for the device in hand, with the plate on the back of the kart under it to change, see
   4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed,
   and Retake the driving test, which goes to the school; or, before one is
   earned, a word on where to get one, Earn it now, which goes to the school,
@@ -3575,19 +3577,20 @@ every one of them made a room to be read rather than driven.
   controls, not a nightclub.
 - No standings either: there is no clock and nothing to reach, so a table of who
   is ahead would be a table about nothing, with two dummies ranked in it.
-- A portal in the bottom right leads to the tutorial of 9.4a.
+- No way to the driving school of 9.4a from in here: that is the title's Driving
+  School, and the school's end leads here.
 
 ### 9.4a The tutorial
 
 A short, playable lesson in how to drive and what the game is, dressed as a
-driving school: the title's Tutorial button opens on the school, and every way
+driving school: the title's Driving School button opens on the school, and every way
 in to driving, Play, Play LAN, Play Online and the Garage, asks for the license
 first, every time until it is earned: "Missing license", with Earn it now,
 which is the school, and Drive anyway, which is the way in asked for. Twenty seconds of
 school, then six to eight minutes of driving test for somebody new, and a
 driver license at the end of it. One player at this machine, no join, nothing
-online; the Garage's portal leads here and the license screen leads back to the
-Garage, so going round once locks nothing away. Finishing it is remembered in
+online; the title's Driving School leads here and the license screen leads on
+to the Garage, so going round once locks nothing away. Finishing it is remembered in
 the settings, and so are the license's number and date; the pause menu's Skip
 lesson passes a lesson, and is gone from the menu from the last lesson on;
 leaving starts over from the first, since nothing in the middle is saved.
@@ -4022,7 +4025,9 @@ The lessons, each in its own room, in order:
 **The license.** Over the room, with the kart held and the checklist and the
 pause menu gone, on the pane the podium is cut from with the player's color
 along its top: YOU PASSED, "The examiner found nothing to object to. Your
-license, then.", and the card. The card is the shape of one in a wallet, 560 by
+license, then.", the course as a row of its three steps, each a number or a
+green tick with its name beside it, the theory ticked, the driving test ticking
+as the pane comes up and the license as the stamp comes down, and the card. The card is the shape of one in a wallet, 560 by
 352, drawn as every picture in the game is, 8.3a: cream paper, darker toward
 the foot, with the fine curves of a banknote and the four suits as a watermark;
 a dark band along the top with the game's mark, JACKPOT JUNCTION · DEPT. OF
@@ -4049,8 +4054,9 @@ the light catches it that moves only as the card moves, a glance of light
 crossing it now and then while it lies still, the game's mark raised in
 the middle in a foil of its own, and round it, between two thin rings, the
 game's name the way a seal has it, JACKPOT over the top and JUNCTION along
-the foot, both upright, a star at either side, struck in a deeper foil whose
-colors run with the rest; beside it, in a column, PROPERTY OF THE
+the foot, both upright, a star at either side, struck faintly in a foil whose
+colors run with the rest, there to be found rather than printed over it;
+beside it, in a column, PROPERTY OF THE
 DEPT. OF KARTS with the small print of whose card it is, "If found, return to
 the nearest Junction. Any Junction.", the examiner's own signature, for
 whoever reads that far, a cheat code, up up down down left right left right

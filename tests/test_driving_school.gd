@@ -246,8 +246,11 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 		. is_equal(1)
 	)
 	# The settings' tab: the card as the settings keep it, and the plate typed cleaned.
+	var room: Control = auto_free(Control.new())
+	room.size = Vector2(1280.0, 720.0)
+	add_child(room)
 	var tab := LicenseTab.make(Game.settings)
-	add_child(tab)
+	room.add_child(tab)
 	await await_idle_frame()
 	var card: LicenseCard = tab.find_child("LicenseCard", true, false)
 	assert_object(card).is_not_null()
@@ -260,6 +263,31 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	tab.field.text_changed.emit(tab.field.text)
 	assert_str(Game.settings.license_plate).is_equal("MY KART")
 	assert_str(tab.preview.text).is_equal("MY KART")
+	# A click on the card shows it in full over the screen the tab is on, as the title does, with
+	# the hand's button drawn under the card; Back puts it away, and the hand's button shows it too.
+	var look: Control = tab.find_child("Look", true, false)
+	assert_object(look).is_not_null()
+	assert_str(_words_in(look)).contains("Look closer")
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	card.gui_input.emit(click)
+	await await_idle_frame()
+	assert_object(tab.view).is_not_null()
+	assert_object(tab.view.get_parent()).is_same(room)
+	var back := InputEventAction.new()
+	back.action = &"ui_cancel"
+	back.pressed = true
+	tab.view._unhandled_input(back)
+	await await_idle_frame()
+	assert_object(tab.view).is_null()
+	var hand := InputEventAction.new()
+	hand.action = InputActions.JOKER_MENU
+	hand.pressed = true
+	tab._input(hand)
+	assert_object(tab.view).is_not_null()
+	tab.view.close()
+	await await_idle_frame()
 	tab.queue_free()
 	Game.settings.license_number = ""
 	var none := LicenseTab.make(Game.settings)
@@ -333,10 +361,10 @@ func test_the_title_peeks_the_license_earned() -> void:
 	var stand: TiltedCard = view.find_child("LicenseStand", true, false)
 	assert_object(stand).is_not_null()
 	var picture := LicenseCard.SIZE + Vector2.ONE * TiltedCard.PAD * 2.0
-	assert_float(stand.size.x).is_equal_approx(picture.x * title.LICENSE_FULL, 2.0)
+	assert_float(stand.size.x).is_equal_approx(picture.x * LicenseView.FULL, 2.0)
 	assert_object(view.find_child("Flip", true, false)).is_null()
 	# The line under it names the pad's button, a pad being in hand, and not a click.
-	var away_words := _words_in(title._away_line)
+	var away_words := _words_in((view as LicenseView).away_line)
 	assert_str(away_words).contains("to put it away")
 	assert_bool(away_words.contains("Click")).is_false()
 	# The card lies flat until something moves: the mouse turns it toward where it goes, the
@@ -362,7 +390,7 @@ func test_the_title_peeks_the_license_earned() -> void:
 	var hand := InputEventAction.new()
 	hand.action = InputActions.JOKER_MENU
 	hand.pressed = true
-	title._input(hand)
+	(view as LicenseView)._input(hand)
 	assert_bool(stand.is_turning()).is_true()
 	await await_millis(int(TiltedCard.TURN_OVER * 1000.0) + 250)
 	assert_bool(stand.is_turning()).is_false()

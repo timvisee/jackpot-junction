@@ -1,5 +1,5 @@
 extends Control
-## The title screen from GAME.md 3.8: Play, Play LAN, Play Online, the Tutorial, the Garage
+## The title screen from GAME.md 3.8: Play, Play LAN, Play Online, the Driving School, the Garage
 ## practice room, Settings, Quit, over the turning sunburst of [TitleBackground]; every way in to
 ## driving asks for the license of 9.4a until it is earned, and the license earned peeks in from
 ## the right edge.
@@ -24,20 +24,11 @@ const LICENSE_SLIDE := 0.25
 ## The license peeking in is dimmed a little, so it does not take the eye from the buttons; slid
 ## out under the cursor it is as it is.
 const LICENSE_DIM := Color(0.74, 0.74, 0.78, 0.86)
-## The license shown in full, over a shade, on a click or a tap on the one peeking in, or on
-## the button that opens the hand of jokers, drawn in the bottom right corner over the version
-## with the word License beside it: how big, and the line under it.
-const LICENSE_FULL := 1.15
-## What puts the view away, by the device in hand.
-const LICENSE_AWAY_MOUSE := "Click beside the card, or press %s, to put it away"
-const LICENSE_AWAY_PAD := "Press %s to put it away"
-const LICENSE_AWAY_TOUCH := "Tap beside the card to put it away"
+## The button that shows the license in full, see [LicenseView], the one that opens the hand of
+## jokers, drawn in the bottom right corner over the version with the word License beside it.
 const LICENSE_GLYPH_SIZE := 24
 const LICENSE_GLYPH_BOTTOM := 44.0
 const LICENSE_WORD := "License"
-## How long after the view comes up a press beside the card is let be: a tap comes with a mouse
-## press made of it a moment later, which would put the view away as soon as the tap brought it up.
-const LICENSE_SETTLE_MS := 150
 
 var play_button: Button
 
@@ -51,10 +42,7 @@ var _spare: Array[Control] = []
 ## of it in full while one is up.
 var _license: LicenseCard
 var _license_out := false
-var _license_view: Control
-var _stand: TiltedCard
-var _away_line: Control
-var _view_shown_at := 0
+var _license_view: LicenseView
 ## The button that shows the license, drawn beside it for the device in hand, and which that is,
 ## picked up from whatever was last touched anywhere in the game.
 var _license_glyph: Control
@@ -106,7 +94,8 @@ func _ready() -> void:
 			offer_license(func() -> void: DriveChoice.first(self, Game.go_to_play_online))
 	)
 	column.add_child(server)
-	var tutorial := MenuTheme.button("Tutorial")
+	var tutorial := MenuTheme.button("Driving School")
+	tutorial.name = "DrivingSchool"
 	tutorial.pressed.connect(Game.go_to_tutorial)
 	column.add_child(tutorial)
 	var garage := MenuTheme.button("Garage")
@@ -213,22 +202,13 @@ func _input(event: InputEvent) -> void:
 	if _license == null:
 		return
 	var was := _keyboard
-	# A stick has to be pushed to count: a keyboard with a joystick in it, or a pad on the desk,
-	# whispers small motions all the time.
-	var stick := event as InputEventJoypadMotion
-	if event is InputEventJoypadButton or (stick != null and absf(stick.axis_value) > 0.5):
-		_keyboard = false
-	elif event is InputEventKey or event is InputEventMouseButton:
-		_keyboard = true
+	_keyboard = LicenseView.keyboard_after(event, _keyboard)
 	if was != _keyboard:
 		_show_license_glyph()
-		_say_away()
-	if event.is_action_pressed(InputActions.JOKER_MENU):
+	# Shown, the view takes the button itself, to turn the card over.
+	if event.is_action_pressed(InputActions.JOKER_MENU) and _license_view == null:
 		get_viewport().set_input_as_handled()
-		if _license_view != null:
-			_stand.turn_over()
-		else:
-			show_license()
+		show_license()
 
 
 ## A click or a tap on the license peeking in shows it in full.
@@ -243,97 +223,22 @@ func _on_license_input(event: InputEvent) -> void:
 		show_license()
 
 
-## The license in full, over a shade, the way a joker is shown out of the hand, GAME.md 3.7,
-## held up to be looked at, see [TiltedCard]: a click or a tap on it, or the hand's button again,
-## turns it over, and a click or a tap beside it, Back or the button under it puts it away.
+## The license in full, see [LicenseView]: put away, it peeks in again, and the cursor goes back
+## to Play.
 func show_license() -> void:
 	if _license_view != null:
 		return
-	var view := Control.new()
-	view.name = "LicenseView"
-	view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	view.mouse_filter = Control.MOUSE_FILTER_STOP
-	add_child(view)
-	_license_view = view
-	_view_shown_at = Time.get_ticks_msec()
-	var shade := ColorRect.new()
-	shade.color = Color(0.0, 0.0, 0.0, 0.7)
-	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	view.add_child(shade)
-	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	view.add_child(center)
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 22)
-	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	center.add_child(column)
-	var card := LicenseCard.from_settings()
-	card.name = "LicenseFull"
-	_stand = TiltedCard.of(card, LICENSE_FULL)
-	_stand.name = "LicenseStand"
-	column.add_child(_stand)
-	var away := MenuTheme.button("Put it away", Type.BODY)
-	away.name = "Away"
-	away.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	away.pressed.connect(hide_license)
-	column.add_child(away)
-	_away_line = Control.new()
-	_away_line.custom_minimum_size = Vector2(0.0, 24.0)
-	_away_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.add_child(_away_line)
-	_say_away()
-	view.gui_input.connect(
-		func(event: InputEvent) -> void:
-			var click := event as InputEventMouseButton
-			var touch := event as InputEventScreenTouch
-			if (click != null and click.pressed) or (touch != null and touch.pressed):
-				get_viewport().set_input_as_handled()
-				if Time.get_ticks_msec() - _view_shown_at >= LICENSE_SETTLE_MS:
-					hide_license()
-	)
-	view.modulate.a = 0.0
-	var rise := create_tween()
-	rise.tween_property(view, "modulate:a", 1.0, 0.2)
-	away.grab_focus()
-	Audio.play_sfx(&"joker_offer", MenuTheme.MOVE_DB, 0.0)
-
-
-## The line under the card saying what puts it away, with the control drawn in for the device in
-## hand: Back, Escape or B, and a click beside the card with a mouse, a tap on a touch screen.
-func _say_away() -> void:
-	if _away_line == null or not is_instance_valid(_away_line):
-		return
-	for old: Node in _away_line.get_children():
-		_away_line.remove_child(old)
-		old.queue_free()
-	var ink := Color(0.72, 0.72, 0.78)
-	var row: Control
-	if TouchInput.enabled:
-		row = MenuTheme.subtitle(LICENSE_AWAY_TOUCH, Type.LABEL)
-	else:
-		var glyph := InputGlyph.of_action(&"ui_cancel", _keyboard, ink, Type.LABEL)
-		var words := LICENSE_AWAY_MOUSE if _keyboard else LICENSE_AWAY_PAD
-		if glyph == null:
-			row = MenuTheme.subtitle(
-				words % InputActions.short_binding_text(&"ui_cancel", _keyboard), Type.LABEL
-			)
-		else:
-			row = InputHint.row(words, [glyph], ink, Type.LABEL)
-	row.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	row.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	row.grow_vertical = Control.GROW_DIRECTION_BOTH
-	_away_line.add_child(row)
+	_license_view = LicenseView.open(self, _keyboard)
+	_license_view.put_away.connect(_on_license_put_away)
 
 
 func hide_license() -> void:
-	if _license_view == null:
-		return
-	_license_view.queue_free()
+	if _license_view != null:
+		_license_view.close()
+
+
+func _on_license_put_away() -> void:
 	_license_view = null
-	_stand = null
-	_away_line = null
 	_slide_license(false)
 	if play_button != null:
 		play_button.grab_focus()
