@@ -144,13 +144,16 @@ func refresh(lesson: TutorialLesson) -> void:
 			_tasks.append(row)
 		var line: Dictionary = _tasks[shown]
 		(line["mark"] as Mark).done = task.done
-		var label: Label = line["label"]
-		label.text = task.label(simple)
+		var label: RichTextLabel = line["label"]
 		# The one being done is bright, and in any order, or under a goal, the others wait a
-		# shade dimmer.
+		# shade dimmer. The game's own words in it are in their colors while it is to be done,
+		# see [Terms], and dimmed with the rest once it is.
 		var waits := not lesson.ordered or lesson.show_all
 		var ink := WAITING_INK if waits and task != now else INK
-		Type.ink(label, DONE_INK if task.done else ink)
+		var words := Terms.bbcode(task.label(simple), not task.done)
+		if label.text != words:
+			label.text = words
+		label.add_theme_color_override("default_color", DONE_INK if task.done else ink)
 		if line.has("bar"):
 			var bar: ProgressBar = line["bar"]
 			bar.visible = not task.done
@@ -241,12 +244,20 @@ func _line(text: String) -> Dictionary:
 	var mark := Mark.new()
 	mark.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(mark)
-	var label := Label.new()
-	label.text = text
+	var label := RichTextLabel.new()
+	label.bbcode_enabled = true
+	label.fit_content = true
+	label.scroll_active = false
+	label.text = Terms.bbcode(text)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	Type.text(label, Type.LABEL, INK)
-	HudText.shadowed(label)
+	label.add_theme_font_override("bold_font", Type.STRONG)
+	label.add_theme_font_size_override("normal_font_size", Type.LABEL)
+	label.add_theme_font_size_override("bold_font_size", Type.LABEL)
+	label.add_theme_color_override("default_color", INK)
+	label.add_theme_color_override("font_shadow_color", HudText.SHADOW)
+	label.add_theme_constant_override("shadow_offset_x", 2)
+	label.add_theme_constant_override("shadow_offset_y", 2)
 	row.add_child(label)
 	return {"row": row, "mark": mark, "label": label}

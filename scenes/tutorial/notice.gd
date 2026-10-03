@@ -96,7 +96,7 @@ func _ready() -> void:
 ## gap in it filled with the control of the next of [param actions] for the device in hand.
 func say(key: StringName, text: String, actions: Array[StringName] = []) -> void:
 	_key = key
-	_said = text
+	_said = Terms.plain(text)
 	for old: Node in _lines.get_children():
 		old.queue_free()
 	var left := actions.duplicate()

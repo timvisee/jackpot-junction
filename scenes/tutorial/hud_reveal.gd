@@ -312,6 +312,8 @@ func line() -> String:
 		for part: Node in _line.get_children():
 			if part is Label:
 				words.append((part as Label).text)
+			elif part is RichTextLabel:
+				words.append((part as RichTextLabel).get_parsed_text())
 	return " ".join(words)
 
 

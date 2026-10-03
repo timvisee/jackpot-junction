@@ -384,7 +384,7 @@ func test_pads_flush_their_own_room_and_drain_the_jackpot() -> void:
 	assert_str(lesson._drain.hint).is_equal("")
 	assert_bool(run.reveal.is_pointing()).is_true()
 	assert_str(run.reveal.line()).contains("Mult will multiply your pot")
-	assert_str(lesson.reveals[0][1]).is_equal("Collected chips go to your pot")
+	assert_str(Terms.plain(lesson.reveals[0][1])).is_equal("Collected chips go to your pot")
 	assert_vector(lesson._mult.arrow).is_not_equal(Vector2i(-1, -1))
 	for i: int in TutorialPads.DICE:
 		Events.mult_gained.emit(0, 1.0, &"die")
@@ -504,7 +504,7 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	assert_int(lesson.tasks.size()).is_equal(8)
 	assert_object(lesson.current()).is_same(lesson._bank)
 	assert_int(tutorial.match_node.win_at).is_equal(run.slot().banked + TutorialFight.NEED)
-	assert_str(lesson._flush.text).is_equal("Claim a Royal Flush")
+	assert_str(Terms.plain(lesson._flush.text)).is_equal("Claim a Royal Flush")
 	Events.item_used.emit(0, &"shield")
 	assert_bool(lesson._use.done).is_true()
 	Events.kart_killed.emit(run.bots[0].index, 0, &"bullet")
@@ -805,3 +805,26 @@ func test_the_title_asks_for_the_license_until_it_is_earned() -> void:
 	title.offer_license(func() -> void: went[0] += 1)
 	assert_int(went[0]).is_equal(3)
 	assert_object(title.find_child("LicenseOffer", true, false)).is_null()
+
+
+## The game's own words in the lessons are drawn in their colors, GAME.md 9.4a: a counter in the
+## HUD's, a place in a color of its own, marked in the line with braces and said without them.
+func test_the_games_own_words_are_in_their_colors() -> void:
+	assert_str(Terms.plain("{Mult} will multiply your {pot}")).is_equal(
+		"Mult will multiply your pot"
+	)
+	var lit := Terms.bbcode("{Mult} multiplies your {pot} at the {Junction}")
+	assert_str(lit).contains("[color=#%s]Mult[/color]" % Palette.MULT.to_html(false))
+	assert_str(lit).contains("[color=#%s]pot[/color]" % Palette.CHIP_GOLD.to_html(false))
+	assert_str(lit).contains("[color=#%s]Junction[/color]" % Terms.PLACE.to_html(false))
+	assert_str(Terms.bbcode("{Mult} done", false)).is_equal("Mult done")
+	var plain: Control = auto_free(Terms.words("Drive forward", Color.WHITE, 18))
+	assert_object(plain).is_instanceof(Label)
+	var rich: Control = auto_free(Terms.words("Drain the {Jackpot}", Color.WHITE, 18))
+	assert_object(rich).is_instanceof(RichTextLabel)
+	assert_str((rich as RichTextLabel).get_parsed_text()).is_equal("Drain the Jackpot")
+	# Every lesson's marks name a word the game has a color for.
+	for word: String in [
+		"chips", "mult", "pot", "bank", "banked", "nitro", "jackpot", "royal flush"
+	]:
+		assert_bool(Terms.COLORS.has(word)).override_failure_message(word).is_true()

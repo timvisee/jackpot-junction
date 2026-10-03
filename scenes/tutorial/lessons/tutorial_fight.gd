@@ -60,12 +60,12 @@ func _init() -> void:
 	show_all = true
 	spawn_cell = TutorialPads.SPAWN
 	reveals = [[&"stats", "", []], [&"feed", "", []]]
-	_bank = add_task("Bank %d points" % NEED, "", [], true)
+	_bank = add_task("{Bank} %d points" % NEED, "", [], true)
 	_kill = add_task("Take out another kart", "")
-	_mult = add_task("Reach a mult of 4", "")
-	_jackpot = add_task("Drain a Jackpot", "")
-	_flush = add_task("Claim a Royal Flush", "")
-	_cash = add_task("Bank your whole pot at the Junction", "")
+	_mult = add_task("Reach a {mult} of 4", "")
+	_jackpot = add_task("Drain a {Jackpot}", "")
+	_flush = add_task("Claim a {Royal Flush}", "")
+	_cash = add_task("{Bank} your whole {pot} at the {Junction}", "")
 	_use = add_task("Use an item", "")
 	_hand = add_task("Hold five jokers", "")
 	stations = [[_bank], [_kill, _mult, _jackpot, _flush, _cash, _use, _hand]]

@@ -26,6 +26,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The game's words stand out in the driving test.** Chips, mult, pot, bank, nitro and lives are in
+  their HUD colors, and the Jackpot, the Junction and the Royal Flush in a color of their own.
 - **Chips, everywhere.** What you collect is called chips in every lesson, card, award and item; the
   Coin Magnet is now the Chip Magnet.
 - **A smaller license in the settings.** The License page shows the card smaller; click or tap it to

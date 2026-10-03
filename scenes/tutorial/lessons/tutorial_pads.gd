@@ -19,10 +19,10 @@ const DICE_AT: Array[Vector2i] = [
 const DICE := 3
 ## What the word at the top says at each part.
 const FLUSH_WORDS := (
-	"Royal Flush pads pay out chips when you hold them.\n" + "Hold all four to lock them in."
+	"{Royal Flush} pads pay out {chips} when you hold them.\n" + "Hold all four to lock them in."
 )
-const JACKPOT_WORDS := "Stand on a Jackpot to collect its pot."
-const MULT_WORDS := "Mult multiplies your pot.\nBalance chips and mult for the best score."
+const JACKPOT_WORDS := "Stand on a {Jackpot} to collect its {pot}."
+const MULT_WORDS := "{Mult} multiplies your {pot}.\nBalance {chips} and {mult} for the best score."
 
 var _flush: TutorialTask
 var _drain: TutorialTask
@@ -33,13 +33,13 @@ var _zone: JackpotZone
 func _init() -> void:
 	title = "Pads"
 	spawn_cell = SPAWN
-	reveals = [[&"pot", "Collected chips go to your pot", []]]
-	_flush = add_task("Hold all four Royal Flush pads at once", "")
+	reveals = [[&"pot", "Collected {chips} go to your {pot}", []]]
+	_flush = add_task("Hold all four {Royal Flush} pads at once", "")
 	_flush.arrow = Vector2i(24, 44)
-	_drain = add_task("Drain the Jackpot", "", [], true)
+	_drain = add_task("Drain the {Jackpot}", "", [], true)
 	_drain.arrow = JACKPOT
 	_drain.arrow_rect = JACKPOT_RECT
-	_mult = add_task("Pick up three mult dice", "")
+	_mult = add_task("Pick up three {mult} dice", "")
 	_mult.of = DICE
 
 
@@ -153,7 +153,7 @@ func _on_emptied(zone_index: int) -> void:
 	run.notice.say(&"mult", MULT_WORDS)
 	if run.reveal != null:
 		pointer_until = _mult
-		run.reveal.show_piece(&"mult", "Mult will multiply your pot", [])
+		run.reveal.show_piece(&"mult", "{Mult} will multiply your {pot}", [])
 
 
 func _on_mult(slot_index: int, _amount: float, reason: StringName) -> void:

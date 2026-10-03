@@ -4,7 +4,7 @@ extends TutorialLesson
 ## the lesson starts. The nitro tank and the speedometer come into the corner with it.
 
 ## The word at the top for the lesson.
-const WORDS := "Use nitro to boost your speed.\nIt refills over time."
+const WORDS := "Use {nitro} to boost your speed.\nIt refills over time."
 
 var _burn: TutorialTask
 
@@ -15,9 +15,11 @@ func _init() -> void:
 	spawn_cell = Vector2i(50, 26)
 	facing = Vector3(1.0, 0.0, 0.0)
 	next_cell = Vector2i(81, 20)
-	reveals = [[&"nitro", "Your nitro", [InputActions.NITRO]]]
-	_burn = add_task("Burn a full tank of nitro", "Hold %s for nitro", [InputActions.NITRO], true)
-	reveals[0][1] = "Your nitro, %s to burn it"
+	reveals = [[&"nitro", "Your {nitro}", [InputActions.NITRO]]]
+	_burn = add_task(
+		"Burn a full tank of {nitro}", "Hold %s for {nitro}", [InputActions.NITRO], true
+	)
+	reveals[0][1] = "Your {nitro}, %s to burn it"
 
 
 func _begin() -> void:

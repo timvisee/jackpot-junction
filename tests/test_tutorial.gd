@@ -160,7 +160,7 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	# The arrow points up the corridor at the gate, and a gate gets no ring.
 	await _runner.simulate_frames(1, 17)
 	assert_bool(run.arrow._ring.visible).is_false()
-	assert_str((rows[0]["label"] as Label).text).is_equal("Drive forward")
+	assert_str((rows[0]["label"] as RichTextLabel).get_parsed_text()).is_equal("Drive forward")
 	assert_bool(rows[0].has("bar")).is_true()
 	assert_str(run.hint.words()).is_equal("Hold %s to drive")
 	var gate := tutorial.match_node.arena.gate_at(lesson.gate_cell)

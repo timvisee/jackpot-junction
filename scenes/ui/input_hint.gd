@@ -212,11 +212,6 @@ static func _gap() -> Control:
 	return spacer
 
 
-static func _words(text: String, ink: Color, size: int) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", size)
-	label.add_theme_color_override("font_color", ink)
-	return label
+## The words between two controls, with the game's own words in them marked, see [Terms].
+static func _words(text: String, ink: Color, size: int) -> Control:
+	return Terms.words(text, ink, size)

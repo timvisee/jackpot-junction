@@ -14,8 +14,8 @@ const POT := 20
 ## What the banking task says over the kart: nothing, the pointers and the word at the top
 ## saying it, unless the pot is empty; and the word at the top for the lesson.
 const BANK := ""
-const EMPTY := "Your pot is empty: fill it at the Jackpot first"
-const WORDS := "You lose part of your pot when you die.\nOnly banked points are safe."
+const EMPTY := "Your {pot} is empty: fill it at the {Jackpot} first"
+const WORDS := "You lose part of your {pot} when you die.\nOnly {banked} points are safe."
 
 var _fill: TutorialTask
 var _bank: TutorialTask
@@ -27,12 +27,12 @@ func _init() -> void:
 	title = "The Junction"
 	spawn_cell = TutorialPads.SPAWN
 	reveals = [
-		[&"bank", "%s Bank: safe", [&"icon:safe"], &"pot", "%s Pot: at risk", [&"icon:risk"]]
+		[&"bank", "%s {Bank}: safe", [&"icon:safe"], &"pot", "%s {Pot}: at risk", [&"icon:risk"]]
 	]
-	_fill = add_task("Fill your pot from the Jackpot", "")
+	_fill = add_task("Fill your {pot} from the {Jackpot}", "")
 	_fill.arrow = JACKPOT
 	_fill.arrow_rect = JACKPOT_RECT
-	_bank = add_task("Bank the chips in your pot at the Junction", BANK, [], true)
+	_bank = add_task("{Bank} the {chips} in your {pot} at the {Junction}", BANK, [], true)
 	_bank.arrow = JUNCTION
 	_bank.arrow_rect = JUNCTION_RECT
 	pointer_until = _bank

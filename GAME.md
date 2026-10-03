@@ -3981,6 +3981,15 @@ near the pads the notice says what the two ways are and that the pause menu
 changes it any time. The pads stay for the rest of the tutorial, there being no
 reason to take them away.
 
+In every line a lesson says, its notices, its pointer cards, its checklist and its hints, the
+game's own words stand out from the words round them: a counter of the HUD, chips, mult, pot,
+bank and banked, nitro and lives, bold in the color the HUD shows it in, chips blue, mult red,
+the pot and the bank gold, the nitro amber and the lives the hearts' red; and a place on the
+floor, the Jackpot, the Junction and a Royal Flush, bold in a green of its own. "Mult will
+multiply your pot" then reads as the two things on the screen it is about rather than as a
+sentence. A line marks them with braces, `{Mult}`, `Terms` draws them, and a checklist line
+that is done drops the colors with the rest of its ink.
+
 The lessons, each in its own room, in order:
 
 1. **Driving.** A corridor four cells wide and nineteen long, running north, out
