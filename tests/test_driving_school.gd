@@ -91,6 +91,11 @@ func test_the_book_reads_faster_shuts_and_asks() -> void:
 	var mark: Control = theory._book.find_child("OpenMark", true, false)
 	assert_object(mark).is_not_null()
 	assert_int(mark.find_children("*", "InputGlyph", true, false).size()).is_equal(1)
+	# The half it has yet to open onto says to read it carefully, and goes as it opens.
+	var warning: Control = theory._book.find_child("Warning", true, false)
+	assert_object(warning).is_not_null()
+	assert_bool(warning.visible).is_true()
+	assert_float(warning.position.x + warning.size.x).is_less_equal(SchoolTheory.half_width())
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
 	click.pressed = true
@@ -104,6 +109,11 @@ func test_the_book_reads_faster_shuts_and_asks() -> void:
 	assert_float(theory._halves[0].scale.x).is_equal_approx(0.0, 0.001)
 	assert_float(theory._halves[1].scale.x).is_equal_approx(1.0, 0.001)
 	await await_millis(int(SchoolTheory.OPEN_FOR * 1000.0) + 200)
+	(
+		assert_bool(is_instance_valid(warning))
+		. override_failure_message("the warning stayed")
+		. is_false()
+	)
 	assert_bool(theory.is_opening()).is_false()
 	assert_bool(theory.is_closed()).is_false()
 	assert_bool(theory._front.visible).is_false()

@@ -3623,7 +3623,11 @@ over each and its page number in the outer corner, which reads itself. It comes
 up shut on the right, its spine to the left as a shut book lies, and waits to be
 opened, by a click or a tap on it or the accept button, drawn on its bottom
 right corner for the device in hand, its cover lifting a little off the pages
-now and then as if about to open, so it reads as a book to open; opened, the
+now and then as if about to open, so it reads as a book to open. Beside it, on
+the left half it will open onto, "Read carefully." in the gold of a heading over
+"There will be questions." in gray, inside the book's own room so nothing moves
+when it goes: the quiz is no ambush then, and the half of the pane the book has
+yet to fill is not left empty. It fades as the book opens. Opened, the
 front cover lifting off it toward the spine and coming down over it onto the
 left, a rustle each, the other way from the way it shuts at the end, on its
 title page, the game's mark and name over the book's own and its

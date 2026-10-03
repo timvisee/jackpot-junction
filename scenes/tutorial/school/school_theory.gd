@@ -111,6 +111,11 @@ const PAGE_SPARE := 6.0
 ## The dust's seed, so the book shuts the same every time.
 const SEED := 212
 const QUESTION := "Got that?"
+## Said beside the shut book, on the left where it will open, while it waits to be opened: the
+## quiz after it is no surprise then, and the half of the pane the book has yet to fill is not
+## empty. Gone as the book opens.
+const WARNING := "Read carefully."
+const WARNING_MORE := "There will be questions."
 const ANSWERS: Array[String] = ["Absolutely", "Not a word"]
 
 var elapsed := 0.0
@@ -141,6 +146,7 @@ var _columns: Array[VBoxContainer] = []
 var _clips: Array[Control] = []
 var _folios: Array[Label] = []
 var _question: VBoxContainer
+var _warning: VBoxContainer
 var _shut := false
 ## The text cut into pages, each the item it starts with, with where the text ends last, and how
 ## tall each page's items stand; empty until the text has been laid out.
@@ -344,6 +350,16 @@ func _ready() -> void:
 		answers.append(button)
 	_question.visible = false
 	_book.add_child(_question)
+	# And the word before it, on the left half where the book has yet to open.
+	_warning = VBoxContainer.new()
+	_warning.name = "Warning"
+	_warning.add_theme_constant_override("separation", 10)
+	_warning.alignment = BoxContainer.ALIGNMENT_CENTER
+	_warning.size = Vector2(half_width() - GUTTER, book_height())
+	_warning.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_warning.add_child(MenuTheme.title(WARNING, Type.HEADING))
+	_warning.add_child(MenuTheme.subtitle(WARNING_MORE, Type.BODY))
+	_book.add_child(_warning)
 	# The title page at once; the page across from it once the text is laid out and cut.
 	_text = TheoryText.new()
 	_columns[LEFT].add_child(_text.build(_text.items[0], 0))
@@ -463,6 +479,12 @@ func open() -> void:
 	if _open_mark != null:
 		_open_mark.queue_free()
 		_open_mark = null
+	if _warning != null:
+		var gone := _warning
+		_warning = null
+		var fade := create_tween()
+		fade.tween_property(gone, "modulate:a", 0.0, OPEN_WAIT + COVER_UP)
+		fade.tween_callback(gone.queue_free)
 	_opening = create_tween()
 	_opening.tween_interval(OPEN_WAIT)
 	_opening.tween_callback(Audio.play_sfx.bind(&"page", PAGE_DB, PAGE_PITCHES, 0.9))

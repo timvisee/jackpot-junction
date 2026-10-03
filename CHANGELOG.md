@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **The theory book warns you.** "Read carefully. There will be questions." stands beside the shut
+  book until you open it.
+
 ### Fixed
 
 - **A smooth guide arrow in the driving test.** The blue arrow on the floor follows the kart as it
