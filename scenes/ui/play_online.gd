@@ -10,11 +10,19 @@ extends Control
 ## onto the list, Connect connects to it without keeping it. Back, or B, or Cancel puts the dialog
 ## away.
 ##
+## Connecting says so in a dialog of the same look, with a bar that eases along over the few
+## seconds a server is given to answer and Cancel, which hangs up; what went wrong is said there
+## after, with OK.
+##
 ## Back from one of the server's games, the screen connects to it again by itself and goes on to
 ## its games, saying why it is back: a wrong password, a kick, a game that is over.
 
 ## What the list says while it is empty.
 const NONE_YET := "No servers yet. Add one or connect directly."
+## How long the bar takes to ease along while a server is being knocked at, in seconds: as long as
+## nobody answering takes to be given up on, see [method NetLine.trying], and how far it goes.
+const KNOCK_FOR := NetLine.CONNECT_TIMEOUT_MAX / 1000.0
+const KNOCK_REACH := 0.9
 
 ## The dialog: the server's address and port, the name it is kept under, and the buttons that keep
 ## it, connect to it and put the dialog away.
@@ -29,7 +37,11 @@ var cancel_button: Button
 var adding_button: Button
 var direct_button: Button
 var lan_button: Button
-var status: Label
+## The dialog saying a server is being connected to, its bar, and the button that hangs up while it
+## is and puts the dialog away once it is not.
+var busy: FormDialog
+var busy_bar: ProgressBar
+var busy_button: Button
 ## Why the screen is up again, if there is something to say about it.
 var note: Label
 ## The line to the server, see [ServerLink], while there is one.
@@ -50,6 +62,9 @@ var _ask: ConfirmPane
 var _ask_layer: Control
 ## The kept server Remove was pressed on, while it is asked about.
 var _removing: Dictionary = {}
+var _knocking: Tween
+## Whether the busy dialog says what went wrong rather than that a server is being knocked at.
+var _failed := false
 
 
 func _ready() -> void:
@@ -65,7 +80,8 @@ func _ready() -> void:
 		func(server: Dictionary) -> void: _connect_to(server["address"], server["port"])
 	)
 	_servers.removing.connect(_ask_to_remove)
-	servers_box = ListBox.of("Your servers", _servers, NONE_YET)
+	servers_box = ListBox.of("Your servers", _servers, NONE_YET, "Add a server")
+	servers_box.link.pressed.connect(func() -> void: show_form(true))
 	column.add_child(servers_box)
 	var ways := ListBox.button_row()
 	column.add_child(ways)
@@ -78,14 +94,11 @@ func _ready() -> void:
 	lan_button.pressed.connect(func() -> void: open_lan.call(""))
 	note = ListBox.fit(ServerGames.red_line())
 	column.add_child(note)
-	status = ListBox.fit(Label.new())
-	status.add_theme_font_size_override("font_size", 20)
-	status.visible = false
-	column.add_child(status)
 	var back := MenuTheme.button("Back", 24)
 	back.pressed.connect(_back)
 	column.add_child(back)
 	_build_dialog()
+	_build_busy()
 	_build_question()
 	show_list()
 	note.text = Game.play_online_note
@@ -118,6 +131,14 @@ func _build_dialog() -> void:
 	connect_button.pressed.connect(_connect)
 	cancel_button = dialog.add_button("Cancel")
 	cancel_button.pressed.connect(_put_dialog_away)
+
+
+func _build_busy() -> void:
+	busy = FormDialog.add_to(self, "Connecting", "")
+	busy.name = "Busy"
+	busy_bar = busy.add_bar()
+	busy_button = busy.add_button("Cancel")
+	busy_button.pressed.connect(_busy_pressed)
 
 
 ## The question over a shade of the whole screen, which takes the clicks meant for what is under
@@ -184,10 +205,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		_back()
 
 
-## Back: out of the question about removing a server, out of the dialog, and back to the title
-## from the list.
+## Back: hanging up on a server being connected to, out of the question about removing a server,
+## out of the dialog, and back to the title from the list.
 func _back() -> void:
-	if _ask_layer.visible:
+	if busy.is_open():
+		_busy_pressed()
+	elif _ask_layer.visible:
 		_on_remove_answered(false)
 	elif is_form_up():
 		_put_dialog_away()
@@ -300,10 +323,10 @@ func _on_remove_answered(yes: bool) -> void:
 
 
 ## Knocks at the server at [param address] and [param port], under the player's name, and
-## remembers it for next time.
+## remembers it for next time, saying so in the busy dialog.
 func _connect_to(address: String, port: int) -> void:
 	if address.is_empty():
-		_say("Enter the server's address", true)
+		_fail("There is no server to connect to")
 		return
 	# A second press, or another server, while the first is still being knocked at: the new link
 	# takes the old one's place, see [method Net.open_link].
@@ -314,25 +337,69 @@ func _connect_to(address: String, port: int) -> void:
 	Game.settings.save_to_disk()
 	link = Net.open_link()
 	link.player_name = PlayerNames.clean(Game.settings.player_names[0])
-	link.connected.connect(func() -> void: open_games.call())
-	link.failed.connect(func() -> void: _say("Could not connect to %s" % _where(), true))
-	link.refused.connect(func(reason: String) -> void: _say(reason, true))
-	link.lost.connect(func() -> void: _say("The server closed the connection", true))
+	link.connected.connect(_on_connected)
+	link.failed.connect(func() -> void: _fail("Could not connect to %s" % _where()))
+	link.refused.connect(_fail)
+	link.lost.connect(func() -> void: _fail("The server closed the connection"))
 	var error := link.reach(address, port)
 	if error != OK:
-		_say("Could not connect: %s" % error_string(error), true)
+		_fail("Could not connect: %s" % error_string(error))
 		return
-	_say("Connecting to %s..." % _where())
+	_knock()
 
 
 func _where() -> String:
 	return "%s:%d" % [_address, _port]
 
 
-func _say(text: String, bad := false) -> void:
-	status.text = text
-	status.visible = not text.is_empty()
-	if bad:
-		status.add_theme_color_override("font_color", Palette.CHIP_RED)
-	else:
-		status.remove_theme_color_override("font_color")
+## The busy dialog up, saying the server is being knocked at, its bar easing along.
+func _knock() -> void:
+	_failed = false
+	busy.set_title("Connecting", "Connecting to %s..." % _where())
+	busy_bar.visible = true
+	busy_bar.value = 0.0
+	busy_button.text = "Cancel"
+	busy.open(busy_button)
+	if _knocking != null:
+		_knocking.kill()
+	_knocking = create_tween()
+	_knocking.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	_knocking.tween_property(busy_bar, "value", KNOCK_REACH, KNOCK_FOR)
+
+
+## Let in: the bar full, and on to the server's games.
+func _on_connected() -> void:
+	if _knocking != null:
+		_knocking.kill()
+	busy_bar.value = 1.0
+	open_games.call()
+
+
+## What went wrong, in the busy dialog, with OK to put it away.
+func _fail(reason: String) -> void:
+	if _knocking != null:
+		_knocking.kill()
+	_failed = true
+	busy.set_title("Could not connect", "")
+	busy_bar.visible = false
+	busy_button.text = "OK"
+	if not busy.is_open():
+		busy.open(busy_button)
+	busy.say(reason)
+	busy.focus(busy_button)
+
+
+## Cancel while a server is being knocked at hangs up; OK once it has gone wrong puts it away.
+func _busy_pressed() -> void:
+	if not _failed:
+		if _knocking != null:
+			_knocking.kill()
+		Net.close()
+		link = null
+	busy.close()
+	direct_button.grab_focus.call_deferred()
+
+
+## What the busy dialog says just now, its title and what went wrong, for asking what was said.
+func busy_said() -> String:
+	return busy.said()

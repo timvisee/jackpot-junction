@@ -109,6 +109,8 @@ func test_make_a_game_goes_into_its_lobby_with_the_say() -> void:
 	# The games' box is there with none in it, saying so.
 	assert_bool(screen._box.is_empty()).is_true()
 	assert_str(screen._box._empty.text).is_equal("No games on this server yet")
+	# The link at the bottom of the box makes one, as the button under it does.
+	assert_str(screen._box.link.text).is_equal("Make a game")
 	screen.make_button.pressed.emit()
 	assert_bool(screen.make_button.disabled).is_true()
 	assert_bool(await _wait_until(func() -> bool: return not _launched.is_empty(), 4000)).is_true()
@@ -132,6 +134,7 @@ func test_a_bar_follows_the_game_being_made() -> void:
 	assert_bool(screen.making_bar.visible).is_false()
 	screen.make_button.pressed.emit()
 	assert_bool(screen.making_bar.visible).is_true()
+	assert_bool(screen.busy.is_open()).is_true()
 	var at := func(done: float) -> Callable:
 		return func() -> bool: return is_equal_approx(screen.making_bar.value, done)
 	var started := await _wait_until(at.call(ServerLink.MAKING_STARTED), 4000)
@@ -146,6 +149,11 @@ func test_a_bar_follows_the_game_being_made() -> void:
 	screen.link.not_made.emit("The server could not start a game")
 	assert_bool(screen.making_bar.visible).is_false()
 	assert_bool(screen.make_button.disabled).is_false()
+	# Said in the dialog, with OK to put it away.
+	assert_str(screen.busy.said()).is_equal("The server could not start a game")
+	assert_bool(screen.busy_button.visible).is_true()
+	screen.busy_button.pressed.emit()
+	assert_bool(screen.busy.is_open()).is_false()
 
 
 ## Somebody else's game is listed with Join and the eye that watches it, and each goes into its

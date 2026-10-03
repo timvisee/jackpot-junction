@@ -96,7 +96,7 @@ func test_connect_goes_on_to_the_games() -> void:
 	assert_str(screen.address_field.text).is_equal("127.0.0.1")
 	screen.connect_button.pressed.emit()
 	var opened := await _wait_until(func() -> bool: return _opened[0] == 1, 4000)
-	assert_bool(opened).override_failure_message("never went on: %s" % screen.status.text).is_true()
+	assert_bool(opened).override_failure_message("never went on: %s" % screen.busy_said()).is_true()
 	assert_object(Net.link).is_not_null()
 	assert_str(Net.link.address).is_equal("127.0.0.1")
 	assert_int(Net.link.port).is_equal(port)
@@ -113,7 +113,7 @@ func test_back_from_a_game_it_connects_again_by_itself() -> void:
 	Game.play_online_note = "Everybody left, so the game is over"
 	var screen := _screen()
 	var opened := await _wait_until(func() -> bool: return _opened[0] == 1, 4000)
-	assert_bool(opened).override_failure_message("never went on: %s" % screen.status.text).is_true()
+	assert_bool(opened).override_failure_message("never went on: %s" % screen.busy_said()).is_true()
 	assert_bool(Game.play_online_reconnect).is_false()
 	assert_str(Game.play_online_note).is_equal("Everybody left, so the game is over")
 
@@ -125,7 +125,23 @@ func test_it_waits_for_connect() -> void:
 	await await_millis(300)
 	assert_int(_opened[0]).is_equal(0)
 	assert_object(Net.link).is_null()
-	assert_str(screen.status.text).is_empty()
+	assert_bool(screen.busy.is_open()).is_false()
+
+
+## Connecting says so in a dialog with a bar that moves, and Cancel hangs up.
+func test_connecting_is_a_dialog_that_cancel_hangs_up() -> void:
+	var screen := _screen()
+	await await_idle_frame()
+	screen.direct_button.pressed.emit()
+	screen.connect_button.pressed.emit()
+	assert_bool(screen.busy.is_open()).is_true()
+	assert_str(screen.busy._line.text).is_equal("Connecting to 127.0.0.1:%d..." % port)
+	assert_bool(screen.busy_bar.visible).is_true()
+	await await_millis(400)
+	assert_float(screen.busy_bar.value).is_greater(0.0)
+	screen.busy_button.pressed.emit()
+	assert_bool(screen.busy.is_open()).is_false()
+	assert_object(Net.link).is_null()
 
 
 ## A server this version cannot play with says so, and does not go on.
@@ -134,10 +150,12 @@ func test_a_server_on_another_version_says_so() -> void:
 	var screen := _screen()
 	screen.connect_button.pressed.emit()
 	var told := await _wait_until(
-		func() -> bool: return screen.status.text.begins_with("Wrong"), 4000
+		func() -> bool: return screen.busy_said().begins_with("Wrong"), 4000
 	)
-	assert_bool(told).override_failure_message("never told: %s" % screen.status.text).is_true()
-	assert_str(screen.status.text).is_equal(
+	assert_bool(told).override_failure_message("never told: %s" % screen.busy_said()).is_true()
+	assert_str(screen.busy_button.text).is_equal("OK")
+	assert_bool(screen.busy_bar.visible).is_false()
+	assert_str(screen.busy_said()).is_equal(
 		"Wrong version: the server has 0.1.0, you have %s" % Game.version()
 	)
 	assert_int(_opened[0]).is_equal(0)
@@ -148,10 +166,12 @@ func test_nobody_at_the_address_is_said_so() -> void:
 	var screen := _screen()
 	screen.connect_button.pressed.emit()
 	var told := await _wait_until(
-		func() -> bool: return screen.status.text.begins_with("Could"), 4000
+		func() -> bool: return screen.busy_said().begins_with("Could"), 4000
 	)
-	assert_bool(told).override_failure_message("never told: %s" % screen.status.text).is_true()
-	assert_str(screen.status.text).is_equal("Could not connect to 127.0.0.1:%d" % port)
+	assert_bool(told).override_failure_message("never told: %s" % screen.busy_said()).is_true()
+	assert_str(screen.busy_said()).is_equal("Could not connect to 127.0.0.1:%d" % port)
+	screen.busy_button.pressed.emit()
+	assert_bool(screen.busy.is_open()).is_false()
 
 
 ## The server is kept for next time with the rest of the settings.
@@ -236,7 +256,7 @@ func test_a_kept_server_connects_in_one_press() -> void:
 	await await_idle_frame()
 	screen._servers.connect_button(0).pressed.emit()
 	var opened := await _wait_until(func() -> bool: return _opened[0] == 1, 4000)
-	assert_bool(opened).override_failure_message("never went on: %s" % screen.status.text).is_true()
+	assert_bool(opened).override_failure_message("never went on: %s" % screen.busy_said()).is_true()
 	assert_int(Game.settings.last_server_port).is_equal(port)
 
 
@@ -387,3 +407,23 @@ func test_only_an_address_is_taken() -> void:
 		assert_bool(ServerList.clean([{"address": "not an address", "port": 7777}]).is_empty())
 		. is_true()
 	)
+
+
+## At the bottom of the box a link says how to put a server on the list, empty or not, and opens
+## the dialog for it, as Add a server under the box does.
+func test_the_box_ends_in_a_link_to_add_a_server() -> void:
+	var screen := _screen()
+	await await_idle_frame()
+	var box: ListBox = screen.servers_box
+	assert_str(box.link.text).is_equal("Add a server")
+	assert_bool(box.link.is_visible_in_tree()).is_true()
+	assert_int(box.link.focus_mode).is_equal(Control.FOCUS_ALL)
+	assert_object(box.link.get_parent().get_parent()).is_same(box.get_node("Well"))
+	box.link.pressed.emit()
+	assert_bool(screen.is_form_up()).is_true()
+	assert_bool(screen.add_button.visible).is_true()
+	screen._back()
+	Game.settings.servers.append(ServerList.entry("", "a.example.org", 7777))
+	screen.show_list()
+	await await_idle_frame()
+	assert_bool(box.link.is_visible_in_tree()).is_true()

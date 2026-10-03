@@ -527,6 +527,8 @@ func test_lan_games_hosts_and_connects_directly() -> void:
 	add_child(screen)
 	assert_bool(screen.is_form_up()).is_false()
 	assert_bool(screen.host_button.is_visible_in_tree()).is_true()
+	assert_str(screen._box.link.text).is_equal("Host a game")
+	assert_bool(screen._box.link.is_visible_in_tree()).is_true()
 	assert_bool(screen.join_button.is_visible_in_tree()).is_false()
 	screen.direct_button.pressed.emit()
 	assert_bool(screen.is_form_up()).is_true()

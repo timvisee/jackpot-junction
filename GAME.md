@@ -3499,7 +3499,11 @@ every list of games and servers is shown in: a well sunk into the screen, darker
 shade along its inside top edge and a faint rim, under a small gray heading, "Games on your
 network", with room for about five rows whether or not there are any, which scrolls once there are
 more, and while there are none a line in its middle, "Looking for games on your network...".
-Empty, it still marks the list off from the buttons under it. Sunk in rather than raised: the
+Empty, it still marks the list off from the buttons under it. At the very bottom of the well,
+centered under the rows or the line saying there are none, is a link to put something on the list,
+underlined words in gold with a gold rim under the cursor, which a click or the cursor presses:
+Host a game here, Add a server on Play Online and Make a game on a server's games, each the same as
+its button under the box, but where the eye already is when it finds the list wanting. Sunk in rather than raised: the
 game's gold-barred pane, tried first, read as a dialog box come up over the screen rather than a
 part of it. A row each: a
 button saying whose it is, whether it is
@@ -3642,8 +3646,11 @@ name, its labels of letters, digits and hyphens, none over 63 long nor starting 
 hyphen, and not all digits, which is an IPv4 address or nothing. Anything else is said in the
 dialog's red line, and an address with its port on the end is told the port has a box of its
 own. A kept server in a settings file that is not one is left out of the list. Back, or B, or Cancel puts the dialog
-away, and Back from the list goes to the title. A server is connected to the way it always was: it says it is connecting and
-goes on to the second screen once the server has let this machine in, or says why not: nobody
+away, and Back from the list goes to the title. A server is connected to the way it always was,
+said in a dialog of the same look: "Connecting", "Connecting to" its address and port, and a bar
+that eases along over the five seconds a server is given to answer, filling once it has; Cancel,
+or Back, hangs up. It goes on to the second screen once the server has let this machine in, or
+says why not in the same dialog, "Could not connect" over the reason in red with OK: nobody
 answered, the server is on a version this one cannot play, or it is a LAN game. Whether to play or
 to watch is chosen on the second, game by game, since a server holds several. The list, the
 server connected to last, and the address and port a LAN game was joined at are the player's,
@@ -3654,7 +3661,7 @@ a row each saying whose it is, whether it is still in the lobby, how many play i
 may and whether it wants a password, which joins it, with the eye beside it, and Make a game
 under them. Over the box it says which server it is, "Connected to" its address and port. On all
 three screens everything down the middle is as wide as the box: the lines of words wrap inside it
-rather than widening the column, and the buttons and Back fill it. Make a game asks the server for one, says it is making it with a bar under the words that
+rather than widening the column, and the buttons and Back fill it. Make a game asks the server for one, says it is making it in a dialog with a bar that
 fills as the server starts the game's process, the process starts up and its waiting room is built
 a phase at a time, see 8.6, the bar weighted by how long each takes, and once it is up goes into its
 lobby, where the maker has the host's say and sets it up the way a host does, see 9.6: Lobby

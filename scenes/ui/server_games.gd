@@ -13,9 +13,11 @@ var link: ServerLink
 var enter: Callable = Game.go_to_waiting
 var leave: Callable = Game.go_to_play_online
 var make_button: Button
-var status: Label
-## How far along the game being made for this machine is, under the line saying it is being made.
+## The dialog saying a game is being made, with a bar for how far along it is, and OK once it
+## could not be.
+var busy: FormDialog
 var making_bar: ProgressBar
+var busy_button: Button
 ## Why the screen is up again, back from one of the server's games.
 var note: Label
 
@@ -45,17 +47,10 @@ func _ready() -> void:
 	note.visible = not note.text.is_empty()
 	Game.play_online_note = ""
 	column.add_child(note)
-	status = ListBox.fit(Label.new())
-	status.add_theme_font_size_override("font_size", 20)
-	status.visible = false
-	column.add_child(status)
-	making_bar = LoadingScreen.bar()
-	making_bar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	making_bar.visible = false
-	column.add_child(making_bar)
 	_games = GameList.new()
 	_games.chosen.connect(_join)
-	_box = ListBox.of("Games on this server", _games, "No games on this server yet")
+	_box = ListBox.of("Games on this server", _games, "No games on this server yet", "Make a game")
+	_box.link.pressed.connect(_make)
 	column.add_child(_box)
 	make_button = MenuTheme.button("Make a game")
 	make_button.pressed.connect(_make)
@@ -63,6 +58,12 @@ func _ready() -> void:
 	var back := MenuTheme.button("Back", 24)
 	back.pressed.connect(func() -> void: leave.call(""))
 	column.add_child(back)
+	busy = FormDialog.add_to(self, "Making a game", "The server is starting it for you.")
+	busy.name = "Busy"
+	making_bar = busy.add_bar()
+	making_bar.visible = false
+	busy_button = busy.add_button("OK")
+	busy_button.pressed.connect(_busy_done)
 	make_button.grab_focus()
 	if link == null:
 		leave.call_deferred("")
@@ -75,11 +76,15 @@ func _ready() -> void:
 	_show_games(link.games)
 
 
-## B on a pad, or Escape, is the Back button, GAME.md 4.2.
+## B on a pad, or Escape, is the Back button, GAME.md 4.2: OK on a game that could not be made, and
+## nothing while one is being made, which is under way at the server.
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"ui_cancel"):
 		get_viewport().set_input_as_handled()
-		leave.call("")
+		if not busy.is_open():
+			leave.call("")
+		elif busy_button.visible:
+			_busy_done()
 
 
 func _show_games(games: Array[Dictionary]) -> void:
@@ -90,9 +95,11 @@ func _make() -> void:
 	if make_button.disabled:
 		return
 	make_button.disabled = true
-	_say("Making a game...")
+	busy.set_title("Making a game", "The server is starting it for you.")
 	making_bar.value = 0.0
 	making_bar.visible = true
+	busy_button.visible = false
+	busy.open(null)
 	link.make_game()
 
 
@@ -113,7 +120,18 @@ func _on_made(port: int) -> void:
 func _on_not_made(reason: String) -> void:
 	make_button.disabled = false
 	making_bar.visible = false
-	_say(reason, true)
+	busy.set_title("Could not make a game", "")
+	busy_button.visible = true
+	if not busy.is_open():
+		busy.open(busy_button)
+	busy.say(reason)
+	busy.focus(busy_button)
+
+
+## OK on a game that could not be made: the dialog away, and the cursor on Make a game again.
+func _busy_done() -> void:
+	busy.close()
+	make_button.grab_focus.call_deferred()
 
 
 func _join(game: Dictionary, mode: String) -> void:
@@ -133,12 +151,3 @@ func _enter(port: int, mode: String, making: bool) -> void:
 	config.port = port
 	config.server = "%s:%d" % [link.address, link.port]
 	enter.call(config)
-
-
-func _say(text: String, bad := false) -> void:
-	status.text = text
-	status.visible = not text.is_empty()
-	if bad:
-		status.add_theme_color_override("font_color", Palette.CHIP_RED)
-	else:
-		status.remove_theme_color_override("font_color")

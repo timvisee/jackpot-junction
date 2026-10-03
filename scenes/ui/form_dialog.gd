@@ -1,11 +1,12 @@
 class_name FormDialog
 extends Control
 ## A few boxes to fill in, over the screen they are asked from, GAME.md 9.3 and 9.3a: a server's
-## name, address and port, or a LAN host's. Laid out the way the match settings are, see
-## [HostSettings]: a shade over the screen, and in the middle the game's pane with a title in gold,
-## a line under it in gray, a row each for the boxes, a line in red for what is wrong with them,
-## and the buttons that answer it in a row under them. Back, or B, puts it away, which the screen
-## asking says, since it knows what Back does there.
+## name, address and port, or a LAN host's; or none, and a bar for something being waited on, a
+## server being connected to or a game being made, with what went wrong said in it after. Laid out
+## the way the match settings are, see [HostSettings]: a shade over the screen, and in the middle
+## the game's pane with a title in gold, a line under it in gray, a row each for the boxes, a line
+## in red for what is wrong with them, and the buttons that answer it in a row under them. Back, or
+## B, puts it away, which the screen asking says, since it knows what Back does there.
 ##
 ## The cursor stays on the dialog while it is up: down off the last button is the first box again,
 ## and nothing behind the shade can be reached, by the cursor or by a click.
@@ -16,6 +17,7 @@ const BUTTON_GAP := 16
 var _title: Label
 var _line: Label
 var _rows: VBoxContainer
+var _column: VBoxContainer
 var _buttons: HBoxContainer
 var _wrong: Label
 ## What has the cursor first, as the dialog comes up.
@@ -46,6 +48,7 @@ func _build(title: String, line: String) -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
 	pane.add_child(column)
+	_column = column
 	_title = MenuTheme.title(title, 44)
 	column.add_child(_title)
 	_line = MenuTheme.subtitle(line, Type.LABEL)
@@ -68,6 +71,15 @@ func add_box(label: String, box: Control) -> Control:
 	return row
 
 
+## A bar under the boxes, for something being waited on, see [method LoadingScreen.bar].
+func add_bar() -> ProgressBar:
+	var bar := LoadingScreen.bar()
+	bar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_column.add_child(bar)
+	_column.move_child(bar, _rows.get_index() + 1)
+	return bar
+
+
 ## A button under the boxes, in the row of them, saying [param text].
 func add_button(text: String) -> Button:
 	var button := MenuTheme.button(text)
@@ -76,13 +88,23 @@ func add_button(text: String) -> Button:
 	return button
 
 
-## Up, with the cursor on [param first], and whatever was said wrong last time gone.
+## Up, with the cursor on [param first], or on nothing for a dialog with nothing to press while it
+## waits, and whatever was said wrong last time gone.
 func open(first: Control) -> void:
 	_first = first
 	say("")
 	visible = true
 	_confine()
-	first.grab_focus.call_deferred()
+	if first != null:
+		first.grab_focus.call_deferred()
+	elif is_inside_tree():
+		get_viewport().gui_release_focus()
+
+
+## The cursor on [param control] again, the buttons having changed under it.
+func focus(control: Control) -> void:
+	_confine()
+	control.grab_focus.call_deferred()
 
 
 func close() -> void:
