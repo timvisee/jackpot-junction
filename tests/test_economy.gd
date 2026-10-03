@@ -262,6 +262,52 @@ func test_pickups_hover_clear_of_the_floor_while_they_bob() -> void:
 	assert_float((chip.get_node("Visual") as Node3D).position.y).is_between(0.3, 0.5)
 
 
+## The mult die is a real die, GAME.md 8.1: one to six pips, each two opposite faces adding up to
+## seven, as the box mesh actually lays its faces over the picture, and nothing else to it.
+func test_the_mult_die_is_a_real_die() -> void:
+	var box := BoxMesh.new()
+	var arrays := box.get_mesh_arrays()
+	var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+	var uvs: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV]
+	var corners: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+	# Which way each cell of the picture faces on the cube, by the middle of each triangle, since
+	# a corner on the line between two cells says nothing about which one it is in.
+	var facing: Dictionary[int, Vector3] = {}
+	for i: int in range(0, corners.size(), 3):
+		var middle := (uvs[corners[i]] + uvs[corners[i + 1]] + uvs[corners[i + 2]]) / 3.0
+		var cell := floori(middle.x * 3.0) + 3 * floori(middle.y * 2.0)
+		facing[cell] = normals[corners[i]]
+	assert_int(facing.size()).is_equal(6)
+	for cell: int in 6:
+		for other: int in 6:
+			if facing[cell].dot(facing[other]) < -0.99:
+				assert_int(MultDie.FACES[cell] + MultDie.FACES[other]).is_equal(7)
+	var counts := MultDie.FACES.duplicate()
+	counts.sort()
+	assert_array(counts).is_equal([1, 2, 3, 4, 5, 6] as Array[int])
+	for count: int in range(1, 7):
+		assert_int(MultDie.pips(count).size()).is_equal(count)
+	var image := MultDie.faces()
+	var center := Vector2i(MultDie.FACE_PIXELS / 2, MultDie.FACE_PIXELS / 2)
+	# The one has its pip in the middle, in the mult's red; the two leaves the middle white.
+	var pip := image.get_pixelv(center)
+	var blank := image.get_pixelv(center + Vector2i(MultDie.FACE_PIXELS, 0))
+	assert_float(_apart(pip, MultDie.PIP_INK)).is_less(0.02)
+	assert_float(_apart(blank, Palette.CHIP_WHITE)).is_less(0.02)
+	var root: Node3D = auto_free(Node3D.new())
+	add_child(root)
+	var die := MultDie.new()
+	root.add_child(die)
+	await await_idle_frame()
+	var meshes := die.find_children("*", "MeshInstance3D", true, false)
+	assert_int(meshes.size()).is_equal(1)
+	assert_object((meshes[0] as MeshInstance3D).material_override).is_same(MultDie.look())
+
+
+func _apart(one: Color, other: Color) -> float:
+	return Vector3(one.r - other.r, one.g - other.g, one.b - other.b).length()
+
+
 ## A box taken hands its look to the flight into the kart, GAME.md 8.3, and is freed at the end of
 ## the frame; its pulse reached for the look that had gone, an error in every match. And a box
 ## going down a hole kept its full size, the pulse writing over the shrink.

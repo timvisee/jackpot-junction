@@ -13,6 +13,7 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The mult die is a real die.** It has its pips on every side, one to six, in the mult's red.
 - **Pictures on the dressing pads.** The paint, hat, flag and trail pads in the lobby and the
   Garage show a picture of what they change rather than its name.
 - **A finger for a tap.** On a phone, the theory book and the license stamp show a finger tapping
