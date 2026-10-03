@@ -479,6 +479,21 @@ else's results screen, see 10.3.
   Manage players, whatever their own machine sends. The
   first seat's box is on the online screen as well, since that is the name a
   machine gives when it connects.
+- **Profiles at other seats.** The first seat at a machine is the profile playing,
+  8.5, and every other seat is that profile's guest, until its player sits in as
+  another profile kept on the machine: Link profile on their switch in the pause
+  menu, in any room or map, lists the profiles they can be, then Unlink when they
+  are one, then Back. A linked seat is that profile at once: its name, its kart's
+  dress, its plate or learner's L, and how it drives, and whatever the seat changes
+  of them is that profile's. The maps it plays to the whistle go into that
+  profile's statistics. A profile sits at one seat at a time, never the profile
+  playing and never the first seat; the button is only there when the machine
+  keeps another profile, and a profile sat in cannot be deleted. Unlinked, a seat
+  is a guest again, under its own name or a funny one. It is for the sitting
+  alone: back at the title every seat is a guest again, and the profile playing is
+  still the one it was. Online it works the same at a client, which says the
+  name, the kart and the plate to the host as a seat says them sitting down.
+  `SeatLink`, from `DriveSwitches`, through `Settings.link_seat`.
 - **Emotes.** A player can put one of four up over their kart: GG, a smile, a
   scowl or a heart, each on a round white bubble rimmed in their color so it
   says who as well as what. On a pad the right stick flicked up, right, down or
@@ -3140,8 +3155,8 @@ like any other button.
   kept as the best. A map counts only once its whistle has gone, local or online,
   against bots or people; a Grand Prix counts on its last map. Leaving before the
   whistle counts for nothing, and the driving school, the Garage and the lobby are not
-  matches. It is the first seat's, whose profile is playing; a seat's own profile, see
-  3.8, keeps its own. No reset: a new profile starts from nothing. `LifetimeStats`,
+  matches. It is the first seat's, whose profile is playing; a seat sat in as another
+  profile, see 3.8, counts into that one, and a guest's counts nowhere. No reset: a new profile starts from nothing. `LifetimeStats`,
   written by `MatchRecord` a moment after the whistle, when a client has the host's
   last numbers.
 - **Profiles**, after Statistics: who is playing at this machine, down the left as the
@@ -3161,7 +3176,8 @@ like any other button.
   from the title's settings: inside a room the names at the table are already the ones
   playing, so there the buttons are off and a line says to switch from the title. A
   settings file from before profiles is not carried over: the first profile starts
-  blank. The other seats are guests of the profile playing, kept in it as before.
+  blank. The other seats are guests of the profile playing, kept in it as before,
+  until another profile sits in at one, 3.8.
 - **About**: the game's mark, its name and its version, and that it is an
   experiment in what an AI model can make: everything in it not credited there
   was made by Anthropic's Claude, whose models are named in the order they worked

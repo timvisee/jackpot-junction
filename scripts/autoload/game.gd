@@ -231,6 +231,8 @@ static func is_headless() -> bool:
 func go_to_title() -> void:
 	Net.close()
 	grand_prix = null
+	# Whoever sat in as another profile is a guest again, GAME.md 3.8.
+	settings.unlink_all()
 	get_tree().paused = false
 	get_tree().change_scene_to_file(TITLE_SCENE)
 
@@ -245,8 +247,8 @@ func go_to_lobby(from: Match = null) -> void:
 		config.take_locals(from)
 		# And every seat past theirs keeps its own name and dress for whoever sits down in it.
 		for seat: int in range(config.human_names.size(), settings.player_names.size()):
-			config.human_names.append(settings.player_names[seat])
-			config.human_styles.append(settings.kart_styles[seat])
+			config.human_names.append(settings.seat_name(seat))
+			config.human_styles.append(settings.seat_style(seat))
 	go_to_waiting(config)
 
 

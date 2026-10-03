@@ -186,7 +186,7 @@ static func keep(slot: PlayerSlot) -> void:
 		seat = 0
 	if seat < 0 or seat >= settings.kart_styles.size():
 		return
-	settings.kart_styles[seat] = slot.style.to_array()
+	settings.set_seat_style(seat, slot.style.to_array())
 	settings.save_to_disk()
 
 

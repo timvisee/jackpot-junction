@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Play as your own profile at a shared screen.** A second, third or fourth player can pick Link
+  profile in the pause menu to bring their own name, kart and plate, and their games count toward
+  their own statistics.
 - **Lifetime statistics.** Every map you play to the end adds to your profile's numbers, from maps
   and Grand Prix won to kilometers driven, on a new Statistics page in the settings.
 - **Profiles.** Each person at a machine has a profile of their own, with their names, karts,

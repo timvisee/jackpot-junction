@@ -173,7 +173,8 @@ func test_a_match_played_to_the_end_goes_into_the_profile() -> void:
 	)
 	await runner.simulate_frames(2, 17)
 	var mine := match_node.slots[0]
-	assert_object(MatchRecord.first_seat(match_node)).is_same(mine)
+	assert_object(MatchRecord.profile_of(mine)).is_same(settings.profile)
+	assert_object(MatchRecord.profile_of(match_node.slots[1])).is_null()
 	mine.stats.add(&"driven", 1500.0)
 	mine.stats.add(&"bullets", 20.0)
 	mine.stats.add(&"hits", 5.0)

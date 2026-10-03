@@ -370,12 +370,13 @@ func _players_tab() -> Control:
 	column.add_theme_constant_override("separation", 12)
 	column.add_child(page_line(PLAYERS_LINE))
 	for seat: int in _settings.player_names.size():
+		# A seat another profile sits in, GAME.md 3.8, is that profile's name and way of driving.
 		var field := MenuTheme.field(
-			_settings.player_names[seat], PlayerNames.PLACEHOLDER, PlayerNames.MAX_LENGTH
+			_settings.seat_name(seat), PlayerNames.PLACEHOLDER, PlayerNames.MAX_LENGTH
 		)
 		field.custom_minimum_size = Vector2(360.0, 44.0)
 		field.text_changed.connect(
-			func(text: String) -> void: _settings.player_names[seat] = PlayerNames.clean(text)
+			func(text: String) -> void: _settings.set_seat_name(seat, PlayerNames.clean(text))
 		)
 		var row := MenuTheme.row("Seat %d" % (seat + 1), field)
 		row.add_child(_drive_switch(seat))
@@ -414,8 +415,8 @@ func _drive_switch(seat: int) -> Button:
 	toggle.pressed.connect(
 		func() -> void:
 			var simple := _settings.drive_mode(seat) == Settings.DRIVE_SIMPLE
-			_settings.drive_modes[seat] = (
-				Settings.DRIVE_ADVANCED if simple else Settings.DRIVE_SIMPLE
+			_settings.set_drive_mode(
+				seat, Settings.DRIVE_ADVANCED if simple else Settings.DRIVE_SIMPLE
 			)
 			shown.call()
 			if seat == 0 and _first_driving != null:

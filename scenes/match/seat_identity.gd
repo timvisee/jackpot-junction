@@ -15,10 +15,10 @@ static func rename(slot: PlayerSlot, typed: String) -> void:
 		return
 	var name := PlayerNames.clean(typed)
 	var settings := Game.settings
-	if player.seat < settings.player_names.size() and settings.player_names[player.seat] != name:
-		settings.player_names[player.seat] = name
+	if settings.seat_name(player.seat) != name:
+		settings.set_seat_name(player.seat, name)
 		settings.save_to_disk()
-	var session := _client_of(slot)
+	var session := client_of(slot)
 	if session != null:
 		session.claim_name(name, slot.index)
 	if not name.is_empty():
@@ -42,7 +42,7 @@ static func recolor(match_node: Match, slot: PlayerSlot) -> void:
 	var color := next_color(match_node, slot)
 	if color == slot.color_index:
 		return
-	var session := _client_of(slot)
+	var session := client_of(slot)
 	if session != null:
 		session.claim_color(color, slot.index)
 		return
@@ -70,7 +70,7 @@ static func is_free(match_node: Match, slot: PlayerSlot, color: int) -> bool:
 
 ## The session to ask, when [param slot] is one of this client's own players; null here and on the
 ## host, where it is this machine's to decide.
-static func _client_of(slot: PlayerSlot) -> NetSession:
+static func client_of(slot: PlayerSlot) -> NetSession:
 	var session := Net.session if Net.online() else null
 	if session == null or session.is_host:
 		return null

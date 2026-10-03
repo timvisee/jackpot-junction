@@ -515,7 +515,7 @@ func plate_kart(slot: PlayerSlot) -> void:
 	if slot.kart == null:
 		return
 	if slot.is_local_human() or is_local_seat(slot.index):
-		KartVisuals.plate_for_here(slot.kart)
+		KartVisuals.plate_for_seat(slot.kart)
 	elif slot.input is BotInput:
 		KartVisuals.plate_for_bot(slot.kart, slot.kart.get_node_or_null("Brain") as BotBrain, rng)
 

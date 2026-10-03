@@ -175,6 +175,10 @@ var grand_prix_xl := true
 ## The person playing at this machine, GAME.md 8.5: whose names, karts, license and servers the
 ## names below read and write, see [Profile]. Switched from the settings' Profiles page.
 var profile := Profile.new()
+## For this sitting alone, never saved: which profile each other seat at this screen plays as, by
+## its id, or empty for a guest of the profile playing, kept in it. The first seat is always the
+## profile playing. Gone at the title, see [method unlink_all], GAME.md 3.8.
+var linked: Array[String] = ["", "", "", ""]
 ## What each local seat calls itself, how it dressed its kart and how it drives, its license and
 ## plate, how far through the driving school it got, and where it last played: the profile's.
 var player_names: Array[String]:
@@ -250,6 +254,8 @@ var lobby_watchers := true
 var lobby_watch_free := false
 
 var path := DEFAULT_PATH
+## The profiles linked to seats, read once.
+var _linked_profiles: Dictionary[String, Profile] = {}
 
 
 func load_from_disk() -> void:
@@ -412,6 +418,8 @@ func save_to_disk() -> Error:
 	var folder := profiles_dir()
 	profile.path = folder.path_join(profile.id + ".cfg") if not folder.is_empty() else ""
 	profile.save_to_disk()
+	for each: Profile in _linked_profiles.values():
+		each.save_to_disk()
 	return file.save(path)
 
 
@@ -430,13 +438,18 @@ func profiles() -> Array[Profile]:
 	var found: Array[Profile] = [profile]
 	var folder := profiles_dir()
 	var ids: Array[int] = []
-	for file: String in DirAccess.get_files_at(folder) if not folder.is_empty() else []:
+	var kept := not folder.is_empty() and DirAccess.dir_exists_absolute(folder)
+	for file: String in DirAccess.get_files_at(folder) if kept else []:
 		if file.get_extension() == "cfg" and file.get_basename().is_valid_int():
 			ids.append(int(file.get_basename()))
 	ids.sort()
 	for number: int in ids:
-		if str(number) != profile.id:
-			found.append(Profile.at(folder, str(number)))
+		var id := str(number)
+		if id != profile.id:
+			# A linked one as its seat has it, so nothing done to it here is lost on the next save.
+			found.append(
+				_linked_profiles[id] if _linked_profiles.has(id) else Profile.at(folder, id)
+			)
 	found.sort_custom(func(a: Profile, b: Profile) -> bool: return int(a.id) < int(b.id))
 	return found
 
@@ -463,9 +476,10 @@ func switch_profile(id: String) -> void:
 	save_to_disk()
 
 
-## Throws the profile kept as [param id] away, file and all. Never the one playing.
+## Throws the profile kept as [param id] away, file and all. Never the one playing, nor one a seat
+## plays as.
 func delete_profile(id: String) -> bool:
-	if id == profile.id or profiles_dir().is_empty():
+	if id == profile.id or id in linked or profiles_dir().is_empty():
 		return false
 	return DirAccess.remove_absolute(profiles_dir().path_join(id + ".cfg")) == OK
 
@@ -476,18 +490,128 @@ static func remove_files(at: String) -> void:
 	var settings := Settings.new()
 	settings.path = at
 	var folder := settings.profiles_dir()
-	if not folder.is_empty():
+	if not folder.is_empty() and DirAccess.dir_exists_absolute(folder):
 		for file: String in DirAccess.get_files_at(folder):
 			DirAccess.remove_absolute(folder.path_join(file))
 		DirAccess.remove_absolute(folder)
 	DirAccess.remove_absolute(at)
 
 
-## How the local seat [param seat] drives, one of [constant DRIVE_MODES].
+## How the local seat [param seat] drives, one of [constant DRIVE_MODES]: its linked profile's way,
+## or its own.
 func drive_mode(seat: int) -> String:
+	var own := seat_profile(seat)
+	if own != null:
+		return own.drive_modes[0] if not own.drive_modes[0].is_empty() else DRIVE_ADVANCED
 	if seat < 0 or seat >= drive_modes.size() or drive_modes[seat].is_empty():
 		return DRIVE_ADVANCED
 	return drive_modes[seat]
+
+
+## [param seat] drives [param mode] from now on, kept in its linked profile or in this one.
+func set_drive_mode(seat: int, mode: String) -> void:
+	var own := seat_profile(seat)
+	if own != null:
+		own.drive_modes[0] = mode
+	elif seat >= 0 and seat < drive_modes.size():
+		drive_modes[seat] = mode
+
+
+## The profile linked to [param seat], GAME.md 3.8, or null for the first seat and a guest.
+func seat_profile(seat: int) -> Profile:
+	if seat <= 0 or seat >= linked.size() or linked[seat].is_empty():
+		return null
+	var id := linked[seat]
+	if not _linked_profiles.has(id):
+		_linked_profiles[id] = Profile.at(profiles_dir(), id)
+	return _linked_profiles[id]
+
+
+## The profiles [param seat] may be linked to: every one kept but the one playing and those linked
+## to other seats.
+func linkable(seat: int) -> Array[Profile]:
+	var free: Array[Profile] = []
+	for each: Profile in profiles():
+		if each.id != profile.id and (each.id not in linked or linked[seat] == each.id):
+			free.append(each)
+	return free
+
+
+## [param seat] plays as the profile kept as [param id] from now on, or as a guest again for an
+## empty one. Never the first seat, never the profile playing, never one another seat has.
+func link_seat(seat: int, id: String) -> bool:
+	if seat <= 0 or seat >= linked.size():
+		return false
+	if not id.is_empty() and (id == profile.id or (id in linked and linked[seat] != id)):
+		return false
+	linked[seat] = id
+	return true
+
+
+## Every seat back to being a guest, as at the title.
+func unlink_all() -> void:
+	if not _linked_profiles.is_empty():
+		save_to_disk()
+	linked = ["", "", "", ""]
+	_linked_profiles.clear()
+
+
+## What [param seat] is called: its linked profile's first player, or its own entry.
+func seat_name(seat: int) -> String:
+	var own := seat_profile(seat)
+	if own != null:
+		return own.player_names[0]
+	return player_names[seat] if seat >= 0 and seat < player_names.size() else ""
+
+
+func set_seat_name(seat: int, named: String) -> void:
+	var own := seat_profile(seat)
+	if own != null:
+		own.player_names[0] = named
+	elif seat >= 0 and seat < player_names.size():
+		player_names[seat] = named
+
+
+## How [param seat]'s kart is dressed: its linked profile's first kart, or its own; undressed for
+## a seat past the last.
+func seat_style(seat: int) -> PackedInt32Array:
+	var own := seat_profile(seat)
+	if own != null:
+		return PackedInt32Array(own.kart_styles[0])
+	if seat < 0 or seat >= kart_styles.size():
+		return PackedInt32Array()
+	return PackedInt32Array(kart_styles[seat])
+
+
+func set_seat_style(seat: int, style: PackedInt32Array) -> void:
+	var own := seat_profile(seat)
+	if own != null:
+		own.kart_styles[0] = style
+	elif seat >= 0 and seat < kart_styles.size():
+		kart_styles[seat] = style
+
+
+## What [param seat]'s kart wears on its back, as the wire says it: "L" before a license, or the
+## plate; its linked profile's, or the profile playing's, whose guests wear its plate.
+func seat_plate(seat: int) -> String:
+	var own := seat_profile(seat)
+	var whose := own if own != null else profile
+	return "L" if whose.license_number.is_empty() else whose.license_plate
+
+
+## Each seat's name and dress, links and all, for a match's configuration.
+func seat_names() -> Array[String]:
+	var names: Array[String] = []
+	for seat: int in player_names.size():
+		names.append(seat_name(seat))
+	return names
+
+
+func seat_styles() -> Array:
+	var styles: Array = []
+	for seat: int in kart_styles.size():
+		styles.append(seat_style(seat))
+	return styles
 
 
 ## Whether the first seat has said how it drives yet, which the first Play asks, GAME.md 4.2.

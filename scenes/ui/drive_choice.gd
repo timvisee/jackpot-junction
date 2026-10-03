@@ -136,7 +136,7 @@ func _confine() -> void:
 ## Answers with [param mode], for the seat asked or for every seat that has not said, and goes on.
 func choose(mode: String) -> void:
 	if seat >= 0:
-		Game.settings.drive_modes[seat] = mode
+		Game.settings.set_drive_mode(seat, mode)
 	else:
 		Game.settings.choose_driving(mode)
 	Game.settings.save_to_disk()

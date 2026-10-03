@@ -20,6 +20,10 @@ extends Control
 ## In the lobby and the Garage there is more to it, GAME.md 4.4: a box with the player's name in
 ## it, to type another, and a button with their color and its name on it that moves them on to the
 ## next one nobody else is in. See [SeatIdentity], which does it, online too.
+##
+## Every player here past the first has Link profile too, when this machine keeps another profile,
+## GAME.md 3.8: in place of their switch it lists the profiles they can play as, then Unlink when
+## they are one, then Back. See [SeatLink], which does it.
 
 ## How far in from the edges of the screen a switch keeps, whatever its corner.
 const EDGE := 12.0
@@ -40,6 +44,9 @@ const WORDS: Dictionary[String, String] = {
 ## does, which only the player at a touch screen has.
 const DRIVING := &"driving"
 const TOUCH := &"touch"
+const LINK := "Link profile"
+const UNLINK := "Unlink"
+const BACK := "Back"
 
 ## Whether the players can change their names and colors here: in the lobby and the Garage.
 var names_and_colors := false
@@ -49,6 +56,8 @@ var names_and_colors := false
 var _up: Array[Dictionary] = []
 ## The menu's buttons the switches were joined to, for letting go of them again.
 var _menu: Array[Button] = []
+## The seat whose switch is the list of profiles it can play as just now, or -1.
+var _choosing := -1
 
 
 func _ready() -> void:
@@ -60,6 +69,11 @@ func _ready() -> void:
 ## down any left from before: somebody may have joined since. [param menu] is the pause menu's own
 ## column of buttons, to join the switches to for a pad.
 func put_up(menu: Array[Button] = []) -> void:
+	_choosing = -1
+	_put_up(menu)
+
+
+func _put_up(menu: Array[Button]) -> void:
 	take_down()
 	var match_node := _room()
 	if match_node == null or match_node.hud == null:
@@ -193,6 +207,11 @@ func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control, can_leave: 
 		"name": name_label,
 		"worn": "",
 	}
+	if player.seat == _choosing:
+		_profile_list(column, each)
+		add_child(holder)
+		_show(each)
+		return each
 	if names_and_colors:
 		each["box"] = _name_box(column, each)
 		each["swatch"] = _color_button(column, each)
@@ -201,6 +220,8 @@ func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control, can_leave: 
 	# device rather than a pad of their own.
 	if TouchInput.enabled and player.device == DeviceInput.ANY:
 		_toggle(column, each, TOUCH)
+	if player.seat > 0 and Game.settings.profiles().size() > 1:
+		each["link"] = _wide_button(column, each, LINK, _choose_profile.bind(player.seat))
 	if can_leave:
 		var leave := MenuTheme.button("Leave", Type.BODY)
 		leave.custom_minimum_size = Vector2(WIDTH, 52.0)
@@ -232,6 +253,65 @@ func _leave(each: Dictionary) -> void:
 	put_up(menu)
 	if not menu.is_empty():
 		menu[0].grab_focus()
+
+
+## A button as wide as a switch, saying [param words], that does [param does], and is one of
+## [param each]'s for a pad's cursor.
+func _wide_button(column: VBoxContainer, each: Dictionary, words: String, does: Callable) -> Button:
+	var pressable := MenuTheme.button(words, Type.BODY)
+	pressable.custom_minimum_size = Vector2(WIDTH, 52.0)
+	pressable.pressed.connect(does)
+	column.add_child(pressable)
+	var buttons: Array[Control] = each["buttons"]
+	buttons.append(pressable)
+	return pressable
+
+
+## In place of [param each]'s switch, the profiles its seat can play as, the one it is marked and
+## not pressable, then Unlink when it is one, then Back.
+func _profile_list(column: VBoxContainer, each: Dictionary) -> void:
+	var seat := (each["player"] as PlayerInput).seat
+	var settings := Game.settings
+	var now := settings.linked[seat] if seat < settings.linked.size() else ""
+	for profile: Profile in settings.linkable(seat):
+		var pick := _wide_button(column, each, profile.display_name(), _pick.bind(seat, profile.id))
+		pick.name = "Profile%s" % profile.id
+		pick.disabled = profile.id == now
+	if not now.is_empty():
+		var unlink := _wide_button(column, each, UNLINK, _pick.bind(seat, ""))
+		unlink.name = "Unlink"
+	var back := _wide_button(column, each, BACK, _picked.bind(seat))
+	back.name = "Back"
+	each["button"] = (each["buttons"] as Array)[0]
+
+
+## [param seat]'s switch becomes the list of profiles it can play as, the cursor on the first.
+func _choose_profile(seat: int) -> void:
+	_choosing = seat
+	_again(seat, func(each: Dictionary) -> Control: return each["button"])
+
+
+## [param seat] plays as the profile kept as [param id], or as a guest for an empty one.
+func _pick(seat: int, id: String) -> void:
+	var match_node := _room()
+	for each: Dictionary in _up:
+		if match_node != null and (each["player"] as PlayerInput).seat == seat:
+			SeatLink.link(match_node, each["slot"], id)
+	_picked(seat)
+
+
+## Back from the list to [param seat]'s switch, the cursor on Link profile.
+func _picked(seat: int) -> void:
+	_choosing = -1
+	_again(seat, func(each: Dictionary) -> Control: return each.get("link", each["button"]))
+
+
+## The switches put up again, the cursor on what [param focus] says of [param seat]'s.
+func _again(seat: int, focus: Callable) -> void:
+	_put_up(_menu.duplicate())
+	for each: Dictionary in _up:
+		if (each["player"] as PlayerInput).seat == seat:
+			(focus.call(each) as Control).grab_focus.call_deferred()
 
 
 ## What [param player] is playing on, as the card under their switch says it.
@@ -294,9 +374,7 @@ func _name_box(column: VBoxContainer, each: Dictionary) -> LineEdit:
 	box.max_length = PlayerNames.MAX_LENGTH
 	box.custom_minimum_size = Vector2(WIDTH, 48.0)
 	box.select_all_on_focus = true
-	var kept := ""
-	if player.seat < Game.settings.player_names.size():
-		kept = Game.settings.player_names[player.seat]
+	var kept := Game.settings.seat_name(player.seat)
 	box.text = kept
 	box.placeholder_text = slot.display_name() if kept.is_empty() else PlayerNames.PLACEHOLDER
 	each["shown"] = kept
@@ -392,7 +470,7 @@ func _flip(each: Dictionary, kind: StringName) -> void:
 	else:
 		var seat := (each["player"] as PlayerInput).seat
 		var simple := Settings.DRIVE_SIMPLE
-		settings.drive_modes[seat] = Settings.DRIVE_ADVANCED if now == simple else simple
+		settings.set_drive_mode(seat, Settings.DRIVE_ADVANCED if now == simple else simple)
 	settings.save_to_disk()
 	_show(each)
 

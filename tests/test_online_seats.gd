@@ -23,7 +23,8 @@ var _settings_were: Settings
 func before_test() -> void:
 	_settings_were = Game.settings
 	Game.settings = Settings.new()
-	Game.settings.path = "user://test_online_seats.cfg"
+	# By port, so that the lagged suite running beside this one has files of its own.
+	Game.settings.path = "user://test_online_seats_%d.cfg" % port
 	Game.settings.player_names[1] = "Second Seat"
 	_host_root = auto_free(Node.new())
 	_host_root.name = "HostRoot"
@@ -36,8 +37,10 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	Net.session = null
 	get_tree().set_multiplayer(null, _host_root.get_path())
 	get_tree().set_multiplayer(null, _client_root.get_path())
+	Settings.remove_files(Game.settings.path)
 	Game.settings = _settings_were
 
 
@@ -135,6 +138,32 @@ func test_a_second_player_at_a_client_sits_down_drives_and_leaves() -> void:
 	var emptied := await _wait_until(func() -> bool: return not hosted.input is NetInput, 4000)
 	assert_bool(emptied).override_failure_message("the host kept the seat").is_true()
 	assert_bool(_host_match.slots[_client.local_slot].input is NetInput).is_true()
+
+
+## GAME.md 3.8: a second player at a client who sits in as another profile kept there is that
+## profile on the host too: its name, its kart and its plate.
+func test_a_profile_linked_at_a_client_reaches_the_host() -> void:
+	await _seated()
+	assert_bool(await _sit_another_down()).override_failure_message("no second seat").is_true()
+	var second := _client.seats[1]
+	var bob := Game.settings.new_profile()
+	bob.player_names[0] = "Bob"
+	bob.kart_styles[0] = PackedInt32Array([2, 1, 0, 3])
+	bob.license_number = "0042"
+	bob.license_plate = "BOB-1"
+	bob.save_to_disk()
+	Net.session = _client
+	var slot := _client_match.slots[second.slot]
+	assert_bool(SeatLink.link(_client_match, slot, bob.id)).is_true()
+	var hosted := _host_match.slots[second.slot]
+	var named := await _wait_until(func() -> bool: return hosted.player_name == "Bob", 4000)
+	assert_bool(named).override_failure_message("the host kept the guest's name").is_true()
+	assert_that(hosted.style.to_array()).is_equal(PackedInt32Array([2, 1, 0, 3]))
+	var plate := hosted.kart.get_node("Body/Plate")
+	assert_str(plate.get_meta(&"plate")).is_equal("BOB-1")
+	# And said again as the seat sits down in the next room.
+	assert_str(second.player_name).is_equal("Bob")
+	assert_that(second.style).is_equal(PackedInt32Array([2, 1, 0, 3]))
 
 
 ## GAME.md 9.6: a lobby for two holds two, whichever machine the third sits down at.

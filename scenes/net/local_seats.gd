@@ -51,10 +51,8 @@ func sit_down(device: int) -> ClientSeat:
 	while numbered(number) != null:
 		number += 1
 	var settings := Game.settings
-	var named := settings.player_names[number] if number < settings.player_names.size() else ""
-	var dressed := PackedInt32Array()
-	if number < settings.kart_styles.size():
-		dressed = PackedInt32Array(settings.kart_styles[number])
+	var named := settings.seat_name(number)
+	var dressed := settings.seat_style(number)
 	var made := ClientSeat.make(number, PlayerInput.new(device, number), named, dressed)
 	seats.append(made)
 	return made

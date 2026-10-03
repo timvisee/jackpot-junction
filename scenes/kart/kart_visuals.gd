@@ -61,6 +61,14 @@ static func plate_for_here(kart: Kart) -> Node3D:
 	return plate_for_here_on(_body_of(kart))
 
 
+## The plate of the seat at this machine whose kart [param kart] is, GAME.md 3.8: its linked
+## profile's, or the profile playing's.
+static func plate_for_seat(kart: Kart) -> Node3D:
+	var player := kart.input as PlayerInput
+	var seat := player.seat if player != null else 0
+	return plate_like(_body_of(kart), Game.settings.seat_plate(seat))
+
+
 ## The same, as the word the wire carries, GAME.md 10.3: "L" or the plate's text, which a client
 ## says to the host for its seats, see [method NetSession._claim_plate].
 static func plate_here() -> String:

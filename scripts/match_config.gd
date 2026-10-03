@@ -160,8 +160,8 @@ static func from_settings(settings: Settings) -> MatchConfig:
 	config.own_bullets_hurt = settings.own_bullets_hurt
 	config.joker_slots = settings.joker_slots
 	config.overtime = settings.overtime
-	config.human_names = settings.player_names.duplicate()
-	config.human_styles = settings.kart_styles.duplicate()
+	config.human_names = settings.seat_names()
+	config.human_styles = settings.seat_styles()
 	config.map = StringName(settings.map)
 	config.rounds = settings.grand_prix_maps if settings.grand_prix else 0
 	config.keep_jokers = settings.grand_prix_jokers

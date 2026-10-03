@@ -735,7 +735,7 @@ func _assign_slot(index: int, _seed: int, number := 0) -> void:
 	_claim_name.rpc_id(1, PlayerNames.clean(each.player_name), number)
 	if not each.style.is_empty():
 		_claim_style.rpc_id(1, each.style, number)
-	_claim_plate.rpc_id(1, KartVisuals.plate_here(), number)
+	_claim_plate.rpc_id(1, Game.settings.seat_plate(number), number)
 	slot_assigned.emit(index)
 
 
