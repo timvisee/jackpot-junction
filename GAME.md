@@ -4578,6 +4578,9 @@ Key pieces:
   let go of them before the engine stops: frames are no measure of that, since
   the mixer keeps a clock of its own. `tools/smoke`, `tools/multiplayer_check` and
   `tools/server_check` fail on anything left behind at exit, from any process.
+  Meanwhile the window shows the menus' own dark, `MenuTheme.BACKGROUND`, which
+  is the color behind nothing at all, between scenes as well: the engine's gray
+  flashed up as the game went.
 
 ### 10.3 Networking
 

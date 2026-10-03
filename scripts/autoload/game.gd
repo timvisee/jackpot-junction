@@ -81,6 +81,10 @@ func _init() -> void:
 
 func _ready() -> void:
 	settings.apply(get_tree())
+	# What shows wherever nothing is drawn: between one scene and the next, and for the moment
+	# quitting waits on the sounds, see [method quit]. The menus' own dark rather than the engine's
+	# gray, which flashed up as the game went.
+	RenderingServer.set_default_clear_color(MenuTheme.BACKGROUND)
 	add_child(FrameCounter.new())
 	# Closing the window is quitting, and goes the same way as the title's Quit, see [method quit].
 	get_tree().auto_accept_quit = false

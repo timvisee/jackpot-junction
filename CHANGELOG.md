@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **No gray flash on quitting.** The window stays the menus' dark while the game closes and
+  between screens.
+
 ## [0.12.0] - 2026-10-02
 
 A driving school teaches the game and ends with a license whose plate your kart wears, and jokers

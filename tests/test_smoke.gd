@@ -43,6 +43,11 @@ func test_playground_scene_builds() -> void:
 	assert_object(playground.get_node("Match/Kart1")).is_not_null()
 
 
+## Between scenes and while quitting the window shows the menus' dark, not the engine's gray.
+func test_the_empty_window_is_the_menus_dark() -> void:
+	assert_that(RenderingServer.get_default_clear_color()).is_equal(MenuTheme.BACKGROUND)
+
+
 func test_autoloads_are_available_in_tests() -> void:
 	assert_object(get_tree().root.get_node_or_null("Events")).is_not_null()
 	assert_object(get_tree().root.get_node_or_null("Game")).is_not_null()
