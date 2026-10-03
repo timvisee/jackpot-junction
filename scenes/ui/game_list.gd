@@ -2,7 +2,7 @@ class_name GameList
 extends VBoxContainer
 ## Games there are to join, a row each, GAME.md 9.3: a button saying whose it is, whether it is
 ## still in the lobby, how many play in it of how many may and whether it wants a password, which
-## joins it, and Watch beside it, which watches it instead. A game this version cannot play can be
+## joins it, and an eye beside it, which watches it instead. A game this version cannot play can be
 ## neither, and one whose host lets nobody watch cannot be watched. The LAN games screen lists the
 ## games found on the network in one, and Play Online a dedicated server's, 9.3a.
 
@@ -49,7 +49,7 @@ static func describe(game: Dictionary) -> String:
 	return " · ".join(parts)
 
 
-## One game: the button that joins it, saying what it is, and Watch beside it.
+## One game: the button that joins it, saying what it is, and the eye beside it.
 func _row(game: Dictionary) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
@@ -61,9 +61,8 @@ func _row(game: Dictionary) -> HBoxContainer:
 	join.disabled = not playable
 	join.pressed.connect(func() -> void: chosen.emit(game, "join"))
 	row.add_child(join)
-	var watch := MenuTheme.button("Watch", Type.BODY)
+	var watch := IconButton.of(IconButton.Kind.EYE, "Watch")
 	watch.name = "Watch%d" % int(game["id"])
-	watch.custom_minimum_size = Vector2(150.0, 52.0)
 	watch.disabled = not playable or not bool(game.get("watching", true))
 	watch.tooltip_text = ("Watch without a kart" if not watch.disabled else "Not open to watchers")
 	watch.pressed.connect(func() -> void: chosen.emit(game, "watch"))

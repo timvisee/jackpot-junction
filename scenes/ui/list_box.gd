@@ -97,6 +97,34 @@ func _build(heading: String, empty: String) -> void:
 	_refresh()
 
 
+## The row the buttons under a box stand in, side by side and as wide as the box together, so they
+## read as the box's own rather than as a column of their own.
+static func button_row() -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	row.custom_minimum_size = Vector2(WIDTH, 0.0)
+	row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	return row
+
+
+## A button saying [param text] in [param row], sharing its width with the others there.
+static func add_row_button(row: HBoxContainer, text: String) -> Button:
+	var button := MenuTheme.button(text, Type.BODY)
+	button.custom_minimum_size = Vector2(0.0, MenuTheme.button_size().y)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(button)
+	return button
+
+
+## [param line], a line of words on a screen with a box on it, wrapping inside the box's width
+## rather than setting the width itself: the screen's column is as wide as the box, and so is
+## everything that fills it, the row of buttons and Back among them, whatever the words say.
+static func fit(line: Label) -> Label:
+	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	return line
+
+
 ## What the box is headed, and what it says while it has nothing in it.
 func set_heading(heading: String) -> void:
 	_heading.text = heading.to_upper()

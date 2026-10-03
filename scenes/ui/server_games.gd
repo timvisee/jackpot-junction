@@ -39,19 +39,14 @@ func _ready() -> void:
 	var column := MenuTheme.screen(self, 16)
 	column.add_child(MenuTheme.title("Games", 64))
 	var at := "%s:%d" % [link.address, link.port] if link != null else "the server"
-	column.add_child(
-		MenuTheme.subtitle(
-			"On the server at %s. Join or watch a game, or make one and host it from here." % at
-		)
-	)
-	note = red_line()
+	column.add_child(ListBox.fit(MenuTheme.subtitle("Connected to %s" % at)))
+	note = ListBox.fit(red_line())
 	note.text = Game.play_online_note
 	note.visible = not note.text.is_empty()
 	Game.play_online_note = ""
 	column.add_child(note)
-	status = Label.new()
+	status = ListBox.fit(Label.new())
 	status.add_theme_font_size_override("font_size", 20)
-	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status.visible = false
 	column.add_child(status)
 	making_bar = LoadingScreen.bar()

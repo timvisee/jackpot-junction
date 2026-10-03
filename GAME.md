@@ -3504,19 +3504,24 @@ game's gold-barred pane, tried first, read as a dialog box come up over the scre
 part of it. A row each: a
 button saying whose it is, whether it is
 still in the lobby, how many play in it of how many may, and whether it wants a password, which
-joins it, and Watch beside it, which watches it instead, see 10.3. Watch cannot be pressed on a
-game whose host lets nobody watch. A game on a version this one cannot play says which version
+joins it, and an eye beside it, which watches it instead, see 10.3, "Watch" its tooltip: a word
+on every row beside the words of the row is one more word to read, and the eye is the same on all
+of them. The eye cannot be pressed on a game whose host lets nobody watch. A game on a version this one cannot play says which version
 it is on and neither can be pressed. The list is made again as games come, go and change, and a
 pad's cursor stays on the button it was on. Finding is asking rather than being called to: about once a second the screen asks on
 port 7779 of every machine the network reaches, and of its own, which a broadcast does not always
 reach, and a host answers from there to whoever asked. That is what lets several copies of the
 game on one machine all look at once; only the host needs the port to itself, and a second host
 on the same machine is reached by its address. A game that stops answering drops off the list
-after a few seconds. Under the list, Host a game hosts one at this machine, on port 7777, and
-Direct connect puts up an address and a port in place of the list, with Join and Watch under them,
-for a game the asking does not reach: another network, or a router that keeps broadcasts in. Back
-goes from there to the list, and from the list to Play Online. The address and port joined last
-are in the boxes again next time.
+after a few seconds. Under the box, side by side and as wide as it together, Host a game hosts
+one at this machine, on port 7777, and Direct connect asks for an address and a port, with Join,
+Watch and Cancel, for a game the asking does not reach: another network, or a router that keeps
+broadcasts in. It asks in a dialog over the list laid out the way the match settings are, see 9.6:
+a shade over the screen, the game's pane in the middle with its title in gold and a line under it
+in gray, a row each for the boxes, a line in red for what is wrong with them, and the buttons in a
+row under them; the cursor goes round the boxes and the buttons and never off the dialog. Back, or
+B, or Cancel puts it away, and Back from the list goes to Play Online. The address and port joined
+last are in the boxes again next time.
 
 Joining says so while it is tried: Connecting to the address and port, on a pane over the room,
 until the host answers. An address nobody answers at is given up on after a few seconds rather
@@ -3524,8 +3529,8 @@ than the half a minute ENet waits by itself, and the pane says it could not conn
 title comes back; once connected the connection has its usual patience again. The lobby room is
 never shown the match's own lobby panel, which is for a match held on its grid.
 
-Somebody can join to watch instead of to play: Watch beside Join, on a found game's row and
-under Direct connect's boxes. They
+Somebody can join to watch instead of to play: the eye beside a found game's row, or Watch beside
+Join under Direct connect's boxes. They
 say so in the handshake, and the host lets them in even with every seat taken, up to four of
 them on top of the three clients who play; a fifth is told as many are watching as the match
 can take. A watcher is never given a seat or a kart and nothing it sends is heard: it is sent
@@ -3622,16 +3627,22 @@ whose host is the machine the game runs on.
 **Play Online.** The title's way to playing with other machines, in two screens. The first is the
 player's own servers, in the box of 9.3 headed "Your servers", a row each for the dedicated
 servers they keep, a
-button with the server's name over its address and port, which connects to it, and Remove beside
-it, which asks first, "Remove this server?", with Remove and Keep. The list is empty to start
+button with the server's name over its address and port, the address smaller and in gray since
+the name is what the player gave it to be known by, which connects to it, and a trash can beside
+it, "Remove" its tooltip, which asks first, "Remove this server?", with Remove and Keep. The list is empty to start
 with and says so in the middle of the box, "No servers yet. Add one or connect directly.", and
-keeps up to 20. Under it,
-Add a server, Direct connect and LAN games, see 9.3. Add a server and Direct connect put up the
-server's address and its port, 7777 to start with, in place of the list, and Add a server a name
-for it too, which may be left empty for its address to stand for it: Add keeps it and goes back to
-the list with the cursor on it, a server already on the list renamed rather than kept twice, and
-Connect connects without keeping it. Back, or B, goes back to the list from there, and from the
-list to the title. A server is connected to the way it always was: it says it is connecting and
+keeps up to 20. Under it, side by side as LAN games' are,
+Add a server, Direct connect and LAN games, see 9.3. Add a server and Direct connect ask for the
+server's address and its port, 7777 to start with, in the dialog LAN games asks in, and Add a
+server for a name too, which may be left empty for its address to stand for it: Add keeps it and
+closes the dialog onto the list with the cursor on it, a server already on the list renamed rather
+than kept twice, and Connect connects without keeping it. Only an address is taken, here and in LAN
+games' dialog: an IPv4 or IPv6 address, the latter with or without its square brackets, or a host
+name, its labels of letters, digits and hyphens, none over 63 long nor starting or ending with a
+hyphen, and not all digits, which is an IPv4 address or nothing. Anything else is said in the
+dialog's red line, and an address with its port on the end is told the port has a box of its
+own. A kept server in a settings file that is not one is left out of the list. Back, or B, or Cancel puts the dialog
+away, and Back from the list goes to the title. A server is connected to the way it always was: it says it is connecting and
 goes on to the second screen once the server has let this machine in, or says why not: nobody
 answered, the server is on a version this one cannot play, or it is a LAN game. Whether to play or
 to watch is chosen on the second, game by game, since a server holds several. The list, the
@@ -3640,12 +3651,14 @@ not the machine's: they go with the player's profile. The second, Games, lists t
 the way LAN games lists the games on the network, in the same box, headed "Games on this server"
 and saying "No games on this server yet" while there are none,
 a row each saying whose it is, whether it is still in the lobby, how many play in it of how many
-may and whether it wants a password, which joins it, with Watch beside it, and Make a game under
-them. Make a game asks the server for one, says it is making it with a bar under the words that
+may and whether it wants a password, which joins it, with the eye beside it, and Make a game
+under them. Over the box it says which server it is, "Connected to" its address and port. On all
+three screens everything down the middle is as wide as the box: the lines of words wrap inside it
+rather than widening the column, and the buttons and Back fill it. Make a game asks the server for one, says it is making it with a bar under the words that
 fills as the server starts the game's process, the process starts up and its waiting room is built
 a phase at a time, see 8.6, the bar weighted by how long each takes, and once it is up goes into its
 lobby, where the maker has the host's say and sets it up the way a host does, see 9.6: Lobby
-settings first, then the match. Join and Watch go into a game's lobby the way joining a LAN game
+settings first, then the match. Join and the eye go into a game's lobby the way joining a LAN game
 does, the password asked for there if it has one. Back hangs up and goes back to the first
 screen, and so does the server going away, saying so. Back from one of its games, over, shown out
 of it, or with a wrong password or none, the first screen connects to the server again by itself,

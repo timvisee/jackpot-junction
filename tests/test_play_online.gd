@@ -190,7 +190,8 @@ func test_add_keeps_a_server_on_the_list() -> void:
 	assert_str(screen.address_field.text).is_empty()
 	# Nothing to keep without an address.
 	screen.add_button.pressed.emit()
-	assert_str(screen.status.text).is_equal("Enter the server's address")
+	assert_str(screen.dialog.said()).is_equal("Enter the server's address")
+	assert_bool(screen.is_form_up()).is_true()
 	assert_bool(Game.settings.servers.is_empty()).is_true()
 	screen.server_name_field.text = "  Friday night  "
 	screen.address_field.text = "games.example.org"
@@ -202,7 +203,14 @@ func test_add_keeps_a_server_on_the_list() -> void:
 	assert_int(Game.settings.servers.size()).is_equal(1)
 	assert_str(Game.settings.servers[0]["name"]).is_equal("Friday night")
 	var row: Button = screen._servers.connect_button(0)
-	assert_str(row.text).is_equal("Friday night\ngames.example.org:9100")
+	assert_str(screen._servers.row_text(0)).is_equal("Friday night\ngames.example.org:9100")
+	# The address under the name is the smaller and the grayer of the two.
+	var named: Label = row.get_node("Words/Name")
+	var where: Label = row.get_node("Words/Where")
+	assert_int(where.get_theme_font_size("font_size")).is_less(
+		named.get_theme_font_size("font_size")
+	)
+	assert_that(where.get_theme_color("font_color")).is_equal(ServerList.WHERE_INK)
 	await await_idle_frame()
 	assert_object(get_viewport().gui_get_focus_owner()).is_same(row)
 	# The same server again, by another name: the one row, renamed.
@@ -211,7 +219,7 @@ func test_add_keeps_a_server_on_the_list() -> void:
 	screen.port_field.text = "9100"
 	screen.add_button.pressed.emit()
 	assert_int(Game.settings.servers.size()).is_equal(1)
-	assert_str(screen._servers.connect_button(0).text).is_equal("Games.Example.org:9100")
+	assert_str(screen._servers.row_text(0)).is_equal("Games.Example.org:9100")
 	var again := Settings.new()
 	again.path = Game.settings.path
 	again.load_from_disk()
@@ -285,3 +293,97 @@ func test_kept_servers_are_cleaned() -> void:
 	for i: int in ServerList.MOST + 5:
 		many.append({"name": "", "address": "s%d.example.org" % i, "port": 7777})
 	assert_int(ServerList.clean(many).size()).is_equal(ServerList.MOST)
+
+
+## The boxes are asked for in a dialog over the list, laid out as the match settings are, GAME.md
+## 9.3a: the cursor goes round its boxes and buttons and never walks off it, and Cancel puts it away
+## with the cursor back on the button that put it up. The three ways on stand in a row.
+func test_the_boxes_are_a_dialog_over_the_list() -> void:
+	var screen := _screen()
+	await await_idle_frame()
+	var row: Node = screen.adding_button.get_parent()
+	assert_object(row).is_instanceof(HBoxContainer)
+	assert_object(screen.direct_button.get_parent()).is_same(row)
+	assert_object(screen.lan_button.get_parent()).is_same(row)
+	screen.direct_button.pressed.emit()
+	var dialog: FormDialog = screen.dialog
+	assert_bool(dialog.is_open()).is_true()
+	assert_bool(screen.servers_box.is_visible_in_tree()).is_true()
+	var cancel: Button = screen.cancel_button
+	assert_object(cancel.get_node(cancel.focus_neighbor_bottom)).is_same(screen.address_field)
+	assert_object(screen.address_field.get_node(screen.address_field.focus_neighbor_top)).is_same(
+		cancel
+	)
+	cancel.pressed.emit()
+	assert_bool(dialog.is_open()).is_false()
+	await await_idle_frame()
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(screen.direct_button)
+
+
+## A kept server is taken off with a trash can rather than a word, and the word is its tooltip.
+func test_remove_is_a_trash_can() -> void:
+	Game.settings.servers.append(ServerList.entry("", "a.example.org", 7777))
+	var screen := _screen()
+	await await_idle_frame()
+	var remove: Button = screen._servers.remove_button(0)
+	assert_str(remove.text).is_empty()
+	assert_str(remove.tooltip_text).is_equal("Remove")
+	var picture: IconButton.Picture = remove.get_node("Picture")
+	assert_int(picture.kind).is_equal(IconButton.Kind.TRASH)
+	# Beside a row with a name over its address, which is the taller, it is as tall as the row.
+	Game.settings.servers.append(ServerList.entry("Home", "b.example.org", 7777))
+	screen.show_list()
+	await await_idle_frame()
+	await await_idle_frame()
+	var plain: Button = screen._servers.connect_button(0)
+	var named: Button = screen._servers.connect_button(1)
+	var beside: Button = screen._servers.remove_button(1)
+	assert_float(named.size.y).is_greater(plain.size.y)
+	assert_float(beside.size.y).is_equal_approx(named.size.y, 0.5)
+
+
+## Only an address is taken, GAME.md 9.3a: an IPv4 or IPv6 address, or a host name, with what is
+## wrong said otherwise, an address with its port on it among it.
+func test_only_an_address_is_taken() -> void:
+	for good: String in [
+		"127.0.0.1",
+		"10.0.0.7",
+		"::1",
+		"[::1]",
+		"2001:db8::42",
+		"localhost",
+		"games.example.org",
+		"my-server.local",
+		"games.example.org.",
+		"a1.b2"
+	]:
+		assert_str(ServerList.address_problem(good)).override_failure_message(good).is_empty()
+	for bad: String in [
+		"999.1.1.1",
+		"1.2.3",
+		"-games.example.org",
+		"games-.example.org",
+		"games..org",
+		"games_example.org",
+		"games example.org",
+		"http://games.example.org",
+		"a".repeat(64) + ".org"
+	]:
+		assert_str(ServerList.address_problem(bad)).override_failure_message(bad).is_not_empty()
+	assert_str(ServerList.address_problem("games.example.org:7777")).is_equal(
+		"Put the port in the Port box"
+	)
+	var screen := _screen()
+	await await_idle_frame()
+	screen.adding_button.pressed.emit()
+	screen.address_field.text = "games example.org"
+	screen.add_button.pressed.emit()
+	assert_str(screen.dialog.said()).is_equal(
+		"That is not an address: use an IP address or a host name"
+	)
+	assert_bool(Game.settings.servers.is_empty()).is_true()
+	# Nor is one kept in a settings file taken on trust.
+	(
+		assert_bool(ServerList.clean([{"address": "not an address", "port": 7777}]).is_empty())
+		. is_true()
+	)

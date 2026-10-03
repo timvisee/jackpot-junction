@@ -148,9 +148,14 @@ func test_a_bar_follows_the_game_being_made() -> void:
 	assert_bool(screen.make_button.disabled).is_false()
 
 
-## Somebody else's game is listed with Join and Watch, and each goes into its lobby its own way.
+## Somebody else's game is listed with Join and the eye that watches it, and each goes into its
+## lobby its own way. Over the box, the line says which server this is.
 func test_a_listed_game_is_joined_or_watched() -> void:
 	var screen := await _screen()
+	var said := screen.find_children("*", "Label", true, false).map(
+		func(each: Node) -> String: return (each as Label).text
+	)
+	assert_bool("Connected to 127.0.0.1:%d" % port in said).is_true()
 	_hall.make_game(_hall.multiplayer.get_peers()[0])
 	assert_bool(await _wait_until(func() -> bool: return not _launched.is_empty(), 4000)).is_true()
 	_entered.clear()
@@ -163,7 +168,10 @@ func test_a_listed_game_is_joined_or_watched() -> void:
 	var join: Button = games.find_child("Join1", true, false)
 	assert_str(join.text).starts_with("Bo's game")
 	_entered.clear()
-	(games.find_child("Watch1", true, false) as Button).pressed.emit()
+	var watch: Button = games.find_child("Watch1", true, false)
+	assert_str(watch.text).is_empty()
+	assert_int((watch.get_node("Picture") as IconButton.Picture).kind).is_equal(IconButton.Kind.EYE)
+	watch.pressed.emit()
 	join.pressed.emit()
 	assert_int(_entered.size()).is_equal(2)
 	assert_bool(_entered[0].watching).is_true()

@@ -352,7 +352,8 @@ func _listed_button(screen: Control, which: String) -> Button:
 				for button: Node in row.get_children():
 					if button is Button and String(button.name).begins_with(which):
 						found[0] = button
-						return (button as Button).text != "" and not (button as Button).disabled
+						# By its name, since Watch is an eye with no word on it.
+						return not (button as Button).disabled
 			return false,
 		60.0,
 		"the maker's game is on the list to %s" % which.to_lower()

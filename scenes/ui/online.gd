@@ -1,11 +1,11 @@
 extends Control
 ## LAN games, GAME.md 9.3, reached from Play Online: the games on the network, found by asking, see
 ## [LanFinder], in a [GameList] in a box of its own, see [ListBox], a row each with whose it is and
-## how it stands on the button that
-## joins it, and Watch beside it to watch it instead, if its host lets anybody watch. Under them
-## Host a game, which hosts one on this machine, and Direct connect, which puts up the address and
-## port of a game the asking does not reach in place of the list, with Join and Watch under them.
-## Any of them opens into the waiting room of 9.6, which is where the connection is made.
+## how it stands on the button that joins it, and an eye beside it to watch it instead, if its host
+## lets anybody watch. Under them, side by side, Host a game, which hosts one on this machine, and
+## Direct connect, which asks for the address and port of a game the asking does not reach in a
+## dialog over the list, see [FormDialog], with Join, Watch and Cancel. Any of them opens into the
+## waiting room of 9.6, which is where the connection is made.
 ##
 ## Everybody plays under the first seat's name, GAME.md 3.8, which the settings and the lobby's
 ## switch change.
@@ -16,6 +16,8 @@ var host_button: Button
 var direct_button: Button
 var join_button: Button
 var watch_button: Button
+var cancel_button: Button
+var dialog: FormDialog
 var status: Label
 var finder: LanFinder
 ## Back to the servers this screen is reached from: Play Online, unless a test says otherwise.
@@ -24,96 +26,78 @@ var leave: Callable = Game.go_to_play_online
 ## The found games' buttons, and the box they are in.
 var _found: GameList
 var _box: ListBox
-var _subtitle: Label
-var _list_view: VBoxContainer
-var _form_view: VBoxContainer
 
 
 func _ready() -> void:
 	var column := MenuTheme.screen(self, 16)
 	column.add_child(MenuTheme.title("LAN games", 64))
-	_subtitle = MenuTheme.subtitle("")
-	column.add_child(_subtitle)
-	_list_view = VBoxContainer.new()
-	_list_view.name = "List"
-	_list_view.add_theme_constant_override("separation", 16)
-	column.add_child(_list_view)
+	column.add_child(
+		ListBox.fit(
+			MenuTheme.subtitle(
+				"Games on your network show up here by themselves. Host one, or join a host."
+			)
+		)
+	)
 	_found = GameList.new()
 	_found.chosen.connect(_join_found)
 	_box = ListBox.of("Games on your network", _found, "Looking for games on your network...")
-	_list_view.add_child(_box)
+	column.add_child(_box)
 	finder = LanFinder.new()
 	finder.name = "LanFinder"
 	finder.changed.connect(_show_found)
 	add_child(finder)
-	host_button = MenuTheme.button("Host a game")
+	var ways := ListBox.button_row()
+	column.add_child(ways)
+	host_button = ListBox.add_row_button(ways, "Host a game")
 	host_button.pressed.connect(func() -> void: _start("host"))
-	_list_view.add_child(host_button)
-	direct_button = MenuTheme.button("Direct connect")
+	direct_button = ListBox.add_row_button(ways, "Direct connect")
 	direct_button.pressed.connect(show_form)
-	_list_view.add_child(direct_button)
-	_build_form(column)
-	status = Label.new()
+	status = ListBox.fit(Label.new())
 	status.add_theme_font_size_override("font_size", 20)
-	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(status)
 	var back := MenuTheme.button("Back", 24)
 	back.pressed.connect(_back)
 	column.add_child(back)
-	show_list()
-	# Back from a game that turned this machine away, GAME.md 9.6: why, with the address it
-	# knocked at in the boxes and the cursor on Join, which is what the player was doing.
+	_build_dialog()
+	host_button.grab_focus.call_deferred()
+	# Back from a game that turned this machine away, GAME.md 9.6: why, in the dialog, with the
+	# address it knocked at in the boxes and the cursor on Join, which is what the player was doing.
 	if not Game.online_note.is_empty():
 		show_form()
-		status.text = Game.online_note
-		status.add_theme_color_override("font_color", Palette.CHIP_RED)
+		dialog.say(Game.online_note)
 		Game.online_note = ""
 		join_button.grab_focus.call_deferred()
 
 
-func _build_form(column: VBoxContainer) -> void:
-	_form_view = VBoxContainer.new()
-	_form_view.name = "Form"
-	_form_view.add_theme_constant_override("separation", 16)
-	column.add_child(_form_view)
-	_form_view.add_child(MenuTheme.title("Direct connect", Type.TITLE))
+func _build_dialog() -> void:
+	dialog = FormDialog.add_to(
+		self, "Direct connect", "Join a game by its host's address, for one the list does not find."
+	)
 	address_field = MenuTheme.field(Game.settings.last_address, "", ServerList.ADDRESS_LENGTH)
 	address_field.custom_minimum_size = Vector2(320.0, 44.0)
 	address_field.text_submitted.connect(func(_typed: String) -> void: _start("join"))
-	_form_view.add_child(MenuTheme.row("Address", address_field))
+	dialog.add_box("Address", address_field)
 	port_field = MenuTheme.field(str(Game.settings.last_port), str(NetSession.DEFAULT_PORT), 5)
 	port_field.custom_minimum_size = Vector2(320.0, 44.0)
 	port_field.text_submitted.connect(func(_typed: String) -> void: _start("join"))
-	_form_view.add_child(MenuTheme.row("Port", port_field))
-	join_button = MenuTheme.button("Join")
+	dialog.add_box("Port", port_field)
+	join_button = dialog.add_button("Join")
 	join_button.pressed.connect(func() -> void: _start("join"))
-	_form_view.add_child(join_button)
 	# Join to watch, GAME.md 10.3: in the room with everybody, with no kart of your own.
-	watch_button = MenuTheme.button("Watch")
+	watch_button = dialog.add_button("Watch")
 	watch_button.pressed.connect(func() -> void: _start("watch"))
-	_form_view.add_child(watch_button)
+	cancel_button = dialog.add_button("Cancel")
+	cancel_button.pressed.connect(_put_dialog_away)
 
 
-## The games found, and Host a game and Direct connect under them.
-func show_list() -> void:
-	_subtitle.text = "Games on your network show up here by themselves. Host one, or join a host."
-	_list_view.visible = true
-	_form_view.visible = false
-	host_button.grab_focus.call_deferred()
-
-
-## The address and port of a game to join directly, in place of the list.
+## The dialog for the address and port of a game to join directly, over the list.
 func show_form() -> void:
-	_subtitle.text = "Join a game by its host's address, for one the list does not find."
-	_list_view.visible = false
-	_form_view.visible = true
-	status.text = ""
-	address_field.grab_focus.call_deferred()
+	dialog.open(address_field)
 
 
-## Whether the form is up rather than the list.
+## Whether the dialog is up over the list.
 func is_form_up() -> bool:
-	return _form_view.visible
+	return dialog.is_open()
 
 
 ## A row for each game found, the box saying it is still looking while there are none. Made again
@@ -139,13 +123,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		_back()
 
 
-## Back to the list from the form, and back to the servers from the list.
+## Out of the dialog, and back to the servers from the list.
 func _back() -> void:
 	if is_form_up():
-		status.text = ""
-		show_list()
+		_put_dialog_away()
 	else:
 		leave.call("")
+
+
+func _put_dialog_away() -> void:
+	dialog.close()
+	direct_button.grab_focus.call_deferred()
 
 
 ## The configuration for hosting, joining or watching: hosting on the game's own port, the others
@@ -166,13 +154,24 @@ func config(mode: String) -> MatchConfig:
 	return result
 
 
+## What is wrong with joining, said where it was asked: in the dialog while it is up.
+func _wrong(text: String) -> void:
+	if is_form_up():
+		dialog.say(text)
+	else:
+		status.text = text
+
+
 func _start(mode: String) -> void:
 	var result := config(mode)
 	if result.port <= 0 or result.port > 65535:
-		status.text = "Port must be between 1 and 65535"
+		_wrong("Port must be between 1 and 65535")
 		return
 	if result.online == "join" and result.address.is_empty():
-		status.text = "Enter the host's address"
+		_wrong("Enter the host's address")
+		return
+	if result.online == "join" and not ServerList.address_problem(result.address).is_empty():
+		_wrong(ServerList.address_problem(result.address))
 		return
 	if result.online == "join":
 		Game.settings.last_address = result.address

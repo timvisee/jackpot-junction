@@ -544,6 +544,15 @@ func test_lan_games_hosts_and_connects_directly() -> void:
 	assert_int(left[0]).is_equal(0)
 	screen._back()
 	assert_int(left[0]).is_equal(1)
+	# Everything down the screen is as wide as the box: the line under the title wraps inside it
+	# rather than widening the column, and Back with it.
+	await await_idle_frame()
+	var back: Button = null
+	for each: Node in screen.find_children("*", "Button", true, false):
+		if (each as Button).text == "Back":
+			back = each
+	assert_float(back.size.x).is_equal_approx(ListBox.WIDTH, 0.5)
+	assert_float(screen.host_button.get_parent().size.x).is_equal_approx(ListBox.WIDTH, 0.5)
 
 
 ## GAME.md 9.6: the LAN games screen come back to from a game that turned this machine away says
@@ -552,7 +561,7 @@ func test_play_lan_says_why_it_is_back() -> void:
 	Game.online_note = "Wrong password"
 	var screen: Control = auto_free(ONLINE_SCENE.instantiate())
 	add_child(screen)
-	assert_str(screen.status.text).is_equal("Wrong password")
+	assert_str(screen.dialog.said()).is_equal("Wrong password")
 	assert_str(Game.online_note).is_empty()
 	# With the boxes up to join again, and the cursor on Join.
 	assert_bool(screen.is_form_up()).is_true()
@@ -560,7 +569,8 @@ func test_play_lan_says_why_it_is_back() -> void:
 	assert_object(get_viewport().gui_get_focus_owner()).is_same(screen.join_button)
 	var again: Control = auto_free(ONLINE_SCENE.instantiate())
 	add_child(again)
-	assert_str(again.status.text).is_empty()
+	assert_str(again.dialog.said()).is_empty()
+	assert_bool(again.is_form_up()).is_false()
 
 
 ## GAME.md 9.6: the host's Lobby settings set how many may play and a password, at once; the
