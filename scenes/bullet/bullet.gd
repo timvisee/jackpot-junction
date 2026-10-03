@@ -32,6 +32,8 @@ var owner_slot := -1
 var from_turret := false
 ## Fired by the owner's decoy, for the kill feed to say so as it does a turret's, GAME.md 8.3.
 var from_decoy := false
+## How many walls it has come off, for the kill feed to show a ricochet, GAME.md 8.3.
+var bounced_times := 0
 var velocity := Vector3.ZERO
 var radius := 0.15
 var bounces_left := 0
@@ -312,7 +314,7 @@ func _move(delta: float) -> void:
 func _strike(collider: Object) -> bool:
 	var kart := collider as Kart
 	if kart != null:
-		kart.kill_how = {"decoy": from_decoy}
+		kart.kill_how = {"decoy": from_decoy, "bounces": bounced_times}
 	return collider.call("take_hit", self)
 
 
@@ -353,6 +355,7 @@ func _bounce(point: Vector3, normal: Vector3) -> void:
 		return
 	bounces_left -= 1
 	bounced = true
+	bounced_times += 1
 	Events.bullet_bounced.emit()
 	velocity = velocity.bounce(flat_normal)
 	velocity.y = 0.0

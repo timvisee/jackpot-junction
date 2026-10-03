@@ -9,8 +9,9 @@ signal mult_gained(slot: int, amount: float, reason: StringName)
 signal grazed(slot: int)
 signal kart_killed(victim_slot: int, killer_slot: int, cause: StringName)
 ## Said just before a [signal kart_killed] that came about some way its cause does not say, for the
-## kill feed, GAME.md 8.3: by the killer's decoy rather than the killer.
-signal kill_detailed(victim_slot: int, by_decoy: bool)
+## kill feed, GAME.md 8.3: by the killer's decoy rather than the killer, and by a bullet that came
+## off [param bounces] walls first.
+signal kill_detailed(victim_slot: int, by_decoy: bool, bounces: int)
 ## The decoy of [param owner_slot] was destroyed, by [param by_slot] or nobody, as the kill feed
 ## says a kart's death, GAME.md 8.3. Not one that ran out of time.
 signal decoy_destroyed(owner_slot: int, by_slot: int, cause: StringName)

@@ -60,7 +60,8 @@ var jokers: JokerHolder
 ## Set on decoys: the kart whose pot and credit this one feeds.
 var decoy_owner: Kart
 ## How the last hit that could kill it came, beyond its cause, for the kill feed should it: by a
-## decoy, see [signal Events.kill_detailed]. Told by whatever hits it, read by [KartDeath].
+## decoy, off walls, see [signal Events.kill_detailed]. Told by whatever hits it, read by
+## [KartDeath].
 var kill_how: Dictionary = {}
 ## Seconds until a temporary kart such as a decoy expires; 0 means forever.
 var lifetime := 0.0

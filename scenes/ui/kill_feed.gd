@@ -6,7 +6,9 @@ extends VBoxContainer
 ## news it carries: a decoy destroyed, a bounty called or collected, a player shown out. A kill a
 ## decoy made says so, "Ann's decoy shot Bo", and so does a decoy's end, "Bo shot Ann's decoy":
 ## the kill is the owner's either way, but a player taken out by the copy of somebody across the
-## room wants to know it was the copy.
+## room wants to know it was the copy. A kill by a bullet that came off a wall first has the mark
+## of a ricochet at its end, see [BounceIcon], and how many walls it came off beside it if more
+## than one: no words for it, the line says enough already.
 
 const MAX_ROWS := 5
 const HOLD := 6.0
@@ -35,8 +37,9 @@ var room := 0.0
 var _rows: Array[RichTextLabel] = []
 var _ages: PackedFloat32Array = []
 ## The victims of the next kills that came about some way their cause does not say, see
-## [signal Events.kill_detailed]: slot to whether the killer's decoy did it.
-var _decoy_kills: Dictionary[int, bool] = {}
+## [signal Events.kill_detailed]: slot to whether the killer's decoy did it and how many walls the
+## bullet came off.
+var _details: Dictionary[int, Array] = {}
 
 
 func _ready() -> void:
@@ -69,21 +72,23 @@ func _exit_tree() -> void:
 			event.disconnect(connected[1])
 
 
-func _on_kill_detailed(victim_slot: int, by_decoy: bool) -> void:
-	_decoy_kills[victim_slot] = by_decoy
+func _on_kill_detailed(victim_slot: int, by_decoy: bool, bounces: int) -> void:
+	_details[victim_slot] = [by_decoy, bounces]
 
 
 func _on_kart_killed(victim_slot: int, killer_slot: int, cause: StringName) -> void:
-	var by_decoy: bool = _decoy_kills.get(victim_slot, false)
-	_decoy_kills.erase(victim_slot)
+	var detail: Array = _details.get(victim_slot, [false, 0])
+	_details.erase(victim_slot)
 	var victim := _name(victim_slot)
 	if victim.is_empty():
 		return
-	if by_decoy and killer_slot >= 0 and killer_slot != victim_slot:
+	var bounces := int(detail[1])
+	if bool(detail[0]) and killer_slot >= 0 and killer_slot != victim_slot:
 		var decoy := _decoys(_tag(_name(killer_slot), _color(killer_slot)))
-		_push(_label(), _by(decoy, _tag(victim, _color(victim_slot)), cause))
+		_push(_label(), _by(decoy, _tag(victim, _color(victim_slot)), cause), bounces)
 		return
-	add_kill(victim, _color(victim_slot), _name(killer_slot), _color(killer_slot), cause)
+	var killer := _name(killer_slot)
+	add_kill(victim, _color(victim_slot), killer, _color(killer_slot), cause, bounces)
 
 
 func _on_decoy_destroyed(owner_slot: int, by_slot: int, cause: StringName) -> void:
@@ -143,11 +148,16 @@ func newest_text() -> String:
 
 
 ## Adds a kill. [param killer] is empty when nobody gets the credit, for example a kart that
-## drove into a pit by itself.
+## drove into a pit by itself. [param bounces] is how many walls the bullet that did it came off.
 func add_kill(
-	victim: String, victim_color: Color, killer: String, killer_color: Color, cause: StringName
+	victim: String,
+	victim_color: Color,
+	killer: String,
+	killer_color: Color,
+	cause: StringName,
+	bounces := 0
 ) -> void:
-	_push(_label(), _line(victim, victim_color, killer, killer_color, cause))
+	_push(_label(), _line(victim, victim_color, killer, killer_color, cause), bounces)
 
 
 ## One line of the feed, before it is given its words.
@@ -175,8 +185,15 @@ func add_line(text: String, color: Color) -> void:
 	add_kill(text, color, "", color, &"line")
 
 
-func _push(label: RichTextLabel, line: String) -> void:
-	label.text = "[right]%s[/right]" % line
+## Puts up [param line], with the mark of a ricochet at its end for [param bounces] walls, and how
+## many beside it past one.
+func _push(label: RichTextLabel, line: String, bounces := 0) -> void:
+	if bounces <= 0:
+		label.text = "[right]%s[/right]" % line
+	else:
+		label.append_text("[right]%s " % line)
+		label.add_image(BounceIcon.texture(NEUTRAL), FONT_SIZE, FONT_SIZE)
+		label.append_text(("\u00d7%d" % bounces if bounces > 1 else "") + "[/right]")
 	add_child(label)
 	move_child(label, 0)
 	_rows.push_front(label)

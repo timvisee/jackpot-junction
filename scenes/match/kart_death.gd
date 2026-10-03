@@ -70,13 +70,16 @@ static func resolve(
 
 
 ## What the kill feed is told beyond the cause, GAME.md 8.3, when there is anything: that the
-## killer's decoy did it. Only for the hit that killed, which a bullet or a ram says of itself as
-## it lands, see [member Kart.kill_how]; a fall or a bomb has nothing more to say.
+## killer's decoy did it, and how many walls the bullet came off. Only for the hit that killed,
+## which a bullet or a ram says of itself as it lands, see [member Kart.kill_how]; a fall or a
+## bomb has nothing more to say.
 static func _detail(slot: PlayerSlot, cause: StringName) -> void:
 	var how := slot.kart.kill_how if cause in [&"bullet", &"turret", &"ram"] else {}
 	slot.kart.kill_how = {}
-	if bool(how.get("decoy", false)):
-		Events.kill_detailed.emit(slot.index, true)
+	var decoy := bool(how.get("decoy", false))
+	var bounces := int(how.get("bounces", 0)) if cause != &"ram" else 0
+	if decoy or bounces > 0:
+		Events.kill_detailed.emit(slot.index, decoy, bounces)
 
 
 ## The coins that leave the pot before any of it is banked: what the killer takes off it, and

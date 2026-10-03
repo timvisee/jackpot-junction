@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Ricochet kills show it.** A kill by a bullet that bounced off a wall has a bounce mark in the
+  kill feed, with ×2 and up for more walls.
 - **Decoys in the kill feed.** A kill your decoy makes reads "Ann's decoy shot Bo", and a decoy
   destroyed has a line of its own.
 - **Short tire marks, or only yours.** The Video page's Tire marks is Full, Short, Mine or Off:

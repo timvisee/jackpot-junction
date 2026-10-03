@@ -2554,7 +2554,13 @@ movement: the one thing a corner block must not do is ask to be looked at.
   decoy fell in", "P1 took out their own decoy"; one that ran out of time is
   not. The host says so, each kill that came by a decoy announced just before
   the kill itself, `Events.kill_detailed`, and each decoy destroyed with
-  `Events.decoy_destroyed`, both relayed. Names are in the players' colors. Lines hold for 6 s and fade.
+  `Events.decoy_destroyed`, both relayed. A kill by a bullet that came off a wall
+  first has the mark of a ricochet at the end of its line, in the feed's gray: a
+  wall on the right and the bullet's path coming in to it and going off it, with
+  ×2, ×3 beside it for more walls than one. No words for it, "off the wall"
+  being one more phrase to read in a line that says enough already. The bullet
+  counts the walls and the death says them with the rest, `Events.kill_detailed`.
+  Names are in the players' colors. Lines hold for 6 s and fade.
   The feed drops below a player block that owns that corner.
 - **Standings**: a ranked list down the right-hand side, one row per kart with
   its banked score and, in gold beside it, whatever it is still carrying around
