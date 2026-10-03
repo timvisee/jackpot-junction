@@ -1,7 +1,7 @@
 class_name StyleStalls
 extends Node3D
 ## Where a player dresses their kart, GAME.md 4.4 and 9.6: a pad on the floor for each of the four
-## things a kart wears, its paint, its hat, its flag and its trail, with the word on it. On one,
+## things a kart wears, its paint, its hat, its flag and its trail, with its picture on it. On one,
 ## the fire button puts the next of that thing on the kart, with its name over the kart, rather
 ## than a shot out of the cannon, so a player goes through them at their own pace and stops on the
 ## one they want. The pad lights in the color of whoever is on it, and until a player has changed
@@ -12,8 +12,11 @@ extends Node3D
 ## picks is theirs to keep. A player at this machine has it written to their seat in the
 ## settings; a client keeps its own, and says it again when it is seated in the next room.
 
-## The four, in [constant KartStyle.CHOICES] order, and what each pad says.
+## The four, in [constant KartStyle.CHOICES] order, and what each is called in a hint.
 const WORDS: Array[String] = ["PAINT", "HAT", "FLAG", "TRAIL"]
+## How much of a pad its picture takes, and how many pixels the picture is drawn at.
+const PICTURE := 0.62
+const PICTURE_PIXELS := 256
 ## How big a pad is, in cells of the room's grid, and how far in from the cell edges it stops.
 const CELLS := 2
 const INSET := 0.15
@@ -42,6 +45,16 @@ var _slabs: Array[MeshInstance3D] = []
 ## Slot to the hint hanging over its kart, and what the hint was drawn for.
 var _hints: Dictionary[int, Node3D] = {}
 var _drawn: Dictionary[int, String] = {}
+
+
+## One of the four drawn for a pad to wear, in the pad's light ink, see [method DressArt.draw_into].
+class Picture:
+	extends Control
+
+	var part := 0
+
+	func _draw() -> void:
+		DressArt.draw_into(self, Rect2(Vector2.ZERO, size), part, WORD_INK)
 
 
 ## Four pads in [param in_match]'s room, the first of them with its top left corner in [param
@@ -262,14 +275,16 @@ func _build(index: int, corner: Vector2i) -> void:
 	slab.position = Vector3(middle.x, 0.02, middle.z)
 	add_child(slab)
 	_slabs.append(slab)
-	# The word lies on the pad, the top of it away from the camera, which is the way up it reads.
-	var word := Label3D.new()
-	word.text = WORDS[index]
-	word.font = Type.STRONG
-	word.font_size = 80
-	word.pixel_size = 0.008
-	word.modulate = WORD_INK
-	word.outline_size = 0
-	word.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
-	word.position = Vector3(middle.x, 0.05, middle.z)
-	add_child(word)
+	# The picture of what it changes lies on the pad, the roller, the hat, the flag or the trail the
+	# touch screen's button shows there, its top away from the camera, which is the way up it reads.
+	# A word had to be read, in a language, from a moving kart.
+	var drawing := Picture.new()
+	drawing.part = index
+	var picture := DrawnTexture.face(
+		Vector2.ONE * side * PICTURE,
+		DrawnTexture.decal(DrawnTexture.of(self, drawing, Vector2i.ONE * PICTURE_PIXELS))
+	)
+	picture.name = "Picture%d" % index
+	picture.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
+	picture.position = Vector3(middle.x, 0.05, middle.z)
+	add_child(picture)

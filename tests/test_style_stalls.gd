@@ -202,3 +202,24 @@ func test_a_touch_screens_fire_button_shows_what_a_stall_changes() -> void:
 	assert_int(controls.fire_dresses()).is_equal(-1)
 	TouchInput.enabled = was_touch
 	TouchInput.release()
+
+
+## Each pad shows the picture of what it changes, GAME.md 4.4, the roller, the hat, the flag and
+## the trail, lying flat on it, and no word.
+func test_each_pad_shows_its_picture_and_no_word() -> void:
+	var match_node := _room([PlayerInput.new(DeviceInput.KEYBOARD, 0)] as Array[KartInput])
+	await _runner.simulate_frames(5, 17)
+	var stalls := StyleStalls.add_to(match_node, Vector2i(8, 1))
+	await _runner.simulate_frames(2, 17)
+	assert_int(stalls.find_children("*", "Label3D", true, false).size()).is_equal(0)
+	var drawn: Array[int] = []
+	for each: Node in stalls.find_children("*", "Control", true, false):
+		if each is StyleStalls.Picture:
+			drawn.append((each as StyleStalls.Picture).part)
+	drawn.sort()
+	assert_array(drawn).is_equal([0, 1, 2, 3] as Array[int])
+	for i: int in StyleStalls.WORDS.size():
+		var picture: MeshInstance3D = stalls.get_node_or_null("Picture%d" % i)
+		assert_object(picture).override_failure_message("no picture on pad %d" % i).is_not_null()
+		var at := Vector2(picture.position.x, picture.position.z)
+		assert_bool(stalls._areas[i].has_point(at)).is_true()

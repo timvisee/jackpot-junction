@@ -1185,7 +1185,10 @@ short buzz the slider gives, so reading along the row is felt card by card.
   puts it on, and the snapshot carries every kart's plate to every screen, so a
   kart wears the same plate on every machine.
 - They are picked by driving rather than from a menu, at the stalls: a pad on
-  the floor for each of the four, with PAINT, HAT, FLAG and TRAIL on it, along
+  the floor for each of the four, with its picture lying on it, a paint
+  roller, a top hat, a flag and the puffs of a trail, the same the touch
+  screen's fire button shows on one (a word had to be read from a moving kart,
+  and in one language), along
   the back wall of the waiting room of 9.6 and the front wall of the Garage of
   9.4. On one, the fire button puts the next of that thing on the kart, with its
   name floating up over it, rather than a shot out of the cannon, so a player
