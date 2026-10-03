@@ -14,6 +14,10 @@ extends RefCounted
 ## or one another seat has.
 static func link(match_node: Match, slot: PlayerSlot, id: String) -> bool:
 	var player := slot.input as PlayerInput
+	# A client's seat is the slot's from the next snapshot on, and the match's from the moment it
+	# was given.
+	if player == null and match_node.local_seats.has(slot.index):
+		player = match_node.local_seats[slot.index]
 	var settings := Game.settings
 	if player == null or not settings.link_seat(player.seat, id):
 		return false
