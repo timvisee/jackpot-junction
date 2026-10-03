@@ -7,6 +7,12 @@ extends RefCounted
 ## the whole maneuver, and it alternates, so a bot that backs into the same corner twice tries
 ## the other way out rather than rocking on the spot. Stepped by its [BotBrain] every tick, after
 ## the brain has said where it wants to go, which this overrides while it lasts.
+##
+## Backing out does not get a bot out of everything, so a longer watch runs under it in a match:
+## a bot that has not got out of a small circle in [constant LONG_TIME] seconds, while not waiting
+## somewhere on purpose, gives up on what it was doing and goes somewhere else, see
+## [method BotBrain.go_elsewhere]; still there [constant PUT_DOWN_AFTER] seconds later, it is put
+## down on a free spawn point, as a respawn puts it but without dying, see [method put_down].
 
 ## How long a bot puts up with going nowhere before backing out of it, and how long it backs
 ## out for. A nose flat against a wall needs no second of proof, so that case is quicker.
@@ -27,6 +33,11 @@ const PROGRESS_TIME := 2.0
 const PROGRESS_STEP := 2.0
 ## How far in front of itself a bot feels for a wall it is nosed up against.
 const WALL_PROBE := 1.3
+## The longer watch: how long a bot may stay inside a circle this wide across before it gives up
+## on what it was doing, and how long after that it is put down somewhere else.
+const LONG_TIME := 10.0
+const LONG_STEP := 2.0
+const PUT_DOWN_AFTER := 5.0
 
 var brain: BotBrain
 
@@ -38,6 +49,12 @@ var _reverse_steer := 1.0
 ## Where the kart was when the ground it has covered was last looked at, and how long ago.
 var _progress_mark := Vector3.INF
 var _progress_left := PROGRESS_TIME
+## Where the longer watch has the kart staying, and how long it has left to get out of there.
+var _long_mark := Vector3.INF
+var _long_left := LONG_TIME
+## How long until a bot that gave up and has still got nowhere is put down; below zero when it
+## has not given up.
+var _put_down_left := -1.0
 
 
 func _init(owner: BotBrain) -> void:
@@ -45,6 +62,7 @@ func _init(owner: BotBrain) -> void:
 
 
 func step(delta: float) -> void:
+	_watch(delta)
 	if _reverse_left > 0.0:
 		_reverse_left -= delta
 		_back_out()
@@ -89,6 +107,66 @@ func reset() -> void:
 	_reverse_left = 0.0
 	_swing_left = 0.0
 	_progress_mark = Vector3.INF
+	_long_mark = Vector3.INF
+	_put_down_left = -1.0
+
+
+## Whether it has given up on what it was doing and is waiting to see if that got it anywhere.
+func gave_up() -> bool:
+	return _put_down_left >= 0.0
+
+
+## Puts the kart down on the spawn point farthest from everybody else, GAME.md 9.1, facing the
+## Junction, as a respawn puts it but without dying: it keeps its lives, its pot and its jokers.
+func put_down() -> void:
+	var kart := brain.kart
+	var match_node := brain.match_node
+	if not kart.alive or kart.falling or match_node.arena.spawn_points.is_empty():
+		return
+	var others: Array[Vector3] = []
+	for slot: PlayerSlot in match_node.slots:
+		if slot.kart != null and slot.kart != kart and slot.kart.alive:
+			others.append(slot.kart.global_position)
+	var point := Match.pick_spawn(match_node.arena.spawn_points, others)
+	kart.global_position = Vector3(point.x, 0.0, point.z)
+	kart.face(match_node.arena.junction_position - point)
+	kart.motor.velocity = Vector3.ZERO
+	kart.motor.forward_speed = 0.0
+	kart.motor.drifting = false
+	kart.velocity = Vector3.ZERO
+	kart.reset_physics_interpolation()
+	reset()
+
+
+## The longer watch, see the class. Only in a match: a room has nothing to be late for, and the
+## driving school holds bots still in their pens on purpose. A bot waiting on the Junction or the
+## Jackpot is where it wants to be.
+func _watch(delta: float) -> void:
+	var kart := brain.kart
+	if (
+		not brain.match_node.rules.timed
+		or brain.holding_position()
+		or _long_mark == Vector3.INF
+		or kart.global_position.distance_to(_long_mark) >= LONG_STEP
+	):
+		_forget_long()
+		return
+	if gave_up():
+		_put_down_left -= delta
+		if _put_down_left < 0.0:
+			put_down()
+			_forget_long()
+		return
+	_long_left -= delta
+	if _long_left <= 0.0:
+		_put_down_left = PUT_DOWN_AFTER
+		brain.go_elsewhere()
+
+
+func _forget_long() -> void:
+	_long_mark = brain.kart.global_position
+	_long_left = LONG_TIME
+	_put_down_left = -1.0
 
 
 ## Whether the kart has covered any ground lately. A kart wedged on a corner can keep a speed

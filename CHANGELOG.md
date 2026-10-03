@@ -67,6 +67,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Bots no longer stay stuck.** A bot that has gone nowhere for ten seconds gives up and drives
+  somewhere else, and if that fails too, it is put back on a spawn point, keeping its pot.
 - **Spaces in a license plate.** A space typed at the end of the plate no longer vanishes before
   the next letter.
 - **A smooth guide arrow in the driving test.** The blue arrow on the floor follows the kart as it

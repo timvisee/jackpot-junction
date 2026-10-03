@@ -3345,6 +3345,19 @@ anything that has moved less than 2 m in two seconds. The turn is picked once an
 held for the whole maneuver, and alternates, so a bot that backs into the same
 corner twice tries the other way out rather than rocking on the spot.
 
+Backing out does not get a bot out of everything, so a longer watch runs under it,
+`BotStuck`. A bot that has stayed inside a circle 2 m across for ten seconds, backing
+out or not, while not waiting somewhere on purpose, banking on the Junction or
+holding the Jackpot, gives up on what it was doing: it backs away and wanders off to
+a spawn point at least 12 m from where it was, and holds to that for four seconds, or
+until it gets there, so the next decision does not send it straight back. Still in
+that circle five seconds after giving up, it is put down on the spawn point farthest
+from everybody else, facing the Junction, the way a respawn puts a kart down but
+without dying: it keeps its lives, its pot and its jokers. Only in a match: a room
+has nothing to be late for, and the driving school holds bots in their pens on
+purpose. Online it is the host's, whose bots they are; a client sees the kart jump
+there as it sees a respawn.
+
 **Pits**: paths already go around them, but a pit stops nothing and blocks no
 raycast, so a bot cutting a corner, sliding out of a drift or chasing a kart
 across one would drive in regardless. A bot checks the ground a second and a bit

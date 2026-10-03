@@ -79,6 +79,10 @@ const FLICK_COOLDOWN := 1.1
 const FLICK_SPEED := 0.6
 const AIM_ERROR_INTERVAL := 0.5
 const ITEM_PATIENCE := 5.0
+## Given up on, see [method go_elsewhere]: how long the errand somewhere else is held, and how far
+## away somewhere else is at least.
+const ELSEWHERE_TIME := 4.0
+const ELSEWHERE_DISTANCE := 12.0
 const BULLET_HEIGHT := 0.5
 ## Where the last stretch of a drive begins, and the least throttle it is taken on. Flat out,
 ## a kart's turning circle is wider than the pad it is aiming for, so it sails past and comes
@@ -157,6 +161,8 @@ var _turn_rate := 0.0
 var _flick_left := 0.0
 var _flick_wait := 0.0
 var _item_hold_time := 0.0
+## How much longer the errand somewhere else is held, see [method go_elsewhere].
+var _elsewhere_left := 0.0
 ## Stands in for the match's reading when a brain is stepped on its own, in tests.
 var _fallback := BotMirror.new()
 
@@ -217,6 +223,10 @@ static func closest_approach(
 
 
 func _decide() -> void:
+	if _elsewhere_left > 0.0 and kart.global_position.distance_to(target) > ARRIVED_RADIUS:
+		_elsewhere_left -= DECISION_INTERVAL
+		return
+	_elsewhere_left = 0.0
 	var context := _context()
 	var wanted := BotGoals.choose(context, bot_trait)
 	if wanted != goal and not _may_switch(wanted, context):
@@ -253,6 +263,25 @@ func _decide() -> void:
 				)
 			)
 	_willing_to_fire = rng.randf() < bot_trait.fire_chance
+
+
+## Gives up on what it was doing, GAME.md 9.1, having got nowhere at it for a long while, see
+## [BotStuck]: backs away and wanders off to a spawn point well away from here, and holds to that
+## for a few seconds, so that the next decision does not send it straight back.
+func go_elsewhere() -> void:
+	goal = &"wander"
+	target_node = null
+	var away: Array[Vector3] = []
+	for point: Vector3 in match_node.arena.spawn_points:
+		if point.distance_to(kart.global_position) > ELSEWHERE_DISTANCE:
+			away.append(point)
+	if away.is_empty():
+		target = _clamp_to_arena(match_node.arena.junction_position)
+	else:
+		target = away[rng.randi_range(0, away.size() - 1)] if rng != null else away[0]
+	_planned_target = Vector3.INF
+	_elsewhere_left = ELSEWHERE_TIME
+	stuck.begin_backing_out()
 
 
 ## Whether a bot is allowed to drop what it is doing for [param wanted], GAME.md 9.1. Something

@@ -447,6 +447,80 @@ func test_a_bot_that_covers_no_ground_backs_out_even_with_speed_on_the_clock() -
 	assert_bool(backed).is_true()
 
 
+## GAME.md 9.1: a bot that has stayed in one small circle for ten seconds, backing out or not,
+## gives up on its errand, backs away and goes somewhere else; still there five seconds later it
+## is put down on a free spawn point, alive and with what it had.
+func test_a_bot_stuck_for_long_goes_elsewhere_and_then_is_put_down() -> void:
+	var match_node := _match()
+	await _runner.simulate_frames(30, 17)
+	var kart := match_node.kart_of(0)
+	var brain: BotBrain = kart.get_node("Brain")
+	var stuck := brain.stuck
+	var spot := match_node.arena.junction_position + Vector3(6.0, 0.0, 6.0)
+	brain.goal = &"collect"
+	stuck.reset()
+	kart.pot.reset()
+	kart.pot.add_coins(5)
+	var lives := kart.lives
+	# Nine and a half seconds in the one place: not yet.
+	assert_float(_held_still(brain, spot, BotStuck.LONG_TIME - 0.5)).is_equal(0.0)
+	assert_bool(stuck.gave_up()).is_false()
+	# Ten: it gives up, backs away and is off somewhere well away from here.
+	assert_float(_held_still(brain, spot, 1.0)).is_greater(0.0)
+	assert_bool(stuck.gave_up()).is_true()
+	assert_str(brain.goal).is_equal("wander")
+	assert_float(brain.target.distance_to(spot)).is_greater(BotBrain.ELSEWHERE_DISTANCE)
+	assert_bool(stuck.maneuvering()).is_true()
+	# And held there five seconds more, it is put down on a spawn point, as it was otherwise.
+	_held_still(brain, spot, BotStuck.PUT_DOWN_AFTER + 0.2)
+	var nearest := INF
+	for point: Vector3 in match_node.arena.spawn_points:
+		nearest = minf(nearest, kart.global_position.distance_to(Vector3(point.x, 0.0, point.z)))
+	assert_float(nearest).is_less(0.01)
+	assert_bool(kart.alive).is_true()
+	assert_int(kart.lives).is_equal(lives)
+	assert_int(kart.pot.coins).is_equal(5)
+	assert_bool(stuck.gave_up()).is_false()
+
+
+## GAME.md 9.1: waiting on the Junction to bank is waiting on purpose, and in a room nothing is
+## late, so neither ever counts as stuck however long it lasts.
+func test_a_bot_waiting_on_purpose_is_never_moved_on() -> void:
+	var match_node := _match()
+	await _runner.simulate_frames(30, 17)
+	var kart := match_node.kart_of(0)
+	var brain: BotBrain = kart.get_node("Brain")
+	brain.goal = &"bank"
+	brain.stuck.reset()
+	var junction := match_node.arena.junction_position
+	_held_still(brain, junction, BotStuck.LONG_TIME + BotStuck.PUT_DOWN_AFTER + 1.0)
+	assert_bool(brain.stuck.gave_up()).is_false()
+	assert_str(brain.goal).is_equal("bank")
+	assert_float(kart.global_position.distance_to(junction)).is_less(0.01)
+	match_node.rules.timed = false
+	brain.goal = &"collect"
+	_held_still(brain, junction, BotStuck.LONG_TIME + 1.0)
+	assert_bool(brain.stuck.gave_up()).is_false()
+
+
+## Steps [param brain]'s stuck watch for [param seconds] with its kart held at [param spot], the
+## throttle down, and says when, in seconds, it first gave up, or zero if it never did. Held for
+## as long as it has not been put down somewhere else.
+func _held_still(brain: BotBrain, spot: Vector3, seconds: float) -> float:
+	var kart := brain.kart
+	kart.global_position = spot
+	var when := 0.0
+	for i: int in int(seconds * 60.0):
+		if kart.global_position.distance_to(spot) < BotStuck.LONG_STEP:
+			kart.global_position = spot
+		brain.input.throttle = 1.0
+		var was := brain.stuck.gave_up()
+		brain.stuck.step(1.0 / 60.0)
+		if not was and brain.stuck.gave_up() and when == 0.0:
+			when = (i + 1) / 60.0
+	return when
+
+
 ## Holds the throttle down on a kart that is going nowhere for [param seconds], and says whether
 ## the bot gave up and started backing out.
 func _gets_stuck(brain: BotBrain, seconds: float) -> bool:
