@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A joker's word leans with its card.** GUARDED, LOST and the rest tilt as the card does in the
+  fan, rather than sitting level over it.
 - **No gray flash on quitting.** The window stays the menus' dark while the game closes and
   between screens.
 

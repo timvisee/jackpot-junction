@@ -218,12 +218,15 @@ func _step_burn(going: Array, delta: float) -> bool:
 ## on the bottom edge, under one hanging from the top, and fading as the card goes back.
 func _place_word(label: Label, panel: JokerCard, glow: float) -> void:
 	label.size = label.get_minimum_size()
+	label.pivot_offset = label.size * 0.5
 	var held := panel.position + panel.pivot_offset
 	var tall := JokerCard.SIZE.y * panel.scale.y
-	var y := held.y + tall + FLASH_WORD_GAP
-	if not hangs():
-		y = held.y - tall - FLASH_WORD_GAP - label.size.y
-	label.position = Vector2(held.x - label.size.x * 0.5, y)
+	# Out from the card's held edge along the card itself, tipped as it is tipped in the fan, so
+	# the word reads as the card's own rather than as a line laid level over a leaning card.
+	var out := tall + FLASH_WORD_GAP + label.size.y * 0.5
+	var along := Vector2(0.0, out if hangs() else -out).rotated(panel.rotation)
+	label.position = held + along - label.pivot_offset
+	label.rotation = panel.rotation
 	label.modulate.a = glow
 
 

@@ -2579,8 +2579,8 @@ movement: the one thing a corner block must not do is ask to be looked at.
   by itself says so on its own card: in its player's hand the card pulls out of
   the fan, further than a card being read, grows by a third, lights up and glows
   round its frame in pale gold, with a word over it in the same gold, under it
-  for a hand hanging from the top, holds there for most of a second and goes
-  back, the word fading with it. A tucked hand comes up meanwhile, as it does
+  for a hand hanging from the top and leaning as the card leans in the fan,
+  holds there for most of a second and goes back, the word fading with it. A tucked hand comes up meanwhile, as it does
   for a card being read. Only on the moment it made a difference, which for most
   jokers is every moment and so never: Guardian Angel spending the item on a
   hit, GUARDED; Insurance Policy banking a pot at a death, INSURED; Tight Grip

@@ -288,3 +288,25 @@ func test_the_jokers_a_death_drops_burn_out_of_the_hand() -> void:
 	await _runner.simulate_frames(3, 17)
 	assert_int(hand._cards.size()).is_equal(1)
 	assert_bool(hand._cards[0] in before).override_failure_message("dealt again").is_true()
+
+
+## The word over a card that went off leans with the card, GAME.md 8.3: a card at the end of a full
+## fan is tipped, and its word is tipped the same, out from its top along the card.
+func test_the_word_leans_with_its_card() -> void:
+	var match_node := _start_match(PlayerInput.new(DeviceInput.ANY, 0), true)
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	for id: String in ["big_tank", "hair_trigger", "jerry_can", "payday", "guardian_angel"]:
+		_attach(kart, id)
+	await _runner.simulate_frames(30, 17)
+	var hand := match_node.hud.hand_of(0)
+	hand.flash(&"guardian_angel", "GUARDED")
+	await _runner.simulate_frames(20, 17)
+	var card: JokerCard = hand._cards[4]
+	var word: Label = hand._words[&"guardian_angel"]
+	assert_float(absf(card.rotation)).is_greater(0.01)
+	assert_float(word.rotation).is_equal_approx(card.rotation, 0.001)
+	var held := card.position + card.pivot_offset
+	var middle := word.position + word.pivot_offset
+	var way := (middle - held).normalized()
+	assert_float(way.angle_to(Vector2.UP.rotated(card.rotation))).is_equal_approx(0.0, 0.01)
