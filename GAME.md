@@ -263,7 +263,11 @@ uncontrollable, and dies whatever its lives. On death, in this order:
    credit nobody.
 6. **Reset the pot**: coins 0, mult 1.
 7. **Respawn** after 3 s at the spawn point farthest from any enemy, with 2 s
-   of spawn protection: invulnerable, cannot fire, bullets pass through; a ram
+   of spawn protection: invulnerable and cannot fire; another player's bullet
+   stops on it, spent and harmless, with a small flash of its color on every
+   screen, rather than going on through as if nobody were there, which read as
+   a kart that was not; the same goes for the blink after a wound. Its own
+   shots pass through it, and anybody's through a kart gone down a hole; a ram
    still knocks coins loose, see 4.1, though a pot just reset has none. Picking
    up coins and items is allowed. Coming back opens a ring across the floor in
    the player's color with a column of light standing in it, gone inside a

@@ -22,6 +22,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Untouchable karts stop bullets.** A kart just back or just hit no longer lets shots through:
+  they stop on it harmlessly, with a small flash.
 - **An emote wheel you can read on a pad.** The right stick's wheel stays up while you hold the
   stick; push to the edge and let go to send, or let go sooner to send nothing.
 - **A Skip button on the joker pick everywhere.** On a keyboard or a pad it shows the key that skips

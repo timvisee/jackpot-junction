@@ -126,6 +126,17 @@ static func _raged(kart: Kart) -> void:
 			return
 
 
+## A bullet reaching [param kart] while it cannot be hurt, just back or just hit, GAME.md 3.6: it
+## stops on the kart, spent and harmless, with a flash of its color, rather than going on through
+## as if nobody were there, which read as a kart that was not. Its owner's own shot passes, and so
+## does anybody's through a kart down a hole or gone. Whether the bullet is spent on it.
+static func shrugs_off(kart: Kart, bullet: Bullet) -> bool:
+	if not kart.alive or kart.falling or kart.coasting or bullet.owner_slot == kart.slot:
+		return false
+	Events.bullet_deflected.emit(bullet.global_position, bullet.color)
+	return true
+
+
 ## Distance from a point on the floor plane to [param kart]'s body rectangle, 0 when inside.
 static func distance_to_body(kart: Kart, point: Vector3) -> float:
 	var local := kart.to_local(Vector3(point.x, kart.global_position.y, point.z))

@@ -29,6 +29,7 @@ const RELAYED: Array[StringName] = [
 	&"bullet_fired",
 	&"bullet_bounced",
 	&"bullet_struck",
+	&"bullet_deflected",
 	&"kart_bumped",
 	&"turbo_taken",
 	&"nitro_gained",

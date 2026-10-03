@@ -69,6 +69,8 @@ signal bullet_bounced
 ## the arena can leave a mark there. An event rather than something the bullet does itself
 ## because a client's bullets are dead reckoned and never touch anything, GAME.md 10.3.
 signal bullet_struck(at: Vector3, normal: Vector3, color: Color)
+## A bullet stopped harmlessly on a kart that cannot be hurt just then, GAME.md 3.6, at [param at].
+signal bullet_deflected(at: Vector3, color: Color)
 signal kart_bumped(slot: int)
 ## A kart into a wall. [code]force[/code] is 0 for the lightest contact worth hearing at all
 ## and 1 for a flat-out shunt, so a scrape and a proper thump are not the same sound.

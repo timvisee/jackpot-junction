@@ -3,6 +3,10 @@ extends Node3D
 ## Owns every bullet in a match and resolves bullet against bullet: two bullets whose sweeps
 ## this tick came closer than their combined radius both vanish. Runs after the bullets moved.
 
+## How big the flash of a bullet stopped on an untouchable kart is, and how many bits it throws.
+const DEFLECT_SIZE := 0.35
+const DEFLECT_COUNT := 6
+
 var bullets: Array[Bullet] = []
 ## On a client the system only holds puppets and never cancels them.
 var puppet := false
@@ -11,6 +15,19 @@ var puppet := false
 func _ready() -> void:
 	process_physics_priority = 10
 	add_to_group(&"bullet_system")
+	Events.bullet_deflected.connect(_on_bullet_deflected)
+
+
+func _exit_tree() -> void:
+	if Events.bullet_deflected.is_connected(_on_bullet_deflected):
+		Events.bullet_deflected.disconnect(_on_bullet_deflected)
+
+
+## A bullet stopped on a kart that could not be hurt: a small flash of its color where it stopped,
+## on every screen, the host saying so, since a client's bullets never touch anything.
+func _on_bullet_deflected(at: Vector3, color: Color) -> void:
+	if is_inside_tree() and get_parent() != null:
+		Burst.spawn(get_parent(), at, color, DEFLECT_SIZE, DEFLECT_COUNT)
 
 
 ## [param from] is the shooter's center; the bullet checks the way from there to the muzzle.

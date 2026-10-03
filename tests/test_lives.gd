@@ -246,9 +246,21 @@ func test_a_fresh_wound_cannot_be_hit_again_for_a_moment() -> void:
 	var bullet := match_node.bullets.spawn(
 		0, LANE + Vector3(-2.0, 0.0, 0.0), Vector3(1.0, 0.0, 0.0), shooter.cannon.stats, Color.WHITE
 	)
-	assert_bool(victim.take_hit(bullet)).is_false()
+	# The shot stops on it, spent and harmless, with a flash on every screen, GAME.md 3.6, rather
+	# than going on through as if nobody were there.
+	var flashed := [0]
+	var flash := func(_at: Vector3, _color: Color) -> void: flashed[0] += 1
+	Events.bullet_deflected.connect(flash)
+	assert_bool(victim.take_hit(bullet)).is_true()
+	assert_int(flashed[0]).is_equal(1)
 	assert_int(victim.lives).is_equal(1)
 	assert_bool(victim.alive).is_true()
+	# Its own shot, untouchable, passes, as a shot through a kart gone down a hole does.
+	bullet.owner_slot = 1
+	assert_bool(victim.take_hit(bullet)).is_false()
+	Events.bullet_deflected.disconnect(flash)
+	assert_int(flashed[0]).is_equal(1)
+	assert_bool(&"bullet_deflected" in NetEvents.RELAYED).is_true()
 	bullet.destroy()
 	# It wears off and the kart can be finished after that.
 	victim.hurt_left = 0.0
