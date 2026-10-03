@@ -205,15 +205,18 @@ func _peek_license() -> void:
 
 ## The button that opens the hand of jokers, GAME.md 3.7, drawn alone in the bottom right corner
 ## over the version, as the button that shows the license, for a keyboard or a
-## pad by what was touched last; a touch screen has the tap, and no glyph.
+## pad by what was touched last; on a touch screen the finger, for the tap that shows it.
 func _show_license_glyph() -> void:
 	if _license_glyph != null:
+		remove_child(_license_glyph)
 		_license_glyph.queue_free()
 		_license_glyph = null
-	if TouchInput.enabled:
-		return
-	var glyph := InputGlyph.of_action(
-		InputActions.JOKER_MENU, _keyboard, Palette.CHIP_WHITE, LICENSE_GLYPH_SIZE
+	var glyph := (
+		InputGlyph.of_finger(Palette.CHIP_WHITE, LICENSE_GLYPH_SIZE)
+		if TouchInput.enabled
+		else InputGlyph.of_action(
+			InputActions.JOKER_MENU, _keyboard, Palette.CHIP_WHITE, LICENSE_GLYPH_SIZE
+		)
 	)
 	if glyph == null:
 		return

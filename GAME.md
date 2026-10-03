@@ -553,7 +553,7 @@ else's results screen, see 10.3.
   click or on the button that opens the hand of jokers, see 3.7, which is drawn
   alone in the bottom right corner over the version, for the
   device last touched anywhere in the game, a pad's button after a match on the
-  pad. A question asked over the title, this one or any other, keeps
+  pad, and on a touch screen the finger of 8.3, for the tap. A question asked over the title, this one or any other, keeps
   the cursor on its own two answers. Play goes
   straight into the lobby, the waiting room of 9.6, the way hosting
   a LAN game does, with the match settings up over it, whose first question is
@@ -3026,7 +3026,8 @@ like any other button.
   was stamped, at seven tenths of its size so the plate and the ways on fit under
   it without the page scrolling, shown in full over the whole screen as the title shows it on a
   click or a tap on it, or on the hand's button, drawn alone with its middle on
-  the card's bottom right corner for the device in hand, with the plate on the back of the kart under it to change, see
+  the card's bottom right corner for the device in hand, the finger of 8.3 on a
+  touch screen, with the plate on the back of the kart under it to change, see
   4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed,
   and Retake the driving test, which goes to the school; or, before one is
   earned, a word on where to get one, Earn it now, which goes to the school,

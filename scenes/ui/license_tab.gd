@@ -191,18 +191,18 @@ func _on_put_away() -> void:
 
 
 ## The hand's button, drawn alone for the device in hand on the card's bottom right corner, over
-## the card, the way the title draws it beside its own; nothing on a touch screen, which has the
-## tap and no button. A click on it is a click on the card under it.
+## the card, the way the title draws it beside its own; on a touch screen the finger, for the tap.
+## A click on it is a click on the card under it.
 func _say_look() -> void:
 	if _look == null:
 		return
 	for old: Node in _look.get_children():
 		_look.remove_child(old)
 		old.queue_free()
-	if TouchInput.enabled:
-		return
-	var glyph := InputGlyph.of_action(
-		InputActions.JOKER_MENU, _keyboard, Palette.CHIP_WHITE, LOOK_SIZE
+	var glyph := (
+		InputGlyph.of_finger(Palette.CHIP_WHITE, LOOK_SIZE)
+		if TouchInput.enabled
+		else InputGlyph.of_action(InputActions.JOKER_MENU, _keyboard, Palette.CHIP_WHITE, LOOK_SIZE)
 	)
 	if glyph == null:
 		return

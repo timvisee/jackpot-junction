@@ -400,6 +400,14 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	assert_float(mark.position.y + mark.size.y * 0.5).is_equal_approx(0.0, 0.5)
 	assert_int(look.find_children("*", "InputGlyph", true, false).size()).is_equal(1)
 	assert_str(_words_in(look).strip_edges()).is_empty()
+	# On a touch screen it is the finger, for the tap.
+	var was_touch := TouchInput.enabled
+	TouchInput.enabled = true
+	tab._say_look()
+	var finger: InputGlyph = look.find_children("*", "InputGlyph", true, false)[0]
+	assert_int(finger.kind).is_equal(InputGlyph.Kind.FINGER)
+	TouchInput.enabled = was_touch
+	tab._say_look()
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
 	click.pressed = true
@@ -591,6 +599,15 @@ func test_the_title_peeks_the_license_earned() -> void:
 	assert_object(glyph).is_not_null()
 	assert_object(glyph.get_parent()).is_same(title)
 	assert_int((glyph.get_child(0) as InputGlyph).kind).is_not_equal(InputGlyph.Kind.KEY)
+	# On a touch screen it is the finger, for the tap.
+	var was_touch := TouchInput.enabled
+	TouchInput.enabled = true
+	title._show_license_glyph()
+	glyph = title.find_child("LicenseGlyph", true, false)
+	assert_int((glyph.get_child(0) as InputGlyph).kind).is_equal(InputGlyph.Kind.FINGER)
+	TouchInput.enabled = was_touch
+	title._show_license_glyph()
+	glyph = title.find_child("LicenseGlyph", true, false)
 	Game.last_input_keyboard = was_keyboard
 	title._input(hand)
 	await await_idle_frame()

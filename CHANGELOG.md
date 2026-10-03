@@ -61,7 +61,7 @@ below, and hands the notes to the release workflow.
 - **Pictures on the dressing pads.** The paint, hat, flag and trail pads in the lobby and the
   Garage show a picture of what they change rather than its name.
 - **A finger for a tap.** On a phone, the theory book and the license stamp show a finger tapping
-  rather than a "Tap" button.
+  rather than a "Tap" button, and the license on the title and in the settings shows one too.
 - **The theory book warns you.** "Read carefully. There will be questions." stands beside the shut
   book until you open it.
 
