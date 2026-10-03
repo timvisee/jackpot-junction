@@ -188,14 +188,18 @@ func test_the_stick_steers_where_the_thumb_goes_down() -> void:
 	_touch(controls, 1, controls.slider.zone_rect(TouchSlider.GAS).get_center(), true)
 	_drag(controls, 0, down + Vector2(TouchStick.RADIUS * 0.5, 40.0))
 	assert_float(TouchInput.steer).is_between(0.3, 0.6)
+	# Drawn as a steering wheel, turned as far as the thumb has pushed it.
+	assert_float(controls.stick.turn()).is_equal_approx(TouchStick.WHEEL_TURN * 0.5, 0.01)
 	_drag(controls, 0, down + Vector2(-TouchStick.RADIUS * 3.0, 0.0))
 	assert_float(TouchInput.steer).is_equal(-1.0)
+	assert_float(controls.stick.turn()).is_equal_approx(-TouchStick.WHEEL_TURN, 0.001)
 	var here := PlayerInput.new()
 	here.poll(0.016)
 	assert_float(here.steer).is_equal(-1.0)
 	assert_float(here.throttle).is_equal(1.0)
 	_touch(controls, 0, down, false)
 	assert_float(TouchInput.steer).is_equal(0.0)
+	assert_float(controls.stick.turn()).is_equal(0.0)
 	assert_float(TouchInput.throttle).is_equal(1.0)
 	assert_vector(controls.stick.center).is_equal(TouchStick.home(controls.size))
 	# The top of the screen is the corner of the HUD, not the stick's.
@@ -845,8 +849,12 @@ func test_hints_name_the_buttons_on_the_screen() -> void:
 	var steer: InputGlyph = auto_free(
 		InputHint.pair(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, true, ink, 15)
 	)
-	assert_int(steer.kind).is_equal(InputGlyph.Kind.STICK)
+	# The wheel the stick is drawn as for the wheel and pedals, and the stick for simple driving.
+	assert_int(steer.kind).is_equal(InputGlyph.Kind.WHEEL)
 	assert_bool(steer.both_ways).is_true()
+	var push: InputGlyph = auto_free(InputHint.way(true, ink, 15))
+	assert_int(push.kind).is_equal(InputGlyph.Kind.STICK)
+	assert_bool(push.every_way).is_true()
 	assert_str(steer.caption).is_equal("")
 	assert_object(InputHint.glyph(InputActions.JOKER_MENU, true, ink, 15)).is_null()
 	TouchInput.enabled = false

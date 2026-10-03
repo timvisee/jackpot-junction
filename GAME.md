@@ -975,8 +975,12 @@ shuts it too and goes on to whatever it landed on. It is only there with another
 match, at this screen or another: against bots alone it would be a button for talking to nobody.
 
 The left thumb steers with a stick that comes to wherever it goes down in the lower left of the
-screen, and waits in that corner while nobody has a thumb on it. It only steers, so its knob
-only moves side to side, and how far it is pushed is how far the wheel is turned. The right
+screen, and waits in that corner while nobody has a thumb on it. It only steers, so it is pushed
+side to side, and how far it is pushed is how far the wheel is turned; and it is drawn as that
+wheel, see-through like the buttons, a rim with a spoke to each side and one down and a band at
+its top, turning with the push up to a quarter turn at full lock. A knob sliding along a line
+said nothing a wheel does not say better, and it is still pushed rather than turned round, which
+a thumb does without looking. In simple driving it is the stick it always was. The right
 thumb has a slider in the bottom right corner: one tall pill with nitro, gas, brake and drift
 down it, top to bottom, the gas the tallest, since the thumb rests there most, and the two at
 the ends a little taller than the brake, since a thumb reaches for them. A thumb goes down
@@ -1009,7 +1013,8 @@ the green. The driving buttons go while the podium is up, where they would sit o
 hints that name keys, in the corner and beside the kart, are not shown on a touch screen: the
 buttons say what they are on them. A hint that is shown, such as the tutorial's line over the kart
 in 9.4a, names the button on the screen instead of a key: gas, fire, nitro, drift and the item
-as a pill with the button's word on it, and steering as the stick under the left thumb. The
+as a pill with the button's word on it, and steering as the wheel under the left thumb, or in
+simple driving the stick. The
 Garage's sign over the jokers says to hold one to read it rather than to press Tab. The
 standings hang from the top right corner under the menu button rather than down the middle of
 the right-hand side, which is the slider's and the item button's, and the kill feed hangs under

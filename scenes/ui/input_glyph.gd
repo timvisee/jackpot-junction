@@ -3,14 +3,15 @@ extends Control
 ## One binding drawn rather than written, GAME.md 8.3: a key as a key cap with the key on it, a
 ## gamepad face button as a round button in its own color, a shoulder or a trigger as a pill,
 ## a stick as a stick, the D-pad as a D-pad, a mouse button as a mouse with that button lit, and
-## a tap on a touch screen as a finger pointing down onto it.
+## a tap on a touch screen as a finger pointing down onto it, and a touch screen's steering as the
+## wheel it is drawn as there.
 ##
 ## "Shift drift   Ctrl nitro" is a sentence to be read. The same line with the two keys drawn as
 ## keys is a picture to be recognized, which is what a hint glanced at mid-corner has to be. The
 ## shapes are drawn rather than loaded, because the bindings belong to the player: any key on the
 ## keyboard can end up in one of these, and no set of pictures can cover that in advance.
 
-enum Kind { KEY, FACE, SHOULDER, STICK, DPAD, MOUSE, FINGER }
+enum Kind { KEY, FACE, SHOULDER, STICK, DPAD, MOUSE, FINGER, WHEEL }
 
 ## How tall a glyph is by default and how much air sits either side of the caption inside one.
 const HEIGHT := 22.0
@@ -84,6 +85,10 @@ var double_click := false
 var every_way := false:
 	set(value):
 		every_way = value
+		# A touch screen's steering is a wheel only for the wheel and pedals: the push of simple
+		# driving is the stick it is drawn as there, GAME.md 4.2.
+		if every_way and kind == Kind.WHEEL:
+			kind = Kind.STICK
 		custom_minimum_size = _wanted()
 		queue_redraw()
 
@@ -95,8 +100,9 @@ static func of_action(action: StringName, keyboard: bool, ink: Color, font_size:
 	return null if event == null else of_event(event, ink, font_size)
 
 
-## [param action] as the touch screen has it: a pill with the word on its button, or the stick for
-## steering, both ways at once. Null for an action the screen has no button for.
+## [param action] as the touch screen has it: a pill with the word on its button, or the steering
+## wheel the stick is drawn as for steering, see [TouchStick]. Null for an action the screen has
+## no button for.
 static func of_touch(action: StringName, ink: Color, font_size: int) -> InputGlyph:
 	var steering := action in [InputActions.STEER_LEFT, InputActions.STEER_RIGHT]
 	if not steering and not TOUCH_WORDS.has(action):
@@ -105,7 +111,7 @@ static func of_touch(action: StringName, ink: Color, font_size: int) -> InputGly
 	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	glyph.ink = ink
 	glyph.font_size = font_size
-	glyph.kind = Kind.STICK if steering else Kind.SHOULDER
+	glyph.kind = Kind.WHEEL if steering else Kind.SHOULDER
 	glyph.caption = "" if steering else TOUCH_WORDS[action]
 	glyph.both_ways = steering
 	glyph.along = Vector2.RIGHT
@@ -226,7 +232,7 @@ func _wanted() -> Vector2:
 	var tall := HEIGHT * maxf(float(font_size) / 15.0, 1.0)
 	if kind == Kind.STICK:
 		return Vector2(tall * STICK_WIDE, tall * (STICK_WIDE if every_way else 1.0))
-	if kind == Kind.FACE or kind == Kind.DPAD:
+	if kind == Kind.FACE or kind == Kind.DPAD or kind == Kind.WHEEL:
 		return Vector2(tall, tall)
 	if kind == Kind.FINGER:
 		return Vector2(tall * FINGER_WIDE, tall)
@@ -271,6 +277,15 @@ func _draw() -> void:
 		return
 	if kind == Kind.FINGER:
 		_draw_finger(box)
+		return
+	if kind == Kind.WHEEL:
+		var middle := box.size * 0.5
+		var radius := minf(box.size.x, box.size.y) * 0.5 - 1.0
+		draw_circle(middle, radius + 1.5, CHIP_EDGE)
+		draw_circle(middle, radius, CHIP)
+		TouchStick.draw_wheel(
+			self, middle, radius * 0.66, 0.0, Color(ink, 0.95), Color(ink, EDGE_ALPHA * 0.5)
+		)
 		return
 	_draw_chip(box)
 	_draw_caption(box, ink)

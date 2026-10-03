@@ -18,6 +18,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A steering wheel on the touch screen.** Driving with wheel and pedals, the stick under your
+  left thumb is drawn as a wheel that turns as you steer.
 - **The mult die is a real die.** It has its pips on every side, one to six, in the mult's red.
 - **Pictures on the dressing pads.** The paint, hat, flag and trail pads in the lobby and the
   Garage show a picture of what they change rather than its name.
