@@ -26,6 +26,25 @@ static func make(words: String, wide := WIDE) -> PlateField:
 	return field
 
 
+## [param field] in a row of its own, centered: [param label_text] just before it, at its own width
+## rather than in a settings row's column, which left a gap the plate looked lost after, and the
+## line saying it can be typed into after it.
+static func row(label_text: String, field: PlateField) -> HBoxContainer:
+	var line := HBoxContainer.new()
+	line.alignment = BoxContainer.ALIGNMENT_CENTER
+	line.add_theme_constant_override("separation", 16)
+	var label := Label.new()
+	label.text = label_text
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	Type.text(label, Type.BODY, Color(0.86, 0.86, 0.9))
+	line.add_child(label)
+	line.add_child(field)
+	var how := hint(Color(0.72, 0.72, 0.78), Type.LABEL)
+	how.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	line.add_child(how)
+	return line
+
+
 ## The line that says a plate can be typed into, for the device in hand: a tap, a click, or the
 ## pad's accept button.
 static func hint(ink: Color, font_size: int) -> Control:

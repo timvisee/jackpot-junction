@@ -183,12 +183,7 @@ func _plate_row() -> Control:
 	box.add_theme_constant_override("separation", 6)
 	plate_field = PlateField.make(Game.settings.license_plate)
 	plate_field.plate_changed.connect(_on_plate_typed)
-	var row := MenuTheme.row(PLATE_LABEL, plate_field)
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	var how := PlateField.hint(Color(0.72, 0.72, 0.78), Type.LABEL)
-	how.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	row.add_child(how)
-	box.add_child(row)
+	box.add_child(PlateField.row(PLATE_LABEL, plate_field))
 	box.add_child(MenuTheme.subtitle(PLATE_LINE % LicensePlate.MOST, Type.LABEL))
 	# Air under the line, before the ways on.
 	var air := Control.new()

@@ -128,11 +128,7 @@ func _license(column: VBoxContainer) -> void:
 	column.add_child(gap)
 	field = PlateField.make(_settings.license_plate)
 	field.plate_changed.connect(_on_plate_typed)
-	var row := MenuTheme.row("License plate", field)
-	var how := PlateField.hint(Color(0.72, 0.72, 0.78), Type.LABEL)
-	how.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	row.add_child(how)
-	column.add_child(row)
+	column.add_child(PlateField.row("License plate", field))
 	column.add_child(MenuTheme.subtitle(PLATE_LINE % LicensePlate.MOST, Type.LABEL))
 	var gap_after := Control.new()
 	gap_after.custom_minimum_size = Vector2(0.0, 6.0)

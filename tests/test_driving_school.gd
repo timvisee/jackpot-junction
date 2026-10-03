@@ -377,6 +377,12 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	assert_bool(card.stamped).is_true()
 	assert_bool(card.endorsements["KO"]).is_true()
 	assert_bool(card.endorsements["ITEMS"]).is_false()
+	# The plate stands right after the word for it, in a row of its own under the card.
+	var plate_row := tab.field.get_parent() as HBoxContainer
+	var plate_word := plate_row.get_child(0) as Label
+	assert_float(tab.field.position.x - (plate_word.position.x + plate_word.size.x)).is_less_equal(
+		20.0
+	)
 	tab.field.text = "my kart!!"
 	tab.field.text_changed.emit(tab.field.text)
 	assert_str(Game.settings.license_plate).is_equal("MY KART")
