@@ -106,12 +106,15 @@ func test_gold_tracks_are_laid_with_the_tire_marks_off() -> void:
 	Game.settings = was
 
 
-## A few samples laid in a line at [param intensity], a hand's width further on than the last.
+## A few samples laid in a line at [param intensity], a hand's width further on than the last,
+## laid now: [method TireMarks._process] expires them by the engine's clock, and on a slow
+## machine the engine has been up longer than a short mark lasts by the time a test gets here.
 static func _lay(marks: TireMarks, intensity: float) -> void:
 	var from := 50.0 + randf() * 50.0
+	var now := Time.get_ticks_msec() * 0.001
 	for i: int in 4:
 		var at := Vector3(from + i * TireMarks.MIN_SAMPLE_DISTANCE * 1.5, 0.0, 0.0)
-		marks.add_sample(0, at, Vector3.FORWARD, intensity, 1.0)
+		marks.add_sample(0, at, Vector3.FORWARD, intensity, now)
 
 
 ## A client works out who lays gold from the banked scores and pots the snapshot hands it, so its
