@@ -26,6 +26,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A smaller license in the settings.** The License page shows the card smaller; click or tap it to
+  see it full size.
 - **Type your license plate on the plate.** The plate itself is the text box, with a line beside it
   saying how to edit it.
 - **More room by the lobby's stalls.** The stack of wheels in the lobby stands a step further from

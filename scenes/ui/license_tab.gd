@@ -12,7 +12,7 @@ const EARN := "Earn it now"
 const MEANWHILE := "Until then, your kart wears this."
 const PLATE_LINE := "Up to %d letters, digits, spaces and dashes, on the back of your kart."
 const RETAKE := "Retake the driving test"
-const CARD_SCALE := 0.9
+const CARD_SCALE := 0.7
 ## How big the hand's button is drawn on the card's bottom right corner, and where its middle
 ## sits from the corner of the card's box: on the rounded corner itself, so a quarter of it is over
 ## the card.

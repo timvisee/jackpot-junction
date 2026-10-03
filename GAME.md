@@ -2997,7 +2997,8 @@ round at the ends, and a line beside Back says so; while a rebind is listening t
 like any other button.
 
 - **License**, first: the driver license earned at the driving school of 9.4a, as it
-  was stamped, shown in full over the whole screen as the title shows it on a
+  was stamped, at seven tenths of its size so the plate and the ways on fit under
+  it without the page scrolling, shown in full over the whole screen as the title shows it on a
   click or a tap on it, or on the hand's button, drawn alone with its middle on
   the card's bottom right corner for the device in hand, with the plate on the back of the kart under it to change, see
   4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed,
