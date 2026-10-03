@@ -336,7 +336,7 @@ func test_a_bot_nosed_against_a_wall_backs_out_of_it() -> void:
 	kart.face(-inward)
 	kart.motor.forward_speed = 0.0
 	kart.motor.velocity = Vector3.ZERO
-	assert_bool(brain._nose_on_a_wall()).is_true()
+	assert_bool(brain.stuck._nose_on_a_wall()).is_true()
 	# Half a second of it is enough with a wall there, where open ground gets a second.
 	assert_bool(_gets_stuck(brain, 0.5)).is_true()
 	assert_float(brain.input.brake).is_equal(1.0)
@@ -345,14 +345,14 @@ func test_a_bot_nosed_against_a_wall_backs_out_of_it() -> void:
 	# The wheel stays where it was put for the whole maneuver rather than sawing at it.
 	var first_way := signf(brain.input.steer)
 	for i: int in 20:
-		brain._step_stuck(1.0 / 60.0)
+		brain.stuck.step(1.0 / 60.0)
 		assert_float(signf(brain.input.steer)).is_equal(first_way)
 	# Once it has backed up it drives out again on the wheel it backed up with, rather than
 	# being handed straight back to a navigator that points it at the wall it just came off.
-	while brain._reverse_left > 0.0:
-		brain._step_stuck(1.0 / 60.0)
-	assert_float(brain._swing_left).is_greater(0.0)
-	brain._step_stuck(1.0 / 60.0)
+	while brain.stuck._reverse_left > 0.0:
+		brain.stuck.step(1.0 / 60.0)
+	assert_float(brain.stuck._swing_left).is_greater(0.0)
+	brain.stuck.step(1.0 / 60.0)
 	assert_float(brain.input.throttle).is_greater(0.0)
 	assert_float(brain.input.brake).is_equal(0.0)
 	assert_float(signf(brain.input.steer)).is_equal(first_way)
@@ -363,7 +363,7 @@ func test_a_bot_nosed_against_a_wall_backs_out_of_it() -> void:
 	# Out in the open a bot puts up with going nowhere for longer before giving up on it.
 	_run_out_reverse(brain)
 	kart.global_position = match_node.arena.junction_position
-	assert_bool(brain._nose_on_a_wall()).is_false()
+	assert_bool(brain.stuck._nose_on_a_wall()).is_false()
 	assert_bool(_gets_stuck(brain, 0.5)).is_false()
 	assert_bool(_gets_stuck(brain, 1.0)).is_true()
 
@@ -434,14 +434,14 @@ func test_a_bot_that_covers_no_ground_backs_out_even_with_speed_on_the_clock() -
 	var brain: BotBrain = kart.get_node("Brain")
 	kart.global_position = match_node.arena.junction_position
 	# Scrubbing along at a speed that would never read as stuck, and staying put.
-	kart.motor.forward_speed = BotBrain.STUCK_SPEED * 4.0
+	kart.motor.forward_speed = BotStuck.STUCK_SPEED * 4.0
 	kart.motor.velocity = kart.motor.forward_vector() * kart.motor.forward_speed
-	brain._forget_progress()
+	brain.stuck._forget_progress()
 	var backed := false
-	for i: int in int((BotBrain.PROGRESS_TIME + 0.5) * 60.0):
+	for i: int in int((BotStuck.PROGRESS_TIME + 0.5) * 60.0):
 		brain.input.throttle = 1.0
-		brain._step_stuck(1.0 / 60.0)
-		if brain._reverse_left > 0.0:
+		brain.stuck.step(1.0 / 60.0)
+		if brain.stuck._reverse_left > 0.0:
 			backed = true
 			break
 	assert_bool(backed).is_true()
@@ -452,8 +452,8 @@ func test_a_bot_that_covers_no_ground_backs_out_even_with_speed_on_the_clock() -
 func _gets_stuck(brain: BotBrain, seconds: float) -> bool:
 	for i: int in int(seconds * 60.0):
 		brain.input.throttle = 1.0
-		brain._step_stuck(1.0 / 60.0)
-		if brain._reverse_left > 0.0:
+		brain.stuck.step(1.0 / 60.0)
+		if brain.stuck._reverse_left > 0.0:
 			return true
 	return false
 
@@ -462,10 +462,10 @@ func _gets_stuck(brain: BotBrain, seconds: float) -> bool:
 ## anything.
 func _run_out_reverse(brain: BotBrain) -> void:
 	for i: int in 240:
-		if brain._reverse_left <= 0.0 and brain._swing_left <= 0.0:
+		if brain.stuck._reverse_left <= 0.0 and brain.stuck._swing_left <= 0.0:
 			return
 		brain.input.throttle = 0.0
-		brain._step_stuck(1.0 / 60.0)
+		brain.stuck.step(1.0 / 60.0)
 
 
 ## GAME.md 9.1: the kart drifts the oversteer way, where the handbrake is a flick. A bot throws it
@@ -495,9 +495,9 @@ func test_a_bot_flicks_the_handbrake_into_a_tight_corner_and_then_drives_it() ->
 	brain._flick_wait = 0.0
 	brain._turn_rate = 0.0
 	brain._last_heading = kart.motor.heading
-	brain._stuck_time = 0.0
-	brain._reverse_left = 0.0
-	brain._swing_left = 0.0
+	brain.stuck._stuck_time = 0.0
+	brain.stuck._reverse_left = 0.0
+	brain.stuck._swing_left = 0.0
 	brain._dodge_left = 0.0
 	var pulls := 0
 	var held := 0

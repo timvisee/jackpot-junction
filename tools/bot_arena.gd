@@ -102,13 +102,13 @@ func _run(difficulty: String, seed: int) -> Dictionary:
 					b.goal,
 					b.input.throttle,
 					b.input.brake,
-					b._should_hold_position(),
-					b._reverse_left,
+					b.holding_position(),
+					b.stuck._reverse_left,
 					k.global_position.distance_to(match_node.arena.junction_position),
 				]
 			)
 		)
-		if b._reverse_left > 0.0 or b._swing_left > 0.0:
+		if b.stuck.maneuvering():
 			falls["reversing"] += 1.0
 		elif b.input.throttle <= PIT_THROTTLE_MARK:
 			falls["avoiding"] += 1.0
@@ -154,7 +154,7 @@ func _run(difficulty: String, seed: int) -> Dictionary:
 			walled += 1.0 if kart.touching_wall else 0.0
 			if absf(brain.input.steer) > 0.9:
 				full_lock += 1.0
-				if brain._reverse_left > 0.0 or brain._swing_left > 0.0:
+				if brain.stuck.maneuvering():
 					lock_reversing += 1.0
 				elif brain._dodge_left > 0.0:
 					lock_dodging += 1.0

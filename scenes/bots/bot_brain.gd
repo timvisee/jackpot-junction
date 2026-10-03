@@ -68,25 +68,6 @@ const DODGE_RANGE := 8.0
 const DODGE_HORIZON := 1.0
 const DODGE_DISTANCE := 1.2
 const DODGE_TIME := 0.35
-## How long a bot puts up with going nowhere before backing out of it, and how long it backs
-## out for. A nose flat against a wall needs no second of proof, so that case is quicker.
-const STUCK_TIME := 1.2
-const WALL_STUCK_TIME := 0.35
-const REVERSE_TIME := 0.7
-## After backing up, how long the wheel stays where it was with the power back on. Handing the
-## kart straight back to the navigator points it at the target again, which is through the wall
-## it just came off; this drives it out along the new heading first.
-const SWING_TIME := 0.5
-## Under this it counts as going nowhere.
-const STUCK_SPEED := 0.6
-## Standing still is not the only way to get nowhere: a kart scrubbing along a wall or grinding
-## on a corner keeps a speed on the clock and still arrives nowhere. Covering less than this
-## much ground in this long, while asking to drive, counts as stuck whatever the speedometer
-## says.
-const PROGRESS_TIME := 2.0
-const PROGRESS_STEP := 2.0
-## How far in front of itself a bot feels for a wall it is nosed up against.
-const WALL_PROBE := 1.3
 ## Seconds the handbrake is held to break the rear loose, and the least time between two of
 ## those. The kart drifts the oversteer way now, GAME.md 4.1, where the handbrake is a flick:
 ## holding it through a corner only breaks the rear loose again every time the slide is
@@ -143,6 +124,8 @@ var rng: RandomNumberGenerator
 var goal := &"collect"
 var target := Vector3.ZERO
 var target_node: Node3D
+## Getting it off a wall and out of a corner, see [BotStuck].
+var stuck := BotStuck.new(self)
 
 var _path: PackedVector3Array = []
 var _path_index := 0
@@ -169,14 +152,6 @@ var _skip_ahead := false
 ## The heading last tick, for how fast the nose is coming round.
 var _last_heading := 0.0
 var _turn_rate := 0.0
-var _stuck_time := 0.0
-var _reverse_left := 0.0
-var _swing_left := 0.0
-## Which way the wheel goes while backing out, held for the whole maneuver.
-var _reverse_steer := 1.0
-## Where the kart was when the ground it has covered was last looked at, and how long ago.
-var _progress_mark := Vector3.INF
-var _progress_left := PROGRESS_TIME
 ## The handbrake flick that breaks the rear loose: how long this one lasts and how long until
 ## another is allowed.
 var _flick_left := 0.0
@@ -294,7 +269,7 @@ func _may_switch(wanted: StringName, context: Dictionary) -> bool:
 		return true
 	# An errand the bot is standing on is finished, whatever the clock says. Holding one of
 	# those leaves a bot shuffling about on the pad it has just claimed waiting to be let go.
-	if not _should_hold_position() and kart.global_position.distance_to(target) < ARRIVED_RADIUS:
+	if not holding_position() and kart.global_position.distance_to(target) < ARRIVED_RADIUS:
 		return true
 	return _goal_held >= GOAL_DWELL
 
@@ -322,7 +297,7 @@ func _context() -> Dictionary:
 	if enemy != null:
 		context["enemy"] = enemy
 		context["enemy_distance"] = kart.global_position.distance_to(enemy.global_position)
-		context["enemy_visible"] = _has_line_of_sight(enemy.global_position)
+		context["enemy_visible"] = has_line_of_sight(enemy.global_position)
 		context["enemy_pot"] = enemy.pot.value()
 		context["pot_greed"] = difficulty.pot_hunting if difficulty != null else 0.0
 		context["enemy_winning"] = enemy == _winning_rival()
@@ -349,7 +324,7 @@ func _context() -> Dictionary:
 		var near := _nearest_enemy()
 		if near != null:
 			context["near_enemy_distance"] = kart.global_position.distance_to(near.global_position)
-			context["near_enemy_visible"] = _has_line_of_sight(near.global_position)
+			context["near_enemy_visible"] = has_line_of_sight(near.global_position)
 	var best_pickup: Pickup = null
 	var best_score := 0.0
 	var best_item: Pickup = null
@@ -518,7 +493,7 @@ func _nearest_other(worth_it: Callable) -> Kart:
 	return best
 
 
-func _has_line_of_sight(point: Vector3) -> bool:
+func has_line_of_sight(point: Vector3) -> bool:
 	var space := kart.get_world_3d().direct_space_state
 	var from := kart.global_position + Vector3(0.0, BULLET_HEIGHT, 0.0)
 	var to := Vector3(point.x, BULLET_HEIGHT, point.z)
@@ -585,11 +560,11 @@ func _steer(delta: float) -> void:
 		input.throttle = 0.35
 	_close_in(forward)
 	_avoid_pit()
-	if _should_hold_position():
+	if holding_position():
 		input.throttle = 0.0
 		input.brake = 1.0 if kart.motor.forward_speed > 0.5 else 0.0
 		input.steer = 0.0
-	_step_stuck(delta)
+	stuck.step(delta)
 
 
 ## Whether to have the handbrake in this tick, GAME.md 9.1. A tight corner taken at speed is
@@ -688,7 +663,7 @@ func _current_waypoint() -> Vector3:
 			_skip_index = _path_index
 			_skip_ahead = (
 				_path_index + 1 < _path.size()
-				and _has_line_of_sight(_path[_path_index + 1])
+				and has_line_of_sight(_path[_path_index + 1])
 				and not match_node.nav.crosses_pit(kart.global_position, _path[_path_index + 1])
 			)
 		if _skip_ahead and _path_index + 1 < _path.size():
@@ -698,7 +673,7 @@ func _current_waypoint() -> Vector3:
 
 
 ## Banking and collecting the Jackpot mean standing still inside the zone.
-func _should_hold_position() -> bool:
+func holding_position() -> bool:
 	if goal == &"bank":
 		return (
 			kart.global_position.distance_to(match_node.arena.junction_near(kart.global_position))
@@ -707,91 +682,6 @@ func _should_hold_position() -> bool:
 	if goal == &"jackpot":
 		return kart.global_position.distance_to(target) < 0.8
 	return false
-
-
-## Getting a bot off a wall, GAME.md 9.1. Driving at something solid pins the kart there, and
-## steering toward a target on the far side of it only holds it harder, so a bot that is going
-## nowhere backs up with the wheel over, swings its nose clear and drives out on the heading it
-## ends up with before the navigator gets the kart back. The turn is picked once and held for
-## the whole maneuver, and it alternates, so a bot that backs into the same corner twice tries
-## the other way out rather than rocking on the spot.
-func _step_stuck(delta: float) -> void:
-	if _reverse_left > 0.0:
-		_reverse_left -= delta
-		_back_out()
-		if _reverse_left <= 0.0:
-			_swing_left = SWING_TIME
-		return
-	if _swing_left > 0.0:
-		_swing_left -= delta
-		_swing_out()
-		return
-	if input.throttle <= 0.0:
-		_stuck_time = 0.0
-		_forget_progress()
-		return
-	if kart.motor.speed() < STUCK_SPEED:
-		_stuck_time += delta
-	else:
-		_stuck_time = 0.0
-	var patience := WALL_STUCK_TIME if _nose_on_a_wall() else STUCK_TIME
-	if _stuck_time >= patience or _getting_nowhere(delta):
-		_begin_backing_out()
-
-
-## Starts the maneuver on the tick it is decided, not the one after: the frame it would wait
-## is a frame it spends pushing at the wall.
-func _begin_backing_out() -> void:
-	_stuck_time = 0.0
-	_forget_progress()
-	_reverse_left = REVERSE_TIME
-	_reverse_steer = -_reverse_steer
-	_back_out()
-
-
-## Whether the kart has covered any ground lately. A kart wedged on a corner can keep a speed
-## on the clock while going nowhere at all, so what is measured is the ground covered rather
-## than the speedometer.
-func _getting_nowhere(delta: float) -> bool:
-	if _progress_mark == Vector3.INF:
-		_forget_progress()
-		return false
-	_progress_left -= delta
-	if _progress_left > 0.0:
-		return false
-	var covered := kart.global_position.distance_to(_progress_mark)
-	_forget_progress()
-	return covered < PROGRESS_STEP
-
-
-## Starts the ground-covered window again from where the kart is now.
-func _forget_progress() -> void:
-	_progress_mark = kart.global_position
-	_progress_left = PROGRESS_TIME
-
-
-## Backing out: off the gas, on the brakes, wheel held over.
-func _back_out() -> void:
-	input.throttle = 0.0
-	input.brake = 1.0
-	input.steer = _reverse_steer
-	input.handbrake = false
-	input.nitro = false
-
-
-## Driving out of it: back on the power with the wheel still over, so the kart leaves along the
-## heading it backed into rather than turning straight into what it was stuck on.
-func _swing_out() -> void:
-	input.throttle = difficulty.top_speed_fraction
-	input.brake = 0.0
-	input.steer = _reverse_steer
-	input.handbrake = false
-	input.nitro = false
-
-
-## Whether there is something solid right in front of the nose.
-func _nose_on_a_wall() -> bool:
-	return not _has_line_of_sight(kart.global_position + kart.motor.forward_vector() * WALL_PROBE)
 
 
 ## Drops the dodge decisions for bullets that have gone, at the pace the bot thinks rather than
@@ -883,7 +773,7 @@ func _fire_cone(distance: float) -> float:
 
 ## Whether a point is close enough to shoot at and not behind a wall.
 func _in_reach(point: Vector3, reach: float) -> bool:
-	return kart.global_position.distance_to(point) <= reach and _has_line_of_sight(point)
+	return kart.global_position.distance_to(point) <= reach and has_line_of_sight(point)
 
 
 ## The nearest crate or shooting target in front of the bot, GAME.md 6.2: both pay whoever
@@ -904,7 +794,7 @@ func _scenery_mark() -> Node3D:
 		if distance >= best_distance:
 			continue
 		var toward := mark.global_position - kart.global_position
-		if not _has_line_of_sight(mark.global_position - toward.normalized() * SCENERY_CLEARANCE):
+		if not has_line_of_sight(mark.global_position - toward.normalized() * SCENERY_CLEARANCE):
 			continue
 		best_distance = distance
 		best = mark
