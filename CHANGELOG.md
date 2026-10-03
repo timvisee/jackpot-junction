@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Decoys in the kill feed.** A kill your decoy makes reads "Ann's decoy shot Bo", and a decoy
+  destroyed has a line of its own.
 - **Short tire marks, or only yours.** The Video page's Tire marks is Full, Short, Mine or Off:
   Short fades in seconds and Mine lays only your own kart's, short too. Phones start on Short.
 

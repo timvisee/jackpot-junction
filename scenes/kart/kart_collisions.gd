@@ -83,7 +83,7 @@ static func _bump(
 		# and neither right. The host takes the wheel off both of them for a moment, GAME.md 10.3.
 		kart.input.deny_claim(NetInput.CLAIM_DENIED)
 		other.input.deny_claim(NetInput.CLAIM_DENIED)
-		if kart.ram_kills() and ram(other, kart.slot):
+		if kart.ram_kills() and ram(other, kart.slot, kart.is_decoy()):
 			_raged(kart)
 	kart.motor.apply_bump(normal)
 	kart.velocity = kart.motor.velocity
@@ -99,9 +99,11 @@ static func _bump(
 ## the victim lives through. Two karts in touch meet on every tick of it, so a ram reaches nobody
 ## again for [member MatchRules.ram_cooldown] after the last one, or one that never let go would
 ## knock the pot out a handful a tick until nothing was left. Returns whether it reached them.
-static func ram(victim: Kart, by_slot: int) -> bool:
+## [param by_decoy] says the rammer was [param by_slot]'s decoy, for the kill feed.
+static func ram(victim: Kart, by_slot: int, by_decoy := false) -> bool:
 	if not victim.alive or victim.falling or victim.coasting or victim.ram_wait > 0.0:
 		return false
+	victim.kill_how = {"decoy": by_decoy}
 	victim.ram_wait = victim.rules.ram_cooldown
 	# Counted for the rammer, GAME.md 3.8, once a ram and whatever it did: a shield, a life, a death
 	# or only coins knocked out.

@@ -59,6 +59,7 @@ static func resolve(
 	var over := match_node.state == Match.State.OVERTIME
 	var picking := match_node.rules.offer_jokers and not over
 	slot.offer = _offer(match_node, slot) if picking else null
+	_detail(slot, cause)
 	Events.kart_killed.emit(slot.index, killer_slot, cause)
 	if behind:
 		_announce_overtake(match_node, slot, killer)
@@ -66,6 +67,16 @@ static func resolve(
 		# A kill in a hot match hits harder than the first one of the round.
 		match_node.camera_rig.shake(0.2 + 0.5 * match_node.intensity.share())
 	match_node.check_target()
+
+
+## What the kill feed is told beyond the cause, GAME.md 8.3, when there is anything: that the
+## killer's decoy did it. Only for the hit that killed, which a bullet or a ram says of itself as
+## it lands, see [member Kart.kill_how]; a fall or a bomb has nothing more to say.
+static func _detail(slot: PlayerSlot, cause: StringName) -> void:
+	var how := slot.kart.kill_how if cause in [&"bullet", &"turret", &"ram"] else {}
+	slot.kart.kill_how = {}
+	if bool(how.get("decoy", false)):
+		Events.kill_detailed.emit(slot.index, true)
 
 
 ## The coins that leave the pot before any of it is banked: what the killer takes off it, and

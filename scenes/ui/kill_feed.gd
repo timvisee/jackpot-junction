@@ -3,7 +3,10 @@ extends VBoxContainer
 ## The last few kills in the top right, GAME.md 8.3, newest at the top: who took out whom and
 ## how. Lines hold for a few seconds and fade away, and only the newest handful are kept, so the
 ## feed never grows into the arena. It hears the kills of [member match_node] itself, and the other
-## news it carries: a bounty called or collected, a player shown out.
+## news it carries: a decoy destroyed, a bounty called or collected, a player shown out. A kill a
+## decoy made says so, "Ann's decoy shot Bo", and so does a decoy's end, "Bo shot Ann's decoy":
+## the kill is the owner's either way, but a player taken out by the copy of somebody across the
+## room wants to know it was the copy.
 
 const MAX_ROWS := 5
 const HOLD := 6.0
@@ -31,6 +34,9 @@ var room := 0.0
 ## Row labels newest first, each with the seconds it has been up.
 var _rows: Array[RichTextLabel] = []
 var _ages: PackedFloat32Array = []
+## The victims of the next kills that came about some way their cause does not say, see
+## [signal Events.kill_detailed]: slot to whether the killer's decoy did it.
+var _decoy_kills: Dictionary[int, bool] = {}
 
 
 func _ready() -> void:
@@ -41,7 +47,9 @@ func _ready() -> void:
 	alignment = BoxContainer.ALIGNMENT_BEGIN
 	add_theme_constant_override("separation", 2)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Events.kill_detailed.connect(_on_kill_detailed)
 	Events.kart_killed.connect(_on_kart_killed)
+	Events.decoy_destroyed.connect(_on_decoy_destroyed)
 	Events.bounty_called.connect(_on_bounty_called)
 	Events.bounty_claimed.connect(_on_bounty_claimed)
 	Events.player_kicked.connect(_on_player_kicked)
@@ -49,7 +57,9 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	for connected: Array in [
+		[Events.kill_detailed, _on_kill_detailed],
 		[Events.kart_killed, _on_kart_killed],
+		[Events.decoy_destroyed, _on_decoy_destroyed],
 		[Events.bounty_called, _on_bounty_called],
 		[Events.bounty_claimed, _on_bounty_claimed],
 		[Events.player_kicked, _on_player_kicked],
@@ -59,11 +69,39 @@ func _exit_tree() -> void:
 			event.disconnect(connected[1])
 
 
+func _on_kill_detailed(victim_slot: int, by_decoy: bool) -> void:
+	_decoy_kills[victim_slot] = by_decoy
+
+
 func _on_kart_killed(victim_slot: int, killer_slot: int, cause: StringName) -> void:
+	var by_decoy: bool = _decoy_kills.get(victim_slot, false)
+	_decoy_kills.erase(victim_slot)
 	var victim := _name(victim_slot)
 	if victim.is_empty():
 		return
+	if by_decoy and killer_slot >= 0 and killer_slot != victim_slot:
+		var decoy := _decoys(_tag(_name(killer_slot), _color(killer_slot)))
+		_push(_label(), _by(decoy, _tag(victim, _color(victim_slot)), cause))
+		return
 	add_kill(victim, _color(victim_slot), _name(killer_slot), _color(killer_slot), cause)
+
+
+func _on_decoy_destroyed(owner_slot: int, by_slot: int, cause: StringName) -> void:
+	var owner := _name(owner_slot)
+	if owner.is_empty():
+		return
+	var decoy := _decoys(_tag(owner, _color(owner_slot)))
+	var line := "%s %s" % [decoy, "fell in" if cause == &"pit" else "was wrecked"]
+	if by_slot == owner_slot:
+		line = "%s took out their own decoy" % _tag(owner, _color(owner_slot))
+	elif by_slot >= 0 and not _name(by_slot).is_empty():
+		line = _by(_tag(_name(by_slot), _color(by_slot)), decoy, cause)
+	_push(_label(), line)
+
+
+## [param tagged], a name as the feed writes it, with "'s decoy" after it in the feed's own gray.
+static func _decoys(tagged: String) -> String:
+	return "%s's decoy" % tagged
 
 
 func _on_bounty_called(slot: int) -> void:
@@ -109,6 +147,11 @@ func newest_text() -> String:
 func add_kill(
 	victim: String, victim_color: Color, killer: String, killer_color: Color, cause: StringName
 ) -> void:
+	_push(_label(), _line(victim, victim_color, killer, killer_color, cause))
+
+
+## One line of the feed, before it is given its words.
+static func _label() -> RichTextLabel:
 	var label := RichTextLabel.new()
 	label.bbcode_enabled = true
 	label.fit_content = true
@@ -124,7 +167,7 @@ func add_kill(
 	# every one of them carries its own scrim rather than trusting the felt to be dark.
 	label.add_theme_constant_override("outline_size", 6)
 	label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.75))
-	_push(label, _line(victim, victim_color, killer, killer_color, cause))
+	return label
 
 
 ## Adds a line of its own, for news that is not a kill: a bounty called or collected.

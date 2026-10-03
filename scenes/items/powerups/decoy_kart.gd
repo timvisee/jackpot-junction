@@ -35,3 +35,10 @@ func activate(kart: Kart) -> void:
 		decoy, match_node, match_node.bot_traits.pick(kart.rng), match_node.bot_difficulty, kart.rng
 	)
 	decoy.add_child(brain)
+	# Destroyed, it is news for the kill feed, GAME.md 8.3, as a kart's death is; run out, it is not.
+	var owner_slot := kart.slot
+	decoy.died.connect(
+		func(cause: StringName, killer_slot: int) -> void:
+			if cause != &"expired":
+				Events.decoy_destroyed.emit(owner_slot, killer_slot, cause)
+	)

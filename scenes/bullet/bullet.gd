@@ -30,6 +30,8 @@ var owner_slot := -1
 ## Fired by the owner's turret rather than by the owner's kart, for the kill feed to say so,
 ## GAME.md 8.3. The kill is the owner's either way.
 var from_turret := false
+## Fired by the owner's decoy, for the kill feed to say so as it does a turret's, GAME.md 8.3.
+var from_decoy := false
 var velocity := Vector3.ZERO
 var radius := 0.15
 var bounces_left := 0
@@ -297,12 +299,21 @@ func _move(delta: float) -> void:
 		destroy()
 		return
 	if collider.has_method("take_hit"):
-		if collider.call("take_hit", self):
+		if _strike(collider):
 			destroy()
 		else:
 			global_position = to
 		return
 	_bounce(hit["position"], hit["normal"])
+
+
+## [param collider] taking this bullet, a kart told first how it came, for the kill feed should
+## the bullet kill it, see [member Kart.kill_how]. Whether the bullet is spent on it.
+func _strike(collider: Object) -> bool:
+	var kart := collider as Kart
+	if kart != null:
+		kart.kill_how = {"decoy": from_decoy}
+	return collider.call("take_hit", self)
 
 
 ## A kart or turret pressed against a wall or crate has its muzzle inside it. Cast from the
@@ -324,7 +335,7 @@ func _check_spawn_path() -> void:
 	if collider is Crate:
 		(collider as Crate).hit(owner_slot)
 	elif collider.has_method("take_hit") and collider.get("slot") != owner_slot:
-		if not collider.call("take_hit", self):
+		if not _strike(collider):
 			return
 	elif collider.has_method("take_hit"):
 		return
@@ -353,7 +364,7 @@ func _hit_overlapping_targets(space: PhysicsDirectSpaceState3D) -> void:
 	_shape_query.transform = Transform3D(Basis.IDENTITY, global_position)
 	for result: Dictionary in space.intersect_shape(_shape_query, 4):
 		var collider: Object = result["collider"]
-		if collider.has_method("take_hit") and collider.call("take_hit", self):
+		if collider.has_method("take_hit") and _strike(collider):
 			destroy()
 			return
 

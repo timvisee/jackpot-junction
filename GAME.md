@@ -2548,7 +2548,13 @@ movement: the one thing a corner block must not do is ask to be looked at.
   self kill. A turret's kill is its owner's and says whose turret made it, "P1's
   turret shot P2", or "P1 was shot by their own turret" with own bullets deadly:
   a player shot from across the room wants to know it was the turret that got
-  them, not the kart they can see nowhere near. Names are in the players' colors. Lines hold for 6 s and fade.
+  them, not the kart they can see nowhere near. A decoy's is the same: its kill,
+  by its bullet or its ram, is its owner's and reads "P1's decoy shot P2", and a
+  decoy destroyed is news as a kart's death is, "P2 shot P1's decoy", "P1's
+  decoy fell in", "P1 took out their own decoy"; one that ran out of time is
+  not. The host says so, each kill that came by a decoy announced just before
+  the kill itself, `Events.kill_detailed`, and each decoy destroyed with
+  `Events.decoy_destroyed`, both relayed. Names are in the players' colors. Lines hold for 6 s and fade.
   The feed drops below a player block that owns that corner.
 - **Standings**: a ranked list down the right-hand side, one row per kart with
   its banked score and, in gold beside it, whatever it is still carrying around

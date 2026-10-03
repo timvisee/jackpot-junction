@@ -8,6 +8,12 @@ signal coin_collected(slot: int, coins: int)
 signal mult_gained(slot: int, amount: float, reason: StringName)
 signal grazed(slot: int)
 signal kart_killed(victim_slot: int, killer_slot: int, cause: StringName)
+## Said just before a [signal kart_killed] that came about some way its cause does not say, for the
+## kill feed, GAME.md 8.3: by the killer's decoy rather than the killer.
+signal kill_detailed(victim_slot: int, by_decoy: bool)
+## The decoy of [param owner_slot] was destroyed, by [param by_slot] or nobody, as the kill feed
+## says a kart's death, GAME.md 8.3. Not one that ran out of time.
+signal decoy_destroyed(owner_slot: int, by_slot: int, cause: StringName)
 signal kart_wounded(victim_slot: int, by_slot: int, cause: StringName)
 signal life_restored(slot: int)
 ## [param joker] in [param slot]'s hand did something by itself just now, GAME.md 8.3, such as
