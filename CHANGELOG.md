@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-10-03
+
+Everyone at a machine gets a profile of their own, with lifetime statistics, and can bring it to a
+seat at a shared screen; Play Online keeps your own list of servers. It doesn't play with 0.12.x.
+
 ### Added
 
 - **Your own server list.** Play Online keeps the dedicated servers you add, a press each to
@@ -87,7 +92,6 @@ below, and hands the notes to the release workflow.
   fan, rather than sitting level over it.
 - **No gray flash on quitting.** The window stays the menus' dark while the game closes and
   between screens.
-
 ## [0.12.0] - 2026-10-02
 
 A driving school teaches the game and ends with a license whose plate your kart wears, and jokers
@@ -1601,7 +1605,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.0
 [0.12.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.12.0
 [0.11.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.11.0
 [0.10.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.10.1
