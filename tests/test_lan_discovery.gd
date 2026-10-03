@@ -69,7 +69,10 @@ func test_the_lan_screen_finds_a_hosted_game_and_what_it_is() -> void:
 	var watch: Button = screen._found.find_child("Watch%d" % id, true, false)
 	assert_object(watch).is_not_null()
 	assert_bool(watch.disabled).is_false()
-	assert_object(screen._found.find_child("Join%d" % id, true, false)).is_not_null()
+	var join: Button = screen._found.find_child("Join%d" % id, true, false)
+	assert_object(join).is_not_null()
+	# Where the game is hosted, said when a pointer rests on it.
+	assert_str(join.tooltip_text).is_equal("Host: %s:%d" % [game["address"], PORT])
 	# Shut to watchers, Watch cannot be pressed.
 	session.door.watchers_allowed = false
 	waited = 0

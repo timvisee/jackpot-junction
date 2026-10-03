@@ -201,7 +201,7 @@ func test_add_keeps_a_server_on_the_list() -> void:
 	assert_bool(box.is_visible_in_tree()).is_true()
 	assert_bool(box.is_empty()).is_true()
 	await await_idle_frame()
-	assert_float(box.link.position.y).is_less_equal(8.0)
+	assert_float((box.link.get_parent() as Control).position.y).is_less_equal(8.0)
 	assert_float(box.get_combined_minimum_size().y).is_greater(ListBox.ROOM)
 	screen.adding_button.pressed.emit()
 	assert_bool(screen.is_form_up()).is_true()
@@ -416,8 +416,13 @@ func test_the_box_ends_in_a_link_to_add_a_server() -> void:
 	assert_str(box.link.text).is_equal("Add a server")
 	assert_bool(box.link.is_visible_in_tree()).is_true()
 	assert_int(box.link.focus_mode).is_equal(Control.FOCUS_ALL)
-	assert_object(box.link.get_parent()).is_same(box.list.get_parent())
-	assert_int(box.link.get_index()).is_greater(box.list.get_index())
+	var room_round := box.link.get_parent()
+	assert_object(room_round.get_parent()).is_same(box.list.get_parent())
+	assert_int(room_round.get_index()).is_greater(box.list.get_index())
+	# With room round it, above and below as well as either side.
+	assert_float((room_round as Control).get_combined_minimum_size().y).is_greater_equal(
+		box.link.get_combined_minimum_size().y + ListBox.LINK_ROOM.y * 2.0
+	)
 	box.link.pressed.emit()
 	assert_bool(screen.is_form_up()).is_true()
 	assert_bool(screen.add_button.visible).is_true()

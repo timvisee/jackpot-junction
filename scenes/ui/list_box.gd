@@ -30,6 +30,9 @@ const SHADE_DEPTH := 7
 const LINK_INK := Palette.CHIP_GOLD
 const LINK_HOVER := Color(1.0, 0.9, 0.62)
 const LINK_SIZE := Type.BODY
+## The room round the link, above and below it and either side, so it stands in the list as an item
+## of it, about as tall as a row, rather than as a line squeezed in under the last one.
+const LINK_ROOM := Vector2(16.0, 12.0)
 
 ## What is listed: a [ServerList] or a [GameList], or anything else with rows in it.
 var list: Control
@@ -103,7 +106,15 @@ func _build(heading: String, linked: String) -> void:
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	items.add_child(list)
 	link = _link(linked)
-	items.add_child(link)
+	var room_round := MarginContainer.new()
+	room_round.name = "LinkRoom"
+	room_round.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	room_round.add_theme_constant_override("margin_left", int(LINK_ROOM.x))
+	room_round.add_theme_constant_override("margin_right", int(LINK_ROOM.x))
+	room_round.add_theme_constant_override("margin_top", int(LINK_ROOM.y))
+	room_round.add_theme_constant_override("margin_bottom", int(LINK_ROOM.y))
+	room_round.add_child(link)
+	items.add_child(room_round)
 
 
 ## The row the buttons under a box stand in, side by side and as wide as the box together, so they

@@ -18,7 +18,6 @@ var join_button: Button
 var watch_button: Button
 var cancel_button: Button
 var dialog: FormDialog
-var status: Label
 var finder: LanFinder
 ## Back to the servers this screen is reached from: Play Online, unless a test says otherwise.
 var leave: Callable = Game.go_to_play_online
@@ -53,9 +52,6 @@ func _ready() -> void:
 	host_button.pressed.connect(func() -> void: _start("host"))
 	direct_button = ListBox.add_row_button(ways, "Direct connect")
 	direct_button.pressed.connect(show_form)
-	status = ListBox.fit(Label.new())
-	status.add_theme_font_size_override("font_size", 20)
-	column.add_child(status)
 	var back := MenuTheme.button("Back", 24)
 	back.pressed.connect(_back)
 	column.add_child(back)
@@ -155,12 +151,14 @@ func config(mode: String) -> MatchConfig:
 	return result
 
 
-## What is wrong with joining, said where it was asked: in the dialog while it is up.
+## What is wrong with joining, said in the dialog, which comes up for it if it is not up already:
+## a found game's address in its boxes, there to be put right. Hosting is on the game's own port and
+## has nothing to be wrong with, so the screen keeps no line of its own for it, which stood empty
+## between the buttons and Back.
 func _wrong(text: String) -> void:
-	if is_form_up():
-		dialog.say(text)
-	else:
-		status.text = text
+	if not is_form_up():
+		show_form()
+	dialog.say(text)
 
 
 func _start(mode: String) -> void:

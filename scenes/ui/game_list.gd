@@ -49,7 +49,17 @@ static func describe(game: Dictionary) -> String:
 	return " · ".join(parts)
 
 
-## One game: the button that joins it, saying what it is, and the eye beside it.
+## Where [param game] is hosted, for its tooltip: the host's address and port, for a game found on
+## the network, or nothing for a server's, which is at the server's address already said over the
+## list.
+static func where(game: Dictionary) -> String:
+	if not game.has("address"):
+		return ""
+	return "Host: %s:%d" % [game["address"], int(game["port"])]
+
+
+## One game: the button that joins it, saying what it is, and where it is hosted when a pointer
+## rests on it, and the eye beside it.
 func _row(game: Dictionary) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
@@ -59,6 +69,7 @@ func _row(game: Dictionary) -> HBoxContainer:
 	join.custom_minimum_size = Vector2(0.0, 52.0)
 	join.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	join.disabled = not playable
+	join.tooltip_text = where(game)
 	join.pressed.connect(func() -> void: chosen.emit(game, "join"))
 	row.add_child(join)
 	var watch := IconButton.of(IconButton.Kind.EYE, "Watch")

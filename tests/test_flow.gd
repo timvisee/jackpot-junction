@@ -555,6 +555,9 @@ func test_lan_games_hosts_and_connects_directly() -> void:
 			back = each
 	assert_float(back.size.x).is_equal_approx(ListBox.WIDTH, 0.5)
 	assert_float(screen.host_button.get_parent().size.x).is_equal_approx(ListBox.WIDTH, 0.5)
+	# And Back right under the buttons, with no empty line between them.
+	var row := screen.host_button.get_parent() as Control
+	assert_float(back.global_position.y - row.get_global_rect().end.y).is_less_equal(20.0)
 
 
 ## GAME.md 9.6: the LAN games screen come back to from a game that turned this machine away says

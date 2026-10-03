@@ -3499,8 +3499,8 @@ every list of games and servers is shown in: a well sunk into the screen, darker
 shade along its inside top edge and a faint rim, under a small gray heading, "Games on your
 network", with room for about five rows whether or not there are any, which scrolls once there are
 more. Empty, it still marks the list off from the buttons under it. Under the last row is a link
-to put something on the list, centered and scrolling with the rows, underlined words in gold with
-a gold rim under the cursor, which a click or the cursor presses: Host a game here, Add a server on
+to put something on the list, centered and scrolling with the rows, with room round it to make it
+about as tall as a row, underlined words in gold with a gold rim under the cursor, which a click or the cursor presses: Host a game here, Add a server on
 Play Online and Make a game on a server's games, each the same as its button under the box, but
 where the eye already is when it finds the list wanting. An empty list is the link alone at its
 top, where it once said it was empty, "No servers yet" and the like, which is the same thing said
@@ -3511,7 +3511,8 @@ button saying whose it is, whether it is
 still in the lobby, how many play in it of how many may, and whether it wants a password, which
 joins it, and an eye beside it, which watches it instead, see 10.3, "Watch" its tooltip: a word
 on every row beside the words of the row is one more word to read, and the eye is the same on all
-of them. The eye cannot be pressed on a game whose host lets nobody watch. A game on a version this one cannot play says which version
+of them. The eye cannot be pressed on a game whose host lets nobody watch. A pointer resting on a
+game's row says where it is hosted, "Host:" and its address and port. A game on a version this one cannot play says which version
 it is on and neither can be pressed. The list is made again as games come, go and change, and a
 pad's cursor stays on the button it was on. Finding is asking rather than being called to: about once a second the screen asks on
 port 7779 of every machine the network reaches, and of its own, which a broadcast does not always
