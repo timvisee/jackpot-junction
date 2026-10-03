@@ -109,12 +109,17 @@ static func button_style(fill: Color, edge: Color = Color.TRANSPARENT) -> StyleB
 	return style
 
 
+## How big a button is at the least.
+static func button_size() -> Vector2:
+	return Vector2(320.0, 56.0)
+
+
 static func button(text: String, size: int = Type.LARGE) -> Button:
 	var control := Button.new()
 	control.text = text
 	Type.set_font(control, Type.STRONG, size)
 	_dress(control)
-	control.custom_minimum_size = Vector2(320.0, 56.0)
+	control.custom_minimum_size = button_size()
 	control.pressed.connect(func() -> void: Audio.play_sfx(&"ui_click", CLICK_DB, 0.0))
 	control.focus_entered.connect(func() -> void: Audio.play_sfx(&"ui_move", MOVE_DB, 0.0))
 	return control

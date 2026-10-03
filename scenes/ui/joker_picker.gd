@@ -40,6 +40,9 @@ const NARROWEST := 0.7
 const ACROSS := 0.9
 ## How much room the title takes over the cards of a pick in a top corner, see [member corner].
 const HUNG_TITLE := 52.0
+## The skip button: how big its words and its key are, and how much room it leaves round them.
+const SKIP_SIZE := Type.LARGE
+const SKIP_PAD := 22.0
 
 ## This picker takes share [member column] of [member columns] of the screen. With three or four
 ## players on this screen it keeps to its owner's corner instead, as the hand does, see
@@ -70,8 +73,11 @@ var _detail: JokerDetail
 var _cross: Control
 var _shown: Array[StringName] = []
 var _stage := JokerOffer.Stage.DONE
-## Skip or back, on a touch screen, while there is either to do.
-var _touch_button: Button
+## Skip or back, while there is either to do, GAME.md 8.3: a word on a touch screen, and the key
+## or the pad's button that does it with the word beside it on any other, so nobody has to find
+## the small print to know a pick can be turned down. What it was last built for.
+var _skip_button: Button
+var _skip_shown := ""
 ## What the pane's hint row says now, so it is built again only when that changes: the HUD shows
 ## the offer every frame.
 var _hints_shown := ""
@@ -101,9 +107,10 @@ func card_at(point: Vector2) -> int:
 	return best
 
 
-## The skip or back button of a touch screen, while it is up, or null.
-func touch_button() -> Button:
-	return _touch_button if visible and _touch_button.visible else null
+## The skip or back button, while it is up, or null: a finger or the mouse presses it through
+## [TouchInput.press_back], see [TouchControls] and [MouseJokers].
+func skip_button() -> Button:
+	return _skip_button if visible and _skip_button.visible else null
 
 
 func _ready() -> void:
@@ -126,12 +133,16 @@ func _ready() -> void:
 	_build_cross()
 	# Drawn as a button and pressed by [TouchControls], which answers every finger on the screen
 	# on its own; left to the mouse the engine makes of the first finger, it would not answer a
-	# second one while a thumb is resting on the stick.
-	_touch_button = MenuTheme.button("Skip")
-	_touch_button.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_touch_button.focus_mode = Control.FOCUS_NONE
-	_touch_button.visible = false
-	add_child(_touch_button)
+	# second one while a thumb is resting on the stick. A real mouse lights it up as it passes
+	# over, and its click is [MouseJokers]'s, as a click on a card is.
+	_skip_button = MenuTheme.button("Skip")
+	_skip_button.name = "Skip"
+	_skip_button.mouse_filter = (
+		Control.MOUSE_FILTER_IGNORE if TouchInput.enabled else Control.MOUSE_FILTER_STOP
+	)
+	_skip_button.focus_mode = Control.FOCUS_NONE
+	_skip_button.visible = false
+	add_child(_skip_button)
 
 
 ## Shows the offer for one slot, or hides the picker when there is nothing to choose.
@@ -171,9 +182,40 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 			else:
 				_detail.set_hints(_hint_row(choosing, offer.keeping))
 	# Keeping one of last map's has nothing to skip to: the rule is keep one.
-	_touch_button.visible = TouchInput.enabled and not (choosing and offer.keeping)
-	_touch_button.text = "Skip" if choosing else "Back"
+	_skip_button.visible = not (choosing and offer.keeping)
+	_dress_skip("Skip" if choosing else "Back")
 	_layout(picked)
+
+
+## Puts [param word] on the skip button, with the key or the pad's button for it in front of it
+## off a touch screen, built again only when either changes.
+func _dress_skip(word: String) -> void:
+	var stamp := (
+		"%s|%s|%s"
+		% [word, TouchInput.enabled, InputHint.stamp([InputActions.JOKER_DESTROY], keyboard)]
+	)
+	if stamp == _skip_shown:
+		return
+	_skip_shown = stamp
+	for old: Node in _skip_button.get_children():
+		if old.name == "Keys":
+			_skip_button.remove_child(old)
+			old.queue_free()
+	var least := MenuTheme.button_size()
+	_skip_button.custom_minimum_size = least
+	var key := InputHint.glyph(InputActions.JOKER_DESTROY, keyboard, Palette.CHIP_WHITE, SKIP_SIZE)
+	if TouchInput.enabled or key == null:
+		_skip_button.text = word
+		return
+	_skip_button.text = ""
+	var row := InputHint.row("%s " + word, [key], Palette.CHIP_WHITE, SKIP_SIZE)
+	row.name = "Keys"
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_skip_button.add_child(row)
+	var inside := row.get_combined_minimum_size()
+	_skip_button.custom_minimum_size = least.max(inside + Vector2(SKIP_PAD * 2.0, SKIP_PAD))
+	row.size = inside
+	row.position = (_skip_button.custom_minimum_size - inside) * 0.5
 
 
 ## Two bars in a red X, laid out over a card exactly as the card itself is, so it lines up
@@ -204,9 +246,9 @@ func _layout(picked: int) -> void:
 	var factor := SHARED_SCALE if shared else 1.0
 	var baseline := size.y * (SHARED_BASELINE if shared else LONE_BASELINE)
 	var detail := _detail.get_combined_minimum_size()
-	var button := _touch_button.get_combined_minimum_size()
+	var button := _skip_button.get_combined_minimum_size()
 	if not shared and floor_y > 0.0:
-		var under := 24.0 + detail.y + (18.0 + button.y if _touch_button.visible else 0.0)
+		var under := 24.0 + detail.y + (18.0 + button.y if _skip_button.visible else 0.0)
 		var tall := floor_y - under - 86.0 - TOP_ROOM
 		factor = clampf(tall / JokerCard.SIZE.y, NARROWEST, factor)
 		var highest := JokerCard.SIZE.y * factor + 86.0 + TOP_ROOM
@@ -263,10 +305,10 @@ func _layout(picked: int) -> void:
 	if hangs:
 		title_y = ceiling_y
 	_title.position = Vector2(center - width * 0.5, title_y)
-	if _touch_button.visible:
-		_touch_button.size = button
+	if _skip_button.visible:
+		_skip_button.size = button
 		var below := pane_y + detail.y + 18.0
-		_touch_button.position = Vector2(center - button.x * 0.5, below)
+		_skip_button.position = Vector2(center - button.x * 0.5, below)
 
 
 ## Rebuilds the row when the offered jokers or the stage change, and leaves it alone otherwise so
@@ -317,11 +359,8 @@ func _hint_row(choosing: bool, keeping := false) -> Control:
 		# has a thumb on, so it is the one shown here.
 		InputHint.glyph(InputActions.FIRE, keyboard, ink, size),
 	]
-	# Keeping one of last map's is not a card that can be turned down: the rule is keep one.
+	# Skipping, or going back, is the button under the pane, with its key on it.
+	var template := "%s choose   %s take" if choosing else "%s choose   %s destroy"
 	if keeping:
-		return InputHint.row("%s choose   %s keep", parts, ink, size)
-	parts.append(InputHint.glyph(InputActions.JOKER_DESTROY, keyboard, ink, size))
-	var template := (
-		"%s choose   %s take   %s skip" if choosing else "%s choose   %s destroy   %s back"
-	)
+		template = "%s choose   %s keep"
 	return InputHint.row(template, parts, ink, size)

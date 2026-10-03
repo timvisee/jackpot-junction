@@ -339,7 +339,7 @@ func test_the_button_under_the_pick_skips_it() -> void:
 	var controls := await _driving()
 	var offer := await _pick(controls)
 	var picker: JokerPicker = controls.match_node.hud._pickers[0]
-	var button := picker.touch_button()
+	var button := picker.skip_button()
 	assert_object(button).is_not_null()
 	assert_str(button.text).is_equal("Skip")
 	var stick := Vector2(controls.size.x * 0.2, controls.size.y * 0.7)
@@ -361,7 +361,7 @@ func test_the_button_under_the_pick_skips_it() -> void:
 	offer.stage = JokerOffer.Stage.CHOOSING
 	offer.keeping = true
 	await _runner.simulate_frames(2, 17)
-	assert_object(picker.touch_button()).is_null()
+	assert_object(picker.skip_button()).is_null()
 
 
 func _hand_card(hand: JokerHand, index: int) -> Vector2:
@@ -582,7 +582,7 @@ func test_only_one_of_the_pick_and_the_hand_has_a_card_out() -> void:
 	assert_bool(picker._detail.visible).is_false()
 	for card: JokerCard in picker._cards:
 		assert_int(card.z_index).is_equal(0)
-	assert_object(picker.touch_button()).is_not_null()
+	assert_object(picker.skip_button()).is_not_null()
 	# Back to the pick: its card comes out again and the hand shuts.
 	_touch(controls, 1, _card_center(picker, 2), true)
 	await _runner.simulate_frames(3, 17)
@@ -629,7 +629,7 @@ func test_the_touch_hud_keeps_its_pieces_apart() -> void:
 	await _pick(controls)
 	var picker: JokerPicker = hud._pickers[0]
 	await _runner.simulate_frames(4, 17)
-	var skip := picker.touch_button()
+	var skip := picker.skip_button()
 	assert_float(skip.get_global_rect().end.y).is_less_equal(hand.reach())
 
 

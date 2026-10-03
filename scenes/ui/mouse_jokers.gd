@@ -116,9 +116,7 @@ func _input(event: InputEvent) -> void:
 	if click.button_index != MOUSE_BUTTON_LEFT:
 		return
 	var slot := _slot()
-	var picked := _card_in(_picker(slot), click.position)
-	if picked >= 0:
-		TouchInput.tap(picked)
+	if _click_pick(slot, click.position):
 		get_viewport().set_input_as_handled()
 		return
 	var action := _pane_button_at(slot, click.position)
@@ -139,6 +137,21 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	_unpin()
+
+
+## A click at [param at] on the respawn pick: a card of it is taken, and its skip button skips it.
+## Whether it was the pick's.
+func _click_pick(slot: PlayerSlot, at: Vector2) -> bool:
+	var picker := _picker(slot)
+	var picked := _card_in(picker, at)
+	if picked >= 0:
+		TouchInput.tap(picked)
+		return true
+	var skip := picker.skip_button() if picker != null else null
+	if skip != null and skip.get_global_rect().has_point(at):
+		TouchInput.press_back()
+		return true
+	return false
 
 
 ## The hand and the pick of each seat, as the HUD this hangs over keeps them, see [method

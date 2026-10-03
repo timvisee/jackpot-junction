@@ -18,6 +18,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A Skip button on the joker pick everywhere.** On a keyboard or a pad it shows the key that skips
+  inside it, rather than leaving skipping to the small print.
 - **A steering wheel on the touch screen.** Driving with wheel and pedals, the stick under your
   left thumb is drawn as a wheel that turns as you steer.
 - **The mult die is a real die.** It has its pips on every side, one to six, in the mult's red.

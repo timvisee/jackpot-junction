@@ -106,8 +106,12 @@ func poll(delta: float) -> void:
 	joker_prev_pressed = _just_pressed(InputActions.JOKER_PREV)
 	joker_next_pressed = _just_pressed(InputActions.JOKER_NEXT)
 	joker_drop_pressed = _just_pressed(InputActions.JOKER_DROP)
+	# The jokers are pointed at by a finger on a touch screen, and by the mouse for the player on
+	# the keyboard anywhere else, see [MouseJokers]: the same cards, kept open the same way, and
+	# the same button under the pick to skip it.
+	var pointer := touch or MouseJokers.player == self
 	joker_destroy_pressed = (
-		_just_pressed(InputActions.JOKER_DESTROY) or (touch and TouchInput.take_back())
+		_just_pressed(InputActions.JOKER_DESTROY) or (pointer and TouchInput.take_back())
 	)
 	_poll_emote(delta, touch)
 	# While the wheel is open the four ways are its, not the kart's.
@@ -116,9 +120,6 @@ func poll(delta: float) -> void:
 		cursor = 0.0
 		throttle = 0.0
 		brake = 0.0
-	# The jokers are pointed at by a finger on a touch screen, and by the mouse for the player on
-	# the keyboard anywhere else, see [MouseJokers]: the same cards, kept open the same way.
-	var pointer := touch or MouseJokers.player == self
 	joker_inspect = TouchInput.joker_inspect if pointer else -1
 	pick_inspect = TouchInput.pick_inspect if touch else -1
 	joker_select = -1

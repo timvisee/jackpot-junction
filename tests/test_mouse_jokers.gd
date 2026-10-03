@@ -166,3 +166,43 @@ func test_the_mouse_moves_the_pick_to_a_card_and_a_click_takes_it() -> void:
 	await _runner.simulate_frames(3, 17)
 	assert_bool(offer.is_done()).is_true()
 	assert_str(String(offer.taken.id)).is_equal("rubber_bumpers")
+
+
+## Off a touch screen the pick has its skip button too, GAME.md 8.3, with the key that skips in it
+## and the word beside it, rather than skipping as small print in the pane; a click on it skips.
+func test_the_pick_has_a_skip_button_with_its_key_on_it() -> void:
+	var mouse := await _playing()
+	var slot := mouse.match_node.slots[0]
+	slot.kart.die(&"pit", -1)
+	await _runner.simulate_frames(2, 17)
+	var choices: Array[Joker] = []
+	for id: String in ["hair_trigger", "rubber_bumpers"]:
+		choices.append(load("res://data/jokers/%s.tres" % id))
+	slot.offer = JokerOffer.new(slot.kart, choices)
+	slot.offer.answer_at = 0.0
+	slot.respawn_left = 30.0
+	await _runner.simulate_frames(4, 17)
+	var offer := slot.offer
+	var picker: JokerPicker = mouse.match_node.hud._pickers[0]
+	var skip := picker.skip_button()
+	assert_object(skip).is_not_null()
+	assert_str(skip.text).is_empty()
+	var keys: Control = skip.get_node_or_null("Keys")
+	assert_object(keys).is_not_null()
+	var glyphs := keys.find_children("*", "InputGlyph", true, false)
+	assert_int(glyphs.size()).is_equal(1)
+	assert_str((glyphs[0] as InputGlyph).caption).is_equal("Q")
+	var words := ""
+	for label: Node in keys.find_children("*", "Label", true, false):
+		words += (label as Label).text
+	assert_str(words).contains("Skip")
+	# The pane says how to choose and take, and leaves skipping to the button.
+	var pane_words := ""
+	for label: Node in picker._detail.find_children("*", "Label", true, false):
+		pane_words += (label as Label).text
+	assert_str(pane_words).not_contains("skip")
+	assert_float(skip.size.x).is_greater_equal(keys.size.x)
+	_click(mouse, skip.get_global_rect().get_center())
+	await _runner.simulate_frames(3, 17)
+	assert_bool(offer.is_done()).is_true()
+	assert_object(offer.taken).is_null()

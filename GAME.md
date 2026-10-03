@@ -349,7 +349,12 @@ Jokers are passive rule modifiers held for the rest of the match.
 - Offer controls: steer left and right, the bracket keys or the D-pad move the
   cursor, number keys pick directly, the item button takes, the destroy button
   skips. With a full hand the same controls pick the joker to destroy, and the
-  destroy button goes back.
+  destroy button goes back. The skipping is a big button under the pane on every
+  device, with the key or the pad's button that does it in it and Skip or Back
+  beside it, rather than a word at the end of the pane's line: a player who had
+  not read to the end of the small print did not know a pick could be turned
+  down. A click on it skips as well, and the pane's line says only how to
+  choose and take, or destroy.
 - Offer weights by rarity: common 60%, uncommon 30%, rare 10%.
 
 The joker catalog is in section 7.3.

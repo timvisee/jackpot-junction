@@ -351,7 +351,7 @@ func _card_in(hand: Control, at: Vector2) -> int:
 
 ## Whether [param at] is on the pick's skip or back button.
 func _on_back(picker: JokerPicker, at: Vector2) -> bool:
-	var button := picker.touch_button() if picker != null else null
+	var button := picker.skip_button() if picker != null else null
 	return button != null and button.get_global_rect().has_point(_screen(at))
 
 
@@ -619,7 +619,7 @@ func _down_on_pick(finger: int, at: Vector2) -> bool:
 		return true
 	if _back_finger < 0 and _on_back(picker, at):
 		_back_finger = finger
-		_back_button = picker.touch_button()
+		_back_button = picker.skip_button()
 		MenuTheme.hold(_back_button, true)
 		return true
 	return false
