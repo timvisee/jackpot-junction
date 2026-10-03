@@ -8,6 +8,8 @@ extends ScrollContainer
 ## at the table are already the ones playing, and the tab says where to go to switch.
 
 const TITLE := "Profiles"
+## What the page is for, said at its top.
+const LINE := "Each person's names, karts, license and statistics. Switch to play as another."
 const PLAYING := "Playing"
 const SWITCH := "Switch"
 const DELETE := "Delete"
@@ -45,27 +47,25 @@ static func make(settings: Settings, switching: bool, switched: Callable) -> Pro
 func _ready() -> void:
 	horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	follow_focus = true
-	var center := CenterContainer.new()
-	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	center.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	add_child(center)
+	# Down the left, the way the Players page is.
 	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 14)
-	center.add_child(column)
-	column.add_child(MenuTheme.title(TITLE, Type.HEADING))
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	column.add_theme_constant_override("separation", 12)
+	add_child(column)
+	column.add_child(SettingsScreen.page_line(LINE))
 	var kept := _settings.profiles()
 	for profile: Profile in kept:
 		column.add_child(_row(profile))
 	new_button = MenuTheme.button(NEW, Type.BODY)
 	new_button.name = "New"
-	new_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	new_button.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	new_button.disabled = kept.size() >= Profile.MOST
 	new_button.pressed.connect(_new)
 	column.add_child(new_button)
 	if not can_switch:
-		column.add_child(MenuTheme.subtitle(ONLY_FROM_TITLE, Type.LABEL))
+		column.add_child(SettingsScreen.page_line(ONLY_FROM_TITLE))
 	elif new_button.disabled:
-		column.add_child(MenuTheme.subtitle(FULL, Type.LABEL))
+		column.add_child(SettingsScreen.page_line(FULL))
 
 
 ## One profile: its name to type over, its plate, and what can be done with it.
@@ -81,9 +81,7 @@ func _row(profile: Profile) -> HBoxContainer:
 	named.text_submitted.connect(func(_text: String) -> void: _rename(profile, named))
 	named.focus_exited.connect(_rename.bind(profile, named))
 	row.add_child(named)
-	var plate := LicensePlate.of(_plate_of(profile), PLATE_WIDE)
-	plate.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	row.add_child(plate)
+	row.add_child(_plate_of(profile))
 	var played := Label.new()
 	played.text = MAPS % roundi(LifetimeStats.value_of(profile, &"maps"))
 	played.custom_minimum_size = Vector2(120.0, 0.0)
@@ -104,12 +102,24 @@ func _row(profile: Profile) -> HBoxContainer:
 	return row
 
 
-## What a profile's kart wears on its back: its plate, the learner's L before a license, or the
-## blank plate for a bare bumper.
-static func _plate_of(profile: Profile) -> String:
+## What a profile's kart wears on its back: its plate, or before a license the learner's L itself
+## rather than a plate reading L, in the plate's room.
+static func _plate_of(profile: Profile) -> Control:
+	var room := CenterContainer.new()
+	room.custom_minimum_size = Vector2(
+		PLATE_WIDE, PLATE_WIDE * LicensePlate.SIZE.y / LicensePlate.SIZE.x
+	)
+	room.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	room.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var shown: Control
 	if profile.license_number.is_empty():
-		return "L"
-	return profile.license_plate
+		shown = SchoolFigure.of(SchoolFigure.Kind.LEARNER, room.custom_minimum_size.y)
+		shown.name = "Learner"
+	else:
+		shown = LicensePlate.of(profile.license_plate, PLATE_WIDE)
+		shown.name = "Plate"
+	room.add_child(shown)
+	return room
 
 
 ## A name typed over: the profile's first player is called it, cleaned the way a name is.

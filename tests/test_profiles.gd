@@ -104,6 +104,10 @@ func test_the_profiles_page_lists_and_renames_them() -> void:
 	add_child(page)
 	await await_idle_frame()
 	assert_int(page.rows.size()).is_equal(2)
+	# Before a license a profile shows the learner's L itself, not a plate reading L.
+	var learner: Node = (page.rows["2"]["row"] as Node).find_child("Learner", true, false)
+	assert_object(learner).is_not_null()
+	assert_object((page.rows["2"]["row"] as Node).find_child("Plate", true, false)).is_null()
 	var mine: Dictionary = page.rows["1"]
 	assert_bool((mine["switch"] as Button).disabled).is_true()
 	assert_bool((mine["delete"] as Button).disabled).is_true()

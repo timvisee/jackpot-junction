@@ -44,6 +44,8 @@ const TAB_BACK := JOY_BUTTON_LEFT_SHOULDER
 const TAB_ON := JOY_BUTTON_RIGHT_SHOULDER
 const TAB_HINT_INK := Color(0.60, 0.60, 0.63)
 const TAB_HINT_SIZE := 18
+## What the Players page is for, said at its top.
+const PLAYERS_LINE := "What each seat at this screen is called, and how it drives."
 
 ## The page the next settings screen opens on, by its name, or the first.
 static var opening_on := ""
@@ -366,6 +368,7 @@ func _players_tab() -> Control:
 	var column := VBoxContainer.new()
 	column.name = "Players"
 	column.add_theme_constant_override("separation", 12)
+	column.add_child(page_line(PLAYERS_LINE))
 	for seat: int in _settings.player_names.size():
 		var field := MenuTheme.field(
 			_settings.player_names[seat], PlayerNames.PLACEHOLDER, PlayerNames.MAX_LENGTH
@@ -374,10 +377,20 @@ func _players_tab() -> Control:
 		field.text_changed.connect(
 			func(text: String) -> void: _settings.player_names[seat] = PlayerNames.clean(text)
 		)
-		var row := MenuTheme.row("P%d name" % (seat + 1), field)
+		var row := MenuTheme.row("Seat %d" % (seat + 1), field)
 		row.add_child(_drive_switch(seat))
 		column.add_child(row)
 	return column
+
+
+## The line at the top of a page that says what it is for, GAME.md 8.5: short, gray and to the
+## left, where the page's rows start.
+static func page_line(text: String) -> Label:
+	var line := Label.new()
+	line.text = text
+	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	Type.text(line, Type.LABEL, Color(0.72, 0.72, 0.78))
+	return line
 
 
 ## A small button with the way [param seat] drives on it, simple or advanced, that changes it to

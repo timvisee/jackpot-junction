@@ -30,6 +30,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Seats on the Players page.** Its rows are Seat 1 to Seat 4, under a line saying what the page
+  is for.
 - **The License page during the driving test.** Opened from the test, it says the license is in
   progress rather than offering to send you back to the school.
 - **The settings in a new order.** License, Players, Controls, Audio, Video, Accessibility,

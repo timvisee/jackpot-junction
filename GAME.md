@@ -3016,7 +3016,8 @@ like any other button.
   and Retake the driving test, which goes to the school; or, before one is
   earned, a word on where to get one, Earn it now, which goes to the school,
   and the learner's L the kart wears meanwhile.
-- **Players**: a box each for what the four seats at this machine are called,
+- **Players**: under a line saying what the page is for, a row each for the four
+  seats at this machine, Seat 1 to Seat 4, with a box for what the seat is called,
   see 3.8, with the funny-name hint in an empty one, and after each a small
   button with the picture of how that seat drives, simple or advanced, that
   changes it to the other, see 4.2. The first seat's is the Driving row of
@@ -3143,7 +3144,8 @@ like any other button.
   3.8, keeps its own. No reset: a new profile starts from nothing. `LifetimeStats`,
   written by `MatchRecord` a moment after the whistle, when a client has the host's
   last numbers.
-- **Profiles**, after Statistics: who is playing at this machine. A profile is a person's save, kept
+- **Profiles**, after Statistics: who is playing at this machine, down the left as the
+  Players page is, under a line saying so. A profile is a person's save, kept
   apart from how the machine is set up: the names, karts and ways to drive of the four
   seats, the driver license and its plate, how far through the driving school they got,
   and the LAN game and server they last played on, each profile a file of its own in a
@@ -3151,7 +3153,8 @@ like any other button.
   controls and their bindings, the touch layout and the lobby's choices stay with the
   machine, the same whoever plays. A profile is named for its first player, and the name
   can be typed over on its row, which renames that player. Each row shows the name, the
-  plate the profile's kart wears, the learner's L before a license, a Switch button, and
+  plate the profile's kart wears, or before a license the learner's L itself rather
+  than a plate reading L, a Switch button, and
   Delete, which asks by asking to be pressed again within three seconds and is not there
   for the one playing, and how many maps it has played. New profile makes a blank one and goes to it; a machine keeps
   eight. Switching puts the settings up again for the profile now playing. It is done
