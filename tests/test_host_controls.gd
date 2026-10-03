@@ -376,7 +376,8 @@ func test_the_maker_of_a_game_chooses_it_in_the_waiting_room() -> void:
 
 
 ## Make host in the Manage players of the player with the say hands it to that player, who is told
-## who handed it over, and takes it from them. Somebody watching has no Make host beside them.
+## who handed it over, and takes it from them. Somebody watching has no Make host beside them, and
+## no plate: a player has the one on their kart, here the learner's L.
 func test_make_host_hands_the_say_to_another_player() -> void:
 	_open_host()
 	var clients := await _seat_in_turn(["Ann", "Bo"] as Array[String])
@@ -390,10 +391,20 @@ func test_make_host_hands_the_say_to_another_player() -> void:
 		. override_failure_message("Ann never saw Bo and Kim")
 		. is_true()
 	)
+	var plated := func() -> bool:
+		for guest: Dictionary in ann.host_controls.guests():
+			if guest.has("color") and guest.get("plate", "") == "L":
+				return true
+		return false
+	assert_bool(await _wait_until(plated, 4000)).override_failure_message("no plate").is_true()
 	var pane: ManagePlayers = auto_free(ManagePlayers.new())
 	pane.session = ann
 	add_child(pane)
 	pane.open()
+	assert_int(pane.find_children("Learner", "", true, false).size()).is_greater_equal(1)
+	for guest: Dictionary in ann.host_controls.guests():
+		if not guest.has("color"):
+			assert_str(str(guest.get("plate", ""))).is_empty()
 	var hands: Array[Button] = []
 	for button: Node in pane.find_children("*", "Button", true, false):
 		if (button as Button).text == "Make host":

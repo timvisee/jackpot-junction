@@ -60,6 +60,8 @@ below, and hands the notes to the release workflow.
 - **The mult die is a real die.** It has black pips on every side, one to six.
 - **Pictures on the dressing pads.** The paint, hat, flag and trail pads in the lobby and the
   Garage show a picture of what they change rather than its name.
+- **Plates in Manage players.** The host's list of players shows each one's license plate, or the
+  learner's L, beside the name.
 - **Inspectors at the driving test.** Four people in hi-vis vests with clipboards watch your kart
   from the wall tops, and now and then write something down.
 - **A finger for a tap.** On a phone, the theory book and the license stamp show a finger tapping

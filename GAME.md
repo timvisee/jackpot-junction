@@ -3551,7 +3551,10 @@ nothing, since nothing went wrong.
 The host can show anybody out. Manage players, on the host's pause menu wherever the room is,
 comes up in place of the menu: everybody in the game, the host's own players first, marked Me
 and with nothing beside them, then each other player by the name and color of their seat and
-each watcher by the name the host gave them, with Kick beside every one of those. A client with
+each watcher by the name the host gave them, with Kick beside every one of those. Every player
+has the plate on their kart beside the name, see 4.4, or before a license the learner's L itself
+rather than a plate reading L, so the host can tell two Bobs apart; somebody watching has no kart
+and the room a plate would take. A client with
 two players at it is two rows: Kick on one of them takes that player's seat and leaves the
 client playing with the other, and Kick on the last shows the client out.
 Somebody kicked is told the host removed them from the game, on the pane a refusal comes up on,

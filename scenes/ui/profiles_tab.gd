@@ -114,23 +114,10 @@ func _row(profile: Profile) -> HBoxContainer:
 
 
 ## What a profile's kart wears on its back: its plate, or before a license the learner's L itself
-## rather than a plate reading L, in the plate's room.
+## rather than a plate reading L.
 static func _plate_of(profile: Profile) -> Control:
-	var room := CenterContainer.new()
-	room.custom_minimum_size = Vector2(
-		PLATE_WIDE, PLATE_WIDE * LicensePlate.SIZE.y / LicensePlate.SIZE.x
-	)
-	room.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	room.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var shown: Control
-	if profile.license_number.is_empty():
-		shown = SchoolFigure.of(SchoolFigure.Kind.LEARNER, room.custom_minimum_size.y)
-		shown.name = "Learner"
-	else:
-		shown = LicensePlate.of(profile.license_plate, PLATE_WIDE)
-		shown.name = "Plate"
-	room.add_child(shown)
-	return room
+	var worn := "L" if profile.license_number.is_empty() else profile.license_plate
+	return LicensePlate.badge(worn, PLATE_WIDE)
 
 
 ## Asks for [param profile]'s name, its first player's, and calls it that.

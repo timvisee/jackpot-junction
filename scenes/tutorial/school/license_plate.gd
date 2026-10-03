@@ -29,6 +29,25 @@ static func of(words: String, wide := SIZE.x) -> LicensePlate:
 	return plate
 
 
+## What a kart wears on its back as a list shows it, [param wide] pixels across, see
+## [method KartVisuals.plate_worn]: the plate, or for "L" the learner's L itself rather than a plate
+## reading L, or for nothing the room a plate would take, so a column of them lines up.
+static func badge(worn: String, wide: float) -> Control:
+	var room := CenterContainer.new()
+	room.custom_minimum_size = Vector2(wide, wide * SIZE.y / SIZE.x)
+	room.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	room.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if worn == "L":
+		var learner := SchoolFigure.of(SchoolFigure.Kind.LEARNER, room.custom_minimum_size.y)
+		learner.name = "Learner"
+		room.add_child(learner)
+	elif not worn.is_empty():
+		var plate := LicensePlate.of(worn, wide)
+		plate.name = "Plate"
+		room.add_child(plate)
+	return room
+
+
 ## [param raw] as a plate may read: upper case, nothing a plate cannot hold, one space at a time,
 ## no longer than [constant MOST].
 static func clean(raw: String) -> String:

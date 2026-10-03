@@ -2,15 +2,18 @@ class_name ManagePlayers
 extends PanelContainer
 ## The host's list of everybody in its game, GAME.md 10.3, from its pause menu in place of the menu
 ## itself: the host's own players first, marked Me, then each other player by the name and color
-## of their seat and each watcher by the name the host gave them, with Kick beside every one of
-## those. Somebody kicked goes back to the title, told why, and may join again; in the lobby their
-## seat is emptied, and on a map a bot takes their kart on, as for anybody who leaves. The list
-## follows whoever comes and goes while it is up.
+## of their seat and the plate on their kart, or the learner's L, and each watcher by the name
+## the host gave them, with Kick beside every one of those. Somebody kicked goes back to the
+## title, told why, and may join again; in the lobby their seat is emptied, and on a map a bot
+## takes their kart on, as for anybody who leaves. The list follows whoever comes and goes while
+## it is up.
 
 ## Back: the menu is up again in its place.
 signal closed
 
 const NAME_WIDTH := 320.0
+## How wide a plate beside a name is drawn.
+const PLATE_WIDE := 96.0
 const KICK_SIZE := Vector2(120.0, 44.0)
 const HAND_SIZE := Vector2(170.0, 44.0)
 const TAG_INK := Color(0.66, 0.66, 0.72)
@@ -90,7 +93,17 @@ func _mine() -> Array[Dictionary]:
 		return found
 	for slot: PlayerSlot in match_node.slots:
 		if slot.is_local_human():
-			found.append({"name": slot.display_name(), "color": slot.color(), "me": true})
+			(
+				found
+				. append(
+					{
+						"name": slot.display_name(),
+						"color": slot.color(),
+						"plate": KartVisuals.plate_worn(slot.kart),
+						"me": true,
+					}
+				)
+			)
 	return found
 
 
@@ -103,6 +116,8 @@ func _row(guest: Dictionary) -> HBoxContainer:
 	named.clip_text = true
 	Type.strong(named, Type.BODY, guest.get("color", TAG_INK))
 	row.add_child(named)
+	# Somebody watching has no kart, and the room a plate would take.
+	row.add_child(LicensePlate.badge(str(guest.get("plate", "")), PLATE_WIDE))
 	var tag := Label.new()
 	tag.text = "Watching" if not guest.has("color") else "Playing"
 	tag.size_flags_horizontal = Control.SIZE_EXPAND_FILL

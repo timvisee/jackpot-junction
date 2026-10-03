@@ -206,6 +206,7 @@ func guests(
 							"seat": number,
 							"name": slot.display_name(),
 							"color": slot.color(),
+							"plate": KartVisuals.plate_worn(slot.kart),
 						}
 					)
 				)
