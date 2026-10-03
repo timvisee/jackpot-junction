@@ -1,6 +1,7 @@
 class_name LicenseTab
 extends ScrollContainer
-## The License tab of the settings, GAME.md 8.5: the driver license earned at the driving school,
+## The License tab of the settings, GAME.md 8.5: while the driving school or its test is under way,
+## only that, see [method _underway]; otherwise the driver license earned at the driving school,
 ## 9.4a, to look at, in full on a click or a tap on it or on the hand's button, drawn under it, see
 ## [LicenseView], with the plate on the back of the kart to change under it, 4.4, and a button
 ## to retake the test; or, before one is earned, a word on where to get one, the button that goes
@@ -12,6 +13,9 @@ const EARN := "Earn it now"
 const MEANWHILE := "Until then, your kart wears this."
 const PLATE_LINE := "Up to %d letters, digits, spaces and dashes, on the back of your kart."
 const RETAKE := "Retake the driving test"
+const UNDERWAY := "License in progress"
+const UNDERWAY_HOW := "You're taking the driving test right now. Finish it to earn your license."
+const UNDERWAY_KEPT := "Your current license stays until you pass."
 const CARD_SCALE := 0.7
 ## How big the hand's button is drawn on the card's bottom right corner, and where its middle
 ## sits from the corner of the card's box: on the rounded corner itself, so a quarter of it is over
@@ -53,10 +57,27 @@ func _ready() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 18)
 	center.add_child(column)
-	if _settings.license_number.is_empty():
+	if DrivingSchool.underway:
+		_underway(column)
+	elif _settings.license_number.is_empty():
 		_none_yet(column)
 	else:
 		_license(column)
+
+
+## In the school or its test: what is under way, and no way to the school, which would leave the
+## test for the start of another. A license already held stays until the new one is earned.
+func _underway(column: VBoxContainer) -> void:
+	column.add_child(MenuTheme.title(UNDERWAY, Type.HEADING))
+	column.add_child(MenuTheme.subtitle(UNDERWAY_HOW, Type.BODY))
+	if not _settings.license_number.is_empty():
+		column.add_child(MenuTheme.subtitle(UNDERWAY_KEPT, Type.LABEL))
+	var gap := Control.new()
+	gap.custom_minimum_size = Vector2(0.0, 8.0)
+	column.add_child(gap)
+	var learner := SchoolFigure.of(SchoolFigure.Kind.LEARNER, 96.0)
+	learner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	column.add_child(learner)
 
 
 ## No license: where to get one, and the L worn until then.

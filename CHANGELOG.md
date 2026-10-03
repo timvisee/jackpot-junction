@@ -28,6 +28,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The License page during the driving test.** Opened from the test, it says the license is in
+  progress rather than offering to send you back to the school.
 - **The settings in a new order.** License, Players, Controls, Audio, Video, Accessibility,
   Profiles, About.
 - **The game's words stand out in the driving test.** Chips, mult, pot, bank, nitro and lives are in

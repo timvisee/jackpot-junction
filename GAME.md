@@ -3003,7 +3003,11 @@ are open keeps whatever was changed in them. On a pad the shoulder buttons step 
 round at the ends, and a line beside Back says so; while a rebind is listening they are bindings
 like any other button.
 
-- **License**, first: the driver license earned at the driving school of 9.4a, as it
+- **License**, first. While the driving school or its test is under way, its pages or
+  its rooms, it says only that: "License in progress", that the player is taking the
+  test right now and finishing it earns the license, the learner's L, and for a player
+  who already holds one, that it stays until the new one is earned; no way to the
+  school, which would leave the test for the start of another. Otherwise it is the driver license earned at the driving school of 9.4a, as it
   was stamped, at seven tenths of its size so the plate and the ways on fit under
   it without the page scrolling, shown in full over the whole screen as the title shows it on a
   click or a tap on it, or on the hand's button, drawn alone with its middle on

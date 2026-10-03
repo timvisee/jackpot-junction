@@ -55,6 +55,10 @@ class LeaveButton:
 			draw_rect(Rect2(Vector2(middle.x - 14.0, y - 2.0), Vector2(28.0, 4.0)), MENU_INK)
 
 
+## Whether somebody is in the driving school or its test right now, the school's pages or the
+## test's rooms, for the License page of the settings to say so, GAME.md 8.5.
+static var underway := false
+
 var page := Page.ENROLL
 ## What the end goes on to: the driving test, unless a test of the school's own says otherwise;
 ## and what leaving goes back to, the title.
@@ -77,6 +81,7 @@ func _init() -> void:
 
 
 func _ready() -> void:
+	underway = true
 	MenuTheme.background(self)
 	TitleBackground.add_to(self)
 	_turn_to(Page.ENROLL)
@@ -85,6 +90,10 @@ func _ready() -> void:
 		_menu.name = "Menu"
 		_menu.pressed.connect(ask_to_leave)
 		add_child(_menu)
+
+
+func _exit_tree() -> void:
+	underway = false
 
 
 ## Puts up the page [param to], in place of whatever was up.

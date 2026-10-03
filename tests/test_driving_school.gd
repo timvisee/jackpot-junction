@@ -429,6 +429,31 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	assert_object(none.field).is_null()
 	assert_object(none.earn).is_not_null()
 	none.queue_free()
+	# In the school or its test: the license is in progress, with no way to the school, and a
+	# license already held is said to stay until the new one is earned.
+	DrivingSchool.underway = true
+	var taking := LicenseTab.make(Game.settings)
+	add_child(taking)
+	await await_idle_frame()
+	var said := ""
+	for label: Node in taking.find_children("*", "Label", true, false):
+		said += (label as Label).text + " "
+	assert_str(said).contains(LicenseTab.UNDERWAY).not_contains(LicenseTab.UNDERWAY_KEPT)
+	assert_object(taking.earn).is_null()
+	assert_object(taking.retake).is_null()
+	taking.queue_free()
+	Game.settings.license_number = "JJ-1"
+	var holding := LicenseTab.make(Game.settings)
+	add_child(holding)
+	await await_idle_frame()
+	said = ""
+	for label: Node in holding.find_children("*", "Label", true, false):
+		said += (label as Label).text + " "
+	assert_str(said).contains(LicenseTab.UNDERWAY_KEPT)
+	assert_object(holding.find_child("LicenseCard", true, false)).is_null()
+	holding.queue_free()
+	DrivingSchool.underway = false
+	Game.settings.license_number = ""
 
 
 ## The title peeks the license in from the right edge once there is one, and slides it out under

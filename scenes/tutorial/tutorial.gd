@@ -39,6 +39,7 @@ var _skip_entry: Button
 
 
 func _ready() -> void:
+	DrivingSchool.underway = true
 	ArenaEnvironment.add_to(self)
 	match_node = MATCH_SCENE.instantiate()
 	match_node.name = "Match"
@@ -99,6 +100,7 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	Turret.hunts_targets = false
+	DrivingSchool.underway = false
 
 
 ## The deck without its Cursed cards, GAME.md 9.4a: a trap is no way to meet a mechanic.
