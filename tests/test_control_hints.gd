@@ -528,3 +528,17 @@ func test_a_stick_click_is_named_for_the_click() -> void:
 	for event: InputEvent in InputMap.action_get_events(InputActions.DETAILS):
 		held.append(InputActions.event_text(event))
 	assert_array(held).contains_exactly(["Alt", "RS"])
+
+
+## A tap is a finger pointing down onto the glass, GAME.md 8.3, not a word in a pill: a shape of
+## its own like the mouse, a little narrower than tall, with nothing written on it.
+func test_a_tap_is_drawn_as_a_finger() -> void:
+	var finger: InputGlyph = auto_free(InputGlyph.of_finger(Color.WHITE, 28))
+	assert_int(finger.kind).is_equal(InputGlyph.Kind.FINGER)
+	assert_str(finger.caption).is_empty()
+	var wanted := finger.custom_minimum_size
+	assert_float(wanted.x).is_less(wanted.y)
+	assert_float(wanted.x / wanted.y).is_equal_approx(InputGlyph.FINGER_WIDE, 0.01)
+	add_child(finger)
+	finger.size = wanted
+	await await_idle_frame()

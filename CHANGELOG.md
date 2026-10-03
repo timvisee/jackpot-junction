@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A finger for a tap.** On a phone, the theory book and the license stamp show a finger tapping
+  rather than a "Tap" button.
 - **The theory book warns you.** "Read carefully. There will be questions." stands beside the shut
   book until you open it.
 

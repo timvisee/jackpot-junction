@@ -783,3 +783,25 @@ func test_the_school_stands_before_the_driving_test() -> void:
 	var school := await _open()
 	assert_bool(school.then.is_valid()).is_true()
 	assert_str(school.then.get_method()).is_equal("go_to_driving_test")
+
+
+## On a touch screen the shut book's corner shows a finger tapping, GAME.md 8.3, and the mouse a
+## phone makes out of every touch does not turn it into a mouse.
+func test_on_a_touch_screen_the_book_shows_a_finger() -> void:
+	var was_touch := TouchInput.enabled
+	TouchInput.enabled = true
+	var school := await _open()
+	school.enrollment.enroll.pressed.emit()
+	await await_idle_frame()
+	TouchInput.enabled = was_touch
+	var theory := school.theory
+	var finger := func() -> bool:
+		var glyphs := theory._open_mark.find_children("*", "InputGlyph", true, false)
+		return glyphs.size() == 1 and (glyphs[0] as InputGlyph).kind == InputGlyph.Kind.FINGER
+	assert_bool(finger.call()).is_true()
+	var made := InputEventMouseMotion.new()
+	made.device = InputEvent.DEVICE_ID_EMULATION
+	theory._input(made)
+	assert_bool(finger.call()).override_failure_message("a touch's mouse took over").is_true()
+	theory._input(InputEventMouseMotion.new())
+	assert_bool(finger.call()).override_failure_message("a real mouse did not").is_false()

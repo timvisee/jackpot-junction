@@ -397,7 +397,7 @@ func _wait_to_open() -> void:
 
 
 ## The control that opens the book, centered on the shut cover's bottom right corner: the left
-## mouse button, the accept key or pad button, or a tap.
+## mouse button, the accept key or pad button, or a finger tapping.
 func _show_open_glyph() -> void:
 	if _open_mark == null:
 		return
@@ -415,7 +415,7 @@ func _show_open_glyph() -> void:
 		RubberStamp.Device.PAD:
 			glyph = InputGlyph.of_action(&"ui_accept", false, OPEN_INK, OPEN_GLYPH_SIZE)
 		_:
-			glyph = InputGlyph.of_word("Tap", OPEN_INK, OPEN_GLYPH_SIZE)
+			glyph = InputGlyph.of_finger(OPEN_INK, OPEN_GLYPH_SIZE)
 	if glyph == null:
 		return
 	_open_mark.add_child(glyph)
@@ -425,7 +425,8 @@ func _show_open_glyph() -> void:
 
 ## What was pressed says which control to draw on the cover, while it waits.
 func _input(event: InputEvent) -> void:
-	if not _waiting:
+	# A phone makes a mouse out of every touch as well, which is no mouse in the hand.
+	if not _waiting or event.device == InputEvent.DEVICE_ID_EMULATION:
 		return
 	var was := _open_device
 	if event is InputEventMouseMotion or event is InputEventMouseButton:

@@ -2,14 +2,15 @@ class_name InputGlyph
 extends Control
 ## One binding drawn rather than written, GAME.md 8.3: a key as a key cap with the key on it, a
 ## gamepad face button as a round button in its own color, a shoulder or a trigger as a pill,
-## a stick as a stick, the D-pad as a D-pad and a mouse button as a mouse with that button lit.
+## a stick as a stick, the D-pad as a D-pad, a mouse button as a mouse with that button lit, and
+## a tap on a touch screen as a finger pointing down onto it.
 ##
 ## "Shift drift   Ctrl nitro" is a sentence to be read. The same line with the two keys drawn as
 ## keys is a picture to be recognized, which is what a hint glanced at mid-corner has to be. The
 ## shapes are drawn rather than loaded, because the bindings belong to the player: any key on the
 ## keyboard can end up in one of these, and no set of pictures can cover that in advance.
 
-enum Kind { KEY, FACE, SHOULDER, STICK, DPAD, MOUSE }
+enum Kind { KEY, FACE, SHOULDER, STICK, DPAD, MOUSE, FINGER }
 
 ## How tall a glyph is by default and how much air sits either side of the caption inside one.
 const HEIGHT := 22.0
@@ -44,6 +45,9 @@ const STICK_WIDE := 1.55
 ## How wide a mouse is for how tall it is, and how much room the mark of a double click takes
 ## beside it.
 const MOUSE_WIDE := 0.66
+## How wide a pointing finger is for how tall it is: the finger, the fist under it and the thumb
+## out to its side.
+const FINGER_WIDE := 0.72
 const DOUBLE_MARK := "\u00d72"
 ## The three buttons a mouse is drawn for; any other is written on a key cap.
 const MOUSE_BUTTONS: Array[MouseButton] = [
@@ -109,7 +113,19 @@ static func of_touch(action: StringName, ink: Color, font_size: int) -> InputGly
 	return glyph
 
 
-## A pill with [param word] on it, for what has no key or button to draw, a tap say.
+## A tap on a touch screen: a hand pointing its finger down onto the glass, with the ripple of the
+## tap over the fingertip, GAME.md 8.3. A word in a pill, "Tap", read as one more button to find.
+static func of_finger(ink: Color, font_size: int) -> InputGlyph:
+	var glyph := InputGlyph.new()
+	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	glyph.ink = ink
+	glyph.font_size = font_size
+	glyph.kind = Kind.FINGER
+	glyph.custom_minimum_size = glyph._wanted()
+	return glyph
+
+
+## A pill with [param word] on it, for what has no key or button to draw.
 static func of_word(word: String, ink: Color, font_size: int) -> InputGlyph:
 	var glyph := InputGlyph.new()
 	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -212,6 +228,8 @@ func _wanted() -> Vector2:
 		return Vector2(tall * STICK_WIDE, tall * (STICK_WIDE if every_way else 1.0))
 	if kind == Kind.FACE or kind == Kind.DPAD:
 		return Vector2(tall, tall)
+	if kind == Kind.FINGER:
+		return Vector2(tall * FINGER_WIDE, tall)
 	if kind == Kind.MOUSE:
 		var mark := 0.0
 		if not caption.is_empty():
@@ -250,6 +268,9 @@ func _draw() -> void:
 		return
 	if kind == Kind.MOUSE:
 		_draw_mouse(box)
+		return
+	if kind == Kind.FINGER:
+		_draw_finger(box)
 		return
 	_draw_chip(box)
 	_draw_caption(box, ink)
@@ -399,6 +420,44 @@ func _draw_mouse(box: Rect2) -> void:
 	if not caption.is_empty():
 		var beside := body.end.x + SIDE_PAD * 0.5
 		_draw_caption(Rect2(beside, box.position.y, box.end.x - beside, box.size.y), ink)
+
+
+## A hand seen from the side, pointing up into the screen with its first finger, the way one
+## taps: the finger, the fist it comes out of with the folds of the others across it, and the
+## thumb out to the side, all in the ink with a dark rim round them, and two arcs of the tap
+## rippling out over the fingertip. A shape of its own, like the mouse, so no chip round it.
+func _draw_finger(box: Rect2) -> void:
+	var tall := box.size.y
+	var middle := box.size.x * 0.5 - tall * 0.04
+	var fill := Color(ink.r, ink.g, ink.b, 0.95)
+	var parts: Array[Rect2] = [
+		Rect2(middle - tall * 0.085, tall * 0.2, tall * 0.17, tall * 0.48),
+		Rect2(middle - tall * 0.13, tall * 0.5, tall * 0.4, tall * 0.48),
+		Rect2(middle - tall * 0.28, tall * 0.6, tall * 0.22, tall * 0.15),
+	]
+	var round: Array[float] = [tall * 0.085, tall * 0.12, tall * 0.075]
+	for i: int in parts.size():
+		_draw_round(parts[i].grow(EDGE_WIDTH), round[i] + EDGE_WIDTH, CHIP_EDGE)
+	for i: int in parts.size():
+		_draw_round(parts[i], round[i], fill)
+	for fold: float in [0.64, 0.75, 0.86]:
+		draw_line(
+			Vector2(middle + tall * 0.07, tall * fold),
+			Vector2(middle + tall * 0.25, tall * fold),
+			CHIP,
+			EDGE_WIDTH * 0.8
+		)
+	var tip := Vector2(middle, tall * 0.2)
+	for reach: float in [0.11, 0.19]:
+		draw_arc(tip, tall * reach, PI * 1.18, PI * 1.82, 12, fill, EDGE_WIDTH, true)
+
+
+func _draw_round(box: Rect2, radius: float, color: Color) -> void:
+	var style := StyleBoxFlat.new()
+	style.bg_color = color
+	style.set_corner_radius_all(roundi(radius))
+	style.anti_aliasing = true
+	draw_style_box(style, box)
 
 
 ## A small solid arrowhead at [param at], pointing [param way]. Drawn twice by its caller, once

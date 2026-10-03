@@ -89,13 +89,16 @@ func press_word() -> String:
 func _input(event: InputEvent) -> void:
 	if _slammed:
 		return
+	# A phone makes a mouse out of every touch as well: the stamp leans to the finger, but the
+	# hand holds no mouse.
+	var mouse := event.device != InputEvent.DEVICE_ID_EMULATION
 	var was := device
 	if event is InputEventMouseMotion:
-		device = Device.MOUSE
+		device = Device.MOUSE if mouse else device
 		var middle := global_position + (pivot_offset * scale).rotated(rotation)
 		_lean_to = ((get_global_mouse_position() - middle) / 24.0).limit_length(FOLLOW)
 	elif event is InputEventMouseButton:
-		device = Device.MOUSE
+		device = Device.MOUSE if mouse else device
 	elif event is InputEventKey:
 		device = Device.KEYBOARD
 	elif event is InputEventJoypadButton:
@@ -159,7 +162,7 @@ func has_slammed() -> bool:
 
 
 ## The control that presses the stamp, under its base, for the device in hand: the left mouse
-## button, the key or the pad button that accepts, and none for a touch screen.
+## button, the key or the pad button that accepts, or a finger tapping.
 func _show_glyph() -> void:
 	if _glyph != null:
 		remove_child(_glyph)
@@ -175,9 +178,12 @@ func _show_glyph() -> void:
 			event = InputActions.first_event(&"ui_accept", true)
 		Device.PAD:
 			event = InputActions.first_event(&"ui_accept", false)
-	if event == null:
+	if device == Device.TOUCH:
+		_glyph = InputGlyph.of_finger(GLYPH_INK, GLYPH_SIZE)
+	elif event == null:
 		return
-	_glyph = InputGlyph.of_event(event, GLYPH_INK, GLYPH_SIZE)
+	else:
+		_glyph = InputGlyph.of_event(event, GLYPH_INK, GLYPH_SIZE)
 	_glyph.position = Vector2((SIZE.x - _glyph.custom_minimum_size.x) * 0.5, SIZE.y - 14.0)
 	add_child(_glyph)
 
