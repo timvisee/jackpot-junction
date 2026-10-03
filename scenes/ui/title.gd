@@ -1,5 +1,5 @@
 extends Control
-## The title screen from GAME.md 3.8: Play, Play LAN, Play Online, the Driving School, the Garage
+## The title screen from GAME.md 3.8: Play, Play Online, the Driving School, the Garage
 ## practice room, Settings, Quit, over the turning sunburst of [TitleBackground]; every way in to
 ## driving asks for the license of 9.4a until it is earned, and the license earned peeks in from
 ## the right edge.
@@ -88,12 +88,8 @@ func _ready() -> void:
 		func() -> void: offer_license(func() -> void: DriveChoice.first(self, Game.go_to_lobby))
 	)
 	column.add_child(play_button)
-	var online := MenuTheme.button("Play LAN")
-	online.pressed.connect(
-		func() -> void: offer_license(func() -> void: DriveChoice.first(self, Game.go_to_online))
-	)
-	column.add_child(online)
-	# The games on a dedicated server, GAME.md 9.3a, for playing over the internet.
+	# The games on dedicated servers, GAME.md 9.3a, and through them the games on the network, 9.3:
+	# one way in to playing with other machines rather than one for each kind of host.
 	var server := MenuTheme.button("Play Online")
 	server.pressed.connect(
 		func() -> void:

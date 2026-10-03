@@ -164,7 +164,7 @@ func _answer(peer: int, data: PackedByteArray) -> void:
 		words = said if said is Dictionary else {}
 	var theirs := str(words.get("version", "?"))
 	if hall != null:
-		# Knocked at from Play LAN, which hosts on the same port: told this is a server, see
+		# Knocked at from LAN games, which hosts on the same port: told this is a server, see
 		# [method NetDoor.refusal], rather than let in to wait for a seat nobody here hands out.
 		var listing := bool(words.get(LISTING, false))
 		var playable := listing and GameVersion.compatible(version, theirs)
@@ -180,7 +180,7 @@ func _answer(peer: int, data: PackedByteArray) -> void:
 	_turned_away = true
 	var why := "Wrong version: the server has %s, you have %s" % [theirs, version]
 	if bool(words.get("game", false)):
-		why = "That is a game rather than a server: join it from Play LAN"
+		why = "That is a game rather than a server: join it from LAN games"
 	_give_up.call_deferred(why)
 
 

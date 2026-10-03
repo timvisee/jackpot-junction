@@ -1,6 +1,6 @@
 class_name LanFinder
 extends Node
-## The Play LAN screen looking for games on the network, GAME.md 9.3: asking about once a second,
+## The LAN games screen looking for games on the network, GAME.md 9.3: asking about once a second,
 ## on [constant LanBeacon.PORT] of every machine the network reaches and of this one, and keeping
 ## whatever answers, for as long as it goes on answering. See [LanBeacon] for the other end.
 

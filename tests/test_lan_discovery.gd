@@ -1,5 +1,5 @@
 extends GdUnitTestSuite
-## Finding games on the network, GAME.md 9.3: the Play LAN screen asks, and a host answers with
+## Finding games on the network, GAME.md 9.3: the LAN games screen asks, and a host answers with
 ## whose game it is and how it stands. Both ends in this one process, on ports of their own.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
@@ -58,7 +58,7 @@ func test_the_lan_screen_finds_a_hosted_game_and_what_it_is() -> void:
 	assert_str(line).is_equal("Ann's game · in the lobby · 1/3 players · password")
 	assert_bool(game["watching"]).is_true()
 	assert_bool(game["watch_password"]).is_true()
-	# On the Play LAN screen it is a row: the button that joins it, and Watch beside it.
+	# On the LAN games screen it is a row: the button that joins it, and Watch beside it.
 	var screen: Control = auto_free(ONLINE_SCENE.instantiate())
 	add_child(screen)
 	screen.finder.queue_free()

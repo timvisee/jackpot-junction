@@ -477,7 +477,7 @@ else's results screen, see 10.3.
   watching before anybody reads the rim. It is kept off the lists while they
   watch, so nobody who comes after is handed it, and it is the name under their emotes and on the host's
   Manage players, whatever their own machine sends. The
-  first seat's box is on the online screen as well, since that is the name a
+  first seat's box is on Play Online and LAN games as well, since that is the name a
   machine gives when it connects.
 - **Profiles at other seats.** The first seat at a machine is the profile playing,
   8.5, and every other seat is that profile's guest, until its player sits in as
@@ -541,7 +541,7 @@ else's results screen, see 10.3.
   control hints with it. There is nothing left in that room to answer, and a card
   pick left open under the notice would be asking for a choice about a match that
   is not there any more.
-- The title screen offers Play, Play LAN, Play Online, the Driving School, the Garage,
+- The title screen offers Play, Play Online, the Driving School, the Garage,
   Settings and Quit, and until the driving test of 9.4a is passed a flyer
   beside the Driving School button, pointing at it, the learner's L on it, NOW
   ENROLLING blinking over "Earn your very own license here." and "No
@@ -560,7 +560,7 @@ else's results screen, see 10.3.
   whether it is a Grand Prix of several maps or a quick match on one, see 9.7; anybody
   else at the machine joins in there. There is no screen of rules of its own
   before it. Until this machine has earned the driver license of 9.4a, Play,
-  Play LAN, Play Online and the Garage each ask for it first, every time:
+  Play Online and the Garage each ask for it first, every time:
   "Missing license", "Nobody drives the Junction without one. Earn your very
   own license at the driving school.", with Earn it now, which is the driving
   school, and Drive anyway; Back puts the question away and goes nowhere, and
@@ -938,7 +938,7 @@ end of a client's controls; a client from before it sends the wheel alone, which
 push. Which way a player drives is kept per local seat, and a seat nobody has asked drives the
 advanced way.
 
-The first way into driving from the title, whether Play, Play LAN, Play Online or the Garage,
+The first way into driving from the title, whether Play, Play Online or the Garage,
 asks first how to drive: a big button each for simple and advanced, with its picture, its name
 and what it is in a line, over a word that the settings can change it later. The cursor starts on
 simple and stays on the two. The answer is every seat's that has not given one of its own, and is saved at once.
@@ -988,8 +988,9 @@ anything a thumb does. On a keyboard they really are two keys and both are named
 
 A menu is driven with the pad as well as the keyboard: the stick and the D-pad walk
 the cursor, A presses whatever is under it and B is the Back button. Back only backs
-out of somewhere there is a way out of, which is the pause menu, the lobby, the
-online screen and the settings, and not the title screen, where there is nowhere to
+out of somewhere there is a way out of, which is the pause menu, the lobby, Play
+Online, LAN games, a form on either and the settings, and not the title screen, where there is
+nowhere to
 go. While the settings are listening for a new binding, B is a binding like any
 other button.
 
@@ -3464,8 +3465,8 @@ bindings, not only the first one plugged in.
 ### 9.3 Online multiplayer
 
 The third release. Godot's high-level multiplayer over ENet with a
-host-authoritative listen server, joined by direct IP and port from the Play
-online screen. The host waits in an online lobby that lists who is in and
+host-authoritative listen server, found on the network or joined by direct IP and port
+from LAN games, see below. The host waits in an online lobby that lists who is in and
 shows the address to join at, and presses Start when everyone is there;
 players may still join a running match. Up to 4 players, bots run on the
 host, and a joining client takes over a bot's kart. Design details in 10.3. A join code needs a relay
@@ -3490,8 +3491,10 @@ corrected on its own, and each can get up and Leave from their switches while th
 on. They go from room to room with the client, and are seated again on the other side. The
 lobby's player limit counts them as it counts everybody, see 9.6.
 
-The Play LAN screen finds the games on the network by itself. Over the boxes for an address and a
-port it lists every game that answers, a row each: a button saying whose it is, whether it is
+Games hosted at a player's machine are LAN games, reached from Play Online, 9.3a: one way in to
+playing with other machines from the title rather than one for each kind of host. The LAN games
+screen finds the games on the network by itself and lists every game that answers, a row each: a
+button saying whose it is, whether it is
 still in the lobby, how many play in it of how many may, and whether it wants a password, which
 joins it, and Watch beside it, which watches it instead, see 10.3. Watch cannot be pressed on a
 game whose host lets nobody watch. A game on a version this one cannot play says which version
@@ -3501,8 +3504,11 @@ port 7779 of every machine the network reaches, and of its own, which a broadcas
 reach, and a host answers from there to whoever asked. That is what lets several copies of the
 game on one machine all look at once; only the host needs the port to itself, and a second host
 on the same machine is reached by its address. A game that stops answering drops off the list
-after a few seconds. The address boxes stay for a game the asking does not reach: another
-network, or a router that keeps broadcasts in.
+after a few seconds. Under the list, Host a game hosts one at this machine, on port 7777, and
+Direct connect puts up an address and a port in place of the list, with Join and Watch under them,
+for a game the asking does not reach: another network, or a router that keeps broadcasts in. Back
+goes from there to the list, and from the list to Play Online. The address and port joined last
+are in the boxes again next time.
 
 Joining says so while it is tried: Connecting to the address and port, on a pane over the room,
 until the host answers. An address nobody answers at is given up on after a few seconds rather
@@ -3510,7 +3516,8 @@ than the half a minute ENet waits by itself, and the pane says it could not conn
 title comes back; once connected the connection has its usual patience again. The lobby room is
 never shown the match's own lobby panel, which is for a match held on its grid.
 
-Somebody can join to watch instead of to play: Watch on the online screen, beside Join. They
+Somebody can join to watch instead of to play: Watch beside Join, on a found game's row and
+under Direct connect's boxes. They
 say so in the handshake, and the host lets them in even with every seat taken, up to four of
 them on top of the three clients who play; a fifth is told as many are watching as the match
 can take. A watcher is never given a seat or a kart and nothing it sends is heard: it is sent
@@ -3544,9 +3551,9 @@ given, which to start with is none. A host with a password that is given none sa
 nothing else is wrong: the client is asked for it rather than sent back, on a pane of its own on
 the loading screen's dark that says the game needs a password. Join knocks again with what was
 typed, on a connection of its own: the one turned away is done with, and a room that thought it
-was still talking to the host would sit in an empty lobby. A wrong one goes back to Play LAN,
-which says the password was wrong and has the cursor on Join; so does Back, or B, which says
-nothing, since nothing went wrong.
+was still talking to the host would sit in an empty lobby. A wrong one goes back to LAN games,
+which says the password was wrong, with Direct connect's boxes up holding the address it knocked at
+and the cursor on Join; so does Back, or B, which says nothing, since nothing went wrong.
 
 The host can show anybody out. Manage players, on the host's pause menu wherever the room is,
 comes up in place of the menu: everybody in the game, the host's own players first, marked Me
@@ -3571,13 +3578,13 @@ it had the moment it comes back.
 
 ### 9.3a A dedicated server
 
-Play LAN has one of the players host: their machine runs the match and everybody else connects
+A LAN game has one of the players host: their machine runs the match and everybody else connects
 to it. That is the right thing on a LAN and a poor one over the internet, where the host's router
 has to be told to let everybody in and the whole game goes when the host does. So a game can also
 be hosted on a dedicated server: the game run headless on a machine of its own, with nobody
 playing at it, holding as many games at once as it is set up for. Players connect to the server,
-and each makes a game there or joins one somebody else made. Play LAN stays as it is, for a game
-hosted at one of the players' own machines.
+and each makes a game there or joins one somebody else made. LAN games stay as they are, for a
+game hosted at one of the players' own machines.
 
 **A game with nobody at the host.** A game of the server is hosted the way a player's machine
 hosts one, the waiting room of 9.6 and the arena after it, with nobody at it: no seat, no HUD, no
@@ -3604,11 +3611,23 @@ takes it from whoever pressed it, whose host's panes close. They are told who ma
 Somebody watching has none, having no say to be given, and nor does a LAN game's Manage players,
 whose host is the machine the game runs on.
 
-**Play Online.** The title's way to a dedicated server, beside Play LAN, in two screens. The first
-connects: the player's name, the server's address and port, 7777 to start with, and Connect,
-which says it is connecting and goes on to the second once the server has let this machine in, or
-says why not: nobody answered, the server is on a version this one cannot play, or it is a LAN
-game. The second, Games, lists the server's games the way Play LAN lists the games on the network,
+**Play Online.** The title's way to playing with other machines, in two screens. The first is the
+player's own servers: their name over the list, a row each for the dedicated servers they keep, a
+button with the server's name over its address and port, which connects to it, and Remove beside
+it, which asks first, "Remove this server?", with Remove and Keep. The list is empty to start
+with and says so, "No servers yet. Add one or connect directly.", and keeps up to 20. Under it,
+Add a server, Direct connect and LAN games, see 9.3. Add a server and Direct connect put up the
+server's address and its port, 7777 to start with, in place of the list, and Add a server a name
+for it too, which may be left empty for its address to stand for it: Add keeps it and goes back to
+the list with the cursor on it, a server already on the list renamed rather than kept twice, and
+Connect connects without keeping it. Back, or B, goes back to the list from there, and from the
+list to the title. A server is connected to the way it always was: it says it is connecting and
+goes on to the second screen once the server has let this machine in, or says why not: nobody
+answered, the server is on a version this one cannot play, or it is a LAN game. Whether to play or
+to watch is chosen on the second, game by game, since a server holds several. The list, the
+server connected to last, and the address and port a LAN game was joined at are the player's,
+not the machine's: they go with the player's profile. The second, Games, lists the server's games
+the way LAN games lists the games on the network,
 a row each saying whose it is, whether it is still in the lobby, how many play in it of how many
 may and whether it wants a password, which joins it, with Watch beside it, and Make a game under
 them. Make a game asks the server for one, says it is making it with a bar under the words that
@@ -3617,15 +3636,15 @@ a phase at a time, see 8.6, the bar weighted by how long each takes, and once it
 lobby, where the maker has the host's say and sets it up the way a host does, see 9.6: Lobby
 settings first, then the match. Join and Watch go into a game's lobby the way joining a LAN game
 does, the password asked for there if it has one. Back hangs up and goes back to the first
-screen, and so does the server going away, saying so. The server and its port are kept for next
-time. Back from one of its games, over, shown out of it, or with a wrong password or none, the
-first screen connects to the server again by itself and goes straight on to its games, which say
-why. Anybody in the game's lobby is told where friends find it, in Play Online at the server's
-address, in place of the line saying which port to join a LAN host on.
-A server and a LAN game are both found on 7777, so each says which it is at the door: Play LAN
+screen, and so does the server going away, saying so. Back from one of its games, over, shown out
+of it, or with a wrong password or none, the first screen connects to the server again by itself,
+kept or not, and goes straight on to its games, which say why. Anybody in the game's lobby is told
+where friends find it, in Play Online at the server's address, in place of the line saying which
+port to join a LAN host on.
+A server and a LAN game are both found on 7777, so each says which it is at the door: LAN games
 knocking at a server is told it is a dedicated server whose games are in Play Online, and Play
 Online knocking at a LAN game, or at one of a server's games by its own port, that it is a game to
-join from Play LAN. Neither is let in to wait for something that never comes.
+join from LAN games. Neither is let in to wait for something that never comes.
 
 **The server.** It is the game itself, exported for Linux as a server build of its own,
 `jackpot-junction-server`, in every release, see 10.5: started with no arguments at all, it is
@@ -3746,7 +3765,7 @@ every one of them made a room to be read rather than driven.
 
 A short, playable lesson in how to drive and what the game is, dressed as a
 driving school: the title's Driving School button opens on the school, and every way
-in to driving, Play, Play LAN, Play Online and the Garage, asks for the license
+in to driving, Play, Play Online and the Garage, asks for the license
 first, every time until it is earned: "Missing license", with Earn it now,
 which is the school, and Drive anyway, which is the way in asked for. Twenty seconds of
 school, then six to eight minutes of driving test for somebody new, and a

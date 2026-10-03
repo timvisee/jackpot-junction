@@ -246,6 +246,12 @@ var last_server_port: int:
 		return profile.last_server_port
 	set(value):
 		profile.last_server_port = value
+## The dedicated servers the player keeps a list of, GAME.md 9.3a, see [ServerList]: the profile's.
+var servers: Array[Dictionary]:
+	get:
+		return profile.servers
+	set(value):
+		profile.servers = value
 ## How many may play in a LAN game this machine hosts, its own players included, GAME.md 9.6.
 ## Kept for next time; the password is not, so one forgotten is never a later lobby locked.
 var lobby_players := NetDoor.MOST_PLAYERS

@@ -3,7 +3,7 @@ extends VBoxContainer
 ## Games there are to join, a row each, GAME.md 9.3: a button saying whose it is, whether it is
 ## still in the lobby, how many play in it of how many may and whether it wants a password, which
 ## joins it, and Watch beside it, which watches it instead. A game this version cannot play can be
-## neither, and one whose host lets nobody watch cannot be watched. The Play LAN screen lists the
+## neither, and one whose host lets nobody watch cannot be watched. The LAN games screen lists the
 ## games found on the network in one, and Play Online a dedicated server's, 9.3a.
 
 ## [param game] chosen, to play in, [param mode] "join", or to watch, "watch".

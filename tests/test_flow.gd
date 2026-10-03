@@ -490,7 +490,7 @@ func test_the_hosts_menu_manages_its_players() -> void:
 
 
 ## GAME.md 9.6: a lobby that wants a password asks for it and knocks again with what was typed;
-## Back, or B, gives up on it. That it then goes to Play LAN, and a wrong password does too, is
+## Back, or B, gives up on it. That it then goes to LAN games, and a wrong password does too, is
 ## played through by the multiplayer check, which changes scenes as a test here cannot.
 func test_the_password_pane_asks_and_knocks_again() -> void:
 	var holder: Node = auto_free(Node.new())
@@ -513,13 +513,47 @@ func test_the_password_pane_asks_and_knocks_again() -> void:
 	assert_int(left[0]).is_equal(2)
 
 
-## GAME.md 9.6: Play LAN come back to from a game that turned this machine away says why, once.
+## GAME.md 9.3: LAN games lists the games found, with Host a game and Direct connect under them;
+## Direct connect puts up the address and port with Join and Watch, Back goes back to the list and
+## from there to the servers. A game is hosted on the game's own port.
+func test_lan_games_hosts_and_connects_directly() -> void:
+	var screen: Control = auto_free(ONLINE_SCENE.instantiate())
+	var left := [0]
+	screen.leave = func(_note: String) -> void: left[0] += 1
+	add_child(screen)
+	assert_bool(screen.is_form_up()).is_false()
+	assert_bool(screen.host_button.is_visible_in_tree()).is_true()
+	assert_bool(screen.join_button.is_visible_in_tree()).is_false()
+	screen.direct_button.pressed.emit()
+	assert_bool(screen.is_form_up()).is_true()
+	assert_bool(screen.join_button.is_visible_in_tree()).is_true()
+	assert_bool(screen.watch_button.is_visible_in_tree()).is_true()
+	screen.address_field.text = " 10.0.0.7 "
+	screen.port_field.text = "7790"
+	var watching: MatchConfig = screen.config("watch")
+	assert_bool(watching.watching).is_true()
+	assert_str(watching.address).is_equal("10.0.0.7")
+	assert_int(watching.port).is_equal(7790)
+	assert_int(screen.config("host").port).is_equal(NetSession.DEFAULT_PORT)
+	screen._back()
+	assert_bool(screen.is_form_up()).is_false()
+	assert_int(left[0]).is_equal(0)
+	screen._back()
+	assert_int(left[0]).is_equal(1)
+
+
+## GAME.md 9.6: the LAN games screen come back to from a game that turned this machine away says
+## why, once.
 func test_play_lan_says_why_it_is_back() -> void:
 	Game.online_note = "Wrong password"
 	var screen: Control = auto_free(ONLINE_SCENE.instantiate())
 	add_child(screen)
 	assert_str(screen.status.text).is_equal("Wrong password")
 	assert_str(Game.online_note).is_empty()
+	# With the boxes up to join again, and the cursor on Join.
+	assert_bool(screen.is_form_up()).is_true()
+	await await_idle_frame()
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(screen.join_button)
 	var again: Control = auto_free(ONLINE_SCENE.instantiate())
 	add_child(again)
 	assert_str(again.status.text).is_empty()

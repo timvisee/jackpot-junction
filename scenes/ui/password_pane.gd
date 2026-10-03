@@ -2,7 +2,7 @@ class_name PasswordPane
 extends CanvasLayer
 ## The host's lobby wants a password, GAME.md 9.6, and asks for it here: over the room, on the
 ## loading screen's dark, since there is no room yet to stand over. A box to type it into, Join to
-## knock again with it, and Back, or B, to give up on it and go back to Play LAN.
+## knock again with it, and Back, or B, to give up on it and go back to LAN games.
 
 ## Join, with what was typed.
 signal entered(password: String)

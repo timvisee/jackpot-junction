@@ -43,6 +43,8 @@ var last_address := "127.0.0.1"
 var last_port := 7777
 var last_server := ""
 var last_server_port := ServerArgs.PORT
+## The dedicated servers kept on Play Online's list, empty to start with, see [ServerList].
+var servers: Array[Dictionary] = []
 ## Every match it has played to the whistle, added up, see [LifetimeStats].
 var stats: Dictionary[StringName, float] = {}
 
@@ -90,6 +92,7 @@ func load_from_disk() -> void:
 	last_port = int(file.get_value("online", "port", last_port))
 	last_server = str(file.get_value("online", "server", last_server))
 	last_server_port = int(file.get_value("online", "server_port", last_server_port))
+	servers = ServerList.clean(file.get_value("online", "servers", []))
 	if file.has_section("stats"):
 		for key: String in file.get_section_keys("stats"):
 			stats[StringName(key)] = float(file.get_value("stats", key, 0.0))
@@ -113,6 +116,7 @@ func save_to_disk() -> Error:
 	file.set_value("online", "port", last_port)
 	file.set_value("online", "server", last_server)
 	file.set_value("online", "server_port", last_server_port)
+	file.set_value("online", "servers", servers)
 	for key: StringName in stats:
 		file.set_value("stats", String(key), stats[key])
 	return file.save(path)

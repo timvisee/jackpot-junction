@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Your own server list.** Play Online keeps the dedicated servers you add, a press each to
+  connect to, with Direct connect for one you don't keep.
 - **Play as your own profile at a shared screen.** A second, third or fourth player can pick Link
   profile in the pause menu to bring their own name, kart and plate, and their games count toward
   their own statistics.
@@ -33,6 +35,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **One way in to playing online.** The title has Play and Play Online; games on your network are
+  under Play Online's LAN games, with Host a game and Direct connect.
 - **Seats on the Players page.** Its rows are Seat 1 to Seat 4, under a line saying what the page
   is for.
 - **The License page during the driving test.** Opened from the test, it says the license is in

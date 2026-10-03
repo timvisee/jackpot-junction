@@ -1,10 +1,10 @@
 class_name ServerGames
 extends Control
 ## The games on a dedicated server, GAME.md 9.3a, once Play Online has connected to it: a row each
-## the way Play LAN lists the games on the network, with Join and Watch, see [GameList], and under
-## them Make a game, which starts one there and goes into its lobby with the host's say. Joining or
-## watching one goes into its lobby the way joining a LAN game does. Back hangs up and goes back to
-## Play Online, and so does the server going away.
+## the way the LAN games screen lists the games on the network, with Join and Watch, see
+## [GameList], and under them Make a game, which starts one there and goes into its lobby with the
+## host's say. Joining or watching one goes into its lobby the way joining a LAN game does. Back
+## hangs up and goes back to Play Online's servers, and so does the server going away.
 
 ## The line to the server Play Online made, see [ServerLink].
 var link: ServerLink

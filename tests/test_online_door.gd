@@ -101,7 +101,7 @@ func test_play_online_at_a_lan_game_is_told_it_is_one() -> void:
 	assert_int(link.reach("127.0.0.1", port)).is_equal(OK)
 	var told := await _wait_until(func() -> bool: return not reasons.is_empty(), 4000)
 	assert_bool(told).override_failure_message("Play Online was never told").is_true()
-	assert_str(reasons[0]).is_equal("That is a game rather than a server: join it from Play LAN")
+	assert_str(reasons[0]).is_equal("That is a game rather than a server: join it from LAN games")
 	assert_int(_host_match.slots.size()).is_equal(2)
 
 

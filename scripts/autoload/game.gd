@@ -38,7 +38,7 @@ var settings_return := TITLE_SCENE
 ## The Grand Prix being played, GAME.md 9.7, or null for a single map. Kept here because it runs
 ## across scenes: every map is a scene of its own.
 var grand_prix: GrandPrix
-## What the Play LAN screen says as it comes up, once, see [method go_to_online], and the same for
+## What the LAN games screen says as it comes up, once, see [method go_to_online], and the same for
 ## Play Online, see [method go_to_play_online], and whether Play Online connects again by itself.
 var online_note := ""
 var play_online_note := ""
@@ -252,7 +252,7 @@ func go_to_lobby(from: Match = null) -> void:
 	go_to_waiting(config)
 
 
-## Play LAN, GAME.md 9.3, saying [param note] on it if there is something to say about why it is
+## LAN games, GAME.md 9.3, saying [param note] on it if there is something to say about why it is
 ## up again: a wrong password, say.
 func go_to_online(note := "") -> void:
 	Net.close()

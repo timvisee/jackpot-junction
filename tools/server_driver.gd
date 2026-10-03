@@ -315,7 +315,8 @@ func _watcher() -> void:
 	_finished = true
 
 
-## Play Online, connected to the server the check was given with Connect, and on to its games.
+## Play Online, connected to the server the check was given with Direct connect, and on to its
+## games.
 func _play_online() -> Control:
 	Game.go_to_play_online()
 	if not await _until(
@@ -326,7 +327,10 @@ func _play_online() -> Control:
 		"Play Online is up and waits for Connect"
 	):
 		return null
-	_scene().connect_button.pressed.emit()
+	var screen := _scene()
+	screen.direct_button.pressed.emit()
+	_check(screen.is_form_up(), "Direct connect put up the boxes")
+	screen.connect_button.pressed.emit()
 	if not await _until(
 		func() -> bool:
 			var scene := _scene()

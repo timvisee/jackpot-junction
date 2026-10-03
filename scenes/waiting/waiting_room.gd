@@ -199,14 +199,14 @@ func _connected() -> void:
 
 ## The room is being left before it was ever joined, and the player is told why.
 ## The host wants a password, GAME.md 9.6: asked for, over the room, and knocked again with. A
-## wrong one goes back to Play LAN saying so, and so does Back, without saying anything.
+## wrong one goes back to LAN games saying so, and so does Back, without saying anything.
 func _ask_password(wrong: bool) -> void:
 	if _connecting != null:
 		_connecting.queue_free()
 		_connecting = null
 	if match_node.hud != null:
 		match_node.hud.stand_down()
-	# Back to the screen the game was found on: Play LAN, or the games of the server it is on.
+	# Back to the screen the game was found on: LAN games, or the games of the server it is on.
 	var found_on := Game.go_to_online if config.server.is_empty() else Game.back_to_the_server
 	if wrong:
 		# After the session has finished saying so: going hangs it up, and a session cannot be

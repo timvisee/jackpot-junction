@@ -389,7 +389,7 @@ func test_another_version_is_turned_away() -> void:
 	)
 
 
-## Play LAN at the server's port, the port a LAN game is hosted on, is told what it found there
+## LAN games at the server's port, the port a LAN game is hosted on, is told what it found there
 ## rather than let in to wait for a seat nobody hands out.
 func test_play_lan_at_a_server_is_told_it_is_one() -> void:
 	_open_hall()
@@ -410,7 +410,7 @@ func test_play_lan_at_a_server_is_told_it_is_one() -> void:
 	session.refused.connect(func(reason: String) -> void: reasons.append(reason))
 	assert_int(session.join("127.0.0.1", port)).is_equal(OK)
 	var told := await _wait_until(func() -> bool: return not reasons.is_empty(), 4000)
-	assert_bool(told).override_failure_message("Play LAN was never told").is_true()
+	assert_bool(told).override_failure_message("LAN games were never told").is_true()
 	assert_str(reasons[0]).is_equal("That is a dedicated server: find its games in Play Online")
 
 

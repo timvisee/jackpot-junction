@@ -74,7 +74,7 @@ var _given: Dictionary = {}
 ## it types when asked. A client with one knocks without it first, the way a player who has not
 ## been told does, and goes in through the question.
 var _password := ""
-## Whether a client gives a wrong password first, and is sent back to Play LAN for it, before it
+## Whether a client gives a wrong password first, and is sent back to LAN games for it, before it
 ## joins from there with the right one.
 var _wrong_first := false
 ## Whether a client gives no name at all, and plays under the funny one the host hands it, which
@@ -347,7 +347,7 @@ func _client_joins() -> Node:
 	config.address = "127.0.0.1"
 	config.port = _port
 	config.human_names = ["" if _nameless else "Client"] as Array[String]
-	# Dressed from its settings, as Play LAN does.
+	# Dressed from its settings, as the LAN games screen does.
 	config.human_styles = Game.settings.kart_styles.duplicate()
 	# The host may still be opening its room.
 	await _frames(60)
@@ -1284,7 +1284,7 @@ func multiplayer_peers() -> int:
 	return multiplayer.get_peers().size()
 
 
-## However the host's door is got through: with a wrong password first and back from Play LAN
+## However the host's door is got through: with a wrong password first and back from LAN games
 ## for it, then with the right one when it is asked for, or straight in with no password at all.
 func _through_the_door() -> bool:
 	if _wrong_first and not await _back_for_a_wrong_password():
@@ -1310,19 +1310,20 @@ func _through_the_password(typed: String) -> bool:
 	)
 
 
-## A wrong password given when asked: back on Play LAN, told so, and joining again from there
-## the way a player would, with the address in the boxes.
+## A wrong password given when asked: back on the LAN games screen, told so, with the address it
+## knocked at in the direct connect boxes, and joining again from there the way a player would.
 func _back_for_a_wrong_password() -> bool:
 	if not await _through_the_password(_password + " not"):
 		return false
 	if not await _until(
 		func() -> bool: return _scene() != null and _scene().scene_file_path == ONLINE_SCENE,
 		10.0,
-		"a wrong password went back to Play LAN"
+		"a wrong password went back to LAN games"
 	):
 		return false
 	var lan := _scene()
 	_check(lan.status.text == "Wrong password", "and said it was wrong")
+	_check(lan.is_form_up(), "with the boxes to join again up")
 	lan.name_field.text = "" if _nameless else "Client"
 	lan.address_field.text = "127.0.0.1"
 	lan.port_field.text = str(_port)
