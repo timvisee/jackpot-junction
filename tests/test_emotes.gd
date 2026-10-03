@@ -22,7 +22,17 @@ class Emoting:
 
 func after_test() -> void:
 	var held: Array[StringName] = InputActions.EMOTES + InputActions.WHEEL_WAYS
-	held.append_array([InputActions.AIM_RIGHT, InputActions.AIM_UP, InputActions.EMOTE_WHEEL])
+	(
+		held
+		. append_array(
+			[
+				InputActions.AIM_RIGHT,
+				InputActions.AIM_UP,
+				InputActions.AIM_LEFT,
+				InputActions.EMOTE_WHEEL,
+			]
+		)
+	)
 	held.append(InputActions.THROTTLE)
 	for action: StringName in held:
 		Input.action_release(action)
@@ -38,15 +48,23 @@ func test_a_key_or_a_flick_of_the_right_stick_asks_for_an_emote_once() -> void:
 	player.poll(DT)
 	assert_int(player.emote).is_equal(-1)
 	Input.action_release(InputActions.EMOTE_3)
-	# Right is the second of them; held over it asks once, and up after the middle is the first.
+	# Right is the second of them: flicked there it is armed, and let go it is asked for, once.
 	Input.action_press(InputActions.AIM_RIGHT)
 	player.poll(DT)
-	assert_int(player.emote).is_equal(1)
+	assert_int(player.emote).is_equal(-1)
+	assert_bool(player.wheel_armed).is_true()
+	assert_int(player.wheel_pointing).is_equal(1)
 	player.poll(DT)
 	assert_int(player.emote).is_equal(-1)
 	Input.action_release(InputActions.AIM_RIGHT)
 	player.poll(DT)
+	assert_int(player.emote).is_equal(1)
+	player.poll(DT)
+	assert_int(player.emote).is_equal(-1)
+	# Up is the first.
 	Input.action_press(InputActions.AIM_UP)
+	player.poll(DT)
+	Input.action_release(InputActions.AIM_UP)
 	player.poll(DT)
 	assert_int(player.emote).is_equal(0)
 
@@ -77,26 +95,36 @@ func test_the_wheels_key_opens_it_and_a_way_picks_from_it() -> void:
 	assert_bool(player.wheel_by_keys).is_false()
 
 
-## Pushed short of a flick, the right stick points at one on the wheel and asks for nothing. On
-## past it, however slowly, it asks, and the wheel goes until the stick is back in the middle.
-func test_the_right_stick_points_at_one_before_it_flicks() -> void:
+## Pushed short of the edge, the right stick brings the wheel up and points at one on it, for as
+## long as it is held, and let go from there asks for nothing. Pushed to the edge it is armed, the
+## wheel stays while the stick is held anywhere off the middle, and let go it asks for the one it
+## was last pointing at.
+func test_the_right_stick_holds_the_wheel_up_and_asks_on_letting_go() -> void:
 	var player := PlayerInput.new(DeviceInput.ANY, -1)
 	Input.action_press(InputActions.AIM_UP, 0.5)
-	player.poll(DT)
+	for i: int in 30:
+		player.poll(DT)
 	assert_int(player.wheel_pointing).is_equal(0)
+	assert_bool(player.wheel_armed).is_false()
 	assert_int(player.emote).is_equal(-1)
-	Input.action_press(InputActions.AIM_UP, 0.9)
-	player.poll(DT)
-	assert_int(player.emote).is_equal(0)
-	assert_int(player.wheel_pointing).is_equal(-1)
-	Input.action_press(InputActions.AIM_UP, 0.5)
-	player.poll(DT)
-	assert_int(player.wheel_pointing).is_equal(-1)
 	Input.action_release(InputActions.AIM_UP)
 	player.poll(DT)
-	Input.action_press(InputActions.AIM_UP, 0.5)
+	assert_int(player.emote).is_equal(-1)
+	assert_int(player.wheel_pointing).is_equal(-1)
+	# To the edge, then back and round to the left while still held: the left one it is.
+	Input.action_press(InputActions.AIM_UP, 0.9)
 	player.poll(DT)
-	assert_int(player.wheel_pointing).is_equal(0)
+	assert_bool(player.wheel_armed).is_true()
+	Input.action_release(InputActions.AIM_UP)
+	Input.action_press(InputActions.AIM_LEFT, 0.6)
+	for i: int in 30:
+		player.poll(DT)
+	assert_int(player.wheel_pointing).is_equal(3)
+	assert_int(player.emote).is_equal(-1)
+	Input.action_release(InputActions.AIM_LEFT)
+	player.poll(DT)
+	assert_int(player.emote).is_equal(3)
+	assert_bool(player.wheel_armed).is_false()
 
 
 ## A touch screen has a button for them beside the menu button, and a row of the four out of it.

@@ -3,14 +3,15 @@ extends KartInput
 ## Reads the input map for one device. [constant DeviceInput.ANY] lets every device drive the
 ## kart, which suits single-player; local multiplayer gives each slot its own device.
 
-## How far the right stick has to be pushed for a flick of it to be an emote, and how far back in
-## the middle it has to come before the next, so holding it over asks once. However slowly it got
-## there: the wheel shows which one it points at on the way, and invites a slow push.
+## The emote wheel on the right stick, GAME.md 3.8: pushed past [constant WHEEL_PUSH] it comes up
+## and stays while the stick is held, pointing at the one the stick points at; pushed to
+## [constant FLICK] it is armed; let go, armed, it asks for the one it was last pointing at, and
+## unarmed it asks for nothing. A flick is all three in a moment. It used to ask the moment the
+## stick passed the flick, so the wheel was up for the tick or two a flick takes, and nobody saw
+## what was on it.
 const FLICK := 0.8
-const FLICK_BACK := 0.4
-## How far the right stick has to be pushed for the emote wheel to come up, short of a flick, and
-## how long the wheel stays open after the key for it if nothing is picked, GAME.md 3.8.
 const WHEEL_PUSH := 0.35
+## How long the wheel stays open after the key for it if nothing is picked, GAME.md 3.8.
 const WHEEL_TIME := 3.0
 
 ## Whether somebody at this machine is typing into a box, their name in the pause menu, GAME.md
@@ -20,10 +21,11 @@ static var typing := false
 
 var device := DeviceInput.ANY
 ## The emote wheel as this player has it, for [EmoteWheel] to draw, GAME.md 3.8: whether the key
-## for it has opened it, when the four ways pick rather than drive, and which of the four the
-## right stick points at, or -1.
+## for it has opened it, when the four ways pick rather than drive, which of the four the right
+## stick points at, or -1, and whether the stick has been to the edge, so letting go asks for it.
 var wheel_by_keys := false
 var wheel_pointing := -1
+var wheel_armed := false
 ## For an any-device player, the device that last produced input; ANY until something moved.
 var last_device := DeviceInput.ANY
 ## The local seat this player sits in, whose way to drive in the settings they follow, GAME.md 4.2,
@@ -33,9 +35,6 @@ var seat := -1
 ## kart sets it itself when it is handed them.
 var kart: Kart
 
-## Whether the right stick has been back in the middle since its last emote, so the next push of
-## it past [constant FLICK] asks for one and shows the wheel on the way.
-var _stick_ready := true
 ## How long the wheel stays open after its key.
 var _wheel_left := 0.0
 var _fire_was_down := false
@@ -200,17 +199,22 @@ func _poll_emote(delta: float, touch: bool) -> void:
 	if tapped >= 0:
 		emote = tapped
 	var pushed := aim.length()
-	if pushed <= FLICK_BACK:
-		_stick_ready = true
 	var here := kart if kart != null and is_instance_valid(kart) else null
-	var stick := here == null or not KartAim.free_aim(here)
-	var way := posmod(roundi(rad_to_deg(atan2(aim.x, -aim.y)) / 90.0), 4)
-	var pointing := stick and _stick_ready and pushed > WHEEL_PUSH
-	wheel_pointing = way if pointing else -1
-	if pointing and pushed > FLICK:
-		emote = way
-		_stick_ready = false
+	# Not while the stick is aiming a cannon that aims freely, which is what it is for then.
+	if here != null and KartAim.free_aim(here):
 		wheel_pointing = -1
+		wheel_armed = false
+		return
+	if pushed > WHEEL_PUSH:
+		wheel_pointing = posmod(roundi(rad_to_deg(atan2(aim.x, -aim.y)) / 90.0), 4)
+		wheel_armed = wheel_armed or pushed >= FLICK
+		return
+	# Let go: the one it was last pointing at, coming back from the edge in a straight line, if it
+	# got there, and nothing if it did not.
+	if wheel_armed and wheel_pointing >= 0:
+		emote = wheel_pointing
+	wheel_pointing = -1
+	wheel_armed = false
 
 
 ## How far the pad's own gas and brake are down, as x and y: the triggers, unless rebound.

@@ -2,6 +2,7 @@ class_name EmoteWheel
 extends Control
 ## The four emotes round a player's kart, GAME.md 3.8, so they can see what there is to put up and
 ## which way is which: while the right stick is pushed toward one, with that one picked out, and
+## picked out further once the stick has been to the edge and letting go will ask for it, and
 ## for a few seconds after the wheel's key, V, with the key for each way beside it. Only while one
 ## is being chosen: once it is asked for, it is up over the kart, and the wheel saying so again
 ## would be saying it twice. One for each player at this screen, round their own kart, in their
@@ -12,8 +13,10 @@ extends Control
 ## scale of 100%.
 const REACH := 80.0
 const SIDE := 54.0
-## How much bigger the picked one is drawn, and how faint the others go beside it.
+## How much bigger the picked one is drawn, and bigger again once letting go will ask for it, and
+## how faint the others go beside it.
 const PICKED := 1.3
+const ARMED := 1.55
 const FAINT := 0.5
 ## How high over the kart the middle of the wheel is, in meters, and how the keys are drawn.
 const LIFT := 0.6
@@ -55,7 +58,7 @@ func _process(_delta: float) -> void:
 		root.visible = watcher != null and (watcher.wheel_by_keys or watcher.wheel_pointing >= 0)
 		if root.visible:
 			root.position = Vector2(size.x * 0.5, size.y - REACH - SIDE - WATCHER_LIFT)
-			_show(wheel, watcher.wheel_pointing, watcher.wheel_by_keys)
+			_show(wheel, watcher.wheel_pointing, watcher.wheel_by_keys, watcher.wheel_armed)
 	for slot: PlayerSlot in match_node.slots:
 		var player := slot.input as PlayerInput
 		if player == null:
@@ -72,7 +75,7 @@ func _process(_delta: float) -> void:
 		if not kart.alive:
 			root.visible = true
 			root.position = Vector2(size.x * 0.5, size.y - REACH - SIDE - WATCHER_LIFT)
-			_show(wheel, player.wheel_pointing, player.wheel_by_keys)
+			_show(wheel, player.wheel_pointing, player.wheel_by_keys, player.wheel_armed)
 			continue
 		var over := kart.global_position + Vector3.UP * LIFT
 		if camera.is_position_behind(over):
@@ -80,7 +83,7 @@ func _process(_delta: float) -> void:
 			continue
 		root.visible = true
 		root.position = camera.unproject_position(over)
-		_show(wheel, player.wheel_pointing, player.wheel_by_keys)
+		_show(wheel, player.wheel_pointing, player.wheel_by_keys, player.wheel_armed)
 
 
 ## Four emotes round the middle, each with the key for its way beside it, hidden unless it was the
@@ -121,11 +124,12 @@ func _wheel_for(kept_as: int, ink: Color) -> Dictionary:
 	return wheel
 
 
-func _show(wheel: Dictionary, picked: int, keys: bool) -> void:
+func _show(wheel: Dictionary, picked: int, keys: bool, armed := false) -> void:
 	var pictures: Array[Control] = wheel["pictures"]
 	for i: int in pictures.size():
 		var on := picked < 0 or picked == i
-		pictures[i].scale = Vector2.ONE * (PICKED if picked == i else 1.0)
+		var grown := (ARMED if armed else PICKED) if picked == i else 1.0
+		pictures[i].scale = Vector2.ONE * grown
 		pictures[i].modulate.a = 1.0 if on else FAINT
 	for key: Control in wheel["keys"]:
 		key.visible = keys

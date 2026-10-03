@@ -472,16 +472,23 @@ else's results screen, see 10.3.
 - **Emotes.** A player can put one of four up over their kart: GG, a smile, a
   scowl or a heart, each on a round white bubble rimmed in their color so it
   says who as well as what. On a pad the right stick flicked up, right, down or
-  left from the middle picks them in that order, once per flick, and not while
+  left from the middle picks them in that order, once per flick, asked for as the
+  stick comes back to the middle, and not while
   the stick is aiming a cannon that aims freely, which is what it is for then;
   on a keyboard they are 7, 8, 9 and 0, or V and then a way, W, D, S or A or the
   arrows, and on a touch screen a small button with a smile on it beside the
   menu button, 4.2, which opens a row of the four along the top of the screen.
   The wheel shows what there is: the four round the player's own kart, up,
-  right, down and left, in their color. It comes up while the right stick is
-  pushed, with the one it points at bigger and the others faint, so the flick is
-  aimed rather than guessed, and however slowly the stick gets past the flick it
-  asks; and for three seconds after V, with the key for each way beside it, the
+  right, down and left, in their color. It comes up once the right stick is
+  pushed past a third of the way and stays for as long as it is held off the
+  middle, with the one it points at bigger and the others faint; pushed to the
+  edge, the one it points at grows bigger still, and letting go asks for it, the
+  one it was last pointing at if the stick went round the wheel since. Let go
+  without reaching the edge, it asks for nothing, so a player can bring the wheel
+  up to look at it and think better of it. A flick is the push, the edge and the
+  letting go in a moment. It used to ask the moment the stick passed the edge,
+  which left the wheel up for the tick or two a flick takes and nobody saw what
+  was on it; and for three seconds after V, with the key for each way beside it, the
   four ways picking from it rather than driving while it is up and V again
   shutting it. Only while one is being chosen: once it is asked for, it is up
   over the kart and the wheel goes, the stick's until the stick is back in the
