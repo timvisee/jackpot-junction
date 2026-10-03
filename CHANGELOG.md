@@ -57,7 +57,7 @@ below, and hands the notes to the release workflow.
   inside it, rather than leaving skipping to the small print.
 - **A steering wheel on the touch screen.** Driving with wheel and pedals, the stick under your
   left thumb is drawn as a wheel that turns as you steer.
-- **The mult die is a real die.** It has its pips on every side, one to six, in the mult's red.
+- **The mult die is a real die.** It has black pips on every side, one to six.
 - **Pictures on the dressing pads.** The paint, hat, flag and trail pads in the lobby and the
   Garage show a picture of what they change rather than its name.
 - **A finger for a tap.** On a phone, the theory book and the license stamp show a finger tapping

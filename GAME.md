@@ -2072,8 +2072,8 @@ says what, which is the half of the question a bench cannot answer.
   rim. The edge is what the camera looks at, and a notched edge is the one thing
   that says poker chip at twenty pixels across. Gold for the gold chip, which is
   metal rather than plastic, and a die for the mult die: a real one, white with
-  its pips in the mult's red, one to six with each two opposite faces adding up
-  to seven. Its faces are one small picture drawn once and shared by every die,
+  black pips, which read more clearly than the mult's red did, one to six with
+  each two opposite faces adding up to seven. Its faces are one small picture drawn once and shared by every die,
   laid over the cube the way a box mesh lays its faces out, so a die is still
   one thing to draw rather than one more for every pip.
 - **Item boxes**: gold crates with black bands and a beam of light, glowing and

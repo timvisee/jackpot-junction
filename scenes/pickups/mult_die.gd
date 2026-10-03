@@ -1,7 +1,7 @@
 class_name MultDie
 extends Pickup
-## A die that adds to the mult when picked up, GAME.md 3.3: a real one, white with its pips in the
-## red the mult is in everywhere else, one to six with each two opposite faces adding up to seven.
+## A die that adds to the mult when picked up, GAME.md 3.3: a real one, white with black pips,
+## one to six with each two opposite faces adding up to seven.
 ##
 ## Its faces are one small picture drawn once and shared by every die, laid out the way a box mesh
 ## lays its six faces over a texture, three across and two down, see [constant FACES]. A die is
@@ -19,7 +19,8 @@ const FACE_PIXELS := 128
 const PIP_RADIUS := 0.1
 const PIP_INSET := 0.25
 const EDGE_SHADE := 0.06
-const PIP_INK := Palette.MULT
+## Black rather than the mult's red, which read less clearly on the white at a distance.
+const PIP_INK := Color(0.06, 0.06, 0.07)
 
 ## The faces, drawn once, and the look every die wears.
 static var _look: StandardMaterial3D
