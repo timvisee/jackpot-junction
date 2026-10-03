@@ -2995,8 +2995,8 @@ small print, the smallest thing on any screen it opened over. The settings' tabs
 are cards too, padded like buttons and taller for a finger, the page showing lit
 with gold along its top.
 
-The tabs, in order: License, Players, Controls, Audio, Video, Accessibility, Profiles and
-About. From the title the settings are a screen of their own. From the pause menu of a room they open
+The tabs, in order: License, Players, Controls, Audio, Video, Accessibility, Statistics,
+Profiles and About. From the title the settings are a screen of their own. From the pause menu of a room they open
 over the room instead, and Back comes back to the pause menu: the match, and online the
 connection and everybody on it, carries on underneath untouched, and a room that goes while they
 are open keeps whatever was changed in them. On a pad the shoulder buttons step through the tabs,
@@ -3129,7 +3129,21 @@ like any other button.
   whose eyes are looking. Changed from over a room, everything in it changes
   there and then: every kart, a client's and the decoys included, the corners of
   the HUD and the switches, each still the slot of the palette it was.
-- **Profiles**, after Accessibility: who is playing at this machine. A profile is a person's save, kept
+- **Statistics**: the profile playing, over every map it played to the end, in four
+  groups. Games: maps played and won, Grand Prix runs played and won, and time played,
+  the clock running. Driving: distance driven and drifted in kilometers, nitro burned,
+  turbo pads and drift boosts. Fighting: kills, deaths, shots fired, accuracy once ten
+  have been fired, rams and bounties. Money: chips picked up and lost, cash-outs, the
+  biggest cash-out, the most banked in one map, the highest mult and Royal Flushes.
+  Everything the results screen counts is added up, see 3.8, the few that are a best
+  kept as the best. A map counts only once its whistle has gone, local or online,
+  against bots or people; a Grand Prix counts on its last map. Leaving before the
+  whistle counts for nothing, and the driving school, the Garage and the lobby are not
+  matches. It is the first seat's, whose profile is playing; a seat's own profile, see
+  3.8, keeps its own. No reset: a new profile starts from nothing. `LifetimeStats`,
+  written by `MatchRecord` a moment after the whistle, when a client has the host's
+  last numbers.
+- **Profiles**, after Statistics: who is playing at this machine. A profile is a person's save, kept
   apart from how the machine is set up: the names, karts and ways to drive of the four
   seats, the driver license and its plate, how far through the driving school they got,
   and the LAN game and server they last played on, each profile a file of its own in a
@@ -3139,7 +3153,7 @@ like any other button.
   can be typed over on its row, which renames that player. Each row shows the name, the
   plate the profile's kart wears, the learner's L before a license, a Switch button, and
   Delete, which asks by asking to be pressed again within three seconds and is not there
-  for the one playing. New profile makes a blank one and goes to it; a machine keeps
+  for the one playing, and how many maps it has played. New profile makes a blank one and goes to it; a machine keeps
   eight. Switching puts the settings up again for the profile now playing. It is done
   from the title's settings: inside a room the names at the table are already the ones
   playing, so there the buttons are off and a line says to switch from the title. A

@@ -87,6 +87,7 @@ func _ready() -> void:
 	tabs.add_child(_audio_tab())
 	tabs.add_child(VideoTab.make(_settings))
 	tabs.add_child(_accessibility_tab())
+	tabs.add_child(StatsTab.make(_settings))
 	tabs.add_child(ProfilesTab.make(_settings, not overlay, _on_profile_switched))
 	tabs.add_child(AboutTab.new())
 	if not opening_on.is_empty():

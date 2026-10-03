@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Lifetime statistics.** Every map you play to the end adds to your profile's numbers, from maps
+  and Grand Prix won to kilometers driven, on a new Statistics page in the settings.
 - **Profiles.** Each person at a machine has a profile of their own, with their names, karts,
   license and servers; make, switch and delete them on the settings' new Profiles page.
 - **See what you type on a phone.** A text box the keyboard covers is shown on a bar just above the
@@ -31,7 +33,7 @@ below, and hands the notes to the release workflow.
 - **The License page during the driving test.** Opened from the test, it says the license is in
   progress rather than offering to send you back to the school.
 - **The settings in a new order.** License, Players, Controls, Audio, Video, Accessibility,
-  Profiles, About.
+  Statistics, Profiles, About.
 - **The game's words stand out in the driving test.** Chips, mult, pot, bank, nitro and lives are in
   their HUD colors, and the Jackpot, the Junction and the Royal Flush in a color of their own.
 - **Chips, everywhere.** What you collect is called chips in every lesson, card, award and item; the

@@ -139,6 +139,7 @@ func test_the_pages_are_in_order_and_a_switch_comes_back_to_profiles() -> void:
 				"Audio",
 				"Video",
 				"Accessibility",
+				"Statistics",
 				"Profiles",
 				"About"
 			]
@@ -151,3 +152,55 @@ func test_the_pages_are_in_order_and_a_switch_comes_back_to_profiles() -> void:
 	await await_idle_frame()
 	assert_str(String(again.tabs.get_current_tab_control().name)).is_equal("Profiles")
 	assert_str(SettingsScreen.opening_on).is_empty()
+
+
+## A match played to the whistle goes into the profile of the first seat at this machine, GAME.md
+## 8.5: its counts added up, its bests kept, the map and a Grand Prix's last map counted, won or
+## not; the Statistics page reads them.
+func test_a_match_played_to_the_end_goes_into_the_profile() -> void:
+	var settings := _settings()
+	var real := Game.settings
+	Game.settings = settings
+	var match_node: Match = auto_free(preload("res://scenes/match/match.tscn").instantiate())
+	match_node.with_hud = false
+	var runner := scene_runner(match_node)
+	match_node.start(
+		[PlayerInput.new(DeviceInput.KEYBOARD, 0), KartInput.new()] as Array[KartInput], 3
+	)
+	await runner.simulate_frames(2, 17)
+	var mine := match_node.slots[0]
+	assert_object(MatchRecord.first_seat(match_node)).is_same(mine)
+	mine.stats.add(&"driven", 1500.0)
+	mine.stats.add(&"bullets", 20.0)
+	mine.stats.add(&"hits", 5.0)
+	mine.stats.peak(&"max_mult", 4.0)
+	mine.kills = 3
+	mine.banked = 900
+	var record := MatchRecord.add_to(match_node)
+	record.seconds = 125.0
+	record.record()
+	record.record()
+	var profile := settings.profile
+	assert_float(LifetimeStats.value_of(profile, &"maps")).is_equal(1.0)
+	assert_float(LifetimeStats.value_of(profile, &"maps_won")).is_equal(1.0)
+	assert_float(LifetimeStats.value_of(profile, &"kills")).is_equal(3.0)
+	assert_float(LifetimeStats.value_of(profile, &"best_banked")).is_equal(900.0)
+	assert_str(LifetimeStats.shown(profile, &"driven")).is_equal("1.5 km")
+	assert_str(LifetimeStats.shown(profile, &"accuracy")).is_equal("25%")
+	assert_str(LifetimeStats.shown(profile, &"seconds")).is_equal("2 min")
+	# A second map, lost, with a lower mult: added up, the best kept.
+	LifetimeStats.add_map(profile, match_node.slots[1], false, 60.0)
+	assert_float(LifetimeStats.value_of(profile, &"maps")).is_equal(2.0)
+	assert_float(LifetimeStats.value_of(profile, &"maps_won")).is_equal(1.0)
+	assert_float(LifetimeStats.value_of(profile, &"max_mult")).is_equal(4.0)
+	LifetimeStats.add_grand_prix(profile, true)
+	assert_float(LifetimeStats.value_of(profile, &"grand_prix_won")).is_equal(1.0)
+	# Kept, and on the page.
+	var read := _settings()
+	assert_float(LifetimeStats.value_of(read.profile, &"kills")).is_equal(3.0)
+	var page: StatsTab = auto_free(StatsTab.make(read))
+	add_child(page)
+	await await_idle_frame()
+	assert_str(page.values[&"maps"].text).is_equal("1")
+	assert_str(page.values[&"driven"].text).is_equal("1.5 km")
+	Game.settings = real

@@ -15,6 +15,7 @@ const SURE := "Delete it?"
 const NEW := "New profile"
 const ONLY_FROM_TITLE := "Switch profiles from the title screen."
 const FULL := "That is as many profiles as a machine keeps."
+const MAPS := "%d maps"
 ## How long the second press of Delete is waited for, in seconds.
 const SURE_FOR := 3.0
 ## How wide a name is, and how wide the plate beside it is drawn.
@@ -83,6 +84,12 @@ func _row(profile: Profile) -> HBoxContainer:
 	var plate := LicensePlate.of(_plate_of(profile), PLATE_WIDE)
 	plate.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(plate)
+	var played := Label.new()
+	played.text = MAPS % roundi(LifetimeStats.value_of(profile, &"maps"))
+	played.custom_minimum_size = Vector2(120.0, 0.0)
+	played.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	Type.text(played, Type.LABEL, Color(0.72, 0.72, 0.78))
+	row.add_child(played)
 	var switch := MenuTheme.button(PLAYING if playing else SWITCH, Type.BODY)
 	switch.custom_minimum_size = Vector2(170.0, MenuTheme.box_height())
 	switch.disabled = playing or not can_switch
