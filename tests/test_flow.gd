@@ -398,6 +398,34 @@ func test_a_status_before_the_room_stands_on_the_loading_screens_dark() -> void:
 
 ## GAME.md 3.8: a menu over a room darkens the whole of it, the pause menu and the host's match
 ## settings both. The shade used to be centered along with the pane, at the nothing it asks for.
+## A phone's Back, GAME.md 4.2: in a room with nothing up, the room's menu, as the corner button
+## opens it; with the menu up, what B does there, closing it; with a pane up over the room, that
+## pane goes and the menu stays shut. Never quitting.
+func test_a_phones_back_does_what_b_does_or_opens_the_menu() -> void:
+	var real := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = TEST_SETTINGS_PATH
+	var holder: Control = auto_free(Control.new())
+	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(holder)
+	var menu := PauseMenu.add_to(holder)
+	await await_idle_frame()
+	Game.go_back()
+	assert_bool(menu.is_open()).is_true()
+	Game.go_back()
+	assert_bool(menu.is_open()).is_false()
+	var host := HostSettings.add_to(holder)
+	host.open()
+	await await_idle_frame()
+	Game.go_back()
+	assert_bool(host._panel.visible).override_failure_message("the pane stayed").is_false()
+	assert_bool(menu.is_open()).override_failure_message("the menu came up too").is_false()
+	assert_bool(ProjectSettings.get_setting("application/config/quit_on_go_back")).is_false()
+	get_tree().paused = false
+	DirAccess.remove_absolute(Game.settings.path)
+	Game.settings = real
+
+
 func test_a_menu_over_the_room_darkens_all_of_it() -> void:
 	# Closing the host's pane keeps what it was showing, which is not the player's to have written.
 	var real := Game.settings

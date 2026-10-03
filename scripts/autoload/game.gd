@@ -93,6 +93,26 @@ func _ready() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		quit()
+	elif what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		go_back()
+
+
+## A phone's own Back, GAME.md 4.2: what B on a pad does, closing a question or a pane, backing out
+## of a screen or out of the room's menu. Where B does nothing, in a room with no menu up, it opens
+## the menu, the way the menu button in the corner does, since a phone has no other key for it; on
+## the title, which nothing backs out of, it does nothing. It never quits the game outright.
+func go_back() -> void:
+	var viewport := get_viewport()
+	var back := InputEventAction.new()
+	back.action = &"ui_cancel"
+	back.pressed = true
+	viewport.push_input(back)
+	var heard := viewport.is_input_handled()
+	back = back.duplicate()
+	back.pressed = false
+	viewport.push_input(back)
+	if not heard and not PauseMenu.is_open_in(get_tree()):
+		PauseMenu.open_in(get_tree())
 
 
 ## Ends the game, from the title's Quit, the window closing, or a server's game once it is over.

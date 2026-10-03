@@ -972,6 +972,13 @@ online screen and the settings, and not the title screen, where there is nowhere
 go. While the settings are listening for a new binding, B is a binding like any
 other button.
 
+A phone's own Back, the system's button or gesture, is B: it closes a question or a pane and
+backs out of a screen or out of the room's menu. Where B does nothing, in a match, the lobby,
+the Garage or the driving test with nothing up over them, it opens the room's menu, as the menu
+button in the corner does, since a phone has no other key for it. On the title it does nothing,
+as B does there. It never quits the game outright, which is what Android would do by itself:
+`quit_on_go_back` is off, and `Game.go_back` hands it on as Back.
+
 The two things a thumb does on a gamepad are firing and using an item, so they take
 the two buttons under it. The joker screens borrow the same hand: A drops, B
 destroys. Destroy cannot share with use, because the respawn pick puts taking a

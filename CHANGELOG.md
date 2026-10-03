@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **The Android back button.** It closes dialogs and backs out of screens like B on a pad, opens
+  the menu in a match, and no longer quits the game.
 - **Ricochet kills show it.** A kill by a bullet that bounced off a wall has a bounce mark in the
   kill feed, with ×2 and up for more walls.
 - **Decoys in the kill feed.** A kill your decoy makes reads "Ann's decoy shot Bo", and a decoy
