@@ -19,8 +19,9 @@ var making_bar: ProgressBar
 ## Why the screen is up again, back from one of the server's games.
 var note: Label
 
-var _games_line: Label
 var _games: GameList
+## The box the games are listed in, see [ListBox].
+var _box: ListBox
 
 
 ## A line in red for what went wrong, hidden while there is nothing to say.
@@ -57,11 +58,10 @@ func _ready() -> void:
 	making_bar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	making_bar.visible = false
 	column.add_child(making_bar)
-	_games_line = MenuTheme.subtitle("", Type.LABEL)
-	column.add_child(_games_line)
 	_games = GameList.new()
 	_games.chosen.connect(_join)
-	column.add_child(_games)
+	_box = ListBox.of("Games on this server", _games, "No games on this server yet")
+	column.add_child(_box)
 	make_button = MenuTheme.button("Make a game")
 	make_button.pressed.connect(_make)
 	column.add_child(make_button)
@@ -88,9 +88,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _show_games(games: Array[Dictionary]) -> void:
-	_games_line.text = (
-		"Games on this server" if not games.is_empty() else "No games on this server yet"
-	)
 	_games.show_games(games, make_button)
 
 

@@ -1324,7 +1324,7 @@ func _back_for_a_wrong_password() -> bool:
 	var lan := _scene()
 	_check(lan.status.text == "Wrong password", "and said it was wrong")
 	_check(lan.is_form_up(), "with the boxes to join again up")
-	lan.name_field.text = "" if _nameless else "Client"
+	Game.settings.player_names[0] = "" if _nameless else "Client"
 	lan.address_field.text = "127.0.0.1"
 	lan.port_field.text = str(_port)
 	lan.join_button.pressed.emit()

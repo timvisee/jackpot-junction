@@ -1,16 +1,15 @@
 extends Control
 ## LAN games, GAME.md 9.3, reached from Play Online: the games on the network, found by asking, see
-## [LanFinder], in a [GameList], a row each with whose it is and how it stands on the button that
+## [LanFinder], in a [GameList] in a box of its own, see [ListBox], a row each with whose it is and
+## how it stands on the button that
 ## joins it, and Watch beside it to watch it instead, if its host lets anybody watch. Under them
 ## Host a game, which hosts one on this machine, and Direct connect, which puts up the address and
 ## port of a game the asking does not reach in place of the list, with Join and Watch under them.
 ## Any of them opens into the waiting room of 9.6, which is where the connection is made.
 ##
-## The name box is here as well as in the local lobby, GAME.md 3.8, because somebody joining a
-## friend's match never passes through the lobby: without it every visitor would be playing
-## under whatever name this machine last set, or under one the table handed them.
+## Everybody plays under the first seat's name, GAME.md 3.8, which the settings and the lobby's
+## switch change.
 
-var name_field: LineEdit
 var address_field: LineEdit
 var port_field: LineEdit
 var host_button: Button
@@ -22,9 +21,9 @@ var finder: LanFinder
 ## Back to the servers this screen is reached from: Play Online, unless a test says otherwise.
 var leave: Callable = Game.go_to_play_online
 
-## The found games' buttons, and the line over them while there are none.
+## The found games' buttons, and the box they are in.
 var _found: GameList
-var _looking: Label
+var _box: ListBox
 var _subtitle: Label
 var _list_view: VBoxContainer
 var _form_view: VBoxContainer
@@ -35,20 +34,14 @@ func _ready() -> void:
 	column.add_child(MenuTheme.title("LAN games", 64))
 	_subtitle = MenuTheme.subtitle("")
 	column.add_child(_subtitle)
-	name_field = MenuTheme.field(
-		Game.settings.player_names[0], PlayerNames.PLACEHOLDER, PlayerNames.MAX_LENGTH
-	)
-	name_field.custom_minimum_size = Vector2(320.0, 44.0)
-	column.add_child(MenuTheme.row("Your name", name_field))
 	_list_view = VBoxContainer.new()
 	_list_view.name = "List"
 	_list_view.add_theme_constant_override("separation", 16)
 	column.add_child(_list_view)
-	_looking = MenuTheme.subtitle("Looking for games on your network...", Type.LABEL)
-	_list_view.add_child(_looking)
 	_found = GameList.new()
 	_found.chosen.connect(_join_found)
-	_list_view.add_child(_found)
+	_box = ListBox.of("Games on your network", _found, "Looking for games on your network...")
+	_list_view.add_child(_box)
 	finder = LanFinder.new()
 	finder.name = "LanFinder"
 	finder.changed.connect(_show_found)
@@ -123,14 +116,11 @@ func is_form_up() -> bool:
 	return _form_view.visible
 
 
-## A row for each game found, and the line saying none are while none are. Made again whenever a
-## game comes, goes or changes, with the cursor kept where it was, see [method GameList.show_games].
+## A row for each game found, the box saying it is still looking while there are none. Made again
+## whenever a game comes, goes or changes, with the cursor kept where it was, see [method
+## GameList.show_games].
 func _show_found() -> void:
-	var games := finder.games()
-	_looking.text = (
-		"Looking for games on your network..." if games.is_empty() else "Games on your network"
-	)
-	_found.show_games(games, host_button)
+	_found.show_games(finder.games(), host_button)
 
 
 ## Into [param game], to play in it or, with [param mode] "watch", to watch it.
@@ -164,7 +154,7 @@ func config(mode: String) -> MatchConfig:
 	var result := MatchConfig.from_settings(Game.settings)
 	result.online = "join" if mode == "watch" else mode
 	result.watching = mode == "watch"
-	var named: Array[String] = [PlayerNames.clean(name_field.text)]
+	var named: Array[String] = [PlayerNames.clean(Game.settings.player_names[0])]
 	result.human_names = named
 	if mode == "host":
 		result.port = NetSession.DEFAULT_PORT
@@ -187,7 +177,6 @@ func _start(mode: String) -> void:
 	if result.online == "join":
 		Game.settings.last_address = result.address
 		Game.settings.last_port = result.port
-	Game.settings.player_names[0] = result.human_names[0]
 	Game.settings.save_to_disk()
 	# Into the waiting room of GAME.md 9.6 rather than straight onto the felt. Hosting and
 	# joining both open the connection in there, and the arena is built once everybody in the

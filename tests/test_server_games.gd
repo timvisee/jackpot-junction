@@ -106,7 +106,9 @@ func _report(index: int, words: Dictionary) -> void:
 ## as the one who made it: to play, with the host's say to come.
 func test_make_a_game_goes_into_its_lobby_with_the_say() -> void:
 	var screen := await _screen()
-	assert_str(screen._games_line.text).is_equal("No games on this server yet")
+	# The games' box is there with none in it, saying so.
+	assert_bool(screen._box.is_empty()).is_true()
+	assert_str(screen._box._empty.text).is_equal("No games on this server yet")
 	screen.make_button.pressed.emit()
 	assert_bool(screen.make_button.disabled).is_true()
 	assert_bool(await _wait_until(func() -> bool: return not _launched.is_empty(), 4000)).is_true()
@@ -156,7 +158,8 @@ func test_a_listed_game_is_joined_or_watched() -> void:
 	var games: GameList = screen._games
 	var listed := await _wait_until(func() -> bool: return games.get_child_count() == 1, 4000)
 	assert_bool(listed).override_failure_message("the game never showed").is_true()
-	assert_str(screen._games_line.text).is_equal("Games on this server")
+	await await_idle_frame()
+	assert_bool(screen._box._empty.visible).is_false()
 	var join: Button = games.find_child("Join1", true, false)
 	assert_str(join.text).starts_with("Bo's game")
 	_entered.clear()

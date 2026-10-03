@@ -1,6 +1,7 @@
 extends Control
-## Play Online, GAME.md 9.3a: the dedicated servers the player keeps, a row each, see [ServerList],
-## which connect to it; under them Add a server, Direct connect, and LAN games, which goes on to
+## Play Online, GAME.md 9.3a: the dedicated servers the player keeps, a row each in a box of their
+## own, see [ServerList] and [ListBox], which connect to it; under them Add a server, Direct
+## connect, and LAN games, which goes on to
 ## the games on the network, see online.gd. Once a server has let this machine in, its games are
 ## listed on a screen of their own, see server_games.gd, over the connection made here.
 ##
@@ -14,7 +15,6 @@ extends Control
 ## What the list says while it is empty.
 const NONE_YET := "No servers yet. Add one or connect directly."
 
-var name_field: LineEdit
 ## The form: the server's address and port, the name it is kept under, and the buttons that keep
 ## it and connect to it.
 var server_name_field: LineEdit
@@ -35,6 +35,8 @@ var link: ServerLink
 ## unless a test says otherwise.
 var open_games: Callable = Game.go_to_server_games
 var open_lan: Callable = Game.go_to_online
+## The box the kept servers are listed in.
+var servers_box: ListBox
 
 ## The server the link knocked at, as its address and its port.
 var _address := ""
@@ -42,7 +44,6 @@ var _port := 0
 var _subtitle: Label
 var _list_view: VBoxContainer
 var _servers: ServerList
-var _none: Label
 var _form_view: VBoxContainer
 var _form_title: Label
 var _name_row: Control
@@ -57,11 +58,6 @@ func _ready() -> void:
 	column.add_child(MenuTheme.title("Play Online", 64))
 	_subtitle = MenuTheme.subtitle("")
 	column.add_child(_subtitle)
-	name_field = MenuTheme.field(
-		Game.settings.player_names[0], PlayerNames.PLACEHOLDER, PlayerNames.MAX_LENGTH
-	)
-	name_field.custom_minimum_size = Vector2(320.0, 44.0)
-	column.add_child(MenuTheme.row("Your name", name_field))
 	_build_list(column)
 	_build_form(column)
 	note = ServerGames.red_line()
@@ -114,9 +110,8 @@ func _build_list(column: VBoxContainer) -> void:
 		func(server: Dictionary) -> void: _connect_to(server["address"], server["port"])
 	)
 	_servers.removing.connect(_ask_to_remove)
-	_list_view.add_child(_servers)
-	_none = MenuTheme.subtitle(NONE_YET, Type.LABEL)
-	_list_view.add_child(_none)
+	servers_box = ListBox.of("Your servers", _servers, NONE_YET)
+	_list_view.add_child(servers_box)
 	adding_button = MenuTheme.button("Add a server")
 	adding_button.pressed.connect(func() -> void: show_form(true))
 	_list_view.add_child(adding_button)
@@ -163,10 +158,7 @@ func show_list(focus: Dictionary = {}) -> void:
 	_subtitle.text = "Connect to a dedicated server to see the games being played on it."
 	_list_view.visible = true
 	_form_view.visible = false
-	var kept := Game.settings.servers
-	_servers.show_servers(kept, focus)
-	_servers.visible = not kept.is_empty()
-	_none.visible = kept.is_empty()
+	_servers.show_servers(Game.settings.servers, focus)
 	if focus.is_empty() or not _kept(focus):
 		var first := _servers.connect_button(0)
 		(first if first != null else adding_button).grab_focus.call_deferred()
@@ -307,8 +299,8 @@ func _on_remove_answered(yes: bool) -> void:
 	show_list(kept[mini(at, kept.size() - 1)] if not kept.is_empty() else {})
 
 
-## Knocks at the server at [param address] and [param port], and remembers it and the name for
-## next time.
+## Knocks at the server at [param address] and [param port], under the player's name, and
+## remembers it for next time.
 func _connect_to(address: String, port: int) -> void:
 	if address.is_empty():
 		_say("Enter the server's address", true)
@@ -317,12 +309,11 @@ func _connect_to(address: String, port: int) -> void:
 	# takes the old one's place, see [method Net.open_link].
 	_address = address
 	_port = port
-	Game.settings.player_names[0] = PlayerNames.clean(name_field.text)
 	Game.settings.last_server = address
 	Game.settings.last_server_port = port
 	Game.settings.save_to_disk()
 	link = Net.open_link()
-	link.player_name = PlayerNames.clean(name_field.text)
+	link.player_name = PlayerNames.clean(Game.settings.player_names[0])
 	link.connected.connect(func() -> void: open_games.call())
 	link.failed.connect(func() -> void: _say("Could not connect to %s" % _where(), true))
 	link.refused.connect(func(reason: String) -> void: _say(reason, true))

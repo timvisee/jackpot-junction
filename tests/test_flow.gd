@@ -170,13 +170,17 @@ func test_menu_scenes_build() -> void:
 	assert_int(settings.tabs.get_tab_count()).is_equal(9)
 
 
-## GAME.md 3.8: somebody joining a friend's match never passes through the local lobby, so the
-## screen they do pass through asks what they are called.
-func test_the_online_screen_carries_the_name_you_type() -> void:
+## GAME.md 3.8: somebody joining a friend's match plays under the first seat's name, cleaned the
+## way every name is, since a settings file is a file anybody can edit.
+func test_the_online_screen_carries_the_first_seats_name() -> void:
+	var real := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = TEST_SETTINGS_PATH
+	Game.settings.player_names[0] = "  [b]Bartholomew Winterbottom[/b]  "
 	var online: Control = auto_free(ONLINE_SCENE.instantiate())
 	add_child(online)
-	online.name_field.text = "  [b]Bartholomew Winterbottom[/b]  "
 	var config: MatchConfig = online.config("join")
+	Game.settings = real
 	assert_str(config.online).is_equal("join")
 	assert_int(config.human_names.size()).is_equal(1)
 	assert_int(config.human_names[0].length()).is_less_equal(PlayerNames.MAX_LENGTH)

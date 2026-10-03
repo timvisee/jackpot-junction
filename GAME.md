@@ -476,9 +476,10 @@ else's results screen, see 10.3.
   Fran. So a name under an emote floating up the screen says it is somebody
   watching before anybody reads the rim. It is kept off the lists while they
   watch, so nobody who comes after is handed it, and it is the name under their emotes and on the host's
-  Manage players, whatever their own machine sends. The
-  first seat's box is on Play Online and LAN games as well, since that is the name a
-  machine gives when it connects.
+  Manage players, whatever their own machine sends. A machine connects
+  under its first seat's name, the settings' and the profile's, which the lobby's switch
+  changes like any other; Play Online and LAN games ask for none, a box for it
+  there being one more thing between the player and the list.
 - **Profiles at other seats.** The first seat at a machine is the profile playing,
   8.5, and every other seat is that profile's guest, until its player sits in as
   another profile kept on the machine: Link profile on their switch in the pause
@@ -3493,7 +3494,14 @@ lobby's player limit counts them as it counts everybody, see 9.6.
 
 Games hosted at a player's machine are LAN games, reached from Play Online, 9.3a: one way in to
 playing with other machines from the title rather than one for each kind of host. The LAN games
-screen finds the games on the network by itself and lists every game that answers, a row each: a
+screen finds the games on the network by itself and lists every game that answers, in the box
+every list of games and servers is shown in: a well sunk into the screen, darker than it, with a
+shade along its inside top edge and a faint rim, under a small gray heading, "Games on your
+network", with room for about five rows whether or not there are any, which scrolls once there are
+more, and while there are none a line in its middle, "Looking for games on your network...".
+Empty, it still marks the list off from the buttons under it. Sunk in rather than raised: the
+game's gold-barred pane, tried first, read as a dialog box come up over the screen rather than a
+part of it. A row each: a
 button saying whose it is, whether it is
 still in the lobby, how many play in it of how many may, and whether it wants a password, which
 joins it, and Watch beside it, which watches it instead, see 10.3. Watch cannot be pressed on a
@@ -3612,10 +3620,12 @@ Somebody watching has none, having no say to be given, and nor does a LAN game's
 whose host is the machine the game runs on.
 
 **Play Online.** The title's way to playing with other machines, in two screens. The first is the
-player's own servers: their name over the list, a row each for the dedicated servers they keep, a
+player's own servers, in the box of 9.3 headed "Your servers", a row each for the dedicated
+servers they keep, a
 button with the server's name over its address and port, which connects to it, and Remove beside
 it, which asks first, "Remove this server?", with Remove and Keep. The list is empty to start
-with and says so, "No servers yet. Add one or connect directly.", and keeps up to 20. Under it,
+with and says so in the middle of the box, "No servers yet. Add one or connect directly.", and
+keeps up to 20. Under it,
 Add a server, Direct connect and LAN games, see 9.3. Add a server and Direct connect put up the
 server's address and its port, 7777 to start with, in place of the list, and Add a server a name
 for it too, which may be left empty for its address to stand for it: Add keeps it and goes back to
@@ -3627,7 +3637,8 @@ answered, the server is on a version this one cannot play, or it is a LAN game. 
 to watch is chosen on the second, game by game, since a server holds several. The list, the
 server connected to last, and the address and port a LAN game was joined at are the player's,
 not the machine's: they go with the player's profile. The second, Games, lists the server's games
-the way LAN games lists the games on the network,
+the way LAN games lists the games on the network, in the same box, headed "Games on this server"
+and saying "No games on this server yet" while there are none,
 a row each saying whose it is, whether it is still in the lobby, how many play in it of how many
 may and whether it wants a password, which joins it, with Watch beside it, and Make a game under
 them. Make a game asks the server for one, says it is making it with a bar under the words that

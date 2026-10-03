@@ -88,7 +88,7 @@ func test_connect_goes_on_to_the_games() -> void:
 	_open_hall()
 	var screen := _screen()
 	assert_int(_opened[0]).is_equal(0)
-	screen.name_field.text = "Bo"
+	Game.settings.player_names[0] = "Bo"
 	screen.direct_button.pressed.emit()
 	assert_bool(screen.is_form_up()).is_true()
 	assert_bool(screen.connect_button.visible).is_true()
@@ -101,7 +101,7 @@ func test_connect_goes_on_to_the_games() -> void:
 	assert_str(Net.link.address).is_equal("127.0.0.1")
 	assert_int(Net.link.port).is_equal(port)
 	assert_str(Game.settings.last_server).is_equal("127.0.0.1")
-	assert_str(Game.settings.player_names[0]).is_equal("Bo")
+	assert_str(Net.link.player_name).is_equal("Bo")
 	assert_bool(Game.settings.servers.is_empty()).is_true()
 
 
@@ -176,9 +176,13 @@ func test_add_keeps_a_server_on_the_list() -> void:
 	var screen := _screen()
 	await await_idle_frame()
 	assert_bool(screen.is_form_up()).is_false()
-	var none: Label = screen._none
-	assert_bool(none.visible).is_true()
-	assert_str(none.text).is_equal("No servers yet. Add one or connect directly.")
+	# The box is there empty, as big as full, saying so in its middle.
+	var box: ListBox = screen.servers_box
+	assert_bool(box.is_visible_in_tree()).is_true()
+	assert_bool(box.is_empty()).is_true()
+	assert_bool(box._empty.visible).is_true()
+	assert_str(box._empty.text).is_equal("No servers yet. Add one or connect directly.")
+	assert_float(box.get_combined_minimum_size().y).is_greater(ListBox.ROOM)
 	screen.adding_button.pressed.emit()
 	assert_bool(screen.is_form_up()).is_true()
 	assert_bool(screen.add_button.visible).is_true()
@@ -193,7 +197,8 @@ func test_add_keeps_a_server_on_the_list() -> void:
 	screen.port_field.text = "9100"
 	screen.add_button.pressed.emit()
 	assert_bool(screen.is_form_up()).is_false()
-	assert_bool(none.visible).is_false()
+	await await_idle_frame()
+	assert_bool(box._empty.visible).is_false()
 	assert_int(Game.settings.servers.size()).is_equal(1)
 	assert_str(Game.settings.servers[0]["name"]).is_equal("Friday night")
 	var row: Button = screen._servers.connect_button(0)
@@ -247,7 +252,8 @@ func test_remove_asks_first() -> void:
 	screen._servers.remove_button(0).pressed.emit()
 	ask.yes_button().pressed.emit()
 	assert_bool(Game.settings.servers.is_empty()).is_true()
-	assert_bool(screen._none.visible).is_true()
+	await await_idle_frame()
+	assert_bool(screen.servers_box._empty.visible).is_true()
 
 
 ## Back from the boxes is the list again, and LAN games goes on to the games on the network.
