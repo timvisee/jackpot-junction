@@ -19,8 +19,7 @@ const CARD_SCALE := 0.9
 const LOOK_SIZE := 22
 const LOOK_AT := -Vector2.ONE * LicenseCard.RADIUS * CARD_SCALE * (1.0 - 0.7071)
 
-var field: LineEdit
-var preview: LicensePlate
+var field: PlateField
 ## The way to the driving school: Earn it now on a tab with no license to show, and Retake the
 ## driving test under a license.
 var earn: Button
@@ -106,14 +105,12 @@ func _license(column: VBoxContainer) -> void:
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(0.0, 6.0)
 	column.add_child(gap)
-	field = MenuTheme.field(_settings.license_plate, LicensePlate.BLANK, LicensePlate.MOST)
-	field.name = "Plate"
-	field.custom_minimum_size = Vector2(240.0, MenuTheme.box_height())
-	field.text_changed.connect(_on_plate_typed)
+	field = PlateField.make(_settings.license_plate)
+	field.plate_changed.connect(_on_plate_typed)
 	var row := MenuTheme.row("License plate", field)
-	preview = LicensePlate.of(_settings.license_plate, 168.0)
-	preview.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	row.add_child(preview)
+	var how := PlateField.hint(Color(0.72, 0.72, 0.78), Type.LABEL)
+	how.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(how)
 	column.add_child(row)
 	column.add_child(MenuTheme.subtitle(PLATE_LINE % LicensePlate.MOST, Type.LABEL))
 	var gap_after := Control.new()
@@ -206,12 +203,6 @@ func _to_the_school() -> void:
 	Game.go_to_tutorial()
 
 
-## The plate as typed, cleaned on the way: the box shows what the plate will read.
-func _on_plate_typed(text: String) -> void:
-	var cleaned := LicensePlate.clean(text)
-	if cleaned != text:
-		var caret := field.caret_column
-		field.text = cleaned
-		field.caret_column = mini(caret, cleaned.length())
+## The plate as typed, cleaned on the way, see [PlateField].
+func _on_plate_typed(cleaned: String) -> void:
 	_settings.license_plate = cleaned
-	preview.set_text(cleaned)

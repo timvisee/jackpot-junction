@@ -1214,7 +1214,13 @@ short buzz the slider gives, so reading along the row is felt card by card.
   driver chose after, up to eight characters in black on a pale plate with a
   dark rim and a bolt in each corner, chosen as the license is issued and
   changed, or cleared for a bare bumper, on the License tab of the settings,
-  8.5. A bot wears one too: the
+  8.5. Both type it on the plate itself, `PlateField`: the pale plate is the
+  text box, its letters in the plate's lettering and its rim gold while it is
+  typed into, with "Tap to edit", "Click to edit" or the pad's accept button
+  "to edit" beside it, rather than a box with the plate drawn next to it to say
+  what it would read. It is cleaned as it is typed, upper case and nothing a
+  plate cannot hold, but a space at the end stands until the plate is left:
+  cleaned away at once, nobody could type one between two words. A bot wears one too: the
   easiest bots are learners, with the L, and the rest hold a license, with a
   plate drawn from their name and the match's seed, "HUN-382" for a Hunter;
   the tutorial's normal bot takes its plate as it is let out. Online, 10.3, a
@@ -4188,9 +4194,8 @@ and the date under it, laid a little askew and short of solid the way ink is,
 and the card shivers; then the stamp fades away leaving the mark. Nothing goes
 on without stamping: the stamp is the point. A moment after, CONGRATULATIONS and
 the name in gold, "Class K. Valid on every table. The Junction is yours.", the
-license plate for the back of the kart to choose, see 4.4, a box starting from
-the holder's initials and the number's last three digits, "TLT-123", with the
-plate as it will read beside it, and the three ways on, Garage, Hit the road,
+license plate for the back of the kart to choose, see 4.4, starting from the
+holder's initials and the number's last three digits, "TLT-123", and the three ways on, Garage, Hit the road,
 which is Play, with the cursor, and Back to title. The license is seen again on
 the title, peeking in from the right edge the way a card in a hand does, tilted
 and a third off the screen, dimmed a little so it does not take the eye from

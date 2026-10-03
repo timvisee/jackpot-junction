@@ -49,11 +49,10 @@ const SHAKE := 7.0
 
 var card: LicenseCard
 var stamp: RubberStamp
-## The box the plate is typed into, and the plate as it will read.
-var plate_field: LineEdit
+## The plate, typed into where it is, see [PlateField].
+var plate_field: PlateField
 ## The course along the top, see [method SchoolEnrollment.course_row].
 var course: HBoxContainer
-var plate: LicensePlate
 ## What each way on does: the scenes, unless a test says otherwise.
 var ways: Dictionary[StringName, Callable] = {}
 var buttons: Dictionary[StringName, Button] = {}
@@ -182,17 +181,13 @@ func _say_how() -> void:
 func _plate_row() -> Control:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 6)
-	plate_field = MenuTheme.field(
-		Game.settings.license_plate, LicensePlate.BLANK, LicensePlate.MOST
-	)
-	plate_field.name = "Plate"
-	plate_field.custom_minimum_size = Vector2(220.0, MenuTheme.box_height())
-	plate_field.text_changed.connect(_on_plate_typed)
+	plate_field = PlateField.make(Game.settings.license_plate)
+	plate_field.plate_changed.connect(_on_plate_typed)
 	var row := MenuTheme.row(PLATE_LABEL, plate_field)
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	plate = LicensePlate.of(Game.settings.license_plate, 168.0)
-	plate.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	row.add_child(plate)
+	var how := PlateField.hint(Color(0.72, 0.72, 0.78), Type.LABEL)
+	how.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(how)
 	box.add_child(row)
 	box.add_child(MenuTheme.subtitle(PLATE_LINE % LicensePlate.MOST, Type.LABEL))
 	# Air under the line, before the ways on.
@@ -202,14 +197,8 @@ func _plate_row() -> Control:
 	return box
 
 
-func _on_plate_typed(text: String) -> void:
-	var cleaned := LicensePlate.clean(text)
-	if cleaned != text:
-		var caret := plate_field.caret_column
-		plate_field.text = cleaned
-		plate_field.caret_column = mini(caret, cleaned.length())
+func _on_plate_typed(cleaned: String) -> void:
 	Game.settings.license_plate = cleaned
-	plate.set_text(cleaned)
 
 
 func _on_stamped() -> void:

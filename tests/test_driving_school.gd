@@ -380,7 +380,14 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	tab.field.text = "my kart!!"
 	tab.field.text_changed.emit(tab.field.text)
 	assert_str(Game.settings.license_plate).is_equal("MY KART")
-	assert_str(tab.preview.text).is_equal("MY KART")
+	assert_str(tab.field.text).is_equal("MY KART")
+	# A space typed at the end stands while the plate is typed into, and goes once it is left.
+	tab.field.text = "MY KART "
+	tab.field.text_changed.emit(tab.field.text)
+	assert_str(tab.field.text).is_equal("MY KART ")
+	assert_str(Game.settings.license_plate).is_equal("MY KART")
+	tab.field.focus_exited.emit()
+	assert_str(tab.field.text).is_equal("MY KART")
 	# A click on the card shows it in full over the screen the tab is on, as the title does, with
 	# the hand's button drawn under the card; Back puts it away, and the hand's button shows it too.
 	var look: Control = tab.find_child("Look", true, false)

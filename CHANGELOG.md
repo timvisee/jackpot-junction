@@ -26,6 +26,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Type your license plate on the plate.** The plate itself is the text box, with a line beside it
+  saying how to edit it.
 - **More room by the lobby's stalls.** The stack of wheels in the lobby stands a step further from
   the back wall.
 - **Untouchable karts stop bullets.** A kart just back or just hit no longer lets shots through:
@@ -46,6 +48,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Spaces in a license plate.** A space typed at the end of the plate no longer vanishes before
+  the next letter.
 - **A smooth guide arrow in the driving test.** The blue arrow on the floor follows the kart as it
   is drawn, rather than shaking against it on a phone.
 - **A joker's word leans with its card.** GUARDED, LOST and the rest tilt as the card does in the

@@ -636,7 +636,7 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	license.plate_field.text = "go fast!"
 	license.plate_field.text_changed.emit(license.plate_field.text)
 	assert_str(Game.settings.license_plate).is_equal("GO FAST")
-	assert_str(license.plate.text).is_equal("GO FAST")
+	assert_str(license.plate_field.text).is_equal("GO FAST")
 	license.buttons[&"play"].pressed.emit()
 	assert_array(went).contains_exactly([&"play"])
 	# Done again, the license keeps its number.

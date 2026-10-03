@@ -32,13 +32,19 @@ static func of(words: String, wide := SIZE.x) -> LicensePlate:
 ## [param raw] as a plate may read: upper case, nothing a plate cannot hold, one space at a time,
 ## no longer than [constant MOST].
 static func clean(raw: String) -> String:
+	return clean_typed(raw).strip_edges()
+
+
+## [param raw] as it is being typed: cleaned as [method clean] does, but a space at the end is left
+## standing, since the next letter may be on its way.
+static func clean_typed(raw: String) -> String:
 	var kept := ""
 	for character: String in raw.to_upper():
 		if character in ALLOWED:
 			kept += character
 	while kept.contains("  "):
 		kept = kept.replace("  ", " ")
-	return kept.strip_edges().substr(0, MOST)
+	return kept.strip_edges(true, false).substr(0, MOST)
 
 
 ## A plate for [param holder], numbered [param number], to start from: the initials of the name,
