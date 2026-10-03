@@ -38,6 +38,10 @@ static func add_to(in_match: Match) -> GuideArrow:
 
 
 func _ready() -> void:
+	# Placed every drawn frame from the kart as it is drawn, the way the aim guide is, GAME.md 10.7:
+	# smoothed again between physics ticks it trailed the kart a tick behind and shook against it,
+	# which a phone's uneven frames made plain.
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	var face := MeshInstance3D.new()
 	face.mesh = _mesh()
 	_material = StandardMaterial3D.new()
@@ -64,6 +68,7 @@ func _ready() -> void:
 	_ring_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	_ring.material_override = _ring_material
 	_ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_ring.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	_ring.visible = false
 	get_parent().add_child.call_deferred(_ring)
 
@@ -93,7 +98,7 @@ func _process(delta: float) -> void:
 		_ring.global_position = Vector3(target.x, HEIGHT, target.z)
 		_ring.scale = Vector3.ONE * (ring_radius / RING_RADIUS) * (0.95 + 0.1 * pulse)
 		_ring_material.albedo_color = Color(COLOR, 0.45 + 0.4 * pulse)
-	var from := kart.global_position
+	var from := kart.get_global_transform_interpolated().origin
 	var flat := Vector3(target.x - from.x, 0.0, target.z - from.z)
 	if flat.length() < NEAR:
 		visible = false

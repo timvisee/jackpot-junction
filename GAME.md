@@ -5509,7 +5509,8 @@ stays won. New code is held to these, and a pull that breaks one says why:
   per instance only where its color changes at runtime; otherwise it is shared
   through a static cache, as `Chip.paint_for` and `Bullet._glow` do.
 - Anything placed every drawn frame off a kart (the aim guide, the free-aim
-  arrow, a tag over its head) is placed from `get_global_transform_interpolated()`
+  arrow, a tag over its head, the tutorial's guide arrow) is placed from
+  `get_global_transform_interpolated()`
   and has `physics_interpolation_mode` off. A kart moves on the physics tick and
   is drawn smoothed between ticks; placed from `global_position`, a thing jumps
   against it wherever the screen draws faster than the physics runs.

@@ -72,3 +72,21 @@ func test_the_dots_hang_off_the_drawn_kart() -> void:
 	assert_float(Vector2(first.x, first.z).distance_to(Vector2(expected.x, expected.z))).is_less(
 		0.001
 	)
+
+
+## The tutorial's guide arrow is placed the same way, GAME.md 10.7: off the kart as drawn, and not
+## smoothed again, nor is the ring round the spot it points at.
+func test_the_tutorial_arrow_follows_the_kart_as_drawn() -> void:
+	var match_node := _start()
+	await await_millis(80)
+	var kart := match_node.kart_of(0)
+	var arrow := GuideArrow.add_to(match_node)
+	arrow.kart = kart
+	arrow.point_at(kart.global_position + Vector3(20.0, 0.0, 0.0))
+	await await_idle_frame()
+	await await_idle_frame()
+	assert_int(arrow.physics_interpolation_mode).is_equal(Node.PHYSICS_INTERPOLATION_MODE_OFF)
+	assert_int(arrow._ring.physics_interpolation_mode).is_equal(Node.PHYSICS_INTERPOLATION_MODE_OFF)
+	var drawn := kart.get_global_transform_interpolated().origin
+	var flat := Vector3(arrow.global_position.x - drawn.x, 0.0, arrow.global_position.z - drawn.z)
+	assert_float(flat.length()).is_equal_approx(GuideArrow.AHEAD, 0.2)

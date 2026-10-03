@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A smooth guide arrow in the driving test.** The blue arrow on the floor follows the kart as it
+  is drawn, rather than shaking against it on a phone.
 - **A joker's word leans with its card.** GUARDED, LOST and the rest tilt as the card does in the
   fan, rather than sitting level over it.
 - **No gray flash on quitting.** The window stays the menus' dark while the game closes and
