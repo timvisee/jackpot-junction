@@ -1,17 +1,22 @@
 class_name ProfilesTab
 extends ScrollContainer
-## The Profiles tab of the settings, first among them, GAME.md 8.5: every profile kept on this
-## machine, see [Profile], the one playing marked, each named for its first player, a name that can
-## be typed over here, and its plate. One can be switched to, a new one made, up to
-## [constant Profile.MOST], and any but the one playing thrown away, which asks first by asking
-## the button to be pressed again. Switching is from the title's settings: inside a room the names
-## at the table are already the ones playing, and the tab says where to go to switch.
+## The Profiles tab of the settings, GAME.md 8.5: every profile kept on this machine, see
+## [Profile], the one playing marked, each named for its first player, a name Edit changes in a
+## [NameDialog], and its plate. One can be switched to, a new one made, up to
+## [constant Profile.MOST], named as it is made and gone to, and any but the one playing thrown
+## away, which asks first by asking the button to be pressed again. Switching is from the title's
+## settings: inside a room the names at the table are already the ones playing, and the tab says
+## where to go to switch; a profile made there is only made, for a seat to sit in as, 3.8.
 
 const TITLE := "Profiles"
 ## What the page is for, said at its top.
 const LINE := "Each person's names, karts, license and statistics. Switch to play as another."
 const PLAYING := "Playing"
 const SWITCH := "Switch"
+const EDIT := "Edit"
+const RENAME := "Rename profile"
+const SAVE := "Save"
+const MAKE := "Make"
 const DELETE := "Delete"
 const SURE := "Delete it?"
 const NEW := "New profile"
@@ -26,9 +31,11 @@ const PLATE_WIDE := 112.0
 
 ## Whether a profile can be switched to here: off inside a room, see the class.
 var can_switch := true
-## Each profile's row, by its id, with its name, its switch and its delete.
+## Each profile's row, by its id, with its name, its edit, its switch and its delete.
 var rows: Dictionary[String, Dictionary] = {}
 var new_button: Button
+## The name asked for just now, or null.
+var dialog: NameDialog
 
 var _settings: Settings
 ## Run with the id switched to, so the settings can be put up again for the profile now playing.
@@ -68,18 +75,18 @@ func _ready() -> void:
 		column.add_child(SettingsScreen.page_line(FULL))
 
 
-## One profile: its name to type over, its plate, and what can be done with it.
+## One profile: its name, its plate, and what can be done with it.
 func _row(profile: Profile) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.name = "Profile%s" % profile.id
 	row.add_theme_constant_override("separation", 18)
 	var playing := profile.id == _settings.profile.id
-	var named := MenuTheme.field(
-		profile.player_names[0], profile.display_name(), PlayerNames.MAX_LENGTH
-	)
-	named.custom_minimum_size = Vector2(NAME_WIDE, MenuTheme.box_height())
-	named.text_submitted.connect(func(_text: String) -> void: _rename(profile, named))
-	named.focus_exited.connect(_rename.bind(profile, named))
+	var named := Label.new()
+	named.text = profile.display_name()
+	named.custom_minimum_size = Vector2(NAME_WIDE, 0.0)
+	named.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	named.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	Type.strong(named, Type.BODY, Palette.CHIP_GOLD if playing else Palette.CHIP_WHITE)
 	row.add_child(named)
 	row.add_child(_plate_of(profile))
 	var played := Label.new()
@@ -88,6 +95,10 @@ func _row(profile: Profile) -> HBoxContainer:
 	played.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	Type.text(played, Type.LABEL, Color(0.72, 0.72, 0.78))
 	row.add_child(played)
+	var edit := MenuTheme.button(EDIT, Type.BODY)
+	edit.custom_minimum_size = Vector2(120.0, MenuTheme.box_height())
+	edit.pressed.connect(_edit.bind(profile))
+	row.add_child(edit)
 	var switch := MenuTheme.button(PLAYING if playing else SWITCH, Type.BODY)
 	switch.custom_minimum_size = Vector2(170.0, MenuTheme.box_height())
 	switch.disabled = playing or not can_switch
@@ -98,7 +109,7 @@ func _row(profile: Profile) -> HBoxContainer:
 	delete.disabled = playing
 	delete.pressed.connect(_delete.bind(profile.id, delete))
 	row.add_child(delete)
-	rows[profile.id] = {"row": row, "name": named, "switch": switch, "delete": delete}
+	rows[profile.id] = {"row": row, "name": named, "edit": edit, "switch": switch, "delete": delete}
 	return row
 
 
@@ -122,9 +133,13 @@ static func _plate_of(profile: Profile) -> Control:
 	return room
 
 
-## A name typed over: the profile's first player is called it, cleaned the way a name is.
-func _rename(profile: Profile, field: LineEdit) -> void:
-	var named := PlayerNames.clean(field.text)
+## Asks for [param profile]'s name, its first player's, and calls it that.
+func _edit(profile: Profile) -> void:
+	_ask(RENAME, profile.player_names[0], SAVE, _rename.bind(profile))
+
+
+## [param profile]'s first player is called [param named] from now on.
+func _rename(named: String, profile: Profile) -> void:
 	if named == profile.player_names[0]:
 		return
 	profile.player_names[0] = named
@@ -133,6 +148,23 @@ func _rename(profile: Profile, field: LineEdit) -> void:
 		_settings.save_to_disk()
 	else:
 		profile.save_to_disk()
+	(rows[profile.id]["name"] as Label).text = profile.display_name()
+
+
+## The name [param title] asks for, [param text] in the box to start with, [param ok] on the
+## button that goes ahead with it into [param then]; the cursor back where it was after.
+func _ask(title: String, text: String, ok: String, then: Callable) -> void:
+	if dialog != null:
+		return
+	var was := get_viewport().gui_get_focus_owner()
+	dialog = NameDialog.open(self, title, text, ok)
+	dialog.named.connect(then)
+	dialog.put_away.connect(
+		func() -> void:
+			dialog = null
+			if was != null and is_instance_valid(was) and was.is_inside_tree():
+				was.grab_focus()
+	)
 
 
 func _switch(id: String) -> void:
@@ -143,9 +175,20 @@ func _switch(id: String) -> void:
 		_switched.call(id)
 
 
+## Asks for the new profile's name, makes it, and goes to it; inside a room only makes it.
 func _new() -> void:
+	_ask(NEW, "", MAKE, _make)
+
+
+func _make(named: String) -> void:
 	var made := _settings.new_profile()
-	if made != null and _switched.is_valid():
+	if made == null:
+		return
+	made.player_names[0] = named
+	made.save_to_disk()
+	if can_switch:
+		_settings.switch_profile(made.id)
+	if _switched.is_valid():
 		_switched.call(_settings.profile.id)
 
 

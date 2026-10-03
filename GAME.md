@@ -3166,15 +3166,20 @@ like any other button.
   and the LAN game and server they last played on, each profile a file of its own in a
   folder beside the settings file, `profiles/1.cfg` and on. The picture, the sound, the
   controls and their bindings, the touch layout and the lobby's choices stay with the
-  machine, the same whoever plays. A profile is named for its first player, and the name
-  can be typed over on its row, which renames that player. Each row shows the name, the
-  plate the profile's kart wears, or before a license the learner's L itself rather
-  than a plate reading L, a Switch button, and
-  Delete, which asks by asking to be pressed again within three seconds and is not there
-  for the one playing, and how many maps it has played. New profile makes a blank one and goes to it; a machine keeps
-  eight. Switching puts the settings up again for the profile now playing. It is done
-  from the title's settings: inside a room the names at the table are already the ones
-  playing, so there the buttons are off and a line says to switch from the title. A
+  machine, the same whoever plays. A profile is named for its first player. Each row
+  shows the name, the one playing's in gold, the plate the profile's kart wears, or
+  before a license the learner's L itself rather than a plate reading L, how many maps
+  it has played, and Edit, Switch and Delete. Edit asks for the name in a dialog over the
+  screen, a box with the name in it, Save and Cancel, and renames that player; a page of
+  name boxes would have looked like something to fill in rather than a list to pick from.
+  Delete asks by asking to be pressed again within three seconds and is not there for the
+  one playing. New profile asks for the name the same way, with Make, then makes the
+  profile and goes to it; a machine keeps eight. The dialog wants a name: Save and Make
+  are off while the box is empty, Enter goes ahead and Back cancels. Switching puts the
+  settings up again for the profile now playing. It is done from the title's settings:
+  inside a room the names at the table are already the ones playing, so there Switch is
+  off and a line says to switch from the title, and New profile only makes one, for
+  somebody who has just sat down to make theirs and sit in as it, 3.8. `NameDialog`. A
   settings file from before profiles is not carried over: the first profile starts
   blank. The other seats are guests of the profile playing, kept in it as before,
   until another profile sits in at one, 3.8.

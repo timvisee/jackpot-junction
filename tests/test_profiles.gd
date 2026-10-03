@@ -90,9 +90,9 @@ func test_profiles_are_made_switched_and_thrown_away() -> void:
 	assert_str(_settings().profile.id).is_equal("3")
 
 
-## The Profiles page: a row for each, the one playing marked and kept, a name typed over renamed,
-## and no switching from inside a room.
-func test_the_profiles_page_lists_and_renames_them() -> void:
+## The Profiles page: a row for each, the one playing marked and kept, Edit renaming one in a
+## dialog, New naming one and going to it, and no switching from inside a room.
+func test_the_profiles_page_lists_renames_and_makes_them() -> void:
 	var settings := _settings()
 	settings.player_names[0] = "Ann"
 	settings.save_to_disk()
@@ -111,18 +111,50 @@ func test_the_profiles_page_lists_and_renames_them() -> void:
 	var mine: Dictionary = page.rows["1"]
 	assert_bool((mine["switch"] as Button).disabled).is_true()
 	assert_bool((mine["delete"] as Button).disabled).is_true()
+	assert_str((mine["name"] as Label).text).is_equal("Ann")
+	# Edit asks for the name in a dialog, the one it has in the box; going ahead renames it.
 	var other: Dictionary = page.rows["2"]
-	var field: LineEdit = other["name"]
-	field.text = "Dee"
-	field.focus_exited.emit()
+	(other["edit"] as Button).pressed.emit()
+	var dialog := page.dialog
+	assert_object(dialog).is_not_null()
+	assert_str(dialog.field.text).is_empty()
+	assert_bool(dialog.ok_button.disabled).is_true()
+	dialog.field.text = "Dee"
+	dialog.field.text_changed.emit(dialog.field.text)
+	assert_bool(dialog.ok_button.disabled).is_false()
+	dialog.ok_button.pressed.emit()
+	await await_idle_frame()
+	assert_object(page.dialog).is_null()
+	assert_str((other["name"] as Label).text).is_equal("Dee")
+	assert_str(Profile.at(settings.profiles_dir(), "2").display_name()).is_equal("Dee")
+	# Canceled, nothing changes.
+	(other["edit"] as Button).pressed.emit()
+	page.dialog.field.text = "Nope"
+	page.dialog.cancel_button.pressed.emit()
+	await await_idle_frame()
 	assert_str(Profile.at(settings.profiles_dir(), "2").display_name()).is_equal("Dee")
 	(other["switch"] as Button).pressed.emit()
 	assert_array(switched).is_equal(["2"] as Array[String])
 	assert_str(settings.profile.id).is_equal("2")
+	# New asks for a name, makes the profile under it and goes to it.
+	page.new_button.pressed.emit()
+	page.dialog.field.text = "Eve"
+	page.dialog.field.text_submitted.emit(page.dialog.field.text)
+	await await_idle_frame()
+	assert_str(settings.profile.id).is_equal("3")
+	assert_str(settings.player_names[0]).is_equal("Eve")
+	assert_array(switched).is_equal(["2", "3"] as Array[String])
+	# Inside a room a new one is only made, for a seat to sit in as.
 	var in_room: ProfilesTab = auto_free(ProfilesTab.make(settings, false, Callable()))
 	add_child(in_room)
 	await await_idle_frame()
 	assert_bool((in_room.rows["1"]["switch"] as Button).disabled).is_true()
+	in_room.new_button.pressed.emit()
+	in_room.dialog.field.text = "Fay"
+	in_room.dialog.ok_button.pressed.emit()
+	await await_idle_frame()
+	assert_str(settings.profile.id).is_equal("3")
+	assert_int(settings.profiles().size()).is_equal(4)
 
 
 ## The settings' pages run License, Players, Controls, Audio, Video, Accessibility, Profiles and
