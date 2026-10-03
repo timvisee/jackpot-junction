@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 id = &"coin_magnet"
-display_name = "Coin Magnet"
+display_name = "Chip Magnet"
 description = "Chips fly to you for 8 s."
 weight = 15.0
 color = Color(0.2627, 0.7686, 0.3882, 1)

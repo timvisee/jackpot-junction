@@ -13,4 +13,4 @@ func modify_coin_value(_kart: Kart, chip: Chip, value: int) -> int:
 
 
 func stack_values(copies: int) -> Dictionary:
-	return {"coins": counted(worth(copies), "coin", "coins")}
+	return {"coins": counted(worth(copies), "chip", "chips")}

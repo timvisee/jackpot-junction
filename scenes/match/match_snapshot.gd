@@ -324,7 +324,7 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 	_hear_own_kart(match_node)
 	_apply_bullets(match_node, data["bullets"])
 	_apply_pickups(match_node, data["pickups"], data.get("gone", []), bool(data.get("whole", true)))
-	# The few that are going somewhere: pulled in by a Coin Magnet, or still in the air from
+	# The few that are going somewhere: pulled in by a Chip Magnet, or still in the air from
 	# whatever dropped them. Everything else is where it was told to be once and stays there.
 	for move: Array in data.get("moved", []):
 		var moving: Variant = match_node.puppet_pickups.get(move[0])
@@ -707,7 +707,7 @@ static func _take_pickup(match_node: Match, id: int) -> void:
 
 
 ## Whose kart took it, judged by who was near enough to. Each kart is asked about its own reach
-## rather than a flat distance, because the Coin Magnet triples it: a chip pulled in from three
+## rather than a flat distance, because the Chip Magnet triples it: a chip pulled in from three
 ## meters away was outside the old answer, so nothing flew and the chip simply blinked out, which
 ## is the one thing GAME.md 8.3 says a pickup never does.
 ##

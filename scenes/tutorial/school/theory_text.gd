@@ -46,9 +46,9 @@ const CHAPTERS: Array[Array] = [
 		],
 	],
 	[
-		"Coins and pots",
+		"Chips and pots",
 		[
-			"Coins collected go to your pot. The pot is yours until it isn't.",
+			"Chips collected go to your pot. The pot is yours until it isn't.",
 			"Only banked points are safe. Nothing else is. Not even this book.",
 			"A kart that dies loses part of its pot. The remainder is the kart's own business.",
 			"When in doubt, the Junction is in the middle.",
@@ -185,7 +185,7 @@ const OBJECTS: Array[String] = [
 	"proceed at a reasonable speed",
 	"stop at every pad",
 	"respect the hazard stripes",
-	"count their coins",
+	"count their chips",
 	"mind the pit",
 	"take the turret's shot on a shield",
 	"hold all four pads at once",

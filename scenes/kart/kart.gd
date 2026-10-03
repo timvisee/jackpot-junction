@@ -116,7 +116,7 @@ var held_item: PowerUp
 ## Seconds until a freshly taken item is revealed and usable.
 var item_reveal_left := 0.0
 var effects: Array[KartEffect] = []
-## Multiplier on the pickup radius from the Coin Magnet.
+## Multiplier on the pickup radius from the Chip Magnet.
 var pickup_radius_bonus := 1.0
 var last_bump_slot := -1
 var last_bump_time := -INF
@@ -791,12 +791,12 @@ func overlapping_pickups() -> Array[Pickup]:
 	return result
 
 
-## Recomputes the pickup radius from the rules, the jokers and the Coin Magnet.
+## Recomputes the pickup radius from the rules, the jokers and the Chip Magnet.
 func refresh_pickup_radius() -> void:
 	_pickup_shape.radius = pickup_reach()
 
 
-## How far the kart reaches for a pickup: the rules', bent by the jokers and the Coin Magnet.
+## How far the kart reaches for a pickup: the rules', bent by the jokers and the Chip Magnet.
 func pickup_reach() -> float:
 	var radius := rules.pickup_radius
 	for joker: Joker in jokers.jokers:

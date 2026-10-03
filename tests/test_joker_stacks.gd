@@ -64,10 +64,10 @@ func test_every_card_fills_in_its_numbers_and_a_stack_marks_what_it_changed() ->
 
 func test_the_numbers_a_stack_says() -> void:
 	assert_str(_joker("vulture").describe(2, MARK)).starts_with(
-		"Chips dropped by other karts are worth <4 coins> to you."
+		"Chips dropped by other karts are worth <4 chips> to you."
 	)
-	assert_str(_joker("payday").describe(1, MARK)).starts_with("+1 coin every second")
-	assert_str(_joker("payday").describe(3, MARK)).starts_with("+<3 coins> every second")
+	assert_str(_joker("payday").describe(1, MARK)).starts_with("+1 chip every second")
+	assert_str(_joker("payday").describe(3, MARK)).starts_with("+<3 chips> every second")
 	assert_str(_joker("hair_trigger").describe(2, MARK)).starts_with("Fire cooldown <-46%>.")
 	assert_str(_joker("curve_ball").describe(3, MARK)).contains("up to <300°> a second")
 	assert_str(_joker("toll_booth").describe(3, MARK)).contains("you bank <35%> of it")
@@ -196,12 +196,12 @@ func test_the_pane_says_a_stacks_numbers_in_gold() -> void:
 	var gold := "[color=#%s]" % JokerDetail.STACK.to_html(false)
 	detail.show_joker(_joker("vulture"), 1)
 	assert_str(detail._body.text).not_contains("[color")
-	assert_str(detail._body.text).contains("3 coins")
+	assert_str(detail._body.text).contains("3 chips")
 	detail.show_joker(_joker("vulture"), 2)
-	assert_str(detail._body.text).contains(gold + "4 coins[/color]")
+	assert_str(detail._body.text).contains(gold + "4 chips[/color]")
 	# On offer, what taking it would make it.
 	detail.show_joker(_joker("vulture"), 2, true)
-	assert_str(detail._body.text).contains(gold + "5 coins[/color]")
+	assert_str(detail._body.text).contains(gold + "5 chips[/color]")
 
 
 ## Two Wild Cards offer seven, and seven fit across the screen, alone and sharing it.
@@ -242,10 +242,10 @@ func test_two_wild_cards_offer_seven_and_they_fit() -> void:
 func test_the_details_say_one_copys_numbers_and_how_far_it_stacks() -> void:
 	var vulture := _joker("vulture")
 	assert_str(vulture.describe(2, MARK, true)).is_equal(
-		"Chips dropped by other karts are worth <4 coins> (3 coins) to you. Stacks up to ×3."
+		"Chips dropped by other karts are worth <4 chips> (3 chips) to you. Stacks up to ×3."
 	)
 	assert_str(vulture.describe(1, MARK, true)).is_equal(
-		"Chips dropped by other karts are worth 3 coins to you. Stacks up to ×3."
+		"Chips dropped by other karts are worth 3 chips to you. Stacks up to ×3."
 	)
 	assert_str(_joker("spare_tire").describe(2, MARK, true)).starts_with(
 		"<Two more lives> (one more life). Lost"
@@ -256,7 +256,7 @@ func test_the_details_say_one_copys_numbers_and_how_far_it_stacks() -> void:
 	var detail: JokerDetail = auto_free(JokerDetail.new())
 	add_child(detail)
 	detail.show_joker(vulture, 2, false, true)
-	assert_str(detail._body.text).contains("4 coins[/color] (3 coins) to you")
+	assert_str(detail._body.text).contains("4 chips[/color] (3 chips) to you")
 	assert_str(detail._body.text).ends_with("Stacks up to ×3.")
 	detail.show_joker(vulture, 2)
 	assert_str(detail._body.text).not_contains("Stacks")

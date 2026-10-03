@@ -19,10 +19,10 @@ const DICE_AT: Array[Vector2i] = [
 const DICE := 3
 ## What the word at the top says at each part.
 const FLUSH_WORDS := (
-	"Royal Flush pads pay out coins when you hold them.\n" + "Hold all four to lock them in."
+	"Royal Flush pads pay out chips when you hold them.\n" + "Hold all four to lock them in."
 )
 const JACKPOT_WORDS := "Stand on a Jackpot to collect its pot."
-const MULT_WORDS := "Mult multiplies your pot.\nBalance coins and mult for the best score."
+const MULT_WORDS := "Mult multiplies your pot.\nBalance chips and mult for the best score."
 
 var _flush: TutorialTask
 var _drain: TutorialTask
@@ -33,7 +33,7 @@ var _zone: JackpotZone
 func _init() -> void:
 	title = "Pads"
 	spawn_cell = SPAWN
-	reveals = [[&"pot", "Collected coins go to your pot", []]]
+	reveals = [[&"pot", "Collected chips go to your pot", []]]
 	_flush = add_task("Hold all four Royal Flush pads at once", "")
 	_flush.arrow = Vector2i(24, 44)
 	_drain = add_task("Drain the Jackpot", "", [], true)

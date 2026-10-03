@@ -340,7 +340,7 @@ func test_pads_flush_their_own_room_and_drain_the_jackpot() -> void:
 	for pad: JunctionPad in arena.junctions:
 		assert_bool(pad.visible).is_false()
 	assert_bool(lesson._signs.is_empty()).is_true()
-	assert_str(run.notice.said()).contains("Royal Flush pads pay out coins")
+	assert_str(run.notice.said()).contains("Royal Flush pads pay out chips")
 	assert_str(lesson._flush.hint).is_equal("")
 	for pad: CoinPad in arena.coin_pads:
 		assert_bool(pad.visible).is_false()
@@ -384,7 +384,7 @@ func test_pads_flush_their_own_room_and_drain_the_jackpot() -> void:
 	assert_str(lesson._drain.hint).is_equal("")
 	assert_bool(run.reveal.is_pointing()).is_true()
 	assert_str(run.reveal.line()).contains("Mult will multiply your pot")
-	assert_str(lesson.reveals[0][1]).is_equal("Collected coins go to your pot")
+	assert_str(lesson.reveals[0][1]).is_equal("Collected chips go to your pot")
 	assert_vector(lesson._mult.arrow).is_not_equal(Vector2i(-1, -1))
 	for i: int in TutorialPads.DICE:
 		Events.mult_gained.emit(0, 1.0, &"die")

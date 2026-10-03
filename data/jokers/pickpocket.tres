@@ -6,6 +6,6 @@
 script = ExtResource("1_script")
 id = &"pickpocket"
 display_name = "Pickpocket"
-description = "Kills move 50% of the victim's coins into your pot; the victim drops none."
+description = "Kills move 50% of the victim's chips into your pot; the victim drops none."
 rarity = 1
 kind = 1

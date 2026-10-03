@@ -590,7 +590,7 @@ func test_a_box_a_client_broke_stays_broken_until_the_host_says_otherwise() -> v
 
 
 ## GAME.md 8.3: a pickup is never simply taken off the floor, it flies into the kart that took it.
-## A client works out who took it from who was near enough, and the Coin Magnet triples how near
+## A client works out who took it from who was near enough, and the Chip Magnet triples how near
 ## that is: a chip pulled in from three meters away was outside the old answer, so nothing flew
 ## and the chip blinked out, which is the one thing a pickup is not supposed to do.
 func test_a_chip_pulled_in_by_a_magnet_still_flies_into_the_kart() -> void:
@@ -767,7 +767,7 @@ func test_the_floor_is_sent_as_what_changed() -> void:
 	)
 
 
-## GAME.md 8.3: a pickup is never simply taken off the floor. A Coin Magnet drags chips toward
+## GAME.md 8.3: a pickup is never simply taken off the floor. A Chip Magnet drags chips toward
 ## the kart, and a client that was never told they were moving watched one sit where it first saw
 ## it and then blink out from there, which is both halves of the effect missed at once.
 func test_a_chip_being_pulled_in_moves_on_a_client_and_then_flies() -> void:

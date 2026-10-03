@@ -32,7 +32,7 @@ const NAMES: Array[String] = [
 	"Jackpot Jerry",
 	"Slot Machine",
 	"Handbrake Hal",
-	"Coin Gremlin",
+	"Chip Gremlin",
 	"Mult Muncher",
 	"Oil Slick Rick",
 	"Bank Run Bob",

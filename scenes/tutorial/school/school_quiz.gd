@@ -11,7 +11,7 @@ signal passed
 
 ## Each question: the words, the three answers, and which of them is right.
 const QUESTIONS: Array[Array] = [
-	["What goes in your pot?", ["Coins", "Soup", "Regret"], 0],
+	["What goes in your pot?", ["Chips", "Soup", "Regret"], 0],
 	["What is safe from everybody?", ["Your pot", "Your bank", "Nothing, ever"], 1],
 	["A Royal Flush is...", ["All four pads, held at once", "A plumbing matter", "Luck"], 0],
 ]

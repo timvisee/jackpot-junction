@@ -1,6 +1,6 @@
 extends GdUnitTestSuite
 ## Power-ups from GAME.md 7.1 and 7.2 in a running match: pads, item boxes, Boost, Shield,
-## Turret, Ricochet Cannon and Coin Magnet.
+## Turret, Ricochet Cannon and Chip Magnet.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const TABLE: PowerUpTable = preload("res://data/powerups/first_set.tres")

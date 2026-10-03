@@ -43,6 +43,12 @@ multiplayer, then online multiplayer.
 
 ## 2. Core loop
 
+What a player picks up and carries in the pot are called chips on every screen, in every card
+and lesson: they are poker chips, and the game used to call the same thing chips in one place,
+coins in another and points in a third. Points are the banked score, a pot's chips times its
+mult. This document and the code call the chips coins in places, `coins` in the pot and the
+stats; a player never reads that word.
+
 Within a life:
 
 1. Spawn with an empty pot: 0 coins, mult 1.
@@ -421,8 +427,8 @@ on the right in gold. The row of whoever is reading the screen is lifted a shade
 out of the rest. Under each player up to three awards pick out what they did most
 compared with the others, as separate chips rather than run together into one
 sentence, leaders first, ranked by how far ahead of the others' average they
-are: Trigger Happy (shots fired), Butterfingers (coins lost), Vacuum Cleaner
-(coins picked up), Card Shark (jokers taken), Road Warrior (distance driven),
+are: Trigger Happy (shots fired), Butterfingers (chips lost), Vacuum Cleaner
+(chips picked up), Card Shark (jokers taken), Road Warrior (distance driven),
 Sideways Specialist (distance drifted), Close Shave (grazes), Regular Customer
 (cash-outs), Big Spender (biggest cash-out), Gadgeteer (items used), Nitro
 Junkie (nitro time), Pad Hopper (turbo pads), Multiplier Maniac (peak mult),
@@ -433,7 +439,7 @@ restored), Spelunker (pit falls), Own Goal (self kills), Crash Test Dummy
 to the boost), Card Counter (flush pads taken), Banana Skin (spins on oil), Last
 Word (places taken in sudden death), Knocking on the Door (match points, counted
 as they are called out, 3.4, so a pot hovering on the line is one), Piggy Bank
-(coins dropped on the floor, at a death or knocked out by a ram), Battering Ram
+(chips dropped on the floor, at a death or knocked out by a ram), Battering Ram
 (players rammed, once a ram, whether it popped a shield, took a life, killed or
 only knocked coins out) and Marksman (accuracy: the share of shots fired that
 landed on another kart, shield or not, once 10 or more have been fired, so one
@@ -1656,7 +1662,7 @@ First set:
 | Shield          | 25     | Absorbs one bullet or ram, then pops. Expires after 10 s                        |
 | Turret          | 15     | Deploys a turret at your position. Rotates at 180°/s toward the nearest enemy, fires 1 default bullet per second. Lives 20 s or 1 hit. Kills credit you. Can hit you |
 | Ricochet Cannon | 20     | Next 8 shots bounce off walls once more and fly 25% faster                      |
-| Coin Magnet     | 15     | 8 s: pickup radius times 3, chips within it drift toward you at 6 m/s           |
+| Chip Magnet     | 15     | 8 s: pickup radius times 3, chips within it drift toward you at 6 m/s           |
 | Oil Stain       | 20     | Leaves a slick 1.8 m behind you for 25 s. Any kart whose center crosses it, you included, spins out. It never kills. The slick lies a little above the floor, clear of the Junction, the Jackpot tiles and every pad: those all stand proud of the floor, and a slick at floor level vanishes inside whichever one it was dropped on, which is exactly where somebody wants to drop one |
 | Bomb            | 20     | Drops a bomb 1.8 m behind you. It arms after 0.6 s and blows up when any kart, you included, drives over it, when a bullet hits it, or after 30 s. The 2.6 m blast kills karts, breaks crates and turrets and sets off other bombs. Kills credit you |
 
@@ -1664,7 +1670,7 @@ Later set, off by default and switched on per match in the lobby:
 
 | Power-up        | Effect                                                                          |
 |-----------------|---------------------------------------------------------------------------------|
-| Decoy Kart      | Spawns a bot kart in your color with a random trait, see 9.1. Lives 20 s or 1 hit. Its kills and coins credit you. Can hit you |
+| Decoy Kart      | Spawns a bot kart in your color with a random trait, see 9.1. Lives 20 s or 1 hit. Its kills and chips credit you. Can hit you |
 | Spread Cannon   | Next 6 shots fire 3 bullets in a 20° fan. The live bullet allowance triples with the fan, so the fan counts as one shot |
 | Swivel Cannon   | 12 s of free aim with the right stick, the mouse or a finger, no aim assist     |
 | Bullet Wipe     | Erases every bullet within 8 m                                                  |
@@ -1695,22 +1701,22 @@ a real downside. Starting set; balance is untested.
 | Nitro Habit      | Common   | Stat   | Drift exit boosts and turbo pads last three times as long                 |
 | Slipstream       | Common   | Rule   | Grazes give +1.5 mult instead of +0.5                                     |
 | Green Light      | Common   | Rule   | Turbo pads give +1 mult                                                   |
-| Vulture          | Common   | Rule   | Chips dropped by other karts are worth 3 coins to you                     |
-| Odometer         | Common   | Rule   | +1 coin for every 20 m you drive                                          |
+| Vulture          | Common   | Rule   | Chips dropped by other karts are worth 3 chips to you                     |
+| Odometer         | Common   | Rule   | +1 chip for every 20 m you drive                                          |
 | Spare Tire       | Common   | Rule   | One more life. The death that takes the last one takes the tire too, never dropped |
 | Insurance Policy | Uncommon | Rule   | Bank all that is left of your pot on death                                |
-| Tight Grip       | Uncommon | Rule   | Your pot never spills: no coins dropped on death or knocked out by a ram  |
+| Tight Grip       | Uncommon | Rule   | Your pot never spills: no chips dropped on death or knocked out by a ram  |
 | Getaway Driver   | Uncommon | Rule   | Junction drain ramps twice as fast, D = 0.25 s                            |
-| Pickpocket       | Uncommon | Rule   | Kills move 50% of the victim's coins into your pot; the victim drops none |
+| Pickpocket       | Uncommon | Rule   | Kills move 50% of the victim's chips into your pot; the victim drops none |
 | Rubber Bumpers   | Uncommon | Rule   | Your bullets bounce off walls once more                                   |
 | Comeback         | Uncommon | Rule   | Respawn with mult equal to half your mult at death, rounded up            |
 | Loaded Dice      | Uncommon | Rule   | Every chip has a 25% chance to count as a gold chip                       |
 | Toll Booth       | Uncommon | Rule   | Whenever another kart completes a cash-out, you bank 15% of it            |
-| Tailslide        | Uncommon | Rule   | +1 coin for every 8 m you drift                                           |
+| Tailslide        | Uncommon | Rule   | +1 chip for every 8 m you drift                                           |
 | Guardian Angel   | Uncommon | Rule   | A hit about to cost you a life uses the Shield or Bullet Wipe you hold instead, the moment it lands: a Shield takes any hit, a Bullet Wipe a shot only. An item still being rolled for off a pad is not yours yet. Its card pulls out of the hand and glows when it does, see 8.3 |
 | Jerry Can        | Uncommon | Stat   | Nitro refills 4x as fast                                                  |
 | Direct Debit     | Uncommon | Rule   | 5 points of your pot bank themselves every second, wherever you are. Your mult is left alone |
-| Payday           | Uncommon | Rule   | +1 coin every second, wherever you are and whatever you are doing        |
+| Payday           | Uncommon | Rule   | +1 chip every second, wherever you are and whatever you are doing        |
 | High Roller      | Uncommon | Cursed | All mult gains are doubled, but death banks 0%                            |
 | Curve Ball       | Uncommon | Rule   | Your bullets curve hard toward enemies: a 55° cone out to 22 m at 150°/s, and they keep curving after a bounce |
 | Aimbot           | Rare     | Rule   | Every shot leaves the barrel turned up to 14° toward the nearest enemy within 20 m and in front of you |
@@ -3902,9 +3908,9 @@ pauses, while the kart is near the pads of the steering room; "Use nitro to boos
 in tight corners. Hold a drift to build turbo."; nothing in the gallery; "Drive
 over a box to pick up an item. Use it with E.", until one has been used; "Joker
 cards bend rules in your favor. A killed kart may drop a joker. When you die you
-can choose a joker. Use them to your advantage."; "Royal Flush pads pay out coins
+can choose a joker. Use them to your advantage."; "Royal Flush pads pay out chips
 when you hold them. Hold all four to lock them in."; "Stand on a Jackpot to
-collect its pot."; "Mult multiplies your pot. Balance coins and mult for the
+collect its pot."; "Mult multiplies your pot. Balance chips and mult for the
 best score."; "You lose part of your pot when you die. Only banked points are
 safe." Each lesson's word goes with the lesson. The one word that is not a
 lesson's is for a joker pick, see 3.7, that opens on a hand that is already
@@ -3953,7 +3959,7 @@ reading is the one thing left when the pointer says how, and until the hand has
 been read, the card stepping aside while the hand is open, when the cards still
 to read wear an eye each in the middle of the card, where the next card of a
 fanned hand does not cover it; the pot with
-the pads lesson, "Collected coins go to your pot", and the mult pill of the pot
+the pads lesson, "Collected chips go to your pot", and the mult pill of the pot
 with its dice, "Your mult: coins times this is your pot"; and the bank with
 the Junction's, "Bank: safe" behind a shut padlock, with a second card and
 frame on the pot at the same time, "Pot: at risk" behind an open one, since
@@ -4918,7 +4924,7 @@ other before it will pass.
   means one lost packet changes nothing. The whole floor goes out on its own clock
   regardless, so a client that missed something is never wrong for long, and a
   client that has only just arrived is sent all of it at once rather than waiting.
-  The few pickups that are actually going somewhere — pulled in by a Coin Magnet,
+  The few pickups that are actually going somewhere — pulled in by a Chip Magnet,
   or still in the air from whatever dropped them — carry their position every
   snapshot, as an id and a place and nothing else.
 - Hits, pickups, banking and scoring are server-authoritative. The server seeds

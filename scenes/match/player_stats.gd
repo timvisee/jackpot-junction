@@ -53,8 +53,8 @@ const SAME_STORY: Array[Array] = [[&"coins_lost", &"coins_dropped"]]
 ## Award title and value format per field.
 const AWARDS: Dictionary[StringName, Array] = {
 	&"bullets": ["Trigger Happy", "%d shots fired"],
-	&"coins_lost": ["Butterfingers", "%d coins lost"],
-	&"coins": ["Vacuum Cleaner", "%d coins picked up"],
+	&"coins_lost": ["Butterfingers", "%d chips lost"],
+	&"coins": ["Vacuum Cleaner", "%d chips picked up"],
 	&"jokers": ["Card Shark", "%d jokers taken"],
 	&"driven": ["Road Warrior", "%.0f m driven"],
 	&"drifted": ["Sideways Specialist", "%.0f m drifted"],
@@ -80,7 +80,7 @@ const AWARDS: Dictionary[StringName, Array] = {
 	&"oil_spins": ["Banana Skin", "%d spins on oil"],
 	&"overtakes": ["Last Word", "%d places taken in sudden death"],
 	&"match_points": ["Knocking on the Door", "%d match points"],
-	&"coins_dropped": ["Piggy Bank", "%d coins dropped"],
+	&"coins_dropped": ["Piggy Bank", "%d chips dropped"],
 	&"rams": ["Battering Ram", "%d players rammed"],
 	&"accuracy": ["Marksman", "%.0f%% of shots on target"],
 }

@@ -1,6 +1,6 @@
 class_name CoinMagnetPowerUp
 extends PowerUp
-## Coin Magnet: a much wider pickup radius, and chips inside it drift toward the kart.
+## Chip Magnet: a much wider pickup radius, and chips inside it drift toward the kart.
 
 @export var duration := 8.0
 @export var radius_multiplier := 3.0

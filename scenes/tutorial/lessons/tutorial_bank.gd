@@ -32,7 +32,7 @@ func _init() -> void:
 	_fill = add_task("Fill your pot from the Jackpot", "")
 	_fill.arrow = JACKPOT
 	_fill.arrow_rect = JACKPOT_RECT
-	_bank = add_task("Bank the coins of your pot at the Junction", BANK, [], true)
+	_bank = add_task("Bank the chips in your pot at the Junction", BANK, [], true)
 	_bank.arrow = JUNCTION
 	_bank.arrow_rect = JUNCTION_RECT
 	pointer_until = _bank

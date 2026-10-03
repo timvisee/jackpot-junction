@@ -22,4 +22,4 @@ func on_step(kart: Kart, delta: float) -> int:
 
 
 func stack_values(copies: int) -> Dictionary:
-	return {"coins": counted(copies, "coin", "coins")}
+	return {"coins": counted(copies, "chip", "chips")}
