@@ -3,15 +3,16 @@ extends VBoxContainer
 ## The box a list of servers or games is shown in, GAME.md 9.3 and 9.3a: a well sunk into the
 ## screen, darker than it with a shade along its inside top edge and a faint rim, under a small
 ## gray heading, with room for about five rows, which scrolls once there are more. It is there and
-## as big empty as full, with a line in the middle of it saying why it is empty, so the list reads
-## as the list and the buttons round it as buttons rather than one column running into the next.
+## as big empty as full, so the list reads as the list and the buttons round it as buttons rather
+## than one column running into the next.
 ## Sunk into the screen rather than raised off it: the game's pane, the gold-barred card of the
 ## questions and the pause menu, read as a dialog box come up over the screen, and this is part of
 ## it. Play Online's servers, LAN games' games and a server's games are each shown in one.
 ##
-## At the very bottom of the well, under the rows or the line saying there are none, a link the way
-## to put something on the list: Add a server, Host a game or Make a game, the same as the button
-## for it under the box, but where the eye already is when it finds the list wanting.
+## Under the last row of the list is a link, the way to put something on it: Add a server, Host a
+## game or Make a game, the same as the button for it under the box, but where the eye already is
+## when it finds the list wanting. An empty list is the link alone at the top, where it would have
+## said it was empty, which is the same thing said as something to do about it.
 
 ## How wide the box is, and how tall its room for rows: five of the tallest, with the gaps.
 const WIDTH := 760.0
@@ -36,7 +37,6 @@ var list: Control
 var link: LinkButton
 
 var _heading: Label
-var _empty: Label
 var _scroll: ScrollContainer
 
 
@@ -67,16 +67,15 @@ class Well:
 		draw_style_box(rim, whole)
 
 
-## A box headed [param heading] holding [param rows], saying [param empty] while it has none, with
-## [param linked] on the link at its bottom.
-static func of(heading: String, rows: Control, empty: String, linked: String) -> ListBox:
+## A box headed [param heading] holding [param rows], and under them a link saying [param linked].
+static func of(heading: String, rows: Control, linked: String) -> ListBox:
 	var box := ListBox.new()
 	box.list = rows
-	box._build(heading, empty, linked)
+	box._build(heading, linked)
 	return box
 
 
-func _build(heading: String, empty: String, linked: String) -> void:
+func _build(heading: String, linked: String) -> void:
 	add_theme_constant_override("separation", 8)
 	custom_minimum_size = Vector2(WIDTH, 0.0)
 	size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -88,29 +87,23 @@ func _build(heading: String, empty: String, linked: String) -> void:
 	var well := Well.new()
 	well.name = "Well"
 	add_child(well)
-	var inside := VBoxContainer.new()
-	inside.add_theme_constant_override("separation", 10)
-	well.add_child(inside)
 	var room := Control.new()
 	room.custom_minimum_size = Vector2(0.0, ROOM)
-	inside.add_child(room)
-	link = _link(linked)
-	inside.add_child(link)
+	well.add_child(room)
 	_scroll = ScrollContainer.new()
 	_scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_scroll.follow_focus = true
 	room.add_child(_scroll)
+	var items := VBoxContainer.new()
+	items.name = "Items"
+	items.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	items.add_theme_constant_override("separation", 8)
+	_scroll.add_child(items)
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_scroll.add_child(list)
-	_empty = MenuTheme.subtitle(empty, Type.BODY)
-	_empty.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	room.add_child(_empty)
-	list.child_entered_tree.connect(func(_row: Node) -> void: _refresh.call_deferred())
-	list.child_exiting_tree.connect(func(_row: Node) -> void: _refresh.call_deferred())
-	_refresh()
+	items.add_child(list)
+	link = _link(linked)
+	items.add_child(link)
 
 
 ## The row the buttons under a box stand in, side by side and as wide as the box together, so they
@@ -142,7 +135,7 @@ static func fit(line: Label) -> Label:
 
 
 ## A link saying [param text]: underlined words in gold with nothing round them, a gold rim under
-## the cursor, centered at the bottom of the well.
+## the cursor, centered under the rows.
 static func _link(text: String) -> LinkButton:
 	var button := LinkButton.new()
 	button.name = "Link"
@@ -175,22 +168,9 @@ func set_heading(heading: String) -> void:
 	_heading.text = heading.to_upper()
 
 
-func set_empty(empty: String) -> void:
-	_empty.text = empty
-
-
-## Whether there is nothing to show, which the line in the middle says.
+## Whether there are no rows under the link.
 func is_empty() -> bool:
 	for row: Node in list.get_children():
 		if not row.is_queued_for_deletion():
 			return false
 	return true
-
-
-## The line in the middle while there are no rows, and the rows while there are.
-func _refresh() -> void:
-	if not is_instance_valid(_empty):
-		return
-	var nothing := is_empty()
-	_empty.visible = nothing
-	_scroll.visible = not nothing

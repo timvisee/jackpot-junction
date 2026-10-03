@@ -17,8 +17,6 @@ extends Control
 ## Back from one of the server's games, the screen connects to it again by itself and goes on to
 ## its games, saying why it is back: a wrong password, a kick, a game that is over.
 
-## What the list says while it is empty.
-const NONE_YET := "No servers yet. Add one or connect directly."
 ## How long the bar takes to ease along while a server is being knocked at, in seconds: as long as
 ## nobody answering takes to be given up on, see [method NetLine.trying], and how far it goes.
 const KNOCK_FOR := NetLine.CONNECT_TIMEOUT_MAX / 1000.0
@@ -80,7 +78,7 @@ func _ready() -> void:
 		func(server: Dictionary) -> void: _connect_to(server["address"], server["port"])
 	)
 	_servers.removing.connect(_ask_to_remove)
-	servers_box = ListBox.of("Your servers", _servers, NONE_YET, "Add a server")
+	servers_box = ListBox.of("Your servers", _servers, "Add a server")
 	servers_box.link.pressed.connect(func() -> void: show_form(true))
 	column.add_child(servers_box)
 	var ways := ListBox.button_row()

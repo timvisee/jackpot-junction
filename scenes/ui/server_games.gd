@@ -41,7 +41,11 @@ func _ready() -> void:
 	var column := MenuTheme.screen(self, 16)
 	column.add_child(MenuTheme.title("Games", 64))
 	var at := "%s:%d" % [link.address, link.port] if link != null else "the server"
-	column.add_child(ListBox.fit(MenuTheme.subtitle("Connected to %s" % at)))
+	column.add_child(
+		ListBox.fit(
+			MenuTheme.subtitle("Connected to %s. Join a game on this server, or make one now." % at)
+		)
+	)
 	note = ListBox.fit(red_line())
 	note.text = Game.play_online_note
 	note.visible = not note.text.is_empty()
@@ -49,7 +53,7 @@ func _ready() -> void:
 	column.add_child(note)
 	_games = GameList.new()
 	_games.chosen.connect(_join)
-	_box = ListBox.of("Games on this server", _games, "No games on this server yet", "Make a game")
+	_box = ListBox.of("Games on this server", _games, "Make a game")
 	_box.link.pressed.connect(_make)
 	column.add_child(_box)
 	make_button = MenuTheme.button("Make a game")

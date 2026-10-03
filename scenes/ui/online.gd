@@ -40,9 +40,7 @@ func _ready() -> void:
 	)
 	_found = GameList.new()
 	_found.chosen.connect(_join_found)
-	_box = ListBox.of(
-		"Games on your network", _found, "Looking for games on your network...", "Host a game"
-	)
+	_box = ListBox.of("Games on your network", _found, "Host a game")
 	_box.link.pressed.connect(func() -> void: _start("host"))
 	column.add_child(_box)
 	finder = LanFinder.new()

@@ -37,8 +37,8 @@ below, and hands the notes to the release workflow.
 
 - **One way in to playing online.** The title has Play and Play Online; games on your network are
   under Play Online's LAN games, with Host a game and Direct connect.
-- **Lists in a box of their own.** Servers and games are listed in a sunken box with a link at its
-  foot to add or host one; addresses and connecting are dialogs, and icons remove and watch.
+- **Lists in a box of their own.** Servers and games are listed in a sunken box, a link to add or
+  host one at its top; addresses and connecting are dialogs, and icons remove and watch.
 - **Seats on the Players page.** Its rows are Seat 1 to Seat 4, under a line saying what the page
   is for.
 - **The License page during the driving test.** Opened from the test, it says the license is in

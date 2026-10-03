@@ -3498,12 +3498,13 @@ screen finds the games on the network by itself and lists every game that answer
 every list of games and servers is shown in: a well sunk into the screen, darker than it, with a
 shade along its inside top edge and a faint rim, under a small gray heading, "Games on your
 network", with room for about five rows whether or not there are any, which scrolls once there are
-more, and while there are none a line in its middle, "Looking for games on your network...".
-Empty, it still marks the list off from the buttons under it. At the very bottom of the well,
-centered under the rows or the line saying there are none, is a link to put something on the list,
-underlined words in gold with a gold rim under the cursor, which a click or the cursor presses:
-Host a game here, Add a server on Play Online and Make a game on a server's games, each the same as
-its button under the box, but where the eye already is when it finds the list wanting. Sunk in rather than raised: the
+more. Empty, it still marks the list off from the buttons under it. Under the last row is a link
+to put something on the list, centered and scrolling with the rows, underlined words in gold with
+a gold rim under the cursor, which a click or the cursor presses: Host a game here, Add a server on
+Play Online and Make a game on a server's games, each the same as its button under the box, but
+where the eye already is when it finds the list wanting. An empty list is the link alone at its
+top, where it once said it was empty, "No servers yet" and the like, which is the same thing said
+as something to do about it. Sunk in rather than raised: the
 game's gold-barred pane, tried first, read as a dialog box come up over the screen rather than a
 part of it. A row each: a
 button saying whose it is, whether it is
@@ -3634,8 +3635,7 @@ servers they keep, a
 button with the server's name over its address and port, the address smaller and in gray since
 the name is what the player gave it to be known by, which connects to it, and a trash can beside
 it, "Remove" its tooltip, which asks first, "Remove this server?", with Remove and Keep. The list is empty to start
-with and says so in the middle of the box, "No servers yet. Add one or connect directly.", and
-keeps up to 20. Under it, side by side as LAN games' are,
+with, the box holding only its link, Add a server, and keeps up to 20. Under it, side by side as LAN games' are,
 Add a server, Direct connect and LAN games, see 9.3. Add a server and Direct connect ask for the
 server's address and its port, 7777 to start with, in the dialog LAN games asks in, and Add a
 server for a name too, which may be left empty for its address to stand for it: Add keeps it and
@@ -3656,10 +3656,11 @@ to watch is chosen on the second, game by game, since a server holds several. Th
 server connected to last, and the address and port a LAN game was joined at are the player's,
 not the machine's: they go with the player's profile. The second, Games, lists the server's games
 the way LAN games lists the games on the network, in the same box, headed "Games on this server"
-and saying "No games on this server yet" while there are none,
+and with Make a game as its link,
 a row each saying whose it is, whether it is still in the lobby, how many play in it of how many
 may and whether it wants a password, which joins it, with the eye beside it, and Make a game
-under them. Over the box it says which server it is, "Connected to" its address and port. On all
+under them. Over the box it says which server it is and what to do there, "Connected to" its address
+and port, "Join a game on this server, or make one now." On all
 three screens everything down the middle is as wide as the box: the lines of words wrap inside it
 rather than widening the column, and the buttons and Back fill it. Make a game asks the server for one, says it is making it in a dialog with a bar that
 fills as the server starts the game's process, the process starts up and its waiting room is built

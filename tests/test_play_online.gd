@@ -196,12 +196,12 @@ func test_add_keeps_a_server_on_the_list() -> void:
 	var screen := _screen()
 	await await_idle_frame()
 	assert_bool(screen.is_form_up()).is_false()
-	# The box is there empty, as big as full, saying so in its middle.
+	# The box is there empty, as big as full, with the link to add one alone at its top.
 	var box: ListBox = screen.servers_box
 	assert_bool(box.is_visible_in_tree()).is_true()
 	assert_bool(box.is_empty()).is_true()
-	assert_bool(box._empty.visible).is_true()
-	assert_str(box._empty.text).is_equal("No servers yet. Add one or connect directly.")
+	await await_idle_frame()
+	assert_float(box.link.position.y).is_less_equal(8.0)
 	assert_float(box.get_combined_minimum_size().y).is_greater(ListBox.ROOM)
 	screen.adding_button.pressed.emit()
 	assert_bool(screen.is_form_up()).is_true()
@@ -218,8 +218,7 @@ func test_add_keeps_a_server_on_the_list() -> void:
 	screen.port_field.text = "9100"
 	screen.add_button.pressed.emit()
 	assert_bool(screen.is_form_up()).is_false()
-	await await_idle_frame()
-	assert_bool(box._empty.visible).is_false()
+	assert_bool(box.is_empty()).is_false()
 	assert_int(Game.settings.servers.size()).is_equal(1)
 	assert_str(Game.settings.servers[0]["name"]).is_equal("Friday night")
 	var row: Button = screen._servers.connect_button(0)
@@ -280,8 +279,7 @@ func test_remove_asks_first() -> void:
 	screen._servers.remove_button(0).pressed.emit()
 	ask.yes_button().pressed.emit()
 	assert_bool(Game.settings.servers.is_empty()).is_true()
-	await await_idle_frame()
-	assert_bool(screen.servers_box._empty.visible).is_true()
+	assert_bool(screen.servers_box.is_empty()).is_true()
 
 
 ## Back from the boxes is the list again, and LAN games goes on to the games on the network.
@@ -409,8 +407,8 @@ func test_only_an_address_is_taken() -> void:
 	)
 
 
-## At the bottom of the box a link says how to put a server on the list, empty or not, and opens
-## the dialog for it, as Add a server under the box does.
+## Under the rows of the box is a link saying how to put a server on the list, alone at the top of
+## an empty one, and it opens the dialog for it, as Add a server under the box does.
 func test_the_box_ends_in_a_link_to_add_a_server() -> void:
 	var screen := _screen()
 	await await_idle_frame()
@@ -418,7 +416,8 @@ func test_the_box_ends_in_a_link_to_add_a_server() -> void:
 	assert_str(box.link.text).is_equal("Add a server")
 	assert_bool(box.link.is_visible_in_tree()).is_true()
 	assert_int(box.link.focus_mode).is_equal(Control.FOCUS_ALL)
-	assert_object(box.link.get_parent().get_parent()).is_same(box.get_node("Well"))
+	assert_object(box.link.get_parent()).is_same(box.list.get_parent())
+	assert_int(box.link.get_index()).is_greater(box.list.get_index())
 	box.link.pressed.emit()
 	assert_bool(screen.is_form_up()).is_true()
 	assert_bool(screen.add_button.visible).is_true()
@@ -426,4 +425,9 @@ func test_the_box_ends_in_a_link_to_add_a_server() -> void:
 	Game.settings.servers.append(ServerList.entry("", "a.example.org", 7777))
 	screen.show_list()
 	await await_idle_frame()
+	await await_idle_frame()
 	assert_bool(box.link.is_visible_in_tree()).is_true()
+	# With a server on the list, under its row.
+	assert_float(box.link.global_position.y).is_greater(
+		screen._servers.connect_button(0).get_global_rect().end.y
+	)

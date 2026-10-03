@@ -106,10 +106,9 @@ func _report(index: int, words: Dictionary) -> void:
 ## as the one who made it: to play, with the host's say to come.
 func test_make_a_game_goes_into_its_lobby_with_the_say() -> void:
 	var screen := await _screen()
-	# The games' box is there with none in it, saying so.
+	# The games' box is there with none in it but the link that makes one, as the button under it
+	# does.
 	assert_bool(screen._box.is_empty()).is_true()
-	assert_str(screen._box._empty.text).is_equal("No games on this server yet")
-	# The link at the bottom of the box makes one, as the button under it does.
 	assert_str(screen._box.link.text).is_equal("Make a game")
 	screen.make_button.pressed.emit()
 	assert_bool(screen.make_button.disabled).is_true()
@@ -163,7 +162,12 @@ func test_a_listed_game_is_joined_or_watched() -> void:
 	var said := screen.find_children("*", "Label", true, false).map(
 		func(each: Node) -> String: return (each as Label).text
 	)
-	assert_bool("Connected to 127.0.0.1:%d" % port in said).is_true()
+	(
+		assert_bool(
+			"Connected to 127.0.0.1:%d. Join a game on this server, or make one now." % port in said
+		)
+		. is_true()
+	)
 	_hall.make_game(_hall.multiplayer.get_peers()[0])
 	assert_bool(await _wait_until(func() -> bool: return not _launched.is_empty(), 4000)).is_true()
 	_entered.clear()
@@ -171,8 +175,7 @@ func test_a_listed_game_is_joined_or_watched() -> void:
 	var games: GameList = screen._games
 	var listed := await _wait_until(func() -> bool: return games.get_child_count() == 1, 4000)
 	assert_bool(listed).override_failure_message("the game never showed").is_true()
-	await await_idle_frame()
-	assert_bool(screen._box._empty.visible).is_false()
+	assert_bool(screen._box.is_empty()).is_false()
 	var join: Button = games.find_child("Join1", true, false)
 	assert_str(join.text).starts_with("Bo's game")
 	_entered.clear()
