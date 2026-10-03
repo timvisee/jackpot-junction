@@ -128,11 +128,16 @@ func test_the_ready_sign_stands_on_the_back_wall() -> void:
 
 
 ## The props are solid. Clutter everywhere else in the game is scenery a kart drives through;
-## these are the ones a kart is meant to drift round, which it cannot do through them.
+## these are the ones a kart is meant to drift round, which it cannot do through them. The wheels
+## stand a cell further from the back wall than their share of the room alone puts them, clear of
+## the room along the stalls there.
 func test_the_things_in_the_room_are_solid() -> void:
 	var room := await _open()
 	var match_node: Match = room.get_node("Match")
 	var props: Node3D = match_node.arena.get_node("WaitingProps")
+	var share := WaitingProps.PLACES[0].y * match_node.arena.world_size().y * 0.5
+	var down := share + match_node.arena.grid.cell_size
+	assert_float((props.get_node("Wheels") as Node3D).global_position.z).is_equal_approx(down, 0.01)
 	for child: Node in props.get_children():
 		var body := child as StaticBody3D
 		assert_object(body).override_failure_message("%s is not solid" % child.name).is_not_null()

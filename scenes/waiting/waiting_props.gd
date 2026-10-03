@@ -14,8 +14,10 @@ extends RefCounted
 
 ## Where each one stands, as a share of the arena's half size, and how far it reaches. The three
 ## sit off the middle so the pad in the center is left clear and the line to it from any spawn is
-## not blocked by one.
+## not blocked by one. The wheels stand [constant WHEELS_DOWN] cells further from the back wall
+## than their share alone puts them, clear of the room along the stalls there.
 const PLACES: Array[Vector2] = [Vector2(-0.52, -0.42), Vector2(0.55, 0.3), Vector2(-0.3, 0.52)]
+const WHEELS_DOWN := 1
 ## How far a kart is held off each of them, which is what a drift round one is measured against.
 const WHEEL_RADIUS := 1.1
 const DRUM_RADIUS := 0.62
@@ -32,6 +34,7 @@ static func add_to(arena: Arena) -> Node3D:
 	var spots: Array[Vector3] = []
 	for place: Vector2 in PLACES:
 		spots.append(Vector3(place.x * half.x, 0.0, place.y * half.y))
+	spots[0].z += arena.grid.cell_size * WHEELS_DOWN
 	_wheels(holder, surfaces, spots[0])
 	_drum(holder, surfaces, spots[1])
 	_cone(holder, surfaces, spots[2])

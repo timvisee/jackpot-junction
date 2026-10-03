@@ -4244,7 +4244,9 @@ It is the corner of the garage of 9.4 -- the same concrete bay, the same light, 
 round the walls -- and it is deliberately almost empty: a pad in the middle, four spawns and
 four things standing on the floor to drift round while the last player finds their seat. A
 stack of wheels, a cone, and a drum with a box opposite it down one side of the room -- two marks
-a few lengths apart, which is a figure of eight for anybody who wants one. The box is the only
+a few lengths apart, which is a figure of eight for anybody who wants one. The wheels stand a
+cell further from the back wall than the rest of their corner would put them, leaving room to
+come off the dressing stalls along that wall. The box is the only
 thing in here that breaks, and it comes back in seconds rather than the half minute a box takes
 in a match: it is there to be driven round, not to be hidden behind. They are solid, unlike the
 clutter in every other room, because driving through the one thing there is to drive round is

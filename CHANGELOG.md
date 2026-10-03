@@ -22,6 +22,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **More room by the lobby's stalls.** The stack of wheels in the lobby stands a step further from
+  the back wall.
 - **Untouchable karts stop bullets.** A kart just back or just hit no longer lets shots through:
   they stop on it harmlessly, with a small flash.
 - **An emote wheel you can read on a pad.** The right stick's wheel stays up while you hold the
