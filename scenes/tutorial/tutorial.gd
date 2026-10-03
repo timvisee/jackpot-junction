@@ -69,6 +69,7 @@ func _ready() -> void:
 	# The driving school's dressing, GAME.md 9.4a: the cones, the signs and the rest of it, and the
 	# L-plate on the back of the kart for the whole test.
 	SchoolProps.add_to(match_node.arena)
+	SchoolInspectors.add_to(match_node.arena, match_node.slots[0].kart)
 	KartVisuals.learner_plate(match_node.slots[0].kart)
 	# A room for learning in, not a nightclub, as the Garage is.
 	match_node.arena.disco.enabled = false

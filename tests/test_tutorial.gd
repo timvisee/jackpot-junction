@@ -78,6 +78,14 @@ func test_the_map_is_rooms_in_a_row_joined_by_gates() -> void:
 		assert_str(grid.glyph(cell)).is_equal(".")
 	for cell: Vector2i in [SchoolProps.BOOTH.position, SchoolProps.BOOTH.end - Vector2i.ONE]:
 		assert_str(grid.glyph(cell)).is_equal("#")
+	# The inspectors stand on wall tops, or outside the arena altogether.
+	for post: Array in SchoolInspectors.POSTS:
+		var cell: Vector2i = post[0]
+		var inside := cell.x >= 0 and cell.y >= 0 and cell.x < grid.width and cell.y < grid.height
+		if post[1]:
+			assert_str(grid.glyph(cell)).is_equal("#")
+		else:
+			assert_bool(inside).is_false()
 	# The pocket's target is past its pillar: no straight line from the window reaches it.
 	for cell: Vector2i in [
 		TutorialItems.POCKET,

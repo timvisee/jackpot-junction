@@ -3852,7 +3852,16 @@ breaks, and they stay broken for the rest of the test; bunting in the players'
 colors over the start pocket; a zebra crossing painted over the corridor and a
 parking bay at the far end of the straight; and the examiner's booth on the
 wall over the top of the last room, a cabin with a lit window looking down into
-it and a pennant on a pole either side. The kart wears the learner's L on its
+it and a pennant on a pole either side. Four inspectors from the Department of
+Karts watch the test: people built the way the crowd's are, 8.1, a third bigger,
+in gray suits with a hi-vis vest over them, a pale band round it, and a
+clipboard held at the chest with a pen over it. Three stand on the wall tops
+between the rooms, over the brake and reverse straight, over the drift room and
+over the start corridor by the final exam, and one on the table outside the
+arena by the jokers room, where a crowd would stand. Each turns to keep its eyes
+on the learner's kart wherever it is, and every few seconds one bows its head
+to the clipboard and writes something down for a moment and a half, which is
+never said. `SchoolInspectors`. The kart wears the learner's L on its
 rear bumper for the whole test, see 4.4. The loading screen says Driving test,
 the checklist is headed "Driving test ·" and the lesson, and the last lesson is
 the final exam. Nothing greets the player at the top of the first corridor: the

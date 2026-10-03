@@ -665,6 +665,21 @@ func test_the_pieces_a_lesson_is_about_stay_once_it_is_over() -> void:
 		assert_int((block as Crate).collision_layer).is_equal(Layers.WORLD)
 	(blocks[0] as Crate).hit(0)
 	assert_bool((blocks[0] as Crate).alive).is_false()
+	# The inspectors keep their eyes on the kart, and now and then write something down.
+	var inspectors: SchoolInspectors = tutorial.match_node.arena.get_node("SchoolInspectors")
+	assert_int(inspectors.people.size()).is_equal(SchoolInspectors.POSTS.size())
+	var first: Node3D = inspectors.people[0]["figure"]
+	for i: int in 120:
+		inspectors._process(1.0 / 60.0)
+	var toward := run.kart().global_position - first.global_position
+	var facing := first.global_basis.z
+	assert_float(Vector2(facing.x, facing.z).angle_to(Vector2(toward.x, toward.z))).is_less(0.1)
+	inspectors.people[0]["writing"] = 0.0
+	inspectors.people[0]["next_note"] = 0.01
+	for i: int in 30:
+		inspectors._process(1.0 / 60.0)
+	assert_bool(inspectors.writing(0)).is_true()
+	assert_float((inspectors.people[0]["head"] as Node3D).rotation.x).is_greater(0.1)
 	# And the kart wears the learner's L for the test.
 	var plate := run.kart().get_node_or_null("Body/Plate")
 	assert_object(plate).is_not_null()
