@@ -972,6 +972,14 @@ online screen and the settings, and not the title screen, where there is nowhere
 go. While the settings are listening for a new binding, B is a binding like any
 other button.
 
+A phone's keyboard comes up over the bottom of the screen, and a text box down there, a name or
+a plate in the settings, went under it, typed into blind. While a box is typed into and the
+keyboard covers it, a bar just above the keyboard shows what the box is for, from the words
+beside it in its row or its hint, and what is in it, the caret blinking where it is, a secret
+as dots. The typing still goes into the box itself, so everything that listens to it hears it as
+it always has; the bar goes as soon as the box lets go or the keyboard does, and a box the
+keyboard leaves clear gets none. `KeyboardBar`, put up on a touch screen only.
+
 A phone's own Back, the system's button or gesture, is B: it closes a question or a pane and
 backs out of a screen or out of the room's menu. Where B does nothing, in a match, the lobby,
 the Garage or the driving test with nothing up over them, it opens the room's menu, as the menu

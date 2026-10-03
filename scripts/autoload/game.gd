@@ -86,6 +86,9 @@ func _ready() -> void:
 	# gray, which flashed up as the game went.
 	RenderingServer.set_default_clear_color(MenuTheme.BACKGROUND)
 	add_child(FrameCounter.new())
+	# A text box the phone's keyboard comes up over is shown over the keyboard, GAME.md 8.3.
+	if TouchInput.enabled:
+		KeyboardBar.add_to(self)
 	# Closing the window is quitting, and goes the same way as the title's Quit, see [method quit].
 	get_tree().auto_accept_quit = false
 

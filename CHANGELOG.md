@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **See what you type on a phone.** A text box the keyboard covers is shown on a bar just above the
+  keyboard while you type into it.
 - **The Android back button.** It closes dialogs and backs out of screens like B on a pad, opens
   the menu in a match, and no longer quits the game.
 - **Ricochet kills show it.** A kill by a bullet that bounced off a wall has a bounce mark in the
