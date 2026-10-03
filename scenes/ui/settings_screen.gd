@@ -45,6 +45,9 @@ const TAB_ON := JOY_BUTTON_RIGHT_SHOULDER
 const TAB_HINT_INK := Color(0.60, 0.60, 0.63)
 const TAB_HINT_SIZE := 18
 
+## The page the next settings screen opens on, by its name, or the first.
+static var opening_on := ""
+
 var tabs: TabContainer
 var status: Label
 ## Laid over the room it was opened from rather than a scene of its own. Back closes it instead of
@@ -77,13 +80,20 @@ func _ready() -> void:
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	MenuTheme.tabs(tabs)
 	column.add_child(tabs)
+	# In the order GAME.md 8.5 has them.
 	tabs.add_child(LicenseTab.make(_settings))
-	tabs.add_child(_controls_tab())
 	tabs.add_child(_players_tab())
+	tabs.add_child(_controls_tab())
 	tabs.add_child(_audio_tab())
 	tabs.add_child(VideoTab.make(_settings))
 	tabs.add_child(_accessibility_tab())
+	tabs.add_child(ProfilesTab.make(_settings, not overlay, _on_profile_switched))
 	tabs.add_child(AboutTab.new())
+	if not opening_on.is_empty():
+		var page := tabs.get_node_or_null(NodePath(opening_on))
+		if page != null:
+			tabs.current_tab = page.get_index()
+		opening_on = ""
 	var foot := HBoxContainer.new()
 	column.add_child(foot)
 	status = Label.new()
@@ -95,6 +105,14 @@ func _ready() -> void:
 	back.pressed.connect(_back)
 	column.add_child(back)
 	back.grab_focus()
+
+
+## Another profile is playing now, or one was made or thrown away: the settings come up again for
+## it, every page reading the profile that is playing, on the Profiles page it was done on.
+func _on_profile_switched(_id: String) -> void:
+	_settings.save_to_disk()
+	opening_on = ProfilesTab.TITLE
+	Game.go_to_settings(Game.settings_return)
 
 
 ## The shoulders turn the pages and B on a pad, or Escape, is the Back button, GAME.md 4.2.

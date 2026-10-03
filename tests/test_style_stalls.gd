@@ -31,7 +31,7 @@ func before_test() -> void:
 
 
 func after_test() -> void:
-	DirAccess.remove_absolute(Game.settings.path)
+	Settings.remove_files(Game.settings.path)
 	Game.settings = _settings_were
 
 

@@ -2995,7 +2995,8 @@ small print, the smallest thing on any screen it opened over. The settings' tabs
 are cards too, padded like buttons and taller for a finger, the page showing lit
 with gold along its top.
 
-From the title the settings are a screen of their own. From the pause menu of a room they open
+The tabs, in order: License, Players, Controls, Audio, Video, Accessibility, Profiles and
+About. From the title the settings are a screen of their own. From the pause menu of a room they open
 over the room instead, and Back comes back to the pause menu: the match, and online the
 connection and everybody on it, carries on underneath untouched, and a room that goes while they
 are open keeps whatever was changed in them. On a pad the shoulder buttons step through the tabs,
@@ -3011,6 +3012,11 @@ like any other button.
   and Retake the driving test, which goes to the school; or, before one is
   earned, a word on where to get one, Earn it now, which goes to the school,
   and the learner's L the kart wears meanwhile.
+- **Players**: a box each for what the four seats at this machine are called,
+  see 3.8, with the funny-name hint in an empty one, and after each a small
+  button with the picture of how that seat drives, simple or advanced, that
+  changes it to the other, see 4.2. The first seat's is the Driving row of
+  Controls, and each shows what the other was changed to.
 - **Controls**: how the first player drives, simple or advanced, each a button
   with its picture on it, a kart with an arrow each way round it and a steering
   wheel, and Help me choose beside them for the question the first Play asks, see
@@ -3018,11 +3024,6 @@ like any other button.
   a mouse button as well as a key, fire on the left button say, stick dead zone, rumble on
   or off, and on a touch screen, first after the driving, how it drives: by the
   slider or by a button each, see 4.2.
-- **Players**: a box each for what the four seats at this machine are called,
-  see 3.8, with the funny-name hint in an empty one, and after each a small
-  button with the picture of how that seat drives, simple or advanced, that
-  changes it to the other, see 4.2. The first seat's is the Driving row of
-  Controls, and each shows what the other was changed to.
 - **Audio**: master, music, effects and kart volume, the master at 50% to start
   with, since at full the game came on loud enough to reach for. The karts have their own
   because their engine and tires run the whole time rather than in bursts, so
@@ -3124,6 +3125,22 @@ like any other button.
   whose eyes are looking. Changed from over a room, everything in it changes
   there and then: every kart, a client's and the decoys included, the corners of
   the HUD and the switches, each still the slot of the palette it was.
+- **Profiles**, after Accessibility: who is playing at this machine. A profile is a person's save, kept
+  apart from how the machine is set up: the names, karts and ways to drive of the four
+  seats, the driver license and its plate, how far through the driving school they got,
+  and the LAN game and server they last played on, each profile a file of its own in a
+  folder beside the settings file, `profiles/1.cfg` and on. The picture, the sound, the
+  controls and their bindings, the touch layout and the lobby's choices stay with the
+  machine, the same whoever plays. A profile is named for its first player, and the name
+  can be typed over on its row, which renames that player. Each row shows the name, the
+  plate the profile's kart wears, the learner's L before a license, a Switch button, and
+  Delete, which asks by asking to be pressed again within three seconds and is not there
+  for the one playing. New profile makes a blank one and goes to it; a machine keeps
+  eight. Switching puts the settings up again for the profile now playing. It is done
+  from the title's settings: inside a room the names at the table are already the ones
+  playing, so there the buttons are off and a line says to switch from the title. A
+  settings file from before profiles is not carried over: the first profile starts
+  blank. The other seats are guests of the profile playing, kept in it as before.
 - **About**: the game's mark, its name and its version, and that it is an
   experiment in what an AI model can make: everything in it not credited there
   was made by Anthropic's Claude, whose models are named in the order they worked
@@ -4657,11 +4674,16 @@ Key pieces:
   per player.
 - **Bots**: BotBrain node driving a BotInput, trait as a Resource.
 - **Persistence**: settings, bindings, volumes and accessibility toggles are
-  saved with ConfigFile under `user://`. Nothing else is persisted yet. Match
-  history, statistics and unlocks wait until there is something to unlock.
+  saved with ConfigFile in `user://settings.cfg`, which names the profile
+  playing, and each profile, see 8.5, in a file of its own in `user://profiles/`,
+  `Profile`, read and written through `Settings` by the same names as before
+  profiles, so nothing that reads a seat's name had to change. Unlocks wait until
+  there is something to unlock.
   `++ --settings=<path>` runs with another settings file, a `user://` path, an
   absolute one or a bare name in the user directory, for seeing the game as a
-  new player does without touching one's own.
+  new player does without touching one's own; its profiles are kept beside it,
+  in a folder named for it. A test that writes settings takes them away with
+  `Settings.remove_files`, profiles and all.
 - **Quitting**: `Game.quit` is the one way out, for the title's Quit, the window
   closing, a server's game that is over and the dev runs alike. A sound still
   playing as the engine shuts down is left behind in memory, and the engine says

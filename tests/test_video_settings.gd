@@ -87,7 +87,7 @@ func test_the_old_edge_smoothing_switch_carries_over() -> void:
 		assert_str(read.screen_smoothing).is_equal(
 			Settings.SMOOTH_OFF if smoothed else Settings.SMOOTH_FXAA
 		)
-	DirAccess.remove_absolute(path)
+	Settings.remove_files(path)
 
 
 ## The bloom, the two smoothings and the tire marks of GAME.md 4.3 survive a trip through the
@@ -118,7 +118,7 @@ func test_the_picture_is_remembered() -> void:
 	old.save(settings.path)
 	read.load_from_disk()
 	assert_int(read.tire_marks).is_equal(Settings.MARKS_FULL)
-	DirAccess.remove_absolute(settings.path)
+	Settings.remove_files(settings.path)
 
 
 ## GAME.md 8.5: the crowd is one setting, Full, Half or Off, remembered through the file; a crowd
@@ -142,7 +142,7 @@ func test_the_crowd_is_one_setting_and_the_old_switch_carries_over() -> void:
 	read.path = path
 	read.load_from_disk()
 	assert_float(read.crowd_size).is_equal(0.0)
-	DirAccess.remove_absolute(path)
+	Settings.remove_files(path)
 
 
 ## Offered on two pages, the box reads the setting again as its page comes up, so each shows what
@@ -176,7 +176,7 @@ func test_the_fixed_camera_is_off_until_it_is_asked_for() -> void:
 	read.path = settings.path
 	read.load_from_disk()
 	assert_bool(read.fixed_camera).is_true()
-	DirAccess.remove_absolute(settings.path)
+	Settings.remove_files(settings.path)
 
 
 ## A setting that is off looks like a setting that is off, GAME.md 8.5. The engine's empty tick
@@ -228,7 +228,7 @@ func test_the_ui_scale_sizes_the_menus_and_the_hud() -> void:
 	read.path = settings.path
 	read.load_from_disk()
 	assert_float(read.ui_scale).is_equal(1.75)
-	DirAccess.remove_absolute(settings.path)
+	Settings.remove_files(settings.path)
 
 
 ## A phone plays full screen to start with, and a desktop in a window.
@@ -270,7 +270,7 @@ func test_the_room_is_brought_up_to_size_the_way_the_box_says() -> void:
 	read.path = settings.path
 	read.load_from_disk()
 	assert_str(read.upscaler).is_equal(Settings.UPSCALE_FSR2)
-	DirAccess.remove_absolute(settings.path)
+	Settings.remove_files(settings.path)
 
 
 ## GAME.md 8.5: the room's sun and lamp cast their shadows into big maps with soft edges, smaller
@@ -303,7 +303,7 @@ func test_the_shadows_follow_the_setting() -> void:
 	read.path = settings.path
 	read.load_from_disk()
 	assert_str(read.shadows).is_equal(Settings.SHADOWS_OFF)
-	DirAccess.remove_absolute(settings.path)
+	Settings.remove_files(settings.path)
 
 
 ## GAME.md 8.5: the game draws no more frames a second than the limit says, as many as it can to
@@ -324,5 +324,5 @@ func test_the_frame_rate_keeps_to_the_limit() -> void:
 	read.path = settings.path
 	read.load_from_disk()
 	assert_int(read.frame_limit).is_equal(30)
-	DirAccess.remove_absolute(settings.path)
+	Settings.remove_files(settings.path)
 	Engine.max_fps = 0

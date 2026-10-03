@@ -10,7 +10,7 @@ const ROOM_SCENE := preload("res://scenes/match/match.tscn")
 
 
 func after_test() -> void:
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SETTINGS_PATH))
+	Settings.remove_files(TEST_SETTINGS_PATH)
 
 
 ## The karts have a slider of their own, GAME.md 8.5: their engine and tires run the whole time
@@ -167,7 +167,7 @@ func test_menu_scenes_build() -> void:
 	assert_str(config.difficulty).is_equal("hard")
 	var settings: Control = auto_free(SETTINGS_SCENE.instantiate())
 	add_child(settings)
-	assert_int(settings.tabs.get_tab_count()).is_equal(7)
+	assert_int(settings.tabs.get_tab_count()).is_equal(8)
 
 
 ## GAME.md 3.8: somebody joining a friend's match never passes through the local lobby, so the
@@ -422,7 +422,7 @@ func test_a_phones_back_does_what_b_does_or_opens_the_menu() -> void:
 	assert_bool(menu.is_open()).override_failure_message("the menu came up too").is_false()
 	assert_bool(ProjectSettings.get_setting("application/config/quit_on_go_back")).is_false()
 	get_tree().paused = false
-	DirAccess.remove_absolute(Game.settings.path)
+	Settings.remove_files(Game.settings.path)
 	Game.settings = real
 
 
@@ -446,7 +446,7 @@ func test_a_menu_over_the_room_darkens_all_of_it() -> void:
 	menu.set_paused(false)
 	host.close()
 	get_tree().paused = false
-	DirAccess.remove_absolute(Game.settings.path)
+	Settings.remove_files(Game.settings.path)
 	Game.settings = real
 
 

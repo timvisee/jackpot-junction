@@ -29,7 +29,7 @@ func after_test() -> void:
 	get_tree().paused = false
 	Net.close()
 	if _settings_were != null:
-		DirAccess.remove_absolute(Game.settings.path)
+		Settings.remove_files(Game.settings.path)
 		Game.settings = _settings_were
 		_settings_were = null
 

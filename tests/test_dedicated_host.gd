@@ -38,7 +38,7 @@ func after_test() -> void:
 	Game.pending_config = null
 	get_tree().paused = false
 	Net.close()
-	DirAccess.remove_absolute(Game.settings.path)
+	Settings.remove_files(Game.settings.path)
 	Game.settings = _settings_were
 
 

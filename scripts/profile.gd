@@ -1,0 +1,111 @@
+class_name Profile
+extends RefCounted
+## One person's save, GAME.md 8.5: who they are at this machine rather than how the machine is set
+## up. The names, karts and ways to drive of its four seats, the driver license and its plate, how
+## far through the driving school it got, and the servers it plays on, each profile in a file of
+## its own, see [Settings]; the picture, the sound, the controls and the lobby's choices stay with
+## the machine, the same whoever is playing. A profile is named for its first player.
+
+## How many profiles a machine keeps.
+const MOST := 8
+
+## The file it is kept in, and the name of that file, which is how it is told apart.
+var path := ""
+var id := "1"
+
+## What each local seat calls itself, GAME.md 3.8. An empty entry is a seat that never gave a
+## name and will be handed a funny one when the match starts.
+var player_names: Array[String] = ["", "", "", ""]
+## How each local seat dressed its kart, GAME.md 4.4: four numbers each, a paint, a hat, a flag
+## and a trail.
+var kart_styles: Array = [
+	PackedInt32Array([0, 0, 0, 0]),
+	PackedInt32Array([0, 0, 0, 0]),
+	PackedInt32Array([0, 0, 0, 0]),
+	PackedInt32Array([0, 0, 0, 0]),
+]
+## How each local seat drives, GAME.md 4.2, one of [constant Settings.DRIVE_MODES], or empty for a
+## seat nobody has asked yet, which drives the advanced way until somebody does.
+var drive_modes: Array[String] = ["", "", "", ""]
+## Whether the driving test of GAME.md 9.4a has been finished.
+var tutorial_done := false
+## The driver license the driving test ends on, GAME.md 9.4a: its number, the day it was issued,
+## who it was issued to and what they earned on the way, empty until it has been; and the plate
+## they chose for the back of their kart, 4.4.
+var license_number := ""
+var license_date := ""
+var license_holder := ""
+var license_endorsements := PackedStringArray()
+var license_plate := ""
+## The LAN game last joined, and the dedicated server Play Online last connected to, GAME.md 9.3a,
+## and connects to again as it comes up. Empty until there has been one.
+var last_address := "127.0.0.1"
+var last_port := 7777
+var last_server := ""
+var last_server_port := ServerArgs.PORT
+
+
+## The profile kept as [param id] in [param folder], read from its file if it has one, or new.
+static func at(folder: String, id_in: String) -> Profile:
+	var profile := Profile.new()
+	profile.id = id_in
+	profile.path = folder.path_join(id_in + ".cfg") if not folder.is_empty() else ""
+	profile.load_from_disk()
+	return profile
+
+
+## What it is called: its first player's name, or "Player" and its number before they gave one.
+func display_name() -> String:
+	return player_names[0] if not player_names[0].is_empty() else "Player %s" % id
+
+
+func load_from_disk() -> void:
+	var file := ConfigFile.new()
+	if path.is_empty() or file.load(path) != OK:
+		return
+	var stored: Array = file.get_value("players", "names", [])
+	for i: int in mini(stored.size(), player_names.size()):
+		player_names[i] = PlayerNames.clean(str(stored[i]))
+	var dressed: Array = file.get_value("players", "kart_styles", [])
+	for i: int in mini(dressed.size(), kart_styles.size()):
+		kart_styles[i] = KartStyle.from_array(dressed[i]).to_array()
+	var driving: Array = file.get_value("players", "drive_modes", [])
+	for i: int in mini(driving.size(), drive_modes.size()):
+		var mode := str(driving[i])
+		drive_modes[i] = mode if mode in Settings.DRIVE_MODES else ""
+	tutorial_done = bool(file.get_value("license", "tutorial_done", tutorial_done))
+	license_number = str(file.get_value("license", "number", license_number))
+	license_date = str(file.get_value("license", "date", license_date))
+	license_holder = PlayerNames.clean(str(file.get_value("license", "holder", "")))
+	var earned: Variant = file.get_value("license", "endorsements", PackedStringArray())
+	license_endorsements = (
+		PackedStringArray(earned)
+		if earned is Array or earned is PackedStringArray
+		else PackedStringArray()
+	)
+	license_plate = LicensePlate.clean(str(file.get_value("license", "plate", "")))
+	last_address = str(file.get_value("online", "address", last_address))
+	last_port = int(file.get_value("online", "port", last_port))
+	last_server = str(file.get_value("online", "server", last_server))
+	last_server_port = int(file.get_value("online", "server_port", last_server_port))
+
+
+func save_to_disk() -> Error:
+	if path.is_empty():
+		return OK
+	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
+	var file := ConfigFile.new()
+	file.set_value("players", "names", player_names)
+	file.set_value("players", "kart_styles", kart_styles)
+	file.set_value("players", "drive_modes", drive_modes)
+	file.set_value("license", "tutorial_done", tutorial_done)
+	file.set_value("license", "number", license_number)
+	file.set_value("license", "date", license_date)
+	file.set_value("license", "holder", license_holder)
+	file.set_value("license", "endorsements", license_endorsements)
+	file.set_value("license", "plate", license_plate)
+	file.set_value("online", "address", last_address)
+	file.set_value("online", "port", last_port)
+	file.set_value("online", "server", last_server)
+	file.set_value("online", "server_port", last_server_port)
+	return file.save(path)

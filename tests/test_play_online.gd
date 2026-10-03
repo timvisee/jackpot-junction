@@ -35,7 +35,7 @@ func after_test() -> void:
 		_hall.queue_free()
 	await await_idle_frame()
 	get_tree().set_multiplayer(null, _hall_root.get_path())
-	DirAccess.remove_absolute(Game.settings.path)
+	Settings.remove_files(Game.settings.path)
 	Game.settings = _settings_were
 	Game.play_online_note = ""
 	Game.play_online_reconnect = false
@@ -157,4 +157,4 @@ func test_the_last_server_is_kept() -> void:
 	again.load_from_disk()
 	assert_str(again.last_server).is_equal("games.example.org")
 	assert_int(again.last_server_port).is_equal(9100)
-	DirAccess.remove_absolute(settings.path)
+	Settings.remove_files(settings.path)

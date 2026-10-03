@@ -21,7 +21,7 @@ func after_test() -> void:
 	PlayerInput.typing = false
 	Input.action_release(InputActions.THROTTLE)
 	get_tree().paused = false
-	DirAccess.remove_absolute(Game.settings.path)
+	Settings.remove_files(Game.settings.path)
 	Game.settings = _settings_were
 
 

@@ -25,7 +25,7 @@ func before_test() -> void:
 
 func after_test() -> void:
 	Game.pending_config = null
-	DirAccess.remove_absolute(Game.settings.path)
+	Settings.remove_files(Game.settings.path)
 	Game.settings = _settings_were
 
 

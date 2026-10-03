@@ -34,4 +34,4 @@ func test_the_counter_is_there_while_the_setting_is_on() -> void:
 	read.path = settings.path
 	read.load_from_disk()
 	assert_bool(read.show_fps).is_true()
-	DirAccess.remove_absolute(settings.path)
+	Settings.remove_files(settings.path)

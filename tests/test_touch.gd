@@ -831,7 +831,7 @@ func test_the_way_to_drive_is_remembered() -> void:
 	read.path = settings.path
 	read.load_from_disk()
 	assert_str(read.touch_layout).is_equal(Settings.TOUCH_BUTTONS)
-	DirAccess.remove_absolute(settings.path)
+	Settings.remove_files(settings.path)
 
 
 ## A hint on a touch screen names the button on the screen rather than a key: the gas as GAS, fire

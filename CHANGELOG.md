@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Profiles.** Each person at a machine has a profile of their own, with their names, karts,
+  license and servers; make, switch and delete them on the settings' new Profiles page.
 - **See what you type on a phone.** A text box the keyboard covers is shown on a bar just above the
   keyboard while you type into it.
 - **The Android back button.** It closes dialogs and backs out of screens like B on a pad, opens
@@ -26,6 +28,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The settings in a new order.** License, Players, Controls, Audio, Video, Accessibility,
+  Profiles, About.
 - **The game's words stand out in the driving test.** Chips, mult, pot, bank, nitro and lives are in
   their HUD colors, and the Jackpot, the Junction and the Royal Flush in a color of their own.
 - **Chips, everywhere.** What you collect is called chips in every lesson, card, award and item; the

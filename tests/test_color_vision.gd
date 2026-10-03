@@ -101,7 +101,7 @@ func test_the_karts_in_the_room_change_with_the_setting() -> void:
 	assert_that(corner.get_theme_color("font_color")).is_equal(
 		Palette.VISION_COLORS["deuteranopia"][0]
 	)
-	DirAccess.remove_absolute(Game.settings.path)
+	Settings.remove_files(Game.settings.path)
 	Game.settings = real
 
 
@@ -117,7 +117,7 @@ func test_the_setting_is_kept_and_put_into_effect() -> void:
 	read.apply_input()
 	read.apply(get_tree())
 	assert_str(Palette.vision).is_equal("tritanopia")
-	DirAccess.remove_absolute(settings.path)
+	Settings.remove_files(settings.path)
 
 
 ## No two colors of a palette are close for the eyes it is for. Simulated as the palettes were

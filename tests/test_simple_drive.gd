@@ -236,7 +236,7 @@ func test_the_ways_to_drive_are_saved() -> void:
 	loaded.load_from_disk()
 	assert_str(loaded.drive_mode(1)).is_equal(Settings.DRIVE_SIMPLE)
 	assert_bool(loaded.has_chosen_driving()).is_false()
-	DirAccess.remove_absolute(settings.path)
+	Settings.remove_files(settings.path)
 
 
 func test_the_push_that_walks_the_cursor_goes_over_the_wire() -> void:
@@ -275,7 +275,7 @@ func test_the_first_play_asks_how_to_drive_and_goes_on_once_answered() -> void:
 	# Answered once, it is never asked again.
 	assert_object(DriveChoice.first(holder, func() -> void: went[0] += 1)).is_null()
 	assert_int(went[0]).is_equal(2)
-	DirAccess.remove_absolute(Game.settings.path)
+	Settings.remove_files(Game.settings.path)
 
 
 func test_the_settings_ask_the_question_again_for_the_first_player() -> void:
@@ -302,7 +302,7 @@ func test_the_settings_ask_the_question_again_for_the_first_player() -> void:
 	var picker: DrivePicker = again.get_parent()
 	assert_str(picker.mode).is_equal(Settings.DRIVE_ADVANCED)
 	assert_object(get_viewport().gui_get_focus_owner()).is_same(again)
-	DirAccess.remove_absolute(Game.settings.path)
+	Settings.remove_files(Game.settings.path)
 
 
 func test_the_player_at_a_touch_screen_can_switch_its_controls_there_too() -> void:
@@ -329,7 +329,7 @@ func test_the_player_at_a_touch_screen_can_switch_its_controls_there_too() -> vo
 	get_tree().paused = false
 	TouchInput.enabled = was_touch
 	TouchInput.release()
-	DirAccess.remove_absolute(Game.settings.path)
+	Settings.remove_files(Game.settings.path)
 
 
 func test_the_settings_pick_the_touch_controls_by_their_pictures() -> void:
@@ -428,7 +428,7 @@ func test_the_pause_menu_has_a_switch_over_each_players_corner() -> void:
 	assert_object(menu._switches.button(0)).is_null()
 	assert_bool(resume.focus_neighbor_left.is_empty()).is_true()
 	get_tree().paused = false
-	DirAccess.remove_absolute(Game.settings.path)
+	Settings.remove_files(Game.settings.path)
 
 
 ## The card saying what a player drives with is toward the middle of the screen: under the switch
@@ -462,7 +462,7 @@ func test_a_bottom_corner_has_its_card_over_the_switch() -> void:
 	)
 	menu.set_paused(false)
 	get_tree().paused = false
-	DirAccess.remove_absolute(Game.settings.path)
+	Settings.remove_files(Game.settings.path)
 
 
 ## A player on a pad whose triggers are wherever the test puts them.

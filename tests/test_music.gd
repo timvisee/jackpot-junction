@@ -150,7 +150,7 @@ func test_the_mute_toggle_flips_the_music_bus_and_the_setting() -> void:
 	Audio.toggle_music_mute()
 	assert_bool(Game.settings.music_muted).is_equal(muted_before)
 	assert_bool(Audio.is_music_muted()).is_equal(muted_before)
-	DirAccess.remove_absolute(Game.settings.path)
+	Settings.remove_files(Game.settings.path)
 	Game.settings = real
 	Game.settings.apply_audio()
 
@@ -200,7 +200,7 @@ func test_intense_music_sets_how_much_louder_the_top_gets() -> void:
 	read.path = Game.settings.path
 	read.load_from_disk()
 	assert_float(read.music_swell).is_equal_approx(MusicSwell.GENTLE, 0.0001)
-	DirAccess.remove_absolute(Game.settings.path)
+	Settings.remove_files(Game.settings.path)
 	Game.settings = real
 
 

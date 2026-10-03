@@ -37,7 +37,7 @@ func after_test() -> void:
 		InputActions.HANDBRAKE,
 	]:
 		Input.action_release(action)
-	DirAccess.remove_absolute(Game.settings.path)
+	Settings.remove_files(Game.settings.path)
 	Game.settings.path = _was_path
 	Game.settings.drive_modes = _was_modes
 	Game.settings.tutorial_done = _was_done

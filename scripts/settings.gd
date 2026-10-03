@@ -1,7 +1,10 @@
 class_name Settings
 extends RefCounted
-## User settings from GAME.md 8.5, saved between sessions with ConfigFile. Nothing else is
-## persisted yet.
+## User settings from GAME.md 8.5, saved between sessions with ConfigFile: how this machine is set
+## up, the picture, the sound, the controls and the lobby's choices, and which [Profile] is
+## playing on it. What belongs to the person rather than the machine, their names, karts, ways to
+## drive, license and servers, is the profile's, kept in a file of its own, and read and written
+## here through the same names as ever, see [member profile].
 
 const DEFAULT_PATH := "user://settings.cfg"
 const AIM_ASSIST_MAX := 1.0
@@ -143,9 +146,6 @@ var stick_deadzone := 0.15
 ## How a touch screen drives, GAME.md 4.2: [constant TOUCH_SLIDER], one slider under the right thumb
 ## for nitro, gas, brake and drift, or [constant TOUCH_BUTTONS], a round button for each.
 var touch_layout := TOUCH_SLIDER
-## How each local seat drives, GAME.md 4.2, one of [constant DRIVE_MODES], or empty for a seat
-## nobody has asked yet, which drives the advanced way until somebody does.
-var drive_modes: Array[String] = ["", "", "", ""]
 ## Action name to the descriptors that replace its defaults.
 var bindings: Dictionary = {}
 ## How long a map runs, in seconds, GAME.md 3.8.
@@ -172,35 +172,76 @@ var grand_prix_jokers: int = GrandPrix.Keep.CHOOSE
 ## Which sizes of map a Grand Prix deals from, GAME.md 9.7: the usual ones, the XL ones, or both.
 var grand_prix_normal := true
 var grand_prix_xl := true
-## What each local seat calls itself, GAME.md 3.8. An empty entry is a seat that never gave a
-## name and will be handed a funny one when the match starts.
-var player_names: Array[String] = ["", "", "", ""]
-## How each local seat dressed its kart, GAME.md 4.4: four numbers each, a paint, a hat, a flag
-## and a trail.
-var kart_styles: Array = [
-	PackedInt32Array([0, 0, 0, 0]),
-	PackedInt32Array([0, 0, 0, 0]),
-	PackedInt32Array([0, 0, 0, 0]),
-	PackedInt32Array([0, 0, 0, 0]),
-]
-## Whether anybody has been round the test track yet, GAME.md 9.4. The first visit to the
-## Garage goes there; every visit after it goes to the Garage proper.
-## Whether the tutorial of GAME.md 9.4a has been finished.
-var tutorial_done := false
-## The driver license the tutorial ends on, GAME.md 9.4a: its number, the day it was issued, who
-## it was issued to and what they earned on the way, empty until it has been, so the card reads
-## the same every time it is looked at; and the plate they chose for the back of their kart, 4.4.
-var license_number := ""
-var license_date := ""
-var license_holder := ""
-var license_endorsements := PackedStringArray()
-var license_plate := ""
-var last_address := "127.0.0.1"
-var last_port := 7777
-## The dedicated server Play Online last connected to, GAME.md 9.3a, and connects to again as it
-## comes up. Empty until there has been one.
-var last_server := ""
-var last_server_port := ServerArgs.PORT
+## The person playing at this machine, GAME.md 8.5: whose names, karts, license and servers the
+## names below read and write, see [Profile]. Switched from the settings' Profiles page.
+var profile := Profile.new()
+## What each local seat calls itself, how it dressed its kart and how it drives, its license and
+## plate, how far through the driving school it got, and where it last played: the profile's.
+var player_names: Array[String]:
+	get:
+		return profile.player_names
+	set(value):
+		profile.player_names = value
+var kart_styles: Array:
+	get:
+		return profile.kart_styles
+	set(value):
+		profile.kart_styles = value
+var drive_modes: Array[String]:
+	get:
+		return profile.drive_modes
+	set(value):
+		profile.drive_modes = value
+var tutorial_done: bool:
+	get:
+		return profile.tutorial_done
+	set(value):
+		profile.tutorial_done = value
+var license_number: String:
+	get:
+		return profile.license_number
+	set(value):
+		profile.license_number = value
+var license_date: String:
+	get:
+		return profile.license_date
+	set(value):
+		profile.license_date = value
+var license_holder: String:
+	get:
+		return profile.license_holder
+	set(value):
+		profile.license_holder = value
+var license_endorsements: PackedStringArray:
+	get:
+		return profile.license_endorsements
+	set(value):
+		profile.license_endorsements = value
+var license_plate: String:
+	get:
+		return profile.license_plate
+	set(value):
+		profile.license_plate = value
+var last_address: String:
+	get:
+		return profile.last_address
+	set(value):
+		profile.last_address = value
+var last_port: int:
+	get:
+		return profile.last_port
+	set(value):
+		profile.last_port = value
+var last_server: String:
+	get:
+		return profile.last_server
+	set(value):
+		profile.last_server = value
+var last_server_port: int:
+	get:
+		return profile.last_server_port
+	set(value):
+		profile.last_server_port = value
 ## How many may play in a LAN game this machine hosts, its own players included, GAME.md 9.6.
 ## Kept for next time; the password is not, so one forgotten is never a later lobby locked.
 var lobby_players := NetDoor.MOST_PLAYERS
@@ -213,8 +254,16 @@ var path := DEFAULT_PATH
 
 func load_from_disk() -> void:
 	var file := ConfigFile.new()
-	if file.load(path) != OK:
-		return
+	var read := file.load(path) == OK
+	if read:
+		_load_machine(file)
+	# A file from before profiles names none, and starts the first one afresh: nothing of who
+	# played is carried over from it, GAME.md 8.5.
+	var active := str(file.get_value("profile", "active", "1")) if read else "1"
+	profile = Profile.at(profiles_dir(), active if not active.is_empty() else "1")
+
+
+func _load_machine(file: ConfigFile) -> void:
 	master_volume = file.get_value("audio", "master", master_volume)
 	music_volume = file.get_value("audio", "music", music_volume)
 	sfx_volume = file.get_value("audio", "sfx", sfx_volume)
@@ -275,9 +324,6 @@ func load_from_disk() -> void:
 	touch_layout = file.get_value("controls", "touch_layout", touch_layout)
 	if touch_layout not in [TOUCH_SLIDER, TOUCH_BUTTONS]:
 		touch_layout = TOUCH_SLIDER
-	var driving: Array = file.get_value("controls", "drive_modes", [])
-	for i: int in mini(driving.size(), drive_modes.size()):
-		drive_modes[i] = str(driving[i]) if str(driving[i]) in DRIVE_MODES else ""
 	bindings = file.get_value("controls", "bindings", {})
 	# Kept in minutes until a map could be shorter than one; a file from then is read in minutes.
 	match_seconds = file.get_value(
@@ -298,27 +344,6 @@ func load_from_disk() -> void:
 	grand_prix_jokers = file.get_value("lobby", "grand_prix_jokers", grand_prix_jokers)
 	grand_prix_normal = file.get_value("lobby", "grand_prix_normal", grand_prix_normal)
 	grand_prix_xl = file.get_value("lobby", "grand_prix_xl", grand_prix_xl)
-	var stored: Array = file.get_value("lobby", "player_names", [])
-	for i: int in mini(stored.size(), player_names.size()):
-		player_names[i] = PlayerNames.clean(str(stored[i]))
-	var dressed: Array = file.get_value("lobby", "kart_styles", [])
-	for i: int in mini(dressed.size(), kart_styles.size()):
-		kart_styles[i] = KartStyle.from_array(dressed[i]).to_array()
-	tutorial_done = bool(file.get_value("progress", "tutorial_done", tutorial_done))
-	license_number = str(file.get_value("progress", "license_number", license_number))
-	license_date = str(file.get_value("progress", "license_date", license_date))
-	license_holder = PlayerNames.clean(str(file.get_value("progress", "license_holder", "")))
-	var earned: Variant = file.get_value("progress", "license_endorsements", PackedStringArray())
-	license_endorsements = (
-		PackedStringArray(earned)
-		if earned is Array or earned is PackedStringArray
-		else PackedStringArray()
-	)
-	license_plate = LicensePlate.clean(str(file.get_value("progress", "license_plate", "")))
-	last_address = file.get_value("online", "address", last_address)
-	last_port = file.get_value("online", "port", last_port)
-	last_server = str(file.get_value("online", "server", last_server))
-	last_server_port = int(file.get_value("online", "server_port", last_server_port))
 	lobby_players = clampi(
 		int(file.get_value("online", "lobby_players", lobby_players)),
 		NetDoor.FEWEST_PLAYERS,
@@ -364,7 +389,6 @@ func save_to_disk() -> Error:
 	file.set_value("accessibility", "fixed_camera", fixed_camera)
 	file.set_value("controls", "stick_deadzone", stick_deadzone)
 	file.set_value("controls", "touch_layout", touch_layout)
-	file.set_value("controls", "drive_modes", drive_modes)
 	file.set_value("controls", "bindings", bindings)
 	file.set_value("lobby", "match_seconds", match_seconds)
 	file.set_value("lobby", "target_score", target_score)
@@ -380,22 +404,83 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "grand_prix_jokers", grand_prix_jokers)
 	file.set_value("lobby", "grand_prix_normal", grand_prix_normal)
 	file.set_value("lobby", "grand_prix_xl", grand_prix_xl)
-	file.set_value("lobby", "player_names", player_names)
-	file.set_value("lobby", "kart_styles", kart_styles)
-	file.set_value("progress", "tutorial_done", tutorial_done)
-	file.set_value("progress", "license_number", license_number)
-	file.set_value("progress", "license_date", license_date)
-	file.set_value("progress", "license_holder", license_holder)
-	file.set_value("progress", "license_endorsements", license_endorsements)
-	file.set_value("progress", "license_plate", license_plate)
-	file.set_value("online", "address", last_address)
-	file.set_value("online", "port", last_port)
-	file.set_value("online", "server", last_server)
-	file.set_value("online", "server_port", last_server_port)
 	file.set_value("online", "lobby_players", lobby_players)
 	file.set_value("online", "lobby_watchers", lobby_watchers)
 	file.set_value("online", "lobby_watch_free", lobby_watch_free)
+	file.set_value("profile", "active", profile.id)
+	# Beside wherever these settings are written now, which a test sets after making them.
+	var folder := profiles_dir()
+	profile.path = folder.path_join(profile.id + ".cfg") if not folder.is_empty() else ""
+	profile.save_to_disk()
 	return file.save(path)
+
+
+## Where the profiles are kept: a folder beside the settings file, or none for settings that are
+## never written.
+func profiles_dir() -> String:
+	if path.is_empty():
+		return ""
+	if path == DEFAULT_PATH:
+		return "user://profiles"
+	return path.get_basename() + ".profiles"
+
+
+## Every profile kept, the one playing among them, in the order they were made.
+func profiles() -> Array[Profile]:
+	var found: Array[Profile] = [profile]
+	var folder := profiles_dir()
+	var ids: Array[int] = []
+	for file: String in DirAccess.get_files_at(folder) if not folder.is_empty() else []:
+		if file.get_extension() == "cfg" and file.get_basename().is_valid_int():
+			ids.append(int(file.get_basename()))
+	ids.sort()
+	for number: int in ids:
+		if str(number) != profile.id:
+			found.append(Profile.at(folder, str(number)))
+	found.sort_custom(func(a: Profile, b: Profile) -> bool: return int(a.id) < int(b.id))
+	return found
+
+
+## A new profile, kept at once, or null when there are [constant Profile.MOST] already.
+func new_profile() -> Profile:
+	var kept := profiles()
+	if kept.size() >= Profile.MOST:
+		return null
+	var number := 1
+	for each: Profile in kept:
+		number = maxi(number, int(each.id) + 1)
+	var made := Profile.at(profiles_dir(), str(number))
+	made.save_to_disk()
+	return made
+
+
+## Plays as the profile kept as [param id] from now on, the one playing saved first.
+func switch_profile(id: String) -> void:
+	if id == profile.id:
+		return
+	profile.save_to_disk()
+	profile = Profile.at(profiles_dir(), id)
+	save_to_disk()
+
+
+## Throws the profile kept as [param id] away, file and all. Never the one playing.
+func delete_profile(id: String) -> bool:
+	if id == profile.id or profiles_dir().is_empty():
+		return false
+	return DirAccess.remove_absolute(profiles_dir().path_join(id + ".cfg")) == OK
+
+
+## The settings file at [param at] and the profiles kept beside it, gone, for a test that wrote
+## them.
+static func remove_files(at: String) -> void:
+	var settings := Settings.new()
+	settings.path = at
+	var folder := settings.profiles_dir()
+	if not folder.is_empty():
+		for file: String in DirAccess.get_files_at(folder):
+			DirAccess.remove_absolute(folder.path_join(file))
+		DirAccess.remove_absolute(folder)
+	DirAccess.remove_absolute(at)
 
 
 ## How the local seat [param seat] drives, one of [constant DRIVE_MODES].
