@@ -11,14 +11,22 @@ const SPOT := Vector3(-6.0, 0.0, 3.0)
 const CLIENT := 7
 
 var _runner: GdUnitSceneRunner
+## The player's own settings, put aside: the room's match settings save as they close, and a test
+## writing the player's real file would be deciding their next match for them.
+var _settings_were: Settings
 
 
 func before_test() -> void:
 	Game.pending_config = MatchConfig.new()
+	_settings_were = Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_room_ball_online.cfg"
 
 
 func after_test() -> void:
 	Game.pending_config = null
+	DirAccess.remove_absolute(Game.settings.path)
+	Game.settings = _settings_were
 
 
 func _open() -> Node3D:
