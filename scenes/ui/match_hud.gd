@@ -156,6 +156,7 @@ func _ready() -> void:
 			add_block(slot)
 	_kill_feed = KillFeed.new()
 	_kill_feed.name = "KillFeed"
+	_kill_feed.match_node = match_node
 	add_child(_kill_feed)
 	_results = ResultsScreen.create(self, match_node)
 	EmoteWheel.add_to(self, match_node)
@@ -187,29 +188,20 @@ func _ready() -> void:
 	Events.kart_respawned.connect(_on_kart_respawned)
 	Events.kart_crashed.connect(_on_kart_crashed)
 	Events.kart_bumped.connect(_on_kart_bumped)
-	# Said quietly, in the feed rather than over the middle of the screen, GAME.md 10.3.
-	Events.player_kicked.connect(
-		func(named: String) -> void: _kill_feed.add_line(NetConduct.TOLD % named, KillFeed.NEUTRAL)
-	)
 
 
 func _on_bounty_called(slot: int) -> void:
 	var kart := _kart(slot)
 	if kart != null:
 		FloatingText.spawn(match_node, kart.global_position, "BOUNTY", Palette.CHIP_GOLD, 56, 1.6)
-	_kill_feed.add_line("a bounty on %s" % _slot_name(slot), Palette.CHIP_GOLD)
 
 
-func _on_bounty_claimed(killer_slot: int, victim_slot: int, amount: int) -> void:
+func _on_bounty_claimed(killer_slot: int, _victim_slot: int, amount: int) -> void:
 	var kart := _kart(killer_slot)
 	if kart != null:
 		FloatingText.spawn(
 			match_node, kart.global_position, "+%d BOUNTY" % amount, Palette.CHIP_GOLD, 48, 1.4
 		)
-	_kill_feed.add_line(
-		"%s collected %d on %s" % [_slot_name(killer_slot), amount, _slot_name(victim_slot)],
-		Palette.CHIP_GOLD
-	)
 
 
 func _on_kart_wounded(slot: int, _by_slot: int, _cause: StringName) -> void:
@@ -262,18 +254,13 @@ func _on_nitro_gained(slot: int) -> void:
 		)
 
 
-func _on_kart_killed(victim_slot: int, killer_slot: int, cause: StringName) -> void:
+## A death felt at this screen; the feed says who and how itself, see [KillFeed].
+func _on_kart_killed(victim_slot: int, _killer_slot: int, _cause: StringName) -> void:
 	_rumble(victim_slot, 1.0, 0.4)
 	# Somebody at this screen going down is heard as the music going under, GAME.md 8.4. Only
 	# here: a client hears its own player's death that way, nobody else's.
 	if _blocks.has(victim_slot):
 		Audio.muffle_music()
-	var victim := _slot_name(victim_slot)
-	if victim.is_empty():
-		return
-	_kill_feed.add_kill(
-		victim, _slot_color(victim_slot), _slot_name(killer_slot), _slot_color(killer_slot), cause
-	)
 
 
 ## Hitting a wall, GAME.md 4.2: a knock in the hands as well as a noise, as hard as the hit was.

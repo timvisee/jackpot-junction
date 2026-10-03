@@ -2,7 +2,8 @@ class_name KillFeed
 extends VBoxContainer
 ## The last few kills in the top right, GAME.md 8.3, newest at the top: who took out whom and
 ## how. Lines hold for a few seconds and fade away, and only the newest handful are kept, so the
-## feed never grows into the arena.
+## feed never grows into the arena. It hears the kills of [member match_node] itself, and the other
+## news it carries: a bounty called or collected, a player shown out.
 
 const MAX_ROWS := 5
 const HOLD := 6.0
@@ -19,6 +20,9 @@ const VERBS: Dictionary[StringName, String] = {
 	&"pit": "shoved",
 }
 
+## The match whose kills it says, by its players' names and colors; none for a feed that is only
+## told, as in a test.
+var match_node: Match
 ## How tall the feed may grow, or 0 for as tall as its rows make it. On a touch screen it hangs over
 ## the corner the driving buttons are in and stops short of them, GAME.md 4.2, dropping its oldest
 ## lines first.
@@ -37,6 +41,58 @@ func _ready() -> void:
 	alignment = BoxContainer.ALIGNMENT_BEGIN
 	add_theme_constant_override("separation", 2)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Events.kart_killed.connect(_on_kart_killed)
+	Events.bounty_called.connect(_on_bounty_called)
+	Events.bounty_claimed.connect(_on_bounty_claimed)
+	Events.player_kicked.connect(_on_player_kicked)
+
+
+func _exit_tree() -> void:
+	for connected: Array in [
+		[Events.kart_killed, _on_kart_killed],
+		[Events.bounty_called, _on_bounty_called],
+		[Events.bounty_claimed, _on_bounty_claimed],
+		[Events.player_kicked, _on_player_kicked],
+	]:
+		var event: Signal = connected[0]
+		if event.is_connected(connected[1]):
+			event.disconnect(connected[1])
+
+
+func _on_kart_killed(victim_slot: int, killer_slot: int, cause: StringName) -> void:
+	var victim := _name(victim_slot)
+	if victim.is_empty():
+		return
+	add_kill(victim, _color(victim_slot), _name(killer_slot), _color(killer_slot), cause)
+
+
+func _on_bounty_called(slot: int) -> void:
+	if match_node != null:
+		add_line("a bounty on %s" % _name(slot), Palette.CHIP_GOLD)
+
+
+func _on_bounty_claimed(killer_slot: int, victim_slot: int, amount: int) -> void:
+	if match_node != null:
+		var said := "%s collected %d on %s" % [_name(killer_slot), amount, _name(victim_slot)]
+		add_line(said, Palette.CHIP_GOLD)
+
+
+## Said quietly, in the feed rather than over the middle of the screen, GAME.md 10.3.
+func _on_player_kicked(named: String) -> void:
+	if match_node != null:
+		add_line(NetConduct.TOLD % named, NEUTRAL)
+
+
+func _name(slot: int) -> String:
+	if match_node == null or slot < 0 or slot >= match_node.slots.size():
+		return ""
+	return match_node.slots[slot].display_name()
+
+
+func _color(slot: int) -> Color:
+	if match_node == null or slot < 0 or slot >= match_node.slots.size():
+		return NEUTRAL
+	return match_node.slots[slot].color()
 
 
 func row_count() -> int:
