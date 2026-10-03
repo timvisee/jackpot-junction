@@ -140,8 +140,8 @@ func _ready() -> void:
 			_apply()
 	)
 	_add("Screen smoothing", smoothing)
-	var marks := MenuTheme.toggle(_settings.tire_marks)
-	marks.toggled.connect(func(on: bool) -> void: _settings.tire_marks = on)
+	var marks := MenuTheme.option(Settings.MARKS_NAMES, _settings.tire_marks)
+	marks.item_selected.connect(func(index: int) -> void: _settings.tire_marks = index)
 	_add("Tire marks", marks)
 	_add("Crowd", crowd_box(_settings))
 

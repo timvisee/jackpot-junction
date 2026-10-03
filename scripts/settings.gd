@@ -25,6 +25,13 @@ const UPSCALE_FSR2 := "fsr2"
 ## and what each is called: all of them, half, or nobody at all.
 const CROWD_SIZES: Array[float] = [1.0, 0.5, 0.0]
 const CROWD_NAMES: Array[String] = ["Full", "Half", "Off"]
+## The tire marks, GAME.md 4.3: every kart's lasting, every kart's fading soon, only the karts of
+## the players at this screen and fading soon as well, or none, and what each is called.
+const MARKS_FULL := 0
+const MARKS_SHORT := 1
+const MARKS_MINE := 2
+const MARKS_OFF := 3
+const MARKS_NAMES: Array[String] = ["Full", "Short", "Mine", "Off"]
 const UPSCALERS: Array[String] = [UPSCALE_BILINEAR, UPSCALE_FSR, UPSCALE_FSR2]
 ## The shadows the room's sun and lamp cast: none, or drawn into smaller maps with hard edges, or
 ## into the big ones with soft edges. Low is what a phone's renderer does of its own accord, and
@@ -100,9 +107,10 @@ var bloom := not OS.has_feature("mobile")
 ## One of [constant MSAA_SAMPLES], and one of [constant SMOOTHINGS].
 var msaa := 0 if OS.has_feature("mobile") else 2
 var screen_smoothing := SMOOTH_FXAA if OS.has_feature("mobile") else SMOOTH_OFF
-## The marks the rear wheels leave on the floor, GAME.md 4.3. Off, none are laid, and whatever is
-## down already goes at once.
-var tire_marks := true
+## The marks the rear wheels leave on the floor, GAME.md 4.3, one of the MARKS_ constants: fewer
+## is less to draw and less on the floor, which a phone starts with. Marks a kart may no longer
+## lay go at once.
+var tire_marks := MARKS_SHORT if OS.has_feature("mobile") else MARKS_FULL
 ## How full the house is, one of [constant CROWD_SIZES]: the whole crowd, half of it, or nobody,
 ## which empties the stands and leaves the booth, GAME.md 8.5. The crowd is the most triangles on
 ## the screen by far and none of them are the match, 10.7, so a phone starts with half a house and
@@ -238,7 +246,12 @@ func load_from_disk() -> void:
 	msaa = samples if samples in MSAA_SAMPLES else msaa
 	var smoothing := str(file.get_value("video", "screen_smoothing", screen_smoothing))
 	screen_smoothing = smoothing if smoothing in SMOOTHINGS else screen_smoothing
-	tire_marks = file.get_value("video", "tire_marks", tire_marks)
+	# On or off, before there was a choice of how many.
+	var marked: Variant = file.get_value("video", "tire_marks", tire_marks)
+	if marked is bool:
+		tire_marks = MARKS_FULL if marked else MARKS_OFF
+	elif marked is int and int(marked) >= 0 and int(marked) < MARKS_NAMES.size():
+		tire_marks = marked
 	var housed := float(file.get_value("video", "crowd_size", crowd_size))
 	crowd_size = housed if housed in CROWD_SIZES else crowd_size
 	# The crowd was a switch of its own before it was a size, and a crowd switched off stays off.

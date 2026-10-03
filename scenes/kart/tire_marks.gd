@@ -9,9 +9,14 @@ extends Node3D
 ## player can see rather than the table painted gold, leaving the ordinary marks under it. Laid
 ## whatever the tire marks setting says, since they say who is about to win rather than dressing
 ## the floor.
+##
+## The setting, GAME.md 8.5, says whose marks are laid and how long they last: every kart's for
+## [constant FADE_SECONDS], every kart's for [constant SHORT_FADE], only the karts of the players
+## at this screen for the short time, or none.
 
 const TRACK_WIDTH := 0.13
 const FADE_SECONDS := 20.0
+const SHORT_FADE := 4.0
 ## How many samples a stretch holds before it is closed: about thirty meters of track. Longer is
 ## more to build again each time the kart moves; shorter is more meshes on the floor to draw.
 const STRETCH := 250
@@ -46,7 +51,8 @@ var _open_drawn: MeshInstance3D
 var _dirty := false
 ## The closed stretches, oldest first, each [MeshInstance3D, the time its newest sample was laid].
 var _closed: Array[Array] = []
-## Whether the tire marks setting was on last frame, to clear the floor the moment it goes off.
+## Whether this kart was laying ordinary marks last frame, to clear the floor the moment the setting
+## says it may not.
 var _shown := true
 
 
@@ -54,7 +60,25 @@ func _ready() -> void:
 	top_level = true
 	global_transform = Transform3D.IDENTITY
 	_open_drawn = _stretch()
-	_shown = Game.settings.tire_marks
+	_shown = laying()
+
+
+## How long a mark lasts on the floor, as the setting has it.
+static func fade_seconds() -> float:
+	return FADE_SECONDS if Game.settings.tire_marks == Settings.MARKS_FULL else SHORT_FADE
+
+
+## Whether this kart lays its ordinary marks, as the setting has it: a kart of a player at this
+## screen, as the aim guide knows one, online too, see [KartAim], for only those players' marks.
+## A mark not under any kart, as in a test, is anybody's.
+func laying() -> bool:
+	match Game.settings.tire_marks:
+		Settings.MARKS_OFF:
+			return false
+		Settings.MARKS_MINE:
+			var kart := get_parent() as Kart
+			return kart == null or kart.input is PlayerInput
+	return true
 
 
 ## The look every stretch is drawn with.
@@ -63,7 +87,7 @@ static func look() -> ShaderMaterial:
 		_look = ShaderMaterial.new()
 		_look.shader = LOOK
 		_look.set_shader_parameter(&"ink", Color(INK.r, INK.g, INK.b))
-		_look.set_shader_parameter(&"fade_seconds", FADE_SECONDS)
+		_look.set_shader_parameter(&"fade_seconds", fade_seconds())
 	return _look
 
 
@@ -84,7 +108,8 @@ func stretch_count() -> int:
 ## Records the contact point of one rear wheel. [param side] is the wheel's lateral axis in world
 ## space, [param intensity] 0 to 1 darkens and widens the mark.
 func add_sample(wheel: int, contact: Vector3, side: Vector3, intensity: float, now: float) -> void:
-	if not Game.settings.tire_marks and not gold:
+	var ordinary := laying()
+	if not ordinary and not gold:
 		return
 	var samples: Array = _open[wheel]
 	var start := true
@@ -96,7 +121,7 @@ func add_sample(wheel: int, contact: Vector3, side: Vector3, intensity: float, n
 			return
 		start = gap > BREAK_DISTANCE
 	# The ordinary mark, left once the gold over it has gone: none with the marks turned off.
-	var mark := lerpf(MIN_ALPHA, MAX_ALPHA, intensity) if Game.settings.tire_marks else 0.0
+	var mark := lerpf(MIN_ALPHA, MAX_ALPHA, intensity) if ordinary else 0.0
 	var half := (
 		side.normalized()
 		* TRACK_WIDTH
@@ -120,13 +145,15 @@ func add_sample(wheel: int, contact: Vector3, side: Vector3, intensity: float, n
 
 
 func _process(_delta: float) -> void:
-	# Turned off in the settings, GAME.md 8.5, what is down goes at once rather than fading out.
-	# Gold marks are laid all the same, see [member gold].
-	if _shown and not Game.settings.tire_marks:
+	# Turned off in the settings, GAME.md 8.5, or turned to the players here, what is down goes at
+	# once rather than fading out. Gold marks are laid all the same, see [member gold].
+	var ordinary := laying()
+	if _shown and not ordinary:
 		_clear()
-	_shown = Game.settings.tire_marks
+	_shown = ordinary
 	var now := Time.get_ticks_msec() * 0.001
 	look().set_shader_parameter(&"now", now)
+	look().set_shader_parameter(&"fade_seconds", fade_seconds())
 	_expire(now)
 	if _dirty:
 		_dirty = false
@@ -136,11 +163,12 @@ func _process(_delta: float) -> void:
 ## A stretch that has faded right out goes, and so does the front of the one still being laid
 ## once it has, for a kart that has stood still for a while.
 func _expire(now: float) -> void:
-	while not _closed.is_empty() and now - float(_closed[0][1]) >= FADE_SECONDS:
+	var lasting := fade_seconds()
+	while not _closed.is_empty() and now - float(_closed[0][1]) >= lasting:
 		(_closed[0][0] as Node).queue_free()
 		_closed.pop_front()
 	for samples: Array in _open:
-		while not samples.is_empty() and now - float(samples[0]["time"]) >= FADE_SECONDS:
+		while not samples.is_empty() and now - float(samples[0]["time"]) >= lasting:
 			samples.pop_front()
 			_dirty = true
 

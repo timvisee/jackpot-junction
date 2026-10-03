@@ -1113,7 +1113,8 @@ short buzz the slider gives, so reading along the row is felt card by card.
   3.4, lays its marks in gold over them, a little over half opaque, and the gold
   holds for a moment and fades out over 1.5 s, leaving the ordinary mark under it
   to fade over its 20 s.
-  Marks fade out over 20 s, faded by their shader, and are laid a stretch of
+  Marks fade out over 20 s, or 4 s with the tire marks setting on Short or Mine,
+  see 8.5, faded by their shader, and are laid a stretch of
   about thirty meters at a time: a finished stretch is never built again, both
   wheels are one thing to draw in it, and it goes once it has faded, so marks
   cost next to nothing to keep on the floor. Built whole again every frame, the
@@ -3024,9 +3025,13 @@ like any other button.
   scrolls, the podium shrinks to it, the title leaves out the mark over its name,
   and on a touch screen the pieces of the HUD keep off each other, see 4.2. The
   hint over a kart at the start of a match grows with it too, drawn at the bigger
-  size rather than stretched to it, so it stays sharp. Tire marks, 4.3, are on by
-  default; off, none are laid, and whatever is down goes at once rather than
-  fading out. The gold tracks of a pot that would win are laid either way: they
+  size rather than stretched to it, so it stays sharp. Tire marks, 4.3, are
+  Full, Short, Mine or Off: every kart's, fading over 20 s; every kart's, gone in
+  4 s; only the karts of the players at this screen, gone in 4 s as well, which
+  is the least clutter and the least to draw with a full table; or none. A
+  desktop starts on Full and a phone on Short, and a settings file from when
+  they were only on or off reads on as Full and off as Off. Marks a kart may no
+  longer lay go at once rather than fading out. The gold tracks of a pot that would win are laid either way: they
   say who is about to win rather than dressing the floor. The crowd, Full, Half
   or Off, is how many of the house came: the crowd is the most triangles on the
   screen by far and none of them are the match, see 10.7, so a phone starts with

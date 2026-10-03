@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Short tire marks, or only yours.** The Video page's Tire marks is Full, Short, Mine or Off:
+  Short fades in seconds and Mine lays only your own kart's, short too. Phones start on Short.
+
 ### Changed
 
 - **The mult die is a real die.** It has its pips on every side, one to six, in the mult's red.

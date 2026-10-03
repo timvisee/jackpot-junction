@@ -133,14 +133,73 @@ func test_turned_off_there_are_no_marks() -> void:
 	var marks := _marks()
 	_drive(marks, 0.0, TireMarks.STRETCH + 10, 1.0)
 	assert_int(marks.stretch_count()).is_equal(2)
-	Game.settings.tire_marks = false
+	Game.settings.tire_marks = Settings.MARKS_OFF
 	marks._process(0.0)
 	assert_int(marks.stretch_count()).is_equal(1)
 	assert_int((marks._open_drawn.mesh as ImmediateMesh).get_surface_count()).is_equal(0)
 	_drive(marks, 100.0, 20, 2.0)
 	assert_bool(marks._open[0].is_empty() and marks._open[1].is_empty()).is_true()
 	# And on again, they are laid again.
-	Game.settings.tire_marks = true
+	Game.settings.tire_marks = Settings.MARKS_FULL
 	_drive(marks, 200.0, 20, 3.0)
 	marks._process(0.0)
 	assert_int((marks._open_drawn.mesh as ImmediateMesh).get_surface_count()).is_equal(1)
+
+
+## Short, GAME.md 8.5: every kart's marks, gone in a few seconds rather than twenty, the shader told
+## so as well as the stretches that are taken off the floor.
+func test_short_marks_fade_in_a_few_seconds() -> void:
+	Game.settings.tire_marks = Settings.MARKS_SHORT
+	var marks := _marks()
+	var then := 1000.0
+	_drive(marks, 0.0, TireMarks.STRETCH + 10, then)
+	var later := then + TireMarks.SHORT_FADE + 1.0
+	_drive(marks, 500.0, 5, later)
+	marks._expire(later)
+	assert_int(marks._closed.size()).is_equal(0)
+	assert_bool(marks._open[0].is_empty()).is_false()
+	marks._process(0.0)
+	assert_float(TireMarks.look().get_shader_parameter(&"fade_seconds")).is_equal(
+		TireMarks.SHORT_FADE
+	)
+	# Full, a stretch that old is still there.
+	Game.settings.tire_marks = Settings.MARKS_FULL
+	marks._process(0.0)
+	assert_float(TireMarks.look().get_shader_parameter(&"fade_seconds")).is_equal(
+		TireMarks.FADE_SECONDS
+	)
+	_drive(marks, 1000.0, TireMarks.STRETCH + 10, then)
+	marks._expire(later)
+	assert_int(marks._closed.size()).is_equal(1)
+
+
+## Mine, GAME.md 8.5: only the karts of the players at this screen lay marks, short ones, and what
+## the others had laid goes the moment it is chosen. A gold mark is anybody's still.
+func test_mine_lays_only_the_marks_of_the_players_here() -> void:
+	var rules: MatchRules = DEFAULT_RULES.duplicate()
+	rules.countdown = 0.1
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD, 0), KartInput.new()]
+	match_node.start(inputs, 7)
+	await _runner.simulate_frames(3, 17)
+	var mine := match_node.kart_of(0).tire_marks
+	var theirs := match_node.kart_of(1).tire_marks
+	var now := Time.get_ticks_msec() * 0.001
+	_drive(theirs, 0.0, 10, now)
+	assert_bool(theirs._open[0].is_empty()).is_false()
+	Game.settings.tire_marks = Settings.MARKS_MINE
+	theirs._process(0.0)
+	assert_bool(theirs._open[0].is_empty()).override_failure_message("theirs stayed").is_true()
+	_drive(theirs, 50.0, 10, now)
+	_drive(mine, 50.0, 10, now)
+	assert_bool(theirs._open[0].is_empty()).is_true()
+	assert_bool(mine._open[0].is_empty()).is_false()
+	assert_float(TireMarks.fade_seconds()).is_equal(TireMarks.SHORT_FADE)
+	theirs.gold = true
+	_drive(theirs, 100.0, 10, now)
+	assert_bool(theirs._open[0].is_empty()).is_false()
+	assert_float(float(theirs._open[0].back()["alpha"])).is_equal(0.0)

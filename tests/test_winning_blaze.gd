@@ -45,7 +45,7 @@ func test_a_pot_that_would_win_sets_its_numbers_and_its_kart_alight() -> void:
 	assert_bool(laid["gold"]).is_true()
 	var ordinary := lerpf(TireMarks.MIN_ALPHA, TireMarks.MAX_ALPHA, 0.06)
 	assert_float(laid["alpha"]).is_equal_approx(
-		ordinary if Game.settings.tire_marks else 0.0, 0.0001
+		ordinary if Game.settings.tire_marks != Settings.MARKS_OFF else 0.0, 0.0001
 	)
 	kart.pot.reset()
 	await runner.simulate_frames(3, 17)
@@ -92,7 +92,7 @@ func test_gold_tracks_are_laid_with_the_tire_marks_off() -> void:
 	Game.settings.path = "user://test_winning_blaze.cfg"
 	var marks: TireMarks = auto_free(TireMarks.new())
 	add_child(marks)
-	Game.settings.tire_marks = false
+	Game.settings.tire_marks = Settings.MARKS_OFF
 	marks._process(0.0)
 	_lay(marks, 0.5)
 	assert_bool(marks._open[0].is_empty()).is_true()

@@ -91,15 +91,16 @@ func test_the_old_edge_smoothing_switch_carries_over() -> void:
 
 
 ## The bloom, the two smoothings and the tire marks of GAME.md 4.3 survive a trip through the
-## settings file. The marks are on until somebody turns them off.
+## settings file. A desktop lays every kart's marks until somebody says otherwise, and a file from
+## when the marks were only on or off says which.
 func test_the_picture_is_remembered() -> void:
 	var settings := Settings.new()
 	settings.path = "user://test_video_settings.cfg"
-	assert_bool(settings.tire_marks).is_true()
+	assert_int(settings.tire_marks).is_equal(Settings.MARKS_FULL)
 	settings.bloom = false
 	settings.msaa = 4
 	settings.screen_smoothing = Settings.SMOOTH_SMAA
-	settings.tire_marks = false
+	settings.tire_marks = Settings.MARKS_MINE
 	assert_int(settings.save_to_disk()).is_equal(OK)
 	var read := Settings.new()
 	read.path = settings.path
@@ -107,7 +108,16 @@ func test_the_picture_is_remembered() -> void:
 	assert_bool(read.bloom).is_false()
 	assert_int(read.msaa).is_equal(4)
 	assert_str(read.screen_smoothing).is_equal(Settings.SMOOTH_SMAA)
-	assert_bool(read.tire_marks).is_false()
+	assert_int(read.tire_marks).is_equal(Settings.MARKS_MINE)
+	var old := ConfigFile.new()
+	old.set_value("video", "tire_marks", false)
+	old.save(settings.path)
+	read.load_from_disk()
+	assert_int(read.tire_marks).is_equal(Settings.MARKS_OFF)
+	old.set_value("video", "tire_marks", true)
+	old.save(settings.path)
+	read.load_from_disk()
+	assert_int(read.tire_marks).is_equal(Settings.MARKS_FULL)
 	DirAccess.remove_absolute(settings.path)
 
 
