@@ -653,6 +653,29 @@ func test_the_title_peeks_the_license_earned() -> void:
 
 
 ## A click on the flyer for the school is a choice of it, as the button is.
+## The kart in a license's photo, and on the podium, starts just short of looking at the camera
+## and looks straight at it half a second later, rather than starting with its back turned; and
+## it only turns while it can be seen, so it is facing the camera when first looked at.
+func test_a_kart_on_show_comes_round_to_the_camera_at_once() -> void:
+	var card: LicenseCard = auto_free(LicenseCard.from_settings())
+	add_child(card)
+	await await_idle_frame()
+	var kart := card._kart
+	var nose := -kart.basis.z
+	assert_float(nose.z).is_greater(0.9)
+	assert_float(nose.x).is_less(0.0)
+	card._process(0.5)
+	nose = -kart.basis.z
+	assert_float(nose.z).is_equal_approx(1.0, 0.001)
+	card.visible = false
+	var turned := kart.rotation.y
+	card._process(1.0)
+	assert_float(kart.rotation.y).is_equal(turned)
+	assert_float(KartVisuals.facing_soon(ResultsPodium.SPIN_SECONDS)).is_equal_approx(
+		PI - TAU * 0.5 / ResultsPodium.SPIN_SECONDS, 0.0001
+	)
+
+
 func test_a_click_on_the_school_flyer_chooses_it() -> void:
 	var ad: SchoolAd = auto_free(SchoolAd.new())
 	add_child(ad)

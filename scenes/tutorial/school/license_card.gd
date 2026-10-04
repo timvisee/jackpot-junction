@@ -196,8 +196,10 @@ func stamp() -> void:
 	queue_redraw()
 
 
+## The kart in the photo turns only while it can be seen, so it comes round to the camera when
+## it is first looked at, on a page of the settings opened later as much as anywhere.
 func _process(delta: float) -> void:
-	if _kart != null and not flipped:
+	if _kart != null and not flipped and is_visible_in_tree():
 		_kart.rotate_y(TAU * delta / SPIN_SECONDS)
 
 
@@ -239,7 +241,7 @@ func _build_photo() -> void:
 	viewport.world_3d = world
 	_photo.add_child(viewport)
 	_kart = KartVisuals.display_model(color_index, style)
-	_kart.rotation.y = 0.6
+	_kart.rotation.y = KartVisuals.facing_soon(SPIN_SECONDS)
 	# Low in the frame, so the hat has the room.
 	_kart.position.y = -0.27
 	viewport.add_child(_kart)

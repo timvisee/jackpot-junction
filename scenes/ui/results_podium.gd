@@ -94,6 +94,7 @@ func _add_step(slot: PlayerSlot, place: int) -> void:
 	kart.name = "Kart%d" % place
 	kart.position = Vector3(at.x, at.y + BAND_LIFT, 0.0)
 	kart.scale = Vector3.ONE * KART_SCALE
+	kart.rotation.y = KartVisuals.facing_soon(SPIN_SECONDS)
 	var model := KartVisuals.display_model(slot.color_index, slot.style)
 	kart.add_child(model)
 	KartVisuals.plate_like(model, KartVisuals.plate_worn(slot.kart))

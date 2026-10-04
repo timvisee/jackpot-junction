@@ -415,7 +415,8 @@ graphics card or a cleared cache.
 The screen is headed Podium and opens with one: the top three on three steps, the winner
 in the middle on the tallest, second a little lower on one side and third lowest
 on the other, each with their own kart standing on top of it turning slowly on the
-spot, each with the plate it wore in the match on its back, the learner's L or a
+spot, starting just short of looking at the camera so it looks straight out half a
+second after the podium comes up, each with the plate it wore in the match on its back, the learner's L or a
 license plate, a bot's too, see 4.4. It is a small 3D scene of its own rather than a picture, lit by its own
 light in a world of its own so nothing of the arena behind it leaks in. A match of
 two fills two steps.
@@ -4320,7 +4321,10 @@ the foot, with the fine curves of a banknote and the four suits as a watermark;
 a dark band along the top with the game's mark, JACKPOT JUNCTION · DEPT. OF
 KARTS in small print over DRIVER LICENSE in the title's gold, and a gold CLASS K
 chip on the right; a photo on the left, the holder's own kart in their color,
-hat and flag, in a little lit world of its own, turning slowly, in a gold frame
+hat and flag, in a little lit world of its own, turning slowly, and only while the
+card can be seen, from just short of looking at the camera, so it looks straight out
+half a second after the card is first seen rather than starting with its back turned,
+in a gold frame
 on a dark ground; beside it NAME, the enrolled name, large, then CLASS "K ·
 Kart" and LICENSE NO., JJ and six digits drawn once when the test is first
 passed and kept in the settings with the date, the holder's name and what they

@@ -222,6 +222,14 @@ static func repaint_all(match_node: Match) -> void:
 
 ## The kart as something to look at rather than to drive: the model in a player's color, with
 ## nothing hanging off it and no kart under it. The results podium stands one on each step.
+## How far round a display model on a turntable starts, turning once every [param spin_seconds],
+## so that it comes round to look straight at a camera on its far +Z side [param soon] seconds
+## after it is first seen: the kart in the license's photo and on the podium. A model's nose is
+## its -Z, so at no turn it shows the camera its back, and it used to start a little past that.
+static func facing_soon(spin_seconds: float, soon := 0.5) -> float:
+	return PI - TAU * soon / spin_seconds
+
+
 static func display_model(color_index: int, style: KartStyle = null) -> Node3D:
 	# A holder rather than the model itself: the model is turned round and scaled to sit on the
 	# floor, and a hat hung off it would be turned round and scaled with it.
