@@ -489,7 +489,10 @@ else's results screen, see 10.3.
   menu, in any room or map, lists the profiles they can be, then Unlink when they
   are one, then Back. A linked seat is that profile at once: its name, its kart's
   dress, its plate or learner's L, and how it drives, and whatever the seat changes
-  of them is that profile's. The maps it plays to the whistle go into that
+  of them is that profile's. It says so plainly: under the name on its switch, the
+  profile's plate, or its L, and "Bob's profile", the button then reading Change
+  profile; and on the Players page of the settings, "Linked to Bob" beside the
+  seat's row. The maps it plays to the whistle go into that
   profile's statistics. A profile sits at one seat at a time, never the profile
   playing and never the first seat; the button is only there when the machine
   keeps another profile, and a profile sat in cannot be deleted. Unlinked, a seat

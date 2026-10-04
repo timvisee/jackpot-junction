@@ -45,6 +45,10 @@ const WORDS: Dictionary[String, String] = {
 const DRIVING := &"driving"
 const TOUCH := &"touch"
 const LINK := "Link profile"
+const CHANGE := "Change profile"
+## The line under the name of a seat sat in as another profile, and how wide its plate is drawn.
+const LINKED := "%s's profile"
+const LINKED_PLATE := 72.0
 const UNLINK := "Unlink"
 const BACK := "Back"
 
@@ -193,6 +197,7 @@ func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control, can_leave: 
 	name_label.text = slot.display_name()
 	Type.strong(name_label, Type.BODY, slot.color())
 	column.add_child(name_label)
+	_linked_line(column, player.seat)
 	var buttons: Array[Control] = []
 	var each := {
 		"holder": holder,
@@ -221,7 +226,8 @@ func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control, can_leave: 
 	if TouchInput.enabled and player.device == DeviceInput.ANY:
 		_toggle(column, each, TOUCH)
 	if player.seat > 0 and Game.settings.profiles().size() > 1:
-		each["link"] = _wide_button(column, each, LINK, _choose_profile.bind(player.seat))
+		var words := LINK if Game.settings.seat_profile(player.seat) == null else CHANGE
+		each["link"] = _wide_button(column, each, words, _choose_profile.bind(player.seat))
 	if can_leave:
 		var leave := MenuTheme.button("Leave", Type.BODY)
 		leave.custom_minimum_size = Vector2(WIDTH, 52.0)
@@ -253,6 +259,27 @@ func _leave(each: Dictionary) -> void:
 	put_up(menu)
 	if not menu.is_empty():
 		menu[0].grab_focus()
+
+
+## Under the name of a seat sat in as another profile, GAME.md 3.8, which profile it is: its plate,
+## or the learner's L, and its name, so it is plain whose statistics the seat counts into. Nothing
+## for the first seat and a guest.
+static func _linked_line(column: VBoxContainer, seat: int) -> void:
+	var profile := Game.settings.seat_profile(seat)
+	if profile == null:
+		return
+	var line := HBoxContainer.new()
+	line.name = "Linked"
+	line.add_theme_constant_override("separation", 10)
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var worn := "L" if profile.license_number.is_empty() else profile.license_plate
+	line.add_child(LicensePlate.badge(worn, LINKED_PLATE))
+	var words := Label.new()
+	words.text = LINKED % profile.display_name()
+	words.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	Type.text(words, Type.LABEL, Color(0.86, 0.86, 0.9))
+	line.add_child(words)
+	column.add_child(line)
 
 
 ## A button as wide as a switch, saying [param words], that does [param does], and is one of

@@ -8,6 +8,7 @@ const LAYOUT: ArenaLayout = preload("res://data/maps/waiting_room.tres")
 const RULES: MatchRules = preload("res://data/match/waiting_room.tres")
 const PATH := "user://test_seat_link.cfg"
 const BOB_STYLE: Array[int] = [2, 1, 0, 3]
+const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
 
 var _runner: GdUnitSceneRunner
 var _settings_were: Settings
@@ -119,7 +120,21 @@ func test_linking_from_the_pause_menu_puts_the_profile_on_the_kart() -> void:
 	assert_that(slot.kart.style.to_array()).is_equal(PackedInt32Array(BOB_STYLE))
 	assert_str(slot.kart.get_node("Body/Plate").get_meta(&"plate")).is_equal("BOB-1")
 	assert_bool((slot.input as PlayerInput).simple()).is_true()
-	# Back on the switch, which has Link profile again; the list now has Unlink as well.
+	# The switch says whose profile the seat is, its plate beside it, and the button changes it.
+	var linked: Node = (_switch_of(switches, 1)["pane"] as Node).find_child("Linked", true, false)
+	assert_object(linked).is_not_null()
+	assert_str((linked.get_child(1) as Label).text).is_equal("Bob's profile")
+	assert_object(linked.find_child("Plate", true, false)).is_not_null()
+	assert_str((_switch_of(switches, 1)["link"] as Button).text).is_equal(DriveSwitches.CHANGE)
+	# And so does the Players page of the settings.
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	await await_idle_frame()
+	var note: Label = screen.find_child("Linked1", true, false)
+	assert_str(note.text).is_equal("Linked to Bob")
+	assert_object(screen.find_child("Linked0", true, false)).is_null()
+	screen.queue_free()
+	# Back on the switch, which has Change profile; the list now has Unlink as well.
 	(_switch_of(switches, 1)["link"] as Button).pressed.emit()
 	await await_idle_frame()
 	listed = _switch_of(switches, 1)["buttons"]
@@ -129,6 +144,11 @@ func test_linking_from_the_pause_menu_puts_the_profile_on_the_kart() -> void:
 	await await_idle_frame()
 	assert_str(slot.player_name).is_equal("Guest")
 	assert_str(slot.kart.get_node("Body/Plate").get_meta(&"plate")).is_equal("L")
+	(
+		assert_object((_switch_of(switches, 1)["pane"] as Node).find_child("Linked", true, false))
+		. is_null()
+	)
+	assert_str((_switch_of(switches, 1)["link"] as Button).text).is_equal(DriveSwitches.LINK)
 	assert_bool((slot.input as PlayerInput).simple()).is_false()
 	menu.set_paused(false)
 

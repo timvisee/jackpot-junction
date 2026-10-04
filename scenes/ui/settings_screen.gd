@@ -46,6 +46,8 @@ const TAB_HINT_INK := Color(0.60, 0.60, 0.63)
 const TAB_HINT_SIZE := 18
 ## What the Players page is for, said at its top.
 const PLAYERS_LINE := "What each seat at this screen is called, and how it drives."
+## What a seat's row says beside it while another profile sits in it, GAME.md 3.8.
+const LINKED_TO := "Linked to %s"
 
 ## The page the next settings screen opens on, by its name, or the first.
 static var opening_on := ""
@@ -383,6 +385,12 @@ func _players_tab() -> Control:
 		)
 		var row := MenuTheme.row("Seat %d" % (seat + 1), field)
 		row.add_child(_drive_switch(seat))
+		var linked := _settings.seat_profile(seat)
+		if linked != null:
+			var note := MenuTheme.subtitle(LINKED_TO % linked.display_name(), Type.LABEL)
+			note.name = "Linked%d" % seat
+			note.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			row.add_child(note)
 		column.add_child(row)
 	return column
 
