@@ -3541,7 +3541,10 @@ a shade over the screen, the game's pane in the middle with its title in gold an
 in gray, a row each for the boxes, a line in red for what is wrong with them, and the buttons in a
 row under them; the cursor goes round the boxes and the buttons and never off the dialog. Back, or
 B, or Cancel puts it away, and Back from the list goes to Play Online. The address and port joined
-last are in the boxes again next time.
+last are in the boxes again next time. Every box for an address, here and for a server in Play
+Online, gets a phone's keyboard for addresses, which puts no space after a dot the way its keyboard
+for words did, and a space typed into one is dropped, since no host has one; a box for a port gets
+the keyboard of digits. `MenuTheme.host_field`.
 
 Joining says so while it is tried: Connecting to the address and port, on a pane over the room,
 until the host answers. An address nobody answers at is given up on after a few seconds rather

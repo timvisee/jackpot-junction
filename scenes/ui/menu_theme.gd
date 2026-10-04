@@ -373,6 +373,32 @@ static func field(text: String, hint: String, max_length: int) -> LineEdit:
 	return control
 
 
+## A box for a host's name or address, GAME.md 9.3: a phone gives it the keyboard for addresses,
+## which puts no space after a dot the way its keyboard for words does, and a space is dropped as
+## it is typed, since no host has one.
+static func host_field(text: String, max_length: int) -> LineEdit:
+	var control := field(text, "", max_length)
+	control.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_URL
+	control.text_changed.connect(func(typed: String) -> void: _drop_spaces(control, typed))
+	return control
+
+
+## A box for a port, which a phone gives its keyboard of digits.
+static func port_field(text: String, hint: String) -> LineEdit:
+	var control := field(text, hint, 5)
+	control.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_NUMBER
+	return control
+
+
+static func _drop_spaces(control: LineEdit, typed: String) -> void:
+	if not typed.contains(" "):
+		return
+	var caret := control.caret_column
+	var before := typed.substr(0, caret).count(" ")
+	control.text = typed.replace(" ", "")
+	control.caret_column = caret - before
+
+
 ## The look of a pane, with [param edge] painted along its top. Handed out as a style rather
 ## than as a panel so that a screen which changes its own edge color, such as the podium
 ## wearing the winner's, can keep hold of it.

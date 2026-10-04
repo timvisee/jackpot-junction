@@ -70,11 +70,11 @@ func _build_dialog() -> void:
 	dialog = FormDialog.add_to(
 		self, "Direct connect", "Join a game by its host's address, for one the list does not find."
 	)
-	address_field = MenuTheme.field(Game.settings.last_address, "", ServerList.ADDRESS_LENGTH)
+	address_field = MenuTheme.host_field(Game.settings.last_address, ServerList.ADDRESS_LENGTH)
 	address_field.custom_minimum_size = Vector2(320.0, 44.0)
 	address_field.text_submitted.connect(func(_typed: String) -> void: _start("join"))
 	dialog.add_box("Address", address_field)
-	port_field = MenuTheme.field(str(Game.settings.last_port), str(NetSession.DEFAULT_PORT), 5)
+	port_field = MenuTheme.port_field(str(Game.settings.last_port), str(NetSession.DEFAULT_PORT))
 	port_field.custom_minimum_size = Vector2(320.0, 44.0)
 	port_field.text_submitted.connect(func(_typed: String) -> void: _start("join"))
 	dialog.add_box("Port", port_field)

@@ -214,6 +214,15 @@ func test_add_keeps_a_server_on_the_list() -> void:
 	assert_bool(screen.is_form_up()).is_true()
 	assert_bool(Game.settings.servers.is_empty()).is_true()
 	screen.server_name_field.text = "  Friday night  "
+	# A phone's keyboard for addresses, and its keyboard for digits; a space typed is dropped, as
+	# a phone's keyboard for words puts one after every dot.
+	assert_int(screen.address_field.virtual_keyboard_type).is_equal(LineEdit.KEYBOARD_TYPE_URL)
+	assert_int(screen.port_field.virtual_keyboard_type).is_equal(LineEdit.KEYBOARD_TYPE_NUMBER)
+	screen.address_field.text = "games. example.org"
+	screen.address_field.caret_column = 9
+	screen.address_field.text_changed.emit(screen.address_field.text)
+	assert_str(screen.address_field.text).is_equal("games.example.org")
+	assert_int(screen.address_field.caret_column).is_equal(8)
 	screen.address_field.text = "games.example.org"
 	screen.port_field.text = "9100"
 	screen.add_button.pressed.emit()
