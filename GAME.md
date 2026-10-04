@@ -4368,14 +4368,19 @@ DEPT. OF KARTS with the small print of whose card it is, "If found, return to
 the nearest Junction. Any Junction.", the examiner's own signature, for
 whoever reads that far, a cheat code, up up down down left right left right
 B A, "Does nothing. We checked.", and the number as a barcode under them
-all. The card has air
-over and under it on the pane, and the pane scrolls on a screen too short for
-it, a phone's at a big UI scale, 8.5, following the cursor down to the ways on. The rubber stamp, a wooden handle on a red base,
+all. Under the heading, the course and the line, the card has air over and
+under it on the left of the pane, and beside it on the right is what goes with
+it: the line about the stamp, and after it the ways on, the room they take kept
+from the start so nothing moves as they come up. The whole pane is drawn smaller,
+about its middle, on a screen smaller than it, a phone held sideways or a big UI
+scale, 8.5, so all of it is always on the screen and nothing scrolls. It was a
+column, the ways on under the card, taller than a phone's screen, and the screen
+scrolled under a pane that did not. The rubber stamp, a wooden handle on a red base,
 hangs off the card's right edge over its own shadow, breathing a little and
 leaning a good way after the mouse as it moves, over the card if the mouse is
 there, and under its base is drawn
 the control that presses it, the left mouse button, Enter or the pad's accept,
-whichever was touched last, and nothing on a touch screen; under the card a
+whichever was touched last, and nothing on a touch screen; beside the card a
 line says "Click the stamp to make it official", or Tap, or Press, by the same
 device. It is a button, so a click, a tap, or that control with the cursor on
 it, which it starts with, presses it. Pressed, it lifts and swings over the
@@ -4386,8 +4391,8 @@ and the card shivers; then the stamp fades away leaving the mark. Nothing goes
 on without stamping: the stamp is the point. A moment after, CONGRATULATIONS and
 the name in gold, "Class K. Valid on every table. The Junction is yours.", the
 license plate for the back of the kart to choose, see 4.4, starting from the
-holder's initials and the number's last three digits, "TLT-123", and the three ways on, Garage, Hit the road,
-which is Play, with the cursor, and Back to title. The license is seen again on
+holder's initials and the number's last three digits, "TLT-123", and the three ways on, one
+under the other, Garage, Hit the road, which is Play, with the cursor, and Back to title. The license is seen again on
 the title, peeking in from the right edge the way a card in a hand does, tilted
 and a third off the screen, dimmed a little so it does not take the eye from
 the buttons, sliding in straight under the cursor, as it is, and back out
