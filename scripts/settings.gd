@@ -597,6 +597,31 @@ func set_seat_style(seat: int, style: PackedInt32Array) -> void:
 		kart_styles[seat] = style
 
 
+## [param seat]'s favorite color, GAME.md 3.8: its linked profile's first seat's, or its own in
+## the profile playing; -1 for none.
+func seat_color(seat: int) -> int:
+	var own := seat_profile(seat)
+	if own != null:
+		return own.colors[0]
+	return profile.colors[seat] if seat >= 0 and seat < profile.colors.size() else -1
+
+
+func set_seat_color(seat: int, color: int) -> void:
+	var own := seat_profile(seat)
+	if own != null:
+		own.colors[0] = color
+	elif seat >= 0 and seat < profile.colors.size():
+		profile.colors[seat] = color
+
+
+## Every seat's favorite color, links and all, for a match's configuration.
+func seat_colors() -> Array[int]:
+	var picked: Array[int] = []
+	for seat: int in player_names.size():
+		picked.append(seat_color(seat))
+	return picked
+
+
 ## What [param seat]'s kart wears on its back, as the wire says it: "L" before a license, or the
 ## plate; its linked profile's, or the profile playing's, whose guests wear its plate.
 func seat_plate(seat: int) -> String:

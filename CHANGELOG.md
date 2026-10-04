@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Your favorite color.** The color you pick in the pause menu or on the Players page is kept in
+  your profile, and you get it in every game where it's free, on your license's kart too.
+
 ### Changed
 
 - **A clearer tap icon.** Hints on a phone show a proper tapping hand.

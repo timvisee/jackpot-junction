@@ -27,6 +27,9 @@ var kart_styles: Array = [
 ## How each local seat drives, GAME.md 4.2, one of [constant Settings.DRIVE_MODES], or empty for a
 ## seat nobody has asked yet, which drives the advanced way until somebody does.
 var drive_modes: Array[String] = ["", "", "", ""]
+## Each local seat's favorite color, GAME.md 3.8, as an index into [constant Palette.PLAYER_COLORS],
+## or -1 for a seat with none, which takes the color its place at the table gives it.
+var colors: Array[int] = [-1, -1, -1, -1]
 ## Whether the driving test of GAME.md 9.4a has been finished.
 var tutorial_done := false
 ## The driver license the driving test ends on, GAME.md 9.4a: its number, the day it was issued,
@@ -77,6 +80,10 @@ func load_from_disk() -> void:
 	for i: int in mini(driving.size(), drive_modes.size()):
 		var mode := str(driving[i])
 		drive_modes[i] = mode if mode in Settings.DRIVE_MODES else ""
+	var picked: Array = file.get_value("players", "colors", [])
+	for i: int in mini(picked.size(), colors.size()):
+		var color := int(picked[i])
+		colors[i] = color if color >= 0 and color < Palette.PLAYER_COLORS.size() else -1
 	tutorial_done = bool(file.get_value("license", "tutorial_done", tutorial_done))
 	license_number = str(file.get_value("license", "number", license_number))
 	license_date = str(file.get_value("license", "date", license_date))
@@ -106,6 +113,7 @@ func save_to_disk() -> Error:
 	file.set_value("players", "names", player_names)
 	file.set_value("players", "kart_styles", kart_styles)
 	file.set_value("players", "drive_modes", drive_modes)
+	file.set_value("players", "colors", colors)
 	file.set_value("license", "tutorial_done", tutorial_done)
 	file.set_value("license", "number", license_number)
 	file.set_value("license", "date", license_date)

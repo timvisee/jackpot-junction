@@ -1237,7 +1237,14 @@ short buzz the slider gives, so reading along the row is felt card by card.
   kept once they are done typing, in their seat's settings, where the Players
   tab of 8.5 keeps it; emptied, the seat is handed a funny name again from the
   next match. A color goes on with them from room to room the way the one they
-  were given always has. While the box has the cursor the keys are the box's,
+  were given always has, and the one they move on to is their seat's favorite
+  from then on, kept in their profile, 8.5, a seat each, or in the profile sat in
+  at that seat, 3.8: the color they are given wherever nobody before them has it,
+  in a room they open, a room they sit down in, here or at a client, which asks
+  the host for it as it sits down, a bot's kart taken over and repainted in it,
+  the Garage and the driving school, and the kart on their license, 9.4a. Without
+  one a seat takes the color its place at the table gives it, as it always did.
+  The Players page of the settings chooses it too. While the box has the cursor the keys are the box's,
   so a player on the keyboard sits still rather than driving round the room
   with the letters of their name, online, where the room goes on under the
   menu. Online a client asks the host for both, which decides, as it owns every
@@ -3059,8 +3066,10 @@ like any other button.
 - **Players**: under a line saying what the page is for, a row each for the four
   seats at this machine, Seat 1 to Seat 4, with a box for what the seat is called,
   see 3.8, with the funny-name hint in an empty one, and after each a small
-  button with the picture of how that seat drives, simple or advanced, that
-  changes it to the other, see 4.2. The first seat's is the Driving row of
+  swatch of the seat's favorite color, 4.4, that moves it on to the next of them
+  round all of them, showing the color the seat's place gives it until one is
+  chosen, and a small button with the picture of how that seat drives, simple or
+  advanced, that changes it to the other, see 4.2. The first seat's is the Driving row of
   Controls, and each shows what the other was changed to.
 - **Controls**: how the first player drives, simple or advanced, each a button
   with its picture on it, a kart with an arrow each way round it and a steering

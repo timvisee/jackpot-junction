@@ -72,22 +72,35 @@ func inputs() -> Array[KartInput]:
 	return result
 
 
-## Color indices for every slot: the humans' picks, then the colors the kept seats had in the
-## waiting room, then the first free colors for bots. A kept color somebody here already has
-## gives way to a free one, so no two karts are ever the same color.
+## Color indices for every slot: the humans' picks, their favorites, GAME.md 3.8, or else their
+## places at the table, then the colors the kept seats had in the waiting room, then the first
+## free colors for bots. A color somebody here already has gives way to a free one, so no two
+## karts are ever the same color.
 func colors() -> Array[int]:
 	var result: Array[int] = []
 	for i: int in human_devices.size():
-		result.append(human_colors[i] if i < human_colors.size() else i)
+		var picked: int = human_colors[i] if i < human_colors.size() else -1
+		if picked < 0 or picked in result:
+			picked = i if i not in result else first_free(result)
+		result.append(picked)
 	for i: int in network_seats:
 		var kept: int = network_colors[i] if i < network_colors.size() else -1
-		result.append(kept if kept >= 0 and kept not in result else _first_free(result))
+		result.append(kept if kept >= 0 and kept not in result else first_free(result))
 	for i: int in bot_count:
-		result.append(_first_free(result))
+		result.append(first_free(result))
 	return result
 
 
-static func _first_free(taken: Array[int]) -> int:
+## [param count] colors, [param favorite] first, GAME.md 3.8, or the first seat's without one,
+## and the first free ones after it, for a room with one player in it and the rest bots.
+static func favorite_first(favorite: int, count: int) -> Array[int]:
+	var result: Array[int] = [maxi(favorite, 0)]
+	while result.size() < count:
+		result.append(first_free(result))
+	return result
+
+
+static func first_free(taken: Array[int]) -> int:
 	var next := 0
 	while next in taken:
 		next += 1
@@ -162,6 +175,7 @@ static func from_settings(settings: Settings) -> MatchConfig:
 	config.overtime = settings.overtime
 	config.human_names = settings.seat_names()
 	config.human_styles = settings.seat_styles()
+	config.human_colors = settings.seat_colors()
 	config.map = StringName(settings.map)
 	config.rounds = settings.grand_prix_maps if settings.grand_prix else 0
 	config.keep_jokers = settings.grand_prix_jokers

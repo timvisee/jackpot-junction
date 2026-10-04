@@ -384,6 +384,7 @@ func _players_tab() -> Control:
 			func(text: String) -> void: _settings.set_seat_name(seat, PlayerNames.clean(text))
 		)
 		var row := MenuTheme.row("Seat %d" % (seat + 1), field)
+		row.add_child(_color_switch(seat))
 		row.add_child(_drive_switch(seat))
 		var linked := _settings.seat_profile(seat)
 		if linked != null:
@@ -403,6 +404,36 @@ static func page_line(text: String) -> Label:
 	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	Type.text(line, Type.LABEL, Color(0.72, 0.72, 0.78))
 	return line
+
+
+## A small button in [param seat]'s favorite color, GAME.md 3.8, that moves it on to the next one,
+## round all of them: the color the seat is given wherever it is free, the kart on the license in
+## it too. Until one is chosen it shows the color the seat's place at the table gives it.
+func _color_switch(seat: int) -> Button:
+	var pressable := MenuTheme.button("", Type.BODY)
+	pressable.name = "Color%d" % seat
+	pressable.custom_minimum_size = Vector2(48.0, 44.0)
+	var swatch := ColorRect.new()
+	swatch.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	swatch.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	for side: int in [SIDE_LEFT, SIDE_TOP]:
+		swatch.set_offset(side, 10.0)
+	for side: int in [SIDE_RIGHT, SIDE_BOTTOM]:
+		swatch.set_offset(side, -10.0)
+	pressable.add_child(swatch)
+	var shown := func() -> void:
+		var picked := _settings.seat_color(seat)
+		swatch.color = Palette.player_color(picked if picked >= 0 else seat)
+		pressable.tooltip_text = Palette.color_name(picked if picked >= 0 else seat)
+	shown.call()
+	pressable.pressed.connect(
+		func() -> void:
+			var picked := _settings.seat_color(seat)
+			var count := Palette.PLAYER_COLORS.size()
+			_settings.set_seat_color(seat, posmod((picked if picked >= 0 else seat) + 1, count))
+			shown.call()
+	)
+	return pressable
 
 
 ## A small button with the way [param seat] drives on it, simple or advanced, that changes it to

@@ -166,6 +166,21 @@ func test_a_profile_linked_at_a_client_reaches_the_host() -> void:
 	assert_that(second.style).is_equal(PackedInt32Array([2, 1, 0, 3]))
 
 
+## GAME.md 3.8: a client's players ask for their favorite colors as they sit down, and the host
+## puts them in them, being free.
+func test_a_clients_players_sit_down_in_their_favorites() -> void:
+	Game.settings.set_seat_color(0, 5)
+	Game.settings.set_seat_color(1, 6)
+	await _seated()
+	var first := _host_match.slots[_client.local_slot]
+	var painted := await _wait_until(func() -> bool: return first.color_index == 5, 4000)
+	assert_bool(painted).override_failure_message("the first seat kept the host's color").is_true()
+	assert_bool(await _sit_another_down()).override_failure_message("no second seat").is_true()
+	var second := _host_match.slots[_client.seats[1].slot]
+	var also := await _wait_until(func() -> bool: return second.color_index == 6, 4000)
+	assert_bool(also).override_failure_message("the second seat kept the host's color").is_true()
+
+
 ## GAME.md 9.6: a lobby for two holds two, whichever machine the third sits down at.
 func test_the_host_refuses_a_seat_past_its_limit() -> void:
 	await _seated()

@@ -241,13 +241,15 @@ func join_human(device: int) -> PlayerSlot:
 		if slot.plays_on(device):
 			return null
 	_resolve_any_device(device)
-	return _join_with_input(PlayerInput.new(device, _free_seat()))
+	var seat := _free_seat()
+	return _join_with_input(PlayerInput.new(device, seat), Game.settings.seat_color(seat))
 
 
 func _join_with_input(input: KartInput, wanted_color := -1) -> PlayerSlot:
 	var seat := PlayerSlot.bot_seat(slots, wanted_color)
 	if seat != null:
 		_make_human(seat, input)
+		SeatIdentity.paint(self, seat, wanted_color)
 		return seat
 	if slots.size() >= rules.max_players or arena == null:
 		return null
@@ -305,9 +307,8 @@ func _free_seat() -> int:
 func _resolve_any_device(joiner: int) -> void:
 	for slot: PlayerSlot in slots:
 		var player := slot.input as PlayerInput
-		if player == null or player.device != DeviceInput.ANY:
-			continue
-		player.device = player.settled_beside(joiner)
+		if player != null and player.device == DeviceInput.ANY:
+			player.device = player.settled_beside(joiner)
 
 
 func _make_human(slot: PlayerSlot, input: KartInput) -> void:
@@ -389,12 +390,7 @@ func _free_color(wanted := -1) -> int:
 	var taken: Array[int] = []
 	for slot: PlayerSlot in slots:
 		taken.append(slot.color_index)
-	if wanted >= 0 and wanted not in taken:
-		return wanted
-	var index := 0
-	while index in taken:
-		index += 1
-	return index
+	return wanted if wanted >= 0 and wanted not in taken else MatchConfig.first_free(taken)
 
 
 func _on_joy_connection_changed(device: int, connected: bool) -> void:

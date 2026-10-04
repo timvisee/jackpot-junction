@@ -3,8 +3,9 @@ extends RefCounted
 ## What a player at this machine is called and what color they are, changed from their switch in
 ## the pause menu in the lobby and the Garage, GAME.md 4.4. Here, and on the host, it happens at
 ## once; a client asks the host, which decides, and the snapshot brings the answer back to every
-## screen, its own included. A name is kept in the seat's settings, where the Players tab keeps it.
-## A color goes with the player from room to room the way the one they were given always has.
+## screen, its own included. A name is kept in the seat's settings, where the Players tab keeps it,
+## and so is a color, as the seat's favorite, GAME.md 3.8, which it is given from then on wherever
+## it is free; and a color goes with the player from room to room the way it always has.
 
 
 ## A name typed for [param slot]'s player. An empty one is the seat going back to being handed a
@@ -42,6 +43,7 @@ static func recolor(match_node: Match, slot: PlayerSlot) -> void:
 	var color := next_color(match_node, slot)
 	if color == slot.color_index:
 		return
+	_keep_color(slot, color)
 	var session := client_of(slot)
 	if session != null:
 		session.claim_color(color, slot.index)
@@ -76,3 +78,13 @@ static func client_of(slot: PlayerSlot) -> NetSession:
 		return null
 	var own := session.local_slot == slot.index or session.seat_at(slot.index) != null
 	return session if own else null
+
+
+## The color a player here moved on to is their seat's favorite from now on, GAME.md 3.8, kept in
+## the settings the way the seat's name is.
+static func _keep_color(slot: PlayerSlot, color: int) -> void:
+	var player := slot.input as PlayerInput
+	if player == null or player.seat < 0:
+		return
+	Game.settings.set_seat_color(player.seat, color)
+	Game.settings.save_to_disk()

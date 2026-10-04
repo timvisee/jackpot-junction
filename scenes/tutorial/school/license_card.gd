@@ -148,7 +148,8 @@ static func from_settings() -> LicenseCard:
 		holder,
 		settings.license_number,
 		settings.license_date,
-		0,
+		# The holder's favorite color, GAME.md 3.8, or the first seat's.
+		maxi(settings.seat_color(0), 0),
 		KartStyle.from_array(settings.kart_styles[0]),
 		earned
 	)

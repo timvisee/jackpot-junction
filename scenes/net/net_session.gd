@@ -729,13 +729,8 @@ func _assign_slot(index: int, _seed: int, number := 0) -> void:
 		match_node.set_local_slot(index, each.input)
 	else:
 		match_node.add_local_seat(index, each.input as PlayerInput)
-	# The host made this seat before it could ask who was sitting in it, GAME.md 3.8, so the
-	# answer follows the moment the seat is known. An empty one leaves the funny name the host
-	# already handed out standing.
-	_claim_name.rpc_id(1, PlayerNames.clean(each.player_name), number)
-	if not each.style.is_empty():
-		_claim_style.rpc_id(1, each.style, number)
-	_claim_plate.rpc_id(1, Game.settings.seat_plate(number), number)
+	# Who is sitting in it, the moment the seat is known, see [SeatClaims].
+	SeatClaims.say(self, each, number)
 	slot_assigned.emit(index)
 
 

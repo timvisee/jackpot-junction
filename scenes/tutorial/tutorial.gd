@@ -68,7 +68,8 @@ func _ready() -> void:
 		inputs.append(BotInput.new())
 	# The player drives the kart they dressed and answers to the name they gave, GAME.md 4.4.
 	var names: Array[String] = [Game.settings.player_names[0]]
-	match_node.start(inputs, 0, [], names, [Game.settings.kart_styles[0]])
+	var colors := MatchConfig.favorite_first(Game.settings.seat_color(0), inputs.size())
+	match_node.start(inputs, 0, colors, names, [Game.settings.kart_styles[0]])
 	# The driving school's dressing, GAME.md 9.4a: the cones, the signs and the rest of it, and the
 	# L-plate on the back of the kart for the whole test.
 	SchoolProps.add_to(match_node.arena)

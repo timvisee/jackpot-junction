@@ -50,7 +50,8 @@ func _ready() -> void:
 		inputs.append(DummyInput.new())
 	# The player drives the kart they dressed and answers to the name they gave, GAME.md 4.4.
 	var names: Array[String] = [Game.settings.player_names[0]]
-	match_node.start(inputs, 0, [], names, [Game.settings.kart_styles[0]])
+	var colors := MatchConfig.favorite_first(Game.settings.seat_color(0), inputs.size())
+	match_node.start(inputs, 0, colors, names, [Game.settings.kart_styles[0]])
 	_stock_dummies()
 	Events.kart_respawned.connect(_on_kart_respawned)
 	# A room for learning the controls in, not a nightclub.
