@@ -1074,9 +1074,11 @@ of the respawn pick it has not read. The gas held through the last lamp takes th
 the green. The driving buttons go while the podium is up, where they would sit over its own. The
 hints that name keys, in the corner and beside the kart, are not shown on a touch screen: the
 buttons say what they are on them. A hint that is shown, such as the tutorial's line over the kart
-in 9.4a, names the button on the screen instead of a key: gas, fire, nitro, drift and the item
-as a pill with the button's word on it, and steering as the wheel under the left thumb, or in
-simple driving the stick. The
+in 9.4a, names the button on the screen instead of a key: gas, fire, nitro and drift as a pill
+with the button's word on it; the item as the item button itself, round, wearing the picture of
+the item in hand or empty and faint with nothing in it, since the button has no word on it and a
+pill reading ITEM named a button nobody could find; and steering as the wheel under the left
+thumb, or in simple driving the stick. The
 Garage's sign over the jokers says to hold one to read it rather than to press Tab. The
 standings hang from the top right corner under the menu button rather than down the middle of
 the right-hand side, which is the slider's and the item button's, and the kill feed hangs under

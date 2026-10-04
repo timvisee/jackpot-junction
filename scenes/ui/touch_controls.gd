@@ -869,6 +869,10 @@ func _publish() -> void:
 		TouchInput.handbrake = live and _held(TouchSlider.DRIFT)
 	TouchInput.fire = live and (pad(FIRE).held > 0 or _rolled_onto_fire())
 	TouchInput.use_item = live and pad(ITEM).held > 0
+	var kart := _kart()
+	var holding := kart != null and kart.held_item != null and kart.item_reveal_left <= 0.0
+	TouchInput.item_id = kart.held_item.id if holding else &""
+	TouchInput.item_color = kart.held_item.color if holding else Color.WHITE
 	TouchInput.stick = stick.push() if live else Vector2.ZERO
 	TouchInput.steer = TouchInput.stick.x
 	queue_redraw()

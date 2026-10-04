@@ -19,6 +19,11 @@ static var handbrake := false
 static var nitro := false
 static var fire := false
 static var use_item := false
+## What the item button wears, GAME.md 8.3: the item in hand's own id and color, or an empty id
+## with nothing in hand, so a hint naming the button can draw it as it looks, see
+## [method InputGlyph.of_touch].
+static var item_id := &""
+static var item_color := Color.WHITE
 ## Where on the floor a finger last pointed a freely aimed cannon, GAME.md 4.2, not finite while
 ## none has since the cannon came to hand, see [method KartAim.floor_point].
 static var aim_point := Vector3.INF
@@ -66,6 +71,8 @@ static func release() -> void:
 	nitro = false
 	fire = false
 	use_item = false
+	item_id = &""
+	item_color = Color.WHITE
 	aim_point = Vector3.INF
 	joker_inspect = -1
 	joker_pinned = false

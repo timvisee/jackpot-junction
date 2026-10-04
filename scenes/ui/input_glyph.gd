@@ -11,7 +11,7 @@ extends Control
 ## shapes are drawn rather than loaded, because the bindings belong to the player: any key on the
 ## keyboard can end up in one of these, and no set of pictures can cover that in advance.
 
-enum Kind { KEY, FACE, SHOULDER, STICK, DPAD, MOUSE, FINGER, WHEEL }
+enum Kind { KEY, FACE, SHOULDER, STICK, DPAD, MOUSE, FINGER, WHEEL, ITEM }
 
 ## How tall a glyph is by default and how much air sits either side of the caption inside one.
 const HEIGHT := 22.0
@@ -92,6 +92,14 @@ var every_way := false:
 		custom_minimum_size = _wanted()
 		queue_redraw()
 
+## The item an item button glyph was last drawn wearing, see [method of_item_button].
+var _shown_item := &""
+
+
+func _ready() -> void:
+	# Only the item button changes by itself, as the item in hand does.
+	set_process(kind == Kind.ITEM)
+
 
 ## The first binding of [param action] for one device kind, as a glyph. Null when nothing is
 ## bound to it there, which is what a hint should leave out rather than write a dash for.
@@ -107,6 +115,8 @@ static func of_touch(action: StringName, ink: Color, font_size: int) -> InputGly
 	var steering := action in [InputActions.STEER_LEFT, InputActions.STEER_RIGHT]
 	if not steering and not TOUCH_WORDS.has(action):
 		return null
+	if action == InputActions.USE_ITEM:
+		return of_item_button(ink, font_size)
 	var glyph := InputGlyph.new()
 	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	glyph.ink = ink
@@ -115,6 +125,19 @@ static func of_touch(action: StringName, ink: Color, font_size: int) -> InputGly
 	glyph.caption = "" if steering else TOUCH_WORDS[action]
 	glyph.both_ways = steering
 	glyph.along = Vector2.RIGHT
+	glyph.custom_minimum_size = glyph._wanted()
+	return glyph
+
+
+## The item button of a touch screen as it looks just now, GAME.md 8.3: a round button wearing the
+## picture of the item in hand, or empty and faint with nothing in it, rather than a pill reading
+## ITEM that the button itself never shows. Drawn again as the item in hand changes.
+static func of_item_button(ink: Color, font_size: int) -> InputGlyph:
+	var glyph := InputGlyph.new()
+	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	glyph.ink = ink
+	glyph.font_size = font_size
+	glyph.kind = Kind.ITEM
 	glyph.custom_minimum_size = glyph._wanted()
 	return glyph
 
@@ -232,7 +255,7 @@ func _wanted() -> Vector2:
 	var tall := HEIGHT * maxf(float(font_size) / 15.0, 1.0)
 	if kind == Kind.STICK:
 		return Vector2(tall * STICK_WIDE, tall * (STICK_WIDE if every_way else 1.0))
-	if kind == Kind.FACE or kind == Kind.DPAD or kind == Kind.WHEEL:
+	if kind == Kind.FACE or kind == Kind.DPAD or kind == Kind.WHEEL or kind == Kind.ITEM:
 		return Vector2(tall, tall)
 	if kind == Kind.FINGER:
 		return Vector2(tall * FINGER_WIDE, tall)
@@ -259,36 +282,39 @@ func _font() -> Font:
 
 func _draw() -> void:
 	var box := Rect2(Vector2.ZERO, size)
-	# The three that are already a shape of their own go without the chip: a face button is a
+	# The ones that are already a shape of their own go without the chip: a face button is a
 	# round button, a stick is a round gate and the D-pad is a cross, and a box drawn round any of
 	# them is a box drawn round a button. Everything else is a word, and a word needs something to
 	# be written on.
-	if kind == Kind.FACE:
-		_draw_face(box)
-		return
-	if kind == Kind.STICK:
-		_draw_stick(box)
-		return
-	if kind == Kind.DPAD:
-		_draw_dpad(box)
-		return
-	if kind == Kind.MOUSE:
-		_draw_mouse(box)
-		return
-	if kind == Kind.FINGER:
-		_draw_finger(box)
-		return
-	if kind == Kind.WHEEL:
-		var middle := box.size * 0.5
-		var radius := minf(box.size.x, box.size.y) * 0.5 - 1.0
-		draw_circle(middle, radius + 1.5, CHIP_EDGE)
-		draw_circle(middle, radius, CHIP)
-		TouchStick.draw_wheel(
-			self, middle, radius * 0.66, 0.0, Color(ink, 0.95), Color(ink, EDGE_ALPHA * 0.5)
-		)
-		return
-	_draw_chip(box)
-	_draw_caption(box, ink)
+	match kind:
+		Kind.FACE:
+			_draw_face(box)
+		Kind.STICK:
+			_draw_stick(box)
+		Kind.DPAD:
+			_draw_dpad(box)
+		Kind.MOUSE:
+			_draw_mouse(box)
+		Kind.FINGER:
+			_draw_finger(box)
+		Kind.ITEM:
+			_draw_item_button(box)
+		Kind.WHEEL:
+			_draw_wheel(box)
+		_:
+			_draw_chip(box)
+			_draw_caption(box, ink)
+
+
+## A touch screen's steering wheel, on a round chip.
+func _draw_wheel(box: Rect2) -> void:
+	var middle := box.size * 0.5
+	var radius := minf(box.size.x, box.size.y) * 0.5 - 1.0
+	draw_circle(middle, radius + 1.5, CHIP_EDGE)
+	draw_circle(middle, radius, CHIP)
+	TouchStick.draw_wheel(
+		self, middle, radius * 0.66, 0.0, Color(ink, 0.95), Color(ink, EDGE_ALPHA * 0.5)
+	)
 
 
 ## The solid backing every glyph but a face button sits on: a key cap, or the same shape rounded
@@ -508,3 +534,24 @@ func _draw_caption(box: Rect2, color: Color, size_override: int = 0) -> void:
 		text_size,
 		color
 	)
+
+
+## The item button, see [method of_item_button], with the item in hand's picture on it.
+func _draw_item_button(box: Rect2) -> void:
+	var middle := box.size * 0.5
+	var radius := minf(box.size.x, box.size.y) * 0.5 - 1.0
+	var holding := TouchInput.item_id != &""
+	var strength := 1.0 if holding else TouchControls.FAINT
+	draw_circle(middle, radius, Color(TouchControls.FILL, TouchControls.FILL.a * strength))
+	var rim := Color(TouchControls.RIM, TouchControls.RIM.a * strength)
+	draw_arc(middle, radius, 0.0, TAU, 32, rim, 1.5, true)
+	_shown_item = TouchInput.item_id
+	if holding:
+		var side := radius * 2.0 * TouchControls.ITEM_ART
+		var art := Rect2(middle - Vector2(side, side) * 0.5, Vector2(side, side))
+		PowerUpArt.draw_into(self, art, TouchInput.item_id, TouchInput.item_color)
+
+
+func _process(_delta: float) -> void:
+	if kind == Kind.ITEM and TouchInput.item_id != _shown_item:
+		queue_redraw()

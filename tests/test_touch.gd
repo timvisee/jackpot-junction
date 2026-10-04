@@ -704,6 +704,27 @@ func test_the_item_button_is_under_fire() -> void:
 	assert_bool(fire.reaches(between) and item.reaches(between)).is_false()
 
 
+## A hint naming the item button draws the button as it looks, GAME.md 8.3: round, with the item
+## in hand's picture on it, or empty and faint, rather than a pill reading ITEM the button never
+## shows.
+func test_a_hint_draws_the_item_button_as_it_looks() -> void:
+	var controls := await _driving()
+	var glyph := InputHint.glyph(InputActions.USE_ITEM, true, Color.WHITE, 15)
+	assert_int(glyph.kind).is_equal(InputGlyph.Kind.ITEM)
+	assert_str(glyph.caption).is_empty()
+	assert_float(glyph.custom_minimum_size.x).is_equal(glyph.custom_minimum_size.y)
+	assert_str(TouchInput.item_id).is_empty()
+	var kart := controls.match_node.kart_of(0)
+	kart.hold_item(load("res://data/powerups/boost.tres"), 0.0)
+	await _runner.simulate_frames(2, 17)
+	assert_str(TouchInput.item_id).is_equal("boost")
+	add_child(glyph)
+	await await_idle_frame()
+	assert_bool(glyph.is_processing()).is_true()
+	assert_str(glyph._shown_item).is_equal("boost")
+	glyph.queue_free()
+
+
 ## A finger going down on a joker clicks, and so does each card it is swiped along onto, in the
 ## hand and in the respawn pick alike, the same click the slider gives.
 func test_swiping_along_the_jokers_clicks() -> void:
