@@ -625,7 +625,7 @@ func test_the_touch_hud_keeps_its_pieces_apart() -> void:
 	controls.set_process(true)
 	var feed: KillFeed = hud.get_node("KillFeed")
 	assert_float(feed.room).is_greater(0.0)
-	assert_float(TouchControls.feed_top(board) + feed.room).is_less(controls._buttons_top())
+	assert_float(TouchControls.feed_top(board) + feed.room).is_less(TouchHud.buttons_top(controls))
 	await _pick(controls)
 	var picker: JokerPicker = hud._pickers[0]
 	await _runner.simulate_frames(4, 17)
@@ -871,7 +871,7 @@ func test_the_touch_hud_gives_the_arena_room() -> void:
 	await _runner.simulate_frames(20, 17)
 	for named: String in ["Block0", "Scoreboard", "KillFeed"]:
 		var piece: Control = hud.get_node(named)
-		assert_float(piece.scale.x).is_equal(TouchControls.COMPACT)
+		assert_float(piece.scale.x).is_equal(TouchHud.COMPACT)
 	var hand: JokerHand = hud._hands[0]
 	assert_bool(hand.tucked).is_true()
 	var card: JokerCard = hand._cards[1]

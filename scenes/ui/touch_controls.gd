@@ -83,15 +83,6 @@ const ROUND_BUTTONS: Dictionary[StringName, Array] = {
 ## The rumble setting of GAME.md 8.5 turns it off with the rest.
 const CLICK_MS := 10
 const CLICK_STRENGTH := 0.3
-## How far in from the stick and the buttons the hand of jokers keeps, and the least room over the
-## top of the hand the respawn pick keeps, GAME.md 4.2.
-const LANE_GAP := 16.0
-const FLOOR_GAP := 10.0
-## How much smaller than the rest of the UI the pieces of the HUD that are only read are drawn on a
-## touch screen, GAME.md 4.2: the player's corner, the standings and the kill feed. A phone is
-## drawn big so that its buttons can be pressed; what is only looked at does not need the size,
-## and on a phone's short screen it was the arena it took the room from.
-const COMPACT := 0.75
 ## What the pick or the hand in front is lifted to, past anything either stacks inside itself: the
 ## lifted card of a full hand, the pick's title over its cards.
 const FRONT := 20
@@ -437,50 +428,15 @@ func _stack_the_jokers() -> void:
 	picker.quiet = picking and _pick_quiet
 	# And the hand between the stick and the buttons rather than under either, with the pick
 	# above it rather than over it, however big the UI scale makes them, GAME.md 8.5.
-	hand.lane = _hand_lane()
+	hand.lane = TouchHud.hand_lane(self)
 	# Tucked into the bottom edge until a card of it is being read, see [member JokerHand.tucked].
 	hand.tucked = true
-	picker.floor_y = hand.reach() - FLOOR_GAP
+	picker.floor_y = hand.reach() - TouchHud.FLOOR_GAP
 	var feed := hud.kill_feed()
 	if feed != null:
-		feed.room = maxf(_buttons_top() - LANE_GAP - feed_top(hud.scoreboard()), 1.0)
-
-
-## Where the highest of the driving buttons and the slider reaches up to.
-func _buttons_top() -> float:
-	var top := slider.rect.position.y if uses_slider() else size.y
-	for id: StringName in driving_buttons():
-		var each := pad(id)
-		top = minf(top, each.center.y - each.radius * REACH)
-	return top
-
-
-## The player's corner, the standings and the kill feed, drawn [constant COMPACT] of their size,
-## each shrunk toward the corner or the edge it hangs from.
-func _compact_the_hud() -> void:
-	var slot := _slot()
-	var hud := _hud()
-	if hud == null:
-		return
-	var pieces: Array[Control] = [hud.scoreboard(), hud.kill_feed()]
-	if slot != null:
-		pieces.append(hud.block_of(slot.index))
-	for piece: Control in pieces:
-		if piece == null:
-			continue
-		piece.pivot_offset = Vector2(
-			piece.size.x * piece.anchor_left, piece.size.y * piece.anchor_top
+		feed.room = maxf(
+			TouchHud.buttons_top(self) - TouchHud.LANE_GAP - feed_top(hud.scoreboard()), 1.0
 		)
-		piece.scale = Vector2.ONE * COMPACT
-
-
-## The stretch of the bottom of the screen between the stick's ring and the nearest button.
-func _hand_lane() -> Vector2:
-	var right := slider.rect.position.x if uses_slider() else size.x
-	for id: StringName in driving_buttons():
-		var each := pad(id)
-		right = minf(right, each.center.x - each.radius * REACH)
-	return Vector2(TouchStick.HOME.x + TouchStick.RADIUS + LANE_GAP, right - LANE_GAP)
 
 
 ## The click of the slider under the thumb, felt through the phone.
@@ -537,7 +493,7 @@ func _process(_delta: float) -> void:
 		TouchInput.aim_point = Vector3.INF
 	_check_pinned()
 	_stack_the_jokers()
-	_compact_the_hud()
+	TouchHud.compact(_hud(), _slot())
 	# Again every frame, not only as fingers move: the lamps going green under a thumb already on
 	# the gas is the kart setting off.
 	_publish()
