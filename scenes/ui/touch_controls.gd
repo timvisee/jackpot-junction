@@ -481,11 +481,12 @@ func _process(_delta: float) -> void:
 		_let_go()
 		_build_pads()
 	# The room's menu takes the screen while it is up, and a finger that was down when it opened
-	# has let go of everything as far as the room is concerned.
+	# has let go of everything as far as the room is concerned. With nothing here to drive, a
+	# finger on the menu button is still on it: somebody watching has the menu too.
 	var shut := PauseMenu.is_open_in(get_tree()) or not driving()
 	var held := stick.finger >= 0 or _inspect_finger >= 0 or _pick_finger >= 0
 	held = held or _back_finger >= 0 or _pane_finger >= 0 or _pinned >= 0
-	if shut and (not _fingers.is_empty() or held):
+	if shut and (_fingers.size() > _on_the_menu().size() or held):
 		_let_go()
 	# A cannon gone and another picked up later points down the nose until a finger says otherwise.
 	if not _aims():
@@ -780,6 +781,17 @@ func _up_from_pads(finger: int, at: Vector2) -> void:
 	_publish()
 
 
+## The fingers on the menu button, kept by [method _let_go] while the room's menu is shut.
+func _on_the_menu() -> Array[int]:
+	var on: Array[int] = []
+	if PauseMenu.is_open_in(get_tree()):
+		return on
+	for finger: int in _fingers:
+		if (_fingers[finger] as Array).has(MENU):
+			on.append(finger)
+	return on
+
+
 func _driving_pads_at(at: Vector2) -> Array[StringName]:
 	var on: Array[StringName] = []
 	for id: StringName in driving_buttons():
@@ -811,9 +823,13 @@ func _release(on: Array) -> void:
 
 ## Every finger off everything.
 func _let_go() -> void:
+	var kept := _on_the_menu()
 	_fingers.clear()
 	for each: Pad in _pads:
 		each.held = 0
+	for finger: int in kept:
+		_fingers[finger] = [MENU]
+		pad(MENU).held += 1
 	slider.finger = -1
 	stick.rest(size)
 	_inspect_finger = -1

@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The touch menu button works with no kart to drive.** Watching an online game, or waiting for a
+  seat, a tap on it did nothing.
 - **A second gamepad no longer takes the first player's kart away.** The first player keeps the pad
   they came in on when someone else sits down, rather than being handed the keyboard.
 

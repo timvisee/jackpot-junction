@@ -1022,7 +1022,10 @@ finger, and `++ --touch=0` turns them off. `make run ARGS=--touch=1` is the firs
 steer while the other presses, and a finger belongs to whatever it went down on until it comes
 up. A menu button in the top right corner opens the room's menu of 3.8, which is the way back to
 the title and out of the game for a player with no Escape key. It opens as the finger comes up
-on it, and not if the finger slid off it first. A smaller button beside it, with a smile on it,
+on it, and not if the finger slid off it first. It works with nothing here to drive as well:
+somebody watching an online game, or a player whose seat is still on its way, has the menu too.
+Everything else lets go of a finger the moment there is no kart under the controls, and the
+menu button once did as well, so a tap on it did nothing then. A smaller button beside it, with a smile on it,
 opens the four emotes of 3.8 in a row along the top of the screen, clear of the board and the
 driving buttons under it; a tap on one puts it up and shuts the row, and a tap anywhere else
 shuts it too and goes on to whatever it landed on. It is only there with another person in the

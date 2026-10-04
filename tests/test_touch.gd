@@ -95,7 +95,8 @@ func test_touch_is_for_phones_unless_asked_for() -> void:
 
 
 ## The menu button is the way to the room's menu for a player with no Escape key: it opens as the
-## finger comes up on it, and not if the finger slid off it first.
+## finger comes up on it, and not if the finger slid off it first. With nothing here to drive, as
+## for somebody watching an online game, the finger is still on it a frame later.
 func test_the_menu_button_opens_the_rooms_menu() -> void:
 	var room: Node = auto_free(Node.new())
 	add_child(room)
@@ -108,6 +109,10 @@ func test_the_menu_button_opens_the_rooms_menu() -> void:
 	_touch(controls, 0, button.center, true)
 	assert_int(button.held).is_equal(1)
 	assert_bool(menu.is_open()).is_false()
+	assert_bool(controls.driving()).is_false()
+	await await_idle_frame()
+	await await_idle_frame()
+	assert_int(button.held).is_equal(1)
 	_touch(controls, 0, button.center, false)
 	assert_bool(menu.is_open()).is_true()
 	assert_int(button.held).is_equal(0)
