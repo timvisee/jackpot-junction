@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **A second gamepad no longer takes the first player's kart away.** The first player keeps the pad
+  they came in on when someone else sits down, rather than being handed the keyboard.
+
 ## [0.13.0] - 2026-10-03
 
 Everyone at a machine gets a profile of their own, with lifetime statistics, and can bring it to a

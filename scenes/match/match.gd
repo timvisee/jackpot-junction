@@ -307,10 +307,7 @@ func _resolve_any_device(joiner: int) -> void:
 		var player := slot.input as PlayerInput
 		if player == null or player.device != DeviceInput.ANY:
 			continue
-		var chosen := player.last_device
-		if chosen == DeviceInput.ANY or chosen == joiner:
-			chosen = DeviceInput.KEYBOARD if joiner >= 0 else 0
-		player.device = chosen
+		player.device = player.settled_beside(joiner)
 
 
 func _make_human(slot: PlayerSlot, input: KartInput) -> void:

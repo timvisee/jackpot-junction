@@ -31,17 +31,15 @@ func numbered(number: int) -> ClientSeat:
 
 
 ## A newcomer on [param device], given the lowest number nobody here has, and the name and dress
-## that seat of the settings keeps. A player on any device already here keeps the one they last
-## used, so the two do not both answer the newcomer's, the way [method Match.join_human] has it.
+## that seat of the settings keeps. A player on any device already here keeps the one they are
+## holding, see [method PlayerInput.settled_beside], so the two do not both answer the newcomer's,
+## the way [method Match.join_human] has it.
 ## Null for a device somebody here already sits at, whose seat may still be on its way.
 func sit_down(device: int) -> ClientSeat:
 	for each: ClientSeat in seats:
 		var player := each.input as PlayerInput
 		if player != null and player.device == DeviceInput.ANY:
-			var chosen := player.last_device
-			if chosen == DeviceInput.ANY or chosen == device:
-				chosen = DeviceInput.KEYBOARD if device >= 0 else 0
-			player.device = chosen
+			player.device = player.settled_beside(device)
 	# A second press on a pad whose seat has been asked for is the same player, not another one.
 	for each: ClientSeat in seats:
 		var player := each.input as PlayerInput

@@ -3460,8 +3460,13 @@ is for, at a client as at the host; the other machines see the kart go the way t
 On a pad, Start is both the join button and the pause button, and which one a
 press is depends on whose pad it is: on a pad nobody is driving it takes a seat,
 on a pad somebody is driving it pauses. A P1 still playing on any device is
-driving whichever device they last drove with. Every pad answers to the
-bindings, not only the first one plugged in.
+driving whichever device they last drove with, or before they have driven at all,
+the one they last used anywhere, the menus that brought them in included; once
+somebody sits down beside them on another device, that is the one P1 keeps, and
+only with nothing to go on is it the keyboard. Before this, P1 coming into the
+lobby on a pad they had only used in the menus was handed the keyboard when a
+second pad sat down, and was left with nothing to drive with. Every pad answers
+to the bindings, not only the first one plugged in, and drives only its own kart.
 
 ### 9.3 Online multiplayer
 

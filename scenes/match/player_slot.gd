@@ -136,9 +136,8 @@ func plays_on(device: int) -> bool:
 	var player := input as PlayerInput
 	if player == null:
 		return false
-	if player.device == DeviceInput.ANY:
-		return player.last_device == device
-	return player.device == device
+	var held := player.held_device()
+	return held != DeviceInput.ANY and held == device
 
 
 ## The device a human slot reads, or [constant DeviceInput.ANY].

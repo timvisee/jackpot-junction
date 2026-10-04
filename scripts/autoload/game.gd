@@ -139,16 +139,22 @@ func quit(code := 0) -> void:
 	tree.quit(code)
 
 
-## Watches every event, without swallowing any, purely to know which scheme to draw hints in.
+## Watches every event, without swallowing any, to know which scheme to draw hints in and which
+## device was used last, see [member DeviceInput.recent]. Heard after the room's own handlers,
+## being early in the tree: a pad's press that sits somebody down is theirs, not the last thing
+## the player before them touched.
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey or event is InputEventMouseButton:
 		last_input_keyboard = true
+		DeviceInput.touched(DeviceInput.KEYBOARD)
 	elif event is InputEventJoypadButton:
 		last_input_keyboard = false
+		DeviceInput.touched(event.device)
 	elif event is InputEventJoypadMotion:
 		# Sticks drift, so only a real push counts as picking the pad up.
 		if absf((event as InputEventJoypadMotion).axis_value) > 0.5:
 			last_input_keyboard = false
+			DeviceInput.touched(event.device)
 
 
 ## Development aid: with `++ --screenshot=<png> [--frames=<n>]` on the command line, saves the

@@ -808,7 +808,11 @@ func test_a_client_hears_the_ball_it_is_told_about() -> void:
 func test_the_side_list_is_who_is_in_the_room() -> void:
 	var room := await _open()
 	var match_node: Match = room.get_node("Match")
+	# The first player came in on the keyboard, and somebody picks up the first pad.
+	var recent := DeviceInput.recent.duplicate()
+	DeviceInput.recent = [DeviceInput.KEYBOARD]
 	match_node.join_human(DeviceInput.KEYBOARD + 1)
+	DeviceInput.recent = recent
 	await _runner.simulate_frames(3, 17)
 	var list: Scoreboard = match_node.hud._scoreboard
 	assert_bool(list.visible).is_true()

@@ -60,6 +60,41 @@ func test_joining_mid_match_takes_over_a_bot_and_settles_the_any_device_player()
 	assert_int(match_node.hud._blocks[again.index]["corner"]).is_equal(1)
 
 
+## GAME.md 9.2: a player reading every device who came through the menus on a pad, and has not
+## driven yet, keeps that pad when a second pad sits down beside them, rather than being handed
+## the keyboard and left with nothing to drive with; and their own pad's join press is theirs.
+func test_a_second_pad_leaves_the_first_player_on_the_pad_they_came_in_on() -> void:
+	var recent := DeviceInput.recent.duplicate()
+	DeviceInput.recent = [0, DeviceInput.KEYBOARD]
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.ANY, 0), BotInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(2, 17)
+	var first := match_node.slots[0]
+	assert_bool(first.plays_on(0)).is_true()
+	assert_bool(first.plays_on(1)).is_false()
+	var joined := match_node.join_human(1)
+	assert_object(joined).is_not_null()
+	assert_int(first.device()).is_equal(0)
+	assert_int(joined.device()).is_equal(1)
+	# With nothing to go on, the keyboard, as before.
+	DeviceInput.recent = []
+	var player := PlayerInput.new(DeviceInput.ANY, 0)
+	assert_int(player.settled_beside(1)).is_equal(DeviceInput.KEYBOARD)
+	assert_int(player.settled_beside(DeviceInput.KEYBOARD)).is_equal(0)
+	# Having driven on a pad, that pad, whatever was touched since.
+	player.last_device = 2
+	DeviceInput.recent = [1, 2]
+	assert_int(player.settled_beside(1)).is_equal(2)
+	DeviceInput.recent = recent
+	DeviceInput.touched(3)
+	DeviceInput.touched(DeviceInput.KEYBOARD)
+	DeviceInput.touched(3)
+	assert_int(DeviceInput.recent[0]).is_equal(3)
+	assert_int(DeviceInput.recent.count(3)).is_equal(1)
+	assert_int(DeviceInput.last_besides(3)).is_equal(DeviceInput.KEYBOARD)
+	DeviceInput.recent = recent
+
+
 ## GAME.md 4.4: somebody sitting down in a bot's kart is dressed and named for their own seat, not
 ## left in the kart as the bot drove it; a player at another machine takes neither of this
 ## machine's seats, since they say their own.

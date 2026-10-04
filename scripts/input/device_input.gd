@@ -7,6 +7,27 @@ extends RefCounted
 const ANY := -2
 const KEYBOARD := -1
 
+## The devices input came from, the most recent first, each once, in the menus as much as in a
+## match, see [method touched]: what a player reading every device was holding before somebody
+## else picked up a pad, GAME.md 9.2, when they have not driven yet to say so themselves.
+static var recent: Array[int] = []
+
+
+## [param device] was just used: the keyboard and mouse as [constant KEYBOARD], or a pad's id.
+static func touched(device: int) -> void:
+	if not recent.is_empty() and recent[0] == device:
+		return
+	recent.erase(device)
+	recent.push_front(device)
+
+
+## The device used most recently other than [param besides], or [constant ANY] for none.
+static func last_besides(besides: int) -> int:
+	for device: int in recent:
+		if device != besides:
+			return device
+	return ANY
+
 
 ## Whether hints for this device should name keys or gamepad buttons. A player pinned to one
 ## device gets that device's; one reading every device follows whatever was last touched.

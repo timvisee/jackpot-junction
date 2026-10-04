@@ -225,6 +225,30 @@ func _pad_pedals() -> Vector2:
 	)
 
 
+## The device this player is holding: the one they are pinned to, or for one reading every device
+## the one they last drove with, or before they have driven, the one last used anywhere, the
+## menus that brought them here included; [constant DeviceInput.ANY] when nothing has been.
+func held_device() -> int:
+	if device != DeviceInput.ANY:
+		return device
+	if last_device != DeviceInput.ANY:
+		return last_device
+	return DeviceInput.last_besides(DeviceInput.ANY)
+
+
+## The one device a player reading every device keeps once somebody sits down beside them on
+## [param joiner], GAME.md 9.2: the one they are holding, or failing that the one used last that
+## is not the joiner's, and only with nothing to go on the keyboard, or the first pad for a
+## joiner on the keyboard.
+func settled_beside(joiner: int) -> int:
+	var chosen := held_device()
+	if chosen == DeviceInput.ANY or chosen == joiner:
+		chosen = DeviceInput.last_besides(joiner)
+	if chosen == DeviceInput.ANY:
+		chosen = DeviceInput.KEYBOARD if joiner >= 0 else 0
+	return chosen
+
+
 ## Which device is active right now, checked on the driving and firing actions.
 func _detect_device() -> void:
 	var actions: Array[StringName] = [
