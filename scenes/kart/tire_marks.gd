@@ -5,8 +5,9 @@ extends Node3D
 ## top-level node. Feed it wheel positions every physics tick with [method add_sample].
 ##
 ## A kart one cash-out from winning the match, GAME.md 3.4, lays them in gold instead, see
-## [member gold]: faint and gone again a second and a half later, a short trail behind it every
-## player can see rather than the table painted gold, leaving the ordinary marks under it. Laid
+## [member gold]: twice as wide, solid and bright, and gone again two seconds later, a short trail
+## behind it every player can see rather than the table painted gold, leaving the ordinary marks
+## under it. Faint and thin, they were lost on the felt and all but gone on a pale floor. Laid
 ## whatever the tire marks setting says, since they say who is about to win rather than dressing
 ## the floor.
 ##
@@ -31,9 +32,9 @@ const INK := Color(0.01, 0.0081, 0.0081)
 ## A gold mark: its color, how solid it is, how wide at the least, as an intensity, and how many
 ## seconds it takes to fade.
 const GOLD := Color("#FFC21F")
-const GOLD_ALPHA := 0.55
-const GOLD_INTENSITY := 0.25
-const GOLD_FADE := 1.5
+const GOLD_ALPHA := 0.92
+const GOLD_INTENSITY := 1.0
+const GOLD_FADE := 2.0
 ## The look every stretch is drawn with, see tire_marks.gdshader beside this script.
 const LOOK: Shader = preload("res://scenes/kart/tire_marks.gdshader")
 

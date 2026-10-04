@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Gold tracks you can see.** The trail of a kart one cash-out from winning is bright and wide
+  now; it was too faint to notice, above all on the driving school's floor.
 - **The touch menu button works with no kart to drive.** Watching an online game, or waiting for a
   seat, a tap on it did nothing.
 - **A second gamepad no longer takes the first player's kart away.** The first player keeps the pad
