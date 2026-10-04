@@ -12,6 +12,9 @@ extends Node
 const AFTER := 0.6
 
 var match_node: Match
+## Whether it counts as a map played, won or not: the driving school is no match, GAME.md 8.5, and
+## counts what was done in it alone, written as it is left, see [method Tutorial.leave_record].
+var maps := true
 ## How many seconds the match has run, clock going, while this machine watched it.
 var seconds := 0.0
 ## Whether it has been written down, which happens once.
@@ -41,7 +44,7 @@ func _process(delta: float) -> void:
 
 
 func _on_state(state: int) -> void:
-	if state == Match.State.RESULTS and not recorded:
+	if state == Match.State.RESULTS and maps and not recorded:
 		get_tree().create_timer(AFTER).timeout.connect(record)
 
 
@@ -62,6 +65,9 @@ func record() -> void:
 		if profile == null:
 			continue
 		any = true
+		if not maps:
+			LifetimeStats.add_play(profile, slot, seconds)
+			continue
 		LifetimeStats.add_map(profile, slot, not ranked.is_empty() and ranked[0] == slot, seconds)
 		if last:
 			LifetimeStats.add_grand_prix(profile, not standing.is_empty() and standing[0] == slot)

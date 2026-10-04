@@ -33,6 +33,9 @@ var license: LicenseScreen
 ## Whether the kart is held still for the question of how to drive, every tick, since the match
 ## lets its karts go as it gets going.
 var holding := false
+## What the player does in here, counted into their profile's statistics as they leave, GAME.md
+## 8.5, though no map was played, see [method leave_record].
+var record: MatchRecord
 ## The pause menu's Skip lesson, gone from the fight on: the fight is not skipped, and nothing
 ## after it is a lesson.
 var _skip_entry: Button
@@ -70,6 +73,8 @@ func _ready() -> void:
 	# L-plate on the back of the kart for the whole test.
 	SchoolProps.add_to(match_node.arena)
 	SchoolInspectors.add_to(match_node.arena, match_node.slots[0].kart)
+	record = MatchRecord.add_to(match_node)
+	record.maps = false
 	KartVisuals.learner_plate(match_node.slots[0].kart)
 	# A room for learning in, not a nightclub, as the Garage is.
 	match_node.arena.disco.enabled = false
@@ -102,6 +107,15 @@ func _ready() -> void:
 func _exit_tree() -> void:
 	Turret.hunts_targets = false
 	DrivingSchool.underway = false
+	leave_record()
+
+
+## The school is left, for the next room or out of the game: what the player did in it goes into
+## their profile, written once. Only the school the game is in, which a test's never is, so a
+## test that started one can never write the player's statistics into their settings.
+func leave_record() -> void:
+	if record != null and is_inside_tree() and get_tree().current_scene == self:
+		record.record()
 
 
 ## The deck without its Cursed cards, GAME.md 9.4a: a trap is no way to meet a mechanic.

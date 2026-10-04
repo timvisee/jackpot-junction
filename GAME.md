@@ -3164,8 +3164,11 @@ like any other button.
   Everything the results screen counts is added up, see 3.8, the few that are a best
   kept as the best. A map counts only once its whistle has gone, local or online,
   against bots or people; a Grand Prix counts on its last map. Leaving before the
-  whistle counts for nothing, and the driving school, the Garage and the lobby are not
-  matches. It is the first seat's, whose profile is playing; a seat sat in as another
+  whistle counts for nothing. The driving school is no match, so it is no map played,
+  but what is done in it counts all the same, the distance, the drifts, the shots, the
+  kills and the rest, and the time spent in it, written as the school is left, passed
+  or not; only the school the game is in writes it, so a test that starts one never
+  writes the player's own statistics. The Garage and the lobby count nothing. It is the first seat's, whose profile is playing; a seat sat in as another
   profile, see 3.8, counts into that one, and a guest's counts nowhere. No reset: a new profile starts from nothing. `LifetimeStats`,
   written by `MatchRecord` a moment after the whistle, when a client has the host's
   last numbers.

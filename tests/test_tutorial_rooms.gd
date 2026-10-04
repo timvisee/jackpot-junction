@@ -688,6 +688,31 @@ func test_the_pieces_a_lesson_is_about_stay_once_it_is_over() -> void:
 	assert_str(plate.get_meta(&"plate")).is_equal("L")
 
 
+## GAME.md 8.5: what the player does in the school goes into their statistics as they leave it,
+## the distance, the kills and the time, but no map played; and only the school the game is in
+## writes it, never one a test started, which would write into the player's own settings.
+func test_the_school_counts_into_the_profile_but_no_map() -> void:
+	var tutorial := await _start()
+	var slot := tutorial.run.slot()
+	slot.stats.add(&"driven", 1200.0)
+	slot.kills = 2
+	tutorial.record.seconds = 90.0
+	var real := Game.settings
+	var scratch := Settings.new()
+	scratch.path = "user://test_school_stats.cfg"
+	Game.settings = scratch
+	tutorial.leave_record()
+	assert_bool(tutorial.record.recorded).is_false()
+	tutorial.record.record()
+	var profile := scratch.profile
+	assert_float(LifetimeStats.value_of(profile, &"driven")).is_equal(1200.0)
+	assert_float(LifetimeStats.value_of(profile, &"kills")).is_equal(2.0)
+	assert_float(LifetimeStats.value_of(profile, &"seconds")).is_equal(90.0)
+	assert_float(LifetimeStats.value_of(profile, &"maps")).is_zero()
+	Settings.remove_files(scratch.path)
+	Game.settings = real
+
+
 ## A joker pick with the hand already full gets the word at the top for as long as it is open,
 ## and a card replaced says REPLACED on its way out, the way a card lost says LOST.
 func test_a_full_hand_is_explained_and_a_replaced_card_says_so() -> void:

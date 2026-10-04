@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The driving school counts.** What you do in it, from distance driven to kills, now adds to your
+  profile's statistics, though not as a map played.
 - **Karts on show face you.** The kart in the license photo and on the podium starts turned toward
   the camera rather than away from it.
 - **An easier final exam.** The driving test ends against two easy bots; the third, harder one is

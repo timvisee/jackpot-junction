@@ -3,8 +3,9 @@ extends RefCounted
 ## A profile's statistics over every match it has played, GAME.md 8.5: every count the results
 ## screen keeps, added up, see [PlayerStats]; the best of the few that are a best rather than a
 ## count; the kills; and how many maps and Grand Prix runs were played and won, and for how long.
-## Only a match played to the whistle counts: leaving before it counts for nothing, and the
-## driving school, the Garage and the lobby are not matches.
+## Only a match played to the whistle counts as a map: leaving before it counts for nothing. The
+## driving school is no match either, but what is done in it counts, see [method add_play]; the
+## Garage and the lobby count nothing.
 
 ## Kept as the best a single match reached rather than added up.
 const PEAKS: Array[StringName] = [&"biggest_bank", &"max_mult", &"best_banked"]
@@ -58,9 +59,17 @@ const GROUPS: Array[Array] = [
 ]
 
 
-## Adds one map played to the end by [param slot] to [param profile]: its counts, its bests, its
-## kills, whether it won the map, and [param seconds] of play.
+## Adds one map played to the end by [param slot] to [param profile]: what was done in it, see
+## [method add_play], and whether it won the map.
 static func add_map(profile: Profile, slot: PlayerSlot, won: bool, seconds: float) -> void:
+	add_play(profile, slot, seconds)
+	_add(profile, &"maps", 1.0)
+	_add(profile, &"maps_won", 1.0 if won else 0.0)
+
+
+## Adds what [param slot] did to [param profile] without a map played: its counts, its bests, its
+## kills and [param seconds] of play. The driving school's, GAME.md 8.5, and every map's.
+static func add_play(profile: Profile, slot: PlayerSlot, seconds: float) -> void:
 	for key: StringName in PlayerStats.FIELDS:
 		var value := slot.stats.value(key)
 		if key in PEAKS:
@@ -69,8 +78,6 @@ static func add_map(profile: Profile, slot: PlayerSlot, won: bool, seconds: floa
 			_add(profile, key, value)
 	_peak(profile, &"best_banked", float(slot.banked))
 	_add(profile, &"kills", float(slot.kills))
-	_add(profile, &"maps", 1.0)
-	_add(profile, &"maps_won", 1.0 if won else 0.0)
 	_add(profile, &"seconds", seconds)
 
 
