@@ -715,7 +715,7 @@ func test_a_hint_draws_the_item_button_as_it_looks() -> void:
 	assert_float(glyph.custom_minimum_size.x).is_equal(glyph.custom_minimum_size.y)
 	assert_str(TouchInput.item_id).is_empty()
 	var kart := controls.match_node.kart_of(0)
-	kart.hold_item(load("res://data/powerups/boost.tres"), 0.0)
+	kart.hold_item(BOOST, 0.0)
 	await _runner.simulate_frames(2, 17)
 	assert_str(TouchInput.item_id).is_equal("boost")
 	add_child(glyph)
