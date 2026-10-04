@@ -4,13 +4,17 @@ extends KartInput
 ## kart, which suits single-player; local multiplayer gives each slot its own device.
 
 ## The emote wheel on the right stick, GAME.md 3.8: pushed past [constant WHEEL_PUSH] it comes up
-## and stays while the stick is held, pointing at the one the stick points at; pushed to
-## [constant FLICK] it is armed; let go, armed, it asks for the one it was last pointing at, and
-## unarmed it asks for nothing. A flick is all three in a moment. It used to ask the moment the
-## stick passed the flick, so the wheel was up for the tick or two a flick takes, and nobody saw
-## what was on it.
-const FLICK := 0.8
+## and stays while the stick is held, pointing at the one the stick points at. Held at
+## [constant EDGE] on one for [constant ARM_TIME] it is armed, a ring round it filling as it is
+## held; let go then, the stick back in the middle within [constant LET_GO_TIME] of leaving it,
+## and it asks for that one. Drifting off it slower than that, or onto another, is changing one's
+## mind, and asks for nothing; so does letting go before it is armed. A stick let go snaps back
+## past the middle to the other side for a moment, which is not a pick of the one there: it once
+## asked for whatever the stick pointed at last, and that was often the other side.
+const EDGE := 0.8
 const WHEEL_PUSH := 0.35
+const ARM_TIME := 0.5
+const LET_GO_TIME := 0.1
 ## How long the wheel stays open after the key for it if nothing is picked, GAME.md 3.8.
 const WHEEL_TIME := 3.0
 
@@ -22,9 +26,11 @@ static var typing := false
 var device := DeviceInput.ANY
 ## The emote wheel as this player has it, for [EmoteWheel] to draw, GAME.md 3.8: whether the key
 ## for it has opened it, when the four ways pick rather than drive, which of the four the right
-## stick points at, or -1, and whether the stick has been to the edge, so letting go asks for it.
+## stick points at, or -1, how far it is to being armed, 0 to 1, and whether it is, so letting
+## go asks for it.
 var wheel_by_keys := false
 var wheel_pointing := -1
+var wheel_charge := 0.0
 var wheel_armed := false
 ## For an any-device player, the device that last produced input; ANY until something moved.
 var last_device := DeviceInput.ANY
@@ -37,6 +43,10 @@ var kart: Kart
 
 ## How long the wheel stays open after its key.
 var _wheel_left := 0.0
+## How long the stick has been held at the edge on the one it points at, and how long since it
+## left the armed one, or below zero while it has not.
+var _dwell := 0.0
+var _leaving := -1.0
 var _fire_was_down := false
 var _use_was_down := false
 var _was_down: Dictionary[StringName, bool] = {}
@@ -198,23 +208,53 @@ func _poll_emote(delta: float, touch: bool) -> void:
 	var tapped := TouchInput.take_emote() if touch else -1
 	if tapped >= 0:
 		emote = tapped
-	var pushed := aim.length()
 	var here := kart if kart != null and is_instance_valid(kart) else null
 	# Not while the stick is aiming a cannon that aims freely, which is what it is for then.
 	if here != null and KartAim.free_aim(here):
-		wheel_pointing = -1
-		wheel_armed = false
+		_shut_wheel()
 		return
+	_poll_wheel_stick(delta)
+
+
+## The right stick on the wheel, see the class: held to arm, and let go to ask.
+func _poll_wheel_stick(delta: float) -> void:
+	var pushed := aim.length()
+	var way := -1
 	if pushed > WHEEL_PUSH:
-		wheel_pointing = posmod(roundi(rad_to_deg(atan2(aim.x, -aim.y)) / 90.0), 4)
-		wheel_armed = wheel_armed or pushed >= FLICK
+		way = posmod(roundi(rad_to_deg(atan2(aim.x, -aim.y)) / 90.0), 4)
+	if wheel_armed:
+		if way == wheel_pointing and pushed >= EDGE:
+			_leaving = -1.0
+		elif way < 0:
+			# Back in the middle: let go in a moment is letting go, and asks for it.
+			if _leaving < LET_GO_TIME:
+				emote = wheel_pointing
+			_shut_wheel()
+		else:
+			_leaving = maxf(_leaving, 0.0) + delta
+			if _leaving > LET_GO_TIME:
+				# Moved off it rather than let go: start again from where the stick is.
+				wheel_armed = false
+				_leaving = -1.0
+				_dwell = 0.0
+				wheel_charge = 0.0
+				wheel_pointing = way
 		return
-	# Let go: the one it was last pointing at, coming back from the edge in a straight line, if it
-	# got there, and nothing if it did not.
-	if wheel_armed and wheel_pointing >= 0:
-		emote = wheel_pointing
+	if way < 0:
+		_shut_wheel()
+		return
+	_dwell = _dwell + delta if way == wheel_pointing and pushed >= EDGE else 0.0
+	wheel_pointing = way
+	wheel_charge = clampf(_dwell / ARM_TIME, 0.0, 1.0)
+	wheel_armed = _dwell >= ARM_TIME
+
+
+func _shut_wheel() -> void:
 	wheel_pointing = -1
 	wheel_armed = false
+	wheel_charge = 0.0
+	_dwell = 0.0
+	_leaving = -1.0
 
 
 ## How far the pad's own gas and brake are down, as x and y: the triggers, unless rebound.

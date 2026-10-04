@@ -500,9 +500,8 @@ else's results screen, see 10.3.
   `SeatLink`, from `DriveSwitches`, through `Settings.link_seat`.
 - **Emotes.** A player can put one of four up over their kart: GG, a smile, a
   scowl or a heart, each on a round white bubble rimmed in their color so it
-  says who as well as what. On a pad the right stick flicked up, right, down or
-  left from the middle picks them in that order, once per flick, asked for as the
-  stick comes back to the middle, and not while
+  says who as well as what. On a pad the right stick held up, right, down or
+  left picks them in that order, asked for as the stick is let go, and not while
   the stick is aiming a cannon that aims freely, which is what it is for then;
   on a keyboard they are 7, 8, 9 and 0, or V and then a way, W, D, S or A or the
   arrows, and on a touch screen a small button with a smile on it beside the
@@ -510,14 +509,17 @@ else's results screen, see 10.3.
   The wheel shows what there is: the four round the player's own kart, up,
   right, down and left, in their color. It comes up once the right stick is
   pushed past a third of the way and stays for as long as it is held off the
-  middle, with the one it points at bigger and the others faint; pushed to the
-  edge, the one it points at grows bigger still, and letting go asks for it, the
-  one it was last pointing at if the stick went round the wheel since. Let go
-  without reaching the edge, it asks for nothing, so a player can bring the wheel
-  up to look at it and think better of it. A flick is the push, the edge and the
-  letting go in a moment. It used to ask the moment the stick passed the edge,
-  which left the wheel up for the tick or two a flick takes and nobody saw what
-  was on it; and for three seconds after V, with the key for each way beside it, the
+  middle, with the one it points at bigger and the others faint. Held at the edge
+  on one, a ring round it fills over half a second; full, it is armed, bigger
+  still and beating, and letting go asks for it: the stick back in the middle
+  within a tenth of a second of leaving it, which a stick let go always is. A
+  stick let go snaps back past the middle to the far side for a moment, and that
+  is not a pick of the one there; when the wheel asked for whatever the stick
+  pointed at last, that was often the far side, and a flick to the edge and
+  straight back asked too. Moved off the armed one slower than that, onto another
+  or back toward the middle, is changing one's mind, and asks for nothing; so is
+  letting go before the ring is full, or from short of the edge, so a player can
+  bring the wheel up to look at it and think better of it. And for three seconds after V, with the key for each way beside it, the
   four ways picking from it rather than driving while it is up and V again
   shutting it. Only while one is being chosen: once it is asked for, it is up
   over the kart and the wheel goes, the stick's until the stick is back in the
@@ -911,7 +913,7 @@ assigns physical devices to player slots, see 10.2.
 | Joker card: details, hold   | Right stick click   | Alt                       |
 | Jokers by mouse             |                     | Over a card to read it, click to keep a hand card open or take a pick card |
 | Free aim, Swivel Cannon only| Right stick         | Mouse position on the arena plane, or a finger on it on a touch screen |
-| Emote                       | Right stick, flicked | 7, 8, 9 or 0             |
+| Emote                       | Right stick, held then let go | 7, 8, 9 or 0     |
 | Emote wheel, then a way     |                     | V, then W, D, S or A      |
 | Pause                       | Start               | Esc                       |
 | Join, in lobby or mid-match | Start               | J                         |
