@@ -28,8 +28,9 @@ func test_it_takes_every_step_once_and_says_so() -> void:
 	var runner := scene_runner(holder)
 	var warmup := ShaderWarmup.add_to(holder)
 	assert_object(warmup).is_not_null()
-	var strip := ShaderWarmup.strip(warmup)
-	holder.add_child(strip)
+	var shown: Control = auto_free(Control.new())
+	holder.add_child(shown)
+	var pane := WarmupPane.over(shown, warmup)
 	var sfx := AudioServer.get_bus_index(Buses.SFX)
 	assert_bool(AudioServer.is_bus_mute(sfx)).is_true()
 	var ended := [false]
@@ -55,6 +56,10 @@ func test_it_takes_every_step_once_and_says_so() -> void:
 	assert_bool(AudioServer.is_bus_mute(sfx)).is_false()
 	await runner.simulate_frames(2, 17)
 	assert_bool(is_instance_valid(warmup)).is_false()
+	# The pane said so, full, and fades away by itself.
+	assert_str(pane.percent.text).is_equal("100%")
+	await await_millis(int((WarmupPane.LINGER + WarmupPane.FADE) * 1000.0) + 200)
+	assert_bool(is_instance_valid(pane)).is_false()
 	assert_object(ShaderWarmup.add_to(holder)).is_null()
 	# And it left its stamp: the next start of this build on this card has nothing to compile,
 	# as long as the cache is still as full as it left it.
@@ -88,6 +93,31 @@ func test_leaving_the_title_stops_it_and_unmutes() -> void:
 	warmup.free()
 	assert_bool(AudioServer.is_bus_mute(kart)).is_false()
 	assert_bool(ShaderWarmup.done).is_false()
+
+
+## The pane over the title says how far along it is and holds the cursor on Skip; Skip, or Back,
+## stops the compiling and the pane goes, keeping nothing, so the next start asks again.
+func test_skip_stops_it_and_puts_the_pane_away() -> void:
+	var holder: Control = auto_free(Control.new())
+	add_child(holder)
+	var runner := scene_runner(holder)
+	var warmup := ShaderWarmup.add_to(holder)
+	var pane := WarmupPane.over(holder, warmup)
+	var gone := [false]
+	pane.put_away.connect(func() -> void: gone[0] = true)
+	await runner.simulate_frames(4, 17)
+	assert_float(pane.bar.value).is_greater(0.0)
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(pane.skip_button)
+	var back := InputEventAction.new()
+	back.action = &"ui_cancel"
+	back.pressed = true
+	pane._unhandled_input(back)
+	assert_bool(gone[0]).is_true()
+	await runner.simulate_frames(2, 17)
+	assert_bool(is_instance_valid(warmup)).is_false()
+	assert_bool(is_instance_valid(pane)).is_false()
+	assert_bool(ShaderWarmup.done).is_false()
+	assert_bool(FileAccess.file_exists(STAMP)).is_false()
 
 
 ## Headless and not forced, there is nothing to compile, and nothing is started.

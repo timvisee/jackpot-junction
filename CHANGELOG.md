@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Shader compiling in plain sight.** The first start of a version shows a pane over the title
+  with its progress and a Skip button, rather than a small line in the corner.
 - **See which profile a seat is.** A linked seat shows the profile's name and plate on its pause
   menu panel, and the Players page says "Linked to" it.
 - **The item button in touch hints.** A hint on a phone shows the item button with your item's

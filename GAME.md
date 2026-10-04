@@ -405,12 +405,18 @@ so it points at what most people want next instead of waiting to be found. A cli
 which does not get to decide there is another match, is pointed at the way out.
 
 The title compiles the game's shaders behind itself the first time this build
-of the game runs on this machine, see 10.7: a thin bar above the credits,
-"Compiling shaders, please wait...", fills over a few seconds and goes, and the menu answers
-throughout. Nothing waits for it; a match started before it is done compiles the
-rest the old way, on first use. Once through, it leaves a stamp, and the next
-start has nothing to compile and shows no bar, until a new version, another
-graphics card or a cleared cache.
+of the game runs on this machine, see 10.7, and says so in a pane over the whole
+title, the license too, on a shade: "Getting the game ready", a line saying it
+compiles the graphics so matches do not stutter and is done once for each
+version, a gold bar with how far along it is in percent beside it, and Skip,
+which has the cursor and keeps it. The menu is out of reach until the bar is full,
+when the pane fades away by itself and the cursor goes to Play, or until Skip, or
+Back, stops it, whatever was not compiled then compiled the old way, on first use,
+and the pane up again at the next start, since nothing was kept. It was a thin
+bar in a corner with the menu answering throughout, which was missed, and the
+first match stuttered. Once through, it leaves a stamp, and the next start has
+nothing to compile and shows no pane, until a new version, another graphics card
+or a cleared cache.
 
 The screen is headed Podium and opens with one: the top three on three steps, the winner
 in the middle on the tallest, second a little lower on one side and third lowest
@@ -5721,11 +5727,12 @@ with the numbers that put them there.
   the same steps in a moment. Measured in a fresh user directory: the title
   leaves 36 shader cache entries and a match after it adds none; a match from
   cold writes 32. One step a frame rather than a thread, since GDScript cannot
-  compile shaders off the main thread: the menu answers between steps. Once
+  compile shaders off the main thread: the pane over the title, `WarmupPane`, is
+  drawn between steps. Once
   through, `ShaderWarmup` leaves `user://shader_warmup.cfg` saying for which
   build, renderer and card it ran and how many entries the shader cache held;
   while that matches and the cache is still at least that full, it does not run
-  again, so the bar is seen once per build on a machine; a step added to the
+  again, so the pane is seen once per build on a machine; a step added to the
   plan changes the stamp, so a machine that has stamped compiles the new step
   too. Shipping the compiled shaders in the export instead would need every
   material to be a resource the export's shader baker can see, which is a

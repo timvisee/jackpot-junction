@@ -34,6 +34,8 @@ const LICENSE_GLYPH_SIZE := 24
 const LICENSE_GLYPH_BOTTOM := 44.0
 
 var play_button: Button
+## The shaders compiling, said over the title while they do, or null, see [WarmupPane].
+var warming: WarmupPane
 
 var _column: VBoxContainer
 ## The mark over the name, which goes on a screen too short for it and the buttons both: a big UI
@@ -133,16 +135,21 @@ func _ready() -> void:
 	version.offset_bottom = -12.0
 	add_child(version)
 	play_button.grab_focus()
-	# The shaders compile behind the title, once a run, GAME.md 10.7: a bar above the credits says
-	# how far along it is, and the menu answers throughout.
-	var warmup := ShaderWarmup.add_to(self)
-	if warmup != null:
-		add_child(ShaderWarmup.strip(warmup))
 	if not Game.settings.license_number.is_empty():
 		_peek_license()
 	else:
 		_advertise_school()
 	resized.connect(_fit)
+	# The shaders compile behind the title, once a version, GAME.md 10.7, said in a pane over all
+	# of it, the license too, with Skip; the menu is the player's again once it is done.
+	var warmup := ShaderWarmup.add_to(self)
+	if warmup != null:
+		warming = WarmupPane.over(self, warmup)
+		warming.put_away.connect(
+			func() -> void:
+				warming = null
+				play_button.grab_focus()
+		)
 	_fit()
 
 
@@ -233,7 +240,7 @@ func _show_license_glyph() -> void:
 ## The hand's button shows the license and puts it away again, before the focus takes the key
 ## for walking the buttons; and what was pressed says which glyph to draw.
 func _input(event: InputEvent) -> void:
-	if _license == null:
+	if _license == null or warming != null:
 		return
 	var was := _keyboard
 	_keyboard = LicenseView.keyboard_after(event, _keyboard)

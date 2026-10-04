@@ -9,9 +9,9 @@ extends Node
 ## title is up, and Godot keeps what it compiled on disk, so the first start pays and every start
 ## after it runs this in a moment.
 ##
-## Nothing here waits. A step is taken each frame and the menu goes on answering in between, with
-## a bar on the title saying how far along it is, see [method strip]. Leaving the title before it
-## is done stops it; whatever was not compiled is compiled the old way, on first use.
+## A step is taken each frame, and the title says how far along it is in a pane over it with a
+## Skip on it, see [WarmupPane]. Skipped, or the title left before it is done, it stops; whatever
+## was not compiled is compiled the old way, on first use.
 ##
 ## Once it has run through, it leaves a stamp beside the shader cache saying for which build of
 ## the game, which renderer and which card, and how many entries the cache held: while the stamp
@@ -95,44 +95,6 @@ static func add_to(parent: Node) -> ShaderWarmup:
 	warmup.name = "ShaderWarmup"
 	parent.add_child(warmup)
 	return warmup
-
-
-## The line on the title that says what is going on, GAME.md 3.8: "Compiling shaders, please
-## wait..." over a thin bar, bottom left above the credits, gone a moment after the bar is full.
-static func strip(warmup: ShaderWarmup) -> Control:
-	var strip := VBoxContainer.new()
-	strip.name = "ShaderWarmupStrip"
-	strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	strip.add_theme_constant_override("separation", 4)
-	var label := Label.new()
-	label.text = "Compiling shaders, please wait..."
-	Type.text(label, Type.SMALL, Color(0.6, 0.6, 0.65))
-	strip.add_child(label)
-	var bar := HudBlock.bar(Vector2(220.0, 6.0), Palette.CHIP_GOLD)
-	strip.add_child(bar)
-	strip.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
-	strip.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	strip.offset_left = 16.0
-	strip.offset_bottom = -44.0
-	# The bar follows the progress as long as the warm-up is running, and stops with it.
-	var follow := Timer.new()
-	follow.wait_time = 1.0 / 30.0
-	follow.autostart = true
-	follow.timeout.connect(
-		func() -> void:
-			if is_instance_valid(warmup):
-				bar.value = warmup.progress * 100.0
-	)
-	strip.add_child(follow)
-	warmup.finished.connect(
-		func() -> void:
-			follow.stop()
-			bar.value = 100.0
-			var fade := strip.create_tween()
-			fade.tween_property(strip, "modulate:a", 0.0, 0.5).set_delay(0.4)
-			fade.tween_callback(strip.queue_free)
-	)
-	return strip
 
 
 func is_done() -> bool:
