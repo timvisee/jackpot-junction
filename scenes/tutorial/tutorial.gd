@@ -3,7 +3,7 @@ extends Node3D
 ## The tutorial, GAME.md 9.4a: a map of rooms in a row, each a lesson, joined by gates, with a
 ## checklist in the top right, a hint over the kart and the HUD arriving a piece at a time. The
 ## room is an ordinary match on the tutorial map, the way the Garage of 9.4 is: one player, two
-## parked karts for the jokers lesson and three bots for the fight at the end, no clock, and no
+## parked karts for the jokers lesson and two bots for the fight at the end, no clock, and no
 ## Cursed joker in the deck. The lessons run over it, see [TutorialRun]. A player who has never
 ## said how they drive is asked before the kart will move. It is the driving test of the driving
 ## school, see [DrivingSchool], and ends on the license, see [LicenseScreen].

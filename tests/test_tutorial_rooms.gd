@@ -534,11 +534,13 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	await _runner.simulate_frames(1, 17)
 	assert_int(lesson.released()).is_equal(2)
 	assert_bool(arena.gate_at(TutorialFight.PEN_GATES[1]).is_open).is_true()
-	Events.bank_tick.emit(0, TutorialFight.RELEASE_AT[2] - TutorialFight.RELEASE_AT[1])
-	await _runner.simulate_frames(1, 17)
-	assert_int(lesson.released()).is_equal(3)
-	var brain := run.bots[2].kart.get_node("Brain") as BotBrain
-	assert_object(brain.difficulty).is_same(TutorialFight.NORMAL)
+	# Two bots, both easy, and the third pen stays shut and empty.
+	assert_int(run.bots.size()).is_equal(TutorialFight.BOTS)
+	assert_int(TutorialFight.BOTS).is_equal(2)
+	for each: PlayerSlot in run.bots:
+		var brain := each.kart.get_node("Brain") as BotBrain
+		assert_object(brain.difficulty).is_same(tutorial.match_node.bot_difficulty)
+	assert_bool(arena.gate_at(TutorialFight.PEN_GATES[2]).is_open).is_false()
 	assert_bool(run.penned.is_empty()).is_true()
 	# A bot's turret and a bot's bullet on the floor, and the player's own bullet.
 	var bot := run.bots[0]
@@ -555,7 +557,7 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	Game.settings.license_number = ""
 	Game.settings.license_date = ""
 	Game.settings.license_plate = ""
-	Events.bank_tick.emit(0, TutorialFight.NEED - TutorialFight.RELEASE_AT[2])
+	Events.bank_tick.emit(0, TutorialFight.NEED - TutorialFight.RELEASE_AT[1])
 	await _runner.simulate_frames(2, 17)
 	assert_bool(run.is_over()).is_true()
 	# The goal takes the hints with it, and the arrow has nothing left to point at.

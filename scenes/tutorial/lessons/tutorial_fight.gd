@@ -2,14 +2,14 @@ class_name TutorialFight
 extends TutorialLesson
 ## Lesson 11, GAME.md 9.4a: the fight, in the last room, which gains its item pads, its coin pads
 ## and its crates as the lesson starts, with chips and a mult die or two over the floor to open
-## with, and
-## three bots in three pens along its east side, a gate each: the first
-## is let out at once, the second at 300 banked and the third, a normal one where the others are
-## easy, at 600. Bank 1000 points in here, on the bar across the top of the screen, and the
-## tutorial is done, the bots and everything of theirs gone in a poof. A death is a respawn and a
-## joker pick; nobody else's banking counts, and nobody can win the match itself.
+## with, and two easy bots in two of the three pens along its east side, a gate each: the first is
+## let out at once and the second at 300 banked. The third pen stands shut and empty: a third bot,
+## of the normal difficulty, made the exam harder than a first match should be. Bank 1000 points in
+## here, on the bar across the top of the screen, and the tutorial is done, the bots and everything
+## of theirs gone in a poof. A death is a respawn and a joker pick; nobody else's banking counts,
+## and nobody can win the match itself.
 
-const BOTS := 3
+const BOTS := 2
 ## Where the bots wait in their pens, each pen's gate, and where the bots come back in the arena.
 const PEN_SPOTS: Array[Vector2i] = [Vector2i(54, 42), Vector2i(54, 47), Vector2i(54, 52)]
 const PEN_GATES: Array[Vector2i] = [Vector2i(52, 41), Vector2i(52, 46), Vector2i(52, 51)]
@@ -17,9 +17,8 @@ const ARENA_SPAWNS: Array[Vector2i] = [
 	Vector2i(23, 47), Vector2i(50, 47), Vector2i(36, 41), Vector2i(36, 53)
 ]
 ## The points banked that let each bot out, and the points that finish the tutorial.
-const RELEASE_AT: Array[int] = [0, 300, 600]
+const RELEASE_AT: Array[int] = [0, 300]
 const NEED := 1000
-const NORMAL: BotDifficulty = preload("res://data/ai/normal.tres")
 ## Where chips lie as the fight opens, by cell, and how many at each.
 const CHIPS_AT: Array[Vector2i] = [
 	Vector2i(29, 47), Vector2i(44, 47), Vector2i(36, 44), Vector2i(36, 51)
@@ -179,20 +178,12 @@ func _earn(task: TutorialTask, word: String) -> void:
 	task.complete()
 
 
-## The next bot out: its pen opens, the bot is let go, and the last one is the normal one.
+## The next bot out: its pen opens and the bot is let go.
 func _release() -> void:
 	var which := _released
 	_released += 1
 	if which >= run.bots.size():
 		return
-	if which == BOTS - 1:
-		var brain := run.bots[which].kart.get_node_or_null("Brain") as BotBrain
-		if brain != null:
-			brain.setup(
-				run.bots[which].kart, run.match_node, brain.bot_trait, NORMAL, run.match_node.rng
-			)
-			# No learner any more: it holds a license, and wears the plate, GAME.md 4.4.
-			run.match_node.plate_kart(run.bots[which])
 	run.open_gate(PEN_GATES[which])
 	_pens_open.append(which)
 	run.release_bot(which)

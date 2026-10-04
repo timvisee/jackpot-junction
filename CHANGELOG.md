@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **An easier final exam.** The driving test ends against two easy bots; the third, harder one is
+  gone.
+
 ### Fixed
 
 - **No more spaces in a server address on a phone.** Address boxes use the phone's keyboard for
