@@ -2536,9 +2536,11 @@ movement: the one thing a corner block must not do is ask to be looked at.
   pressed arm lit. A mouse button is a mouse seen from above, its left or right
   half filled in the ink, or its wheel for the middle button, and a double click
   is the same mouse with ×2 beside it; any other mouse button, the wheel turned
-  say, is written on a key cap. A tap on a touch screen is a hand pointing its
-  finger up into the glass with two arcs of the tap rippling over the fingertip,
-  in the ink with a dark rim: the shut theory book's corner and the rubber stamp
+  say, is written on a key cap. A tap on a touch screen is a hand with its finger
+  on the glass and the ring of the tap round the fingertip, Material Symbols'
+  touch_app, filled, in the ink with a dark rim; the hand first drawn for it, put
+  together from rounded boxes, read as a box with a stick on it. The shut theory
+  book's corner, the rubber stamp and the license
   draw it for a phone, where a pill reading "Tap" was one more button to look
   for, and the mouse a phone makes out of every touch does not turn either back
   into a mouse. A face button, a stick, the D-pad, a mouse and a finger are

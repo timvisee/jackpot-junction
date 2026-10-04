@@ -46,9 +46,23 @@ const STICK_WIDE := 1.55
 ## How wide a mouse is for how tall it is, and how much room the mark of a double click takes
 ## beside it.
 const MOUSE_WIDE := 0.66
-## How wide a pointing finger is for how tall it is: the finger, the fist under it and the thumb
-## out to its side.
-const FINGER_WIDE := 0.72
+## How wide a tap is for how tall it is, and the picture of one: a hand with its finger on the
+## glass and the ring of the tap round the fingertip, from Google's Material Symbols, see
+## THIRD_PARTY.md, drawn in white and tinted to the ink. It was a hand put together from rounded
+## boxes, which read as a box with a stick on it. Drawn again a little off to every side in the
+## dark under it, for a rim.
+const FINGER_WIDE := 0.8
+const TAP: Texture2D = preload("res://assets/icons/touch_app.svg")
+const RIM_WAYS: Array[Vector2] = [
+	Vector2(1.0, 0.0),
+	Vector2(-1.0, 0.0),
+	Vector2(0.0, 1.0),
+	Vector2(0.0, -1.0),
+	Vector2(0.71, 0.71),
+	Vector2(-0.71, 0.71),
+	Vector2(0.71, -0.71),
+	Vector2(-0.71, -0.71),
+]
 const DOUBLE_MARK := "\u00d72"
 ## The three buttons a mouse is drawn for; any other is written on a key cap.
 const MOUSE_BUTTONS: Array[MouseButton] = [
@@ -142,8 +156,8 @@ static func of_item_button(ink: Color, font_size: int) -> InputGlyph:
 	return glyph
 
 
-## A tap on a touch screen: a hand pointing its finger down onto the glass, with the ripple of the
-## tap over the fingertip, GAME.md 8.3. A word in a pill, "Tap", read as one more button to find.
+## A tap on a touch screen: a hand with its finger on the glass, with the ring of the tap round the
+## fingertip, GAME.md 8.3. A word in a pill, "Tap", read as one more button to find.
 static func of_finger(ink: Color, font_size: int) -> InputGlyph:
 	var glyph := InputGlyph.new()
 	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -468,37 +482,13 @@ func _draw_mouse(box: Rect2) -> void:
 ## thumb out to the side, all in the ink with a dark rim round them, and two arcs of the tap
 ## rippling out over the fingertip. A shape of its own, like the mouse, so no chip round it.
 func _draw_finger(box: Rect2) -> void:
-	var tall := box.size.y
-	var middle := box.size.x * 0.5 - tall * 0.04
-	var fill := Color(ink.r, ink.g, ink.b, 0.95)
-	var parts: Array[Rect2] = [
-		Rect2(middle - tall * 0.085, tall * 0.2, tall * 0.17, tall * 0.48),
-		Rect2(middle - tall * 0.13, tall * 0.5, tall * 0.4, tall * 0.48),
-		Rect2(middle - tall * 0.28, tall * 0.6, tall * 0.22, tall * 0.15),
-	]
-	var round: Array[float] = [tall * 0.085, tall * 0.12, tall * 0.075]
-	for i: int in parts.size():
-		_draw_round(parts[i].grow(EDGE_WIDTH), round[i] + EDGE_WIDTH, CHIP_EDGE)
-	for i: int in parts.size():
-		_draw_round(parts[i], round[i], fill)
-	for fold: float in [0.64, 0.75, 0.86]:
-		draw_line(
-			Vector2(middle + tall * 0.07, tall * fold),
-			Vector2(middle + tall * 0.25, tall * fold),
-			CHIP,
-			EDGE_WIDTH * 0.8
-		)
-	var tip := Vector2(middle, tall * 0.2)
-	for reach: float in [0.11, 0.19]:
-		draw_arc(tip, tall * reach, PI * 1.18, PI * 1.82, 12, fill, EDGE_WIDTH, true)
-
-
-func _draw_round(box: Rect2, radius: float, color: Color) -> void:
-	var style := StyleBoxFlat.new()
-	style.bg_color = color
-	style.set_corner_radius_all(roundi(radius))
-	style.anti_aliasing = true
-	draw_style_box(style, box)
+	var side := box.size.y
+	var square := Rect2(Vector2((box.size.x - side) * 0.5, 0.0), Vector2(side, side))
+	# A dark rim round it, so it reads on a pale floor as well as on the dark.
+	var rim := maxf(EDGE_WIDTH, side * 0.035)
+	for way: Vector2 in RIM_WAYS:
+		draw_texture_rect(TAP, Rect2(square.position + way * rim, square.size), false, CHIP_EDGE)
+	draw_texture_rect(TAP, square, false, Color(ink, 0.95))
 
 
 ## A small solid arrowhead at [param at], pointing [param way]. Drawn twice by its caller, once

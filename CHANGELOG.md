@@ -13,6 +13,7 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A clearer tap icon.** Hints on a phone show a proper tapping hand.
 - **Shader compiling in plain sight.** The first start of a version shows a pane over the title
   with its progress and a Skip button, rather than a small line in the corner.
 - **See which profile a seat is.** A linked seat shows the profile's name and plate on its pause

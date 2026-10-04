@@ -47,6 +47,12 @@ const THINGS: Array[Dictionary] = [
 		"where": "fonts.google.com/specimen/Homemade+Apple",
 	},
 	{
+		"what": "Material Symbols, the tap",
+		"who": "Google",
+		"terms": "Apache License 2.0",
+		"where": "fonts.google.com/icons",
+	},
+	{
 		"what": "gdUnit4, the tests' framework",
 		"who": "Mike Schulze",
 		"terms": "MIT license",
