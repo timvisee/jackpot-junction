@@ -91,7 +91,7 @@ func test_profiles_are_made_switched_and_thrown_away() -> void:
 
 
 ## The Profiles page: a row for each, the one playing marked and kept, Edit renaming one in a
-## dialog, New naming one and going to it, and no switching from inside a room.
+## dialog, New naming one and going to it, and nothing done to any of them from inside a room.
 func test_the_profiles_page_lists_renames_and_makes_them() -> void:
 	var settings := _settings()
 	settings.player_names[0] = "Ann"
@@ -144,17 +144,19 @@ func test_the_profiles_page_lists_renames_and_makes_them() -> void:
 	assert_str(settings.profile.id).is_equal("3")
 	assert_str(settings.player_names[0]).is_equal("Eve")
 	assert_array(switched).is_equal(["2", "3"] as Array[String])
-	# Inside a room a new one is only made, for a seat to sit in as.
+	# Inside a room the profiles are only listed: nothing is made, changed, switched or thrown away
+	# there. Making one there once froze the game.
 	var in_room: ProfilesTab = auto_free(ProfilesTab.make(settings, false, Callable()))
 	add_child(in_room)
 	await await_idle_frame()
-	assert_bool((in_room.rows["1"]["switch"] as Button).disabled).is_true()
-	in_room.new_button.pressed.emit()
-	in_room.dialog.field.text = "Fay"
-	in_room.dialog.ok_button.pressed.emit()
-	await await_idle_frame()
-	assert_str(settings.profile.id).is_equal("3")
-	assert_int(settings.profiles().size()).is_equal(4)
+	for id: String in in_room.rows:
+		for each: String in ["edit", "switch", "delete"]:
+			assert_bool((in_room.rows[id][each] as Button).disabled).is_true()
+	assert_bool(in_room.new_button.disabled).is_true()
+	in_room._new()
+	in_room._edit(settings.profile)
+	assert_object(in_room.dialog).is_null()
+	assert_int(settings.profiles().size()).is_equal(3)
 
 
 ## The settings' pages run License, Players, Controls, Audio, Video, Accessibility, Profiles and

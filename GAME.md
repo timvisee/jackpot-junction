@@ -3185,10 +3185,13 @@ like any other button.
   one playing. New profile asks for the name the same way, with Make, then makes the
   profile and goes to it; a machine keeps eight. The dialog wants a name: Save and Make
   are off while the box is empty, Enter goes ahead and Back cancels. Switching puts the
-  settings up again for the profile now playing. It is done from the title's settings:
-  inside a room the names at the table are already the ones playing, so there Switch is
-  off and a line says to switch from the title, and New profile only makes one, for
-  somebody who has just sat down to make theirs and sit in as it, 3.8. `NameDialog`. A
+  settings up again for the profile now playing. All of it is done from the title's
+  settings: inside a room the names at the table are already the ones playing, so there
+  the page only lists the profiles, with Edit, Switch, Delete and New profile all off and
+  a line saying to manage profiles from the title. Making one inside a room once froze
+  the game: the settings went to a page of their own, under a room that was stopped for
+  the menu and stayed stopped. Linking a seat to a profile, 3.8, is still done in a room,
+  since it changes no profile. `NameDialog`. A
   settings file from before profiles is not carried over: the first profile starts
   blank. The other seats are guests of the profile playing, kept in it as before,
   until another profile sits in at one, 3.8.

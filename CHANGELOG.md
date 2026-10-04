@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **No freeze making a profile in a game.** Profiles are only listed in the settings inside a game;
+  make, edit, switch and delete them from the title screen.
 - **Gold tracks you can see.** The trail of a kart one cash-out from winning is bright and wide
   now; it was too faint to notice, above all on the driving school's floor.
 - **The touch menu button works with no kart to drive.** Watching an online game, or waiting for a

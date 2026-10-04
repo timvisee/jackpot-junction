@@ -4,9 +4,10 @@ extends ScrollContainer
 ## [Profile], the one playing marked, each named for its first player, a name Edit changes in a
 ## [NameDialog], and its plate. One can be switched to, a new one made, up to
 ## [constant Profile.MOST], named as it is made and gone to, and any but the one playing thrown
-## away, which asks first by asking the button to be pressed again. Switching is from the title's
-## settings: inside a room the names at the table are already the ones playing, and the tab says
-## where to go to switch; a profile made there is only made, for a seat to sit in as, 3.8.
+## away, which asks first by asking the button to be pressed again. All of that is done from the
+## title's settings: inside a room the names at the table are already the ones playing, so there
+## the tab only lists them and says where to go. Making one in a room once froze the game, the
+## settings going to a page of their own under a room that was stopped.
 
 const TITLE := "Profiles"
 ## What the page is for, said at its top.
@@ -20,7 +21,7 @@ const MAKE := "Make"
 const DELETE := "Delete"
 const SURE := "Delete it?"
 const NEW := "New profile"
-const ONLY_FROM_TITLE := "Switch profiles from the title screen."
+const ONLY_FROM_TITLE := "Manage profiles from the title screen."
 const FULL := "That is as many profiles as a machine keeps."
 const MAPS := "%d maps"
 ## How long the second press of Delete is waited for, in seconds.
@@ -29,7 +30,8 @@ const SURE_FOR := 3.0
 const NAME_WIDE := 320.0
 const PLATE_WIDE := 112.0
 
-## Whether a profile can be switched to here: off inside a room, see the class.
+## Whether profiles can be made, changed, switched to and thrown away here: off inside a room, see
+## the class.
 var can_switch := true
 ## Each profile's row, by its id, with its name, its edit, its switch and its delete.
 var rows: Dictionary[String, Dictionary] = {}
@@ -66,7 +68,7 @@ func _ready() -> void:
 	new_button = MenuTheme.button(NEW, Type.BODY)
 	new_button.name = "New"
 	new_button.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	new_button.disabled = kept.size() >= Profile.MOST
+	new_button.disabled = kept.size() >= Profile.MOST or not can_switch
 	new_button.pressed.connect(_new)
 	column.add_child(new_button)
 	if not can_switch:
@@ -97,6 +99,7 @@ func _row(profile: Profile) -> HBoxContainer:
 	row.add_child(played)
 	var edit := MenuTheme.button(EDIT, Type.BODY)
 	edit.custom_minimum_size = Vector2(120.0, MenuTheme.box_height())
+	edit.disabled = not can_switch
 	edit.pressed.connect(_edit.bind(profile))
 	row.add_child(edit)
 	var switch := MenuTheme.button(PLAYING if playing else SWITCH, Type.BODY)
@@ -106,7 +109,7 @@ func _row(profile: Profile) -> HBoxContainer:
 	row.add_child(switch)
 	var delete := MenuTheme.button(DELETE, Type.BODY)
 	delete.custom_minimum_size = Vector2(170.0, MenuTheme.box_height())
-	delete.disabled = playing
+	delete.disabled = playing or not can_switch
 	delete.pressed.connect(_delete.bind(profile.id, delete))
 	row.add_child(delete)
 	rows[profile.id] = {"row": row, "name": named, "edit": edit, "switch": switch, "delete": delete}
@@ -122,6 +125,8 @@ static func _plate_of(profile: Profile) -> Control:
 
 ## Asks for [param profile]'s name, its first player's, and calls it that.
 func _edit(profile: Profile) -> void:
+	if not can_switch:
+		return
 	_ask(RENAME, profile.player_names[0], SAVE, _rename.bind(profile))
 
 
@@ -162,9 +167,10 @@ func _switch(id: String) -> void:
 		_switched.call(id)
 
 
-## Asks for the new profile's name, makes it, and goes to it; inside a room only makes it.
+## Asks for the new profile's name, makes it, and goes to it.
 func _new() -> void:
-	_ask(NEW, "", MAKE, _make)
+	if can_switch:
+		_ask(NEW, "", MAKE, _make)
 
 
 func _make(named: String) -> void:
@@ -173,14 +179,15 @@ func _make(named: String) -> void:
 		return
 	made.player_names[0] = named
 	made.save_to_disk()
-	if can_switch:
-		_settings.switch_profile(made.id)
+	_settings.switch_profile(made.id)
 	if _switched.is_valid():
 		_switched.call(_settings.profile.id)
 
 
 ## The first press asks, and the second, within [constant SURE_FOR], throws it away.
 func _delete(id: String, button: Button) -> void:
+	if not can_switch:
+		return
 	if button.text != SURE:
 		button.text = SURE
 		get_tree().create_timer(SURE_FOR).timeout.connect(

@@ -114,6 +114,9 @@ func _ready() -> void:
 ## it, every page reading the profile that is playing, on the Profiles page it was done on.
 func _on_profile_switched(_id: String) -> void:
 	_settings.save_to_disk()
+	# Up over a room, a page of their own would leave the room stopped under it for good.
+	if overlay:
+		return
 	opening_on = ProfilesTab.TITLE
 	Game.go_to_settings(Game.settings_return)
 
