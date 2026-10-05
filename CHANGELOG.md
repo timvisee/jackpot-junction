@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.13.1] - 2026-10-05
+
+Your profile keeps your favorite color, and everything you play now counts in its statistics. It
+plays with 0.13.0.
+
 ### Added
 
 - **Arrange and edit your servers.** Each server in Play Online has arrows to move it up and down
@@ -1652,7 +1657,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.13.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.13.1...HEAD
+[0.13.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.1
 [0.13.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.0
 [0.12.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.12.0
 [0.11.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.11.0
