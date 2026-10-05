@@ -435,3 +435,44 @@ static func row(label_text: String, control: Control) -> HBoxContainer:
 	line.add_child(label)
 	line.add_child(control)
 	return line
+
+
+## [param button]'s words on lines of their own, centered over it: [param top] in bold over
+## [param under], smaller and in [param under_ink], or [param top] alone for no [param under]. A
+## line too long for the button ends in an ellipsis rather than running out of it. A kept server's
+## row has them, GAME.md 9.3a, and a game's in a list of games, 9.3.
+static func two_lines(button: Button, top: String, under: String, under_ink: Color) -> void:
+	var words := VBoxContainer.new()
+	words.name = "Words"
+	words.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	words.alignment = BoxContainer.ALIGNMENT_CENTER
+	words.add_theme_constant_override("separation", 0)
+	words.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(words)
+	var title := _button_line(top, Type.STRONG, Type.BODY, Color(0.92, 0.92, 0.95))
+	title.name = "Name"
+	words.add_child(title)
+	if not under.is_empty():
+		var line := _button_line(under, Type.TEXT, Type.SMALL, under_ink)
+		line.name = "Where"
+		words.add_child(line)
+
+
+## What [param button]'s lines say, one under the other, for asking what it shows.
+static func lines_of(button: Button) -> String:
+	var lines: PackedStringArray = []
+	if button != null and button.has_node("Words"):
+		for each: Node in button.get_node("Words").get_children():
+			lines.append((each as Label).text)
+	return "\n".join(lines)
+
+
+static func _button_line(text: String, font: Font, size: int, ink: Color) -> Label:
+	var line := Label.new()
+	line.text = text
+	line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Type.set_font(line, font, size)
+	Type.ink(line, ink)
+	return line

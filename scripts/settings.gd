@@ -258,6 +258,8 @@ var lobby_players := NetDoor.MOST_PLAYERS
 ## Whether anybody may come to watch such a game, and whether they may without its password.
 var lobby_watchers := true
 var lobby_watch_free := false
+## What such a game is called, empty for its host's name, see [member NetDoor.title]; kept too.
+var lobby_title := ""
 
 var path := DEFAULT_PATH
 ## The profiles linked to seats, read once.
@@ -363,6 +365,9 @@ func _load_machine(file: ConfigFile) -> void:
 	)
 	lobby_watchers = bool(file.get_value("online", "lobby_watchers", lobby_watchers))
 	lobby_watch_free = bool(file.get_value("online", "lobby_watch_free", lobby_watch_free))
+	lobby_title = PlayerNames.clean(
+		str(file.get_value("online", "lobby_title", lobby_title)), PlayerNames.TITLE_LENGTH
+	)
 
 
 func save_to_disk() -> Error:
@@ -419,6 +424,7 @@ func save_to_disk() -> Error:
 	file.set_value("online", "lobby_players", lobby_players)
 	file.set_value("online", "lobby_watchers", lobby_watchers)
 	file.set_value("online", "lobby_watch_free", lobby_watch_free)
+	file.set_value("online", "lobby_title", lobby_title)
 	file.set_value("profile", "active", profile.id)
 	# Beside wherever these settings are written now, which a test sets after making them.
 	var folder := profiles_dir()

@@ -122,8 +122,9 @@ func _hear_the_server() -> void:
 			_unheard = 0.0
 
 
-## How the game stands, for the server's list: whose it is, how many play and may, and the rest a
-## found LAN game says, see [method ServerHall.listing]. Sent on a change, and once a second.
+## How the game stands, for the server's list: what it is called and whose it is, which map it is
+## on, how many play and may, and the rest a found LAN game says, see [method ServerHall.listing].
+## Sent on a change, and once a second.
 func _report(delta: float) -> void:
 	if not _up:
 		return
@@ -140,6 +141,8 @@ func _state() -> Dictionary:
 	var door := _session.door
 	return {
 		"name": _host(),
+		"title": door.title,
+		"map": LanBeacon.map_of(_session),
 		"players": _players(),
 		"most": door.max_players,
 		"password": not door.password.is_empty(),
@@ -274,6 +277,8 @@ func _on_door_set() -> void:
 		"a password" if not door.password.is_empty() else "no password",
 		watching,
 	]
+	if not door.title.is_empty():
+		words.insert(0, 'named "%s"' % door.title)
 	say("Lobby settings: %s" % ", ".join(words))
 
 
@@ -286,11 +291,7 @@ func _describe_the_room() -> void:
 	if not _session.in_arena:
 		say("In the lobby")
 		return
-	var rules := match_node.rules
-	var where := ArenaMaps.NAMES[ArenaMaps.index_of(rules.map)]
-	if rules.rounds > 0:
-		where += ", map %d of %d" % [rules.round, rules.rounds]
-	say("Onto %s" % where)
+	say("Onto %s" % LanBeacon.map_of(_session))
 
 
 func _on_state_changed(state: int) -> void:

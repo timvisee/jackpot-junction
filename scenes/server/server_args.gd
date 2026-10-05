@@ -2,12 +2,13 @@ class_name ServerArgs
 extends RefCounted
 ## How a dedicated server was started, GAME.md 9.3a: the game's own arguments after `--`, with
 ## `--server` among them. The port players connect to, how many games it holds at once and the ports
-## those are played on, which follow its own unless given; and in a game the server has started,
-## which one it is, the port it is played on and where the server hears from it.
+## those are played on, which follow its own unless given, and the name players see it by; and in a
+## game the server has started, which one it is, the port it is played on and where the server
+## hears from it.
 ##
-## The server's own three may be given in the environment too, `JJ_PORT`, `JJ_GAMES` and
-## `JJ_GAME_PORTS`, which is how a container is told, see docker/compose.yaml. An argument on the
-## command line has the last word over the same setting in the environment.
+## The server's own four may be given in the environment too, `JJ_PORT`, `JJ_GAMES`,
+## `JJ_GAME_PORTS` and `JJ_NAME`, which is how a container is told, see docker/compose.yaml. An
+## argument on the command line has the last word over the same setting in the environment.
 
 ## The port players connect to unless told otherwise: the one a LAN game is hosted on, so a server
 ## is found where players already look. A LAN game on the server's own machine takes another.
@@ -22,6 +23,7 @@ const ENVIRONMENT: Dictionary[String, String] = {
 	"JJ_PORT": "--port",
 	"JJ_GAMES": "--games",
 	"JJ_GAME_PORTS": "--game-ports",
+	"JJ_NAME": "--name",
 }
 
 ## Whether the game is to be a dedicated server at all: `--server`, or the dedicated server build,
@@ -33,6 +35,9 @@ var games := GAMES
 ## ones after [member port]; -1 for a range that could not be read.
 var first_game_port := 0
 var last_game_port := 0
+## What players see the server called, from `--name="Friday night"`, cleaned the way a game's name
+## is; empty for none, and then it is its address.
+var name := ""
 ## In a game of the server's: its number, from 1, and where the server hears from it, a port on this
 ## machine, with the key its word is taken on. 0 in the server itself.
 var game := 0
@@ -72,6 +77,9 @@ static func read(args: PackedStringArray, environment := {}) -> ServerArgs:
 			read._games_given = true
 		elif arg.begins_with("--game-ports="):
 			read._read_game_ports(value)
+		elif arg.begins_with("--name="):
+			# All of it: a name may have an equals sign in it.
+			read.name = PlayerNames.clean(arg.trim_prefix("--name="), PlayerNames.TITLE_LENGTH)
 		elif arg.begins_with("--game="):
 			read.game = int(value)
 		elif arg.begins_with("--report="):

@@ -70,10 +70,11 @@ func open() -> Error:
 	var games := "1 game on port %d" % ports[0]
 	if ports.size() > 1:
 		games = "%d games on ports %d to %d" % [ports.size(), ports[0], ports[-1]]
+	var named := ' "%s"' % args.name if not args.name.is_empty() else ""
 	_say(
 		(
-			"Jackpot Junction %s server on port %d, up to %s"
-			% [GameVersion.current(), args.port, games]
+			"Jackpot Junction %s server%s on port %d, up to %s"
+			% [GameVersion.current(), named, args.port, games]
 		)
 	)
 	_say(listening(args.port, IP.get_local_addresses()))
@@ -107,9 +108,9 @@ func _exit_tree() -> void:
 	NetPeer.let_go(multiplayer, multiplayer.multiplayer_peer)
 
 
-## Whose each game is, and how it stands, as the Play Online screen lists it: the way a LAN game
-## found on the network says it, with the port it is played on, see [GameList]. Only games up and
-## with somebody playing, the ones in the lobby first.
+## What each game is called and whose it is, and how it stands, as the Play Online screen lists
+## it: the way a LAN game found on the network says it, with the port it is played on, see
+## [GameList]. Only games up and with somebody playing, the ones in the lobby first.
 func listing() -> Array[Dictionary]:
 	var found: Array[Dictionary] = []
 	for id: int in _games:
@@ -123,6 +124,8 @@ func listing() -> Array[Dictionary]:
 				{
 					"id": id,
 					"name": str(state.get("name", "")) if state.get("name", "") != "" else "Host",
+					"title": str(state.get("title", "")),
+					"map": str(state.get("map", "")),
 					"version": GameVersion.current(),
 					"port": game["port"],
 					"players": int(state.get("players", 0)),

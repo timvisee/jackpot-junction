@@ -155,6 +155,17 @@ func test_a_bar_follows_the_game_being_made() -> void:
 	assert_bool(screen.busy.is_open()).is_false()
 
 
+## A server given a name has it over its games; one with none says Games.
+func test_the_server_is_called_by_its_name() -> void:
+	_hall.args.name = "Friday night"
+	var screen := await _screen()
+	var said := screen.find_children("*", "Label", true, false).map(
+		func(each: Node) -> String: return (each as Label).text
+	)
+	assert_bool("Friday night" in said).is_true()
+	assert_bool("Games" in said).is_false()
+
+
 ## Somebody else's game is listed with Join and the eye that watches it, and each goes into its
 ## lobby its own way. Over the box, the line says which server this is.
 func test_a_listed_game_is_joined_or_watched() -> void:
@@ -177,7 +188,7 @@ func test_a_listed_game_is_joined_or_watched() -> void:
 	assert_bool(listed).override_failure_message("the game never showed").is_true()
 	assert_bool(screen._box.is_empty()).is_false()
 	var join: Button = games.find_child("Join1", true, false)
-	assert_str(join.text).starts_with("Bo's game")
+	assert_str(games.row_text(1)).is_equal("Bo's game\nIn the lobby · 1/4 players")
 	_entered.clear()
 	var watch: Button = games.find_child("Watch1", true, false)
 	assert_str(watch.text).is_empty()

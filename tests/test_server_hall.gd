@@ -181,6 +181,14 @@ func test_a_game_is_made_listed_and_forgotten_when_its_process_ends() -> void:
 	assert_int(int(game["players"])).is_equal(1)
 	assert_bool(bool(game["lobby"])).is_true()
 	assert_str(str(game["version"])).is_equal(Game.version())
+	# What its host called it and the map it is on, as the game says them.
+	var state := {"name": "Ann", "title": "Friday night", "map": "Crossfire", "players": 1}
+	state.merge({"most": 4, "lobby": false})
+	_report(0, {"state": state})
+	var named := await _wait_until(func() -> bool: return lists[-1][0].get("title") != "", 4000)
+	assert_bool(named).override_failure_message("the game's name never showed").is_true()
+	assert_str(str(lists[-1][0]["title"])).is_equal("Friday night")
+	assert_str(str(lists[-1][0]["map"])).is_equal("Crossfire")
 	_ended.append(1001)
 	var gone := await _wait_until(func() -> bool: return lists[-1].is_empty(), 4000)
 	assert_bool(gone).override_failure_message("the game stayed in the list").is_true()
@@ -503,6 +511,11 @@ func test_the_arguments_from_the_environment() -> void:
 	assert_int(empty.games).is_equal(ServerArgs.GAMES)
 	var wrong := ServerArgs.read([], {"JJ_PORT": "high"})
 	assert_str(wrong.problem()).contains("JJ_PORT")
+	# The server's name, JJ_NAME or --name, the whole of it, cleaned the way a game's name is.
+	assert_str(ServerArgs.read([], {"JJ_NAME": " Friday night "}).name).is_equal("Friday night")
+	var named := ServerArgs.read(["--name=Two = one [club]"], {"JJ_NAME": "Friday night"})
+	assert_str(named.name).is_equal("Two = one club")
+	assert_str(ServerArgs.read([]).name).is_empty()
 	# Nothing else is read from it: a game the hall starts is told its port on the command line,
 	# whatever the environment it inherits says, and the environment never makes a server.
 	var game := ServerArgs.read(["--server", "--game=2", "--port=9301"], {"JJ_PORT": "9200"})

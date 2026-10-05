@@ -6,6 +6,9 @@ extends RefCounted
 ## end of a match is a list of names.
 
 const MAX_LENGTH := 16
+## The longest a game's name may be, or a dedicated server's, GAME.md 9.3: a row of a list of games
+## each, cleaned the way a player's name is.
+const TITLE_LENGTH := 32
 ## What an empty name box says. Not the name anybody will be given, which is drawn at the
 ## whistle and would be a lie in a box: just the word for what goes here.
 const PLACEHOLDER := "Player"
@@ -98,14 +101,14 @@ const WATCHER_NAMES: Array[String] = [
 static var held_elsewhere: Array[String] = []
 
 
-## A name as it will be shown: trimmed, on one line, no markup, and no longer than the limit.
+## A name as it will be shown: trimmed, on one line, no markup, and no longer than [param longest].
 ## Returns an empty string for anything that was only whitespace, which counts as no name given.
-static func clean(text: String) -> String:
+static func clean(text: String, longest := MAX_LENGTH) -> String:
 	var kept := ""
 	for character: String in text:
 		if character not in FORBIDDEN:
 			kept += character
-	return kept.substr(0, MAX_LENGTH).strip_edges()
+	return kept.substr(0, longest).strip_edges()
 
 
 ## One off the list that nobody in [param taken] is already using, drawn with [param rng] so a

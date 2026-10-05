@@ -315,6 +315,13 @@ func test_the_door_is_taken_only_as_far_as_lobby_settings_could_say_it() -> void
 	assert_int(door.password.length()).is_equal(NetDoor.PASSWORD_LENGTH)
 	door.from_wire({"max_players": 0})
 	assert_int(door.max_players).is_equal(NetDoor.FEWEST_PLAYERS)
+	# The game's name goes with them, on one line, with no markup and no longer than a row's.
+	door.from_wire({"title": "Friday [night]\n%s" % "x".repeat(80)})
+	assert_str(door.title).starts_with("Friday night")
+	assert_int(door.title.length()).is_equal(PlayerNames.TITLE_LENGTH)
+	assert_str(str(door.to_wire()["title"])).is_equal(door.title)
+	door.from_wire({"max_players": 3})
+	assert_str(door.title).starts_with("Friday night")
 
 
 ## The real waiting room at the player who has just made the game: the say comes with the seat,

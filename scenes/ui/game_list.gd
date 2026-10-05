@@ -1,13 +1,18 @@
 class_name GameList
 extends VBoxContainer
-## Games there are to join, a row each, GAME.md 9.3: a button saying whose it is, whether it is
-## still in the lobby, how many play in it of how many may and whether it wants a password, which
-## joins it, and an eye beside it, which watches it instead. A game this version cannot play can be
-## neither, and one whose host lets nobody watch cannot be watched. The LAN games screen lists the
-## games found on the network in one, and Play Online a dedicated server's, 9.3a.
+## Games there are to join, a row each, GAME.md 9.3: a button with the game's name, the one its host
+## gave it or else whose it is, over a smaller line in gray saying whether it is in the lobby or on
+## which map, how many play in it of how many may and whether it wants a password, which joins it;
+## and an eye beside it, which watches it instead. A game this version cannot play can be neither,
+## and one whose host lets nobody watch cannot be watched. The LAN games screen lists the games
+## found on the network in one, and Play Online a dedicated server's, 9.3a.
 
 ## [param game] chosen, to play in, [param mode] "join", or to watch, "watch".
 signal chosen(game: Dictionary, mode: String)
+
+## The longest map a game is said to be on, "Crossfire, map 2 of 3", as a host on the network says
+## it.
+const MAP_LENGTH := 48
 
 
 func _init() -> void:
@@ -35,13 +40,26 @@ func show_games(games: Array[Dictionary], fallback: Control) -> void:
 		fallback.grab_focus()
 
 
-## A game in a line: whose, how it stands, how many play in it and may, and the rest.
+## What [param game] is called: the name its host gave it, or else whose it is, "Ann's game".
+static func title_of(game: Dictionary) -> String:
+	var title := PlayerNames.clean(str(game.get("title", "")), PlayerNames.TITLE_LENGTH)
+	return title if not title.is_empty() else default_title(str(game.get("name", "")))
+
+
+## What a game hosted by [param host] is called when it was given no name.
+static func default_title(host: String) -> String:
+	var named := PlayerNames.clean(host)
+	return "%s's game" % (named if not named.is_empty() else "Host")
+
+
+## How [param game] stands, in a line under its name: in the lobby or on which map, how many play
+## in it and may, and the rest.
 static func describe(game: Dictionary) -> String:
-	var parts: PackedStringArray = [
-		"%s's game" % game["name"],
-		"in the lobby" if game["lobby"] else "playing",
-		"%d/%d players" % [game["players"], game["most"]],
-	]
+	var where := "In the lobby"
+	if not game["lobby"]:
+		var map := PlayerNames.clean(str(game.get("map", "")), MAP_LENGTH)
+		where = "Playing %s" % map if not map.is_empty() else "Playing"
+	var parts: PackedStringArray = [where, "%d/%d players" % [game["players"], game["most"]]]
 	if game["password"]:
 		parts.append("password")
 	if not NetDoor.compatible(Game.version(), str(game["version"])):
@@ -64,9 +82,13 @@ func _row(game: Dictionary) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
 	var playable := NetDoor.compatible(Game.version(), str(game["version"]))
-	var join := MenuTheme.button(describe(game), Type.BODY)
+	var join := MenuTheme.button("", Type.BODY)
 	join.name = "Join%d" % int(game["id"])
-	join.custom_minimum_size = Vector2(0.0, 52.0)
+	MenuTheme.two_lines(join, title_of(game), describe(game), ServerList.WHERE_INK)
+	# Its words dimmed with it, which are not the button's own.
+	if not playable:
+		join.get_node("Words").modulate.a = 0.5
+	join.custom_minimum_size = Vector2(0.0, 64.0)
 	join.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	join.disabled = not playable
 	join.tooltip_text = where(game)
@@ -79,3 +101,8 @@ func _row(game: Dictionary) -> HBoxContainer:
 	watch.pressed.connect(func() -> void: chosen.emit(game, "watch"))
 	row.add_child(watch)
 	return row
+
+
+## What the row of the game [param id] says, its name over how it stands, for asking what it shows.
+func row_text(id: int) -> String:
+	return MenuTheme.lines_of(find_child("Join%d" % id, true, false) as Button)

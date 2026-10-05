@@ -1,11 +1,12 @@
 class_name LobbySettings
 extends PanelContainer
-## The host's settings for who may come into its game, GAME.md 9.6, from its pause menu in place of
-## the menu itself: how many may play, its own players included, a password to keep the game to
+## The host's settings for its game, GAME.md 9.6, from its pause menu in place of the menu itself:
+## what the lists of games call it, its host's game unless it is given a name, see [GameList]; and
+## who may come in: how many may play, its own players included, a password to keep the game to
 ## the people who were told it, whether anybody may come to watch, and whether a watcher has to
-## give the password too. Changed at once; nobody already in is shown out by any of them, they
-## only answer the next knock. The number and the two about watchers are kept for next time; the
-## password is not.
+## give the password too. Changed at once, the name once its box is left; nobody already in is
+## shown out by any of them, they only answer the next knock. The name, the number and the two about
+## watchers are kept for next time; the password is not.
 
 ## Back: the menu is up again in its place.
 signal closed
@@ -15,6 +16,7 @@ var session: NetSession
 ## button goes on to them rather than back to a menu.
 var onward := false
 
+var _title: LineEdit
 var _players: OptionButton
 var _password: LineEdit
 var _watchers: CheckButton
@@ -28,6 +30,17 @@ func _ready() -> void:
 	column.add_theme_constant_override("separation", 16)
 	add_child(column)
 	column.add_child(MenuTheme.title("Lobby settings", Type.TITLE))
+	_title = MenuTheme.field("", "", PlayerNames.TITLE_LENGTH)
+	_title.name = "GameName"
+	_title.custom_minimum_size = Vector2(300.0, 44.0)
+	_title.text_submitted.connect(func(_typed: String) -> void: _keep_title())
+	_title.focus_entered.connect(func() -> void: PlayerInput.typing = true)
+	_title.focus_exited.connect(
+		func() -> void:
+			PlayerInput.typing = false
+			_keep_title()
+	)
+	column.add_child(MenuTheme.row("Game name", _title))
 	var counts: Array = []
 	for count: int in range(NetDoor.FEWEST_PLAYERS, NetDoor.MOST_PLAYERS + 1):
 		counts.append("%d players" % count)
@@ -53,11 +66,15 @@ func _ready() -> void:
 	_watch_free.toggled.connect(_on_watch_free)
 	column.add_child(MenuTheme.row("Watch without password", _watch_free))
 	var note := MenuTheme.subtitle(
-		"These only change who can join next. Nobody already here is shown out.", Type.LABEL
+		"Who can join changes for the next to come. Nobody already here is shown out.", Type.LABEL
 	)
 	column.add_child(note)
 	_back = MenuTheme.button("Back")
-	_back.pressed.connect(func() -> void: closed.emit())
+	_back.pressed.connect(
+		func() -> void:
+			_keep_title()
+			closed.emit()
+	)
 	column.add_child(_back)
 
 
@@ -67,12 +84,39 @@ func open() -> void:
 	_back.text = "Next" if onward else "Back"
 	var door := session.door if session != null else NetDoor.new()
 	var count := clampi(door.max_players, NetDoor.FEWEST_PLAYERS, NetDoor.MOST_PLAYERS)
+	_title.text = door.title
+	_title.placeholder_text = GameList.default_title(_host_name())
 	_players.select(count - NetDoor.FEWEST_PLAYERS)
 	_password.text = door.password
 	_watchers.set_pressed_no_signal(door.watchers_allowed)
 	_watch_free.set_pressed_no_signal(not door.watchers_need_password)
 	_show_watching()
 	_players.grab_focus()
+
+
+## The game's name as it was typed, onto the door and kept for next time, if it changed: once the
+## box is left rather than at every letter, since at a dedicated server each change goes over the
+## wire and into the server's log.
+func _keep_title() -> void:
+	var title := PlayerNames.clean(_title.text, PlayerNames.TITLE_LENGTH)
+	var door := session.door if session != null else null
+	if door != null and door.title != title:
+		door.title = title
+		session.host_controls.door_changed()
+	if Game.settings.lobby_title != title:
+		Game.settings.lobby_title = title
+		Game.settings.save_to_disk()
+
+
+## Whose game it is, for the name it has with none given: the first player here, as the room has
+## them, or as the settings do before they are seated.
+func _host_name() -> String:
+	var match_node := session.match_node if session != null else null
+	if match_node != null:
+		for slot: PlayerSlot in match_node.slots:
+			if slot.is_local_human():
+				return slot.display_name()
+	return PlayerNames.clean(Game.settings.player_names[0])
 
 
 func _on_players(index: int) -> void:

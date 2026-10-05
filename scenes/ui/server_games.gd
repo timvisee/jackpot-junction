@@ -1,7 +1,8 @@
 class_name ServerGames
 extends Control
-## The games on a dedicated server, GAME.md 9.3a, once Play Online has connected to it: a row each
-## the way the LAN games screen lists the games on the network, with Join and Watch, see
+## The games on a dedicated server, GAME.md 9.3a, once Play Online has connected to it, under the
+## name its owner gave it, or Games for one with none: a row each the way the LAN games screen lists
+## the games on the network, with Join and Watch, see
 ## [GameList], and under them Make a game, which starts one there and goes into its lobby with the
 ## host's say. Joining or watching one goes into its lobby the way joining a LAN game does. Back
 ## hangs up and goes back to Play Online's servers, and so does the server going away.
@@ -39,7 +40,8 @@ static func red_line() -> Label:
 func _ready() -> void:
 	link = Net.link
 	var column := MenuTheme.screen(self, 16)
-	column.add_child(MenuTheme.title("Games", 64))
+	var called := link.server_name if link != null else ""
+	column.add_child(ListBox.fit(MenuTheme.title(called if not called.is_empty() else "Games", 64)))
 	var at := "%s:%d" % [link.address, link.port] if link != null else "the server"
 	column.add_child(
 		ListBox.fit(

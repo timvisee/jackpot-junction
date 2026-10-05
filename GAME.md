@@ -3560,13 +3560,18 @@ top, where it once said it was empty, "No servers yet" and the like, which is th
 as something to do about it. Sunk in rather than raised: the
 game's gold-barred pane, tried first, read as a dialog box come up over the screen rather than a
 part of it. A row each: a
-button saying whose it is, whether it is
-still in the lobby, how many play in it of how many may, and whether it wants a password, which
-joins it, and an eye beside it, which watches it instead, see 10.3, "Watch" its tooltip: a word
+button with the game's name on it, over a smaller line in gray saying whether it is in the lobby
+or which map it is on, "Playing Crossfire, map 2 of 3", how many play in it of how many may, and
+whether it wants a password, which joins it, and an eye beside it, which watches it instead, see 10.3, "Watch" its tooltip: a word
 on every row beside the words of the row is one more word to read, and the eye is the same on all
 of them. The eye cannot be pressed on a game whose host lets nobody watch. A pointer resting on a
 game's row says where it is hosted, "Host:" and its address and port. A game on a version this one cannot play says which version
-it is on and neither can be pressed. The list is made again as games come, go and change, and a
+it is on and neither can be pressed, its words dimmed with them. A game's name is the one its host
+gave it in Lobby settings, see 9.6, and with none it is whose it is, "Ann's game", by the name of
+whoever has the host's say, so it follows the say as it passes. A name is up to 32 characters on
+one line, cleaned the way a player's name is, and a name or a line too long for its row ends in an
+ellipsis. The rows go in the lobby first, then by name. A host on an older version that says no
+name and no map is listed by whose it is and "Playing". The list is made again as games come, go and change, and a
 pad's cursor stays on the button it was on. Finding is asking rather than being called to: about once a second the screen asks on
 port 7779 of every machine the network reaches, and of its own, which a broadcast does not always
 reach, and a host answers from there to whoever asked. That is what lets several copies of the
@@ -3610,17 +3615,21 @@ who goes back to the map's podium is looking at it, and it stays. A small gold r
 line saying the host starts the next map empties over those six seconds, so it going on is no
 surprise.
 
-The host says who may come in. Lobby settings, on the host's pause menu over Manage players,
-comes up in place of the menu with four things on it: Player limit, the most players the game
+The host names the game and says who may come in. Lobby settings, on the host's pause menu over
+Manage players, comes up in place of the menu with five things on it. Game name, first, is what
+the lists of games call it, see 9.3: empty to start with, and the box says the name an empty one
+gives, "Ann's game"; it is given once the box is left, with Enter or Back, rather than at every
+letter, since at a dedicated server each change goes over the wire and into the server's log. The
+cursor starts on the next, Player limit, the most players the game
 takes, 2, 3 or 4 with the host's own players counted; a password, none to start with; Allow
 watchers, on to start with; and Watch without password, off, which lets somebody who has come to
 watch in without the password while anybody who has come to play is still asked for it. Somebody
 watching can only look, so a host may well keep its seats to the people it told and let anybody
-look. With watchers not allowed the last is moot and grayed. All four are the door's and change
-at once; none shows anybody out who is already in, they answer the next knock. A player past the
+look. With watchers not allowed the last is moot and grayed. All five are the door's and change
+at once; none shows anybody out who is already in, the last four answer the next knock. A player past the
 number is told the match is full, and somebody watching takes no seat and is let in whatever it
-is; with watchers not allowed they are told the game is not open to watchers. The number and the
-two about watchers are kept for next time. The password is kept for as long as the game is
+is; with watchers not allowed they are told the game is not open to watchers. The name, the number
+and the two about watchers are kept for next time. The password is kept for as long as the game is
 hosted and no longer, so one forgotten never locks a later lobby without anybody knowing.
 
 A client knocks with its version, whether it has come to watch, its name and the password it was
@@ -3719,12 +3728,14 @@ says why not in the same dialog, "Could not connect" over the reason in red with
 answered, the server is on a version this one cannot play, or it is a LAN game. Whether to play or
 to watch is chosen on the second, game by game, since a server holds several. The list, the
 server connected to last, and the address and port a LAN game was joined at are the player's,
-not the machine's: they go with the player's profile. The second, Games, lists the server's games
+not the machine's: they go with the player's profile. The second, titled with the name the
+server's owner gave it, or Games for a server with none, lists the server's games
 the way LAN games lists the games on the network, in the same box, headed "Games on this server"
 and with Make a game as its link,
-a row each saying whose it is, whether it is still in the lobby, how many play in it of how many
-may and whether it wants a password, which joins it, with the eye beside it, and Make a game
-under them. Over the box it says which server it is and what to do there, "Connected to" its address
+a row each the way LAN games has them, the game's name over how it stands, which joins it, with
+the eye beside it, and Make a game under them. A game made on a server is named the way a hosted
+one is, by its maker in Lobby settings, which start from the name the maker last gave, and anybody
+the host's say passes to can change it. Over the box it says which server it is and what to do there, "Connected to" its address
 and port, "Join a game on this server, or make one now." On all
 three screens everything down the middle is as wide as the box: the lines of words wrap inside it
 rather than widening the column, and the buttons and Back fill it. Make a game asks the server for one, says it is making it in a dialog with a bar that
@@ -3753,9 +3764,11 @@ game is hosted on, unless given `--port`, so a LAN game on the same machine take
 holds up to 8 games at once unless given `--games`, on the ports after its own: 7778 to 7785 to
 start with, so a server behind a router has 7777 to 7785 let through for UDP. `--game-ports=9000-9015`
 puts the games on a stretch of ports of its own instead, as many games as it has room for, still no
-more than 8 at once unless `--games` says more. Each of the three may be set in the environment
-instead, `JJ_PORT`, `JJ_GAMES` and `JJ_GAME_PORTS`, the way a container is set up, with the command
-line having the last word over the environment. Each game is a process
+more than 8 at once unless `--games` says more. `--name="Friday night"` gives it a name, which
+players see over its games and the log says as it opens; up to 32 characters, cleaned the way a
+game's is, and with none it is known by its address. Each of the four may be set in the
+environment instead, `JJ_PORT`, `JJ_GAMES`, `JJ_GAME_PORTS` and `JJ_NAME`, the way a container is
+set up, with the command line having the last word over the environment. Each game is a process
 of its own, the game started again headless as a host with nobody at it, from the waiting room on: a
 game is the whole game, its event bus and everything else it keeps among it, and two in one process
 would hear each other's every kill. That costs about a quarter of a gigabyte and a small part of a
@@ -3779,7 +3792,8 @@ since whatever it names it loads, and it runs ten frames a second with its physi
 **The log.** The server writes a line to its output for everything worth knowing, with the date,
 the time and which game it was: the server opening; who comes to look at the games and leaves the
 list; who made which game, on which port; each game up; who came in to play or to watch and from
-where; who was turned away at the door and why; who has the host's say; Lobby settings changed;
+where; who was turned away at the door and why; who has the host's say; Lobby settings changed,
+with the game's name;
 somebody shown out; the next match chosen; each room the game goes into, the lobby or a map; play
 starting, with everybody in it; Last call and Overtime; the results in order with what each player
 banked; and the end of each game and why. A game's own output is kept quiet and its lines come to

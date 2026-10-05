@@ -11,6 +11,14 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Name your game.** Lobby settings has a Game name, and the lists of games show it over a line
+  saying whether it is in the lobby or which map it is on, and how many play; unnamed, it is
+  still "Ann's game".
+- **Name your server.** A dedicated server takes a name with `--name` or `JJ_NAME`, shown over its
+  games in Play Online.
+
 ## [0.13.1] - 2026-10-05
 
 Your profile keeps your favorite color, and everything you play now counts in its statistics. It

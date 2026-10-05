@@ -3,9 +3,10 @@ extends Node
 ## A host saying it is there to anybody looking for a game on the network, GAME.md 9.3. The Play
 ## LAN screen asks, about once a second, on [constant PORT] of every machine the network reaches
 ## and of its own; a host answers from there, to whoever asked, with what somebody choosing a game
-## wants to know: whose it is, whether it is still in the lobby, how many play in it and may, and
-## whether it wants a password. Asking rather than calling out unasked is what lets several copies
-## of the game on one machine all look: only the host has to have the port to itself.
+## wants to know: what it is called and whose it is, whether it is still in the lobby or which map
+## it is on, how many play in it and may, and whether it wants a password. Asking rather than
+## calling out unasked is what lets several copies of the game on one machine all look: only the
+## host has to have the port to itself.
 ##
 ## A second host on the same machine cannot have it, and is only reached by its address.
 
@@ -66,6 +67,8 @@ func answer() -> Dictionary:
 		"game": ANSWER,
 		"id": id,
 		"name": host_name if not host_name.is_empty() else "Host",
+		"title": session.door.title,
+		"map": map_of(session),
 		"version": session.version,
 		"port": game_port,
 		"players": playing,
@@ -75,3 +78,16 @@ func answer() -> Dictionary:
 		"watch_password": session.door.watchers_locked(),
 		"lobby": not session.in_arena,
 	}
+
+
+## The map [param session]'s room is on, with how far into a Grand Prix it is, "Crossfire, map 2 of
+## 3", or nothing in the lobby: for the lists of games, and a dedicated server's log.
+static func map_of(session: NetSession) -> String:
+	var match_node := session.match_node if session != null else null
+	if match_node == null or not session.in_arena:
+		return ""
+	var rules := match_node.rules
+	var where := ArenaMaps.NAMES[ArenaMaps.index_of(rules.map)]
+	if rules.rounds > 0:
+		where += ", map %d of %d" % [rules.round, rules.rounds]
+	return where

@@ -49,10 +49,11 @@ var hall: ServerHall
 ## machine the name it gives, for the server's log.
 var version := ""
 var player_name := ""
-## At a player's machine: the address and port of the server it knocked at, and the games it last
-## listed.
+## At a player's machine: the address and port of the server it knocked at, what the server said it
+## is called, empty for no name, and the games it last listed.
 var address := ""
 var port := 0
+var server_name := ""
 var games: Array[Dictionary] = []
 ## At the server: the door before anybody is let in to look, see [NetGuard].
 var guard: NetGuard
@@ -149,8 +150,8 @@ func _knock(peer: int) -> void:
 	(multiplayer as SceneMultiplayer).send_auth(peer, var_to_bytes(NetGuard.marked(words)))
 
 
-## The server lets in anybody on a version it plays with and says which version it has; a player's
-## end let in lets the server in, and one turned away says why.
+## The server lets in anybody on a version it plays with and says which version it has, and what it
+## is called; a player's end let in lets the server in, and one turned away says why.
 func _answer(peer: int, data: PackedByteArray) -> void:
 	var scene := multiplayer as SceneMultiplayer
 	var words: Dictionary = {}
@@ -168,13 +169,16 @@ func _answer(peer: int, data: PackedByteArray) -> void:
 		# [method NetDoor.refusal], rather than let in to wait for a seat nobody here hands out.
 		var listing := bool(words.get(LISTING, false))
 		var playable := listing and GameVersion.compatible(version, theirs)
-		var answer := {"version": version, "welcome": playable, "server": not listing}
+		var answer := {
+			"version": version, "welcome": playable, "server": not listing, "name": hall.args.name
+		}
 		scene.send_auth(peer, var_to_bytes(answer))
 		hall.knocked(peer, PlayerNames.clean(str(words.get("name", ""))), theirs, playable, listing)
 		if playable:
 			scene.complete_auth(peer)
 		return
 	if bool(words.get("welcome", false)):
+		server_name = PlayerNames.clean(str(words.get("name", "")), PlayerNames.TITLE_LENGTH)
 		scene.complete_auth(peer)
 		return
 	_turned_away = true

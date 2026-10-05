@@ -607,6 +607,41 @@ func test_play_lan_says_why_it_is_back() -> void:
 	assert_bool(again.is_form_up()).is_false()
 
 
+## GAME.md 9.6: the host names the game in Lobby settings, once the box is left, and the name is
+## kept for next time; with none, the box says the name it has, the host's.
+func test_the_host_names_the_game_in_lobby_settings() -> void:
+	var real := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = TEST_SETTINGS_PATH
+	Game.settings.player_names[0] = "Ann"
+	var holder: Node = auto_free(Node.new())
+	add_child(holder)
+	var session: NetSession = auto_free(NetSession.new())
+	session.is_host = true
+	var menu := PauseMenu.add_to(holder, session)
+	await await_idle_frame()
+	menu._door_button.pressed.emit()
+	var box: LineEdit = menu._door._title
+	assert_str(box.text).is_empty()
+	assert_str(box.placeholder_text).is_equal("Ann's game")
+	box.text = " Friday [night] "
+	assert_str(session.door.title).is_empty()
+	box.text_submitted.emit(box.text)
+	assert_str(session.door.title).is_equal("Friday night")
+	var read := Settings.new()
+	read.path = TEST_SETTINGS_PATH
+	read.load_from_disk()
+	assert_str(read.lobby_title).is_equal("Friday night")
+	# Emptied, it is the host's game again; Back keeps what the box says too.
+	box.text = ""
+	menu._door._back.pressed.emit()
+	assert_str(session.door.title).is_empty()
+	assert_str(Game.settings.lobby_title).is_empty()
+	get_tree().paused = false
+	Settings.remove_files(TEST_SETTINGS_PATH)
+	Game.settings = real
+
+
 ## GAME.md 9.6: the host's Lobby settings set how many may play and a password, at once; the
 ## number is kept for next time and the password is not.
 func test_the_hosts_lobby_settings_set_the_door() -> void:

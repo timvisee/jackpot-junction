@@ -123,6 +123,7 @@ func _host() -> void:
 		session.door.max_players = Game.settings.lobby_players
 		session.door.watchers_allowed = Game.settings.lobby_watchers
 		session.door.watchers_need_password = not Game.settings.lobby_watch_free
+		session.door.title = Game.settings.lobby_title
 		session.door.password = config.password
 		var error := session.host(config.port)
 		if error != OK:
@@ -352,6 +353,7 @@ func _take_the_say(arriving: bool) -> void:
 		session.door.max_players = Game.settings.lobby_players
 		session.door.watchers_allowed = Game.settings.lobby_watchers
 		session.door.watchers_need_password = not Game.settings.lobby_watch_free
+		session.door.title = Game.settings.lobby_title
 		session.host_controls.door_changed()
 		choose(true)
 	elif arriving:

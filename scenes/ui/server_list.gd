@@ -162,20 +162,7 @@ func _row(server: Dictionary, index: int, count: int) -> HBoxContainer:
 	join.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	join.pressed.connect(func() -> void: chosen.emit(server))
 	row.add_child(join)
-	var words := VBoxContainer.new()
-	words.name = "Words"
-	words.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	words.alignment = BoxContainer.ALIGNMENT_CENTER
-	words.add_theme_constant_override("separation", 0)
-	words.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	join.add_child(words)
-	var title := _line(label(server), Type.STRONG, Type.BODY, Color(0.92, 0.92, 0.95))
-	title.name = "Name"
-	words.add_child(title)
-	if named:
-		var under := _line(where(server), Type.TEXT, Type.SMALL, WHERE_INK)
-		under.name = "Where"
-		words.add_child(under)
+	MenuTheme.two_lines(join, label(server), where(server) if named else "", WHERE_INK)
 	var up := IconButton.of(IconButton.Kind.UP, "Move up")
 	up.name = "Up%d" % index
 	up.disabled = index == 0
@@ -197,23 +184,6 @@ func _row(server: Dictionary, index: int, count: int) -> HBoxContainer:
 	return row
 
 
-## A line of a row's button, centered, in [param font] at [param size] and [param ink].
-static func _line(text: String, font: Font, size: int, ink: Color) -> Label:
-	var line := Label.new()
-	line.text = text
-	line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Type.set_font(line, font, size)
-	Type.ink(line, ink)
-	return line
-
-
 ## What the row of [param index] says, its lines one under the other, for asking what it shows.
 func row_text(index: int) -> String:
-	var button := connect_button(index)
-	if button == null:
-		return ""
-	var lines: PackedStringArray = []
-	for each: Node in button.get_node("Words").get_children():
-		lines.append((each as Label).text)
-	return "\n".join(lines)
+	return MenuTheme.lines_of(connect_button(index))

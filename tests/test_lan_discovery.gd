@@ -54,8 +54,8 @@ func test_the_lan_screen_finds_a_hosted_game_and_what_it_is() -> void:
 	assert_bool(game["password"]).is_true()
 	assert_bool(game["lobby"]).is_true()
 	assert_str(game["address"]).is_not_empty()
-	var line := GameList.describe(game)
-	assert_str(line).is_equal("Ann's game · in the lobby · 1/3 players · password")
+	assert_str(GameList.title_of(game)).is_equal("Ann's game")
+	assert_str(GameList.describe(game)).is_equal("In the lobby · 1/3 players · password")
 	assert_bool(game["watching"]).is_true()
 	assert_bool(game["watch_password"]).is_true()
 	# On the LAN games screen it is a row: the button that joins it, and Watch beside it.
@@ -73,6 +73,17 @@ func test_the_lan_screen_finds_a_hosted_game_and_what_it_is() -> void:
 	assert_object(join).is_not_null()
 	# Where the game is hosted, said when a pointer rests on it.
 	assert_str(join.tooltip_text).is_equal("Host: %s:%d" % [game["address"], PORT])
+	assert_str(screen._found.row_text(id)).is_equal(
+		"Ann's game\nIn the lobby · 1/3 players · password"
+	)
+	# Named by its host, it is listed by that name.
+	session.door.title = "Friday night"
+	waited = 0
+	while GameList.title_of(finder.games()[0]) != "Friday night" and waited < 6000:
+		await await_millis(50)
+		waited += 50
+	assert_str(GameList.title_of(finder.games()[0])).is_equal("Friday night")
+	assert_str(screen._found.row_text(id)).starts_with("Friday night\n")
 	# Shut to watchers, Watch cannot be pressed.
 	session.door.watchers_allowed = false
 	waited = 0
@@ -86,3 +97,26 @@ func test_the_lan_screen_finds_a_hosted_game_and_what_it_is() -> void:
 	session.queue_free()
 	await await_millis(int(LanFinder.FORGET_AFTER * 1000.0) + 600)
 	assert_bool(finder.games().is_empty()).is_true()
+
+
+## GAME.md 9.3: a game is listed by its name, or its host's game with none, over how it stands: in
+## the lobby, or on which map; the map is left out for a host that did not say it.
+func test_a_game_is_said_by_its_name_and_where_it_is() -> void:
+	var game := {
+		"name": "Ann",
+		"title": "",
+		"map": "Crossfire, map 2 of 3",
+		"players": 3,
+		"most": 4,
+		"password": false,
+		"lobby": false,
+		"version": Game.version(),
+	}
+	assert_str(GameList.title_of(game)).is_equal("Ann's game")
+	assert_str(GameList.describe(game)).is_equal("Playing Crossfire, map 2 of 3 · 3/4 players")
+	game["title"] = "  [Friday] night  "
+	assert_str(GameList.title_of(game)).is_equal("Friday night")
+	game.erase("map")
+	game.erase("title")
+	assert_str(GameList.describe(game)).is_equal("Playing · 3/4 players")
+	assert_str(GameList.title_of({"name": ""})).is_equal("Host's game")

@@ -33,6 +33,9 @@ var password := ""
 ## to the people it told.
 var watchers_allowed := true
 var watchers_need_password := true
+## What the host has called the game, for the lists of games, GAME.md 9.3: empty for no name of its
+## own, which the lists show as its host's, see [method GameList.title_of].
+var title := ""
 ## What each client said it was called as it knocked, and for somebody watching, who has no seat
 ## to be named in, what the host calls them: their own name if nobody else has it, and otherwise,
 ## or with none given, a funny one off the watchers' list that nobody else has, GAME.md 3.8.
@@ -116,14 +119,15 @@ func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> 
 	return answered
 
 
-## The four lobby settings, as they go over the wire between a dedicated server and the player
-## hosting at it, GAME.md 9.3a.
+## The lobby settings, as they go over the wire between a dedicated server and the player hosting
+## at it, GAME.md 9.3a.
 func to_wire() -> Dictionary:
 	return {
 		"max_players": max_players,
 		"password": password,
 		"watchers_allowed": watchers_allowed,
 		"watchers_need_password": watchers_need_password,
+		"title": title,
 	}
 
 
@@ -134,6 +138,7 @@ func from_wire(state: Dictionary) -> void:
 	password = str(state.get("password", password)).strip_edges().left(PASSWORD_LENGTH)
 	watchers_allowed = bool(state.get("watchers_allowed", watchers_allowed))
 	watchers_need_password = bool(state.get("watchers_need_password", watchers_need_password))
+	title = PlayerNames.clean(str(state.get("title", title)), PlayerNames.TITLE_LENGTH)
 
 
 ## Whether somebody coming to watch is asked for the password, for the list of games found on the

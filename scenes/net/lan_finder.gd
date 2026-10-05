@@ -33,7 +33,7 @@ func _exit_tree() -> void:
 	_udp.close()
 
 
-## The games answering, the ones in the lobby first, then by whose they are.
+## The games answering, the ones in the lobby first, then by what they are called.
 func games() -> Array[Dictionary]:
 	var found: Array[Dictionary] = []
 	found.assign(_heard.values())
@@ -41,7 +41,7 @@ func games() -> Array[Dictionary]:
 		func(a: Dictionary, b: Dictionary) -> bool:
 			if a["lobby"] != b["lobby"]:
 				return a["lobby"]
-			return str(a["name"]) < str(b["name"])
+			return GameList.title_of(a).to_lower() < GameList.title_of(b).to_lower()
 	)
 	return found
 
