@@ -48,6 +48,8 @@ const TAB_HINT_SIZE := 18
 const PLAYERS_LINE := "What each seat at this screen is called, and how it drives."
 ## What a seat's row says beside it while another profile sits in it, GAME.md 3.8.
 const LINKED_TO := "Linked to %s"
+## How big a color is drawn in a seat's row.
+const SWATCH := 30.0
 
 ## The page the next settings screen opens on, by its name, or the first.
 static var opening_on := ""
@@ -384,7 +386,7 @@ func _players_tab() -> Control:
 			func(text: String) -> void: _settings.set_seat_name(seat, PlayerNames.clean(text))
 		)
 		var row := MenuTheme.row("Seat %d" % (seat + 1), field)
-		row.add_child(_color_switch(seat))
+		row.add_child(_color_choice(seat))
 		row.add_child(_drive_switch(seat))
 		var linked := _settings.seat_profile(seat)
 		if linked != null:
@@ -406,34 +408,44 @@ static func page_line(text: String) -> Label:
 	return line
 
 
-## A small button in [param seat]'s favorite color, GAME.md 3.8, that moves it on to the next one,
-## round all of them: the color the seat is given wherever it is free, the kart on the license in
-## it too. Until one is chosen it shows the color the seat's place at the table gives it.
-func _color_switch(seat: int) -> Button:
-	var pressable := MenuTheme.button("", Type.BODY)
-	pressable.name = "Color%d" % seat
-	pressable.custom_minimum_size = Vector2(48.0, 44.0)
-	var swatch := ColorRect.new()
-	swatch.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	swatch.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	for side: int in [SIDE_LEFT, SIDE_TOP]:
-		swatch.set_offset(side, 10.0)
-	for side: int in [SIDE_RIGHT, SIDE_BOTTOM]:
-		swatch.set_offset(side, -10.0)
-	pressable.add_child(swatch)
-	var shown := func() -> void:
-		var picked := _settings.seat_color(seat)
-		swatch.color = Palette.player_color(picked if picked >= 0 else seat)
-		pressable.tooltip_text = Palette.color_name(picked if picked >= 0 else seat)
-	shown.call()
-	pressable.pressed.connect(
-		func() -> void:
-			var picked := _settings.seat_color(seat)
-			var count := Palette.PLAYER_COLORS.size()
-			_settings.set_seat_color(seat, posmod((picked if picked >= 0 else seat) + 1, count))
-			shown.call()
-	)
-	return pressable
+## [param seat]'s favorite color, GAME.md 3.8, chosen from all of them in a row, each a swatch, the
+## one chosen ringed in gold: the color the seat is given wherever it is free, the kart on the
+## license in it too. A single swatch that moved on round them was a guess at what came next.
+func _color_choice(seat: int) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.name = "Colors%d" % seat
+	row.add_theme_constant_override("separation", 4)
+	row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var swatches: Array[Button] = []
+	for color: int in Palette.PLAYER_COLORS.size():
+		var swatch := Button.new()
+		swatch.name = "Color%d" % color
+		swatch.custom_minimum_size = Vector2(SWATCH, SWATCH)
+		swatch.tooltip_text = Palette.color_name(color)
+		swatch.pressed.connect(
+			func() -> void:
+				_settings.set_seat_color(seat, color)
+				_ring_chosen(swatches, color)
+		)
+		row.add_child(swatch)
+		swatches.append(swatch)
+	_ring_chosen(swatches, _settings.seat_color(seat))
+	return row
+
+
+## Each of [param swatches] in its own color, [param chosen] ringed in gold and the cursor's in
+## white.
+static func _ring_chosen(swatches: Array[Button], chosen: int) -> void:
+	for color: int in swatches.size():
+		var fill := Palette.player_color(color)
+		for state: String in ["normal", "hover", "pressed", "focus"]:
+			var look := StyleBoxFlat.new()
+			look.bg_color = fill.lightened(0.15) if state == "hover" else fill
+			look.set_corner_radius_all(int(SWATCH * 0.5))
+			var ring := color == chosen or state == "focus"
+			look.set_border_width_all(3 if ring else 0)
+			look.border_color = Color.WHITE if state == "focus" else Palette.CHIP_GOLD
+			swatches[color].add_theme_stylebox_override(state, look)
 
 
 ## A small button with the way [param seat] drives on it, simple or advanced, that changes it to

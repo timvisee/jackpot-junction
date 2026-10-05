@@ -84,8 +84,8 @@ func test_joining_and_recoloring_use_and_keep_the_favorite() -> void:
 	assert_int(Game.settings.seat_color(0)).is_equal(first.color_index)
 
 
-## The kart on the license is in the holder's favorite, and the Players page moves a seat's favorite
-## on round the colors.
+## The kart on the license is in the holder's favorite, and the Players page chooses a seat's
+## favorite from all of them in a row.
 func test_the_license_and_the_players_page_show_the_favorite() -> void:
 	Game.settings.set_seat_color(0, 3)
 	var card: LicenseCard = auto_free(LicenseCard.from_settings())
@@ -93,13 +93,15 @@ func test_the_license_and_the_players_page_show_the_favorite() -> void:
 	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
 	add_child(screen)
 	await await_idle_frame()
-	var swatch: Button = screen.find_child("Color1", true, false)
-	assert_object(swatch).is_not_null()
-	swatch.pressed.emit()
-	assert_int(Game.settings.seat_color(1)).is_equal(2)
-	var last: Button = screen.find_child("Color0", true, false)
-	for i: int in Palette.PLAYER_COLORS.size() - 4:
-		last.pressed.emit()
-	assert_int(Game.settings.seat_color(0)).is_equal(Palette.PLAYER_COLORS.size() - 1)
-	last.pressed.emit()
-	assert_int(Game.settings.seat_color(0)).is_equal(0)
+	# Every color in a row for each seat, the chosen one ringed; a press on one chooses it.
+	var row: HBoxContainer = screen.find_child("Colors1", true, false)
+	assert_int(row.get_child_count()).is_equal(Palette.PLAYER_COLORS.size())
+	(row.get_child(6) as Button).pressed.emit()
+	assert_int(Game.settings.seat_color(1)).is_equal(6)
+	var ringed := (row.get_child(6) as Button).get_theme_stylebox("normal") as StyleBoxFlat
+	assert_int(ringed.border_width_top).is_greater(0)
+	var plain := (row.get_child(2) as Button).get_theme_stylebox("normal") as StyleBoxFlat
+	assert_int(plain.border_width_top).is_equal(0)
+	var first: HBoxContainer = screen.find_child("Colors0", true, false)
+	var three := (first.get_child(3) as Button).get_theme_stylebox("normal") as StyleBoxFlat
+	assert_int(three.border_width_top).is_greater(0)

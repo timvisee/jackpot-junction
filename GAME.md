@@ -3065,10 +3065,10 @@ like any other button.
   and the learner's L the kart wears meanwhile.
 - **Players**: under a line saying what the page is for, a row each for the four
   seats at this machine, Seat 1 to Seat 4, with a box for what the seat is called,
-  see 3.8, with the funny-name hint in an empty one, and after each a small
-  swatch of the seat's favorite color, 4.4, that moves it on to the next of them
-  round all of them, showing the color the seat's place gives it until one is
-  chosen, and a small button with the picture of how that seat drives, simple or
+  see 3.8, with the funny-name hint in an empty one, and after each the seat's
+  favorite color, 4.4, chosen from all of them in a row of round swatches, the
+  chosen one ringed in gold and none before one is; a single swatch that moved on
+  round them was a guess at what came next. Then a small button with the picture of how that seat drives, simple or
   advanced, that changes it to the other, see 4.2. The first seat's is the Driving row of
   Controls, and each shows what the other was changed to.
 - **Controls**: how the first player drives, simple or advanced, each a button
