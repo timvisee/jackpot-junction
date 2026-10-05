@@ -79,6 +79,8 @@ func _ready() -> void:
 		ready_room.everybody_ready.connect(_begin, CONNECT_ONE_SHOT)
 	if not config.dedicated:
 		DebugOverlay.add_to(self, match_node, session)
+		# What the players here do in the lobby counts too, GAME.md 8.5, as they leave it.
+		MatchRecord.add_to(match_node).maps = false
 	# Even with nobody here to open it: it is what stops the room once everybody asks.
 	var menu := PauseMenu.add_to(self, session)
 	menu.names_and_colors = true

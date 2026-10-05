@@ -3187,17 +3187,21 @@ like any other button.
   have been fired, rams and bounties. Money: chips picked up and lost, cash-outs, the
   biggest cash-out, the most banked in one map, the highest mult and Royal Flushes.
   Everything the results screen counts is added up, see 3.8, the few that are a best
-  kept as the best. A map counts only once its whistle has gone, local or online,
-  against bots or people; a Grand Prix counts on its last map. Leaving before the
-  whistle counts for nothing. The driving school is no match, so it is no map played,
-  but what is done in it counts all the same, the distance, the drifts, the shots, the
-  kills and the rest, and the time spent in it, written as the school is left, passed
-  or not; only the school the game is in writes it, and never in a headless run, so
-  neither a test that starts one nor a smoke run of it writes the player's own
-  statistics. The Garage and the lobby count nothing. It is the first seat's, whose profile is playing; a seat sat in as another
-  profile, see 3.8, counts into that one, and a guest's counts nowhere. No reset: a new profile starts from nothing. `LifetimeStats`,
-  written by `MatchRecord` a moment after the whistle, when a client has the host's
-  last numbers.
+  kept as the best. A map counts as one played only once its whistle has gone, local
+  or online, against bots or people; a Grand Prix counts on its last map. What is done
+  counts wherever it is done, though: a match left before its whistle, for the lobby
+  or the title, out of the game, or with the line to the host gone, counts all of it
+  but the map, and so do the lobby and the driving school, which are no matches, the
+  distance, the drifts, the shots, the kills and the rest, and the time spent in them,
+  written as they are left. Leaving before the whistle once counted for nothing, and
+  the lobby never counted at all. Only the room the game is in writes, and never a
+  headless run, so neither a test that starts one nor a smoke run writes the player's
+  own statistics. The Garage counts nothing. It is the first seat's, whose profile is
+  playing; a seat sat in as another profile, see 3.8, counts into that one, written
+  before the title makes every seat a guest again; and a guest's counts nowhere. No
+  reset: a new profile starts from nothing. `LifetimeStats`, written by `MatchRecord`
+  a moment after the whistle, when a client has the host's last numbers, or as the
+  room is left.
 - **Profiles**, after Statistics: who is playing at this machine, down the left as the
   Players page is, under a line saying so. A profile is a person's save, kept
   apart from how the machine is set up: the names, karts and ways to drive of the four

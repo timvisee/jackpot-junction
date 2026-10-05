@@ -715,7 +715,8 @@ func test_the_school_counts_into_the_profile_but_no_map() -> void:
 	var scratch := Settings.new()
 	scratch.path = "user://test_school_stats.cfg"
 	Game.settings = scratch
-	tutorial.leave_record()
+	# Left, a test's school is not the game's: nothing is written.
+	tutorial.record.leave()
 	assert_bool(tutorial.record.recorded).is_false()
 	tutorial.record.record()
 	var profile := scratch.profile

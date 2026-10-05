@@ -25,6 +25,7 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	MatchRecord.anywhere = false
 	get_tree().paused = false
 	Settings.remove_files(PATH)
 	Game.settings = _settings_were
@@ -195,6 +196,62 @@ func test_a_linked_seats_match_goes_into_its_profile() -> void:
 	assert_float(LifetimeStats.value_of(kept, &"maps")).is_equal(1.0)
 	assert_float(LifetimeStats.value_of(kept, &"kills")).is_equal(2.0)
 	assert_float(LifetimeStats.value_of(Game.settings.profile, &"maps")).is_equal(1.0)
+
+
+## GAME.md 8.5: a room left, the lobby here, counts what was done in it for every profile at this
+## machine, the one sat in at another seat too, and no map; written down before the seats are
+## guests again, which is the order the title takes them in.
+func test_a_room_left_counts_for_every_profile_here() -> void:
+	var bob := _bob()
+	Game.settings.link_seat(1, bob.id)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD, 0), PlayerInput.new(0, 1)]
+	var match_node := _room(inputs)
+	var record := MatchRecord.add_to(match_node)
+	record.maps = false
+	await _runner.simulate_frames(3, 17)
+	match_node.slots[0].stats.add(&"driven", 300.0)
+	match_node.slots[1].stats.add(&"driven", 700.0)
+	# A test's room is not the game's: left, it writes nothing.
+	record.leave()
+	assert_bool(record.recorded).is_false()
+	MatchRecord.anywhere = true
+	get_tree().call_group(MatchRecord.GROUP, &"leave")
+	Game.settings.unlink_all()
+	assert_bool(record.recorded).is_true()
+	assert_float(LifetimeStats.value_of(Game.settings.profile, &"driven")).is_equal(300.0)
+	assert_float(LifetimeStats.value_of(Game.settings.profile, &"maps")).is_zero()
+	var kept := Profile.at(Game.settings.profiles_dir(), bob.id)
+	assert_float(LifetimeStats.value_of(kept, &"driven")).is_equal(700.0)
+	assert_float(LifetimeStats.value_of(kept, &"seconds")).is_greater(0.0)
+
+
+## A match left before its whistle, for the title or with the line to the host gone, counts what
+## was done in it but no map; left once the whistle has gone, before the moment it is written
+## down, it counts as the map it was.
+func test_a_match_left_counts_what_was_done_and_a_map_only_at_the_whistle() -> void:
+	MatchRecord.anywhere = true
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.with_hud = false
+	_runner = scene_runner(match_node)
+	match_node.start(
+		[PlayerInput.new(DeviceInput.KEYBOARD, 0), KartInput.new()] as Array[KartInput], 3
+	)
+	var record := MatchRecord.add_to(match_node)
+	await _runner.simulate_frames(3, 17)
+	match_node.slots[0].stats.add(&"driven", 400.0)
+	record.leave()
+	var profile := Game.settings.profile
+	assert_float(LifetimeStats.value_of(profile, &"driven")).is_equal(400.0)
+	assert_float(LifetimeStats.value_of(profile, &"maps")).is_zero()
+	var later: Match = auto_free(MATCH_SCENE.instantiate())
+	later.with_hud = false
+	_runner = scene_runner(later)
+	later.start([PlayerInput.new(DeviceInput.KEYBOARD, 0), KartInput.new()] as Array[KartInput], 3)
+	var after := MatchRecord.add_to(later)
+	await _runner.simulate_frames(3, 17)
+	later.state = Match.State.RESULTS
+	after.leave()
+	assert_float(LifetimeStats.value_of(profile, &"maps")).is_equal(1.0)
 
 
 static func _switch_of(switches: DriveSwitches, seat: int) -> Dictionary:

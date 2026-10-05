@@ -34,7 +34,7 @@ var license: LicenseScreen
 ## lets its karts go as it gets going.
 var holding := false
 ## What the player does in here, counted into their profile's statistics as they leave, GAME.md
-## 8.5, though no map was played, see [method leave_record].
+## 8.5, though no map was played, see [MatchRecord].
 var record: MatchRecord
 ## The pause menu's Skip lesson, gone from the fight on: the fight is not skipped, and nothing
 ## after it is a lesson.
@@ -108,18 +108,6 @@ func _ready() -> void:
 func _exit_tree() -> void:
 	Turret.hunts_targets = false
 	DrivingSchool.underway = false
-	leave_record()
-
-
-## The school is left, for the next room or out of the game: what the player did in it goes into
-## their profile, written once. Only the school the game is in, which a test's never is, and never
-## headless, which a player never is and a smoke run of the school always is: a smoke run wrote
-## its few seconds into the player's own statistics, and saved their settings.
-func leave_record() -> void:
-	if record == null or Game.is_headless() or not is_inside_tree():
-		return
-	if get_tree().current_scene == self:
-		record.record()
 
 
 ## The deck without its Cursed cards, GAME.md 9.4a: a trap is no way to meet a mechanic.

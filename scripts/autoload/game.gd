@@ -237,7 +237,9 @@ static func is_headless() -> bool:
 func go_to_title() -> void:
 	Net.close()
 	grand_prix = null
-	# Whoever sat in as another profile is a guest again, GAME.md 3.8.
+	# What was done in the room left goes into everybody's profile first, the profiles sat in at
+	# other seats too, GAME.md 8.5; then whoever sat in as another profile is a guest again, 3.8.
+	get_tree().call_group(MatchRecord.GROUP, &"leave")
 	settings.unlink_all()
 	get_tree().paused = false
 	get_tree().change_scene_to_file(TITLE_SCENE)
