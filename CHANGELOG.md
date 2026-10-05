@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.13.2] - 2026-10-05
+
+Games and dedicated servers can have names, and your servers drag into order. It plays with
+0.13.x.
+
 ### Added
 
 - **Name your game.** Lobby settings has a Game name, and the lists of games show it over a line
@@ -1671,7 +1676,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.13.1...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.13.2...HEAD
+[0.13.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.2
 [0.13.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.1
 [0.13.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.0
 [0.12.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.12.0
