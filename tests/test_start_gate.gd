@@ -36,3 +36,17 @@ func test_nobody_is_waited_for_past_the_deadline() -> void:
 func test_with_nobody_to_wait_for_it_opens_at_once() -> void:
 	var gate := StartGate.new(PackedInt32Array(), 2)
 	assert_bool(gate.step(0.0, PackedInt32Array())).is_true()
+
+
+## GAME.md 10.3: the count is of players, not machines, so a client with two at it is two still
+## to come and two in once it has the room up.
+func test_every_player_at_a_client_is_counted() -> void:
+	var seats := PeerSeats.new()
+	seats.ask(7, [0, 1])
+	seats.ask(9, [0])
+	var gate := StartGate.new(PackedInt32Array([7, 9]), 1, seats)
+	assert_that(gate.count()).is_equal(Vector2i(1, 4))
+	gate.arrived(7)
+	assert_that(gate.count()).is_equal(Vector2i(3, 4))
+	assert_bool(gate.step(0.5, PackedInt32Array([7]))).is_true()
+	assert_that(gate.count()).is_equal(Vector2i(3, 3))

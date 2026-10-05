@@ -5435,7 +5435,9 @@ Seated is not the same as there. A client still has the room to build once it kn
 it is, and a slower machine than the host's used to arrive to a countdown already running, or to
 a match already going. So on arriving at a map the host holds the field on the grid, lamps dark,
 until every client has said it has the room up. Every screen shows how many players it is still
-waiting on, out of everybody playing, over a bar that fills as they arrive. Nobody is waited for
+waiting on, out of everybody playing, over a bar that fills as they arrive. Players, not
+machines: a client with two at it is two still to come, and two in once its room is up; counted
+by machine, a room of eight at four machines read as four. Nobody is waited for
 longer than 15 s: a machine that slow, or one that has stopped answering, holds up everybody
 else for that long and no longer, and the lamps go without it. A player who leaves while
 everybody waits is not waited for. The waiting room holds nothing, since nobody is racing in it.
@@ -5754,8 +5756,12 @@ who hit whom, what was collected and what anything is worth.
   said in the log with the address it came from. A copy of the game from before
   the marker, 0.10 and older, is dropped with the rest: it cannot play with this
   one anyway. So is one connection too many from one address,
-  eight waiting to say hello at once or sixty in a minute, more than any room of
-  players behind one router opens. One that says nothing is dropped when the
+  sixteen waiting to say hello at once or sixty in a minute, more than any room of
+  players behind one router opens, eight of them since a room takes eight. A
+  host takes two connections more than everybody who may be in, playing and
+  watching, so somebody knocking at a full room is told it is full rather than not
+  answered: a connection counts from the moment it opens, before the door has said
+  anything to it. One that says nothing is dropped when the
   handshake runs out after five seconds, and said too. A flood of datagrams that
   are not the game's cannot be traced to anybody, since ENet drops them unread, so
   a server only says once a minute that it is getting one, a thousand a second

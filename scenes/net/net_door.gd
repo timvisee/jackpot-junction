@@ -21,6 +21,10 @@ const DEFAULT_PLAYERS := 4
 ## kart of their own. A host nobody plays at seats one more client instead, see [method clients].
 const MAX_CLIENTS := MOST_PLAYERS - 1
 const MAX_WATCHERS := 4
+## Connections kept free on top of everybody who may be in, for somebody knocking to be told the
+## room is full or the password wrong rather than not answered at all: a connection is counted
+## from the moment it opens, before the door has said anything to it.
+const SPARE := 2
 ## What an answer says about the password: asked for with none given, and given wrong.
 const NEEDED := "needed"
 const WRONG := "wrong"
@@ -76,6 +80,11 @@ static func compatible(mine: String, theirs: String) -> bool:
 ## nobody playing at the host, [param dedicated], a room's worth of them, GAME.md 9.3a.
 static func clients(dedicated: bool) -> int:
 	return MOST_PLAYERS if dedicated else MAX_CLIENTS
+
+
+## How many connections a host takes at once, see [constant SPARE].
+static func peers(dedicated: bool) -> int:
+	return clients(dedicated) + MAX_WATCHERS + SPARE
 
 
 ## What a client says about itself as it knocks: its version, whether it has come to watch, what

@@ -13,16 +13,20 @@ const DEADLINE := 15.0
 
 ## The clients still building the room, by peer id.
 var waiting: Array[int] = []
-## Everybody playing: the players at the host's own machine and one at each client's.
+## Everybody playing: the players at the host's own machine and every one at each client's.
 var players := 0
 ## How much longer they are waited for.
 var left := DEADLINE
+## How many players each client has, by peer id: the seats it asked for, or one.
+var _seats: Dictionary[int, int] = {}
 
 
-func _init(peers: PackedInt32Array, here: int) -> void:
+func _init(peers: PackedInt32Array, here: int, seats: PeerSeats = null) -> void:
+	players = here
 	for peer: int in peers:
 		waiting.append(peer)
-	players = here + peers.size()
+		_seats[peer] = seats.asked_of(peer).size() if seats != null else 1
+		players += _seats[peer]
 
 
 ## [param peer] has the room up.
@@ -37,10 +41,14 @@ func step(delta: float, connected: PackedInt32Array) -> bool:
 	for peer: int in waiting.duplicate():
 		if peer not in connected:
 			waiting.erase(peer)
-			players -= 1
+			players -= _seats.get(peer, 1)
 	return waiting.is_empty() or left <= 0.0
 
 
-## How many have the room up, out of how many are playing.
+## How many have the room up, out of how many are playing: every player at a client counted, so
+## two at one machine still building it are two the room is waiting on.
 func count() -> Vector2i:
-	return Vector2i(players - waiting.size(), players)
+	var building := 0
+	for peer: int in waiting:
+		building += _seats.get(peer, 1)
+	return Vector2i(players - building, players)

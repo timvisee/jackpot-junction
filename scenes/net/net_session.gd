@@ -210,7 +210,7 @@ func _notification(what: int) -> void:
 
 func host(port: int = DEFAULT_PORT) -> Error:
 	var peer := ENetMultiplayerPeer.new()
-	var error := peer.create_server(port, NetDoor.clients(dedicated) + NetDoor.MAX_WATCHERS)
+	var error := peer.create_server(port, NetDoor.peers(dedicated))
 	if error != OK:
 		return error
 	NetLine.compress(peer)
@@ -404,7 +404,7 @@ func hold_the_start() -> void:
 		if slot.is_local_human():
 			here += 1
 	# Held for the players on their way in, not for somebody who is only watching.
-	_gate = StartGate.new(_player_peers(), here)
+	_gate = StartGate.new(_player_peers(), here, _peer_slots)
 	_step_gate(0.0)
 
 

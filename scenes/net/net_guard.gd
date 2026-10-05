@@ -31,8 +31,9 @@ const MAGIC := "jackpot-junction"
 ## The most a hello may be, in bytes: a version, a name, a password and a flag or two.
 const KNOCK_BYTES := 2048
 ## How many connections one address may have waiting to say hello at once, and open in a minute:
-## a room of players behind one router, each with a list and a game open, and some to spare.
-const WAITING_AT_ONCE := 8
+## a room of players behind one router, eight of them since a room took eight, GAME.md 9.3, each
+## with a list and a game open, and some to spare.
+const WAITING_AT_ONCE := 16
 const PER_MINUTE := 60
 ## How often the traffic is looked at, in seconds, and how many datagrams a second more than its
 ## connections could send is a flood: a client sends sixty or seventy a second, its players' ticks

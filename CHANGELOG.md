@@ -89,6 +89,8 @@ with 0.13.x.
 - **See your server's name.** Once you have connected to a server, Play Online's list shows the
   name it gives itself, and its games' lobbies say which server they are on; before, only the title
   over its games did.
+- **Every player counts while a map waits.** "Waiting on" before a map counts each player at a
+  machine, not one per machine.
 
 ## [0.13.2] - 2026-10-05
 
