@@ -37,8 +37,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
-- **A retake earns endorsements.** Passing the driving test again adds what you earned to your
-  license; before, it kept only the first pass's.
+- **A retake earns endorsements.** Passing the driving test again puts what you earned that time on
+  your license; before, it kept only the first pass's.
 - **The license screen fits a phone.** The card and the ways on stand side by side, and the whole
   screen shrinks to fit rather than scrolling behind it.
 - **No more spaces in a server address on a phone.** Address boxes use the phone's keyboard for

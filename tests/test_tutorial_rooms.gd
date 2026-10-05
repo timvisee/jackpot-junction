@@ -641,12 +641,13 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	assert_str(license.plate_field.text).is_equal("GO FAST")
 	license.buttons[&"play"].pressed.emit()
 	assert_array(went).contains_exactly([&"play"])
-	# Done again, the license keeps its number, and adds what this exam earned to what it had.
+	# Done again, the license keeps its number, and what this exam earned replaces what it had.
 	Game.settings.license_endorsements = PackedStringArray(["JACKPOT"])
 	tutorial._on_finished()
 	assert_str(Game.settings.license_number).is_equal(number)
 	var endorsed := Game.settings.license_endorsements
-	for word: String in ["JACKPOT", "KO", "ITEMS"]:
+	assert_bool("JACKPOT" in endorsed).is_false()
+	for word: String in ["KO", "ITEMS"]:
 		assert_bool(word in endorsed).override_failure_message(word).is_true()
 	assert_int(endorsed.count("KO")).is_equal(1)
 

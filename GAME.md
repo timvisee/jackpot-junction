@@ -4359,9 +4359,9 @@ passed and kept in the settings with the date, the holder's name and what they
 earned, ISSUED, that day, and EXPIRES, the same day 420 years on; ENDORSEMENTS
 as chips in two rows, KO, MULT 4, JACKPOT, ROYAL FLUSH,
 CASH-OUT, ITEMS and FULL HAND, gold for the ones earned on their own in the exam
-and a faint outline for the rest; a retake keeps the number and the date and adds
-what its exam earned to what the license already carried, taking nothing off, where
-it once left the endorsements as the first pass had them; the holder's name slanted in blue ink over a
+and a faint outline for the rest; a retake keeps the number and the date and
+endorses what its own exam earned in place of what the license carried, where it
+once left the endorsements as the first pass had them; the holder's name slanted in blue ink over a
 SIGNATURE line under the photo; and the fine print along the foot, VALID ON ALL
 TABLES · NOT VALID AS ID · KEEP OFF THE FELT · NO CASH VALUE. The card has a
 back, which it turns over to show where it is shown in full, on a click or a

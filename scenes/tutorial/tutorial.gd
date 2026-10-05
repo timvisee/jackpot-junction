@@ -164,7 +164,7 @@ func _on_lesson_started(index: int) -> void:
 
 ## Passed, GAME.md 9.4a: remembered, with a fanfare and fireworks over the room, and a moment
 ## after the bang the license comes up, see [LicenseScreen], numbered once and for good. What the
-## exam earned is endorsed on it, on a retake added to what was endorsed before, nothing taken off.
+## exam earned is endorsed on it, a retake's in place of what was endorsed before.
 func _on_finished() -> void:
 	var settings := Game.settings
 	settings.tutorial_done = true
@@ -174,15 +174,15 @@ func _on_finished() -> void:
 		settings.license_number = LicenseCard.new_number(rng)
 		settings.license_date = LicenseCard.today()
 		settings.license_holder = run.slot().display_name()
-		settings.license_endorsements.clear()
 		settings.license_plate = LicensePlate.suggest(
 			settings.license_holder, settings.license_number
 		)
+	settings.license_endorsements.clear()
 	var fight := run.lessons[run.lessons.size() - 1] as TutorialFight
 	if fight != null:
 		var earned := fight.endorsements()
 		for word: String in earned:
-			if earned[word] and word not in settings.license_endorsements:
+			if earned[word]:
 				settings.license_endorsements.append(word)
 	settings.save_to_disk()
 	Audio.play_sfx(&"fanfare", -4.0, 0.0)
@@ -215,7 +215,7 @@ func issue_license() -> void:
 	if menu != null and is_instance_valid(menu):
 		menu.queue_free()
 		menu = null
-	# Every endorsement the license carries, a retake's added to those from before.
+	# Every endorsement the license carries, which is what this exam earned.
 	var earned: Dictionary[String, bool] = {}
 	for word: String in TutorialFight.ENDORSEMENTS:
 		earned[word] = word in Game.settings.license_endorsements
