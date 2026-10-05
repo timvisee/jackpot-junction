@@ -99,6 +99,34 @@ func test_every_arena_and_the_lobby_have_a_start_for_eight() -> void:
 				)
 
 
+## GAME.md 6.3: the spawn points past the corners are only painted on the floor while the room has
+## more than four karts. A match of four does not show them, and the fifth kart sitting down puts
+## them down.
+func test_the_extra_spawns_show_only_past_four_karts() -> void:
+	var rules: MatchRules = DEFAULT_RULES.duplicate()
+	rules.max_players = 8
+	rules.countdown = 0.1
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	# Four people, so the fifth is a kart of their own rather than a seat taken over.
+	var inputs: Array[KartInput] = []
+	for i: int in 4:
+		inputs.append(NetInput.new())
+	match_node.start(inputs, 3)
+	await _runner.simulate_frames(3, 17)
+	var extra := match_node.arena.get_node("ExtraSpawns") as SpawnPads
+	assert_int(extra.find_children("Spawn*", "Marker3D", false, false).size()).is_equal(4)
+	assert_bool(extra.visible).is_false()
+	assert_bool((match_node.arena.get_node("Spawns") as Node3D).visible).is_true()
+	match_node.join_network(NetInput.new())
+	await _runner.simulate_frames(2, 17)
+	assert_int(match_node.slots.size()).is_equal(5)
+	assert_bool(extra.visible).is_true()
+
+
 ## Every cell a turbo pad of [param grid] fires a kart down, the pads included, as far as the next
 ## pad, which sends a kart on its own way.
 func _turbo_lanes(grid: ArenaGrid) -> Dictionary[Vector2i, bool]:

@@ -574,24 +574,9 @@ func spawns_for(karts: int) -> Array[Vector3]:
 	return spawn_points if karts > corners or corners <= 0 else spawn_points.slice(0, corners)
 
 
+## The spawn points, and their discs on the floor, see [SpawnPads].
 func _add_spawns() -> void:
-	var spawns := Node3D.new()
-	spawns.name = "Spawns"
-	add_child(spawns)
-	for i: int in grid.spawns.size():
-		var position := grid.cell_center(grid.spawns[i])
-		spawn_points.append(position)
-		var marker := Marker3D.new()
-		marker.name = "Spawn%d" % i
-		marker.position = position
-		spawns.add_child(marker)
-		var disc := _disc_mesh(0.5, room.marking)
-		disc.position = Vector3(0.0, PAD_HEIGHT * 0.5, 0.0)
-		marker.add_child(disc)
-	# Paint on the felt that never moves is baked, GAME.md 10.7: every pad's disc is one mesh
-	# with every other's, and every rim with every other rim.
-	if bake_scenery:
-		Bake.merge(spawns)
+	SpawnPads.add_to(self)
 
 
 func _add_coin_pads() -> void:

@@ -1563,7 +1563,10 @@ nothing to bank. A map may hold several, each banking as the one does.
   back to life in them, as it always has. The fifth kart on starts on an `s`, and
   the sixth on its twin across the middle of the room, so a match of six has one
   more at each end rather than two at one; once there are more than four karts a kart
-  coming back to life may come back on any of the eight. Each `s` sits out toward
+  coming back to life may come back on any of the eight. The `s` discs are only on
+  the floor while there are: in a match of four they are spawns nobody starts on,
+  and a disc says somebody does, so they are put down as the fifth kart arrives,
+  on every screen. Each `s` sits out toward
   the walls with a clear run at the Junction it faces: never a pit or a turbo
   pad in the way, and never in a lane a turbo pad fires down.
 
