@@ -1,15 +1,16 @@
 class_name IconButton
 extends RefCounted
 ## A menu button with a picture on it rather than a word, GAME.md 8.3, for what is pressed beside a
-## row of a list over and over: Remove as a trash can, Watch as an eye, Edit as a pencil, and Move
-## up and Move down as arrows. The word is its tooltip, for a mouse that hovers to ask. Drawn
-## rather than loaded, like every other picture of the menus.
+## row of a list over and over: Remove as a trash can, Watch as an eye, Edit as a pencil, and the
+## grip a row is moved by as six dots, which turn into an arrow up and down while it is picked up.
+## The word is its tooltip, for a mouse that hovers to ask. Drawn rather than loaded, like every
+## other picture of the menus.
 
-enum Kind { TRASH, EYE, PENCIL, UP, DOWN }
+enum Kind { TRASH, EYE, PENCIL, GRIP, MOVE }
 
-## How big a button is, an arrow's narrower, and how much of its height the picture takes.
+## How big a button is, a grip's narrower, and how much of its height the picture takes.
 const SIZE := Vector2(64.0, 52.0)
-const ARROW_WIDE := 48.0
+const GRIP_WIDE := 44.0
 const PICTURE := 0.56
 const INK := Color(0.92, 0.92, 0.95)
 ## What is cut out of the picture, a can's ribs and an eye's iris: the button's own dark.
@@ -41,8 +42,10 @@ class Picture:
 				IconButton.eye(self, box, ink)
 			Kind.PENCIL:
 				IconButton.pencil(self, box, ink)
-			Kind.UP, Kind.DOWN:
-				IconButton.arrow(self, box, ink, kind == Kind.UP)
+			Kind.GRIP:
+				IconButton.grip(self, box, ink)
+			Kind.MOVE:
+				IconButton.both_ways(self, box, ink)
 			_:
 				IconButton.trash(self, box, ink)
 
@@ -51,8 +54,8 @@ class Picture:
 static func of(kind: Kind, word: String) -> Button:
 	var button := MenuTheme.button("", Type.BODY)
 	button.custom_minimum_size = SIZE
-	if kind == Kind.UP or kind == Kind.DOWN:
-		button.custom_minimum_size.x = ARROW_WIDE
+	if kind == Kind.GRIP or kind == Kind.MOVE:
+		button.custom_minimum_size.x = GRIP_WIDE
 	button.tooltip_text = word
 	# As tall as the row it stands beside, a server's name over its address making one taller.
 	button.size_flags_vertical = Control.SIZE_FILL
@@ -120,21 +123,29 @@ static func pencil(on: CanvasItem, box: Rect2, ink: Color) -> void:
 	on.draw_line(band + side, band - side, Color(CUT, 1.0), IconShapes.width(box), true)
 
 
-## An arrow in [param box], pointing up when [param up] and down otherwise: a head over a shaft.
-static func arrow(on: CanvasItem, box: Rect2, ink: Color, up: bool) -> void:
-	var flip := func(y: float) -> float: return y if up else 1.0 - y
-	(
-		on
-		. draw_colored_polygon(
-			PackedVector2Array(
-				[
-					IconShapes.at(box, 0.5, flip.call(0.08)),
-					IconShapes.at(box, 0.9, flip.call(0.52)),
-					IconShapes.at(box, 0.1, flip.call(0.52)),
-				]
-			),
-			ink
+## A grip in [param box]: six dots, two by three, the mark of something to take hold of and drag.
+static func grip(on: CanvasItem, box: Rect2, ink: Color) -> void:
+	for x: float in [0.32, 0.68]:
+		for y: float in [0.16, 0.5, 0.84]:
+			IconShapes.disc(on, box, x, y, 0.1, ink)
+
+
+## An arrow up and down in [param box]: a head at each end of one shaft, for a row picked up to be
+## moved either way.
+static func both_ways(on: CanvasItem, box: Rect2, ink: Color) -> void:
+	for up: bool in [true, false]:
+		var flip := func(y: float) -> float: return y if up else 1.0 - y
+		(
+			on
+			. draw_colored_polygon(
+				PackedVector2Array(
+					[
+						IconShapes.at(box, 0.5, flip.call(0.0)),
+						IconShapes.at(box, 0.86, flip.call(0.36)),
+						IconShapes.at(box, 0.14, flip.call(0.36)),
+					]
+				),
+				ink
+			)
 		)
-	)
-	var top: float = minf(flip.call(0.5), flip.call(0.94))
-	IconShapes.bar(on, box, 0.37, top, 0.26, 0.44, ink)
+	IconShapes.bar(on, box, 0.4, 0.34, 0.2, 0.32, ink)

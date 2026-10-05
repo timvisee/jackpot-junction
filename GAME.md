@@ -3702,16 +3702,22 @@ whose host is the machine the game runs on.
 
 **Play Online.** The title's way to playing with other machines, in two screens. The first is the
 player's own servers, in the box of 9.3 headed "Your servers", a row each for the dedicated
-servers they keep, a
+servers they keep: on its left a grip, six dots, that it is moved up and down the list by; a
 button with the server's name over its address and port, the address smaller and in gray since
-the name is what the player gave it to be known by, which connects to it, and beside it, each a
-button with a picture and its word for a tooltip: an arrow up and an arrow down, Move up and Move
-down, which move it up and down the list, the first's up and the last's down off, the cursor
-staying on the arrow so a pad moves a server several places with presses of one button; a pencil,
+the name is what the player gave it to be known by, which connects to it; and beside it, each a
+button with a picture and its word for a tooltip: a pencil,
 Edit, which opens the dialog of Add a server with the server in its boxes, headed "Edit a server",
 whose Save changes it in its place on the list, and says "That server is on your list already" for
 one made into another server it keeps; and a trash can, "Remove", which asks first, "Remove this
-server?", with Remove and Keep. The order is the player's, kept with the list. The list is empty to start
+server?", with Remove and Keep. The order is the player's, kept with the list. A mouse or a
+finger drags a row by its grip, "Drag to move" its tooltip, the other rows making way as it goes,
+and it is kept where it is let go; the box scrolls while it is held at the box's top or bottom
+edge. The grip takes the cursor too, for a pad or the keyboard: accept, A or Enter, picks the row
+up, rimmed in gold from end to end and its dots an arrow up and down; up and down move it a place
+at a time, held to repeat, the stick a place a push, and accept or Back, B or Escape, puts it
+down, as does the cursor going anywhere else. While it is picked up nothing takes the cursor off
+the grip. The up and down arrows there were before it moved a server a press at a time, two
+buttons a row for one thing to do. The list is empty to start
 with, the box holding only its link, Add a server, and keeps up to 20. Under it, side by side as LAN games' are,
 Add a server, Direct connect and LAN games, see 9.3. Add a server and Direct connect ask for the
 server's address and its port, 7777 to start with, in the dialog LAN games asks in, and Add a

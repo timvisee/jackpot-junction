@@ -19,6 +19,12 @@ below, and hands the notes to the release workflow.
 - **Name your server.** A dedicated server takes a name with `--name` or `JJ_NAME`, shown over its
   games in Play Online.
 
+### Changed
+
+- **Drag your servers into order.** Each server in Play Online has a grip of dots to drag it up or
+  down the list with a mouse or a finger; with a pad, press A on the grip, move the server with up
+  and down, and press A or B to put it down.
+
 ## [0.13.1] - 2026-10-05
 
 Your profile keeps your favorite color, and everything you play now counts in its statistics. It

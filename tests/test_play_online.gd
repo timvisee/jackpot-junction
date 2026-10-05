@@ -369,32 +369,150 @@ func test_remove_is_a_trash_can() -> void:
 	assert_float(beside.size.y).is_equal_approx(named.size.y, 0.5)
 
 
-## GAME.md 9.3a: a kept server moves up and down the list with its arrows, the first's up and the
-## last's down off, the order kept, and the cursor staying on the arrow so it can be moved on.
-func test_kept_servers_move_up_and_down() -> void:
+## GAME.md 9.3a: the cursor, a pad's or the keyboard's, picks a kept server up by its grip with
+## accept, moves it a place with up and down, the stick a place a push, and puts it down with
+## accept or back; picked up, nothing takes the cursor off the grip.
+func test_a_kept_server_is_moved_by_the_cursor_on_its_grip() -> void:
 	for name: String in ["One", "Two", "Three"]:
 		Game.settings.servers.append(ServerList.entry(name, "%s.example.org" % name, 7777))
 	var screen := _screen()
 	await await_idle_frame()
 	var list: ServerList = screen._servers
-	assert_bool(list.row_button("Up", 0).disabled).is_true()
-	assert_bool(list.row_button("Down", 2).disabled).is_true()
-	assert_bool(list.row_button("Down", 0).disabled).is_false()
-	var picture: IconButton.Picture = list.row_button("Up", 1).get_node("Picture")
-	assert_int(picture.kind).is_equal(IconButton.Kind.UP)
-	list.row_button("Down", 0).pressed.emit()
+	var grip := list.row_button("Grip", 0)
+	assert_int((grip.get_node("Picture") as IconButton.Picture).kind).is_equal(IconButton.Kind.GRIP)
+	grip.grab_focus()
 	await await_idle_frame()
-	var names := Game.settings.servers.map(func(each: Dictionary) -> String: return each["name"])
-	assert_array(names).is_equal(["Two", "One", "Three"])
-	assert_object(get_viewport().gui_get_focus_owner()).is_same(list.row_button("Down", 1))
-	list.row_button("Up", 2).pressed.emit()
+	_send(_action(&"ui_accept"))
+	assert_str(str(list.lifted.get("name", ""))).is_equal("One")
+	assert_int((grip.get_node("Picture") as IconButton.Picture).kind).is_equal(IconButton.Kind.MOVE)
+	_send(_action(&"ui_down"))
 	await await_idle_frame()
-	names = Game.settings.servers.map(func(each: Dictionary) -> String: return each["name"])
-	assert_array(names).is_equal(["Two", "Three", "One"])
+	assert_array(_names()).is_equal(["Two", "One", "Three"])
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(list.row_button("Grip", 1))
+	assert_str(str(list.lifted.get("name", ""))).is_equal("One")
+	# The stick a place a push: held, it moves no further until it has been let back.
+	var seen: Array = []
+	for value: float in [0.9, 1.0, 0.1, -0.9]:
+		var stick := InputEventJoypadMotion.new()
+		stick.axis = JOY_AXIS_LEFT_Y
+		stick.axis_value = value
+		_send(stick)
+		await await_idle_frame()
+		seen.append(_names().find("One"))
+	assert_array(seen).is_equal([2, 2, 2, 1])
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(list.row_button("Grip", 1))
+	# Sideways goes nowhere while it is picked up, and the top is as far as up goes.
+	_send(_action(&"ui_right"))
+	_send(_action(&"ui_up"))
+	await await_idle_frame()
+	_send(_action(&"ui_up"))
+	await await_idle_frame()
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(list.row_button("Grip", 0))
+	assert_array(_names()).is_equal(["One", "Two", "Three"])
+	_send(_action(&"ui_down"))
+	await await_idle_frame()
+	# Back puts it down, rather than leaving the screen.
+	var grip_now := list.row_button("Grip", 1)
+	grip_now.gui_input.emit(_action(&"ui_cancel"))
+	assert_bool(list.lifted.is_empty()).is_true()
+	assert_int((grip_now.get_node("Picture") as IconButton.Picture).kind).is_equal(
+		IconButton.Kind.GRIP
+	)
+	# Down now moves the cursor, not the server, and it was kept where it was put down.
+	_send(_action(&"ui_down"))
+	await await_idle_frame()
+	assert_array(_names()).is_equal(["Two", "One", "Three"])
 	var read := Settings.new()
 	read.path = Game.settings.path
 	read.load_from_disk()
-	assert_str(str(read.servers[1]["name"])).is_equal("Three")
+	assert_str(str(read.servers[1]["name"])).is_equal("One")
+	# Picked up again, the cursor going elsewhere puts it down.
+	grip_now = list.row_button("Grip", 1)
+	grip_now.grab_focus()
+	await await_idle_frame()
+	_send(_action(&"ui_accept"))
+	assert_bool(list.lifted.is_empty()).is_false()
+	list.connect_button(0).grab_focus()
+	assert_bool(list.lifted.is_empty()).is_true()
+
+
+## GAME.md 9.3a: a mouse or a finger drags a kept server by its grip, the others making way, and it
+## is kept where it is let go; let go where it started, nothing changes. Dragged to the edge of the
+## box, the box scrolls.
+func test_a_kept_server_is_dragged_by_its_grip() -> void:
+	for name: String in ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"]:
+		Game.settings.servers.append(ServerList.entry(name, "%s.example.org" % name, 7777))
+	var screen := _screen()
+	await await_idle_frame()
+	await await_idle_frame()
+	var list: ServerList = screen._servers
+	var grip := list.row_button("Grip", 0)
+	var third := list.connect_button(2).get_global_rect()
+	grip.gui_input.emit(_mouse(true, grip.get_global_rect().get_center()))
+	assert_str(str(list.lifted.get("name", ""))).is_equal("One")
+	grip.gui_input.emit(_moved(Vector2(0.0, third.get_center().y + 4.0)))
+	# Out of its place on the screen, and not yet on the list.
+	assert_int(grip.get_parent().get_index()).is_equal(2)
+	assert_str(str(Game.settings.servers[0]["name"])).is_equal("One")
+	grip.gui_input.emit(_mouse(false, Vector2(0.0, third.get_center().y + 4.0)))
+	await await_idle_frame()
+	assert_array(_names().slice(0, 3)).is_equal(["Two", "Three", "One"])
+	assert_bool(list.lifted.is_empty()).is_true()
+	# Let go where it started, it stays and nothing is said.
+	var moves: Array = []
+	list.moved.connect(func(server: Dictionary, to: int) -> void: moves.append([server, to]))
+	grip = list.row_button("Grip", 0)
+	var here := grip.get_global_rect().get_center()
+	grip.gui_input.emit(_mouse(true, here))
+	grip.gui_input.emit(_moved(here + Vector2(0.0, 2.0)))
+	grip.gui_input.emit(_mouse(false, here))
+	assert_array(moves).is_empty()
+	# Held at the bottom edge of the box, the box scrolls on.
+	await await_idle_frame()
+	var scroll := (
+		screen.servers_box.find_children("*", "ScrollContainer", true, false)[0] as ScrollContainer
+	)
+	var bottom := scroll.get_global_rect().end.y
+	grip = list.row_button("Grip", 0)
+	grip.gui_input.emit(_mouse(true, grip.get_global_rect().get_center()))
+	grip.gui_input.emit(_moved(Vector2(0.0, bottom - 2.0)))
+	list._process(0.2)
+	assert_int(scroll.scroll_vertical).is_greater(0)
+	grip.gui_input.emit(_mouse(false, Vector2(0.0, bottom - 2.0)))
+
+
+## The kept servers' names, in order.
+func _names() -> Array:
+	return Game.settings.servers.map(func(each: Dictionary) -> String: return each["name"])
+
+
+## [param event] as a player gives it, to whatever has the cursor.
+func _send(event: InputEvent) -> void:
+	Input.parse_input_event(event)
+	Input.flush_buffered_events()
+
+
+func _action(action: StringName) -> InputEventAction:
+	var event := InputEventAction.new()
+	event.action = action
+	event.pressed = true
+	return event
+
+
+func _mouse(down: bool, at: Vector2) -> InputEventMouseButton:
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = down
+	event.global_position = at
+	event.position = at
+	return event
+
+
+func _moved(to: Vector2) -> InputEventMouseMotion:
+	var event := InputEventMouseMotion.new()
+	event.global_position = to
+	event.position = to
+	return event
 
 
 ## GAME.md 9.3a: the pencil opens the dialog with the server in its boxes, and Save changes it in

@@ -81,7 +81,7 @@ func _ready() -> void:
 	)
 	_servers.removing.connect(_ask_to_remove)
 	_servers.editing.connect(show_edit)
-	_servers.moving.connect(_move)
+	_servers.moved.connect(_move)
 	servers_box = ListBox.of("Your servers", _servers, "Add a server")
 	servers_box.link.pressed.connect(func() -> void: show_form(true))
 	column.add_child(servers_box)
@@ -210,18 +210,17 @@ func show_edit(server: Dictionary) -> void:
 	port_field.text = str(server["port"])
 
 
-## [param server] [param by] places down the list, or up, the cursor staying on the arrow that
-## moved it so it can be moved on.
-func _move(server: Dictionary, by: int) -> void:
+## [param server] moved to place [param to] on the list by its grip, and kept there, the cursor
+## staying on the grip so it can be moved on.
+func _move(server: Dictionary, to: int) -> void:
 	var kept := Game.settings.servers
 	var at := _index_of(server)
-	var to := at + by
-	if at < 0 or to < 0 or to >= kept.size():
+	if at < 0 or to < 0 or to >= kept.size() or to == at:
 		return
-	kept[at] = kept[to]
-	kept[to] = server
+	kept.remove_at(at)
+	kept.insert(to, server)
 	Game.settings.save_to_disk()
-	show_list(server, "Up" if by < 0 else "Down")
+	show_list(server, "Grip")
 
 
 func _index_of(server: Dictionary) -> int:
