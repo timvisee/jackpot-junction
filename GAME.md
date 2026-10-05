@@ -2416,11 +2416,13 @@ Amber and red belong to the boards and the warnings.
 slides from one control to the next. A press is a stamp. Only the title's rings
 turn.
 
-**How it is built.** One `Theme`, made in code by `HouseTheme` and set on the root
-window at start, dresses every control the engine draws: buttons, boxes and the
-lists they open, switches, fields, tabs, sliders, scroll bars, bars and tooltips. A
-control takes the look up by being in the tree, so a screen dresses nothing itself
-and a new control comes out right. The shapes are StyleBoxes drawn in code:
+**How it is built.** One `Theme`, made in code by `HouseTheme` and laid over the
+engine's default theme at start, dresses every control the engine draws: buttons,
+boxes and the lists they open, switches, fields, tabs, sliders, scroll bars, bars
+and tooltips. Over the default rather than on the root window, since a window's
+theme stops at the first canvas layer, and the pause menu, the HUD and every pane
+over a room live in one. A screen dresses nothing itself and a new control comes
+out right. The shapes are StyleBoxes drawn in code:
 `TicketStyle` for the ticket, with its notches, perforations, frames, engraving,
 chevron and shadow, worked out once for a size and kept; `TabStyle` for an index
 tab and `LaneStyle` for a slider's lane. `HouseArt` draws the small pictures, the

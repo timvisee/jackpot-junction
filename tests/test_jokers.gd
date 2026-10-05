@@ -123,10 +123,12 @@ func test_the_hud_deals_the_jokers_as_cards_and_lifts_the_one_picked_in_the_menu
 			said.append(word.text)
 	assert_str(" ".join(said)).contains("drop")
 	assert_int(hand._detail._hints.get_child_count()).is_greater(3)
-	# The color bar runs along the top of the pane rather than down its side.
-	var style: StyleBoxFlat = hand._detail.get_theme_stylebox("panel")
-	assert_int(style.border_width_top).is_equal(JokerDetail.EDGE)
-	assert_int(style.border_width_left).is_equal(0)
+	# The kind's color is the foil round the pane's header, torn from its body by a perforation,
+	# GAME.md 8.1a.
+	var style: TicketStyle = hand._detail.get_theme_stylebox("panel")
+	var kind := JokerCard.kind_color(hand._detail._joker)
+	assert_object(style.frame).is_equal(Color(kind, JokerDetail.FRAME))
+	assert_int(style.perforations.size()).is_equal(1)
 	Input.action_release(InputActions.JOKER_MENU)
 	await _runner.simulate_frames(3, 17)
 	assert_int(hand.selected()).is_equal(-1)

@@ -16,6 +16,9 @@ below, and hands the notes to the release workflow.
 - **A look of its own.** Menus, buttons, boxes, lists, tabs, switches and sliders are cut like
   tickets from dark card with gold foil and fine engraved lines, the way the driver license is,
   and everything is set in Barlow, a face drawn after road signs and license plates.
+- **Panes torn like tickets.** The pause menu, questions, dialogs and the joker pane have a header
+  torn off by a perforation, come up with a short slide, and the button that moves on is gold.
+  A question that loses you something carries a yellow warning sign.
 
 ## [0.13.3] - 2026-10-06
 

@@ -1,8 +1,10 @@
 class_name ConfirmPane
 extends PanelContainer
 ## A question with two answers, GAME.md 3.8, on the pane every panel in the game is cut from: what
-## is about to happen, in a line under it, and a button each for going ahead and for not. The
-## cursor starts on not, since the question is only asked before something that cannot be undone.
+## is about to happen, with a road sign before it, 8.1a, then the perforation, a line saying more,
+## and a button each for going ahead and for not. The sign is the yellow warning diamond when going
+## ahead loses something, and the cursor starts on not, since the question is mostly asked before
+## something that cannot be undone; the round blue sign marks one that is only a question.
 
 ## The player answered: [param yes] to go ahead.
 signal answered(yes: bool)
@@ -11,6 +13,7 @@ signal answered(yes: bool)
 const WIDTH := 560.0
 
 var _title: Label
+var _sign: RoadSign
 var _message: Label
 var _yes: Button
 var _no: Button
@@ -22,7 +25,10 @@ func _ready() -> void:
 	column.add_theme_constant_override("separation", 16)
 	add_child(column)
 	_title = MenuTheme.title("", Type.TITLE)
-	column.add_child(_title)
+	var heading := MenuTheme.signed(_title, RoadSign.Kind.WARNING)
+	_sign = heading.get_child(0) as RoadSign
+	column.add_child(heading)
+	column.add_child(MenuTheme.perforation())
 	_message = MenuTheme.subtitle("", Type.BODY)
 	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message.custom_minimum_size = Vector2(WIDTH, 0.0)
@@ -51,13 +57,18 @@ func _confine() -> void:
 
 
 ## Puts [param question] up, with [param message] under it, [param yes] on the button that goes
-## ahead and [param no] on the one that does not, which has the cursor.
-func ask(question: String, message: String, yes: String, no := "Stay") -> void:
+## ahead and [param no] on the one that does not, which has the cursor, and a sign of [param kind]
+## before the question.
+func ask(
+	question: String, message: String, yes: String, no := "Stay", kind := RoadSign.Kind.WARNING
+) -> void:
+	_sign.kind = kind
 	_title.text = question
 	_message.text = message
 	_yes.text = yes
 	_no.text = no
 	visible = true
+	MenuTheme.deal(self)
 	_no.grab_focus()
 
 

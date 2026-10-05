@@ -64,10 +64,12 @@ func _ready() -> void:
 	add_child(center)
 	var pane := MenuTheme.pane()
 	center.add_child(pane)
+	MenuTheme.deal(pane)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 18)
 	pane.add_child(column)
 	column.add_child(MenuTheme.title("How do you want to drive?", Type.TITLE))
+	column.add_child(MenuTheme.perforation())
 	var cards := HBoxContainer.new()
 	cards.alignment = BoxContainer.ALIGNMENT_CENTER
 	cards.add_theme_constant_override("separation", 24)

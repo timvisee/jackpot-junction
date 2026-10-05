@@ -4,25 +4,26 @@ extends PanelContainer
 ## the fan, and the respawn pick uses it for the card under the cursor and again for the card
 ## being destroyed, so wherever a player is reading about a joker it reads the same way.
 ##
-## Laid out like a standings row so the two read as the same game: a dark translucent card with
-## room to breathe and a bar of the joker's own kind color along the top. The name, how rare the
-## joker is and what kind it is share the first line, a rule separates them from what the joker
-## actually does, and the keys for it sit at the foot in gray, so they are told apart at a glance
-## rather than run together in one paragraph.
+## Cut as every pane is, the ticket of GAME.md 8.1a, with the joker's own kind color as the foil
+## round its header and engraved under it. The name, how rare the joker is and what kind it is
+## share the header, a perforation tears it from what the joker actually does, and the keys for it
+## sit at the foot in gray, so they are told apart at a glance rather than run together in one
+## paragraph.
 ##
 ## A joker that stacks, held more than once, says how many beside its name, see [method
 ## show_joker], and what the whole stack does in its words, every number the stack has changed
 ## in the same gold, so it reads as the stack's rather than the card's own.
 
 const WIDTH := 400.0
-const BG := Color(0.07, 0.07, 0.09, 0.92)
-const RULE := Color(1.0, 1.0, 1.0, 0.13)
 const HINT := Color(0.62, 0.62, 0.68)
-## The color bar along the top edge, thick enough to be the pane's heading rather than a line.
-const EDGE := 6
+## How strongly the kind's color shows as the foil round the header, round the body, and in the
+## lines engraved under the header.
+const FRAME := 0.8
+const FRAME_BODY := 0.16
+const ENGRAVED := 0.1
 const STACK := Color(1.0, 0.84, 0.36)
 
-var _style: StyleBoxFlat
+var _style: TicketStyle
 var _name: Label
 var _stack: Label
 var _rarity: Label
@@ -40,14 +41,11 @@ var _details := false
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_style = StyleBoxFlat.new()
-	_style.bg_color = BG
-	_style.set_corner_radius_all(8)
-	_style.content_margin_left = 18.0
-	_style.content_margin_right = 18.0
-	_style.content_margin_top = 13.0
-	_style.content_margin_bottom = 13.0
-	_style.border_width_top = EDGE
+	_style = TicketStyle.cut(MenuTheme.PANE_BG, 10.0, 18.0, 13.0)
+	_style.frame_inset = 5.0
+	_style.bite = 8.0
+	_style.waves = 64.0
+	_style.shadow = 12.0
 	add_theme_stylebox_override("panel", _style)
 	_box = VBoxContainer.new()
 	_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -58,7 +56,8 @@ func _init() -> void:
 	heading.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	heading.add_theme_constant_override("separation", 14)
 	box.add_child(heading)
-	_name = _line(24, Color(0.97, 0.97, 1.0))
+	_name = _line(28, Color(0.97, 0.97, 1.0))
+	Type.set_font(_name, Type.display_font(), 28)
 	_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_child(_name)
 	_stack = _line(20, STACK)
@@ -66,17 +65,17 @@ func _init() -> void:
 	_stack.visible = false
 	heading.add_child(_stack)
 	_rarity = _line(16, Color.WHITE)
+	Type.set_font(_rarity, Type.STRONG, 16)
 	_rarity.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	heading.add_child(_rarity)
 	_kind = _line(16, Color.WHITE)
+	Type.set_font(_kind, Type.STRONG, 16)
 	_kind.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_kind.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	heading.add_child(_kind)
-	var rule := ColorRect.new()
-	rule.color = RULE
-	rule.custom_minimum_size = Vector2(WIDTH, 1.0)
-	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_child(rule)
+	var tear := MenuTheme.perforation()
+	tear.custom_minimum_size.x = WIDTH
+	box.add_child(tear)
 	_body = RichTextLabel.new()
 	_body.fit_content = true
 	_body.scroll_active = false
@@ -88,7 +87,7 @@ func _init() -> void:
 	box.add_child(_body)
 
 
-## Fills the pane for one joker and paints the top edge in its kind's color. [param held] is how
+## Fills the pane for one joker and puts its kind's color round the header. [param held] is how
 ## many copies of it the player holds; a joker that stacks, held more than once, says so beside
 ## its name, and [param taking] says what taking one more would make it instead. [param details]
 ## is the player holding the key for more, see [method Joker.describe].
@@ -105,7 +104,9 @@ func show_joker(joker: Joker, held := 1, taking := false, details := false) -> v
 	_stack.text = said
 	_stack.visible = not said.is_empty()
 	var color := JokerCard.kind_color(joker)
-	_style.border_color = color
+	_style.frame = Color(color, FRAME)
+	_style.frame_body = Color(color, FRAME_BODY)
+	_style.engraving = Color(color, ENGRAVED)
 	_name.text = joker.display_name
 	_rarity.text = JokerCard.rarity_name(joker).to_upper()
 	_rarity.add_theme_color_override("font_color", JokerCard.rarity_color(joker))

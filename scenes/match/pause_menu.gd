@@ -119,7 +119,9 @@ func _ready() -> void:
 	column.add_theme_constant_override("separation", 16)
 	pane.add_child(column)
 	column.add_child(MenuTheme.title("Paused", 48))
-	_resume = MenuTheme.button("Resume")
+	column.add_child(MenuTheme.perforation())
+	# Back to driving is the way on from here, GAME.md 8.1a, in foil.
+	_resume = MenuTheme.primary(MenuTheme.button("Resume"))
 	_resume.pressed.connect(set_paused.bind(false))
 	column.add_child(_resume)
 	_force = MenuTheme.button("Pause game")
@@ -405,6 +407,7 @@ func set_paused(paused: bool) -> void:
 	_panel.visible = paused
 	_switches.visible = paused
 	if paused:
+		MenuTheme.deal(_main)
 		_switches.put_up(_buttons())
 	else:
 		_switches.take_down()

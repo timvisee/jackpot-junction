@@ -387,6 +387,6 @@ func offer_license(then: Callable) -> void:
 			else:
 				then.call()
 	)
-	pane.ask(LICENSE_QUESTION, LICENSE_LINE, "Earn it now", "Drive anyway")
+	pane.ask(LICENSE_QUESTION, LICENSE_LINE, "Earn it now", "Drive anyway", RoadSign.Kind.QUESTION)
 	# The cursor starts on the school: it is the thing the question is for.
 	pane.yes_button().grab_focus()

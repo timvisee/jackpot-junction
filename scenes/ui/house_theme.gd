@@ -1,10 +1,11 @@
 class_name HouseTheme
 extends RefCounted
-## The house's look for every control the engine draws, GAME.md 8.1a: made once and set on the
-## root window, so every button, box, list, tab, slider, field and scroll bar in the game is cut
-## from the house's stock without each screen dressing its own. A control under the root takes
-## it up by being there; a screen that wants something else says so on the control, as the HUD's
-## own bars do.
+## The house's look for every control the engine draws, GAME.md 8.1a: made once and laid over the
+## engine's own default theme at start, so every button, box, list, tab, slider, field and scroll
+## bar in the game is cut from the house's stock without each screen dressing its own. Over the
+## default rather than on the root window, since a theme on a window stops at the first canvas
+## layer, and the pause menu, the HUD and every pane over a room live in one. A screen that wants
+## something else says so on the control, as the HUD's own bars do.
 ##
 ## What is here is the stock, the foil and the shapes they are cut to, see [TicketStyle],
 ## [TabStyle], [LaneStyle] and the pictures of [HouseArt]. Sizes of type stay with whoever sets
@@ -46,9 +47,9 @@ static func theme() -> Theme:
 	return _theme
 
 
-## Puts the house's theme on [param window], which is the root one in the game.
-static func dress(window: Window) -> void:
-	window.theme = theme()
+## Lays the house's theme over the engine's default, once, before any control is made.
+static func install() -> void:
+	ThemeDB.get_default_theme().merge_with(theme())
 
 
 static func _build() -> Theme:

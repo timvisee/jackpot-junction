@@ -47,10 +47,12 @@ func _build(title: String, text: String, ok: String) -> void:
 	var pane := PanelContainer.new()
 	pane.add_theme_stylebox_override("panel", MenuTheme.pane_style())
 	middle.add_child(pane)
+	MenuTheme.deal(pane)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 16)
 	pane.add_child(column)
 	column.add_child(MenuTheme.title(title, Type.TITLE))
+	column.add_child(MenuTheme.perforation())
 	field = MenuTheme.field(text, PlayerNames.PLACEHOLDER, PlayerNames.MAX_LENGTH)
 	field.custom_minimum_size.x = WIDE
 	field.text_changed.connect(func(_typed: String) -> void: _say_ok())
@@ -59,7 +61,7 @@ func _build(title: String, text: String, ok: String) -> void:
 	var buttons := HBoxContainer.new()
 	buttons.add_theme_constant_override("separation", 12)
 	column.add_child(buttons)
-	ok_button = MenuTheme.button(ok, Type.BODY)
+	ok_button = MenuTheme.primary(MenuTheme.button(ok, Type.BODY))
 	ok_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ok_button.pressed.connect(_go_ahead)
 	buttons.add_child(ok_button)

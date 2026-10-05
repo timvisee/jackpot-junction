@@ -37,17 +37,13 @@ static func add_to(parent: Node) -> StatusPane:
 	return pane
 
 
-## Shows [param text], with [param color] as the bar along the pane's top edge.
+## Shows [param text], with [param color] as the foil inside the pane's edge, GAME.md 8.1a.
 func say(text: String, color: Color = Palette.NEON_CYAN) -> void:
-	var style := StyleBoxFlat.new()
-	style.bg_color = JokerDetail.BG
-	style.set_corner_radius_all(8)
+	var style := MenuTheme.pane_style(color)
 	style.content_margin_left = 34.0
 	style.content_margin_right = 34.0
 	style.content_margin_top = 22.0
 	style.content_margin_bottom = 22.0
-	style.border_width_top = JokerDetail.EDGE
-	style.border_color = color
 	_panel.add_theme_stylebox_override("panel", style)
 	_label.text = text
 	visible = true

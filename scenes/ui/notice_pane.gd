@@ -46,11 +46,12 @@ func _ready() -> void:
 	_pane.add_child(column)
 	_title = MenuTheme.title("", Type.TITLE)
 	column.add_child(_title)
+	column.add_child(MenuTheme.perforation())
 	_message = MenuTheme.subtitle("", Type.BODY)
 	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message.custom_minimum_size = Vector2(WIDTH, 0.0)
 	column.add_child(_message)
-	_ok = MenuTheme.button("OK")
+	_ok = MenuTheme.primary(MenuTheme.button("OK"))
 	# Pressed with the mouse or a finger only: the keys and the pads are driving.
 	_ok.focus_mode = Control.FOCUS_NONE
 	_ok.pressed.connect(close)
@@ -66,6 +67,7 @@ func _say(title: String, message: String) -> void:
 		_message.text = message
 	_left = SHOWN_FOR
 	visible = true
+	MenuTheme.deal(_pane)
 
 
 func _process(delta: float) -> void:

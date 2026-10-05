@@ -83,7 +83,10 @@ func test_a_pill_grows_when_its_number_outgrows_it() -> void:
 			. mult
 			. get_theme_font("font")
 			. get_string_size(
-				"312.5", HORIZONTAL_ALIGNMENT_LEFT, -1.0, pills.mult.get_theme_font_size("font_size")
+				"312.5",
+				HORIZONTAL_ALIGNMENT_LEFT,
+				-1.0,
+				pills.mult.get_theme_font_size("font_size")
 			)
 			. x
 		)

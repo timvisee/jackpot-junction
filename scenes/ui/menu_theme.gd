@@ -41,6 +41,10 @@ const BOX_HEIGHT_TOUCH := 60.0
 ## that it is drawn.
 const TICK := 24
 const TICK_DETAIL := 4
+## How far below where it settles a pane is dealt from, and how long it takes to get there, see
+## [method deal].
+const DEAL_RISE := 24.0
+const DEAL_TIME := 0.18
 
 ## The tick, drawn the first time one is asked for.
 static var _tick: ImageTexture
@@ -280,6 +284,63 @@ static func pane_style(edge: Color = HouseTheme.FOIL) -> TicketStyle:
 static func wear(style: TicketStyle, edge: Color) -> void:
 	style.frame = Color(edge, PANE_FRAME)
 	style.frame_body = Color(edge, PANE_FRAME_BODY)
+
+
+## The perforation under a pane's header, GAME.md 8.1a: put it in the pane's column after the
+## title and whatever line goes with it, and the pane tears there, see [Perforation].
+static func perforation() -> Perforation:
+	return Perforation.new()
+
+
+## A title with a road sign of [param kind] before it, for the header of a question, GAME.md 8.1a,
+## both centered together.
+static func signed(title_label: Label, kind: RoadSign.Kind) -> HBoxContainer:
+	var line := HBoxContainer.new()
+	line.alignment = BoxContainer.ALIGNMENT_CENTER
+	line.add_theme_constant_override("separation", 16)
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var sign_side := float(title_label.get_theme_font_size(&"font_size")) * 1.15
+	line.add_child(RoadSign.of(kind, sign_side))
+	title_label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	line.add_child(title_label)
+	return line
+
+
+## Deals [param pane] in, GAME.md 8.1a: up from a little below where it settles and out of nothing,
+## the way a ticket comes out of a printer, rather than just being there. It waits a frame for the
+## pane to be laid out, so it rises to where its container puts it, and it runs under a paused
+## room, which is where most panes come up. Not where nothing is drawn, which is where the tests
+## run: a pane still on its way up is a button a click lands beside.
+static func deal(pane: Control) -> void:
+	if pane == null or not pane.is_inside_tree() or Game.is_headless():
+		return
+	if pane.has_meta(&"dealing"):
+		var before: Tween = pane.get_meta(&"dealing")
+		if before != null and before.is_valid():
+			before.kill()
+	pane.modulate.a = 0.0
+	var holder := pane.get_parent() as Container
+	if holder != null:
+		holder.queue_sort()
+	pane.get_tree().process_frame.connect(func() -> void: _rise(pane), CONNECT_ONE_SHOT)
+
+
+## The rise of [method deal], a frame on, once the pane has been laid out. Untyped, since the pane
+## may have gone in that frame.
+static func _rise(held: Variant) -> void:
+	if not is_instance_valid(held):
+		return
+	var pane := held as Control
+	pane.modulate.a = 1.0
+	if not pane.is_visible_in_tree():
+		return
+	var rest := pane.position.y
+	var rise := pane.create_tween()
+	rise.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	rise.set_parallel(true).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	rise.tween_property(pane, "position:y", rest, DEAL_TIME).from(rest + DEAL_RISE)
+	rise.tween_property(pane, "modulate:a", 1.0, DEAL_TIME * 0.7).from(0.0)
+	pane.set_meta(&"dealing", rise)
 
 
 ## A pane to put things in.

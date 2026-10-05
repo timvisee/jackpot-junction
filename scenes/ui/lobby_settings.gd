@@ -30,6 +30,7 @@ func _ready() -> void:
 	column.add_theme_constant_override("separation", 16)
 	add_child(column)
 	column.add_child(MenuTheme.title("Lobby settings", Type.TITLE))
+	column.add_child(MenuTheme.perforation())
 	_title = MenuTheme.field("", "", PlayerNames.TITLE_LENGTH)
 	_title.name = "GameName"
 	_title.custom_minimum_size = Vector2(300.0, 44.0)
@@ -81,7 +82,10 @@ func _ready() -> void:
 ## Up, showing what the door is set to now, with the cursor on the number of players.
 func open() -> void:
 	visible = true
+	MenuTheme.deal(self)
 	_back.text = "Next" if onward else "Back"
+	# Next is the way on, in foil, GAME.md 8.1a; Back is only the way out.
+	_back.theme_type_variation = HouseTheme.PRIMARY if onward else &""
 	var door := session.door if session != null else NetDoor.new()
 	var count := clampi(door.max_players, NetDoor.FEWEST_PLAYERS, NetDoor.MOST_PLAYERS)
 	_title.text = door.title

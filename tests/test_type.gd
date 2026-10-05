@@ -43,7 +43,8 @@ func test_the_three_cuts_are_the_same_face_at_three_weights() -> void:
 	assert_float(heading).is_less(body)
 
 
-## Each cut falls back on Inter for what Barlow does not draw, so a name in Cyrillic is still a name.
+## Each cut falls back on Inter for what Barlow does not draw, so a name in Cyrillic is still a
+## name.
 func test_every_cut_can_fall_back() -> void:
 	for font: FontFile in [Type.TEXT, Type.STRONG, Type.DISPLAY, Type.MARK]:
 		assert_bool(font.fallbacks.has(Type.FALLBACK)).is_true()

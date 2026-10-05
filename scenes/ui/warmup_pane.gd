@@ -50,6 +50,7 @@ func _ready() -> void:
 	var pane := PanelContainer.new()
 	pane.add_theme_stylebox_override("panel", MenuTheme.pane_style())
 	middle.add_child(pane)
+	MenuTheme.deal(pane)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 16)
 	pane.add_child(column)
@@ -58,6 +59,7 @@ func _ready() -> void:
 	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	line.custom_minimum_size = Vector2(WIDE, 0.0)
 	column.add_child(line)
+	column.add_child(MenuTheme.perforation())
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	column.add_child(row)

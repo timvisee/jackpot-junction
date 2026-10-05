@@ -35,6 +35,7 @@ func _ready() -> void:
 	column.add_child(MenuTheme.title("Players", Type.TITLE))
 	_note = MenuTheme.subtitle("", Type.LABEL)
 	column.add_child(_note)
+	column.add_child(MenuTheme.perforation())
 	_rows = VBoxContainer.new()
 	_rows.add_theme_constant_override("separation", 10)
 	column.add_child(_rows)
@@ -46,6 +47,7 @@ func _ready() -> void:
 ## Up, drawn afresh, with the cursor on the first Kick, or on Back with nobody to kick.
 func open() -> void:
 	visible = true
+	MenuTheme.deal(self)
 	_note.text = "Somebody kicked goes back to the title, and can join again."
 	if _handing():
 		_note.text = (

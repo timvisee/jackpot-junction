@@ -86,6 +86,7 @@ func _ready() -> void:
 		else "Friends can join and drive while you choose."
 	)
 	column.add_child(MenuTheme.subtitle(joining, Type.LABEL))
+	column.add_child(MenuTheme.perforation())
 	_scroll = ScrollContainer.new()
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_scroll.follow_focus = true
@@ -96,7 +97,7 @@ func _ready() -> void:
 	_scroll.add_child(_rows)
 	options = MatchOptions.add_to(_rows, Game.settings)
 	_rows.minimum_size_changed.connect(_fit)
-	_done = MenuTheme.button("Done")
+	_done = MenuTheme.primary(MenuTheme.button("Done"))
 	_done.pressed.connect(close)
 	column.add_child(_done)
 
@@ -136,6 +137,7 @@ func _fit() -> void:
 ## is a hosted game for them to be the settings of.
 func open(lobby_first := false) -> void:
 	_panel.visible = true
+	MenuTheme.deal(_pane)
 	if lobby_first and _session != null and _session.host_controls.mine():
 		_show_lobby()
 		return

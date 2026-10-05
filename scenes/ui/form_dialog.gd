@@ -18,6 +18,7 @@ var _title: Label
 var _line: Label
 var _rows: VBoxContainer
 var _column: VBoxContainer
+var _pane: PanelContainer
 var _buttons: HBoxContainer
 var _wrong: Label
 ## What has the cursor first, as the dialog comes up.
@@ -45,6 +46,7 @@ func _build(title: String, line: String) -> void:
 	add_child(middle)
 	var pane := MenuTheme.pane()
 	middle.add_child(pane)
+	_pane = pane
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
 	pane.add_child(column)
@@ -53,6 +55,7 @@ func _build(title: String, line: String) -> void:
 	column.add_child(_title)
 	_line = MenuTheme.subtitle(line, Type.LABEL)
 	column.add_child(_line)
+	column.add_child(MenuTheme.perforation())
 	_rows = VBoxContainer.new()
 	_rows.add_theme_constant_override("separation", 12)
 	column.add_child(_rows)
@@ -80,9 +83,12 @@ func add_bar() -> ProgressBar:
 	return bar
 
 
-## A button under the boxes, in the row of them, saying [param text].
-func add_button(text: String) -> Button:
+## A button under the boxes, in the row of them, saying [param text]; in foil where it is
+## [param onward], the way on from the dialog, GAME.md 8.1a.
+func add_button(text: String, onward := false) -> Button:
 	var button := MenuTheme.button(text)
+	if onward:
+		MenuTheme.primary(button)
 	button.custom_minimum_size = Vector2(200.0, button.custom_minimum_size.y)
 	_buttons.add_child(button)
 	return button
@@ -94,6 +100,7 @@ func open(first: Control) -> void:
 	_first = first
 	say("")
 	visible = true
+	MenuTheme.deal(_pane)
 	_confine()
 	if first != null:
 		first.grab_focus.call_deferred()

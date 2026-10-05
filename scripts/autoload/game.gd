@@ -88,7 +88,7 @@ func _ready() -> void:
 	# Every control in the game wears the house's look, GAME.md 8.1a, set once here rather than
 	# per screen.
 	if not serving:
-		HouseTheme.dress(get_tree().root)
+		HouseTheme.install()
 	add_child(FrameCounter.new())
 	# A text box the phone's keyboard comes up over is shown over the keyboard, GAME.md 8.3.
 	if TouchInput.enabled:

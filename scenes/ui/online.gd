@@ -78,7 +78,7 @@ func _build_dialog() -> void:
 	port_field.custom_minimum_size = Vector2(320.0, 44.0)
 	port_field.text_submitted.connect(func(_typed: String) -> void: _start("join"))
 	dialog.add_box("Port", port_field)
-	join_button = dialog.add_button("Join")
+	join_button = dialog.add_button("Join", true)
 	join_button.pressed.connect(func() -> void: _start("join"))
 	# Join to watch, GAME.md 10.3: in the room with everybody, with no kart of your own.
 	watch_button = dialog.add_button("Watch")
