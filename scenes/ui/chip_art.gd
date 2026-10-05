@@ -36,6 +36,28 @@ static func chip(
 	)
 
 
+## A chip with [param text] on it, a place in the standings or on the payout slip: the number in
+## the middle of the chip by the height of its figures rather than by the line it would sit on as
+## a label, which put it low and to one side, in dark ink on a light chip and white on a dark one.
+static func numbered(
+	canvas: CanvasItem, middle: Vector2, radius: float, face: Color, text: String
+) -> void:
+	chip(canvas, middle, radius, face)
+	var font := Type.numbers_font()
+	var font_size := roundi(radius * 1.05)
+	var wide := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var baseline := middle.y + float(font_size) * Type.CAP_HEIGHT * 0.5
+	canvas.draw_string(
+		font,
+		Vector2(middle.x - wide * 0.5, baseline),
+		text,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		font_size,
+		HouseTheme.INK if is_light(face) else Color.WHITE
+	)
+
+
 ## The die the mult is picked up as, filling [param box]: white with three pips across it.
 static func die(canvas: CanvasItem, box: Rect2) -> void:
 	var style := StyleBoxFlat.new()

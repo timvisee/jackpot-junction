@@ -175,7 +175,11 @@ func _row(slot: PlayerSlot) -> Dictionary:
 	var place := _label(HORIZONTAL_ALIGNMENT_CENTER, 0.0)
 	place.visible = false
 	chip.add_child(place)
-	chip.draw.connect(func() -> void: _draw_place(chip, place.text, slot.color()))
+	chip.draw.connect(
+		func() -> void:
+			var radius := minf(chip.size.x, chip.size.y) * 0.5
+			ChipArt.numbered(chip, chip.size * 0.5, radius, slot.color(), place.text)
+	)
 	var name_label := _label(HORIZONTAL_ALIGNMENT_LEFT, 150.0)
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var score := _label(HORIZONTAL_ALIGNMENT_RIGHT, 78.0)
@@ -206,28 +210,6 @@ func _row(slot: PlayerSlot) -> Dictionary:
 	}
 	_rows[slot.index] = row
 	return row
-
-
-## A place on its chip: the chip in its player's color and the number on it, in the middle of it
-## by the height of its figure rather than by the line it would sit on as a label, which put it
-## low and to one side.
-static func _draw_place(chip: Control, placed: String, ink: Color) -> void:
-	var middle := chip.size * 0.5
-	var radius := minf(chip.size.x, chip.size.y) * 0.5
-	ChipArt.chip(chip, middle, radius, ink)
-	var font := Type.numbers_font()
-	var font_size := roundi(radius * 1.05)
-	var wide := font.get_string_size(placed, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	var baseline := middle.y + float(font_size) * Type.CAP_HEIGHT * 0.5
-	chip.draw_string(
-		font,
-		Vector2(middle.x - wide * 0.5, baseline),
-		placed,
-		HORIZONTAL_ALIGNMENT_LEFT,
-		-1,
-		font_size,
-		HouseTheme.INK if ChipArt.is_light(ink) else Color.WHITE
-	)
 
 
 func _label(align: HorizontalAlignment, width: float) -> Label:

@@ -19,6 +19,10 @@ below, and hands the notes to the release workflow.
 - **Panes torn like tickets.** The pause menu, questions, dialogs and the joker pane have a header
   torn off by a perforation, come up with a short slide, and the button that moves on is gold.
   A question that loses you something carries a yellow warning sign.
+- **A payout slip.** The podium is a cream slip torn off the house's printer, with the podium as a
+  photo finish, a receipt line per player, a red WINNER stamp and the buttons on a tear-off stub.
+- **Calls on plates.** The announcer's calls stand on a plate in the player's color, match point
+  on hazard tape, Last Call on a red board, and the joker cards are engraved in their kind's color.
 - **Key bindings in sockets.** The Controls page shows each binding's keys and buttons at their own
   size in a sunken socket, and asks for a new one in gold.
 - **A dashboard in your corner.** Your corner of the HUD runs off the edge of the screen with a

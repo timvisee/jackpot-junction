@@ -179,6 +179,35 @@ func test_a_corner_block_is_a_strip_in_its_players_color() -> void:
 	assert_object(block["speed_dial"]).is_instanceof(SpeedDial)
 
 
+## A slip is torn along its top and its foot rather than notched, its teeth reaching the edge
+## between the corners and its corners cut off.
+func test_a_slip_is_torn_along_its_top_and_foot() -> void:
+	var size := Vector2(300.0, 200.0)
+	var edge := TicketStyle.outline(size, 0.0, PackedFloat32Array(), 10.0, true, true)
+	var tips := 0
+	for point: Vector2 in edge:
+		if is_zero_approx(point.y) or is_equal_approx(point.y, size.y):
+			tips += 1
+	assert_int(tips).is_greater(20)
+	assert_bool(Geometry2D.is_point_in_polygon(Vector2(1.0, 1.0), edge)).is_false()
+	assert_bool(Geometry2D.is_point_in_polygon(Vector2(150.0, 100.0), edge)).is_true()
+
+
+## The announcer's call stands on a plate; match point is run out on hazard tape behind it.
+func test_a_call_stands_on_a_plate_and_match_point_on_tape() -> void:
+	var banner := CallBanner.new()
+	add_child(banner)
+	banner.show_call("Ann", "DOUBLE KILL", Color.RED, false)
+	assert_bool(banner.visible).is_true()
+	assert_bool(banner._tape.visible).is_false()
+	assert_str(banner.said()).is_equal("Ann  DOUBLE KILL")
+	banner.show_call("Ann", MatchHud.WIN_CALL, Color.RED, true)
+	assert_bool(banner._tape.visible).is_true()
+	banner.put_away()
+	assert_bool(banner.visible).is_false()
+	banner.free()
+
+
 ## A switch that is on is not lit for it: the lit look is the cursor's alone.
 func test_a_switch_that_is_on_is_not_lit() -> void:
 	var on := MenuTheme.toggle(true)

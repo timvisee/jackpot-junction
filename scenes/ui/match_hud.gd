@@ -27,11 +27,13 @@ const TALLY_DROP := 82.0
 const SYNC_SNAP := 1.0
 
 const CALL_DROP := 120.0
-const CALL_TIME := 2.2
 ## What is called out when a player's next cash-out would win, after their name the way every call
 ## is, see [MatchPoint].
 const WIN_CALL := "MATCH POINT"
-const CALL_FADE := 0.6
+## The flag drops in the gantry's own green, and Last Call is put up on a board of the clock's,
+## GAME.md 8.1a, the bigger for being the one thing on the screen saying it.
+const GO_INK := Color("#5fe08a")
+const LAST_CALL_SCALE := 1.6
 ## The line under each player's block that says what is worth pressing right now, GAME.md 8.3:
 ## how big the buttons in it are drawn, what color it is, and the word that goes with each one.
 ## A life, under the name: how big one heart is drawn and the gray a spent one goes.
@@ -93,9 +95,9 @@ var feed_drop := 0.0
 var _timer: ClockBoard
 var _scoreboard: Scoreboard
 var _banner: Label
+var _last_call: ClockBoard
 var _light: StartLight
-var _call: Label
-var _call_left := 0.0
+var _call: CallBanner
 ## Who has just reached match point, to be called out: see [method _update_winning].
 var _match_points := MatchPoint.new()
 ## The sync light and what is left of its moment, and how many corrections there have been in all.
@@ -142,15 +144,30 @@ func _ready() -> void:
 	add_child(_scoreboard)
 	_banner = _label(96, Control.PRESET_CENTER)
 	_banner.visible = false
+	Type.ink(_banner, GO_INK)
+	_last_call = ClockBoard.new()
+	_last_call.name = "LastCall"
+	_last_call.text = "LAST CALL"
+	_last_call.hot = true
+	_last_call.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	_last_call.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_last_call.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_last_call.pivot_offset = _last_call.custom_minimum_size * 0.5
+	_last_call.scale = Vector2.ONE * LAST_CALL_SCALE
+	_last_call.visible = false
+	add_child(_last_call)
 	_light = StartLight.new()
 	_light.name = "StartLight"
 	# Above the middle of the screen, so the GO that follows it has the center to itself.
 	_light.hang(50.0)
 	_light.visible = false
 	add_child(_light)
-	_call = _label(64, Control.PRESET_CENTER)
+	_call = CallBanner.new()
+	_call.name = "Call"
+	_call.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	_call.offset_top += CALL_DROP
-	_call.visible = false
+	_call.offset_bottom += CALL_DROP
+	add_child(_call)
 	_sync = _label(19, Control.PRESET_CENTER_TOP)
 	_sync.offset_top = SYNC_DROP
 	_sync.visible = false
@@ -449,7 +466,6 @@ func _process(delta: float) -> void:
 	_step_podium(delta)
 	_update_sync(delta)
 	_update_winning(delta)
-	_update_call(delta)
 	_update_timer()
 	_update_scoreboard()
 	_update_blocks()
@@ -585,12 +601,7 @@ func _corner_lane(block: Dictionary, width: float) -> Vector2:
 ## The announcer's call, GAME.md 3.12: the player's name and what they just did, in their own
 ## color, under the middle of the screen where the eye already is. It holds and then goes.
 func _on_announced(slot: int, call: String) -> void:
-	var name_of := _slot_name(slot)
-	_call.text = call if name_of.is_empty() else "%s  %s" % [name_of, call]
-	_call.add_theme_color_override("font_color", _slot_color(slot))
-	_call.visible = true
-	_call.modulate.a = 1.0
-	_call_left = CALL_TIME
+	_call.show_call(_slot_name(slot), call, _slot_color(slot), call == WIN_CALL)
 
 
 ## A player getting to where their next cash-out wins the match, GAME.md 3.4, called out on every
@@ -601,15 +612,6 @@ func _on_announced(slot: int, call: String) -> void:
 func _update_winning(delta: float) -> void:
 	for index: int in _match_points.step(match_node, delta):
 		_on_announced(index, WIN_CALL)
-
-
-## Held at full for most of its life and then faded, so it is read rather than glimpsed.
-func _update_call(delta: float) -> void:
-	if _call_left <= 0.0:
-		return
-	_call_left = maxf(_call_left - delta, 0.0)
-	_call.modulate.a = clampf(_call_left / CALL_FADE, 0.0, 1.0)
-	_call.visible = _call_left > 0.0
 
 
 func _update_banner(delta: float) -> void:
@@ -625,22 +627,25 @@ func _update_banner(delta: float) -> void:
 			# A room with no countdown, like the Garage, holds nobody on a grid and gets no
 			# gantry and no flag: it is a place to drive around in, not a race being started.
 			_banner.visible = false
+			_last_call.visible = false
 			_light.visible = match_node.rules.countdown > 0.0
 			_light.set_countdown(match_node.countdown_lamps())
 			_go_left = 0.8 if match_node.rules.countdown > 0.0 else 0.0
 		Match.State.PLAYING:
 			_banner.visible = _go_left > 0.0
 			_banner.text = "GO"
+			_last_call.visible = false
 		Match.State.LAST_CALL:
 			var pulse := (
 				Game.settings.flash_reduction or fmod(Time.get_ticks_msec() * 0.001, 1.0) < 0.5
 			)
-			_banner.visible = (
+			_banner.visible = false
+			_last_call.visible = (
 				match_node.time_left > match_node.rules.last_call_duration - 3.0 and pulse
 			)
-			_banner.text = "LAST CALL"
 		_:
 			_banner.visible = false
+			_last_call.visible = false
 
 
 func _on_state_changed(state: int) -> void:

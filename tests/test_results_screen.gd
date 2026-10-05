@@ -75,6 +75,9 @@ func test_the_screen_ranks_everybody_with_their_score_and_awards() -> void:
 	assert_object(screen._style.frame).is_equal(
 		Color(match_node.slots[1].color(), MenuTheme.PANE_FRAME)
 	)
+	# A payout slip, GAME.md 8.1a: paper torn along its top and foot, the winner's line stamped.
+	assert_bool(screen._style.torn).is_true()
+	assert_object(screen.find_child("Stamp", true, false)).is_not_null()
 
 
 ## The same screen filled in twice says the same thing, which is what a client does every time

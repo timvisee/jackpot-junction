@@ -189,7 +189,8 @@ func _finish() -> void:
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(0.0, 6.0)
 	_column.add_child(gap)
-	on = MenuTheme.button(ON, Type.HEADING)
+	# On to the driving test, the way on from a passed quiz, in foil as Enroll is, GAME.md 8.1a.
+	on = MenuTheme.primary(MenuTheme.button(ON, Type.HEADING))
 	on.name = "On"
 	on.custom_minimum_size = Vector2(WIDTH, 60.0)
 	on.size_flags_horizontal = Control.SIZE_SHRINK_CENTER

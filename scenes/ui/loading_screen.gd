@@ -1,6 +1,8 @@
 class_name LoadingScreen
 extends CanvasLayer
-## What is on the screen while a map is being put up, GAME.md 8.6.
+## What is on the screen while a map is being put up, GAME.md 8.6: the house's engraved stock, the
+## room's name in foil capitals, and a lane whose center line is painted gold as the room goes up,
+## GAME.md 8.1a.
 ##
 ## A room takes about a sixth of a second to build and bake, which is ten frames of nothing
 ## happening if it is done while the last screen is still up. So it is done a phase at a time
@@ -18,6 +20,8 @@ const LAYER := 100
 ## How long the screen stays up after the last phase, so the bar is seen full rather than seen
 ## to vanish at nine tenths.
 const LINGER := 0.12
+## How long and how tall the lane is.
+const LANE := Vector2(460.0, 24.0)
 
 var room_name := ""
 
@@ -45,8 +49,7 @@ static func add_to(parent: Node, room: String) -> LoadingScreen:
 
 
 func _ready() -> void:
-	var back := ColorRect.new()
-	back.color = BACKDROP
+	var back := Backdrop.new()
 	back.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(back)
 	var column := VBoxContainer.new()
@@ -56,11 +59,7 @@ func _ready() -> void:
 	column.add_theme_constant_override("separation", 14)
 	column.alignment = BoxContainer.ALIGNMENT_CENTER
 	add_child(column)
-	var title := Label.new()
-	title.text = room_name
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	Type.display(title, Type.TITLE, Color(0.94, 0.94, 0.97))
-	column.add_child(title)
+	column.add_child(MenuTheme.title(room_name, Type.TITLE))
 	_bar = bar()
 	column.add_child(_bar)
 	_phase = Label.new()
@@ -87,20 +86,15 @@ func run(steps: Array[Callable], label: String) -> void:
 
 
 ## The bar a room fills as it is put up, from 0 to 1: the one on this screen, and the one a player
-## watches while a dedicated server makes them a game, GAME.md 9.3a.
+## watches while a dedicated server makes them a game, GAME.md 9.3a. A lane, see
+## [method LaneStyle.road_and_paint].
 static func bar() -> ProgressBar:
 	var made := ProgressBar.new()
-	made.custom_minimum_size = Vector2(420.0, 10.0)
+	made.custom_minimum_size = Vector2(LANE.x, LANE.y)
 	made.max_value = 1.0
 	made.value = 0.0
 	made.show_percentage = false
-	made.add_theme_stylebox_override("background", _bar_style(Color(0.16, 0.16, 0.2)))
-	made.add_theme_stylebox_override("fill", _bar_style(Palette.CHIP_GOLD))
+	var looks := LaneStyle.road_and_paint()
+	made.add_theme_stylebox_override("background", looks[0])
+	made.add_theme_stylebox_override("fill", looks[1])
 	return made
-
-
-static func _bar_style(fill: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = fill
-	style.set_corner_radius_all(5)
-	return style

@@ -294,6 +294,25 @@ static func pane_style(edge: Color = HouseTheme.FOIL) -> TicketStyle:
 	return style
 
 
+## The look of a slip, GAME.md 8.1a: a document rather than a pane, cream paper torn off the
+## house's printer along its top and its foot, the license's arcs and a band of waves engraved in
+## ink, and the hairline inside its edge in the color of what it is about, see [method wear]. The
+## same one gap inside it as a pane has, clear of its teeth.
+static func slip_style(edge: Color = HouseTheme.FOIL) -> TicketStyle:
+	var style := TicketStyle.cut(
+		HouseTheme.PAPER, 0.0, PANE_INSET + PANE_GAP, PANE_INSET + PANE_GAP + TicketStyle.TOOTH
+	)
+	style.torn = true
+	style.fill_low = HouseTheme.PAPER.lerp(HouseTheme.PAPER_LOW, 0.6)
+	style.frame_inset = PANE_INSET
+	style.engraving = Color(HouseTheme.INK, Engraving.ON_PAPER)
+	style.waves = PANE_WAVES
+	style.arcs = true
+	style.shadow = 18.0
+	wear(style, edge)
+	return style
+
+
 ## Puts [param edge] on a pane's [param style] as the foil inside its edge.
 static func wear(style: TicketStyle, edge: Color) -> void:
 	style.frame = Color(edge, PANE_FRAME)

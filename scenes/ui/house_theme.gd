@@ -17,9 +17,11 @@ const STOCK := Color("#131218")
 const STOCK_RAISED := Color("#1b1a22")
 const STOCK_LIT := Color("#27252f")
 const STOCK_DOWN := Color("#0e0d12")
-## The paper, for documents and nothing else, and the ink printed on it.
+## The paper, for documents and nothing else, the ink printed on it, and its quieter ink.
 const PAPER := Color("#f2ead6")
+const PAPER_LOW := Color("#ddd2b7")
 const INK := Color("#211f24")
+const INK_FAINT := Color("#6f6862")
 ## The foil: the house's gold, with the highlight and the low it runs between where it is laid on
 ## as a fill rather than a line.
 const FOIL := Palette.CHIP_GOLD
@@ -45,6 +47,12 @@ const SOCKET_ROOM := 9.0
 const SOCKET_NOTCH := 7.0
 
 static var _theme: Theme
+
+
+## [param color] as it is printed on paper: a player's color darkened until it reads on cream, the
+## light ones, a yellow say, darkened the furthest.
+static func on_paper(color: Color) -> Color:
+	return color.darkened(0.5 if color.get_luminance() > 0.5 else 0.2)
 
 
 ## The house's theme, made the first time it is asked for.

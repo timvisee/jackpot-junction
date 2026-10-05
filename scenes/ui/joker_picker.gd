@@ -119,7 +119,9 @@ func _ready() -> void:
 	visible = false
 	_title = Label.new()
 	Type.set_font(_title, Type.display_font(), Type.HEADING)
-	_title.add_theme_color_override("font_color", Palette.CHIP_WHITE)
+	# A heading in the house's foil capitals, as every heading is, GAME.md 8.1a.
+	_title.uppercase = true
+	_title.add_theme_color_override("font_color", HouseTheme.FOIL)
 	HudText.shadowed(_title, 2)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE

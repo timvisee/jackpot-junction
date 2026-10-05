@@ -319,32 +319,9 @@ func _draw_back() -> void:
 	)
 
 
-## The number as a barcode: each digit a run of bars, wide for a one and narrow for a zero in its
-## bits, with the number written under it, centered under the bars.
+## The number as a barcode, see [Barcode].
 func _draw_barcode() -> void:
-	var x := BARCODE.position.x
-	var top := BARCODE.position.y
-	var tall := BARCODE.size.y - 16.0
-	for character: String in number:
-		if not character.is_valid_int():
-			x += 6.0
-			continue
-		var digit := character.to_int()
-		for bit: int in 4:
-			var wide := 4.0 if (digit >> bit) & 1 else 2.0
-			draw_rect(Rect2(Vector2(x, top), Vector2(wide, tall)), INK)
-			x += wide + 2.5
-		x += 3.0
-	var bars := x - 5.5 - BARCODE.position.x
-	_text(
-		Vector2(BARCODE.position.x, top + tall + 3.0),
-		number,
-		Type.numbers_text_font(),
-		11,
-		INK,
-		HORIZONTAL_ALIGNMENT_CENTER,
-		bars
-	)
+	Barcode.draw(self, BARCODE, number, INK)
 
 
 ## The paper: cream, darker toward the foot, with the fine curves a banknote wears and the four
@@ -523,42 +500,12 @@ func _draw_micro() -> void:
 	)
 
 
-## The stamp's mark: two red rings with PASSED between them, the agency over the word and the
-## date under it, laid a little askew and short of solid, the way ink is.
+## The stamp's mark: PASSED between two red rings, the agency over it and the date under it, see
+## [StampArt].
 func _draw_stamp() -> void:
-	draw_set_transform(STAMP_AT, STAMP_TURN, Vector2.ONE)
-	var ink := STAMP_INK
-	draw_arc(Vector2.ZERO, STAMP_RADIUS, 0.15, 2.95, 40, ink, 4.0, true)
-	draw_arc(Vector2.ZERO, STAMP_RADIUS, 3.25, 6.15, 40, ink, 4.0, true)
-	draw_arc(Vector2.ZERO, STAMP_RADIUS - 8.0, 0.0, TAU, 48, Color(ink, 0.6), 1.5, true)
-	var font := Type.display_font()
-	var wide := STAMP_RADIUS * 2.0
-	_text(
-		Vector2(-STAMP_RADIUS, -14.0), STAMP_WORD, font, 24, ink, HORIZONTAL_ALIGNMENT_CENTER, wide
+	StampArt.stamp(
+		self, STAMP_AT, STAMP_RADIUS, STAMP_WORD, "DEPT. OF KARTS", issued, STAMP_TURN, STAMP_INK
 	)
-	_text(
-		Vector2(-STAMP_RADIUS, -32.0),
-		"DEPT. OF KARTS",
-		Type.STRONG,
-		8,
-		ink,
-		HORIZONTAL_ALIGNMENT_CENTER,
-		wide
-	)
-	_text(
-		Vector2(-STAMP_RADIUS, 16.0),
-		issued,
-		Type.numbers_text_font(),
-		10,
-		ink,
-		HORIZONTAL_ALIGNMENT_CENTER,
-		wide
-	)
-	for side: float in [-1.0, 1.0]:
-		IconShapes.star(
-			self, Rect2(Vector2(side * 34.0 - 6.0, 24.0), Vector2(12.0, 12.0)), 0.5, 0.5, 0.9, ink
-		)
-	draw_set_transform(Vector2.ZERO)
 
 
 ## [param text] with its top left at [param at], or across [param width] from there when it is

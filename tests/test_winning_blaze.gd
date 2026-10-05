@@ -231,10 +231,11 @@ func test_the_moment_a_pot_would_win_is_called_out() -> void:
 	await runner.simulate_frames(2, 17)
 	assert_bool(hud._call.visible).is_true()
 	var named := match_node.slots[1].display_name()
-	assert_str(hud._call.text).is_equal("%s  %s" % [named, MatchHud.WIN_CALL])
+	assert_str(hud._call.said()).is_equal("%s  %s" % [named, MatchHud.WIN_CALL])
+	# On hazard tape, as the moments that matter are, GAME.md 8.1a.
+	assert_bool(hud._call._tape.visible).is_true()
 	# Off the line and back on it at once is not called again.
-	hud._call_left = 0.0
-	hud._call.visible = false
+	hud._call.put_away()
 	match_node.kart_of(1).pot.reset()
 	await runner.simulate_frames(2, 17)
 	match_node.kart_of(1).pot.add_coins(40)

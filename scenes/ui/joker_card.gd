@@ -12,6 +12,10 @@ extends Panel
 ##
 ## Cards are pivoted at their bottom center, so a fan tilt or a scale turns about the point the
 ## hand is held at rather than about a corner.
+##
+## A card is the one shape of GAME.md 8.1a that is not cut from the house's stock: it stays a card,
+## rounded, framed in its kind's color, and engraved in it too, a hairline inside the frame, rings
+## round the picture and waves across the foot, at a whisper.
 
 const SIZE := Vector2(120.0, 168.0)
 ## The red that marks a card for destruction, on its frame and on the cross over it.
@@ -31,9 +35,57 @@ const RARITY_COLORS: Dictionary[int, Color] = {
 }
 ## The pale gold of a card that has just gone off by itself, see [method set_glowing].
 const GLOW := Color(1.0, 0.9, 0.55)
-## Side of one rarity pip, and the gap between two of them.
+## Side of one rarity pip, and the gap between two of them. Round: anything round is a chip.
 const PIP := 9.0
 const PIP_GAP := 5
+## How strongly the engraving on a card's face shows, and how far in its hairline runs.
+const ENGRAVED := 0.15
+const HAIRLINE := 0.35
+const INSET := 5.0
+
+
+## What is engraved on a card's face, under everything else on it, in its kind's color.
+class Face:
+	extends Control
+
+	var ink := Color.WHITE
+	var _lines: Array[PackedVector2Array] = []
+
+	func _ready() -> void:
+		set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var size_of := JokerCard.SIZE
+		var inner := Rect2(Vector2.ONE * (INSET + 1.0), size_of - Vector2.ONE * (INSET + 1.0) * 2.0)
+		var box := PackedVector2Array(
+			[
+				inner.position,
+				Vector2(inner.end.x, inner.position.y),
+				inner.end,
+				Vector2(inner.position.x, inner.end.y),
+			]
+		)
+		var lines := Engraving.rings(
+			Vector2(size_of.x * 0.5, size_of.y * 0.46),
+			size_of.x * 0.3,
+			size_of.x * 0.03,
+			14,
+			8,
+			200
+		)
+		var foot := Rect2(inner.position.x, inner.end.y - 30.0, inner.size.x, 28.0)
+		lines.append_array(Engraving.waves(foot, 5.0, 1.6, 26.0, 0.6, 4.0))
+		_lines = Engraving.inside(lines, box)
+
+	func _draw() -> void:
+		var hairline := StyleBoxFlat.new()
+		hairline.draw_center = false
+		hairline.set_border_width_all(1)
+		hairline.border_color = Color(ink, HAIRLINE)
+		hairline.set_corner_radius_all(6)
+		hairline.anti_aliasing = true
+		draw_style_box(hairline, Rect2(Vector2.ONE * INSET, size - Vector2.ONE * INSET * 2.0))
+		Engraving.draw_on(self, _lines, Color(ink, ENGRAVED), 0.8)
+
 
 var joker: Joker
 
@@ -130,6 +182,10 @@ func _build() -> void:
 	_glowing = _chosen.duplicate()
 	_glowing.bg_color = Color(0.24, 0.21, 0.12, 1.0)
 	add_theme_stylebox_override("panel", _normal)
+	var face := Face.new()
+	face.name = "Face"
+	face.ink = color
+	add_child(face)
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -166,10 +222,13 @@ func _build_pips() -> HBoxContainer:
 	_pips.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_pips.alignment = BoxContainer.ALIGNMENT_CENTER
 	_pips.add_theme_constant_override("separation", PIP_GAP)
+	var ink := rarity_color(joker)
 	for i: int in int(joker.rarity) + 1:
-		var pip := ColorRect.new()
-		pip.color = rarity_color(joker)
+		var pip := Control.new()
 		pip.custom_minimum_size = Vector2(PIP, PIP)
 		pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		pip.draw.connect(
+			func() -> void: pip.draw_circle(pip.size * 0.5, PIP * 0.5, ink, true, -1.0, true)
+		)
 		_pips.add_child(pip)
 	return _pips

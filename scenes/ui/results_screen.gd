@@ -6,26 +6,39 @@ extends PanelContainer
 ## Its own screen rather than part of [MatchHud], which is about the match while it is being
 ## played. This is about the match once it is over, and it is the last thing anybody looks at.
 ##
-## Built like the joker detail pane in 8.3, so the two read as the same game: a dark translucent
-## card with room to breathe and a bar of color along the top, here the winner's. The top three
-## stand on a podium at the head of it, see [ResultsPodium], and under that each player is a row
-## of their own rather than a line of text, with the place and the name on the left, the score
-## on the right, and the awards underneath as separate chips rather than run together into one
-## sentence.
+## A payout slip, GAME.md 8.1a: a document rather than a pane, cream paper torn off the house's
+## printer with the winner's color in the hairline inside its edge. The top three stand on a
+## podium at the head of it, framed as the photo on the license is, see [ResultsPodium], and under
+## that each player is a line of the receipt: their place on a chip, their name, dotted leaders
+## across to what they banked, and the awards underneath as stubs of their own rather than run
+## together into one sentence. The winner's line is stamped WINNER with the driving test's stamp,
+## a barcode closes the slip, and the ways on are its stub, torn off along a perforation.
 
 ## What the screen is headed. A podium is what is on it and what the last minute of a match is
 ## about; "Results" is the name of a state machine's last state. The end of a Grand Prix is headed
 ## with the name of what has just been won.
-const TITLE := "Podium"
+const TITLE := "Payout slip"
 const GRAND_PRIX_TITLE := "Grand Prix"
 const PLACES: Array[String] = ["1st", "2nd", "3rd", "4th", "5th", "6th"]
 const WIDTH := 980.0
-const RULE := Color(1.0, 1.0, 1.0, 0.13)
-const FAINT := Color(0.62, 0.62, 0.68)
-## The row of the player reading this screen is lifted out of the rest of them.
-const ROW_BG := Color(1.0, 1.0, 1.0, 0.04)
-const ROW_MINE := Color(1.0, 1.0, 1.0, 0.09)
-const CHIP_BG := Color(1.0, 1.0, 1.0, 0.07)
+## The ink the slip is printed in: the dark of a line, and the quieter ink of what goes with it.
+const INK := HouseTheme.INK
+const FAINT := HouseTheme.INK_FAINT
+## The line of the player reading this slip is marked the way a line is with a highlighter, and the
+## lines are parted by dashes.
+const ROW_MINE := Color(HouseTheme.FOIL, 0.24)
+const DASH := Color(HouseTheme.INK, 0.22)
+## The photo finish's frame: the license's dark back with a gold edge, and what it is captioned.
+const PHOTO_BACK := Color(0.18, 0.2, 0.26)
+const PHOTO_WORDS := "PHOTO FINISH"
+## The stamp on the winner's line, in the driving test's red.
+const STAMP := "WINNER"
+const STAMP_INK := Color(0.8, 0.17, 0.14, 0.82)
+const STAMP_RADIUS := 50.0
+## The small print by the barcode.
+const SMALL_PRINT := "PAID IN CHIPS, NOT CASH  ·  NO REFUNDS ON A BAD LAP"
+## How big a place's chip is on a line.
+const PLACE_CHIP := 36.0
 ## Air between the podium and the table of players: one is a picture and the other a list.
 const PODIUM_GAP := 10.0
 ## The least room kept between the pane and the edges of the screen.
@@ -40,6 +53,9 @@ var match_node: Match
 
 var _style: TicketStyle
 var _title: Label
+## The barcode and the small print at the foot of the slip, numbered for the match it pays out.
+var _barcode: Control
+var _code := "JJ-0000-0"
 var _podium: ResultsPodium
 var _rows: VBoxContainer
 ## The ways on from here, kept so the screen can point at one when it comes up.
@@ -115,6 +131,9 @@ func fill_in() -> void:
 		MenuTheme.wear(_style, standings[0].color())
 	_podium.show_top(standings)
 	_title.text = GRAND_PRIX_TITLE if final else TITLE
+	var winner_score := standings[0].banked if not standings.is_empty() else 0
+	_code = "JJ-%04d-%d" % [absi(hash(match_node.rules.map)) % 10000, winner_score]
+	_barcode.queue_redraw()
 	var rank := 1
 	for slot: PlayerSlot in standings:
 		_rows.add_child(_run_entry(slot, rank, run) if final else _entry(slot, rank, everyone))
@@ -333,6 +352,8 @@ func _entry(slot: PlayerSlot, rank: int, everyone: Array[PlayerStats]) -> PanelC
 	box.add_child(_headline(slot, rank))
 	var awards := _award_chips(slot, everyone)
 	if awards != null:
+		awards.add_theme_constant_override("separation", 8)
+	if awards != null:
 		box.add_child(awards)
 	return row
 
@@ -347,26 +368,28 @@ func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix) -> PanelContainer:
 	row.add_child(box)
 	var line := HBoxContainer.new()
 	line.add_theme_constant_override("separation", 16)
-	line.add_child(_label("%d" % rank, 30, FAINT))
+	line.add_child(_place_chip(slot, rank))
 	# Up or down since the map before, beside the place it changed.
 	var moved := run.moved(slot.index, match_node.slots)
 	var marker: Control = RankArrow.create(moved > 0) if moved != 0 else Control.new()
 	marker.custom_minimum_size = RankArrow.SIZE
 	line.add_child(marker)
-	var name_label := _label(slot.display_name(), 30, slot.color())
-	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	line.add_child(name_label)
+	line.add_child(_name(slot))
+	line.add_child(_leader())
 	var won := run.wins(slot.index)
 	line.add_child(_label("%d %s" % [won, "win" if won == 1 else "wins"], 18, FAINT))
 	var paid: Array = run.points.get(slot.index, [])
 	if not paid.is_empty():
-		var gained := _label("+%d" % int(paid[-1]), 22, RankArrow.UP)
+		var gained := _label("+%d" % int(paid[-1]), 22, HouseTheme.on_paper(RankArrow.UP))
 		gained.name = "Gained"
 		line.add_child(gained)
-	var total := _label("%d pts" % run.total(slot.index), 34, Palette.CHIP_GOLD)
+	var total := _label("%d pts" % run.total(slot.index), 34, INK)
+	Type.set_font(total, Type.numbers_font(), 34)
 	total.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	total.custom_minimum_size = Vector2(150.0, 0.0)
 	line.add_child(total)
+	if rank == 1:
+		_stamp_onto(total)
 	box.add_child(line)
 	var maps := HBoxContainer.new()
 	maps.add_theme_constant_override("separation", 8)
@@ -380,38 +403,102 @@ func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix) -> PanelContainer:
 	return row
 
 
-## The card a player's row sits on, their color down its leading edge the way the standings wear
-## it, and lifted a shade when it is the player reading it.
+## The line a player's row is printed on: dashes under it, and the reader's own marked as with a
+## highlighter.
 func _row(slot: PlayerSlot) -> PanelContainer:
 	var row := PanelContainer.new()
-	var style := StyleBoxFlat.new()
-	style.bg_color = ROW_MINE if _is_mine(slot) else ROW_BG
-	style.set_corner_radius_all(8)
-	style.content_margin_left = 16.0
-	style.content_margin_right = 16.0
+	var style := DashStyle.new()
+	style.wash = ROW_MINE if _is_mine(slot) else Color(0.0, 0.0, 0.0, 0.0)
+	style.dash = DASH
+	style.content_margin_left = 12.0
+	style.content_margin_right = 12.0
 	style.content_margin_top = 10.0
-	style.content_margin_bottom = 10.0
-	style.border_width_left = 5
-	style.border_color = slot.color()
+	style.content_margin_bottom = 12.0
 	row.add_theme_stylebox_override("panel", style)
 	return row
 
 
-## Place, name, banked score and record, on one line.
+## Place, name, banked score and record, on one line, with dotted leaders from the name across to
+## the score the way a receipt runs a line out to its price.
 func _headline(slot: PlayerSlot, rank: int) -> HBoxContainer:
 	var line := HBoxContainer.new()
 	line.add_theme_constant_override("separation", 16)
-	line.add_child(_label("%d" % rank, 30, FAINT))
-	var name_label := _label(slot.display_name(), 30, slot.color())
-	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	line.add_child(name_label)
+	line.add_child(_place_chip(slot, rank))
+	line.add_child(_name(slot))
+	line.add_child(_leader())
 	line.add_child(_label("%d kills" % slot.kills, 18, FAINT))
 	line.add_child(_label("%d deaths" % slot.deaths, 18, FAINT))
-	var score := _label(str(slot.banked), 34, Palette.CHIP_GOLD)
+	var score := _label(str(slot.banked), 34, INK)
+	Type.set_font(score, Type.numbers_font(), 34)
 	score.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	score.custom_minimum_size = Vector2(150.0, 0.0)
 	line.add_child(score)
+	if rank == 1:
+		_stamp_onto(score)
 	return line
+
+
+## A player's place on a chip of their color, as the standings show it, GAME.md 8.1a.
+func _place_chip(slot: PlayerSlot, rank: int) -> Control:
+	var chip := Control.new()
+	chip.custom_minimum_size = Vector2(PLACE_CHIP, PLACE_CHIP)
+	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var placed := "%d" % rank
+	var face := slot.color()
+	chip.draw.connect(
+		func() -> void: ChipArt.numbered(chip, chip.size * 0.5, chip.size.x * 0.5, face, placed)
+	)
+	return chip
+
+
+## A player's name as it is printed on the slip: their own color, darkened until it reads on paper.
+func _name(slot: PlayerSlot) -> Label:
+	var name_label := _label(slot.display_name(), 30, HouseTheme.on_paper(slot.color()))
+	Type.set_font(name_label, Type.STRONG, 30)
+	return name_label
+
+
+## The dotted leaders from a name across to its score, taking whatever room is between them.
+static func _leader() -> Control:
+	var dots := Control.new()
+	dots.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	dots.custom_minimum_size = Vector2(24.0, 0.0)
+	dots.draw.connect(
+		func() -> void:
+			var y := dots.size.y * 0.62
+			var x := 4.0
+			while x < dots.size.x - 4.0:
+				dots.draw_circle(Vector2(x, y), 1.4, Color(INK, 0.4), true, -1.0, true)
+				x += 8.0
+	)
+	return dots
+
+
+## The driving test's stamp on [param score], the winner's, laid over it a little askew, see
+## [StampArt]: a control of its own over the score's label, which lays out nothing it holds.
+func _stamp_onto(score: Label) -> void:
+	var stamp := Control.new()
+	stamp.name = "Stamp"
+	stamp.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stamp.size = Vector2.ONE * STAMP_RADIUS * 2.0
+	# Over the left of the figures, which stand at the right of the label, and clear of the
+	# kills and deaths beside it.
+	stamp.position = Vector2(STAMP_RADIUS * 0.3, -STAMP_RADIUS * 0.8)
+	var day := LicenseCard.today()
+	stamp.draw.connect(
+		func() -> void:
+			StampArt.stamp(
+				stamp,
+				stamp.size * 0.5,
+				STAMP_RADIUS,
+				STAMP,
+				"DEPT. OF KARTS",
+				day,
+				-0.24,
+				STAMP_INK
+			)
+	)
+	score.add_child(stamp)
 
 
 ## What this player did more of than anybody else, GAME.md 3.8, one chip each, or null for a
@@ -427,21 +514,20 @@ func _award_chips(slot: PlayerSlot, everyone: Array[PlayerStats]) -> HBoxContain
 	return line
 
 
-## One award as a little pill: what it is called, then what it was worth.
+## One award as a stub of its own, a small ticket printed in outline on the slip: what it is
+## called, then what it was worth.
 func _chip(title: String, value: String) -> PanelContainer:
 	var chip := PanelContainer.new()
-	var style := StyleBoxFlat.new()
-	style.bg_color = CHIP_BG
-	style.set_corner_radius_all(10)
-	style.content_margin_left = 10.0
-	style.content_margin_right = 10.0
-	style.content_margin_top = 3.0
-	style.content_margin_bottom = 3.0
+	var style := TicketStyle.cut(Color(0.0, 0.0, 0.0, 0.0), 5.0, 10.0, 3.0)
+	style.border = Color(INK, 0.34)
+	style.border_width = 1.0
 	chip.add_theme_stylebox_override("panel", style)
 	var line := HBoxContainer.new()
 	line.add_theme_constant_override("separation", 7)
 	chip.add_child(line)
-	line.add_child(_label(title, 15, Color(0.9, 0.9, 0.95)))
+	var named := _label(title, 15, INK)
+	Type.set_font(named, Type.STRONG, 15)
+	line.add_child(named)
 	line.add_child(_label(value, 15, FAINT))
 	return chip
 
@@ -468,38 +554,89 @@ func _build() -> void:
 	grow_vertical = Control.GROW_DIRECTION_BOTH
 	custom_minimum_size = Vector2(WIDTH, 0.0)
 	visible = false
-	_style = MenuTheme.pane_style()
+	_style = MenuTheme.slip_style()
 	add_theme_stylebox_override("panel", _style)
 	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 18)
+	column.add_theme_constant_override("separation", 14)
 	add_child(column)
-	_title = Label.new()
-	_title.text = TITLE
-	Type.set_font(_title, Type.display_font(), Type.TITLE)
-	_title.add_theme_color_override("font_color", Palette.CHIP_GOLD)
-	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_title = MenuTheme.title(TITLE, Type.TITLE)
+	# Printed in the slip's ink rather than stamped in foil: gold on cream is gold nobody can read.
+	_title.add_theme_color_override("font_color", INK)
+	_title.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.0))
 	column.add_child(_title)
 	_caption = MenuTheme.subtitle("", Type.LABEL)
+	_caption.add_theme_color_override("font_color", FAINT)
 	_caption.visible = false
 	column.add_child(_caption)
 	_keep_note = MenuTheme.subtitle("", Type.LABEL)
+	_keep_note.add_theme_color_override("font_color", FAINT)
 	_keep_note.visible = false
 	column.add_child(_keep_note)
-	var rule := ColorRect.new()
-	rule.color = RULE
-	rule.custom_minimum_size = Vector2(WIDTH, 1.0)
-	column.add_child(rule)
+	var band := ColorRect.new()
+	band.color = HouseTheme.FOIL
+	band.custom_minimum_size = Vector2(WIDTH, 3.0)
+	column.add_child(band)
+	column.add_child(_photo())
+	_rows = VBoxContainer.new()
+	_rows.add_theme_constant_override("separation", 6)
+	column.add_child(_rows)
+	column.add_child(_small_print())
+	column.add_child(MenuTheme.perforation())
+	column.add_child(_build_the_foot())
+
+
+## The podium framed as the photo on the license is: a dark back with a gold edge, captioned under
+## it, GAME.md 8.1a.
+func _photo() -> Control:
+	var holder := VBoxContainer.new()
+	holder.add_theme_constant_override("separation", 4)
+	var frame := PanelContainer.new()
+	var back := StyleBoxFlat.new()
+	back.bg_color = PHOTO_BACK
+	back.set_corner_radius_all(8)
+	back.set_border_width_all(3)
+	back.border_color = HouseTheme.FOIL
+	back.anti_aliasing = true
+	frame.add_theme_stylebox_override("panel", back)
 	_podium = ResultsPodium.create()
-	column.add_child(_podium)
+	_podium.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	frame.add_child(_podium)
+	holder.add_child(frame)
+	var words := Label.new()
+	words.text = PHOTO_WORDS
+	Type.strong(words, 11, FAINT)
+	words.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	holder.add_child(words)
 	# The podium is a picture and the rows are a table; they want air between them rather than
 	# the spacing that holds one row off the next.
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(0.0, PODIUM_GAP)
-	column.add_child(gap)
-	_rows = VBoxContainer.new()
-	_rows.add_theme_constant_override("separation", 10)
-	column.add_child(_rows)
-	column.add_child(_build_the_foot())
+	holder.add_child(gap)
+	return holder
+
+
+## The foot of the slip: the match's number as a barcode on the left and the small print on the
+## right, GAME.md 8.1a.
+func _small_print() -> Control:
+	var line := HBoxContainer.new()
+	line.add_theme_constant_override("separation", 16)
+	_barcode = Control.new()
+	_barcode.custom_minimum_size = Vector2(Barcode.width_of("JJ-0000-00000") + 8.0, 46.0)
+	_barcode.draw.connect(
+		func() -> void:
+			Barcode.draw(
+				_barcode, Rect2(Vector2(0.0, 4.0), _barcode.size - Vector2(0.0, 4.0)), _code, INK
+			)
+	)
+	line.add_child(_barcode)
+	var words := Label.new()
+	words.text = SMALL_PRINT
+	Type.strong(words, 11, FAINT)
+	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	words.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	words.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	line.add_child(words)
+	return line
 
 
 ## The foot's three parts, see [method _lay_out_the_foot].
@@ -517,6 +654,7 @@ func _build_the_foot() -> HBoxContainer:
 	_middle = _part(BoxContainer.ALIGNMENT_CENTER)
 	_middle.add_theme_constant_override("separation", 12)
 	_host_decides = MenuTheme.subtitle("The host takes everybody back to the lobby.", Type.LABEL)
+	_host_decides.add_theme_color_override("font_color", FAINT)
 	_host_decides.visible = false
 	_middle.add_child(_host_decides)
 	_watcher_ring = CountdownRing.create()
@@ -562,6 +700,9 @@ func _buttons() -> HBoxContainer:
 	buttons.add_child(_quit)
 	for way: Button in [_next, _continue, _lobby, _rematch, _quit]:
 		way.custom_minimum_size.x = WAY_WIDTH
+	# The ways on that carry the match on are foil, GAME.md 8.1a; the rest are only ways out.
+	for onward: Button in [_next, _continue, _rematch]:
+		MenuTheme.primary(onward)
 	return buttons
 
 

@@ -22,7 +22,7 @@ static func add_to(parent: Node, in_match: Match) -> StartWait:
 
 
 func _ready() -> void:
-	add_theme_stylebox_override("panel", MenuTheme.pane_style(Palette.NEON_CYAN))
+	add_theme_stylebox_override("panel", MenuTheme.pane_style())
 	set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	grow_horizontal = Control.GROW_DIRECTION_BOTH
 	grow_vertical = Control.GROW_DIRECTION_BOTH
@@ -37,13 +37,10 @@ func _ready() -> void:
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	Type.text(_label, Type.BODY, Color(0.94, 0.94, 0.97))
 	column.add_child(_label)
-	_bar = ProgressBar.new()
-	_bar.custom_minimum_size = Vector2(0.0, 10.0)
-	_bar.max_value = 1.0
-	_bar.show_percentage = false
+	# The lane a room fills as it goes up, filled here as the room's players come in.
+	_bar = LoadingScreen.bar()
+	_bar.custom_minimum_size.x = 0.0
 	_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_bar.add_theme_stylebox_override("background", _bar_style(Color(0.16, 0.16, 0.2)))
-	_bar.add_theme_stylebox_override("fill", _bar_style(Palette.NEON_CYAN))
 	column.add_child(_bar)
 
 
@@ -64,10 +61,3 @@ func _process(_delta: float) -> void:
 		_bar.value = float(count.x) / float(count.y)
 	else:
 		_label.text = "Waiting for everybody to keep a joker"
-
-
-func _bar_style(fill: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = fill
-	style.set_corner_radius_all(5)
-	return style

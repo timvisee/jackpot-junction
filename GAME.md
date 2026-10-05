@@ -417,7 +417,8 @@ first match stuttered. Once through, it leaves a stamp, and the next start has
 nothing to compile and shows no pane, until a new version, another graphics card
 or a cleared cache.
 
-The screen is headed Podium and opens with one: the top three on three steps, the winner
+The screen is a payout slip, 8.1a, headed Payout slip, and opens with a podium framed as the
+photo on the license is: the top three on three steps, the winner
 in the middle on the tallest, second a little lower on one side and third lowest
 on the other, each with their own kart standing on top of it turning slowly on the
 spot, starting just short of looking at the camera so it looks straight out half a
@@ -426,13 +427,17 @@ license plate, a bot's too, see 4.4. It is a small 3D scene of its own rather th
 light in a world of its own so nothing of the arena behind it leaks in. A match of
 two fills two steps.
 
-Below it, with air between the picture and the list, the screen is built like the
-joker detail pane in 8.3, so the two read as the same game: a dark translucent card
-with room to breathe and a bar of color along the top, here the winner's. Each player gets a row of their own rather than a line of
-text, with their place and name on the left in their own color, their color down
-the leading edge of the row, their kills and deaths in gray, and what they banked
-on the right in gold. The row of whoever is reading the screen is lifted a shade
-out of the rest. Under each player up to three awards pick out what they did most
+Below it, with air between the picture and the list, the slip is printed as a
+receipt: cream paper torn off the house's printer, the winner's color in the hairline
+inside its edge. Each player gets a line of their own rather than a line of text,
+with their place on a chip of their color and their name in it, darkened to read on
+paper, dotted leaders across to what they banked on the right, their kills and
+deaths in gray, and a dashed rule under the line. The line of whoever is reading the
+slip is marked in foil, the way a line is with a highlighter, and the winner's is
+stamped WINNER with the driving test's red rubber stamp. A barcode of the match's
+number and the small print close the slip, and the ways on are its stub, torn off
+along a perforation, the one that carries the match on, Rematch, Next map or
+Continue, in foil. Under each player up to three awards pick out what they did most
 compared with the others, as separate chips rather than run together into one
 sentence, leaders first, ranked by how far ahead of the others' average they
 are: Trigger Happy (shots fired), Butterfingers (chips lost), Vacuum Cleaner
@@ -712,8 +717,10 @@ over and how fast it arrives, never how the kart answers the wheel.
 ### 3.12 The announcer
 
 Some kills are worth more than a line in the feed. The room calls those out in big
-letters under the middle of the screen, in the player's own color, for a couple of
-seconds.
+letters under the middle of the screen for a couple of seconds, on a plate of the
+house's stock framed in the player's color, 8.1a: their name in that color and the
+call in foil capitals. Match point, 3.4, the call that matters most, is run out on
+hazard tape behind its plate, a little askew.
 
 | Call         | When                                                              |
 |--------------|-------------------------------------------------------------------|
@@ -2590,9 +2597,10 @@ lane beside it is as wide as it was.
   to see it is still working without counting in their head.
 - **Joker hand**: the held jokers as a row of overlapping cards along the bottom
   of the screen, one hand per local player, each card framed in its kind's
-  color with the joker's own picture and its name, and one, two or three pips
-  under the name for how rare it is: steel for common, cyan for uncommon,
-  magenta for rare.
+  color with the joker's own picture and its name, and one, two or three round
+  pips under the name for how rare it is: steel for common, cyan for uncommon,
+  magenta for rare. The kind's color is engraved on the card too, 8.1a: a hairline
+  inside the frame, rings round the picture and waves across the foot.
   Count and color say it twice on purpose, since the card already spends its
   color on saying what kind of joker it is and color alone is not something
   every player can read. Three or more cards fan out, the
@@ -2755,7 +2763,10 @@ lane beside it is as wide as it was.
 - **Match timer** at the top center, in amber seven-segment digits on a board hung
   from the top edge, the same digits as the clock on the hoarding of 8.1, every
   unlit segment still faintly there; red during Last Call and overtime, and the
-  word OVERTIME set on the same board in the display cut.
+  word OVERTIME set on the same board in the display cut. Last Call is said in the
+  middle of the screen as it starts, on a bigger board of the same kind in red, for
+  its first three seconds, flashing unless flashes are turned down in 8.5, and GO
+  in the gantry's green as the flag drops.
 - **Item beside the kart**: a player on this screen who picks an item up sees it
   beside their kart as well as in their corner, small, on a dark chip off the
   kart's top right corner, which it keeps to however far out the camera has

@@ -33,6 +33,9 @@ const WAVE_HEIGHT := 3.5
 const WAVE_LENGTH := 130.0
 ## How many sizes are kept worked out at once.
 const KEPT := 8
+## How deep and how far apart the teeth of a torn edge are, for paper torn off the house's
+## printer, see [member torn].
+const TOOTH := 9.0
 
 ## The stock, and what it darkens or lightens to at the foot; clear for the same all the way.
 @export var fill := HouseTheme.STOCK:
@@ -45,6 +48,10 @@ const KEPT := 8
 	set = _set_notch
 @export var notch_top := true:
 	set = _set_notch_top
+## Torn along its top and its foot, the teeth of a printer's blade, rather than notched: a payout
+## slip, GAME.md 8.1a.
+@export var torn := false:
+	set = _set_torn
 ## Where perforations cross, down from the top, and how deep the bite out of either side is.
 @export var perforations := PackedFloat32Array():
 	set = _set_perforations
@@ -74,6 +81,9 @@ const KEPT := 8
 	set = _set_waves
 @export var seal := 0.0:
 	set = _set_seal
+## The license's long arcs rising off the foot, as on a document, GAME.md 9.4a.
+@export var arcs := false:
+	set = _set_arcs
 ## A soft shadow under the ticket, how far it spreads and how dark it is at its darkest.
 @export var shadow := 0.0:
 	set = _set_shadow
@@ -109,17 +119,22 @@ static func outline(
 	depth: float,
 	bites := PackedFloat32Array(),
 	bite_depth := 10.0,
-	top_notched := true
+	top_notched := true,
+	serrated := false
 ) -> PackedVector2Array:
 	var w := size.x
 	var h := size.y
 	var n := clampf(depth, 0.0, minf(w, h) * 0.5 - 1.0)
+	if serrated:
+		n = TOOTH
 	# A bite that would run into a notch is left out rather than cut across it.
 	var kept := PackedFloat32Array()
 	for y: float in bites:
 		if y > n + bite_depth and y < h - n - bite_depth:
 			kept.append(y)
 	bites = kept
+	if serrated:
+		return _torn_outline(size, bites, bite_depth)
 	var points := PackedVector2Array()
 	if top_notched and n > 0.0:
 		_arc(points, Vector2(w, 0.0), n, PI, PI * 0.5)
@@ -141,6 +156,32 @@ static func outline(
 		_arc(points, Vector2(0.0, 0.0), n, PI * 0.5, 0.0)
 	else:
 		points.append(Vector2.ZERO)
+	return points
+
+
+## The outline of a torn ticket: teeth along its top and its foot, straight sides bitten at
+## [param bites].
+static func _torn_outline(
+	size: Vector2, bites: PackedFloat32Array, bite_depth: float
+) -> PackedVector2Array:
+	var w := size.x
+	var h := size.y
+	var teeth := maxi(roundi(w / (TOOTH * 2.0)), 1)
+	var step := w / float(teeth)
+	var points := PackedVector2Array([Vector2(0.0, TOOTH)])
+	for i: int in teeth:
+		points.append(Vector2(float(i) * step + step * 0.5, 0.0))
+		points.append(Vector2(float(i + 1) * step, TOOTH))
+	for y: float in bites:
+		_arc(points, Vector2(w, y), bite_depth, PI * 1.5, PI * 0.5)
+	points.append(Vector2(w, h - TOOTH))
+	for i: int in range(teeth - 1, -1, -1):
+		points.append(Vector2(float(i) * step + step * 0.5, h))
+		points.append(Vector2(float(i) * step, h - TOOTH))
+	var up := Array(bites)
+	up.reverse()
+	for y: float in up:
+		_arc(points, Vector2(0.0, y), bite_depth, PI * 0.5, -PI * 0.5)
 	return points
 
 
@@ -201,7 +242,7 @@ func _made(size: Vector2) -> Dictionary:
 	if _kept.has(size):
 		return _kept[size]
 	var made := {}
-	var edge := outline(size, notch, perforations, bite, notch_top)
+	var edge := outline(size, notch, perforations, bite, notch_top, torn)
 	made["outline"] = edge
 	var closed := edge.duplicate()
 	closed.append(edge[0])
@@ -227,6 +268,22 @@ func _made(size: Vector2) -> Dictionary:
 			lines.append_array(Engraving.rosette(middle, seal * 0.62))
 		lines = Engraving.inside(lines, edge)
 		inks_of = Engraving.faded(lines, engraving, 0.0, maxf(band, seal * 2.2))
+		# The arcs rise off the foot, and keep their ink all the way up rather than fading from the top.
+		if arcs:
+			var risen := Engraving.inside(
+				Engraving.arcs(
+					Vector2(size.x * 0.62, size.y * 1.9),
+					size.y * 1.55,
+					9,
+					Vector2(size.x * 0.06, size.y * 0.017),
+					PI * 1.18,
+					PI * 1.82
+				),
+				edge
+			)
+			lines.append_array(risen)
+			for line: PackedVector2Array in risen:
+				inks_of.append(PackedColorArray([engraving]))
 	made["lines"] = lines
 	made["inks"] = inks_of
 	made["frames"] = _frames(size)
@@ -237,7 +294,8 @@ func _made(size: Vector2) -> Dictionary:
 		maxf(notch - half, 0.0),
 		_shifted(perforations, -half),
 		bite + half,
-		notch_top
+		notch_top,
+		torn
 	)
 	inner.append(inner[0])
 	for i: int in inner.size():
@@ -258,21 +316,26 @@ func _frames(size: Vector2) -> Array[PackedVector2Array]:
 		return frames
 	var inset := frame_inset
 	var depth := maxf(notch - inset * 0.5, 2.0)
+	# Torn paper is framed inside its teeth, with corners notched the way a certificate's border is.
+	var top := inset + (TOOTH if torn else 0.0)
+	var foot := size.y - inset - (TOOTH if torn else 0.0)
+	if torn:
+		depth = 4.0
 	var parts: Array[Rect2] = []
 	if perforations.is_empty():
-		parts.append(Rect2(inset, inset, size.x - inset * 2.0, size.y - inset * 2.0))
+		parts.append(Rect2(inset, top, size.x - inset * 2.0, foot - top))
 	else:
 		var first := perforations[0]
-		parts.append(Rect2(inset, inset, size.x - inset * 2.0, first - bite - FRAME_GAP - inset))
+		parts.append(Rect2(inset, top, size.x - inset * 2.0, first - bite - FRAME_GAP - top))
 		var below := first + bite + FRAME_GAP
-		parts.append(Rect2(inset, below, size.x - inset * 2.0, size.y - inset - below))
+		parts.append(Rect2(inset, below, size.x - inset * 2.0, foot - below))
 	for i: int in parts.size():
 		var part := parts[i]
 		if part.size.x < 4.0 or part.size.y < 4.0:
 			frames.append(PackedVector2Array())
 			continue
-		var top := notch_top or i > 0
-		var line := outline(part.size, depth, PackedFloat32Array(), 0.0, top)
+		var notched := notch_top or i > 0 or torn
+		var line := outline(part.size, depth, PackedFloat32Array(), 0.0, notched)
 		line.append(line[0])
 		for p: int in line.size():
 			line[p] += part.position
@@ -331,6 +394,16 @@ func _set_fill_low(value: Color) -> void:
 
 func _set_notch(value: float) -> void:
 	notch = value
+	_changed()
+
+
+func _set_torn(value: bool) -> void:
+	torn = value
+	_changed()
+
+
+func _set_arcs(value: bool) -> void:
+	arcs = value
 	_changed()
 
 

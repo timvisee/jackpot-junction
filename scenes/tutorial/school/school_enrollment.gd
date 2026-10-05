@@ -113,7 +113,8 @@ func _ready() -> void:
 	field.text_submitted.connect(func(_text: String) -> void: _enroll())
 	inside.add_child(MenuTheme.row("Your name on the license", field))
 	inside.add_child(course(0))
-	enroll = MenuTheme.button("Enroll", Type.HEADING)
+	# The way into the school, in foil, GAME.md 8.1a.
+	enroll = MenuTheme.primary(MenuTheme.button("Enroll", Type.HEADING))
 	enroll.name = "Enroll"
 	enroll.custom_minimum_size = BUTTON
 	enroll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
