@@ -519,7 +519,7 @@ else's results screen, see 10.3.
   right, down and left, in their color. It comes up once the right stick is
   pushed past a third of the way and stays for as long as it is held off the
   middle, with the one it points at bigger and the others faint. Held at the edge
-  on one, a ring round it fills over a third of a second; full, it is armed, bigger
+  on one, a ring round it fills over a quarter of a second; full, it is armed, bigger
   still and beating, and letting go asks for it: the stick back in the middle
   within a tenth of a second of leaving it, which a stick let go always is. A
   stick let go snaps back past the middle to the far side for a moment, and that

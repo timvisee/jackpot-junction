@@ -13,7 +13,7 @@ extends KartInput
 ## asked for whatever the stick pointed at last, and that was often the other side.
 const EDGE := 0.8
 const WHEEL_PUSH := 0.35
-const ARM_TIME := 0.35
+const ARM_TIME := 0.25
 const LET_GO_TIME := 0.1
 ## How long the wheel stays open after the key for it if nothing is picked, GAME.md 3.8.
 const WHEEL_TIME := 3.0

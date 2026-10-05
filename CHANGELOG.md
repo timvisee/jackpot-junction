@@ -27,7 +27,7 @@ below, and hands the notes to the release workflow.
 - **The item button in touch hints.** A hint on a phone shows the item button with your item's
   picture on it, as the button looks, rather than the word ITEM.
 - **Hold an emote to send it on a pad.** Hold the right stick on an emote until its ring fills, a
-  third of a second, then let go; the stick snapping back no longer sends the one on the other side.
+  quarter of a second, then let go; the stick snapping back no longer sends the one on the other side.
 - **The driving school counts.** What you do in it, from distance driven to kills, now adds to your
   profile's statistics, though not as a map played.
 - **Karts on show face you.** The kart in the license photo and on the podium starts turned toward
