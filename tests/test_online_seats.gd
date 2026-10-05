@@ -1,8 +1,8 @@
 extends GdUnitTestSuite
 ## Several players at one client, GAME.md 10.3: a second sits down on a device of their own, is
 ## seated by the host in a seat of their own, drives it, and gets up again, the rest of that
-## machine playing on. The host holds them to its lobby's limit, and can show one out without the
-## other.
+## machine playing on. The host holds them to its lobby's limit, and to four at one machine, and
+## can show one out without the other.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 ## How much slack every wait in this suite gets, see test_online.gd.
@@ -262,6 +262,57 @@ func test_a_second_press_on_the_same_pad_asks_for_nothing_more() -> void:
 	assert_object(here.sit_down(1)).is_null()
 	assert_object(here.sit_down(2)).is_not_null()
 	assert_int(here.seats.size()).is_equal(2)
+
+
+## GAME.md 9.2: one machine seats four at most, whatever the room has seats for. A fifth device
+## pressing join at a client asks the host for nothing.
+func test_a_client_asks_for_four_players_at_most() -> void:
+	var here := LocalSeats.new()
+	for device: int in SeatLimit.MOST_HERE:
+		assert_object(here.sit_down(device)).is_not_null()
+	assert_object(here.sit_down(SeatLimit.MOST_HERE)).is_null()
+	assert_int(here.seats.size()).is_equal(SeatLimit.MOST_HERE)
+
+
+## The host holds every client to four whatever it says, GAME.md 9.3: a list of numbers asked for
+## keeps the ones a machine may have, each once and four at most, and another seat is only given
+## to a client with fewer than four, in one of the numbers a machine has.
+func test_the_host_takes_four_players_at_most_from_a_client() -> void:
+	var seats := PeerSeats.new()
+	seats.ask(7, [0, 1, 1, -1, 2, 9, "3", 3, 4, 5])
+	assert_array(seats.asked_of(7)).is_equal([0, 1, 2, 3])
+	seats.ask(7, [8, "x"])
+	assert_array(seats.asked_of(7)).is_equal([0])
+	assert_bool(seats.may_add(7, 1)).is_false()
+	for number: int in 3:
+		seats.put(7, number, number)
+	assert_bool(seats.may_add(7, 3)).is_true()
+	assert_bool(seats.may_add(7, 4)).is_false()
+	assert_bool(seats.may_add(7, "3")).is_false()
+	seats.put(7, 3, 3)
+	assert_bool(seats.may_add(7, 1)).is_false()
+
+
+## A fifth player at the host's own machine is turned away with the notice that says why, however
+## many seats the room has left.
+func test_a_fifth_player_at_one_machine_is_turned_away() -> void:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = _rules()
+	match_node.rules.max_players = 8
+	match_node.with_hud = false
+	add_child(match_node)
+	var inputs: Array[KartInput] = []
+	for device: int in SeatLimit.MOST_HERE:
+		inputs.append(PlayerInput.new(device, device))
+	match_node.start(inputs, 23)
+	assert_bool(SeatLimit.full(match_node, null)).is_false()
+	assert_bool(SeatLimit.full_here(match_node, null)).is_true()
+	var parent: Node = auto_free(Node.new())
+	add_child(parent)
+	assert_bool(SeatLimit.join(parent, match_node, null, SeatLimit.MOST_HERE)).is_true()
+	assert_int(SeatLimit.players(match_node)).is_equal(SeatLimit.MOST_HERE)
+	var notice := parent.get_node("Notice") as NoticePane
+	assert_array(notice._words).is_equal(["Maximum number of players reached", SeatLimit.HERE_FULL])
 
 
 ## The host told of a seat a client already has says which one it is rather than handing it a

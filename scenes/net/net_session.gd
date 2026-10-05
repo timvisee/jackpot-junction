@@ -355,7 +355,7 @@ func _seat_another(number: int) -> void:
 	if not is_host:
 		return
 	var peer := multiplayer.get_remote_sender_id()
-	if not _peer_slots.has(peer) or match_node == null or not _room_up:
+	if not _peer_slots.may_add(peer, number) or match_node == null or not _room_up:
 		_seat_refused.rpc_id(peer, number)
 		return
 	if _peer_slots.slot_of(peer, number) >= 0:

@@ -34,7 +34,8 @@ func numbered(number: int) -> ClientSeat:
 ## that seat of the settings keeps. A player on any device already here keeps the one they are
 ## holding, see [method PlayerInput.settled_beside], so the two do not both answer the newcomer's,
 ## the way [method Match.join_human] has it.
-## Null for a device somebody here already sits at, whose seat may still be on its way.
+## Null for a device somebody here already sits at, whose seat may still be on its way, and once
+## there are as many here as one machine may have, GAME.md 9.2.
 func sit_down(device: int) -> ClientSeat:
 	for each: ClientSeat in seats:
 		var player := each.input as PlayerInput
@@ -45,6 +46,8 @@ func sit_down(device: int) -> ClientSeat:
 		var player := each.input as PlayerInput
 		if player != null and player.device == device:
 			return null
+	if seats.size() >= SeatLimit.MOST_HERE:
+		return null
 	var number := 0
 	while numbered(number) != null:
 		number += 1

@@ -87,8 +87,25 @@ func asked_of(peer: int) -> Array:
 	return asked.get(peer, [0])
 
 
+## [param peer] asks for its players by [param numbers], as it says them: whatever it says, only
+## numbers a machine may have, each once, and no more of them than one machine may seat, GAME.md
+## 9.2, so a client cannot take a room by asking for all of it.
 func ask(peer: int, numbers: Array) -> void:
-	asked[peer] = numbers if not numbers.is_empty() else [0]
+	var fair: Array = []
+	for number: Variant in numbers:
+		if may_number(number) and number not in fair and fair.size() < SeatLimit.MOST_HERE:
+			fair.append(number)
+	asked[peer] = fair if not fair.is_empty() else [0]
+
+
+## Whether [param peer], seated already, may sit another player down as [param number]: one of the
+## numbers a machine has, and while it has fewer than [constant SeatLimit.MOST_HERE] players.
+func may_add(peer: int, number: Variant) -> bool:
+	return has(peer) and may_number(number) and held[peer].size() < SeatLimit.MOST_HERE
+
+
+static func may_number(number: Variant) -> bool:
+	return number is int and number >= 0 and number < SeatLimit.MOST_HERE
 
 
 func ask_one_more(peer: int, number: int) -> void:

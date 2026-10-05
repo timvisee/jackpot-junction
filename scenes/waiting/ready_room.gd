@@ -74,6 +74,8 @@ const WAY_IN_ABOVE := 18.0
 const SEAT_FILL := Color(HouseTheme.STOCK, 0.64)
 const SEAT_INNER := HudBlock.SLANT + 14.0
 const TICKET_ROOM := 13.0
+## What the line under the count says once nobody else may sit down, GAME.md 9.6.
+const FULL := "Maximum number of players reached"
 
 var match_node: Match
 var pad: JunctionPad
@@ -292,13 +294,16 @@ func _say_the_count() -> void:
 
 
 ## The way in, or that there is none left: once as many are playing as may, the line saying how
-## to take a seat gives way to one saying the room is full.
+## to take a seat gives way to one saying the room is full, and once this machine has as many as
+## one may, GAME.md 9.6, to one saying so.
 func _show_the_way_in() -> void:
 	if _no_seats_here or _seat_hint == null:
 		return
 	var full := seat_limit > 0 and player_count() >= seat_limit
-	_seat_hint.visible = not full
-	_full_hint.visible = full
+	var here := not full and SeatLimit.full_here(match_node, Net.session)
+	_seat_hint.visible = not full and not here
+	_full_hint.visible = full or here
+	_full_hint.text = SeatLimit.HERE_FULL.trim_suffix(".") if here else FULL
 	_place_the_seat()
 	_fit_the_way_in()
 
@@ -619,7 +624,7 @@ func _build_counter() -> void:
 	_seat.get_child(0).add_child(seat)
 	_seat_hint = seat
 	_full_hint = Label.new()
-	_full_hint.text = "Maximum number of players reached"
+	_full_hint.text = FULL
 	_full_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_full_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_full_hint.visible = false
