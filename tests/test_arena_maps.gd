@@ -176,6 +176,31 @@ func test_an_xl_map_has_room_to_drive() -> void:
 			assert_int(lane).override_failure_message("%s turbo %s" % [id, pad]).is_greater_equal(8)
 
 
+## GAME.md 6.3: a map at the usual size with more than four karts on it is played as its XL,
+## unless the match settings ask for it as picked. Four karts play it as picked, and an XL map is
+## played as itself whatever is on it.
+func test_a_map_too_small_for_its_karts_is_played_as_its_xl() -> void:
+	assert_str(String(ArenaMaps.xl_of(&"vault"))).is_equal("vault_xl")
+	assert_str(String(ArenaMaps.xl_of(&"vault_xl"))).is_equal("vault_xl")
+	var config := MatchConfig.new()
+	config.map = &"crossfire"
+	config.bot_count = 3
+	assert_str(String(config.rules(DEFAULT_RULES).map)).is_equal("crossfire")
+	config.network_seats = 1
+	assert_int(config.karts()).is_equal(5)
+	assert_str(String(config.rules(DEFAULT_RULES).map)).is_equal("crossfire_xl")
+	config.small_maps = true
+	assert_str(String(config.rules(DEFAULT_RULES).map)).is_equal("crossfire")
+	config.small_maps = false
+	config.map = &"lucky_crossing_xl"
+	assert_str(String(config.rules(DEFAULT_RULES).map)).is_equal("lucky_crossing_xl")
+	# The choice rides the plan a player hosting at a dedicated server sends it, GAME.md 9.3a.
+	var said := MatchConfig.new()
+	config.small_maps = true
+	MatchOptions.from_wire(said, MatchOptions.to_wire(config))
+	assert_bool(said.small_maps).is_true()
+
+
 ## GAME.md 9.7: a Grand Prix deals from the sizes asked for, and never from none.
 func test_a_grand_prix_deals_from_the_sizes_asked_for() -> void:
 	for id: StringName in ArenaMaps.pool(true, false):

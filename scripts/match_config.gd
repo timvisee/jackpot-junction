@@ -20,6 +20,9 @@ var keep_jokers := GrandPrix.Keep.CHOOSE
 ## Which sizes of map a Grand Prix deals from, see [method ArenaMaps.pool].
 var normal_maps := true
 var xl_maps := true
+## Whether a map at the usual size is played as picked with more than four karts on it, GAME.md
+## 6.3. Off, it is played as its XL, see [method crowded].
+var small_maps := false
 var bot_count := 3
 ## How many karts the arena has seats for, GAME.md 9.3: four, and online as many as the host's
 ## lobby lets play when that is more, see [method SeatLimit.seats_for].
@@ -139,9 +142,21 @@ func rules(base: MatchRules) -> MatchRules:
 	copy.own_bullets_hurt = own_bullets_hurt
 	copy.overtime = overtime
 	copy.joker_slots = joker_slots
-	copy.map = map
+	copy.map = ArenaMaps.xl_of(map) if crowded() else map
 	copy.max_players = seats
 	return copy
+
+
+## How many karts the arena starts with: everybody here, everybody kept a seat from elsewhere, and
+## the bots.
+func karts() -> int:
+	return human_devices.size() + network_seats + bot_count
+
+
+## Whether a map at the usual size is too small for what is to play on it, GAME.md 6.3: more than
+## four karts, and the match settings did not ask for it as picked.
+func crowded() -> bool:
+	return karts() > SeatLimit.SEATS and not small_maps
 
 
 func power_ups() -> PowerUpTable:
@@ -189,4 +204,5 @@ static func from_settings(settings: Settings) -> MatchConfig:
 	config.keep_jokers = settings.grand_prix_jokers
 	config.normal_maps = settings.grand_prix_normal
 	config.xl_maps = settings.grand_prix_xl
+	config.small_maps = settings.small_maps
 	return config

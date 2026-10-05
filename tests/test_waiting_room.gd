@@ -450,6 +450,18 @@ func test_the_host_can_choose_a_grand_prix() -> void:
 	assert_str(String(first.map)).is_equal(String(Game.grand_prix.playlist[0]))
 	# The bots for the whole run are dealt now too, one for every seat nobody here is in.
 	assert_int(Game.grand_prix.bots.size()).is_equal(first.network_seats + first.bot_count)
+	# A room of more than four karts deals the XL maps alone, GAME.md 6.3, unless asked not to.
+	room.session.door.max_players = 8
+	room.config.bot_count = 7
+	room.config.normal_maps = true
+	room.config.xl_maps = false
+	room.first_map_config()
+	for id: StringName in Game.grand_prix.playlist:
+		assert_bool(ArenaMaps.is_xl(id)).override_failure_message(String(id)).is_true()
+	room.config.small_maps = true
+	room.first_map_config()
+	for id: StringName in Game.grand_prix.playlist:
+		assert_bool(ArenaMaps.is_xl(id)).override_failure_message(String(id)).is_false()
 	Game.grand_prix = null
 
 

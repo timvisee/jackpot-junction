@@ -43,6 +43,12 @@ static func family(id: StringName) -> StringName:
 	return StringName(String(id).trim_suffix(XL))
 
 
+## The XL of [param id], or [param id] itself for a map that is XL already or has none.
+static func xl_of(id: StringName) -> StringName:
+	var xl := StringName(String(family(id)) + XL)
+	return xl if xl in IDS else id
+
+
 ## The maps a Grand Prix may deal, GAME.md 9.7: the ones at the usual size, the XL ones, or both.
 ## Never none: asked for neither, it deals from all of them.
 static func pool(normal: bool, xl: bool) -> Array[StringName]:

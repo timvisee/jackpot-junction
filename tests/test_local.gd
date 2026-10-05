@@ -237,3 +237,17 @@ func test_the_bots_on_offer_follow_the_seats() -> void:
 	options.bots_option.selected = 0
 	options.apply_to(config)
 	assert_int(config.bot_count).is_equal(0)
+	# Whether a small map is too small, GAME.md 6.3, is asked only of a room of more than four.
+	options.map_option.select(ArenaMaps.index_of(&"vault"))
+	options.map_option.item_selected.emit(options.map_option.selected)
+	options.fit_seats(4)
+	assert_bool(options._small_maps_row.visible).is_false()
+	assert_bool(options._xl_label.visible).is_false()
+	options.fit_seats(8)
+	assert_bool(options._small_maps_row.visible).is_true()
+	assert_bool(options._xl_label.visible).is_true()
+	assert_str(options._xl_label.text).is_equal("With 5+ karts it plays as The Vault XL")
+	options.small_maps_toggle.button_pressed = true
+	assert_bool(options._xl_label.visible).is_false()
+	options.apply_to(config)
+	assert_bool(config.small_maps).is_true()

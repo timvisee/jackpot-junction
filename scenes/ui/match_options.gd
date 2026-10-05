@@ -56,9 +56,17 @@ var jokers_option: OptionButton
 ## off the last turns the other one on.
 var normal_toggle: CheckButton
 var xl_toggle: CheckButton
+## Whether a map at the usual size is played as picked with more than four karts on it, GAME.md
+## 6.3, rather than as its XL. Only a question once the arena has seats for more than four.
+var small_maps_toggle: CheckButton
 
-## Names the room the chosen map is played in, under the arena row.
+## Names the room the chosen map is played in, under the arena row, and the XL it is played as
+## with more than four karts on it.
 var _room_label: Label
+var _xl_label: Label
+var _small_maps_row: Control
+## How many seats the arena will have, see [method fit_seats].
+var _seats := SeatLimit.SEATS
 ## The rows that come and go with the choice between a Grand Prix and a single map, and the label
 ## of the length row, which is per map in one and for the match in the other.
 var _arena_row: Control
@@ -122,6 +130,7 @@ static func to_wire(config: MatchConfig) -> Dictionary:
 		"keep_jokers": config.keep_jokers,
 		"normal_maps": config.normal_maps,
 		"xl_maps": config.xl_maps,
+		"small_maps": config.small_maps,
 		"duration": roundi(config.duration),
 		"target_score": config.target_score,
 		"bot_count": config.bot_count,
@@ -147,6 +156,7 @@ static func from_wire(config: MatchConfig, plan: Dictionary) -> void:
 		config.keep_jokers = keep as GrandPrix.Keep
 	config.normal_maps = bool(plan.get("normal_maps", config.normal_maps))
 	config.xl_maps = bool(plan.get("xl_maps", config.xl_maps))
+	config.small_maps = bool(plan.get("small_maps", config.small_maps))
 	var seconds := int(plan.get("duration", -1))
 	if seconds in match_lengths():
 		config.duration = float(seconds)
@@ -177,6 +187,7 @@ func apply_to(config: MatchConfig) -> void:
 	config.keep_jokers = jokers_option.selected as GrandPrix.Keep
 	config.normal_maps = normal_toggle.button_pressed
 	config.xl_maps = xl_toggle.button_pressed
+	config.small_maps = small_maps_toggle.button_pressed
 	config.duration = float(match_lengths()[minutes_option.selected])
 	config.target_score = TARGETS[target_option.selected]
 	config.bot_count = BOTS[bots_option.selected]
@@ -203,6 +214,7 @@ func remember(settings: Settings) -> void:
 	settings.grand_prix_jokers = jokers_option.selected
 	settings.grand_prix_normal = normal_toggle.button_pressed
 	settings.grand_prix_xl = xl_toggle.button_pressed
+	settings.small_maps = small_maps_toggle.button_pressed
 	settings.grand_prix = is_grand_prix()
 
 
@@ -219,6 +231,10 @@ func fit_seats(seats: int) -> void:
 			bots_option.add_item(str(count))
 	_bots_shown = mini(_bots_wanted, most)
 	bots_option.select(_bots_shown)
+	# Whether a small map is too small is a question only a room of more than four asks.
+	_seats = seats
+	_small_maps_row.visible = seats > SeatLimit.SEATS
+	_show_room()
 
 
 ## Whether these rows are setting up a Grand Prix rather than a quick match.
@@ -242,7 +258,6 @@ func _build(column: Container, settings: Settings) -> void:
 	_bots_wanted = clampi(settings.bot_count, 0, BOTS[-1])
 	_bots_shown = _bots_wanted
 	bots_option = MenuTheme.option(BOTS, _bots_wanted)
-	fit_seats(SeatLimit.SEATS)
 	difficulty_option = MenuTheme.option(
 		["Easy", "Normal", "Hard"], DIFFICULTIES.find(settings.difficulty)
 	)
@@ -281,10 +296,16 @@ func _build(column: Container, settings: Settings) -> void:
 	_room_label = MenuTheme.subtitle("", Type.LABEL)
 	_room_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	arena.add_child(_room_label)
+	_xl_label = MenuTheme.subtitle("", Type.LABEL)
+	_xl_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	arena.add_child(_xl_label)
 	_arena_row = arena
 	column.add_child(_arena_row)
+	small_maps_toggle = MenuTheme.toggle(settings.small_maps)
+	_small_maps_row = MenuTheme.row("Small maps for 5+ karts", small_maps_toggle)
+	column.add_child(_small_maps_row)
 	map_option.item_selected.connect(func(_index: int) -> void: _show_room())
-	_show_room()
+	small_maps_toggle.toggled.connect(func(_on: bool) -> void: _show_room())
 	var length := MenuTheme.row("Match length", minutes_option)
 	_length_label = length.get_child(0) as Label
 	column.add_child(length)
@@ -305,6 +326,7 @@ func _build(column: Container, settings: Settings) -> void:
 		["Last one standing", "Match ends"], OVERTIME.find(settings.overtime)
 	)
 	column.add_child(MenuTheme.row("Out of time", overtime_option))
+	fit_seats(SeatLimit.SEATS)
 
 
 ## Shows the rows that go with what is being set up: the arena for a single map, the number of
@@ -319,11 +341,19 @@ func _show_mode() -> void:
 	_length_label.text = "Time per map" if several else "Match length"
 
 
-## The room behind the chosen map, named under the row that chose it.
+## The room behind the chosen map, named under the row that chose it, and in a room of more than
+## four the XL it is played as with five karts or more on it, GAME.md 6.3.
 func _show_room() -> void:
-	var layout := ArenaMaps.layout(ArenaMaps.id_at(map_option.selected))
+	var id := ArenaMaps.id_at(map_option.selected)
+	var layout := ArenaMaps.layout(id)
 	var room := layout.room if layout.room != null else RoomLook.fallback()
 	_room_label.text = "Played in %s" % room.display_name
+	var xl := ArenaMaps.xl_of(id)
+	var named := ArenaMaps.NAMES[ArenaMaps.index_of(xl)]
+	_xl_label.text = "With 5+ karts it plays as %s" % named
+	_xl_label.visible = (
+		_seats > SeatLimit.SEATS and not small_maps_toggle.button_pressed and xl != id
+	)
 
 
 func _labels(values: Array[int], format: String) -> Array:

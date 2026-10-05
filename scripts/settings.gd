@@ -175,6 +175,9 @@ var grand_prix_jokers: int = GrandPrix.Keep.CHOOSE
 ## Which sizes of map a Grand Prix deals from, GAME.md 9.7: the usual ones, the XL ones, or both.
 var grand_prix_normal := true
 var grand_prix_xl := true
+## Whether a map at the usual size is played as picked with more than four karts on it, GAME.md
+## 6.3, rather than as its XL.
+var small_maps := false
 ## The person playing at this machine, GAME.md 8.5: whose names, karts, license and servers the
 ## names below read and write, see [Profile]. Switched from the settings' Profiles page.
 var profile := Profile.new()
@@ -362,6 +365,7 @@ func _load_machine(file: ConfigFile) -> void:
 	grand_prix_jokers = file.get_value("lobby", "grand_prix_jokers", grand_prix_jokers)
 	grand_prix_normal = file.get_value("lobby", "grand_prix_normal", grand_prix_normal)
 	grand_prix_xl = file.get_value("lobby", "grand_prix_xl", grand_prix_xl)
+	small_maps = file.get_value("lobby", "small_maps", small_maps)
 	lobby_players = clampi(
 		int(file.get_value("online", "lobby_players", lobby_players)),
 		NetDoor.FEWEST_PLAYERS,
@@ -426,6 +430,7 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "grand_prix_jokers", grand_prix_jokers)
 	file.set_value("lobby", "grand_prix_normal", grand_prix_normal)
 	file.set_value("lobby", "grand_prix_xl", grand_prix_xl)
+	file.set_value("lobby", "small_maps", small_maps)
 	file.set_value("online", "lobby_players", lobby_players)
 	file.set_value("online", "lobby_watchers", lobby_watchers)
 	file.set_value("online", "lobby_watch_free", lobby_watch_free)
