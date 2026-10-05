@@ -786,10 +786,12 @@ func test_the_fight_counts_its_match_point_from_the_bank_at_its_start() -> void:
 	_put(tutorial, TutorialPads.SPAWN, Vector3(0.0, 0.0, -1.0))
 	await _runner.simulate_frames(2, 17)
 	# Emptied by hand: the fight opens with chips over the floor, and one may have rolled in. And
-	# no jokers: a pick on the way to the Junction can deal one that pays more at the bank.
+	# no jokers: a pick on the way to the Junction can deal one that pays more at the bank. The
+	# bank as the fight began, too: the last of the cash-out can still be ticking in.
 	kart.pot.reset()
 	while kart.jokers.count() > 0:
 		kart.jokers.remove_at(0)
+	slot.banked = fight.bank_at_start()
 	assert_float(kart.bank_payout()).is_equal(1.0)
 	assert_bool(match_node.would_win(slot)).is_false()
 	kart.pot.add_coins(TutorialFight.NEED - 1)
