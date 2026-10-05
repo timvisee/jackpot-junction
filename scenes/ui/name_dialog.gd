@@ -19,6 +19,11 @@ var field: LineEdit
 var ok_button: Button
 var cancel_button: Button
 
+## The pane and the shade, for putting away, and whether it is on its way.
+var _pane: PanelContainer
+var _shade: ColorRect
+var _closing := false
+
 
 ## Puts the question [param title] up over the whole screen [param from] is on, the box holding
 ## [param text], and [param ok] on the button that goes ahead.
@@ -48,6 +53,8 @@ func _build(title: String, text: String, ok: String) -> void:
 	pane.add_theme_stylebox_override("panel", MenuTheme.pane_style())
 	middle.add_child(pane)
 	MenuTheme.deal(pane)
+	_pane = pane
+	_shade = shade
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 16)
 	pane.add_child(column)
@@ -107,12 +114,15 @@ func _go_ahead() -> void:
 	named.emit(typed)
 
 
-## Down, without a name.
+## Down, without a name: said at once, and gone the way it came, see [method MenuTheme.put_away].
 func close() -> void:
-	if is_queued_for_deletion():
+	if is_queued_for_deletion() or _closing:
 		return
+	_closing = true
 	PlayerInput.typing = false
-	queue_free()
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var shades: Array[CanvasItem] = [_shade]
+	MenuTheme.put_away(_pane, queue_free, shades)
 	put_away.emit()
 
 

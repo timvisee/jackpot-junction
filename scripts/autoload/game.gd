@@ -89,6 +89,10 @@ func _ready() -> void:
 	# per screen.
 	if not serving:
 		HouseTheme.install()
+		# The cursor slides from one control to the next rather than jumping, GAME.md 8.1a; not where
+		# nothing is drawn.
+		if not is_headless():
+			add_child(FocusGlide.new())
 	add_child(FrameCounter.new())
 	# A text box the phone's keyboard comes up over is shown over the keyboard, GAME.md 8.3.
 	if TouchInput.enabled:

@@ -50,6 +50,10 @@ const TICK_DETAIL := 4
 ## [method deal].
 const DEAL_RISE := 24.0
 const DEAL_TIME := 0.18
+## How far a pane drops as it is put away, and how long it takes to go, see [method put_away]:
+## quicker than it came, since a player who closed it has already moved on.
+const LEAVE_DROP := 14.0
+const LEAVE_TIME := 0.12
 
 ## The tick, drawn the first time one is asked for.
 static var _tick: ImageTexture
@@ -375,6 +379,41 @@ static func _rise(held: Variant) -> void:
 	rise.tween_property(pane, "position:y", rest, DEAL_TIME).from(rest + DEAL_RISE)
 	rise.tween_property(pane, "modulate:a", 1.0, DEAL_TIME * 0.7).from(0.0)
 	pane.set_meta(&"dealing", rise)
+
+
+## Puts [param pane] away the way [method deal] brings it, GAME.md 8.1a: down a little and out
+## of sight, with [param shades] fading out alongside it, and then [param gone], which hides the
+## pane or frees it. At once where nothing is drawn, as [method deal] is, and for a pane that is
+## not showing. Dealt in again on its way out, it stays, and [param gone] never comes.
+static func put_away(pane: Control, gone: Callable, shades: Array[CanvasItem] = []) -> void:
+	if pane == null or not pane.is_inside_tree() or Game.is_headless():
+		gone.call()
+		return
+	if not pane.is_visible_in_tree():
+		gone.call()
+		return
+	if pane.has_meta(&"dealing"):
+		var before: Tween = pane.get_meta(&"dealing")
+		if before != null and before.is_valid():
+			before.kill()
+	var rest := pane.position.y
+	var fall := pane.create_tween()
+	fall.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	fall.set_parallel(true).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
+	fall.tween_property(pane, "position:y", rest + LEAVE_DROP, LEAVE_TIME)
+	fall.tween_property(pane, "modulate:a", 0.0, LEAVE_TIME)
+	for shade: CanvasItem in shades:
+		fall.tween_property(shade, "modulate:a", 0.0, LEAVE_TIME)
+	fall.chain().tween_callback(
+		func() -> void:
+			pane.position.y = rest
+			pane.modulate.a = 1.0
+			for shade: CanvasItem in shades:
+				if is_instance_valid(shade):
+					shade.modulate.a = 1.0
+			gone.call()
+	)
+	pane.set_meta(&"dealing", fall)
 
 
 ## A pane to put things in.

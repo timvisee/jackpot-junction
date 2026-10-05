@@ -79,7 +79,7 @@ func _process(delta: float) -> void:
 
 
 func close() -> void:
-	visible = false
+	MenuTheme.put_away(_pane, func() -> void: visible = false)
 
 
 ## What it says just now, for the tests.

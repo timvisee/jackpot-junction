@@ -2440,9 +2440,16 @@ Amber and red belong to the boards and the warnings.
 - **Loading** is a lane whose center line is painted gold as the room goes up.
 
 **Motion.** A pane is dealt rather than faded: it slides up 24 px and settles in
-0.18 s, the way a ticket comes out of a printer, and leaves the same way. Focus
-slides from one control to the next. A press is a stamp. Only the title's rings
-turn.
+0.18 s, the way a ticket comes out of a printer (`MenuTheme.deal`), and leaves the
+same way, a little quicker, 14 px down in 0.12 s with its shade fading alongside it
+(`MenuTheme.put_away`): the pause menu, a notice and the dialogs. A menu on its way
+out is not open, so the room is the player's again the moment they close it, and a
+pane dealt in again on its way out simply stays. Focus slides from one control to
+the next: a gold frame glides from the button the cursor left to the one it reached
+in 0.14 s and fades as it lands (`FocusGlide`), while the control with the focus
+wears its own frame all along. A press is a stamp. Only the title's rings turn.
+None of it happens where nothing is drawn, so the tests see every pane where it
+settles.
 
 **How it is built.** One `Theme`, made in code by `HouseTheme` and laid over the
 engine's default theme at start, dresses every control the engine draws: buttons,

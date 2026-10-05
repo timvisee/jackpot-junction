@@ -19,6 +19,7 @@ var _line: Label
 var _rows: VBoxContainer
 var _column: VBoxContainer
 var _pane: PanelContainer
+var _shade: ColorRect
 var _buttons: HBoxContainer
 var _wrong: Label
 ## What has the cursor first, as the dialog comes up.
@@ -41,6 +42,7 @@ func _build(title: String, line: String) -> void:
 	shade.color = Color(0.0, 0.0, 0.0, 0.45)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(shade)
+	_shade = shade
 	var middle := CenterContainer.new()
 	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(middle)
@@ -115,7 +117,8 @@ func focus(control: Control) -> void:
 
 
 func close() -> void:
-	visible = false
+	var shades: Array[CanvasItem] = [_shade]
+	MenuTheme.put_away(_pane, func() -> void: visible = false, shades)
 
 
 func is_open() -> bool:

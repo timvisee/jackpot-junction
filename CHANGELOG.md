@@ -17,14 +17,16 @@ below, and hands the notes to the release workflow.
   tickets from dark card with gold foil and fine engraved lines, the way the driver license is,
   and everything is set in Barlow, a face drawn after road signs and license plates.
 - **Panes torn like tickets.** The pause menu, questions, dialogs and the joker pane have a header
-  torn off by a perforation, come up with a short slide, and the button that moves on is gold.
-  A question that loses you something carries a yellow warning sign.
+  torn off by a perforation, and the button that moves on is gold. A question that loses you
+  something carries a yellow warning sign.
 - **A payout slip.** The podium is a cream slip torn off the house's printer, with the podium as a
   photo finish, a receipt line per player, a red WINNER stamp and the buttons on a tear-off stub.
 - **Calls on plates.** The announcer's calls stand on a plate in the player's color, match point
   on hazard tape, Last Call on a red board, and the joker cards are engraved in their kind's color.
 - **A title with a seal.** Rings turn slowly round the mark on the title, the name is set in a
   heavier cut over a line of fine print, and the touch buttons are gold-rimmed chips.
+- **Menus that move.** Panes slide up as they open and drop away as they close, and a gold frame
+  follows the cursor from one button to the next.
 - **Hints over your kart.** The hints and the item beside your kart stand on small tickets, and
   the words that float up off a kart are set in the HUD's own type.
 - **Key bindings in sockets.** The Controls page shows each binding's keys and buttons at their own

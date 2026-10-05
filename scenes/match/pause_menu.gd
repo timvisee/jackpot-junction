@@ -38,6 +38,10 @@ var names_and_colors := false:
 			_switches.names_and_colors = value
 
 var _panel: Control
+## The shade behind the menu, which fades out with it, and whether the menu is on its way out,
+## which is not open: the room is the player's again from the moment they close it.
+var _shade: ColorRect
+var _leaving := false
 var _resume: Button
 var _quit: Button
 ## Online, on the host: stopping the match for everybody now rather than waiting for them all to
@@ -104,6 +108,7 @@ func _ready() -> void:
 	shade.color = Color(0.0, 0.0, 0.0, 0.55)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_panel.add_child(shade)
+	_shade = shade
 	var middle := CenterContainer.new()
 	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	middle.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -346,7 +351,7 @@ func settings_open() -> bool:
 ## Whether the menu or the settings from it are up, which is when nothing else in the room is
 ## listening.
 func is_open() -> bool:
-	return _panel.visible or _settings != null
+	return (_panel.visible and not _leaving) or _settings != null
 
 
 ## Opens the menu of the room [param tree] is running, if it has one.
@@ -404,7 +409,13 @@ func set_paused(paused: bool) -> void:
 	if asking():
 		_put_the_question_away()
 	_put_away_aside()
-	_panel.visible = paused
+	_leaving = not paused and _panel.visible
+	if paused:
+		_panel.visible = true
+		_shade.modulate.a = 1.0
+	else:
+		var shades: Array[CanvasItem] = [_shade]
+		MenuTheme.put_away(_main, _gone, shades)
 	_switches.visible = paused
 	if paused:
 		MenuTheme.deal(_main)
@@ -420,6 +431,14 @@ func set_paused(paused: bool) -> void:
 		session.want_pause(paused)
 	if paused:
 		_resume.grab_focus()
+
+
+## The menu put away, once it has gone, see [method MenuTheme.put_away].
+func _gone() -> void:
+	if not _leaving and _panel.visible and _main.visible:
+		return
+	_leaving = false
+	_panel.visible = false
 
 
 ## The menu's own buttons, top to bottom, for the switches to be reached from.
