@@ -80,6 +80,27 @@ func test_a_dressed_kart_wears_all_of_it() -> void:
 	assert_float(_named(plain, "RoofMarker").position.y).is_equal(KartVisuals.MARKER_HEIGHT)
 
 
+## GAME.md 4.4: every player color has a roof marker shape of its own, so a room of eight is eight
+## shapes and a color is never the only way to tell two karts apart.
+func test_every_color_has_a_roof_marker_of_its_own() -> void:
+	var seen: Dictionary[String, int] = {}
+	for color: int in Palette.PLAYER_COLORS.size():
+		var shape := KartVisuals.marker_shape(color)
+		var cylinder := shape as CylinderMesh
+		var sphere := shape as SphereMesh
+		var key := shape.get_class()
+		if cylinder != null:
+			key += " top %.2f" % cylinder.top_radius
+		elif sphere != null:
+			key += " sides %d" % sphere.radial_segments
+		(
+			assert_bool(seen.has(key))
+			. override_failure_message("%d is %d's" % [color, seen.get(key, -1)])
+			. is_false()
+		)
+		seen[key] = color
+
+
 ## Every hat there is to pick is a hat with a height the roof marker clears, the learner's
 ## block too, the driving school's L on its sides and its top, GAME.md 4.4 and 9.4a.
 func test_every_hat_is_worn_and_the_learner_wears_the_block() -> void:

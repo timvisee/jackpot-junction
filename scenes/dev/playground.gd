@@ -4,7 +4,7 @@ extends Node3D
 ##
 ## User arguments after "++":
 ##   --players=2          keyboard drives slot 0 and the first gamepad slot 1
-##   --bots=3             number of bot karts added after the humans (default 1)
+##   --bots=3             number of bot karts added after the humans (default 1, up to 7)
 ##   --difficulty=hard    bot difficulty: easy, normal or hard
 ##   --jokers=3           deal the player this many random jokers at the start
 ##   --menu=1             hold the player's joker menu open on this card, for screenshots
@@ -78,6 +78,9 @@ func _ready() -> void:
 	# Dressed as the settings say, GAME.md 4.4, so a screenshot of this room shows what a player
 	# actually drives rather than the kart as it comes.
 	var styles: Array = [Game.settings.kart_styles[0]]
+	# As many karts as were asked for, up to a room of eight, GAME.md 9.3.
+	match_node.rules = match_node.rules.duplicate()
+	match_node.rules.max_players = maxi(match_node.rules.max_players, inputs.size())
 	match_node.hold_start = _loading
 	match_node.start(inputs, 0, [], [], styles)
 	if _loading:

@@ -1255,7 +1255,10 @@ short buzz the slider gives, so reading along the row is felt card by card.
 
 - One kart body. Player color is a material tint on the body and the bullets.
 - 8 player colors, see 8.1. Each color also has a distinct roof marker shape
-  for color-blind readability.
+  for color-blind readability, eight shapes for a room of eight, 9.3: a ball, a
+  box, a wedge, a ring, a drum, a pill, a cone and a diamond, in the order of the
+  colors. The shape goes with the color rather than the seat, so a player who
+  changes color changes shape too.
 - A player picks another name and another color in the lobby and the Garage,
   from their switch in the pause menu, 4.2: a box with their name in it, empty
   with the funny name they were handed showing faintly if they never set one,

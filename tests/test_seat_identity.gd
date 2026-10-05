@@ -51,6 +51,8 @@ func test_a_player_moves_on_to_the_next_color_nobody_else_is_in() -> void:
 	var marker: MeshInstance3D = kart.get_node("Body/RoofMarker")
 	var paint := marker.material_override as StandardMaterial3D
 	assert_that(paint.albedo_color).is_equal(Palette.player_color(2))
+	# The shape goes with the color, GAME.md 4.4: the third color's is the wedge.
+	assert_bool(marker.mesh is PrismMesh).is_true()
 	# Nobody is put in a color somebody else is already in.
 	SeatIdentity.paint(match_node, slot, 1)
 	assert_int(slot.color_index).is_equal(2)

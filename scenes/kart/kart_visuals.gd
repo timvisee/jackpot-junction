@@ -30,7 +30,7 @@ static func build_body(kart: Kart) -> Dictionary:
 	var tint := KartDress.paint(color, kart.style)
 	var wheels: Array[MeshInstance3D] = []
 	paint(model, tint, wheels)
-	var marker := roof_marker(kart.slot, kart.color_index)
+	var marker := roof_marker(kart.color_index)
 	# A hat stands where the marker floated, so the marker moves up over it rather than through.
 	marker.position.y += KartDress.HAT_LIFT[kart.style.hat]
 	body.add_child(marker)
@@ -203,6 +203,7 @@ static func recolor(kart: Kart, color_index: int) -> void:
 		tint.albedo_color = color.darkened(0.5) if kart.is_wounded() else color
 	var marker := kart.get_node_or_null("Body/RoofMarker") as MeshInstance3D
 	if marker != null:
+		marker.mesh = marker_shape(color_index)
 		(marker.material_override as StandardMaterial3D).albedo_color = color
 	var guide := kart.get_node_or_null("AimGuide") as AimGuide
 	if guide != null:
@@ -377,21 +378,51 @@ static func build_attachments(kart: Kart) -> Dictionary:
 	}
 
 
-## A distinct shape per slot above the driver, so colors are not the only way to tell karts apart.
-static func roof_marker(slot: int, color_index: int) -> MeshInstance3D:
+## A shape of its own over the driver for each player color, GAME.md 4.4, so a color is not the
+## only way to tell karts apart: as many shapes as colors, eight, for a room of eight.
+static func roof_marker(color_index: int) -> MeshInstance3D:
 	var marker := MeshInstance3D.new()
 	marker.name = "RoofMarker"
+	marker.mesh = marker_shape(color_index)
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Palette.player_color(color_index)
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	marker.material_override = material
+	marker.position = Vector3(0.0, MARKER_HEIGHT, 0.0)
+	marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return marker
+
+
+## The roof marker's shape for the player color [param color_index]: a ball, a box, a wedge, a
+## ring, a drum, a pill, a cone and a diamond, in the order of the colors.
+static func marker_shape(color_index: int) -> Mesh:
+	var cone := CylinderMesh.new()
+	cone.top_radius = 0.0
+	# Four sides and a point at each end: a diamond, where a dozen made the ball.
+	var diamond := SphereMesh.new()
+	diamond.radial_segments = 4
+	diamond.rings = 1
 	var shapes: Array[Mesh] = [
 		SphereMesh.new(),
 		BoxMesh.new(),
 		PrismMesh.new(),
 		TorusMesh.new(),
 		CylinderMesh.new(),
-		CapsuleMesh.new()
+		CapsuleMesh.new(),
+		cone,
+		diamond,
 	]
-	var mesh: Mesh = shapes[posmod(slot, shapes.size())]
+	var mesh: Mesh = shapes[posmod(color_index, shapes.size())]
 	# Each a hand's width across, seen from the far end of the room: a dozen segments round.
-	if mesh is SphereMesh:
+	if mesh == cone:
+		cone.bottom_radius = 0.17
+		cone.height = 0.32
+		cone.radial_segments = 16
+		cone.rings = 1
+	elif mesh == diamond:
+		diamond.radius = 0.17
+		diamond.height = 0.4
+	elif mesh is SphereMesh:
 		(mesh as SphereMesh).radius = 0.16
 		(mesh as SphereMesh).height = 0.32
 		(mesh as SphereMesh).radial_segments = 12
@@ -416,14 +447,7 @@ static func roof_marker(slot: int, color_index: int) -> MeshInstance3D:
 		(mesh as CapsuleMesh).height = 0.36
 		(mesh as CapsuleMesh).radial_segments = 8
 		(mesh as CapsuleMesh).rings = 4
-	marker.mesh = mesh
-	var material := StandardMaterial3D.new()
-	material.albedo_color = Palette.player_color(color_index)
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	marker.material_override = material
-	marker.position = Vector3(0.0, MARKER_HEIGHT, 0.0)
-	marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	return marker
+	return mesh
 
 
 ## The gold crown a kart wears while there is a price on its head, GAME.md 3.10. Hidden until the

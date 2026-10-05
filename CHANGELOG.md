@@ -15,6 +15,8 @@ below, and hands the notes to the release workflow.
 
 - **Up to eight players online.** A host can set the player limit up to 8, still 4 to start
   with, and add up to 7 bots; one device still seats 4. Every map has four more spawn points.
+- **A roof marker for every color.** The seventh and eighth colors get their own marker shapes, a
+  cone and a diamond, and a kart's marker now goes with its color.
 - **Big rooms play the XL maps.** With more than four karts a normal map plays as its XL, unless
   you turn on Small maps for 5+ karts in the match settings.
 
