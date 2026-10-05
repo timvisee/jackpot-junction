@@ -17,10 +17,20 @@ below, and hands the notes to the release workflow.
   with, and add up to 7 bots; one device still seats 4. Every map has four more spawn points.
 - **A roof marker for every color.** The seventh and eighth colors get their own marker shapes, a
   cone and a diamond, and a kart's marker now goes with its color.
-- **Bots drive differently from each other.** Every way of driving comes round once before any
-  repeats, so three bots are three different ones.
 - **Big rooms play the XL maps.** With more than four karts a normal map plays as its XL, unless
   you turn on Small maps for 5+ karts in the match settings.
+
+### Changed
+
+- **Bots drive differently from each other.** Every way of driving comes round once before any
+  repeats, so three bots are three different ones.
+- **Lighter online updates.** Names, statistics and kart dress are sent twice a second instead of
+  with every update, so updates are about a fifth smaller.
+
+### Fixed
+
+- **Every player counts while a map waits.** "Waiting on" before a map counts each player at a
+  machine, not one per machine.
 
 ## [0.13.4] - 2026-10-06
 
@@ -89,8 +99,6 @@ with 0.13.x.
 - **See your server's name.** Once you have connected to a server, Play Online's list shows the
   name it gives itself, and its games' lobbies say which server they are on; before, only the title
   over its games did.
-- **Every player counts while a map waits.** "Waiting on" before a map counts each player at a
-  machine, not one per machine.
 
 ## [0.13.2] - 2026-10-05
 

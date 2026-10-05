@@ -20,14 +20,18 @@ static var _all_items: PowerUpTable
 ## Everything a client needs to render the match this tick. One section per kind of thing on
 ## the table, each of which is its own question and answers it on its own.
 ## [param wire] is the host's account of what it has already told its clients about the floor,
-## GAME.md 10.3. Given one, the pickups are sent as what changed; without one, as the whole floor,
-## which is what anything asking for a snapshot on its own wants.
+## GAME.md 10.3. Given one, the pickups are sent as what changed, and the parts that hardly ever
+## change only now and then, see [SlowParts]; without one, the whole of everything, which is what
+## anything asking for a snapshot on its own wants.
 static func build(match_node: Match, wire: PickupWire = null) -> Dictionary:
 	var floor_state := (
 		{"pickups": pickups_now(match_node).values(), "gone": [], "moved": [], "whole": true}
 		if wire == null
 		else wire.section(match_node)
 	)
+	var slow := wire.slow if wire != null else null
+	if slow != null:
+		slow.next(match_node.is_running())
 	return {
 		"state": match_node.state,
 		"time": match_node.time_left,
@@ -35,8 +39,8 @@ static func build(match_node: Match, wire: PickupWire = null) -> Dictionary:
 		"loading": [match_node.loading.x, match_node.loading.y],
 		"payout":
 		match_node.arena.junction.payout_multiplier if match_node.arena.junction != null else 1.0,
-		"slots": _slots(match_node),
-		"karts": _karts(match_node),
+		"slots": _slots(match_node, slow),
+		"karts": _karts(match_node, slow),
 		"bullets": _bullets(match_node),
 		"pickups": floor_state["pickups"],
 		"gone": floor_state["gone"],
@@ -58,7 +62,7 @@ static func build(match_node: Match, wire: PickupWire = null) -> Dictionary:
 
 ## The players themselves: what they have scored and are carrying, and the joker pick in front
 ## of them if one is open.
-static func _slots(match_node: Match) -> Array:
+static func _slots(match_node: Match, slow: SlowParts) -> Array:
 	var data: Array = []
 	for slot: PlayerSlot in match_node.slots:
 		var kart := slot.kart
@@ -73,22 +77,23 @@ static func _slots(match_node: Match) -> Array:
 			"reveal": kart.item_reveal_left,
 			"jokers": kart.jokers.ids(),
 			"human": slot.is_human(),
-			"trait": String(slot.bot_trait.id) if slot.bot_trait != null else "",
-			# Sixteen characters per player per snapshot, against a snapshot of several
-			# kilobytes. A name never changes during a match, but sending it with everything
-			# else means a client that joins late, or after a rematch, is never looking at a
-			# room of strangers called P2, GAME.md 10.3.
-			"name": slot.player_name,
 			"color": slot.color_index,
 			"respawn": slot.respawn_left,
 			"menu": kart.menu_open,
 			"menu_index": kart.menu_index,
 			"nitro_charge": kart.nitro_charge,
 			"magnet": kart.pickup_radius_bonus,
-			"stats": slot.stats.to_array(),
 			# How slow their line is, for a warning beside their name on every screen.
 			"rtt": roundi(slot.round_trip),
 		}
+		# A name never changes during a match, but a client that joins late, or after a rematch,
+		# is told it within half a second rather than looking at a room of strangers called P2,
+		# GAME.md 10.3.
+		var trait_id := String(slot.bot_trait.id) if slot.bot_trait != null else ""
+		var named := {"name": slot.player_name, "trait": trait_id}
+		_slow(entry, slow, "slot%d." % slot.index, named, slot.index)
+		if slow == null or slow.due(slot.index):
+			entry["stats"] = slot.stats.to_array()
 		if slot.offer != null and not slot.offer.is_done():
 			entry["offer"] = _offer(slot.offer)
 		data.append(entry)
@@ -108,42 +113,49 @@ static func _offer(offer: JokerOffer) -> Dictionary:
 	}
 
 
+## Puts each of [param parts] into [param entry] that [param slow] wants in this snapshot, see
+## [SlowParts], or every one of them for a snapshot that is not counting. [param owner] says whose
+## they are, and [param beat] which beat of the slow ones is theirs.
+static func _slow(
+	entry: Dictionary, slow: SlowParts, owner: String, parts: Dictionary, beat: int
+) -> void:
+	for key: String in parts:
+		if slow == null or slow.wants(owner + key, parts[key], beat):
+			entry[key] = parts[key]
+
+
 ## Where every kart is and what it is doing, which is most of what a client draws.
-static func _karts(match_node: Match) -> Array:
+static func _karts(match_node: Match, slow: SlowParts) -> Array:
 	var data: Array = []
 	for node: Node in match_node.get_children():
 		var kart := node as Kart
 		if kart == null:
 			continue
-		(
-			data
-			. append(
-				{
-					"id": kart.get_instance_id(),
-					"slot": kart.slot,
-					"color": kart.color_index,
-					"style": kart.style.to_array(),
-					"plate": KartVisuals.plate_worn(kart),
-					"x": kart.global_position.x,
-					"z": kart.global_position.z,
-					"h": kart.motor.heading,
-					"vx": kart.motor.velocity.x,
-					"vz": kart.motor.velocity.z,
-					"alive": kart.alive,
-					"prot": kart.protection_left > 0.0,
-					"shield": kart.shielded,
-					"ring": kart.channel_progress,
-					"drift": kart.motor.drifting,
-					# How long the slide has run, so a watching client can see the drift sparks earn
-					# their boost and flash when it is taken, the same as the driver does.
-					"drift_time": kart.motor.drift_time,
-					"aim": kart.aim_arrow_visible,
-					"nitro": kart.nitro_active,
-					"lives": kart.lives,
-					"decoy": kart.is_decoy(),
-				}
-			)
-		)
+		var entry := {
+			"id": kart.get_instance_id(),
+			"slot": kart.slot,
+			"color": kart.color_index,
+			"x": kart.global_position.x,
+			"z": kart.global_position.z,
+			"h": kart.motor.heading,
+			"vx": kart.motor.velocity.x,
+			"vz": kart.motor.velocity.z,
+			"alive": kart.alive,
+			"prot": kart.protection_left > 0.0,
+			"shield": kart.shielded,
+			"ring": kart.channel_progress,
+			"drift": kart.motor.drifting,
+			# How long the slide has run, so a watching client can see the drift sparks earn
+			# their boost and flash when it is taken, the same as the driver does.
+			"drift_time": kart.motor.drift_time,
+			"aim": kart.aim_arrow_visible,
+			"nitro": kart.nitro_active,
+			"lives": kart.lives,
+			"decoy": kart.is_decoy(),
+		}
+		var dressed := {"style": kart.style.to_array(), "plate": KartVisuals.plate_worn(kart)}
+		_slow(entry, slow, "kart%d." % kart.get_instance_id(), dressed, kart.slot)
+		data.append(entry)
 	return data
 
 
@@ -442,16 +454,16 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 		slot.kills = entry["kills"]
 		slot.deaths = entry["deaths"]
 		slot.color_index = entry["color"]
-		slot.player_name = entry.get("name", "")
 		slot.respawn_left = entry["respawn"]
 		slot.round_trip = float(entry.get("rtt", 0))
+		# Only now and then, see [SlowParts]: missing, they are what they were.
+		if entry.has("name"):
+			slot.player_name = entry["name"]
 		if entry.has("stats"):
 			slot.stats.from_array(entry["stats"])
-		slot.bot_trait = (
-			match_node.bot_traits.by_id(StringName(entry["trait"]))
-			if entry["trait"] != ""
-			else null
-		)
+		if entry.has("trait"):
+			var named := StringName(entry["trait"])
+			slot.bot_trait = match_node.bot_traits.by_id(named) if named != &"" else null
 		if entry["human"] and not slot.is_human():
 			slot.input = NetInput.new()
 		elif not entry["human"] and slot.is_human() and not match_node.is_local_seat(i):

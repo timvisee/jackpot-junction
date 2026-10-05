@@ -13,7 +13,8 @@ extends RefCounted
 ## that missed something, or that has only just arrived, is never wrong for long.
 ##
 ## One of these belongs to each host session rather than to the match, so two matches sharing a
-## process keep their own account of what they have told whom.
+## process keep their own account of what they have told whom. It keeps that account for the
+## parts of a snapshot that hardly ever change too, see [member slow].
 
 ## How many snapshots a change is repeated in before it is taken as heard.
 const REPEATS := 4
@@ -24,6 +25,9 @@ const REPEATS := 4
 const MOVED := 0.02
 ## Snapshots between one whole floor and the next, about two seconds of them.
 const KEYFRAME_EVERY := 60
+
+## The parts of a snapshot sent only now and then, see [SlowParts].
+var slow := SlowParts.new()
 
 ## The pickups the host believes clients have, and the changes still being repeated.
 var _have: Dictionary[int, bool] = {}
@@ -82,10 +86,11 @@ func section(match_node: Match) -> Dictionary:
 	return {"pickups": appeared, "gone": went, "moved": moved, "whole": false}
 
 
-## Sends the whole floor in the next snapshot, for somebody who has just arrived and has none of
-## it.
+## Sends the whole floor in the next snapshot, and the parts that hardly ever change, for
+## somebody who has just arrived and has none of it.
 func start_again() -> void:
 	_until_keyframe = 0
+	slow.start_again()
 
 
 static func _where(entry: Dictionary) -> Vector2:

@@ -5591,9 +5591,30 @@ other before it will pass.
 
   Most of what is left is shape rather than substance: every entry is a dictionary,
   so its keys are written out again for every kart and every player, thirty times a
-  second. Two things are still worth doing: write entries as plain values instead
-  of dictionaries, and split the fast-changing sections from the slow ones so the
-  slow half goes less often.
+  second. Writing entries as plain values instead of dictionaries is still worth
+  doing.
+- **The slow parts go at a slow beat.** A player's name, way of driving and
+  statistics and a kart's dress and plate hardly ever change, and a room of eight,
+  9.3, sent them thirty times a second: a fifth of a snapshot of eight, which came
+  in eight pieces. Each player's go in one snapshot out of fifteen, twice a second,
+  every player on a beat of their own so that no one snapshot carries everybody's;
+  a name, a way of driving, a dress or a plate also goes in the four snapshots after
+  it changes, so a dress picked on a stall shows at once and one lost packet changes
+  nothing. The statistics go at the beat alone, since they change all the time and
+  matter at the end, and all of it goes in every snapshot while the match is not
+  being played, so the podium is drawn from everybody's last statistics, and in the
+  next one for somebody who has just arrived. A client keeps what it was told until
+  it is told again. Measured over a minute of hard bots on Lucky Crossing XL, before
+  and after:
+
+  | Karts | Typical snapshot     | One in twenty is up to | After: typical      | After: one in twenty |
+  |-------|----------------------|------------------------|---------------------|----------------------|
+  | 4     | 5.8 KB, 5 pieces     | 6.4 KB, 5 pieces       | 4.7 KB, 4 pieces    | 5.4 KB, 4 pieces     |
+  | 8     | 10.4 KB, 8 pieces    | 11.0 KB, 8 pieces      | 8.2 KB, 6 pieces    | 9.0 KB, 7 pieces     |
+
+  Deflated, as a stand-in for ENet's range coder, a snapshot of eight is about
+  1.3 KB, so a host with seven players and four watchers at other machines sends
+  something like 430 KB a second.
 - **The floor is sent as what changed.** A chip lies where it fell until somebody
   drives over it, and sending every one of them thirty times a second was the
   largest part of a snapshot. So a snapshot carries what appeared and what went,
