@@ -19,14 +19,14 @@ below, and hands the notes to the release workflow.
 ### Changed
 
 - **A clearer tap icon.** Hints on a phone show a proper tapping hand.
-- **Shader compiling in plain sight.** The first start of a version shows a pane over the title
-  with its progress and a Skip button, rather than a small line in the corner.
+- **Shader compiling in plain sight.** The first start of a version shows a "Preparing" pane over
+  the title with its progress and a Skip button, rather than a small line in the corner.
 - **See which profile a seat is.** A linked seat shows the profile's name and plate on its pause
   menu panel, and the Players page says "Linked to" it.
 - **The item button in touch hints.** A hint on a phone shows the item button with your item's
   picture on it, as the button looks, rather than the word ITEM.
-- **Hold an emote to send it on a pad.** Hold the right stick on an emote until its ring fills, then
-  let go; the stick snapping back no longer sends the one on the other side.
+- **Hold an emote to send it on a pad.** Hold the right stick on an emote until its ring fills, a
+  third of a second, then let go; the stick snapping back no longer sends the one on the other side.
 - **The driving school counts.** What you do in it, from distance driven to kills, now adds to your
   profile's statistics, though not as a map played.
 - **Karts on show face you.** The kart in the license photo and on the podium starts turned toward

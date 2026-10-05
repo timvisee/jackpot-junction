@@ -406,9 +406,8 @@ which does not get to decide there is another match, is pointed at the way out.
 
 The title compiles the game's shaders behind itself the first time this build
 of the game runs on this machine, see 10.7, and says so in a pane over the whole
-title, the license too, on a shade: "Getting the game ready", a line saying it
-compiles the graphics so matches do not stutter and is done once for each
-version, a gold bar with how far along it is in percent beside it, and Skip,
+title, the license too, on a shade: "Preparing", "Compiling shaders, please
+wait...", a gold bar with how far along it is in percent beside it, and Skip,
 which has the cursor and keeps it. The menu is out of reach until the bar is full,
 when the pane fades away by itself and the cursor goes to Play, or until Skip, or
 Back, stops it, whatever was not compiled then compiled the old way, on first use,
@@ -519,7 +518,7 @@ else's results screen, see 10.3.
   right, down and left, in their color. It comes up once the right stick is
   pushed past a third of the way and stays for as long as it is held off the
   middle, with the one it points at bigger and the others faint. Held at the edge
-  on one, a ring round it fills over half a second; full, it is armed, bigger
+  on one, a ring round it fills over a third of a second; full, it is armed, bigger
   still and beating, and letting go asks for it: the stick back in the middle
   within a tenth of a second of leaving it, which a stick let go always is. A
   stick let go snaps back past the middle to the far side for a moment, and that

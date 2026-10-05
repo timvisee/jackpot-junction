@@ -10,8 +10,8 @@ extends Control
 ## Gone, done or skipped.
 signal put_away
 
-const TITLE := "Getting the game ready"
-const LINE := "Compiling graphics so matches don't stutter. Done once for each version."
+const TITLE := "Preparing"
+const LINE := "Compiling shaders, please wait..."
 const SKIP := "Skip"
 ## How wide the line wraps, and the bar.
 const WIDE := 520.0
