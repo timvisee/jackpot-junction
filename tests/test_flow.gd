@@ -400,6 +400,35 @@ func test_a_status_before_the_room_stands_on_the_loading_screens_dark() -> void:
 	assert_int(pane._backdrop.get_index()).is_less(pane._panel.get_index())
 
 
+## GAME.md 10.3: Escape while a room is connecting opens the pause menu over "Connecting...", to
+## leave by; it used to open under it. A room that failed says so over the menu, since nothing
+## says why again once it has gone, and so does the password the host asks for, with its own Back.
+func test_the_menu_comes_up_over_connecting() -> void:
+	var real := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = TEST_SETTINGS_PATH
+	var holder: Control = auto_free(Control.new())
+	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(holder)
+	var connecting := StatusPane.add_to(holder)
+	connecting.backdrop = true
+	connecting.say("Connecting to 127.0.0.1:7777...")
+	var menu := PauseMenu.add_to(holder)
+	await await_idle_frame()
+	var pause := InputEventAction.new()
+	pause.action = InputActions.PAUSE
+	pause.pressed = true
+	menu._unhandled_input(pause)
+	assert_bool(menu.is_open()).is_true()
+	assert_int(menu.layer).is_greater(connecting.layer)
+	assert_int(StatusPane.OVER).is_greater(menu.layer)
+	var password := PasswordPane.add_to(holder)
+	assert_int(password.layer).is_greater(menu.layer)
+	menu.set_paused(false)
+	get_tree().paused = false
+	Game.settings = real
+
+
 ## GAME.md 3.8: a menu over a room darkens the whole of it, the pause menu and the host's match
 ## settings both. The shade used to be centered along with the pane, at the nothing it asks for.
 ## A phone's Back, GAME.md 4.2: in a room with nothing up, the room's menu, as the corner button

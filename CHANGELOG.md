@@ -39,6 +39,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Leave while connecting.** Pressing Escape while a game is still connecting now opens the
+  pause menu over the "Connecting" pane, so you can disconnect.
 - **A retake earns endorsements.** Passing the driving test again puts what you earned that time on
   your license; before, it kept only the first pass's.
 - **The license screen fits a phone.** The card comes first, then the plate and the ways on in its

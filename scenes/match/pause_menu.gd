@@ -16,6 +16,9 @@ const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
 ## Every room's menu is in this group, so something with no way to press Escape, such as the menu
 ## button on a touch screen, GAME.md 4.2, can open it.
 const GROUP := &"pause_menu"
+## Over the room, its HUD and the host's match settings, and over what the room is saying while
+## it connects, see [StatusPane], so a player kept waiting can open it and leave.
+const LAYER := 20
 
 ## Every menu in a tree, kept as they come and go, for [method is_open_in]: the touch controls,
 ## the emotes and the mouse each ask it every frame, and asking the tree walks the group.
@@ -79,7 +82,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
-	layer = 20
+	layer = LAYER
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	add_to_group(GROUP)
 	if session != null:

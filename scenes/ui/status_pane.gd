@@ -4,8 +4,12 @@ extends CanvasLayer
 ## joker detail pane is so the two read as the same game rather than as a label dropped on the
 ## floor: connecting, starting, and why a room is being left.
 
-## Over the room and its HUD.
-const LAYER := 30
+## Over the room and its HUD, and under the pause menu: Escape while it says "Connecting..."
+## opens the menu over it, to leave by.
+const LAYER := PauseMenu.LAYER - 1
+## A room that has failed is said over the pause menu too: the room goes back to the menu once it
+## has been read, and nothing says why again there.
+const OVER := 30
 ## How long a room that has failed stays up to be read before it goes back to the menu.
 const RETURN_DELAY := 2.5
 
@@ -52,6 +56,7 @@ func say(text: String, color: Color = Palette.NEON_CYAN) -> void:
 ## The room is over: says why, in red, and goes back to the menu once it has been read, the one
 ## the room was reached from, see [method Game.back_to_the_menu].
 func fail(message: String) -> void:
+	layer = OVER
 	say(message + "\nReturning to the menu...", Palette.CHIP_RED)
 	get_tree().create_timer(RETURN_DELAY).timeout.connect(
 		func() -> void: Game.back_to_the_menu(message)

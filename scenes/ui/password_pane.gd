@@ -20,7 +20,7 @@ var _back: Button
 static func add_to(parent: Node) -> PasswordPane:
 	var pane := PasswordPane.new()
 	pane.name = "Password"
-	pane.layer = StatusPane.LAYER
+	pane.layer = StatusPane.OVER
 	parent.add_child(pane)
 	pane._build()
 	return pane
