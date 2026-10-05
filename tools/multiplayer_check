@@ -11,6 +11,9 @@
 #             and the game has a password, which each client is asked for and gives, the
 #             first a wrong one before it, and the watcher is let in without
 #   local:    two players on one machine, one bot; everybody keeps all their jokers
+#   eight:    a room of eight, GAME.md 9.3: the host and three clients with two players at each,
+#             on a quick match played as its XL and over at once, beside the local run, see
+#             tools/eight_driver.gd
 #
 # Usage: tools/multiplayer_check          (about a minute and a half)
 #
@@ -102,8 +105,25 @@ client_b2_status=$?
 wait "$watcher_b"
 watcher_b_status=$?
 
+run host_8 --eight --role=host --port="$((port + 2))" --ping="$ping" &
+host_8=$!
+run client_81 --eight --role=client --port="$((port + 2))" --ping="$ping" &
+client_81=$!
+run client_82 --eight --role=client --port="$((port + 2))" --ping="$ping" &
+client_82=$!
+run client_83 --eight --role=client --port="$((port + 2))" --ping="$ping" &
+client_83=$!
+
 run local --role=local --jokers=all
 local_status=$?
+wait "$host_8"
+host_8_status=$?
+wait "$client_81"
+client_81_status=$?
+wait "$client_82"
+client_82_status=$?
+wait "$client_83"
+client_83_status=$?
 
 report host_a "$host_a_status"
 report client_a "$client_a_status"
@@ -112,6 +132,10 @@ report client_b1 "$client_b1_status"
 report client_b2 "$client_b2_status"
 report watcher_b "$watcher_b_status"
 report local "$local_status"
+report host_8 "$host_8_status"
+report client_81 "$client_81_status"
+report client_82 "$client_82_status"
+report client_83 "$client_83_status"
 agree host_a client_a
 agree host_b client_b1
 agree host_b client_b2

@@ -5920,7 +5920,11 @@ hang-up only after the last word said before it. The suites that play over a
 socket, the online match, several players at a client, arriving, the handover
 between rooms and the door, each run a second time over a 50 ms round trip with
 10 ms of jitter, and `make multiplayer-lag` plays the whole Grand Prix of
-`tools/multiplayer_check` over one; `make check` runs both. There every player at
+`tools/multiplayer_check` over one; `make check` runs both. Beside its run on one screen the
+check plays a room of eight, 9.3, and plays it short: the host with two players at it and three
+clients with two each, a quick match on a map at the usual size that eight karts play as its XL,
+every machine seeing the eight start on spots of their own and a podium with a row each, and the
+whistle as soon as the lamps have gone. There every player at
 a client drives over a chip the host leaves in front of them and onto a pad of
 their own on the first map, each taken at once and then agreed to by the host,
 with nothing put back. A chip taken by somebody else flies into their kart on a

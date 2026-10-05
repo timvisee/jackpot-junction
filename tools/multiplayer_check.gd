@@ -11,6 +11,10 @@ func _initialize() -> void:
 
 
 func _start() -> void:
-	var driver: Node = load("res://tools/multiplayer_driver.gd").new()
+	# A room of eight has a driver of its own, see tools/eight_driver.gd.
+	var eight := "--eight" in OS.get_cmdline_user_args()
+	var driver: Node = (
+		load("res://tools/%s.gd" % ("eight_driver" if eight else "multiplayer_driver")).new()
+	)
 	driver.name = "MultiplayerCheck"
 	root.add_child(driver)
