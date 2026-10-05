@@ -193,6 +193,11 @@ func test_a_player_leaving_a_client_mid_map_is_written_down() -> void:
 	bob.save_to_disk()
 	Game.settings.link_seat(1, bob.id)
 	var second := _client.seats[1]
+	# The seat is given before the snapshot bringing its kart here, on a slow machine by a while.
+	var here := await _wait_until(
+		func() -> bool: return _client_match.slots.size() > second.slot, 4000
+	)
+	assert_bool(here).override_failure_message("the second seat's kart never came").is_true()
 	var slot := _client_match.slots[second.slot]
 	# Counted from the moment the seat was given, whatever the kart had done before it.
 	var taken: Dictionary = record._since.get(second.slot, {})
