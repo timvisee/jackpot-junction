@@ -14,7 +14,8 @@ below, and hands the notes to the release workflow.
 ### Added
 
 - **Your favorite color.** The color you pick in the pause menu or on the Players page is kept in
-  your profile, and you get it in every game where it's free, on your license's kart too.
+  your profile, and you get it in every game where it's free, on your license's kart too, and on a
+  seat linked to your profile.
 
 ### Changed
 

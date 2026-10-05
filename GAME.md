@@ -493,8 +493,9 @@ else's results screen, see 10.3.
   another profile kept on the machine: Link profile on their switch in the pause
   menu, in any room or map, lists the profiles they can be, then Unlink when they
   are one, then Back. A linked seat is that profile at once: its name, its kart's
-  dress, its plate or learner's L, and how it drives, and whatever the seat changes
-  of them is that profile's. It says so plainly: under the name on its switch, the
+  dress, its plate or learner's L, its favorite color, 4.4, where nobody else in
+  the room is in it, and how it drives, and whatever the seat changes of them is
+  that profile's. It says so plainly: under the name on its switch, the
   profile's plate, or its L, and "Bob's profile", the button then reading Change
   profile; and on the Players page of the settings, "Linked to Bob" beside the
   seat's row. The maps it plays to the whistle go into that

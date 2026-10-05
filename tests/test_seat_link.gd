@@ -38,6 +38,7 @@ func _bob() -> Profile:
 	bob.license_number = "0042"
 	bob.license_plate = "BOB-1"
 	bob.drive_modes[0] = Settings.DRIVE_SIMPLE
+	bob.colors[0] = 5
 	bob.save_to_disk()
 	return bob
 
@@ -116,6 +117,9 @@ func test_linking_from_the_pause_menu_puts_the_profile_on_the_kart() -> void:
 	(listed[0] as Button).pressed.emit()
 	await await_idle_frame()
 	assert_str(slot.player_name).is_equal("Bob")
+	# In Bob's favorite color, nobody else being in it.
+	assert_int(slot.color_index).is_equal(5)
+	assert_int(slot.kart.color_index).is_equal(5)
 	assert_that(slot.style.to_array()).is_equal(PackedInt32Array(BOB_STYLE))
 	assert_that(slot.kart.style.to_array()).is_equal(PackedInt32Array(BOB_STYLE))
 	assert_str(slot.kart.get_node("Body/Plate").get_meta(&"plate")).is_equal("BOB-1")

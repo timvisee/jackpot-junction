@@ -2,7 +2,8 @@ class_name SeatLink
 extends RefCounted
 ## Another profile kept on this machine sat in at a seat past the first, GAME.md 3.8, picked from
 ## that player's switch in the pause menu, see [DriveSwitches]. The seat is that profile from then
-## on: its name, its kart's dress, its plate and how it drives, and the maps it plays to the end go
+## on: its name, its kart's dress, its plate, its favorite color where nobody else in the room is
+## in it, and how it drives, and the maps it plays to the end go
 ## into that profile's statistics, see [MatchRecord]. Unlinked, it is a guest of the profile
 ## playing again. Only for the sitting: at the title every seat is a guest again, see
 ## [method Settings.unlink_all]. Here and on the host it shows at once; a client says it to the
@@ -35,9 +36,12 @@ static func link(match_node: Match, slot: PlayerSlot, id: String) -> bool:
 		named = PlayerNames.pick(rng, taken)
 	var style := settings.seat_style(seat)
 	var plate := settings.seat_plate(seat)
+	var color := settings.seat_color(seat)
 	var session := SeatIdentity.client_of(slot)
 	if session != null:
 		session.claim_name(named, slot.index)
+		if color >= 0:
+			session.claim_color(color, slot.index)
 		var mine := session.seat_at(slot.index)
 		if mine != null and not style.is_empty():
 			mine.style = style
@@ -47,6 +51,7 @@ static func link(match_node: Match, slot: PlayerSlot, id: String) -> bool:
 		session.rpc_id(1, &"_claim_plate", plate, seat)
 		return true
 	slot.player_name = named
+	SeatIdentity.paint(match_node, slot, color)
 	if not style.is_empty():
 		StyleStalls.dress(slot, style)
 	if slot.kart != null and is_instance_valid(slot.kart):
