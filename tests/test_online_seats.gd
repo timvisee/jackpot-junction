@@ -194,10 +194,12 @@ func test_a_player_leaving_a_client_mid_map_is_written_down() -> void:
 	Game.settings.link_seat(1, bob.id)
 	var second := _client.seats[1]
 	var slot := _client_match.slots[second.slot]
-	slot.stats.values[&"driven"] = 300.0
+	# Counted from the moment the seat was given, whatever the kart had done before it.
+	var taken: Dictionary = record._since.get(second.slot, {})
+	slot.stats.values[&"driven"] = float(taken.get(&"driven", 0.0)) + 300.0
 	_client.leave_seat(second.slot)
 	var kept := Profile.at(Game.settings.profiles_dir(), bob.id)
-	assert_float(LifetimeStats.value_of(kept, &"driven")).is_equal(300.0)
+	assert_float(LifetimeStats.value_of(kept, &"driven")).is_equal_approx(300.0, 0.001)
 	assert_bool(record.recorded).is_false()
 
 
