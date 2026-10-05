@@ -630,6 +630,14 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	await await_millis(int((RubberStamp.LIFT + RubberStamp.DROP) * 1000.0) + 150)
 	assert_bool(license.card.stamped).is_true()
 	await await_millis(int(LicenseScreen.SETTLE * 1000.0) + 200)
+	# Held up in full first, as the title shows it; the plate and the ways on once it is put away.
+	assert_object(license.view).is_not_null()
+	assert_object(license.view.get_parent()).is_same(license)
+	assert_bool(license.view.card.stamped).is_true()
+	assert_bool(license.offering()).is_false()
+	license.view.close()
+	await await_idle_frame()
+	assert_object(license.view).is_null()
 	assert_bool(license.offering()).is_true()
 	# The license is the course's last step, ticked as the stamp came down.
 	assert_bool(SchoolEnrollment.is_ticked(license.course, 2)).is_true()

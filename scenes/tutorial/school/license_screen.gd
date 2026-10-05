@@ -4,8 +4,9 @@ extends Control
 ## passed, on the pane the podium is cut from with the player's color along its top: YOU PASSED,
 ## a word from the examiner, the license itself, see [LicenseCard], with the rubber stamp hanging
 ## over its corner, see [RubberStamp], and under it a line saying to press it. Stamped, the card
-## takes its mark and shakes, and then a second page takes its place: the plate for the back of the
-## kart to choose, and the ways on in a row, the Garage, the road, which is Play, and the title.
+## takes its mark and shakes, and is held up in full over the screen, see [LicenseView]; put away,
+## a second page takes its place: the plate for the back of the kart to choose, and the ways on in
+## a row, the Garage, the road, which is Play, and the title.
 ## Nothing leaves this screen without stamping: the stamp is the point. Either page fits the
 ## screen, see [method _fit].
 
@@ -58,6 +59,8 @@ var course: HBoxContainer
 ## What each way on does: the scenes, unless a test says otherwise.
 var ways: Dictionary[StringName, Callable] = {}
 var buttons: Dictionary[StringName, Button] = {}
+## The license in full, up once it is stamped until it is put away, see [LicenseView].
+var view: LicenseView
 
 var _pane: PanelContainer
 ## The first page, the card to stamp, which the plate and the ways on take the place of.
@@ -208,7 +211,21 @@ func _on_stamped() -> void:
 	license_done.tween_callback(SchoolEnrollment.tick.bind(course, 2))
 	var settle := create_tween()
 	settle.tween_interval(SETTLE)
-	settle.tween_callback(_offer_the_ways)
+	settle.tween_callback(_look_closer)
+
+
+## Stamped, the license is held up in full over the screen, GAME.md 9.4a, the way the title and
+## the settings show it, for the player to look at what they earned; put away, the plate and the
+## ways on come up in the card's place.
+func _look_closer() -> void:
+	if view != null:
+		return
+	view = LicenseView.open(self, Game.last_input_keyboard)
+	view.put_away.connect(
+		func() -> void:
+			view = null
+			_offer_the_ways()
+	)
 
 
 ## The card takes the blow: a shiver sideways and a little jump.

@@ -4403,7 +4403,11 @@ card's lower right corner, slams down with a thud, which is when the card takes
 the mark, two red rings with PASSED between them, DEPT. OF KARTS over the word
 and the date under it, laid a little askew and short of solid the way ink is,
 and the card shivers; then the stamp fades away leaving the mark. Nothing goes
-on without stamping: the stamp is the point. A moment after, the second page,
+on without stamping: the stamp is the point. A moment after, the license is held
+up in full over the screen, as the title and the settings show it, see below, for
+the player to look at what they have just earned, turning toward the mouse, the
+stick or the phone and turned over with a click or a tap; put away, with Back, a
+click or a tap beside it or Put it away, the second page comes up,
 CONGRATULATIONS and the name in gold, "Class K. Valid on every table. The Junction is yours.", the
 license plate for the back of the kart to choose, see 4.4, starting from the
 holder's initials and the number's last three digits, "TLT-123", and the three ways on side

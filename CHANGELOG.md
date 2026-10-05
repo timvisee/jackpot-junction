@@ -41,6 +41,8 @@ below, and hands the notes to the release workflow.
   your license; before, it kept only the first pass's.
 - **The license screen fits a phone.** The card comes first, then the plate and the ways on in its
   place, and each shrinks to fit rather than scrolling behind it.
+- **Your new license, up close.** Once you stamp it, the license is shown in full, as on the title;
+  put it away to choose your plate and where to go.
 - **No more spaces in a server address on a phone.** Address boxes use the phone's keyboard for
   addresses, which stopped adding a space after each dot, and port boxes the number keyboard.
 - **No freeze making a profile in a game.** Profiles are only listed in the settings inside a game;
