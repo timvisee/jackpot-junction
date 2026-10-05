@@ -181,11 +181,11 @@ R0 = 40 points per second, D = 0.5 s
   that climbs high burns out smoothly on the way rather than being cut off flat,
   as it is kept clear of the sides it sways towards. The total goes gold. Their
   kart lays gold tracks for everybody to see, see 4.3: a bright gold ribbon under
-  each rear wheel, twice a plain mark's width, that holds for a moment and fades
-  out two seconds behind the kart, a short trail rather than the table painted
-  gold, leaving the ordinary marks under it. Faint and thin, as they first were,
+  each rear wheel, a little wider than a plain mark, that holds for a moment and
+  fades out two seconds behind the kart, a short trail rather than the table
+  painted gold, leaving the ordinary marks under it. Faint, as they first were,
   they went unseen on the felt and all but vanished on the driving school's pale
-  floor. Every machine works it out from the banked scores and pots it
+  floor; twice a plain mark's width, as they were next, they were too heavy. Every machine works it out from the banked scores and pots it
   already has, so nothing more goes over the wire for it. Last Call pays double, so the blink comes on no later than it has to and
   never promises a win it cannot pay.
 - Standing on the Junction patches a wounded kart up to two lives, see 3.6, but a
@@ -1188,8 +1188,8 @@ short buzz the slider gives, so reading along the row is felt card by card.
   straight line is barely there, a hard turn and a brake not much more. A full
   drift leaves a clear skid at just under half opacity, and a straight handbrake
   stop leaves the darkest mark of all. A kart whose pot would win the match, see
-  3.4, lays its marks in gold over them, all but solid, twice as wide and drawn a
-  little brighter than their color so they glow where the bloom is on, and the
+  3.4, lays its marks in gold over them, all but solid, a quarter wider, and drawn
+  a little brighter than their color so they glow where the bloom is on, and the
   gold holds for a moment and fades out over 2 s, leaving the ordinary mark under
   it to fade over its 20 s.
   Marks fade out over 20 s, or 4 s with the tire marks setting on Short or Mine,
