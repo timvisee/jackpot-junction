@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Room for more karts to start.** Every map and the lobby have four more spawn points, for the
+  fifth to eighth kart. A match of four still starts in the corners.
+
 ## [0.13.4] - 2026-10-06
 
 The game has a look of its own, House Print: menus, panes and the HUD are cut like tickets from

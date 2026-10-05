@@ -38,7 +38,8 @@ func test_every_arena_is_the_same_room_in_a_different_shape() -> void:
 		var grid := layout.parse()
 		var size := Vector2(42.0, 24.0) if ArenaMaps.is_xl(id) else Vector2(32.0, 18.0)
 		assert_vector(Vector2(grid.width, grid.height)).is_equal(size)
-		assert_int(grid.spawns.size()).is_equal(4)
+		assert_int(grid.spawns.size()).is_equal(8)
+		assert_int(grid.corner_spawns).is_equal(4)
 		assert_object(grid.junction.size).is_equal(Vector2i(4, 4))
 		assert_int(grid.jackpots.size()).is_equal(2)
 		assert_int(grid.pits.size()).is_equal(2)
@@ -59,6 +60,61 @@ func test_every_arena_is_the_same_room_in_a_different_shape() -> void:
 			. override_failure_message("%s has a corner nobody can drive to" % id)
 			. is_equal(open)
 		)
+
+
+## GAME.md 6.3: a room of up to eight, 9.3, starts its fifth kart on in one of four more spawn
+## points, after the corners, each beside its twin across the middle of the room. Every one of
+## them has a clear run at the Junction it faces, with no pit and no turbo pad on the way, and none
+## is in a lane a turbo pad fires down.
+func test_every_arena_and_the_lobby_have_a_start_for_eight() -> void:
+	var ids: Array[StringName] = ArenaMaps.IDS.duplicate()
+	ids.append(&"waiting_room")
+	for id: StringName in ids:
+		var layout: ArenaLayout = load("res://data/maps/%s.tres" % id)
+		var grid := layout.parse()
+		assert_int(grid.spawns.size()).override_failure_message("%s spawns" % id).is_equal(8)
+		for i: int in grid.spawns.size():
+			var glyph := ArenaGrid.SPAWN if i < grid.corner_spawns else ArenaGrid.EXTRA_SPAWN
+			assert_str(grid.glyph(grid.spawns[i])).is_equal(glyph)
+		if id != &"waiting_room":
+			for i: int in [4, 6]:
+				var cell := grid.spawns[i]
+				var twin := Vector2i(grid.width - 1 - cell.x, grid.height - 1 - cell.y)
+				assert_object(grid.spawns[i + 1]).override_failure_message(id).is_equal(twin)
+		var lanes := _turbo_lanes(grid)
+		var middle := Vector2(grid.junction.get_center())
+		for i: int in range(grid.corner_spawns, grid.spawns.size()):
+			var cell := grid.spawns[i]
+			assert_bool(lanes.has(cell)).override_failure_message("%s %s" % [id, cell]).is_false()
+			var from := Vector2(cell) + Vector2.ONE * 0.5
+			for step: int in 100:
+				var on := Vector2i(from.lerp(middle, step / 100.0).floor())
+				var glyph := grid.glyph(on)
+				if glyph == ArenaGrid.JUNCTION:
+					break
+				(
+					assert_bool(glyph in [ArenaGrid.PIT, ArenaGrid.WALL] or lanes.has(on))
+					. override_failure_message("%s: %s from %s at %s" % [id, glyph, cell, on])
+					. is_false()
+				)
+
+
+## Every cell a turbo pad of [param grid] fires a kart down, the pads included, as far as the next
+## pad, which sends a kart on its own way.
+func _turbo_lanes(grid: ArenaGrid) -> Dictionary[Vector2i, bool]:
+	var lanes: Dictionary[Vector2i, bool] = {}
+	for pad: Vector2i in grid.turbo_pads:
+		var way := grid.turbo_direction(pad)
+		var step := Vector2i(roundi(way.x), roundi(way.z))
+		var cell := pad
+		while grid.glyph(cell) in ArenaGrid.TURBO_GLYPHS:
+			lanes[cell] = true
+			cell += step
+		var ends := [ArenaGrid.WALL, ArenaGrid.CRATE, ArenaGrid.PIT] + ArenaGrid.TURBO_GLYPHS
+		while not (grid.glyph(cell) in ends):
+			lanes[cell] = true
+			cell += step
+	return lanes
 
 
 func test_an_unknown_map_falls_back_rather_than_leaving_no_arena() -> void:

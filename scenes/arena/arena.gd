@@ -567,6 +567,13 @@ func gate_at(cell: Vector2i) -> Gate:
 	return null
 
 
+## The spawn points a match of [param karts] karts uses, GAME.md 6.3: the corners while they hold
+## everybody, and all of them past that.
+func spawns_for(karts: int) -> Array[Vector3]:
+	var corners := grid.corner_spawns
+	return spawn_points if karts > corners or corners <= 0 else spawn_points.slice(0, corners)
+
+
 func _add_spawns() -> void:
 	var spawns := Node3D.new()
 	spawns.name = "Spawns"

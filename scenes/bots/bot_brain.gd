@@ -272,7 +272,7 @@ func go_elsewhere() -> void:
 	goal = &"wander"
 	target_node = null
 	var away: Array[Vector3] = []
-	for point: Vector3 in match_node.arena.spawn_points:
+	for point: Vector3 in match_node.arena.spawns_for(match_node.slots.size()):
 		if point.distance_to(kart.global_position) > ELSEWHERE_DISTANCE:
 			away.append(point)
 	if away.is_empty():

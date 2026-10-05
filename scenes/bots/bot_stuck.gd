@@ -127,7 +127,7 @@ func put_down() -> void:
 	for slot: PlayerSlot in match_node.slots:
 		if slot.kart != null and slot.kart != kart and slot.kart.alive:
 			others.append(slot.kart.global_position)
-	var point := Match.pick_spawn(match_node.arena.spawn_points, others)
+	var point := Match.pick_spawn(match_node.arena.spawns_for(match_node.slots.size()), others)
 	kart.global_position = Vector3(point.x, 0.0, point.z)
 	kart.face(match_node.arena.junction_position - point)
 	kart.motor.velocity = Vector3.ZERO

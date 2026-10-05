@@ -19,7 +19,8 @@ func test_dimensions_and_world_size() -> void:
 
 
 func test_element_counts_match_the_design() -> void:
-	assert_int(_grid.spawns.size()).is_equal(4)
+	assert_int(_grid.spawns.size()).is_equal(8)
+	assert_int(_grid.corner_spawns).is_equal(4)
 	assert_int(_grid.coin_pads.size()).is_equal(12)
 	assert_int(_grid.power_pads.size()).is_equal(4)
 	assert_int(_grid.flush_pads.size()).is_equal(4)
@@ -109,7 +110,10 @@ func test_arena_scene_builds_from_the_layout() -> void:
 	var scene: PackedScene = load("res://scenes/arena/arena.tscn")
 	var arena: Arena = auto_free(scene.instantiate())
 	add_child(arena)
-	assert_int(arena.spawn_points.size()).is_equal(4)
+	assert_int(arena.spawn_points.size()).is_equal(8)
+	# A match of four uses the corners alone, as it always has; the fifth kart opens up the rest.
+	assert_array(arena.spawns_for(4)).is_equal(arena.spawn_points.slice(0, 4))
+	assert_array(arena.spawns_for(5)).is_equal(arena.spawn_points)
 	assert_int(arena.turbo_pads.size()).is_equal(4)
 	assert_int(arena.flush_pads.size()).is_equal(4)
 	assert_int(arena.pits.size()).is_equal(2)

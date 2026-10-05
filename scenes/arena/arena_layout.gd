@@ -1,9 +1,9 @@
 class_name ArenaLayout
 extends Resource
 ## A map as an ASCII grid. The legend is in GAME.md section 6.3: # wall, . floor, S spawn,
-## C coin pad, P power-up pad, F Royal Flush pad, R shooting target, D joker pad, T turbo pad
-## (^ v < > for an explicit direction), B crate, X pit, J Junction pad, K Jackpot zone,
-## O portal.
+## s spawn past four karts, C coin pad, P power-up pad, F Royal Flush pad, R shooting target,
+## D joker pad, T turbo pad (^ v < > for an explicit direction), B crate, X pit, J Junction pad,
+## K Jackpot zone, O portal.
 ## Connected X, J and K cells form one rectangular area each.
 
 @export_multiline var grid: String = ""
@@ -64,6 +64,7 @@ func parse() -> ArenaGrid:
 
 func _collect_elements(target: ArenaGrid) -> void:
 	var visited: Dictionary[Vector2i, bool] = {}
+	var extra: Array[Vector2i] = []
 	for y: int in target.height:
 		for x: int in target.width:
 			var cell := Vector2i(x, y)
@@ -71,6 +72,8 @@ func _collect_elements(target: ArenaGrid) -> void:
 			match glyph:
 				ArenaGrid.SPAWN:
 					target.spawns.append(cell)
+				ArenaGrid.EXTRA_SPAWN:
+					extra.append(cell)
 				ArenaGrid.COIN_PAD:
 					target.coin_pads.append(cell)
 				ArenaGrid.POWER_PAD:
@@ -99,6 +102,20 @@ func _collect_elements(target: ArenaGrid) -> void:
 								target.junctions.append(rect)
 							ArenaGrid.GATE:
 								target.gates.append(rect)
+	target.corner_spawns = target.spawns.size()
+	_add_extra_spawns(target, extra)
+
+
+## The spawns for the fifth kart on after the corners, GAME.md 6.3, each followed by its twin across
+## the middle of the room, so a match of six has one more at each end rather than two at one.
+static func _add_extra_spawns(target: ArenaGrid, extra: Array[Vector2i]) -> void:
+	while not extra.is_empty():
+		var cell: Vector2i = extra.pop_front()
+		target.spawns.append(cell)
+		var twin := Vector2i(target.width - 1 - cell.x, target.height - 1 - cell.y)
+		if twin in extra:
+			extra.erase(twin)
+			target.spawns.append(twin)
 
 
 ## Bounding rectangle of the connected cells sharing a glyph, marking them visited.

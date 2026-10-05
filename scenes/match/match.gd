@@ -261,7 +261,7 @@ func _join_with_input(input: KartInput, wanted_color := -1) -> PlayerSlot:
 	for other: PlayerSlot in slots:
 		if other != slot and other.kart != null and other.kart.alive:
 			enemies.append(other.kart.global_position)
-	_spawn_kart(slot, pick_spawn(arena.spawn_points, enemies))
+	_spawn_kart(slot, pick_spawn(arena.spawns_for(slots.size()), enemies))
 	slot.kart.frozen = not is_running()
 	slot.kart.protection_left = rules.spawn_protection
 	slot.kart.collision_layer = Layers.PROTECTED
@@ -949,7 +949,7 @@ func _respawn(slot: PlayerSlot) -> void:
 	for other: PlayerSlot in slots:
 		if other != slot and other.kart.alive:
 			enemies.append(other.kart.global_position)
-	var point := pick_spawn(arena.spawn_points, enemies)
+	var point := pick_spawn(arena.spawns_for(slots.size()), enemies)
 	slot.kart.respawn(point, arena.junction_position - point, rules.spawn_protection)
 	Events.kart_respawned.emit(slot.index, point)
 

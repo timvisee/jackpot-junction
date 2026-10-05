@@ -9,6 +9,8 @@ extends RefCounted
 const WALL := "#"
 const FLOOR := "."
 const SPAWN := "S"
+## A spawn point for a room of more than four karts, GAME.md 6.3, see [member corner_spawns].
+const EXTRA_SPAWN := "s"
 const COIN_PAD := "C"
 const POWER_PAD := "P"
 const TURBO_PAD := "T"
@@ -34,6 +36,7 @@ const KNOWN_GLYPHS: Array[String] = [
 	WALL,
 	FLOOR,
 	SPAWN,
+	EXTRA_SPAWN,
 	COIN_PAD,
 	POWER_PAD,
 	TURBO_PAD,
@@ -60,6 +63,10 @@ var walls: Array[Rect2i] = []
 ## Each run of gate cells, one gate, see [Gate].
 var gates: Array[Rect2i] = []
 var spawns: Array[Vector2i] = []
+## How many of [member spawns] are the `S` ones, in the corners of every arena, which come first
+## and are all a match uses while they hold everybody in it; the `s` ones after them are for the
+## fifth kart on, GAME.md 6.3.
+var corner_spawns := 0
 var coin_pads: Array[Vector2i] = []
 var power_pads: Array[Vector2i] = []
 var flush_pads: Array[Vector2i] = []

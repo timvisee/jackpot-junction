@@ -1553,11 +1553,11 @@ nothing to bank. A map may hold several, each banking as the one does.
   two behind the Jackpot zones, so a flush is a lap of the arena.
 - Four spawn points are in the corners, `S`, and four more, `s`, are for a room of
   more than four karts, see 9.3. A match of four starts in the corners and comes
-  back to life in them, as it always has. The fifth kart on starts on an `s`, the
-  one farthest from every spawn already taken, so a match of six has one more at
-  each end rather than two at one, and once there are more than four karts a kart
-  coming back to life may come back on any of the eight. Each `s` sits at the edge
-  of the floor with a clear run at the Junction it faces: never a pit or a turbo
+  back to life in them, as it always has. The fifth kart on starts on an `s`, and
+  the sixth on its twin across the middle of the room, so a match of six has one
+  more at each end rather than two at one; once there are more than four karts a kart
+  coming back to life may come back on any of the eight. Each `s` sits out toward
+  the walls with a clear run at the Junction it faces: never a pit or a turbo
   pad in the way, and never in a lane a turbo pad fires down.
 
 #### The Vault
