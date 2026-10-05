@@ -34,7 +34,9 @@ const PHOTO_WORDS := "PHOTO FINISH"
 ## The stamp on the winner's line, in the driving test's red.
 const STAMP := "WINNER"
 const STAMP_INK := Color(0.8, 0.17, 0.14, 0.82)
-const STAMP_RADIUS := 50.0
+const STAMP_RADIUS := 44.0
+## How far the stamp's ring keeps from the figures it stands beside.
+const STAMP_CLEAR := 9.0
 ## The small print by the barcode.
 const SMALL_PRINT := "PAID IN CHIPS, NOT CASH  ·  NO REFUNDS ON A BAD LAP"
 ## How big a place's chip is on a line.
@@ -474,29 +476,26 @@ static func _leader() -> Control:
 	return dots
 
 
-## The driving test's stamp on [param score], the winner's, laid over it a little askew, see
-## [StampArt]: a control of its own over the score's label, which lays out nothing it holds.
+## The driving test's stamp on [param score], the winner's line, a little askew, see [StampArt]:
+## a control of its own over the score's label, which lays out nothing it holds.
 func _stamp_onto(score: Label) -> void:
 	var stamp := Control.new()
 	stamp.name = "Stamp"
 	stamp.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	stamp.size = Vector2.ONE * STAMP_RADIUS * 2.0
-	# Over the left of the figures, which stand at the right of the label, and clear of the
-	# kills and deaths beside it.
-	stamp.position = Vector2(STAMP_RADIUS * 0.3, -STAMP_RADIUS * 0.8)
+	stamp.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var day := LicenseCard.today()
 	stamp.draw.connect(
 		func() -> void:
-			StampArt.stamp(
-				stamp,
-				stamp.size * 0.5,
-				STAMP_RADIUS,
-				STAMP,
-				"DEPT. OF KARTS",
-				day,
-				-0.24,
-				STAMP_INK
+			# In the room the figures leave at the left of the label, never over them: a long
+			# score pushes it onto the gray beside it rather than onto what was won.
+			var font := score.get_theme_font(&"font")
+			var points := score.get_theme_font_size(&"font_size")
+			var figures := font.get_string_size(score.text, HORIZONTAL_ALIGNMENT_LEFT, -1, points).x
+			var at := Vector2(
+				score.size.x - figures - STAMP_RADIUS - STAMP_CLEAR,
+				score.size.y * 0.5 - STAMP_RADIUS * 0.1
 			)
+			StampArt.stamp(stamp, at, STAMP_RADIUS, STAMP, "DEPT. OF KARTS", day, -0.24, STAMP_INK)
 	)
 	score.add_child(stamp)
 
