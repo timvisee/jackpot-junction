@@ -112,10 +112,13 @@ func _exit_tree() -> void:
 
 
 ## The school is left, for the next room or out of the game: what the player did in it goes into
-## their profile, written once. Only the school the game is in, which a test's never is, so a
-## test that started one can never write the player's statistics into their settings.
+## their profile, written once. Only the school the game is in, which a test's never is, and never
+## headless, which a player never is and a smoke run of the school always is: a smoke run wrote
+## its few seconds into the player's own statistics, and saved their settings.
 func leave_record() -> void:
-	if record != null and is_inside_tree() and get_tree().current_scene == self:
+	if record == null or Game.is_headless() or not is_inside_tree():
+		return
+	if get_tree().current_scene == self:
 		record.record()
 
 
