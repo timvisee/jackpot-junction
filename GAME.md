@@ -3690,8 +3690,14 @@ whose host is the machine the game runs on.
 player's own servers, in the box of 9.3 headed "Your servers", a row each for the dedicated
 servers they keep, a
 button with the server's name over its address and port, the address smaller and in gray since
-the name is what the player gave it to be known by, which connects to it, and a trash can beside
-it, "Remove" its tooltip, which asks first, "Remove this server?", with Remove and Keep. The list is empty to start
+the name is what the player gave it to be known by, which connects to it, and beside it, each a
+button with a picture and its word for a tooltip: an arrow up and an arrow down, Move up and Move
+down, which move it up and down the list, the first's up and the last's down off, the cursor
+staying on the arrow so a pad moves a server several places with presses of one button; a pencil,
+Edit, which opens the dialog of Add a server with the server in its boxes, headed "Edit a server",
+whose Save changes it in its place on the list, and says "That server is on your list already" for
+one made into another server it keeps; and a trash can, "Remove", which asks first, "Remove this
+server?", with Remove and Keep. The order is the player's, kept with the list. The list is empty to start
 with, the box holding only its link, Add a server, and keeps up to 20. Under it, side by side as LAN games' are,
 Add a server, Direct connect and LAN games, see 9.3. Add a server and Direct connect ask for the
 server's address and its port, 7777 to start with, in the dialog LAN games asks in, and Add a

@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Arrange and edit your servers.** Each server in Play Online has arrows to move it up and down
+  the list and a pencil to change its name, address or port.
 - **Your favorite color.** The color you pick in the pause menu or from the row of colors on the
   Players page is kept in your profile, and you get it in every game where it's free, on your
   license's kart too, and on a seat linked to your profile.

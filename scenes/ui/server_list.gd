@@ -1,16 +1,20 @@
 class_name ServerList
 extends VBoxContainer
 ## The dedicated servers a player keeps, GAME.md 9.3a, on the Play Online screen, a row each: a
-## button with the server's name over its address, smaller and in gray, which connects to it, and a
-## trash can beside it, which takes it off the list.
+## button with the server's name over its address, smaller and in gray, which connects to it, and
+## beside it arrows that move it up and down the list, a pencil that edits it, and a trash can that
+## takes it off the list.
 ## Empty to start with: a player adds the servers they play on, or connects to one directly.
 ##
 ## A kept server is a dictionary of its "name", "address" and "port". It belongs to the player
 ## rather than the machine, with the rest of where they play, see [member Settings.servers].
 
-## [param server] chosen, to connect to, or to be taken off the list.
+## [param server] chosen, to connect to, to be taken off the list, or to be edited.
 signal chosen(server: Dictionary)
 signal removing(server: Dictionary)
+signal editing(server: Dictionary)
+## [param server] to go [param by] places down the list, or up for below zero.
+signal moving(server: Dictionary, by: int)
 
 ## The most servers the list keeps, the longest name one may have, and the longest address: a
 ## host name at its longest.
@@ -114,16 +118,20 @@ static func same(a: Dictionary, b: Dictionary) -> bool:
 
 
 ## The rows made again for [param servers], with the cursor on the row of [param focus] if that
-## is one of them.
-func show_servers(servers: Array[Dictionary], focus: Dictionary = {}) -> void:
+## is one of them: on its button called [param part], Server, Up, Down, Edit or Remove, so a server
+## being moved keeps the cursor on the arrow moving it.
+func show_servers(servers: Array[Dictionary], focus: Dictionary = {}, part := "Server") -> void:
 	for old: Node in get_children():
 		remove_child(old)
 		old.queue_free()
 	for i: int in servers.size():
-		var row := _row(servers[i], i)
+		var row := _row(servers[i], i, servers.size())
 		add_child(row)
 		if not focus.is_empty() and same(servers[i], focus):
-			(row.get_child(0) as Button).grab_focus.call_deferred()
+			var on := row.find_child("%s%d" % [part, i], false, false) as Button
+			if on == null or on.disabled:
+				on = row.get_child(0) as Button
+			on.grab_focus.call_deferred()
 
 
 ## The button that connects to the row of [param index], or null.
@@ -136,9 +144,15 @@ func remove_button(index: int) -> Button:
 	return find_child("Remove%d" % index, true, false) as Button
 
 
+## The button of the row of [param index] called [param part], Up, Down or Edit, or null.
+func row_button(part: String, index: int) -> Button:
+	return find_child("%s%d" % [part, index], true, false) as Button
+
+
 ## One server: the button that connects to it, its name over where it is, smaller and in gray,
-## or where it is alone for one with no name, and the trash can beside it.
-func _row(server: Dictionary, index: int) -> HBoxContainer:
+## or where it is alone for one with no name, and beside it the arrows, the first row's up and the
+## last row's down off, the pencil and the trash can.
+func _row(server: Dictionary, index: int, count: int) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
 	var named := not str(server["name"]).is_empty()
@@ -162,6 +176,20 @@ func _row(server: Dictionary, index: int) -> HBoxContainer:
 		var under := _line(where(server), Type.TEXT, Type.SMALL, WHERE_INK)
 		under.name = "Where"
 		words.add_child(under)
+	var up := IconButton.of(IconButton.Kind.UP, "Move up")
+	up.name = "Up%d" % index
+	up.disabled = index == 0
+	up.pressed.connect(func() -> void: moving.emit(server, -1))
+	row.add_child(up)
+	var down := IconButton.of(IconButton.Kind.DOWN, "Move down")
+	down.name = "Down%d" % index
+	down.disabled = index == count - 1
+	down.pressed.connect(func() -> void: moving.emit(server, 1))
+	row.add_child(down)
+	var edit := IconButton.of(IconButton.Kind.PENCIL, "Edit")
+	edit.name = "Edit%d" % index
+	edit.pressed.connect(func() -> void: editing.emit(server))
+	row.add_child(edit)
 	var remove := IconButton.of(IconButton.Kind.TRASH, "Remove")
 	remove.name = "Remove%d" % index
 	remove.pressed.connect(func() -> void: removing.emit(server))

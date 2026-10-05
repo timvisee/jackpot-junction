@@ -369,6 +369,72 @@ func test_remove_is_a_trash_can() -> void:
 	assert_float(beside.size.y).is_equal_approx(named.size.y, 0.5)
 
 
+## GAME.md 9.3a: a kept server moves up and down the list with its arrows, the first's up and the
+## last's down off, the order kept, and the cursor staying on the arrow so it can be moved on.
+func test_kept_servers_move_up_and_down() -> void:
+	for name: String in ["One", "Two", "Three"]:
+		Game.settings.servers.append(ServerList.entry(name, "%s.example.org" % name, 7777))
+	var screen := _screen()
+	await await_idle_frame()
+	var list: ServerList = screen._servers
+	assert_bool(list.row_button("Up", 0).disabled).is_true()
+	assert_bool(list.row_button("Down", 2).disabled).is_true()
+	assert_bool(list.row_button("Down", 0).disabled).is_false()
+	var picture: IconButton.Picture = list.row_button("Up", 1).get_node("Picture")
+	assert_int(picture.kind).is_equal(IconButton.Kind.UP)
+	list.row_button("Down", 0).pressed.emit()
+	await await_idle_frame()
+	var names := Game.settings.servers.map(func(each: Dictionary) -> String: return each["name"])
+	assert_array(names).is_equal(["Two", "One", "Three"])
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(list.row_button("Down", 1))
+	list.row_button("Up", 2).pressed.emit()
+	await await_idle_frame()
+	names = Game.settings.servers.map(func(each: Dictionary) -> String: return each["name"])
+	assert_array(names).is_equal(["Two", "Three", "One"])
+	var read := Settings.new()
+	read.path = Game.settings.path
+	read.load_from_disk()
+	assert_str(str(read.servers[1]["name"])).is_equal("Three")
+
+
+## GAME.md 9.3a: the pencil opens the dialog with the server in its boxes, and Save changes it in
+## its place on the list; made into another server already on the list, it is not saved twice.
+func test_a_kept_server_is_edited_in_its_place() -> void:
+	Game.settings.servers.append(ServerList.entry("Home", "a.example.org", 7777))
+	Game.settings.servers.append(ServerList.entry("Club", "b.example.org", 7777))
+	var screen := _screen()
+	await await_idle_frame()
+	var list: ServerList = screen._servers
+	var picture: IconButton.Picture = list.row_button("Edit", 0).get_node("Picture")
+	assert_int(picture.kind).is_equal(IconButton.Kind.PENCIL)
+	list.row_button("Edit", 0).pressed.emit()
+	assert_bool(screen.is_form_up()).is_true()
+	assert_str(screen.add_button.text).is_equal("Save")
+	assert_str(screen.server_name_field.text).is_equal("Home")
+	assert_str(screen.address_field.text).is_equal("a.example.org")
+	screen.server_name_field.text = "Home server"
+	screen.address_field.text = "c.example.org"
+	screen.port_field.text = "9100"
+	screen.add_button.pressed.emit()
+	assert_bool(screen.is_form_up()).is_false()
+	assert_int(Game.settings.servers.size()).is_equal(2)
+	assert_str(str(Game.settings.servers[0]["name"])).is_equal("Home server")
+	assert_str(str(Game.settings.servers[0]["address"])).is_equal("c.example.org")
+	assert_int(Game.settings.servers[0]["port"]).is_equal(9100)
+	# Made into the Club, which is on the list already: said, and nothing changed.
+	list.row_button("Edit", 0).pressed.emit()
+	screen.address_field.text = "b.example.org"
+	screen.port_field.text = "7777"
+	screen.add_button.pressed.emit()
+	assert_bool(screen.is_form_up()).is_true()
+	assert_str(screen.dialog.said()).is_equal("That server is on your list already")
+	screen.cancel_button.pressed.emit()
+	assert_str(str(Game.settings.servers[0]["address"])).is_equal("c.example.org")
+	# And Add afterwards adds rather than edits.
+	screen.adding_button.pressed.emit()
+	assert_str(screen.add_button.text).is_equal("Add")
+
+
 ## Only an address is taken, GAME.md 9.3a: an IPv4 or IPv6 address, or a host name, with what is
 ## wrong said otherwise, an address with its port on it among it.
 func test_only_an_address_is_taken() -> void:

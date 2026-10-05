@@ -60,6 +60,8 @@ var _ask: ConfirmPane
 var _ask_layer: Control
 ## The kept server Remove was pressed on, while it is asked about.
 var _removing: Dictionary = {}
+## The kept server the dialog is editing, or empty while it adds one or connects.
+var _editing: Dictionary = {}
 var _knocking: Tween
 ## Whether the busy dialog says what went wrong rather than that a server is being knocked at.
 var _failed := false
@@ -78,6 +80,8 @@ func _ready() -> void:
 		func(server: Dictionary) -> void: _connect_to(server["address"], server["port"])
 	)
 	_servers.removing.connect(_ask_to_remove)
+	_servers.editing.connect(show_edit)
+	_servers.moving.connect(_move)
 	servers_box = ListBox.of("Your servers", _servers, "Add a server")
 	servers_box.link.pressed.connect(func() -> void: show_form(true))
 	column.add_child(servers_box)
@@ -161,10 +165,11 @@ func _build_question() -> void:
 	middle.add_child(_ask)
 
 
-## The kept servers again, with the cursor on the row of [param focus] if it is one of them, or
-## else on the first row, or on Add a server.
-func show_list(focus: Dictionary = {}) -> void:
-	_servers.show_servers(Game.settings.servers, focus)
+## The kept servers again, with the cursor on the row of [param focus] if it is one of them, on its
+## button called [param part], see [method ServerList.show_servers], or else on the first row, or
+## on Add a server.
+func show_list(focus: Dictionary = {}, part := "Server") -> void:
+	_servers.show_servers(Game.settings.servers, focus, part)
 	if focus.is_empty() or not _kept(focus):
 		var first := _servers.connect_button(0)
 		(first if first != null else adding_button).grab_focus.call_deferred()
@@ -181,6 +186,8 @@ func show_form(adding: bool) -> void:
 			else "Connect to a server without keeping it on your list."
 		)
 	)
+	_editing = {}
+	add_button.text = "Add"
 	_name_row.visible = adding
 	add_button.visible = adding
 	connect_button.visible = not adding
@@ -189,6 +196,40 @@ func show_form(adding: bool) -> void:
 		address_field.text = ""
 		port_field.text = str(ServerArgs.PORT)
 	dialog.open(server_name_field if adding else address_field)
+
+
+## The dialog over the list holding [param server] to change, GAME.md 9.3a: what it is called and
+## where it is, kept in its place on the list with Save.
+func show_edit(server: Dictionary) -> void:
+	show_form(true)
+	dialog.set_title("Edit a server", "Change what a kept server is called or where it is.")
+	add_button.text = "Save"
+	_editing = server
+	server_name_field.text = str(server["name"])
+	address_field.text = str(server["address"])
+	port_field.text = str(server["port"])
+
+
+## [param server] [param by] places down the list, or up, the cursor staying on the arrow that
+## moved it so it can be moved on.
+func _move(server: Dictionary, by: int) -> void:
+	var kept := Game.settings.servers
+	var at := _index_of(server)
+	var to := at + by
+	if at < 0 or to < 0 or to >= kept.size():
+		return
+	kept[at] = kept[to]
+	kept[to] = server
+	Game.settings.save_to_disk()
+	show_list(server, "Up" if by < 0 else "Down")
+
+
+func _index_of(server: Dictionary) -> int:
+	var kept := Game.settings.servers
+	for i: int in kept.size():
+		if ServerList.same(kept[i], server):
+			return i
+	return -1
 
 
 ## Whether the dialog is up over the list.
@@ -220,6 +261,10 @@ func _back() -> void:
 func _put_dialog_away() -> void:
 	var adding := add_button.visible
 	dialog.close()
+	if not _editing.is_empty():
+		show_list(_editing, "Edit")
+		_editing = {}
+		return
 	(adding_button if adding else direct_button).grab_focus.call_deferred()
 
 
@@ -249,16 +294,21 @@ func _typed_server() -> Dictionary:
 
 
 ## Keeps the server in the dialog's boxes and closes it onto the list with the cursor on it. One
-## the list already has is called what it is called now rather than kept twice.
+## the list already has is called what it is called now rather than kept twice. Editing, it takes
+## the place of the server edited, unless it is now another one already on the list.
 func _add() -> void:
 	var server := _typed_server()
 	if server.is_empty():
 		return
 	var kept := Game.settings.servers
-	var at := -1
-	for i: int in kept.size():
-		if ServerList.same(kept[i], server):
-			at = i
+	var at := _index_of(server)
+	if not _editing.is_empty():
+		var editing := _index_of(_editing)
+		if at >= 0 and at != editing:
+			dialog.say("That server is on your list already")
+			return
+		at = editing
+		_editing = {}
 	if at >= 0:
 		kept[at] = server
 	elif kept.size() >= ServerList.MOST:
