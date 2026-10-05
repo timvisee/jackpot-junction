@@ -41,7 +41,7 @@ var _details := false
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_style = TicketStyle.cut(MenuTheme.PANE_BG, 10.0, 18.0, 13.0)
+	_style = TicketStyle.cut(MenuTheme.PANE_BG, 10.0, 18.0, 18.0)
 	_style.frame_inset = 5.0
 	_style.bite = 8.0
 	_style.waves = 64.0

@@ -27,24 +27,68 @@ func test_a_bite_never_runs_into_a_notch() -> void:
 	assert_bool(Geometry2D.is_point_in_polygon(Vector2(4.0, 30.0), edge)).is_true()
 
 
-## The perforation under a pane's header tells the pane where it is, so the pane tears there.
-func test_a_perforation_tells_its_pane_where_to_tear() -> void:
-	var pane := MenuTheme.pane()
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 0)
-	pane.add_child(column)
-	var title := MenuTheme.title("Heading", Type.TITLE)
-	column.add_child(title)
-	column.add_child(MenuTheme.perforation())
-	column.add_child(MenuTheme.button("Below"))
-	add_child(pane)
-	await await_idle_frame()
-	await await_idle_frame()
-	var style := pane.get_theme_stylebox(&"panel") as TicketStyle
-	assert_int(style.perforations.size()).is_equal(1)
-	var expected := style.content_margin_top + title.size.y + Perforation.HEIGHT * 0.5
-	assert_float(style.perforations[0]).is_equal_approx(roundf(expected), 1.0)
-	pane.queue_free()
+## The perforation under a pane's header tells the pane where it is, so the pane tears there, and
+## stands as tall as it takes for the gap over and under it to be the pane's own gap beside its
+## words, GAME.md 8.1a, whatever its column puts between its children.
+func test_a_perforation_tears_the_pane_with_the_same_gap_all_round() -> void:
+	for between: int in [0, 12, 16]:
+		var pane := MenuTheme.pane()
+		var column := VBoxContainer.new()
+		column.add_theme_constant_override("separation", between)
+		pane.add_child(column)
+		var title := MenuTheme.title("Heading", Type.TITLE)
+		column.add_child(title)
+		var tear := MenuTheme.perforation()
+		column.add_child(tear)
+		var below := MenuTheme.button("Below")
+		column.add_child(below)
+		add_child(pane)
+		await await_idle_frame()
+		await await_idle_frame()
+		var style := pane.get_theme_stylebox(&"panel") as TicketStyle
+		assert_int(style.perforations.size()).is_equal(1)
+		var line := style.perforations[0]
+		var expected := style.content_margin_top + title.size.y + between + tear.size.y * 0.5
+		assert_float(line).is_equal_approx(roundf(expected), 1.0)
+		var gap := style.content_margin_left - style.frame_inset
+		assert_float(gap).is_equal(MenuTheme.PANE_GAP)
+		# Under the tear: from the hairline round the body to the button, the gap beside the words.
+		var body_top := line + style.bite + TicketStyle.FRAME_GAP
+		assert_float(below.position.y + style.content_margin_top - body_top).is_equal_approx(
+			gap, 1.0
+		)
+		# Over it: from the title's box to the hairline round the header, the same again.
+		var header_foot := line - style.bite - TicketStyle.FRAME_GAP
+		var title_foot := style.content_margin_top + title.size.y
+		assert_float(header_foot - title_foot).is_equal_approx(gap, 1.0)
+		assert_float(style.content_margin_top - style.frame_inset).is_equal(gap)
+		pane.free()
+
+
+## A title's capitals stand in the middle of its box, so a header centered on the box is centered
+## on the capitals: Barlow keeps more of a line over its capitals than under its baseline.
+func test_a_title_is_centered_on_its_capitals() -> void:
+	var size := Type.TITLE
+	var title := MenuTheme.title("Heading", size)
+	var even := title.get_theme_stylebox(&"normal")
+	var font := Type.display_font()
+	var over := even.content_margin_top + font.get_ascent(size) - size * Type.CAP_HEIGHT
+	var under := even.content_margin_bottom + font.get_descent(size)
+	assert_float(over).is_equal_approx(under, 0.5)
+	title.free()
+
+
+## The keys of a binding stand at their own size in the middle of their socket rather than
+## stretched to fill it, GAME.md 8.1a.
+func test_a_bindings_keys_keep_their_own_size_in_the_socket() -> void:
+	var row := SettingsScreen._bound_glyphs(InputActions.FIRE, true)
+	assert_int(row.get_child_count()).is_greater(0)
+	for glyph: Node in row.get_children():
+		assert_int((glyph as Control).size_flags_vertical).is_equal(Control.SIZE_SHRINK_CENTER)
+		assert_float((glyph as Control).get_combined_minimum_size().y).is_less(
+			SettingsScreen.BINDING_CELL.y - HouseTheme.SOCKET_ROOM * 2.0 + 1.0
+		)
+	row.free()
 
 
 ## A question that loses something wears the warning diamond; one that is only a question wears

@@ -28,9 +28,9 @@ const PAD_X := 8
 const PAD_Y := 1
 ## How wide the total after the pills is at the least.
 const TOTAL_WIDTH := 56.0
-## Round at both ends, and the end with the chip in it padded no more than the chip needs.
+## Round at both ends, with the chip or the die in the round end the same distance from its curve
+## all the way round: as far from the end as from the top and the bottom, see [method _build].
 const RADIUS := 18
-const PAD_ICON := 4
 ## How big the chip or the die at the end of a pill is.
 const ICON := 20.0
 ## While the line burns, GAME.md 3.4: how solid a pill goes, and the gold the total is written in.
@@ -77,6 +77,8 @@ var _next_jolt: Array[float] = []
 var _burn_skins: Array[StyleBoxFlat] = []
 var _time := 0.0
 var _rng := RandomNumberGenerator.new()
+## How far in from its round end a pill's chip or die stands, worked out from how tall the pill is.
+var _end_pad := 6.0
 
 
 ## Puts a pot line in [param parent], reading left to right whichever corner it is in.
@@ -186,6 +188,11 @@ func say(words: String) -> void:
 
 
 func _build() -> void:
+	var sample := _text(Color.WHITE)
+	sample.text = "0"
+	var tall := sample.get_minimum_size().y + PAD_Y * 2.0
+	sample.free()
+	_end_pad = maxf((tall - ICON) * 0.5, 0.0)
 	chips = _pill(Palette.CHIPS, CHIP_WIDTH, Icon.CHIP)
 	_sign("×")
 	mult = _pill(Palette.MULT, MULT_WIDTH, Icon.DIE)
@@ -277,7 +284,7 @@ func _skin(ink: Color, fill: float) -> StyleBoxFlat:
 	style.border_color = Color(ink.r, ink.g, ink.b, RIM)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(RADIUS)
-	style.content_margin_left = PAD_ICON
+	style.content_margin_left = _end_pad
 	style.content_margin_right = PAD_X
 	style.content_margin_top = PAD_Y
 	style.content_margin_bottom = PAD_Y

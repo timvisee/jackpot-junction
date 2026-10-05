@@ -65,8 +65,8 @@ func _mark(text: String, ink: Color, side: float) -> void:
 	var font := Type.display_font()
 	var font_size := int(side * 0.62)
 	var wide := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	# Barlow's capitals stand 0.7 of the size tall, so half of that under the middle is centered.
-	var baseline := size.y * 0.5 + float(font_size) * 0.35
+	# Half a capital's height under the middle puts the capital in the middle.
+	var baseline := size.y * 0.5 + float(font_size) * Type.CAP_HEIGHT * 0.5
 	draw_string(
 		font,
 		Vector2(size.x * 0.5 - wide * 0.5, baseline),

@@ -36,6 +36,10 @@ const SMALL := 14
 const TABULAR := 0x746E756D
 ## How far apart the letters of a display line are set. Heavy uppercase wants air; text does not.
 const DISPLAY_TRACKING := 1.0
+## How tall Barlow's capitals and figures stand, as a share of the size it is set at. Its line keeps
+## 1.0 of the size over the baseline and 0.2 under it, so capitals sit low in their own box: what
+## centers a line of them, see [method MenuTheme.title], works from this.
+const CAP_HEIGHT := 0.7
 
 ## The three variations, made once and shared: nothing changes one after it is made, and a
 ## scoreboard that asked for a new one on every row of every frame was making sixteen a frame,

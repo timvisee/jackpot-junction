@@ -88,7 +88,12 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, count: int) -> vo
 	var name_label: Label = row["name"]
 	var score: Label = row["score"]
 	var risk: Label = row["risk"]
-	place.text = "%d" % (rank + 1)
+	var placed := "%d" % (rank + 1)
+	var chip_ink: Color = row["chip_ink"]
+	if place.text != placed or chip_ink != color:
+		place.text = placed
+		row["chip_ink"] = color
+		(row["chip"] as Control).queue_redraw()
 	(row["chip"] as Control).visible = not roster
 	var leading := rank == 0 and not roster and count > 1
 	for style: StripStyle in [row["plain"], row["own"]]:
@@ -103,7 +108,8 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, count: int) -> vo
 	var hunted := match_node.bounty_slot == slot.index
 	(row["bounty"] as Label).visible = hunted
 	(row["lag"] as LagWarning).show_trip(slot.round_trip)
-	place.visible = not roster
+	# The place is drawn on its chip; the label only keeps the number and its size.
+	place.visible = false
 	score.visible = not roster
 	risk.visible = not roster
 	# Every one of these is set only on a change, see [method Type.set_font]: this runs for every
@@ -111,7 +117,6 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, count: int) -> vo
 	for label: Label in [place, name_label, score]:
 		Type.set_font(label, Type.numbers_text_font(), size)
 	Type.set_font(risk, Type.numbers_text_font(), maxi(size - 8, RISK_FONT))
-	Type.ink(place, HouseTheme.INK if ChipArt.is_light(color) else Color.WHITE)
 	var chip: Control = row["chip"]
 	var side := float(size) + 6.0
 	if chip.custom_minimum_size.x != side:
@@ -167,13 +172,10 @@ func _row(slot: PlayerSlot) -> Dictionary:
 	var chip := Control.new()
 	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	chip.draw.connect(
-		func() -> void:
-			ChipArt.chip(chip, chip.size * 0.5, minf(chip.size.x, chip.size.y) * 0.5, slot.color())
-	)
 	var place := _label(HORIZONTAL_ALIGNMENT_CENTER, 0.0)
-	place.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	place.visible = false
 	chip.add_child(place)
+	chip.draw.connect(func() -> void: _draw_place(chip, place.text, slot.color()))
 	var name_label := _label(HORIZONTAL_ALIGNMENT_LEFT, 150.0)
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var score := _label(HORIZONTAL_ALIGNMENT_RIGHT, 78.0)
@@ -193,6 +195,7 @@ func _row(slot: PlayerSlot) -> Dictionary:
 		"panel": panel,
 		"place": place,
 		"chip": chip,
+		"chip_ink": slot.color(),
 		"name": name_label,
 		"score": score,
 		"risk": risk,
@@ -203,6 +206,28 @@ func _row(slot: PlayerSlot) -> Dictionary:
 	}
 	_rows[slot.index] = row
 	return row
+
+
+## A place on its chip: the chip in its player's color and the number on it, in the middle of it
+## by the height of its figure rather than by the line it would sit on as a label, which put it
+## low and to one side.
+static func _draw_place(chip: Control, placed: String, ink: Color) -> void:
+	var middle := chip.size * 0.5
+	var radius := minf(chip.size.x, chip.size.y) * 0.5
+	ChipArt.chip(chip, middle, radius, ink)
+	var font := Type.numbers_font()
+	var font_size := roundi(radius * 1.05)
+	var wide := font.get_string_size(placed, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var baseline := middle.y + float(font_size) * Type.CAP_HEIGHT * 0.5
+	chip.draw_string(
+		font,
+		Vector2(middle.x - wide * 0.5, baseline),
+		placed,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		font_size,
+		HouseTheme.INK if ChipArt.is_light(ink) else Color.WHITE
+	)
 
 
 func _label(align: HorizontalAlignment, width: float) -> Label:

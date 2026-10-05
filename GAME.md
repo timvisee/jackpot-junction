@@ -2151,8 +2151,8 @@ says what, which is the half of the question a bench cannot answer.
   the focused state and the hovered state are the same state.
 - **The title screen** wears the mark of 8.1 over the name, the name set in the
   condensed capitals of 8.1a in foil, and has a carnival
-  sunburst turning slowly behind it,
-  with poker chips drifting up past it. Drawn rather than modeled: the menu is a
+  sunburst turning slowly behind it, its wedges a faint light over the engraved
+  stock so the lines show through, with poker chips drifting up past it. Drawn rather than modeled: the menu is a
   flat screen with no match running behind it, so a scene would be a scene loaded
   to be looked at once. Dark on purpose; the point of the screen is the words on
   it.
@@ -2341,8 +2341,19 @@ why the menus' backdrop carries the license's arcs rather than a seal.
   the header, a dotted line with a bite out of either side, and the hairline
   frames the header and the body separately; the 6 px bar of color a pane wore
   along its top is gone into the header's frame. Banknote waves sit under a pane's
-  head and fade out down it, and a soft shadow sits under the whole. A list's well
-  is a ticket sunk into the screen rather than laid on it.
+  head and fade out down it, and a soft shadow sits under the whole, faded in one
+  smooth run rather than in steps, which showed as bands. Inside it there is one
+  gap, 20 px between the hairline and whatever it holds, on every side, above and
+  below a perforation as much as beside the words: a box with more room either side
+  of it than over it looks dropped in rather than set. A perforation is as tall as
+  that gap needs whatever its column puts between its children, and a title's
+  capitals stand in the middle of its header, since Barlow keeps more of a line over
+  its capitals than under them. A list's well is a ticket sunk into the screen
+  rather than laid on it, and so is a socket, the cell a binding's key caps and pad
+  buttons sit in on the Controls page of 8.5: the keys are the thing and the cell is
+  where they go, so the keys stand at their own size in the middle of it with the
+  socket's room round them rather than stretched to fill it, and a socket listening
+  for a new key says so in gold.
 - **Chip**: anything round, from a place in the standings to the mark beside an
   entry of a list, the knob of a switch or a slider and the item slot. A disc with
   notches round its rim, which say poker chip at any size, as the chips on the
@@ -2367,7 +2378,9 @@ arrowheads painted at its left end. Hovered and focused are the same look, since
 menu driven with a stick has to say where the cursor is without being pointed at.
 A button too narrow for the chevron, one that is only a picture, wears the frame
 alone, and a box to type into does too, since the chevron would stand on its first
-letter. A button held down goes darker and its words drop 2 px, the way a stamp goes
+letter. So does a switch, with as much room inside the gold on every side of it:
+the chevron wanted room on one side only, which left the switch off center in its
+own frame. A button held down goes darker and its words drop 2 px, the way a stamp goes
 down. A switch that is on is not lit for it: the lit look is the cursor's alone. The
 one button on a screen that moves things on, Done, Rematch, Enroll or Resume, is
 gold foil all the time, its words in the dark ink foil is printed with.
@@ -2398,7 +2411,9 @@ Amber and red belong to the boards and the warnings.
   standings are strips off the right edge, each place in a chip of its player's
   color and the leader's edged in foil; the kill feed's lines are short strips with
   slanted ends. Key caps, pad buttons and the item tag are stock with a foil rim.
-- **The title**: the sunburst stays, engraved in fine lines, with three guilloché
+- **The title**: the sunburst stays, its wedges light laid over the engraved
+  backdrop rather than two tones of their own, so the lines show through the whole
+  of it, with three guilloché
   rings turning slowly behind the mark; the name is set in the condensed Black in
   foil over a line of microprint; the buttons are tickets.
 - **The settings' tabs** are index tabs, sloped at the sides, the page showing cut

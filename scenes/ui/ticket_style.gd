@@ -16,6 +16,8 @@ const NOTCH_STEPS := 6
 const HOLE_GAP := 9.0
 const HOLE_RADIUS := 1.3
 const HOLE_INK := Color(0.25, 0.24, 0.29)
+## How far the hairline round a header or a body stops short of the bite at its perforation.
+const FRAME_GAP := 3.0
 ## The lane chevron that says which control has the cursor: how far in from the left edge, how
 ## tall, how far apart the two of it are, and how thick.
 const CHEVRON_AT := 13.0
@@ -81,6 +83,9 @@ const KEPT := 8
 ## What has been worked out, by size.
 var _kept: Dictionary[Vector2, Dictionary] = {}
 var _order: Array[Vector2] = []
+## The shadow, drawn as a rounded box's soft one: its edge fades in one smooth run rather than in
+## the steps a few grown copies of the outline made, which showed as bands.
+var _shade: StyleBoxFlat
 
 
 ## A ticket of [param stock] with [param notch]-deep corners and content margins [param across]
@@ -153,11 +158,9 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 	if rect.size.x < 2.0 or rect.size.y < 2.0:
 		return
 	var made := _made(rect.size)
+	if shadow > 0.0 and shadow_color.a > 0.0:
+		_draw_shadow(to_canvas_item, rect)
 	RenderingServer.canvas_item_add_set_transform(to_canvas_item, Transform2D(0.0, rect.position))
-	for layer: PackedVector2Array in made["shadow"]:
-		RenderingServer.canvas_item_add_polygon(
-			to_canvas_item, layer, [Color(shadow_color, shadow_color.a / 4.0)]
-		)
 	var edge: PackedVector2Array = made["outline"]
 	if fill.a > 0.0:
 		RenderingServer.canvas_item_add_polygon(to_canvas_item, edge, made["fill"])
@@ -208,7 +211,6 @@ func _made(size: Vector2) -> Dictionary:
 	for point: Vector2 in edge:
 		inks.append(fill.lerp(low, point.y / size.y))
 	made["fill"] = inks
-	made["shadow"] = _shadow_layers(edge)
 	var lines: Array[PackedVector2Array] = []
 	var inks_of: Array[PackedColorArray] = []
 	if engraving.a > 0.0:
@@ -261,8 +263,8 @@ func _frames(size: Vector2) -> Array[PackedVector2Array]:
 		parts.append(Rect2(inset, inset, size.x - inset * 2.0, size.y - inset * 2.0))
 	else:
 		var first := perforations[0]
-		parts.append(Rect2(inset, inset, size.x - inset * 2.0, first - bite - 3.0 - inset))
-		var below := first + bite + 3.0
+		parts.append(Rect2(inset, inset, size.x - inset * 2.0, first - bite - FRAME_GAP - inset))
+		var below := first + bite + FRAME_GAP
 		parts.append(Rect2(inset, below, size.x - inset * 2.0, size.y - inset - below))
 	for i: int in parts.size():
 		var part := parts[i]
@@ -288,20 +290,19 @@ func _holes(size: Vector2) -> PackedVector2Array:
 	return holes
 
 
-func _shadow_layers(edge: PackedVector2Array) -> Array[PackedVector2Array]:
-	var layers: Array[PackedVector2Array] = []
-	if shadow <= 0.0 or shadow_color.a <= 0.0:
-		return layers
-	var dropped := edge.duplicate()
-	for i: int in dropped.size():
-		dropped[i] += Vector2(0.0, shadow * 0.3)
-	for step: int in [4, 3, 2, 1]:
-		var grown := Geometry2D.offset_polygon(
-			dropped, shadow * float(step) / 4.0, Geometry2D.JOIN_ROUND
-		)
-		if not grown.is_empty():
-			layers.append(grown[0])
-	return layers
+func _draw_shadow(item: RID, rect: Rect2) -> void:
+	if _shade == null:
+		_shade = StyleBoxFlat.new()
+		_shade.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+		_shade.anti_aliasing = true
+	# Drawn from a box pulled in from the notches and spread the further for it, so the notches cut
+	# out of the corners stay clear rather than darkened by the corner of a box they are not.
+	var tuck := notch * 0.6
+	_shade.shadow_color = shadow_color
+	_shade.shadow_size = roundi(shadow + tuck)
+	_shade.shadow_offset = Vector2(0.0, shadow * 0.3)
+	_shade.set_corner_radius_all(roundi(notch * 0.4))
+	_shade.draw(item, rect.grow(-tuck))
 
 
 static func _shifted(values: PackedFloat32Array, by: float) -> PackedFloat32Array:

@@ -12,6 +12,11 @@ const BACKGROUND := HouseTheme.STOCK
 ## followed it, so the shape lives here rather than being written out again per screen.
 const PANE_BG := Color(0.075, 0.07, 0.094, 0.95)
 const PANE_NOTCH := 14.0
+## How far in from a pane's edge its foil hairline runs, and the one gap between that hairline and
+## whatever is inside it, on every side, above and below a perforation as much as beside the words:
+## a box with more room either side of it than over it looks dropped in rather than set.
+const PANE_INSET := 7.0
+const PANE_GAP := 20.0
 ## How strongly the hairline of a pane shows round its head, and round its body under a
 ## perforation, see [Perforation].
 const PANE_FRAME := 0.6
@@ -85,6 +90,16 @@ static func title(text: String, size: int = Type.HERO) -> Label:
 	label.text = text
 	label.uppercase = true
 	Type.display(label, size, HouseTheme.FOIL)
+	# Barlow keeps more of a line over its capitals than under its baseline, so a line of nothing
+	# but capitals sits low in its own box. A little room under it, or over it, puts them in the
+	# middle of the box, which is where a header and a row center them.
+	var font := Type.display_font()
+	var over := font.get_ascent(size) - float(size) * Type.CAP_HEIGHT
+	var under := font.get_descent(size)
+	var even := StyleBoxEmpty.new()
+	even.content_margin_top = maxf(under - over, 0.0)
+	even.content_margin_bottom = maxf(over - under, 0.0)
+	label.add_theme_stylebox_override("normal", even)
 	label.add_theme_color_override("font_shadow_color", Color(0.29, 0.21, 0.06))
 	label.add_theme_constant_override("shadow_offset_x", 0)
 	label.add_theme_constant_override("shadow_offset_y", maxi(2, size / 24))
@@ -270,9 +285,8 @@ static func _drop_spaces(control: LineEdit, typed: String) -> void:
 ## than as a panel so that a screen which changes its own edge color, such as the podium wearing
 ## the winner's, can keep hold of it, see [method wear].
 static func pane_style(edge: Color = HouseTheme.FOIL) -> TicketStyle:
-	var style := TicketStyle.cut(PANE_BG, PANE_NOTCH, 26.0, 20.0)
-	style.content_margin_bottom = 22.0
-	style.frame_inset = 7.0
+	var style := TicketStyle.cut(PANE_BG, PANE_NOTCH, PANE_INSET + PANE_GAP, PANE_INSET + PANE_GAP)
+	style.frame_inset = PANE_INSET
 	style.engraving = Color(HouseTheme.FOIL, Engraving.ON_STOCK)
 	style.waves = PANE_WAVES
 	style.shadow = 18.0
@@ -302,6 +316,7 @@ static func signed(title_label: Label, kind: RoadSign.Kind) -> HBoxContainer:
 	var sign_side := float(title_label.get_theme_font_size(&"font_size")) * 1.15
 	line.add_child(RoadSign.of(kind, sign_side))
 	title_label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	title_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	line.add_child(title_label)
 	return line
 

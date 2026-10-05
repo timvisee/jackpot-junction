@@ -35,9 +35,15 @@ const REBINDABLE: Array[StringName] = [
 	InputActions.JOIN,
 	InputActions.MUTE_MUSIC,
 ]
-## How the bindings themselves are drawn on the two buttons of a row, GAME.md 8.3.
+## How the bindings themselves are drawn in the two sockets of a row, GAME.md 8.3 and 8.1a: the
+## size their key caps are drawn at, their ink, and how big a socket is, tall enough for a key cap
+## with the socket's own room above and below it.
 const BINDING_SIZE := 18
 const BINDING_INK := Color(0.90, 0.90, 0.94)
+const BINDING_CELL := Vector2(290.0, 46.0)
+## What a socket says while it listens for a new key or button.
+const LISTENING_KEY := "Press a key"
+const LISTENING_PAD := "Press a button"
 ## The shoulder buttons step through the tabs, GAME.md 8.5: on a pad the tab bar is otherwise a
 ## long way round by focus. And how the line saying so is drawn.
 const TAB_BACK := JOY_BUTTON_LEFT_SHOULDER
@@ -254,12 +260,16 @@ func _controls_tab() -> Control:
 		touch.chosen.connect(func(layout: String) -> void: _settings.touch_layout = layout)
 		column.add_child(MenuTheme.row("Touch driving", touch))
 	var header := HBoxContainer.new()
-	for text: String in ["Action", "Keyboard / mouse", "Gamepad"]:
+	for text: String in ["Action", "Keyboard and mouse", "Gamepad"]:
 		var label := Label.new()
 		label.text = text
+		label.uppercase = true
 		label.custom_minimum_size = Vector2(300.0, 0.0)
-		label.add_theme_font_size_override("font_size", 22)
-		label.add_theme_color_override("font_color", Palette.CHIP_GOLD)
+		Type.strong(label, Type.LABEL, HouseTheme.FOIL)
+		# Over the middle of its sockets, as the keys in them are.
+		if text != "Action":
+			label.custom_minimum_size.x = BINDING_CELL.x
+			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		header.add_child(label)
 	column.add_child(header)
 	for action: StringName in REBINDABLE:
@@ -298,8 +308,9 @@ func _binding_row(action: StringName) -> HBoxContainer:
 	var buttons: Array = []
 	for keyboard: bool in [true, false]:
 		var button := Button.new()
-		button.custom_minimum_size = Vector2(290.0, 40.0)
-		button.add_theme_font_size_override("font_size", 20)
+		button.theme_type_variation = HouseTheme.SOCKET
+		button.custom_minimum_size = BINDING_CELL
+		Type.set_font(button, Type.STRONG, Type.BODY)
 		button.pressed.connect(_start_listening.bind(action, keyboard, button))
 		line.add_child(button)
 		buttons.append(button)
@@ -312,7 +323,7 @@ func _start_listening(action: StringName, keyboard: bool, button: Button) -> voi
 	_listening_action = action
 	_listening_keyboard = keyboard
 	_clear(button)
-	button.text = "press..."
+	button.text = LISTENING_KEY if keyboard else LISTENING_PAD
 	status.text = (
 		"Press a %s input for %s, Escape cancels"
 		% ["keyboard or mouse" if keyboard else "gamepad", String(action)]
@@ -354,12 +365,16 @@ static func _bound_glyphs(action: StringName, keyboard: bool) -> HBoxContainer:
 			var descriptor := InputActions.descriptor_from_event(event)
 			if InputActions.is_keyboard_descriptor(descriptor) != keyboard:
 				continue
-			row.add_child(InputGlyph.of_event(event, BINDING_INK, BINDING_SIZE))
+			var glyph := InputGlyph.of_event(event, BINDING_INK, BINDING_SIZE)
+			# At its own height in the middle of the socket rather than stretched to fill it.
+			glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			row.add_child(glyph)
 	if row.get_child_count() == 0:
 		var empty := Label.new()
-		empty.text = "-"
+		empty.text = "Not bound"
 		empty.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		empty.add_theme_color_override("font_color", BINDING_INK)
+		Type.text(empty, Type.LABEL, HouseTheme.QUIET)
+		empty.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		row.add_child(empty)
 	return row
 

@@ -5,8 +5,12 @@ extends Control
 ## pane's own to draw, see [member TicketStyle.perforations]; this stands in the column where they
 ## go and tells the pane, again whenever it is moved, so a header that grows by a line moves the
 ## perforation down with it.
+##
+## It is as tall as it takes for the gap between the hairline round the header and what is over
+## it, and between the hairline round the body and what is under it, to be the pane's own gap,
+## the one beside its words, whatever the column it stands in puts between its children.
 
-## How much room the perforation takes in its column.
+## How much room the perforation takes in its column at the least.
 const HEIGHT := 14.0
 
 var _pane: PanelContainer
@@ -17,6 +21,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	set_notify_transform(true)
+	_fit()
 	_tell.call_deferred()
 
 
@@ -30,6 +35,21 @@ func _exit_tree() -> void:
 	if style != null:
 		style.perforations = PackedFloat32Array()
 	_pane = null
+
+
+## Tall enough that the gap either side of it is the pane's own, see the class description.
+func _fit() -> void:
+	var style := _style()
+	var gap := MenuTheme.PANE_GAP
+	var bite := 10.0
+	if style != null:
+		gap = style.content_margin_left - style.frame_inset
+		bite = style.bite
+	var between := 0.0
+	var column := get_parent() as BoxContainer
+	if column != null:
+		between = float(column.get_theme_constant(&"separation"))
+	custom_minimum_size.y = maxf((gap + bite + TicketStyle.FRAME_GAP - between) * 2.0, HEIGHT)
 
 
 ## The ticket of the nearest pane this stands in, or null in anything else.

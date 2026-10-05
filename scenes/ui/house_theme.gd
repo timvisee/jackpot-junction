@@ -30,12 +30,19 @@ const ON_FOIL := Color("#22190a")
 ## Words on stock, and the quieter words beside them.
 const WORDS := Color(0.92, 0.91, 0.94)
 const QUIET := Color(0.66, 0.65, 0.71)
+## How much room a switch has round it inside the gold it wears under the cursor.
+const SWITCH_ROOM := 7.0
 ## How strongly the foil hairline inside a control's edge shows, at rest, lit, and held down.
 const RIM := 0.13
 const RIM_LIT := 0.55
 const RIM_DOWN := 0.4
 ## The type variation of a button that moves things on, GAME.md 8.1a: Done, Rematch, Resume.
 const PRIMARY := &"PrimaryButton"
+## The type variation of a socket, the cell a binding's keys and buttons sit in, GAME.md 8.1a.
+const SOCKET := &"SocketButton"
+## How much room a socket leaves round what sits in it, and the notch of its corners.
+const SOCKET_ROOM := 9.0
+const SOCKET_NOTCH := 7.0
 
 static var _theme: Theme
 
@@ -57,6 +64,7 @@ static func _build() -> Theme:
 	made.default_font = Type.TEXT
 	_buttons(made)
 	_primary(made)
+	_sockets(made)
 	_options(made)
 	_switches(made)
 	_fields(made)
@@ -161,6 +169,37 @@ static func _primary(made: Theme) -> void:
 	made.set_color(&"font_disabled_color", PRIMARY, Color(ON_FOIL, 0.6))
 
 
+## A socket, GAME.md 8.1a: the cell a binding's key caps and pad buttons sit in, sunk into the page
+## rather than raised off it, so the keys read as the thing and the cell as where they go. Under the
+## cursor it is lit and rimmed in gold, with the chevron, the way a button is; held down, which is
+## while it listens for a new key, its rim stays gold.
+static func _sockets(made: Theme) -> void:
+	made.set_type_variation(SOCKET, &"Button")
+	var room := SOCKET_ROOM
+	var sunk := TicketStyle.cut(Color(0.0, 0.0, 0.0, 0.3), SOCKET_NOTCH, room, room)
+	sunk.border = Color(1.0, 1.0, 1.0, 0.1)
+	sunk.border_width = 1.0
+	var lit := TicketStyle.cut(Color(STOCK_LIT, 0.9), SOCKET_NOTCH, room, room)
+	lit.border = FOIL
+	lit.chevron = FOIL
+	var held := lit.duplicate() as TicketStyle
+	held.fill = Color(STOCK_DOWN, 0.95)
+	for pair: Array in [
+		[&"normal", sunk],
+		[&"hover", lit],
+		[&"focus", lit],
+		[&"pressed", held],
+		[&"hover_pressed", held],
+		[&"disabled", sunk]
+	]:
+		made.set_stylebox(pair[0], SOCKET, pair[1])
+	made.set_color(&"font_color", SOCKET, FOIL)
+	for state: StringName in [
+		&"font_hover_color", &"font_focus_color", &"font_pressed_color", &"font_hover_pressed_color"
+	]:
+		made.set_color(state, SOCKET, FOIL)
+
+
 ## A box that opens a list: a button, its words starting clear of the chevron so the focus never
 ## lands on them, with the foil arrow at its far end.
 static func _options(made: Theme) -> void:
@@ -179,18 +218,15 @@ static func _options(made: Theme) -> void:
 
 
 ## A switch, see [method HouseArt.switch]: nothing round it at rest, and under the cursor a lit
-## ticket with the chevron, so the switch with the focus can be found down a column of them.
+## ticket in gold round the switch alone, as much room on every side of it, so the switch with
+## the focus can be found down a column of them. No chevron: it would want room on one side only.
 static func _switches(made: Theme) -> void:
 	var rest := StyleBoxEmpty.new()
-	var lit := TicketStyle.cut(Color(STOCK_LIT, 0.8), 6.0, 0.0, 6.0)
+	var lit := TicketStyle.cut(Color(STOCK_LIT, 0.8), 6.0, 0.0, 0.0)
 	lit.border = Color(FOIL, 0.9)
 	lit.border_width = 1.5
-	lit.chevron = FOIL
 	for look: StyleBox in [rest, lit]:
-		look.content_margin_left = 34.0
-		look.content_margin_right = 8.0
-		look.content_margin_top = 6.0
-		look.content_margin_bottom = 6.0
+		look.set_content_margin_all(SWITCH_ROOM)
 	# Pressed, for a switch, is on: the lit look is for the cursor alone.
 	for state: StringName in [&"normal", &"pressed", &"disabled"]:
 		made.set_stylebox(state, &"CheckButton", rest)

@@ -5,13 +5,15 @@ extends Control
 ##
 ## Drawn rather than modeled. The menu is a flat screen and the game behind it is not running,
 ## so a scene would be a scene loaded to be looked at once; this is a few polygons a frame and
-## nothing to load. Dark on purpose: the point of the screen is the words on it.
+## nothing to load. Dark on purpose: the point of the screen is the words on it. The wedges are
+## light laid over the backdrop rather than two tones of their own, so the engraving of the
+## house's stock, GAME.md 8.1a, shows through the whole of the burst rather than being painted out.
 
 ## Wedges in the sunburst, and how long one full turn takes.
 const WEDGES := 18
 const TURN_SECONDS := 90.0
-const DARK := Color(0.10, 0.10, 0.13)
-const LIGHT := Color(0.13, 0.13, 0.17)
+## The light of a lit wedge; the wedges between are the backdrop itself.
+const LIGHT := Color(0.85, 0.82, 1.0, 0.045)
 ## Where the burst is centered, as a share of the screen: behind the title rather than the middle.
 const CENTER := Vector2(0.5, 0.34)
 ## How many chips drift past, how big they are, and how long one takes to cross the screen.
@@ -64,7 +66,7 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	var center := size * CENTER
 	var reach := size.length()
-	for i: int in WEDGES:
+	for i: int in range(0, WEDGES, 2):
 		var from := _spin + TAU * i / WEDGES
 		var to := from + TAU / WEDGES * 0.5
 		draw_colored_polygon(
@@ -75,7 +77,7 @@ func _draw() -> void:
 					center + Vector2(cos(to), sin(to)) * reach
 				]
 			),
-			LIGHT if i % 2 == 0 else DARK
+			LIGHT
 		)
 	for chip: Dictionary in _chips:
 		_draw_chip(chip)
