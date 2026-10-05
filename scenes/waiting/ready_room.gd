@@ -50,10 +50,15 @@ const GREEN_RUN: Array[float] = [1.0, 1.26, 1.5, 2.0]
 const GREEN_STEP := 0.09
 const GREEN_LIFT := 3.0
 ## The ring that fills: how many blocks it is made of, how far out they sit as a share of the
-## pad's radius, and how big each one is.
-const SEGMENTS := 24
+## pad's radius, and how big each one is. Enough of them for a room of eight to have an arc of six
+## each, GAME.md 9.3.
+const SEGMENTS := 48
 const RING_OUT := 1.14
-const SEGMENT_SIZE := Vector2(0.22, 0.34)
+const SEGMENT_SIZE := Vector2(0.16, 0.34)
+## The most ticks a charge is heard in: an arc of more blocks than this lights some of them
+## without one, so a player alone on the pad hears it fill no faster than before the ring had so
+## many.
+const HEARD_STEPS := 24
 ## How far over a kart its tick floats, and how big the tick is drawn.
 const TICK_HEIGHT := 2.3
 const TICK_SCALE := 1.15
@@ -423,8 +428,11 @@ func _paint_ring() -> void:
 				inks[from + k] = seats[s].color()
 		# A block more than last frame, for a player at this screen, is a step of their own
 		# charge: the player on the pad hears it filling. Anybody else's is seen, not heard.
-		if seats[s].is_local_human() and full > _lit.get(index, 0) and not ready:
-			charged.emit(index, full, span)
+		var steps := mini(span, HEARD_STEPS)
+		var heard := full * steps / span
+		var was: int = _lit.get(index, 0) * steps / span
+		if seats[s].is_local_human() and heard > was and not ready:
+			charged.emit(index, heard, steps)
 		_lit[index] = full
 	var green := all_green()
 	for i: int in _segments.size():

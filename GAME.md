@@ -4979,7 +4979,10 @@ seat, calls the start off until the room is full again.
 
 The ring of blocks round the pad is split between whoever is in the room -- an arc each, in
 their own color, filling as they hold it. One ring showing whoever had got furthest read as a
-single pad filling, which in a room of four says nothing about which of them it has taken.
+single pad filling, which in a room of four says nothing about which of them it has taken. It is
+forty-eight blocks, so a room of eight, 9.3, still has an arc of six each; a charge is heard in
+no more ticks than a player alone on the pad heard when it was twenty-four, so the ticks of a
+lone player do not run twice as fast.
 
 **Crashing.** Nothing in here costs anything, so dying costs nothing either. A kart that falls
 down a hole or gets rammed off the pad is back on the floor on the next tick, with no wait to
