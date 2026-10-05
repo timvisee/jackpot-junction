@@ -11,8 +11,8 @@ the game, update it here.
 
 ## 1. Vision
 
-Jackpot Junction is a top-down arena kart game for 1 to 4 players in which
-every life is a hand of cards. You drive a small, drifty kart through a
+Jackpot Junction is a top-down arena kart game for 1 to 4 players at one
+screen, and up to 8 online, in which every life is a hand of cards. You drive a small, drifty kart through a
 bullet-filled toy diorama, collect poker-chip coins and multipliers, and decide
 when to drive to the Junction in the center of the arena to cash your pot out.
 Cashing out takes up to a few seconds, during which you are exposed. Dying banks
@@ -380,7 +380,7 @@ The joker catalog is in section 7.3.
 | Last Call       | Final 30 s: Junction pays double, Jackpot accrues double  |
 | Time out        | Sudden death, see 3.13, unless the lobby option turns it off; then every pot still carried banks what a death would bank of it |
 | Countdown       | 3 s before the karts can move                             |
-| Players         | 1 to 4 humans, bots fill the remaining slots to 4         |
+| Players         | 1 to 4 humans at one machine and up to 8 online, see 9.3, with as many bots as the match settings ask for that there are seats for |
 | Tie-break       | Most kills, then fewest deaths                            |
 | Names           | 1 to 16 characters each, or one off the funny list for anybody who does not set one |
 | Driving         | Simple or advanced per player, see 4.2                    |
@@ -605,7 +605,8 @@ else's results screen, see 10.3.
 - The match settings offer match length, target score, bot count, one global bot
   difficulty, the item set (basic items or all items) and whether a kart's own
   bullets hurt it, with the values in this document as defaults. Every choice is
-  remembered for the next match. A map runs 1, 3, 5 or 8 minutes; a debug build
+  remembered for the next match. Bots run from none to one fewer than the arena has
+  seats: 0 to 3 on one machine, and online up to 7 in a lobby for eight, see 9.3. A map runs 1, 3, 5 or 8 minutes; a debug build
   also offers 5 seconds, first in the list, straight through to the podium for
   somebody testing what comes after it.
 - Pausing in single-player and local play freezes the match for everyone.
@@ -1492,7 +1493,7 @@ protection makes the kart untouchable.
 ### 6.3 Maps
 
 Three arenas, all 32 by 18 cells of 1.25 m, all holding the same furniture: a
-Junction in the middle, two Jackpot zones, two pits, four Royal Flush pads, four
+Junction in the middle, two Jackpot zones, two pits, four Royal Flush pads, eight
 spawn points, four turbo pads, coin pads, item pads and crates. What differs is
 the shape of the room around them. Each has an XL map as well, see The XL maps
 below: the same map made roomier, in the same room.
@@ -1510,7 +1511,7 @@ the center, and the pits above and below the Junction, a lane's width clear of i
 ```
 ################################
 #..............................#
-#.S....C.....F..........C....S.#
+#.S....C..s..F.......s..C....S.#
 #.....####..B......B..####.....#
 #..P......T....XX....T......P..#
 #....C.........XX.........C....#
@@ -1523,11 +1524,12 @@ the center, and the pits above and below the Junction, a lane's width clear of i
 #....C.........XX.........C....#
 #..P......T....XX....T......P..#
 #.....####..B......B..####.....#
-#.S....C..........F.....C....S.#
+#.S....C..s.......F..s..C....S.#
 #..............................#
 ################################
 
 #  wall          S  spawn point      C  coin pad       P  power-up pad
+s  spawn point past four karts
 J  Junction pad  K  Jackpot zone     T  turbo pad      X  pit
 R  target        D  joker pad       O  portal
 B  crate         .  floor            F  Royal Flush pad
@@ -1549,6 +1551,14 @@ nothing to bank. A map may hold several, each banking as the one does.
   bouncing bullet.
 - The four Royal Flush pads sit on a ring: two on the top and bottom lanes and
   two behind the Jackpot zones, so a flush is a lap of the arena.
+- Four spawn points are in the corners, `S`, and four more, `s`, are for a room of
+  more than four karts, see 9.3. A match of four starts in the corners and comes
+  back to life in them, as it always has. The fifth kart on starts on an `s`, the
+  one farthest from every spawn already taken, so a match of six has one more at
+  each end rather than two at one, and once there are more than four karts a kart
+  coming back to life may come back on any of the eight. Each `s` sits at the edge
+  of the floor with a clear run at the Junction it faces: never a pit or a turbo
+  pad in the way, and never in a lane a turbo pad fires down.
 
 #### The Vault
 
@@ -1562,18 +1572,18 @@ is fast.
 ################################
 #..............................#
 #.S..F.....>C..P...C<.....F..S.#
-#..............................#
+#..............s...............#
 #........#####....#####........#
 #.....XX.#.CB......BC.#........#
 #.C...XX.#............#.B....P.#
 #........#....JJJJ....#.B......#
-#..KK.........JJJJ.........KK..#
-#..KK.........JJJJ.........KK..#
+#.sKK.........JJJJ.........KK..#
+#..KK.........JJJJ.........KKs.#
 #......B.#....JJJJ....#........#
 #.P....B.#............#.XX...C.#
 #........#.CB......BC.#.XX.....#
 #........#####....#####........#
-#..............................#
+#...............s..............#
 #.S..F.....>C...P..C<.....F..S.#
 #..............................#
 ################################
@@ -1589,7 +1599,7 @@ which makes collecting one a commitment rather than a detour.
 ```
 ################################
 #.......C..F..KKKK.............#
-#.S...C.......KKKK.......C...S.#
+#.S...C..s....KKKK....s..C...S.#
 #............######............#
 #...P#...B................#P...#
 #.v...#....C........C....#...^.#
@@ -1602,7 +1612,7 @@ which makes collecting one a commitment rather than a detour.
 #.^...#....C........C....#...v.#
 #...P#................B...#P...#
 #............######............#
-#.S...C.......KKKK.......C...S.#
+#.S...C..s....KKKK....s..C...S.#
 #.............KKKK..F..C.......#
 ################################
 ```
@@ -1614,6 +1624,17 @@ Lucky Crossing XL, The Vault XL and Crossfire XL are their maps made roomier: 42
 floor, in the same room as the map they are the XL of, lit, crowded and dressed the
 same way. They are maps of their own, picked from the same list as any other,
 since a map is a floor plan and some later maps may only come in one size.
+
+The usual size is drawn for four karts, and more than four on it is a crowd: a
+room of up to eight, 9.3, plays the XL instead. Once the arena has more than four
+seats the match settings carry Small maps for 5+ karts, off to start with. Off, a
+map at the usual size that is about to be played with more than four karts is
+played as its XL, whether it was picked for a quick match or dealt in a Grand
+Prix, 9.7, and the arena row says so under the map; on, the map is played as
+picked, for a crowd somebody wants. It counts karts rather than people, since a
+bot takes as much room as anybody, and it is decided as the map starts, when
+everybody who is going to play it is there. A run that plays a map as its XL
+still never plays the same room twice running, since a map and its XL are one.
 
 They keep the furniture of their maps, a little more of the coins and crates and
 the same number of everything else, spread over the bigger floor, and hold to a
@@ -1640,7 +1661,7 @@ where on the usual reach they hung about the middle.
 ```
 ##########################################
 #........................................#
-#.S......C......F...............C......S.#
+#.S......C...s..F...........s...C......S.#
 #..............B..........B..............#
 #......#####........XX........#####......#
 #..P.............C..XX..C.............P..#
@@ -1659,7 +1680,7 @@ where on the usual reach they hung about the middle.
 #..P.............C..XX..C.............P..#
 #......#####........XX........#####......#
 #..............B..........B..............#
-#.S......C...............F......C......S.#
+#.S......C...s...........F..s...C......S.#
 #........................................#
 ##########################################
 ```
@@ -1669,22 +1690,22 @@ where on the usual reach they hung about the middle.
 #........................................#
 #.S...F.......>C.....P....C<.......F...S.#
 #.............>............<.............#
-#........B..........C...........B........#
+#........B..........Cs..........B........#
 #...........######......######...........#
 #....XX.....#.CB..........BC.#...........#
 #.C..XX.....#................#...........#
 #...........#................#...B.....P.#
 #..C........#................#...B.......#
 #..................JJJJ..................#
-#....KK.......C....JJJJ............KK....#
-#....KK............JJJJ....C.......KK....#
+#.s..KK.......C....JJJJ............KK....#
+#....KK............JJJJ....C.......KK..s.#
 #..................JJJJ..................#
 #.......B...#................#........C..#
 #.P.....B...#................#...........#
 #...........#................#.....XX..C.#
 #...........#.CB..........BC.#.....XX....#
 #...........######......######...........#
-#........B...........C..........B........#
+#........B..........sC..........B........#
 #.............>............<.............#
 #.S...F.......>C....P.....C<.......F...S.#
 #........................................#
@@ -1694,7 +1715,7 @@ where on the usual reach they hung about the middle.
 ```
 ##########################################
 #.........C...F....KKKK..................#
-#.S....C...........KKKK..........C.....S.#
+#.S....C...s.......KKKK.......s..C.....S.#
 #.........B.........CC...................#
 #................########................#
 #.vv.P.#.....B....................#.P.vv.#
@@ -1713,7 +1734,7 @@ where on the usual reach they hung about the middle.
 #.^^.P.#....................B.....#.P.^^.#
 #................########................#
 #...................CC.........B.........#
-#.S.....C..........KKKK...........C....S.#
+#.S.....C..s.......KKKK.......s...C....S.#
 #..................KKKK....F...C.........#
 ##########################################
 ```
@@ -3801,6 +3822,9 @@ bots come after them before they reach the Junction.
 ### 9.2 Local multiplayer
 
 Shared screen, up to 4 players, gamepads plus one keyboard and mouse player.
+Four is the most at one machine whatever the room, since a screen has four corners for their
+blocks, see 8.3; a room online can hold more of them from other machines, see 9.3. A fifth
+pressing join is turned away with a notice saying this device has room for 4 players.
 Players join in the lobby, the waiting room of 9.6, by pressing the join button on
 their device, Start on a gamepad or J on the keyboard, which seats them in a color
 nobody else has, with their seat's name and dress. Until somebody joins on another
@@ -3811,12 +3835,12 @@ in the colors, names and dress they had.
 
 Joining mid-match is allowed: a press on an unused device during a match adds
 the player. If a bot kart exists, the joiner takes it over and inherits its
-score, pot, jokers and item, so the match stays at 4 karts, in their own seat's
+score, pot, jokers and item, so the match keeps its number of karts, in their own seat's
 name and dress rather than the kart as the bot drove it. A player from another
 machine takes no seat of this one's, since their name and dress are their own to
 say, see 10.3. Otherwise the joiner
-spawns fresh with an empty pot and 0 banked score. With 4 humans present nobody
-else can join. A player who leaves mid-match hands the kart back to a bot.
+spawns fresh with an empty pot and 0 banked score. With every seat of the room
+taken by people nobody else can join, and nor can a fifth at one machine. A player who leaves mid-match hands the kart back to a bot.
 
 With more than one player at a screen, each of their switches in the pause menu, 4.2, ends in
 Leave, for one of them to get up and go while the others play on; with one there is nothing to
@@ -3842,8 +3866,8 @@ The third release. Godot's high-level multiplayer over ENet with a
 host-authoritative listen server, found on the network or joined by direct IP and port
 from LAN games, see below. The host waits in an online lobby that lists who is in and
 shows the address to join at, and presses Start when everyone is there;
-players may still join a running match. Up to 4 players, bots run on the
-host, and a joining client takes over a bot's kart. Design details in 10.3. A join code needs a relay
+players may still join a running match. Up to 8 players, at most 4 of them at
+one machine, bots run on the host, and a joining client takes over a bot's kart. Design details in 10.3. A join code needs a relay
 service and Steam integration needs GodotSteam; both are backlog items.
 Joining mid-match follows the local rule in 9.2, and so does leaving one. Leaving the waiting
 room of 9.6 does not: nothing is played for in there, so there is no score for a bot to keep, and
@@ -3864,6 +3888,18 @@ player, and they get a corner of their own on that screen. Each is driven, predi
 corrected on its own, and each can get up and Leave from their switches while the others play
 on. They go from room to room with the client, and are seated again on the other side. The
 lobby's player limit counts them as it counts everybody, see 9.6.
+
+**Up to eight.** A room online takes up to eight players from several machines, and never more
+than four at any one of them, see 9.2. The host's Player limit, below, runs from 2 to 8 and
+starts at 4, so nobody hosting for the first time puts eight karts on a map drawn for four
+without asking for it; after that it starts where the host last left it, as it always has. The
+arena has as many seats as that limit, and never fewer than four: a lobby for two still has four
+seats, the two nobody else may take there for bots, and a lobby for eight holds eight karts. How many of them are bots is the match
+settings' to say, 3.8, from none up, so two people can play each other with no bots at all. On
+one machine with nobody connected nothing changes: four seats, bots up to three. The host
+counts the seats each machine asks for and turns a fifth down whatever that machine says, with
+the notice a fifth player at the host gets, so a client cannot take a room by asking for all of
+it.
 
 Games hosted at a player's machine are LAN games, reached from Play Online, 9.3a: one way in to
 playing with other machines from the title rather than one for each kind of host. The LAN games
@@ -3924,7 +3960,7 @@ never shown the match's own lobby panel, which is for a match held on its grid.
 Somebody can join to watch instead of to play: the eye beside a found game's row, or Watch beside
 Join under Direct connect's boxes. They
 say so in the handshake, and the host lets them in even with every seat taken, up to four of
-them on top of the three clients who play; a fifth is told as many are watching as the match
+them on top of the clients who play; a fifth is told as many are watching as the match
 can take. A watcher is never given a seat or a kart and nothing it sends is heard: it is sent
 the rules, the run and the snapshots of the room the host is in, follows the host from room
 to room as everybody does and is let in again in each, and the camera frames the karts as it
@@ -3944,7 +3980,7 @@ the lists of games call it, see 9.3: empty to start with, and the box says the n
 gives, "Ann's game"; it is given once the box is left, with Enter or Back, rather than at every
 letter, since at a dedicated server each change goes over the wire and into the server's log. The
 cursor starts on the next, Player limit, the most players the game
-takes, 2, 3 or 4 with the host's own players counted; a password, none to start with; Allow
+takes, 2 to 8 with the host's own players counted, 4 to start with; a password, none to start with; Allow
 watchers, on to start with; and Watch without password, off, which lets somebody who has come to
 watch in without the password while anybody who has come to play is still asked for it. Somebody
 watching can only look, so a host may well keep its seats to the people it told and let anybody
@@ -3999,8 +4035,9 @@ game hosted at one of the players' own machines.
 **A game with nobody at the host.** A game of the server is hosted the way a player's machine
 hosts one, the waiting room of 9.6 and the arena after it, with nobody at it: no seat, no HUD, no
 camera anybody looks at, and nobody finding it on the network by asking, since the server lists
-it. Every seat is for somebody at another machine, so it seats four clients where a host with a
-player of its own seats three, and watchers on top of them as before. It has no pause menu to ask
+it. Every seat is for somebody at another machine, so every one of up to eight can go to a
+client where a host with a player of its own keeps one for them, and watchers on top of them as
+before. It has no pause menu to ask
 with, so the room stops once every player in it asks, see 3.8, and nobody waits on the host.
 
 **The host's say.** Nobody at the server can choose a match, answer the door or show anybody
@@ -4988,11 +5025,12 @@ machine last heard from is the one the player already driving is holding. The ro
 both questions get asked, so it is where they are answered; anywhere else and a player has to
 leave the room to find out how to let their friend in.
 
-A room holds no more players than it may: the arena's four seats, and online no more than the
-host's lobby lets in, see 10.3, whichever machine they sit at. Once it is full the line says
+A room holds no more players than it may: four at one machine, and online no more than the
+host's lobby lets in, see 9.3, whichever machine they sit at. Once it is full the line says
 `Maximum number of players reached` in place of how to take a seat, and a press of join at this
 machine is turned away with a notice saying so and how many the game has room for, in the lobby
-and in a match alike. A client knows the limit because the host says it with the plan, and again
+and in a match alike. With four at this machine and seats still free for others, the line says
+`This device has room for 4 players` instead, and so does the notice. A client knows the limit because the host says it with the plan, and again
 whenever Lobby settings change it, so its line and its notice are the same as the host's. Two
 machines asking for the last seat at once is settled by the host, which seats one and turns the
 other away, and the one turned away gets the same notice. The notice takes nobody's controls, since the players in the room are still
