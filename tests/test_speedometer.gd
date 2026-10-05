@@ -27,9 +27,9 @@ func _set_speed(kart: Kart, speed: float) -> void:
 	kart.motor.velocity = kart.motor.forward_vector() * speed
 
 
-## The number off the readout, so a test can talk in km/h without matching the text exactly.
+## The number off the readout, in km/h: the unit is written on the dial rather than after it.
 func _reading(readout: Label) -> int:
-	return int(readout.text.get_slice(" ", 0))
+	return int(readout.text)
 
 
 func test_the_dial_and_the_number_follow_the_kart() -> void:
@@ -40,7 +40,7 @@ func test_the_dial_and_the_number_follow_the_kart() -> void:
 	# Nobody at the wheel but this test, so the kart holds whatever it is given.
 	kart.input = KartInput.new()
 	var block: Dictionary = match_node.hud._blocks[0]
-	var dial: ProgressBar = block["speed_dial"]
+	var dial: SpeedDial = block["speed_dial"]
 	var readout: Label = block["speed"]
 	_set_speed(kart, 0.0)
 	await _runner.simulate_frames(2, 17)

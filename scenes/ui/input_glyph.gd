@@ -32,7 +32,7 @@ const FACE_COLORS: Dictionary[String, Color] = {
 ## rimmed against the night sky of a menu. It started out as a 16% wash of the text color, which
 ## is a chip you have to find before you can read it, and a hint you have to find has already
 ## cost the corner you were reading it in.
-const CHIP := Color(0.05, 0.05, 0.07, 0.92)
+const CHIP := Color(HouseTheme.STOCK, 0.94)
 const CHIP_EDGE := Color(0.0, 0.0, 0.0, 0.55)
 const CHIP_SHADOW := 3
 const EDGE_ALPHA := 0.92
@@ -333,16 +333,31 @@ func _draw_wheel(box: Rect2) -> void:
 
 ## The solid backing every glyph but a face button sits on: a key cap, or the same shape rounded
 ## off into a pill for a shoulder button and a trigger.
+##
+## The rim is the house's foil, GAME.md 8.1a, on a line in the plain ink of a hint, and the line's
+## own color on one with a color of its own, a player's or a gold one; a key cap has a lip of it
+## along its foot, the way a key stands on the board.
 func _draw_chip(box: Rect2) -> void:
+	var plain := ink.s < 0.25
+	var rim := Color(HouseTheme.FOIL if plain else ink, EDGE_ALPHA * (0.8 if plain else 1.0))
 	var style := StyleBoxFlat.new()
 	style.bg_color = CHIP
-	style.border_color = Color(ink.r, ink.g, ink.b, EDGE_ALPHA)
+	style.border_color = rim
 	style.set_border_width_all(2)
 	var radius := roundi(box.size.y * 0.5) if kind == Kind.SHOULDER else 5
 	style.set_corner_radius_all(radius)
 	style.shadow_color = CHIP_EDGE
 	style.shadow_size = CHIP_SHADOW
 	draw_style_box(style, box)
+	if kind != Kind.SHOULDER:
+		var lip := box.position.y + box.size.y - 4.0
+		draw_line(
+			Vector2(box.position.x + 4.0, lip),
+			Vector2(box.end.x - 4.0, lip),
+			Color(rim, rim.a * 0.35),
+			1.5,
+			true
+		)
 
 
 ## A face button: the round one under the thumb, solid, in the color it is on the pad and with

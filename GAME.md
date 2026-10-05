@@ -2543,11 +2543,20 @@ name. Somebody leaving frees their corner for the next player to sit down.
 The block is a fixed width, and everything in it is clipped to that rather than
 measured from its own text. A pane that grows when the speed goes from 99 to 100
 and shrinks again at the next corner never stops moving, and the eye follows
-movement: the one thing a corner block must not do is ask to be looked at.
+movement: the one thing a corner block must not do is ask to be looked at. It is
+the strip of 8.1a, bled off its corner of the screen rather than standing 16 px
+off it, its inner end slanted and striped in the player's color: the name with
+kills and deaths beside it along the top, the banked score and the lives over the
+pot on the edge it comes off, the speed dial and the nitro cells on its inner end,
+toward the middle of the screen, and the item and the hints along the foot. It is
+352 px across, the room the old card and its margin took, so a cornered hand's
+lane beside it is as wide as it was.
 
 - **Banked score**, large.
 - **Pot** as `chips × mult = value`, updating live, with each half in a pill of
-  its own color: chips in blue and mult in red, the same two colors wherever
+  its own color, each pill ending in what it counts, a chip for the chips and the
+  die the mult is picked up as, on a line of its own the width of the strip: chips
+  in blue and mult in red, the same two colors wherever
   either half is shown. A cell grows to fit the number in it -- a mult clipped at
   24.5 loses the digit that says what the pot is worth -- and the block round them
   is wide enough that they grow into it rather than out of it, so the pane itself
@@ -2591,9 +2600,9 @@ movement: the one thing a corner block must not do is ask to be looked at.
   (4.2): smaller and half past the edge while none of its cards is being read,
   coming out to its full size as the joker menu opens or the mouse comes onto
   it. Four hands at full size are four hands over the arena.
-- **Lives**: two hearts in the player color under the kill count, drawn off the
+- **Lives**: two hearts in the player color under the banked score, drawn off the
   heart curve so they have the dip and the point that tell the shape apart at
-  nineteen pixels. A square said one of something and left you to work out what.
+  twenty-one pixels. A square said one of something and left you to work out what.
   A lost life goes dark.
 - **Held power-up**: the item's own picture beside its name, both in the item's
   color, see 8.3a. While the box is still opening the picture flicks through the
@@ -2664,9 +2673,12 @@ movement: the one thing a corner block must not do is ask to be looked at.
   off the arena the others are still driving in. With three or four players it
   keeps to its owner's corner, as the hand does: above a bottom player's hand, and
   under a top player's, stacking down from it with the pane under the cards.
-- **Nitro tank** as a thin bar, lit while burning.
-- **Speedometer** under it: a thin dial and a number in km/h, both turning the
-  nitro color while the bottle is lit. The dial is full at a kart flat out on
+- **Nitro tank** as ten slanted cells in the player's color, lit as far as the
+  tank is full, like the segments of a gauge on a dashboard, and lit the nitro
+  color while burning.
+- **Speedometer** over it: a small dial, three quarters of a ring open at the
+  foot, with the number in km/h in its middle and the unit written in the gap,
+  both turning the nitro color while the bottle is lit. The dial is full at a kart flat out on
   nitro, so the needle still has somewhere to go when it lights. The number is the
   kart's real speed scaled by 20, which puts a kart at about 210 km/h flat out and
   400 on nitro: the honest meters a second is a single figure and says nothing
@@ -2725,7 +2737,10 @@ movement: the one thing a corner block must not do is ask to be looked at.
   game tracks from the input events themselves. The joker hand, the respawn
   picker and the start-of-match hint follow the same rule, so a player who picks
   up a pad mid-match sees gamepad buttons everywhere.
-- **Match timer** at the top center, turning red during Last Call.
+- **Match timer** at the top center, in amber seven-segment digits on a board hung
+  from the top edge, the same digits as the clock on the hoarding of 8.1, every
+  unlit segment still faintly there; red during Last Call and overtime, and the
+  word OVERTIME set on the same board in the display cut.
 - **Item beside the kart**: a player on this screen who picks an item up sees it
   beside their kart as well as in their corner, small, on a dark chip off the
   kart's top right corner, which it keeps to however far out the camera has
@@ -2794,17 +2809,19 @@ movement: the one thing a corner block must not do is ask to be looked at.
   ×2, ×3 beside it for more walls than one. No words for it, "off the wall"
   being one more phrase to read in a line that says enough already. The bullet
   counts the walls and the death says them with the rest, `Events.kill_detailed`.
-  Names are in the players' colors. Lines hold for 6 s and fade.
+  Names are in the players' colors. Lines hold for 6 s and fade. Each line stands
+  on a short strip of its own off the right edge, 8.1a, as long as its words.
   The feed drops below a player block that owns that corner.
 - **Standings**: a ranked list down the right-hand side, one row per kart with
   its banked score and, in gold beside it, whatever it is still carrying around
-  unbanked. Rows are ordered by what is banked alone, the same as the results
+  unbanked. Each row is a strip off the right edge, 8.1a, its place written on a
+  chip of its player's color, the leader's row edged in foil. Rows are ordered by what is banked alone, the same as the results
   screen in 3.8: a pot is worth nothing until it reaches the Junction, and a board
   that counted it put a player who had won nothing at the top and dropped them
   three places for being shot. The carried pot is still shown beside the score,
   so a hot lap is plain to read without being scored. The leader's
   row is the largest and last place the smallest, and the players on this screen
-  are boxed in their own color. A carried pot that would win the match blinks,
+  have their own color striped along their row's slanted end. A carried pot that would win the match blinks,
   see 3.4. A player online whose line to the host is too slow wears an amber
   warning sign beside their name, on every screen, see 10.3. It stands down in
   three- and four-player shared-screen games, where every player already has a

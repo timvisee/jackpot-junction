@@ -8,21 +8,31 @@ extends HBoxContainer
 ## is deciding about: another lap for more chips, or the Junction for the mult before somebody
 ## takes it off them. Written as one line of text it read as arithmetic. Written as two colored
 ## pills it reads as two things, and the colors are the same two everywhere the halves are
-## shown, see [Palette].
+## shown, see [Palette]. Each pill ends in the thing it counts, GAME.md 8.1a: a chip in the chips'
+## blue, and the die the mult is picked up as.
+
+## What a pill ends in.
+enum Icon { CHIP, DIE }
 
 ## How wide each pill is at its narrowest. A floor rather than a fixed size: the pane round the
 ## line is the thing that must not shuffle, GAME.md 8.3, and it is a fixed width of its own, so a
 ## pill is free to grow into it when the number outgrows the pill. Clipped instead, a mult of 24.5
 ## lost its last digit, which is the one that says how much the pot is worth.
-const CHIP_WIDTH := 62.0
-const MULT_WIDTH := 46.0
+const CHIP_WIDTH := 48.0
+const MULT_WIDTH := 36.0
 ## The pill itself: how much of its color is behind the number, how bright the rim is, and how
 ## much room the number has inside it.
 const FILL := 0.22
 const RIM := 0.75
 const PAD_X := 8
 const PAD_Y := 1
-const RADIUS := 7
+## How wide the total after the pills is at the least.
+const TOTAL_WIDTH := 56.0
+## Round at both ends, and the end with the chip in it padded no more than the chip needs.
+const RADIUS := 18
+const PAD_ICON := 4
+## How big the chip or the die at the end of a pill is.
+const ICON := 20.0
 ## While the line burns, GAME.md 3.4: how solid a pill goes, and the gold the total is written in.
 const BURN_FILL := 0.95
 const BURN_TOTAL := Color(1.0, 0.86, 0.35)
@@ -75,7 +85,7 @@ static func add_to(parent: Control, right: bool) -> ScorePills:
 	pills.name = "ScorePills"
 	pills.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pills.alignment = BoxContainer.ALIGNMENT_END if right else BoxContainer.ALIGNMENT_BEGIN
-	pills.add_theme_constant_override("separation", 6)
+	pills.add_theme_constant_override("separation", 4)
 	parent.add_child(pills)
 	pills._build()
 	return pills
@@ -176,13 +186,13 @@ func say(words: String) -> void:
 
 
 func _build() -> void:
-	chips = _pill(Palette.CHIPS, CHIP_WIDTH)
+	chips = _pill(Palette.CHIPS, CHIP_WIDTH, Icon.CHIP)
 	_sign("×")
-	mult = _pill(Palette.MULT, MULT_WIDTH)
+	mult = _pill(Palette.MULT, MULT_WIDTH, Icon.DIE)
 	_sign("=")
 	total = _text(TOTAL_INK)
 	total.clip_text = false
-	total.custom_minimum_size = Vector2(76.0, 0.0)
+	total.custom_minimum_size = Vector2(TOTAL_WIDTH, 0.0)
 	add_child(total)
 	_parts.append(total)
 	_note = _text(Color(0.82, 0.82, 0.88))
@@ -193,22 +203,41 @@ func _build() -> void:
 	add_child(_note)
 
 
-## One half of the pot: a number in a pill of its own color.
-func _pill(ink: Color, width: float) -> Label:
+## One half of the pot: a number in a pill of its own color, ending in what it counts.
+func _pill(ink: Color, width: float, icon: Icon) -> Label:
 	var box := PanelContainer.new()
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_theme_stylebox_override("panel", _skin(ink, FILL))
+	var inside := HBoxContainer.new()
+	inside.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	inside.add_theme_constant_override("separation", 4)
+	box.add_child(inside)
+	var end := Control.new()
+	end.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	end.custom_minimum_size = Vector2(ICON, ICON)
+	end.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	end.draw.connect(_draw_end.bind(end, icon, ink))
+	inside.add_child(end)
 	var label := _text(ink.lightened(0.5))
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	# Measured rather than clipped, so the pill asks for the room its number needs and the
 	# minimum below is only the width it never goes under.
 	label.clip_text = false
 	label.custom_minimum_size = Vector2(width, 0.0)
-	box.add_child(label)
+	inside.add_child(label)
 	add_child(box)
 	_parts.append(box)
 	_pills.append([box, label, ink])
 	return label
+
+
+## The chip or the die at the end of a pill.
+func _draw_end(end: Control, icon: Icon, ink: Color) -> void:
+	var box := Rect2(Vector2.ZERO, end.size)
+	if icon == Icon.DIE:
+		ChipArt.die(end, box.grow(-2.0))
+	else:
+		ChipArt.chip(end, box.get_center(), box.size.x * 0.5, ink.lightened(0.1), 6)
 
 
 func _sign(mark: String) -> void:
@@ -248,7 +277,7 @@ func _skin(ink: Color, fill: float) -> StyleBoxFlat:
 	style.border_color = Color(ink.r, ink.g, ink.b, RIM)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(RADIUS)
-	style.content_margin_left = PAD_X
+	style.content_margin_left = PAD_ICON
 	style.content_margin_right = PAD_X
 	style.content_margin_top = PAD_Y
 	style.content_margin_bottom = PAD_Y

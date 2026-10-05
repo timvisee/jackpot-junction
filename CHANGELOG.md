@@ -19,6 +19,9 @@ below, and hands the notes to the release workflow.
 - **Panes torn like tickets.** The pause menu, questions, dialogs and the joker pane have a header
   torn off by a perforation, come up with a short slide, and the button that moves on is gold.
   A question that loses you something carries a yellow warning sign.
+- **A dashboard in your corner.** Your corner of the HUD runs off the edge of the screen with a
+  speed dial, nitro cells and a pot that ends in a chip and a die; the clock hangs on an amber
+  board like the one by the table, and the standings and kill feed are strips off the right edge.
 
 ## [0.13.3] - 2026-10-06
 

@@ -75,6 +75,66 @@ func test_every_control_wears_the_house_look() -> void:
 	layer.queue_free()
 
 
+## A strip comes off the edge it is cut for and leans at its other end, wide where it hangs from:
+## at the top for a corner at the top of the screen, at the bottom for one standing on it.
+func test_a_strip_leans_at_its_inner_end() -> void:
+	var size := Vector2(200.0, 100.0)
+	var left := StripStyle.cut(false, 20.0, 10.0, 30.0, 4.0)
+	var shape := left.outline(size)
+	for point: Vector2 in [Vector2(0.0, 0.0), Vector2(200.0, 0.0), Vector2(180.0, 100.0)]:
+		assert_bool(shape.has(point)).is_true()
+	var right := StripStyle.cut(true, 20.0, 10.0, 30.0, 4.0)
+	right.wide_at_bottom = true
+	shape = right.outline(size)
+	for point: Vector2 in [Vector2(200.0, 0.0), Vector2(20.0, 0.0), Vector2(0.0, 100.0)]:
+		assert_bool(shape.has(point)).is_true()
+	# The content keeps clear of the lean and the stripe on the end that has them.
+	assert_float(right.content_margin_left).is_greater(right.content_margin_right)
+
+
+## The clock is a board of lit digits for a time and words for anything else, GAME.md 8.1a, every
+## segment that is off still faintly there.
+func test_the_clock_board_reads_a_time_in_digits() -> void:
+	assert_bool(ClockBoard._is_time("4:56")).is_true()
+	assert_bool(ClockBoard._is_time("OVERTIME")).is_false()
+	assert_str(ClockBoard._unlit("4:56")).is_equal("8:88")
+	assert_float(ClockBoard.digits_width("10:00")).is_greater(ClockBoard.digits_width("4:56"))
+	var board := ClockBoard.new()
+	board.text = "0:30"
+	board.hot = true
+	assert_bool(board.hot).is_true()
+	board.free()
+
+
+## A corner block is a strip bled off its own corner and striped in its player's color, holding
+## the width it is given however the numbers in it grow.
+func test_a_corner_block_is_a_strip_in_its_players_color() -> void:
+	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	rules.countdown = 0.1
+	var match_node: Match = auto_free(load("res://scenes/match/match.tscn").instantiate())
+	match_node.rules = rules
+	match_node.offer_size = 0
+	var runner := scene_runner(match_node)
+	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
+	match_node.start(inputs, 5)
+	await runner.simulate_frames(20, 17)
+	var block: Dictionary = match_node.hud._blocks[0]
+	var card: Control = block["box"]
+	var strip := card.get_theme_stylebox(&"panel") as StripStyle
+	assert_object(strip).is_not_null()
+	assert_bool(strip.off_right).is_false()
+	assert_object(strip.stripe).is_equal(match_node.slots[0].color())
+	assert_float(card.get_global_rect().position.x).is_equal(0.0)
+	assert_float(card.size.x).is_equal_approx(MatchHud.BLOCK_WIDTH, 0.5)
+	# As big a pot as a match makes: thousands of coins at a mult in its twenties.
+	match_node.kart_of(0).pot.coins = 2603
+	match_node.kart_of(0).pot.mult = 24.5
+	await runner.simulate_frames(4, 17)
+	assert_float(card.size.x).is_equal_approx(MatchHud.BLOCK_WIDTH, 0.5)
+	assert_object(block["nitro"]).is_instanceof(NitroCells)
+	assert_object(block["speed_dial"]).is_instanceof(SpeedDial)
+
+
 ## A switch that is on is not lit for it: the lit look is the cursor's alone.
 func test_a_switch_that_is_on_is_not_lit() -> void:
 	var on := MenuTheme.toggle(true)

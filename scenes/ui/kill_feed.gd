@@ -11,6 +11,8 @@ extends VBoxContainer
 ## than one: no words for it, the line says enough already.
 
 const MAX_ROWS := 5
+## Each line is a short strip off the right edge, GAME.md 8.1a: how far its end leans.
+const SLANT := 9.0
 const HOLD := 6.0
 const FADE := 1.2
 const FONT_SIZE := 18
@@ -45,10 +47,10 @@ var _details: Dictionary[int, Array] = {}
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	offset_right = -16.0
+	offset_right = 0.0
 	offset_top = 16.0
 	alignment = BoxContainer.ALIGNMENT_BEGIN
-	add_theme_constant_override("separation", 2)
+	add_theme_constant_override("separation", 3)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Events.kill_detailed.connect(_on_kill_detailed)
 	Events.kart_killed.connect(_on_kart_killed)
@@ -174,9 +176,12 @@ static func _label() -> RichTextLabel:
 	label.add_theme_font_size_override("bold_font_size", FONT_SIZE)
 	label.add_theme_color_override("default_color", NEUTRAL)
 	# A line of colored names over a bright table is a line nobody can read, GAME.md 8.3, so
-	# every one of them carries its own scrim rather than trusting the felt to be dark.
-	label.add_theme_constant_override("outline_size", 6)
-	label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.75))
+	# every one of them stands on a strip of its own rather than trusting the felt to be dark.
+	var strip := StripStyle.cut(true, SLANT, 14.0, SLANT + 12.0, 3.0)
+	strip.fill = Color(HouseTheme.STOCK, 0.82)
+	label.add_theme_stylebox_override("normal", strip)
+	# Each strip as long as its own line, all of them off the right edge.
+	label.size_flags_horizontal = Control.SIZE_SHRINK_END
 	return label
 
 

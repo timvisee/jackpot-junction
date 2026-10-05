@@ -21,9 +21,9 @@ const SPEED_FULL := 1.9
 ## clock it sits, under the Royal Flush tally, and the size past which one is called out as a snap
 ## rather than a nudge.
 const SYNC_TIME := 1.4
-const SYNC_DROP := 94.0
-## How far under the top the Royal Flush tally hangs, just under the clock, see [FlushTally].
-const TALLY_DROP := 62.0
+const SYNC_DROP := 116.0
+## How far under the top the Royal Flush tally hangs, under the clock's board, see [FlushTally].
+const TALLY_DROP := 82.0
 const SYNC_SNAP := 1.0
 
 const CALL_DROP := 120.0
@@ -42,8 +42,8 @@ const CALL_FADE := 0.6
 ## Wide enough that the line inside it never asks for more: the pot's own cells do grow to fit
 ## their numbers, since a mult clipped at 24.5 loses the digit that says what the pot is worth,
 ## and this is the room they grow into rather than out of.
-const BLOCK_WIDTH := 336.0
-const LIFE_SIZE := 19.0
+const BLOCK_WIDTH := 352.0
+const LIFE_SIZE := 21.0
 const LIFE_LOST := Color(0.22, 0.22, 0.26, 0.9)
 ## How big a heart is when it floats off a kart that has just lost or been given a life, in
 ## meters. It started at the width of the words it replaced, which as a shape rather than a line
@@ -90,7 +90,7 @@ var waiting := false
 ## top right corner: the tutorial's checklist, GAME.md 9.4a. Zero for the feed's own place.
 var feed_drop := 0.0
 
-var _timer: Label
+var _timer: ClockBoard
 var _scoreboard: Scoreboard
 var _banner: Label
 var _light: StartLight
@@ -130,8 +130,12 @@ var _go_left := 0.0
 
 func _ready() -> void:
 	layer = 5
-	_timer = _label(40, Control.PRESET_CENTER_TOP)
-	_timer.offset_top = 10.0
+	# The clock hangs from the top edge on a board of its own, GAME.md 8.1a.
+	_timer = ClockBoard.new()
+	_timer.name = "Clock"
+	_timer.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	_timer.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	add_child(_timer)
 	_scoreboard = Scoreboard.new()
 	_scoreboard.name = "Scoreboard"
 	_scoreboard.match_node = match_node
@@ -480,8 +484,7 @@ func _update_timer() -> void:
 	else:
 		var seconds := ceili(match_node.time_left)
 		_timer.text = "%d:%02d" % [seconds / 60, seconds % 60]
-	var hot := overtime or match_node.state == Match.State.LAST_CALL
-	Type.ink(_timer, Color(1.0, 0.35, 0.3) if hot else Color.WHITE)
+	_timer.hot = overtime or match_node.state == Match.State.LAST_CALL
 
 
 ## The running order is for the player watching this screen. In a four-corner shared-screen game
@@ -532,12 +535,12 @@ func _update_blocks() -> void:
 		(block["lag"] as LagWarning).show_trip(_round_trip(slot))
 		# A pot that would win the match on the next cash-out burns, GAME.md 3.4.
 		pot.set_burning(match_node.is_running() and match_node.would_win(slot))
-		stats.text = "K %d  D %d" % [slot.kills, slot.deaths]
+		stats.text = "K %d · D %d" % [slot.kills, slot.deaths]
 		var pips := HudBlock.fit_lives(block, slot, KartLives.most(kart))
 		for i: int in pips.size():
 			var lit := kart.alive and i < kart.lives
 			(pips[i] as Heart).color = slot.color() if lit else LIFE_LOST
-		var nitro: ProgressBar = block["nitro"]
+		var nitro: NitroCells = block["nitro"]
 		nitro.value = kart.nitro_charge * 100.0
 		nitro.modulate = Color(1.0, 0.75, 0.3) if kart.nitro_active else Color(0.85, 0.85, 0.9)
 		HudBlock.follow(block, slot)
@@ -802,11 +805,12 @@ func _round_trip(slot: PlayerSlot) -> float:
 
 
 func _update_speed(block: Dictionary, kart: Kart) -> void:
-	var dial: ProgressBar = block["speed_dial"]
+	var dial: SpeedDial = block["speed_dial"]
 	var readout: Label = block["speed"]
 	var speed := kart.motor.speed() if kart.alive else 0.0
 	dial.value = clampf(speed / (kart.stats.top_speed * SPEED_FULL), 0.0, 1.0) * 100.0
-	readout.text = "%d km/h" % roundi(speed * SPEED_SCALE)
+	# The unit is the dial's own, written in the gap at its foot.
+	readout.text = "%d" % roundi(speed * SPEED_SCALE)
 	var lit := Color(1.0, 0.75, 0.3) if kart.nitro_active else Color(0.85, 0.85, 0.9)
 	dial.modulate = lit
 	Type.ink(readout, lit)

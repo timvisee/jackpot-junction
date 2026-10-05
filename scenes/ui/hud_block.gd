@@ -1,109 +1,145 @@
 class_name HudBlock
 extends RefCounted
-## A player's corner of the match HUD, GAME.md 8.3: their name, what they have banked, the pot,
-## kills and deaths, the item row, the lives, the nitro tank, the speedometer and the hints, on a
-## scrim. Built here and kept up to date by [MatchHud], which holds what this hands back.
+## A player's corner of the match HUD, GAME.md 8.3 and 8.1a: their name, what they have banked, the
+## pot, kills and deaths, the lives, the speed dial and the nitro cells, the item row and the hints,
+## on a strip of the house's stock bled off the corner of the screen, its inner end slanted and
+## striped in the player's color. Built here and kept up to date by [MatchHud], which holds what
+## this hands back.
+
+## How far the strip's inner end leans over its height, and how wide its stripe is.
+const SLANT := 30.0
+const STRIPE := 8.0
+## The room inside the strip: on the edge it comes off, on its slanted end past the slant and the
+## stripe, above, and below over the microprint along its foot.
+const OUTER := 20.0
+const INNER := SLANT + STRIPE + 12.0
+const ABOVE := 12.0
+const BELOW := 18.0
+## How big the speed dial is, and the nitro cells under it.
+const DIAL := 88.0
+const CELLS := Vector2(118.0, 12.0)
+## How much of the name's row the kills and deaths keep for themselves.
+const STATS_WIDTH := 92.0
+## The microprint along the foot of each strip, and the engraving's strength on it.
+const MICRO := "SEAT %d · JACKPOT JUNCTION · DEPT. OF KARTS · "
+const ENGRAVED := 0.07
 
 
 ## The block for [param slot] in [param corner] of [param hud], with a heart for each of the
 ## [param lives] a kart has, added to it. What is in it, for the HUD to keep up to date.
 static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: int) -> Dictionary:
-	# A corner of numbers over a table that is felt one moment and a white block the next needs
-	# something to sit on, GAME.md 8.3. A scrim rather than a panel: enough to hold the text
-	# together, not so much that the arena has a box cut out of it.
+	var right := corner % 2 == 1
+	var bottom := corner >= 2
+	# A strip bled off the corner rather than a card standing off it, GAME.md 8.1a: the corner of
+	# the screen is the edge of the strip, so it reads as part of the screen's frame rather than
+	# as one more thing laid over the table.
 	var card := PanelContainer.new()
 	card.name = "Block%d" % slot.index
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	card.add_theme_stylebox_override("panel", scrim())
+	card.add_theme_stylebox_override("panel", strip(slot, right, bottom))
 	card.custom_minimum_size = Vector2(MatchHud.BLOCK_WIDTH, 0.0)
 	card.set_anchors_and_offsets_preset(MatchHud.BLOCK_ANCHORS[corner])
-	var right := corner % 2 == 1
-	var bottom := corner >= 2
 	card.grow_horizontal = Control.GROW_DIRECTION_BEGIN if right else Control.GROW_DIRECTION_END
 	card.grow_vertical = Control.GROW_DIRECTION_BEGIN if bottom else Control.GROW_DIRECTION_END
-	card.offset_left = -16.0 if right else 16.0
-	card.offset_right = -16.0 if right else 16.0
-	card.offset_top = -16.0 if bottom else 16.0
-	card.offset_bottom = -16.0 if bottom else 16.0
 	hud.add_child(card)
 	var box := VBoxContainer.new()
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_theme_constant_override("separation", 5)
+	box.add_theme_constant_override("separation", 4)
 	card.add_child(box)
+	var align := HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
+	var line_up := BoxContainer.ALIGNMENT_END if right else BoxContainer.ALIGNMENT_BEGIN
 	var name_label := Label.new()
 	name_label.text = slot.display_name()
-	Type.strong(name_label, Type.BODY, slot.color())
-	var banked := Label.new()
-	# The banked score is the number a player checks mid-corner, so it is set the largest and
-	# in the heaviest cut there is, GAME.md 8.3.
-	Type.numbers(banked, Type.SCORE)
+	Type.strong(name_label, Type.LARGE, slot.color())
 	var stats := Label.new()
 	Type.set_font(stats, Type.numbers_text_font(), Type.LABEL)
-	stats.add_theme_color_override("font_color", Color(0.72, 0.72, 0.78))
-	var lives := HBoxContainer.new()
-	lives.add_theme_constant_override("separation", 6)
-	lives.alignment = BoxContainer.ALIGNMENT_END if right else BoxContainer.ALIGNMENT_BEGIN
-	var pips: Array = []
-	for i: int in lives_each:
-		pips.append(_pip(lives, slot))
-	# A row rather than a line of text: the buttons in it are drawn, GAME.md 8.3. It fills the
-	# block so the pictures line up with the writing above them on either side of the screen.
-	var hints := HBoxContainer.new()
-	hints.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hints.alignment = BoxContainer.ALIGNMENT_END if right else BoxContainer.ALIGNMENT_BEGIN
-	var nitro := bar(Vector2(180.0, 8.0), slot.color())
-	nitro.value = 100.0
-	nitro.tooltip_text = "Nitro"
-	var speed_dial := bar(Vector2(120.0, 6.0), Color(0.82, 0.82, 0.88))
-	speed_dial.tooltip_text = "Speed"
-	speed_dial.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	var speed := Label.new()
-	speed.text = "0 km/h"
-	Type.set_font(speed, Type.numbers_text_font(), Type.LABEL)
-	# Wide enough for the fastest thing on the table and no wider, so the row holds still. Three
-	# digits and the unit: at 76 the h of km/h was half a letter.
-	speed.custom_minimum_size = Vector2(96.0, 0.0)
-	speed.clip_text = true
-	speed.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
-	HudText.shadowed(speed, 2)
-	# The dial reads left to right whichever corner the block is in, with the number at the
-	# outside edge where the rest of the block's text already lines up.
-	var speed_row := HBoxContainer.new()
-	speed_row.add_theme_constant_override("separation", 8)
-	speed_row.alignment = BoxContainer.ALIGNMENT_END if right else BoxContainer.ALIGNMENT_BEGIN
-	if right:
-		speed_row.add_child(speed)
-		speed_row.add_child(speed_dial)
-	else:
-		speed_row.add_child(speed_dial)
-		speed_row.add_child(speed)
+	stats.add_theme_color_override("font_color", HouseTheme.QUIET)
+	stats.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	# Room for two counts in double figures, so the row never moves as they climb.
+	stats.custom_minimum_size = Vector2(STATS_WIDTH, 0.0)
 	# Beside the name, a warning while this player's line to the host is slow, GAME.md 10.3.
 	var lag := LagWarning.make(18.0, true)
 	var name_row := HBoxContainer.new()
 	name_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	name_row.add_theme_constant_override("separation", 8)
+	name_row.add_theme_constant_override("separation", 10)
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	for part: Control in [lag, name_label] if right else [name_label, lag]:
+	var heading: Array[Control] = [name_label, lag, stats]
+	if right:
+		heading.reverse()
+	for part: Control in heading:
 		name_row.add_child(part)
 	box.add_child(name_row)
-	# What is in hand and what is running, GAME.md 8.3: one thing in one place, see [ItemRow].
+	var banked := Label.new()
+	# The banked score is the number a player checks mid-corner, so it is set the largest and in the
+	# heaviest cut there is, GAME.md 8.3.
+	Type.numbers(banked, Type.SCORE)
 	for label: Label in [name_label, banked, stats]:
-		label.horizontal_alignment = (
-			HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
-		)
+		label.horizontal_alignment = align
 		# Clipped rather than measured: a label that asks for the width of its own text is what
 		# made the block breathe in and out with the speedometer.
 		label.clip_text = true
 		HudText.shadowed(label)
-		if label != name_label:
-			box.add_child(label)
-	# The pot goes between the banked score and the kill count, GAME.md 8.3.
+	# The score and the pot on the edge the strip comes off, the dial and the tank on its inner end,
+	# toward the middle of the screen: one number to read and one gauge to glance at.
+	var middle := HBoxContainer.new()
+	middle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	middle.add_theme_constant_override("separation", 10)
+	box.add_child(middle)
+	var counts := VBoxContainer.new()
+	counts.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	counts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	counts.add_theme_constant_override("separation", 2)
+	counts.add_child(banked)
+	var lives := HBoxContainer.new()
+	lives.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lives.add_theme_constant_override("separation", 6)
+	lives.alignment = line_up
+	var pips: Array = []
+	for i: int in lives_each:
+		pips.append(_pip(lives, slot))
+	counts.add_child(lives)
+	var gauge := VBoxContainer.new()
+	gauge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	gauge.add_theme_constant_override("separation", 6)
+	gauge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var dial_box := Control.new()
+	dial_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dial_box.custom_minimum_size = Vector2(DIAL, DIAL)
+	dial_box.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	var speed_dial := SpeedDial.new()
+	speed_dial.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	speed_dial.tooltip_text = "Speed"
+	dial_box.add_child(speed_dial)
+	var speed := Label.new()
+	speed.text = "0"
+	Type.set_font(speed, Type.numbers_font(), Type.HEADING)
+	speed.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	speed.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	speed.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	speed.offset_top = -4.0
+	speed.offset_bottom = -4.0
+	speed.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dial_box.add_child(speed)
+	gauge.add_child(dial_box)
+	var nitro := NitroCells.new()
+	nitro.custom_minimum_size = CELLS
+	nitro.ink = slot.color()
+	nitro.value = 100.0
+	nitro.tooltip_text = "Nitro"
+	nitro.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	gauge.add_child(nitro)
+	for part: Control in [gauge, counts] if right else [counts, gauge]:
+		middle.add_child(part)
+	# The pot goes under the banked score, GAME.md 8.3, on a line of its own the width of the strip:
+	# its pills grow with their numbers, and beside the dial they had nowhere to grow into.
 	var pot := ScorePills.add_to(box, right)
-	box.move_child(pot, 2)
+	# What is in hand and what is running, GAME.md 8.3: one thing in one place, see [ItemRow].
 	var item := ItemRow.add_to(box, right)
-	box.add_child(lives)
-	box.add_child(nitro)
-	box.add_child(speed_row)
+	# A row rather than a line of text: the buttons in it are drawn, GAME.md 8.3. It fills the
+	# block so the pictures line up with the writing above them on either side of the screen.
+	var hints := HBoxContainer.new()
+	hints.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hints.alignment = line_up
 	box.add_child(hints)
 	return {
 		"box": card,
@@ -126,6 +162,22 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	}
 
 
+## The strip a corner block is cut from, GAME.md 8.1a: off the left or the right edge of the
+## screen, wide at the top for a block hung from the top and at the bottom for one standing on it,
+## its inner end striped in [param slot]'s color, waves engraved in it and its seat in microprint
+## along its foot. No seal: the dial is the round thing in a corner.
+static func strip(slot: PlayerSlot, right: bool, bottom: bool) -> StripStyle:
+	var style := StripStyle.cut(right, SLANT, OUTER, INNER, ABOVE)
+	style.content_margin_bottom = BELOW
+	style.wide_at_bottom = bottom
+	style.stripe = slot.color()
+	style.stripe_width = STRIPE
+	style.engraving = Color(HouseTheme.FOIL, ENGRAVED)
+	style.waves = true
+	style.micro = MICRO % (slot.index + 1)
+	return style
+
+
 ## Keeps [param block] in [param slot]'s name and color, which a player can change in the lobby
 ## and the Garage, GAME.md 4.4, and a client hears about from the host, and in the palette, which
 ## the settings over the room can change, 8.5. Only on a change.
@@ -137,12 +189,15 @@ static func follow(block: Dictionary, slot: PlayerSlot) -> void:
 	var name_label: Label = block["name"]
 	name_label.text = slot.display_name()
 	name_label.add_theme_color_override("font_color", slot.color())
-	var fill := (block["nitro"] as ProgressBar).get_theme_stylebox("fill") as StyleBoxFlat
-	fill.bg_color = slot.color()
+	(block["nitro"] as NitroCells).ink = slot.color()
+	var card: Control = block["box"]
+	var style := card.get_theme_stylebox(&"panel") as StripStyle
+	if style != null:
+		style.stripe = slot.color()
 
 
-## The scrim behind a player's corner: a dark card with rounded corners and no edge, soft enough
-## that it reads as shade rather than as a panel.
+## The scrim the old corner sat on, kept for what still stands on one: a dark card with rounded
+## corners and no edge, soft enough that it reads as shade rather than as a panel.
 static func scrim() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.03, 0.03, 0.05, 0.34)
@@ -154,8 +209,8 @@ static func scrim() -> StyleBoxFlat:
 	return style
 
 
-## One of the slim bars in a block: the nitro tank and the speedometer. Rounded, thin, and in
-## the color of whatever it is measuring.
+## A slim bar, for what still fills one: the warm-up's. Rounded, thin, and in the color of whatever
+## it is measuring.
 static func bar(size: Vector2, ink: Color) -> ProgressBar:
 	var bar := ProgressBar.new()
 	bar.min_value = 0.0

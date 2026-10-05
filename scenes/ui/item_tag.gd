@@ -28,7 +28,9 @@ const GRACE := 0.4
 const FAR := 6.0
 const NEAR := 2.0
 const EASE := 2.5
-const CHIP := Color(0.04, 0.04, 0.06, 0.75)
+const CHIP := Color(HouseTheme.STOCK, 0.82)
+## The foil rim round the chip, GAME.md 8.1a, the way a key cap's is.
+const RIM := Color(HouseTheme.FOIL, 0.7)
 ## The button that uses the item, on the chip's lower corner: its size and ink.
 const BUTTON_SIZE := 13
 const BUTTON_INK := Color(0.92, 0.92, 0.95)
@@ -220,6 +222,8 @@ func _draw() -> void:
 		var fade := _fade(_tags[slot])
 		var chip := StyleBoxFlat.new()
 		chip.bg_color = Color(CHIP, CHIP.a * fade)
+		chip.border_color = Color(RIM, RIM.a * fade)
+		chip.set_border_width_all(1)
 		chip.set_corner_radius_all(6)
 		draw_style_box(chip, box.grow(PAD))
 		var id := kart.held_item.id

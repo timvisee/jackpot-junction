@@ -53,14 +53,14 @@ func test_the_line_can_say_something_else_instead() -> void:
 	var pills := _pills()
 	pills.show_pot(10, 2.0, 20)
 	pills.say("respawning 1.4")
-	assert_bool(pills.chips.get_parent().visible).is_false()
+	assert_bool((pills.chips.get_parent().get_parent() as Control).visible).is_false()
 	assert_bool(pills.total.visible).is_false()
 	# And the words have room: clipped, with the pot hidden, they were nought pixels wide, and
 	# nobody waiting to come back was ever shown how long for.
 	assert_bool(pills._note.visible).is_true()
 	assert_float(pills._note.get_minimum_size().x).is_greater(40.0)
 	pills.show_pot(10, 2.0, 20)
-	assert_bool(pills.chips.get_parent().visible).is_true()
+	assert_bool((pills.chips.get_parent().get_parent() as Control).visible).is_true()
 	assert_bool(pills.total.visible).is_true()
 
 
