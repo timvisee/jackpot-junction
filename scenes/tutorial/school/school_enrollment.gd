@@ -129,7 +129,7 @@ static func course(done: int) -> Control:
 	card.name = "Course"
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(1.0, 1.0, 1.0, 0.05)
-	style.set_corner_radius_all(MenuTheme.BUTTON_RADIUS)
+	style.set_corner_radius_all(8)
 	style.set_content_margin_all(16.0)
 	card.add_theme_stylebox_override("panel", style)
 	var rows := VBoxContainer.new()

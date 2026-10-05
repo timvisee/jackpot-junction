@@ -1,16 +1,24 @@
 class_name Type
 extends RefCounted
-## The type the game is set in, GAME.md 8.3. Three cuts of Inter and a scale of sizes, so a
+## The type the game is set in, GAME.md 8.1a. Three cuts of Barlow and a scale of sizes, so a
 ## number on the HUD and a heading on a menu look like they came out of the same game.
 ##
 ## The rule is weight for role rather than size for importance: anything a player reads at a
 ## glance mid-corner is set in the display cut, anything they read a sentence of is set in the
 ## text cut, and the middle weight carries names and labels. A size is picked off the scale
 ## rather than typed in, because a screen with nine sizes on it reads as nine screens.
+##
+## Barlow was drawn after the highway signs and plates of California, which is a road in a face;
+## the display cut is the condensed one, so a score and a clock take less of the corner. Each cut
+## falls back on Inter for what Barlow does not draw, a name in Cyrillic or Greek say.
 
-const TEXT := preload("res://assets/fonts/Inter-Regular.ttf")
-const STRONG := preload("res://assets/fonts/Inter-SemiBold.ttf")
-const DISPLAY := preload("res://assets/fonts/Inter-Black.ttf")
+const TEXT := preload("res://assets/fonts/Barlow-Medium.ttf")
+const STRONG := preload("res://assets/fonts/BarlowSemiCondensed-SemiBold.ttf")
+const DISPLAY := preload("res://assets/fonts/BarlowCondensed-ExtraBold.ttf")
+## The heaviest cut, for the one line that is a mark rather than a heading: the name on the
+## title, GAME.md 8.1a.
+const MARK := preload("res://assets/fonts/BarlowCondensed-Black.ttf")
+const FALLBACK := preload("res://assets/fonts/Inter-Regular.ttf")
 
 ## The scale. Each step is about a quarter bigger than the one below it, which is far enough
 ## apart that two of them are never mistaken for the same size.
@@ -35,6 +43,12 @@ const DISPLAY_TRACKING := 1.0
 static var _display: FontVariation
 static var _numbers: FontVariation
 static var _numbers_text: FontVariation
+
+
+static func _static_init() -> void:
+	for font: FontFile in [TEXT, STRONG, DISPLAY, MARK]:
+		if font.fallbacks.is_empty():
+			font.fallbacks = [FALLBACK]
 
 
 ## The display cut, tracked out a little. A [FontVariation] rather than the file itself, because

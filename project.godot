@@ -46,7 +46,7 @@ window/handheld/orientation=4
 
 [gui]
 
-theme/custom_font="res://assets/fonts/Inter-Regular.ttf"
+theme/custom_font="res://assets/fonts/Barlow-Medium.ttf"
 
 [input_devices]
 

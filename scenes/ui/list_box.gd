@@ -17,13 +17,14 @@ extends VBoxContainer
 ## How wide the box is, and how tall its room for rows: five of the tallest, with the gaps.
 const WIDTH := 760.0
 const ROOM := 5 * 64.0 + 4 * 8.0
-## The heading's ink, the well's fill over the screen, its shade and its rim, its corners, how far
-## in from its edge the rows stand, and how deep the shade along its top is.
+## The heading's ink, the well's fill over the screen, its shade and its rim, how deep the notches
+## of its corners are, a ticket's, GAME.md 8.1a, how far in from its edge the rows stand, and how
+## deep the shade along its top is.
 const HEADING_INK := Color(0.62, 0.62, 0.68)
 const FILL := Color(0.0, 0.0, 0.0, 0.32)
 const SHADE := Color(0.0, 0.0, 0.0, 0.3)
 const RIM := Color(1.0, 1.0, 1.0, 0.09)
-const RADIUS := 6
+const NOTCH := 9.0
 const INSET := 12
 const SHADE_DEPTH := 7
 ## The link at the bottom: its ink, under the cursor or a pointer, and its size.
@@ -43,31 +44,28 @@ var _heading: Label
 var _scroll: ScrollContainer
 
 
-## The well itself: its fill, the shade along its inside top edge, and its rim, drawn under the
-## rows it holds.
+## The well itself: a ticket cut into the screen rather than laid on it, its fill, the shade along
+## its inside top edge, and its rim, drawn under the rows it holds.
 class Well:
 	extends MarginContainer
+
+	var _look: TicketStyle
 
 	func _ready() -> void:
 		for side: String in ["left", "right", "top", "bottom"]:
 			add_theme_constant_override("margin_%s" % side, ListBox.INSET)
+		_look = TicketStyle.cut(ListBox.FILL, ListBox.NOTCH, 0.0, 0.0)
+		_look.border = ListBox.RIM
+		_look.border_width = 1.0
 
 	func _draw() -> void:
-		var whole := Rect2(Vector2.ZERO, size)
-		var fill := StyleBoxFlat.new()
-		fill.bg_color = ListBox.FILL
-		fill.set_corner_radius_all(ListBox.RADIUS)
-		draw_style_box(fill, whole)
+		draw_style_box(_look, Rect2(Vector2.ZERO, size))
 		for i: int in ListBox.SHADE_DEPTH:
 			var fade := 1.0 - float(i) / ListBox.SHADE_DEPTH
 			var shade := Color(ListBox.SHADE, ListBox.SHADE.a * fade * fade)
-			draw_rect(Rect2(ListBox.RADIUS * 0.5, 1.0 + i, size.x - ListBox.RADIUS, 1.0), shade)
-		var rim := StyleBoxFlat.new()
-		rim.draw_center = false
-		rim.border_color = ListBox.RIM
-		rim.set_border_width_all(1)
-		rim.set_corner_radius_all(ListBox.RADIUS)
-		draw_style_box(rim, whole)
+			draw_rect(
+				Rect2(ListBox.NOTCH + 1.0, 1.0 + i, size.x - ListBox.NOTCH * 2.0 - 2.0, 1.0), shade
+			)
 
 
 ## A box headed [param heading] holding [param rows], and under them a link saying [param linked].

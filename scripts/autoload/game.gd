@@ -85,6 +85,10 @@ func _ready() -> void:
 	# quitting waits on the sounds, see [method quit]. The menus' own dark rather than the engine's
 	# gray, which flashed up as the game went.
 	RenderingServer.set_default_clear_color(MenuTheme.BACKGROUND)
+	# Every control in the game wears the house's look, GAME.md 8.1a, set once here rather than
+	# per screen.
+	if not serving:
+		HouseTheme.dress(get_tree().root)
 	add_child(FrameCounter.new())
 	# A text box the phone's keyboard comes up over is shown over the keyboard, GAME.md 8.3.
 	if TouchInput.enabled:

@@ -71,8 +71,10 @@ func test_the_screen_ranks_everybody_with_their_score_and_awards() -> void:
 	assert_int(Array(texts).find("Grace")).is_less(Array(texts).find("Ada"))
 	# The award for what somebody did most of is on their row, as a chip of its own.
 	assert_array(texts).contains(["Demolition Crew", "9 crates broken"])
-	# The bar along the top wears the winner's color, the way the joker pane wears the kind's.
-	assert_object(screen._style.border_color).is_equal(match_node.slots[1].color())
+	# The pane's foil wears the winner's color, the way the joker pane wears the kind's.
+	assert_object(screen._style.frame).is_equal(
+		Color(match_node.slots[1].color(), MenuTheme.PANE_FRAME)
+	)
 
 
 ## The same screen filled in twice says the same thing, which is what a client does every time

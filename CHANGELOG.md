@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **A look of its own.** Menus, buttons, boxes, lists, tabs, switches and sliders are cut like
+  tickets from dark card with gold foil and fine engraved lines, the way the driver license is,
+  and everything is set in Barlow, a face drawn after road signs and license plates.
+
 ## [0.13.3] - 2026-10-06
 
 Dedicated servers can ask for a password, and your list of servers shows their own names. It plays

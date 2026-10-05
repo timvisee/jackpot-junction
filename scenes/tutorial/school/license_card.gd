@@ -361,10 +361,16 @@ func _draw_paper() -> void:
 	low.corner_radius_bottom_left = roundi(RADIUS)
 	low.corner_radius_bottom_right = roundi(RADIUS)
 	draw_style_box(low, Rect2(Vector2(0.0, SIZE.y - 40.0), Vector2(SIZE.x, 40.0)))
-	var line := Color(INK, 0.045)
-	for i: int in 9:
-		var middle := Vector2(SIZE.x * 0.62 + float(i) * 34.0, SIZE.y * 1.9)
-		draw_arc(middle, SIZE.y * 1.55 + float(i) * 6.0, PI * 1.18, PI * 1.82, 48, line, 1.0, true)
+	# The license's arcs, which every paper of the house's carries since, GAME.md 8.1a.
+	var arcs := Engraving.arcs(
+		Vector2(SIZE.x * 0.62, SIZE.y * 1.9),
+		SIZE.y * 1.55,
+		9,
+		Vector2(34.0, 6.0),
+		PI * 1.18,
+		PI * 1.82
+	)
+	Engraving.draw_on(self, arcs, Color(INK, 0.045))
 	var watermark := Color(INK, 0.05)
 	for suit: int in 4:
 		var at := Vector2(COLUMN + 40.0 + float(suit) * 80.0, 150.0)

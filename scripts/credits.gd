@@ -35,7 +35,13 @@ const THINGS: Array[Dictionary] = [
 		"where": "cascadiagames.itch.io",
 	},
 	{
-		"what": "Inter typeface",
+		"what": "Barlow typeface",
+		"who": "Jeremy Tribby and the Barlow Project Authors",
+		"terms": "SIL Open Font License 1.1",
+		"where": "github.com/jpt/barlow",
+	},
+	{
+		"what": "Inter typeface, for the letters Barlow does not draw",
 		"who": "Rasmus Andersson and the Inter Project Authors",
 		"terms": "SIL Open Font License 1.1",
 		"where": "rsms.me/inter",

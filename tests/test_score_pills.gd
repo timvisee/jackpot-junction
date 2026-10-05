@@ -72,7 +72,7 @@ func test_a_pill_grows_when_its_number_outgrows_it() -> void:
 	pills.show_pot(4, 2.0, 8)
 	await await_idle_frame()
 	var small := (pills.mult.get_parent() as Control).get_combined_minimum_size().x
-	pills.show_pot(4, 24.5, 98)
+	pills.show_pot(4, 312.5, 1250)
 	await await_idle_frame()
 	var grown := (pills.mult.get_parent() as Control).get_combined_minimum_size().x
 	assert_float(grown).is_greater(small)
@@ -83,7 +83,7 @@ func test_a_pill_grows_when_its_number_outgrows_it() -> void:
 			. mult
 			. get_theme_font("font")
 			. get_string_size(
-				"24.5", HORIZONTAL_ALIGNMENT_LEFT, -1.0, pills.mult.get_theme_font_size("font_size")
+				"312.5", HORIZONTAL_ALIGNMENT_LEFT, -1.0, pills.mult.get_theme_font_size("font_size")
 			)
 			. x
 		)

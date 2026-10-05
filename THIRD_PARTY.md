@@ -8,7 +8,8 @@ text next to the files when the license requires it.
 | Asset or library | Author | Source | License | Files in repo | Modifications |
 |------------------|--------|--------|---------|---------------|---------------|
 | gdUnit4 6.2.1 | Mike Schulze | https://github.com/MikeSchulze/gdUnit4 | MIT | addons/gdUnit4/ | none |
-| Inter 4 (Regular, SemiBold, Black) | Rasmus Andersson | https://rsms.me/inter | SIL Open Font License 1.1, text in assets/fonts/LICENSE-inter-ofl.txt | assets/fonts/Inter-*.ttf | none |
+| Barlow (Medium; Semi Condensed SemiBold; Condensed ExtraBold, Black) | Jeremy Tribby | https://github.com/jpt/barlow (files from https://github.com/google/fonts) | SIL Open Font License 1.1, text in assets/fonts/LICENSE-barlow-ofl.txt | assets/fonts/Barlow*.ttf | none |
+| Inter 4 (Regular) | Rasmus Andersson | https://rsms.me/inter | SIL Open Font License 1.1, text in assets/fonts/LICENSE-inter-ofl.txt | assets/fonts/Inter-Regular.ttf | none |
 | Homemade Apple | Font Diner | https://fonts.google.com/specimen/Homemade+Apple | Apache License 2.0, text in assets/fonts/LICENSE-homemade-apple-apache.txt | assets/fonts/HomemadeApple-Regular.ttf | none |
 | Kenney Car Kit 3.1 | Kenney Vleugels | https://kenney.nl/assets/car-kit | CC0 1.0 | assets/models/car-kit/ (kart-*.glb, Textures/colormap.png) | none |
 | Kenney Casino Audio 1.1 | Kenney Vleugels | https://kenney.nl/assets/casino-audio | CC0 1.0 | assets/audio/sfx/chip-*, chips-*, dice-*, card-* | none |

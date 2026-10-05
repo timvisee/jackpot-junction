@@ -27,13 +27,24 @@ func test_words_keep_their_own_widths() -> void:
 	assert_float(wide).is_greater(thin * 1.5)
 
 
-## The three cuts are three different weights of the same face, so a heading and a sentence
-## look like the same game.
+## The three cuts are three weights of the same face, GAME.md 8.1a, so a heading and a sentence
+## look like the same game: each heavier than the one before and set narrower with it, the display
+## cut condensed so a score and a clock take less of the corner.
 func test_the_three_cuts_are_the_same_face_at_three_weights() -> void:
-	# The heavier cuts name themselves Inter SemiBold and Inter Black, which is how a family
-	# with more than four weights ships: one face, named per weight.
-	for font: Font in [Type.TEXT, Type.STRONG, Type.DISPLAY]:
-		assert_bool(font.get_font_name().begins_with("Inter")).is_true()
+	# The cuts name themselves Barlow, Barlow Semi Condensed and Barlow Condensed, which is how a
+	# family with more than four weights and three widths ships: one face, named per width.
+	var cuts: Array[FontFile] = [Type.TEXT, Type.STRONG, Type.DISPLAY]
+	for font: FontFile in cuts:
+		assert_bool(font.get_font_name().begins_with("Barlow")).is_true()
+	for i: int in range(1, cuts.size()):
+		assert_int(cuts[i].font_weight).is_greater(cuts[i - 1].font_weight)
 	var body := Type.TEXT.get_string_size("Jackpot", HORIZONTAL_ALIGNMENT_LEFT, -1, SAMPLE).x
-	var heavy := Type.DISPLAY.get_string_size("Jackpot", HORIZONTAL_ALIGNMENT_LEFT, -1, SAMPLE).x
-	assert_float(heavy).is_greater(body)
+	var heading := Type.DISPLAY.get_string_size("Jackpot", HORIZONTAL_ALIGNMENT_LEFT, -1, SAMPLE).x
+	assert_float(heading).is_less(body)
+
+
+## Each cut falls back on Inter for what Barlow does not draw, so a name in Cyrillic is still a name.
+func test_every_cut_can_fall_back() -> void:
+	for font: FontFile in [Type.TEXT, Type.STRONG, Type.DISPLAY, Type.MARK]:
+		assert_bool(font.fallbacks.has(Type.FALLBACK)).is_true()
+	assert_bool(Type.FALLBACK.has_char("Ж".unicode_at(0))).is_true()

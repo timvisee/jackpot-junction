@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://vrr4vrg61xyq"
-path="res://.godot/imported/Inter-SemiBold.ttf-2476b72dc3bdc4343a5fa47023b61433.fontdata"
+uid="uid://cw36use42afsj"
+path="res://.godot/imported/Barlow-Medium.ttf-f8e32e17618c23ddf9afe4345a314e3b.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/Inter-SemiBold.ttf"
-dest_files=["res://.godot/imported/Inter-SemiBold.ttf-2476b72dc3bdc4343a5fa47023b61433.fontdata"]
+source_file="res://assets/fonts/Barlow-Medium.ttf"
+dest_files=["res://.godot/imported/Barlow-Medium.ttf-f8e32e17618c23ddf9afe4345a314e3b.fontdata"]
 
 [params]
 

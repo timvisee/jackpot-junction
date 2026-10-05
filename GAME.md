@@ -2144,11 +2144,13 @@ says what, which is the half of the question a bench cannot answer.
   is a casino and a road, and so is the mark. It is drawn in code like every other
   picture here, see 8.3a, and `make logo` writes it out as the icon the project
   wears; changing the drawing and running that is the whole of changing the logo.
-- **Buttons** are the pane in miniature: a dark card with rounded corners, a rim
-  faint enough to say it is a button, and the house's gold round whichever one has
-  the cursor. A menu driven with a stick has to say where the cursor is without
-  being pointed at, so the focused state and the hovered state are the same state.
-- **The title screen** wears the mark of 8.1 over the name, and has a carnival
+- **Buttons** are the pane in miniature, tickets of 8.1a: dark stock with notched
+  corners, a foil hairline faint enough to say it is a button, and the house's gold
+  round whichever one has the cursor, with a lane chevron at its left end. A menu
+  driven with a stick has to say where the cursor is without being pointed at, so
+  the focused state and the hovered state are the same state.
+- **The title screen** wears the mark of 8.1 over the name, the name set in the
+  condensed capitals of 8.1a in foil, and has a carnival
   sunburst turning slowly behind it,
   with poker chips drifting up past it. Drawn rather than modeled: the menu is a
   flat screen with no match running behind it, so a scene would be a scene loaded
@@ -2283,6 +2285,152 @@ Starting palette:
   the bar, faintly at first and hardest at level 6. The track is a steady 120 BPM
   in four, so the beat comes straight off the music's playback position. The
   lights cast no shadows and change nothing about play.
+
+### 8.1a The house print
+
+Everything on screen that is not the table is something the house printed: a
+ticket, a chip, a card, a board, or paint on the road. The driver license of 9.4a
+was the first thing made this way, with its cream paper, its fine lines and figures
+behind the words and its rubber stamp, and it is the model for the rest: every
+menu, HUD piece and dialog is cut from the same stock and printed the same way, so
+a screenshot of any of them could only come from this game. Before this the menus
+were the engine's controls in a dark color with a gold accent, and looked it. The
+direction was set on 2026-10-05 from a proposal of thirty questions, every one of
+them answered with its default.
+
+Three rules hold it together:
+
+1. **Printed, not paneled.** Every surface is house stock or paper cut to a shape.
+   Nothing is a plain translucent box with round corners.
+2. **Six shapes and a road line.** Ticket, chip, card, board, strip and sign, with
+   lane dashes for lines and lane chevrons for focus. A new screen is built from
+   these rather than growing a shape of its own.
+3. **Engraving at a whisper.** Fine line patterns sit under everything at four to
+   six percent of their ink, felt before they are seen.
+
+**Materials.** Two papers and one foil, and the colors the game already has, each
+keeping the job it has:
+
+| Material | Color | What it is for |
+|----------|-------|----------------|
+| Stock | `#131218`, raised `#1B1A22`, lit `#27252F`, pressed `#0E0D12` | The dark card of everything driven past or clicked through: panes, buttons, boxes, HUD strips, boards |
+| Paper | `#F2EAD6` with ink `#211F24` | Documents only: the license, the payout slip, the driving school, the Grand Prix final |
+| Foil | `#F2C14E`, laid on as a fill from `#FFE39A` to `#C38D2B` | The house: focus, the primary button, headings, rules and frames |
+| Neon | magenta `#FF4FA3`, cyan `#35D0FF` | The Junction's own, kept for cashing out: the bank ring and the pot |
+| Signal | amber `#FFB23D`, red `#E5483B` | Boards and warnings: the clock, Last Call, a slow line, match point |
+| Coins and mult | blue `#3FA9F5`, red `#F2564B` | The two halves of a pot, wherever either is shown, as in 8.3 |
+
+**Engraving.** Five patterns, all in `scenes/ui/engraving.gd`: banknote waves, lines
+that drift together and apart across the head of something; the seal, a rosette in
+plaited rings; the license's long arcs rising off the foot; the four suits as a
+watermark; and microprint, small capitals along a rule that read as a line from a
+step back and as words up close. Each is a set of polylines worked out for the size
+of whatever wears it, so it is sharp at any UI scale and nothing is a picture
+stretched to fit. On stock they are drawn in foil at 6%, on paper in ink at 7%.
+Nothing engraved moves, so nothing on a pane shimmers while it is read, except the
+title's rings, which turn once every few minutes. A seal's rings have to be dense
+and narrow to read as engraving: a wide band of few lines reads as rope, which is
+why the menus' backdrop carries the license's arcs rather than a seal.
+
+**Shapes.**
+
+- **Ticket**: panes, buttons, boxes and questions. Its four corners are notched
+  inward the way a ticket is punched, and a hairline of foil runs just inside its
+  edge in the color of whatever it is about, the house's gold where it is about
+  nothing in particular. A pane with a header has a perforation across it under
+  the header, a dotted line with a bite out of either side, and the hairline
+  frames the header and the body separately; the 6 px bar of color a pane wore
+  along its top is gone into the header's frame. Banknote waves sit under a pane's
+  head and fade out down it, and a soft shadow sits under the whole. A list's well
+  is a ticket sunk into the screen rather than laid on it.
+- **Chip**: anything round, from a place in the standings to the mark beside an
+  entry of a list, the knob of a switch or a slider and the item slot. A disc with
+  notches round its rim, which say poker chip at any size, as the chips on the
+  table do.
+- **Card**: the jokers, and only the jokers. Rounded as a card is, framed in the
+  color of its kind, and engraved in that color too.
+- **Board**: hung from the top edge on two bolts, with lit seven-segment digits,
+  the same as the clock on the hoarding of 8.1: the match clock, the ready count in
+  the lobby, Last Call.
+- **Strip**: what is glanced at while driving. A strip of stock bled off an edge of
+  the screen with one slanted end: the corner block of the HUD, the rows of the
+  standings, the lines of the kill feed.
+- **Sign**: what the game warns about. A yellow warning diamond for a question
+  that loses something, a round blue sign for a plain question, an amber diamond
+  for a slow line, and hazard tape for the moments that matter, match point first.
+- **Lane**: not a shape but the road's own line. Lines between rows are dashed like
+  a lane line; a slider runs in a lane painted gold as far as its knob, and a switch
+  is a short lane with a chip for its knob; loading paints the center line of a lane.
+
+**Focus.** The control with the cursor wears a gold frame and a lane chevron, two
+arrowheads painted at its left end. Hovered and focused are the same look, since a
+menu driven with a stick has to say where the cursor is without being pointed at.
+A button too narrow for the chevron, one that is only a picture, wears the frame
+alone, and a box to type into does too, since the chevron would stand on its first
+letter. A button held down goes darker and its words drop 2 px, the way a stamp goes
+down. A switch that is on is not lit for it: the lit look is the cursor's alone. The
+one button on a screen that moves things on, Done, Rematch, Enroll or Resume, is
+gold foil all the time, its words in the dark ink foil is printed with.
+
+**Type.** Everything is set in Barlow, a grotesk drawn after the highway signs and
+license plates of California, which suits a game that is half a road: the
+condensed ExtraBold for headings and for every number that is read at a glance,
+with tabular figures as in 8.3; the semi-condensed SemiBold for names, buttons and
+labels; the regular width at Medium for anything that is a sentence; and the
+condensed Black for the wordmark on the title. Inter's Regular stays only to draw
+what Barlow does not, a name in Cyrillic or Greek; Homemade Apple stays for
+signatures. Headings, HUD labels and stamps are set in condensed capitals; buttons,
+names and sentences as they are written. A heading in foil stands on a dark shadow
+a few pixels down, the way foil pressed into card stands proud of it.
+
+**Color roles.** Gold is the house and nobody else's. Magenta and cyan are the
+Junction's and appear only where cashing out does, the bank ring and the pot.
+Amber and red belong to the boards and the warnings.
+
+**The screens.**
+
+- **The HUD** of 8.3: each corner block is a strip bled off its corner, its inner
+  end slanted and striped in the player's color, engraved with waves and a seal,
+  with microprint along its foot. The pot is two chip-ended pills, a blue chip for
+  the coins and a die for the mult, with the value after them in gold. Speed is a
+  small dial with the number in it, nitro ten slanted cells in the player's color.
+  The clock is amber seven-segment digits on a board hung from the top edge. The
+  standings are strips off the right edge, each place in a chip of its player's
+  color and the leader's edged in foil; the kill feed's lines are short strips with
+  slanted ends. Key caps, pad buttons and the item tag are stock with a foil rim.
+- **The title**: the sunburst stays, engraved in fine lines, with three guilloché
+  rings turning slowly behind the mark; the name is set in the condensed Black in
+  foil over a line of microprint; the buttons are tickets.
+- **The settings' tabs** are index tabs, sloped at the sides, the page showing cut
+  from the stock of the pane under it with foil along its top, the others standing
+  a little lower in a darker stock.
+- **The podium** is a payout slip: cream paper torn off the house's printer with
+  its edges serrated, the photo finish framed at the top, each player as a line of
+  a receipt with dotted leaders to their score, a barcode at the foot, and the red
+  rubber stamp of the driving test saying WINNER.
+- **Questions** are tickets with a road sign in their header.
+- **Loading** is a lane whose center line is painted gold as the room goes up.
+
+**Motion.** A pane is dealt rather than faded: it slides up 24 px and settles in
+0.18 s, the way a ticket comes out of a printer, and leaves the same way. Focus
+slides from one control to the next. A press is a stamp. Only the title's rings
+turn.
+
+**How it is built.** One `Theme`, made in code by `HouseTheme` and set on the root
+window at start, dresses every control the engine draws: buttons, boxes and the
+lists they open, switches, fields, tabs, sliders, scroll bars, bars and tooltips. A
+control takes the look up by being in the tree, so a screen dresses nothing itself
+and a new control comes out right. The shapes are StyleBoxes drawn in code:
+`TicketStyle` for the ticket, with its notches, perforations, frames, engraving,
+chevron and shadow, worked out once for a size and kept; `TabStyle` for an index
+tab and `LaneStyle` for a slider's lane. `HouseArt` draws the small pictures, the
+switch, the list mark, the box's arrow and the slider's knob, finely and once.
+`Backdrop` is the engraved stock behind every menu screen, and `MenuTheme` keeps
+the helpers that make a screen, a pane, a title or a row out of them. Anything that
+draws itself, the HUD and the license among them, uses `Engraving` and the shapes
+directly rather than a picture of them. The work goes screen by screen in this
+order: the menus, then panes and dialogs, then the HUD, then the overlays, then the
+title, the driving school and the touch controls, each played before the next.
 
 ### 8.2 Camera
 
@@ -2448,24 +2596,29 @@ movement: the one thing a corner block must not do is ask to be looked at.
 - **Held power-up**: the item's own picture beside its name, both in the item's
   color, see 8.3a. While the box is still opening the picture flicks through the
   other items, which says "not yet" in the same language as the rest of the row.
-- **The type.** Everything in the game is set in Inter, in three cuts and on one
-  scale. Weight carries the role rather than size carrying the importance:
-  anything read at a glance mid-corner -- a banked score, the clock, a heading --
-  is set in the display cut, names and buttons in the middle weight, and anything
-  that is a sentence in the text cut. Anything that is a number that changes --
+- **The type.** Everything in the game is set in Barlow, in three cuts and on one
+  scale, see 8.1a for the cuts and why. Weight carries the role rather than size
+  carrying the importance: anything read at a glance mid-corner -- a banked score,
+  the clock, a heading -- is set in the condensed display cut, names and buttons
+  in the semi-condensed middle weight, and anything that is a sentence in the text
+  cut. Anything that is a number that changes --
   a banked score, the clock, a speed, a place in the standings -- is set with
   tabular figures, so every digit is the same width and the line stays where it
   is while it counts. Proportional digits move the whole line sideways on every
   tick, and a number that moves is a number read twice. The one face that is
-  not Inter is the hand the signature on the driver license of 9.4a is written
+  not Barlow, besides the Inter that draws what Barlow cannot, is the hand the
+  signature on the driver license of 9.4a is written
   in, Homemade Apple, under the Apache license: a signature set in a text face
   is a name typed on a line. Sizes come off a scale where each step is
   about a quarter larger than the one below it, because a screen with nine sizes
   on it reads as nine screens. Display lines are tracked out a little: a heavy
   face set tight reads as a shout.
-- **The pane** is the shape every panel in the game is cut from: a dark translucent
-  card with room to breathe, rounded corners, a shadow under it and a bar of color
-  along the top. The joker pane below was the first thing built this way; the
+- **The pane** is the shape every panel in the game is cut from, the ticket of
+  8.1a: dark stock with room to breathe, notched corners, a foil hairline inside
+  its edge in the color of what it is about, banknote waves under its head, a
+  shadow under it, and a perforation under a header. It replaced a translucent
+  card with rounded corners and a bar of color along its top. The joker pane below
+  was the first thing built as a pane; the
   podium screen, the pause menu and the online lobby all wear it too, so a panel
   looks like this game's panel wherever it turns up.
 - **The joker pane** describes whichever card is under the cursor, and is the same

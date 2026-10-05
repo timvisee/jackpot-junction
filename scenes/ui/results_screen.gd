@@ -38,7 +38,7 @@ const WAY_WIDTH := 240.0
 
 var match_node: Match
 
-var _style: StyleBoxFlat
+var _style: TicketStyle
 var _title: Label
 var _podium: ResultsPodium
 var _rows: VBoxContainer
@@ -112,7 +112,7 @@ func fill_in() -> void:
 	var final := run != null and _showing_run
 	var standings := run.standings(match_node.slots) if final else match_node.standings()
 	if not standings.is_empty():
-		_style.border_color = standings[0].color()
+		MenuTheme.wear(_style, standings[0].color())
 	_podium.show_top(standings)
 	_title.text = GRAND_PRIX_TITLE if final else TITLE
 	var rank := 1
