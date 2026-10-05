@@ -2243,7 +2243,10 @@ says what, which is the half of the question a bench cannot answer.
   third full is a match with a way to go; one brimming is somebody about to take
   it. The crowd leaves them a bay rather than standing in front of them, and a
   room with no clock and nothing to reach has no tanks, since one that can never
-  fill is furniture.
+  fill is furniture. The row is drawn for four, off to one side of the DJ booth in
+  the middle of the edge; a room of more, 9.3, keeps the end of it a row of four
+  has by the booth and grows away from it, closing up only where it would
+  otherwise run past the corner of the table.
 - **The hoardings**: two advertising boards on posts standing out past the far
   corners of the table, angled in toward it, and a third between them carrying the
   match clock as four seven-segment digits, amber and red for Last Call. The HUD

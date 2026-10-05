@@ -13,6 +13,7 @@ func _start_match(players: int) -> Match:
 	rules.countdown = 0.1
 	rules.duration = 120.0
 	rules.target_score = 1000
+	rules.max_players = maxi(rules.max_players, players)
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = rules
 	match_node.with_hud = false
@@ -22,6 +23,30 @@ func _start_match(players: int) -> Match:
 		inputs.append(KartInput.new())
 	match_node.start(inputs, 9)
 	return match_node
+
+
+## GAME.md 8.1: a room of eight, 9.3, has eight tanks, and the row grows away from the DJ booth in
+## the middle of the edge rather than into it, from where a row of four ends, and stays on the
+## table.
+func test_a_row_of_eight_stands_clear_of_the_booth() -> void:
+	var four := _start_match(4)
+	await _runner.simulate_frames(10, 17)
+	var nearest: float = four.score_tanks._columns[3].get_parent().position.x
+	var match_node := _start_match(8)
+	await _runner.simulate_frames(10, 17)
+	var tanks := match_node.score_tanks
+	assert_int(tanks._columns.size()).is_equal(8)
+	var half := match_node.arena.world_size() * 0.5
+	var booth := Crowd.BOOTH_CLEARANCE.x * 0.5
+	var xs: Array[float] = []
+	for column: MeshInstance3D in tanks._columns:
+		var x: float = column.get_parent().position.x
+		assert_float(x + ScoreTanks.RADIUS).is_less(-booth)
+		assert_float(x - ScoreTanks.RADIUS).is_greater_equal(-half.x - 0.001)
+		xs.append(x)
+	assert_float(xs.max()).is_equal_approx(nearest, 0.001)
+	for i: int in range(1, xs.size()):
+		assert_float(xs[i] - xs[i - 1]).is_greater(ScoreTanks.RADIUS * 2.0)
 
 
 func test_there_is_a_tank_per_player_standing_clear_of_the_floor() -> void:

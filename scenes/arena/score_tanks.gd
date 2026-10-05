@@ -21,6 +21,9 @@ const SPACING := 1.7
 ## of tanks drawn over a row of speakers is neither.
 const STANDOFF := 0.9
 const OFFSET := 0.42
+## How many tanks the row is drawn for, centered where [constant OFFSET] puts it. A room of more,
+## GAME.md 9.3, grows the row away from the booth from where a row of this many ends.
+const ROW := 4
 ## How far the cap sits above the top of the glass. It used to be sunk into it, which put the
 ## two flat faces in the same plane and ran the glass wall through the middle of the ring: from
 ## across the table that reads as the cap cutting into the tank. It still dips a hair below, so
@@ -113,10 +116,18 @@ func _rebuild(count: int) -> void:
 	var size := match_node.arena.world_size() if match_node.arena != null else Vector2(40.0, 22.5)
 	var row := -(size.y * 0.5 + STANDOFF + RADIUS)
 	var along := -size.x * OFFSET * 0.5
+	var spacing := SPACING
+	if count > ROW:
+		# Away from the booth rather than into it, GAME.md 8.1, closing up only where the row
+		# would otherwise run past the corner of the table.
+		var near := along + (ROW - 1) * 0.5 * SPACING
+		var far := -size.x * 0.5 + RADIUS
+		spacing = minf(SPACING, (near - far) / float(count - 1))
+		along = near - (count - 1) * 0.5 * spacing
 	var glass := _glass()
 	var fitting := _paint(FITTING)
 	for i: int in count:
-		var at := Vector3(along + (i - (count - 1) * 0.5) * SPACING, 0.0, row)
+		var at := Vector3(along + (i - (count - 1) * 0.5) * spacing, 0.0, row)
 		_columns.append(_tank(at, match_node.slots[i].color(), glass, fitting))
 	# The feet, caps and glass of every tank are baked into one mesh a material, GAME.md 10.7.
 	# Each fluid column and each color band wears a material of its own, so they stay as they
@@ -128,7 +139,7 @@ func _rebuild(count: int) -> void:
 		# A bay rather than a gap, and over the tanks rather than over the middle of the edge:
 		# the band is four rows deep and the tanks are only waist high to this camera, so
 		# clearing the one row they stand in leaves the three behind them looking like a queue.
-		var run := count * SPACING + RADIUS * 2.0
+		var run := count * spacing + RADIUS * 2.0
 		match_node.arena.crowd.keep_clear(Rect2(along - run * 0.5, row - 2.6, run, 4.0))
 
 
