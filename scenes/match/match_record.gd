@@ -27,6 +27,11 @@ var seconds := 0.0
 ## Whether it has been written down, which happens once.
 var recorded := false
 
+## What each slot was last written down with, or held when somebody sat down in it, by its index:
+## a player who got up in the middle of a room, and one who took over a kart that had been going
+## before them, are counted from then on only, see [LifetimeStats.share_of].
+var _since: Dictionary[int, Dictionary] = {}
+
 
 static func add_to(in_match: Match) -> MatchRecord:
 	var record := MatchRecord.new()
@@ -55,12 +60,45 @@ func _process(delta: float) -> void:
 ## The room is being left: written down now if it has not been, as a map if its whistle has gone.
 ## Only the room the game is in, and never headless, see the class.
 func leave() -> void:
-	if recorded or not is_instance_valid(match_node) or not is_inside_tree():
+	if not recorded and _writes():
+		record(match_node.state == Match.State.RESULTS)
+
+
+## Somebody at this machine gets up from [param slot] in the middle of [param in_match], GAME.md
+## 8.5: what they did is written into their profile there and then, the one sat in at their seat
+## too, since the kart goes on without them. [param player] is who they were, when the slot no
+## longer says.
+static func seat_leaving(in_match: Match, slot: PlayerSlot, player: PlayerInput = null) -> void:
+	var record := _of(in_match)
+	if record == null or record.recorded or not record._writes():
 		return
+	var profile := profile_for(player if player != null else slot.input as PlayerInput)
+	if profile == null:
+		return
+	LifetimeStats.add_play(profile, slot, record.seconds, record._since.get(slot.index, {}))
+	record._since[slot.index] = LifetimeStats.share_of(slot, record.seconds)
+	Game.settings.save_to_disk()
+
+
+## Somebody sits down in [param slot] of [param in_match], a kart that may have been going before
+## them: what it had done is somebody else's, see [member _since].
+static func seat_taken(in_match: Match, slot: PlayerSlot) -> void:
+	var record := _of(in_match)
+	if record != null and not record.recorded:
+		record._since[slot.index] = LifetimeStats.share_of(slot, record.seconds)
+
+
+static func _of(in_match: Match) -> MatchRecord:
+	return in_match.get_node_or_null("MatchRecord") as MatchRecord if in_match != null else null
+
+
+## Whether this room writes into the profiles: the room the game is in, never headless.
+func _writes() -> bool:
+	if not is_instance_valid(match_node) or not is_inside_tree():
+		return false
 	var scene := get_tree().current_scene
 	var here := scene != null and scene.is_ancestor_of(self) and not Game.is_headless()
-	if here or anywhere:
-		record(match_node.state == Match.State.RESULTS)
+	return here or anywhere
 
 
 func _on_state(state: int) -> void:
@@ -86,10 +124,12 @@ func record(whistled := true) -> void:
 		if profile == null:
 			continue
 		any = true
+		var since: Dictionary = _since.get(slot.index, {})
 		if not maps or not whistled:
-			LifetimeStats.add_play(profile, slot, seconds)
+			LifetimeStats.add_play(profile, slot, seconds, since)
 			continue
-		LifetimeStats.add_map(profile, slot, not ranked.is_empty() and ranked[0] == slot, seconds)
+		var won := not ranked.is_empty() and ranked[0] == slot
+		LifetimeStats.add_map(profile, slot, won, seconds, since)
 		if last:
 			LifetimeStats.add_grand_prix(profile, not standing.is_empty() and standing[0] == slot)
 	if any:
@@ -99,7 +139,11 @@ func record(whistled := true) -> void:
 ## Whose statistics [param slot]'s match goes into: the profile playing for the first seat at this
 ## machine, the one sat in at another seat here, and nobody's for a guest or a player elsewhere.
 static func profile_of(slot: PlayerSlot) -> Profile:
-	var here := slot.input as PlayerInput
-	if here == null or here.seat < 0:
+	return profile_for(slot.input as PlayerInput)
+
+
+## Whose statistics [param player]'s go into, by their seat, see [method profile_of].
+static func profile_for(player: PlayerInput) -> Profile:
+	if player == null or player.seat < 0:
 		return null
-	return Game.settings.profile if here.seat == 0 else Game.settings.seat_profile(here.seat)
+	return Game.settings.profile if player.seat == 0 else Game.settings.seat_profile(player.seat)

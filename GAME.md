@@ -3193,8 +3193,13 @@ like any other button.
   or the title, out of the game, or with the line to the host gone, counts all of it
   but the map, and so do the lobby and the driving school, which are no matches, the
   distance, the drifts, the shots, the kills and the rest, and the time spent in them,
-  written as they are left. Leaving before the whistle once counted for nothing, and
-  the lobby never counted at all. Only the room the game is in writes, and never a
+  written as they are left. A player here who gets up in the middle of one, from
+  their switch, with their pad unplugged, or from a client, has what they did
+  written into their profile there and then, the one sat in at their seat too,
+  since the kart goes on without them; and somebody who sits down in a kart that has
+  been going, a bot's or one somebody got up from, counts from then on only, so
+  nobody is counted for what somebody else did. Leaving before the whistle once
+  counted for nothing, and the lobby never counted at all. Only the room the game is in writes, and never a
   headless run, so neither a test that starts one nor a smoke run writes the player's
   own statistics. The Garage counts nothing. It is the first seat's, whose profile is
   playing; a seat sat in as another profile, see 3.8, counts into that one, written

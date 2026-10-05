@@ -729,8 +729,10 @@ func _assign_slot(index: int, _seed: int, number := 0) -> void:
 		match_node.set_local_slot(index, each.input)
 	else:
 		match_node.add_local_seat(index, each.input as PlayerInput)
-	# Who is sitting in it, the moment the seat is known, see [SeatClaims].
+	# Who is sitting in it, the moment the seat is known, see [SeatClaims]; and from when.
 	SeatClaims.say(self, each, number)
+	if index < match_node.slots.size():
+		MatchRecord.seat_taken(match_node, match_node.slots[index])
 	slot_assigned.emit(index)
 
 

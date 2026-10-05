@@ -277,6 +277,7 @@ func _join_with_input(input: KartInput, wanted_color := -1) -> PlayerSlot:
 func leave_human(slot: PlayerSlot) -> void:
 	if not slot.is_human():
 		return
+	MatchRecord.seat_leaving(self, slot)
 	slot.input = BotInput.new()
 	slot.kart.input = slot.input
 	slot.kart.rebuild_stats()
@@ -312,6 +313,7 @@ func _resolve_any_device(joiner: int) -> void:
 
 
 func _make_human(slot: PlayerSlot, input: KartInput) -> void:
+	MatchRecord.seat_taken(self, slot)
 	if slot.input is VacantSeat:
 		VacantSeat.fill(self, slot)
 	var brain := slot.kart.get_node_or_null("Brain")

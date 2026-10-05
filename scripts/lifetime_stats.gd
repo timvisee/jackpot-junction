@@ -9,6 +9,9 @@ extends RefCounted
 
 ## Kept as the best a single match reached rather than added up.
 const PEAKS: Array[StringName] = [&"biggest_bank", &"max_mult", &"best_banked"]
+## The kills and the seconds in a share, see [method share_of], beside the slot's own counts.
+const SHARE_KILLS := &"_kills"
+const SHARE_SECONDS := &"_seconds"
 
 ## The Statistics page, GAME.md 8.5: its groups, each a title and its lines, each line what it is
 ## called and the statistic it reads, see [method value_of].
@@ -61,24 +64,41 @@ const GROUPS: Array[Array] = [
 
 ## Adds one map played to the end by [param slot] to [param profile]: what was done in it, see
 ## [method add_play], and whether it won the map.
-static func add_map(profile: Profile, slot: PlayerSlot, won: bool, seconds: float) -> void:
-	add_play(profile, slot, seconds)
+static func add_map(
+	profile: Profile, slot: PlayerSlot, won: bool, seconds: float, since: Dictionary = {}
+) -> void:
+	add_play(profile, slot, seconds, since)
 	_add(profile, &"maps", 1.0)
 	_add(profile, &"maps_won", 1.0 if won else 0.0)
 
 
 ## Adds what [param slot] did to [param profile] without a map played: its counts, its bests, its
-## kills and [param seconds] of play. The driving school's, GAME.md 8.5, and every map's.
-static func add_play(profile: Profile, slot: PlayerSlot, seconds: float) -> void:
+## kills and [param seconds] of play. The driving school's, GAME.md 8.5, and every map's. Only what
+## came after [param since], a share already counted or one somebody else had in the slot before,
+## see [method share_of].
+static func add_play(
+	profile: Profile, slot: PlayerSlot, seconds: float, since: Dictionary = {}
+) -> void:
 	for key: StringName in PlayerStats.FIELDS:
 		var value := slot.stats.value(key)
 		if key in PEAKS:
 			_peak(profile, key, value)
 		else:
-			_add(profile, key, value)
+			_add(profile, key, value - float(since.get(key, 0.0)))
 	_peak(profile, &"best_banked", float(slot.banked))
-	_add(profile, &"kills", float(slot.kills))
-	_add(profile, &"seconds", seconds)
+	_add(profile, &"kills", float(slot.kills) - float(since.get(SHARE_KILLS, 0.0)))
+	_add(profile, &"seconds", seconds - float(since.get(SHARE_SECONDS, 0.0)))
+
+
+## What [param slot] has done as it stands, [param seconds] into the room, for a later
+## [method add_play] to count only what came after it.
+static func share_of(slot: PlayerSlot, seconds: float) -> Dictionary:
+	var share := {}
+	for key: StringName in PlayerStats.FIELDS:
+		share[key] = slot.stats.value(key)
+	share[SHARE_KILLS] = float(slot.kills)
+	share[SHARE_SECONDS] = seconds
+	return share
 
 
 ## Adds one Grand Prix run played to its last map to [param profile], and whether it was won.

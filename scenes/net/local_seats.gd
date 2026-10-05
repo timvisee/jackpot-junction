@@ -68,6 +68,8 @@ func stand_up(each: ClientSeat, match_node: Match) -> void:
 	if each.slot >= match_node.slots.size():
 		return
 	var slot := match_node.slots[each.slot]
+	# What they did here is theirs, GAME.md 8.5, written down before the slot goes on without them.
+	MatchRecord.seat_leaving(match_node, slot, each.input as PlayerInput)
 	if slot.input == each.input:
 		slot.input = KartInput.new()
 	if slot.kart != null:

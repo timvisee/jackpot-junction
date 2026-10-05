@@ -254,6 +254,43 @@ func test_a_match_left_counts_what_was_done_and_a_map_only_at_the_whistle() -> v
 	assert_float(LifetimeStats.value_of(profile, &"maps")).is_equal(1.0)
 
 
+## GAME.md 8.5: a player here who gets up in the middle of a map has what they did written into
+## their profile, the one sat in at their seat too, there and then; the bot that drives on counts
+## for nobody, and somebody who takes over a kart counts from then on only.
+func test_a_seat_left_mid_map_is_written_and_a_kart_taken_over_counts_from_then() -> void:
+	MatchRecord.anywhere = true
+	var bob := _bob()
+	Game.settings.link_seat(1, bob.id)
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.with_hud = false
+	_runner = scene_runner(match_node)
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.KEYBOARD, 0), PlayerInput.new(0, 1), BotInput.new()
+	]
+	match_node.start(inputs, 3)
+	var record := MatchRecord.add_to(match_node)
+	await _runner.simulate_frames(3, 17)
+	var bobs := match_node.slots[1]
+	bobs.stats.add(&"driven", 600.0)
+	match_node.leave_human(bobs)
+	var kept := Profile.at(Game.settings.profiles_dir(), bob.id)
+	assert_float(LifetimeStats.value_of(kept, &"driven")).is_equal(600.0)
+	# The bot drives on in the kart, for nobody.
+	bobs.stats.add(&"driven", 900.0)
+	# A bot's kart taken over by somebody else here: what it had done is not theirs.
+	match_node.slots[2].stats.add(&"driven", 250.0)
+	DeviceInput.recent = [DeviceInput.KEYBOARD]
+	var joined := match_node.join_human(1)
+	assert_float(joined.stats.value(&"driven")).is_greater(0.0)
+	joined.stats.add(&"driven", 50.0)
+	(joined.input as PlayerInput).seat = 0
+	match_node.slots[0].input = KartInput.new()
+	record.record()
+	assert_float(LifetimeStats.value_of(Game.settings.profile, &"driven")).is_equal(50.0)
+	kept = Profile.at(Game.settings.profiles_dir(), bob.id)
+	assert_float(LifetimeStats.value_of(kept, &"driven")).is_equal(600.0)
+
+
 static func _switch_of(switches: DriveSwitches, seat: int) -> Dictionary:
 	for each: Dictionary in switches._up:
 		if (each["player"] as PlayerInput).seat == seat:

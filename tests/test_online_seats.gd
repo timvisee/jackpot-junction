@@ -37,6 +37,7 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	MatchRecord.anywhere = false
 	Net.session = null
 	get_tree().set_multiplayer(null, _host_root.get_path())
 	get_tree().set_multiplayer(null, _client_root.get_path())
@@ -179,6 +180,25 @@ func test_a_clients_players_sit_down_in_their_favorites() -> void:
 	var second := _host_match.slots[_client.seats[1].slot]
 	var also := await _wait_until(func() -> bool: return second.color_index == 6, 4000)
 	assert_bool(also).override_failure_message("the second seat kept the host's color").is_true()
+
+
+## GAME.md 8.5: a second player at a client who gets up mid-map has what they did written into
+## their profile at once, here at the client, which is where their profile is.
+func test_a_player_leaving_a_client_mid_map_is_written_down() -> void:
+	MatchRecord.anywhere = true
+	await _seated()
+	var record := MatchRecord.add_to(_client_match)
+	assert_bool(await _sit_another_down()).override_failure_message("no second seat").is_true()
+	var bob := Game.settings.new_profile()
+	bob.save_to_disk()
+	Game.settings.link_seat(1, bob.id)
+	var second := _client.seats[1]
+	var slot := _client_match.slots[second.slot]
+	slot.stats.values[&"driven"] = 300.0
+	_client.leave_seat(second.slot)
+	var kept := Profile.at(Game.settings.profiles_dir(), bob.id)
+	assert_float(LifetimeStats.value_of(kept, &"driven")).is_equal(300.0)
+	assert_bool(record.recorded).is_false()
 
 
 ## GAME.md 9.6: a lobby for two holds two, whichever machine the third sits down at.

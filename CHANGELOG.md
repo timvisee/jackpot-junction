@@ -29,7 +29,7 @@ below, and hands the notes to the release workflow.
 - **Hold an emote to send it on a pad.** Hold the right stick on an emote until its ring fills, a
   quarter of a second, then let go; the stick snapping back no longer sends the one on the other side.
 - **Everything you play counts.** What you do in the driving school, in the lobby and in a match
-  left early or cut off online now adds to your statistics, linked seats' profiles too.
+  left early, cut off online or got up from mid-map now adds to your statistics, linked seats' too.
 - **Karts on show face you.** The kart in the license photo and on the podium starts turned toward
   the camera rather than away from it.
 - **An easier final exam.** The driving test ends against two easy bots; the third, harder one is

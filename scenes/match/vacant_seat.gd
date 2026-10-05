@@ -9,6 +9,8 @@ extends KartInput
 
 ## Empties [param slot] of [param match_node].
 static func leave(match_node: Match, slot: PlayerSlot) -> void:
+	# What whoever got up did in here is theirs, written down before the seat is emptied.
+	MatchRecord.seat_leaving(match_node, slot)
 	var kart := slot.kart
 	var brain := kart.get_node_or_null("Brain")
 	if brain != null:
