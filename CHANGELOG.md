@@ -39,8 +39,8 @@ below, and hands the notes to the release workflow.
 
 - **A retake earns endorsements.** Passing the driving test again puts what you earned that time on
   your license; before, it kept only the first pass's.
-- **The license screen fits a phone.** The card and the ways on stand side by side, and the whole
-  screen shrinks to fit rather than scrolling behind it.
+- **The license screen fits a phone.** The card comes first, then the plate and the ways on in its
+  place, and each shrinks to fit rather than scrolling behind it.
 - **No more spaces in a server address on a phone.** Address boxes use the phone's keyboard for
   addresses, which stopped adding a space after each dot, and port boxes the number keyboard.
 - **No freeze making a profile in a game.** Profiles are only listed in the settings inside a game;

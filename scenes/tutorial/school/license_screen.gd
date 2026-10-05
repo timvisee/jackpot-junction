@@ -3,10 +3,11 @@ extends Control
 ## The end of the driving test, GAME.md 9.4a, up over the room a moment after the final exam is
 ## passed, on the pane the podium is cut from with the player's color along its top: YOU PASSED,
 ## a word from the examiner, the license itself, see [LicenseCard], with the rubber stamp hanging
-## over its corner, see [RubberStamp], and beside it a line saying to press it. Stamped, the card
-## takes its mark and shakes, and the ways on come up beside it with the plate for the back of the
-## kart to choose: the Garage, the road, which is Play, and the title. Nothing leaves this screen
-## without stamping: the stamp is the point. The whole of it fits the screen, see [method _fit].
+## over its corner, see [RubberStamp], and under it a line saying to press it. Stamped, the card
+## takes its mark and shakes, and then a second page takes its place: the plate for the back of the
+## kart to choose, and the ways on in a row, the Garage, the road, which is Play, and the title.
+## Nothing leaves this screen without stamping: the stamp is the point. Either page fits the
+## screen, see [method _fit].
 
 ## The stamp came down.
 signal stamped
@@ -38,12 +39,8 @@ const STAMP_LANDS := Vector2(
 	LicenseCard.STAMP_AT.x - RubberStamp.SIZE.x * 0.5, LicenseCard.STAMP_AT.y - STAMP_FOOT
 )
 const STAMP_ROOM := 84.0
-## The room over and under the card on the desk, between the desk and what is beside it, and kept
-## round the pane at the screen's edges.
+## The room over and under the card on the desk, and kept round the pane at the screen's edges.
 const PAD := 22.0
-const BODY_GAP := 28.0
-## How wide the side beside the card is at the least, which its lines wrap at.
-const SIDE_WIDE := 560.0
 const MARGIN := 16.0
 ## The plate to choose, under the congratulations: the label, and the line under the box.
 const PLATE_LABEL := "Your license plate"
@@ -63,6 +60,8 @@ var ways: Dictionary[StringName, Callable] = {}
 var buttons: Dictionary[StringName, Button] = {}
 
 var _pane: PanelContainer
+## The first page, the card to stamp, which the plate and the ways on take the place of.
+var _card_page: VBoxContainer
 var _desk: Control
 var _hint: Label
 var _foot: VBoxContainer
@@ -106,37 +105,37 @@ func _ready() -> void:
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(shade)
-	# The card on the left and what goes with it on the right, the whole pane drawn smaller when
-	# the screen is smaller than it, see [method _fit]: nothing scrolls. A column of it all was
-	# taller than a phone held sideways, and the screen scrolled under a pane that did not.
+	# Two pages, one after the other, so either fits a phone held sideways: the card to stamp, and
+	# then the plate and the ways on. Side by side they made a pane too wide, and one under the
+	# other too tall. The pane is drawn smaller still on a screen smaller than it, see [method _fit].
 	var center := CenterContainer.new()
 	center.name = "Middle"
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(center)
 	_pane = MenuTheme.pane(_edge)
 	center.add_child(_pane)
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 12)
-	_pane.add_child(column)
-	column.add_child(MenuTheme.title(TITLE, Type.TITLE))
-	column.add_child(MenuTheme.subtitle(LINE, Type.BODY))
+	var pages := VBoxContainer.new()
+	_pane.add_child(pages)
+	_card_page = VBoxContainer.new()
+	_card_page.name = "CardPage"
+	_card_page.add_theme_constant_override("separation", 12)
+	_card_page.custom_minimum_size = Vector2(LicenseCard.SIZE.x + STAMP_ROOM * 2.0, 0.0)
+	pages.add_child(_card_page)
+	_card_page.add_child(MenuTheme.title(TITLE, Type.TITLE))
+	_card_page.add_child(MenuTheme.subtitle(LINE, Type.BODY))
 	# The course, its theory done; the driving test ticks as the pane comes up, and the license
 	# as the stamp comes down.
 	course = SchoolEnrollment.course_row(1)
-	column.add_child(course)
+	_card_page.add_child(course)
 	var test_done := create_tween()
 	test_done.tween_interval(RISE + TICK_AFTER)
 	test_done.tween_callback(SchoolEnrollment.tick.bind(course, 1))
-	var body := HBoxContainer.new()
-	body.name = "Body"
-	body.add_theme_constant_override("separation", BODY_GAP)
-	column.add_child(body)
 	_desk = Control.new()
 	_desk.name = "Desk"
-	_desk.custom_minimum_size = LicenseCard.SIZE + Vector2(STAMP_ROOM, PAD * 2.0)
-	_desk.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_desk.custom_minimum_size = LicenseCard.SIZE + Vector2(0.0, PAD * 2.0)
+	_desk.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_desk.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	body.add_child(_desk)
+	_card_page.add_child(_desk)
 	card.position = Vector2(0.0, PAD)
 	_desk.add_child(card)
 	stamp = RubberStamp.create()
@@ -145,39 +144,27 @@ func _ready() -> void:
 	stamp.stamped.connect(_on_stamped)
 	stamp.device_changed.connect(_say_how)
 	_desk.add_child(stamp)
-	var side := VBoxContainer.new()
-	side.name = "Side"
-	side.alignment = BoxContainer.ALIGNMENT_CENTER
-	side.add_theme_constant_override("separation", 10)
-	body.add_child(side)
 	_hint = MenuTheme.subtitle("", Type.BODY)
-	_hint.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	side.add_child(_hint)
+	_card_page.add_child(_hint)
 	_say_how()
 	_foot = VBoxContainer.new()
 	_foot.name = "Ways"
-	_foot.add_theme_constant_override("separation", 10)
-	_foot.add_child(MenuTheme.title(DONE_TITLE % card.holder_name, Type.HEADING))
-	var done_line := MenuTheme.subtitle(DONE_LINE, Type.BODY)
-	done_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	done_line.custom_minimum_size.x = SIDE_WIDE
-	_foot.add_child(done_line)
+	_foot.add_theme_constant_override("separation", 14)
+	_foot.add_child(MenuTheme.title(DONE_TITLE % card.holder_name, Type.TITLE))
+	_foot.add_child(MenuTheme.subtitle(DONE_LINE, Type.BODY))
 	_foot.add_child(_plate_row())
-	var ways_column := VBoxContainer.new()
-	ways_column.add_theme_constant_override("separation", 10)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 16)
 	for way: Array in WAYS:
 		var button := MenuTheme.button(way[1], Type.LARGE)
 		button.custom_minimum_size.x = WAY_WIDTH
-		button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		button.pressed.connect(_choose.bind(way[0]))
 		buttons[way[0]] = button
-		ways_column.add_child(button)
-	_foot.add_child(ways_column)
-	side.add_child(_foot)
-	# The room the ways on will take is kept from the start, so nothing moves as they come up.
-	side.custom_minimum_size = _foot.get_combined_minimum_size()
+		row.add_child(button)
+	_foot.add_child(row)
 	_foot.visible = false
+	pages.add_child(_foot)
 	resized.connect(_fit)
 	_pane.minimum_size_changed.connect(_fit)
 	_fit.call_deferred()
@@ -251,9 +238,9 @@ func _fit() -> void:
 	_pane.scale = Vector2.ONE * shrink
 
 
-## The ways on come up beside the card, and the road has the cursor.
+## The plate and the ways on come up in the card's place, and the road has the cursor.
 func _offer_the_ways() -> void:
-	_hint.visible = false
+	_card_page.visible = false
 	_foot.visible = true
 	_foot.modulate.a = 0.0
 	var fade := create_tween()
