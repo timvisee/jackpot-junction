@@ -3067,7 +3067,8 @@ like any other button.
   seats at this machine, Seat 1 to Seat 4, with a box for what the seat is called,
   see 3.8, with the funny-name hint in an empty one, and after each the seat's
   favorite color, 4.4, chosen from all of them in a row of round swatches, the
-  chosen one ringed in gold and none before one is; a single swatch that moved on
+  chosen one ringed in gold and none before one is, in the palette worn, drawn
+  again the moment Color blindness changes it; a single swatch that moved on
   round them was a guess at what came next. Then a small button with the picture of how that seat drives, simple or
   advanced, that changes it to the other, see 4.2. The first seat's is the Driving row of
   Controls, and each shows what the other was changed to.

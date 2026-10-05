@@ -105,3 +105,24 @@ func test_the_license_and_the_players_page_show_the_favorite() -> void:
 	var first: HBoxContainer = screen.find_child("Colors0", true, false)
 	var three := (first.get_child(3) as Button).get_theme_stylebox("normal") as StyleBoxFlat
 	assert_int(three.border_width_top).is_greater(0)
+
+
+## A palette chosen for color blindness on the Accessibility page draws the Players page's colors
+## in it at once.
+func test_the_colors_follow_the_palette_chosen() -> void:
+	var was := Palette.vision
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	await await_idle_frame()
+	var row: HBoxContainer = screen.find_child("Colors0", true, false)
+	var choice: OptionButton = null
+	for each: Node in screen.find_children("*", "OptionButton", true, false):
+		var option := each as OptionButton
+		if option.item_count == Settings.VISIONS.size() and option.get_item_text(0) == "Off":
+			choice = option
+	var deuteranopia := Settings.VISIONS.find("deuteranopia")
+	choice.select(deuteranopia)
+	choice.item_selected.emit(deuteranopia)
+	var drawn := (row.get_child(1) as Button).get_theme_stylebox("normal") as StyleBoxFlat
+	assert_that(drawn.bg_color).is_equal(Palette.VISION_COLORS["deuteranopia"][1])
+	Palette.vision = was

@@ -68,6 +68,9 @@ var _binding_labels: Dictionary[StringName, Array] = {}
 ## the Players tab: the first seat's is on both, so each says so when the other changes it.
 var _first_driving: DrivePicker
 var _seat_driving: Array[Callable] = []
+## Each seat's row of colors on the Players tab, drawn again in the palette the Accessibility tab
+## has just chosen, see [method _color_choice].
+var _seat_colors: Array[Callable] = []
 
 
 func _ready() -> void:
@@ -408,9 +411,10 @@ static func page_line(text: String) -> Label:
 	return line
 
 
-## [param seat]'s favorite color, GAME.md 3.8, chosen from all of them in a row, each a swatch, the
-## one chosen ringed in gold: the color the seat is given wherever it is free, the kart on the
-## license in it too. A single swatch that moved on round them was a guess at what came next.
+## [param seat]'s favorite color, GAME.md 3.8, chosen from all of them in a row, each a swatch in
+## the palette worn, drawn again when the palette changes, the one chosen ringed in gold: the color
+## the seat is given wherever it is free, the kart on the license in it too. A single swatch that
+## moved on round them was a guess at what came next.
 func _color_choice(seat: int) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.name = "Colors%d" % seat
@@ -429,7 +433,9 @@ func _color_choice(seat: int) -> HBoxContainer:
 		)
 		row.add_child(swatch)
 		swatches.append(swatch)
-	_ring_chosen(swatches, _settings.seat_color(seat))
+	var shown := func() -> void: _ring_chosen(swatches, _settings.seat_color(seat))
+	shown.call()
+	_seat_colors.append(shown)
 	return row
 
 
@@ -649,6 +655,8 @@ func _vision_row() -> HBoxContainer:
 			_settings.color_vision = Settings.VISIONS[index]
 			Palette.vision = _settings.color_vision
 			paint.call()
+			for shown: Callable in _seat_colors:
+				shown.call()
 			# Over a room, the karts in it change there and then, under the settings.
 			var room := get_tree().get_first_node_in_group(&"match") as Match
 			if room != null:
