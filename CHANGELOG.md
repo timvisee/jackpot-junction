@@ -13,8 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
-- **Room for more karts to start.** Every map and the lobby have four more spawn points, for the
-  fifth to eighth kart. A match of four still starts in the corners.
+- **Up to eight players online.** A host can set the player limit up to 8, still 4 to start
+  with, and add up to 7 bots; one device still seats 4. Every map has four more spawn points.
 
 ## [0.13.4] - 2026-10-06
 

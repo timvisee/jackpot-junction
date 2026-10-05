@@ -257,7 +257,7 @@ var servers: Array[Dictionary]:
 		profile.servers = value
 ## How many may play in a LAN game this machine hosts, its own players included, GAME.md 9.6.
 ## Kept for next time; the password is not, so one forgotten is never a later lobby locked.
-var lobby_players := NetDoor.MOST_PLAYERS
+var lobby_players := NetDoor.DEFAULT_PLAYERS
 ## Whether anybody may come to watch such a game, and whether they may without its password.
 var lobby_watchers := true
 var lobby_watch_free := false

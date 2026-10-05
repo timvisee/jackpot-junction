@@ -9,17 +9,27 @@ extends RefCounted
 ## The most players at one machine, GAME.md 9.2: a screen has four corners for their blocks,
 ## whatever the room has seats for. The host holds every other machine to it too, see [PeerSeats].
 const MOST_HERE := 4
+## The seats an arena has at the least, GAME.md 9.3: four on one machine, and online four or as many
+## as the host's lobby lets play, whichever is more, so a lobby for two still has seats for bots.
+const SEATS := 4
 ## What a fifth player at one machine is told, on the notice and under the ready count, GAME.md 9.6.
 const HERE_FULL := "This device has room for 4 players."
 
 
 ## How many players [param match_node] may have: its seats, and no more than the lobby the host of
-## [param session] keeps, which a client is told, see [signal Events.room_planned].
+## [param session] keeps, which a client is told, see [signal Events.room_planned]. With nobody
+## else connected, no more than this machine may have.
 static func limit(match_node: Match, session: NetSession) -> int:
 	var most := match_node.rules.max_players
 	if session != null:
-		most = mini(most, session.door.max_players)
-	return most
+		return mini(most, session.door.max_players)
+	return mini(most, MOST_HERE)
+
+
+## How many seats an arena has for a room that lets [param most] play: as many, and never fewer
+## than [constant SEATS], the rest for bots.
+static func seats_for(most: int) -> int:
+	return maxi(SEATS, most)
 
 
 ## How many people are playing in [param match_node], at this machine and at every other.

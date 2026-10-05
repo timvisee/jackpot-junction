@@ -94,7 +94,7 @@ var charge: Dictionary[int, float] = {}
 var ready_slots: Dictionary[int, bool] = {}
 ## How many seats the arena has, and how many bots the host last asked for, -1 until it says: the
 ## bots that come in are as many of those as there are seats left over, see [method bots_joining].
-var seats := 4
+var seats := SeatLimit.SEATS
 var bots_asked := -1
 ## How many players may be in the room, 0 while that is not this machine's to know: once it is
 ## full, the line saying how to take a seat says there are none left, GAME.md 9.6.
@@ -210,6 +210,7 @@ func bots_joining() -> int:
 func _on_room_planned(bots: int, most: int) -> void:
 	bots_asked = bots
 	seat_limit = most
+	seats = SeatLimit.seats_for(most)
 
 
 func player_count() -> int:

@@ -22,7 +22,9 @@ const LENGTHS: Array[int] = [60, 180, 300, 480]
 ## anybody wants a real game to be.
 const DEBUG_LENGTH := 5
 const TARGETS: Array[int] = [0, 2000, 3000, 5000]
-const BOTS: Array[int] = [0, 1, 2, 3]
+## How many bots a match may ask for, GAME.md 3.8: the row offers as many of them as the arena has
+## seats for beside one player, see [method fit_seats].
+const BOTS: Array[int] = [0, 1, 2, 3, 4, 5, 6, 7]
 const DIFFICULTIES: Array[String] = ["easy", "normal", "hard"]
 const ITEM_SETS: Array[String] = ["first", "all"]
 ## Index order of the own-bullets option: off first, so it is the default.
@@ -64,6 +66,10 @@ var _maps_row: Control
 var _jokers_row: Control
 var _sizes_rows: Array[Control] = []
 var _length_label: Label
+## How many bots were last asked for, which the row comes back to when it has room for them again,
+## and how many it last showed, to tell a choice made since from one it made itself.
+var _bots_wanted := 3
+var _bots_shown := 3
 
 
 ## Puts the rows into [param column], each set to what [param settings] last had.
@@ -200,6 +206,21 @@ func remember(settings: Settings) -> void:
 	settings.grand_prix = is_grand_prix()
 
 
+## Offers as many bots as an arena of [param seats] has seats for beside one player, GAME.md 3.8:
+## up to three on one machine, and up to seven in a lobby for eight. The bots last asked for are
+## chosen again as far as there is room for them.
+func fit_seats(seats: int) -> void:
+	if bots_option.selected != _bots_shown:
+		_bots_wanted = maxi(bots_option.selected, 0)
+	var most := clampi(seats - 1, 0, BOTS.size() - 1)
+	if bots_option.item_count != most + 1:
+		bots_option.clear()
+		for count: int in BOTS.slice(0, most + 1):
+			bots_option.add_item(str(count))
+	_bots_shown = mini(_bots_wanted, most)
+	bots_option.select(_bots_shown)
+
+
 ## Whether these rows are setting up a Grand Prix rather than a quick match.
 func is_grand_prix() -> bool:
 	return mode_picker.grand_prix
@@ -218,7 +239,10 @@ func _build(column: Container, settings: Settings) -> void:
 		named.append(length_words(seconds))
 	minutes_option = MenuTheme.option(named, maxi(lengths.find(settings.match_seconds), 0))
 	target_option = MenuTheme.option(_target_labels(), TARGETS.find(settings.target_score))
-	bots_option = MenuTheme.option(BOTS, BOTS.find(settings.bot_count))
+	_bots_wanted = clampi(settings.bot_count, 0, BOTS[-1])
+	_bots_shown = _bots_wanted
+	bots_option = MenuTheme.option(BOTS, _bots_wanted)
+	fit_seats(SeatLimit.SEATS)
 	difficulty_option = MenuTheme.option(
 		["Easy", "Normal", "Hard"], DIFFICULTIES.find(settings.difficulty)
 	)

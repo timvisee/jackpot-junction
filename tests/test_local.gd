@@ -212,3 +212,28 @@ func test_the_seats_are_named_in_the_settings() -> void:
 func _join(match_node: Match, device: int) -> PlayerSlot:
 	DeviceInput.recent = [DeviceInput.KEYBOARD]
 	return match_node.join_human(device)
+
+
+## GAME.md 3.8: the Bots row offers as many as the arena has seats for beside one player, three on
+## one machine and seven in a lobby for eight, and comes back to the bots last asked for once there
+## is room for them again.
+func test_the_bots_on_offer_follow_the_seats() -> void:
+	Game.settings.bot_count = 7
+	var pane: HostSettings = auto_free(HostSettings.add_to(self, true))
+	var options := pane.options
+	assert_int(options.bots_option.item_count).is_equal(4)
+	assert_int(options.bots_option.selected).is_equal(3)
+	options.fit_seats(8)
+	assert_int(options.bots_option.item_count).is_equal(8)
+	assert_int(options.bots_option.selected).is_equal(7)
+	options.bots_option.selected = 5
+	options.fit_seats(4)
+	assert_int(options.bots_option.selected).is_equal(3)
+	options.fit_seats(6)
+	assert_int(options.bots_option.selected).is_equal(5)
+	var config := MatchConfig.new()
+	options.apply_to(config)
+	assert_int(config.bot_count).is_equal(5)
+	options.bots_option.selected = 0
+	options.apply_to(config)
+	assert_int(config.bot_count).is_equal(0)

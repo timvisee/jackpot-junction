@@ -21,6 +21,9 @@ var keep_jokers := GrandPrix.Keep.CHOOSE
 var normal_maps := true
 var xl_maps := true
 var bot_count := 3
+## How many karts the arena has seats for, GAME.md 9.3: four, and online as many as the host's
+## lobby lets play when that is more, see [method SeatLimit.seats_for].
+var seats := SeatLimit.SEATS
 ## Seats kept for players connected from other machines, GAME.md 9.6. They are started as bots and
 ## taken over as the host seats everybody again on the other side of the waiting room, see 10.3,
 ## so they are not counted in [member bot_count]: that is the bots the host asked for, on top of
@@ -137,6 +140,7 @@ func rules(base: MatchRules) -> MatchRules:
 	copy.overtime = overtime
 	copy.joker_slots = joker_slots
 	copy.map = map
+	copy.max_players = seats
 	return copy
 
 

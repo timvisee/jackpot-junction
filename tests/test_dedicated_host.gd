@@ -116,10 +116,12 @@ func test_a_host_with_nobody_at_it_seats_only_its_clients() -> void:
 	assert_int(_host.host_controls.guests().size()).is_equal(2)
 
 
-## With nobody at the host, the room's seats are all for clients: four of them play where a host
-## with a player of its own seats three, and a fifth is told the match is full.
+## With nobody at the host, the room's seats are all for clients: in a lobby for eight, eight of
+## them play where a host with a player of its own seats seven, and a ninth is told the match is
+## full.
 func test_a_room_of_clients_plays_and_one_more_is_turned_away() -> void:
 	_open_host()
+	_host.door.max_players = NetDoor.MOST_PLAYERS
 	var clients: Array[NetSession] = []
 	for i: int in NetDoor.MOST_PLAYERS:
 		clients.append(_client(false, "Player %d" % i))
@@ -129,7 +131,7 @@ func test_a_room_of_clients_plays_and_one_more_is_turned_away() -> void:
 	var told := [""]
 	late.refused.connect(func(reason: String) -> void: told[0] = reason)
 	var refused := await _wait_until(func() -> bool: return not told[0].is_empty(), 4000)
-	assert_bool(refused).override_failure_message("the fifth was never turned away").is_true()
+	assert_bool(refused).override_failure_message("the ninth was never turned away").is_true()
 	assert_str(told[0]).is_equal("The match is full")
 	assert_int(SeatLimit.players(_host_match)).is_equal(NetDoor.MOST_PLAYERS)
 

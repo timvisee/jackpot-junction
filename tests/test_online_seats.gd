@@ -294,7 +294,7 @@ func test_the_host_takes_four_players_at_most_from_a_client() -> void:
 
 
 ## A fifth player at the host's own machine is turned away with the notice that says why, however
-## many seats the room has left.
+## many seats the room has left. On one machine alone the game is full at four, and says so.
 func test_a_fifth_player_at_one_machine_is_turned_away() -> void:
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = _rules()
@@ -305,14 +305,20 @@ func test_a_fifth_player_at_one_machine_is_turned_away() -> void:
 	for device: int in SeatLimit.MOST_HERE:
 		inputs.append(PlayerInput.new(device, device))
 	match_node.start(inputs, 23)
-	assert_bool(SeatLimit.full(match_node, null)).is_false()
-	assert_bool(SeatLimit.full_here(match_node, null)).is_true()
+	assert_bool(SeatLimit.full(match_node, null)).is_true()
+	var session: NetSession = auto_free(NetSession.new())
+	session.is_host = true
+	session.door.max_players = 8
+	assert_bool(SeatLimit.full(match_node, session)).is_false()
+	assert_bool(SeatLimit.full_here(match_node, session)).is_true()
 	var parent: Node = auto_free(Node.new())
 	add_child(parent)
-	assert_bool(SeatLimit.join(parent, match_node, null, SeatLimit.MOST_HERE)).is_true()
+	assert_bool(SeatLimit.join(parent, match_node, session, SeatLimit.MOST_HERE)).is_true()
 	assert_int(SeatLimit.players(match_node)).is_equal(SeatLimit.MOST_HERE)
 	var notice := parent.get_node("Notice") as NoticePane
 	assert_array(notice._words).is_equal(["Maximum number of players reached", SeatLimit.HERE_FULL])
+	SeatLimit.join(parent, match_node, null, SeatLimit.MOST_HERE)
+	assert_str(notice._words[1]).is_equal("This game has room for 4 players.")
 
 
 ## The host told of a seat a client already has says which one it is rather than handing it a

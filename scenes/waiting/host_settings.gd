@@ -138,6 +138,7 @@ func _fit() -> void:
 func open(lobby_first := false) -> void:
 	_panel.visible = true
 	MenuTheme.deal(_pane)
+	_fit_seats()
 	if lobby_first and _session != null and _session.host_controls.mine():
 		_show_lobby()
 		return
@@ -164,8 +165,17 @@ func _show_lobby() -> void:
 func _show_match() -> void:
 	if _lobby != null:
 		_lobby.visible = false
+	_fit_seats()
 	_pane.visible = true
 	_done.grab_focus()
+
+
+## The bots on offer, as many as the arena will have seats for, GAME.md 9.3: four on one machine,
+## and online as many as the lobby lets play when that is more, which its settings just before may
+## have changed.
+func _fit_seats() -> void:
+	var most := _session.door.max_players if _session != null else SeatLimit.SEATS
+	options.fit_seats(SeatLimit.seats_for(most))
 
 
 ## Puts the choices away for next time and says the host is done. Closing is the only way out,

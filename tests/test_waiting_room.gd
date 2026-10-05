@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 ## and staying there.
 
 const WAITING_SCENE := preload("res://scenes/waiting/waiting_room.tscn")
+const ARENA_RULES: MatchRules = preload("res://data/match/default.tres")
 ## A port of this suite's own for the host's room, clear of the ones the other network suites use.
 const HOST_PORT := 7821
 
@@ -523,7 +524,27 @@ func test_the_bots_fill_the_seats_nobody_is_in() -> void:
 	room.config.bot_count = 3
 	var config: MatchConfig = room.arena_config()
 	assert_int(config.bot_count).is_equal(2)
-	assert_int(config.inputs().size()).is_equal(room.ARENA_RULES.max_players)
+	assert_int(config.seats).is_equal(SeatLimit.SEATS)
+	assert_int(config.inputs().size()).is_equal(config.seats)
+	assert_int(config.rules(ARENA_RULES).max_players).is_equal(4)
+	# Online, GAME.md 9.3, the arena has as many seats as the lobby lets play, and never fewer than
+	# four. Two people can play each other with no bots at all.
+	var session: NetSession = auto_free(NetSession.new())
+	room.session = session
+	session.door.max_players = 8
+	room.config.bot_count = 7
+	config = room.arena_config()
+	assert_int(config.seats).is_equal(8)
+	assert_int(config.bot_count).is_equal(6)
+	assert_int(config.rules(ARENA_RULES).max_players).is_equal(8)
+	session.door.max_players = 2
+	room.config.bot_count = 7
+	config = room.arena_config()
+	assert_int(config.seats).is_equal(4)
+	assert_int(config.bot_count).is_equal(2)
+	room.config.bot_count = 0
+	assert_int(room.arena_config().inputs().size()).is_equal(2)
+	room.session = null
 
 
 ## A client keeps the color it had in the room: the arena keeps its seat in that color, in the
@@ -544,11 +565,17 @@ func test_a_client_keeps_its_color_into_the_arena() -> void:
 
 
 ## And the room holds no more people than the arena can seat, so nobody who got in is left
-## standing when the match begins.
+## standing when the match begins: four on one machine, and online as many as the lobby lets in.
 func test_the_room_holds_as_many_as_the_arena_seats() -> void:
 	var room := await _open()
 	var match_node: Match = room.get_node("Match")
-	assert_int(match_node.rules.max_players).is_equal(room.ARENA_RULES.max_players)
+	assert_int(SeatLimit.limit(match_node, null)).is_equal(room.arena_config().seats)
+	var session: NetSession = auto_free(NetSession.new())
+	room.session = session
+	for most: int in range(SeatLimit.SEATS, NetDoor.MOST_PLAYERS + 1):
+		session.door.max_players = most
+		assert_int(SeatLimit.limit(match_node, session)).is_equal(room.arena_config().seats)
+	room.session = null
 
 
 ## How many blocks of the ring are lit in [param slot]'s color.

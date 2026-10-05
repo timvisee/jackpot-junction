@@ -11,13 +11,16 @@ extends RefCounted
 ## they are told: for a dedicated server's log, GAME.md 9.3a.
 signal turned_away(named: String, why: String)
 
+## The most players a room can be set to, the host's own included, the fewest, and what a room is
+## set to until its host says otherwise, GAME.md 9.3: eight on a map drawn for four is a crowd
+## nobody should be put in without asking for it.
+const MOST_PLAYERS := 8
+const FEWEST_PLAYERS := 2
+const DEFAULT_PLAYERS := 4
 ## How many clients may play, on top of the host, and how many may watch on top of them, with no
 ## kart of their own. A host nobody plays at seats one more client instead, see [method clients].
-const MAX_CLIENTS := 3
+const MAX_CLIENTS := MOST_PLAYERS - 1
 const MAX_WATCHERS := 4
-## The most players a room can be set to, the host's own included, and the fewest.
-const MOST_PLAYERS := 4
-const FEWEST_PLAYERS := 2
 ## What an answer says about the password: asked for with none given, and given wrong.
 const NEEDED := "needed"
 const WRONG := "wrong"
@@ -29,7 +32,7 @@ const TEST_TITLE := "Test game"
 
 ## The host's lobby settings: how many may play in the room at most, the host's own players
 ## included, and the password anybody knocking has to give, empty for none.
-var max_players := MOST_PLAYERS
+var max_players := DEFAULT_PLAYERS
 var password := ""
 ## Whether anybody may come to watch, and whether they have to give the password to: somebody
 ## watching can only look, so a host may be happy to let anybody look at a game it keeps its seats

@@ -26,8 +26,6 @@ const RULES: MatchRules = preload("res://data/match/waiting_room.tres")
 ## Where the stalls for dressing the kart start, GAME.md 4.4: the top left cell of the first of
 ## them, along the back wall on either side of the middle.
 const STALLS := Vector2i(8, 1)
-## The rules the arena is built on, for how many seats it has.
-const ARENA_RULES: MatchRules = preload("res://data/match/default.tres")
 
 var match_node: Match
 var ready_room: ReadyRoom
@@ -74,7 +72,7 @@ func _ready() -> void:
 			_take_seats()
 	_dress_the_room()
 	ready_room = ReadyRoom.add_to(match_node)
-	ready_room.seats = ARENA_RULES.max_players
+	ready_room.seats = SeatLimit.seats_for(SeatLimit.limit(match_node, session))
 	if config.online != "join":
 		ready_room.everybody_ready.connect(_begin, CONNECT_ONE_SHOT)
 	if not config.dedicated:
@@ -427,7 +425,8 @@ func arena_config() -> MatchConfig:
 	var remote := kept.size()
 	config.network_seats = remote
 	config.network_colors = kept
-	var free := ARENA_RULES.max_players - config.human_devices.size() - remote
+	config.seats = SeatLimit.seats_for(SeatLimit.limit(match_node, session))
+	var free := config.seats - config.human_devices.size() - remote
 	config.bot_count = clampi(config.bot_count, 0, maxi(free, 0))
 	return config
 
