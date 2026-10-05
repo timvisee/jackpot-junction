@@ -30,11 +30,17 @@ extends Control
 ## picked out at a time: going to the hand leaves the pick with none and no pane, and going to the
 ## pick closes the hand.
 
-## The round buttons: a dark disc with a light rim, lit up while a finger is on it. See-through, so
-## the arena under a thumb is still there to be seen.
-const FILL := Color(0.05, 0.05, 0.07, 0.3)
-const FILL_DOWN := Color(1.0, 1.0, 1.0, 0.3)
-const RIM := Color(1.0, 1.0, 1.0, 0.45)
+## The round buttons: chips, GAME.md 8.1a, of the house's stock with a foil rim and notches round
+## it, lit gold while a finger is on one, the way a button is under the cursor. See-through, so the
+## arena under a thumb is still there to be seen.
+const FILL := Color(0.075, 0.07, 0.094, 0.36)
+const FILL_DOWN := Color(0.95, 0.76, 0.31, 0.34)
+const RIM := Color(0.95, 0.76, 0.31, 0.6)
+## How many notches go round a button's rim, how big they are against it, and how strongly they
+## show.
+const NOTCHES := 8
+const NOTCH := 0.13
+const NOTCH_SHOWS := 0.55
 const INK := Color(1.0, 1.0, 1.0, 0.92)
 const RIM_WIDTH := 3.0
 const LABEL_SIZE := 22
@@ -924,6 +930,21 @@ func _draw_disc(each: Pad, strength := 1.0, lit := false) -> void:
 	var fill := FILL_DOWN if each.held > 0 or lit else FILL
 	draw_circle(each.center, each.radius, Color(fill, fill.a * strength))
 	draw_arc(each.center, each.radius, 0.0, TAU, 48, Color(RIM, RIM.a * strength), RIM_WIDTH, true)
+	notch(self, each.center, each.radius, strength)
+
+
+## The notches round the rim of a round button, the way a chip's are, onto [param canvas].
+static func notch(canvas: CanvasItem, at: Vector2, radius: float, strength: float) -> void:
+	var ink := Color(RIM, RIM.a * NOTCH_SHOWS * strength)
+	var half := radius * NOTCH * 0.5
+	for i: int in NOTCHES:
+		var toward := Vector2.from_angle(float(i) * TAU / float(NOTCHES) + TAU / float(NOTCHES * 2))
+		var across := toward.orthogonal() * half
+		var out := at + toward * (radius - RIM_WIDTH * 0.5)
+		var inn := at + toward * (radius - radius * NOTCH * 1.6)
+		canvas.draw_colored_polygon(
+			PackedVector2Array([out + across, out - across, inn - across, inn + across]), ink
+		)
 
 
 ## What an item started and has still to finish on the kart here, as the corner shows it, or an

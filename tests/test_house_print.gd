@@ -208,6 +208,36 @@ func test_a_call_stands_on_a_plate_and_match_point_on_tape() -> void:
 	banner.free()
 
 
+## The title's sunburst and seal turn about the mark over the name, GAME.md 8.1a.
+func test_the_title_turns_about_its_mark() -> void:
+	var screen := Control.new()
+	screen.size = Vector2(1600.0, 900.0)
+	add_child(screen)
+	var back := TitleBackground.add_to(screen)
+	back.size = screen.size
+	var mark := Control.new()
+	mark.position = Vector2(700.0, 120.0)
+	mark.size = Vector2(132.0, 132.0)
+	screen.add_child(mark)
+	back.anchor = mark
+	await await_idle_frame()
+	await await_idle_frame()
+	assert_object(back.focus()).is_equal(Vector2(766.0, 186.0))
+	assert_bool(back._seal.visible).is_true()
+	mark.visible = false
+	await await_idle_frame()
+	await await_idle_frame()
+	assert_bool(back._seal.visible).is_false()
+	screen.free()
+
+
+## A hint hung over a kart stands on the house's tag, a small ticket, GAME.md 8.1a.
+func test_a_hint_over_a_kart_stands_on_a_ticket() -> void:
+	var card := InputHint.card(Label.new())
+	assert_object(card.get_theme_stylebox(&"panel")).is_instanceof(TicketStyle)
+	card.free()
+
+
 ## A switch that is on is not lit for it: the lit look is the cursor's alone.
 func test_a_switch_that_is_on_is_not_lit() -> void:
 	var on := MenuTheme.toggle(true)

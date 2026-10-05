@@ -204,7 +204,7 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 	RenderingServer.canvas_item_add_set_transform(to_canvas_item, Transform2D(0.0, rect.position))
 	var edge: PackedVector2Array = made["outline"]
 	if fill.a > 0.0:
-		RenderingServer.canvas_item_add_polygon(to_canvas_item, edge, made["fill"])
+		RenderingServer.canvas_item_add_polygon(to_canvas_item, edge, _fill_inks(edge, rect.size))
 		# The polygon's own edge is a staircase; a soft line along it is what makes it a cut.
 		RenderingServer.canvas_item_add_polyline(to_canvas_item, made["closed"], [fill], 1.0, true)
 	Engraving.draw(to_canvas_item, made["lines"], engraving, made["inks"])
@@ -247,11 +247,6 @@ func _made(size: Vector2) -> Dictionary:
 	var closed := edge.duplicate()
 	closed.append(edge[0])
 	made["closed"] = closed
-	var inks := PackedColorArray()
-	var low := fill_low if fill_low.a > 0.0 else fill
-	for point: Vector2 in edge:
-		inks.append(fill.lerp(low, point.y / size.y))
-	made["fill"] = inks
 	var lines: Array[PackedVector2Array] = []
 	var inks_of: Array[PackedColorArray] = []
 	if engraving.a > 0.0:
@@ -306,6 +301,18 @@ func _made(size: Vector2) -> Dictionary:
 	_kept[size] = made
 	_order.append(size)
 	return made
+
+
+## The stock at each point of [param edge], running from [member fill] at the top to
+## [member fill_low] at the foot. Worked out each draw rather than kept with the shape, so a ticket
+## that fades, an item's tag over a kart say, does not throw its shape away every frame.
+func _fill_inks(edge: PackedVector2Array, size: Vector2) -> PackedColorArray:
+	if fill_low.a <= 0.0:
+		return PackedColorArray([fill])
+	var inks := PackedColorArray()
+	for point: Vector2 in edge:
+		inks.append(fill.lerp(fill_low, point.y / size.y))
+	return inks
 
 
 ## The hairlines inside the edge: one round the header and one round the body when there is a
@@ -384,12 +391,12 @@ func _changed() -> void:
 
 func _set_fill(value: Color) -> void:
 	fill = value
-	_changed()
+	emit_changed()
 
 
 func _set_fill_low(value: Color) -> void:
 	fill_low = value
-	_changed()
+	emit_changed()
 
 
 func _set_notch(value: float) -> void:
@@ -441,7 +448,7 @@ func _set_frame_inset(value: float) -> void:
 
 func _set_border(value: Color) -> void:
 	border = value
-	_changed()
+	emit_changed()
 
 
 func _set_border_width(value: float) -> void:

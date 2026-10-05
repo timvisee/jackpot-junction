@@ -23,6 +23,10 @@ below, and hands the notes to the release workflow.
   photo finish, a receipt line per player, a red WINNER stamp and the buttons on a tear-off stub.
 - **Calls on plates.** The announcer's calls stand on a plate in the player's color, match point
   on hazard tape, Last Call on a red board, and the joker cards are engraved in their kind's color.
+- **A title with a seal.** Rings turn slowly round the mark on the title, the name is set in a
+  heavier cut over a line of fine print, and the touch buttons are gold-rimmed chips.
+- **Hints over your kart.** The hints and the item beside your kart stand on small tickets, and
+  the words that float up off a kart are set in the HUD's own type.
 - **Key bindings in sockets.** The Controls page shows each binding's keys and buttons at their own
   size in a sunken socket, and asks for a new one in gold.
 - **A dashboard in your corner.** Your corner of the HUD runs off the edge of the screen with a

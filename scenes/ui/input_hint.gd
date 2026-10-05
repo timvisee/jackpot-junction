@@ -17,7 +17,7 @@ const GROUP_GAP := 15.0
 const FONT_SIZE := 15
 ## The card a hint hanging in the world sits on, so it is readable over felt, walls and karts
 ## alike rather than only over whatever it happened to be tested against.
-const CARD_BG := Color(0.05, 0.05, 0.07, 0.72)
+const CARD_BG := Color(0.075, 0.07, 0.094, 0.78)
 const CARD_PAD := 12.0
 
 
@@ -127,17 +127,14 @@ static func stamp(actions: Array[StringName], keyboard: bool) -> String:
 
 
 ## The same row on a dark card, for a hint that hangs in the world, where what is behind it is
-## whatever color that stretch of the arena happens to be.
+## whatever color that stretch of the arena happens to be: the house's tag, GAME.md 8.1a, a small
+## ticket of its stock with a foil hairline inside its edge, as the HUD's smaller pieces stand on.
 static func card(content: Control) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var style := StyleBoxFlat.new()
-	style.bg_color = CARD_BG
-	style.set_corner_radius_all(10)
-	style.content_margin_left = CARD_PAD
-	style.content_margin_right = CARD_PAD
-	style.content_margin_top = CARD_PAD * 0.6
-	style.content_margin_bottom = CARD_PAD * 0.6
+	var style := TicketStyle.cut(CARD_BG, 7.0, CARD_PAD, CARD_PAD * 0.6)
+	style.frame = Color(HouseTheme.FOIL, 0.22)
+	style.frame_inset = 3.0
 	panel.add_theme_stylebox_override("panel", style)
 	panel.add_child(content)
 	return panel

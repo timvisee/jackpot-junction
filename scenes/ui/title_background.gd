@@ -16,14 +16,65 @@ const TURN_SECONDS := 90.0
 const LIGHT := Color(0.85, 0.82, 1.0, 0.045)
 ## Where the burst is centered, as a share of the screen: behind the title rather than the middle.
 const CENTER := Vector2(0.5, 0.34)
+## The seal behind the mark, GAME.md 8.1a: three bands of guilloché rings round it, each as
+## [radius, depth, lobes, lines, ink] against the mark's own radius, and how long it takes to turn
+## once. Drawn once and turned whole, so turning it costs nothing a frame.
+const SEAL_BANDS := [
+	[2.15, 0.13, 28, 12, 0.15], [3.2, 0.19, 40, 16, 0.09], [4.55, 0.23, 54, 20, 0.055]
+]
+const SEAL_TURN := 240.0
 ## How many chips drift past, how big they are, and how long one takes to cross the screen.
 const CHIPS := 16
 const CHIP_RADIUS := Vector2(18.0, 46.0)
 const CHIP_SECONDS := Vector2(26.0, 55.0)
 const CHIP_ALPHA := 0.13
 
+## What the burst and the seal are centered on, the mark over the name; nothing for the middle
+## of [constant CENTER].
+var anchor: Control
+
 var _spin := 0.0
 var _chips: Array[Dictionary] = []
+var _seal: Seal
+var _sealed_for := 0.0
+
+
+## The seal's rings, drawn once round its own middle and turned as a whole.
+class Seal:
+	extends Control
+
+	var _lines: Array[PackedVector2Array] = []
+	var _inks: Array[Color] = []
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	## Laid out round a mark [param mark] out from its middle.
+	func lay(mark: float) -> void:
+		var reach := mark * 4.8
+		size = Vector2.ONE * reach * 2.0
+		pivot_offset = size * 0.5
+		_lines.clear()
+		_inks.clear()
+		for band: Array in TitleBackground.SEAL_BANDS:
+			var rings := Engraving.rings(
+				size * 0.5,
+				mark * float(band[0]),
+				mark * float(band[1]),
+				band[2],
+				band[3],
+				int(band[2]) * 9
+			)
+			_lines.append_array(rings)
+			for ring: PackedVector2Array in rings:
+				_inks.append(Color(HouseTheme.FOIL, float(band[4])))
+		queue_redraw()
+
+	func _draw() -> void:
+		for i: int in _lines.size():
+			draw_polyline(_lines[i], _inks[i], 0.8, true)
+
+
 var _rng := RandomNumberGenerator.new()
 
 
@@ -39,6 +90,10 @@ static func add_to(screen: Control) -> TitleBackground:
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_seal = Seal.new()
+	_seal.name = "Seal"
+	_seal.visible = false
+	add_child(_seal)
 	_rng.seed = 20260919
 	for i: int in CHIPS:
 		(
@@ -60,11 +115,35 @@ func _process(delta: float) -> void:
 	_spin = fmod(_spin + TAU * delta / TURN_SECONDS, TAU)
 	for chip: Dictionary in _chips:
 		chip["phase"] = fmod(float(chip["phase"]) + delta / float(chip["seconds"]), 1.0)
+	_place_seal(delta)
 	queue_redraw()
 
 
+## Where the burst and the seal are centered: the mark's middle while it is up, else the middle of
+## [constant CENTER].
+func focus() -> Vector2:
+	if anchor != null and is_instance_valid(anchor) and anchor.is_visible_in_tree():
+		return anchor.get_global_rect().get_center() - global_position
+	return size * CENTER
+
+
+## The seal round the mark, turned a little further each frame; gone with the mark on a screen too
+## short for it.
+func _place_seal(delta: float) -> void:
+	var shown := anchor != null and is_instance_valid(anchor) and anchor.is_visible_in_tree()
+	_seal.visible = shown
+	if not shown:
+		return
+	var mark := anchor.size.x * 0.5
+	if not is_equal_approx(mark, _sealed_for) and mark > 0.0:
+		_sealed_for = mark
+		_seal.lay(mark)
+	_seal.position = focus() - _seal.size * 0.5
+	_seal.rotation = fmod(_seal.rotation + TAU * delta / SEAL_TURN, TAU)
+
+
 func _draw() -> void:
-	var center := size * CENTER
+	var center := focus()
 	var reach := size.length()
 	for i: int in range(0, WEDGES, 2):
 		var from := _spin + TAU * i / WEDGES

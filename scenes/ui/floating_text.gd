@@ -22,7 +22,11 @@ static func spawn(
 	label.text = text
 	label.modulate = color
 	label.font_size = size
+	# Set as every number of the HUD is, GAME.md 8.1a: the condensed cut, figures all one width,
+	# outlined in the house's dark rather than black.
+	label.font = Type.numbers_font()
 	label.outline_size = maxi(size / 5, 6)
+	label.outline_modulate = Color(0.05, 0.045, 0.065)
 	label.pixel_size = 0.01
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	label.no_depth_test = true

@@ -196,16 +196,15 @@ static func follow(block: Dictionary, slot: PlayerSlot) -> void:
 		style.stripe = slot.color()
 
 
-## The scrim the old corner sat on, kept for what still stands on one: a dark card with rounded
-## corners and no edge, soft enough that it reads as shade rather than as a panel.
-static func scrim() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.03, 0.03, 0.05, 0.34)
-	style.set_corner_radius_all(14)
-	style.content_margin_left = 14.0
-	style.content_margin_right = 14.0
-	style.content_margin_top = 10.0
+## The tag the HUD's smaller pieces stand on, GAME.md 8.1a: the driving test's checklist, its
+## notices and its boss bar, the pointer a lesson shows a piece of the corner with, and the
+## switches over a corner in the pause menu. A small ticket of the house's stock, a little clear,
+## with a foil hairline just inside its edge.
+static func scrim() -> TicketStyle:
+	var style := TicketStyle.cut(Color(HouseTheme.STOCK, 0.82), 8.0, 14.0, 10.0)
 	style.content_margin_bottom = 12.0
+	style.frame = Color(HouseTheme.FOIL, 0.2)
+	style.frame_inset = 4.0
 	return style
 
 

@@ -47,6 +47,8 @@ const CAP_HEIGHT := 0.7
 static var _display: FontVariation
 static var _numbers: FontVariation
 static var _numbers_text: FontVariation
+static var _mark: FontVariation
+static var _micro: FontVariation
 
 
 static func _static_init() -> void:
@@ -84,6 +86,25 @@ static func numbers_text_font() -> FontVariation:
 		_numbers_text.base_font = STRONG
 		_numbers_text.opentype_features = {TABULAR: 1}
 	return _numbers_text
+
+
+## The wordmark's cut, the condensed Black, tracked out a little further than a heading, GAME.md
+## 8.1a: the one line that is a mark rather than a heading.
+static func mark_font() -> FontVariation:
+	if _mark == null:
+		_mark = FontVariation.new()
+		_mark.base_font = MARK
+		_mark.spacing_glyph = 3
+	return _mark
+
+
+## Small capitals spaced well apart, for microprint: a line from a step back and words up close.
+static func micro_font() -> FontVariation:
+	if _micro == null:
+		_micro = FontVariation.new()
+		_micro.base_font = STRONG
+		_micro.spacing_glyph = 3
+	return _micro
 
 
 ## A number that changes: a score, a clock, a speed.

@@ -31,6 +31,9 @@ const EASE := 2.5
 const CHIP := Color(HouseTheme.STOCK, 0.82)
 ## The foil rim round the chip, GAME.md 8.1a, the way a key cap's is.
 const RIM := Color(HouseTheme.FOIL, 0.7)
+## The tag an item stands on beside its kart: a small ticket of the house's stock with a foil
+## edge, GAME.md 8.1a, the shape the hints over a kart stand on too.
+const NOTCH := 5.0
 ## The button that uses the item, on the chip's lower corner: its size and ink.
 const BUTTON_SIZE := 13
 const BUTTON_INK := Color(0.92, 0.92, 0.95)
@@ -42,6 +45,8 @@ var _tags: Dictionary[int, Dictionary] = {}
 ## Where the boxes on the floor are, found once a frame for every player here, and the frame.
 var _boxes: Array[Vector3] = []
 var _boxes_frame := -1
+## The tag the item stands on, see [constant NOTCH], recolored as it fades.
+var _tag := _cut_tag()
 
 
 static func add_to(hud: MatchHud) -> ItemTag:
@@ -213,6 +218,12 @@ func _box(kart: Kart) -> Rect2:
 	return Rect2(at, Vector2.ONE * ICON)
 
 
+static func _cut_tag() -> TicketStyle:
+	var tag := TicketStyle.cut(CHIP, NOTCH, 0.0, 0.0)
+	tag.border_width = 1.2
+	return tag
+
+
 func _draw() -> void:
 	for slot: int in _tags:
 		var kart := match_node.slots[slot].kart
@@ -220,12 +231,9 @@ func _draw() -> void:
 		if kart.held_item == null or not box.has_area():
 			continue
 		var fade := _fade(_tags[slot])
-		var chip := StyleBoxFlat.new()
-		chip.bg_color = Color(CHIP, CHIP.a * fade)
-		chip.border_color = Color(RIM, RIM.a * fade)
-		chip.set_border_width_all(1)
-		chip.set_corner_radius_all(6)
-		draw_style_box(chip, box.grow(PAD))
+		_tag.fill = Color(CHIP, CHIP.a * fade)
+		_tag.border = Color(RIM, RIM.a * fade)
+		draw_style_box(_tag, box.grow(PAD))
 		var id := kart.held_item.id
 		var ink := kart.held_item.color
 		if kart.item_reveal_left > 0.0:

@@ -1108,7 +1108,8 @@ big so its buttons can be pressed, see the UI scale of 8.5, and what is only rea
 the size: on a touch screen the player's corner, the standings and the kill feed are drawn at
 three quarters of the rest of the UI, each shrunk toward the corner or edge it hangs from, and
 the round buttons, the slider and the stick are see-through, so the arena under a thumb is still
-there to be seen. The hand of jokers is tucked into the bottom edge while none of its cards is
+there to be seen. Being round, they are chips of 8.1a: the house's stock with a foil rim and
+notches round it, lit gold while a thumb is on one. The hand of jokers is tucked into the bottom edge while none of its cards is
 being read, smaller and half below the edge, and comes up to its full size as a card is held or
 kept open.
 
@@ -2420,9 +2421,14 @@ Amber and red belong to the boards and the warnings.
   slanted ends. Key caps, pad buttons and the item tag are stock with a foil rim.
 - **The title**: the sunburst stays, its wedges light laid over the engraved
   backdrop rather than two tones of their own, so the lines show through the whole
-  of it, with three guilloché
-  rings turning slowly behind the mark; the name is set in the condensed Black in
-  foil over a line of microprint; the buttons are tickets.
+  of it, and it turns about the mark now rather than a point under it, with three
+  bands of guilloché rings round the mark, drawn once and turned whole, once every
+  four minutes; the name is set in the condensed Black in foil over a line of
+  microprint between two rules; the buttons are tickets.
+- **Over a kart**: every hint hung over a kart stands on the house's tag, a small
+  ticket of its stock with a foil hairline, and so does the item beside the kart;
+  the words that float up off a kart, a graze's mult or a cash-out's tally, are set
+  in the condensed cut with its even figures, outlined in the house's dark.
 - **The settings' tabs** are index tabs, sloped at the sides, the page showing cut
   from the stock of the pane under it with foil along its top, the others standing
   a little lower in a darker stock.
@@ -2746,8 +2752,10 @@ lane beside it is as wide as it was.
   drawn as buttons rather than on one, since each is already a shape and a box around a button is
   a box around a button; everything else is a word, and a word needs something to
   be written on.
-  Everything but a face button sits on a solid dark chip with a soft black edge
-  and a rim in the color of the line it is in, so it is dark against the felt,
+  Everything but a face button sits on a solid chip of the house's stock with a
+  soft black edge and a rim, foil on a line in a plain hint's ink and the line's own
+  color on one with a color of its own, a key cap with a lip of it along its foot,
+  8.1a, so it is dark against the felt,
   the crowd and a light wall and rimmed against a dark menu. A picture you have to
   pick out of the background first is a picture that has already cost the corner
   you were reading it in. "Shift drift   Ctrl nitro" is a sentence to be read; the same line with
@@ -2768,7 +2776,8 @@ lane beside it is as wide as it was.
   its first three seconds, flashing unless flashes are turned down in 8.5, and GO
   in the gantry's green as the flag drops.
 - **Item beside the kart**: a player on this screen who picks an item up sees it
-  beside their kart as well as in their corner, small, on a dark chip off the
+  beside their kart as well as in their corner, small, on the house's tag, a small
+  ticket of its stock with a foil edge, 8.1a, off the
   kart's top right corner, which it keeps to however far out the camera has
   pulled: it turns through the items the way the
   roulette in the corner does while the box is opening, settles on the one they
@@ -4387,7 +4396,7 @@ neither.
 **The HUD comes in pieces.** At the start only the checklist and the hint are on
 the screen, the player's corner block not at all. Each piece of the corner block appears with the
 lesson it is for, with a pointer beside it, a frame pulsing round it and one line
-saying what it is, on a dark card so it reads against any floor, and a ring
+saying what it is, on the house's tag of 8.1a so it reads against any floor, and a ring
 that starts as wide as the screen and shrinks onto the card and away to
 nothing in a second, twice over, which is what pulls the eye to it wherever it
 was looking; these stay until the lesson's first task is

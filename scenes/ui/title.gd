@@ -7,6 +7,9 @@ extends Control
 ## Room kept under the buttons, clear of the bottom edge of the screen. Who made the music, the
 ## models and the sounds is said in Settings, About, see [AboutTab], rather than along it.
 const BOTTOM_ROOM := 24.0
+## The microprint under the name, GAME.md 8.1a, between two rules of foil, and how long they are.
+const MICROPRINT := "Dept. of Karts  ·  licensed on every table"
+const MICRO_RULE := 150.0
 ## What is asked before driving without a license, GAME.md 9.4a.
 const LICENSE_QUESTION := "Missing license"
 const LICENSE_LINE := (
@@ -63,7 +66,7 @@ var _ad: SchoolAd
 
 func _ready() -> void:
 	var column := MenuTheme.screen(self, 18)
-	TitleBackground.add_to(self)
+	var background := TitleBackground.add_to(self)
 	column.alignment = BoxContainer.ALIGNMENT_CENTER
 	# The mark over the name, GAME.md 8.1: the same one the window wears, without the plate it
 	# needs on a desktop.
@@ -73,15 +76,22 @@ func _ready() -> void:
 	var centered := CenterContainer.new()
 	centered.add_child(mark)
 	column.add_child(centered)
+	# The sunburst and the seal's rings turn about the mark, GAME.md 8.1a.
+	background.anchor = mark
 	_column = column
 	_mark = centered
-	column.add_child(MenuTheme.title("Jackpot Junction", Type.HERO))
+	# The name is a mark rather than a heading: the condensed Black, over a line of microprint.
+	var named := MenuTheme.title("Jackpot Junction", Type.HERO)
+	Type.set_font(named, Type.mark_font(), Type.HERO)
+	column.add_child(named)
+	var printed := _microprint(MICROPRINT)
+	column.add_child(printed)
 	var line := MenuTheme.subtitle("Collect chips. Build your mult. Cash out before they get you.")
 	column.add_child(line)
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0.0, 32.0)
 	column.add_child(spacer)
-	_spare = [centered, spacer, line]
+	_spare = [centered, spacer, printed, line]
 	play_button = MenuTheme.button("Play")
 	# One way in to playing. Whether it is a Grand Prix or a quick match is the lobby's first
 	# question, GAME.md 9.7, asked with the rest rather than a screen early.
@@ -142,6 +152,29 @@ func _ready() -> void:
 				play_button.grab_focus()
 		)
 	_fit()
+
+
+## A line of microprint between two short rules of foil, centered under the name.
+static func _microprint(words: String) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 14)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for i: int in 3:
+		if i == 1:
+			var said := Label.new()
+			said.text = words
+			said.uppercase = true
+			Type.set_font(said, Type.micro_font(), 13)
+			said.add_theme_color_override("font_color", Color(HouseTheme.FOIL, 0.8))
+			row.add_child(said)
+			continue
+		var rule := ColorRect.new()
+		rule.color = Color(HouseTheme.FOIL, 0.45)
+		rule.custom_minimum_size = Vector2(MICRO_RULE, 1.0)
+		rule.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		row.add_child(rule)
+	return row
 
 
 ## Until the license is earned, a flyer stands in its place, GAME.md 3.8, beside the Driving
