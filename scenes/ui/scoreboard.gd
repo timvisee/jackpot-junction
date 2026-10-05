@@ -1,5 +1,5 @@
 class_name Scoreboard
-extends VBoxContainer
+extends GridContainer
 ## The running order down the right-hand side, GAME.md 8.3. Every kart gets a row: its banked
 ## score, and next to it what it is still carrying around unbanked. Rows are ordered by what is
 ## banked alone, which is the order the match is actually won in: a pot is worth nothing until it
@@ -11,9 +11,19 @@ extends VBoxContainer
 ## Each row is a strip bled off the right edge of the screen, GAME.md 8.1a, its place on a chip of
 ## its player's color; the leader's row is edged in foil, and a player on this screen has their
 ## own color striped along the row's slanted end.
+##
+## A room of more than four, GAME.md 9.3, has smaller rows, and on a short screen shows four of
+## them: the top of the order, with a player on this screen who is further down in the last.
 
 const TOP_FONT := 30
 const BOTTOM_FONT := 17
+## The leader's and the last place's sizes in a room of eight, and the most rows a room of more
+## than four shows on a screen shorter than [constant SHORT], in its own units after the UI scale,
+## GAME.md 8.5: a phone, or a big UI scale.
+const CROWDED_TOP := 22
+const CROWDED_BOTTOM := 14
+const SHORT := 800.0
+const SHORT_ROWS := 4
 const RISK_FONT := 15
 const DIM := Color(0.82, 0.82, 0.86)
 ## Blinks a second of the carried pot that would end the match.
@@ -28,7 +38,8 @@ const LEADER := Color(HouseTheme.FOIL, 0.9)
 
 var match_node: Match
 ## A list of who is in the room rather than a running order, GAME.md 9.6: everybody at one size,
-## in the order they arrived, with no place and no score, since nothing is being played for.
+## in the order they arrived, with no place and no score, since nothing is being played for. Past
+## four of them, in two columns.
 var roster := false
 
 ## Slot index to its row's parts.
@@ -52,7 +63,8 @@ func _ready() -> void:
 		grow_horizontal = Control.GROW_DIRECTION_BEGIN
 		offset_right = 0.0
 		offset_top = TouchControls.below_menu()
-	add_theme_constant_override("separation", 4)
+	add_theme_constant_override("v_separation", 4)
+	add_theme_constant_override("h_separation", 8)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
@@ -70,18 +82,48 @@ func _process(delta: float) -> void:
 		return
 	_beat += delta
 	var ranked := order()
+	var shown := shown_of(ranked)
+	var wanted := 2 if roster and ranked.size() > SHORT_ROWS else 1
+	if columns != wanted:
+		columns = wanted
 	for rank: int in ranked.size():
 		var slot := ranked[rank]
 		var row := _row(slot)
 		var panel: PanelContainer = row["panel"]
 		if panel.get_index() != rank:
 			move_child(panel, rank)
-		_update_row(row, slot, rank, ranked.size())
+		panel.visible = slot in shown
+		if panel.visible:
+			_update_row(row, slot, rank, shown.find(slot), shown.size())
 
 
-func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, count: int) -> void:
-	var share := 0.0 if count < 2 else float(rank) / float(count - 1)
-	var size := ROSTER_FONT if roster else roundi(lerpf(TOP_FONT, BOTTOM_FONT, share))
+## The rows of [param ranked] there is room for: all of them, and on a short screen four of a room
+## of more, the top of the order with whoever plays on this screen further down in the last of
+## them, at their own place. A roster in two columns has room for everybody.
+func shown_of(ranked: Array[PlayerSlot]) -> Array[PlayerSlot]:
+	if roster or ranked.size() <= SHORT_ROWS or get_viewport_rect().size.y >= SHORT:
+		return ranked
+	var shown := ranked.slice(0, SHORT_ROWS)
+	for slot: PlayerSlot in ranked.slice(SHORT_ROWS):
+		if not slot.is_local_human():
+			continue
+		for i: int in range(shown.size() - 1, -1, -1):
+			if not shown[i].is_local_human():
+				shown.remove_at(i)
+				shown.append(slot)
+				break
+	return shown
+
+
+## Draws [param slot]'s row at its [param rank] in the order, the [param at]th of [param count]
+## rows shown: the leader biggest and the last shown smallest, all of them smaller in a room of
+## more than four.
+func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: int) -> void:
+	var share := 0.0 if count < 2 else float(at) / float(count - 1)
+	var crowd := clampf(float(count - SHORT_ROWS) / float(SHORT_ROWS), 0.0, 1.0)
+	var top := lerpf(TOP_FONT, CROWDED_TOP, crowd)
+	var bottom := lerpf(BOTTOM_FONT, CROWDED_BOTTOM, crowd)
+	var size := ROSTER_FONT if roster else roundi(lerpf(top, bottom, share))
 	var local := slot.is_local_human()
 	var color := slot.color()
 	var place: Label = row["place"]

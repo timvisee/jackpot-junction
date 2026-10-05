@@ -7,16 +7,17 @@ const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 var _runner: GdUnitSceneRunner
 
 
-func _start_match(players: int) -> Match:
+func _start_match(players: int, karts := 4) -> Match:
 	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
 	rules.countdown = 0.1
 	rules.duration = 60.0
+	rules.max_players = karts
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = rules
 	match_node.offer_size = 0
 	_runner = scene_runner(match_node)
 	var inputs: Array[KartInput] = []
-	for i: int in 4:
+	for i: int in karts:
 		inputs.append(PlayerInput.new(i) if i < players else KartInput.new())
 	match_node.start(inputs, 31)
 	return match_node
@@ -65,6 +66,50 @@ func test_the_leader_is_biggest_and_the_local_player_is_boxed() -> void:
 		var row: Dictionary = board._rows[slot.index]
 		var style := (row["panel"] as PanelContainer).get_theme_stylebox("panel")
 		assert_bool(style == row["own"]).is_equal(slot.index == 0)
+
+
+## GAME.md 8.3: a room of eight, 9.3, has smaller rows, the leader still the biggest. On a short
+## screen, a phone or a big UI scale, it shows four: the top of the order, and a player on this
+## screen further down in the last of them, at their own place.
+func test_a_room_of_eight_has_smaller_rows_and_four_on_a_short_screen() -> void:
+	var root := get_tree().root
+	var scale_was := root.content_scale_factor
+	root.content_scale_factor = 0.5
+	var match_node := _start_match(1, 8)
+	await _runner.simulate_frames(12, 17)
+	var board := match_node.hud._scoreboard
+	for slot: PlayerSlot in match_node.slots:
+		slot.banked = slot.index * 100
+	await _runner.simulate_frames(2, 17)
+	var ranked := board.order()
+	assert_int(ranked[0].index).is_equal(7)
+	assert_int(_font(board, ranked[0])).is_equal(Scoreboard.CROWDED_TOP)
+	assert_int(_font(board, ranked[7])).is_equal(Scoreboard.CROWDED_BOTTOM)
+	for slot: PlayerSlot in ranked:
+		assert_bool((board._rows[slot.index]["panel"] as Control).visible).is_true()
+	# Short whatever the window: a headless one is square, and tall at a UI scale of two.
+	root.content_scale_factor = 3.0
+	await _runner.simulate_frames(2, 17)
+	assert_float(board.get_viewport_rect().size.y).is_less(Scoreboard.SHORT)
+	var shown: Array[int] = []
+	for slot: PlayerSlot in ranked:
+		if (board._rows[slot.index]["panel"] as Control).visible:
+			shown.append(slot.index)
+	assert_array(shown).is_equal([7, 6, 5, 0])
+	assert_str((board._rows[0]["place"] as Label).text).is_equal("8")
+	assert_int(_font(board, ranked[0])).is_equal(Scoreboard.TOP_FONT)
+	assert_int(_font(board, match_node.slots[0])).is_equal(Scoreboard.BOTTOM_FONT)
+	# The room's list of who is in it goes into two columns past four instead, GAME.md 9.6.
+	match_node.hud.waiting = true
+	await _runner.simulate_frames(2, 17)
+	assert_int(board.columns).is_equal(2)
+	for slot: PlayerSlot in ranked:
+		assert_bool((board._rows[slot.index]["panel"] as Control).visible).is_true()
+	root.content_scale_factor = scale_was
+
+
+func _font(board: Scoreboard, slot: PlayerSlot) -> int:
+	return (board._rows[slot.index]["score"] as Label).get_theme_font_size("font_size")
 
 
 func test_the_board_stands_down_in_a_four_corner_game() -> void:

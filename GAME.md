@@ -2987,7 +2987,11 @@ lane beside it is as wide as it was.
   see 3.4. A player online whose line to the host is too slow wears an amber
   warning sign beside their name, on every screen, see 10.3. It stands down in
   three- and four-player shared-screen games, where every player already has a
-  corner block.
+  corner block. A room of more than four, 9.3, has smaller rows, eight of them
+  not twice as tall as four, the leader still the biggest; and on a short screen,
+  a phone or a big UI scale, 8.5, it shows four rows, the top of the order with a
+  player on this screen who is further down in the last of them, at their own
+  place.
 - **Dropping something**: a kart that bursts, or a crate that breaks, throws what
   it was carrying clear of itself rather than having it appear on the floor. It
   flies on every machine: the throw is cosmetic, since the pickup is already lying
@@ -4984,7 +4988,8 @@ everybody is already looking.
 
 **Who is here.** Down the right-hand side, where a match keeps its running order, the room
 keeps a list of who is in it: a name each in their own color, in the order they arrived, with
-no place and no score, since nothing in here is being played for. Each player's own block in
+no place and no score, since nothing in here is being played for. Past four names it is two
+columns, so a room of eight is no taller than a room of four. Each player's own block in
 the corner is cut down the same way: their name, their lives, their nitro and their speed, and
 nothing about scoring -- no banked chips, pot, mult, kills or deaths.
 
