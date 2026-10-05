@@ -3571,7 +3571,10 @@ gave it in Lobby settings, see 9.6, and with none it is whose it is, "Ann's game
 whoever has the host's say, so it follows the say as it passes. A name is up to 32 characters on
 one line, cleaned the way a player's name is, and a name or a line too long for its row ends in an
 ellipsis. The rows go in the lobby first, then by name. A host on an older version that says no
-name and no map is listed by whose it is and "Playing". The list is made again as games come, go and change, and a
+name and no map is listed by whose it is and "Playing". A game hosted by a test, in the unit tests or the
+multiplayer check, says it is one, "(test)" after its name or "Test game" for one with none, since
+it answers anybody on the network who looks, its developer's own game among them; the server check
+names its server and its game "Server check (test)". The list is made again as games come, go and change, and a
 pad's cursor stays on the button it was on. Finding is asking rather than being called to: about once a second the screen asks on
 port 7779 of every machine the network reaches, and of its own, which a broadcast does not always
 reach, and a host answers from there to whoever asked. That is what lets several copies of the

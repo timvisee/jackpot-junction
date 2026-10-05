@@ -57,6 +57,9 @@ func _run() -> void:
 	Game.settings.player_names[0] = _role.capitalize()
 	Game.settings.last_server = "127.0.0.1"
 	Game.settings.last_server_port = _port
+	# The maker's game is named as a test's, the way tools/server_check names the server, GAME.md
+	# 9.3: a game's own process is the game, and cannot tell.
+	Game.settings.lobby_title = "Server check (test)"
 	match _role:
 		"maker":
 			await _maker()
@@ -199,6 +202,14 @@ func _joiner() -> void:
 	var join := await _listed_button(screen, "Join")
 	if join == null:
 		return
+	var titles := screen.find_children("*", "Label", true, false).map(
+		func(each: Node) -> String: return (each as Label).text
+	)
+	_check("Server check (test)" in titles, "the server's name is over its games")
+	_check(
+		MenuTheme.lines_of(join).begins_with("Server check (test)\nIn the lobby"),
+		"the maker's game is listed by its name, over how it stands"
+	)
 	join.pressed.emit()
 	var room := await _room()
 	if room == null:

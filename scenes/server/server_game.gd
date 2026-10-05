@@ -141,7 +141,7 @@ func _state() -> Dictionary:
 	var door := _session.door
 	return {
 		"name": _host(),
-		"title": door.title,
+		"title": door.listed_title(),
 		"map": LanBeacon.map_of(_session),
 		"players": _players(),
 		"most": door.max_players,

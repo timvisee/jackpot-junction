@@ -23,6 +23,9 @@ const NEEDED := "needed"
 const WRONG := "wrong"
 ## The longest password the lobby's box takes.
 const PASSWORD_LENGTH := 64
+## What a test's game is listed as, see [method listed_title]: after its name, or for one with none.
+const TEST_MARK := " (test)"
+const TEST_TITLE := "Test game"
 
 ## The host's lobby settings: how many may play in the room at most, the host's own players
 ## included, and the password anybody knocking has to give, empty for none.
@@ -117,6 +120,28 @@ func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> 
 			why = "The password was wrong" if locked == WRONG else "Asked for the password"
 		turned_away.emit(PlayerNames.clean(str(words.get("name", ""))), why)
 	return answered
+
+
+## What the lists of games are told the game is called, see [member title]. A test's game says it
+## is one, "Friday night (test)", or "Test game" for one with no name, GAME.md 9.3: a test hosting
+## on a machine answers anybody on its network looking for LAN games, its developer among them.
+## [param testing] is whether this process is a test's, see [method a_test_runs].
+func listed_title(testing := a_test_runs()) -> String:
+	if not testing:
+		return title
+	if title.is_empty():
+		return TEST_TITLE
+	return title.left(PlayerNames.TITLE_LENGTH - TEST_MARK.length()).strip_edges() + TEST_MARK
+
+
+## Whether this process is a test's: run by the unit tests' runner or by a check's driver in
+## tools/, rather than as the game, whose main loop is its own [GameTree]. A dedicated server's
+## games are the game, and the server check names its own.
+static func a_test_runs() -> bool:
+	var loop := Engine.get_main_loop()
+	var script := loop.get_script() as Script if loop != null else null
+	var path := script.resource_path if script != null else ""
+	return path.begins_with("res://addons/gdUnit4/") or path.begins_with("res://tools/")
 
 
 ## The lobby settings, as they go over the wire between a dedicated server and the player hosting

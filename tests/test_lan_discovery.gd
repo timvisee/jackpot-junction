@@ -54,7 +54,8 @@ func test_the_lan_screen_finds_a_hosted_game_and_what_it_is() -> void:
 	assert_bool(game["password"]).is_true()
 	assert_bool(game["lobby"]).is_true()
 	assert_str(game["address"]).is_not_empty()
-	assert_str(GameList.title_of(game)).is_equal("Ann's game")
+	# Hosted by a test, it says it is one, see [method NetDoor.listed_title].
+	assert_str(GameList.title_of(game)).is_equal(NetDoor.TEST_TITLE)
 	assert_str(GameList.describe(game)).is_equal("In the lobby · 1/3 players · password")
 	assert_bool(game["watching"]).is_true()
 	assert_bool(game["watch_password"]).is_true()
@@ -74,16 +75,16 @@ func test_the_lan_screen_finds_a_hosted_game_and_what_it_is() -> void:
 	# Where the game is hosted, said when a pointer rests on it.
 	assert_str(join.tooltip_text).is_equal("Host: %s:%d" % [game["address"], PORT])
 	assert_str(screen._found.row_text(id)).is_equal(
-		"Ann's game\nIn the lobby · 1/3 players · password"
+		"Test game\nIn the lobby · 1/3 players · password"
 	)
 	# Named by its host, it is listed by that name.
 	session.door.title = "Friday night"
 	waited = 0
-	while GameList.title_of(finder.games()[0]) != "Friday night" and waited < 6000:
+	while GameList.title_of(finder.games()[0]) == NetDoor.TEST_TITLE and waited < 6000:
 		await await_millis(50)
 		waited += 50
-	assert_str(GameList.title_of(finder.games()[0])).is_equal("Friday night")
-	assert_str(screen._found.row_text(id)).starts_with("Friday night\n")
+	assert_str(GameList.title_of(finder.games()[0])).is_equal("Friday night (test)")
+	assert_str(screen._found.row_text(id)).starts_with("Friday night (test)\n")
 	# Shut to watchers, Watch cannot be pressed.
 	session.door.watchers_allowed = false
 	waited = 0
@@ -120,3 +121,16 @@ func test_a_game_is_said_by_its_name_and_where_it_is() -> void:
 	game.erase("title")
 	assert_str(GameList.describe(game)).is_equal("Playing · 3/4 players")
 	assert_str(GameList.title_of({"name": ""})).is_equal("Host's game")
+
+
+## A game a test hosts says it is one, since it answers anybody on the network looking, its
+## developer's own game among them; the game itself lists its name as given.
+func test_a_tests_game_says_it_is_one() -> void:
+	assert_bool(NetDoor.a_test_runs()).is_true()
+	var door := NetDoor.new()
+	assert_str(door.listed_title()).is_equal("Test game")
+	assert_str(door.listed_title(false)).is_empty()
+	door.title = "x".repeat(PlayerNames.TITLE_LENGTH)
+	assert_str(door.listed_title()).ends_with(" (test)")
+	assert_int(door.listed_title().length()).is_equal(PlayerNames.TITLE_LENGTH)
+	assert_str(door.listed_title(false)).is_equal(door.title)

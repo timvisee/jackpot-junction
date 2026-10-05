@@ -42,12 +42,12 @@ if [[ -n ${SVCHECK_SERVER:-} ]]; then
 else
 	server_cmd=(tools/godot --headless --path . -- --server)
 fi
-timeout 600 "${server_cmd[@]}" --port="$port" --games=1 \
+timeout 600 "${server_cmd[@]}" --port="$port" --games=1 --name="Server check (test)" \
 	>"$logs/server.log" 2>&1 &
 server=$!
 # Up once it says so, or given up on.
 for _ in $(seq 1 100); do
-	grep -q " server on port $port" "$logs/server.log" 2>/dev/null && break
+	grep -q " on port $port, up to" "$logs/server.log" 2>/dev/null && break
 	sleep 0.2
 done
 # How much the server holds before anybody has asked it for anything.
@@ -137,6 +137,7 @@ logged() {
 # What the server's log has to say, in this order; a group of lines joined by | in any order
 # among themselves, since the joiner, the watcher and the maker's choice cross on the wire.
 said=(
+	"server \"Server check (test)\" on port $port"
 	"server: Maker made game 1, on port $((port + 1))"
 	"game 1: Up on port $((port + 1))"
 	"game 1: Maker came in to play"

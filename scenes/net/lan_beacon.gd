@@ -67,7 +67,7 @@ func answer() -> Dictionary:
 		"game": ANSWER,
 		"id": id,
 		"name": host_name if not host_name.is_empty() else "Host",
-		"title": session.door.title,
+		"title": session.door.listed_title(),
 		"map": map_of(session),
 		"version": session.version,
 		"port": game_port,
