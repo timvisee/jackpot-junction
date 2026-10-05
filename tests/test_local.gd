@@ -5,6 +5,19 @@ extends GdUnitTestSuite
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 
 var _runner: GdUnitSceneRunner
+var _settings_were: Settings
+
+
+## Settings of the suite's own: who sits down where, in what color and under what name comes off
+## the seats of the settings, and the player's own are not what a test is about.
+func before_test() -> void:
+	_settings_were = Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = ""
+
+
+func after_test() -> void:
+	Game.settings = _settings_were
 
 
 func _start_match(
