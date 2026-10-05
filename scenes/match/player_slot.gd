@@ -116,6 +116,16 @@ func is_local_human() -> bool:
 	return input is PlayerInput
 
 
+## The ways of driving the bots in [param slots] were dealt, for the next bot to be dealt one
+## of the others first, see [method BotTraitTable.pick].
+static func traits_in(slots: Array[PlayerSlot]) -> Array[BotTrait]:
+	var found: Array[BotTrait] = []
+	for slot: PlayerSlot in slots:
+		if slot.bot_trait != null:
+			found.append(slot.bot_trait)
+	return found
+
+
 ## The bot's seat a newcomer takes over, GAME.md 9.2: the one in [param wanted_color] if there is
 ## one, so a player coming back from another room keeps theirs, and otherwise the first. A
 ## practice dummy's seat is not there to be taken: it is furniture.

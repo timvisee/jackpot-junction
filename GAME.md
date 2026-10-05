@@ -3803,6 +3803,11 @@ nothing else to fire at may as well be paid.
 | Bumper   | 10     | Rams constantly, seeks Boost, rarely fires                             |
 | Grazer   | 5      | Deliberately weaves close to bullets, banks at 100                     |
 
+A room deals each trait once before it deals any twice, drawing by weight among the ones dealt
+least, so three bots are three different ways of driving and the seven of a room of eight, 9.3,
+are all six and one of them again. Drawn on their own, two of three bots were often the same
+Balanced.
+
 **Difficulty**, one global setting chosen in the lobby and applied to every
 bot:
 

@@ -639,6 +639,21 @@ func test_trait_table_covers_every_trait() -> void:
 	assert_int(table.entries.size()).is_equal(6)
 	assert_object(table.by_id(&"bumper")).is_not_null()
 	assert_bool(table.by_id(&"bumper").rams).is_true()
+	# GAME.md 9.1: every way of driving comes round once before any comes round twice, so seven
+	# bots, a room of eight with one player, are all six and one of them again.
+	var rng := RandomNumberGenerator.new()
+	for seed: int in 20:
+		rng.seed = seed
+		var dealt: Array[BotTrait] = []
+		for i: int in 7:
+			dealt.append(table.pick(rng, dealt))
+		for entry: BotTrait in table.entries:
+			assert_int(dealt.count(entry)).is_between(1, 2)
+	# And a Grand Prix deals its run's bots the same way, GAME.md 9.7.
+	var run := GrandPrix.new()
+	run.deal_bots(table, 6, rng)
+	for entry: BotTrait in table.entries:
+		assert_int(run.bots.count(entry)).is_equal(1)
 
 
 func test_bots_drive_collect_and_bank_in_a_short_match() -> void:

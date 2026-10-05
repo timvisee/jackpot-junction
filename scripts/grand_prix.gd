@@ -120,7 +120,7 @@ func deal_bots(table: BotTraitTable, seats: int, rng: RandomNumberGenerator) -> 
 	bots.clear()
 	bot_styles.clear()
 	for i: int in seats:
-		bots.append(table.pick(rng))
+		bots.append(table.pick(rng, bots))
 		bot_styles.append(KartStyle.random(rng).to_array())
 
 

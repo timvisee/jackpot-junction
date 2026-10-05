@@ -21,11 +21,11 @@ static func of(table: BotTraitTable, traits: Array[BotTrait], styles: Array = []
 	return fixed
 
 
-func pick(rng: RandomNumberGenerator) -> BotTrait:
+func pick(rng: RandomNumberGenerator, taken: Array[BotTrait] = []) -> BotTrait:
 	if _next < dealt.size():
 		_next += 1
 		return dealt[_next - 1]
-	return super.pick(rng)
+	return super.pick(rng, taken)
 
 
 ## The dress dealt with the trait [method pick] handed out last.

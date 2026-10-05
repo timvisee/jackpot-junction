@@ -351,7 +351,7 @@ func _attach_brain(slot: PlayerSlot) -> void:
 ## driving and the dress that goes with it, so the kart comes out already dressed. The dress is
 ## drawn off the names' generator rather than the match's, so it moves nothing a seed decides.
 func _deal_bot(slot: PlayerSlot) -> void:
-	slot.bot_trait = bot_traits.pick(rng)
+	slot.bot_trait = bot_traits.pick(rng, PlayerSlot.traits_in(slots))
 	slot.style = bot_traits.dress(_names_rng)
 
 

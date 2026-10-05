@@ -5,10 +5,22 @@ extends Resource
 @export var entries: Array[BotTrait] = []
 
 
-func pick(rng: RandomNumberGenerator) -> BotTrait:
-	var weights: PackedFloat32Array = []
+## A trait drawn by weight from the ones dealt least among [param taken], the ways of driving the
+## other bots in the room already have, GAME.md 9.1: each comes round once before any comes round
+## twice, so a room of seven bots has every one of them and one again.
+func pick(rng: RandomNumberGenerator, taken: Array[BotTrait] = []) -> BotTrait:
+	var dealt: Array[int] = []
 	for entry: BotTrait in entries:
-		weights.append(maxf(entry.weight, 0.0))
+		dealt.append(taken.count(entry))
+	var fewest: int = dealt.min() if not dealt.is_empty() else 0
+	var weights: PackedFloat32Array = []
+	var total := 0.0
+	for i: int in entries.size():
+		weights.append(maxf(entries[i].weight, 0.0) if dealt[i] == fewest else 0.0)
+		total += weights[i]
+	if total <= 0.0:
+		for i: int in entries.size():
+			weights[i] = maxf(entries[i].weight, 0.0)
 	return entries[rng.rand_weighted(weights)]
 
 
