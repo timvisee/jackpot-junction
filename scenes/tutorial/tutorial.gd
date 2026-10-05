@@ -160,27 +160,28 @@ func _on_lesson_started(index: int) -> void:
 
 
 ## Passed, GAME.md 9.4a: remembered, with a fanfare and fireworks over the room, and a moment
-## after the bang the license comes up, see [LicenseScreen], numbered once and for good.
+## after the bang the license comes up, see [LicenseScreen], numbered once and for good. What the
+## exam earned is endorsed on it, on a retake added to what was endorsed before, nothing taken off.
 func _on_finished() -> void:
-	Game.settings.tutorial_done = true
-	if Game.settings.license_number.is_empty():
+	var settings := Game.settings
+	settings.tutorial_done = true
+	if settings.license_number.is_empty():
 		var rng := RandomNumberGenerator.new()
 		rng.randomize()
-		var settings := Game.settings
 		settings.license_number = LicenseCard.new_number(rng)
 		settings.license_date = LicenseCard.today()
 		settings.license_holder = run.slot().display_name()
 		settings.license_endorsements.clear()
-		var fight := run.lessons[run.lessons.size() - 1] as TutorialFight
-		if fight != null:
-			var earned := fight.endorsements()
-			for word: String in earned:
-				if earned[word]:
-					settings.license_endorsements.append(word)
 		settings.license_plate = LicensePlate.suggest(
 			settings.license_holder, settings.license_number
 		)
-	Game.settings.save_to_disk()
+	var fight := run.lessons[run.lessons.size() - 1] as TutorialFight
+	if fight != null:
+		var earned := fight.endorsements()
+		for word: String in earned:
+			if earned[word] and word not in settings.license_endorsements:
+				settings.license_endorsements.append(word)
+	settings.save_to_disk()
 	Audio.play_sfx(&"fanfare", -4.0, 0.0)
 	# Fireworks over the last room, in the player's color, the way a match won has them.
 	var grid := match_node.arena.grid
@@ -211,8 +212,10 @@ func issue_license() -> void:
 	if menu != null and is_instance_valid(menu):
 		menu.queue_free()
 		menu = null
-	var fight := run.lessons[run.lessons.size() - 1] as TutorialFight
-	var earned: Dictionary[String, bool] = fight.endorsements() if fight != null else {}
+	# Every endorsement the license carries, a retake's added to those from before.
+	var earned: Dictionary[String, bool] = {}
+	for word: String in TutorialFight.ENDORSEMENTS:
+		earned[word] = word in Game.settings.license_endorsements
 	license = LicenseScreen.add_to(
 		layer,
 		run.slot().display_name(),

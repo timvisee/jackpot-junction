@@ -641,9 +641,14 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	assert_str(license.plate_field.text).is_equal("GO FAST")
 	license.buttons[&"play"].pressed.emit()
 	assert_array(went).contains_exactly([&"play"])
-	# Done again, the license keeps its number.
+	# Done again, the license keeps its number, and adds what this exam earned to what it had.
+	Game.settings.license_endorsements = PackedStringArray(["JACKPOT"])
 	tutorial._on_finished()
 	assert_str(Game.settings.license_number).is_equal(number)
+	var endorsed := Game.settings.license_endorsements
+	for word: String in ["JACKPOT", "KO", "ITEMS"]:
+		assert_bool(word in endorsed).override_failure_message(word).is_true()
+	assert_int(endorsed.count("KO")).is_equal(1)
 
 
 ## The item slot is in the corner once the items lesson is over, however it went, and the hand

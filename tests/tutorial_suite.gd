@@ -15,6 +15,7 @@ var _was_path := ""
 var _was_modes: Array[String] = []
 var _was_done := false
 var _was_license := ""
+var _was_endorsements := PackedStringArray()
 
 
 func before_test() -> void:
@@ -23,6 +24,7 @@ func before_test() -> void:
 	_was_modes = Game.settings.drive_modes.duplicate()
 	_was_done = Game.settings.tutorial_done
 	_was_license = Game.settings.license_number
+	_was_endorsements = Game.settings.license_endorsements.duplicate()
 	Game.settings.path = "user://tutorial_test.cfg"
 	Game.settings.drive_modes = ["advanced", "", "", ""]
 
@@ -42,6 +44,7 @@ func after_test() -> void:
 	Game.settings.drive_modes = _was_modes
 	Game.settings.tutorial_done = _was_done
 	Game.settings.license_number = _was_license
+	Game.settings.license_endorsements = _was_endorsements
 
 
 ## Every cell that can be driven to from the player's spawn, the corridor's, treating
