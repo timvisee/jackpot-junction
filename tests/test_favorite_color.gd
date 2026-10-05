@@ -75,7 +75,7 @@ func test_joining_and_recoloring_use_and_keep_the_favorite() -> void:
 	]
 	match_node.start(inputs, 3)
 	await _runner.simulate_frames(3, 17)
-	var joined := match_node.join_human(0)
+	var joined := _join(match_node, 0)
 	assert_object(joined).is_not_null()
 	assert_int(joined.color_index).is_equal(6)
 	assert_int(joined.kart.color_index).is_equal(6)
@@ -126,3 +126,11 @@ func test_the_colors_follow_the_palette_chosen() -> void:
 	var drawn := (row.get_child(1) as Button).get_theme_stylebox("normal") as StyleBoxFlat
 	assert_that(drawn.bg_color).is_equal(Palette.VISION_COLORS["deuteranopia"][1])
 	Palette.vision = was
+
+
+## Somebody sits down on [param device], the player already here having last touched the keyboard:
+## a real pad on the machine running the tests, touched while they run, is no part of what is
+## tested, and the devices touched last decide who is holding which, see [DeviceInput].
+func _join(match_node: Match, device: int) -> PlayerSlot:
+	DeviceInput.recent = [DeviceInput.KEYBOARD]
+	return match_node.join_human(device)

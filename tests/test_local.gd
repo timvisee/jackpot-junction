@@ -48,7 +48,7 @@ func test_joining_mid_match_takes_over_a_bot_and_settles_the_any_device_player()
 	var match_node := _start_match(inputs)
 	await _runner.simulate_frames(12, 17)
 	assert_int(match_node.hud._blocks.size()).is_equal(1)
-	var joined := match_node.join_human(1)
+	var joined := _join(match_node, 1)
 	assert_object(joined).is_not_null()
 	assert_int(joined.index).is_equal(1)
 	assert_bool(joined.is_human()).is_true()
@@ -61,14 +61,14 @@ func test_joining_mid_match_takes_over_a_bot_and_settles_the_any_device_player()
 	# Two players sitting here, so two corners: the one who was already here keeps theirs.
 	assert_int(match_node.hud._blocks[0]["corner"]).is_equal(0)
 	assert_int(match_node.hud._blocks[1]["corner"]).is_equal(1)
-	assert_object(match_node.join_human(1)).is_null()
+	assert_object(_join(match_node, 1)).is_null()
 	match_node.leave_human(joined)
 	assert_bool(joined.is_human()).is_false()
 	assert_object(joined.bot_trait).is_not_null()
 	assert_object(joined.kart.get_node_or_null("Brain")).is_not_null()
 	assert_int(match_node.hud._blocks.size()).is_equal(1)
 	# And the corner they gave up is the one the next player to sit down takes.
-	var again := match_node.join_human(1)
+	var again := _join(match_node, 1)
 	await _runner.simulate_frames(2, 17)
 	assert_int(match_node.hud._blocks[again.index]["corner"]).is_equal(1)
 
@@ -119,7 +119,7 @@ func test_a_player_taking_over_a_bot_wears_their_own_seats_dress() -> void:
 	var styles: Array = [PackedInt32Array([1, 1, 1, 1]), PackedInt32Array([2, 3, 1, 2])]
 	var match_node := _start_match(inputs, [], names, styles)
 	await _runner.simulate_frames(12, 17)
-	var joined := match_node.join_human(1)
+	var joined := _join(match_node, 1)
 	assert_int(joined.index).is_equal(1)
 	assert_str(joined.player_name).is_equal("Bea")
 	assert_array(Array(joined.style.to_array())).is_equal([2, 3, 1, 2])
@@ -135,16 +135,16 @@ func test_joining_without_bots_spawns_a_fresh_slot_until_the_match_is_full() -> 
 	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD), PlayerInput.new(0)]
 	var match_node := _start_match(inputs)
 	await _runner.simulate_frames(12, 17)
-	var third := match_node.join_human(1)
+	var third := _join(match_node, 1)
 	assert_object(third).is_not_null()
 	assert_int(match_node.slots.size()).is_equal(3)
 	assert_int(third.color_index).is_equal(2)
 	assert_int(third.banked).is_equal(0)
 	assert_bool(third.kart.alive).is_true()
 	assert_float(third.kart.protection_left).is_greater(0.0)
-	var fourth := match_node.join_human(2)
+	var fourth := _join(match_node, 2)
 	assert_object(fourth).is_not_null()
-	assert_object(match_node.join_human(3)).is_null()
+	assert_object(_join(match_node, 3)).is_null()
 	assert_int(match_node.camera_rig.targets.size()).is_equal(4)
 
 
@@ -204,3 +204,11 @@ func test_the_seats_are_named_in_the_settings() -> void:
 	(boxes[2] as LineEdit).text_changed.emit("  [b]Grace[/b]  ")
 	assert_str(Game.settings.player_names[2]).is_equal("bGrace/b")
 	Game.settings = real
+
+
+## Somebody sits down on [param device], the player already here having last touched the keyboard:
+## a real pad on the machine running the tests, touched while they run, is no part of what is
+## tested, and the devices touched last decide who is holding which, see [DeviceInput].
+func _join(match_node: Match, device: int) -> PlayerSlot:
+	DeviceInput.recent = [DeviceInput.KEYBOARD]
+	return match_node.join_human(device)

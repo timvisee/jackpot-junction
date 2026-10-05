@@ -213,7 +213,7 @@ func test_a_full_lobby_turns_away_another_seat_and_says_so() -> void:
 	assert_int(ready_room.seat_limit).is_equal(2)
 	assert_bool(ready_room._seat_hint.visible).is_true()
 	assert_bool(ready_room._full_hint.visible).is_false()
-	assert_object(match_node.join_human(5)).is_not_null()
+	assert_object(_join(match_node, 5)).is_not_null()
 	assert_bool(SeatLimit.full(match_node, session)).is_true()
 	assert_bool(SeatLimit.turns_away(room, match_node, session, 6)).is_true()
 	var notice := room.get_node("Notice") as NoticePane
@@ -241,7 +241,7 @@ func test_each_player_charges_their_own_arc_of_the_ring() -> void:
 	var room := await _open()
 	var match_node: Match = room.get_node("Match")
 	var ready_room: ReadyRoom = room.ready_room
-	match_node.join_human(DeviceInput.KEYBOARD + 1)
+	_join(match_node, DeviceInput.KEYBOARD + 1)
 	await _runner.simulate_frames(5, 17)
 	assert_int(ready_room.player_count()).is_equal(2)
 	# Only the second player drives on. Half the ring lights, in that player's color, and the
@@ -369,7 +369,7 @@ func test_the_seat_hint_shows_the_key_and_the_pad_button() -> void:
 func test_a_seat_taken_in_the_room_goes_through_to_the_arena() -> void:
 	var room := await _open()
 	var match_node: Match = room.get_node("Match")
-	var second := match_node.join_human(DeviceInput.KEYBOARD + 1)
+	var second := _join(match_node, DeviceInput.KEYBOARD + 1)
 	assert_object(second).is_not_null()
 	var config: MatchConfig = room.arena_config()
 	assert_int(config.human_devices.size()).is_equal(2)
@@ -523,7 +523,7 @@ func test_the_bots_fill_the_seats_nobody_is_in() -> void:
 	var match_node: Match = room.get_node("Match")
 	room.config.bot_count = 3
 	assert_int(room.arena_config().bot_count).is_equal(3)
-	match_node.join_human(DeviceInput.KEYBOARD + 1)
+	_join(match_node, DeviceInput.KEYBOARD + 1)
 	room.config.bot_count = 3
 	var config: MatchConfig = room.arena_config()
 	assert_int(config.bot_count).is_equal(2)
@@ -575,7 +575,7 @@ func test_a_client_fills_the_ring_and_waits_for_the_host_to_call_it() -> void:
 	ready_room.deciding = false
 	# Somebody else in the room who stays off the pad, so it never fills and the arcs are read
 	# as arcs rather than as the whole ring going green.
-	match_node.join_human(DeviceInput.KEYBOARD + 1)
+	_join(match_node, DeviceInput.KEYBOARD + 1)
 	await _runner.simulate_frames(2, 17)
 	var arc := ReadyRoom.SEGMENTS / 2
 	var slot: PlayerSlot = match_node.slots[0]
@@ -809,10 +809,7 @@ func test_the_side_list_is_who_is_in_the_room() -> void:
 	var room := await _open()
 	var match_node: Match = room.get_node("Match")
 	# The first player came in on the keyboard, and somebody picks up the first pad.
-	var recent := DeviceInput.recent.duplicate()
-	DeviceInput.recent = [DeviceInput.KEYBOARD]
-	match_node.join_human(DeviceInput.KEYBOARD + 1)
-	DeviceInput.recent = recent
+	_join(match_node, DeviceInput.KEYBOARD + 1)
 	await _runner.simulate_frames(3, 17)
 	var list: Scoreboard = match_node.hud._scoreboard
 	assert_bool(list.visible).is_true()
@@ -901,3 +898,11 @@ func test_a_room_with_nobody_in_it_is_never_ready() -> void:
 	ready_room.match_node.slots.clear()
 	assert_int(ready_room.player_count()).is_equal(0)
 	assert_bool(ready_room.all_ready()).is_false()
+
+
+## Somebody sits down on [param device], the player already here having last touched the keyboard:
+## a real pad on the machine running the tests, touched while they run, is no part of what is
+## tested, and the devices touched last decide who is holding which, see [DeviceInput].
+func _join(match_node: Match, device: int) -> PlayerSlot:
+	DeviceInput.recent = [DeviceInput.KEYBOARD]
+	return match_node.join_human(device)
