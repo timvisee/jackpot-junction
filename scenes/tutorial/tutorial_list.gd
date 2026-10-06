@@ -16,10 +16,15 @@ const MARK := Palette.CHIP_GOLD
 const MARK_SIDE := 18.0
 ## What the panel is headed, before the lesson's name.
 const HEADING := "Driving test  ·  %s"
-## The check a lesson done is: its color, how big, and for how long, in seconds.
+## A lesson done is stamped PASSED with the driving test's rubber stamp, GAME.md 8.1a: in what
+## green, how big, how far askew, and for how long, in seconds.
 const DONE := Color(0.36, 0.9, 0.46)
 const CHECK_SIDE := 72.0
 const CHECK_FOR := 1.0
+const PASSED := "PASSED"
+const STAMP_TURN := -0.2
+## The notch of a tick box's corners.
+const NOTCH := 4.0
 
 ## The lesson shown, and the one waiting for the check to clear.
 var _lesson: TutorialLesson
@@ -32,8 +37,9 @@ var _check: Mark
 var _check_left := 0.0
 
 
-## The tick box in front of a line, drawn: a square, and a check in it once done; or a check
-## alone, big and green, for a lesson done.
+## The tick box in front of a line, drawn as the house's tickets are, GAME.md 8.1a: notched at
+## its corners with a foil hairline, and once done filled with foil and checked in ink; or, for a
+## lesson done, the driving test's rubber stamp saying PASSED, see [StampArt].
 class Mark:
 	extends Control
 
@@ -54,19 +60,31 @@ class Mark:
 
 	func _draw() -> void:
 		var s := side
-		if boxed:
-			var box := Rect2(Vector2(1.0, 1.0), Vector2(s - 2.0, s - 2.0))
-			draw_rect(box, Color(0.0, 0.0, 0.0, 0.4))
-			draw_rect(box, ink if done else DONE_INK, false, 2.0)
+		if not boxed:
+			if done:
+				var day := LicenseCard.today()
+				StampArt.stamp(
+					self, size * 0.5, s * 0.5, PASSED, "DEPT. OF KARTS", day, STAMP_TURN, ink
+				)
+			return
+		var outline := TicketStyle.outline(
+			Vector2(s, s) - Vector2.ONE * 2.0, NOTCH, PackedFloat32Array(), 0.0, true, false
+		)
+		for i: int in outline.size():
+			outline[i] += Vector2.ONE
+		draw_colored_polygon(outline, ink if done else Color(0.0, 0.0, 0.0, 0.4))
+		var line := outline.duplicate()
+		line.append(outline[0])
+		draw_polyline(line, ink if done else DONE_INK, 1.5, true)
 		if done:
 			var check := PackedVector2Array(
 				[
-					Vector2(s * 0.22, s * 0.52),
-					Vector2(s * 0.43, s * 0.74),
-					Vector2(s * 0.8, s * 0.28)
+					Vector2(s * 0.24, s * 0.52),
+					Vector2(s * 0.43, s * 0.72),
+					Vector2(s * 0.78, s * 0.3)
 				]
 			)
-			draw_polyline(check, ink, maxf(2.6, s * 0.11), true)
+			draw_polyline(check, HouseTheme.ON_FOIL, maxf(2.4, s * 0.12), true)
 
 
 static func add_to(layer: CanvasLayer) -> TutorialList:
@@ -155,7 +173,7 @@ func refresh(lesson: TutorialLesson) -> void:
 			label.text = words
 		label.add_theme_color_override("default_color", DONE_INK if task.done else ink)
 		if line.has("bar"):
-			var bar: ProgressBar = line["bar"]
+			var bar: Range = line["bar"]
 			bar.visible = not task.done
 			bar.value = task.progress * 100.0
 		shown += 1

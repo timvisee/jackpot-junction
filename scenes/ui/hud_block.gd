@@ -228,24 +228,15 @@ static func scrim() -> TicketStyle:
 	return style
 
 
-## A slim bar, for what still fills one: the warm-up's. Rounded, thin, and in the color of whatever
-## it is measuring.
-static func bar(size: Vector2, ink: Color) -> ProgressBar:
-	var bar := ProgressBar.new()
-	bar.min_value = 0.0
-	bar.max_value = 100.0
-	bar.value = 0.0
-	bar.show_percentage = false
-	bar.custom_minimum_size = size
-	var back := StyleBoxFlat.new()
-	back.bg_color = Color(0.0, 0.0, 0.0, 0.45)
-	back.set_corner_radius_all(int(size.y * 0.5))
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = ink
-	fill.set_corner_radius_all(int(size.y * 0.5))
-	bar.add_theme_stylebox_override("background", back)
-	bar.add_theme_stylebox_override("fill", fill)
-	return bar
+## A gauge for what fills up over the HUD, a lesson's task or the driving test's last boss, GAME.md
+## 8.1a: the dashboard's own, a row of slanted cells lit in [param ink] as far as it has got, as
+## the nitro tank is, see [NitroCells]. From 0 to 100.
+static func bar(size: Vector2, ink: Color) -> Range:
+	var cells := NitroCells.new()
+	cells.custom_minimum_size = size
+	cells.ink = ink
+	cells.value = 0.0
+	return cells
 
 
 ## The pips of [param block] made up to [param most], the lives its kart may have, which a joker

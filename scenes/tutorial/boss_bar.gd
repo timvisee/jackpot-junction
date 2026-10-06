@@ -9,7 +9,7 @@ const INK := Palette.CHIP_GOLD
 
 var need := 1000
 
-var _bar: ProgressBar
+var _bar: Range
 var _count: Label
 var _title: Label
 

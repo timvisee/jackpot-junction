@@ -6,9 +6,10 @@ extends Node
 ## it runs after the HUD has put everything up for the frame and takes back what is not yet shown.
 ## The corner's own control hints stay off throughout: the line over the kart is saying it.
 ##
-## The pointer is read, not glimpsed: its line sits on a dark card, a frame pulses round the piece,
-## and as the card first appears a ring as wide as the screen shrinks onto it and away to nothing,
-## twice over, which is what pulls the eye to it wherever it was looking.
+## The pointer is read, not glimpsed: its line sits on a card of the house's stock cut to an arrow
+## at the piece, GAME.md 8.1a, corner brackets pulse round the piece the way an inspector frames
+## what is being looked at, and as the card first appears a ring as wide as the screen shrinks onto
+## it and away to nothing, twice over, which is what pulls the eye to it wherever it was looking.
 
 ## What can be shown: the nitro tank with the speedometer, the item slot, the hand of jokers, the
 ## lives, the pot, the banked score, the kills and deaths, and the kill feed.
@@ -22,6 +23,12 @@ const BOB := 8.0
 const BOB_RATE := 0.7
 const GAP := 14.0
 const FRAME_GROW := 6.0
+## The card's point, how long it is and the room round its words, and how long the brackets'
+## arms are against the piece's shorter side, kept between the two lengths given.
+const POINT := 14.0
+const CARD_ROOM := Vector2(14.0, 10.0)
+const ARMS := 0.3
+const ARM_LENGTHS := Vector2(10.0, 26.0)
 ## The ring that shrinks onto the pointer's card as it appears: how long one pass takes, in
 ## seconds, how many passes, and how far out it starts, as a share of the screen's diagonal.
 const RING_SECONDS := 1.1
@@ -35,8 +42,8 @@ var index := 0
 var shown: Dictionary[StringName, bool] = {}
 
 var _pointer: PanelContainer
+var _look: ArrowStyle
 var _row: HBoxContainer
-var _tip: Tip
 ## The pointer's line, words with the control drawn in where it names one, see [InputHint].
 var _line: Control
 var _frame: Frame
@@ -54,26 +61,7 @@ var _ring_left := 0.0
 var _ring_passes := 0
 
 
-## The triangle of the pointer, drawn, pointing left at the piece beside it or down at one under.
-class Tip:
-	extends Control
-
-	var down := false
-
-	func _init() -> void:
-		custom_minimum_size = Vector2(16.0, 16.0)
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	func _draw() -> void:
-		var points := (
-			PackedVector2Array([Vector2(1.0, 2.0), Vector2(15.0, 2.0), Vector2(8.0, 15.0)])
-			if down
-			else PackedVector2Array([Vector2(15.0, 1.0), Vector2(15.0, 15.0), Vector2(1.0, 8.0)])
-		)
-		draw_colored_polygon(points, INK)
-
-
-## The frame round the piece pointed at, drawn: a rounded box that pulses with the pointer.
+## The frame round the piece pointed at, drawn: a bracket at each corner, pulsing with the pointer.
 class Frame:
 	extends Control
 
@@ -87,7 +75,13 @@ class Frame:
 
 	func _draw() -> void:
 		var box := Rect2(Vector2(1.5, 1.5), size - Vector2(3.0, 3.0))
-		draw_rect(box, Color(INK, 0.45 + 0.55 * strength), false, 3.0)
+		var ink := Color(INK, 0.45 + 0.55 * strength)
+		var arm := clampf(minf(box.size.x, box.size.y) * ARMS, ARM_LENGTHS.x, ARM_LENGTHS.y)
+		for corner: Vector2 in [Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1)]:
+			var at := box.position + box.size * corner
+			var across := Vector2(1.0 - corner.x * 2.0, 0.0) * arm
+			var down := Vector2(0.0, 1.0 - corner.y * 2.0) * arm
+			draw_polyline(PackedVector2Array([at + across, at, at + down]), ink, 3.0, true)
 
 
 ## A padlock, drawn: shut for the bank, which is safe, open for the pot, which is not. The body
@@ -166,14 +160,12 @@ func _ready() -> void:
 	_pointer = PanelContainer.new()
 	_pointer.name = "Pointer"
 	_pointer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_pointer.add_theme_stylebox_override("panel", HudBlock.scrim())
+	_look = _card()
+	_pointer.add_theme_stylebox_override("panel", _look)
 	_row = HBoxContainer.new()
 	_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_row.add_theme_constant_override("separation", 8)
 	_pointer.add_child(_row)
-	_tip = Tip.new()
-	_tip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_row.add_child(_tip)
 	_pointer.visible = false
 	hud.add_child(_pointer)
 	_frame = Frame.new()
@@ -187,20 +179,29 @@ func _ready() -> void:
 	_also_pointer = PanelContainer.new()
 	_also_pointer.name = "AlsoPointer"
 	_also_pointer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_also_pointer.add_theme_stylebox_override("panel", HudBlock.scrim())
+	_also_pointer.add_theme_stylebox_override("panel", _card())
 	_also_row = HBoxContainer.new()
 	_also_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_also_row.add_theme_constant_override("separation", 8)
 	_also_pointer.add_child(_also_row)
-	var also_tip := Tip.new()
-	also_tip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_also_row.add_child(also_tip)
 	_also_pointer.visible = false
 	hud.add_child(_also_pointer)
 	_ring = Ring.new()
 	_ring.name = "Ring"
 	_ring.visible = false
 	hud.add_child(_ring)
+
+
+## A lesson's card, GAME.md 8.1a: the house's stock cut to an arrow at the piece it is about, the
+## lesson's cyan in a hairline inside its edge, laminated as a pane is.
+static func _card() -> ArrowStyle:
+	var card := ArrowStyle.cut(
+		Color(HouseTheme.STOCK, 0.9), ArrowStyle.Way.LEFT, POINT, CARD_ROOM.x, CARD_ROOM.y
+	)
+	card.edge = Color(INK, 0.55)
+	card.finish = "pane"
+	card.shadow = 8.0
+	return card
 
 
 ## Brings [param piece] in, with [param line] on a pointer beside it until [method pointer_done],
@@ -251,8 +252,7 @@ func show_piece(
 	_row.add_child(_line)
 	# A card that said something longer before keeps that width unless told to let it go.
 	_pointer.reset_size()
-	_tip.down = piece == &"hand"
-	_tip.queue_redraw()
+	_look.point(ArrowStyle.Way.DOWN if piece == &"hand" else ArrowStyle.Way.LEFT)
 	_pointer.visible = true
 	_frame.visible = true
 	_ring_left = RING_SECONDS

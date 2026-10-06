@@ -567,8 +567,10 @@ else's results screen, see 10.3.
   is not there any more.
 - The title screen offers Play, Play Online, the Driving School, the Garage,
   Settings and Quit, and until the driving test of 9.4a is passed a flyer
-  beside the Driving School button, pointing at it, the learner's L on it, NOW
-  ENROLLING blinking over "Earn your very own license here." and "No
+  beside the Driving School button, pointing at it: a sign of the school's
+  paper cut to an arrow at the button (`ArrowStyle`, 8.1a), a red hairline
+  inside its edge, the learner's L on it, NOW ENROLLING blinking in the rubber
+  stamp's red over "Earn your very own license here." in ink and "No
   experience required.", nudging toward the button now and then, a click or a
   tap on it the button's, fitted to the room beside the button, its words
   wrapped narrower on a phone or at a big UI scale, the L with its pointer alone
@@ -4376,15 +4378,18 @@ rules have a switch for it.
 corner on the left, headed "Driving test · " and the lesson's name, with its
 tasks under it, one lesson at a time; the kill feed, which hangs there too,
 hangs under the list while the list is up. The tick boxes, the bars and the
-rules are in the gold the game's name is written in. A task that is done is
+rules are in the gold the game's name is written in: a tick box is notched at
+its corners like the house's tickets, 8.1a, filled with foil and checked in ink
+once done, and a bar is the dashboard's own, a row of slanted cells lit as far as
+the task has got, as the nitro tank is. A task that is done is
 ticked and grayed with a short chime; the one
 being done is bright, with a bar under it where it is a matter of how far, and
 a count's box stays empty until the count is complete; tasks not yet
 reached are not shown, so the list grows as the lesson goes. A lesson done in
 any order shows all its tasks from the start, the one being done bright and the
 rest a shade dimmer, its stations set apart by a short rule with room round
-it. A lesson done is a big green check in place of its tasks for a second, under
-its name, and then the next lesson, or nothing until that starts: a list of
+it. A lesson done is stamped PASSED in green with the driving test's rubber stamp
+in place of its tasks for a second, under its name, and then the next lesson, or nothing until that starts: a list of
 lessons done was noise. On a touch screen it hangs under the menu button.
 
 **The notice.** A panel at the top center of the screen, no wider than its
@@ -4437,8 +4442,11 @@ neither.
 
 **The HUD comes in pieces.** At the start only the checklist and the hint are on
 the screen, the player's corner block not at all. Each piece of the corner block appears with the
-lesson it is for, with a pointer beside it, a frame pulsing round it and one line
-saying what it is, on the house's tag of 8.1a so it reads against any floor, and a ring
+lesson it is for, with a pointer beside it, corner brackets pulsing round it the
+way an inspector frames what is being looked at, and one line saying what it is,
+on a card of the house's stock cut to an arrow at the piece, its point part of
+the cut and a cyan hairline inside its edge (`ArrowStyle`, 8.1a), pointing down
+at the hand, so it reads against any floor, and a ring
 that starts as wide as the screen and shrinks onto the card and away to
 nothing in a second, twice over, which is what pulls the eye to it wherever it
 was looking; these stay until the lesson's first task is

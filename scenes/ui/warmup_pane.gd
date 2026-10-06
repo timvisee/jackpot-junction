@@ -15,7 +15,7 @@ const LINE := "Compiling shaders, please wait..."
 const SKIP := "Skip"
 ## How wide the line wraps, and the bar.
 const WIDE := 520.0
-const BAR_HEIGHT := 12.0
+const BAR_HEIGHT := 18.0
 ## How long it waits on a full bar before it fades, and how long the fade takes.
 const LINGER := 0.4
 const FADE := 0.4
@@ -63,7 +63,10 @@ func _ready() -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	column.add_child(row)
-	bar = HudBlock.bar(Vector2(WIDE - 80.0, BAR_HEIGHT), Palette.CHIP_GOLD)
+	# The loading screen's lane, GAME.md 8.1a: this is the game getting ready too.
+	bar = LoadingScreen.bar()
+	bar.max_value = 100.0
+	bar.custom_minimum_size = Vector2(WIDE - 80.0, BAR_HEIGHT)
 	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(bar)
 	percent = Label.new()
