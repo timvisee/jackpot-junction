@@ -18,6 +18,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Inspectors' hair.** The top of an inspector's head no longer shows through their hair in
+  the driving test.
 - **See your server's name.** Once you have connected to a server, Play Online's list shows the
   name it gives itself, and its games' lobbies say which server they are on; before, only the title
   over its games did.

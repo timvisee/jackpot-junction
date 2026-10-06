@@ -103,7 +103,8 @@ func _inspector(foot: Vector3, index: int) -> Dictionary:
 	face.radius = Crowd.HEAD
 	face.height = Crowd.HEAD * 2.0
 	_part(head, face, surfaces.painted(SKINS[index % SKINS.size()]), middle)
-	# The hair a flattened cap over the top and back of it, the forehead left bare.
+	# The hair a flattened cap over the top and back of it, the forehead left bare, and tall enough
+	# to stand a little proud of the crown: any flatter and the top of the head came through it.
 	var hair := SphereMesh.new()
 	hair.radius = Crowd.HEAD * 1.03
 	hair.height = Crowd.HEAD * 2.06
@@ -113,7 +114,7 @@ func _inspector(foot: Vector3, index: int) -> Dictionary:
 		surfaces.painted(HAIR[index % HAIR.size()]),
 		middle + Vector3(0.0, Crowd.HEAD * 0.42, -Crowd.HEAD * 0.14)
 	)
-	cap.scale = Vector3(1.0, 0.55, 1.0)
+	cap.scale = Vector3(1.0, 0.62, 1.0)
 	# The clipboard, held at the chest and tipped up toward the face, the paper on it, the clip.
 	var held := Node3D.new()
 	held.name = "Clipboard"
