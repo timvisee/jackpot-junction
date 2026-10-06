@@ -24,11 +24,11 @@ const NEW := "New profile"
 const ONLY_FROM_TITLE := "Manage profiles from the title screen."
 const FULL := "That is as many profiles as a machine keeps."
 const MAPS := "%d maps"
+const PLAYING_NOW := "Playing now  ·  %s"
 ## How long the second press of Delete is waited for, in seconds.
 const SURE_FOR := 3.0
-## How wide a name is, and how wide the plate beside it is drawn.
-const NAME_WIDE := 320.0
-const PLATE_WIDE := 112.0
+## How wide a row's buttons are.
+const BUTTON := Vector2(120.0, 44.0)
 
 ## Whether profiles can be made, changed, switched to and thrown away here: off inside a room, see
 ## the class.
@@ -77,50 +77,53 @@ func _ready() -> void:
 		column.add_child(SettingsScreen.page_line(FULL))
 
 
-## One profile: its name, its plate, and what can be done with it.
-func _row(profile: Profile) -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.name = "Profile%s" % profile.id
-	row.add_theme_constant_override("separation", 18)
+## One profile, as a seat card, see [SeatCard]: its chip in its first player's color with the
+## name's initial on it, the name over how much it has played, its plate, and what can be done with
+## it. The one playing is rimmed in foil.
+func _row(profile: Profile) -> SeatCard:
 	var playing := profile.id == _settings.profile.id
-	var named := Label.new()
-	named.text = profile.display_name()
-	named.custom_minimum_size = Vector2(NAME_WIDE, 0.0)
-	named.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	named.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	Type.strong(named, Type.BODY, Palette.CHIP_GOLD if playing else Palette.CHIP_WHITE)
-	row.add_child(named)
-	row.add_child(_plate_of(profile))
-	var played := Label.new()
-	played.text = MAPS % roundi(LifetimeStats.value_of(profile, &"maps"))
-	played.custom_minimum_size = Vector2(120.0, 0.0)
-	played.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	Type.text(played, Type.LABEL, Color(0.72, 0.72, 0.78))
-	row.add_child(played)
+	var maps := MAPS % roundi(LifetimeStats.value_of(profile, &"maps"))
+	var card := SeatCard.make(
+		profile.display_name(),
+		_color_of(profile),
+		profile.display_name().left(1).to_upper(),
+		PLAYING_NOW % maps if playing else maps,
+		playing
+	)
+	card.name = "Profile%s" % profile.id
+	card.custom_minimum_size.x = SeatCard.WIDE
+	card.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	card.show_plate(_worn_by(profile))
 	var edit := MenuTheme.button(EDIT, Type.BODY)
-	edit.custom_minimum_size = Vector2(120.0, MenuTheme.box_height())
+	edit.custom_minimum_size = BUTTON
 	edit.disabled = not can_switch
 	edit.pressed.connect(_edit.bind(profile))
-	row.add_child(edit)
+	card.actions.add_child(edit)
 	var switch := MenuTheme.button(PLAYING if playing else SWITCH, Type.BODY)
-	switch.custom_minimum_size = Vector2(170.0, MenuTheme.box_height())
+	switch.custom_minimum_size = BUTTON
 	switch.disabled = playing or not can_switch
 	switch.pressed.connect(_switch.bind(profile.id))
-	row.add_child(switch)
+	card.actions.add_child(switch)
 	var delete := MenuTheme.button(DELETE, Type.BODY)
-	delete.custom_minimum_size = Vector2(170.0, MenuTheme.box_height())
+	delete.custom_minimum_size = BUTTON
 	delete.disabled = playing or not can_switch
 	delete.pressed.connect(_delete.bind(profile.id, delete))
-	row.add_child(delete)
-	rows[profile.id] = {"row": row, "name": named, "edit": edit, "switch": switch, "delete": delete}
-	return row
+	card.actions.add_child(delete)
+	rows[profile.id] = {
+		"row": card, "name": card.name_label, "edit": edit, "switch": switch, "delete": delete
+	}
+	return card
 
 
-## What a profile's kart wears on its back: its plate, or before a license the learner's L itself
-## rather than a plate reading L.
-static func _plate_of(profile: Profile) -> Control:
-	var worn := "L" if profile.license_number.is_empty() else profile.license_plate
-	return LicensePlate.badge(worn, PLATE_WIDE)
+## The color of [param profile]'s first player, or the first seat's for one with none chosen.
+static func _color_of(profile: Profile) -> Color:
+	var chosen := profile.colors[0] if not profile.colors.is_empty() else -1
+	return Palette.player_color(chosen if chosen >= 0 else 0)
+
+
+## What a profile's kart wears on its back: its plate, or before a license the learner's L.
+static func _worn_by(profile: Profile) -> String:
+	return "L" if profile.license_number.is_empty() else profile.license_plate
 
 
 ## Asks for [param profile]'s name, its first player's, and calls it that.
@@ -141,6 +144,9 @@ func _rename(named: String, profile: Profile) -> void:
 	else:
 		profile.save_to_disk()
 	(rows[profile.id]["name"] as Label).text = profile.display_name()
+	(rows[profile.id]["row"] as SeatCard).set_chip(
+		_color_of(profile), profile.display_name().left(1).to_upper()
+	)
 
 
 ## The name [param title] asks for, [param text] in the box to start with, [param ok] on the

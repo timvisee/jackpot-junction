@@ -93,18 +93,18 @@ func test_the_license_and_the_players_page_show_the_favorite() -> void:
 	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
 	add_child(screen)
 	await await_idle_frame()
-	# Every color in a row for each seat, the chosen one ringed; a press on one chooses it.
+	# Every color in a row for each seat, a chip each, the chosen one ringed; a press on one
+	# chooses it, and the seat's own chip takes it.
 	var row: HBoxContainer = screen.find_child("Colors1", true, false)
 	assert_int(row.get_child_count()).is_equal(Palette.PLAYER_COLORS.size())
 	(row.get_child(6) as Button).pressed.emit()
 	assert_int(Game.settings.seat_color(1)).is_equal(6)
-	var ringed := (row.get_child(6) as Button).get_theme_stylebox("normal") as StyleBoxFlat
-	assert_int(ringed.border_width_top).is_greater(0)
-	var plain := (row.get_child(2) as Button).get_theme_stylebox("normal") as StyleBoxFlat
-	assert_int(plain.border_width_top).is_equal(0)
+	assert_bool((row.get_child(6) as Button).get_meta(&"chosen")).is_true()
+	assert_bool((row.get_child(2) as Button).get_meta(&"chosen")).is_false()
+	var seat_card: SeatCard = screen.find_child("Seat1", true, false)
+	assert_that(seat_card._ink).is_equal(Palette.player_color(6))
 	var first: HBoxContainer = screen.find_child("Colors0", true, false)
-	var three := (first.get_child(3) as Button).get_theme_stylebox("normal") as StyleBoxFlat
-	assert_int(three.border_width_top).is_greater(0)
+	assert_bool((first.get_child(3) as Button).get_meta(&"chosen")).is_true()
 
 
 ## A palette chosen for color blindness on the Accessibility page draws the Players page's colors
@@ -123,8 +123,8 @@ func test_the_colors_follow_the_palette_chosen() -> void:
 	var deuteranopia := Settings.VISIONS.find("deuteranopia")
 	choice.select(deuteranopia)
 	choice.item_selected.emit(deuteranopia)
-	var drawn := (row.get_child(1) as Button).get_theme_stylebox("normal") as StyleBoxFlat
-	assert_that(drawn.bg_color).is_equal(Palette.VISION_COLORS["deuteranopia"][1])
+	var drawn: Color = (row.get_child(1) as Button).get_meta(&"fill")
+	assert_that(drawn).is_equal(Palette.VISION_COLORS["deuteranopia"][1])
 	Palette.vision = was
 
 

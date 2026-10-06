@@ -11,12 +11,10 @@ extends PanelContainer
 ## Back: the menu is up again in its place.
 signal closed
 
-const NAME_WIDTH := 320.0
-## How wide a plate beside a name is drawn.
-const PLATE_WIDE := 96.0
-const KICK_SIZE := Vector2(120.0, 44.0)
-const HAND_SIZE := Vector2(170.0, 44.0)
-const TAG_INK := Color(0.66, 0.66, 0.72)
+## How wide a row is, and its buttons.
+const ROW_WIDE := 640.0
+const KICK_SIZE := Vector2(110.0, 44.0)
+const HAND_SIZE := Vector2(150.0, 44.0)
 
 var session: NetSession
 
@@ -37,7 +35,7 @@ func _ready() -> void:
 	column.add_child(_note)
 	column.add_child(MenuTheme.perforation())
 	_rows = VBoxContainer.new()
-	_rows.add_theme_constant_override("separation", 10)
+	_rows.add_theme_constant_override("separation", 8)
 	column.add_child(_rows)
 	_back = MenuTheme.button("Back")
 	_back.pressed.connect(func() -> void: closed.emit())
@@ -102,6 +100,7 @@ func _mine() -> Array[Dictionary]:
 						"name": slot.display_name(),
 						"color": slot.color(),
 						"plate": KartVisuals.plate_worn(slot.kart),
+						"seat": slot.index,
 						"me": true,
 					}
 				)
@@ -109,52 +108,40 @@ func _mine() -> Array[Dictionary]:
 	return found
 
 
-func _row(guest: Dictionary) -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 16)
-	var named := Label.new()
-	named.text = guest["name"]
-	named.custom_minimum_size = Vector2(NAME_WIDTH, 0.0)
-	named.clip_text = true
-	Type.strong(named, Type.BODY, guest.get("color", TAG_INK))
-	row.add_child(named)
-	# Somebody watching has no kart, and the room a plate would take.
-	row.add_child(LicensePlate.badge(str(guest.get("plate", "")), PLATE_WIDE))
-	var tag := Label.new()
-	tag.text = "Watching" if not guest.has("color") else "Playing"
-	tag.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	Type.text(tag, Type.LABEL, TAG_INK)
-	row.add_child(tag)
-	# Where the buttons would be on a row without them, so every row is the same height and the
-	# buttons line up.
-	if guest.get("me", false):
-		tag.text = "Me"
-		if _handing():
-			row.add_child(_room_for(HAND_SIZE))
-		row.add_child(_room_for(KICK_SIZE))
-		return row
-	var peer: int = guest["peer"]
+## Somebody in the game, as a seat card, see [SeatCard]: their chip in their color with their seat
+## on it, gray for a watcher with no kart; their name over whether they play or watch; the plate
+## their kart wears; and Make host and Kick at the right end. The host's own rows are rimmed in foil
+## and say Me, with nothing to press.
+func _row(guest: Dictionary) -> SeatCard:
+	var plays := guest.has("color")
 	var seat: int = guest.get("seat", -1)
+	var me: bool = guest.get("me", false)
+	var says := "Me" if me else ("Playing" if plays else "Watching")
+	var mark := str(seat + 1) if plays and seat >= 0 else ""
+	var card := SeatCard.make(
+		str(guest["name"]), guest.get("color", SeatCard.NO_COLOR), mark, says, me
+	)
+	card.custom_minimum_size.x = ROW_WIDE
+	# Room for the buttons on every row, so the plates line up over rows with none.
+	var room := KICK_SIZE.x + (HAND_SIZE.x + 10.0 if _handing() else 0.0)
+	card.actions.custom_minimum_size.x = room
+	# Somebody watching has no kart, and the room a plate would take.
+	card.show_plate(str(guest.get("plate", "")))
+	if me:
+		return card
+	var peer: int = guest["peer"]
 	# Somebody else playing can be handed the say at a dedicated server, GAME.md 9.3a. A LAN game's
 	# host is the machine it runs on, and has nobody to hand it to.
-	if _handing() and guest.has("color"):
+	if _handing() and plays:
 		var hand := MenuTheme.button("Make host", Type.BODY)
 		hand.custom_minimum_size = HAND_SIZE
 		hand.pressed.connect(func() -> void: session.host_controls.make_host(peer))
-		row.add_child(hand)
-	elif _handing():
-		row.add_child(_room_for(HAND_SIZE))
+		card.actions.add_child(hand)
 	var kick := MenuTheme.button("Kick", Type.BODY)
 	kick.custom_minimum_size = KICK_SIZE
 	kick.pressed.connect(func() -> void: session.host_controls.kick(peer, seat))
-	row.add_child(kick)
-	return row
-
-
-static func _room_for(button: Vector2) -> Control:
-	var room := Control.new()
-	room.custom_minimum_size = button
-	return room
+	card.actions.add_child(kick)
+	return card
 
 
 ## Whether the say here is a client's at a dedicated server, which it can hand to somebody else.

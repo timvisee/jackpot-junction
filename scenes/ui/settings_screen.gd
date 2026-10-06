@@ -392,28 +392,44 @@ static func _clear(button: Button) -> void:
 func _players_tab() -> Control:
 	var column := VBoxContainer.new()
 	column.name = "Players"
-	column.add_theme_constant_override("separation", 12)
+	column.add_theme_constant_override("separation", 8)
 	column.add_child(page_line(PLAYERS_LINE))
 	for seat: int in _settings.player_names.size():
-		# A seat another profile sits in, GAME.md 3.8, is that profile's name and way of driving.
-		var field := MenuTheme.field(
-			_settings.seat_name(seat), PlayerNames.PLACEHOLDER, PlayerNames.MAX_LENGTH
-		)
-		field.custom_minimum_size = Vector2(360.0, 44.0)
-		field.text_changed.connect(
-			func(text: String) -> void: _settings.set_seat_name(seat, PlayerNames.clean(text))
-		)
-		var row := MenuTheme.row("Seat %d" % (seat + 1), field)
-		row.add_child(_color_choice(seat))
-		row.add_child(_drive_switch(seat))
-		var linked := _settings.seat_profile(seat)
-		if linked != null:
-			var note := MenuTheme.subtitle(LINKED_TO % linked.display_name(), Type.LABEL)
-			note.name = "Linked%d" % seat
-			note.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-			row.add_child(note)
-		column.add_child(row)
+		column.add_child(_seat_card(seat))
 	return column
+
+
+## [param seat] as a seat card, see [SeatCard], as the profiles and a hosted game's players are:
+## its chip in its color with its number on it, the box its name is typed into over the profile it
+## is linked to, its colors, and how it drives.
+func _seat_card(seat: int) -> SeatCard:
+	var linked := _settings.seat_profile(seat)
+	var says := LINKED_TO % linked.display_name() if linked != null else ""
+	var card := SeatCard.make("", _chip_color(seat), str(seat + 1), says)
+	card.name = "Seat%d" % seat
+	card.custom_minimum_size.x = SeatCard.WIDE
+	card.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	card.plate.visible = false
+	if linked != null:
+		card.line.name = "Linked%d" % seat
+	# A seat another profile sits in, GAME.md 3.8, is that profile's name and way of driving.
+	var field := MenuTheme.field(
+		_settings.seat_name(seat), PlayerNames.PLACEHOLDER, PlayerNames.MAX_LENGTH
+	)
+	field.custom_minimum_size = Vector2(300.0, 40.0)
+	field.text_changed.connect(
+		func(text: String) -> void: _settings.set_seat_name(seat, PlayerNames.clean(text))
+	)
+	card.name_with(field)
+	card.actions.add_child(_color_choice(seat, card))
+	card.actions.add_child(_drive_switch(seat))
+	return card
+
+
+## The color [param seat]'s chip is in: its favorite, or the one its place gives it.
+func _chip_color(seat: int) -> Color:
+	var chosen := _settings.seat_color(seat)
+	return Palette.player_color(chosen if chosen >= 0 else seat)
 
 
 ## The line at the top of a page that says what it is for, GAME.md 8.5: short, gray and to the
@@ -426,11 +442,11 @@ static func page_line(text: String) -> Label:
 	return line
 
 
-## [param seat]'s favorite color, GAME.md 3.8, chosen from all of them in a row, each a swatch in
-## the palette worn, drawn again when the palette changes, the one chosen ringed in gold: the color
-## the seat is given wherever it is free, the kart on the license in it too. A single swatch that
-## moved on round them was a guess at what came next.
-func _color_choice(seat: int) -> HBoxContainer:
+## [param seat]'s favorite color, GAME.md 3.8, chosen from all of them in a row, each a chip in the
+## palette worn, drawn again when the palette changes, the one chosen ringed in gold, and the seat's
+## own chip on [param card] in it: the color the seat is given wherever it is free, the kart on the
+## license in it too. A single swatch that moved on round them was a guess at what came next.
+func _color_choice(seat: int, card: SeatCard) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.name = "Colors%d" % seat
 	row.add_theme_constant_override("separation", 4)
@@ -441,32 +457,51 @@ func _color_choice(seat: int) -> HBoxContainer:
 		swatch.name = "Color%d" % color
 		swatch.custom_minimum_size = Vector2(SWATCH, SWATCH)
 		swatch.tooltip_text = Palette.color_name(color)
+		swatch.focus_mode = Control.FOCUS_ALL
+		var empty := StyleBoxEmpty.new()
+		for state: String in ["normal", "hover", "pressed", "focus", "hover_pressed"]:
+			swatch.add_theme_stylebox_override(state, empty)
+		swatch.draw.connect(_draw_swatch.bind(swatch))
 		swatch.pressed.connect(
 			func() -> void:
 				_settings.set_seat_color(seat, color)
 				_ring_chosen(swatches, color)
+				card.set_chip(_chip_color(seat), str(seat + 1))
 		)
 		row.add_child(swatch)
 		swatches.append(swatch)
-	var shown := func() -> void: _ring_chosen(swatches, _settings.seat_color(seat))
+	var shown := func() -> void:
+		_ring_chosen(swatches, _settings.seat_color(seat))
+		card.set_chip(_chip_color(seat), str(seat + 1))
 	shown.call()
 	_seat_colors.append(shown)
 	return row
 
 
-## Each of [param swatches] in its own color, [param chosen] ringed in gold and the cursor's in
-## white.
+## Each of [param swatches] in its own color, [param chosen] ringed in gold, see
+## [method _draw_swatch].
 static func _ring_chosen(swatches: Array[Button], chosen: int) -> void:
 	for color: int in swatches.size():
-		var fill := Palette.player_color(color)
-		for state: String in ["normal", "hover", "pressed", "focus"]:
-			var look := StyleBoxFlat.new()
-			look.bg_color = fill.lightened(0.15) if state == "hover" else fill
-			look.set_corner_radius_all(int(SWATCH * 0.5))
-			var ring := color == chosen or state == "focus"
-			look.set_border_width_all(3 if ring else 0)
-			look.border_color = Color.WHITE if state == "focus" else Palette.CHIP_GOLD
-			swatches[color].add_theme_stylebox_override(state, look)
+		swatches[color].set_meta(&"fill", Palette.player_color(color))
+		swatches[color].set_meta(&"chosen", color == chosen)
+		swatches[color].queue_redraw()
+
+
+## A swatch, a chip in its color, GAME.md 8.1a: the chosen one ringed in gold and standing a little
+## bigger, and the one the cursor is on ringed in white.
+static func _draw_swatch(swatch: Button) -> void:
+	var fill: Color = swatch.get_meta(&"fill", Color.WHITE)
+	var chosen: bool = swatch.get_meta(&"chosen", false)
+	var middle := swatch.size * 0.5
+	var radius := minf(swatch.size.x, swatch.size.y) * 0.5
+	var lit := swatch.is_hovered() or swatch.has_focus()
+	ChipArt.chip(
+		swatch, middle, radius - (2.0 if chosen else 4.5), fill.lightened(0.1 if lit else 0.0)
+	)
+	if chosen:
+		swatch.draw_arc(middle, radius - 1.0, 0.0, TAU, 32, HouseTheme.FOIL, 2.2, true)
+	if swatch.has_focus():
+		swatch.draw_arc(middle, radius - 0.5, 0.0, TAU, 32, Color.WHITE, 1.6, true)
 
 
 ## A small button with the way [param seat] drives on it, simple or advanced, that changes it to

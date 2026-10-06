@@ -505,12 +505,12 @@ func test_the_hosts_menu_manages_its_players() -> void:
 	# The host itself is on it, its plate beside its name, marked Me, with nothing to kick; the
 	# bot is nobody's to kick.
 	var rows := menu._players._rows
-	var mine := rows.get_child(0) as HBoxContainer
-	assert_str((mine.get_child(0) as Label).text).is_equal(room.slots[0].display_name())
+	var mine := rows.get_child(0) as SeatCard
+	assert_str(mine.name_label.text).is_equal(room.slots[0].display_name())
 	var worn := KartVisuals.plate_worn(room.slots[0].kart)
 	assert_str(worn).is_not_empty()
-	assert_int(mine.get_child(1).get_child_count()).is_equal(1)
-	assert_str((mine.get_child(2) as Label).text).is_equal("Me")
+	assert_int(mine.plate.get_child_count()).is_equal(1)
+	assert_str(mine.line.text).is_equal("Me")
 	assert_int(mine.find_children("*", "Button", true, false).size()).is_equal(0)
 	assert_int(rows.find_children("*", "Button", true, false).size()).is_equal(0)
 	assert_str((rows.get_child(1) as Label).text).is_equal("Nobody else is here.")

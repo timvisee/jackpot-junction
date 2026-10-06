@@ -2474,6 +2474,15 @@ Amber and red belong to the boards and the warnings.
   bands of guilloché rings round the mark, drawn once and turned whole, once every
   four minutes; the name is set in the condensed Black in foil over a line of
   microprint between two rules; the buttons are tickets.
+- **Lists of people**: the profiles in the settings, the seats at this screen and
+  everybody in a hosted game are one row, the seat card (`SeatCard`): a ticket of
+  raised stock with a chip at its left end in the person's color, their seat's
+  number or their initial on it, gray for a watcher with no kart; their name over
+  a quiet line saying where they stand, Playing now, Linked to Bob, Me, Watching;
+  the plate their kart wears; and at the right end what can be done with them, with
+  the room for those kept on every row so the plates line up. The row that is you is
+  lit a step and rimmed in foil. The settings' two lists are the same width, so the
+  pages line up as the tabs are turned.
 - **Over a kart**: every hint hung over a kart stands on the house's tag, a small
   ticket of its stock with a foil hairline, and so does the item beside the kart;
   the words that float up off a kart, a graze's mult or a cash-out's tally, are set
@@ -3342,11 +3351,12 @@ like any other button.
   and Retake the driving test, which goes to the school; or, before one is
   earned, a word on where to get one, Earn it now, which goes to the school,
   and the learner's L the kart wears meanwhile.
-- **Players**: under a line saying what the page is for, a row each for the four
-  seats at this machine, Seat 1 to Seat 4, with a box for what the seat is called,
-  see 3.8, with the funny-name hint in an empty one, and after each the seat's
-  favorite color, 4.4, chosen from all of them in a row of round swatches, the
-  chosen one ringed in gold and none before one is, in the palette worn, drawn
+- **Players**: under a line saying what the page is for, a seat card of 8.1a each
+  for the four seats at this machine, its chip numbered 1 to 4 in the seat's color,
+  with a box for what the seat is called, see 3.8, with the funny-name hint in an
+  empty one, and after each the seat's favorite color, 4.4, chosen from all of them
+  in a row of chips, the chosen one ringed in gold and standing a little bigger and
+  none before one is, the seat's own chip taking it at once, in the palette worn, drawn
   again the moment Color blindness changes it; a single swatch that moved on
   round them was a guess at what came next. Then a small button with the picture of how that seat drives, simple or
   advanced, that changes it to the other, see 4.2. The first seat's is the Driving row of
@@ -3495,7 +3505,9 @@ like any other button.
   folder beside the settings file, `profiles/1.cfg` and on. The picture, the sound, the
   controls and their bindings, the touch layout and the lobby's choices stay with the
   machine, the same whoever plays. A profile is named for its first player. Each row
-  shows the name, the one playing's in gold, the plate the profile's kart wears, or
+  is a seat card of 8.1a, its chip in the first player's color with the name's
+  initial on it, the one playing's rimmed in foil and saying Playing now, with the
+  plate the profile's kart wears, or
   before a license the learner's L itself rather than a plate reading L, how many maps
   it has played, and Edit, Switch and Delete. Edit asks for the name in a dialog over the
   screen, a box with the name in it, Save and Cancel, and renames that player; a page of
@@ -3925,9 +3937,10 @@ which says the password was wrong, with Direct connect's boxes up holding the ad
 and the cursor on Join; so does Back, or B, which says nothing, since nothing went wrong.
 
 The host can show anybody out. Manage players, on the host's pause menu wherever the room is,
-comes up in place of the menu: everybody in the game, the host's own players first, marked Me
-and with nothing beside them, then each other player by the name and color of their seat and
-each watcher by the name the host gave them, with Kick beside every one of those. Every player
+comes up in place of the menu: everybody in the game as a seat card of 8.1a, the host's own
+players first, rimmed in foil, marked Me and with nothing beside them, then each other player by
+the name of their seat, its chip in their color with their seat's number, and each watcher by the
+name the host gave them on a gray chip, with Kick beside every one of those. Every player
 has the plate on their kart beside the name, see 4.4, or before a license the learner's L itself
 rather than a plate reading L, so the host can tell two Bobs apart; somebody watching has no kart
 and the room a plate would take. A client with
