@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.13.4] - 2026-10-06
+
+The game has a look of its own, House Print: menus, panes and the HUD are cut like tickets from
+dark card with gold foil, under a new logo. It plays with 0.13.x.
+
 ### Changed
 
 - **A look of its own.** Menus, buttons, boxes, lists, tabs, switches and sliders are cut like
@@ -1739,7 +1744,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.13.3...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.13.4...HEAD
+[0.13.4]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.4
 [0.13.3]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.3
 [0.13.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.2
 [0.13.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.1
