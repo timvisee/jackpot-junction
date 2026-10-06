@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **See your server's name.** Once you have connected to a server, Play Online's list shows the
+  name it gives itself, and its games' lobbies say which server they are on; before, only the title
+  over its games did.
+
 ## [0.13.2] - 2026-10-05
 
 Games and dedicated servers can have names, and your servers drag into order. It plays with

@@ -268,6 +268,42 @@ func test_a_kept_server_connects_in_one_press() -> void:
 	assert_int(Game.settings.last_server_port).is_equal(port)
 
 
+## GAME.md 9.3a: connected to, a kept server keeps what the server calls itself, and its row shows
+## it: as its name for one the player gave none, and before its address for one they did. Edited
+## to the same server, it still has it; made into another, it has not.
+func test_a_kept_server_shows_what_the_server_calls_itself() -> void:
+	_open_hall()
+	_hall.args.name = "Friday night"
+	Game.settings.servers.append(ServerList.entry("", "127.0.0.1", port))
+	Game.settings.servers.append(ServerList.entry("Home", "127.0.0.1", port + 50))
+	var screen := _screen()
+	await await_idle_frame()
+	var list: ServerList = screen._servers
+	assert_str(list.row_text(0)).is_equal("127.0.0.1:%d" % port)
+	list.connect_button(0).pressed.emit()
+	var opened := await _wait_until(func() -> bool: return _opened[0] == 1, 4000)
+	assert_bool(opened).override_failure_message("never went on: %s" % screen.busy_said()).is_true()
+	assert_str(str(Game.settings.servers[0]["called"])).is_equal("Friday night")
+	var read := Settings.new()
+	read.path = Game.settings.path
+	read.load_from_disk()
+	assert_str(str(read.servers[0]["called"])).is_equal("Friday night")
+	screen.show_list()
+	assert_str(list.row_text(0)).is_equal("Friday night\n127.0.0.1:%d" % port)
+	var named := ServerList.entry("Home", "127.0.0.1", port, "Friday night")
+	assert_str(ServerList.label(named)).is_equal("Home")
+	assert_str(ServerList.under(named)).is_equal("Friday night · 127.0.0.1:%d" % port)
+	# Named by the player, then edited: the same server still says what it is called.
+	screen.show_edit(Game.settings.servers[0])
+	screen.server_name_field.text = "Home"
+	screen.add_button.pressed.emit()
+	assert_str(list.row_text(0)).is_equal("Home\nFriday night · 127.0.0.1:%d" % port)
+	screen.show_edit(Game.settings.servers[0])
+	screen.port_field.text = str(port + 7)
+	screen.add_button.pressed.emit()
+	assert_str(str(Game.settings.servers[0]["called"])).is_empty()
+
+
 ## Remove asks first, and Keep keeps it; Remove takes it off, and an empty list says so again.
 func test_remove_asks_first() -> void:
 	Game.settings.servers.append(ServerList.entry("", "a.example.org", 7777))

@@ -164,6 +164,9 @@ func test_the_server_is_called_by_its_name() -> void:
 	)
 	assert_bool("Friday night" in said).is_true()
 	assert_bool("Games" in said).is_false()
+	# A game of it goes in knowing, for its lobby to say which server friends find it on.
+	screen._join({"port": port + 1}, "join")
+	assert_str(_entered[0].server_name).is_equal("Friday night")
 
 
 ## Somebody else's game is listed with Join and the eye that watches it, and each goes into its

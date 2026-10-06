@@ -12,7 +12,8 @@ extends VBoxContainer
 ## move it a place, the stick a place a push, and accept or back puts it down, as does the cursor
 ## going anywhere else.
 ##
-## A kept server is a dictionary of its "name", "address" and "port". It belongs to the player
+## A kept server is a dictionary of its "name", "address" and "port", and "called", what the server
+## said it is called the last time it was connected to, GAME.md 9.3a. It belongs to the player
 ## rather than the machine, with the rest of where they play, see [member Settings.servers].
 
 ## [param server] chosen, to connect to, to be taken off the list, or to be edited.
@@ -56,12 +57,14 @@ func _ready() -> void:
 	get_viewport().gui_focus_changed.connect(_on_focus_changed)
 
 
-## A kept server, cleaned: [param name] may be empty, and is then its address.
-static func entry(name: String, address: String, port: int) -> Dictionary:
+## A kept server, cleaned: [param name] may be empty, and is then what the server is
+## [param called], or its address for neither.
+static func entry(name: String, address: String, port: int, called := "") -> Dictionary:
 	return {
 		"name": name.strip_edges().left(NAME_LENGTH),
 		"address": address.strip_edges().left(ADDRESS_LENGTH),
 		"port": port,
+		"called": PlayerNames.clean(called, PlayerNames.TITLE_LENGTH),
 	}
 
 
@@ -123,7 +126,8 @@ static func clean(raw: Variant) -> Array[Dictionary]:
 			continue
 		if int(port) <= 0 or int(port) > 65535:
 			continue
-		kept.append(entry(str(said.get("name", "")), address, int(port)))
+		var called := str(said.get("called", ""))
+		kept.append(entry(str(said.get("name", "")), address, int(port), called))
 	return kept
 
 
@@ -132,10 +136,25 @@ static func where(server: Dictionary) -> String:
 	return "%s:%d" % [server["address"], server["port"]]
 
 
-## What [param server] is called on its row: its name, or where it is for one with none.
+## What [param server] is called on its row: the name the player gave it, or else the one the
+## server gives itself, or where it is for one with neither.
 static func label(server: Dictionary) -> String:
+	for named: String in [str(server["name"]), str(server.get("called", ""))]:
+		if not named.is_empty():
+			return named
+	return where(server)
+
+
+## The smaller line under [param server]'s name on its row: where it is, after what the server calls
+## itself when the player calls it something else; nothing for one known only by where it is.
+static func under(server: Dictionary) -> String:
+	if label(server) == where(server):
+		return ""
 	var named := str(server["name"])
-	return named if not named.is_empty() else where(server)
+	var called := str(server.get("called", ""))
+	if not named.is_empty() and not called.is_empty() and called != named:
+		return "%s · %s" % [called, where(server)]
+	return where(server)
 
 
 ## Whether [param a] and [param b] are the same server, whatever either is called.
@@ -181,8 +200,8 @@ func row_button(part: String, index: int) -> Button:
 
 
 ## One server: the grip it is moved by, the button that connects to it, its name over where it is,
-## smaller and in gray, or where it is alone for one with no name, and beside it the pencil and the
-## trash can.
+## smaller and in gray, see [method under], or where it is alone for one with no name, and beside it
+## the pencil and the trash can.
 func _row(server: Dictionary, index: int) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
@@ -192,14 +211,14 @@ func _row(server: Dictionary, index: int) -> HBoxContainer:
 	grip.mouse_default_cursor_shape = Control.CURSOR_DRAG
 	grip.gui_input.connect(_on_grip.bind(row, grip))
 	row.add_child(grip)
-	var named := not str(server["name"]).is_empty()
+	var named := not under(server).is_empty()
 	var join := MenuTheme.button("", Type.BODY)
 	join.name = "Server%d" % index
 	join.custom_minimum_size = Vector2(420.0, 64.0 if named else 52.0)
 	join.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	join.pressed.connect(func() -> void: chosen.emit(server))
 	row.add_child(join)
-	MenuTheme.two_lines(join, label(server), where(server) if named else "", WHERE_INK)
+	MenuTheme.two_lines(join, label(server), under(server), WHERE_INK)
 	var edit := IconButton.of(IconButton.Kind.PENCIL, "Edit")
 	edit.name = "Edit%d" % index
 	edit.pressed.connect(func() -> void: editing.emit(server))

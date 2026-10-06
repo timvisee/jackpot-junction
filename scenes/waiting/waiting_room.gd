@@ -185,8 +185,10 @@ func _join() -> void:
 					ready_room.hide_how_to_sit_down()
 		)
 	elif not config.server.is_empty():
-		# Anybody in a game of a dedicated server can tell a friend where it is, GAME.md 9.3a.
-		ready_room_hint("Friends find this game in Play Online, at %s" % config.server)
+		# Anybody in a game of a dedicated server can tell a friend where it is, GAME.md 9.3a: on
+		# the server called what it calls itself, if anything, at its address.
+		var on := "" if config.server_name.is_empty() else "on %s " % config.server_name
+		ready_room_hint("Friends find this game in Play Online, %sat %s" % [on, config.server])
 	if back:
 		# Asked for rather than waited for: the host seats whoever asks once its room is up, and
 		# this room is now up at this end to hear the answer.

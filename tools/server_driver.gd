@@ -217,8 +217,10 @@ func _joiner() -> void:
 	var session: NetSession = room.session
 	_check(not session.host_controls.mine(), "the joiner has no say")
 	_check(
-		room.ready_room._online_hint.text.begins_with("Friends find this game in Play Online"),
-		"the lobby says where friends find the game"
+		room.ready_room._online_hint.text.begins_with(
+			"Friends find this game in Play Online, on Server check (test) at 127.0.0.1:"
+		),
+		"the lobby says which server friends find the game on"
 	)
 	var first := await _play(room)
 	if first == null:

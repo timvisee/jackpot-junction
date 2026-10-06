@@ -309,6 +309,9 @@ func _add() -> void:
 		at = editing
 		_editing = {}
 	if at >= 0:
+		# Still the same server, it still says it is called what it did.
+		if ServerList.same(kept[at], server):
+			server["called"] = kept[at].get("called", "")
 		kept[at] = server
 	elif kept.size() >= ServerList.MOST:
 		dialog.say("Your list is full: remove a server first")
@@ -414,11 +417,20 @@ func _knock() -> void:
 	_knocking.tween_property(busy_bar, "value", KNOCK_REACH, KNOCK_FOR)
 
 
-## Let in: the bar full, and on to the server's games.
+## Let in: the bar full, what the server calls itself kept with it if it is on the list, and on to
+## the server's games.
 func _on_connected() -> void:
 	if _knocking != null:
 		_knocking.kill()
 	busy_bar.value = 1.0
+	var here := {"address": _address, "port": _port}
+	var learned := false
+	for kept: Dictionary in Game.settings.servers:
+		if ServerList.same(kept, here) and str(kept.get("called", "")) != link.server_name:
+			kept["called"] = link.server_name
+			learned = true
+	if learned:
+		Game.settings.save_to_disk()
 	open_games.call()
 
 

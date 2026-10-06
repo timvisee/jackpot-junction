@@ -3709,7 +3709,12 @@ button with a picture and its word for a tooltip: a pencil,
 Edit, which opens the dialog of Add a server with the server in its boxes, headed "Edit a server",
 whose Save changes it in its place on the list, and says "That server is on your list already" for
 one made into another server it keeps; and a trash can, "Remove", which asks first, "Remove this
-server?", with Remove and Keep. The order is the player's, kept with the list. A mouse or a
+server?", with Remove and Keep. The order is the player's, kept with the list. Connected to, a
+kept server keeps the name the server gives itself, see The server below, and shows it: as its
+name on the row for one the player gave none, and on the smaller line before its address, "Friday
+Night Karts · 1.2.3.4:7777", for one they did. The server's games screen has it for its title, and
+the lobby of one of its games names it. Edited into another server, a kept one forgets it until it
+is connected to again. A mouse or a
 finger drags a row by its grip, "Drag to move" its tooltip, the other rows making way as it goes,
 and it is kept where it is let go; the box scrolls while it is held at the box's top or bottom
 edge. The grip takes the cursor too, for a pad or the keyboard: accept, A or Enter, picks the row
@@ -3756,8 +3761,9 @@ does, the password asked for there if it has one. Back hangs up and goes back to
 screen, and so does the server going away, saying so. Back from one of its games, over, shown out
 of it, or with a wrong password or none, the first screen connects to the server again by itself,
 kept or not, and goes straight on to its games, which say why. Anybody in the game's lobby is told
-where friends find it, in Play Online at the server's address, in place of the line saying which
-port to join a LAN host on.
+where friends find it, in Play Online on the server, by the name it gives itself if it gives one,
+at its address, "Friends find this game in Play Online, on Friday Night Karts at 1.2.3.4:7777", in
+place of the line saying which port to join a LAN host on.
 A server and a LAN game are both found on 7777, so each says which it is at the door: LAN games
 knocking at a server is told it is a dedicated server whose games are in Play Online, and Play
 Online knocking at a LAN game, or at one of a server's games by its own port, that it is a game to
