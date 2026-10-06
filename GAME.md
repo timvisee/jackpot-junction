@@ -2176,16 +2176,19 @@ says what, which is the half of the question a bench cannot answer.
   notches round its rim and fine rings engraved in it, a crossroads cut through it
   in ink with foil curbs and cream lane lines down each arm, and the pot a red chip
   on the crossing, rimmed in ink. No neon: foil, ink and the red chip. Drawn small,
-  the mark itself under 64 pixels across, it is the foil chip alone, since a seal's
+  the mark itself under 96 pixels across, it is the foil chip alone, since a seal's
   fine lines and fine print are only mush at that size: the license's band wears
-  the chip, the title, the school and About the seal. As an icon it stands on a
-  plate, a ticket of the house's stock with notched corners, engraved waves and a
-  foil hairline, so a desktop has something to put it on. The name is a casino and
-  a road, and so is the mark. It is drawn in code like every other picture here,
-  see 8.3a, and `make logo` writes it out as the icons the project wears: `icon.png`,
-  512 pixels, for every platform and the boot splash, and for Windows, which picks
-  a window's icon from a set by the size it shows it at, `icon.ico` with every size
-  from 16 to 256 pixels each drawn at its size, so its small ones are the chip.
+  the chip, the title, the school and About the seal. The name is a casino and a
+  road, and so is the mark. It is drawn in code like every other picture here, see
+  8.3a, and `make logo` writes it out. The icon is the mark on nothing: `icon.png`,
+  512 pixels, for every platform, and for Windows, which picks a window's icon from
+  a set by the size it shows it at, `icon.ico` with every size from 16 to 256
+  pixels each drawn at its size, so its small ones are the chip. The splash is the
+  mark on a plate, a ticket of the house's stock with notched corners, engraved
+  waves and a foil hairline: `splash.png`, which the boot splash shows, and
+  `splash.ico`. `assets/logo/` keeps the icon, the foil chip alone and the splash at
+  128, 512 and 2048 pixels for use anywhere else, and the banner the README opens
+  with, the mark with the name beside it as About sets them.
   Changing the drawing and running that is the whole of changing the logo.
 - **Buttons** are the pane in miniature, tickets of 8.1a: dark stock with notched
   corners, a foil hairline faint enough to say it is a button, and the house's gold

@@ -1,4 +1,6 @@
-# Jackpot Junction
+<h1 align="center">
+  <img src="assets/logo/banner.png" alt="Jackpot Junction" width="476">
+</h1>
 
 A top-down arena kart game in which every life is a hand of cards. Drive a
 drifty toy kart through a bullet-filled diorama, collect poker-chip coins and

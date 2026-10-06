@@ -11,7 +11,7 @@ extends Control
 ## sharp at any size. `make logo` renders it to the icons the project wears.
 
 ## The mark under this many pixels across is the foil chip alone rather than the seal.
-const SMALL := 64.0
+const SMALL := 96.0
 ## The seal, as shares of half the side: how far out its scalloped edge is and how deep and how
 ## many its scallops, the ring of ink and how wide it is, and the foil chip in its middle.
 const SEAL := 0.97
@@ -39,6 +39,8 @@ const ON_PLATE := 0.72
 ## The plate behind it, the house's ticket, for a mark that has to sit on whatever a desktop puts
 ## behind an icon. A mark drawn onto a screen of the game's own does not need one.
 @export var plate := true
+## The foil chip alone at any size, rather than only when it is small.
+@export var chip_only := false
 
 ## The engraving, worked out for a size, and the size it was worked out for.
 var _lines: Array[PackedVector2Array] = []
@@ -56,14 +58,15 @@ func _draw() -> void:
 	if plate:
 		_draw_plate(unit)
 	if not shows_seal():
-		_draw_chip(middle, reach * 0.92, false)
+		_draw_chip(middle, reach * 0.92, reach * 2.0 >= SMALL)
 		return
 	_draw_seal(middle, reach)
 
 
-## Whether it is drawn as the seal, or as the foil chip alone, which it is when it is small.
+## Whether it is drawn as the seal, or as the foil chip alone, which it is when it is small or
+## asked to be.
 func shows_seal() -> bool:
-	return _reach() * 2.0 >= SMALL
+	return not chip_only and _reach() * 2.0 >= SMALL
 
 
 ## How far out from the middle the mark itself reaches, the plate left round it where there is one.
