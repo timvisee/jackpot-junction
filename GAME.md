@@ -4882,6 +4882,13 @@ many as the host asked for that the arena has seats left for, and nothing when t
 host says the number it asked for with the plan, and each machine takes off the seats its room
 has filled.
 
+At the top of the screen the lines are printed as the house's, 8.1a: on a ticket hung from the
+top edge as the clock board is in a match, square where it meets the edge and notched at its
+foot, the count in foil figures with what it counts in capitals beside it, and the next match
+under a perforation, "Next: Lucky Crossing · 3 min · first to 2000" or that the host is still
+choosing. How to take a seat, or that the room is full, and how to join from another machine go
+on a small tag of their own under the ticket, put away while there is nothing to say on it.
+
 The sign is a small board rather than the hoarding a room hangs its clock on. A hoarding is set
 back over a crowd and read from anywhere on the floor while a match is being played; there is no
 crowd here, the camera is holding the whole room, and up there it sat outside the shot. So it

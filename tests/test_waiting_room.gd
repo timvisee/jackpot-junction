@@ -349,11 +349,7 @@ func test_the_seat_hint_shows_the_key_and_the_pad_button() -> void:
 	for keyboard: bool in [true, false]:
 		Game.last_input_keyboard = keyboard
 		var room := await _open()
-		var hints: VBoxContainer = room.ready_room._hints
-		var seat: HBoxContainer = null
-		for line: Node in hints.get_children():
-			if line is HBoxContainer:
-				seat = line
+		var seat: HBoxContainer = room.ready_room._seat_hint
 		var captions: Array[String] = []
 		for part: Node in seat.get_children():
 			if part is InputGlyph:

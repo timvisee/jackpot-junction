@@ -101,10 +101,18 @@ var _ticks: Dictionary[int, Node3D] = {}
 var _full_for := -1.0
 var _board: ReadyStand
 var _counter: Label
+## The count's two halves as the ticket at the top of the screen sets them: the numbers in foil,
+## and what they count in capitals beside them.
+var _count_numbers: Label
+var _count_words: Label
 var _hints: VBoxContainer
 ## How to take a seat here, which is nothing to somebody only watching, GAME.md 10.3.
 var _seat_hint: Control
 var _full_hint: Label
+## The perforation over the next match's line, and the tag the ways in stand on, put away while
+## there is nothing on it.
+var _plan_tear: Control
+var _way_in: Control
 ## Whether the way to sit down is put away for good, on a machine that is only watching.
 var _no_seats_here := false
 var _online_hint: Label
@@ -264,6 +272,8 @@ func _say_the_count() -> void:
 	_said = words
 	if _counter != null:
 		_counter.text = words
+		_count_numbers.text = "%d / %d" % [ready_count(), player_count()]
+		_count_words.text = counted
 	if _board != null:
 		_board.say("%d / %d" % [ready_count(), player_count()], counted)
 
@@ -276,6 +286,13 @@ func _show_the_way_in() -> void:
 	var full := seat_limit > 0 and player_count() >= seat_limit
 	_seat_hint.visible = not full
 	_full_hint.visible = full
+	_fit_the_way_in()
+
+
+## The tag the ways in stand on, up while anything is on it.
+func _fit_the_way_in() -> void:
+	if _way_in != null:
+		_way_in.visible = _seat_hint.visible or _full_hint.visible or _online_hint.visible
 
 
 ## The bots coming in, as the count says them after the players: " + 2 BOTS", or nothing when
@@ -295,6 +312,7 @@ func _on_match_planned(summary: String, choosing: bool) -> void:
 	var who := "The host is" if Net.online() else "Still"
 	_plan.text = "%s choosing the match" % who if choosing else "Next: %s" % summary
 	_plan.visible = true
+	_plan_tear.visible = true
 
 
 ## What to say about getting more people into the room: how somebody at this machine takes a
@@ -310,11 +328,13 @@ func hide_how_to_sit_down() -> void:
 		_seat_hint.visible = false
 	if _full_hint != null:
 		_full_hint.visible = false
+	_fit_the_way_in()
 
 
 func say_how_to_join(online: String) -> void:
 	_online_hint.text = online
 	_online_hint.visible = not online.is_empty()
+	_fit_the_way_in()
 
 
 ## Which players are standing on the pad this frame.
@@ -453,36 +473,79 @@ func _build_board() -> void:
 
 
 ## And the same count at the top of the screen, for the player who is looking at their own kart
-## rather than at the room.
+## rather than at the room: on a ticket hung from the top edge as the clock board is in a match,
+## GAME.md 8.1a, the count in foil figures with what it counts in capitals beside it, and the next
+## match under a perforation. How to take a seat goes on a tag of its own under the ticket.
 func _build_counter() -> void:
 	var layer := CanvasLayer.new()
 	layer.name = "ReadyCount"
 	layer.layer = 12
 	match_node.add_child(layer)
-	_counter = Label.new()
-	_counter.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
-	_counter.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	_counter.offset_top = 18.0
-	_counter.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_counter.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Type.set_font(_counter, Type.numbers_font(), Type.HEADING)
-	HudText.shadowed(_counter)
 	_hints = VBoxContainer.new()
 	_hints.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	_hints.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	_hints.offset_top = 18.0
 	_hints.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_hints.alignment = BoxContainer.ALIGNMENT_CENTER
-	_hints.add_theme_constant_override("separation", 6)
+	_hints.add_theme_constant_override("separation", 8)
 	layer.add_child(_hints)
-	_hints.add_child(_counter)
+	var ticket := PanelContainer.new()
+	ticket.name = "Ticket"
+	ticket.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ticket.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	# Hung from the top edge: square where it meets it, notched at its foot.
+	var look := TicketStyle.cut(Color(HouseTheme.STOCK, 0.9), 10.0, 28.0, 10.0)
+	look.notch_top = false
+	look.frame = Color(HouseTheme.FOIL, 0.35)
+	look.frame_body = Color(HouseTheme.FOIL, 0.12)
+	look.frame_inset = 5.0
+	look.shadow = 10.0
+	Surface.wear(look, "pane")
+	ticket.add_theme_stylebox_override("panel", look)
+	_hints.add_child(ticket)
+	var inside := VBoxContainer.new()
+	inside.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	inside.add_theme_constant_override("separation", 4)
+	ticket.add_child(inside)
+	var count := HBoxContainer.new()
+	count.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	count.alignment = BoxContainer.ALIGNMENT_CENTER
+	count.add_theme_constant_override("separation", 12)
+	inside.add_child(count)
+	_count_numbers = Label.new()
+	_count_numbers.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Type.set_font(_count_numbers, Type.numbers_font(), Type.HEADING)
+	_count_numbers.add_theme_color_override("font_color", HouseTheme.FOIL)
+	_count_numbers.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	count.add_child(_count_numbers)
+	_count_words = Label.new()
+	_count_words.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Type.strong(_count_words, Type.LABEL, HouseTheme.WORDS)
+	_count_words.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	count.add_child(_count_words)
+	# The whole line as one, still kept for what reads it, put away: the ticket says it in two.
+	_counter = Label.new()
+	_counter.visible = false
+	inside.add_child(_counter)
+	_plan_tear = MenuTheme.perforation()
+	_plan_tear.visible = false
+	inside.add_child(_plan_tear)
 	_plan = Label.new()
 	_plan.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_plan.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_plan.visible = false
-	Type.text(_plan, Type.LABEL, READY_INK)
-	HudText.shadowed(_plan)
-	_hints.add_child(_plan)
+	Type.text(_plan, Type.LABEL, HouseTheme.QUIET)
+	inside.add_child(_plan)
+	var tag := PanelContainer.new()
+	tag.name = "WayIn"
+	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tag.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	tag.add_theme_stylebox_override("panel", HudBlock.scrim())
+	_hints.add_child(tag)
+	var ways_in := VBoxContainer.new()
+	ways_in.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ways_in.add_theme_constant_override("separation", 4)
+	tag.add_child(ways_in)
+	_way_in = tag
 	# Both ways in, drawn as the buttons they are, the way the lobby says it. Whoever is about to
 	# take a seat has not pressed anything yet, so the device this machine last heard from says
 	# which one the player already driving is holding, not which one the newcomer has picked up.
@@ -498,7 +561,7 @@ func _build_counter() -> void:
 		Type.LABEL
 	)
 	seat.alignment = BoxContainer.ALIGNMENT_CENTER
-	_hints.add_child(seat)
+	ways_in.add_child(seat)
 	_seat_hint = seat
 	_full_hint = Label.new()
 	_full_hint.text = "Maximum number of players reached"
@@ -506,12 +569,10 @@ func _build_counter() -> void:
 	_full_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_full_hint.visible = false
 	Type.text(_full_hint, Type.LABEL, HINT_INK)
-	HudText.shadowed(_full_hint)
-	_hints.add_child(_full_hint)
+	ways_in.add_child(_full_hint)
 	_online_hint = Label.new()
 	_online_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_online_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_online_hint.visible = false
 	Type.text(_online_hint, Type.LABEL, HINT_INK)
-	HudText.shadowed(_online_hint)
-	_hints.add_child(_online_hint)
+	ways_in.add_child(_online_hint)
