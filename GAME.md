@@ -2171,30 +2171,30 @@ says what, which is the half of the question a bench cannot answer.
 - **The mark**: a seal, engraved the way a banknote's is, in the house print of
   8.1a. A scalloped medallion of foil engraved with guilloché bands, a ring of ink
   with the house's fine print running round it, JACKPOT JUNCTION · DEPT. OF KARTS ·
-  LICENSED ON EVERY TABLE, the game's name over the top, and filling the middle
-  the foil chip: the Junction seen from above, a poker chip of foil with cream
-  notches round its rim and fine rings engraved in it, a crossroads cut through it
-  in ink with foil curbs and cream lane lines down each arm, and the pot a red chip
-  on the crossing, rimmed in ink. No neon: foil, ink and the red chip. Drawn small,
-  the mark itself under 96 pixels across, it is the foil chip alone, since a seal's
-  fine lines and fine print are only mush at that size: the license's band wears
-  the chip, the title, the school and About the seal. The name is a casino and a
-  road, and so is the mark. It is drawn in code like every other picture here, see
-  8.3a, and `make logo` writes it out. The icon is the mark on nothing: `icon.png`,
-  512 pixels, for every platform, and for Windows, which picks a window's icon from
-  a set by the size it shows it at, `icon.ico` with every size from 16 to 256
-  pixels each drawn at its size, so its small ones are the chip. The splash is the
-  mark on a plate, a ticket of the house's stock with notched corners, engraved
-  waves and a foil hairline: `splash.png`, which the boot splash shows, and
-  `splash.ico`. `assets/logo/` keeps the icon, the foil chip alone and the splash at
-  128, 512 and 2048 pixels for use anywhere else, and the banner the README opens
-  with, the mark with the name beside it as About sets them. It also keeps Android's
-  launcher icon, which the export names: a launcher since Android 8 cuts its own
-  shape out of layers, so the stock and its waves fill one to the edges, the seal
-  sits on another inside the circle no shape cuts into, and a third is the foil
-  chip in one ink, cut rather than shaded, for a launcher that tints its icons;
-  before Android 8, the splash.
-  Changing the drawing and running that is the whole of changing the logo.
+  LICENSED ON EVERY TABLE, the game's name over the top, and filling the middle the
+  foil chip: the Junction seen from above, a poker chip of foil with cream notches
+  round its rim and fine rings engraved in it, a crossroads cut through it in ink
+  with foil curbs and cream lane lines down each arm, and the pot a red chip on the
+  crossing, rimmed in ink. No neon: foil, ink and the red chip. Drawn small, the
+  mark itself under 96 pixels across, it is the foil chip alone, since a seal's fine
+  lines and fine print are only mush at that size: the license's band wears the
+  chip, the title, the school and About the seal. The name is a casino and a road,
+  and so is the mark. It is drawn in code like every other picture here, see 8.3a,
+  and `make logo` writes it out. The icon is the mark on nothing: `icon.png`, 512
+  pixels, for every platform, and for Windows, which picks a window's icon from a
+  set by the size it shows it at, `icon.ico` with every size from 16 to 256 pixels
+  each drawn at its size, so its small ones are the chip. The splash is the mark on
+  a plate, a ticket of the house's stock with notched corners, engraved waves and a
+  foil hairline: `splash.png`, which the boot splash shows on the stock the title
+  stands on, and `splash.ico`. `assets/logo/` keeps the icon, the foil chip alone
+  and the splash at 128, 512 and 2048 pixels for use anywhere else, and the banner
+  the README opens with, the mark with the name beside it as About sets them. It
+  also keeps Android's launcher icon, which the export names: a launcher since
+  Android 8 cuts its own shape out of layers, so the stock and its waves fill one to
+  the edges, the seal sits on another inside the circle no shape cuts into, and a
+  third is the foil chip in one ink, cut rather than shaded, for a launcher that
+  tints its icons; before Android 8, the splash. Changing the drawing and running
+  that is the whole of changing the logo.
 - **Buttons** are the pane in miniature, tickets of 8.1a: dark stock with notched
   corners, a foil hairline faint enough to say it is a button, and the house's gold
   round whichever one has the cursor, with a lane chevron at its left end. A menu

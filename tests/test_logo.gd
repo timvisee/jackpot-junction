@@ -40,6 +40,9 @@ func test_the_project_wears_the_icon_and_the_splash_and_they_are_there() -> void
 	if splash.begins_with("uid://"):
 		splash = ResourceUID.uid_to_path(splash)
 	assert_str(splash).is_equal(SPLASH)
+	# Behind the splash, the stock the title screen stands on, so the one runs into the other.
+	var behind: Color = ProjectSettings.get_setting("application/boot_splash/bg_color")
+	assert_str(behind.to_html()).is_equal(HouseTheme.STOCK.to_html())
 	for path: String in [ICON, SPLASH]:
 		assert_bool(FileAccess.file_exists(path)).is_true()
 		var image := _picture(path)
