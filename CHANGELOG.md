@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.13.3] - 2026-10-06
+
+Dedicated servers can ask for a password, and your list of servers shows their own names. It plays
+with 0.13.x.
+
 ### Added
 
 - **A password for your server.** Start a dedicated server with `--password` or `JJ_PASSWORD` and
@@ -1696,7 +1701,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.13.2...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.13.3...HEAD
+[0.13.3]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.3
 [0.13.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.2
 [0.13.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.1
 [0.13.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.0
