@@ -79,9 +79,9 @@ static func add_to(parent: Control) -> SchoolEnrollment:
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(center)
+	# In the middle, and scrolled where a big UI scale on a short screen leaves it too tall, GAME.md
+	# 8.5: the way in to the school is under all of it.
+	var center := MenuTheme.centered(self)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 10)
 	center.add_child(column)

@@ -71,6 +71,16 @@ static func background(parent: Control) -> void:
 ## makes a long list of settings longer than the window it is in.
 static func screen(parent: Control, separation: int = 16) -> VBoxContainer:
 	background(parent)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", separation)
+	centered(parent).add_child(column)
+	return column
+
+
+## The middle of [param parent], for a page or a pane to sit in: in the middle of the window when
+## it fits, and scrolled, following the cursor, when it does not, which a big UI scale on a short
+## screen does to most of them, GAME.md 8.5. Returns the container to put it in.
+static func centered(parent: Control) -> CenterContainer:
 	var scroll := ScrollContainer.new()
 	scroll.name = "Scroll"
 	scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -81,10 +91,7 @@ static func screen(parent: Control, separation: int = 16) -> VBoxContainer:
 	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	center.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.add_child(center)
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", separation)
-	center.add_child(column)
-	return column
+	return center
 
 
 ## A heading, GAME.md 8.1a: the display cut in capitals, in foil, standing on a dark shadow a few

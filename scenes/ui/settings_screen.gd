@@ -599,6 +599,12 @@ func _accessibility_tab() -> Control:
 	)
 	column.add_child(
 		MenuTheme.row(
+			"Cursor glide",
+			_check(_settings.cursor_glide, func(on: bool) -> void: _settings.cursor_glide = on)
+		)
+	)
+	column.add_child(
+		MenuTheme.row(
 			"Rumble", _check(_settings.rumble, func(on: bool) -> void: _settings.rumble = on)
 		)
 	)

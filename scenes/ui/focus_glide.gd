@@ -44,6 +44,9 @@ func _on_focus(control: Control) -> void:
 	_last = control
 	if not _glides(control) or before == null or not is_instance_valid(before):
 		return
+	# Switched off in Accessibility for anybody the motion bothers, GAME.md 8.5.
+	if Game.settings != null and not Game.settings.cursor_glide:
+		return
 	if not before.is_visible_in_tree() or not _glides(before) or before == control:
 		return
 	_from = _rect_of(before)

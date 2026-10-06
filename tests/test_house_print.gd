@@ -274,3 +274,43 @@ static func _area(points: PackedVector2Array) -> float:
 		var b := points[(i + 1) % points.size()]
 		twice += a.x * b.y - b.x * a.y
 	return absf(twice) * 0.5
+
+
+## The cursor's glide is on by default and kept switched off for anybody who turns it off in
+## Accessibility, GAME.md 8.5.
+func test_the_cursor_glide_can_be_switched_off_and_stays_off() -> void:
+	var settings := Settings.new()
+	assert_bool(settings.cursor_glide).is_true()
+	settings.path = "user://test_cursor_glide.cfg"
+	settings.cursor_glide = false
+	assert_int(settings.save_to_disk()).is_equal(OK)
+	var read := Settings.new()
+	read.path = settings.path
+	read.load_from_disk()
+	assert_bool(read.cursor_glide).is_false()
+	Settings.remove_files(settings.path)
+
+
+## The part of a pane that scrolls is as tall as what it holds while there is room for it, and no
+## taller than the screen leaves once the rest of the pane has its room, GAME.md 8.5.
+func test_a_pane_too_tall_for_the_screen_scrolls_its_body() -> void:
+	var pane := PanelContainer.new()
+	var column := VBoxContainer.new()
+	pane.add_child(column)
+	var head := Control.new()
+	head.custom_minimum_size = Vector2(200.0, 100.0)
+	column.add_child(head)
+	var body := Control.new()
+	body.custom_minimum_size = Vector2(200.0, 300.0)
+	var scroll := FitScroll.around(body, pane)
+	column.add_child(scroll)
+	add_child(pane)
+	await await_idle_frame()
+	scroll.fit()
+	assert_float(scroll.custom_minimum_size.y).is_equal(300.0)
+	body.custom_minimum_size.y = 5000.0
+	scroll.fit()
+	var screen := scroll.get_viewport_rect().size.y
+	assert_float(scroll.custom_minimum_size.y).is_less(screen)
+	assert_float(pane.get_combined_minimum_size().y).is_less_equal(screen)
+	pane.free()

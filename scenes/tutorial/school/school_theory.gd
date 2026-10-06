@@ -294,9 +294,7 @@ static func add_to(parent: Control) -> SchoolTheory:
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(center)
+	var center := MenuTheme.centered(self)
 	var pane := MenuTheme.pane()
 	center.add_child(pane)
 	var column := VBoxContainer.new()

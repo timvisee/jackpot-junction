@@ -436,8 +436,12 @@ deaths in gray, and a dashed rule under the line. The line of whoever is reading
 slip is marked in foil, the way a line is with a highlighter, and the winner's is
 stamped WINNER with the driving test's red rubber stamp. A barcode of the match's
 number and the small print close the slip, and the ways on are its stub, torn off
-along a perforation, the one that carries the match on, Rematch, Next map or
-Continue, in foil. Under each player up to three awards pick out what they did most
+along a perforation, printed for paper rather than cut from stock: the one that
+carries the match on, Rematch, Next map or Continue, a ticket of ink with its words
+in foil, and the rest only drawn in ink, a hairline round words in ink; the page
+arrows and dots of a Grand Prix are in ink too, the page being read marked in the
+stamp's red. On a screen too short for the slip, a phone's under a big UI scale,
+8.5, the photo and the lines scroll between the title and the stub, which stay put. Under each player up to three awards pick out what they did most
 compared with the others, as separate chips rather than run together into one
 sentence, leaders first, ranked by how far ahead of the others' average they
 are: Trigger Happy (shots fired), Butterfingers (chips lost), Vacuum Cleaner
@@ -2156,7 +2160,11 @@ says what, which is the half of the question a bench cannot answer.
   corners, a foil hairline faint enough to say it is a button, and the house's gold
   round whichever one has the cursor, with a lane chevron at its left end. A menu
   driven with a stick has to say where the cursor is without being pointed at, so
-  the focused state and the hovered state are the same state.
+  the focused state and the hovered state are the same state. On paper, the payout
+  slip's stub, a button is printed instead (`HouseTheme.PAPER_BUTTON`): words in
+  ink inside an ink hairline, a wash of ink and the chevron in ink under the cursor,
+  and the way on a ticket of ink with foil words (`PAPER_PRIMARY`), since foil laid
+  on cream is gold nobody can read.
 - **The title screen** wears the mark of 8.1 over the name, the name set in the
   condensed capitals of 8.1a in foil, and has a carnival
   sunburst turning slowly behind it, its wedges a faint light over the engraved
@@ -2445,10 +2453,14 @@ Amber and red belong to the boards and the warnings.
 same way, a little quicker, 14 px down in 0.12 s with its shade fading alongside it
 (`MenuTheme.put_away`): the pause menu, a notice and the dialogs. A menu on its way
 out is not open, so the room is the player's again the moment they close it, and a
-pane dealt in again on its way out simply stays. Focus slides from one control to
-the next: a gold frame glides from the button the cursor left to the one it reached
-in 0.14 s and fades as it lands (`FocusGlide`), while the control with the focus
-wears its own frame all along. A press is a stamp. Only the title's rings turn.
+pane dealt in again on its way out simply stays. Through the motion a pane asks its
+container where it rests every frame, so a layout settled late, or a pane caught
+mid-way and dealt again, still ends where it belongs. Focus slides from one control
+to the next: a gold frame glides from the button the cursor left to the one it
+reached in 0.16 s and fades as it lands (`FocusGlide`), following the button if it
+is still being laid out or rising with its pane, and drawn at the very point it has
+reached rather than snapped to whole pixels, while the control with the focus wears
+its own frame all along. The glide can be switched off in Accessibility, 8.5. A press is a stamp. Only the title's rings turn.
 None of it happens where nothing is drawn, so the tests see every pane where it
 settles.
 
@@ -3377,7 +3389,8 @@ like any other button.
   page and in Accessibility alike, since it is both what a card can afford and
   the busiest thing on screen that has nothing to do with the match. Nothing
   about the crowd changes anything a kart can touch.
-- **Accessibility**: screen shake on or off, flash reduction, aim assist
+- **Accessibility**: screen shake on or off, flash reduction, the cursor's glide
+  between buttons on or off (on by default, 8.1a), aim assist
   strength from 0% to 100% of the default and never above it, per player, the
   aim guide on or off, the disco lights Full, Few or Off, the control hints on or off,
   crowd Full, Half or Off, and the fixed camera on or off. Few lights three heads

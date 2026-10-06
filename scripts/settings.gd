@@ -123,6 +123,9 @@ var tire_marks := MARKS_SHORT if OS.has_feature("mobile") else MARKS_FULL
 var crowd_size := 0.5 if OS.has_feature("mobile") else 1.0
 var screen_shake := true
 var flash_reduction := false
+## The gold frame gliding from one button to the next as the cursor moves, GAME.md 8.1a. On by
+## default; off for anybody the motion bothers, and the focused button still wears its frame.
+var cursor_glide := true
 ## 0 to 1 of the default aim assist, never more.
 var aim_assist := 1.0
 var rumble := true
@@ -322,6 +325,7 @@ func _load_machine(file: ConfigFile) -> void:
 		crowd_size = 0.0
 	screen_shake = file.get_value("accessibility", "screen_shake", screen_shake)
 	flash_reduction = file.get_value("accessibility", "flash_reduction", flash_reduction)
+	cursor_glide = file.get_value("accessibility", "cursor_glide", cursor_glide)
 	aim_assist = clampf(
 		file.get_value("accessibility", "aim_assist", aim_assist), 0.0, AIM_ASSIST_MAX
 	)
@@ -394,6 +398,7 @@ func save_to_disk() -> Error:
 	file.set_value("video", "crowd_size", crowd_size)
 	file.set_value("accessibility", "screen_shake", screen_shake)
 	file.set_value("accessibility", "flash_reduction", flash_reduction)
+	file.set_value("accessibility", "cursor_glide", cursor_glide)
 	file.set_value("accessibility", "aim_assist", aim_assist)
 	file.set_value("accessibility", "rumble", rumble)
 	file.set_value("accessibility", "aim_guide", aim_guide)

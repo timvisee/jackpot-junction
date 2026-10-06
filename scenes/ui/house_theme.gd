@@ -40,6 +40,13 @@ const RIM_LIT := 0.55
 const RIM_DOWN := 0.4
 ## The type variation of a button that moves things on, GAME.md 8.1a: Done, Rematch, Resume.
 const PRIMARY := &"PrimaryButton"
+## The type variations of the buttons printed on paper, GAME.md 8.1a: a way out drawn in ink, and
+## the way on as a ticket of ink with foil words, the one dark thing on the page, since foil laid on
+## cream is gold on gold.
+const PAPER_BUTTON := &"PaperButton"
+const PAPER_PRIMARY := &"PaperPrimaryButton"
+## The red of the driving test's rubber stamp, for what is marked on paper.
+const STAMP_RED := Color(0.8, 0.17, 0.14)
 ## The type variation of a socket, the cell a binding's keys and buttons sit in, GAME.md 8.1a.
 const SOCKET := &"SocketButton"
 ## How much room a socket leaves round what sits in it, and the notch of its corners.
@@ -72,6 +79,7 @@ static func _build() -> Theme:
 	made.default_font = Type.TEXT
 	_buttons(made)
 	_primary(made)
+	_on_paper(made)
 	_sockets(made)
 	_options(made)
 	_switches(made)
@@ -210,6 +218,83 @@ static func _sockets(made: Theme) -> void:
 		&"font_hover_color", &"font_focus_color", &"font_pressed_color", &"font_hover_pressed_color"
 	]:
 		made.set_color(state, SOCKET, FOIL)
+
+
+## The buttons printed on a document, GAME.md 8.1a: on cream the stock's dark tickets and foil
+## shout, so a way out is drawn in ink, a hairline round words in ink and a wash of ink under the
+## cursor with the chevron printed in it, and the way on is a ticket of ink with its words in foil.
+static func _on_paper(made: Theme) -> void:
+	made.set_type_variation(PAPER_BUTTON, &"Button")
+	var looks := button_looks()
+	var drawn := looks[&"normal"].duplicate() as TicketStyle
+	drawn.fill = Color(INK, 0.0)
+	drawn.fill_low = Color(0.0, 0.0, 0.0, 0.0)
+	drawn.frame = Color(0.0, 0.0, 0.0, 0.0)
+	drawn.border = Color(INK, 0.55)
+	drawn.border_width = 1.5
+	drawn.surface = Surface.Kind.NONE
+	drawn.light = 0.0
+	var washed := drawn.duplicate() as TicketStyle
+	washed.fill = Color(INK, 0.08)
+	washed.border = INK
+	washed.border_width = 2.0
+	washed.chevron = INK
+	var pressed := washed.duplicate() as TicketStyle
+	pressed.fill = Color(INK, 0.16)
+	pressed.content_margin_top = drawn.content_margin_top + 2.0
+	pressed.content_margin_bottom = drawn.content_margin_bottom - 2.0
+	var faded := drawn.duplicate() as TicketStyle
+	faded.border = Color(INK, 0.2)
+	for pair: Array in [
+		[&"normal", drawn],
+		[&"hover", washed],
+		[&"focus", washed],
+		[&"pressed", pressed],
+		[&"hover_pressed", pressed],
+		[&"disabled", faded]
+	]:
+		made.set_stylebox(pair[0], PAPER_BUTTON, pair[1])
+	for state: StringName in [
+		&"font_color",
+		&"font_hover_color",
+		&"font_focus_color",
+		&"font_pressed_color",
+		&"font_hover_pressed_color"
+	]:
+		made.set_color(state, PAPER_BUTTON, INK)
+	made.set_color(&"font_disabled_color", PAPER_BUTTON, Color(INK, 0.35))
+	made.set_type_variation(PAPER_PRIMARY, &"Button")
+	var inked := looks[&"normal"].duplicate() as TicketStyle
+	inked.fill = INK
+	inked.fill_low = Color(0.0, 0.0, 0.0, 0.0)
+	inked.frame = Color(FOIL, 0.45)
+	var lit := looks[&"hover"].duplicate() as TicketStyle
+	lit.fill = INK.lightened(0.12)
+	lit.fill_low = Color(0.0, 0.0, 0.0, 0.0)
+	var held := looks[&"pressed"].duplicate() as TicketStyle
+	held.fill = INK.darkened(0.3)
+	held.fill_low = Color(0.0, 0.0, 0.0, 0.0)
+	var off := looks[&"disabled"].duplicate() as TicketStyle
+	off.fill = Color(INK, 0.35)
+	off.fill_low = Color(0.0, 0.0, 0.0, 0.0)
+	for pair: Array in [
+		[&"normal", inked],
+		[&"hover", lit],
+		[&"focus", lit],
+		[&"pressed", held],
+		[&"hover_pressed", held],
+		[&"disabled", off]
+	]:
+		made.set_stylebox(pair[0], PAPER_PRIMARY, pair[1])
+	for state: StringName in [
+		&"font_color",
+		&"font_hover_color",
+		&"font_focus_color",
+		&"font_pressed_color",
+		&"font_hover_pressed_color"
+	]:
+		made.set_color(state, PAPER_PRIMARY, FOIL_HIGH if state != &"font_color" else FOIL)
+	made.set_color(&"font_disabled_color", PAPER_PRIMARY, Color(FOIL, 0.4))
 
 
 ## A box that opens a list: a button, its words starting clear of the chevron so the focus never

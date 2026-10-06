@@ -13,6 +13,9 @@ const DOT := 10.0
 const DOT_GAP := 10.0
 const FAINT := Color(1.0, 1.0, 1.0, 0.25)
 const INK := Color(0.88, 0.88, 0.92)
+## The same printed on paper, GAME.md 8.1a: the arrows and dots in ink, the page being looked at
+## marked in the rubber stamp's red rather than foil, which does not show on cream.
+const PAPER_FAINT := Color(HouseTheme.INK, 0.22)
 ## The shoulders that turn the pages back and on, the ones that turn the settings' tabs.
 const BACK_BUTTON := JOY_BUTTON_LEFT_SHOULDER
 const ON_BUTTON := JOY_BUTTON_RIGHT_SHOULDER
@@ -26,10 +29,13 @@ var pages := 2
 var _dots: Control
 var _back_hint: InputGlyph
 var _on_hint: InputGlyph
+var _paper := false
 
 
-static func create() -> ResultsPager:
+## A pager, printed for a document with [param on_paper], see [constant PAPER_FAINT].
+static func create(on_paper := false) -> ResultsPager:
 	var pager := ResultsPager.new()
+	pager._paper = on_paper
 	pager.alignment = BoxContainer.ALIGNMENT_CENTER
 	pager.add_theme_constant_override("separation", 24)
 	pager._back_hint = _shoulder(BACK_BUTTON)
@@ -98,10 +104,13 @@ func show_page(shown: int, can_back: bool, can_on: bool) -> void:
 func _arrow(way: float) -> Button:
 	var arrow := MenuTheme.button("")
 	arrow.custom_minimum_size = ARROW
-	var dim := MenuTheme.button_style(
-		Color(MenuTheme.BUTTON_BG, 0.4), Color(MenuTheme.BUTTON_RIM, 0.05)
-	)
-	arrow.add_theme_stylebox_override("disabled", dim)
+	if _paper:
+		arrow.theme_type_variation = HouseTheme.PAPER_BUTTON
+	else:
+		var dim := MenuTheme.button_style(
+			Color(MenuTheme.BUTTON_BG, 0.4), Color(MenuTheme.BUTTON_RIM, 0.05)
+		)
+		arrow.add_theme_stylebox_override("disabled", dim)
 	arrow.draw.connect(_draw_head.bind(arrow, way))
 	return arrow
 
@@ -115,6 +124,8 @@ func _draw_head(arrow: Button, way: float) -> void:
 	)
 	var lit := arrow.has_focus() or arrow.is_hovered()
 	var ink := FAINT if arrow.disabled else (Color.WHITE if lit else INK)
+	if _paper:
+		ink = PAPER_FAINT if arrow.disabled else HouseTheme.INK
 	arrow.draw_colored_polygon(points, ink)
 
 
@@ -122,4 +133,6 @@ func _draw_dots() -> void:
 	var y := _dots.size.y * 0.5
 	for i: int in pages:
 		var x := DOT * 0.5 + i * (DOT + DOT_GAP)
-		_dots.draw_circle(Vector2(x, y), DOT * 0.5, Palette.CHIP_GOLD if i == page else FAINT)
+		var lit := HouseTheme.STAMP_RED if _paper else Palette.CHIP_GOLD
+		var unlit := PAPER_FAINT if _paper else FAINT
+		_dots.draw_circle(Vector2(x, y), DOT * 0.5, lit if i == page else unlit)

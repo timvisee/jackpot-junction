@@ -55,6 +55,8 @@ var match_node: Match
 
 var _style: TicketStyle
 var _title: Label
+## The photo, the lines and the small print, which scroll on a short screen.
+var _body: FitScroll
 ## The barcode and the small print at the foot of the slip, numbered for the match it pays out.
 var _barcode: Control
 var _code := "JJ-0000-0"
@@ -147,12 +149,12 @@ func fill_in() -> void:
 	# cleared out -- and when the rows came back it was the size it had been before, so nothing
 	# measured it again and the run's standings hung out of the bottom of a pane without them.
 	set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	# And shrunk about its middle to the screen when it will not fit on it, which four players
-	# with their awards do on a short screen under a big UI scale, GAME.md 8.5.
+	# Too tall for a short screen under a big UI scale, its lines scroll, see [FitScroll], GAME.md
+	# 8.5; too wide for a narrow one, it is shrunk about its middle to the width there is.
+	_body.fit()
 	var room := get_parent_area_size() - Vector2.ONE * EDGE * 2.0
-	var fit := minf(room.y / maxf(size.y, 1.0), room.x / maxf(size.x, 1.0))
 	pivot_offset = size * 0.5
-	scale = Vector2.ONE * clampf(fit, 0.1, 1.0)
+	scale = Vector2.ONE * clampf(room.x / maxf(size.x, 1.0), 0.1, 1.0)
 	# This is the one screen nobody asked for: it arrives on its own at the whistle, so it points
 	# at what most people want next rather than waiting to be found.
 	# On a map's podium that is the run's standings, with Next map beside them for a host in a
@@ -575,11 +577,18 @@ func _build() -> void:
 	band.color = HouseTheme.FOIL
 	band.custom_minimum_size = Vector2(WIDTH, 3.0)
 	column.add_child(band)
-	column.add_child(_photo())
+	# The photo, the lines and the small print scroll on a screen too short for the slip, GAME.md
+	# 8.5, and the title over them and the buttons under them stay put.
+	var body := VBoxContainer.new()
+	body.add_theme_constant_override("separation", 14)
+	body.add_child(_photo())
 	_rows = VBoxContainer.new()
 	_rows.add_theme_constant_override("separation", 6)
-	column.add_child(_rows)
-	column.add_child(_small_print())
+	body.add_child(_rows)
+	body.add_child(_small_print())
+	_body = FitScroll.around(body, self)
+	_body.name = "Body"
+	column.add_child(_body)
 	column.add_child(MenuTheme.perforation())
 	column.add_child(_build_the_foot())
 
@@ -643,7 +652,7 @@ func _build_the_foot() -> HBoxContainer:
 	_foot = HBoxContainer.new()
 	_foot.add_theme_constant_override("separation", 24)
 	_left = _part(BoxContainer.ALIGNMENT_BEGIN)
-	_pager = ResultsPager.create()
+	_pager = ResultsPager.create(true)
 	_pager.visible = false
 	_standings = _pager.on
 	_standings.pressed.connect(_on_standings)
@@ -697,11 +706,13 @@ func _buttons() -> HBoxContainer:
 	_quit = MenuTheme.button("Back to title", 26)
 	_quit.pressed.connect(func() -> void: Game.go_to_title())
 	buttons.add_child(_quit)
+	# Printed on the slip, GAME.md 8.1a: the ways on that carry the match on are tickets of ink with
+	# foil words, the rest only ways out, drawn in ink.
 	for way: Button in [_next, _continue, _lobby, _rematch, _quit]:
 		way.custom_minimum_size.x = WAY_WIDTH
-	# The ways on that carry the match on are foil, GAME.md 8.1a; the rest are only ways out.
+		way.theme_type_variation = HouseTheme.PAPER_BUTTON
 	for onward: Button in [_next, _continue, _rematch]:
-		MenuTheme.primary(onward)
+		onward.theme_type_variation = HouseTheme.PAPER_PRIMARY
 	return buttons
 
 
