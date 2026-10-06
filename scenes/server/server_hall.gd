@@ -78,6 +78,12 @@ func open() -> Error:
 		)
 	)
 	_say(listening(args.port, IP.get_local_addresses()))
+	if not args.password.is_empty():
+		_say("Players need the server's password to come in")
+		# Its games ask for it too, at their own ports, and read it from the environment they are
+		# started in, which they inherit from this one: never on a command line anybody on the
+		# machine can list.
+		OS.set_environment("JJ_PASSWORD", args.password)
 	return OK
 
 
@@ -153,11 +159,20 @@ func count() -> int:
 
 ## Somebody has knocked, [param named], on [param version], and was let in if [param welcome]:
 ## from Play Online's servers, [param listing], or from LAN games, which found a server where it
-## looked for a game.
-func knocked(peer: int, named: String, version: String, welcome: bool, listing := true) -> void:
+## looked for a game. [param locked] is what was wrong with the password they gave, see
+## [constant ServerLink.WRONG].
+func knocked(
+	peer: int, named: String, version: String, welcome: bool, listing := true, locked := ""
+) -> void:
 	_visitors[peer] = named if not named.is_empty() else "Somebody"
 	if not listing:
 		_say("Turned away %s: came from LAN games, looking for a game" % _visitor(peer))
+	elif locked == ServerLink.WRONG:
+		_say(
+			"Turned away %s, from %s: the password was wrong" % [_visitor(peer), _address_of(peer)]
+		)
+	elif locked == ServerLink.NEEDED:
+		_say("Asked %s for the password" % _visitor(peer))
 	elif not welcome:
 		_say("Turned away %s: version %s" % [_visitor(peer), version])
 

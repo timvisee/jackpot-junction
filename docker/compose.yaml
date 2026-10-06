@@ -27,6 +27,8 @@ services:
       # JJ_GAME_PORTS: "7778-7785"
       # The name players see the server by, over its games; its address unless set.
       # JJ_NAME: "Friday night"
+      # The password players need to see its games and play in them; anybody may unless set.
+      # JJ_PASSWORD: "change me"
       # The time zone of the log's times, UTC unless set.
       # TZ: "Europe/Amsterdam"
     ports:

@@ -58,9 +58,10 @@ var player_name := ""
 ## On a client: whether it came to watch rather than to play, GAME.md 10.3. Said in the handshake,
 ## and the host never gives it a seat.
 var watching := false
-## On a client, the password it knocks with, GAME.md 9.6; on the host, the door itself: who may
-## come in, its lobby's limit on players and its password among it.
+## On a client, the password it knocks with, GAME.md 9.6, and the server's at a game of a dedicated
+## server, 9.3a; on the host, the door itself: who may come in, its password among it.
 var password := ""
+var server_password := ""
 var door := NetDoor.new()
 ## How this machine's player dressed their kart, GAME.md 4.4, sent to the host with the name.
 ## Empty leaves the plain kart the host made.

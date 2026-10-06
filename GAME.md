@@ -3781,9 +3781,21 @@ start with, so a server behind a router has 7777 to 7785 let through for UDP. `-
 puts the games on a stretch of ports of its own instead, as many games as it has room for, still no
 more than 8 at once unless `--games` says more. `--name="Friday night"` gives it a name, which
 players see over its games and the log says as it opens; up to 32 characters, cleaned the way a
-game's is, and with none it is known by its address. Each of the four may be set in the
-environment instead, `JJ_PORT`, `JJ_GAMES`, `JJ_GAME_PORTS` and `JJ_NAME`, the way a container is
-set up, with the command line having the last word over the environment. Each game is a process
+game's is, and with none it is known by its address. `--password=...` keeps it to the people told:
+Play Online connecting to it asks for the password in a dialog over the screen, the server's name
+in its line, "Friday Night Karts needs a password.", with a box that hides what is typed, Connect
+and Cancel. Nobody sees its games or makes one without it: a wrong one comes back to the dialog
+with "Wrong password" in red under the box, and an empty one is asked for again. The one it let
+the player in with is kept with the server on their list, or for the rest of the run for a server
+they did not keep, so coming back from one of its games, or to it later, does not ask again; one
+the server has since changed is asked for afresh. Its games ask for it too, at their own ports, of
+anybody knocking there, which a player who came by its list has given already and somebody trying
+the ports never has: they are turned away, "This server has a password: join its games from Play
+Online", and are not asked for the lobby's password either. The server hands it to its games in
+the environment it starts them in rather than on their command lines, which anybody on the
+machine can list. Each of the five may be set in the environment instead, `JJ_PORT`, `JJ_GAMES`,
+`JJ_GAME_PORTS`, `JJ_NAME` and `JJ_PASSWORD`, the way a container is set up, with the command line
+having the last word over the environment. Each game is a process
 of its own, the game started again headless as a host with nobody at it, from the waiting room on: a
 game is the whole game, its event bus and everything else it keeps among it, and two in one process
 would hear each other's every kill. That costs about a quarter of a gigabyte and a small part of a
@@ -3805,7 +3817,8 @@ rather than the title, which would bring the game in by itself. The hall names n
 since whatever it names it loads, and it runs ten frames a second with its physics off.
 
 **The log.** The server writes a line to its output for everything worth knowing, with the date,
-the time and which game it was: the server opening; who comes to look at the games and leaves the
+the time and which game it was: the server opening, and that it asks for a password; who is asked for it, and who gave a wrong one
+and from where; who comes to look at the games and leaves the
 list; who made which game, on which port; each game up; who came in to play or to watch and from
 where; who was turned away at the door and why; who has the host's say; Lobby settings changed,
 with the game's name;

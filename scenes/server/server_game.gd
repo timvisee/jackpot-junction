@@ -63,6 +63,7 @@ func _ready() -> void:
 	config.human_names = [] as Array[String]
 	config.human_styles = []
 	config.port = args.port
+	config.server_password = args.password
 	open_room.call(config)
 
 

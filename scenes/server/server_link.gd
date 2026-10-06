@@ -13,6 +13,8 @@ extends Node
 ## never answered; and later, the server gone.
 signal connected
 signal refused(reason: String)
+## At a player's machine: the server wants a password, the one given was [param wrong] or none was.
+signal locked(wrong: bool)
 signal failed
 signal lost
 ## At a player's machine: the games the server lists now, see [method ServerHall.listing].
@@ -30,6 +32,10 @@ const NAME := "Server"
 ## What a knock asking for a server's list says it is, so that a game knocked at the same way, a
 ## LAN game on the port a server would have, says it is a game rather than seating a list.
 const LISTING := "list"
+## What the server says of the password a player knocked with: none given, or not its own. The same
+## words a game's door says of its lobby's, [constant NetDoor.NEEDED]: the hall loads none of that.
+const NEEDED := "needed"
+const WRONG := "wrong"
 ## How long the two ends of a new connection have to agree on a version, in seconds.
 const HANDSHAKE_TIMEOUT := 5.0
 ## How far along a game being made is, GAME.md 9.3a: its process started by the server, running
@@ -49,10 +55,11 @@ var hall: ServerHall
 ## machine the name it gives, for the server's log.
 var version := ""
 var player_name := ""
-## At a player's machine: the address and port of the server it knocked at, what the server said it
-## is called, empty for no name, and the games it last listed.
+## At a player's machine: the address and port of the server it knocked at, the password it
+## knocks with, what the server said it is called, empty for no name, and the games it last listed.
 var address := ""
 var port := 0
+var password := ""
 var server_name := ""
 var games: Array[Dictionary] = []
 ## At the server: the door before anybody is let in to look, see [NetGuard].
@@ -146,7 +153,12 @@ func _on_connected() -> void:
 func _knock(peer: int) -> void:
 	if hall != null:
 		return
-	var words := {"version": version, "name": PlayerNames.clean(player_name), LISTING: true}
+	var words := {
+		"version": version,
+		"name": PlayerNames.clean(player_name),
+		LISTING: true,
+		"password": password,
+	}
 	(multiplayer as SceneMultiplayer).send_auth(peer, var_to_bytes(NetGuard.marked(words)))
 
 
@@ -169,29 +181,51 @@ func _answer(peer: int, data: PackedByteArray) -> void:
 		# [method NetDoor.refusal], rather than let in to wait for a seat nobody here hands out.
 		var listing := bool(words.get(LISTING, false))
 		var playable := listing and GameVersion.compatible(version, theirs)
+		# A server with a password lets nobody look without it, GAME.md 9.3a.
+		var locked := ""
+		if playable and not hall.args.password.is_empty():
+			var given := str(words.get("password", ""))
+			if given.is_empty():
+				locked = NEEDED
+			elif given != hall.args.password:
+				locked = WRONG
 		var answer := {
-			"version": version, "welcome": playable, "server": not listing, "name": hall.args.name
+			"version": version,
+			"welcome": playable and locked.is_empty(),
+			"server": not listing,
+			"name": hall.args.name,
+			"locked": locked,
 		}
 		scene.send_auth(peer, var_to_bytes(answer))
-		hall.knocked(peer, PlayerNames.clean(str(words.get("name", ""))), theirs, playable, listing)
-		if playable:
+		var named := PlayerNames.clean(str(words.get("name", "")))
+		hall.knocked(peer, named, theirs, answer["welcome"], listing, locked)
+		if answer["welcome"]:
 			scene.complete_auth(peer)
 		return
+	server_name = PlayerNames.clean(str(words.get("name", "")), PlayerNames.TITLE_LENGTH)
 	if bool(words.get("welcome", false)):
-		server_name = PlayerNames.clean(str(words.get("name", "")), PlayerNames.TITLE_LENGTH)
 		scene.complete_auth(peer)
 		return
 	_turned_away = true
+	var wanted := str(words.get("locked", ""))
+	if not wanted.is_empty() and GameVersion.compatible(version, theirs):
+		_give_up.call_deferred("", wanted == WRONG)
+		return
 	var why := "Wrong version: the server has %s, you have %s" % [theirs, version]
 	if bool(words.get("game", false)):
 		why = "That is a game rather than a server: join it from LAN games"
 	_give_up.call_deferred(why)
 
 
-func _give_up(reason: String) -> void:
+## Hangs up, saying why: [param reason], or that the server wants its password, [param wrong] if
+## the one given was not it.
+func _give_up(reason: String, wrong := false) -> void:
 	if multiplayer.multiplayer_peer != null:
 		multiplayer.multiplayer_peer.close()
-	refused.emit(reason)
+	if reason.is_empty():
+		locked.emit(wrong)
+	else:
+		refused.emit(reason)
 
 
 @rpc("any_peer", "call_remote", "reliable")

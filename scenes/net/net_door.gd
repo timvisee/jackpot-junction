@@ -36,6 +36,9 @@ var password := ""
 ## to the people it told.
 var watchers_allowed := true
 var watchers_need_password := true
+## At a game of a dedicated server with a password, GAME.md 9.3a: the server's, which everybody
+## knocking has to have given it as well, having come by its list; empty anywhere else.
+var server_password := ""
 ## What the host has called the game, for the lists of games, GAME.md 9.3: empty for no name of its
 ## own, which the lists show as its host's, see [method GameList.title_of].
 var title := ""
@@ -73,12 +76,14 @@ static func clients(dedicated: bool) -> int:
 
 
 ## What a client says about itself as it knocks: its version, whether it has come to watch, what
-## it is called, which is all the host has to go on for somebody watching, and the password it was
-## given, empty until the host has said there is one.
-static func knock(version: String, watching: bool, named: String, given: String) -> Dictionary:
-	return NetGuard.marked(
-		{"version": version, "watch": watching, "name": named, "password": given}
-	)
+## it is called, which is all the host has to go on for somebody watching, the password it was
+## given, empty until the host has said there is one, and the dedicated server's it gave the server.
+static func knock(
+	version: String, watching: bool, named: String, given: String, server_given := ""
+) -> Dictionary:
+	var words := {"version": version, "watch": watching, "name": named, "password": given}
+	words["server_password"] = server_given
+	return NetGuard.marked(words)
 
 
 ## The host's answer to [param peer], which said [param words]. [param room] says how the room
@@ -92,15 +97,19 @@ func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> 
 	if watch:
 		full = room["watchers"] >= MAX_WATCHERS
 	var closed := watch and not watchers_allowed
+	# Without the server's own password nobody comes in: they never came by its list, and are not
+	# asked for it here, nor for the lobby's.
+	var given_server := str(words.get("server_password", ""))
+	var outside := not server_password.is_empty() and given_server != server_password
 	var locked := ""
 	var asks := not password.is_empty() and not (watch and not watchers_need_password)
-	if asks and not closed:
+	if asks and not closed and not outside:
 		var given := str(words.get("password", ""))
 		if given.is_empty():
 			locked = NEEDED
 		elif given != password:
 			locked = WRONG
-	var welcome := playable and not full and not closed and locked.is_empty()
+	var welcome := playable and not outside and not full and not closed and locked.is_empty()
 	if welcome:
 		names[peer] = PlayerNames.clean(str(words.get("name", "")))
 		if watch:
@@ -112,6 +121,7 @@ func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> 
 		"watch": watch,
 		"locked": locked,
 		"closed": closed,
+		"outside": outside,
 	}
 	if not welcome:
 		var theirs := str(words.get("version", "?"))
@@ -265,6 +275,8 @@ static func refusal(version: String, words: Dictionary) -> String:
 	var theirs := str(words.get("version", "?"))
 	if not compatible(version, theirs):
 		return "Wrong version: the host has %s, you have %s" % [theirs, version]
+	if bool(words.get("outside", false)):
+		return "This server has a password: join its games from Play Online"
 	if bool(words.get("closed", false)):
 		return "This game is not open to watchers"
 	if bool(words.get("full", false)):

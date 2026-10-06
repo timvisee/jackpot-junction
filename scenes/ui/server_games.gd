@@ -157,4 +157,5 @@ func _enter(port: int, mode: String, making: bool) -> void:
 	config.port = port
 	config.server = "%s:%d" % [link.address, link.port]
 	config.server_name = link.server_name
+	config.server_password = link.password
 	enter.call(config)

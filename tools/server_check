@@ -42,8 +42,10 @@ if [[ -n ${SVCHECK_SERVER:-} ]]; then
 else
 	server_cmd=(tools/godot --headless --path . -- --server)
 fi
-timeout 600 "${server_cmd[@]}" --port="$port" --games=1 --name="Server check (test)" \
-	>"$logs/server.log" 2>&1 &
+# A password from the environment, as a container is told it, which its games inherit from it; the
+# clients know it, tools/server_driver.gd.
+JJ_PASSWORD="open sesame" timeout 600 "${server_cmd[@]}" --port="$port" --games=1 \
+	--name="Server check (test)" >"$logs/server.log" 2>&1 &
 server=$!
 # Up once it says so, or given up on.
 for _ in $(seq 1 100); do
@@ -138,7 +140,8 @@ logged() {
 # among themselves, since the joiner, the watcher and the maker's choice cross on the wire.
 said=(
 	"server \"Server check (test)\" on port $port"
-	"server: Maker made game 1, on port $((port + 1))"
+	"server: Players need the server's password to come in"
+	"server: Maker made game 1, on port $((port + 1))|server: Turned away Joiner, from 127.0.0.1: the password was wrong"
 	"game 1: Up on port $((port + 1))"
 	"game 1: Maker came in to play"
 	"game 1: Maker has the host's say"

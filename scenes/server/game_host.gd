@@ -14,5 +14,6 @@ func _ready() -> void:
 	Engine.max_fps = FPS
 	var game := ServerGame.new()
 	game.name = "ServerGame"
-	game.args = ServerArgs.read(OS.get_cmdline_user_args())
+	# Its arguments over the environment it was started in, which has the server's password.
+	game.args = ServerArgs.of_this_process()
 	get_tree().root.add_child.call_deferred(game)

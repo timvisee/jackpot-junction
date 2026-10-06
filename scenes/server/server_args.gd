@@ -2,13 +2,14 @@ class_name ServerArgs
 extends RefCounted
 ## How a dedicated server was started, GAME.md 9.3a: the game's own arguments after `--`, with
 ## `--server` among them. The port players connect to, how many games it holds at once and the ports
-## those are played on, which follow its own unless given, and the name players see it by; and in a
-## game the server has started, which one it is, the port it is played on and where the server
-## hears from it.
+## those are played on, which follow its own unless given, the name players see it by and the
+## password they need to come in; and in a game the server has started, which one it is, the port
+## it is played on and where the server hears from it.
 ##
-## The server's own four may be given in the environment too, `JJ_PORT`, `JJ_GAMES`,
-## `JJ_GAME_PORTS` and `JJ_NAME`, which is how a container is told, see docker/compose.yaml. An
-## argument on the command line has the last word over the same setting in the environment.
+## The server's own five may be given in the environment too, `JJ_PORT`, `JJ_GAMES`,
+## `JJ_GAME_PORTS`, `JJ_NAME` and `JJ_PASSWORD`, which is how a container is told, see
+## docker/compose.yaml. An argument on the command line has the last word over the same setting in
+## the environment.
 
 ## The port players connect to unless told otherwise: the one a LAN game is hosted on, so a server
 ## is found where players already look. A LAN game on the server's own machine takes another.
@@ -24,7 +25,10 @@ const ENVIRONMENT: Dictionary[String, String] = {
 	"JJ_GAMES": "--games",
 	"JJ_GAME_PORTS": "--game-ports",
 	"JJ_NAME": "--name",
+	"JJ_PASSWORD": "--password",
 }
+## The longest password a server takes, the same as a lobby's, [constant NetDoor.PASSWORD_LENGTH].
+const PASSWORD_LENGTH := 64
 
 ## Whether the game is to be a dedicated server at all: `--server`, or the dedicated server build,
 ## GAME.md 10.5, which is nothing else.
@@ -38,6 +42,10 @@ var last_game_port := 0
 ## What players see the server called, from `--name="Friday night"`, cleaned the way a game's name
 ## is; empty for none, and then it is its address.
 var name := ""
+## What players have to give to come in, from `--password=` or `JJ_PASSWORD`, GAME.md 9.3a: to see
+## the server's games and make one, and to join one of them at its own port; empty for nobody asked.
+## A game the server starts has it too, in the environment it is started with, see [ServerHall].
+var password := ""
 ## In a game of the server's: its number, from 1, and where the server hears from it, a port on this
 ## machine, with the key its word is taken on. 0 in the server itself.
 var game := 0
@@ -80,6 +88,8 @@ static func read(args: PackedStringArray, environment := {}) -> ServerArgs:
 		elif arg.begins_with("--name="):
 			# All of it: a name may have an equals sign in it.
 			read.name = PlayerNames.clean(arg.trim_prefix("--name="), PlayerNames.TITLE_LENGTH)
+		elif arg.begins_with("--password="):
+			read.password = arg.trim_prefix("--password=").strip_edges().left(PASSWORD_LENGTH)
 		elif arg.begins_with("--game="):
 			read.game = int(value)
 		elif arg.begins_with("--report="):

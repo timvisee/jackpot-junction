@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **A password for your server.** Start a dedicated server with `--password` or `JJ_PASSWORD` and
+  Play Online asks for it before showing its games; its games turn away anybody without it.
+
 ### Fixed
 
 - **See your server's name.** Once you have connected to a server, Play Online's list shows the

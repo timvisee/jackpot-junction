@@ -125,6 +125,7 @@ func _host() -> void:
 		session.door.watchers_need_password = not Game.settings.lobby_watch_free
 		session.door.title = Game.settings.lobby_title
 		session.door.password = config.password
+		session.door.server_password = config.server_password
 		var error := session.host(config.port)
 		if error != OK:
 			ready_room_hint("Could not host on port %d: %s" % [config.port, error_string(error)])
@@ -146,6 +147,7 @@ func _join() -> void:
 		session = Net.open(match_node)
 		session.watching = config.watching
 		session.password = config.password
+		session.server_password = config.server_password
 		session.local_input = PlayerInput.new(DeviceInput.ANY, 0)
 		session.player_name = config.human_names[0] if not config.human_names.is_empty() else ""
 		if not config.human_styles.is_empty():

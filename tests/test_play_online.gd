@@ -304,6 +304,45 @@ func test_a_kept_server_shows_what_the_server_calls_itself() -> void:
 	assert_str(str(Game.settings.servers[0]["called"])).is_empty()
 
 
+## GAME.md 9.3a: a server with a password asks for it in a dialog, saying a wrong one is wrong and
+## going nowhere until the right one; let in, a kept server keeps it, and is not asked again.
+func test_a_server_with_a_password_asks_for_it_and_keeps_it() -> void:
+	_open_hall()
+	_hall.args.name = "Friday night"
+	_hall.args.password = "sesame"
+	Game.settings.servers.append(ServerList.entry("", "127.0.0.1", port))
+	var screen := _screen()
+	await await_idle_frame()
+	screen._servers.connect_button(0).pressed.emit()
+	var asked := await _wait_until(func() -> bool: return screen.password_dialog.is_open(), 4000)
+	assert_bool(asked).override_failure_message("never asked: %s" % screen.busy_said()).is_true()
+	assert_str(screen.password_dialog._line.text).is_equal("Friday night needs a password.")
+	assert_bool(screen.busy.is_open()).is_false()
+	assert_bool(screen.password_field.secret).is_true()
+	screen.password_field.text = ""
+	screen.password_button.pressed.emit()
+	assert_str(screen.password_dialog.said()).is_equal("Enter the password")
+	screen.password_field.text = "open says me"
+	screen.password_button.pressed.emit()
+	var wrong := await _wait_until(
+		func() -> bool: return screen.password_dialog.said() == "Wrong password", 4000
+	)
+	assert_bool(wrong).override_failure_message("a wrong one was not said").is_true()
+	assert_int(_opened[0]).is_equal(0)
+	screen.password_field.text = " sesame "
+	screen.password_field.text_submitted.emit(screen.password_field.text)
+	var opened := await _wait_until(func() -> bool: return _opened[0] == 1, 4000)
+	assert_bool(opened).override_failure_message("the right one did not go on").is_true()
+	assert_str(str(Game.settings.servers[0]["password"])).is_equal("sesame")
+	# Again, with the one it kept: straight on, nothing asked.
+	Net.close()
+	await await_idle_frame()
+	screen._servers.connect_button(0).pressed.emit()
+	opened = await _wait_until(func() -> bool: return _opened[0] == 2, 4000)
+	assert_bool(opened).override_failure_message("asked again").is_true()
+	assert_bool(screen.password_dialog.is_open()).is_false()
+
+
 ## Remove asks first, and Keep keeps it; Remove takes it off, and an empty list says so again.
 func test_remove_asks_first() -> void:
 	Game.settings.servers.append(ServerList.entry("", "a.example.org", 7777))

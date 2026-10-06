@@ -18,8 +18,9 @@ static func of(owner: NetSession) -> NetHandshake:
 func knock(peer: int) -> void:
 	if session.is_host:
 		return
+	var named := PlayerNames.clean(session.player_name)
 	var words := NetDoor.knock(
-		session.version, session.watching, PlayerNames.clean(session.player_name), session.password
+		session.version, session.watching, named, session.password, session.server_password
 	)
 	(session.multiplayer as SceneMultiplayer).send_auth(peer, var_to_bytes(words))
 

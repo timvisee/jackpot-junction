@@ -62,6 +62,9 @@ var port := NetSession.DEFAULT_PORT
 ## and what it calls itself, for the room to say too. Empty for a LAN game.
 var server := ""
 var server_name := ""
+## A dedicated server's password, GAME.md 9.3a: at a client of one of its games, the one the player
+## gave the server, to knock with; at the game itself, the one its door asks for. Empty for none.
+var server_password := ""
 
 
 func inputs() -> Array[KartInput]:

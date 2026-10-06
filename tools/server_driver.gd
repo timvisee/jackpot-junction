@@ -13,6 +13,8 @@ extends Node
 ## over and is back on the server's games. Every step prints a line starting SVCHECK, and a step that
 ## does not happen in time fails the run with the reason.
 
+## The server's password, as tools/server_check gives it the server.
+const SERVER_PASSWORD := "open sesame"
 const WAITING_SCENE := "res://scenes/waiting/waiting_room.tscn"
 const MATCH_SCENE := "res://scenes/match/match_scene.tscn"
 const PLAY_ONLINE_SCENE := "res://scenes/ui/play_online.tscn"
@@ -263,7 +265,40 @@ func _stranger() -> void:
 	var at := int(screen.link.games[0]["port"])
 	Net.close()
 	await _garbage_at(at)
+	await _outsider_at(at)
 	_finished = true
+
+
+## A player who never came by the server's list knocking at [param at], one of its games' own
+## ports: turned away, since the server has a password, tools/server_check, that they never gave,
+## and which the game has from the environment the server started it in.
+func _outsider_at(at: int) -> void:
+	var root := Node.new()
+	root.name = "Outsider"
+	get_tree().root.add_child(root)
+	var path := root.get_path()
+	get_tree().set_multiplayer(SceneMultiplayer.new(), path)
+	var session := NetSession.new()
+	session.name = "Session"
+	session.player_name = "Outsider"
+	root.add_child(session)
+	var why := [""]
+	session.refused.connect(func(reason: String) -> void: why[0] = reason)
+	if session.join("127.0.0.1", at) != OK:
+		_fail("could not reach port %d" % at)
+		return
+	if await _until(
+		func() -> bool: return not str(why[0]).is_empty(),
+		20.0,
+		"an outsider at the game's own port was turned away"
+	):
+		_check(
+			why[0] == "This server has a password: join its games from Play Online",
+			"and told to come by the server's list"
+		)
+	root.queue_free()
+	await _seconds(0.2)
+	get_tree().set_multiplayer(null, path)
 
 
 ## A connection of the game's own kind to [param at] whose first word is not a hello at all.
@@ -344,6 +379,24 @@ func _play_online() -> Control:
 	screen.direct_button.pressed.emit()
 	_check(screen.is_form_up(), "Direct connect put up the boxes")
 	screen.connect_button.pressed.emit()
+	# The server has a password, tools/server_check: asked for, and the joiner gets it wrong first.
+	if not await _until(
+		func() -> bool: return screen.password_dialog.is_open(),
+		20.0,
+		"the server asked for its password"
+	):
+		return null
+	if _role == "joiner":
+		screen.password_field.text = "not it"
+		screen.password_button.pressed.emit()
+		if not await _until(
+			func() -> bool: return screen.password_dialog.said() == "Wrong password",
+			20.0,
+			"a wrong password was said to be wrong"
+		):
+			return null
+	screen.password_field.text = SERVER_PASSWORD
+	screen.password_button.pressed.emit()
 	if not await _until(
 		func() -> bool:
 			var scene := _scene()

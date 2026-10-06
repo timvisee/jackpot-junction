@@ -284,3 +284,26 @@ func test_neither_end_throttles_the_snapshots() -> void:
 	for connection: ENetPacketPeer in [host_end.get_peer(peer), client_end.get_peer(1)]:
 		var down := connection.get_statistic(ENetPacketPeer.PEER_PACKET_THROTTLE_DECELERATION)
 		assert_float(down).is_equal(0.0)
+
+
+## GAME.md 9.3a: a game of a server with a password lets in nobody who has not given the server's,
+## and never asks them for the lobby's instead; given it, the lobby's own password is asked as ever.
+func test_a_game_of_a_server_with_a_password_wants_the_servers() -> void:
+	var door := NetDoor.new()
+	door.server_password = "sesame"
+	var version := Game.version()
+	var room := {"no_seat": false, "players": 0, "clients": 4, "humans": 0, "watchers": 0}
+	door.password = "lobby"
+	var outside := door.answer(version, 5, NetDoor.knock(version, false, "Ann", "lobby"), room)
+	assert_bool(outside["welcome"]).is_false()
+	assert_bool(NetDoor.wants_password(version, outside)).is_false()
+	assert_str(NetDoor.refusal(version, outside)).is_equal(
+		"This server has a password: join its games from Play Online"
+	)
+	var inside := door.answer(version, 6, NetDoor.knock(version, false, "Bo", "", "sesame"), room)
+	assert_bool(inside["welcome"]).is_false()
+	assert_str(str(inside["locked"])).is_equal(NetDoor.NEEDED)
+	var both := door.answer(
+		version, 7, NetDoor.knock(version, false, "Cy", "lobby", "sesame"), room
+	)
+	assert_bool(both["welcome"]).is_true()

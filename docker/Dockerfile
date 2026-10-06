@@ -50,7 +50,8 @@ COPY --from=shell /bin/busybox /bin/sh
 COPY --from=server --chmod=755 /jackpot-junction-server /jackpot-junction-server
 
 # The server's port, and the eight games' ports after it: the defaults, which JJ_PORT, JJ_GAMES and
-# JJ_GAME_PORTS, or --port, --games and --game-ports, change. JJ_NAME, or --name, names it.
+# JJ_GAME_PORTS, or --port, --games and --game-ports, change. JJ_NAME, or --name, names it, and
+# JJ_PASSWORD, or --password, keeps it to the people told.
 EXPOSE 7777/udp 7778-7785/udp
 
 # Whatever follows the image's name on `docker run` is the server's own arguments, `--port=7777`

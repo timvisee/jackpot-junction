@@ -12,9 +12,10 @@ extends VBoxContainer
 ## move it a place, the stick a place a push, and accept or back puts it down, as does the cursor
 ## going anywhere else.
 ##
-## A kept server is a dictionary of its "name", "address" and "port", and "called", what the server
-## said it is called the last time it was connected to, GAME.md 9.3a. It belongs to the player
-## rather than the machine, with the rest of where they play, see [member Settings.servers].
+## A kept server is a dictionary of its "name", "address" and "port", "called", what the server
+## said it is called the last time it was connected to, and "password", the one it last let the
+## player in with, GAME.md 9.3a. It belongs to the player rather than the machine, with the rest of
+## where they play, see [member Settings.servers].
 
 ## [param server] chosen, to connect to, to be taken off the list, or to be edited.
 signal chosen(server: Dictionary)
@@ -59,12 +60,15 @@ func _ready() -> void:
 
 ## A kept server, cleaned: [param name] may be empty, and is then what the server is
 ## [param called], or its address for neither.
-static func entry(name: String, address: String, port: int, called := "") -> Dictionary:
+static func entry(
+	name: String, address: String, port: int, called := "", password := ""
+) -> Dictionary:
 	return {
 		"name": name.strip_edges().left(NAME_LENGTH),
 		"address": address.strip_edges().left(ADDRESS_LENGTH),
 		"port": port,
 		"called": PlayerNames.clean(called, PlayerNames.TITLE_LENGTH),
+		"password": password.strip_edges().left(ServerArgs.PASSWORD_LENGTH),
 	}
 
 
@@ -127,7 +131,8 @@ static func clean(raw: Variant) -> Array[Dictionary]:
 		if int(port) <= 0 or int(port) > 65535:
 			continue
 		var called := str(said.get("called", ""))
-		kept.append(entry(str(said.get("name", "")), address, int(port), called))
+		var password := str(said.get("password", ""))
+		kept.append(entry(str(said.get("name", "")), address, int(port), called, password))
 	return kept
 
 

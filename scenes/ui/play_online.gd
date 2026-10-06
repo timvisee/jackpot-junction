@@ -16,11 +16,19 @@ extends Control
 ##
 ## Back from one of the server's games, the screen connects to it again by itself and goes on to
 ## its games, saying why it is back: a wrong password, a kick, a game that is over.
+##
+## A server with a password asks for it in a dialog of the same look, Connect and Cancel, saying
+## "Wrong password" in red after a wrong one, GAME.md 9.3a. The one it lets the player in with is
+## kept with the server if it is on the list, and for the rest of the run if it is not, so coming
+## back from its games, or to it again, does not ask again.
 
 ## How long the bar takes to ease along while a server is being knocked at, in seconds: as long as
 ## nobody answering takes to be given up on, see [method NetLine.trying], and how far it goes.
 const KNOCK_FOR := NetLine.CONNECT_TIMEOUT_MAX / 1000.0
 const KNOCK_REACH := 0.9
+
+## The passwords servers not on the list let the player in with this run, by where they are.
+static var _passwords: Dictionary[String, String] = {}
 
 ## The dialog: the server's address and port, the name it is kept under, and the buttons that keep
 ## it, connect to it and put the dialog away.
@@ -44,6 +52,10 @@ var busy_button: Button
 var note: Label
 ## The line to the server, see [ServerLink], while there is one.
 var link: ServerLink
+## The dialog asking for a server's password, its box, and its Connect.
+var password_dialog: FormDialog
+var password_field: LineEdit
+var password_button: Button
 ## On to the server's games once connected, and on to the games on the network: their screens,
 ## unless a test says otherwise.
 var open_games: Callable = Game.go_to_server_games
@@ -101,6 +113,7 @@ func _ready() -> void:
 	column.add_child(back)
 	_build_dialog()
 	_build_busy()
+	_build_password()
 	_build_question()
 	show_list()
 	note.text = Game.play_online_note
@@ -141,6 +154,20 @@ func _build_busy() -> void:
 	busy_bar = busy.add_bar()
 	busy_button = busy.add_button("Cancel")
 	busy_button.pressed.connect(_busy_pressed)
+
+
+func _build_password() -> void:
+	password_dialog = FormDialog.add_to(self, "Password", "")
+	password_dialog.name = "Password"
+	password_field = MenuTheme.field("", "", ServerArgs.PASSWORD_LENGTH)
+	password_field.secret = true
+	password_field.custom_minimum_size = Vector2(320.0, 44.0)
+	password_field.text_submitted.connect(func(_typed: String) -> void: _give_password())
+	password_dialog.add_box("Password", password_field)
+	password_button = password_dialog.add_button("Connect")
+	password_button.pressed.connect(_give_password)
+	var cancel := password_dialog.add_button("Cancel")
+	cancel.pressed.connect(_put_password_away)
 
 
 ## The question over a shade of the whole screen, which takes the clicks meant for what is under
@@ -246,7 +273,9 @@ func _unhandled_input(event: InputEvent) -> void:
 ## Back: hanging up on a server being connected to, out of the question about removing a server,
 ## out of the dialog, and back to the title from the list.
 func _back() -> void:
-	if busy.is_open():
+	if password_dialog.is_open():
+		_put_password_away()
+	elif busy.is_open():
 		_busy_pressed()
 	elif _ask_layer.visible:
 		_on_remove_answered(false)
@@ -372,9 +401,10 @@ func _on_remove_answered(yes: bool) -> void:
 	show_list(kept[mini(at, kept.size() - 1)] if not kept.is_empty() else {})
 
 
-## Knocks at the server at [param address] and [param port], under the player's name, and
-## remembers it for next time, saying so in the busy dialog.
-func _connect_to(address: String, port: int) -> void:
+## Knocks at the server at [param address] and [param port], under the player's name, with
+## [param password], or the one it last let the player in with, and remembers it for next time,
+## saying so in the busy dialog.
+func _connect_to(address: String, port: int, password := "") -> void:
 	if address.is_empty():
 		_fail("There is no server to connect to")
 		return
@@ -387,7 +417,9 @@ func _connect_to(address: String, port: int) -> void:
 	Game.settings.save_to_disk()
 	link = Net.open_link()
 	link.player_name = PlayerNames.clean(Game.settings.player_names[0])
+	link.password = password if not password.is_empty() else _password_for(address, port)
 	link.connected.connect(_on_connected)
+	link.locked.connect(_ask_password)
 	link.failed.connect(func() -> void: _fail("Could not connect to %s" % _where()))
 	link.refused.connect(_fail)
 	link.lost.connect(func() -> void: _fail("The server closed the connection"))
@@ -417,8 +449,8 @@ func _knock() -> void:
 	_knocking.tween_property(busy_bar, "value", KNOCK_REACH, KNOCK_FOR)
 
 
-## Let in: the bar full, what the server calls itself kept with it if it is on the list, and on to
-## the server's games.
+## Let in: the bar full, what the server calls itself and the password it took kept with it if it
+## is on the list, the password for the run if it is not, and on to the server's games.
 func _on_connected() -> void:
 	if _knocking != null:
 		_knocking.kill()
@@ -426,12 +458,61 @@ func _on_connected() -> void:
 	var here := {"address": _address, "port": _port}
 	var learned := false
 	for kept: Dictionary in Game.settings.servers:
-		if ServerList.same(kept, here) and str(kept.get("called", "")) != link.server_name:
+		if not ServerList.same(kept, here):
+			continue
+		if str(kept.get("called", "")) != link.server_name:
 			kept["called"] = link.server_name
+			learned = true
+		if str(kept.get("password", "")) != link.password:
+			kept["password"] = link.password
 			learned = true
 	if learned:
 		Game.settings.save_to_disk()
+	_passwords[_where()] = link.password
 	open_games.call()
+
+
+## The password the player was last let into the server at [param address] and [param port] with:
+## kept with it on the list, or given this run.
+func _password_for(address: String, port: int) -> String:
+	var here := {"address": address, "port": port}
+	for kept: Dictionary in Game.settings.servers:
+		if ServerList.same(kept, here) and not str(kept.get("password", "")).is_empty():
+			return str(kept["password"])
+	return _passwords.get(ServerList.where(here), "")
+
+
+## The server wants its password: asked for in its own dialog, by the name the server gives itself,
+## saying it was wrong after a [param wrong] one.
+func _ask_password(wrong: bool) -> void:
+	if _knocking != null:
+		_knocking.kill()
+	busy.close()
+	link = null
+	var called := Net.link.server_name if Net.link != null else ""
+	var which := called if not called.is_empty() else _where()
+	password_dialog.set_title("Password", "%s needs a password." % which)
+	password_field.text = ""
+	password_dialog.open(password_field)
+	if wrong:
+		password_dialog.say("Wrong password")
+
+
+## Connect: knocked at again with what was typed.
+func _give_password() -> void:
+	var typed := password_field.text.strip_edges()
+	if typed.is_empty():
+		password_dialog.say("Enter the password")
+		return
+	password_dialog.close()
+	_connect_to(_address, _port, typed)
+
+
+## Cancel, or Back: no password, and no server.
+func _put_password_away() -> void:
+	password_dialog.close()
+	Net.close()
+	direct_button.grab_focus.call_deferred()
 
 
 ## What went wrong, in the busy dialog, with OK to put it away.

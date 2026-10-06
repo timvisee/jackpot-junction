@@ -33,6 +33,8 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	# A hall with a password hands it to its games in this process's environment.
+	OS.unset_environment("JJ_PASSWORD")
 	_games.close()
 	if is_instance_valid(_hall):
 		_hall.queue_free()
@@ -43,14 +45,16 @@ func after_test() -> void:
 	_client_roots.clear()
 
 
-## A hall for [param games] games, under a node called Net, as the server's own is.
-func _open_hall(games := 2) -> void:
+## A hall for [param games] games, under a node called Net, as the server's own is, asking for
+## [param password] if there is one.
+func _open_hall(games := 2, password := "") -> void:
 	var net: Node = auto_free(Node.new())
 	net.name = "Net"
 	_hall_root.add_child(net)
 	_hall = ServerHall.new()
 	_hall.name = "Hall"
 	_hall.args = ServerArgs.read(["--server", "--port=%d" % port, "--games=%d" % games])
+	_hall.args.password = password
 	_hall.home = net
 	_hall.launch = func(started: PackedStringArray) -> int:
 		_launched.append(started)
@@ -63,8 +67,9 @@ func _open_hall(games := 2) -> void:
 	assert_int(_hall.open()).is_equal(OK)
 
 
-## A player's screen on a multiplayer root of its own, knocking at the hall on [param version].
-func _visitor(named: String, version := "") -> ServerLink:
+## A player's screen on a multiplayer root of its own, knocking at the hall on [param version] with
+## [param password].
+func _visitor(named: String, version := "", password := "") -> ServerLink:
 	var root: Node = auto_free(Node.new())
 	root.name = "Visitor%d" % _client_roots.size()
 	add_child(root)
@@ -77,6 +82,7 @@ func _visitor(named: String, version := "") -> ServerLink:
 	link.name = ServerLink.NAME
 	link.player_name = named
 	link.version = version
+	link.password = password
 	net.add_child(link)
 	assert_int(link.reach("127.0.0.1", port)).is_equal(OK)
 	return link
@@ -384,6 +390,34 @@ func test_a_game_gone_quiet_is_stopped() -> void:
 	assert_int(_hall.count()).is_equal(0)
 
 
+## GAME.md 9.3a: a server with a password lets nobody see its games, nor make one, without it:
+## asked for it with none, told it was wrong with another, and let in with its own. Its games have
+## it from the environment they are started in, which the hall sets.
+func test_a_server_with_a_password_lets_in_only_who_has_it() -> void:
+	_open_hall(2, "sesame")
+	assert_str(OS.get_environment("JJ_PASSWORD")).is_equal("sesame")
+	var asked: Array[bool] = []
+	var looked: Array[String] = []
+	for each: Array in [["Ann", ""], ["Bo", "open says me"]]:
+		var visitor := _visitor(each[0], "", each[1])
+		visitor.locked.connect(func(wrong: bool) -> void: asked.append(wrong))
+		visitor.listed.connect(func(_games: Array[Dictionary]) -> void: looked.append(each[0]))
+	var told := await _wait_until(func() -> bool: return asked.size() == 2, 4000)
+	assert_bool(told).override_failure_message("never asked: %s" % [asked]).is_true()
+	assert_array(asked).contains_exactly_in_any_order([false, true])
+	var cy := _visitor("Cy", "", "sesame")
+	cy.listed.connect(func(_games: Array[Dictionary]) -> void: looked.append("Cy"))
+	var listed := await _wait_until(func() -> bool: return "Cy" in looked, 4000)
+	assert_bool(listed).override_failure_message("the right password was not let in").is_true()
+	assert_array(looked).contains_exactly(["Cy"])
+	cy.make_game()
+	var made := await _wait_until(func() -> bool: return not _launched.is_empty(), 4000)
+	assert_bool(made).override_failure_message("Cy could not make a game").is_true()
+	assert_int(_launched.size()).is_equal(1)
+	# On the command line nobody on the machine can list, nowhere: only the environment has it.
+	assert_bool(" ".join(_launched[0]).contains("sesame")).is_false()
+
+
 ## A game this one cannot play with is not listed to it: it is told which version the server has.
 func test_another_version_is_turned_away() -> void:
 	_open_hall()
@@ -511,6 +545,10 @@ func test_the_arguments_from_the_environment() -> void:
 	assert_int(empty.games).is_equal(ServerArgs.GAMES)
 	var wrong := ServerArgs.read([], {"JJ_PORT": "high"})
 	assert_str(wrong.problem()).contains("JJ_PORT")
+	# The password, JJ_PASSWORD or --password, the whole of it.
+	assert_str(ServerArgs.read([], {"JJ_PASSWORD": " sesame "}).password).is_equal("sesame")
+	assert_str(ServerArgs.read(["--password=a=b"]).password).is_equal("a=b")
+	assert_str(ServerArgs.read([]).password).is_empty()
 	# The server's name, JJ_NAME or --name, the whole of it, cleaned the way a game's name is.
 	assert_str(ServerArgs.read([], {"JJ_NAME": " Friday night "}).name).is_equal("Friday night")
 	var named := ServerArgs.read(["--name=Two = one [club]"], {"JJ_NAME": "Friday night"})
