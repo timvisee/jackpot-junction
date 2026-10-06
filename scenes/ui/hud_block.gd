@@ -20,11 +20,10 @@ const DIAL := 88.0
 const CELLS := Vector2(118.0, 12.0)
 ## How much of the name's row the kills and deaths keep for themselves.
 const STATS_WIDTH := 92.0
-## The tab the control hints are on, off the same edge as the strip and flush with it: how far its
-## end leans, how wide the stripe of the player's color on that end is, and the room round them.
-const TAB_SLANT := 16.0
-const TAB_STRIPE := 4.0
-const TAB_ROOM := Vector2(12.0, 6.0)
+## The ticket the control hints are on, flush with the strip: the notch of its free end, and the
+## room round them, on the edge it runs off, on its free end, and above and below.
+const TAB_NOTCH := 7.0
+const TAB_ROOM := Vector3(OUTER, 14.0, 6.0)
 ## The microprint along the foot of each strip, and the engraving's strength on it.
 const MICRO := "SEAT %d · JACKPOT JUNCTION · DEPT. OF KARTS · "
 const ENGRAVED := 0.07
@@ -184,16 +183,20 @@ static func _hang(hints: Control, card: Control, right: bool, bottom: bool) -> v
 	hints.global_position = Vector2(x, y)
 
 
-## The tab the corner's control hints are on, GAME.md 8.1a: cut off the same edge of the screen
-## as [param slot]'s strip and set flush under it, or over it for a block on the bottom, its end
-## leaning the same way and striped thin in the player's color, so it reads as part of their
-## corner rather than a tag that happens to be near it.
-static func tab(slot: PlayerSlot, right: bool, bottom: bool) -> StripStyle:
-	var inner := TAB_SLANT + TAB_STRIPE + TAB_ROOM.x
-	var style := StripStyle.cut(right, TAB_SLANT, OUTER, inner, TAB_ROOM.y)
-	style.wide_at_bottom = bottom
-	style.stripe = slot.color()
-	style.stripe_width = TAB_STRIPE
+## The ticket the corner's control hints are on, GAME.md 8.1a: of the HUD's stock, set flush
+## under [param slot]'s strip, or over it for a block on the bottom, and run off the same edge of
+## the screen, so it is square on that side and notched only at the corners of its free end, a
+## faint foil hairline inside its edge. Part of the corner rather than a tag near it, without being
+## a second strip.
+static func tab(_slot: PlayerSlot, right: bool, _bottom: bool) -> TicketStyle:
+	var style := TicketStyle.cut(Color(HouseTheme.STOCK, 0.86), TAB_NOTCH, 0.0, TAB_ROOM.z)
+	style.content_margin_left = TAB_ROOM.y if right else TAB_ROOM.x
+	style.content_margin_right = TAB_ROOM.x if right else TAB_ROOM.y
+	style.notch_left = right
+	style.notch_right = not right
+	style.frame = Color(HouseTheme.FOIL, 0.2)
+	style.frame_inset = 4.0
+	Surface.wear(style, "hud")
 	return style
 
 

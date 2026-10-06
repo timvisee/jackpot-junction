@@ -48,6 +48,12 @@ const TOOTH := 9.0
 	set = _set_notch
 @export var notch_top := true:
 	set = _set_notch_top
+## Whether the corners on the left and on the right are notched: square on a side that runs off
+## the edge of the screen, where a notch would be a corner nobody sees.
+@export var notch_left := true:
+	set = _set_notch_left
+@export var notch_right := true:
+	set = _set_notch_right
 ## Torn along its top and its foot, the teeth of a printer's blade, rather than notched: a payout
 ## slip, GAME.md 8.1a.
 @export var torn := false:
@@ -128,7 +134,9 @@ static func outline(
 	bites := PackedFloat32Array(),
 	bite_depth := 10.0,
 	top_notched := true,
-	serrated := false
+	serrated := false,
+	left_notched := true,
+	right_notched := true
 ) -> PackedVector2Array:
 	var w := size.x
 	var h := size.y
@@ -144,23 +152,27 @@ static func outline(
 	if serrated:
 		return _torn_outline(size, bites, bite_depth)
 	var points := PackedVector2Array()
-	if top_notched and n > 0.0:
+	var right := right_notched and n > 0.0
+	var left := left_notched and n > 0.0
+	if top_notched and right:
 		_arc(points, Vector2(w, 0.0), n, PI, PI * 0.5)
 	else:
 		points.append(Vector2(w, 0.0))
 	for y: float in bites:
 		_arc(points, Vector2(w, y), bite_depth, PI * 1.5, PI * 0.5)
-	if n > 0.0:
+	if right:
 		_arc(points, Vector2(w, h), n, PI * 1.5, PI)
-		_arc(points, Vector2(0.0, h), n, TAU, PI * 1.5)
 	else:
 		points.append(Vector2(w, h))
+	if left:
+		_arc(points, Vector2(0.0, h), n, TAU, PI * 1.5)
+	else:
 		points.append(Vector2(0.0, h))
 	var up := Array(bites)
 	up.reverse()
 	for y: float in up:
 		_arc(points, Vector2(0.0, y), bite_depth, PI * 0.5, -PI * 0.5)
-	if top_notched and n > 0.0:
+	if top_notched and left:
 		_arc(points, Vector2(0.0, 0.0), n, PI * 0.5, 0.0)
 	else:
 		points.append(Vector2.ZERO)
@@ -252,7 +264,7 @@ func _made(size: Vector2) -> Dictionary:
 	if _kept.has(size):
 		return _kept[size]
 	var made := {}
-	var edge := outline(size, notch, perforations, bite, notch_top, torn)
+	var edge := outline(size, notch, perforations, bite, notch_top, torn, notch_left, notch_right)
 	made["outline"] = edge
 	var closed := edge.duplicate()
 	closed.append(edge[0])
@@ -300,7 +312,9 @@ func _made(size: Vector2) -> Dictionary:
 		_shifted(perforations, -half),
 		bite + half,
 		notch_top,
-		torn
+		torn,
+		notch_left,
+		notch_right
 	)
 	inner.append(inner[0])
 	for i: int in inner.size():
@@ -352,7 +366,9 @@ func _frames(size: Vector2) -> Array[PackedVector2Array]:
 			frames.append(PackedVector2Array())
 			continue
 		var notched := notch_top or i > 0 or torn
-		var line := outline(part.size, depth, PackedFloat32Array(), 0.0, notched)
+		var line := outline(
+			part.size, depth, PackedFloat32Array(), 0.0, notched, false, notch_left, notch_right
+		)
 		line.append(line[0])
 		for p: int in line.size():
 			line[p] += part.position
@@ -421,6 +437,16 @@ func _set_torn(value: bool) -> void:
 
 func _set_arcs(value: bool) -> void:
 	arcs = value
+	_changed()
+
+
+func _set_notch_left(value: bool) -> void:
+	notch_left = value
+	_changed()
+
+
+func _set_notch_right(value: bool) -> void:
+	notch_right = value
 	_changed()
 
 
