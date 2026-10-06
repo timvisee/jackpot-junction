@@ -3509,11 +3509,14 @@ like any other button.
   initial on it, the one playing's rimmed in foil and saying Playing now, with the
   plate the profile's kart wears, or
   before a license the learner's L itself rather than a plate reading L, how many maps
-  it has played, and Edit, Switch and Delete. Edit asks for the name in a dialog over the
+  it has played, and Edit, Switch and Delete, Edit and Delete the pencil and the trash can
+  the kept servers of Play Online wear, 9.3a, with their words as tooltips. Edit asks for the
+  name in a dialog over the
   screen, a box with the name in it, Save and Cancel, and renames that player; a page of
   name boxes would have looked like something to fill in rather than a list to pick from.
-  Delete asks by asking to be pressed again within three seconds and is not there for the
-  one playing. New profile asks for the name the same way, with Make, then makes the
+  Delete asks first, in a question over the screen with the warning sign, "Delete this
+  profile?", saying what goes with it, the cursor on Keep, and is not there for the one
+  playing. New profile asks for the name the same way, with Make, then makes the
   profile and goes to it; a machine keeps eight. The dialog wants a name: Save and Make
   are off while the box is empty, Enter goes ahead and Back cancels. Switching puts the
   settings up again for the profile now playing. All of it is done from the title's

@@ -4,7 +4,8 @@ extends ScrollContainer
 ## [Profile], the one playing marked, each named for its first player, a name Edit changes in a
 ## [NameDialog], and its plate. One can be switched to, a new one made, up to
 ## [constant Profile.MOST], named as it is made and gone to, and any but the one playing thrown
-## away, which asks first by asking the button to be pressed again. All of that is done from the
+## away, which asks first in a question over the screen. Edit and Delete are the pencil and the
+## trash can the kept servers of Play Online wear, see [IconButton]. All of that is done from the
 ## title's settings: inside a room the names at the table are already the ones playing, so there
 ## the tab only lists them and says where to go. Making one in a room once froze the game, the
 ## settings going to a page of their own under a room that was stopped.
@@ -19,16 +20,18 @@ const RENAME := "Rename profile"
 const SAVE := "Save"
 const MAKE := "Make"
 const DELETE := "Delete"
-const SURE := "Delete it?"
+## The question Delete asks first, and its answers.
+const SURE := "Delete this profile?"
+const SURE_LINE := "%s's names, karts, license and statistics are thrown away for good."
+const KEEP := "Keep"
 const NEW := "New profile"
 const ONLY_FROM_TITLE := "Manage profiles from the title screen."
 const FULL := "That is as many profiles as a machine keeps."
 const MAPS := "%d maps"
 const PLAYING_NOW := "Playing now  ·  %s"
-## How long the second press of Delete is waited for, in seconds.
-const SURE_FOR := 3.0
-## How wide a row's buttons are.
-const BUTTON := Vector2(120.0, 44.0)
+## How wide a row's buttons are: Switch, and the pencil and the trash can.
+const BUTTON := Vector2(140.0, 44.0)
+const ICON := Vector2(56.0, 44.0)
 
 ## Whether profiles can be made, changed, switched to and thrown away here: off inside a room, see
 ## the class.
@@ -38,6 +41,8 @@ var rows: Dictionary[String, Dictionary] = {}
 var new_button: Button
 ## The name asked for just now, or null.
 var dialog: NameDialog
+## The question asked before a profile is thrown away, while it is up, or null.
+var question: ConfirmPane
 
 var _settings: Settings
 ## Run with the id switched to, so the settings can be put up again for the profile now playing.
@@ -94,8 +99,9 @@ func _row(profile: Profile) -> SeatCard:
 	card.custom_minimum_size.x = SeatCard.WIDE
 	card.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	card.show_plate(_worn_by(profile))
-	var edit := MenuTheme.button(EDIT, Type.BODY)
-	edit.custom_minimum_size = BUTTON
+	var edit := IconButton.of(IconButton.Kind.PENCIL, EDIT)
+	edit.name = "Edit"
+	edit.custom_minimum_size = ICON
 	edit.disabled = not can_switch
 	edit.pressed.connect(_edit.bind(profile))
 	card.actions.add_child(edit)
@@ -104,10 +110,11 @@ func _row(profile: Profile) -> SeatCard:
 	switch.disabled = playing or not can_switch
 	switch.pressed.connect(_switch.bind(profile.id))
 	card.actions.add_child(switch)
-	var delete := MenuTheme.button(DELETE, Type.BODY)
-	delete.custom_minimum_size = BUTTON
+	var delete := IconButton.of(IconButton.Kind.TRASH, DELETE)
+	delete.name = "Delete"
+	delete.custom_minimum_size = ICON
 	delete.disabled = playing or not can_switch
-	delete.pressed.connect(_delete.bind(profile.id, delete))
+	delete.pressed.connect(_delete.bind(profile, delete))
 	card.actions.add_child(delete)
 	rows[profile.id] = {
 		"row": card, "name": card.name_label, "edit": edit, "switch": switch, "delete": delete
@@ -190,17 +197,37 @@ func _make(named: String) -> void:
 		_switched.call(_settings.profile.id)
 
 
-## The first press asks, and the second, within [constant SURE_FOR], throws it away.
-func _delete(id: String, button: Button) -> void:
-	if not can_switch:
+## Asks first, over the screen, with the warning sign, since what goes cannot come back; thrown
+## away on yes, and the cursor back on [param button] on no.
+func _delete(profile: Profile, button: Button) -> void:
+	if not can_switch or question != null:
 		return
-	if button.text != SURE:
-		button.text = SURE
-		get_tree().create_timer(SURE_FOR).timeout.connect(
-			func() -> void:
-				if is_instance_valid(button) and button.text == SURE:
-					button.text = DELETE
-		)
-		return
-	if _settings.delete_profile(id) and _switched.is_valid():
-		_switched.call(_settings.profile.id)
+	var top: Control = self
+	while top.get_parent() is Control:
+		top = top.get_parent() as Control
+	var holder := Control.new()
+	holder.name = "DeleteProfile"
+	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.mouse_filter = Control.MOUSE_FILTER_STOP
+	(top if top != self else get_parent()).add_child(holder)
+	var shade := ColorRect.new()
+	shade.color = Color(0.0, 0.0, 0.0, 0.6)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.add_child(shade)
+	var middle := CenterContainer.new()
+	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.add_child(middle)
+	question = ConfirmPane.new()
+	middle.add_child(question)
+	question.answered.connect(
+		func(yes: bool) -> void:
+			holder.queue_free()
+			question = null
+			if not yes:
+				if is_instance_valid(button) and button.is_inside_tree():
+					button.grab_focus()
+				return
+			if _settings.delete_profile(profile.id) and _switched.is_valid():
+				_switched.call(_settings.profile.id)
+	)
+	question.ask(SURE, SURE_LINE % profile.display_name(), DELETE, KEEP)

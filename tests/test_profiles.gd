@@ -243,3 +243,30 @@ func test_a_match_played_to_the_end_goes_into_the_profile() -> void:
 	assert_str(page.values[&"maps"].text).is_equal("1")
 	assert_str(page.values[&"driven"].text).is_equal("1.5 km")
 	Game.settings = real
+
+
+## Delete asks first, over the screen, with the warning sign: Keep keeps the profile and puts the
+## cursor back on the trash can, and Delete throws it away.
+func test_deleting_a_profile_asks_first() -> void:
+	var settings := _settings()
+	settings.player_names[0] = "Ann"
+	settings.save_to_disk()
+	settings.new_profile()
+	var page: ProfilesTab = auto_free(
+		ProfilesTab.make(settings, true, func(_id: String) -> void: pass)
+	)
+	add_child(page)
+	await await_idle_frame()
+	var trash := page.rows["2"]["delete"] as Button
+	assert_object(trash.get_node_or_null("Picture")).is_not_null()
+	trash.pressed.emit()
+	assert_object(page.question).is_not_null()
+	assert_str(page.question.said()).contains(ProfilesTab.SURE)
+	page.question.no_button().pressed.emit()
+	await await_idle_frame()
+	assert_object(page.question).is_null()
+	assert_int(settings.profiles().size()).is_equal(2)
+	trash.pressed.emit()
+	page.question.yes_button().pressed.emit()
+	await await_idle_frame()
+	assert_int(settings.profiles().size()).is_equal(1)
