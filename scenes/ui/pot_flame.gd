@@ -52,9 +52,18 @@ static func make(heart: Color, core: Color, body: Color, rim: Color, seed: float
 ## glows against it rather than reading as more of it: nearly white deep in it, pale round that, a
 ## light shade of the pill's color, and the pill's own color darkened a little at the edge.
 static func in_ink(ink: Color, seed: float) -> PotFlame:
-	var heart := ink.lerp(Color.WHITE, 0.92)
-	var core := ink.lerp(Color.WHITE, 0.68)
-	return make(heart, core, ink.lerp(Color.WHITE, 0.32), ink.darkened(0.2), seed)
+	var flame := make(Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, seed)
+	dye(flame, ink)
+	return flame
+
+
+## Dyes [param flame] the colors of [method in_ink] for [param ink], in place.
+static func dye(flame: PotFlame, ink: Color) -> void:
+	var look := flame.material as ShaderMaterial
+	look.set_shader_parameter(&"heart", ink.lerp(Color.WHITE, 0.92))
+	look.set_shader_parameter(&"core", ink.lerp(Color.WHITE, 0.68))
+	look.set_shader_parameter(&"body", ink.lerp(Color.WHITE, 0.32))
+	look.set_shader_parameter(&"rim", ink.darkened(0.2))
 
 
 func _process(delta: float) -> void:

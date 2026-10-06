@@ -131,11 +131,8 @@ func show_call(who: String, call: String, color: Color, urgent := false) -> void
 	_sign.visible = dress == Dress.TWO_WAY
 	_flame.visible = dress == Dress.FLAMES
 	if _flame.visible:
-		var look := _flame.material as ShaderMaterial
-		var fire := PotFlame.in_ink(color, 0.0).material as ShaderMaterial
-		for band: StringName in [&"heart", &"core", &"body", &"rim"]:
-			look.set_shader_parameter(band, fire.get_shader_parameter(band))
-		look.set_shader_parameter(&"heat", HEAT_FOR.get(call, 1.0))
+		PotFlame.dye(_flame, color)
+		(_flame.material as ShaderMaterial).set_shader_parameter(&"heat", HEAT_FOR.get(call, 1.0))
 	_behind.visible = dress != Dress.PLATE and dress != Dress.TWO_WAY and dress != Dress.FLAMES
 	_left = HOLD
 	modulate.a = 1.0
