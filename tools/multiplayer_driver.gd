@@ -529,13 +529,14 @@ func _client_after_map_1(first: Node) -> Node:
 		"told how the run stands after map 1"
 	):
 		return null
-	_check(_scene_has_points(podium), "its podium shows what each place paid")
+	_check(not _says_what_was_paid(podium), "its podium leaves the points to the run's standings")
 	_say("SCORES 1 %s" % _scores(one))
 	# The run's standings are everybody's to look at, and the host still decides when to go on.
 	if not await _until(func() -> bool: return podium._pager.visible, 10.0, "it offers the run's"):
 		return null
 	podium._standings.pressed.emit()
 	_check(podium._title.text == ResultsScreen.GRAND_PRIX_TITLE, "then the run's standings")
+	_check(_says_what_was_paid(podium), "which say what map 1 paid")
 	_check(not podium._next.visible and podium._host_decides.visible, "still the host's to go on")
 	# What it held at the whistle, as the host told it, to be offered again on the next map.
 	for seat: int in _seats_here(one):
@@ -1263,9 +1264,11 @@ func _bot_seat(match_node: Match) -> int:
 
 
 ## Whether a podium has the points chips on it that a map of a run pays.
-func _scene_has_points(podium: ResultsScreen) -> bool:
-	for label: Node in podium.find_children("*", "Label", true, false):
-		if (label as Label).text.begins_with("+") and (label as Label).text.ends_with(" points"):
+## Whether [param podium] says what the map just played paid anybody: "+10" beside a total on the
+## run's standings, GAME.md 9.7, and nowhere on a map's own podium.
+func _says_what_was_paid(podium: ResultsScreen) -> bool:
+	for label: Node in podium.find_children("Gained", "Label", true, false):
+		if (label as Label).text.begins_with("+"):
 			return true
 	return false
 

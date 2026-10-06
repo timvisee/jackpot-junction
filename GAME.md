@@ -4790,12 +4790,15 @@ everybody finished it:
 The run is won on points, by a bot as readily as by anybody. Level on points, whoever won more
 maps is ahead, then whoever banked more over the whole run: a tie between a player who won a map
 and one who never did is not one anybody watching would call even. Second on every map beats a
-win and two lasts. Every podium in the middle of a run says, on each row, what that place paid
-and what it makes over the run so far. The host scores each map at its whistle and tells the
-room how the run stands, and every screen draws its podium from that.
+win and two lasts. Every podium in the middle of a run is the map's own, each row with its three
+awards at most and nothing about points; the run's standings it goes on to say them, each row
+with what the map just played paid it, "+10" in green, beside its points over the run so far.
+A chip saying what a place paid used to stand first among the awards, a fourth pill on every row
+saying something the next page says better. The host scores each map at its whistle and tells
+the room how the run stands, and every screen draws its podium from that.
 
 **The end.** The last map ends on its own podium first, the same as every map before it: the
-map's results, what each place paid and where that leaves everybody. Its one way on is Grand
+map's results and awards, the points left to the standings after the party. Its one way on is Grand
 Prix results, which is everybody's to press, a client's as much as the host's, since it only
 changes what that screen shows.
 

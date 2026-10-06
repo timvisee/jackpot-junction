@@ -20,6 +20,8 @@ below, and hands the notes to the release workflow.
 
 - **A tidier title screen.** The credits along its bottom are gone; who made the music, the models
   and the sounds is in Settings, About.
+- **Grand Prix points on the standings.** A map's podium in a Grand Prix shows just the awards;
+  the standings after it show what the map paid each player, beside their total.
 
 ### Fixed
 

@@ -522,14 +522,19 @@ func _run_at(round: int, rounds: int) -> void:
 		Game.grand_prix.advance()
 
 
-## In the middle of a run each row says what its place paid and where that leaves them.
-func test_the_podium_in_the_middle_of_a_run_says_what_each_place_paid() -> void:
+## In the middle of a run a map's podium is the map's: its awards and nothing about points, which
+## the run's standings after it say, each row with what the map just played paid it.
+func test_the_podium_in_the_middle_of_a_run_leaves_the_points_to_the_standings() -> void:
 	_run_at(1, 3)
 	var screen := await _podium_after(1, 3)
-	var texts := _texts(screen)
-	assert_bool(texts.has("+%d points" % GrandPrix.POINTS[0])).is_true()
-	assert_bool(texts.has("+%d points" % GrandPrix.POINTS[1])).is_true()
 	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
+	for text: String in _texts(screen):
+		assert_bool(text.contains("points")).override_failure_message(text).is_false()
+	await _to_the_run(screen)
+	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	var texts := _texts(screen)
+	assert_bool(texts.has("+%d" % GrandPrix.POINTS[0])).is_true()
+	assert_bool(texts.has("+%d" % GrandPrix.POINTS[1])).is_true()
 
 
 ## After the last map's own podium comes the run's: headed Grand Prix, everybody ranked on points
@@ -537,9 +542,8 @@ func test_the_podium_in_the_middle_of_a_run_says_what_each_place_paid() -> void:
 func test_the_podium_after_the_last_map_is_the_grand_prix() -> void:
 	_run_at(2, 2)
 	var screen := await _podium_after(2, 2)
-	# The last map's results come first, with what each place paid, as on every map.
+	# The last map's results come first, as on every map.
 	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
-	assert_bool(_texts(screen).has("+%d points" % GrandPrix.POINTS[0])).is_true()
 	await _to_the_run(screen)
 	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
 	var run := Game.grand_prix

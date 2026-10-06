@@ -117,7 +117,7 @@ func fill_in() -> void:
 	_title.text = GRAND_PRIX_TITLE if final else TITLE
 	var rank := 1
 	for slot: PlayerSlot in standings:
-		_rows.add_child(_run_entry(slot, rank, run) if final else _entry(slot, rank, everyone, run))
+		_rows.add_child(_run_entry(slot, rank, run) if final else _entry(slot, rank, everyone))
 		rank += 1
 	visible = true
 	_ways_on()
@@ -323,35 +323,23 @@ func _on_grand_prix_scored(_run_now: Dictionary) -> void:
 
 
 ## One player: their place and name on the left, what they banked on the right, and what they
-## did most of underneath. In a Grand Prix, what the place paid in points and where that leaves
-## them over the run comes first under the name.
-func _entry(
-	slot: PlayerSlot, rank: int, everyone: Array[PlayerStats], run: GrandPrix
-) -> PanelContainer:
+## did most of underneath, three awards at most. In a Grand Prix the points a place paid are said
+## on the run's standings, which come next, see [method _run_entry], not here among the awards.
+func _entry(slot: PlayerSlot, rank: int, everyone: Array[PlayerStats]) -> PanelContainer:
 	var row := _row(slot)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 6)
 	row.add_child(box)
 	box.add_child(_headline(slot, rank))
 	var awards := _award_chips(slot, everyone)
-	if run != null:
-		if awards == null:
-			awards = HBoxContainer.new()
-			awards.add_theme_constant_override("separation", 8)
-		var paid: Array = run.points.get(slot.index, [])
-		var earned: int = (
-			paid[match_node.rules.round - 1] if paid.size() >= match_node.rules.round else 0
-		)
-		var chip := _chip("+%d points" % earned, "%d in all" % run.total(slot.index))
-		awards.add_child(chip)
-		awards.move_child(chip, 0)
 	if awards != null:
 		box.add_child(awards)
 	return row
 
 
-## One player at the end of a Grand Prix: place and name, how many maps they won, and their points
-## over the whole run, with a chip for each map saying where they finished it and what it paid.
+## One player on a Grand Prix's standings: place and name, how many maps they won, what the map just
+## played paid them, in green, and their points over the whole run, with a chip for each map saying
+## where they finished it and what it paid.
 func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix) -> PanelContainer:
 	var row := _row(slot)
 	var box := VBoxContainer.new()
@@ -370,6 +358,11 @@ func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix) -> PanelContainer:
 	line.add_child(name_label)
 	var won := run.wins(slot.index)
 	line.add_child(_label("%d %s" % [won, "win" if won == 1 else "wins"], 18, FAINT))
+	var paid: Array = run.points.get(slot.index, [])
+	if not paid.is_empty():
+		var gained := _label("+%d" % int(paid[-1]), 22, RankArrow.UP)
+		gained.name = "Gained"
+		line.add_child(gained)
 	var total := _label("%d pts" % run.total(slot.index), 34, Palette.CHIP_GOLD)
 	total.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	total.custom_minimum_size = Vector2(150.0, 0.0)
@@ -378,7 +371,6 @@ func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix) -> PanelContainer:
 	var maps := HBoxContainer.new()
 	maps.add_theme_constant_override("separation", 8)
 	var places: Array = run.places.get(slot.index, [])
-	var paid: Array = run.points.get(slot.index, [])
 	for i: int in mini(places.size(), run.playlist.size()):
 		var named := ArenaMaps.NAMES[ArenaMaps.index_of(run.playlist[i])]
 		var place: int = places[i]
