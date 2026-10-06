@@ -18,6 +18,10 @@ uniform float lip = 0.36;
 uniform float span = 2.65;
 uniform float fade = 0.8;
 uniform float margin = 0.15;
+// How much of the sheet, up from its foot, the fire fades in over: nothing for a pill, which hides
+// the foot behind it, and the stretch under the plate for a call, whose plate fades out with it
+// and would otherwise show the fire cut off flat behind it.
+uniform float foot_fade = 0.0;
 
 // A number from 0 to 1 for each point of the noise's grid, worked without a sine: the usual
 // sine hash loses its precision as its input grows, and repeats down whole rows of the grid,
@@ -113,5 +117,8 @@ void fragment() {
 	// And gone before any edge of the sheet whatever the fire does.
 	float room = smoothstep(0.0, margin * 0.5, uv.x) * smoothstep(1.0, 1.0 - margin * 0.5, uv.x);
 	color.a *= room * (1.0 - smoothstep(span - 0.2, span - 0.02, above));
+	if (foot_fade > 0.0) {
+		color.a *= 1.0 - smoothstep(1.0 - foot_fade, 1.0, uv.y);
+	}
 	COLOR = color;
 }

@@ -198,6 +198,9 @@ func _lay() -> void:
 			if flame.visible:
 				var at := _plate.position + Vector2(each * i, 0.0)
 				flame.cover(Rect2(at, Vector2(each, FIRE_FOOT)))
+				# Faded out down the stretch behind the plate rather than cut off flat there.
+				var under := PotFlame.FOOT / (PotFlame.REACH + PotFlame.FOOT)
+				(flame.material as ShaderMaterial).set_shader_parameter(&"foot_fade", under * 1.6)
 
 
 func _draw_behind() -> void:
