@@ -15,15 +15,15 @@ config/description="Arena kart game: collect chips, build a multiplier, cash out
 config/version="0.13.4"
 config/tags=PackedStringArray("game")
 run/main_scene="res://scenes/boot/boot.tscn"
+run/main_loop_type="GameTree"
+config/quit_on_go_back=false
 config/features=PackedStringArray("4.7", "Forward Plus")
+run/flush_stdout_on_print=true
 boot_splash/bg_color=Color(0.07450981, 0.07058824, 0.09411765, 1)
 boot_splash/stretch_mode=0
 boot_splash/image="uid://qdtnv4nong5v"
 config/icon="res://icon.png"
 config/windows_native_icon="res://icon.ico"
-config/quit_on_go_back=false
-run/flush_stdout_on_print=true
-run/main_loop_type="GameTree"
 
 [autoload]
 
@@ -77,12 +77,10 @@ common/physics_interpolation=true
 
 rendering_device/driver.windows="d3d12"
 textures/vram_compression/import_etc2_astc=true
-anti_aliasing/quality/msaa_3d=1
-environment/ssao/quality=0
-environment/ssao/half_size=true
-environment/ssao/adaptive_target=0.3
-environment/ssao/blur_passes=1
-environment/glow/upscale_mode=0
 camera/depth_of_field/depth_of_field_bokeh_shape=0
 camera/depth_of_field/depth_of_field_bokeh_quality=0
-camera/depth_of_field/depth_of_field_use_jitter=false
+environment/ssao/quality=0
+environment/ssao/adaptive_target=0.3
+environment/ssao/blur_passes=1
+anti_aliasing/quality/msaa_3d=1
+environment/glow/upscale_mode=0
