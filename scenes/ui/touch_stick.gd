@@ -91,12 +91,12 @@ func turn() -> float:
 ## The ring where it is and the knob where the thumb is onto [param canvas] at [param strength],
 ## the knob kept inside the ring; or, steering only, the wheel turned as far as it is pushed.
 func draw(canvas: CanvasItem, strength: float) -> void:
-	var rim := Color(TouchControls.RIM, TouchControls.RIM.a * strength)
+	var rim := Color(TouchInk.rim(), TouchControls.RIM * strength)
 	var fill := TouchControls.FILL
 	canvas.draw_circle(center, RADIUS, Color(fill, fill.a * strength))
 	canvas.draw_arc(center, RADIUS, 0.0, TAU, 64, rim, TouchControls.RIM_WIDTH, true)
-	TouchControls.notch(canvas, center, RADIUS, strength)
-	var lit := TouchControls.FILL_DOWN if finger >= 0 else Color(1.0, 1.0, 1.0, 0.16)
+	TouchInk.notch(canvas, center, RADIUS, strength)
+	var lit := TouchInk.fill_down() if finger >= 0 else Color(1.0, 1.0, 1.0, 0.16)
 	lit = Color(lit, lit.a * strength)
 	if not free:
 		draw_wheel(canvas, center, RADIUS * WHEEL_REACH, turn(), lit, rim)
@@ -104,7 +104,7 @@ func draw(canvas: CanvasItem, strength: float) -> void:
 	var at := center + (knob - center).limit_length(RADIUS)
 	canvas.draw_circle(at, KNOB, lit)
 	canvas.draw_arc(at, KNOB, 0.0, TAU, 40, rim, TouchControls.RIM_WIDTH, true)
-	TouchControls.notch(canvas, at, KNOB, strength)
+	TouchInk.notch(canvas, at, KNOB, strength)
 
 
 ## A steering wheel seen from the driver's seat onto [param canvas], [param reach] out to the middle

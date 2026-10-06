@@ -136,7 +136,7 @@ func draw(canvas: CanvasItem, strength: float, kart: Kart) -> void:
 	var round := int(rect.size.x * 0.5)
 	var pill := StyleBoxFlat.new()
 	pill.bg_color = Color(TouchControls.FILL, TouchControls.FILL.a * strength)
-	pill.border_color = Color(TouchControls.RIM, TouchControls.RIM.a * strength)
+	pill.border_color = Color(TouchInk.rim(), TouchControls.RIM * strength)
 	pill.set_border_width_all(int(TouchControls.RIM_WIDTH))
 	pill.set_corner_radius_all(round)
 	pill.anti_aliasing = true
@@ -150,7 +150,7 @@ func draw(canvas: CanvasItem, strength: float, kart: Kart) -> void:
 		var ink := TouchControls.INK if dim >= 1.0 else TouchControls.GRAY_INK
 		if zone == on:
 			var lit := StyleBoxFlat.new()
-			lit.bg_color = Color(TouchControls.FILL_DOWN, TouchControls.FILL_DOWN.a * strength)
+			lit.bg_color = Color(TouchInk.fill_down(), TouchControls.FILL_DOWN * strength)
 			lit.anti_aliasing = true
 			lit.corner_radius_top_left = round if i == 0 else 0
 			lit.corner_radius_top_right = round if i == 0 else 0
@@ -170,5 +170,5 @@ func draw(canvas: CanvasItem, strength: float, kart: Kart) -> void:
 		var full := nitro.size.x - TANK_INSET * 2.0
 		var bar := Vector2(nitro.position.x + TANK_INSET, nitro.end.y - TANK_INSET)
 		var tank := full * clampf(kart.nitro_charge, 0.0, 1.0)
-		var ink := Color(TouchControls.TANK, TouchControls.TANK.a * strength)
+		var ink := Color(TouchInk.tank(), TouchControls.TANK * strength)
 		canvas.draw_rect(Rect2(bar, Vector2(tank, TouchControls.TANK_WIDTH)), ink)

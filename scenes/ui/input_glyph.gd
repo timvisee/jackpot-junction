@@ -548,7 +548,7 @@ func _draw_item_button(box: Rect2) -> void:
 	var holding := TouchInput.item_id != &""
 	var strength := 1.0 if holding else TouchControls.FAINT
 	draw_circle(middle, radius, Color(TouchControls.FILL, TouchControls.FILL.a * strength))
-	var rim := Color(TouchControls.RIM, TouchControls.RIM.a * strength)
+	var rim := Color(TouchInk.rim(), TouchControls.RIM * strength)
 	draw_arc(middle, radius, 0.0, TAU, 32, rim, 1.5, true)
 	_shown_item = TouchInput.item_id
 	if holding:

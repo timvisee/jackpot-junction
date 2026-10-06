@@ -28,7 +28,7 @@ below, and hands the notes to the release workflow.
 - **Calls on plates.** The announcer's calls stand on a plate in the player's color, match point
   on hazard tape, Last Call on a red board, and the joker cards are engraved in their kind's color.
 - **A title with a seal.** Rings turn slowly round the mark on the title, the name is set in a
-  heavier cut over a line of fine print, and the touch buttons are gold-rimmed chips.
+  heavier cut over a line of fine print, and the touch controls are chips in your own color.
 - **Menus that move.** Panes slide up as they open and drop away as they close, and a gold frame
   follows the cursor from one button to the next; Accessibility can switch the frame's glide off.
 - **Hints over your kart.** The hints and the item beside your kart stand on small tickets, and

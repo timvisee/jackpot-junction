@@ -1112,8 +1112,10 @@ big so its buttons can be pressed, see the UI scale of 8.5, and what is only rea
 the size: on a touch screen the player's corner, the standings and the kill feed are drawn at
 three quarters of the rest of the UI, each shrunk toward the corner or edge it hangs from, and
 the round buttons, the slider and the stick are see-through, so the arena under a thumb is still
-there to be seen. Being round, they are chips of 8.1a: the house's stock with a foil rim and
-notches round it, lit gold while a thumb is on one. The hand of jokers is tucked into the bottom edge while none of its cards is
+there to be seen. Being round, they are chips of 8.1a: the house's stock with a rim and notches
+round it in the player's own color, lit in it while a thumb is on one, and the slider, the stick
+and the nitro tank are in it too, as the player's corner and nitro cells are, so the controls
+under the thumbs say whose they are (`TouchInk`). The hand of jokers is tucked into the bottom edge while none of its cards is
 being read, smaller and half below the edge, and comes up to its full size as a card is held or
 kept open.
 

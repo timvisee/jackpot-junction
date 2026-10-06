@@ -102,9 +102,9 @@ func _input(event: InputEvent) -> void:
 
 func _draw() -> void:
 	var middle := button_center()
-	var fill := TouchControls.FILL_DOWN if open else TouchControls.FILL
+	var fill := TouchInk.fill_down() if open else TouchControls.FILL
 	draw_circle(middle, RADIUS, fill)
-	draw_arc(middle, RADIUS, 0.0, TAU, 48, TouchControls.RIM, TouchControls.RIM_WIDTH, true)
+	draw_arc(middle, RADIUS, 0.0, TAU, 48, TouchInk.rim(), TouchControls.RIM_WIDTH, true)
 	# A smile, in the ink the menu button's bars are drawn in.
 	var face := Rect2(middle - Vector2.ONE * RADIUS, Vector2.ONE * RADIUS * 2.0)
 	var ink := TouchControls.INK
