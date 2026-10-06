@@ -113,6 +113,41 @@ func test_a_decoys_kills_and_end_say_it_was_the_decoy() -> void:
 	assert_bool(&"decoy_destroyed" in NetEvents.RELAYED).is_true()
 
 
+## A line about a player on this screen, killer or killed, is striped in their color at its slanted
+## end, as their row in the standings is, GAME.md 8.3; a line about nobody here is not.
+func test_a_line_about_a_player_here_is_striped_in_their_color() -> void:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	match_node.rules = RULES.duplicate()
+	_runner = scene_runner(match_node)
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new(), BotInput.new()
+	]
+	match_node.start(inputs, 3)
+	await _runner.simulate_frames(2, 17)
+	var feed := _feed()
+	feed.match_node = match_node
+	var here := -1
+	var away: Array[int] = []
+	for slot: PlayerSlot in match_node.slots:
+		if slot.is_local_human():
+			here = slot.index if here < 0 else here
+		else:
+			away.append(slot.index)
+	assert_int(here).is_not_equal(-1)
+	assert_int(away.size()).is_greater_equal(2)
+	Events.kart_killed.emit(away[0], away[1], &"bullet")
+	var plain := feed._rows[0].get_theme_stylebox(&"normal") as StripStyle
+	assert_float(plain.stripe.a).is_equal(0.0)
+	Events.kart_killed.emit(away[0], here, &"bullet")
+	var striped := feed._rows[0].get_theme_stylebox(&"normal") as StripStyle
+	assert_object(striped.stripe).is_equal(match_node.slots[here].color())
+	Events.kart_killed.emit(here, away[1], &"ram")
+	striped = feed._rows[0].get_theme_stylebox(&"normal") as StripStyle
+	assert_object(striped.stripe).is_equal(match_node.slots[here].color())
+
+
 ## The host says what it was: a decoy's bullet or ram that kills tells the feed so before the kill,
 ## and a decoy destroyed is said, one that ran out of time not.
 func test_the_match_says_a_decoy_did_it() -> void:

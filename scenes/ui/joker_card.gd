@@ -42,6 +42,8 @@ const PIP_GAP := 5
 const ENGRAVED := 0.15
 const HAIRLINE := 0.35
 const INSET := 5.0
+## How far the kind stands in from the card's margin, clear of the hairline's round corner.
+const KIND_ROOM := 4.0
 
 
 ## What is engraved on a card's face, under everything else on it, in its kind's color.
@@ -212,6 +214,10 @@ func _build() -> void:
 	kind.text = kind_name(joker).to_upper()
 	Type.set_font(kind, Type.STRONG, 13)
 	kind.add_theme_color_override("font_color", color)
+	# The kind in the top left corner, as a playing card's index is, a little in from the frame.
+	var room := StyleBoxEmpty.new()
+	room.content_margin_left = KIND_ROOM
+	kind.add_theme_stylebox_override("normal", room)
 	# The joker's own picture rather than its initials: a card is recognized across the table by
 	# its shape, and two letters at that size are a shape you have to read first, GAME.md 8.3.
 	var art := JokerArt.picture(joker.id, color)
@@ -221,6 +227,7 @@ func _build() -> void:
 	Type.set_font(title, Type.STRONG, 15)
 	title.add_theme_color_override("font_color", Palette.CHIP_WHITE)
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	kind.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_child(kind)

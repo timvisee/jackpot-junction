@@ -2418,7 +2418,8 @@ Amber and red belong to the boards and the warnings.
   The clock is amber seven-segment digits on a board hung from the top edge. The
   standings are strips off the right edge, each place in a chip of its player's
   color and the leader's edged in foil; the kill feed's lines are short strips with
-  slanted ends. Key caps, pad buttons and the item tag are stock with a foil rim.
+  slanted ends, and a line about a player on this screen, killer or killed, is
+  striped in their color at its slanted end, as their row in the standings is. Key caps, pad buttons and the item tag are stock with a foil rim.
 - **The title**: the sunburst stays, its wedges light laid over the engraved
   backdrop rather than two tones of their own, so the lines show through the whole
   of it, and it turns about the mark now rather than a point under it, with three
@@ -2720,7 +2721,9 @@ lane beside it is as wide as it was.
   400 on nitro: the honest meters a second is a single figure and says nothing
   about how the driving feels. A dead kart reads zero.
 - **Control hints**, on by default and switchable in 8.5: a line under each
-  player's block showing the button that drifts, the one that burns nitro and
+  player's block, on a tag of its own hung off the strip (over it for a block
+  at the foot of the screen) so the block never grows and shrinks as they come
+  and go, showing the button that drifts, the one that burns nitro and
   the one that plays a held item. Each shows only while it is worth pressing, so
   a parked kart with a full tank sees the nitro reminder alone and an item still
   rolling in its roulette shows none. The button that opens the joker menu is

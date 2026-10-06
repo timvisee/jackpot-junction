@@ -22,6 +22,10 @@ const REACH := 2.3
 const FADE := 0.8
 const MARGIN := 0.25
 const CLOCK_WRAP := 900.0
+## Where the fire's foot is, down from the top of the pill in pill heights: its middle, so the
+## round ends of a pill never show the foot of the fire behind them, only flames rising past
+## where the ends curve in.
+const FOOT := 0.5
 
 var _clock := 0.0
 
@@ -61,15 +65,15 @@ func _process(delta: float) -> void:
 
 
 ## Lays the fire over [param rect], a pill's, and up above it by [constant REACH] of the pill's
-## height, over the banked score above the pill, its foot behind the bottom of the pill so it
-## rises out of it rather than off its top.
+## height, over the banked score above the pill, its foot behind the middle of the pill, see
+## [constant FOOT], so it rises out of it rather than off its top.
 func cover(rect: Rect2) -> void:
 	var side := rect.size.x * MARGIN
 	position = rect.position - Vector2(side, rect.size.y * REACH)
-	size = Vector2(rect.size.x + side * 2.0, rect.size.y * (REACH + 0.9))
+	size = Vector2(rect.size.x + side * 2.0, rect.size.y * (REACH + FOOT))
 	var look := material as ShaderMaterial
 	look.set_shader_parameter(&"pixels", size)
-	look.set_shader_parameter(&"span", REACH + 0.9)
+	look.set_shader_parameter(&"span", REACH + FOOT)
 	look.set_shader_parameter(&"fade", FADE)
 	look.set_shader_parameter(&"margin", side / size.x)
-	look.set_shader_parameter(&"lip", 0.9 / (REACH + 0.9))
+	look.set_shader_parameter(&"lip", FOOT / (REACH + FOOT))

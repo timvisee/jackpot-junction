@@ -348,16 +348,16 @@ static func signed(title_label: Label, kind: RoadSign.Kind) -> HBoxContainer:
 
 ## Deals [param pane] in, GAME.md 8.1a: up from a little below where it settles and out of nothing,
 ## the way a ticket comes out of a printer, rather than just being there. It waits a frame for the
-## pane to be laid out, so it rises to where its container puts it, and it runs under a paused
-## room, which is where most panes come up. Not where nothing is drawn, which is where the tests
-## run: a pane still on its way up is a button a click lands beside.
+## pane to be laid out, and through the rise it asks its container where it rests every frame, see
+## [method _place], so it rises to where it is put however late that is settled, and a pane dealt
+## again on its way up or down starts from where it rests rather than from where it was caught. It
+## runs under a paused room, which is where most panes come up. Not where nothing is drawn, which
+## is where the tests run: a pane still on its way up is a button a click lands beside.
 static func deal(pane: Control) -> void:
 	if pane == null or not pane.is_inside_tree() or Game.is_headless():
 		return
-	if pane.has_meta(&"dealing"):
-		var before: Tween = pane.get_meta(&"dealing")
-		if before != null and before.is_valid():
-			before.kill()
+	_place(pane, _rest_of(pane), 0.0)
+	_stop(pane)
 	pane.modulate.a = 0.0
 	var holder := pane.get_parent() as Container
 	if holder != null:
@@ -374,19 +374,20 @@ static func _rise(held: Variant) -> void:
 	pane.modulate.a = 1.0
 	if not pane.is_visible_in_tree():
 		return
-	var rest := pane.position.y
+	var rest := _rest_of(pane)
 	var rise := pane.create_tween()
 	rise.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	rise.set_parallel(true).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-	rise.tween_property(pane, "position:y", rest, DEAL_TIME).from(rest + DEAL_RISE)
+	rise.tween_method(func(by: float) -> void: _place(pane, rest, by), DEAL_RISE, 0.0, DEAL_TIME)
 	rise.tween_property(pane, "modulate:a", 1.0, DEAL_TIME * 0.7).from(0.0)
 	pane.set_meta(&"dealing", rise)
 
 
 ## Puts [param pane] away the way [method deal] brings it, GAME.md 8.1a: down a little and out
 ## of sight, with [param shades] fading out alongside it, and then [param gone], which hides the
-## pane or frees it. At once where nothing is drawn, as [method deal] is, and for a pane that is
-## not showing. Dealt in again on its way out, it stays, and [param gone] never comes.
+## pane or frees it, with the pane back where it rests. At once where nothing is drawn, as
+## [method deal] is, and for a pane that is not showing. Dealt in again on its way out, it stays,
+## and [param gone] never comes.
 static func put_away(pane: Control, gone: Callable, shades: Array[CanvasItem] = []) -> void:
 	if pane == null or not pane.is_inside_tree() or Game.is_headless():
 		gone.call()
@@ -394,21 +395,18 @@ static func put_away(pane: Control, gone: Callable, shades: Array[CanvasItem] = 
 	if not pane.is_visible_in_tree():
 		gone.call()
 		return
-	if pane.has_meta(&"dealing"):
-		var before: Tween = pane.get_meta(&"dealing")
-		if before != null and before.is_valid():
-			before.kill()
-	var rest := pane.position.y
+	var rest := _rest_of(pane)
+	_stop(pane)
 	var fall := pane.create_tween()
 	fall.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	fall.set_parallel(true).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
-	fall.tween_property(pane, "position:y", rest + LEAVE_DROP, LEAVE_TIME)
+	fall.tween_method(func(by: float) -> void: _place(pane, rest, by), 0.0, LEAVE_DROP, LEAVE_TIME)
 	fall.tween_property(pane, "modulate:a", 0.0, LEAVE_TIME)
 	for shade: CanvasItem in shades:
 		fall.tween_property(shade, "modulate:a", 0.0, LEAVE_TIME)
 	fall.chain().tween_callback(
 		func() -> void:
-			pane.position.y = rest
+			_place(pane, rest, 0.0)
 			pane.modulate.a = 1.0
 			for shade: CanvasItem in shades:
 				if is_instance_valid(shade):
@@ -416,6 +414,42 @@ static func put_away(pane: Control, gone: Callable, shades: Array[CanvasItem] = 
 			gone.call()
 	)
 	pane.set_meta(&"dealing", fall)
+
+
+## Puts [param pane] [param by] below where it rests: where its container lays it, laid out again
+## first so a late layout or one changed mid-way is where it ends up, or [param rest] for a pane
+## placed by hand.
+static func _place(pane: Control, rest: float, by: float) -> void:
+	if not is_instance_valid(pane):
+		return
+	var holder := pane.get_parent() as Container
+	if holder != null:
+		holder.notification(Container.NOTIFICATION_SORT_CHILDREN)
+		pane.position.y += by
+	else:
+		pane.position.y = rest + by
+
+
+## Where a pane placed by hand rests: where it is, unless it is on its way in or out, when it is
+## where it was before that began.
+static func _rest_of(pane: Control) -> float:
+	if not pane.has_meta(&"rest") or not _moving(pane):
+		pane.set_meta(&"rest", pane.position.y)
+	return pane.get_meta(&"rest")
+
+
+static func _moving(pane: Control) -> bool:
+	if not pane.has_meta(&"dealing"):
+		return false
+	var motion: Tween = pane.get_meta(&"dealing")
+	return motion != null and motion.is_valid() and motion.is_running()
+
+
+static func _stop(pane: Control) -> void:
+	if pane.has_meta(&"dealing"):
+		var before: Tween = pane.get_meta(&"dealing")
+		if before != null and before.is_valid():
+			before.kill()
 
 
 ## A pane to put things in.

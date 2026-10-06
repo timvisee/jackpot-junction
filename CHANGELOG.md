@@ -33,7 +33,8 @@ below, and hands the notes to the release workflow.
   size in a sunken socket, and asks for a new one in gold.
 - **A dashboard in your corner.** Your corner of the HUD runs off the edge of the screen with a
   speed dial, nitro cells and a pot that ends in a chip and a die; the clock hangs on an amber
-  board like the one by the table, and the standings and kill feed are strips off the right edge.
+  board like the one by the table, and the standings and kill feed are strips off the right edge,
+  your own lines striped in your color.
 
 ## [0.13.3] - 2026-10-06
 

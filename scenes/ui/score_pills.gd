@@ -188,11 +188,6 @@ func say(words: String) -> void:
 
 
 func _build() -> void:
-	var sample := _text(Color.WHITE)
-	sample.text = "0"
-	var tall := sample.get_minimum_size().y + PAD_Y * 2.0
-	sample.free()
-	_end_pad = maxf((tall - ICON) * 0.5, 0.0)
 	chips = _pill(Palette.CHIPS, CHIP_WIDTH, Icon.CHIP)
 	_sign("×")
 	mult = _pill(Palette.MULT, MULT_WIDTH, Icon.DIE)
@@ -233,9 +228,32 @@ func _pill(ink: Color, width: float, icon: Icon) -> Label:
 	label.custom_minimum_size = Vector2(width, 0.0)
 	inside.add_child(label)
 	add_child(box)
+	box.resized.connect(_fit_ends.bind(box))
 	_parts.append(box)
 	_pills.append([box, label, ink])
 	return label
+
+
+## The room before the chip or the die, made the room above and below it once the pills have their
+## height, so the icon sits in the round end of the pill the way the end is round about it.
+## Worked out from the pills as laid out: a label measured before it is on the screen has no font
+## to measure with yet, and said a pill was nought pixels tall. The tallest pill's, for both, so
+## the two never argue over it while they are being laid out.
+func _fit_ends(_box: PanelContainer) -> void:
+	var tall := 0.0
+	for pill: Array in _pills:
+		tall = maxf(tall, (pill[0] as PanelContainer).size.y)
+	if tall < ICON:
+		return
+	var pad := floorf((tall - ICON) * 0.5)
+	if is_equal_approx(pad, _end_pad):
+		return
+	_end_pad = pad
+	for pill: Array in _pills:
+		var skin := (pill[0] as PanelContainer).get_theme_stylebox(&"panel")
+		skin.content_margin_left = pad
+	for skin: StyleBoxFlat in _burn_skins:
+		skin.content_margin_left = pad
 
 
 ## The chip or the die at the end of a pill.

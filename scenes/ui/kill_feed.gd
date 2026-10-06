@@ -18,6 +18,9 @@ const FADE := 1.2
 const FONT_SIZE := 18
 ## Color for the verb between the two names, and for a death nobody gets credit for.
 const NEUTRAL := Color(0.78, 0.78, 0.82)
+## How wide the stripe is that marks a line about a player on this screen, as the standings mark
+## their rows, GAME.md 8.3.
+const STRIPE := 6.0
 
 ## How a death reads, by the cause the match reports.
 const VERBS: Dictionary[StringName, String] = {
@@ -87,10 +90,12 @@ func _on_kart_killed(victim_slot: int, killer_slot: int, cause: StringName) -> v
 	var bounces := int(detail[1])
 	if bool(detail[0]) and killer_slot >= 0 and killer_slot != victim_slot:
 		var decoy := _decoys(_tag(_name(killer_slot), _color(killer_slot)))
-		_push(_label(), _by(decoy, _tag(victim, _color(victim_slot)), cause), bounces)
+		var line := _by(decoy, _tag(victim, _color(victim_slot)), cause)
+		_push(_label(_mine([killer_slot, victim_slot])), line, bounces)
 		return
 	var killer := _name(killer_slot)
-	add_kill(victim, _color(victim_slot), killer, _color(killer_slot), cause, bounces)
+	var own := _mine([killer_slot, victim_slot])
+	add_kill(victim, _color(victim_slot), killer, _color(killer_slot), cause, bounces, own)
 
 
 func _on_decoy_destroyed(owner_slot: int, by_slot: int, cause: StringName) -> void:
@@ -103,7 +108,7 @@ func _on_decoy_destroyed(owner_slot: int, by_slot: int, cause: StringName) -> vo
 		line = "%s took out their own decoy" % _tag(owner, _color(owner_slot))
 	elif by_slot >= 0 and not _name(by_slot).is_empty():
 		line = _by(_tag(_name(by_slot), _color(by_slot)), decoy, cause)
-	_push(_label(), line)
+	_push(_label(_mine([by_slot, owner_slot])), line)
 
 
 ## [param tagged], a name as the feed writes it, with "'s decoy" after it in the feed's own gray.
@@ -113,13 +118,13 @@ static func _decoys(tagged: String) -> String:
 
 func _on_bounty_called(slot: int) -> void:
 	if match_node != null:
-		add_line("a bounty on %s" % _name(slot), Palette.CHIP_GOLD)
+		add_line("a bounty on %s" % _name(slot), Palette.CHIP_GOLD, _mine([slot]))
 
 
 func _on_bounty_claimed(killer_slot: int, victim_slot: int, amount: int) -> void:
 	if match_node != null:
 		var said := "%s collected %d on %s" % [_name(killer_slot), amount, _name(victim_slot)]
-		add_line(said, Palette.CHIP_GOLD)
+		add_line(said, Palette.CHIP_GOLD, _mine([killer_slot, victim_slot]))
 
 
 ## Said quietly, in the feed rather than over the middle of the screen, GAME.md 10.3.
@@ -140,6 +145,18 @@ func _color(slot: int) -> Color:
 	return match_node.slots[slot].color()
 
 
+## The color of the first of [param slots] played on this screen, for the stripe on a line about
+## them, or clear when the line is about nobody here: the feed is everybody's, and a player wants
+## to find their own lines in it at a glance, GAME.md 8.3.
+func _mine(slots: Array[int]) -> Color:
+	if match_node == null:
+		return Color(0.0, 0.0, 0.0, 0.0)
+	for slot: int in slots:
+		if slot >= 0 and slot < match_node.slots.size() and match_node.slots[slot].is_local_human():
+			return match_node.slots[slot].color()
+	return Color(0.0, 0.0, 0.0, 0.0)
+
+
 func row_count() -> int:
 	return _rows.size()
 
@@ -150,20 +167,24 @@ func newest_text() -> String:
 
 
 ## Adds a kill. [param killer] is empty when nobody gets the credit, for example a kart that
-## drove into a pit by itself. [param bounces] is how many walls the bullet that did it came off.
+## drove into a pit by itself. [param bounces] is how many walls the bullet that did it came off,
+## and [param own] the color of the stripe for a line about a player on this screen, see
+## [method _mine].
 func add_kill(
 	victim: String,
 	victim_color: Color,
 	killer: String,
 	killer_color: Color,
 	cause: StringName,
-	bounces := 0
+	bounces := 0,
+	own := Color(0.0, 0.0, 0.0, 0.0)
 ) -> void:
-	_push(_label(), _line(victim, victim_color, killer, killer_color, cause), bounces)
+	_push(_label(own), _line(victim, victim_color, killer, killer_color, cause), bounces)
 
 
-## One line of the feed, before it is given its words.
-static func _label() -> RichTextLabel:
+## One line of the feed, before it is given its words, striped at its slanted end in [param own]
+## for a line about a player on this screen.
+static func _label(own := Color(0.0, 0.0, 0.0, 0.0)) -> RichTextLabel:
 	var label := RichTextLabel.new()
 	label.bbcode_enabled = true
 	label.fit_content = true
@@ -179,6 +200,10 @@ static func _label() -> RichTextLabel:
 	# every one of them stands on a strip of its own rather than trusting the felt to be dark.
 	var strip := StripStyle.cut(true, SLANT, 14.0, SLANT + 12.0, 3.0)
 	strip.fill = Color(HouseTheme.STOCK, 0.82)
+	if own.a > 0.0:
+		strip.stripe = own
+		strip.stripe_width = STRIPE
+		strip.content_margin_left += STRIPE
 	label.add_theme_stylebox_override("normal", strip)
 	# Each strip as long as its own line, all of them off the right edge.
 	label.size_flags_horizontal = Control.SIZE_SHRINK_END
@@ -186,8 +211,8 @@ static func _label() -> RichTextLabel:
 
 
 ## Adds a line of its own, for news that is not a kill: a bounty called or collected.
-func add_line(text: String, color: Color) -> void:
-	add_kill(text, color, "", color, &"line")
+func add_line(text: String, color: Color, own := Color(0.0, 0.0, 0.0, 0.0)) -> void:
+	add_kill(text, color, "", color, &"line", 0, own)
 
 
 ## Puts up [param line], with the mark of a ricochet at its end for [param bounces] walls, and how
