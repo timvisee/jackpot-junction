@@ -11,8 +11,7 @@ extends PanelContainer
 ## The examiner's clipboard, GAME.md 8.1a: a board covered in the table's green felt with a foil
 ## rim, a gold clip at its head riveted with a poker chip, and clipped to it a sheet of the
 ## school's cream paper, the form printed on it in ink and the tasks ticked off in red pen, the
-## way an examiner marks a test. Leaning a little, as a board held in a hand does, see
-## [constant LEAN].
+## way an examiner marks a test.
 
 const WIDTH := 300.0
 ## The ink on the sheet: for the task being done, one waiting, and one done.
@@ -34,10 +33,6 @@ const SHEET_ROOM := Vector2(14.0, 12.0)
 ## The clip: how wide its plate is and how tall, and how far over the board's head it stands.
 const CLIP := Vector2(96.0, 24.0)
 const CLIP_OVER := 7.0
-## How far the board leans, as one held does: turned about the clip at its head, so it hangs from
-## where it is held and only its foot swings a little as the list grows, clockwise, so that foot
-## swings away from the screen's edge rather than toward it.
-const LEAN := 1.3
 ## A lesson done is stamped PASSED with the driving test's rubber stamp, GAME.md 8.1a: in what
 ## green, how big, how far askew, and for how long, in seconds.
 const DONE := Color(0.13, 0.55, 0.27)
@@ -121,8 +116,6 @@ static func add_to(layer: CanvasLayer) -> TutorialList:
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	rotation_degrees = LEAN
-	resized.connect(func() -> void: pivot_offset = Vector2(size.x * 0.5, CLIP_ROOM))
 	# The board and the sheet are drawn here, see [method _draw]; the form stands on the sheet.
 	var room := StyleBoxEmpty.new()
 	room.content_margin_left = BORDER + SHEET_ROOM.x

@@ -4424,9 +4424,7 @@ rules have a switch for it.
 **The checklist.** The examiner's clipboard in the top right corner, clear of the
 player's own corner on the left: a board covered in the table's green felt with a
 foil rim, a gold clip at its head riveted with a poker chip, and clipped to it a
-sheet of the school's cream paper, 8.1a, the whole board leaning 1.3° clockwise as
-one held in a hand does, turned about the clip so it hangs from where it is held
-and only its foot swings a little, away from the screen's edge, as the list grows. The form is printed on it in ink, DEPT. OF
+sheet of the school's cream paper, 8.1a. The form is printed on it in ink, DEPT. OF
 KARTS · DRIVING TEST over the lesson's name and a rule, with the lesson's tasks
 under it, one lesson at a time; the kill feed, which hangs there too, hangs under
 the list while the list is up. A tick box is printed in ink, notched at its corners
