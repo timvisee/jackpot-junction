@@ -172,9 +172,11 @@ func _hand_the_say_on(room: Node) -> bool:
 	menu.set_paused(true)
 	menu._manage.pressed.emit()
 	var hand: Button = null
+	# Each somebody in the game is a seat card, its buttons at its right end, see [SeatCard].
 	for row: Node in menu._players._rows.get_children():
-		if row is HBoxContainer and (row.get_child(0) as Label).text == "Joiner":
-			for button: Node in row.get_children():
+		var card := row as SeatCard
+		if card != null and card.name_label.text == "Joiner":
+			for button: Node in card.actions.get_children():
 				if button is Button and (button as Button).text == "Make host":
 					hand = button
 	if not _check(hand != null, "Manage players has Make host beside the joiner"):
