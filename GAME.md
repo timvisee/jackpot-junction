@@ -733,7 +733,8 @@ the plate, so it is known before it is read (`CallBanner.Dress`): a run of kills
 fans out a hand of cards over the plate, a pair for a double up to five for a
 spree; a streak burns off the plate's top edge in a row of flames in the player's
 color, higher the hotter it is; an overtake has chevrons pointing on either side; taking the lead
-runs out a checkered flag; a trade wears the two-way traffic sign. Match point,
+runs out a checkered flag; a trade has the two-way traffic sign standing up
+behind the plate, turned a little, as a run's cards do. Match point,
 3.4, the call that matters most, is run out on hazard tape behind its plate, a
 little askew.
 
@@ -1292,7 +1293,7 @@ short buzz the slider gives, so reading along the row is felt card by card.
   players a plain plate, black on pale with a dark rim and a bolt in each top
   corner, which is what reads that small; and big, where it is chosen, printed
   as the house's documents are, 8.1a: the school's cream paper with rounded
-  corners, a hairline of ink inside its edge, a bolt either side at the top with
+  corners, a hairline of ink inside its edge, a screw in each top corner with
   DEPT. OF KARTS in microprint between, and the letters in the condensed
   capitals, spaced a little, chosen as the license is issued and
   changed, or cleared for a bare bumper, on the License tab of the settings,

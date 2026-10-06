@@ -5,8 +5,8 @@ extends Control
 ## of a kart or in a list of players, it is a plain plate, the letters in black on pale with a dark
 ## rim and a bolt in each top corner, which is what reads at that size. Big, where it is chosen,
 ## it is printed as the house's documents are, GAME.md 8.1a, see [member printed]: the school's
-## cream paper with rounded corners, a hairline of ink inside its edge, a bolt either side at the
-## top with DEPT. OF KARTS in microprint between, and the letters in the condensed capitals,
+## cream paper with rounded corners, a hairline of ink inside its edge, a screw in each top corner
+## with DEPT. OF KARTS in microprint between, and the letters in the condensed capitals,
 ## spaced a little as a stamped plate's are.
 ## Drawn, so the same plate serves the box it is typed into and the back of the kart in a match,
 ## see [method KartVisuals.license_plate].
@@ -200,12 +200,14 @@ static func dress(canvas: CanvasItem, plate: Vector2) -> void:
 	frame.anti_aliasing = true
 	var inset := h * 0.075
 	canvas.draw_style_box(frame, Rect2(Vector2.ONE * inset, plate - Vector2.ONE * inset * 2.0))
-	for x: float in [plate.x * 0.2, plate.x * 0.8]:
-		canvas.draw_circle(Vector2(x, h * 0.21), h * 0.046, BOLT, true, -1.0, true)
+	# A screw in each top corner, in from the frame, as on the plain plate.
+	var corner := h * 0.2
+	for x: float in [corner, plate.x - corner]:
+		canvas.draw_circle(Vector2(x, corner), h * 0.046, BOLT, true, -1.0, true)
 	var micro := Type.micro_font()
 	var micro_size := maxi(roundi(h * 0.13), 6)
 	var wide := micro.get_string_size(ISSUER, HORIZONTAL_ALIGNMENT_LEFT, -1, micro_size).x
-	var room := plate.x * 0.6 - h * 0.15
+	var room := plate.x - h * 0.7
 	if wide <= room:
 		canvas.draw_string(
 			micro,

@@ -7,9 +7,10 @@ extends Control
 ## Each kind of call is dressed in something of its own behind the plate, so it is known before it
 ## is read, see [enum Dress]: a run of kills fans out a hand of cards, a pair for a double up to a
 ## flush for a spree; a streak burns in the player's color, higher the hotter it is; an overtake
-## runs out a band of chevrons; taking the lead a checkered flag; a trade wears the two-way traffic
-## sign. Match point, the call that matters most, GAME.md 3.4, is run out on hazard tape behind its
-## plate, a little askew, the way the moments that matter are.
+## has chevrons pointing on either side; taking the lead a checkered flag; a trade the two-way
+## traffic sign standing up behind the plate, turned a little, as the cards do. Match point, the
+## call that matters most, GAME.md 3.4, is run out on hazard tape behind its plate, a little
+## askew, the way the moments that matter are.
 
 enum Dress { PLATE, TAPE, CHECKERS, CHEVRONS, CARDS, FLAMES, TWO_WAY }
 
@@ -62,8 +63,11 @@ const CARD_SHOWS := 0.7
 const FIRE_FOOT := 30.0
 const FIRE_WIDTH := 78.0
 const FIRES_MOST := 7
-## The two-way sign, how big against the plate's height.
-const SIGN_SHARE := 1.15
+## The two-way sign standing up behind the plate as a run's cards do: how big, how much of it
+## shows over the plate's top edge, and how far it leans.
+const SIGN_SIDE := 84.0
+const SIGN_SHOWS := 0.68
+const SIGN_TURN := -0.16
 
 ## What the call on show is dressed in.
 var dress := Dress.PLATE
@@ -95,6 +99,13 @@ func _ready() -> void:
 		flame.visible = false
 		add_child(flame)
 		_flames.append(flame)
+	# Behind the plate rather than on it, so the plate stands in front of its foot.
+	_sign = RoadSign.of(RoadSign.Kind.TWO_WAY, SIGN_SIDE)
+	_sign.size = Vector2.ONE * SIGN_SIDE
+	_sign.pivot_offset = _sign.size * 0.5
+	_sign.rotation = SIGN_TURN
+	_sign.visible = false
+	add_child(_sign)
 	_plate = PanelContainer.new()
 	_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_look = TicketStyle.cut(Color(HouseTheme.STOCK, 0.92), 10.0, 26.0, 12.0)
@@ -107,10 +118,6 @@ func _ready() -> void:
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	line.add_theme_constant_override("separation", 16)
 	_plate.add_child(line)
-	_sign = RoadSign.of(RoadSign.Kind.TWO_WAY, SIZE * SIGN_SHARE)
-	_sign.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_sign.visible = false
-	line.add_child(_sign)
 	_who = Label.new()
 	Type.set_font(_who, Type.display_font(), SIZE)
 	HudText.shadowed(_who, 2)
@@ -189,6 +196,7 @@ func _lay() -> void:
 	_behind.pivot_offset = behind * 0.5
 	_behind.rotation = turn
 	_behind.queue_redraw()
+	_sign.position = Vector2(-SIGN_SIDE * 0.5, _plate.position.y - SIGN_SIDE * SIGN_SHOWS)
 	if dress == Dress.FLAMES:
 		var count := clampi(roundi(plate.x / FIRE_WIDTH), 2, FIRES_MOST)
 		var each := plate.x / count
