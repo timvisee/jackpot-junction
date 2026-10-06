@@ -1,10 +1,13 @@
 class_name LicensePlate
 extends Control
 ## The license plate on the back of a kart, GAME.md 4.4: up to eight characters of the holder's
-## own choosing, chosen once the license is earned and changed in the settings. Printed as the
-## house's documents are, GAME.md 8.1a: the school's cream paper with rounded corners, a hairline of
-## ink inside its edge, a bolt either side at the top with DEPT. OF KARTS in microprint between,
-## and the plate's letters in the condensed capitals, spaced a little as a stamped plate's are.
+## own choosing, chosen once the license is earned and changed in the settings. Small, on the back
+## of a kart or in a list of players, it is a plain plate, the letters in black on pale with a dark
+## rim and a bolt in each top corner, which is what reads at that size. Big, where it is chosen,
+## it is printed as the house's documents are, GAME.md 8.1a, see [member printed]: the school's
+## cream paper with rounded corners, a hairline of ink inside its edge, a bolt either side at the
+## top with DEPT. OF KARTS in microprint between, and the letters in the condensed capitals,
+## spaced a little as a stamped plate's are.
 ## Drawn, so the same plate serves the box it is typed into and the back of the kart in a match,
 ## see [method KartVisuals.license_plate].
 
@@ -15,6 +18,12 @@ const ALLOWED := "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -"
 ## What an empty plate reads.
 const BLANK := "JJ"
 const SIZE := Vector2(224.0, 64.0)
+## The plain plate: its plate, its rim, its letters and its bolts.
+const PLAIN := Color(0.96, 0.95, 0.9)
+const PLAIN_RIM := Color(0.1, 0.1, 0.12)
+const PLAIN_INK := Color(0.08, 0.08, 0.1)
+const PLAIN_BOLT := Color(0.55, 0.56, 0.6)
+## The printed plate: the school's paper, its ink and its bolts.
 const PLATE := HouseTheme.PAPER
 const RIM := HouseTheme.INK
 const INK := HouseTheme.INK
@@ -25,12 +34,15 @@ const ISSUER := "DEPT. OF KARTS"
 const SPACING := 0.045
 
 var text := ""
+## Whether it is the printed plate rather than the plain one, see the top of this script.
+var printed := false
 
 
-## A plate reading [param words], [param wide] pixels across.
-static func of(words: String, wide := SIZE.x) -> LicensePlate:
+## A plate reading [param words], [param wide] pixels across, the printed one with [param print].
+static func of(words: String, wide := SIZE.x, print := false) -> LicensePlate:
 	var plate := LicensePlate.new()
 	plate.text = words
+	plate.printed = print
 	plate.custom_minimum_size = Vector2(wide, wide * SIZE.y / SIZE.x)
 	plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return plate
@@ -118,6 +130,9 @@ func set_text(words: String) -> void:
 
 
 func _draw() -> void:
+	if not printed:
+		_draw_plain()
+		return
 	var plate := StyleBoxFlat.new()
 	plate.bg_color = PLATE
 	plate.set_corner_radius_all(roundi(size.y * 0.15))
@@ -126,18 +141,50 @@ func _draw() -> void:
 	dress(self, size)
 	var shown := text if not text.is_empty() else BLANK
 	var font := lettering(size.y)
-	var font_size := roundi(size.y * 0.5)
-	var room := size.x - size.y * 0.5
-	while (
-		font_size > 8
-		and font.get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > room
-	):
-		font_size -= 1
+	var font_size := _fitted(font, shown, roundi(size.y * 0.5), size.x - size.y * 0.5)
 	# In the middle of the plate under the microprint, by the height of its capitals.
 	var baseline := size.y * 0.6 + float(font_size) * Type.CAP_HEIGHT * 0.5
 	draw_string(
 		font, Vector2(0.0, baseline), shown, HORIZONTAL_ALIGNMENT_CENTER, size.x, font_size, INK
 	)
+
+
+## The plain plate, for a small one: pale, a dark rim, a bolt in each top corner, the letters in
+## the middle of it.
+func _draw_plain() -> void:
+	var plate := StyleBoxFlat.new()
+	plate.bg_color = PLAIN
+	plate.set_corner_radius_all(roundi(size.y * 0.12))
+	plate.set_border_width_all(maxi(roundi(size.y * 0.05), 1))
+	plate.border_color = PLAIN_RIM
+	draw_style_box(plate, Rect2(Vector2.ZERO, size))
+	var inset := size.y * 0.16
+	for x: float in [inset, size.x - inset]:
+		draw_circle(Vector2(x, inset), size.y * 0.05, PLAIN_BOLT)
+	var shown := text if not text.is_empty() else BLANK
+	var font := Type.display_font()
+	var font_size := _fitted(font, shown, roundi(size.y * 0.56), size.x - inset * 3.0)
+	var baseline := (size.y + font.get_ascent(font_size) - font.get_descent(font_size)) * 0.5
+	draw_string(
+		font,
+		Vector2(0.0, baseline),
+		shown,
+		HORIZONTAL_ALIGNMENT_CENTER,
+		size.x,
+		font_size,
+		PLAIN_INK
+	)
+
+
+## The biggest size up to [param most] that [param shown] fits [param room] at in [param font].
+static func _fitted(font: Font, shown: String, most: int, room: float) -> int:
+	var font_size := most
+	while (
+		font_size > 8
+		and font.get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > room
+	):
+		font_size -= 1
+	return font_size
 
 
 ## What a plate wears over its paper, onto [param canvas] [param plate] big: the hairline of ink

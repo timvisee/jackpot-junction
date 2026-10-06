@@ -1288,10 +1288,13 @@ short buzz the slider gives, so reading along the row is felt card by card.
 - On its rear bumper, under the flag, a kart of this machine's wears a plate,
   which nobody picks at a stall: a learner's L, a red L on a white square, until
   this machine has earned the driver license of 9.4a, and the license plate its
-  driver chose after, up to eight characters printed as the house's documents
-  are, 8.1a: the school's cream paper with rounded corners, a hairline of ink
-  inside its edge, a bolt either side at the top with DEPT. OF KARTS in
-  microprint between, and the letters in the condensed capitals, spaced a little, chosen as the license is issued and
+  driver chose after, up to eight characters: on the kart and in a list of
+  players a plain plate, black on pale with a dark rim and a bolt in each top
+  corner, which is what reads that small; and big, where it is chosen, printed
+  as the house's documents are, 8.1a: the school's cream paper with rounded
+  corners, a hairline of ink inside its edge, a bolt either side at the top with
+  DEPT. OF KARTS in microprint between, and the letters in the condensed
+  capitals, spaced a little, chosen as the license is issued and
   changed, or cleared for a bare bumper, on the License tab of the settings,
   8.5. Both type it on the plate itself, `PlateField`: the printed plate is the
   text box, its letters in the plate's lettering and its rim gold while it is
