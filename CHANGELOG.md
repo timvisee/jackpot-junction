@@ -16,6 +16,11 @@ below, and hands the notes to the release workflow.
 - **A password for your server.** Start a dedicated server with `--password` or `JJ_PASSWORD` and
   Play Online asks for it before showing its games; its games turn away anybody without it.
 
+### Changed
+
+- **A tidier title screen.** The credits along its bottom are gone; who made the music, the models
+  and the sounds is in Settings, About.
+
 ### Fixed
 
 - **Inspectors' hair.** The top of an inspector's head no longer shows through their hair in

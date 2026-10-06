@@ -4,8 +4,9 @@ extends Control
 ## driving asks for the license of 9.4a until it is earned, and the license earned peeks in from
 ## the right edge.
 
-## Room kept under the buttons for the credits along the bottom of the screen.
-const CREDITS_ROOM := 48.0
+## Room kept under the buttons, clear of the bottom edge of the screen. Who made the music, the
+## models and the sounds is said in Settings, About, see [AboutTab], rather than along it.
+const BOTTOM_ROOM := 24.0
 ## What is asked before driving without a license, GAME.md 9.4a.
 const LICENSE_QUESTION := "Missing license"
 const LICENSE_LINE := (
@@ -115,16 +116,6 @@ func _ready() -> void:
 	var quit := MenuTheme.button("Quit")
 	quit.pressed.connect(func() -> void: Game.quit())
 	column.add_child(quit)
-	var credits := Label.new()
-	credits.text = (
-		"Music: Ovani Sound (ovanisound.com)" + "   |   Models and sounds: Kenney (kenney.nl), CC0"
-	)
-	credits.add_theme_color_override("font_color", Color(0.6, 0.6, 0.65))
-	credits.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
-	credits.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	credits.offset_left = 16.0
-	credits.offset_bottom = -12.0
-	add_child(credits)
 	var version := Label.new()
 	version.text = "v%s" % Game.version()
 	version.add_theme_color_override("font_color", Color(0.6, 0.6, 0.65))
@@ -343,8 +334,8 @@ func _slide_license(out: bool) -> void:
 		Audio.play_sfx(&"ui_move", MenuTheme.MOVE_DB, 0.0)
 
 
-## Shows as much of [member _spare] as the screen has room for over the credits, giving it up in
-## order until the rest fits.
+## Shows as much of [member _spare] as the screen has room for, giving it up in order until the
+## rest fits.
 func _fit() -> void:
 	if _spare.is_empty():
 		return
@@ -354,7 +345,7 @@ func _fit() -> void:
 		if not each.visible:
 			tall += each.get_combined_minimum_size().y + gap
 	for each: Control in _spare:
-		each.visible = tall + CREDITS_ROOM <= size.y
+		each.visible = tall + BOTTOM_ROOM <= size.y
 		if not each.visible:
 			tall -= each.get_combined_minimum_size().y + gap
 

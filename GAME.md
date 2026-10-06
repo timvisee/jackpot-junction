@@ -568,7 +568,9 @@ else's results screen, see 10.3.
   click or on the button that opens the hand of jokers, see 3.7, which is drawn
   alone in the bottom right corner over the version, for the
   device last touched anywhere in the game, a pad's button after a match on the
-  pad, and on a touch screen the finger of 8.3, for the tap. A question asked over the title, this one or any other, keeps
+  pad, and on a touch screen the finger of 8.3, for the tap. Nothing else is written along the
+  bottom: who made the music, the models and the sounds is said in Settings, About, see 8.5.
+  A question asked over the title, this one or any other, keeps
   the cursor on its own two answers. Play goes
   straight into the lobby, the waiting room of 9.6, the way hosting
   a LAN game does, with the match settings up over it, whose first question is
