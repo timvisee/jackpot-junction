@@ -295,6 +295,7 @@ static func pane_style(edge: Color = HouseTheme.FOIL) -> TicketStyle:
 	style.waves = PANE_WAVES
 	style.shadow = 18.0
 	wear(style, edge)
+	Surface.wear(style, "pane")
 	return style
 
 
@@ -314,6 +315,7 @@ static func slip_style(edge: Color = HouseTheme.FOIL) -> TicketStyle:
 	style.arcs = true
 	style.shadow = 18.0
 	wear(style, edge)
+	Surface.wear(style, "slip")
 	return style
 
 
@@ -448,7 +450,7 @@ static func two_lines(button: Button, top: String, under: String, under_ink: Col
 	words.add_theme_constant_override("separation", 0)
 	words.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(words)
-	var title := _button_line(top, Type.STRONG, Type.BODY, Color(0.92, 0.92, 0.95))
+	var title := _button_line(top, Type.STRONG, Type.BODY, HouseTheme.WORDS)
 	title.name = "Name"
 	words.add_child(title)
 	if not under.is_empty():

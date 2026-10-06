@@ -102,11 +102,52 @@ func _draw() -> void:
 			font_size,
 			lit
 		)
+		_glass()
 		return
 	var wide := digits_width(text)
 	var at := Vector2(middle - wide * 0.5 + DIGIT * LEAN * 0.5, (TALL - DIGIT) * 0.5 - 2.0)
 	_digits(at, _unlit(text), Color(lit, UNLIT), false)
 	_digits(at, text, lit, true)
+	_glass()
+
+
+## Trying it out: the glass over the board, a gloss down from its top edge, as strong as
+## JJ_SURFACE's clock_light says, see [method Surface.chosen].
+func _glass() -> void:
+	var strength := Surface.chosen("clock_light", Surface.Kind.NONE, 0.0).y
+	if strength <= 0.0:
+		return
+	var middle := size.x * 0.5
+	var low := TALL * 0.48
+	var across_low := TOP + (FOOT - TOP) * low / TALL
+	var gloss := PackedVector2Array(
+		[
+			Vector2(middle - TOP * 0.5, 0.0),
+			Vector2(middle + TOP * 0.5, 0.0),
+			Vector2(middle + across_low * 0.5, low),
+			Vector2(middle - across_low * 0.5, low),
+		]
+	)
+	var shine := Color(1.0, 1.0, 1.0, strength)
+	var clear := Color(1.0, 1.0, 1.0, 0.0)
+	draw_polygon(gloss, [shine, shine, clear, clear])
+	# A sheet of glass catches a line of light along its top edge, and a streak across it.
+	draw_line(
+		Vector2(middle - TOP * 0.5 + 6.0, 1.5),
+		Vector2(middle + TOP * 0.5 - 6.0, 1.5),
+		Color(1.0, 1.0, 1.0, strength * 1.6),
+		1.0,
+		true
+	)
+	var streak := PackedVector2Array(
+		[
+			Vector2(middle + 30.0, 0.0),
+			Vector2(middle + 62.0, 0.0),
+			Vector2(middle + 30.0, TALL),
+			Vector2(middle - 2.0, TALL),
+		]
+	)
+	draw_colored_polygon(streak, Color(1.0, 1.0, 1.0, strength * 0.5))
 
 
 ## How wide [param shown] is drawn in the board's digits.

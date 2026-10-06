@@ -48,6 +48,14 @@ const MICRO_SIZE := 7
 	set = _set_seal
 @export var micro := "":
 	set = _set_micro
+## The texture over the stock, see [Surface], how strongly it is laid, and the light on the strip
+## from its top left; nothing for none.
+@export var surface := Surface.Kind.NONE:
+	set = _set_surface
+@export var surface_ink := 0.0:
+	set = _set_surface_ink
+@export var light := 0.0:
+	set = _set_light
 
 var _kept: Dictionary[Vector2, Dictionary] = {}
 var _order: Array[Vector2] = []
@@ -64,6 +72,7 @@ static func cut(right: bool, leaning: float, outer: float, inner: float, down: f
 	style.content_margin_right = outer if right else inner
 	style.content_margin_top = down
 	style.content_margin_bottom = down
+	Surface.wear(style, "hud")
 	return style
 
 
@@ -76,6 +85,8 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 	if fill.a > 0.0:
 		RenderingServer.canvas_item_add_polygon(to_canvas_item, shape, [fill])
 		RenderingServer.canvas_item_add_polyline(to_canvas_item, made["closed"], [fill], 1.0, true)
+		Surface.draw(to_canvas_item, made, shape, rect.size, surface, surface_ink)
+		Surface.light(to_canvas_item, shape, rect.size, light)
 	Engraving.draw(to_canvas_item, made["lines"], engraving, made["inks"])
 	if stripe.a > 0.0:
 		RenderingServer.canvas_item_add_polygon(to_canvas_item, made["stripe"], [stripe])
@@ -272,3 +283,18 @@ func _set_seal(value: float) -> void:
 func _set_micro(value: String) -> void:
 	micro = value
 	_changed()
+
+
+func _set_surface(value: Surface.Kind) -> void:
+	surface = value
+	_changed()
+
+
+func _set_surface_ink(value: float) -> void:
+	surface_ink = value
+	emit_changed()
+
+
+func _set_light(value: float) -> void:
+	light = value
+	emit_changed()

@@ -89,6 +89,14 @@ const TOOTH := 9.0
 	set = _set_shadow
 @export var shadow_color := Color(0.0, 0.0, 0.0, 0.45):
 	set = _set_shadow_color
+## The texture over the stock, see [Surface], and how strongly it is laid; and the light falling
+## on the ticket from its top left, see [method Surface.light]; nothing for none.
+@export var surface := Surface.Kind.NONE:
+	set = _set_surface
+@export var surface_ink := 0.0:
+	set = _set_surface_ink
+@export var light := 0.0:
+	set = _set_light
 
 ## What has been worked out, by size.
 var _kept: Dictionary[Vector2, Dictionary] = {}
@@ -207,6 +215,8 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 		RenderingServer.canvas_item_add_polygon(to_canvas_item, edge, _fill_inks(edge, rect.size))
 		# The polygon's own edge is a staircase; a soft line along it is what makes it a cut.
 		RenderingServer.canvas_item_add_polyline(to_canvas_item, made["closed"], [fill], 1.0, true)
+		Surface.draw(to_canvas_item, made, edge, rect.size, surface, surface_ink)
+		Surface.light(to_canvas_item, edge, rect.size, light)
 	Engraving.draw(to_canvas_item, made["lines"], engraving, made["inks"])
 	var frames: Array[PackedVector2Array] = made["frames"]
 	for i: int in frames.size():
@@ -484,3 +494,18 @@ func _set_shadow(value: float) -> void:
 func _set_shadow_color(value: Color) -> void:
 	shadow_color = value
 	_changed()
+
+
+func _set_surface(value: Surface.Kind) -> void:
+	surface = value
+	_changed()
+
+
+func _set_surface_ink(value: float) -> void:
+	surface_ink = value
+	emit_changed()
+
+
+func _set_light(value: float) -> void:
+	light = value
+	emit_changed()

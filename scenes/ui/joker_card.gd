@@ -50,6 +50,9 @@ class Face:
 
 	var ink := Color.WHITE
 	var _lines: Array[PackedVector2Array] = []
+	var _box := PackedVector2Array()
+	var _kept := {}
+	var _surface := Vector2.ZERO
 
 	func _ready() -> void:
 		set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -75,8 +78,18 @@ class Face:
 		var foot := Rect2(inner.position.x, inner.end.y - 30.0, inner.size.x, 28.0)
 		lines.append_array(Engraving.waves(foot, 5.0, 1.6, 26.0, 0.6, 4.0))
 		_lines = Engraving.inside(lines, box)
+		_surface = Surface.chosen("card", Surface.Kind.NONE, 0.0)
+		_box = box
 
 	func _draw() -> void:
+		Surface.draw(
+			get_canvas_item(),
+			_kept,
+			_box,
+			JokerCard.SIZE,
+			int(_surface.x) as Surface.Kind,
+			_surface.y
+		)
 		var hairline := StyleBoxFlat.new()
 		hairline.draw_center = false
 		hairline.set_border_width_all(1)

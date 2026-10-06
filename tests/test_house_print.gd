@@ -245,3 +245,32 @@ func test_a_switch_that_is_on_is_not_lit() -> void:
 	assert_object(on.get_theme_stylebox(&"pressed")).is_not_instanceof(TicketStyle)
 	assert_object(on.get_theme_stylebox(&"focus")).is_instanceof(TicketStyle)
 	on.queue_free()
+
+
+## A texture is laid in tiles cut to the shape, so together they cover the ticket and nothing
+## past it, and its tile repeats at the size it is made, GAME.md 8.1a.
+func test_a_texture_covers_its_shape_in_tiles() -> void:
+	var size := Vector2(530.0, 310.0)
+	var edge := TicketStyle.outline(size, 12.0, PackedFloat32Array([90.0]), 10.0, true, false)
+	var pieces := Surface.pieces(edge, size, 100.0)
+	var covered := 0.0
+	for piece: Dictionary in pieces:
+		covered += _area(piece[&"points"])
+		for uv: Vector2 in piece[&"uvs"]:
+			(
+				assert_bool(uv.x >= -0.001 and uv.x <= 1.001 and uv.y >= -0.001 and uv.y <= 1.001)
+				. is_true()
+			)
+	assert_float(covered).is_equal_approx(_area(edge), 1.0)
+	var tile := Surface.tile_of(Surface.Kind.PAPER)
+	assert_int(tile.get_width()).is_equal(Surface.TILE)
+	assert_int(Surface.named("scratched")).is_equal(Surface.Kind.SCRATCHED)
+
+
+static func _area(points: PackedVector2Array) -> float:
+	var twice := 0.0
+	for i: int in points.size():
+		var a := points[i]
+		var b := points[(i + 1) % points.size()]
+		twice += a.x * b.y - b.x * a.y
+	return absf(twice) * 0.5

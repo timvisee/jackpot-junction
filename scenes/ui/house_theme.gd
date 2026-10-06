@@ -107,6 +107,8 @@ static func button_looks(
 	held.content_margin_bottom = down - 2.0
 	var off := TicketStyle.cut(Color(STOCK_RAISED, 0.5), notch, across, down)
 	off.frame = Color(FOIL, RIM * 0.4)
+	for each: TicketStyle in [normal, lit, held, off]:
+		Surface.wear(each, "button")
 	return {
 		&"normal": normal,
 		&"hover": lit,
@@ -157,6 +159,8 @@ static func _primary(made: Theme) -> void:
 	var off := looks[&"disabled"].duplicate() as TicketStyle
 	off.fill = Color(FOIL, 0.35)
 	off.fill_low = Color(FOIL_LOW, 0.35)
+	for each: TicketStyle in [foil, lit, held, off]:
+		Surface.wear(each, "foil")
 	for pair: Array in [
 		[&"normal", foil],
 		[&"hover", lit],
