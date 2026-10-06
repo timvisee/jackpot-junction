@@ -1,10 +1,12 @@
 class_name FlushTally
 extends Control
-## How the Royal Flush pads stand, GAME.md 3.9 and 8.3, under the clock: each pad's own card suit,
-## filled in its holder's color for every pad held and faint for every pad nobody holds, so a player
-## chasing the flush can see which suits they have and which they still need without looking round
-## the table for four frames. The players at this screen come first, then whoever else holds most,
-## and the free suits last, so a player's own count is the run of suits on the left.
+## How the Royal Flush pads stand, GAME.md 3.9 and 8.3, under the clock: a little playing card for
+## each pad, tucked under the clock's board so it sticks out of it, GAME.md 8.1a, a cream one with
+## the pad's suit in its holder's color for every pad held and a dark one with the suit faint for
+## every pad nobody holds, so a player chasing the flush can see which suits they have and which
+## they still need without looking round the table for four frames. The players at this screen
+## come first, then whoever else holds most, and the free suits last, so a player's own count is
+## the run of cards on the left.
 ##
 ## Up only while somebody at this screen holds a pad, and only while the match is being played: a
 ## row of four outlines on every screen of every match, most of the time, is four more things on
@@ -21,13 +23,20 @@ extends Control
 ## A watcher's screen has nobody of its own to count for, and is there to follow the match: it
 ## shows the tally whenever anybody holds a pad, and whoever's flush is still paying, GAME.md 9.3.
 
-## How big a suit is, how far apart two are, how thick their outline, and what a free one is
-## filled with.
+## How big a suit is, how thick its outline, and what a free one is filled with.
 const SUIT := 22.0
-const GAP := 4.0
 const OUTLINE := 0.9
 const EMPTY := Color(1.0, 1.0, 1.0, 0.28)
 const RIM := Color(0.0, 0.0, 0.0, 0.55)
+## The cards: how big, how far apart, how much of the top of each is tucked under the board, how
+## far they fan, what a held one and a free one are printed on, and their edges.
+const CARD := Vector2(30.0, 42.0)
+const GAP := 5.0
+const TUCK := 14.0
+const FAN := 0.035
+const HELD_FACE := HouseTheme.PAPER
+const FREE_FACE := Color(0.1, 0.095, 0.12, 0.88)
+const EDGE := Color(0.0, 0.0, 0.0, 0.5)
 ## How far under the suits the bar of a flush still paying hangs, and how thick it is.
 const LOCK_DROP := 5.0
 const LOCK_BAR := 3.0
@@ -61,6 +70,8 @@ static func add_to(hud: MatchHud, drop: float) -> FlushTally:
 	tally.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	tally.offset_top = drop
 	tally.visible = false
+	# Behind the clock's board, so the cards come out from under it.
+	tally.z_index = -1
 	hud.add_child(tally)
 	return tally
 
@@ -80,7 +91,7 @@ func _process(delta: float) -> void:
 		queue_redraw()
 	if held != was or suits != were or pads != count or locked != had:
 		var wide := _wide()
-		custom_minimum_size = Vector2(wide, SUIT)
+		custom_minimum_size = Vector2(wide, CARD.y)
 		offset_left = -wide * 0.5
 		offset_right = wide * 0.5
 		queue_redraw()
@@ -180,26 +191,46 @@ static func _watching() -> bool:
 
 
 func _wide() -> float:
-	return pads * SUIT + maxf(pads - 1, 0) * GAP
+	return pads * CARD.x + maxf(pads - 1, 0) * GAP
 
 
 func _draw() -> void:
 	var swell := (0.5 + 0.5 * sin(_beat * PULSE)) if threat >= 0 else 0.0
-	for i: int in mini(pads, suits.size()):
-		var box := Rect2(Vector2(i * (SUIT + GAP), 0.0), Vector2(SUIT, SUIT))
-		if i >= held.size():
-			SuitArt.draw_into(self, box, suits[i], EMPTY, OUTLINE)
-			continue
-		if holders[i] == threat:
+	var count := mini(pads, suits.size())
+	for i: int in count:
+		var free := i >= held.size()
+		var middle := Vector2(i * (CARD.x + GAP) + CARD.x * 0.5, CARD.y * 0.5)
+		# Fanned a little either way from the middle, as cards slid under a board are.
+		draw_set_transform(middle, FAN * (float(i) - float(count - 1) * 0.5))
+		var card := Rect2(-CARD * 0.5, CARD)
+		var face := StyleBoxFlat.new()
+		face.set_corner_radius_all(4)
+		face.anti_aliasing = true
+		face.set_border_width_all(1)
+		face.bg_color = FREE_FACE if free else HELD_FACE
+		face.border_color = Color(1.0, 1.0, 1.0, 0.18) if free else EDGE
+		face.shadow_color = Color(0.0, 0.0, 0.0, 0.35)
+		face.shadow_size = 4
+		var threatening := not free and holders[i] == threat
+		if threatening:
 			# Swelling, with a glow of its own color round it rather than washed toward white,
 			# which a pale color over a pale prop had nothing left to show.
-			box = box.grow(PULSE_GROW * swell)
-			SuitArt.draw_into(self, box.grow(3.0), suits[i], Color(held[i], 0.45 * swell))
-		SuitArt.draw_into(self, box, suits[i], held[i], OUTLINE)
+			card = card.grow(PULSE_GROW * swell)
+			face.shadow_color = Color(held[i], 0.6 * swell)
+			face.shadow_size = roundi(4.0 + 6.0 * swell)
+		draw_style_box(face, card)
+		# The suit in the part of the card that sticks out from under the board.
+		var shown := (CARD.y - TUCK) * 0.5 + TUCK - CARD.y * 0.5
+		var box := Rect2(Vector2(-SUIT * 0.5, shown - SUIT * 0.5), Vector2(SUIT, SUIT))
+		if free:
+			SuitArt.draw_into(self, box, suits[i], EMPTY, OUTLINE)
+		else:
+			SuitArt.draw_into(self, box, suits[i], held[i], OUTLINE)
+	draw_set_transform(Vector2.ZERO)
 	if threat >= 0:
 		_draw_warning()
 	if locked > 0.0 and not held.is_empty():
-		var bar := Rect2(Vector2(0.0, SUIT + LOCK_DROP), Vector2(_wide() * locked, LOCK_BAR))
+		var bar := Rect2(Vector2(0.0, CARD.y + LOCK_DROP), Vector2(_wide() * locked, LOCK_BAR))
 		draw_rect(bar.grow(1.0), RIM)
 		draw_rect(bar, held[0])
 
@@ -208,7 +239,7 @@ func _draw() -> void:
 ## their suits.
 func _draw_warning() -> void:
 	var font := Type.display_font()
-	var at := Vector2(_wide() + MARK_GAP, SUIT * 0.5 + MARK_SIZE * 0.36)
+	var at := Vector2(_wide() + MARK_GAP, (CARD.y + TUCK) * 0.5 + MARK_SIZE * 0.36)
 	var color := match_node.slots[threat].color()
 	var light := 0.5 + 0.5 * sin(_beat * PULSE)
 	draw_string_outline(font, at, "!", HORIZONTAL_ALIGNMENT_LEFT, -1, MARK_SIZE, 6, RIM)

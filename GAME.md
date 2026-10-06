@@ -2835,8 +2835,10 @@ lane beside it is as wide as it was.
   rather than fading and coming straight back, and goes as they drive away. The eyes are on the kart as it drives through the box, not
   on the corner of the screen. Nobody else's pickup puts one up.
 - **Royal Flush tally** under the timer, while a player at this screen holds a
-  Royal Flush pad, see 3.9: each pad's own card suit, filled in its holder's color
-  for every pad held and faint for every pad nobody holds, the pads being those
+  Royal Flush pad, see 3.9: a little playing card for each pad, tucked under the
+  clock's board so it sticks out of it and fanned a touch, a cream one with the
+  pad's suit in its holder's color for every pad held and a dark one with the suit
+  faint for every pad nobody holds, the pads being those
   of the room the first player at this screen is in, which on every map but the
   tutorial's of 9.4a is every pad on the map. This screen's players
   come first, whatever their suits, then whoever holds most, and the free suits
@@ -2859,7 +2861,9 @@ lane beside it is as wide as it was.
   own. They stay solid rather than dimming as a claim runs down: a client is not
   told when a holder renews one, so its dimming would be a guess.
 - **Start gantry**: the countdown is a horizontal rack of three lamps hung over the
-  middle of the screen, the way a racing track starts a field, rather than a number.
+  middle of the screen, the way a racing track starts a field, rather than a number:
+  a ticket of the house's stock with a foil hairline, 8.1a, its lamps chips, dark
+  until they light and glowing round their rims once they do.
   They fill up red left to right and the whole row turns green on the drop, under the
   GO. A driver on the grid watches the lights, not a clock. The rack and the start
   tones are one countdown rather than two: the first lamp lights with its tone as the

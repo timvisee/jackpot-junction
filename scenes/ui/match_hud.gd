@@ -22,8 +22,9 @@ const SPEED_FULL := 1.9
 ## rather than a nudge.
 const SYNC_TIME := 1.4
 const SYNC_DROP := 116.0
-## How far under the top the Royal Flush tally hangs, under the clock's board, see [FlushTally].
-const TALLY_DROP := 82.0
+## How far under the top the Royal Flush tally hangs: its cards' tops tucked under the clock's
+## board, see [FlushTally].
+const TALLY_DROP := ClockBoard.TALL - FlushTally.TUCK
 const SYNC_SNAP := 1.0
 
 const CALL_DROP := 120.0
