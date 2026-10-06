@@ -155,7 +155,7 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_int(run.index).is_equal(0)
 	assert_str(lesson.title).is_equal("Driving")
 	assert_int(run.list.listed()).is_equal(1)
-	assert_str(run.list._title.text).is_equal("Driving test  ·  Driving")
+	assert_str(run.list._title.text).is_equal("Driving")
 	assert_bool(tutorial._skip_entry.visible).is_true()
 	# No word at the top: the driving school greeted the player already.
 	assert_bool(run.notice.visible).is_false()

@@ -37,8 +37,9 @@ static func plain(text: String) -> String:
 
 
 ## [param text] as bbcode: each marked word bold in its color, or bold alone for a word with none,
-## or with no color at all when [param lit] is false, for a line that is dimmed.
-static func bbcode(text: String, lit := true) -> String:
+## or with no color at all when [param lit] is false, for a line that is dimmed. Its colors
+## darkened to read on cream [param on_paper], see [method HouseTheme.on_paper].
+static func bbcode(text: String, lit := true, on_paper := false) -> String:
 	var said := ""
 	var rest := text
 	while true:
@@ -49,6 +50,8 @@ static func bbcode(text: String, lit := true) -> String:
 		said += rest.left(open)
 		var word := rest.substr(open + 1, close - open - 1)
 		var color: Color = COLORS.get(word.to_lower(), Color.TRANSPARENT)
+		if on_paper and color.a > 0.0:
+			color = HouseTheme.on_paper(color)
 		if lit and color.a > 0.0:
 			said += "[b][color=#%s]%s[/color][/b]" % [color.to_html(false), word]
 		else:

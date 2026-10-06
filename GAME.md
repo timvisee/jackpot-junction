@@ -4304,7 +4304,7 @@ on the learner's kart wherever it is, and every few seconds one bows its head
 to the clipboard and writes something down for a moment and a half, which is
 never said. `SchoolInspectors`. The kart wears the learner's L on its
 rear bumper for the whole test, see 4.4. The loading screen says Driving test,
-the checklist is headed "Driving test ·" and the lesson, and the last lesson is
+the checklist's form is headed DEPT. OF KARTS · DRIVING TEST over the lesson, and the last lesson is
 the final exam. Nothing greets the player at the top of the first corridor: the
 school did.
 
@@ -4401,14 +4401,17 @@ rules have a switch for it.
 ############################################################################################
 ```
 
-**The checklist.** A panel in the top right corner, clear of the player's own
-corner on the left, headed "Driving test · " and the lesson's name, with its
-tasks under it, one lesson at a time; the kill feed, which hangs there too,
-hangs under the list while the list is up. The tick boxes, the bars and the
-rules are in the gold the game's name is written in: a tick box is notched at
-its corners like the house's tickets, 8.1a, filled with foil and checked in ink
-once done, and a bar is the dashboard's own, a row of slanted cells lit as far as
-the task has got, as the nitro tank is. A task that is done is
+**The checklist.** The examiner's clipboard in the top right corner, clear of the
+player's own corner on the left: a board covered in the table's green felt with a
+foil rim, a gold clip at its head riveted with a poker chip, and clipped to it a
+sheet of the school's cream paper, 8.1a. The form is printed on it in ink, DEPT. OF
+KARTS · DRIVING TEST over the lesson's name and a rule, with the lesson's tasks
+under it, one lesson at a time; the kill feed, which hangs there too, hangs under
+the list while the list is up. A tick box is printed in ink, notched at its corners
+like the house's tickets, and ticked in the examiner's red pen once done, the tick
+running past the box as a quick hand's does; a bar is the dashboard's own, a row of
+slanted cells filled in red pen as far as the task has got, as the nitro tank is;
+the game's own words in a task keep their colors, darkened to read on paper. A task that is done is
 ticked and grayed with a short chime; the one
 being done is bright, with a bar under it where it is a matter of how far, and
 a count's box stays empty until the count is complete; tasks not yet

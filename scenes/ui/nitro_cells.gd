@@ -11,9 +11,11 @@ const LEAN := 0.35
 const GAP := 3.0
 const EMPTY := Color(0.0, 0.0, 0.0, 0.5)
 
-## The player's color the cells are lit in.
+## The player's color the cells are lit in, and what an unlit one is.
 var ink := Color.WHITE:
 	set = _set_ink
+var empty := EMPTY:
+	set = _set_empty
 
 
 func _init() -> void:
@@ -25,6 +27,11 @@ func _init() -> void:
 
 func _set_ink(value: Color) -> void:
 	ink = value
+	queue_redraw()
+
+
+func _set_empty(value: Color) -> void:
+	empty = value
 	queue_redraw()
 
 
@@ -44,7 +51,7 @@ func _draw() -> void:
 				Vector2(x, h),
 			]
 		)
-		draw_colored_polygon(cell, EMPTY)
+		draw_colored_polygon(cell, empty)
 		var lit := clampf(full - float(i), 0.0, 1.0)
 		if lit <= 0.0:
 			continue
