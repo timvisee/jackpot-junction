@@ -81,7 +81,7 @@ bench: | $(CACHE)
 textures:
 	python3 tools/make_textures.py
 
-# The game's own mark, drawn by LogoArt and written out as the icon the project wears.
+# The game's own mark, drawn by LogoArt and written out as the icons the project wears.
 logo: | $(CACHE)
 	$(GODOT) --path . res://scenes/dev/logo_export.tscn
 

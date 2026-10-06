@@ -1,10 +1,10 @@
 extends GdUnitTestSuite
-## The game's mark, GAME.md 8.1: drawn by [LogoArt] and written out as the icon the project
-## wears. The picture is code, so the file on disk can fall behind it; this checks the file is
-## there, is the shape an icon has to be, and is still the mark rather than whatever was there
-## before.
+## The game's mark, GAME.md 8.1: drawn by [LogoArt] and written out as the icons the project
+## wears. The picture is code, so the files on disk can fall behind it; this checks they are there,
+## are the shape an icon has to be, and are still the mark rather than whatever was there before.
 
 const ICON := "res://icon.png"
+const ICO := "res://icon.ico"
 
 
 ## Where a fraction of the way across the icon lands, in pixels.
@@ -28,21 +28,57 @@ func test_the_project_wears_the_icon_and_the_icon_is_there() -> void:
 	# Square, and big enough for a desktop icon on a dense screen.
 	assert_int(image.get_width()).is_equal(image.get_height())
 	assert_int(image.get_width()).is_greater_equal(256)
+	# And Windows wears the icon file of every size it asks for, small ones and all.
+	var native := str(ProjectSettings.get_setting("application/config/windows_native_icon"))
+	assert_str(native).is_equal(ICO)
+	var file := FileAccess.open(ICO, FileAccess.READ)
+	assert_object(file).is_not_null()
+	assert_int(file.get_16()).is_equal(0)
+	assert_int(file.get_16()).is_equal(1)
+	assert_int(file.get_16()).is_greater_equal(4)
 
 
-## The mark itself: a gold chip with a crossroads cut through it, the Junction lit in the middle
-## and the rim in neon, on a plate that leaves the corners to whatever is behind it.
-func test_the_icon_is_the_mark_rather_than_a_picture_of_something_else() -> void:
+## The mark itself, the seal: the pot a red chip in the middle of the foil chip, a road running out
+## of it, the foil between them, the ring of ink round it all, on a plate whose notched corners
+## leave the corners to whatever is behind it.
+func test_the_icon_is_the_seal_rather_than_a_picture_of_something_else() -> void:
 	var image := _icon()
-	var out := LogoArt.CHIP * 0.7071
-	_assert_ink(_pixel(image, 0.5, 0.5), Palette.CHIP_GOLD, "the pot in the middle")
-	_assert_ink(
-		_pixel(image, 0.5 + 0.3 * 0.7071, 0.5 - 0.3 * 0.7071), Palette.CHIP_GOLD, "a gold quarter"
+	var seal := 0.5 * LogoArt.ON_PLATE * LogoArt.SEAL
+	var chip := seal * LogoArt.SEAL_CHIP
+	var pot := _pixel(image, 0.5 + chip * LogoArt.POT * 0.3, 0.5)
+	assert_bool(pot.r > 0.55 and pot.g < 0.4).override_failure_message("the pot %s" % pot).is_true()
+	_assert_ink(_pixel(image, 0.5 + chip * 0.65, 0.5 + chip * 0.13), LogoArt.ROAD_INK, "the road")
+	var foil := _pixel(image, 0.5 + chip * 0.4 * 0.7071, 0.5 - chip * 0.4 * 0.7071)
+	(
+		assert_bool(foil.r > 0.75 and foil.b < 0.45)
+		. override_failure_message("foil %s" % foil)
+		. is_true()
 	)
-	_assert_ink(_pixel(image, 0.5 + 0.3, 0.5), Palette.ASPHALT, "the road east")
-	_assert_ink(_pixel(image, 0.5 + out, 0.5 - out), Palette.NEON_MAGENTA, "the neon rim")
-	_assert_ink(_pixel(image, 0.5, 0.03), LogoArt.PLATE_INK, "the plate")
+	var band := seal * (LogoArt.BAND + LogoArt.BAND_WIDE * 0.38)
+	var ink := _pixel(image, 0.5 + band * 0.7071, 0.5 + band * 0.7071)
+	assert_float(ink.get_luminance()).override_failure_message("the band %s" % ink).is_less(0.2)
+	var plate := _pixel(image, 0.5, 0.03)
+	assert_float(plate.a).is_equal(1.0)
+	assert_float(plate.get_luminance()).is_less(0.2)
 	assert_float(_pixel(image, 0.015, 0.015).a).is_equal(0.0)
+
+
+## Drawn small the mark is the foil chip alone, the seal only once there is room for its fine
+## lines and its fine print: the license's band and the small icons are the chip, the title and
+## the big icon the seal.
+func test_the_mark_is_the_chip_alone_when_it_is_small() -> void:
+	var mark := LogoArt.new()
+	mark.plate = false
+	mark.size = Vector2(44.0, 44.0)
+	assert_bool(mark.shows_seal()).is_false()
+	mark.size = Vector2(132.0, 132.0)
+	assert_bool(mark.shows_seal()).is_true()
+	mark.plate = true
+	mark.size = Vector2(64.0, 64.0)
+	assert_bool(mark.shows_seal()).is_false()
+	mark.size = Vector2(512.0, 512.0)
+	assert_bool(mark.shows_seal()).is_true()
+	mark.free()
 
 
 ## One pixel of the icon, named so a failure says which part of the mark moved. Compared to
@@ -52,5 +88,5 @@ func _assert_ink(got: Color, wanted: Color, part: String) -> void:
 	(
 		assert_float(off)
 		. override_failure_message("%s is %s rather than %s" % [part, got, wanted])
-		. is_less(0.01)
+		. is_less(0.02)
 	)

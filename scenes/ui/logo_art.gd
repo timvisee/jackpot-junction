@@ -1,84 +1,213 @@
 class_name LogoArt
 extends Control
-## The game's mark, GAME.md 8.1: the Junction seen from above. A gold chip with a crossroads cut
-## through it, the notches every poker chip wears round its rim, and the neon ring the pad lights
-## up while somebody is banking. The name says a casino and a road; so does the mark.
+## The game's mark, GAME.md 8.1 and 8.1a: a seal, engraved the way a banknote's is. A scalloped
+## medallion of foil, a ring of ink with the house's fine print running round it, and in the middle
+## the foil chip: a poker chip of foil seen from above with a crossroads cut through it, the
+## Junction, the pot a red chip on the crossing. The name says a casino and a road; so does the
+## mark. Drawn small, the mark itself under [constant SMALL] across, plate or no plate, it is the
+## foil chip alone, since a seal's fine lines and fine print are only mush at that size.
 ##
-## Drawn rather than loaded, the same as every other picture in the game, see 8.3a: it is one
-## file, it is built out of the palette rather than out of a memory of it, and it comes out sharp
-## at any size. `make logo` renders it to the icon the project wears.
+## Drawn rather than loaded, the same as every other picture in the game, see 8.3a: it comes out
+## sharp at any size. `make logo` renders it to the icons the project wears.
 
-## Everything is a fraction of the shorter side, so the mark is the same at 64 pixels and 1024.
-const CHIP := 0.44
-const ROAD := 0.2
-const RIM := 0.036
-## The notches round the rim: how many sit in each quarter of the chip, how far in they cut, how
-## wide each one is, and how far apart they stand.
+## The mark under this many pixels across is the foil chip alone rather than the seal.
+const SMALL := 64.0
+## The seal, as shares of half the side: how far out its scalloped edge is and how deep and how
+## many its scallops, the ring of ink and how wide it is, and the foil chip in its middle.
+const SEAL := 0.97
+const SCALLOP := 0.03
+const SCALLOPS := 40
+const BAND := 0.83
+const BAND_WIDE := 0.14
+const SEAL_CHIP := 0.65
+## What runs round the ring of ink, and how big, against the seal's radius.
+const FINE_PRINT := "JACKPOT JUNCTION  ·  DEPT. OF KARTS  ·  LICENSED ON EVERY TABLE  ·  "
+const FINE_SIZE := 0.095
+## The foil chip, as shares of its radius: the roads, the notches round its rim, three to each
+## quarter, the lane lines, and the pot on the crossing.
+const ROAD := 0.4
 const NOTCHES := 3
-const NOTCH_DEPTH := 0.075
-const NOTCH_WIDE := 0.075
 const NOTCH_APART := 17.0
-## The roundel in the middle of the crossing: the Junction itself, with the pot sitting on it.
-const HUB := 0.085
-const POT := 0.05
-## Road markings: the dashes along each arm, as a fraction out from the middle.
-const DASHES: Array[float] = [0.25, 0.36]
-const DASH := Vector2(0.028, 0.07)
-const PLATE_INK := Color(0.07, 0.07, 0.09)
-const PLATE_ROUND := 0.22
+const NOTCH := Vector2(0.13, 0.2)
+const DASH := Vector2(0.12, 0.1)
+const POT := 0.25
+const ROAD_INK := Color("#24222b")
+const SHADOW := Color("#0b0a0e")
+## On a plate, the mark takes this share of its side.
+const ON_PLATE := 0.72
 
-## The plate behind it, for a mark that has to sit on whatever a desktop puts behind an icon. A
-## mark drawn onto a screen of the game's own does not need one.
+## The plate behind it, the house's ticket, for a mark that has to sit on whatever a desktop puts
+## behind an icon. A mark drawn onto a screen of the game's own does not need one.
 @export var plate := true
+
+## The engraving, worked out for a size, and the size it was worked out for.
+var _lines: Array[PackedVector2Array] = []
+var _inks: Array[Color] = []
+var _drawn_for := Vector2.ZERO
+var _plate_look: TicketStyle
 
 
 func _draw() -> void:
 	var unit := minf(size.x, size.y)
+	if unit < 2.0:
+		return
 	var middle := size * 0.5
+	var reach := _reach()
 	if plate:
-		var style := StyleBoxFlat.new()
-		style.bg_color = PLATE_INK
-		style.set_corner_radius_all(roundi(unit * PLATE_ROUND))
-		draw_style_box(style, Rect2(Vector2.ZERO, size))
-	draw_circle(middle, unit * CHIP, Palette.CHIP_GOLD)
-	_draw_notches(middle, unit)
-	_draw_roads(middle, unit)
-	_draw_markings(middle, unit)
-	# The neon, GAME.md 8.1: the magenta the chip's rim is lit in, and the cyan ring the Junction
-	# wears while a pot is going into it, with the pot itself sitting in the middle of it.
-	draw_arc(middle, unit * CHIP, 0.0, TAU, 72, Palette.NEON_MAGENTA, unit * RIM)
-	draw_arc(middle, unit * HUB, 0.0, TAU, 32, Palette.NEON_CYAN, unit * RIM * 0.8)
-	draw_circle(middle, unit * POT, Palette.CHIP_GOLD)
+		_draw_plate(unit)
+	if not shows_seal():
+		_draw_chip(middle, reach * 0.92, false)
+		return
+	_draw_seal(middle, reach)
 
 
-## The pale notches round the edge of a poker chip, set between the roads rather than across
-## them: it is the notches that say chip, and a road running through one says neither.
-func _draw_notches(middle: Vector2, unit: float) -> void:
+## Whether it is drawn as the seal, or as the foil chip alone, which it is when it is small.
+func shows_seal() -> bool:
+	return _reach() * 2.0 >= SMALL
+
+
+## How far out from the middle the mark itself reaches, the plate left round it where there is one.
+func _reach() -> float:
+	return minf(size.x, size.y) * 0.5 * (ON_PLATE if plate else 1.0)
+
+
+## The plate: a ticket of the house's stock with notched corners, banknote waves engraved across
+## it and a foil hairline inside its edge, see [TicketStyle].
+func _draw_plate(unit: float) -> void:
+	if _plate_look == null:
+		_plate_look = TicketStyle.cut(HouseTheme.STOCK_RAISED, 0.0, 0.0, 0.0)
+		_plate_look.engraving = Color(HouseTheme.FOIL, 0.1)
+		_plate_look.frame = Color(HouseTheme.FOIL, 0.5)
+	_plate_look.notch = unit * 0.13
+	_plate_look.frame_inset = unit * 0.04
+	_plate_look.waves = unit
+	var square := Rect2((size - Vector2.ONE * unit) * 0.5, Vector2.ONE * unit)
+	draw_style_box(_plate_look, square)
+
+
+## The seal round [param middle], [param reach] out.
+func _draw_seal(middle: Vector2, reach: float) -> void:
+	var r := reach * SEAL
+	var edge := PackedVector2Array()
+	for i: int in 720:
+		var turn := TAU * float(i) / 720.0
+		var out := r * (1.0 - SCALLOP + SCALLOP * cos(float(SCALLOPS) * turn))
+		edge.append(middle + Vector2.from_angle(turn) * out)
+	var shadow := edge.duplicate()
+	for i: int in shadow.size():
+		shadow[i] += Vector2(0.0, r * 0.03)
+	draw_colored_polygon(shadow, SHADOW)
+	_draw_foil(edge, middle.y - r, middle.y + r)
+	if size != _drawn_for:
+		_engrave(middle, r)
+	for i: int in _lines.size():
+		draw_polyline(_lines[i], _inks[i], maxf(r * 0.004, 0.6), true)
+	draw_arc(middle, r * BAND, 0.0, TAU, 128, HouseTheme.INK, r * BAND_WIDE, true)
+	_draw_fine_print(middle, r)
+	_draw_chip(middle, r * SEAL_CHIP, true)
+
+
+## The seal's engraving: a guilloché band in the foil between the chip and the ring of ink, and
+## a finer one between the ring and the scalloped edge.
+func _engrave(middle: Vector2, r: float) -> void:
+	_drawn_for = size
+	_lines.clear()
+	_inks.clear()
+	var inner := Engraving.rings(middle, r * 0.715, r * 0.022, 48, 7, 720)
+	var outer := Engraving.rings(middle, r * 0.935, r * 0.012, 72, 4, 720)
+	for line: PackedVector2Array in inner:
+		_lines.append(line)
+		_inks.append(Color(HouseTheme.INK, 0.24))
+	for line: PackedVector2Array in outer:
+		_lines.append(line)
+		_inks.append(Color(HouseTheme.INK, 0.22))
+
+
+## The fine print running round the ring of ink, clockwise, the game's name over the top, in the
+## foil it is printed in; spaced out to go once all the way round.
+func _draw_fine_print(middle: Vector2, r: float) -> void:
+	var font := Type.micro_font()
+	var font_size := maxi(roundi(r * FINE_SIZE), 4)
+	# Measured letter by letter, as they are set, so the spacing worked out closes the circle.
+	var advances := PackedFloat32Array()
+	var wide := 0.0
+	for character: String in FINE_PRINT:
+		var advance := font.get_string_size(character, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+		advances.append(advance)
+		wide += advance
+	var round_by := TAU * r * BAND
+	var extra := (round_by - wide) / float(FINE_PRINT.length())
+	# The game's name centered over the top.
+	var along := 0.0
+	for i: int in "JACKPOT JUNCTION".length():
+		along -= (advances[i] + extra) * 0.5
+	var baseline := r * BAND - float(font_size) * Type.CAP_HEIGHT * 0.5
+	var ink := Color(HouseTheme.FOIL, 0.9)
+	for i: int in FINE_PRINT.length():
+		var advance := advances[i]
+		var turn := -PI * 0.5 + (along + advance * 0.5) / (r * BAND)
+		var at := middle + Vector2.from_angle(turn) * baseline
+		draw_set_transform(at, turn + PI * 0.5)
+		draw_char(font, Vector2(-advance * 0.5, 0.0), FINE_PRINT[i], font_size, ink)
+		along += advance + extra
+	draw_set_transform(Vector2.ZERO)
+
+
+## The foil chip round [param middle], [param r] out; with [param fine] its engraving and the
+## curbs along its roads, which a small one leaves off.
+func _draw_chip(middle: Vector2, r: float, fine: bool) -> void:
+	draw_circle(middle, r * 1.05, SHADOW, true, -1.0, true)
+	var disc := _circle(middle, r, 72)
+	_draw_foil(disc, middle.y - r, middle.y + r)
+	if fine:
+		for ring: Array in [[0.8, 0.045, 22, 12, 0.2], [0.58, 0.04, 16, 9, 0.16]]:
+			var lines := Engraving.rings(middle, r * ring[0], r * ring[1], ring[2], ring[3], 420)
+			Engraving.draw_on(self, lines, Color(HouseTheme.INK, ring[4]), maxf(r * 0.006, 0.6))
 	for quarter: int in 4:
 		for i: int in NOTCHES:
 			var lean := (float(i) - float(NOTCHES - 1) * 0.5) * NOTCH_APART
-			_draw_notch(middle, unit, deg_to_rad(45.0 + 90.0 * float(quarter) + lean))
+			_draw_notch(middle, r, deg_to_rad(45.0 + 90.0 * float(quarter) + lean))
+	_draw_roads(middle, r, disc)
+	if fine:
+		_draw_curbs(middle, r)
+	_draw_dashes(middle, r)
+	ChipArt.chip(self, middle, r * POT, Palette.CHIP_RED, 6)
+	draw_arc(middle, r, 0.0, TAU, 72, HouseTheme.INK, r * 0.06, true)
+	draw_arc(
+		middle, r * 1.03, 0.0, TAU, 72, Color(HouseTheme.FOIL_HIGH, 0.7), maxf(r * 0.012, 0.8), true
+	)
 
 
-func _draw_notch(middle: Vector2, unit: float, angle: float) -> void:
-	var half := NOTCH_WIDE * 0.5
-	var points := PackedVector2Array()
-	for step: Array in [[-half, CHIP], [half, CHIP], [half, CHIP - NOTCH_DEPTH]]:
-		points.append(middle + Vector2.RIGHT.rotated(angle + step[0]) * unit * (step[1] as float))
-	points.append(middle + Vector2.RIGHT.rotated(angle - half) * unit * (CHIP - NOTCH_DEPTH))
-	draw_colored_polygon(points, Palette.CHIP_WHITE)
+## [param edge] in foil, the highlight at [param top] running down to the low at [param foot].
+func _draw_foil(edge: PackedVector2Array, top: float, foot: float) -> void:
+	var inks := PackedColorArray()
+	for point: Vector2 in edge:
+		var down := clampf((point.y - top) / maxf(foot - top, 1.0), 0.0, 1.0)
+		inks.append(HouseTheme.FOIL_HIGH.lerp(HouseTheme.FOIL_LOW, down))
+	draw_polygon(edge, inks)
+	var line := edge.duplicate()
+	line.append(edge[0])
+	draw_polyline(line, HouseTheme.FOIL, 1.0, true)
 
 
-## The crossroads, cut out of the chip rather than laid over it: each band is clipped to the
-## chip's own circle, so the four arms end exactly at the rim and the gold is left in quarters.
-func _draw_roads(middle: Vector2, unit: float) -> void:
-	var chip := PackedVector2Array()
-	for i: int in 64:
-		chip.append(middle + Vector2.RIGHT.rotated(TAU * float(i) / 64.0) * unit * CHIP)
-	var reach := unit * CHIP * 1.2
-	var wide := unit * ROAD * 0.5
+## A cream notch at the rim, the way a poker chip's are, set between the roads.
+func _draw_notch(middle: Vector2, r: float, angle: float) -> void:
+	var toward := Vector2.from_angle(angle)
+	var across := toward.orthogonal() * r * NOTCH.x * 0.5
+	var out := middle + toward * r
+	var inn := middle + toward * r * (1.0 - NOTCH.y)
+	draw_colored_polygon(
+		PackedVector2Array([out + across, out - across, inn - across, inn + across]),
+		HouseTheme.PAPER
+	)
+
+
+## The crossroads, cut out of the chip: each band clipped to [param disc], so the four arms end
+## exactly at the rim.
+func _draw_roads(middle: Vector2, r: float, disc: PackedVector2Array) -> void:
+	var wide := r * ROAD * 0.5
 	for across: bool in [true, false]:
-		var span := Vector2(reach, wide) if across else Vector2(wide, reach)
+		var span := Vector2(r * 1.2, wide) if across else Vector2(wide, r * 1.2)
 		var band := PackedVector2Array(
 			[
 				middle + Vector2(-span.x, -span.y),
@@ -87,15 +216,41 @@ func _draw_roads(middle: Vector2, unit: float) -> void:
 				middle + Vector2(-span.x, span.y),
 			]
 		)
-		for piece: PackedVector2Array in Geometry2D.intersect_polygons(band, chip):
-			draw_colored_polygon(piece, Palette.ASPHALT)
+		for piece: PackedVector2Array in Geometry2D.intersect_polygons(band, disc):
+			draw_colored_polygon(piece, ROAD_INK)
 
 
-## The painted line down each arm, stopping short of the junction itself the way a real one does.
-func _draw_markings(middle: Vector2, unit: float) -> void:
+## The curbs: a foil line along each edge of the roads, turning the corner at the crossing.
+func _draw_curbs(middle: Vector2, r: float) -> void:
+	var half := r * ROAD * 0.5
+	var rim := sqrt(r * r - half * half)
+	var ink := Color(HouseTheme.FOIL, 0.55)
+	for sx: float in [-1.0, 1.0]:
+		for sy: float in [-1.0, 1.0]:
+			var corner := PackedVector2Array(
+				[
+					middle + Vector2(sx * half, sy * rim),
+					middle + Vector2(sx * half, sy * half),
+					middle + Vector2(sx * rim, sy * half),
+				]
+			)
+			draw_polyline(corner, ink, maxf(r * 0.012, 0.6), true)
+
+
+## The lane lines down each arm, stopping short of the crossing the way a real one's do.
+func _draw_dashes(middle: Vector2, r: float) -> void:
+	var width := maxf(r * 0.05, 1.0)
 	for quarter: int in 4:
-		var facing := Vector2.RIGHT.rotated(TAU * float(quarter) / 4.0)
-		for out: float in DASHES:
-			var dash := Vector2(DASH.y, DASH.x) if quarter % 2 == 0 else Vector2(DASH.x, DASH.y)
-			var at := middle + facing * unit * out
-			draw_rect(Rect2(at - dash * unit * 0.5, dash * unit), Palette.MARKING_CREAM)
+		var facing := Vector2.from_angle(TAU * float(quarter) / 4.0)
+		var out := r * 0.34
+		while out < r * 0.97:
+			var to := minf(out + r * DASH.x, r * 0.97)
+			draw_line(middle + facing * out, middle + facing * to, HouseTheme.PAPER, width, true)
+			out += r * (DASH.x + DASH.y)
+
+
+static func _circle(middle: Vector2, r: float, points: int) -> PackedVector2Array:
+	var made := PackedVector2Array()
+	for i: int in points:
+		made.append(middle + Vector2.from_angle(TAU * float(i) / float(points)) * r)
+	return made

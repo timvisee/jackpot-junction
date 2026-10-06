@@ -2168,14 +2168,25 @@ says what, which is the half of the question a bench cannot answer.
   the far edge whatever the room does, since that is the one board a player looks
   for rather than reads by accident.
 - **Traffic lights and road signs** as props at lane ends and near spawns.
-- **The mark**: the Junction seen from above. A gold poker chip with the notches
-  round its rim, a crossroads cut through it so the gold is left in quarters, the
-  painted lines down each arm, and the pad itself lit in the middle: a cyan ring
-  with the pot sitting on it. The rim wears the Junction's magenta neon, and it
-  sits on a dark rounded plate so a desktop has something to put it on. The name
-  is a casino and a road, and so is the mark. It is drawn in code like every other
-  picture here, see 8.3a, and `make logo` writes it out as the icon the project
-  wears; changing the drawing and running that is the whole of changing the logo.
+- **The mark**: a seal, engraved the way a banknote's is, in the house print of
+  8.1a. A scalloped medallion of foil engraved with guilloché bands, a ring of ink
+  with the house's fine print running round it, JACKPOT JUNCTION · DEPT. OF KARTS ·
+  LICENSED ON EVERY TABLE, the game's name over the top, and filling the middle
+  the foil chip: the Junction seen from above, a poker chip of foil with cream
+  notches round its rim and fine rings engraved in it, a crossroads cut through it
+  in ink with foil curbs and cream lane lines down each arm, and the pot a red chip
+  on the crossing, rimmed in ink. No neon: foil, ink and the red chip. Drawn small,
+  the mark itself under 64 pixels across, it is the foil chip alone, since a seal's
+  fine lines and fine print are only mush at that size: the license's band wears
+  the chip, the title, the school and About the seal. As an icon it stands on a
+  plate, a ticket of the house's stock with notched corners, engraved waves and a
+  foil hairline, so a desktop has something to put it on. The name is a casino and
+  a road, and so is the mark. It is drawn in code like every other picture here,
+  see 8.3a, and `make logo` writes it out as the icons the project wears: `icon.png`,
+  512 pixels, for every platform and the boot splash, and for Windows, which picks
+  a window's icon from a set by the size it shows it at, `icon.ico` with every size
+  from 16 to 256 pixels each drawn at its size, so its small ones are the chip.
+  Changing the drawing and running that is the whole of changing the logo.
 - **Buttons** are the pane in miniature, tickets of 8.1a: dark stock with notched
   corners, a foil hairline faint enough to say it is a button, and the house's gold
   round whichever one has the cursor, with a lane chevron at its left end. A menu
