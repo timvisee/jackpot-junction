@@ -591,7 +591,12 @@ func _build() -> void:
 	# The slip's own ink, so the edge with more lines past it darkens as paper does in shadow.
 	_body.fade = Color(HouseTheme.INK, 0.3)
 	column.add_child(_body.shaded())
-	column.add_child(MenuTheme.perforation())
+	var tear := MenuTheme.perforation()
+	column.add_child(tear)
+	# Scrolled, the lines run right up to the foil band over them and down to the hairline over
+	# the tear, and the shades lie against those rather than in the paper between.
+	var gap := float(column.get_theme_constant(&"separation"))
+	_body.reach(gap, gap + tear.line_over())
 	column.add_child(_build_the_foot())
 
 

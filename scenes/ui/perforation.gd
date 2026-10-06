@@ -52,6 +52,14 @@ func _fit() -> void:
 	custom_minimum_size.y = maxf((gap + bite + TicketStyle.FRAME_GAP - between) * 2.0, HEIGHT)
 
 
+## How far down from its own top the hairline round the header over it runs, see
+## [method TicketStyle._frames]: the line a scroll over it reaches down to.
+func line_over() -> float:
+	var style := _style()
+	var bite := style.bite if style != null else 10.0
+	return maxf(size.y, custom_minimum_size.y) * 0.5 - bite - TicketStyle.FRAME_GAP
+
+
 ## The ticket of the nearest pane this stands in, or null in anything else.
 func _style() -> TicketStyle:
 	if _pane == null or not is_instance_valid(_pane):

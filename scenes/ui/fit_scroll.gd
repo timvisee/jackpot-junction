@@ -23,6 +23,8 @@ var fade := Color(0.0, 0.0, 0.0, 0.45):
 
 var _fades: Array[TextureRect] = []
 var _over: Control
+var _holder: MarginContainer
+var _padding: MarginContainer
 
 
 ## A scroll holding [param content], in [param in_pane].
@@ -50,6 +52,15 @@ func _ready() -> void:
 func shaded() -> Container:
 	var holder := MarginContainer.new()
 	holder.name = name + "Holder"
+	_holder = holder
+	# What it holds, in padding of its own, which [method reach] gives the gaps round it to.
+	var content := get_child(0) as Control
+	remove_child(content)
+	_padding = MarginContainer.new()
+	_padding.name = "Padding"
+	_padding.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_padding.add_child(content)
+	add_child(_padding)
 	holder.add_child(self)
 	_over = Control.new()
 	_over.name = "Shades"
@@ -74,6 +85,20 @@ func shaded() -> Container:
 		_fades.append(shade)
 	_set_fade(fade)
 	return holder
+
+
+## Reaches [param above] up over the gap over it and [param below] down over the one under it, to
+## the lines either side, with what it holds padded by as much, so at rest everything stands where
+## it did and scrolled the lines run right up to them, the shades against them rather than
+## beginning in the empty paper of the gap. After [method shaded].
+func reach(above: float, below: float) -> void:
+	if _holder == null:
+		return
+	_holder.add_theme_constant_override("margin_top", -roundi(above))
+	_holder.add_theme_constant_override("margin_bottom", -roundi(below))
+	_padding.add_theme_constant_override("margin_top", roundi(above))
+	_padding.add_theme_constant_override("margin_bottom", roundi(below))
+	fit()
 
 
 ## Sizes it again for what it holds and the room there is on the screen.

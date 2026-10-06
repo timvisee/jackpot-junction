@@ -442,8 +442,9 @@ in foil, and the rest only drawn in ink, a hairline round words in ink; the page
 arrows and dots of a Grand Prix are in ink too, the page being read marked in the
 stamp's red. On a screen too short for the slip, a phone's under a big UI scale,
 8.5, the photo and the lines scroll between the title and the stub, which stay put,
-and an edge with more lines past it is shaded in the slip's ink, fading in, so it
-is plain there is more to scroll to. Under each player up to three awards pick out what they did most
+right up to the foil band under the title and down to the hairline over the tear,
+and an edge with more lines past it is shaded in the slip's ink against that line,
+fading in, so it is plain there is more to scroll to. Under each player up to three awards pick out what they did most
 compared with the others, as separate chips rather than run together into one
 sentence, leaders first, ranked by how far ahead of the others' average they
 are: Trigger Happy (shots fired), Butterfingers (chips lost), Vacuum Cleaner
@@ -2772,11 +2773,11 @@ lane beside it is as wide as it was.
   400 on nitro: the honest meters a second is a single figure and says nothing
   about how the driving feels. A dead kart reads zero.
 - **Control hints**, on by default and switchable in 8.5: a line under each
-  player's block, on a small ticket of the HUD's stock set flush under it (over
-  it for a block at the foot of the screen) and run off the same edge of the
-  screen, so it is square on that side and notched only at the two corners of
-  its free end, part of their corner while the block itself never grows and
-  shrinks as the hints come and go, showing the button that drifts, the one that burns nitro and
+  player's block, on a small ticket of the HUD's stock hung from its foot (or
+  standing on its top for a block at the foot of the screen), a little in from
+  the screen's edge, square where it meets the block and notched only at the two
+  corners of its free end, part of their corner while the block itself never
+  grows and shrinks as the hints come and go, showing the button that drifts, the one that burns nitro and
   the one that plays a held item. Each shows only while it is worth pressing, so
   a parked kart with a full tank sees the nitro reminder alone and an item still
   rolling in its roulette shows none. The button that opens the joker menu is

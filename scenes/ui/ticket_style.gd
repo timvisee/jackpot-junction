@@ -49,11 +49,14 @@ const TOOTH := 9.0
 @export var notch_top := true:
 	set = _set_notch_top
 ## Whether the corners on the left and on the right are notched: square on a side that runs off
-## the edge of the screen, where a notch would be a corner nobody sees.
+## the edge of the screen, where a notch would be a corner nobody sees. And whether the foot's are,
+## square for a ticket hung from under something, see [member notch_top].
 @export var notch_left := true:
 	set = _set_notch_left
 @export var notch_right := true:
 	set = _set_notch_right
+@export var notch_bottom := true:
+	set = _set_notch_bottom
 ## Torn along its top and its foot, the teeth of a printer's blade, rather than notched: a payout
 ## slip, GAME.md 8.1a.
 @export var torn := false:
@@ -136,7 +139,8 @@ static func outline(
 	top_notched := true,
 	serrated := false,
 	left_notched := true,
-	right_notched := true
+	right_notched := true,
+	bottom_notched := true
 ) -> PackedVector2Array:
 	var w := size.x
 	var h := size.y
@@ -160,11 +164,11 @@ static func outline(
 		points.append(Vector2(w, 0.0))
 	for y: float in bites:
 		_arc(points, Vector2(w, y), bite_depth, PI * 1.5, PI * 0.5)
-	if right:
+	if right and bottom_notched:
 		_arc(points, Vector2(w, h), n, PI * 1.5, PI)
 	else:
 		points.append(Vector2(w, h))
-	if left:
+	if left and bottom_notched:
 		_arc(points, Vector2(0.0, h), n, TAU, PI * 1.5)
 	else:
 		points.append(Vector2(0.0, h))
@@ -264,7 +268,9 @@ func _made(size: Vector2) -> Dictionary:
 	if _kept.has(size):
 		return _kept[size]
 	var made := {}
-	var edge := outline(size, notch, perforations, bite, notch_top, torn, notch_left, notch_right)
+	var edge := outline(
+		size, notch, perforations, bite, notch_top, torn, notch_left, notch_right, notch_bottom
+	)
 	made["outline"] = edge
 	var closed := edge.duplicate()
 	closed.append(edge[0])
@@ -314,7 +320,8 @@ func _made(size: Vector2) -> Dictionary:
 		notch_top,
 		torn,
 		notch_left,
-		notch_right
+		notch_right,
+		notch_bottom
 	)
 	inner.append(inner[0])
 	for i: int in inner.size():
@@ -367,7 +374,15 @@ func _frames(size: Vector2) -> Array[PackedVector2Array]:
 			continue
 		var notched := notch_top or i > 0 or torn
 		var line := outline(
-			part.size, depth, PackedFloat32Array(), 0.0, notched, false, notch_left, notch_right
+			part.size,
+			depth,
+			PackedFloat32Array(),
+			0.0,
+			notched,
+			false,
+			notch_left,
+			notch_right,
+			notch_bottom or i < parts.size() - 1
 		)
 		line.append(line[0])
 		for p: int in line.size():
@@ -437,6 +452,11 @@ func _set_torn(value: bool) -> void:
 
 func _set_arcs(value: bool) -> void:
 	arcs = value
+	_changed()
+
+
+func _set_notch_bottom(value: bool) -> void:
+	notch_bottom = value
 	_changed()
 
 

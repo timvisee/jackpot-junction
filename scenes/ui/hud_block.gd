@@ -20,10 +20,11 @@ const DIAL := 88.0
 const CELLS := Vector2(118.0, 12.0)
 ## How much of the name's row the kills and deaths keep for themselves.
 const STATS_WIDTH := 92.0
-## The ticket the control hints are on, flush with the strip: the notch of its free end, and the
-## room round them, on the edge it runs off, on its free end, and above and below.
+## The ticket the control hints are on, hung from the strip: how far in from the screen's edge it
+## hangs, the notch of its free corners, and the room round the hints, across and down.
+const TAB_INSET := 14.0
 const TAB_NOTCH := 7.0
-const TAB_ROOM := Vector3(OUTER, 14.0, 6.0)
+const TAB_ROOM := Vector2(12.0, 6.0)
 ## The microprint along the foot of each strip, and the engraving's strength on it.
 const MICRO := "SEAT %d · JACKPOT JUNCTION · DEPT. OF KARTS · "
 const ENGRAVED := 0.07
@@ -145,7 +146,7 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	var hints := PanelContainer.new()
 	hints.name = "Hints"
 	hints.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hints.add_theme_stylebox_override("panel", tab(slot, right, bottom))
+	hints.add_theme_stylebox_override("panel", tab(bottom))
 	hints.top_level = true
 	hints.visible = false
 	card.add_child(hints)
@@ -179,21 +180,18 @@ static func _hang(hints: Control, card: Control, right: bool, bottom: bool) -> v
 	var rect := card.get_global_rect()
 	var tall := hints.size.y
 	var y := rect.position.y - tall if bottom else rect.end.y
-	var x := rect.end.x - hints.size.x if right else rect.position.x
+	var x := rect.end.x - TAB_INSET - hints.size.x if right else rect.position.x + TAB_INSET
 	hints.global_position = Vector2(x, y)
 
 
-## The ticket the corner's control hints are on, GAME.md 8.1a: of the HUD's stock, set flush
-## under [param slot]'s strip, or over it for a block on the bottom, and run off the same edge of
-## the screen, so it is square on that side and notched only at the corners of its free end, a
-## faint foil hairline inside its edge. Part of the corner rather than a tag near it, without being
-## a second strip.
-static func tab(_slot: PlayerSlot, right: bool, _bottom: bool) -> TicketStyle:
-	var style := TicketStyle.cut(Color(HouseTheme.STOCK, 0.86), TAB_NOTCH, 0.0, TAB_ROOM.z)
-	style.content_margin_left = TAB_ROOM.y if right else TAB_ROOM.x
-	style.content_margin_right = TAB_ROOM.x if right else TAB_ROOM.y
-	style.notch_left = right
-	style.notch_right = not right
+## The ticket the corner's control hints are on, GAME.md 8.1a: of the HUD's stock, hung from
+## the foot of [param bottom]'s strip, or standing on its top for a block on the bottom of the
+## screen, a little in from the screen's edge: square where it meets the strip and notched only at
+## the two corners of its free end, a faint foil hairline inside its edge.
+static func tab(bottom: bool) -> TicketStyle:
+	var style := TicketStyle.cut(Color(HouseTheme.STOCK, 0.86), TAB_NOTCH, TAB_ROOM.x, TAB_ROOM.y)
+	style.notch_top = bottom
+	style.notch_bottom = not bottom
 	style.frame = Color(HouseTheme.FOIL, 0.2)
 	style.frame_inset = 4.0
 	Surface.wear(style, "hud")

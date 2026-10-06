@@ -80,6 +80,9 @@ vec2 embers(vec2 uv, float t) {
 }
 
 void fragment() {
+	// What the node is drawn in, which carries its modulate and its parents': a call fading out
+	// fades its fire with it.
+	vec4 tint = COLOR;
 	vec2 uv = UV;
 	float t = clock + seed;
 	float rise = 1.0 - uv.y;
@@ -120,5 +123,5 @@ void fragment() {
 	if (foot_fade > 0.0) {
 		color.a *= 1.0 - smoothstep(1.0 - foot_fade, 1.0, uv.y);
 	}
-	COLOR = color;
+	COLOR = color * tint;
 }
