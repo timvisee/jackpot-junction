@@ -377,13 +377,18 @@ func remove_block(slot: PlayerSlot) -> void:
 ## The lowest corner nobody on this screen is using. Somebody leaving frees theirs for the next
 ## player to join rather than pushing everybody after them along.
 func _free_corner() -> int:
+	return maxi(next_corner(), 0)
+
+
+## The corner the next player to join at this screen would take, or -1 with all four taken.
+func next_corner() -> int:
 	var taken: Array[int] = []
 	for index: int in _blocks:
 		taken.append(_blocks[index]["corner"])
 	for corner: int in BLOCK_ANCHORS.size():
 		if not taken.has(corner):
 			return corner
-	return 0
+	return -1
 
 
 ## Hands share the bottom edge in slot order.

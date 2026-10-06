@@ -70,6 +70,9 @@ const HINT_INK := Color(0.82, 0.83, 0.88)
 ## How far over the foot of the screen the ways in stand, and the room round the words of the
 ## ticket at the top, the same on every side.
 const WAY_IN_ABOVE := 18.0
+## The empty seat: how faint its stock is, and the room on its slanted end.
+const SEAT_FILL := Color(HouseTheme.STOCK, 0.64)
+const SEAT_INNER := HudBlock.SLANT + 14.0
 const TICKET_ROOM := 13.0
 
 var match_node: Match
@@ -117,6 +120,12 @@ var _full_hint: Label
 ## there is nothing on it.
 var _plan_tear: Control
 var _way_in: Control
+## The empty seat the way to take one is shown on, in the corner a newcomer's block would take,
+## its look, the number it says, and which corner it is in, -1 for none.
+var _seat: PanelContainer
+var _seat_look: StripStyle
+var _seat_number: Label
+var _seat_corner := -2
 ## Whether the way to sit down is put away for good, on a machine that is only watching.
 var _no_seats_here := false
 var _online_hint: Label
@@ -290,15 +299,47 @@ func _show_the_way_in() -> void:
 	var full := seat_limit > 0 and player_count() >= seat_limit
 	_seat_hint.visible = not full
 	_full_hint.visible = full
+	_place_the_seat()
 	_fit_the_way_in()
 
 
-## The tag the ways in stand on, up while anything is on it.
+## The empty seat in the corner the next player at this screen would take, GAME.md 9.6: cut as a
+## corner block is, off the edge, but faint and empty, so it says where a newcomer will be as well
+## as how to get there. None with every corner taken.
+func _place_the_seat() -> void:
+	if _seat == null:
+		return
+	var hud := match_node.hud if match_node != null else null
+	var corner := hud.next_corner() if hud != null else 0
+	_seat_number.text = "SEAT %d" % (player_count() + 1)
+	if corner == _seat_corner:
+		return
+	_seat_corner = corner
+	if corner < 0:
+		return
+	var right := corner % 2 == 1
+	var bottom := corner >= 2
+	_seat_look.off_right = right
+	_seat_look.wide_at_bottom = bottom
+	_seat_look.content_margin_left = SEAT_INNER if right else HudBlock.OUTER
+	_seat_look.content_margin_right = HudBlock.OUTER if right else SEAT_INNER
+	_seat.set_anchors_and_offsets_preset(MatchHud.BLOCK_ANCHORS[corner])
+	_seat.grow_horizontal = Control.GROW_DIRECTION_BEGIN if right else Control.GROW_DIRECTION_END
+	_seat.grow_vertical = Control.GROW_DIRECTION_BEGIN if bottom else Control.GROW_DIRECTION_END
+	var line_up := HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT
+	_seat_number.horizontal_alignment = line_up
+	_seat_hint.alignment = BoxContainer.ALIGNMENT_END if right else BoxContainer.ALIGNMENT_BEGIN
+
+
+## The tag at the foot of the screen, up while anything is on it, and the empty seat while there
+## is a seat to take and a corner to take it in.
 func _fit_the_way_in() -> void:
 	if _way_in == null:
 		return
 	var online := _online_hint.visible and not _online_hint.text.is_empty()
-	_way_in.visible = _seat_hint.visible or _full_hint.visible or online
+	_way_in.visible = _full_hint.visible or online
+	if _seat != null:
+		_seat.visible = _seat_hint.visible and _seat_corner >= 0
 
 
 ## The bots coming in, as the count says them after the players: " + 2 BOTS", or nothing when
@@ -574,8 +615,8 @@ func _build_counter() -> void:
 		HINT_INK,
 		Type.LABEL
 	)
-	seat.alignment = BoxContainer.ALIGNMENT_CENTER
-	ways_in.add_child(seat)
+	_build_the_seat(layer)
+	_seat.get_child(0).add_child(seat)
 	_seat_hint = seat
 	_full_hint = Label.new()
 	_full_hint.text = "Maximum number of players reached"
@@ -591,3 +632,30 @@ func _build_counter() -> void:
 	Type.text(_online_hint, Type.LABEL, HINT_INK)
 	ways_in.add_child(_online_hint)
 	_fit_the_way_in()
+
+
+## The empty seat, built in the top left corner and moved to the corner a newcomer would take, see
+## [method _place_the_seat]: a corner block's strip, faint, with the seat's number over the way to
+## take it.
+func _build_the_seat(layer: CanvasLayer) -> void:
+	_seat = PanelContainer.new()
+	_seat.name = "EmptySeat"
+	_seat.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_seat.custom_minimum_size = Vector2(MatchHud.BLOCK_WIDTH, 0.0)
+	_seat_look = StripStyle.cut(false, HudBlock.SLANT, HudBlock.OUTER, SEAT_INNER, 14.0)
+	_seat_look.fill = SEAT_FILL
+	_seat_look.edge_top = Color(HouseTheme.FOIL, 0.3)
+	_seat_look.edge_bottom = Color(HouseTheme.FOIL, 0.3)
+	_seat.add_theme_stylebox_override("panel", _seat_look)
+	_seat.visible = false
+	layer.add_child(_seat)
+	var lines := VBoxContainer.new()
+	lines.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lines.add_theme_constant_override("separation", 6)
+	_seat.add_child(lines)
+	_seat_number = Label.new()
+	_seat_number.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_seat_number.add_theme_font_override("font", Type.micro_font())
+	_seat_number.add_theme_font_size_override("font_size", Type.LABEL)
+	_seat_number.add_theme_color_override("font_color", Color(HouseTheme.FOIL, 0.75))
+	lines.add_child(_seat_number)

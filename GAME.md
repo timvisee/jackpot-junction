@@ -4911,9 +4911,11 @@ the top edge as the clock board is in a match, square where it meets the edge an
 foot, little room round its words, so it stays over the count's sign on the back wall rather than
 in front of it: the count in foil figures with what it counts in capitals beside it, and under a
 perforation the next match, "Next: Lucky Crossing · 3 min · first to 2000" or that the host is
-still choosing. How to take a seat, or that the room is full, and how to join from another
-machine go on a small tag of their own at the foot of the screen, gone while it has nothing on
-it.
+still choosing. How to take a seat is shown where a newcomer would sit: in the corner of the
+screen their block would take, on an empty seat, a corner block's strip cut off the edge as theirs
+will be but faint and empty, its number over the way to take it, "SEAT 2" and "J or Menu to take
+a seat". That the room is full, and how to join from another machine, go on a small tag of their
+own at the foot of the screen, gone while it has nothing on it.
 
 The sign is a small board rather than the hoarding a room hangs its clock on. A hoarding is set
 back over a crowd and read from anywhere on the floor while a match is being played; there is no
