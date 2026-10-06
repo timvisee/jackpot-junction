@@ -2351,7 +2351,9 @@ menu, HUD piece and dialog is cut from the same stock and printed the same way, 
 a screenshot of any of them could only come from this game. Before this the menus
 were the engine's controls in a dark color with a gold accent, and looked it. The
 direction was set on 2026-10-05 from a proposal of thirty questions, every one of
-them answered with its default.
+them answered with its default. `docs/house-print/index.html` keeps the pictures:
+the screens as built beside 0.13.1, the mark, the system, the proposal's drawings,
+and every decision made on the way.
 
 Three rules hold it together:
 

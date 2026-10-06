@@ -10,6 +10,8 @@ you.
 Made with Godot 4.7 and GDScript. `GAME.md` holds the design, `PLAN.md` the
 implementation plan with the status of every milestone, and `CHANGELOG.md` what
 has changed in each release.
+`docs/house-print/index.html` shows the art direction of the UI, House Print,
+with the decisions behind it.
 
 Three arenas, three rooms to play them in, and an XL version of each with room to spare.
 
