@@ -20,6 +20,7 @@ const EDIT := "Edit"
 const RENAME := "Rename profile"
 const SAVE := "Save"
 const MAKE := "Make"
+const MAKE_AND_SWITCH := "Make and switch"
 const DELETE := "Delete"
 ## The question Delete asks first, and its answers.
 const SURE := "Delete this profile?"
@@ -27,7 +28,7 @@ const SURE_LINE := "%s's names, karts, license and statistics are thrown away fo
 const KEEP := "Keep"
 const NEW := "New profile"
 const ONLY_FROM_TITLE := "Manage profiles from the title screen."
-const FULL := "That is as many profiles as a machine keeps."
+const FULL := "Maximum number of profiles reached."
 const MAPS := "%d maps"
 const PLAYING_NOW := "Playing now  ·  %s"
 ## How big a row's icon buttons are.
@@ -158,13 +159,18 @@ func _rename(named: String, profile: Profile) -> void:
 
 
 ## The name [param title] asks for, [param text] in the box to start with, [param ok] on the
-## button that goes ahead with it into [param then]; the cursor back where it was after.
-func _ask(title: String, text: String, ok: String, then: Callable) -> void:
+## button that goes ahead with it into [param then], and with [param also] a second way ahead into
+## [param also_then]; the cursor back where it was after.
+func _ask(
+	title: String, text: String, ok: String, then: Callable, also := "", also_then := Callable()
+) -> void:
 	if dialog != null:
 		return
 	var was := get_viewport().gui_get_focus_owner()
-	dialog = NameDialog.open(self, title, text, ok)
+	dialog = NameDialog.open(self, title, text, ok, also)
 	dialog.named.connect(then)
+	if also_then.is_valid():
+		dialog.named_also.connect(also_then)
 	dialog.put_away.connect(
 		func() -> void:
 			dialog = null
@@ -181,19 +187,22 @@ func _switch(id: String) -> void:
 		_switched.call(id)
 
 
-## Asks for the new profile's name, makes it, and goes to it.
+## Asks for the new profile's name and makes it: Make leaves the one playing as it is, and Make and
+## switch goes to the new one as well.
 func _new() -> void:
 	if can_switch:
-		_ask(NEW, "", MAKE, _make)
+		_ask(NEW, "", MAKE, _make.bind(false), MAKE_AND_SWITCH, _make.bind(true))
 
 
-func _make(named: String) -> void:
+func _make(named: String, switch: bool) -> void:
 	var made := _settings.new_profile()
 	if made == null:
 		return
 	made.player_names[0] = named
 	made.save_to_disk()
-	_settings.switch_profile(made.id)
+	if switch:
+		_settings.switch_profile(made.id)
+	# The page up again either way, with the new profile on it.
 	if _switched.is_valid():
 		_switched.call(_settings.profile.id)
 

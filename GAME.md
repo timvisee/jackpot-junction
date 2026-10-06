@@ -3517,9 +3517,12 @@ like any other button.
   name boxes would have looked like something to fill in rather than a list to pick from.
   Delete asks first, in a question over the screen with the warning sign, "Delete this
   profile?", saying what goes with it, the cursor on Keep, and is not there for the one
-  playing. New profile asks for the name the same way, with Make, then makes the
-  profile and goes to it; a machine keeps eight. The dialog wants a name: Save and Make
-  are off while the box is empty, Enter goes ahead and Back cancels. Switching puts the
+  playing. New profile asks for the name the same way, with two ways ahead: Make, in
+  foil and the one Enter presses, makes the profile and leaves the one playing as it is,
+  and Make and switch goes to the new one as well. A machine keeps eight, and once it has
+  them the page says "Maximum number of profiles reached." The dialog wants a name: Save,
+  Make and Make and switch are off while the box is empty, Enter goes ahead and Back
+  cancels. Switching puts the
   settings up again for the profile now playing. All of it is done from the title's
   settings: inside a room the names at the table are already the ones playing, so there
   the page only lists the profiles, with Edit, Switch, Delete and New profile all off and

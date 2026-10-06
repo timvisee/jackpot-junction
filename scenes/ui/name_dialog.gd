@@ -6,8 +6,10 @@ extends Control
 ## while the box is empty. While it is up the keys are the box's, not a kart's, and the screen
 ## under it hears nothing: no tab of the settings switches.
 
-## The name typed, cleaned, once the player went ahead with it.
+## The name typed, cleaned, once the player went ahead with it; or by the second way ahead, where
+## there is one, see [method open].
 signal named(name: String)
+signal named_also(name: String)
 ## Up no longer, whichever way it went.
 signal put_away
 
@@ -17,6 +19,8 @@ const WIDE := 420.0
 
 var field: LineEdit
 var ok_button: Button
+## The second way ahead, beside the first, or null where there is none.
+var also_button: Button
 var cancel_button: Button
 
 ## The pane and the shade, for putting away, and whether it is on its way.
@@ -26,8 +30,9 @@ var _closing := false
 
 
 ## Puts the question [param title] up over the whole screen [param from] is on, the box holding
-## [param text], and [param ok] on the button that goes ahead.
-static func open(from: Control, title: String, text: String, ok: String) -> NameDialog:
+## [param text], and [param ok] on the button that goes ahead, the one Enter presses; and with
+## [param also] a second way ahead beside it, which says [signal named_also] instead.
+static func open(from: Control, title: String, text: String, ok: String, also := "") -> NameDialog:
 	var top: Control = from
 	while top.get_parent() is Control:
 		top = top.get_parent() as Control
@@ -35,11 +40,11 @@ static func open(from: Control, title: String, text: String, ok: String) -> Name
 	dialog.name = "NameDialog"
 	# Over the screen it is on; a page on its own has the window, under whatever holds it.
 	(top if top != from else from.get_parent()).add_child(dialog)
-	dialog._build(title, text, ok)
+	dialog._build(title, text, ok, also)
 	return dialog
 
 
-func _build(title: String, text: String, ok: String) -> void:
+func _build(title: String, text: String, ok: String, also: String) -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var shade := ColorRect.new()
@@ -72,6 +77,11 @@ func _build(title: String, text: String, ok: String) -> void:
 	ok_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ok_button.pressed.connect(_go_ahead)
 	buttons.add_child(ok_button)
+	if not also.is_empty():
+		also_button = MenuTheme.button(also, Type.BODY)
+		also_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		also_button.pressed.connect(_go_ahead.bind(true))
+		buttons.add_child(also_button)
 	cancel_button = MenuTheme.button(CANCEL, Type.BODY)
 	cancel_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cancel_button.pressed.connect(close)
@@ -83,10 +93,15 @@ func _build(title: String, text: String, ok: String) -> void:
 	field.select_all.call_deferred()
 
 
-## The cursor stays on the box and the two buttons, rather than walking off them onto the page
-## under them.
+## The cursor stays on the box and the buttons, rather than walking off them onto the page under
+## them.
 func _confine() -> void:
-	var order: Array[Control] = [field, ok_button, cancel_button]
+	var row: Array[Control] = [ok_button]
+	if also_button != null:
+		row.append(also_button)
+	row.append(cancel_button)
+	var order: Array[Control] = [field]
+	order.append_array(row)
 	for i: int in order.size():
 		var each := order[i]
 		var here := each.get_path()
@@ -96,22 +111,29 @@ func _confine() -> void:
 		each.focus_neighbor_right = here
 		each.focus_neighbor_top = here
 		each.focus_neighbor_bottom = ok_button.get_path() if each == field else here
-	ok_button.focus_neighbor_right = cancel_button.get_path()
-	cancel_button.focus_neighbor_left = ok_button.get_path()
-	ok_button.focus_neighbor_top = field.get_path()
-	cancel_button.focus_neighbor_top = field.get_path()
+	for i: int in row.size():
+		row[i].focus_neighbor_top = field.get_path()
+		if i > 0:
+			row[i].focus_neighbor_left = row[i - 1].get_path()
+		if i < row.size() - 1:
+			row[i].focus_neighbor_right = row[i + 1].get_path()
 
 
 func _say_ok() -> void:
 	ok_button.disabled = PlayerNames.clean(field.text).is_empty()
+	if also_button != null:
+		also_button.disabled = ok_button.disabled
 
 
-func _go_ahead() -> void:
+func _go_ahead(also := false) -> void:
 	var typed := PlayerNames.clean(field.text)
 	if typed.is_empty():
 		return
 	close()
-	named.emit(typed)
+	if also:
+		named_also.emit(typed)
+	else:
+		named.emit(typed)
 
 
 ## Down, without a name: said at once, and gone the way it came, see [method MenuTheme.put_away].

@@ -136,14 +136,23 @@ func test_the_profiles_page_lists_renames_and_makes_them() -> void:
 	(other["switch"] as Button).pressed.emit()
 	assert_array(switched).is_equal(["2"] as Array[String])
 	assert_str(settings.profile.id).is_equal("2")
-	# New asks for a name, makes the profile under it and goes to it.
+	# New asks for a name and makes the profile under it: Make, which Enter presses, leaves the one
+	# playing as it is, and Make and switch goes to the new one.
 	page.new_button.pressed.emit()
 	page.dialog.field.text = "Eve"
 	page.dialog.field.text_submitted.emit(page.dialog.field.text)
 	await await_idle_frame()
-	assert_str(settings.profile.id).is_equal("3")
-	assert_str(settings.player_names[0]).is_equal("Eve")
-	assert_array(switched).is_equal(["2", "3"] as Array[String])
+	assert_str(settings.profile.id).is_equal("2")
+	assert_str(Profile.at(settings.profiles_dir(), "3").display_name()).is_equal("Eve")
+	assert_array(switched).is_equal(["2", "2"] as Array[String])
+	page.new_button.pressed.emit()
+	page.dialog.field.text = "Fay"
+	page.dialog.field.text_changed.emit(page.dialog.field.text)
+	page.dialog.also_button.pressed.emit()
+	await await_idle_frame()
+	assert_str(settings.profile.id).is_equal("4")
+	assert_str(settings.player_names[0]).is_equal("Fay")
+	assert_array(switched).is_equal(["2", "2", "4"] as Array[String])
 	# Inside a room the profiles are only listed: nothing is made, changed, switched or thrown away
 	# there. Making one there once froze the game.
 	var in_room: ProfilesTab = auto_free(ProfilesTab.make(settings, false, Callable()))
@@ -156,7 +165,7 @@ func test_the_profiles_page_lists_renames_and_makes_them() -> void:
 	in_room._new()
 	in_room._edit(settings.profile)
 	assert_object(in_room.dialog).is_null()
-	assert_int(settings.profiles().size()).is_equal(3)
+	assert_int(settings.profiles().size()).is_equal(4)
 
 
 ## The settings' pages run License, Players, Controls, Audio, Video, Accessibility, Profiles and
