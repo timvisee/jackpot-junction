@@ -205,7 +205,7 @@ func test_a_call_stands_on_a_plate_and_match_point_on_tape() -> void:
 	assert_int(banner.dress).is_equal(CallBanner.Dress.TAPE)
 	assert_bool(banner._behind.visible).is_true()
 	banner.show_call("Ann", "ON FIRE", Color.RED)
-	assert_bool(banner._flame.visible).is_true()
+	assert_bool(banner._flames[0].visible).is_true()
 	banner.show_call("Ann", "TRADE KILL", Color.RED)
 	assert_bool(banner._sign.visible).is_true()
 	banner.show_call("Ann", "SOMETHING ELSE", Color.RED)
@@ -323,21 +323,19 @@ func test_a_pane_too_tall_for_the_screen_scrolls_its_body() -> void:
 	pane.free()
 
 
-## A finish still being tried wears the look chosen in Settings, and the choice is kept, GAME.md
-## 8.1a; one not chosen yet wears the first.
-func test_a_finish_being_tried_wears_the_look_chosen() -> void:
-	var settings := Settings.new()
-	settings.path = "user://test_look_trials.cfg"
-	settings.look_trials["foil"] = 1
-	assert_int(settings.save_to_disk()).is_equal(OK)
-	var read := Settings.new()
-	read.path = settings.path
-	read.load_from_disk()
-	assert_int(int(read.look_trials.get("foil", 0))).is_equal(1)
-	Settings.remove_files(settings.path)
-	var real := Game.settings
-	Game.settings = read
-	assert_int(int(Surface.finish("foil")[0])).is_equal(Surface.TRIALS["foil"][1][1])
-	assert_int(int(Surface.finish("hud")[0])).is_equal(Surface.TRIALS["hud"][0][1])
-	assert_int(int(Surface.finish("pane")[0])).is_equal(Surface.Kind.SCRATCHED)
-	Game.settings = real
+## The finishes as chosen, GAME.md 8.1a, each control taking the tile from a place of its own so
+## two buttons are not one texture twice, and the felt laid at two scales so no clump of it repeats
+## across the screen as a grid.
+func test_each_control_takes_the_texture_from_its_own_place() -> void:
+	assert_int(int(Surface.finish("foil")[0])).is_equal(Surface.Kind.BRUSHED)
+	assert_int(int(Surface.finish("hud")[0])).is_equal(Surface.Kind.SCRATCHED)
+	assert_int(int(Surface.finish("backdrop")[0])).is_equal(Surface.Kind.FELT)
+	var size := Vector2(300.0, 60.0)
+	var edge := TicketStyle.outline(size, 9.0)
+	var one: Array = Surface._laid(edge, size, Surface.Kind.SCRATCHED, 1.0, 3)
+	var other: Array = Surface._laid(edge, size, Surface.Kind.SCRATCHED, 1.0, 5)
+	assert_int(one.size()).is_equal(1)
+	var first: Dictionary = one[0][0]
+	var second: Dictionary = other[0][0]
+	assert_bool(first[&"uvs"] == second[&"uvs"]).is_false()
+	assert_int(Surface._laid(edge, size, Surface.Kind.FELT, 1.0, 3).size()).is_equal(2)

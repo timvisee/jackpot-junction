@@ -1,15 +1,19 @@
 class_name EmoteArt
 extends RefCounted
 ## The emotes a player can put up over their kart, GAME.md 3.8, drawn from the same shapes as the
-## other pictures of 8.3a: each on a round white bubble with a rim in the player's color, so it
-## says who as well as what. GG in letters, a smile, a scowl and a heart.
+## other pictures of 8.3a. Being round, each is a chip, 8.1a: a poker chip in the player's color
+## with its notches, so it says who as well as what, and in the middle of it a cream inlay with
+## the emote printed on it in ink, the way a casino's own chips carry its mark. GG in the condensed
+## capitals, a smile, a scowl and a heart.
 
 ## The four, in the order the right stick flicks them, up, right, down and left, and the keys 7 to
 ## 0 press them.
 const EMOTES: Array[StringName] = [&"gg", &"happy", &"angry", &"heart"]
-const BUBBLE := Color(0.97, 0.96, 0.93)
-const FACE_INK := Color(0.13, 0.13, 0.16)
-const RIM := 0.07
+const BUBBLE := HouseTheme.PAPER
+const FACE_INK := HouseTheme.INK
+## How much of the chip the inlay takes, and its rim.
+const INLAY := 0.66
+const INLAY_RIM := 0.035
 
 
 ## A control that draws one emote, square and centered in whatever room it is given.
@@ -42,11 +46,17 @@ static func picture(index: int, ink: Color, side: float) -> Picture:
 	return drawn
 
 
-static func draw_into(on: CanvasItem, box: Rect2, index: int, ink: Color) -> void:
-	var middle := IconShapes.at(box, 0.5, 0.5)
-	var radius := IconShapes.span(box, 0.5)
-	on.draw_circle(middle, radius, ink)
-	on.draw_circle(middle, radius * (1.0 - RIM * 2.0), BUBBLE)
+static func draw_into(on: CanvasItem, chip: Rect2, index: int, ink: Color) -> void:
+	var middle := IconShapes.at(chip, 0.5, 0.5)
+	var radius := IconShapes.span(chip, 0.5)
+	ChipArt.chip(on, middle, radius, Color(ink, 1.0))
+	var inlay := radius * INLAY
+	on.draw_circle(middle, inlay, BUBBLE, true, -1.0, true)
+	var rim := maxf(radius * INLAY_RIM, 1.0)
+	on.draw_arc(middle, inlay, 0.0, TAU, 40, ink.darkened(0.35), rim, true)
+	# The emote on the inlay, drawn into a box as big as the inlay, a little in from its rim.
+	var side := inlay * 2.0 * 0.92
+	var box := Rect2(middle - Vector2.ONE * side * 0.5, Vector2.ONE * side)
 	match EMOTES[posmod(index, EMOTES.size())]:
 		&"gg":
 			_letters(on, box, "GG")
@@ -68,8 +78,8 @@ static func _eyes(on: CanvasItem, box: Rect2) -> void:
 
 
 static func _letters(on: CanvasItem, box: Rect2, text: String) -> void:
-	var font := Type.DISPLAY
-	var size := roundi(box.size.y * 0.42)
+	var font := Type.mark_font()
+	var size := roundi(box.size.y * 0.6)
 	var wide := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size)
 	var at := box.get_center() + Vector2(-wide.x * 0.5, size * 0.36)
 	on.draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, FACE_INK)

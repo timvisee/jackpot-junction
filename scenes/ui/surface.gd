@@ -14,32 +14,30 @@ enum Kind { NONE, PAPER, FLECKED, GRAIN, SCRATCHED, FELT, BRUSHED, LINEN }
 const TILE := 256
 ## What each part of the house print wears, GAME.md 8.1a: its texture, how strongly, and how much
 ## light falls on it from its top left. Panes and the buttons on them are laminated card, a few
-## fine scratches under a soft light; the payout slip is fine paper; joker cards have a playing
-## card's linen; the clock board is behind glass, a light with no texture.
+## fine scratches under a soft light, and the HUD's strips the same; gold foil is brushed, faintly,
+## under a sheen; the payout slip is fine paper; joker cards have a playing card's linen; the
+## clock board is behind glass, a light with no texture; and the menus' backdrop is card-table
+## felt.
 const FINISHES: Dictionary[String, Array] = {
 	"pane": [Kind.SCRATCHED, 0.08, 0.06],
 	"button": [Kind.SCRATCHED, 0.06, 0.05],
+	"foil": [Kind.BRUSHED, 0.11, 0.07],
+	"hud": [Kind.SCRATCHED, 0.08, 0.05],
 	"slip": [Kind.PAPER, 0.3, 0.0],
 	"card": [Kind.LINEN, 0.08, 0.0],
 	"clock": [Kind.NONE, 0.0, 0.1],
-}
-## The finishes still being tried out, each with the looks to choose between in Settings, the
-## first the one worn until another is chosen there, see [member Settings.look_trials]. They go,
-## and the chosen look joins [constant FINISHES], once the choice is made.
-const TRIALS: Dictionary[String, Array] = {
-	"foil": [["Brushed", Kind.BRUSHED, 0.2, 0.1], ["Grain", Kind.GRAIN, 0.12, 0.0]],
-	"hud": [["Grain", Kind.GRAIN, 0.07, 0.0], ["Scratched", Kind.SCRATCHED, 0.08, 0.05]],
-	"backdrop": [["Heavier felt", Kind.FELT, 0.16, 0.0], ["Felt", Kind.FELT, 0.1, 0.0]],
-}
-## What each trial is called in Settings.
-const TRIAL_NAMES: Dictionary[String, String] = {
-	"foil": "Gold foil",
-	"hud": "HUD strips",
-	"backdrop": "Menu backdrop",
+	"backdrop": [Kind.FELT, 0.16, 0.0],
 }
 ## How much bigger than one texel to a screen pixel a kind is laid: a playing card's linen is a
 ## weave a little coarser than the rest's grain.
 const ZOOM: Dictionary[int, float] = {Kind.LINEN: 1.4}
+## The kinds laid over big fields, laid twice at two scales that never line up, so no clump of
+## the tile is seen repeating across the screen as a grid of lines: the second scale, and how
+## strongly each layer is laid against the one strength asked for.
+const LAYERED: Dictionary[int, float] = {Kind.FELT: 1.618, Kind.GRAIN: 1.618}
+const LAYER_SHARE := 0.62
+## How many shapes' pieces are kept at one size, a phase each, see [method draw].
+const PHASES_KEPT := 48
 
 static var _tiles: Dictionary[int, ImageTexture] = {}
 
@@ -61,11 +59,13 @@ static func screen_scale() -> float:
 
 ## [param edge], a shape [param size] big, cut along tiles [param tile] across, each piece with
 ## the place in its tile each of its points takes the texture from.
-static func pieces(edge: PackedVector2Array, size: Vector2, tile: float) -> Array[Dictionary]:
+static func pieces(
+	edge: PackedVector2Array, size: Vector2, tile: float, shift := Vector2.ZERO
+) -> Array[Dictionary]:
 	var made: Array[Dictionary] = []
-	for row: int in ceili(size.y / tile):
-		for column: int in ceili(size.x / tile):
-			var corner := Vector2(column, row) * tile
+	for row: int in ceili((size.y + shift.y) / tile):
+		for column: int in ceili((size.x + shift.x) / tile):
+			var corner := Vector2(column, row) * tile - shift
 			var square := PackedVector2Array(
 				[
 					corner,
@@ -86,8 +86,10 @@ static func pieces(edge: PackedVector2Array, size: Vector2, tile: float) -> Arra
 
 ## Lays [param kind] over [param edge], a shape [param size] big, at [param strength]: how far its
 ## lightest and darkest pixels move what is under them, from 0 for nothing to 1 for white and black.
-## The shape's pieces are kept in [param kept], the shape's own worked-out dictionary, and worked
-## out again only when the screen's scale has moved.
+## Each control drawing it takes the tile from a place of its own, by [param item], so two buttons
+## side by side are not one texture twice. The shape's pieces are kept in [param kept], the shape's
+## own worked-out dictionary, by that place, and worked out again only when the screen's scale has
+## moved.
 static func draw(
 	item: RID,
 	kept: Dictionary,
@@ -100,14 +102,38 @@ static func draw(
 		return
 	var at := screen_scale()
 	if kept.get(&"surface_at", 0.0) != at or kept.get(&"surface_kind", -1) != kind:
-		kept[&"surface_pieces"] = pieces(edge, size, float(TILE) * ZOOM.get(kind, 1.0) / at)
+		kept[&"surface_by_phase"] = {}
 		kept[&"surface_at"] = at
 		kept[&"surface_kind"] = kind
-	var made: Array[Dictionary] = kept[&"surface_pieces"]
+	var by_phase: Dictionary = kept[&"surface_by_phase"]
+	var phase := item.get_id() % 997
+	if not by_phase.has(phase):
+		if by_phase.size() >= PHASES_KEPT:
+			by_phase.clear()
+		by_phase[phase] = _laid(edge, size, kind, at, phase)
 	var texture := tile_of(kind).get_rid()
-	var ink := PackedColorArray([Color(1.0, 1.0, 1.0, strength)])
-	for piece: Dictionary in made:
-		RenderingServer.canvas_item_add_polygon(item, piece[&"points"], ink, piece[&"uvs"], texture)
+	var layers: Array = by_phase[phase]
+	var share := LAYER_SHARE if layers.size() > 1 else 1.0
+	var ink := PackedColorArray([Color(1.0, 1.0, 1.0, strength * share)])
+	for made: Array in layers:
+		for piece: Dictionary in made:
+			RenderingServer.canvas_item_add_polygon(
+				item, piece[&"points"], ink, piece[&"uvs"], texture
+			)
+
+
+## The pieces of [param edge] for each layer [param kind] is laid in, from the place in the tile
+## [param phase] picks.
+static func _laid(
+	edge: PackedVector2Array, size: Vector2, kind: Kind, at: float, phase: int
+) -> Array:
+	var tile := float(TILE) * float(ZOOM.get(kind, 1.0)) / at
+	var shift := Vector2(fposmod(phase * 0.618034, 1.0), fposmod(phase * 0.414214, 1.0)) * tile
+	var layers := [pieces(edge, size, tile, shift)]
+	if LAYERED.has(kind):
+		var wider := tile * float(LAYERED[kind])
+		layers.append(pieces(edge, size, wider, shift.rotated(1.1).abs() + Vector2(37.0, 61.0)))
+	return layers
 
 
 ## A light falling on [param edge] from its top left, [param strength] at its brightest, and the
@@ -126,15 +152,9 @@ static func light(item: RID, edge: PackedVector2Array, size: Vector2, strength: 
 	RenderingServer.canvas_item_add_polygon(item, edge, shade)
 
 
-## What [param part] wears, see [constant FINISHES] and [constant TRIALS]: its kind, how strongly
-## and how much light, or nothing at all for a part with no finish.
+## What [param part] wears, see [constant FINISHES]: its kind, how strongly and how much light, or
+## nothing at all for a part with no finish.
 static func finish(part: String) -> Array:
-	if TRIALS.has(part):
-		var looks: Array = TRIALS[part]
-		var picked := 0
-		if Game.settings != null:
-			picked = clampi(int(Game.settings.look_trials.get(part, 0)), 0, looks.size() - 1)
-		return (looks[picked] as Array).slice(1)
 	return FINISHES.get(part, [Kind.NONE, 0.0, 0.0])
 
 
@@ -179,6 +199,10 @@ static func tile_of(kind: Kind) -> ImageTexture:
 			_brushed(field, dice)
 		Kind.LINEN:
 			_linen(field, dice)
+	# Every column and every row evened out to nothing on the whole: one a shade lighter or darker
+	# than the rest is a line clean across the screen once the tile repeats down it. Brushed metal
+	# keeps its rows, which are the streaks it is brushed in.
+	_even_out(field, kind != Kind.BRUSHED)
 	# Paper darkens toward a warm brown, the way fibers and flecks in cream stock do; the rest
 	# toward black.
 	var dark := Color(0.42, 0.33, 0.2) if kind in [Kind.PAPER, Kind.FLECKED] else Color.BLACK
@@ -280,6 +304,26 @@ static func _linen(field: PackedFloat32Array, dice: RandomNumberGenerator) -> vo
 			var weft := sin(TAU * float(y) / 4.0 + wobble * 2.5)
 			field[i] += (warp * 0.5 + weft * 0.5) * (0.55 + wobble * 0.45)
 	_noise(field, 0.6, 0.2, dice)
+
+
+## Takes each column's own average out of [param field], and each row's with [param rows].
+static func _even_out(field: PackedFloat32Array, rows: bool) -> void:
+	for x: int in TILE:
+		var sum := 0.0
+		for y: int in TILE:
+			sum += field[y * TILE + x]
+		var mean := sum / TILE
+		for y: int in TILE:
+			field[y * TILE + x] -= mean
+	if not rows:
+		return
+	for y: int in TILE:
+		var sum := 0.0
+		for x: int in TILE:
+			sum += field[y * TILE + x]
+		var mean := sum / TILE
+		for x: int in TILE:
+			field[y * TILE + x] -= mean
 
 
 ## Spreads [param ink] over the four pixels round [param at], wrapping round the tile.

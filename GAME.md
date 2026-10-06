@@ -441,7 +441,9 @@ carries the match on, Rematch, Next map or Continue, a ticket of ink with its wo
 in foil, and the rest only drawn in ink, a hairline round words in ink; the page
 arrows and dots of a Grand Prix are in ink too, the page being read marked in the
 stamp's red. On a screen too short for the slip, a phone's under a big UI scale,
-8.5, the photo and the lines scroll between the title and the stub, which stay put. Under each player up to three awards pick out what they did most
+8.5, the photo and the lines scroll between the title and the stub, which stay put,
+and an edge with more lines past it is shaded in the slip's ink, fading in, so it
+is plain there is more to scroll to. Under each player up to three awards pick out what they did most
 compared with the others, as separate chips rather than run together into one
 sentence, leaders first, ranked by how far ahead of the others' average they
 are: Trigger Happy (shots fired), Butterfingers (chips lost), Vacuum Cleaner
@@ -517,8 +519,9 @@ else's results screen, see 10.3.
   name, the kart and the plate to the host as a seat says them sitting down.
   `SeatLink`, from `DriveSwitches`, through `Settings.link_seat`.
 - **Emotes.** A player can put one of four up over their kart: GG, a smile, a
-  scowl or a heart, each on a round white bubble rimmed in their color so it
-  says who as well as what. On a pad the right stick held up, right, down or
+  scowl or a heart. Round, so a chip, 8.1a: a poker chip in their color with its
+  notches, so it says who as well as what, with the emote printed in ink on a
+  cream inlay in the middle of it, the way a casino's own chips carry its mark. On a pad the right stick held up, right, down or
   left picks them in that order, asked for as the stick is let go, and not while
   the stick is aiming a cannon that aims freely, which is what it is for then;
   on a keyboard they are 7, 8, 9 and 0, or V and then a way, W, D, S or A or the
@@ -728,8 +731,8 @@ house's stock framed in the player's color, 8.1a: their name in that color and t
 call in foil capitals. Each kind of call is dressed in something of its own behind
 the plate, so it is known before it is read (`CallBanner.Dress`): a run of kills
 fans out a hand of cards over the plate, a pair for a double up to five for a
-spree; a streak burns off the plate's top edge in the player's color, higher the
-hotter it is; an overtake has chevrons pointing on either side; taking the lead
+spree; a streak burns off the plate's top edge in a row of flames in the player's
+color, higher the hotter it is; an overtake has chevrons pointing on either side; taking the lead
 runs out a checkered flag; a trade wears the two-way traffic sign. Match point,
 3.4, the call that matters most, is run out on hazard tape behind its plate, a
 little askew.
@@ -1285,10 +1288,12 @@ short buzz the slider gives, so reading along the row is felt card by card.
 - On its rear bumper, under the flag, a kart of this machine's wears a plate,
   which nobody picks at a stall: a learner's L, a red L on a white square, until
   this machine has earned the driver license of 9.4a, and the license plate its
-  driver chose after, up to eight characters in black on a pale plate with a
-  dark rim and a bolt in each corner, chosen as the license is issued and
+  driver chose after, up to eight characters printed as the house's documents
+  are, 8.1a: the school's cream paper with rounded corners, a hairline of ink
+  inside its edge, a bolt either side at the top with DEPT. OF KARTS in
+  microprint between, and the letters in the condensed capitals, spaced a little, chosen as the license is issued and
   changed, or cleared for a bare bumper, on the License tab of the settings,
-  8.5. Both type it on the plate itself, `PlateField`: the pale plate is the
+  8.5. Both type it on the plate itself, `PlateField`: the printed plate is the
   text box, its letters in the plate's lettering and its rim gold while it is
   typed into, with "Tap to edit", "Click to edit" or the pad's accept button
   "to edit" beside it, rather than a box with the plate drawn next to it to say
@@ -2364,14 +2369,17 @@ lightening or darkening what is under it a little so no color moves, one texel t
 a screen pixel at any UI scale so it is as fine on a big screen as on a small one.
 Panes, dialogs and the buttons on them are laminated card: a few fine scratches
 and a soft light from the top left, a little lighter there and a little darker in
-the bottom right. The payout slip is fine paper, a light tooth and short fibers
+the bottom right; the HUD's strips are the same. Gold foil is brushed, faintly,
+under a sheen. The payout slip is fine paper, a light tooth and short fibers
 darkening toward brown. Joker cards have a playing card's linen, a weave a little
 coarser than the rest. The clock board is behind glass, a gloss down from its top
-edge and a streak across it. A chip's face shows the flecks of the clay it is
-pressed from. Three are still being tried, and Settings, Video, has a Trying out
-box for each until they are chosen: the gold foil, brushed with a sheen or a fine
-grain; the HUD's strips, a fine grain or scratched under the soft light; and the
-menu backdrop, a heavier or a lighter card-table felt.
+edge and a streak across it. The menus' backdrop is card-table felt. A chip's face
+shows the flecks of the clay it is pressed from. Each control takes the tile from
+a place of its own, so two buttons side by side are never one texture twice. Every
+column and row of a tile is evened out to nothing on the whole, since one a shade
+off is a line clean across the screen once the tile repeats down it, and the felt
+and the grain are laid twice at two scales that never line up, so no clump of
+them is seen repeating across a big field as a grid.
 
 **Shapes.**
 
@@ -4894,12 +4902,14 @@ many as the host asked for that the arena has seats left for, and nothing when t
 host says the number it asked for with the plan, and each machine takes off the seats its room
 has filled.
 
-At the top of the screen the lines are printed as the house's, 8.1a: on a ticket hung from the
-top edge as the clock board is in a match, square where it meets the edge and notched at its
-foot, the count in foil figures with what it counts in capitals beside it, and the next match
-under a perforation, "Next: Lucky Crossing · 3 min · first to 2000" or that the host is still
-choosing. How to take a seat, or that the room is full, and how to join from another machine go
-on a small tag of their own under the ticket, put away while there is nothing to say on it.
+At the top of the screen the lines are printed as the house's, 8.1a: on one short line of a
+ticket hung from the top edge as the clock board is in a match, square where it meets the edge
+and notched at its foot, so it stays over the count's sign on the back wall rather than in front
+of it: the count in foil figures with what it counts in capitals beside it, a row of perforation
+holes, and the next match, "Next: Lucky Crossing · 3 min · first to 2000" or that the host is
+still choosing. How to take a seat, or that the room is full, and how to join from another
+machine go on a small tag of their own at the foot of the screen, gone while it has nothing on
+it.
 
 The sign is a small board rather than the hoarding a room hangs its clock on. A hoarding is set
 back over a crowd and read from anywhere on the floor while a match is being played; there is no

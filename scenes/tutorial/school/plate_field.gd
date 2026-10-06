@@ -1,11 +1,11 @@
 class_name PlateField
 extends LineEdit
-## A license plate that is its own text box, GAME.md 4.4: the pale plate with its dark rim and its
-## bolts, and the letters typed straight onto it in the plate's own lettering, rather than a box to
-## type into with the plate drawn beside it to show what it would read. Gold round the rim while
-## it is being typed into. What is typed is cleaned as it goes, upper case and nothing a plate
-## cannot hold, see [method LicensePlate.clean], but a space at the end stands until the box is
-## left, or nobody could type one between two words.
+## A license plate that is its own text box, GAME.md 4.4: the plate as it is printed, see
+## [LicensePlate], and the letters typed straight onto it in the plate's own lettering, rather
+## than a box to type into with the plate drawn beside it to show what it would read. Gold round
+## the rim while it is being typed into. What is typed is cleaned as it goes, upper case and
+## nothing a plate cannot hold, see [method LicensePlate.clean], but a space at the end stands
+## until the box is left, or nobody could type one between two words.
 
 ## The plate as it now reads, cleaned, as it is typed and once the box is left.
 signal plate_changed(plate: String)
@@ -68,21 +68,22 @@ func _ready() -> void:
 	var tall := custom_minimum_size.y
 	var plate := StyleBoxFlat.new()
 	plate.bg_color = LicensePlate.PLATE
-	plate.set_corner_radius_all(roundi(tall * 0.12))
-	plate.set_border_width_all(maxi(roundi(tall * 0.05), 1))
-	plate.border_color = LicensePlate.RIM
+	plate.set_corner_radius_all(roundi(tall * 0.15))
+	plate.anti_aliasing = true
 	plate.content_margin_left = tall * 0.3
+	# The letters under the microprint, as on a plate that is only shown.
+	plate.content_margin_top = tall * 0.2
 	plate.content_margin_right = tall * 0.3
 	add_theme_stylebox_override("normal", plate)
 	add_theme_stylebox_override("read_only", plate)
 	var lit := StyleBoxFlat.new()
 	lit.draw_center = false
-	lit.set_corner_radius_all(roundi(tall * 0.12))
+	lit.set_corner_radius_all(roundi(tall * 0.15))
 	lit.set_border_width_all(maxi(roundi(tall * 0.07), 2))
 	lit.border_color = Palette.CHIP_GOLD
 	add_theme_stylebox_override("focus", lit)
-	add_theme_font_override("font", Type.display_font())
-	add_theme_font_size_override("font_size", roundi(tall * 0.52))
+	add_theme_font_override("font", LicensePlate.lettering(tall))
+	add_theme_font_size_override("font_size", roundi(tall * 0.5))
 	add_theme_color_override("font_color", LicensePlate.INK)
 	add_theme_color_override("font_placeholder_color", Color(LicensePlate.INK, 0.3))
 	add_theme_color_override("caret_color", LicensePlate.INK)
@@ -108,8 +109,6 @@ func _settle() -> void:
 	plate_changed.emit(done)
 
 
-## The bolts in its top corners, over the plate the box is drawn as.
+## The plate's frame, bolts and microprint, over the paper the box is drawn as.
 func _draw() -> void:
-	var inset := size.y * 0.16
-	for x: float in [inset, size.x - inset]:
-		draw_circle(Vector2(x, inset), size.y * 0.05, LicensePlate.BOLT)
+	LicensePlate.dress(self, size)

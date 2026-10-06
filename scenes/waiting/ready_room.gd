@@ -67,6 +67,8 @@ const READY_INK := Color(0.26, 0.86, 0.42)
 const WAITING_INK := Color(0.16, 0.17, 0.2)
 ## The ink the joining lines under the count are written in.
 const HINT_INK := Color(0.82, 0.83, 0.88)
+## How far over the foot of the screen the ways in stand.
+const WAY_IN_ABOVE := 18.0
 
 var match_node: Match
 var pad: JunctionPad
@@ -291,8 +293,10 @@ func _show_the_way_in() -> void:
 
 ## The tag the ways in stand on, up while anything is on it.
 func _fit_the_way_in() -> void:
-	if _way_in != null:
-		_way_in.visible = _seat_hint.visible or _full_hint.visible or _online_hint.visible
+	if _way_in == null:
+		return
+	var online := _online_hint.visible and not _online_hint.text.is_empty()
+	_way_in.visible = _seat_hint.visible or _full_hint.visible or online
 
 
 ## The bots coming in, as the count says them after the players: " + 2 BOTS", or nothing when
@@ -492,55 +496,69 @@ func _build_counter() -> void:
 	ticket.name = "Ticket"
 	ticket.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ticket.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	# Hung from the top edge: square where it meets it, notched at its foot.
-	var look := TicketStyle.cut(Color(HouseTheme.STOCK, 0.9), 10.0, 28.0, 10.0)
+	# One short line hung from the top edge, square where it meets it and notched at its foot, so it
+	# stays over the count's sign on the back wall rather than in front of it.
+	var look := TicketStyle.cut(Color(HouseTheme.STOCK, 0.9), 9.0, 24.0, 7.0)
 	look.notch_top = false
-	look.frame = Color(HouseTheme.FOIL, 0.35)
-	look.frame_body = Color(HouseTheme.FOIL, 0.12)
-	look.frame_inset = 5.0
-	look.shadow = 10.0
+	look.frame = Color(HouseTheme.FOIL, 0.32)
+	look.frame_inset = 4.0
+	look.shadow = 8.0
 	Surface.wear(look, "pane")
 	ticket.add_theme_stylebox_override("panel", look)
 	_hints.add_child(ticket)
-	var inside := VBoxContainer.new()
+	var inside := HBoxContainer.new()
 	inside.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	inside.add_theme_constant_override("separation", 4)
+	inside.alignment = BoxContainer.ALIGNMENT_CENTER
+	inside.add_theme_constant_override("separation", 12)
 	ticket.add_child(inside)
-	var count := HBoxContainer.new()
-	count.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	count.alignment = BoxContainer.ALIGNMENT_CENTER
-	count.add_theme_constant_override("separation", 12)
-	inside.add_child(count)
 	_count_numbers = Label.new()
 	_count_numbers.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.set_font(_count_numbers, Type.numbers_font(), Type.HEADING)
 	_count_numbers.add_theme_color_override("font_color", HouseTheme.FOIL)
 	_count_numbers.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	count.add_child(_count_numbers)
+	inside.add_child(_count_numbers)
 	_count_words = Label.new()
 	_count_words.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.strong(_count_words, Type.LABEL, HouseTheme.WORDS)
 	_count_words.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	count.add_child(_count_words)
+	inside.add_child(_count_words)
 	# The whole line as one, still kept for what reads it, put away: the ticket says it in two.
 	_counter = Label.new()
 	_counter.visible = false
 	inside.add_child(_counter)
-	_plan_tear = MenuTheme.perforation()
+	# A row of perforation holes standing up between the count and the next match.
+	_plan_tear = Control.new()
+	_plan_tear.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_plan_tear.custom_minimum_size = Vector2(4.0, 26.0)
+	_plan_tear.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_plan_tear.visible = false
+	_plan_tear.draw.connect(
+		func() -> void:
+			var y := 2.0
+			while y < _plan_tear.size.y:
+				_plan_tear.draw_circle(
+					Vector2(2.0, y), 1.3, Color(HouseTheme.FOIL, 0.45), true, -1.0, true
+				)
+				y += 6.0
+	)
 	inside.add_child(_plan_tear)
 	_plan = Label.new()
-	_plan.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_plan.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_plan.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_plan.visible = false
 	Type.text(_plan, Type.LABEL, HouseTheme.QUIET)
 	inside.add_child(_plan)
+	# The ways in at the foot of the screen, on a tag of their own, gone while it has nothing on it.
 	var tag := PanelContainer.new()
 	tag.name = "WayIn"
 	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tag.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	tag.add_theme_stylebox_override("panel", HudBlock.scrim())
-	_hints.add_child(tag)
+	tag.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	tag.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	tag.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	tag.offset_bottom = -WAY_IN_ABOVE
+	tag.visible = false
+	layer.add_child(tag)
 	var ways_in := VBoxContainer.new()
 	ways_in.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ways_in.add_theme_constant_override("separation", 4)
@@ -576,3 +594,4 @@ func _build_counter() -> void:
 	_online_hint.visible = false
 	Type.text(_online_hint, Type.LABEL, HINT_INK)
 	ways_in.add_child(_online_hint)
+	_fit_the_way_in()

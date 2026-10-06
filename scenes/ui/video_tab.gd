@@ -144,31 +144,6 @@ func _ready() -> void:
 	marks.item_selected.connect(func(index: int) -> void: _settings.tire_marks = index)
 	_add("Tire marks", marks)
 	_add("Crowd", crowd_box(_settings))
-	_add_trials()
-
-
-## The finishes still being tried out, GAME.md 8.1a, one box each to choose between their looks,
-## see [constant Surface.TRIALS]. The foil takes its new look at once; the HUD's strips on the
-## next match, and the backdrop on the next screen. They go once the choice is made.
-func _add_trials() -> void:
-	var heading := Label.new()
-	heading.text = "TRYING OUT"
-	Type.strong(heading, Type.LABEL, HouseTheme.FOIL)
-	_column.add_child(heading)
-	for part: String in Surface.TRIALS:
-		var looks: Array = Surface.TRIALS[part]
-		var names: Array = []
-		for look: Array in looks:
-			names.append(look[0])
-		var picked := clampi(int(_settings.look_trials.get(part, 0)), 0, looks.size() - 1)
-		var box := MenuTheme.option(names, picked)
-		box.item_selected.connect(
-			func(index: int) -> void:
-				_settings.look_trials[part] = index
-				if part == "foil":
-					HouseTheme.refinish()
-		)
-		_add(Surface.TRIAL_NAMES[part], box)
 
 
 ## Full, Half or Off for the crowd, GAME.md 8.5: one setting, offered here and in Accessibility, so

@@ -36,7 +36,7 @@ const DRESSES: Dictionary[String, Dress] = {
 const CARDS_FOR: Dictionary[String, int] = {
 	"DOUBLE KILL": 2, "TRIPLE KILL": 3, "QUAD KILL": 4, "KILLING SPREE": 5
 }
-const HEAT_FOR: Dictionary[String, float] = {"HOT STREAK": 0.8, "ON FIRE": 1.1, "UNTOUCHABLE": 1.5}
+const HEAT_FOR: Dictionary[String, float] = {"HOT STREAK": 0.8, "ON FIRE": 1.0, "UNTOUCHABLE": 1.2}
 ## The bands behind the plate: how far they reach past it either side and above and below, how
 ## wide their stripes are, how far they lean, and the tape's two colors.
 const TAPE_REACH := Vector2(44.0, 12.0)
@@ -57,8 +57,11 @@ const CHEVRON_GAP := 24.0
 const CARD := Vector2(60.0, 84.0)
 const CARD_FAN := 0.26
 const CARD_SHOWS := 0.7
-## The streak's fire rises off the plate's top edge, from a band this tall.
+## The streak's fire rises off the plate's top edge, from a band this tall, in a row of flames
+## about this wide each, as many as the plate has room for and never fewer than two.
 const FIRE_FOOT := 30.0
+const FIRE_WIDTH := 78.0
+const FIRES_MOST := 7
 ## The two-way sign, how big against the plate's height.
 const SIGN_SHARE := 1.15
 
@@ -71,7 +74,7 @@ var _who: Label
 var _what: Label
 ## What is behind the plate, drawn for its dress.
 var _behind: Control
-var _flame: PotFlame
+var _flames: Array[PotFlame] = []
 var _sign: RoadSign
 var _cards := 0
 var _ink := Color.WHITE
@@ -86,10 +89,12 @@ func _ready() -> void:
 	_behind.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_behind.draw.connect(_draw_behind)
 	add_child(_behind)
-	_flame = PotFlame.in_ink(Color.WHITE, 3.1)
-	_flame.name = "Flame"
-	_flame.visible = false
-	add_child(_flame)
+	for i: int in FIRES_MOST:
+		var flame := PotFlame.in_ink(Color.WHITE, 3.1 + i * 5.7)
+		flame.name = "Flame%d" % i
+		flame.visible = false
+		add_child(flame)
+		_flames.append(flame)
 	_plate = PanelContainer.new()
 	_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_look = TicketStyle.cut(Color(HouseTheme.STOCK, 0.92), 10.0, 26.0, 12.0)
@@ -129,10 +134,12 @@ func show_call(who: String, call: String, color: Color, urgent := false) -> void
 	_cards = CARDS_FOR.get(call, 0)
 	_look.frame = Color(HouseTheme.FOIL if dress == Dress.TAPE else color, 0.7)
 	_sign.visible = dress == Dress.TWO_WAY
-	_flame.visible = dress == Dress.FLAMES
-	if _flame.visible:
-		PotFlame.dye(_flame, color)
-		(_flame.material as ShaderMaterial).set_shader_parameter(&"heat", HEAT_FOR.get(call, 1.0))
+	for flame: PotFlame in _flames:
+		flame.visible = false
+		if dress == Dress.FLAMES:
+			PotFlame.dye(flame, color)
+			var heat: float = HEAT_FOR.get(call, 1.0)
+			(flame.material as ShaderMaterial).set_shader_parameter(&"heat", heat)
 	_behind.visible = dress != Dress.PLATE and dress != Dress.TWO_WAY and dress != Dress.FLAMES
 	_left = HOLD
 	modulate.a = 1.0
@@ -182,8 +189,15 @@ func _lay() -> void:
 	_behind.pivot_offset = behind * 0.5
 	_behind.rotation = turn
 	_behind.queue_redraw()
-	if _flame.visible:
-		_flame.cover(Rect2(_plate.position, Vector2(plate.x, FIRE_FOOT)))
+	if dress == Dress.FLAMES:
+		var count := clampi(roundi(plate.x / FIRE_WIDTH), 2, FIRES_MOST)
+		var each := plate.x / count
+		for i: int in _flames.size():
+			var flame := _flames[i]
+			flame.visible = i < count
+			if flame.visible:
+				var at := _plate.position + Vector2(each * i, 0.0)
+				flame.cover(Rect2(at, Vector2(each, FIRE_FOOT)))
 
 
 func _draw_behind() -> void:

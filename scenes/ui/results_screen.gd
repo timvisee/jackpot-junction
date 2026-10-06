@@ -588,7 +588,9 @@ func _build() -> void:
 	body.add_child(_small_print())
 	_body = FitScroll.around(body, self)
 	_body.name = "Body"
-	column.add_child(_body)
+	# The slip's own ink, so the edge with more lines past it darkens as paper does in shadow.
+	_body.fade = Color(HouseTheme.INK, 0.3)
+	column.add_child(_body.shaded())
 	column.add_child(MenuTheme.perforation())
 	column.add_child(_build_the_foot())
 

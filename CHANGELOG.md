@@ -16,15 +16,15 @@ below, and hands the notes to the release workflow.
 - **A look of its own.** Menus, buttons, boxes, lists, tabs, switches and sliders are cut like
   tickets from dark card with gold foil and fine engraved lines, the way the driver license is,
   and everything is set in Barlow, a face drawn after road signs and license plates.
-- **A surface to everything.** Panes are laminated card with fine scratches under a soft light, the
-  payout slip is paper, joker cards have a linen finish and chips show their clay; Settings, Video
-  lets you try two looks each for the gold foil, the HUD and the menu backdrop.
+- **A surface to everything.** Panes, buttons and the HUD are laminated card with fine scratches
+  under a soft light, gold is brushed foil, the menus sit on felt, the payout slip is paper, joker
+  cards have a linen finish and chips show their clay.
 - **Panes torn like tickets.** The pause menu, questions, dialogs and the joker pane have a header
   torn off by a perforation, and the button that moves on is gold. A question that loses you
   something carries a yellow warning sign.
 - **A payout slip.** The podium is a cream slip torn off the house's printer, with the podium as a
   photo finish, a receipt line per player, a red WINNER stamp and buttons printed in ink on a
-  tear-off stub; on a phone its lines scroll.
+  tear-off stub; on a phone its lines scroll, shaded at an edge with more past it.
 - **Calls on plates.** The announcer's calls stand on a plate in the player's color, each kind
   dressed in its own way, a hand of cards, flames, chevrons, a checkered flag or hazard tape; Last
   Call lights up in neon, and the joker cards are engraved in their kind's color.
@@ -32,8 +32,10 @@ below, and hands the notes to the release workflow.
   heavier cut over a line of fine print, and the touch controls are chips in your own color.
 - **Menus that move.** Panes slide up as they open and drop away as they close, and a gold frame
   follows the cursor from one button to the next; Accessibility can switch the frame's glide off.
-- **Hints over your kart.** The hints and the item beside your kart stand on small tickets, and
-  the words that float up off a kart are set in the HUD's own type.
+- **Hints over your kart.** The hints and the item beside your kart stand on small tickets, the
+  words that float up off a kart are set in the HUD's own type, and emotes are chips in your color.
+- **Printed plates.** License plates are printed on cream with an ink frame, bolts and the
+  department's name over the letters.
 - **Key bindings in sockets.** The Controls page shows each binding's keys and buttons at their own
   size in a sunken socket, and asks for a new one in gold.
 - **A dashboard in your corner.** Your corner of the HUD runs off the edge of the screen with a

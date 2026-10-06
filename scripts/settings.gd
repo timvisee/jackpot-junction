@@ -126,9 +126,6 @@ var flash_reduction := false
 ## The gold frame gliding from one button to the next as the cursor moves, GAME.md 8.1a. On by
 ## default; off for anybody the motion bothers, and the focused button still wears its frame.
 var cursor_glide := true
-## Which look each finish still being tried out wears, by part, see [constant Surface.TRIALS]:
-## the first of them for a part not chosen yet. Kept until the choice is made, GAME.md 8.1a.
-var look_trials: Dictionary = {}
 ## 0 to 1 of the default aim assist, never more.
 var aim_assist := 1.0
 var rumble := true
@@ -329,10 +326,6 @@ func _load_machine(file: ConfigFile) -> void:
 	screen_shake = file.get_value("accessibility", "screen_shake", screen_shake)
 	flash_reduction = file.get_value("accessibility", "flash_reduction", flash_reduction)
 	cursor_glide = file.get_value("accessibility", "cursor_glide", cursor_glide)
-	look_trials = {}
-	if file.has_section("trial"):
-		for part: String in file.get_section_keys("trial"):
-			look_trials[part] = int(file.get_value("trial", part, 0))
 	aim_assist = clampf(
 		file.get_value("accessibility", "aim_assist", aim_assist), 0.0, AIM_ASSIST_MAX
 	)
@@ -406,8 +399,6 @@ func save_to_disk() -> Error:
 	file.set_value("accessibility", "screen_shake", screen_shake)
 	file.set_value("accessibility", "flash_reduction", flash_reduction)
 	file.set_value("accessibility", "cursor_glide", cursor_glide)
-	for part: String in look_trials:
-		file.set_value("trial", part, look_trials[part])
 	file.set_value("accessibility", "aim_assist", aim_assist)
 	file.set_value("accessibility", "rumble", rumble)
 	file.set_value("accessibility", "aim_guide", aim_guide)

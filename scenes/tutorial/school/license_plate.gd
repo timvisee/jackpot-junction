@@ -1,9 +1,12 @@
 class_name LicensePlate
 extends Control
 ## The license plate on the back of a kart, GAME.md 4.4: up to eight characters of the holder's
-## own choosing, in black on a pale plate with a dark rim and a bolt in each top corner, chosen
-## once the license is earned and changed in the settings. Drawn, so the same plate serves the
-## box it is typed into and the back of the kart in a match, see [method KartVisuals.license_plate].
+## own choosing, chosen once the license is earned and changed in the settings. Printed as the
+## house's documents are, GAME.md 8.1a: the school's cream paper with rounded corners, a hairline of
+## ink inside its edge, a bolt either side at the top with DEPT. OF KARTS in microprint between,
+## and the plate's letters in the condensed capitals, spaced a little as a stamped plate's are.
+## Drawn, so the same plate serves the box it is typed into and the back of the kart in a match,
+## see [method KartVisuals.license_plate].
 
 ## How long a plate may be, and what it may hold: letters, digits, a space and a dash, upper
 ## case, since a plate is stamped and not written.
@@ -12,10 +15,14 @@ const ALLOWED := "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -"
 ## What an empty plate reads.
 const BLANK := "JJ"
 const SIZE := Vector2(224.0, 64.0)
-const PLATE := Color(0.96, 0.95, 0.9)
-const RIM := Color(0.1, 0.1, 0.12)
-const INK := Color(0.08, 0.08, 0.1)
-const BOLT := Color(0.55, 0.56, 0.6)
+const PLATE := HouseTheme.PAPER
+const RIM := HouseTheme.INK
+const INK := HouseTheme.INK
+const BOLT := Color("#a59b80")
+## What is printed over the letters, and how far apart the letters stand, against the plate's
+## height.
+const ISSUER := "DEPT. OF KARTS"
+const SPACING := 0.045
 
 var text := ""
 
@@ -113,23 +120,60 @@ func set_text(words: String) -> void:
 func _draw() -> void:
 	var plate := StyleBoxFlat.new()
 	plate.bg_color = PLATE
-	plate.set_corner_radius_all(roundi(size.y * 0.12))
-	plate.set_border_width_all(maxi(roundi(size.y * 0.05), 1))
-	plate.border_color = RIM
+	plate.set_corner_radius_all(roundi(size.y * 0.15))
+	plate.anti_aliasing = true
 	draw_style_box(plate, Rect2(Vector2.ZERO, size))
-	var inset := size.y * 0.16
-	for x: float in [inset, size.x - inset]:
-		draw_circle(Vector2(x, inset), size.y * 0.05, BOLT)
+	dress(self, size)
 	var shown := text if not text.is_empty() else BLANK
-	var font := Type.display_font()
-	var font_size := roundi(size.y * 0.56)
-	var room := size.x - inset * 3.0
+	var font := lettering(size.y)
+	var font_size := roundi(size.y * 0.5)
+	var room := size.x - size.y * 0.5
 	while (
 		font_size > 8
 		and font.get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > room
 	):
 		font_size -= 1
-	var baseline := (size.y + font.get_ascent(font_size) - font.get_descent(font_size)) * 0.5
+	# In the middle of the plate under the microprint, by the height of its capitals.
+	var baseline := size.y * 0.6 + float(font_size) * Type.CAP_HEIGHT * 0.5
 	draw_string(
 		font, Vector2(0.0, baseline), shown, HORIZONTAL_ALIGNMENT_CENTER, size.x, font_size, INK
 	)
+
+
+## What a plate wears over its paper, onto [param canvas] [param plate] big: the hairline of ink
+## inside its edge, a bolt either side at its top, and the issuer in microprint between them. Shared
+## with the plate that is a text box, see [PlateField].
+static func dress(canvas: CanvasItem, plate: Vector2) -> void:
+	var h := plate.y
+	var frame := StyleBoxFlat.new()
+	frame.draw_center = false
+	frame.set_border_width_all(maxi(roundi(h * 0.03), 1))
+	frame.border_color = Color(RIM, 0.7)
+	frame.set_corner_radius_all(roundi(h * 0.1))
+	frame.anti_aliasing = true
+	var inset := h * 0.075
+	canvas.draw_style_box(frame, Rect2(Vector2.ONE * inset, plate - Vector2.ONE * inset * 2.0))
+	for x: float in [plate.x * 0.2, plate.x * 0.8]:
+		canvas.draw_circle(Vector2(x, h * 0.21), h * 0.046, BOLT, true, -1.0, true)
+	var micro := Type.micro_font()
+	var micro_size := maxi(roundi(h * 0.13), 6)
+	var wide := micro.get_string_size(ISSUER, HORIZONTAL_ALIGNMENT_LEFT, -1, micro_size).x
+	var room := plate.x * 0.6 - h * 0.15
+	if wide <= room:
+		canvas.draw_string(
+			micro,
+			Vector2((plate.x - wide) * 0.5, h * 0.25),
+			ISSUER,
+			HORIZONTAL_ALIGNMENT_LEFT,
+			-1,
+			micro_size,
+			Color(INK, 0.6)
+		)
+
+
+## The plate's lettering at a plate [param tall] high: the display cut, spaced.
+static func lettering(tall: float) -> Font:
+	var spaced := FontVariation.new()
+	spaced.base_font = Type.display_font()
+	spaced.spacing_glyph = roundi(tall * SPACING)
+	return spaced
