@@ -725,8 +725,14 @@ over and how fast it arrives, never how the kart answers the wheel.
 Some kills are worth more than a line in the feed. The room calls those out in big
 letters under the middle of the screen for a couple of seconds, on a plate of the
 house's stock framed in the player's color, 8.1a: their name in that color and the
-call in foil capitals. Match point, 3.4, the call that matters most, is run out on
-hazard tape behind its plate, a little askew.
+call in foil capitals. Each kind of call is dressed in something of its own behind
+the plate, so it is known before it is read (`CallBanner.Dress`): a run of kills
+fans out a hand of cards over the plate, a pair for a double up to five for a
+spree; a streak burns off the plate's top edge in the player's color, higher the
+hotter it is; an overtake has chevrons pointing on either side; taking the lead
+runs out a checkered flag; a trade wears the two-way traffic sign. Match point,
+3.4, the call that matters most, is run out on hazard tape behind its plate, a
+little askew.
 
 | Call         | When                                                              |
 |--------------|-------------------------------------------------------------------|
@@ -2815,9 +2821,11 @@ lane beside it is as wide as it was.
   from the top edge, the same digits as the clock on the hoarding of 8.1, every
   unlit segment still faintly there; red during Last Call and overtime, and the
   word OVERTIME set on the same board in the display cut. Last Call is said in the
-  middle of the screen as it starts, on a bigger board of the same kind in red, for
-  its first three seconds, flashing unless flashes are turned down in 8.5, and GO
-  in the gantry's green as the flag drops.
+  middle of the screen as it starts, for its first three seconds, on a bar's neon
+  sign (`NeonSign`): the words bent in red tube inside a tube frame on a dark board,
+  glowing into the room, flickering on as a tube does and then humming, steady
+  from the start for anybody who turned flashes down in 8.5; and GO in the
+  gantry's green as the flag drops.
 - **Item beside the kart**: a player on this screen who picks an item up sees it
   beside their kart as well as in their corner, small, on the house's tag, a small
   ticket of its stock with a foil edge, 8.1a, off the

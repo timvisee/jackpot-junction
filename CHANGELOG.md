@@ -25,8 +25,9 @@ below, and hands the notes to the release workflow.
 - **A payout slip.** The podium is a cream slip torn off the house's printer, with the podium as a
   photo finish, a receipt line per player, a red WINNER stamp and buttons printed in ink on a
   tear-off stub; on a phone its lines scroll.
-- **Calls on plates.** The announcer's calls stand on a plate in the player's color, match point
-  on hazard tape, Last Call on a red board, and the joker cards are engraved in their kind's color.
+- **Calls on plates.** The announcer's calls stand on a plate in the player's color, each kind
+  dressed in its own way, a hand of cards, flames, chevrons, a checkered flag or hazard tape; Last
+  Call lights up in neon, and the joker cards are engraved in their kind's color.
 - **A title with a seal.** Rings turn slowly round the mark on the title, the name is set in a
   heavier cut over a line of fine print, and the touch controls are chips in your own color.
 - **Menus that move.** Panes slide up as they open and drop away as they close, and a gold frame

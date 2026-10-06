@@ -31,10 +31,8 @@ const CALL_DROP := 120.0
 ## What is called out when a player's next cash-out would win, after their name the way every call
 ## is, see [MatchPoint].
 const WIN_CALL := "MATCH POINT"
-## The flag drops in the gantry's own green, and Last Call is put up on a board of the clock's,
-## GAME.md 8.1a, the bigger for being the one thing on the screen saying it.
+## The flag drops in the gantry's own green; Last Call is a bar's neon sign, see [NeonSign].
 const GO_INK := Color("#5fe08a")
-const LAST_CALL_SCALE := 1.6
 ## The line under each player's block that says what is worth pressing right now, GAME.md 8.3:
 ## how big the buttons in it are drawn, what color it is, and the word that goes with each one.
 ## A life, under the name: how big one heart is drawn and the gray a spent one goes.
@@ -96,7 +94,7 @@ var feed_drop := 0.0
 var _timer: ClockBoard
 var _scoreboard: Scoreboard
 var _banner: Label
-var _last_call: ClockBoard
+var _last_call: NeonSign
 var _light: StartLight
 var _call: CallBanner
 ## Who has just reached match point, to be called out: see [method _update_winning].
@@ -146,15 +144,12 @@ func _ready() -> void:
 	_banner = _label(96, Control.PRESET_CENTER)
 	_banner.visible = false
 	Type.ink(_banner, GO_INK)
-	_last_call = ClockBoard.new()
+	_last_call = NeonSign.new()
 	_last_call.name = "LastCall"
 	_last_call.text = "LAST CALL"
-	_last_call.hot = true
 	_last_call.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	_last_call.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_last_call.grow_vertical = Control.GROW_DIRECTION_BOTH
-	_last_call.pivot_offset = _last_call.custom_minimum_size * 0.5
-	_last_call.scale = Vector2.ONE * LAST_CALL_SCALE
 	_last_call.visible = false
 	add_child(_last_call)
 	_light = StartLight.new()
@@ -637,13 +632,9 @@ func _update_banner(delta: float) -> void:
 			_banner.text = "GO"
 			_last_call.visible = false
 		Match.State.LAST_CALL:
-			var pulse := (
-				Game.settings.flash_reduction or fmod(Time.get_ticks_msec() * 0.001, 1.0) < 0.5
-			)
+			# The sign flickers on by itself, and steady for anybody who asked for fewer flashes.
 			_banner.visible = false
-			_last_call.visible = (
-				match_node.time_left > match_node.rules.last_call_duration - 3.0 and pulse
-			)
+			_last_call.visible = match_node.time_left > match_node.rules.last_call_duration - 3.0
 		_:
 			_banner.visible = false
 			_last_call.visible = false

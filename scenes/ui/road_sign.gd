@@ -2,10 +2,11 @@ class_name RoadSign
 extends Control
 ## A road sign, GAME.md 8.1a, for what the game warns about: a yellow warning diamond in the
 ## header of a question that loses something, a round blue sign in one that is only a question,
-## and an amber diamond beside a player whose line to the host is slow. Drawn, like every picture
+## an amber diamond beside a player whose line to the host is slow, and the two-way traffic sign
+## behind a trade kill's call, GAME.md 3.12. Drawn, like every picture
 ## in the game, so it is sharp at any size.
 
-enum Kind { WARNING, QUESTION, SLOW }
+enum Kind { WARNING, QUESTION, SLOW, TWO_WAY }
 
 ## The sign's own colors: road yellow, road blue, the board's amber, and the ink on all of them.
 const YELLOW := Color("#f6c42e")
@@ -57,7 +58,32 @@ func _draw() -> void:
 	for point: Vector2 in diamond:
 		inner.append(middle + (point - middle) * 0.8)
 	draw_polyline(inner, INK, side * 0.045, true)
+	if kind == Kind.TWO_WAY:
+		_two_way(middle, side)
+		return
 	_mark("!", INK, side)
+
+
+## Two arrows side by side, one up and one down: traffic both ways, what a trade is.
+func _two_way(middle: Vector2, side: float) -> void:
+	var tall := side * 0.42
+	var head := side * 0.1
+	var width := side * 0.06
+	for way: float in [-1.0, 1.0]:
+		var x := middle.x + way * side * 0.09
+		var tip := Vector2(x, middle.y + tall * 0.5 * way)
+		var tail := Vector2(x, middle.y - tall * 0.5 * way)
+		draw_line(tail, tip - Vector2(0.0, head * 0.6 * way), INK, width, true)
+		draw_colored_polygon(
+			PackedVector2Array(
+				[
+					tip,
+					tip + Vector2(-head * 0.8, -head * way),
+					tip + Vector2(head * 0.8, -head * way),
+				]
+			),
+			INK
+		)
 
 
 ## The mark on the sign, set in the display cut and centered on it.
