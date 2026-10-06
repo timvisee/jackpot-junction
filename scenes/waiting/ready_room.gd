@@ -67,8 +67,10 @@ const READY_INK := Color(0.26, 0.86, 0.42)
 const WAITING_INK := Color(0.16, 0.17, 0.2)
 ## The ink the joining lines under the count are written in.
 const HINT_INK := Color(0.82, 0.83, 0.88)
-## How far over the foot of the screen the ways in stand.
+## How far over the foot of the screen the ways in stand, and the room round the words of the
+## ticket at the top, the same on every side.
 const WAY_IN_ABOVE := 18.0
+const TICKET_ROOM := 13.0
 
 var match_node: Match
 var pad: JunctionPad
@@ -496,54 +498,48 @@ func _build_counter() -> void:
 	ticket.name = "Ticket"
 	ticket.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ticket.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	# One short line hung from the top edge, square where it meets it and notched at its foot, so it
-	# stays over the count's sign on the back wall rather than in front of it.
-	var look := TicketStyle.cut(Color(HouseTheme.STOCK, 0.9), 9.0, 24.0, 7.0)
+	# Hung from the top edge, square where it meets it and notched at its foot, and short, so it
+	# stays over the count's sign on the back wall rather than in front of it: the same small room
+	# on every side, which is what keeps the perforation's gap even, see [Perforation].
+	var look := TicketStyle.cut(Color(HouseTheme.STOCK, 0.9), 9.0, TICKET_ROOM, TICKET_ROOM)
 	look.notch_top = false
+	look.bite = 6.0
 	look.frame = Color(HouseTheme.FOIL, 0.32)
-	look.frame_inset = 4.0
+	look.frame_body = Color(HouseTheme.FOIL, 0.14)
+	look.frame_inset = 5.0
 	look.shadow = 8.0
 	Surface.wear(look, "pane")
 	ticket.add_theme_stylebox_override("panel", look)
 	_hints.add_child(ticket)
-	var inside := HBoxContainer.new()
+	var inside := VBoxContainer.new()
 	inside.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	inside.alignment = BoxContainer.ALIGNMENT_CENTER
-	inside.add_theme_constant_override("separation", 12)
+	inside.add_theme_constant_override("separation", 2)
 	ticket.add_child(inside)
+	var count := HBoxContainer.new()
+	count.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	count.alignment = BoxContainer.ALIGNMENT_CENTER
+	count.add_theme_constant_override("separation", 12)
+	inside.add_child(count)
 	_count_numbers = Label.new()
 	_count_numbers.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Type.set_font(_count_numbers, Type.numbers_font(), Type.HEADING)
+	Type.set_font(_count_numbers, Type.numbers_font(), Type.LARGE)
 	_count_numbers.add_theme_color_override("font_color", HouseTheme.FOIL)
 	_count_numbers.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	inside.add_child(_count_numbers)
+	count.add_child(_count_numbers)
 	_count_words = Label.new()
 	_count_words.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.strong(_count_words, Type.LABEL, HouseTheme.WORDS)
 	_count_words.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	inside.add_child(_count_words)
+	count.add_child(_count_words)
 	# The whole line as one, still kept for what reads it, put away: the ticket says it in two.
 	_counter = Label.new()
 	_counter.visible = false
 	inside.add_child(_counter)
-	# A row of perforation holes standing up between the count and the next match.
-	_plan_tear = Control.new()
-	_plan_tear.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_plan_tear.custom_minimum_size = Vector2(4.0, 26.0)
-	_plan_tear.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_plan_tear = MenuTheme.perforation()
 	_plan_tear.visible = false
-	_plan_tear.draw.connect(
-		func() -> void:
-			var y := 2.0
-			while y < _plan_tear.size.y:
-				_plan_tear.draw_circle(
-					Vector2(2.0, y), 1.3, Color(HouseTheme.FOIL, 0.45), true, -1.0, true
-				)
-				y += 6.0
-	)
 	inside.add_child(_plan_tear)
 	_plan = Label.new()
-	_plan.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_plan.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_plan.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_plan.visible = false
 	Type.text(_plan, Type.LABEL, HouseTheme.QUIET)

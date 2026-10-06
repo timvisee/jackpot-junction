@@ -4905,11 +4905,11 @@ many as the host asked for that the arena has seats left for, and nothing when t
 host says the number it asked for with the plan, and each machine takes off the seats its room
 has filled.
 
-At the top of the screen the lines are printed as the house's, 8.1a: on one short line of a
-ticket hung from the top edge as the clock board is in a match, square where it meets the edge
-and notched at its foot, so it stays over the count's sign on the back wall rather than in front
-of it: the count in foil figures with what it counts in capitals beside it, a row of perforation
-holes, and the next match, "Next: Lucky Crossing · 3 min · first to 2000" or that the host is
+At the top of the screen the lines are printed as the house's, 8.1a: on a short ticket hung from
+the top edge as the clock board is in a match, square where it meets the edge and notched at its
+foot, little room round its words, so it stays over the count's sign on the back wall rather than
+in front of it: the count in foil figures with what it counts in capitals beside it, and under a
+perforation the next match, "Next: Lucky Crossing · 3 min · first to 2000" or that the host is
 still choosing. How to take a seat, or that the room is full, and how to join from another
 machine go on a small tag of their own at the foot of the screen, gone while it has nothing on
 it.
