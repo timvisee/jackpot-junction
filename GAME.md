@@ -2167,8 +2167,8 @@ says what, which is the half of the question a bench cannot answer.
   on cream is gold nobody can read.
 - **The title screen** wears the mark of 8.1 over the name, the name set in the
   condensed capitals of 8.1a in foil, and has a carnival
-  sunburst turning slowly behind it, its wedges a faint light over the engraved
-  stock so the lines show through, with poker chips drifting up past it. Drawn rather than modeled: the menu is a
+  sunburst turning slowly behind it, narrow beams of faint foil light over the
+  engraved stock so the lines show through, with poker chips drifting up past it. Drawn rather than modeled: the menu is a
   flat screen with no match running behind it, so a scene would be a scene loaded
   to be looked at once. Dark on purpose; the point of the screen is the words on
   it.
@@ -2443,9 +2443,11 @@ Amber and red belong to the boards and the warnings.
   color and the leader's edged in foil; the kill feed's lines are short strips with
   slanted ends, and a line about a player on this screen, killer or killed, is
   striped in their color at its slanted end, as their row in the standings is. Key caps, pad buttons and the item tag are stock with a foil rim.
-- **The title**: the sunburst stays, its wedges light laid over the engraved
-  backdrop rather than two tones of their own, so the lines show through the whole
-  of it, and it turns about the mark now rather than a point under it, with three
+- **The title**: the sunburst stays as 48 narrow beams of foil light, a third of
+  their share of the turn each, laid over the engraved backdrop rather than two
+  tones of their own so the lines show through the whole of it, with 192 fine rays
+  engraved between them from just past the seal outward and a glow round the mark
+  under it all; it turns about the mark now rather than a point under it, with three
   bands of guilloché rings round the mark, drawn once and turned whole, once every
   four minutes; the name is set in the condensed Black in foil over a line of
   microprint between two rules; the buttons are tickets.

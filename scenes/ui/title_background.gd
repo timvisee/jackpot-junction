@@ -1,7 +1,8 @@
 class_name TitleBackground
 extends Control
 ## What is behind the title screen, GAME.md 8.1: a slow carnival sunburst turning behind the
-## name, and poker chips drifting up past it.
+## name, narrow beams of foil light with fine rays engraved between them over a glow round the
+## mark, and poker chips drifting up past it.
 ##
 ## Drawn rather than modeled. The menu is a flat screen and the game behind it is not running,
 ## so a scene would be a scene loaded to be looked at once; this is a few polygons a frame and
@@ -9,11 +10,21 @@ extends Control
 ## light laid over the backdrop rather than two tones of their own, so the engraving of the
 ## house's stock, GAME.md 8.1a, shows through the whole of the burst rather than being painted out.
 
-## Wedges in the sunburst, and how long one full turn takes.
-const WEDGES := 18
+## The sunburst, GAME.md 8.1a: beams of foil light, narrow, with the backdrop between them, how
+## much of each beam's share of the turn is lit, and how long one full turn takes.
+const BEAMS := 48
+const BEAM_WIDTH := 0.3
 const TURN_SECONDS := 90.0
-## The light of a lit wedge; the wedges between are the backdrop itself.
-const LIGHT := Color(0.85, 0.82, 1.0, 0.045)
+const LIGHT := Color(Palette.CHIP_GOLD, 0.03)
+## The rays engraved between the beams and turning with them: how many, how strong, and how far
+## out from the mark they start, in the mark's radii, clear of the seal.
+const RAYS := 192
+const RAY_INK := Color(Palette.CHIP_GOLD, 0.045)
+const RAY_FROM := 5.3
+## The glow behind the mark: the stock lit a step round it, falling off to the backdrop's own
+## dark well before the edges, as far out as this share of the screen's diagonal.
+const GLOW := Color(0.16, 0.14, 0.19, 0.85)
+const GLOW_REACH := 0.62
 ## Where the burst is centered, as a share of the screen: behind the title rather than the middle.
 const CENTER := Vector2(0.5, 0.34)
 ## The seal behind the mark, GAME.md 8.1a: three bands of guilloché rings round it, each as
@@ -34,6 +45,7 @@ const CHIP_ALPHA := 0.13
 var anchor: Control
 
 var _spin := 0.0
+var _glow: GradientTexture2D
 var _chips: Array[Dictionary] = []
 var _seal: Seal
 var _sealed_for := 0.0
@@ -94,6 +106,17 @@ func _ready() -> void:
 	_seal.name = "Seal"
 	_seal.visible = false
 	add_child(_seal)
+	var light := Gradient.new()
+	light.set_color(0, GLOW)
+	light.set_color(1, Color(GLOW, 0.0))
+	light.add_point(0.45, Color(GLOW, GLOW.a * 0.35))
+	_glow = GradientTexture2D.new()
+	_glow.gradient = light
+	_glow.fill = GradientTexture2D.FILL_RADIAL
+	_glow.fill_from = Vector2(0.5, 0.5)
+	_glow.fill_to = Vector2(1.0, 0.5)
+	_glow.width = 256
+	_glow.height = 256
 	_rng.seed = 20260919
 	for i: int in CHIPS:
 		(
@@ -145,9 +168,11 @@ func _place_seal(delta: float) -> void:
 func _draw() -> void:
 	var center := focus()
 	var reach := size.length()
-	for i: int in range(0, WEDGES, 2):
-		var from := _spin + TAU * i / WEDGES
-		var to := from + TAU / WEDGES * 0.5
+	var glow := reach * GLOW_REACH
+	draw_texture_rect(_glow, Rect2(center - Vector2.ONE * glow, Vector2.ONE * glow * 2.0), false)
+	for i: int in BEAMS:
+		var from := _spin + TAU * i / BEAMS
+		var to := from + TAU / BEAMS * BEAM_WIDTH
 		draw_colored_polygon(
 			PackedVector2Array(
 				[
@@ -158,6 +183,15 @@ func _draw() -> void:
 			),
 			LIGHT
 		)
+	# The rays start clear of the seal, where the mark's rings end, and run off the screen.
+	var mark := anchor.size.x * 0.5 if anchor != null and is_instance_valid(anchor) else 66.0
+	var start := mark * RAY_FROM
+	var rays := PackedVector2Array()
+	for i: int in RAYS:
+		var way := Vector2.from_angle(_spin + TAU * i / RAYS)
+		rays.append(center + way * start)
+		rays.append(center + way * reach)
+	draw_multiline(rays, RAY_INK, 0.6, true)
 	for chip: Dictionary in _chips:
 		_draw_chip(chip)
 
