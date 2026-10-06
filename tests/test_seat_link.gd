@@ -131,7 +131,7 @@ func test_linking_from_the_pause_menu_puts_the_profile_on_the_kart() -> void:
 	assert_str((linked.get_child(1) as Label).text).is_equal("Bob's profile")
 	assert_object(linked.find_child("Plate", true, false)).is_not_null()
 	assert_str((_switch_of(switches, 1)["link"] as Button).text).is_equal(DriveSwitches.CHANGE)
-	# And so does the Players page of the settings.
+	# And so does the Seats page of the settings.
 	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
 	add_child(screen)
 	await await_idle_frame()

@@ -349,7 +349,7 @@ func test_the_settings_pick_the_touch_controls_by_their_pictures() -> void:
 	TouchInput.enabled = was_touch
 
 
-## Each seat's name on the Players tab has a small switch after it for how that seat drives, and
+## Each seat's name on the Seats tab has a small switch after it for how that seat drives, and
 ## the first seat's is the same setting as the Driving row of the Controls tab.
 func test_each_seat_on_the_players_tab_has_a_driving_switch() -> void:
 	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())

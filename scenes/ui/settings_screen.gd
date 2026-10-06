@@ -50,7 +50,8 @@ const TAB_BACK := JOY_BUTTON_LEFT_SHOULDER
 const TAB_ON := JOY_BUTTON_RIGHT_SHOULDER
 const TAB_HINT_INK := Color(0.60, 0.60, 0.63)
 const TAB_HINT_SIZE := 18
-## What the Players page is for, said at its top.
+## The page of the seats at this screen, GAME.md 8.5, and what it is for, said at its top.
+const SEATS := "Seats"
 const PLAYERS_LINE := "What each seat at this screen is called, and how it drives."
 ## What a seat's row says beside it while another profile sits in it, GAME.md 3.8.
 const LINKED_TO := "Linked to %s"
@@ -71,10 +72,10 @@ var _listening_action := &""
 var _listening_keyboard := true
 var _binding_labels: Dictionary[StringName, Array] = {}
 ## How the first seat drives, on the Controls tab, and the small switch after each seat's name on
-## the Players tab: the first seat's is on both, so each says so when the other changes it.
+## the Seats tab: the first seat's is on both, so each says so when the other changes it.
 var _first_driving: DrivePicker
 var _seat_driving: Array[Callable] = []
-## Each seat's row of colors on the Players tab, drawn again in the palette the Accessibility tab
+## Each seat's row of colors on the Seats tab, drawn again in the palette the Accessibility tab
 ## has just chosen, see [method _color_choice].
 var _seat_colors: Array[Callable] = []
 
@@ -391,7 +392,7 @@ static func _clear(button: Button) -> void:
 ## switch for how that seat drives, GAME.md 4.2.
 func _players_tab() -> Control:
 	var column := VBoxContainer.new()
-	column.name = "Players"
+	column.name = SEATS
 	column.add_theme_constant_override("separation", 8)
 	column.add_child(page_line(PLAYERS_LINE))
 	for seat: int in _settings.player_names.size():

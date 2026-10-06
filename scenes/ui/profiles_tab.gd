@@ -5,10 +5,11 @@ extends ScrollContainer
 ## [NameDialog], and its plate. One can be switched to, a new one made, up to
 ## [constant Profile.MOST], named as it is made and gone to, and any but the one playing thrown
 ## away, which asks first in a question over the screen. Edit and Delete are the pencil and the
-## trash can the kept servers of Play Online wear, see [IconButton]. All of that is done from the
-## title's settings: inside a room the names at the table are already the ones playing, so there
-## the tab only lists them and says where to go. Making one in a room once froze the game, the
-## settings going to a page of their own under a room that was stopped.
+## trash can the kept servers of Play Online wear, see [IconButton], and Switch two arrows trading
+## places, first of the three, since it is what a row is most often pressed for. All of that is
+## done from the title's settings: inside a room the names at the table are already the ones
+## playing, so there the tab only lists them and says where to go. Making one in a room once froze
+## the game, the settings going to a page of their own under a room that was stopped.
 
 const TITLE := "Profiles"
 ## What the page is for, said at its top.
@@ -29,8 +30,7 @@ const ONLY_FROM_TITLE := "Manage profiles from the title screen."
 const FULL := "That is as many profiles as a machine keeps."
 const MAPS := "%d maps"
 const PLAYING_NOW := "Playing now  ·  %s"
-## How wide a row's buttons are: Switch, and the pencil and the trash can.
-const BUTTON := Vector2(140.0, 44.0)
+## How big a row's icon buttons are.
 const ICON := Vector2(56.0, 44.0)
 
 ## Whether profiles can be made, changed, switched to and thrown away here: off inside a room, see
@@ -61,7 +61,7 @@ static func make(settings: Settings, switching: bool, switched: Callable) -> Pro
 func _ready() -> void:
 	horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	follow_focus = true
-	# Down the left, the way the Players page is.
+	# Down the left, the way the Seats page is.
 	var column := VBoxContainer.new()
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_theme_constant_override("separation", 12)
@@ -99,17 +99,18 @@ func _row(profile: Profile) -> SeatCard:
 	card.custom_minimum_size.x = SeatCard.WIDE
 	card.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	card.show_plate(_worn_by(profile))
+	var switch := IconButton.of(IconButton.Kind.SWAP, PLAYING if playing else SWITCH)
+	switch.name = "Switch"
+	switch.custom_minimum_size = ICON
+	switch.disabled = playing or not can_switch
+	switch.pressed.connect(_switch.bind(profile.id))
+	card.actions.add_child(switch)
 	var edit := IconButton.of(IconButton.Kind.PENCIL, EDIT)
 	edit.name = "Edit"
 	edit.custom_minimum_size = ICON
 	edit.disabled = not can_switch
 	edit.pressed.connect(_edit.bind(profile))
 	card.actions.add_child(edit)
-	var switch := MenuTheme.button(PLAYING if playing else SWITCH, Type.BODY)
-	switch.custom_minimum_size = BUTTON
-	switch.disabled = playing or not can_switch
-	switch.pressed.connect(_switch.bind(profile.id))
-	card.actions.add_child(switch)
 	var delete := IconButton.of(IconButton.Kind.TRASH, DELETE)
 	delete.name = "Delete"
 	delete.custom_minimum_size = ICON

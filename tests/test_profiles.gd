@@ -172,7 +172,7 @@ func test_the_pages_are_in_order_and_a_switch_comes_back_to_profiles() -> void:
 		(
 			[
 				"License",
-				"Players",
+				"Seats",
 				"Controls",
 				"Audio",
 				"Video",

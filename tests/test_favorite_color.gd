@@ -1,6 +1,6 @@
 extends GdUnitTestSuite
 ## A player's favorite color, GAME.md 3.8: kept in their profile, a seat each, chosen from their
-## switch in the pause menu or on the Players page, given wherever it is free, and the color of the
+## switch in the pause menu or on the Seats page, given wherever it is free, and the color of the
 ## kart on their license.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
@@ -84,7 +84,7 @@ func test_joining_and_recoloring_use_and_keep_the_favorite() -> void:
 	assert_int(Game.settings.seat_color(0)).is_equal(first.color_index)
 
 
-## The kart on the license is in the holder's favorite, and the Players page chooses a seat's
+## The kart on the license is in the holder's favorite, and the Seats page chooses a seat's
 ## favorite from all of them in a row.
 func test_the_license_and_the_players_page_show_the_favorite() -> void:
 	Game.settings.set_seat_color(0, 3)
@@ -107,7 +107,7 @@ func test_the_license_and_the_players_page_show_the_favorite() -> void:
 	assert_bool((first.get_child(3) as Button).get_meta(&"chosen")).is_true()
 
 
-## A palette chosen for color blindness on the Accessibility page draws the Players page's colors
+## A palette chosen for color blindness on the Accessibility page draws the Seats page's colors
 ## in it at once.
 func test_the_colors_follow_the_palette_chosen() -> void:
 	var was := Palette.vision

@@ -1,12 +1,13 @@
 class_name IconButton
 extends RefCounted
 ## A menu button with a picture on it rather than a word, GAME.md 8.3, for what is pressed beside a
-## row of a list over and over: Remove as a trash can, Watch as an eye, Edit as a pencil, and the
-## grip a row is moved by as six dots, which turn into an arrow up and down while it is picked up.
+## row of a list over and over: Remove as a trash can, Watch as an eye, Edit as a pencil, Switch as
+## two arrows trading places, and the grip a row is moved by as six dots, which turn into an arrow
+## up and down while it is picked up.
 ## The word is its tooltip, for a mouse that hovers to ask. Drawn rather than loaded, like every
 ## other picture of the menus.
 
-enum Kind { TRASH, EYE, PENCIL, GRIP, MOVE }
+enum Kind { TRASH, EYE, PENCIL, GRIP, MOVE, SWAP }
 
 ## How big a button is, a grip's narrower, and how much of its height the picture takes.
 const SIZE := Vector2(64.0, 52.0)
@@ -46,6 +47,8 @@ class Picture:
 				IconButton.grip(self, box, ink)
 			Kind.MOVE:
 				IconButton.both_ways(self, box, ink)
+			Kind.SWAP:
+				IconButton.swap(self, box, ink)
 			_:
 				IconButton.trash(self, box, ink)
 
@@ -128,6 +131,30 @@ static func grip(on: CanvasItem, box: Rect2, ink: Color) -> void:
 	for x: float in [0.32, 0.68]:
 		for y: float in [0.16, 0.5, 0.84]:
 			IconShapes.disc(on, box, x, y, 0.1, ink)
+
+
+## Two arrows trading places in [param box], one over the other: the top one going right and the
+## bottom one going left, for taking somebody else's place.
+static func swap(on: CanvasItem, box: Rect2, ink: Color) -> void:
+	for top: bool in [true, false]:
+		var y := 0.3 if top else 0.7
+		var tip := 0.92 if top else 0.08
+		var root := 0.62 if top else 0.38
+		var tail := 0.1 if top else 0.9
+		IconShapes.bar(on, box, minf(tail, root), y - 0.065, absf(root - tail), 0.13, ink)
+		(
+			on
+			. draw_colored_polygon(
+				PackedVector2Array(
+					[
+						IconShapes.at(box, tip, y),
+						IconShapes.at(box, root, y - 0.2),
+						IconShapes.at(box, root, y + 0.2),
+					]
+				),
+				ink
+			)
+		)
 
 
 ## An arrow up and down in [param box]: a head at each end of one shaft, for a row picked up to be

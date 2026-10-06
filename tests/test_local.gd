@@ -198,7 +198,7 @@ func test_the_seats_are_named_in_the_settings() -> void:
 		load("res://scenes/ui/settings_screen.tscn").instantiate()
 	)
 	add_child(screen)
-	var players: Control = screen.tabs.get_node("Players")
+	var players: Control = screen.tabs.get_node(SettingsScreen.SEATS)
 	var boxes := players.find_children("*", "LineEdit", true, false)
 	assert_int(boxes.size()).is_equal(4)
 	(boxes[2] as LineEdit).text_changed.emit("  [b]Grace[/b]  ")

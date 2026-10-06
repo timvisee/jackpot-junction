@@ -6,7 +6,7 @@ extends RefCounted
 ## is the one [member NetSession.local_slot] names.
 
 ## Which of this machine's players it is: their number here, and their seat of the settings, the
-## Players tab's name and the stalls' dress among it.
+## Seats tab's name and the stalls' dress among it.
 var seat := 0
 var input: KartInput
 ## The slot the host gave it in the room it is in, -1 until it has.

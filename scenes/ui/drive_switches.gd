@@ -391,7 +391,7 @@ func _show_controls(each: Dictionary) -> void:
 
 
 ## The box a player types their name into: the one in their seat's settings, or empty with the
-## funny name they were handed showing faintly in it, the way the Players tab shows it. What is
+## funny name they were handed showing faintly in it, the way the Seats tab shows it. What is
 ## typed is kept once they are done with it: on Enter, on leaving the box, or on the menu going.
 ## While it has the cursor the keys are the box's, not the kart's.
 func _name_box(column: VBoxContainer, each: Dictionary) -> LineEdit:

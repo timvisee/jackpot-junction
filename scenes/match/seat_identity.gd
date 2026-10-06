@@ -3,7 +3,7 @@ extends RefCounted
 ## What a player at this machine is called and what color they are, changed from their switch in
 ## the pause menu in the lobby and the Garage, GAME.md 4.4. Here, and on the host, it happens at
 ## once; a client asks the host, which decides, and the snapshot brings the answer back to every
-## screen, its own included. A name is kept in the seat's settings, where the Players tab keeps it,
+## screen, its own included. A name is kept in the seat's settings, where the Seats tab keeps it,
 ## and so is a color, as the seat's favorite, GAME.md 3.8, which it is given from then on wherever
 ## it is free; and a color goes with the player from room to room the way it always has.
 

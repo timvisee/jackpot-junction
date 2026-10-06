@@ -37,7 +37,8 @@ below, and hands the notes to the release workflow.
 - **Printed plates.** License plates are printed on cream with an ink frame, bolts and the
   department's name over the letters.
 - **One list of people.** Profiles, the seats at your screen and everybody in a game you host are
-  the same row: a chip in their color, their name, their plate and what you can do with them.
+  the same row: a chip in their color, their name, their plate and what you can do with them. The
+  Players tab in Settings is called Seats, and deleting a profile asks first.
 - **Key bindings in sockets.** The Controls page shows each binding's keys and buttons at their own
   size in a sunken socket, and asks for a new one in gold.
 - **A dashboard in your corner.** Your corner of the HUD runs off the edge of the screen with a

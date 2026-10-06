@@ -472,7 +472,7 @@ match. A statistic that only adds up on the host is a wrong number on somebody
 else's results screen, see 10.3.
 
 - **Names.** Every seat at a machine may set one, 1 to 16 characters, in a box of
-  its own on the Players tab of the settings, 8.5, remembered between sessions,
+  its own on the Seats tab of the settings, 8.5, remembered between sessions,
   or in the lobby and the Garage from its switch in the pause menu, 4.2 and 4.4,
   which keeps it in the same place.
   A seat that never sets one is handed a name off a
@@ -509,7 +509,7 @@ else's results screen, see 10.3.
   the room is in it, and how it drives, and whatever the seat changes of them is
   that profile's. It says so plainly: under the name on its switch, the
   profile's plate, or its L, and "Bob's profile", the button then reading Change
-  profile; and on the Players page of the settings, "Linked to Bob" beside the
+  profile; and on the Seats page of the settings, "Linked to Bob" beside the
   seat's row. The maps it plays to the whistle go into that
   profile's statistics. A profile sits at one seat at a time, never the profile
   playing and never the first seat; the button is only there when the machine
@@ -1263,7 +1263,7 @@ short buzz the slider gives, so reading along the row is felt card by card.
   karts are ever the same color. The name is the color's own in the palette
   worn, 8.5, not the one it stands in for: a white is White. The kart is painted over at once, body, marker, hat, flag, trail
   and aim guide, and so are their corner of the HUD and the switch. A name is
-  kept once they are done typing, in their seat's settings, where the Players
+  kept once they are done typing, in their seat's settings, where the Seats
   tab of 8.5 keeps it; emptied, the seat is handed a funny name again from the
   next match. A color goes on with them from room to room the way the one they
   were given always has, and the one they move on to is their seat's favorite
@@ -1273,7 +1273,7 @@ short buzz the slider gives, so reading along the row is felt card by card.
   the host for it as it sits down, a bot's kart taken over and repainted in it,
   the Garage and the driving school, and the kart on their license, 9.4a. Without
   one a seat takes the color its place at the table gives it, as it always did.
-  The Players page of the settings chooses it too. While the box has the cursor the keys are the box's,
+  The Seats page of the settings chooses it too. While the box has the cursor the keys are the box's,
   so a player on the keyboard sits still rather than driving round the room
   with the letters of their name, online, where the room goes on under the
   menu. Online a client asks the host for both, which decides, as it owns every
@@ -3351,7 +3351,7 @@ like any other button.
   and Retake the driving test, which goes to the school; or, before one is
   earned, a word on where to get one, Earn it now, which goes to the school,
   and the learner's L the kart wears meanwhile.
-- **Players**: under a line saying what the page is for, a seat card of 8.1a each
+- **Seats**: under a line saying what the page is for, a seat card of 8.1a each
   for the four seats at this machine, its chip numbered 1 to 4 in the seat's color,
   with a box for what the seat is called, see 3.8, with the funny-name hint in an
   empty one, and after each the seat's favorite color, 4.4, chosen from all of them
@@ -3498,7 +3498,7 @@ like any other button.
   a moment after the whistle, when a client has the host's last numbers, or as the
   room is left.
 - **Profiles**, after Statistics: who is playing at this machine, down the left as the
-  Players page is, under a line saying so. A profile is a person's save, kept
+  Seats page is, under a line saying so. A profile is a person's save, kept
   apart from how the machine is set up: the names, karts and ways to drive of the four
   seats, the driver license and its plate, how far through the driving school they got,
   and the LAN game and server they last played on, each profile a file of its own in a
@@ -3509,8 +3509,9 @@ like any other button.
   initial on it, the one playing's rimmed in foil and saying Playing now, with the
   plate the profile's kart wears, or
   before a license the learner's L itself rather than a plate reading L, how many maps
-  it has played, and Edit, Switch and Delete, Edit and Delete the pencil and the trash can
-  the kept servers of Play Online wear, 9.3a, with their words as tooltips. Edit asks for the
+  it has played, and Switch, Edit and Delete as pictures, two arrows trading places, and
+  the pencil and the trash can the kept servers of Play Online wear, 9.3a, with their words
+  as tooltips, Switch dimmed on the one playing. Edit asks for the
   name in a dialog over the
   screen, a box with the name in it, Save and Cancel, and renames that player; a page of
   name boxes would have looked like something to fill in rather than a list to pick from.
