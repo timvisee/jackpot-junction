@@ -20,9 +20,11 @@ const DIAL := 88.0
 const CELLS := Vector2(118.0, 12.0)
 ## How much of the name's row the kills and deaths keep for themselves.
 const STATS_WIDTH := 92.0
-## How far the tag of control hints hangs off the strip: below a block hung from the top of the
-## screen, above one standing on the bottom.
-const HINT_GAP := 6.0
+## The tab the control hints are on, off the same edge as the strip and flush with it: how far its
+## end leans, how wide the stripe of the player's color on that end is, and the room round them.
+const TAB_SLANT := 16.0
+const TAB_STRIPE := 4.0
+const TAB_ROOM := Vector2(12.0, 6.0)
 ## The microprint along the foot of each strip, and the engraving's strength on it.
 const MICRO := "SEAT %d · JACKPOT JUNCTION · DEPT. OF KARTS · "
 const ENGRAVED := 0.07
@@ -138,13 +140,13 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	var pot := ScorePills.add_to(box, right)
 	# What is in hand and what is running, GAME.md 8.3: one thing in one place, see [ItemRow].
 	var item := ItemRow.add_to(box, right)
-	# The control hints, GAME.md 8.3, on a tag of their own hung off the strip rather than in it:
-	# they come and go as they are worth pressing, and in the strip they made it grow and shrink
-	# under everything else in it. Above the layout rather than in it, so the card never fits it.
+	# The control hints, GAME.md 8.3, on a tab of the strip rather than in it: they come and go as
+	# they are worth pressing, and in the strip they made it grow and shrink under everything else
+	# in it. Above the layout rather than in it, so the card never fits it.
 	var hints := PanelContainer.new()
 	hints.name = "Hints"
 	hints.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hints.add_theme_stylebox_override("panel", scrim())
+	hints.add_theme_stylebox_override("panel", tab(slot, right, bottom))
 	hints.top_level = true
 	hints.visible = false
 	card.add_child(hints)
@@ -177,9 +179,22 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 static func _hang(hints: Control, card: Control, right: bool, bottom: bool) -> void:
 	var rect := card.get_global_rect()
 	var tall := hints.size.y
-	var y := rect.position.y - HINT_GAP - tall if bottom else rect.end.y + HINT_GAP
-	var x := rect.end.x - OUTER - hints.size.x if right else rect.position.x + OUTER
+	var y := rect.position.y - tall if bottom else rect.end.y
+	var x := rect.end.x - hints.size.x if right else rect.position.x
 	hints.global_position = Vector2(x, y)
+
+
+## The tab the corner's control hints are on, GAME.md 8.1a: cut off the same edge of the screen
+## as [param slot]'s strip and set flush under it, or over it for a block on the bottom, its end
+## leaning the same way and striped thin in the player's color, so it reads as part of their
+## corner rather than a tag that happens to be near it.
+static func tab(slot: PlayerSlot, right: bool, bottom: bool) -> StripStyle:
+	var inner := TAB_SLANT + TAB_STRIPE + TAB_ROOM.x
+	var style := StripStyle.cut(right, TAB_SLANT, OUTER, inner, TAB_ROOM.y)
+	style.wide_at_bottom = bottom
+	style.stripe = slot.color()
+	style.stripe_width = TAB_STRIPE
+	return style
 
 
 ## The strip a corner block is cut from, GAME.md 8.1a: off the left or the right edge of the
