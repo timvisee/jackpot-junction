@@ -17,7 +17,8 @@ below, and hands the notes to the release workflow.
   tickets from dark card with gold foil and fine engraved lines, the way the driver license is,
   and everything is set in Barlow, a face drawn after road signs and license plates.
 - **A new logo.** The game's mark is an engraved gold seal with fine print round it and the
-  crossroads chip in its middle; drawn small, it is the chip alone.
+  crossroads chip in its middle; drawn small, it is the chip alone. On Android it fits whatever
+  shape the launcher gives icons, tinted ones too.
 - **A surface to everything.** Panes, buttons and the HUD are laminated card with fine scratches
   under a soft light, gold is brushed foil, the menus sit on felt, the payout slip is paper, joker
   cards have a linen finish and chips show their clay.

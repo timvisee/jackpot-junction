@@ -41,6 +41,9 @@ const ON_PLATE := 0.72
 @export var plate := true
 ## The foil chip alone at any size, rather than only when it is small.
 @export var chip_only := false
+## The foil chip in one ink, white on nothing, for a system that tints the mark itself the way
+## Android's themed icons do. Never on a plate.
+@export var mono := false
 
 ## The engraving, worked out for a size, and the size it was worked out for.
 var _lines: Array[PackedVector2Array] = []
@@ -55,6 +58,9 @@ func _draw() -> void:
 		return
 	var middle := size * 0.5
 	var reach := _reach()
+	if mono:
+		_draw_mono_chip(middle, unit * 0.5 * 0.92)
+		return
 	if plate:
 		_draw_plate(unit)
 	if not shows_seal():
@@ -66,7 +72,7 @@ func _draw() -> void:
 ## Whether it is drawn as the seal, or as the foil chip alone, which it is when it is small or
 ## asked to be.
 func shows_seal() -> bool:
-	return not chip_only and _reach() * 2.0 >= SMALL
+	return not chip_only and not mono and _reach() * 2.0 >= SMALL
 
 
 ## How far out from the middle the mark itself reaches, the plate left round it where there is one.
@@ -173,7 +179,7 @@ func _draw_chip(middle: Vector2, r: float, fine: bool) -> void:
 	_draw_roads(middle, r, disc)
 	if fine:
 		_draw_curbs(middle, r)
-	_draw_dashes(middle, r)
+	_draw_dashes(middle, r, HouseTheme.PAPER)
 	ChipArt.chip(self, middle, r * POT, Palette.CHIP_RED, 6)
 	draw_arc(middle, r, 0.0, TAU, 72, HouseTheme.INK, r * 0.06, true)
 	draw_arc(
@@ -193,34 +199,69 @@ func _draw_foil(edge: PackedVector2Array, top: float, foot: float) -> void:
 	draw_polyline(line, HouseTheme.FOIL, 1.0, true)
 
 
+## The foil chip in one ink round [param middle], [param r] out: the roads and the notches cut
+## out of the disc, the lane lines and the pot printed in the roads. Every cut runs past the rim,
+## so what is left has no holes to draw.
+func _draw_mono_chip(middle: Vector2, r: float) -> void:
+	var cuts := _road_bands(middle, r)
+	for quarter: int in 4:
+		for i: int in NOTCHES:
+			var lean := (float(i) - float(NOTCHES - 1) * 0.5) * NOTCH_APART
+			cuts.append(_notch(middle, r, deg_to_rad(45.0 + 90.0 * float(quarter) + lean), 1.1))
+	var pieces: Array[PackedVector2Array] = [_circle(middle, r, 96)]
+	for cut: PackedVector2Array in cuts:
+		var left: Array[PackedVector2Array] = []
+		for piece: PackedVector2Array in pieces:
+			left.append_array(Geometry2D.clip_polygons(piece, cut))
+		pieces = left
+	for piece: PackedVector2Array in pieces:
+		draw_colored_polygon(piece, Color.WHITE)
+	_draw_dashes(middle, r, Color.WHITE)
+	draw_circle(middle, r * POT, Color.WHITE, true, -1.0, true)
+
+
 ## A cream notch at the rim, the way a poker chip's are, set between the roads.
 func _draw_notch(middle: Vector2, r: float, angle: float) -> void:
+	draw_colored_polygon(_notch(middle, r, angle, 1.0), HouseTheme.PAPER)
+
+
+## The notch at [param angle] as a shape, from inside the rim to [param out] of the radius.
+static func _notch(middle: Vector2, r: float, angle: float, out: float) -> PackedVector2Array:
 	var toward := Vector2.from_angle(angle)
 	var across := toward.orthogonal() * r * NOTCH.x * 0.5
-	var out := middle + toward * r
+	var outer := middle + toward * r * out
 	var inn := middle + toward * r * (1.0 - NOTCH.y)
-	draw_colored_polygon(
-		PackedVector2Array([out + across, out - across, inn - across, inn + across]),
-		HouseTheme.PAPER
-	)
+	return PackedVector2Array([outer + across, outer - across, inn - across, inn + across])
 
 
 ## The crossroads, cut out of the chip: each band clipped to [param disc], so the four arms end
 ## exactly at the rim.
 func _draw_roads(middle: Vector2, r: float, disc: PackedVector2Array) -> void:
+	for band: PackedVector2Array in _road_bands(middle, r):
+		for piece: PackedVector2Array in Geometry2D.intersect_polygons(band, disc):
+			draw_colored_polygon(piece, ROAD_INK)
+
+
+## The two roads as bands running past the rim either way, across and down.
+static func _road_bands(middle: Vector2, r: float) -> Array[PackedVector2Array]:
+	var bands: Array[PackedVector2Array] = []
 	var wide := r * ROAD * 0.5
 	for across: bool in [true, false]:
 		var span := Vector2(r * 1.2, wide) if across else Vector2(wide, r * 1.2)
-		var band := PackedVector2Array(
-			[
-				middle + Vector2(-span.x, -span.y),
-				middle + Vector2(span.x, -span.y),
-				middle + Vector2(span.x, span.y),
-				middle + Vector2(-span.x, span.y),
-			]
+		(
+			bands
+			. append(
+				PackedVector2Array(
+					[
+						middle + Vector2(-span.x, -span.y),
+						middle + Vector2(span.x, -span.y),
+						middle + Vector2(span.x, span.y),
+						middle + Vector2(-span.x, span.y),
+					]
+				)
+			)
 		)
-		for piece: PackedVector2Array in Geometry2D.intersect_polygons(band, disc):
-			draw_colored_polygon(piece, ROAD_INK)
+	return bands
 
 
 ## The curbs: a foil line along each edge of the roads, turning the corner at the crossing.
@@ -240,15 +281,16 @@ func _draw_curbs(middle: Vector2, r: float) -> void:
 			draw_polyline(corner, ink, maxf(r * 0.012, 0.6), true)
 
 
-## The lane lines down each arm, stopping short of the crossing the way a real one's do.
-func _draw_dashes(middle: Vector2, r: float) -> void:
+## The lane lines down each arm in [param ink], stopping short of the crossing the way a real
+## one's do.
+func _draw_dashes(middle: Vector2, r: float, ink: Color) -> void:
 	var width := maxf(r * 0.05, 1.0)
 	for quarter: int in 4:
 		var facing := Vector2.from_angle(TAU * float(quarter) / 4.0)
 		var out := r * 0.34
 		while out < r * 0.97:
 			var to := minf(out + r * DASH.x, r * 0.97)
-			draw_line(middle + facing * out, middle + facing * to, HouseTheme.PAPER, width, true)
+			draw_line(middle + facing * out, middle + facing * to, ink, width, true)
 			out += r * (DASH.x + DASH.y)
 
 

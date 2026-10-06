@@ -2188,7 +2188,12 @@ says what, which is the half of the question a bench cannot answer.
   waves and a foil hairline: `splash.png`, which the boot splash shows, and
   `splash.ico`. `assets/logo/` keeps the icon, the foil chip alone and the splash at
   128, 512 and 2048 pixels for use anywhere else, and the banner the README opens
-  with, the mark with the name beside it as About sets them.
+  with, the mark with the name beside it as About sets them. It also keeps Android's
+  launcher icon, which the export names: a launcher since Android 8 cuts its own
+  shape out of layers, so the stock and its waves fill one to the edges, the seal
+  sits on another inside the circle no shape cuts into, and a third is the foil
+  chip in one ink, cut rather than shaded, for a launcher that tints its icons;
+  before Android 8, the splash.
   Changing the drawing and running that is the whole of changing the logo.
 - **Buttons** are the pane in miniature, tickets of 8.1a: dark stock with notched
   corners, a foil hairline faint enough to say it is a button, and the house's gold

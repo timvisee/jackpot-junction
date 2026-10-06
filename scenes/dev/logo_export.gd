@@ -8,7 +8,8 @@ extends Node
 ## icon at a size of its own choosing from a set, as an icon file of every size it asks for, each
 ## drawn at that size, so the small ones are the foil chip rather than a seal shrunk to mush, see
 ## [constant LogoArt.SMALL]. [constant SHEET] holds the same at a few sizes, the foil chip alone
-## too, and the banner the README opens with, for whatever else wants the mark.
+## too, the banner the README opens with, for whatever else wants the mark, and Android's
+## launcher icon.
 ##
 ## Windowed rather than headless: reading a viewport back needs a rendering device.
 
@@ -24,6 +25,17 @@ const SHEET_SIZES: Array[int] = [128, 512, 2048]
 ## than under it, drawn this many times over for a dense screen.
 const BANNER_SCALE := 2.0
 const BANNER_GAP := 32.0
+## Android's launcher icon. Since Android 8 a launcher cuts it to a shape of its own from layers
+## this big: the house's stock behind, the seal in front, and the foil chip in one ink for a
+## launcher that tints its icons. Before that it shows a picture as it is, the splash at
+## [constant ANDROID_LEGACY]. The export preset names the files.
+const ANDROID_LAYER := 432
+const ANDROID_LEGACY := 192
+## The mark's share of a layer: inside the 66 of its 108 dp across that no launcher's shape cuts
+## into, with a little to spare.
+const ANDROID_MARK := 0.6
+## The one-ink chip smaller, the way the glyphs of a launcher's tinted icons sit.
+const ANDROID_TINTED := 0.44
 
 
 func _ready() -> void:
@@ -40,6 +52,20 @@ func _ready() -> void:
 		_save(await _render(side, false, true), "%schip-%d.png" % [SHEET, side])
 		_save(await _render(side, true), "%ssplash-%d.png" % [SHEET, side])
 	_save(await _banner(), SHEET + "banner.png")
+	_save(await _render(ANDROID_LEGACY, true), SHEET + "android-main-%d.png" % ANDROID_LEGACY)
+	var front := LogoArt.new()
+	front.plate = false
+	_save(
+		await _android_layer(front, ANDROID_MARK),
+		SHEET + "android-foreground-%d.png" % ANDROID_LAYER
+	)
+	_save(await _android_backdrop(), SHEET + "android-background-%d.png" % ANDROID_LAYER)
+	var tinted := LogoArt.new()
+	tinted.mono = true
+	_save(
+		await _android_layer(tinted, ANDROID_TINTED),
+		SHEET + "android-monochrome-%d.png" % ANDROID_LAYER
+	)
 	get_tree().quit()
 
 
@@ -70,6 +96,29 @@ func _banner() -> Image:
 	name_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(name_label)
 	return await _picture(row)
+
+
+## A layer of Android's launcher icon with [param art] in its middle, [param share] of its side
+## across.
+func _android_layer(art: Control, share: float) -> Image:
+	var layer := Control.new()
+	layer.size = Vector2.ONE * ANDROID_LAYER
+	art.size = Vector2.ONE * ANDROID_LAYER * share
+	art.position = (layer.size - art.size) * 0.5
+	layer.add_child(art)
+	return await _picture(layer, Vector2i.ONE * ANDROID_LAYER)
+
+
+## The layer behind: the plate's stock and engraved waves out to every edge, with neither its
+## notches nor its hairline, since a launcher cuts it to a shape of its own.
+func _android_backdrop() -> Image:
+	var stock := Panel.new()
+	var look := TicketStyle.cut(HouseTheme.STOCK_RAISED, 0.0, 0.0, 0.0)
+	look.engraving = Color(HouseTheme.FOIL, 0.1)
+	look.waves = ANDROID_LAYER
+	stock.add_theme_stylebox_override("panel", look)
+	stock.size = Vector2.ONE * ANDROID_LAYER
+	return await _picture(stock, Vector2i.ONE * ANDROID_LAYER)
 
 
 ## [param control] drawn on nothing into a picture [param side] big, or as big as it asks to be.

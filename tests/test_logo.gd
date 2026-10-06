@@ -9,6 +9,15 @@ const ICO := "res://icon.ico"
 const SPLASH := "res://splash.png"
 const SPLASH_ICO := "res://splash.ico"
 const SHEET := "res://assets/logo/"
+## Android's launcher icon: the export's option for each picture, the file and its side.
+const ANDROID := {
+	"launcher_icons/main_192x192": ["android-main-192.png", 192],
+	"launcher_icons/adaptive_foreground_432x432": ["android-foreground-432.png", 432],
+	"launcher_icons/adaptive_background_432x432": ["android-background-432.png", 432],
+	"launcher_icons/adaptive_monochrome_432x432": ["android-monochrome-432.png", 432],
+}
+## The circle in the middle of a layer that no launcher's shape cuts into, 66 of its 108 dp.
+const ANDROID_SAFE := 66.0 / 108.0
 
 
 ## Where a fraction of the way across the icon lands, in pixels.
@@ -82,6 +91,55 @@ func test_the_sheet_has_every_picture() -> void:
 	assert_int(banner.get_width()).is_greater(banner.get_height() * 3)
 
 
+## Android's launcher icon is pictures of its own, each the size Android asks for: the layer behind
+## fills its square, and the seal in front and the chip in one ink keep inside the circle no
+## launcher's shape cuts into, the chip all one ink for the launcher to tint.
+func test_android_wears_a_launcher_icon_of_its_own() -> void:
+	var presets := ConfigFile.new()
+	assert_int(presets.load("res://export_presets.cfg")).is_equal(OK)
+	var options := ""
+	for section: String in presets.get_sections():
+		if str(presets.get_value(section, "platform", "")) == "Android":
+			options = section + ".options"
+	assert_str(options).is_not_empty()
+	var layers: Dictionary[String, Image] = {}
+	for option: String in ANDROID:
+		var path := str(presets.get_value(options, option, ""))
+		assert_str(path).is_equal(SHEET + str(ANDROID[option][0]))
+		var image := Image.load_from_file(ProjectSettings.globalize_path(path))
+		assert_object(image).is_not_null()
+		assert_int(image.get_width()).is_equal(int(ANDROID[option][1]))
+		assert_int(image.get_height()).is_equal(int(ANDROID[option][1]))
+		layers[option.get_slice("/", 1)] = image
+	var behind := layers["adaptive_background_432x432"]
+	for corner: Vector2 in [Vector2(0, 0), Vector2(1, 0), Vector2(0, 1), Vector2(1, 1)]:
+		assert_float(_pixel(behind, corner.x, corner.y).a).is_equal(1.0)
+	var front := layers["adaptive_foreground_432x432"]
+	var tinted := layers["adaptive_monochrome_432x432"]
+	for layer: Image in [front, tinted]:
+		assert_float(_pixel(layer, 0.5, 0.5).a).is_equal(1.0)
+		for step: int in 120:
+			var toward := Vector2.from_angle(TAU * float(step) / 120.0)
+			var out := ANDROID_SAFE * 0.5 + 0.01
+			while out < 0.5:
+				var at := Vector2(0.5, 0.5) + toward * out
+				var cover := _pixel(layer, at.x, at.y).a
+				(
+					assert_float(cover)
+					. override_failure_message("cut off at %s: %s" % [at, cover])
+					. is_equal(0.0)
+				)
+				out += 0.02
+	var exporter: GDScript = load("res://scenes/dev/logo_export.gd")
+	var mark: float = exporter.get_script_constant_map()["ANDROID_MARK"]
+	_assert_seal(front, 0.5 * mark * LogoArt.SEAL)
+	for x: int in range(0, tinted.get_width(), 3):
+		for y: int in range(0, tinted.get_height(), 3):
+			var ink := tinted.get_pixel(x, y)
+			if ink.a > 0.0:
+				assert_float(minf(minf(ink.r, ink.g), ink.b)).is_greater(0.98)
+
+
 ## The mark itself, the seal [param seal] of the side out: the pot a red chip in the middle of the
 ## foil chip, a road running out of it, the foil between them, the ring of ink round it all.
 func _assert_seal(image: Image, seal: float) -> void:
@@ -116,6 +174,9 @@ func test_the_mark_is_the_chip_alone_when_it_is_small() -> void:
 	mark.size = Vector2(512.0, 512.0)
 	assert_bool(mark.shows_seal()).is_true()
 	mark.chip_only = true
+	assert_bool(mark.shows_seal()).is_false()
+	mark.chip_only = false
+	mark.mono = true
 	assert_bool(mark.shows_seal()).is_false()
 	mark.free()
 
