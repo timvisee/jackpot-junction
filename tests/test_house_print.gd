@@ -314,3 +314,23 @@ func test_a_pane_too_tall_for_the_screen_scrolls_its_body() -> void:
 	assert_float(scroll.custom_minimum_size.y).is_less(screen)
 	assert_float(pane.get_combined_minimum_size().y).is_less_equal(screen)
 	pane.free()
+
+
+## A finish still being tried wears the look chosen in Settings, and the choice is kept, GAME.md
+## 8.1a; one not chosen yet wears the first.
+func test_a_finish_being_tried_wears_the_look_chosen() -> void:
+	var settings := Settings.new()
+	settings.path = "user://test_look_trials.cfg"
+	settings.look_trials["foil"] = 1
+	assert_int(settings.save_to_disk()).is_equal(OK)
+	var read := Settings.new()
+	read.path = settings.path
+	read.load_from_disk()
+	assert_int(int(read.look_trials.get("foil", 0))).is_equal(1)
+	Settings.remove_files(settings.path)
+	var real := Game.settings
+	Game.settings = read
+	assert_int(int(Surface.finish("foil")[0])).is_equal(Surface.TRIALS["foil"][1][1])
+	assert_int(int(Surface.finish("hud")[0])).is_equal(Surface.TRIALS["hud"][0][1])
+	assert_int(int(Surface.finish("pane")[0])).is_equal(Surface.Kind.SCRATCHED)
+	Game.settings = real

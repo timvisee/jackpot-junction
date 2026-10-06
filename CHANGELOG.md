@@ -16,6 +16,9 @@ below, and hands the notes to the release workflow.
 - **A look of its own.** Menus, buttons, boxes, lists, tabs, switches and sliders are cut like
   tickets from dark card with gold foil and fine engraved lines, the way the driver license is,
   and everything is set in Barlow, a face drawn after road signs and license plates.
+- **A surface to everything.** Panes are laminated card with fine scratches under a soft light, the
+  payout slip is paper, joker cards have a linen finish and chips show their clay; Settings, Video
+  lets you try two looks each for the gold foil, the HUD and the menu backdrop.
 - **Panes torn like tickets.** The pause menu, questions, dialogs and the joker pane have a header
   torn off by a perforation, and the button that moves on is gold. A question that loses you
   something carries a yellow warning sign.

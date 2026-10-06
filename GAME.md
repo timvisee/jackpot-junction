@@ -2348,6 +2348,21 @@ title's rings, which turn once every few minutes. A seal's rings have to be dens
 and narrow to read as engraving: a wide band of few lines reads as rope, which is
 why the menus' backdrop carries the license's arcs rather than a seal.
 
+**Texture.** Nothing is flat color: a fine texture is laid inside each shape, made
+in code as a tile that repeats without a seam (`Surface`), each of its pixels
+lightening or darkening what is under it a little so no color moves, one texel to
+a screen pixel at any UI scale so it is as fine on a big screen as on a small one.
+Panes, dialogs and the buttons on them are laminated card: a few fine scratches
+and a soft light from the top left, a little lighter there and a little darker in
+the bottom right. The payout slip is fine paper, a light tooth and short fibers
+darkening toward brown. Joker cards have a playing card's linen, a weave a little
+coarser than the rest. The clock board is behind glass, a gloss down from its top
+edge and a streak across it. A chip's face shows the flecks of the clay it is
+pressed from. Three are still being tried, and Settings, Video, has a Trying out
+box for each until they are chosen: the gold foil, brushed with a sheen or a fine
+grain; the HUD's strips, a fine grain or scratched under the soft light; and the
+menu backdrop, a heavier or a lighter card-table felt.
+
 **Shapes.**
 
 - **Ticket**: panes, buttons, boxes and questions. Its four corners are notched

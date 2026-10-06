@@ -111,10 +111,10 @@ func _draw() -> void:
 	_glass()
 
 
-## Trying it out: the glass over the board, a gloss down from its top edge, as strong as
-## JJ_SURFACE's clock_light says, see [method Surface.chosen].
+## The glass over the board, GAME.md 8.1a: a gloss down from its top edge, a line of light along
+## that edge and a streak across it, as strong as [method Surface.finish] says.
 func _glass() -> void:
-	var strength := Surface.chosen("clock_light", Surface.Kind.NONE, 0.0).y
+	var strength := float(Surface.finish("clock")[2])
 	if strength <= 0.0:
 		return
 	var middle := size.x * 0.5

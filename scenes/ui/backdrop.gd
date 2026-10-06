@@ -23,7 +23,7 @@ const ARC_TO := PI * 1.88
 var _lines: Array[PackedVector2Array] = []
 var _inks: Array[PackedColorArray] = []
 var _kept := {}
-var _surface := Vector2.ZERO
+var _finish: Array = [Surface.Kind.NONE, 0.0, 0.0]
 
 
 ## A backdrop over the whole of [param parent], behind everything already in it.
@@ -64,7 +64,7 @@ func _lay() -> void:
 	_lines.append_array(arcs)
 	for arc: PackedVector2Array in arcs:
 		_inks.append(PackedColorArray([ink]))
-	_surface = Surface.chosen("backdrop", Surface.Kind.NONE, 0.0)
+	_finish = Surface.finish("backdrop")
 	_kept = {}
 	queue_redraw()
 
@@ -74,5 +74,7 @@ func _draw() -> void:
 	var whole := PackedVector2Array(
 		[Vector2.ZERO, Vector2(size.x, 0.0), size, Vector2(0.0, size.y)]
 	)
-	Surface.draw(get_canvas_item(), _kept, whole, size, int(_surface.x) as Surface.Kind, _surface.y)
+	Surface.draw(
+		get_canvas_item(), _kept, whole, size, _finish[0] as Surface.Kind, float(_finish[1])
+	)
 	Engraving.draw(get_canvas_item(), _lines, Color.WHITE, _inks)

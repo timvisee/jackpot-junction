@@ -74,6 +74,16 @@ static func install() -> void:
 	ThemeDB.get_default_theme().merge_with(theme())
 
 
+## Puts the foil buttons' finish on them again after it is changed in Settings, see
+## [constant Surface.TRIALS]: their looks are shared by every one of them, so every foil button
+## on the screen takes it at once.
+static func refinish() -> void:
+	var made := ThemeDB.get_default_theme()
+	for state: StringName in [&"normal", &"hover", &"focus", &"pressed", &"disabled"]:
+		if made.has_stylebox(state, PRIMARY):
+			Surface.wear(made.get_stylebox(state, PRIMARY), "foil")
+
+
 static func _build() -> Theme:
 	var made := Theme.new()
 	made.default_font = Type.TEXT

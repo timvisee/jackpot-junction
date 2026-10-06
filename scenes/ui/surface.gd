@@ -12,6 +12,34 @@ enum Kind { NONE, PAPER, FLECKED, GRAIN, SCRATCHED, FELT, BRUSHED, LINEN }
 ## How big a tile is, in its own pixels, each laid over one of the screen's, so the grain is as
 ## fine on a big screen as on a small one, see [method screen_scale].
 const TILE := 256
+## What each part of the house print wears, GAME.md 8.1a: its texture, how strongly, and how much
+## light falls on it from its top left. Panes and the buttons on them are laminated card, a few
+## fine scratches under a soft light; the payout slip is fine paper; joker cards have a playing
+## card's linen; the clock board is behind glass, a light with no texture.
+const FINISHES: Dictionary[String, Array] = {
+	"pane": [Kind.SCRATCHED, 0.08, 0.06],
+	"button": [Kind.SCRATCHED, 0.06, 0.05],
+	"slip": [Kind.PAPER, 0.3, 0.0],
+	"card": [Kind.LINEN, 0.08, 0.0],
+	"clock": [Kind.NONE, 0.0, 0.1],
+}
+## The finishes still being tried out, each with the looks to choose between in Settings, the
+## first the one worn until another is chosen there, see [member Settings.look_trials]. They go,
+## and the chosen look joins [constant FINISHES], once the choice is made.
+const TRIALS: Dictionary[String, Array] = {
+	"foil": [["Brushed", Kind.BRUSHED, 0.2, 0.1], ["Grain", Kind.GRAIN, 0.12, 0.0]],
+	"hud": [["Grain", Kind.GRAIN, 0.07, 0.0], ["Scratched", Kind.SCRATCHED, 0.08, 0.05]],
+	"backdrop": [["Heavier felt", Kind.FELT, 0.16, 0.0], ["Felt", Kind.FELT, 0.1, 0.0]],
+}
+## What each trial is called in Settings.
+const TRIAL_NAMES: Dictionary[String, String] = {
+	"foil": "Gold foil",
+	"hud": "HUD strips",
+	"backdrop": "Menu backdrop",
+}
+## How much bigger than one texel to a screen pixel a kind is laid: a playing card's linen is a
+## weave a little coarser than the rest's grain.
+const ZOOM: Dictionary[int, float] = {Kind.LINEN: 1.4}
 
 static var _tiles: Dictionary[int, ImageTexture] = {}
 
@@ -71,9 +99,10 @@ static func draw(
 	if kind == Kind.NONE or strength <= 0.0 or edge.size() < 3:
 		return
 	var at := screen_scale()
-	if kept.get(&"surface_at", 0.0) != at:
-		kept[&"surface_pieces"] = pieces(edge, size, float(TILE) / at)
+	if kept.get(&"surface_at", 0.0) != at or kept.get(&"surface_kind", -1) != kind:
+		kept[&"surface_pieces"] = pieces(edge, size, float(TILE) * ZOOM.get(kind, 1.0) / at)
 		kept[&"surface_at"] = at
+		kept[&"surface_kind"] = kind
 	var made: Array[Dictionary] = kept[&"surface_pieces"]
 	var texture := tile_of(kind).get_rid()
 	var ink := PackedColorArray([Color(1.0, 1.0, 1.0, strength)])
@@ -97,30 +126,25 @@ static func light(item: RID, edge: PackedVector2Array, size: Vector2, strength: 
 	RenderingServer.canvas_item_add_polygon(item, edge, shade)
 
 
-## Trying them out: which kind [param part] wears and how strongly, from JJ_SURFACE, written as
-## "pane=scratched@0.1,slip=paper@0.2,light=0.05"; [param kind] at [param strength] where it is not
-## named.
-static func chosen(part: String, kind: Kind, strength: float) -> Vector2:
-	for each: String in OS.get_environment("JJ_SURFACE").split(",", false):
-		var said := each.split("=")
-		if said.size() != 2 or said[0].strip_edges() != part:
-			continue
-		var how := said[1].split("@")
-		var picked := named(how[0]) if not how[0].is_valid_float() else Kind.NONE
-		var much := float(how[1]) if how.size() > 1 else strength
-		if how[0].is_valid_float():
-			return Vector2(Kind.NONE, float(how[0]))
-		return Vector2(picked, much)
-	return Vector2(kind, strength)
+## What [param part] wears, see [constant FINISHES] and [constant TRIALS]: its kind, how strongly
+## and how much light, or nothing at all for a part with no finish.
+static func finish(part: String) -> Array:
+	if TRIALS.has(part):
+		var looks: Array = TRIALS[part]
+		var picked := 0
+		if Game.settings != null:
+			picked = clampi(int(Game.settings.look_trials.get(part, 0)), 0, looks.size() - 1)
+		return (looks[picked] as Array).slice(1)
+	return FINISHES.get(part, [Kind.NONE, 0.0, 0.0])
 
 
 ## Puts on [param style], a [TicketStyle] or a [StripStyle], what [param part] wears, see
-## [method chosen], and the light [param part]_light names.
+## [method finish].
 static func wear(style: StyleBox, part: String) -> void:
-	var picked := chosen(part, Kind.NONE, 0.0)
-	style.set(&"surface", int(picked.x))
-	style.set(&"surface_ink", picked.y)
-	style.set(&"light", chosen(part + "_light", Kind.NONE, 0.0).y)
+	var look := finish(part)
+	style.set(&"surface", int(look[0]))
+	style.set(&"surface_ink", float(look[1]))
+	style.set(&"light", float(look[2]))
 
 
 ## The tile of [param kind], made the first time it is asked for.
@@ -146,8 +170,8 @@ static func tile_of(kind: Kind) -> ImageTexture:
 			_noise(field, 0.05, 0.25, dice)
 		Kind.SCRATCHED:
 			_noise(field, 0.7, 0.25, dice)
-			_strokes(field, 30, 14.0, 90.0, 0.8, false, 0.08, dice)
-			_strokes(field, 120, 3.0, 12.0, 0.55, false, 0.5, dice)
+			_strokes(field, 18, 14.0, 80.0, 0.55, false, 0.08, dice)
+			_strokes(field, 90, 3.0, 12.0, 0.4, false, 0.5, dice)
 		Kind.FELT:
 			_noise(field, 0.25, 0.35, dice)
 			_strokes(field, 900, 2.0, 6.0, 0.45, true, 3.0, dice)

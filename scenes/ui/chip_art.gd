@@ -11,6 +11,14 @@ const NOTCH_COUNT := 8
 ## The die: its face and its pips.
 const DIE := Color(0.97, 0.95, 0.9)
 const PIP := Color(0.09, 0.09, 0.1)
+## The clay a real chip is pressed from shows in faint flecks over its face: how many, how strong,
+## and how small a chip goes before they are left off as dust.
+const FLECKS := 26
+const FLECK_INK := 0.3
+const FLECK_SMALLEST := 7.0
+
+## Where the flecks are on a chip of radius one, the same on every chip, worked out once.
+static var _flecks := PackedVector3Array()
 
 
 ## A chip of [param face] round [param middle], [param radius] out, onto [param canvas].
@@ -34,6 +42,25 @@ static func chip(
 	canvas.draw_arc(
 		middle, radius * 0.64, 0.0, TAU, 32, face.darkened(0.25), maxf(radius * 0.07, 1.0), true
 	)
+	if radius >= FLECK_SMALLEST:
+		_fleck(canvas, middle, radius, face)
+
+
+## The clay's flecks over a chip's face, some lighter and some darker than it, see
+## [constant FLECKS].
+static func _fleck(canvas: CanvasItem, middle: Vector2, radius: float, face: Color) -> void:
+	if _flecks.is_empty():
+		var dice := RandomNumberGenerator.new()
+		dice.seed = 52
+		for i: int in FLECKS:
+			var at := Vector2.from_angle(dice.randf() * TAU) * sqrt(dice.randf()) * 0.86
+			_flecks.append(Vector3(at.x, at.y, 1.0 if i % 2 == 0 else -1.0))
+	var lighter := Color(face.lightened(0.5), face.a * FLECK_INK)
+	var darker := Color(face.darkened(0.45), face.a * FLECK_INK)
+	var dot := maxf(radius * 0.035, 0.6)
+	for fleck: Vector3 in _flecks:
+		var at := middle + Vector2(fleck.x, fleck.y) * radius
+		canvas.draw_circle(at, dot, lighter if fleck.z > 0.0 else darker, true, -1.0, true)
 
 
 ## A chip with [param text] on it, a place in the standings or on the payout slip: the number in
