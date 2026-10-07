@@ -1176,7 +1176,7 @@ the card with backs of their own. STORY.md and GAME.md first. One commit an item
 - [x] STORY.md and GAME.md: every decision below written in first.
 - [x] The ticket comes out from behind the card at a slant of its own [8.1].
 - [x] A small copy of the ticket on the lobby's ticket at the top while the seat is taken [8.1].
-- [ ] Note 9's arrowhead aimed along the end of the curve, up a little [7.3].
+- [x] Note 9's arrowhead aimed along the end of the curve, up a little [7.3].
 - [ ] Fast page turns show every leaf going over, quicker, rather than jumping [7.2].
 - [ ] Each page's note a little askew and off-center, under a clip, tape or a staple [7.2].
 - [ ] The pages' bottom corners folded where there is a leaf to turn, the button on the fold; the

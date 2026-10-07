@@ -20,12 +20,13 @@ const CHART_GAP := 14.0
 ## Where the note's paper sits on the leaf: under the title, in the middle of what is left.
 const TITLE_ROOM := 70.0
 ## A pencil arrow between two of a note's lines: how far out into the margin it bows, how close it
-## comes to the paper's edge at most, how long the strokes of its head are and how far they spread
-## either side of it.
+## comes to the paper's edge at most, how long the strokes of its head are, how far they spread
+## either side of it, and how steeply it rises into the line it points at.
 const ARROW_BOW := 22.0
 const ARROW_EDGE := 6.0
 const ARROW_HEAD := 10.0
 const ARROW_SPREAD := 0.45
+const ARROW_RISE := 0.5
 ## The scrap of paper a new note's pencil mark is drawn on where it marks a button, and its lean.
 const TAG := Vector2(32.0, 32.0)
 const TAG_TILT := -0.12
@@ -285,30 +286,34 @@ func _draw_arrow() -> void:
 	# Out into the margin, as far as the paper lets it: its leftmost just inside the paper's edge.
 	var edge := paper_rect().position.x + ARROW_EDGE
 	var bow := left - ARROW_BOW
+	# It comes in to the line rising a little, along [constant ARROW_RISE], and the head points the
+	# same way, so it carries on from the line rather than turning off it at the last moment.
+	var aim := Vector2.from_angle(-ARROW_RISE)
+	var into := to - aim * ARROW_BOW
 	var curve := PackedVector2Array()
-	var way := Vector2.RIGHT
 	for attempt: int in 3:
 		var out := Vector2(bow, from.y)
-		var up := Vector2(bow, to.y)
-		# The head points the way the curve comes in at its end, level into the line; the curve
-		# stops short of the tip so the head's point stays sharp.
-		way = (to - up).normalized()
-		var stop := to - way * ARROW_HEAD * 0.5
 		curve.clear()
 		var leftmost := INF
 		for i: int in 33:
-			var at := from.bezier_interpolate(out, up, stop, float(i) / 32.0)
+			var at := from.bezier_interpolate(out, into, to, float(i) / 32.0)
 			curve.append(at)
 			leftmost = minf(leftmost, at.x)
 		if leftmost >= edge - 0.5:
 			break
-		bow += (edge - leftmost) / 0.75
-	draw_polyline(curve, PENCIL, 1.5, true)
+		bow += (edge - leftmost) / 0.5
+	# The line stops in the middle of the head, which keeps its point sharp.
+	var line := PackedVector2Array()
+	for at: Vector2 in curve:
+		if at.distance_to(to) > ARROW_HEAD * 0.5:
+			line.append(at)
+	line.append(to - aim * ARROW_HEAD * 0.5)
+	draw_polyline(line, PENCIL, 1.5, true)
 	var head := PackedVector2Array(
 		[
-			to - way.rotated(ARROW_SPREAD) * ARROW_HEAD,
+			to - aim.rotated(ARROW_SPREAD) * ARROW_HEAD,
 			to,
-			to - way.rotated(-ARROW_SPREAD) * ARROW_HEAD,
+			to - aim.rotated(-ARROW_SPREAD) * ARROW_HEAD,
 		]
 	)
 	draw_polyline(head, PENCIL, 1.8, true)
