@@ -840,6 +840,20 @@ Hand. Notes are never counted on it, 7.1.
 | 4 | Kept by the House, for your evaluation. |
 | 5 | Kept by the House. Approved by you. |
 
+### 6.6a The catalog
+
+GAME.md 8.8. The catalog is the player's own record of every joker taken, and from stage 2 it is the
+House's file of every term accepted, which the pick has said since stage 2 that the House keeps, 6.3.
+It says so in a line under its title. Each joker in it reads as its pane does in a match, its term
+under its effect from stage 2. Items carry no terms: the House's terms are the jokers.
+
+| Stage | The line |
+|---|---|
+| 2 | All terms are kept on file. |
+| 3 | Kept on file, and used. |
+| 4 | Kept on file, for your evaluation. |
+| 5 | Kept on file. Approved by you. |
+
 ### 6.7 The driving school
 
 GAME.md 9.4a. The school is the Department's front door, and it keeps every joke it has, though some
@@ -1621,6 +1635,7 @@ changed is listed here so it can be found in one place:
 | Microprint | OPERATOR · APPROVED; under the title, The House · under human oversight | 6.4 |
 | Loading | Building the room, as approved | 6.5 |
 | Statistics | "Kept by the House. Approved by you."; a Shifts row | 6.6 |
+| The catalog | "Kept on file. Approved by you." | 6.6a |
 | The Highway Code | The 217th edition, approved by the player | 6.7 |
 | The examiner | Signs as the player; somebody at the booth's window | 6.7 |
 | The Yard's sign | UNDER NEW MANAGEMENT | 6.8 |
@@ -1683,6 +1698,7 @@ was looked at.
 | 6.4 | 8.1a | Microprint |
 | 6.5 | 8.6 | The loading line |
 | 6.6 | 8.5, Statistics | The line, and the Shifts row |
+| 6.6a | 8.8 | The catalog's line |
 | 6.7, 8.6 | 9.4a | The Highway Code's edition and lines, the examiner, the license |
 | 6.8 | 8.1, the rooms | The Yard's sign, the calendar, the pictures |
 | 6.9 | 8.1, the crowd | In step, and watching |

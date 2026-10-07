@@ -1274,6 +1274,116 @@ click beside the license or a note put it away at first, was made to do nothing 
 and then to put it away again on their next. `make check` passed, 1238 tests. Looked at: the
 folder's front, the hints, the license going back face up; screenshots sent.
 
+## M9: the catalog
+
+GAME.md 8.8 is the design, STORY.md 6.6a its line of small print. Asked for by the user on
+2026-10-07, after 0.14.0: every profile keeps which jokers and power-ups it ever took, and the title
+opens a catalog of them, the ones never taken face down. Built in worktree `.claude/worktrees/catalog`,
+branch `catalog`, from master at 2fc4801. A task names the GAME.md section it builds, in brackets.
+
+### Progress
+
+| Phase | What | State |
+|---|---|---|
+| C0 | The record: what a profile keeps, and who writes it | |
+| C1 | Power-ups say what they do, and their numbers | |
+| C2 | The screen and its Jokers page | |
+| C3 | The Power-ups page | |
+| C4 | The title's way in, the NEW tags and the story's line | |
+| C5 | Wrapping up | |
+
+### Questions, and the defaults built
+
+Asked on 2026-10-07 with a default each; the work goes ahead on the defaults until an answer says
+otherwise.
+
+1. Where it opens: a Catalog button on the title, between Garage and Settings, a screen of its own
+   (or a Settings tab beside Statistics). Default: the title.
+2. Two pages, Jokers and Power-ups, as tabs like the settings', the shoulder buttons between them.
+3. The count on each tab, Jokers 12/35, gold once complete.
+4. What counts: every joker into a local seat's hand, from the pick or off the floor, and every
+   power-up picked up, in every room, the Garage and the driving test too.
+5. Who: the profile playing and every linked profile, offline and online; guests, bots and watchers
+   nothing; nothing new on the wire.
+6. A count per card, Taken 14 times, at the pane's foot.
+7. Order: jokers by rarity, kind, name; power-ups first set then later set, in GAME.md 7.1's order.
+8. Never taken: a face-down card with a question mark, no name, kind or rarity; its pane says only
+   Not found yet. Power-ups: a gray chip with a question mark.
+9. Details always on, Stacks up to ×3; Full stack, a button and the details key, shows the stack at
+   its most. Starts at one copy.
+10. The story: the term under the effect from stage 2, and a line under the title by stage, as on
+    the Statistics page (or also "Terms accepted 12/35" from stage 2). Default: the line only.
+11. The power-up pane: picture, name, a sentence, then facts read from the item's numbers.
+12. The power-ups' sentences reworded to go without numbers.
+13. No House small print on power-ups.
+14. A NEW tag on a card found since the catalog last showed it, gone once highlighted; nothing on
+    the title.
+15. Profiles from before start empty.
+16. `++ --catalog-all` in a debug build fills the playing profile's catalog.
+17. From the title only, not the pause menu.
+
+### Decisions fixed for implementation
+
+- **`CatalogState` in the profile.** A `[catalog]` section in the profile's file, written by
+  `Profile`: `jokers` and `items`, each a dictionary of id to times taken, and `fresh`, the ids found
+  and not yet looked at. Ids this version does not know are kept as they are and never shown or
+  counted, so a joker taken out of the game, or one from a newer version, loses nobody's record.
+- **`CatalogRecord` writes it.** A node beside `MatchRecord` in every room a player here can take
+  something in: the match scene, the lobby, the driving test and the Garage. It hears
+  `Events.joker_taken` and `Events.item_picked`, which every machine already hears for its own seats,
+  finds the seat's profile as `MatchRecord.profile_for` does, and keeps it in memory; it saves as the
+  room is left, in `MatchRecord.GROUP`, so `Game.go_to_title` writes it before unlinking the seats.
+  Same guards as `MatchRecord`: the current scene's, never headless, `anywhere` for a test.
+- **Nothing on the wire.** No message, snapshot or plan carries it.
+- **Facts from the item.** `PowerUp.facts()` returns the lines of numbers each item's pane shows,
+  each subclass reading its own exports, so a number tuned in the data is the number the page says.
+- **The pane is the match's.** The Jokers page shows `JokerDetail` itself, so the story's term and
+  every rule of the pane are the same in both.
+
+### C0: the record [8.8, 8.5]
+
+- [ ] `scripts/catalog_state.gd`, `class_name CatalogState`: `jokers`, `items`, `fresh`; `take_joker`,
+      `take_item`, `times`, `found`, `is_fresh`, `look_at`; read and write the section, keeping
+      unknown ids.
+- [ ] `Profile.catalog`, read and written with the rest.
+- [ ] `scenes/match/catalog_record.gd`, `class_name CatalogRecord`: added in the match scene (not on
+      a dedicated server), the lobby, the driving test and the Garage; writes on leaving.
+- [ ] Tests: a pick and a floor joker and an item go into the seat's profile, a linked seat's into
+      its own, a bot's and a guest's nowhere; the section reads back; unknown ids survive; headless
+      writes nothing unless `anywhere`.
+
+### C1: power-ups say what they do [7.1]
+
+- [ ] Each item's `description` one sentence without numbers.
+- [ ] `PowerUp.facts()` and each item's own lines.
+- [ ] Tests: every item has a sentence and its facts' numbers are its exports'.
+
+### C2: the screen and its Jokers page [8.8]
+
+- [ ] `scenes/ui/catalog_screen.gd` and `.tscn`, `class_name CatalogScreen`: title, tabs with
+      counts, Back, the shoulder buttons; `Game.go_to_catalog`.
+- [ ] The Jokers page: the grid in GAME.md 8.8's order, cards fitted to the room, the face-down
+      back, the cursor lifting a card, `JokerDetail` beside it with details on and Taken N times,
+      Full stack on a button and the details key.
+- [ ] Tests: the count, the order, a face-down card names nothing, Full stack.
+
+### C3: the Power-ups page [8.8]
+
+- [ ] Chips in the sets' order, the gray chip, the pane with sentence and facts and the set.
+- [ ] Tests.
+
+### C4: the title, NEW and the story [8.8, STORY.md 6.6a]
+
+- [ ] The title's Catalog button.
+- [ ] NEW tags from `fresh`, cleared under the cursor and saved on Back.
+- [ ] `StoryLines.CATALOG_LINE` by stage under the title.
+- [ ] `++ --catalog-all` in a debug build.
+- [ ] Tests.
+
+### C5: wrapping up
+
+- [ ] CHANGELOG, README's debug arguments, `make check`, screenshots for the user.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

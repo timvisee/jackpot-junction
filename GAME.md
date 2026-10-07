@@ -605,7 +605,7 @@ else's results screen, see 10.3.
   pick left open under the notice would be asking for a choice about a match that
   is not there any more.
 - The title screen offers Play, Play Online, the Driving School, the Garage,
-  Settings and Quit, and until the driving test of 9.4a is passed a flyer
+  the Catalog of 8.8, Settings and Quit, and until the driving test of 9.4a is passed a flyer
   beside the Driving School button, pointing at it: a sign of the school's
   paper cut to an arrow at the button (`ArrowStyle`, 8.1a), a red hairline
   inside its edge, the learner's L on it, NOW ENROLLING blinking in the rubber
@@ -1857,6 +1857,12 @@ Later set, off by default and switched on per match in the lobby:
 | Swivel Cannon   | 12 s of free aim with the right stick, the mouse or a finger, no aim assist     |
 | Bullet Wipe     | Erases every bullet within 8 m                                                  |
 
+Nothing in a match says more of an item than its picture and its name: it is held for a second or
+two, 8.3a. The catalog of 8.8 says the rest, each item's sentence of what it does and the numbers
+in the tables above that the HUD never shows, how long it lasts, how many shots and how far it
+reaches, read from the item itself so the two can never say different things. The sentence goes
+without numbers for that reason.
+
 ### 7.2 Owned turrets and decoys
 
 - Everything a turret or decoy does is attributed to its owner: kills give the
@@ -1878,7 +1884,9 @@ a real downside. Starting set; balance is untested.
 From the story's second stage, 8.7, the pane that describes a card carries one line of small print
 under its effect: the term the card is, in the house's words, "Formerly a day of the month." under
 Payday. The lines are in STORY.md 6.3, and a joker added here gets its line there in the same change.
-The Effect column below is still the whole of what a card does.
+The Effect column below is still the whole of what a card does. Every card a profile has taken is
+kept for it and can be looked up from the title in the catalog of 8.8, and the ones it never took
+lie face down there.
 
 | Joker            | Rarity   | Kind   | Effect                                                                    |
 |------------------|----------|--------|---------------------------------------------------------------------------|
@@ -3726,7 +3734,8 @@ Back at the top right, and what was last done, a binding bound or reset, between
   Seats page is, under a line saying so. A profile is a person's save, kept
   apart from how the machine is set up: the names, karts and ways to drive of the four
   seats, the driver license and its plate, how far through the driving school they got,
-  how far through the story of 8.7 they are, and the LAN game and server they last
+  how far through the story of 8.7 they are, every joker and power-up they ever took for
+  the catalog of 8.8, and the LAN game and server they last
   played on, each profile a file of its own in a folder beside the settings file,
   `profiles/1.cfg` and on. The picture, the sound, the
   controls and their bindings, the touch layout and the lobby's choices stay with the
@@ -3847,6 +3856,7 @@ touches.
 | Microprint | The HUD's corner blocks and the title | 8.1a | 6.4 |
 | Loading | The line under the bar | 8.6 | 6.5 |
 | Statistics | A line under the title; a Shifts row after the ending | 8.5 | 6.6 |
+| The catalog | A line under the title from stage 2; each joker's term, as in its pane | 8.8 | 6.6a |
 | The driving school | The Highway Code's edition and a handful of its lines; after the ending, the examiner | 9.4a | 6.7 |
 | The rooms | The Yard's sign, the Workbench's calendar, After Hours' pictures | 8.1 | 6.8 |
 | The crowd | In step from stage 4 | 8.1 | 6.9 |
@@ -3911,6 +3921,54 @@ task, with how each was done and checked.
 in order to play, the standings, the HUD's labels, the announcer's calls, and a bot's name and driving
 anywhere but the Final Hand. A line of the story that could only be true by changing one of these is a
 line to change.
+
+### 8.8 The catalog
+
+The title's Catalog is the record of every joker and every power-up the profile playing has ever
+taken, laid out the way a hand lays out its cards, so a card taken once can be read again away from
+a match, and the deck still to meet shows as the cards lying face down. It counts what was taken
+rather than what was offered: a card seen in a pick and passed over is still face down.
+
+**What is kept.** Every joker that comes into a hand at this machine, from the respawn pick of 3.7
+or off the floor, and every power-up picked up off a pad or out of a crate, 7.1, in every room:
+a match, each map of a Grand Prix, the lobby, the driving test and the Garage. Each is kept with how
+many times it was taken. The profile keeps it beside its statistics, 8.5: the first seat's goes into
+the profile playing, a seat another profile sits in, 3.8, into that one, and a guest's, a bot's and a
+watcher's nowhere. Online, each machine keeps its own out of what it is told anyway, the host's word
+that a seat here took a card or an item, so nothing of it goes over the wire, and a client keeps what
+its seats took just as a host does. Only the room the game is in writes, and never a headless run,
+written as the room is left, as the statistics are. A profile from before the catalog starts it
+empty.
+
+**The screen.** A screen of its own from the title's Catalog, between the Garage and Settings, with
+two pages as the settings have, Jokers and Power-ups, the shoulder buttons stepping between them, each
+tab saying how many of how many have been found, Jokers 12/35, in gold once the whole set has. Back is
+the title. The cards and chips fill a grid on the left, shrunk to fit the screen, and the pane
+describing the one under the cursor stands on the right.
+
+**Jokers.** Every joker in the game, ordered by rarity, common first, then by kind, stat, rule and
+cursed, then by name, so a card keeps its place as more are found. A card taken is drawn as the hand
+draws it, 8.3; one never taken lies face down, the back of a card with a question mark on it, saying
+neither its name, its kind nor how rare it is. The card under the cursor lifts and lights up as in
+the respawn pick, and the pane is the pane of 8.3, the one a match describes a card in: its name, how
+rare and what kind, what it does, and from the story's second stage the term it is under that, 8.7.
+In the catalog the pane always has what the hand shows only while the details key is held, Stacks up
+to ×3 for a joker that stacks; and Full stack, a button that also answers to the details key, Alt or
+a press of the right stick, shows every card that stacks as its whole stack would be, ×3 beside its
+name and the numbers the stack changed in gold, one copy's beside each in brackets, until it is
+pressed again. Its foot says how many times it was taken, Taken 14 times. A card face down says only
+Not found yet. A card found since the catalog last showed it wears a gold NEW tag on its corner until
+the cursor has been on it.
+
+**Power-ups.** The same for the items, each its picture of 8.3a on a chip in its color, the first set
+and then the later set, in the order of 7.1; one never picked up is a gray chip with a question mark.
+Its pane says what the item does in a sentence, then the numbers no match shows: how long it lasts,
+how many shots, how far it reaches, its fuse, and which set it is in, the later one switched on in
+the lobby, each read from the item itself, 7.1. The House prints no terms on an item.
+
+**The story.** The jokers' terms are the story's, 8.7, from the second stage, and from then a line
+under the screen's title says whose record it is, STORY.md 6.6a. Nothing else moves with it: the
+catalog is a record, not a way to progress, and unlocks nothing, STORY.md 10.
 
 ## 9. Modes
 
