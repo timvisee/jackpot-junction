@@ -618,7 +618,8 @@ else's results screen, see 10.3.
   found, reached going left from the buttons as the license is going right, either of them slid out
   and marked as a button is while the cursor is on it, and marked in pencil while a note in it is
   unread; while its Final Hand is due a flyer in the house's gold points at Play the way the
-  school's points at its button; and after its ending Play reads Clock in, doing what it always did,
+  school's points at its button; and after its ending Play reads Clock in and Play Online Clock in
+  online, doing what they always did,
   a line in the Count Room's green takes the place of the line under the name, and the seal's fine
   print reads otherwise: STORY.md 7.2, 8.1 and 8.6. A question asked over the title, this one or any
   other, keeps the cursor on its own two answers. Play goes straight into the lobby, the waiting
@@ -3808,9 +3809,12 @@ of the title, the way the license does from the right, DO NOT FILE on it in mark
 the middle and opens on the notes found so far, one on each side of a leaf in the story's order,
 turned as the Highway Code's pages are and as fast as the arrows or a pad's shoulder buttons are
 pressed, every leaf seen going over, each page's number pencilled at its foot, each note a little
-askew on its page under a clip, tape or a staple, and the pages' bottom corners folded up with the
-button that turns them on the fold; the menu's cursor reaches it going left from the buttons. A note
-can be taken off its page, growing up off it, to be looked at larger, closer and turned over,
+askew on its page under a clip, tape or a staple; the menu's cursor reaches it going left from the
+buttons, and Back takes it off the folder or the license again. A note
+can be taken off its page, growing up off it, by a click or the hand's button, to be looked at
+larger, closer and turned over, a click turning it and a right click putting it back, the folder's
+and the closer look's buttons there for the mouse and showing their keys and pad buttons when those
+are in hand,
 tilting toward the mouse as the license does with the light moving softly over the paper, the notes
 either side sliding in and out, and a few have something on the back; what is kept at the back after
 the ending is looked at the same way, its gold catching the light; a cross puts
@@ -5108,12 +5112,14 @@ right corner of the title, alone, for the device last touched, the
 way a joker is shown out of the hand, held up to be looked at: it turns a little
 in perspective toward the mouse as it moves, or the way the right stick is
 pushed, or the way a phone is tilted from how it was held as the card came up,
-which needs no permission of the phone, and settles back, with Put it away
-under it and a line saying what
-puts it away for the device in hand, its Back drawn
-in, a click beside the card with a mouse, a tap on a touch screen, and never a
-click on a pad; and on the License tab of the settings, 8.5, with the plate to
-change under it.
+which needs no permission of the phone, and settles back, with turning arrows
+that turn it over and a cross that puts it away under it, as Kit's folder has,
+STORY.md 7.2: there for the mouse, never taking the cursor, the key or pad button
+each answers to drawn on it while keys or a pad are in hand, and a line saying how
+to turn it and put it away for the device in hand; a click turns it over and a
+right click puts it away, a tap on the card turns it and a tap beside it puts it
+away; and on the License tab of the settings, 8.5, with the plate to change under
+it.
 
 After the story's ending, 8.7, the license carries the house's own gold stamp, APPROVED, over its
 lower left corner as the Department's PASSED is over its lower right; its class reads K · Operator,

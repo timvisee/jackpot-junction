@@ -360,9 +360,10 @@ Spoilers throughout, like STORY.md.
 | S15 | The second look, the user's notes | Done |
 | S16 | The third look, the user's notes | Done |
 | S17 | The fourth look, the user's notes | Done |
+| S18 | The fifth look, the user's notes | In progress |
 
-Next up: the user's look at S17, then their play-through, S13's last task, and tuning the pace of
-S0 after it. The phases are in the order they are best built, each standing on its own:
+Next up: S18, the user's fifth round of notes; then their play-through, S13's last task, and tuning
+the pace of S0 after it. The phases are in the order they are best built, each standing on its own:
 after S0 to S7 the story's margins are all in the game and could ship, the notes and the ending
 after them. S10 can be built alongside anything before S11, which needs it. On picking the work up
 again: this table, then the first unticked task of the phase in progress, then that task's sections
@@ -1201,6 +1202,34 @@ the one before can slide away. Note 9's arrow comes in along `ARROW_RISE`. While
 folder's suite failed now and then and once aborted, while the user had the game running from this
 worktree and gdUnit could not clear `reports/one`; with that folder cleared it passed thirteen runs
 in a row. `make check` passed, 1237 tests. Looked at: every item, screenshotted and sent.
+
+### S18: the fifth look, the user's notes
+
+The user's fifth round of notes, 2026-10-07, taken as given with these defaults: Play Online reads
+Clock in online; the lobby's ticket is a small drawing of one rather than the ticket made small;
+the license view goes the way of the folder and the closer look, its buttons mouse-only like theirs,
+and the folder takes a right click to put it away as the other two do; the binds are drawn inside the
+buttons, at their right; Enter still looks closer and turns over, as Tab and Y do; notes are kept by a
+key of their own, a profile's numbers from before read as today's notes. DO NOT FILE stays until the
+user picks a line from the suggestions. STORY.md and GAME.md first. One commit an item.
+
+- [x] STORY.md and GAME.md: every decision below written in first.
+- [ ] The folded corners and their binds gone [7.2].
+- [ ] Play Online reads Clock in online after the ending [8.6].
+- [ ] The stick turns one page a push, let go between [7.2].
+- [ ] Putting a note back is quiet [7.2].
+- [ ] The folder stays where it is while a note is up [7.2].
+- [ ] On the title, Back takes the cursor off the folder or the license to the buttons [7.2].
+- [ ] A tiny drawn ticket on the lobby's ticket [8.1].
+- [ ] The license view, the folder and the closer look alike: icon buttons for the mouse only, a click
+      turning over and a right click putting away, the hand's button looking closer in the folder,
+      the binds drawn on the buttons with keys or a pad [7.2].
+- [ ] The House: the pits' cables each their own, red patch cables over the racks, less green [3.9].
+- [ ] Notes kept by a key of their own, gaps and all [5.2].
+
+Verify: the story's suites and `make check`; screenshots of each, sent to the user.
+
+Status: in progress.
 
 ## Pending
 
