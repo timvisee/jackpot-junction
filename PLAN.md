@@ -1226,6 +1226,13 @@ user picks a line from the suggestions. STORY.md and GAME.md first. One commit a
       the binds drawn on the buttons with keys or a pad [7.2].
 - [x] The House: the pits' cables each their own, red patch cables over the racks, less green [3.9].
 - [x] Notes kept by a key of their own, gaps and all [5.2].
+- [x] Later the same round: the folder's shutting heard a moment sooner; the next page no longer
+      blinks up for a frame before a leaf turns; on the title Tab no longer shows the license, and
+      hints at the folder and the license, for keys or a pad only, say how to reach and open them;
+      accept, not the hand's button, takes a note out; A and D turn pages; a pad's triggers hold
+      a note as close as they are pulled; the license grows up off the title's card and back; the
+      arrows' binds left off where there is no page; the folder beside the slip comes out and
+      opens its cover a little to draw the eye [7.2].
 
 Verify: the story's suites and `make check`; screenshots of each, sent to the user.
 

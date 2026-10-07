@@ -983,15 +983,18 @@ hand, a paper clip, a strip of tape or two, or a staple. There are no empty page
 
 **A closer look.** A note can be taken off its page: it comes up off the page to the middle of the
 screen, growing as it comes, over the folder darkened behind it, the way the license comes up in
-full, and goes back down onto its page when it is put back. The notes either side of it slide in
-and out as the arrows are pressed. Like
+full, and goes back down onto its page when it is put back; the license, shown from the title,
+grows up off the card peeking in and goes back down onto it the same way. The notes either side of
+it slide in and out as the arrows, A and D, or a pad's shoulders are pressed, and a pad's triggers
+hold it as close as they are pulled. Like
 the license it turns a little toward the mouse, the stick or the phone and the light moves softly
 over it, as it does over paper rather than over the license's laminate; on the House's invitation
 and its golden ticket the gold catches the light. The folder, the closer look and the license work
 alike: their buttons are drawn, never take the cursor and are there for the mouse, a cross putting
 away and turning arrows turning over; with keys or a pad the button each answers to is drawn on it.
-A click turns a thing over and a right click puts it away; on the folder the hand's button, as on the
-license, takes the open note out for a closer look. On the title the folder and the license are
+A click turns a thing over and a right click puts it away; on the folder accept, Enter or a pad's A,
+takes the open note out for a closer look, and the hand's button turns a note or the license over.
+On the title the folder and the license are
 reached with the cursor and opened with accept, a hint under each saying which while keys or a pad
 are in hand, and Back takes the cursor off them and back to the buttons. It can be looked at closer,
 moved about and turned over, and put back. The folder's buttons and the closer look's are drawn
@@ -1023,7 +1026,8 @@ in the House's print:
   counts the new notes or says how many there are.
 
 **Right after a map.** Offline, after a map in which a note was taken, the folder peeks in from the
-left edge beside the payout slip as it does on the title, its pencil mark on it, and opens over the
+left edge beside the payout slip as it does on the title, its pencil mark on it, coming out from the
+edge and opening its cover a little and shutting it a few times to draw the eye, and opens over the
 slip on a click or a tap or on the button that opens the hand of jokers, drawn beside it for the
 device last touched, the way the title opens the license, GAME.md 3.8. Put away, it leaves the slip
 as it was, the cursor where it was. Nothing else is waiting on this machine offline, so reading costs

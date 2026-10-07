@@ -3811,7 +3811,7 @@ turned as the Highway Code's pages are and as fast as the arrows or a pad's shou
 pressed, every leaf seen going over, each page's number pencilled at its foot, each note a little
 askew on its page under a clip, tape or a staple; the menu's cursor reaches it going left from the
 buttons, and Back takes it off the folder or the license again. A note
-can be taken off its page, growing up off it, by a click or the hand's button, to be looked at
+can be taken off its page, growing up off it, by a click or accept, to be looked at
 larger, closer and turned over, a click turning it and a right click putting it back, the folder's
 and the closer look's buttons there for the mouse and showing their keys and pad buttons when those
 are in hand,
