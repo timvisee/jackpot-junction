@@ -356,10 +356,10 @@ Spoilers throughout, like STORY.md.
 | S11 | The Final Hand | Done |
 | S12 | After the ending | Done |
 | S13 | Wrapping up | Done, but for the user's play-through |
-| S14 | The first look, the user's notes | In progress |
+| S14 | The first look, the user's notes | Done |
 
-Next up: S14, the user's first round of notes; then their play-through, S13's last task, and tuning
-the pace of S0 after it. The phases are in the order they are best built, each standing on its own:
+Next up: the user's look at S14, and their play-through, S13's last task, and tuning the pace of S0
+after it. The phases are in the order they are best built, each standing on its own:
 after S0 to S7 the story's margins are all in the game and could ship, the notes and the ending
 after them. S10 can be built alongside anything before S11, which needs it. On picking the work up
 again: this table, then the first unticked task of the phase in progress, then that task's sections
@@ -1071,7 +1071,18 @@ noted; STORY.md and GAME.md were brought in line first. One commit an item.
 
 Verify: the story's suites and `make check`; screenshots of each, sent to the user.
 
-Status: in progress.
+Status: built, every item; the play-through of S13 is still the user's. Choices made on the way:
+the closer look draws each face into a picture at the size it is shown, oversampled, since scaling a
+page up blurred its letters; Look closer has the folder's cursor, Put it away is Back, a click
+beside it or its button; the folder's peek hides while the folder is out of it; the backs are a
+table of their own, `StoryNotes.BACKS`, note 1's band added to STORY.md 7.3 and note 21's back read
+whole rather than torn mid-line; the pencil's scratch is made here from filtered noise; NOTE
+COLLECTED waits four seconds at most for a call; the room's name under the arena is blacked out
+with the rest, and `HouseStamp` and its line are gone. The ticket of answer 14 (c) was drawn as a
+mock for the user to compare, not built. `make check` passed, 1235 tests; on the runs before it,
+the multiplayer check twice had a client leave something behind at exit and once a client time out
+driving to a pad, flakes of the check's timing rather than of anything here, which runs headless
+with the story off. Looked at: every item, screenshotted.
 
 ## Pending
 
