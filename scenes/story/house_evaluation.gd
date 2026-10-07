@@ -1,12 +1,13 @@
 class_name HouseEvaluation
 extends VBoxContainer
-## The House's section under the Final Hand's payout slip, STORY.md 8.4: past a perforation, the
-## evaluation line by line with dotted leaders, filled in for the candidate, STATUS blank. The ways
-## on are gone; in their place the House's rubber stamp hangs off the slip beside STATUS, gold
-## rather than the Department's red, with "Click the stamp to make it official" under the slip, or
-## Tap, or Press. Pressed by anybody at this machine, it comes down over STATUS, which writes the
-## Final Hand into the profile, see [method FinalHand.stamp_down], and then there is one way on,
-## Continue, in foil.
+## The House's page at the end of the Final Hand's payout slip, STORY.md 8.4: past a perforation,
+## the evaluation line by line with dotted leaders, filled in for the candidate, STATUS blank. The
+## slip's ways on are gone, Continue on to this page in their place; here the House's rubber stamp
+## hangs off the slip beside STATUS, gold rather than the Department's red, with "Click the stamp
+## to make it official" under the slip, or Tap, or Press, and the cursor on it once the page is in
+## view. Pressed by anybody at this machine, it comes down over STATUS, which writes the Final Hand
+## into the profile, see [method FinalHand.stamp_down], and then there is one way on, Continue, in
+## foil.
 
 ## Continue pressed, after the stamp.
 signal finished
@@ -18,10 +19,6 @@ const DOT := Color(HouseTheme.INK, 0.4)
 ## How much room STATUS's blank and the stamp hanging beside it take.
 const BLANK := Vector2(250.0, 60.0)
 const STAMP_ROOM := Vector2(150.0, 130.0)
-## How long the slip is up before it scrolls down to the House's section, and how long that takes:
-## the podium first, then what the House has to say.
-const SCROLL_AFTER := 1.6
-const SCROLL_TAKES := 1.2
 
 var match_node: Match
 var lines: Array[Array] = []
@@ -31,23 +28,24 @@ var go_on: Button
 var ways: VBoxContainer
 
 var _blank: Control
-var _scrolled := false
+var _bill: PayoutBill
 
 
-## The section and its stamp put on [param screen], the slip of [param in_match]'s whistle.
+## The page and its stamp put on [param screen], the slip of [param in_match]'s whistle.
 static func add_to(screen: ResultsScreen, in_match: Match) -> HouseEvaluation:
 	var section := HouseEvaluation.new()
 	section.name = "HouseEvaluation"
 	section.match_node = in_match
 	section.lines = FinalHand.evaluation(in_match)
 	section._build()
+	section._bill = screen.bill
+	screen.bill.turned.connect(section._on_turned)
 	screen.take_the_house(section, section.ways)
 	return section
 
 
 func _build() -> void:
 	add_theme_constant_override("separation", 4)
-	add_child(MenuTheme.perforation())
 	var title := _text(StoryLines.EVALUATION_TITLE, Type.STRONG, INK)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(title)
@@ -85,12 +83,12 @@ func _build() -> void:
 	ways.name = "HouseWays"
 	ways.alignment = BoxContainer.ALIGNMENT_CENTER
 	ways.add_theme_constant_override("separation", 10)
-	hint = _text("", Type.TEXT, FAINT)
+	hint = _text("", Type.TEXT, HouseTheme.QUIET)
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	ways.add_child(hint)
 	go_on = MenuTheme.button(StoryLines.CONTINUE, 26)
 	go_on.name = "Continue"
-	go_on.theme_type_variation = HouseTheme.PAPER_PRIMARY
+	go_on.theme_type_variation = HouseTheme.PRIMARY
 	go_on.custom_minimum_size.x = ResultsScreen.WAY_WIDTH
 	go_on.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	go_on.visible = false
@@ -99,16 +97,8 @@ func _build() -> void:
 	_say_how()
 
 
-func _ready() -> void:
-	stamp.grab_focus.call_deferred()
-
-
-## Where it comes down: over STATUS's blank, whatever has moved since it was hung; and once the
-## slip is up, down to here.
+## Where it comes down: over STATUS's blank, whatever has moved since it was hung.
 func _process(_delta: float) -> void:
-	if not _scrolled and is_visible_in_tree():
-		_scrolled = true
-		_scroll_down()
 	if stamp != null and not stamp.has_slammed() and _blank != null:
 		var over := (
 			_blank.global_position
@@ -118,30 +108,11 @@ func _process(_delta: float) -> void:
 		stamp.lands_at = over - Vector2(RubberStamp.SIZE.x * 0.5, RubberStamp.SIZE.y * 0.82)
 
 
-## The slip scrolled down to the section and its stamp, on a slip too tall to show it all.
-func _scroll_down() -> void:
-	var scroll: ScrollContainer = null
-	var node := get_parent()
-	while node != null and scroll == null:
-		scroll = node as ScrollContainer
-		node = node.get_parent()
-	if scroll == null:
+## The cursor on the stamp once this page, the bill's last, is in view.
+func _on_turned(page: int) -> void:
+	if page != _bill.page_count() - 1 or stamp.has_slammed() or not is_visible_in_tree():
 		return
-	var down := create_tween()
-	down.tween_interval(SCROLL_AFTER)
-	(
-		down
-		. tween_method(
-			func(share: float) -> void:
-				var bar := scroll.get_v_scroll_bar()
-				scroll.scroll_vertical = roundi((bar.max_value - bar.page) * share),
-			0.0,
-			1.0,
-			SCROLL_TAKES
-		)
-		. set_trans(Tween.TRANS_SINE)
-		. set_ease(Tween.EASE_IN_OUT)
-	)
+	stamp.grab_focus()
 
 
 func _say_how() -> void:

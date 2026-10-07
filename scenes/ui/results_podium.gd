@@ -59,9 +59,17 @@ func show_top(standings: Array[PlayerSlot]) -> void:
 	visible = not _karts.is_empty()
 	# Nothing is drawn until there is something to draw. A viewport set to update always does so
 	# whether or not anybody can see it, and this one is hidden for the whole match.
-	_viewport.render_target_update_mode = (
-		SubViewport.UPDATE_ALWAYS if visible else SubViewport.UPDATE_DISABLED
+	draw_while(visible)
+
+
+## Drawn while [param seen], and not while it is not: hidden, or scrolled off the screen on a long
+## slip, see [PayoutBill].
+func draw_while(seen: bool) -> void:
+	var mode := (
+		SubViewport.UPDATE_ALWAYS if seen and not _karts.is_empty() else SubViewport.UPDATE_DISABLED
 	)
+	if _viewport.render_target_update_mode != mode:
+		_viewport.render_target_update_mode = mode
 
 
 func _process(delta: float) -> void:

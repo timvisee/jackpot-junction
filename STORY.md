@@ -1489,8 +1489,9 @@ had won, and the slip a few seconds later says who did.
 
 ### 8.4 The evaluation
 
-The payout slip comes up as ever: the podium, every line, the WINNER stamp on whoever won. Under
-the lines, past a perforation, the House has added a section:
+The payout slip comes up as ever: the podium, every line, the WINNER stamp on whoever won. The
+House has added a page of its own under it, past a perforation, at the end of the bill, GAME.md
+3.8; the slip comes up on its own page, and Continue in place of the ways on turns to the House's:
 
 ```
 HOUSE EVALUATION · FINAL HAND
@@ -1519,10 +1520,11 @@ for the best driver, or even a good one, only for a person it cannot quite predi
 how many bots were still at the table when the whistle went, three unless somebody joined and took
 one's seat. `{trait}` is the classification of 6.2 for the match.
 
-The ways on are gone. In their place is the House's rubber stamp, hanging off the slip beside STATUS
+The ways on are gone. On the House's page is its rubber stamp, hanging off the slip beside STATUS
 the way the driving test's hangs off the license, GAME.md 9.4a: a wooden handle on a base of gold
-rather than red, the control that presses it drawn under it, and under the slip "Click the stamp to
-make it official", or Tap, or Press. Nothing goes on without stamping. Pressed, it slams down over
+rather than red, the control that presses it drawn under it, the cursor on it once the page is in
+view, and under the slip "Click the stamp to make it official", or Tap, or Press. Nothing goes on
+without stamping. Pressed, it slams down over
 STATUS: two gold rings with APPROVED between them, THE HOUSE over the word and `{date}` under it. The
 player has approved their own selection, which is the first thing an Operator does.
 

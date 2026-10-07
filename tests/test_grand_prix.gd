@@ -431,7 +431,7 @@ func test_the_podium_says_the_choosing_is_on_the_next_map() -> void:
 	screen.fill_in()
 	for node: Node in screen.find_children("*", "Button", true, false):
 		assert_bool((node as Button).toggle_mode).is_false()
-	assert_str(screen._keep_note.text).contains("next map starts")
+	assert_str(screen.map_page.note.text).contains("next map starts")
 
 
 func _ids(jokers: Array[Joker]) -> Array[StringName]:
@@ -527,17 +527,17 @@ func _run_at(round: int, rounds: int) -> void:
 func test_the_podium_in_the_middle_of_a_run_leaves_the_points_to_the_standings() -> void:
 	_run_at(1, 3)
 	var screen := await _podium_after(1, 3)
-	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
-	for text: String in _texts(screen):
+	assert_str(screen.map_page.heading.text).is_equal(ResultsScreen.TITLE)
+	for text: String in _texts(screen.map_page):
 		assert_bool(text.contains("points")).override_failure_message(text).is_false()
 	await _to_the_run(screen)
-	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	assert_str(screen.run_page.heading.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
 	# After the first map nobody has moved, so no row keeps a gap before its name for an arrow.
-	var arrows := screen._rows.find_children("*", "Control", true, false).filter(
+	var arrows := screen.run_page.rows.find_children("*", "Control", true, false).filter(
 		func(each: Node) -> bool: return (each as Control).custom_minimum_size == RankArrow.SIZE
 	)
 	assert_array(arrows).is_empty()
-	var texts := _texts(screen)
+	var texts := _texts(screen.run_page)
 	assert_bool(texts.has("+%d" % GrandPrix.POINTS[0])).is_true()
 	assert_bool(texts.has("+%d" % GrandPrix.POINTS[1])).is_true()
 
@@ -548,9 +548,10 @@ func test_the_podium_after_the_last_map_is_the_grand_prix() -> void:
 	_run_at(2, 2)
 	var screen := await _podium_after(2, 2)
 	# The last map's results come first, as on every map.
-	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
+	assert_str(screen.map_page.heading.text).is_equal(ResultsScreen.TITLE)
+	assert_object(screen.run_page).is_null()
 	await _to_the_run(screen)
-	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	assert_str(screen.run_page.heading.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
 	var run := Game.grand_prix
 	var ranked := run.standings(screen.match_node.slots)
 	var texts := _texts(screen)
@@ -638,7 +639,8 @@ func test_the_end_of_a_run_is_a_party_on_a_podium() -> void:
 			up = true
 			break
 	assert_bool(up).override_failure_message("the standings never came up").is_true()
-	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	assert_str(screen.run_page.heading.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	assert_int(screen.bill.aim()).is_equal(1)
 	assert_bool(finale.is_shown()).is_true()
 	var shot := finale.global_position + GrandPrixFinale.SHOT_FROM
 	assert_float(finale._camera.global_position.distance_to(shot)).is_less(0.05)
@@ -681,15 +683,15 @@ func test_the_party_can_be_skipped_and_only_ends_a_run() -> void:
 	await await_idle_frame()
 	await await_idle_frame()
 	assert_bool(screen.visible).is_true()
-	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	assert_str(screen.run_page.heading.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
 	# Skipped straight through the drop, so the music is back.
 	assert_bool(screen.match_node.finale.has_dropped()).is_true()
 	assert_bool(Audio.is_music_hushed()).is_false()
 	_run_at(1, 3)
 	var early := await _podium_after(1, 3)
-	early._standings.pressed.emit()
+	early._pager.on.pressed.emit()
 	assert_object(early.match_node.finale).is_null()
-	assert_str(early._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	assert_int(early.bill.aim()).is_equal(1)
 
 
 ## Every label under [param node], for asking what a screen says without walking its boxes.
@@ -702,28 +704,36 @@ func _texts(node: Node) -> PackedStringArray:
 	return found
 
 
+## A page turned to on the bill, once it has come to the middle.
+func _settled() -> void:
+	await await_millis(int(PayoutBill.TURN * 1000.0) + 250)
+
+
 func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
 	_run_at(1, 3)
 	var screen := await _podium_after(1, 3)
-	# The map's own podium first, the first of two pages, with one way on: how the run stands.
-	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
-	assert_str(screen._caption.text).contains("map 1 of 3")
+	# The map's own podium first, at the head of a bill of two pages, how the run stands under it.
+	assert_int(screen.bill.page_count()).is_equal(2)
+	assert_str(screen.map_page.heading.text).is_equal(ResultsScreen.TITLE)
+	assert_str(screen.map_page.caption.text).contains("map 1 of 3")
+	assert_str(screen.run_page.heading.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	assert_str(screen.run_page.caption.text).is_equal("Standings after map 1 of 3")
 	assert_bool(screen._pager.visible).is_true()
 	assert_int(screen._pager.page).is_equal(0)
-	assert_bool(screen._standings.disabled).is_false()
-	assert_bool(screen._map_podium.disabled).is_true()
-	# The next map is there from the podium too, for whoever has seen enough.
+	assert_bool(screen._pager.on.disabled).is_false()
+	assert_bool(screen._pager.back.disabled).is_true()
+	# The next map is there from the podium too, for whoever has seen enough, and the cursor on it.
 	assert_bool(screen._next.visible).is_true()
 	assert_bool(screen._rematch.visible).is_false()
 	assert_bool(screen._quit.visible).is_false()
 	assert_bool(screen._lobby.visible).is_false()
-	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._standings)
-	# Then the standings so far, and from them the next map and nowhere else.
-	screen._standings.pressed.emit()
-	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
-	assert_str(screen._caption.text).is_equal("Standings after map 1 of 3")
+	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._next)
+	# Turned on to the standings so far, and from them the next map and nowhere else.
+	screen._pager.on.pressed.emit()
+	await _settled()
+	assert_int(screen.bill.page).is_equal(1)
 	assert_int(screen._pager.page).is_equal(1)
-	assert_bool(screen._standings.disabled).is_true()
+	assert_bool(screen._pager.on.disabled).is_true()
 	assert_bool(screen._next.visible).is_true()
 	assert_bool(screen._lobby.visible).is_false()
 	assert_bool(screen._quit.visible).is_false()
@@ -731,19 +741,16 @@ func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
 	# Nobody is champion of a run that is still going.
 	assert_bool(Game.grand_prix.revealed).is_false()
 	assert_bool(screen._continue.visible).is_false()
-	# And back to the map's podium, and on to the standings again, as often as anybody likes.
-	assert_bool(screen._map_podium.disabled).is_false()
-	screen._map_podium.pressed.emit()
-	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
-	assert_str(screen._caption.text).contains("map 1 of 3")
-	assert_int(screen._pager.page).is_equal(0)
-	assert_bool(screen._map_podium.disabled).is_true()
-	assert_bool(screen._standings.disabled).is_false()
+	# And back up to the map's podium, and down again, as often as anybody likes.
+	screen._pager.back.pressed.emit()
+	await _settled()
+	assert_int(screen.bill.page).is_equal(0)
+	assert_bool(screen._pager.back.disabled).is_true()
+	assert_bool(screen._pager.on.disabled).is_false()
 	assert_bool(screen._next.visible).is_true()
-	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._standings)
-	screen._standings.pressed.emit()
-	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
-	assert_bool(screen._next.visible).is_true()
+	screen._pager.on.pressed.emit()
+	await _settled()
+	assert_int(screen.bill.page).is_equal(1)
 
 
 ## Somebody watching has nothing to press, GAME.md 10.3: a map's podium goes on to how the run
@@ -760,13 +767,13 @@ func test_a_watchers_podium_counts_down_to_the_standings() -> void:
 	var ring_up := screen._watcher_ring.visible
 	var left := screen._watcher_ring.value
 	screen._process(ResultsScreen.WATCHER_WAIT)
-	var shown := screen._showing_run
+	var shown := screen.bill.aim() == 1
 	screen._process(0.0)
 	var ring_after := screen._watcher_ring.visible
 	# Gone back to the map's podium, the watcher is looking at it, and it stays.
-	screen._map_podium.pressed.emit()
+	screen.bill.turn_to(0, false)
 	screen._process(ResultsScreen.WATCHER_WAIT * 2.0)
-	var stayed := not screen._showing_run and not screen._watcher_ring.visible
+	var stayed := screen.bill.aim() == 0 and not screen._watcher_ring.visible
 	Net.session = null
 	watching.free()
 	assert_bool(ring_up).is_true()
@@ -776,36 +783,33 @@ func test_a_watchers_podium_counts_down_to_the_standings() -> void:
 	assert_bool(stayed).is_true()
 
 
-## The standings after a map in the middle of a run replace that map's podium on a screen that is
-## already up, and the pane holds all of them rather than keeping the size it measured while the
-## map's rows were cleared out, with the run's hanging out of the bottom of it.
-func test_the_standings_in_the_middle_of_a_run_fit_their_pane() -> void:
+## The slip is one bill, GAME.md 3.8: the map's page and the run's one under the other with a
+## perforation between them, each as tall as the other, the barcode only at the foot of the last,
+## running from the top of the screen down to the ways on.
+func test_the_pages_of_a_run_are_one_bill() -> void:
 	_run_at(1, 3)
 	var screen := await _podium_after(1, 3)
-	await await_idle_frame()
-	var podium_height := screen.size.y
-	assert_float(podium_height).is_equal_approx(screen.get_combined_minimum_size().y, 0.5)
-	screen._standings.pressed.emit()
-	await await_idle_frame()
-	await await_idle_frame()
-	assert_float(screen.size.y).is_equal_approx(screen.get_combined_minimum_size().y, 0.5)
-	var column: Control = screen.get_child(0)
-	assert_float(screen.size.y).is_greater_equal(column.get_combined_minimum_size().y)
-	# Still in the middle of the screen, however tall it has become, and never taller than it.
-	var middle := screen.position.y + screen.size.y * 0.5
-	var screen_middle := screen.get_parent_area_size().y * 0.5
-	assert_float(middle).is_equal_approx(screen_middle, 1.0)
-	var shown := screen.size.y * screen.scale.y
-	assert_float(shown).is_less_equal(screen.get_parent_area_size().y)
+	for i: int in 3:
+		await await_idle_frame()
+	var first: Control = screen.bill.find_child("Leaf0", true, false)
+	var second: Control = screen.bill.find_child("Leaf1", true, false)
+	assert_float(first.size.y).is_equal_approx(second.size.y, 1.0)
+	assert_bool(first.is_ancestor_of(screen.map_page)).is_true()
+	assert_bool(second.is_ancestor_of(screen.run_page)).is_true()
+	assert_bool(second.is_ancestor_of(screen._end)).is_true()
+	assert_int(screen.bill.find_children("*", "Perforation", true, false).size()).is_equal(1)
+	assert_float(screen.bill.position.y).is_equal(0.0)
+	assert_float(screen.bill.size.y).is_less_equal(screen._foot.position.y)
 
 
 ## And the last map ends the run: no next map and no rematch, back to the lobby or the title.
 func test_the_podium_after_the_last_map_ends_the_run() -> void:
 	_run_at(3, 3)
 	var screen := await _podium_after(3, 3)
-	# The last map's own podium first, a page on its own with one way on, Continue, to the run's:
+	# The last map's own podium first, the only page yet, with one way on, Continue, to the run's:
 	# no arrows, since there is no page to turn to and none to turn back to.
-	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
+	assert_int(screen.bill.page_count()).is_equal(1)
+	assert_str(screen.map_page.heading.text).is_equal(ResultsScreen.TITLE)
 	assert_bool(screen._pager.visible).is_false()
 	assert_bool(screen._continue.visible).is_true()
 	assert_bool(screen._next.visible).is_false()
@@ -813,10 +817,14 @@ func test_the_podium_after_the_last_map_ends_the_run() -> void:
 	assert_bool(screen._lobby.visible).is_false()
 	assert_bool(screen._quit.visible).is_false()
 	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._continue)
-	# And the run's podium ends it: back to the lobby or the title, a page on its own too.
+	# And the run's podium ends it: printed under the map's after the party and turned to, back to
+	# the lobby or the title from there, and the map's still a scroll up.
 	await _to_the_run(screen)
-	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
-	assert_bool(screen._pager.visible).is_false()
+	assert_int(screen.bill.page_count()).is_equal(2)
+	assert_str(screen.run_page.heading.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	assert_str(screen.run_page.caption.text).is_equal("Final standings after 3 maps")
+	assert_int(screen.bill.aim()).is_equal(1)
+	assert_bool(screen._pager.visible).is_true()
 	assert_bool(screen._continue.visible).is_false()
 	assert_bool(screen._lobby.visible).is_true()
 	assert_bool(screen._quit.visible).is_true()
@@ -831,11 +839,13 @@ func test_a_single_map_podium_is_as_it_was() -> void:
 	assert_bool(screen._rematch.visible).is_true()
 	assert_bool(screen._lobby.visible).is_true()
 	assert_bool(screen._quit.visible).is_true()
-	assert_bool(screen._caption.visible).is_false()
+	assert_bool(screen.map_page.caption.visible).is_false()
+	assert_int(screen.bill.page_count()).is_equal(1)
 
 
 ## GAME.md 9.7: on a pad the shoulders turn the pages in the middle of a run, the left back and the
-## right on, and do nothing with no page that way or once the run is over.
+## right on, and on the keys Page Up and Page Down; nothing with no page that way. Their binds hang
+## on the arrows while keys or a pad are in hand, and not while the mouse is.
 func test_the_shoulders_turn_the_pages() -> void:
 	_run_at(1, 3)
 	var screen := await _podium_after(1, 3)
@@ -845,22 +855,28 @@ func test_the_shoulders_turn_the_pages() -> void:
 		press.pressed = true
 		return press
 	screen._unhandled_input(shoulder.call(JOY_BUTTON_LEFT_SHOULDER))
-	assert_int(screen._pager.page).is_equal(0)
+	assert_int(screen.bill.aim()).is_equal(0)
 	screen._unhandled_input(shoulder.call(JOY_BUTTON_RIGHT_SHOULDER))
-	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
-	assert_int(screen._pager.page).is_equal(1)
+	assert_int(screen.bill.aim()).is_equal(1)
+	await _settled()
 	screen._unhandled_input(shoulder.call(JOY_BUTTON_RIGHT_SHOULDER))
-	assert_int(screen._pager.page).is_equal(1)
-	screen._unhandled_input(shoulder.call(JOY_BUTTON_LEFT_SHOULDER))
-	assert_str(screen._title.text).is_equal(ResultsScreen.TITLE)
-	# Drawn beside the arrows while a pad is what is being played on.
-	var was := Game.last_input_keyboard
+	assert_int(screen.bill.aim()).is_equal(1)
+	var key := InputEventKey.new()
+	key.keycode = KEY_PAGEUP
+	key.pressed = true
+	screen._unhandled_input(key)
+	assert_int(screen.bill.aim()).is_equal(0)
+	await _settled()
+	var was_pointer := Game.last_input_pointer
+	var was_keyboard := Game.last_input_keyboard
+	Game.last_input_pointer = false
 	Game.last_input_keyboard = false
 	screen._pager._process(0.0)
-	var shown := screen._pager._on_hint.visible
-	Game.last_input_keyboard = true
+	var shown := screen._pager.on.get_node_or_null("Bind") != null
+	Game.last_input_pointer = true
 	screen._pager._process(0.0)
-	var hidden := not screen._pager._on_hint.visible
-	Game.last_input_keyboard = was
+	var hidden := screen._pager.on.get_node_or_null("Bind") == null
+	Game.last_input_pointer = was_pointer
+	Game.last_input_keyboard = was_keyboard
 	assert_bool(shown).is_true()
 	assert_bool(hidden).is_true()

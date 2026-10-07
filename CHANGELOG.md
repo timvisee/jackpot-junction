@@ -41,6 +41,9 @@ below, and hands the notes to the release workflow.
   Nothing on it is drawn again every frame any more, which a phone's battery will notice.
 - **More room in the settings.** The title and Back share the top of the screen so the page gets
   the rest, and the gamepad's tab buttons sit beside the tabs only while a gamepad is plugged in.
+- **The payout slip is one long bill.** A Grand Prix's standings are printed under the map's
+  results and scrolled down to; the arrows beside the slip, the shoulders or Page Up and Page Down
+  turn its pages.
 
 ### Fixed
 

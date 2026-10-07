@@ -1291,11 +1291,11 @@ STORY.md and GAME.md first. One commit an item.
       their pages, held by a clip, tape, a staple and tape over two corners [7.2].
 - [x] In the lobby, beside the tiny golden ticket, the next match is blacked out but for "Next:"
       [8.1].
-- [ ] The payout slip is one long bill: its pages one under another past a perforation, torn at the
+- [x] The payout slip is one long bill: its pages one under another past a perforation, torn at the
       top and the foot of the whole, run off the screen and scrolled over; a turn brings a page to
       the middle; the pager upright beside it; the ways on along the foot of the screen [GAME.md 3.8,
       9.7].
-- [ ] The House's evaluation is a page of its own at the end of the Final Hand's bill, turned to
+- [x] The House's evaluation is a page of its own at the end of the Final Hand's bill, turned to
       with Continue, the cursor on the stamp once it is in view [8.4].
 
 Verify: the story's suites, the results screen's and the Grand Prix's, and `make check`;

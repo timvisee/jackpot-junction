@@ -78,16 +78,20 @@ func test_the_screen_ranks_everybody_with_their_score_and_awards() -> void:
 	assert_object(screen._style.frame).is_equal(
 		Color(match_node.slots[1].color(), MenuTheme.PANE_FRAME)
 	)
-	# A payout slip, GAME.md 8.1a: paper torn along its top and foot, the winner's line stamped.
+	# A payout slip, GAME.md 8.1a: paper torn along its top and foot, the winner's line stamped,
+	# one page on one bill with the barcode and the small print at its foot, and no pages to turn.
 	assert_bool(screen._style.torn).is_true()
 	assert_object(screen.find_child("Stamp", true, false)).is_not_null()
+	assert_int(screen.bill.page_count()).is_equal(1)
+	assert_bool(screen.bill.find_child("Leaf0", true, false).is_ancestor_of(screen._end)).is_true()
+	assert_bool(screen._pager.visible).is_false()
 	# Three players have their lines at the full size; it is a room of more that has them smaller.
-	assert_bool(screen._compact).is_false()
+	assert_bool(screen.map_page.compact).is_false()
 	assert_int(_name_size(screen)).is_equal(30)
 
 
 ## GAME.md 3.8: past four players the slip's lines are compact, and on a screen too short for them
-## all up and down move the slip for a pad or the keys, whose cursor is on the buttons.
+## all up and down move the bill for a pad or the keys, whose cursor is on the buttons.
 func test_a_room_of_eight_has_compact_lines_that_scroll() -> void:
 	var root := get_tree().root
 	var scale_was := root.content_scale_factor
@@ -98,26 +102,26 @@ func test_a_room_of_eight_has_compact_lines_that_scroll() -> void:
 	await _runner.simulate_frames(10, 17)
 	await _skip_the_pause(match_node)
 	var screen: ResultsScreen = match_node.hud._results
-	assert_bool(screen._compact).is_true()
-	assert_int(screen._rows.get_child_count()).is_equal(8)
-	assert_int(_name_size(screen)).is_equal(ResultsScreen.COMPACT_NAME)
+	assert_bool(screen.map_page.compact).is_true()
+	assert_int(screen.map_page.rows.get_child_count()).is_equal(8)
+	assert_int(_name_size(screen)).is_equal(SlipPage.COMPACT_NAME)
 	await _runner.simulate_frames(3, 17)
 	var down := InputEventAction.new()
 	down.action = &"ui_down"
 	down.pressed = true
 	assert_bool(screen._scroll_lines(down)).is_true()
-	assert_int(screen._body.scroll_vertical).is_equal(ResultsScreen.SCROLL_STEP)
+	assert_int(screen.bill.scrolled()).is_equal(ResultsScreen.SCROLL_STEP)
 	var up := InputEventAction.new()
 	up.action = &"ui_up"
 	up.pressed = true
 	screen._scroll_lines(up)
-	assert_int(screen._body.scroll_vertical).is_equal(0)
+	assert_int(screen.bill.scrolled()).is_equal(0)
 	root.content_scale_factor = scale_was
 
 
 ## The size the first line's name is written at.
 func _name_size(screen: ResultsScreen) -> int:
-	var line := screen._rows.get_child(0).get_child(0).get_child(0)
+	var line := screen.map_page.rows.get_child(0).get_child(0).get_child(0)
 	return (line.get_child(1) as Label).get_theme_font_size("font_size")
 
 
@@ -145,7 +149,7 @@ func test_the_top_three_stand_on_the_podium() -> void:
 	match_node.time_left = 0.02
 	await _runner.simulate_frames(10, 17)
 	await _skip_the_pause(match_node)
-	var podium: ResultsPodium = match_node.hud._results._podium
+	var podium: ResultsPodium = match_node.hud._results.map_page.podium
 	assert_bool(podium.visible).is_true()
 	assert_int(podium._karts.size()).is_equal(3)
 	# The winner is in the middle on the tallest step, and the steps come down from there.
@@ -178,7 +182,7 @@ func test_the_podium_only_holds_who_is_there() -> void:
 	match_node.time_left = 0.02
 	await _runner.simulate_frames(10, 17)
 	await _skip_the_pause(match_node)
-	var podium: ResultsPodium = match_node.hud._results._podium
+	var podium: ResultsPodium = match_node.hud._results.map_page.podium
 	assert_int(podium._karts.size()).is_equal(2)
 	match_node.hud._results.fill_in()
 	assert_int(podium._karts.size()).is_equal(2)

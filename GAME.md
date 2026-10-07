@@ -450,26 +450,34 @@ with their place on a chip of their color and their name in it, darkened to read
 paper, dotted leaders across to what they banked on the right, their kills and
 deaths in gray, and a dashed rule under the line. The line of whoever is reading the
 slip is marked in foil, the way a line is with a highlighter, and the winner's is
-stamped WINNER with the driving test's red rubber stamp. A barcode of the match's
-number and the small print close the slip, and the ways on are its stub, torn off
-along a perforation, printed for paper rather than cut from stock: the one that
-carries the match on, Rematch, Next map or Continue, a ticket of ink with its words
-in foil, and the rest only drawn in ink, a hairline round words in ink; the page
-arrows and dots of a Grand Prix are in ink too, the page being read marked in the
-stamp's red. The small print moves on with the story of 8.7, a second line joins it from the
+stamped WINNER with the driving test's red rubber stamp.
+
+The slip is one long bill, its pages printed one under another, each past a perforation and
+headed as it is: the map just played, then in a Grand Prix how the run stands, 9.7, and at the
+Final Hand the house's evaluation, STORY.md 8.4. It is torn off the printer at the top of the
+whole bill and at its foot, and a barcode of the match's number and the small print close it, at
+the foot of the last page only. A page shorter than the longest is paper left blank at its foot,
+so every page stands the same. The bill runs down the middle of the screen and off it, and is
+scrolled over rather than paged through: it fades out at the top of the screen and over the ways
+on, so the paper goes off the screen rather than being cut, its torn edges with it. Turning the
+page brings the next one to the middle of the screen in a short scroll. Beside the bill on its
+left, clear of the standings down the right of the screen, the pages' arrows stand upright, up and
+down, with a dot for each page between them and the page in view lit in gold; an arrow with no
+page that way is out of sight. They are the mouse's and a finger's and never take the cursor: on
+a pad the shoulders turn the pages, on the keys Page Up and Page Down, their binds hung on the
+arrows while a pad or the keys are in hand, 8.3. A wheel, a finger, and up and down on a pad or
+the keys move the bill by hand, since the cursor is on the ways on, a row along the foot of the
+screen under the bill, on the HUD's dark scrim: the one that carries the match on, Rematch, Next
+map or Continue, in foil, and the rest only ways out. Each page's podium is drawn only while it
+is in view. The small print moves on with the story of 8.7, a second line joins it from the
 story's second stage, from its third a line of microprint under the reader's own line says how the
 house classified them, CLASSIFIED: HUNTER · PROFILE UPDATED, worked out from the match's own numbers
 as the awards are, after the ending the slip is headed Payslip, and the Final Hand adds the house's
 evaluation under the lines with the house's own stamp in place of the ways on: STORY.md 6.2 and 8.4.
 Offline, after a map in which one of the story's notes was taken, its folder peeks in beside the
 slip and opens over it, STORY.md 7.2.
-On a screen too short for the slip, a phone's under a big UI scale,
-8.5, the photo and the lines scroll between the title and the stub, which stay put,
-right up to the foil band under the title and down to the hairline over the tear,
-and an edge with more lines past it is shaded in the slip's ink against that line,
-fading in, so it is plain there is more to scroll to; up and down on a pad or the
-keys scroll it too, since the cursor is on the stub, whose ways on are a row and take
-left and right. A room of more than four, 9.3, has its lines compact, smaller
+A screen narrower than the bill and its arrows, a phone's under a big UI scale, 8.5, has both
+shrunk about the middle to the width there is. A room of more than four, 9.3, has its lines compact, smaller
 lettering, a smaller chip and less air between them, the stamp lying over the line under
 the winner's, so a slip of eight is
 not twice as long as a slip of four. Under each player up to three awards pick out what they did most
@@ -2701,7 +2709,8 @@ Amber and red belong to the boards and the warnings.
 - **The podium** is a payout slip: cream paper torn off the house's printer with
   its edges serrated, the photo finish framed at the top, each player as a line of
   a receipt with dotted leaders to their score, a barcode at the foot, and the red
-  rubber stamp of the driving test saying WINNER.
+  rubber stamp of the driving test saying WINNER. Its pages are one long bill, one
+  under another past a perforation, scrolled over, 3.8.
 - **Questions** are tickets with a road sign in their header.
 - **Loading** is a lane whose center line is painted gold as the room goes up.
 
@@ -4353,9 +4362,9 @@ does for anybody. Nobody waits for a watcher: not the ready pad, not the lamps o
 for everybody still building it, and not a pause, which the room agrees without them. The line
 under the ready count says they are watching, in place of the one that says how to take a seat,
 since there is no seat for them to take. Nor is there anything for them to press: a map's
-podium goes on to how the run stands by itself after six seconds, the finale first after the
-last map, and the host still decides when the next map starts. It does so the once: a watcher
-who goes back to the map's podium is looking at it, and it stays. A small gold ring beside the
+podium scrolls on to how the run stands, the page under it, by itself after six seconds, the
+finale first after the last map, and the host still decides when the next map starts. It does so
+the once: a watcher who goes back up to the map's podium is looking at it, and it stays. A small gold ring beside the
 line saying the host starts the next map empties over those six seconds, so it going on is no
 surprise.
 
@@ -5512,20 +5521,15 @@ it is, so a client knows as well as the host whether its podium leads on.
 
 **Between maps.** A map that is not the last ends on its podium as any map does, and the run's
 standings so far, see The end below, headed Standings after map so many of so many, are the page
-after it. The foot of the pane is in three, each a third of its width. On the left are the arrows
-that turn the two pages, drawn rather than lettered, with a dot for each page between them and
-the page being looked at lit in gold; an arrow with no page that way is dimmed and the cursor
-passes it by. On a pad the shoulders turn them too, the left back and the right on, as they turn
-the tabs of the settings in 8.5, and are drawn outside the arrows while a pad is what is being
-played on. On the right is Next map, on both pages, for whoever moves everybody on. In the
-middle a client is told who does, and a watcher's countdown sits beside that, see 9.3. The cursor
-starts on the right arrow on the podium and on Next map on the standings, so going on is a press
-at a time; the two can be looked at in turn for as long as the host leaves them up. After the
-last map there are no pages: its podium is a page on its own, with Continue on the right in place
-of the arrows, which goes on to the party in the room and then the final standings, a page on
-their own too, whose ways on take the right of the foot. There is no going back to the last map's
-podium, which has handed over to the party, and a row of arrows to turn to nothing would say
-there was. A single map has no pages, and its ways on are the whole row, centered.
+under it on the same bill, 3.8, past a perforation, once the run's points are in. They are turned
+to with the arrows beside the bill, the shoulders or Page Up and Page Down, or scrolled down to,
+and back up again as often as anybody likes while the host leaves them up. Next map is in the row
+along the foot whichever page is in view, for whoever moves everybody on, with the cursor on it,
+so going on is a press; beside it a client is told who does, and a watcher's countdown sits beside
+that, see 9.3. After the last map its podium is the only page at first, with Continue in the row,
+which goes on to the party in the room and then the final standings, printed under the last map's
+podium and turned to as the party ends; the last map is still a scroll up, and the ways on are
+Back to lobby and Back to title. A single map is one page, and its ways on are the whole row.
 There is no rematch of a map in the
 middle of a run and no leaving from its podium -- the pause menu is still the way out. The
 podium says which map of how many it was. Online the host moves everybody on, the same way it

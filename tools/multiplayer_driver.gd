@@ -522,21 +522,23 @@ func _client_after_map_1(first: Node) -> Node:
 		return null
 	_check(not podium._next.visible, "a client has no Next map of its own")
 	_check(podium._host_decides.text == "The host starts the next map.", "and is told who does")
-	_check(podium._caption.text.contains("map 1 of %d" % MAPS), "its podium says map 1 of 2")
+	_check(
+		podium.map_page.caption.text.contains("map 1 of %d" % MAPS), "its podium says map 1 of 2"
+	)
 	if not await _until(
 		func() -> bool: return Game.grand_prix != null and Game.grand_prix.scored_round == 0,
 		10.0,
 		"told how the run stands after map 1"
 	):
 		return null
-	_check(not _says_what_was_paid(podium), "its podium leaves the points to the run's standings")
+	_check(not _says_what_was_paid(podium.map_page), "its podium leaves the points to the run's")
 	_say("SCORES 1 %s" % _scores(one))
 	# The run's standings are everybody's to look at, and the host still decides when to go on.
 	if not await _until(func() -> bool: return podium._pager.visible, 10.0, "it offers the run's"):
 		return null
-	podium._standings.pressed.emit()
-	_check(podium._title.text == ResultsScreen.GRAND_PRIX_TITLE, "then the run's standings")
-	_check(_says_what_was_paid(podium), "which say what map 1 paid")
+	podium._pager.on.pressed.emit()
+	_check(podium.bill.aim() == 1, "then the run's standings, under the podium")
+	_check(_says_what_was_paid(podium.run_page), "which say what map 1 paid")
 	_check(not podium._next.visible and podium._host_decides.visible, "still the host's to go on")
 	# What it held at the whistle, as the host told it, to be offered again on the next map.
 	for seat: int in _seats_here(one):
@@ -869,9 +871,7 @@ func _watcher() -> void:
 				# After the last map that is the finale first, and the standings over it once the
 				# camera is there, which this host does not stay for.
 				var hud: MatchHud = scene.match_node.hud
-				return (
-					hud != null and (hud._results._showing_run or scene.match_node.finale != null)
-				),
+				return hud != null and (hud._results._run_added or scene.match_node.finale != null),
 			120.0,
 			"the run's standings came up after map %d with no press" % round
 		):
@@ -1154,17 +1154,18 @@ func _on_to_the_standings(podium: ResultsScreen, round: int) -> bool:
 	if not await _to_the_run(podium):
 		return false
 	_check(
-		podium._caption.text.contains("after map %d of %d" % [round, MAPS]),
+		podium.run_page.caption.text.contains("after map %d of %d" % [round, MAPS]),
 		"saying how it stands after map %d" % round
 	)
 	return _check(podium._next.visible, "and they offer Next map")
 
 
 ## The last map's podium is the map's, like every other; the run's is one press on from it: the
-## arrow to the next page in the middle of a run, and Continue after the last map, which has no
-## pages to turn, GAME.md 9.7.
+## arrow down to the next page in the middle of a run, and Continue after the last map, whose run's
+## page is printed under it only after the party, GAME.md 9.7.
 func _to_the_run(last: ResultsScreen) -> bool:
-	if not _check(last._title.text == ResultsScreen.TITLE, "the last map has its own podium"):
+	var own := last.map_page.heading.text == ResultsScreen.TITLE
+	if not _check(own, "the last map has its own podium"):
 		return false
 	await _until(
 		func() -> bool: return last._pager.visible or last._continue.visible,
@@ -1175,10 +1176,10 @@ func _to_the_run(last: ResultsScreen) -> bool:
 	if rules.round >= rules.rounds:
 		_check(last._continue.visible and not last._pager.visible, "it has no pages, and Continue")
 	await _seconds(READING / 2.0)
-	(last._continue if last._continue.visible else last._standings).pressed.emit()
+	(last._continue if last._continue.visible else last._pager.on).pressed.emit()
 	# After the last map the finale in the room comes first, and the standings go up over it.
 	return await _until(
-		func() -> bool: return last.visible and last._title.text == ResultsScreen.GRAND_PRIX_TITLE,
+		func() -> bool: return last.visible and last.run_page != null and last.bill.aim() == 1,
 		20.0,
 		"then the Grand Prix's"
 	)
@@ -1266,7 +1267,7 @@ func _bot_seat(match_node: Match) -> int:
 ## Whether a podium has the points chips on it that a map of a run pays.
 ## Whether [param podium] says what the map just played paid anybody: "+10" beside a total on the
 ## run's standings, GAME.md 9.7, and nowhere on a map's own podium.
-func _says_what_was_paid(podium: ResultsScreen) -> bool:
+func _says_what_was_paid(podium: Node) -> bool:
 	for label: Node in podium.find_children("Gained", "Label", true, false):
 		if (label as Label).text.begins_with("+"):
 			return true

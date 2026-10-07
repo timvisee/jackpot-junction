@@ -113,7 +113,7 @@ func test_the_slip_carries_the_story() -> void:
 	var marked := screen.find_children("Classified", "Label", true, false)
 	assert_int(marked.size()).is_equal(1)
 	assert_str((marked[0] as Label).text).starts_with("CLASSIFIED: ")
-	assert_str(screen._title.text).is_equal("Payout slip")
+	assert_str(screen.map_page.heading.text).is_equal("Payout slip")
 	Story.override = Story.Stage.OPERATOR
 	screen.fill_in()
-	assert_str(screen._title.text).is_equal("Payslip")
+	assert_str(screen.map_page.heading.text).is_equal("Payslip")

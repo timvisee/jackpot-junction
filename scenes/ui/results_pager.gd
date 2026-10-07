@@ -1,25 +1,25 @@
 class_name ResultsPager
-extends HBoxContainer
-## The two pages of the screen after a map of a Grand Prix, GAME.md 9.7: the map's podium and the
-## run's standings, turned with an arrow each way and a dot for each page, the page being looked
-## at lit in gold. An arrow with no page that way is dimmed rather than taken away, so the arrows
-## stay where they are and the dots stay between them. On a pad the shoulders turn them too, and
-## are drawn outside the arrows while a pad is what is being played on.
+extends VBoxContainer
+## The pages of the payout slip, GAME.md 3.8 and 9.7, stood upright beside it: an arrow up and an
+## arrow down, drawn rather than lettered, with a dot for each page between them and the page in
+## view lit in gold. An arrow with no page that way is out of sight, keeping its room so the dots
+## stay where they are. The arrows are the mouse's and a finger's and never take the cursor, which
+## stays on the ways on under the slip: on a pad the shoulders turn the pages, the left back and the
+## right on, as they turn the tabs of the settings, and on the keys Page Up and Page Down, hung on
+## the arrows while keys or a pad are in hand, see [ButtonBinds].
 
-const ARROW := Vector2(72.0, 56.0)
+const ARROW := Vector2(64.0, 52.0)
 ## The arrowhead drawn on each arrow's button, wide and tall.
-const HEAD := Vector2(12.0, 20.0)
+const HEAD := Vector2(20.0, 12.0)
 const DOT := 10.0
 const DOT_GAP := 10.0
 const FAINT := Color(1.0, 1.0, 1.0, 0.25)
 const INK := Color(0.88, 0.88, 0.92)
-## The same printed on paper, GAME.md 8.1a: the arrows and dots in ink, the page being looked at
-## marked in the rubber stamp's red rather than foil, which does not show on cream.
-const PAPER_FAINT := Color(HouseTheme.INK, 0.22)
-## The shoulders that turn the pages back and on, the ones that turn the settings' tabs.
+## The shoulders and the keys that turn the pages back and on.
 const BACK_BUTTON := JOY_BUTTON_LEFT_SHOULDER
 const ON_BUTTON := JOY_BUTTON_RIGHT_SHOULDER
-const HINT_SIZE := 18
+const BACK_KEY := KEY_PAGEUP
+const ON_KEY := KEY_PAGEDOWN
 
 ## Back a page, and on a page.
 var back: Button
@@ -27,46 +27,47 @@ var on: Button
 var page := 0
 var pages := 2
 var _dots: Control
-var _back_hint: InputGlyph
-var _on_hint: InputGlyph
-var _paper := false
+## What the binds on the arrows were last drawn for: none, the keys or a pad.
+var _binds_for := -1
 
 
-## A pager, printed for a document with [param on_paper], see [constant PAPER_FAINT].
-static func create(on_paper := false) -> ResultsPager:
+static func create() -> ResultsPager:
 	var pager := ResultsPager.new()
-	pager._paper = on_paper
+	pager.name = "Pager"
 	pager.alignment = BoxContainer.ALIGNMENT_CENTER
-	pager.add_theme_constant_override("separation", 24)
-	pager._back_hint = _shoulder(BACK_BUTTON)
-	pager.add_child(pager._back_hint)
+	pager.add_theme_constant_override("separation", roundi(12.0 + ButtonBinds.ROOM))
 	pager.back = pager._arrow(-1.0)
+	pager.back.name = "Back"
+	ButtonBinds.mark(pager.back, &"", BACK_KEY, BACK_BUTTON)
 	pager.add_child(pager.back)
 	pager._dots = Control.new()
-	pager._dots.custom_minimum_size = Vector2(
-		pager.pages * DOT + (pager.pages - 1) * DOT_GAP, ARROW.y
-	)
 	pager._dots.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pager._dots.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	pager._dots.draw.connect(pager._draw_dots)
 	pager.add_child(pager._dots)
 	pager.on = pager._arrow(1.0)
+	pager.on.name = "On"
+	ButtonBinds.mark(pager.on, &"", ON_KEY, ON_BUTTON)
 	pager.add_child(pager.on)
-	pager._on_hint = _shoulder(ON_BUTTON)
-	pager.add_child(pager._on_hint)
+	pager.show_page(0, 2)
 	return pager
 
 
-## A press of a shoulder that turns the page, the way the arrow on its side does. Returns whether
-## it did, which it does not with no page that way or while the pager is not up.
+## A press of a shoulder or a key that turns the page, the way the arrow on its side does. Returns
+## whether it did, which it does not with no page that way or while the pager is not up.
 func turn(event: InputEvent) -> bool:
-	var pad := event as InputEventJoypadButton
-	if pad == null or not pad.pressed or not is_visible_in_tree():
+	if not is_visible_in_tree() or not event.is_pressed():
 		return false
 	var arrow: Button = null
-	if pad.button_index == BACK_BUTTON:
-		arrow = back
-	elif pad.button_index == ON_BUTTON:
-		arrow = on
+	var pad := event as InputEventJoypadButton
+	var key := event as InputEventKey
+	if pad != null:
+		arrow = back if pad.button_index == BACK_BUTTON else arrow
+		arrow = on if pad.button_index == ON_BUTTON else arrow
+	elif key != null:
+		var pressed := key.physical_keycode if key.physical_keycode != KEY_NONE else key.keycode
+		arrow = back if pressed == BACK_KEY else arrow
+		arrow = on if pressed == ON_KEY else arrow
 	if arrow == null or arrow.disabled:
 		return false
 	arrow.pressed.emit()
@@ -74,65 +75,49 @@ func turn(event: InputEvent) -> bool:
 
 
 func _process(_delta: float) -> void:
-	var on_a_pad := not Game.last_input_keyboard
-	_back_hint.visible = on_a_pad
-	_on_hint.visible = on_a_pad
+	var wanted := 0 if Game.last_input_pointer else (1 if Game.last_input_keyboard else 2)
+	if wanted != _binds_for:
+		_binds_for = wanted
+		ButtonBinds.show([back, on], Game.last_input_keyboard, wanted != 0)
 
 
-static func _shoulder(button: JoyButton) -> InputGlyph:
-	var press := InputEventJoypadButton.new()
-	press.button_index = button
-	var glyph := InputGlyph.of_event(press, INK, HINT_SIZE)
-	glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	return glyph
-
-
-## On [param shown], with the arrows that can go anywhere lit and the others dimmed.
-func show_page(shown: int, can_back: bool, can_on: bool) -> void:
+## On [param shown] of [param count], with an arrow only where there is a page that way.
+func show_page(shown: int, count: int) -> void:
 	page = shown
-	# A dimmed arrow is passed over by a pad's cursor as well as by a click.
-	for arrow: Button in [back, on]:
-		arrow.disabled = not (can_back if arrow == back else can_on)
-		arrow.focus_mode = Control.FOCUS_NONE if arrow.disabled else Control.FOCUS_ALL
+	pages = count
+	_dots.custom_minimum_size = Vector2(DOT, count * DOT + maxi(count - 1, 0) * DOT_GAP)
+	ButtonBinds.show_arrow(back, shown > 0)
+	ButtonBinds.show_arrow(on, shown < count - 1)
+	_binds_for = -1
 	back.queue_redraw()
 	on.queue_redraw()
 	_dots.queue_redraw()
 
 
-## A button with an arrowhead on it pointing [param way], -1 for back and 1 for on. Drawn rather
+## A button with an arrowhead on it pointing [param way], -1 for up and 1 for down. Drawn rather
 ## than typed, the way [RankArrow] is, so it does not depend on the font having an arrow in it.
 func _arrow(way: float) -> Button:
 	var arrow := MenuTheme.button("")
 	arrow.custom_minimum_size = ARROW
-	if _paper:
-		arrow.theme_type_variation = HouseTheme.PAPER_BUTTON
-	else:
-		var dim := MenuTheme.button_style(
-			Color(MenuTheme.BUTTON_BG, 0.4), Color(MenuTheme.BUTTON_RIM, 0.05)
-		)
-		arrow.add_theme_stylebox_override("disabled", dim)
+	arrow.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	arrow.focus_mode = Control.FOCUS_NONE
 	arrow.draw.connect(_draw_head.bind(arrow, way))
 	return arrow
 
 
 func _draw_head(arrow: Button, way: float) -> void:
 	var middle := arrow.size * 0.5
-	var tip := middle + Vector2(HEAD.x * 0.5 * way, 0.0)
-	var tail := middle.x - HEAD.x * 0.5 * way
+	var tip := middle + Vector2(0.0, HEAD.y * 0.5 * way)
+	var tail := middle.y - HEAD.y * 0.5 * way
 	var points := PackedVector2Array(
-		[tip, Vector2(tail, middle.y - HEAD.y * 0.5), Vector2(tail, middle.y + HEAD.y * 0.5)]
+		[tip, Vector2(middle.x - HEAD.x * 0.5, tail), Vector2(middle.x + HEAD.x * 0.5, tail)]
 	)
-	var lit := arrow.has_focus() or arrow.is_hovered()
-	var ink := FAINT if arrow.disabled else (Color.WHITE if lit else INK)
-	if _paper:
-		ink = PAPER_FAINT if arrow.disabled else HouseTheme.INK
+	var ink := Color.WHITE if arrow.is_hovered() else INK
 	arrow.draw_colored_polygon(points, ink)
 
 
 func _draw_dots() -> void:
-	var y := _dots.size.y * 0.5
+	var x := _dots.size.x * 0.5
 	for i: int in pages:
-		var x := DOT * 0.5 + i * (DOT + DOT_GAP)
-		var lit := HouseTheme.STAMP_RED if _paper else Palette.CHIP_GOLD
-		var unlit := PAPER_FAINT if _paper else FAINT
-		_dots.draw_circle(Vector2(x, y), DOT * 0.5, lit if i == page else unlit)
+		var y := DOT * 0.5 + i * (DOT + DOT_GAP)
+		_dots.draw_circle(Vector2(x, y), DOT * 0.5, Palette.CHIP_GOLD if i == page else FAINT)

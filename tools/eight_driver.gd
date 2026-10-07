@@ -96,7 +96,10 @@ func _host() -> void:
 	var podium := await _podium(arena, 15.0)
 	if podium == null:
 		return
-	_check(podium._compact and podium._rows.get_child_count() == KARTS, "a compact row each")
+	_check(
+		podium.map_page.compact and podium.map_page.rows.get_child_count() == KARTS,
+		"a compact row each"
+	)
 	await _until(func() -> bool: return multiplayer_peers() == 0, 30.0, "the clients finished")
 	_finished = true
 
@@ -153,7 +156,10 @@ func _client() -> void:
 	var podium := await _podium(arena, 40.0)
 	if podium == null:
 		return
-	_check(podium._rows.get_child_count() == KARTS, "its podium has a row for each of the eight")
+	_check(
+		podium.map_page.rows.get_child_count() == KARTS,
+		"its podium has a row for each of the eight"
+	)
 	_finished = true
 
 
