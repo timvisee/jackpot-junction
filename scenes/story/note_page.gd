@@ -99,9 +99,10 @@ var number := 0
 var profile: Profile
 ## Whether the note is new: found and not yet read, STORY.md 7.2.
 var new := false
-## What is drawn: [code]full[/code] the folder's page, leaf, title, note and clip;
-## [code]paper[/code] the note alone, as it is looked at closer, see [NoteView]; [code]back[/code]
-## the note turned over, see [constant StoryNotes.BACKS].
+## What is drawn: [code]full[/code] the folder's page, leaf, title and number, the note laid on it
+## askew under what holds it, see [NoteOnPage]; [code]lying[/code] the note as it lies there, with
+## its shadow; [code]paper[/code] the note alone, as it is looked at closer, see [NoteView];
+## [code]back[/code] the note turned over, see [constant StoryNotes.BACKS].
 var layer := &"full"
 ## Its number in the folder, pencilled at its foot; 0 for none.
 var page_number := 0
@@ -123,6 +124,11 @@ static func make(numbered: int, of: Profile, is_new := false) -> NotePage:
 	page.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	FolderBack.lay(page, numbered, of)
 	return page
+
+
+func _ready() -> void:
+	if layer == &"full" and number > 0:
+		NoteOnPage.lay(self)
 
 
 func paper() -> StringName:
@@ -165,6 +171,9 @@ func _draw() -> void:
 	if number < 0:
 		FolderBack.draw(self, number, profile)
 		return
+	# The note itself lies on the page as a child of its own, see [NoteOnPage].
+	if full:
+		return
 	var rect := paper_rect()
 	var kind := paper()
 	var spec: Array = PAPERS.get(kind, PAPERS[&"sheet"])
@@ -173,7 +182,7 @@ func _draw() -> void:
 	var shadow := rect
 	if kind == &"flyer":
 		shadow.size.y *= 0.74
-	if full:
+	if layer == &"lying":
 		draw_rect(
 			Rect2(shadow.position + Vector2(3.0, 4.0), shadow.size), Color(0.0, 0.0, 0.0, 0.12)
 		)
@@ -193,8 +202,6 @@ func _draw() -> void:
 			return
 		&"chart":
 			_draw_chart(inside, int(spec[2]))
-			if full:
-				NotePaper.draw_clip(self, rect)
 			return
 		&"form":
 			inside.position.y += 26.0
@@ -214,9 +221,6 @@ func _draw() -> void:
 		NotePaper.draw_sketch(self, rect)
 	if kind == &"strip":
 		_draw_warning(rect)
-		return
-	if full:
-		NotePaper.draw_clip(self, rect)
 
 
 ## The note's lines down [param inside], each in its voice, wrapped to the paper, the House's
@@ -921,5 +925,3 @@ func _draw_calendar(rect: Rect2) -> void:
 		8,
 		ink
 	)
-	if layer == &"full":
-		NotePaper.draw_clip(self, rect)

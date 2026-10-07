@@ -95,6 +95,16 @@ func test_a_note_is_new_until_it_has_been_looked_at_closer() -> void:
 	assert_int(right.number).is_equal(5)
 	assert_int(left.page_number).is_equal(2)
 	assert_int(right.page_number).is_equal(3)
+	# Laid on its page by hand: askew, under a clip, tape or a staple, the same every time.
+	var lying: NotePage = right.get_node("Note")
+	var held: NoteOnPage = right.get_node("Held")
+	assert_str(String(lying.layer)).is_equal("lying")
+	assert_array(NoteOnPage.KINDS).contains([held.kind])
+	assert_float(absf(lying.rotation)).is_less_equal(NoteOnPage.ASKEW)
+	var again: NotePage = auto_free(NotePage.make(5, _profile))
+	add_child(again)
+	assert_float(again.get_node("Note").rotation).is_equal(lying.rotation)
+	assert_str(String(again.get_node("Held").kind)).is_equal(String(held.kind))
 	# Turned on to, the first new note is out for a closer look.
 	assert_object(folder.view).is_not_null()
 	assert_int(folder.view.index).is_equal(1)
