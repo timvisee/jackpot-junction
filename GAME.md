@@ -41,6 +41,17 @@ multiplayer, then online multiplayer.
 - Bullet hell: grazing, dense but readable bullet patterns.
 - Mario Kart: held items used on a button press, turbo pads.
 
+### 1.3 Story
+
+Under the casino there is a story, and it is told the way everything else in the game is: in what
+the house prints, paints and says, with no story mode of its own. A player who ignores it plays
+exactly the game this document describes; one who reads the small print finds out who runs the
+house, and the Final Hand of 8.7 ends it for everybody in a way nobody can miss. Nothing in it
+changes a rule, a number or what anything is called, and a player who wants none of it can switch it
+off, 8.5. STORY.md is its source: the world, the twist,
+every line it prints and when, and the notes a player finds. A section of this document the story
+reaches says so and names the section of STORY.md, and STORY.md names this one back.
+
 ## 2. Core loop
 
 What a player picks up and carries in the pot are called chips on every screen, in every card
@@ -368,6 +379,11 @@ Jokers are passive rule modifiers held for the rest of the match.
   down. A click on it skips as well, and the pane's line says only how to
   choose and take, or destroy.
 - Offer weights by rarity: common 60%, uncommon 30%, rare 10%.
+- From the story's first stage, 8.7, a line of small print runs under the cards of the pick, NEW
+  TERMS AVAILABLE and what follows it in STORY.md 6.3. It says nothing about the offer that is not
+  true: the cards are dealt by rarity as ever. From the second stage it reads TERMS ACCEPTED for
+  as long as a card taken takes to fly into the hand, which is what the story's one achievement is
+  named for, STORY.md 8.7.
 
 The joker catalog is in section 7.3.
 
@@ -440,7 +456,12 @@ along a perforation, printed for paper rather than cut from stock: the one that
 carries the match on, Rematch, Next map or Continue, a ticket of ink with its words
 in foil, and the rest only drawn in ink, a hairline round words in ink; the page
 arrows and dots of a Grand Prix are in ink too, the page being read marked in the
-stamp's red. On a screen too short for the slip, a phone's under a big UI scale,
+stamp's red. The small print moves on with the story of 8.7, a second line joins it from the
+story's second stage, from its third a line of microprint under the reader's own line says how the
+house classified them, CLASSIFIED: HUNTER · PROFILE UPDATED, worked out from the match's own numbers
+as the awards are, after the ending the slip is headed Payslip, and the Final Hand adds the house's
+evaluation under the lines with the house's own stamp in place of the ways on: STORY.md 6.2 and 8.4.
+On a screen too short for the slip, a phone's under a big UI scale,
 8.5, the photo and the lines scroll between the title and the stub, which stay put,
 right up to the foil band under the title and down to the hairline over the tear,
 and an edge with more lines past it is shaded in the slip's ink against that line,
@@ -590,6 +611,12 @@ else's results screen, see 10.3.
   device last touched anywhere in the game, a pad's button after a match on the
   pad, and on a touch screen the finger of 8.3, for the tap. Nothing else is written along the
   bottom: who made the music, the models and the sounds is said in Settings, About, see 8.5.
+  Once the story of 8.7 has had a note found, a manila folder peeks in from the left edge the way
+  the license does from the right, opening on the notes found, with a plain Notes button under the
+  Garage standing in for it at first; while its Final Hand is due a flyer in the house's gold points
+  at Play the way the school's points at its button; and after its ending Play reads Clock in, doing
+  what it always did, a line in the Count Room's green runs along the foot of the title and the
+  seal's fine print reads otherwise: STORY.md 7.2, 8.1 and 8.6.
   A question asked over the title, this one or any other, keeps
   the cursor on its own two answers. Play goes
   straight into the lobby, the waiting room of 9.6, the way hosting
@@ -1750,6 +1777,39 @@ where on the usual reach they hung about the middle.
 ##########################################
 ```
 
+#### House Rules
+
+Planned with the story of 8.7: the Count Room's map, 8.1, which nobody plays before the story's
+Final Hand and which joins the list after it for a profile that has played it, STORY.md 8.2 and 10.
+One size only. The same furniture as every map, laid out in a lattice no person would have drawn: the
+walls are short rows of server racks, two blocks of them on either side with a cross aisle through
+the middle where the Junction is, and a rack across the floor above and below it. The Jackpots are
+inside the rack blocks, between two rows, so collecting one is standing in a corridor with a way in
+at either end; the pits are floor tiles lifted out of the raised floor in the cross aisle, beside the
+Junction; the turbo pads are cooling vents along the top and bottom lanes and up and down the outer
+ones.
+
+```
+################################
+#.S........>....P............S.#
+#...#...#....C......B..#.C.#...#
+#...#KK.#............C.#...#...#
+#...#KK.#...########...#.F.#...#
+#...#...#.....B........#...#..v#
+#.P.#...#...C.....C....#...#...#
+#.....C...XX..JJJJ....B........#
+#.F.......XX..JJJJ.B...........#
+#...........B.JJJJ..XX.......F.#
+#........B....JJJJ..XX...C.....#
+#...#...#....C.....C...#...#.P.#
+#^..#...#........B.....#...#...#
+#...#.F.#...########...#.KK#...#
+#...#...#.C............#.KK#...#
+#...#.C.#..B......C....#...#...#
+#.S............P....<........S.#
+################################
+```
+
 ## 7. Power-ups and jokers
 
 ### 7.1 Power-ups
@@ -1802,6 +1862,11 @@ Later set, off by default and switched on per match in the lobby:
 
 Mostly rule benders, some stat tweaks, a few cursed jokers with a big upside and
 a real downside. Starting set; balance is untested.
+
+From the story's second stage, 8.7, the pane that describes a card carries one line of small print
+under its effect: the term the card is, in the house's words, "Formerly a day of the month." under
+Payday. The lines are in STORY.md 6.3, and a joker added here gets its line there in the same change.
+The Effect column below is still the whole of what a card does.
 
 | Joker            | Rarity   | Kind   | Effect                                                                    |
 |------------------|----------|--------|---------------------------------------------------------------------------|
@@ -1926,6 +1991,11 @@ them:
 The lobby names the room under the arena it belongs to, so picking a map reads as
 picking a place rather than a floor plan.
 
+A fifth room is the story's, planned with it, 8.7: the Count Room, the room the house built for
+itself, a table on a raised floor in a hall of server racks lit in a terminal's hard green, with
+nothing anybody put down and a crowd in exact rows, all alike. It is House Rules' room, 6.3, and seen
+first at the story's Final Hand, STORY.md 3.9 and 8.2.
+
 Rooms are data, not code: nothing in a room decides anything about play, which is
 exactly why the same match can be played in three of them. Adding a fourth is a
 resource file and a map that names it.
@@ -2033,7 +2103,9 @@ three meters there are between the back of the stands and where the clutter is
 allowed to start. Dealt, barrels are too wide to go anywhere but out past the
 crowd, which is a yard whose barrels nobody ever sees. A room reads as somewhere
 because of these rather than because of the clutter, which is what fills the space
-between them.
+between them. Three of them move with the story of 8.7: the yard's sign is lettered, the
+calendar is ringed and in the end turned over, and the card room's pictures are Employee of the
+Month frames, STORY.md 6.8. The hard hat on the yard's hoarding never moves, which is its part.
 
 What a room puts where is dealt rather than rolled: the kinds of thing it has are
 shuffled into a deck and dealt one to a place, so it gets one of everything before
@@ -2212,21 +2284,22 @@ says what, which is the half of the question a bench cannot answer.
   lines and fine print are only mush at that size: the license's band wears the
   chip, the title, the school and About the seal. The name is a casino and a road,
   and so is the mark. It is drawn in code like every other picture here, see 8.3a,
-  and `make logo` writes it out. The icon is the mark on nothing: `icon.png`, 512
-  pixels, for every platform, and for Windows, which picks a window's icon from a
-  set by the size it shows it at, `icon.ico` with every size from 16 to 256 pixels
-  each drawn at its size, so its small ones are the chip. The splash is the mark on
-  a plate, a ticket of the house's stock with notched corners, engraved waves and a
-  foil hairline: `splash.png`, which the boot splash shows on the stock the title
-  stands on, and `splash.ico`. `assets/logo/` keeps the icon, the foil chip alone
-  and the splash at 128, 512 and 2048 pixels for use anywhere else, and the banner
-  the README opens with, the mark with the name beside it as About sets them. It
-  also keeps Android's launcher icon, which the export names: a launcher since
-  Android 8 cuts its own shape out of layers, so the stock and its waves fill one to
-  the edges, the seal sits on another inside the circle no shape cuts into, and a
-  third is the foil chip in one ink, cut rather than shaded, for a launcher that
-  tints its icons; before Android 8, the splash. Changing the drawing and running
-  that is the whole of changing the logo.
+  and `make logo` writes it out. After the ending of the story of 8.7 the title's seal
+  alone reads JACKPOT JUNCTION · THE HOUSE · UNDER HUMAN OVERSIGHT round its ring,
+  STORY.md 8.6; the icon and everything exported keep the mark as it is. The icon is
+  the mark on nothing: `icon.png`, 512 pixels, for every platform, and for Windows,
+  which picks a window's icon from a set by the size it shows it at, `icon.ico` with every
+  size from 16 to 256 pixels each drawn at its size, so its small ones are the chip. The
+  splash is the mark on a plate, a ticket of the house's stock with notched corners,
+  engraved waves and a foil hairline: `splash.png`, which the boot splash shows on the
+  stock the title stands on, and `splash.ico`. `assets/logo/` keeps the icon, the foil
+  chip alone and the splash at 128, 512 and 2048 pixels for use anywhere else, and the
+  banner the README opens with, the mark with the name beside it as About sets them. It
+  also keeps Android's launcher icon, which the export names: a launcher since Android 8
+  cuts its own shape out of layers, so the stock and its waves fill one to the edges, the
+  seal sits on another inside the circle no shape cuts into, and a third is the foil chip
+  in one ink, cut rather than shaded, for a launcher that tints its icons; before Android
+  8, the splash. Changing the drawing and running that is the whole of changing the logo.
 - **Buttons** are the pane in miniature, tickets of 8.1a: dark stock with notched
   corners, a foil hairline faint enough to say it is a button, and the house's gold
   round whichever one has the cursor, with a lane chevron at its left end. A menu
@@ -2269,7 +2342,14 @@ says what, which is the half of the question a bench cannot answer.
   Garage takes them down with the rest of the dressing. The two ads are drawn from
   a set of house advertising as the room goes up, so a run of matches is not the
   same two posters over and over, and a line too long for its board is drawn
-  smaller rather than run off the edge of it. The clock board has something better
+  smaller rather than run off the edge of it. The set grows with the story of 8.7:
+  each stage adds lines, some with the player's name, and of the two a room draws one
+  comes from the newest stage reached. The story speaks in two more places big enough
+  for the camera: a poster of the house's on each room's back wall, pinned to the
+  pegboard, framed beside the card room's pictures or pasted on the yard's hoarding by
+  the hard hat, changed once a stage; and a word painted on the road in a box across
+  one open lane of each map, as a road paints KEEP CLEAR, which is the first thing it
+  says. STORY.md 6.1. The clock board has something better
   than a number to say at the two moments it has one: READY and SET with the
   gantry lamps of 8.3, GO! in green as the flag drops, OVERTIME flashing red
   through sudden death, and the winner's name in their own color at the whistle.
@@ -2317,7 +2397,10 @@ says what, which is the half of the question a bench cannot answer.
   Scenery throughout, with no collision and nothing that decides anything, and
   every machine runs its own off the same events. An accessibility setting in 8.5
   empties the stands for anybody who would rather have the table to themselves.
-  The Garage has none of it, the same as it has no disco lights.
+  The Garage has none of it, the same as it has no disco lights. From the story's
+  fourth stage, 8.7, the rolled place in the beat narrows map by map until the house
+  moves as one, and at its Final Hand every figure stops and turns to watch the
+  player, STORY.md 6.9.
 
 Starting palette:
 
@@ -2422,7 +2505,9 @@ stretched to fit. On stock they are drawn in foil at 6%, on paper in ink at 7%.
 Nothing engraved moves, so nothing on a pane shimmers while it is read, except the
 title's rings, which turn once every few minutes. A seal's rings have to be dense
 and narrow to read as engraving: a wide band of few lines reads as rope, which is
-why the menus' backdrop carries the license's arcs rather than a seal.
+why the menus' backdrop carries the license's arcs rather than a seal. What the microprint
+along the HUD's corner blocks and under the title's name says moves with the story of 8.7,
+STORY.md 6.4: it is the quietest place the story has.
 
 **Texture.** Nothing is flat color: a fine texture is laid inside each shape, made
 in code as a tile that repeats without a seam (`Surface`), each of its pixels
@@ -3410,7 +3495,10 @@ like any other button.
   4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed,
   and Retake the driving test, which goes to the school; or, before one is
   earned, a word on where to get one, Earn it now, which goes to the school,
-  and the learner's L the kart wears meanwhile.
+  and the learner's L the kart wears meanwhile. Under it, either way, the switch for the
+  story of 8.7, Story, for the profile playing and on to start with, over "The small
+  print, the notes, and where they lead.": off, the story's clock stops and the game is
+  the casino of its first stage throughout, STORY.md 5.4.
 - **Seats**: under a line saying what the page is for, a seat card of 8.1a each
   for the four seats at this machine, its chip numbered 1 to 4 in the seat's color,
   with a box for what the seat is called, see 3.8, with the funny-name hint in an
@@ -3556,13 +3644,16 @@ like any other button.
   before the title makes every seat a guest again; and a guest's counts nowhere. No
   reset: a new profile starts from nothing. `LifetimeStats`, written by `MatchRecord`
   a moment after the whistle, when a client has the host's last numbers, or as the
-  room is left.
+  room is left. From the story's second stage, 8.7, a line under the page's title says whose
+  record this is, and after its ending Games has one more row, Shifts, the maps played since,
+  STORY.md 6.6.
 - **Profiles**, after Statistics: who is playing at this machine, down the left as the
   Seats page is, under a line saying so. A profile is a person's save, kept
   apart from how the machine is set up: the names, karts and ways to drive of the four
   seats, the driver license and its plate, how far through the driving school they got,
-  and the LAN game and server they last played on, each profile a file of its own in a
-  folder beside the settings file, `profiles/1.cfg` and on. The picture, the sound, the
+  how far through the story of 8.7 they are, and the LAN game and server they last
+  played on, each profile a file of its own in a folder beside the settings file,
+  `profiles/1.cfg` and on. The picture, the sound, the
   controls and their bindings, the touch layout and the lobby's choices stay with the
   machine, the same whoever plays. A profile is named for its first player. Each row
   is a seat card of 8.1a, its chip in the first player's color with the name's
@@ -3597,9 +3688,13 @@ like any other button.
   experiment in what an AI model can make: everything in it not credited there
   was made by Anthropic's Claude, whose models are named in the order they worked
   on it, with the help of a human, who played it as it grew and prompted it in the
-  right direction. Then everybody else whose work is in it, what, by whom, on what terms and
-  where, which a test holds to THIRD_PARTY.md, a link to the game's GitHub page,
-  and Godot's own license, which a game made with it has to carry.
+  right direction. With the story of 8.7 that last sentence is reworded to say the same
+  thing in the story's terms, "A human oversaw it: played it as it grew, made the calls
+  no model would have made, and put their name on it.", for everybody and whether the
+  story is on or off, being true either way, STORY.md 3.11. Then everybody else whose
+  work is in it, what, by whom, on what terms and where, which a test holds to
+  THIRD_PARTY.md, a link to the game's GitHub page, and Godot's own license, which a game
+  made with it has to carry.
 
 ### 8.6 Loading a map
 
@@ -3624,6 +3719,88 @@ one screen rather than a gray one flashing up between two dark ones.
 
 Anything that cannot wait a frame -- the tests, the dev scenes -- builds the room
 in one go as before, which is the same room by the time it is finished.
+
+From the third stage of the story, 8.7, the line under the bar says who the room is being built
+for, and the Final Hand's loading screen is headed FINAL HAND, STORY.md 6.5.
+
+### 8.7 The story
+
+Planned, not built yet. The story of 1.3 is presentation and nothing else: it is told in the margins
+of the screens this document describes, and this section says which, how a player moves through it
+and what it may never touch. The words themselves are all in STORY.md, in one place, so they are
+written and read as a story rather than scattered through a design.
+
+**The clock.** A profile moves through the story by playing and nothing else: its own clock of time
+spent on maps since it earned the license of 9.4a, the match clock's time from the flag to the
+whistle or to leaving, local or online, against bots or people. A map of 1 minute moves it a fifth as
+far as a map of 5, so the story keeps one pace whatever length of map a player likes, and before the
+license it does not run at all. Six stages, each named for what the house calls the player in it:
+Customer from the license, Player from 10 minutes, Participant from 40, Number from 75 and Candidate
+from 110; the Final Hand at 160; and Operator after it. Those numbers and the notes' spacing are
+constants kept together, so the pace is a line to change once it has been played. The clock, the
+stage, the notes found and the ending are kept in the profile beside its license, 8.5, and what
+every screen at a machine shows is the story of the profile playing. When it is built every profile
+is reset once. STORY.md 5.
+
+**Switched off.** The License tab of 8.5 has a switch for it, Story, per profile and on to start
+with. Off, the clock stops and the game is the casino of the first stage throughout, with no notes,
+no folder and no Final Hand; on again, everything is back where it was. STORY.md 5.4.
+
+**Each machine's own.** None of it goes over the wire, any more than the roll of the music does,
+8.4: each machine dresses its own room and prints its own slips for its own profile, so two players in
+one online match may read different hoardings, and a machine from before the story, in the same match,
+knows nothing about it. The match itself, the one thing every machine has to agree on, it never
+touches.
+
+**Where it shows.** Each of these is described where its screen is, and its words are in STORY.md:
+
+| Surface | What moves with the story | Here | STORY.md |
+|---|---|---|---|
+| The hoardings | More lines each stage, some with the player's name | 8.1 | 6.1 |
+| A poster | One on each room's back wall, changed once a stage | 8.1 | 6.1 |
+| The road | A stenciled word in a box across one lane of each map | 8.1 | 6.1 |
+| The payout slip | Its small print, a second line from stage 2, the player's classification from stage 3, Payslip after the ending | 3.8 | 6.2 |
+| The joker pick | A line of small print under the cards from stage 1 | 3.7 | 6.3 |
+| A joker's pane | A line of small print under its effect from stage 2, the term the card is | 7.3, 8.3 | 6.3 |
+| Microprint | The HUD's corner blocks and the title | 8.1a | 6.4 |
+| Loading | The line under the bar | 8.6 | 6.5 |
+| Statistics | A line under the title; a Shifts row after the ending | 8.5 | 6.6 |
+| The driving school | The Highway Code's edition and a handful of its lines; after the ending, the examiner | 9.4a | 6.7 |
+| The rooms | The Yard's sign, the Workbench's calendar, After Hours' pictures | 8.1 | 6.8 |
+| The crowd | In step from stage 4 | 8.1 | 6.9 |
+
+**Notes.** The one thing the story puts on a table: a scrap of paper among the litter of 8.1, taken by
+driving over it the way a chip is and put away without stopping anything, NOTE COLLECTED in pencil on
+a torn scrap in the player's corner for two seconds, the one thing on the HUD the house did not
+print. Nothing the house prints ever mentions one, and nothing says how many there are. The first
+turns up in the second quick match after the license; the rest are spread over the stages, one
+turning up at a random moment of a map rather than at the countdown, at most one a match, and one
+left lying turns up again in a later map. It lies on this machine's floor only and only this
+machine's karts can take it; bots never go for it, nothing that happens in the match moves it, and a
+bullet flies over it. Never in the Garage, the waiting room, the driving school or a Grand Prix's
+party. Once one has been found a manila folder peeks in from the left edge of the title, the way the
+license does from the right, and opens on the notes found so far; a plain Notes button under the
+Garage can stand in for it at first. STORY.md 7.
+
+**The Final Hand.** At 160 minutes the title hangs a flyer at Play, cut as the driving school's is at
+its button but in the house's gold, and Play asks first: Take your seat, or Not now, which plays on as
+ever and is not asked again until the game is next started. It is a quick match played offline on
+House Rules, 6.3, in a room of its own, the Count Room, 5 minutes and three bots, by every usual rule.
+What differs: the player's seat is printed CANDIDATE wherever the house prints a name; the bots are
+named after the player, wear their dress and drive on their lifetime readings of 9.1; the crowd stops
+and watches the player; at the whistle the rig, the fireworks and the board are the player's whatever
+their place; and the payout slip carries the house's evaluation under the lines, with the house's own
+rubber stamp in place of the ways on. Then two lines on an empty screen, the license with the house's
+stamp on it, and the title, its Play reading Clock in, with a line in the Count Room's green along
+its foot and new fine print round its seal. It is never dealt online. STORY.md 8.
+
+**After it.** The game is the same game. What it prints moves on once more, the license keeps the
+house's stamp, and House Rules joins the list of maps, STORY.md 9 and 10.
+
+**What never moves.** The rules and the numbers, joker effects, the names of everything a player reads
+in order to play, the standings, the HUD's labels, the announcer's calls, and a bot's name and driving
+anywhere but the Final Hand. A line of the story that could only be true by changing one of these is a
+line to change.
 
 ## 9. Modes
 
@@ -3740,6 +3917,13 @@ chance, weighed by the trait's chattiness, a Bumper rowdier and a Cautious bot h
 as talkative, said after a moment's thought of 0.3 to 1.2 s, and a bot that has just
 said something says nothing more for 20 s. The host decides, and it comes up
 everywhere as a player's does, `BotEmotes`.
+
+**At the Final Hand** of the story, 8.7, the bots are the player: named after them, Bob 2,
+Bob 3 and Bob 4, dressed as they dress, and driving from the first second on the player's own
+lifetime items, nitro and drift, the readings of the table below, rather than learning them from
+the match as it goes; effort is the match's as ever, STORY.md 8.2. Their traits are dealt as ever.
+It is the one place the story reaches into a bot, and it changes what the bot reads, never what it
+can do.
 
 **Getting unstuck**: driving at something solid pins a kart against it, and steering
 toward a target on the far side only holds it there harder. A bot that is going
@@ -4305,51 +4489,53 @@ for the name that goes on the license, which starts with the first seat's name
 or with one off the funny list of 3.8 for a seat that never gave one and is
 the first seat's name from here on, the course in three numbered steps, driving
 theory, driving test, your license, and one big button, Enroll; Enter in the box
-enrolls too. Back on any page, Escape or B, or the menu button a touch screen
-has in the top right corner, or the pause button of a room, Start on a pad,
-asks "Leave the driving school?", "Progress will be lost. Retake your driving
-test any time from the title screen.", with Leave, which is the title, and Stay, which has
-the cursor, the page held still under the question so the book stops reading;
-Back again is Stay. The theory: the Highway Code of the
-Junction, 212th edition, a book in a leather cover with a spine and the edges of
-its leaves showing, with no word under it, since one gone as the book shuts
-made the pane jump, open at a spread of two cream pages with a running head
-over each and its page number in the outer corner, which reads itself. It comes
-up shut on the right, its spine to the left as a shut book lies, and waits to be
-opened, by a click or a tap on it or the accept button, drawn on its bottom
-right corner for the device in hand, its cover lifting a little off the pages
-now and then as if about to open, so it reads as a book to open. Beside it, on
-the left half it will open onto, "Read carefully." in the gold of a heading over
-"There will be questions." in gray, inside the book's own room so nothing moves
-when it goes: the quiz is no ambush then, and the half of the pane the book has
-yet to fill is not left empty. It fades as the book opens. Opened, the
-front cover lifting off it toward the spine and coming down over it onto the
+enrolls too. Under the button one line of small print, "Enrolling accepts the terms of the
+Dept. of Karts.", the first of the terms the story of 8.7 counts, STORY.md 6.7.
+Back on any page, Escape or B, or the menu button a touch screen has in the top
+right corner, or the pause button of a room, Start on a pad, asks "Leave the
+driving school?", "Progress will be lost. Retake your driving test any time from
+the title screen.", with Leave, which is the title, and Stay, which has the
+cursor, the page held still under the question so the book stops reading; Back
+again is Stay. The theory: the Highway Code of the Junction, 212th edition, an
+edition that goes up with the story of 8.7, a handful of its lines turning
+darker as it does, STORY.md 6.7, a book in a leather cover with a spine and the
+edges of its leaves showing, with no word under it, since one gone as the book
+shuts made the pane jump, open at a spread of two cream pages with a running
+head over each and its page number in the outer corner, which reads itself. It
+comes up shut on the right, its spine to the left as a shut book lies, and waits
+to be opened, by a click or a tap on it or the accept button, drawn on its
+bottom right corner for the device in hand, its cover lifting a little off the
+pages now and then as if about to open, so it reads as a book to open. Beside
+it, on the left half it will open onto, "Read carefully." in the gold of a
+heading over "There will be questions." in gray, inside the book's own room so
+nothing moves when it goes: the quiz is no ambush then, and the half of the pane
+the book has yet to fill is not left empty. It fades as the book opens. Opened,
+the front cover lifting off it toward the spine and coming down over it onto the
 left, a rustle each, the other way from the way it shuts at the end, on its
-title page, the game's mark and name over the book's own and its
-edition, with the first rule on the page across from it, and stands there a
-moment and a half; then its pages turn, the text cut into pages with nothing
-cut across two and no chapter heading left at the foot of one. The text is a
-code, drawn from a seeded generator so it reads the same every time: chapters
-numbered in Roman numerals, The kart, Signs and markings, Coins and pots, Pads
-and the mult, Handling, Items, Jokers, Hazards, Bots, Emotes, Bounties, Overtime
-and Examinations, each of sections numbered on through the book, long enough
-for a whole read without coming round again, each section a rule in bold with
-three to seven clauses of filler under
-it, § 3.1, § 3.2 and on, and figures falling among the clauses where they will,
-numbered as they come, the speed limit, karts crossing, a Jackpot, the
-Junction, a Royal Flush, a mult die, a drift, a pit, a roundabout; the text
-comes round again once it runs out, its numbers going on up rather than
-starting over. A leaf at a time lifts off the right page about the
-spine and comes over onto the left in perspective, growing a little as it comes
-up and going a shade darker as it turns from the light, a soft sheen running
-across the paper and a shade where it bends at the spine, its front the page it
-was and its back the next left page; the first after two seconds anybody could
-read the spread in, each next one sooner by nearly a third, until they riffle
-past twenty a second and the page numbers race to the 212th, each turn a soft
-rustle, softer and a touch higher as the pages race; then the riffle slows over
-its last moments, the page numbers counting on a spread a leaf, every leaf down
-before the next comes up, all of it planned before the first so none is put
-down mid-air, and the last leaf comes over onto the end of the book, pages
+title page, the game's mark and name over the book's own and its edition, with
+the first rule on the page across from it, and stands there a moment and a half;
+then its pages turn, the text cut into pages with nothing cut across two and no
+chapter heading left at the foot of one. The text is a code, drawn from a seeded
+generator so it reads the same every time: chapters numbered in Roman numerals,
+The kart, Signs and markings, Coins and pots, Pads and the mult, Handling,
+Items, Jokers, Hazards, Bots, Emotes, Bounties, Overtime and Examinations, each
+of sections numbered on through the book, long enough for a whole read without
+coming round again, each section a rule in bold with three to seven clauses of
+filler under it, § 3.1, § 3.2 and on, and figures falling among the clauses
+where they will, numbered as they come, the speed limit, karts crossing, a
+Jackpot, the Junction, a Royal Flush, a mult die, a drift, a pit, a roundabout;
+the text comes round again once it runs out, its numbers going on up rather than
+starting over. A leaf at a time lifts off the right page about the spine and
+comes over onto the left in perspective, growing a little as it comes up and
+going a shade darker as it turns from the light, a soft sheen running across the
+paper and a shade where it bends at the spine, its front the page it was and its
+back the next left page; the first after two seconds anybody could read the
+spread in, each next one sooner by nearly a third, until they riffle past twenty
+a second and the page numbers race to the 212th, each turn a soft rustle, softer
+and a touch higher as the pages race; then the riffle slows over its last
+moments, the page numbers counting on a spread a leaf, every leaf down before
+the next comes up, all of it planned before the first so none is put down
+mid-air, and the last leaf comes over onto the end of the book, pages
 211 and 212: the next page of the text, whichever it is, nothing skipped, and
 across from it Final provisions, a chapter of its own numbered on from that
 page's, "This concludes the Highway Code
@@ -4879,6 +5065,12 @@ puts it away for the device in hand, its Back drawn
 in, a click beside the card with a mouse, a tap on a touch screen, and never a
 click on a pad; and on the License tab of the settings, 8.5, with the plate to
 change under it.
+
+After the story's ending, 8.7, the license carries the house's own gold stamp, APPROVED, over its
+lower left corner as the Department's PASSED is over its lower right; its class reads K · Operator,
+it expires NEVER, and its back says it is the property of the house and was reviewed by its holder,
+STORY.md 8.6. A license issued or retaken after that is signed by its holder as the examiner,
+STORY.md 6.7.
 
 A map may hold more than one Junction, each banking as the one does, and the
 Royal Flush is per room for the same reason: a map of rooms wants each room's
@@ -6421,3 +6613,6 @@ Idea backlog:
 - Publishing on itch.io, and on Steam via GodotSteam.
 - Mobile build with on-screen controls, Compatibility renderer.
 - Spectator camera and replays.
+- A progression system: jokers unlocked into the pool, a tree of upgrades or dress for the
+  kart. Kept apart from the story: nothing in it is unlocked by the story or unlocks any of it,
+  STORY.md 10.
