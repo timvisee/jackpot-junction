@@ -1287,18 +1287,18 @@ branch `catalog`, from master at 2fc4801. A task names the GAME.md section it bu
 |---|---|---|
 | C0 | The record: what a profile keeps, and who writes it | Done |
 | C1 | Power-ups say what they do, and their numbers | Done |
-| C2 | The screen and its Jokers page | |
-| C3 | The Power-ups page | |
-| C4 | The title's way in, the NEW tags and the story's line | |
+| C2 | The dialog and its Jokers page | Done |
+| C3 | The Power-ups page | Done |
+| C4 | The title's way in, the NEW tags and the story's line | Done |
 | C5 | Wrapping up | |
 
 ### Questions, and the defaults built
 
-Asked on 2026-10-07 with a default each; the work goes ahead on the defaults until an answer says
-otherwise.
+Asked on 2026-10-07 with a default each. Answered the same day: the defaults, but for 1.
 
 1. Where it opens: a Catalog button on the title, between Garage and Settings, a screen of its own
-   (or a Settings tab beside Statistics). Default: the title.
+   (or a Settings tab beside Statistics). Answer: the title's button, but a large dialog over the
+   screen rather than a screen of its own, so it can be laid over other places later.
 2. Two pages, Jokers and Power-ups, as tabs like the settings', the shoulder buttons between them.
 3. The count on each tab, Jokers 12/35, gold once complete.
 4. What counts: every joker into a local seat's hand, from the pick or off the floor, and every
@@ -1339,6 +1339,9 @@ otherwise.
   each subclass reading its own exports, so a number tuned in the data is the number the page says.
 - **The pane is the match's.** The Jokers page shows `JokerDetail` itself, so the story's term and
   every rule of the pane are the same in both.
+- **A dialog on a layer of its own.** `CatalogDialog` is a `CanvasLayer` over `PauseMenu.LAYER`,
+  opened with `CatalogDialog.open(parent)` and `put_away` when it goes, the cursor back where it was;
+  it swallows the keys and pad buttons it does not use, so nothing reaches the screen under it.
 
 ### C0: the record [8.8, 8.5]
 
@@ -1358,27 +1361,30 @@ otherwise.
 - [x] `PowerUp.facts()` and each item's own lines.
 - [x] Tests: every item has a sentence and its facts' numbers are its exports'.
 
-### C2: the screen and its Jokers page [8.8]
+### C2: the dialog and its Jokers page [8.8]
 
-- [ ] `scenes/ui/catalog_screen.gd` and `.tscn`, `class_name CatalogScreen`: title, tabs with
-      counts, Back, the shoulder buttons; `Game.go_to_catalog`.
-- [ ] The Jokers page: the grid in GAME.md 8.8's order, cards fitted to the room, the face-down
-      back, the cursor lifting a card, `JokerDetail` beside it with details on and Taken N times,
-      Full stack on a button and the details key.
-- [ ] Tests: the count, the order, a face-down card names nothing, Full stack.
+- [x] `scenes/ui/catalog_dialog.gd`, `class_name CatalogDialog`: the shade and the large pane, its
+      title, tabs with counts, Back, the shoulder buttons, a click beside it.
+- [x] The Jokers page: the grid in GAME.md 8.8's order, cards fitted to the room (`CardGrid`,
+      `CatalogCell`), the face-down back (`CardBack`), the cursor lifting a card, `JokerDetail` beside
+      it with details on and Taken N times (`JokerDetail.show_unknown` for a face-down one), Full
+      stack on a switch and the details key, its bind hung under it (`ButtonBinds`).
+- [x] Tests (`tests/test_catalog_dialog.gd`): the count, the order, a face-down card names nothing,
+      Full stack, the grid fits.
 
 ### C3: the Power-ups page [8.8]
 
-- [ ] Chips in the sets' order, the gray chip, the pane with sentence and facts and the set.
-- [ ] Tests.
+- [x] Cards in the sets' order (`ItemCard`, `PowerUp.ink_of` for a dark color), face down as the
+      jokers', the pane (`PowerUpDetail`) with sentence, facts and the set.
+- [x] Tests.
 
 ### C4: the title, NEW and the story [8.8, STORY.md 6.6a]
 
-- [ ] The title's Catalog button.
-- [ ] NEW tags from `fresh`, cleared under the cursor and saved on Back.
-- [ ] `StoryLines.CATALOG_LINE` by stage under the title.
-- [ ] `++ --catalog-all` in a debug build.
-- [ ] Tests.
+- [x] The title's Catalog button, `Title.show_catalog`.
+- [x] NEW tags from `fresh`, cleared under the cursor and saved as the dialog goes.
+- [x] `StoryLines.CATALOG_LINE` by stage under the title.
+- [x] `++ --catalog-all` in a debug build, `CatalogDialog.read_arguments`.
+- [x] Tests.
 
 ### C5: wrapping up
 

@@ -1,9 +1,10 @@
 extends Control
 ## The title screen from GAME.md 3.8: Play, Play Online, the Driving School, the Garage
-## practice room, Settings, Quit, over the turning sunburst of [TitleBackground]; every way in to
-## driving asks for the license of 9.4a until it is earned, and the license earned peeks in from
-## the right edge; Kit's notes, once one is found, peek in from the left, STORY.md 7.2. The first
-## time it comes up in a run, it opens with the mark, see [TitleIntro].
+## practice room, the Catalog of 8.8, Settings, Quit, over the turning sunburst of
+## [TitleBackground]; every way in to driving asks for the license of 9.4a until it is earned, and
+## the license earned peeks in from the right edge; Kit's notes, once one is found, peek in from
+## the left, STORY.md 7.2. The first time it comes up in a run, it opens with the mark, see
+## [TitleIntro].
 
 ## Room kept under the buttons, clear of the bottom edge of the screen. Who made the music, the
 ## models and the sounds is said in Settings, About, see [AboutTab], rather than along it.
@@ -92,6 +93,8 @@ var _notes: NotesFolder
 var _notes_from: Control
 ## The opening while it plays, see [TitleIntro]; the cursor, the hints and the warm-up wait on it.
 var _intro: TitleIntro
+## The catalog of every joker and power-up taken, GAME.md 8.8, over the title while it is up.
+var _catalog: CatalogDialog
 
 
 func _ready() -> void:
@@ -162,6 +165,10 @@ func _ready() -> void:
 		func() -> void: offer_license(func() -> void: DriveChoice.first(self, Game.go_to_garage))
 	)
 	column.add_child(garage)
+	var catalog := MenuTheme.button("Catalog")
+	catalog.name = "Catalog"
+	catalog.pressed.connect(show_catalog)
+	column.add_child(catalog)
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(func() -> void: Game.go_to_settings(Game.TITLE_SCENE))
 	column.add_child(settings)
@@ -509,7 +516,7 @@ func _peek_hint(named: String, action: StringName, left: bool) -> Control:
 
 ## What was touched says which hints to draw at the license and the folder, and whether to draw any.
 func _input(event: InputEvent) -> void:
-	if warming != null or _notes != null or _license_view != null:
+	if warming != null or _notes != null or _license_view != null or _catalog != null:
 		return
 	var was := _keyboard
 	var was_pointer := _pointer
@@ -546,6 +553,14 @@ func _on_license_input(event: InputEvent) -> void:
 		show_license()
 
 
+## The catalog over the title, GAME.md 8.8, and the cursor back where it was once it is put away.
+func show_catalog() -> void:
+	if _catalog != null:
+		return
+	_catalog = CatalogDialog.open(self)
+	_catalog.put_away.connect(func() -> void: _catalog = null)
+
+
 ## The license in full, see [LicenseView]: put away, it peeks in again, and the cursor goes back
 ## where it was, or to Play.
 func show_license() -> void:
@@ -578,7 +593,7 @@ func _on_license_put_away() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not event.is_action_pressed(&"ui_cancel"):
+	if not event.is_action_pressed(&"ui_cancel") or _catalog != null:
 		return
 	# Back puts the license away, puts the question of earning one away unanswered, and takes the
 	# cursor off the license or the folder.

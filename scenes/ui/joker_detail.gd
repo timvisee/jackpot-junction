@@ -123,11 +123,33 @@ func show_joker(joker: Joker, held := 1, taking := false, details := false) -> v
 	_style.frame_body = Color(color, FRAME_BODY)
 	_style.engraving = Color(color, ENGRAVED)
 	_name.text = joker.display_name
+	_rarity.visible = true
+	_kind.visible = true
+	_body.visible = true
 	_rarity.text = JokerCard.rarity_name(joker).to_upper()
 	_rarity.add_theme_color_override("font_color", JokerCard.rarity_color(joker))
 	_kind.text = JokerCard.kind_name(joker).to_upper()
 	_kind.add_theme_color_override("font_color", color)
 	_body.text = joker.describe(copies, "[color=#%s]%%s[/color]" % STACK.to_html(false), details)
+
+
+## Fills the pane for a card lying face down, GAME.md 8.8: [param words] in its name's place and
+## [param under] in gray under them, and nothing else, neither what it does nor what kind it is nor
+## how rare, framed in gray.
+func show_unknown(words: String, under: String) -> void:
+	_joker = null
+	_stack_said = ""
+	_stage = -1
+	_name.text = words
+	_stack.visible = false
+	_rarity.visible = false
+	_kind.visible = false
+	_body.visible = true
+	_body.text = "[color=#%s]%s[/color]" % [HINT.to_html(false), under]
+	_term.visible = false
+	_style.frame = Color(CardBack.INK, FRAME)
+	_style.frame_body = Color(CardBack.INK, FRAME_BODY)
+	_style.engraving = Color(CardBack.INK, ENGRAVED)
 
 
 ## The controls for whatever the player can do from here, as a row of pictures and words built

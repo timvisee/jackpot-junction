@@ -10,7 +10,7 @@ extends PowerUp
 func facts() -> Array[PackedStringArray]:
 	return [
 		fact("Lasts", seconds(duration)),
-		fact("Reach", "×" + Joker.figure(radius_multiplier)),
+		fact("Reach", "×" + number(radius_multiplier)),
 		fact("Pull", meters(pull_speed) + "/s")
 	]
 

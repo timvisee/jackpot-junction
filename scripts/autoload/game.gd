@@ -85,6 +85,8 @@ func _init() -> void:
 	# A license, a stage, the Final Hand or a note on the floor, for a debug build to look at,
 	# STORY.md 11.
 	Story.read_arguments(OS.get_cmdline_user_args(), settings)
+	# Every joker and power-up taken, for a debug build to look at the catalog, GAME.md 8.8.
+	CatalogDialog.read_arguments(OS.get_cmdline_user_args(), settings)
 
 
 func _ready() -> void:

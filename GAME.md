@@ -3940,11 +3940,15 @@ its seats took just as a host does. Only the room the game is in writes, and nev
 written as the room is left, as the statistics are. A profile from before the catalog starts it
 empty.
 
-**The screen.** A screen of its own from the title's Catalog, between the Garage and Settings, with
-two pages as the settings have, Jokers and Power-ups, the shoulder buttons stepping between them, each
-tab saying how many of how many have been found, Jokers 12/35, in gold once the whole set has. Back is
-the title. The cards and chips fill a grid on the left, shrunk to fit the screen, and the pane
-describing the one under the cursor stands on the right.
+**The dialog.** The title's Catalog, between the Garage and Settings, opens it as a large dialog over
+the title: a shade over the screen and the house's pane over nearly all of it, on a layer of its own
+above a room's pause menu too, so the same dialog can be laid over any screen later. It has two pages
+as the settings have, Jokers and Power-ups, the shoulder buttons stepping between them, each tab
+saying how many of how many have been found, Jokers 12/35, with a gold tick once the whole set has.
+Back, B, Escape or a click on the shade beside the pane puts it away, the cursor back on Catalog. The
+cards fill a grid on the left, as big as the room lets them be and never past their own size, so
+all of a page is on the screen without scrolling, a phone's too, and the pane describing the one
+under the cursor stands on the right.
 
 **Jokers.** Every joker in the game, ordered by rarity, common first, then by kind, stat, rule and
 cursed, then by name, so a card keeps its place as more are found. A card taken is drawn as the hand
@@ -3953,18 +3957,23 @@ neither its name, its kind nor how rare it is. The card under the cursor lifts a
 the respawn pick, and the pane is the pane of 8.3, the one a match describes a card in: its name, how
 rare and what kind, what it does, and from the story's second stage the term it is under that, 8.7.
 In the catalog the pane always has what the hand shows only while the details key is held, Stacks up
-to ×3 for a joker that stacks; and Full stack, a button that also answers to the details key, Alt or
+to ×3 for a joker that stacks; and Full stack, a switch that also answers to the details key, Alt or
 a press of the right stick, shows every card that stacks as its whole stack would be, ×3 beside its
 name and the numbers the stack changed in gold, one copy's beside each in brackets, until it is
 pressed again. Its foot says how many times it was taken, Taken 14 times. A card face down says only
-Not found yet. A card found since the catalog last showed it wears a gold NEW tag on its corner until
-the cursor has been on it.
+Not found yet, and under it that taking one in a match is the way to read it. A card found since the
+catalog last showed it wears a gold NEW tag on its corner until the cursor has been on it, kept as
+the dialog is put away. A debug build fills the catalog of the profile playing with
+`++ --catalog-all`, as the README says.
 
-**Power-ups.** The same for the items, each its picture of 8.3a on a chip in its color, the first set
-and then the later set, in the order of 7.1; one never picked up is a gray chip with a question mark.
+**Power-ups.** The same for the items, each a card of its own the size of a joker's, its picture of
+8.3a framed in its color and its name under it, a color too dark to be told from the card lightened,
+the first set and then the later set as the sets list them; one never picked up lies face down as a
+joker does. A third as many, they may grow a little past their own size.
 Its pane says what the item does in a sentence, then the numbers no match shows: how long it lasts,
 how many shots, how far it reaches, its fuse, and which set it is in, the later one switched on in
-the lobby, each read from the item itself, 7.1. The House prints no terms on an item.
+the lobby, in the lobby's words, Basic items or All items only, each read from the item itself,
+7.1. The House prints no terms on an item.
 
 **The story.** The jokers' terms are the story's, 8.7, from the second stage, and from then a line
 under the screen's title says whose record it is, STORY.md 6.6a. Nothing else moves with it: the

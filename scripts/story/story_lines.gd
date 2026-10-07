@@ -215,6 +215,13 @@ const STATS_LINE := {
 	Story.Stage.OPERATOR: "Kept by the House. Approved by you.",
 }
 const SHIFTS := "Shifts"
+## The line under the catalog's title, STORY.md 6.6a.
+const CATALOG_LINE := {
+	Story.Stage.PARTICIPANT: "All terms are kept on file.",
+	Story.Stage.NUMBER: "Kept on file, and used.",
+	Story.Stage.CANDIDATE: "Kept on file, for your evaluation.",
+	Story.Stage.OPERATOR: "Kept on file. Approved by you.",
+}
 
 ## The driving school, STORY.md 6.7: under Enroll, always; the Highway Code's edition by stage; and
 ## the lines it revises, each its line as it is now, the stage it changes at and what it becomes.

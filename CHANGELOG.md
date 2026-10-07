@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A catalog of every joker and power-up taken.** Catalog on the title shows each one your profile
+  ever took, the rest face down, with what it does and the numbers a match never shows, such as how
+  long an item lasts.
 - **A Mac icon of its own.** On macOS the game's icon is a rounded plate of the house's stock with
   the seal on it, drawn the way Mac icons are.
 - **Robot names for bots.** Bots go by names of their own, robot slang like Clanker, Rusty, Tin

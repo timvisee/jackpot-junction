@@ -15,7 +15,7 @@ func facts() -> Array[PackedStringArray]:
 	return [
 		fact("Shots", str(shots)),
 		fact("Bullets a shot", str(bullets_per_shot)),
-		fact("Fan", "%s°" % Joker.figure(spread_angle_deg))
+		fact("Fan", "%s°" % number(spread_angle_deg))
 	]
 
 

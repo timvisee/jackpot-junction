@@ -200,6 +200,13 @@ your own story is left where it is:
 | `--story-final-hand`      | Deals the Final Hand on the next Play                                     | Yes   | No      |
 | `--story-note=<n>`        | Lays note n on the next map's floor at once                               | Yes   | No      |
 
+The catalog of every joker and power-up a profile took, GAME.md 8.8, can be filled at once the same
+way, in a debug build alone: `make run ARGS="--settings=catalog-test --catalog-all"`.
+
+| Argument        | What it does                                                               | Debug | Release |
+|-----------------|----------------------------------------------------------------------------|-------|---------|
+| `--catalog-all` | Every joker and power-up taken once more by the profile playing, new; kept | Yes   | No      |
+
 A debug build's settings also have a last tab, Story, saying where the profile
 playing is in the story, its stage, clock, notes and Final Hand, with buttons that
 move it on or back, hand it every note or none, and start it over; every change is
