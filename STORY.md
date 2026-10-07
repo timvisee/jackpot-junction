@@ -993,11 +993,13 @@ over it, as it does over paper rather than over the license's laminate; on the H
 and its golden ticket the gold catches the light. The folder, the closer look and the license work
 alike: their buttons are drawn, never take the cursor and are there for the mouse, a cross putting
 away and turning arrows turning over; with keys or a pad the button each answers to is drawn on it.
-A click turns a thing over and a right click puts it away; on the folder accept, Enter or a pad's A,
+A click on a thing turns it over and a right click puts it away, a click beside it doing nothing;
+the arrows to the pages or notes either side are not there where there is nowhere to go; and the
+line under the buttons says only what their binds do not. On the folder accept, Enter or a pad's A,
 takes the open note out for a closer look, and the hand's button turns a note or the license over.
 On the title the folder and the license are
 reached with the cursor and opened with accept, a hint under each saying which while keys or a pad
-are in hand, and Back takes the cursor off them and back to the buttons. It can be looked at closer,
+are in hand, and Back, or a click beside them, takes the cursor off them and back to the buttons. It can be looked at closer,
 moved about and turned over, and put back. The folder's buttons and the closer look's are drawn
 rather than written: a cross puts either away, a pair of turning arrows turns a note over, and the
 arrows to the spread or the note either side carry the pencil mark when what they go to is new.
