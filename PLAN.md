@@ -362,8 +362,9 @@ Spoilers throughout, like STORY.md.
 | S17 | The fourth look, the user's notes | Done |
 | S18 | The fifth look, the user's notes | Done |
 | S19 | The sixth look, the user's notes | Done |
+| S20 | The seventh look, the user's notes | In progress |
 
-Next up: the user's look at S19, then their play-through, S13's last task, and tuning the pace of
+Next up: S20, then the user's look at it and their play-through, S13's last task, and tuning the pace of
 S0 after it. The phases are in the order they are best built, each standing on its own:
 after S0 to S7 the story's margins are all in the game and could ship, the notes and the ending
 after them. S10 can be built alongside anything before S11, which needs it. On picking the work up
@@ -1273,6 +1274,32 @@ the closer look now does too. The arrows at the ends keep their room, `ButtonBin
 click beside the license or a note put it away at first, was made to do nothing on the user's word,
 and then to put it away again on their next. `make check` passed, 1238 tests. Looked at: the
 folder's front, the hints, the license going back face up; screenshots sent.
+
+### S20: the seventh look, the user's notes
+
+The user's seventh round of notes, 2026-10-07, after 0.14.0: the payout slip's pages as one long
+bill, the things kept at the back of the folder held on their pages as the notes are, and the next
+match blacked out in the lobby at the Final Hand. Their answers: the bill runs off the screen, its
+torn edges going with it; its pages as tall as the tallest, each headed as now; the arrows and dots
+upright beside the bill rather than on it; a turn a short scroll; the barcode and the small print
+only at the foot of the last page; the run's final standings a page under the last map's, which
+stays a scroll up; a watcher's countdown as before; each page's podium drawn only in view; the
+House's evaluation a page of its own, turned to; the ways on along the foot of the screen, to try.
+STORY.md and GAME.md first. One commit an item.
+
+- [ ] The invitation, the ticket, the Final Hand's slip and the card of Terms Accepted lie askew on
+      their pages, held by a clip, tape, a staple and tape over two corners [7.2].
+- [ ] In the lobby, beside the tiny golden ticket, the next match is blacked out but for "Next:"
+      [8.1].
+- [ ] The payout slip is one long bill: its pages one under another past a perforation, torn at the
+      top and the foot of the whole, run off the screen and scrolled over; a turn brings a page to
+      the middle; the pager upright beside it; the ways on along the foot of the screen [GAME.md 3.8,
+      9.7].
+- [ ] The House's evaluation is a page of its own at the end of the Final Hand's bill, turned to
+      with Continue, the cursor on the stamp once it is in view [8.4].
+
+Verify: the story's suites, the results screen's and the Grand Prix's, and `make check`;
+screenshots, sent to the user.
 
 ## M9: the catalog
 
