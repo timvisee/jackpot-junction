@@ -170,7 +170,13 @@ func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 	var view := folder.view
 	assert_object(view).is_not_null()
 	assert_int(view.index).is_equal(0)
-	await await_idle_frame()
+	# It grows up off its page, which shows nothing where it lay while it is up.
+	var lift := folder.lift_of(0)
+	assert_bool(lift.is_empty()).is_false()
+	assert_bool((lift["held"] as Control).visible).is_false()
+	assert_float(view._fly).is_less(1.0)
+	await await_millis(int(NoteView.FLY * 1000.0) + 100)
+	assert_float(view._fly).is_equal(1.0)
 	# The mouse below and right of it turns its right and bottom edges toward the eye.
 	view._mouse = view._card.get_global_rect().end + Vector2(40.0, 40.0)
 	view._process(0.5)
@@ -194,6 +200,11 @@ func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 	await await_idle_frame()
 	assert_object(folder.view).is_null()
 	assert_int(folder.at).is_equal(NotesFolder.spread_of(3))
+	# Put back, it goes back down onto its page, and the page has it again.
+	assert_bool(is_instance_valid(view)).is_true()
+	await await_millis(int(NoteView.FLY_BACK * 1000.0) + 150)
+	assert_bool(is_instance_valid(view)).is_false()
+	assert_bool((folder.lift_of(3)["held"] as Control).visible).is_true()
 	# What is kept at the back after the ending is looked at closer and turned over the same way:
 	# the invitation face up, and face down on its back.
 	folder.close()
@@ -212,7 +223,12 @@ func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 	assert_int(view.index).is_equal(at_invitation + 1)
 	var faces: Array = view.find_children("Kept", "", true, false)
 	assert_bool(faces.any(func(kept: Node) -> bool: return kept is GoldenTicket)).is_true()
-	assert_bool(faces.any(func(kept: Node) -> bool: return kept.get("face_down"))).is_true()
+	(
+		assert_bool(
+			faces.any(func(kept: Node) -> bool: return kept is GoldenTicket and kept.face_down)
+		)
+		. is_true()
+	)
 	view.close()
 	_profile.story.final_hand = ""
 	# Every note's back draws, whatever is on it.

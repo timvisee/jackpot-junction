@@ -690,6 +690,38 @@ func read(numbers: Array) -> void:
 	_mark_ends()
 
 
+## Where page [param index]'s note lies on the open spread, for a closer look to grow up off and go
+## back down onto: [code]center[/code] the middle of its paper on the screen, [code]scale[/code]
+## how big it is drawn there and [code]rotation[/code] how it is turned, and [code]held[/code] what
+## is drawn there to hide while it is up, if anything is. Empty when the page is not open.
+func lift_of(index: int) -> Dictionary:
+	var side: Control = null
+	if index == left_of(at):
+		side = _left
+	elif index == right_of(at):
+		side = _right
+	if side == null or side.get_child_count() == 0:
+		return {}
+	var page := side.get_child(0) as NotePage
+	var held := page.get_node_or_null("Note") as Control
+	var middle := page.paper_rect().get_center()
+	var kept := page.get_node_or_null("Kept") as Control
+	if kept != null:
+		held = kept
+		middle = (
+			InvitationCard.SIZE * 0.5
+			if kept is InvitationCard
+			else Vector2(GoldenTicket.SIZE.x - GoldenTicket.STUB, GoldenTicket.SIZE.y) * 0.5
+		)
+	var xform := held.get_global_transform() if held != null else page.get_global_transform()
+	return {
+		"center": xform * middle,
+		"scale": xform.get_scale().x,
+		"rotation": xform.get_rotation(),
+		"held": held,
+	}
+
+
 ## A note taken off its page for a closer look, see [NoteView]: page [param index], or the open
 ## spread's right one, or its left where there is no right.
 func look_closer(index := -1) -> void:

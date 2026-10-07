@@ -2,10 +2,12 @@ class_name NoteView
 extends Control
 ## One of Kit's notes taken off its page for a closer look, STORY.md 7.2: the note alone, larger,
 ## in the middle of the screen over the folder darkened behind it, the way the license comes up in
-## full, and like the license it turns a little toward the mouse, the stick or the phone and
+## full, growing up off its page as it comes and going back down onto it when it is put back, and
+## like the license it turns a little toward the mouse, the stick or the phone and
 ## catches the light, see [TiltedCard]. It can be looked at closer and moved about, turned over to
 ## its back, see [constant StoryNotes.BACKS], and put back; with the note at its own size left and
-## right go to the note before and after it. A note is read as soon as it is taken out.
+## right go to the note before and after it, the one in view sliding out as the next slides in. A
+## note is read as soon as it is taken out.
 
 ## Put back, the folder to open at the spread of note [param index], the last one looked at.
 signal put_back(index: int)
@@ -22,6 +24,13 @@ const MOVE_RATE := 900.0
 const STICK_COUNTS := 0.2
 ## Turning over: how long, and how faint the front shows through on a back that lets it.
 const TURN := 0.32
+## How long it takes to grow up off its page, and to go back down onto it; how long a step to the
+## note beside it takes, and how far to the side, as a share of the screen's width, the one going
+## goes and the one coming comes from.
+const FLY := 0.32
+const FLY_BACK := 0.26
+const SLIDE := 0.26
+const SLIDE_OFF := 1.0
 const THROUGH := 0.13
 ## Room round the note in its picture for its corners as it turns, as a share of its longer side;
 ## how far it turns toward the mouse, as a share of how far the license does, a sheet of paper
@@ -61,6 +70,22 @@ var turned := false
 var keyboard := true
 
 var _card: Control
+## Growing up off its page and going back down onto it: how far, 0 on the page and 1 in its place,
+## where it was on the page in this view's own units, its middle, size and turn, and what is hidden
+## on the page while it is up, see [method NotesFolder.lift_of].
+var _fly := 1.0
+var _from_center := Vector2.ZERO
+var _from_scale := 1.0
+var _from_turn := 0.0
+var _lifted: CanvasItem
+## How far to the side of its place it is while it slides in, and whether it is going back down.
+var _slide := 0.0
+var _sliding: Tween
+var _putting_back := false
+## The shade behind it, the strip under the buttons and the buttons, which fade in and out round it.
+var _shade: ColorRect
+var _foot: ColorRect
+var _chrome: Array[CanvasItem] = []
 var _front: Control
 var _back: Control
 ## Each face's picture, drawn at the size it is shown at, see [method _face].
@@ -98,22 +123,18 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_shown_at = Time.get_ticks_msec()
-	var shade := ColorRect.new()
-	shade.color = Color(0.0, 0.0, 0.0, 0.84)
-	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(shade)
-	_card = Control.new()
-	_card.name = "Card"
-	_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_card)
+	_shade = ColorRect.new()
+	_shade.color = Color(0.0, 0.0, 0.0, 0.84)
+	_shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_shade)
 	# A dark strip under the buttons, for a note looked at closer than the screen is tall.
-	var foot := ColorRect.new()
-	foot.color = Color(0.0, 0.0, 0.0, 0.6)
-	foot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	foot.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	foot.offset_top = -BUTTON_ROOM + 30.0
-	add_child(foot)
+	_foot = ColorRect.new()
+	_foot.color = Color(0.0, 0.0, 0.0, 0.6)
+	_foot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_foot.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	_foot.offset_top = -BUTTON_ROOM + 30.0
+	add_child(_foot)
 	var under := VBoxContainer.new()
 	under.add_theme_constant_override("separation", 10)
 	under.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -128,11 +149,11 @@ func _ready() -> void:
 	_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	under.add_child(_hint)
 	say_how()
+	_chrome = [_shade, _foot, under]
 	_build()
 	resized.connect(_place)
 	gui_input.connect(_on_input)
-	modulate.a = 0.0
-	create_tween().tween_property(self, "modulate:a", 1.0, 0.18)
+	_lift_off()
 	_turn_button.grab_focus()
 	_held = Input.get_gravity()
 	Audio.play_sfx(&"leaf", -8.0, 0.1)
@@ -183,9 +204,12 @@ func _buttons() -> HBoxContainer:
 func _build() -> void:
 	if _turning != null and _turning.is_valid():
 		_turning.kill()
-	for old: Node in _card.get_children():
-		_card.remove_child(old)
-		old.queue_free()
+	# A card of its own each time, so the one before can slide away while this one comes.
+	_card = Control.new()
+	_card.name = "Card"
+	_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_card)
+	move_child(_card, _foot.get_index())
 	_sheets.clear()
 	var number := folder.pages[index]
 	var front := NotePage.make(number, folder.profile)
@@ -285,9 +309,64 @@ func _place() -> void:
 	pan = pan.clamp(-slack - Vector2.ONE * 40.0, slack + Vector2.ONE * 40.0)
 	if zoom <= 1.001:
 		pan = Vector2.ZERO
-	_card.scale = Vector2(by, by)
-	_card.position = middle + pan - _card.size * 0.5
+	# Between its page and its place while it grows up off the page or goes back down onto it, and
+	# to the side while it slides in.
+	var center := middle + pan
+	var shown := by
+	var turn := 0.0
+	if _fly < 1.0:
+		center = _from_center.lerp(center, _fly)
+		shown = lerpf(_from_scale, by, _fly)
+		turn = lerp_angle(_from_turn, 0.0, _fly)
+	center.x += _slide
+	_card.scale = Vector2(shown, shown)
+	_card.rotation = turn
+	_card.position = center - _card.size * 0.5
 	_sharpen(by)
+
+
+## Up off its page to its place, the shade and the buttons coming up round it; straight to its place
+## when its page is not open.
+func _lift_off() -> void:
+	var show := create_tween().set_parallel(true)
+	for part: CanvasItem in _chrome:
+		part.modulate.a = 0.0
+		show.tween_property(part, "modulate:a", 1.0, FLY)
+	var lift := folder.lift_of(index)
+	if lift.is_empty():
+		return
+	_take_from(lift)
+	_set_fly(0.0)
+	show.tween_method(_set_fly, 0.0, 1.0, FLY).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+
+## Where it goes from and back to, on its page as [param lift] has it, and what is hidden there.
+func _take_from(lift: Dictionary) -> void:
+	var into := get_global_transform()
+	_from_center = into.affine_inverse() * (lift["center"] as Vector2)
+	_from_scale = float(lift["scale"]) / into.get_scale().x
+	_from_turn = float(lift["rotation"]) - into.get_rotation()
+	_show_lifted()
+	_lifted = lift["held"]
+	if _lifted != null:
+		_lifted.visible = false
+
+
+## What was hidden on the page shown again.
+func _show_lifted() -> void:
+	if _lifted != null and is_instance_valid(_lifted):
+		_lifted.visible = true
+	_lifted = null
+
+
+func _set_fly(amount: float) -> void:
+	_fly = amount
+	_place()
+
+
+func _set_slide(offset: float) -> void:
+	_slide = offset
+	_place()
 
 
 func _fit() -> float:
@@ -342,13 +421,31 @@ func _aim() -> void:
 	_material.set_shader_parameter("turn", Vector2(yaw, _tilt.y * TiltedCard.TURN))
 
 
-## The note [param by] along in the folder, front up at its own size.
+## The note [param by] along in the folder, front up at its own size: the one in view slides out
+## the way it goes, and this one in from the other side.
 func step(by: int) -> void:
 	var to := index + signi(by)
-	if to < 0 or to >= folder.pages.size():
+	if _putting_back or to < 0 or to >= folder.pages.size():
 		return
+	_show_lifted()
+	_fly = 1.0
+	var leaving := _card
+	var off := size.x * SLIDE_OFF * signi(by)
 	index = to
 	_build()
+	# Both go the same way at the same pace, a screen apart, so they never overlap.
+	var away := create_tween().set_parallel(true)
+	away.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	away.tween_property(leaving, "position:x", leaving.position.x - off, SLIDE)
+	away.tween_property(leaving, "modulate:a", 0.0, SLIDE)
+	away.chain().tween_callback(leaving.queue_free)
+	if _sliding != null and _sliding.is_valid():
+		_sliding.kill()
+	_set_slide(off)
+	_sliding = create_tween()
+	_sliding.tween_method(_set_slide, off, 0.0, SLIDE).set_trans(Tween.TRANS_CUBIC).set_ease(
+		Tween.EASE_OUT
+	)
 	Audio.play_sfx(&"leaf", -10.0, 0.1)
 
 
@@ -374,9 +471,12 @@ func _process(delta: float) -> void:
 		_held = pull
 	else:
 		_held = _held.lerp(pull, 1.0 - exp(-TiltedCard.PHONE_SETTLE * delta))
-	var toward := TiltedCard.wanted(_card.get_global_rect(), _mouse, _held) * TILT / zoom
+	# Flat while it grows up off its page or goes back down onto it.
+	var toward := TiltedCard.wanted(_card.get_global_rect(), _mouse, _held) * TILT / zoom * _fly
 	_tilt = _tilt.lerp(toward, 1.0 - exp(-TiltedCard.FOLLOW * delta))
 	_aim()
+	if _putting_back:
+		return
 	var closer := 0.0
 	var move := Vector2.ZERO
 	for pad: int in Input.get_connected_joypads():
@@ -400,6 +500,8 @@ func _process(delta: float) -> void:
 
 ## Before the focus takes them: turning over, looking closer and the notes either side.
 func _input(event: InputEvent) -> void:
+	if _putting_back:
+		return
 	var motion := event as InputEventMouseMotion
 	if motion != null and not TouchInput.enabled:
 		_mouse = motion.global_position
@@ -442,6 +544,8 @@ func _input(event: InputEvent) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _putting_back:
+		return
 	if event.is_action_pressed(&"ui_cancel"):
 		get_viewport().set_input_as_handled()
 		close()
@@ -494,13 +598,34 @@ func _on_input(event: InputEvent) -> void:
 		accept_event()
 
 
-## Put back: the folder told which note it was, and gone.
+## Put back: the folder told which note it was at once, so it opens that note's spread and has
+## the cursor back, and the note goes back down onto its page there, turned face up on the way;
+## then gone.
 func close() -> void:
-	if is_queued_for_deletion():
+	if _putting_back or is_queued_for_deletion():
 		return
+	_putting_back = true
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	put_back.emit(index)
 	Audio.play_sfx(&"note_down", -8.0, 0.08)
-	queue_free()
+	if turned:
+		turn_over()
+	var down := create_tween().set_parallel(true)
+	for part: CanvasItem in _chrome:
+		down.tween_property(part, "modulate:a", 0.0, FLY_BACK)
+	var lift := folder.lift_of(index)
+	if lift.is_empty():
+		down.tween_property(_card, "modulate:a", 0.0, FLY_BACK)
+	else:
+		_take_from(lift)
+		down.tween_method(_set_fly, _fly, 0.0, FLY_BACK).set_trans(Tween.TRANS_CUBIC).set_ease(
+			Tween.EASE_IN_OUT
+		)
+	down.chain().tween_callback(
+		func() -> void:
+			_show_lifted()
+			queue_free()
+	)
 
 
 ## The line under the buttons: how to look closer, move it and turn it over, for the device in hand.

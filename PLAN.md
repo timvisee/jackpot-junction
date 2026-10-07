@@ -1183,8 +1183,8 @@ the card with backs of their own. STORY.md and GAME.md first. One commit an item
       pad's shoulder buttons turn the pages and step the closer look [7.2].
 - [x] What is kept at the back can be looked at closer and turned over [7.2].
 - [x] The gold of the invitation and the ticket catches the light in the closer look [7.2].
-- [ ] The closer look grows up off its page and goes back down onto it [7.2].
-- [ ] The notes either side slide in and out in the closer look [7.2].
+- [x] The closer look grows up off its page and goes back down onto it [7.2].
+- [x] The notes either side slide in and out in the closer look [7.2].
 
 Verify: the story's suites and `make check`; screenshots of each, sent to the user.
 
