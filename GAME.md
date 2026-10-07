@@ -2342,7 +2342,7 @@ says what, which is the half of the question a bench cannot answer.
   edges, fading away toward the mark. Drawn rather than modeled: the menu is a
   flat screen with no match running behind it, so a scene would be a scene loaded
   to be looked at once. Dark on purpose; the point of the screen is the words on
-  it.
+  it. The first time it comes up in a run it opens, see 8.1a.
 - **The score tanks**: a glass tank per player standing on the table just outside
   the arena wall, off to one side of the far edge, filling with that player's own
   color as they bank and brim-full at the target score of 3.8. The standings say
@@ -2656,6 +2656,19 @@ Amber and red belong to the boards and the warnings.
   they were, one crossing the screen in 40 to 80 seconds, and fade the other way:
   gone within 0.45 of the burst's reach from the mark and all there past it, so they
   stay out at the edges and off the words.
+- **The title's opening**, the first time the title comes up in a run, about two
+  and a half seconds: the mark large in the middle of the plain stock, four tenths
+  of the screen's shorter side, then flying up and shrinking into its place over the
+  name while the backdrop and the glow come up round it; the seal's rings growing out
+  of it band by band, the inner first; the sunburst sweeping out from it with the
+  chips; the name, the microprint and the line under them rising one after another;
+  the buttons dealt in one by one; and last whatever peeks in at the edges, the
+  license in from the right, Kit's folder in from the left, the flyer and the
+  version. Any key, button, click or tap goes straight to the end, and is spent on
+  that rather than also pressing Play. The title come back to from a match or the
+  settings is simply there, and so is it for a screenshot or a smoke run. The shaders
+  of 10.7 start compiling after it, since compiling them under it would make it
+  stutter.
 - **Lists of people**: the profiles in the settings, the seats at this screen and
   everybody in a hosted game are one row, the seat card (`SeatCard`): a ticket of
   raised stock with a chip at its left end in the person's color, their seat's

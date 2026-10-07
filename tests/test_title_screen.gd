@@ -1,8 +1,9 @@
 extends GdUnitTestSuite
-## The title screen, GAME.md 8.1a: a calm sunburst that stops short of the screen's sides, and
-## chips out at the edges.
+## The title screen, GAME.md 8.1a: a calm sunburst that stops short of the screen's sides, chips
+## out at the edges, and the opening the first time it comes up in a run.
 
 const TEST_SETTINGS_PATH := "user://test_title_screen.cfg"
+const TITLE_SCENE := preload("res://scenes/ui/title.tscn")
 
 var _real: Settings
 
@@ -14,6 +15,8 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	TitleIntro.force = false
+	TitleIntro.played = false
 	Game.settings = _real
 	Settings.remove_files(TEST_SETTINGS_PATH)
 
@@ -76,3 +79,90 @@ func test_the_seal_comes_up_band_by_band() -> void:
 	for band: int in TitleBackground.SEAL_BANDS.size():
 		assert_float(back._seal.band_shown(band)).is_equal(1.0)
 	back.get_parent().free()
+
+
+## The opening lays each part from nothing to where it rests, the mark held back for the large one
+## flying into its place, and ends with every part at its end however it ends.
+func test_the_opening_lays_its_parts_and_ends_where_they_rest() -> void:
+	var screen := Control.new()
+	screen.size = Vector2(1600.0, 900.0)
+	add_child(screen)
+	var column := VBoxContainer.new()
+	screen.add_child(column)
+	var mark := Control.new()
+	mark.custom_minimum_size = Vector2(132.0, 132.0)
+	column.add_child(mark)
+	var laid: Array[float] = []
+	var intro := TitleIntro.over(screen, mark, column)
+	intro.add(0.5, 1.0, func(by: float) -> void: laid.append(by))
+	var ended := [false]
+	intro.finished.connect(func() -> void: ended[0] = true)
+	assert_float(laid[0]).is_equal(0.0)
+	await await_idle_frame()
+	assert_float(mark.modulate.a).is_equal(0.0)
+	intro.finish()
+	assert_bool(ended[0]).is_true()
+	assert_float(laid[-1]).is_equal(1.0)
+	assert_float(mark.modulate.a).is_equal(1.0)
+	assert_bool(intro.is_queued_for_deletion()).is_true()
+	assert_bool(TitleIntro.played).is_true()
+	screen.free()
+
+
+## Any key, button, click or tap ends the opening, and is spent on that rather than also pressing
+## what the cursor lands on; the mouse moving or a stick drifting does not.
+func test_any_press_skips_the_opening_and_nothing_else_does() -> void:
+	var stays: Array[InputEvent] = [InputEventMouseMotion.new(), InputEventJoypadMotion.new()]
+	for event: InputEvent in stays:
+		assert_bool(TitleIntro._skips(event)).is_false()
+	var key := InputEventKey.new()
+	key.keycode = KEY_ENTER
+	key.pressed = true
+	var button := InputEventJoypadButton.new()
+	button.button_index = JOY_BUTTON_A
+	button.pressed = true
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	var tap := InputEventScreenTouch.new()
+	tap.pressed = true
+	for event: InputEvent in [key, button, click, tap]:
+		assert_bool(TitleIntro._skips(event)).is_true()
+	var let_go := InputEventKey.new()
+	let_go.keycode = KEY_ENTER
+	assert_bool(TitleIntro._skips(let_go)).is_false()
+
+
+## The title opening holds the cursor, the buttons and the backdrop back until it is over, and a
+## press puts every one of them where it rests with the cursor on Play.
+func test_the_title_opens_and_a_press_skips_to_the_menu() -> void:
+	TitleIntro.force = true
+	var title: Control = auto_free(TITLE_SCENE.instantiate())
+	var runner: GdUnitSceneRunner = scene_runner(title)
+	await runner.simulate_frames(2, 17)
+	var intro := title.get_node("Intro") as TitleIntro
+	assert_object(intro).is_not_null()
+	assert_bool(title.play_button.has_focus()).is_false()
+	assert_float(title.play_button.modulate.a).is_equal(0.0)
+	assert_float((title.get_node("Backdrop") as CanvasItem).modulate.a).is_equal(0.0)
+	assert_float((title.get_node("Background") as TitleBackground).beams).is_equal(0.0)
+	var key := InputEventKey.new()
+	key.keycode = KEY_ENTER
+	key.physical_keycode = KEY_ENTER
+	key.pressed = true
+	intro._input(key)
+	await runner.simulate_frames(2, 17)
+	assert_bool(is_instance_valid(intro)).is_false()
+	assert_bool(title.play_button.has_focus()).is_true()
+	assert_float(title.play_button.modulate.a).is_equal(1.0)
+	assert_float((title.get_node("Backdrop") as CanvasItem).modulate.a).is_equal(1.0)
+	assert_float((title.get_node("Background") as TitleBackground).beams).is_equal(1.0)
+
+
+## Where nothing is drawn, and for a tool's run, there is no opening: the title is simply there.
+func test_no_opening_where_nothing_is_drawn() -> void:
+	assert_bool(TitleIntro.wanted()).is_false()
+	var title: Control = auto_free(TITLE_SCENE.instantiate())
+	add_child(title)
+	assert_object(title.get_node_or_null("Intro")).is_null()
+	assert_bool(title.play_button.has_focus()).is_true()

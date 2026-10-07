@@ -2,7 +2,8 @@ extends Control
 ## The title screen from GAME.md 3.8: Play, Play Online, the Driving School, the Garage
 ## practice room, Settings, Quit, over the turning sunburst of [TitleBackground]; every way in to
 ## driving asks for the license of 9.4a until it is earned, and the license earned peeks in from
-## the right edge; Kit's notes, once one is found, peek in from the left, STORY.md 7.2.
+## the right edge; Kit's notes, once one is found, peek in from the left, STORY.md 7.2. The first
+## time it comes up in a run, it opens with the mark, see [TitleIntro].
 
 ## Room kept under the buttons, clear of the bottom edge of the screen. Who made the music, the
 ## models and the sounds is said in Settings, About, see [AboutTab], rather than along it.
@@ -38,6 +39,19 @@ const STATUS_SIZE := Type.BODY
 ## big, and how far over the foot of the screen, in its bottom corners.
 const LICENSE_GLYPH_SIZE := 24
 const LICENSE_GLYPH_BOTTOM := 44.0
+## The opening, GAME.md 8.1a, in seconds from its start, see [TitleIntro]: the backdrop and the glow
+## round the mark come up while it flies to its place, then the seal's rings and then the sunburst;
+## the words under the mark one after another; the buttons dealt one by one; and last whatever
+## peeks in at the edges, the license, Kit's folder, the flyer and the version.
+const OPEN_BACKDROP := Vector2(0.65, 1.5)
+const OPEN_RINGS := Vector2(1.05, 1.7)
+const OPEN_BEAMS := Vector2(1.35, 2.2)
+const OPEN_WORDS := 1.25
+const OPEN_WORD_STEP := 0.12
+const OPEN_BUTTONS := 1.6
+const OPEN_BUTTON_STEP := 0.06
+const OPEN_RISE := 0.3
+const OPEN_EDGES := Vector2(2.0, 2.5)
 
 var play_button: Button
 ## The shaders compiling, said over the title while they do, or null, see [WarmupPane].
@@ -76,6 +90,8 @@ var _ad_button: Button
 var _folder: FolderPeek
 var _notes: NotesFolder
 var _notes_from: Control
+## The opening while it plays, see [TitleIntro]; the cursor, the hints and the warm-up wait on it.
+var _intro: TitleIntro
 
 
 func _ready() -> void:
@@ -161,7 +177,6 @@ func _ready() -> void:
 	version.offset_right = -16.0
 	version.offset_bottom = -12.0
 	add_child(version)
-	play_button.grab_focus()
 	if not Game.settings.license_number.is_empty():
 		_peek_license()
 	else:
@@ -171,8 +186,18 @@ func _ready() -> void:
 		_advertise(HouseAd.new(), play_button)
 	_peek_folder()
 	resized.connect(_fit)
-	# The shaders compile behind the title, once a version, GAME.md 10.7, said in a pane over all
-	# of it, the license too, with Skip; the menu is the player's again once it is done.
+	_fit()
+	if TitleIntro.wanted():
+		_open(mark, [named, printed, line], version)
+	else:
+		_ready_to_play()
+
+
+## The cursor on Play, and the shaders compiling behind the title, once a version, GAME.md 10.7,
+## said in a pane over all of it, the license too, with Skip; the menu is the player's again once
+## it is done. After the opening, which would only stutter while they compile.
+func _ready_to_play() -> void:
+	play_button.grab_focus()
 	var warmup := ShaderWarmup.add_to(self)
 	if warmup != null:
 		warming = WarmupPane.over(self, warmup)
@@ -181,7 +206,54 @@ func _ready() -> void:
 				warming = null
 				play_button.grab_focus()
 		)
-	_fit()
+
+
+## The title's opening, GAME.md 8.1a, see [TitleIntro]: [param mark] large in the middle and
+## flown into its place, then each part of the screen in its turn, see [constant OPEN_BACKDROP],
+## [param words] under the mark and [param version] among them.
+func _open(mark: Control, words: Array[Control], version: Control) -> void:
+	_intro = TitleIntro.over(self, mark, _column)
+	var backdrop := get_node("Backdrop") as CanvasItem
+	var background := get_node("Background") as TitleBackground
+	var lit := func(by: float) -> void:
+		backdrop.modulate.a = by
+		background.glow = by
+	_intro.add(OPEN_BACKDROP.x, OPEN_BACKDROP.y, lit)
+	_intro.add(OPEN_RINGS.x, OPEN_RINGS.y, func(by: float) -> void: background.rings = by)
+	_intro.add(OPEN_BEAMS.x, OPEN_BEAMS.y, func(by: float) -> void: background.beams = by)
+	var at := OPEN_WORDS
+	for word: Control in words:
+		_intro.add(at, at + OPEN_RISE, _intro.rise.bind(word))
+		at += OPEN_WORD_STEP
+	at = OPEN_BUTTONS
+	for child: Node in _column.get_children():
+		if child is Button:
+			_intro.add(at, at + OPEN_RISE, _intro.rise.bind(child))
+			at += OPEN_BUTTON_STEP
+	_intro.add(OPEN_EDGES.x, OPEN_EDGES.y, _bring_in_edges.bind(version))
+	_show_peek_hints()
+	_intro.finished.connect(
+		func() -> void:
+			_intro = null
+			_show_peek_hints()
+			_ready_to_play()
+	)
+
+
+## What peeks in at the screen's edges, brought in [param by], from 0 to 1, at the end of the
+## opening: the license in from the right, Kit's folder in from the left, and the flyer and
+## [param version] faded up.
+func _bring_in_edges(by: float, version: Control) -> void:
+	var up := ease(by, 0.4)
+	version.modulate.a = up
+	if _ad != null:
+		_ad.modulate.a = up
+	if _license != null:
+		_place_license()
+		_license.position.x += (1.0 - up) * LicenseCard.SIZE.x * LICENSE_SCALE
+	if _folder != null:
+		_folder.place()
+		_folder.position.x -= (1.0 - up) * FolderPeek.SIZE.x
 
 
 ## After the ending, one line under the name in the Count Room's green, set as a terminal's, in the
@@ -386,7 +458,8 @@ func _on_notes_put_away() -> void:
 ## The hints at the license and Kit's folder, peeking in at the screen's edges, STORY.md 7.2, for
 ## keys or a pad: off one, the way that reaches it from the buttons, right for the license and left
 ## for the folder; on one, accept, which opens it. Each in its own bottom corner, under it. None
-## while the mouse or a finger is in hand, which reach them by pointing.
+## while the mouse or a finger is in hand, which reach them by pointing, nor while the opening
+## plays, see [TitleIntro].
 func _show_peek_hints() -> void:
 	if not is_inside_tree() or is_queued_for_deletion():
 		return
@@ -399,7 +472,7 @@ func _show_peek_hints() -> void:
 			old.queue_free()
 	_license_glyph = null
 	_folder_glyph = null
-	if TouchInput.enabled or _pointer:
+	if TouchInput.enabled or _pointer or _intro != null:
 		return
 	if _license != null:
 		var on := _license.has_focus()

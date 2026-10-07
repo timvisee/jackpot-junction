@@ -175,6 +175,12 @@ static func _silence(tree: SceneTree) -> bool:
 ## being early in the tree: a pad's press that sits somebody down is theirs, not the last thing
 ## the player before them touched.
 func _input(event: InputEvent) -> void:
+	heard(event)
+
+
+## [param event] was touched, for [method _input], and for anything that spends an event before
+## it gets here, as the title's opening does, see [TitleIntro].
+func heard(event: InputEvent) -> void:
 	last_input_pointer = ButtonBinds.pointer_after(event, last_input_pointer)
 	if event is InputEventKey or event is InputEventMouseButton:
 		last_input_keyboard = true
@@ -261,6 +267,12 @@ static func version() -> String:
 ## True when running without a display, as in tests and CI.
 static func is_headless() -> bool:
 	return DisplayServer.get_name() == "headless"
+
+
+## Whether this run is a tool's rather than a player's: a screenshot, a smoke run or a bench,
+## which want the screen they asked for as it settles rather than any opening on the way to it.
+func is_scripted() -> bool:
+	return not _screenshot_path.is_empty() or _run_frames > 0 or _bench_frames > 0
 
 
 ## Leaving for a menu hangs up. The connection outlives a scene now, GAME.md 10.3, so walking

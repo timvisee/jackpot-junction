@@ -17,6 +17,9 @@ below, and hands the notes to the release workflow.
   the seal on it, drawn the way Mac icons are.
 - **Robot names for bots.** Bots go by names of their own, robot slang like Clanker, Rusty, Tin
   Can and Droid, which no player is ever handed.
+- **The title opens with the logo.** The first time the title comes up, the logo flies up from
+  the middle of the screen into its place and the rest of the screen comes in around it. Any
+  key, button, click or tap skips it.
 
 ### Changed
 
