@@ -3943,8 +3943,9 @@ empty.
 **The dialog.** The title's Catalog, between the Garage and Settings, opens it as a large dialog over
 the title: a shade over the screen and the house's pane over nearly all of it, on a layer of its own
 above a room's pause menu too, so the same dialog can be laid over any screen later. It has two pages
-as the settings have, Jokers and Power-ups, the shoulder buttons stepping between them, each tab
-saying how many of how many have been found, Jokers 12/35, with a gold tick once the whole set has.
+as the settings have, Jokers and Power-ups, the shoulder buttons stepping between them and drawn at
+the right end of the tabs while a gamepad is plugged in, as the settings' are, 8.5, each tab saying
+how many of how many have been found, Jokers 12/35, with a gold tick once the whole set has.
 Back, B, Escape or a click on the shade beside the pane puts it away, the cursor back on Catalog. The
 cards fill a grid on the left, as big as the room lets them be and never past their own size, so
 all of a page is on the screen without scrolling, a phone's too, and the pane describing the one

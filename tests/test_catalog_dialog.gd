@@ -14,12 +14,17 @@ func before_test() -> void:
 	Game.settings = Settings.new()
 	Game.settings.path = PATH
 	Game.settings.load_from_disk()
-	_holder = auto_free(Control.new())
+	_holder = Control.new()
 	add_child(_holder)
 
 
 func after_test() -> void:
 	Story.override = -1
+	# Gone before the scratch files are: a dialog going keeps the NEW tags it cleared, which would
+	# write them again for the next test to read.
+	if is_instance_valid(_holder):
+		remove_child(_holder)
+		_holder.free()
 	Settings.remove_files(PATH)
 	Game.settings = _settings_were
 
@@ -62,6 +67,13 @@ func test_the_tabs_count_what_was_found() -> void:
 	assert_str(dialog.tabs.get_tab_title(1)).is_equal("Power-ups  %d/%d" % [items, items])
 	assert_object(dialog.tabs.get_tab_icon(0)).is_null()
 	assert_object(dialog.tabs.get_tab_icon(1)).is_not_null()
+	# The row the tabs are drawn in says the same.
+	assert_str(dialog.tab_bar.get_tab_title(0)).is_equal(dialog.tabs.get_tab_title(0))
+	assert_object(dialog.tab_bar.get_tab_icon(1)).is_not_null()
+	dialog.tab_bar.current_tab = 1
+	assert_int(dialog.tabs.current_tab).is_equal(1)
+	# The bind hung on Full stack goes with its page, a frame on.
+	await get_tree().process_frame
 
 
 ## A card never taken lies face down, and its pane says only that it was not found; one taken is
@@ -186,7 +198,7 @@ func test_the_story_line_and_the_terms() -> void:
 	before.cell_of(&"payday").grab_focus()
 	await get_tree().process_frame
 	assert_str(_words_in(before.joker_pane)).not_contains(StoryLines.TERMS[&"payday"])
-	before.queue_free()
+	before.free()
 	Story.override = Story.Stage.PARTICIPANT
 	var after := await _open()
 	var line := after.find_child("Kept", true, false) as Label

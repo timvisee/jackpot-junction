@@ -50,6 +50,10 @@ const FIRST: PowerUpTable = preload("res://data/powerups/first_set.tres")
 const LATER: PowerUpTable = preload("res://data/powerups/later_set.tres")
 
 var tabs: TabContainer
+## The tabs drawn in a row of their own, the shoulder buttons that turn them at its right end while
+## a gamepad is plugged in, as the settings have them, GAME.md 8.5.
+var tab_bar: TabBar
+var tab_hint: Control
 var joker_grid: CardGrid
 var item_grid: CardGrid
 var joker_pane: JokerDetail
@@ -182,17 +186,15 @@ func _ready() -> void:
 		column.add_child(line)
 	tabs = TabContainer.new()
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	tabs.tabs_visible = false
 	MenuTheme.tabs(tabs)
-	column.add_child(tabs)
 	tabs.add_child(_jokers_page())
 	tabs.add_child(_items_page())
+	column.add_child(_tabs_row())
+	column.add_child(tabs)
 	_count_tabs()
 	var foot := HBoxContainer.new()
-	foot.add_theme_constant_override("separation", 24)
 	column.add_child(foot)
-	# The shoulder buttons are a pad's; a finger taps the tabs.
-	if not TouchInput.enabled:
-		foot.add_child(_tab_hint())
 	var room := Control.new()
 	room.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	foot.add_child(room)
@@ -207,10 +209,13 @@ func _ready() -> void:
 	_show_binds()
 	MenuTheme.deal(_pane)
 	_focus_first.call_deferred()
+	Input.joy_connection_changed.connect(_on_pad_plugged)
 
 
 func _exit_tree() -> void:
 	_keep_looks()
+	if Input.joy_connection_changed.is_connected(_on_pad_plugged):
+		Input.joy_connection_changed.disconnect(_on_pad_plugged)
 
 
 ## Puts the dialog away, the cursor going back to whatever had it before.
@@ -384,6 +389,46 @@ func _count_tabs() -> void:
 		var found := catalog.found_of(ids)
 		tabs.set_tab_title(i, COUNT % [pages[i][0], found, ids.size()])
 		tabs.set_tab_icon(i, MenuTheme.tick() if found >= ids.size() else null)
+		tab_bar.set_tab_title(i, tabs.get_tab_title(i))
+		tab_bar.set_tab_icon(i, tabs.get_tab_icon(i))
+
+
+## The row of tabs over the pages, and at its right end the shoulder buttons that turn them, shown
+## only while a gamepad is plugged in, as the settings' are.
+func _tabs_row() -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.name = "TabsRow"
+	row.add_theme_constant_override("separation", 16)
+	tab_bar = TabBar.new()
+	tab_bar.name = "Tabs"
+	tab_bar.clip_tabs = true
+	tab_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	MenuTheme.tabs(tab_bar)
+	for i: int in tabs.get_tab_count():
+		tab_bar.add_tab(tabs.get_tab_title(i))
+	tab_bar.current_tab = tabs.current_tab
+	tab_bar.tab_changed.connect(
+		func(tab: int) -> void:
+			if tabs.current_tab != tab:
+				switch_tab(tab - tabs.current_tab)
+	)
+	tabs.tab_changed.connect(
+		func(tab: int) -> void:
+			if tab_bar.current_tab != tab:
+				tab_bar.current_tab = tab
+	)
+	row.add_child(tab_bar)
+	tab_hint = _tab_hint()
+	tab_hint.name = "TabHint"
+	tab_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	tab_hint.visible = SettingsScreen.pad_plugged_in()
+	row.add_child(tab_hint)
+	return row
+
+
+func _on_pad_plugged(_device: int, _connected: bool) -> void:
+	if tab_hint != null:
+		tab_hint.visible = SettingsScreen.pad_plugged_in()
 
 
 func _on_joker_looked_at(cell: CatalogCell) -> void:
@@ -460,7 +505,7 @@ func _show_binds() -> void:
 	ButtonBinds.show(buttons, _keyboard, not _pointer and tabs.current_tab == 0)
 
 
-## The shoulder buttons, drawn, and what they do here.
+## The shoulder buttons, drawn, without words: beside the tabs they say what they do.
 func _tab_hint() -> HBoxContainer:
 	var ink := SettingsScreen.TAB_HINT_INK
 	var size := SettingsScreen.TAB_HINT_SIZE
@@ -469,4 +514,4 @@ func _tab_hint() -> HBoxContainer:
 		var press := InputEventJoypadButton.new()
 		press.button_index = button as JoyButton
 		parts.append(InputGlyph.of_event(press, ink, size))
-	return InputHint.row("%s %s switch tabs", parts, ink, size)
+	return InputHint.row("%s %s", parts, ink, size)
