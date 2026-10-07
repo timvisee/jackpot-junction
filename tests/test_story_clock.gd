@@ -215,3 +215,20 @@ func test_the_story_license_argument_licenses_a_new_profile() -> void:
 	named.set_seat_name(0, "Ada")
 	Story.hand_license(named)
 	assert_str(_settings().license_holder).is_equal("Ada")
+
+
+## `++ --story-notes` hands a new profile its license and every note, kept, the ones it had not
+## found new and the ones it had read still read.
+func test_the_story_notes_argument_hands_every_note() -> void:
+	var settings := _settings()
+	settings.profile.story.notes = PackedInt32Array([3])
+	settings.profile.story.notes_read = PackedInt32Array([3])
+	Story.read_arguments(PackedStringArray(["--story-notes"]), settings)
+	var read := _settings()
+	assert_bool(Story.licensed(read.profile)).is_true()
+	var story := read.profile.story
+	assert_int(story.notes.size()).is_equal(Story.NOTE_COUNT)
+	assert_array(Array(NotesFolder.in_order(story))).is_equal(range(1, Story.NOTE_COUNT + 1))
+	assert_bool(story.is_new(3)).is_false()
+	assert_bool(story.is_new(1)).is_true()
+	assert_bool(story.is_new(Story.NOTE_COUNT)).is_true()

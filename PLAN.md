@@ -435,7 +435,8 @@ These refine STORY.md without changing it.
       `scripts/autoload/game.gd`; the last two are read by S8 and S11). S7 added
       `++ --story-clock=SECONDS`, the clock read as that for what moves with it, and after S13
       `++ --story-license` licenses the profile playing at once and keeps it, in its first seat's
-      name or a picked one, so a new profile can try the others (`Story.hand_license`).
+      name or a picked one, so a new profile can try the others (`Story.hand_license`), and
+      `++ --story-notes` hands it every note, new, licensing it first (`Story.hand_notes`).
 - [x] The F3 overlay (`scenes/dev/debug_overlay.gd`) shows the stage, the clock in minutes, how many
       notes are found and whether the Final Hand is due (`Story.debug_text`); S8 adds the next note.
 

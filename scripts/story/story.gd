@@ -157,9 +157,9 @@ static func count(
 		story.shifts += 1
 
 
-## The debug build's story arguments, see the static variables, and `++ --story-license`, which
-## licenses the profile playing in [param settings] at once, see [method hand_license]. Nothing in
-## a released game.
+## The debug build's story arguments, see the static variables; and `++ --story-license` and
+## `++ --story-notes`, which license the profile playing in [param settings] and hand it every note
+## at once, see [method hand_license] and [method hand_notes]. Nothing in a released game.
 static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 	if not OS.is_debug_build():
 		return
@@ -174,6 +174,8 @@ static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 			clock_override = maxf(float(arg.get_slice("=", 1)), 0.0)
 		elif arg == "--story-license":
 			hand_license(settings)
+		elif arg == "--story-notes":
+			hand_notes(settings)
 
 
 ## The profile playing in [param settings] licensed as passing the driving test would have, GAME.md
@@ -194,6 +196,16 @@ static func hand_license(settings: Settings) -> void:
 	settings.license_date = LicenseCard.today()
 	settings.license_holder = holder
 	settings.license_plate = LicensePlate.suggest(holder, settings.license_number)
+	settings.save_to_disk()
+
+
+## Every one of Kit's notes filed for the profile playing in [param settings] at once and kept, the
+## ones it had not found yet new, so the folder can be read through from the first page to the
+## last, STORY.md 7.2. Licensed first if it is not, since no note turns up before the license.
+static func hand_notes(settings: Settings) -> void:
+	hand_license(settings)
+	for number: int in range(1, NOTE_COUNT + 1):
+		StoryNotes.file(settings.profile, number)
 	settings.save_to_disk()
 
 
