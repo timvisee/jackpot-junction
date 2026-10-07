@@ -2337,7 +2337,9 @@ says what, which is the half of the question a bench cannot answer.
 - **The title screen** wears the mark of 8.1 over the name, the name set in the
   condensed capitals of 8.1a in foil, and has a carnival
   sunburst turning slowly behind it, narrow beams of faint foil light over the
-  engraved stock so the lines show through, with poker chips drifting up past it. Drawn rather than modeled: the menu is a
+  engraved stock so the lines show through, fading out round the mark well before
+  the screen's sides and foot, with poker chips drifting up past it out at the
+  edges, fading away toward the mark. Drawn rather than modeled: the menu is a
   flat screen with no match running behind it, so a scene would be a scene loaded
   to be looked at once. Dark on purpose; the point of the screen is the words on
   it.
@@ -2643,10 +2645,17 @@ Amber and red belong to the boards and the warnings.
   their share of the turn each, laid over the engraved backdrop rather than two
   tones of their own so the lines show through the whole of it, with 192 fine rays
   engraved between them from just past the seal outward and a glow round the mark
-  under it all; it turns about the mark now rather than a point under it, with three
-  bands of guilloché rings round the mark, drawn once and turned whole, once every
-  four minutes; the name is set in the condensed Black in foil over a line of
-  microprint between two rules; the buttons are tickets.
+  under it all; it turns about the mark now rather than a point under it, once in
+  200 seconds, with three bands of guilloché rings round the mark, drawn once and
+  turned whole, once every four minutes; the name is set in the condensed Black in
+  foil over a line of microprint between two rules; the buttons are tickets. The
+  beams and the rays fade from the mark out to nothing at 0.88 of the way to the
+  nearest of the screen's sides and its foot, so they never touch one; running to
+  every edge, they made the screen busy behind the menu. The chips drifting up are
+  the house's chips, the seat cards' own with their notches and ring, slower than
+  they were, one crossing the screen in 40 to 80 seconds, and fade the other way:
+  gone within 0.45 of the burst's reach from the mark and all there past it, so they
+  stay out at the edges and off the words.
 - **Lists of people**: the profiles in the settings, the seats at this screen and
   everybody in a hosted game are one row, the seat card (`SeatCard`): a ticket of
   raised stock with a chip at its left end in the person's color, their seat's

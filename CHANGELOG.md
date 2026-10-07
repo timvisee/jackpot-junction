@@ -30,6 +30,8 @@ below, and hands the notes to the release workflow.
   goes on until everybody has theirs open, and Paused once it has stopped.
 - **The cursor's glide in ink on paper.** On the payout slip the frame that slides with the
   cursor is black, like the slip's own buttons, rather than gold on the cream.
+- **A calmer title screen.** The sunburst turns slower and fades out well before the sides of the
+  screen, and the chips drifting up are the house's chips, slower and kept out at the edges.
 
 ### Fixed
 
