@@ -991,8 +991,9 @@ and its golden ticket the gold catches the light. The folder, the closer look an
 alike: their buttons are drawn, never take the cursor and are there for the mouse, a cross putting
 away and turning arrows turning over; with keys or a pad the button each answers to is drawn on it.
 A click turns a thing over and a right click puts it away; on the folder the hand's button, as on the
-license, takes the open note out for a closer look, and on the title Back takes the cursor off the
-folder or the license and back to the buttons. It can be looked at closer,
+license, takes the open note out for a closer look. On the title the folder and the license are
+reached with the cursor and opened with accept, a hint under each saying which while keys or a pad
+are in hand, and Back takes the cursor off them and back to the buttons. It can be looked at closer,
 moved about and turned over, and put back. The folder's buttons and the closer look's are drawn
 rather than written: a cross puts either away, a pair of turning arrows turns a note over, and the
 arrows to the spread or the note either side carry the pencil mark when what they go to is new.

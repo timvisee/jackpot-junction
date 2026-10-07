@@ -5106,9 +5106,11 @@ the title, peeking in from the right edge the way a card in a hand does, tilted
 and a third off the screen, dimmed a little so it does not take the eye from
 the buttons, sliding in straight under the cursor, as it is, and back out
 from under it, a touch screen having the tap alone and nothing sliding under a
-finger, and shown in full over a shade on a click or a tap, or on the
-button that opens the hand of jokers, 3.7, Tab or Y say, drawn in the bottom
-right corner of the title, alone, for the device last touched, the
+finger, and shown in full over a shade on a click or a tap, or on accept with
+the cursor on it; with keys or a pad in hand a hint in the bottom right corner
+of the title says the way that reaches it from the buttons, right, and with the
+cursor on it accept, which shows it, as one in the bottom left corner does for
+Kit's folder, STORY.md 7.2, and with the mouse or a finger there are none; the
 way a joker is shown out of the hand, held up to be looked at: it turns a little
 in perspective toward the mouse as it moves, or the way the right stick is
 pushed, or the way a phone is tilted from how it was held as the card came up,

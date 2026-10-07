@@ -605,25 +605,32 @@ func test_the_title_peeks_the_license_earned() -> void:
 	title._unhandled_input(back)
 	await await_idle_frame()
 	assert_object(title.find_child("LicenseView", true, false)).is_null()
-	# The hand's button shows it too, its glyph in the bottom right corner, and Back puts it away.
+	# With keys or a pad in hand, a hint at it says how to reach it from the buttons, and on it how
+	# to open it; none with the mouse or on a touch screen. The hand's button does not show it.
+	title._pointer = false
+	(title.get("play_button") as Button).grab_focus()
+	title._show_peek_hints()
 	var glyph: Control = title.find_child("LicenseGlyph", true, false)
 	assert_object(glyph).is_not_null()
 	assert_object(glyph.get_parent()).is_same(title)
-	assert_int((glyph.get_child(0) as InputGlyph).kind).is_not_equal(InputGlyph.Kind.KEY)
-	# On a touch screen it is the finger, for the tap.
+	var reach := (glyph.get_child(0) as InputGlyph).caption
+	var license_peek := title.find_child("LicensePeek", true, false) as Control
+	license_peek.grab_focus()
+	await await_idle_frame()
+	glyph = title.find_child("LicenseGlyph", true, false)
+	assert_str((glyph.get_child(0) as InputGlyph).caption).is_not_equal(reach)
+	title._pointer = true
+	title._show_peek_hints()
+	assert_object(title.find_child("LicenseGlyph", true, false)).is_null()
 	var was_touch := TouchInput.enabled
 	TouchInput.enabled = true
-	title._show_license_glyph()
-	glyph = title.find_child("LicenseGlyph", true, false)
-	assert_int((glyph.get_child(0) as InputGlyph).kind).is_equal(InputGlyph.Kind.FINGER)
+	title._pointer = false
+	title._show_peek_hints()
+	assert_object(title.find_child("LicenseGlyph", true, false)).is_null()
 	TouchInput.enabled = was_touch
-	title._show_license_glyph()
-	glyph = title.find_child("LicenseGlyph", true, false)
+	title._show_peek_hints()
 	Game.last_input_keyboard = was_keyboard
 	title._input(hand)
-	await await_idle_frame()
-	assert_object(title.find_child("LicenseView", true, false)).is_not_null()
-	title._unhandled_input(back)
 	await await_idle_frame()
 	assert_object(title.find_child("LicenseView", true, false)).is_null()
 	# Without a license, the Garage asks for one like the ways in to playing do, and Back puts

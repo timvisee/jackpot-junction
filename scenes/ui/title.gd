@@ -34,8 +34,8 @@ const AD_GAP := 18.0
 const AD_EDGE := 16.0
 ## The Operator's line along the foot after the ending, STORY.md 8.6: its size and how far up.
 const STATUS_SIZE := Type.BODY
-## The button that shows the license in full, see [LicenseView], the one that opens the hand of
-## jokers, drawn alone in the bottom right corner over the version.
+## The hints at the license and the folder for keys and pads, see [method _show_peek_hints]: how
+## big, and how far over the foot of the screen, in its bottom corners.
 const LICENSE_GLYPH_SIZE := 24
 const LICENSE_GLYPH_BOTTOM := 44.0
 
@@ -56,10 +56,13 @@ var _license_out := false
 var _license_view: LicenseView
 ## What had the cursor when the license was shown in full, for it to go back to.
 var _license_from: Control
-## The button that shows the license, drawn beside it for the device in hand, and which that is,
-## picked up from whatever was last touched anywhere in the game.
+## The hints at the license and the folder, see [method _show_peek_hints]; which device they are
+## drawn for, picked up from whatever was last touched anywhere in the game; and whether the mouse
+## is in hand, which has none drawn.
 var _license_glyph: Control
+var _folder_glyph: Control
 var _keyboard := true
+var _pointer := false
 ## The question whether to earn the license, while it is up, and what had the cursor before it.
 var _license_question: Control
 var _question_from: Control
@@ -287,6 +290,7 @@ func _place_ad() -> void:
 ## straight under the cursor and back out from under it, and shown in full on a click.
 func _peek_license() -> void:
 	_keyboard = Game.last_input_keyboard
+	_pointer = Game.last_input_pointer
 	_license = LicenseCard.from_settings()
 	_license.name = "LicensePeek"
 	_license.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -302,7 +306,9 @@ func _peek_license() -> void:
 	_reach_license()
 	resized.connect(_place_license)
 	_place_license()
-	_show_license_glyph()
+	_license.focus_entered.connect(_show_peek_hints, CONNECT_DEFERRED)
+	_license.focus_exited.connect(_show_peek_hints, CONNECT_DEFERRED)
+	_show_peek_hints()
 
 
 ## The menu's cursor reaches the license going right from the buttons, as it reaches Kit's folder
@@ -351,6 +357,10 @@ func _peek_folder() -> void:
 			buttons.append(child)
 	_folder = FolderPeek.add_to(self, profile, buttons)
 	_folder.opened.connect(show_notes)
+	# Deferred, so the cursor leaving as the title goes draws nothing on its way out.
+	_folder.focus_entered.connect(_show_peek_hints, CONNECT_DEFERRED)
+	_folder.focus_exited.connect(_show_peek_hints, CONNECT_DEFERRED)
+	_show_peek_hints()
 
 
 ## The notes' folder open over the title: put away, the cursor goes back where it was.
@@ -373,50 +383,66 @@ func _on_notes_put_away() -> void:
 		play_button.grab_focus()
 
 
-## The button that opens the hand of jokers, GAME.md 3.7, drawn alone in the bottom right corner
-## over the version, as the button that shows the license, for a keyboard or a
-## pad by what was touched last; on a touch screen the finger, for the tap that shows it.
-func _show_license_glyph() -> void:
-	if _license_glyph != null:
-		remove_child(_license_glyph)
-		_license_glyph.queue_free()
-		_license_glyph = null
-	var glyph := (
-		InputGlyph.of_finger(Palette.CHIP_WHITE, LICENSE_GLYPH_SIZE)
-		if TouchInput.enabled
-		else InputGlyph.of_action(
-			InputActions.JOKER_MENU, _keyboard, Palette.CHIP_WHITE, LICENSE_GLYPH_SIZE
-		)
-	)
-	if glyph == null:
+## The hints at the license and Kit's folder, peeking in at the screen's edges, STORY.md 7.2, for
+## keys or a pad: off one, the way that reaches it from the buttons, right for the license and left
+## for the folder; on one, accept, which opens it. Each in its own bottom corner, under it. None
+## while the mouse or a finger is in hand, which reach them by pointing.
+func _show_peek_hints() -> void:
+	if not is_inside_tree() or is_queued_for_deletion():
 		return
+	# The old ones out of sight and out of the way of the new ones' names at once, gone at the
+	# frame's end.
+	for old: Control in [_license_glyph, _folder_glyph]:
+		if old != null and is_instance_valid(old):
+			old.visible = false
+			old.name = "Gone"
+			old.queue_free()
+	_license_glyph = null
+	_folder_glyph = null
+	if TouchInput.enabled or _pointer:
+		return
+	if _license != null:
+		var on := _license.has_focus()
+		_license_glyph = _peek_hint("LicenseGlyph", &"ui_accept" if on else &"ui_right", false)
+	if _folder != null:
+		var on := _folder.has_focus()
+		_folder_glyph = _peek_hint("FolderGlyph", &"ui_accept" if on else &"ui_left", true)
+
+
+## A hint named [param named] for [param action], in the bottom left corner if [param left] or the
+## bottom right; null for an action with nothing bound to it on the device in hand.
+func _peek_hint(named: String, action: StringName, left: bool) -> Control:
+	var glyph := InputGlyph.of_action(action, _keyboard, Palette.CHIP_WHITE, LICENSE_GLYPH_SIZE)
+	if glyph == null:
+		return null
 	var row := HBoxContainer.new()
-	row.name = "LicenseGlyph"
-	row.add_theme_constant_override("separation", 8)
+	row.name = named
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(glyph)
-	row.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
-	row.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	row.set_anchors_and_offsets_preset(
+		Control.PRESET_BOTTOM_LEFT if left else Control.PRESET_BOTTOM_RIGHT
+	)
+	row.grow_horizontal = Control.GROW_DIRECTION_END if left else Control.GROW_DIRECTION_BEGIN
 	row.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	row.offset_right = -16.0
+	if left:
+		row.offset_left = 16.0
+	else:
+		row.offset_right = -16.0
 	row.offset_bottom = -LICENSE_GLYPH_BOTTOM
 	add_child(row)
-	_license_glyph = row
+	return row
 
 
-## The hand's button shows the license and puts it away again, before the focus takes the key
-## for walking the buttons; and what was pressed says which glyph to draw.
+## What was touched says which hints to draw at the license and the folder, and whether to draw any.
 func _input(event: InputEvent) -> void:
-	if _license == null or warming != null or _notes != null:
+	if warming != null or _notes != null or _license_view != null:
 		return
 	var was := _keyboard
+	var was_pointer := _pointer
 	_keyboard = LicenseView.keyboard_after(event, _keyboard)
-	if was != _keyboard:
-		_show_license_glyph()
-	# Shown, the view takes the button itself, to turn the card over.
-	if event.is_action_pressed(InputActions.JOKER_MENU) and _license_view == null:
-		get_viewport().set_input_as_handled()
-		show_license()
+	_pointer = ButtonBinds.pointer_after(event, _pointer)
+	if was != _keyboard or was_pointer != _pointer:
+		_show_peek_hints()
 
 
 ## A click or a tap on the license peeking in shows it in full, or the accept button with the
