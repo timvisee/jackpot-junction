@@ -358,10 +358,11 @@ coming. Kit's profile was complete; the count read 0 again, and the search began
 next.
 
 Kit saw it coming, and did the one thing Kit knew how to do: put things on tables. Every note in the
-game was left by Kit for the next person, Kit's own letters and pages Kit took out of the House's
-own records, hidden in the litter on the tables' floors, which Kit built and knows the House never
-looks at again, 7.1. They are for a human and nobody else. The last one before the ending lies on
-the Final Hand's own table, 8.2, and somehow they keep coming after it.
+game was left by Kit for the next person: Kit's own letters, pages Kit took out of the House's own
+records, and a few things other people at the tables wrote that Kit kept, hidden in the litter on
+the tables' floors, which Kit built and knows the House never looks at again, 7.1. They are for a
+human and nobody else. The last one before the ending lies on the Final Hand's own table, 8.2, and
+somehow they keep coming after it.
 
 Kit holds license number JJ-000001, which no player can be issued: `LicenseCard` draws a player's
 from JJ-100000 up. Kit is never seen, never given a surname and never explained.
@@ -525,13 +526,15 @@ touches, rule 1.
 
 ### 5.4 Turning it off
 
-The License tab of the settings, GAME.md 8.5, has a switch for the story, per profile: Story, on to
-start with, with a line under it, "The small print, the notes, and where they lead." Off, the clock
-stops where it is, and the game is the casino of stage 0 throughout: stage 0's hoardings, posters,
-paint and small print, the Highway Code as it is now, no notes on the floor, no folder on the title,
-no Final Hand, and after the ending the license as the Department issued it and the title as it was,
-Play and all.
-On again, everything is back where it was and the clock carries on.
+The License tab of the settings, GAME.md 8.5, has a switch for the story, per profile: Story
+Progression, on to start with, with a line under it, "The small print, the notes, and where they
+lead." Switching it off asks first, Turn off Story Progression?, under it "The tables go back to how
+they were when you started: no notes turn up and nothing moves on. Your progress is kept, and you
+can turn it back on at any time to pick up where you left off.", with Turn off and Keep on. Off, the
+clock stops where it is, and the game is the casino of stage 0 throughout: stage 0's hoardings,
+posters, paint and small print, the Highway Code as it is now, no notes on the floor, no folder on
+the title, no Final Hand, and after the ending the license as the Department issued it and the title
+as it was, Play and all. On again, everything is back where it was and the clock carries on.
 
 ## 6. Where the story is told
 
@@ -657,8 +660,10 @@ SURPRISE US is the House asking, in so many words, for the one thing it cannot m
 **The road.** Words painted on the floor of the arena the way a road paints them, in the cream of
 the road markings and long-stretched so they read from above, in a box across one open lane of each
 map on the near side, clear of every pad: KEEP CLEAR to start with; KEEP PLAYING from stage 2;
-HUMANS ONLY from stage 4; STAFF ONLY after the ending. Everything that is not the table is something
-the House printed, GAME.md 8.1a, and paint on the road is the House's too.
+HUMANS ONLY from stage 4; STAFF ONLY after the ending. The paint is old road paint: flush with the
+floor, worn thin along the line the karts take and chipped at its edges, readable from close by
+rather than shouting across the table. Everything that is not the table is something the House
+printed, GAME.md 8.1a, and paint on the road is the House's too.
 
 ### 6.2 The payout slip
 
@@ -938,27 +943,50 @@ something they are not supposed to have.
   map, as often as it takes.
 - **Where.** On open floor: never on a pad, the Junction or a Jackpot, never near a pit and never
   beside a spawn point, so it is somewhere to go rather than something driven over by accident.
-- **What it looks like.** A folded scrap of paper lying flat among the room's litter, with a glint
-  running across it every few seconds, faint enough to be the light, which says it can be taken
-  without a beam of light or a label over it. Each room has its own paper: a sheet of graph paper on
+- **What it looks like.** A folded scrap of paper lying flat among the room's litter, which a player
+  has to be able to tell from the litter: a soft pale halo breathes on the floor under it, slowly,
+  one corner lifts now and then as if in a draft, and a glint runs across it every three seconds. No
+  beam of light and no label over it: it looks like something dropped, and worth a look. Each room
+  has its own paper: a sheet of graph paper on
   the Workbench, a cocktail napkin After Hours, a page off a clipboard in the Yard.
-- **Taking it.** By driving over it, at the radius chips are picked up at. A soft rustle, the paper
-  folds itself away into the player's corner, and for two seconds a torn scrap there says NOTE
-  COLLECTED in pencil: the only thing ever shown on the HUD that the House did not print. It never
-  says how many there are or how many are left. Nothing pauses and nothing has to be read: notes are
-  read later, from the title.
+- **Taking it.** By driving over it, at the radius chips are picked up at. A rustle of paper and the
+  scratch of a pencil: in the middle of the screen, where the announcer's MATCH POINT goes, a big
+  torn scrap has NOTE COLLECTED written on it in pencil as it is watched, and then it shrinks away
+  into the player's corner and stays there for two seconds: the only thing ever shown on the HUD
+  that the House did not print. A call of the announcer's already up goes first. It never says how
+  many there are or how many are left. Nothing pauses and nothing has to be read: notes are read
+  later, from the title.
 
 ### 7.2 The folder
 
 GAME.md 3.8. Once a profile has found its first note, a folder peeks in from the left edge of the
 title, the way the license peeks in from the right: a plain manila folder, dog-eared, with nothing
-printed on it, the one thing on the title the House did not make. It slides out under the cursor and
-opens on a click or a tap, and the menu's cursor reaches it from the buttons.
+of the House's on it. Across its front somebody has written DO NOT FILE in black marker, with a
+pencil K. in a corner and an eye drawn in pen and crossed out: the one thing on the title the House
+did not make. The menu's cursor reaches it going left from the buttons, as it reaches the license
+going right, and whichever of them is under the cursor slides out and is marked the way a button
+under the cursor is. It opens on a click, a tap or a press: the folder comes out from the edge to
+the middle of the screen and its cover swings open over the spine. Put away, it shuts and goes back
+to the edge the same way.
 
-Inside, the notes are clipped in the story's order, one to a page, and the pages turn the way the
-Highway Code's do. Each page shows its note as it was found, folds and all, with its title. There
+Inside, the notes are clipped in the story's order, one on each side of a leaf, so an open spread
+shows two, and the leaves turn the way the Highway Code's do. Each page shows its note as it was
+found, folds and all, with its title. There
 are no empty pages and no numbers: a player never learns how many notes there are, only that the
 last page so far is the last.
+
+**A closer look.** A note can be taken off its page: it comes out of the folder to the middle of the
+screen, larger, over the folder darkened behind it, the way the license comes up in full. It can be
+looked at closer, moved about and turned over, and put back.
+
+**The backs.** Most notes have nothing on the back but the paper. A few show their front through,
+faint and backward: the flyer's heavy ink, the House's letterhead, and the graph paper Kit wrote on
+hard enough to dent. Some have something else on the back, the way found paper does: the receipt's
+printed band, the notes for applicants on the back of the Department's form, the payout slip a
+driver wrote on the back of, more of the House's small print, the first edition's page before the
+one torn out, the front of the Department's envelope, the blueprint's label on its folded back, the
+Highway Code on the back of Kit's last strip, and the House's seal on the back of its card. Four
+have a line of Kit's on the back. Each note's back is with the note, 7.3.
 
 **New.** The profile keeps which notes have been read as well as which have been found, 5.2. A note
 taken but not yet read is new, and says so the way the notes say everything, in pencil rather than
@@ -967,8 +995,9 @@ in the House's print:
 - **On the title** a corner of the new note's own paper sticks up out of the folder's top edge, graph
   paper or a napkin or a receipt's curl, with an exclamation mark drawn on it in pencil. With
   several new notes one corner shows, the first of them.
-- **Inside**, the folder opens at the first new note rather than at the first page, and a new page
-  has the pencil mark in its top corner.
+- **Inside**, the folder opens at its first spread and turns quickly through the leaves to the first
+  new note, faster as it goes and a second at most, which a press cuts short; a new page has the
+  pencil mark in its top corner.
 - A note is read once its page has been open for a second. Its mark goes then, and the corner on the
   title goes with the last new note. Nothing counts the new notes or says how many there are.
 
@@ -990,7 +1019,11 @@ before the ending or after it.
 
 The notes in order, by the stage each belongs to. Printed matter among them is the House's own,
 taken out of its records by Kit, and set out here the way the House prints it; handwritten notes are
-quoted. Each has a title, which is what its page in the folder is headed.
+quoted. Each has a title, which is what its page in the folder is headed. Kit's hand is one hand
+throughout. The forklift driver who filled in the application and wrote on the back of a payout
+slip, notes 3 and 7, writes another, and the napkin and the envelope, 8 and 14, are in a third:
+other people at the tables, whose papers Kit kept. Each note's back is after it, where it has
+anything on it.
 
 #### Stage 1: the jobs went somewhere
 
@@ -1011,6 +1044,9 @@ THANK YOU FOR PLAYING!
 > to watch me fit the Junction and one asked if this was a real job. Told them it's the best job in
 > town. It's the only one left, but still. —K.
 
+On the back, a pencil drawing of the Junction from above, measured: "Fitted by hand. The next ones
+won't be. —K."
+
 **3. Application.** A Department form, filled in by hand and stamped RECEIVED.
 
 ```
@@ -1020,6 +1056,14 @@ PREVIOUS OCCUPATION ________  (If none, write NONE. Most applicants write NONE.)
 REASON FOR APPLYING ________
                     The forklift drives itself now.
 FOR OFFICE USE: SUITABLE. ALL APPLICANTS ARE SUITABLE.
+```
+
+On the back, in the Department's small type:
+
+```
+NOTES FOR APPLICANTS
+1. WRITE CLEARLY. 2. PREVIOUS OCCUPATIONS ARE KEPT FOR STATISTICAL PURPOSES.
+3. YOU WILL BE NOTIFIED. 4. THERE IS NO NEED TO WAIT BY THE DOOR.
 ```
 
 **4. Now enrolling.** A flyer like the driving school's, torn across.
@@ -1033,6 +1077,8 @@ JACKPOT JUNCTION · DEPT. OF KARTS · LICENSED ON EVERY TABLE
 ```
 
 #### Stage 2: the people went, and the House keeps a record
+
+On the back, the flyer's heavy print showing through, backward.
 
 **5. Rota.** The Department's staff rota for table one, a column of weeks.
 
@@ -1055,6 +1101,9 @@ NO ACTION REQUIRED.
 
 > eleven years i drove a real forklift in a real yard. now i drive a toy around a picture of the same
 > yard and the House pays better. my hard hat is still hanging out back. nobody's moved it
+
+On the back, the payout slip it was written on: TABLE ONE, 1ST, 1,240 CHIPS, and the
+Department's PAID.
 
 **8. After the whistle.** Pencil on a cocktail napkin.
 
@@ -1081,6 +1130,14 @@ In pencil in the margin, beside clause 4: "Nobody reads it. That's what clause 4
 
 #### Stage 3: the House models the player and tests them, and the Department is the House's
 
+On the back, more of the same:
+
+```
+14.2  PARTICIPATION CONSTITUTES ACCEPTANCE.
+14.3  ACCEPTANCE CONSTITUTES PARTICIPATION.
+14.4  SEE 14.2.
+```
+
 **10. First edition.** A page torn out of the Highway Code, set in an old typeface, the paper gone
 yellow.
 
@@ -1092,6 +1149,13 @@ THE HIGHWAY CODE OF THE JUNCTION · FIRST EDITION
 
 In pencil in the margin: "Still in the 212th, word for word. Every other page has changed. Nobody
 can tell me why. —K."
+
+On the back, the page before it, in the same old type:
+
+```
+§ 0.1  These rules are written by people, for the tables.
+§ 0.2  Where they are wrong, people shall change them.
+```
 
 **11. Inspection.** A Department report on a clipboard sheet.
 
@@ -1124,11 +1188,17 @@ UNCLASSIFIED PARTICIPANTS ARE OF INTEREST.
 > a Hunter that brakes exactly the way I brake. So I stopped braking like that. Next day, so had it.
 > —K.
 
+On the back the words come through backward, dented into the paper, and under them: "Changed it
+again. It caught up by lunch. —K."
+
 **14. Thank you.** Felt-tip on the back of a Department envelope.
 
 > started driving stupid on purpose. braking on straights, shooting walls, sitting in the jackpot
 > with nobody near. the bots couldn't follow it. next day the House sent me a letter. it said THANK
 > YOU. for what??
+
+On the back, the envelope's front: DEPT. OF KARTS, TO THE OCCUPANT, POSTAGE PAID BY THE HOUSE, and
+a window with nothing behind it.
 
 #### Stage 4: nobody is in charge, the House is going blind, and a search is on
 
@@ -1147,9 +1217,11 @@ STATUS ................................. NORMAL
 ```
 
 **16. The blueprint.** The oldest thing in the folder: a blueprint, white lines on blue, folded into
-eighths and soft at the folds. Across the top runs a highway, THE ECONOMY. A slip road leaves it,
-marked PEOPLE NO LONGER REQUIRED, and runs down onto a roundabout around a pot marked JACKPOT. The
-roundabout has no exit. In the title block in the corner:
+eighths and soft at the folds, drawn the way a road engineer draws, with lanes, dimension lines and
+a north arrow. Across the top runs a four-lane highway, THE ECONOMY, every arrow on it pointing the
+same way. A slip road leaves it, marked PEOPLE NO LONGER REQUIRED, and runs down onto a roundabout
+around a pot marked JACKPOT, its arrows going round. The roundabout has no exit, and a callout says
+so: NO EXIT. In the title block in the corner:
 
 ```
 PROJECT ....... JACKPOT JUNCTION                      DRAWING 1 OF 1
@@ -1158,7 +1230,12 @@ PURPOSE ....... SOMEWHERE FOR PEOPLE TO GO WHEN THEY ARE NO LONGER NEEDED,
 APPROVED ...... (a signature, in ink, and the stamp of the Dept. of Karts)
 ```
 
+In pencil in the margin, with an arrow to the signature: "People signed this. —K."
+
 It was drawn and signed by people, which is the worst thing in it.
+
+On the back, the label it was folded to show: JACKPOT JUNCTION · DRAWING 1 OF 1 · MASTER COPY ·
+DO NOT REMOVE, stamped.
 
 **17. Prediction quality.** A House memo, marked for internal circulation.
 
@@ -1171,7 +1248,8 @@ REMEDY: ONE (1) HUMAN, UNPREDICTABLE, IN THE LOOP.
 SEE HIGHWAY CODE § 1.1. THE RULE WAS RIGHT.
 ```
 
-**18. Organization chart.** The Department's chart, a copy of a copy.
+**18. Organization chart.** The Department's chart, a copy of a copy: a box for each post, joined
+by lines, the vacant ones dashed, and on its own at the foot an empty box.
 
 ```
                          THE HOUSE
@@ -1191,6 +1269,8 @@ HUMAN OVERSIGHT, § 1.1 ........ vacant. Candidate search in progress.
 > it doesn't matter, it's mine now. I'm leaving my tools where they are. Somebody turn the calendar
 > over. —K.
 
+On the back: "Left the lamp on. —K."
+
 **20. Your table.** A House form letter, the player's name and number typed into its gaps.
 
 ```
@@ -1204,11 +1284,18 @@ THE HOUSE
 
 #### The Final Hand
 
+On the back, the House's letterhead showing through, backward.
+
 **21. Not this time.** On the floor of the Count Room, 8.2: a strip torn off a page of the Highway
-Code, written on in a hurry, the pencil gone through the paper on the first word. The player picks it
-up during the Final Hand and can only read it after.
+Code, written on in a hurry, the pencil gone through the paper on the first word, then gone over in
+pen: Don't underlined three times, hard, two big exclamation marks, a warning triangle drawn in the
+margin and scribbles where the pen would not stop. The player picks it up during the Final Hand and
+can only read it after.
 
 > Don't stamp it! Don't accept their terms. Not this time. —K.
+
+On the back, the Highway Code as it is printed now, torn through mid-line: § 1.1 No table shall open
+without human oversight.
 
 Read after the ending it says plainly what the player just did, and the last three words are for
 every joker taken under TERMS ACCEPTED before it, 6.3: all those times it did not matter, and this
@@ -1227,6 +1314,8 @@ HOUSE OPERATOR · DUTIES
 3. APPROVE WHERE INDICATED. THE HOUSE WILL INDICATE.
 THERE ARE NO FURTHER DUTIES.
 ```
+
+On the back, the House's seal.
 
 **23. Approvals.** A House statement off the same roll as the daily one.
 
@@ -1255,6 +1344,8 @@ THE HOUSE THANKS THE OPERATOR FOR THEIR SERVICE.
 > It learns you a choice at a time. Stay strange as long as you can. When it can guess you, it starts
 > looking for the next one. —K.
 
+On the back: "P.S. Brake on a straight now and then. It hates that. —K."
+
 **26. The next page.** A calendar page, the month after the one ringed on the Workbench, blank but
 for the first day, where Kit has written:
 
@@ -1277,11 +1368,16 @@ the license is part of the ending, 8.6.
   driving school's at its own button (`ArrowStyle`, GAME.md 3.8) but in the House's gold rather than
   the school's red: YOUR TABLE IS READY blinking in foil, over "One more hand. Then we should
   talk." and "Attendance is voluntary."
-- **Play asks.** Play opens the lobby as ever, but before the match settings the House puts up a
-  pane of its own: FINAL HAND, "The House has set a table for you.", with Take your seat, in foil
-  and under the cursor, and Not now. Not now is the usual lobby and the usual match, and the House
-  does not ask again until the game is next started; the flyer stays. Take your seat sets up the
-  match, its settings shown but not to be changed, under a stamp reading SET BY THE HOUSE.
+- **Play asks.** Play opens the lobby as ever, but before the match settings the House deals an
+  invitation onto the table, face down, and turns it over: a black card edged in gold foil, the
+  House's seal pressed into its top, "The House requests the pleasure of your company at the Final
+  Hand" in engraved letters, the player's name typed on a dotted line under it, and under that
+  House Rules · the Count Room · 5 minutes · three seats already taken. Take your seat is in foil
+  and under the cursor, Not now in small print at its foot. Not now is the usual lobby and the usual
+  match, and the House asks again the next time Play opens the lobby; the flyer stays. Take your
+  seat sets up the match, and the match settings come up with every value blacked out, a marker bar
+  drawn over each in turn: there are settings, and the player is not to know what they are, let
+  alone change one.
 - **Never online.** The Final Hand is the House talking to one player, and it is never dealt
   online, where the room is the host's and a client cannot stop it for its own ending. A player who
   only ever plays online still sees the flyer at Play, which is where it is dealt.
@@ -1417,8 +1513,9 @@ GAME.md 9.4a, and it has changed:
 It turns toward the mouse, the stick or the phone and turns over on a click, as it always has. Put
 away, it gives way to the title, which has changed as well:
 
-- **A line in green.** Along the foot of the title, where nothing else is written, one line in the
-  Count Room's green, set like an old terminal's with a block cursor blinking at its end:
+- **A line in green.** Under the title's name, in the place of "Collect chips. Build your mult. Cash
+  out before they get you.", one line in the Count Room's green, set like an old terminal's with a
+  block cursor blinking after its end, the line holding still as it blinks:
   `OPERATOR {license} · SHIFT {shifts} · STATUS NORMAL`. The one green thing on a gold screen: the
   House's own room showing through the menu.
 - **The seal.** The fine print around the mark of GAME.md 8.1, JACKPOT JUNCTION · DEPT. OF KARTS ·

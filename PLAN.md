@@ -356,12 +356,14 @@ Spoilers throughout, like STORY.md.
 | S11 | The Final Hand | Done |
 | S12 | After the ending | Done |
 | S13 | Wrapping up | Done, but for the user's play-through |
+| S14 | The first look, the user's notes | In progress |
 
-Next up: the user's play-through on a fresh profile, S13's last task, and tuning the pace of S0
-after it. The phases are in the order they are best built, each standing on its own: after S0 to
-S7 the story's margins are all in the game and could ship, the notes and the ending after them. S10
-can be built alongside anything before S11, which needs it. On picking the work up again: this
-table, then the first unticked task of the phase in progress, then that task's sections of STORY.md.
+Next up: S14, the user's first round of notes; then their play-through, S13's last task, and tuning
+the pace of S0 after it. The phases are in the order they are best built, each standing on its own:
+after S0 to S7 the story's margins are all in the game and could ship, the notes and the ending
+after them. S10 can be built alongside anything before S11, which needs it. On picking the work up
+again: this table, then the first unticked task of the phase in progress, then that task's sections
+of STORY.md.
 
 ### Decisions fixed for implementation
 
@@ -1020,6 +1022,54 @@ adds no sound. All seven export presets leave STORY.md out. `make check`: 1228 t
 story's thirteen suites among them, and smoke; the multiplayer check stopped once on a client of
 the room of eight leaving a sound behind at exit, the known artifact of quitting mid-sound, and
 passed three times running after it, with the lag and server checks.
+
+### S14: the first look, the user's notes
+
+The user's first round of notes on the built story, 2026-10-07, answered with defaults but where
+noted; STORY.md and GAME.md were brought in line first. One commit an item.
+
+- [x] STORY.md and GAME.md: every decision below written in first.
+- [ ] Story Progression: the License tab's switch renamed, and switching it off asks first, saying it
+      can be switched on again at any time [5.4].
+- [ ] The Final Hand asked again each time Play opens the lobby, rather than once a run [8.1].
+- [ ] House Rules: the gaps between the walls round the edge 2 cells at least, still point-symmetric
+      with its 8 spawns; GAME.md 6.3's grid with it.
+- [ ] The Count Room's rack lights softer, slower, fewer and bigger, small ones settling into a glow
+      rather than shimmering as the camera moves.
+- [ ] The road's box worn: flush with the floor, thin along the karts' line, chipped [6.1].
+- [ ] The title after the ending: the green line in the tagline's place, its cursor blinking in a
+      slot of its own so the line never moves [8.6].
+- [ ] The title: the license reached going right from the buttons as the folder is going left; both
+      slid out and marked under the cursor with the buttons' gold outline and chevron, for the user to
+      judge against a slow gold glow turning round them [7.2].
+- [ ] Hands: Caveat for Kit, Kalam for the forklift driver (3, 7), Patrick Hand for the napkin and
+      the envelope (8, 14), Permanent Marker for the folder; Homemade Apple for the license's
+      signature alone; THIRD_PARTY.md and the credits [7.3].
+- [ ] Note 21 gone over in pen: Don't underlined three times, exclamation marks, a warning triangle,
+      scribbles. Note 18 in boxes. Note 16 drawn as a road engineer draws, its title block fitting,
+      Kit's margin line [7.3].
+- [ ] The folder: a note on each side of a leaf, two to a spread [7.2].
+- [ ] The folder comes out from the edge and its cover swings open; put away, the reverse. It opens
+      on its first spread and turns quickly to the first new note, a press cutting it short [7.2].
+- [ ] The folder's front: DO NOT FILE in marker, a pencil K., an eye in pen crossed out [7.2].
+- [ ] A closer look: a note taken off its page, larger, zoomed and moved, turned over to its back,
+      every back of 7.3 drawn [7.2, 7.3].
+- [ ] Sounds: Kenney's RPG Audio (CC0), its paper and book sounds, for the folder opening, shutting
+      and turning, and for taking a note; THIRD_PARTY.md.
+- [ ] A note on the floor easier to see: a soft breathing halo over the litter, a corner lifting,
+      a glint every three seconds [7.1].
+- [ ] NOTE COLLECTED big in the middle, written on in pencil, then into the corner, after any call
+      already up; with a rustle and a scratch [7.1].
+- [ ] The invitation: the Final Hand's pane a black card edged in gold, dealt face down and turned
+      over; a look at a gold-edged ticket beside it for the user [8.1].
+- [ ] The match settings at the Final Hand: no SET BY THE HOUSE, every value under a marker bar of
+      its own, drawn on in turn [8.1].
+- [ ] Debug builds: a Story tab last in the settings, where the story is and buttons to move it;
+      the README's story arguments.
+
+Verify: the story's suites and `make check`; screenshots of each, sent to the user.
+
+Status: in progress.
 
 ## Pending
 

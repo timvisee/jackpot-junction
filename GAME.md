@@ -614,12 +614,13 @@ else's results screen, see 10.3.
   pad, and on a touch screen the finger of 8.3, for the tap. Nothing else is written along the
   bottom: who made the music, the models and the sounds is said in Settings, About, see 8.5.
   Once the story of 8.7 has had a note found, a manila folder peeks in from the left edge the way
-  the license does from the right, opening on the notes found, reached going left from the
-  buttons and marked in pencil while a note in it is unread; while
-  its Final Hand is due a flyer in the house's gold points
+  the license does from the right, DO NOT FILE in marker across it, opening on the notes found,
+  reached going left from the buttons as the license is going right, either of them slid out and
+  marked as a button is while the cursor is on it, and marked in pencil while a note in it is
+  unread; while its Final Hand is due a flyer in the house's gold points
   at Play the way the school's points at its button; and after its ending Play reads Clock in, doing
-  what it always did, a line in the Count Room's green runs along the foot of the title and the
-  seal's fine print reads otherwise: STORY.md 7.2, 8.1 and 8.6.
+  what it always did, a line in the Count Room's green takes the place of the line under the name,
+  and the seal's fine print reads otherwise: STORY.md 7.2, 8.1 and 8.6.
   A question asked over the title, this one or any other, keeps
   the cursor on its own two answers. Play goes
   straight into the lobby, the waiting room of 9.6, the way hosting
@@ -1998,14 +1999,16 @@ picking a place rather than a floor plan.
 
 A fifth room is the story's, 8.7: the Count Room, the room the house built for itself, a table on
 a raised floor of square tiles in a hall of server racks lit in a terminal's hard green, rows of them
-behind the crowd with their lights winking, cable trays over them and monitors on them scrolling
-numbers nobody reads, the winking and the scrolling each a shader rather than a light or a node. Its
-walls are racks capped in green, its boxes stacks of drives, its Junction a processor seen from
-above, its pits floor tiles lifted out with cable at the bottom, its Jackpots banks of memory and its
-turbo pads cooling vents; looks only, every one of them plays as it does anywhere. Nothing anybody
-put down: no litter, nothing a degree off. Its crowd stands in exact rows, every figure the same and
-undressed, facing the table, with no tribune and nobody at the console, and its disco rig is green.
-It is House Rules' room, 6.3, and seen first at the story's Final Hand, STORY.md 3.9 and 8.2.
+behind the crowd with their lights winking, softly and slowly, small ones settling into a steady
+glow rather than shimmering as the camera moves, cable trays over them and monitors on them
+scrolling numbers nobody reads, the winking and the scrolling each a shader rather than a light or a
+node. Its walls are racks capped in green, its boxes stacks of drives, its Junction a processor seen
+from above, its pits floor tiles lifted out with cable at the bottom, its Jackpots banks of memory
+and its turbo pads cooling vents; looks only, every one of them plays as it does anywhere. Nothing
+anybody put down: no litter, nothing a degree off. Its crowd stands in exact rows, every figure the
+same and undressed, facing the table, with no tribune and nobody at the console, and its disco rig
+is green. It is House Rules' room, 6.3, and seen first at the story's Final Hand, STORY.md 3.9 and
+8.2.
 
 Rooms are data, not code: nothing in a room decides anything about play, which is
 exactly why the same match can be played in any of them. Adding another is a
@@ -2360,11 +2363,12 @@ says what, which is the half of the question a bench cannot answer.
   board behind the bench, framed and lit high on the card room's far wall or pasted on
   the yard's hoarding by the hard hat, changed once a stage; and a word painted on the road in a box across
   one open lane of each map, as a road paints KEEP CLEAR, which is the first thing it
-  says. STORY.md 6.1. The clock board has something better
-  than a number to say at the two moments it has one: READY and SET with the
-  gantry lamps of 8.3, GO! in green as the flag drops, OVERTIME flashing red
-  through sudden death, and the winner's name in their own color at the whistle.
-  The flash holds still for anybody who has asked for fewer of them in 8.5.
+  says, flush with the floor and worn thin where the karts run, as old road paint is.
+  STORY.md 6.1. The clock board has something better than a number to say at the two
+  moments it has one: READY and SET with the gantry lamps of 8.3, GO! in green as the
+  flag drops, OVERTIME flashing red through sudden death, and the winner's name in
+  their own color at the whistle. The flash holds still for anybody who has asked for
+  fewer of them in 8.5.
 - **The fireworks**: a match that has been won is seen off with a display over the
   table. Shells go up off the felt and break overhead in the winner's color, with
   the odd gold one among them, each lighting the room and banging over the fanfare
@@ -2597,8 +2601,8 @@ condensed ExtraBold for headings and for every number that is read at a glance,
 with tabular figures as in 8.3; the semi-condensed SemiBold for names, buttons and
 labels; the regular width at Medium for anything that is a sentence; and the
 condensed Black for the wordmark on the title. Inter's Regular stays only to draw
-what Barlow does not, a name in Cyrillic or Greek; Homemade Apple stays for
-signatures. Headings, HUD labels and stamps are set in condensed capitals; buttons,
+what Barlow does not, a name in Cyrillic or Greek; Homemade Apple stays for the
+license's signature. Headings, HUD labels and stamps are set in condensed capitals; buttons,
 names and sentences as they are written. A heading in foil stands on a dark shadow
 a few pixels down, the way foil pressed into card stands proud of it.
 
@@ -2870,9 +2874,11 @@ lane beside it is as wide as it was.
   not Barlow, besides the Inter that draws what Barlow cannot, are the hand the
   signature on the driver license of 9.4a is written in, Homemade Apple, under
   the Apache license: a signature set in a text face is a name typed on a line;
-  and, for the papers of the story, 8.7, Kit's notes in that same hand, the
-  House's typed documents in Courier Prime and an old page of the Highway Code
-  in IM FELL English, both under the Open Font License. Sizes come off a scale where each step is
+  and, for the papers of the story, 8.7, Kit's hand in Caveat, the other hands
+  among the notes in Kalam and Patrick Hand, the House's typed documents in
+  Courier Prime and an old page of the Highway Code in IM FELL English, all under
+  the Open Font License, and the marker on the folder in Permanent Marker, under
+  the Apache license. Sizes come off a scale where each step is
   about a quarter larger than the one below it, because a screen with nine sizes
   on it reads as nine screens. Display lines are tracked out a little: a heavy
   face set tight reads as a shout.
@@ -3509,9 +3515,10 @@ like any other button.
   and Retake the driving test, which goes to the school; or, before one is
   earned, a word on where to get one, Earn it now, which goes to the school,
   and the learner's L the kart wears meanwhile. Under it, either way, the switch for the
-  story of 8.7, Story, for the profile playing and on to start with, over "The small
-  print, the notes, and where they lead.": off, the story's clock stops and the game is
-  the casino of its first stage throughout, STORY.md 5.4.
+  story of 8.7, Story Progression, for the profile playing and on to start with, over "The
+  small print, the notes, and where they lead.": switching it off asks first, saying it can
+  be switched back on at any time; off, the story's clock stops and the game is the casino
+  of its first stage throughout, STORY.md 5.4.
 - **Seats**: under a line saying what the page is for, a seat card of 8.1a each
   for the four seats at this machine, its chip numbered 1 to 4 in the seat's color,
   with a box for what the seat is called, see 3.8, with the funny-name hint in an
@@ -3707,6 +3714,13 @@ like any other button.
   work is in it, what, by whom, on what terms and where, which a test holds to
   THIRD_PARTY.md, a link to the game's GitHub page, and Godot's own license, which a game
   made with it has to carry.
+- **Story**, in a debug build only, last: where the profile playing is in the story of 8.7,
+  its stage, its clock and when the next stage begins, the notes found and read, the next
+  note and when it is due, whether the Final Hand is due or played, and its shifts; and
+  buttons that move it, kept in the profile: a license, a stage back or on, ten minutes
+  more, every note or none, every note unread, the Final Hand due, the ending as if
+  stamped, and the story started over. The README lists the command line's story
+  arguments beside it.
 
 ### 8.6 Loading a map
 
@@ -3754,9 +3768,10 @@ stage, the notes found and the ending are kept in the profile beside its license
 every screen at a machine shows is the story of the profile playing. A profile from before the
 story starts it from nothing, as a new one does. STORY.md 5.
 
-**Switched off.** The License tab of 8.5 has a switch for it, Story, per profile and on to start
-with. Off, the clock stops and the game is the casino of the first stage throughout, with no notes,
-no folder and no Final Hand; on again, everything is back where it was. STORY.md 5.4.
+**Switched off.** The License tab of 8.5 has a switch for it, Story Progression, per profile and on
+to start with, which asks before it goes off. Off, the clock stops and the game is the casino of the
+first stage throughout, with no notes, no folder and no Final Hand; on again, everything is back
+where it was. STORY.md 5.4.
 
 **Each machine's own.** None of it goes over the wire, any more than the roll of the music does,
 8.4: each machine dresses its own room and prints its own slips for its own profile, so two players in
@@ -3781,38 +3796,42 @@ touches.
 | The rooms | The Yard's sign, the Workbench's calendar, After Hours' pictures | 8.1 | 6.8 |
 | The crowd | In step from stage 4 | 8.1 | 6.9 |
 
-**Notes.** The one thing the story puts on a table: a scrap of paper among the litter of 8.1, taken by
-driving over it the way a chip is and put away without stopping anything, NOTE COLLECTED in pencil on
-a torn scrap in the player's corner for two seconds, the one thing on the HUD the house did not
-print. Nothing the house prints ever mentions one, and nothing says how many there are. The first
-turns up in the second quick match after the license; the rest are spread over the stages, one
-turning up at a random moment of a map rather than at the countdown, at most one a match, and one
-left lying turns up again in a later map. It lies on this machine's floor only and only this
-machine's karts can take it; bots never go for it, nothing that happens in the match moves it, and a
-bullet flies over it. Never in the Garage, the waiting room, the driving school or a Grand Prix's
-party. Once one has been found a manila folder peeks in from the left edge of the title, the way the
-license does from the right, and opens on the notes found so far, one to a page in the story's
-order, turned as the Highway Code's pages are; the menu's cursor reaches it going left from the
-buttons. The profile keeps which notes have been read as well as which were found, and a note not
-yet read is marked new in pencil: a corner of its paper sticking up out of the folder with an
-exclamation mark on it, and on its page inside, where the folder opens at the first new one; a page
-open for a second is read. Offline,
-after a map in which a note was taken, the folder also peeks in beside the payout slip and opens
-over it; never online, where the room moves on at the host's word, and never at the Final Hand.
-STORY.md 7.
+**Notes.** The one thing the story puts on a table: a scrap of paper among the litter of 8.1, taken
+by driving over it the way a chip is and put away without stopping anything: NOTE COLLECTED written
+in pencil on a big torn scrap in the middle of the screen, with a rustle and a pencil's scratch,
+then in the player's corner for two seconds, the one thing on the HUD the house did not print. A
+soft halo breathes on the floor under a note lying there, so it can be told from the litter. Nothing
+the house prints ever mentions one, and nothing says how many there are. The first turns up in the
+second quick match after the license; the rest are spread over the stages, one turning up at a
+random moment of a map rather than at the countdown, at most one a match, and one left lying turns
+up again in a later map. It lies on this machine's floor only and only this machine's karts can take
+it; bots never go for it, nothing that happens in the match moves it, and a bullet flies over it.
+Never in the Garage, the waiting room, the driving school or a Grand Prix's party. Once one has been
+found a manila folder peeks in from the left edge of the title, the way the license does from the
+right, DO NOT FILE on it in marker, and comes out to the middle and opens on the notes found so far,
+one on each side of a leaf in the story's order, turned as the Highway Code's pages are; the menu's
+cursor reaches it going left from the buttons. A note can be taken off its page to be looked at
+larger, closer and turned over, and a few have something on the back. The profile keeps which notes
+have been read as well as which were found, and a note not yet read is marked new in pencil: a
+corner of its paper sticking up out of the folder with an exclamation mark on it, and on its page
+inside, which the folder turns to quickly from its first spread; a page open for a second is read.
+Offline, after a map in which a note was taken, the folder also peeks in beside the payout slip and
+opens over it; never online, where the room moves on at the host's word, and never at the Final
+Hand. STORY.md 7.
 
-**The Final Hand.** At 160 minutes the title hangs a flyer at Play, cut as the driving school's is at
-its button but in the house's gold, and Play asks first: Take your seat, or Not now, which plays on as
-ever and is not asked again until the game is next started. It is a quick match played offline on
-House Rules, 6.3, in a room of its own, the Count Room, 5 minutes and three bots, by every usual rule.
-What differs: the player's seat is printed CANDIDATE wherever the house prints a name; the bots are
-named after the player, wear their dress and drive on their lifetime readings of 9.1; the crowd stops
-and watches the player; at the whistle the rig, the fireworks and the board are the player's whatever
-their place; and the payout slip carries the house's evaluation under the lines, which the slip
-scrolls down to a moment after it comes up, with the house's own rubber stamp, its base gold, in
-place of the ways on. Then two lines on an empty screen, the license with the house's stamp on it,
-and the title, its Play reading Clock in, with a line in the Count Room's green along its foot and
-new fine print round its seal. It is never dealt online. STORY.md 8.
+**The Final Hand.** At 160 minutes the title hangs a flyer at Play, cut as the driving school's is
+at its button but in the house's gold, and Play first deals an invitation, a black card edged in
+gold: Take your seat, or Not now, which plays on as ever and is asked again the next time Play opens
+the lobby. Taken, the match settings come up with every value blacked out. It is a quick match
+played offline on House Rules, 6.3, in a room of its own, the Count Room, 5 minutes and three bots,
+by every usual rule. What differs: the player's seat is printed CANDIDATE wherever the house prints
+a name; the bots are named after the player, wear their dress and drive on their lifetime readings
+of 9.1; the crowd stops and watches the player; at the whistle the rig, the fireworks and the board
+are the player's whatever their place; and the payout slip carries the house's evaluation under the
+lines, which the slip scrolls down to a moment after it comes up, with the house's own rubber stamp,
+its base gold, in place of the ways on. Then two lines on an empty screen, the license with the
+house's stamp on it, and the title, its Play reading Clock in, with a line in the Count Room's green
+under its name and new fine print round its seal. It is never dealt online. STORY.md 8.
 
 **After it.** The game is the same game. What it prints moves on once more, the license keeps the
 house's stamp, and House Rules joins a quick match's list of maps, STORY.md 9 and 10.
