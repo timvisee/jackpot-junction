@@ -82,6 +82,8 @@ var _lifted: CanvasItem
 var _slide := 0.0
 var _sliding: Tween
 var _putting_back := false
+## Which way the stick was last pushed over, 0 for the middle, so a push steps one note.
+var _stick := 0
 ## The shade behind it, the strip under the buttons and the buttons, which fade in and out round it.
 var _shade: ColorRect
 var _foot: ColorRect
@@ -533,6 +535,14 @@ func _input(event: InputEvent) -> void:
 		# as they turn the folder's pages.
 		get_viewport().set_input_as_handled()
 		step(-1 if pad.button_index == JOY_BUTTON_LEFT_SHOULDER else 1)
+	elif zoom <= 1.001 and NotesFolder.is_stick_across(event):
+		# The stick steps a note a push, let go between, as it turns the folder's pages.
+		get_viewport().set_input_as_handled()
+		var way := NotesFolder.stick_way(event)
+		if way != _stick:
+			_stick = way
+			if way != 0:
+				step(way)
 	elif zoom <= 1.001 and event.is_action_pressed(&"ui_left"):
 		get_viewport().set_input_as_handled()
 		step(-1)
@@ -607,7 +617,7 @@ func close() -> void:
 	_putting_back = true
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	put_back.emit(index)
-	Audio.play_sfx(&"note_down", -8.0, 0.08)
+	Audio.play_sfx(&"leaf", -18.0, 0.1)
 	if turned:
 		turn_over()
 	var down := create_tween().set_parallel(true)

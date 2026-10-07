@@ -1216,9 +1216,9 @@ user picks a line from the suggestions. STORY.md and GAME.md first. One commit a
 - [x] STORY.md and GAME.md: every decision below written in first.
 - [x] The folded corners and their binds gone [7.2].
 - [x] Play Online reads Clock in online after the ending [8.6].
-- [ ] The stick turns one page a push, let go between [7.2].
-- [ ] Putting a note back is quiet [7.2].
-- [ ] The folder stays where it is while a note is up [7.2].
+- [x] The stick turns one page a push, let go between [7.2].
+- [x] Putting a note back is quiet [7.2].
+- [x] The folder stays where it is while a note is up [7.2].
 - [ ] On the title, Back takes the cursor off the folder or the license to the buttons [7.2].
 - [ ] A tiny drawn ticket on the lobby's ticket [8.1].
 - [ ] The license view, the folder and the closer look alike: icon buttons for the mouse only, a click

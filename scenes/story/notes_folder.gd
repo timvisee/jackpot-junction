@@ -97,6 +97,8 @@ var _flipping := false
 ## many spreads and which way.
 var _turning_to := 0
 var _queued := 0
+## Which way the stick was last pushed over, 0 for the middle, so a push turns one page.
+var _stick := 0
 ## Whether the cover is down over the pages: shut, coming out or going back.
 var _shut := true
 var _closing := false
@@ -715,16 +717,22 @@ func look_closer(index := -1) -> void:
 		return
 	view = NoteView.open(self, index)
 	view.put_back.connect(_on_put_back)
-	# The folder's own buttons and line under the note go while it is up.
-	_buttons_row.visible = false
-	away_line.visible = false
+	# The folder's own buttons and line under the note fade while it is up, keeping their room so
+	# the folder stays where it is.
+	_fade_buttons(0.0)
+
+
+## The folder's buttons and the line under them faded to [param alpha].
+func _fade_buttons(alpha: float) -> void:
+	var fade := create_tween().set_parallel(true)
+	fade.tween_property(_buttons_row, "modulate:a", alpha, NoteView.FLY * 0.5)
+	fade.tween_property(away_line, "modulate:a", alpha, NoteView.FLY * 0.5)
 
 
 ## Put back: the folder open at the spread of the note last looked at.
 func _on_put_back(index: int) -> void:
 	view = null
-	_buttons_row.visible = true
-	away_line.visible = true
+	_fade_buttons(1.0)
 	if spread_of(index) != at:
 		_show(spread_of(index))
 	look.grab_focus()
@@ -743,14 +751,47 @@ func _input(event: InputEvent) -> void:
 	if _flipping and event.is_pressed() and not event.is_echo():
 		stop_flip()
 	var way := turn_of(event)
+	if event is InputEventJoypadMotion:
+		way = _stick_turn(event)
 	if way != 0:
 		get_viewport().set_input_as_handled()
 		turn(way)
 
 
+## A page a push of the stick: pushed over to a side it turns once, and turns again only once it has
+## been let go back toward the middle, however long it is held over.
+func _stick_turn(event: InputEvent) -> int:
+	if not is_stick_across(event):
+		return 0
+	var way := stick_way(event)
+	if way == _stick:
+		return 0
+	_stick = way
+	return way
+
+
+## Whether [param event] is the stick moving left or right, rather than up or down or anything else.
+static func is_stick_across(event: InputEvent) -> bool:
+	return (
+		event is InputEventJoypadMotion
+		and (event.is_action(&"ui_left") or event.is_action(&"ui_right"))
+	)
+
+
+## Which way the stick in [param event] is pushed over, left or right, 0 back toward the middle.
+static func stick_way(event: InputEvent) -> int:
+	if event.is_action_pressed(&"ui_left"):
+		return -1
+	if event.is_action_pressed(&"ui_right"):
+		return 1
+	return 0
+
+
 ## Which way [param event] turns a page, 0 for neither: left and right, held down to turn on and
 ## on, or a pad's shoulder buttons.
 static func turn_of(event: InputEvent) -> int:
+	if event is InputEventJoypadMotion:
+		return 0
 	var pad := event as InputEventJoypadButton
 	if pad != null and pad.pressed:
 		if pad.button_index == JOY_BUTTON_LEFT_SHOULDER:

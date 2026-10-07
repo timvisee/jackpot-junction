@@ -136,6 +136,13 @@ func test_a_note_is_new_until_it_has_been_looked_at_closer() -> void:
 	assert_int(NotesFolder.turn_of(shoulder)).is_equal(-1)
 	shoulder.button_index = JOY_BUTTON_RIGHT_SHOULDER
 	assert_int(NotesFolder.turn_of(shoulder)).is_equal(1)
+	# The stick turns a page a push: held over it turns no more, and let go it turns again.
+	var stick := InputEventJoypadMotion.new()
+	stick.axis = JOY_AXIS_LEFT_X
+	assert_int(NotesFolder.turn_of(stick)).is_equal(0)
+	for push: Array in [[0.9, 1], [0.95, 0], [1.0, 0], [0.05, 0], [0.9, 1], [-0.9, -1]]:
+		stick.axis_value = push[0]
+		assert_int(folder._stick_turn(stick)).is_equal(push[1])
 	# Back, the way it came, and put away: said at once, gone once it is back where it came from.
 	folder.turn(-1)
 	assert_bool(folder.is_turning()).is_true()
