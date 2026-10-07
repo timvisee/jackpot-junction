@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **No gold glide onto what can't be pressed.** The frame that slides with the cursor skips
+  disabled buttons, such as the match settings locked for the Final Hand.
+
 ## [0.14.0] - 2026-10-07
 
 Online rooms hold up to eight players, and the tables have more to say in the small print. It

@@ -78,6 +78,8 @@ static func _rect_of(control: Control) -> Rect2:
 	return Rect2(placed.origin, control.size * placed.get_scale())
 
 
-## Whether [param control] is one the frame slides between: the house's buttons, boxes and switches.
+## Whether [param control] is one the frame slides between: the house's buttons, boxes and switches,
+## and not one that cannot be pressed, which the cursor only passes over on its way, such as the
+## match settings blacked out for the Final Hand.
 static func _glides(control: Control) -> bool:
-	return control is BaseButton
+	return control is BaseButton and not (control as BaseButton).disabled

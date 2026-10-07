@@ -298,6 +298,37 @@ func test_the_cursor_glide_can_be_switched_off_and_stays_off() -> void:
 	Settings.remove_files(settings.path)
 
 
+## GAME.md 8.1a: the gold frame slides from one button to the next as the cursor goes, and not to
+## or from one that cannot be pressed.
+func test_the_cursor_glides_only_between_buttons_that_can_be_pressed() -> void:
+	var glide: FocusGlide = auto_free(FocusGlide.new())
+	add_child(glide)
+	var row: HBoxContainer = auto_free(HBoxContainer.new())
+	add_child(row)
+	var buttons: Array[Button] = []
+	for i: int in 3:
+		var button := MenuTheme.button("Button %d" % i)
+		row.add_child(button)
+		buttons.append(button)
+	buttons[2].disabled = true
+	await await_idle_frame()
+	buttons[0].grab_focus()
+	buttons[1].grab_focus()
+	assert_object(glide._target).is_same(buttons[1])
+	assert_float(glide._t).is_less(1.0)
+	glide._t = 1.0
+	buttons[2].grab_focus()
+	assert_float(glide._t).is_equal(1.0)
+	buttons[2].disabled = false
+	buttons[2].release_focus()
+	buttons[1].grab_focus()
+	buttons[2].disabled = true
+	glide._t = 1.0
+	buttons[2].grab_focus()
+	buttons[2].disabled = false
+	assert_float(glide._t).is_equal(1.0)
+
+
 ## The part of a pane that scrolls is as tall as what it holds while there is room for it, and no
 ## taller than the screen leaves once the rest of the pane has its room, GAME.md 8.5.
 func test_a_pane_too_tall_for_the_screen_scrolls_its_body() -> void:
