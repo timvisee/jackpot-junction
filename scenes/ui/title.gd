@@ -443,6 +443,19 @@ func _input(event: InputEvent) -> void:
 	_pointer = ButtonBinds.pointer_after(event, _pointer)
 	if was != _keyboard or was_pointer != _pointer:
 		_show_peek_hints()
+	# A click beside the license or the folder with the cursor on it takes the cursor back to the
+	# buttons, as Back does; one on a button takes it there itself.
+	var click := event as InputEventMouseButton
+	if click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT:
+		for peek: Control in [_license, _folder]:
+			if peek != null and peek.has_focus() and not _is_on(peek, click.global_position):
+				play_button.grab_focus()
+
+
+## Whether [param at], on the screen, is on [param control], turned and scaled as it is.
+static func _is_on(control: Control, at: Vector2) -> bool:
+	var inside := control.get_global_transform().affine_inverse() * at
+	return Rect2(Vector2.ZERO, control.size).has_point(inside)
 
 
 ## A click or a tap on the license peeking in shows it in full, or the accept button with the
