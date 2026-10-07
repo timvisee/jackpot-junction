@@ -169,7 +169,7 @@ func test_the_profiles_page_lists_renames_and_makes_them() -> void:
 
 
 ## The settings' pages run License, Players, Controls, Audio, Video, Accessibility, Profiles and
-## About, and after a switch they come up again on Profiles.
+## About, and Story last in a debug build, and after a switch they come up again on Profiles.
 func test_the_pages_are_in_order_and_a_switch_comes_back_to_profiles() -> void:
 	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
 	add_child(screen)
@@ -177,6 +177,9 @@ func test_the_pages_are_in_order_and_a_switch_comes_back_to_profiles() -> void:
 	var names: Array[String] = []
 	for i: int in screen.tabs.get_tab_count():
 		names.append(String(screen.tabs.get_tab_control(i).name))
+	# The story's own page is a debug build's alone, last.
+	if OS.is_debug_build():
+		assert_str(names.pop_back()).is_equal("Story")
 	assert_array(names).is_equal(
 		(
 			[

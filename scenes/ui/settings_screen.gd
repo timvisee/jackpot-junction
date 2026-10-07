@@ -106,6 +106,9 @@ func _ready() -> void:
 	tabs.add_child(StatsTab.make(_settings))
 	tabs.add_child(ProfilesTab.make(_settings, not overlay, _on_profile_switched))
 	tabs.add_child(AboutTab.new())
+	# Where the story is, and buttons to move it, for trying it out: debug builds alone.
+	if OS.is_debug_build():
+		tabs.add_child(StoryDebugTab.make(_settings))
 	if not opening_on.is_empty():
 		var page := tabs.get_node_or_null(NodePath(opening_on))
 		if page != null:

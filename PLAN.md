@@ -1065,8 +1065,9 @@ noted; STORY.md and GAME.md were brought in line first. One commit an item.
       over; a look at a gold-edged ticket beside it for the user [8.1].
 - [x] The match settings at the Final Hand: no SET BY THE HOUSE, every value under a marker bar of
       its own, drawn on in turn [8.1].
-- [ ] Debug builds: a Story tab last in the settings, where the story is and buttons to move it;
-      the README's story arguments.
+- [x] Debug builds: a Story tab last in the settings, where the story is and buttons to move it;
+      the README's story arguments, under a spoiler heading: the user asked for them there, so the
+      README names the Final Hand where S13 kept it from doing so.
 
 Verify: the story's suites and `make check`; screenshots of each, sent to the user.
 

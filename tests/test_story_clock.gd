@@ -241,3 +241,36 @@ func test_the_story_notes_argument_hands_every_note() -> void:
 	assert_bool(story.is_new(3)).is_false()
 	assert_bool(story.is_new(1)).is_true()
 	assert_bool(story.is_new(Story.NOTE_COUNT)).is_true()
+
+
+## The debug builds' Story tab says where the profile playing is and moves it: a license, a stage on
+## at a time to the Final Hand and the ending, back again, notes, and the story started over.
+func test_the_story_tab_moves_the_story() -> void:
+	var settings := _settings()
+	var tab: StoryDebugTab = auto_free(StoryDebugTab.make(settings))
+	add_child(tab)
+	await await_idle_frame()
+	var said := tab.find_child("Where", true, false) as Label
+	assert_str(said.text).contains("Customer")
+	tab.get_license()
+	assert_bool(Story.licensed(settings.profile)).is_true()
+	tab.stage_on()
+	assert_int(Story.stage_of(settings.profile)).is_equal(Story.Stage.PLAYER)
+	for i: int in 3:
+		tab.stage_on()
+	assert_int(Story.stage_of(settings.profile)).is_equal(Story.Stage.CANDIDATE)
+	tab.stage_on()
+	assert_bool(Story.final_hand_due(settings.profile)).is_true()
+	tab.stage_on()
+	assert_int(Story.stage_of(settings.profile)).is_equal(Story.Stage.OPERATOR)
+	assert_str(said.text).contains("Operator")
+	tab.stage_back()
+	assert_bool(Story.final_hand_due(settings.profile)).is_true()
+	tab.every_note()
+	assert_int(settings.profile.story.notes.size()).is_equal(Story.NOTE_COUNT)
+	tab.no_notes()
+	assert_int(settings.profile.story.notes.size()).is_equal(0)
+	tab.start_over()
+	assert_float(settings.profile.story.seconds).is_equal(0.0)
+	assert_bool(settings.profile.story.on).is_true()
+	assert_int(_settings().profile.story.notes.size()).is_equal(0)

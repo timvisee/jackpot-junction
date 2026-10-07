@@ -158,6 +158,28 @@ a player would meet as a stutter, and it belongs in `ShaderWarmup`'s plan, GAME.
 10.7. Run it whenever a new effect, pickup, dress, HUD piece, room or material
 lands, on `--rendering-method mobile` too via `WARMUP_GODOT_ARGS`.
 
+### The story (spoilers)
+
+The story of `STORY.md` moves with time spent on maps once a profile
+has its license, so it can be hurried along for trying it out. These are read as
+the game starts, in a debug build alone. Try them on a profile of their own, so
+your own story is left where it is:
+`make run ARGS="--settings=story-test --story-notes --story-stage=3"`.
+
+| Argument                  | What it does                                                              | Debug | Release |
+|---------------------------|---------------------------------------------------------------------------|-------|---------|
+| `--story-license`         | Licenses the profile playing at once, as the driving test would; kept     | Yes   | No      |
+| `--story-notes`           | Every note found, the ones not found before new, licensing it first; kept | Yes   | No      |
+| `--story-stage=<n>`       | Shows stage n, 0 to 5, for this run alone; saves nothing                  | Yes   | No      |
+| `--story-clock=<seconds>` | Reads the story's clock as this for what moves with it; saves nothing     | Yes   | No      |
+| `--story-final-hand`      | Deals the Final Hand on the next Play                                     | Yes   | No      |
+| `--story-note=<n>`        | Lays note n on the next map's floor at once                               | Yes   | No      |
+
+A debug build's settings also have a last tab, Story, saying where the profile
+playing is in the story, its stage, clock, notes and Final Hand, with buttons that
+move it on or back, hand it every note or none, and start it over; every change is
+kept in the profile. In a match, F3's overlay has a line on the story too.
+
 ### The development scene
 
 `make dev ARGS="..."` starts `scenes/dev/playground.tscn`, a match on Lucky
