@@ -343,7 +343,7 @@ Spoilers throughout, like STORY.md.
 | Phase | What | State |
 |---|---|---|
 | S0 | Story state, the clock and the switch | Done |
-| S1 | Every line in one place, and the placeholders | Not started |
+| S1 | Every line in one place, and the placeholders | Done |
 | S2 | The hoardings, the posters and the road | Not started |
 | S3 | The payout slip | Not started |
 | S4 | Jokers: the pick's line and the terms | Not started |
@@ -357,7 +357,7 @@ Spoilers throughout, like STORY.md.
 | S12 | After the ending | Not started |
 | S13 | Wrapping up | Not started |
 
-Next up: S1. The phases are in the order they are best built, each standing on its own: after S0 to
+Next up: S2. The phases are in the order they are best built, each standing on its own: after S0 to
 S7 the story's margins are all in the game and could ship, the notes and the ending after them. S10
 can be built alongside anything before S11, which needs it. On picking the work up again: this
 table, then the first unticked task of the phase in progress, then that task's sections of STORY.md.
@@ -447,24 +447,34 @@ none. Linked seats go through `MatchRecord.profile_for` as statistics always hav
 
 ### S1: every line in one place, and the placeholders [6]
 
-- [ ] `scripts/story/story_lines.gd`, `class_name StoryLines`, with every table of STORY.md 6 as it
+- [x] `scripts/story/story_lines.gd`, `class_name StoryLines`, with every table of STORY.md 6 as it
       is written there: the hoardings by stage and the Final Hand's [6.1], the posters [6.1], the
       road [6.1], the small print [6.2], the bulletins [6.2], the classification [6.2], the pick's
       line [6.3], the joker terms by joker id [6.3], the HUD's and the title's microprint [6.4], the
       loading line [6.5], the Statistics line [6.6], the Highway Code's edition and its revised
-      lines [6.7], the Yard's sign [6.8], and the title's after the ending [8.6].
-- [ ] `StoryLines.at(table, stage)`: the line for the highest stage at or under `stage`.
-- [ ] `scripts/story/story_fill.gd`, `class_name StoryFill`: fills `{name}`, `{license}`,
+      lines [6.7], the Yard's sign [6.8], and the title's after the ending [8.6]; and the Final
+      Hand's words with them, the flyer, the pane, the evaluation, the stamp and the last lines [8],
+      the license after the ending [8.6] and About's sentence [3.11].
+- [x] `StoryLines.at(table, stage)`: the line for the highest stage at or under `stage`, and
+      `StoryLines.revise_code(text, stage)` for the Highway Code's revised lines.
+- [x] `scripts/story/story_fill.gd`, `class_name StoryFill`: fills `{name}`, `{license}`,
       `{minutes}`, `{maps}`, `{hands}`, `{accepted}`, `{deaths}`, `{chips_lost}`, `{drifted_km}`,
       `{trait}`, `{shifts}`, `{place}`, `{models}`, `{deviation}` and `{date}` [6] from a profile and,
       where it has one, a match. `{date}` the way `LicenseCard.today()` writes it, `{drifted_km}` as
       the Statistics page writes kilometers, every count with thousands separated as the House prints
-      them (1,204,388).
+      them (1,204,388), a place as 1ST, 2ND and on, LEARNER for a license not yet earned. `{name}` is
+      in capitals in a line the House prints in capitals and as written in any other, so the Final
+      Hand's models are Ann 2 rather than ANN 2.
 
 Verify: `tests/test_story_lines.gd`: every table answers for every stage 0 to 5; every placeholder
 in every line fills; no House line contains NOTE; every joker in `data/jokers/catalog.tres` has a
 term, so a joker added without one fails [6.3]; note 12's numbers equal the trait weights of
 `data/ai/traits.tres` [7.3].
+
+Status: built. `tests/test_story_lines.gd`, 7 tests: every table from the stage it begins at, every
+placeholder filled, the name's case, no House line speaking of a note, a folder or Kit (taking notes
+the way a House watches is allowed), every joker's term, the Code's revisions, and numbers and
+places. Note 12's numbers are checked with the notes, S8.
 
 ### S2: the hoardings, the posters and the road [6.1]
 
