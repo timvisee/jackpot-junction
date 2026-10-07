@@ -47,7 +47,6 @@ func _every_line() -> Array[String]:
 	_gather(StoryLines.TERMS.values(), lines)
 	for constant: String in [
 		StoryLines.CLASSIFIED,
-		StoryLines.MODEL % 2,
 		StoryLines.STATUS_LINE,
 		StoryLines.BACK_MICRO_AFTER,
 		StoryLines.ABOUT,
@@ -103,7 +102,8 @@ func test_every_placeholder_fills_in() -> void:
 func test_the_name_is_printed_the_way_its_line_is() -> void:
 	var profile := _profile()
 	assert_str(StoryFill.fill("WELCOME BACK {name}", profile)).is_equal("WELCOME BACK ANN")
-	assert_str(StoryFill.fill(StoryLines.MODEL % 2, profile)).is_equal("Ann 2")
+	assert_str(StoryFill.fill("{name}", profile)).is_equal("ANN")
+	assert_str(StoryFill.written_name(profile)).is_equal("Ann")
 	assert_str(StoryFill.fill(StoryLines.EDITION[Story.Stage.OPERATOR], profile)).is_equal(
 		"217th edition, approved by Ann"
 	)

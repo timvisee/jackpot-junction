@@ -85,8 +85,9 @@ static func _in_capitals(text: String) -> bool:
 		if to < 0:
 			break
 		bare = bare.substr(0, from) + bare.substr(to + 1)
-	# A line with no letters of its own, a model's name and its number, is the name as written.
-	return bare == bare.to_upper() and bare != bare.to_lower()
+	# A line with no letters of its own, a hoarding's headline that is only the name, is the
+	# House's and in capitals.
+	return bare == bare.to_upper()
 
 
 ## [param value] with its thousands set apart, as the House prints a count: 1,204,388.

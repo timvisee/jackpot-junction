@@ -37,8 +37,11 @@ const STAMP_INK := Color(0.8, 0.17, 0.14, 0.82)
 const STAMP_RADIUS := 44.0
 ## How far the stamp's ring keeps from the figures it stands beside.
 const STAMP_CLEAR := 9.0
-## The small print by the barcode.
+## The small print by the barcode, as the first stage of the story prints it, STORY.md 6.2.
 const SMALL_PRINT := "PAID IN CHIPS, NOT CASH  ·  NO REFUNDS ON A BAD LAP"
+## The size the story's lines on the slip are printed at, STORY.md 6.2.
+const STORY_PRINT := 11
+const STORY_MICRO := 10
 ## How big a place's chip is on a line.
 const PLACE_CHIP := 36.0
 ## Air between the podium and the table of players: one is a picture and the other a list.
@@ -71,6 +74,11 @@ var _body: FitScroll
 ## The barcode and the small print at the foot of the slip, numbered for the match it pays out.
 var _barcode: Control
 var _code := "JJ-0000-0"
+## The small print beside the barcode and the House's bulletin under it, STORY.md 6.2, drawn once a
+## slip so a podium filled in again keeps what it said.
+var _small_words: Label
+var _bulletin: Label
+var _bulletin_drawn := false
 var _podium: ResultsPodium
 var _rows: VBoxContainer
 ## Whether the lines are compact: more than [constant COMPACT_PAST] players.
@@ -147,7 +155,9 @@ func fill_in() -> void:
 	if not standings.is_empty():
 		MenuTheme.wear(_style, standings[0].color())
 	_podium.show_top(standings)
-	_title.text = GRAND_PRIX_TITLE if final else TITLE
+	var stage := Story.stage_here()
+	_title.text = GRAND_PRIX_TITLE if final else StorySlip.heading(stage)
+	_story_print(stage)
 	var winner_score := standings[0].banked if not standings.is_empty() else 0
 	_code = "JJ-%04d-%d" % [absi(hash(match_node.rules.map)) % 10000, winner_score]
 	_barcode.queue_redraw()
@@ -393,6 +403,18 @@ func _entry(slot: PlayerSlot, rank: int, everyone: Array[PlayerStats]) -> PanelC
 		awards.add_theme_constant_override("separation", 8)
 	if awards != null:
 		box.add_child(awards)
+	# How the House classified a player at this screen, in microprint under their line, STORY.md
+	# 6.2: worked out from the same numbers as the awards over them.
+	if _is_mine(slot) and slot.bot_trait == null:
+		var played := maxf(match_node.rules.duration - match_node.time_left, 0.0)
+		var said := StorySlip.classified(Story.stage_here(), slot, played)
+		if not said.is_empty():
+			var micro := Label.new()
+			micro.name = "Classified"
+			micro.text = said
+			Type.set_font(micro, Type.micro_font(), STORY_MICRO)
+			micro.add_theme_color_override("font_color", FAINT)
+			box.add_child(micro)
 	return row
 
 
@@ -677,8 +699,10 @@ func _photo() -> Control:
 
 
 ## The foot of the slip: the match's number as a barcode on the left and the small print on the
-## right, GAME.md 8.1a.
+## right, GAME.md 8.1a, and the House's bulletin on a line of its own under it, STORY.md 6.2.
 func _small_print() -> Control:
+	var foot := VBoxContainer.new()
+	foot.add_theme_constant_override("separation", 2)
 	var line := HBoxContainer.new()
 	line.add_theme_constant_override("separation", 16)
 	_barcode = Control.new()
@@ -690,14 +714,35 @@ func _small_print() -> Control:
 			)
 	)
 	line.add_child(_barcode)
-	var words := Label.new()
-	words.text = SMALL_PRINT
-	Type.strong(words, 11, FAINT)
-	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	words.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	words.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	line.add_child(words)
-	return line
+	_small_words = Label.new()
+	_small_words.name = "SmallPrint"
+	_small_words.text = SMALL_PRINT
+	Type.strong(_small_words, STORY_PRINT, FAINT)
+	_small_words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_small_words.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_small_words.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	line.add_child(_small_words)
+	foot.add_child(line)
+	_bulletin = Label.new()
+	_bulletin.name = "Bulletin"
+	Type.strong(_bulletin, STORY_PRINT, FAINT)
+	_bulletin.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_bulletin.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_bulletin.visible = false
+	foot.add_child(_bulletin)
+	return foot
+
+
+## The story's small print and bulletin for [param stage], STORY.md 6.2, the bulletin drawn once.
+func _story_print(stage: int) -> void:
+	var profile := Game.settings.profile
+	_small_words.text = StorySlip.small_print(stage, profile)
+	if not _bulletin_drawn:
+		_bulletin_drawn = true
+		var draw := RandomNumberGenerator.new()
+		draw.randomize()
+		_bulletin.text = StorySlip.bulletin(stage, profile, match_node.slots, draw)
+	_bulletin.visible = not _bulletin.text.is_empty()
 
 
 ## The foot's three parts, see [method _lay_out_the_foot].

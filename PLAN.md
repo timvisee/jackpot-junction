@@ -345,7 +345,7 @@ Spoilers throughout, like STORY.md.
 | S0 | Story state, the clock and the switch | Done |
 | S1 | Every line in one place, and the placeholders | Done |
 | S2 | The hoardings, the posters and the road | Done |
-| S3 | The payout slip | Not started |
+| S3 | The payout slip | Done, but for the evaluation of S11 |
 | S4 | Jokers: the pick's line and the terms | Not started |
 | S5 | Microprint, loading, statistics and About | Not started |
 | S6 | The driving school | Not started |
@@ -357,7 +357,7 @@ Spoilers throughout, like STORY.md.
 | S12 | After the ending | Not started |
 | S13 | Wrapping up | Not started |
 
-Next up: S3. The phases are in the order they are best built, each standing on its own: after S0 to
+Next up: S4. The phases are in the order they are best built, each standing on its own: after S0 to
 S7 the story's margins are all in the game and could ship, the notes and the ending after them. S10
 can be built alongside anything before S11, which needs it. On picking the work up again: this
 table, then the first unticked task of the phase in progress, then that task's sections of STORY.md.
@@ -520,24 +520,33 @@ pass.
 
 ### S3: the payout slip [6.2]
 
-- [ ] The small print (`scenes/ui/results_screen.gd`, `SMALL_PRINT`) by stage, filled in.
-- [ ] The bulletin: from stage 2, one line under the small print, drawn per slip from the stage
-      reached's pool with the player's own numbers; a line naming a trait is drawn only when a bot
-      of that trait sat at this table; never the same bulletin twice in a row for the profile.
-- [ ] The classification: `scripts/story/story_classify.gd`, the trait the match's numbers come
-      closest to, from the slot's `PlayerStats` per minute against the leanings of STORY.md 6.2:
-      kills and hunting the richest kart to Hunter, rams to Bumper, grazes to Grazer, big cash-outs
-      and Jackpot chips to Greedy, small cash-outs with few deaths to Cautious, Balanced when nothing
-      leans past a floor. From stage 3, one line of microprint under the line of every player at
-      this machine on the slip, CLASSIFIED: {trait} · PROFILE UPDATED, as true as the awards beside
-      it; bots and other machines' players get none.
-- [ ] The heading reads Payslip wherever the slip says Payout slip, once the profile playing is the
+- [x] The small print (`scenes/ui/results_screen.gd`, `SMALL_PRINT` is stage 0's) by stage, filled
+      in, through `StorySlip` (`scripts/story/story_slip.gd`), which keeps the slip's story out of
+      the screen's own code.
+- [x] The bulletin: from stage 2, one line under the small print, drawn once a slip from the stage
+      reached's pool with the player's own numbers, so a podium filled in again keeps it; a line
+      naming a trait is drawn only when a bot of that trait sat at this table, and names one that
+      did; never the same bulletin twice in a row.
+- [x] The classification: `StorySlip.classify`, the trait the match's numbers come closest to, per
+      minute of the match: kills to Hunter, rams to Bumper, grazes to Grazer, big cash-outs and
+      Jackpot chips to Greedy, frequent small cash-outs with few deaths to Cautious, Balanced when
+      nothing leans past a full lean. From stage 3, one line of microprint under the line of every
+      human player at this machine on the slip, CLASSIFIED: {trait} · PROFILE UPDATED; bots and
+      other machines' players get none.
+- [x] The heading reads Payslip wherever the slip says Payout slip, once the profile playing is the
       Operator; a Grand Prix's run standings keep their own heading.
 - [ ] The Final Hand's evaluation goes on the slip in S11.
 
 Verify: `tests/test_story_slip.gd`: the small print and the heading per stage; a bulletin's trait
 was at the table; the classifier on made-up statistics, one per trait and a Balanced; everything fits
 a phone's slip at the biggest UI scale, scrolling as the slip does.
+
+Status: built, the evaluation waiting on S11. `tests/test_story_slip.gd`, 4 tests: small print and
+heading by stage, the bulletin's traits and no repeats, the classifier, and a real slip carrying the
+small print, a bulletin, one classification under the one human line, and Payslip after the ending.
+`test_results_screen` passes. A slip at stage 3 looked at: the classification sits under the
+player's awards in microprint and the small print fits beside the barcode. `trait` is a reserved
+word in Godot 4.7, so no variable may be called that.
 
 ### S4: jokers, the pick's line and the terms [6.3]
 

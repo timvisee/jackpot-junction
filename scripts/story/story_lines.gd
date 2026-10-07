@@ -292,7 +292,8 @@ const TAKE_SEAT := "Take your seat"
 const NOT_NOW := "Not now"
 const SET_BY_HOUSE := "SET BY THE HOUSE"
 const CANDIDATE := "CANDIDATE"
-const MODEL := "{name} %d"
+## A model is named for the player as they wrote their name, and its seat at the table.
+const MODEL := "%s %d"
 ## The evaluation under the slip's lines, STORY.md 8.4: each line its label and its value.
 const EVALUATION_TITLE := "HOUSE EVALUATION  ·  FINAL HAND"
 const EVALUATION: Array[Array] = [
