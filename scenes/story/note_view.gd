@@ -338,7 +338,7 @@ func _aim() -> void:
 ## The note [param by] along in the folder, front up at its own size.
 func step(by: int) -> void:
 	var to := index + signi(by)
-	if to < 0 or to >= folder.pages.size() or folder.pages[to] < 0:
+	if to < 0 or to >= folder.pages.size():
 		return
 	index = to
 	_build()
@@ -353,7 +353,7 @@ func _mark_ends() -> void:
 	var after := row.get_node("Next") as Button
 	var story := folder.profile.story
 	before.disabled = index <= 0
-	after.disabled = index >= folder.pages.size() - 1 or folder.pages[index + 1] < 0
+	after.disabled = index >= folder.pages.size() - 1
 	NotePage.mark_button(before, not before.disabled and story.is_new(folder.pages[index - 1]))
 	NotePage.mark_button(after, not after.disabled and story.is_new(folder.pages[index + 1]))
 

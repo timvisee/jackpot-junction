@@ -697,7 +697,7 @@ func look_closer(index := -1) -> void:
 		return
 	if index < 0:
 		index = right_of(at) if right_of(at) < pages.size() else left_of(at)
-	if index < 0 or index >= pages.size() or pages[index] < 0:
+	if index < 0 or index >= pages.size():
 		return
 	view = NoteView.open(self, index)
 	view.put_back.connect(_on_put_back)
@@ -785,7 +785,7 @@ func _on_click(event: InputEvent) -> void:
 			continue
 		var page := side.get_child(0) as NotePage
 		var inside := page.get_global_transform().affine_inverse() * (where + global_position)
-		if page.number > 0 and page.paper_rect().has_point(inside):
+		if page.paper_rect().has_point(inside):
 			look_closer(left_of(at) if side == _left else right_of(at))
 			return
 	turn(1 if where.x >= on.get_center().x else -1)

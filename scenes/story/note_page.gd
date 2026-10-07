@@ -122,13 +122,14 @@ static func make(numbered: int, of: Profile, is_new := false) -> NotePage:
 	page.custom_minimum_size = SIZE
 	page.size = SIZE
 	page.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	FolderBack.lay(page, numbered, of)
 	return page
 
 
 func _ready() -> void:
 	if layer == &"full" and number > 0:
 		NoteOnPage.lay(self)
+	elif number < 0:
+		FolderBack.lay(self, number, profile)
 
 
 func paper() -> StringName:
@@ -137,6 +138,8 @@ func paper() -> StringName:
 
 ## Where the note's paper lies on the leaf.
 func paper_rect() -> Rect2:
+	if number < 0:
+		return FolderBack.paper_rect(number)
 	var spec: Array = PAPERS.get(paper(), PAPERS[&"sheet"])
 	var wide: Vector2 = spec[0]
 	var room := Rect2(0.0, TITLE_ROOM, SIZE.x, SIZE.y - TITLE_ROOM - MARGIN * 0.5)
@@ -348,6 +351,9 @@ static func _tight(font: Font) -> float:
 ## has on it, see [constant StoryNotes.BACKS]. What shows through from the front is laid over it by
 ## whatever shows it, see [NoteView].
 func _draw_back() -> void:
+	if number < 0:
+		FolderBack.draw_back(self, number)
+		return
 	var rect := paper_rect()
 	var kind := paper()
 	var spec: Array = PAPERS.get(kind, PAPERS[&"sheet"])

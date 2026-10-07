@@ -27,8 +27,35 @@ static func draw(page: NotePage, number: int, profile: Profile) -> void:
 		_card(page, date)
 
 
-## The invitation or the torn ticket laid on [param page], if it is the page for one: each draws
-## itself, scaled to the page, for [param profile]'s player.
+## Where back page [param number]'s thing lies, as a note's paper does: the slip and the card where
+## they are drawn, the invitation and the ticket, short of its stub, at their own size in the middle
+## of the page, as they are looked at closer.
+static func paper_rect(number: int) -> Rect2:
+	var room := Rect2(
+		0.0,
+		NotePage.TITLE_ROOM,
+		NotePage.SIZE.x,
+		NotePage.SIZE.y - NotePage.TITLE_ROOM - NotePage.MARGIN * 0.5
+	)
+	var wide := SLIP
+	match number:
+		StoryNotes.FINAL_SLIP:
+			return Rect2(Vector2((NotePage.SIZE.x - SLIP.x) * 0.5, NotePage.TITLE_ROOM), SLIP)
+		StoryNotes.TERMS_CARD:
+			return Rect2(
+				Vector2((NotePage.SIZE.x - CARD.x) * 0.5, NotePage.TITLE_ROOM + 60.0), CARD
+			)
+		StoryNotes.INVITATION:
+			wide = InvitationCard.SIZE
+		StoryNotes.TICKET:
+			wide = GoldenTicket.SIZE - Vector2(GoldenTicket.STUB, 0.0)
+	return Rect2(room.get_center() - wide * 0.5, wide)
+
+
+## The invitation or the torn ticket laid on [param page], if it is the page for one, for
+## [param profile]'s player, each drawing itself: on the folder's page scaled to it and tilted a
+## little; looked at closer, at its own size where its paper lies, face up or, on the back, face
+## down.
 static func lay(page: NotePage, number: int, profile: Profile) -> void:
 	if number != StoryNotes.INVITATION and number != StoryNotes.TICKET:
 		return
@@ -44,20 +71,27 @@ static func lay(page: NotePage, number: int, profile: Profile) -> void:
 	var kept: Control
 	var drawn: Vector2
 	var tilt: float
+	var face_down := page.layer == &"back"
 	if number == StoryNotes.INVITATION:
 		var card := InvitationCard.new()
 		card.holder = named
-		card.face_up = true
+		card.face_up = not face_down
 		kept = card
 		drawn = InvitationCard.SIZE
 		tilt = INVITATION_TILT
 	else:
 		var ticket := GoldenTicket.make(named, profile.license_number if profile != null else "")
+		ticket.face_down = face_down
 		ticket.ready.connect(ticket.show_torn)
 		kept = ticket
 		# Only the ticket short of its stub is left to fit.
 		drawn = GoldenTicket.SIZE - Vector2(GoldenTicket.STUB, 0.0)
 		tilt = TICKET_TILT
+	kept.name = "Kept"
+	if page.layer != &"full":
+		kept.position = paper_rect(number).position
+		page.add_child(kept)
+		return
 	var fit := minf(room.size.x / drawn.x, room.size.y / drawn.y)
 	var whole: Vector2 = InvitationCard.SIZE if kept is InvitationCard else GoldenTicket.SIZE
 	# Scaled and turned about its middle; the ticket's middle sits half a stub right of what is
@@ -65,11 +99,34 @@ static func lay(page: NotePage, number: int, profile: Profile) -> void:
 	var middle := room.get_center()
 	if kept is GoldenTicket:
 		middle.x += GoldenTicket.STUB * 0.5 * fit
-	kept.name = "Kept"
 	kept.scale = Vector2.ONE * fit
 	kept.rotation = tilt
 	kept.position = middle - whole * 0.5
 	page.add_child(kept)
+
+
+## The back of back page [param number] on [param page], turned over in a closer look: the slip's
+## bare paper, and the card's back, the House's seal in foil on its paper. The invitation and the
+## ticket draw their own backs, see [method lay].
+static func draw_back(page: NotePage, number: int) -> void:
+	var rect := paper_rect(number)
+	if number == StoryNotes.FINAL_SLIP:
+		page.draw_colored_polygon(NotePaper.torn(rect, 5.0, true, true), HouseTheme.PAPER)
+	elif number == StoryNotes.TERMS_CARD:
+		var paper := StyleBoxFlat.new()
+		paper.bg_color = HouseTheme.PAPER
+		paper.set_corner_radius_all(10)
+		paper.set_border_width_all(2)
+		paper.border_color = HouseTheme.FOIL
+		page.draw_style_box(paper, rect)
+		var middle := rect.get_center()
+		for ring: float in [40.0, 31.0, 15.0]:
+			page.draw_arc(middle, ring, 0.0, TAU, 48, HouseTheme.FOIL, 1.8, true)
+		var star := PackedVector2Array()
+		for i: int in 10:
+			var reach := 9.0 if i % 2 == 0 else 4.0
+			star.append(middle + Vector2.from_angle(-PI * 0.5 + TAU * float(i) / 10.0) * reach)
+		page.draw_colored_polygon(star, HouseTheme.FOIL)
 
 
 static func _slip(page: NotePage, kept: Dictionary, date: String) -> void:

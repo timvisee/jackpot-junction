@@ -69,6 +69,7 @@ func test_a_note_is_new_until_it_has_been_looked_at_closer() -> void:
 	)
 	assert_str(StoryNotes.title_of(StoryNotes.TERMS_CARD)).is_equal("Terms Accepted")
 	var invitation: NotePage = auto_free(NotePage.make(StoryNotes.INVITATION, _profile))
+	add_child(invitation)
 	assert_bool(invitation.get_node("Kept") is InvitationCard).is_true()
 	var kept: NotePage = auto_free(NotePage.make(StoryNotes.TICKET, _profile))
 	add_child(kept)
@@ -193,6 +194,27 @@ func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 	await await_idle_frame()
 	assert_object(folder.view).is_null()
 	assert_int(folder.at).is_equal(NotesFolder.spread_of(3))
+	# What is kept at the back after the ending is looked at closer and turned over the same way:
+	# the invitation face up, and face down on its back.
+	folder.close()
+	await await_idle_frame()
+	_profile.story.final_hand = "2026-10-07"
+	folder = NotesFolder.open(_holder(), _profile, true)
+	await _settled(folder)
+	var at_invitation := Array(folder.pages).find(StoryNotes.INVITATION)
+	folder.look_closer(at_invitation)
+	view = folder.view
+	assert_object(view).is_not_null()
+	await await_idle_frame()
+	var card: InvitationCard = view.find_child("Kept", true, false)
+	assert_bool(card.face_up).is_true()
+	view.step(1)
+	assert_int(view.index).is_equal(at_invitation + 1)
+	var faces: Array = view.find_children("Kept", "", true, false)
+	assert_bool(faces.any(func(kept: Node) -> bool: return kept is GoldenTicket)).is_true()
+	assert_bool(faces.any(func(kept: Node) -> bool: return kept.get("face_down"))).is_true()
+	view.close()
+	_profile.story.final_hand = ""
 	# Every note's back draws, whatever is on it.
 	for number: int in StoryNotes.BACKS:
 		var back := NotePage.make(number, _profile)

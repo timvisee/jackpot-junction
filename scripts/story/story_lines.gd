@@ -299,6 +299,11 @@ const TICKET_FROM := "THE HOUSE REQUESTS YOUR COMPANY"
 const TICKET_TABLE := "HOUSE RULES  ·  THE COUNT ROOM  ·  5 MIN  ·  3 SEATS TAKEN"
 const ADMIT_ONE := "ADMIT ONE"
 const TICKET_NUMBER := "No. %s"
+const TICKET_BACK: Array[String] = [
+	"THIS TICKET IS NOT TRANSFERABLE.",
+	"ONE SEAT · ONE HAND · ONE PLAYER.",
+	"ITS USE ACCEPTS ALL TERMS.",
+]
 const NOT_NOW := "Not now"
 const CANDIDATE := "CANDIDATE"
 ## A model is named for the player as they wrote their name, and its seat at the table.

@@ -30,8 +30,10 @@ const FALL_TURN := 0.6
 ## Whose name is typed on it, and the number on its stub.
 var holder := ""
 var serial := ""
-## Whether its stub has been torn off.
+## Whether its stub has been torn off, and whether it lies face down: the back of the ticket kept
+## once its stub is gone, see [method show_torn], its ragged edge on the left as it is turned over.
 var torn := false
+var face_down := false
 ## The stub, past the perforation.
 var stub: Control
 
@@ -112,6 +114,9 @@ func show_torn() -> void:
 
 
 func _draw() -> void:
+	if face_down:
+		_draw_back()
+		return
 	var body := _body()
 	_shadow_of(self, body)
 	_gild(self, body)
@@ -133,6 +138,39 @@ func _draw() -> void:
 			y += 10.0
 	_draw_seal(Vector2(118.0, SIZE.y * 0.5))
 	_draw_words()
+
+
+## The back of the torn ticket: the outline the other way round, the ragged edge on the left; the
+## House's seal pressed into the gold, and the small print under it.
+func _draw_back() -> void:
+	var wide := SIZE.x - STUB
+	var shape := PackedVector2Array()
+	for point: Vector2 in _body():
+		shape.append(Vector2(wide - point.x, point.y))
+	shape.reverse()
+	_shadow_of(self, shape)
+	_gild(self, shape)
+	var inner := Rect2(
+		Vector2(BORDER + 4.0, BORDER), Vector2(wide - BORDER - 4.0, SIZE.y - BORDER * 2.0)
+	)
+	draw_rect(inner, Color(INK, 0.5), false, 1.4, true)
+	var middle := Vector2(wide * 0.5, SIZE.y * 0.38)
+	for ring: float in [52.0, 42.0, 20.0]:
+		draw_arc(middle + Vector2(-1.0, -1.0), ring, 0.0, TAU, 64, Color(GOLD_HIGH, 0.6), 2.0, true)
+		draw_arc(middle + Vector2(1.0, 1.0), ring, 0.0, TAU, 64, Color(INK, 0.35), 2.0, true)
+	var y := SIZE.y * 0.38 + 84.0
+	for line: String in StoryLines.TICKET_BACK:
+		var line_wide := NotePage.TYPED.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
+		draw_string(
+			NotePage.TYPED,
+			Vector2((wide - line_wide) * 0.5, y),
+			line,
+			HORIZONTAL_ALIGNMENT_LEFT,
+			-1,
+			14,
+			Color(INK, 0.85)
+		)
+		y += 20.0
 
 
 ## The stub: ADMIT ONE turned on its side, and the number under it.

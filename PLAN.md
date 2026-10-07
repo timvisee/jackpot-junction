@@ -1181,7 +1181,7 @@ the card with backs of their own. STORY.md and GAME.md first. One commit an item
 - [x] Each page's note a little askew and off-center, under a clip, tape or a staple [7.2].
 - [x] The pages' bottom corners folded where there is a leaf to turn, the button on the fold; the
       pad's shoulder buttons turn the pages and step the closer look [7.2].
-- [ ] What is kept at the back can be looked at closer and turned over [7.2].
+- [x] What is kept at the back can be looked at closer and turned over [7.2].
 - [ ] The gold of the invitation and the ticket catches the light in the closer look [7.2].
 - [ ] The closer look grows up off its page and goes back down onto it [7.2].
 - [ ] The notes either side slide in and out in the closer look [7.2].
