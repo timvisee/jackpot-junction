@@ -154,6 +154,11 @@ func test_a_profile_linked_at_a_client_reaches_the_host() -> void:
 	bob.license_plate = "BOB-1"
 	bob.save_to_disk()
 	Net.session = _client
+	# The seat is given before the snapshot bringing its kart here, on a slow machine by a while.
+	var here := await _wait_until(
+		func() -> bool: return _client_match.slots.size() > second.slot, 4000
+	)
+	assert_bool(here).override_failure_message("the second seat's kart never came").is_true()
 	var slot := _client_match.slots[second.slot]
 	assert_bool(SeatLink.link(_client_match, slot, bob.id)).is_true()
 	var hosted := _host_match.slots[second.slot]
