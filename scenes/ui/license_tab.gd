@@ -16,6 +16,9 @@ const RETAKE := "Retake the driving test"
 const UNDERWAY := "License in progress"
 const UNDERWAY_HOW := "You're taking the driving test right now. Finish it to earn your license."
 const UNDERWAY_KEPT := "Your current license stays until you pass."
+## The story's switch, STORY.md 5.4: on to start with, for the profile playing.
+const STORY := "Story"
+const STORY_LINE := "The small print, the notes, and where they lead."
 const CARD_SCALE := 0.7
 ## How big the hand's button is drawn on the card's bottom right corner, and where its middle
 ## sits from the corner of the card's box: on the rounded corner itself, so a quarter of it is over
@@ -28,6 +31,8 @@ var field: PlateField
 ## driving test under a license.
 var earn: Button
 var retake: Button
+## Whether the story is on for the profile playing, under the license or the word on getting one.
+var story_switch: CheckButton
 ## The license in full while it is up.
 var view: LicenseView
 
@@ -96,6 +101,7 @@ func _none_yet(column: VBoxContainer) -> void:
 	learner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	column.add_child(learner)
 	column.add_child(MenuTheme.subtitle(MEANWHILE, Type.LABEL))
+	_story(column)
 
 
 ## The license, stamped as it was, and the plate under it.
@@ -138,6 +144,27 @@ func _license(column: VBoxContainer) -> void:
 	retake.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	retake.pressed.connect(_to_the_school)
 	column.add_child(retake)
+	_story(column)
+
+
+## The story's switch, STORY.md 5.4, for the profile playing: off, its clock stops and the game is
+## the casino of the first stage throughout; on again, everything is where it was. Kept with the
+## rest of the settings as they are left.
+func _story(column: VBoxContainer) -> void:
+	var gap := Control.new()
+	gap.custom_minimum_size = Vector2(0.0, 6.0)
+	column.add_child(gap)
+	story_switch = MenuTheme.toggle(_settings.profile.story.on)
+	story_switch.name = "Story"
+	story_switch.toggled.connect(_on_story_toggled)
+	var line := MenuTheme.row(STORY, story_switch)
+	line.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	column.add_child(line)
+	column.add_child(MenuTheme.subtitle(STORY_LINE, Type.LABEL))
+
+
+func _on_story_toggled(on: bool) -> void:
+	_settings.profile.story.on = on
 
 
 ## The hand's button shows the license in full, before the focus takes the key for walking the

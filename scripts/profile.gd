@@ -50,6 +50,8 @@ var last_server_port := ServerArgs.PORT
 var servers: Array[Dictionary] = []
 ## Every match it has played to the whistle, added up, see [LifetimeStats].
 var stats: Dictionary[StringName, float] = {}
+## How far it is through the story, STORY.md 5.2, see [Story].
+var story := StoryState.new()
 
 
 ## The profile kept as [param id] in [param folder], read from its file if it has one, or new.
@@ -103,6 +105,7 @@ func load_from_disk() -> void:
 	if file.has_section("stats"):
 		for key: String in file.get_section_keys("stats"):
 			stats[StringName(key)] = float(file.get_value("stats", key, 0.0))
+	story.read(file)
 
 
 func save_to_disk() -> Error:
@@ -127,4 +130,5 @@ func save_to_disk() -> Error:
 	file.set_value("online", "servers", servers)
 	for key: StringName in stats:
 		file.set_value("stats", String(key), stats[key])
+	story.write(file)
 	return file.save(path)

@@ -342,7 +342,7 @@ Spoilers throughout, like STORY.md.
 
 | Phase | What | State |
 |---|---|---|
-| S0 | Story state, the clock and the switch | Not started |
+| S0 | Story state, the clock and the switch | Done |
 | S1 | Every line in one place, and the placeholders | Not started |
 | S2 | The hoardings, the posters and the road | Not started |
 | S3 | The payout slip | Not started |
@@ -357,7 +357,7 @@ Spoilers throughout, like STORY.md.
 | S12 | After the ending | Not started |
 | S13 | Wrapping up | Not started |
 
-Next up: S0. The phases are in the order they are best built, each standing on its own: after S0 to
+Next up: S1. The phases are in the order they are best built, each standing on its own: after S0 to
 S7 the story's margins are all in the game and could ship, the notes and the ending after them. S10
 can be built alongside anything before S11, which needs it. On picking the work up again: this
 table, then the first unticked task of the phase in progress, then that task's sections of STORY.md.
@@ -398,46 +398,52 @@ These refine STORY.md without changing it.
 
 ### S0: story state, the clock and the switch [5]
 
-- [ ] `scripts/story/story.gd`, `class_name Story`: the constants of 5.1 in seconds, stages starting
+- [x] `scripts/story/story.gd`, `class_name Story`: the constants of 5.1 in seconds, stages starting
       at 0, 600, 2400, 4500 and 6600, the Final Hand at 9600; stage names Customer, Player,
-      Participant, Number, Candidate, Operator; `stage_of(profile)`, `stage_here()`,
-      `final_hand_due(profile)`, `is_operator(profile)`, and `override` for tests and the command
-      line.
-- [ ] `Profile` gains the story's state in a `[story]` section, loaded and saved with the rest:
-      `story_on` (true), `story_seconds` (the clock), `story_maps`, `story_deaths`, `story_jokers`
-      (counted only once licensed, for `{maps}`, `{hands}` and `{accepted}`), `story_notes` (ids
-      found, in the order of STORY.md 7.3), `story_notes_read` (ids whose page has been open for a
-      second, for the New mark of S9), the notes' schedule state of S8, `story_quick_matches`
-      (quick matches since the license, for the first note), `story_final_hand` (the date the stamp
-      came down, empty before), `story_shifts` (maps since), and what the folder keeps of the
-      evaluation, S11.
-- [ ] The clock runs in `MatchRecord`: a room that counts as a map (`maps`) adds its `seconds`, the
-      match clock's own time, to `story_seconds` of every profile at this machine it writes for,
-      whistled or left, the first seat's and a linked seat's alike, never a guest's. Only for a
-      profile with a license and the story on. The driving school, the Garage and the waiting room
-      run no clock, being no maps.
-- [ ] The counters with it: `story_maps` for a map played to the whistle, `story_deaths` and
-      `story_jokers` from the slot's statistics, as `LifetimeStats.add_play` counts them, only what
-      came after the license. `story_shifts` for a map played after the stamp.
-- [ ] The switch [5.4]: on the License tab of the settings (`scenes/ui/license_tab.gd`), under the
+      Participant, Number, Candidate, Operator; `stage_of(profile)`, `shown_of(profile)`,
+      `stage_here()`, `on_here()`, `final_hand_due(profile)`, `minutes(profile)`, and `override`
+      for tests and the command line.
+- [x] `Profile.story`, a `StoryState` (`scripts/story/story_state.gd`) kept in a `[story]` section
+      of the profile's file, loaded and saved with the rest: `on` (true), `seconds` (the clock),
+      `maps`, `deaths`, `jokers` (counted only once licensed, for `{maps}`, `{hands}` and
+      `{accepted}`), `quick_matches` (for the first note), `notes` and `notes_read` (numbers, for
+      the New mark of S9), `note_waits` (the notes' schedule of S8), `final_hand` (the date the stamp
+      came down, empty before), `final_seconds`, `shifts` (maps since), and `evaluation` (what the
+      folder keeps of it, S11).
+- [x] The clock runs in `MatchRecord` through `Story.count`: a room that counts as a map (`maps`)
+      adds its `seconds`, the match clock's own time, to the clock of every profile at this machine
+      it writes for, whistled or left, the first seat's and a linked seat's alike, never a guest's.
+      Only for a profile with a license and the story on. The driving school and the waiting room
+      run no clock, being no maps, and the Garage has no record at all.
+- [x] The counters with it: `maps` for a map played to the whistle, `deaths` and `jokers` from the
+      slot's statistics past what was already counted, as `LifetimeStats.add_play` counts them, only
+      once licensed; `quick_matches` for a map that was no Grand Prix's; `shifts` for a map played
+      after the stamp.
+- [x] The switch [5.4]: on the License tab of the settings (`scenes/ui/license_tab.gd`), under the
       license or the word on where to get one, a switch of the house's, Story, for the profile
       playing, over "The small print, the notes, and where they lead.". Off stops the clock and the
       counters and makes `stage_here()` 0; on picks everything up where it was. In a room it can be
-      switched too, and what is already printed there stays until the next room.
+      switched too, and what is already printed there stays until the next room; it is kept as the
+      settings are left.
 - [ ] Off, everything is the casino of stage 0, after the ending too: Play reads Play, the license is
       the Department's, no green line, the seal's print as it is, no folder, no flyer, no notes, no
-      Final Hand. Each phase below checks its surface against the switch.
-- [ ] Debug builds only: `++ --story-stage=N` shows stage N without saving anything,
+      Final Hand. Each phase below checks its surface against the switch; ticked when the last has.
+- [x] Debug builds only: `++ --story-stage=N` shows stage N without saving anything,
       `++ --story-final-hand` deals the Final Hand on the next Play, and `++ --story-note=N` lies
-      note N on the next map's floor at once. Parsed beside the other arguments in
-      `scripts/autoload/game.gd`.
-- [ ] The F3 overlay (`scenes/dev/debug_overlay.gd`) shows the stage, the clock in minutes, the next
-      note and when it is due, and how many notes are found.
+      note N on the next map's floor at once (`Story.read_arguments`, called from
+      `scripts/autoload/game.gd`; the last two are read by S8 and S11).
+- [x] The F3 overlay (`scenes/dev/debug_overlay.gd`) shows the stage, the clock in minutes, how many
+      notes are found and whether the Final Hand is due (`Story.debug_text`); S8 adds the next note.
 
 Verify: `tests/test_story_clock.gd`: the stage at every boundary; a 1 minute map moves the clock a
 fifth of a 5 minute one; nothing before the license; a linked seat's profile runs its own clock and a
 guest's nothing; the switch stops it and starting again resumes it; headless writes nothing; the
 section is absent from a fresh profile and round-trips through the file.
+
+Status: built. `tests/test_story_clock.gd`, 7 tests: the stages at their boundaries, maps running
+the clock by their own time, shifts, the screen's stage and the switch, the License tab's switch,
+the profile's file, and a map at this machine running the profile playing's clock while a lobby runs
+none. Linked seats go through `MatchRecord.profile_for` as statistics always have.
 
 ### S1: every line in one place, and the placeholders [6]
 

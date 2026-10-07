@@ -75,7 +75,10 @@ static func seat_leaving(in_match: Match, slot: PlayerSlot, player: PlayerInput 
 	var profile := profile_for(player if player != null else slot.input as PlayerInput)
 	if profile == null:
 		return
-	LifetimeStats.add_play(profile, slot, record.seconds, record._since.get(slot.index, {}))
+	var since: Dictionary = record._since.get(slot.index, {})
+	if record.maps:
+		Story.count(profile, slot, record.seconds, since, false, Game.grand_prix == null)
+	LifetimeStats.add_play(profile, slot, record.seconds, since)
 	record._since[slot.index] = LifetimeStats.share_of(slot, record.seconds)
 	Game.settings.save_to_disk()
 
@@ -125,6 +128,9 @@ func record(whistled := true) -> void:
 			continue
 		any = true
 		var since: Dictionary = _since.get(slot.index, {})
+		# The story's clock runs on maps alone, STORY.md 5.1: never the lobby or the school.
+		if maps:
+			Story.count(profile, slot, seconds, since, whistled, run == null)
 		if not maps or not whistled:
 			LifetimeStats.add_play(profile, slot, seconds, since)
 			continue
