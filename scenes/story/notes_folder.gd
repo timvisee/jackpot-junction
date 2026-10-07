@@ -32,6 +32,9 @@ const TURN_SHADER: Shader = preload("res://scenes/tutorial/school/page_turn.gdsh
 ## Coming out and going back: the slide from the edge, and the cover's swing over the spine.
 const SLIDE := 0.4
 const SWING := 0.5
+## How loud it opens and shuts.
+const OPEN_DB := -4.0
+const SHUT_DB := -13.0
 ## Turning on to the first new note after opening: the whole of it at most, and how long a leaf
 ## takes at the slowest and the fastest, the leaves quickening as they go.
 const FLIP_AT_MOST := 1.0
@@ -430,9 +433,11 @@ func _swing(to_open: bool) -> void:
 		var fade := create_tween().set_parallel(true)
 		fade.tween_property(_buttons_row, "modulate:a", 1.0, SWING)
 		fade.tween_property(away_line, "modulate:a", 1.0, SWING)
+		Audio.play_sfx(&"folder_open", OPEN_DB, 0.05)
 	else:
+		# Heard as the cover comes down, not as it lifts.
+		swing.tween_callback(func() -> void: Audio.play_sfx(&"folder_shut", SHUT_DB, 0.05))
 		swing.tween_callback(_go_back)
-	Audio.play_sfx(&"folder_open" if to_open else &"folder_shut", -4.0, 0.05)
 
 
 func _opened() -> void:
