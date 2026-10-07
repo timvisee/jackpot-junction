@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-10-07
+
+Online rooms hold up to eight players, and the tables have more to say in the small print. It
+doesn't play with 0.13.x.
+
 ### Added
 
 - **Up to eight players online.** A host can set the player limit up to 8, still 4 to start
@@ -1770,7 +1775,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.13.4...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.14.0
 [0.13.4]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.4
 [0.13.3]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.3
 [0.13.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.2
