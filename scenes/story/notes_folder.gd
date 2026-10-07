@@ -614,16 +614,19 @@ func _turn(by: int, takes: float) -> void:
 		face.render_target_update_mode = SubViewport.UPDATE_ONCE
 	var material := _leaf.material as ShaderMaterial
 	material.set_shader_parameter("angle", 0.0 if forward else PI)
-	# Under the leaf as it goes: forward, the next spread's right and this one's left; back, the
-	# spread before's left and this one's right.
-	if forward:
-		_set_side(_right, right_of(to))
-	else:
-		_set_side(_left, left_of(to))
 	_turning = create_tween()
-	# A frame for the faces to be drawn before the leaf shows.
+	# A frame for the faces to be drawn before the leaf shows; and what is under the leaf as it goes
+	# only as it shows, so the page under it never shows for that frame before it lifts: forward, the
+	# next spread's right, back, the spread before's left.
 	_turning.tween_interval(0.02)
-	_turning.tween_callback(func() -> void: _leaf.visible = true)
+	_turning.tween_callback(
+		func() -> void:
+			if forward:
+				_set_side(_right, right_of(to))
+			else:
+				_set_side(_left, left_of(to))
+			_leaf.visible = true
+	)
 	(
 		_turning
 		. tween_method(
