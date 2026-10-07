@@ -359,10 +359,10 @@ Spoilers throughout, like STORY.md.
 | S14 | The first look, the user's notes | Done |
 | S15 | The second look, the user's notes | Done |
 | S16 | The third look, the user's notes | Done |
-| S17 | The fourth look, the user's notes | In progress |
+| S17 | The fourth look, the user's notes | Done |
 
-Next up: S17, the user's fourth round of notes; then their play-through, S13's last task, and
-tuning the pace of S0 after it. The phases are in the order they are best built, each standing on its own:
+Next up: the user's look at S17, then their play-through, S13's last task, and tuning the pace of
+S0 after it. The phases are in the order they are best built, each standing on its own:
 after S0 to S7 the story's margins are all in the game and could ship, the notes and the ending
 after them. S10 can be built alongside anything before S11, which needs it. On picking the work up
 again: this table, then the first unticked task of the phase in progress, then that task's sections
@@ -1188,7 +1188,19 @@ the card with backs of their own. STORY.md and GAME.md first. One commit an item
 
 Verify: the story's suites and `make check`; screenshots of each, sent to the user.
 
-Status: in progress.
+Status: done, 2026-10-07. Built as planned, with these choices: a folder page lays its note on as a
+child of its own, layer `lying`, with `NoteOnPage` over it for the clip, tape or staple, since the
+notes' own drawing sets transforms of its own that an outer turn would lose; `NoteOnPage.lay` keeps
+the turn and the shift clear of the page's edges. The folded corners are `TurnCorner`, shown from
+`_mark_ends`, the bind redrawn when the device changes. Fast turns queue, three at most, the leaf
+in flight sped up by `TURN / TURN_QUICK`. The kept things take `FolderBack.paper_rect` and are laid
+at their own size on the closer look's layers; the ticket's back is `GoldenTicket.face_down`. The
+tilt shader's `foil` makes only the gold catch the light. `NotesFolder.lift_of` says where a page's
+note lies for the closer look to grow from and go back to; the view builds a card per note, so
+the one before can slide away. Note 9's arrow comes in along `ARROW_RISE`. While testing, the
+folder's suite failed now and then and once aborted, while the user had the game running from this
+worktree and gdUnit could not clear `reports/one`; with that folder cleared it passed thirteen runs
+in a row. `make check` passed, 1237 tests. Looked at: every item, screenshotted and sent.
 
 ## Pending
 
