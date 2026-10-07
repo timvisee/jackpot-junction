@@ -20,6 +20,8 @@ below, and hands the notes to the release workflow.
   cone and a diamond, and a kart's marker now goes with its color.
 - **Big rooms play the XL maps.** With more than four karts a normal map plays as its XL, unless
   you turn on Small maps for 5+ karts in the match settings.
+- **The tables have more to say, in the small print.** Keep playing once you have your license,
+  and read what the house prints. Story, on the License tab of the settings, turns it off.
 
 ### Changed
 
@@ -32,6 +34,8 @@ below, and hands the notes to the release workflow.
 
 - **Every player counts while a map waits.** "Waiting on" before a map counts each player at a
   machine, not one per machine.
+- **The driving school's flyer holds still with Reduce flashing on.** Its headline no longer
+  blinks.
 
 ## [0.13.4] - 2026-10-06
 

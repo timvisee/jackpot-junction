@@ -2008,7 +2008,7 @@ undressed, facing the table, with no tribune and nobody at the console, and its 
 It is House Rules' room, 6.3, and seen first at the story's Final Hand, STORY.md 3.9 and 8.2.
 
 Rooms are data, not code: nothing in a room decides anything about play, which is
-exactly why the same match can be played in three of them. Adding a fourth is a
+exactly why the same match can be played in any of them. Adding another is a
 resource file and a map that names it.
 
 **The light.** Every room is lit the same way and differs only in the numbers: a
@@ -3737,7 +3737,7 @@ for, and the Final Hand's loading screen is headed FINAL HAND, STORY.md 6.5.
 
 ### 8.7 The story
 
-Planned, not built yet. The story of 1.3 is presentation and nothing else: it is told in the margins
+The story of 1.3 is presentation and nothing else: it is told in the margins
 of the screens this document describes, and this section says which, how a player moves through it
 and what it may never touch. The words themselves are all in STORY.md, in one place, so they are
 written and read as a story rather than scattered through a design.
@@ -3751,8 +3751,8 @@ Customer from the license, Player from 10 minutes, Participant from 40, Number f
 from 110; the Final Hand at 160; and Operator after it. Those numbers and the notes' spacing are
 constants kept together, so the pace is a line to change once it has been played. The clock, the
 stage, the notes found and the ending are kept in the profile beside its license, 8.5, and what
-every screen at a machine shows is the story of the profile playing. When it is built every profile
-is reset once. STORY.md 5.
+every screen at a machine shows is the story of the profile playing. A profile from before the
+story starts it from nothing, as a new one does. STORY.md 5.
 
 **Switched off.** The License tab of 8.5 has a switch for it, Story, per profile and on to start
 with. Off, the clock stops and the game is the casino of the first stage throughout, with no notes,
@@ -3817,8 +3817,8 @@ new fine print round its seal. It is never dealt online. STORY.md 8.
 **After it.** The game is the same game. What it prints moves on once more, the license keeps the
 house's stamp, and House Rules joins a quick match's list of maps, STORY.md 9 and 10.
 
-**Building it.** Milestone M8 of PLAN.md is the order of work, every detail of STORY.md as a task,
-and keeps how far it has got.
+**Building it.** Milestone M8 of PLAN.md is the order it was built in, every detail of STORY.md a
+task, with how each was done and checked.
 
 **What never moves.** The rules and the numbers, joker effects, the names of everything a player reads
 in order to play, the standings, the HUD's labels, the announcer's calls, and a bot's name and driving

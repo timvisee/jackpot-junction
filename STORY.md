@@ -9,9 +9,9 @@ section here that changes something on a screen names the GAME.md section that s
 in, and that section names this one back, so a change to either is a change to look for in the
 other. Section 12 lists every place they meet.
 
-None of it is built yet. The numbers in it, when a stage begins and how often a note turns up, are
-starting values for tuning, the way GAME.md's are. The lines of text are drafts, to be read where
-they are shown and rewritten there. Section 13 lists what is still open.
+All of it is in the game. The numbers in it, when a stage begins and how often a note turns up,
+are starting values for tuning, the way GAME.md's are. The lines of text are drafts, to be read
+where they are shown and rewritten there. Section 13 lists what is still open.
 
 ## 1. The story in short
 
@@ -504,8 +504,9 @@ played and when, the shifts since, and whether the story is on, 5.4.
 - A bot never picks up a note and never sees one.
 - A new profile starts the story from nothing.
 
-When the story is built every profile will be reset once, the game still being in development, so
-nothing has to be done for profiles from before.
+A profile from before the story starts it from nothing as well, its license and statistics as they
+were. The game still being in development, profiles are reset by hand once it is released, so
+nothing more is done for them.
 
 ### 5.3 Each machine's own
 
@@ -952,8 +953,7 @@ something they are not supposed to have.
 GAME.md 3.8. Once a profile has found its first note, a folder peeks in from the left edge of the
 title, the way the license peeks in from the right: a plain manila folder, dog-eared, with nothing
 printed on it, the one thing on the title the House did not make. It slides out under the cursor and
-opens on a click or a tap, and the menu's cursor reaches it from the buttons. Until the peeking
-folder is built, a plain Notes button under the Garage does the same.
+opens on a click or a tap, and the menu's cursor reaches it from the buttons.
 
 Inside, the notes are clipped in the story's order, one to a page, and the pages turn the way the
 Highway Code's do. Each page shows its note as it was found, folds and all, with its title. There
@@ -966,8 +966,7 @@ in the House's print:
 
 - **On the title** a corner of the new note's own paper sticks up out of the folder's top edge, graph
   paper or a napkin or a receipt's curl, with an exclamation mark drawn on it in pencil. With
-  several new notes one corner shows, the first of them. While the Notes button stands in for the
-  folder, the same pencil mark sits after its word.
+  several new notes one corner shows, the first of them.
 - **Inside**, the folder opens at the first new note rather than at the first page, and a new page
   has the pencil mark in its top corner.
 - A note is read once its page has been open for a second. Its mark goes then, and the corner on the
@@ -1512,18 +1511,19 @@ dress for the kart. If it does, it stays apart from the story:
 
 ## 11. Building it
 
-The order of work, every detail of this document as a task to tick off, is milestone M8 of PLAN.md,
-which also keeps how far it has got, so the work can stop and pick up again anywhere. In short: the
-clock and the switch first; then the margins, surface by surface, which could ship on their own;
-then the notes and their folder; then the Count Room, House Rules and the Final Hand, and what
-changes after it. About can go in at any time, being true already. A change this document needs
-while it is built is made here first, then in GAME.md, then in the code.
+Milestone M8 of PLAN.md is the order it was built in, every detail of this document a task ticked
+off, with how each was done and checked: the clock and the switch first; then the margins, surface
+by surface; then the notes and their folder; then the Count Room, House Rules and the Final Hand,
+and what changes after it. A change to the story is made here first, then in GAME.md, then in the
+code.
 
-Every line of text lives in one place, a script of constants per surface the way the hoardings' are
-now (`Billboard.ADS`), so the story can be edited without hunting for it. Tests hold what can be
-held: every line fits its surface at the smallest size it is drawn at, a note fits its page, the
-stage never goes backward, notes come in order, note 12's numbers are the bots' trait weights, no
-line of the House's mentions a note, and no snapshot carries any of it, 5.3.
+Every line of text lives in one place, `scripts/story/story_lines.gd` and the notes'
+`scripts/story/story_notes.gd`, the way the hoardings' are in `Billboard.ADS`, so the story can be
+edited without hunting for it. The `tests/test_story_*.gd` suites and `tests/test_final_hand.gd`
+hold what can be held: every line answers for every stage and fills its placeholders, a joker's
+term fits its pane, notes come in order, note 12's numbers are the bots' trait weights, no line of
+the House's mentions a note, and nothing the host sends carries one, 5.3. What can only be looked at
+was looked at.
 
 ## 12. Where GAME.md meets it
 

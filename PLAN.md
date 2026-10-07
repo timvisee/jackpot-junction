@@ -355,9 +355,10 @@ Spoilers throughout, like STORY.md.
 | S10 | The Count Room and House Rules | Done |
 | S11 | The Final Hand | Done |
 | S12 | After the ending | Done |
-| S13 | Wrapping up | In progress |
+| S13 | Wrapping up | Done, but for the user's play-through |
 
-Next up: S13. The phases are in the order they are best built, each standing on its own: after S0 to
+Next up: the user's play-through on a fresh profile, S13's last task, and tuning the pace of S0
+after it. The phases are in the order they are best built, each standing on its own: after S0 to
 S7 the story's margins are all in the game and could ship, the notes and the ending after them. S10
 can be built alongside anything before S11, which needs it. On picking the work up again: this
 table, then the first unticked task of the phase in progress, then that task's sections of STORY.md.
@@ -986,21 +987,36 @@ the story off the title, the folder and the license as they were. Looked at: the
 
 ### S13: wrapping up
 
-- [ ] GAME.md: the "planned" words come off 1.3, 6.3, 8.1 and 8.7 as each part lands, and anything
+- [x] GAME.md: the "planned" words come off 1.3, 6.3, 8.1 and 8.7 as each part lands, and anything
       built differently is written back first. STORY.md: "None of it is built yet" goes.
-- [ ] CHANGELOG.md: lines for players that give nothing away, one or two sentences each, "The tables
+- [x] CHANGELOG.md: lines for players that give nothing away, one or two sentences each, "The tables
       have more to say, in the small print." rather than anything about the House, a note or the
       ending. The ending is never named in a changelog, a release note or the README.
-- [ ] THIRD_PARTY.md: every face and sound the story adds, in the commit that adds it.
-- [ ] The export presets still leave STORY.md out.
-- [ ] `make check` passes, and the story's tests run in it.
+- [x] THIRD_PARTY.md: every face and sound the story adds, in the commit that adds it.
+- [x] The export presets still leave STORY.md out.
+- [x] `make check` passes, and the story's tests run in it.
 - [ ] A play-through by the user on a fresh profile, honest, at the real pace, with the stages
       noticed or not noticed written down; then the constants of S0 tuned, and STORY.md 5.1 and
       GAME.md 8.7 brought in line with them.
 
 Verify: `make check`; the user's play-through.
 
-Status: not started. STORY.md is complete and fixed for this milestone; nothing of it is built.
+Status: built, but for the user's play-through. GAME.md 1.3, 6.3 and 8.1 lost their "planned" as
+their parts landed, and 8.7 lost its own now; STORY.md says it is all in the game. A profile from
+before the story starts it from nothing, which is what the code does, the user resetting profiles
+by hand, and both documents now say so rather than promising a reset. The Notes button that was to
+stand in for the folder never had to, so its two lines are gone. STORY.md 11 names where the lines
+live and what the tests hold; note 12's numbers against the trait table were promised there and in
+S1 and had no test, so `test_story_notes.gd` has one now, the memo built from
+`data/ai/traits.tres`. GAME.md 8.1 says the same match plays in any of the rooms rather than three.
+CHANGELOG.md: one line under Added, "The tables have more to say, in the small print.", with where
+to switch it off, and nothing about the House, a note or the ending; under Fixed, the driving
+school's flyer no longer blinking with Reduce flashing on, which S11 changed for every flyer.
+THIRD_PARTY.md has the story's two faces, Courier Prime and IM FELL English, from S9, and the story
+adds no sound. All seven export presets leave STORY.md out. `make check`: 1228 tests passed, the
+story's thirteen suites among them, and smoke; the multiplayer check stopped once on a client of
+the room of eight leaving a sound behind at exit, the known artifact of quitting mid-sound, and
+passed three times running after it, with the lag and server checks.
 
 ## Pending
 

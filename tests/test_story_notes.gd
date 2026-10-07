@@ -208,3 +208,17 @@ func test_every_note_has_its_title_paper_and_words() -> void:
 	assert_str(StoryFill.fill(str(StoryNotes.NOTES[20]["lines"][0][1]), _profile)).contains(
 		"JJ-123456"
 	)
+
+
+## Note 12's memo is the bots' trait table as it is dealt: each trait's share of the weights in
+## percent, so a weight tuned in data/ai/traits.tres is a memo to rewrite, STORY.md 7.3.
+func test_the_traits_memo_is_the_trait_table() -> void:
+	var memo := str(StoryNotes.NOTES[12]["lines"][1][1])
+	var table: BotTraitTable = load("res://data/ai/traits.tres")
+	var total := 0.0
+	for entry: BotTrait in table.entries:
+		total += entry.weight
+	var said: Array[String] = []
+	for entry: BotTrait in table.entries:
+		said.append("%s %d" % [entry.display_name.to_upper(), roundi(entry.weight / total * 100.0)])
+	assert_str(memo).is_equal(" · ".join(said))
