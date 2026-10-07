@@ -5,11 +5,15 @@ extends GdUnitTestSuite
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const TITLE_SCENE := preload("res://scenes/ui/title.tscn")
+const WAITING_SCENE := preload("res://scenes/waiting/waiting_room.tscn")
 
 var _runner: GdUnitSceneRunner
 var _was_story := StoryState.new()
 var _was_number := ""
 var _was_map := ""
+## The player's own settings, put aside while a lobby, which saves its match settings, runs on a
+## scratch copy.
+var _settings_were: Settings
 
 
 func before_test() -> void:
@@ -29,11 +33,15 @@ func after_test() -> void:
 	Story.override = -1
 	Story.final_hand_on = false
 	Story.final_hand_now = false
-	FinalHand.declined = false
+	Game.pending_config = null
+	Net.close()
+	if _settings_were != null:
+		Settings.remove_files(Game.settings.path)
+		Game.settings = _settings_were
+		_settings_were = null
 
 
-## Offered once the clock reaches it, licensed and with the story on, until it is played or put off
-## for the session.
+## Offered once the clock reaches it, licensed and with the story on, until it is played.
 func test_it_is_offered_only_when_due() -> void:
 	Story.override = Story.Stage.CANDIDATE
 	var profile := Game.settings.profile
@@ -44,9 +52,6 @@ func test_it_is_offered_only_when_due() -> void:
 	profile.story.on = false
 	assert_bool(FinalHand.offered(profile)).is_false()
 	profile.story.on = true
-	FinalHand.declined = true
-	assert_bool(FinalHand.offered(profile)).is_false()
-	FinalHand.declined = false
 	profile.story.final_hand = "2026-10-07"
 	assert_bool(FinalHand.offered(profile)).is_false()
 	profile.story.final_hand = ""
@@ -91,6 +96,31 @@ func test_the_house_sets_the_table_and_locks_it() -> void:
 	assert_float(shown.duration).is_equal(300.0)
 	pane.close()
 	assert_str(Game.settings.map).is_equal("vault")
+
+
+## Not now puts the Final Hand off for that lobby alone: the next one Play opens asks again,
+## STORY.md 8.1.
+func test_not_now_asks_again_at_the_next_lobby() -> void:
+	_settings_were = Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_final_hand_lobby.cfg"
+	Game.settings.profile.license_number = "JJ-212212"
+	Game.settings.profile.story.seconds = Story.FINAL_HAND_AT
+	Story.override = Story.Stage.CANDIDATE
+	for visit: int in 2:
+		Game.pending_config = MatchConfig.new()
+		var room: Node3D = auto_free(WAITING_SCENE.instantiate())
+		_runner = scene_runner(room)
+		await _runner.simulate_frames(45, 17)
+		var pane := room.find_child("FinalHandPane", true, false) as FinalHandPane
+		assert_object(pane).override_failure_message("lobby %d" % visit).is_not_null()
+		pane.not_now.pressed.emit()
+		await await_idle_frame()
+		var choosing: HostSettings = room.get("host_settings")
+		assert_bool(choosing.is_open()).is_true()
+		assert_bool(Game.pending_config.final_hand).is_false()
+		choosing.close()
+		Net.close()
 
 
 func _start_match() -> Match:

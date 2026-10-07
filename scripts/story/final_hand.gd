@@ -14,15 +14,12 @@ const BOTS := 3
 ## hundredth of the distance drifted, a cash-out every two minutes.
 const READING_FLOOR: Array[float] = [1.0, 0.01, 0.01, 0.5]
 
-## Not now, for as long as the game runs: the House does not ask again until it is next started,
-## STORY.md 8.1. The flyer stays.
-static var declined := false
-
 
 ## Whether Play offers the Final Hand now, at a lobby on this machine alone: due for the profile
-## playing, the story on there, and not put off this session.
+## playing and the story on there. Not now puts it off for that lobby alone, STORY.md 8.1: the
+## next one Play opens asks again.
 static func offered(profile: Profile) -> bool:
-	return not declined and Story.on_here() and Story.final_hand_due(profile)
+	return Story.on_here() and Story.final_hand_due(profile)
 
 
 ## [param config] set as the House sets the table: its match, the profile's last bot difficulty,

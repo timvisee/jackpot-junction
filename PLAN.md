@@ -1031,7 +1031,7 @@ noted; STORY.md and GAME.md were brought in line first. One commit an item.
 - [x] STORY.md and GAME.md: every decision below written in first.
 - [x] Story Progression: the License tab's switch renamed, and switching it off asks first, saying it
       can be switched on again at any time [5.4].
-- [ ] The Final Hand asked again each time Play opens the lobby, rather than once a run [8.1].
+- [x] The Final Hand asked again each time Play opens the lobby, rather than once a run [8.1].
 - [ ] House Rules: the gaps between the walls round the edge 2 cells at least, still point-symmetric
       with its 8 spawns; GAME.md 6.3's grid with it.
 - [ ] The Count Room's rack lights softer, slower, fewer and bigger, small ones settling into a glow
