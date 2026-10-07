@@ -29,6 +29,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Quieter wall crashes.** Driving into a wall is a lot less loud; a hard hit is still a bang, but
+  no longer the loudest thing in a match.
 - **A steady emote wheel.** The wheel over your kart follows it smoothly while you drive instead of
   jumping about.
 - **No gap before the names on the Grand Prix standings.** When nobody's place changed, the

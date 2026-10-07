@@ -77,10 +77,11 @@ const BEATS_PER_BAR := 4
 const NITRO_SWELL_LEAD := 0.18
 ## A kart into a wall, GAME.md 8.4: the level and the playback speed run between these with how
 ## hard it was hit, so clipping a wall is a knock and only a real shunt is a bang. The heavy
-## layer is only added above that much force.
-const CRASH_LIGHT_DB := -24.0
-const CRASH_HARD_DB := -8.0
-const CRASH_HEAVY_DB := -12.0
+## layer is only added above that much force. A flat-out shunt was the loudest thing in a match,
+## over the guns and the bombs, and is eight decibels down on that.
+const CRASH_LIGHT_DB := -28.0
+const CRASH_HARD_DB := -16.0
+const CRASH_HEAVY_DB := -20.0
 const CRASH_HEAVY_FORCE := 0.55
 const CRASH_LIGHT_PITCH := 1.3
 const CRASH_HARD_PITCH := 0.9

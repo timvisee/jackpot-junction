@@ -3446,7 +3446,9 @@ for.
 - **One-shots**: a rushing pass on a turbo pad; a swell that runs backwards into
   its own kick when nitro lights, played from 0.18 s before the end of the file
   so the kick lands just after the button; the pack's spin-out on oil; its
-  crashes for a kart into a wall, the heavier one on top of a square hit; and its
+  crashes for a kart into a wall, the heavier one on top of a square hit, from
+  -28 dB for a knock to -16 dB for a flat-out shunt, which at -8 dB was the loudest
+  thing in a match, over the guns and the bombs; and its
   start tones for the countdown, one per lamp of the start gantry, with the higher
   one on the flag. Both come from the countdown itself rather than from the match
   starting, so a room with no countdown has neither.
