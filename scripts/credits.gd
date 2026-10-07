@@ -17,7 +17,7 @@ const THINGS: Array[Dictionary] = [
 		"where": "godotengine.org",
 	},
 	{
-		"what": "Car Kit, Casino Audio, Impact Sounds and Interface Sounds",
+		"what": "Car Kit, Casino Audio, Impact Sounds, Interface Sounds and RPG Audio",
 		"who": "Kenney Vleugels",
 		"terms": "CC0",
 		"where": "kenney.nl",

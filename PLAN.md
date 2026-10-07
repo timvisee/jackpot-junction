@@ -1054,8 +1054,9 @@ noted; STORY.md and GAME.md were brought in line first. One commit an item.
 - [x] The folder's front: DO NOT FILE in marker, a pencil K., an eye in pen crossed out [7.2].
 - [x] A closer look: a note taken off its page, larger, zoomed and moved, turned over to its back,
       every back of 7.3 drawn [7.2, 7.3].
-- [ ] Sounds: Kenney's RPG Audio (CC0), its paper and book sounds, for the folder opening, shutting
-      and turning, and for taking a note; THIRD_PARTY.md.
+- [x] Sounds: Kenney's RPG Audio (CC0), its paper and book sounds, for the folder opening, shutting
+      and turning, and for taking a note; THIRD_PARTY.md. The pack has no pencil, so the pencil's
+      scratch is made here, `pencil-scratch.wav`, out of filtered noise.
 - [ ] A note on the floor easier to see: a soft breathing halo over the litter, a corner lifting,
       a glint every three seconds [7.1].
 - [ ] NOTE COLLECTED big in the middle, written on in pencil, then into the corner, after any call

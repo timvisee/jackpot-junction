@@ -162,8 +162,15 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"page": ["card-shove-1.ogg", "card-place-2.ogg"],
 	&"book": ["impactPlate_light_000.ogg"],
 	&"stamp": ["impactPunch_heavy_000.ogg"],
-	# One of Kit's notes taken off the table, STORY.md 7.1: a soft rustle of paper.
-	&"note": ["card-shove-1.ogg"],
+	# One of Kit's notes taken off the table, STORY.md 7.1: a rustle of paper and a pencil's
+	# scratch as NOTE COLLECTED is written.
+	&"note": ["bookFlip2.ogg"],
+	&"pencil": ["pencil-scratch.wav"],
+	# Kit's folder, STORY.md 7.2: opening, shutting, a leaf turning and a note put back.
+	&"folder_open": ["bookOpen.ogg"],
+	&"folder_shut": ["bookClose.ogg"],
+	&"leaf": ["bookFlip1.ogg", "bookFlip2.ogg", "bookFlip3.ogg"],
+	&"note_down": ["bookPlace1.ogg"],
 	&"nitro_swell": ["kart/nitro_swell.ogg"],
 }
 

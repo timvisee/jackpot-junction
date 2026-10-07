@@ -402,7 +402,6 @@ func _come_out() -> void:
 	_moving.tween_property(folder, "scale", Vector2.ONE * _fit_scale(), SLIDE)
 	_moving.tween_property(_shade, "modulate:a", 1.0, SLIDE)
 	_moving.chain().tween_callback(_swing.bind(true))
-	Audio.play_sfx(&"page", -6.0, 0.0)
 
 
 ## The cover over the spine: open, it lands as the inside of the cover on the left; shut, it comes
@@ -433,7 +432,7 @@ func _swing(to_open: bool) -> void:
 		fade.tween_property(away_line, "modulate:a", 1.0, SWING)
 	else:
 		swing.tween_callback(_go_back)
-	Audio.play_sfx(&"page", -6.0, 0.05)
+	Audio.play_sfx(&"folder_open" if to_open else &"folder_shut", -4.0, 0.05)
 
 
 func _opened() -> void:
@@ -540,7 +539,7 @@ func turn(by: int, takes := TURN) -> void:
 		. set_ease(Tween.EASE_IN_OUT)
 	)
 	_turning.tween_callback(_landed.bind(to))
-	Audio.play_sfx(&"page", -8.0 if takes >= TURN else -14.0, 0.08)
+	Audio.play_sfx(&"leaf", -6.0 if takes >= TURN else -12.0, 0.08)
 
 
 ## A face of the turning leaf showing page [param index], or bare paper where there is none.

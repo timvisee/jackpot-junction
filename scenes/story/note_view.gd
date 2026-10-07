@@ -109,7 +109,7 @@ func _ready() -> void:
 	modulate.a = 0.0
 	create_tween().tween_property(self, "modulate:a", 1.0, 0.18)
 	_turn_button.grab_focus()
-	Audio.play_sfx(&"page", -8.0, 0.1)
+	Audio.play_sfx(&"leaf", -8.0, 0.1)
 
 
 ## The arrows to the notes either side, Turn over, which has the cursor, and Put back.
@@ -268,7 +268,7 @@ func turn_over() -> void:
 			_back.visible = turned
 	)
 	_turning.tween_method(_set_turn, 0.0, 1.0, TURN * 0.5).set_ease(Tween.EASE_OUT)
-	Audio.play_sfx(&"page", -10.0, 0.12)
+	Audio.play_sfx(&"leaf", -10.0, 0.12)
 
 
 func _set_turn(amount: float) -> void:
@@ -283,7 +283,7 @@ func step(by: int) -> void:
 		return
 	index = to
 	_build()
-	Audio.play_sfx(&"page", -10.0, 0.1)
+	Audio.play_sfx(&"leaf", -10.0, 0.1)
 
 
 ## The arrows greyed where there is no note to go to.
@@ -410,6 +410,7 @@ func close() -> void:
 	if is_queued_for_deletion():
 		return
 	put_back.emit(index)
+	Audio.play_sfx(&"note_down", -8.0, 0.08)
 	queue_free()
 
 
