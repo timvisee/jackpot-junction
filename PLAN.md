@@ -1099,7 +1099,7 @@ invitation and the ticket both stay; the rest below. STORY.md and GAME.md first.
 - [x] The folder: turned on to the first new note, it opens the closer look on it; a note is read
       only once looked at closer; a turn or any press stops the turning on; the arrows turn as fast
       as they are pressed; each page's number pencilled at its foot [7.2].
-- [ ] The closer look tilts toward the mouse, the stick or the phone and catches the light, as the
+- [x] The closer look tilts toward the mouse, the stick or the phone and catches the light, as the
       license does; Look closer is a magnifying glass [7.2].
 - [x] Notes: 9's pencil under the print with an arrow to clause 4; the roll's grey edges run to its
       torn ends; 16's signature a person's, over MINISTER OF KARTS; 13's back line turned a little;

@@ -15,6 +15,14 @@ uniform vec2 extent = vec2(0.5, 0.3);
 uniform float depth = 2.4;
 // How much lighter the near side is drawn and the far side darker, per width of the card forward.
 uniform float relief = 1.8;
+// How bright the light is that the card's face catches where it glances straight back to the eye, a
+// soft spot of it going over the card as the card turns, the rest of the face a shade dimmer by
+// half as much so that white paper shows it too; none on a card with a light of its own. The light
+// is up on the left in front, where the spot sits on a card held flat.
+uniform float sheen = 0.0;
+uniform vec3 light = vec3(-0.15, -0.2, -1.0);
+// How tight the spot is: the higher, the smaller.
+const float SHEEN_TIGHT = 36.0;
 
 // The modulate, taken before the texture is read into COLOR at the untouched UV.
 varying vec4 tint;
@@ -51,6 +59,13 @@ void fragment() {
 			vec4 picture = texture(TEXTURE, uv);
 			float shade = clamp(1.0 - hit.z * relief, 0.72, 1.18);
 			drawn = vec4(picture.rgb * shade, picture.a);
+			if (sheen > 0.0) {
+				// The face toward the eye, and the eye's ray off it: bright where it meets the light.
+				vec3 facing = out_of.z < 0.0 ? out_of : -out_of;
+				vec3 bounced = reflect(normalize(ray), facing);
+				float glance = max(dot(bounced, normalize(light)), 0.0);
+				drawn.rgb = drawn.rgb * (1.0 - sheen * 0.5) + vec3(pow(glance, SHEEN_TIGHT) * sheen);
+			}
 		}
 	}
 	COLOR = drawn * tint;

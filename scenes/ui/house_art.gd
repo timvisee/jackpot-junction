@@ -1,8 +1,8 @@
 class_name HouseArt
 extends RefCounted
 ## The small pictures the house's controls wear, GAME.md 8.1a: a switch, the mark beside an entry
-## of a list, the arrow on a box that opens one, the knob of a slider. Anything round is a chip,
-## with notches round its rim, and a track is a lane with its center line dashed.
+## of a list, the arrow on a box that opens one, the knob of a slider, a magnifying glass. Anything
+## round is a chip, with notches round its rim, and a track is a lane with its center line dashed.
 ##
 ## Each is drawn once, the first time it is asked for, [constant DETAIL] times bigger than it is
 ## shown and with soft edges, so a screen that scales the menu up has something to scale up: a
@@ -15,6 +15,7 @@ const SWITCH := Vector2i(48, 24)
 const MARK := 16
 const ARROW := 16
 const KNOB := 26
+const MAGNIFIER := 30
 ## The steel a chip is made of when it is not the house's gold, and the cream of its notches.
 const STEEL := Color(0.37, 0.36, 0.42)
 const NOTCHES := Color(0.97, 0.95, 0.9)
@@ -113,6 +114,40 @@ static func arrow() -> ImageTexture:
 			if covered > 0.0:
 				image.set_pixel(x, y, Color(HouseTheme.FOIL, covered))
 	return _keep("arrow", image, Vector2i(ARROW, ARROW))
+
+
+## A magnifying glass, for a button that looks closer: a ring for its lens, a faint glint in it,
+## and its handle down to the right. White, for the button to tint as it tints its words.
+static func magnifier() -> ImageTexture:
+	if _drawn.has("magnifier"):
+		return _drawn["magnifier"]
+	var side := MAGNIFIER * DETAIL
+	var image := Image.create(side, side, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0.0, 0.0, 0.0, 0.0))
+	var s := float(side)
+	var lens := Vector2(0.42, 0.42) * s
+	var radius := 0.27 * s
+	var rim := 0.055 * s
+	var handle := [lens + Vector2.ONE * (radius + rim) * 0.7, Vector2(0.88, 0.88) * s]
+	var grip := 0.085 * s
+	for y: int in side:
+		for x: int in side:
+			var at := Vector2(x, y) + Vector2.ONE * 0.5
+			var from_lens := at.distance_to(lens)
+			var ring := clampf(rim - absf(from_lens - radius) + 0.5, 0.0, 1.0)
+			var near := at.distance_to(
+				Geometry2D.get_closest_point_to_segment(at, handle[0], handle[1])
+			)
+			var held := clampf(grip - near + 0.5, 0.0, 1.0)
+			# The glint: a short bright arc inside the lens, up on the left.
+			var glint := 0.0
+			var way := (at - lens).angle()
+			if way > -PI * 0.92 and way < -PI * 0.62:
+				glint = clampf(0.03 * s - absf(from_lens - radius * 0.68) + 0.5, 0.0, 1.0) * 0.7
+			var covered := maxf(maxf(ring, held), glint)
+			if covered > 0.0:
+				image.set_pixel(x, y, Color(1.0, 1.0, 1.0, covered))
+	return _keep("magnifier", image, Vector2i(MAGNIFIER, MAGNIFIER))
 
 
 ## The knob of a slider: a gold chip, a shade lighter under the cursor.

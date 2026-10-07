@@ -50,6 +50,8 @@ const AWAY_MOUSE := "Click beside the folder, or press %s, to put it away"
 const AWAY_PAD := "Press %s to put it away"
 const AWAY_TOUCH := "Tap a page to turn it, or beside the folder to put it away"
 const LOOK_WORD := "Look closer"
+## How wide Look closer is, a magnifying glass on it rather than its words.
+const LOOK_WIDTH := 120.0
 
 ## Whose notes, the notes in order, and which spread is open: 0 the first, the inside of the cover
 ## on the left and the first note on the right.
@@ -330,8 +332,8 @@ func _faces_of(rect: TextureRect, size_of: Vector2) -> Array[SubViewport]:
 	return made
 
 
-## Previous and next either side of Look closer, which has the cursor, and Put it away: left and
-## right turn the pages whatever has it.
+## Previous and next either side of Look closer, a magnifying glass, which has the cursor, and Put
+## it away: left and right turn the pages whatever has it.
 func _buttons() -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -342,8 +344,12 @@ func _buttons() -> HBoxContainer:
 	back.custom_minimum_size.x = ARROW_WIDTH
 	back.pressed.connect(turn.bind(-1))
 	row.add_child(back)
-	look = MenuTheme.button(LOOK_WORD, Type.BODY)
+	look = MenuTheme.button("", Type.BODY)
 	look.name = "Look"
+	look.icon = HouseArt.magnifier()
+	look.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	look.tooltip_text = LOOK_WORD
+	look.custom_minimum_size.x = LOOK_WIDTH
 	look.pressed.connect(look_closer)
 	row.add_child(look)
 	away = MenuTheme.button("Put it away", Type.BODY)

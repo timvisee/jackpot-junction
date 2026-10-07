@@ -2,9 +2,10 @@ class_name NoteView
 extends Control
 ## One of Kit's notes taken off its page for a closer look, STORY.md 7.2: the note alone, larger,
 ## in the middle of the screen over the folder darkened behind it, the way the license comes up in
-## full. It can be looked at closer and moved about, turned over to its back, see
-## [constant StoryNotes.BACKS], and put back; with the note at its own size left and right go to
-## the note before and after it. A note looked at for a second is read, as one open in the folder.
+## full, and like the license it turns a little toward the mouse, the stick or the phone and
+## catches the light, see [TiltedCard]. It can be looked at closer and moved about, turned over to
+## its back, see [constant StoryNotes.BACKS], and put back; with the note at its own size left and
+## right go to the note before and after it. A note looked at closer for a second is read.
 
 ## Put back, the folder to open at the spread of note [param index], the last one looked at.
 signal put_back(index: int)
@@ -22,6 +23,14 @@ const STICK_COUNTS := 0.2
 ## Turning over: how long, and how faint the front shows through on a back that lets it.
 const TURN := 0.32
 const THROUGH := 0.13
+## Room round the note in its picture for its corners as it turns, as a share of its longer side;
+## how far it turns toward the mouse, as a share of how far the license does, a sheet of paper
+## being bigger; how much lighter its near side is and darker its far side, less than the
+## license's, white paper burning out sooner; and how bright the light it catches is.
+const ROOM := 0.15
+const TILT := 0.75
+const RELIEF := 0.55
+const SHEEN := 0.22
 ## The most pixels a face is drawn at across, however close it is looked at.
 const SHARPEST := 4096
 ## How long a note is looked at before it counts as read.
@@ -49,7 +58,16 @@ var _back: Control
 ## Each face's picture, drawn at the size it is shown at, see [method _face].
 var _sheets: Array[SubViewport] = []
 var _turning: Tween
-var _turn := 1.0
+## The turn right over under way, in radians, zero while there is none, and which side was up as
+## it began.
+var _over := 0.0
+var _from := false
+## Where the note is turned toward, -1 to 1 either way, smoothed; where the mouse was last seen,
+## null until it has moved; and the phone's pull as the note came up, see [TiltedCard].
+var _tilt := Vector2.ZERO
+var _mouse: Variant = null
+var _held := Vector3.ZERO
+var _material: ShaderMaterial
 var _dragging := false
 var _moved := false
 var _looked := 0.0
@@ -109,6 +127,7 @@ func _ready() -> void:
 	modulate.a = 0.0
 	create_tween().tween_property(self, "modulate:a", 1.0, 0.18)
 	_turn_button.grab_focus()
+	_held = Input.get_gravity()
 	Audio.play_sfx(&"leaf", -8.0, 0.1)
 
 
@@ -139,13 +158,15 @@ func _buttons() -> HBoxContainer:
 	after.pressed.connect(step.bind(1))
 	row.add_child(after)
 	for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
-		_turn_button.set_focus_neighbor(side, _turn_button.get_path())
+		_turn_button.set_focus_neighbor(side, NodePath("."))
 	return row
 
 
 ## The note at [member index], front up, at its own size: the note alone off its page, and its back
 ## with the front showing through where the paper lets it.
 func _build() -> void:
+	if _turning != null and _turning.is_valid():
+		_turning.kill()
 	for old: Node in _card.get_children():
 		_card.remove_child(old)
 		old.queue_free()
@@ -156,6 +177,14 @@ func _build() -> void:
 	var rect := front.paper_rect()
 	_card.size = rect.size
 	_card.pivot_offset = rect.size * 0.5
+	var room := maxf(rect.size.x, rect.size.y) * ROOM
+	var picture := rect.size + Vector2.ONE * room * 2.0
+	_material = ShaderMaterial.new()
+	_material.shader = TiltedCard.SHADER
+	_material.set_shader_parameter("extent", picture * 0.5 / rect.size.x)
+	_material.set_shader_parameter("depth", TiltedCard.DEPTH * maxf(1.0, rect.size.y / rect.size.x))
+	_material.set_shader_parameter("relief", RELIEF)
+	_material.set_shader_parameter("sheen", SHEEN)
 	_front = _face([front], rect)
 	var back := NotePage.make(number, folder.profile)
 	back.layer = &"back"
@@ -172,33 +201,38 @@ func _build() -> void:
 	turned = false
 	zoom = 1.0
 	pan = Vector2.ZERO
-	_turn = 1.0
+	_over = 0.0
 	_looked = 0.0
 	_mark_ends()
 	_place()
+	_aim()
 
 
 ## A face of the card: [param pages] set so the note's paper fills it, drawn into a picture of its
 ## own at the size it is shown at, its letters drawn at that size rather than blown up, see
-## [method _sharpen].
+## [method _sharpen], with room round it for its corners as it turns, and shown through the
+## shader that turns it.
 func _face(pages: Array[NotePage], rect: Rect2) -> Control:
+	var room := Vector2.ONE * maxf(rect.size.x, rect.size.y) * ROOM
+	var picture := (rect.size + room * 2.0).ceil()
 	var face := TextureRect.new()
-	face.size = rect.size
+	face.position = -room
+	face.size = picture
 	face.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	face.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	face.stretch_mode = TextureRect.STRETCH_SCALE
+	face.material = _material
 	var sheet := SubViewport.new()
 	sheet.transparent_bg = true
 	sheet.disable_3d = true
 	sheet.gui_disable_input = true
-	sheet.size = Vector2i(rect.size.ceil())
-	sheet.size_2d_override = Vector2i(rect.size.ceil())
+	sheet.size = Vector2i(picture)
+	sheet.size_2d_override = Vector2i(picture)
 	sheet.size_2d_override_stretch = true
 	sheet.oversampling = true
 	sheet.render_target_update_mode = SubViewport.UPDATE_ONCE
 	for page: NotePage in pages:
-		if page.position == Vector2.ZERO:
-			page.position = -rect.position
+		page.position = (-rect.position if page.position == Vector2.ZERO else page.position) + room
 		sheet.add_child(page)
 	face.add_child(sheet)
 	face.texture = sheet.get_texture()
@@ -231,7 +265,7 @@ func _place() -> void:
 	pan = pan.clamp(-slack - Vector2.ONE * 40.0, slack + Vector2.ONE * 40.0)
 	if zoom <= 1.001:
 		pan = Vector2.ZERO
-	_card.scale = Vector2(by * _turn, by)
+	_card.scale = Vector2(by, by)
 	_card.position = middle + pan - _card.size * 0.5
 	_sharpen(by)
 
@@ -254,26 +288,38 @@ func zoom_by(factor: float, at := Vector2(-1.0, -1.0)) -> void:
 	_place()
 
 
-## Turned over, front to back or back to front: narrowing to an edge and widening again.
+## Turned over, front to back or back to front, about its upright axis, the other side coming
+## round as it passes edge-on, the way the license turns.
 func turn_over() -> void:
 	if _turning != null and _turning.is_valid():
 		return
+	_from = turned
+	var way := -1.0 if _from else 1.0
 	_turning = create_tween()
-	_turning.set_trans(Tween.TRANS_SINE)
-	_turning.tween_method(_set_turn, 1.0, 0.0, TURN * 0.5).set_ease(Tween.EASE_IN)
-	_turning.tween_callback(
-		func() -> void:
-			turned = not turned
-			_front.visible = not turned
-			_back.visible = turned
-	)
-	_turning.tween_method(_set_turn, 0.0, 1.0, TURN * 0.5).set_ease(Tween.EASE_OUT)
+	_turning.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_turning.tween_method(_turn_by, 0.0, PI * way, TURN)
+	_turning.tween_callback(_turn_by.bind(0.0))
 	Audio.play_sfx(&"leaf", -10.0, 0.12)
 
 
-func _set_turn(amount: float) -> void:
-	_turn = maxf(amount, 0.001)
-	_place()
+func _turn_by(angle: float) -> void:
+	_over = angle
+	_aim()
+
+
+## The note turned as it is: the tilt, the turn over on top of it, the side in view the one the eye
+## would see, which changes as it passes edge-on.
+func _aim() -> void:
+	if _material == null:
+		return
+	var yaw := _tilt.x * TiltedCard.TURN + _over
+	if _over != 0.0:
+		var side := _from != (cos(yaw) < 0.0)
+		if side != turned:
+			turned = side
+			_front.visible = not turned
+			_back.visible = turned
+	_material.set_shader_parameter("turn", Vector2(yaw, _tilt.y * TiltedCard.TURN))
 
 
 ## The note [param by] along in the folder, front up at its own size.
@@ -300,6 +346,15 @@ func _process(delta: float) -> void:
 	_looked += delta
 	if _looked >= READ_AFTER:
 		folder.read([folder.pages[index]])
+	# Turned toward the mouse, the stick or the phone, less the closer it is looked at.
+	var pull := Input.get_gravity()
+	if _held.is_zero_approx():
+		_held = pull
+	else:
+		_held = _held.lerp(pull, 1.0 - exp(-TiltedCard.PHONE_SETTLE * delta))
+	var toward := TiltedCard.wanted(_card.get_global_rect(), _mouse, _held) * TILT / zoom
+	_tilt = _tilt.lerp(toward, 1.0 - exp(-TiltedCard.FOLLOW * delta))
+	_aim()
 	var closer := 0.0
 	var move := Vector2.ZERO
 	for pad: int in Input.get_connected_joypads():
@@ -323,6 +378,9 @@ func _process(delta: float) -> void:
 
 ## Before the focus takes them: turning over, looking closer and the notes either side.
 func _input(event: InputEvent) -> void:
+	var motion := event as InputEventMouseMotion
+	if motion != null and not TouchInput.enabled:
+		_mouse = motion.global_position
 	var was := keyboard
 	keyboard = LicenseView.keyboard_after(event, keyboard)
 	if was != keyboard:

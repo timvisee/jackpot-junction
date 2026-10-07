@@ -122,15 +122,22 @@ func _process(delta: float) -> void:
 ## has gone about the card, all the way at its edges and beyond, or else the way a phone has been
 ## tilted since the card came up; nowhere otherwise.
 func _wanted() -> Vector2:
+	return wanted(Rect2(global_position, size), _mouse_at if _mouse_seen else null, _held)
+
+
+## Where a card shown over [param over] on the screen is turned toward, see [method _wanted]: the
+## right stick, or else the mouse at [param mouse], null until it has moved, or else the phone's
+## tilt from [param held]. Anything else held up to the eye this way turns by it too.
+static func wanted(over: Rect2, mouse: Variant, held: Vector3) -> Vector2:
 	var stick := Input.get_vector(
 		InputActions.AIM_LEFT, InputActions.AIM_RIGHT, InputActions.AIM_UP, InputActions.AIM_DOWN
 	)
 	if stick.length() > STICK_REST:
 		return stick.limit_length(1.0)
-	if _mouse_seen and size.x > 0.0 and size.y > 0.0:
-		var away := (_mouse_at - (global_position + size * 0.5)) / (size * 0.5)
+	if mouse is Vector2 and over.size.x > 0.0 and over.size.y > 0.0:
+		var away := ((mouse as Vector2) - over.get_center()) / (over.size * 0.5)
 		return away.clamp(-Vector2.ONE, Vector2.ONE)
-	return tilt_of_phone(Input.get_gravity(), _held)
+	return tilt_of_phone(Input.get_gravity(), held)
 
 
 ## How far a phone pulled on by gravity [param now] has been tilted from [param held], the pull as

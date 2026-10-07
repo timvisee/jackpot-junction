@@ -105,9 +105,9 @@ func test_a_note_is_new_until_it_has_been_looked_at_closer() -> void:
 	assert_bool(is_instance_valid(folder)).is_false()
 
 
-## A note taken off its page for a closer look: turned over to its back, looked at closer, the note
-## beside it, read once looked at for a second; put back, the folder opens at the last one looked
-## at.
+## A note taken off its page for a closer look, by the magnifying glass: turned toward the mouse,
+## turned over to its back, looked at closer, the note beside it; put back, the folder opens at the
+## last one looked at.
 func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 	_profile.story.notes = PackedInt32Array([1, 2, 3, 4])
 	_profile.story.notes_read = PackedInt32Array([1, 2, 3, 4])
@@ -115,11 +115,19 @@ func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 	await _settled(folder)
 	assert_int(folder.at).is_equal(0)
 	assert_object(folder.view).is_null()
+	assert_str(folder.look.text).is_empty()
+	assert_object(folder.look.icon).is_not_null()
+	assert_str(folder.look.tooltip_text).is_equal(NotesFolder.LOOK_WORD)
 	folder.look_closer(0)
 	var view := folder.view
 	assert_object(view).is_not_null()
 	assert_int(view.index).is_equal(0)
 	await await_idle_frame()
+	# The mouse below and right of it turns its right and bottom edges toward the eye.
+	view._mouse = view._card.get_global_rect().end + Vector2(40.0, 40.0)
+	view._process(0.5)
+	assert_float(view._tilt.x).is_greater(0.0)
+	assert_float(view._tilt.y).is_greater(0.0)
 	view.turn_over()
 	await await_millis(int(NoteView.TURN * 1000.0) + 150)
 	assert_bool(view.turned).is_true()
