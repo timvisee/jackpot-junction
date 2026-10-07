@@ -347,7 +347,7 @@ Spoilers throughout, like STORY.md.
 | S2 | The hoardings, the posters and the road | Done |
 | S3 | The payout slip | Done, but for the evaluation of S11 |
 | S4 | Jokers: the pick's line and the terms | Done |
-| S5 | Microprint, loading, statistics and About | Not started |
+| S5 | Microprint, loading, statistics and About | Done |
 | S6 | The driving school | Not started |
 | S7 | The rooms and the crowd | Not started |
 | S8 | Notes on the table | Not started |
@@ -357,7 +357,7 @@ Spoilers throughout, like STORY.md.
 | S12 | After the ending | Not started |
 | S13 | Wrapping up | Not started |
 
-Next up: S5. The phases are in the order they are best built, each standing on its own: after S0 to
+Next up: S6. The phases are in the order they are best built, each standing on its own: after S0 to
 S7 the story's margins are all in the game and could ship, the notes and the ending after them. S10
 can be built alongside anything before S11, which needs it. On picking the work up again: this
 table, then the first unticked task of the phase in progress, then that task's sections of STORY.md.
@@ -574,20 +574,26 @@ row and the term in gray under the effect. `test_jokers`, `test_joker_menu`, `te
 
 ### S5: microprint, loading, statistics and About [6.4, 6.5, 6.6, 3.11]
 
-- [ ] The HUD's corner blocks (`scenes/ui/hud_block.gd`, `MICRO`) by stage, SEAT n kept at the
-      front, every block at this screen from the profile playing's stage.
-- [ ] The title's microprint (`scenes/ui/title.gd`, `MICROPRINT`) by stage.
-- [ ] The loading line (`scenes/ui/loading_screen.gd`, "Building the room") by stage, for maps and
-      the rooms between them alike; at the Final Hand FINAL HAND where the room's name goes, with
-      the room's name under it, and Setting the final table.
-- [ ] The Statistics page (`scenes/ui/stats_tab.gd`): from stage 2 a line under its title, by stage;
-      after the ending a Shifts row under Games, `story_shifts`. Notes are never counted on it.
-- [ ] About (`scenes/ui/about_tab.gd`): the last sentence becomes "A human oversaw it: played it as
-      it grew, made the calls no model would have made, and put their name on it.", for everybody,
-      story on or off. Not tied to any stage, so it can go in on its own at any time.
+- [x] The HUD's corner blocks (`scenes/ui/hud_block.gd`, `MICRO` is stage 0's) by stage, SEAT n kept
+      at the front, every block at this screen from the profile playing's stage.
+- [x] The title's microprint (`scenes/ui/title.gd`, `MICROPRINT` is stage 0's) by stage.
+- [x] The loading line (`scenes/ui/loading_screen.gd`, `LoadingScreen.building`) by stage, for maps
+      and the rooms between them alike; at the Final Hand, when the arena is `final_hand`, the
+      heading is FINAL HAND with the room's name under it, and the line Setting the final table.
+- [x] The Statistics page (`scenes/ui/stats_tab.gd`): from stage 2 a line under its title, by stage;
+      after the ending a Shifts row under Games, the profile's `story.shifts`. Notes are never
+      counted on it.
+- [x] About (`scenes/ui/about_tab.gd`): the last sentence is now "A human oversaw it: played it as
+      it grew, made the calls no model would have made, and put their name on it.", for
+      everybody, story on or off, and GAME.md 8.5 says it as it is.
 
 Verify: the HUD, loading and Statistics tests extended for a stage each; `tests/test_about.gd` for the
 new sentence; microprint at every UI scale.
+
+Status: built. `tests/test_story_margins.gd`, 4 tests: the corner blocks' microprint by stage, the
+loading line by stage and the Final Hand's, the Statistics page's line and Shifts row, and About's
+sentence. `test_about`, `test_stats`, `test_profiles`, `test_flow`, `test_driving_school` and
+`test_tutorial_rooms` pass.
 
 ### S6: the driving school [6.7]
 

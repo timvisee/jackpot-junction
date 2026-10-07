@@ -9,6 +9,8 @@ const WHOSE := "%s, over every map played to the end."
 const GROUP_INK := Palette.CHIP_GOLD
 const NAME_INK := Color(0.78, 0.78, 0.84)
 const VALUE_INK := Color(0.96, 0.96, 0.98)
+## The row Games gains after the story's ending, STORY.md 6.6: the maps played since.
+const SHIFTS := &"story_shifts"
 
 ## Each line's value, by the statistic it reads, for the tests.
 var values: Dictionary[StringName, Label] = {}
@@ -33,13 +35,23 @@ func _ready() -> void:
 	center.add_child(column)
 	column.add_child(MenuTheme.title(TITLE, Type.HEADING))
 	column.add_child(MenuTheme.subtitle(WHOSE % _settings.profile.display_name(), Type.LABEL))
+	# Whose record this is, as the story goes, STORY.md 6.6.
+	var stage := _stage()
+	var kept := str(StoryLines.at(StoryLines.STATS_LINE, stage))
+	if not kept.is_empty():
+		var line := MenuTheme.subtitle(kept, Type.LABEL)
+		line.name = "Kept"
+		column.add_child(line)
 	var groups := GridContainer.new()
 	groups.columns = 2
 	groups.add_theme_constant_override("h_separation", 72)
 	groups.add_theme_constant_override("v_separation", 24)
 	column.add_child(groups)
 	for group: Array in LifetimeStats.GROUPS:
-		groups.add_child(_group(group[0], group[1]))
+		var lines: Array = group[1].duplicate()
+		if group == LifetimeStats.GROUPS[0] and stage >= Story.Stage.OPERATOR:
+			lines.append([StoryLines.SHIFTS, SHIFTS])
+		groups.add_child(_group(group[0], lines))
 
 
 ## One group: its title, then a line each, what it is and how much, the numbers lined up.
@@ -60,10 +72,21 @@ func _group(title: String, lines: Array) -> VBoxContainer:
 		Type.text(named, Type.LABEL, NAME_INK)
 		grid.add_child(named)
 		var value := Label.new()
-		value.text = LifetimeStats.shown(_settings.profile, line[1])
+		value.text = (
+			str(_settings.profile.story.shifts)
+			if line[1] == SHIFTS
+			else LifetimeStats.shown(_settings.profile, line[1])
+		)
 		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		Type.text(value, Type.LABEL, VALUE_INK)
 		grid.add_child(value)
 		values[line[1]] = value
 	return box
+
+
+## The stage the page is for: the profile's own, or the one a test or a debug build asks for.
+func _stage() -> int:
+	if Story.override >= 0:
+		return Story.stage_here()
+	return Story.shown_of(_settings.profile)

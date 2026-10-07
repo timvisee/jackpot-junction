@@ -24,6 +24,9 @@ const LINGER := 0.12
 const LANE := Vector2(460.0, 24.0)
 
 var room_name := ""
+## A line under the room's name, the room itself when the heading is the Final Hand's,
+## STORY.md 6.5.
+var room_under := ""
 
 var _bar: ProgressBar
 var _phase: Label
@@ -34,8 +37,18 @@ var _phase: Label
 ## the rooms between them alike: the Garage, the test track and the waiting room, GAME.md 8.6.
 static func put_up(parent: Node, match_node: Match, named: String) -> void:
 	var arena := match_node.prepare_arena(true)
-	var screen := add_to(parent, named)
-	await screen.run(arena.build_steps(), "Building the room")
+	# The Final Hand is headed as the House heads it, the room's name under it, STORY.md 6.5.
+	var screen := add_to(parent, StoryLines.FINAL_HAND if arena.final_hand else named)
+	if arena.final_hand:
+		screen.room_under = named
+	await screen.run(arena.build_steps(), building(arena.final_hand))
+
+
+## The line under the bar: what is being built and, as the story goes, who for, STORY.md 6.5.
+static func building(final_hand := false) -> String:
+	if final_hand:
+		return StoryLines.LOADING_FINAL_HAND
+	return str(StoryLines.at(StoryLines.LOADING, Story.stage_here(), "Building the room"))
 
 
 ## Puts a loading screen up over [param parent] for the room called [param room].
@@ -60,6 +73,8 @@ func _ready() -> void:
 	column.alignment = BoxContainer.ALIGNMENT_CENTER
 	add_child(column)
 	column.add_child(MenuTheme.title(room_name, Type.TITLE))
+	if not room_under.is_empty():
+		column.add_child(MenuTheme.subtitle(room_under, Type.BODY))
 	_bar = bar()
 	column.add_child(_bar)
 	_phase = Label.new()

@@ -84,7 +84,10 @@ func _ready() -> void:
 	var named := MenuTheme.title("Jackpot Junction", Type.HERO)
 	Type.set_font(named, Type.mark_font(), Type.HERO)
 	column.add_child(named)
-	var printed := _microprint(MICROPRINT)
+	# The microprint under the name moves with the story, STORY.md 6.4.
+	var printed := _microprint(
+		str(StoryLines.at(StoryLines.MICRO_TITLE, Story.stage_here(), MICROPRINT))
+	)
 	column.add_child(printed)
 	var line := MenuTheme.subtitle("Collect chips. Build your mult. Cash out before they get you.")
 	column.add_child(line)

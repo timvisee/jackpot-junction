@@ -3691,11 +3691,10 @@ like any other button.
 - **About**: the game's mark, its name and its version, and that it is an
   experiment in what an AI model can make: everything in it not credited there
   was made by Anthropic's Claude, whose models are named in the order they worked
-  on it, with the help of a human, who played it as it grew and prompted it in the
-  right direction. With the story of 8.7 that last sentence is reworded to say the same
-  thing in the story's terms, "A human oversaw it: played it as it grew, made the calls
-  no model would have made, and put their name on it.", for everybody and whether the
-  story is on or off, being true either way, STORY.md 3.11. Then everybody else whose
+  on it, and that "A human oversaw it: played it as it grew, made the calls no model
+  would have made, and put their name on it.", which says in the story's terms what
+  it always said, for everybody and whether the story of 8.7 is on or off, being true
+  either way, STORY.md 3.11. Then everybody else whose
   work is in it, what, by whom, on what terms and where, which a test holds to
   THIRD_PARTY.md, a link to the game's GitHub page, and Godot's own license, which a game
   made with it has to carry.
