@@ -136,6 +136,24 @@ func test_a_strip_leans_at_its_inner_end() -> void:
 	assert_float(right.content_margin_left).is_greater(right.content_margin_right)
 
 
+## A row of the standings for a player on this screen washes its own color in a little way from
+## both of its ends, GAME.md 8.1a: from the stripe on its slanted end and from the screen's edge.
+func test_a_strip_washes_its_color_in_from_both_ends() -> void:
+	var size := Vector2(300.0, 40.0)
+	var strip := StripStyle.cut(true, 12.0, 16.0, 30.0, 3.0)
+	strip.stripe = Color.RED
+	strip.stripe_width = 6.0
+	strip.glow_width = 40.0
+	var made := strip._made(size)
+	var edge: PackedVector2Array = made["glow_edge"]
+	var end: PackedVector2Array = made["glow_end"]
+	# Off the right edge: the edge's wash runs in from x 300, the end's from the stripe at the left.
+	assert_float(edge[0].x).is_equal(300.0)
+	assert_float(edge[1].x).is_equal(260.0)
+	assert_float(end[0].x).is_less(end[1].x)
+	assert_float(end[1].x - end[0].x).is_equal(40.0)
+
+
 ## The clock is a board of lit digits for a time and words for anything else, GAME.md 8.1a, every
 ## segment that is off still faintly there.
 func test_the_clock_board_reads_a_time_in_digits() -> void:

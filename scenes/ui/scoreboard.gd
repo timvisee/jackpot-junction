@@ -33,6 +33,8 @@ const ROSTER_FONT := 22
 ## How far a row's end leans, and how wide the stripe along it is.
 const SLANT := 12.0
 const STRIPE := 6.0
+## How strong the wash of a row's own color is at its two ends, see [member StripStyle.glow].
+const GLOW := 0.32
 ## How strongly the foil edges the leader's row.
 const LEADER := Color(HouseTheme.FOIL, 0.9)
 
@@ -205,6 +207,7 @@ func _row(slot: PlayerSlot) -> Dictionary:
 	own.fill = Color(HouseTheme.STOCK, 0.88)
 	own.stripe = slot.color()
 	own.stripe_width = STRIPE
+	own.glow = Color(slot.color(), GLOW)
 	panel.add_theme_stylebox_override("panel", plain)
 	var line := HBoxContainer.new()
 	line.add_theme_constant_override("separation", 10)

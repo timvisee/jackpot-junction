@@ -25,6 +25,12 @@ const MICRO_SIZE := 7
 	set = _set_stripe
 @export var stripe_width := 8.0:
 	set = _set_stripe_width
+## A short wash of color fading inward from both ends of the strip, from the stripe and from the
+## edge it comes off, clear for none, at its strongest at the ends; and how far in it reaches.
+@export var glow := Color(0.0, 0.0, 0.0, 0.0):
+	set = _set_glow
+@export var glow_width := 40.0:
+	set = _set_glow_width
 ## Which edge the strip comes off: the left one, with its slanted end on the right, or the right
 ## one, with its slanted end on the left.
 @export var off_right := false:
@@ -88,6 +94,11 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 		Surface.draw(to_canvas_item, made, shape, rect.size, surface, surface_ink)
 		Surface.light(to_canvas_item, shape, rect.size, light)
 	Engraving.draw(to_canvas_item, made["lines"], engraving, made["inks"])
+	if glow.a > 0.0:
+		var clear := Color(glow, 0.0)
+		var faded := PackedColorArray([glow, clear, clear, glow])
+		for wash: String in ["glow_end", "glow_edge"]:
+			RenderingServer.canvas_item_add_polygon(to_canvas_item, made[wash], faded)
 	if stripe.a > 0.0:
 		RenderingServer.canvas_item_add_polygon(to_canvas_item, made["stripe"], [stripe])
 	if edge_top.a > 0.0:
@@ -153,6 +164,26 @@ func _made(size: Vector2) -> Dictionary:
 				Vector2(bottom_end, h),
 				Vector2(bottom_end - band, h),
 			]
+		),
+		w
+	)
+	# The washes of [member glow], each listed from its strong end at the top round to its strong end
+	# at the bottom: in from the stripe along the slanted end, and in from the edge it comes off.
+	var reach := minf(glow_width, w * 0.3)
+	made["glow_end"] = _mirrored(
+		PackedVector2Array(
+			[
+				Vector2(top_end - band, 0.0),
+				Vector2(top_end - band - reach, 0.0),
+				Vector2(bottom_end - band - reach, h),
+				Vector2(bottom_end - band, h),
+			]
+		),
+		w
+	)
+	made["glow_edge"] = _mirrored(
+		PackedVector2Array(
+			[Vector2(0.0, 0.0), Vector2(reach, 0.0), Vector2(reach, h), Vector2(0.0, h)]
 		),
 		w
 	)
@@ -242,6 +273,16 @@ func _set_stripe(value: Color) -> void:
 
 func _set_stripe_width(value: float) -> void:
 	stripe_width = value
+	_changed()
+
+
+func _set_glow(value: Color) -> void:
+	glow = value
+	_changed()
+
+
+func _set_glow_width(value: float) -> void:
+	glow_width = value
 	_changed()
 
 

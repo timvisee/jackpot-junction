@@ -3104,7 +3104,8 @@ lane beside it is as wide as it was.
   three places for being shot. The carried pot is still shown beside the score,
   so a hot lap is plain to read without being scored. The leader's
   row is the largest and last place the smallest, and the players on this screen
-  have their own color striped along their row's slanted end. A carried pot that would win the match blinks,
+  have their own color striped along their row's slanted end, and washed a short way in from both
+  ends of the row, from the stripe and from the screen's edge, fading to nothing. A carried pot that would win the match blinks,
   see 3.4. A player online whose line to the host is too slow wears an amber
   warning sign beside their name, on every screen, see 10.3. It stands down in
   three- and four-player shared-screen games, where every player already has a

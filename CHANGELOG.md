@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Your rows glow in your color.** In the standings, a player on your screen has a short wash of
+  their color fading in from both ends of their row.
 - **A vignette behind a closer look.** The license, Kit's folder and a note are shown over a shade
   that darkens toward the edges of the screen, rather than a flat one.
 - **Menu, not Paused, while others play.** Online the pause menu is headed Menu, since the match
