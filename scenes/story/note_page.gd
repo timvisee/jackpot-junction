@@ -132,7 +132,7 @@ func _draw() -> void:
 		draw_rect(Rect2(Vector2.ZERO, SIZE), LEAF_EDGE, false, 1.0)
 		_scrawl(StoryNotes.title_of(number), Vector2(MARGIN, 46.0), TITLE_SIZE, PENCIL, 0.4)
 		if new:
-			_draw_new_mark()
+			new_mark(self, Vector2(SIZE.x - MARGIN - 6.0, 36.0))
 	# The back of the folder, after the ending: no note's paper, what the player kept.
 	if number < 0:
 		FolderBack.draw(self, number, profile)
@@ -538,12 +538,11 @@ func _strike(over: Rect2) -> void:
 	draw_polyline(points, PEN_INK, 2.0, true)
 
 
-## The pencilled mark of a note not yet read, STORY.md 7.2: an exclamation mark in a ring, in the
-## top corner.
-func _draw_new_mark() -> void:
-	var middle := Vector2(SIZE.x - MARGIN - 6.0, 36.0)
-	draw_arc(middle, 15.0, 0.3, TAU + 0.1, 24, PENCIL, 1.6, true)
-	draw_char(HAND, middle + Vector2(-3.0, 10.0), "!", 30, PENCIL)
+## The pencilled mark of a note not yet read, STORY.md 7.2: an exclamation mark in a ring, drawn on
+## [param canvas] round [param middle], [param scale] times its size on a page.
+static func new_mark(canvas: CanvasItem, middle: Vector2, scale := 1.0) -> void:
+	canvas.draw_arc(middle, 15.0 * scale, 0.3, TAU + 0.1, 24, PENCIL, 1.6 * scale, true)
+	canvas.draw_char(HAND, middle + Vector2(-3.0, 10.0) * scale, "!", roundi(30.0 * scale), PENCIL)
 
 
 ## The organization chart, a copy of a copy, STORY.md 7.3: a box round each post, joined by lines,
