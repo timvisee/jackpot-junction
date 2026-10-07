@@ -181,7 +181,7 @@ func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 
 
 ## A turn stops the turning on to the first new note where it is, and no closer look opens; then
-## the pages turn as fast as they are pressed, a leaf still going over landing at once.
+## the pages turn as fast as they are pressed, every leaf going over in turn, quicker.
 func test_a_turn_stops_the_turning_on_and_the_pages_turn_fast() -> void:
 	_profile.story.notes = PackedInt32Array([1, 2, 3, 4, 5, 6, 7, 8, 9])
 	_profile.story.notes_read = PackedInt32Array([1, 2, 3, 4, 5, 6, 7])
@@ -197,8 +197,15 @@ func test_a_turn_stops_the_turning_on_and_the_pages_turn_fast() -> void:
 	folder.turn(1)
 	folder.turn(1)
 	folder.turn(1)
-	await await_millis(int(NotesFolder.TURN * 1000.0) + 200)
-	assert_int(folder.at).is_equal(mini(from + 3, NotesFolder.spreads(9) - 1))
+	# Every spread on the way is landed on, none jumped, and quickly.
+	var seen: Array[int] = [from]
+	for frame: int in 60:
+		await await_millis(16)
+		if seen[seen.size() - 1] != folder.at:
+			seen.append(folder.at)
+	var last := mini(from + 3, NotesFolder.spreads(9) - 1)
+	assert_int(folder.at).is_equal(last)
+	assert_array(seen).is_equal(range(from, last + 1))
 
 
 ## The title's folder peeks in once a note has been found, with the corner of the first new note's

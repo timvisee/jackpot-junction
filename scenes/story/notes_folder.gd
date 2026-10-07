@@ -28,6 +28,11 @@ const MANILA_INSIDE := Color(0.86, 0.75, 0.53)
 ## up into, and how far off the eye is, in pages, as the theory book has it.
 const TURN := 0.5
 const LIFT_ROOM := 72.0
+## Turns pressed faster than a leaf goes over: how long each of them takes, the leaf already going
+## over hurried to match, and how many may wait their turn, so a key held down stops soon after it
+## is let go.
+const TURN_QUICK := 0.15
+const QUEUE := 3
 const TURN_DEPTH := 7.0
 const TURN_SHADER: Shader = preload("res://scenes/tutorial/school/page_turn.gdshader")
 ## Coming out and going back: the slide from the edge, and the cover's swing over the spine.
@@ -88,8 +93,10 @@ var _shown_at := 0
 var _first_new := -1
 var _target := 0
 var _flipping := false
-## The spread a leaf turning now lands on.
+## The spread a leaf turning now lands on, and the turns pressed while it goes over, waiting, by how
+## many spreads and which way.
 var _turning_to := 0
+var _queued := 0
 ## Whether the cover is down over the pages: shut, coming out or going back.
 var _shut := true
 var _closing := false
@@ -547,16 +554,29 @@ func _has_new(spread: int) -> bool:
 	return false
 
 
-## Turns a spread [param by] the way it says, by hand: the turning on to the first new note stopped,
-## and a leaf still going over landed at once, so the pages turn as fast as they are pressed.
+## Turns a spread [param by] the way it says, by hand, the turning on to the first new note
+## stopped. Pressed while a leaf is going over, it waits its turn and the leaf hurries: every leaf
+## is seen going over, quicker the faster they are pressed, rather than jumping.
 func turn(by: int) -> void:
 	if by == 0 or _shut or _closing:
 		return
 	stop_flip()
+	var from := _turning_to if is_turning() else at
+	var last := spreads(pages.size()) - 1
+	_queued = clampi(_queued + signi(by), maxi(-QUEUE, -from), mini(QUEUE, last - from))
 	if is_turning():
-		_turning.kill()
-		_landed(_turning_to)
-	_turn(by, TURN)
+		_turning.set_speed_scale(TURN / TURN_QUICK)
+		return
+	_next_turn(false)
+
+
+## The next of the turns waiting, quick if it is one of several.
+func _next_turn(hurried: bool) -> void:
+	if _queued == 0:
+		return
+	var way := signi(_queued)
+	_queued -= way
+	_turn(way, TURN_QUICK if hurried or _queued != 0 else TURN)
 
 
 ## A leaf over the spine, taking [param takes]: forward, the leaf on the right lifts off and lands
@@ -619,6 +639,8 @@ func _landed(to: int) -> void:
 	_show(to)
 	if _flipping:
 		_flip_on()
+	elif _queued != 0:
+		_next_turn(true)
 
 
 func is_turning() -> bool:
@@ -742,6 +764,7 @@ func close() -> void:
 		return
 	_closing = true
 	_flipping = false
+	_queued = 0
 	if view != null and is_instance_valid(view):
 		view.queue_free()
 		view = null
