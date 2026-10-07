@@ -1290,7 +1290,7 @@ branch `catalog`, from master at 2fc4801. A task names the GAME.md section it bu
 | C2 | The dialog and its Jokers page | Done |
 | C3 | The Power-ups page | Done |
 | C4 | The title's way in, the NEW tags and the story's line | Done |
-| C5 | Wrapping up | |
+| C5 | Wrapping up | Done, but for the user's look |
 
 ### Questions, and the defaults built
 
@@ -1388,7 +1388,11 @@ Asked on 2026-10-07 with a default each. Answered the same day: the defaults, bu
 
 ### C5: wrapping up
 
-- [ ] CHANGELOG, README's debug arguments, `make check`, screenshots for the user.
+- [x] CHANGELOG, README's debug arguments, `make check`, screenshots for the user.
+
+Status: built, 2026-10-07, waiting for the user's look. `make check` passed, 1253 tests. Looked at
+on a 1600x900 desktop and a 2400x1080 phone at UI scale 1.5: all 35 jokers fit without scrolling on
+both, the power-ups' cards grow to 1.3 of their size.
 
 ## Pending
 
