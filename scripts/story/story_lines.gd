@@ -275,10 +275,10 @@ const YARD_SIGN := {
 }
 const EMPLOYEE := "EMPLOYEE OF THE MONTH"
 
-## A note taken, on the scrap in the player's corner, STORY.md 7.1, and the folder's stand-in on the
-## title, 7.2.
+## A note taken, on the scrap in the player's corner, STORY.md 7.1.
 const NOTE_COLLECTED := "NOTE COLLECTED"
-const NOTES := "Notes"
+## Across the front of Kit's folder in black marker, STORY.md 7.2.
+const FOLDER_FRONT := "DO NOT FILE"
 
 ## The Final Hand, STORY.md 8: the flyer at Play, the House's pane, the settings' stamp, the name
 ## the House prints for the candidate, and the models' names after the profile.

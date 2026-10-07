@@ -1,7 +1,8 @@
 class_name FolderPeek
 extends Control
-## Kit's notes on the title, STORY.md 7.2: a plain manila folder, dog-eared, nothing printed on it,
-## peeking in from the left edge the way the license peeks in from the right. It slides out under
+## Kit's notes on the title, STORY.md 7.2: a plain manila folder, dog-eared, nothing of the House's
+## on it but DO NOT FILE in marker across it, see [FolderCover], peeking in from the left edge the
+## way the license peeks in from the right. It slides out under
 ## the cursor, or when the menu's cursor comes to it from the buttons, and opens on a click, a tap
 ## or the accept button. While a note is new a corner of that note's own paper sticks up out of the
 ## folder's top edge with an exclamation mark pencilled on it, the first new note's when there are
@@ -146,6 +147,7 @@ func _draw() -> void:
 	)
 	draw_colored_polygon(ear, MANILA.darkened(0.12))
 	draw_polyline(front, MANILA_DARK.darkened(0.15), 1.0, true)
+	FolderCover.draw_front(self, Rect2(0.0, 44.0, SIZE.x, SIZE.y - 44.0))
 	# The cursor's mark while the menu's cursor is on it, the menu being off to its right.
 	if has_focus():
 		FocusMark.draw_on(self, Rect2(0.0, 4.0, SIZE.x, SIZE.y - 4.0), 6.0, SIDE_RIGHT)

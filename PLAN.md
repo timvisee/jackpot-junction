@@ -1048,10 +1048,10 @@ noted; STORY.md and GAME.md were brought in line first. One commit an item.
 - [x] Note 21 gone over in pen: Don't underlined three times, exclamation marks, a warning triangle,
       scribbles. Note 18 in boxes. Note 16 drawn as a road engineer draws, its title block fitting,
       Kit's margin line [7.3].
-- [ ] The folder: a note on each side of a leaf, two to a spread [7.2].
-- [ ] The folder comes out from the edge and its cover swings open; put away, the reverse. It opens
+- [x] The folder: a note on each side of a leaf, two to a spread [7.2].
+- [x] The folder comes out from the edge and its cover swings open; put away, the reverse. It opens
       on its first spread and turns quickly to the first new note, a press cutting it short [7.2].
-- [ ] The folder's front: DO NOT FILE in marker, a pencil K., an eye in pen crossed out [7.2].
+- [x] The folder's front: DO NOT FILE in marker, a pencil K., an eye in pen crossed out [7.2].
 - [ ] A closer look: a note taken off its page, larger, zoomed and moved, turned over to its back,
       every back of 7.3 drawn [7.2, 7.3].
 - [ ] Sounds: Kenney's RPG Audio (CC0), its paper and book sounds, for the folder opening, shutting

@@ -36,8 +36,18 @@ func _holder() -> Control:
 	return holder
 
 
-## The notes in the story's order, whatever order they were found in; the folder opens at the first
-## new one, and a page is read once it has been open a second, its mark gone with it.
+## Until [param folder] has come out and turned on to its first new note, or a few seconds.
+func _settled(folder: NotesFolder) -> void:
+	for i: int in 80:
+		if not folder.is_busy():
+			return
+		await await_millis(50)
+
+
+## The notes in the story's order, whatever order they were found in, two to a spread, the back of a
+## leaf on the left and the front of the next on the right; the folder comes out shut, opens on its
+## first spread and turns on to the first new note; a spread is read once it has been open a second,
+## the marks gone with it.
 func test_a_note_is_new_until_its_page_has_been_open_a_second() -> void:
 	_profile.story.notes = PackedInt32Array([5, 1, 3])
 	_profile.story.notes_read = PackedInt32Array([1])
@@ -49,35 +59,54 @@ func test_a_note_is_new_until_its_page_has_been_open_a_second() -> void:
 	)
 	assert_str(StoryNotes.title_of(StoryNotes.TERMS_CARD)).is_equal("Terms Accepted")
 	_profile.story.final_hand = ""
+	assert_int(NotesFolder.spreads(3)).is_equal(2)
+	assert_int(NotesFolder.spread_of(0)).is_equal(0)
+	assert_int(NotesFolder.spread_of(1)).is_equal(1)
+	assert_int(NotesFolder.spread_of(2)).is_equal(1)
+	assert_int(NotesFolder.left_of(0)).is_equal(-1)
 	var folder := NotesFolder.open(_holder(), _profile, true)
 	await await_idle_frame()
+	assert_bool(folder.is_busy()).is_true()
+	assert_int(folder.at).is_equal(0)
+	await _settled(folder)
+	assert_bool(folder.is_busy()).is_false()
 	assert_int(folder.at).is_equal(1)
-	var page: NotePage = folder.find_child("NotePage3", true, false)
-	assert_bool(page.new).is_true()
+	var left: NotePage = folder.find_child("Left", true, false).get_child(0)
+	var right: NotePage = folder.find_child("Right", true, false).get_child(0)
+	assert_int(left.number).is_equal(3)
+	assert_int(right.number).is_equal(5)
+	assert_bool(left.new).is_true()
 	folder._process(0.5)
 	assert_bool(_profile.story.is_new(3)).is_true()
 	folder._process(0.6)
-	assert_bool(_profile.story.is_new(3)).is_false()
-	assert_bool(page.new).is_false()
-	assert_bool(_profile.story.is_new(5)).is_true()
-	# Turned on to the last, which reads in its turn; nothing past it.
+	assert_bool(_profile.story.any_new()).is_false()
+	assert_bool(left.new).is_false()
+	assert_bool(right.new).is_false()
+	# Nothing past the last spread.
 	folder.turn(1)
+	assert_bool(folder.is_turning()).is_false()
+	# Back, the way it came, and put away: said at once, gone once it is back where it came from.
+	folder.turn(-1)
 	assert_bool(folder.is_turning()).is_true()
 	await await_millis(int(NotesFolder.TURN * 1000.0) + 200)
-	assert_bool(folder.is_turning()).is_false()
-	assert_int(folder.at).is_equal(2)
-	folder._process(1.1)
-	assert_bool(_profile.story.any_new()).is_false()
-	folder.turn(1)
-	assert_bool(folder.is_turning()).is_false()
-	# Back, the way it came, and put away.
-	folder.turn(-1)
-	await await_millis(int(NotesFolder.TURN * 1000.0) + 200)
-	assert_int(folder.at).is_equal(1)
+	assert_int(folder.at).is_equal(0)
 	var put := [false]
 	folder.put_away.connect(func() -> void: put[0] = true)
 	folder.close()
 	assert_bool(put[0]).is_true()
+	await await_millis(int((NotesFolder.SWING + NotesFolder.SLIDE) * 1000.0) + 300)
+	assert_bool(is_instance_valid(folder)).is_false()
+
+
+## Turning on to the first new note is cut short by a press: straight to its spread.
+func test_a_press_cuts_the_turning_on_short() -> void:
+	_profile.story.notes = PackedInt32Array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+	_profile.story.notes_read = PackedInt32Array([1, 2, 3, 4, 5, 6, 7])
+	var folder := NotesFolder.open(_holder(), _profile, true)
+	await await_millis(int((NotesFolder.SLIDE + NotesFolder.SWING) * 1000.0) + 150)
+	folder.skip_flip()
+	assert_int(folder.at).is_equal(NotesFolder.spread_of(7))
+	assert_bool(folder.is_busy()).is_false()
 
 
 ## The title's folder peeks in once a note has been found, with the corner of the first new note's
@@ -113,6 +142,7 @@ func test_the_title_peeks_the_folder_with_its_new_corner() -> void:
 	await await_idle_frame()
 	var folder: NotesFolder = title.find_child("NotesFolder", true, false)
 	assert_object(folder).is_not_null()
+	await _settled(folder)
 	folder._process(1.1)
 	folder.close()
 	await await_idle_frame()

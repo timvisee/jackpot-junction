@@ -102,7 +102,7 @@ func open() -> void:
 	if notes != null:
 		return
 	_from = get_viewport().gui_get_focus_owner()
-	notes = NotesFolder.open(self, Game.settings.profile, _keyboard)
+	notes = NotesFolder.open(self, Game.settings.profile, _keyboard, peek)
 	notes.put_away.connect(_on_put_away)
 
 

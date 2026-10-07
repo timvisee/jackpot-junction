@@ -347,7 +347,7 @@ func show_notes() -> void:
 	if _notes != null:
 		return
 	_notes_from = get_viewport().gui_get_focus_owner()
-	_notes = NotesFolder.open(self, Game.settings.profile, Game.last_input_keyboard)
+	_notes = NotesFolder.open(self, Game.settings.profile, Game.last_input_keyboard, _folder)
 	_notes.put_away.connect(_on_notes_put_away)
 
 
