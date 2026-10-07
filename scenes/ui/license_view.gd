@@ -2,11 +2,11 @@ class_name LicenseView
 extends Control
 ## The driver license of GAME.md 9.4a shown in full over a shade, the way a joker is shown out of
 ## the hand, 3.7, held up to be looked at on a [TiltedCard]: a click or a tap on the card, the
-## hand's button or the turning arrows under it turn it over, and a right click, a tap beside it,
-## Back or the cross under it puts it away, as Kit's folder and its closer look have it, STORY.md
-## 7.2. The buttons are for the mouse and never take the cursor; keys and pads have their binds
-## drawn on them, see [ButtonBinds]. The title's, 3.8, and the License tab's of the settings, 8.5,
-## alike.
+## hand's button or the turning arrows under it turn it over, and a right click, a click or a tap
+## beside it, Back or the cross under it puts it away, as Kit's folder and its closer look have
+## it, STORY.md 7.2. The buttons are for the mouse and never take the cursor; keys and pads have
+## their binds drawn on them, see [ButtonBinds]. The title's, 3.8, and the License tab's of the
+## settings, 8.5, alike.
 
 signal put_away
 
@@ -14,7 +14,7 @@ signal put_away
 const FULL := 1.15
 ## How to turn it over and put it away, by the device in hand, and what the buttons say to the
 ## mouse.
-const AWAY_MOUSE := "Click the card to turn it over, right-click to put it away"
+const AWAY_MOUSE := "Click the card to turn it over, beside it to put it away"
 const AWAY_TOUCH := "Tap the card to turn it over, or beside it to put it away"
 const TURN_WORD := "Turn over"
 const AWAY_WORD := "Put it away"
@@ -237,14 +237,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-## Beside the card, once the view has settled: a tap puts it away; a click does nothing, only one
-## on the card turning it over.
+## Beside the card, once the view has settled, a click or a tap puts it away; one on the card turns
+## it over, see [TiltedCard].
 func _on_beside(event: InputEvent) -> void:
 	var click := event as InputEventMouseButton
 	var touch := event as InputEventScreenTouch
 	if (click != null and click.pressed) or (touch != null and touch.pressed):
 		get_viewport().set_input_as_handled()
-		if touch != null and Time.get_ticks_msec() - _shown_at >= SETTLE_MS:
+		if Time.get_ticks_msec() - _shown_at >= SETTLE_MS:
 			close()
 
 

@@ -199,6 +199,18 @@ func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 	folder.view._on_input(right_click)
 	assert_object(folder.view).is_null()
 	await await_millis(int(NoteView.FLY_BACK * 1000.0) + 150)
+	# A click beside it puts it back too.
+	folder.look_closer(0)
+	await await_millis(int(NoteView.FLY * 1000.0) + 200)
+	var beside := InputEventMouseButton.new()
+	beside.button_index = MOUSE_BUTTON_LEFT
+	beside.position = Vector2(4.0, 4.0)
+	beside.pressed = true
+	folder.view._on_input(beside)
+	beside.pressed = false
+	folder.view._on_input(beside)
+	assert_object(folder.view).is_null()
+	await await_millis(int(NoteView.FLY_BACK * 1000.0) + 150)
 	folder.look_closer(0)
 	var view := folder.view
 	assert_object(view).is_not_null()

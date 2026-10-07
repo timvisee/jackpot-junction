@@ -993,7 +993,7 @@ over it, as it does over paper rather than over the license's laminate; on the H
 and its golden ticket the gold catches the light. The folder, the closer look and the license work
 alike: their buttons are drawn, never take the cursor and are there for the mouse, a cross putting
 away and turning arrows turning over; with keys or a pad the button each answers to is drawn on it.
-A click on a thing turns it over and a right click puts it away, a click beside it doing nothing;
+A click on a thing turns it over, and a click beside it or a right click puts it away;
 the arrows to the pages or notes either side are not there where there is nowhere to go; and the
 line under the buttons says only what their binds do not. On the folder accept, Enter or a pad's A,
 takes the open note out for a closer look, and the hand's button turns a note or the license over.

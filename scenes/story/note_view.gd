@@ -59,7 +59,7 @@ const ARROW_WIDTH := 88.0
 const ICON_WIDTH := 136.0
 const TURN_WORD := "Turn over"
 const BACK_WORD := "Put back"
-const HINT_MOUSE := "Click it to turn it over, right-click to put it back, scroll to look closer"
+const HINT_MOUSE := "Click it to turn it over, beside it to put it back, scroll to look closer"
 const HINT_KEYS := "+ and - look closer, the arrows move it"
 const HINT_PAD := "The triggers look closer, the right stick moves it"
 const HINT_TOUCH := "Tap it to turn it over, beside it to put it back, pinch to look closer"
@@ -660,8 +660,8 @@ func _zoomed_by(event: InputEvent) -> bool:
 
 
 ## A press or a release of the mouse's left button, [param click], or a finger, [param touch]: a
-## drag begins with it, and let go without one, a click or a tap on it turns it over, a tap beside
-## it puts it back, and a click beside it does nothing.
+## drag begins with it, and let go without one, a click or a tap on it turns it over and one
+## beside it puts it back.
 func _pressed(click: InputEventMouseButton, touch: InputEventScreenTouch) -> void:
 	var pressed: bool = click.pressed if click != null else touch.pressed
 	var where: Vector2 = click.position if click != null else touch.position
@@ -674,7 +674,7 @@ func _pressed(click: InputEventMouseButton, touch: InputEventScreenTouch) -> voi
 		return
 	if _card.get_global_rect().has_point(where + global_position):
 		turn_over()
-	elif touch != null:
+	else:
 		close()
 
 

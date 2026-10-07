@@ -1256,7 +1256,8 @@ the suggestions. STORY.md and GAME.md first. One commit an item.
 
 - [x] The folder's front: OFF THE BOOKS, as big as fits [7.2].
 - [x] The line under the buttons says nothing the buttons' binds already say [7.2].
-- [x] A click turns the license or a note over only on it, not beside it [7.2].
+- [x] A click turns the license or a note over only on it; beside it, as a right click, it puts it
+      away [7.2].
 - [x] The license goes back to the title's corner smoothly, turned face up on the way [7.2].
 - [x] On the title a click beside the folder or the license takes the cursor back to the buttons;
       the arrows of the folder and the closer look go, keeping their room, where there is nowhere
