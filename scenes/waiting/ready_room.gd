@@ -81,6 +81,10 @@ const SEAT_INNER := HudBlock.SLANT + 14.0
 const TICKET_ROOM := 13.0
 ## How big the Final Hand's tiny golden ticket beside the next match is drawn.
 const TICKET := Vector2(54.0, 24.0)
+## What the next match is said after, left to be read under the marker the rest is blacked out
+## with at the Final Hand, and how long after the ticket the marker comes down.
+const NEXT := "Next: "
+const REDACT_AFTER := 0.35
 ## What the line under the count says once nobody else may sit down, GAME.md 9.6.
 const FULL := "Maximum number of players reached"
 
@@ -142,6 +146,9 @@ var _online_hint: Label
 ## seat at the Final Hand is taken, STORY.md 8.1.
 var _plan: Label
 var _ticket: Control
+## The marker over what the next match is while the seat at the Final Hand is taken, see
+## [method show_ticket].
+var _plan_redacted: RedactionBar
 var _said := ""
 
 
@@ -368,7 +375,7 @@ func bot_words() -> String:
 
 ## A tiny golden ticket beside the next match while the seat at the Final Hand is taken, STORY.md
 ## 8.1: a drawing of one, see [method GoldenTicket.draw_icon], the ticket itself being far too small
-## to read up there.
+## to read up there. What the match is, the House's choice, is blacked out as its settings are.
 func show_ticket() -> void:
 	if _plan == null or _ticket != null:
 		return
@@ -383,6 +390,19 @@ func show_ticket() -> void:
 	)
 	row.add_child(_ticket)
 	row.move_child(_ticket, 0)
+	_plan_redacted = RedactionBar.over(_plan, REDACT_AFTER)
+	_redact_plan()
+
+
+## The marker over all of the plan but [constant NEXT], or put away while it says something else.
+func _redact_plan() -> void:
+	if _plan_redacted == null:
+		return
+	_plan_redacted.visible = _plan.visible and _plan.text.begins_with(NEXT)
+	var font := _plan.get_theme_font(&"font")
+	var points := _plan.get_theme_font_size(&"font_size")
+	var said := font.get_string_size(NEXT, HORIZONTAL_ALIGNMENT_LEFT, -1, points).x
+	_plan_redacted.offset_left = said - RedactionBar.OVER.x
 
 
 ## The host has said what the next match is, or that they are still choosing. Either way it goes
@@ -391,9 +411,10 @@ func show_ticket() -> void:
 func _on_match_planned(summary: String, choosing: bool) -> void:
 	held = choosing
 	var who := "The host is" if Net.online() else "Still"
-	_plan.text = "%s choosing the match" % who if choosing else "Next: %s" % summary
+	_plan.text = "%s choosing the match" % who if choosing else NEXT + summary
 	_plan.visible = true
 	_plan_tear.visible = true
+	_redact_plan()
 
 
 ## What to say about getting more people into the room: how somebody at this machine takes a
@@ -623,6 +644,7 @@ func _build_counter() -> void:
 	plan_row.add_theme_constant_override("separation", 10)
 	inside.add_child(plan_row)
 	_plan = Label.new()
+	_plan.name = "Plan"
 	_plan.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_plan.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_plan.visible = false

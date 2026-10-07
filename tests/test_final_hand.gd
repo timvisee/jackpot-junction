@@ -208,6 +208,12 @@ func test_the_seat_taken_hangs_the_ticket_in_the_lobby() -> void:
 		await await_millis(50)
 	assert_bool(Game.pending_config.final_hand).is_true()
 	assert_object(lobby._ticket).is_not_null()
+	# What the next match is, the House's choice, is blacked out beside it; "Next:" is left.
+	lobby._on_match_planned("House Rules \u00b7 5 min", false)
+	assert_bool(lobby._plan_redacted.visible).is_true()
+	assert_float(lobby._plan_redacted.offset_left).is_greater(0.0)
+	lobby._on_match_planned("", true)
+	assert_bool(lobby._plan_redacted.visible).is_false()
 	var choosing: HostSettings = room.get("host_settings")
 	choosing.close()
 	Net.close()

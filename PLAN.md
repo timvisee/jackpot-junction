@@ -1289,7 +1289,7 @@ STORY.md and GAME.md first. One commit an item.
 
 - [x] The invitation, the ticket, the Final Hand's slip and the card of Terms Accepted lie askew on
       their pages, held by a clip, tape, a staple and tape over two corners [7.2].
-- [ ] In the lobby, beside the tiny golden ticket, the next match is blacked out but for "Next:"
+- [x] In the lobby, beside the tiny golden ticket, the next match is blacked out but for "Next:"
       [8.1].
 - [ ] The payout slip is one long bill: its pages one under another past a perforation, torn at the
       top and the foot of the whole, run off the screen and scrolled over; a turn brings a page to
