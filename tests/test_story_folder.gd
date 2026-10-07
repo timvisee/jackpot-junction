@@ -123,11 +123,22 @@ func test_a_note_is_new_until_it_has_been_looked_at_closer() -> void:
 	# Nothing past the last spread.
 	folder.turn(1)
 	assert_bool(folder.is_turning()).is_false()
-	# Back on the first spread, the arrow on to the next carries the mark: note 5 is new.
+	# Back on the first spread, the arrow on to the next carries the mark: note 5 is new; and the
+	# right page's corner is folded, there being a leaf to turn, the left's not.
 	folder._show(0)
 	var on: Button = folder.find_child("Next", true, false)
 	assert_bool(on.get_node("NewMark").visible).is_true()
+	assert_bool(folder.find_child("TurnOn", true, false).visible).is_true()
+	assert_bool(folder.find_child("TurnBack", true, false).visible).is_false()
 	folder._show(1)
+	assert_bool(folder.find_child("TurnOn", true, false).visible).is_false()
+	# A pad's shoulder buttons turn the pages, as the corners show.
+	var shoulder := InputEventJoypadButton.new()
+	shoulder.pressed = true
+	shoulder.button_index = JOY_BUTTON_LEFT_SHOULDER
+	assert_int(NotesFolder.turn_of(shoulder)).is_equal(-1)
+	shoulder.button_index = JOY_BUTTON_RIGHT_SHOULDER
+	assert_int(NotesFolder.turn_of(shoulder)).is_equal(1)
 	# Back, the way it came, and put away: said at once, gone once it is back where it came from.
 	folder.turn(-1)
 	assert_bool(folder.is_turning()).is_true()

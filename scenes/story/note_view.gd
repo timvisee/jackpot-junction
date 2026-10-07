@@ -415,6 +415,15 @@ func _input(event: InputEvent) -> void:
 	elif key != null and key.pressed and key.keycode in [KEY_MINUS, KEY_KP_SUBTRACT]:
 		get_viewport().set_input_as_handled()
 		zoom_by(1.0 / STEP)
+	elif (
+		pad != null
+		and pad.pressed
+		and pad.button_index in [JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER]
+	):
+		# A pad's shoulder buttons step to the notes either side however close it is looked at,
+		# as they turn the folder's pages.
+		get_viewport().set_input_as_handled()
+		step(-1 if pad.button_index == JOY_BUTTON_LEFT_SHOULDER else 1)
 	elif zoom <= 1.001 and event.is_action_pressed(&"ui_left"):
 		get_viewport().set_input_as_handled()
 		step(-1)
