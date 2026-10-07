@@ -4,12 +4,13 @@ extends Control
 ## found clipped inside in the story's order, one on each side of a leaf, see [NotePage], so an open
 ## spread shows two, the leaves turning the way the Highway Code's do. It comes out from where it
 ## peeked in, its cover, see [FolderCover], swinging open over the spine, and opens on its first
-## spread, turning quickly on to the first note not yet read, which a press cuts short. A spread
-## open for a second is read, and its pencil marks go. Left and right, a click or a tap on a page,
-## or the arrows under the folder turn it; a click or a tap on a note, or Look closer, which has
-## the cursor, takes it off its page for a closer look, see [NoteView]; Back, Put it away, or a
-## click or a tap beside it shuts it and sends it back where it came from. Nothing in it is the
-## House's.
+## spread, turning quickly on to the first note not yet read and taking it off its page for a
+## closer look, see [NoteView]; a turn or any press stops the turning on where it is. A note is read
+## once it has been looked at closer, and its pencil mark goes. Left and right, a click or a tap on
+## a page, or the arrows under the folder turn it, as fast as they are pressed; a click or a tap on
+## a note, or Look closer, which has the cursor, takes it off its page for a closer look; Back, Put
+## it away, or a click or a tap beside it shuts it and sends it back where it came from. Nothing in
+## it is the House's.
 
 signal put_away
 
@@ -40,8 +41,6 @@ const SHUT_DB := -13.0
 const FLIP_AT_MOST := 1.0
 const FLIP_SLOWEST := 0.28
 const FLIP_FASTEST := 0.07
-## How long a spread is open before its notes count as read.
-const READ_AFTER := 1.0
 ## Room kept round the folder on the screen, for the line under it.
 const ROOM := Vector2(32.0, 124.0)
 const SETTLE_MS := 150
@@ -79,11 +78,14 @@ var _faces: Array[SubViewport] = []
 var _cover: TextureRect
 var _turning: Tween
 var _moving: Tween
-var _open_for := 0.0
 var _shown_at := 0
-## The spread it turns on to once open, and whether it is turning on to it now.
+## The first new note's page, -1 for none, the spread it is on, and whether the folder is turning
+## on to it now.
+var _first_new := -1
 var _target := 0
 var _flipping := false
+## The spread a leaf turning now lands on.
+var _turning_to := 0
 ## Whether the cover is down over the pages: shut, coming out or going back.
 var _shut := true
 var _closing := false
@@ -104,6 +106,7 @@ static func open(
 		view.from = peeked.get_global_rect()
 	view.pages = in_order(of.story)
 	view._target = first_open(of.story)
+	view._first_new = first_new_index(of.story)
 	parent.add_child(view)
 	return view
 
@@ -121,11 +124,17 @@ static func in_order(story: StoryState) -> PackedInt32Array:
 
 ## The spread the folder turns on to: the first new note's, or the first.
 static func first_open(story: StoryState) -> int:
+	var index := first_new_index(story)
+	return spread_of(index) if index >= 0 else 0
+
+
+## The page of the first new note in [param story]'s folder, -1 for none.
+static func first_new_index(story: StoryState) -> int:
 	var found := in_order(story)
 	for i: int in found.size():
 		if story.is_new(found[i]):
-			return spread_of(i)
-	return 0
+			return i
+	return -1
 
 
 ## The spread page [param index] is on: the first page on the right of the first spread, then two
@@ -447,33 +456,36 @@ func _opened() -> void:
 	folder.queue_redraw()
 	_left.queue_redraw()
 	_right.queue_redraw()
-	_open_for = 0.0
-	if _target > at:
-		_flipping = true
-		_flip_on()
+	if _first_new < 0:
+		return
+	_flipping = true
+	_flip_on()
 
 
-## The next leaf of the turning on to the first new note, quicker than the one before.
+## The next leaf of the turning on to the first new note, quicker than the one before; there, the
+## note taken off its page for a closer look.
 func _flip_on() -> void:
-	if not _flipping or at >= _target:
+	if not _flipping:
+		return
+	if at >= _target:
 		_flipping = false
+		look_closer(_first_new)
 		return
 	var leaves := _target
 	var each := clampf(FLIP_AT_MOST / float(leaves), FLIP_FASTEST, FLIP_SLOWEST)
 	var quicken := lerpf(1.0, 0.6, float(at) / float(maxi(leaves - 1, 1)))
-	turn(1, each * quicken)
+	_turn(1, each * quicken)
 
 
-## Straight to the first new note, the turning on to it cut short.
-func skip_flip() -> void:
-	if not _flipping:
-		return
+## The turning on to the first new note stopped where it is, by a turn or any other press: the leaf
+## going over lands, and nothing opens.
+func stop_flip() -> void:
 	_flipping = false
-	if _turning != null and _turning.is_valid():
-		_turning.kill()
-	_turning = null
-	_leaf.visible = false
-	_show(_target)
+
+
+## Whether it is turning on to the first new note.
+func is_flipping() -> bool:
+	return _flipping
 
 
 ## Spread [param spread] open, at once.
@@ -481,7 +493,6 @@ func _show(spread: int) -> void:
 	at = clampi(spread, 0, spreads(pages.size()) - 1)
 	_set_side(_left, left_of(at))
 	_set_side(_right, right_of(at))
-	_open_for = 0.0
 	_mark_ends()
 
 
@@ -497,7 +508,9 @@ func _set_side(side: Control, index: int) -> void:
 
 func _page_of(index: int) -> NotePage:
 	var number := pages[index]
-	return NotePage.make(number, profile, profile.story.is_new(number))
+	var page := NotePage.make(number, profile, profile.story.is_new(number))
+	page.page_number = index + 1
+	return page
 
 
 ## The arrows greyed at the ends of the folder.
@@ -507,13 +520,25 @@ func _mark_ends() -> void:
 	(row.get_node("Next") as Button).disabled = at >= spreads(pages.size()) - 1
 
 
-## Turns [param by] spreads, a leaf at a time, over the spine, taking [param takes]: forward, the
-## leaf on the right lifts off and lands on the left, its back up; back, the leaf on the left lifts
-## and lands on the right, its front up.
-func turn(by: int, takes := TURN) -> void:
+## Turns a spread [param by] the way it says, by hand: the turning on to the first new note stopped,
+## and a leaf still going over landed at once, so the pages turn as fast as they are pressed.
+func turn(by: int) -> void:
+	if by == 0 or _shut or _closing:
+		return
+	stop_flip()
+	if is_turning():
+		_turning.kill()
+		_landed(_turning_to)
+	_turn(by, TURN)
+
+
+## A leaf over the spine, taking [param takes]: forward, the leaf on the right lifts off and lands
+## on the left, its back up; back, the leaf on the left lifts and lands on the right, its front up.
+func _turn(by: int, takes: float) -> void:
 	var to := at + signi(by)
 	if by == 0 or to < 0 or to >= spreads(pages.size()) or is_turning() or _shut:
 		return
+	_turning_to = to
 	var forward := by > 0
 	var leaf := at if forward else to
 	_set_face(_faces[0], right_of(leaf))
@@ -578,21 +603,6 @@ func is_busy() -> bool:
 	return _shut or _flipping or is_turning() or _closing
 
 
-## A spread open for a second, and not turning, is read: its new notes written into the profile and
-## saved, their marks gone.
-func _process(delta: float) -> void:
-	if pages.is_empty() or is_busy():
-		return
-	_open_for += delta
-	if _open_for < READ_AFTER:
-		return
-	var shown: Array[int] = []
-	for index: int in [left_of(at), right_of(at)]:
-		if index >= 0 and index < pages.size():
-			shown.append(pages[index])
-	read(shown)
-
-
 ## [param numbers] read: the new ones among them written into the profile and saved, and their
 ## marks gone from the pages open.
 func read(numbers: Array) -> void:
@@ -647,14 +657,13 @@ func _input(event: InputEvent) -> void:
 	keyboard = LicenseView.keyboard_after(event, keyboard)
 	if was != keyboard:
 		say_away()
+	# Any press stops the turning on to the first new note; a turn goes on to turn.
 	if _flipping and event.is_pressed() and not event.is_echo():
-		get_viewport().set_input_as_handled()
-		skip_flip()
-		return
-	if event.is_action_pressed(&"ui_left"):
+		stop_flip()
+	if event.is_action_pressed(&"ui_left", true):
 		get_viewport().set_input_as_handled()
 		turn(-1)
-	elif event.is_action_pressed(&"ui_right"):
+	elif event.is_action_pressed(&"ui_right", true):
 		get_viewport().set_input_as_handled()
 		turn(1)
 
@@ -679,6 +688,7 @@ func _on_click(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 	if _closing or view != null or Time.get_ticks_msec() - _shown_at < SETTLE_MS:
 		return
+	stop_flip()
 	var where: Vector2 = click.position if click != null else touch.position
 	var on := folder.get_global_rect()
 	on.position -= global_position
@@ -704,6 +714,9 @@ func close() -> void:
 		return
 	_closing = true
 	_flipping = false
+	if view != null and is_instance_valid(view):
+		view.queue_free()
+		view = null
 	put_away.emit()
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if _turning != null and _turning.is_valid():

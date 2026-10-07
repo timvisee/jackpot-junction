@@ -1,7 +1,8 @@
 extends GdUnitTestSuite
-## Kit's folder, STORY.md 7.2: the notes in order, a note new until its page has been open for a
-## second, the folder opening at the first new one, the corner of the new note's paper on the
-## title's folder, and the folder beside the payout slip after a map with a note in it.
+## Kit's folder, STORY.md 7.2: the notes in order, a note new until it has been looked at closer,
+## the folder turning on to the first new one and taking it out, the pages turned as fast as they
+## are pressed, the corner of the new note's paper on the title's folder, and the folder beside the
+## payout slip after a map with a note in it.
 
 const TITLE_SCENE := preload("res://scenes/ui/title.tscn")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
@@ -45,10 +46,10 @@ func _settled(folder: NotesFolder) -> void:
 
 
 ## The notes in the story's order, whatever order they were found in, two to a spread, the back of a
-## leaf on the left and the front of the next on the right; the folder comes out shut, opens on its
-## first spread and turns on to the first new note; a spread is read once it has been open a second,
-## the marks gone with it.
-func test_a_note_is_new_until_its_page_has_been_open_a_second() -> void:
+## leaf on the left and the front of the next on the right, each page numbered; the folder comes out
+## shut, opens on its first spread, turns on to the first new note and takes it out for a closer
+## look; open on its page is not enough to read it, a second looked at closer is.
+func test_a_note_is_new_until_it_has_been_looked_at_closer() -> void:
 	_profile.story.notes = PackedInt32Array([5, 1, 3])
 	_profile.story.notes_read = PackedInt32Array([1])
 	assert_array(Array(NotesFolder.in_order(_profile.story))).is_equal([1, 3, 5])
@@ -64,24 +65,30 @@ func test_a_note_is_new_until_its_page_has_been_open_a_second() -> void:
 	assert_int(NotesFolder.spread_of(1)).is_equal(1)
 	assert_int(NotesFolder.spread_of(2)).is_equal(1)
 	assert_int(NotesFolder.left_of(0)).is_equal(-1)
+	assert_int(NotesFolder.first_new_index(_profile.story)).is_equal(1)
 	var folder := NotesFolder.open(_holder(), _profile, true)
 	await await_idle_frame()
 	assert_bool(folder.is_busy()).is_true()
 	assert_int(folder.at).is_equal(0)
 	await _settled(folder)
-	assert_bool(folder.is_busy()).is_false()
 	assert_int(folder.at).is_equal(1)
 	var left: NotePage = folder.find_child("Left", true, false).get_child(0)
 	var right: NotePage = folder.find_child("Right", true, false).get_child(0)
 	assert_int(left.number).is_equal(3)
 	assert_int(right.number).is_equal(5)
-	assert_bool(left.new).is_true()
-	folder._process(0.5)
+	assert_int(left.page_number).is_equal(2)
+	assert_int(right.page_number).is_equal(3)
+	# Turned on to, the first new note is out for a closer look.
+	assert_object(folder.view).is_not_null()
+	assert_int(folder.view.index).is_equal(1)
 	assert_bool(_profile.story.is_new(3)).is_true()
-	folder._process(0.6)
-	assert_bool(_profile.story.any_new()).is_false()
+	folder.view._process(1.1)
+	assert_bool(_profile.story.is_new(3)).is_false()
+	assert_bool(_profile.story.is_new(5)).is_true()
 	assert_bool(left.new).is_false()
-	assert_bool(right.new).is_false()
+	assert_bool(right.new).is_true()
+	folder.view.close()
+	await await_idle_frame()
 	# Nothing past the last spread.
 	folder.turn(1)
 	assert_bool(folder.is_turning()).is_false()
@@ -103,10 +110,11 @@ func test_a_note_is_new_until_its_page_has_been_open_a_second() -> void:
 ## at.
 func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 	_profile.story.notes = PackedInt32Array([1, 2, 3, 4])
-	_profile.story.notes_read = PackedInt32Array([1, 2, 3])
+	_profile.story.notes_read = PackedInt32Array([1, 2, 3, 4])
 	var folder := NotesFolder.open(_holder(), _profile, true)
 	await _settled(folder)
-	assert_int(folder.at).is_equal(2)
+	assert_int(folder.at).is_equal(0)
+	assert_object(folder.view).is_null()
 	folder.look_closer(0)
 	var view := folder.view
 	assert_object(view).is_not_null()
@@ -126,8 +134,6 @@ func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 	view.step(1)
 	view.step(1)
 	assert_int(view.index).is_equal(3)
-	view._process(1.1)
-	assert_bool(_profile.story.any_new()).is_false()
 	view.close()
 	await await_idle_frame()
 	assert_object(folder.view).is_null()
@@ -140,15 +146,25 @@ func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 	await await_idle_frame()
 
 
-## Turning on to the first new note is cut short by a press: straight to its spread.
-func test_a_press_cuts_the_turning_on_short() -> void:
+## A turn stops the turning on to the first new note where it is, and no closer look opens; then
+## the pages turn as fast as they are pressed, a leaf still going over landing at once.
+func test_a_turn_stops_the_turning_on_and_the_pages_turn_fast() -> void:
 	_profile.story.notes = PackedInt32Array([1, 2, 3, 4, 5, 6, 7, 8, 9])
 	_profile.story.notes_read = PackedInt32Array([1, 2, 3, 4, 5, 6, 7])
 	var folder := NotesFolder.open(_holder(), _profile, true)
 	await await_millis(int((NotesFolder.SLIDE + NotesFolder.SWING) * 1000.0) + 150)
-	folder.skip_flip()
-	assert_int(folder.at).is_equal(NotesFolder.spread_of(7))
-	assert_bool(folder.is_busy()).is_false()
+	assert_bool(folder.is_flipping()).is_true()
+	folder.turn(-1)
+	assert_bool(folder.is_flipping()).is_false()
+	await _settled(folder)
+	assert_int(folder.at).is_less(NotesFolder.spread_of(7))
+	assert_object(folder.view).is_null()
+	var from := folder.at
+	folder.turn(1)
+	folder.turn(1)
+	folder.turn(1)
+	await await_millis(int(NotesFolder.TURN * 1000.0) + 200)
+	assert_int(folder.at).is_equal(mini(from + 3, NotesFolder.spreads(9) - 1))
 
 
 ## The title's folder peeks in once a note has been found, with the corner of the first new note's
@@ -185,7 +201,8 @@ func test_the_title_peeks_the_folder_with_its_new_corner() -> void:
 	var folder: NotesFolder = title.find_child("NotesFolder", true, false)
 	assert_object(folder).is_not_null()
 	await _settled(folder)
-	folder._process(1.1)
+	assert_object(folder.view).is_not_null()
+	folder.view._process(1.1)
 	folder.close()
 	await await_idle_frame()
 	assert_int(peek.corner).is_equal(0)

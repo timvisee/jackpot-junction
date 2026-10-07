@@ -92,6 +92,8 @@ var new := false
 ## [code]paper[/code] the note alone, as it is looked at closer, see [NoteView]; [code]back[/code]
 ## the note turned over, see [constant StoryNotes.BACKS].
 var layer := &"full"
+## Its number in the folder, pencilled at its foot; 0 for none.
+var page_number := 0
 
 var _rng := RandomNumberGenerator.new()
 ## Where each of the note's lines was written, for an arrow drawn between two of them.
@@ -135,6 +137,18 @@ func _draw() -> void:
 		_scrawl(StoryNotes.title_of(number), Vector2(MARGIN, 46.0), TITLE_SIZE, PENCIL, 0.4)
 		if new:
 			new_mark(self, Vector2(SIZE.x - MARGIN - 6.0, 36.0))
+		if page_number > 0:
+			var said := str(page_number)
+			var wide := HAND.get_string_size(said, HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x
+			draw_string(
+				HAND,
+				Vector2((SIZE.x - wide) * 0.5, SIZE.y - 10.0),
+				said,
+				HORIZONTAL_ALIGNMENT_LEFT,
+				-1,
+				22,
+				Color(PENCIL, 0.8)
+			)
 	# The back of the folder, after the ending: no note's paper, what the player kept.
 	if number < 0:
 		FolderBack.draw(self, number, profile)
