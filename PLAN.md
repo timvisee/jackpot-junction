@@ -357,10 +357,10 @@ Spoilers throughout, like STORY.md.
 | S12 | After the ending | Done |
 | S13 | Wrapping up | Done, but for the user's play-through |
 | S14 | The first look, the user's notes | Done |
-| S15 | The second look, the user's notes | In progress |
+| S15 | The second look, the user's notes | Done |
 
-Next up: S15, the user's second round of notes; then their play-through, S13's last task, and
-tuning the pace of S0 after it. The phases are in the order they are best built, each standing on its own:
+Next up: the user's look at S15, then their play-through, S13's last task, and tuning the pace of
+S0 after it. The phases are in the order they are best built, each standing on its own:
 after S0 to S7 the story's margins are all in the game and could ship, the notes and the ending
 after them. S10 can be built alongside anything before S11, which needs it. On picking the work up
 again: this table, then the first unticked task of the phase in progress, then that task's sections
@@ -1112,7 +1112,22 @@ invitation and the ticket both stay; the rest below. STORY.md and GAME.md first.
 
 Verify: the story's suites and `make check`; screenshots of each, sent to the user.
 
-Status: in progress.
+Status: done, 2026-10-07. Built as planned, with these choices: the closer look draws each face
+through the license's own tilt shader, `card_tilt.gdshader`, which gained a `sheen` (a soft patch of
+light that moves as the card turns, the rest dimmed by half as much so white paper shows it) and
+takes a `relief` per user; `TiltedCard.wanted` is shared, the note turns three quarters as far as
+the license and less the closer it is looked at, and turns over in perspective as the license does.
+Look closer is `HouseArt.magnifier`. The title's folder is 236 by 354, the cover's proportions, and
+shows seven tenths of itself. The ticket is `GoldenTicket`, its stub a child that tears off along a
+ragged edge shared by both outlines; both are filled as fans from their middles, since the engine's
+own triangulation gives up on the ragged edge. `FinalHandPane.admit` is the door, from the lobby's
+`_begin`; the tear's sound, `paper-tear.wav`, is made here from noise. The invitation is 600 tall
+now that its buttons are under it. The back of the folder lays the invitation and the torn ticket
+as children of their pages, `FolderBack.lay`, numbered -3 and -4. `make check` passed on its third run, 1236 tests;
+the two before failed on timing alone, in suites S15 does not touch, each passing on its own: first
+`test_online_seats`, reading the host's slot for a client's second seat before the host had made
+it, then `test_driving_school`'s theory book and `test_play_online`'s four seconds to say nobody is
+at an address. Looked at: every item, screenshotted; the user's third round of notes followed.
 
 ## Pending
 
