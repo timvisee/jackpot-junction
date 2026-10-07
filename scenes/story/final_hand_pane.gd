@@ -25,6 +25,9 @@ const TAKE_WIDTH := 360.0
 ## [constant HIDDEN] of its width; forward over the card; held up long enough to read; and dropped
 ## away.
 const HIDDEN := 0.9
+## The ticket's own slant as it comes out, a few degrees off the card's, so it reads as a thing of
+## its own rather than part of the card.
+const REVEAL_SLANT := 0.075
 const OUT := 0.5
 const FORWARD := 0.4
 const SHOWN := 2.8
@@ -204,7 +207,7 @@ func _take_the_seat() -> void:
 	var hidden := minf(size_on, card_shown.x * HIDDEN / GoldenTicket.SIZE.x)
 	var small := GoldenTicket.SIZE * hidden
 	ticket.scale = Vector2.ONE * hidden
-	ticket.rotation = LEAN
+	ticket.rotation = REVEAL_SLANT
 	ticket.position = middle - GoldenTicket.SIZE * 0.5
 	ticket.visible = true
 	# Out to the right until it is clear of the card, as far as the screen lets it.
@@ -220,7 +223,7 @@ func _take_the_seat() -> void:
 	show.tween_property(ticket, "position", out - GoldenTicket.SIZE * 0.5, OUT).set_ease(
 		Tween.EASE_OUT
 	)
-	show.parallel().tween_property(ticket, "rotation", TICKET_LEAN + 0.05, OUT)
+	show.parallel().tween_property(ticket, "rotation", REVEAL_SLANT + 0.02, OUT)
 	show.tween_callback(move_child.bind(ticket, -1))
 	show.tween_property(ticket, "position", ahead - GoldenTicket.SIZE * 0.5, FORWARD).set_ease(
 		Tween.EASE_IN_OUT
