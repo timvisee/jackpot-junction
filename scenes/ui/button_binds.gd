@@ -22,6 +22,14 @@ static func mark(
 	button.set_meta(&"bind_pad", pad)
 
 
+## An arrow with nowhere to go that way out of sight, keeping its room so the buttons beside it do
+## not move, or back in sight as [param shown] says; out of sight, it is out of the mouse's way too.
+static func show_arrow(button: Button, shown: bool) -> void:
+	button.disabled = not shown
+	button.modulate.a = 1.0 if shown else 0.0
+	button.mouse_filter = Control.MOUSE_FILTER_STOP if shown else Control.MOUSE_FILTER_IGNORE
+
+
 ## Each of [param buttons]' binds drawn for a keyboard or a pad as [param keyboard] says, or none
 ## while [param shown] is false; none on a button that is disabled, which there is nothing to press
 ## for.

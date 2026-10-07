@@ -1,11 +1,12 @@
 class_name LicenseView
 extends Control
 ## The driver license of GAME.md 9.4a shown in full over a shade, the way a joker is shown out of
-## the hand, 3.7, held up to be looked at on a [TiltedCard]: a click, a tap on the card, the hand's
-## button or the turning arrows under it turn it over, and a right click, a tap beside it, Back or
-## the cross under it puts it away, as Kit's folder and its closer look have it, STORY.md 7.2. The
-## buttons are for the mouse and never take the cursor; keys and pads have their binds drawn on
-## them, see [ButtonBinds]. The title's, 3.8, and the License tab's of the settings, 8.5, alike.
+## the hand, 3.7, held up to be looked at on a [TiltedCard]: a click or a tap on the card, the
+## hand's button or the turning arrows under it turn it over, and a right click, a tap beside it,
+## Back or the cross under it puts it away, as Kit's folder and its closer look have it, STORY.md
+## 7.2. The buttons are for the mouse and never take the cursor; keys and pads have their binds
+## drawn on them, see [ButtonBinds]. The title's, 3.8, and the License tab's of the settings, 8.5,
+## alike.
 
 signal put_away
 
@@ -13,8 +14,7 @@ signal put_away
 const FULL := 1.15
 ## How to turn it over and put it away, by the device in hand, and what the buttons say to the
 ## mouse.
-const AWAY_MOUSE := "Click to turn it over, right-click to put it away"
-const AWAY_PAD := "%s turns it over, %s puts it away"
+const AWAY_MOUSE := "Click the card to turn it over, right-click to put it away"
 const AWAY_TOUCH := "Tap the card to turn it over, or beside it to put it away"
 const TURN_WORD := "Turn over"
 const AWAY_WORD := "Put it away"
@@ -51,6 +51,7 @@ var _fly := 1.0
 var _from_center := Vector2.ZERO
 var _from_scale := 1.0
 var _from_turn := 0.0
+var _from_tint := Color.WHITE
 var _place: Control
 var _shade: ColorRect
 var _round: Array[CanvasItem] = []
@@ -167,6 +168,7 @@ func _take_from() -> void:
 	_from_center = on * (LicenseCard.SIZE * 0.5)
 	_from_scale = on.get_scale().x / FULL
 	_from_turn = on.get_rotation()
+	_from_tint = _from.modulate
 
 
 ## The stand between the card it came from and its place, [param amount] of the way.
@@ -177,6 +179,10 @@ func _set_fly(amount: float) -> void:
 	stand.scale = Vector2.ONE * lerpf(_from_scale, 1.0, amount)
 	stand.rotation = lerp_angle(_from_turn, 0.0, amount)
 	stand.global_position = _from_center.lerp(rest, amount) - stand.size * 0.5
+	# As dim as the card it came from where it came from, and still on the way, so it neither pops
+	# brighter as it leaves nor darker as it lands, nor swings about under the mouse.
+	stand.modulate = _from_tint.lerp(Color.WHITE, amount)
+	stand.calm = amount
 
 
 ## A button for the mouse under the card: [param picture] on it, [param word] its tooltip, and the
@@ -231,18 +237,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-## Beside the card, once the view has settled: a click turns it over, as a click on it does, and a
-## tap puts it away.
+## Beside the card, once the view has settled: a tap puts it away; a click does nothing, only one
+## on the card turning it over.
 func _on_beside(event: InputEvent) -> void:
 	var click := event as InputEventMouseButton
 	var touch := event as InputEventScreenTouch
 	if (click != null and click.pressed) or (touch != null and touch.pressed):
 		get_viewport().set_input_as_handled()
-		if Time.get_ticks_msec() - _shown_at < SETTLE_MS:
-			return
-		if click != null and click.button_index == MOUSE_BUTTON_LEFT:
-			stand.turn_over()
-		elif touch != null:
+		if touch != null and Time.get_ticks_msec() - _shown_at >= SETTLE_MS:
 			close()
 
 
@@ -258,7 +260,9 @@ func close() -> void:
 		queue_free()
 		return
 	# Back down onto the card it came from, following it as it settles where the screen under puts
-	# it, and the card shown again once it is there.
+	# it, turned face up on the way if it was over, and the card shown again once it is there.
+	if card.flipped and not stand.is_turning():
+		stand.turn_over(FLY_BACK)
 	var down := create_tween().set_parallel(true)
 	for part: CanvasItem in _round:
 		down.tween_property(part, "modulate:a", 0.0, FLY_BACK)
@@ -284,40 +288,21 @@ func close() -> void:
 	)
 
 
-## The line under the card saying how to turn it over and put it away, with the controls drawn in
-## for the device in hand: a click and a right click with a mouse, taps on a touch screen, and the
-## hand's button and Back on keys or a pad.
+## The line under the card saying how to turn it over and put it away with a mouse or a finger.
+## Nothing with keys or a pad, whose binds are on the buttons already.
 func say_away() -> void:
 	if away_line == null or not is_instance_valid(away_line):
 		return
 	for old: Node in away_line.get_children():
 		away_line.remove_child(old)
 		old.queue_free()
-	var ink := Color(0.72, 0.72, 0.78)
 	var row: Control
 	if TouchInput.enabled:
 		row = MenuTheme.subtitle(AWAY_TOUCH, Type.LABEL)
 	elif _pointer:
 		row = MenuTheme.subtitle(AWAY_MOUSE, Type.LABEL)
 	else:
-		var turns := InputGlyph.of_action(InputActions.JOKER_MENU, keyboard, ink, Type.LABEL)
-		var puts := InputGlyph.of_action(&"ui_cancel", keyboard, ink, Type.LABEL)
-		if turns == null or puts == null:
-			row = (
-				MenuTheme
-				. subtitle(
-					(
-						AWAY_PAD
-						% [
-							InputActions.short_binding_text(InputActions.JOKER_MENU, keyboard),
-							InputActions.short_binding_text(&"ui_cancel", keyboard),
-						]
-					),
-					Type.LABEL
-				)
-			)
-		else:
-			row = InputHint.row(AWAY_PAD, [turns, puts], ink, Type.LABEL)
+		return
 	row.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	row.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	row.grow_vertical = Control.GROW_DIRECTION_BOTH

@@ -1255,9 +1255,12 @@ The user's sixth round of notes, 2026-10-07: the folder's front reads OFF THE BO
 the suggestions. STORY.md and GAME.md first. One commit an item.
 
 - [x] The folder's front: OFF THE BOOKS, as big as fits [7.2].
-- [ ] The line under the buttons says nothing the buttons' binds already say [7.2].
-- [ ] A click turns the license or a note over only on it, not beside it [7.2].
-- [ ] The license goes back to the title's corner smoothly, turned face up on the way [7.2].
+- [x] The line under the buttons says nothing the buttons' binds already say [7.2].
+- [x] A click turns the license or a note over only on it, not beside it [7.2].
+- [x] The license goes back to the title's corner smoothly, turned face up on the way [7.2].
+- [x] On the title a click beside the folder or the license takes the cursor back to the buttons;
+      the arrows of the folder and the closer look go, keeping their room, where there is nowhere
+      to go [7.2].
 
 Verify: the story's suites and `make check`; screenshots, sent to the user.
 

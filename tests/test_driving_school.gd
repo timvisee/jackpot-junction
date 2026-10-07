@@ -555,12 +555,15 @@ func test_the_title_peeks_the_license_earned() -> void:
 	assert_object(turn_button).is_not_null()
 	assert_int(turn_button.focus_mode).is_equal(Control.FOCUS_NONE)
 	assert_int((view as LicenseView).away.focus_mode).is_equal(Control.FOCUS_NONE)
-	# The line under it names the buttons that turn it over and put it away, keys or a pad being in
-	# hand, and not a click.
-	var away_words := _words_in((view as LicenseView).away_line)
-	assert_str(away_words).contains("turns it over")
-	assert_str(away_words).contains("puts it away")
-	assert_bool(away_words.contains("Click")).is_false()
+	# Keys or a pad being in hand, the binds are on the buttons and the line under them says
+	# nothing more; with the mouse it says what a click and a right click do.
+	var license_view := view as LicenseView
+	assert_str(_words_in(license_view.away_line).strip_edges()).is_empty()
+	license_view._pointer = true
+	license_view.say_away()
+	assert_str(_words_in(license_view.away_line)).contains("Click the card")
+	license_view._pointer = false
+	license_view.say_away()
 	# The card lies flat until something moves: the mouse turns it toward where it goes, the
 	# right stick pushed wins over the mouse, and let go, the card settles back.
 	assert_float(stand.turned().length()).is_less(0.01)

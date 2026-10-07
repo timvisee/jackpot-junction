@@ -34,6 +34,9 @@ const DEPTH := 2.4
 var card: LicenseCard
 ## How big the card is shown, a scale on its own size.
 var shown := 1.0
+## How much of the way it turns toward the mouse, the stick or the phone, 0 to 1: none while it is
+## carried somewhere, so it does not swing about under a mouse that stays put.
+var calm := 1.0
 
 ## Where the card is turned toward, -1 to 1 either way, after the mouse or the stick, smoothed.
 var _turn := Vector2.ZERO
@@ -112,7 +115,7 @@ func _process(delta: float) -> void:
 		_held = pull
 	else:
 		_held = _held.lerp(pull, 1.0 - exp(-PHONE_SETTLE * delta))
-	_turn = _turn.lerp(_wanted(), 1.0 - exp(-FOLLOW * delta))
+	_turn = _turn.lerp(_wanted() * calm, 1.0 - exp(-FOLLOW * delta))
 	# The hologram sees the turn over too: its colors run through as the back comes round.
 	card.tilt = _turn + Vector2(sin(_over) * TURN_SHINE, 0.0)
 	_aim()
@@ -166,8 +169,8 @@ func _aim() -> void:
 
 
 ## Turns the card right over, to its back or its front again, about its upright axis, the way
-## back the way it came.
-func turn_over() -> void:
+## back the way it came, taking [param takes].
+func turn_over(takes := TURN_OVER) -> void:
 	if _turning:
 		return
 	_turning = true
@@ -175,7 +178,7 @@ func turn_over() -> void:
 	var way := -1.0 if _from else 1.0
 	var turn := create_tween()
 	turn.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
-	turn.tween_method(_turn_by, 0.0, PI * way, TURN_OVER)
+	turn.tween_method(_turn_by, 0.0, PI * way, takes)
 	turn.tween_callback(_turned_over)
 	Audio.play_sfx(&"page", -10.0, 0.0)
 

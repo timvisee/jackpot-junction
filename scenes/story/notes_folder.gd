@@ -54,7 +54,6 @@ const SETTLE_MS := 150
 ## How wide the arrows either side of Put it away are.
 const ARROW_WIDTH := 88.0
 const AWAY_MOUSE := "Click a note to look closer, or right-click to put the folder away"
-const AWAY_PAD := "Press %s to put it away"
 const AWAY_TOUCH := "Tap a page to turn it, or beside the folder to put it away"
 const LOOK_WORD := "Look closer"
 ## How wide Look closer and Put it away are, a magnifying glass and a cross on them rather than
@@ -554,14 +553,14 @@ func _page_of(index: int) -> NotePage:
 	return page
 
 
-## The arrows grayed at the ends of the folder, and carrying a new note's pencil mark where the
-## spread they go to has a new note on it.
+## The arrows gone at the ends of the folder, keeping their room, and carrying a new note's pencil
+## mark where the spread they go to has a new note on it.
 func _mark_ends() -> void:
 	var row := away.get_parent()
 	var before := row.get_node("Previous") as Button
 	var after := row.get_node("Next") as Button
-	before.disabled = at <= 0
-	after.disabled = at >= spreads(pages.size()) - 1
+	ButtonBinds.show_arrow(before, at > 0)
+	ButtonBinds.show_arrow(after, at < spreads(pages.size()) - 1)
 	NotePage.mark_button(before, not before.disabled and _has_new(at - 1))
 	NotePage.mark_button(after, not after.disabled and _has_new(at + 1))
 	if _buttons_row != null:
@@ -925,28 +924,21 @@ func _go_back() -> void:
 	_moving.chain().tween_callback(queue_free)
 
 
-## The line under the folder: how to turn the pages and how to put it away, for the device in hand.
+## The line under the folder: how to look closer and put it away with a mouse or a finger. Nothing
+## with keys or a pad, whose binds are on the buttons already.
 func say_away() -> void:
 	if away_line == null or not is_instance_valid(away_line):
 		return
 	for old: Node in away_line.get_children():
 		away_line.remove_child(old)
 		old.queue_free()
-	var ink := Color(0.72, 0.72, 0.78)
 	var row: Control
 	if TouchInput.enabled:
 		row = MenuTheme.subtitle(AWAY_TOUCH, Type.LABEL)
 	elif _pointer:
 		row = MenuTheme.subtitle(AWAY_MOUSE, Type.LABEL)
 	else:
-		var glyph := InputGlyph.of_action(&"ui_cancel", keyboard, ink, Type.LABEL)
-		var words := AWAY_PAD
-		if glyph == null:
-			row = MenuTheme.subtitle(
-				words % InputActions.short_binding_text(&"ui_cancel", keyboard), Type.LABEL
-			)
-		else:
-			row = InputHint.row(words, [glyph], ink, Type.LABEL)
+		return
 	row.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	row.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	row.grow_vertical = Control.GROW_DIRECTION_BOTH

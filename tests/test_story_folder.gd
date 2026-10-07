@@ -239,6 +239,11 @@ func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 	view.step(1)
 	view.step(1)
 	assert_int(view.index).is_equal(3)
+	# At the last note there is no arrow on, out of sight but keeping its room.
+	var on_arrow: Button = view.find_child("Next", true, false)
+	assert_float(on_arrow.modulate.a).is_equal(0.0)
+	assert_bool(on_arrow.disabled).is_true()
+	assert_float((view.find_child("Previous", true, false) as Button).modulate.a).is_equal(1.0)
 	view.close()
 	await await_idle_frame()
 	assert_object(folder.view).is_null()

@@ -59,9 +59,9 @@ const ARROW_WIDTH := 88.0
 const ICON_WIDTH := 136.0
 const TURN_WORD := "Turn over"
 const BACK_WORD := "Put back"
-const HINT_MOUSE := "Click to turn it over, right-click to put it back, scroll to look closer"
-const HINT_KEYS := "%s turns it over, + and - look closer, the arrows move it"
-const HINT_PAD := "%s turns it over, the triggers look closer, the right stick moves it"
+const HINT_MOUSE := "Click it to turn it over, right-click to put it back, scroll to look closer"
+const HINT_KEYS := "+ and - look closer, the arrows move it"
+const HINT_PAD := "The triggers look closer, the right stick moves it"
 const HINT_TOUCH := "Tap it to turn it over, beside it to put it back, pinch to look closer"
 
 ## The folder it was taken out of, and which of its pages is looked at.
@@ -414,15 +414,15 @@ func zoom_by(factor: float, at := Vector2(-1.0, -1.0)) -> void:
 
 
 ## Turned over, front to back or back to front, about its upright axis, the other side coming
-## round as it passes edge-on, the way the license turns.
-func turn_over() -> void:
+## round as it passes edge-on, the way the license turns, taking [param takes].
+func turn_over(takes := TURN) -> void:
 	if _turning != null and _turning.is_valid():
 		return
 	_from = turned
 	var way := -1.0 if _from else 1.0
 	_turning = create_tween()
 	_turning.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_turning.tween_method(_turn_by, 0.0, PI * way, TURN)
+	_turning.tween_method(_turn_by, 0.0, PI * way, takes)
 	_turning.tween_callback(_turn_by.bind(0.0))
 	Audio.play_sfx(&"leaf", -10.0, 0.12)
 
@@ -475,15 +475,15 @@ func step(by: int) -> void:
 	Audio.play_sfx(&"leaf", -10.0, 0.1)
 
 
-## The arrows grayed where there is no note to go to, and carrying a new note's pencil mark where
-## the note they go to is new.
+## The arrows gone where there is no note to go to, keeping their room, and carrying a new note's
+## pencil mark where the note they go to is new.
 func _mark_ends() -> void:
 	var row := _turn_button.get_parent()
 	var before := row.get_node("Previous") as Button
 	var after := row.get_node("Next") as Button
 	var story := folder.profile.story
-	before.disabled = index <= 0
-	after.disabled = index >= folder.pages.size() - 1
+	ButtonBinds.show_arrow(before, index > 0)
+	ButtonBinds.show_arrow(after, index < folder.pages.size() - 1)
 	NotePage.mark_button(before, not before.disabled and story.is_new(folder.pages[index - 1]))
 	NotePage.mark_button(after, not after.disabled and story.is_new(folder.pages[index + 1]))
 	_show_binds()
@@ -660,8 +660,8 @@ func _zoomed_by(event: InputEvent) -> bool:
 
 
 ## A press or a release of the mouse's left button, [param click], or a finger, [param touch]: a
-## drag begins with it, and let go without one, a click turns it over and a tap on it does too, a
-## tap beside it puts it back.
+## drag begins with it, and let go without one, a click or a tap on it turns it over, a tap beside
+## it puts it back, and a click beside it does nothing.
 func _pressed(click: InputEventMouseButton, touch: InputEventScreenTouch) -> void:
 	var pressed: bool = click.pressed if click != null else touch.pressed
 	var where: Vector2 = click.position if click != null else touch.position
@@ -672,9 +672,9 @@ func _pressed(click: InputEventMouseButton, touch: InputEventScreenTouch) -> voi
 	_dragging = false
 	if _moved or Time.get_ticks_msec() - _shown_at < SETTLE_MS:
 		return
-	if click != null or _card.get_global_rect().has_point(where + global_position):
+	if _card.get_global_rect().has_point(where + global_position):
 		turn_over()
-	else:
+	elif touch != null:
 		close()
 
 
@@ -689,7 +689,7 @@ func close() -> void:
 	put_back.emit(index)
 	Audio.play_sfx(&"leaf", -18.0, 0.1)
 	if turned:
-		turn_over()
+		turn_over(FLY_BACK)
 	var down := create_tween().set_parallel(true)
 	for part: CanvasItem in _chrome:
 		down.tween_property(part, "modulate:a", 0.0, FLY_BACK)
@@ -708,29 +708,21 @@ func close() -> void:
 	)
 
 
-## The line under the buttons: how to look closer, move it and turn it over, for the device in hand.
+## The line under the buttons: how to look closer, move it and turn it over, for the device in hand;
+## with keys or a pad only what the binds on the buttons do not say.
 func say_how() -> void:
 	if _hint == null or not is_instance_valid(_hint):
 		return
 	for old: Node in _hint.get_children():
 		_hint.remove_child(old)
 		old.queue_free()
-	var ink := Color(0.72, 0.72, 0.78)
 	var row: Control
 	if TouchInput.enabled:
 		row = MenuTheme.subtitle(HINT_TOUCH, Type.LABEL)
 	elif _pointer:
 		row = MenuTheme.subtitle(HINT_MOUSE, Type.LABEL)
 	else:
-		var glyph := InputGlyph.of_action(InputActions.JOKER_MENU, keyboard, ink, Type.LABEL)
-		var words := HINT_KEYS if keyboard else HINT_PAD
-		if glyph == null:
-			row = MenuTheme.subtitle(
-				words % InputActions.short_binding_text(InputActions.JOKER_MENU, keyboard),
-				Type.LABEL
-			)
-		else:
-			row = InputHint.row(words, [glyph], ink, Type.LABEL)
+		row = MenuTheme.subtitle(HINT_KEYS if keyboard else HINT_PAD, Type.LABEL)
 	row.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	row.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	row.grow_vertical = Control.GROW_DIRECTION_BOTH
