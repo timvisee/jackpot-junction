@@ -62,6 +62,8 @@ func _ready() -> void:
 	_add_signs()
 	# The kart is dressed in here as it is in the lobby, GAME.md 9.4, along the front wall.
 	StyleStalls.add_to(match_node, STALLS)
+	# What is taken in here goes into the catalog, GAME.md 8.8, though nothing else counts.
+	CatalogRecord.add_to(match_node)
 	DebugOverlay.add_to(self, match_node)
 	PauseMenu.add_to(self).names_and_colors = true
 	loaded.emit()

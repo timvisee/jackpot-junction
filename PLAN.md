@@ -1285,7 +1285,7 @@ branch `catalog`, from master at 2fc4801. A task names the GAME.md section it bu
 
 | Phase | What | State |
 |---|---|---|
-| C0 | The record: what a profile keeps, and who writes it | |
+| C0 | The record: what a profile keeps, and who writes it | Done |
 | C1 | Power-ups say what they do, and their numbers | |
 | C2 | The screen and its Jokers page | |
 | C3 | The Power-ups page | |
@@ -1342,13 +1342,13 @@ otherwise.
 
 ### C0: the record [8.8, 8.5]
 
-- [ ] `scripts/catalog_state.gd`, `class_name CatalogState`: `jokers`, `items`, `fresh`; `take_joker`,
+- [x] `scripts/catalog_state.gd`, `class_name CatalogState`: `jokers`, `items`, `fresh`; `take_joker`,
       `take_item`, `times`, `found`, `is_fresh`, `look_at`; read and write the section, keeping
       unknown ids.
-- [ ] `Profile.catalog`, read and written with the rest.
-- [ ] `scenes/match/catalog_record.gd`, `class_name CatalogRecord`: added in the match scene (not on
+- [x] `Profile.catalog`, read and written with the rest.
+- [x] `scenes/match/catalog_record.gd`, `class_name CatalogRecord`: added in the match scene (not on
       a dedicated server), the lobby, the driving test and the Garage; writes on leaving.
-- [ ] Tests: a pick and a floor joker and an item go into the seat's profile, a linked seat's into
+- [x] Tests (`tests/test_catalog.gd`): a pick and a floor joker and an item go into the seat's profile, a linked seat's into
       its own, a bot's and a guest's nowhere; the section reads back; unknown ids survive; headless
       writes nothing unless `anywhere`.
 

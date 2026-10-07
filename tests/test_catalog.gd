@@ -1,0 +1,156 @@
+extends GdUnitTestSuite
+## The catalog of GAME.md 8.8: what a profile keeps of every joker and power-up it took, and who
+## writes it, see [CatalogState] and [CatalogRecord].
+
+const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const LAYOUT: ArenaLayout = preload("res://data/maps/waiting_room.tres")
+const RULES: MatchRules = preload("res://data/match/waiting_room.tres")
+const JOKERS: JokerCatalog = preload("res://data/jokers/catalog.tres")
+const POWER_UPS: PowerUpTable = preload("res://data/powerups/all.tres")
+const PATH := "user://test_catalog.cfg"
+
+var _runner: GdUnitSceneRunner
+var _settings_were: Settings
+
+
+func before_test() -> void:
+	_settings_were = Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = PATH
+	Game.settings.load_from_disk()
+	Game.settings.player_names[0] = "Ann"
+	Game.settings.save_to_disk()
+
+
+func after_test() -> void:
+	CatalogRecord.anywhere = false
+	Settings.remove_files(PATH)
+	Game.settings = _settings_were
+
+
+## A joker or an item taken is counted every time, and the first time it is fresh until the catalog
+## has looked at it.
+func test_a_take_is_counted_and_fresh_until_looked_at() -> void:
+	var catalog := CatalogState.new()
+	assert_bool(catalog.found(&"payday")).is_false()
+	assert_bool(catalog.take_joker(&"payday")).is_true()
+	assert_bool(catalog.take_joker(&"payday")).is_false()
+	assert_bool(catalog.take_item(&"bomb")).is_true()
+	assert_int(catalog.times(&"payday")).is_equal(2)
+	assert_int(catalog.times(&"bomb")).is_equal(1)
+	assert_bool(catalog.is_fresh(&"payday")).is_true()
+	assert_bool(catalog.look_at(&"payday")).is_true()
+	assert_bool(catalog.look_at(&"payday")).is_false()
+	assert_bool(catalog.is_fresh(&"payday")).is_false()
+	assert_bool(catalog.is_fresh(&"bomb")).is_true()
+	# Taken again after being looked at, it is not new any more.
+	catalog.take_joker(&"payday")
+	assert_bool(catalog.is_fresh(&"payday")).is_false()
+	assert_bool(catalog.take_joker(&"")).is_false()
+	assert_bool(catalog.found(&"")).is_false()
+
+
+## What a profile keeps reads back as it was written, and ids this version does not know are kept
+## for one that does, though never counted among the ones it has.
+func test_the_section_reads_back_and_keeps_unknown_ids() -> void:
+	var file := ConfigFile.new()
+	var catalog := CatalogState.new()
+	catalog.take_joker(&"payday")
+	catalog.take_joker(&"payday")
+	catalog.take_joker(&"from_the_future")
+	catalog.take_item(&"shield")
+	catalog.look_at(&"shield")
+	catalog.write(file)
+	var read := CatalogState.new()
+	read.read(file)
+	assert_int(read.times(&"payday")).is_equal(2)
+	assert_int(read.times(&"from_the_future")).is_equal(1)
+	assert_int(read.times(&"shield")).is_equal(1)
+	assert_bool(read.is_fresh(&"payday")).is_true()
+	assert_bool(read.is_fresh(&"shield")).is_false()
+	var ids: Array[StringName] = [&"payday", &"vulture"]
+	assert_int(read.found_of(ids)).is_equal(1)
+	# Whatever else a file holds is not a count.
+	file.set_value(
+		CatalogState.SECTION, "jokers", {"payday": "lots", "vulture": -2, 3: 1, "aimbot": 4}
+	)
+	file.set_value(CatalogState.SECTION, "fresh", 7)
+	read.read(file)
+	assert_bool(read.found(&"payday")).is_false()
+	assert_bool(read.found(&"vulture")).is_false()
+	assert_int(read.times(&"aimbot")).is_equal(4)
+	assert_int(read.fresh.size()).is_zero()
+
+
+## The profile keeps it in its file, and a profile from before the catalog starts it empty.
+func test_the_profile_keeps_its_catalog() -> void:
+	var profile := Game.settings.profile
+	assert_int(profile.catalog.jokers.size()).is_zero()
+	profile.catalog.take_joker(&"wild_card")
+	profile.catalog.take_item(&"turret")
+	Game.settings.save_to_disk()
+	var kept := Profile.at(Game.settings.profiles_dir(), profile.id)
+	assert_int(kept.catalog.times(&"wild_card")).is_equal(1)
+	assert_int(kept.catalog.times(&"turret")).is_equal(1)
+
+
+## Jokers and items share the profile's list of fresh ids, so no joker is called what an item is.
+func test_no_joker_shares_an_id_with_an_item() -> void:
+	for item: PowerUp in POWER_UPS.entries:
+		assert_object(JOKERS.by_id(item.id)).is_null()
+
+
+## A take goes into the profile of the seat it was taken at, the profile playing's at the first, the
+## linked profile's at another, and a guest's and a bot's nowhere; a test's room keeps nothing, and
+## what a room keeps is written as it is left, before the seats are guests again.
+func test_a_take_goes_into_the_profile_at_its_seat() -> void:
+	var bob := Game.settings.new_profile()
+	bob.player_names[0] = "Bob"
+	bob.save_to_disk()
+	Game.settings.link_seat(1, bob.id)
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.KEYBOARD, 0),
+		PlayerInput.new(0, 1),
+		PlayerInput.new(1, 2),
+		BotInput.new(),
+	]
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = RULES
+	match_node.arena_layout = LAYOUT
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	match_node.start(inputs, 4)
+	var record := CatalogRecord.add_to(match_node)
+	await _runner.simulate_frames(2, 17)
+	Events.joker_taken.emit(0, &"payday")
+	assert_bool(Game.settings.profile.catalog.found(&"payday")).is_false()
+	CatalogRecord.anywhere = true
+	Events.joker_taken.emit(0, &"payday")
+	Events.item_picked.emit(0, &"bomb")
+	Events.joker_taken.emit(1, &"vulture")
+	Events.item_picked.emit(1, &"shield")
+	Events.joker_taken.emit(2, &"aimbot")
+	Events.joker_taken.emit(3, &"aimbot")
+	Events.joker_taken.emit(9, &"aimbot")
+	var ann := Game.settings.profile.catalog
+	assert_int(ann.times(&"payday")).is_equal(1)
+	assert_int(ann.times(&"bomb")).is_equal(1)
+	assert_bool(ann.found(&"vulture")).is_false()
+	assert_bool(ann.found(&"aimbot")).is_false()
+	var linked := Game.settings.seat_profile(1).catalog
+	assert_int(linked.times(&"vulture")).is_equal(1)
+	assert_int(linked.times(&"shield")).is_equal(1)
+	assert_bool(linked.found(&"payday")).is_false()
+	get_tree().call_group(MatchRecord.GROUP, &"leave")
+	Game.settings.unlink_all()
+	assert_int(Profile.at(Game.settings.profiles_dir(), bob.id).catalog.times(&"vulture")).is_equal(
+		1
+	)
+	var mine := Profile.at(Game.settings.profiles_dir(), Game.settings.profile.id)
+	assert_int(mine.catalog.times(&"bomb")).is_equal(1)
+	# Taken out of the tree, the room hears nothing more.
+	match_node.remove_child(record)
+	Events.joker_taken.emit(0, &"payday")
+	assert_int(ann.times(&"payday")).is_equal(1)
+	record.free()

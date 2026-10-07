@@ -52,6 +52,8 @@ var servers: Array[Dictionary] = []
 var stats: Dictionary[StringName, float] = {}
 ## How far it is through the story, STORY.md 5.2, see [Story].
 var story := StoryState.new()
+## Every joker and power-up it ever took, for the catalog of GAME.md 8.8.
+var catalog := CatalogState.new()
 
 
 ## The profile kept as [param id] in [param folder], read from its file if it has one, or new.
@@ -106,6 +108,7 @@ func load_from_disk() -> void:
 		for key: String in file.get_section_keys("stats"):
 			stats[StringName(key)] = float(file.get_value("stats", key, 0.0))
 	story.read(file)
+	catalog.read(file)
 
 
 func save_to_disk() -> Error:
@@ -131,4 +134,5 @@ func save_to_disk() -> Error:
 	for key: StringName in stats:
 		file.set_value("stats", String(key), stats[key])
 	story.write(file)
+	catalog.write(file)
 	return file.save(path)

@@ -81,6 +81,7 @@ func _ready() -> void:
 		DebugOverlay.add_to(self, match_node, session)
 		# What the players here do in the lobby counts too, GAME.md 8.5, as they leave it.
 		MatchRecord.add_to(match_node).maps = false
+		CatalogRecord.add_to(match_node)
 	# Even with nobody here to open it: it is what stops the room once everybody asks.
 	var menu := PauseMenu.add_to(self, session)
 	menu.names_and_colors = true
