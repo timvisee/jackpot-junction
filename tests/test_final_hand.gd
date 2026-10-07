@@ -105,6 +105,7 @@ func test_not_now_asks_again_at_the_next_lobby() -> void:
 	Game.settings = Settings.new()
 	Game.settings.path = "user://test_final_hand_lobby.cfg"
 	Game.settings.profile.license_number = "JJ-212212"
+	Game.settings.profile.license_holder = "Ada"
 	Game.settings.profile.story.seconds = Story.FINAL_HAND_AT
 	Story.override = Story.Stage.CANDIDATE
 	for visit: int in 2:
@@ -114,6 +115,13 @@ func test_not_now_asks_again_at_the_next_lobby() -> void:
 		await _runner.simulate_frames(45, 17)
 		var pane := room.find_child("FinalHandPane", true, false) as FinalHandPane
 		assert_object(pane).override_failure_message("lobby %d" % visit).is_not_null()
+		# Dealt face down, turned over, and only then answered.
+		assert_str(pane.card.holder).is_equal("Ada")
+		for wait: int in 40:
+			if pane.dealt():
+				break
+			await await_millis(50)
+		assert_bool(pane.card.face_up).is_true()
 		pane.not_now.pressed.emit()
 		await await_idle_frame()
 		var choosing: HostSettings = room.get("host_settings")

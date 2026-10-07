@@ -1061,7 +1061,7 @@ noted; STORY.md and GAME.md were brought in line first. One commit an item.
       a glint every three seconds [7.1].
 - [x] NOTE COLLECTED big in the middle, written on in pencil, then into the corner, after any call
       already up; with a rustle and a scratch [7.1].
-- [ ] The invitation: the Final Hand's pane a black card edged in gold, dealt face down and turned
+- [x] The invitation: the Final Hand's pane a black card edged in gold, dealt face down and turned
       over; a look at a gold-edged ticket beside it for the user [8.1].
 - [ ] The match settings at the Final Hand: no SET BY THE HOUSE, every value under a marker bar of
       its own, drawn on in turn [8.1].
