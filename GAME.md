@@ -2655,7 +2655,11 @@ Amber and red belong to the boards and the warnings.
   the house's chips, the seat cards' own with their notches and ring, slower than
   they were, one crossing the screen in 40 to 80 seconds, and fade the other way:
   gone within 0.45 of the burst's reach from the mark and all there past it, so they
-  stay out at the edges and off the words.
+  stay out at the edges and off the words. Nothing on the settled title is drawn
+  again a frame, see 10.7: the burst is one array of triangles, the rays' soft edges
+  laid into it rather than drawn as smoothed lines, turned whole with the seal, and
+  the chips are pictures of their faces, drawn once a run with smaller copies for the
+  small ones, and moved, turned and faded.
 - **The title's opening**, the first time the title comes up in a run, about two
   and a half seconds: the mark large in the middle of the plain stock, four tenths
   of the screen's shorter side, then flying up and shrinking into its place over the
@@ -6636,6 +6640,14 @@ stays won. New code is held to these, and a pull that breaks one says why:
   and go for the questions asked of them every frame. A set that changes all
   the time, such as what is lying on the floor, is gone through once a frame
   however many ask, and a physics query is made once and pointed again.
+- A menu's moving pictures are drawn once and moved. A control turned or scaled
+  is drawn again by the engine every frame it turns, so what turns all the time is
+  a `Node2D`, as the title's sunburst and seal are; many small pictures moving at
+  once are a sheet drawn once and shown as sprites, as the title's chips are; and
+  a picture is drawn again only when it changes, as the title's glow is. Before
+  this the title drew its seal's 48 smoothed rings again every frame and ran at
+  about 200 frames a second on the desktop; drawn once, it runs at about 1350, at
+  0.2 ms of the renderer's time a frame.
 - Every new shader a player can meet is compiled behind the title. A new
   effect, pickup, kart dress, HUD piece, room, light or material with a feature
   set the game did not have -- a texture where there was none, transparency,

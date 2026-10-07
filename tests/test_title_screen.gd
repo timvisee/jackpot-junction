@@ -83,6 +83,23 @@ func test_the_seal_comes_up_band_by_band() -> void:
 	back.get_parent().free()
 
 
+## Nothing on the settled title is drawn again a frame, GAME.md 10.7: the burst and the seal turn
+## whole, and the glow is drawn again only when it moves.
+func test_the_title_turns_without_drawing_again() -> void:
+	var back := _background(Vector2(1600.0, 900.0))
+	await await_idle_frame()
+	await await_idle_frame()
+	var drawn := [0]
+	for part: CanvasItem in [back, back._burst, back._seal]:
+		part.draw.connect(func() -> void: drawn[0] += 1)
+	var turned := back._burst.rotation
+	for i: int in 5:
+		await await_idle_frame()
+	assert_float(back._burst.rotation).is_not_equal(turned)
+	assert_int(drawn[0]).is_equal(0)
+	back.get_parent().free()
+
+
 ## The opening lays each part from nothing to where it rests, the mark held back for the large one
 ## flying into its place, and ends with every part at its end however it ends.
 func test_the_opening_lays_its_parts_and_ends_where_they_rest() -> void:
