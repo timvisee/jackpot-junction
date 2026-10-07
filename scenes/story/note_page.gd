@@ -612,10 +612,20 @@ func _strike(over: Rect2) -> void:
 
 
 ## The pencilled mark of a note not yet read, STORY.md 7.2: an exclamation mark in a ring, drawn on
-## [param canvas] round [param middle], [param scale] times its size on a page.
-static func new_mark(canvas: CanvasItem, middle: Vector2, scale := 1.0) -> void:
-	canvas.draw_arc(middle, 15.0 * scale, 0.3, TAU + 0.1, 24, PENCIL, 1.6 * scale, true)
-	canvas.draw_char(HAND, middle + Vector2(-3.0, 10.0) * scale, "!", roundi(30.0 * scale), PENCIL)
+## [param canvas] round [param middle], [param scale] times its size on a page, in [param ink]: the
+## pencil, or something lighter on dark paper.
+static func new_mark(canvas: CanvasItem, middle: Vector2, scale := 1.0, ink := PENCIL) -> void:
+	canvas.draw_arc(middle, 15.0 * scale, 0.3, TAU + 0.1, 24, ink, 1.6 * scale, true)
+	# The ! in two strokes of the pencil, upright in the middle of the ring: a line leaning a touch
+	# and the dot under it, drawn rather than set so it sits in the ring at any size.
+	canvas.draw_line(
+		middle + Vector2(0.7, -8.5) * scale,
+		middle + Vector2(0.0, 3.2) * scale,
+		ink,
+		2.4 * scale,
+		true
+	)
+	canvas.draw_circle(middle + Vector2(-0.2, 7.6) * scale, 1.6 * scale, ink)
 
 
 ## [param button] wearing a new note's pencil mark on a scrap of paper at its top right corner, or

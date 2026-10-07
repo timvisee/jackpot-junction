@@ -13,8 +13,11 @@ enum Phase { WAITING, WRITING, HOLDING, GOING, CORNER }
 const BIG := Vector2(560.0, 118.0)
 const SMALL := Vector2(250.0, 53.0)
 const FONT_SIZE := 58
-## The room the pencil mark takes at the scrap's right end.
-const MARK_ROOM := 64.0
+## The pencil mark after the words: how big, a page's mark times this, how far after them, and how
+## high its middle sits over the words' baseline, as a share of their size: the capitals' middle.
+const MARK_SCALE := 1.4
+const MARK_GAP := 20.0
+const CAPS_MIDDLE := 0.33
 ## How long it unfolds, how long the words take to write, how long it holds, how long it takes to
 ## go to the corner, how long it stays there and how long it fades for.
 const FOLD_IN := 0.22
@@ -173,18 +176,17 @@ func _draw() -> void:
 		words.substr(0, ceili(words.length() * _written)) if phase == Phase.WRITING else words
 	)
 	var baseline := (BIG.y + font.get_ascent(FONT_SIZE) - font.get_descent(FONT_SIZE)) * 0.5
+	# The words and the mark after them centered on the scrap together, the mark level with the
+	# middle of the capitals.
+	var mark := 15.0 * MARK_SCALE
+	var left := (BIG.x - wide - MARK_GAP - mark * 2.0) * 0.5
 	draw_string(
-		font,
-		Vector2((BIG.x - MARK_ROOM - wide) * 0.5 + 8.0, baseline),
-		shown,
-		HORIZONTAL_ALIGNMENT_LEFT,
-		-1,
-		FONT_SIZE,
-		PENCIL
+		font, Vector2(left, baseline), shown, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE, PENCIL
 	)
-	# A new note's pencil mark in the corner, as its page in the folder will have, STORY.md 7.2.
+	# A new note's pencil mark, as its page in the folder will have, STORY.md 7.2.
 	if phase != Phase.WRITING or _written >= 1.0:
-		NotePage.new_mark(self, Vector2(BIG.x - 34.0, BIG.y * 0.5), 1.4)
+		var middle := Vector2(left + wide + MARK_GAP + mark, baseline - FONT_SIZE * CAPS_MIDDLE)
+		NotePage.new_mark(self, middle, MARK_SCALE)
 
 
 static func _shifted(points: PackedVector2Array, by: Vector2) -> PackedVector2Array:
