@@ -110,6 +110,7 @@ static func make(numbered: int, of: Profile, is_new := false) -> NotePage:
 	page.custom_minimum_size = SIZE
 	page.size = SIZE
 	page.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	FolderBack.lay(page, numbered, of)
 	return page
 
 

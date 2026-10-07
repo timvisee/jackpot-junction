@@ -118,7 +118,7 @@ func _draw() -> void:
 	var inner := Rect2(
 		Vector2.ONE * BORDER, Vector2(SIZE.x - STUB - BORDER - 4.0, SIZE.y - BORDER * 2.0)
 	)
-	draw_rect(inner, Color(INK, 0.5), false, 1.4)
+	draw_rect(inner, Color(INK, 0.5), false, 1.4, true)
 	# Engraved waves across the face, as on a banknote.
 	for row: int in 14:
 		var wave := PackedVector2Array()
@@ -142,7 +142,7 @@ func _draw_stub() -> void:
 	_gild(stub, shape)
 	var x := SIZE.x - STUB
 	var inner := Rect2(x + 4.0, BORDER, STUB - BORDER - 4.0, SIZE.y - BORDER * 2.0)
-	stub.draw_rect(inner, Color(INK, 0.5), false, 1.4)
+	stub.draw_rect(inner, Color(INK, 0.5), false, 1.4, true)
 	var mark := Type.mark_font()
 	var admit := StoryLines.ADMIT_ONE
 	stub.draw_set_transform(Vector2(x + STUB * 0.5 + 10.0, SIZE.y * 0.5), -PI * 0.5, Vector2.ONE)
@@ -285,12 +285,24 @@ func _draw_words() -> void:
 	draw_string(
 		NotePage.TYPED, Vector2(x, 222.0), holder.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 26, INK
 	)
+	# The table, as small as it takes to stay short of the perforation.
+	var table := StoryLines.TICKET_TABLE
+	var room := SIZE.x - STUB - 24.0 - x
+	var table_size := 14
+	while (
+		table_size > 9
+		and (
+			NotePage.TYPED.get_string_size(table, HORIZONTAL_ALIGNMENT_LEFT, -1, table_size).x
+			> room
+		)
+	):
+		table_size -= 1
 	draw_string(
 		NotePage.TYPED,
 		Vector2(x, 272.0),
-		StoryLines.TICKET_TABLE,
+		table,
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
-		14,
+		table_size,
 		Color(INK, 0.8)
 	)

@@ -23,10 +23,18 @@ extends RefCounted
 ## [code]footer[/code] are its print. Placeholders are filled in for the profile reading, see
 ## [StoryFill].
 ## The pages at the back of the folder after the ending, STORY.md 7.2, numbered under the notes so
-## they sort after nothing and are never a note: the Final Hand's slip and Terms Accepted's card.
+## they sort after nothing and are never a note: the House's invitation and its golden ticket, the
+## Final Hand's slip and Terms Accepted's card.
 const FINAL_SLIP := -1
 const TERMS_CARD := -2
-const BACK_TITLES := {FINAL_SLIP: "The Final Hand", TERMS_CARD: "Terms Accepted"}
+const INVITATION := -3
+const TICKET := -4
+const BACK_TITLES := {
+	INVITATION: "The Invitation",
+	TICKET: "Admit One",
+	FINAL_SLIP: "The Final Hand",
+	TERMS_CARD: "Terms Accepted",
+}
 const NOTES := {
 	1:
 	{

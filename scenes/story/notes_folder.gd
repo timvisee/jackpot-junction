@@ -119,6 +119,8 @@ static func in_order(story: StoryState) -> PackedInt32Array:
 	var found := story.notes.duplicate()
 	found.sort()
 	if story.ended():
+		found.append(StoryNotes.INVITATION)
+		found.append(StoryNotes.TICKET)
 		found.append(StoryNotes.FINAL_SLIP)
 		found.append(StoryNotes.TERMS_CARD)
 	return found

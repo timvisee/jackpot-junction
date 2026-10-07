@@ -53,12 +53,29 @@ func test_a_note_is_new_until_it_has_been_looked_at_closer() -> void:
 	_profile.story.notes = PackedInt32Array([5, 1, 3])
 	_profile.story.notes_read = PackedInt32Array([1])
 	assert_array(Array(NotesFolder.in_order(_profile.story))).is_equal([1, 3, 5])
-	# After the ending, what the player kept is at the back: the Final Hand's slip and the card.
+	# After the ending, what the player kept is at the back: the invitation and its ticket, torn,
+	# the Final Hand's slip and the card.
 	_profile.story.final_hand = "2026-10-07"
 	assert_array(Array(NotesFolder.in_order(_profile.story))).is_equal(
-		[1, 3, 5, StoryNotes.FINAL_SLIP, StoryNotes.TERMS_CARD]
+		[
+			1,
+			3,
+			5,
+			StoryNotes.INVITATION,
+			StoryNotes.TICKET,
+			StoryNotes.FINAL_SLIP,
+			StoryNotes.TERMS_CARD
+		]
 	)
 	assert_str(StoryNotes.title_of(StoryNotes.TERMS_CARD)).is_equal("Terms Accepted")
+	var invitation: NotePage = auto_free(NotePage.make(StoryNotes.INVITATION, _profile))
+	assert_bool(invitation.get_node("Kept") is InvitationCard).is_true()
+	var kept: NotePage = auto_free(NotePage.make(StoryNotes.TICKET, _profile))
+	add_child(kept)
+	var ticket: GoldenTicket = kept.get_node("Kept")
+	assert_bool(ticket.torn).is_true()
+	assert_bool(ticket.stub.visible).is_false()
+	assert_object(auto_free(NotePage.make(1, _profile)).get_node_or_null("Kept")).is_null()
 	_profile.story.final_hand = ""
 	assert_int(NotesFolder.spreads(3)).is_equal(2)
 	assert_int(NotesFolder.spread_of(0)).is_equal(0)

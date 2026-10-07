@@ -1,13 +1,20 @@
 class_name FolderBack
 extends RefCounted
-## What the player keeps at the back of the folder after the ending, STORY.md 7.2 and 8.7: the
-## Final Hand's payout slip with its evaluation as it was stamped, from what the profile kept of it,
-## and the card of Terms Accepted, license-sized, the House's paper with its APPROVED stamp across
-## it and TERMS ACCEPTED under it, with the date. Drawn onto a [NotePage] as a note is.
+## What the player keeps at the back of the folder after the ending, STORY.md 7.2, 8.1 and 8.7: the
+## House's invitation and its golden ticket, ADMIT ONE torn off, laid on their pages as they are,
+## see [method lay]; the Final Hand's payout slip with its evaluation as it was stamped, from what
+## the profile kept of it; and the card of Terms Accepted, license-sized, the House's paper with its
+## APPROVED stamp across it and TERMS ACCEPTED under it, with the date. Drawn onto a [NotePage] as a
+## note is.
 
 const SLIP := Vector2(380.0, 300.0)
 const CARD := Vector2(340.0, 214.0)
 const SIZE := 9
+## The invitation and the ticket, which draw themselves, laid on their page and tilted a little.
+const INVITATION_TILT := -0.03
+const TICKET_TILT := -0.06
+## The room kept round them on the page, under its title.
+const ROOM := 30.0
 
 
 ## The back page [param number] of [param profile]'s folder on [param page].
@@ -16,8 +23,53 @@ static func draw(page: NotePage, number: int, profile: Profile) -> void:
 	var date := str(kept.get("date", profile.story.final_hand if profile != null else ""))
 	if number == StoryNotes.FINAL_SLIP:
 		_slip(page, kept, date)
-	else:
+	elif number == StoryNotes.TERMS_CARD:
 		_card(page, date)
+
+
+## The invitation or the torn ticket laid on [param page], if it is the page for one: each draws
+## itself, scaled to the page, for [param profile]'s player.
+static func lay(page: NotePage, number: int, profile: Profile) -> void:
+	if number != StoryNotes.INVITATION and number != StoryNotes.TICKET:
+		return
+	var named := profile.license_holder if profile != null else ""
+	if named.is_empty():
+		named = FinalHandPane.holder_name()
+	var room := Rect2(
+		ROOM,
+		NotePage.TITLE_ROOM,
+		NotePage.SIZE.x - ROOM * 2.0,
+		NotePage.SIZE.y - NotePage.TITLE_ROOM - ROOM * 2.0
+	)
+	var kept: Control
+	var drawn: Vector2
+	var tilt: float
+	if number == StoryNotes.INVITATION:
+		var card := InvitationCard.new()
+		card.holder = named
+		card.face_up = true
+		kept = card
+		drawn = InvitationCard.SIZE
+		tilt = INVITATION_TILT
+	else:
+		var ticket := GoldenTicket.make(named, profile.license_number if profile != null else "")
+		ticket.ready.connect(ticket.show_torn)
+		kept = ticket
+		# Only the ticket short of its stub is left to fit.
+		drawn = GoldenTicket.SIZE - Vector2(GoldenTicket.STUB, 0.0)
+		tilt = TICKET_TILT
+	var fit := minf(room.size.x / drawn.x, room.size.y / drawn.y)
+	var whole: Vector2 = InvitationCard.SIZE if kept is InvitationCard else GoldenTicket.SIZE
+	# Scaled and turned about its middle; the ticket's middle sits half a stub right of what is
+	# left of it.
+	var middle := room.get_center()
+	if kept is GoldenTicket:
+		middle.x += GoldenTicket.STUB * 0.5 * fit
+	kept.name = "Kept"
+	kept.scale = Vector2.ONE * fit
+	kept.rotation = tilt
+	kept.position = middle - whole * 0.5
+	page.add_child(kept)
 
 
 static func _slip(page: NotePage, kept: Dictionary, date: String) -> void:
