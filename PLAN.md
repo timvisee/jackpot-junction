@@ -1215,7 +1215,7 @@ user picks a line from the suggestions. STORY.md and GAME.md first. One commit a
 
 - [x] STORY.md and GAME.md: every decision below written in first.
 - [x] The folded corners and their binds gone [7.2].
-- [ ] Play Online reads Clock in online after the ending [8.6].
+- [x] Play Online reads Clock in online after the ending [8.6].
 - [ ] The stick turns one page a push, let go between [7.2].
 - [ ] Putting a note back is quiet [7.2].
 - [ ] The folder stays where it is while a note is up [7.2].

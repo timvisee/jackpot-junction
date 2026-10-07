@@ -50,8 +50,9 @@ func test_the_license_is_the_operators() -> void:
 	assert_str(before.examiner).is_equal(LicenseCard.EXAMINER)
 
 
-## The Operator's title: Clock in where Play was, the green line along the foot, and the seal's new
-## fine print; Play and none of the rest with the story switched off.
+## The Operator's title: Clock in where Play was and Clock in online where Play Online was, the
+## green line along the foot, and the seal's new fine print; Play and none of the rest with the
+## story switched off.
 func test_the_title_is_the_operators_until_switched_off() -> void:
 	Story.override = Story.Stage.OPERATOR
 	var title: Control = auto_free(TITLE_SCENE.instantiate())
@@ -60,6 +61,15 @@ func test_the_title_is_the_operators_until_switched_off() -> void:
 	var play: Button = title.get("play_button")
 	assert_str(play.text).is_equal("Clock in")
 	assert_bool(play.pressed.get_connections().is_empty()).is_false()
+	var buttons := play.get_parent().get_children().filter(
+		func(node: Node) -> bool: return node is Button
+	)
+	(
+		assert_bool(
+			buttons.any(func(button: Button) -> bool: return button.text == "Clock in online")
+		)
+		. is_true()
+	)
 	var line: HBoxContainer = title.find_child("StatusLine", true, false)
 	assert_object(line).is_not_null()
 	var said := (line.get_child(0) as Label).text

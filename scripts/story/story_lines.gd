@@ -351,6 +351,7 @@ const BACK_MICRO_AFTER := (
 	"VOID WHERE PROHIBITED. ESPECIALLY THERE.  ·  " + "ISSUED BY A BOT, REVIEWED BY {name}."
 )
 const CLOCK_IN := "Clock in"
+const CLOCK_IN_ONLINE := "Clock in online"
 const STATUS_LINE := "OPERATOR {license} · SHIFT {shifts} · STATUS NORMAL"
 const SEAL_AFTER := "JACKPOT JUNCTION  ·  THE HOUSE  ·  UNDER HUMAN OVERSIGHT  ·  "
 

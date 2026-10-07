@@ -126,7 +126,7 @@ func _ready() -> void:
 	column.add_child(play_button)
 	# The games on dedicated servers, GAME.md 9.3a, and through them the games on the network, 9.3:
 	# one way in to playing with other machines rather than one for each kind of host.
-	var server := MenuTheme.button("Play Online")
+	var server := MenuTheme.button(StoryLines.CLOCK_IN_ONLINE if operator else "Play Online")
 	server.pressed.connect(
 		func() -> void:
 			offer_license(func() -> void: DriveChoice.first(self, Game.go_to_play_online))
