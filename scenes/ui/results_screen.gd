@@ -431,11 +431,13 @@ func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix) -> PanelContainer:
 	var line := HBoxContainer.new()
 	line.add_theme_constant_override("separation", 16)
 	line.add_child(_place_chip(slot, rank))
-	# Up or down since the map before, beside the place it changed.
-	var moved := run.moved(slot.index, match_node.slots)
-	var marker: Control = RankArrow.create(moved > 0) if moved != 0 else Control.new()
-	marker.custom_minimum_size = RankArrow.SIZE
-	line.add_child(marker)
+	# Up or down since the map before, beside the place it changed: a column of its own while anybody
+	# moved, and none at all when nobody did, rather than a gap before every name.
+	if _anybody_moved(run):
+		var moved := run.moved(slot.index, match_node.slots)
+		var marker: Control = RankArrow.create(moved > 0) if moved != 0 else Control.new()
+		marker.custom_minimum_size = RankArrow.SIZE
+		line.add_child(marker)
 	line.add_child(_name(slot))
 	line.add_child(_leader())
 	var won := run.wins(slot.index)
@@ -466,6 +468,15 @@ func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix) -> PanelContainer:
 		maps.add_child(_chip(named, "%s \u00b7 %d" % [ordinal, paid[i]]))
 	box.add_child(maps)
 	return row
+
+
+## Whether anybody's place in [param run] has changed since the map before, for the standings to
+## keep a column for the arrows.
+func _anybody_moved(run: GrandPrix) -> bool:
+	for slot: PlayerSlot in match_node.slots:
+		if run.moved(slot.index, match_node.slots) != 0:
+			return true
+	return false
 
 
 ## The line a player's row is printed on: dashes under it, and the reader's own marked as with a

@@ -532,6 +532,11 @@ func test_the_podium_in_the_middle_of_a_run_leaves_the_points_to_the_standings()
 		assert_bool(text.contains("points")).override_failure_message(text).is_false()
 	await _to_the_run(screen)
 	assert_str(screen._title.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	# After the first map nobody has moved, so no row keeps a gap before its name for an arrow.
+	var arrows := screen._rows.find_children("*", "Control", true, false).filter(
+		func(each: Node) -> bool: return (each as Control).custom_minimum_size == RankArrow.SIZE
+	)
+	assert_array(arrows).is_empty()
 	var texts := _texts(screen)
 	assert_bool(texts.has("+%d" % GrandPrix.POINTS[0])).is_true()
 	assert_bool(texts.has("+%d" % GrandPrix.POINTS[1])).is_true()

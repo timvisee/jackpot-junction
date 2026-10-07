@@ -5499,7 +5499,8 @@ it led to, headed Grand Prix over Final
 standings after however many maps it was: the top three of the run on the steps, then everybody
 ranked on points, each with how many maps they won, their points in gold, and a chip for every
 map saying where they finished it and what it paid. Beside the place of anybody the last map
-moved is an arrow: green and up for a climb, red and down for a fall. Only then does the board in the arena, which
+moved is an arrow: green and up for a climb, red and down for a fall, in a column of its own that
+is left out altogether when nobody moved, rather than a gap before every name. Only then does the board in the arena, which
 names the winner at every whistle, name the champion of the run instead of the last map's
 winner. The run's podium's ways on are Back to lobby, to the waiting room online and to Play's
 lobby on one machine, or back to the title.

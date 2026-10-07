@@ -20,6 +20,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **No gap before the names on the Grand Prix standings.** When nobody's place changed, the
+  standings no longer leave room for an arrow before every name.
 - **No gold glide onto what can't be pressed.** The frame that slides with the cursor skips
   disabled buttons, such as the match settings locked for the Final Hand.
 
