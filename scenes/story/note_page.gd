@@ -88,6 +88,10 @@ var number := 0
 var profile: Profile
 ## Whether the note is new: found and not yet read, STORY.md 7.2.
 var new := false
+## What is drawn: [code]full[/code] the folder's page, leaf, title, note and clip;
+## [code]paper[/code] the note alone, as it is looked at closer, see [NoteView]; [code]back[/code]
+## the note turned over, see [constant StoryNotes.BACKS].
+var layer := &"full"
 
 var _rng := RandomNumberGenerator.new()
 
@@ -119,11 +123,16 @@ func paper_rect() -> Rect2:
 
 func _draw() -> void:
 	_rng.seed = number * 7919
-	draw_rect(Rect2(Vector2.ZERO, SIZE), LEAF)
-	draw_rect(Rect2(Vector2.ZERO, SIZE), LEAF_EDGE, false, 1.0)
-	_scrawl(StoryNotes.title_of(number), Vector2(MARGIN, 46.0), TITLE_SIZE, PENCIL, 0.4)
-	if new:
-		_draw_new_mark()
+	if layer == &"back":
+		_draw_back()
+		return
+	var full := layer == &"full"
+	if full:
+		draw_rect(Rect2(Vector2.ZERO, SIZE), LEAF)
+		draw_rect(Rect2(Vector2.ZERO, SIZE), LEAF_EDGE, false, 1.0)
+		_scrawl(StoryNotes.title_of(number), Vector2(MARGIN, 46.0), TITLE_SIZE, PENCIL, 0.4)
+		if new:
+			_draw_new_mark()
 	# The back of the folder, after the ending: no note's paper, what the player kept.
 	if number < 0:
 		FolderBack.draw(self, number, profile)
@@ -136,7 +145,10 @@ func _draw() -> void:
 	var shadow := rect
 	if kind == &"flyer":
 		shadow.size.y *= 0.74
-	draw_rect(Rect2(shadow.position + Vector2(3.0, 4.0), shadow.size), Color(0.0, 0.0, 0.0, 0.12))
+	if full:
+		draw_rect(
+			Rect2(shadow.position + Vector2(3.0, 4.0), shadow.size), Color(0.0, 0.0, 0.0, 0.12)
+		)
 	NotePaper.draw_paper(self, kind, rect, spec[1])
 	var inside := rect.grow(-float(spec[3]))
 	# The strip's words keep to its left: the pen's warning has the right of it, see
@@ -153,7 +165,8 @@ func _draw() -> void:
 			return
 		&"chart":
 			_draw_chart(inside, int(spec[2]))
-			NotePaper.draw_clip(self, rect)
+			if full:
+				NotePaper.draw_clip(self, rect)
 			return
 		&"form":
 			inside.position.y += 26.0
@@ -173,14 +186,20 @@ func _draw() -> void:
 	if kind == &"strip":
 		_draw_warning(rect)
 		return
-	NotePaper.draw_clip(self, rect)
+	if full:
+		NotePaper.draw_clip(self, rect)
 
 
 ## The note's lines down [param inside], each in its voice, wrapped to the paper, the House's
 ## dotted leaders run out to the paper's width.
 func _write_lines(inside: Rect2, type_size: int, kind: StringName) -> void:
+	_write(StoryNotes.NOTES.get(number, {}).get("lines", []), inside, type_size, kind)
+
+
+## [param lines] written down [param inside], each in its voice; where they ended.
+func _write(lines: Array, inside: Rect2, type_size: int, kind: StringName) -> float:
 	var y := inside.position.y
-	for line: Array in StoryNotes.NOTES.get(number, {}).get("lines", []):
+	for line: Array in lines:
 		var voice: StringName = line[0]
 		var text := StoryFill.fill(str(line[1]), profile) if profile != null else str(line[1])
 		var spec: Array = VOICES.get(voice, VOICES[&"print"])
@@ -218,6 +237,7 @@ func _write_lines(inside: Rect2, type_size: int, kind: StringName) -> void:
 		if line.size() > 2 and bool(line[2]):
 			_strike(Rect2(x - 4.0, top, width + 8.0, y - top))
 		y += font_size * (0.55 if font == TYPED else (0.2 if written else 0.35))
+	return y
 
 
 ## Whose hand note [param numbered] is in: Kit's, unless it says otherwise, STORY.md 7.3.
@@ -239,6 +259,84 @@ static func _tight(font: Font) -> float:
 		if hand[0] == font:
 			return float(hand[2])
 	return 1.0
+
+
+## The note turned over, STORY.md 7.3: its paper the other way round, and whatever the back of it
+## has on it, see [constant StoryNotes.BACKS]. What shows through from the front is laid over it by
+## whatever shows it, see [NoteView].
+func _draw_back() -> void:
+	var rect := paper_rect()
+	var kind := paper()
+	var spec: Array = PAPERS.get(kind, PAPERS[&"sheet"])
+	var back := StoryNotes.back_of(number)
+	var color: Color = back.get("color", spec[1])
+	var shown_as := StringName(back.get("paper", kind))
+	# Turned over: the paper's outline the other way round.
+	draw_set_transform(Vector2(rect.position.x * 2.0 + rect.size.x, 0.0), 0.0, Vector2(-1.0, 1.0))
+	NotePaper.draw_paper(self, shown_as, rect, color, true)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	var inside := rect.grow(-float(spec[3]))
+	if back.get("band", false):
+		var band := Rect2(rect.position + Vector2(0.0, 14.0), Vector2(rect.size.x, 54.0))
+		draw_rect(band, Color(0.78, 0.2, 0.24, 0.16))
+		inside.position.y = band.position.y + 10.0
+	if back.get("window", false):
+		var window := Rect2(
+			rect.position + rect.size * Vector2(0.08, 0.52), rect.size * Vector2(0.5, 0.3)
+		)
+		draw_rect(window, Color(1.0, 1.0, 1.0, 0.3))
+		draw_rect(window, Color(0.0, 0.0, 0.0, 0.18), false, 1.0)
+	if back.get("seal", false):
+		var middle := rect.get_center()
+		for ring: float in [34.0, 26.0, 12.0]:
+			draw_arc(middle, ring, 0.0, TAU, 48, Palette.CHIP_GOLD, 2.0, true)
+	if StringName(back.get("sketch", &"")) == &"junction":
+		_draw_junction(rect)
+		inside.position.y = rect.position.y + rect.size.y * 0.7
+	var lines: Array = back.get("lines", [])
+	# Under the words that show through, where there are some, or as far down as the back says.
+	if back.get("through", false):
+		inside.position.y = rect.position.y + rect.size.y * 0.66
+	if back.has("at"):
+		inside.position.y = rect.position.y + rect.size.y * float(back["at"])
+	if not lines.is_empty():
+		var top := inside.position.y
+		var bottom := _write(lines, inside, int(spec[2]), &"back")
+		if back.get("box", false):
+			draw_rect(
+				Rect2(inside.position.x - 8.0, top - 6.0, inside.size.x + 16.0, bottom - top + 6.0),
+				STAMP_INK,
+				false,
+				2.0
+			)
+	var stamp := str(back.get("stamp", ""))
+	if not stamp.is_empty():
+		NotePaper.draw_stamp(self, stamp, rect.position + rect.size * Vector2(0.7, 0.78), -0.2)
+
+
+## The Junction as Kit drew it from above on the back of table one's page, STORY.md 7.3: the ring
+## of it, the hub, the four notches, and a dimension across it, in pencil.
+func _draw_junction(rect: Rect2) -> void:
+	var middle := rect.position + rect.size * Vector2(0.5, 0.32)
+	var outer := rect.size.y * 0.22
+	draw_arc(middle, outer, 0.0, TAU, 48, PENCIL, 1.4, true)
+	draw_arc(middle, outer * 0.62, 0.0, TAU, 40, PENCIL, 1.2, true)
+	draw_arc(middle, outer * 0.18, 0.0, TAU, 20, PENCIL, 1.2, true)
+	for i: int in 4:
+		var a := TAU * float(i) / 4.0 + PI * 0.25
+		draw_line(
+			middle + Vector2.from_angle(a) * outer * 0.62,
+			middle + Vector2.from_angle(a) * outer,
+			PENCIL,
+			1.2,
+			true
+		)
+	var y := middle.y + outer + 14.0
+	draw_line(Vector2(middle.x - outer, y), Vector2(middle.x + outer, y), PENCIL, 1.0, true)
+	for end: float in [-1.0, 1.0]:
+		var x := middle.x + outer * end
+		draw_line(Vector2(x, y - 5.0), Vector2(x, y + 5.0), PENCIL, 1.0, true)
+	_scrawl("40 cm", Vector2(middle.x - 18.0, y + 22.0), 20, PENCIL, 0.4)
 
 
 ## [param text] split at its dotted leader into what is on either side of it, or nothing.

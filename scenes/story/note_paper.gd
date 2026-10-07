@@ -16,7 +16,9 @@ const MARGIN_SIZE := 20
 
 
 ## The paper of [param kind] in [param rect], [param color], as it is before the words.
-static func draw_paper(canvas: CanvasItem, kind: StringName, rect: Rect2, color: Color) -> void:
+static func draw_paper(
+	canvas: CanvasItem, kind: StringName, rect: Rect2, color: Color, bare := false
+) -> void:
 	match kind:
 		&"receipt", &"roll":
 			canvas.draw_colored_polygon(torn(rect, 6.0, true, true), color)
@@ -44,14 +46,15 @@ static func draw_paper(canvas: CanvasItem, kind: StringName, rect: Rect2, color:
 				)
 				points.append(rect.position + Vector2(rect.size.x * t, y))
 			canvas.draw_colored_polygon(points, color)
-			canvas.draw_rect(
-				Rect2(rect.position + Vector2(8.0, 8.0), Vector2(rect.size.x - 16.0, 2.0)),
-				HOUSE_GOLD
-			)
+			if not bare:
+				canvas.draw_rect(
+					Rect2(rect.position + Vector2(8.0, 8.0), Vector2(rect.size.x - 16.0, 2.0)),
+					HOUSE_GOLD
+				)
 		&"slip":
 			canvas.draw_rect(rect, color)
 			# The payout slip's print showing through from the other side, backward and faint.
-			for i: int in 9:
+			for i: int in 0 if bare else 9:
 				var y := rect.position.y + 30.0 + float(i) * 24.0
 				canvas.draw_line(
 					Vector2(rect.position.x + 40.0, y),
@@ -96,6 +99,8 @@ static func draw_paper(canvas: CanvasItem, kind: StringName, rect: Rect2, color:
 				)
 				canvas.draw_circle(spot, rng.randf_range(1.0, 3.5), Color(0.5, 0.33, 0.12, 0.12))
 			_fold(canvas, rect, false, 0.62)
+		&"clipboard" when bare:
+			canvas.draw_rect(rect, color)
 		&"clipboard":
 			var board := rect.grow_individual(16.0, 30.0, 16.0, 16.0)
 			canvas.draw_rect(board, Color(0.52, 0.37, 0.22))
@@ -105,6 +110,8 @@ static func draw_paper(canvas: CanvasItem, kind: StringName, rect: Rect2, color:
 			)
 			canvas.draw_rect(clip, Color(0.66, 0.68, 0.72))
 			canvas.draw_rect(clip.grow(-6.0), Color(0.5, 0.52, 0.56))
+		&"envelope" when bare:
+			canvas.draw_rect(rect, color)
 		&"envelope":
 			canvas.draw_rect(rect, color)
 			var flap := Color(0.0, 0.0, 0.0, 0.12)
@@ -137,6 +144,10 @@ static func draw_paper(canvas: CanvasItem, kind: StringName, rect: Rect2, color:
 				)
 			canvas.draw_rect(rect, Color(0.0, 0.0, 0.0, 0.15), false, 6.0)
 			_fold(canvas, rect, false, 0.5)
+		&"letter" when bare:
+			canvas.draw_rect(rect, color)
+			_fold(canvas, rect, false, 0.34)
+			_fold(canvas, rect, false, 0.67)
 		&"letter":
 			canvas.draw_rect(rect, color)
 			# The House's letterhead: its seal in gold over a rule.
@@ -169,6 +180,9 @@ static func draw_paper(canvas: CanvasItem, kind: StringName, rect: Rect2, color:
 			card.set_border_width_all(2)
 			card.border_color = HOUSE_GOLD
 			canvas.draw_style_box(card, rect)
+		&"form", &"memo" when bare:
+			canvas.draw_rect(rect, color)
+			_fold(canvas, rect, false, 0.5)
 		&"form":
 			canvas.draw_rect(rect, color)
 			canvas.draw_rect(
@@ -190,6 +204,8 @@ static func draw_paper(canvas: CanvasItem, kind: StringName, rect: Rect2, color:
 				Rect2(rect.position + Vector2(0.0, 12.0), Vector2(rect.size.x, 2.0)), HOUSE_GOLD
 			)
 			_fold(canvas, rect, false, 0.5)
+		_ when bare:
+			canvas.draw_rect(rect, color)
 		_:
 			canvas.draw_rect(rect, color)
 			canvas.draw_line(

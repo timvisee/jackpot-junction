@@ -414,6 +414,99 @@ const NOTES := {
 		"lines": [[&"hand", "Turned over at last. Thanks. —K."]],
 	},
 }
+## What is on the back of each note, STORY.md 7.3, for a note turned over, see [NoteView]; a note
+## not here is bare paper on the back. [code]lines[/code] are written as a note's are, see
+## [constant NOTES]; [code]through[/code] shows the front backward, faint, as ink and dents do;
+## [code]band[/code] is a till roll's printed band, [code]window[/code] an envelope's,
+## [code]seal[/code] the House's, [code]box[/code] a stamped box round the lines, [code]stamp[/code]
+## a word stamped, [code]sketch[/code] a drawing in pencil, [code]at[/code] how far down the lines
+## start; [code]paper[/code] and [code]color[/code] are the back's own where it is not the front's.
+const BACKS := {
+	1:
+	{
+		"band": true,
+		"lines":
+		[
+			[&"print", "JACKPOT JUNCTION · KEEP THIS RECEIPT"],
+			[&"small", "NO RECEIPT, NO PAYOUT"],
+		],
+	},
+	2:
+	{
+		"sketch": &"junction",
+		"lines": [[&"hand", "Fitted by hand. The next ones won't be. —K."]],
+	},
+	3:
+	{
+		"lines":
+		[
+			[&"print", "NOTES FOR APPLICANTS"],
+			[&"small", "1. WRITE CLEARLY."],
+			[&"small", "2. PREVIOUS OCCUPATIONS ARE KEPT FOR STATISTICAL PURPOSES."],
+			[&"small", "3. YOU WILL BE NOTIFIED."],
+			[&"small", "4. THERE IS NO NEED TO WAIT BY THE DOOR."],
+		],
+	},
+	4: {"through": true, "color": Color(0.93, 0.93, 0.9)},
+	7:
+	{
+		"lines":
+		[
+			[&"print", "PAYOUT SLIP · TABLE ONE"],
+			[&"print", "PLACE .......... 1ST"],
+			[&"print", "BANKED .......... 1,240 CHIPS"],
+		],
+		"stamp": "PAID",
+	},
+	9:
+	{
+		"lines":
+		[
+			[&"small", "14.2  PARTICIPATION CONSTITUTES ACCEPTANCE."],
+			[&"small", "14.3  ACCEPTANCE CONSTITUTES PARTICIPATION."],
+			[&"small", "14.4  SEE 14.2."],
+		],
+	},
+	10:
+	{
+		"lines":
+		[
+			[&"old", "§ 0.1  These rules are written by people, for the tables."],
+			[&"old", "§ 0.2  Where they are wrong, people shall change them."],
+		],
+	},
+	13:
+	{
+		"through": true,
+		"lines": [[&"hand", "Changed it again. It caught up by lunch. —K."]],
+	},
+	14:
+	{
+		"window": true,
+		"lines":
+		[
+			[&"print", "DEPT. OF KARTS"],
+			[&"print", "TO THE OCCUPANT"],
+			[&"small", "POSTAGE PAID BY THE HOUSE"],
+		],
+	},
+	16:
+	{
+		"color": Color(0.9, 0.92, 0.95),
+		"at": 0.42,
+		"box": true,
+		"lines":
+		[
+			[&"print", "JACKPOT JUNCTION · DRAWING 1 OF 1"],
+			[&"print", "MASTER COPY · DO NOT REMOVE"],
+		],
+	},
+	19: {"lines": [[&"hand", "Left the lamp on. —K."]]},
+	20: {"through": true},
+	21: {"lines": [[&"print", "§ 1.1  No table shall open without human oversight."]]},
+	22: {"seal": true},
+	25: {"lines": [[&"hand", "P.S. Brake on a straight now and then. It hates that. —K."]]},
+}
 
 # --- the schedule ---------------------------------------------------------------------------------
 
@@ -491,6 +584,11 @@ static func file(profile: Profile, number: int) -> void:
 		return
 	profile.story.notes.append(number)
 	profile.story.note_waits = 0
+
+
+## What is on the back of note [param number], see [constant BACKS]: nothing for bare paper.
+static func back_of(number: int) -> Dictionary:
+	return BACKS.get(number, {})
 
 
 ## Note [param number]'s title, as its page is headed, or the title of a page at the back.

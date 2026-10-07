@@ -1052,7 +1052,7 @@ noted; STORY.md and GAME.md were brought in line first. One commit an item.
 - [x] The folder comes out from the edge and its cover swings open; put away, the reverse. It opens
       on its first spread and turns quickly to the first new note, a press cutting it short [7.2].
 - [x] The folder's front: DO NOT FILE in marker, a pencil K., an eye in pen crossed out [7.2].
-- [ ] A closer look: a note taken off its page, larger, zoomed and moved, turned over to its back,
+- [x] A closer look: a note taken off its page, larger, zoomed and moved, turned over to its back,
       every back of 7.3 drawn [7.2, 7.3].
 - [ ] Sounds: Kenney's RPG Audio (CC0), its paper and book sounds, for the folder opening, shutting
       and turning, and for taking a note; THIRD_PARTY.md.

@@ -6,8 +6,10 @@ extends Control
 ## peeked in, its cover, see [FolderCover], swinging open over the spine, and opens on its first
 ## spread, turning quickly on to the first note not yet read, which a press cuts short. A spread
 ## open for a second is read, and its pencil marks go. Left and right, a click or a tap on a page,
-## or the arrows under the folder turn it; Back, Put it away, or a click or a tap beside it shuts it
-## and sends it back where it came from. Nothing in it is the House's.
+## or the arrows under the folder turn it; a click or a tap on a note, or Look closer, which has
+## the cursor, takes it off its page for a closer look, see [NoteView]; Back, Put it away, or a
+## click or a tap beside it shuts it and sends it back where it came from. Nothing in it is the
+## House's.
 
 signal put_away
 
@@ -45,6 +47,7 @@ const ARROW_WIDTH := 88.0
 const AWAY_MOUSE := "Click beside the folder, or press %s, to put it away"
 const AWAY_PAD := "Press %s to put it away"
 const AWAY_TOUCH := "Tap a page to turn it, or beside the folder to put it away"
+const LOOK_WORD := "Look closer"
 
 ## Whose notes, the notes in order, and which spread is open: 0 the first, the inside of the cover
 ## on the left and the first note on the right.
@@ -58,7 +61,10 @@ var peek: Control
 var from := Rect2()
 var folder: Control
 var away: Button
+var look: Button
 var away_line: Control
+## A note taken off its page for a closer look, while it is.
+var view: NoteView
 
 var _holder: Control
 var _buttons_row: Control
@@ -166,9 +172,9 @@ func _ready() -> void:
 	column.add_child(_buttons_row)
 	# The one button the cursor has, kept on it rather than walking off to the screen under.
 	for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
-		away.set_focus_neighbor(side, away.get_path())
-	away.focus_next = away.get_path()
-	away.focus_previous = away.get_path()
+		look.set_focus_neighbor(side, look.get_path())
+	look.focus_next = look.get_path()
+	look.focus_previous = look.get_path()
 	away_line = Control.new()
 	away_line.custom_minimum_size = Vector2(0.0, 24.0)
 	away_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -181,7 +187,7 @@ func _ready() -> void:
 	_shade.modulate.a = 0.0
 	_buttons_row.modulate.a = 0.0
 	away_line.modulate.a = 0.0
-	away.grab_focus()
+	look.grab_focus()
 	# Hidden until the layout has put it where it opens, so it can start from where it peeked in.
 	folder.modulate.a = 0.0
 	_come_out.call_deferred()
@@ -312,8 +318,8 @@ func _faces_of(rect: TextureRect, size_of: Vector2) -> Array[SubViewport]:
 	return made
 
 
-## Previous and next, either side of Put it away, which has the cursor: left and right turn the
-## pages whatever has it.
+## Previous and next either side of Look closer, which has the cursor, and Put it away: left and
+## right turn the pages whatever has it.
 func _buttons() -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -324,8 +330,13 @@ func _buttons() -> HBoxContainer:
 	back.custom_minimum_size.x = ARROW_WIDTH
 	back.pressed.connect(turn.bind(-1))
 	row.add_child(back)
+	look = MenuTheme.button(LOOK_WORD, Type.BODY)
+	look.name = "Look"
+	look.pressed.connect(look_closer)
+	row.add_child(look)
 	away = MenuTheme.button("Put it away", Type.BODY)
 	away.name = "Away"
+	away.focus_mode = Control.FOCUS_NONE
 	away.pressed.connect(close)
 	row.add_child(away)
 	var on := MenuTheme.button("›", Type.HEADING)
@@ -571,26 +582,62 @@ func _process(delta: float) -> void:
 	_open_for += delta
 	if _open_for < READ_AFTER:
 		return
-	var read := false
+	var shown: Array[int] = []
 	for index: int in [left_of(at), right_of(at)]:
-		if index < 0 or index >= pages.size() or not profile.story.is_new(pages[index]):
-			continue
-		profile.story.notes_read.append(pages[index])
-		read = true
-	if not read:
+		if index >= 0 and index < pages.size():
+			shown.append(pages[index])
+	read(shown)
+
+
+## [param numbers] read: the new ones among them written into the profile and saved, and their
+## marks gone from the pages open.
+func read(numbers: Array) -> void:
+	var any := false
+	for number: int in numbers:
+		if profile.story.is_new(number):
+			profile.story.notes_read.append(number)
+			any = true
+	if not any:
 		return
 	if not Game.is_headless():
 		Game.settings.save_to_disk()
 	for side: Control in [_left, _right]:
 		for page: Node in side.get_children():
-			(page as NotePage).new = false
-			(page as NotePage).queue_redraw()
+			var open_page := page as NotePage
+			open_page.new = profile.story.is_new(open_page.number)
+			open_page.queue_redraw()
+
+
+## A note taken off its page for a closer look, see [NoteView]: page [param index], or the open
+## spread's right one, or its left where there is no right.
+func look_closer(index := -1) -> void:
+	if view != null or is_busy() or pages.is_empty():
+		return
+	if index < 0:
+		index = right_of(at) if right_of(at) < pages.size() else left_of(at)
+	if index < 0 or index >= pages.size() or pages[index] < 0:
+		return
+	view = NoteView.open(self, index)
+	view.put_back.connect(_on_put_back)
+	# The folder's own buttons and line under the note go while it is up.
+	_buttons_row.visible = false
+	away_line.visible = false
+
+
+## Put back: the folder open at the spread of the note last looked at.
+func _on_put_back(index: int) -> void:
+	view = null
+	_buttons_row.visible = true
+	away_line.visible = true
+	if spread_of(index) != at:
+		_show(spread_of(index))
+	look.grab_focus()
 
 
 ## Left and right turn the pages, before the focus takes them for walking buttons; what was pressed
 ## says which lines to draw. A press while it turns on to the first new note cuts that short.
 func _input(event: InputEvent) -> void:
-	if _closing:
+	if _closing or view != null:
 		return
 	var was := keyboard
 	keyboard = LicenseView.keyboard_after(event, keyboard)
@@ -609,7 +656,7 @@ func _input(event: InputEvent) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _closing:
+	if _closing or view != null:
 		return
 	if event.is_action_pressed(&"ui_cancel"):
 		get_viewport().set_input_as_handled()
@@ -626,7 +673,7 @@ func _on_click(event: InputEvent) -> void:
 	if not ((click != null and click.pressed) or (touch != null and touch.pressed)):
 		return
 	get_viewport().set_input_as_handled()
-	if _closing or Time.get_ticks_msec() - _shown_at < SETTLE_MS:
+	if _closing or view != null or Time.get_ticks_msec() - _shown_at < SETTLE_MS:
 		return
 	var where: Vector2 = click.position if click != null else touch.position
 	var on := folder.get_global_rect()
@@ -634,6 +681,15 @@ func _on_click(event: InputEvent) -> void:
 	if not on.has_point(where):
 		close()
 		return
+	# On a note itself, a closer look at it; anywhere else on a page, a turn.
+	for side: Control in [_left, _right]:
+		if side.get_child_count() == 0:
+			continue
+		var page := side.get_child(0) as NotePage
+		var inside := page.get_global_transform().affine_inverse() * (where + global_position)
+		if page.number > 0 and page.paper_rect().has_point(inside):
+			look_closer(left_of(at) if side == _left else right_of(at))
+			return
 	turn(1 if where.x >= on.get_center().x else -1)
 
 

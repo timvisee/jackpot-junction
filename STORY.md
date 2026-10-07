@@ -1038,6 +1038,9 @@ STAFF ON DUTY .................. 31
 THANK YOU FOR PLAYING!
 ```
 
+On the back, the till roll's printed band: JACKPOT JUNCTION · KEEP THIS RECEIPT, and under it NO
+RECEIPT, NO PAYOUT.
+
 **2. Table one.** Graph paper, with a pencil sketch of the Workbench's table in a corner.
 
 > Table one is done. Felt off the old pool hall on Ninth, karts out of my own scrap. Some kids came
@@ -1294,8 +1297,8 @@ can only read it after.
 
 > Don't stamp it! Don't accept their terms. Not this time. —K.
 
-On the back, the Highway Code as it is printed now, torn through mid-line: § 1.1 No table shall open
-without human oversight.
+On the back, the Highway Code as it is printed now: § 1.1 No table shall open without human
+oversight.
 
 Read after the ending it says plainly what the player just did, and the last three words are for
 every joker taken under TERMS ACCEPTED before it, 6.3: all those times it did not matter, and this

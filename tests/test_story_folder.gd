@@ -98,6 +98,48 @@ func test_a_note_is_new_until_its_page_has_been_open_a_second() -> void:
 	assert_bool(is_instance_valid(folder)).is_false()
 
 
+## A note taken off its page for a closer look: turned over to its back, looked at closer, the note
+## beside it, read once looked at for a second; put back, the folder opens at the last one looked
+## at.
+func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
+	_profile.story.notes = PackedInt32Array([1, 2, 3, 4])
+	_profile.story.notes_read = PackedInt32Array([1, 2, 3])
+	var folder := NotesFolder.open(_holder(), _profile, true)
+	await _settled(folder)
+	assert_int(folder.at).is_equal(2)
+	folder.look_closer(0)
+	var view := folder.view
+	assert_object(view).is_not_null()
+	assert_int(view.index).is_equal(0)
+	await await_idle_frame()
+	view.turn_over()
+	await await_millis(int(NoteView.TURN * 1000.0) + 150)
+	assert_bool(view.turned).is_true()
+	view.zoom_by(2.0)
+	assert_float(view.zoom).is_equal_approx(2.0, 0.001)
+	view.zoom_by(10.0)
+	assert_float(view.zoom).is_equal(NoteView.CLOSEST)
+	view.step(1)
+	assert_int(view.index).is_equal(1)
+	assert_bool(view.turned).is_false()
+	assert_float(view.zoom).is_equal(1.0)
+	view.step(1)
+	view.step(1)
+	assert_int(view.index).is_equal(3)
+	view._process(1.1)
+	assert_bool(_profile.story.any_new()).is_false()
+	view.close()
+	await await_idle_frame()
+	assert_object(folder.view).is_null()
+	assert_int(folder.at).is_equal(NotesFolder.spread_of(3))
+	# Every note's back draws, whatever is on it.
+	for number: int in StoryNotes.BACKS:
+		var back := NotePage.make(number, _profile)
+		back.layer = &"back"
+		folder.add_child(back)
+	await await_idle_frame()
+
+
 ## Turning on to the first new note is cut short by a press: straight to its spread.
 func test_a_press_cuts_the_turning_on_short() -> void:
 	_profile.story.notes = PackedInt32Array([1, 2, 3, 4, 5, 6, 7, 8, 9])
