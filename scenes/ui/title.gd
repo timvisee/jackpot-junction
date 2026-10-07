@@ -59,9 +59,11 @@ var _keyboard := true
 ## The question whether to earn the license, while it is up, and what had the cursor before it.
 var _license_question: Control
 var _question_from: Control
-## The Driving School button, and the flyer pointing at it while there is no license yet.
+## The Driving School button, and the flyer pointing at it while there is no license yet, or the
+## House's pointing at Play while the Final Hand is due, and the button it points at.
 var _school_button: Button
 var _ad: SchoolAd
+var _ad_button: Button
 ## Kit's notes peeking in from the left once one has been found, the folder open over the title
 ## while it is, and what had the cursor before it, STORY.md 7.2.
 var _folder: FolderPeek
@@ -147,7 +149,10 @@ func _ready() -> void:
 	if not Game.settings.license_number.is_empty():
 		_peek_license()
 	else:
-		_advertise_school()
+		_advertise(SchoolAd.new(), _school_button)
+	# The Final Hand, offered rather than sprung, STORY.md 8.1.
+	if Story.on_here() and Story.final_hand_due(Game.settings.profile):
+		_advertise(HouseAd.new(), play_button)
 	_peek_folder()
 	resized.connect(_fit)
 	# The shaders compile behind the title, once a version, GAME.md 10.7, said in a pane over all
@@ -186,19 +191,21 @@ static func _microprint(words: String) -> HBoxContainer:
 	return row
 
 
-## Until the license is earned, a flyer stands in its place, GAME.md 3.8, beside the Driving
-## School button and pointing at it, fitted to the room there, see [method SchoolAd.fit_into],
-## and gone on a screen with none; a click or a tap on it is the button's.
-func _advertise_school() -> void:
-	_ad = SchoolAd.new()
+## A flyer beside [param button] and pointing at it, fitted to the room there, see
+## [method SchoolAd.fit_into], and gone on a screen with none; a click or a tap on it is the
+## button's. Until the license is earned the school's stands in the license's place, GAME.md 3.8,
+## at the Driving School button; while the Final Hand is due the House's is at Play, STORY.md 8.1.
+func _advertise(ad: SchoolAd, button: Button) -> void:
+	_ad = ad
+	_ad_button = button
 	add_child(_ad)
-	_ad.chosen.connect(func() -> void: _school_button.pressed.emit())
+	_ad.chosen.connect(func() -> void: button.pressed.emit())
 	resized.connect(_place_ad)
-	_school_button.item_rect_changed.connect(_place_ad)
+	button.item_rect_changed.connect(_place_ad)
 	_ad.resized.connect(_place_ad)
 	# A column taller than the screen scrolls, GAME.md 8.5, which moves what holds the button rather
 	# than the button in it: the flyer goes along with any of them moving.
-	var holder := _school_button.get_parent() as Control
+	var holder := button.get_parent() as Control
 	while holder != null and holder != self:
 		holder.item_rect_changed.connect(_place_ad)
 		holder = holder.get_parent() as Control
@@ -206,9 +213,9 @@ func _advertise_school() -> void:
 
 
 func _place_ad() -> void:
-	if _ad == null or _school_button == null or not is_inside_tree():
+	if _ad == null or _ad_button == null or not is_inside_tree():
 		return
-	var button := _school_button.get_global_rect()
+	var button := _ad_button.get_global_rect()
 	button.position -= global_position
 	var left := button.end.x + AD_GAP
 	var middle := button.get_center().y

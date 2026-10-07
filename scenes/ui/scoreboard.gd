@@ -143,7 +143,7 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: i
 		if style.edge_top != edge:
 			style.edge_top = edge
 			style.edge_bottom = Color(edge, edge.a * 0.5)
-	name_label.text = slot.display_name()
+	name_label.text = FinalHand.name_of(slot)
 	score.text = str(slot.banked)
 	var unbanked := slot.kart.pot.value() if slot.kart != null else 0
 	risk.text = "+%d" % unbanked if unbanked > 0 else ""

@@ -48,7 +48,7 @@ var bake_scenery := true
 ## progress bar up runs [method build_steps] itself instead, GAME.md 8.6.
 var deferred_build := false
 ## Whether this is the story's Final Hand, STORY.md 8, which dresses the room the House's way.
-var final_hand := false
+var final_hand := Story.final_hand_on
 var spawn_points: Array[Vector3] = []
 var turbo_pads: Array[TurboPad] = []
 var pits: Array[Pit] = []

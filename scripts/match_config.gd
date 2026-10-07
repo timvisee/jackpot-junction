@@ -47,6 +47,9 @@ var own_bullets_hurt := false
 var overtime := true
 ## How many jokers a hand holds, GAME.md 3.7.
 var joker_slots := 5
+## Whether this is the story's Final Hand, STORY.md 8, set by the House rather than chosen, see
+## [FinalHand]. This machine's alone: it goes into no plan and over no wire.
+var final_hand := false
 ## "", "host" or "join".
 var online := ""
 ## Hosting a game of a dedicated server, GAME.md 9.3a: nobody plays at this machine, so it has no

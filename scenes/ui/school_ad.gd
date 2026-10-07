@@ -33,6 +33,17 @@ const WORDS_NARROWEST := 150.0
 ## Whether it points at the button beside it, or stands alone in a corner with no room beside it.
 var pointing := true:
 	set = _set_pointing
+## What it says and what it is printed on: the school's, unless a flyer of another kind sets its
+## own in [method _dress], as [HouseAd] does.
+var headline_words := HEADLINE
+var line_words := LINE
+var small_words := SMALL
+var fill := FILL
+var edge := EDGE
+var headline_ink := EDGE
+var ink := HouseTheme.INK
+var faint := HouseTheme.INK_FAINT
+var finish := "slip"
 ## The blinking headline.
 var headline: Label
 
@@ -46,6 +57,7 @@ var _room := -1.0
 
 func _ready() -> void:
 	name = "SchoolAd"
+	_dress()
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_NONE
 	_body = Control.new()
@@ -54,26 +66,26 @@ func _ready() -> void:
 	_panel = PanelContainer.new()
 	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	# Printed on the school's paper, the slip's, and cut to an arrow at the button.
-	_look = ArrowStyle.cut(FILL, ArrowStyle.Way.LEFT, POINTER, MARGIN_LEFT, 10.0)
+	_look = ArrowStyle.cut(fill, ArrowStyle.Way.LEFT, POINTER, MARGIN_LEFT, 10.0)
 	_look.content_margin_right = MARGIN_RIGHT
-	_look.edge = Color(EDGE, 0.7)
-	_look.finish = "slip"
+	_look.edge = Color(edge, 0.7)
+	_look.finish = finish
 	_look.shadow = 10.0
 	_panel.add_theme_stylebox_override("panel", _look)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", int(GAP))
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var learner := SchoolFigure.of(SchoolFigure.Kind.LEARNER, LEARNER_SIDE)
+	var learner := _mark()
 	learner.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(learner)
 	_words = VBoxContainer.new()
 	_words.add_theme_constant_override("separation", 1)
 	_words.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	headline = _label(HEADLINE, Type.STRONG, Type.SMALL, EDGE)
+	headline = _label(headline_words, Type.STRONG, Type.SMALL, headline_ink)
 	_words.add_child(headline)
 	_wrapped = [
-		_label(LINE, Type.STRONG, Type.LABEL, HouseTheme.INK),
-		_label(SMALL, Type.TEXT, Type.SMALL, HouseTheme.INK_FAINT),
+		_label(line_words, Type.STRONG, Type.LABEL, ink),
+		_label(small_words, Type.TEXT, Type.SMALL, faint),
 	]
 	for label: Label in _wrapped:
 		_words.add_child(label)
@@ -83,9 +95,11 @@ func _ready() -> void:
 	_body.add_child(_panel)
 	_panel.minimum_size_changed.connect(_fit)
 	_fit()
-	var blink := create_tween().set_loops()
-	blink.tween_property(headline, "modulate:a", 0.3, BLINK)
-	blink.tween_property(headline, "modulate:a", 1.0, BLINK)
+	# Held still for anybody who asked for fewer flashes, GAME.md 8.5.
+	if not Game.settings.flash_reduction:
+		var blink := create_tween().set_loops()
+		blink.tween_property(headline, "modulate:a", 0.3, BLINK)
+		blink.tween_property(headline, "modulate:a", 1.0, BLINK)
 	var nudge := create_tween().set_loops()
 	nudge.tween_interval(NUDGE_EVERY)
 	nudge.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
@@ -97,12 +111,22 @@ func _ready() -> void:
 	mouse_exited.connect(func() -> void: scale = Vector2.ONE)
 
 
-func _label(text: String, font: Font, font_size: int, ink: Color) -> Label:
+## For a flyer of another kind to set its words and paper on, before it is built.
+func _dress() -> void:
+	pass
+
+
+## The mark beside the words: the learner's L.
+func _mark() -> Control:
+	return SchoolFigure.of(SchoolFigure.Kind.LEARNER, LEARNER_SIDE)
+
+
+func _label(text: String, font: Font, font_size: int, color: Color) -> Label:
 	var label := Label.new()
 	label.text = text
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.set_font(label, font, font_size)
-	label.add_theme_color_override("font_color", ink)
+	label.add_theme_color_override("font_color", color)
 	return label
 
 

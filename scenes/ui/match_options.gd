@@ -218,6 +218,48 @@ func remember(settings: Settings) -> void:
 	settings.grand_prix = is_grand_prix()
 
 
+## Shows [param config] in the rows, as the House sets the table, STORY.md 8.1: a quick match on
+## its map, which the list is given if it does not offer it yet, and the rest as it is set.
+func show(config: MatchConfig) -> void:
+	var map := ArenaMaps.index_of(config.map)
+	while map_option.item_count <= map:
+		map_option.add_item(ArenaMaps.NAMES[map_option.item_count])
+	map_option.select(map)
+	choose(config.rounds > 0)
+	minutes_option.select(maxi(match_lengths().find(roundi(config.duration)), 0))
+	target_option.select(maxi(TARGETS.find(config.target_score), 0))
+	_bots_wanted = config.bot_count
+	fit_seats(_seats)
+	difficulty_option.select(maxi(DIFFICULTIES.find(config.difficulty), 0))
+	items_option.select(maxi(ITEM_SETS.find(config.item_set), 0))
+	own_bullets_option.select(maxi(OWN_BULLETS.find(config.own_bullets_hurt), 0))
+	overtime_option.select(maxi(OVERTIME.find(config.overtime), 0))
+	slots_option.select(maxi(JOKER_SLOTS.find(config.joker_slots), 0))
+	small_maps_toggle.button_pressed = config.small_maps
+	_show_room()
+
+
+## Every row shown and none of them to be changed, for a table the House has set.
+func lock() -> void:
+	for row: Control in [
+		map_option,
+		minutes_option,
+		target_option,
+		bots_option,
+		difficulty_option,
+		items_option,
+		own_bullets_option,
+		overtime_option,
+		slots_option,
+		maps_option,
+		jokers_option,
+	]:
+		(row as OptionButton).disabled = true
+	for toggle: CheckButton in [normal_toggle, xl_toggle, small_maps_toggle]:
+		toggle.disabled = true
+	mode_picker.locked = true
+
+
 ## Offers as many bots as an arena of [param seats] has seats for beside one player, GAME.md 3.8:
 ## up to three on one machine, and up to seven in a lobby for eight. The bots last asked for are
 ## chosen again as far as there is room for them.

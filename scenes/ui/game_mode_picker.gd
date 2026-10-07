@@ -19,6 +19,14 @@ var grand_prix := true:
 		grand_prix = value
 		_refresh()
 
+## Whether the choice is somebody else's to have made, as the House's is at the Final Hand,
+## STORY.md 8.1: the chosen one shown, neither to be pressed.
+var locked := false:
+	set(value):
+		locked = value
+		for pressable: Button in _buttons:
+			pressable.disabled = value
+
 var _buttons: Array[Button] = []
 var _pictures: Array[GameModeArt.Picture] = []
 

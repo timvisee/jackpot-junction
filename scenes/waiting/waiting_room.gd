@@ -284,8 +284,23 @@ func _offer_the_settings(menu: PauseMenu) -> void:
 	host_settings = HostSettings.add_to(self, config.online == "", session)
 	host_settings.closed.connect(_chosen)
 	menu.add_entry("Match settings", choose)
+	# While the Final Hand is due the House asks first, on this machine alone, STORY.md 8.1.
+	if config.online == "" and FinalHand.offered(Game.settings.profile):
+		FinalHandPane.add_to(self).answered.connect(_on_the_house)
+		return
 	# Hosting, who may come in first, then what the match is, GAME.md 9.6. Back from a match only
 	# the match: the lobby's are on the pause menu for a host who wants them.
+	choose(not _came_back)
+
+
+## The House's question answered: its table set and shown, locked, or put off until the game is
+## next started; the match settings either way.
+func _on_the_house(take: bool) -> void:
+	if take:
+		FinalHand.set_table(config, Game.settings.difficulty)
+		host_settings.set_by_the_house(config)
+	else:
+		FinalHand.declined = true
 	choose(not _came_back)
 
 

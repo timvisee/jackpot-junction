@@ -136,7 +136,7 @@ func _on_player_kicked(named: String) -> void:
 func _name(slot: int) -> String:
 	if match_node == null or slot < 0 or slot >= match_node.slots.size():
 		return ""
-	return match_node.slots[slot].display_name()
+	return FinalHand.name_of(match_node.slots[slot])
 
 
 func _color(slot: int) -> Color:

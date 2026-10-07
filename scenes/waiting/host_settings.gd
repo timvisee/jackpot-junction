@@ -36,6 +36,9 @@ var _done: Button
 var _session: NetSession
 ## The step before the match settings, while it is up.
 var _lobby: LobbySettings
+## Whether the House has set this table, STORY.md 8.1: the rows show it and cannot be changed, a
+## stamp says so over them, and none of it is remembered as anybody's choice.
+var _by_the_house := false
 
 
 static func add_to(
@@ -178,15 +181,31 @@ func _fit_seats() -> void:
 	options.fit_seats(SeatLimit.seats_for(most))
 
 
+## The table the House has set, [param config], shown in the rows and locked under its stamp,
+## STORY.md 8.1.
+func set_by_the_house(config: MatchConfig) -> void:
+	_by_the_house = true
+	options.show(config)
+	options.lock()
+	var stamp := HouseStamp.new()
+	stamp.name = "SetByTheHouse"
+	stamp.word = StoryLines.SET_BY_HOUSE
+	# Over the choice of a quick match, where it covers no setting's value.
+	stamp.at = Vector2(0.5, 0.21)
+	_pane.add_child(stamp)
+
+
 ## Puts the choices away for next time and says the host is done. Closing is the only way out,
-## so there is no choosing that is not kept: the rows are what the host was looking at.
+## so there is no choosing that is not kept: the rows are what the host was looking at. A table
+## the House set is nobody's choice, and the lobby's remembered ones are left as they were.
 func close() -> void:
 	if not _panel.visible:
 		return
 	_show_match()
 	_panel.visible = false
-	options.remember(Game.settings)
-	Game.settings.save_to_disk()
+	if not _by_the_house:
+		options.remember(Game.settings)
+		Game.settings.save_to_disk()
 	closed.emit()
 
 

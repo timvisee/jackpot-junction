@@ -896,7 +896,7 @@ func kill_feed() -> KillFeed:
 func _slot_name(slot: int) -> String:
 	if slot < 0 or slot >= match_node.slots.size():
 		return ""
-	return match_node.slots[slot].display_name()
+	return FinalHand.name_of(match_node.slots[slot])
 
 
 func _slot_color(slot: int) -> Color:

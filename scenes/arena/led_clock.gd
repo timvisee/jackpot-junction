@@ -147,6 +147,8 @@ func _caption_now() -> String:
 func _word_color() -> Color:
 	if match_node.state == Match.State.RESULTS:
 		var champion := _champion()
+		if champion == null:
+			champion = FinalHand.candidate(match_node)
 		return champion.color() if champion != null else match_node.standings()[0].color()
 	if match_node.state == Match.State.OVERTIME:
 		var lit := Game.settings.flash_reduction or fmod(_now, FLASH) < FLASH * 0.5
@@ -155,11 +157,14 @@ func _word_color() -> Color:
 
 
 ## Whoever won it, for the board to name. A player who set no name still has one to be called
-## by, the same one the standings and the podium use.
+## by, the same one the standings and the podium use. At the Final Hand the board names the
+## candidate, whoever won, STORY.md 8.3.
 func _winner() -> String:
 	var champion := _champion()
 	if champion != null:
 		return champion.display_name()
+	if FinalHand.candidate(match_node) != null:
+		return StoryLines.CANDIDATE
 	return match_node.standings()[0].display_name()
 
 

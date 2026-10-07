@@ -87,6 +87,11 @@ static func alive_slots(match_node: Match) -> Array[PlayerSlot]:
 ## rather than by running one, and the lap of honor is for everybody, so it does this too.
 static func spotlight(match_node: Match) -> void:
 	var winner := match_node.standings()[0]
+	# At the Final Hand the House shows who it was watching instead, wherever they came, STORY.md
+	# 8.3. The standings and the slip stay true.
+	var candidate := FinalHand.candidate(match_node)
+	if candidate != null:
+		winner = candidate
 	if winner.kart != null:
 		match_node.arena.disco.focus(winner.kart)
 	# And the room throws fireworks in their color, GAME.md 8.3. For whoever won rather than

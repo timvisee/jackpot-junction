@@ -33,6 +33,22 @@ var nitro := 0.0
 var drift := 0.0
 ## Below 1 the bots are ahead and coast; above 1 they are behind and bear down.
 var effort := 1.0
+## Whether the habits are held where [method hold_habits] put them rather than read off the
+## match, as the Final Hand's models drive, STORY.md 8.2. The effort is read off the match either
+## way.
+var held := false
+
+
+## Holds the habits at those of a whole profile's [param stats], its lifetime of GAME.md 8.5, from
+## the first second rather than after the match has gone on long enough to judge by: how the
+## Final Hand's models drive, STORY.md 8.2.
+func hold_habits(stats: Dictionary) -> void:
+	var seconds := maxf(float(stats.get(&"seconds", 0.0)), WARMUP)
+	items = clampf(float(stats.get(&"items", 0.0)) / (seconds / 60.0) / ITEMS_PER_MINUTE, 0.0, 1.0)
+	nitro = clampf(float(stats.get(&"nitro", 0.0)) / seconds / NITRO_SHARE, 0.0, 1.0)
+	var driven := maxf(float(stats.get(&"driven", 0.0)), 1.0)
+	drift = clampf(float(stats.get(&"drifted", 0.0)) / driven / DRIFT_SHARE, 0.0, 1.0)
+	held = true
 
 
 ## Reads the players' habits and the score gap. Leaves the last reading alone in a match with no
@@ -57,11 +73,13 @@ func update(match_node: Match) -> void:
 		best_human = maxi(best_human, slot.score())
 	if humans == 0:
 		return
+	effort = clampf(1.0 + float(best_human - best_bot) / EFFORT_SPAN, EFFORT_MIN, EFFORT_MAX)
+	if held:
+		return
 	var elapsed := maxf(match_node.rules.duration - match_node.time_left, WARMUP)
 	items = clampf(used / humans / (elapsed / 60.0) / ITEMS_PER_MINUTE, 0.0, 1.0)
 	nitro = clampf(burned / humans / elapsed / NITRO_SHARE, 0.0, 1.0)
 	drift = clampf(drifted / maxf(driven, 1.0) / DRIFT_SHARE, 0.0, 1.0)
-	effort = clampf(1.0 + float(best_human - best_bot) / EFFORT_SPAN, EFFORT_MIN, EFFORT_MAX)
 
 
 ## How hard a bot should lean on whoever is in front of it. Trailing bots go hunting.

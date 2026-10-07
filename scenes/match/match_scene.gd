@@ -19,6 +19,9 @@ var _status: StatusPane
 
 func _ready() -> void:
 	config = Game.pending_config if Game.pending_config != null else MatchConfig.new()
+	# The story's Final Hand, STORY.md 8, on this machine alone: said before the room goes up,
+	# which dresses itself for it.
+	Story.final_hand_on = config.final_hand and config.online == ""
 	ArenaEnvironment.add_to(self)
 	match_node = MATCH_SCENE.instantiate()
 	match_node.name = "Match"
@@ -151,7 +154,9 @@ func _ready() -> void:
 	# up on this machine's table alone, STORY.md 7.1.
 	if not config.dedicated:
 		MatchRecord.add_to(match_node)
-		NoteDealer.add_to(match_node)
+		NoteDealer.add_to(match_node, FinalHandTable.note_for(Game.settings.profile))
+		if Story.final_hand_on:
+			FinalHandTable.add_to(match_node)
 	loaded.emit()
 
 
