@@ -24,6 +24,9 @@ uniform vec3 light = vec3(-0.15, -0.2, -1.0);
 // How tight the spot is: the higher, the smaller and the glossier; low, the light spreads over
 // the card the way it does over paper.
 uniform float sheen_tight = 36.0;
+// How much of the light only the gold catches, foil on a card: 1 for the gold alone, dimmer away from
+// the light and warm where it glances, the rest of the card as it is; 0 for all of the face alike.
+uniform float foil = 0.0;
 
 // The modulate, taken before the texture is read into COLOR at the untouched UV.
 varying vec4 tint;
@@ -65,7 +68,11 @@ void fragment() {
 				vec3 facing = out_of.z < 0.0 ? out_of : -out_of;
 				vec3 bounced = reflect(normalize(ray), facing);
 				float glance = max(dot(bounced, normalize(light)), 0.0);
-				drawn.rgb = drawn.rgb * (1.0 - sheen * 0.5) + vec3(pow(glance, sheen_tight) * sheen);
+				float gold = clamp((picture.r - picture.b) * 2.5, 0.0, 1.0);
+				float catches = mix(1.0, gold, foil);
+				vec3 warm = mix(vec3(1.0), vec3(1.0, 0.9, 0.62), foil);
+				drawn.rgb = drawn.rgb * (1.0 - sheen * 0.5 * catches)
+						+ warm * (pow(glance, sheen_tight) * sheen * catches);
 			}
 		}
 	}

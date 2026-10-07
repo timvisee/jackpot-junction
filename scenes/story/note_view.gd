@@ -33,6 +33,11 @@ const TILT := 0.75
 const RELIEF := 0.45
 const SHEEN := 0.08
 const SHEEN_TIGHT := 4.0
+## The House's invitation and its golden ticket, kept at the back of the folder, are foil on card:
+## the gold catches the light, brighter and tighter than paper does, and the rest of the card not.
+const FOIL_SHEEN := 0.5
+const FOIL_TIGHT := 14.0
+const FOIL_RELIEF := 0.8
 ## The most pixels a face is drawn at across, however close it is looked at.
 const SHARPEST := 4096
 const SETTLE_MS := 150
@@ -194,9 +199,11 @@ func _build() -> void:
 	_material.shader = TiltedCard.SHADER
 	_material.set_shader_parameter("extent", picture * 0.5 / rect.size.x)
 	_material.set_shader_parameter("depth", TiltedCard.DEPTH * maxf(1.0, rect.size.y / rect.size.x))
-	_material.set_shader_parameter("relief", RELIEF)
-	_material.set_shader_parameter("sheen", SHEEN)
-	_material.set_shader_parameter("sheen_tight", SHEEN_TIGHT)
+	var foil := number == StoryNotes.INVITATION or number == StoryNotes.TICKET
+	_material.set_shader_parameter("relief", FOIL_RELIEF if foil else RELIEF)
+	_material.set_shader_parameter("sheen", FOIL_SHEEN if foil else SHEEN)
+	_material.set_shader_parameter("sheen_tight", FOIL_TIGHT if foil else SHEEN_TIGHT)
+	_material.set_shader_parameter("foil", 1.0 if foil else 0.0)
 	_front = _face([front], rect)
 	var back := NotePage.make(number, folder.profile)
 	back.layer = &"back"
