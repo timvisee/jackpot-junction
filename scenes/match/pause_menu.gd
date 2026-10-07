@@ -37,6 +37,8 @@ var names_and_colors := false:
 		if _switches != null:
 			_switches.names_and_colors = value
 
+## The menu's heading, Paused or Menu, see [method heading].
+var _heading: Label
 var _panel: Control
 ## The shade behind the menu, which fades out with it, and whether the menu is on its way out,
 ## which is not open: the room is the player's again from the moment they close it.
@@ -123,7 +125,8 @@ func _ready() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 16)
 	pane.add_child(column)
-	column.add_child(MenuTheme.title("Paused", 48))
+	_heading = MenuTheme.title(heading(session != null, false), 48)
+	column.add_child(_heading)
 	column.add_child(MenuTheme.perforation())
 	# Back to driving is the way on from here, GAME.md 8.1a, in foil.
 	_resume = MenuTheme.primary(MenuTheme.button("Resume"))
@@ -521,3 +524,12 @@ func _process(_delta: float) -> void:
 
 func _freeze(on: bool) -> void:
 	get_tree().paused = on
+	if _heading != null:
+		_heading.text = heading(session != null, on)
+
+
+## What the menu is headed, GAME.md 3.8: Paused, which it always is alone, since opening it stops
+## the match; online Menu, as the match goes on for the others, until everybody has it open and the
+## match has stopped, [param stopped].
+static func heading(online: bool, stopped: bool) -> String:
+	return "Paused" if stopped or not online else "Menu"

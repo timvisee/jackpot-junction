@@ -607,6 +607,25 @@ func test_play_lan_says_why_it_is_back() -> void:
 	assert_bool(again.is_form_up()).is_false()
 
 
+## GAME.md 3.8: alone, opening the menu stops the match, so it is headed Paused; online the match
+## goes on until everybody has theirs open, so it is headed Menu until then.
+func test_the_menu_says_paused_only_when_the_match_has_stopped() -> void:
+	var holder: Node = auto_free(Node.new())
+	add_child(holder)
+	var alone := PauseMenu.add_to(holder)
+	await await_idle_frame()
+	assert_str(alone._heading.text).is_equal("Paused")
+	var session: NetSession = auto_free(NetSession.new())
+	var online := PauseMenu.add_to(holder, session)
+	await await_idle_frame()
+	assert_str(online._heading.text).is_equal("Menu")
+	online._freeze(true)
+	assert_str(online._heading.text).is_equal("Paused")
+	online._freeze(false)
+	assert_str(online._heading.text).is_equal("Menu")
+	get_tree().paused = false
+
+
 ## GAME.md 9.6: the host names the game in Lobby settings, once the box is left, and the name is
 ## kept for next time; with none, the box says the name it has, the host's.
 func test_the_host_names_the_game_in_lobby_settings() -> void:

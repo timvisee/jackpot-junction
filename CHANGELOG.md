@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Menu, not Paused, while others play.** Online the pause menu is headed Menu, since the match
+  goes on until everybody has theirs open, and Paused once it has stopped.
 - **The cursor's glide in ink on paper.** On the payout slip the frame that slides with the
   cursor is black, like the slip's own buttons, rather than gold on the cream.
 

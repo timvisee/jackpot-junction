@@ -647,6 +647,8 @@ else's results screen, see 10.3.
   While anybody is still playing the match runs on, and the moment one of them
   closes their menu it starts again for everyone. Somebody joining a stopped
   room starts it again, and somebody leaving can be the last one holding it up.
+  So the menu is headed Paused alone, where opening it stops the match, and online
+  Menu, until the match has stopped for everybody, when it is Paused too.
   The host does not have to wait: Pause game, straight under Resume on its menu
   and over the match settings of 9.6, stops it for everybody at once, and a
   client with no menu of its own open is told the host paused the game, on a
