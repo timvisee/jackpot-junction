@@ -16,7 +16,8 @@ extends RefCounted
 ## [code]margin[/code]; the old book's face [code]old[/code]; a flyer's headline
 ## [code]display[/code]. A line may carry a third entry, true, for one struck through by hand.
 ## Written lines are in Kit's hand unless the note names another, [code]hand[/code], see
-## [constant NotePage.HANDS]. Placeholders are filled in for the profile reading, see [StoryFill].
+## [constant NotePage.HANDS]; the blueprint's pencil beside its signature is its
+## [code]margin[/code]. Placeholders are filled in for the profile reading, see [StoryFill].
 ## The pages at the back of the folder after the ending, STORY.md 7.2, numbered under the notes so
 ## they sort after nothing and are never a note: the Final Hand's slip and Terms Accepted's card.
 const FINAL_SLIP := -1
@@ -268,6 +269,7 @@ const NOTES := {
 	{
 		"title": "The blueprint",
 		"paper": &"blueprint",
+		"margin": "People signed this. —K.",
 		"lines":
 		[
 			[&"print", "DRAWING 1 OF 1"],

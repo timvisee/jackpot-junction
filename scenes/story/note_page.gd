@@ -15,6 +15,8 @@ const LEAF_EDGE := Color(0.8, 0.78, 0.72)
 const PENCIL := Color(0.32, 0.32, 0.35)
 const MARGIN := 26.0
 const TITLE_SIZE := 30
+## How far apart two posts side by side on the organization chart are.
+const CHART_GAP := 14.0
 ## Where the note's paper sits on the leaf: under the title, in the middle of what is left.
 const TITLE_ROOM := 70.0
 ## The faces: the House's typewriter, Kit's hand, the first edition's old face.
@@ -61,7 +63,7 @@ const PAPERS := {
 	&"blueprint": [Vector2(400.0, 440.0), Color(0.13, 0.32, 0.62), 8, 16.0],
 	&"chart": [Vector2(390.0, 300.0), Color(0.84, 0.84, 0.82), 10, 16.0],
 	&"letter": [Vector2(370.0, 340.0), Color(0.98, 0.98, 0.97), 11, 24.0],
-	&"strip": [Vector2(390.0, 120.0), Color(0.94, 0.91, 0.82), 13, 18.0],
+	&"strip": [Vector2(400.0, 150.0), Color(0.94, 0.91, 0.82), 13, 18.0],
 	&"card": [Vector2(340.0, 214.0), Color(0.11, 0.1, 0.13), 10, 20.0],
 	&"calendar": [Vector2(330.0, 400.0), Color(0.97, 0.96, 0.92), 12, 18.0],
 }
@@ -137,13 +139,15 @@ func _draw() -> void:
 	draw_rect(Rect2(shadow.position + Vector2(3.0, 4.0), shadow.size), Color(0.0, 0.0, 0.0, 0.12))
 	NotePaper.draw_paper(self, kind, rect, spec[1])
 	var inside := rect.grow(-float(spec[3]))
+	# The strip's words keep to its left: the pen's warning has the right of it, see
+	# [method _draw_warning].
+	if kind == &"strip":
+		inside.size.x *= 0.6
 	match kind:
 		&"blueprint":
-			NotePaper.draw_blueprint(self, rect)
-			inside = Rect2(
-				rect.position + Vector2(rect.size.x * 0.32, rect.size.y * 0.66),
-				Vector2(rect.size.x * 0.64, rect.size.y * 0.3)
-			)
+			var margin := str(StoryNotes.NOTES.get(number, {}).get("margin", ""))
+			NotePaper.draw_blueprint(self, rect, margin)
+			inside = NotePaper.blueprint_block(rect).grow_individual(-8.0, -5.0, -8.0, -5.0)
 		&"calendar":
 			_draw_calendar(rect)
 			return
@@ -167,6 +171,7 @@ func _draw() -> void:
 	if kind == &"graph" and number == 2:
 		NotePaper.draw_sketch(self, rect)
 	if kind == &"strip":
+		_draw_warning(rect)
 		return
 	NotePaper.draw_clip(self, rect)
 
@@ -209,6 +214,7 @@ func _write_lines(inside: Rect2, type_size: int, kind: StringName) -> void:
 			y = _wrap(text, font, font_size, ink, x, y, width, jitter, voice == &"hard")
 			if voice == &"hurried":
 				_through(text.get_slice(" ", 0), font, font_size, Vector2(x, top))
+				_underline(text.get_slice(" ", 0), font, font_size, Vector2(x, top))
 		if line.size() > 2 and bool(line[2]):
 			_strike(Rect2(x - 4.0, top, width + 8.0, y - top))
 		y += font_size * (0.55 if font == TYPED else (0.2 if written else 0.35))
@@ -370,6 +376,60 @@ func _through(word: String, font: Font, font_size: int, at: Vector2) -> void:
 	draw_polyline(slit, Color(0.0, 0.0, 0.0, 0.35), 1.0, true)
 
 
+## The first word underlined three times in pen, hard, each stroke a little longer and steeper than
+## the one before, STORY.md 7.3.
+func _underline(word: String, font: Font, font_size: int, at: Vector2) -> void:
+	var baseline := at.y + font.get_ascent(font_size)
+	var wide := font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	for i: int in 3:
+		var y := baseline + 5.0 + float(i) * 4.0
+		var stroke := PackedVector2Array()
+		for j: int in 7:
+			var t := float(j) / 6.0
+			stroke.append(
+				Vector2(
+					at.x - 3.0 + t * (wide + 6.0 + float(i) * 6.0),
+					y + _rng.randf_range(-0.8, 0.8) - t * float(i) * 1.5
+				)
+			)
+		draw_polyline(stroke, PEN_INK, 2.2, true)
+
+
+## Kit's last strip gone over in pen, STORY.md 7.3: a warning triangle drawn twice round, two big
+## exclamation marks beside it, and a scribble under them where the pen would not stop.
+func _draw_warning(rect: Rect2) -> void:
+	var middle := Vector2(rect.end.x - 96.0, rect.position.y + rect.size.y * 0.4)
+	var size := 36.0
+	for round: int in 2:
+		var corners := PackedVector2Array()
+		for k: int in 4:
+			var a := -PI * 0.5 + TAU * float(k % 3) / 3.0 + 0.08
+			corners.append(
+				(
+					middle
+					+ Vector2.from_angle(a) * (size + float(round) * 3.0)
+					+ Vector2(_rng.randf_range(-2.0, 2.0), _rng.randf_range(-2.0, 2.0))
+				)
+			)
+		draw_polyline(corners, PEN_INK, 3.0 if round == 0 else 1.8, true)
+	draw_char(HAND, middle + Vector2(-6.0, 15.0), "!", 42, PEN_INK)
+	for k: int in 2:
+		var at := Vector2(rect.end.x - 56.0 + float(k) * 20.0, middle.y + 26.0)
+		for over: int in 2:
+			draw_char(HAND, at + Vector2(float(over) * 1.0, float(over) * 0.6), "!", 72, PEN_INK)
+	# Round and round, bigger and smaller, faster at the end.
+	var coil := PackedVector2Array()
+	var from := Vector2(rect.end.x - 150.0, rect.end.y - 24.0)
+	for k: int in 90:
+		var t := float(k) / 89.0
+		var turn := t * 34.0 + t * t * 10.0
+		var radius := 7.0 + sin(t * 11.0) * 3.0 + _rng.randf_range(-1.0, 1.0)
+		coil.append(
+			from + Vector2(t * 132.0 + cos(turn) * radius, sin(turn) * radius * 0.8 - t * 6.0)
+		)
+	draw_polyline(coil, PEN_INK, 1.5, true)
+
+
 ## A line struck through by hand, in ink, not quite straight.
 func _strike(over: Rect2) -> void:
 	var middle := over.position.y + over.size.y * 0.45
@@ -388,36 +448,125 @@ func _draw_new_mark() -> void:
 	draw_char(HAND, middle + Vector2(-3.0, 10.0), "!", 30, PENCIL)
 
 
-## The organization chart: each office centered under the one over it, joined by a line, and the
-## vacancy under them all.
+## The organization chart, a copy of a copy, STORY.md 7.3: a box round each post, joined by lines,
+## a vacant post's box dashed and posts in one line side by side under a bar; and at the foot, on
+## its own, the empty box of the post nobody holds.
 func _draw_chart(inside: Rect2, type_size: int) -> void:
 	var lines: Array = StoryNotes.NOTES[number]["lines"]
-	var y := inside.position.y + 6.0
 	var ink := Color(0.22, 0.22, 0.24)
+	var tall := TYPED.get_height(type_size) + 8.0
+	var y := inside.position.y + 2.0
+	var above := Rect2()
 	for i: int in lines.size() - 1:
-		var text := str(lines[i][1])
-		var rows := _rows(text, TYPED, type_size, inside.size.x)
-		for row: String in rows:
-			var wide := TYPED.get_string_size(row, HORIZONTAL_ALIGNMENT_LEFT, -1, type_size).x
-			var x := inside.get_center().x - wide * 0.5
-			draw_string(
-				TYPED,
-				Vector2(x, y + TYPED.get_ascent(type_size)),
-				row,
-				HORIZONTAL_ALIGNMENT_LEFT,
-				-1,
-				type_size,
-				ink
+		var posts := str(lines[i][1]).split(" · ")
+		var boxes: Array[Rect2] = []
+		var total := CHART_GAP * float(posts.size() - 1)
+		for post: String in posts:
+			var wide := TYPED.get_string_size(post, HORIZONTAL_ALIGNMENT_LEFT, -1, type_size).x
+			boxes.append(Rect2(0.0, y, wide + 16.0, tall))
+			total += wide + 16.0
+		for j: int in boxes.size():
+			boxes[j].position.x = (
+				inside.get_center().x
+				- total * 0.5
+				+ _widths_before(boxes, j)
+				+ CHART_GAP * float(j)
 			)
-			y += TYPED.get_height(type_size)
-		if i < lines.size() - 2:
-			var mid := inside.get_center().x
-			draw_line(Vector2(mid, y + 2.0), Vector2(mid, y + 20.0), ink, 1.0)
-			y += 24.0
-	y += 26.0
-	_leader_or_wrap(
-		str(lines[lines.size() - 1][1]), type_size, ink, inside.position.x, y, inside.size.x
+		_chart_lines(above, boxes, ink)
+		for j: int in boxes.size():
+			_post(boxes[j], posts[j], type_size, ink)
+		above = boxes[0] if boxes.size() == 1 else Rect2()
+		y += tall + 18.0
+	# On its own at the foot, joined to nothing: an empty box, dashed, its post written small in
+	# its corner, and under it what the chart says of it.
+	var last := str(lines[lines.size() - 1][1])
+	var leader := _leader_of(last)
+	var post := leader[0] if leader.size() == 2 else last
+	var foot := Rect2(
+		inside.get_center().x - inside.size.x * 0.3, y + 4.0, inside.size.x * 0.6, 40.0
 	)
+	_dashed_box(foot, ink)
+	var small := type_size - 2
+	draw_string(
+		TYPED,
+		foot.position + Vector2(6.0, TYPED.get_ascent(small) + 4.0),
+		post,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		small,
+		ink
+	)
+	if leader.size() == 2:
+		var said := leader[1]
+		var wide := TYPED.get_string_size(said, HORIZONTAL_ALIGNMENT_LEFT, -1, type_size).x
+		draw_string(
+			TYPED,
+			Vector2(
+				inside.get_center().x - wide * 0.5, foot.end.y + 6.0 + TYPED.get_ascent(type_size)
+			),
+			said,
+			HORIZONTAL_ALIGNMENT_LEFT,
+			-1,
+			type_size,
+			ink
+		)
+
+
+static func _widths_before(boxes: Array[Rect2], index: int) -> float:
+	var wide := 0.0
+	for j: int in index:
+		wide += boxes[j].size.x
+	return wide
+
+
+## The lines down from [param above] to [param boxes]: straight to one, or to a bar over several and
+## down from it to each. Nothing for a row with nothing above it.
+func _chart_lines(above: Rect2, boxes: Array[Rect2], ink: Color) -> void:
+	if above.size == Vector2.ZERO or boxes.is_empty():
+		return
+	var from := Vector2(above.get_center().x, above.end.y)
+	var to := boxes[0].position.y
+	if boxes.size() == 1:
+		draw_line(from, Vector2(from.x, to), ink, 1.0)
+		return
+	var bar := to - 9.0
+	draw_line(from, Vector2(from.x, bar), ink, 1.0)
+	var first := boxes[0].get_center().x
+	var last := boxes[boxes.size() - 1].get_center().x
+	draw_line(Vector2(first, bar), Vector2(last, bar), ink, 1.0)
+	for box: Rect2 in boxes:
+		draw_line(Vector2(box.get_center().x, bar), Vector2(box.get_center().x, to), ink, 1.0)
+
+
+## One post's box with its name in it: dashed for a post that is vacant.
+func _post(box: Rect2, text: String, type_size: int, ink: Color) -> void:
+	if text.contains("(vacant)"):
+		_dashed_box(box, ink)
+	else:
+		draw_rect(box, ink, false, 1.2)
+	var wide := TYPED.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, type_size).x
+	draw_string(
+		TYPED,
+		Vector2(
+			box.get_center().x - wide * 0.5, box.position.y + 4.0 + TYPED.get_ascent(type_size)
+		),
+		text,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		type_size,
+		ink
+	)
+
+
+func _dashed_box(box: Rect2, ink: Color) -> void:
+	var corners := [
+		box.position,
+		Vector2(box.end.x, box.position.y),
+		box.end,
+		Vector2(box.position.x, box.end.y)
+	]
+	for i: int in 4:
+		draw_dashed_line(corners[i], corners[(i + 1) % 4], ink, 1.2, 5.0)
 
 
 func _leader_or_wrap(

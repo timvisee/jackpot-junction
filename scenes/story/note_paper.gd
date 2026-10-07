@@ -10,6 +10,9 @@ const FOLD_LIGHT := Color(1.0, 1.0, 1.0, 0.25)
 const GRAPH_LINE := Color(0.55, 0.7, 0.85, 0.35)
 const GRAPH_MAJOR := Color(0.45, 0.62, 0.8, 0.5)
 const HOUSE_GOLD := Color(0.85, 0.68, 0.3)
+## The blueprint's slip road, half its width, and the size of Kit's pencil in its margin.
+const SLIP_HALF := 12.0
+const MARGIN_SIZE := 20
 
 
 ## The paper of [param kind] in [param rect], [param color], as it is before the words.
@@ -319,82 +322,167 @@ static func draw_sketch(canvas: CanvasItem, rect: Rect2) -> void:
 	)
 
 
-## The blueprint's drawing, STORY.md 7.3: a highway across the top, THE ECONOMY; a slip road off it,
-## PEOPLE NO LONGER REQUIRED, down onto a roundabout round a pot, JACKPOT, with no way off it; in
-## the title block's corner, a signature in ink and the Department's stamp. White lines on blue.
-static func draw_blueprint(canvas: CanvasItem, rect: Rect2) -> void:
+## The blueprint's drawing, STORY.md 7.3, drawn the way a road engineer draws, white lines on blue:
+## a four-lane highway across the top, THE ECONOMY, every arrow on it one way; a slip road off it,
+## PEOPLE NO LONGER REQUIRED, down onto a roundabout round a pot, JACKPOT, its arrows going round
+## and no way off it, which a callout says; a dimension line and a north arrow; the title block
+## along the foot, see [method blueprint_block], with a signature in ink and the Department's stamp
+## at APPROVED; and Kit's pencil in the margin with an arrow to the signature, [param margin].
+static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> void:
 	var ink := NotePage.BLUEPRINT_INK
+	var faint := Color(ink, 0.55)
 	var font := NotePage.TYPED
-	var top := rect.position.y + 52.0
-	# The highway: two edges and a dashed line down its middle, running off both sides.
-	for edge: float in [-14.0, 14.0]:
+	var w := rect.size.x
+	var h := rect.size.y
+	var o := rect.position
+	# The highway: its two edges, a double line down the middle, a dashed line between each pair of
+	# lanes, and an arrow in every lane, all of them pointing the same way.
+	var top := o.y + 44.0
+	var lane := 13.0
+	for edge: float in [0.0, lane * 4.0]:
 		canvas.draw_line(
-			Vector2(rect.position.x + 10.0, top + edge),
-			Vector2(rect.end.x - 10.0, top + edge),
-			ink,
-			2.0
+			Vector2(o.x + 8.0, top + edge), Vector2(o.x + w - 8.0, top + edge), ink, 2.0
 		)
-	var x := rect.position.x + 14.0
-	while x < rect.end.x - 20.0:
-		canvas.draw_line(Vector2(x, top), Vector2(x + 10.0, top), ink, 1.0)
-		x += 20.0
+	for off: float in [-1.6, 1.6]:
+		var y := top + lane * 2.0 + off
+		canvas.draw_line(Vector2(o.x + 8.0, y), Vector2(o.x + w - 8.0, y), ink, 1.0)
+	for row: int in [1, 3]:
+		_dashed(
+			canvas,
+			Vector2(o.x + 10.0, top + lane * row),
+			Vector2(o.x + w - 10.0, top + lane * row),
+			faint
+		)
+	for row: int in 4:
+		var y := top + lane * (float(row) + 0.5)
+		var x := o.x + 40.0 + float(row % 2) * 40.0
+		while x < o.x + w - 40.0:
+			_arrow(canvas, Vector2(x, y), Vector2(x + 22.0, y), faint)
+			x += 110.0
+	canvas.draw_string(
+		font, Vector2(o.x + 12.0, top - 8.0), "THE ECONOMY", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, ink
+	)
+	# The slip road: one line down from the highway's lower edge into the roundabout's top right, its
+	# two edges either side of it and its name along it.
+	var ring := Vector2(o.x + w * 0.34, o.y + h * 0.47)
+	var outer := 56.0
+	var island := 28.0
+	var low := top + lane * 4.0
+	var start := Vector2(o.x + w * 0.74, low)
+	var bend := Vector2(o.x + w * 0.7, low + 92.0)
+	var into := ring + Vector2.from_angle(-0.62) * (outer + 4.0)
+	var centre := PackedVector2Array()
+	for i: int in 17:
+		var t := float(i) / 16.0
+		centre.append(start.lerp(bend, t).lerp(bend.lerp(into, t), t))
+	var gap := PackedFloat32Array()
+	for side: float in [-1.0, 1.0]:
+		var road := PackedVector2Array()
+		for i: int in centre.size():
+			var ahead := centre[mini(i + 1, centre.size() - 1)] - centre[maxi(i - 1, 0)]
+			road.append(centre[i] + ahead.normalized().orthogonal() * SLIP_HALF * side)
+		canvas.draw_polyline(road, ink, 1.8, true)
+		gap.append((road[road.size() - 1] - ring).angle())
+	var at := centre.size() / 2
+	var heading := (centre[at + 1] - centre[at - 1]).angle()
+	# Read left to right whichever way the road runs.
+	if absf(heading) > PI * 0.5:
+		heading += PI
+	canvas.draw_set_transform(centre[at], heading, Vector2.ONE)
 	canvas.draw_string(
 		font,
-		Vector2(rect.position.x + 16.0, top - 22.0),
-		"THE ECONOMY",
+		Vector2(-70.0, SLIP_HALF + 12.0),
+		"PEOPLE NO LONGER REQUIRED",
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
-		12,
+		9,
 		ink
 	)
-	# The slip road: off the highway's lower edge, curving down onto the roundabout.
-	var ring := Vector2(rect.position.x + rect.size.x * 0.36, rect.position.y + rect.size.y * 0.5)
-	var radius := 46.0
-	for side: float in [-9.0, 9.0]:
-		var road := PackedVector2Array()
-		for i: int in 17:
-			var t := float(i) / 16.0
-			var from := Vector2(rect.end.x - 80.0, top + 14.0)
-			var to := ring + Vector2.from_angle(-0.75) * (radius + 9.0)
-			var bend := Vector2(lerpf(from.x, to.x, t), lerpf(from.y, to.y, t * t))
-			road.append(bend + Vector2(side * 0.7, side * 0.7))
-		canvas.draw_polyline(road, ink, 1.6, true)
-	canvas.draw_set_transform(ring + Vector2(radius + 60.0, -radius * 1.35), 0.62, Vector2.ONE)
-	canvas.draw_string(
-		font, Vector2.ZERO, "PEOPLE NO LONGER REQUIRED", HORIZONTAL_ALIGNMENT_LEFT, -1, 9, ink
-	)
 	canvas.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-	# The roundabout, a ring of road with no exit, and the pot in its middle.
-	canvas.draw_arc(ring, radius + 9.0, 0.0, TAU, 48, ink, 1.6, true)
-	canvas.draw_arc(ring, radius - 9.0, 0.0, TAU, 48, ink, 1.6, true)
-	for i: int in 16:
-		var a := TAU * float(i) / 16.0
-		canvas.draw_line(
-			ring + Vector2.from_angle(a) * radius,
-			ring + Vector2.from_angle(a + 0.12) * radius,
-			ink,
-			1.0
-		)
-	canvas.draw_arc(ring, 18.0, 0.0, TAU, 32, ink, 1.4, true)
+	# The roundabout: its outer edge broken only where the slip road comes in, the island, a dashed
+	# lane line and arrows going round it; the pot in the middle.
+	var gap_from := minf(gap[0], gap[1])
+	var gap_to := maxf(gap[0], gap[1])
+	canvas.draw_arc(ring, outer, gap_to, gap_from + TAU, 64, ink, 1.8, true)
+	canvas.draw_arc(ring, island, 0.0, TAU, 40, ink, 1.6, true)
+	var middle := (outer + island) * 0.5
+	for i: int in 24:
+		var a := TAU * float(i) / 24.0
+		canvas.draw_arc(ring, middle, a, a + 0.12, 4, faint, 1.0, true)
+	for i: int in 3:
+		var from := 0.4 + TAU * float(i) / 3.0
+		var turn := PackedVector2Array()
+		for step: int in 9:
+			turn.append(ring + Vector2.from_angle(from + 0.7 * float(step) / 8.0) * (middle + 6.0))
+		canvas.draw_polyline(turn, ink, 1.4, true)
+		_head(canvas, turn[turn.size() - 2], turn[turn.size() - 1], ink)
 	var pot := font.get_string_size("JACKPOT", HORIZONTAL_ALIGNMENT_LEFT, -1, 9).x
 	canvas.draw_string(
-		font, ring + Vector2(-pot * 0.5, 4.0), "JACKPOT", HORIZONTAL_ALIGNMENT_LEFT, -1, 9, ink
+		font, ring + Vector2(-pot * 0.5, 3.0), "JACKPOT", HORIZONTAL_ALIGNMENT_LEFT, -1, 9, ink
 	)
-	# The title block, its signature in ink and the Department's stamp.
-	var block := Rect2(
-		rect.position + Vector2(rect.size.x * 0.3, rect.size.y * 0.64),
-		Vector2(rect.size.x * 0.66, rect.size.y * 0.32)
+	# The callout: no exit, off the roundabout's far side.
+	var from_ring := ring + Vector2.from_angle(PI + 0.35) * outer
+	var callout := Rect2(Vector2(o.x + 12.0, ring.y - outer - 18.0), Vector2(62.0, 20.0))
+	canvas.draw_line(from_ring, Vector2(callout.get_center().x, callout.end.y), ink, 1.0)
+	canvas.draw_circle(from_ring, 2.2, ink)
+	canvas.draw_rect(callout, ink, false, 1.2)
+	canvas.draw_string(
+		font,
+		callout.position + Vector2(6.0, 14.0),
+		"NO EXIT",
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		11,
+		ink
 	)
+	# A dimension line across the roundabout, under it.
+	var y := ring.y + outer + 14.0
+	var left := Vector2(ring.x - outer, y)
+	var right := Vector2(ring.x + outer, y)
+	for end: Vector2 in [left, right]:
+		canvas.draw_line(end + Vector2(0.0, -6.0), end + Vector2(0.0, 6.0), faint, 1.0)
+	_arrow(canvas, Vector2(ring.x, y), left, faint)
+	_arrow(canvas, Vector2(ring.x, y), right, faint)
+	var size := font.get_string_size("Ø 24.000", HORIZONTAL_ALIGNMENT_LEFT, -1, 8).x
+	canvas.draw_string(
+		font,
+		Vector2(ring.x - size * 0.5, y - 3.0),
+		"Ø 24.000",
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		8,
+		ink
+	)
+	# The north arrow, out of the way on the right.
+	var north := Vector2(o.x + w * 0.88, o.y + h * 0.58)
+	canvas.draw_arc(north, 15.0, 0.0, TAU, 28, ink, 1.2, true)
+	canvas.draw_colored_polygon(
+		PackedVector2Array(
+			[north + Vector2(0.0, -13.0), north + Vector2(6.0, 9.0), north + Vector2(-6.0, 9.0)]
+		),
+		Color(ink, 0.8)
+	)
+	canvas.draw_string(
+		font, north + Vector2(-4.0, -20.0), "N", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, ink
+	)
+	# The title block, its signature in ink over APPROVED and the Department's stamp beside it.
+	var block := blueprint_block(rect)
 	canvas.draw_rect(block, ink, false, 1.4)
-	var signed := block.position + Vector2(block.size.x * 0.34, block.size.y * 0.9)
+	canvas.draw_line(
+		block.position + Vector2(0.0, 18.0),
+		Vector2(block.end.x, block.position.y + 18.0),
+		faint,
+		1.0
+	)
+	var signed := Vector2(block.position.x + block.size.x * 0.4, block.end.y - 12.0)
 	var scrawl := PackedVector2Array()
-	for i: int in 22:
-		var t := float(i) / 21.0
-		scrawl.append(signed + Vector2(t * 92.0, sin(t * 17.0) * 7.0 - t * 6.0))
-	canvas.draw_polyline(scrawl, Color(0.05, 0.08, 0.25), 1.6, true)
-	var stamp := block.position + Vector2(block.size.x * 0.84, block.size.y * 0.72)
-	canvas.draw_arc(stamp, 22.0, 0.0, TAU, 32, NotePage.STAMP_INK, 2.0, true)
-	canvas.draw_arc(stamp, 16.0, 0.0, TAU, 32, NotePage.STAMP_INK, 1.0, true)
+	for i: int in 26:
+		var t := float(i) / 25.0
+		scrawl.append(signed + Vector2(t * 96.0, sin(t * 17.0) * 6.0 - t * 5.0))
+	canvas.draw_polyline(scrawl, Color(0.05, 0.08, 0.25), 1.7, true)
+	var stamp := Vector2(block.end.x - 30.0, block.end.y - 22.0)
+	canvas.draw_arc(stamp, 20.0, 0.0, TAU, 32, NotePage.STAMP_INK, 2.0, true)
+	canvas.draw_arc(stamp, 14.0, 0.0, TAU, 32, NotePage.STAMP_INK, 1.0, true)
 	var dept := font.get_string_size("D.O.K.", HORIZONTAL_ALIGNMENT_LEFT, -1, 9).x
 	canvas.draw_string(
 		font,
@@ -404,4 +492,65 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2) -> void:
 		-1,
 		9,
 		NotePage.STAMP_INK
+	)
+	if margin.is_empty():
+		return
+	# Kit's pencil in the margin left of the title block, pale on the blue, and an arrow from it to
+	# the signature.
+	var lead := Color(0.86, 0.88, 0.92, 0.92)
+	var room := block.position.x - o.x - 18.0
+	var rows := NotePage._rows(margin, NotePage.HAND, MARGIN_SIZE, room)
+	var line := NotePage.HAND.get_height(MARGIN_SIZE) * 0.9
+	var note := Vector2(o.x + 10.0, block.position.y + 30.0)
+	var widest := 0.0
+	for i: int in rows.size():
+		var row := rows[i]
+		canvas.draw_string(
+			NotePage.HAND,
+			note + Vector2(0.0, line * float(i)),
+			row,
+			HORIZONTAL_ALIGNMENT_LEFT,
+			-1,
+			MARGIN_SIZE,
+			lead
+		)
+		widest = maxf(
+			widest, NotePage.HAND.get_string_size(row, HORIZONTAL_ALIGNMENT_LEFT, -1, MARGIN_SIZE).x
+		)
+	var from := note + Vector2(widest * 0.4, line * float(rows.size() - 1) + 10.0)
+	var end := signed + Vector2(-8.0, 2.0)
+	var bow := Vector2(from.x + 10.0, end.y + 10.0)
+	var curve := PackedVector2Array()
+	for i: int in 13:
+		var t := float(i) / 12.0
+		curve.append(from.lerp(bow, t).lerp(bow.lerp(end, t), t))
+	canvas.draw_polyline(curve, lead, 1.6, true)
+	_head(canvas, curve[curve.size() - 2], end, lead)
+
+
+## Where the blueprint's title block lies on [param rect]: along its foot, the right of it, with
+## room left of it for a pencilled note.
+static func blueprint_block(rect: Rect2) -> Rect2:
+	return Rect2(
+		rect.position + Vector2(rect.size.x * 0.3, rect.size.y * 0.69),
+		Vector2(rect.size.x * 0.66, rect.size.y * 0.27)
+	)
+
+
+## A dashed line from [param from] to [param to].
+static func _dashed(canvas: CanvasItem, from: Vector2, to: Vector2, ink: Color) -> void:
+	canvas.draw_dashed_line(from, to, ink, 1.0, 8.0)
+
+
+## A line from [param from] with an arrowhead at [param to].
+static func _arrow(canvas: CanvasItem, from: Vector2, to: Vector2, ink: Color) -> void:
+	canvas.draw_line(from, to, ink, 1.2, true)
+	_head(canvas, from, to, ink)
+
+
+## An open arrowhead at [param tip], pointing away from [param from].
+static func _head(canvas: CanvasItem, from: Vector2, tip: Vector2, ink: Color) -> void:
+	var back := (from - tip).normalized() * 6.0
+	canvas.draw_polyline(
+		PackedVector2Array([tip + back.rotated(0.5), tip, tip + back.rotated(-0.5)]), ink, 1.3, true
 	)

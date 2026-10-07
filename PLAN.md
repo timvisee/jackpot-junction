@@ -1045,7 +1045,7 @@ noted; STORY.md and GAME.md were brought in line first. One commit an item.
 - [x] Hands: Caveat for Kit, Kalam for the forklift driver (3, 7), Patrick Hand for the napkin and
       the envelope (8, 14), Permanent Marker for the folder; Homemade Apple for the license's
       signature alone; THIRD_PARTY.md and the credits [7.3].
-- [ ] Note 21 gone over in pen: Don't underlined three times, exclamation marks, a warning triangle,
+- [x] Note 21 gone over in pen: Don't underlined three times, exclamation marks, a warning triangle,
       scribbles. Note 18 in boxes. Note 16 drawn as a road engineer draws, its title block fitting,
       Kit's margin line [7.3].
 - [ ] The folder: a note on each side of a leaf, two to a spread [7.2].
