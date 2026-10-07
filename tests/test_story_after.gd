@@ -67,7 +67,7 @@ func test_the_title_is_the_operators_until_switched_off() -> void:
 	# In the tagline's place under the name, and its cursor fades rather than going, so the line
 	# holds still as it blinks.
 	assert_object(line.get_parent()).is_same(play.get_parent())
-	var cursor := line.get_node("Cursor") as Control
+	var cursor := line.get_node("Cursor/Block") as Control
 	await get_tree().create_timer(0.7).timeout
 	assert_bool(cursor.visible).is_true()
 	assert_float(cursor.self_modulate.a).is_equal(0.0)

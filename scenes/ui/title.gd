@@ -198,13 +198,24 @@ func _status_line() -> HBoxContainer:
 	Type.set_font(said, NotePage.TYPED, STATUS_SIZE)
 	said.add_theme_color_override("font_color", green)
 	row.add_child(said)
+	# The block in a slot the line's height, from just under the top of the letters to a little under
+	# their foot, level with the capitals rather than centered on the whole line.
+	var font := NotePage.TYPED
+	var slot := Control.new()
+	slot.name = "Cursor"
+	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot.custom_minimum_size = Vector2(STATUS_SIZE * 0.6, font.get_height(STATUS_SIZE))
+	row.add_child(slot)
 	var cursor := ColorRect.new()
-	cursor.name = "Cursor"
+	cursor.name = "Block"
 	cursor.color = green
-	cursor.custom_minimum_size = Vector2(STATUS_SIZE * 0.6, STATUS_SIZE)
-	cursor.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	cursor.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(cursor)
+	cursor.position = Vector2(0.0, font.get_ascent(STATUS_SIZE) * 0.08)
+	cursor.size = Vector2(
+		STATUS_SIZE * 0.6,
+		font.get_ascent(STATUS_SIZE) * 0.92 + font.get_descent(STATUS_SIZE) * 0.35
+	)
+	slot.add_child(cursor)
 	if not Game.settings.flash_reduction:
 		var blink := cursor.create_tween().set_loops()
 		(

@@ -1106,7 +1106,7 @@ invitation and the ticket both stay; the rest below. STORY.md and GAME.md first.
       18 the Minister's box crossed through in red pen; 21's pen sharp, nothing drawn twice; 23 ends
       END OF REPORT; 26 the House's wall calendar page [7.3].
 - [ ] NOTE COLLECTED carries the new note's pencil mark [7.1].
-- [ ] The green line's cursor up a little, level with the letters [8.6].
+- [x] The green line's cursor up a little, level with the letters [8.6].
 - [ ] The folder's shutting quieter, and only once it is shut.
 - [x] The Story tab's buttons: Stage -, Stage +, Unlock all notes.
 
