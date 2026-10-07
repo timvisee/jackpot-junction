@@ -967,7 +967,8 @@ something they are not supposed to have.
 GAME.md 3.8. Once a profile has found its first note, a folder peeks in from the left edge of the
 title, the way the license peeks in from the right: a plain manila folder standing upright, as it is
 when it opens, dog-eared, with nothing of the House's on it. Across its front somebody has written
-DO NOT FILE in black marker, with a pencil K. in a corner and an eye drawn in pen and crossed out:
+OFF THE BOOKS in black marker, a casino's phrase for what is kept out of its records, with a pencil
+K. in a corner and an eye drawn in pen and crossed out:
 the one thing on the title the House did not make. The menu's cursor reaches it going left from the
 buttons, as it reaches the license going right, and whichever of them is under the cursor slides out
 and is marked the way a button under the cursor is. It opens on a click, a tap or a press: the

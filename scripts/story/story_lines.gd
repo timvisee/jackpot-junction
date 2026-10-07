@@ -278,7 +278,7 @@ const EMPLOYEE := "EMPLOYEE OF THE MONTH"
 ## A note taken, on the scrap in the player's corner, STORY.md 7.1.
 const NOTE_COLLECTED := "NOTE COLLECTED"
 ## Across the front of Kit's folder in black marker, STORY.md 7.2.
-const FOLDER_FRONT := "DO NOT FILE"
+const FOLDER_FRONT := "OFF THE BOOKS"
 
 ## The Final Hand, STORY.md 8: the flyer at Play, the House's invitation, the name the House
 ## prints for the candidate, and the models' names after the profile.

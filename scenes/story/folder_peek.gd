@@ -1,7 +1,7 @@
 class_name FolderPeek
 extends Control
 ## Kit's notes on the title, STORY.md 7.2: a plain manila folder standing upright, as it is when it
-## opens, dog-eared, nothing of the House's on it but DO NOT FILE in marker across it, its front
+## opens, dog-eared, nothing of the House's on it but OFF THE BOOKS in marker across it, its front
 ## laid out as the cover's, see [FolderCover], peeking in from the left edge the way the license
 ## peeks in from the right. It slides out under the cursor, or when the menu's cursor comes to it
 ## from the buttons, and opens on a click, a tap or the accept button. While a note is new a corner

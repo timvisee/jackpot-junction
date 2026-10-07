@@ -10,6 +10,8 @@ extends RefCounted
 const WIDE := 460.0
 const MARKER_INK := Color(0.07, 0.07, 0.08, 0.9)
 const MARKER_SIZE := 58
+## The most of the cover's width the marker's words may take.
+const MARKER_SHARE := 0.86
 const TILT := -0.07
 ## The eye: where on the cover, how wide, how thick its pen.
 const EYE_AT := Vector2(0.74, 0.22)
@@ -25,6 +27,10 @@ static func draw_front(canvas: CanvasItem, rect: Rect2) -> void:
 	var font := NotePage.MARKER
 	var words := StoryLines.FOLDER_FRONT
 	var wide := font.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	# Written as big as fits across the cover with a margin either side.
+	while size > 6 and wide > rect.size.x * MARKER_SHARE:
+		size -= 1
+		wide = font.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 	var middle := rect.position + rect.size * Vector2(0.5, 0.56)
 	canvas.draw_set_transform(middle, TILT, Vector2.ONE)
 	canvas.draw_string(

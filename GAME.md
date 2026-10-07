@@ -614,7 +614,7 @@ else's results screen, see 10.3.
   pad, and on a touch screen the finger of 8.3, for the tap. Nothing else is written along the
   bottom: who made the music, the models and the sounds is said in Settings, About, see 8.5.
   Once the story of 8.7 has had a note found, a manila folder peeks in upright from the left edge
-  the way the license does from the right, DO NOT FILE in marker across it, opening on the notes
+  the way the license does from the right, OFF THE BOOKS in marker across it, opening on the notes
   found, reached going left from the buttons as the license is going right, either of them slid out
   and marked as a button is while the cursor is on it, and marked in pencil while a note in it is
   unread; while its Final Hand is due a flyer in the house's gold points at Play the way the
@@ -3805,7 +3805,7 @@ at most one a match, and one left lying turns up again in a later map. It lies o
 floor only and only this machine's karts can take it; bots never go for it, nothing that happens in
 the match moves it, and a bullet flies over it. Never in the Garage, the waiting room, the driving
 school or a Grand Prix's party. Once one has been found a manila folder peeks in from the left edge
-of the title, the way the license does from the right, DO NOT FILE on it in marker, and comes out to
+of the title, the way the license does from the right, OFF THE BOOKS on it in marker, and comes out to
 the middle and opens on the notes found so far, one on each side of a leaf in the story's order,
 turned as the Highway Code's pages are and as fast as the arrows or a pad's shoulder buttons are
 pressed, every leaf seen going over, each page's number pencilled at its foot, each note a little

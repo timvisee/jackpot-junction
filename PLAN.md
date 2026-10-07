@@ -361,9 +361,10 @@ Spoilers throughout, like STORY.md.
 | S16 | The third look, the user's notes | Done |
 | S17 | The fourth look, the user's notes | Done |
 | S18 | The fifth look, the user's notes | Done |
+| S19 | The sixth look, the user's notes | In progress |
 
-Next up: the user's look at S18 and their pick for the folder's front, then their play-through,
-S13's last task, and tuning the pace of S0 after it. The phases are in the order they are best built, each standing on its own:
+Next up: S19, the user's sixth round of notes; then their play-through, S13's last task, and tuning
+the pace of S0 after it. The phases are in the order they are best built, each standing on its own:
 after S0 to S7 the story's margins are all in the game and could ship, the notes and the ending
 after them. S10 can be built alongside anything before S11, which needs it. On picking the work up
 again: this table, then the first unticked task of the phase in progress, then that task's sections
@@ -1247,6 +1248,20 @@ the lag check once lost its clients; all passed with the pad idle. `make check` 
 The user's settings file changed once at 21:10 while their game was running from this worktree,
 `match_seconds` from 5 to 180 and profile 1 saved with it; neither the test suites nor the probe
 scripts write it. Looked at: every item, screenshotted and sent.
+
+### S19: the sixth look, the user's notes
+
+The user's sixth round of notes, 2026-10-07: the folder's front reads OFF THE BOOKS, their pick of
+the suggestions. STORY.md and GAME.md first. One commit an item.
+
+- [x] The folder's front: OFF THE BOOKS, as big as fits [7.2].
+- [ ] The line under the buttons says nothing the buttons' binds already say [7.2].
+- [ ] A click turns the license or a note over only on it, not beside it [7.2].
+- [ ] The license goes back to the title's corner smoothly, turned face up on the way [7.2].
+
+Verify: the story's suites and `make check`; screenshots, sent to the user.
+
+Status: in progress.
 
 ## Pending
 
