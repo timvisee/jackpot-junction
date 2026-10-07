@@ -350,14 +350,14 @@ Spoilers throughout, like STORY.md.
 | S5 | Microprint, loading, statistics and About | Done |
 | S6 | The driving school | Done |
 | S7 | The rooms and the crowd | Done |
-| S8 | Notes on the table | In progress |
-| S9 | The folder and the notes' pages | Not started |
+| S8 | Notes on the table | Done |
+| S9 | The folder and the notes' pages | In progress |
 | S10 | The Count Room and House Rules | Not started |
 | S11 | The Final Hand | Not started |
 | S12 | After the ending | Not started |
 | S13 | Wrapping up | Not started |
 
-Next up: S8. The phases are in the order they are best built, each standing on its own: after S0 to
+Next up: S9. The phases are in the order they are best built, each standing on its own: after S0 to
 S7 the story's margins are all in the game and could ship, the notes and the ending after them. S10
 can be built alongside anything before S11, which needs it. On picking the work up again: this
 table, then the first unticked task of the phase in progress, then that task's sections of STORY.md.
@@ -431,7 +431,8 @@ These refine STORY.md without changing it.
 - [x] Debug builds only: `++ --story-stage=N` shows stage N without saving anything,
       `++ --story-final-hand` deals the Final Hand on the next Play, and `++ --story-note=N` lies
       note N on the next map's floor at once (`Story.read_arguments`, called from
-      `scripts/autoload/game.gd`; the last two are read by S8 and S11).
+      `scripts/autoload/game.gd`; the last two are read by S8 and S11). S7 added
+      `++ --story-clock=SECONDS`, the clock read as that for what moves with it.
 - [x] The F3 overlay (`scenes/dev/debug_overlay.gd`) shows the stage, the clock in minutes, how many
       notes are found and whether the Final Hand is due (`Story.debug_text`); S8 adds the next note.
 
@@ -665,46 +666,62 @@ Lucky Crossing, the Vault and Crossfire with the crowd's new shader and with the
 
 ### S8: notes on the table [7.1, 5.2]
 
-- [ ] The schedule, `scripts/story/story_notes.gd` with the texts of S9: the first note is due in the
+- [x] The schedule, `scripts/story/story_notes.gd` with the texts of S9: the first note is due in the
       second quick match the profile plays after its license, never a Grand Prix map. After it, a
       stage's notes are spread across it, the i-th of k due at the stage's start plus i/k of its
       length; after the ending one every ten minutes of the clock. A note is never due before the one
       before it is found; they come in order.
-- [ ] Turning up: in a map a note is due for, an even chance; certain once it has been due for two
+- [x] Turning up: in a map a note is due for, an even chance; certain once it has been due for two
       maps without turning up; never more than one a match. At a moment drawn at random between
       twenty seconds in and a minute before the clock runs out, never at the countdown and never in
       overtime; a match ended early by the target before that moment simply had no note.
-- [ ] Missed: a note that turned up and was not taken is due again in a later map, as often as it
+- [x] Missed: a note that turned up and was not taken is due again in a later map, as often as it
       takes.
-- [ ] Note 21 on the Final Hand's floor whatever the order, S11; missed, it is due again after the
+- [x] Note 21 on the Final Hand's floor whatever the order, S11; missed, it is due again after the
       ending, before note 22.
-- [ ] Only in maps, quick or Grand Prix, offline or online, never in the Garage, the waiting room,
+- [x] Only in maps, quick or Grand Prix, offline or online, never in the Garage, the waiting room,
       the driving school or a Grand Prix's party. Never with the story off, never before the license,
       never headless.
-- [ ] Where: open floor from the arena's grid, not on a pad, the Junction, a Jackpot, near a pit or
+- [x] Where: open floor from the arena's grid, not on a pad, the Junction, a Jackpot, near a pit or
       beside a spawn, somewhere a kart can drive to.
-- [ ] `scenes/story/story_note.gd`: a folded scrap lying flat among the litter, each room's paper,
+- [x] `scenes/story/story_note.gd`: a folded scrap lying flat among the litter, each room's paper,
       graph paper on the Workbench, a cocktail napkin After Hours, a page off a clipboard in the
       Yard, a strip of printout in the Count Room, where it is the only thing on the floor. A glint
       runs across it every few seconds, faint enough to pass for the light. Appearing, it is simply
       there: no sound, no light, no ring.
-- [ ] Taking it: this machine's human karts only, never a bot, a decoy or a dummy, at the radius a
+- [x] Taking it: this machine's human karts only, never a bot, a decoy or a dummy, at the radius a
       chip is taken at, unmoved by magnets, Chip Magnet and Magnet Hubcaps alike, by bombs or by
       anything else; bullets pass over it and aim assist never turns toward it. A soft rustle, the
       paper folds into that player's corner, and a torn scrap there says NOTE COLLECTED in pencil
       for two seconds: not on the house's tag, the one thing on the HUD the house did not print. It
       never says which or how many.
-- [ ] Filing: into the profile playing's notes at once, unread, whichever seat here took it, and
+- [x] Filing: into the profile playing's notes at once, unread, whichever seat here took it, and
       saved there and then, so a game closed straight after keeps it. Whether linked profiles move
       on through the notes as well is open, STORY.md 13; build it so the filing is one function a
       later answer can change, and nothing else assumes one profile.
-- [ ] The house never knows: no line of the house's mentions a note, the Statistics page counts
+- [x] The house never knows: no line of the house's mentions a note, the Statistics page counts
       none, the evaluation counts none.
 
 Verify: `tests/test_story_notes.gd`: the first note's quick match; spacing per stage; the even
 chance, the certainty after two, the window inside the clock; order kept; a missed note again; note
 21's exception; never on a pad or near a pit on every map; a bot driving over one leaves it; a
 client's note exists on the client alone and no snapshot mentions it.
+
+Status: built. `StoryNotes` keeps the schedule, its numbers beside the stages' in `Story`;
+`NoteDealer`, added beside `MatchRecord` by the match scene and by the playground for
+`++ --story-note=N`, decides as the flag drops, lays the `StoryNote` on the arena outside its
+pickups, and files a take through `StoryNotes.file`, the one place a note is filed. A dealer made
+with a note, `NoteDealer.add_to(match, 21)`, is how S11 deals the Final Hand's. Kept off any cell
+beside a wall too, so a note is never hidden under the near wall. The scrap in the corner is
+`NoteCollected`, in the license's handwriting font, beside the corner's block toward the middle of
+the screen, clear of the control hints under it. The F3 line gives the next note and when it falls
+due. `tests/test_story_notes.gd`, 5 tests: the first note's quick match, the spacing, order and the
+Final Hand's exception, the even chance, the certainty after two and the window, a spot on every
+map, and a live match in which a bot drives over the note and leaves it and the player takes it,
+the note never a pickup and the floor the host sends never mentioning it. Looked at: the graph
+paper, the napkin and the clipboard page, each glinting, the note from the match's camera, and the
+scrap in the corner. `test_flow`, `test_online`, `test_online_sync`, `test_play_online`,
+`test_online_protocol` and `test_kart_sound_wiring` pass.
 
 ### S9: the folder and the notes' pages [7.2, 7.3]
 

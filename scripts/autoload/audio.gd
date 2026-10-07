@@ -162,6 +162,8 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"page": ["card-shove-1.ogg", "card-place-2.ogg"],
 	&"book": ["impactPlate_light_000.ogg"],
 	&"stamp": ["impactPunch_heavy_000.ogg"],
+	# One of Kit's notes taken off the table, STORY.md 7.1: a soft rustle of paper.
+	&"note": ["card-shove-1.ogg"],
 	&"nitro_swell": ["kart/nitro_swell.ogg"],
 }
 

@@ -147,9 +147,11 @@ func _ready() -> void:
 		session.host_controls.asked_to_go.connect(_on_asked_to_go)
 	Events.match_state_changed.connect(_on_state_changed)
 	Events.grand_prix_scored.connect(_on_grand_prix_scored)
-	# A match played to the whistle goes into the profile playing, GAME.md 8.5.
+	# A match played to the whistle goes into the profile playing, GAME.md 8.5, and Kit's notes turn
+	# up on this machine's table alone, STORY.md 7.1.
 	if not config.dedicated:
 		MatchRecord.add_to(match_node)
+		NoteDealer.add_to(match_node)
 	loaded.emit()
 
 

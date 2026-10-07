@@ -18,6 +18,26 @@ const STAGE_STARTS: Array[float] = [0.0, 600.0, 2400.0, 4500.0, 6600.0]
 const FINAL_HAND_AT := 9600.0
 ## How many notes there are, STORY.md 7.3, the last of them the calendar's next page.
 const NOTE_COUNT := 26
+## The notes' pace, STORY.md 7.1, beside the stages' it keeps step with: each stage's first and last
+## note, the Final Hand's own between the Candidate's and the Operator's; the quick match after the
+## license the first is due in; how far apart the Operator's are on the clock; the chance a due note
+## turns up in a map, and after how many maps without it turns up for certain; and the part of a
+## match it may turn up in, seconds after the flag and seconds before the clock runs out.
+const STAGE_NOTES: Array[Vector2i] = [
+	Vector2i(0, -1),
+	Vector2i(1, 4),
+	Vector2i(5, 9),
+	Vector2i(10, 14),
+	Vector2i(15, 20),
+	Vector2i(22, 26),
+]
+const FINAL_HAND_NOTE := 21
+const FIRST_NOTE_MATCH := 2
+const NOTE_EVERY_AFTER := 600.0
+const NOTE_CHANCE := 0.5
+const NOTE_CERTAIN_AFTER := 2
+const NOTE_FROM := 20.0
+const NOTE_BEFORE_END := 60.0
 
 ## A stage shown whatever the profile has reached, for a test or `++ --story-stage=N` in a debug
 ## build, and -1 for none.
@@ -162,6 +182,12 @@ static func debug_text() -> String:
 	)
 	if not profile.story.on:
 		line += ", off"
+	var next := StoryNotes.next_of(profile.story)
+	if next == 1:
+		line += ", next note 1 in quick match %d" % FIRST_NOTE_MATCH
+	elif next > 0:
+		var due := StoryNotes.due_at(next, profile.story) / 60.0
+		line += ", next note %d at %d min" % [next, floori(due)]
 	if final_hand_due(profile):
 		line += ", Final Hand due"
 	return line

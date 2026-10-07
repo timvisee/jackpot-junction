@@ -83,6 +83,8 @@ func _ready() -> void:
 	match_node.rules.max_players = maxi(match_node.rules.max_players, inputs.size())
 	match_node.hold_start = _loading
 	match_node.start(inputs, 0, [], [], styles)
+	# Kit's notes, as a map has them, so `++ --story-note=N` can lay one down here, STORY.md 7.1.
+	NoteDealer.add_to(match_node)
 	if _loading:
 		# What the host shows while it holds the lamps, GAME.md 10.3, without a network.
 		match_node.loading = Vector2i(2, 4)
