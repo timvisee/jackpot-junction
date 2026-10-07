@@ -358,9 +358,10 @@ Spoilers throughout, like STORY.md.
 | S13 | Wrapping up | Done, but for the user's play-through |
 | S14 | The first look, the user's notes | Done |
 | S15 | The second look, the user's notes | Done |
+| S16 | The third look, the user's notes | In progress |
 
-Next up: the user's look at S15, then their play-through, S13's last task, and tuning the pace of
-S0 after it. The phases are in the order they are best built, each standing on its own:
+Next up: S16, the user's third round of notes; then their play-through, S13's last task, and tuning
+the pace of S0 after it. The phases are in the order they are best built, each standing on its own:
 after S0 to S7 the story's margins are all in the game and could ship, the notes and the ending
 after them. S10 can be built alongside anything before S11, which needs it. On picking the work up
 again: this table, then the first unticked task of the phase in progress, then that task's sections
@@ -1128,6 +1129,29 @@ the two before failed on timing alone, in suites S15 does not touch, each passin
 `test_online_seats`, reading the host's slot for a client's second seat before the host had made
 it, then `test_driving_school`'s theory book and `test_play_online`'s four seconds to say nobody is
 at an address. Looked at: every item, screenshotted; the user's third round of notes followed.
+
+### S16: the third look, the user's notes
+
+The user's third round of notes, 2026-10-07, taken as given with these defaults: the invitation's
+room under its words, left once its buttons went under it, holds the R.S.V.P. an invitation has at
+its foot; the pencil mark on an arrow means the very next spread or note is new; all the notes are
+paper, so none keeps a gloss. STORY.md and GAME.md first. One commit an item.
+
+- [x] STORY.md and GAME.md: every decision below written in first.
+- [ ] The invitation the size of a playing card again, 520 by 740, R.S.V.P. at its foot; the ticket
+      hidden whole behind the card before it comes up, and held long enough to read [8.1].
+- [ ] Icons for the folder's and the closer look's buttons: a cross for Put it away and Put back,
+      turning arrows for Turn over [7.2].
+- [ ] The closer look's light as paper takes it, soft and broad, no gloss [7.2].
+- [ ] A note is read as soon as it is taken out for a closer look [7.2].
+- [ ] The arrows to the spread or note either side carry the pencil mark when what they go to is
+      new [7.2].
+- [ ] Notes: 13's back line turned further; 9's arrow a proper arrowhead [7.3].
+- [ ] NOTE COLLECTED's pencil mark lined up with its words, the mark's ! in its ring [7.1].
+
+Verify: the story's suites and `make check`; screenshots of each, sent to the user.
+
+Status: in progress.
 
 ## Pending
 

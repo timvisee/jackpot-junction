@@ -3808,12 +3808,14 @@ of the title, the way the license does from the right, DO NOT FILE on it in mark
 the middle and opens on the notes found so far, one on each side of a leaf in the story's order,
 turned as the Highway Code's pages are and as fast as the arrows are pressed, each page's number
 pencilled at its foot; the menu's cursor reaches it going left from the buttons. A note can be taken
-off its page to be looked at larger, closer and turned over, tilting toward the mouse and catching
-the light as the license does, and a few have something on the back. The profile keeps which notes
+off its page to be looked at larger, closer and turned over, tilting toward the mouse as the license
+does with the light moving softly over the paper, and a few have something on the back; a cross puts
+the folder or the note away, turning arrows turn the note over, and the arrows either side carry
+the pencil mark when what they go to is new. The profile keeps which notes
 have been read as well as which were found, and a note not yet read is marked new in pencil: a
 corner of its paper sticking up out of the folder with an exclamation mark on it, and on its page
 inside, which the folder turns to quickly from its first spread and takes off its page for a closer
-look, a turn or any press stopping it; a note looked at closer for a second is read. Offline, after
+look, a turn or any press stopping it; a note taken out for a closer look is read. Offline, after
 a map in which a note was taken, the folder also peeks in beside the payout slip and opens over it;
 never online, where the room moves on at the host's word, and never at the Final Hand. STORY.md 7.
 

@@ -978,8 +978,11 @@ page so far is the last.
 
 **A closer look.** A note can be taken off its page: it comes out of the folder to the middle of the
 screen, larger, over the folder darkened behind it, the way the license comes up in full, and like
-the license it turns a little toward the mouse, the stick or the phone and catches the light as it
-does. It can be looked at closer, moved about and turned over, and put back.
+the license it turns a little toward the mouse, the stick or the phone and the light moves softly
+over it, as it does over paper rather than over the license's laminate. It can be looked at closer,
+moved about and turned over, and put back. The folder's buttons and the closer look's are drawn
+rather than written: a cross puts either away, a pair of turning arrows turns a note over, and the
+arrows to the spread or the note either side carry the pencil mark when what they go to is new.
 
 **The backs.** Most notes have nothing on the back but the paper. A few show their front through,
 faint and backward: the flyer's heavy ink, the House's letterhead, and the graph paper Kit wrote on
@@ -1001,9 +1004,9 @@ in the House's print:
   new note, faster as it goes and a second at most, and there takes it off its page for a closer
   look. Turning a page, or any other press, stops it where it is. A new page has the pencil mark in
   its top corner.
-- A note is read once it has been looked at closer for a second: open on its page is not enough.
-  Its mark goes then, and the corner on the title goes with the last new note. Nothing counts the
-  new notes or says how many there are.
+- A note is read as soon as it is taken off its page for a closer look: open on its page is not
+  enough. Its mark goes then, and the corner on the title goes with the last new note. Nothing
+  counts the new notes or says how many there are.
 
 **Right after a map.** Offline, after a map in which a note was taken, the folder peeks in from the
 left edge beside the payout slip as it does on the title, its pencil mark on it, and opens over the
@@ -1384,16 +1387,17 @@ the license is part of the ending, 8.6.
   the school's red: YOUR TABLE IS READY blinking in foil, over "One more hand. Then we should
   talk." and "Attendance is voluntary."
 - **Play asks.** Play opens the lobby as ever, but before the match settings the House deals an
-  invitation onto the table, face down, and turns it over: a black card edged in gold foil, the
-  House's seal pressed into its top, "The House requests the pleasure of your company at the Final
-  Hand" in engraved letters, the player's name typed on a dotted line under it, and under that
-  House Rules · the Count Room · 5 minutes · three seats already taken. Under the card, Take your
-  seat in foil and under the cursor, and Not now. Not now is the usual lobby and the usual match,
-  and the House asks again the next time Play opens the lobby; the flyer stays. Take your seat
-  brings a golden ticket up from behind the card, FINAL HAND · ADMIT ONE, numbered with the
-  player's license, for a moment before it drops away; it sets up the match, and the match settings
-  come up with every value blacked out, a marker bar drawn over each in turn: there are settings,
-  and the player is not to know what they are, let alone change one.
+  invitation onto the table, face down, and turns it over: a black card the size of a playing
+  card, edged in gold foil, the House's seal pressed into its top, "The House requests the pleasure
+  of your company at the Final Hand" in engraved letters, the player's name typed on a dotted line
+  under it, and under that House Rules · the Count Room · 5 minutes · three seats already taken.
+  Under the card, Take your seat in foil and under the cursor, and Not now. Not now is the usual
+  lobby and the usual match, and the House asks again the next time Play opens the lobby; the flyer
+  stays. Take your seat brings a golden ticket up from behind the card, where it lay hidden, FINAL
+  HAND · ADMIT ONE, numbered with the player's license, held up long enough to read before it drops
+  away; it sets up the match, and the match settings come up with every value blacked out, a marker
+  bar drawn over each in turn: there are settings, and the player is not to know what they are, let
+  alone change one.
 - **Admitted.** When everybody in the lobby is ready, the ticket comes up once more and its ADMIT
   ONE is torn off along the perforation, and then the match begins.
 - **Never online.** The Final Hand is the House talking to one player, and it is never dealt
