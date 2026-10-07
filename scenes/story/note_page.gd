@@ -19,6 +19,13 @@ const TITLE_SIZE := 30
 const CHART_GAP := 14.0
 ## Where the note's paper sits on the leaf: under the title, in the middle of what is left.
 const TITLE_ROOM := 70.0
+## A pencil arrow between two of a note's lines: how far out into the margin it bows, how close it
+## comes to the paper's edge at most, how long the strokes of its head are and how far they spread
+## either side of it.
+const ARROW_BOW := 22.0
+const ARROW_EDGE := 6.0
+const ARROW_HEAD := 10.0
+const ARROW_SPREAD := 0.45
 ## The scrap of paper a new note's pencil mark is drawn on where it marks a button, and its lean.
 const TAG := Vector2(32.0, 32.0)
 const TAG_TILT := -0.12
@@ -275,20 +282,36 @@ func _draw_arrow() -> void:
 	var left := minf(from_span.position.x, to_span.position.x)
 	var from := Vector2(from_span.position.x - 6.0, from_span.position.y + from_span.size.y * 0.45)
 	var to := Vector2(left - 3.0, to_span.get_center().y)
-	var out := Vector2(left - 24.0, from.y)
-	var up := Vector2(left - 24.0, to.y)
+	# Out into the margin, as far as the paper lets it: its leftmost just inside the paper's edge.
+	var edge := paper_rect().position.x + ARROW_EDGE
+	var bow := left - ARROW_BOW
 	var curve := PackedVector2Array()
-	for i: int in 25:
-		var t := float(i) / 24.0
-		var a := from.lerp(out, t)
-		var b := out.lerp(up, t)
-		var c := up.lerp(to, t)
-		curve.append(a.lerp(b, t).lerp(b.lerp(c, t), t))
-	draw_polyline(curve, PENCIL, 1.4, true)
-	var back := (curve[curve.size() - 2] - to).normalized() * 7.0
-	draw_polyline(
-		PackedVector2Array([to + back.rotated(0.5), to, to + back.rotated(-0.5)]), PENCIL, 1.4, true
+	var way := Vector2.RIGHT
+	for attempt: int in 3:
+		var out := Vector2(bow, from.y)
+		var up := Vector2(bow, to.y)
+		# The head points the way the curve comes in at its end, level into the line; the curve
+		# stops short of the tip so the head's point stays sharp.
+		way = (to - up).normalized()
+		var stop := to - way * ARROW_HEAD * 0.5
+		curve.clear()
+		var leftmost := INF
+		for i: int in 33:
+			var at := from.bezier_interpolate(out, up, stop, float(i) / 32.0)
+			curve.append(at)
+			leftmost = minf(leftmost, at.x)
+		if leftmost >= edge - 0.5:
+			break
+		bow += (edge - leftmost) / 0.75
+	draw_polyline(curve, PENCIL, 1.5, true)
+	var head := PackedVector2Array(
+		[
+			to - way.rotated(ARROW_SPREAD) * ARROW_HEAD,
+			to,
+			to - way.rotated(-ARROW_SPREAD) * ARROW_HEAD,
+		]
 	)
+	draw_polyline(head, PENCIL, 1.8, true)
 
 
 ## Whose hand note [param numbered] is in: Kit's, unless it says otherwise, STORY.md 7.3.
@@ -345,7 +368,7 @@ func _draw_back() -> void:
 		_draw_junction(rect)
 		inside.position.y = rect.position.y + rect.size.y * 0.7
 	var lines: Array = back.get("lines", [])
-	# Turned a little, where the back says, about where its lines start.
+	# Turned, where the back says, about the middle of where its lines start.
 	var tilt := float(back.get("tilt", 0.0))
 	# Under the words that show through, where there are some, or as far down as the back says.
 	if back.get("through", false):
@@ -356,9 +379,8 @@ func _draw_back() -> void:
 		var top := inside.position.y
 		if tilt != 0.0:
 			var turn := Transform2D(tilt, Vector2.ZERO)
-			draw_set_transform_matrix(
-				Transform2D(tilt, inside.position - turn.basis_xform(inside.position))
-			)
+			var pivot := inside.position + Vector2(inside.size.x * 0.5, 0.0)
+			draw_set_transform_matrix(Transform2D(tilt, pivot - turn.basis_xform(pivot)))
 		var bottom := _write(lines, inside, int(spec[2]), &"back")
 		draw_set_transform_matrix(Transform2D.IDENTITY)
 		if back.get("box", false):

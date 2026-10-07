@@ -1146,7 +1146,7 @@ paper, so none keeps a gloss. STORY.md and GAME.md first. One commit an item.
 - [x] A note is read as soon as it is taken out for a closer look [7.2].
 - [x] The arrows to the spread or note either side carry the pencil mark when what they go to is
       new [7.2].
-- [ ] Notes: 13's back line turned further; 9's arrow a proper arrowhead [7.3].
+- [x] Notes: 13's back line turned further; 9's arrow a proper arrowhead [7.3].
 - [ ] NOTE COLLECTED's pencil mark lined up with its words, the mark's ! in its ring [7.1].
 
 Verify: the story's suites and `make check`; screenshots of each, sent to the user.

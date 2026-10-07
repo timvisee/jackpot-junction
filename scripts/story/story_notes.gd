@@ -442,8 +442,8 @@ const NOTES := {
 ## [code]band[/code] is a till roll's printed band, [code]window[/code] an envelope's,
 ## [code]seal[/code] the House's, [code]box[/code] a stamped box round the lines, [code]stamp[/code]
 ## a word stamped, [code]sketch[/code] a drawing in pencil, [code]at[/code] how far down the lines
-## start, [code]tilt[/code] how far they are turned; [code]paper[/code] and [code]color[/code] are
-## the back's own where it is not the front's.
+## start, [code]tilt[/code] how far they are turned about their middle; [code]paper[/code] and
+## [code]color[/code] are the back's own where it is not the front's.
 const BACKS := {
 	1:
 	{
@@ -501,7 +501,8 @@ const BACKS := {
 	13:
 	{
 		"through": true,
-		"tilt": -0.06,
+		"tilt": -0.15,
+		"at": 0.72,
 		"lines": [[&"hand", "Changed it again. It caught up by lunch. —K."]],
 	},
 	14:
