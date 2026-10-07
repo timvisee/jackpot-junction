@@ -361,10 +361,10 @@ Spoilers throughout, like STORY.md.
 | S16 | The third look, the user's notes | Done |
 | S17 | The fourth look, the user's notes | Done |
 | S18 | The fifth look, the user's notes | Done |
-| S19 | The sixth look, the user's notes | In progress |
+| S19 | The sixth look, the user's notes | Done |
 
-Next up: S19, the user's sixth round of notes; then their play-through, S13's last task, and tuning
-the pace of S0 after it. The phases are in the order they are best built, each standing on its own:
+Next up: the user's look at S19, then their play-through, S13's last task, and tuning the pace of
+S0 after it. The phases are in the order they are best built, each standing on its own:
 after S0 to S7 the story's margins are all in the game and could ship, the notes and the ending
 after them. S10 can be built alongside anything before S11, which needs it. On picking the work up
 again: this table, then the first unticked task of the phase in progress, then that task's sections
@@ -1265,7 +1265,14 @@ the suggestions. STORY.md and GAME.md first. One commit an item.
 
 Verify: the story's suites and `make check`; screenshots, sent to the user.
 
-Status: in progress.
+Status: done, 2026-10-07. The marker on the folder is sized to fit, `FolderCover.MARKER_SHARE`. The
+lines under the buttons are empty with keys or a pad, but for the closer look's zooming and moving.
+The license flies with `TiltedCard.calm` following the flight and its tint going from the peeking
+card's dim to full, and turns face up in the flight's own time, `TiltedCard.turn_over(takes)`, as
+the closer look now does too. The arrows at the ends keep their room, `ButtonBinds.show_arrow`. A
+click beside the license or a note put it away at first, was made to do nothing on the user's word,
+and then to put it away again on their next. `make check` passed, 1238 tests. Looked at: the
+folder's front, the hints, the license going back face up; screenshots sent.
 
 ## Pending
 
