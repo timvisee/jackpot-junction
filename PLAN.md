@@ -328,6 +328,501 @@ on, and holding the idle server under 160 MB (the editor build's is 110). Also
 run against the Linux release export as the server. Not yet tried over the
 internet, or with a server full of games at once.
 
+## M8: the story
+
+STORY.md is the design of the story and GAME.md 8.7 says where it reaches the game; this is the
+order of work to build it, every detail of STORY.md as a task, ticked off as it lands so the work can
+stop and pick up again anywhere. A task names the STORY.md section it builds, in brackets, and the
+files it touches as far as they are known before the work starts. When building a task changes what
+the story says, STORY.md changes first, then GAME.md where the story reaches it, then the code.
+
+Spoilers throughout, like STORY.md.
+
+### Progress
+
+| Phase | What | State |
+|---|---|---|
+| S0 | Story state, the clock and the switch | Not started |
+| S1 | Every line in one place, and the placeholders | Not started |
+| S2 | The hoardings, the posters and the road | Not started |
+| S3 | The payout slip | Not started |
+| S4 | Jokers: the pick's line and the terms | Not started |
+| S5 | Microprint, loading, statistics and About | Not started |
+| S6 | The driving school | Not started |
+| S7 | The rooms and the crowd | Not started |
+| S8 | Notes on the table | Not started |
+| S9 | The folder and the notes' pages | Not started |
+| S10 | The Count Room and House Rules | Not started |
+| S11 | The Final Hand | Not started |
+| S12 | After the ending | Not started |
+| S13 | Wrapping up | Not started |
+
+Next up: S0. The phases are in the order they are best built, each standing on its own: after S0 to
+S7 the story's margins are all in the game and could ship, the notes and the ending after them. S10
+can be built alongside anything before S11, which needs it. On picking the work up again: this
+table, then the first unticked task of the phase in progress, then that task's sections of STORY.md.
+
+### Decisions fixed for implementation
+
+These refine STORY.md without changing it.
+
+- **One stage for a screen.** `Story.stage_here()` is the stage every surface at this machine shows:
+  the profile playing's stage, or 0 when that profile has no license, has the story switched off, or
+  the game is headless. Surfaces ask it as they are built; nothing listens for it changing, so a
+  stage reached mid-match shows from the next room on.
+- **Every line in one place.** All the story's words live in `scripts/story/story_lines.gd`, one
+  constant per surface keyed by stage, and the notes' in `scripts/story/story_notes.gd`. No line of
+  the story is written anywhere else, so it can be read and edited as a story.
+- **A line holds until a later stage changes it.** `StoryLines.at(table, stage)` returns the entry
+  for the highest stage at or under the one asked for, as STORY.md 6 reads.
+- **The numbers are constants, together.** Stage starts, the Final Hand, the notes' spacing and every
+  other number of the clock live at the top of `scripts/story/story.gd`, in seconds, so the pace is
+  tuned in one place [5.1].
+- **Never over the wire.** No story state, line or note goes into a snapshot, a plan or any message.
+  A test holds it: no network payload has a key starting `story`.
+- **Never headless.** A headless run shows stage 0, deals no notes and writes nothing, the way
+  `MatchRecord` already writes no statistics headless, so tests and the dedicated server never touch
+  a player's story. Tests that need a stage set it through `Story.override`.
+- **The profile keeps it.** A `[story]` section in the profile's file, written by `Profile`; nothing
+  in the machine's settings. Every profile is reset once by hand when the story ships, so no reading
+  of older files is needed beyond the section being absent.
+- **House Rules is a map like any other on the wire.** Its id goes on the end of `ArenaMaps.IDS`, so
+  every machine has it and a client loads it when told to. Which maps a lobby offers is the only
+  thing the story gates: a profile that has played the Final Hand sees House Rules in the quick
+  match's list, and no Grand Prix ever deals it.
+- **Notes are this machine's.** A note is a node only the machine that dealt it has, outside the
+  pickups the host syncs, and only this machine's human karts can take it. Whichever seat here
+  takes it, it is filed for the profile playing [5.2].
+- **American English, the House's capitals.** House lines in capitals as STORY.md writes them, the
+  game's own lines in the game's case, every line spelled as STORY.md spells it.
+
+### S0: story state, the clock and the switch [5]
+
+- [ ] `scripts/story/story.gd`, `class_name Story`: the constants of 5.1 in seconds, stages starting
+      at 0, 600, 2400, 4500 and 6600, the Final Hand at 9600; stage names Customer, Player,
+      Participant, Number, Candidate, Operator; `stage_of(profile)`, `stage_here()`,
+      `final_hand_due(profile)`, `is_operator(profile)`, and `override` for tests and the command
+      line.
+- [ ] `Profile` gains the story's state in a `[story]` section, loaded and saved with the rest:
+      `story_on` (true), `story_seconds` (the clock), `story_maps`, `story_deaths`, `story_jokers`
+      (counted only once licensed, for `{maps}`, `{hands}` and `{accepted}`), `story_notes` (ids
+      found, in the order of STORY.md 7.3), `story_notes_read` (ids whose page has been open for a
+      second, for the New mark of S9), the notes' schedule state of S8, `story_quick_matches`
+      (quick matches since the license, for the first note), `story_final_hand` (the date the stamp
+      came down, empty before), `story_shifts` (maps since), and what the folder keeps of the
+      evaluation, S11.
+- [ ] The clock runs in `MatchRecord`: a room that counts as a map (`maps`) adds its `seconds`, the
+      match clock's own time, to `story_seconds` of every profile at this machine it writes for,
+      whistled or left, the first seat's and a linked seat's alike, never a guest's. Only for a
+      profile with a license and the story on. The driving school, the Garage and the waiting room
+      run no clock, being no maps.
+- [ ] The counters with it: `story_maps` for a map played to the whistle, `story_deaths` and
+      `story_jokers` from the slot's statistics, as `LifetimeStats.add_play` counts them, only what
+      came after the license. `story_shifts` for a map played after the stamp.
+- [ ] The switch [5.4]: on the License tab of the settings (`scenes/ui/license_tab.gd`), under the
+      license or the word on where to get one, a switch of the house's, Story, for the profile
+      playing, over "The small print, the notes, and where they lead.". Off stops the clock and the
+      counters and makes `stage_here()` 0; on picks everything up where it was. In a room it can be
+      switched too, and what is already printed there stays until the next room.
+- [ ] Off, everything is the casino of stage 0, after the ending too: Play reads Play, the license is
+      the Department's, no green line, the seal's print as it is, no folder, no flyer, no notes, no
+      Final Hand. Each phase below checks its surface against the switch.
+- [ ] Debug builds only: `++ --story-stage=N` shows stage N without saving anything,
+      `++ --story-final-hand` deals the Final Hand on the next Play, and `++ --story-note=N` lies
+      note N on the next map's floor at once. Parsed beside the other arguments in
+      `scripts/autoload/game.gd`.
+- [ ] The F3 overlay (`scenes/dev/debug_overlay.gd`) shows the stage, the clock in minutes, the next
+      note and when it is due, and how many notes are found.
+
+Verify: `tests/test_story_clock.gd`: the stage at every boundary; a 1 minute map moves the clock a
+fifth of a 5 minute one; nothing before the license; a linked seat's profile runs its own clock and a
+guest's nothing; the switch stops it and starting again resumes it; headless writes nothing; the
+section is absent from a fresh profile and round-trips through the file.
+
+### S1: every line in one place, and the placeholders [6]
+
+- [ ] `scripts/story/story_lines.gd`, `class_name StoryLines`, with every table of STORY.md 6 as it
+      is written there: the hoardings by stage and the Final Hand's [6.1], the posters [6.1], the
+      road [6.1], the small print [6.2], the bulletins [6.2], the classification [6.2], the pick's
+      line [6.3], the joker terms by joker id [6.3], the HUD's and the title's microprint [6.4], the
+      loading line [6.5], the Statistics line [6.6], the Highway Code's edition and its revised
+      lines [6.7], the Yard's sign [6.8], and the title's after the ending [8.6].
+- [ ] `StoryLines.at(table, stage)`: the line for the highest stage at or under `stage`.
+- [ ] `scripts/story/story_fill.gd`, `class_name StoryFill`: fills `{name}`, `{license}`,
+      `{minutes}`, `{maps}`, `{hands}`, `{accepted}`, `{deaths}`, `{chips_lost}`, `{drifted_km}`,
+      `{trait}`, `{shifts}`, `{place}`, `{models}`, `{deviation}` and `{date}` [6] from a profile and,
+      where it has one, a match. `{date}` the way `LicenseCard.today()` writes it, `{drifted_km}` as
+      the Statistics page writes kilometers, every count with thousands separated as the House prints
+      them (1,204,388).
+
+Verify: `tests/test_story_lines.gd`: every table answers for every stage 0 to 5; every placeholder
+in every line fills; no House line contains NOTE; every joker in `data/jokers/catalog.tres` has a
+term, so a joker added without one fails [6.3]; note 12's numbers equal the trait weights of
+`data/ai/traits.tres` [7.3].
+
+### S2: the hoardings, the posters and the road [6.1]
+
+- [ ] The hoardings (`scenes/arena/billboard.gd`, `arena.gd` `_add_billboards`): `Billboard.ADS`
+      stays as stage 0's. A room draws one board from the newest stage reached and one from every
+      stage reached, stage 0's included, never the same line twice, and at most one line with
+      `{name}` in it. The Final Hand's two are fixed, FINAL HAND over GOOD LUCK, CANDIDATE and NOW
+      HIRING over ONE POSITION. A filled-in name too long for its board is drawn smaller, as now.
+- [ ] Stage 5's JACKPOT JUNCTION over GO ROUND AGAIN is a stage 5 line like the others, not a
+      replacement for stage 0's JACKPOT over JUNCTION.
+- [ ] Posters: a poster of the house's on each room's back wall at notice height, built by the room
+      (`scenes/arena/room_shell.gd`, `room_props.gd`): pinned to the pegboard on the Workbench,
+      framed beside the pictures After Hours, pasted on the Yard's corrugated hoarding beside the
+      hard hat, and on the Count Room a monitor on a rack, S10. One big line the camera reads from
+      anywhere and one small line under it, changed once a stage and never drawn at random, the same
+      poster in every room. Text drawn on the poster's face, kept out of the bake so its words
+      can be its own texture, with the room's lighting: lit After Hours, paper in daylight.
+- [ ] The road: one word in a box, stenciled in the road markings' cream and stretched long so it
+      reads from above, across one open lane on the near side of every map, the XL maps and House
+      Rules included: KEEP CLEAR, KEEP PLAYING from stage 2, HUMANS ONLY from stage 4, STAFF ONLY
+      after the ending. Where it goes is found from the map's grid, the first open run on the near
+      side wide enough for the box and clear of every pad, the Junction, a Jackpot, a pit and a
+      spawn, so a new map needs nothing set by hand. Flat on the floor, under the karts and the tire
+      marks, no collision. Not in the Garage, the waiting room or the school.
+- [ ] Switched off or unlicensed: stage 0's boards, PLAY RESPONSIBLY, KEEP CLEAR.
+
+Verify: `tests/test_story_boards.gd`: the draw rule per stage, one name line at most, the Final
+Hand's pair; the road's box lies clear of every element on every map; every poster and road word
+fits. Screenshots of each room at stages 0, 2, 4 and 5 with `--story-stage`, looked at for whether
+the words read at the camera's distance and at the whistle's pull-out.
+
+### S3: the payout slip [6.2]
+
+- [ ] The small print (`scenes/ui/results_screen.gd`, `SMALL_PRINT`) by stage, filled in.
+- [ ] The bulletin: from stage 2, one line under the small print, drawn per slip from the stage
+      reached's pool with the player's own numbers; a line naming a trait is drawn only when a bot
+      of that trait sat at this table; never the same bulletin twice in a row for the profile.
+- [ ] The classification: `scripts/story/story_classify.gd`, the trait the match's numbers come
+      closest to, from the slot's `PlayerStats` per minute against the leanings of STORY.md 6.2:
+      kills and hunting the richest kart to Hunter, rams to Bumper, grazes to Grazer, big cash-outs
+      and Jackpot chips to Greedy, small cash-outs with few deaths to Cautious, Balanced when nothing
+      leans past a floor. From stage 3, one line of microprint under the line of every player at
+      this machine on the slip, CLASSIFIED: {trait} · PROFILE UPDATED, as true as the awards beside
+      it; bots and other machines' players get none.
+- [ ] The heading reads Payslip wherever the slip says Payout slip, once the profile playing is the
+      Operator; a Grand Prix's run standings keep their own heading.
+- [ ] The Final Hand's evaluation goes on the slip in S11.
+
+Verify: `tests/test_story_slip.gd`: the small print and the heading per stage; a bulletin's trait
+was at the table; the classifier on made-up statistics, one per trait and a Balanced; everything fits
+a phone's slip at the biggest UI scale, scrolling as the slip does.
+
+### S4: jokers, the pick's line and the terms [6.3]
+
+- [ ] The pick (`scenes/ui/joker_picker.gd`): from stage 1 a line of the house's small print under
+      the cards, by stage, CANDIDATE TERMS at the Final Hand, STAFF TERMS after the ending; the
+      Grand Prix's keep pick and the driving school's picks the same as any.
+- [ ] TERMS ACCEPTED: from stage 2, the moment a card is taken the line reads TERMS ACCEPTED for as
+      long as the card flies into the hand, then the pick goes as ever. A skip or a destroy says
+      nothing. On a touch screen as on any other.
+- [ ] The terms (`scenes/ui/joker_detail.gd`): from stage 2, one line of small print under the
+      card's effect wherever the pane describes a card, the hand, the pick and the floor, from the
+      table keyed by joker id. One line at a phone's width; the effect above it never changes.
+
+Verify: `tests/test_story_jokers.gd`: the line per stage and at the Final Hand; TERMS ACCEPTED on a
+take and nothing on a skip or a destroy; every catalog joker's term fits one line of the pane at the
+smallest width.
+
+### S5: microprint, loading, statistics and About [6.4, 6.5, 6.6, 3.11]
+
+- [ ] The HUD's corner blocks (`scenes/ui/hud_block.gd`, `MICRO`) by stage, SEAT n kept at the
+      front, every block at this screen from the profile playing's stage.
+- [ ] The title's microprint (`scenes/ui/title.gd`, `MICROPRINT`) by stage.
+- [ ] The loading line (`scenes/ui/loading_screen.gd`, "Building the room") by stage, for maps and
+      the rooms between them alike; at the Final Hand FINAL HAND where the room's name goes, with
+      the room's name under it, and Setting the final table.
+- [ ] The Statistics page (`scenes/ui/stats_tab.gd`): from stage 2 a line under its title, by stage;
+      after the ending a Shifts row under Games, `story_shifts`. Notes are never counted on it.
+- [ ] About (`scenes/ui/about_tab.gd`): the last sentence becomes "A human oversaw it: played it as
+      it grew, made the calls no model would have made, and put their name on it.", for everybody,
+      story on or off. Not tied to any stage, so it can go in on its own at any time.
+
+Verify: the HUD, loading and Statistics tests extended for a stage each; `tests/test_about.gd` for the
+new sentence; microprint at every UI scale.
+
+### S6: the driving school [6.7]
+
+- [ ] Enroll (`scenes/tutorial/school/school_enrollment.gd`): under the big button, always, "Enrolling
+      accepts the terms of the Dept. of Karts.", in the school's small print.
+- [ ] The edition (`scenes/tutorial/school/theory_text.gd`, `EDITION`): the 212th at stage 0, the
+      213th to the 216th at stages 1 to 4, the 217th "approved by {name}" after the ending, on the
+      title page; the back's price stays 212 chips.
+- [ ] The revised lines of the Code by stage, the seven of STORY.md 6.7, the roundabout's caption
+      among them, and the colophon. The book lays its pages out from the text it is given, so a
+      revised line moves nothing else; checked that no chapter heading lands at a page's foot.
+- [ ] After the ending: the examiner's signature on the back of a license issued or retaken is the
+      holder's own name in the examiner's hand (`scenes/tutorial/school/license_card.gd`), and the
+      examiner's booth over the last room (`school_props.gd`) has a figure standing at its lit
+      window, built as the inspectors are.
+- [ ] The inspectors are left alone.
+
+Verify: `tests/test_driving_school.gd` extended: the enrollment line; the edition and each revised
+line at its stage; the book still turns to the 212th page at every stage.
+
+### S7: the rooms and the crowd [6.8, 6.9]
+
+- [ ] The Yard's sign (`room_shell.gd` `sign`): lettered on the lit board, LOADING BAY 4, AUTOMATED
+      LOADING from stage 2, CREW REQUIRED: 0 from stage 4, UNDER NEW MANAGEMENT after the ending; in
+      the sign's own light, legible when the camera pulls out at the whistle.
+- [ ] The Workbench's calendar (`room_shell.gd` `calendar`): a month's grid of days on its page; from
+      stage 2 one day ringed in red, Kit's last day; once the last note is found, turned over: the
+      next month's page, no ring.
+- [ ] After Hours' pictures (`room_shell.gd` `pictures`): dark until the ending; after it the left
+      frame holds the player's kart as the license photo shows it, rendered once as the room goes up
+      rather than every frame, over a small plate reading EMPLOYEE OF THE MONTH; the right stays
+      dark.
+- [ ] The Yard's hard hat stays exactly where it is at every stage.
+- [ ] The crowd in step (`scenes/arena/crowd.gd` and its shaders): from stage 4 the spread of each
+      figure's rolled point in the beat narrows with the clock, from all of it at the stage's start
+      to none by the Final Hand, one uniform on the shader, so the house bobs and jumps as one.
+- [ ] The crowd at the Final Hand: every figure stops dancing, turns to face the candidate's kart and
+      follows it round the table, the way `SchoolInspectors` follows a learner, turning in the
+      vertex shader toward a point the room sets each frame; still until the whistle, then all
+      applauding together. Crowd Half or Off as the setting says.
+
+Verify: screenshots of the sign, the calendar and the frame at their stages; the crowd's spread at
+stage 3, mid-stage 4 and at the Final Hand; `make bench` unchanged with the crowd in step.
+
+### S8: notes on the table [7.1, 5.2]
+
+- [ ] The schedule, `scripts/story/story_notes.gd` with the texts of S9: the first note is due in the
+      second quick match the profile plays after its license, never a Grand Prix map. After it, a
+      stage's notes are spread across it, the i-th of k due at the stage's start plus i/k of its
+      length; after the ending one every ten minutes of the clock. A note is never due before the one
+      before it is found; they come in order.
+- [ ] Turning up: in a map a note is due for, an even chance; certain once it has been due for two
+      maps without turning up; never more than one a match. At a moment drawn at random between
+      twenty seconds in and a minute before the clock runs out, never at the countdown and never in
+      overtime; a match ended early by the target before that moment simply had no note.
+- [ ] Missed: a note that turned up and was not taken is due again in a later map, as often as it
+      takes.
+- [ ] Note 21 on the Final Hand's floor whatever the order, S11; missed, it is due again after the
+      ending, before note 22.
+- [ ] Only in maps, quick or Grand Prix, offline or online, never in the Garage, the waiting room,
+      the driving school or a Grand Prix's party. Never with the story off, never before the license,
+      never headless.
+- [ ] Where: open floor from the arena's grid, not on a pad, the Junction, a Jackpot, near a pit or
+      beside a spawn, somewhere a kart can drive to.
+- [ ] `scenes/story/story_note.gd`: a folded scrap lying flat among the litter, each room's paper,
+      graph paper on the Workbench, a cocktail napkin After Hours, a page off a clipboard in the
+      Yard, a strip of printout in the Count Room, where it is the only thing on the floor. A glint
+      runs across it every few seconds, faint enough to pass for the light. Appearing, it is simply
+      there: no sound, no light, no ring.
+- [ ] Taking it: this machine's human karts only, never a bot, a decoy or a dummy, at the radius a
+      chip is taken at, unmoved by magnets, Chip Magnet and Magnet Hubcaps alike, by bombs or by
+      anything else; bullets pass over it and aim assist never turns toward it. A soft rustle, the
+      paper folds into that player's corner, and a torn scrap there says NOTE COLLECTED in pencil
+      for two seconds: not on the house's tag, the one thing on the HUD the house did not print. It
+      never says which or how many.
+- [ ] Filing: into the profile playing's notes at once, unread, whichever seat here took it, and
+      saved there and then, so a game closed straight after keeps it. Whether linked profiles move
+      on through the notes as well is open, STORY.md 13; build it so the filing is one function a
+      later answer can change, and nothing else assumes one profile.
+- [ ] The house never knows: no line of the house's mentions a note, the Statistics page counts
+      none, the evaluation counts none.
+
+Verify: `tests/test_story_notes.gd`: the first note's quick match; spacing per stage; the even
+chance, the certainty after two, the window inside the clock; order kept; a missed note again; note
+21's exception; never on a pad or near a pit on every map; a bot driving over one leaves it; a
+client's note exists on the client alone and no snapshot mentions it.
+
+### S9: the folder and the notes' pages [7.2, 7.3]
+
+- [ ] To start with, a plain Notes button on the title under the Garage, there once a note has been
+      found, opening the folder.
+- [ ] Then the folder itself: a manila folder peeking in from the title's left edge as the license
+      peeks from the right (`LicenseView`, `TiltedCard`), dog-eared, nothing printed on it, sliding
+      out under the cursor and opening on a click or a tap; the menu's cursor reaches it from the
+      buttons, and a pad opens it from there. Not house print: no foil, no engraving, no notches.
+      Once it is in, the Notes button goes.
+- [ ] Inside: the notes found, in STORY.md 7.3's order rather than the order found, one to a page,
+      turned the way the Highway Code's pages turn (`scenes/tutorial/school/page_turn.gdshader`),
+      each with its title; no numbers and no empty pages. Back or Put it away closes it, on every
+      device.
+- [ ] Each of the 26 notes drawn as STORY.md 7.3 describes it, in code like every picture in the
+      game: the till receipt, graph paper with Kit's sketch, the Department's form filled in by hand
+      and stamped RECEIVED, the torn flyer, the rota, the napkin, the terms pamphlet with Kit's
+      pencil by clause 4, the yellowed first edition with Kit's margin, the clipboard report, the
+      memos, the envelope, the statement roll, the blueprint (white lines on blue: the highway, the
+      slip road, the roundabout round the pot, the title block with an inked signature and the
+      Department's stamp), the organization chart, the form letter, the torn strip, the duties card,
+      the staff record with one line struck through by hand, Kit's last letter and the calendar page.
+- [ ] Hands and faces: Kit's hand and the players' in a handwriting face (Homemade Apple, which the
+      license already carries, or another kept in THIRD_PARTY.md), the House's documents in a
+      receipt's monospace, the first edition in an old book face; any new face logged in
+      THIRD_PARTY.md in the commit that adds it.
+- [ ] Placeholders filled as a page is read: the form letter's name and number, the terms
+      pamphlet's count, the approvals' operator.
+- [ ] After the ending, at the back: the Final Hand's slip with its evaluation as it was stamped, from
+      what the profile kept of it, and the card of Terms Accepted, S11. The folder never gains a
+      stamp or a word of the house's.
+- [ ] New [7.2]: a note found but not yet read is new. A page counts as read once it has been open
+      for a second, written into `story_notes_read` and saved then. While any note is new: on the
+      title, a corner of the first new note's own paper sticks up out of the folder's top edge with
+      an exclamation mark in pencil on it, and while the Notes button stands in for the folder the
+      same pencil mark follows its word; inside, the folder opens at the first new note rather than
+      the first page, and a new page carries the pencil mark in its top corner until it is read.
+      Nothing counts the new notes or shows how many. The mark is drawn in the notes' pencil, never
+      in the house's print, and holds still for fewer flashes.
+- [ ] After a map, offline [7.2]: when a note was taken in a map played on this machine alone, the
+      folder peeks in from the left edge beside the payout slip with its mark, and opens over the
+      slip on a click or a tap or on the button that opens the hand of jokers, drawn beside it for
+      the device last touched, as the title opens the license. Put away, the slip is as it was, its
+      cursor where it was, and the ways on still work. Between the maps of a Grand Prix too. Never
+      online, hosting or joined, and never on the Final Hand's slip, whose note is read after the
+      ending.
+
+Verify: every page fits a phone held sideways at the biggest UI scale; the folder opens with a
+mouse, a pad, a keyboard and a finger; screenshots of every page. `tests/test_story_folder.gd`: a
+note taken is new until its page has been open a second; the corner and the button's mark come and
+go with the new notes; the folder opens at the first new page; the folder beside the slip after an
+offline map with a note in it, and not after one without, online, or at the Final Hand.
+
+### S10: the Count Room and House Rules [3.9, 8.2; GAME.md 6.3, 8.1]
+
+- [ ] `data/rooms/count_room.tres`, a `RoomLook` with id `count_room`: no sun, a hard green key off
+      the racks and a terminal's green for the neon and the trim, the felt a dark gray-green, fog
+      thin and green; bloom on the green as After Hours has it on its neon, within the frame budget
+      of GAME.md 8.1.
+- [ ] Its shell and props (`room_props.gd`, `room_shell.gd`): a raised floor of square tiles; server
+      racks in rows with lights winking, animated in a shader rather than per light; cable trays
+      overhead; monitors scrolling numbers nobody reads, in a shader; everything exactly on the grid
+      and square to the table, nothing a degree off, nothing stacked by hand, and no litter at all.
+- [ ] In the arena: walls as racks, their capping strip lit; breakable boxes as stacks of drives;
+      the Junction painted as a processor seen from above, a square of gold pins round a die, the
+      bank ring the same neon ring as every room's; the pits as lifted floor tiles with cable at the
+      bottom; the Jackpot tiles as memory banks; the turbo pads as cooling vents. Looks only: every
+      element plays as it does everywhere.
+- [ ] The crowd: exact rows, every figure the same height, no tribune, all undressed in one plain
+      gray, no rolled faces or wardrobe; the booth a console with nobody at it; the disco rig green
+      only.
+- [ ] The poster is a monitor on a rack reading HUMAN OVERSIGHT: 0 over a blinking cursor.
+- [ ] `data/maps/house_rules.tres` from the grid in GAME.md 6.3, naming the Count Room;
+      `ArenaMaps` gains `house_rules`, "House Rules", on the end of its lists.
+- [ ] The lobby's map list (`scenes/ui/match_options.gd`) offers House Rules only to a profile
+      playing that has played the Final Hand, offline or hosting; `GrandPrix.deal` never deals it.
+      A client loads it whenever its host picks it.
+- [ ] The shader warm-up of GAME.md 10.7 includes the room's materials and shaders, so the Final
+      Hand never hitches on its first frame.
+
+Verify: `make bots` on House Rules: the bots reach both Jackpots in the rack aisles, bank, and stay
+out of the lifted tiles; `make bench` holds the frame rate on it; screenshots of the room at the
+whistle and from the loading screen; a test that the map is in no Grand Prix deal and in a quick
+match's list only after the Final Hand.
+
+### S11: the Final Hand [8]
+
+- [ ] Due once the clock reaches the Final Hand's constant, the story on and the stamp not yet down.
+- [ ] The flyer (`scenes/ui/house_ad.gd`, after `SchoolAd`): at Play, cut to an arrow like the
+      school's, in the house's gold rather than the school's red, YOUR TABLE IS READY blinking in
+      foil over "One more hand. Then we should talk." and "Attendance is voluntary.", fitted to the
+      room there as the school's is, held still for fewer flashes. Gone once the stamp is down.
+- [ ] The house's pane: Play opens the lobby as ever, and before the match settings a pane comes up,
+      FINAL HAND, "The House has set a table for you.", with Take your seat in foil under the cursor
+      and Not now. Not now is the usual lobby and is not asked again until the game is next started.
+- [ ] Take your seat sets the match, `MatchConfig.final_hand`, local and never sent: a quick match on
+      House Rules, 5 minutes, the target of GAME.md 3.8, the profile's last bot difficulty, all items,
+      three bots, and every other setting at GAME.md 3.8's default. The settings are shown but cannot
+      be changed, under a stamp reading SET BY THE HOUSE, and the lobby's remembered choices are left
+      as they were.
+- [ ] Never online: Play Online and hosting a LAN game never deal it. Somebody else at this machine
+      may join in the lobby or mid-match as anywhere, taking a bot's seat.
+- [ ] CANDIDATE: the profile playing's seat is printed CANDIDATE in the standings
+      (`scenes/ui/scoreboard.gd`), the kill feed (`kill_feed.gd`), the announcer's plate
+      (`call_banner.gd`, `scenes/match/announcer.gd`) and the board at the whistle
+      (`scenes/arena/led_clock.gd`); its own corner block and the slip's lines keep the player's name.
+- [ ] The models: the three bots are named `{name} 2`, `{name} 3` and `{name} 4` in seat order, wear
+      the profile's paint, hat, flag and trail in colors of their own, take plates from those names
+      as any bot's are drawn, and their mirror (`scenes/bots/bot_mirror.gd`) starts from the
+      profile's lifetime items, nitro and drift readings rather than measuring the match's first 45
+      s; effort is the match's own. Traits dealt as ever.
+- [ ] The rest of the table: the two fixed hoardings, the monitor, the crowd watching, CANDIDATE
+      TERMS under the pick, and note 21 on the floor, S8.
+- [ ] The whistle (`scenes/match/match_end.gd` `spotlight`, `LedClock`): the rig onto the candidate's
+      kart rather than the winner's, wherever it is, the fireworks in the candidate's color, the
+      board naming CANDIDATE, the crowd applauding together. The standings and the slip stay true.
+- [ ] The evaluation (`results_screen.gd`): under the lines, past a perforation, the section of
+      STORY.md 8.4 line by line with dotted leaders, filled in. `{deviation}` from how far the
+      candidate's items, nitro, drift and cash-outs over the match sat from the models' average,
+      never under 1; `{models}` the bots still at the table at the whistle; `{trait}` the
+      classification of S3; `{place}` as an ordinal. It scrolls with the slip on a short screen.
+- [ ] The house's stamp in place of the ways on: `RubberStamp` with a gold base, beside STATUS as the
+      test's hangs off the license, the control that presses it drawn under it, "Click the stamp to
+      make it official", or Tap, or Press, by the device last touched. Pressed, two gold rings with
+      APPROVED, THE HOUSE over it and the date under it, slammed over STATUS askew and short of
+      solid; any player at this machine may press it. Then one way on, Continue, in foil.
+- [ ] The stamp coming down writes `story_final_hand` and keeps the evaluation's numbers for the
+      folder, and saves at once: Terms Accepted.
+- [ ] Walking away [8.8]: left before the whistle, or after it but before the stamp, the Final Hand
+      stays due and the flyer stays; closed after the stamp, the game comes back to the Operator's
+      title.
+- [ ] The last lines, `scenes/story/last_lines.gd`: Continue puts the slip away to the house's dark
+      stock and nothing else; the music goes under as at a death (GAME.md 8.4) and stays under. A
+      board of the clock's kind drops in on two bolts, HUMAN OVERSIGHT over one seven-segment digit,
+      0; a second later it clicks over to 1 with the stamp's thud; OPERATIONS: NORMAL in small
+      capitals under it; two seconds; the board fades. Then THE HOUSE DOESN'T NEED YOUR DECISIONS.
+      IT NEEDS YOUR NAME ON THEM. alone in the middle in the condensed capitals and foil until a
+      press; it fades; a breath; CONGRATULATIONS. YOUR TRIAL PERIOD IS OVER. until a press. Nothing
+      says to press. A press only counts once a line has stood a second, and a button held from
+      before does not count, as the joker pick's guard works.
+- [ ] Then the license in full over the stock as after the driving test, changed, S12; put away, the
+      title.
+- [ ] Terms Accepted's card in the folder's back, S9: license-sized, the house's paper, the APPROVED
+      stamp across it and TERMS ACCEPTED under it, with the date.
+
+Verify: `tests/test_final_hand.gd`: due only at its time, licensed and on; offline only; the pane's
+two ways and Not now held for the session; the locked settings; CANDIDATE everywhere listed and
+nowhere else; the models' names, dress and mirror; the whistle's three overrides; every evaluation
+line filled; the stamp writing the profile; walking away at each point; the last lines in order with
+the press guard. A full run by hand on a fresh profile with `--story-final-hand`.
+
+### S12: after the ending [8.6, 9]
+
+- [ ] The license (`license_card.gd`, everywhere it is drawn: the title's peek, the full view, the
+      License tab and the license screen): the house's stamp, the gold rings of APPROVED askew over
+      the lower left corner; CLASS K · Operator, fitted to its field; EXPIRES NEVER; on the back
+      PROPERTY OF THE HOUSE and ISSUED BY A BOT, REVIEWED BY {name}. A retake keeps all of it.
+- [ ] The title (`title.gd`): Play reads Clock in and does what Play did, the one renamed word of
+      STORY.md rule 1; along the foot, clear of the license's button in the bottom right, one line in
+      the Count Room's green set as a terminal's, OPERATOR {license} · SHIFT {shifts} · STATUS
+      NORMAL, a block cursor blinking at its end, held still for fewer flashes; the seal's fine
+      print round the title's mark only (`scenes/ui/logo_art.gd`, the title's call of it), JACKPOT
+      JUNCTION · THE HOUSE · UNDER HUMAN OVERSIGHT, the icon, the splash and `make logo` untouched;
+      the flyer gone; the folder as it was.
+- [ ] Stage 5 everywhere through S1's tables: the hoardings, the poster, the road, the slip's small
+      print, bulletins and Payslip, the pick's STAFF TERMS, microprint, loading, the Statistics
+      line and Shifts, the 217th edition, the examiner, the Yard's sign, After Hours' frame.
+- [ ] Notes 22 to 26, every ten minutes of the clock; the last turns the Workbench's calendar over.
+- [ ] House Rules in the quick match's list, S10.
+- [ ] Switched off, all of it goes back to the Department's license and the title as it was, and
+      comes back switched on.
+
+Verify: tests for the license's back and face after the ending and after a retake, Clock in still
+starting the lobby, the green line's text and its place at every UI scale and on a phone, and the
+switch undoing each.
+
+### S13: wrapping up
+
+- [ ] GAME.md: the "planned" words come off 1.3, 6.3, 8.1 and 8.7 as each part lands, and anything
+      built differently is written back first. STORY.md: "None of it is built yet" goes.
+- [ ] CHANGELOG.md: lines for players that give nothing away, one or two sentences each, "The tables
+      have more to say, in the small print." rather than anything about the House, a note or the
+      ending. The ending is never named in a changelog, a release note or the README.
+- [ ] THIRD_PARTY.md: every face and sound the story adds, in the commit that adds it.
+- [ ] The export presets still leave STORY.md out.
+- [ ] `make check` passes, and the story's tests run in it.
+- [ ] A play-through by the user on a fresh profile, honest, at the real pace, with the stages
+      noticed or not noticed written down; then the constants of S0 tuned, and STORY.md 5.1 and
+      GAME.md 8.7 brought in line with them.
+
+Verify: `make check`; the user's play-through.
+
+Status: not started. STORY.md is complete and fixed for this milestone; nothing of it is built.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

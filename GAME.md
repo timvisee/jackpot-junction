@@ -461,6 +461,8 @@ story's second stage, from its third a line of microprint under the reader's own
 house classified them, CLASSIFIED: HUNTER · PROFILE UPDATED, worked out from the match's own numbers
 as the awards are, after the ending the slip is headed Payslip, and the Final Hand adds the house's
 evaluation under the lines with the house's own stamp in place of the ways on: STORY.md 6.2 and 8.4.
+Offline, after a map in which one of the story's notes was taken, its folder peeks in beside the
+slip and opens over it, STORY.md 7.2.
 On a screen too short for the slip, a phone's under a big UI scale,
 8.5, the photo and the lines scroll between the title and the stub, which stay put,
 right up to the foil band under the title and down to the hairline over the tear,
@@ -613,7 +615,8 @@ else's results screen, see 10.3.
   bottom: who made the music, the models and the sounds is said in Settings, About, see 8.5.
   Once the story of 8.7 has had a note found, a manila folder peeks in from the left edge the way
   the license does from the right, opening on the notes found, with a plain Notes button under the
-  Garage standing in for it at first; while its Final Hand is due a flyer in the house's gold points
+  Garage standing in for it at first, either marked in pencil while a note in it is unread; while
+  its Final Hand is due a flyer in the house's gold points
   at Play the way the school's points at its button; and after its ending Play reads Clock in, doing
   what it always did, a line in the Count Room's green runs along the foot of the title and the
   seal's fine print reads otherwise: STORY.md 7.2, 8.1 and 8.6.
@@ -1780,14 +1783,15 @@ where on the usual reach they hung about the middle.
 #### House Rules
 
 Planned with the story of 8.7: the Count Room's map, 8.1, which nobody plays before the story's
-Final Hand and which joins the list after it for a profile that has played it, STORY.md 8.2 and 10.
-One size only. The same furniture as every map, laid out in a lattice no person would have drawn: the
-walls are short rows of server racks, two blocks of them on either side with a cross aisle through
-the middle where the Junction is, and a rack across the floor above and below it. The Jackpots are
-inside the rack blocks, between two rows, so collecting one is standing in a corridor with a way in
-at either end; the pits are floor tiles lifted out of the raised floor in the cross aisle, beside the
-Junction; the turbo pads are cooling vents along the top and bottom lanes and up and down the outer
-ones.
+Final Hand and which joins a quick match's list after it for a profile that has played it, STORY.md
+8.2 and 10. No Grand Prix deals it, and its id goes on the end of the list of maps like any new map's,
+so every machine can load it when a host picks it. One size only. The same furniture as every map,
+laid out in a lattice no person would have drawn: the walls are short rows of server racks, two
+blocks of them on either side with a cross aisle through the middle where the Junction is, and a
+rack across the floor above and below it. The Jackpots are inside the rack blocks, between two rows,
+so collecting one is standing in a corridor with a way in at either end; the pits are floor tiles
+lifted out of the raised floor in the cross aisle, beside the Junction; the turbo pads are cooling
+vents along the top and bottom lanes and up and down the outer ones.
 
 ```
 ################################
@@ -3780,7 +3784,13 @@ machine's karts can take it; bots never go for it, nothing that happens in the m
 bullet flies over it. Never in the Garage, the waiting room, the driving school or a Grand Prix's
 party. Once one has been found a manila folder peeks in from the left edge of the title, the way the
 license does from the right, and opens on the notes found so far; a plain Notes button under the
-Garage can stand in for it at first. STORY.md 7.
+Garage can stand in for it at first. The profile keeps which notes have been read as well as which
+were found, and a note not yet read is marked new in pencil: a corner of its paper sticking up out of
+the folder with an exclamation mark on it, the same mark after the Notes button's word, and on its
+page inside, where the folder opens at the first new one; a page open for a second is read. Offline,
+after a map in which a note was taken, the folder also peeks in beside the payout slip and opens
+over it; never online, where the room moves on at the host's word, and never at the Final Hand.
+STORY.md 7.
 
 **The Final Hand.** At 160 minutes the title hangs a flyer at Play, cut as the driving school's is at
 its button but in the house's gold, and Play asks first: Take your seat, or Not now, which plays on as
@@ -3795,7 +3805,10 @@ stamp on it, and the title, its Play reading Clock in, with a line in the Count 
 its foot and new fine print round its seal. It is never dealt online. STORY.md 8.
 
 **After it.** The game is the same game. What it prints moves on once more, the license keeps the
-house's stamp, and House Rules joins the list of maps, STORY.md 9 and 10.
+house's stamp, and House Rules joins a quick match's list of maps, STORY.md 9 and 10.
+
+**Building it.** Milestone M8 of PLAN.md is the order of work, every detail of STORY.md as a task,
+and keeps how far it has got.
 
 **What never moves.** The rules and the numbers, joker effects, the names of everything a player reads
 in order to play, the standings, the HUD's labels, the announcer's calls, and a bot's name and driving

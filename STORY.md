@@ -488,16 +488,19 @@ the pace is changed in one line once it can be played.
 ### 5.2 Whose story
 
 The story is the profile's, GAME.md 8.5, and is kept in it beside the license and the statistics:
-its clock, the notes found, whether the Final Hand has been played and when, the shifts since, and
-whether the story is on, 5.4.
+its clock, the notes found and which of them have been read, 7.2, whether the Final Hand has been
+played and when, the shifts since, and whether the story is on, 5.4.
 
 - What every screen at a machine shows is the story of the profile playing, the first seat's. A
   shared screen tells one story.
 - A seat sat in as another profile, GAME.md 3.8, runs that profile's clock, the way its statistics
-  go to that profile, and a note it picks up goes into that profile's folder. While it sits there it
-  sees the story of the profile playing.
-- A guest's seat runs no clock, as with statistics. A note a guest picks up is filed for the profile
-  playing, since a note lost because the wrong seat drove over it is a note lost.
+  go to that profile. While it sits there it sees the story of the profile playing, and the notes on
+  the floor are the profile playing's: it finds its own when it is the one playing.
+- A guest's seat runs no clock, as with statistics.
+- A note is filed for the profile playing whichever seat at this machine drives over it, a guest's
+  or a linked one's, since a note lost because the wrong seat drove over it is a note lost, and the
+  notes come in an order only one profile's story can keep. Whether linked profiles should move on
+  through the notes as well is open, 13.
 - A bot never picks up a note and never sees one.
 - A new profile starts the story from nothing.
 
@@ -955,6 +958,29 @@ Highway Code's do. Each page shows its note as it was found, folds and all, with
 are no empty pages and no numbers: a player never learns how many notes there are, only that the
 last page so far is the last.
 
+**New.** The profile keeps which notes have been read as well as which have been found, 5.2. A note
+taken but not yet read is new, and says so the way the notes say everything, in pencil rather than
+in the House's print:
+
+- **On the title** a corner of the new note's own paper sticks up out of the folder's top edge, graph
+  paper or a napkin or a receipt's curl, with an exclamation mark drawn on it in pencil. With
+  several new notes one corner shows, the first of them. While the Notes button stands in for the
+  folder, the same pencil mark sits after its word.
+- **Inside**, the folder opens at the first new note rather than at the first page, and a new page
+  has the pencil mark in its top corner.
+- A note is read once its page has been open for a second. Its mark goes then, and the corner on the
+  title goes with the last new note. Nothing counts the new notes or says how many there are.
+
+**Right after a map.** Offline, after a map in which a note was taken, the folder peeks in from the
+left edge beside the payout slip as it does on the title, its pencil mark on it, and opens over the
+slip on a click or a tap or on the button that opens the hand of jokers, drawn beside it for the
+device last touched, the way the title opens the license, GAME.md 3.8. Put away, it leaves the slip
+as it was, the cursor where it was. Nothing else is waiting on this machine offline, so reading costs
+nobody anything. Online it is not offered: the room moves on at the host's word, and a page half read
+when it does is worse than a page read at the title. Nor at the Final Hand, whose slip ends in the
+House's stamp: note 21 is read after the ending, 8.2, when it is too late. Everywhere else the
+folder is the title's.
+
 After the ending the player keeps two more things in it, at the back: the payout slip of the Final
 Hand with its evaluation, and the card of Terms Accepted, 8.7. The House never touches the folder,
 before the ending or after it.
@@ -1177,10 +1203,15 @@ THE HOUSE
 
 #### The Final Hand
 
-**21. Don't.** On the floor of the Count Room, 8.2: a strip torn off a page of the Highway Code,
-written on in a hurry. The player picks it up during the Final Hand and can only read it after.
+**21. Not this time.** On the floor of the Count Room, 8.2: a strip torn off a page of the Highway
+Code, written on in a hurry, the pencil gone through the paper on the first word. The player picks it
+up during the Final Hand and can only read it after.
 
-> Don't do it. —K.
+> Don't stamp it! Don't accept their terms. Not this time. —K.
+
+Read after the ending it says plainly what the player just did, and the last three words are for
+every joker taken under TERMS ACCEPTED before it, 6.3: all those times it did not matter, and this
+was the one that did.
 
 #### Stage 5: what the position is, and how it ends
 
@@ -1455,7 +1486,7 @@ changed is listed here so it can be found in one place:
 | The folder | The evaluation and Terms Accepted at the back | 7.2 |
 | Notes | The last five, one every ten minutes of maps | 7.3 |
 | The Workbench's calendar | Turned over once the last note is found | 6.8 |
-| House Rules | In the list of maps, for a profile that has played the Final Hand | 10 |
+| House Rules | In a quick match's list of maps, for a profile that has played the Final Hand | 10 |
 
 Nothing else changes, and nothing gets harder or easier. A player who wants to see the story again
 makes a new profile.
@@ -1466,8 +1497,9 @@ The game has no progression system. One may come: jokers unlocked into the pool,
 dress for the kart. If it does, it stays apart from the story:
 
 - Nothing in the story is unlocked by progression, and the story unlocks one thing only: after the
-  Final Hand, House Rules joins the list of maps on a machine whose profile playing has played it,
-  the Count Room being somewhere an Operator is allowed. A client in a hosted game plays it when its
+  Final Hand, House Rules joins the list of maps for a quick match on a machine whose profile
+  playing has played it, the Count Room being somewhere an Operator is allowed. No Grand Prix deals
+  it, so nobody's run changes for somebody else's story. A client in a hosted game plays it when its
   host picks it, as it plays any map. The story's clock is play time, 5.1, and only play time.
 - What an unlock says may be in the House's voice, on the story's schedule: NEW JOKER UNLOCKED to
   start with, NEW TERMS AUTHORIZED · ELIGIBILITY UPDATED from stage 3, and CLEARANCE: OPERATOR after
@@ -1478,23 +1510,12 @@ dress for the kart. If it does, it stays apart from the story:
 
 ## 11. Building it
 
-When the story is built, this order puts most of it in front of players soonest, and each step stands
-on its own:
-
-1. **The clock and the switch.** The story's clock, the stage, the notes found and the ending, kept
-   in the profile, 5.2, and the switch that stops it, 5.4. Every profile is reset once. A debug build
-   takes a stage from the command line, `++ --story-stage=4`, and the F3 overlay shows the stage and
-   the clock.
-2. **The hoardings, posters and road**, 6.1: one table of lines more per stage, a poster per room,
-   a stencil per map.
-3. **The payout slip**, 6.2: the small print, the bulletin, the classification and the heading.
-4. **Jokers**, 6.3: the pick's line and the thirty-five terms.
-5. **Microprint, loading and statistics**, 6.4 to 6.6: lines of text.
-6. **The notes and the folder**, section 7.
-7. **The Count Room and House Rules**, 3.9 and GAME.md 6.3, then **the Final Hand**, section 8, with
-   the license's changes, the title's and Terms Accepted.
-8. **The rooms, the crowd and the school**, 6.7 to 6.9.
-9. **About**, 3.11, which can go in at any time, being true already.
+The order of work, every detail of this document as a task to tick off, is milestone M8 of PLAN.md,
+which also keeps how far it has got, so the work can stop and pick up again anywhere. In short: the
+clock and the switch first; then the margins, surface by surface, which could ship on their own;
+then the notes and their folder; then the Count Room, House Rules and the Final Hand, and what
+changes after it. About can go in at any time, being true already. A change this document needs
+while it is built is made here first, then in GAME.md, then in the code.
 
 Every line of text lives in one place, a script of constants per surface the way the hoardings' are
 now (`Billboard.ADS`), so the story can be edited without hunting for it. Tests hold what can be
@@ -1530,9 +1551,27 @@ A change to either side of a row is a change to look for on the other.
 
 ## 13. Still open
 
-Nothing at the moment. Every decision above is taken; the numbers are starting values to be tuned
-in play, the pace of 5.1 first among them. Weighed and kept as it is, for whoever comes back to it:
-the first of the ending's lines says the House does not need the player's decisions while 3.11 has
-it needing human choices, and the two are reconciled there as "it does not care what you decide,
-only that a person decided it". Should that ever read as a contradiction, THE HOUSE DOESN'T NEED
-YOUR DECISIONS TO BE RIGHT. IT NEEDS THEM TO BE YOURS. says the same job and the reason at once.
+1. **Linked profiles and the notes.** At a shared screen only the profile playing moves through the
+   notes: whichever seat drives over a note, it is filed for the first seat's profile, 5.2, while a
+   seat sat in as another profile runs that profile's clock and nothing more. Those other profiles
+   could move on too, a note taken filing something for each of them as well. Three ways it could
+   go, to be decided once the notes can be played:
+   - **Out of order.** The note taken is filed for every profile at the table as it is, whether or
+     not it is the next one in that profile's story. Simplest, but a profile can read note 17 before
+     note 4, and the notes are written to be read in order.
+   - **Each its own next.** Taking a note files, for each linked profile, the next note of that
+     profile's own story, whichever note that is. Everybody moves on one note per pickup and reads in
+     order, though two players at one screen may each find a different note in the same scrap.
+   - **Only the same note.** A linked profile files the note taken only when that very note is also
+     the next in its own story. Never out of order and never two notes from one scrap, but a profile
+     behind or ahead of the first seat's gains nothing until they line up.
+
+   Until it is decided, the profile playing alone moves through the notes, as 5.2 has it.
+
+Nothing else is open. Every other decision above is taken; the numbers are starting values to be
+tuned in play, the pace of 5.1 first among them. Weighed and kept as it is, for whoever comes back
+to it: the first of the ending's lines says the House does not need the player's decisions while
+3.11 has it needing human choices, and the two are reconciled there as "it does not care what you
+decide, only that a person decided it". Should that ever read as a contradiction, THE HOUSE DOESN'T
+NEED YOUR DECISIONS TO BE RIGHT. IT NEEDS THEM TO BE YOURS. says the same job and the reason at
+once.
