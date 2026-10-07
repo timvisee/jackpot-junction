@@ -64,6 +64,13 @@ func test_the_title_is_the_operators_until_switched_off() -> void:
 	assert_object(line).is_not_null()
 	var said := (line.get_child(0) as Label).text
 	assert_str(said).is_equal("OPERATOR JJ-212212 · SHIFT 12 · STATUS NORMAL")
+	# In the tagline's place under the name, and its cursor fades rather than going, so the line
+	# holds still as it blinks.
+	assert_object(line.get_parent()).is_same(play.get_parent())
+	var cursor := line.get_node("Cursor") as Control
+	await get_tree().create_timer(0.7).timeout
+	assert_bool(cursor.visible).is_true()
+	assert_float(cursor.self_modulate.a).is_equal(0.0)
 	var mark: LogoArt = title.find_children("*", "LogoArt", true, false)[0]
 	assert_str(mark.fine_print).is_equal(StoryLines.SEAL_AFTER)
 	assert_object(title.find_child("HouseAd", true, false)).is_null()

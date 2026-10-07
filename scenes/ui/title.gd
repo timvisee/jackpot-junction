@@ -33,8 +33,7 @@ const LICENSE_DIM := Color(0.74, 0.74, 0.78, 0.86)
 const AD_GAP := 18.0
 const AD_EDGE := 16.0
 ## The Operator's line along the foot after the ending, STORY.md 8.6: its size and how far up.
-const STATUS_SIZE := 15
-const STATUS_BOTTOM := 12.0
+const STATUS_SIZE := Type.BODY
 ## The button that shows the license in full, see [LicenseView], the one that opens the hand of
 ## jokers, drawn alone in the bottom right corner over the version.
 const LICENSE_GLYPH_SIZE := 24
@@ -103,7 +102,12 @@ func _ready() -> void:
 		str(StoryLines.at(StoryLines.MICRO_TITLE, Story.stage_here(), MICROPRINT))
 	)
 	column.add_child(printed)
-	var line := MenuTheme.subtitle("Collect chips. Build your mult. Cash out before they get you.")
+	# After the ending the House's green line has the tagline's place, STORY.md 8.6.
+	var line: Control = (
+		_status_line()
+		if operator
+		else MenuTheme.subtitle("Collect chips. Build your mult. Cash out before they get you.")
+	)
 	column.add_child(line)
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0.0, 32.0)
@@ -152,8 +156,6 @@ func _ready() -> void:
 	version.offset_right = -16.0
 	version.offset_bottom = -12.0
 	add_child(version)
-	if operator:
-		_status_line()
 	play_button.grab_focus()
 	if not Game.settings.license_number.is_empty():
 		_peek_license()
@@ -177,13 +179,15 @@ func _ready() -> void:
 	_fit()
 
 
-## After the ending, one line along the foot in the Count Room's green, set as a terminal's, with
-## a block cursor blinking at its end, held still for fewer flashes, STORY.md 8.6: the House's own
-## room showing through the menu.
-func _status_line() -> void:
+## After the ending, one line under the name in the Count Room's green, set as a terminal's, in the
+## tagline's place, with a block cursor blinking after its end, held still for fewer flashes,
+## STORY.md 8.6: the House's own room showing through the menu. The cursor blinks by fading rather
+## than by going, so the line never moves.
+func _status_line() -> HBoxContainer:
 	var green: Color = (load("res://data/rooms/count_room.tres") as RoomLook).trim
 	var row := HBoxContainer.new()
 	row.name = "StatusLine"
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 4)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var said := Label.new()
@@ -199,18 +203,14 @@ func _status_line() -> void:
 	cursor.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	cursor.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(cursor)
-	row.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
-	row.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	row.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	row.offset_bottom = -STATUS_BOTTOM
-	add_child(row)
-	# The menu scrolls above it on a screen too short for both, rather than under it.
-	var scroll := get_node_or_null("Scroll") as ScrollContainer
-	if scroll != null:
-		scroll.offset_bottom = -(STATUS_BOTTOM + said.get_combined_minimum_size().y + 4.0)
 	if not Game.settings.flash_reduction:
 		var blink := cursor.create_tween().set_loops()
-		blink.tween_callback(func() -> void: cursor.visible = not cursor.visible).set_delay(0.53)
+		(
+			blink
+			. tween_callback(func() -> void: cursor.self_modulate.a = 1.0 - cursor.self_modulate.a)
+			. set_delay(0.53)
+		)
+	return row
 
 
 ## A line of microprint between two short rules of foil, centered under the name.

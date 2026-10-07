@@ -1037,7 +1037,7 @@ noted; STORY.md and GAME.md were brought in line first. One commit an item.
 - [x] The Count Room's rack lights softer, slower, fewer and bigger, small ones settling into a glow
       rather than shimmering as the camera moves.
 - [x] The road's box worn: flush with the floor, thin along the karts' line, chipped [6.1].
-- [ ] The title after the ending: the green line in the tagline's place, its cursor blinking in a
+- [x] The title after the ending: the green line in the tagline's place, its cursor blinking in a
       slot of its own so the line never moves [8.6].
 - [ ] The title: the license reached going right from the buttons as the folder is going left; both
       slid out and marked under the cursor with the buttons' gold outline and chevron, for the user to
