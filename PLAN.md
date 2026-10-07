@@ -1138,7 +1138,7 @@ its foot; the pencil mark on an arrow means the very next spread or note is new;
 paper, so none keeps a gloss. STORY.md and GAME.md first. One commit an item.
 
 - [x] STORY.md and GAME.md: every decision below written in first.
-- [ ] The invitation the size of a playing card again, 520 by 740, R.S.V.P. at its foot; the ticket
+- [x] The invitation the size of a playing card again, 520 by 740, R.S.V.P. at its foot; the ticket
       hidden whole behind the card before it comes up, and held long enough to read [8.1].
 - [ ] Icons for the folder's and the closer look's buttons: a cross for Put it away and Put back,
       turning arrows for Turn over [7.2].

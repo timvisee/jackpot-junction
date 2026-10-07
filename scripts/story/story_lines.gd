@@ -292,6 +292,7 @@ const FLYER_LINES: Array[String] = [
 const INVITE_FROM := "THE HOUSE"
 const INVITE_LINE := "requests the pleasure of your company at the"
 const INVITE_TABLE := "HOUSE RULES  ·  THE COUNT ROOM  ·  5 MINUTES  ·  THREE SEATS ALREADY TAKEN"
+const INVITE_ANSWER := "R.S.V.P."
 const TAKE_SEAT := "Take your seat"
 ## The golden ticket that comes with the seat, see [GoldenTicket].
 const TICKET_FROM := "THE HOUSE REQUESTS YOUR COMPANY"

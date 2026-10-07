@@ -2,11 +2,12 @@ class_name InvitationCard
 extends Control
 ## The House's invitation to the Final Hand, STORY.md 8.1: a black card edged in gold foil, the
 ## House's seal pressed into its top, "The House requests the pleasure of your company at the Final
-## Hand" in engraved letters, the player's name typed on a dotted line under it, and the table
-## under that. Its back is the House's: a lattice in foil round the seal, as a deck's backs are.
-## Drawn in code, at [constant SIZE]; [member face_up] says which side shows.
+## Hand" in engraved letters, the player's name typed on a dotted line under it, the table under
+## that, and R.S.V.P. at its foot. The size of a playing card. Its back is the House's: a lattice
+## in foil round the seal, as a deck's backs are. Drawn in code, at [constant SIZE];
+## [member face_up] says which side shows.
 
-const SIZE := Vector2(520.0, 600.0)
+const SIZE := Vector2(520.0, 740.0)
 const RADIUS := 18
 const CARD := Color(0.055, 0.052, 0.065)
 const EMBOSS_HIGH := Color(1.0, 1.0, 1.0, 0.09)
@@ -20,6 +21,8 @@ const SEAL_RINGS: Array[float] = [52.0, 40.0, 20.0]
 ## Where the words start, and how much of the card's width they may use.
 const WORDS_TOP := 196.0
 const WORDS_WIDE := 400.0
+## How far up from the foot R.S.V.P. sits, under its rule.
+const ANSWER_UP := 74.0
 
 ## Whose name is typed on it.
 var holder := ""
@@ -147,6 +150,13 @@ func _draw_front() -> void:
 	y = line_y + 30.0
 	for row: String in NotePage._rows(StoryLines.INVITE_TABLE, NotePage.TYPED, 13, WORDS_WIDE):
 		y = _centered(row, NotePage.TYPED, 13, FOIL_FAINT, y)
+	# R.S.V.P. at the foot, under a short rule with a diamond on it, as an invitation has.
+	var foot := SIZE.y - ANSWER_UP
+	draw_line(
+		Vector2(middle - 60.0, foot - 22.0), Vector2(middle + 60.0, foot - 22.0), FOIL_FAINT, 1.0
+	)
+	_diamond(Vector2(middle, foot - 22.0), 4.0, FOIL)
+	_centered(StoryLines.INVITE_ANSWER, NotePage.OLD, 20, FOIL, foot - 8.0, 4.0)
 
 
 ## [param words] centered across the card at [param y], spaced out by [param spacing]; where the

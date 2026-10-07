@@ -21,10 +21,13 @@ const LEAN := -0.025
 const ROOM := 48.0
 const BUTTONS := 140.0
 const TAKE_WIDTH := 360.0
-## The ticket taken: up out from behind the card, forward over it, shown, and dropped away.
-const RISE := 0.4
-const FORWARD := 0.35
-const SHOWN := 1.1
+## The ticket taken: out from behind the card, where it lies hidden, smaller than the card by
+## [constant HIDDEN] of its width; forward over the card; held up long enough to read; and dropped
+## away.
+const HIDDEN := 0.9
+const OUT := 0.5
+const FORWARD := 0.4
+const SHOWN := 2.8
 const DROP := 0.5
 const TICKET_LEAN := -0.03
 ## At the door: up from below, held a moment either side of the tear.
@@ -185,31 +188,39 @@ func _answer(taken: bool) -> void:
 	queue_free()
 
 
-## The ticket: up out from behind the card, forward over it as the card dims, a moment to be seen,
-## and dropped away with the card; then the seat is taken.
+## The ticket: out from behind the card, where it lay hidden whole, to the side clear of it;
+## forward over the card, full size, as the card dims; held up long enough to read; and dropped away
+## with the card. Then the seat is taken.
 func _take_the_seat() -> void:
 	_taking = true
 	take.disabled = true
 	not_now.disabled = true
 	var screen := _screen()
-	var size_on := minf(_scale, (screen.x - ROOM * 2.0) / GoldenTicket.SIZE.x)
+	var size_on := minf(1.0, (screen.x - ROOM * 2.0) / GoldenTicket.SIZE.x)
 	var middle := card.position + InvitationCard.SIZE * 0.5
+	var card_shown := InvitationCard.SIZE * _scale
 	var shown := GoldenTicket.SIZE * size_on
-	ticket.scale = Vector2.ONE * size_on * 0.9
+	# Behind the card, narrower than it, so none of it shows until it moves.
+	var hidden := minf(size_on, card_shown.x * HIDDEN / GoldenTicket.SIZE.x)
+	var small := GoldenTicket.SIZE * hidden
+	ticket.scale = Vector2.ONE * hidden
 	ticket.rotation = LEAN
 	ticket.position = middle - GoldenTicket.SIZE * 0.5
 	ticket.visible = true
-	# Up until most of it shows over the card, its top kept on the screen.
-	var card_top := middle.y - InvitationCard.SIZE.y * _scale * 0.5
-	var risen := Vector2(middle.x, maxf(card_top - shown.y * 0.1, shown.y * 0.45 + ROOM * 0.5))
+	# Out to the right until it is clear of the card, as far as the screen lets it.
+	var out_x := minf(
+		middle.x + card_shown.x * 0.5 + small.x * 0.5 + 24.0, screen.x - small.x * 0.5 - 16.0
+	)
+	var out := Vector2(out_x, middle.y - card_shown.y * 0.12)
 	var ahead := Vector2(screen.x * 0.5, screen.y * 0.45)
 	var gone := Vector2(screen.x * 0.5, screen.y + shown.y)
 	var show := create_tween()
 	show.set_trans(Tween.TRANS_CUBIC)
 	show.tween_property(_ways, "modulate:a", 0.0, 0.15)
-	show.tween_property(ticket, "position", risen - GoldenTicket.SIZE * 0.5, RISE).set_ease(
+	show.tween_property(ticket, "position", out - GoldenTicket.SIZE * 0.5, OUT).set_ease(
 		Tween.EASE_OUT
 	)
+	show.parallel().tween_property(ticket, "rotation", TICKET_LEAN + 0.05, OUT)
 	show.tween_callback(move_child.bind(ticket, -1))
 	show.tween_property(ticket, "position", ahead - GoldenTicket.SIZE * 0.5, FORWARD).set_ease(
 		Tween.EASE_IN_OUT

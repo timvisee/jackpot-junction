@@ -155,7 +155,7 @@ func test_the_ticket_comes_with_the_seat_and_is_torn_at_the_door() -> void:
 	# Pressed again, or put off, while it shows: nothing.
 	pane.not_now.pressed.emit()
 	assert_array(said).is_empty()
-	for wait: int in 80:
+	for wait: int in 160:
 		if not said.is_empty():
 			break
 		await await_millis(50)
