@@ -2,9 +2,11 @@ class_name StoryNote
 extends Node3D
 ## One of Kit's notes lying on the table, STORY.md 7.1: a folded scrap among the room's litter, of
 ## the room's own paper, graph paper on the Workbench, a cocktail napkin After Hours, a page off a
-## clipboard in the Yard, a strip of printout in the Count Room. A glint runs across it every few
-## seconds, faint enough to pass for the light. It collides with nothing, is in no group anything
-## looks for and is sent nowhere: [NoteDealer] lays it down and sees who drives over it.
+## clipboard in the Yard, a strip of printout in the Count Room. It has to be told from the litter
+## round it: a soft pale halo breathes on the floor under it, one corner lifts now and then as if
+## in a draft, and a glint runs across it every three seconds. No beam and no label. It collides
+## with nothing, is in no group anything looks for and is sent nowhere: [NoteDealer] lays it down
+## and sees who drives over it.
 
 ## Each room's paper: its color, its lines' color, how its lines run, and its size folded, in
 ## meters. Lines run across, down, both, or as the printout's broad bars.
@@ -23,15 +25,30 @@ const PLAIN: Array = [
 ## How far each half of the fold stands up off the floor, as an angle.
 const TENT := 0.2
 ## The glint: how often it comes round, how long it takes to cross, and how bright it is.
-const GLINT_EVERY := 3.6
+const GLINT_EVERY := 3.0
 const GLINT_TAKES := 0.45
-const GLINT := 0.3
+const GLINT := 0.38
+## The halo on the floor under it: how far it reaches past the paper, how high it lies over the
+## floor's litter, how bright at its faintest and its brightest, and how long a breath takes.
+const HALO_REACH := 2.8
+const HALO_LIFT := 0.035
+const HALO_LOW := 0.12
+const HALO_HIGH := 0.3
+const BREATH := 2.6
+const HALO_INK := Color(1.0, 0.96, 0.84)
+## The draft: how often a corner lifts, how far, and how long the lift takes up and down.
+const DRAFT_EVERY := 5.5
+const DRAFT_LIFT := 0.32
+const DRAFT_TAKES := 1.1
 
 ## Which note it is, STORY.md 7.3.
 var number := 0
 var _size := Vector2.ONE
 var _glint: MeshInstance3D
+var _halo: MeshInstance3D
+var _halves: Array[Node3D] = []
 var _since := 0.0
+var _clock := 0.0
 
 
 ## Note [param numbered] in the paper of the room [param room_id], built of [param surfaces].
@@ -55,6 +72,7 @@ func _build(paper: Array, surfaces: Surfaces) -> void:
 		half.position = Vector3(0.0, sin(TENT) * _size.x * 0.5 + 0.003, 0.0)
 		half.rotation.z = -side * TENT
 		add_child(half)
+		_halves.append(half)
 		var leaf := _part(half, Vector3(_size.x * 0.5, 0.006, _size.y), sheet)
 		leaf.position = Vector3(side * _size.x * 0.25, 0.0, 0.0)
 		_lines(half, side, paper[2], ink)
@@ -73,6 +91,42 @@ func _build(paper: Array, surfaces: Surfaces) -> void:
 	_glint.rotation.x = -PI * 0.5
 	_glint.visible = false
 	add_child(_glint)
+	add_child(_halo_under())
+
+
+## The halo: a pale glow fading out round the paper, lying just over the litter on the floor.
+func _halo_under() -> MeshInstance3D:
+	_halo = MeshInstance3D.new()
+	_halo.name = "Halo"
+	var plane := PlaneMesh.new()
+	plane.size = Vector2.ONE * maxf(_size.x, _size.y) * HALO_REACH
+	_halo.mesh = plane
+	var glow := StandardMaterial3D.new()
+	glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	glow.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	glow.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	glow.albedo_color = Color(HALO_INK, HALO_LOW)
+	glow.albedo_texture = halo_texture()
+	_halo.material_override = glow
+	_halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_halo.position.y = HALO_LIFT
+	return _halo
+
+
+## A round glow, full in the middle and gone at the edge.
+static func halo_texture() -> GradientTexture2D:
+	var fade := Gradient.new()
+	fade.set_color(0, Color(1.0, 1.0, 1.0, 1.0))
+	fade.set_color(1, Color(1.0, 1.0, 1.0, 0.0))
+	fade.add_point(0.35, Color(1.0, 1.0, 1.0, 0.7))
+	var round_glow := GradientTexture2D.new()
+	round_glow.gradient = fade
+	round_glow.fill = GradientTexture2D.FILL_RADIAL
+	round_glow.fill_from = Vector2(0.5, 0.5)
+	round_glow.fill_to = Vector2(1.0, 0.5)
+	round_glow.width = 128
+	round_glow.height = 128
+	return round_glow
 
 
 ## The lines on one half of the sheet, [param side] of the fold.
@@ -113,6 +167,19 @@ func _part(parent: Node3D, size: Vector3, skin: Material) -> MeshInstance3D:
 
 
 func _process(delta: float) -> void:
+	_clock += delta
+	var breath := 0.5 - 0.5 * cos(_clock * TAU / BREATH)
+	(_halo.material_override as StandardMaterial3D).albedo_color.a = lerpf(
+		HALO_LOW, HALO_HIGH, breath
+	)
+	# A corner lifting in the draft: up quickly, down slowly.
+	var draft := fmod(_clock + float(number) * 1.3, DRAFT_EVERY) / DRAFT_TAKES
+	var lift := 0.0
+	if draft < 1.0:
+		lift = sin(minf(draft / 0.35, 1.0) * PI * 0.5) * (1.0 - smoothstep(0.35, 1.0, draft))
+	if _halves.size() == 2:
+		_halves[1].rotation.z = -TENT + DRAFT_LIFT * lift
+		_halves[1].rotation.x = DRAFT_LIFT * 0.4 * lift
 	_since = fmod(_since + delta, GLINT_EVERY)
 	_glint.visible = _since < GLINT_TAKES
 	if _glint.visible:

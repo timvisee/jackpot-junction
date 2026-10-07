@@ -494,6 +494,10 @@ func _story_rooms() -> void:
 		slab.material_override = skin
 		slab.position = _spot(Vector3(-9.0, 1.0, 6.0))
 		_match.add_child(slab)
+	# One of Kit's notes lying on the floor, with its halo and its glint, STORY.md 7.1.
+	var note := StoryNote.make(1, &"workbench", surfaces)
+	note.position = _spot(Vector3(-13.0, 0.0, 6.0))
+	_match.add_child(note)
 
 
 ## The light and the air of [param room], each a shader of its own for the sky, the fog and the
