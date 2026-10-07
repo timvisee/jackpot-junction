@@ -1221,7 +1221,7 @@ user picks a line from the suggestions. STORY.md and GAME.md first. One commit a
 - [x] The folder stays where it is while a note is up [7.2].
 - [x] On the title, Back takes the cursor off the folder or the license to the buttons [7.2].
 - [x] A tiny drawn ticket on the lobby's ticket [8.1].
-- [ ] The license view, the folder and the closer look alike: icon buttons for the mouse only, a click
+- [x] The license view, the folder and the closer look alike: icon buttons for the mouse only, a click
       turning over and a right click putting away, the hand's button looking closer in the folder,
       the binds drawn on the buttons with keys or a pad [7.2].
 - [ ] The House: the pits' cables each their own, red patch cables over the racks, less green [3.9].

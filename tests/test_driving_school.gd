@@ -542,16 +542,21 @@ func test_the_title_peeks_the_license_earned() -> void:
 	assert_object(title.find_child("LicenseView", true, false)).is_not_null()
 	var full: LicenseCard = view.find_child("LicenseFull", true, false)
 	assert_object(full).is_not_null()
-	# Held up on a stand the size of the card and the room round it, and no button says there is
-	# a back.
+	# Held up on a stand the size of the card and the room round it, with turning arrows and a
+	# cross under it, as Kit's folder has, for the mouse alone: neither takes the cursor.
 	var stand: TiltedCard = view.find_child("LicenseStand", true, false)
 	assert_object(stand).is_not_null()
 	var picture := LicenseCard.SIZE + Vector2.ONE * TiltedCard.PAD * 2.0
 	assert_float(stand.size.x).is_equal_approx(picture.x * LicenseView.FULL, 2.0)
-	assert_object(view.find_child("Flip", true, false)).is_null()
-	# The line under it names the pad's button, a pad being in hand, and not a click.
+	var turn_button := view.find_child("TurnOver", true, false) as Button
+	assert_object(turn_button).is_not_null()
+	assert_int(turn_button.focus_mode).is_equal(Control.FOCUS_NONE)
+	assert_int((view as LicenseView).away.focus_mode).is_equal(Control.FOCUS_NONE)
+	# The line under it names the buttons that turn it over and put it away, keys or a pad being in
+	# hand, and not a click.
 	var away_words := _words_in((view as LicenseView).away_line)
-	assert_str(away_words).contains("to put it away")
+	assert_str(away_words).contains("turns it over")
+	assert_str(away_words).contains("puts it away")
 	assert_bool(away_words.contains("Click")).is_false()
 	# The card lies flat until something moves: the mouse turns it toward where it goes, the
 	# right stick pushed wins over the mouse, and let go, the card settles back.

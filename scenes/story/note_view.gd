@@ -53,12 +53,13 @@ const SETTLE_MS := 150
 const ARROW_WIDTH := 88.0
 ## How wide Turn over and Put back are, turning arrows and a cross on them rather than their words,
 ## which are their tooltips.
-const ICON_WIDTH := 120.0
+const ICON_WIDTH := 136.0
 const TURN_WORD := "Turn over"
 const BACK_WORD := "Put back"
-const HINT_MOUSE := "Scroll to look closer, drag to move it, %s to turn it over"
-const HINT_PAD := "Triggers look closer, the right stick moves it, %s turns it over"
-const HINT_TOUCH := "Pinch to look closer, drag to move it, tap beside it to put it back"
+const HINT_MOUSE := "Click to turn it over, right-click to put it back, scroll to look closer"
+const HINT_KEYS := "%s turns it over, + and - look closer, the arrows move it"
+const HINT_PAD := "%s turns it over, the triggers look closer, the right stick moves it"
+const HINT_TOUCH := "Tap it to turn it over, beside it to put it back, pinch to look closer"
 
 ## The folder it was taken out of, and which of its pages is looked at.
 var folder: NotesFolder
@@ -82,8 +83,10 @@ var _lifted: CanvasItem
 var _slide := 0.0
 var _sliding: Tween
 var _putting_back := false
-## Which way the stick was last pushed over, 0 for the middle, so a push steps one note.
+## Which way the stick was last pushed over, 0 for the middle, so a push steps one note; and
+## whether the mouse is in hand rather than keys or a pad, see [ButtonBinds].
 var _stick := 0
+var _pointer := false
 ## The shade behind it, the strip under the buttons and the buttons, which fade in and out round it.
 var _shade: ColorRect
 var _foot: ColorRect
@@ -138,7 +141,7 @@ func _ready() -> void:
 	_foot.offset_top = -BUTTON_ROOM + 30.0
 	add_child(_foot)
 	var under := VBoxContainer.new()
-	under.add_theme_constant_override("separation", 10)
+	under.add_theme_constant_override("separation", 10.0 + ButtonBinds.ROOM)
 	under.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	under.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
 	under.grow_horizontal = Control.GROW_DIRECTION_BOTH
@@ -156,13 +159,18 @@ func _ready() -> void:
 	resized.connect(_place)
 	gui_input.connect(_on_input)
 	_lift_off()
-	_turn_button.grab_focus()
+	# Nothing here takes the cursor: the buttons are for the mouse, and keys and pads have their
+	# binds drawn on them.
+	get_viewport().gui_release_focus()
+	_pointer = Game.last_input_pointer
+	say_how()
+	_show_binds()
 	_held = Input.get_gravity()
 	Audio.play_sfx(&"leaf", -8.0, 0.1)
 
 
-## The arrows to the notes either side, Turn over, turning arrows, which has the cursor, and Put
-## back, a cross.
+## The arrows to the notes either side, Turn over, turning arrows, and Put back, a cross: for the
+## mouse, never taking the cursor, each marked with what does it on keys or a pad.
 func _buttons() -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -172,6 +180,7 @@ func _buttons() -> HBoxContainer:
 	before.focus_mode = Control.FOCUS_NONE
 	before.custom_minimum_size.x = ARROW_WIDTH
 	before.pressed.connect(step.bind(-1))
+	ButtonBinds.mark(before, &"ui_left", KEY_LEFT, JOY_BUTTON_LEFT_SHOULDER)
 	row.add_child(before)
 	_turn_button = MenuTheme.button("", Type.BODY)
 	_turn_button.name = "TurnOver"
@@ -179,7 +188,9 @@ func _buttons() -> HBoxContainer:
 	_turn_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_turn_button.tooltip_text = TURN_WORD
 	_turn_button.custom_minimum_size.x = ICON_WIDTH
+	_turn_button.focus_mode = Control.FOCUS_NONE
 	_turn_button.pressed.connect(turn_over)
+	ButtonBinds.mark(_turn_button, InputActions.JOKER_MENU)
 	row.add_child(_turn_button)
 	var back := MenuTheme.button("", Type.BODY)
 	back.name = "PutBack"
@@ -189,16 +200,24 @@ func _buttons() -> HBoxContainer:
 	back.custom_minimum_size.x = ICON_WIDTH
 	back.focus_mode = Control.FOCUS_NONE
 	back.pressed.connect(close)
+	ButtonBinds.mark(back, &"ui_cancel")
 	row.add_child(back)
 	var after := MenuTheme.button("›", Type.HEADING)
 	after.name = "Next"
 	after.focus_mode = Control.FOCUS_NONE
 	after.custom_minimum_size.x = ARROW_WIDTH
 	after.pressed.connect(step.bind(1))
+	ButtonBinds.mark(after, &"ui_right", KEY_RIGHT, JOY_BUTTON_RIGHT_SHOULDER)
 	row.add_child(after)
-	for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
-		_turn_button.set_focus_neighbor(side, NodePath("."))
 	return row
+
+
+## The binds on the buttons, for the device in hand, while keys or a pad are.
+func _show_binds() -> void:
+	var buttons: Array[Button] = []
+	for button: Node in _turn_button.get_parent().get_children():
+		buttons.append(button as Button)
+	ButtonBinds.show(buttons, keyboard, not _pointer)
 
 
 ## The note at [member index], front up, at its own size: the note alone off its page, and its back
@@ -508,13 +527,17 @@ func _input(event: InputEvent) -> void:
 	if motion != null and not TouchInput.enabled:
 		_mouse = motion.global_position
 	var was := keyboard
+	var was_pointer := _pointer
 	keyboard = LicenseView.keyboard_after(event, keyboard)
-	if was != keyboard:
+	_pointer = ButtonBinds.pointer_after(event, _pointer)
+	if was != keyboard or was_pointer != _pointer:
 		say_how()
+		_show_binds()
 	var key := event as InputEventKey
 	var pad := event as InputEventJoypadButton
 	if (
 		event.is_action_pressed(InputActions.JOKER_MENU)
+		or event.is_action_pressed(&"ui_accept")
 		or (key != null and key.pressed and not key.echo and key.keycode == KEY_F)
 		or (pad != null and pad.pressed and pad.button_index == JOY_BUTTON_Y)
 	):
@@ -563,49 +586,68 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-## The mouse's wheel and a pinch look closer, a drag moves it, and a click or a tap beside the note
-## puts it back.
+## The mouse's wheel and a pinch look closer, a drag moves it, a click turns it over and a right
+## click puts it back; on a touch screen a tap on it turns it over and a tap beside it puts it back.
 func _on_input(event: InputEvent) -> void:
-	var wheel := event as InputEventMouseButton
-	if wheel != null and wheel.pressed:
-		if wheel.button_index == MOUSE_BUTTON_WHEEL_UP:
-			zoom_by(STEP, wheel.position)
-			accept_event()
-			return
-		if wheel.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			zoom_by(1.0 / STEP, wheel.position)
-			accept_event()
-			return
-	var pinch := event as InputEventMagnifyGesture
-	if pinch != null:
-		zoom_by(pinch.factor, pinch.position)
+	if _zoomed_by(event):
 		accept_event()
 		return
 	var click := event as InputEventMouseButton
 	var touch := event as InputEventScreenTouch
-	if (click != null and click.button_index == MOUSE_BUTTON_LEFT) or touch != null:
-		var pressed: bool = click.pressed if click != null else touch.pressed
-		var where: Vector2 = click.position if click != null else touch.position
+	if click != null and click.button_index == MOUSE_BUTTON_RIGHT:
 		accept_event()
-		if pressed:
-			_dragging = true
-			_moved = false
-			return
-		_dragging = false
-		if not _moved and Time.get_ticks_msec() - _shown_at >= SETTLE_MS:
-			if not _card.get_global_rect().has_point(where + global_position):
-				close()
+		if click.pressed and Time.get_ticks_msec() - _shown_at >= SETTLE_MS:
+			close()
+	elif (click != null and click.button_index == MOUSE_BUTTON_LEFT) or touch != null:
+		accept_event()
+		_pressed(click, touch)
+	else:
+		var drag := event as InputEventMouseMotion
+		var swipe := event as InputEventScreenDrag
+		if _dragging and (drag != null or swipe != null):
+			var by: Vector2 = drag.relative if drag != null else swipe.relative
+			if by.length() > 2.0:
+				_moved = true
+			if zoom > 1.001:
+				pan += by
+				_place()
+			accept_event()
+
+
+## Whether [param event] was the wheel or a pinch, looking closer by it.
+func _zoomed_by(event: InputEvent) -> bool:
+	var wheel := event as InputEventMouseButton
+	if wheel != null and wheel.pressed:
+		if wheel.button_index == MOUSE_BUTTON_WHEEL_UP:
+			zoom_by(STEP, wheel.position)
+			return true
+		if wheel.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			zoom_by(1.0 / STEP, wheel.position)
+			return true
+	var pinch := event as InputEventMagnifyGesture
+	if pinch != null:
+		zoom_by(pinch.factor, pinch.position)
+		return true
+	return false
+
+
+## A press or a release of the mouse's left button, [param click], or a finger, [param touch]: a
+## drag begins with it, and let go without one, a click turns it over and a tap on it does too, a
+## tap beside it puts it back.
+func _pressed(click: InputEventMouseButton, touch: InputEventScreenTouch) -> void:
+	var pressed: bool = click.pressed if click != null else touch.pressed
+	var where: Vector2 = click.position if click != null else touch.position
+	if pressed:
+		_dragging = true
+		_moved = false
 		return
-	var drag := event as InputEventMouseMotion
-	var swipe := event as InputEventScreenDrag
-	if _dragging and (drag != null or swipe != null):
-		var by: Vector2 = drag.relative if drag != null else swipe.relative
-		if by.length() > 2.0:
-			_moved = true
-		if zoom > 1.001:
-			pan += by
-			_place()
-		accept_event()
+	_dragging = false
+	if _moved or Time.get_ticks_msec() - _shown_at < SETTLE_MS:
+		return
+	if click != null or _card.get_global_rect().has_point(where + global_position):
+		turn_over()
+	else:
+		close()
 
 
 ## Put back: the folder told which note it was at once, so it opens that note's spread and has
@@ -649,9 +691,11 @@ func say_how() -> void:
 	var row: Control
 	if TouchInput.enabled:
 		row = MenuTheme.subtitle(HINT_TOUCH, Type.LABEL)
+	elif _pointer:
+		row = MenuTheme.subtitle(HINT_MOUSE, Type.LABEL)
 	else:
 		var glyph := InputGlyph.of_action(InputActions.JOKER_MENU, keyboard, ink, Type.LABEL)
-		var words := HINT_MOUSE if keyboard else HINT_PAD
+		var words := HINT_KEYS if keyboard else HINT_PAD
 		if glyph == null:
 			row = MenuTheme.subtitle(
 				words % InputActions.short_binding_text(InputActions.JOKER_MENU, keyboard),

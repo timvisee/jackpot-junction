@@ -169,6 +169,29 @@ func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 	assert_str(folder.look.text).is_empty()
 	assert_object(folder.look.icon).is_not_null()
 	assert_str(folder.look.tooltip_text).is_equal(NotesFolder.LOOK_WORD)
+	# The buttons are for the mouse and never take the cursor; with keys or a pad in hand each has
+	# its bind drawn on it, gone again with the mouse.
+	for button: Node in folder._buttons_row.get_children():
+		assert_int((button as Button).focus_mode).is_equal(Control.FOCUS_NONE)
+	folder._pointer = false
+	folder._show_binds()
+	assert_object(folder.look.get_node_or_null("Bind")).is_not_null()
+	folder._pointer = true
+	folder._show_binds()
+	assert_object(folder.look.get_node_or_null("Bind")).is_null()
+	# The hand's button takes the open note out, as it shows the license; a right click puts it back.
+	var hand := InputEventAction.new()
+	hand.action = InputActions.JOKER_MENU
+	hand.pressed = true
+	folder._input(hand)
+	assert_object(folder.view).is_not_null()
+	await await_millis(int(NoteView.FLY * 1000.0) + 200)
+	var right_click := InputEventMouseButton.new()
+	right_click.button_index = MOUSE_BUTTON_RIGHT
+	right_click.pressed = true
+	folder.view._on_input(right_click)
+	assert_object(folder.view).is_null()
+	await await_millis(int(NoteView.FLY_BACK * 1000.0) + 150)
 	folder.look_closer(0)
 	var view := folder.view
 	assert_object(view).is_not_null()

@@ -51,13 +51,13 @@ const ROOM := Vector2(32.0, 124.0)
 const SETTLE_MS := 150
 ## How wide the arrows either side of Put it away are.
 const ARROW_WIDTH := 88.0
-const AWAY_MOUSE := "Click beside the folder, or press %s, to put it away"
+const AWAY_MOUSE := "Click a note to look closer, or right-click to put the folder away"
 const AWAY_PAD := "Press %s to put it away"
 const AWAY_TOUCH := "Tap a page to turn it, or beside the folder to put it away"
 const LOOK_WORD := "Look closer"
 ## How wide Look closer and Put it away are, a magnifying glass and a cross on them rather than
 ## their words, which are their tooltips.
-const LOOK_WIDTH := 120.0
+const LOOK_WIDTH := 136.0
 const AWAY_WORD := "Put it away"
 
 ## Whose notes, the notes in order, and which spread is open: 0 the first, the inside of the cover
@@ -97,8 +97,10 @@ var _flipping := false
 ## many spreads and which way.
 var _turning_to := 0
 var _queued := 0
-## Which way the stick was last pushed over, 0 for the middle, so a push turns one page.
+## Which way the stick was last pushed over, 0 for the middle, so a push turns one page; and
+## whether the mouse is in hand rather than keys or a pad, see [ButtonBinds].
 var _stick := 0
+var _pointer := false
 ## Whether the cover is down over the pages: shut, coming out or going back.
 var _shut := true
 var _closing := false
@@ -187,7 +189,7 @@ func _ready() -> void:
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(center)
 	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 16)
+	column.add_theme_constant_override("separation", 16.0 + ButtonBinds.ROOM)
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	center.add_child(column)
 	_holder = Control.new()
@@ -197,16 +199,13 @@ func _ready() -> void:
 	_build_folder()
 	_buttons_row = _buttons()
 	column.add_child(_buttons_row)
-	# The one button the cursor has, kept on it rather than walking off to the screen under.
-	for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
-		look.set_focus_neighbor(side, look.get_path())
-	look.focus_next = look.get_path()
-	look.focus_previous = look.get_path()
 	away_line = Control.new()
 	away_line.custom_minimum_size = Vector2(0.0, 24.0)
 	away_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(away_line)
+	_pointer = Game.last_input_pointer
 	say_away()
+	_show_binds()
 	resized.connect(_fit)
 	_fit()
 	_show(0)
@@ -214,7 +213,9 @@ func _ready() -> void:
 	_shade.modulate.a = 0.0
 	_buttons_row.modulate.a = 0.0
 	away_line.modulate.a = 0.0
-	look.grab_focus()
+	# Nothing here takes the cursor: the buttons are for the mouse, and keys and pads have their
+	# binds, so whatever had it under the folder lets it go.
+	get_viewport().gui_release_focus()
 	# Hidden until the layout has put it where it opens, so it can start from where it peeked in.
 	folder.modulate.a = 0.0
 	_come_out.call_deferred()
@@ -345,8 +346,8 @@ func _faces_of(rect: TextureRect, size_of: Vector2) -> Array[SubViewport]:
 	return made
 
 
-## Previous and next either side of Look closer, a magnifying glass, which has the cursor, and Put
-## it away, a cross: left and right turn the pages whatever has it.
+## Previous and next either side of Look closer, a magnifying glass, and Put it away, a cross: for
+## the mouse, never taking the cursor, each marked with what does it on keys or a pad.
 func _buttons() -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -356,6 +357,7 @@ func _buttons() -> HBoxContainer:
 	back.focus_mode = Control.FOCUS_NONE
 	back.custom_minimum_size.x = ARROW_WIDTH
 	back.pressed.connect(turn.bind(-1))
+	ButtonBinds.mark(back, &"ui_left", KEY_LEFT, JOY_BUTTON_LEFT_SHOULDER)
 	row.add_child(back)
 	look = MenuTheme.button("", Type.BODY)
 	look.name = "Look"
@@ -363,7 +365,9 @@ func _buttons() -> HBoxContainer:
 	look.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	look.tooltip_text = LOOK_WORD
 	look.custom_minimum_size.x = LOOK_WIDTH
+	look.focus_mode = Control.FOCUS_NONE
 	look.pressed.connect(look_closer)
+	ButtonBinds.mark(look, InputActions.JOKER_MENU)
 	row.add_child(look)
 	away = MenuTheme.button("", Type.BODY)
 	away.name = "Away"
@@ -373,14 +377,24 @@ func _buttons() -> HBoxContainer:
 	away.custom_minimum_size.x = LOOK_WIDTH
 	away.focus_mode = Control.FOCUS_NONE
 	away.pressed.connect(close)
+	ButtonBinds.mark(away, &"ui_cancel")
 	row.add_child(away)
 	var on := MenuTheme.button("›", Type.HEADING)
 	on.name = "Next"
 	on.focus_mode = Control.FOCUS_NONE
 	on.custom_minimum_size.x = ARROW_WIDTH
 	on.pressed.connect(turn.bind(1))
+	ButtonBinds.mark(on, &"ui_right", KEY_RIGHT, JOY_BUTTON_RIGHT_SHOULDER)
 	row.add_child(on)
 	return row
+
+
+## The binds on the buttons, for the device in hand, while keys or a pad are.
+func _show_binds() -> void:
+	var buttons: Array[Button] = []
+	for button: Node in _buttons_row.get_children():
+		buttons.append(button as Button)
+	ButtonBinds.show(buttons, keyboard, not _pointer)
 
 
 ## As big as the screen has room for, never bigger than drawn.
@@ -735,7 +749,9 @@ func _on_put_back(index: int) -> void:
 	_fade_buttons(1.0)
 	if spread_of(index) != at:
 		_show(spread_of(index))
-	look.grab_focus()
+	_pointer = Game.last_input_pointer
+	say_away()
+	_show_binds()
 
 
 ## Left and right turn the pages, before the focus takes them for walking buttons; what was pressed
@@ -744,9 +760,19 @@ func _input(event: InputEvent) -> void:
 	if _closing or view != null:
 		return
 	var was := keyboard
+	var was_pointer := _pointer
 	keyboard = LicenseView.keyboard_after(event, keyboard)
-	if was != keyboard:
+	_pointer = ButtonBinds.pointer_after(event, _pointer)
+	if was != keyboard or was_pointer != _pointer:
 		say_away()
+		_show_binds()
+	# The hand's button, or accept, takes the open note out for a closer look, as the hand's button
+	# shows the license.
+	if event.is_action_pressed(InputActions.JOKER_MENU) or event.is_action_pressed(&"ui_accept"):
+		get_viewport().set_input_as_handled()
+		stop_flip()
+		look_closer()
+		return
 	# Any press stops the turning on to the first new note; a turn goes on to turn.
 	if _flipping and event.is_pressed() and not event.is_echo():
 		stop_flip()
@@ -826,6 +852,10 @@ func _on_click(event: InputEvent) -> void:
 	if _closing or view != null or Time.get_ticks_msec() - _shown_at < SETTLE_MS:
 		return
 	stop_flip()
+	# A right click puts it away, wherever it is.
+	if click != null and click.button_index == MOUSE_BUTTON_RIGHT:
+		close()
+		return
 	var where: Vector2 = click.position if click != null else touch.position
 	var on := folder.get_global_rect()
 	on.position -= global_position
@@ -891,9 +921,11 @@ func say_away() -> void:
 	var row: Control
 	if TouchInput.enabled:
 		row = MenuTheme.subtitle(AWAY_TOUCH, Type.LABEL)
+	elif _pointer:
+		row = MenuTheme.subtitle(AWAY_MOUSE, Type.LABEL)
 	else:
 		var glyph := InputGlyph.of_action(&"ui_cancel", keyboard, ink, Type.LABEL)
-		var words := AWAY_MOUSE if keyboard else AWAY_PAD
+		var words := AWAY_PAD
 		if glyph == null:
 			row = MenuTheme.subtitle(
 				words % InputActions.short_binding_text(&"ui_cancel", keyboard), Type.LABEL

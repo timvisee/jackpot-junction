@@ -31,6 +31,9 @@ var settings := Settings.new()
 ## Whether the last thing anybody touched was the keyboard rather than a gamepad. Control
 ## hints for a player who is not pinned to one device follow this, GAME.md 8.3.
 var last_input_keyboard := true
+## Whether the last thing anybody touched was the mouse rather than keys or a pad, for the screens
+## that draw a button's key on it only while keys or a pad are in hand, see [ButtonBinds].
+var last_input_pointer := false
 ## The configuration the next match scene starts with.
 var pending_config: MatchConfig
 ## Where the settings screen returns to.
@@ -155,6 +158,7 @@ func quit(code := 0) -> void:
 ## being early in the tree: a pad's press that sits somebody down is theirs, not the last thing
 ## the player before them touched.
 func _input(event: InputEvent) -> void:
+	last_input_pointer = ButtonBinds.pointer_after(event, last_input_pointer)
 	if event is InputEventKey or event is InputEventMouseButton:
 		last_input_keyboard = true
 		DeviceInput.touched(DeviceInput.KEYBOARD)
