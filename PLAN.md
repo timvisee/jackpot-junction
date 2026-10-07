@@ -1140,7 +1140,7 @@ paper, so none keeps a gloss. STORY.md and GAME.md first. One commit an item.
 - [x] STORY.md and GAME.md: every decision below written in first.
 - [x] The invitation the size of a playing card again, 520 by 740, R.S.V.P. at its foot; the ticket
       hidden whole behind the card before it comes up, and held long enough to read [8.1].
-- [ ] Icons for the folder's and the closer look's buttons: a cross for Put it away and Put back,
+- [x] Icons for the folder's and the closer look's buttons: a cross for Put it away and Put back,
       turning arrows for Turn over [7.2].
 - [ ] The closer look's light as paper takes it, soft and broad, no gloss [7.2].
 - [ ] A note is read as soon as it is taken out for a closer look [7.2].

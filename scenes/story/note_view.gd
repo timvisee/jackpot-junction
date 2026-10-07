@@ -37,6 +37,9 @@ const SHARPEST := 4096
 const READ_AFTER := 1.0
 const SETTLE_MS := 150
 const ARROW_WIDTH := 88.0
+## How wide Turn over and Put back are, turning arrows and a cross on them rather than their words,
+## which are their tooltips.
+const ICON_WIDTH := 120.0
 const TURN_WORD := "Turn over"
 const BACK_WORD := "Put back"
 const HINT_MOUSE := "Scroll to look closer, drag to move it, %s to turn it over"
@@ -131,7 +134,8 @@ func _ready() -> void:
 	Audio.play_sfx(&"leaf", -8.0, 0.1)
 
 
-## The arrows to the notes either side, Turn over, which has the cursor, and Put back.
+## The arrows to the notes either side, Turn over, turning arrows, which has the cursor, and Put
+## back, a cross.
 func _buttons() -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -142,12 +146,20 @@ func _buttons() -> HBoxContainer:
 	before.custom_minimum_size.x = ARROW_WIDTH
 	before.pressed.connect(step.bind(-1))
 	row.add_child(before)
-	_turn_button = MenuTheme.button(TURN_WORD, Type.BODY)
+	_turn_button = MenuTheme.button("", Type.BODY)
 	_turn_button.name = "TurnOver"
+	_turn_button.icon = HouseArt.turning()
+	_turn_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_turn_button.tooltip_text = TURN_WORD
+	_turn_button.custom_minimum_size.x = ICON_WIDTH
 	_turn_button.pressed.connect(turn_over)
 	row.add_child(_turn_button)
-	var back := MenuTheme.button(BACK_WORD, Type.BODY)
+	var back := MenuTheme.button("", Type.BODY)
 	back.name = "PutBack"
+	back.icon = HouseArt.cross()
+	back.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	back.tooltip_text = BACK_WORD
+	back.custom_minimum_size.x = ICON_WIDTH
 	back.focus_mode = Control.FOCUS_NONE
 	back.pressed.connect(close)
 	row.add_child(back)

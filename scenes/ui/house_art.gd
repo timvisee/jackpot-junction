@@ -1,7 +1,8 @@
 class_name HouseArt
 extends RefCounted
 ## The small pictures the house's controls wear, GAME.md 8.1a: a switch, the mark beside an entry
-## of a list, the arrow on a box that opens one, the knob of a slider, a magnifying glass. Anything
+## of a list, the arrow on a box that opens one, the knob of a slider, and the icons on buttons
+## that say what they do without words: a magnifying glass, a cross, two arrows turning. Anything
 ## round is a chip, with notches round its rim, and a track is a lane with its center line dashed.
 ##
 ## Each is drawn once, the first time it is asked for, [constant DETAIL] times bigger than it is
@@ -16,6 +17,7 @@ const MARK := 16
 const ARROW := 16
 const KNOB := 26
 const MAGNIFIER := 30
+const ICON := 28
 ## The steel a chip is made of when it is not the house's gold, and the cream of its notches.
 const STEEL := Color(0.37, 0.36, 0.42)
 const NOTCHES := Color(0.97, 0.95, 0.9)
@@ -148,6 +150,87 @@ static func magnifier() -> ImageTexture:
 			if covered > 0.0:
 				image.set_pixel(x, y, Color(1.0, 1.0, 1.0, covered))
 	return _keep("magnifier", image, Vector2i(MAGNIFIER, MAGNIFIER))
+
+
+## A cross, for a button that puts something away. White, for the button to tint.
+static func cross() -> ImageTexture:
+	if _drawn.has("cross"):
+		return _drawn["cross"]
+	var side := ICON * DETAIL
+	var image := Image.create(side, side, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0.0, 0.0, 0.0, 0.0))
+	var s := float(side)
+	var strokes := [
+		[Vector2(0.24, 0.24) * s, Vector2(0.76, 0.76) * s],
+		[Vector2(0.76, 0.24) * s, Vector2(0.24, 0.76) * s],
+	]
+	var half := 0.07 * s
+	for y: int in side:
+		for x: int in side:
+			var at := Vector2(x, y) + Vector2.ONE * 0.5
+			var near := INF
+			for stroke: Array in strokes:
+				var on := Geometry2D.get_closest_point_to_segment(at, stroke[0], stroke[1])
+				near = minf(near, at.distance_to(on))
+			var covered := clampf(half - near + 0.5, 0.0, 1.0)
+			if covered > 0.0:
+				image.set_pixel(x, y, Color(1.0, 1.0, 1.0, covered))
+	return _keep("cross", image, Vector2i(ICON, ICON))
+
+
+## Two arrows chasing each other round a circle, for a button that turns something over. White, for
+## the button to tint.
+static func turning() -> ImageTexture:
+	if _drawn.has("turning"):
+		return _drawn["turning"]
+	var side := ICON * DETAIL
+	var image := Image.create(side, side, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0.0, 0.0, 0.0, 0.0))
+	var s := float(side)
+	var middle := Vector2.ONE * s * 0.5
+	var radius := 0.3 * s
+	var half := 0.055 * s
+	# Each arrow: an arc over the top or under the bottom, clockwise, its head at the end.
+	var arcs := [[deg_to_rad(-165.0), deg_to_rad(-30.0)], [deg_to_rad(15.0), deg_to_rad(150.0)]]
+	var heads: Array[PackedVector2Array] = []
+	for arc: Array in arcs:
+		var end: float = arc[1]
+		var at := middle + Vector2.from_angle(end) * radius
+		var along := Vector2.from_angle(end + PI * 0.5)
+		var out := Vector2.from_angle(end)
+		heads.append(
+			PackedVector2Array(
+				[at + along * 0.16 * s, at + out * 0.13 * s, at - out * 0.13 * s - along * 0.01 * s]
+			)
+		)
+	for y: int in side:
+		for x: int in side:
+			var at := Vector2(x, y) + Vector2.ONE * 0.5
+			var covered := 0.0
+			var way := (at - middle).angle()
+			for arc: Array in arcs:
+				if way >= arc[0] and way <= arc[1]:
+					var off := absf(at.distance_to(middle) - radius)
+					covered = maxf(covered, clampf(half - off + 0.5, 0.0, 1.0))
+			for head: PackedVector2Array in heads:
+				covered = maxf(covered, _inside(at, head))
+			if covered > 0.0:
+				image.set_pixel(x, y, Color(1.0, 1.0, 1.0, covered))
+	return _keep("turning", image, Vector2i(ICON, ICON))
+
+
+## How much of the pixel at [param at] a triangle covers, soft over its last pixel: the least of how
+## far inside each of its edges it is.
+static func _inside(at: Vector2, triangle: PackedVector2Array) -> float:
+	var clockwise := (triangle[1] - triangle[0]).cross(triangle[2] - triangle[0]) > 0.0
+	var least := INF
+	for i: int in 3:
+		var from := triangle[i]
+		var to := triangle[(i + 1) % 3]
+		var edge := (to - from).normalized()
+		var inward := Vector2(-edge.y, edge.x) if clockwise else Vector2(edge.y, -edge.x)
+		least = minf(least, (at - from).dot(inward))
+	return clampf(least + 0.5, 0.0, 1.0)
 
 
 ## The knob of a slider: a gold chip, a shade lighter under the cursor.

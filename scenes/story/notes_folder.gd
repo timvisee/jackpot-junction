@@ -50,8 +50,10 @@ const AWAY_MOUSE := "Click beside the folder, or press %s, to put it away"
 const AWAY_PAD := "Press %s to put it away"
 const AWAY_TOUCH := "Tap a page to turn it, or beside the folder to put it away"
 const LOOK_WORD := "Look closer"
-## How wide Look closer is, a magnifying glass on it rather than its words.
+## How wide Look closer and Put it away are, a magnifying glass and a cross on them rather than
+## their words, which are their tooltips.
 const LOOK_WIDTH := 120.0
+const AWAY_WORD := "Put it away"
 
 ## Whose notes, the notes in order, and which spread is open: 0 the first, the inside of the cover
 ## on the left and the first note on the right.
@@ -335,7 +337,7 @@ func _faces_of(rect: TextureRect, size_of: Vector2) -> Array[SubViewport]:
 
 
 ## Previous and next either side of Look closer, a magnifying glass, which has the cursor, and Put
-## it away: left and right turn the pages whatever has it.
+## it away, a cross: left and right turn the pages whatever has it.
 func _buttons() -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -354,8 +356,12 @@ func _buttons() -> HBoxContainer:
 	look.custom_minimum_size.x = LOOK_WIDTH
 	look.pressed.connect(look_closer)
 	row.add_child(look)
-	away = MenuTheme.button("Put it away", Type.BODY)
+	away = MenuTheme.button("", Type.BODY)
 	away.name = "Away"
+	away.icon = HouseArt.cross()
+	away.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	away.tooltip_text = AWAY_WORD
+	away.custom_minimum_size.x = LOOK_WIDTH
 	away.focus_mode = Control.FOCUS_NONE
 	away.pressed.connect(close)
 	row.add_child(away)
